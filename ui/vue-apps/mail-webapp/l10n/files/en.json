@@ -333,7 +333,12 @@
         "compose": {
             "template_chooser": {
                 "title": "Apply template on this message",
-                "search": "Search template"
+                "search": "Search template",
+                "confirm_overwrite": {
+                    "title": "Overwrite draft content",
+                    "message": "Your draft will be lost. The recipients, subject and attachments will be preserved.",
+                    "action": "Replace"
+                }
             },
             "toolbar": {
                 "insert_signature": "Insert my signature",

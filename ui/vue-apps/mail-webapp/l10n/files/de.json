@@ -333,7 +333,12 @@
         "compose": {
             "template_chooser": {
                 "title": "Vorlage auf diese E-Mail anwenden",
-                "search": "Vorlage suchen"
+                "search": "Vorlage suchen",
+                "confirm_overwrite": {
+                    "title": "Entwurf ersetzen",
+                    "message": "Der Entwurf wird ersetzt. Empfänger, Betreff und Anhänge bleiben erhalten",
+                    "action": "Ersetzen"
+                }
             },
             "toolbar": {
                 "insert_signature": "Meine Signatur einfügen"

@@ -1,14 +1,16 @@
+import { createDocumentFragment } from "@bluemind/html-utils";
+
 const HTML_SIGNATURE_ID = "x-bm-signature";
 const TEXT_SIGNATURE_PREFIX = "--\n";
 
 export function isHtmlSignaturePresent(raw) {
-    const fragment = htmlAsFragment(raw);
+    const fragment = createDocumentFragment(raw);
     const signature = fragment.getElementById(HTML_SIGNATURE_ID);
     return !!signature && !!signature.innerHTML;
 }
 
 function removeHtmlSignature(raw) {
-    const fragment = htmlAsFragment(raw);
+    const fragment = createDocumentFragment(raw);
     const signature = fragment.getElementById(HTML_SIGNATURE_ID);
     if (signature) {
         signature.parentElement.removeChild(signature);
@@ -17,10 +19,10 @@ function removeHtmlSignature(raw) {
 }
 
 function addHtmlSignature(raw, signatureContent) {
-    const fragment = htmlAsFragment(raw);
+    const fragment = createDocumentFragment(raw);
     let signature = fragment.getElementById(HTML_SIGNATURE_ID);
     if (!signature) {
-        signature = document.createElement("p");
+        signature = document.createElement("div");
         signature.id = HTML_SIGNATURE_ID;
         fragment.firstElementChild.appendChild(document.createElement("br"));
         fragment.firstElementChild.appendChild(signature);
@@ -28,13 +30,6 @@ function addHtmlSignature(raw, signatureContent) {
         return fragment.firstElementChild.innerHTML;
     }
     return raw;
-}
-
-function htmlAsFragment(content) {
-    const fragment = document.createDocumentFragment();
-    fragment.appendChild(document.createElement("p"));
-    fragment.firstElementChild.innerHTML = content;
-    return fragment;
 }
 
 export function isTextSignaturePresent(raw, content) {

@@ -333,7 +333,12 @@
         "compose": {
             "template_chooser": {
                 "title": "Appliquer un modèle à ce message",
-                "search": "Rechercher un modèle"
+                "search": "Rechercher un modèle",
+                "confirm_overwrite": {
+                    "title": "Remplacer le contenu du brouillon",
+                    "message": "Le contenu de votre brouillon sera définitivement perdu. Les destinataires, le sujet et pièces jointes seront conservés.",
+                    "action": "Remplacer"
+                }
             },
             "toolbar": {
                 "insert_signature": "Insérer ma signature",

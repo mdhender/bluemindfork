@@ -40,6 +40,7 @@ import { FETCH_TEMPLATES_KEYS } from "~/actions";
 import { MY_TEMPLATES } from "~/getters";
 import TemplatesList from "./TemplateChooser/TemplatesList";
 import { ComposerInitMixin } from "~/mixins";
+import { isEditorContentEmpty } from "~/model/draft";
 
 export default {
     name: "TemplateChooser",
@@ -47,6 +48,7 @@ export default {
     mixins: [ComposerInitMixin],
     data() {
         return {
+            userPrefTextOnly: false, // FIXME: https://forge.bluemind.net/jira/browse/FEATWEBML-88,
             selected: 0,
             search: debounce(value => {
                 this.SET_TEMPLATE_LIST_SEARCH_PATTERN(value);
@@ -62,8 +64,10 @@ export default {
             loading: state => state.messageCompose.templateChooser.loading,
             target: state => state.messageCompose.templateChooser.target,
             conversationByKey: state => state.conversations.conversationByKey,
-            messages: state => state.conversations.messages
-        })
+            messages: state => state.conversations.messages,
+            editorContent: state => state.messageCompose.editorContent
+        }),
+        ...mapGetters("root-app", { identity: "DEFAULT_IDENTITY" })
     },
     methods: {
         ...mapMutations("mail", {
@@ -80,19 +84,34 @@ export default {
             this.selected = 0;
             await this.FETCH_TEMPLATES_KEYS(this.MY_TEMPLATES);
         },
-        useTemplate() {
-            const template = this.messages[this.conversationByKey[this.selected].messages[0]];
-            const target = this.messages[this.target];
-            if (!target.subject.trim()) {
-                this.SET_MESSAGE_SUBJECT({ messageKey: target.key, subject: template.subject });
-            }
-            if (!(target.to.length || target.cc.length || target.bcc.length)) {
-                target.to = template.to.slice();
-                target.cc = template.cc.slice();
-                target.bcc = template.bcc.slice();
-            }
-            this.mergeMessageContent(target, template);
+        async useTemplate() {
             this.SET_TEMPLATE_CHOOSER_VISIBLE(false);
+            if (await this.canOverwriteContent()) {
+                const template = this.messages[this.conversationByKey[this.selected].messages[0]];
+                const target = this.messages[this.target];
+                if (!target.subject.trim()) {
+                    this.SET_MESSAGE_SUBJECT({ messageKey: target.key, subject: template.subject });
+                }
+                if (!(target.to.length || target.cc.length || target.bcc.length)) {
+                    target.to = template.to.slice();
+                    target.cc = template.cc.slice();
+                    target.bcc = template.bcc.slice();
+                }
+                this.mergeMessageContent(target, template);
+            }
+        },
+        async canOverwriteContent() {
+            if (!isEditorContentEmpty(this.editorContent, this.userPrefTextOnly, this.identity?.signature)) {
+                return this.$bvModal.msgBoxConfirm(this.$t("mail.compose.template_chooser.confirm_overwrite.message"), {
+                    title: this.$tc("mail.compose.template_chooser.confirm_overwrite.title"),
+                    okTitle: this.$t("mail.compose.template_chooser.confirm_overwrite.action"),
+                    cancelTitle: this.$t("common.cancel"),
+                    centered: true,
+                    hideHeaderClose: false,
+                    autoFocusButton: "cancel"
+                });
+            }
+            return true;
         }
     }
 };

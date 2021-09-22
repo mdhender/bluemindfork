@@ -1,4 +1,5 @@
 import { EmailExtractor, Flag, MimeType } from "@bluemind/email";
+import { createDocumentFragment } from "@bluemind/html-utils";
 
 import MessagePathParam from "~/router/MessagePathParam";
 import { AttachmentStatus } from "./attachment";
@@ -15,7 +16,7 @@ import {
     messageKey
 } from "./message";
 import { mergePartsForRichEditor, mergePartsForTextarea } from "./part";
-import { removeSignatureIds } from "./signature";
+import { removeSignature, removeSignatureIds } from "./signature";
 
 const TEMPORARY_MESSAGE_ID = 0;
 let DRAFT_HASH = 0;
@@ -360,4 +361,10 @@ export function draftInfoHeader(message) {
     if (draftInfoHeader) {
         return JSON.parse(draftInfoHeader.values[0]);
     }
+}
+
+export function isEditorContentEmpty(content, userPrefTextOnly, signature) {
+    const sanitized = removeSignature(content, userPrefTextOnly, signature);
+    const fragment = createDocumentFragment(sanitized);
+    return !fragment.firstElementChild.innerText.trim();
 }
