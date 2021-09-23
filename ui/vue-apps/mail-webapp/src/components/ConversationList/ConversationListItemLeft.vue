@@ -1,31 +1,30 @@
 <template>
     <div
-        class="conversation-list-item-left d-flex flex-column align-items-center"
-        :class="{ 'has-icon': conversation.hasICS || conversation.hasAttachment }"
+        class="conversation-list-item-left d-flex flex-column align-items-center justify-content-between"
+        :class="{ full: userSettings.mail_message_list_style === 'full' }"
     >
         <conversation-avatar
-            v-if="conversationsActivated && conversation && conversationSize > 1"
+            v-if="isConversation"
             :class="[selectionMode === SELECTION_MODE.MONO ? '' : 'd-none']"
             :text="conversationSize > 99 ? '+99' : conversationSize"
             :font-size="conversationSize > 99 ? 'smaller' : 'unset'"
             :title="$t('mail.conversation.icon.title', { count: conversationSize })"
         />
-        <div v-else class="avatar" :class="[selectionMode === SELECTION_MODE.MONO ? '' : 'd-none']">
-            <bm-avatar :alt="fromOrTo" />
-        </div>
+        <bm-avatar v-else :class="[selectionMode === SELECTION_MODE.MONO ? '' : 'd-none']" :alt="fromOrTo" />
         <bm-check
             v-if="multiple"
-            :checked="selectionMode === SELECTION_MODE.MULTI && isSelected"
             :class="[selectionMode === SELECTION_MODE.MONO ? 'd-none' : 'd-block']"
+            :checked="selectionMode === SELECTION_MODE.MULTI && isSelected"
             @change="$emit('check')"
             @click.exact.native.stop
             @keyup.native.space.stop
         />
-        <template v-if="userSettings.mail_message_list_style === 'full'">
+
+        <template v-if="!isConversation && userSettings.mail_message_list_style === 'full'">
             <bm-icon v-if="conversation.hasAttachment" icon="paper-clip" />
             <bm-icon v-if="conversation.hasICS" icon="event" />
         </template>
-        <template v-else>
+        <template v-else-if="!isConversation || userSettings.mail_message_list_style === 'full'">
             <mail-attachment-icon :message="conversation" />
         </template>
     </div>
@@ -90,6 +89,9 @@ export default {
         },
         conversationsActivated() {
             return this.userSettings.mail_thread === "true" && this.folders[this.activeFolder].allowConversations;
+        },
+        isConversation() {
+            return this.conversationsActivated && this.conversation && this.conversationSize > 1;
         }
     }
 };
@@ -102,25 +104,22 @@ export default {
     min-width: $sp-2 + 1.3rem;
 
     $avatar-height: 2em;
-
     $icons-height: 1em;
 
-    .bm-avatar {
-        height: $avatar-height;
+    height: calc(#{$avatar-height} + #{$icons-height});
+
+    &.full {
+        height: calc(#{$avatar-height} + 2 * #{$icons-height});
     }
 
-    &.has-icon .avatar {
-        height: calc(#{$avatar-height} + #{$icons-height});
+    .bm-avatar,
+    .bm-check {
+        height: $avatar-height;
     }
 
     .bm-check {
-        height: $avatar-height;
         // align with avatar
         transform: translateX(4px);
-    }
-
-    &.has-icon .bm-check {
-        height: calc(#{$avatar-height} + #{$icons-height});
     }
 
     .custom-control-label::after,
