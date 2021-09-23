@@ -36,6 +36,9 @@
   */
 package net.bluemind.core.sendmail;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.columba.ristretto.smtp.SMTPResponse;
 
 /*
@@ -53,7 +56,8 @@ import org.columba.ristretto.smtp.SMTPResponse;
 
 public class SendmailResponse {
 	public final int code;
-	private final String message;
+	public final String message;
+	private List<FailedRecipient> failedRecipients;
 
 	public static SendmailResponse success() {
 		return new SendmailResponse(250);
@@ -64,30 +68,53 @@ public class SendmailResponse {
 	}
 
 	public static SendmailResponse fail(String message) {
-		return new SendmailResponse(554, message);
+		return SendmailResponse.fail(message, new ArrayList<>());
+	}
+
+	public static SendmailResponse fail(String message, List<FailedRecipient> failedRecipients) {
+		return new SendmailResponse(554, message, failedRecipients);
 	}
 
 	private SendmailResponse(int code) {
-		this.code = code;
-		this.message = "";
+		this(code, "");
 	}
 
 	private SendmailResponse(int code, String message) {
+		this(code, message, new ArrayList<>());
+	}
+
+	private SendmailResponse(int code, String message, List<FailedRecipient> failedRecipients) {
+		this.failedRecipients = failedRecipients;
 		this.code = code;
 		this.message = message;
 	}
 
 	SendmailResponse(SMTPResponse resp) {
-		this.code = resp.getCode();
-		this.message = resp.getMessage();
+		this(resp.getCode(), resp.getMessage());
+	}
+
+	public SendmailResponse(SMTPResponse data, List<FailedRecipient> failedRecipients) {
+		this(data);
+		this.failedRecipients = failedRecipients;
 	}
 
 	public boolean isError() {
 		return code == 450 || code > 500;
 	}
 
+	public List<FailedRecipient> getFailedRecipients() {
+		return failedRecipients;
+	}
+
 	@Override
 	public String toString() {
-		return String.format("%s: %s", code, message);
+		String res = String.format("%s: %s", code, message);
+		if (!failedRecipients.isEmpty()) {
+			res = res + " \n error for following recipient(s): ";
+			for (int i = 0; i < failedRecipients.size(); i++) {
+				res = res + "\n" + failedRecipients.get(i);
+			}
+		}
+		return res;
 	}
 }

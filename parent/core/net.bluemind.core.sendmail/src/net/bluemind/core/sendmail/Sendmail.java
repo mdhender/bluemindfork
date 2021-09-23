@@ -21,7 +21,9 @@ package net.bluemind.core.sendmail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -30,6 +32,7 @@ import org.apache.james.mime4j.dom.address.AddressList;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.address.MailboxList;
 import org.columba.ristretto.message.Address;
+import org.columba.ristretto.smtp.SMTPException;
 import org.columba.ristretto.smtp.SMTPProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,6 +138,7 @@ public class Sendmail implements ISendmail {
 			throw new ServerFault("null To: field in message");
 		}
 		SendmailResponse sendmailResponse = null;
+		List<FailedRecipient> failedRecipients = new ArrayList<>();
 
 		String ip = Topology.get().any("mail/smtp").value.address();
 		try (SMTPProtocol smtp = new SMTPProtocol(ip,
@@ -151,9 +155,9 @@ public class Sendmail implements ISendmail {
 			smtp.mail(new Address(fromEmail));
 
 			for (Mailbox to : rcptTo) {
-				smtp.rcpt(new Address(to.getAddress()));
+				addRecipients(failedRecipients, smtp, to);
 			}
-			sendmailResponse = new SendmailResponse(smtp.data(inStream));
+			sendmailResponse = new SendmailResponse(smtp.data(inStream), failedRecipients);
 			smtp.quit();
 
 			logger.info("Email sent {}", getLog(creds, fromEmail, rcptTo, sendmailResponse, Optional.empty()));
@@ -163,7 +167,16 @@ public class Sendmail implements ISendmail {
 					getLog(creds, fromEmail, rcptTo, sendmailResponse, Optional.of(se.getMessage())));
 			logger.error(se.getMessage(), se);
 
-			return SendmailResponse.fail(se.getMessage());
+			return SendmailResponse.fail(se.getMessage(), failedRecipients);
+		}
+	}
+
+	private void addRecipients(List<FailedRecipient> failedRecipients, SMTPProtocol smtp, Mailbox to)
+			throws IOException {
+		try {
+			smtp.rcpt(new Address(to.getAddress()));
+		} catch (SMTPException e) {
+			failedRecipients.add(new FailedRecipient(to.getAddress(), e.getMessage()));
 		}
 	}
 
