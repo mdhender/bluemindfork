@@ -30,9 +30,12 @@ $custom-warning-color: theme-color-level("warning", $alert-bg-level);
             display: none !important;
         }
     }
-    &:hover {
-        .conversation-list-item-actions {
-            display: flex;
+
+    @media only screen and (min-width: map-get($grid-breakpoints, "lg")) {
+        &:hover {
+            .conversation-list-item-actions {
+                display: flex;
+            }
         }
     }
 }

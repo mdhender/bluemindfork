@@ -249,8 +249,7 @@ export default {
         visibility: hidden;
     }
 
-    /* Large devices (laptops/desktops, 992px and up) */
-    @media only screen and (min-width: 992px) {
+    @media only screen and (min-width: map-get($grid-breakpoints, "lg")) {
         .mail-conversation-list-div {
             min-width: 20%;
             max-width: 70%;
