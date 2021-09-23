@@ -25,7 +25,7 @@ import {
     CONVERSATION_IS_LOADED,
     CURRENT_CONVERSATION_METADATA,
     MESSAGE_IS_LOADED,
-    SELECTION_EMPTY,
+    SELECTION_IS_EMPTY,
     SEVERAL_CONVERSATIONS_SELECTED
 } from "~/getters";
 import { UNSELECT_ALL_CONVERSATIONS, UNSET_CURRENT_CONVERSATION } from "~/mutations";
@@ -46,7 +46,7 @@ export default {
             CONVERSATION_IS_LOADED,
             CURRENT_CONVERSATION_METADATA,
             MESSAGE_IS_LOADED,
-            SELECTION_EMPTY,
+            SELECTION_IS_EMPTY,
             SEVERAL_CONVERSATIONS_SELECTED
         }),
         currentConversationIsLoaded() {
@@ -59,7 +59,7 @@ export default {
     methods: {
         ...mapMutations("mail", { UNSELECT_ALL_CONVERSATIONS, UNSET_CURRENT_CONVERSATION }),
         back() {
-            if (this.SELECTION_EMPTY) {
+            if (this.SELECTION_IS_EMPTY) {
                 this.UNSET_CURRENT_CONVERSATION();
             } else {
                 this.UNSELECT_ALL_CONVERSATIONS();
