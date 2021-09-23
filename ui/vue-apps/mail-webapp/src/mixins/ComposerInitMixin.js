@@ -236,7 +236,7 @@ export default {
             const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS, inject("UserSession"));
             this.mergeRecipients(message, related);
             this.mergeSubject(message, related);
-            await this.mergetBody(message, related);
+            await this.mergeBody(message, related);
             await this.mergeAttachments(message, related);
             this.$router.navigate({ name: "v:mail:message", params: { message: message } });
             return message;

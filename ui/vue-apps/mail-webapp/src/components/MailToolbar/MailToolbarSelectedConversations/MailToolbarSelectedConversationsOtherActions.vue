@@ -12,11 +12,11 @@
             <bm-icon icon="3dots" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.toolbar.more") }}</span>
         </template>
-        <bm-dropdown-item v-if="!isTemplate" icon="pencil" @click="editAsNew(selected[0])">
+        <bm-dropdown-item v-if="!isTemplate && isSingleMessage" icon="pencil" @click="editAsNew()">
             {{ $t("mail.actions.edit_as_new") }}
         </bm-dropdown-item>
         <bm-dropdown-item
-            v-else-if="showMarkAsRead"
+            v-else-if="isTemplate && showMarkAsRead"
             icon="read"
             :title="markAsReadAriaText()"
             :aria-label="markAsReadAriaText()"
@@ -25,7 +25,7 @@
             {{ markAsReadText }}
         </bm-dropdown-item>
         <bm-dropdown-item
-            v-else
+            v-else-if="isTemplate"
             icon="unread"
             :title="markAsUnreadAriaText()"
             :aria-label="markAsUnreadAriaText()"
@@ -46,10 +46,10 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
-import { ActionTextMixin, RemoveMixin, FlagMixin } from "~/mixins";
-import { MY_DRAFTS, MY_TEMPLATES } from "~/getters";
+import { ActionTextMixin, RemoveMixin, SelectionMixin, FlagMixin } from "~/mixins";
+import { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES } from "~/getters";
 import { draftPath } from "~/model/draft";
 import { MessageCreationModes } from "~/model/message";
 import MessagePathParam from "~/router/MessagePathParam";
@@ -57,22 +57,30 @@ import MessagePathParam from "~/router/MessagePathParam";
 export default {
     name: "MailToolbarConsultMessageOtherActions",
     components: { BmDropdown, BmDropdownItem, BmIcon },
-    mixins: [ActionTextMixin, RemoveMixin, FlagMixin],
+    mixins: [ActionTextMixin, RemoveMixin, FlagMixin, SelectionMixin],
     computed: {
-        ...mapGetters("mail", { MY_DRAFTS, MY_TEMPLATES }),
-
+        ...mapGetters("mail", { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES }),
+        ...mapState("mail", { messages: state => state.conversations.messages }),
         isTemplate() {
-            return this.selectionLength === 1 && this.selected[0]?.folderRef.key === this.MY_TEMPLATES.key;
+            if (this.selectionLength === 1) {
+                return this.CURRENT_CONVERSATION_METADATA.folderRef.key === this.MY_TEMPLATES.key;
+            }
+            return false;
+        },
+        isSingleMessage() {
+            if (this.selectionLength === 1) {
+                return this.CURRENT_CONVERSATION_METADATA.size === 1;
+            }
+            return false;
         }
     },
     methods: {
-        editAsNew(selected) {
-            const messagepath = draftPath(this.MY_DRAFTS);
-            const message = MessagePathParam.build("", selected);
+        editAsNew() {
+            const template = this.messages[this.CURRENT_CONVERSATION_METADATA.messages[0]];
             this.$router.navigate({
                 name: "mail:message",
-                params: { messagepath },
-                query: { action: MessageCreationModes.EDIT_AS_NEW, message }
+                params: { messagepath: draftPath(this.MY_DRAFTS) },
+                query: { action: MessageCreationModes.EDIT_AS_NEW, message: MessagePathParam.build("", template) }
             });
         }
     }

@@ -78,8 +78,13 @@ import { mapGetters, mapState } from "vuex";
 import { BmButton, BmIcon } from "@bluemind/styleguide";
 import MailToolbarSelectedConversationsMoveAction from "./MailToolbarSelectedConversationsMoveAction";
 import MailToolbarSelectedConversationsOtherActions from "./MailToolbarSelectedConversationsOtherActions";
-import { ActionTextMixin, FlagMixin, RemoveMixin } from "~/mixins";
-import { ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE, MY_DRAFTS, MY_TEMPLATES } from "~/getters";
+import { ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin } from "~/mixins";
+import {
+    ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
+    CURRENT_CONVERSATION_METADATA,
+    MY_DRAFTS,
+    MY_TEMPLATES
+} from "~/getters";
 import { draftPath } from "~/model/draft";
 import MessagePathParam from "~/router/MessagePathParam";
 import { MessageCreationModes } from "~/model/message";
@@ -92,20 +97,31 @@ export default {
         MailToolbarSelectedConversationsMoveAction,
         MailToolbarSelectedConversationsOtherActions
     },
-    mixins: [ActionTextMixin, FlagMixin, RemoveMixin],
+    mixins: [ActionTextMixin, FlagMixin, SelectionMixin, RemoveMixin],
     computed: {
         ...mapState("mail", { messages: state => state.conversations.messages }),
-        ...mapGetters("mail", { ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE, MY_DRAFTS, MY_TEMPLATES }),
+        ...mapGetters("mail", {
+            ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
+            CURRENT_CONVERSATION_METADATA,
+            MY_DRAFTS,
+            MY_TEMPLATES
+        }),
         isTemplate() {
-            return this.selectionLength === 1 && this.selected[0]?.folderRef.key === this.MY_TEMPLATES.key;
+            if (this.selectionLength === 1) {
+                return this.CURRENT_CONVERSATION_METADATA.folderRef.key === this.MY_TEMPLATES.key;
+            }
+            return false;
         },
         subject() {
-            return this.selected[0]?.subject;
+            if (this.isTemplate) {
+                return this.CURRENT_CONVERSATION_METADATA.subject;
+            }
+            return "";
         }
     },
     methods: {
         editFromTemplate() {
-            const template = this.messages[this.selected[0].messages[0]];
+            const template = this.messages[this.CURRENT_CONVERSATION_METADATA.messages[0]];
             this.$router.navigate({
                 name: "mail:message",
                 params: { messagepath: draftPath(this.MY_DRAFTS) },

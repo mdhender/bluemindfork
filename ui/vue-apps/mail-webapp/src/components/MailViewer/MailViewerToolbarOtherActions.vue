@@ -41,6 +41,9 @@
             <bm-dropdown-item @click.prevent.stop.exact="REMOVE_MESSAGES(conversation, message)">
                 {{ $t("mail.actions.purge") }}
             </bm-dropdown-item>
+            <bm-dropdown-item icon="pencil" @click="editAsNew()">
+                {{ $t("mail.actions.edit_as_new") }}
+            </bm-dropdown-item>
         </bm-dropdown>
 
         <bm-modal
@@ -92,7 +95,7 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import { Flag } from "@bluemind/email";
 import { BmButton, BmDropdown, BmDropdownItem, BmFormAutocompleteInput, BmIcon, BmModal } from "@bluemind/styleguide";
 import { RemoveMixin, MoveMixin, FilterFolderMixin } from "~/mixins";
@@ -103,6 +106,10 @@ import {
     MARK_MESSAGE_AS_UNFLAGGED,
     MARK_MESSAGE_AS_UNREAD
 } from "~/actions";
+import { MY_DRAFTS } from "~/getters";
+import { MessageCreationModes } from "~/model/message";
+import { draftPath } from "~/model/draft";
+import MessagePathParam from "~/router/MessagePathParam";
 
 export default {
     name: "MailViewerToolbarOtherActions",
@@ -130,6 +137,9 @@ export default {
             folderSelected: null,
             Flag
         };
+    },
+    computed: {
+        ...mapGetters("mail", { MY_DRAFTS })
     },
     methods: {
         ...mapActions("mail", {
@@ -164,6 +174,13 @@ export default {
         },
         translatePath(path) {
             return translatePath(path);
+        },
+        editAsNew() {
+            this.$router.navigate({
+                name: "mail:message",
+                params: { messagepath: draftPath(this.MY_DRAFTS) },
+                query: { action: MessageCreationModes.EDIT_AS_NEW, message: MessagePathParam.build("", this.message) }
+            });
         }
     }
 };
