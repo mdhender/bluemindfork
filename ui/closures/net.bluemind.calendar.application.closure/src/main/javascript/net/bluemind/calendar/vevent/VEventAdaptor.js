@@ -74,7 +74,8 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.toModelView = function(veve
   model.organizer = vevent['organizer'];
   model.description = vevent['description'];
   model.conferenceDescription = '';
-  if (model.conference != null && model.conference != '') {
+  if (model.conference != null && model.conference != ''
+    && model.description != null && model.description != '') {
     var idx = model.description.indexOf("<videoconferencingtemplate");
     var len = model.description.length;
     var desc = model.description;
