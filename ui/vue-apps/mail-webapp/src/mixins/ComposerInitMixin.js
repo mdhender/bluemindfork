@@ -51,12 +51,6 @@ export default {
         ...mapGetters("root-app", { $_ComposerInitMixin_defaultIdentity: "DEFAULT_IDENTITY" }),
         $_ComposerInitMixin_signature() {
             return this.$_ComposerInitMixin_defaultIdentity.signature;
-        },
-        $_ComposerInitMixin_conversationsActivated() {
-            return (
-                this.$_ComposerInitMixin_settings.mail_thread === "true" &&
-                this.folders[this.activeFolder].allowConversations
-            );
         }
     },
     methods: {

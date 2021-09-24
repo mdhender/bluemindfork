@@ -108,6 +108,7 @@ import {
     SEVERAL_CONVERSATIONS_SELECTED,
     SELECTION_IS_EMPTY
 } from "~/getters";
+import { SET_MAIL_THREAD_SETTING } from "~/mutations";
 import { Multipane, MultipaneResizer } from "@bluemind/vue-multipane";
 
 export default {
@@ -169,6 +170,7 @@ export default {
         const documentTitle = this.$t("mail.application.title") + " - Bluemind";
         document.title = documentTitle;
         FaviconHelper.handleUnreadNotifInFavicon(this.userSession, documentTitle);
+        this.$store.commit(`mail/${SET_MAIL_THREAD_SETTING}`, this.$store.state.session.settings.remote.mail_thread);
     },
     methods: {
         async switchWebmail() {

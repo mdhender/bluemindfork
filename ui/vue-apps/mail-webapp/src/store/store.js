@@ -9,6 +9,7 @@ import {
     ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED,
     ALL_SELECTED_CONVERSATIONS_ARE_UNREAD,
     ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
+    CONVERSATIONS_ACTIVATED,
     CURRENT_MAILBOX,
     IS_ACTIVE_MESSAGE,
     IS_CURRENT_CONVERSATION,
@@ -29,18 +30,22 @@ import {
     SELECTION,
     SELECTION_FLAGS
 } from "~/getters";
-import { SET_ACTIVE_FOLDER } from "~/mutations";
+import { SET_ACTIVE_FOLDER, SET_MAIL_THREAD_SETTING } from "~/mutations";
 import { compare, create } from "~/model/folder";
 import { LoadingStatus } from "~/model/loading-status";
 import { equal } from "~/model/message";
 
 export const state = {
-    activeFolder: undefined
+    activeFolder: undefined,
+    mailThreadSetting: false
 };
 
 export const mutations = {
     [SET_ACTIVE_FOLDER]: (state, { key }) => {
         state.activeFolder = key;
+    },
+    [SET_MAIL_THREAD_SETTING]: (state, booleanValue) => {
+        state.mailThreadSetting = booleanValue;
     }
 };
 
@@ -59,6 +64,10 @@ export const getters = {
     [ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE]: (state, { CURRENT_MAILBOX }) => CURRENT_MAILBOX.writable,
     [ALL_CONVERSATIONS_ARE_SELECTED]: (state, { SELECTION_KEYS, CONVERSATION_LIST_ALL_KEYS }) =>
         SELECTION_KEYS.length > 0 && SELECTION_KEYS.length === CONVERSATION_LIST_ALL_KEYS.length,
+    [CONVERSATIONS_ACTIVATED]: (state, { CONVERSATION_LIST_IS_SEARCH_MODE }) =>
+        state.mailThreadSetting === "true" &&
+        state.folders[state.activeFolder].allowConversations &&
+        !CONVERSATION_LIST_IS_SEARCH_MODE,
     [MAILSHARE_FOLDERS]: ({ folders }, getters) =>
         Object.values(folders).filter(folder => getters[MAILSHARE_KEYS].includes(folder.mailboxRef.key)),
     [MY_MAILBOX_FOLDERS]: ({ folders }, getters) =>

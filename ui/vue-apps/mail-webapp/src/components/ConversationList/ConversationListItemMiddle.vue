@@ -57,7 +57,13 @@ import { Flag } from "@bluemind/email";
 import { mapGetters, mapState } from "vuex";
 import MailFolderIcon from "../MailFolderIcon";
 import { MailboxType } from "~/model/mailbox";
-import { MY_DRAFTS, MY_SENT, CONVERSATION_LIST_IS_SEARCH_MODE, CONVERSATION_IS_SELECTED } from "~/getters";
+import {
+    CONVERSATIONS_ACTIVATED,
+    MY_DRAFTS,
+    MY_SENT,
+    CONVERSATION_LIST_IS_SEARCH_MODE,
+    CONVERSATION_IS_SELECTED
+} from "~/getters";
 import { isDraftFolder } from "~/model/folder";
 
 const FLAG_COMPONENT = {
@@ -105,7 +111,6 @@ export default {
         }),
         ...mapState("mail", ["activeFolder", "folders", "mailboxes"]),
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
-        ...mapState("session", { settings: ({ settings }) => settings.remote }),
         displayedDate: function () {
             const date = this.conversation.date;
             const today = new Date();
@@ -161,9 +166,6 @@ export default {
                 )
             );
         },
-        conversationsActivated() {
-            return this.settings.mail_thread === "true" && this.folders[this.activeFolder].allowConversations;
-        },
 
         /**
          * @return true if the sole message in non-conversation mode is in Drafts or at least one of the conversation's
@@ -173,7 +175,7 @@ export default {
             const firstMessage = this.messages[this.conversation.messages[0]];
             return (
                 isDraftFolder(this.folders[firstMessage.folderRef.key].path) ||
-                (this.conversationsActivated && this.isConversationWithDraft)
+                (this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`] && this.isConversationWithDraft)
             );
         }
     },

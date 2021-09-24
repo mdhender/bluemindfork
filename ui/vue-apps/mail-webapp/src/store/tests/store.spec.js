@@ -10,6 +10,8 @@ import {
     ALL_SELECTED_CONVERSATIONS_ARE_READ,
     ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED,
     ALL_SELECTED_CONVERSATIONS_ARE_UNREAD,
+    CONVERSATIONS_ACTIVATED,
+    CONVERSATION_LIST_IS_SEARCH_MODE,
     CONVERSATION_METADATA,
     MAILSHARE_FOLDERS,
     MAILSHARE_ROOT_FOLDERS,
@@ -299,6 +301,31 @@ describe("Mail store", () => {
             expect(store.getters[SELECTION][0]).toEqual(
                 store.getters[CONVERSATION_METADATA](store.state.selection._keys[1])
             );
+        });
+        test("CONVERSATIONS_ACTIVATED", () => {
+            store.state.mailThreadSetting = "true";
+            store.state.activeFolder = "activeFolderKey";
+            store.state.folders[store.state.activeFolder] = { allowConversations: true };
+            store.state.conversationList.search.pattern = "";
+            expect(store.getters.CONVERSATIONS_ACTIVATED).toBeTruthy();
+
+            store.state.mailThreadSetting = "false";
+            store.state.activeFolder = "activeFolderKey";
+            store.state.folders[store.state.activeFolder] = { allowConversations: true };
+            store.state.conversationList.search.pattern = "";
+            expect(store.getters.CONVERSATIONS_ACTIVATED).toBeFalsy();
+
+            store.state.mailThreadSetting = "true";
+            store.state.activeFolder = "activeFolderKey";
+            store.state.folders[store.state.activeFolder] = { allowConversations: false };
+            store.state.conversationList.search.pattern = "";
+            expect(store.getters.CONVERSATIONS_ACTIVATED).toBeFalsy();
+
+            store.state.mailThreadSetting = "true";
+            store.state.activeFolder = "activeFolderKey";
+            store.state.folders[store.state.activeFolder] = { allowConversations: true };
+            store.state.conversationList.search.pattern = "searchPattern";
+            expect(store.getters.CONVERSATIONS_ACTIVATED).toBeFalsy();
         });
     });
 });

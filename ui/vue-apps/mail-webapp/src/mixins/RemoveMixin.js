@@ -1,4 +1,4 @@
-import { IS_CURRENT_CONVERSATION, MY_TRASH, NEXT_CONVERSATION } from "~/getters";
+import { CONVERSATIONS_ACTIVATED, IS_CURRENT_CONVERSATION, MY_TRASH, NEXT_CONVERSATION } from "~/getters";
 import {
     MOVE_CONVERSATIONS,
     MOVE_CONVERSATION_MESSAGES,
@@ -9,9 +9,13 @@ import FormattedDateMixin from "./FormattedDateMixin";
 import SelectionMixin from "./SelectionMixin";
 import { conversationMustBeRemoved } from "~/model/conversations";
 import { MailRoutesMixin } from "~/mixins";
+import { mapGetters } from "vuex";
 
 export default {
     mixins: [FormattedDateMixin, MailRoutesMixin, SelectionMixin],
+    computed: {
+        ...mapGetters("mail", { $_RemoveMixin_CONVERSATIONS_ACTIVATED: CONVERSATIONS_ACTIVATED })
+    },
     methods: {
         MOVE_CONVERSATIONS_TO_TRASH: navigateConversations(async function (conversations) {
             const trash = this.$store.getters[`mail/${MY_TRASH}`];
@@ -24,10 +28,10 @@ export default {
             }
         }),
         REMOVE_CONVERSATIONS: navigateConversations(async function (conversations) {
-            const textKey = this.conversationsActivated
+            const textKey = this.$_RemoveMixin_CONVERSATIONS_ACTIVATED
                 ? "mail.actions.purge.conversations.modal.content"
                 : "mail.actions.purge.modal.content";
-            const titleKey = this.conversationsActivated
+            const titleKey = this.$_RemoveMixin_CONVERSATIONS_ACTIVATED
                 ? "mail.actions.purge.conversations.modal.title"
                 : "mail.actions.purge.modal.title";
             const confirm = await this.$bvModal.msgBoxConfirm(

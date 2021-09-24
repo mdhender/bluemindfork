@@ -13,7 +13,7 @@ import {
     UNSELECT_ALL_CONVERSATIONS,
     UNSET_CURRENT_CONVERSATION
 } from "~/mutations";
-import { CONVERSATION_MESSAGE_BY_KEY, MY_MAILBOX, SELECTION_IS_EMPTY } from "~/getters";
+import { CONVERSATIONS_ACTIVATED, CONVERSATION_MESSAGE_BY_KEY, MY_MAILBOX, SELECTION_IS_EMPTY } from "~/getters";
 import { FETCH_CONVERSATION_IF_NOT_LOADED, FETCH_MESSAGE_METADATA } from "~/actions";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import MailConversationPanel from "./MailThread/MailConversationPanel";
@@ -25,7 +25,6 @@ export default {
     mixins: [ComposerInitMixin, WaitForMixin],
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
-        ...mapState("session", { settings: ({ settings }) => settings.remote }),
         ...mapGetters("mail", { CONVERSATION_MESSAGE_BY_KEY, MY_MAILBOX, SELECTION_IS_EMPTY })
     },
     watch: {
@@ -45,11 +44,10 @@ export default {
                     }
 
                     const folder = this.folders[folderKey];
-                    const conversationsActivated = this.settings.mail_thread === "true" && folder.allowConversations;
                     const conversation = await this.FETCH_CONVERSATION_IF_NOT_LOADED({
                         uid: internalId,
                         folder,
-                        conversationsActivated
+                        conversationsActivated: this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`]
                     });
 
                     if (conversation) {

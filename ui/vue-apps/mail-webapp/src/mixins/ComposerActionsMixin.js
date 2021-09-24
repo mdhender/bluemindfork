@@ -12,6 +12,7 @@ import {
 } from "~/actions";
 import {
     ACTIVE_MESSAGE,
+    CONVERSATIONS_ACTIVATED,
     CURRENT_CONVERSATION_METADATA,
     MY_DRAFTS,
     MY_OUTBOX,
@@ -39,6 +40,7 @@ export default {
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapGetters("mail", {
+            $_ComposerActionsMixin_CONVERSATIONS_ACTIVATED: CONVERSATIONS_ACTIVATED,
             $_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA: CURRENT_CONVERSATION_METADATA,
             $_ComposerActionsMixin_MY_DRAFTS: MY_DRAFTS,
             $_ComposerActionsMixin_MY_OUTBOX: MY_OUTBOX,
@@ -48,14 +50,7 @@ export default {
         ...mapState("mail", {
             $_ComposerActionsMixin_messageCompose: "messageCompose",
             $_ComposerActionsMixin_currentConversation: ({ conversations }) => conversations.currentConversation
-        }),
-        ...mapState("session", { $_ComposerActionsMixin_settings: ({ settings }) => settings.remote }),
-        conversationsActivated() {
-            return (
-                this.$_ComposerActionsMixin_settings.mail_thread === "true" &&
-                this.folders[this.activeFolder].allowConversations
-            );
-        }
+        })
     },
     methods: {
         ...mapActions("mail", {
@@ -86,7 +81,7 @@ export default {
         },
         updateRoute(wasMessageOnlyLocal) {
             const displayedInConversationMode =
-                this.conversationsActivated &&
+                this.$_ComposerActionsMixin_CONVERSATIONS_ACTIVATED &&
                 this.$_ComposerActionsMixin_currentConversation &&
                 this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA.messages.length > 1;
             if (
@@ -143,7 +138,7 @@ export default {
                     });
                     this.removeAttachmentAndInlineTmpParts();
 
-                    if (!this.conversationsActivated) {
+                    if (!this.$_ComposerActionsMixin_CONVERSATIONS_ACTIVATED) {
                         this.$router.navigate("v:mail:home");
                     } else {
                         this.$router.navigate({
@@ -164,7 +159,7 @@ export default {
                 messageCompose: this.$_ComposerActionsMixin_messageCompose
             });
             if (
-                !this.conversationsActivated ||
+                !this.$_ComposerActionsMixin_CONVERSATIONS_ACTIVATED ||
                 !this.$_ComposerActionsMixin_currentConversation ||
                 this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA.messages.length < 2
             ) {

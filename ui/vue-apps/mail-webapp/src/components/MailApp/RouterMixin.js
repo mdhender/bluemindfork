@@ -1,7 +1,14 @@
 import isEqual from "lodash.isequal";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { FETCH_CONVERSATION_LIST_KEYS } from "~/actions";
-import { FOLDERS_BY_UPPERCASE_PATH, MY_INBOX, MY_MAILBOX, MAILBOX_BY_NAME, MAILBOXES_ARE_LOADED } from "~/getters";
+import {
+    CONVERSATIONS_ACTIVATED,
+    FOLDERS_BY_UPPERCASE_PATH,
+    MY_INBOX,
+    MY_MAILBOX,
+    MAILBOX_BY_NAME,
+    MAILBOXES_ARE_LOADED
+} from "~/getters";
 import {
     SET_ACTIVE_FOLDER,
     SET_CONVERSATION_LIST_FILTER,
@@ -30,7 +37,6 @@ export default {
             MY_MAILBOX
         }),
         ...mapState("mail", ["activeFolder", "folders", "route"]),
-        ...mapState("session", { settings: ({ settings }) => settings.remote }),
         $_RouterMixin_query() {
             const query = MessageQueryParam.parse(this.$route.params.messagequery);
             return {
@@ -79,10 +85,9 @@ export default {
                     if (!this.route.search.pattern || this.$_RouterMixin_query.folder || !this.activeFolder) {
                         this.SET_ACTIVE_FOLDER(folder);
                     }
-                    const conversationsActivated = this.settings.mail_thread === "true" && folder.allowConversations;
                     await this.FETCH_CONVERSATION_LIST_KEYS({
                         folder: this.folders[this.activeFolder],
-                        conversationsActivated
+                        conversationsActivated: this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`]
                     });
                     //TODO: Sync query params with router params (navigate...)
                 } catch {

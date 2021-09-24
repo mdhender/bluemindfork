@@ -106,6 +106,7 @@ import {
     ALL_CONVERSATIONS_ARE_SELECTED,
     ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
     MY_TRASH,
+    CONVERSATIONS_ACTIVATED,
     CONVERSATION_LIST_ALL_KEYS,
     CONVERSATION_LIST_IS_SEARCH_MODE,
     SELECTION_KEYS
@@ -146,7 +147,7 @@ export default {
         },
         mainText() {
             const count = this.SELECTION_KEYS.length;
-            return this.conversationsActivated
+            return this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`]
                 ? this.$t("mail.conversations.selected", { count })
                 : this.$t("mail.message.selected", { count });
         },

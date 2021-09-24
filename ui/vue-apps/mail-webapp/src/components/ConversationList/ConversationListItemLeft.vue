@@ -33,7 +33,7 @@
 <script>
 import { BmAvatar, BmCheck, BmIcon } from "@bluemind/styleguide";
 import { mapGetters, mapState } from "vuex";
-import { MY_DRAFTS, MY_SENT } from "~/getters";
+import { CONVERSATIONS_ACTIVATED, MY_DRAFTS, MY_SENT } from "~/getters";
 import ConversationAvatar from "./ConversationAvatar";
 import MailAttachmentIcon from "../MailAttachmentIcon";
 import { SELECTION_MODE } from "./ConversationList.vue";
@@ -87,11 +87,10 @@ export default {
                 return this.conversation.from.dn ? this.conversation.from.dn : this.conversation.from.address;
             }
         },
-        conversationsActivated() {
-            return this.userSettings.mail_thread === "true" && this.folders[this.activeFolder].allowConversations;
-        },
         isConversation() {
-            return this.conversationsActivated && this.conversation && this.conversationSize > 1;
+            return (
+                this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`] && this.conversation && this.conversationSize > 1
+            );
         }
     }
 };

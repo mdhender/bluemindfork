@@ -15,10 +15,7 @@ export default {
             $_SelectionMixin_MY_SENT: MY_SENT,
             $_SelectionMixin_SELECTION: SELECTION
         }),
-        ...mapState("session", { $_SelectionMixin_userSettings: ({ settings }) => settings.remote }),
         ...mapState("mail", {
-            $_SelectionMixin_folders: "folders",
-            $_SelectionMixin_activeFolder: "activeFolder",
             $_SelectionMixin_currentConversation: ({ conversations }) => conversations.currentConversation
         }),
         selected() {
@@ -35,12 +32,6 @@ export default {
                 return selectionLength;
             }
             return this.$_SelectionMixin_CURRENT_CONVERSATION_METADATA ? 1 : 0;
-        },
-        conversationsActivated() {
-            return (
-                this.$_SelectionMixin_userSettings.mail_thread === "true" &&
-                this.$_SelectionMixin_folders[this.$_SelectionMixin_activeFolder].allowConversations
-            );
         }
     }
 };
