@@ -17,7 +17,7 @@
             </bm-button>
         </div>
         <div class="d-flex align-items-center toolbar">
-            <span v-if="errorOccuredOnSave" class="pr-2 text-danger" :title="$t('mail.draft.save.error.reason')">
+            <span v-if="errorOccuredOnSave" class="pr-2 text-danger" :title="$t('mail.compose.save.error_reason')">
                 <!-- trick: modify the viewBox attribute to have a correct vertical alignment -->
                 <!-- eslint-disable-next-line vue/attribute-hyphenation -->
                 <bm-icon icon="exclamation-circle" class="mr-1" viewBox="0 -1 12 12" />{{ saveMessage }}
@@ -119,21 +119,23 @@ export default {
             return this.message.status === MessageStatus.SAVE_ERROR;
         },
         saveMessage() {
+            const kind = this.isDraft ? "draft" : "template";
             if (this.isSaving) {
-                return this.$t("mail.draft.save.inprogress");
+                return this.$t(`mail.compose.save.${kind}.inprogress`);
             } else if (this.errorOccuredOnSave) {
-                return this.$t("mail.draft.save.error");
+                return this.$t(`mail.compose.save.${kind}.error`);
             } else if (isNewMessage(this.message)) {
                 return "";
             } else {
-                return this.formattedDraftSaveDate;
+                return this.saveMessageWithDate;
             }
         },
-        formattedDraftSaveDate() {
-            const formatted = this.formatDraftSaveDate(this.message);
+        saveMessageWithDate() {
+            const kind = this.isDraft ? "draft" : "template";
+            const formatted = this.formatMessageDate(this.message);
             return formatted.time
-                ? this.$t("mail.draft.save.date.time", formatted)
-                : this.$t("mail.draft.save.date", formatted);
+                ? this.$t(`mail.compose.save.${kind}.date_time`, formatted)
+                : this.$t(`mail.compose.save.${kind}.date`, formatted);
         },
         textFormatterLabel() {
             return this.userPrefIsMenuBarOpened

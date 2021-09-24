@@ -71,7 +71,7 @@ export default {
     mixins: [FormattedDateMixin, MailConversationViewerItemMixin],
     computed: {
         formattedDraftSaveDate() {
-            const formatted = this.formatDraftSaveDate(this.message);
+            const formatted = this.formatMessageDate(this.message);
             return formatted.time ? this.$t("mail.save.date.time", formatted) : this.$t("mail.save.date", formatted);
         }
     }

@@ -222,14 +222,7 @@
     "mail.conversation.icon.title": "Gespräch von {count} Nachrichten",
     "mail.conversations.selected": "{count} Konversationen ausgewählten",
     "mail.conversation.show.middle.messages": "Zeige alle {count} Beiträge",
-    "mail.draft.delete.confirm.content": "Entwurf löschen?",
-    "mail.draft.delete.confirm.title": "Entwurf löschen",
     "mail.draft.not.sent": "Diese Nachricht wurde nicht gesendet",
-    "mail.draft.save.date.time": "Entwurf um {time} gespeichert",
-    "mail.draft.save.date": "Entwurf am {time} gespeichert",
-    "mail.draft.save.error.reason": "Sie sind eventuell nicht verbunden",
-    "mail.draft.save.error": "Fehler beim Speichern des Entwurfs",
-    "mail.draft.save.inprogress": "Speichervorgang...",
     "mail.empty": "hat keinen Inhalt",
     "mail.error.email.address.invalid": "Ungültige E-Mailadresse.",
     "mail.folder.access.limited": "Beschränkter Zugriff",
@@ -332,6 +325,31 @@
             "save_template": "Als Vorlage speichern"
         },
         "compose": {
+            "save": {
+                "draft": {
+                    "date_time": "Entwurf um {time} gespeichert",
+                    "date": "Entwurf am {date} gespeichert",
+                    "error": "Fehler beim Speichern des Entwurfs",
+                    "inprogress": "Speichervorgang..."
+                },
+                "error_reason": "Sie sind eventuell nicht verbunden",
+                "template": {
+                    "date_time": "Vorlage um {time} gespeichert",
+                    "date": "Vorlage am {date} gespeichert",
+                    "error": "Fehler beim Speichern der Vorlage",
+                    "inprogress": "Speichervorgang..."
+                }
+            },
+            "confirm_delete": {
+                "draft": {
+                    "title": "Entwurf löschen",
+                    "content": "Entwurf löschen?"
+                },
+                "template": {
+                    "title": "Vorlage löschen",
+                    "content": "Vorlage löschen?"
+                }
+            },
             "template_chooser": {
                 "title": "Vorlage auf diese E-Mail anwenden",
                 "search": "Vorlage suchen",

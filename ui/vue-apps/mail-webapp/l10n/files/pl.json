@@ -135,12 +135,6 @@
     "mail.content.reply_all.aria": "Odpowiedz wszystkim",
     "mail.content.reply.aria": "Odpowiedz",
     "mail.content.to": "do",
-    "mail.draft.delete.confirm.content": "Czy na pewno chcesz usunąć tę wersję roboczą?",
-    "mail.draft.delete.confirm.title": "Usuń wersję roboczą",
-    "mail.draft.save.date": "Wersja robocza zapisana w dniu {date}",
-    "mail.draft.save.error.reason": "Możesz być rozłączony",
-    "mail.draft.save.error": "Błąd podczas zapisywania wersji roboczej",
-    "mail.draft.save.inprogress": "Trwa zapis...",
     "mail.empty": "jest pusty",
     "mail.folder.access.limited": "Ograniczony dostęp",
     "mail.folder.empty": "Opróżnij folder",
@@ -244,6 +238,20 @@
     "mail.viewer.no.subject": "(Brak tematu)",
     "mail": {
         "compose": {
+            "save": {
+                "draft": {
+                    "date": "Wersja robocza zapisana w dniu {date}",
+                    "error": "Błąd podczas zapisywania wersji roboczej",
+                    "inprogress": "Trwa zapis..."
+                },
+                "error_reason": "Możesz być rozłączony"
+            },
+            "confirm_delete": {
+                "draft": {
+                    "title": "Usuń wersję roboczą",
+                    "content": "Czy na pewno chcesz usunąć tę wersję roboczą?"
+                }
+            },
             "toolbar": {
                 "insert_signature": "Wstaw mój podpis"
             }

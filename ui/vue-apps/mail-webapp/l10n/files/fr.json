@@ -222,14 +222,7 @@
     "mail.conversation.icon.title": "Conversation de {count} messages",
     "mail.conversations.selected": "{count} conversations sélectionnées",
     "mail.conversation.show.middle.messages": "Afficher les {count} messages",
-    "mail.draft.delete.confirm.title": "Supprimer le brouillon",
-    "mail.draft.delete.confirm.content": "Etes-vous sur de vouloir supprimer ce brouillon ?",
     "mail.draft.not.sent": "Ce message n'a pas été envoyé",
-    "mail.draft.save.date.time": "Brouillon enregistré à {time}",
-    "mail.draft.save.date": "Brouillon enregistré le {date}",
-    "mail.draft.save.error.reason": "Vous êtes peut-être déconnecté",
-    "mail.draft.save.error": "Erreur lors de l'enregistrement du brouillon",
-    "mail.draft.save.inprogress": "Enregistrement en cours...",
     "mail.empty": "est vide",
     "mail.error.email.address.invalid": "Adresse de courriel invalide.",
     "mail.folder.access.limited": "Droits restreints",
@@ -332,6 +325,31 @@
             "save_template": "Enregistrer en tant que modèle"
         },
         "compose": {
+            "save": {
+                "draft": {
+                    "date_time": "Brouillon enregistré à {time}",
+                    "date": "Brouillon enregistré le {date}",
+                    "error": "Erreur lors de l'enregistrement du brouillon",
+                    "inprogress": "Enregistrement en cours..."
+                },
+                "error_reason": "Vous êtes peut-être déconnecté",
+                "template": {
+                    "date_time": "Modèle enregistré à {time}",
+                    "date": "Modèle enregistré le {date}",
+                    "error": "Erreur lors de l'enregistrement du modèle",
+                    "inprogress": "Enregistrement en cours..."
+                }
+            },
+            "confirm_delete": {
+                "draft": {
+                    "title": "Supprimer le brouillon",
+                    "content": "Etes-vous sur de vouloir supprimer ce brouillon ?"
+                },
+                "template": {
+                    "title": "Supprimer le modèle",
+                    "content": "Etes-vous sur de vouloir supprimer ce modèle ?"
+                }
+            },
             "template_chooser": {
                 "title": "Appliquer un modèle à ce message",
                 "search": "Rechercher un modèle",

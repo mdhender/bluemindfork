@@ -80,7 +80,7 @@ export default {
             return confirm;
         }),
         async REMOVE_DRAFT(conversation, draft) {
-            const formattedDate = this.formatDraftSaveDate(draft);
+            const formattedDate = this.formatMessageDate(draft);
             const textKey = formattedDate.date
                 ? "mail.actions.purge.draft.modal.content"
                 : "mail.actions.purge.draft.modal.content.time";

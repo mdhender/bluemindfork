@@ -145,15 +145,19 @@ export default {
                     });
                 }
             } else {
-                const confirm = await this.$bvModal.msgBoxConfirm(this.$t("mail.draft.delete.confirm.content"), {
-                    title: this.$t("mail.draft.delete.confirm.title"),
-                    okTitle: this.$t("common.delete"),
-                    cancelVariant: "outline-secondary",
-                    cancelTitle: this.$t("common.cancel"),
-                    centered: true,
-                    hideHeaderClose: false,
-                    autoFocusButton: "ok"
-                });
+                const kind = this.isDraft ? "draft" : "template";
+                const confirm = await this.$bvModal.msgBoxConfirm(
+                    this.$t(`mail.compose.confirm_delete.${kind}.content`),
+                    {
+                        title: this.$t(`mail.compose.confirm_delete.${kind}.title`),
+                        okTitle: this.$t("common.delete"),
+                        cancelVariant: "outline-secondary",
+                        cancelTitle: this.$t("common.cancel"),
+                        centered: true,
+                        hideHeaderClose: false,
+                        autoFocusButton: "ok"
+                    }
+                );
                 if (confirm) {
                     const conversation = this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA;
                     await this.$store.dispatch(`mail/${REMOVE_CONVERSATION_MESSAGES}`, {

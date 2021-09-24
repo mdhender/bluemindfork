@@ -222,14 +222,8 @@
     "mail.conversation.icon.title": "Conversation of {count} messages",
     "mail.conversations.selected": "{count} conversations selected",
     "mail.conversation.show.middle.messages": "Show {count} messages",
-    "mail.draft.delete.confirm.content": "Are you sure to delete this draft?",
-    "mail.draft.delete.confirm.title": "Delete draft",
+
     "mail.draft.not.sent": "This message has not been sent",
-    "mail.draft.save.date.time": "Draft saved at {time}",
-    "mail.draft.save.date": "Draft saved on {date}",
-    "mail.draft.save.error.reason": "You may be disconnected",
-    "mail.draft.save.error": "Error when saving draft",
-    "mail.draft.save.inprogress": "Saving...",
     "mail.empty": "is empty",
     "mail.error.email.address.invalid": "Invalid email address.",
     "mail.folder.access.limited": "Limited access",
@@ -332,6 +326,31 @@
             "save_template": "Save as template"
         },
         "compose": {
+            "save": {
+                "draft": {
+                    "date_time": "Draft saved at {time}",
+                    "date": "Draft saved on {date}",
+                    "error": "Error while saving draft",
+                    "inprogress": "Saving..."
+                },
+                "error_reason": "You may be disconnected",
+                "template": {
+                    "date_time": "Template saved at {time}",
+                    "date": "Template saved on {date}",
+                    "error": "Error while saving template",
+                    "inprogress": "Saving..."
+                }
+            },
+            "confirm_delete": {
+                "draft": {
+                    "title": "Delete draft",
+                    "content": "Are you sure to delete this draft?"
+                },
+                "template": {
+                    "title": "Delete template",
+                    "content": "Are you sure to delete this template?"
+                }
+            },
             "template_chooser": {
                 "title": "Apply template on this message",
                 "search": "Search template",
