@@ -327,6 +327,7 @@
     "mail.viewer.no.preview": "(Pas d'aperçu disponible)",
     "mail": {
         "actions": {
+            "modify_template": "Modifier le modèle",
             "save_draft": "Enregistrer en tant que brouillon",
             "save_template": "Enregistrer en tant que modèle"
         },

@@ -18,8 +18,8 @@ export default {
             Vue.set(state.partsByMessageKey[messageKey], address, data);
         },
         [RESET_PARTS_DATA]: state => {
-            Vue.set(state.partsByMessageKey, {});
-            Vue.set(state.quoteNodesByMessageKey, {});
+            state.partsByMessageKey = {};
+            state.quoteNodesByMessageKey = {};
         },
         [SET_QUOTE_NODES]: (state, { messageKey, quoteNodesByPartAddress }) => {
             if (!state.quoteNodesByMessageKey[messageKey]) {

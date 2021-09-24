@@ -327,6 +327,7 @@
     "mail.viewer.no.subject": "(Kein Betreff)",
     "mail": {
         "actions": {
+            "modify_template": "Vorlage ändern",
             "save_draft": "Als Entwurf speichern",
             "save_template": "Als Vorlage speichern"
         },

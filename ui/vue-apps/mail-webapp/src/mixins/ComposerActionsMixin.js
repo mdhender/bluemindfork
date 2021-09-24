@@ -21,7 +21,7 @@ import {
     MY_TEMPLATES,
     MY_MAILBOX_KEY
 } from "~/getters";
-import { ADD_MESSAGES, REMOVE_MESSAGES } from "~/mutations";
+import { ADD_MESSAGES, REMOVE_MESSAGES, RESET_PARTS_DATA, SET_MESSAGE_COMPOSING } from "~/mutations";
 import { isNewMessage } from "~/model/draft";
 import { createFromDraft } from "../model/draft";
 
@@ -53,7 +53,13 @@ export default {
         ...mapState("mail", {
             $_ComposerActionsMixin_messageCompose: "messageCompose",
             $_ComposerActionsMixin_currentConversation: ({ conversations }) => conversations.currentConversation
-        })
+        }),
+        isDraft() {
+            return this.message.folderRef.key === this.$_ComposerActionsMixin_MY_DRAFTS.key;
+        },
+        isTemplate() {
+            return this.message.folderRef.key === this.$store.getters[`mail/${MY_TEMPLATES}`].key;
+        }
     },
     methods: {
         ...mapActions("mail", {
@@ -190,6 +196,11 @@ export default {
                 .concat(this.$_ComposerActionsMixin_messageCompose.inlineImagesSaved)
                 .map(part => part.address);
             addresses.forEach(address => service.removePart(address));
+        },
+        async goBackToConsultation() {
+            await this.saveAsap();
+            this.$store.commit(`mail/${RESET_PARTS_DATA}`);
+            this.$store.commit(`mail/${SET_MESSAGE_COMPOSING}`, { messageKey: this.message.key, composing: false });
         }
     }
 };

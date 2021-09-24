@@ -92,7 +92,7 @@ export default {
     }
 }
 
-.mail-toolbar .btn > svg {
+.mail-toolbar .btn svg.fa-2x {
     font-size: 1.5em;
 }
 </style>

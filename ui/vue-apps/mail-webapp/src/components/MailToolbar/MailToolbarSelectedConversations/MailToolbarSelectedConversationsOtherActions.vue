@@ -15,8 +15,11 @@
         <bm-dropdown-item v-if="!isTemplate && isSingleMessage" icon="pencil" @click="editAsNew()">
             {{ $t("mail.actions.edit_as_new") }}
         </bm-dropdown-item>
+        <bm-dropdown-item v-if="isTemplate" icon="plus-document" @click="modifyTemplate()">
+            {{ $t("mail.actions.modify_template") }}
+        </bm-dropdown-item>
         <bm-dropdown-item
-            v-else-if="isTemplate && showMarkAsRead"
+            v-if="isTemplate && showMarkAsRead"
             icon="read"
             :title="markAsReadAriaText()"
             :aria-label="markAsReadAriaText()"
@@ -46,10 +49,11 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
 import { ActionTextMixin, RemoveMixin, SelectionMixin, FlagMixin } from "~/mixins";
 import { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES } from "~/getters";
+import { SET_MESSAGE_COMPOSING } from "~/mutations";
 import { draftPath } from "~/model/draft";
 import { MessageCreationModes } from "~/model/message";
 import MessagePathParam from "~/router/MessagePathParam";
@@ -75,6 +79,7 @@ export default {
         }
     },
     methods: {
+        ...mapMutations("mail", { SET_MESSAGE_COMPOSING }),
         editAsNew() {
             const template = this.messages[this.CURRENT_CONVERSATION_METADATA.messages[0]];
             this.$router.navigate({
@@ -82,6 +87,10 @@ export default {
                 params: { messagepath: draftPath(this.MY_DRAFTS) },
                 query: { action: MessageCreationModes.EDIT_AS_NEW, message: MessagePathParam.build("", template) }
             });
+        },
+        modifyTemplate() {
+            const messageKey = this.selected[0].messages[0];
+            this.SET_MESSAGE_COMPOSING({ messageKey, composing: true });
         }
     }
 };

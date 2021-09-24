@@ -1,8 +1,11 @@
 <template>
     <div class="mail-composer-footer p-2 border-top justify-content-between align-items-center">
         <div>
-            <bm-button type="submit" variant="primary" :disabled="disableSend" @click.prevent="send">
+            <bm-button v-if="isDraft" type="submit" variant="primary" :disabled="disableSend" @click.prevent="send">
                 {{ $t("common.send") }}
+            </bm-button>
+            <bm-button v-else type="submit" variant="primary" @click.prevent="goBackToConsultation">
+                {{ $t("common.back") }}
             </bm-button>
             <bm-button
                 variant="simple-dark"

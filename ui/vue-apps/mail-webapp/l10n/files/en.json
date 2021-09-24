@@ -327,6 +327,7 @@
     "mail.viewer.no.subject": "(No subject)",
     "mail": {
         "actions": {
+            "modify_template": "Modify template",
             "save_draft": "Save as draft",
             "save_template": "Save as template"
         },

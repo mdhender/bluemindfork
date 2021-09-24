@@ -1,10 +1,11 @@
 <template>
     <bm-button-group>
         <bm-button
+            v-if="isDraft"
             variant="inline-light"
             class="btn-lg-simple-dark"
-            :aria-label="$tc('mail.actions.send.aria')"
-            :title="$tc('mail.actions.send.aria')"
+            :aria-label="$t('mail.actions.send.aria')"
+            :title="$t('mail.actions.send.aria')"
             :disabled="errorOccuredOnSave || isSending || !hasRecipient"
             @click="send()"
         >
@@ -12,10 +13,19 @@
             <span class="d-none d-lg-block">{{ $tc("mail.actions.send") }}</span>
         </bm-button>
         <bm-button
+            v-else
+            variant="inline-light"
+            class="d-none d-lg-block btn-lg-simple-dark"
+            @click="goBackToConsultation"
+        >
+            <bm-icon icon="arrow-back" size="2x" />
+            <span>{{ $tc("common.back") }}</span>
+        </bm-button>
+        <bm-button
             variant="inline-light"
             class="btn-lg-simple-dark"
-            :aria-label="$tc('mail.actions.attach.aria')"
-            :title="$tc('mail.actions.attach.aria')"
+            :aria-label="$t('mail.actions.attach.aria')"
+            :title="$t('mail.actions.attach.aria')"
             :disabled="isSending"
             @click="openFilePicker()"
         >
@@ -95,9 +105,6 @@ export default {
         },
         errorOccuredOnSave() {
             return this.message.status === MessageStatus.SAVE_ERROR;
-        },
-        isDraft() {
-            return this.message.folderRef.key === this.MY_DRAFTS.key;
         },
         saveActionTitle() {
             if (this.isDraft) {
