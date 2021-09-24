@@ -2,7 +2,6 @@
 [Unit]
 Description=BlueMind services
 After=network-online.target
-Wants=network-online.target
 
 [Install]
 # Components of this application should be started at boot time
