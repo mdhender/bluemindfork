@@ -135,6 +135,7 @@ export function createFromDraft(previous, folder) {
     message.hasAttacment = previous.hasAttacment;
     message.inlinePartsByCapabilities = previous.inlinePartsByCapabilities.slice();
     message.preview = previous.preview;
+    message.composing = true;
     return message;
 }
 

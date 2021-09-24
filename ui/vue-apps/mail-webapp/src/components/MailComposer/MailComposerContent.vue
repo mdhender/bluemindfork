@@ -108,12 +108,13 @@ export default {
             this.SET_DRAFT_COLLAPSED_CONTENT(null);
             this.focus();
         },
-        focus() {
-            this.$refs["message-content"].focus("start");
+        async focus() {
+            await this.$nextTick();
+            this.$refs["message-content"]?.focus("start");
         },
         async updateHtmlComposer() {
             await this.$nextTick();
-            this.$refs["message-content"].updateContent();
+            this.$refs["message-content"]?.updateContent();
         }
     }
 };

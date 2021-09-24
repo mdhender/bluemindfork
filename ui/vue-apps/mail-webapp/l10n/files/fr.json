@@ -115,6 +115,11 @@
                 "success": "\"{subject}\" a bien été enregistré comme modèle!",
                 "error": "\"{subject}\" n'a pu être enregistré comme modèle: {reason}"
             },
+            "save_as_draft": {
+                "loading": "Enregistrement de \"{subject}\" en tant que brouillon en cours...",
+                "success": "\"{subject}\" a bien été enregistré comme brouillon!",
+                "error": "\"{subject}\" n'a pu être enregistré comme brouillon: {reason}"
+            },
             "send_message": {
                 "loading": "Envoi de \"{subject}\" en cours...",
                 "success": "\"{subject}\" a bien été envoyé !",
@@ -322,7 +327,11 @@
         "actions": {
             "modify_template": "Modifier le modèle",
             "save_draft": "Enregistrer en tant que brouillon",
-            "save_template": "Enregistrer en tant que modèle"
+            "save_template": "Enregistrer en tant que modèle",
+            "end_template_edition": {
+                "label": "Quitter",
+                "aria": "Quitter l'édition du modèle"
+            }
         },
         "compose": {
             "save": {

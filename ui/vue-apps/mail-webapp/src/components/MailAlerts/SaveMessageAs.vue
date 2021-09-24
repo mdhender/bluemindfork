@@ -6,15 +6,15 @@ import { AlertMixin, DefaultAlert } from "@bluemind/alert.store";
 import { mapState } from "vuex";
 
 export default {
-    name: "SaveAsTemplate",
+    name: "SaveMessageAs",
     components: { DefaultAlert },
     mixins: [AlertMixin],
     computed: {
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
         subject() {
             let subject = "";
-            if (this.messages[this.payload.template.key]) {
-                subject = this.messages[this.alert.payload.template.key].subject;
+            if (this.messages[this.payload.message.key]) {
+                subject = this.messages[this.alert.payload.message.key].subject;
             } else if (this.result) {
                 subject = this.result.subject;
             }

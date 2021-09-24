@@ -20,11 +20,6 @@ export default {
             type: Boolean,
             required: true
         },
-        isDraft: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
         isLastBeforeDraft: {
             type: Boolean,
             required: true

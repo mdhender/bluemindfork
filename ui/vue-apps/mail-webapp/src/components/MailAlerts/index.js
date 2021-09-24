@@ -7,4 +7,4 @@ export { default as RemoveFolder } from "./RemoveFolder";
 export { default as RemoveMessages } from "./RemoveMessages";
 export { default as RenameFolder } from "./RenameFolder";
 export { default as SendMessage } from "./SendMessage";
-export { default as SaveAsTemplate } from "./SaveAsTemplate";
+export { default as SaveMessageAs } from "./SaveMessageAs";

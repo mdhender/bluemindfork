@@ -234,6 +234,7 @@ export default {
 
         async initEditAsNew(related) {
             const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS, inject("UserSession"));
+            this.$_ComposerInitMixin_ADD_MESSAGES([message]);
             this.mergeRecipients(message, related);
             this.mergeSubject(message, related);
             await this.mergeBody(message, related);
@@ -272,7 +273,6 @@ export default {
             }
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
-            this.$_ComposerInitMixin_ADD_MESSAGES([message]);
         },
 
         async mergeAttachments({ key }, related) {

@@ -16,10 +16,12 @@
             v-else
             variant="inline-light"
             class="d-none d-lg-block btn-lg-simple-dark"
-            @click="goBackToConsultation"
+            :title="$t('mail.actions.end_template_edition.aria')"
+            :aria-label="$t('mail.actions.end_template_edition.aria')"
+            @click="endEdition"
         >
             <bm-icon icon="arrow-back" size="2x" />
-            <span>{{ $tc("common.back") }}</span>
+            <span>{{ $tc("mail.actions.end_template_edition.label") }}</span>
         </bm-button>
         <bm-button
             variant="inline-light"
@@ -48,7 +50,7 @@
                     <span class="d-none d-lg-block">{{ $t("common.save") }}</span>
                 </div>
             </template>
-            <bm-dropdown-item icon="save" @click="saveAsap">{{ $t("mail.actions.save_draft") }}</bm-dropdown-item>
+            <bm-dropdown-item icon="save" @click="saveAsDraft">{{ $t("mail.actions.save_draft") }}</bm-dropdown-item>
             <bm-dropdown-item icon="plus-document" @click="saveAsTemplate">{{
                 $t("mail.actions.save_template")
             }}</bm-dropdown-item>

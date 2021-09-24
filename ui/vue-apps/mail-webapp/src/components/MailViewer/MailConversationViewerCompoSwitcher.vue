@@ -28,6 +28,13 @@ export default {
             $messageViewerRoot: this
         };
     },
+    props: {
+        isDraft: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    },
     computed: {
         ...mapGetters("mail", { MESSAGE_IS_LOADED })
     }

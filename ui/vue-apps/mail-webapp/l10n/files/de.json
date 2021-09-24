@@ -115,6 +115,11 @@
                 "success": "\"{subject}\" erfolgreich als Vorlage gespeichert!",
                 "error": "\"{subject}\" konnte nicht als Vorlage gespeichert werden: {reason}"
             },
+            "save_as_draft": {
+                "loading": "Speichern der Entwurf \"{subject}\" in Bearbeitung...",
+                "success": "\"{subject}\" erfolgreich als Entwurf gespeichert!",
+                "error": "\"{subject}\" konnte nicht als Entwurf gespeichert werden: {reason}"
+            },
             "send_message": {
                 "loading": "Versand von \"{subject}\"...",
                 "error": "\"{subject}\" konnte nicht gesendet werden.",
@@ -322,7 +327,11 @@
         "actions": {
             "modify_template": "Vorlage ändern",
             "save_draft": "Als Entwurf speichern",
-            "save_template": "Als Vorlage speichern"
+            "save_template": "Als Vorlage speichern",
+            "end_template_edition": {
+                "label": "Beenden",
+                "aria": "Vorlagenbearbeitung beenden"
+            }
         },
         "compose": {
             "save": {

@@ -4,8 +4,14 @@
             <bm-button v-if="isDraft" type="submit" variant="primary" :disabled="disableSend" @click.prevent="send">
                 {{ $t("common.send") }}
             </bm-button>
-            <bm-button v-else type="submit" variant="primary" @click.prevent="goBackToConsultation">
-                {{ $t("common.back") }}
+            <bm-button
+                v-else
+                type="submit"
+                variant="primary"
+                :title="$t('mail.actions.end_template_edition.aria')"
+                @click.prevent="endEdition"
+            >
+                {{ $t("mail.actions.end_template_edition.label") }}
             </bm-button>
             <bm-button
                 variant="simple-dark"

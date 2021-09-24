@@ -44,7 +44,7 @@ export default {
         return { $messageViewerRoot: this };
     },
     computed: {
-        ...mapState("mail", ["folders"]),
+        ...mapState("mail", { folders: "folders", messages: state => state.conversations.messages }),
         ...mapGetters("root-app", ["DEFAULT_IDENTITY"]),
         ...mapGetters("mail", { ACTIVE_MESSAGE, CONVERSATION_LIST_IS_SEARCH_MODE, MY_DRAFTS }),
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "right-panel") }),
@@ -70,9 +70,15 @@ export default {
             immediate: true
         },
         "ACTIVE_MESSAGE.key": {
-            handler() {
+            handler(value, oldValue) {
                 this.SET_BLOCK_REMOTE_IMAGES(false);
                 try {
+                    if (oldValue) {
+                        const oldMessage = this.messages[oldValue];
+                        if (oldMessage?.composing && oldMessage?.folderRef.key !== this.MY_DRAFTS.key) {
+                            this.SET_MESSAGE_COMPOSING({ messageKey: oldValue, composing: false });
+                        }
+                    }
                     if (this.ACTIVE_MESSAGE && !this.ACTIVE_MESSAGE.composing) {
                         const folderKey = this.ACTIVE_MESSAGE.folderRef.key;
                         if (this.MY_DRAFTS && folderKey === this.MY_DRAFTS.key) {

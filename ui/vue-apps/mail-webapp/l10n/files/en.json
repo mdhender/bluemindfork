@@ -115,6 +115,11 @@
                 "success": "\"{subject}\" successfully saved as template!",
                 "error": "\"{subject}\" has not been saved as a template: {reason}"
             },
+            "save_as_draft": {
+                "loading": "Saving \"{subject}\" as a draft in progress...",
+                "success": "\"{subject}\" successfully saved as draft!",
+                "error": "\"{subject}\" has not been saved as a draft: {reason}"
+            },
             "send_message": {
                 "loading": "Sending \"{subject}\" in progress...",
                 "error": "\"{subject}\" has not been sent: {reason}",
@@ -323,7 +328,11 @@
         "actions": {
             "modify_template": "Modify template",
             "save_draft": "Save as draft",
-            "save_template": "Save as template"
+            "save_template": "Save as template",
+            "end_template_edition": {
+                "label": "Quit",
+                "aria": "Quit editing this template"
+            }
         },
         "compose": {
             "save": {

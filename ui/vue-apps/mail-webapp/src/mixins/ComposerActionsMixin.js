@@ -8,6 +8,7 @@ import {
     REMOVE_ATTACHMENT,
     REMOVE_CONVERSATION_MESSAGES,
     SAVE_MESSAGE,
+    SAVE_AS_DRAFT,
     SAVE_AS_TEMPLATE,
     SEND_MESSAGE
 } from "~/actions";
@@ -21,7 +22,13 @@ import {
     MY_TEMPLATES,
     MY_MAILBOX_KEY
 } from "~/getters";
-import { ADD_MESSAGES, REMOVE_MESSAGES, RESET_PARTS_DATA, SET_MESSAGE_COMPOSING } from "~/mutations";
+import {
+    ADD_MESSAGES,
+    REMOVE_MESSAGES,
+    RESET_PARTS_DATA,
+    SET_ACTIVE_MESSAGE,
+    SET_MESSAGE_COMPOSING
+} from "~/mutations";
 import { isNewMessage } from "~/model/draft";
 import { createFromDraft } from "../model/draft";
 
@@ -88,20 +95,30 @@ export default {
             });
             this.updateRoute(wasMessageOnlyLocal);
         },
-        saveAsTemplate() {
-            if (this.message.folderRef.key !== this.$store.getters[`mail/${MY_TEMPLATES}`].key) {
-                const template = createFromDraft(this.message, this.$store.getters[`mail/${MY_TEMPLATES}`]);
-                this.$store.commit(`mail/${ADD_MESSAGES}`, [template]);
+        async saveMessageAs(saveAction, folder) {
+            const message = createFromDraft(this.message, folder);
+            this.$store.commit(`mail/${ADD_MESSAGES}`, [message]);
 
-                return this.$store.dispatch(`mail/${SAVE_AS_TEMPLATE}`, {
-                    template,
-                    messageCompose: this.$_ComposerActionsMixin_messageCompose
-                });
-            }
-            return this.saveAsap();
+            await this.$store.dispatch(`mail/${saveAction}`, {
+                message,
+                messageCompose: this.$_ComposerActionsMixin_messageCompose
+            });
+            this.$router.navigate({ name: "v:mail:message", params: { message } });
+            this.$store.commit(`mail/${SET_ACTIVE_MESSAGE}`, message);
         },
-        saveAsDraft() {
-            return this.saveAsap();
+        async saveAsTemplate() {
+            if (this.message.folderRef.key !== this.$store.getters[`mail/${MY_TEMPLATES}`].key) {
+                this.saveMessageAs(SAVE_AS_TEMPLATE, this.$store.getters[`mail/${MY_TEMPLATES}`]);
+            } else {
+                this.saveAsap();
+            }
+        },
+        async saveAsDraft() {
+            if (this.message.folderRef.key !== this.$store.getters[`mail/${MY_DRAFTS}`].key) {
+                this.saveMessageAs(SAVE_AS_DRAFT, this.$store.getters[`mail/${MY_DRAFTS}`]);
+            } else {
+                return this.saveAsap();
+            }
         },
         updateRoute(wasMessageOnlyLocal) {
             const displayedInConversationMode =
@@ -201,9 +218,13 @@ export default {
                 .map(part => part.address);
             addresses.forEach(address => service.removePart(address));
         },
-        async goBackToConsultation() {
+        async endEdition() {
             await this.saveAsap();
-            this.$store.commit(`mail/${RESET_PARTS_DATA}`);
+            if (this.$_ComposerActionsMixin_currentConversation === this.message.conversationRef.key) {
+                this.$store.commit(`mail/${RESET_PARTS_DATA}`);
+            } else {
+                this.$router.navigate("v:mail:home");
+            }
             this.$store.commit(`mail/${SET_MESSAGE_COMPOSING}`, { messageKey: this.message.key, composing: false });
         }
     }

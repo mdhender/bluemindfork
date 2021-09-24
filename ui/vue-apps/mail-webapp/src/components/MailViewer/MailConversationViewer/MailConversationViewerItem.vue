@@ -58,6 +58,13 @@ export default {
     name: "MailConversationViewerItem",
     components: { BmAvatar, MailConversationViewerVerticalLine, MailViewerRecipients },
     mixins: [MailConversationViewerItemMixin],
+    props: {
+        isDraft: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    },
     methods: {
         collapse(event) {
             if (this.isMessageExpanded && !this.message.composing) {

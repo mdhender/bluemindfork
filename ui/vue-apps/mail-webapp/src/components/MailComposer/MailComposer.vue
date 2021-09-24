@@ -76,11 +76,6 @@ export default {
     mounted() {
         this.focus();
     },
-    destroyed() {
-        if (this.isTemplate) {
-            this.SET_MESSAGE_COMPOSING({ messageKey: this.message.key, composing: false });
-        }
-    },
     methods: {
         ...mapMutations("mail", { SET_MESSAGE_COMPOSING }),
         async focus() {

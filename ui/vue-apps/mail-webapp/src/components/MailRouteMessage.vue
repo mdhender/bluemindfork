@@ -6,7 +6,7 @@
 import MessagePathParam from "~/router/MessagePathParam";
 import { isNewMessage } from "~/model/draft";
 import { LoadingStatus } from "~/model/loading-status";
-import { MY_MAILBOX, SELECTION_IS_EMPTY } from "~/getters";
+import { ACTIVE_MESSAGE, MY_MAILBOX, SELECTION_IS_EMPTY } from "~/getters";
 import {
     RESET_PARTS_DATA,
     SET_ACTIVE_MESSAGE,
@@ -26,30 +26,30 @@ export default {
     mixins: [ComposerInitMixin, WaitForMixin],
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
-        ...mapGetters("mail", { MY_MAILBOX, SELECTION_IS_EMPTY })
+        ...mapGetters("mail", { ACTIVE_MESSAGE, MY_MAILBOX, SELECTION_IS_EMPTY })
     },
     watch: {
         "$route.params.messagepath": {
-            async handler(messagepath, oldMessagepath) {
+            async handler(messagepath) {
                 try {
-                    if (oldMessagepath) {
-                        const { internalId: oldInternalId } = MessagePathParam.parse(oldMessagepath, this.activeFolder);
-                        if (isNewMessage({ remoteRef: { internalId: oldInternalId } })) {
-                            // preserve composer state for 1st save (route is changed only to have a valid route)
-                            return;
-                        }
-                    }
+                    const { folderKey, internalId } = MessagePathParam.parse(messagepath, this.activeFolder);
+                    this.UNSET_CURRENT_CONVERSATION();
 
+                    if (
+                        this.ACTIVE_MESSAGE?.remoteRef.internalId === internalId &&
+                        this.ACTIVE_MESSAGE?.folderRef.key === folderKey
+                    ) {
+                        // Preserve state if ACTIVE_MESSAGE is already synced with current route
+                        return;
+                    }
                     this.RESET_PARTS_DATA();
                     this.RESET_ACTIVE_MESSAGE();
-                    this.UNSET_CURRENT_CONVERSATION();
                     if (!this.SELECTION_IS_EMPTY) {
                         this.UNSELECT_ALL_CONVERSATIONS();
                     }
 
                     let assert = mailbox => mailbox && mailbox.loading === LoadingStatus.LOADED;
                     await this.$waitFor(MY_MAILBOX, assert);
-                    const { folderKey, internalId } = MessagePathParam.parse(messagepath, this.activeFolder);
                     let message;
 
                     if (isNewMessage({ remoteRef: { internalId } })) {
