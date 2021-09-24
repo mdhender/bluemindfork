@@ -32,10 +32,6 @@ export default {
             required: false,
             default: undefined
         },
-        collapseQuoted: {
-            type: Boolean,
-            default: false
-        },
         message: {
             type: Object,
             required: true
@@ -61,7 +57,7 @@ export default {
             return { sanitizedBody, styles: styleNotInBody };
         },
         isCollapseActive() {
-            return this.collapseQuoted && this.quotedCollapsed && this.quoteNodes;
+            return this.quotedCollapsed && this.quoteNodes;
         }
     }
 };

@@ -6,7 +6,6 @@
                 v-if="isHtmlPart(part)"
                 :key="part.address"
                 :value="htmlWithImageInserted[index]"
-                :collapse-quoted="collapseQuoted"
                 :message="message"
                 :part-address="part.address"
             />
@@ -45,10 +44,6 @@ export default {
         message: {
             type: Object,
             required: true
-        },
-        collapseQuoted: {
-            type: Boolean,
-            default: false
         }
     },
     data() {

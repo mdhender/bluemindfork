@@ -42,7 +42,7 @@
             <div v-if="!isMessageExpanded" class="col pl-3 pb-2 pr-3 text-truncate">{{ message.preview }}...</div>
             <div v-else class="col pl-3 pb-2 pr-3">
                 <mail-attachments-block v-if="message.attachments.length > 0" :message="message" />
-                <body-viewer :message="message" collapse-quoted />
+                <body-viewer :message="message" />
             </div>
         </template>
         <template slot="bottom">
