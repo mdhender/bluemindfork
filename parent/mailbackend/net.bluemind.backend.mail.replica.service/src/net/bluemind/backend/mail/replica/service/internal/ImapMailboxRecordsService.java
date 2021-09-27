@@ -441,8 +441,25 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	private CompletableFuture<ItemIdentifier> createAsync(long id, MailboxItem value) {
 		logger.info("create 'draft' {}", id);
-		SizedStream sizedStream = createEmlStructure(id, null, value.body);
 
+		ItemValue<MailboxItem> existingItem = getCompleteById(id);
+		if (existingItem != null) {
+			long existingRefreshDate = existingItem.value.body.date.getTime();
+			Optional<Header> newRefreshDate = value.body.headers.stream()
+					.filter(header -> header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)).findAny();
+			if (newRefreshDate.isPresent()) {
+				if (existingRefreshDate == Long.parseLong(newRefreshDate.get().firstValue())) {
+					return CompletableFuture.completedFuture(
+							ImapItemIdentifier.of(existingItem.value.imapUid, id, existingItem.version));
+				}
+			}
+			CompletableFuture<ItemIdentifier> ret = new CompletableFuture<>();
+			ret.completeExceptionally(new ServerFault("Item " + id
+					+ " has been submitted for creation, but already exists having a different version or refresh header"));
+			return ret;
+		}
+
+		SizedStream sizedStream = createEmlStructure(id, null, value.body);
 		CompletableFuture<ItemChange> completion = ReplicationEvents.onRecordCreate(mailboxUniqueId, id);
 
 		int addedUid = imapContext.withImapClient(sc -> {

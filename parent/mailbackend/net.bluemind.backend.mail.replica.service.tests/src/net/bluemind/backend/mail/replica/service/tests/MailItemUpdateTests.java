@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -134,6 +135,31 @@ public class MailItemUpdateTests extends AbstractRollingReplicationTests {
 		System.err.println("rel uid: " + reloaded.value.imapUid);
 		assertEquals(newSubject, reloaded.value.body.subject);
 		assertNotEquals(mailObject.value.imapUid, reloaded.value.imapUid);
+	}
+
+	@Test
+	public void createExistingItemHavingSameVersionShouldNoop() {
+		ItemValue<MailboxItem> existing = mailApi.getCompleteById(mailObject.internalId);
+		mailObject.value.body.headers.add(Header.create(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE,
+				Long.toString(existing.value.body.date.getTime())));
+		Ack ack = mailApi.createById(mailObject.internalId, mailObject.value);
+		assertTrue(ack.version == mailObject.version);
+	}
+
+	@Test
+	public void createExistingItemHavingDifferentVersionShouldFail() {
+		for (Header header : mailObject.value.body.headers) {
+			if (header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)) {
+				header.values.clear();
+				header.values.add(Integer.MAX_VALUE + "");
+			}
+		}
+		try {
+			mailApi.createById(mailObject.internalId, mailObject.value);
+			fail();
+		} catch (Exception e) {
+			assertTrue(e.getMessage().contains("already exists"));
+		}
 	}
 
 	@Test
