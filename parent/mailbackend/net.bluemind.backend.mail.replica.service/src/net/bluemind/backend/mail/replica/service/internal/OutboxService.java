@@ -1,5 +1,6 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -9,9 +10,13 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
+import org.apache.james.mime4j.MimeException;
 import org.apache.james.mime4j.dom.Header;
 import org.apache.james.mime4j.dom.Message;
+import org.apache.james.mime4j.dom.MessageServiceFactory;
+import org.apache.james.mime4j.dom.MessageWriter;
 import org.apache.james.mime4j.dom.Multipart;
 import org.apache.james.mime4j.dom.TextBody;
 import org.apache.james.mime4j.dom.address.AddressList;
@@ -41,6 +46,7 @@ import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportedMailboxIte
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.SortDescriptor;
@@ -132,7 +138,7 @@ public class OutboxService implements IOutbox {
 
 	private CompletableFuture<Void> flushOne(IServerTaskMonitor monitor, IMailboxFolders mailboxFoldersService,
 			long outboxInternalId, long sentInternalId, IMailboxItems mailboxItemsService, AuthUser user,
-			final List<ImportedMailboxItem> importedMailboxItems, ItemValue<MailboxItem> item) {
+			List<ImportedMailboxItem> importedMailboxItems, ItemValue<MailboxItem> item) {
 		return SyncStreamDownload.read(mailboxItemsService.fetchComplete(item.value.imapUid)).thenAccept(buf -> {
 			InputStream in = new ByteBufInputStream(buf.duplicate());
 			InputStream forSend = new ByteBufInputStream(buf);
@@ -144,45 +150,37 @@ public class OutboxService implements IOutbox {
 				}
 				String fromMail = msg.getFrom().iterator().next().getAddress();
 				MailboxList rcptTo = allRecipients(msg);
-				send(user.value.login, forSend, fromMail, rcptTo, msg.getSubject(),
-						new ByteBufInputStream(buf.duplicate()));
+				send(user.value.login, forSend, fromMail, rcptTo, msg);
 
-				final ImportMailboxItemsStatus importMailboxItemsStatus = mailboxFoldersService
-						.importItems(sentInternalId, ImportMailboxItemSet.moveIn(outboxInternalId,
-								Arrays.asList(MailboxItemId.of(item.internalId)), null));
-				final List<ImportedMailboxItem> doneIds = importMailboxItemsStatus.doneIds;
+				ImportMailboxItemsStatus importMailboxItemsStatus = mailboxFoldersService.importItems(sentInternalId,
+						ImportMailboxItemSet.moveIn(outboxInternalId, Arrays.asList(MailboxItemId.of(item.internalId)),
+								null));
+				List<ImportedMailboxItem> doneIds = importMailboxItemsStatus.doneIds;
 				if (doneIds != null && !doneIds.isEmpty()) {
 					importedMailboxItems.addAll(doneIds);
 				}
 				monitor.progress(1, "FLUSHING OUTBOX - mail " + msg.getMessageId() + " sent and moved in Sent folder.");
 			} catch (Exception e) {
-				logger.info("FLUSHING OUTBOX - failed, move email to draft folder");
-				// if we fail to send message, then we move it into drafts folder to avoid flush
-				// to fail at each time then..
-				long draftFolderInternalId = mailboxFoldersService.byName("Drafts").internalId;
-				mailboxFoldersService.importItems(draftFolderInternalId, ImportMailboxItemSet.moveIn(outboxInternalId,
-						Arrays.asList(MailboxItemId.of(item.internalId)), null));
 				throw new ServerFault(e);
 			}
 		});
 	}
 
-	private void send(String login, InputStream forSend, String fromMail, MailboxList rcptTo, String relatedMsgSubject,
-			InputStream relatedMsg) throws Exception {
+	private void send(String login, InputStream forSend, String fromMail, MailboxList rcptTo, Message relatedMsg)
+			throws Exception {
 		SendmailCredentials creds = SendmailCredentials.as(String.format("%s@%s", login, domainUid),
 				context.getSecurityContext().getSessionId());
 		SendmailResponse sendmailResponse = mailer.send(creds, fromMail, domainUid, rcptTo, forSend);
 
 		if (!sendmailResponse.getFailedRecipients().isEmpty()) {
-			sendMessagesToWarnForUndelivered(sendmailResponse.getFailedRecipients(), creds, fromMail, relatedMsgSubject,
-					relatedMsg);
+			sendNonDeliveryReport(sendmailResponse.getFailedRecipients(), creds, fromMail, relatedMsg);
 		} else if (sendmailResponse.isError()) {
 			throw new Exception(sendmailResponse.toString());
 		}
 	}
 
-	private void sendMessagesToWarnForUndelivered(List<FailedRecipient> failedRecipients, SendmailCredentials creds,
-			String sender, String relatedMsgSubject, InputStream relatedMsg) {
+	private void sendNonDeliveryReport(List<FailedRecipient> failedRecipients, SendmailCredentials creds, String sender,
+			Message relatedMsg) {
 		String from = "noreply@" + domainDefaultAlias();
 		String toLocalPart = sender.split("@")[0];
 		String toDomainPart = sender.split("@")[1];
@@ -190,21 +188,20 @@ public class OutboxService implements IOutbox {
 				.asList(new org.apache.james.mime4j.dom.address.Mailbox(toLocalPart, toDomainPart));
 		MailboxList rcptTo = new MailboxList(rcpt, true);
 
-		final MessageImpl message = createWarningMessage(failedRecipients, relatedMsgSubject, relatedMsg);
+		MessageImpl message = createNonDeliveryReportMessage(failedRecipients, relatedMsg);
 		mailer.send(creds, from, domainUid, rcptTo, message);
 	}
 
-	private MessageImpl createWarningMessage(List<FailedRecipient> failedRecipients, String relatedMsgSubject,
-			InputStream relatedMsg) {
-		final MessageImpl message = new MessageImpl();
+	private MessageImpl createNonDeliveryReportMessage(List<FailedRecipient> failedRecipients, Message relatedMsg) {
+		MessageImpl message = new MessageImpl();
 		message.setSubject("Undelivered Mail Returned to Sender");
 		String recipientsErrorMsg = "";
 		for (int i = 0; i < failedRecipients.size(); i++) {
 			FailedRecipient failedRcpt = failedRecipients.get(i);
-			recipientsErrorMsg += "\n <" + failedRcpt.getRecipient() + ">: " + failedRcpt.getMessage();
+			recipientsErrorMsg += "\r\n <" + failedRcpt.recipient + ">: " + failedRcpt.message;
 		}
 		String content = new StringBuilder().append("This is the mail system \n")
-				.append("I'm sorry to have to inform you that your message \"").append(relatedMsgSubject)
+				.append("I'm sorry to have to inform you that your message \"").append(relatedMsg.getSubject())
 				.append("\" could not\n").append("be delivered to one or more recipients. It's attached below.\n")
 				.append("For further assistance, please send mail to postmaster.\n")
 				.append("If you do so, please include this problem report. You can\n")
@@ -221,15 +218,18 @@ public class OutboxService implements IOutbox {
 			Header header = new DefaultMessageBuilder().newHeader();
 			header.setField(Fields.contentType("message/rfc822"));
 			rfc822.setHeader(header);
-			rfc822.setFilename(relatedMsgSubject + ".eml");
-			rfc822.setBody(new BasicBodyFactory().binaryBody(relatedMsg));
+			rfc822.setFilename(relatedMsg.getSubject() + ".eml");
+			MessageWriter writer = MessageServiceFactory.newInstance().newMessageWriter();
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			writer.writeMessage(relatedMsg, out);
+			rfc822.setBody(new BasicBodyFactory().binaryBody(out.toByteArray()));
 
 			Multipart mp = new MultipartImpl("report");
 			mp.addBodyPart(bodyPart);
 			mp.addBodyPart(rfc822);
 			message.setMultipart(mp);
-		} catch (IOException e) {
-			logger.error("cant build message to warn sender..");
+		} catch (IOException | MimeException e) {
+			logger.error("cant build message to warn sender..", e);
 		}
 		return message;
 	}
@@ -266,7 +266,10 @@ public class OutboxService implements IOutbox {
 		sortDescriptor.fields = Arrays.asList(mailDate);
 
 		List<Long> mailsIds = mailboxItemsService.sortedIds(sortDescriptor);
-		return mailboxItemsService.multipleById(mailsIds);
+		return mailboxItemsService.multipleById(mailsIds).stream()
+				.filter(item -> item.value.body.headers.stream()
+						.anyMatch(header -> header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)))
+				.collect(Collectors.toList());
 	}
 
 }

@@ -37,6 +37,7 @@
 package net.bluemind.core.sendmail;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.columba.ristretto.smtp.SMTPResponse;
@@ -68,7 +69,7 @@ public class SendmailResponse {
 	}
 
 	public static SendmailResponse fail(String message) {
-		return SendmailResponse.fail(message, new ArrayList<>());
+		return SendmailResponse.fail(message, Collections.emptyList());
 	}
 
 	public static SendmailResponse fail(String message, List<FailedRecipient> failedRecipients) {
@@ -108,11 +109,11 @@ public class SendmailResponse {
 
 	@Override
 	public String toString() {
-		String res = String.format("%s: %s", code, message);
+		String res = String.format("%d: %s", code, message);
 		if (!failedRecipients.isEmpty()) {
-			res = res + " \n error for following recipient(s): ";
+			res = res + "\r\n error for following recipient(s): ";
 			for (int i = 0; i < failedRecipients.size(); i++) {
-				res = res + "\n" + failedRecipients.get(i);
+				res = res + "\r\n" + failedRecipients.get(i);
 			}
 		}
 		return res;

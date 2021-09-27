@@ -155,7 +155,11 @@ public class Sendmail implements ISendmail {
 			smtp.mail(new Address(fromEmail));
 
 			for (Mailbox to : rcptTo) {
-				addRecipients(failedRecipients, smtp, to);
+				try {
+					smtp.rcpt(new Address(to.getAddress()));
+				} catch (SMTPException e) {
+					failedRecipients.add(new FailedRecipient(to.getAddress(), e.getMessage()));
+				}
 			}
 			sendmailResponse = new SendmailResponse(smtp.data(inStream), failedRecipients);
 			smtp.quit();
@@ -168,15 +172,6 @@ public class Sendmail implements ISendmail {
 			logger.error(se.getMessage(), se);
 
 			return SendmailResponse.fail(se.getMessage(), failedRecipients);
-		}
-	}
-
-	private void addRecipients(List<FailedRecipient> failedRecipients, SMTPProtocol smtp, Mailbox to)
-			throws IOException {
-		try {
-			smtp.rcpt(new Address(to.getAddress()));
-		} catch (SMTPException e) {
-			failedRecipients.add(new FailedRecipient(to.getAddress(), e.getMessage()));
 		}
 	}
 
