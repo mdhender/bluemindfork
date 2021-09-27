@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -105,6 +106,8 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 			throw new CliException(String.format("Your search for '%s', filtered by '%s' did not match anything",
 					target, match.isEmpty() ? "" : match));
 		}
+		Set<String> domains = entriesWithDomainUid.stream().map(e -> e.domainUid).collect(Collectors.toSet());
+		preIterate(domains);
 
 		// create executor & completion service with workers thread
 		ExecutorService pool = Executors.newFixedThreadPool(workers);
@@ -156,6 +159,15 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 			int handled = entriesWithDomainUid.size() - noops;
 			ctx.info("Handled " + handled + " entries. " + noops + " entries have been ignored");
 		}
+	}
+
+	/**
+	 * Runs before iterating the entries
+	 * 
+	 * @param entriesWithDomainUid
+	 */
+	public void preIterate(@SuppressWarnings("unused") Set<String> domains) {
+
 	}
 
 	private List<DirEntryWithDomain> getEntries() {
