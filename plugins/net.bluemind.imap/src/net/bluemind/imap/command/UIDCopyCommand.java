@@ -73,9 +73,9 @@ public class UIDCopyCommand extends Command<Map<Integer, Integer>> {
 			data = parseMessageSet(ok.getPayload());
 		} else {
 			if (ok.isOk()) {
-				logger.warn("cyrus did not send [COPYUID ...] token: " + ok.getPayload());
+				logger.warn("cyrus did not send [COPYUID ...] token: {}", ok.getPayload());
 			} else {
-				logger.error("error on uid copy: " + ok.getPayload());
+				logger.error("error on uid copy of '{}': {}", setString, ok.getPayload());
 			}
 			data = Collections.emptyMap();
 		}
