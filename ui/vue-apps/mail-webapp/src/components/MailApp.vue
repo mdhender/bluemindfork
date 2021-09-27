@@ -93,6 +93,7 @@ import { BmFormCheckbox, BmButton, BmCol, BmIcon, BmRow, MakeUniq } from "@bluem
 
 import FaviconHelper from "../FaviconHelper";
 import BoostrapMixin from "./MailApp/BootstrapMixin";
+import UnreadCountScheduler from "./MailApp/UnreadCountScheduler";
 import RouterMixin from "./MailApp/RouterMixin";
 import ServerPush from "./MailApp/ServerPush";
 import MailAppL10N from "../../l10n/";
@@ -129,7 +130,7 @@ export default {
         MultipaneResizer,
         NewMessage
     },
-    mixins: [MakeUniq, BoostrapMixin, RouterMixin, ServerPush],
+    mixins: [MakeUniq, BoostrapMixin, RouterMixin, ServerPush, UnreadCountScheduler],
     componentI18N: { messages: MailAppL10N },
     data() {
         return {

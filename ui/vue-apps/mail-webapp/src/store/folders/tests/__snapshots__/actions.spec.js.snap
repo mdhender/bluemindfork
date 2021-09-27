@@ -46,7 +46,7 @@ Object {
       "internalId": 462,
       "uid": "050ca560-37ae-458a-bd52-c40fedf4068d",
     },
-    "unread": 0,
+    "unread": undefined,
     "writable": undefined,
   },
   "135adc10-db84-440e-aebc-e10d185fa227": Object {
@@ -67,7 +67,7 @@ Object {
       "internalId": 460,
       "uid": "135adc10-db84-440e-aebc-e10d185fa227",
     },
-    "unread": 0,
+    "unread": undefined,
     "writable": undefined,
   },
   "65b51768-8544-4bb3-9950-c6f4fc32a52e": Object {
@@ -88,7 +88,7 @@ Object {
       "internalId": 464,
       "uid": "65b51768-8544-4bb3-9950-c6f4fc32a52e",
     },
-    "unread": 0,
+    "unread": undefined,
     "writable": undefined,
   },
   "67201a3a-91cb-4198-a153-85a8174be9e6": Object {
@@ -109,7 +109,7 @@ Object {
       "internalId": 427,
       "uid": "67201a3a-91cb-4198-a153-85a8174be9e6",
     },
-    "unread": 0,
+    "unread": undefined,
     "writable": undefined,
   },
   "7998fa63-3854-4ecb-8558-9596065c0128": Object {
@@ -130,7 +130,7 @@ Object {
       "internalId": 423,
       "uid": "7998fa63-3854-4ecb-8558-9596065c0128",
     },
-    "unread": 0,
+    "unread": undefined,
     "writable": undefined,
   },
   "98a9383e-5156-44eb-936a-e6b0825b0809": Object {
@@ -151,7 +151,7 @@ Object {
       "internalId": 425,
       "uid": "98a9383e-5156-44eb-936a-e6b0825b0809",
     },
-    "unread": 0,
+    "unread": undefined,
     "writable": undefined,
   },
   "eb4cc101-60bf-48ac-91ce-7698bd29ba73": Object {
@@ -172,7 +172,7 @@ Object {
       "internalId": 431,
       "uid": "eb4cc101-60bf-48ac-91ce-7698bd29ba73",
     },
-    "unread": 0,
+    "unread": undefined,
     "writable": undefined,
   },
   "f1c3f42f-551b-446d-9682-cfe0574b3205": Object {
@@ -193,7 +193,7 @@ Object {
       "internalId": 421,
       "uid": "f1c3f42f-551b-446d-9682-cfe0574b3205",
     },
-    "unread": 0,
+    "unread": undefined,
     "writable": undefined,
   },
   "fd965e68-c276-4db0-a298-01a92d3c9822": Object {
@@ -214,7 +214,7 @@ Object {
       "internalId": 429,
       "uid": "fd965e68-c276-4db0-a298-01a92d3c9822",
     },
-    "unread": 0,
+    "unread": undefined,
     "writable": undefined,
   },
 }

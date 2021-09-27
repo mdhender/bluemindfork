@@ -10,13 +10,10 @@ import * as AlertComponents from "./components/MailAlerts";
 import MailApp from "./components/MailApp";
 import { MailboxItemsClientProxy, MailboxFoldersClientProxy } from "./api/APIClientsProxy";
 import mailRoutes from "./router";
-import Scheduler from "./scheduler";
 import MailStore from "./store/";
 
 registerAPIClients();
 store.registerModule("mail", MailStore);
-
-Scheduler.startUnreadCountersUpdater();
 
 router.addRoutes(mailRoutes);
 

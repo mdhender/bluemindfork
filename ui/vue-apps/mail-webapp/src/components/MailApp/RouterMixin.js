@@ -1,6 +1,6 @@
 import isEqual from "lodash.isequal";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import { FETCH_CONVERSATION_LIST_KEYS } from "~/actions";
+import { FETCH_CONVERSATION_LIST_KEYS, UNREAD_FOLDER_COUNT } from "~/actions";
 import {
     CONVERSATIONS_ACTIVATED,
     FOLDERS_BY_UPPERCASE_PATH,
@@ -89,6 +89,9 @@ export default {
                         folder: this.folders[this.activeFolder],
                         conversationsActivated: this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`]
                     });
+                    if (folder?.unread === undefined) {
+                        await this.$store.dispatch(`mail/${UNREAD_FOLDER_COUNT}`, folder);
+                    }
                     //TODO: Sync query params with router params (navigate...)
                 } catch {
                     //TODO: Add an alert here

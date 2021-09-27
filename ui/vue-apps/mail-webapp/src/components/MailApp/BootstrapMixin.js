@@ -1,6 +1,6 @@
 import { inject } from "@bluemind/inject";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import { MAILBOXES_ARE_LOADED, MAILSHARES, MAILBOX_BY_NAME, MY_MAILBOX, MY_MAILBOX_FOLDERS } from "~/getters";
+import { MAILBOXES_ARE_LOADED, MAILSHARES, MAILBOX_BY_NAME, MY_MAILBOX, MY_MAILBOX_FOLDERS, MY_INBOX } from "~/getters";
 import { FETCH_FOLDERS, FETCH_MAILBOXES, LOAD_MAX_MESSAGE_SIZE, UNREAD_FOLDER_COUNT } from "~/actions";
 import { ADD_MAILBOXES } from "~/mutations";
 import { LoadingStatus } from "~/model/loading-status";
@@ -8,7 +8,14 @@ import { create, MailboxType } from "~/model/mailbox";
 
 export default {
     computed: {
-        ...mapGetters("mail", { MAILBOXES_ARE_LOADED, MAILBOX_BY_NAME, MY_MAILBOX, MY_MAILBOX_FOLDERS, MAILSHARES }),
+        ...mapGetters("mail", {
+            MAILBOXES_ARE_LOADED,
+            MAILBOX_BY_NAME,
+            MY_MAILBOX,
+            MY_MAILBOX_FOLDERS,
+            MAILSHARES,
+            MY_INBOX
+        }),
         ...mapState("mail", ["folders", "conversationList"])
     },
     methods: {
@@ -52,7 +59,9 @@ export default {
             }
             await this.$_BootstrapMixin_loadMyMailbox();
             await this.$_BootstrapMixin_loadAllMailshares();
-            this.MY_MAILBOX_FOLDERS.forEach(this.UNREAD_FOLDER_COUNT);
+            if (this.MY_INBOX?.unread === undefined) {
+                await this.UNREAD_FOLDER_COUNT(this.MY_INBOX);
+            }
             this.LOAD_MAX_MESSAGE_SIZE(inject("UserSession").userId);
         } catch (error) {
             // eslint-disable-next-line no-console

@@ -96,6 +96,9 @@ const emptyFolder = async function ({ commit }, { folder }) {
 };
 
 const unreadFolderCount = async function ({ commit }, folder) {
+    if (folder.unread === undefined) {
+        commit(SET_UNREAD_COUNT, { key: folder.key, unread: 0 });
+    }
     const unread = await api.unreadCount(folder);
     commit(SET_UNREAD_COUNT, { key: folder.key, unread: unread.total });
 };

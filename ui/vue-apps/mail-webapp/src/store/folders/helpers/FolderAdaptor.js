@@ -24,7 +24,7 @@ function fromMailboxFolder(remotefolder, mailbox) {
         allowSubfolder: allowSubfolder(mailbox.writable, !parent, remotefolder.value.name, mailbox),
         default: isDefault(!parent, remotefolder.value.name, mailbox),
         expanded: false,
-        unread: 0
+        unread: undefined
     };
 }
 

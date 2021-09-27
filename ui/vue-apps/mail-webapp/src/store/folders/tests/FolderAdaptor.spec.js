@@ -33,7 +33,7 @@ describe("Folder adaptors", () => {
                 "internalId": 460,
                 "uid": "135adc10-db84-440e-aebc-e10d185fa227",
               },
-              "unread": 0,
+              "unread": undefined,
               "writable": true,
             }
         `);
