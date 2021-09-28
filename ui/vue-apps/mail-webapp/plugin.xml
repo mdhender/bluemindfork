@@ -9,7 +9,7 @@
       </web-module-provider>
    </extension>
    <extension point="webapp.banner">
-      <application description="%banner-entry.description" href="/webapp/mail/" name="%banner-entry.name" order="1" role="hasMail" help="https://forge.bluemind.net/confluence/display/BM4/Messagerie+BlueMind">
+      <application description="%banner-entry.description" href="/webapp/mail/" name="%banner-entry.name" order="4" role="hasMail" help="https://forge.bluemind.net/confluence/display/BM4/Messagerie+BlueMind">
          <icon>
             <svg>
                <![CDATA[ 

@@ -74,7 +74,7 @@ export default {
                 "net.bluemind.webmodules.calendar",
                 "net.bluemind.webapp.mail.js"
             ];
-            return defaults.map(id => this.applications.find(({ $id }) => $id === id)).filter(Boolean);
+            return this.applications.filter(({ $id }) => defaults.includes($id));
         }
     }
 };
