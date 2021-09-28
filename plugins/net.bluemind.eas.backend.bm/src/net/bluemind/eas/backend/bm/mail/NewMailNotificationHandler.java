@@ -57,7 +57,7 @@ public class NewMailNotificationHandler implements OutOfProcessMessageHandler {
 		String domainUid = m.getStringProperty("domain");
 
 		try {
-			HierarchyNode node = store.getHierarchyNode(domainUid, userUid,
+			HierarchyNode node = store.getHierarchyNode("NewMailNotificationHandler-" + uniqueId, domainUid, userUid,
 					ContainerHierarchyNode.uidFor(uniqueId, IMailReplicaUids.MAILBOX_RECORDS, domainUid));
 			eb.publish("eas.collection." + node.collectionId.getValue(), new JsonObject());
 		} catch (CollectionNotFoundException e) {

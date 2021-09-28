@@ -57,7 +57,7 @@ public class BmSearchContact implements ISearchSource {
 			InternalState is = bs.getInternalState();
 
 			IAddressBooks addressBooksService = ClientSideServiceProvider.getProvider(is.coreUrl, is.sid)
-					.setOrigin("bm-eas-BmSearchContact").instance(IAddressBooks.class);
+					.setOrigin("bm-eas-BmSearchContact-" + bs.getUniqueIdentifier()).instance(IAddressBooks.class);
 
 			VCardQuery query = new VCardQuery();
 
@@ -76,7 +76,8 @@ public class BmSearchContact implements ISearchSource {
 			for (ItemContainerValue<VCardInfo> value : result.values) {
 				logger.info("found uid '{}' in '{}'", value.uid, value.containerUid);
 				IAddressBook service = ClientSideServiceProvider.getProvider(is.coreUrl, is.sid)
-						.setOrigin("bm-eas-BmSearchContact").instance(IAddressBook.class, value.containerUid);
+						.setOrigin("bm-eas-BmSearchContact-" + bs.getUniqueIdentifier())
+						.instance(IAddressBook.class, value.containerUid);
 				ItemValue<VCard> item = service.getComplete(value.uid);
 				SearchResult res = cc.convertToSearchResult(item, request.store.options.picture, service);
 				if (res != null) {

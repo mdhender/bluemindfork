@@ -56,7 +56,7 @@ public class ContactNotificationHandler implements OutOfProcessMessageHandler {
 		String userUid = m.getStringProperty("userUid");
 
 		try {
-			HierarchyNode node = store.getHierarchyNode(domainUid, userUid,
+			HierarchyNode node = store.getHierarchyNode("ContactNotificationHandler-" + container, domainUid, userUid,
 					ContainerHierarchyNode.uidFor(container, IAddressBookUids.TYPE, domainUid));
 			eb.publish("eas.collection." + node.collectionId.getValue(), new JsonObject());
 		} catch (CollectionNotFoundException e) {

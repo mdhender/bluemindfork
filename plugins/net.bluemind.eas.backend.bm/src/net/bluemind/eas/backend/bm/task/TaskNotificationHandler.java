@@ -54,7 +54,7 @@ public class TaskNotificationHandler implements OutOfProcessMessageHandler {
 		String userUid = m.getStringProperty("userUid");
 
 		try {
-			HierarchyNode node = store.getHierarchyNode(domainUid, userUid,
+			HierarchyNode node = store.getHierarchyNode("TaskNotificationHandler-" + container, domainUid, userUid,
 					ContainerHierarchyNode.uidFor(container, ITodoUids.TYPE, domainUid));
 			eb.publish("eas.collection." + node.collectionId.getValue(), new JsonObject());
 		} catch (CollectionNotFoundException e) {

@@ -346,7 +346,8 @@ public class CalendarBackend extends CoreConnect {
 		try {
 			ICalendar cs = getService(bs, ICalendar.class, ICalendarUids.defaultUserCalendar(bs.getUser().getUid()));
 
-			HierarchyNode f = storage.getHierarchyNode(bs.getUser().getDomain(), bs.getUser().getUid(),
+			HierarchyNode f = storage.getHierarchyNode(bs.getUniqueIdentifier(), bs.getUser().getDomain(),
+					bs.getUser().getUid(),
 					ContainerHierarchyNode.uidFor(ICalendarUids.defaultUserCalendar(bs.getUser().getUid()), "calendar",
 							bs.getUser().getDomain()));
 

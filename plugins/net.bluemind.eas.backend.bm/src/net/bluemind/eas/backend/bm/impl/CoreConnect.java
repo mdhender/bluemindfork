@@ -54,7 +54,7 @@ public class CoreConnect {
 		InternalState in = validateSid(bs);
 		return ClientSideServiceProvider.getProvider(in.coreUrl, in.sid)
 				.withRemoteIps(bs.getRequest().headers().getAll("X-Forwarded-For"))
-				.setOrigin("bm-eas-" + bs.getDevId());
+				.setOrigin("bm-eas-" + bs.getUniqueIdentifier());
 	}
 
 	private InternalState validateSid(BackendSession bs) {

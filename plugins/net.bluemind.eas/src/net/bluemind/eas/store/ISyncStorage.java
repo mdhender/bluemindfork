@@ -59,7 +59,8 @@ public interface ISyncStorage {
 
 	// Folder
 
-	HierarchyNode getHierarchyNode(String domainUid, String userUid, String nodeUid) throws CollectionNotFoundException;
+	HierarchyNode getHierarchyNode(String origin, String domainUid, String userUid, String nodeUid)
+			throws CollectionNotFoundException;
 
 	HierarchyNode getHierarchyNode(BackendSession bs, CollectionId collectionId) throws CollectionNotFoundException;
 

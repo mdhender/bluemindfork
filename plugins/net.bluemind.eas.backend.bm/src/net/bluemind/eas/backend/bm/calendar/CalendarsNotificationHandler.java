@@ -56,7 +56,7 @@ public class CalendarsNotificationHandler implements OutOfProcessMessageHandler 
 		String userUid = m.getStringProperty("userUid");
 
 		try {
-			HierarchyNode node = store.getHierarchyNode(domainUid, userUid,
+			HierarchyNode node = store.getHierarchyNode("CalendarsNotificationHandler-" + container, domainUid, userUid,
 					ContainerHierarchyNode.uidFor(container, ICalendarUids.TYPE, domainUid));
 			eb.publish("eas.collection." + node.collectionId.getValue(), new JsonObject());
 		} catch (CollectionNotFoundException e) {

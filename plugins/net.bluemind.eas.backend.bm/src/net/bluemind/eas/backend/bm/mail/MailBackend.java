@@ -239,7 +239,8 @@ public class MailBackend extends CoreConnect {
 					}
 					IMailboxFolders service = getIMailboxFoldersService(bs, folder.collectionId);
 					ItemValue<MailboxFolder> source = service.getComplete(folder.uid);
-					HierarchyNode sourceHierarchyNode = storage.getHierarchyNode(bs.getUser().getDomain(), mailboxUid,
+					HierarchyNode sourceHierarchyNode = storage.getHierarchyNode(bs.getUniqueIdentifier(),
+							bs.getUser().getDomain(), mailboxUid,
 							ContainerHierarchyNode.uidFor(IMailReplicaUids.mboxRecords(source.uid), "mailbox_records",
 									bs.getUser().getDomain()));
 
@@ -248,8 +249,8 @@ public class MailBackend extends CoreConnect {
 					IMailboxFolders mboxFolders = getService(bs, IMailboxFolders.class, part.name,
 							"user." + bs.getUser().getUid().replace('.', '^'));
 					ItemValue<MailboxFolder> trash = mboxFolders.byName("Trash");
-					HierarchyNode trashHierarchyNode = storage.getHierarchyNode(bs.getUser().getDomain(),
-							bs.getUser().getUid(),
+					HierarchyNode trashHierarchyNode = storage.getHierarchyNode(bs.getUniqueIdentifier(),
+							bs.getUser().getDomain(), bs.getUser().getUid(),
 							ContainerHierarchyNode.uidFor(IMailReplicaUids.mboxRecords(trash.uid), "mailbox_records",
 									bs.getUser().getDomain()));
 
