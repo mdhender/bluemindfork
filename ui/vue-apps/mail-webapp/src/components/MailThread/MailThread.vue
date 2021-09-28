@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-thread d-flex flex-column bg-surface">
+    <div class="mail-thread d-flex flex-column">
         <bm-alert-area :alerts="alerts" @remove="REMOVE">
             <template v-slot="context">
                 <component :is="context.alert.renderer" :alert="context.alert" />

@@ -1,5 +1,9 @@
 <template>
-    <article class="mail-conversation-panel overflow-x-hidden" :aria-label="$t('mail.application.region.conversation')">
+    <article
+        class="mail-conversation-panel overflow-x-hidden"
+        :aria-label="$t('mail.application.region.conversation')"
+        :class="{ 'bg-surface': !isComposerDisplayedAlone }"
+    >
         <template v-if="CONVERSATION_IS_LOADED(CURRENT_CONVERSATION_METADATA)">
             <mail-thread v-if="conversationSize > 1" />
             <mail-message v-else-if="conversationSize == 1" />
@@ -11,18 +15,20 @@
 <script>
 import MailMessage from "./MailMessage";
 import MailThread from "./MailThread";
-import { CURRENT_CONVERSATION_METADATA } from "~/getters";
 import MailViewerLoading from "../MailViewer/MailViewerLoading";
-import { CONVERSATION_IS_LOADED } from "~/getters";
+import { ACTIVE_MESSAGE, CONVERSATION_IS_LOADED, CURRENT_CONVERSATION_METADATA } from "~/getters";
 import { mapGetters } from "vuex";
 
 export default {
     name: "MailConversationPanel",
     components: { MailThread, MailMessage, MailViewerLoading },
     computed: {
-        ...mapGetters("mail", { CONVERSATION_IS_LOADED, CURRENT_CONVERSATION_METADATA }),
+        ...mapGetters("mail", { ACTIVE_MESSAGE, CONVERSATION_IS_LOADED, CURRENT_CONVERSATION_METADATA }),
         conversationSize() {
             return this.CURRENT_CONVERSATION_METADATA?.messages?.length || 0;
+        },
+        isComposerDisplayedAlone() {
+            return this.conversationSize === 1 && this.ACTIVE_MESSAGE?.composing === true;
         }
     }
 };
