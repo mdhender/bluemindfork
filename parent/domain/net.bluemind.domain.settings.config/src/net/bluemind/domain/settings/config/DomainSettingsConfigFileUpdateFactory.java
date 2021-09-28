@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2021
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,24 +16,22 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.domain.api;
+package net.bluemind.domain.settings.config;
 
-public enum DomainSettingsKeys {
-	lang, //
-	timezone, //
-	im_public_auth, //
-	mailbox_max_user_quota, //
-	mailbox_default_user_quota, //
-	mailbox_max_publicfolder_quota, //
-	mailbox_default_publicfolder_quota, //
-	mail_routing_relay, //
-	mail_forward_unknown_to_relay, //
-	domain_max_users, //
-	domain_max_basic_account, //
-	password_lifetime, //
-	domain_max_fullvisio_accounts, //
-	cti_implementation, //
-	cti_host, //
-	external_url, //
-	default_domain;
+import io.vertx.core.Verticle;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
+import net.bluemind.lib.vertx.IVerticleFactory;
+
+public class DomainSettingsConfigFileUpdateFactory implements IVerticleFactory, IUniqueVerticleFactory {
+
+	@Override
+	public boolean isWorker() {
+		return true;
+	}
+
+	@Override
+	public Verticle newInstance() {
+		return new DomainSettingsConfigFileUpdate();
+	}
+
 }

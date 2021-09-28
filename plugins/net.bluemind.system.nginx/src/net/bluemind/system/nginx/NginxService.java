@@ -41,6 +41,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
@@ -122,6 +123,16 @@ public class NginxService {
 	}
 
 	/**
+	 * Restart NGinx on all servers tagged as "bm/nginx" and "bm/nginx-edge"
+	 * 
+	 * @param nc
+	 * @throws ServerFault
+	 */
+	public void restart() throws ServerFault {
+		getTaggedServers().forEach(server -> restart(NodeActivator.get(server)));
+	}
+
+	/**
 	 * Reload NGinx & FPM on specific server
 	 * 
 	 * @param nc
@@ -130,6 +141,18 @@ public class NginxService {
 	public void reloadHttpd(INodeClient nc) throws ServerFault {
 		NCUtils.forget(nc, "service bm-php-fpm reload");
 		NCUtils.forget(nc, "service bm-nginx reload");
+	}
+
+	/**
+	 * Restart NGinx on specific server
+	 * 
+	 * @param nc
+	 * @throws ServerFault
+	 */
+	public void restart(INodeClient nc) throws ServerFault {
+		TaskRef tr = nc.executeCommand("service bm-nginx restart");
+		NCUtils.waitFor(nc, tr);
+		logger.info("NGINX server restarted");
 	}
 
 	public void updateFileHostingMaxSize(long fileHostingMaxSize) {

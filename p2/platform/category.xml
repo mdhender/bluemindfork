@@ -175,6 +175,7 @@
    <bundle id="net.bluemind.domain.hook" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.domain.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.domain.service" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.domain.settings.config" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.domain.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.eas.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.eas.api.gwt" version="4.1.0.qualifier"/>

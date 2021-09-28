@@ -17,6 +17,8 @@
 		<module>net.bluemind.domain.service</module>
 		<module>net.bluemind.domain.service.tests</module>
 		<module>net.bluemind.domain.validator.tests</module>
+		<module>net.bluemind.domain.settings.config</module>
+		<module>net.bluemind.domain.settings.config.tests</module>
 	</modules>
 
 </project>
