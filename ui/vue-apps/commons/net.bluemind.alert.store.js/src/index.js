@@ -47,7 +47,7 @@ export default {
             const { delay, countDown } = options;
             clearDelay(alert);
             const fn = () => {
-                commit(ADD, create(alert, options));
+                commit(ADD, alert);
                 if (countDown) {
                     setDelay(alert, () => commit(REMOVE, alert.uid), countDown);
                 }
