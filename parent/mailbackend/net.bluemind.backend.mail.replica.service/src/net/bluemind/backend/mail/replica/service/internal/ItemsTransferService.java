@@ -19,6 +19,7 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -141,6 +142,9 @@ public class ItemsTransferService implements IItemsTransfer {
 
 		public List<ItemIdentifier> copy(List<Long> itemIds) {
 			List<ImapBinding> srcItems = fromRecords.imapBindings(itemIds);
+			if (srcItems.isEmpty()) {
+				return Collections.emptyList();
+			}
 			String destImap = toRecords.imapFolder();
 			String srcImap = fromImap.imapFolder();
 			IOfflineMgmt idAllocator = context.provider().instance(IOfflineMgmt.class,
