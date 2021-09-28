@@ -1,8 +1,5 @@
 <template>
-    <article
-        class="mail-conversation-panel overflow-x-hidden bg-surface"
-        :aria-label="$t('mail.application.region.conversation')"
-    >
+    <article class="mail-conversation-panel overflow-x-hidden" :aria-label="$t('mail.application.region.conversation')">
         <template v-if="CONVERSATION_IS_LOADED(CURRENT_CONVERSATION_METADATA)">
             <mail-thread v-if="conversationSize > 1" />
             <mail-message v-else-if="conversationSize == 1" />
