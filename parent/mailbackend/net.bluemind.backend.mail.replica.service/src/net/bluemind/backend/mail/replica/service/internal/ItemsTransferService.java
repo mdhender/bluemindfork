@@ -158,14 +158,9 @@ public class ItemsTransferService implements IItemsTransfer {
 					Map<Integer, Integer> mapping = sc.uidCopy(
 							srcItems.stream().map(ib -> (int) ib.imapUid).collect(Collectors.toList()), destImap);
 					logger.info("IMAP copy returned {} item(s)", mapping.size());
-					if (mapping.isEmpty()) {
-						replicated.complete(null);
-					}
 					freshImapUids.complete(mapping);
 				} else {
-					ServerFault ex = new ServerFault("Failed to select " + srcImap);
-					freshImapUids.completeExceptionally(ex);
-					replicated.completeExceptionally(ex);
+					freshImapUids.completeExceptionally(new ServerFault("Failed to select " + srcImap));
 				}
 			});
 			try {
