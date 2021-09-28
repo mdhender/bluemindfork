@@ -1,6 +1,6 @@
 <template>
     <bm-list-group-item
-        v-touch:touchhold="toggle"
+        v-touch:touchhold="() => $emit('check')"
         class="d-flex conversation-list-item"
         :class="{
             ['conversation-list-item-' + userSettings.mail_message_list_style]: true,
@@ -17,7 +17,7 @@
             :is-selected="isSelected"
             :multiple="multiple"
             :selection-mode="selectionMode"
-            @check="toggle"
+            @check="$emit('check')"
         />
         <conversation-list-item-middle
             class="flex-fill px-2"
@@ -83,11 +83,6 @@ export default {
         },
         conversationSize() {
             return this.conversation.messages.length;
-        }
-    },
-    methods: {
-        toggle() {
-            this.$emit("check", !this.isSelected);
         }
     }
 };

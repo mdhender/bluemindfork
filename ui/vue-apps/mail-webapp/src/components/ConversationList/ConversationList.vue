@@ -206,7 +206,7 @@ export default {
                     const range = this.range(key);
                     const type = isASelectionMutation(event) ? "add-to-selection" : "set-selection";
                     this.$emit(type, range, SELECTION_MODE.MULTI);
-                } else if (this.isSelected(key)) {
+                } else if (this.isSelected(key) && this.selectionMode === SELECTION_MODE.MULTI) {
                     this.$emit("remove-from-selection", [key]);
                 } else {
                     const selection = selectionKeys(event, this.selected, key);
