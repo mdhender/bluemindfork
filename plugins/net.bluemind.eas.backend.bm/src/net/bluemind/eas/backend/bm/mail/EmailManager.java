@@ -128,11 +128,16 @@ public class EmailManager extends CoreConnect {
 
 		try {
 			List<ItemIdentifier> result = transferService.move(items);
+			boolean isCoherent = items.size() == result.size();
 			for (int i = 0; i < items.size(); i++) {
 				Long item = items.get(i);
 				MoveItemsResponse.Response r = new MoveItemsResponse.Response();
 				r.srcMsgId = srcFolder.collectionId.getValue() + ":" + item;
-				r.dstMsgId = dstFolder.collectionId.getValue() + ":" + result.get(i).id;
+				if (isCoherent) {
+					r.dstMsgId = dstFolder.collectionId.getValue() + ":" + result.get(i).id;
+				} else {
+					r.dstMsgId = r.srcMsgId;
+				}
 				r.status = Status.Success;
 				ret.add(r);
 			}
