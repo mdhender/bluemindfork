@@ -74,10 +74,17 @@ export default {
         if (!results) {
             return [];
         }
-        return results.map(({ itemId, containerUid }) => {
-            const folderRef = FolderAdaptor.toRef(extractFolderUid(containerUid));
-            return { id: itemId, folderRef };
+        const resultKeys = new Set();
+        const filteredResults = [];
+        results.forEach(({ itemId, containerUid }) => {
+            const resultKey = `${itemId}@${containerUid}`;
+            if (!resultKeys.has(resultKey)) {
+                const folderRef = FolderAdaptor.toRef(extractFolderUid(containerUid));
+                filteredResults.push({ id: itemId, folderRef });
+                resultKeys.add(resultKey);
+            }
         });
+        return filteredResults;
     }
 };
 

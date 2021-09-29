@@ -77,9 +77,13 @@ function createConversationMetadata(uid, { key, uid: folderUid }, messages) {
 }
 
 export function firstMessageInConversationFolder(getters, conversations) {
-    return conversations.map(conversation =>
-        getters.CONVERSATION_MESSAGE_BY_KEY(conversation.key).find(m => m.folderRef.key === conversation.folderRef.key)
-    );
+    return conversations
+        .map(conversation =>
+            getters
+                .CONVERSATION_MESSAGE_BY_KEY(conversation.key)
+                .find(m => m.folderRef.key === conversation.folderRef.key)
+        )
+        .filter(Boolean);
 }
 
 export function messagesInConversationFolder(getters, conversations) {

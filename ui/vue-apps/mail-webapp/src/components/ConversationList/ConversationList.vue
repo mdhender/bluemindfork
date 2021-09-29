@@ -114,7 +114,8 @@ export default {
             length: 20,
             focused: null,
             anchored: null,
-            draggedConversation: null
+            draggedConversation: null,
+            LoadingStatus
         };
     },
     computed: {
@@ -122,7 +123,9 @@ export default {
         ...mapState("mail", ["activeFolder"]),
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
         conversations() {
-            return this.conversationKeys.map(key => this.CONVERSATION_METADATA(key)).filter(Boolean);
+            return this.conversationKeys
+                .map(key => this.CONVERSATION_METADATA(key))
+                .filter(conversation => conversation.loading !== LoadingStatus.ERROR);
         },
         selectionMode() {
             return Array.isArray(this.selected) && this.selected.length > 0

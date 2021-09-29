@@ -87,20 +87,23 @@ export const getters = {
     [IS_CURRENT_CONVERSATION]: ({ conversations: { currentConversation } }) => ({ key }) =>
         equal(key, currentConversation),
     [NEXT_CONVERSATION]: (state, { [CONVERSATION_LIST_ALL_KEYS]: keys, CONVERSATION_METADATA }) => conversations => {
+        let nextConversation = null;
         if (keys.length > 1 && conversations.length) {
             const conversationKeys = conversations.map(c => c.key);
             const keyIndexes = keys
                 .map((k, index) => (conversationKeys.includes(k) ? index : -1))
                 .filter(index => index >= 0);
-            const lastKeyIndex = keyIndexes.pop();
-            let nextKeyIndex = lastKeyIndex + 1;
-            if (nextKeyIndex === keys.length) {
-                const firstKeyIndex = keyIndexes?.shift() || lastKeyIndex;
-                nextKeyIndex = firstKeyIndex === 0 ? 0 : firstKeyIndex - 1;
+            if (keyIndexes.length > 0) {
+                const lastKeyIndex = keyIndexes.pop();
+                let nextKeyIndex = lastKeyIndex + 1;
+                if (nextKeyIndex === keys.length) {
+                    const firstKeyIndex = keyIndexes?.shift() || lastKeyIndex;
+                    nextKeyIndex = firstKeyIndex === 0 ? 0 : firstKeyIndex - 1;
+                }
+                nextConversation = CONVERSATION_METADATA(keys[nextKeyIndex]);
             }
-            return CONVERSATION_METADATA(keys[nextKeyIndex]);
         }
-        return null;
+        return nextConversation;
     },
     [SELECTION]: (state, { CONVERSATION_METADATA, SELECTION_KEYS }) =>
         SELECTION_KEYS.map(key => CONVERSATION_METADATA(key)),

@@ -174,19 +174,16 @@ const getters = {
             return null;
         }
         const messages = getters.CONVERSATION_MESSAGE_BY_KEY(key);
-        if (messages.length === 0) {
-            return null;
-        }
         return {
-            subject: messages[0].subject,
-            from: messages[0].from,
-            to: messages[0].to,
+            subject: messages[0]?.subject,
+            from: messages[0]?.from,
+            to: messages[0]?.to,
             key,
             size: messages.length,
-            date: messages[messages.length - 1].date,
-            remoteRef: state.conversationByKey[key].remoteRef,
-            folderRef: state.conversationByKey[key].folderRef,
-            ...reducedMetadata(state.conversationByKey[key].folderRef.key, messages),
+            date: messages[messages.length - 1]?.date,
+            remoteRef: state.conversationByKey[key]?.remoteRef,
+            folderRef: state.conversationByKey[key]?.folderRef,
+            ...reducedMetadata(state.conversationByKey[key]?.folderRef.key, messages),
             messages: messages.map(m => m.key)
         };
     },
@@ -195,8 +192,8 @@ const getters = {
 
 function reducedMetadata(folderKey, messages) {
     let unreadCount = 0,
-        flags = new Set([Flag.SEEN]),
-        loading = LoadingStatus.LOADED,
+        flags = messages.length > 0 ? new Set([Flag.SEEN]) : new Set(),
+        loading = messages.length > 0 ? LoadingStatus.LOADED : LoadingStatus.ERROR,
         hasAttachment = false,
         hasICS = false,
         preview,
