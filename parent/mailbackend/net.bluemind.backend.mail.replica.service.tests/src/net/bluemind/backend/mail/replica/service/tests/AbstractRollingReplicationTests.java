@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -229,16 +230,16 @@ public abstract class AbstractRollingReplicationTests {
 			Stream forUpload = VertxStream.stream(Buffer.buffer(ByteStreams.toByteArray(in)));
 			String partId = recordsApi.uploadPart(forUpload);
 			assertNotNull(partId);
-			System.out.println("Got partId " + partId);
 			Part fullEml = Part.create(null, "message/rfc822", partId);
 			MessageBody brandNew = new MessageBody();
 			brandNew.subject = "toto";
 			brandNew.structure = fullEml;
+			brandNew.headers = Arrays
+					.asList(Header.create(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE, new Date().toInstant().toString()));
 			MailboxItem item = new MailboxItem();
 			item.body = brandNew;
 			item.flags = Arrays.asList(new MailboxItemFlag("Pouic"));
 			long expectedId = id;
-			System.err.println("Before create by id....." + id);
 			recordsApi.createById(expectedId, item);
 			ItemValue<MailboxItem> reloaded = recordsApi.getCompleteById(expectedId);
 			assertNotNull(reloaded);
@@ -325,6 +326,8 @@ public abstract class AbstractRollingReplicationTests {
 		Part fullEml = Part.create(null, "message/rfc822", partId);
 		MessageBody brandNew = new MessageBody();
 		brandNew.structure = fullEml;
+		brandNew.headers = Arrays
+				.asList(Header.create(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE, new Date().toInstant().toString()));
 		MailboxItem item = new MailboxItem();
 		item.body = brandNew;
 		item.flags = Arrays.asList(new MailboxItemFlag("Pouic"));
@@ -341,6 +344,9 @@ public abstract class AbstractRollingReplicationTests {
 		Optional<Header> idHeader = reloaded.value.body.headers.stream()
 				.filter(h -> h.name.equals(MailApiHeaders.X_BM_INTERNAL_ID)).findAny();
 		assertTrue(idHeader.isPresent());
+		Optional<Header> refreshDateHeader = reloaded.value.body.headers.stream()
+				.filter(h -> h.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)).findAny();
+		assertTrue(refreshDateHeader.isPresent());
 		recordsApi.removePart(partId);
 		return uploaded;
 	}

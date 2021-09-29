@@ -109,7 +109,8 @@ public class RenameUserTests extends AbstractRollingReplicationTests {
 		System.err.println("fetched " + fetched.name);
 		assertTrue("subtree name should include 'renamed.' but got " + fetched.name, fetched.name.contains("renamed."));
 
-		String eml = "From: john.doe@gmail.com\r\nTo: " + theUser.value.defaultEmailAddress() + "\r\n\r\nYeah\r\n";
+		String eml = "From: john.doe@gmail.com\r\nTo: " + theUser.value.defaultEmailAddress()
+				+ "\r\nX-Bm-Draft-Refresh-Date: 1632837985361\r\n\r\nYeah\r\n";
 		try (StoreClient sc = new StoreClient(Topology.get().any("mail/imap").value.address(), 1143,
 				theUser.value.login + "@" + domainUid, "banco")) {
 			assertTrue(sc.login());
@@ -125,7 +126,7 @@ public class RenameUserTests extends AbstractRollingReplicationTests {
 		IDbMailboxRecords itemsApi = provider().instance(IDbMailboxRecords.class, outbox.uid);
 		List<ItemValue<MailboxRecord>> outboxItems = itemsApi.all();
 		int retry = 0;
-		while (outboxItems.isEmpty() & retry++ < 100) {
+		while (outboxItems.isEmpty() && retry++ < 100) {
 			Thread.sleep(10);
 			outboxItems = itemsApi.all();
 		}
@@ -136,7 +137,6 @@ public class RenameUserTests extends AbstractRollingReplicationTests {
 		String result = TaskUtils.logStreamWait(provider(), taskRef);
 		assertTrue(result.contains("1 mails to send"));
 		assertTrue(result.contains("OUTBOX finished successfully"));
-		System.err.println(result);
 	}
 
 }

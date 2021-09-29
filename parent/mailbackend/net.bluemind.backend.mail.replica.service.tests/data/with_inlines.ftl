@@ -7,6 +7,7 @@ X-Apple-Image-Max-Size: large
 X-Apple-Base-Url: x-msg://23/
 X-Universally-Unique-Identifier: ${randomUUID}
 X-Apple-Mail-Remote-Attachments: YES
+X-Bm-Draft-Refresh-Date: 1632837985361
 From: Thomas Cataldo <thomas.cataldo@bluemind.net>
 X-Apple-Windows-Friendly: 1
 Date: Mon, 6 Mar 2017 12:08:43 +0100
