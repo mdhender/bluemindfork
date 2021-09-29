@@ -79,6 +79,8 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class DirectorySerializer implements DataSerializer {
 
@@ -171,6 +173,11 @@ public class DirectorySerializer implements DataSerializer {
 		String installationId = InstallationId.getIdentifier();
 
 		long version = Optional.ofNullable(DomainVersions.get().getIfPresent(domainUid)).orElse(0L);
+		if (StateContext.getState() == SystemState.CORE_STATE_CLONING) {
+			// we might restore DirEntry 3v42 first and then skip entries when we create
+			// 2v12 from another kafka partition
+			version = 0;
+		}
 
 		ContainerChangeset<String> changeset = dirApi.changeset(version);
 		List<String> allUids = new ArrayList<>(Sets.newHashSet(Iterables.concat(changeset.created, changeset.updated)));
