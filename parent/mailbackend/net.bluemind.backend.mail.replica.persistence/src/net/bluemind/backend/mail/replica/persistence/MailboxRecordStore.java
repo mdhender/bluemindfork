@@ -110,10 +110,9 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	}
 
 	public List<MailboxRecordItemV> getExpiredItems(int days) throws SQLException {
-		String query = "select c.uid, ci.id, encode(message_body_guid, 'hex'), "
+		String query = "select c.uid, mbr.item_id, encode(message_body_guid, 'hex'), "
 				+ MailboxRecordColumns.COLUMNS.names("mbr") + " FROM t_mailbox_record mbr " //
-				+ "JOIN t_container_item ci on ci.id = mbr.item_id " //
-				+ "JOIN t_container c on c.id = ci.container_id "//
+				+ "JOIN t_container c on c.id = mbr.container_id "//
 				+ "WHERE mbr.system_flags::bit(32) & (" + InternalFlag.expunged.value + ")::bit(32)= " //
 				+ "(" + InternalFlag.expunged.value + ")::bit(32) " //
 				+ "AND mbr.last_updated < (now() - interval '" + days + " days') LIMIT 10000";
@@ -215,10 +214,9 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	}
 
 	public List<ImapBinding> recentItems(Date d) throws SQLException {
-		String query = "SELECT item.id, rec.imap_uid, encode(rec.message_body_guid, 'hex') FROM t_mailbox_record rec "
-				+ "INNER JOIN t_container_item item ON rec.item_id=item.id " //
+		String query = "SELECT rec.item_id, rec.imap_uid, encode(rec.message_body_guid, 'hex') FROM t_mailbox_record rec "
 				+ "INNER JOIN t_message_body mb ON rec.message_body_guid = mb.guid "//
-				+ "WHERE item.container_id=? AND mb.date_header >= ?";
+				+ "WHERE rec.container_id=? AND mb.date_header >= ?";
 
 		return select(query, rs -> new ImapBinding(), (rs, index, value) -> {
 			value.itemId = rs.getInt(index++);
