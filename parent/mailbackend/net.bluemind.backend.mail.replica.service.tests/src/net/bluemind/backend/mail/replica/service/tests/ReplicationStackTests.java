@@ -1425,11 +1425,24 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		System.err.println("ROOT is " + root.uid + " " + root.value);
 
 		MailboxFolder child = new MailboxFolder();
-		child.name = "child" + System.currentTimeMillis();
+		child.name = "Eléments détectés" + System.currentTimeMillis();
 		child.parentUid = root.uid;
 		ItemIdentifier freshId = folders.createBasic(child);
 		ItemValue<MailboxFolder> freshFolder = folders.getComplete(freshId.uid);
 		assertNotNull(freshFolder);
+
+		try {
+			folders.createBasic(child);
+			fail();
+		} catch (Exception e) {
+		}
+
+		MailboxFolder grandChild = new MailboxFolder();
+		grandChild.name = "Eléments détectés2" + System.currentTimeMillis();
+		grandChild.parentUid = freshFolder.uid;
+		ItemIdentifier freshId2 = folders.createBasic(grandChild);
+		ItemValue<MailboxFolder> freshFolder2 = folders.getComplete(freshId2.uid);
+		assertNotNull(freshFolder2);
 
 		freshFolder.value.name = "updChild" + System.currentTimeMillis();
 		freshFolder.value.fullName = null;
