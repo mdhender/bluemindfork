@@ -24,7 +24,6 @@
 import { mapActions, mapMutations, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 
-import "@bluemind/styleguide/css/bluemind.scss";
 import { mapExtensions } from "@bluemind/extensions";
 import CommonL10N from "@bluemind/l10n";
 import { inject } from "@bluemind/inject";

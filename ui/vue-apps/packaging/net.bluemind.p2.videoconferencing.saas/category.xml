@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
    <bundle id="net.bluemind.videoconferencing.saas.js" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webapp.root.js" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.webmodules.vue"/>
+   <bundle id="net.bluemind.webmodules.styleguide"/>
    <bundle id="net.bluemind.webmodules.fonts"/>
 </site>

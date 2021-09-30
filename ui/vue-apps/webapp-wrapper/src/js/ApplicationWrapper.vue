@@ -1,5 +1,6 @@
 <template functional>
     <main class="bg-white flex-fill">
+        <link type="text/css" rel="stylesheet" href="css/styleguide.css" />
         <div id="header" data-banner="false"></div>
         <div id="content-menu"></div>
         <div id="content-right"></div>

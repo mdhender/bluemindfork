@@ -23,7 +23,6 @@
         "@bluemind/router": "^4.1.0",
         "@bluemind/sentry": "^4.1.0",
         "@bluemind/store": "^4.1.0",
-        "@bluemind/styleguide": "^0.1.0",
         "@bluemind/user.api": "^4.1.52881",
         "@bluemind/uuid": "^4.1.0",
         "@bluemind/vue-multipane": "^0.10.1",
@@ -54,6 +53,7 @@
     },
     "devDependencies": {
         "@bluemind/conf": "^4.1.0",
+        "@bluemind/styleguide": "^0.1.0",
         "@bluemind/test-utils": "^4.1.0",
         "@vue/test-utils": "^1.1.4",
         "fake-indexeddb": "^3.1.2",
@@ -64,6 +64,7 @@
         "webpack-bundle-analyzer": "^3.6.0"
     },
     "peerDependencies": {
+        "@bluemind/styleguide": "^0.1.0",
         "vue-router": "^3.5.2",
         "vuex": "3.6.2"
     },

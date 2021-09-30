@@ -6,5 +6,8 @@ module.exports = merge(common, {
     mode: "production",
     optimization: {
         minimizer: [new TerserPlugin()]
+    },
+    externals: {
+        "@bluemind/styleguide": "BmStyleguide"
     }
 });

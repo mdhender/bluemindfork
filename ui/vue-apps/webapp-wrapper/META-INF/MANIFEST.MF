@@ -15,7 +15,8 @@ Require-Bundle: net.bluemind.webmodules.webapp,
  net.bluemind.network.topology;bundle-version="4.1.0",
  net.bluemind.user.api;bundle-version="4.1.0"
 Web-Resources: web-resources
-Web-Dependencies: net.bluemind.webmodules.vue
+Web-Dependencies: net.bluemind.webmodules.vue,
+ net.bluemind.webmodules.styleguide
 Automatic-Module-Name: net.bluemind.webmodules.webapp.wrapper
 Bundle-Activator: net.bluemind.webmodules.webapp.wrapper.Activator
 Bundle-ActivationPolicy: lazy

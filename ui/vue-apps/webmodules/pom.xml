@@ -13,7 +13,8 @@
 	</parent>
 
 	<modules>
-        <module>net.bluemind.webmodules.fonts</module>
-		<module>net.bluemind.webmodules.vue</module>
+          <module>net.bluemind.webmodules.fonts</module>
+	  <module>net.bluemind.webmodules.styleguide</module>
+	  <module>net.bluemind.webmodules.vue</module>
 	</modules>
 </project>

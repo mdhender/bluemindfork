@@ -8,5 +8,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.webmodules.webapp,
  net.bluemind.webmodule
 Web-Resources: web-resources
-Web-Dependencies: net.bluemind.webmodules.vue
+Web-Dependencies: net.bluemind.webmodules.vue,
+ net.bluemind.webmodules.styleguide
 Automatic-Module-Name: net.bluemind.webapp.mail.js
