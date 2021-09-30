@@ -39,6 +39,7 @@
       <plugin id="com.google.guava"/>
       <plugin id="com.google.guava.failureaccess"/>
       <plugin id="com.hazelcast"/>
+      <plugin id="com.netflix.hollow"/>
       <plugin id="com.netflix.spectator.api"/>
       <plugin id="com.robbypond.boilerpipe"/>
       <plugin id="com.sun.mail.javax.mail"/>
@@ -63,7 +64,9 @@
       <plugin id="net.bluemind.backend.mail.replica.api"/>
       <plugin id="net.bluemind.calendar.api"/>
       <plugin id="net.bluemind.calendar.helper"/>
+      <plugin id="net.bluemind.common.cache.persistence"/>
       <plugin id="net.bluemind.common.freemarker"/>
+      <plugin id="net.bluemind.common.hollow"/>
       <plugin id="net.bluemind.common.io"/>
       <plugin id="net.bluemind.common.reflect"/>
       <plugin id="net.bluemind.config"/>
@@ -83,6 +86,8 @@
       <plugin id="net.bluemind.core.task.spi"/>
       <plugin id="net.bluemind.device.api"/>
       <plugin id="net.bluemind.directory.api"/>
+      <plugin id="net.bluemind.directory.hollow.datamodel"/>
+      <plugin id="net.bluemind.directory.hollow.datamodel.consumer"/>
       <plugin id="net.bluemind.document.storage"/>
       <plugin id="net.bluemind.domain.api"/>
       <plugin id="net.bluemind.eas"/>
@@ -133,6 +138,7 @@
       <plugin id="net.bluemind.role.api"/>
       <plugin id="net.bluemind.sentry" fragment="true"/>
       <plugin id="net.bluemind.sentry.settings"/>
+      <plugin id="net.bluemind.serialization.client"/>
       <plugin id="net.bluemind.server.api"/>
       <plugin id="net.bluemind.slf4j"/>
       <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
@@ -151,6 +157,7 @@
       <plugin id="org.apache.commons.codec"/>
       <plugin id="org.apache.commons.compress"/>
       <plugin id="org.apache.commons.lang"/>
+      <plugin id="org.apache.commons.lang3"/>
       <plugin id="org.apache.james.apache-mime4j-core"/>
       <plugin id="org.apache.james.apache-mime4j-dom"/>
       <plugin id="org.apache.james.apache-mime4j-storage"/>
@@ -173,17 +180,20 @@
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.eclipse.update.configurator"/>
       <plugin id="org.freemarker.freemarker"/>
+      <plugin id="org.jsoup"/>
       <plugin id="org.mnode.ical4j"/>
       <plugin id="org.mnode.ical4j.vcard"/>
       <plugin id="org.mnode.ical4j.zoneinfo-outlook"/>
       <plugin id="org.reactivestreams.reactive-streams"/>
+      <plugin id="sentry"/>
+      <plugin id="sentry-logback"/>
       <plugin id="slf4j.api"/>
    </plugins>
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.noShutdown" value="true" />
       <property name="osgi.configuration.area" value="/var/lib/bm-eas/" />
+      <property name="osgi.noShutdown" value="true" />
    </configurations>
 
    <preferencesInfo>
