@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -140,6 +141,7 @@ public class MailItemUpdateTests extends AbstractRollingReplicationTests {
 	@Test
 	public void createExistingItemHavingSameVersionShouldNoop() {
 		ItemValue<MailboxItem> existing = mailApi.getCompleteById(mailObject.internalId);
+		mailObject.value.body.headers = new ArrayList<>();
 		mailObject.value.body.headers.add(Header.create(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE,
 				Long.toString(existing.value.body.date.getTime())));
 		Ack ack = mailApi.createById(mailObject.internalId, mailObject.value);
@@ -189,6 +191,7 @@ public class MailItemUpdateTests extends AbstractRollingReplicationTests {
 		String newSubject = "new " + now;
 		long ts = now + TimeUnit.DAYS.toMillis(8);
 		mailObject.value.body.subject = newSubject;
+		mailObject.value.body.headers = new ArrayList<>();
 		mailObject.value.body.headers.add(Header.create(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE, Long.toString(ts)));
 		Ack ack = mailApi.updateById(mailObject.internalId, mailObject.value);
 		assertTrue(ack.version > mailObject.version);
