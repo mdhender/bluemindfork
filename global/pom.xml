@@ -219,7 +219,7 @@
 						<failIfNoTests>false</failIfNoTests>
 						<product>org.eclipse.platform.ide</product>
 						<argLine>${tycho.testArgLine} ${bm.test.argline}</argLine>
-						<forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
+						<forkedProcessTimeoutInSeconds>2400</forkedProcessTimeoutInSeconds>
 						<systemPropertyVariables>
             				<net.fortuna.ical4j.timezone.cache.impl>net.fortuna.ical4j.util.MapTimeZoneCache</net.fortuna.ical4j.timezone.cache.impl>
             			</systemPropertyVariables>
@@ -239,7 +239,7 @@
 								</includes>
 								<testClassesDirectory>${basedir}/target/classes</testClassesDirectory>
 								<argLine>${tycho.testArgLine} ${bm.test.argline}</argLine>
-								<forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
+								<forkedProcessTimeoutInSeconds>2400</forkedProcessTimeoutInSeconds>
 								<systemPropertyVariables>
             						<net.fortuna.ical4j.timezone.cache.impl>net.fortuna.ical4j.util.MapTimeZoneCache</net.fortuna.ical4j.timezone.cache.impl>
             					</systemPropertyVariables>
