@@ -231,6 +231,7 @@ public class NginxService {
 		nc.writeFile("/etc/nginx/bm-servername.conf", new ByteArrayInputStream(serverNameContent(externalUrl)));
 		nc.writeFile("/etc/nginx/bm-externalurl.conf", new ByteArrayInputStream(externalUrlContent(externalUrl)));
 		reloadHttpd(nc);
+		restart(nc);
 	}
 
 	public void updateTickUpstream(String tickIp) {
