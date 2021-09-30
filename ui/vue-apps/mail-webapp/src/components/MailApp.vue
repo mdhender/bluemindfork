@@ -45,7 +45,7 @@
                 lg="5"
                 order="2"
             >
-                <mail-toolbar class="mx-auto mx-lg-0" />
+                <mail-toolbar class="mx-3 mx-lg-0" />
             </bm-col>
             <bm-col v-if="canSwitchWebmail" order="last" class="d-none d-lg-block pr-2">
                 <bm-form-checkbox

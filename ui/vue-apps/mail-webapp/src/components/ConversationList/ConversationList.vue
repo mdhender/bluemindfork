@@ -117,11 +117,9 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", {
-            CONVERSATION_IS_LOADED,
-            CONVERSATION_METADATA
-        }),
+        ...mapGetters("mail", { CONVERSATION_IS_LOADED, CONVERSATION_METADATA }),
         ...mapState("mail", ["activeFolder"]),
+        ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
         conversations() {
             return this.conversationKeys.map(key => this.CONVERSATION_METADATA(key)).filter(Boolean);
         },
@@ -145,7 +143,9 @@ export default {
                 );
 
                 if (conversationsToLoad.length > 0) {
-                    const messagesToLoad = this.conversations.flatMap(conversation => conversation.messages);
+                    const messagesToLoad = this.conversations
+                        .flatMap(conversation => conversation.messages)
+                        .filter(key => this.messages[key].loading === LoadingStatus.NOT_LOADED);
                     this.FETCH_MESSAGE_METADATA({ messages: messagesToLoad });
                 }
             },
@@ -168,7 +168,7 @@ export default {
         onScroll() {
             const total = this.$el.scrollHeight;
             const current = this.$el.scrollTop + this.$el.offsetHeight;
-            if (current >= total && this.conversationKeys.length < this.allConversationKeys.length) {
+            if (total !== 0 && current >= total && this.conversationKeys.length < this.allConversationKeys.length) {
                 this.$emit("next-page");
             }
         },
