@@ -25,6 +25,8 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
+import net.bluemind.directory.hollow.datamodel.consumer.DirectorySearchFactory;
+import net.bluemind.directory.hollow.datamodel.consumer.SerializedDirectorySearch;
 import net.bluemind.eas.backend.HierarchyNode;
 import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.store.ISyncStorage;
@@ -53,11 +55,19 @@ public class NewMailNotificationHandler implements OutOfProcessMessageHandler {
 		}
 
 		String uniqueId = m.getStringProperty("containerUid");
-		String userUid = m.getStringProperty("owner");
+		String owner = m.getStringProperty("owner");
 		String domainUid = m.getStringProperty("domain");
 
+		SerializedDirectorySearch directory = DirectorySearchFactory.get(domainUid);
+		String galKind = directory.byUid(owner).map(r -> r.getKind().getValue()).orElse("unknown");
+
+		if ("unknown".equals(galKind)) {
+			// this is triggered by the replication latency probe mailshare
+			return;
+		}
+
 		try {
-			HierarchyNode node = store.getHierarchyNode("NewMailNotificationHandler-" + uniqueId, domainUid, userUid,
+			HierarchyNode node = store.getHierarchyNode("NewMailNotificationHandler-" + uniqueId, domainUid, owner,
 					ContainerHierarchyNode.uidFor(uniqueId, IMailReplicaUids.MAILBOX_RECORDS, domainUid));
 			eb.publish("eas.collection." + node.collectionId.getValue(), new JsonObject());
 		} catch (CollectionNotFoundException e) {
