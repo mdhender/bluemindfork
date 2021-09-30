@@ -344,9 +344,6 @@ public abstract class AbstractRollingReplicationTests {
 		Optional<Header> idHeader = reloaded.value.body.headers.stream()
 				.filter(h -> h.name.equals(MailApiHeaders.X_BM_INTERNAL_ID)).findAny();
 		assertTrue(idHeader.isPresent());
-		Optional<Header> refreshDateHeader = reloaded.value.body.headers.stream()
-				.filter(h -> h.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)).findAny();
-		assertTrue(refreshDateHeader.isPresent());
 		recordsApi.removePart(partId);
 		return uploaded;
 	}
