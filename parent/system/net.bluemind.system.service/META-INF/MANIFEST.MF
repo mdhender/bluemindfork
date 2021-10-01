@@ -47,7 +47,6 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.core.validator,
  net.bluemind.server.hook,
  net.bluemind.core.sanitizer,
- net.bluemind.core.sanitizer,
  org.ini4j
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
@@ -57,4 +56,3 @@ Export-Package: net.bluemind.system.service,
 Bundle-Localization: OSGI-INF/l10n/bundle
 Bundle-Activator: net.bluemind.system.service.Activator
 Automatic-Module-Name: net.bluemind.system.service
-

@@ -62,6 +62,7 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.hook.IDomainHook;
 import net.bluemind.domain.service.DefaultGroups;
+import net.bluemind.domain.service.DomainNotFoundException;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.hornetq.client.MQ;
@@ -175,7 +176,7 @@ public class DomainsService implements IDomains {
 
 		ItemValue<Domain> currentDomain = store.get(uid, null);
 		if (currentDomain == null) {
-			throw domainNotFoundServerFault(uid);
+			throw new DomainNotFoundException(uid);
 		}
 
 		ParametersValidator.notNullAndNotEmpty(uid);
@@ -227,7 +228,7 @@ public class DomainsService implements IDomains {
 
 		ItemValue<Domain> domainItem = store.get(uid, null);
 		if (domainItem == null) {
-			throw domainNotFoundServerFault(uid);
+			throw new DomainNotFoundException(uid);
 		}
 
 		IDirectory dir = context.provider().instance(IDirectory.class, uid);
@@ -260,7 +261,7 @@ public class DomainsService implements IDomains {
 
 		final ItemValue<Domain> domain = store.get(uid, null);
 		if (domain == null) {
-			throw domainNotFoundServerFault(uid);
+			throw new DomainNotFoundException(uid);
 		}
 
 		ITasksManager tasksMananger = context.provider().instance(ITasksManager.class);
@@ -374,7 +375,7 @@ public class DomainsService implements IDomains {
 
 		final ItemValue<Domain> domainItem = get(uid);
 		if (domainItem == null) {
-			throw domainNotFoundServerFault(uid);
+			throw new DomainNotFoundException(uid);
 		}
 
 		final Set<String> previousAliases = domainItem.value.aliases;
@@ -440,7 +441,7 @@ public class DomainsService implements IDomains {
 
 		final ItemValue<Domain> currentDomainItem = get(uid);
 		if (currentDomainItem == null) {
-			throw domainNotFoundServerFault(uid);
+			throw new DomainNotFoundException(uid);
 		}
 		final Domain domain = currentDomainItem.value.copy();
 
@@ -516,9 +517,5 @@ public class DomainsService implements IDomains {
 	public Set<String> getRoles(String uid) {
 		rbacManager.forDomain(uid).check(BasicRoles.ROLE_ADMIN);
 		return store.getRoles(uid);
-	}
-
-	private ServerFault domainNotFoundServerFault(String uid) {
-		return new ServerFault("Domain " + uid + " doesnt exists", ErrorCode.NOT_FOUND);
 	}
 }

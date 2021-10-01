@@ -26,13 +26,20 @@ public class CertData {
 	public String certificateAuthority;
 	public String certificate;
 	public String privateKey;
+	public String domainUid;
 
-	public static CertData create(String certificateAuthority, String certificate, String privateKey) {
+	public static CertData create(String certificateAuthority, String certificate, String privateKey,
+			String domainUid) {
 
 		CertData ret = new CertData();
 		ret.certificateAuthority = certificateAuthority;
 		ret.certificate = certificate;
 		ret.privateKey = privateKey;
+		ret.domainUid = domainUid;
 		return ret;
+	}
+
+	public static CertData create(String certificateAuthority, String certificate, String privateKey) {
+		return CertData.create(certificateAuthority, certificate, privateKey, "global.virt");
 	}
 }

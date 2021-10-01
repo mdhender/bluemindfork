@@ -52,6 +52,8 @@ import org.bouncycastle.openssl.PEMParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -59,6 +61,9 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.ITasksManager;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomains;
+import net.bluemind.domain.service.DomainNotFoundException;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.client.AHCNodeClientFactory;
@@ -83,56 +88,78 @@ public class SecurityMgmt implements ISecurityMgmt {
 	}
 
 	@Override
-	public TaskRef updateFirewallRules() throws ServerFault {
+	public TaskRef updateFirewallRules() {
 		rbac.check(BasicRoles.ROLE_MANAGE_SYSTEM_CONF);
 
 		return context.provider().instance(ITasksManager.class).run(new UpdateFirewallRulesTask());
 	}
 
 	@Override
-	public void updateCertificate(CertData certData) throws ServerFault {
+	public void updateCertificate(CertData certData) {
 		rbac.check(BasicRoles.ROLE_MANAGE_SYSTEM_CONF);
 
 		logger.info("update certificate by {}", context.getSecurityContext().getSubject());
-		String certificateAuthority = certData.certificateAuthority;
-		String certificate = certData.certificate;
-		String privateKey = certData.privateKey;
 
-		checkCertificate(certificateAuthority.getBytes(), certificate.getBytes(), privateKey.getBytes());
+		String domainUid = certData.domainUid;
+		if (!Strings.isNullOrEmpty(domainUid) && !domainUid.equals("global.virt")) {
+			checkDomainCertificate(domainUid);
+		}
+
+		checkCertificate(certData);
 
 		IServer serverService = context.provider().instance(IServer.class, InstallationId.getIdentifier());
 
 		for (ItemValue<Server> serverItem : serverService.allComplete()) {
-			writeCert(serverItem.value, certificateAuthority, certificate, privateKey);
+			writeCert(serverItem.value, certData);
 		}
 
 		fireCertificateUpdated();
 	}
 
-	private void fireCertificateUpdated() throws ServerFault {
+	private void fireCertificateUpdated() {
 		for (ISystemHook hook : hooks) {
 			hook.onCertificateUpdate();
 		}
 	}
 
-	private void writeCert(Server server, String ca, String cert, String pkey) throws ServerFault {
+	private void writeCert(Server server, CertData certData) {
+
+		String ca = certData.certificateAuthority;
+		String cert = certData.certificate;
+		String pkey = certData.privateKey;
+		String domainUid = certData.domainUid;
+
+		logger.info("Writing certificate for domain {} ", domainUid);
 		String certPlusKey = cert + "\n" + pkey + "\n" + ca;
 		INodeClient nc = new AHCNodeClientFactory().create(server.address());
-		copyCertToNode(nc, ca, certPlusKey);
+		copyCertToNode(nc, ca, certPlusKey, domainUid);
 	}
 
-	private void copyCertToNode(INodeClient nc, String ca, String certPlusKey) throws ServerFault {
-		TaskRef tr = nc.executeCommand("mkdir -p /var/lib/bm-ca");
-		NCUtils.waitFor(nc, tr);
-		nc.writeFile("/var/lib/bm-ca/cacert.pem", new ByteArrayInputStream(ca.getBytes()));
+	private void copyCertToNode(INodeClient nc, String ca, String certPlusKey, String domainUid) {
+
+		TaskRef tr = null;
+		String bmCertFileName = "bm_cert.pem";
+
+		if (Strings.isNullOrEmpty(domainUid) || domainUid.equals("global.virt")) {
+			tr = nc.executeCommand("mkdir -p /var/lib/bm-ca");
+			NCUtils.waitFor(nc, tr);
+			nc.writeFile("/var/lib/bm-ca/cacert.pem", new ByteArrayInputStream(ca.getBytes()));
+		} else {
+			bmCertFileName = "bm_cert-" + domainUid + ".pem";
+		}
 
 		tr = nc.executeCommand("mkdir -p /etc/bm/certs");
 		NCUtils.waitFor(nc, tr);
-		nc.writeFile("/etc/bm/certs/bm_cert.pem", new ByteArrayInputStream(certPlusKey.getBytes()));
-		nc.writeFile("/etc/ssl/certs/bm_cert.pem", new ByteArrayInputStream(certPlusKey.getBytes()));
+		nc.writeFile("/etc/bm/certs/" + bmCertFileName, new ByteArrayInputStream(certPlusKey.getBytes()));
+		nc.writeFile("/etc/ssl/certs/" + bmCertFileName, new ByteArrayInputStream(certPlusKey.getBytes()));
 	}
 
-	public static void checkCertificate(byte[] caData, byte[] certData, byte[] pkeyData) throws ServerFault {
+	public static void checkCertificate(CertData certData) {
+
+		byte[] caData = certData.certificateAuthority.getBytes();
+		byte[] certificateData = certData.certificate.getBytes();
+		byte[] pkeyData = certData.privateKey.getBytes();
+
 		CertificateFactory cf = null;
 		try {
 			cf = CertificateFactory.getInstance("X.509");
@@ -169,7 +196,7 @@ public class SecurityMgmt implements ISecurityMgmt {
 		// load certficate
 		X509Certificate cert = null;
 		try {
-			cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certData));
+			cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certificateData));
 		} catch (CertificateException e) {
 			logger.error("error reading certificate: {}", e.getMessage(), e);
 			throw new ServerFault("Certificate not valid : " + e.getMessage(), e);
@@ -250,5 +277,14 @@ public class SecurityMgmt implements ISecurityMgmt {
 			logger.error("error during private key validation: {}", e.getMessage(), e);
 			throw new ServerFault("error during private key validation : " + e.getMessage(), e);
 		}
+	}
+
+	private void checkDomainCertificate(String domainUid) {
+
+		ItemValue<Domain> domain = context.provider().instance(IDomains.class).get(domainUid);
+		if (domain == null || domain.value == null) {
+			throw new DomainNotFoundException(domainUid);
+		}
+
 	}
 }

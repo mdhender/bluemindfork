@@ -28,35 +28,47 @@ import org.junit.Test;
 import com.google.common.io.Files;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.system.api.CertData;
 import net.bluemind.system.service.certificate.SecurityMgmt;
 
 public class CertificateMgmtCheckCertificateTest {
 
 	private byte[] caData;
-	private byte[] certData;
+	private byte[] certificateData;
 	private byte[] privateKeyData;
 
-	private byte[] certData2;
+	private byte[] certificateData2;
 	private byte[] privateKeyData2;
 
 	@Before
 	public void setUp() throws IOException {
 		caData = Files.toByteArray(new File("data/certs/cacert.pem"));
-		certData = Files.toByteArray(new File("data/certs/cert.pem"));
-		certData2 = Files.toByteArray(new File("data/certs/cert2.pem"));
+		certificateData = Files.toByteArray(new File("data/certs/cert.pem"));
+		certificateData2 = Files.toByteArray(new File("data/certs/cert2.pem"));
 		privateKeyData = Files.toByteArray(new File("data/certs/privatekey"));
 		privateKeyData2 = Files.toByteArray(new File("data/certs/privatekey2"));
 	}
 
 	@Test
 	public void testCheck() throws ServerFault {
-		SecurityMgmt.checkCertificate(caData, certData, privateKeyData);
+
+		CertData certData = new CertData();
+		certData.certificateAuthority = new String(caData);
+		certData.certificate = new String(certificateData);
+		certData.privateKey = new String(privateKeyData);
+
+		SecurityMgmt.checkCertificate(certData);
 	}
 
 	@Test
 	public void testCheckNotCA() {
 		try {
-			SecurityMgmt.checkCertificate(certData, certData, privateKeyData);
+			CertData certData = new CertData();
+			certData.certificateAuthority = new String(certificateData);
+			certData.certificate = new String(certificateData);
+			certData.privateKey = new String(privateKeyData);
+
+			SecurityMgmt.checkCertificate(certData);
 			Assert.fail();
 		} catch (ServerFault e) {
 		}
@@ -65,7 +77,12 @@ public class CertificateMgmtCheckCertificateTest {
 	@Test
 	public void testCheckNotCert() {
 		try {
-			SecurityMgmt.checkCertificate(caData, caData, privateKeyData);
+			CertData certData = new CertData();
+			certData.certificateAuthority = new String(caData);
+			certData.certificate = new String(caData);
+			certData.privateKey = new String(privateKeyData);
+
+			SecurityMgmt.checkCertificate(certData);
 			Assert.fail();
 		} catch (ServerFault e) {
 		}
@@ -74,7 +91,12 @@ public class CertificateMgmtCheckCertificateTest {
 	@Test
 	public void testCheck_Cert_dont_match_CA() {
 		try {
-			SecurityMgmt.checkCertificate(caData, certData2, privateKeyData);
+			CertData certData = new CertData();
+			certData.certificateAuthority = new String(caData);
+			certData.certificate = new String(certificateData2);
+			certData.privateKey = new String(privateKeyData);
+
+			SecurityMgmt.checkCertificate(certData);
 			Assert.fail();
 		} catch (ServerFault e) {
 		}
@@ -83,7 +105,12 @@ public class CertificateMgmtCheckCertificateTest {
 	@Test
 	public void testCheck_pk_not_match_cert() {
 		try {
-			SecurityMgmt.checkCertificate(caData, certData, privateKeyData2);
+			CertData certData = new CertData();
+			certData.certificateAuthority = new String(caData);
+			certData.certificate = new String(certificateData);
+			certData.privateKey = new String(privateKeyData2);
+
+			SecurityMgmt.checkCertificate(certData);
 			Assert.fail();
 		} catch (ServerFault e) {
 		}
@@ -92,20 +119,35 @@ public class CertificateMgmtCheckCertificateTest {
 	@Test
 	public void testCheck_invalidDatas() {
 		try {
-			SecurityMgmt.checkCertificate("test".getBytes(), certData, privateKeyData);
+			CertData certData = new CertData();
+			certData.certificateAuthority = "test";
+			certData.certificate = new String(certificateData);
+			certData.privateKey = new String(privateKeyData);
+
+			SecurityMgmt.checkCertificate(certData);
 			Assert.fail();
 		} catch (ServerFault e) {
 
 		}
 
 		try {
-			SecurityMgmt.checkCertificate(caData, "test".getBytes(), privateKeyData);
+			CertData certData = new CertData();
+			certData.certificateAuthority = new String(caData);
+			certData.certificate = "test";
+			certData.privateKey = new String(privateKeyData);
+
+			SecurityMgmt.checkCertificate(certData);
 			Assert.fail();
 		} catch (ServerFault e) {
 		}
 
 		try {
-			SecurityMgmt.checkCertificate(caData, certData, "test".getBytes());
+			CertData certData = new CertData();
+			certData.certificateAuthority = new String(caData);
+			certData.certificate = new String(certificateData);
+			certData.privateKey = "test";
+
+			SecurityMgmt.checkCertificate(certData);
 			Assert.fail();
 		} catch (ServerFault e) {
 		}
@@ -118,7 +160,12 @@ public class CertificateMgmtCheckCertificateTest {
 			byte[] certChainData = Files.toByteArray(new File("data/cert-BM-3891/bm-tu.crt"));
 			byte[] privateKey = Files.toByteArray(new File("data/cert-BM-3891/bm-tu.key"));
 
-			SecurityMgmt.checkCertificate(caChainData, certChainData, privateKey);
+			CertData certData = new CertData();
+			certData.certificateAuthority = new String(caChainData);
+			certData.certificate = new String(certChainData);
+			certData.privateKey = new String(privateKey);
+
+			SecurityMgmt.checkCertificate(certData);
 		} catch (IOException | ServerFault e) {
 			e.printStackTrace();
 			Assert.fail("Test thrown an exception");
@@ -132,7 +179,12 @@ public class CertificateMgmtCheckCertificateTest {
 			byte[] certChainData = Files.toByteArray(new File("data/cert-BM-3891/bm-tu.crt"));
 			byte[] privateKey = Files.toByteArray(new File("data/cert-BM-3891/bm-tu.key"));
 
-			SecurityMgmt.checkCertificate(caChainData, certChainData, privateKey);
+			CertData certData = new CertData();
+			certData.certificateAuthority = new String(caChainData);
+			certData.certificate = new String(certChainData);
+			certData.privateKey = new String(privateKey);
+
+			SecurityMgmt.checkCertificate(certData);
 		} catch (IOException | ServerFault e) {
 			e.printStackTrace();
 			Assert.fail("Test thrown an exception");

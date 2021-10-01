@@ -41,14 +41,10 @@ public interface ISecurityMgmt {
 	/**
 	 * Update external certificate/private key
 	 * 
-	 * @param ca
-	 *            Certificate Authority
-	 * @param cert
-	 *            Certificate
-	 * @param pkey
-	 *            Private Key
+	 * @param certData Certificate data
 	 * @throws ServerFault
 	 */
 	@POST
 	void updateCertificate(CertData certData) throws ServerFault;
+
 }

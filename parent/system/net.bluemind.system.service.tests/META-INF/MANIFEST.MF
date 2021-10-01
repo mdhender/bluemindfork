@@ -24,5 +24,7 @@ Require-Bundle: org.junit,
  net.bluemind.system.api,
  net.bluemind.system.service,
  net.bluemind.system.hook,
- net.bluemind.system.persistence
+ net.bluemind.system.persistence,
+ net.bluemind.tests.defaultdata,
+ net.bluemind.node.api
 Automatic-Module-Name: net.bluemind.system.service.tests
