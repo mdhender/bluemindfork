@@ -57,6 +57,7 @@ import { BmListGroup } from "@bluemind/styleguide";
 import { mapState, mapGetters, mapActions } from "vuex";
 import ConversationListItemLoading from "./ConversationListItemLoading";
 import DateSeparator from "./DateSeparator";
+import { init as initDateSeparator } from "./DateSeparator";
 import DraggableConversation from "./DraggableConversation";
 import { CONVERSATION_IS_LOADED, CONVERSATION_METADATA } from "~/getters";
 import { FETCH_MESSAGE_METADATA } from "~/actions";
@@ -156,6 +157,7 @@ export default {
         if (this.selected && !Array.isArray(this.selected)) {
             this.focusByKey(this.selected?.key);
         }
+        initDateSeparator();
     },
     mounted() {
         this.onScroll();

@@ -21,7 +21,8 @@ export default {
     data() {
         return {
             needSeparator: false,
-            text: ""
+            text: "",
+            range: undefined
         };
     },
     created() {
@@ -74,7 +75,15 @@ function computeVisibility(dateSeparator) {
             ? dateSeparator.$d(range.date, range.dateFormat)
             : range.text;
         separatorAdded = true;
-        dateSeparator.needSeparator = true;
+        dateSeparator.range = range;
+
+        const previousNeededSepWithSameRange = allSeparators.find(s => s.needSeparator && s.range === range);
+        if (previousNeededSepWithSameRange?.index > dateSeparator.index) {
+            previousNeededSepWithSameRange.needSeparator = false;
+            dateSeparator.needSeparator = true;
+        } else if (!previousNeededSepWithSameRange) {
+            dateSeparator.needSeparator = true;
+        }
     }
 }
 
