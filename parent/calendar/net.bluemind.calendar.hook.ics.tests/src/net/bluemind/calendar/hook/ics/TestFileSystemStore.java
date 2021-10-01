@@ -21,10 +21,10 @@ package net.bluemind.calendar.hook.ics;
 import java.io.File;
 
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.document.persistence.fs.FilesystemStore;
+import net.bluemind.document.persistence.fs.FilesystemStoreImpl;
 import net.bluemind.document.storage.IDocumentStore;
 
-public class TestFileSystemStore extends FilesystemStore implements IDocumentStore {
+public class TestFileSystemStore extends FilesystemStoreImpl implements IDocumentStore {
 
 	public TestFileSystemStore() {
 		File file = new File(System.getProperty("java.io.tmpdir"), "bm-docs35");

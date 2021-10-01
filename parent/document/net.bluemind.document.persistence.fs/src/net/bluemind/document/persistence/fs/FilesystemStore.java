@@ -18,87 +18,57 @@
  */
 package net.bluemind.document.persistence.fs;
 
-import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Files;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.ByteStreams;
+import com.google.common.base.Suppliers;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.document.storage.IDocumentStore;
+import net.bluemind.sds.store.ISdsSyncStore;
+import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
 public class FilesystemStore implements IDocumentStore {
 	private static final Logger logger = LoggerFactory.getLogger(FilesystemStore.class);
 
-	protected String STORAGE_DIR = Activator.getStorageDir();
+	private final Supplier<IDocumentStore> delegate;
 
 	public FilesystemStore() {
+		this.delegate = Suppliers.memoize(() -> selectStoreStrategy());
+		logger.info("Selected delegate is {}", delegate);
+	}
 
+	private IDocumentStore selectStoreStrategy() {
+		Optional<ISdsSyncStore> optSds = new DefaultSdsStoreLoader().forSysconf(LocalSysconfCache.get());
+		return optSds.map(SdsStoreImpl::create).orElseGet(FilesystemStoreImpl::new);
 	}
 
 	@Override
 	public void store(String uid, byte[] content) throws ServerFault {
-		try {
-			File file = getFile(uid);
-			file.getParentFile().mkdirs();
-			Files.write(file.toPath(), content);
-
-			logger.info("File stored to {}", file.getAbsolutePath());
-
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new ServerFault(e.getMessage(), e);
-		}
-
+		delegate.get().store(uid, content);
 	}
 
 	@Override
 	public byte[] get(String uid) throws ServerFault {
-
-		File content = getFile(uid);
-		if (!content.exists()) {
-			logger.debug("Document {} not found", uid);
-			return null;
-		}
-
-		try (InputStream in = Files.newInputStream(content.toPath())) {
-			return ByteStreams.toByteArray(in);
-		} catch (Exception t) {
-			throw new ServerFault(t.getMessage(), t);
-		}
+		return delegate.get().get(uid);
 	}
 
 	@Override
 	public void delete(String uid) throws ServerFault {
-		File content = getFile(uid);
-		if (!content.exists()) {
-			logger.debug("Cannot delete document {}. File not found", uid);
-			return;
-		}
-
-		logger.info("Delete file {}", content.getAbsolutePath());
-		content.delete();
+		delegate.get().delete(uid);
 	}
 
 	@Override
 	public boolean exists(String uid) throws ServerFault {
-		File content = getFile(uid);
-		return content.exists();
+		return delegate.get().exists(uid);
 	}
 
 	@Override
 	public int getPriority() {
 		return 1;
-	}
-
-	private File getFile(String uid) {
-		// FIXME check '../..' ?
-		String path = STORAGE_DIR + "/" + uid + ".bin";
-		return new File(path);
-
 	}
 
 }

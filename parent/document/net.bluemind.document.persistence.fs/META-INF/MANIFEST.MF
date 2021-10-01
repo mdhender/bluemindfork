@@ -9,7 +9,12 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.core.commons;bundle-version="1.0.0",
- net.bluemind.document.storage;bundle-version="1.0.0"
+ net.bluemind.document.storage;bundle-version="1.0.0",
+ net.bluemind.system.sysconf.helper,
+ net.bluemind.eclipse.common,
+ net.bluemind.sds.store,
+ net.bluemind.system.api,
+ net.bluemind.lib.vertx
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: net.bluemind.document.persistence.fs
 Bundle-ActivationPolicy: lazy
