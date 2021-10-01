@@ -101,9 +101,11 @@ function insertInHtml(htmlWithCids = [], imageParts = [], getNewSrcFn) {
         while ((inlineReferences = inlineReferenceRegex.exec(modifiedHtml)) !== null) {
             const cid = inlineReferences[1];
             const replaceRegex = new RegExp("(<img[^>]+?src\\s*=\\s*['\"])cid:" + cid + "(['\"][^>]*?>{1}?)", "gmi");
-
             const imagePart = imageParts.find(
-                part => part.contentId && part.contentId.toUpperCase() === "<" + cid.toUpperCase() + ">"
+                part =>
+                    part.contentId &&
+                    (part.contentId.toUpperCase() === "<" + cid.toUpperCase() + ">" ||
+                        part.contentId.toUpperCase() === cid.toUpperCase())
             );
             if (imagePart) {
                 let newSrc = getNewSrcFn(imagePart);

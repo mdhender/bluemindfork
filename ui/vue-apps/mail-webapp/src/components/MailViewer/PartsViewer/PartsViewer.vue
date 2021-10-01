@@ -35,11 +35,7 @@ import { ADD_ATTACHMENT, REMOVE_ATTACHMENT } from "~/mutations";
 
 export default {
     name: "PartsViewer",
-    components: {
-        ImagePartViewer,
-        TextHtmlPartViewer,
-        TextPlainPartViewer
-    },
+    components: { ImagePartViewer, TextHtmlPartViewer, TextPlainPartViewer },
     props: {
         message: {
             type: Object,
@@ -47,11 +43,7 @@ export default {
         }
     },
     data() {
-        return {
-            parts: [],
-            htmlWithImageInserted: [],
-            localAttachments: []
-        };
+        return { parts: [], htmlWithImageInserted: [], localAttachments: [] };
     },
     computed: {
         ...mapState("mail", { partsByMessageKey: ({ partsData }) => partsData.partsByMessageKey }),
@@ -80,7 +72,7 @@ export default {
 
                 // trigger parts display with all data loaded
                 this.htmlWithImageInserted = htmlContents;
-                this.parts = others.filter(doesViewerSupportPart).concat(htmlParts);
+                this.parts = htmlParts.concat(others.filter(doesViewerSupportPart));
 
                 // display unsupported parts as attachment
                 const unsupported = others.filter(part => !doesViewerSupportPart(part));
