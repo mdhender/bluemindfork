@@ -36,7 +36,7 @@ import { mapGetters, mapState } from "vuex";
 import { CONVERSATIONS_ACTIVATED, MY_DRAFTS, MY_SENT } from "~/getters";
 import ConversationAvatar from "./ConversationAvatar";
 import MailAttachmentIcon from "../MailAttachmentIcon";
-import { SELECTION_MODE } from "./ConversationList.vue";
+import { SELECTION_MODE } from "./ConversationList";
 
 export default {
     name: "ConversationListItemLeft",

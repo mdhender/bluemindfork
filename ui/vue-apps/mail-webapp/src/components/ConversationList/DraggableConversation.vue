@@ -25,7 +25,7 @@
             <template v-slot:actions> <slot name="actions" /> </template>
         </conversation-list-item>
         <template v-slot:shadow>
-            <conversation-list-item-shadow :conversation="conversation" :count="SELECTION_KEYS.length" />
+            <conversation-list-item-shadow :conversation="conversation" :count="shadowCount" />
         </template>
     </bm-draggable>
     <conversation-list-item
@@ -42,20 +42,14 @@
 
 <script>
 import { BmDraggable } from "@bluemind/styleguide";
-import { mapGetters } from "vuex";
 import ConversationListItemShadow from "./ConversationListItemShadow";
 import ConversationListItem from "./ConversationListItem";
-import { SELECTION, SELECTION_KEYS } from "~/getters";
-import { MoveMixin } from "~/mixins";
+import { MoveMixin, SelectionMixin } from "~/mixins";
 
 export default {
     name: "DraggableConversation",
-    components: {
-        ConversationListItemShadow,
-        BmDraggable,
-        ConversationListItem
-    },
-    mixins: [MoveMixin],
+    components: { ConversationListItemShadow, BmDraggable, ConversationListItem },
+    mixins: [MoveMixin, SelectionMixin],
     props: {
         conversation: {
             type: Object,
@@ -91,9 +85,11 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", { SELECTION, SELECTION_KEYS }),
         dragged() {
-            return this.isSelected ? this.SELECTION : this.conversation;
+            return this.isSelected ? this.selected : this.conversation;
+        },
+        shadowCount() {
+            return this.isSelected ? this.selectionLength : 1;
         }
     },
     methods: {
@@ -110,7 +106,7 @@ export default {
                     });
                     this.tooltip.cursor = "forbidden";
                 } else {
-                    this.tooltip.text = this.$tc("mail.actions.move.item", this.SELECTION_KEYS.length, {
+                    this.tooltip.text = this.$tc("mail.actions.move.item", this.shadowCount, {
                         path: folder.path
                     });
                     this.tooltip.cursor = "cursor";
