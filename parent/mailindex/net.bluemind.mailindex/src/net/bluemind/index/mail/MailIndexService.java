@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import javax.mail.internet.AddressException;
@@ -44,7 +45,6 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryAction;
 import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
@@ -756,10 +756,20 @@ public class MailIndexService implements IMailIndexService {
 			SearchResponse sr = searchBuilder.execute().actionGet();
 			SearchHits searchHits = sr.getHits();
 
-			List<MessageSearchResult> results = new LinkedList<>();
+			Map<Integer, InternalMessageSearchResult> results = new LinkedHashMap<>();
 
+			AtomicInteger deduplicated = new AtomicInteger();
 			for (SearchHit sh : searchHits.getHits()) {
-				safeResult(sh).ifPresent(results::add);
+				safeResult(sh).ifPresent(result -> {
+					if (results.containsKey(result.itemId)) {
+						deduplicated.incrementAndGet();
+						if (results.get(result.itemId).imapUid < result.imapUid) {
+							results.put(result.itemId, result);
+						}
+					} else {
+						results.put(result.itemId, result);
+					}
+				});
 				if (System.nanoTime() - start > TIME_BUDGET) {
 					logger.warn("Stopped processing search results as timebudget ({} ns) is exhausted", TIME_BUDGET);
 					break;
@@ -767,8 +777,8 @@ public class MailIndexService implements IMailIndexService {
 			}
 
 			SearchResult result = new SearchResult();
-			result.results = results;
-			result.totalResults = (int) searchHits.getTotalHits();
+			result.results = new ArrayList<>(results.values());
+			result.totalResults = (int) searchHits.getTotalHits() - deduplicated.get();
 			result.hasMoreResults = (searchHits.getTotalHits() > results.size());
 			logger.info("[{}] results: {} (tried {}) / {}, hasMore: {}", dirEntryUid, results.size(),
 					searchHits.getHits().length, result.totalResults, result.hasMoreResults);
@@ -807,9 +817,9 @@ public class MailIndexService implements IMailIndexService {
 		return bq;
 	}
 
-	private Optional<MessageSearchResult> safeResult(SearchHit sh) {
+	private Optional<InternalMessageSearchResult> safeResult(SearchHit sh) {
 		try {
-			MessageSearchResult msr = createSearchResult(sh);
+			InternalMessageSearchResult msr = createSearchResult(sh);
 			return Optional.of(msr);
 		} catch (Exception e) {
 			logger.warn("Cannot create result object", e);
@@ -845,7 +855,7 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	private MessageSearchResult createSearchResult(SearchHit sh) {
+	private InternalMessageSearchResult createSearchResult(SearchHit sh) {
 		Map<String, Object> source = sh.getSourceAsMap();
 		Integer itemId = source.get("itemId") != null ? (int) source.get("itemId") : null;
 		String folderUid = ((String) source.get("id")).split(":")[0];
@@ -891,8 +901,22 @@ public class MailIndexService implements IMailIndexService {
 
 		String preview = Strings.nullToEmpty((String) source.get("preview"));
 
-		return new MessageSearchResult(contUid, itemId, subject, size, "IPM.Note", messageDate, from, to, seen, flagged,
-				hasAttachment, preview);
+		int imapUid = source.get("uid") != null ? (Integer) source.get("uid") : 0;
+
+		return new InternalMessageSearchResult(contUid, itemId, subject, size, "IPM.Note", messageDate, from, to, seen,
+				flagged, hasAttachment, preview, imapUid);
+	}
+
+	public static class InternalMessageSearchResult extends MessageSearchResult {
+		public final int imapUid;
+
+		public InternalMessageSearchResult(String contUid, int itemId, String subject, int size, String string,
+				Date messageDate, Mbox from, Mbox to, boolean seen, boolean flagged, boolean hasAttachment,
+				String preview, int imapUid) {
+			super(contUid, itemId, subject, size, string, messageDate, from, to, seen, flagged, hasAttachment, preview);
+			this.imapUid = imapUid;
+		}
+
 	}
 
 }

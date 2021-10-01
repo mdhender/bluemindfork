@@ -73,13 +73,13 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		byte[] eml = Files.toByteArray(new File("data/test.eml"));
 
 		storeBody("body1", eml);
-		storeMessage("inbox", userUid, "body1", 1, Collections.emptyList());
+		storeMessage("inbox", userUid, "body1", 1, Collections.emptyList(), 1l);
 
 		String data = new String(eml);
 		data = data.replace("12 Feb", "13 Feb");
 
 		storeBody("body2", data.getBytes());
-		storeMessage("inbox", userUid, "body2", 2, Collections.emptyList());
+		storeMessage("inbox", userUid, "body2", 2, Collections.emptyList(), 2l);
 
 		ESearchActivator.refreshIndex(INDEX_NAME);
 
@@ -110,6 +110,35 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		sr = MailIndexActivator.getService().searchItems(userUid, q);
 		assertEquals(2, sr.totalResults);
 		assertTrue(sr.results.get(0).date.after(sr.results.get(1).date));
+	}
+
+	@Test
+	public void testDeDuplicateSearch() throws Exception {
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+
+		storeBody("body1", eml);
+		storeMessage("inbox", userUid, "body1", 1, Collections.emptyList(), 111l);
+
+		String data = new String(eml);
+		data = data.replace("12 Feb", "13 Feb");
+
+		storeBody("body2", data.getBytes());
+		storeMessage("inbox", userUid, "body2", 2, Collections.emptyList(), 111l);
+
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.recordQuery = null;
+		query.query = "drug";
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+		SearchResult sr = MailIndexActivator.getService().searchItems(userUid, q);
+		assertEquals(1, sr.totalResults);
 	}
 
 	@Test
@@ -148,23 +177,23 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		byte[] eml = Files.toByteArray(new File("data/test.eml"));
 
 		storeBody("body1", eml);
-		storeMessage("inbox", userUid, "body1", 1, Collections.emptyList());
+		storeMessage("inbox", userUid, "body1", 1, Collections.emptyList(), 1l);
 
 		String data = new String(eml);
 		data = data.replace("12 Feb", "13 Feb");
 
 		storeBody("body2", data.getBytes());
-		storeMessage("sent", userUid, "body2", 2, Collections.emptyList());
+		storeMessage("sent", userUid, "body2", 2, Collections.emptyList(), 2l);
 
 		data = data.replace("13 Feb", "14 Feb");
 
 		storeBody("body3", data.getBytes());
-		storeMessage("sent", userUid, "body3", 3, Collections.emptyList());
+		storeMessage("sent", userUid, "body3", 3, Collections.emptyList(), 3l);
 
 		data = data.replace("14 Feb", "1 Feb");
 
 		storeBody("body4", data.getBytes());
-		storeMessage("toto", userUid, "body4", 4, Collections.emptyList());
+		storeMessage("toto", userUid, "body4", 4, Collections.emptyList(), 4l);
 
 		ESearchActivator.refreshIndex(INDEX_NAME);
 

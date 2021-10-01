@@ -97,13 +97,13 @@ public class AbstractSearchTests {
 		System.out.println("Bootstrap finished....");
 	}
 
-	protected void addEml(long imapUid, String path, MailboxItemFlag.System... flags) throws IOException {
+	protected void addEml(long imapUid, String path, long itemId, MailboxItemFlag.System... flags) throws IOException {
 		byte[] eml = Files.toByteArray(new File(path));
 		HashCode hash = Hashing.goodFastHash(128).hashBytes(eml);
 		String emlUid = hash.toString();
 		storeBody(emlUid, eml);
 		storeMessage(mboxUid, userUid, emlUid, imapUid,
-				Arrays.stream(flags).map(MailboxItemFlag.System::value).collect(Collectors.toList()));
+				Arrays.stream(flags).map(MailboxItemFlag.System::value).collect(Collectors.toList()), itemId);
 		ESearchActivator.refreshIndex(INDEX_NAME);
 	}
 
@@ -139,13 +139,18 @@ public class AbstractSearchTests {
 
 	protected void storeMessage(String mailboxUniqueId, String userUid, String bodyUid, long imapUid,
 			List<MailboxItemFlag> flags) {
+		storeMessage(mailboxUniqueId, userUid, bodyUid, imapUid, flags, 44l);
+	}
+
+	protected void storeMessage(String mailboxUniqueId, String userUid, String bodyUid, long imapUid,
+			List<MailboxItemFlag> flags, long itemId) {
 		MailboxRecord mail = new MailboxRecord();
 		mail.messageBody = bodyUid;
 		mail.imapUid = imapUid;
 		mail.flags = flags;
 
 		ItemValue<MailboxRecord> item = new ItemValue<>();
-		item.internalId = 44L;
+		item.internalId = itemId;
 		item.value = mail;
 		MailIndexActivator.getService().storeMessage(mailboxUniqueId, item, userUid);
 	}

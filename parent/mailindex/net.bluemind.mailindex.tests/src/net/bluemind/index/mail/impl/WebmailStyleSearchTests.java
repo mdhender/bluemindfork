@@ -42,9 +42,9 @@ public class WebmailStyleSearchTests extends AbstractSearchTests {
 	@Test
 	public void addTwoMailsThenSearch() throws IOException {
 		System.err.println("Test starts....");
-		addEml(1L, "data/test.eml", MailboxItemFlag.System.Seen, MailboxItemFlag.System.Answered);
+		addEml(1L, "data/test.eml", 1, MailboxItemFlag.System.Seen, MailboxItemFlag.System.Answered);
 		System.err.println("Second eml");
-		addEml(2L, "data/testAttach.eml", MailboxItemFlag.System.Flagged);
+		addEml(2L, "data/testAttach.eml", 2, MailboxItemFlag.System.Flagged);
 		System.err.println("EMLs added.");
 		ESearchActivator.refreshIndex(INDEX_NAME);
 		QueryBuilder q = QueryBuilders.boolQuery()//
@@ -71,9 +71,9 @@ public class WebmailStyleSearchTests extends AbstractSearchTests {
 	@Test
 	public void addTwoMailsRmOneRecordFindOrphan() throws IOException {
 		System.err.println("Test starts....");
-		addEml(1L, "data/test.eml", MailboxItemFlag.System.Seen, MailboxItemFlag.System.Answered);
+		addEml(1L, "data/test.eml", 1, MailboxItemFlag.System.Seen, MailboxItemFlag.System.Answered);
 		System.err.println("Second eml");
-		addEml(2L, "data/testAttach.eml", MailboxItemFlag.System.Flagged);
+		addEml(2L, "data/testAttach.eml", 2, MailboxItemFlag.System.Flagged);
 		System.err.println("EMLs added.");
 		ESearchActivator.refreshIndex(INDEX_NAME);
 		QueryBuilder q = QueryBuilders.boolQuery()//
