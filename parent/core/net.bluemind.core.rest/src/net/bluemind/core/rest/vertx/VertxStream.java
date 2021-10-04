@@ -39,17 +39,24 @@ public class VertxStream {
 		private final Optional<String> mime;
 		private final Optional<String> charset;
 		private final Optional<String> fileName;
+		private final Handler<Void> endHook;
 
 		public ReadStreamStream(ReadStream<Buffer> delegate) {
-			this(delegate, Optional.empty(), Optional.empty(), Optional.empty());
+			this(delegate, Optional.empty(), Optional.empty(), Optional.empty(), v -> {
+			});
+		}
+
+		public ReadStreamStream(ReadStream<Buffer> delegate, Handler<Void> endHook) {
+			this(delegate, Optional.empty(), Optional.empty(), Optional.empty(), endHook);
 		}
 
 		public ReadStreamStream(ReadStream<Buffer> delegate, Optional<String> mime, Optional<String> charset,
-				Optional<String> filename) {
+				Optional<String> filename, Handler<Void> endHook) {
 			this.stream = delegate;
 			this.mime = mime;
 			this.charset = charset;
 			this.fileName = filename;
+			this.endHook = endHook;
 		}
 
 		@Override
@@ -69,7 +76,14 @@ public class VertxStream {
 
 		@Override
 		public ReadStreamStream endHandler(Handler<Void> endHandler) {
-			stream.endHandler(endHandler);
+			stream.endHandler(v -> {
+				if (endHandler != null) {
+					endHandler.handle(v);
+				}
+				if (endHook != null) {
+					endHook.handle(v);
+				}
+			});
 			return this;
 		}
 
@@ -108,7 +122,16 @@ public class VertxStream {
 		if (stream instanceof Stream) {
 			return (Stream) stream;
 		} else {
-			return wrap(stream, null, null, null);
+			return wrap(stream, null, null, null, v -> {
+			});
+		}
+	}
+
+	public static Stream stream(ReadStream<Buffer> stream, Handler<Void> hook) {
+		if (stream instanceof Stream) {
+			return (Stream) stream;
+		} else {
+			return wrap(stream, null, null, null, hook);
 		}
 	}
 
@@ -116,13 +139,16 @@ public class VertxStream {
 		if (stream instanceof Stream) {
 			return (Stream) stream;
 		} else {
-			return wrap(stream, mime, charset, fileName);
+			return wrap(stream, mime, charset, fileName, v -> {
+
+			});
 		}
 	}
 
-	private static Stream wrap(ReadStream<Buffer> stream, String mime, String charset, String fileName) {
+	private static Stream wrap(ReadStream<Buffer> stream, String mime, String charset, String fileName,
+			Handler<Void> hook) {
 		return new ReadStreamStream(stream, Optional.ofNullable(mime), Optional.ofNullable(charset),
-				Optional.ofNullable(fileName));
+				Optional.ofNullable(fileName), hook);
 	}
 
 	public static <T> ReadStream<T> read(Stream stream) {

@@ -18,8 +18,8 @@
  */
 package net.bluemind.webmodule.filehostinghandler;
 
-import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -37,7 +37,6 @@ import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.ITaggedServiceProvider;
 import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.filehosting.api.FileHostingItem;
-import net.bluemind.filehosting.api.ID;
 import net.bluemind.filehosting.api.IFileHostingAsync;
 import net.bluemind.filehosting.api.Metadata;
 import net.bluemind.network.topology.Topology;
@@ -54,7 +53,7 @@ public class FileHostingHandler implements IWebFilter, NeedVertx {
 
 		String path = request.path();
 		if (path.contains("fh/bm-fh")) {
-			final String uid = extractUid(request.absoluteURI().toString());
+			final String uid = extractUid(request.absoluteURI());
 			logger.info("Handling request to shared file uid: {}", uid);
 
 			getService(request).getComplete(uid, new AsyncHandler<FileHostingItem>() {
@@ -80,9 +79,16 @@ public class FileHostingHandler implements IWebFilter, NeedVertx {
 	private void loadSharedFile(final HttpServerRequest request, final HttpServerResponse resp, final String uid,
 			final FileHostingItem item) {
 		logger.info("Delivering shared file: {}", item.name);
+		getMetaData(item.metadata, "content-length").map(ct -> {
+			logger.debug("Setting content-length to '{}'", ct);
+			return resp.putHeader("Content-Length", ct);
+		}).orElseGet(() -> { // NOSONAR
+			logger.debug("Chunked response for {}", item.name);
+			return resp.setChunked(true);
+		});
+
 		resp.putHeader("Content-Disposition", String.format("attachment; filename=\"%s\";", item.name));
-		resp.putHeader("Content-Type", getMetaData(item.metadata, "mime-type"));
-		resp.putHeader("Content-Length", getMetaData(item.metadata, "content-length"));
+		getMetaData(item.metadata, "mime-type").ifPresent(ct -> resp.putHeader("Content-Type", ct));
 		getService(request).getSharedFile(uid, new AsyncHandler<Stream>() {
 
 			@Override
@@ -102,41 +108,50 @@ public class FileHostingHandler implements IWebFilter, NeedVertx {
 	private void streamFile(final HttpServerResponse resp, final Stream stream) {
 		resp.setStatusCode(200);
 		ReadStream<Buffer> readStream = (ReadStream) stream;
-		readStream.pipeTo(resp);
+		readStream.pipeTo(resp, ar -> {
+			if (ar.failed()) {
+				logger.error("FH proxy {}", ar.cause().getMessage(), ar.cause());
+			}
+		});
+		readStream.resume();
 	}
 
 	private void errorHandling(HttpServerResponse resp, String uid, Throwable e) {
 		String msg = String.format("Shared file %s not found", uid);
 		logger.warn(msg);
 		printStackTrace(e);
-		resp.setStatusCode(404) //
-				.putHeader("Content-Length", "" + msg.length()) //
-				.write(msg, Charset.defaultCharset().name()) //
-				.end();
+		resp.setStatusCode(404).setStatusMessage(msg).end();
 	}
 
 	private void printStackTrace(Throwable e) {
-		StackTraceElement[] st = e.getStackTrace();
-		for (StackTraceElement element : st) {
-			logger.debug(element.toString());
+		if (logger.isDebugEnabled()) {
+			StackTraceElement[] st = e.getStackTrace();
+			for (StackTraceElement element : st) {
+				logger.debug(element.toString());
+			}
 		}
 	}
 
 	private String extractUid(String absoluteURI) {
-		return ID.extract(absoluteURI);
+		int idx = absoluteURI.indexOf("fh/bm-fh/");
+		if (idx > 0) {
+			return absoluteURI.substring(idx + "fh/bm-fh/".length());
+		} else {
+			throw new IllegalStateException(absoluteURI + " does not match");
+		}
 	}
 
-	protected String getMetaData(List<Metadata> metadata, String key) {
+	protected Optional<String> getMetaData(List<Metadata> metadata, String key) {
 		for (Metadata meta : metadata) {
 			if (meta.key.equals(key)) {
-				return meta.value;
+				return Optional.ofNullable(meta.value);
 			}
 		}
-		return "";
+		return Optional.empty();
 	}
 
 	protected IFileHostingAsync getService(HttpServerRequest request) {
-		ITaggedServiceProvider sp = getProvider(null, null, request);
+		ITaggedServiceProvider sp = getProvider(null, request);
 		return sp.instance("bm/core", IFileHostingAsync.class, "default");
 	}
 
@@ -146,7 +161,7 @@ public class FileHostingHandler implements IWebFilter, NeedVertx {
 		asyncHandler.success(resp);
 	};
 
-	private ITaggedServiceProvider getProvider(String login, String apiKey, HttpServerRequest request) {
+	private ITaggedServiceProvider getProvider(String apiKey, HttpServerRequest request) {
 		return new VertxServiceProvider(clientProvider, locator, apiKey).from(request);
 	}
 

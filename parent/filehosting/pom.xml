@@ -19,6 +19,7 @@
 		<module>net.bluemind.filehosting.webdav.service.tests</module>
 		<module>net.bluemind.filehosting.filesystem.job</module>
 		<module>net.bluemind.filehosting.filesystem.sqlschema</module>
+		<module>net.bluemind.filehosting.sds.service</module>
 		<module>net.bluemind.filehosting.filesystem.service</module>
 		<module>net.bluemind.filehosting.filesystem.service.tests</module>
 	</modules>

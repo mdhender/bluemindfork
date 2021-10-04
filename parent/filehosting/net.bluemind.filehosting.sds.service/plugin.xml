@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.filehosting.service">
+      <service
+            api="net.bluemind.filehosting.sds.service.SdsFileHostingService">
+      </service>
+   </extension>
+
+</plugin>
