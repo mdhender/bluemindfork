@@ -85,7 +85,7 @@ public class MailScreensContributor implements ScreenElementContributorUnwrapper
 				ScreenElement.create(null, UserMailIdentitiesModelHandler.TYPE)
 						.withRole(BasicRoles.ROLE_SELF_CHANGE_MAIL_IDENTITIES)));
 
-		if ("FULL".equals(Ajax.getAccountType())) {
+		if (!"SIMPLE".equals(Ajax.getAccountType())) {
 			tabs.push(Tab.create(null, messages.tabSubscriptions(),
 					ScreenElement.create(null, MailboxSubscriptionsEditor.TYPE)));
 			contribs.push(ScreenElementContribution.create("base", "modelHandlers",

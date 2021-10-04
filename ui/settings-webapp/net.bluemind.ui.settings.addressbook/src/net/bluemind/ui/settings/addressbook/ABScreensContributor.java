@@ -46,7 +46,7 @@ public class ABScreensContributor implements ScreenElementContributorUnwrapper {
 		JsArray<ScreenElementContribution> contribs = JsArray.createArray().cast();
 		contribs.push(ScreenElementContribution.create("root", "childrens", contribution));
 
-		if ("FULL".equals(Ajax.getAccountType())) {
+		if (!"SIMPLE".equals(Ajax.getAccountType())) {
 			tabs.push(Tab.create(null, messages.tabSubscriptions(),
 					ScreenElement.create(null, UserBooksSubscriptionEditor.TYPE)));
 
