@@ -352,7 +352,8 @@ var gBMOverlay = {
 					url: url,
 					contentPage: url, //TB 78
 					background: aBackground,
-					bmApp: aAskedUri
+					bmApp: aAskedUri,
+					linkHandler: "single-page"
 				});
 			} else {
 				await notifyTools.notifyBackground({command: "activeTab", tabId: tabBm.id});
