@@ -169,6 +169,18 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 
 	}
 
+	@Test
+	public void testVideoConferenringUrlWithoutResource() {
+		VEventSeries event = defaultVEvent();
+		event.main.conference = "https://teams.yeah.yeah";
+
+		ICalendarElement main = getService(domainAdminCtx.getSecurityContext()).add(event.main);
+		assertEquals(event.main.conference, main.conference);
+
+		main = getService(domainAdminCtx.getSecurityContext()).remove(main);
+		assertNull(main.conference);
+	}
+
 	public TaskStatus waitEnd(TaskRef ref) throws Exception {
 		TaskStatus status = null;
 		while (true) {

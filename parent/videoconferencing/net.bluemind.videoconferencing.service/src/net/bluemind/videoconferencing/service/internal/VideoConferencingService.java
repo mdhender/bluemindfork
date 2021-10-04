@@ -125,10 +125,13 @@ public class VideoConferencingService implements IVideoConferencing {
 		if (Strings.isNullOrEmpty(vevent.conference)) {
 			return vevent;
 		}
-
 		vevent.conference = null;
 
 		List<ItemValue<ResourceDescriptor>> videoConferencingResoures = getVideoConferencingResource(vevent.attendees);
+		if (videoConferencingResoures.isEmpty()) {
+			return vevent;
+		}
+
 		ItemValue<ResourceDescriptor> resource = videoConferencingResoures.get(0);
 		Optional<PropertyValue> videoConferencingType = resource.value.properties.stream()
 				.filter(p -> p.propertyId.equals(IVideoConferenceUids.PROVIDER_TYPE)).findFirst();
