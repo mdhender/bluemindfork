@@ -170,6 +170,9 @@ const getters = {
         return messages;
     },
     [CONVERSATION_METADATA]: (state, getters) => key => {
+        if (!key) {
+            return null;
+        }
         const messages = getters.CONVERSATION_MESSAGE_BY_KEY(key);
         if (messages.length === 0) {
             return null;
