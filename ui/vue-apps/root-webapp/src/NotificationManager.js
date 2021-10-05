@@ -1,40 +1,44 @@
 import global from "@bluemind/global";
 import router from "@bluemind/router";
+import BmRoles from "@bluemind/roles";
 import WebsocketClient from "@bluemind/sockjs";
 import debounce from "lodash.debounce";
 
 export default class NotificationManager {
     constructor() {
         this.isAvailable = "Notification" in window;
-        if (this.isAvailable) {
-            this._init();
-        }
     }
 
-    // FIXME: cant use ES6 private class method because of https://github.com/babel/babel/issues/10752 so use convention name "_"
-    _init() {
-        this.hasPermission = Notification.permission === "granted";
-        this.userAlreadyAnswered = Notification.permission === "denied" || this.hasPermission;
+    hasPermission() {
+        return Notification.permission === "granted";
+    }
+
+    userAlreadyAnswered() {
+        return Notification.permission === "denied" || this.hasPermission();
     }
 
     requestPermissionIfNeeded() {
-        if (!this.userAlreadyAnswered && !this.hasPermission) {
-            return Notification.requestPermission().then(() => this._init());
+        if (!this.userAlreadyAnswered() && !this.hasPermission()) {
+            return Notification.requestPermission();
         }
         return Promise.resolve();
     }
 
     send(title, body, icon, onClickHandler) {
-        if (this.isAvailable && this.hasPermission) {
+        if (this.isAvailable) {
             const notification = new Notification(title, { icon, body, image: icon, badge: icon });
-            notification.onclick = onClickHandler;
+            notification.onclick = params => {
+                if (this.hasPermission()) {
+                    onClickHandler(params);
+                }
+            };
         }
     }
 
     async setNotificationWhenReceivingMail(userSession) {
         global.hasNotifWhenReceivingMail = true;
         //TODO: The whole think should be provider by an extension.
-        if (userSession.roles.includes("hasMail")) {
+        if (userSession.roles.includes(BmRoles.HAS_MAIL)) {
             await this.requestPermissionIfNeeded();
             const mailAppExtension = window.bmExtensions_["webapp.banner"].find(
                 ({ bundle }) => bundle === "net.bluemind.webapp.mail.js"
@@ -49,7 +53,16 @@ export default class NotificationManager {
 
             const sendNotification = ({ data }) => {
                 const onNotifClick = () => {
-                    router.push({ name: "mail:message", params: { messagepath: data.internalId } });
+                    const mailAppPath = mailAppExtension.application.href;
+                    const mailAppRootPath = mailAppPath.split("/").filter(Boolean)[0];
+                    const rootPath = new URL(document.baseURI).pathname.split("/").filter(Boolean)[0];
+                    if (rootPath === mailAppRootPath) {
+                        router.push({ name: "mail:conversation", params: { conversationpath: data.internalId } });
+                    } else {
+                        const origin = document.location.origin;
+                        const conversationPath = `.t/${data.internalId}`;
+                        document.location.href = `${origin}${mailAppPath}${conversationPath}`;
+                    }
                 };
 
                 this.send(data.sender, data.subject, mailIconAsBlobURL, onNotifClick);

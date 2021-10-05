@@ -144,3 +144,12 @@ export function conversationMustBeRemoved(state, conversation, messages) {
         key => !keys.has(key) && state.messages[key] && state.messages[key].folderRef.key === folderKey
     );
 }
+
+export function idToUid(value) {
+    const bytes = 64n;
+    const bigIntValue = BigInt(value);
+    if (bigIntValue < 0n) {
+        return (bigIntValue + (1n << bytes)).toString(16);
+    }
+    return bigIntValue.toString(16);
+}

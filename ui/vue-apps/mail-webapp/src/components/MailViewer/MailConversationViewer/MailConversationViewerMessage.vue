@@ -32,7 +32,12 @@
             >
                 <mail-conversation-viewer-flags class="pr-2" :message="message" />
                 {{ $d(message.date, "full_date_time_short") }}
-                <mail-viewer-toolbar v-if="isMessageExpanded" :message="message" show-other-actions />
+                <mail-viewer-toolbar
+                    v-if="isMessageExpanded && conversation"
+                    :message="message"
+                    :conversation="conversation"
+                    show-other-actions
+                />
             </div>
         </template>
         <template slot="content">

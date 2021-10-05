@@ -71,5 +71,10 @@
         "analyze-bundle": "webpack --profile --json > stats.json && webpack-bundle-analyzer --port 4200 stats.json",
         "build": "webpack --env production --progress --profile --color",
         "dev": "webpack serve --env development --progress --color --port 9180"
+    },
+    "eslintConfig": {
+        "env": {
+            "es2020": true
+        }
     }
 }

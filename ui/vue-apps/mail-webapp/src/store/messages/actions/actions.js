@@ -61,7 +61,8 @@ export async function fetchMessageMetadata({ state, commit }, { messages: messag
     (Array.isArray(messageKeys) ? messageKeys : [messageKeys]).forEach(key => {
         const message = state[key];
         if (!message.composing) {
-            if (![LoadingStatus.ERROR, LoadingStatus.LOADING].includes(message.loading)) {
+            // BM-17736 fetch message with LOADING status
+            if (message.loading !== LoadingStatus.ERROR) {
                 messages.push(message);
             }
         }

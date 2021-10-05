@@ -36,9 +36,8 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
 import { BmButton, BmButtonToolbar, BmIcon } from "@bluemind/styleguide";
-
+import { mapState } from "vuex";
 import { ReplyAndForwardRoutesMixin } from "~/mixins";
 import MailViewerToolbarOtherActions from "./MailViewerToolbarOtherActions";
 
@@ -60,16 +59,14 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+        conversation: {
+            type: Object,
+            required: true
         }
     },
     computed: {
-        ...mapState("mail", {
-            conversationByKey: ({ conversations }) => conversations.conversationByKey,
-            folders: "folders"
-        }),
-        conversation() {
-            return this.conversationByKey[this.message.conversationRef.key];
-        },
+        ...mapState("mail", { folders: "folders" }),
         isFolderReadOnly() {
             return !this.folders[this.message.folderRef.key].writable;
         }

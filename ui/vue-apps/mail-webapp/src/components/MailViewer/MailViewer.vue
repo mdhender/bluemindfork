@@ -2,7 +2,12 @@
     <section class="mail-viewer d-flex flex-column flex-grow-1 bg-surface overflow-auto">
         <bm-row class="px-lg-5 px-4 pt-2">
             <bm-col cols="12">
-                <mail-viewer-toolbar class="d-none d-lg-flex" :message="message" />
+                <mail-viewer-toolbar
+                    v-if="conversation"
+                    class="d-none d-lg-flex"
+                    :message="message"
+                    :conversation="conversation"
+                />
             </bm-col>
         </bm-row>
         <bm-row class="px-lg-5 px-4">
@@ -35,7 +40,12 @@
                 <body-viewer :message="message" />
             </bm-col>
         </bm-row>
-        <mail-viewer-toolbar class="d-flex d-lg-none" :message="message" />
+        <mail-viewer-toolbar
+            v-if="conversation"
+            class="d-flex d-lg-none"
+            :message="message"
+            :conversation="conversation"
+        />
     </section>
 </template>
 
@@ -71,7 +81,10 @@ export default {
         }
     },
     computed: {
-        ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
+        ...mapState("mail", {
+            currentEvent: state => state.consultPanel.currentEvent,
+            conversationByKey: ({ conversations }) => conversations.conversationByKey
+        }),
         ...mapGetters("mail", { CONVERSATION_LIST_UNREAD_FILTER_ENABLED }),
         ...mapState("mail", ["folders"]),
         subject() {
@@ -79,6 +92,9 @@ export default {
         },
         containsEvent() {
             return inject("UserSession").roles.includes(BmRoles.HAS_CALENDAR) && this.message.hasICS;
+        },
+        conversation() {
+            return this.conversationByKey[this.message.conversationRef?.key];
         }
     },
     watch: {

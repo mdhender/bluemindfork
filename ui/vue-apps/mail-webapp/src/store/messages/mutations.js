@@ -128,6 +128,7 @@ export default {
         messages.forEach(message => state[message.key] || Vue.set(state, message.key, message));
     },
     [SET_CONVERSATION_LIST]: (state, { messages }) => {
+        // FIXME should update conversationRef
         messages.forEach(message => state[message.key] || Vue.set(state, message.key, message));
     },
     [REMOVE_CONVERSATIONS]: (state, conversations) => {
