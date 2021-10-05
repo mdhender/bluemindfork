@@ -761,8 +761,9 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		String mailboxSpoolPath = CyrusPartition.forServerAndDomain(server, domainUid).name + "/domain/"
 				+ domainLetterPath + "/" + domainUid + "/" + (mailbox.value.type == Type.user ? mailboxLetterPath : "*")
 				+ "/" + (mailbox.value.type == Type.user ? "user/" : "") + mailbox.value.name.replace(".", "^");
-		shell.append("chown -R cyrus:mail /var/spool/cyrus/data/" + mailboxSpoolPath + " /var/spool/cyrus/meta/"
-				+ mailboxSpoolPath + "\n");
+		shell.append("chown -R cyrus:mail /var/spool/cyrus/data/" + mailboxSpoolPath //
+				+ " /var/spool/cyrus/meta/" + mailboxSpoolPath //
+				+ " /var/spool/bm-hsm/cyrus-archives/" + mailboxSpoolPath + "\n");
 
 		String cyrusDomainRoot = "/var/lib/cyrus/domain";
 		List<String> mailboxLibPath = Arrays.asList(cyrusDomainRoot + "/" + domainLetterPath, //
