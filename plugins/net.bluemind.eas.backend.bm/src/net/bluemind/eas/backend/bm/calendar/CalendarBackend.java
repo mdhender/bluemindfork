@@ -242,6 +242,9 @@ public class CalendarBackend extends CoreConnect {
 					event.acceptCounters = oldEvent.acceptCounters;
 					event.counters = Collections.emptyList();
 
+					event.main.conference = oldEvent.main.conference;
+					event.main.conferenceId = oldEvent.main.conferenceId;
+
 					try {
 						service.update(item.uid, event, true);
 						ret = CollectionItem.of(collectionId, id);
