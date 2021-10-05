@@ -27,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -61,11 +60,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
-import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.io.CountingInputStream;
@@ -75,7 +72,6 @@ import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.MessageBody.Recipient;
 import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
-import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.content.analysis.ContentAnalyzerFactory;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
@@ -89,22 +85,6 @@ public class BodyStreamProcessor {
 
 	private static final Logger logger = LoggerFactory.getLogger(BodyStreamProcessor.class);
 
-	// copied from UidFetchCommand
-	private static final Set<String> fromSummaryClass = Sets.newHashSet("DATE", "FROM", "TO", "CC", "SUBJECT",
-			"CONTENT-TYPE", "REPLY-TO", "MAIL-REPLY-TO", "MAIL-FOLLOWUP-TO", "LIST-POST", "DISPOSITION-NOTIFICATION-TO",
-			"X-PRIORITY", "X-BM_HSM_ID", "X-BM_HSM_DATETIME", "X-BM-EVENT", "X-BM-EVENT-CANCELED",
-			"X-BM-RESOURCEBOOKING", "X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID", "X-BM-EVENT-COUNTERED");
-
-	private static final Set<String> fromMailApi = Sets.newHashSet(MailApiHeaders.ALL);
-
-	private static final Set<String> toAdd = Sets.newHashSet("IN-REPLY-TO", "REFERENCES");
-
-	private static Set<String> toDrop = Sets.newHashSet("from", "to", "cc", "date", "received", "x-received", "subject",
-			"content-type", "mime-version", "dkim-signature", "x-google-dkim-signature", "arc-seal", "message-id",
-			"arc-message-signature", "arc-authentication-results", "received-spf", "return-path", "x-sieve");
-
-	private static Set<String> whiteList = buildWhiteList();
-
 	/**
 	 * The version of the DB body this {@link BodyStreamProcessor} produces from an
 	 * IMAP message.
@@ -117,15 +97,6 @@ public class BodyStreamProcessor {
 		// initialization in a separate static bloc enables tests to modify this final
 		// field using reflection
 		BODY_VERSION = 4;
-	}
-
-	private static Set<String> buildWhiteList() {
-		Set<String> white = new HashSet<>();
-		fromSummaryClass.forEach(s -> white.add(s.toLowerCase()));
-		fromMailApi.forEach(s -> white.add(s.toLowerCase()));
-		toAdd.forEach(s -> white.add(s.toLowerCase()));
-		white.removeAll(toDrop);
-		return ImmutableSet.copyOf(white);
 	}
 
 	public static CompletableFuture<MessageBodyData> processBody(Stream eml) {
@@ -632,8 +603,10 @@ public class BodyStreamProcessor {
 	private static List<net.bluemind.backend.mail.api.MessageBody.Header> processHeaders(
 			Multimap<String, String> mmapHeaders) {
 		List<MessageBody.Header> headers = new LinkedList<>();
+		Set<String> whitelist = HeaderWhitelist.getInstance().whitelist;
 		for (String h : mmapHeaders.keySet()) {
-			if (whiteList.contains(h.toLowerCase())) {
+			String lowerCase = h.toLowerCase();
+			if (lowerCase.startsWith("x-bm") || whitelist.contains(lowerCase)) {
 				headers.add(MessageBody.Header.create(h, mmapHeaders.get(h)));
 			}
 		}

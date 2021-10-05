@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.backend.mail.parsing" name="header" schema="schema/net.bluemind.backend.mail.parsing.exsd"/>
+   <extension
+         point="net.bluemind.backend.mail.parsing">
+      <whitelist
+            list="net.bluemind.backend.mail.parsing.InternalHeaders">
+      </whitelist>
+   </extension>
+
+</plugin>
