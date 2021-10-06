@@ -76,6 +76,9 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 
 	@UiField
 	TextBox externalUrl;
+	
+	@UiField
+	TextBox defaultDomain;
 
 	private HashMap<String, Integer> languageMapping;
 
@@ -177,6 +180,11 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		if (null != externalUrlSetting) {			
 			externalUrl.setText(externalUrlSetting);
 		}
+		
+		String defaultDomainSetting = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.default_domain.name());
+		if (null != defaultDomainSetting) {			
+			defaultDomain.setText(defaultDomainSetting);
+		}
 
 		setAvailableDefaultAliases();
 		if (defaultAliasesMapping.containsKey(domain.defaultAlias)) {
@@ -199,6 +207,7 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.timezone.name(), tz.getSelectedItemText());
 
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.external_url.name(), externalUrl.getText());
+		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.default_domain.name(), defaultDomain.getText());
 		
 		JSONArray updatedAliasValues = new JSONArray();
 		int index = 0;

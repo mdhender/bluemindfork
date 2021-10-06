@@ -278,4 +278,6 @@ public interface DomainConstants extends Messages {
 	String maxVisioUsersTooltip();
 	
 	String externalUrl();
+	
+	String defaultDomain();
 }

@@ -68,6 +68,14 @@
 			</tr>
 			<tr>
 				<td style='width:200px'>
+					<g:Label text="{c.defaultDomain}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:TextBox width="400px" ui:field="defaultDomain" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
 					<g:Label text="{c.aliases}:"></g:Label>
 				</td>
 				<td style='width:400px'>
