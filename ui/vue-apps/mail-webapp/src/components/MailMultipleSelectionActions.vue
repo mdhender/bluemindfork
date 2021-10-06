@@ -141,7 +141,7 @@ export default {
             CONVERSATION_LIST_IS_SEARCH_MODE,
             SELECTION_KEYS
         }),
-        ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "mail-multiple-selection-actions") }),
+        ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "right-panel") }),
         currentFolder() {
             return this.folders[this.activeFolder];
         },
@@ -154,7 +154,7 @@ export default {
         readOnlyAlert() {
             return {
                 alert: { name: "mail.READ_ONLY_FOLDER", uid: "READ_ONLY_FOLDER" },
-                options: { area: "mail-multiple-selection-actions", renderer: "DefaultAlert" }
+                options: { area: "right-panel", renderer: "DefaultAlert" }
             };
         }
     },
@@ -171,7 +171,7 @@ export default {
         }
     },
     destroyed() {
-        this.CLEAR("mail-multiple-selection-actions");
+        this.CLEAR("right-panel");
     },
     methods: {
         ...mapMutations("mail", { SET_SELECTION, UNSELECT_ALL_CONVERSATIONS }),

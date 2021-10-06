@@ -41,33 +41,33 @@ export default {
         VideoConferencing
     },
     provide() {
-        return {
-            area: "mail-message",
-            $messageViewerRoot: this
-        };
+        return { $messageViewerRoot: this };
     },
     computed: {
         ...mapState("mail", ["folders"]),
         ...mapGetters("root-app", ["DEFAULT_IDENTITY"]),
         ...mapGetters("mail", { ACTIVE_MESSAGE, CONVERSATION_LIST_IS_SEARCH_MODE, MY_DRAFTS }),
-        ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "mail-message") }),
+        ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "right-panel") }),
         folder() {
             return this.ACTIVE_MESSAGE && this.folders[this.ACTIVE_MESSAGE.folderRef.key];
         },
         readOnlyAlert() {
             return {
                 alert: { name: "mail.READ_ONLY_FOLDER", uid: "READ_ONLY_FOLDER" },
-                options: { area: "mail-message", renderer: "DefaultAlert" }
+                options: { area: "right-panel", renderer: "DefaultAlert" }
             };
         }
     },
     watch: {
-        "folder.key"() {
-            if (this.folder && !this.folder.writable) {
-                this.INFO(this.readOnlyAlert);
-            } else {
-                this.REMOVE(this.readOnlyAlert.alert);
-            }
+        "folder.key": {
+            handler() {
+                if (this.folder && !this.folder.writable) {
+                    this.INFO(this.readOnlyAlert);
+                } else {
+                    this.REMOVE(this.readOnlyAlert.alert);
+                }
+            },
+            immediate: true
         },
         "ACTIVE_MESSAGE.key": {
             handler() {

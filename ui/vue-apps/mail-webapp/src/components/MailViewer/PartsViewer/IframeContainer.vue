@@ -42,19 +42,16 @@ export default {
         }
     },
     data() {
-        return {
-            iFrameContent: "",
-            scrollbarHeight: null
-        };
+        return { iFrameContent: "", scrollbarHeight: null };
     },
-    inject: ["area", "$messageViewerRoot"],
+    inject: ["$messageViewerRoot"],
     computed: {
         ...mapState("mail", { mustBlockRemoteImages: state => state.consultPanel.remoteImages.mustBeBlocked }),
         ...mapState("session", { settings: ({ settings }) => settings.remote }),
         blockedContentAlert() {
             return {
                 alert: { name: "mail.BLOCK_REMOTE_CONTENT", uid: "BLOCK_REMOTE_CONTENT", payload: this.message },
-                options: { area: this.area, renderer: "BlockedRemoteContent" }
+                options: { area: "right-panel", renderer: "BlockedRemoteContent" }
             };
         }
     },

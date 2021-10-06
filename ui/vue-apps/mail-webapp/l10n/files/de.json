@@ -187,7 +187,6 @@
     "mail.compose.forward.prev.message.info.subject": "Betreff",
     "mail.compose.forward.prev.message.info.to": "An",
     "mail.compose.reply.body": "{name}, am {date}:",
-    "mail.content.alert.ics.dont_exist": "This message references an event which does not exist",
     "mail.content.alert.images.blocked": "Externe Bilder wurden deaktiviert, um Ihre Sicherheit zu gewährleisten.",
     "mail.content.alert.images.show": "Bilder anzeigen.",
     "mail.content.alert.images.trust.sender": "Inhalten von {sender} vertrauen",

@@ -187,7 +187,6 @@
     "mail.compose.forward.prev.message.info.subject": "Sujet",
     "mail.compose.forward.prev.message.info.to": "\u00C0",
     "mail.compose.reply.body": "Le {date}, {name} a écrit :",
-    "mail.content.alert.ics.dont_exist": "Ce message fait référence à un évènement qui n'existe pas dans votre calendrier",
     "mail.content.alert.images.blocked": "Les images distantes sont bloquées pour protéger votre vie privée.",
     "mail.content.alert.images.show": "Afficher les images.",
     "mail.content.alert.images.trust.sender": "Faire confiance aux contenus provenant de {sender}",

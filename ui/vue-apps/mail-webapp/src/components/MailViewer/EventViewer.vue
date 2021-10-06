@@ -59,7 +59,7 @@ export default {
         eventNotFoundAlert() {
             return {
                 alert: { name: "mail.EVENT_NOT_FOUND", uid: "EVENT_NOT_FOUND" },
-                options: { area: "mail-message", renderer: "DefaultAlert" }
+                options: { area: "right-panel", renderer: "DefaultAlert" }
             };
         },
         videoConferenceAlert() {
@@ -70,7 +70,7 @@ export default {
                     payload: this.currentEvent.conference
                 },
                 options: {
-                    area: "mail-message",
+                    area: "right-panel",
                     renderer: "VideoConferencing",
                     icon: "video-circle",
                     dismissible: false

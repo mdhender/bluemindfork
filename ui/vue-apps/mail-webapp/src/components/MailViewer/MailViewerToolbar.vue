@@ -27,7 +27,11 @@
             <bm-icon icon="forward" size="2x" />
             <span class="d-lg-none">{{ $t("common.forward") }}</span>
         </bm-button>
-        <mail-viewer-toolbar-other-actions v-if="showOtherActions" :message="message" :conversation="conversation" />
+        <mail-viewer-toolbar-other-actions
+            v-if="showOtherActions && !isFolderReadOnly"
+            :message="message"
+            :conversation="conversation"
+        />
     </bm-button-toolbar>
 </template>
 
@@ -59,9 +63,15 @@ export default {
         }
     },
     computed: {
-        ...mapState("mail", { conversationByKey: ({ conversations }) => conversations.conversationByKey }),
+        ...mapState("mail", {
+            conversationByKey: ({ conversations }) => conversations.conversationByKey,
+            folders: "folders"
+        }),
         conversation() {
             return this.conversationByKey[this.message.conversationRef.key];
+        },
+        isFolderReadOnly() {
+            return !this.folders[this.message.folderRef.key].writable;
         }
     }
 };

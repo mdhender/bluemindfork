@@ -116,7 +116,6 @@
     "mail.compose.forward.prev.message.info.from": "Od",
     "mail.compose.forward.prev.message.info.subject": "Temat",
     "mail.compose.forward.prev.message.info.to": "Do",
-    "mail.content.alert.ics.dont_exist": "Ta wiadomość odnosi się do wydarzenia, którego nie ma w Twoim kalendarzu",
     "mail.content.alert.images.show": "Pokaż obrazy.",
     "mail.content.alert.images.trust.sender": "Ufaj zawartości pochodzącej od {sender}",
     "mail.content.alert.readonly": "Wiadomość tylko do odczytu. Niektóre czynności (takie jak Usuń lub Przenieś) mogą być niedostępne.",

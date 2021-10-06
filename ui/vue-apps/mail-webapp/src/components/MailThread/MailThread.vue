@@ -25,30 +25,30 @@ import MailConversationViewer from "../MailViewer/MailConversationViewer";
 export default {
     name: "MailThread",
     components: { BlockedRemoteContent, BmAlertArea, MailConversationViewer, VideoConferencing },
-    provide: {
-        area: "mail-thread"
-    },
     computed: {
         ...mapState("mail", ["folders"]),
         ...mapGetters("mail", { CURRENT_CONVERSATION_METADATA }),
-        ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "mail-thread") }),
+        ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "right-panel") }),
         folder() {
             return this.CURRENT_CONVERSATION_METADATA && this.folders[this.CURRENT_CONVERSATION_METADATA.folderRef.key];
         },
         readOnlyAlert() {
             return {
                 alert: { name: "mail.READ_ONLY_FOLDER", uid: "READ_ONLY_FOLDER" },
-                options: { area: "mail-thread", renderer: "DefaultAlert" }
+                options: { area: "right-panel", renderer: "DefaultAlert" }
             };
         }
     },
     watch: {
-        "folder.key"() {
-            if (this.folder && !this.folder.writable) {
-                this.INFO(this.readOnlyAlert);
-            } else {
-                this.REMOVE(this.readOnlyAlert.alert);
-            }
+        "folder.key": {
+            handler() {
+                if (this.folder && !this.folder.writable) {
+                    this.INFO(this.readOnlyAlert);
+                } else {
+                    this.REMOVE(this.readOnlyAlert.alert);
+                }
+            },
+            immediate: true
         },
         "CURRENT_CONVERSATION_METADATA.key"() {
             this.SET_BLOCK_REMOTE_IMAGES(false);
