@@ -87,10 +87,15 @@ public class CyrusService {
 	public void reload() throws ServerFault {
 		logger.info("Attempting cyrus restart on {}", backendAddress);
 
-		ExitList cyrusRestartOp = NCUtils.exec(nodeClient, "service bm-cyrus-imapd restart", 90, TimeUnit.SECONDS);
-		if (cyrusRestartOp.getExitCode() != 0) {
-			String output = cyrusRestartOp.stream().collect(Collectors.joining("; "));
-			throw new ServerFault("Cyrus restart failed (output: " + output + ")");
+		ExitList cyrusStopOp = NCUtils.exec(nodeClient, "service bm-cyrus-imapd stop", 100, TimeUnit.SECONDS);
+		if (cyrusStopOp.getExitCode() != 0) {
+			logger.warn("Cyrus stop failed: " + cyrusStopOp.stream().collect(Collectors.joining("; ")));
+		}
+
+		ExitList cyrusStartOp = NCUtils.exec(nodeClient, "service bm-cyrus-imapd start", 90, TimeUnit.SECONDS);
+		if (cyrusStartOp.getExitCode() != 0) {
+			String output = cyrusStartOp.stream().collect(Collectors.joining("; "));
+			throw new ServerFault("Cyrus start failed (output: " + output + ")");
 		}
 		new NetworkHelper(backendAddress).waitForListeningPort(1143, 30, TimeUnit.SECONDS);
 	}
