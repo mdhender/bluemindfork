@@ -19,6 +19,8 @@
 package net.bluemind.calendar.persistence;
 
 import java.sql.Types;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.jdbc.Columns;
@@ -38,7 +40,9 @@ public class EventColumns {
 			//
 			.col("conference")
 			//
-			.col("conference_id");
+			.col("conference_id")
+			//
+			.col("conference_configuration");
 
 	public static VEventStore.StatementValues<VEvent> values() {
 		return (conn, statement, index, currentRow, value) -> {
@@ -54,12 +58,14 @@ public class EventColumns {
 
 			statement.setString(index++, value.conference);
 			statement.setString(index++, value.conferenceId);
+			statement.setObject(index++, value.conferenceConfiguration);
 
 			return index;
 
 		};
 	}
 
+	@SuppressWarnings("unchecked")
 	public static VEventStore.EntityPopulator<VEvent> populator() {
 		return (rs, index, value) -> {
 
@@ -72,6 +78,11 @@ public class EventColumns {
 			}
 			value.conference = rs.getString(index++);
 			value.conferenceId = rs.getString(index++);
+			value.conferenceConfiguration = new HashMap<String, String>();
+			Map<String, String> config = (Map<String, String>) rs.getObject(index++);
+			if (config != null) {
+				value.conferenceConfiguration.putAll(config);
+			}
 
 			return index;
 		};

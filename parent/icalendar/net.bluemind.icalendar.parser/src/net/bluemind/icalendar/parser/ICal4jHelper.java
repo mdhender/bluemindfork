@@ -335,12 +335,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			iCalendarElement.conferenceId = conferenceId.getValue();
 		}
 
-		if (Strings.isNullOrEmpty(iCalendarElement.conference)) {
-			Property teamsUrl = cc.getProperty("X-MICROSOFT-SKYPETEAMSMEETINGURL");
-			if (teamsUrl != null) {
-				iCalendarElement.conference = teamsUrl.getValue();
-			}
-		}
+		ICal4jTeamsHelper.parseTeamsToBm(iCalendarElement, cc);
 
 		return ItemValue.create(uid, iCalendarElement);
 	}
@@ -1043,6 +1038,9 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		if (StringUtils.isNotBlank(iCalendarElement.conferenceId)) {
 			properties.add(new XProperty(CONFERENCE_ID, iCalendarElement.conferenceId));
 		}
+
+		// TEAMS
+		ICal4jTeamsHelper.parseTeamsToICS(properties, iCalendarElement);
 
 		return properties;
 	}

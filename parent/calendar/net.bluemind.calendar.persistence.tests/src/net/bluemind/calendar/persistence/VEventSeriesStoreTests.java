@@ -132,6 +132,9 @@ public class VEventSeriesStoreTests {
 		assertEquals("https://www.bluemind.net", evt.main.url);
 		assertEquals("https//vi.sio.com/xxx", evt.main.conference);
 		assertEquals("xxx", evt.main.conferenceId);
+		assertEquals(2, evt.main.conferenceConfiguration.size());
+		assertEquals("val1", evt.main.conferenceConfiguration.get("conf1"));
+		assertEquals("val2", evt.main.conferenceConfiguration.get("conf2"));
 
 		List<AttachedFile> attachments = evt.main.attachments;
 		int checked = 0;
@@ -1062,6 +1065,8 @@ public class VEventSeriesStoreTests {
 		event.url = "https://www.bluemind.net";
 		event.conference = "https//vi.sio.com/xxx";
 		event.conferenceId = "xxx";
+		event.conferenceConfiguration.put("conf1", "val1");
+		event.conferenceConfiguration.put("conf2", "val2");
 
 		event.attachments = new ArrayList<>();
 		AttachedFile attachment1 = new AttachedFile();

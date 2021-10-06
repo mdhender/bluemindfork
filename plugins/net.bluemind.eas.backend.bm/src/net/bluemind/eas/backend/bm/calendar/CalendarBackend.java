@@ -244,6 +244,7 @@ public class CalendarBackend extends CoreConnect {
 
 					event.main.conference = oldEvent.main.conference;
 					event.main.conferenceId = oldEvent.main.conferenceId;
+					event.main.conferenceConfiguration = oldEvent.main.conferenceConfiguration;
 
 					try {
 						service.update(item.uid, event, true);

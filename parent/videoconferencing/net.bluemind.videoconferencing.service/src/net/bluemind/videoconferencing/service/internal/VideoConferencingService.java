@@ -19,6 +19,7 @@ package net.bluemind.videoconferencing.service.internal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -126,6 +127,8 @@ public class VideoConferencingService implements IVideoConferencing {
 			return vevent;
 		}
 		vevent.conference = null;
+		vevent.conferenceId = null;
+		vevent.conferenceConfiguration = new HashMap<>();
 
 		List<ItemValue<ResourceDescriptor>> videoConferencingResoures = getVideoConferencingResource(vevent.attendees);
 		if (videoConferencingResoures.isEmpty()) {
@@ -187,6 +190,8 @@ public class VideoConferencingService implements IVideoConferencing {
 		List<ItemValue<ResourceDescriptor>> videoConferencingResoures = getVideoConferencingResource(current.attendees);
 		if (videoConferencingResoures.isEmpty()) {
 			current.conference = null;
+			current.conferenceId = null;
+			current.conferenceConfiguration = new HashMap<>();
 			return current;
 		}
 

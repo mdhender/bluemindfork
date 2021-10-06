@@ -19,7 +19,9 @@
 package net.bluemind.icalendar.api;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.bluemind.attachment.api.AttachedFile;
@@ -52,6 +54,7 @@ public class ICalendarElement {
 	public String url;
 	public String conference;
 	public String conferenceId;
+	public Map<String, String> conferenceConfiguration = new HashMap<>();
 	public List<AttachedFile> attachments = new ArrayList<>();
 
 	/**

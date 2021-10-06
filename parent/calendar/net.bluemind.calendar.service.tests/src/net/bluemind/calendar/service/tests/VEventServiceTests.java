@@ -107,6 +107,10 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		vevent.main.summary = "testExport à 4€";
 		vevent.main.url = "https://www.bluemind.net";
 		vevent.main.conference = "https://video.conf.url/XXX";
+		assertEquals(2, vevent.main.conferenceConfiguration.size());
+		assertEquals("val1", vevent.main.conferenceConfiguration.get("conf1"));
+		assertEquals("val2", vevent.main.conferenceConfiguration.get("conf2"));
+
 		vevent.main.alarm = new ArrayList<>(1);
 
 		vevent.main.alarm.add(ICalendarElement.VAlarm.create(Action.Email, -600, "alarm", 30, 0, "yaaaaay"));

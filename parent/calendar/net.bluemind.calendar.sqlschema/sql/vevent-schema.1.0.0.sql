@@ -137,6 +137,8 @@ create table t_calendar_vevent (
   conference text,
   
   conference_id text,
+  
+  conference_configuration hstore,
 
   item_id int4 references t_container_item(id) on delete cascade
 );

@@ -422,6 +422,7 @@
       <plugin id="net.bluemind.videoconferencing.saas.room.sqlschema"/>
       <plugin id="net.bluemind.videoconferencing.saas.service"/>
       <plugin id="net.bluemind.videoconferencing.service"/>
+      <plugin id="net.bluemind.videoconferencing.teams"/>
       <plugin id="net.bluemind.webmail.sqlschema"/>
       <plugin id="net.bluemind.xivo.client"/>
       <plugin id="net.bluemind.xivo.common"/>
@@ -501,8 +502,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.noShutdown" value="true" />
       <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
+      <property name="osgi.noShutdown" value="true" />
    </configurations>
 
    <preferencesInfo>
