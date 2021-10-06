@@ -68,5 +68,7 @@ public interface SysConfAuthConstants extends Messages {
 	String domainList();
 
 	String globalParams();
+	
+	String externalUrl();
 
 }

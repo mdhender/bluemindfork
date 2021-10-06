@@ -24,6 +24,14 @@
 										<g:ListBox ui:field="domainList" title="{c.domainList}" />
 									</td>
 								</tr>
+								<tr>
+									<td class="label" style='width:60%'>
+										<g:Label text="{c.externalUrl}"></g:Label>
+									</td>
+									<td>
+										<g:TextBox width="400px" ui:field="externalUrl" />
+									</td>
+								</tr>
 							</table>
 						</g:HTMLPanel>
 					</f:FieldSetPanel>
@@ -57,7 +65,7 @@
 									<g:ListBox ui:field="krbDomain" title="{c.krbDomain}" />
 								</td>
 							</tr>
-						</table>		
+						</table>
 
 						<g:FormPanel ui:field="keyUploadForm">
 							<g:HTMLPanel>

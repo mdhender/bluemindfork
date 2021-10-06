@@ -34,6 +34,7 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.TextBox;
 
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
@@ -85,6 +86,9 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 	@UiField
 	ListBox domainList;
 
+	@UiField
+	TextBox externalUrl;
+
 	private ListBox authTypeSel;
 
 	private String keyTab;
@@ -122,6 +126,9 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 		if (map.get(SysConfKeys.default_domain.name()) != null) {
 			domainList.setSelectedIndex(detectDomainIndex(domainList, map.get(SysConfKeys.default_domain.name())));
 		}
+		if (null != map.get(SysConfKeys.external_url.name())) {
+			externalUrl.setText(map.get(SysConfKeys.external_url.name()));
+		}
 
 		if (null != map.get(SysConfKeys.cas_url.name())) {
 			casUrl.setStringValue(map.get(SysConfKeys.cas_url.name()));
@@ -151,6 +158,7 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 		SysConfModel map = SysConfModel.from(model);
 
 		map.putString(SysConfKeys.default_domain.name(), domainList.getSelectedValue());
+		map.putString(SysConfKeys.external_url.name(), externalUrl.getText());
 
 		AuthType at = AuthType.getByIndex(authTypeSel.getSelectedIndex());
 		map.putString(SysConfKeys.auth_type.name(), at.name());
