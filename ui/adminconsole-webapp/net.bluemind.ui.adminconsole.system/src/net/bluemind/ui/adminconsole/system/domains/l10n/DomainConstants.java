@@ -276,8 +276,10 @@ public interface DomainConstants extends Messages {
 	String maxVisioAccount();
 
 	String maxVisioUsersTooltip();
-	
+
 	String externalUrl();
-	
+
 	String defaultDomain();
+
+	String domainCertificate();
 }

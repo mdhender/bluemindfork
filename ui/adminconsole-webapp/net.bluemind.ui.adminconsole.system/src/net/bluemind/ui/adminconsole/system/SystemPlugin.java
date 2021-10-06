@@ -23,6 +23,7 @@ import com.google.gwt.core.client.GWT;
 import net.bluemind.gwtconsoleapp.base.editor.ScreenElementContributor;
 import net.bluemind.gwtconsoleapp.base.menus.MenuContributor;
 import net.bluemind.ui.adminconsole.system.domains.DomainsScreen;
+import net.bluemind.ui.adminconsole.system.domains.certificate.DomainCertificateEditor;
 import net.bluemind.ui.adminconsole.system.domains.create.QCreateDomainModelHandler;
 import net.bluemind.ui.adminconsole.system.domains.create.QCreateDomainScreen;
 import net.bluemind.ui.adminconsole.system.domains.create.QCreateDomainWidget;
@@ -121,6 +122,7 @@ public class SystemPlugin {
 		FiltersModelHandler.registerType();
 		DomainAssignmentsModelHandler.registerType();
 		ImModelHandler.registerType();
+		DomainCertificateEditor.registerType();
 
 		// Subscription
 		SubscriptionModelHandler.registerType();

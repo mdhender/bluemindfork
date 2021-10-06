@@ -76,7 +76,7 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 
 	@UiField
 	TextBox externalUrl;
-	
+
 	@UiField
 	TextBox defaultDomain;
 
@@ -177,12 +177,13 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		tz.setSelectedIndex(tzMapping.get(domainTz));
 
 		String externalUrlSetting = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.external_url.name());
-		if (null != externalUrlSetting) {			
+		if (null != externalUrlSetting) {
 			externalUrl.setText(externalUrlSetting);
 		}
-		
-		String defaultDomainSetting = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.default_domain.name());
-		if (null != defaultDomainSetting) {			
+
+		String defaultDomainSetting = SettingsModel.domainSettingsFrom(model)
+				.get(DomainSettingsKeys.default_domain.name());
+		if (null != defaultDomainSetting) {
 			defaultDomain.setText(defaultDomainSetting);
 		}
 
@@ -206,9 +207,11 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 				LocaleIdTranslation.getIdByLanguage(language.getSelectedItemText()));
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.timezone.name(), tz.getSelectedItemText());
 
-		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.external_url.name(), externalUrl.getText());
-		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.default_domain.name(), defaultDomain.getText());
-		
+		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.external_url.name(),
+				externalUrl.getText());
+		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.default_domain.name(),
+				defaultDomain.getText());
+
 		JSONArray updatedAliasValues = new JSONArray();
 		int index = 0;
 		for (String alias : aliases.getValues()) {

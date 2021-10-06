@@ -34,4 +34,7 @@ public interface CertificateEditorConstants extends Constants {
 	String certUpload();
 
 	String caUpload();
+	
+	String domainUid();
+	
 }

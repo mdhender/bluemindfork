@@ -44,6 +44,7 @@ import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.ui.adminconsole.base.Actions;
 import net.bluemind.ui.adminconsole.base.ui.CrudActionBar;
+import net.bluemind.ui.adminconsole.system.domains.certificate.DomainCertificateEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.bmservices.EditDomainBmServicesEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.extcal.EditExternalCalendarsEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.filters.EditDomainFiltersEditor;
@@ -198,6 +199,9 @@ public class EditDomainScreen extends Composite implements IGwtCompositeScreenRo
 
 		tabs.push(Tab.create(null, c.externalCalendars(),
 				ScreenElement.create("editExternalCalendars", EditExternalCalendarsEditor.TYPE)));
+
+		tabs.push(Tab.create(null, c.domainCertificate(),
+				ScreenElement.create("editDomainCertificate", DomainCertificateEditor.TYPE)));
 
 		TabContainer tab = TabContainer.create("editDomainTabs", tabs);
 		screenRoot.setContent(tab);
