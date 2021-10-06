@@ -21,6 +21,6 @@ package net.bluemind.ui.adminconsole.system.domains;
 public enum DomainKeys {
 	name, mailService, createAdmin, adminLogin, adminPassword, domainUid, description, domain, tagLabel, tagColor,
 	tagUid, currentTags, aliases, defaultAlias, storagePolicy, allServers, domainAssignments, currentDomainAssignments,
-	imEntities, currentImEntities, domainItem
+	imEntities, currentImEntities, domainItem, externalUrl
 
 }

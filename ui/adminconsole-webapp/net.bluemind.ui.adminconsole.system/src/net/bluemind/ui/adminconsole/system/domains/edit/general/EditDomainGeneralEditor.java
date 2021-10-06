@@ -36,6 +36,7 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextArea;
+import com.google.gwt.user.client.ui.TextBox;
 
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
 import net.bluemind.domain.api.Domain;
@@ -72,6 +73,9 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 
 	@UiField
 	ListBox tz;
+
+	@UiField
+	TextBox externalUrl;
 
 	private HashMap<String, Integer> languageMapping;
 
@@ -169,6 +173,11 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		domainTz = null != domainTz ? domainTz : DEFAULT_TZ;
 		tz.setSelectedIndex(tzMapping.get(domainTz));
 
+		String externalUrlSetting = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.external_url.name());
+		if (null != externalUrlSetting) {			
+			externalUrl.setText(externalUrlSetting);
+		}
+
 		setAvailableDefaultAliases();
 		if (defaultAliasesMapping.containsKey(domain.defaultAlias)) {
 			defaultAlias.setSelectedIndex(defaultAliasesMapping.get(domain.defaultAlias));
@@ -189,6 +198,8 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 				LocaleIdTranslation.getIdByLanguage(language.getSelectedItemText()));
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.timezone.name(), tz.getSelectedItemText());
 
+		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.external_url.name(), externalUrl.getText());
+		
 		JSONArray updatedAliasValues = new JSONArray();
 		int index = 0;
 		for (String alias : aliases.getValues()) {
