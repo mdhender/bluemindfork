@@ -22,6 +22,10 @@ JAVA_HOME=/usr/lib/jvm/bm-jdk
 jps=$JAVA_HOME/bin/jps
 jmap=$JAVA_HOME/bin/jmap
 
+servicesInBluemindTarget=$(systemctl list-dependencies --plain bluemind.target | grep -v bluemind.target | sort | uniq)
+servicesNotInBluemindTarget="bm-nginx"
+servicesAll=${servicesNotInBluemindTarget}" "${servicesInBluemindTarget}
+
 function product() {
   srv=$1
   op=$2
@@ -49,7 +53,7 @@ restart_bm() {
 
 restart_exceptnode_bm() {
   echo "Restarting BlueMind Services except Node"
-  systemctl restart $(systemctl list-dependencies --plain bluemind.target | grep -vE 'bluemind.target|bm-node' | sort | uniq)
+  systemctl restart ${servicesInBluemindTarget//bm-node.service}
 }
 
 function memory_report() {
@@ -76,7 +80,7 @@ function status_bm() {
 
 function status_bm_stopped() {
   ret=0
-  for service in $(systemctl list-dependencies --plain bluemind.target | grep -v bluemind.target | sort | uniq); do
+  for service in ${servicesAll}; do
     if systemctl status ${service} > /dev/null 2>&1; then
       ret=1
       echo ${service}" started while BlueMind is stopped - please restart bluemind: systemctl restart bluemind.target"
@@ -90,7 +94,7 @@ function status_bm_stopped() {
 
 function status_bm_started() {
   ret=0
-  for service in $(systemctl list-dependencies --plain bluemind.target | grep -v bluemind.target | sort | uniq); do
+  for service in ${servicesAll}; do
     if ! [ -e "/etc/bm/"$(echo ${service} | sed -e 's/\.service$/.disabled/') ] \
         && ! systemctl status ${service} > /dev/null 2>&1; then
       ret=1
