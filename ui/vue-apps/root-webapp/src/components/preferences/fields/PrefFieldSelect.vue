@@ -7,7 +7,7 @@ import { BmFormSelect } from "@bluemind/styleguide";
 import PrefFieldMixin from "../mixins/PrefFieldMixin";
 
 export default {
-    name: "PrefFieldCheck",
+    name: "PrefFieldSelect",
     components: {
         BmFormSelect
     },

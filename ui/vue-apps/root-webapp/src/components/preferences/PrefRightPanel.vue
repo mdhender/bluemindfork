@@ -14,7 +14,7 @@
                 <component :is="context.alert.renderer" :alert="context.alert" />
             </template>
         </bm-alert-area>
-        <pref-content :sections="sections" :local-user-settings="settings.local" />
+        <pref-content :sections="sections" :local-user-settings="settings.local" @requestSave="save" />
         <div class="d-flex mt-auto pl-5 py-3 border-top border-secondary">
             <bm-button type="submit" variant="primary" :disabled="disableSave" @click.prevent="save">
                 {{ $t("common.save") }}
@@ -142,7 +142,7 @@ export default {
             }
         },
         manageAlertAfterSave(oldSettings, newSettings) {
-            const needAppReload = ["lang", "mail_thread"];
+            const needAppReload = ["lang", "mail_thread", "mail-application"];
             const needReconnection = ["default_app"];
 
             const showReloadAppAlert = needAppReload.some(setting => oldSettings[setting] !== newSettings[setting]);

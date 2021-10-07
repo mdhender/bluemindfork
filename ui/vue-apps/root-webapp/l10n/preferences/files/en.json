@@ -44,6 +44,12 @@
     "preferences.telephony.forward_calls": "Forward received calls at",
     "preferences.telephony.invalid_phone_number": "Please enter a valid phone number",
 
+    "preferences.mail.advanced.switch": "Mail application version",
+    "preferences.mail.advanced.switch.classic": "Your are using the old version of the mail application",
+    "preferences.mail.advanced.switch.classic.desc": "<i><b>Switch to the new mail application and benefit from new features :</b><br>- Drag and drop<br>- look and feel<br>-…</i>",
+    "preferences.mail.advanced.switch.modern": "You are using the new version of the mail application",
+    "preferences.mail.advanced.switch.modern.desc": "<i><b>You benefit from new features : :</b><br>- Drag and drop<br>- look and feel<br>-…</i>",
+
     "preferences.mail.identities.manage": "Manage identities",
     "preferences.mail.identities.always_show_from": "Always show field \"From\" (sender)",
     "preferences.mail.identities.create": "Add an identity",

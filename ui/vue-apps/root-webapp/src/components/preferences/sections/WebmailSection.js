@@ -5,6 +5,8 @@ import listStyleFull from "../../../../assets/list-style-full.png";
 import listStyleNormal from "../../../../assets/list-style-normal.png";
 import threadSettingImageOn from "../../../../assets/setting-thread-on.svg";
 import threadSettingImageOff from "../../../../assets/setting-thread-off.svg";
+import mailAppVersionSettingImageClassic from "../../../../assets/setting-mail-app-version-classic.png";
+import mailAppVersionSettingImageModern from "../../../../assets/setting-mail-app-version-modern.png";
 
 export default function (roles, vueI18N, applications) {
     return {
@@ -154,6 +156,38 @@ export default function (roles, vueI18N, applications) {
                                 component: "PrefManageIdentities",
                                 setting: "always_show_from",
                                 options: {}
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                code: "advanced",
+                name: vueI18N.t("common.advanced"),
+                icon: "plus",
+                groups: [
+                    {
+                        title: vueI18N.t("preferences.mail.advanced.switch"),
+                        readOnly: !roles.includes(Roles.HAS_WEBMAIL) && !roles.includes(Roles.HAS_MAIL_WEBAPP),
+                        fields: [
+                            {
+                                component: "PrefFieldSwitch",
+                                setting: "mail-application",
+                                options: {
+                                    autosave: true,
+                                    false: {
+                                        name: vueI18N.t("preferences.mail.advanced.switch.classic"),
+                                        value: "webmail",
+                                        image: mailAppVersionSettingImageClassic,
+                                        desc: vueI18N.t("preferences.mail.advanced.switch.classic.desc")
+                                    },
+                                    true: {
+                                        name: vueI18N.t("preferences.mail.advanced.switch.modern"),
+                                        value: "mail-webapp",
+                                        image: mailAppVersionSettingImageModern,
+                                        desc: vueI18N.t("preferences.mail.advanced.switch.modern.desc")
+                                    }
+                                }
                             }
                         ]
                     }

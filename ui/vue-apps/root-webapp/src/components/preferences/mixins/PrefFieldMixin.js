@@ -17,5 +17,13 @@ export default {
             required: false,
             default: false
         }
+    },
+    created() {
+        if (this.options.autosave) {
+            this.$watch(
+                () => this.localUserSettings[this.setting],
+                () => this.$emit("requestSave")
+            );
+        }
     }
 };

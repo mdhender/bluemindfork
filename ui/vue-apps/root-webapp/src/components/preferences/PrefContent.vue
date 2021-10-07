@@ -10,6 +10,7 @@
                 :category="category"
                 :section="section"
                 :local-user-settings="localUserSettings"
+                @requestSave="$emit('requestSave')"
             />
         </div>
     </div>

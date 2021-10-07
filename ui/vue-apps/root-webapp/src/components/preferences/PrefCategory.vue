@@ -1,6 +1,6 @@
 <template>
     <div :id="categoryId(section.code, category.code)" class="pref-category">
-        <div v-for="group in filteredFieldGroups" :key="group.title" class="pref-field">
+        <div v-for="group in filteredFieldGroups" :key="group.title" class="pref-category">
             <div class="pt-4 pb-2 d-flex align-items-center">
                 <span class="h2" :class="{ 'text-alternate-light': group.readOnly }">{{ group.title }}</span>
                 <span v-if="group.notAvailable(localUserSettings)" class="available-soon h2">
@@ -24,6 +24,7 @@
                                 name: field.name,
                                 options: field.options
                             }"
+                            @requestSave="$emit('requestSave')"
                         />
                     </bm-form-group>
                     <template v-if="field.options && field.options.additional_component">
@@ -40,6 +41,7 @@ import PrefFieldCheck from "./fields/PrefFieldCheck";
 import PrefFieldChoice from "./fields/PrefFieldChoice";
 import PrefFieldComboBox from "./fields/PrefFieldComboBox";
 import PrefFieldSelect from "./fields/PrefFieldSelect";
+import PrefFieldSwitch from "./fields/PrefFieldSwitch";
 
 import PrefAllDayEventReminder from "./fields/customs/PrefAllDayEventReminder";
 import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
@@ -68,6 +70,7 @@ export default {
         PrefFieldChoice,
         PrefFieldComboBox,
         PrefFieldSelect,
+        PrefFieldSwitch,
         PrefAllDayEventReminder,
         PrefAlwaysShowQuota,
         PrefAutomaticReply,
@@ -111,7 +114,7 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .pref-category {
-    .pref-field {
+    .pref-category {
         padding-left: 4rem;
         padding-right: 4rem;
         border-bottom: 1px solid $light;

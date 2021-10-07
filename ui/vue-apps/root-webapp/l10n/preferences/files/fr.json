@@ -44,6 +44,12 @@
     "preferences.telephony.forward_calls": "Transférer les appels reçus au",
     "preferences.telephony.invalid_phone_number": "Veuillez entrer un numéro de téléphone valide",
 
+    "preferences.mail.advanced.switch": "Version de l'application de messagerie",
+    "preferences.mail.advanced.switch.classic": "Vous utilisez l’ancienne version du Webmail",
+    "preferences.mail.advanced.switch.classic.desc": "<i><b>Basculez vers le nouveau Webmail pour bénéficier des nouvelles fonctionnalités :</b><br>- Drag and drop<br>- préférences d’affichage<br>-…</i>",
+    "preferences.mail.advanced.switch.modern": "Vous utilisez actuellement le nouveau Webmail",
+    "preferences.mail.advanced.switch.modern.desc": "<i><b>Vous bénéficiez des nouvelles fonctionnalités :</b><br>- Drag and drop<br>- préférences d’affichage<br>-…</i>",
+
     "preferences.mail.identities.manage": "Gestion des identités",
     "preferences.mail.identities.always_show_from": "Afficher en permanence le champ \"De\" (expéditeur)",
     "preferences.mail.identities.create": "Ajouter une identité",
