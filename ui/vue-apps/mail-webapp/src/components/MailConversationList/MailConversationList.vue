@@ -51,7 +51,7 @@ export default {
     },
     bus: {
         [PUSHED_FOLDER_CHANGES]: function (folderUid) {
-            if (!CONVERSATION_LIST_IS_SEARCH_MODE && this.folders[this.activeFolder].remoteRef.uid === folderUid) {
+            if (!this.CONVERSATION_LIST_IS_SEARCH_MODE && this.folders[this.activeFolder].remoteRef.uid === folderUid) {
                 this.refreshList();
             }
         }
