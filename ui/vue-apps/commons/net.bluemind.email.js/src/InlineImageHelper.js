@@ -38,7 +38,7 @@ export default {
                             const data = img.src.replace(metadatas, "");
                             result.newParts.push({
                                 address: null,
-                                mime: metadatas.substring(5, metadatas.length - 8),
+                                mime: getMimeType(metadatas),
                                 dispositionType: "INLINE",
                                 encoding: "base64",
                                 contentId: cid
@@ -117,4 +117,9 @@ function insertInHtml(htmlWithCids = [], imageParts = [], getNewSrcFn) {
         result.contentsWithImageInserted.push(modifiedHtml);
     }
     return result;
+}
+
+function getMimeType(metadatas) {
+    const withoutData = metadatas.replace("data:", "");
+    return withoutData.substring(0, withoutData.indexOf(";"));
 }
