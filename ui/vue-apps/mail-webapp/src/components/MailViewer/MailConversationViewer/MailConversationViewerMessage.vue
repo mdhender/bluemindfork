@@ -1,5 +1,6 @@
 <template>
     <mail-conversation-viewer-item class="mail-conversation-viewer-message" v-bind="$props" v-on="$listeners">
+        <bm-extension id="webapp.mail" path="viewer.header" :message="message" />
         <template slot="head">
             <div class="col pl-3 align-self-center">
                 <span class="h3 font-weight-bold">
@@ -55,6 +56,7 @@
 </template>
 <script>
 import { mapGetters, mapState } from "vuex";
+import { BmExtension } from "@bluemind/extensions";
 import MailConversationViewerItem from "./MailConversationViewerItem";
 import MailViewerContentLoading from "../../MailViewer/MailViewerContentLoading";
 import MailViewerToolbar from "../MailViewerToolbar";
@@ -70,6 +72,7 @@ import { MailboxType } from "~/model/mailbox";
 export default {
     name: "MailConversationViewerMessage",
     components: {
+        BmExtension,
         BodyViewer,
         MailAttachmentsBlock,
         MailFolderIcon,

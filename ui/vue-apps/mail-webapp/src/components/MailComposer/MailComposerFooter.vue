@@ -29,6 +29,7 @@
                 <bm-icon icon="exclamation-circle" class="mr-1" viewBox="0 -1 12 12" />{{ saveMessage }}
             </span>
             <span v-else class="text-muted pr-2">{{ saveMessage }}</span>
+            <bm-extension id="webapp.mail" path="composer.footer.toolbar" :message="message" />
             <bm-button
                 v-if="!userPrefTextOnly"
                 variant="simple-dark"
@@ -76,6 +77,7 @@
 <script>
 import { EmailValidator } from "@bluemind/email";
 import { BmButton, BmIcon, BmDropdown, BmDropdownItemButton, BmDropdownItemToggle } from "@bluemind/styleguide";
+import { BmExtension } from "@bluemind/extensions";
 
 import { ComposerActionsMixin, FormattedDateMixin } from "~/mixins";
 import { MessageStatus } from "~/model/message";
@@ -87,6 +89,7 @@ export default {
     name: "MailComposerFooter",
     components: {
         BmButton,
+        BmExtension,
         BmDropdown,
         BmDropdownItemButton,
         BmDropdownItemToggle,

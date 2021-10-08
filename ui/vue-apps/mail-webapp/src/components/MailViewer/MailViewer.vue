@@ -1,5 +1,6 @@
 <template>
     <section class="mail-viewer d-flex flex-column flex-grow-1 bg-surface overflow-auto">
+        <bm-extension id="webapp.mail" path="viewer.header" :message="message" />
         <bm-row class="px-lg-5 px-4 pt-2">
             <bm-col cols="12">
                 <mail-viewer-toolbar
@@ -51,6 +52,7 @@
 
 <script>
 import { mapState, mapActions, mapGetters } from "vuex";
+import { BmExtension } from "@bluemind/extensions";
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
 import BodyViewer from "./BodyViewer";
@@ -67,6 +69,7 @@ export default {
     name: "MailViewer",
     components: {
         BmCol,
+        BmExtension,
         BmRow,
         BodyViewer,
         MailAttachmentsBlock,

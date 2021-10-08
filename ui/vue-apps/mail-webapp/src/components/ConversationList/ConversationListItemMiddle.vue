@@ -2,6 +2,7 @@
     <div class="conversation-list-item-middle d-flex flex-column text-truncate">
         <div class="d-flex flex-row">
             <div :title="fromOrTo" class="mail-conversation-list-item-sender h3 text-dark text-truncate flex-fill">
+                <bm-extension id="webapp.mail" path="list.conversation.prefix" :conversation="conversation" />
                 <span v-if="isDraft" class="text-danger font-weight-normal">
                     [<span class="font-italic">{{ $t("common.folder.draft") }}</span
                     >]
@@ -51,6 +52,7 @@
 </template>
 
 <script>
+import { BmExtension } from "@bluemind/extensions";
 import { BmIcon } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
 import { Flag } from "@bluemind/email";
@@ -87,7 +89,7 @@ const FLAG_COMPONENT = {
 
 export default {
     name: "ConversationListItemMiddle",
-    components: { BmIcon, MailFolderIcon },
+    components: { BmExtension, BmIcon, MailFolderIcon },
     props: {
         conversation: {
             type: Object,
@@ -205,6 +207,9 @@ export default {
         opacity: 0;
         position: absolute;
         right: $sp-3;
+    }
+    .bm-extension-list-conversation-prefix {
+        display: inline;
     }
 }
 </style>

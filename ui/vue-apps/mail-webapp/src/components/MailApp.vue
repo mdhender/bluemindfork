@@ -1,5 +1,6 @@
 <template>
     <main class="flex-fill d-lg-flex flex-column mail-app">
+        <bm-extension id="webapp.mail" path="app.header" />
         <global-events @click="showFolders = false" />
         <section
             :aria-label="$t('mail.application.region.mailtools')"
@@ -88,6 +89,7 @@
 <script>
 import { mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
+import { BmExtension } from "@bluemind/extensions";
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
 import { BmFormCheckbox, BmButton, BmCol, BmIcon, BmRow, MakeUniq } from "@bluemind/styleguide";
@@ -119,6 +121,7 @@ export default {
         BmFormCheckbox,
         BmButton,
         BmCol,
+        BmExtension,
         BmIcon,
         BmRow,
         GlobalEvents,
@@ -276,7 +279,6 @@ export default {
         }
     }
 }
-
 .flex-basis-0 {
     flex-basis: 0;
 }
