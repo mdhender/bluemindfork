@@ -27,7 +27,6 @@
       </widget-entry>
    </extension>
    <extension point="webapp.banner">
-      <widget component="BmIMWidget">
-      </widget>
+      <component name="BmIMWidget" path="widget"></component>
    </extension>
 </plugin>

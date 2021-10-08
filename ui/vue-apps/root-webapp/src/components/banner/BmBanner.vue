@@ -22,7 +22,7 @@
         <div class="app-title text-center flex-grow-1 font-weight-bold text-uppercase">
             <span v-if="selectedApp">{{ selectedApp.name }}</span>
         </div>
-        <bm-extension id="webapp.banner" property="widget" class="d-flex align-items-center" />
+        <bm-extension id="webapp.banner" path="widget" class="d-flex align-items-center" />
         <bm-banner-help v-if="selectedApp && selectedApp.help" :url="selectedApp.help" />
         <bm-banner-menu :user="user" class="ml-4" />
     </bm-navbar>

@@ -1,23 +1,23 @@
 <template>
     <div class="bm-extension" :class="className">
         <template v-if="$scopedSlots.default">
-            <template v-for="extension in extensions">
+            <template v-for="extension in loaded">
                 <slot v-bind="extension" />
             </template>
         </template>
         <template v-else-if="decorator">
-            <component :is="decorator" v-for="extension in extensions" :key="extension.$id">
+            <component :is="decorator" v-for="extension in loaded" :key="extension.$id">
                 <component :is="extension.component" :key="extension.$id" v-bind="$attrs" />
             </component>
         </template>
         <template v-else>
-            <component :is="extension.component" v-for="extension in extensions" :key="extension.$id" v-bind="$attrs" />
+            <component :is="extension.component" v-for="extension in loaded" :key="extension.$id" v-bind="$attrs" />
         </template>
     </div>
 </template>
 
 <script>
-import { mapExtensions } from "./";
+import { mapExtensions } from "./mapExtensions";
 
 export default {
     name: "BmExtension",
@@ -26,7 +26,7 @@ export default {
             type: String,
             required: true
         },
-        property: {
+        path: {
             type: String,
             required: true
         },
@@ -37,15 +37,40 @@ export default {
         }
     },
     data() {
-        return { ...mapExtensions(this.id, { extensions: this.property }) };
+        return { extensions: Cache.get(this.id, this.path) };
     },
     computed: {
         className() {
-            return "bm-extension-" + this.id.replace(/\./g, "-");
+            return "bm-extension-" + this.path.replace(/\./g, "-");
+        },
+        loaded() {
+            return this.extensions.filter(({ loaded }) => loaded);
         }
     }
 };
+
+const Cache = {
+    map: new Map(),
+    get(id, path) {
+        if (!this.map.has(id)) {
+            this.load(id);
+        }
+        return this.map.get(id).has(path) ? this.map.get(id).get(path) : [];
+    },
+    load(id) {
+        const extensions = new Map();
+        this.map.set(id, extensions);
+        mapExtensions(id, ["component"])?.component?.forEach(({ name, path, $id }) => {
+            const value = extensions.get(path) || [];
+            const component = { $id, component: name, loaded: false };
+            window.bundleResolve($id, () => (component.loaded = true));
+            value.push(component);
+            extensions.set(path, value);
+        });
+    }
+};
 </script>
+
 <style>
 .bm-extensions:empty {
     display: none;

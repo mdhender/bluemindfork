@@ -9,9 +9,7 @@
       </widget-entry>
    </extension>
    <extension point="webapp.banner">
-      <widget component="BmCTIWidget">
-       
-      </widget>
+      <component name="BmCTIWidget" path="widget"></component>
    </extension>
    <extension
          point="net.bluemind.webmodule">

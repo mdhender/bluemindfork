@@ -3,7 +3,7 @@
 <schema targetNamespace="net.bluemind.webmodules.webapp" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="net.bluemind.webmodules.webapp" id="webapp.banner" name="banner"/>
+         <meta.schema plugin="net.bluemind.webmodules.webapp" id="webapp" name="webapp"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -19,8 +19,7 @@
          </appinfo>
       </annotation>
       <complexType>
-         <choice>
-            <element ref="application"/>
+         <choice minOccurs="1" maxOccurs="1">
             <element ref="component"/>
          </choice>
          <attribute name="point" type="string" use="required">
@@ -48,78 +47,6 @@
             </annotation>
          </attribute>
       </complexType>
-   </element>
-
-   <element name="application">
-      <complexType>
-         <sequence>
-            <element ref="icon"/>
-         </sequence>
-         <attribute name="name" type="string" use="required">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="href" type="string" use="required">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="order" type="string">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="role" type="string">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="description" type="string">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-               <appinfo>
-                  <meta.attribute translatable="true"/>
-               </appinfo>
-            </annotation>
-         </attribute>
-         <attribute name="help" type="string">
-            <annotation>
-               <documentation>
-                  Documentation URL.
-               </documentation>
-            </annotation>
-         </attribute>
-      </complexType>
-   </element>
-
-   <element name="icon">
-      <complexType>
-         <choice>
-            <element ref="name"/>
-            <element ref="url"/>
-            <element ref="svg"/>
-         </choice>
-      </complexType>
-   </element>
-
-   <element name="url" type="string">
-   </element>
-
-   <element name="name" type="string">
-   </element>
-
-   <element name="svg" type="string">
    </element>
 
    <annotation>
