@@ -31,8 +31,6 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.resource.api.ResourceDescriptor;
-import net.bluemind.system.api.ISystemConfiguration;
-import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
 import net.bluemind.videoconferencing.api.VideoConference;
 import net.bluemind.videoconferencing.saas.api.BlueMindVideoRoom;
@@ -65,10 +63,8 @@ public class BlueMindProvider extends TemplateBasedVideoConferencingProvider imp
 	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
 			ItemValue<ResourceDescriptor> resource, VEvent vevent) {
 		ServerSideServiceProvider serviceProvider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		Optional<String> externalUrl = Optional
-				.ofNullable(serviceProvider.instance(ISystemConfiguration.class).getValues().values
-						.get(SysConfKeys.external_url.name()));
-		resourceSettings.put("url", externalUrl.get() + "/visio/");
+
+		setExternalUrl(context, context.getSecurityContext().getContainerUid(), resourceSettings);
 
 		IVideoConferencingSaas saasService = serviceProvider.instance(IVideoConferencingSaas.class);
 		BlueMindVideoRoom room = null;

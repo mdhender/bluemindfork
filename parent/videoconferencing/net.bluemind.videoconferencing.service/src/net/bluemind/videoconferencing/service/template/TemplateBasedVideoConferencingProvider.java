@@ -22,7 +22,10 @@ import java.util.UUID;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.domain.service.internal.IInCoreDomainSettings;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.videoconferencing.api.VideoConference;
 
@@ -56,6 +59,14 @@ public abstract class TemplateBasedVideoConferencingProvider {
 
 	public void deleteConference(BmContext context, Map<String, String> resourceSettings, String conferenceId) {
 		// nothing to do
+	}
+
+	public void setExternalUrl(BmContext context, String domainUid, Map<String, String> resourceSettings) {
+
+		String url = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IInCoreDomainSettings.class, domainUid).getExternalUrl("");
+
+		resourceSettings.put("url", url + "/visio/");
 	}
 
 }

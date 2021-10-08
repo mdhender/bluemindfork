@@ -18,6 +18,9 @@
       <serviceFactory
             class="net.bluemind.domain.service.DomainsServiceFactory">
       </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.domain.service.InCoreDomainSettingsServiceFactory">
+      </serviceFactory>
    </extension>
    <extension
          point="net.bluemind.directory.handler">

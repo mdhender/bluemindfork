@@ -46,6 +46,7 @@ import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.utils.InputReadStream;
 import net.bluemind.core.rest.vertx.VertxStream;
+import net.bluemind.domain.service.internal.IInCoreDomainSettings;
 import net.bluemind.filehosting.api.Configuration;
 import net.bluemind.filehosting.api.FileHostingInfo;
 import net.bluemind.filehosting.api.FileHostingInfo.Type;
@@ -66,7 +67,6 @@ import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
-import net.bluemind.system.api.SystemConf;
 
 public class FileSystemFileHostingService implements IFileHostingService {
 	private static final Logger logger = LoggerFactory.getLogger(FileSystemFileHostingService.class);
@@ -191,7 +191,7 @@ public class FileSystemFileHostingService implements IFileHostingService {
 		entity.downloadLimit = null == downloadLimit || downloadLimit == -1 ? 0 : downloadLimit;
 		entity.expirationDate = getDateFromIsoString(context, expirationDate);
 		store.create(entity);
-		String publicUri = String.format("%s/fh/bm-fh/%s", getServerAddress(), id);
+		String publicUri = String.format("%s/fh/bm-fh/%s", getServerAddress(context.getContainerUid()), id);
 		logger.debug("Sharing entity with path %s. uri: %s", relativePath, publicUri);
 
 		FileHostingPublicLink ret = new FileHostingPublicLink();
@@ -212,11 +212,17 @@ public class FileSystemFileHostingService implements IFileHostingService {
 		}
 	}
 
-	private String getServerAddress() {
-		SystemConf sysconf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(ISystemConfiguration.class).getValues();
-		return String.format("%s://%s", sysconf.values.getOrDefault(SysConfKeys.external_protocol.name(), "https"),
-				sysconf.values.getOrDefault(SysConfKeys.external_url.name(), "configure.your.external.url"));
+	private String getServerAddress(String domainUid) {
+
+		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+
+		String url = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IInCoreDomainSettings.class, domainUid).getExternalUrl("configure.your.external.url");
+
+		String protocol = provider.instance(ISystemConfiguration.class).getValues().values
+				.getOrDefault(SysConfKeys.external_protocol.name(), "https");
+
+		return String.format("%s://%s", protocol, url);
 	}
 
 	@Override

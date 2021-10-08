@@ -1,0 +1,164 @@
+/* BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2021
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+package net.bluemind.domain.service.internal;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.jdbc.JdbcActivator;
+import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
+import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.tests.defaultdata.PopulateHelper;
+
+public class InCoreDomainSettingsServiceTests {
+
+	private String testDomainUid;
+	private ISystemConfiguration globalSettingsApi;
+	private IDomainSettings domainSettingsApi;
+
+	private Map<String, String> globalSettings;
+	private Map<String, String> domainSettings;
+
+	private static final String DOMAIN_EXTERNAL_URL = "my.domain.external.url";
+	private static final String GLOBAL_EXTERNAL_URL = "global.external.url";
+	private static final String DOMAIN_DEFAULT_DOMAIN = "global.default.domain";
+	private static final String GLOBAL_DEFAULT_DOMAIN = "my.domain.default.domain";
+	private static final String DEFAULT_EXTERNAL_URL = "default.external.url";
+	private static final String DEFAULT_DEFAULT_DOMAIN = "default.default.domain";
+
+	@Before
+	public void before() throws Exception {
+		JdbcTestHelper.getInstance().beforeTest();
+
+		testDomainUid = "test.lan";
+
+		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
+
+		PopulateHelper.initGlobalVirt();
+		PopulateHelper.createTestDomain(testDomainUid);
+
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
+
+		// initialize global settings
+		globalSettingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class);
+		globalSettings = new HashMap<>();
+		globalSettings.put(SysConfKeys.external_url.name(), GLOBAL_EXTERNAL_URL);
+		globalSettings.put(SysConfKeys.default_domain.name(), GLOBAL_DEFAULT_DOMAIN);
+		globalSettingsApi.updateMutableValues(globalSettings);
+
+		// initialize domain settings
+		domainSettingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, testDomainUid);
+		domainSettings = new HashMap<>();
+		domainSettings.put(DomainSettingsKeys.external_url.name(), DOMAIN_EXTERNAL_URL);
+		domainSettings.put(DomainSettingsKeys.default_domain.name(), DOMAIN_DEFAULT_DOMAIN);
+		domainSettingsApi.set(domainSettings);
+
+	}
+
+	@After
+	public void after() throws Exception {
+		JdbcTestHelper.getInstance().afterTest();
+	}
+
+	protected IInCoreDomainSettings getSettingsService(SecurityContext context) throws ServerFault {
+		return ServerSideServiceProvider.getProvider(context).instance(IInCoreDomainSettings.class, testDomainUid);
+	}
+
+	@Test
+	public void testGetExternalUrl_domain() {
+		String url = getSettingsService(SecurityContext.SYSTEM).getExternalUrl("");
+		assertNotNull(url);
+		assertEquals(DOMAIN_EXTERNAL_URL, url);
+	}
+
+	@Test
+	public void testGetDefaultDomain_domain() {
+		String url = getSettingsService(SecurityContext.SYSTEM).getDefaultDomain("");
+		assertNotNull(url);
+		assertEquals(DOMAIN_DEFAULT_DOMAIN, url);
+	}
+
+	@Test
+	public void testGetExternalUrl_global() {
+
+		domainSettings.put(DomainSettingsKeys.external_url.name(), null);
+		domainSettingsApi.set(domainSettings);
+
+		String url = getSettingsService(SecurityContext.SYSTEM).getExternalUrl("");
+		assertNotNull(url);
+		assertEquals(GLOBAL_EXTERNAL_URL, url);
+	}
+
+	@Test
+	public void testGetDefaultDomain_global() {
+
+		domainSettings.put(DomainSettingsKeys.default_domain.name(), null);
+		domainSettingsApi.set(domainSettings);
+
+		String url = getSettingsService(SecurityContext.SYSTEM).getDefaultDomain("");
+		assertNotNull(url);
+		assertEquals(GLOBAL_DEFAULT_DOMAIN, url);
+	}
+
+	@Test
+	public void testGetExternalUrl_default() {
+
+		domainSettings.put(DomainSettingsKeys.external_url.name(), null);
+		domainSettingsApi.set(domainSettings);
+
+		globalSettings.put(SysConfKeys.external_url.name(), null);
+		globalSettingsApi.updateMutableValues(globalSettings);
+
+		String url = getSettingsService(SecurityContext.SYSTEM).getExternalUrl(DEFAULT_EXTERNAL_URL);
+		assertNotNull(url);
+		assertEquals(DEFAULT_EXTERNAL_URL, url);
+	}
+
+	@Test
+	public void testGetDefaultDomain_default() {
+
+		domainSettings.put(DomainSettingsKeys.default_domain.name(), null);
+		domainSettingsApi.set(domainSettings);
+
+		globalSettings.put(SysConfKeys.default_domain.name(), null);
+		globalSettingsApi.updateMutableValues(globalSettings);
+
+		String url = getSettingsService(SecurityContext.SYSTEM).getDefaultDomain(DEFAULT_DEFAULT_DOMAIN);
+		assertNotNull(url);
+		assertEquals(DEFAULT_DEFAULT_DOMAIN, url);
+	}
+
+}

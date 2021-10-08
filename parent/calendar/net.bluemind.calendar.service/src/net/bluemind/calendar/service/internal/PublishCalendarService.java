@@ -49,13 +49,13 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.rest.vertx.VertxStream;
+import net.bluemind.domain.service.internal.IInCoreDomainSettings;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
-import net.bluemind.system.api.ISystemConfiguration;
-import net.bluemind.system.api.SysConfKeys;
 import net.fortuna.ical4j.model.property.Method;
 import net.fortuna.ical4j.model.property.XProperty;
 
@@ -146,9 +146,11 @@ public class PublishCalendarService implements IPublishCalendar {
 	}
 
 	private String computeUrl(PublishMode mode, String aclSubject) {
-		String externalUrl = context.su().provider().instance(ISystemConfiguration.class).getValues().values
-				.get(SysConfKeys.external_url.name());
-		return String.format("https://%s/api/calendars/publish/%s/%s", externalUrl, container.uid, aclSubject);
+
+		String url = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IInCoreDomainSettings.class, container.domainUid).getExternalUrl("");
+
+		return String.format("https://%s/api/calendars/publish/%s/%s", url, container.uid, aclSubject);
 	}
 
 	private String generateToken() {

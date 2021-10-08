@@ -72,6 +72,7 @@ import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.dockerclient.DockerEnv;
 import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.filehosting.api.Configuration;
 import net.bluemind.filehosting.api.FileHostingItem;
@@ -90,12 +91,18 @@ import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.GlobalSettingsKeys;
 import net.bluemind.system.api.IGlobalSettings;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class FileSystemFileHostingServiceTests {
 	private IFileHosting service;
+	IDomainSettings domainSettings;
+	ISystemConfiguration systemConfiguration;
 
-	private static final String domainName = "testdomain.loc";
+	private static final String DOMAIN_NAME = "testdomain.loc";
+	private static final String DOMAIN_EXTERNAL_URL = "my.test.domain.external.url";
+	private static final String GLOBAL_EXTERNAL_URL = "my.test.external.url";
 
 	@Before
 	public void setup() throws Exception {
@@ -119,8 +126,20 @@ public class FileSystemFileHostingServiceTests {
 		values.put(DomainSettingsKeys.mail_routing_relay.name(), "runtest.loc");
 		settings.set(values);
 
-		PopulateHelper.addDomain(domainName);
-		PopulateHelper.addUser("user", domainName, Mailbox.Routing.none, "canUseFilehosting", "canRemoteAttach");
+		PopulateHelper.addDomain(DOMAIN_NAME);
+		PopulateHelper.addUser("user", DOMAIN_NAME, Mailbox.Routing.none, "canUseFilehosting", "canRemoteAttach");
+
+		systemConfiguration = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class);
+		Map<String, String> sysValues = systemConfiguration.getValues().values;
+		sysValues.put(SysConfKeys.external_url.name(), GLOBAL_EXTERNAL_URL);
+		systemConfiguration.updateMutableValues(sysValues);
+
+		domainSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomainSettings.class,
+				DOMAIN_NAME);
+		Map<String, String> domainValues = new HashMap<>();
+		domainValues.put(DomainSettingsKeys.external_url.name(), DOMAIN_EXTERNAL_URL);
+		domainSettings.set(domainValues);
 
 		service = getService();
 
@@ -149,18 +168,15 @@ public class FileSystemFileHostingServiceTests {
 		IAuthentication auth = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IAuthentication.class);
 
-		LoginResponse login = auth.login("user@" + domainName, "user", null);
+		LoginResponse login = auth.login("user@" + DOMAIN_NAME, "user", null);
 
 		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", login.authKey)
-				.instance(IFileHosting.class, domainName);
+				.instance(IFileHosting.class, DOMAIN_NAME);
 	}
 
 	@After
-	public void tearDown() throws IOException {
-		try {
-			JdbcTestHelper.getInstance().afterTest();
-		} catch (Exception e) {
-		}
+	public void tearDown() throws Exception {
+		JdbcTestHelper.getInstance().afterTest();
 	}
 
 	@Test
@@ -195,7 +211,7 @@ public class FileSystemFileHostingServiceTests {
 		List<FileHostingEntityInfo> expiredFiles = store.getExpiredFiles(-1);
 
 		Assert.assertEquals(1, expiredFiles.size());
-		Assert.assertTrue(expiredFiles.get(0).path.startsWith(domainName));
+		Assert.assertTrue(expiredFiles.get(0).path.startsWith(DOMAIN_NAME));
 		Assert.assertTrue(expiredFiles.get(0).path.endsWith(path));
 	}
 
@@ -220,7 +236,7 @@ public class FileSystemFileHostingServiceTests {
 		// need to lookup the service directly to be able to access non-API
 		// methods
 		FileSystemFileHostingService fileSystemFileHostingService = (FileSystemFileHostingService) lookupExtensionPoint();
-		int cleanupFiles = fileSystemFileHostingService.cleanup(-1, domainName);
+		int cleanupFiles = fileSystemFileHostingService.cleanup(-1, DOMAIN_NAME);
 
 		Assert.assertEquals(2, cleanupFiles);
 		try {
@@ -245,7 +261,7 @@ public class FileSystemFileHostingServiceTests {
 
 		Assert.assertEquals(cal.getTimeInMillis(), publicUrl.expirationDate.longValue());
 
-		cleanupFiles = fileSystemFileHostingService.cleanup(-1, domainName);
+		cleanupFiles = fileSystemFileHostingService.cleanup(-1, DOMAIN_NAME);
 
 		Assert.assertEquals(1, cleanupFiles);
 		try {
@@ -421,6 +437,68 @@ public class FileSystemFileHostingServiceTests {
 		service.store(path, bytesToStream(testString.getBytes()));
 
 		FileHostingPublicLink publicLink = service.share(path, -1, null);
+		String id = ID.extract(publicLink.url);
+
+		FileHostingItem complete = service.getComplete(id);
+		service.getSharedFile(id);
+		Assert.assertEquals("test.txt", complete.name);
+	}
+
+	@Test
+	public void testSharingAFile_withDomainExternalUrl() throws Exception {
+		String testString = "test";
+		String path = "/test.txt";
+		service.store(path, bytesToStream(testString.getBytes()));
+
+		String domainExternalUrl = domainSettings.get().get(DomainSettingsKeys.external_url.name());
+		assertEquals(DOMAIN_EXTERNAL_URL, domainExternalUrl);
+
+		FileHostingPublicLink publicLink = service.share(path, -1, null);
+		assertTrue(publicLink.url.contains("://" + domainExternalUrl));
+		String id = ID.extract(publicLink.url);
+
+		FileHostingItem complete = service.getComplete(id);
+		service.getSharedFile(id);
+		Assert.assertEquals("test.txt", complete.name);
+	}
+
+	@Test
+	public void testSharingAFile_withGlobalExternalUrl() throws Exception {
+		String testString = "test";
+		String path = "/test.txt";
+		service.store(path, bytesToStream(testString.getBytes()));
+
+		domainSettings.set(new HashMap<String, String>());
+		assertNull(domainSettings.get().get(DomainSettingsKeys.external_url.name()));
+
+		String externalUrl = systemConfiguration.getValues().values.get(SysConfKeys.external_url.name());
+		assertEquals(GLOBAL_EXTERNAL_URL, externalUrl);
+
+		FileHostingPublicLink publicLink = service.share(path, -1, null);
+		assertTrue(publicLink.url.contains("://" + externalUrl));
+		String id = ID.extract(publicLink.url);
+
+		FileHostingItem complete = service.getComplete(id);
+		service.getSharedFile(id);
+		Assert.assertEquals("test.txt", complete.name);
+	}
+
+	@Test
+	public void testSharingAFile_withoutAnyExternalUrl() throws Exception {
+		String testString = "test";
+		String path = "/test.txt";
+		service.store(path, bytesToStream(testString.getBytes()));
+
+		domainSettings.set(new HashMap<String, String>());
+		assertNull(domainSettings.get().get(DomainSettingsKeys.external_url.name()));
+
+		Map<String, String> sysconfValues = systemConfiguration.getValues().values;
+		sysconfValues.put(SysConfKeys.external_url.name(), null);
+		systemConfiguration.updateMutableValues(sysconfValues);
+		assertNull(systemConfiguration.getValues().values.get(SysConfKeys.external_url.name()));
+
+		FileHostingPublicLink publicLink = service.share(path, -1, null);
+		assertTrue(publicLink.url.contains("://configure.your.external.url"));
 		String id = ID.extract(publicLink.url);
 
 		FileHostingItem complete = service.getComplete(id);

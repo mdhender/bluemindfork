@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettings;
+import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.hook.IDomainHook;
@@ -46,8 +48,10 @@ import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.globalsettings.persistence.GlobalSettingsStore;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 
-public class DomainSettingsService implements IDomainSettings {
+public class DomainSettingsService implements IDomainSettings, IInCoreDomainSettings {
 	private static final Logger logger = LoggerFactory.getLogger(DomainSettingsService.class);
 
 	private final ContainerStoreService<Map<String, String>> domainSettingsStoreService;
@@ -137,6 +141,27 @@ public class DomainSettingsService implements IDomainSettings {
 		RunnableExtensionLoader<IDomainHook> loader = new RunnableExtensionLoader<IDomainHook>();
 		List<IDomainHook> hooks = loader.loadExtensions("net.bluemind.domain", "domainHook", "hook", "class");
 		return hooks;
+	}
+
+	@Override
+	public String getExternalUrl(String defaultValue) {
+		return Optional
+				.ofNullable(context.su().getServiceProvider().instance(IDomainSettings.class, domainUid).get()
+						.get(DomainSettingsKeys.external_url.name()))
+				.orElse(fromSysConf(SysConfKeys.external_url, defaultValue));
+	}
+
+	@Override
+	public String getDefaultDomain(String defaultValue) {
+		return Optional
+				.ofNullable(context.su().getServiceProvider().instance(IDomainSettings.class, domainUid).get()
+						.get(DomainSettingsKeys.default_domain.name()))
+				.orElse(fromSysConf(SysConfKeys.default_domain, defaultValue));
+	}
+
+	private String fromSysConf(SysConfKeys settingKey, String defaultValue) {
+		return context.su().getServiceProvider().instance(ISystemConfiguration.class).getValues().values
+				.getOrDefault(settingKey.name(), defaultValue);
 	}
 
 }

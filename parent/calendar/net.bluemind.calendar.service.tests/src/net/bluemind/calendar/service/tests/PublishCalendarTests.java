@@ -26,7 +26,9 @@ import static org.junit.Assert.fail;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.sql.DataSource;
@@ -43,12 +45,23 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 
 public class PublishCalendarTests extends AbstractCalendarTests {
+
+	IDomainSettings domainSettings;
+	ISystemConfiguration systemConfiguration;
+
+	private static final String DOMAIN_EXTERNAL_URL = "my.test.domain.external.url";
+	private static final String GLOBAL_EXTERNAL_URL = "my.test.external.url";
 
 	@Test
 	public void publishCalendarPublic() throws Exception {
@@ -185,6 +198,89 @@ public class PublishCalendarTests extends AbstractCalendarTests {
 		assertEquals(0, generatedUrlsPublic.size());
 
 		assertTrue(generatedUrlsPrivate.contains(url1));
+	}
+
+	@Test
+	public void testGettingSharedUrls_noExternalUrl() throws Exception {
+		createEvents();
+
+		String url1 = getPublishCalendarService(userSecurityContext, userCalendarContainer)
+				.generateUrl(PublishMode.PRIVATE);
+
+		assertFalse(url1.contains(DOMAIN_EXTERNAL_URL));
+		assertFalse(url1.contains(GLOBAL_EXTERNAL_URL));
+	}
+
+	@Test
+	public void testGettingSharedUrls_globalExternalUrl() throws Exception {
+		createEvents();
+
+		Map<String, String> sysValues = setGlobalExternalUrl();
+
+		String url1 = getPublishCalendarService(userSecurityContext, userCalendarContainer)
+				.generateUrl(PublishMode.PRIVATE);
+
+		assertFalse(url1.contains(DOMAIN_EXTERNAL_URL));
+		assertTrue(url1.contains(GLOBAL_EXTERNAL_URL));
+
+		// clear settings
+		sysValues.put(SysConfKeys.external_url.name(), null);
+		systemConfiguration.updateMutableValues(sysValues);
+	}
+
+	@Test
+	public void testGettingSharedUrls_domainExternalUrl() throws Exception {
+		createEvents();
+
+		Map<String, String> domainValues = setDomainExternalUrl();
+
+		String url1 = getPublishCalendarService(userSecurityContext, userCalendarContainer)
+				.generateUrl(PublishMode.PRIVATE);
+
+		assertTrue(url1.contains(DOMAIN_EXTERNAL_URL));
+		assertFalse(url1.contains(GLOBAL_EXTERNAL_URL));
+
+		// clear settings
+		domainValues.put(DomainSettingsKeys.external_url.name(), null);
+		domainSettings.set(domainValues);
+	}
+
+	@Test
+	public void testGettingSharedUrls_bothExternalUrl() throws Exception {
+		createEvents();
+
+		Map<String, String> sysValues = setGlobalExternalUrl();
+		Map<String, String> domainValues = setDomainExternalUrl();
+
+		String url1 = getPublishCalendarService(userSecurityContext, userCalendarContainer)
+				.generateUrl(PublishMode.PRIVATE);
+
+		assertTrue(url1.contains(DOMAIN_EXTERNAL_URL));
+		assertFalse(url1.contains(GLOBAL_EXTERNAL_URL));
+
+		// clear settings
+		sysValues.put(SysConfKeys.external_url.name(), null);
+		systemConfiguration.updateMutableValues(sysValues);
+		domainValues.put(DomainSettingsKeys.external_url.name(), null);
+		domainSettings.set(domainValues);
+	}
+
+	private Map<String, String> setGlobalExternalUrl() {
+		systemConfiguration = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class);
+		Map<String, String> sysValues = systemConfiguration.getValues().values;
+		sysValues.put(SysConfKeys.external_url.name(), GLOBAL_EXTERNAL_URL);
+		systemConfiguration.updateMutableValues(sysValues);
+		return sysValues;
+	}
+
+	private Map<String, String> setDomainExternalUrl() {
+		domainSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomainSettings.class,
+				domainUid);
+		Map<String, String> domainValues = new HashMap<>();
+		domainValues.put(DomainSettingsKeys.external_url.name(), DOMAIN_EXTERNAL_URL);
+		domainSettings.set(domainValues);
+		return domainValues;
 	}
 
 	private void createEvents() throws ServerFault {
