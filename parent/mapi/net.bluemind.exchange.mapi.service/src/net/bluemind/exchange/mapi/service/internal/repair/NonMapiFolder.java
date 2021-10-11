@@ -34,7 +34,7 @@ public class NonMapiFolder {
 	}
 
 	private static final Set<String> invalidKinds = Sets.newHashSet("INBOX", "SENT_ITEMS", "DELETED_ITEMS", "DRAFTS",
-			"JUNK_EMAIL", "CALENDAR", "CONTACTS", "TASKS");
+			"JUNK_EMAIL", "CALENDAR", "CONTACTS", "TASKS", "TEMPLATES");
 
 	/**
 	 * @param k
