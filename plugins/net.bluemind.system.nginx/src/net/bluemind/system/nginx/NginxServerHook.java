@@ -37,8 +37,6 @@ import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.server.hook.DefaultServerHook;
-import net.bluemind.system.api.ISystemConfiguration;
-import net.bluemind.system.api.SysConfKeys;
 
 public class NginxServerHook extends DefaultServerHook {
 	private static Logger logger = LoggerFactory.getLogger(NginxServerHook.class);
@@ -54,7 +52,7 @@ public class NginxServerHook extends DefaultServerHook {
 		}
 
 		if (tag.equals(TagDescriptor.bm_nginx.getTag()) || tag.equals(TagDescriptor.bm_nginx_edge.getTag())) {
-			updateExternalUrl(context, server, tag);
+			new NginxService().restart(NodeActivator.get(server.value.address()));
 		}
 	}
 
@@ -105,15 +103,5 @@ public class NginxServerHook extends DefaultServerHook {
 		}
 
 		new NginxService().reloadHttpd(remote);
-	}
-
-	private void updateExternalUrl(BmContext context, ItemValue<Server> server, String tag) {
-		logger.info("Server tagged as {}, deploy external url", tag);
-
-		String externalUrl = context.su().provider().instance(ISystemConfiguration.class).getValues()
-				.stringValue(SysConfKeys.external_url.name());
-		if (externalUrl != null) {
-			new NginxService().updateExternalUrl(server.value.address(), externalUrl);
-		}
 	}
 }

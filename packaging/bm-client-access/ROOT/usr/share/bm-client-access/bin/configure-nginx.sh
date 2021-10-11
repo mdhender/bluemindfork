@@ -29,23 +29,79 @@ generateDhParam() {
     echo -e "\n"
 }
 
-setExternalUrl() {
-    if [ -f /etc/bm/bm.ini ]; then
-      externalurl=$(grep '^[^#]*external-url' /etc/bm/bm.ini | sed -e 's/ //g' | cut -d'=' -f2)
-    else
-      externalurl=$(hostname -f)
-    fi
+createDefaultVhost() {
+    local vhostFile="/etc/nginx/bluemind/bluemind-vhosts.conf"
+    local externalUrl=$(hostname -f)
 
-    if [ ! -e /etc/ssl/certs/bm_cert.pem ]; then
+    [ -f /etc/bm/bm.ini ] && externalUrl=$(grep '^[^#]*external-url' /etc/bm/bm.ini | sed -e 's/ //g' | cut -d'=' -f2)
+
+    [ ! -e /etc/ssl/certs/bm_cert.pem ] && {
         # Installation
         /usr/share/bm-client-access/bin/createcert.sh configure.your.external.url ${externalurl} $(hostname -I)
-    fi
+    }
 
-    [ ! -e /etc/nginx/bm-servername.conf ] && \
-        echo "server_name $externalurl;" > /etc/nginx/bm-servername.conf
-    
-    [ ! -e /etc/nginx/bm-externalurl.conf ] && \
-        echo "set \$bmexternalurl $externalurl;" > /etc/nginx/bm-externalurl.conf
+    forceNginxConfiguration ${vhostFile} /usr/share/doc/bm-client-access/bluemind-vhosts.conf
+    setDefaultServer ${vhostFile}
+    setExternalUrl ${vhostFile} ${externalUrl}
+    setSslCertFile ${vhostFile}
+    setVhostExtensionDir ${vhostFile}
+}
+
+createDomainsVhosts() {
+    local domainSettings="/etc/bm/domains-settings"
+    [ ! -e ${domainSettings} ] && return
+
+    while read -r line; do
+        parts=(${line//:/ })
+        [ ${#parts[@]} -lt 2 ] && continue
+
+        local domainUid=${parts[0]}
+        local externalUrl=${parts[1]}
+        local vhostFile="/etc/nginx/bluemind/"${domainUid}"/bluemind-vhosts.conf"
+
+        forceNginxConfiguration ${vhostFile} /usr/share/doc/bm-client-access/bluemind-vhosts.conf
+        unsetDefaultServer ${vhostFile}
+        setExternalUrl ${vhostFile} ${externalUrl}
+        setSslCertFile ${vhostFile} ${domainUid}
+        setVhostExtensionDir ${vhostFile} ${domainUid}
+    done < ${domainSettings}
+}
+
+setVhostExtensionDir() {
+    [ ${#} -ne 2 ] && {
+        sed -i -e "s|###vhost-extension-dir###|/etc/nginx/bm-local.d/*.conf|g" ${1}
+        return
+    }
+
+    sed -i -e "s|###vhost-extension-dir###|/etc/nginx/bm-local.d/${2}/*.conf|g" ${1}
+}
+
+setExternalUrl() {
+    sed -i -e "s/###external-url###/${2}/g" ${1}
+}
+
+setSslCertFile() {
+    local defaultSslCertFilePath="/etc/ssl/certs/bm_cert.pem"
+    [ ${#} -ne 2 ] && {
+        sed -i -e "s|###ssl-cert-file###|${defaultSslCertFilePath}|g" ${1}
+        return
+    }
+
+    local sslCertFilePath="/etc/ssl/certs/bm_cert-"${2}".pem"
+    [ ! -e ${sslCertFilePath} ] && {
+        sed -i -e "s|###ssl-cert-file###|${defaultSslCertFilePath}|g" ${1}
+        return
+    }
+
+    sed -i -e "s|###ssl-cert-file###|${sslCertFilePath}|g" ${1}
+}
+
+setDefaultServer() {
+    sed -i -e "s/###default-server###/default_server/" ${1}
+}
+
+unsetDefaultServer() {
+    sed -i -e "s/###default-server###//" ${1}
 }
 
 enableVhost() {
@@ -96,9 +152,13 @@ rm -f /etc/nginx/BM-DONOTCONF
 echo "Install/Upgrade BlueMind nginx virtual host"
 
 [ -e /etc/nginx/bm-local.d/tick.conf ] && rm -f /etc/nginx/bm-local.d/tick.conf
+[ -e /etc/nginx/bm-servername.conf ] && rm -f /etc/nginx/bm-servername.conf
+[ -e /etc/nginx/bm-externalurl.conf ] && rm -f /etc/nginx/bm-externalurl.conf
+[ -e /etc/nginx/bluemind ] && rm -rf /etc/nginx/bluemind
 
 forceNginxConfiguration /etc/nginx/sites-available/bm-client-access /usr/share/doc/bm-client-access/bm-client-access
 forceNginxConfiguration /etc/nginx/sites-available/bm-client-access-without-password /usr/share/doc/bm-client-access/bm-client-access-without-password
+
 forceNginxConfiguration /etc/nginx/global.d/bm-mail-proxy.conf /usr/share/doc/bm-client-access/global.d/bm-mail-proxy.conf
 
 nginxConfiguration /etc/bm-webmail/nginx-webmail.conf /usr/share/doc/bm-client-access/bm-webmail/nginx-webmail.conf
@@ -128,5 +188,6 @@ nginxConfiguration /etc/nginx/bm-upstream-sentry.conf /usr/share/doc/bm-client-a
 
 
 generateDhParam
-setExternalUrl
+createDefaultVhost
+createDomainsVhosts
 enableVhost

@@ -64,11 +64,10 @@ public class ExternalUrlHook
 			return;
 		}
 
+		updateBmIni(externalUrl);
+		new NginxService().restart();
 		logger.info("System configuration {} has been updated, changed to {}", SysConfKeys.external_url.name(),
 				externalUrl);
-		new NginxService().updateExternalUrl(externalUrl);
-
-		updateBmIni(externalUrl);
 	}
 
 	private void updateBmIni(String externalUrl) {

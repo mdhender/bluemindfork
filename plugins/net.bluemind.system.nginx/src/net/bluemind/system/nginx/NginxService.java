@@ -105,14 +105,6 @@ public class NginxService {
 		return new HashSet<>(Arrays.asList(TagDescriptor.bm_nginx.getTag(), TagDescriptor.bm_nginx_edge.getTag()));
 	}
 
-	private byte[] serverNameContent(String address) {
-		return ("server_name " + address + ";\n").getBytes();
-	}
-
-	private byte[] externalUrlContent(String address) {
-		return ("set $bmexternalurl " + address + ";\n").getBytes();
-	}
-
 	/**
 	 * Reload NGinx & FPM on all servers tagged as "bm/nginx" and "bm/nginx-edge"
 	 * 
@@ -219,19 +211,6 @@ public class NginxService {
 			nc.writeFile("/etc/nginx/global.d/events.conf", new ByteArrayInputStream(sw.toString().getBytes()));
 			reloadHttpd(nc);
 		});
-	}
-
-	public void updateExternalUrl(String externalUrl) {
-		getTaggedServers().forEach(server -> updateExternalUrl(server, externalUrl));
-	}
-
-	public void updateExternalUrl(String nginxServerIp, String externalUrl) {
-		logger.info("update bm-servername.conf & bm-externalurl.conf on {}", nginxServerIp);
-		INodeClient nc = NodeActivator.get(nginxServerIp);
-		nc.writeFile("/etc/nginx/bm-servername.conf", new ByteArrayInputStream(serverNameContent(externalUrl)));
-		nc.writeFile("/etc/nginx/bm-externalurl.conf", new ByteArrayInputStream(externalUrlContent(externalUrl)));
-		reloadHttpd(nc);
-		restart(nc);
 	}
 
 	public void updateTickUpstream(String tickIp) {
