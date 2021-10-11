@@ -6,6 +6,7 @@
                     ref="to"
                     :contacts="message.to"
                     :autocomplete-results="autocompleteResultsTo"
+                    :validate-address-fn="validateAddress"
                     @search="searchedPattern => onSearch('to', searchedPattern)"
                     @update:contacts="updateTo"
                 >
@@ -29,6 +30,7 @@
                 <bm-contact-input
                     :contacts="message.cc"
                     :autocomplete-results="autocompleteResultsCc"
+                    :validate-address-fn="validateAddress"
                     class="w-100"
                     @search="searchedPattern => onSearch('cc', searchedPattern)"
                     @update:contacts="updateCc"
@@ -51,6 +53,7 @@
             v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC | recipientModes.BCC)"
             :contacts="message.bcc"
             :autocomplete-results="autocompleteResultsBcc"
+            :validate-address-fn="validateAddress"
             @search="searchedPattern => onSearch('bcc', searchedPattern)"
             @update:contacts="updateBcc"
         >

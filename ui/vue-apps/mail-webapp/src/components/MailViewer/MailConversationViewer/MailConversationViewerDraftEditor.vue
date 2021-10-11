@@ -11,6 +11,7 @@
                     ref="to"
                     :contacts="message.to"
                     :autocomplete-results="autocompleteResultsTo"
+                    :validate-address-fn="validateAddress"
                     @search="searchedPattern => onSearch('to', searchedPattern)"
                     @update:contacts="updateTo"
                 >
@@ -47,6 +48,7 @@
                         class="col pl-3"
                         :contacts="message.cc"
                         :autocomplete-results="autocompleteResultsCc"
+                        :validate-address-fn="validateAddress"
                         @search="searchedPattern => onSearch('cc', searchedPattern)"
                         @update:contacts="updateCc"
                     >
@@ -69,6 +71,7 @@
                         class="col pl-3"
                         :contacts="message.bcc"
                         :autocomplete-results="autocompleteResultsBcc"
+                        :validate-address-fn="validateAddress"
                         @search="searchedPattern => onSearch('bcc', searchedPattern)"
                         @update:contacts="updateBcc"
                     >

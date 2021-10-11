@@ -1,6 +1,7 @@
 import debounce from "lodash/debounce";
 import { VCardQueryOrderBy } from "@bluemind/addressbook.api";
 import { getQuery, VCardInfoAdaptor } from "@bluemind/contact";
+import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { mapMutations } from "vuex";
 import { SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~/mutations";
@@ -96,6 +97,7 @@ export default {
         updateBcc(contacts) {
             this.SET_MESSAGE_BCC({ messageKey: this.message.key, bcc: contacts });
             this.debouncedSave();
-        }
+        },
+        validateAddress: EmailValidator.validateAddress
     }
 };

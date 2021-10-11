@@ -9,6 +9,7 @@
                 :disabled="!forwarding.enabled"
                 :contacts="contacts"
                 :autocomplete-results="autocompleteResults"
+                :validate-address-fn="validateAddress"
                 @search="onSearch"
                 @update:contacts="updateEmails"
             />
@@ -93,7 +94,8 @@ export default {
                 .map(contact => contact.address)
                 .filter(email => EmailValidator.validateAddress(email));
             this.autocompleteResults = [];
-        }
+        },
+        validateAddress: EmailValidator.validateAddress
     }
 };
 </script>

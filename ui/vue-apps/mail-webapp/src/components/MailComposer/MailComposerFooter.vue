@@ -1,12 +1,7 @@
 <template>
     <div class="mail-composer-footer p-2 border-top justify-content-between align-items-center">
         <div>
-            <bm-button
-                type="submit"
-                variant="primary"
-                :disabled="errorOccuredOnSave || isSending || !hasRecipient"
-                @click.prevent="send"
-            >
+            <bm-button type="submit" variant="primary" :disabled="disableSend" @click.prevent="send">
                 {{ $t("common.send") }}
             </bm-button>
             <bm-button
@@ -67,6 +62,7 @@
 </template>
 
 <script>
+import { EmailValidator } from "@bluemind/email";
 import { BmButton, BmIcon, BmDropdown, BmDropdownItemToggle } from "@bluemind/styleguide";
 
 import { ComposerActionsMixin, FormattedDateMixin } from "~/mixins";
@@ -134,6 +130,15 @@ export default {
             return this.userPrefIsMenuBarOpened
                 ? this.$tc("mail.actions.textformat.hide.aria")
                 : this.$tc("mail.actions.textformat.show.aria");
+        },
+        anyRecipientInError() {
+            return this.message.to
+                .concat(this.message.cc)
+                .concat(this.message.bcc)
+                .some(contact => !EmailValidator.validateAddress(contact.address));
+        },
+        disableSend() {
+            return this.errorOccuredOnSave || this.isSending || !this.hasRecipient || this.anyRecipientInError;
         }
     },
     methods: {
