@@ -30,6 +30,12 @@
     "preferences.general.password": "Password",
     "preferences.general.manage_account": "manage account",
 
+    "preferences.security.api_key": "API keys",
+    "preferences.security.api_key.desc": "Use API Key to identify your project",
+    "preferences.security.api_key.generate": "Generate API key",
+    "preferences.security.api_key.generate.modal.ok_button": "Create",
+    "preferences.security.api_key.generate.modal.project_label": "Label",
+
     "preferences.security.change_password": "Password change",
     "preferences.security.change_password.old": "Old password",
     "preferences.security.change_password.old.invalid": "Wrong password",

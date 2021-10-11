@@ -87,6 +87,10 @@ export default function (roles, vueI18N) {
                     options: {}
                 }
             ]
+        },
+        {
+            title: vueI18N.t("preferences.security.api_key"),
+            fields: [{ component: "PrefAPIKey" }]
         }
     ];
 
@@ -98,16 +102,16 @@ export default function (roles, vueI18N) {
             groups: mainCategoryGroups
         },
         {
+            code: "security",
+            name: vueI18N.t("common.security"),
+            icon: "lock",
+            groups: securityCategoryGroups
+        },
+        {
             code: "advanced",
             name: vueI18N.t("common.advanced"),
             icon: "plus",
             groups: advancedCategoryGroups
-        },
-        {
-            code: "security",
-            name: vueI18N.t("common.security"),
-            icon: "server",
-            groups: securityCategoryGroups
         }
     ];
 

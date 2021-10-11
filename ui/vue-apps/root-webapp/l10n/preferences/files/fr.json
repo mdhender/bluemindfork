@@ -30,6 +30,12 @@
     "preferences.general.password": "Mot de passe",
     "preferences.general.manage_account": "gérer le compte",
 
+    "preferences.security.api_key": "Clé d'API",
+    "preferences.security.api_key.desc": "Utiliser une clé d'API pour identifier votre projet",
+    "preferences.security.api_key.generate": "Générer une clé d’API",
+    "preferences.security.api_key.generate.modal.ok_button": "Générer",
+    "preferences.security.api_key.generate.modal.project_label": "Libellé",
+
     "preferences.security.change_password": "Changement de mot de passe",
     "preferences.security.change_password.old": "Ancien mot de passe",
     "preferences.security.change_password.old.invalid": "Mot de passe incorrect",

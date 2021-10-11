@@ -1,4 +1,5 @@
 import { AddressBookClient, AddressBooksClient } from "@bluemind/addressbook.api";
+import { APIKeysClient } from "@bluemind/authentication.api";
 import {
     CalendarClient,
     CalendarsMgmtClient,
@@ -29,6 +30,11 @@ export default function (userSession) {
     injector.register({
         provide: "AddressBookPersistence",
         factory: containerUid => new AddressBookClient(userSession.sid, containerUid)
+    });
+
+    injector.register({
+        provide: "APIKeysPersistence",
+        factory: () => new APIKeysClient(userSession.sid)
     });
 
     injector.register({

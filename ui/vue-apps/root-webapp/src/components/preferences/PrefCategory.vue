@@ -45,6 +45,7 @@ import PrefFieldSwitch from "./fields/PrefFieldSwitch";
 
 import PrefAllDayEventReminder from "./fields/customs/PrefAllDayEventReminder";
 import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
+import PrefAPIKey from "./fields/customs/PrefAPIKey";
 import PrefAutomaticReply from "./fields/customs/PrefAutomaticReply";
 import PrefEmailsForwarding from "./fields/customs/PrefEmailsForwarding";
 import PrefEnableNotifications from "./fields/customs/PrefEnableNotifications";
@@ -73,6 +74,7 @@ export default {
         PrefFieldSwitch,
         PrefAllDayEventReminder,
         PrefAlwaysShowQuota,
+        PrefAPIKey,
         PrefAutomaticReply,
         PrefEmailsForwarding,
         PrefEnableNotifications,

@@ -1089,6 +1089,13 @@
   dependencies:
     axios "^0.18.0"
 
+"@bluemind/authentication.api@^4.1.0":
+  version "4.1.58652"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/authentication.api/-/authentication.api-4.1.58652.tgz#f1e7f51fb8e4b5d5421b9cb07897febb19da4b96"
+  integrity sha512-kDj6kfEToPfAk63fpn3bh8JXKMMTG4oaT8eM/gsj9p0xsaQrkPbpqtq5Yv8DgvwMqlxz07XYSr6kCydZicsowg==
+  dependencies:
+    axios "^0.18.0"
+
 "@bluemind/backend.mail.api@^4.1.0":
   version "4.1.58652"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/backend.mail.api/-/backend.mail.api-4.1.58652.tgz#d1d1648479629265b9078eea4cee509b6cd4fa20"
