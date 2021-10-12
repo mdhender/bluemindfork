@@ -86,18 +86,27 @@ export default {
             let content = this.body;
 
             if (hasRemoteImages(content) && this.settings.trust_every_remote_content === "false") {
+                // block remote content while waiting for search request
+                this.SET_BLOCK_REMOTE_IMAGES(true);
+                content = blockRemoteImages(content);
+                this.scrollbarHeight = this.srollbarHeight();
+                this.iFrameContent = this.buildHtml(content);
+
                 // check if sender is known (found in any suscribed addressbook)
                 const searchResult = await apiAddressbooks.search(this.message.from.address);
                 const isSenderKnown = searchResult.total > 0;
                 if (!isSenderKnown) {
                     this.WARNING(this.blockedContentAlert);
-                    this.SET_BLOCK_REMOTE_IMAGES(true);
-                    content = blockRemoteImages(content);
+                } else {
+                    this.SET_BLOCK_REMOTE_IMAGES(false);
+                    content = unblockRemoteImages(content);
+                    this.scrollbarHeight = this.srollbarHeight();
+                    this.iFrameContent = this.buildHtml(content);
                 }
+            } else {
+                this.scrollbarHeight = this.srollbarHeight();
+                this.iFrameContent = this.buildHtml(content);
             }
-
-            this.scrollbarHeight = this.srollbarHeight();
-            this.iFrameContent = this.buildHtml(content);
         },
         resizeIFrame() {
             const resizeObserver = new ResizeObserver(entries => {
