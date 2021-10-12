@@ -420,7 +420,7 @@ public final class ESearchActivator implements BundleActivator {
 		return !Pattern.compile(".*_\\d+").matcher(index).matches();
 	}
 
-	private static void initIndex(Client client, String index, boolean primary) {
+	public static void initIndex(Client client, String index, boolean primary) {
 		Optional<IndexDefinition> indexDefinition = indexes.values().stream().filter(item -> item.supportsIndex(index))
 				.findFirst();
 

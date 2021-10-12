@@ -141,7 +141,7 @@ public class MailIndexShardingTests {
 		ESearchActivator.refreshIndex(indexBefore);
 
 		SearchResponse resp = client.prepareSearch(indexBefore)
-				.setQuery(QueryBuilders.queryStringQuery("id:\"" + uid + ":" + 1 + "\"")).execute().get();
+				.setQuery(QueryBuilders.queryStringQuery("id:\"" + uid + ":" + 44 + "\"")).execute().get();
 		assertEquals(1L, resp.getHits().getTotalHits());
 
 		new MailIndexService().moveMailbox(uid, "mailspool_20");
@@ -149,7 +149,7 @@ public class MailIndexShardingTests {
 		String indexAfter = getUserAliasIndex(uid);
 		assertEquals("mailspool_20", indexAfter);
 
-		resp = client.prepareSearch(indexAfter).setQuery(QueryBuilders.queryStringQuery("id:\"" + uid + ":" + 1 + "\""))
+		resp = client.prepareSearch(indexAfter).setQuery(QueryBuilders.queryStringQuery("id:\"" + 44 + ":" + 1 + "\""))
 				.execute().get();
 		assertEquals(1L, resp.getHits().getTotalHits());
 	}

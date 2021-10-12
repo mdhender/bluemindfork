@@ -204,7 +204,7 @@ public class MailIndexService implements IMailIndexService {
 		String parentUid = mail.messageBody;
 		logger.debug("Indexing message in mailbox {} using parent uid {}", mailboxUniqueId, parentUid);
 
-		String id = mailboxUniqueId + ":" + mail.imapUid;
+		String id = mailboxUniqueId + ":" + item.internalId;
 
 		Client client = getIndexClient();
 		String userAlias = getIndexAliasName(user);

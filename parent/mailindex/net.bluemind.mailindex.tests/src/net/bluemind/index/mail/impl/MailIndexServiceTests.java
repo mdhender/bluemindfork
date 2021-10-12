@@ -146,13 +146,13 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		byte[] eml = Files.toByteArray(new File("data/test.eml"));
 
 		storeBody("body1", eml);
-		storeMessage("inbox", userUid, "body1", 1, Collections.emptyList());
+		storeMessage("inbox", userUid, "body1", 1, Collections.emptyList(), 1);
 		storeBody("body2", eml);
-		storeMessage("sent", userUid, "body2", 2, Collections.emptyList());
+		storeMessage("sent", userUid, "body2", 2, Collections.emptyList(), 2);
 		storeBody("body3", eml);
-		storeMessage("sent", userUid, "body3", 3, Collections.emptyList());
+		storeMessage("sent", userUid, "body3", 3, Collections.emptyList(), 3);
 		storeBody("body4", eml);
-		storeMessage("sent", userUid, "body4", 4, Collections.emptyList());
+		storeMessage("sent", userUid, "body4", 4, Collections.emptyList(), 4);
 
 		ESearchActivator.refreshIndex(INDEX_NAME);
 
@@ -243,13 +243,13 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		ESearchActivator.refreshIndex(INDEX_NAME);
 
 		SearchResponse resp = c.prepareSearch(INDEX_NAME)
-				.setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(imapUid) + "\"")).execute().get();
+				.setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(44) + "\"")).execute().get();
 		assertEquals(1L, resp.getHits().getTotalHits());
 
 		Map<String, Object> source = resp.getHits().getAt(0).getSourceAsMap();
 		assertEquals(bodyUid, source.get("parentId"));
 		assertEquals("SubjectTest", source.get("subject"));
-		assertEquals(entryId(imapUid), source.get("id"));
+		assertEquals(entryId(44), source.get("id"));
 
 		// search by IN in alias
 		resp = c.prepareSearch(ALIAS).setQuery(QueryBuilders.termQuery("in", folderUid)).execute().get();
@@ -258,7 +258,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		source = resp.getHits().getAt(0).getSourceAsMap();
 		assertEquals(bodyUid, source.get("parentId"));
 		assertEquals("SubjectTest", source.get("subject"));
-		assertEquals(entryId(imapUid), source.get("id"));
+		assertEquals(entryId(44), source.get("id"));
 	}
 
 	@Test
@@ -272,7 +272,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		ESearchActivator.refreshIndex(INDEX_NAME);
 
 		SearchResponse resp = c.prepareSearch(INDEX_NAME)
-				.setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(imapUid) + "\"")).execute().get();
+				.setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(44) + "\"")).execute().get();
 		assertEquals(1L, resp.getHits().getTotalHits());
 
 		List<MailboxItemFlag> deleteFlag = Arrays.asList(MailboxItemFlag.System.Deleted.value());
@@ -283,8 +283,8 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 				set);
 		ESearchActivator.refreshIndex(INDEX_NAME);
 
-		resp = c.prepareSearch(ALIAS).setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(imapUid) + "\""))
-				.execute().get();
+		resp = c.prepareSearch(ALIAS).setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(44) + "\"")).execute()
+				.get();
 		assertEquals(0L, resp.getHits().getTotalHits());
 	}
 
@@ -294,12 +294,12 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 
 		byte[] eml = Files.toByteArray(new File("data/test.eml"));
 		storeBody(bodyUid, eml);
-		storeMessage(mboxUid, userUid, bodyUid, 1l, Collections.emptyList());
-		storeMessage(mboxUid, userUid, bodyUid, 2l, Collections.emptyList());
+		storeMessage(mboxUid, userUid, bodyUid, 1l, Collections.emptyList(), 1);
+		storeMessage(mboxUid, userUid, bodyUid, 2l, Collections.emptyList(), 2);
 		ESearchActivator.refreshIndex(INDEX_NAME);
 
 		SearchResponse resp = c.prepareSearch(INDEX_NAME)
-				.setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(1) + "\"")).execute().get();
+				.setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(2) + "\"")).execute().get();
 		assertEquals(1L, resp.getHits().getTotalHits());
 		resp = c.prepareSearch(INDEX_NAME).setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(2) + "\""))
 				.execute().get();
@@ -390,8 +390,8 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 
 		byte[] eml = Files.toByteArray(new File("data/test.eml"));
 		storeBody(bodyUid, eml);
-		storeMessage(mboxUid, userUid, bodyUid, 1, Collections.emptyList());
-		storeMessage(mboxUid, userUid, bodyUid, 2, Collections.emptyList());
+		storeMessage(mboxUid, userUid, bodyUid, 1, Collections.emptyList(), 1);
+		storeMessage(mboxUid, userUid, bodyUid, 2, Collections.emptyList(), 2);
 		ESearchActivator.refreshIndex(INDEX_NAME);
 
 		List<MailSummary> mails = new ArrayList<>();
@@ -456,14 +456,14 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		ESearchActivator.refreshIndex(INDEX_NAME);
 
 		SearchResponse resp = c.prepareSearch("mailspool_test2")
-				.setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(1) + "\"")).execute().get();
+				.setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(44) + "\"")).execute().get();
 		assertEquals(1L, resp.getHits().getTotalHits());
 
-		resp = c.prepareSearch(ALIAS).setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(1) + "\"")).execute()
+		resp = c.prepareSearch(ALIAS).setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(44) + "\"")).execute()
 				.get();
 		assertEquals(1L, resp.getHits().getTotalHits());
 
-		resp = c.prepareSearch(INDEX_NAME).setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(1) + "\""))
+		resp = c.prepareSearch(INDEX_NAME).setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(44) + "\""))
 				.execute().get();
 		assertEquals(0L, resp.getHits().getTotalHits());
 	}
@@ -563,7 +563,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		long imapUid = 1;
 		byte[] eml = Files.toByteArray(new File("data/test.eml"));
 		storeBody(bodyUid, eml);
-		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList());
+		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList(), 1);
 		ESearchActivator.refreshIndex(INDEX_NAME);
 
 		List<MailSummary> mails = new ArrayList<>();
@@ -592,7 +592,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		assertEquals(1, results.totalResults);
 		MessageSearchResult messageSearchResult = results.results.get(0);
 		assertEquals("mbox_records_" + mboxUid, messageSearchResult.containerUid);
-		assertEquals(44l, messageSearchResult.itemId);
+		assertEquals(1l, messageSearchResult.itemId);
 		assertEquals("IPM.Note", messageSearchResult.messageClass);
 	}
 
@@ -601,7 +601,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		long imapUid = 1;
 		byte[] eml = Files.toByteArray(new File("data/test.eml"));
 		storeBody(bodyUid, eml);
-		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList());
+		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList(), 1);
 		ESearchActivator.refreshIndex(INDEX_NAME);
 
 		List<MailSummary> mails = new ArrayList<>();
