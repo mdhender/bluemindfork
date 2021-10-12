@@ -50,4 +50,10 @@ public interface SysConfReverseProxyConstants extends Messages {
 	String httpProxyExceptions();
 
 	String httpProxyExceptionsHelp();
+
+	String externalUrl();
+
+	String externalUrlHelp();
+
+	String general();
 }

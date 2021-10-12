@@ -27,6 +27,21 @@
 	</ui:style>
 
 	<g:HTMLPanel>
+		<f:FieldSetPanel name="{c.general}" />
+			<table border="0">
+				<tr>
+					<td class="label" style='width:300px'>
+						<div style="display:flex" title="{c.externalUrlHelp}">
+							<g:Label text="{c.externalUrl}"></g:Label>
+							<sup><i class="fa fa-exclamation-circle" /></sup>
+						</div>
+					</td>
+					<td>
+						<g:TextBox width="300px" ui:field="externalUrl" />
+					</td>
+				</tr>
+			</table>
+		
 		<f:FieldSetPanel name="{c.nginx}" />
 		<table border="0">
 			<tr>
@@ -111,6 +126,7 @@
 				</td>
 			</tr>
 		</table>
+		
 	</g:HTMLPanel>
 
 </ui:UiBinder> 

@@ -17,19 +17,11 @@
 						<g:HTMLPanel>
 							<table class="formContainer" style='width:50%'>
 								<tr>
-									<td class="label" style='width:60%'>
+									<td class="label" style='width:400px'>
 										<g:Label text="{c.defaultDomain}"></g:Label>
 									</td>
 									<td>
 										<g:ListBox ui:field="domainList" title="{c.domainList}" />
-									</td>
-								</tr>
-								<tr>
-									<td class="label" style='width:60%'>
-										<g:Label text="{c.externalUrl}"></g:Label>
-									</td>
-									<td>
-										<g:TextBox width="400px" ui:field="externalUrl" />
 									</td>
 								</tr>
 							</table>

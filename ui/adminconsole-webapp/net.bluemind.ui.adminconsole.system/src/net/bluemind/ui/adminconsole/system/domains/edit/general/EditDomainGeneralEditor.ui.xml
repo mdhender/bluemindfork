@@ -60,7 +60,10 @@
 			</tr>
 			<tr>
 				<td style='width:200px'>
-					<g:Label text="{c.externalUrl}:"></g:Label>
+					<div style="display:flex" title="{c.externalUrlHelp}">
+						<g:Label text="{c.externalUrl}:"></g:Label>
+						<sup><i class="fa fa-exclamation-circle" /></sup>
+					</div>
 				</td>
 				<td style='width:400px'>
 					<g:TextBox width="400px" ui:field="externalUrl" />

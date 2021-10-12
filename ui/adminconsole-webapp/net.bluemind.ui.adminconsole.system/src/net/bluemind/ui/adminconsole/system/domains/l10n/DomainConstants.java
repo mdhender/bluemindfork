@@ -282,4 +282,7 @@ public interface DomainConstants extends Messages {
 	String defaultDomain();
 
 	String domainCertificate();
+
+	String externalUrlHelp();
+
 }
