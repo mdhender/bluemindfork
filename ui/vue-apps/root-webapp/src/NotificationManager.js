@@ -1,3 +1,4 @@
+import global from "@bluemind/global";
 import router from "@bluemind/router";
 import WebsocketClient from "@bluemind/sockjs";
 import debounce from "lodash.debounce";
@@ -31,6 +32,7 @@ export default class NotificationManager {
     }
 
     async setNotificationWhenReceivingMail(userSession) {
+        global.hasNotifWhenReceivingMail = true;
         //TODO: The whole think should be provider by an extension.
         if (userSession.roles.includes("hasMail")) {
             await this.requestPermissionIfNeeded();
