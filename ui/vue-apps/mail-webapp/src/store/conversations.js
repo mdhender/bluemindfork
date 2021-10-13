@@ -1,4 +1,7 @@
+import sortedIndex from "lodash.sortedindex";
 import sortedIndexBy from "lodash.sortedindexby";
+import sortedIndexOf from "lodash.sortedindexof";
+
 import Vue from "vue";
 
 import { inject } from "@bluemind/inject";
@@ -51,6 +54,7 @@ import { withAlert } from "./helpers/withAlert";
 import { LoadingStatus } from "~/model/loading-status";
 import { isFlagged, isUnread, messageKey } from "~/model/message";
 import apiFolders from "./api/apiFolders";
+import { FIXME_NEW_DRAFT_KEY } from "../model/draft";
 
 const state = {
     conversationByKey: {},
@@ -92,9 +96,13 @@ const mutations = {
     },
     [SET_CONVERSATION_LIST]: (state, { conversations }) => {
         conversations.forEach(conversation => {
-            if (state.conversationByKey[conversation.key]) {
-                state.conversationByKey[conversation.key].messages = conversation.messages;
-                state.conversationByKey[conversation.key].date = conversation.date;
+            const conversationInState = state.conversationByKey[conversation.key];
+            if (conversationInState) {
+                // FIXME remove once we use 'real' message ids for new messages
+                if (!containsNewMessage(conversationInState)) {
+                    conversationInState.messages = conversation.messages;
+                    conversationInState.date = conversation.date;
+                }
             } else {
                 Vue.set(state.conversationByKey, conversation.key, conversation);
             }
@@ -114,7 +122,7 @@ const mutations = {
                 ? state.conversationByKey[message.conversationRef.key]
                 : undefined;
             if (conversation) {
-                const bestIndexForInsertion = sortedIndexBy(conversation.messages, message.key);
+                const bestIndexForInsertion = sortedIndex(conversation.messages, message.key);
                 if (conversation.messages[bestIndexForInsertion] !== message.key) {
                     conversation.messages.splice(bestIndexForInsertion, 0, message.key);
                 }
@@ -125,8 +133,8 @@ const mutations = {
         messages.forEach(message => {
             const conversation = state.conversationByKey[message.conversationRef.key];
             if (conversation) {
-                const index = sortedIndexBy(conversation.messages, message.key);
-                if (conversation.messages[index] === message.key) {
+                const index = sortedIndexOf(conversation.messages, message.key);
+                if (index >= 0) {
                     conversation.messages.splice(index, 1);
                 }
             }
@@ -392,4 +400,9 @@ function findSentDuplicateIndex(state, conversation, message, sentFolder) {
         );
     }
     return -1;
+}
+
+// FIXME remove once we use 'real' message ids for new messages
+function containsNewMessage(conversation) {
+    return FIXME_NEW_DRAFT_KEY && sortedIndexOf(conversation.messages, FIXME_NEW_DRAFT_KEY) >= 0;
 }

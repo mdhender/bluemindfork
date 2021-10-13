@@ -1,4 +1,5 @@
 import sortedIndexBy from "lodash.sortedindexby";
+import sortedIndex from "lodash.sortedindex";
 
 import { MessageCreationModes, MessageStatus, createOnlyMetadata, messageKey } from "~/model/message";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
@@ -63,7 +64,7 @@ function createConversationMetadata(uid, { key, uid: folderUid }, messages) {
     messages.forEach(({ date, itemId, folderUid }) => {
         lastMessageDate = date > lastMessageDate ? date : lastMessageDate;
         const key = messageKey(itemId, folderUid);
-        sorted.splice(sortedIndexBy(sorted, key), 0, key);
+        sorted.splice(sortedIndex(sorted, key), 0, key);
     });
     return {
         key: uid && key ? messageKey(uid, key) : null,

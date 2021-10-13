@@ -6748,9 +6748,19 @@ lodash.sortby@^4.7.0:
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.sortby/-/lodash.sortby-4.7.0.tgz#edd14c824e2cc9c1e0b0a1b42bb5210516a42438"
   integrity sha1-7dFMgk4sycHgsKG0K7UhBRakJDg=
 
+lodash.sortedindex@^4.1.0:
+  version "4.1.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.sortedindex/-/lodash.sortedindex-4.1.0.tgz#3f6417ee20e8b22416ab005bfa16344a0446b448"
+  integrity sha1-P2QX7iDosiQWqwBb+hY0SgRGtEg=
+
 lodash.sortedindexby@^4.6.0:
   version "4.6.0"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.sortedindexby/-/lodash.sortedindexby-4.6.0.tgz#46f198fbdfbcd09c6fd4c177d37cda3cc652d9f9"
+
+lodash.sortedindexof@^4.1.0:
+  version "4.1.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.sortedindexof/-/lodash.sortedindexof-4.1.0.tgz#7b661d2f86f55668770802d56baa8f02d6620f3c"
+  integrity sha1-e2YdL4b1Vmh3CALVa6qPAtZiDzw=
 
 lodash.startswith@^4.2.1:
   version "4.2.1"

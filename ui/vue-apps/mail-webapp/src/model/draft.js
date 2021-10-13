@@ -35,13 +35,18 @@ export function draftPath(myDrafts) {
     });
 }
 
+// FIXME remove once we use 'real' message ids for new message
+export let FIXME_NEW_DRAFT_KEY;
+
 export function createEmpty(myDraftsFolder, userSession) {
     const metadata = {
         internalId: TEMPORARY_MESSAGE_ID,
         folder: { key: myDraftsFolder.key, uid: myDraftsFolder.remoteRef.uid }
     };
     const message = createMessage(metadata);
-    message.key = messageKey(--DRAFT_HASH, myDraftsFolder.key);
+    FIXME_NEW_DRAFT_KEY = messageKey(--DRAFT_HASH, myDraftsFolder.key);
+    message.key = FIXME_NEW_DRAFT_KEY;
+
     message.date = new Date();
     message.from = {
         address: userSession.defaultEmail,
@@ -325,7 +330,7 @@ function nameAndAddress(recipient) {
 }
 
 export function draftInfoHeader(message) {
-    const draftInfoHeader = message.headers.find(h => h.name === MessageHeader.X_BM_DRAFT_INFO);
+    const draftInfoHeader = message.headers?.find(h => h.name === MessageHeader.X_BM_DRAFT_INFO);
     if (draftInfoHeader) {
         return JSON.parse(draftInfoHeader.values[0]);
     }

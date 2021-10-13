@@ -149,7 +149,7 @@ export default {
             Vue.set(this.expandedMessages, index, true);
         },
         expandAll() {
-            this.expandedMessages = this.conversationMessages.map(() => true);
+            this.expandedMessages = Array(this.conversationMessages.length).fill(true);
         },
         collapse(index) {
             Vue.set(this.expandedMessages, index, false);
