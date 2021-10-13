@@ -24,6 +24,6 @@ import net.bluemind.system.hook.ISystemHook;
 public class NginxSystemHook implements ISystemHook {
 	@Override
 	public void onCertificateUpdate() throws ServerFault {
-		new NginxService().reloadHttpd();
+		new NginxService().restart();
 	}
 }

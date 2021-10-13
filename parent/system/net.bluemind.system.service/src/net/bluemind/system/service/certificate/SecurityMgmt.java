@@ -98,6 +98,13 @@ public class SecurityMgmt implements ISecurityMgmt {
 	public void updateCertificate(CertData certData) {
 		rbac.check(BasicRoles.ROLE_MANAGE_SYSTEM_CONF);
 
+		if (certData == null
+				|| (Strings.isNullOrEmpty(certData.certificate) && Strings.isNullOrEmpty(certData.certificateAuthority)
+						&& Strings.isNullOrEmpty(certData.privateKey))) {
+			// Cancel update as CertData is null or all certificate parts are null or empty
+			return;
+		}
+
 		logger.info("update certificate by {}", context.getSecurityContext().getSubject());
 
 		String domainUid = certData.domainUid;
@@ -123,7 +130,6 @@ public class SecurityMgmt implements ISecurityMgmt {
 	}
 
 	private void writeCert(Server server, CertData certData) {
-
 		String ca = certData.certificateAuthority;
 		String cert = certData.certificate;
 		String pkey = certData.privateKey;
@@ -136,7 +142,6 @@ public class SecurityMgmt implements ISecurityMgmt {
 	}
 
 	private void copyCertToNode(INodeClient nc, String ca, String certPlusKey, String domainUid) {
-
 		TaskRef tr = null;
 		String bmCertFileName = "bm_cert.pem";
 
@@ -155,10 +160,16 @@ public class SecurityMgmt implements ISecurityMgmt {
 	}
 
 	public static void checkCertificate(CertData certData) {
+		if (Strings.isNullOrEmpty(certData.certificate)) {
+			throw new ServerFault("Certificate must not be null or empty");
+		}
 
-		if (Strings.isNullOrEmpty(certData.certificate) || Strings.isNullOrEmpty(certData.certificateAuthority)
-				|| Strings.isNullOrEmpty(certData.privateKey)) {
-			return;
+		if (Strings.isNullOrEmpty(certData.privateKey)) {
+			throw new ServerFault("Provate key must not be null or empty");
+		}
+
+		if (Strings.isNullOrEmpty(certData.certificateAuthority)) {
+			throw new ServerFault("CA must not be null or empty");
 		}
 
 		byte[] caData = certData.certificateAuthority.getBytes();
@@ -285,11 +296,9 @@ public class SecurityMgmt implements ISecurityMgmt {
 	}
 
 	private void checkDomainCertificate(String domainUid) {
-
 		ItemValue<Domain> domain = context.provider().instance(IDomains.class).get(domainUid);
 		if (domain == null || domain.value == null) {
 			throw new DomainNotFoundException(domainUid);
 		}
-
 	}
 }

@@ -91,10 +91,9 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 		return "login.xml";
 	}
 
-	private String getDefaultDomain(String requestHostUrl) {
-
-		return ReadDomainsSettingService.getInstance().getDefaultDomain(requestHostUrl)
-				.orElse(defaultDomain.get().get());
+	private Optional<String> getDefaultDomain(String requestHostUrl) {
+		return Optional.ofNullable(ReadDomainsSettingService.getInstance().getDefaultDomain(requestHostUrl)
+				.orElseGet(() -> defaultDomain.get().orElse(null)));
 	}
 
 	@Override
@@ -168,7 +167,7 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 			model.put("buildVersion", BMVersion.getVersion());
 		}
 
-		model.put("defaultDomain", getDefaultDomain(request.host().split(":")[0]));
+		getDefaultDomain(request.host().split(":")[0]).ifPresent(dd -> model.put("defaultDomain", dd));
 		model.put("msg", new MessageResolverMethod(resourceBundle, new Locale(getLang(request))));
 		logger.debug("display login page with model {}", model);
 	}

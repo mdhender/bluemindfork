@@ -29,9 +29,17 @@ generateDhParam() {
     echo -e "\n"
 }
 
+setDefaultExternalUrl() {
+    local externalUrl=$(hostname -f)
+
+    [ -f /etc/bm/bm.ini ] && externalUrl=$(grep '^[^#]*external-url' /etc/bm/bm.ini | sed -e 's/ //g' | cut -d'=' -f2)
+
+    echo ${externalUrl}
+}
+
 createDefaultVhost() {
     local vhostFile="/etc/nginx/bluemind/bluemind-vhosts.conf"
-    local externalUrl=$(hostname -f)
+    local externalUrl=$(setDefaultExternalUrl)
 
     [ -f /etc/bm/bm.ini ] && externalUrl=$(grep '^[^#]*external-url' /etc/bm/bm.ini | sed -e 's/ //g' | cut -d'=' -f2)
 
@@ -51,13 +59,19 @@ createDomainsVhosts() {
     local domainSettings="/etc/bm/domains-settings"
     [ ! -e ${domainSettings} ] && return
 
+    local externalUrls=( $(setDefaultExternalUrl) )
+
     while read -r line; do
-        parts=(${line//:/ })
+        readarray -d : -t parts <<< "${line}"
         [ ${#parts[@]} -lt 2 ] && continue
 
         local domainUid=${parts[0]}
-        local externalUrl=${parts[1]}
         local vhostFile="/etc/nginx/bluemind/"${domainUid}"/bluemind-vhosts.conf"
+
+        local externalUrl=${parts[1]}
+        ([ -z "${externalUrl}" ] || [[ " ${externalUrls[*]} " =~ " ${externalUrl} " ]]) && continue
+
+        externalUrls+=(${externalUrl})
 
         forceNginxConfiguration ${vhostFile} /usr/share/doc/bm-client-access/bluemind-vhosts.conf
         unsetDefaultServer ${vhostFile}

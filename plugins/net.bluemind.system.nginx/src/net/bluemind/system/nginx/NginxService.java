@@ -106,15 +106,6 @@ public class NginxService {
 	}
 
 	/**
-	 * Reload NGinx & FPM on all servers tagged as "bm/nginx" and "bm/nginx-edge"
-	 * 
-	 * @throws ServerFault
-	 */
-	public void reloadHttpd() throws ServerFault {
-		getTaggedServers().forEach(server -> reloadHttpd(NodeActivator.get(server)));
-	}
-
-	/**
 	 * Restart NGinx on all servers tagged as "bm/nginx" and "bm/nginx-edge"
 	 * 
 	 * @param nc
@@ -132,7 +123,7 @@ public class NginxService {
 	 */
 	public void reloadHttpd(INodeClient nc) throws ServerFault {
 		NCUtils.forget(nc, "service bm-php-fpm reload");
-		NCUtils.forget(nc, "service bm-nginx reload");
+		restart(nc);
 	}
 
 	/**
@@ -142,7 +133,10 @@ public class NginxService {
 	 * @throws ServerFault
 	 */
 	public void restart(INodeClient nc) throws ServerFault {
-		TaskRef tr = nc.executeCommand("service bm-nginx restart");
+		TaskRef tr = nc.executeCommand("/usr/share/nginx/bm-systemd.sh startPre");
+		NCUtils.waitFor(nc, tr);
+
+		tr = nc.executeCommand("service bm-nginx reload");
 		NCUtils.waitFor(nc, tr);
 		logger.info("NGINX server restarted");
 	}
