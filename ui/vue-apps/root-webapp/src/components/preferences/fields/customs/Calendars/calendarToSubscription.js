@@ -1,17 +1,17 @@
-export default (userSession, calendarUid, calendarName) => {
+export default (userSession, calendar) => {
     return {
         value: {
-            containerUid: calendarUid,
-            offlineSync: true,
+            containerUid: calendar.uid,
+            offlineSync: calendar.offlineSync,
             containerType: "calendar",
             owner: userSession.userId,
             defaultContainer: false,
-            name: calendarName
+            name: calendar.name
         },
-        uid: "sub-of-" + userSession.userId + "-to-" + calendarUid,
+        uid: "sub-of-" + userSession.userId + "-to-" + calendar.uid,
         internalId: null,
         version: 0,
-        displayName: calendarUid,
+        displayName: calendar.uid,
         externalId: null,
         createdBy: userSession.userId,
         updatedBy: userSession.userId,

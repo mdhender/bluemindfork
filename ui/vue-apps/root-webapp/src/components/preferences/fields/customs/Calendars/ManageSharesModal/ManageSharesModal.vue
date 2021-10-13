@@ -3,7 +3,7 @@
         v-model="show"
         centered
         modal-class="manage-shares-modal"
-        :hide-footer="isLoading || showAvailabilitiesAdvancedManagement || !isDefaultCalendar"
+        :hide-footer="isLoading || showAvailabilitiesAdvancedManagement || !isMyDefaultCalendar"
     >
         <template #modal-title>
             <h1 v-if="showAvailabilitiesAdvancedManagement" class="modal-title">
@@ -16,24 +16,20 @@
                 {{ $t("preferences.calendar.my_calendars.manage_shares", { calendarName: calendar.name }) }}
             </h1>
         </template>
-        <template v-if="isLoading">
-            <bm-spinner :size="2" class="d-flex justify-content-center" />
-        </template>
-        <template v-else-if="showAvailabilitiesAdvancedManagement">
-            <availabilities-advanced-management />
-        </template>
-        <template v-else>
-            <manage-shares-modal-content
-                :calendar="calendar"
-                :dir-entries-acl="dirEntriesAcl"
-                :domain-acl="domainAcl"
-                :external-shares="externalShares"
-                @add-external="addExternal"
-                @add-new-external="createContactAndAddExternal"
-                @edit-publish-mode="editPublishMode"
-                @remove-external="removeExternal"
-            />
-        </template>
+        <bm-spinner v-if="isLoading" :size="2" class="d-flex justify-content-center" />
+        <availabilities-advanced-management v-else-if="showAvailabilitiesAdvancedManagement" />
+        <manage-shares-modal-content
+            v-else
+            :calendar="calendar"
+            :dir-entries-acl="dirEntriesAcl"
+            :domain-acl="domainAcl"
+            :external-shares="externalShares"
+            :is-my-calendar="isMyCalendar"
+            @add-external="addExternal"
+            @add-new-external="createContactAndAddExternal"
+            @edit-publish-mode="editPublishMode"
+            @remove-external="removeExternal"
+        />
         <template #modal-footer>
             <bm-button
                 v-if="!showAvailabilitiesAdvancedManagement"
@@ -79,12 +75,11 @@ export default {
         };
     },
     computed: {
-        isDefaultCalendar() {
-            return (
-                this.calendar &&
-                this.calendar.uid &&
-                this.calendar.uid === "calendar:Default:" + inject("UserSession").userId
-            );
+        isMyDefaultCalendar() {
+            return this.isMyCalendar && this.calendar.uid === "calendar:Default:" + inject("UserSession").userId;
+        },
+        isMyCalendar() {
+            return this.calendar && this.calendar.uid && this.calendar.owner === inject("UserSession").userId;
         }
     },
     methods: {
@@ -96,7 +91,7 @@ export default {
             this.calendar = calendar;
             this.searchedInput = "";
 
-            const acl = await loadAcl(this.calendar, this.isDefaultCalendar);
+            const acl = await loadAcl(this.calendar, this.isMyDefaultCalendar);
             this.domainAcl = acl.domainAcl;
             this.dirEntriesAcl = acl.dirEntriesAcl;
 

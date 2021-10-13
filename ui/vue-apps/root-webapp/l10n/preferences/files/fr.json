@@ -110,6 +110,12 @@
     "preferences.calendar.my_calendars.publish_link_public_mode": "Peut voir uniquement les rendez-vous publiques",
     "preferences.calendar.my_calendars.default": "Calendrier par défaut",
 
+    "preferences.calendar.other_calendars.action": "Action sur le calendrier",
+    "preferences.calendar.other_calendars.add_calendars": "Ajouter des calendriers",
+    "preferences.calendar.other_calendars.add_n_calendars": "Ajouter | Ajouter 1 calendrier | Ajouter {count} calendriers",
+    "preferences.calendar.other_calendars.nothing_to_add": "Aucun calendrier supplémentaire ne peut être ajouté.",
+    "preferences.calendar.other_calendars.search": "Rechercher un calendrier ou un utilisateur",
+
     "preferences.mail.thread": "Affichage des messages",
     "preferences.mail.thread.disable": "Ne pas grouper par conversation",
     "preferences.mail.thread.enable": "Grouper par conversation",

@@ -123,6 +123,10 @@ export default {
         externalShares: {
             type: Array,
             required: true
+        },
+        isMyCalendar: {
+            type: Boolean,
+            required: true
         }
     },
     data() {
@@ -158,6 +162,9 @@ export default {
             const res = dirEntries.map(entry => ({ subject: entry.uid, verb: calendarAclToVerb(entry.acl) }));
             if (this.selectedDomainAcl_ !== CalendarAcl.CANT_INVITE_ME) {
                 res.push({ subject: inject("UserSession").domain, verb: calendarAclToVerb(this.selectedDomainAcl_) });
+            }
+            if (!this.isMyCalendar) {
+                res.push({ subject: inject("UserSession").userId, verb: Verb.All });
             }
             const externalSharesAcl = this.externalShares.map(share => ({
                 subject: urlToAclSubject(share),

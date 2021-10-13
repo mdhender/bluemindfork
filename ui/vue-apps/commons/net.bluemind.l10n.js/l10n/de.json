@@ -116,6 +116,7 @@
     "common.status.online": "Online",
     "common.status.offline": "Offline",
     "common.my_calendars": "Meine Kalender",
+    "common.other_calendars": "Other calendars",
     "common.synchronization": "Synchronisation",
     "common.import": "Import",
     "common.simple": "Standard",
@@ -126,6 +127,7 @@
     "common.valid_url": "Valide URL",
     "common.invalid_url": "Invalide URL",
     "common.share": "Teilen",
+    "common.shared_by": "shared by {name}",
     "common.browse": "Öffnen...",
     "common.import_successful": "Import erfolgreich",
     "common.import_error": "Fehler beim Importieren",
@@ -145,5 +147,6 @@
     "common.expand": "Aufklappen",
     "common.collapse": "Einklappen",
     "common.hour": "Stunde",
-    "common.until": "Bis"
+    "common.until": "Bis",
+    "common.selection": "Selection"
 }

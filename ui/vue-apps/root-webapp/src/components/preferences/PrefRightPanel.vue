@@ -166,8 +166,5 @@ export default {
     .pref-content-header {
         background-color: $info-dark;
     }
-    [disabled] {
-        opacity: 0.5;
-    }
 }
 </style>

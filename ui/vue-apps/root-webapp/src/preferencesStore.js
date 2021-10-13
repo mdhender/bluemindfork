@@ -1,6 +1,7 @@
 import { Verb } from "@bluemind/core.container.api";
 import { html2text, text2html } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
+import Vue from "vue";
 
 const state = {
     offset: 0,
@@ -11,7 +12,7 @@ const state = {
     userPasswordLastChange: null,
     subscriptions: [],
     myCalendars: [],
-    otherManagedCalendars: [], // other = dont include owned calendars
+    otherCalendars: [], // includes the calendars I subscribe to and those I manage (excluding mines)
 
     mailboxFilter: { remote: {}, local: {}, loaded: false }
 };
@@ -22,23 +23,32 @@ const actions = {
         const user = await inject("UserPersistence").getComplete(userId);
         commit("SET_USER_PASSWORD_LAST_CHANGE", user);
     },
-    async FETCH_CALENDARS({ commit }) {
-        const managedCalendars = await inject("ContainersPersistence").all({
-            type: "calendar",
-            verb: [Verb.All, Verb.Manage]
-        });
+    async FETCH_CALENDARS({ commit, state }) {
+        const allReadableCalendars = await inject("ContainersPersistence").all({ type: "calendar" });
+
         const userId = inject("UserSession").userId;
-        const otherManagedCalendars = managedCalendars.filter(container => container.owner !== userId);
-        const myCalendars = managedCalendars
+        const myCalendars = allReadableCalendars
             .filter(container => container.owner === userId)
             .sort(container => (container.defaultContainer ? 0 : 1));
-        commit("SET_CALENDARS", { myCalendars, otherManagedCalendars });
+
+        const otherOwnerCalendars = allReadableCalendars.filter(container => container.owner !== userId);
+        const otherManagedCalendars = otherOwnerCalendars.filter(container =>
+            container.verbs.some(verb => verb === Verb.All || verb === Verb.Manage)
+        );
+
+        const subscribedCalendars = otherOwnerCalendars.filter(
+            calContainer =>
+                state.subscriptions.findIndex(sub => sub.value.containerUid === calContainer.uid) !== -1 &&
+                otherManagedCalendars.findIndex(managed => managed.uid === calContainer.uid) === -1
+        );
+
+        commit("SET_CALENDARS", { myCalendars, otherCalendars: otherManagedCalendars.concat(subscribedCalendars) });
     },
     async FETCH_SUBSCRIPTIONS({ commit }) {
         const subscriptions = await inject("OwnerSubscriptionsPersistence").list();
         commit("SET_SUBSCRIPTIONS", subscriptions);
     },
-    async ADD_SUBSCRIPTIONS({ commit }, newSubscriptions) {
+    async SET_SUBSCRIPTIONS({ commit }, newSubscriptions) {
         const userId = inject("UserSession").userId;
         await inject("UserSubscriptionPersistence").subscribe(
             userId,
@@ -87,9 +97,9 @@ const mutations = {
     SET_USER_PASSWORD_LAST_CHANGE: (state, user) => {
         state.userPasswordLastChange = user.value.passwordLastChange || user.created;
     },
-    SET_CALENDARS: (state, { myCalendars, otherManagedCalendars }) => {
+    SET_CALENDARS: (state, { myCalendars, otherCalendars }) => {
         state.myCalendars = myCalendars;
-        state.otherManagedCalendars = otherManagedCalendars;
+        state.otherCalendars = otherCalendars;
     },
     ADD_PERSONAL_CALENDAR: (state, myCalendar) => {
         state.myCalendars.push(myCalendar);
@@ -110,7 +120,14 @@ const mutations = {
         state.subscriptions = subscriptions;
     },
     ADD_SUBSCRIPTIONS: (state, subscriptions) => {
-        state.subscriptions.push(...subscriptions);
+        subscriptions.forEach(subToAdd => {
+            const index = state.subscriptions.findIndex(sub => sub.uid === subToAdd.uid);
+            if (index === -1) {
+                state.subscriptions.push(subToAdd);
+            } else {
+                state.subscriptions.splice(index, 1, subToAdd);
+            }
+        });
     },
     REMOVE_SUBSCRIPTIONS: (state, subscriptions) => {
         subscriptions.forEach(sub => {
@@ -135,6 +152,23 @@ const mutations = {
     },
     SET_FORWARDING: (state, forwarding) => {
         state.mailboxFilter.local.forwarding = JSON.parse(JSON.stringify(forwarding));
+    },
+
+    // otherCalendars
+    ADD_OTHER_CALENDARS: (state, calendars) => {
+        state.otherCalendars.push(...calendars);
+    },
+    SET_CALENDAR_OFFLINE_SYNC: (state, { uid, offlineSync }) => {
+        const index = state.otherCalendars.findIndex(otherCal => otherCal.uid === uid);
+        if (index !== -1) {
+            Vue.set(state.otherCalendars[index], "offlineSync", offlineSync);
+        }
+    },
+    REMOVE_OTHER_CALENDAR: (state, uid) => {
+        const index = state.otherCalendars.findIndex(otherCal => otherCal.uid === uid);
+        if (index !== -1) {
+            state.otherCalendars.splice(index, 1);
+        }
     }
 };
 

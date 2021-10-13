@@ -71,7 +71,7 @@
 </template>
 
 <script>
-import calendarToSubscription from "./calendarToSubscription";
+import calendarToSubscription from "../calendarToSubscription";
 import { inject } from "@bluemind/inject";
 import {
     BmCol,
@@ -148,7 +148,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("preferences", ["ADD_SUBSCRIPTIONS"]),
+        ...mapActions("preferences", ["SET_SUBSCRIPTIONS"]),
         ...mapMutations("preferences", ["ADD_PERSONAL_CALENDAR", "UPDATE_PERSONAL_CALENDAR"]),
         async open(calendar) {
             if (!calendar) {
@@ -215,8 +215,8 @@ export default {
                 settings: calendarDesc.settings,
                 deleted: false
             });
-            const subscription = calendarToSubscription(userSession, uid, this.label);
-            this.ADD_SUBSCRIPTIONS([subscription]);
+            const subscription = calendarToSubscription(userSession, { uid, name: this.label, offlineSync: true });
+            this.SET_SUBSCRIPTIONS([subscription]);
         },
         async updateCalendar(calendarDesc) {
             if (this.anyChangeOnExistingCalendar) {

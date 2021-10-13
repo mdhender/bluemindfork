@@ -13,37 +13,30 @@
             @input="findSuggestions"
             @selected="onSelect"
         >
-            <template v-slot="{ item }">
-                <bm-color-badge v-if="item.settings.bm_color" :value="item.settings.bm_color" class="mr-1" />
-                <div v-else class="empty d-inline-block" />
-                {{ item.name }}
-            </template>
+            <template v-slot="{ item }"><bm-calendar-item :calendar="item" /></template>
         </bm-form-autocomplete-input>
         <h2 class="mt-4 mb-2">{{ $t("common.my_availabilities") }}</h2>
         <div>{{ $t("preferences.calendar.my_calendars.choose_calendar_for_my_availabilities") }}</div>
-        <h1 v-for="cal in calendarsForMyAvailabilities" :key="cal" class="d-inline">
-            <bm-badge
-                pill
-                :closeable="!isDefaultCalendar(cal)"
-                class="mt-2 mr-2 align-items-center"
-                @close="removeCalFromMyAvailabilities(cal)"
-            >
-                <bm-color-badge v-if="getColor(cal)" :value="getColor(cal)" class="mr-1" />
-                <div v-else class="empty d-inline-block" />
-                {{ getName(cal) }}
-            </bm-badge>
-        </h1>
+        <bm-calendar-badge
+            v-for="calendarUid in calendarsForMyAvailabilities"
+            :key="calendarUid"
+            :calendar="getCalendar(calendarUid)"
+            :closeable="!isDefaultCalendar(calendarUid)"
+            @close="removeCalFromMyAvailabilities(calendarUid)"
+        />
     </div>
 </template>
 
 <script>
-import { mapState } from "vuex";
+import BmCalendarBadge from "../BmCalendarBadge";
+import BmCalendarItem from "../BmCalendarItem";
 import { inject } from "@bluemind/inject";
-import { BmBadge, BmColorBadge, BmFormAutocompleteInput, BmSpinner } from "@bluemind/styleguide";
+import { BmFormAutocompleteInput, BmSpinner } from "@bluemind/styleguide";
+import { mapState } from "vuex";
 
 export default {
     name: "AvailabilitiesAdvancedManagement",
-    components: { BmBadge, BmColorBadge, BmFormAutocompleteInput, BmSpinner },
+    components: { BmCalendarBadge, BmCalendarItem, BmFormAutocompleteInput, BmSpinner },
     data() {
         return {
             isLoading: true,
@@ -100,21 +93,9 @@ export default {
         isDefaultCalendar(uid) {
             return uid === "calendar:Default:" + inject("UserSession").userId;
         },
-        getName(uid) {
-            return this.myCalendars.find(myCal => myCal.uid === uid).name;
-        },
-        getColor(uid) {
-            return this.myCalendars.find(myCal => myCal.uid === uid).settings?.bm_color;
+        getCalendar(uid) {
+            return this.myCalendars.find(myCal => myCal.uid === uid);
         }
     }
 };
 </script>
-
-<style lang="scss">
-.availabilities-advanced-management {
-    div.empty {
-        width: 20px;
-        height: 20px;
-    }
-}
-</style>

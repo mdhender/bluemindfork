@@ -19,13 +19,7 @@
                     </div>
                 </bm-col>
                 <bm-col cols="8">
-                    <bm-color-badge
-                        v-if="myCalendar.settings.bm_color"
-                        :value="myCalendar.settings.bm_color"
-                        class="mx-2"
-                    />
-                    <div v-else class="empty d-inline-block" />
-                    {{ myCalendar.name }}
+                    <bm-calendar-item :calendar="myCalendar" class="mx-2" />
                 </bm-col>
                 <bm-col cols="2">
                     <bm-form-checkbox
@@ -58,22 +52,15 @@
 </template>
 
 <script>
-import calendarToSubscription from "./calendarToSubscription";
+import calendarToSubscription from "../calendarToSubscription";
+import BmCalendarItem from "../BmCalendarItem";
 import CreateOrUpdateCalendarModal from "./CreateOrUpdateCalendarModal";
 import ImportIcsModal from "./ImportIcsModal";
-import ManageSharesModal from "./ManageSharesModal/ManageSharesModal";
-import PrefAlertsMixin from "../../../mixins/PrefAlertsMixin";
+import ManageSharesModal from "../ManageSharesModal/ManageSharesModal";
+import PrefAlertsMixin from "../../../../mixins/PrefAlertsMixin";
 import PrefManageMyCalendarsMenu from "./PrefManageMyCalendarsMenu";
 import { inject } from "@bluemind/inject";
-import {
-    BmButton,
-    BmCol,
-    BmColorBadge,
-    BmFormCheckbox,
-    BmIcon,
-    BmListGroup,
-    BmListGroupItem
-} from "@bluemind/styleguide";
+import { BmButton, BmCol, BmFormCheckbox, BmIcon, BmListGroup, BmListGroupItem } from "@bluemind/styleguide";
 import { retrieveTaskResult } from "@bluemind/task";
 import { mapActions, mapMutations, mapState } from "vuex";
 
@@ -81,8 +68,8 @@ export default {
     name: "PrefManageMyCalendars",
     components: {
         BmButton,
+        BmCalendarItem,
         BmCol,
-        BmColorBadge,
         BmFormCheckbox,
         BmIcon,
         BmListGroup,
@@ -100,12 +87,16 @@ export default {
         ...mapState("preferences", ["myCalendars", "subscriptions"])
     },
     methods: {
-        ...mapActions("preferences", ["ADD_SUBSCRIPTIONS", "REMOVE_SUBSCRIPTIONS"]),
+        ...mapActions("preferences", ["SET_SUBSCRIPTIONS", "REMOVE_SUBSCRIPTIONS"]),
         ...mapMutations("preferences", ["REMOVE_PERSONAL_CALENDAR"]),
         onOfflineSyncChange(calendar) {
-            if (!this.getOfflineSync(calendar)) {
-                const subscription = calendarToSubscription(inject("UserSession"), calendar.uid, calendar.name);
-                this.ADD_SUBSCRIPTIONS([subscription]);
+            const newOfflineSync = !this.getOfflineSync(calendar);
+            if (newOfflineSync) {
+                const subscription = calendarToSubscription(inject("UserSession"), {
+                    ...calendar,
+                    offlineSync: newOfflineSync
+                });
+                this.SET_SUBSCRIPTIONS([subscription]);
             } else {
                 this.REMOVE_SUBSCRIPTIONS([calendar.uid]);
             }
@@ -184,10 +175,6 @@ export default {
 .pref-manage-my-calendars {
     .list-group-item {
         border-bottom: none !important;
-        & div.empty {
-            width: 20px;
-            height: 20px;
-        }
         .fa-star-fill {
             color: $primary;
         }

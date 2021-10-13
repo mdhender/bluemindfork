@@ -110,6 +110,12 @@
     "preferences.calendar.my_calendars.publish_link_public_mode": "Kann nur meine öffentlichen Termine einsehen",
     "preferences.calendar.my_calendars.default": "Standard-Kalender",
 
+    "preferences.calendar.other_calendars.action": "Action on calendars",
+    "preferences.calendar.other_calendars.add_calendars": "Add calendars",
+    "preferences.calendar.other_calendars.add_n_calendars": "Add | Add 1 calendar | Add {count} calendars",
+    "preferences.calendar.other_calendars.nothing_to_add": "No additional calendars can be added.",
+    "preferences.calendar.other_calendars.search": "Search a calendar or user",
+
     "preferences.mail.thread": "E-Mails anzeigen",
     "preferences.mail.thread.disable": "E-Mails einzeln anzeigen",
     "preferences.mail.thread.enable": "E-Mails gruppiert anzeigen",

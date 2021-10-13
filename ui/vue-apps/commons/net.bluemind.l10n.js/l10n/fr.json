@@ -17,7 +17,7 @@
     "common.save_all": "Tout enregistrer",
     "common.toggleAttachments": "Afficher/cacher les pièces jointes",
     "common.attachmentPreview": "Aperçu de la pièce jointe",
-    "common.filter": "filtrer",
+    "common.filter": "Filtrer",
     "common.forward": "Transférer",
     "common.cancel.selection": "Annuler la sélection",
     "common.select.all": "Tout sélectionner",
@@ -116,6 +116,7 @@
     "common.status.online": "En ligne",
     "common.status.offline": "Hors ligne",
     "common.my_calendars": "Mes calendriers",
+    "common.other_calendars": "Autres calendriers",
     "common.synchronization": "Synchronisation",
     "common.import": "Importer",
     "common.simple": "Simple",
@@ -126,6 +127,7 @@
     "common.valid_url": "URL valide",
     "common.invalid_url": "URL invalide",
     "common.share": "Partager",
+    "common.shared_by": "partagé par {name}",
     "common.browse": "Parcourir...",
     "common.import_successful": "Import réussi",
     "common.import_error": "Echec de l'import",
@@ -145,5 +147,6 @@
     "common.expand": "Déplier",
     "common.collapse": "Replier",
     "common.hour": "Heure",
-    "common.until": "Jusqu'au"
+    "common.until": "Jusqu'au",
+    "common.selection": "Sélection"
 }

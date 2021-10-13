@@ -79,14 +79,14 @@ export default {
             });
         }
     },
-    created() {
+    async created() {
         const sections = getPreferenceSections(this.applications, inject("UserSession").roles, inject("i18n"));
         this.SET_SECTIONS(sections);
         this.FETCH_USER_PASSWORD_LAST_CHANGE();
-        this.FETCH_CALENDARS();
-        this.FETCH_SUBSCRIPTIONS();
         this.FETCH_ALL_SETTINGS();
         this.FETCH_MAILBOX_FILTER(this.lang);
+        await this.FETCH_SUBSCRIPTIONS(); // subscriptions need to be loaded to fetch calendars then
+        this.FETCH_CALENDARS();
     },
     async mounted() {
         if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {

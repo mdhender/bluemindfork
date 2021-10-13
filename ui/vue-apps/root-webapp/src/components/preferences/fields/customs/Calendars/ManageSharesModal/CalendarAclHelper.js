@@ -46,7 +46,7 @@ export function calendarAclToVerb(acl, isFreebusy) {
     }
 }
 
-export async function loadAcl(calendar, isDefault) {
+export async function loadAcl(calendar, isMyDefault) {
     let domainAcl = CalendarAcl.CANT_INVITE_ME,
         dirEntriesAcl = [];
     const userSession = inject("UserSession");
@@ -73,7 +73,7 @@ export async function loadAcl(calendar, isDefault) {
         });
     }
 
-    if (isDefault) {
+    if (isMyDefault) {
         // load freebusy acl
         const aclList = await inject(
             "ContainerManagementPersistence",

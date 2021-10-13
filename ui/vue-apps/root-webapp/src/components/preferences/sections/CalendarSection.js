@@ -3,7 +3,7 @@ export default function (vueI18N, applications) {
         name: vueI18N.t("common.application.calendar"),
         code: "calendar",
         icon: applications.find(({ $id }) => $id === "net.bluemind.webmodules.calendar")?.icon,
-        categories: [mainCategory(vueI18N), myCalendarsCategory(vueI18N)]
+        categories: [mainCategory(vueI18N), myCalendarsCategory(vueI18N), otherCalendarsCategory(vueI18N)]
     };
 }
 
@@ -110,6 +110,26 @@ function myCalendarsCategory(vueI18N) {
                 fields: [
                     {
                         component: "PrefManageMyCalendars",
+                        options: {}
+                    }
+                ]
+            }
+        ]
+    };
+}
+
+function otherCalendarsCategory(vueI18N) {
+    return {
+        code: "other_calendars",
+        name: vueI18N.t("common.other_calendars"),
+        // FIXME same icon as myCalendar, ça va faire bizarre
+        icon: "event",
+        groups: [
+            {
+                title: vueI18N.t("common.other_calendars"),
+                fields: [
+                    {
+                        component: "PrefManageOtherCalendars",
                         options: {}
                     }
                 ]
