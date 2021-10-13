@@ -110,7 +110,7 @@ public class DomainSettingsValidatorTests {
 	@Test
 	public void splitDomainValidatorTests() {
 		try {
-			validator.create(Collections.<String, String>emptyMap());
+			validator.create(Collections.<String, String>emptyMap(), domainUid);
 		} catch (ServerFault e) {
 			fail();
 		}
@@ -119,28 +119,28 @@ public class DomainSettingsValidatorTests {
 		settings.put(DomainSettingsKeys.mail_forward_unknown_to_relay.name(), "true");
 
 		try {
-			validator.create(settings);
+			validator.create(settings, domainUid);
 			fail();
 		} catch (ServerFault e) {
 		}
 
 		settings.put(DomainSettingsKeys.mail_routing_relay.name(), "");
 		try {
-			validator.create(settings);
+			validator.create(settings, domainUid);
 			fail();
 		} catch (ServerFault e) {
 		}
 
 		settings.put(DomainSettingsKeys.mail_routing_relay.name(), "       ");
 		try {
-			validator.create(settings);
+			validator.create(settings, domainUid);
 			fail();
 		} catch (ServerFault e) {
 		}
 
 		settings.put(DomainSettingsKeys.mail_routing_relay.name(), "whatever");
 		try {
-			validator.create(settings);
+			validator.create(settings, domainUid);
 		} catch (ServerFault e) {
 			fail();
 		}

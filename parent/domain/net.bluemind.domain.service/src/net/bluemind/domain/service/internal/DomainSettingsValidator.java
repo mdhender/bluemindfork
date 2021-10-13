@@ -24,29 +24,35 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
+import net.bluemind.core.api.Regex;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomains;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 
 public class DomainSettingsValidator {
 	private final Logger logger = LoggerFactory.getLogger(DomainSettingsValidator.class);
 
-	public void create(Map<String, String> settings) throws ServerFault {
+	public void create(Map<String, String> settings, String domainUid) throws ServerFault {
 		checkSplitDomain(settings);
 		checkDomainMaxUsers(settings);
+		checkDomainUrl(settings.getOrDefault(DomainSettingsKeys.external_url.name(), ""), domainUid);
+		checkDefaultDomain(settings.getOrDefault(DomainSettingsKeys.default_domain.name(), ""), domainUid);
 	}
 
-	public void update(Map<String, String> oldSettings, Map<String, String> newSettings, String domain)
+	public void update(Map<String, String> oldSettings, Map<String, String> newSettings, String domainUid)
 			throws ServerFault {
 		checkSplitDomain(newSettings);
 
 		if (null != getRelay(oldSettings) && (null == getRelay(newSettings))) {
 			List<String> externalUids = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(IMailboxes.class, domain).byRouting(Routing.external);
+					.instance(IMailboxes.class, domainUid).byRouting(Routing.external);
 			if (!externalUids.isEmpty()) {
 				logger.error("{} Routing.external user(s)", externalUids.size());
 				throw new ServerFault("Cannot unset split relay. Some mailboxes are still Routing.external",
@@ -56,6 +62,8 @@ public class DomainSettingsValidator {
 		}
 
 		checkDomainMaxUsers(newSettings);
+		checkDomainUrl(newSettings.getOrDefault(DomainSettingsKeys.external_url.name(), ""), domainUid);
+		checkDefaultDomain(newSettings.getOrDefault(DomainSettingsKeys.default_domain.name(), ""), domainUid);
 	}
 
 	private void checkSplitDomain(Map<String, String> settings) throws ServerFault {
@@ -97,6 +105,38 @@ public class DomainSettingsValidator {
 		if (maxUsers < 1) {
 			throw new ServerFault("Invalid maximum number of users. Must be an integer greater than 0.",
 					ErrorCode.INVALID_PARAMETER);
+		}
+	}
+
+	private void checkDomainUrl(String domainUrl, String domainUid) {
+
+		if (Strings.isNullOrEmpty(domainUrl)) {
+			return;
+		}
+
+		if (!Regex.DOMAIN.validate(domainUrl)) {
+			throw new ServerFault(String.format("Invalid external URL '%s' for domain '%s'", domainUrl, domainUid),
+					ErrorCode.INVALID_PARAMETER);
+		}
+	}
+
+	private void checkDefaultDomain(String defaultDomain, String domainUid) {
+
+		if (Strings.isNullOrEmpty(defaultDomain)) {
+			return;
+		}
+
+		try {
+			if (ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class)
+					.findByNameOrAliases(defaultDomain) == null) {
+				throw new ServerFault(String.format("Unable to check if default domain '%s' for domain '%s' exists",
+						defaultDomain, domainUid), ErrorCode.INVALID_PARAMETER);
+			}
+		} catch (Exception e) {
+			logger.error("Unable to check if default domain \'{}\' for domain \'{}\' exists", defaultDomain, domainUid,
+					e);
+			throw new ServerFault(String.format("Unable to check if default domain '%s' for domain '%s' exists: %s",
+					defaultDomain, domainUid, e.getMessage()), ErrorCode.INVALID_PARAMETER);
 		}
 	}
 }

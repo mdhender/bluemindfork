@@ -30,7 +30,7 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.domain.api.DomainSettingsKeys;
 
-public class DomainSettingsValidatorTest {
+public class DomainSettingsValidatorMaxUserTest {
 
 	private DomainSettingsValidator validator = new DomainSettingsValidator();
 
@@ -38,11 +38,11 @@ public class DomainSettingsValidatorTest {
 	public void testNullDomainMaxUser() throws ServerFault {
 		Map<String, String> settings = new HashMap<>();
 
-		validator.create(settings);
+		validator.create(settings, "test.lan");
 		validator.update(new HashMap<>(), settings, "test.lan");
 
 		settings.put(DomainSettingsKeys.domain_max_users.name(), null);
-		validator.create(settings);
+		validator.create(settings, "test.lan");
 		validator.update(new HashMap<>(), settings, "test.lan");
 	}
 
@@ -51,7 +51,7 @@ public class DomainSettingsValidatorTest {
 		Map<String, String> settings = new HashMap<>();
 		settings.put(DomainSettingsKeys.domain_max_users.name(), "");
 
-		validator.create(settings);
+		validator.create(settings, "test.lan");
 		validator.update(new HashMap<>(), settings, "test.lan");
 	}
 
@@ -60,7 +60,7 @@ public class DomainSettingsValidatorTest {
 		Map<String, String> settings = new HashMap<>();
 		settings.put(DomainSettingsKeys.domain_max_users.name(), "10");
 
-		validator.create(settings);
+		validator.create(settings, "test.lan");
 		validator.update(new HashMap<>(), settings, "test.lan");
 	}
 
@@ -77,7 +77,7 @@ public class DomainSettingsValidatorTest {
 
 	private void checkInvalidDomainMaxUser(Map<String, String> settings) {
 		try {
-			validator.create(settings);
+			validator.create(settings, "test.lan");
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals("Invalid maximum number of users. Must be an integer greater than 0.", sf.getMessage());
