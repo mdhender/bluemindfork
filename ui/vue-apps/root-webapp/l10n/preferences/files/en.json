@@ -1,11 +1,13 @@
 {
     "alert.preferences.need_reconnection.warning": "Some modifications will be effective at next connection.",
-    "alert.preferences.reload_app.warning": "Some modifications will be effective only after application got reloaded.",
+    "alert.preferences.reload_app.warning": "Some modifications will be effective only after the application got reloaded.",
     "alert.preferences.sync_calendar_in_progress.loading": "Synchronization in progress...",
     "alert.preferences.sync_calendar_in_progress.success": "Synchronization successful",
     "alert.preferences.sync_calendar_in_progress.error": "Error during synchronization",
 
     "preferences.access_old_settings_app": "access old preferences application",
+    "preferences.access_old_settings_app.confirm": "You have unsaved settings, you will lose these changes upon quitting this application.",
+    "preferences.access_old_settings_app.confirm.title": "Unsaved settings",
 
     "preferences.advanced.notifications": "Desktop notifications",
     "preferences.advanced.notifications.explanations": "Desktop notifications display directly on your screen when new messages or event reminders arrive.",

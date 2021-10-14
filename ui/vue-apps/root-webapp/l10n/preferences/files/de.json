@@ -6,6 +6,8 @@
     "alert.preferences.sync_calendar_in_progress.error": "Fehler bei der Synchronisation",
 
     "preferences.access_old_settings_app": "Einstellungen der alten Version der Anwendung",
+    "preferences.access_old_settings_app.confirm": "Sie haben ungespeicherte Einstellungen, die beim Verlassen der Anwendung verloren gehen.",
+    "preferences.access_old_settings_app.confirm.title": "Ungespeicherte Einstellungen",
 
     "preferences.advanced.notifications": "Desktop-Benachrichtigungen",
     "preferences.advanced.notifications.explanations": "Desktop-Benachrichtigungen erscheinen direkt auf Ihrem Bildschirm wenn neue E-Mails oder Termin-Erinnerungen eingehen.",

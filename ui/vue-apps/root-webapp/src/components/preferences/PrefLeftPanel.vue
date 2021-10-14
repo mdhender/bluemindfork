@@ -13,7 +13,9 @@
         </div>
         <pref-left-panel-nav :sections="sections" :user="user" />
         <div class="p-3">
-            <a href="/settings/" class="text-white font-weight-bold">{{ $t("preferences.access_old_settings_app") }}</a>
+            <bm-button class="text-white font-weight-bold" variant="link" @click="goToOldPrefs">
+                {{ $t("preferences.access_old_settings_app") }}
+            </bm-button>
         </div>
     </bm-col>
 </template>
@@ -39,6 +41,25 @@ export default {
         user: {
             required: true,
             type: Object
+        }
+    },
+    methods: {
+        async goToOldPrefs() {
+            let confirm = true;
+            if (this.$store.getters["session/SETTINGS_CHANGED"]) {
+                confirm = await this.$bvModal.msgBoxConfirm(this.$t("preferences.access_old_settings_app.confirm"), {
+                    title: this.$t("preferences.access_old_settings_app.confirm.title"),
+                    cancelVariant: "outline-secondary",
+                    cancelTitle: this.$t("common.cancel"),
+                    centered: true,
+                    hideHeaderClose: false,
+                    autoFocusButton: "cancel"
+                });
+            }
+
+            if (confirm) {
+                document.location.href = "/settings/";
+            }
         }
     }
 };

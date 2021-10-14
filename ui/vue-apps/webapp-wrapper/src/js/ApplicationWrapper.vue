@@ -96,6 +96,5 @@ body {
             box-sizing: border-box !important;
         }
     }
-
 }
 </style>

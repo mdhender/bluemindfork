@@ -6,6 +6,8 @@
     "alert.preferences.sync_calendar_success.error": "Erreur lors de la synchronisation",
 
     "preferences.access_old_settings_app": "accéder à l'ancienne application de préférences",
+    "preferences.access_old_settings_app.confirm": "Vous avez des modifications non sauvegardées, en changeant d'application ces changements seront perdus.",
+    "preferences.access_old_settings_app.confirm.title": "Préferences non sauvegardées",
 
     "preferences.advanced.notifications": "Notifications de bureau",
     "preferences.advanced.notifications.explanations": "Les notifications de bureau s'affichent directement sur votre écran lors de l'arrivée d'un nouveau message ou d'un rappel d'agenda.",
