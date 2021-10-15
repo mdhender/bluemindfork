@@ -209,7 +209,6 @@ net.bluemind.mvp.Application.prototype.bootstrap = function(ctx) {
         .thenCatch(function(e) {
             // FIXME ...
             goog.log.error(this.logger, "error during initialisation", e);
-            ctx.notifyError("error during initiliasiation", e);
         })
         .then(
             function() {
