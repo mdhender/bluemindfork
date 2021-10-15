@@ -39,7 +39,8 @@ import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomainUids;
 import net.bluemind.domain.api.IDomains;
-import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.Producer;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
@@ -111,9 +112,18 @@ public class DomainSettingsConfigFileUpdate extends AbstractVerticle {
 			new NginxService().restart();
 		}
 
-		// push event to acknowledge file change
-		VertxPlatform.eventBus().publish("end.domain.settings.file.updated",
-				new JsonObject().put("filepath", BM_EXTERNAL_URL_FILEPATH));
+		MQ.init(() -> {
+			Producer prod = MQ.getProducer("end.domain.settings.file.updated");
+			if (prod != null) {
+				JsonObject infos = new JsonObject();
+				infos.put("filepath", BM_EXTERNAL_URL_FILEPATH);
+				prod.send(infos);
+				logger.debug("Message sent on 'end.domain.settings.file.updated'");
+			} else {
+				logger.error("Message cannot be sent on 'end.domain.settings.file.updated'");
+			}
+		});
+
 	}
 
 	private Map<Server, INodeClient> createServersNodeClientMap() {

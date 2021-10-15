@@ -51,6 +51,7 @@ import net.bluemind.system.api.InstallationVersion;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.server.handlers.AbstractIndexHandler;
+import net.bluemind.webmodules.login.services.ReadDomainsSettingService;
 
 public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 
@@ -73,6 +74,7 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 	private Supplier<Optional<String>> defaultDomain;
 
 	public LoginHandler() {
+
 		AtomicReference<SharedMap<String, String>> sysconf = new AtomicReference<>();
 		MQ.init().thenAccept(v -> sysconf.set(MQ.sharedMap("system.configuration")));
 
@@ -87,6 +89,12 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 	@Override
 	protected String getTemplateName() {
 		return "login.xml";
+	}
+
+	private String getDefaultDomain(String requestHostUrl) {
+
+		return ReadDomainsSettingService.getInstance().getDefaultDomain(requestHostUrl)
+				.orElse(defaultDomain.get().get());
 	}
 
 	@Override
@@ -160,8 +168,7 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 			model.put("buildVersion", BMVersion.getVersion());
 		}
 
-		defaultDomain.get().ifPresent(dd -> model.put("defaultDomain", dd));
-
+		model.put("defaultDomain", getDefaultDomain(request.host().split(":")[0]));
 		model.put("msg", new MessageResolverMethod(resourceBundle, new Locale(getLang(request))));
 		logger.debug("display login page with model {}", model);
 	}

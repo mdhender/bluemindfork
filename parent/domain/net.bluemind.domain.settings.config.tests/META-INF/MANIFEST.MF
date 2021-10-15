@@ -18,5 +18,6 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  com.google.guava,
  net.bluemind.core.tests.testshelper,
  net.bluemind.node.api,
- net.bluemind.pool
+ net.bluemind.pool,
+ net.bluemind.hornetq.client
 Automatic-Module-Name: net.bluemind.domain.settings.config.tests

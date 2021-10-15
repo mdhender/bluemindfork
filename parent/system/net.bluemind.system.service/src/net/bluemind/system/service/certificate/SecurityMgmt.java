@@ -156,6 +156,11 @@ public class SecurityMgmt implements ISecurityMgmt {
 
 	public static void checkCertificate(CertData certData) {
 
+		if (Strings.isNullOrEmpty(certData.certificate) || Strings.isNullOrEmpty(certData.certificateAuthority)
+				|| Strings.isNullOrEmpty(certData.privateKey)) {
+			return;
+		}
+
 		byte[] caData = certData.certificateAuthority.getBytes();
 		byte[] certificateData = certData.certificate.getBytes();
 		byte[] pkeyData = certData.privateKey.getBytes();

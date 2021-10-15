@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -44,14 +45,15 @@ import com.google.common.util.concurrent.SettableFuture;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
+import net.bluemind.hornetq.client.MQ;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
@@ -115,26 +117,34 @@ public class DomainSettingsConfigFileUpdateTests {
 	@Test
 	public void onSettingsUpdated_externalUrl_defaultDomain() throws Exception {
 
+		// create domains
+		Domain defaultDomain = Domain.create("default.domain", "default.domain", "", new HashSet<String>());
+		domainService.create("default.domain", defaultDomain);
+		Domain validDomainLan = Domain.create("valid.domain.lan", "valid.domain.lan", "", new HashSet<String>());
+		domainService.create("valid.domain.lan", validDomainLan);
+		Domain newDomainLan = Domain.create("new.domain.lan", "new.domain.lan", "", new HashSet<String>());
+		domainService.create("new.domain.lan", newDomainLan);
+
 		IDomainSettings domainSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomainSettings.class, domainUid);
 
 		// add settings
 		Map<String, String> settings = new HashMap<String, String>();
-		settings.put(DomainSettingsKeys.default_domain.name(), "default.domain");
+		settings.put(DomainSettingsKeys.default_domain.name(), defaultDomain.name);
 		settings.put(DomainSettingsKeys.external_url.name(), "external.url");
 		settings.put(DomainSettingsKeys.mailbox_default_user_quota.name(), "5");
 		settings.put(DomainSettingsKeys.mailbox_max_user_quota.name(), "15");
 		domainSettingsService.set(settings);
 
-		waitForVertxToWriteFile();
+		waitForMqMsg();
 
 		// before start check external file content
 		Set<Entry<String, String>> settingsFromDb = domainSettingsService.get().entrySet();
 		assertTrue(settingsFromDb.stream().anyMatch(
 				s -> s.getKey().equals(DomainSettingsKeys.external_url.name()) && s.getValue().equals("external.url")));
 		assertTrue(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.default_domain.name())
-				&& s.getValue().equals("default.domain")));
-		checkFileContent(domainUid, "external.url", "default.domain");
+				&& s.getValue().equals(defaultDomain.name)));
+		checkFileContent(domainUid, "external.url", defaultDomain.name);
 
 		//
 		// modify external url
@@ -143,35 +153,35 @@ public class DomainSettingsConfigFileUpdateTests {
 		settings.replace(DomainSettingsKeys.external_url.name(), "valid.external.url");
 		domainSettingsService.set(settings);
 
-		waitForVertxToWriteFile();
+		waitForMqMsg();
 
 		// check database after changes
 		settingsFromDb = domainSettingsService.get().entrySet();
 		assertTrue(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.external_url.name())
 				&& s.getValue().equals("valid.external.url")));
 		assertTrue(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.default_domain.name())
-				&& s.getValue().equals("default.domain")));
+				&& s.getValue().equals(defaultDomain.name)));
 		// check file content after changes
-		checkFileContent(domainUid, "valid.external.url", "default.domain");
+		checkFileContent(domainUid, "valid.external.url", defaultDomain.name);
 
 		//
 		// modify default domain url
 		//
 		settings = domainSettingsService.get();
 		settings.putAll(settings);
-		settings.replace(DomainSettingsKeys.default_domain.name(), "valid.domain.lan");
+		settings.replace(DomainSettingsKeys.default_domain.name(), validDomainLan.name);
 		domainSettingsService.set(settings);
 
-		waitForVertxToWriteFile();
+		waitForMqMsg();
 
 		// check database after changes
 		settingsFromDb = domainSettingsService.get().entrySet();
 		assertTrue(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.external_url.name())
 				&& s.getValue().equals("valid.external.url")));
 		assertTrue(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.default_domain.name())
-				&& s.getValue().equals("valid.domain.lan")));
+				&& s.getValue().equals(validDomainLan.name)));
 		// check file content after changes
-		checkFileContent(domainUid, "valid.external.url", "valid.domain.lan");
+		checkFileContent(domainUid, "valid.external.url", validDomainLan.name);
 
 		//
 		// remove external url settings
@@ -180,16 +190,16 @@ public class DomainSettingsConfigFileUpdateTests {
 		settings.remove(DomainSettingsKeys.external_url.name());
 		domainSettingsService.set(settings);
 
-		waitForVertxToWriteFile();
+		waitForMqMsg();
 
 		// check database after changes
 		// external url must be null in database
 		settingsFromDb = domainSettingsService.get().entrySet();
 		assertFalse(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.external_url.name())));
 		assertTrue(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.default_domain.name())
-				&& s.getValue().equals("valid.domain.lan")));
+				&& s.getValue().equals(validDomainLan.name)));
 		// check file content after changes
-		checkFileContent(domainUid, "", "valid.domain.lan");
+		checkFileContent(domainUid, "", validDomainLan.name);
 
 		//
 		// remove default domain settings
@@ -198,7 +208,7 @@ public class DomainSettingsConfigFileUpdateTests {
 		settings.remove(DomainSettingsKeys.default_domain.name());
 		domainSettingsService.set(settings);
 
-		waitForVertxToWriteFile();
+		waitForMqMsg();
 
 		// default_domain must be null in database
 		settingsFromDb = domainSettingsService.get().entrySet();
@@ -211,28 +221,27 @@ public class DomainSettingsConfigFileUpdateTests {
 		// re-add default domain settings
 		//
 		settings = domainSettingsService.get();
-		settings.put(DomainSettingsKeys.default_domain.name(), "new.domain.name");
+		settings.put(DomainSettingsKeys.default_domain.name(), newDomainLan.name);
 		domainSettingsService.set(settings);
 
-		waitForVertxToWriteFile();
+		waitForMqMsg();
 
 		// default_domain must not be null in database
 		settingsFromDb = domainSettingsService.get().entrySet();
 		assertFalse(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.external_url.name())));
 		assertTrue(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.default_domain.name())
-				&& s.getValue().equals("new.domain.name")));
+				&& s.getValue().equals(newDomainLan.name)));
 		// check file content after changes
-		checkFileContent(domainUid, "", "new.domain.name");
+		checkFileContent(domainUid, "", newDomainLan.name);
 
 	}
 
-	private void waitForVertxToWriteFile() throws InterruptedException, ExecutionException {
+	private void waitForMqMsg() throws InterruptedException, ExecutionException {
 
 		CompletableFuture<JsonObject> storeMsg = new CompletableFuture<>();
-		VertxPlatform.eventBus().consumer("end.domain.settings.file.updated", (Message<JsonObject> msg) -> {
-			System.err.println("reconfigured with " + msg.body().getString("filepath"));
-			storeMsg.complete(msg.body());
-		});
+		MQ.init(() -> MQ.registerConsumer("end.domain.settings.file.updated", msg -> {
+			storeMsg.complete(msg.toJson());
+		}));
 
 		String domainSettingsFilepath = storeMsg.get().getString("filepath");
 		assertNotNull(domainSettingsFilepath);

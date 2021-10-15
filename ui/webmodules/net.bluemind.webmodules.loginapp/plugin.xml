@@ -29,4 +29,10 @@
             impl="net.bluemind.webmodules.login.hps.AuthEnforcer" priority="1">
       </enforcer>
    </extension>
+      <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.webmodules.login.verticle.LoginHandlerVerticleFactory">
+      </verticle>
+   </extension>
 </plugin>
