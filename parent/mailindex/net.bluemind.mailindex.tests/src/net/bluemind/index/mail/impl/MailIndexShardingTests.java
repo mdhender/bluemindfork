@@ -149,8 +149,8 @@ public class MailIndexShardingTests {
 		String indexAfter = getUserAliasIndex(uid);
 		assertEquals("mailspool_20", indexAfter);
 
-		resp = client.prepareSearch(indexAfter).setQuery(QueryBuilders.queryStringQuery("id:\"" + 44 + ":" + 1 + "\""))
-				.execute().get();
+		resp = client.prepareSearch(indexAfter)
+				.setQuery(QueryBuilders.queryStringQuery("id:\"" + uid + ":" + 44 + "\"")).execute().get();
 		assertEquals(1L, resp.getHits().getTotalHits());
 	}
 
