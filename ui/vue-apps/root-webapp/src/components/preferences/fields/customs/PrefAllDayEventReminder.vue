@@ -21,7 +21,7 @@
 <script>
 import { SECONDS_PER_DAY, SECONDS_PER_HOUR } from "@bluemind/date";
 import { BmFormCheckbox, BmFormSelect, BmFormTimePicker } from "@bluemind/styleguide";
-import PrefFieldMixin from "../../mixins/PrefFieldMixin";
+import OneSettingField from "../../mixins/OneSettingField";
 
 const SECONDS_FOR_ALL_DAY_REMINDER = (24 - 9) * SECONDS_PER_HOUR; // "09:00", 1 day before
 const MAX_DAYS_SUGGESTED = 6;
@@ -29,7 +29,7 @@ const MAX_DAYS_SUGGESTED = 6;
 export default {
     name: "PrefAllDayEventReminder",
     components: { BmFormCheckbox, BmFormSelect, BmFormTimePicker },
-    mixins: [PrefFieldMixin],
+    mixins: [OneSettingField],
     data() {
         return {
             selectOptions: Array.from(Array(MAX_DAYS_SUGGESTED).keys()).map(daysBefore => ({
@@ -39,27 +39,22 @@ export default {
         };
     },
     computed: {
-        settingInSeconds() {
-            return this.localUserSettings[this.setting];
-        },
         isReminderSet() {
-            return !!this.settingInSeconds;
+            return !!this.value;
         },
         decomposedSetting() {
             const defaultTimeSelected = this.$d(new Date(null, null, null, 9, 0), "short_time");
-            if (!this.settingInSeconds) {
+            if (!this.value) {
                 return { timeSelected: defaultTimeSelected, daysBefore: 1 };
             }
-            const completeDays = Math.trunc(this.settingInSeconds / SECONDS_PER_DAY);
+            const completeDays = Math.trunc(this.value / SECONDS_PER_DAY);
             if (completeDays <= MAX_DAYS_SUGGESTED) {
-                const date = new Date(null, null, null, 0, 0, -this.settingInSeconds);
+                const date = new Date(null, null, null, 0, 0, -this.value);
                 return { timeSelected: this.$d(date, "short_time"), daysBefore: completeDays + 1 };
             } else {
                 // eslint-disable-next-line no-console
                 console.warn(
-                    "unable to decompose " +
-                        this.settingInSeconds +
-                        " seconds for all_day fields, display default values instead."
+                    `unable to decompose ${this.value} seconds for all_day fields, display default values instead.`
                 );
                 return { timeSelected: defaultTimeSelected, daysBefore: MAX_DAYS_SUGGESTED };
             }
@@ -80,7 +75,7 @@ export default {
             this.save(secondsBeforeNextDay + (daysBefore - 1) * SECONDS_PER_DAY);
         },
         save(seconds) {
-            this.localUserSettings[this.setting] = seconds;
+            this.value = seconds;
         },
         remove() {
             this.save("");

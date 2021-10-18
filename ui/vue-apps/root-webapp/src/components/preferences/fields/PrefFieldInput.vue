@@ -1,25 +1,21 @@
 <template>
     <bm-form-group :aria-label="label" :label="label" :disabled="disabled">
-        <bm-form-select v-model="value" class="pref-field-select" :options="choices" />
+        <bm-form-input v-model="value" class="pref-field-input" />
     </bm-form-group>
 </template>
 
 <script>
-import { BmFormGroup, BmFormSelect } from "@bluemind/styleguide";
+import { BmFormGroup, BmFormInput } from "@bluemind/styleguide";
 import OneSettingField from "../mixins/OneSettingField";
 
 export default {
-    name: "PrefFieldSelect",
+    name: "PrefFieldInput",
     components: {
         BmFormGroup,
-        BmFormSelect
+        BmFormInput
     },
     mixins: [OneSettingField],
     props: {
-        choices: {
-            type: Array,
-            required: true
-        },
         label: {
             type: String,
             required: false,

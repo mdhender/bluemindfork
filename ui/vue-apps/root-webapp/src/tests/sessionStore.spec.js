@@ -12,7 +12,7 @@ describe("Store session", () => {
 
     beforeEach(() => {
         context = {
-            state: { settings: { local: {}, remote: {}, loaded: false } },
+            state: { settings: { local: {}, remote: {} } },
             commit: jest.fn()
         };
     });
@@ -56,7 +56,7 @@ describe("Store session", () => {
         const settings = { mySetting: "MY_SETTING" };
         sessionStore.mutations.SET_SETTINGS(context.state, settings);
         expect(context.state).toEqual({
-            settings: { local: { mySetting: "MY_SETTING" }, remote: { mySetting: "MY_SETTING" }, loaded: true }
+            settings: { local: { mySetting: "MY_SETTING" }, remote: { mySetting: "MY_SETTING" } }
         });
     });
 

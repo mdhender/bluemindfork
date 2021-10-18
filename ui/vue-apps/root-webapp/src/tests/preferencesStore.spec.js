@@ -5,7 +5,7 @@ describe("Preferences store", () => {
 
     beforeEach(() => {
         context = {
-            state: { offset: 0, showPreferences: false, selectedSectionCode: "", sectionByCode: {} },
+            state: { offset: 0, showPreferences: false, selectedSectionId: "", sectionById: {} },
             commit: jest.fn()
         };
     });
@@ -24,17 +24,17 @@ describe("Preferences store", () => {
     });
 
     test("SET_SECTIONS mutation", () => {
-        preferencesStore.mutations.SET_SECTIONS(context.state, [{ code: "main" }, { code: "mail" }]);
-        expect(context.state.sectionByCode).toEqual({ main: { code: "main" }, mail: { code: "mail" } });
+        preferencesStore.mutations.SET_SECTIONS(context.state, [{ id: "main" }, { id: "mail" }]);
+        expect(context.state.sectionById).toEqual({ main: { id: "main" }, mail: { id: "mail" } });
     });
 
     test("SET_SELECTED_SECTION mutation", () => {
         preferencesStore.mutations.SET_SELECTED_SECTION(context.state, "main");
-        expect(context.state.selectedSectionCode).toEqual("main");
+        expect(context.state.selectedSectionId).toEqual("main");
     });
 
     test("SECTIONS getter", () => {
-        context.state.sectionByCode = { main: { code: "main" }, mail: { code: "mail" } };
-        expect(preferencesStore.getters.SECTIONS(context.state)).toEqual([{ code: "main" }, { code: "mail" }]);
+        context.state.sectionById = { main: { id: "main", visible: true }, mail: { id: "mail", visible: false } };
+        expect(preferencesStore.getters.SECTIONS(context.state)).toEqual([{ id: "main", visible: true }]);
     });
 });

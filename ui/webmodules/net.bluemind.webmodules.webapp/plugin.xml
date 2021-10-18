@@ -3,6 +3,7 @@
 <plugin>
     <extension-point id="webapp.banner" name="banner" schema="schema/webapp.banner.exsd"/>
     <extension-point id="webapp" name="webapp" schema="schema/webapp.exsd"/>
+    <extension-point id="webapp.preferences" name="webapp.preferences" schema="schema/webapp.preferences.exsd"/>
     
    <extension
          point="net.bluemind.webmodule">
@@ -32,11 +33,14 @@
     <extension
          point="net.bluemind.extensions">
       <export-extension-point
+            id="webapp">
+      </export-extension-point>
+      <export-extension-point
             id="webapp.banner">
       </export-extension-point>
       <export-extension-point
-            id="webapp">
-      </export-extension-point>
+            id="webapp.preferences">
+      </export-extension-point>            
     </extension>
 
 </plugin>

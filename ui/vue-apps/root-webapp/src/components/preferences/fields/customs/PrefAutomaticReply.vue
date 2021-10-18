@@ -1,25 +1,25 @@
 <template>
     <bm-spinner v-if="!isMailboxFilterLoaded" />
     <div v-else class="pref-automatic-reply">
-        <bm-form-checkbox v-model="vacation.enabled" class="mb-3">
+        <bm-form-checkbox v-model="value.enabled" class="mb-3">
             {{ $t("preferences.mail.automatic_reply.activate") }}
         </bm-form-checkbox>
-        <div :class="{ disabled: !vacation.enabled }">
+        <div :class="{ disabled: !value.enabled }">
             <bm-form-group
                 :label="$t('mail.new.subject')"
                 label-for="subject"
                 :invalid-feedback="$t('preferences.mail.automatic_reply.invalid_empty_subject')"
-                :state="!vacation.enabled || vacation.subject !== ''"
+                :state="!value.enabled || value.subject !== ''"
             >
-                <bm-form-input id="subject" v-model="vacation.subject" required :disabled="!vacation.enabled" />
+                <bm-form-input id="subject" v-model="value.subject" required :disabled="!value.enabled" />
             </bm-form-group>
             <bm-form-group :label="$t('common.message')" label-for="message" label-class="text-capitalize">
                 <bm-rich-editor
                     ref="message"
-                    v-model="vacation.textHtml"
+                    v-model="value.textHtml"
                     is-menu-bar-opened
                     has-border
-                    :disabled="!vacation.enabled"
+                    :disabled="!value.enabled"
                 />
             </bm-form-group>
 
@@ -30,7 +30,7 @@
                     <bm-form-date-picker
                         id="from_date"
                         v-model="startDate"
-                        :disabled="!vacation.enabled"
+                        :disabled="!value.enabled"
                         :locale="userLang"
                         value-as-date
                         show-range
@@ -39,9 +39,13 @@
                     />
                 </bm-form-group>
                 <bm-form-group :label="$t('common.hour')" label-for="from_hour" class="mr-2">
-                    <bm-form-time-picker id="from_hour" v-model="startTime" :disabled="!vacation.enabled" />
+                    <bm-form-time-picker
+                        id="from_hour"
+                        v-model="startTime"
+                        :disabled="!(value.enabled && value.start)"
+                    />
                 </bm-form-group>
-                <bm-button v-if="vacation.start !== null" variant="inline-secondary" @click="resetStart">
+                <bm-button v-if="value.start !== null" variant="inline-secondary" @click="value.start = null">
                     <bm-icon icon="trash" />
                 </bm-button>
 
@@ -49,7 +53,7 @@
                     <bm-form-date-picker
                         id="to_date"
                         v-model="endDate"
-                        :disabled="!vacation.enabled"
+                        :disabled="!value.enabled"
                         :locale="userLang"
                         value-as-date
                         show-range
@@ -58,9 +62,9 @@
                     />
                 </bm-form-group>
                 <bm-form-group :label="$t('common.hour')" label-for="to_hour" class="mr-2">
-                    <bm-form-time-picker id="to_hour" v-model="endTime" :disabled="!vacation.enabled" />
+                    <bm-form-time-picker id="to_hour" v-model="endTime" :disabled="!(value.enabled && value.end)" />
                 </bm-form-group>
-                <bm-button v-if="vacation.end !== null" variant="inline-secondary" @click="resetEnd">
+                <bm-button v-if="value.end !== null" variant="inline-secondary" @click="value.start = null">
                     <bm-icon icon="trash" />
                 </bm-button>
             </div>
@@ -80,7 +84,8 @@ import {
     BmRichEditor,
     BmSpinner
 } from "@bluemind/styleguide";
-import { mapMutations, mapState } from "vuex";
+import { mapState } from "vuex";
+import CentralizedSaving from "../../mixins/CentralizedSaving";
 
 export default {
     name: "PrefAutomaticReply",
@@ -95,28 +100,83 @@ export default {
         BmRichEditor,
         BmSpinner
     },
+    mixins: [CentralizedSaving],
     data() {
         return {
-            vacation: {
+            value: {
                 enabled: false,
                 start: null,
                 end: null,
                 subject: "",
                 text: "",
                 textHtml: ""
-            },
-            startDate: null,
-            startTime: "",
-            endDate: null,
-            endTime: ""
+            }
         };
     },
     computed: {
         ...mapState("session", { userLang: ({ settings }) => settings.remote.lang }),
         ...mapState("preferences", {
-            isMailboxFilterLoaded: ({ mailboxFilter }) => mailboxFilter.loaded,
-            localVacation: ({ mailboxFilter }) => mailboxFilter.local.vacation
-        })
+            isMailboxFilterLoaded: ({ mailboxFilter }) => mailboxFilter.loaded
+        }),
+        isValid() {
+            return !this.value.enabled || this.value.subject.trim() !== "";
+        },
+        startDate: {
+            get() {
+                return this.value.start ? new Date(this.value.start) : null;
+            },
+            set(value) {
+                const date = new Date(value);
+                if (this.value.start) {
+                    const old = new Date(this.value.start);
+                    date.setHours(old.getHours());
+                    date.setMinutes(old.getMinutes());
+                }
+                this.value.start = date.getTime();
+            }
+        },
+        startTime: {
+            get() {
+                return this.value.start ? this.$d(new Date(this.value.start), "short_time") : "";
+            },
+            set(value) {
+                if (this.value.start) {
+                    const date = new Date(this.value.start);
+                    const [hours, minutes] = value.split(":"); // i18n problem ?
+                    date.setHours(hours);
+                    date.setMinutes(minutes);
+                    this.value.start = date.getTime();
+                }
+            }
+        },
+        endDate: {
+            get() {
+                return this.value.end ? new Date(this.value.end) : null;
+            },
+            set(value) {
+                const date = new Date(value);
+                if (this.value.end) {
+                    const old = new Date(this.value.end);
+                    date.setHours(old.getHours());
+                    date.setMinutes(old.getMinutes());
+                }
+                this.value.end = date.getTime();
+            }
+        },
+        endTime: {
+            get() {
+                return this.value.end ? this.$d(new Date(this.value.end), "short_time") : "";
+            },
+            set(value) {
+                if (this.value.end) {
+                    const date = new Date(this.value.end);
+                    const [hours, minutes] = value.split(":"); // i18n problem ?
+                    date.setHours(hours);
+                    date.setMinutes(minutes);
+                    this.value.end = date.getTime();
+                }
+            }
+        }
     },
     watch: {
         isMailboxFilterLoaded() {
@@ -124,72 +184,34 @@ export default {
                 this.init();
             }
         },
-        localVacation() {
-            if (JSON.stringify(this.localVacation) !== JSON.stringify(this.vacation)) {
-                this.init();
-            }
-        },
-        vacation: {
-            handler() {
-                this.SET_VACATION(this.vacation);
+        value: {
+            async handler(value, old) {
+                if (value.textHtml !== old.textHtml) {
+                    await this.$nextTick();
+                    this.$refs["message"]?.updateContent();
+                }
             },
             deep: true
-        },
-        startDate() {
-            this.onStartChange();
-        },
-        startTime() {
-            this.onStartChange();
-        },
-        endDate() {
-            this.onEndChange();
-        },
-        endTime() {
-            this.onEndChange();
         }
     },
+    created() {
+        const save = async ({ state: { current, saved }, dispatch }) => {
+            if (current && !current.options.saved) {
+                try {
+                    await dispatch("preferences/SAVE_MAILBOX_FILTER", { vacation: current.value }, { root: true });
+                    this.PUSH_STATE({ value: current.value, options: { saved: true } });
+                } catch {
+                    this.PUSH_STATE(saved);
+                }
+            }
+        };
+        this.registerSaveAction(save);
+    },
     methods: {
-        ...mapMutations("preferences", ["SET_VACATION"]),
         async init() {
-            this.vacation = JSON.parse(JSON.stringify(this.localVacation));
-            this.startDate = this.vacation.start ? new Date(this.vacation.start) : null;
-            this.startTime = this.vacation.start ? this.$d(new Date(this.vacation.start), "short_time") : "";
-            this.endDate = this.vacation.end ? new Date(this.vacation.end) : null;
-            this.endTime = this.vacation.end ? this.$d(new Date(this.vacation.end), "short_time") : "";
+            this.value = { ...this.$store.state.preferences.mailboxFilter.remote.vacation };
             await this.$nextTick();
             this.$refs["message"].updateContent();
-        },
-        resetStart() {
-            this.vacation.start = null;
-            this.startDate = null;
-            this.startTime = "";
-            this.SET_VACATION(this.vacation);
-        },
-        resetEnd() {
-            this.vacation.end = null;
-            this.endDate = null;
-            this.endTime = "";
-            this.SET_VACATION(this.vacation);
-        },
-        onStartChange() {
-            if (this.startTime && this.startDate) {
-                const time = this.startTime.split(":"); // i18n problem ?
-                const date = new Date(this.startDate);
-                date.setHours(time[0]);
-                date.setMinutes(time[1]);
-                this.vacation.start = date.getTime();
-                this.SET_VACATION(this.vacation);
-            }
-        },
-        onEndChange() {
-            if (this.endTime && this.endDate) {
-                const time = this.endTime.split(":"); // i18n problem ?
-                const date = new Date(this.endDate);
-                date.setHours(time[0]);
-                date.setMinutes(time[1]);
-                this.vacation.end = date.getTime();
-                this.SET_VACATION(this.vacation);
-            }
         }
     }
 };

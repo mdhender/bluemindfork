@@ -1,7 +1,7 @@
 <template>
-    <bm-form-radio-group v-model="localUserSettings[setting]" class="pref-field-choice d-flex flex-wrap">
+    <bm-form-radio-group v-model="value" class="pref-field-choice d-flex flex-wrap">
         <bm-form-radio
-            v-for="choice in options.choices"
+            v-for="choice in choices"
             :key="choice.value"
             class="ml-5"
             :value="choice.value"
@@ -19,7 +19,7 @@
 
 <script>
 import { BmFormRadio, BmFormRadioGroup } from "@bluemind/styleguide";
-import PrefFieldMixin from "../mixins/PrefFieldMixin";
+import OneSettingField from "../mixins/OneSettingField";
 
 export default {
     name: "PrefFieldChoice",
@@ -27,6 +27,12 @@ export default {
         BmFormRadio,
         BmFormRadioGroup
     },
-    mixins: [PrefFieldMixin]
+    mixins: [OneSettingField],
+    props: {
+        choices: {
+            type: Array,
+            required: true
+        }
+    }
 };
 </script>

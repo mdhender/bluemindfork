@@ -3,28 +3,28 @@
         <bm-list-group v-bm-scrollspy:scroll-area>
             <bm-list-group-item
                 v-for="section in sections"
-                :ref="section.code"
-                :key="section.href"
-                :active="section.code === selectedSectionCode"
+                :ref="section.id"
+                :key="section.id"
+                :active="section.id === selectedSectionId"
                 class="app-item container px-4 py-3"
                 role="button"
                 tabindex="0"
-                :to="sectionPath(section)"
-                @click="scrollTo(sectionId(section))"
+                :to="anchor(section, true)"
+                @click="scrollTo(section)"
             >
                 <div class="row align-items-center">
                     <div class="col-2 text-center">
-                        <bm-avatar v-if="section.code === 'my_account'" :alt="user.displayname" />
+                        <bm-avatar v-if="section.id === 'my_account'" :alt="user.displayname" />
                         <bm-app-icon v-else :icon-app="section.icon" class="text-primary" />
                     </div>
                     <div class="col">
-                        <div v-if="section.code === 'my_account'" class="text-white display-name">
+                        <div v-if="section.id === 'my_account'" class="text-white display-name">
                             {{ user.displayname }}
                         </div>
                         <div v-else class="text-primary-or-white font-size-lg">{{ section.name }}</div>
                     </div>
                 </div>
-                <div v-if="section.code === 'my_account'" class="text-primary-or-white row">
+                <div v-if="section.id === 'my_account'" class="text-primary-or-white row">
                     <div class="col-2" />
                     <div class="col">{{ $t("preferences.general.manage_account") }}</div>
                 </div>
@@ -41,7 +41,7 @@ import { inject } from "@bluemind/inject";
 import { BmAvatar, BmListGroup, BmListGroupItem, BmScrollspy } from "@bluemind/styleguide";
 
 import BmAppIcon from "../BmAppIcon";
-import PrefMixin from "./mixins/PrefMixin";
+import Navigation from "./mixins/Navigation";
 
 export default {
     name: "PrefLeftPanelNav",
@@ -52,7 +52,7 @@ export default {
         BmListGroupItem
     },
     directives: { BmScrollspy },
-    mixins: [PrefMixin],
+    mixins: [Navigation],
     props: {
         sections: {
             required: true,
@@ -64,7 +64,7 @@ export default {
         }
     },
     computed: {
-        ...mapState("preferences", ["selectedSectionCode"]),
+        ...mapState("preferences", ["selectedSectionId"]),
         userDisplayName() {
             return inject("UserSession").formatedName;
         }

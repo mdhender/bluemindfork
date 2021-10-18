@@ -28,7 +28,7 @@
 
 <script>
 import { BmFormCheckbox, BmFormTimePicker } from "@bluemind/styleguide";
-import PrefFieldMixin from "../../mixins/PrefFieldMixin";
+import MultipleSettingsField from "../../mixins/MultipleSettingsField";
 
 const WORK_HOURS_START_SETTING = "work_hours_start";
 const WORK_HOURS_END_SETTING = "work_hours_end";
@@ -36,13 +36,20 @@ const WORK_HOURS_END_SETTING = "work_hours_end";
 export default {
     name: "PrefWorkHours",
     components: { BmFormCheckbox, BmFormTimePicker },
-    mixins: [PrefFieldMixin],
+    mixins: [MultipleSettingsField],
+    props: {
+        settings: {
+            type: Array,
+            required: false,
+            default: () => [WORK_HOURS_START_SETTING, WORK_HOURS_END_SETTING]
+        }
+    },
     computed: {
         workHoursEnd() {
-            return this.localUserSettings[WORK_HOURS_END_SETTING];
+            return this.value[WORK_HOURS_END_SETTING];
         },
         workHoursStart() {
-            return this.localUserSettings[WORK_HOURS_START_SETTING];
+            return this.value[WORK_HOURS_START_SETTING];
         },
         isWholeDay() {
             return this.workHoursEnd === "0" && this.workHoursStart === "0";
@@ -56,18 +63,18 @@ export default {
     },
     methods: {
         setDefault() {
-            this.localUserSettings[WORK_HOURS_START_SETTING] = "8";
-            this.localUserSettings[WORK_HOURS_END_SETTING] = "18";
+            this.value[WORK_HOURS_START_SETTING] = "8";
+            this.value[WORK_HOURS_END_SETTING] = "18";
         },
         setWholeDay() {
-            this.localUserSettings[WORK_HOURS_START_SETTING] = "0";
-            this.localUserSettings[WORK_HOURS_END_SETTING] = "0";
+            this.value[WORK_HOURS_START_SETTING] = "0";
+            this.value[WORK_HOURS_END_SETTING] = "0";
         },
         onHoursStartChanged(newTime) {
-            this.localUserSettings[WORK_HOURS_START_SETTING] = timeToDecimal(newTime).toString();
+            this.value[WORK_HOURS_START_SETTING] = timeToDecimal(newTime).toString();
         },
         onHoursEndChanged(newTime) {
-            this.localUserSettings[WORK_HOURS_END_SETTING] = timeToDecimal(newTime).toString();
+            this.value[WORK_HOURS_END_SETTING] = timeToDecimal(newTime).toString();
         }
     }
 };

@@ -1,47 +1,61 @@
 <template>
-    <bm-combo-box
-        v-model="input"
-        :items="filteredChoices"
-        :max-results="10"
-        class="pref-field-combobox"
-        @input="newInput => (input = newInput)"
-        @selected="onSelect"
-        @close="onClose"
-    />
+    <bm-form-group :aria-label="label" :label="label" :disabled="disabled">
+        <bm-combo-box
+            v-model="input"
+            :items="filtered"
+            :max-results="10"
+            class="pref-field-combobox"
+            @input="newInput => (input = newInput)"
+            @selected="onSelect"
+            @close="onClose"
+        />
+    </bm-form-group>
 </template>
 
 <script>
-import { BmComboBox } from "@bluemind/styleguide";
-import PrefFieldMixin from "../mixins/PrefFieldMixin";
+import { BmFormGroup, BmComboBox } from "@bluemind/styleguide";
+import OneSettingField from "../mixins/OneSettingField";
 
 export default {
     name: "PrefFieldComboBox",
-    components: { BmComboBox },
-    mixins: [PrefFieldMixin],
+    components: { BmFormGroup, BmComboBox },
+    mixins: [OneSettingField],
+    props: {
+        choices: {
+            type: Array,
+            required: true
+        },
+        label: {
+            type: String,
+            required: false,
+            default: ""
+        }
+    },
     data() {
-        return { input: this.localUserSettings[this.setting] };
+        return { input: this.value };
     },
     computed: {
-        filteredChoices() {
-            return this.options.choices.filter(tz => tz.toUpperCase().includes(this.input.toUpperCase()));
+        filtered() {
+            const input = new RegExp(this.input, "i");
+            return this.choices.filter(choice => input.test(choice));
         }
     },
     watch: {
-        localUserSettings(value, oldValue) {
-            if (value[this.setting] !== oldValue[this.setting]) {
-                this.input = value[this.setting];
-            }
+        value: {
+            handler(value) {
+                this.input = value;
+            },
+            immediate: true
         }
     },
     methods: {
         onClose() {
-            if (!this.options.choices.find(choice => choice === this.input)) {
-                this.input = this.localUserSettings[this.setting];
+            if (!this.choices.includes(this.input)) {
+                this.input = this.value;
             }
         },
         onSelect(selected) {
-            this.input = selected;
-            this.localUserSettings[this.setting] = selected;
+            this.value = selected;
         }
     }
 };

@@ -1,31 +1,17 @@
 <template>
     <div class="pref-group">
-        <div class="pt-4 pb-2 d-flex align-items-center">
-            <span class="h2" :class="{ 'text-alternate-light': group.readOnly }">{{ group.title }}</span>
-            <span v-if="group.notAvailable(localUserSettings)" class="available-soon h2">
-                {{ $t("common.available_soon") }}
-            </span>
-            <bm-label-icon v-if="group.readOnly" icon="exclamation-circle" class="text-warning ml-2">
-                {{ $t("preferences.role.missing.warning") }}
-            </bm-label-icon>
-        </div>
-        <bm-form-group :aria-label="group.title" :disabled="group.notAvailable(localUserSettings) || group.readOnly">
+        <pref-entry-name :id="anchor(group)" class="pt-4 pb-2" :entry="group" />
+        <bm-form-group :aria-describedby="anchor(group)" :disabled="group.disabled">
             <template v-for="field in group.fields">
-                <bm-form-group :key="field.name" :aria-label="field.name" :label="field.name">
-                    <component
-                        :is="field.component"
-                        v-bind="{
-                            'local-user-settings': localUserSettings,
-                            setting: field.setting,
-                            name: field.name,
-                            options: field.options
-                        }"
-                        @requestSave="$emit('requestSave')"
-                    />
-                </bm-form-group>
-                <template v-if="field.options && field.options.additional_component">
-                    <component :is="field.options.additional_component" :key="field.name" />
-                </template>
+                <component
+                    :is="field.component.name"
+                    v-if="field.visible"
+                    :id="field.id"
+                    :key="field.id"
+                    class="pref-field"
+                    :disabled="field.disabled"
+                    v-bind="field.component.options"
+                />
             </template>
         </bm-form-group>
     </div>
@@ -35,6 +21,7 @@
 import PrefFieldCheck from "./fields/PrefFieldCheck";
 import PrefFieldChoice from "./fields/PrefFieldChoice";
 import PrefFieldComboBox from "./fields/PrefFieldComboBox";
+import PrefFieldInput from "./fields/PrefFieldInput";
 import PrefFieldMultiSelect from "./fields/PrefFieldMultiSelect";
 import PrefFieldSelect from "./fields/PrefFieldSelect";
 import PrefFieldSwitch from "./fields/PrefFieldSwitch";
@@ -56,17 +43,21 @@ import PrefPassword from "./fields/customs/PrefPassword";
 import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
 import PrefResetLocalData from "./fields/customs/PrefResetLocalData";
 import PrefWorkHours from "./fields/customs/PrefWorkHours";
+import PrefSwitchWebmail from "./fields/customs/PrefSwitchWebmail.vue";
+import PrefEntryName from "./PrefEntryName";
 
-import { BmFormGroup, BmLabelIcon } from "@bluemind/styleguide";
+import { BmFormGroup } from "@bluemind/styleguide";
+import Navigation from "./mixins/Navigation";
 
 export default {
     name: "PrefGroup",
     components: {
         BmFormGroup,
-        BmLabelIcon,
+        PrefEntryName,
         PrefFieldCheck,
         PrefFieldChoice,
         PrefFieldComboBox,
+        PrefFieldInput,
         PrefFieldMultiSelect,
         PrefFieldSelect,
         PrefFieldSwitch,
@@ -86,14 +77,12 @@ export default {
         PrefPassword,
         PrefRemoteImage,
         PrefResetLocalData,
+        PrefSwitchWebmail,
         PrefWorkHours
     },
+    mixins: [Navigation],
     props: {
         group: {
-            type: Object,
-            required: true
-        },
-        localUserSettings: {
             type: Object,
             required: true
         }
@@ -107,5 +96,22 @@ export default {
 .pref-group {
     padding-left: 4rem;
     padding-right: 4rem;
+
+    .pref-field {
+        margin-bottom: 1rem;
+    }
+
+    .pref-field-combobox,
+    .bm-form-time-picker,
+    .bm-form-select,
+    .bm-form-multi-select,
+    .bm-form-input,
+    .bm-rich-editor {
+        width: 24rem !important;
+    }
+
+    .b-calendar .bm-form-select {
+        width: unset !important;
+    }
 }
 </style>

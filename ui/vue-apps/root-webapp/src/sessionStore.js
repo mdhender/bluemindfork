@@ -32,6 +32,17 @@ const actions = {
         commit("SET_SETTINGS", settings);
     },
 
+    async SAVE_SETTING({ state, commit }, { setting, value }) {
+        const old = state.settings.remote[setting];
+        commit("SET_SETTING", { setting, value });
+        try {
+            const userId = inject("UserSession").userId;
+            await inject("UserSettingsPersistence").setOne(userId, setting, JSON.stringify(value));
+        } catch {
+            commit("SET_SETTING", { setting, value: old });
+        }
+    },
+
     async SAVE_SETTINGS({ state, commit }) {
         commit("SET_SETTINGS", state.settings.local);
         const userId = inject("UserSession").userId;
@@ -45,6 +56,10 @@ const mutations = {
         if (index === -1) {
             state.settings.localHasErrors.push(fieldOnError);
         }
+    },
+    SET_SETTING: (state, { setting, value }) => {
+        state.settings.remote[setting] = value;
+        state.settings.local[setting] = value;
     },
     SET_SETTINGS: (state, settings) => {
         state.settings.remote = JSON.parse(JSON.stringify(settings));

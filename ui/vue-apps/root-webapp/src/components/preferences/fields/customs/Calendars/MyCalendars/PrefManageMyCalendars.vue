@@ -42,17 +42,28 @@
 </template>
 
 <script>
+import { mapActions, mapMutations, mapState } from "vuex";
+
+import { inject } from "@bluemind/inject";
+import { BmButton, BmFormCheckbox, BmIcon, BmPagination, BmTable } from "@bluemind/styleguide";
+import { retrieveTaskResult } from "@bluemind/task";
+import { ERROR, LOADING, REMOVE, SUCCESS } from "@bluemind/alert.store";
 import calendarToSubscription from "../calendarToSubscription";
 import BmCalendarItem from "../BmCalendarItem";
 import CreateOrUpdateCalendarModal from "./CreateOrUpdateCalendarModal";
 import ImportIcsModal from "./ImportIcsModal";
 import ManageSharesModal from "../../ManageSharesModal/ManageSharesModal";
-import PrefAlertsMixin from "../../../../mixins/PrefAlertsMixin";
 import PrefManageMyCalendarsMenu from "./PrefManageMyCalendarsMenu";
-import { inject } from "@bluemind/inject";
-import { BmButton, BmFormCheckbox, BmIcon, BmPagination, BmTable } from "@bluemind/styleguide";
-import { retrieveTaskResult } from "@bluemind/task";
-import { mapActions, mapMutations, mapState } from "vuex";
+
+import BaseField from "../../../../mixins/BaseField";
+
+const ALERT = {
+    alert: {
+        name: "preferences.sync_calendar",
+        uid: "SYNC_CALENDAR_UID"
+    },
+    options: { area: "pref-right-panel", renderer: "DefaultAlert" }
+};
 
 export default {
     name: "PrefManageMyCalendars",
@@ -68,7 +79,7 @@ export default {
         ManageSharesModal,
         PrefManageMyCalendarsMenu
     },
-    mixins: [PrefAlertsMixin],
+    mixins: [BaseField],
     data() {
         return {
             beingSynced: {},
@@ -103,6 +114,7 @@ export default {
         }
     },
     methods: {
+        ...mapActions("alert", { ERROR, LOADING, REMOVE, SUCCESS }),
         ...mapActions("preferences", ["SET_SUBSCRIPTIONS", "REMOVE_SUBSCRIPTIONS"]),
         ...mapMutations("preferences", ["REMOVE_PERSONAL_CALENDAR", "UPDATE_PERSONAL_CALENDAR"]),
         async onOfflineSyncChange(calendar) {
@@ -157,15 +169,15 @@ export default {
         },
         async synchronizeExternalIcs(calendar) {
             this.beingSynced[calendar.uid] = true;
-            this.showSyncCalendarInProgress();
+            this.LOADING(ALERT);
             const taskRef = await inject("ContainerSyncPersistence", calendar.uid).sync();
             const taskService = inject("TaskService", taskRef.id);
             retrieveTaskResult(taskService)
                 .then(() => {
-                    this.showSyncCalendarSuccess();
+                    this.SUCCESS(ALERT);
                 })
                 .catch(() => {
-                    this.showSyncCalendarError();
+                    this.ERROR(ALERT);
                 })
                 .finally(() => {
                     this.beingSynced[calendar.uid] = false;

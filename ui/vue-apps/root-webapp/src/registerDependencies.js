@@ -17,9 +17,10 @@ import { TaskClient } from "@bluemind/core.task.api";
 import { DirectoryClient } from "@bluemind/directory.api";
 import { FirstDayOfWeek } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
-import { MailboxesClient } from "@bluemind/mailbox.api";
-import { UserClient, UserMailIdentitiesClient, UserSettingsClient, UserSubscriptionClient } from "@bluemind/user.api";
+import { UserClient, UserMailIdentitiesClient, UserSubscriptionClient } from "@bluemind/user.api";
 import VueBus from "@bluemind/vue-bus";
+import { MailboxesClientProxy } from "../api/MailboxesClientProxy";
+import { UserSettingsClientProxy } from "../api/UserSettingsClientProxy";
 
 export default function (userSession) {
     injector.register({
@@ -93,7 +94,7 @@ export default function (userSession) {
 
     injector.register({
         provide: "MailboxesPersistence",
-        factory: () => new MailboxesClient(userSession.sid, userSession.domain)
+        factory: () => new MailboxesClientProxy(userSession.sid, userSession.domain)
     });
 
     injector.register({
@@ -128,7 +129,7 @@ export default function (userSession) {
 
     injector.register({
         provide: "UserSettingsPersistence",
-        factory: () => new UserSettingsClient(userSession.sid, userSession.domain)
+        factory: () => new UserSettingsClientProxy(userSession.sid, userSession.domain)
     });
 
     injector.register({

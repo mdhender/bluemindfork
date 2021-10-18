@@ -1,12 +1,12 @@
 <template>
     <bm-list-group v-bm-scrollspy:scroll-area class="pref-right-panel-nav" horizontal>
-        <pref-section-navbar v-for="section in sections" :ref="section.code" :key="section.code" :section="section" />
+        <pref-section-navbar v-for="section in sections" :ref="section.id" :key="section.id" :section="section" />
     </bm-list-group>
 </template>
 
 <script>
 import { BmListGroup, BmScrollspy } from "@bluemind/styleguide";
-import PrefMixin from "./mixins/PrefMixin";
+import Navigation from "./mixins/Navigation";
 import PrefSectionNavbar from "./PrefSectionNavbar";
 import { mapState } from "vuex";
 
@@ -17,7 +17,7 @@ export default {
         PrefSectionNavbar
     },
     directives: { BmScrollspy },
-    mixins: [PrefMixin],
+    mixins: [Navigation],
     props: {
         sections: {
             required: true,
@@ -38,8 +38,8 @@ export default {
     methods: {
         moveSectionsNavbar() {
             this.sections.forEach(section => {
-                const navbar = this.$refs[section.code][0].$el;
-                const anchor = document.getElementById("section-" + section.code);
+                const navbar = this.$refs[section.id][0].$el;
+                const anchor = document.getElementById("section-" + section.id);
                 if (anchor) {
                     const translate = Math.max(Math.min(this.offset - anchor.offsetTop, navbar.offsetHeight), 0);
                     navbar.style.opacity = Math.min(1, translate / navbar.offsetHeight);

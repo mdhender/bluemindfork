@@ -4,7 +4,7 @@
             <bm-button variant="inline-light" class="d-lg-none btn-sm mr-auto" @click="SET_SELECTED_SECTION(null)">
                 <bm-icon icon="arrow-back" size="2x" />
             </bm-button>
-            <h2 class="d-inline text-white align-middle">{{ sectionName }}</h2>
+            <h2 class="d-inline text-white align-middle">{{ section.name }}</h2>
         </div>
         <bm-button-close class="align-self-end d-lg-block d-none mt-3 mx-3" @click="$emit('close')" />
         <pref-right-panel-nav :sections="sections" />
@@ -14,27 +14,18 @@
                 <component :is="context.alert.renderer" :alert="context.alert" />
             </template>
         </bm-alert-area>
-        <pref-content :sections="sections" :local-user-settings="settings.local" @requestSave="save" />
+        <pref-content :sections="sections" />
         <div class="d-flex mt-auto pl-5 py-3 border-top border-secondary">
-            <bm-button type="submit" variant="primary" :disabled="disableSave" @click.prevent="save">
+            <bm-button type="submit" variant="primary" :disabled="!HAS_CHANGED || HAS_ERROR" @click.prevent="SAVE">
                 {{ $t("common.save") }}
             </bm-button>
-            <bm-button
-                type="reset"
-                variant="simple-dark"
-                class="ml-3"
-                :disabled="disableCancel"
-                @click.prevent="cancel"
-            >
+            <bm-button type="reset" variant="simple-dark" class="ml-3" :disabled="!HAS_CHANGED" @click.prevent="CANCEL">
                 {{ $t("common.cancel") }}
             </bm-button>
-            <div v-if="status === 'error'" class="ml-5 text-danger d-flex align-items-center font-weight-bold">
+            <div v-if="STATUS === 'error'" class="ml-5 text-danger d-flex align-items-center font-weight-bold">
                 <bm-icon icon="exclamation-circle" class="mr-1" /> {{ $t("preferences.save.error") }}
             </div>
-            <div
-                v-if="status === 'saved' && disableSave"
-                class="ml-5 text-success d-flex align-items-center font-weight-bold"
-            >
+            <div v-if="STATUS === 'saved'" class="ml-5 text-success d-flex align-items-center font-weight-bold">
                 <bm-icon icon="exclamation-circle" class="mr-1" /> {{ $t("preferences.save.success") }}
             </div>
         </div>
@@ -45,8 +36,8 @@
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { BmAlertArea, BmButton, BmButtonClose, BmCol, BmIcon } from "@bluemind/styleguide";
+import { ERROR, REMOVE, WARNING } from "@bluemind/alert.store";
 
-import PrefAlertsMixin from "./mixins/PrefAlertsMixin";
 import PrefContent from "./PrefContent";
 import PrefRightPanelNav from "./PrefRightPanelNav";
 import NeedReconnectionAlert from "./Alerts/NeedReconnectionAlert";
@@ -65,7 +56,6 @@ export default {
         NeedReconnectionAlert,
         ReloadAppAlert
     },
-    mixins: [PrefAlertsMixin],
     props: {
         sections: {
             type: Array,
@@ -75,53 +65,43 @@ export default {
     data() {
         return { status: "idle" };
     },
+
     computed: {
+        ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "pref-right-panel") }),
         ...mapState("session", ["settings"]),
-        ...mapState("preferences", ["selectedSectionCode", "sectionByCode", "mailboxFilter"]),
-        ...mapGetters("session", ["SETTINGS_CHANGED"]),
-        ...mapGetters("preferences", ["MAILBOX_FILTER_CHANGED"]),
-        sectionName() {
-            const section = this.sectionByCode[this.selectedSectionCode];
-            return section ? section.name : "";
+        ...mapState("preferences", ["selectedSectionId", "sectionById", "mailboxFilter"]),
+        ...mapGetters("preferences/fields", ["HAS_CHANGED", "HAS_ERROR", "IS_LOGOUT_NEEDED", "IS_RELOAD_NEEDED"]),
+        ...mapGetters("preferences", ["STATUS"]),
+        isReloadNeeded() {
+            return this.IS_LOGOUT_NEEDED || this.IS_RELOAD_NEEDED;
         },
-        localSettingsHaveErrors() {
-            return this.settings.localHasErrors.length > 0;
-        },
-        disableSave() {
-            return (!this.MAILBOX_FILTER_CHANGED && !this.SETTINGS_CHANGED) || this.localSettingsHaveErrors;
-        },
-        disableCancel() {
-            return !this.SETTINGS_CHANGED && !this.MAILBOX_FILTER_CHANGED;
+        section() {
+            return this.sectionById[this.selectedSectionId] || {};
+        }
+    },
+    watch: {
+        isReloadNeeded() {
+            const alert = {
+                alert: { uid: "IS_RELOAD_NEEDED" },
+                options: { area: "pref-right-panel", dismissible: false }
+            };
+            if (this.isReloadNeeded && this.IS_LOGOUT_NEEDED) {
+                alert.name = "preferences.NEED_RECONNECTION";
+                alert.options.renderer = "NeedReconnectionAlert";
+                this.WARNING(alert);
+            } else if (this.isReloadNeeded) {
+                alert.name = "preferences.NEED_APP_RELOAD";
+                alert.options.renderer = "ReloadAppAlert";
+                this.WARNING(alert);
+            } else {
+                this.REMOVE(alert.alert);
+            }
         }
     },
     methods: {
-        ...mapActions("session", ["SAVE_SETTINGS"]),
-        ...mapActions("preferences", ["SAVE_MAILBOX_FILTER"]),
-        ...mapMutations("preferences", ["SET_SELECTED_SECTION", "SET_MAILBOX_FILTER"]),
-        ...mapMutations("session", ["SET_SETTINGS"]),
-        cancel() {
-            this.SET_SETTINGS(this.settings.remote);
-            this.SET_MAILBOX_FILTER(this.mailboxFilter.remote);
-        },
-        save() {
-            this.status = "saving";
-
-            const savePromises = [];
-            if (this.SETTINGS_CHANGED) {
-                savePromises.push(this.saveSettings());
-            }
-            if (this.MAILBOX_FILTER_CHANGED) {
-                savePromises.push(this.saveMailboxFilter());
-            }
-
-            Promise.all(savePromises)
-                .then(() => {
-                    this.status = "saved";
-                })
-                .catch(() => {
-                    this.status = "error";
-                });
-        },
+        ...mapMutations("preferences", ["SET_SELECTED_SECTION"]),
+        ...mapActions("preferences", ["CANCEL", "SAVE"]),
+        ...mapActions("alert", { ERROR, REMOVE, WARNING }),
         async saveSettings() {
             const oldSettings = JSON.parse(JSON.stringify(this.settings.remote));
             try {

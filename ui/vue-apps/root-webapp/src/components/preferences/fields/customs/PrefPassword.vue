@@ -13,10 +13,12 @@
 import { BmButton } from "@bluemind/styleguide";
 import { mapState } from "vuex";
 import ChangePasswordModal from "./ChangePasswordModal";
+import BaseField from "../../mixins/BaseField";
 
 export default {
     name: "PrefPassword",
     components: { BmButton, ChangePasswordModal },
+    mixins: [BaseField],
     computed: {
         ...mapState("preferences", ["userPasswordLastChange"])
     },

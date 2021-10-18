@@ -63,12 +63,15 @@
     "preferences.mail.my_mailbox.can_read_my_mailbox": "Can read my mailbox",
     "preferences.mail.my_mailbox.can_edit_my_mailbox": "Can edit my mailbox",
     "preferences.mail.my_mailbox.can_edit_my_mailbox_and_manage_shares": "Can edit my mailbox and manage my shares",
-    
-    "preferences.mail.advanced.switch": "Mail application version",
-    "preferences.mail.advanced.switch.classic": "Your are using the old version of the mail application",
-    "preferences.mail.advanced.switch.classic.desc": "<i><b>Switch to the new mail application and benefit from new features :</b><br>- Drag and drop<br>- look and feel<br>-…</i>",
-    "preferences.mail.advanced.switch.modern": "You are using the new version of the mail application",
-    "preferences.mail.advanced.switch.modern.desc": "<i><b>You benefit from new features : :</b><br>- Drag and drop<br>- look and feel<br>-…</i>",
+
+    "preferences.mail.advanced.switch.title": "Mail application version",
+    "preferences.mail.advanced.switch.label": "Try the new webmail version",
+    "preferences.mail.advanced.switch.modern.missing_features": "You are using the new version of the mail application, please note, some features might not be present yet:",
+    "preferences.mail.advanced.switch.classic.missing_features": "Please note, some features might not be present in the new version of the mail application :",
+    "preferences.mail.advanced.switch.features.identity": "Mail identity",
+    "preferences.mail.advanced.switch.features.shared": "User shared mailbox",
+    "preferences.mail.advanced.switch.features.filehosting": "Send large files as link",
+    "preferences.mail.advanced.switch.features.move_folder": "Move folder",
 
     "preferences.mail.identities.manage": "E-Mail Identitäten verwalten",
     "preferences.mail.identities.always_show_from": "Feld \"Absender\" immer anzeigen",

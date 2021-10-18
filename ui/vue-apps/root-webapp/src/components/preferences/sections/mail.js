@@ -1,0 +1,260 @@
+import Roles from "@bluemind/roles";
+
+import listStyleCompact from "../../../../assets/list-style-compact.png";
+import listStyleFull from "../../../../assets/list-style-full.png";
+import listStyleNormal from "../../../../assets/list-style-normal.png";
+import threadSettingImageOn from "../../../../assets/setting-thread-on.svg";
+import threadSettingImageOff from "../../../../assets/setting-thread-off.svg";
+
+import { mapExtensions } from "@bluemind/extensions";
+
+export default function (i18n) {
+    const mail = mapExtensions("webapp.banner", ["application"]).application?.find(
+        ({ $id }) => $id === "net.bluemind.webapp.mail.js"
+    );
+    return {
+        id: "mail",
+        name: i18n.t("common.application.webmail"),
+        icon: mail?.icon,
+        priority: mail?.priority,
+        visible: { name: "RoleCondition", args: [Roles.HAS_MAIL] },
+        categories: [
+            {
+                id: "main",
+                name: i18n.t("common.general"),
+                icon: "wrench",
+                groups: [
+                    {
+                        id: "thread",
+                        name: {
+                            name: "PrefSoonAvailable",
+                            options: {
+                                label: i18n.t("preferences.mail.thread")
+                            }
+                        },
+                        disabled: { name: "StoreFieldCondition", args: ["mail.main.thread.field", "unavailable"] },
+                        fields: [
+                            {
+                                id: "field",
+                                component: {
+                                    name: "PrefFieldChoice",
+                                    options: {
+                                        setting: "mail_thread",
+                                        needReload: true,
+                                        choices: [
+                                            {
+                                                name: i18n.t("preferences.mail.thread.enable"),
+                                                value: "true",
+                                                svg: threadSettingImageOn
+                                            },
+                                            {
+                                                name: i18n.t("preferences.mail.thread.disable"),
+                                                value: "false",
+                                                svg: threadSettingImageOff
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        id: "list",
+                        name: i18n.t("preferences.mail.message.list.display"),
+                        fields: [
+                            {
+                                id: "field",
+                                component: {
+                                    name: "PrefFieldChoice",
+                                    options: {
+                                        setting: "mail_message_list_style",
+                                        choices: [
+                                            {
+                                                name: i18n.t("preferences.mail.message.list.display.full"),
+                                                value: "full",
+                                                img: listStyleFull
+                                            },
+                                            {
+                                                name: i18n.t("preferences.mail.message.list.display.normal"),
+                                                value: "normal",
+                                                img: listStyleNormal
+                                            },
+                                            {
+                                                name: i18n.t("preferences.mail.message.list.display.compact"),
+                                                value: "compact",
+                                                img: listStyleCompact
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        id: "signature",
+                        name: i18n.t("common.signature"),
+                        fields: [
+                            {
+                                id: "field",
+                                component: {
+                                    name: "PrefFieldCheck",
+                                    options: {
+                                        setting: "insert_signature",
+                                        label: i18n.t("preferences.mail.signature.insert")
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        id: "purge_on_logout",
+                        name: i18n.t("preferences.mail.logout"),
+                        fields: [
+                            {
+                                id: "field",
+                                component: {
+                                    name: "PrefFieldCheck",
+                                    options: {
+                                        setting: "logout_purge",
+                                        label: i18n.t("preferences.mail.logout.empty.trash")
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        id: "remote_images",
+                        name: i18n.t("preferences.mail.remote.images"),
+                        fields: [
+                            {
+                                id: "field",
+                                component: {
+                                    name: "PrefFieldCheck",
+                                    options: {
+                                        setting: "trust_every_remote_content",
+                                        additional_component: "PrefRemoteImage",
+                                        label: i18n.t("preferences.mail.remote.images.trust")
+                                    }
+                                }
+                            },
+                            {
+                                id: "help",
+                                component: { name: "PrefRemoteImage" }
+                            }
+                        ]
+                    },
+                    {
+                        id: "show_quota",
+                        name: i18n.t("preferences.mail.quota"),
+                        fields: [
+                            {
+                                id: "field",
+                                component: {
+                                    name: "PrefFieldCheck",
+                                    options: {
+                                        setting: "always_show_quota",
+                                        label: i18n.t("preferences.mail.quota.always.display")
+                                    }
+                                }
+                            },
+                            {
+                                id: "usage",
+                                component: { name: "PrefAlwaysShowQuota" }
+                            }
+                        ]
+                    },
+                    {
+                        id: "automatic_reply",
+                        name: i18n.t("preferences.mail.automatic_reply"),
+                        fields: [
+                            {
+                                id: "field",
+                                component: { name: "PrefAutomaticReply" }
+                            }
+                        ]
+                    },
+                    {
+                        id: "forwarding",
+                        name: i18n.t("preferences.mail.emails_forwarding"),
+                        fields: [
+                            {
+                                id: "field",
+                                component: { name: "PrefEmailsForwarding" }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "my_mailbox",
+                name: i18n.t("common.my_mailbox"),
+                icon: "user-enveloppe",
+                groups: [
+                    {
+                        name: i18n.t("common.my_mailbox"),
+                        id: "group",
+                        fields: [{ id: "field", component: { name: "PrefManageMyMailbox" } }]
+                    }
+                ]
+            },
+            {
+                id: "identities",
+                name: i18n.t("common.identities"),
+                icon: "pen",
+                groups: [
+                    {
+                        id: "manage",
+                        name: i18n.t("preferences.mail.identities.manage"),
+                        disabled: {
+                            name: "RoleCondition.none",
+                            args: [Roles.MANAGE_MAILBOX_IDENTITIES, Roles.SELF_CHANGE_MAIL_IDENTITIES]
+                        },
+                        fields: [
+                            {
+                                id: "field",
+                                component: { name: "PrefManageIdentities", setting: "always_show_from", options: {} }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "advanced",
+                name: i18n.t("common.advanced"),
+                icon: "plus",
+                groups: [
+                    {
+                        id: "application",
+                        name: i18n.t("preferences.mail.advanced.switch.title"),
+                        visible: { name: "RoleCondition.every", args: [Roles.HAS_WEBMAIL, Roles.HAS_MAIL_WEBAPP] },
+                        fields: [
+                            {
+                                id: "field",
+                                component: {
+                                    name: "PrefFieldSwitch",
+                                    options: {
+                                        setting: "mail-application",
+                                        autosave: true,
+                                        label: i18n.t("preferences.mail.advanced.switch.label"),
+                                        checkedValue: "mail-webapp",
+                                        uncheckedValue: "webmail"
+                                    }
+                                }
+                            },
+                            {
+                                id: "image",
+                                disabled: {
+                                    name: "StoreFieldCondition",
+                                    args: ["mail.advanced.application.field", "webmail"]
+                                },
+                                component: {
+                                    name: "PrefSwitchWebmail"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    };
+}

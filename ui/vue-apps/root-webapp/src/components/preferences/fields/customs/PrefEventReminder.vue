@@ -22,14 +22,14 @@
 <script>
 import { SECONDS_PER_DAY, SECONDS_PER_HOUR, SECONDS_PER_MINUTE } from "@bluemind/date";
 import { BmFormCheckbox, BmFormInputNumber, BmFormSelect } from "@bluemind/styleguide";
-import PrefFieldMixin from "../../mixins/PrefFieldMixin";
+import OneSettingField from "../../mixins/OneSettingField";
 
 const SECONDS_FOR_DEFAULT_REMINDER = 15 * SECONDS_PER_MINUTE;
 
 export default {
     name: "PrefEventReminder",
     components: { BmFormCheckbox, BmFormInputNumber, BmFormSelect },
-    mixins: [PrefFieldMixin],
+    mixins: [OneSettingField],
     data() {
         return {
             selectOptions: [
@@ -41,14 +41,11 @@ export default {
         };
     },
     computed: {
-        settingInSeconds() {
-            return this.localUserSettings[this.setting];
-        },
         isReminderSet() {
-            return !!this.settingInSeconds;
+            return !!this.value;
         },
         settingWithUnit() {
-            return findBestTimeUnit(this.settingInSeconds);
+            return findBestTimeUnit(this.value);
         }
     },
     methods: {
@@ -63,7 +60,7 @@ export default {
             this.save(value * unitMultiplicator);
         },
         save(seconds) {
-            this.localUserSettings[this.setting] = seconds;
+            this.value = seconds;
         },
         remove() {
             this.save("");

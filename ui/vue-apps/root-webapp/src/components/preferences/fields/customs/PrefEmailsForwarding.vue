@@ -1,19 +1,19 @@
 <template>
     <div>
-        <bm-form-checkbox v-model="forwarding.enabled" class="mb-3">
+        <bm-form-checkbox v-model="value.enabled" class="mb-3">
             {{ $t("preferences.mail.emails_forwarding.to") }}
         </bm-form-checkbox>
         <div class="d-flex">
             <bm-contact-input
                 class="mr-2 border border-dark"
-                :disabled="!forwarding.enabled"
+                :disabled="!value.enabled"
                 :contacts="contacts"
                 :autocomplete-results="autocompleteResults"
                 :validate-address-fn="validateAddress"
                 @search="onSearch"
                 @update:contacts="updateEmails"
             />
-            <bm-form-select v-model="forwarding.localCopy" :options="options" :disabled="!forwarding.enabled" />
+            <bm-form-select v-model="value.localCopy" :options="options" :disabled="!value.enabled" />
         </div>
     </div>
 </template>
@@ -25,13 +25,15 @@ import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { BmContactInput, BmFormCheckbox, BmFormSelect } from "@bluemind/styleguide";
 import { mapMutations, mapState } from "vuex";
+import CentralizedSaving from "../../mixins/CentralizedSaving";
 
 export default {
     name: "PrefEmailsForwarding",
     components: { BmContactInput, BmFormCheckbox, BmFormSelect },
+    mixins: [CentralizedSaving],
     data() {
         return {
-            forwarding: {
+            value: {
                 emails: [],
                 enabled: false,
                 localCopy: false
@@ -45,11 +47,10 @@ export default {
     },
     computed: {
         ...mapState("preferences", {
-            isMailboxFilterLoaded: ({ mailboxFilter }) => mailboxFilter.loaded,
-            localForwarding: ({ mailboxFilter }) => mailboxFilter.local.forwarding
+            isMailboxFilterLoaded: ({ mailboxFilter }) => mailboxFilter.loaded
         }),
         contacts() {
-            return this.forwarding.emails.map(email => ({ address: email, dn: "" }));
+            return this.value.emails.map(email => ({ address: email, dn: "" }));
         }
     },
     watch: {
@@ -57,23 +58,25 @@ export default {
             if (this.isMailboxFilterLoaded) {
                 this.init();
             }
-        },
-        localForwarding() {
-            if (JSON.stringify(this.localForwarding) !== JSON.stringify(this.forwarding)) {
-                this.init();
-            }
-        },
-        forwarding: {
-            handler() {
-                this.SET_FORWARDING(this.forwarding);
-            },
-            deep: true
         }
+    },
+    created() {
+        const save = async ({ state: { current, saved }, dispatch }) => {
+            if (current && !current.options.saved) {
+                try {
+                    await dispatch("preferences/SAVE_MAILBOX_FILTER", { forwarding: current.value }, { root: true });
+                    this.PUSH_STATE({ value: current.value, options: { saved: true } });
+                } catch {
+                    this.PUSH_STATE(saved);
+                }
+            }
+        };
+        this.registerSaveAction(save);
     },
     methods: {
         ...mapMutations("preferences", ["SET_FORWARDING"]),
         async init() {
-            this.forwarding = JSON.parse(JSON.stringify(this.localForwarding));
+            this.value = { ...this.$store.state.preferences.mailboxFilter.remote.forwarding };
         },
         async onSearch(pattern) {
             if (!pattern) {
@@ -90,7 +93,7 @@ export default {
             this.autocompleteResults = searchResults.values.map(vcardInfo => VCardInfoAdaptor.toContact(vcardInfo));
         },
         updateEmails(contacts) {
-            this.forwarding.emails = contacts
+            this.value.emails = contacts
                 .map(contact => contact.address)
                 .filter(email => EmailValidator.validateAddress(email));
             this.autocompleteResults = [];

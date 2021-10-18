@@ -45,7 +45,7 @@ import { inject } from "@bluemind/inject";
 import { BmButton, BmContact, BmIcon, BmPagination, BmTable } from "@bluemind/styleguide";
 
 import ManageIdentityModal from "./ManageIdentityModal";
-import PrefFieldMixin from "../../mixins/PrefFieldMixin";
+import BaseField from "../../mixins/BaseField";
 
 export default {
     name: "PrefManageIdentities",
@@ -57,7 +57,7 @@ export default {
         BmTable,
         ManageIdentityModal
     },
-    mixins: [PrefFieldMixin],
+    mixins: [BaseField],
     data() {
         return {
             possibleIdentities: [],

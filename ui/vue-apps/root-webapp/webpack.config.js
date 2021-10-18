@@ -8,6 +8,11 @@ const conf = {
     output: {
         path: path.resolve(__dirname, "./web-resources"),
         filename: "js/net.bluemind.webapp.root.js"
+    },
+    resolve: {
+        alias: {
+            "~": path.resolve(__dirname, "src/")
+        }
     }
 };
 

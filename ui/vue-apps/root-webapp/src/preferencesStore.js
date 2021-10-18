@@ -6,9 +6,9 @@ import { inject } from "@bluemind/inject";
 const state = {
     offset: 0,
     showPreferences: false,
-    selectedSectionCode: "",
-    sectionByCode: {},
-
+    selectedSectionId: "",
+    sectionById: {},
+    status: "idle",
     userPasswordLastChange: null,
     subscriptions: [],
     myCalendars: [],
@@ -85,26 +85,46 @@ const actions = {
         }
         commit("SET_MAILBOX_FILTER", mailboxFilter);
     },
-    async SAVE_MAILBOX_FILTER({ commit, state }) {
-        if (state.mailboxFilter.local.vacation.textHtml) {
-            state.mailboxFilter.local.vacation.text = html2text(state.mailboxFilter.local.vacation.textHtml);
+    async SAVE_MAILBOX_FILTER({ commit, state }, { vacation, forwarding }) {
+        if (vacation) {
+            if (vacation.textHtml) {
+                vacation = { ...vacation, text: html2text(vacation.textHtml) };
+            }
+            commit("SET_VACATION", vacation);
         }
-        commit("SET_MAILBOX_FILTER", state.mailboxFilter.local);
+        if (forwarding) {
+            commit("SET_FORWARDING", forwarding);
+        }
         const userId = inject("UserSession").userId;
-        return inject("MailboxesPersistence").setMailboxFilter(userId, state.mailboxFilter.local);
+        await inject("MailboxesPersistence").setMailboxFilter(userId, state.mailboxFilter.local);
+        commit("SET_MAILBOX_FILTER", state.mailboxFilter.local);
+    },
+    async SAVE({ commit, dispatch }) {
+        commit("SET_STATUS", "saving");
+        await dispatch("fields/SAVE");
+        commit("SET_STATUS", "saved");
+    },
+    async AUTOSAVE({ commit, dispatch }) {
+        commit("SET_STATUS", "saving");
+        await dispatch("fields/AUTOSAVE");
+        commit("SET_STATUS", "saved");
+    },
+    CANCEL({ dispatch }) {
+        return dispatch("fields/CANCEL");
     }
 };
 
 const mutations = {
+    SET_STATUS: (state, status) => (state.status = status),
     SET_OFFSET: (state, offset) => (state.offset = offset),
     TOGGLE_PREFERENCES: state => (state.showPreferences = !state.showPreferences),
     SET_SECTIONS: (state, sections = []) => {
-        const sectionByCode = {};
-        sections.forEach(s => (sectionByCode[s.code] = s));
-        state.sectionByCode = sectionByCode;
+        const sectionById = {};
+        sections.forEach(s => (sectionById[s.id] = s));
+        state.sectionById = sectionById;
     },
     SET_SELECTED_SECTION: (state, selectedPrefSection) => {
-        state.selectedSectionCode = selectedPrefSection;
+        state.selectedSectionId = selectedPrefSection;
     },
     SET_USER_PASSWORD_LAST_CHANGE: (state, user) => {
         state.userPasswordLastChange = user.value.passwordLastChange || user.created;
@@ -192,9 +212,14 @@ const mutations = {
 };
 
 const getters = {
-    SECTIONS: state => Object.values(state.sectionByCode),
+    SECTIONS: state => Object.values(state.sectionById).filter(section => section.visible),
     MAILBOX_FILTER_CHANGED: state =>
-        JSON.stringify(state.mailboxFilter.local) !== JSON.stringify(state.mailboxFilter.remote)
+        JSON.stringify(state.mailboxFilter.local) !== JSON.stringify(state.mailboxFilter.remote),
+    STATUS: ({ status }, getters) => {
+        if (getters["fields/HAS_CHANGED"]) return "idle";
+        if (status === "saved" && getters["fields/HAS_ERROR"]) return "error";
+        return status;
+    }
 };
 
 export default {
@@ -202,5 +227,54 @@ export default {
     actions,
     mutations,
     state,
-    getters
+    getters,
+    modules: {
+        fields: {
+            namespaced: true,
+            state: {},
+            actions: {
+                // async SAVE() {
+                //     //ALERT !
+                // },
+                CANCEL({ state, commit }) {
+                    Object.keys(state).forEach(id => {
+                        if (state[id].current && !state[id].current.options.saved) {
+                            commit("PUSH_STATE", { id, ...state[id].saved });
+                        }
+                    });
+                }
+            },
+            mutations: {
+                PUSH_STATE(state, { id, value, options = {} }) {
+                    if (options.saved) {
+                        state[id].saved = { value, options };
+                    }
+                    state[id].current = { value, options };
+                },
+                NEED_RELOAD(state, { id }) {
+                    if (state[id].saved) {
+                        state[id].saved.options.reload = true;
+                    } else {
+                        state[id].saved = { value: null, options: { reload: true } };
+                    }
+                },
+                NEED_LOGOUT(state, { id }) {
+                    if (state[id].saved) {
+                        state[id].saved.options.logout = true;
+                    } else {
+                        state[id].saved = { value: null, options: { logout: true } };
+                    }
+                }
+            },
+            getters: {
+                HAS_CHANGED: state =>
+                    Object.values(state).some(
+                        ({ current }) => current?.options && !current.options.saved && !current.options.autosave
+                    ),
+                HAS_ERROR: state => Object.values(state).some(({ current }) => current?.options.error),
+                IS_RELOAD_NEEDED: state => Object.values(state).some(({ saved }) => saved?.options.reload),
+                IS_LOGOUT_NEEDED: state => Object.values(state).some(({ saved }) => saved?.options.logout)
+            }
+        }
+    }
 };

@@ -1,17 +1,13 @@
 <template>
     <div id="scroll-area" class="pref-content" @scroll="({ target }) => SET_OFFSET(target.scrollTop)">
-        <div v-for="(section, index) in sections" :key="section.code" class="mb-5">
-            <bm-list-group v-if="index !== 0" :id="'section-' + section.code" horizontal>
-                <pref-section-navbar :section="section" />
-            </bm-list-group>
-            <pref-category
-                v-for="category in section.categories"
-                :key="category.code"
-                :category="category"
-                :section="section"
-                :local-user-settings="localUserSettings"
-                @requestSave="$emit('requestSave')"
-            />
+        <div v-for="(section, index) in sections" :key="section.id" class="mb-5">
+            <template v-if="index !== 0">
+                <bm-list-group :id="'section-' + section.id" horizontal>
+                    <pref-section-navbar :section="section" />
+                </bm-list-group>
+            </template>
+            <div :id="anchor(section)" :v-show="false"></div>
+            <pref-category v-for="category in section.categories" :key="category.id" :category="category" />
         </div>
     </div>
 </template>
@@ -21,6 +17,7 @@ import { mapMutations } from "vuex";
 import { BmListGroup } from "@bluemind/styleguide";
 import PrefCategory from "./PrefCategory";
 import PrefSectionNavbar from "./PrefSectionNavbar";
+import Navigation from "./mixins/Navigation";
 
 export default {
     name: "PrefContent",
@@ -29,13 +26,10 @@ export default {
         PrefCategory,
         PrefSectionNavbar
     },
+    mixins: [Navigation],
     props: {
         sections: {
             type: Array,
-            required: true
-        },
-        localUserSettings: {
-            type: Object,
             required: true
         }
     },

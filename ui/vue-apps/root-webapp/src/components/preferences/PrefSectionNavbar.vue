@@ -1,18 +1,14 @@
 <template>
     <div class="pref-section-navbar d-flex">
-        <bm-list-group-item
-            class="d-flex align-items-center"
-            :to="sectionPath(section)"
-            @click="scrollTo(sectionId(section))"
-        >
-            <bm-avatar v-if="section.code === 'my_account'" :alt="userDisplayName" class="mx-3" />
+        <bm-list-group-item class="d-flex align-items-center" :to="anchor(section, true)" @click="scrollTo(section)">
+            <bm-avatar v-if="section.id === 'my_account'" :alt="userDisplayName" class="mx-3" />
             <bm-app-icon v-else :icon-app="section.icon" class="text-primary" />
         </bm-list-group-item>
         <bm-list-group-item
             v-for="category in section.categories"
-            :key="section.code + category.code"
-            :to="categoryPath(section.code, category.code)"
-            @click="scrollTo(categoryId(section.code, category.code))"
+            :key="category.id"
+            :to="anchor(category, true)"
+            @click="scrollTo(category)"
         >
             <h2 class="d-inline-block py-2 pr-2">
                 <bm-label-icon :icon="category.icon" icon-size="lg"> {{ category.name }} </bm-label-icon>
@@ -22,7 +18,7 @@
 </template>
 <script>
 import BmAppIcon from "../BmAppIcon";
-import PrefMixin from "./mixins/PrefMixin";
+import Navigation from "./mixins/Navigation";
 
 import { inject } from "@bluemind/inject";
 import { BmAvatar, BmLabelIcon, BmListGroupItem } from "@bluemind/styleguide";
@@ -35,7 +31,7 @@ export default {
         BmAppIcon,
         BmListGroupItem
     },
-    mixins: [PrefMixin],
+    mixins: [Navigation],
     props: {
         section: {
             required: true,

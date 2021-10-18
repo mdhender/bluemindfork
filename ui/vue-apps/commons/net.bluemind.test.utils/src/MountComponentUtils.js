@@ -14,6 +14,10 @@ export default {
             propsData,
             router,
             mocks: {
+                $i18n: {
+                    t: () => {},
+                    tc: () => {}
+                },
                 $t: () => {},
                 $tc: () => {}
             }
@@ -52,10 +56,17 @@ export default {
                         sectionByCode: { main: {} }
                     },
                     mutations: {
+                        SET_STATUS: jest.fn(),
                         SET_OFFSET: jest.fn(),
                         TOGGLE_PREFERENCES: jest.fn(),
                         SET_SECTIONS: jest.fn(),
                         SET_SELECTED_SECTION: jest.fn()
+                    },
+                    modules: {
+                        fields: {
+                            namespaced: true,
+                            state: {}
+                        }
                     }
                 },
                 "root-app": {

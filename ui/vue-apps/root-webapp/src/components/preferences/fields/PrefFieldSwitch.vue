@@ -1,35 +1,40 @@
 <template>
     <div class="pref-field-switch">
-        <div>
-            <bm-form-checkbox
-                v-model="localUserSettings[setting]"
-                class="d-inline-block"
-                :value="options.true.value"
-                :unchecked-value="options.false.value"
-                switch
-            >
-                {{ options[currentBooleanValue].name }}
-            </bm-form-checkbox>
-        </div>
-        <div class="d-flex">
-            <img class="pt-3" :src="options[currentBooleanValue].image" alt="" />
-            <!-- eslint-disable-next-line vue/no-v-html -->
-            <span class="text-secondary pl-5 pt-3" v-html="options[currentBooleanValue].desc" />
-        </div>
+        <bm-form-checkbox
+            v-model="value"
+            class="d-inline-block"
+            :value="checkedValue"
+            :unchecked-value="uncheckedValue"
+            switch
+        >
+            {{ label }}
+        </bm-form-checkbox>
     </div>
 </template>
 
 <script>
 import { BmFormCheckbox } from "@bluemind/styleguide";
-import PrefFieldMixin from "../mixins/PrefFieldMixin";
+import OneSettingField from "../mixins/OneSettingField";
 
 export default {
     name: "PrefFieldSwitch",
     components: { BmFormCheckbox },
-    mixins: [PrefFieldMixin],
-    computed: {
-        currentBooleanValue() {
-            return this.options.true.value === this.localUserSettings[this.setting];
+    mixins: [OneSettingField],
+    props: {
+        label: {
+            type: String,
+            required: false,
+            default: ""
+        },
+        checkedValue: {
+            type: String,
+            required: false,
+            default: "true"
+        },
+        uncheckedValue: {
+            type: String,
+            required: false,
+            default: "false"
         }
     }
 };

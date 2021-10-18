@@ -18,12 +18,9 @@
 <script>
 import { BmButton } from "@bluemind/styleguide";
 
-import PrefFieldMixin from "../../mixins/PrefFieldMixin";
-
 export default {
     name: "PrefEnableNotifications",
     components: { BmButton },
-    mixins: [PrefFieldMixin],
     data() {
         return { notifPermission: Notification.permission };
     },

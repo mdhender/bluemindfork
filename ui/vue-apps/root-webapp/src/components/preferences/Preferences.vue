@@ -2,7 +2,7 @@
     <div class="preferences position-absolute w-100 h-100 overlay d-flex z-index-500" @click="unlockOrClose">
         <global-events @keydown.esc="closePreferences" />
         <bm-spinner
-            v-if="!isLoaded"
+            v-if="!loaded"
             class="flex-fill align-self-center text-center"
             :size="2.5"
             @click="lockClose = true"
@@ -30,14 +30,13 @@ import GlobalEvents from "vue-global-events";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { generateDateTimeFormats } from "@bluemind/i18n";
-import { inject } from "@bluemind/inject";
 import { BmContainer, BmRow, BmSpinner } from "@bluemind/styleguide";
 
 import getPreferenceSections from "./sections";
 import SettingsL10N from "../../../l10n/preferences/";
 import PrefLeftPanel from "./PrefLeftPanel";
 import PrefRightPanel from "./PrefRightPanel";
-import PrefMixin from "./mixins/PrefMixin";
+import Navigation from "./mixins/Navigation";
 
 export default {
     name: "Preferences",
@@ -49,7 +48,7 @@ export default {
         PrefLeftPanel,
         BmSpinner
     },
-    mixins: [PrefMixin],
+    mixins: [Navigation],
     props: {
         applications: {
             required: true,
@@ -62,10 +61,10 @@ export default {
     },
     componentI18N: { messages: SettingsL10N },
     data() {
-        return { isLoaded: false, lockClose: false };
+        return { loaded: false, mount: false, lockClose: false };
     },
     computed: {
-        ...mapState("preferences", { selectedSection: "selectedSectionCode" }),
+        ...mapState("preferences", { selectedSection: "selectedSectionId" }),
         ...mapState("session", {
             lang: ({ settings }) => settings.remote && settings.remote.lang,
             timeformat: ({ settings }) => settings.remote && settings.remote.timeformat
@@ -81,7 +80,8 @@ export default {
         }
     },
     async created() {
-        const sections = getPreferenceSections(this.applications, inject("UserSession").roles, inject("i18n"));
+        this.SET_STATUS("idle");
+        const sections = getPreferenceSections(this);
         this.SET_SECTIONS(sections);
 
         await Promise.all([
@@ -90,25 +90,14 @@ export default {
             this.FETCH_SUBSCRIPTIONS().then(() => this.FETCH_CONTAINERS()) // FETCH_CONTAINERS action need subscriptions to be loaded
         ]);
 
-        this.isLoaded = true;
+        this.loaded = true;
+        this.scrollOnLoad();
     },
-    async mounted() {
-        if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
-            const { sectionCode, categoryCode } = parseSectionId(this.$route.hash);
-            this.SET_SELECTED_SECTION(sectionCode);
-            this.scrollTo(this.categoryId(sectionCode, categoryCode));
-        } else {
-            this.SET_SELECTED_SECTION("main");
-        }
+    mounted() {
+        this.mounted = true;
+        this.scrollOnLoad();
+    },
 
-        // @see https://bootstrap-vue.org/docs/directives/scrollspy#events
-        this.$root.$on("bv::scrollspy::activate", sectionId => {
-            this.SET_SELECTED_SECTION(parseSectionId(sectionId).sectionCode);
-            if (this.$route.hash !== sectionId) {
-                this.$router.push({ hash: sectionId });
-            }
-        });
-    },
     methods: {
         ...mapActions("preferences", [
             "FETCH_CONTAINERS",
@@ -117,10 +106,14 @@ export default {
             "FETCH_MAILBOX_FILTER"
         ]),
         ...mapActions("session", ["FETCH_ALL_SETTINGS"]),
-        ...mapMutations("preferences", ["TOGGLE_PREFERENCES", "SET_SELECTED_SECTION", "SET_SECTIONS", "SET_OFFSET"]),
-        ...mapMutations("session", ["ROLLBACK_LOCAL_SETTINGS"]),
+        ...mapMutations("preferences", [
+            "TOGGLE_PREFERENCES",
+            "SET_SELECTED_SECTION",
+            "SET_SECTIONS",
+            "SET_OFFSET",
+            "SET_STATUS"
+        ]),
         closePreferences() {
-            this.ROLLBACK_LOCAL_SETTINGS();
             this.$router.push({ hash: "" });
             this.TOGGLE_PREFERENCES();
             this.SET_OFFSET(0);
@@ -130,12 +123,26 @@ export default {
                 this.closePreferences();
             }
             this.lockClose = false;
+        },
+        async scrollOnLoad() {
+            if (this.mounted && this.loaded) {
+                // @see https://bootstrap-vue.org/docs/directives/scrollspy#events
+                this.$root.$on("bv::scrollspy::activate", path => {
+                    this.SET_SELECTED_SECTION(path.split("-")[1]);
+                    if (this.$route.hash !== path) {
+                        this.$router.push({ hash: path });
+                    }
+                });
+                await this.$nextTick();
+                if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
+                    const path = this.$route.hash.replace("#preferences-", "");
+                    this.SET_SELECTED_SECTION(path.split("-").shift());
+                    this.scrollTo(path);
+                } else {
+                    this.SET_SELECTED_SECTION("main");
+                }
+            }
         }
     }
 };
-
-function parseSectionId(sectionId) {
-    const splitSectionId = sectionId.split("-");
-    return { sectionCode: splitSectionId[1], categoryCode: splitSectionId[2] };
-}
 </script>

@@ -1,8 +1,8 @@
 <template>
     <div>
-        <div class="mb-2">{{ options.label }}</div>
+        <div class="mb-2">{{ label }}</div>
         <bm-button v-if="status === 'IDLE'" variant="outline-warning" @click="resetLocalData">
-            {{ options.text }}
+            {{ text }}
         </bm-button>
         <template v-else-if="status === 'LOADING'">
             <bm-spinner class="d-inline" :size="0.3" /> {{ $t("preferences.advanced.reinit_local_data.in_progress") }}
@@ -20,13 +20,16 @@
 import { inject } from "@bluemind/inject";
 import { BmButton, BmLabelIcon, BmSpinner } from "@bluemind/styleguide";
 
-import PrefAlertsMixin from "../../mixins/PrefAlertsMixin";
-import PrefFieldMixin from "../../mixins/PrefFieldMixin";
+import BaseField from "../../mixins/BaseField";
 
 export default {
     name: "PrefResetLocalData",
     components: { BmButton, BmLabelIcon, BmSpinner },
-    mixins: [PrefAlertsMixin, PrefFieldMixin],
+    mixins: [BaseField],
+    props: {
+        label: { type: String, required: true },
+        text: { type: String, required: true }
+    },
     data() {
         return { status: "IDLE" };
     },
@@ -70,7 +73,7 @@ export default {
                     successfullDeletions++;
                     if (successfullDeletions === dbNames.length && this.status !== "ERROR") {
                         this.status = "SUCCESS";
-                        this.showReloadAppAlert();
+                        this.NEED_RELOAD();
                     }
                 };
             });

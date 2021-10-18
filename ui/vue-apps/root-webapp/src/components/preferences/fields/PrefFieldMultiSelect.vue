@@ -1,39 +1,59 @@
 <template>
-    <bm-form-multi-select v-model="selected" class="pref-field-multi-select" v-bind="[...options]" @input="save" />
+    <bm-form-group :aria-label="label" :label="label" :disabled="disabled">
+        <bm-form-multi-select
+            v-model="selected"
+            class="pref-field-multi-select"
+            :options="choices"
+            :auto-collapse="true"
+            :placeholder="placeholder"
+            :select-all="selectAll"
+            :select-all-label="selectAllLabel"
+        />
+    </bm-form-group>
 </template>
 
 <script>
-import { BmFormMultiSelect } from "@bluemind/styleguide";
-import PrefFieldMixin from "../mixins/PrefFieldMixin";
+import { BmFormMultiSelect, BmFormGroup } from "@bluemind/styleguide";
+import OneSettingField from "../mixins/OneSettingField";
 
 export default {
     name: "PrefFieldMultiSelect",
-    components: { BmFormMultiSelect },
-    mixins: [PrefFieldMixin],
-    data() {
-        return {
-            selected: this.fromSetting(this.localUserSettings[this.setting])
-        };
+    components: { BmFormMultiSelect, BmFormGroup },
+    mixins: [OneSettingField],
+    props: {
+        choices: {
+            type: Array,
+            required: true
+        },
+        label: {
+            type: String,
+            required: false,
+            default: ""
+        },
+        placeholder: {
+            type: String,
+            required: false,
+            default: ""
+        },
+        selectAll: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+        selectAllLabel: {
+            type: String,
+            required: false,
+            default: undefined
+        }
     },
-    created() {
-        this.$watch(
-            () => this.localUserSettings[this.setting],
-            () => {
-                this.selected = this.fromSetting(this.localUserSettings[this.setting]);
+    computed: {
+        selected: {
+            get() {
+                return this.value?.split(",").filter(Boolean) || [];
+            },
+            set(value) {
+                this.value = value.join(",");
             }
-        );
-    },
-    methods: {
-        save() {
-            this.localUserSettings[this.setting] = this.toSetting(this.selected);
-        },
-        fromSetting(settingValue) {
-            return this.options.fromSetting
-                ? this.options.fromSetting(settingValue)
-                : settingValue.split(",").filter(Boolean);
-        },
-        toSetting(selected) {
-            return this.options.toSetting ? this.options.toSetting(selected) : selected.join(",");
         }
     }
 };
