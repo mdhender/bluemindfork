@@ -40,8 +40,11 @@ public class CTIFactory implements IServerSideServiceFactory<IComputerTelephonyI
 			throw new ServerFault("wrong number of instance parameters");
 		}
 
-		return new ComputerTelephonyIntegration(context, statusManager, params[0], params[1],
-				CTIBackendProvider.getBackend());
+		String domain = params[0];
+		String userUid = params[1];
+
+		return new ComputerTelephonyIntegration(context, statusManager, domain, userUid,
+				CTIBackendProvider.getBackend(domain, userUid));
 	}
 
 }

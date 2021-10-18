@@ -7,8 +7,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import com.github.freva.asciitable.AsciiTable;
 
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.cli.cmd.api.CliContext;
@@ -21,6 +24,8 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.User;
 
 public class CliUtils {
 
@@ -95,6 +100,15 @@ public class CliUtils {
 		return resolved.uid;
 	}
 
+	public String getUserUidByLogin(String domainUid, String login) {
+		IUser userServiceApi = cliContext.adminApi().instance(IUser.class, domainUid);
+		ItemValue<User> resolved = userServiceApi.byLogin(login);
+		if (resolved == null) {
+			throw new CliException("user " + login + " not found");
+		}
+		return resolved.uid;
+	}
+
 	public ResolvedMailbox getMailboxByEmail(String email) {
 		String domainUid = getDomainUidByEmail(email);
 		IMailboxes mboxApi = cliContext.adminApi().instance(IMailboxes.class, domainUid);
@@ -163,5 +177,20 @@ public class CliUtils {
 			}
 		});
 		return VertxStream.stream(stream);
+	}
+
+	public String display(Map<String, String> map, String[] headers) {
+
+		int size = map.size() + 1;
+
+		String[][] asTable = new String[size][headers.length];
+
+		int i = 1;
+		for (Map.Entry<String, String> entry : map.entrySet()) {
+			asTable[i][0] = entry.getKey();
+			asTable[i][1] = entry.getValue();
+			i++;
+		}
+		return AsciiTable.getTable(headers, asTable);
 	}
 }

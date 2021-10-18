@@ -20,8 +20,6 @@ package net.bluemind.cli.sysconf;
 import java.util.Map;
 import java.util.Optional;
 
-import com.github.freva.asciitable.AsciiTable;
-
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -64,19 +62,8 @@ public class SysconfListCommand implements ICmdLet, Runnable {
 	}
 
 	private void display(Map<String, String> map) {
-		// Used to add a row to include the header
-		int size = map.size() + 1;
-
 		String[] headers = { "Attribute", "Value" };
-		String[][] asTable = new String[size][headers.length];
-
-		int i = 1;
-		for (Map.Entry<String, String> entry : map.entrySet()) {
-			asTable[i][0] = entry.getKey();
-			asTable[i][1] = entry.getValue();
-			i++;
-		}
-		ctx.info(AsciiTable.getTable(headers, asTable));
+		ctx.info(cliUtils.display(map, headers));
 	}
 
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.system.external_systems">
+      <system
+            impl="net.bluemind.cti.wazo.system.WazoSystem"
+            priority="100">
+      </system>
+   </extension>
+
+</plugin>

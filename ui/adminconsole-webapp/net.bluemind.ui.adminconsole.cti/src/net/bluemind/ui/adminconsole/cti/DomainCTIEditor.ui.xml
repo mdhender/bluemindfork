@@ -7,20 +7,62 @@
 
 	<ui:with field="c"
 		type="net.bluemind.ui.adminconsole.cti.l10n.DomainCTIEditorConstants" />
-
-
+		
+	<ui:style>
+		.labelMandatory {
+			color: #24638F;
+			font-weight: bold;
+		}
+	</ui:style>
+		
+		
 	<g:HTMLPanel>
-		<table border="0">
-			<tr>
-				<td style='width:200px'>
-					<g:Label text="{c.ctiServer}:"></g:Label>
-				</td>
-				<td style='width:400px'>
-					<g:ListBox multipleSelect="true" ui:field="ctiServer"></g:ListBox>
-				</td>
-			</tr>
-		</table>
-
+		<g:ScrollPanel height="100%">
+			<g:HTMLPanel>
+		
+			<f:FieldSetPanel name="{c.tabName}"/>
+		
+			<table border="0">
+				<tr>
+					<td>
+						<common:TrPanel styleName="setting" ui:field="choicePanel" />
+					</td>
+				</tr>
+			</table>
+					
+				<g:HTMLPanel ui:field="wazoParams">
+					<table border="0">
+						<tr>
+							<td style='width:200px'>
+								<g:Label styleName="{style.labelMandatory}" text="{c.server}:"></g:Label>
+							</td>
+							<td style='width:200px'>
+								<g:TextBox width="500px" enabled="true" ui:field="wazoHost" />
+							</td>
+						</tr>
+					</table>
+			
+				</g:HTMLPanel>
+			
+			
+				<g:HTMLPanel ui:field="xivoParams">
+					<table border="0">
+						<tr>
+							<td style='width:200px'>
+								<g:Label styleName="{style.labelMandatory}" text="{c.server}:"></g:Label>
+							</td>
+							<td style='width:200px'>
+								<g:TextBox width="500px" enabled="true" ui:field="xivoHost" />
+							</td>
+						</tr>
+					</table>
+			
+				</g:HTMLPanel>
+			
+			</g:HTMLPanel>
+		</g:ScrollPanel>
 	</g:HTMLPanel>
+			
+			
 
 </ui:UiBinder>

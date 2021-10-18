@@ -128,7 +128,6 @@
    <bundle id="net.bluemind.cti.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cti.api.php" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cti.backend" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cti.core" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cti.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.customproperties.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.customproperties.service" version="4.1.0.qualifier"/>
@@ -479,6 +478,7 @@
    <bundle id="net.bluemind.xivo.client" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.xivo.common" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.xivo.core" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.xivo.system" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.xmpp.coresession" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.xmpp.server" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.xmpp.server.launcher" version="4.1.0.qualifier"/>

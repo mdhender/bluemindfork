@@ -47,4 +47,8 @@ public class UserAccount {
 		this.additionalSettings = account.additionalSettings;
 	}
 
+	public UserAccount(String login) {
+		this.login = login;
+	}
+
 }

@@ -59,6 +59,7 @@
 	  <module>bm-plugin-webserver-cti</module>
       <module>bm-plugin-core-cti</module>
       <module>bm-plugin-core-cti-xivo</module>
+      <module>bm-plugin-core-cti-wazo</module>
       <module>bm-plugin-core-filehosting-filesystem</module>
       <module>bm-plugin-core-forest</module>
       <module>bm-plugin-core-mailapp</module>

@@ -18,6 +18,9 @@
  */
 package net.bluemind.cti.backend.internal;
 
+import java.util.Collections;
+import java.util.List;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.cti.api.Status;
@@ -44,6 +47,11 @@ public class NoCtiBackend implements ICTIBackend {
 	@Override
 	public Status.PhoneState getPhoneState(String domain, ItemValue<User> caller) throws ServerFault {
 		return Status.PhoneState.Unknown;
+	}
+
+	@Override
+	public List<String> users(String domain, ItemValue<User> caller) throws ServerFault {
+		return Collections.emptyList();
 	}
 
 }

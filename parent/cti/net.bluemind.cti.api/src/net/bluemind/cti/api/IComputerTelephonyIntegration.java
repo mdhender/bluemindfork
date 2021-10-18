@@ -1,5 +1,7 @@
 package net.bluemind.cti.api;
 
+import java.util.List;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -26,6 +28,16 @@ public interface IComputerTelephonyIntegration {
 	@GET
 	@Path("status")
 	Status getStatus() throws ServerFault;
+
+	/**
+	 * Retrieve users email list from the cti implementation
+	 * 
+	 * @return users email list
+	 * @throws ServerFault
+	 */
+	@GET
+	@Path("users")
+	List<String> getUserEmails() throws ServerFault;
 
 	/**
 	 * Set phone status for a component

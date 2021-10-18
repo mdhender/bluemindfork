@@ -18,6 +18,8 @@
  */
 package net.bluemind.cti.service;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,5 +149,14 @@ public class ComputerTelephonyIntegration implements IComputerTelephonyIntegrati
 
 		String forward = statusManager.updateForward(domainUid, user.uid, component, number);
 		backend.forward(domainUid, user, forward);
+	}
+
+	@Override
+	public List<String> getUserEmails() throws ServerFault {
+
+		checkAccess();
+
+		ItemValue<User> user = getUserOrFail();
+		return backend.users(domainUid, user);
 	}
 }

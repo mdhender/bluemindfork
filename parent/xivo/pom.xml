@@ -11,6 +11,7 @@
 	<modules>
 		<module>net.bluemind.xivo.calendar.hook</module>
 		<module>net.bluemind.xivo.core</module>
+		<module>net.bluemind.xivo.system</module>
 	</modules>
 
 </project>

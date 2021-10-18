@@ -31,5 +31,7 @@ public enum DomainSettingsKeys {
 	domain_max_users, //
 	domain_max_basic_account, //
 	password_lifetime, //
-	domain_max_fullvisio_accounts
+	domain_max_fullvisio_accounts, //
+	cti_implementation, //
+	cti_host;
 }

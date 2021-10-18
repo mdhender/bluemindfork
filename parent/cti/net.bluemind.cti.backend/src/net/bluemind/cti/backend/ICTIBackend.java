@@ -18,6 +18,8 @@
  */
 package net.bluemind.cti.backend;
 
+import java.util.List;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.cti.api.Status;
@@ -28,8 +30,7 @@ public interface ICTIBackend {
 	/**
 	 * @param domain
 	 * @param caller
-	 * @param imSetPhonePresence
-	 *            empty phone number == disabled
+	 * @param imSetPhonePresence empty phone number == disabled
 	 * @throws ServerFault
 	 */
 	void forward(String domain, ItemValue<User> caller, String imSetPhonePresence) throws ServerFault;
@@ -38,6 +39,12 @@ public interface ICTIBackend {
 
 	void dial(String domain, ItemValue<User> caller, String number) throws ServerFault;
 
+	List<String> users(String domain, ItemValue<User> caller) throws ServerFault;
+
 	Status.PhoneState getPhoneState(String domain, ItemValue<User> caller) throws ServerFault;
+
+	public default boolean supports(String domain, String uid) {
+		return true;
+	}
 
 }

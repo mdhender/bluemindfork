@@ -208,11 +208,6 @@ public class LocatorVerticleTests {
 				TimeUnit.SECONDS);
 		assertNotNull(ad0EsResp);
 		assertEquals(esIp, ad0EsResp.getResponseBody());
-
-		Response userCtiResp = ahc.prepareGet(prefix + "cti/frontend" + "/" + userUid + "@" + domainUid).execute()
-				.get(2, TimeUnit.SECONDS);
-		assertNotNull(userCtiResp);
-		assertEquals(404, userCtiResp.getStatusCode());
 	}
 
 }

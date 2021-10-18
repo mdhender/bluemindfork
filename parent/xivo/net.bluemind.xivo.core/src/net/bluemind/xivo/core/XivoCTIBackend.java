@@ -20,6 +20,8 @@ package net.bluemind.xivo.core;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -80,6 +82,11 @@ public class XivoCTIBackend implements ICTIBackend {
 			throw new ServerFault(e);
 		}
 
+	}
+
+	@Override
+	public List<String> users(String domain, ItemValue<User> caller) throws ServerFault {
+		return Collections.emptyList();
 	}
 
 	/**

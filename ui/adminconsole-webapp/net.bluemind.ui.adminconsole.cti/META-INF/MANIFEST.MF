@@ -13,6 +13,7 @@ Require-Bundle: net.bluemind.ui.adminconsole.base;bundle-version="4.1.0",
  net.bluemind.ui.adminconsole.system,
  net.bluemind.domain.api.gwt,
  net.bluemind.webmodule;bundle-version="4.1.0",
- net.bluemind.role.api
+ net.bluemind.role.api,
+ net.bluemind.system.api
 Automatic-Module-Name: net.bluemind.ui.adminconsole.cti
 

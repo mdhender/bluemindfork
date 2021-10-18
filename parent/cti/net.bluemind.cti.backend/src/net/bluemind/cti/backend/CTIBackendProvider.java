@@ -20,24 +20,26 @@ package net.bluemind.cti.backend;
 
 import java.util.List;
 
-import net.bluemind.cti.backend.internal.NoCtiBackend;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
 public class CTIBackendProvider {
 
-	private static ICTIBackend backend;
+	private static List<ICTIBackend> backends;
 
 	static {
-		List<ICTIBackend> backends = new RunnableExtensionLoader<ICTIBackend>().loadExtensions("net.bluemind.cti",
-				"backend", "cti-backend", "backend");
-		if (!backends.isEmpty()) {
-			backend = backends.get(0);
-		} else {
-			backend = new NoCtiBackend();
-		}
+		CTIBackendProvider.backends = new RunnableExtensionLoader<ICTIBackend>()
+				.loadExtensionsWithPriority("net.bluemind.cti", "backend", "cti-backend", "backend");
 	}
 
-	public static ICTIBackend getBackend() {
-		return backend;
+	public static ICTIBackend getBackend(String domain, String userUid) {
+
+		for (ICTIBackend backend : CTIBackendProvider.backends) {
+			if (backend.supports(domain, userUid)) {
+				return backend;
+			}
+		}
+		throw new ServerFault("No supported CTI implementation found");
 	}
+
 }

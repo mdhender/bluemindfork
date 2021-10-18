@@ -12,6 +12,11 @@
 		<module>net.bluemind.cti.api</module>
 		<module>net.bluemind.cti.backend</module>
 		<module>net.bluemind.cti.service</module>
+		<module>net.bluemind.cti.wazo.system</module>
+        <module>net.bluemind.cti.wazo.service</module>
 	</modules>
 
 </project>
+
+
+

@@ -32,4 +32,9 @@ public interface DomainCTIEditorConstants extends Constants {
 	public String ctiServer();
 
 	public String tabName();
+
+	public String implementation();
+
+	public String server();
+
 }
