@@ -249,6 +249,9 @@ public class FolderBackend extends CoreConnect {
 
 		boolean hasMailboxSubscription = false;
 
+		List<String> knownIds = ret.items.stream().map(folderChange -> folderChange.folderId)
+				.collect(Collectors.toList());
+
 		// OTHER MAILBOXES
 		if (state.version > 0) {
 			// fetch changes from subscribed mailbox
@@ -290,34 +293,32 @@ public class FolderBackend extends CoreConnect {
 					mailboxSubscriptionChanges(bs, ret, subscribedMailboxVersions, container, 0L);
 				});
 
-		newUserSubscriptions.stream().filter(c -> !"mailboxacl".equals(c.value.containerType)).forEach(container -> {
-			if (container.value.offlineSync) {
-				String nodeUid = ContainerHierarchyNode.uidFor(container.value.containerUid,
-						container.value.containerType, bs.getUser().getDomain());
-				try {
-					IContainersFlatHierarchy ownerHierarchy = getAdmin0Service(bs, IContainersFlatHierarchy.class,
-							bs.getUser().getDomain(), container.value.owner);
+		newUserSubscriptions.stream().filter(c -> !"mailboxacl".equals(c.value.containerType) && c.value.offlineSync)
+				.forEach(container -> {
+					String nodeUid = ContainerHierarchyNode.uidFor(container.value.containerUid,
+							container.value.containerType, bs.getUser().getDomain());
+					try {
+						IContainersFlatHierarchy ownerHierarchy = getAdmin0Service(bs, IContainersFlatHierarchy.class,
+								bs.getUser().getDomain(), container.value.owner);
 
-					ItemValue<ContainerHierarchyNode> node = ownerHierarchy.getComplete(nodeUid);
-					if (node != null) {
-						FolderChangeReference f = getHierarchyItemSubscriptionChange(bs, container, node);
-						Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
-					} else {
-						logger.warn("[{}] new subscription: no node uid {} for container {} in {} hierarchy. type: {}",
-								bs.getUser().getDefaultEmail(), nodeUid, container, container.value.owner,
-								container.value.containerType);
+						ItemValue<ContainerHierarchyNode> node = ownerHierarchy.getComplete(nodeUid);
+						if (node != null) {
+							FolderChangeReference f = getHierarchyItemSubscriptionChange(bs, container, node, knownIds);
+							Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
+						} else {
+							logger.warn(
+									"[{}] new subscription: no node uid {} for container {} in {} hierarchy. type: {}",
+									bs.getUser().getDefaultEmail(), nodeUid, container, container.value.owner,
+									container.value.containerType);
+						}
+					} catch (ServerFault sf) {
+						if (sf.getCode() == ErrorCode.NOT_FOUND) {
+							logger.warn("Skip new subscription : {}", sf.getMessage());
+						} else {
+							throw sf;
+						}
 					}
-				} catch (ServerFault sf) {
-					if (sf.getCode() == ErrorCode.NOT_FOUND) {
-						logger.warn("Skip new subscription : {}", sf.getMessage());
-					} else {
-						throw sf;
-					}
-
-				}
-
-			}
-		});
+				});
 
 		IContainers containers = getService(bs, IContainers.class);
 
@@ -354,7 +355,7 @@ public class FolderBackend extends CoreConnect {
 						if (node != null) {
 							FolderChangeReference f = null;
 							if (container.value.offlineSync) {
-								f = getHierarchyItemSubscriptionChange(bs, container, node);
+								f = getHierarchyItemSubscriptionChange(bs, container, node, knownIds);
 							} else {
 								f = getDeletedItemChange(CollectionId
 										.of(container.internalId, Long.toString(node.internalId)).getValue());
@@ -711,12 +712,19 @@ public class FolderBackend extends CoreConnect {
 	}
 
 	private FolderChangeReference getHierarchyItemSubscriptionChange(BackendSession bs,
-			ItemValue<ContainerSubscriptionModel> container, ItemValue<ContainerHierarchyNode> h) {
+			ItemValue<ContainerSubscriptionModel> container, ItemValue<ContainerHierarchyNode> h,
+			List<String> knownIds) {
 		FolderChangeReference f = new FolderChangeReference();
 
 		String name = "";
 		FolderType type = null;
 		String folderId = Long.toString(h.internalId);
+
+		if (knownIds.contains(folderId)) {
+			// avoid flatHierarchy/subscription conflict
+			return null;
+		}
+
 		switch (container.value.containerType) {
 		case ICalendarUids.TYPE:
 			if (ICalendarUids.defaultUserCalendar(bs.getUser().getUid()).equals(container.value.containerUid)) {
