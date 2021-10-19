@@ -244,7 +244,7 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 		}
 	}
 
-	private void expandDomainAlias(ListBox domainList, List<ItemValue<Domain>> domains) {
+	public static void expandDomainAlias(ListBox domainList, List<ItemValue<Domain>> domains) {
 		HashSet<String> domainNames = new HashSet<>();
 		for (ItemValue<Domain> domain : domains) {
 			if ("global.virt".equals(domain.value.name)) {
@@ -274,7 +274,7 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 		keyUpload.addChangeHandler(evt -> keyUploadForm.submit());
 	}
 
-	private int detectDomainIndex(ListBox domainList, String domain) {
+	public static int detectDomainIndex(ListBox domainList, String domain) {
 		if (null == domain || domain.isEmpty()) {
 			return 0;
 		}
