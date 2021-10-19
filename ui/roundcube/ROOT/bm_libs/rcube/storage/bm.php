@@ -730,6 +730,7 @@ class rcube_storage_bm extends rcube_imap {
 
     $fields = array_keys($this->indexMap);
     $fields[] = "is";
+    $fields[] = "uid";
     $query->setSource($fields);
 
     $page = $this->list_page ? $this->list_page : 1;
@@ -760,7 +761,7 @@ class rcube_storage_bm extends rcube_imap {
 
     $this->searchMeta = array ('from' => $from, 'to' => $to, 'sort' => $sort, 'order' => $order, 'messages' => $messages);
     $query->setStoredFields(array());
-    $query->setSource(false);
+    $query->setSource(array('uid'));
     $query->setFrom(0);
     $query->setSize($count);
     
@@ -777,7 +778,8 @@ class rcube_storage_bm extends rcube_imap {
 
     if (isset($result['hits']['hits'])) {
       foreach ($result['hits']['hits'] as $hit) {
-        list($folder, $uid) = explode(':', $hit['_id']);
+        list($folder) = explode(':', $hit['_id']);
+        $uid = $hit['_source']['uid'];
         $r[] = base64_encode("$folder#$uid");
       }
     }
@@ -817,6 +819,7 @@ class rcube_storage_bm extends rcube_imap {
 
     $fields = array_keys($this->indexMap);
     $fields[] = "is";
+    $fields[] = "uid";
     $query->setSource($fields);
 
     $query->setFrom($from);
@@ -1120,12 +1123,9 @@ class rcube_storage_bm extends rcube_imap {
 
   private function headersFromIndex($index, $id) {
     $message = new rcube_mail_header();
-    list($folder, $uid, $jocker) = explode(':', $id);
+    list($folder) = explode(':', $id);
 
-    if ($jocker != null) {
-      // old style uid x:y:z (new style is x:z)
-      $uid = $jocker;
-    }
+	$uid = $index['uid'];
     $message->id = "$folder:$uid";
     $message->uid = base64_encode("$folder#$uid");
     $message->flags['skip_mbox_check'] = true;
