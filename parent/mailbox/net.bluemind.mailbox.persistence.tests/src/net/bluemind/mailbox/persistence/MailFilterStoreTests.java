@@ -25,7 +25,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -181,6 +183,35 @@ public class MailFilterStoreTests {
 		res = mailfilterStore.findOutOfOffice(d2);
 		// should return 0 because nothing to do
 		assertEquals(0, res.size());
+	}
+
+	@Test
+	public void testSameDayVacation() throws SQLException {
+		itemStore.create(Item.create(uid, null));
+		Item item = itemStore.get(uid);
+		Mailbox u = getDefaultMailbox();
+		mailshareStore.create(item, u);
+		MailFilter filter = MailFilter.create(defaultRule(), defaultRule());
+		filter.rules.get(0).active = true;
+		filter.forwarding = new MailFilter.Forwarding();
+		filter.forwarding.enabled = false;
+		filter.vacation = new MailFilter.Vacation();
+		filter.vacation.enabled = true;
+		filter.vacation.start = Date.from(LocalDateTime.of(2020, 02, 02, 8, 0, 0).toInstant(ZoneOffset.UTC));
+		filter.vacation.end = Date.from(LocalDateTime.of(2020, 02, 02, 18, 0, 0).toInstant(ZoneOffset.UTC));
+		mailfilterStore.set(item, filter);
+
+		Date inVacation = Date.from(LocalDateTime.of(2020, 02, 02, 14, 0, 0).toInstant(ZoneOffset.UTC));
+
+		// start deactivated
+		mailfilterStore.markOutOfOffice(item, false);
+		List<String> res = mailfilterStore.findOutOfOffice(inVacation);
+		assertEquals("in vacation, enable and not activated", 1, res.size());
+
+		// activate since out of office
+		mailfilterStore.markOutOfOffice(item, true);
+		res = mailfilterStore.findInOffice(inVacation);
+		assertEquals("in vacation, enable and activated", 0, res.size());
 	}
 
 	@Test

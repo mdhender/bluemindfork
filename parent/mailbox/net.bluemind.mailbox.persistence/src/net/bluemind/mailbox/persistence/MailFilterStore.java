@@ -126,8 +126,8 @@ public class MailFilterStore extends JdbcAbstractStore {
 	public List<String> findInOffice(Date date) throws SQLException {
 		String query = "SELECT item.uid FROM t_mailfilter_vacation v, t_container_item item WHERE item.container_id = ? "
 				+ "AND v.item_id = item.id AND v.vacation_marker = true AND NOT (v.start_date <= ? AND v.end_date > ? )";
-		return select(query, new StringCreator(1), Collections.emptyList(),
-				new Object[] { container.id, new java.sql.Date(date.getTime()), new java.sql.Date(date.getTime()) });
+		return select(query, new StringCreator(1), Collections.emptyList(), new Object[] { container.id,
+				new java.sql.Timestamp(date.getTime()), new java.sql.Timestamp(date.getTime()) });
 	}
 
 	public void markOutOfOffice(Item item, boolean activated) throws SQLException {
