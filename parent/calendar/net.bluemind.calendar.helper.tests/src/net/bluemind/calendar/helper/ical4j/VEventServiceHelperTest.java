@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -55,6 +56,7 @@ import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.CUType;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
+import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
 import net.bluemind.icalendar.parser.ICal4jHelper;
 import net.bluemind.lib.ical4j.util.IcalConverter;
 import net.bluemind.utils.FileUtils;
@@ -500,6 +502,55 @@ public class VEventServiceHelperTest {
 		ItemValue<VEventSeries> evt = events.get(0);
 
 		assertEquals(new Integer(86400), evt.value.main.alarm.get(0).trigger);
+	}
+
+	@Test
+	public void testRequiredAlarmFields() throws Exception {
+		System.setProperty("net.fortuna.ical4j.timezone.cache.impl", "net.fortuna.ical4j.util.MapTimeZoneCache");
+		VEventSeries series = new VEventSeries();
+		VEvent event = new VEvent();
+		series.main = event;
+
+		ICalendarElement.Attendee att1 = new ICalendarElement.Attendee();
+		att1.commonName = "att1";
+		att1.cutype = CUType.Individual;
+		att1.mailto = "att1@bm.loc";
+		att1.partStatus = ParticipationStatus.Accepted;
+
+		ICalendarElement.Attendee att2 = new ICalendarElement.Attendee();
+		att2.commonName = "att2";
+		att2.cutype = CUType.Individual;
+		att2.mailto = "att2@bm.loc";
+		att2.partStatus = ParticipationStatus.Declined;
+
+		series.main.attendees = Arrays.asList(att1, att2);
+		series.main.dtstart = new BmDateTime("1983-02-13T21:00:00+01:00", null, Precision.DateTime);
+		series.main.dtend = new BmDateTime("1983-02-13T22:00:00+01:00", null, Precision.DateTime);
+
+		ICalendarElement.VAlarm alarm1 = new ICalendarElement.VAlarm();
+		alarm1.description = "alarm1";
+		alarm1.action = Action.Email;
+		alarm1.duration = 5;
+		alarm1.trigger = 10;
+
+		series.main.alarm = Arrays.asList(alarm1);
+
+		String ics = VEventServiceHelper.convertToIcs(ItemValue.create("test", series));
+		assertTrue(ics.contains("ATTENDEE;CUTYPE=INDIVIDUAL;PARTSTAT=ACCEPTED;CN=att1:MAILTO:att1@bm.loc"));
+		assertTrue(ics.contains("ATTENDEE;CUTYPE=INDIVIDUAL;PARTSTAT=DECLINED;CN=att2:MAILTO:att2@bm.loc"));
+
+		ICalendarElement.VAlarm alarm2 = new ICalendarElement.VAlarm();
+		alarm2.action = Action.Display;
+		alarm2.duration = 11;
+		alarm2.trigger = 12;
+
+		series.main.alarm = Arrays.asList(alarm2);
+
+		ics = VEventServiceHelper.convertToIcs(ItemValue.create("test", series));
+		// alarm2
+		assertTrue(ics.contains("DESCRIPTION:\r\n"));
+		assertTrue(ics.contains("SUMMARY:\r\n"));
+
 	}
 
 	private List<ItemValue<VEventSeries>> toEvents(String ics) {

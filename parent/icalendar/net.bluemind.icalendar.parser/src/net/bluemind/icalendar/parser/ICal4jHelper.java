@@ -968,14 +968,23 @@ public class ICal4jHelper<T extends ICalendarElement> {
 					valarm.getProperties().add(Action.DISPLAY);
 				} else {
 					valarm.getProperties().add(Action.EMAIL);
+					if (iCalendarElement.attendees != null && !iCalendarElement.attendees.isEmpty()) {
+						for (ICalendarElement.Attendee attendee : iCalendarElement.attendees) {
+							valarm.getProperties().add(parseICalendarElementAttendee(attendee));
+						}
+					}
 				}
 
 				if (alarm.description != null && !alarm.description.isEmpty()) {
 					valarm.getProperties().add(new Description(alarm.description));
+				} else {
+					valarm.getProperties().add(new Description(""));
 				}
 
 				if (alarm.summary != null && !alarm.summary.isEmpty()) {
 					valarm.getProperties().add(new Summary(alarm.summary));
+				} else {
+					valarm.getProperties().add(new Summary(""));
 				}
 
 				if (alarm.duration != null) {
