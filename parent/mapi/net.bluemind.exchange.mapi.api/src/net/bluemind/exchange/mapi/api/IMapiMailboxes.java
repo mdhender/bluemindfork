@@ -20,15 +20,21 @@ package net.bluemind.exchange.mapi.api;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 
 @BMApi(version = "3")
-@Path("/mapi_mailboxes/{domainUid}")
+@Path("/mapi_mailboxes")
 public interface IMapiMailboxes {
 
 	@GET
-	public MapiReplica byMailboxGuid(String mailboxGuid) throws ServerFault;
+	@Path("mailbox_guid/{mailboxGuid}")
+	public MapiReplica byMailboxGuid(@PathParam("mailboxGuid") String mailboxGuid) throws ServerFault;
+
+	@GET
+	@Path("message_objects_guid/{objectsGuid}")
+	public MapiReplica byMessageObjectsGuid(@PathParam("objectsGuid") String objectsGuid) throws ServerFault;
 
 }

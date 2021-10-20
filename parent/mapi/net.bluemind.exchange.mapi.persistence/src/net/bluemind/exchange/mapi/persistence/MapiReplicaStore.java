@@ -69,4 +69,11 @@ public class MapiReplicaStore extends JdbcAbstractStore {
 		return unique(GET_REPLICA_BY_GUID, rs -> new MapiReplica(), MapiReplicaColumns.populator(), mailboxGuid);
 	}
 
+	private static final String GET_REPLICA_BY_MO_GUID = "SELECT " + MapiReplicaColumns.cols.names()
+			+ " FROM t_mapi_replica WHERE message_objects_guid=?";
+
+	public MapiReplica byMessageObjectsGuid(String objectsGuid) throws SQLException {
+		return unique(GET_REPLICA_BY_MO_GUID, rs -> new MapiReplica(), MapiReplicaColumns.populator(), objectsGuid);
+	}
+
 }

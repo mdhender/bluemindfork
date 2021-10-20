@@ -32,18 +32,13 @@ public class MapiMailboxesServiceFactory
 		return IMapiMailboxes.class;
 	}
 
-	private IMapiMailboxes getService(BmContext context, String domainUid) throws ServerFault {
-		MapiMailboxesService service = new MapiMailboxesService(context, domainUid);
-		return service;
+	private IMapiMailboxes getService(BmContext context) throws ServerFault {
+		return new MapiMailboxesService(context);
 	}
 
 	@Override
 	public IMapiMailboxes instance(BmContext context, String... params) throws ServerFault {
-		if (params == null || params.length < 1) {
-			throw new ServerFault("wrong number of instance parameters");
-		}
-		String domain = params[0];
-		return getService(context, domain);
+		return getService(context);
 	}
 
 }

@@ -35,8 +35,8 @@ public class MapiMailboxesService implements IMapiMailboxes {
 
 	private MapiReplicaStore mapiReplicaStore;
 
-	public MapiMailboxesService(BmContext context, String domainUid) throws ServerFault {
-		logger.debug("Creating for domain {}", domainUid);
+	public MapiMailboxesService(BmContext context) throws ServerFault {
+		logger.debug("Created for {}", context);
 		this.mapiReplicaStore = new MapiReplicaStore(context.getDataSource());
 	}
 
@@ -44,6 +44,15 @@ public class MapiMailboxesService implements IMapiMailboxes {
 	public MapiReplica byMailboxGuid(String mailboxGuid) throws ServerFault {
 		try {
 			return mapiReplicaStore.byMailboxGuid(mailboxGuid);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+	}
+
+	@Override
+	public MapiReplica byMessageObjectsGuid(String objectsGuid) throws ServerFault {
+		try {
+			return mapiReplicaStore.byMessageObjectsGuid(objectsGuid);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
