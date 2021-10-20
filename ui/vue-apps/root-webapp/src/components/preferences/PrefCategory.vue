@@ -58,6 +58,7 @@ export default {
     .pref-field-combobox,
     .bm-form-time-picker,
     .bm-form-select,
+    .bm-form-multi-select,
     .bm-form-input,
     .bm-rich-editor {
         width: 24rem !important;

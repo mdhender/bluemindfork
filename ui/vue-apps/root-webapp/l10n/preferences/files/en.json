@@ -22,6 +22,10 @@
     "preferences.advanced.reinit_local_data.success": "Local data successfully reset",
     "preferences.advanced.reinit_local_data.error": "Error while resetting local data, please try again in a moment.",
 
+    "preferences.calendar.main.working_days": "Working days as displayed in the agenda :",
+    "preferences.calendar.main.working_days.none": "No days selected",
+    "preferences.calendar.main.working_days.all": "All days",
+
     "preferences.general.lang": "Language",
     "preferences.general.timezone": "Time zone",
     "preferences.general.date_format": "Date format",
@@ -77,7 +81,6 @@
     "preferences.calendar.main.day_starts_at": "Day starts at",
     "preferences.calendar.main.day_ends_at": "Day ends at",
     "preferences.calendar.main.whole_day": "All day",
-    "preferences.calendar.main.working_days": "Working days",
     "preferences.calendar.main.show_declined_events": "Show declined events",
     "preferences.calendar.main.default_reminder": "Default event reminder, before event",
     "preferences.calendar.main.default_allday_reminder": "Reminder at fixed time for \"all-day\" event",

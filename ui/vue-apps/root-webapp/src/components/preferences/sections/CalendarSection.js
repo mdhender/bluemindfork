@@ -51,20 +51,30 @@ function mainCategory(vueI18N) {
                         component: "PrefWorkHours",
                         options: {}
                     },
-                    //FIXME: besoin de maquettes pour voir quel rendu on veut pour un multiple-select
-                    // {
-                    //     name: vueI18N.t("preferences.calendar.main.working_days"),
-                    //     setting: "working_days",
-                    //     component: "PrefFieldSelect",
-                    //     options: {
-                    //            choices: []
-                    //     }
-                    // }
                     {
                         setting: "show_declined_events",
                         component: "PrefFieldCheck",
                         options: {
                             label: vueI18N.t("preferences.calendar.main.show_declined_events")
+                        }
+                    },
+                    {
+                        setting: "working_days",
+                        name: vueI18N.t("preferences.calendar.main.working_days"),
+                        component: "PrefFieldMultiSelect",
+                        options: {
+                            autoCollapse: true,
+                            canSelectAll: vueI18N.t("preferences.calendar.main.working_days.all"),
+                            placeholder: vueI18N.t("preferences.calendar.main.working_days.none"),
+                            options: [
+                                { value: "mon", text: vueI18N.t("common.monday") },
+                                { value: "tue", text: vueI18N.t("common.tuesday") },
+                                { value: "wed", text: vueI18N.t("common.wednesday") },
+                                { value: "thu", text: vueI18N.t("common.thursday") },
+                                { value: "fri", text: vueI18N.t("common.friday") },
+                                { value: "sat", text: vueI18N.t("common.saturday") },
+                                { value: "sun", text: vueI18N.t("common.sunday") }
+                            ]
                         }
                     }
                 ]

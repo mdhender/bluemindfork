@@ -1139,9 +1139,9 @@
     axios "^0.18.0"
 
 "@bluemind/styleguide@^0.1.0":
-  version "0.1.1726"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1726.tgz#fc7d107c18647f591012a6b2abb80be8bc32cf75"
-  integrity sha512-Mcv9TlJllHfo9e4yVXwwBAxY2QTIoJb5LNmL7cl0XCzt6LXFc4bg/2LnQov//1QjVb7zrGTzPbJnTj92K2g3tw==
+  version "0.1.1756"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1756.tgz#c97382fa3cd330191cc3dc72962d9f977cce00aa"
+  integrity sha512-dF1waqwk4/T0yKpq4csLqJ95W4zUIZJVeBGrvcLKiur1MVGeqjTMyKe9sJM2t0Wf9GYXPhqaxvsR8LDR5uX56g==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
     "@fortawesome/vue-fontawesome" "^0.1.4"
@@ -1149,7 +1149,9 @@
     bootstrap-vue "^2.17.0"
     interactjs "^1.9.20"
     lodash.clonedeep "^4.5.0"
+    lodash.debounce "^4.0.8"
     lodash.iteratee "^4.7.0"
+    lodash.sortedindexby "^4.6.0"
     lodash.throttle "^4.1.1"
     tiptap "^1.30.0"
     tiptap-extensions "^1.33.2"

@@ -35,6 +35,7 @@
 import PrefFieldCheck from "./fields/PrefFieldCheck";
 import PrefFieldChoice from "./fields/PrefFieldChoice";
 import PrefFieldComboBox from "./fields/PrefFieldComboBox";
+import PrefFieldMultiSelect from "./fields/PrefFieldMultiSelect";
 import PrefFieldSelect from "./fields/PrefFieldSelect";
 import PrefFieldSwitch from "./fields/PrefFieldSwitch";
 
@@ -65,6 +66,7 @@ export default {
         PrefFieldCheck,
         PrefFieldChoice,
         PrefFieldComboBox,
+        PrefFieldMultiSelect,
         PrefFieldSelect,
         PrefFieldSwitch,
         PrefAllDayEventReminder,

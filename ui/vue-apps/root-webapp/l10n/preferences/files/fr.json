@@ -22,6 +22,10 @@
     "preferences.advanced.reinit_local_data.success": "Données réinitialisées localement",
     "preferences.advanced.reinit_local_data.error": "Erreur lors de la réinitialisation des données locales, veuillez réessayer dans quelques instants.",
 
+    "preferences.calendar.main.working_days": "Jours ouvrés affichés dans le calendrier :",
+    "preferences.calendar.main.working_days.none": "Pas de jour sélectionné",
+    "preferences.calendar.main.working_days.all": "Tous les jours",
+
     "preferences.general.lang": "Langue",
     "preferences.general.timezone": "Fuseau horaire",
     "preferences.general.date_format": "Format de date",
@@ -77,7 +81,6 @@
     "preferences.calendar.main.day_starts_at": "La journée commence à",
     "preferences.calendar.main.day_ends_at": "La journée se termine à",
     "preferences.calendar.main.whole_day": "Journée entière",
-    "preferences.calendar.main.working_days": "Jours ouvrés",
     "preferences.calendar.main.show_declined_events": "Afficher les évènements refusés",
     "preferences.calendar.main.default_reminder": "Rappel par défaut, avant l'évènement",
     "preferences.calendar.main.default_allday_reminder": "Rappel à heure fixe pour un évènement \"journée complète\"",
