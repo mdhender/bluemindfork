@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -43,8 +44,7 @@ public class OverQuotaMailTipEvaluation implements IMailTipEvaluation {
 
 	@Override
 	public List<EvaluationResult> evaluate(String domain, MessageContext messageContext) {
-		return messageContext.recipients.stream().map(r -> process(domain, r))
-				.filter(Objects::nonNull)
+		return messageContext.recipients.stream().map(r -> process(domain, r)).filter(Objects::nonNull)
 				.collect(Collectors.toList());
 	}
 
@@ -61,7 +61,13 @@ public class OverQuotaMailTipEvaluation implements IMailTipEvaluation {
 				domain);
 		IDirectory directory = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDirectory.class,
 				domain);
-		DirEntry entry = directory.getByEmail(email);
+		DirEntry entry;
+		try {
+			entry = directory.getByEmail(email);
+		} catch (ServerFault sf) {
+			logger.warn("Error while looking for DirEntry with email {}: {}", email, sf.getMessage());
+			return null;
+		}
 		if (entry == null) {
 			logger.info("DirEntry with email {} not found", email);
 			return null;

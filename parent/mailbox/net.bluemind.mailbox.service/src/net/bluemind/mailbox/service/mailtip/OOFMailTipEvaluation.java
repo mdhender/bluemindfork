@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -63,7 +64,13 @@ public class OOFMailTipEvaluation implements IMailTipEvaluation {
 				domain);
 		IDirectory directory = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDirectory.class,
 				domain);
-		DirEntry entry = directory.getByEmail(email);
+		DirEntry entry;
+		try {
+			entry = directory.getByEmail(email);
+		} catch (ServerFault sf) {
+			logger.warn("Error while looking for DirEntry with email {}: {}", email, sf.getMessage());
+			return null;
+		}
 		if (entry == null) {
 			logger.info("DirEntry with email {} not found", email);
 			return null;
