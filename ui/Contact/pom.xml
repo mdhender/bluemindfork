@@ -26,6 +26,7 @@
 						<configuration>
 							<baseConfig>
 								{
+								"output-wrapper": "// Copyright 2021\n(function(){%output%})();", 
 								"css-allowed-non-standard-functions": [
 								"color-stop",
 								"progid:DXImageTransform.Microsoft.gradient",
