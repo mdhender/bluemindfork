@@ -3,6 +3,7 @@ import iteratee from "lodash.iteratee";
 import Roles from "@bluemind/roles";
 
 import getCalendarSection from "./CalendarSection";
+import getDownloadsSection from "./DownloadsSection";
 import getMyAccountSection from "./MyAccountSection";
 import getWebmailSection from "./WebmailSection";
 
@@ -20,6 +21,8 @@ export default function (applications, roles, vueI18N) {
     if (roles.includes(Roles.HAS_CALENDAR)) {
         sections.push(normalize(getCalendarSection(vueI18N, applications)));
     }
+
+    sections.push(normalize(getDownloadsSection(roles, vueI18N)));
 
     return sections;
 }

@@ -38,8 +38,7 @@
    <extension
          point="net.bluemind.extensions">
       <export-extension-point
-            id="net.bluemind.ui.settings.downloads"
-            module="/settings">
+            id="net.bluemind.ui.settings.downloads">
       </export-extension-point>
    </extension>
     

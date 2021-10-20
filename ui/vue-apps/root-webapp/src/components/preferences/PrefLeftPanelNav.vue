@@ -13,9 +13,9 @@
                 @click="scrollTo(sectionId(section))"
             >
                 <div class="row align-items-center">
-                    <div class="col-2">
+                    <div class="col-2 text-center">
                         <bm-avatar v-if="section.code === 'my_account'" :alt="user.displayname" />
-                        <bm-app-icon v-else :icon-app="section.icon" class="text-center text-primary" />
+                        <bm-app-icon v-else :icon-app="section.icon" class="text-primary" />
                     </div>
                     <div class="col">
                         <div v-if="section.code === 'my_account'" class="text-white display-name">

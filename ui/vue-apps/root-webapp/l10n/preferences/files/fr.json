@@ -115,6 +115,9 @@
     "preferences.calendar.other_calendars.nothing_to_add": "Aucun calendrier supplémentaire ne peut être ajouté.",
     "preferences.calendar.other_calendars.search": "Rechercher un calendrier ou un utilisateur",
 
+    "preferences.downloads": "Téléchargements",
+    "preferences.downloads.none": "Aucun téléchargement disponible",
+
     "preferences.mail.thread": "Affichage des messages",
     "preferences.mail.thread.disable": "Ne pas grouper par conversation",
     "preferences.mail.thread.enable": "Grouper par conversation",

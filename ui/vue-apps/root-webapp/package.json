@@ -27,8 +27,10 @@
         "@bluemind/vue-sockjs": "^4.1.0",
         "@bluemind/vuex-router": "^4.1.0",
         "libphonenumber-js": "^1.7.8",
+        "lodash.chunk": "^4.2.0",
         "lodash.throttle": "^4.1.1",
         "lodash.iteratee": "^4.7.0",
+        "mime": "^2.5.2",
         "vue-i18n": "^8.21.0",
         "vue2-touch-events": "^2.2.1"
     },

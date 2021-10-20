@@ -115,6 +115,9 @@
     "preferences.calendar.other_calendars.nothing_to_add": "Es können keine weiteren Kalender hinzugefügt werden.",
     "preferences.calendar.other_calendars.search": "Kalender oder Benutzer suchen",
 
+    "preferences.downloads": "Downloads",
+    "preferences.downloads.none": "Keine verfügbaren Downloads",
+
     "preferences.mail.thread": "E-Mails anzeigen",
     "preferences.mail.thread.disable": "E-Mails einzeln anzeigen",
     "preferences.mail.thread.enable": "E-Mails gruppiert anzeigen",

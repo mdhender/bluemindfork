@@ -25,6 +25,7 @@ describe("Preferences", () => {
             user: { displayname: "my name" }
         };
         mockedStore = MountComponentUtils.mockSessionStore();
+        window.bmExtensions_ = [];
     });
 
     test("can be mounted", () => {

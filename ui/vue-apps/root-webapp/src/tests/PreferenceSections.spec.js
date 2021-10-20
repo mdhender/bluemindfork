@@ -7,6 +7,7 @@ const mockedVueI18N = {
 
 describe("PreferenceSections", () => {
     test("return a calendar section only if role allow it", () => {
+        window.bmExtensions_ = [];
         let roles = Roles.HAS_MAIL;
         const applications = [{ href: "/mail/" }];
         let sections = getPreferenceSections(applications, roles, mockedVueI18N);
