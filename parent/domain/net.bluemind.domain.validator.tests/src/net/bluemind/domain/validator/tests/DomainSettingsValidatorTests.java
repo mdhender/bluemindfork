@@ -66,7 +66,6 @@ public class DomainSettingsValidatorTests {
 
 	@Before
 	public void before() throws Exception {
-
 		domainUid = "bm.lan";
 
 		JdbcTestHelper.getInstance().beforeTest();
@@ -98,8 +97,8 @@ public class DomainSettingsValidatorTests {
 				launched.countDown();
 			}
 		});
-		launched.await();
 
+		launched.await();
 	}
 
 	@After
@@ -110,7 +109,7 @@ public class DomainSettingsValidatorTests {
 	@Test
 	public void splitDomainValidatorTests() {
 		try {
-			validator.create(Collections.<String, String>emptyMap(), domainUid);
+			validator.create(null, Collections.<String, String>emptyMap(), domainUid);
 		} catch (ServerFault e) {
 			fail();
 		}
@@ -119,28 +118,28 @@ public class DomainSettingsValidatorTests {
 		settings.put(DomainSettingsKeys.mail_forward_unknown_to_relay.name(), "true");
 
 		try {
-			validator.create(settings, domainUid);
+			validator.create(null, settings, domainUid);
 			fail();
 		} catch (ServerFault e) {
 		}
 
 		settings.put(DomainSettingsKeys.mail_routing_relay.name(), "");
 		try {
-			validator.create(settings, domainUid);
+			validator.create(null, settings, domainUid);
 			fail();
 		} catch (ServerFault e) {
 		}
 
 		settings.put(DomainSettingsKeys.mail_routing_relay.name(), "       ");
 		try {
-			validator.create(settings, domainUid);
+			validator.create(null, settings, domainUid);
 			fail();
 		} catch (ServerFault e) {
 		}
 
 		settings.put(DomainSettingsKeys.mail_routing_relay.name(), "whatever");
 		try {
-			validator.create(settings, domainUid);
+			validator.create(null, settings, domainUid);
 		} catch (ServerFault e) {
 			fail();
 		}
@@ -156,7 +155,7 @@ public class DomainSettingsValidatorTests {
 		oldSettings.put(DomainSettingsKeys.mail_forward_unknown_to_relay.name(), "true");
 		oldSettings.put(DomainSettingsKeys.mail_routing_relay.name(), "whatever.bm.lan");
 		try {
-			validator.update(oldSettings, settings, "bm.lan");
+			validator.update(null, oldSettings, settings, "bm.lan");
 		} catch (ServerFault sf) {
 			fail();
 		}
@@ -165,7 +164,7 @@ public class DomainSettingsValidatorTests {
 		Mailbox mailbox = defaultMailbox("splitDomainExternalUserValidator." + System.nanoTime());
 		mailboxStoreService.create(UUID.randomUUID().toString(), mailbox.name, mailbox);
 		try {
-			validator.update(oldSettings, settings, "bm.lan");
+			validator.update(null, oldSettings, settings, "bm.lan");
 			fail();
 		} catch (ServerFault sf) {
 		}

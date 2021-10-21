@@ -26,6 +26,7 @@ Require-Bundle: org.junit,
  net.bluemind.core.rest.http,
  net.bluemind.core.container.service,
  net.bluemind.core.caches.registry,
+ net.bluemind.core.task.api,
  net.bluemind.core.task.service,
  com.github.ben-manes.caffeine
 Automatic-Module-Name: net.bluemind.domain.service.tests

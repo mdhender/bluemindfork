@@ -22,5 +22,6 @@ Require-Bundle: org.junit,
  net.bluemind.core.context,
  org.eclipse.core.runtime;bundle-version="3.7.0",
  com.google.guava;bundle-version="19.0.0",
- net.bluemind.mailbox.persistence
+ net.bluemind.mailbox.persistence,
+ net.bluemind.core.tests.testshelper
 Automatic-Module-Name: net.bluemind.domain.validator.tests

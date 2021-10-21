@@ -89,10 +89,10 @@ public class DomainSettingsService implements IDomainSettings, IInCoreDomainSett
 
 		ItemValue<Map<String, String>> oldValues = domainSettingsStoreService.get(domainUid, null);
 		if (null == oldValues || null == oldValues.value || oldValues.value.isEmpty()) {
-			validator.create(settings, domainUid);
+			validator.create(context, settings, domainUid);
 			extValidator.create(newDomainSettings);
 		} else {
-			validator.update(oldValues.value, settings, domainUid);
+			validator.update(context, oldValues.value, settings, domainUid);
 
 			DomainSettings oldDomainSettings = new DomainSettings(domainUid, oldValues.value);
 			extValidator.update(oldDomainSettings, newDomainSettings);

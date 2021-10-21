@@ -24,6 +24,8 @@ import java.util.HashMap;
 import org.junit.Test;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.domain.api.DomainSettings;
 import net.bluemind.domain.api.DomainSettingsKeys;
 
@@ -33,19 +35,19 @@ public class DomainSettingsExternalUrlValidatorTests {
 	String domainUid = "bm.lan";
 
 	private DomainSettings emptySettings = new DomainSettings("bm.lan", new HashMap<>());
-
+	private BmTestContext admin0 = new BmTestContext(SecurityContext.SYSTEM);
 	private DomainSettingsValidator validator = new DomainSettingsValidator();
 
 	@Test
 	public void testNullDomainExternalUrl() {
 		DomainSettings ds = new DomainSettings(domainUid, new HashMap<>());
 
-		validator.create(ds.settings, domainUid);
-		validator.update(emptySettings.settings, ds.settings, domainUid);
+		validator.create(admin0, ds.settings, domainUid);
+		validator.update(admin0, emptySettings.settings, ds.settings, domainUid);
 
 		ds.settings.put(DOMAIN_SETTINGS_KEY, null);
-		validator.create(ds.settings, domainUid);
-		validator.update(emptySettings.settings, ds.settings, domainUid);
+		validator.create(admin0, ds.settings, domainUid);
+		validator.update(admin0, emptySettings.settings, ds.settings, domainUid);
 	}
 
 	@Test
@@ -53,8 +55,8 @@ public class DomainSettingsExternalUrlValidatorTests {
 		DomainSettings ds = new DomainSettings(domainUid, new HashMap<>());
 		ds.settings.put(DOMAIN_SETTINGS_KEY, "");
 
-		validator.create(ds.settings, domainUid);
-		validator.update(emptySettings.settings, ds.settings, domainUid);
+		validator.create(admin0, ds.settings, domainUid);
+		validator.update(admin0, emptySettings.settings, ds.settings, domainUid);
 	}
 
 	@Test
@@ -62,8 +64,8 @@ public class DomainSettingsExternalUrlValidatorTests {
 		DomainSettings ds = new DomainSettings(domainUid, new HashMap<>());
 		ds.settings.put(DOMAIN_SETTINGS_KEY, "ext.bm.lan");
 
-		validator.create(ds.settings, domainUid);
-		validator.update(emptySettings.settings, ds.settings, domainUid);
+		validator.create(admin0, ds.settings, domainUid);
+		validator.update(admin0, emptySettings.settings, ds.settings, domainUid);
 	}
 
 	@Test
@@ -72,7 +74,7 @@ public class DomainSettingsExternalUrlValidatorTests {
 		ds.settings.put(DOMAIN_SETTINGS_KEY, "invalid");
 
 		try {
-			validator.create(ds.settings, domainUid);
+			validator.create(admin0, ds.settings, domainUid);
 			fail("invalid " + DOMAIN_SETTINGS_KEY);
 		} catch (ServerFault sf) {
 

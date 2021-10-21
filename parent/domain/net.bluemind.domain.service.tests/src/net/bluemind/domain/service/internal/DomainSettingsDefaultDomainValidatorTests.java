@@ -17,34 +17,37 @@
   */
 package net.bluemind.domain.service.internal;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.util.concurrent.SettableFuture;
-
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
-import net.bluemind.domain.api.DomainSettings;
+import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.role.api.BasicRoles;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class DomainSettingsDefaultDomainValidatorTests {
+	private String domainUid1 = "bm.lan";
+	private String domainUid2 = "default.bm.lan";
+	private BmTestContext domain1Admin;
 
-	private static final String DOMAIN_SETTINGS_KEY = DomainSettingsKeys.default_domain.name();
-
-	private DomainSettings emptySettings;
-	private String domainUid = "bm.lan";
-	private String domainUidDefault = "default.bm.lan";
-
+	private BmTestContext admin0 = new BmTestContext(SecurityContext.SYSTEM);
 	private DomainSettingsValidator validator = new DomainSettingsValidator();
 
 	@Before
@@ -54,21 +57,21 @@ public class DomainSettingsDefaultDomainValidatorTests {
 
 		PopulateHelper.initGlobalVirt();
 
-		PopulateHelper.createTestDomain(domainUid);
-		PopulateHelper.createTestDomain(domainUidDefault);
+		PopulateHelper.createTestDomain(domainUid1);
+		PopulateHelper.createTestDomain(domainUid2);
 
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
+		domain1Admin = BmTestContext.contextWithSession("adminSessionId", "testAdmin", domainUid1,
+				BasicRoles.ROLE_ADMIN);
 
+		final CountDownLatch launched = new CountDownLatch(1);
+		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
 			@Override
 			public void handle(AsyncResult<Void> event) {
-				future.set(null);
+				launched.countDown();
 			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		});
 
-		emptySettings = new DomainSettings(domainUid, new HashMap<>());
+		launched.await();
 	}
 
 	@After
@@ -77,46 +80,101 @@ public class DomainSettingsDefaultDomainValidatorTests {
 	}
 
 	@Test
-	public void testNullDomainDefaultDomain() {
-		DomainSettings ds = new DomainSettings(domainUid, new HashMap<>());
+	public void checkDefaultDomain_domainAdmin() {
+		checkDefaultDomain_commons(domain1Admin);
 
-		validator.create(ds.settings, domainUid);
-		validator.update(emptySettings.settings, ds.settings, domainUid);
+		Map<String, String> settings = new HashMap<>();
 
-		ds.settings.put(DOMAIN_SETTINGS_KEY, null);
-		validator.create(ds.settings, domainUid);
-		validator.update(emptySettings.settings, ds.settings, domainUid);
-	}
-
-	@Test
-	public void testEmptyDomainDefaultDomain() {
-		DomainSettings ds = new DomainSettings(domainUid, new HashMap<>());
-		ds.settings.put(DOMAIN_SETTINGS_KEY, "");
-
-		validator.create(ds.settings, domainUid);
-		validator.update(emptySettings.settings, ds.settings, domainUid);
-	}
-
-	@Test
-	public void testValidDomainDefaultDomain() {
-		DomainSettings ds = new DomainSettings(domainUid, new HashMap<>());
-		ds.settings.put(DOMAIN_SETTINGS_KEY, domainUidDefault);
-
-		validator.create(ds.settings, domainUid);
-		validator.update(emptySettings.settings, ds.settings, domainUid);
-	}
-
-	@Test
-	public void testInvalidDomainDefaultDomain() {
-		DomainSettings ds = new DomainSettings(domainUid, new HashMap<>());
-		ds.settings.put(DOMAIN_SETTINGS_KEY, "invalid");
+		// domain1 admin can only manage default-domain on his domain
+		settings.put(DomainSettingsKeys.default_domain.name(), domainUid2);
+		try {
+			validator.create(domain1Admin, settings, domainUid2);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
 
 		try {
-			validator.create(ds.settings, domainUid);
-			fail("invalid " + DOMAIN_SETTINGS_KEY);
+			validator.update(domain1Admin, Collections.emptyMap(), settings, domainUid2);
+			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
 
+		// domain1 admin can't set alias from domain2 as default-domain on his domain
+		settings.put(DomainSettingsKeys.default_domain.name(), domainUid2);
+		try {
+			validator.create(domain1Admin, settings, domainUid1);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		try {
+			validator.update(domain1Admin, Collections.emptyMap(), settings, domainUid1);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
 		}
 	}
 
+	@Test
+	public void checkDefaultDomain_admin0() {
+		checkDefaultDomain_commons(admin0);
+
+		// admin0 can set default-domain on all domains
+		Map<String, String> settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.default_domain.name(), domainUid2);
+		validator.create(admin0, settings, domainUid2);
+		validator.update(admin0, Collections.emptyMap(), settings, domainUid2);
+
+		// admin0 can't set alias from domain2 as default-domain on domain1
+		settings.put(DomainSettingsKeys.default_domain.name(), domainUid2);
+		try {
+			validator.create(admin0, settings, domainUid1);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		try {
+			validator.update(admin0, Collections.emptyMap(), settings, domainUid1);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+	}
+
+	private void checkDefaultDomain_commons(BmTestContext context) {
+		Map<String, String> settings = new HashMap<>();
+		validator.create(context, settings, domainUid1);
+		validator.update(context, Collections.emptyMap(), settings, domainUid1);
+
+		settings.put(DomainSettingsKeys.default_domain.name(), null);
+		validator.create(context, settings, domainUid1);
+		validator.update(context, Collections.emptyMap(), settings, domainUid1);
+
+		settings.put(DomainSettingsKeys.default_domain.name(), "");
+		validator.create(context, settings, domainUid1);
+		validator.update(context, Collections.emptyMap(), settings, domainUid1);
+
+		settings.put(DomainSettingsKeys.default_domain.name(), "invalid");
+		try {
+			validator.create(context, settings, domainUid1);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		try {
+			validator.update(context, Collections.emptyMap(), settings, domainUid1);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings.put(DomainSettingsKeys.default_domain.name(), domainUid1);
+		validator.create(context, settings, domainUid1);
+		validator.update(context, Collections.emptyMap(), settings, domainUid1);
+	}
 }

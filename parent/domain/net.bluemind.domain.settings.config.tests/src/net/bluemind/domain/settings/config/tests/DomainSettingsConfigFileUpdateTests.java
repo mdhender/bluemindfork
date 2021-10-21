@@ -28,7 +28,6 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -46,9 +45,12 @@ import com.google.common.util.concurrent.SettableFuture;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
@@ -67,9 +69,12 @@ public class DomainSettingsConfigFileUpdateTests {
 
 	private static final String externalUrlFilePath = "/etc/bm/domains-settings";
 
-	String domainUid;
+	String domainUid, newAlias;
+	ItemValue<Domain> defaultDomain, newDomain;
+
 	IDomains domainService;
 	INodeClient nodeClient;
+	IDomainSettings domainSettingsService;
 
 	@Before
 	public void setup() throws Exception {
@@ -94,11 +99,19 @@ public class DomainSettingsConfigFileUpdateTests {
 		nodeClient = NodeActivator.get(nodeServer.ip);
 
 		domainUid = "testdomain" + System.currentTimeMillis() + ".loc";
+		newAlias = "newdomain" + System.currentTimeMillis() + ".loc";
 		PopulateHelper.initGlobalVirt(false, nodeServer);
 		PopulateHelper.createDomain(domainUid);
 
 		domainService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
-		assertNotNull(domainService);
+		defaultDomain = domainService.get(domainUid);
+		assertNotNull(defaultDomain);
+		defaultDomain.value.aliases.add(newAlias);
+		TaskRef setAliases = domainService.setAliases(domainUid, defaultDomain.value.aliases);
+		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), setAliases);
+
+		domainSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid);
 	}
 
 	@After
@@ -115,73 +128,26 @@ public class DomainSettingsConfigFileUpdateTests {
 	}
 
 	@Test
-	public void onSettingsUpdated_externalUrl_defaultDomain() throws Exception {
-
-		// create domains
-		Domain defaultDomain = Domain.create("default.domain", "default.domain", "", new HashSet<String>());
-		domainService.create("default.domain", defaultDomain);
-		Domain validDomainLan = Domain.create("valid.domain.lan", "valid.domain.lan", "", new HashSet<String>());
-		domainService.create("valid.domain.lan", validDomainLan);
-		Domain newDomainLan = Domain.create("new.domain.lan", "new.domain.lan", "", new HashSet<String>());
-		domainService.create("new.domain.lan", newDomainLan);
-
-		IDomainSettings domainSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDomainSettings.class, domainUid);
-
-		// add settings
-		Map<String, String> settings = new HashMap<String, String>();
-		settings.put(DomainSettingsKeys.default_domain.name(), defaultDomain.name);
-		settings.put(DomainSettingsKeys.external_url.name(), "external.url");
-		settings.put(DomainSettingsKeys.mailbox_default_user_quota.name(), "5");
-		settings.put(DomainSettingsKeys.mailbox_max_user_quota.name(), "15");
-		domainSettingsService.set(settings);
-
-		waitForMqMsg();
-
-		// before start check external file content
-		Set<Entry<String, String>> settingsFromDb = domainSettingsService.get().entrySet();
-		assertTrue(settingsFromDb.stream().anyMatch(
-				s -> s.getKey().equals(DomainSettingsKeys.external_url.name()) && s.getValue().equals("external.url")));
-		assertTrue(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.default_domain.name())
-				&& s.getValue().equals(defaultDomain.name)));
-		checkFileContent(domainUid, "external.url", defaultDomain.name);
+	public void onSettingsUpdated_externalUrl() throws Exception {
+		checkBeforeStartTest(domainSettingsService);
 
 		//
 		// modify external url
 		//
-		settings = domainSettingsService.get();
+		Map<String, String> settings = domainSettingsService.get();
 		settings.replace(DomainSettingsKeys.external_url.name(), "valid.external.url");
 		domainSettingsService.set(settings);
 
 		waitForMqMsg();
 
 		// check database after changes
-		settingsFromDb = domainSettingsService.get().entrySet();
+		Set<Entry<String, String>> settingsFromDb = domainSettingsService.get().entrySet();
 		assertTrue(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.external_url.name())
 				&& s.getValue().equals("valid.external.url")));
 		assertTrue(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.default_domain.name())
-				&& s.getValue().equals(defaultDomain.name)));
+				&& s.getValue().equals(defaultDomain.value.name)));
 		// check file content after changes
-		checkFileContent(domainUid, "valid.external.url", defaultDomain.name);
-
-		//
-		// modify default domain url
-		//
-		settings = domainSettingsService.get();
-		settings.putAll(settings);
-		settings.replace(DomainSettingsKeys.default_domain.name(), validDomainLan.name);
-		domainSettingsService.set(settings);
-
-		waitForMqMsg();
-
-		// check database after changes
-		settingsFromDb = domainSettingsService.get().entrySet();
-		assertTrue(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.external_url.name())
-				&& s.getValue().equals("valid.external.url")));
-		assertTrue(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.default_domain.name())
-				&& s.getValue().equals(validDomainLan.name)));
-		// check file content after changes
-		checkFileContent(domainUid, "valid.external.url", validDomainLan.name);
+		checkFileContent(domainUid, "valid.external.url", defaultDomain.value.name);
 
 		//
 		// remove external url settings
@@ -197,9 +163,32 @@ public class DomainSettingsConfigFileUpdateTests {
 		settingsFromDb = domainSettingsService.get().entrySet();
 		assertFalse(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.external_url.name())));
 		assertTrue(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.default_domain.name())
-				&& s.getValue().equals(validDomainLan.name)));
+				&& s.getValue().equals(defaultDomain.value.name)));
 		// check file content after changes
-		checkFileContent(domainUid, "", validDomainLan.name);
+		checkFileContent(domainUid, "", defaultDomain.value.name);
+	}
+
+	@Test
+	public void onSettingsUpdated_defaultDomain() throws Exception {
+		checkBeforeStartTest(domainSettingsService);
+
+		//
+		// modify default domain url
+		//
+		Map<String, String> settings = domainSettingsService.get();
+		settings.replace(DomainSettingsKeys.default_domain.name(), newAlias);
+		domainSettingsService.set(settings);
+
+		waitForMqMsg();
+
+		// check database after changes
+		Set<Entry<String, String>> settingsFromDb = domainSettingsService.get().entrySet();
+		assertTrue(settingsFromDb.stream().anyMatch(
+				s -> s.getKey().equals(DomainSettingsKeys.external_url.name()) && s.getValue().equals("external.url")));
+		assertTrue(settingsFromDb.stream().anyMatch(
+				s -> s.getKey().equals(DomainSettingsKeys.default_domain.name()) && s.getValue().equals(newAlias)));
+		// check file content after changes
+		checkFileContent(domainUid, "external.url", newAlias);
 
 		//
 		// remove default domain settings
@@ -212,28 +201,33 @@ public class DomainSettingsConfigFileUpdateTests {
 
 		// default_domain must be null in database
 		settingsFromDb = domainSettingsService.get().entrySet();
-		assertFalse(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.external_url.name())));
+		assertTrue(settingsFromDb.stream().anyMatch(
+				s -> s.getKey().equals(DomainSettingsKeys.external_url.name()) && s.getValue().equals("external.url")));
 		assertFalse(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.default_domain.name())));
 		// check file content after changes
-		checkFileContent(domainUid, null, null);
+		checkFileContent(domainUid, "external.url", "");
 
-		//
-		// re-add default domain settings
-		//
-		settings = domainSettingsService.get();
-		settings.put(DomainSettingsKeys.default_domain.name(), newDomainLan.name);
+	}
+
+	private void checkBeforeStartTest(IDomainSettings domainSettingsService)
+			throws InterruptedException, ExecutionException, Exception {
+		// add settings
+		Map<String, String> settings = new HashMap<String, String>();
+		settings.put(DomainSettingsKeys.default_domain.name(), defaultDomain.value.name);
+		settings.put(DomainSettingsKeys.external_url.name(), "external.url");
+		settings.put(DomainSettingsKeys.mailbox_default_user_quota.name(), "5");
+		settings.put(DomainSettingsKeys.mailbox_max_user_quota.name(), "15");
 		domainSettingsService.set(settings);
 
 		waitForMqMsg();
 
-		// default_domain must not be null in database
-		settingsFromDb = domainSettingsService.get().entrySet();
-		assertFalse(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.external_url.name())));
+		// before start check external file content
+		Set<Entry<String, String>> settingsFromDb = domainSettingsService.get().entrySet();
+		assertTrue(settingsFromDb.stream().anyMatch(
+				s -> s.getKey().equals(DomainSettingsKeys.external_url.name()) && s.getValue().equals("external.url")));
 		assertTrue(settingsFromDb.stream().anyMatch(s -> s.getKey().equals(DomainSettingsKeys.default_domain.name())
-				&& s.getValue().equals(newDomainLan.name)));
-		// check file content after changes
-		checkFileContent(domainUid, "", newDomainLan.name);
-
+				&& s.getValue().equals(defaultDomain.value.name)));
+		checkFileContent(domainUid, "external.url", defaultDomain.value.name);
 	}
 
 	private void waitForMqMsg() throws InterruptedException, ExecutionException {

@@ -36,6 +36,7 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
+import net.bluemind.domain.api.IDomains;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
@@ -46,6 +47,7 @@ public class InCoreDomainSettingsServiceTests {
 	private String testDomainUid;
 	private ISystemConfiguration globalSettingsApi;
 	private IDomainSettings domainSettingsApi;
+	private IDomains domainApi;
 
 	private Map<String, String> globalSettings;
 	private Map<String, String> domainSettings;
@@ -66,7 +68,7 @@ public class InCoreDomainSettingsServiceTests {
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		PopulateHelper.initGlobalVirt();
-		PopulateHelper.createTestDomain(testDomainUid);
+		PopulateHelper.createDomain(testDomainUid, "al.test.lan", DOMAIN_DEFAULT_DOMAIN);
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
