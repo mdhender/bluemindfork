@@ -221,6 +221,16 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	@Override
+	public void expunge() {
+		imapContext.withImapClient(sc -> {
+			sc.select(imapFolder);
+			sc.expunge();
+			logger.info("{} Expunged {}", imapContext.latd, imapFolder);
+			return null;
+		});
+	}
+
+	@Override
 	public void resync() {
 		rbac.check(Verb.Write.name());
 		long time = System.currentTimeMillis();

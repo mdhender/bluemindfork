@@ -155,6 +155,14 @@ public interface IMailboxItems
 	ItemIdentifier unexpunge(@PathParam("itemId") long itemId);
 
 	/**
+	 * Mark deleted items as ready for removal. Physical will removal will occur
+	 * later (cyr_expire & co)
+	 */
+	@POST
+	@Path("_expunge")
+	void expunge();
+
+	/**
 	 * @param imapUid
 	 * @return
 	 */
