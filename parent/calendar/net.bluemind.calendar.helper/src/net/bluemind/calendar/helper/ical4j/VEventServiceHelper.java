@@ -298,28 +298,31 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 	}
 
 	private static void parseEvents(Optional<CalendarOwner> owner, Map<String, String> tzMapping,
-			Consumer<ItemValue<VEventSeries>> consumer, File rootFolder, TimezoneInfo tzInfo, List<TagRef> allTags) {
+			Consumer<ItemValue<VEventSeries>> consumer, File rootFolder, TimezoneInfo tzInfo, List<TagRef> allTags)
+			throws IOException {
 		File[] seriesFolders = rootFolder.listFiles(file -> file.isDirectory());
 		for (File seriesFolder : seriesFolders) {
-			List<ItemValue<VEvent>> events = Arrays.asList(seriesFolder.listFiles()).stream().map(asFile -> {
-				AtomicReference<Component> ref = new AtomicReference<>(null);
-				try (Reader reader = new InputStreamReader(Files.newInputStream(asFile.toPath()));
-						UnfoldingReader unfoldingReader = new UnfoldingReader(reader, true)) {
-					CalendarBuilder builder = new CalendarBuilder(tzInfo.timezones);
-					BiConsumer<Calendar, Component> componentConsumer = (calendar, component) -> {
-						if (!Component.VEVENT.equals(component.getName())) {
-							return;
+			List<ItemValue<VEvent>> events = Arrays.asList(seriesFolder.listFiles()).stream()
+					.filter(f -> f.getName().endsWith(".ics")).map(asFile -> {
+						AtomicReference<Component> ref = new AtomicReference<>(null);
+						try (Reader reader = new InputStreamReader(Files.newInputStream(asFile.toPath()));
+								UnfoldingReader unfoldingReader = new UnfoldingReader(reader, true)) {
+							CalendarBuilder builder = new CalendarBuilder(tzInfo.timezones);
+							BiConsumer<Calendar, Component> componentConsumer = (calendar, component) -> {
+								if (!Component.VEVENT.equals(component.getName())) {
+									return;
+								}
+								ref.set(component);
+							};
+							builder.build(unfoldingReader, componentConsumer);
+						} catch (Exception e) {
+							logger.error(e.getMessage(), e);
 						}
-						ref.set(component);
-					};
-					builder.build(unfoldingReader, componentConsumer);
-				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
-				}
-				return fromComponent(ref.get(), tzInfo.globalTZ, tzMapping, owner, allTags);
-			}).collect(Collectors.toList());
+						return fromComponent(ref.get(), tzInfo.globalTZ, tzMapping, owner, allTags);
+					}).collect(Collectors.toList());
 
-			ItemValue<VEventSeries> series = normalizeEvent(seriesFolder.getName(), events);
+			String uid = new String(Files.readAllBytes(new File(seriesFolder, "uid").toPath()));
+			ItemValue<VEventSeries> series = normalizeEvent(uid, events);
 			consumer.accept(series);
 		}
 	}
@@ -338,13 +341,14 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 				Property uidProp = component.getProperty(Property.UID);
 				String uid = uidProp != null ? uidProp.getValue() : UUID.randomUUID().toString();
 
-				File folder = new File(rootFolder, uid);
+				File folder = new File(rootFolder, UUID.randomUUID().toString());
 				if (!folder.exists()) {
 					folder.mkdir();
 				}
-
-				File eventIcs = new File(folder, UUID.randomUUID().toString() + ".ics");
 				try {
+					Files.write(new File(folder, "uid").toPath(), uid.getBytes());
+					File eventIcs = new File(folder, UUID.randomUUID().toString() + ".ics");
+
 					String cal = String.format("%s\r\n%s%s", "BEGIN:VCALENDAR", component.toString(), "END:VCALENDAR");
 					Files.write(eventIcs.toPath(), cal.getBytes());
 				} catch (IOException e) {

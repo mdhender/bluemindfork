@@ -94,6 +94,20 @@ public class VEventServiceHelperTest {
 	}
 
 	@Test
+	public void icsWithSlashesTest() throws IOException, ServerFault {
+		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("uid_containing_slash.ics");
+		String ics = IOUtils.toString(in);
+		in.close();
+		List<ItemValue<VEventSeries>> events = toEvents(ics);
+
+		assertEquals(1, events.size());
+
+		ItemValue<VEventSeries> event = events.get(0);
+
+		assertEquals(event.uid, "j3+zOQy/6UiarOwVH2IAmA==");
+	}
+
+	@Test
 	public void icsToVEventWithUnkownTz() throws IOException, ServerFault {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("unknowntz.ics");
 		String ics = IOUtils.toString(in);
