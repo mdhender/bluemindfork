@@ -14,7 +14,7 @@
         body-class="row update-calendar-modal-body mt-3"
         @ok="save"
     >
-        <bm-col cols="2"><bm-icon icon="event" size="3x" class="mt-3" /></bm-col>
+        <bm-col cols="2"><bm-icon icon="calendar" size="3x" class="mt-3" /></bm-col>
         <bm-col cols="10">
             <bm-form>
                 <bm-form-group

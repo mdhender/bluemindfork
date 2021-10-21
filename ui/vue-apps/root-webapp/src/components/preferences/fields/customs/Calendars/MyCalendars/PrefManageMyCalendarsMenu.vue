@@ -1,6 +1,5 @@
 <template>
-    <!-- FIXME: click outside of menu dont close it.. -->
-    <bm-contextual-menu class="float-right">
+    <bm-contextual-menu>
         <bm-dropdown-item-button icon="pencil" @click="$emit('update')">
             {{ $t("common.edit") }}
         </bm-dropdown-item-button>

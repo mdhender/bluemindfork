@@ -3,7 +3,7 @@
         <div v-if="currentEvent.loading === LoadingStatus.LOADED" class="header px-3 pt-2 pb-3 bg-extra-light">
             <div class="font-weight-bold mb-1 d-block top">
                 <template v-if="!currentEvent.status || currentEvent.status === 'NeedsAction'">
-                    <bm-icon icon="event" class="mr-2" size="lg" />
+                    <bm-icon icon="calendar" class="mr-2" size="lg" />
                     <template v-if="message.eventInfo.isResourceBooking">
                         {{ $t("mail.ics.resourcebooking") }}
                     </template>
@@ -108,7 +108,7 @@ export default {
     computed: {
         ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
         computeEventIcon() {
-            let icon = "event";
+            let icon = "calendar";
             if (this.currentEvent.status) {
                 switch (this.currentEvent.status) {
                     case "Accepted":

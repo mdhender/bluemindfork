@@ -1,8 +1,6 @@
 <template>
     <bm-list-group v-bm-scrollspy:scroll-area class="pref-right-panel-nav" horizontal>
-        <template v-for="section in sections">
-            <pref-section-navbar :ref="section.code" :key="section.code" :section="section" />
-        </template>
+        <pref-section-navbar v-for="section in sections" :ref="section.code" :key="section.code" :section="section" />
     </bm-list-group>
 </template>
 

@@ -4,33 +4,31 @@
         <bm-form-checkbox v-model="localUserSettings[setting]" class="mb-4" value="true" unchecked-value="false">
             {{ $t("preferences.mail.identities.always_show_from") }}
         </bm-form-checkbox> -->
-        <div class="row mb-1 px-2 text-secondary">
-            <bm-col cols="1" />
-            <bm-col cols="6">{{ $t("common.identity") }}</bm-col>
-            <bm-col cols="3">{{ $t("common.label") }}</bm-col>
-        </div>
-        <bm-list-group class="border-top border-bottom">
-            <bm-list-group-item
-                v-for="(identity, index) in identities"
-                :key="identity.id"
-                class="row d-flex align-items-center"
-                :class="{ 'bg-extra-light': index % 2 === 0 }"
-            >
-                <bm-col cols="1" class="d-flex justify-content-center">
-                    <bm-icon v-if="identity.isDefault" icon="star-fill" size="lg" />
-                </bm-col>
-                <bm-col cols="6">
-                    <bm-contact :contact="getContact(identity)" display-full variant="transparent" />
-                </bm-col>
-                <bm-col cols="3">{{ identity.name }}</bm-col>
-                <bm-col cols="2" class="d-flex justify-content-center">
-                    <bm-button variant="outline-secondary" @click="openModal(identity)">
-                        {{ $t("common.manage") }}
-                    </bm-button>
-                </bm-col>
-            </bm-list-group-item>
-        </bm-list-group>
-        <bm-button variant="outline-secondary" class="my-3" @click="openModal()">
+        <bm-table
+            :items="identities"
+            :fields="fields"
+            :per-page="perPage"
+            :current-page="currentPage"
+            sort-by="isDefault"
+            sort-desc
+        >
+            <template #cell(isDefault)="row">
+                <div :title="$t('preferences.mail.identities.default')">
+                    <bm-icon v-if="row.value" icon="star-fill" size="lg" />
+                </div>
+            </template>
+            <template #cell(displayname)="row">
+                <bm-contact :contact="getContact(row.item)" display-full variant="transparent" />
+            </template>
+            <template #cell(name)="row">{{ row.value }}</template>
+            <template #cell(action)="row">
+                <bm-button variant="outline-secondary" @click="openModal(row.item)">
+                    {{ $t("common.manage") }}
+                </bm-button>
+            </template>
+        </bm-table>
+        <bm-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage" class="d-inline-flex" />
+        <bm-button variant="outline-secondary" class="float-right" @click="openModal()">
             {{ $t("preferences.mail.identities.create") }}
         </bm-button>
         <manage-identity-modal
@@ -44,7 +42,7 @@
 <script>
 import { mapState } from "vuex";
 import { inject } from "@bluemind/inject";
-import { BmButton, BmCol, BmContact, BmIcon, BmListGroup, BmListGroupItem } from "@bluemind/styleguide";
+import { BmButton, BmContact, BmIcon, BmPagination, BmTable } from "@bluemind/styleguide";
 
 import ManageIdentityModal from "./ManageIdentityModal";
 import PrefFieldMixin from "../../mixins/PrefFieldMixin";
@@ -53,19 +51,49 @@ export default {
     name: "PrefManageIdentities",
     components: {
         BmButton,
-        BmCol,
         BmContact,
         BmIcon,
-        BmListGroup,
-        BmListGroupItem,
+        BmPagination,
+        BmTable,
         ManageIdentityModal
     },
     mixins: [PrefFieldMixin],
     data() {
-        return { possibleIdentities: [], possibleIdentitiesStatus: "NOT-LOADED" };
+        return {
+            possibleIdentities: [],
+            possibleIdentitiesStatus: "NOT-LOADED",
+
+            currentPage: 1,
+            perPage: 5,
+            fields: [
+                {
+                    key: "isDefault",
+                    headerTitle: this.$t("preferences.mail.identities.default"),
+                    label: "",
+                    class: "text-center align-middle"
+                },
+                {
+                    key: "displayname",
+                    label: this.$t("common.identity")
+                },
+                {
+                    key: "name",
+                    label: this.$t("common.label")
+                },
+                {
+                    key: "action",
+                    headerTitle: this.$t("common.action"),
+                    label: "",
+                    class: "text-right"
+                }
+            ]
+        };
     },
     computed: {
-        ...mapState("root-app", ["identities"])
+        ...mapState("root-app", ["identities"]),
+        totalRows() {
+            return this.identities.length;
+        }
     },
     methods: {
         getContact(identity) {
@@ -94,10 +122,6 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .pref-manage-identities {
-    .list-group-item {
-        border-bottom: none !important;
-    }
-
     .fa-star-fill {
         color: $primary;
     }

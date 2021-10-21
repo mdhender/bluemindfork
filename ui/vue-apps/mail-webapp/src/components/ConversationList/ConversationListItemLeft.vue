@@ -22,7 +22,7 @@
 
         <template v-if="!isConversation && userSettings.mail_message_list_style === 'full'">
             <bm-icon v-if="conversation.hasAttachment" icon="paper-clip" />
-            <bm-icon v-if="conversation.hasICS" icon="event" />
+            <bm-icon v-if="conversation.hasICS" icon="calendar" />
         </template>
         <template v-else-if="!isConversation || userSettings.mail_message_list_style === 'full'">
             <mail-attachment-icon :message="conversation" />

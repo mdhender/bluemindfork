@@ -3,8 +3,8 @@
         <div class="mb-2">{{ $t("preferences.security.api_key.desc") }}</div>
         <bm-button variant="outline-secondary" @click="openModal">
             <bm-icon icon="plus" />
-            {{ $t("preferences.security.api_key.generate") }}</bm-button
-        >
+            {{ $t("preferences.security.api_key.generate") }}
+        </bm-button>
 
         <bm-modal
             v-model="showModal"
@@ -31,74 +31,89 @@
             </bm-form>
         </bm-modal>
 
-        <div class="pt-2">
-            <bm-list-group>
-                <bm-list-group-item
-                    v-for="(key, index) in keys"
-                    :key="key.sid"
-                    class="row d-flex align-items-center p-0"
-                    :class="{ 'border-top': index === 0 }"
-                >
-                    <bm-col cols="1" class="d-flex justify-content-center">
-                        <bm-icon class="text-primary" icon="key" size="lg" />
-                    </bm-col>
-                    <bm-col cols="3">
-                        {{ key.displayName }}
-                    </bm-col>
-                    <bm-col cols="5" class="d-flex justify-content-center bg-extra-light align-self-stretch"
-                        ><div class="align-self-center">{{ key.sid }}</div>
-                    </bm-col>
-                    <bm-col cols="2" class="d-flex justify-content-center bg-extra-light align-self-stretch">
-                        <bm-button
-                            class="align-self-center"
-                            :variant="lastCopiedKeyIndex === index ? 'success' : 'outline-secondary'"
-                            @click="copyKey(index)"
-                        >
-                            <bm-icon :icon="lastCopiedKeyIndex === index ? 'check' : 'copy'" />
-                            <span class="pl-1">{{
-                                lastCopiedKeyIndex === index ? $t("common.copied") : $t("common.copy")
-                            }}</span>
-                        </bm-button>
-                    </bm-col>
-                    <bm-col cols="1" class="d-flex justify-content-center">
-                        <bm-button variant="inline-secondary" @click="remove(index)">
-                            <bm-icon icon="trash" size="lg" />
-                        </bm-button>
-                    </bm-col>
-                </bm-list-group-item>
-            </bm-list-group>
-        </div>
+        <bm-table :items="keys" :fields="fields" :per-page="perPage" :current-page="currentPage" sort-by="displayName">
+            <template #cell(displayName)="row">
+                <bm-icon class="text-primary mr-2" icon="key" size="lg" /> {{ row.value }}
+            </template>
+            <template #cell(sid)="row">
+                <div class="d-flex justify-content-between align-items-center">
+                    {{ row.value }}
+                    <bm-button
+                        :variant="lastCopiedSid === row.value ? 'success' : 'outline-secondary'"
+                        class="ml-4"
+                        :class="{ 'bg-white': lastCopiedSid !== row.value }"
+                        @click="copySid(row.value)"
+                    >
+                        <bm-icon :icon="lastCopiedSid === row.value ? 'check' : 'copy'" />
+                        <span class="pl-1">
+                            {{ lastCopiedSid === row.value ? $t("common.copied") : $t("common.copy") }}
+                        </span>
+                    </bm-button>
+                </div>
+            </template>
+            <template #cell(action)="row">
+                <bm-button variant="inline-secondary" @click="remove(row.item)">
+                    <bm-icon icon="trash" size="lg" />
+                </bm-button>
+            </template>
+        </bm-table>
+        <bm-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage" />
     </div>
 </template>
 
 <script>
 import {
     BmButton,
-    BmCol,
     BmForm,
     BmFormGroup,
     BmFormInput,
     BmIcon,
-    BmListGroup,
-    BmListGroupItem,
-    BmModal
+    BmModal,
+    BmPagination,
+    BmTable
 } from "@bluemind/styleguide";
 import { inject } from "@bluemind/inject";
 
 export default {
     name: "PrefAPIKey",
-    components: { BmButton, BmCol, BmForm, BmFormGroup, BmFormInput, BmIcon, BmListGroup, BmListGroupItem, BmModal },
+    components: { BmButton, BmForm, BmFormGroup, BmFormInput, BmIcon, BmModal, BmPagination, BmTable },
     data() {
         return {
             showModal: false,
             projectLabel: "",
             keys: [],
-            lastCopiedKeyIndex: -1
+            lastCopiedSid: -1,
+
+            currentPage: 1,
+            perPage: 5,
+            fields: [
+                {
+                    key: "displayName",
+                    headerTitle: this.$t("common.label"),
+                    label: "",
+                    class: "w-50 align-middle"
+                },
+                {
+                    key: "sid",
+                    headerTitle: this.$t("preferences.security.api_key"),
+                    label: "",
+                    class: "text-nowrap"
+                },
+                {
+                    key: "action",
+                    headerTitle: this.$t("common.action"),
+                    label: "",
+                    class: "text-right w-50"
+                }
+            ]
         };
     },
     computed: {
         projectLabelValid() {
             return this.projectLabel.trim().length > 0;
+        },
+        totalRows() {
+            return this.keys.length;
         }
     },
     async created() {
@@ -115,19 +130,14 @@ export default {
                 this.showModal = false;
             }
         },
-        async remove(index) {
-            const key = this.keys[index];
+        async remove(key) {
             await inject("APIKeysPersistence").remove(key.sid);
+            const index = this.keys.findIndex(k => k.sid === key.sid);
             this.keys.splice(index, 1);
-            if (index === this.lastCopiedKeyIndex) {
-                this.lastCopiedKeyIndex = -1;
-            } else if (index < this.lastCopiedKeyIndex) {
-                this.lastCopiedKeyIndex--;
-            }
         },
-        copyKey(index) {
-            navigator.clipboard.writeText(this.keys[index].sid);
-            this.lastCopiedKeyIndex = index;
+        copySid(sid) {
+            navigator.clipboard.writeText(sid);
+            this.lastCopiedSid = sid;
         },
         openModal() {
             this.projectLabel = "";
@@ -136,17 +146,3 @@ export default {
     }
 };
 </script>
-
-<style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
-
-.pref-api-key {
-    .list-group-item {
-        border-bottom: 1px solid $light !important;
-        &.border-top {
-            border-top: 1px solid $light !important;
-        }
-        min-height: 3em;
-    }
-}
-</style>

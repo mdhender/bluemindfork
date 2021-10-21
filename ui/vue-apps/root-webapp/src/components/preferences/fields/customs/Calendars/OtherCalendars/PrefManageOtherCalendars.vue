@@ -83,9 +83,9 @@ export default {
                 },
                 {
                     key: "action",
-                    headerTitle: this.$t("preferences.calendar.other_calendars.action"),
+                    headerTitle: this.$t("common.action"),
                     label: "",
-                    class: "action"
+                    class: "text-right"
                 }
             ]
         };
@@ -106,20 +106,17 @@ export default {
     },
     methods: {
         ...mapActions("preferences", ["SET_SUBSCRIPTIONS", "REMOVE_SUBSCRIPTIONS"]),
-        ...mapMutations("preferences", ["REMOVE_OTHER_CALENDAR", "SET_CALENDAR_OFFLINE_SYNC"]),
+        ...mapMutations("preferences", ["REMOVE_OTHER_CALENDAR", "UPDATE_OTHER_CALENDAR"]),
         isManaged(calendar) {
             return calendar.verbs.some(verb => verb === Verb.All || verb === Verb.Manage);
         },
 
         // actions on calendar
         async onOfflineSyncChange(calendar) {
-            const newOfflineSync = !calendar.offlineSync;
-            const subscription = calendarToSubscription(inject("UserSession"), {
-                ...calendar,
-                offlineSync: !calendar.offlineSync
-            });
+            const updatedCalendar = { ...calendar, offlineSync: !calendar.offlineSync };
+            const subscription = calendarToSubscription(inject("UserSession"), updatedCalendar);
             await this.SET_SUBSCRIPTIONS([subscription]);
-            this.SET_CALENDAR_OFFLINE_SYNC({ uid: calendar.uid, offlineSync: newOfflineSync });
+            this.UPDATE_OTHER_CALENDAR(updatedCalendar);
         },
         openShareModal(calendar) {
             this.$refs["manage-shares"].open(calendar);
@@ -141,9 +138,6 @@ export default {
 
 .pref-manage-other-calendars {
     .b-table {
-        .action {
-            float: right;
-        }
         td {
             vertical-align: middle;
         }

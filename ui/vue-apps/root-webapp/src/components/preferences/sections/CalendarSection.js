@@ -103,7 +103,7 @@ function myCalendarsCategory(vueI18N) {
     return {
         code: "my_calendars",
         name: vueI18N.t("common.my_calendars"),
-        icon: "event",
+        icon: "user-calendar",
         groups: [
             {
                 title: vueI18N.t("common.my_calendars"),
@@ -123,7 +123,7 @@ function otherCalendarsCategory(vueI18N) {
         code: "other_calendars",
         name: vueI18N.t("common.other_calendars"),
         // FIXME same icon as myCalendar, ça va faire bizarre
-        icon: "event",
+        icon: "3dots-calendar",
         groups: [
             {
                 title: vueI18N.t("common.other_calendars"),

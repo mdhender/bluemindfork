@@ -1,48 +1,38 @@
 <template>
     <div class="pref-manage-my-calendars">
-        <div class="row mb-1 px-2 text-secondary no-gutters">
-            <bm-col cols="1" />
-            <bm-col cols="8">{{ $t("common.label") }}</bm-col>
-            <bm-col cols="2">{{ $t("common.synchronization") }}</bm-col>
-            <bm-col cols="1" />
-        </div>
-        <bm-list-group class="border-top border-bottom">
-            <bm-list-group-item
-                v-for="(myCalendar, index) in myCalendars"
-                :key="myCalendar.uid"
-                class="row d-flex align-items-center no-gutters"
-                :class="{ 'bg-extra-light': index % 2 === 0 }"
-            >
-                <bm-col cols="1">
-                    <div :title="$t('preferences.calendar.my_calendars.default')" class="d-flex justify-content-center">
-                        <bm-icon v-if="myCalendar.defaultContainer" icon="star-fill" size="lg" />
-                    </div>
-                </bm-col>
-                <bm-col cols="8">
-                    <bm-calendar-item :calendar="myCalendar" class="mx-2" />
-                </bm-col>
-                <bm-col cols="2">
-                    <bm-form-checkbox
-                        :checked="getOfflineSync(myCalendar)"
-                        switch
-                        @change="onOfflineSyncChange(myCalendar)"
-                    />
-                </bm-col>
-                <bm-col cols="1">
-                    <pref-manage-my-calendars-menu
-                        :calendar="myCalendar"
-                        :is-sync-in-progress="!!beingSynced[myCalendar.uid]"
-                        @update="update(myCalendar)"
-                        @manage-shares="manageShares(myCalendar)"
-                        @import-ics="importIcs(myCalendar)"
-                        @reset-data="resetData(myCalendar)"
-                        @remove="remove(myCalendar)"
-                        @synchronize-external-ics="synchronizeExternalIcs(myCalendar)"
-                    />
-                </bm-col>
-            </bm-list-group-item>
-        </bm-list-group>
-        <bm-button variant="outline-secondary" class="my-3" @click="openCreateModal()">
+        <bm-table
+            :items="myCalendars"
+            :fields="fields"
+            :per-page="perPage"
+            :current-page="currentPage"
+            sort-by="defaultContainer"
+            sort-desc
+        >
+            <template #cell(defaultContainer)="row">
+                <div :title="$t('preferences.calendar.my_calendars.default')" class="text-center">
+                    <bm-icon v-if="row.value" icon="star-fill" size="lg" />
+                </div>
+            </template>
+            <template #cell(name)="row"><bm-calendar-item :calendar="row.item" class="mx-2" /></template>
+            <template #cell(offlineSync)="row">
+                <bm-form-checkbox :checked="row.value" switch @change="onOfflineSyncChange(row.item)" />
+            </template>
+            <template #cell(menu)="row">
+                <pref-manage-my-calendars-menu
+                    class="float-right"
+                    :calendar="row.item"
+                    :is-sync-in-progress="!!beingSynced[row.item.uid]"
+                    @update="update(row.item)"
+                    @manage-shares="manageShares(row.item)"
+                    @import-ics="importIcs(row.item)"
+                    @reset-data="resetData(row.item)"
+                    @remove="remove(row.item)"
+                    @synchronize-external-ics="synchronizeExternalIcs(row.item)"
+                />
+            </template>
+        </bm-table>
+        <bm-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage" class="d-inline-flex" />
+        <bm-button variant="outline-secondary" class="float-right" @click="openCreateModal()">
             {{ $t("preferences.calendar.my_calendars.create") }}
         </bm-button>
         <create-or-update-calendar-modal ref="create-or-update-calendar" />
@@ -60,7 +50,7 @@ import ManageSharesModal from "../ManageSharesModal/ManageSharesModal";
 import PrefAlertsMixin from "../../../../mixins/PrefAlertsMixin";
 import PrefManageMyCalendarsMenu from "./PrefManageMyCalendarsMenu";
 import { inject } from "@bluemind/inject";
-import { BmButton, BmCol, BmFormCheckbox, BmIcon, BmListGroup, BmListGroupItem } from "@bluemind/styleguide";
+import { BmButton, BmFormCheckbox, BmIcon, BmPagination, BmTable } from "@bluemind/styleguide";
 import { retrieveTaskResult } from "@bluemind/task";
 import { mapActions, mapMutations, mapState } from "vuex";
 
@@ -69,11 +59,10 @@ export default {
     components: {
         BmButton,
         BmCalendarItem,
-        BmCol,
         BmFormCheckbox,
         BmIcon,
-        BmListGroup,
-        BmListGroupItem,
+        BmPagination,
+        BmTable,
         CreateOrUpdateCalendarModal,
         ImportIcsModal,
         ManageSharesModal,
@@ -81,29 +70,46 @@ export default {
     },
     mixins: [PrefAlertsMixin],
     data() {
-        return { beingSynced: {} };
+        return {
+            beingSynced: {},
+            currentPage: 1,
+            perPage: 5,
+            fields: [
+                {
+                    key: "defaultContainer",
+                    headerTitle: this.$t("preferences.calendar.my_calendars.default"),
+                    label: ""
+                },
+                {
+                    key: "name",
+                    label: this.$t("common.label")
+                },
+                {
+                    key: "offlineSync",
+                    label: this.$t("common.synchronization")
+                },
+                {
+                    key: "menu",
+                    headerTitle: this.$t("common.action"),
+                    label: ""
+                }
+            ]
+        };
     },
     computed: {
-        ...mapState("preferences", ["myCalendars", "subscriptions"])
+        ...mapState("preferences", ["myCalendars", "subscriptions"]),
+        totalRows() {
+            return this.myCalendars.length;
+        }
     },
     methods: {
         ...mapActions("preferences", ["SET_SUBSCRIPTIONS", "REMOVE_SUBSCRIPTIONS"]),
-        ...mapMutations("preferences", ["REMOVE_PERSONAL_CALENDAR"]),
-        onOfflineSyncChange(calendar) {
-            const newOfflineSync = !this.getOfflineSync(calendar);
-            if (newOfflineSync) {
-                const subscription = calendarToSubscription(inject("UserSession"), {
-                    ...calendar,
-                    offlineSync: newOfflineSync
-                });
-                this.SET_SUBSCRIPTIONS([subscription]);
-            } else {
-                this.REMOVE_SUBSCRIPTIONS([calendar.uid]);
-            }
-        },
-        getOfflineSync(calendar) {
-            const isSubscribed = this.subscriptions.find(sub => sub.value.containerUid === calendar.uid);
-            return isSubscribed ? isSubscribed.value.offlineSync : false;
+        ...mapMutations("preferences", ["REMOVE_PERSONAL_CALENDAR", "UPDATE_PERSONAL_CALENDAR"]),
+        async onOfflineSyncChange(calendar) {
+            const updatedCalendar = { ...calendar, offlineSync: !calendar.offlineSync };
+            const subscription = calendarToSubscription(inject("UserSession"), updatedCalendar);
+            await this.SET_SUBSCRIPTIONS([subscription]);
+            this.UPDATE_PERSONAL_CALENDAR(updatedCalendar);
         },
         openCreateModal() {
             this.$refs["create-or-update-calendar"].open();
@@ -173,11 +179,8 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .pref-manage-my-calendars {
-    .list-group-item {
-        border-bottom: none !important;
-        .fa-star-fill {
-            color: $primary;
-        }
+    .b-table .fa-star-fill {
+        color: $primary;
     }
 }
 </style>

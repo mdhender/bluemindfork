@@ -1,14 +1,14 @@
 <template>
-    <div class="preferences position-absolute w-100 h-100 overlay d-flex z-index-500" @click="closePreferences">
+    <div class="preferences position-absolute w-100 h-100 overlay d-flex z-index-500" @click="unlockOrClose">
         <global-events @keydown.esc="closePreferences" />
         <div
             v-if="!areSettingsLoaded"
             class="position-absolute h-100 w-100 d-flex align-items-center z-index-200 text-center overlay"
-            @click.stop
+            @click="lockClose = true"
         >
             <bm-spinner class="flex-fill" :size="2.5" />
         </div>
-        <bm-container v-else fluid class="flex-fill bg-surface m-lg-5" @click.stop>
+        <bm-container v-else fluid class="flex-fill bg-surface m-lg-5" @click="lockClose = true">
             <bm-row class="h-100">
                 <pref-left-panel
                     :user="user"
@@ -62,6 +62,9 @@ export default {
         }
     },
     componentI18N: { messages: SettingsL10N },
+    data() {
+        return { lockClose: false };
+    },
     computed: {
         ...mapState("preferences", { selectedSection: "selectedSectionCode" }),
         ...mapState("session", { areSettingsLoaded: ({ settings }) => settings.loaded }),
@@ -120,6 +123,12 @@ export default {
             this.$router.push({ hash: "" });
             this.TOGGLE_PREFERENCES();
             this.SET_OFFSET(0);
+        },
+        unlockOrClose() {
+            if (!this.lockClose) {
+                this.closePreferences();
+            }
+            this.lockClose = false;
         }
     }
 };

@@ -148,5 +148,6 @@
     "common.collapse": "Collapse",
     "common.hour": "Hour",
     "common.until": "Until",
-    "common.selection": "Selection"
+    "common.selection": "Selection",
+    "common.action": "Action"
 }

@@ -12,7 +12,7 @@
         </h1>
         <hr />
         <div class="font-weight-bold">
-            <bm-label-icon icon="event">{{ $t("common.title") }}</bm-label-icon>
+            <bm-label-icon icon="calendar">{{ $t("common.title") }}</bm-label-icon>
             {{ currentEvent.summary }}
         </div>
         <hr />

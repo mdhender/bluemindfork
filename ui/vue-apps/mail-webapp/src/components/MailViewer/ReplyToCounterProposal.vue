@@ -82,12 +82,12 @@ export default {
         },
         agendaStackedIcons() {
             if (!this.currentEvent.counter) {
-                return ["event"];
+                return ["calendar"];
             }
             if (this.currentEvent.counter.status === "Declined") {
-                return ["event", "cross"];
+                return ["calendar", "cross"];
             }
-            return ["event", "interrogation"];
+            return ["calendar", "interrogation"];
         }
     },
     methods: {

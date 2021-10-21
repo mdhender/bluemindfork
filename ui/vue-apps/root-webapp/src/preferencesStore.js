@@ -1,7 +1,6 @@
 import { Verb } from "@bluemind/core.container.api";
 import { html2text, text2html } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
-import Vue from "vue";
 
 const state = {
     offset: 0,
@@ -97,25 +96,8 @@ const mutations = {
     SET_USER_PASSWORD_LAST_CHANGE: (state, user) => {
         state.userPasswordLastChange = user.value.passwordLastChange || user.created;
     },
-    SET_CALENDARS: (state, { myCalendars, otherCalendars }) => {
-        state.myCalendars = myCalendars;
-        state.otherCalendars = otherCalendars;
-    },
-    ADD_PERSONAL_CALENDAR: (state, myCalendar) => {
-        state.myCalendars.push(myCalendar);
-    },
-    REMOVE_PERSONAL_CALENDAR: (state, calendarUid) => {
-        const index = state.myCalendars.findIndex(myCal => myCal.uid === calendarUid);
-        if (index !== -1) {
-            state.myCalendars.splice(index, 1);
-        }
-    },
-    UPDATE_PERSONAL_CALENDAR: (state, calendar) => {
-        const index = state.myCalendars.findIndex(myCal => myCal.uid === calendar.uid);
-        if (index !== -1) {
-            state.myCalendars.splice(index, 1, calendar);
-        }
-    },
+
+    // subscriptions
     SET_SUBSCRIPTIONS: (state, subscriptions) => {
         state.subscriptions = subscriptions;
     },
@@ -154,20 +136,39 @@ const mutations = {
         state.mailboxFilter.local.forwarding = JSON.parse(JSON.stringify(forwarding));
     },
 
-    // otherCalendars
+    // calendars
+    SET_CALENDARS: (state, { myCalendars, otherCalendars }) => {
+        state.myCalendars = myCalendars;
+        state.otherCalendars = otherCalendars;
+    },
+    ADD_PERSONAL_CALENDAR: (state, myCalendar) => {
+        state.myCalendars.push(myCalendar);
+    },
+    REMOVE_PERSONAL_CALENDAR: (state, calendarUid) => {
+        const index = state.myCalendars.findIndex(myCal => myCal.uid === calendarUid);
+        if (index !== -1) {
+            state.myCalendars.splice(index, 1);
+        }
+    },
+    UPDATE_PERSONAL_CALENDAR: (state, calendar) => {
+        const index = state.myCalendars.findIndex(myCal => myCal.uid === calendar.uid);
+        if (index !== -1) {
+            state.myCalendars.splice(index, 1, calendar);
+        }
+    },
     ADD_OTHER_CALENDARS: (state, calendars) => {
         state.otherCalendars.push(...calendars);
-    },
-    SET_CALENDAR_OFFLINE_SYNC: (state, { uid, offlineSync }) => {
-        const index = state.otherCalendars.findIndex(otherCal => otherCal.uid === uid);
-        if (index !== -1) {
-            Vue.set(state.otherCalendars[index], "offlineSync", offlineSync);
-        }
     },
     REMOVE_OTHER_CALENDAR: (state, uid) => {
         const index = state.otherCalendars.findIndex(otherCal => otherCal.uid === uid);
         if (index !== -1) {
             state.otherCalendars.splice(index, 1);
+        }
+    },
+    UPDATE_OTHER_CALENDAR: (state, calendar) => {
+        const index = state.otherCalendars.findIndex(otherCal => otherCal.uid === calendar.uid);
+        if (index !== -1) {
+            state.otherCalendars.splice(index, 1, calendar);
         }
     }
 };
