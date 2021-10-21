@@ -13,7 +13,7 @@
         </div>
         <pref-left-panel-nav :sections="sections" :user="user" />
         <div class="p-3">
-            <bm-button class="text-white font-weight-bold" variant="link" @click="goToOldPrefs">
+            <bm-button class="text-white font-weight-bold text-left" variant="link" @click="goToOldPrefs">
                 {{ $t("preferences.access_old_settings_app") }}
             </bm-button>
         </div>
