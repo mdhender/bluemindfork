@@ -32,6 +32,8 @@
 
 	<logger name="org.apache.directory.shared" level="ERROR" />
 	<logger name="org.apache.directory.ldap.client.api.LdapNetworkConnection" level="ERROR" />
+    <logger name="com.netflix.hollow.core.read.engine.HollowBlobReader" level="WARN" />
+    <logger name="com.netflix.hollow.api.producer.AbstractHollowProducer" level="WARN" />
 	<root level="INFO">
 		<appender-ref ref="R" />
 		<appender-ref ref="Sentry" />
