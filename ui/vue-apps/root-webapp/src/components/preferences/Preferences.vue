@@ -1,13 +1,12 @@
 <template>
     <div class="preferences position-absolute w-100 h-100 overlay d-flex z-index-500" @click="unlockOrClose">
         <global-events @keydown.esc="closePreferences" />
-        <div
-            v-if="!areSettingsLoaded"
-            class="position-absolute h-100 w-100 d-flex align-items-center z-index-200 text-center overlay"
+        <bm-spinner
+            v-if="!isLoaded"
+            class="flex-fill align-self-center text-center"
+            :size="2.5"
             @click="lockClose = true"
-        >
-            <bm-spinner class="flex-fill" :size="2.5" />
-        </div>
+        />
         <bm-container v-else fluid class="flex-fill bg-surface m-lg-5" @click="lockClose = true">
             <bm-row class="h-100">
                 <pref-left-panel
@@ -63,11 +62,10 @@ export default {
     },
     componentI18N: { messages: SettingsL10N },
     data() {
-        return { lockClose: false };
+        return { isLoaded: false, lockClose: false };
     },
     computed: {
         ...mapState("preferences", { selectedSection: "selectedSectionCode" }),
-        ...mapState("session", { areSettingsLoaded: ({ settings }) => settings.loaded }),
         ...mapState("session", {
             lang: ({ settings }) => settings.remote && settings.remote.lang,
             timeformat: ({ settings }) => settings.remote && settings.remote.timeformat
@@ -85,11 +83,14 @@ export default {
     async created() {
         const sections = getPreferenceSections(this.applications, inject("UserSession").roles, inject("i18n"));
         this.SET_SECTIONS(sections);
-        this.FETCH_USER_PASSWORD_LAST_CHANGE();
-        this.FETCH_ALL_SETTINGS();
-        this.FETCH_MAILBOX_FILTER(this.lang);
-        await this.FETCH_SUBSCRIPTIONS(); // subscriptions need to be loaded to fetch calendars then
-        this.FETCH_CALENDARS();
+
+        await Promise.all([
+            this.FETCH_USER_PASSWORD_LAST_CHANGE(),
+            this.FETCH_ALL_SETTINGS().then(() => this.FETCH_MAILBOX_FILTER(this.lang)), // lang is set once all settings are loaded
+            this.FETCH_SUBSCRIPTIONS().then(() => this.FETCH_CONTAINERS()) // FETCH_CONTAINERS action need subscriptions to be loaded
+        ]);
+
+        this.isLoaded = true;
     },
     async mounted() {
         if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
@@ -110,7 +111,7 @@ export default {
     },
     methods: {
         ...mapActions("preferences", [
-            "FETCH_CALENDARS",
+            "FETCH_CONTAINERS",
             "FETCH_SUBSCRIPTIONS",
             "FETCH_USER_PASSWORD_LAST_CHANGE",
             "FETCH_MAILBOX_FILTER"

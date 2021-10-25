@@ -150,5 +150,10 @@
     "common.until": "Until",
     "common.download": "Download",
     "common.selection": "Selection",
-    "common.action": "Action"
+    "common.action": "Action",
+    "common.my_mailbox": "My mailbox",
+    "common.manage_my_shares": "Manage my shares",
+    "common.read_more": "Read more",
+    "common.container_type.mailboxacl": "mailbox",
+    "common.container_type.calendar": "calendar"
 }

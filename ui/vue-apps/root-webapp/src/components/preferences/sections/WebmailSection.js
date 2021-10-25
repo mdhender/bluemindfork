@@ -142,6 +142,17 @@ export default function (roles, vueI18N, applications) {
                 ]
             },
             {
+                code: "my_mailbox",
+                name: vueI18N.t("common.my_mailbox"),
+                icon: "user-enveloppe",
+                groups: [
+                    {
+                        title: vueI18N.t("common.my_mailbox"),
+                        fields: [{ component: "PrefManageMyMailbox" }]
+                    }
+                ]
+            },
+            {
                 code: "identities",
                 name: vueI18N.t("common.identities"),
                 icon: "pen",

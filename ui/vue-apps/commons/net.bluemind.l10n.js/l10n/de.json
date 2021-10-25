@@ -150,5 +150,10 @@
     "common.until": "Bis",
     "common.download": "Herunterladen",
     "common.selection": "Auswahl",
-    "common.action": "Aktion"
+    "common.action": "Aktion",
+    "common.my_mailbox": "My mailbox",
+    "common.manage_my_shares": "Manage my shares",
+    "common.read_more": "Read more",
+    "common.container_type.mailboxacl": "das mailbox",
+    "common.container_type.calendar": "das calendar"
 }

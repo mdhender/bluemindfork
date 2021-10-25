@@ -28,8 +28,8 @@
 </template>
 
 <script>
-import BmCalendarBadge from "../BmCalendarBadge";
-import BmCalendarItem from "../BmCalendarItem";
+import BmCalendarBadge from "../Calendars/BmCalendarBadge";
+import BmCalendarItem from "../Calendars/BmCalendarItem";
 import { inject } from "@bluemind/inject";
 import { BmFormAutocompleteInput, BmSpinner } from "@bluemind/styleguide";
 import { mapState } from "vuex";

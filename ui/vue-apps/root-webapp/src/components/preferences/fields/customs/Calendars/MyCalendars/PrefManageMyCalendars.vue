@@ -46,7 +46,7 @@ import calendarToSubscription from "../calendarToSubscription";
 import BmCalendarItem from "../BmCalendarItem";
 import CreateOrUpdateCalendarModal from "./CreateOrUpdateCalendarModal";
 import ImportIcsModal from "./ImportIcsModal";
-import ManageSharesModal from "../ManageSharesModal/ManageSharesModal";
+import ManageSharesModal from "../../ManageSharesModal/ManageSharesModal";
 import PrefAlertsMixin from "../../../../mixins/PrefAlertsMixin";
 import PrefManageMyCalendarsMenu from "./PrefManageMyCalendarsMenu";
 import { inject } from "@bluemind/inject";

@@ -7,8 +7,9 @@
                 :value="options.true.value"
                 :unchecked-value="options.false.value"
                 switch
-            />
-            {{ options[currentBooleanValue].name }}
+            >
+                {{ options[currentBooleanValue].name }}
+            </bm-form-checkbox>
         </div>
         <div class="d-flex">
             <img class="pt-3" :src="options[currentBooleanValue].image" alt="" />

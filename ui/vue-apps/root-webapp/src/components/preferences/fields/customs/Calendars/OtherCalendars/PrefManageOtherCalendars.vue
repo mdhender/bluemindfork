@@ -41,7 +41,7 @@
 import calendarToSubscription from "../calendarToSubscription";
 import AddCalendarsModal from "./AddCalendarsModal";
 import BmCalendarItem from "../BmCalendarItem";
-import ManageSharesModal from "../ManageSharesModal/ManageSharesModal";
+import ManageSharesModal from "../../ManageSharesModal/ManageSharesModal";
 import { Verb } from "@bluemind/core.container.api";
 import { inject } from "@bluemind/inject";
 import { BmButton, BmFormCheckbox, BmFormInput, BmIcon, BmPagination, BmTable } from "@bluemind/styleguide";

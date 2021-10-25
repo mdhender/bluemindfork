@@ -54,6 +54,16 @@
     "preferences.telephony.forward_calls": "Transférer les appels reçus au",
     "preferences.telephony.invalid_phone_number": "Veuillez entrer un numéro de téléphone valide",
 
+    "preferences.manage_shares.title": "Gérer les partages pour {type} \"{name}\"",
+
+    "preferences.mail.my_mailbox.switch_offline_sync": "Activer la messagerie hors-ligne sur ma boîte aux lettres.",
+    "preferences.mail.my_mailbox.modal_title": "Gérer les partages pour ma boîte aux lettres",
+    "preferences.mail.my_mailbox.has_no_rights": "N'a aucun droit",
+    "preferences.mail.my_mailbox.can_send_on_my_behalf": "Peut envoyer de ma part",
+    "preferences.mail.my_mailbox.can_read_my_mailbox": "Peut lire ma boîte aux lettres",
+    "preferences.mail.my_mailbox.can_edit_my_mailbox": "Peut modifier ma boîte aux lettres",
+    "preferences.mail.my_mailbox.can_edit_my_mailbox_and_manage_shares": "Peut modifier ma boîte aux lettres et gérer mes partages",
+
     "preferences.mail.advanced.switch": "Version de l'application de messagerie",
     "preferences.mail.advanced.switch.classic": "Vous utilisez l’ancienne version du Webmail",
     "preferences.mail.advanced.switch.classic.desc": "<i><b>Basculez vers le nouveau Webmail pour bénéficier des nouvelles fonctionnalités :</b><br>- Drag and drop<br>- préférences d’affichage<br>-…</i>",
@@ -96,7 +106,6 @@
     "preferences.calendar.my_calendars.label.description": "Le label, tel qu'il s'affichera dans votre calendrier",
     "preferences.calendar.my_calendars.type": "Type de calendrier",
     "preferences.calendar.my_calendars.drop_ics_file": "Déposer votre fichier ICS",
-    "preferences.calendar.my_calendars.manage_shares": "Gérer les partages pour \"{calendarName}\"",
     "preferences.calendar.my_calendars.availabilities_advanced_management": "Gestion avancée des disponibilités",
     "preferences.calendar.my_calendars.inside_my_organization": "Au sein de mon organisation",
     "preferences.calendar.my_calendars.outside_my_organization": "En dehors de mon organisation",

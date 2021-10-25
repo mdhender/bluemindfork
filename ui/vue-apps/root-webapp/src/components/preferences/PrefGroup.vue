@@ -50,6 +50,7 @@ import PrefEventReminder from "./fields/customs/PrefEventReminder";
 import PrefIMSetPhonePresence from "./fields/customs/PrefIMSetPhonePresence";
 import PrefManageIdentities from "./fields/customs/PrefManageIdentities";
 import PrefManageMyCalendars from "./fields/customs/Calendars/MyCalendars/PrefManageMyCalendars";
+import PrefManageMyMailbox from "./fields/customs/Mailboxes/PrefManageMyMailbox";
 import PrefManageOtherCalendars from "./fields/customs/Calendars/OtherCalendars/PrefManageOtherCalendars";
 import PrefPassword from "./fields/customs/PrefPassword";
 import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
@@ -80,6 +81,7 @@ export default {
         PrefIMSetPhonePresence,
         PrefManageIdentities,
         PrefManageMyCalendars,
+        PrefManageMyMailbox,
         PrefManageOtherCalendars,
         PrefPassword,
         PrefRemoteImage,

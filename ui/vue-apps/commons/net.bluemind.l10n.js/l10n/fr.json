@@ -150,5 +150,10 @@
     "common.until": "Jusqu'au",
     "common.download": "Télécharger",
     "common.selection": "Sélection",
-    "common.action": "Action"
+    "common.action": "Action",
+    "common.my_mailbox": "Ma boîte aux lettres",
+    "common.manage_my_shares": "Gérer mes partages",
+    "common.read_more": "En savoir plus",
+    "common.container_type.mailboxacl": "la boîte aux lettres",
+    "common.container_type.calendar": "le calendrier"
 }

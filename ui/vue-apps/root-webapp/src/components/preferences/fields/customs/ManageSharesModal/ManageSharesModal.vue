@@ -1,30 +1,22 @@
 <template>
-    <bm-modal
-        v-model="show"
-        centered
-        modal-class="manage-shares-modal"
-        :hide-footer="isLoading || showAvailabilitiesAdvancedManagement || !isMyDefaultCalendar"
-    >
+    <bm-modal v-model="show" centered modal-class="manage-shares-modal" :hide-footer="!displayFooter">
         <template #modal-title>
             <h1 v-if="showAvailabilitiesAdvancedManagement" class="modal-title">
-                <bm-button variant="inline" @click="back()">
-                    <bm-icon icon="arrow-back" size="2x" />
-                </bm-button>
+                <bm-button variant="inline" @click="back()"><bm-icon icon="arrow-back" size="2x" /></bm-button>
                 {{ $t("preferences.calendar.my_calendars.availabilities_advanced_management") }}
             </h1>
-            <h1 v-else class="modal-title">
-                {{ $t("preferences.calendar.my_calendars.manage_shares", { calendarName: calendar.name }) }}
-            </h1>
+            <h1 v-else class="modal-title">{{ modalTitle }}</h1>
         </template>
         <bm-spinner v-if="isLoading" :size="2" class="d-flex justify-content-center" />
         <availabilities-advanced-management v-else-if="showAvailabilitiesAdvancedManagement" />
         <manage-shares-modal-content
             v-else
-            :calendar="calendar"
+            :container="container"
             :dir-entries-acl="dirEntriesAcl"
             :domain-acl="domainAcl"
             :external-shares="externalShares"
             :is-my-calendar="isMyCalendar"
+            :is-my-default-calendar="isMyDefaultCalendar"
             @add-external="addExternal"
             @add-new-external="createContactAndAddExternal"
             @edit-publish-mode="editPublishMode"
@@ -47,12 +39,14 @@ import { PublishMode } from "@bluemind/calendar.api";
 import { inject } from "@bluemind/inject";
 import { BmButton, BmIcon, BmModal, BmSpinner } from "@bluemind/styleguide";
 import UUIDHelper from "@bluemind/uuid";
+import ContainerType from "../../../../../ContainerType";
 import AvailabilitiesAdvancedManagement from "./AvailabilitiesAdvancedManagement";
-import { CalendarAcl, loadAcl } from "./CalendarAclHelper";
+import { loadAcl } from "./AclHelper";
 import { loadCalendarUrls, sendExternalToServer } from "./ExternalShareHelper";
 import ManageSharesModalContent from "./ManageSharesModalContent";
 
 export default {
+    // TODO: rename to ManageContainerSharesModal
     name: "ManageSharesModal",
     components: {
         AvailabilitiesAdvancedManagement,
@@ -67,35 +61,55 @@ export default {
             isLoading: true,
             show: false,
             showAvailabilitiesAdvancedManagement: false,
-            calendar: {},
+            container: {},
 
             dirEntriesAcl: [],
-            domainAcl: CalendarAcl.CANT_INVITE_ME,
+            domainAcl: null,
             externalShares: []
         };
     },
     computed: {
+        modalTitle() {
+            if (this.isMyMailbox) {
+                return this.$t("preferences.mail.my_mailbox.modal_title");
+            }
+            return this.$t("preferences.manage_shares.title", {
+                name: this.container.name,
+                type: this.$t("common.container_type." + this.container.type)
+            });
+        },
+        displayFooter() {
+            return !this.isLoading && !this.showAvailabilitiesAdvancedManagement && this.isMyDefaultCalendar;
+        },
+        isOwnerMyself() {
+            return this.container.owner === inject("UserSession").userId;
+        },
         isMyDefaultCalendar() {
-            return this.isMyCalendar && this.calendar.uid === "calendar:Default:" + inject("UserSession").userId;
+            return this.isMyCalendar && this.container.uid === "calendar:Default:" + inject("UserSession").userId;
         },
         isMyCalendar() {
-            return this.calendar && this.calendar.uid && this.calendar.owner === inject("UserSession").userId;
+            return this.container.type === ContainerType.CALENDAR && this.isOwnerMyself;
+        },
+        isMyMailbox() {
+            return this.container.type === ContainerType.MAILBOX && this.isOwnerMyself;
         }
     },
     methods: {
-        async open(calendar) {
+        async open(container) {
             this.isLoading = true;
             this.show = true;
             this.showAvailabilitiesAdvancedManagement = false;
 
-            this.calendar = calendar;
+            this.container = container;
             this.searchedInput = "";
 
-            const acl = await loadAcl(this.calendar, this.isMyDefaultCalendar);
+            const acl = await loadAcl(this.container, this.isMyDefaultCalendar);
             this.domainAcl = acl.domainAcl;
             this.dirEntriesAcl = acl.dirEntriesAcl;
 
-            this.externalShares = await loadCalendarUrls(this.calendar.uid);
+            if (this.container.type === ContainerType.CALENDAR) {
+                this.externalShares = await loadCalendarUrls(this.container.uid);
+            }
 
             this.isLoading = false;
         },
@@ -106,7 +120,7 @@ export default {
             const index = this.externalShares.findIndex(share => share.token === externalToken);
             if (index !== -1) {
                 // FIXME: problem with axios, need header Content-Type: text/plain for this method
-                inject("PublishCalendarPersistence", this.calendar.uid).disableUrl(
+                inject("PublishCalendarPersistence", this.container.uid).disableUrl(
                     '"' + this.externalShares[index].url + '"'
                 );
                 this.externalShares.splice(index, 1);
@@ -118,16 +132,16 @@ export default {
                 const publishMode =
                     externalShare.publishMode === PublishMode.PUBLIC ? PublishMode.PRIVATE : PublishMode.PUBLIC;
                 externalShare.publishMode = publishMode;
-                const newUrl = await sendExternalToServer(publishMode, externalShare.token, this.calendar.uid);
+                const newUrl = await sendExternalToServer(publishMode, externalShare.token, this.container.uid);
                 const oldUrl = externalShare.url;
                 externalShare.url = newUrl;
                 // FIXME: problem with axios, need header Content-Type: text/plain for this method
-                inject("PublishCalendarPersistence", this.calendar.uid).disableUrl('"' + oldUrl + '"');
+                inject("PublishCalendarPersistence", this.container.uid).disableUrl('"' + oldUrl + '"');
             }
         },
         async addExternal(vcardInfo) {
             const publishMode = PublishMode.PUBLIC;
-            const newUrl = await sendExternalToServer(publishMode, vcardInfo.uid, this.calendar.uid);
+            const newUrl = await sendExternalToServer(publishMode, vcardInfo.uid, this.container.uid);
             this.externalShares.push({ publishMode, url: newUrl, vcard: vcardInfo, token: vcardInfo.uid });
         },
         async createContactAndAddExternal(vcardInfo) {

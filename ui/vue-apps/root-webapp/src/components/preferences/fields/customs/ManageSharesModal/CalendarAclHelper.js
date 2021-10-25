@@ -46,53 +46,11 @@ export function calendarAclToVerb(acl, isFreebusy) {
     }
 }
 
-export async function loadAcl(calendar, isMyDefault) {
-    let domainAcl = CalendarAcl.CANT_INVITE_ME,
-        dirEntriesAcl = [];
-    const userSession = inject("UserSession");
-
-    // load calendar shares acl
-    let aclList = await inject("ContainerManagementPersistence", calendar.uid).getAccessControlList();
-    const hasDomainAcl = aclList.find(acl => acl.subject === userSession.domain);
-    if (hasDomainAcl) {
-        domainAcl = verbToCalendarAcl(hasDomainAcl.verb);
-    }
-
-    aclList = aclList.filter(
-        acl =>
-            acl.subject !== userSession.domain &&
-            acl.subject !== userSession.userId &&
-            !acl.subject.startsWith("x-calendar-")
-    );
-
-    if (aclList.length > 0) {
-        const dirEntries = await inject("DirectoryPersistence").getMultiple(aclList.map(acl => acl.subject));
-        dirEntriesAcl = dirEntries.map(entry => {
-            const acl = verbToCalendarAcl(aclList.find(acl => acl.subject === entry.uid).verb);
-            return { ...entry, acl };
-        });
-    }
-
-    if (isMyDefault) {
-        // load freebusy acl
-        const aclList = await inject(
-            "ContainerManagementPersistence",
-            "freebusy:" + calendar.owner
-        ).getAccessControlList();
-
-        const mergeResult = await mergeFreebusyWithCalAcl(aclList, domainAcl, dirEntriesAcl);
-        domainAcl = mergeResult.domainAcl;
-        dirEntriesAcl = mergeResult.dirEntriesAcl;
-    }
-
-    return { domainAcl, dirEntriesAcl };
-}
-
 export function urlToAclSubject({ url }) {
     return url.substring(url.lastIndexOf("/") + 1, url.length);
 }
 
-async function mergeFreebusyWithCalAcl(aclList, domainAcl, dirEntriesAcl) {
+export async function mergeFreebusyWithCalAcl(aclList, domainAcl, dirEntriesAcl) {
     const userSession = inject("UserSession");
     const hasDomainAcl = aclList.find(acl => acl.subject === userSession.domain);
     if (hasDomainAcl) {
@@ -123,7 +81,7 @@ async function mergeFreebusyWithCalAcl(aclList, domainAcl, dirEntriesAcl) {
     return { domainAcl, dirEntriesAcl };
 }
 
-function verbToCalendarAcl(verb, isFreebusy = false) {
+export function verbToCalendarAcl(verb, isFreebusy = false) {
     if (verb === Verb.All) {
         return CalendarAcl.CAN_MANAGE_SHARES;
     }
@@ -140,6 +98,14 @@ function verbToCalendarAcl(verb, isFreebusy = false) {
     }
 }
 
+export function defaultCalendarDomainAcl() {
+    return CalendarAcl.CANT_INVITE_ME;
+}
+
+export function defaultCalendarDirEntryAcl() {
+    return CalendarAcl.CAN_INVITE_ME;
+}
+
 function adaptAclForFreebusy(calendarAcl, freebusyVerb) {
     if (freebusyVerb === Verb.Read && calendarAcl < CalendarAcl.CAN_SEE_MY_AVAILABILITY) {
         return CalendarAcl.CAN_SEE_MY_AVAILABILITY;
@@ -148,4 +114,39 @@ function adaptAclForFreebusy(calendarAcl, freebusyVerb) {
         return CalendarAcl.CAN_MANAGE_SHARES;
     }
     return calendarAcl;
+}
+
+export function getCalendarOptions(count, vueI18n, isMyDefaultCalendar) {
+    const options = [
+        {
+            text: vueI18n.tc("preferences.calendar.my_calendars.cant_invite_me_to_a_meeting", count),
+            value: CalendarAcl.CANT_INVITE_ME
+        },
+        {
+            text: vueI18n.tc("preferences.calendar.my_calendars.can_invite_me_to_a_meeting", count),
+            value: CalendarAcl.CAN_INVITE_ME
+        },
+        {
+            text: vueI18n.tc("preferences.calendar.my_calendars.can_invite_me_to_a_meeting_and_see_my_events", count),
+            value: CalendarAcl.CAN_SEE_MY_EVENTS
+        },
+        {
+            text: vueI18n.tc("preferences.calendar.my_calendars.can_edit_my_events", count),
+            value: CalendarAcl.CAN_EDIT_MY_EVENTS
+        },
+        {
+            text: vueI18n.tc("preferences.calendar.my_calendars.can_edit_my_events_and_manage_shares", count),
+            value: CalendarAcl.CAN_MANAGE_SHARES
+        }
+    ];
+    if (isMyDefaultCalendar) {
+        options.splice(2, 0, {
+            text: vueI18n.tc(
+                "preferences.calendar.my_calendars.can_invite_me_to_a_meeting_and_see_my_availability",
+                count
+            ),
+            value: CalendarAcl.CAN_SEE_MY_AVAILABILITY
+        });
+    }
+    return options;
 }

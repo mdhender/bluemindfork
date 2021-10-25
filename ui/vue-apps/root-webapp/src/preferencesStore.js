@@ -1,3 +1,4 @@
+import ContainerType from "./ContainerType";
 import { Verb } from "@bluemind/core.container.api";
 import { html2text, text2html } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
@@ -12,6 +13,7 @@ const state = {
     subscriptions: [],
     myCalendars: [],
     otherCalendars: [], // includes the calendars I subscribe to and those I manage (excluding mines)
+    myMailboxContainer: null,
 
     mailboxFilter: { remote: {}, local: {}, loaded: false }
 };
@@ -22,10 +24,13 @@ const actions = {
         const user = await inject("UserPersistence").getComplete(userId);
         commit("SET_USER_PASSWORD_LAST_CHANGE", user);
     },
-    async FETCH_CALENDARS({ commit, state }) {
-        const allReadableCalendars = await inject("ContainersPersistence").all({ type: "calendar" });
-
+    async FETCH_CONTAINERS({ commit, state }) {
+        const allReadableContainers = await inject("ContainersPersistence").all({});
         const userId = inject("UserSession").userId;
+
+        const allReadableCalendars = allReadableContainers.filter(
+            container => container.type === ContainerType.CALENDAR
+        );
         const myCalendars = allReadableCalendars
             .filter(container => container.owner === userId)
             .sort(container => (container.defaultContainer ? 0 : 1));
@@ -42,6 +47,14 @@ const actions = {
         );
 
         commit("SET_CALENDARS", { myCalendars, otherCalendars: otherManagedCalendars.concat(subscribedCalendars) });
+
+        const allReadableMailboxes = allReadableContainers.filter(
+            container => container.type === ContainerType.MAILBOX
+        );
+        commit(
+            "SET_MY_MAILBOX_CONTAINER",
+            allReadableMailboxes.find(container => container.owner === userId && container.defaultContainer)
+        );
     },
     async FETCH_SUBSCRIPTIONS({ commit }) {
         const subscriptions = await inject("OwnerSubscriptionsPersistence").list();
@@ -67,7 +80,7 @@ const actions = {
     async FETCH_MAILBOX_FILTER({ commit }, userLang) {
         const userId = inject("UserSession").userId;
         const mailboxFilter = await inject("MailboxesPersistence").getMailboxFilter(userId);
-        if (!mailboxFilter.vacation.textHtml) {
+        if (!mailboxFilter.vacation.textHtml && mailboxFilter.vacation.text) {
             mailboxFilter.vacation.textHtml = text2html(mailboxFilter.vacation.text, userLang);
         }
         commit("SET_MAILBOX_FILTER", mailboxFilter);
@@ -170,6 +183,11 @@ const mutations = {
         if (index !== -1) {
             state.otherCalendars.splice(index, 1, calendar);
         }
+    },
+
+    // mailboxes
+    SET_MY_MAILBOX_CONTAINER: (state, myMailboxContainer) => {
+        state.myMailboxContainer = myMailboxContainer;
     }
 };
 

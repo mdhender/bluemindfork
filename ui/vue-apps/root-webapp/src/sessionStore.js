@@ -15,7 +15,7 @@ const otherDefaultSettings = {
 };
 
 const state = {
-    settings: { remote: {}, local: {}, loaded: false, localHasErrors: [] }
+    settings: { remote: {}, local: {}, localHasErrors: [] }
 };
 
 const actions = {
@@ -49,7 +49,6 @@ const mutations = {
     SET_SETTINGS: (state, settings) => {
         state.settings.remote = JSON.parse(JSON.stringify(settings));
         state.settings.local = JSON.parse(JSON.stringify(settings));
-        state.settings.loaded = true;
     },
     REMOVE_LOCAL_HAS_ERROR: (state, fieldOnError) => {
         const index = state.settings.localHasErrors.findIndex(field => field === fieldOnError);

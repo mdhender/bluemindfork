@@ -54,6 +54,16 @@
     "preferences.telephony.forward_calls": "Forward received calls at",
     "preferences.telephony.invalid_phone_number": "Please enter a valid phone number",
 
+    "preferences.manage_shares.title": "Manage shares for {type} \"{name}\"",
+
+    "preferences.mail.my_mailbox.switch_offline_sync": "Activate offline messaging on my mailbox.",
+    "preferences.mail.my_mailbox.modal_title": "Manage shares for my mailbox",
+    "preferences.mail.my_mailbox.has_no_rights": "Has no rights",
+    "preferences.mail.my_mailbox.can_send_on_my_behalf": "Can send on my behalf",
+    "preferences.mail.my_mailbox.can_read_my_mailbox": "Can read my mailbox",
+    "preferences.mail.my_mailbox.can_edit_my_mailbox": "Can edit my mailbox",
+    "preferences.mail.my_mailbox.can_edit_my_mailbox_and_manage_shares": "Can edit my mailbox and manage my shares",
+
     "preferences.mail.advanced.switch": "Mail application version",
     "preferences.mail.advanced.switch.classic": "Your are using the old version of the mail application",
     "preferences.mail.advanced.switch.classic.desc": "<i><b>Switch to the new mail application and benefit from new features :</b><br>- Drag and drop<br>- look and feel<br>-…</i>",
@@ -96,7 +106,6 @@
     "preferences.calendar.my_calendars.label.description": "Label, as it'll be displayed in your calendar",
     "preferences.calendar.my_calendars.type": "Calendar type",
     "preferences.calendar.my_calendars.drop_ics_file": "Drop your ICS file",
-    "preferences.calendar.my_calendars.manage_shares": "Manage shares for \"{calendarName}\"",
     "preferences.calendar.my_calendars.availabilities_advanced_management": "Availabilities advanced management",
     "preferences.calendar.my_calendars.inside_my_organization": "Inside my organization",
     "preferences.calendar.my_calendars.outside_my_organization": "Outside my organization",

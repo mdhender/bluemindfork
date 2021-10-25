@@ -50,6 +50,7 @@
             <bm-col v-if="canSwitchWebmail" order="last" class="d-none d-lg-block pr-2">
                 <bm-form-checkbox
                     switch
+                    left-label
                     checked="true"
                     class="switch-webmail text-condensed text-right text-primary"
                     @change="switchWebmail()"
@@ -199,6 +200,7 @@ export default {
         }
     }
     .switch-webmail label {
+        font-weight: $font-weight-bold;
         max-width: $custom-switch-width * 3;
         color: $primary;
         &::before {
