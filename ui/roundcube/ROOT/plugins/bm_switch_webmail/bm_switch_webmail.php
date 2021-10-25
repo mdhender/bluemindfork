@@ -24,7 +24,7 @@ class bm_switch_webmail extends rcube_plugin {
 
   public function init() {
     $roles = $_SESSION['bm_sso']['bmRoles'];
-    if (in_array('hasMailWebapp', $roles) && in_array('hasWebmail', $roles)) {
+    if (in_array('hasMailWebapp', $roles)) {
         $this->rcmail = rcmail::get_instance();
         $this->add_hook('startup', array($this, 'startup'));
         $this->add_texts('localization', true);
@@ -34,11 +34,18 @@ class bm_switch_webmail extends rcube_plugin {
   }
 
   public function startup($args) {
+    if (!in_array('hasWebmail', $_SESSION['bm_sso']['bmRoles'])) {
+        $this->redirectToMailApp();
+    }
     $sc = new BM\UserSettingsClient($_SESSION['bm']['core'], $_SESSION['bm_sso']['bmSid'], $_SESSION['bm_sso']['bmDomain']);
     $defaultMailApplication = $sc->getOne($_SESSION['bm_sso']['bmUserId'], "mail-application");
     if ($defaultMailApplication == 'mail-webapp') {
-        header("Location: /webapp/mail/");
+        $this->redirectToMailApp();
     }
+  }
+
+  function redirectToMailApp() {
+    header("Location: /webapp/mail/");
   }
 
   function click() {
