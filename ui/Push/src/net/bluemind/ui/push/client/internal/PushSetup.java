@@ -112,7 +112,7 @@ public class PushSetup {
 
     // register MailNotificationHandler only if new notifications are not active
     private static native String setMailNotificationHandler(String mailboxUid) /*-{
-                    if (!$wnd.bundles.hasOwnProperty("net.bluemind.webmodules.webapp.wrapper")) {
+                    if (!$wnd.bundles.hasOwnProperty("net.bluemind.webmodules.webapp.wrapper")  && !$wnd.bundles.hasOwnProperty("net.bluemind.webapp.root.js")) {
                         @net.bluemind.ui.push.client.internal.PushSetup::register(Ljava/lang/String;Lnet/bluemind/ui/push/client/internal/MessageHandler;)(mailboxUid + ".notifications.mails", @net.bluemind.ui.push.client.internal.MailNotificationHandler::new()());
                     } else {
                         $wnd.bundleResolve("net.bluemind.webmodules.webapp.wrapper", function() {
