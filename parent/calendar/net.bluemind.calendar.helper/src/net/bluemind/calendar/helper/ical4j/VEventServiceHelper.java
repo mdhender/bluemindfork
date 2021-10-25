@@ -27,6 +27,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +48,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -341,7 +345,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 				Property uidProp = component.getProperty(Property.UID);
 				String uid = uidProp != null ? uidProp.getValue() : UUID.randomUUID().toString();
 
-				File folder = new File(rootFolder, UUID.randomUUID().toString());
+				File folder = new File(rootFolder, hash(uid));
 				if (!folder.exists()) {
 					folder.mkdir();
 				}
@@ -363,6 +367,17 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 			logger.error(e.getMessage(), e);
 		}
 		return Optional.ofNullable(globalTz.get());
+	}
+
+	public static String hash(String uid) throws ServerFault {
+		MessageDigest md = null;
+		try {
+			md = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			return uid;
+		}
+		md.update(uid.getBytes());
+		return DatatypeConverter.printHexBinary(md.digest());
 	}
 
 	private static TimezoneInfo serializeToFile(InputStream ics, File icsFile) throws IOException, ParserException {
