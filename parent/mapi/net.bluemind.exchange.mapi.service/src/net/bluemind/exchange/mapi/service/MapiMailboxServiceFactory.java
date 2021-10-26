@@ -53,7 +53,7 @@ public class MapiMailboxServiceFactory implements ServerSideServiceProvider.ISer
 		String domain = params[0];
 		String mboxUid = params[1];
 		if (PublicFolders.mailboxGuid(domain).equals(mboxUid)) {
-			logger.info("Public Folder hierarchy mbox for domain {}", domain);
+			logger.debug("Public Folder hierarchy mbox for domain {}", domain);
 		} else {
 			IMailboxes mboxesApi = context.su().provider().instance(IMailboxes.class, domain);
 			ItemValue<Mailbox> mailbox = mboxesApi.getComplete(mboxUid);
