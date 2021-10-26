@@ -465,7 +465,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			}
 			CompletableFuture<ItemIdentifier> ret = new CompletableFuture<>();
 			ret.completeExceptionally(new ServerFault("Item " + id
-					+ " has been submitted for creation, but already exists having a different version or refresh header"));
+					+ " has been submitted for creation, but already exists having a different version or refresh header",
+					ErrorCode.ALREADY_EXISTS));
 			return ret;
 		}
 
