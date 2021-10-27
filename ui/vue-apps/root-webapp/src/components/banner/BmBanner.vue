@@ -69,12 +69,7 @@ export default {
             return this.selectedApp ? this.selectedApp.path : "/";
         },
         defaultApps() {
-            const defaults = [
-                "net.bluemind.webmodules.contact",
-                "net.bluemind.webmodules.calendar",
-                "net.bluemind.webapp.mail.js"
-            ];
-            return this.applications.filter(({ $id }) => defaults.includes($id));
+            return this.applications.filter(({ shortcut }) => shortcut);
         }
     }
 };

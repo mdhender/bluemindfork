@@ -104,7 +104,7 @@
             description="%banner-entry.description"
             href="/adminconsole/"
             name="%banner-entry.name"
-            order="128"
+            priority="16"
             role="hasAdminConsole"
             help="https://forge.bluemind.net/confluence/display/BM4/Guide+de+l%27administrateur">
          <icon>

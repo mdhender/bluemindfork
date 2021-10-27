@@ -20,7 +20,7 @@
             description="%tick.description"
             href="/tick/"
             name="%tick.label"
-            order="256"
+            priority="8"
             role="bmMonitoring">
          <icon>
             <svg> 

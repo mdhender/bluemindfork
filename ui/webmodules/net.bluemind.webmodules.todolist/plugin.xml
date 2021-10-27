@@ -23,7 +23,7 @@
             </banner-entry>
       </extension>
       <extension point="webapp.banner">
-            <application description="%banner-entry.description" href="/task/" name="%banner-entry.name" order="64" role="hasCalendar" help="https://forge.bluemind.net/confluence/display/BM4/Les+taches">
+            <application description="%banner-entry.description" href="/task/" name="%banner-entry.name" priority="32" role="hasCalendar" help="https://forge.bluemind.net/confluence/display/BM4/Les+taches">
                   <icon>
                         <svg>
                               <![CDATA[

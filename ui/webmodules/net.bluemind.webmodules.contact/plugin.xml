@@ -25,7 +25,7 @@
             </banner-entry>
       </extension>
       <extension point="webapp.banner">
-            <application description="%banner-entry.description" href="/contact/" name="%banner-entry.name" order="16" role="hasMail" help="https://forge.bluemind.net/confluence/display/BM4/Les+contacts">
+            <application description="%banner-entry.description" href="/contact/" name="%banner-entry.name" priority="128" role="hasMail" help="https://forge.bluemind.net/confluence/display/BM4/Les+contacts" shortcut="true">
                   <icon>
                         <svg>
                               <![CDATA[

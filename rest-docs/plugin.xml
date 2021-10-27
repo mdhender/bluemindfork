@@ -53,7 +53,7 @@
             description="Api Docs"
             href="/docs/"
             name="Api Docs"
-            order="512"
+            priority="4"
             role="apiDocs">     
       </application>
    </extension>

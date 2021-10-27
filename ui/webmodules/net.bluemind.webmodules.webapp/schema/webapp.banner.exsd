@@ -69,7 +69,7 @@
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="order" type="string">
+         <attribute name="priority" type="string">
             <annotation>
                <documentation>
                   
@@ -97,6 +97,13 @@
             <annotation>
                <documentation>
                   Documentation URL.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="shortcut" type="boolean">
+            <annotation>
+               <documentation>
+                  
                </documentation>
             </annotation>
          </attribute>

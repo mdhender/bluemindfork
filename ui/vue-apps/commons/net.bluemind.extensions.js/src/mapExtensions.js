@@ -1,6 +1,6 @@
 import { normalizeMap } from "./normalizeMap";
 
-const sort = ({ order: a }, { order: b }) => (a || 0) - (b || 0);
+const sort = ({ priority: a }, { priority: b }) => (b || 0) - (a || 0);
 
 export function mapExtensions(extension, data) {
     const res = {};
