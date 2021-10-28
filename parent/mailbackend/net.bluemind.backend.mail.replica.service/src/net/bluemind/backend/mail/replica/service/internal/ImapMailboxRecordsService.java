@@ -306,7 +306,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			Ack ack = overwriteFlagsImapCommand(Arrays.asList(Long.toString(mail.imapUid)), flagNames);
 			return ImapAck.create(ack.version, mail.imapUid);
 		} else {
-			logger.warn("Subject/Headers/Flags dit not change, doing nothing on {} {}.", id, mail);
+			logger.warn("Subject/Headers/Flags did not change, doing nothing on {} {}.", id, mail);
 			return ImapAck.create(current.version, mail.imapUid);
 		}
 	}
@@ -444,6 +444,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			return (ImapItemIdentifier) createAsync(id, value).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 		} catch (TimeoutException to) {
 			throw new ServerFault("Create timed out", ErrorCode.TIMEOUT);
+		} catch (ServerFault sf) {
+			throw sf;
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
