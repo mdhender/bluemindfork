@@ -5,17 +5,17 @@
                 <bm-button variant="inline" @click="back()"><bm-icon icon="arrow-back" size="2x" /></bm-button>
                 {{ $t("preferences.calendar.my_calendars.availabilities_advanced_management") }}
             </h1>
-            <h1 v-else class="modal-title">{{ modalTitle }}</h1>
+            <h1 v-else class="modal-title">{{ initialModalTitle }}</h1>
         </template>
         <bm-spinner v-if="isLoading" :size="2" class="d-flex justify-content-center" />
         <availabilities-advanced-management v-else-if="showAvailabilitiesAdvancedManagement" />
-        <manage-shares-modal-content
+        <modal-body
             v-else
             :container="container"
             :dir-entries-acl="dirEntriesAcl"
             :domain-acl="domainAcl"
             :external-shares="externalShares"
-            :is-my-calendar="isMyCalendar"
+            :is-my-container="isOwnerMyself"
             :is-my-default-calendar="isMyDefaultCalendar"
             @add-external="addExternal"
             @add-new-external="createContactAndAddExternal"
@@ -39,22 +39,21 @@ import { PublishMode } from "@bluemind/calendar.api";
 import { inject } from "@bluemind/inject";
 import { BmButton, BmIcon, BmModal, BmSpinner } from "@bluemind/styleguide";
 import UUIDHelper from "@bluemind/uuid";
-import ContainerType from "../../../../../ContainerType";
+import { ContainerType } from "../container";
 import AvailabilitiesAdvancedManagement from "./AvailabilitiesAdvancedManagement";
 import { loadAcl } from "./AclHelper";
 import { loadCalendarUrls, sendExternalToServer } from "./ExternalShareHelper";
-import ManageSharesModalContent from "./ManageSharesModalContent";
+import ModalBody from "./ModalBody";
 
 export default {
-    // TODO: rename to ManageContainerSharesModal
-    name: "ManageSharesModal",
+    name: "ManageContainerSharesModal",
     components: {
         AvailabilitiesAdvancedManagement,
         BmButton,
         BmIcon,
         BmModal,
         BmSpinner,
-        ManageSharesModalContent
+        ModalBody
     },
     data() {
         return {
@@ -69,13 +68,13 @@ export default {
         };
     },
     computed: {
-        modalTitle() {
+        initialModalTitle() {
             if (this.isMyMailbox) {
                 return this.$t("preferences.mail.my_mailbox.modal_title");
             }
             return this.$t("preferences.manage_shares.title", {
                 name: this.container.name,
-                type: this.$t("common.container_type." + this.container.type)
+                type: this.$t("common.container_type_with_definite_article." + this.container.type)
             });
         },
         displayFooter() {

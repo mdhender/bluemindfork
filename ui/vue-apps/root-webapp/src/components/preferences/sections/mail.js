@@ -198,6 +198,18 @@ export default function (i18n) {
                 ]
             },
             {
+                id: "other_mailboxes",
+                name: i18n.t("common.other_mailboxes"),
+                icon: "3dots-enveloppe",
+                groups: [
+                    {
+                        name: i18n.t("common.other_mailboxes"),
+                        id: "group",
+                        fields: [{ id: "field", component: { name: "PrefManageOtherMailboxes" } }]
+                    }
+                ]
+            },
+            {
                 id: "identities",
                 name: i18n.t("common.identities"),
                 icon: "pen",

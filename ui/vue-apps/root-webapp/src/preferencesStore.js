@@ -1,4 +1,4 @@
-import ContainerType from "./ContainerType";
+import { ContainerType } from "./components/preferences/fields/customs/ContainersManagement/container";
 import { Verb } from "@bluemind/core.container.api";
 import { html2text, text2html } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
@@ -14,7 +14,7 @@ const state = {
     myCalendars: [],
     otherCalendars: [], // includes the calendars I subscribe to and those I manage (excluding mines)
     myMailboxContainer: null,
-
+    otherMailboxesContainers: [], // includes the mailboxes I subscribe to and those I manage (excluding mine)
     mailboxFilter: { remote: {}, local: {}, loaded: false }
 };
 
@@ -34,27 +34,37 @@ const actions = {
         const myCalendars = allReadableCalendars
             .filter(container => container.owner === userId)
             .sort(container => (container.defaultContainer ? 0 : 1));
-
         const otherOwnerCalendars = allReadableCalendars.filter(container => container.owner !== userId);
         const otherManagedCalendars = otherOwnerCalendars.filter(container =>
             container.verbs.some(verb => verb === Verb.All || verb === Verb.Manage)
         );
-
         const subscribedCalendars = otherOwnerCalendars.filter(
             calContainer =>
                 state.subscriptions.findIndex(sub => sub.value.containerUid === calContainer.uid) !== -1 &&
                 otherManagedCalendars.findIndex(managed => managed.uid === calContainer.uid) === -1
         );
-
         commit("SET_CALENDARS", { myCalendars, otherCalendars: otherManagedCalendars.concat(subscribedCalendars) });
 
         const allReadableMailboxes = allReadableContainers.filter(
             container => container.type === ContainerType.MAILBOX
         );
-        commit(
-            "SET_MY_MAILBOX_CONTAINER",
-            allReadableMailboxes.find(container => container.owner === userId && container.defaultContainer)
+        const myMailboxContainer = allReadableMailboxes.find(
+            container => container.owner === userId && container.defaultContainer
         );
+        const otherOwnerMailboxes = allReadableMailboxes.filter(container => container.owner !== userId);
+        const otherManagedMailboxes = otherOwnerMailboxes.filter(
+            container =>
+                container.owner !== userId && container.verbs.some(verb => verb === Verb.All || verb === Verb.Manage)
+        );
+        const subscribedMailboxes = otherOwnerMailboxes.filter(
+            container =>
+                state.subscriptions.findIndex(sub => sub.value.containerUid === container.uid) !== -1 &&
+                otherManagedMailboxes.findIndex(managed => managed.uid === container.uid) === -1
+        );
+        commit("SET_MAILBOX_CONTAINERS", {
+            myMailboxContainer,
+            otherMailboxesContainers: otherManagedMailboxes.concat(subscribedMailboxes)
+        });
     },
     async FETCH_SUBSCRIPTIONS({ commit }) {
         const subscriptions = await inject("OwnerSubscriptionsPersistence").list();
@@ -206,8 +216,26 @@ const mutations = {
     },
 
     // mailboxes
-    SET_MY_MAILBOX_CONTAINER: (state, myMailboxContainer) => {
+    SET_MAILBOX_CONTAINERS: (state, { myMailboxContainer, otherMailboxesContainers }) => {
         state.myMailboxContainer = myMailboxContainer;
+        state.otherMailboxesContainers = otherMailboxesContainers;
+    },
+    ADD_OTHER_MAILBOXES: (state, mailboxes) => {
+        state.otherMailboxesContainers.push(...mailboxes);
+    },
+    REMOVE_OTHER_MAILBOX_CONTAINER: (state, containerUid) => {
+        const index = state.otherMailboxesContainers.findIndex(container => container.uid === containerUid);
+        if (index !== -1) {
+            state.otherMailboxesContainers.splice(index, 1);
+        }
+    },
+    UPDATE_OTHER_MAILBOX_CONTAINER: (state, updatedContainer) => {
+        const index = state.otherMailboxesContainers.findIndex(
+            mailboxContainer => mailboxContainer.uid === updatedContainer.uid
+        );
+        if (index !== -1) {
+            state.otherMailboxesContainers.splice(index, 1, updatedContainer);
+        }
     }
 };
 

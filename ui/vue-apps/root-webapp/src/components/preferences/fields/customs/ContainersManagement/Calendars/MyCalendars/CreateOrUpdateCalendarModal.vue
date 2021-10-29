@@ -63,7 +63,13 @@
                     </template>
                 </bm-form-group>
                 <bm-form-group :label="$t('common.color')" label-for="calendar-color">
-                    <bm-form-color-picker id="calendar-color" v-model="color" type="text" required />
+                    <bm-form-color-picker
+                        id="calendar-color"
+                        v-model="color"
+                        type="text"
+                        required
+                        :pick-default="isNew"
+                    />
                 </bm-form-group>
             </bm-form>
         </bm-col>
@@ -71,7 +77,7 @@
 </template>
 
 <script>
-import calendarToSubscription from "../calendarToSubscription";
+import { containerToSubscription } from "../../container";
 import { inject } from "@bluemind/inject";
 import {
     BmCol,
@@ -215,7 +221,7 @@ export default {
                 settings: calendarDesc.settings,
                 deleted: false
             });
-            const subscription = calendarToSubscription(userSession, { uid, name: this.label, offlineSync: true });
+            const subscription = containerToSubscription(userSession, { uid, name: this.label, offlineSync: true });
             this.SET_SUBSCRIPTIONS([subscription]);
         },
         async updateCalendar(calendarDesc) {

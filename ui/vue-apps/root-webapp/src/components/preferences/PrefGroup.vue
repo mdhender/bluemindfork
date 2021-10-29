@@ -36,9 +36,10 @@ import PrefEnableNotifications from "./fields/customs/PrefEnableNotifications";
 import PrefEventReminder from "./fields/customs/PrefEventReminder";
 import PrefIMSetPhonePresence from "./fields/customs/PrefIMSetPhonePresence";
 import PrefManageIdentities from "./fields/customs/PrefManageIdentities";
-import PrefManageMyCalendars from "./fields/customs/Calendars/MyCalendars/PrefManageMyCalendars";
-import PrefManageMyMailbox from "./fields/customs/Mailboxes/PrefManageMyMailbox";
-import PrefManageOtherCalendars from "./fields/customs/Calendars/OtherCalendars/PrefManageOtherCalendars";
+import PrefManageMyCalendars from "./fields/customs/ContainersManagement/Calendars/MyCalendars/PrefManageMyCalendars";
+import PrefManageMyMailbox from "./fields/customs/ContainersManagement/Mailboxes/PrefManageMyMailbox";
+import PrefManageOtherCalendars from "./fields/customs/ContainersManagement/Calendars/PrefManageOtherCalendars";
+import PrefManageOtherMailboxes from "./fields/customs/ContainersManagement/Mailboxes/PrefManageOtherMailboxes";
 import PrefPassword from "./fields/customs/PrefPassword";
 import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
 import PrefResetLocalData from "./fields/customs/PrefResetLocalData";
@@ -74,6 +75,7 @@ export default {
         PrefManageMyCalendars,
         PrefManageMyMailbox,
         PrefManageOtherCalendars,
+        PrefManageOtherMailboxes,
         PrefPassword,
         PrefRemoteImage,
         PrefResetLocalData,

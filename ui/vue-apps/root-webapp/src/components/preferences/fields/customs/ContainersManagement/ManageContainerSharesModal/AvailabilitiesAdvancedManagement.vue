@@ -16,7 +16,7 @@
             <template v-slot="{ item }"><bm-calendar-item :calendar="item" /></template>
         </bm-form-autocomplete-input>
         <h2 class="mt-4 mb-2">{{ $t("common.my_availabilities") }}</h2>
-        <div>{{ $t("preferences.calendar.my_calendars.choose_calendar_for_my_availabilities") }}</div>
+        <div class="mb-2">{{ $t("preferences.calendar.my_calendars.choose_calendar_for_my_availabilities") }}</div>
         <bm-calendar-badge
             v-for="calendarUid in calendarsForMyAvailabilities"
             :key="calendarUid"

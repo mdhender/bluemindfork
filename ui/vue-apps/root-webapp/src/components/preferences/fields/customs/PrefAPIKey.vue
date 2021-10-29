@@ -41,7 +41,6 @@
                     <bm-button
                         :variant="lastCopiedSid === row.value ? 'success' : 'outline-secondary'"
                         class="ml-4"
-                        :class="{ 'bg-white': lastCopiedSid !== row.value }"
                         @click="copySid(row.value)"
                     >
                         <bm-icon :icon="lastCopiedSid === row.value ? 'check' : 'copy'" />

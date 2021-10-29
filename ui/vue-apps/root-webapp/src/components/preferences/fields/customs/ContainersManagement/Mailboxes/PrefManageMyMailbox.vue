@@ -10,18 +10,18 @@
         <bm-button variant="outline-secondary" class="mt-3" @click="openShareModal">
             {{ $t("common.manage_my_shares") }}
         </bm-button>
-        <manage-shares-modal ref="manage-shares" />
+        <manage-container-shares-modal ref="manage-shares" />
     </div>
 </template>
 
 <script>
-import ManageSharesModal from "../ManageSharesModal/ManageSharesModal";
+import ManageContainerSharesModal from "../ManageContainerSharesModal/ManageContainerSharesModal";
 import { BmButton, BmFormCheckbox } from "@bluemind/styleguide";
 import { mapState } from "vuex";
 
 export default {
     name: "PrefManageMyMailbox",
-    components: { BmButton, BmFormCheckbox, ManageSharesModal },
+    components: { BmButton, BmFormCheckbox, ManageContainerSharesModal },
     computed: {
         ...mapState("preferences", ["myMailboxContainer"])
     },

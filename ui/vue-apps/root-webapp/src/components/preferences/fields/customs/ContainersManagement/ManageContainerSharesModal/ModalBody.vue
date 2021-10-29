@@ -23,27 +23,35 @@
         <bm-label-icon icon="organization" icon-size="lg" class="font-weight-bold mb-1" :inline="false">
             {{ $t("preferences.calendar.my_calendars.inside_my_organization") }}
         </bm-label-icon>
-        <bm-row v-if="isCalendarType" class="align-items-center">
-            <div class="col-6">{{ $t("preferences.calendar.my_calendars.all_users_in_my_organization") }}</div>
-            <div class="col-6">
-                <bm-form-select v-model="selectedDomainAcl_" :options="shareOptions(true)" @input="saveShares" />
-            </div>
-        </bm-row>
-        <template v-for="dirEntry in dirEntriesAcl_">
-            <bm-row :key="dirEntry.uid" class="align-items-center mt-2">
-                <!-- FIXME ? group may not be displayed as user ?? -->
-                <div class="col-6"><bm-contact :contact="dirEntryToContact(dirEntry)" variant="transparent" /></div>
+        <template v-if="!selectedDomainAcl_ && dirEntriesAcl_.length === 0">
+            <div class="ml-4 mt-3 font-italic">{{ noAclSet }}</div>
+        </template>
+        <template v-else>
+            <bm-row v-if="isCalendarType" class="align-items-center">
+                <div class="col-6">{{ $t("preferences.calendar.my_calendars.all_users_in_my_organization") }}</div>
                 <div class="col-6">
-                    <bm-form-select v-model="dirEntry.acl" :options="shareOptions()" @input="saveShares" />
+                    <bm-form-select v-model="selectedDomainAcl_" :options="shareOptions(true)" @input="saveShares" />
                 </div>
             </bm-row>
+            <template v-for="dirEntry in dirEntriesAcl_">
+                <bm-row :key="dirEntry.uid" class="align-items-center mt-2">
+                    <!-- FIXME: group may not be displayed as user -->
+                    <div class="col-6"><bm-contact :contact="dirEntryToContact(dirEntry)" variant="transparent" /></div>
+                    <div class="col-6">
+                        <bm-form-select v-model="dirEntry.acl" :options="shareOptions()" @input="saveShares" />
+                    </div>
+                </bm-row>
+            </template>
         </template>
         <template v-if="isCalendarType">
             <hr />
             <bm-label-icon icon="user" icon-size="lg" class="font-weight-bold mb-2" :inline="false">
                 {{ $t("preferences.calendar.my_calendars.outside_my_organization") }}
             </bm-label-icon>
-            <template v-for="(external, index) in externalShares">
+            <template v-if="externalShares.length === 0">
+                <div class="ml-4 mt-3 font-italic">{{ noExternalShareSet }}</div>
+            </template>
+            <template v-for="(external, index) in externalShares" v-else>
                 <bm-row :key="external.token" class="align-items-center mt-2">
                     <div class="col-6">
                         <bm-contact
@@ -111,11 +119,10 @@ import {
     BmLabelIcon,
     BmRow
 } from "@bluemind/styleguide";
-import ContainerType from "../../../../../ContainerType";
+import { ContainerType } from "../container";
 
 export default {
-    // FIXME: rename component !
-    name: "ManageSharesModalContent",
+    name: "ModalBody",
     components: { BmButton, BmContact, BmFormAutocompleteInput, BmFormSelect, BmIcon, BmLabelIcon, BmRow },
     props: {
         container: {
@@ -134,7 +141,7 @@ export default {
             type: Array,
             required: true
         },
-        isMyCalendar: {
+        isMyContainer: {
             type: Boolean,
             required: true
         },
@@ -177,7 +184,7 @@ export default {
                 subject: entry.uid,
                 verb: this.isCalendarType ? calendarAclToVerb(entry.acl) : mailboxAclToVerb(entry.acl)
             }));
-            if (this.isCalendarType && !this.isMyCalendar) {
+            if (!this.isMyContainer) {
                 res.push({ subject: inject("UserSession").userId, verb: Verb.All });
             }
             if (this.isCalendarType) {
@@ -210,6 +217,18 @@ export default {
                 }
             }
             return res;
+        },
+        noAclSet() {
+            return this.$t("preferences.manage_shares.no_acl_set", {
+                name: this.container.name,
+                type: this.$t("common.container_type_with_definite_article." + this.container.type)
+            });
+        },
+        noExternalShareSet() {
+            return this.$t("preferences.manage_shares.no_external_share_set", {
+                name: this.container.name,
+                type: this.$t("common.container_type_with_definite_article." + this.container.type)
+            });
         }
     },
     methods: {
@@ -297,7 +316,7 @@ export default {
             return true;
         },
         regenerateLink() {
-            // not implemented yet, code will be close to editPublishMode method (ManageSharesModal component)
+            // not implemented yet, code will be close to editPublishMode method (ManageContainerSharesModal component)
         },
         removeLink(external) {
             this.$emit("remove-external", external.token);

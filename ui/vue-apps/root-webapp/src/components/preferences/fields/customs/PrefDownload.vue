@@ -3,7 +3,7 @@
         <h2 class="mb-2">{{ download.title }}</h2>
         <div class="d-flex justify-content-between p-2">
             <div class="d-flex flex-column justify-content-between">
-                {{ download.description }} {{ mimeType }}
+                {{ download.description }}
                 <div class="d-inline-flex pt-1">
                     <bm-button variant="outline-primary" :href="download.url" :aria-label="download.description">{{
                         $t("common.download")

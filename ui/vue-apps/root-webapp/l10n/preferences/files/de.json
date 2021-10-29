@@ -55,6 +55,17 @@
     "preferences.telephony.invalid_phone_number": "Please enter a valid phone number",
 
     "preferences.manage_shares.title": "Manage shares for {type} \"{name}\"",
+    "preferences.manage_shares.no_acl_set": "No share is set for {type} \"{name}\"",
+    "preferences.manage_shares.no_external_share_set": "No share outside my organization is set for {type} \"{name}\"",
+
+    "preferences.add_containers.subscribe": "Subscribe to other {type}",
+    "preferences.add_containers.add_n_containers": "Add | Add 1 {type} | Add {count} {type}",
+    "preferences.add_containers.search": "Search {type} or a user",
+    "preferences.add_containers.calendar.nothing_to_add": "Es können keine weiteren Kalender hinzugefügt werden.",
+    "preferences.add_containers.mailboxacl.nothing_to_add": "No additional mailboxes can be added.",
+
+    "preferences.display_containers.calendar.empty_list": "You did not subscribe yet, and you don't manage any other calendar.",
+    "preferences.display_containers.mailboxacl.empty_list": "You did not subscribe yet, and you don't manage any other mailbox.",
 
     "preferences.mail.my_mailbox.switch_offline_sync": "Activate offline messaging on my mailbox.",
     "preferences.mail.my_mailbox.modal_title": "Manage shares for my mailbox",
@@ -124,11 +135,6 @@
     "preferences.calendar.my_calendars.publish_link_private_mode": "Kann meine privaten Termine einsehen",
     "preferences.calendar.my_calendars.publish_link_public_mode": "Kann nur meine öffentlichen Termine einsehen",
     "preferences.calendar.my_calendars.default": "Standard-Kalender",
-
-    "preferences.calendar.other_calendars.add_calendars": "Kalender hinzufügen",
-    "preferences.calendar.other_calendars.add_n_calendars": "Hinzufügen | 1 Kalender hinzufügen | {count} Kalender hinzufügen",
-    "preferences.calendar.other_calendars.nothing_to_add": "Es können keine weiteren Kalender hinzugefügt werden.",
-    "preferences.calendar.other_calendars.search": "Kalender oder Benutzer suchen",
 
     "preferences.downloads": "Downloads",
     "preferences.downloads.none": "Keine verfügbaren Downloads",

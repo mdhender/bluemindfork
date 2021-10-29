@@ -1,17 +1,22 @@
-export default (userSession, calendar) => {
+export const ContainerType = {
+    CALENDAR: "calendar",
+    MAILBOX: "mailboxacl"
+};
+
+export function containerToSubscription(userSession, { uid, name, offlineSync }) {
     return {
         value: {
-            containerUid: calendar.uid,
-            offlineSync: calendar.offlineSync,
+            containerUid: uid,
+            offlineSync: offlineSync,
             containerType: "calendar",
             owner: userSession.userId,
             defaultContainer: false,
-            name: calendar.name
+            name: name
         },
-        uid: "sub-of-" + userSession.userId + "-to-" + calendar.uid,
+        uid: "sub-of-" + userSession.userId + "-to-" + uid,
         internalId: null,
         version: 0,
-        displayName: calendar.uid,
+        displayName: uid,
         externalId: null,
         createdBy: userSession.userId,
         updatedBy: userSession.userId,
@@ -19,4 +24,4 @@ export default (userSession, calendar) => {
         updated: Date.now(),
         flags: []
     };
-};
+}

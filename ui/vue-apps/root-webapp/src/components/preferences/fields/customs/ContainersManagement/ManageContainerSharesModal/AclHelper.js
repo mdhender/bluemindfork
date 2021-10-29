@@ -1,5 +1,5 @@
 import { inject } from "@bluemind/inject";
-import ContainerType from "../../../../../ContainerType";
+import { ContainerType } from "../container";
 import {
     defaultCalendarDomainAcl,
     defaultCalendarDirEntryAcl,
@@ -27,6 +27,7 @@ export async function loadAcl(container, isMyDefaultCalendar) {
         acl =>
             acl.subject !== userSession.domain &&
             acl.subject !== userSession.userId &&
+            acl.subject !== container.owner &&
             !acl.subject.startsWith("x-calendar-")
     );
 

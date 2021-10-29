@@ -55,6 +55,17 @@
     "preferences.telephony.invalid_phone_number": "Veuillez entrer un numéro de téléphone valide",
 
     "preferences.manage_shares.title": "Gérer les partages pour {type} \"{name}\"",
+    "preferences.manage_shares.no_acl_set": "Aucun partage n'est défini pour {type} \"{name}\"",
+    "preferences.manage_shares.no_external_share_set": "Aucun partage en dehors de mon organisation n'est défini pour {type} \"{name}\"",
+
+    "preferences.add_containers.subscribe": "S'abonner à d'autres {type}",
+    "preferences.add_containers.add_n_containers": "Ajouter | Ajouter 1 {type} | Ajouter {count} {type}",
+    "preferences.add_containers.search": "Rechercher {type} ou un utilisateur",
+    "preferences.add_containers.calendar.nothing_to_add": "Aucun calendrier supplémentaire ne peut être ajouté.",
+    "preferences.add_containers.mailboxacl.nothing_to_add": "Aucune boîte aux lettres supplémentaire ne peut être ajoutée.",
+
+    "preferences.display_containers.calendar.empty_list": "Vous n'êtes pas encore abonné, et vous ne gérez aucun autre calendrier.",
+    "preferences.display_containers.mailboxacl.empty_list": "Vous n'êtes pas encore abonné, et vous ne gérez aucune autre boîte aux lettres.",
 
     "preferences.mail.my_mailbox.switch_offline_sync": "Activer la messagerie hors-ligne sur ma boîte aux lettres.",
     "preferences.mail.my_mailbox.modal_title": "Gérer les partages pour ma boîte aux lettres",
@@ -122,11 +133,6 @@
     "preferences.calendar.my_calendars.publish_link_private_mode": "Peut voir les rendez-vous privés",
     "preferences.calendar.my_calendars.publish_link_public_mode": "Peut voir uniquement les rendez-vous publiques",
     "preferences.calendar.my_calendars.default": "Calendrier par défaut",
-
-    "preferences.calendar.other_calendars.add_calendars": "Ajouter des calendriers",
-    "preferences.calendar.other_calendars.add_n_calendars": "Ajouter | Ajouter 1 calendrier | Ajouter {count} calendriers",
-    "preferences.calendar.other_calendars.nothing_to_add": "Aucun calendrier supplémentaire ne peut être ajouté.",
-    "preferences.calendar.other_calendars.search": "Rechercher un calendrier ou un utilisateur",
 
     "preferences.downloads": "Téléchargements",
     "preferences.downloads.none": "Aucun téléchargement disponible",
