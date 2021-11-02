@@ -1,6 +1,7 @@
 {
     "alert.preferences.need_reconnection.warning": "Some modifications will be effective at next connection.",
     "alert.preferences.reload_app.warning": "Some modifications will be effective only after the application got reloaded.",
+    "alert.preferences.update.error": "Update error.",
     "alert.preferences.sync_calendar.loading": "Synchronization in progress...",
     "alert.preferences.sync_calendar.success": "Synchronization successful",
     "alert.preferences.sync_calendar.error": "Error during synchronization",
@@ -26,13 +27,25 @@
     "preferences.calendar.main.working_days.none": "No days selected",
     "preferences.calendar.main.working_days.all": "All days",
 
-    "preferences.general.lang": "Language",
-    "preferences.general.timezone": "Time zone",
     "preferences.general.date_format": "Date format",
-    "preferences.general.time_format": "Time format",
     "preferences.general.default_application": "Default application",
-    "preferences.general.password": "Password",
+    "preferences.general.lang": "Language",
     "preferences.general.manage_account": "manage account",
+    "preferences.general.password": "Password",
+
+    "preferences.general.tags": "Tags",
+    "preferences.general.tags.create": "Create a tag",
+    "preferences.general.tags.desc": "Categorise your messages with tags.",
+    "preferences.general.tags.edit": "Edit tag",
+    "preferences.general.tags.modal.label": "Label",
+    "preferences.general.tags.modal.color": "Color",
+    "preferences.general.tags.remove": "Delete the tag {name}",
+    "preferences.general.tags.remove.desc": "Are you sure you want to delete the tag {name}?",
+    "preferences.general.tags.subset.domain": "Domain tags ({count})",
+    "preferences.general.tags.subset.user": "My tags ({count})",
+
+    "preferences.general.time_format": "Time format",
+    "preferences.general.timezone": "Time zone",
 
     "preferences.security.api_key": "API keys",
     "preferences.security.api_key.desc": "Use API Key to identify your project",

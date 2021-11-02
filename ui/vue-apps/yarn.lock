@@ -1158,6 +1158,13 @@
     vue-global-events "^1.1.2"
     vue-i18n "^8.14.0"
 
+"@bluemind/tag.api@^4.1.0":
+  version "4.1.58652"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/tag.api/-/tag.api-4.1.58652.tgz#e0e4635fb27e7d8ef08de633e990cbcef5e546ea"
+  integrity sha512-3NscNXCuOnuRsWNDhwekxlGCJWcJ9eJnSxOYF0Yh3vX/f7baysVzGw2QCVbYeB47klxvMNEQzx/9sbLYFDPIfA==
+  dependencies:
+    axios "^0.18.0"
+
 "@bluemind/user.api@^4.1.0", "@bluemind/user.api@^4.1.52881":
   version "4.1.54915"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/user.api/-/user.api-4.1.54915.tgz#bb27b25414b8f1c82c0a5be28a34618875422e7a"

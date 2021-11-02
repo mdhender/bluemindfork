@@ -43,6 +43,7 @@ import PrefManageOtherMailboxes from "./fields/customs/ContainersManagement/Mail
 import PrefPassword from "./fields/customs/PrefPassword";
 import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
 import PrefResetLocalData from "./fields/customs/PrefResetLocalData";
+import PrefTags from "./fields/customs/Tags/PrefTags";
 import PrefWorkHours from "./fields/customs/PrefWorkHours";
 import PrefSwitchWebmail from "./fields/customs/PrefSwitchWebmail.vue";
 import PrefEntryName from "./PrefEntryName";
@@ -80,6 +81,7 @@ export default {
         PrefRemoteImage,
         PrefResetLocalData,
         PrefSwitchWebmail,
+        PrefTags,
         PrefWorkHours
     },
     mixins: [Navigation],
@@ -108,7 +110,8 @@ export default {
     .bm-form-select,
     .bm-form-multi-select,
     .bm-form-input,
-    .bm-rich-editor {
+    .bm-rich-editor,
+    .pref-item-width {
         width: 24rem !important;
     }
 

@@ -1,6 +1,7 @@
 {
     "alert.preferences.need_reconnection.warning": "Certaines modifications seront effectives à la prochaine connexion.",
     "alert.preferences.reload_app.warning": "Certaines modifications seront effectives au prochain démarrage de l'application.",
+    "alert.preferences.update.error": "Erreur d'enregistrement.",
     "alert.preferences.sync_calendar.loading": "Synchronisation en cours...",
     "alert.preferences.sync_calendar.success": "Synchronisation réussie",
     "alert.preferences.sync_calendar.error": "Erreur lors de la synchronisation",
@@ -26,13 +27,25 @@
     "preferences.calendar.main.working_days.none": "Pas de jour sélectionné",
     "preferences.calendar.main.working_days.all": "Tous les jours",
 
-    "preferences.general.lang": "Langue",
-    "preferences.general.timezone": "Fuseau horaire",
     "preferences.general.date_format": "Format de date",
-    "preferences.general.time_format": "Format d'heure",
     "preferences.general.default_application": "Application par défaut",
-    "preferences.general.password": "Mot de passe",
+    "preferences.general.lang": "Langue",
     "preferences.general.manage_account": "gérer le compte",
+    "preferences.general.password": "Mot de passe",
+
+    "preferences.general.tags": "Catégories",
+    "preferences.general.tags.create": "Créer une catégorie",
+    "preferences.general.tags.desc": "Organisez vos messages en y associant une ou plusieurs catégories.",
+    "preferences.general.tags.edit": "Editer une catégorie",
+    "preferences.general.tags.modal.label": "Libellé",
+    "preferences.general.tags.modal.color": "Couleur",
+    "preferences.general.tags.remove": "Supprimer la catégorie {name}",
+    "preferences.general.tags.remove.desc": "Confirmez-vous la suppression de la catégorie {name} ?",
+    "preferences.general.tags.subset.domain": "Catégories de domaine ({count})",
+    "preferences.general.tags.subset.user": "Mes catégories ({count})",
+
+    "preferences.general.time_format": "Format d'heure",
+    "preferences.general.timezone": "Fuseau horaire",
 
     "preferences.security.api_key": "Clé d'API",
     "preferences.security.api_key.desc": "Utiliser une clé d'API pour identifier votre projet",

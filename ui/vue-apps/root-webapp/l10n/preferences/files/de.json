@@ -1,6 +1,7 @@
 {
     "alert.preferences.need_reconnection.warning": "Einige Änderungen sind erst nach erneutem Login aktiv.",
     "alert.preferences.reload_app.warning": "Einige Änderungen sind erst nach Neuladen der Anwendung aktiv.",
+    "alert.preferences.update.error": "Update-Fehler.",
     "alert.preferences.sync_calendar_in_progress.loading": "Synchronisation in Bearbeitung...",
     "alert.preferences.sync_calendar_in_progress.success": "Synchronisation erfolgreich beendet",
     "alert.preferences.sync_calendar_in_progress.error": "Fehler bei der Synchronisation",
@@ -26,13 +27,25 @@
     "preferences.calendar.main.working_days.none": "No days selected",
     "preferences.calendar.main.working_days.all": "All days",
 
-    "preferences.general.lang": "Sprache",
-    "preferences.general.timezone": "Zeitzone",
     "preferences.general.date_format": "Datumsformat",
-    "preferences.general.time_format": "Zeitformat",
     "preferences.general.default_application": "Standard Anwendung",
-    "preferences.general.password": "Passwort",
+    "preferences.general.lang": "Sprache",
     "preferences.general.manage_account": "Konto verwalten",
+    "preferences.general.password": "Passwort",
+
+    "preferences.general.tags": "Schilder",
+    "preferences.general.tags.create": "Kennzeichung erstellen",
+    "preferences.general.tags.desc": "Nachrichten anhand von Kennzeichungen kategorisieren.",
+    "preferences.general.tags.edit": "Kennzeichung editieren",
+    "preferences.general.tags.modal.label": "Titel",
+    "preferences.general.tags.modal.color": "Farbe",
+    "preferences.general.tags.remove": "Kategorie {name} löschen",
+    "preferences.general.tags.remove.desc": "Möchten Sie die Kategorie {name} wirklich löschen?",
+    "preferences.general.tags.subset.domain": "Domänenweite Kennzeichungen ({count})",
+    "preferences.general.tags.subset.user": "Meine Kennzeichungen ({count})",
+
+    "preferences.general.time_format": "Zeitformat",
+    "preferences.general.timezone": "Zeitzone",
 
     "preferences.security.api_key": "API-Schlüssel",
     "preferences.security.api_key.desc": "Verwenden Sie einen API-Schlüssel um Ihr Projekt zu identifizieren",

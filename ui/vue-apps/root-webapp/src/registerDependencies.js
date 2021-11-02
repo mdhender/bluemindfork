@@ -13,6 +13,7 @@ import {
     ContainerSyncClient,
     OwnerSubscriptionsClient
 } from "@bluemind/core.container.api";
+import { TagsClient } from "@bluemind/tag.api";
 import { TaskClient } from "@bluemind/core.task.api";
 import { DirectoryClient } from "@bluemind/directory.api";
 import { FirstDayOfWeek } from "@bluemind/i18n";
@@ -105,6 +106,11 @@ export default function (userSession) {
     injector.register({
         provide: "PublishCalendarPersistence",
         factory: containerUid => new PublishCalendarClient(userSession.sid, containerUid)
+    });
+
+    injector.register({
+        provide: "TagsPersistence",
+        factory: containerUid => new TagsClient(userSession.sid, containerUid)
     });
 
     injector.register({
