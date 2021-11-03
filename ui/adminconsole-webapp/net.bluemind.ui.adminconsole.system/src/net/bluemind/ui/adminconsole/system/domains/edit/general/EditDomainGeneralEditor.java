@@ -18,9 +18,9 @@
  */
 package net.bluemind.ui.adminconsole.system.domains.edit.general;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
@@ -103,7 +103,6 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		setTimezone();
 		aliases.addChangeHandler(evt -> setAvailableDefaultAliases());
 		aliases.setMinimumLength(48);
-		loadDomains();
 	}
 
 	private void setTimezone() {
@@ -174,6 +173,8 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		description.setText(domain.description);
 		name.setText(domain.name);
 
+		loadDomains(domain.name);
+
 		String domainLanguage = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.lang.name());
 		domainLanguage = null != domainLanguage ? domainLanguage : LocaleIdTranslation.DEFAULT_ID;
 		language.setSelectedIndex(languageMapping.get(domainLanguage));
@@ -231,9 +232,9 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		map.put(DomainKeys.defaultDomain.name(), domainList.getSelectedValue());
 	}
 
-	private void loadDomains() {
-		List<ItemValue<Domain>> domains = DomainsHolder.get().getDomains();
+	private void loadDomains(String domainUid) {
+		ItemValue<Domain> domain = DomainsHolder.get().getDomainByUid(domainUid);
 		domainList.addItem("---", "");
-		SysConfAuthenticationEditor.expandDomainAlias(domainList, domains);
+		SysConfAuthenticationEditor.expandDomainAlias(domainList, Arrays.asList(domain));
 	}
 }

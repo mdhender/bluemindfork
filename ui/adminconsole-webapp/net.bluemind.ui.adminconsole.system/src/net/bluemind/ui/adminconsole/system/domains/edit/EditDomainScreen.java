@@ -58,6 +58,7 @@ import net.bluemind.ui.adminconsole.system.domains.edit.indexing.EditDomainIndex
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.EditMailflowRulesEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailsystem.EditDomainMailsystemEditor;
 import net.bluemind.ui.adminconsole.system.domains.l10n.DomainConstants;
+import net.bluemind.ui.common.client.forms.Ajax;
 import net.bluemind.ui.gwttag.client.DomainTagsEditor;
 import net.bluemind.ui.gwttag.client.DomainTagsModelHandler;
 
@@ -200,8 +201,10 @@ public class EditDomainScreen extends Composite implements IGwtCompositeScreenRo
 		tabs.push(Tab.create(null, c.externalCalendars(),
 				ScreenElement.create("editExternalCalendars", EditExternalCalendarsEditor.TYPE)));
 
-		tabs.push(Tab.create(null, c.domainCertificate(),
-				ScreenElement.create("editDomainCertificate", DomainCertificateEditor.TYPE)));
+		if (Ajax.TOKEN.getRoles().contains(BasicRoles.ROLE_MANAGE_CERTIFICATE)) {
+			tabs.push(Tab.create(null, c.domainCertificate(),
+					ScreenElement.create("editDomainCertificate", DomainCertificateEditor.TYPE)));
+		}
 
 		TabContainer tab = TabContainer.create("editDomainTabs", tabs);
 		screenRoot.setContent(tab);

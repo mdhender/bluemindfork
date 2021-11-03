@@ -478,7 +478,14 @@ public class BaseRolesProvider implements IRolesProvider {
 								rb.getString("role.userMailboxMaintenance.description"))
 						.forDirEntry(Kind.USER) //
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
-						.withParent(BasicRoles.ROLE_MANAGE_USER)
+						.withParent(BasicRoles.ROLE_MANAGE_USER), //
+
+				RoleDescriptor
+						.create(BasicRoles.ROLE_MANAGE_CERTIFICATE, CATEGORY_ADMINISTRATION,
+								rb.getString("role.manageCertificate.label"),
+								rb.getString("role.manageCertificate.description")) //
+						.forDirEntry(Kind.USER) //
+						.withParent(SecurityContext.ROLE_SYSTEM)
 
 		).build();
 	}

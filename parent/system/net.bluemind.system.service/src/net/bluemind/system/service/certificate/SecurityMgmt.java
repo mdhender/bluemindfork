@@ -96,7 +96,7 @@ public class SecurityMgmt implements ISecurityMgmt {
 
 	@Override
 	public void updateCertificate(CertData certData) {
-		rbac.check(BasicRoles.ROLE_MANAGE_SYSTEM_CONF);
+		rbac.check(BasicRoles.ROLE_MANAGE_CERTIFICATE);
 
 		if (certData == null
 				|| (Strings.isNullOrEmpty(certData.certificate) && Strings.isNullOrEmpty(certData.certificateAuthority)
@@ -165,7 +165,7 @@ public class SecurityMgmt implements ISecurityMgmt {
 		}
 
 		if (Strings.isNullOrEmpty(certData.privateKey)) {
-			throw new ServerFault("Provate key must not be null or empty");
+			throw new ServerFault("Private key must not be null or empty");
 		}
 
 		if (Strings.isNullOrEmpty(certData.certificateAuthority)) {

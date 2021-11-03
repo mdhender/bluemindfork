@@ -107,6 +107,10 @@ public class BasicRoles {
 	 */
 	public static final String ROLE_MANAGE_USER = "manageUser";
 	/**
+	 * Permission to manage domain certificate.
+	 */
+	public static final String ROLE_MANAGE_CERTIFICATE = "manageCertificate";
+	/**
 	 * Permission to manage external system accounts.
 	 */
 	public static final String ROLE_MANAGE_EXTERNAL_ACCOUNTS = "manageExternalAccounts";
