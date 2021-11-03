@@ -88,28 +88,30 @@ public class ImportLdapJob implements IScheduledJob {
 				.instance(IDomainSettings.class, domain.uid).get();
 		LdapParameters ldapParameters = LdapParameters.build(domain.value, domainSettings);
 
-		if (ldapParameters != null) {
-			rid = sched.requestSlot(domainName, this, startDate);
-
-			if (ldapParameters.lastUpdate.isPresent()) {
-				sched.info(rid, "en",
-						"LDAP incremental update for domain: " + domainName + " since: " + ldapParameters.lastUpdate);
-				sched.info(rid, "fr", "Import LDAP incrémental pour le domaine : " + domainName + " depuis: "
-						+ ldapParameters.lastUpdate.get());
-			} else {
-				sched.info(rid, "en", "LDAP global import for domain: " + domainName);
-				sched.info(rid, "fr", "Import LDAP global pour le domaine : " + domainName);
-			}
-
-			ImportLogger importLogger = new ImportLogger(Optional.ofNullable(sched), Optional.ofNullable(rid),
-					Optional.of(new RepportStatus()));
-
-			Scanner ldapScanner = LdapScannerFactory.getLdapScanner(importLogger, ldapParameters, domain);
-			ldapScanner.scan();
-
-			updateLastUpdateDomainDate(domain, importLogger.repportStatus.get().getJobStatus(), startDate);
-			sched.finish(rid, importLogger.repportStatus.get().getJobStatus());
+		if (!ldapParameters.enabled) {
+			return;
 		}
+
+		rid = sched.requestSlot(domainName, this, startDate);
+
+		if (ldapParameters.lastUpdate.isPresent()) {
+			sched.info(rid, "en",
+					"LDAP incremental update for domain: " + domainName + " since: " + ldapParameters.lastUpdate);
+			sched.info(rid, "fr", "Import LDAP incrémental pour le domaine : " + domainName + " depuis: "
+					+ ldapParameters.lastUpdate.get());
+		} else {
+			sched.info(rid, "en", "LDAP global import for domain: " + domainName);
+			sched.info(rid, "fr", "Import LDAP global pour le domaine : " + domainName);
+		}
+
+		ImportLogger importLogger = new ImportLogger(Optional.ofNullable(sched), Optional.ofNullable(rid),
+				Optional.of(new RepportStatus()));
+
+		Scanner ldapScanner = LdapScannerFactory.getLdapScanner(importLogger, ldapParameters, domain);
+		ldapScanner.scan();
+
+		updateLastUpdateDomainDate(domain, importLogger.repportStatus.get().getJobStatus(), startDate);
+		sched.finish(rid, importLogger.repportStatus.get().getJobStatus());
 	}
 
 	protected void updateLastUpdateDomainDate(ItemValue<Domain> domain, JobExitStatus importStatus, Date d)
