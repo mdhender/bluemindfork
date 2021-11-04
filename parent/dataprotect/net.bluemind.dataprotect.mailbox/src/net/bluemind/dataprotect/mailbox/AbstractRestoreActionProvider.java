@@ -3,8 +3,6 @@ package net.bluemind.dataprotect.mailbox;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.common.collect.ImmutableMap;
-
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -49,14 +47,11 @@ public abstract class AbstractRestoreActionProvider implements IRestoreActionPro
 	public List<RestoreOperation> operations() {
 		RestoreOperation replace = new RestoreOperation();
 		replace.identifier = "replace.mailbox";
-		replace.translations = ImmutableMap.of("en", "Replace Mailbox", "fr", "Remplacer la boite mail");
 		replace.kind = kind;
 		replace.requiredTag = "mail/imap";
 
 		RestoreOperation sub = new RestoreOperation();
 		sub.identifier = "subfolder.mailbox";
-		sub.translations = ImmutableMap.of("en", "Restore Mailbox in Subfolder", //
-				"fr", "Restaurer la boite mail dans un sous-dossier");
 		sub.kind = kind;
 		sub.requiredTag = "mail/imap";
 

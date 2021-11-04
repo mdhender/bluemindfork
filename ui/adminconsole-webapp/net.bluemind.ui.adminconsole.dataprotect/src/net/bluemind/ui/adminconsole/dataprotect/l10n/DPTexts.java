@@ -72,6 +72,29 @@ public interface DPTexts extends Messages {
 	String sync();
 
 	String typeOU();
-	
+
 	String backupHSM();
+
+	String replacemailbox();
+
+	String subfoldermailbox();
+
+	String restorefilehosting();
+
+	String replaceou();
+
+	String completerestore();
+
+	String replacebooks();
+
+	String replacecalendars();
+
+	String replacetodolists();
+
+	String sendbooksvcf();
+
+	String sendcalendarsics();
+
+	String sendtodolistics();
+
 }

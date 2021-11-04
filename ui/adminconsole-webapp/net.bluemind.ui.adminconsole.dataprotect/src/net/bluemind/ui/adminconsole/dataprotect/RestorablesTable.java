@@ -45,6 +45,7 @@ import net.bluemind.directory.api.gwt.endpoint.DirectoryGwtEndpoint;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.ui.adminconsole.dataprotect.l10n.DPTexts;
+import net.bluemind.ui.adminconsole.dataprotect.l10n.DpTextsHelper;
 import net.bluemind.ui.common.client.forms.Ajax;
 
 public class RestorablesTable extends DataGrid<ClientRestorable> {
@@ -132,9 +133,6 @@ public class RestorablesTable extends DataGrid<ClientRestorable> {
 					RestoreOperation restore = new RestoreOperation();
 					restore.identifier = "complete.restore." + d.kind.name().toLowerCase();
 					restore.kind = d.kind;
-					restore.translations = new HashMap<>();
-					restore.translations.put("en", "Restore or replace (if login already exists)");
-					restore.translations.put("fr", "Restaurer ou remplacer (si le login existe déjà)");
 					ActionHandler<ClientRestorable> ahr = new RestoreActionHandler("Restore", content, d, generationId,
 							restore);
 					trans.add(ahr);
@@ -143,7 +141,7 @@ public class RestorablesTable extends DataGrid<ClientRestorable> {
 
 					if (rops != null) {
 						for (RestoreOperation rop : rops) {
-							String tr = rop.translations.get(locale);
+							String tr = DpTextsHelper.translate(rop.identifier);
 							if (tr == null) {
 								tr = rop.identifier;
 							}

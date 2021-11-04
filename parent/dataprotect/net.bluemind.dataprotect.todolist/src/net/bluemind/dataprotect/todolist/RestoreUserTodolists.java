@@ -20,8 +20,6 @@ package net.bluemind.dataprotect.todolist;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.common.collect.ImmutableMap;
-
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -46,7 +44,6 @@ public class RestoreUserTodolists implements IRestoreActionProvider {
 	public List<RestoreOperation> operations() {
 		RestoreOperation replace = new RestoreOperation();
 		replace.identifier = "replace.todolists";
-		replace.translations = ImmutableMap.of("en", "Replace Todolists", "fr", "Remplacer les listes de tâches");
 		replace.kind = RestorableKind.USER;
 		return Arrays.asList(replace);
 	}

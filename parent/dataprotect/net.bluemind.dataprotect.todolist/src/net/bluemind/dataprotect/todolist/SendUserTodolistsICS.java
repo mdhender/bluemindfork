@@ -20,8 +20,6 @@ package net.bluemind.dataprotect.todolist;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.common.collect.ImmutableMap;
-
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -46,8 +44,6 @@ public class SendUserTodolistsICS implements IRestoreActionProvider {
 	public List<RestoreOperation> operations() {
 		RestoreOperation op = new RestoreOperation();
 		op.identifier = "send.todolist.ics";
-		op.translations = ImmutableMap.of("en", "Send todolists ICS export by mail", "fr",
-				"Envoyer des exports ICS des listes de tâches par mail");
 		op.kind = RestorableKind.USER;
 		return Arrays.asList(op);
 	}

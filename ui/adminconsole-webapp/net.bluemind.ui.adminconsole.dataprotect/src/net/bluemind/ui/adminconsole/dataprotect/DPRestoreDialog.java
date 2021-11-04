@@ -23,7 +23,6 @@ import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
@@ -34,17 +33,13 @@ import com.google.gwt.user.client.ui.RadioButton;
 
 import net.bluemind.dataprotect.api.RestoreOperation;
 import net.bluemind.ui.adminconsole.dataprotect.l10n.DPTexts;
+import net.bluemind.ui.adminconsole.dataprotect.l10n.DpTextsHelper;
 
 public class DPRestoreDialog extends DialogBox {
 	private ScheduledCommand okCommand;
 	private FlexTable content;
-	private String locale;
 
 	public DPRestoreDialog() {
-		locale = LocaleInfo.getCurrentLocale().getLocaleName();
-		if (locale.length() > 2) {
-			locale = locale.substring(0, 2);
-		}
 		FlowPanel buttons = new FlowPanel();
 		Button ok = new Button(DPTexts.INST.restore());
 		ok.addStyleName("button");
@@ -100,7 +95,7 @@ public class DPRestoreDialog extends DialogBox {
 
 	public void addRestorableOperation(RestoreOperation rop, final ScheduledCommand cmd) {
 		RadioButton rb = new RadioButton("restoreOps");
-		rb.setText(rop.translations.get(locale));
+		rb.setText(DpTextsHelper.translate(rop.identifier));
 		content.setWidget(content.getRowCount(), 1, rb);
 		rb.addClickHandler(new ClickHandler() {
 			@Override

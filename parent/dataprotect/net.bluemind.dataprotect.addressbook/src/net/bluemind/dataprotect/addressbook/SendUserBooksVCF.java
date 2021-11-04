@@ -20,8 +20,6 @@ package net.bluemind.dataprotect.addressbook;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.common.collect.ImmutableMap;
-
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -46,7 +44,6 @@ public class SendUserBooksVCF implements IRestoreActionProvider {
 	public List<RestoreOperation> operations() {
 		RestoreOperation op = new RestoreOperation();
 		op.identifier = "send.books.vcf";
-		op.translations = ImmutableMap.of("en", "Send vcard export by mail", "fr", "Envoyer export vcard par mail");
 		op.kind = RestorableKind.USER;
 		return Arrays.asList(op);
 	}

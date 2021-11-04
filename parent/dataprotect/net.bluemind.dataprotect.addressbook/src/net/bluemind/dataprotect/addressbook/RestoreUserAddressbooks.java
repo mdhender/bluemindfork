@@ -21,8 +21,6 @@ package net.bluemind.dataprotect.addressbook;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.common.collect.ImmutableMap;
-
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -50,7 +48,6 @@ public class RestoreUserAddressbooks implements IRestoreActionProvider {
 	public List<RestoreOperation> operations() {
 		RestoreOperation replace = new RestoreOperation();
 		replace.identifier = "replace.books";
-		replace.translations = ImmutableMap.of("en", "Replace Addressbooks", "fr", "Remplacer les carnets d'adresse");
 		replace.kind = RestorableKind.USER;
 		return Arrays.asList(replace);
 	}

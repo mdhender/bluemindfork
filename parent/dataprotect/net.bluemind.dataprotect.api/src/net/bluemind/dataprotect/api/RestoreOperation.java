@@ -18,8 +18,6 @@
  */
 package net.bluemind.dataprotect.api;
 
-import java.util.Map;
-
 import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
@@ -27,7 +25,6 @@ public class RestoreOperation {
 
 	public String identifier;
 	public RestorableKind kind;
-	public Map<String, String> translations;
 	public String requiredTag;
 
 }

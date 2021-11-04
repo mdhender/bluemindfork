@@ -26,8 +26,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
-
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -149,8 +147,6 @@ public class FileHostingRestoreProvider implements IRestoreActionProvider {
 	public List<RestoreOperation> operations() {
 		RestoreOperation restore = new RestoreOperation();
 		restore.identifier = "restore.filehosting";
-		restore.translations = ImmutableMap.of("en", "Restore Filehosting data", "fr",
-				"Restaurer pièces jointes détacheés");
 		restore.kind = RestorableKind.DOMAIN;
 		restore.requiredTag = "filehosting/data";
 		return Arrays.asList(new RestoreOperation[] { restore });
