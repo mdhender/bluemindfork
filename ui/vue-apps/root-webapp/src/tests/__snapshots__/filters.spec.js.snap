@@ -1,0 +1,147 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`filters read - no criteria 1`] = `
+Object {
+  "actions": Array [
+    Object {
+      "type": "deliver",
+      "value": "INBOX",
+    },
+    Object {
+      "type": "forward",
+      "value": Object {
+        "emails": Array [
+          "toto.test@bluemind.net",
+        ],
+        "enabled": false,
+        "localCopy": true,
+      },
+    },
+    Object {
+      "type": "read",
+      "value": true,
+    },
+  ],
+  "active": true,
+  "criteria": Array [],
+  "exceptions": Array [],
+  "name": "N/A",
+  "terminal": true,
+}
+`;
+
+exports[`filters read 1`] = `
+Object {
+  "actions": Array [
+    Object {
+      "type": "deliver",
+      "value": "INBOX",
+    },
+    Object {
+      "type": "forward",
+      "value": Object {
+        "emails": Array [
+          "toto.test@bluemind.net",
+        ],
+        "enabled": true,
+        "localCopy": false,
+      },
+    },
+    Object {
+      "type": "read",
+      "value": true,
+    },
+  ],
+  "active": true,
+  "criteria": Array [
+    Object {
+      "matcher": "IS",
+      "target": Object {
+        "name": "FROM",
+        "type": "FROM",
+      },
+      "value": "Toto",
+    },
+    Object {
+      "matcher": "IS",
+      "target": Object {
+        "name": "TO",
+        "type": "TO",
+      },
+      "value": "Tata",
+    },
+    Object {
+      "matcher": "CONTAINS",
+      "target": Object {
+        "name": "SUBJECT",
+        "type": "SUBJECT",
+      },
+      "value": "Toto&Tata",
+    },
+    Object {
+      "matcher": "DOESNOTCONTAIN",
+      "target": Object {
+        "name": "BODY",
+        "type": "BODY",
+      },
+      "value": "un gros mot",
+    },
+    Object {
+      "matcher": "MATCHES",
+      "target": Object {
+        "name": "X-My-Header",
+        "type": "HEADER",
+      },
+      "value": "head-bang",
+    },
+  ],
+  "exceptions": Array [],
+  "name": "N/A",
+  "terminal": true,
+}
+`;
+
+exports[`filters write - no criteria 1`] = `
+Object {
+  "active": true,
+  "criteria": "MATCHALL",
+  "delete": true,
+  "deliver": undefined,
+  "discard": false,
+  "forward": Object {
+    "emails": Array [
+      "toto.test@bluemind.net",
+    ],
+    "enabled": true,
+    "localCopy": false,
+  },
+  "name": "MyFilter",
+  "read": false,
+  "star": false,
+  "stop": true,
+}
+`;
+
+exports[`filters write 1`] = `
+Object {
+  "active": true,
+  "criteria": "BODY:DOESNOTCONTAIN: un gros mot
+TO:IS: Tata
+X-Machin-Chouette:IS: Bidule
+",
+  "delete": true,
+  "deliver": undefined,
+  "discard": false,
+  "forward": Object {
+    "emails": Array [
+      "toto.test@bluemind.net",
+    ],
+    "enabled": true,
+    "localCopy": false,
+  },
+  "name": "MyFilter",
+  "read": false,
+  "star": false,
+  "stop": true,
+}
+`;

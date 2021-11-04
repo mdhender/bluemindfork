@@ -8,7 +8,7 @@ import store from "@bluemind/store";
 import MailAlertRenderer from "./components/MailAlertRenderer";
 import * as AlertComponents from "./components/MailAlerts";
 import MailApp from "./components/MailApp";
-import { MailboxItemsClientProxy, MailboxFoldersClientProxy } from "./api/APIClientsProxy";
+import { MailboxItemsClientProxy } from "./api/APIClientsProxy";
 import mailRoutes from "./router";
 import MailStore from "./store/";
 
@@ -24,14 +24,6 @@ for (let component in AlertComponents) {
 }
 
 function registerAPIClients() {
-    injector.register({
-        provide: "MailboxFoldersPersistence",
-        factory: mailboxUid => {
-            const userSession = injector.getProvider("UserSession").get();
-            return new MailboxFoldersClientProxy(userSession.sid, userSession.domain.replace(".", "_"), mailboxUid);
-        }
-    });
-
     injector.register({
         provide: "MailboxItemsPersistence",
         factory: uid => new MailboxItemsClientProxy(injector.getProvider("UserSession").get().sid, uid)

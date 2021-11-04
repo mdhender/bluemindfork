@@ -1,3 +1,4 @@
+import cloneDeep from "lodash.clonedeep";
 import { inject } from "@bluemind/inject";
 
 const newWebmailDefaultSettings = {
@@ -62,8 +63,8 @@ const mutations = {
         state.settings.local[setting] = value;
     },
     SET_SETTINGS: (state, settings) => {
-        state.settings.remote = JSON.parse(JSON.stringify(settings));
-        state.settings.local = JSON.parse(JSON.stringify(settings));
+        state.settings.remote = cloneDeep(settings);
+        state.settings.local = cloneDeep(settings);
     },
     REMOVE_LOCAL_HAS_ERROR: (state, fieldOnError) => {
         const index = state.settings.localHasErrors.findIndex(field => field === fieldOnError);
@@ -72,7 +73,7 @@ const mutations = {
         }
     },
     ROLLBACK_LOCAL_SETTINGS: state => {
-        state.settings.local = JSON.parse(JSON.stringify(state.settings.remote));
+        state.settings.local = cloneDeep(state.settings.remote);
     }
 };
 

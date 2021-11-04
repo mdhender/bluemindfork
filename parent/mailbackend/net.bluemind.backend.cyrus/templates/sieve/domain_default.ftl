@@ -23,7 +23,9 @@ ${f.rule}
 <#list f.forward.emails as fe>
 	redirect <#if f.forward.localCopy>:copy</#if> "${fe}";
 </#list>
+<#if f.stop>
 	stop;
+</#if>
 }
 </#list>
 

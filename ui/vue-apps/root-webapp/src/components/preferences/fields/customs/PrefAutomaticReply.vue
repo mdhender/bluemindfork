@@ -1,6 +1,5 @@
 <template>
-    <bm-spinner v-if="!isMailboxFilterLoaded" />
-    <div v-else class="pref-automatic-reply">
+    <div class="pref-automatic-reply">
         <bm-form-checkbox v-model="value.enabled" class="mb-3">
             {{ $t("preferences.mail.automatic_reply.activate") }}
         </bm-form-checkbox>
@@ -16,7 +15,7 @@
             <bm-form-group :label="$t('common.message')" label-for="message" label-class="text-capitalize">
                 <bm-rich-editor
                     ref="message"
-                    v-model="value.textHtml"
+                    v-model="textHtml"
                     is-menu-bar-opened
                     has-border
                     :disabled="!value.enabled"
@@ -81,8 +80,7 @@ import {
     BmFormInput,
     BmFormTimePicker,
     BmIcon,
-    BmRichEditor,
-    BmSpinner
+    BmRichEditor
 } from "@bluemind/styleguide";
 import { mapState } from "vuex";
 import CentralizedSaving from "../../mixins/CentralizedSaving";
@@ -97,29 +95,13 @@ export default {
         BmFormInput,
         BmFormTimePicker,
         BmIcon,
-        BmRichEditor,
-        BmSpinner
+        BmRichEditor
     },
     mixins: [CentralizedSaving],
-    data() {
-        return {
-            value: {
-                enabled: false,
-                start: null,
-                end: null,
-                subject: "",
-                text: "",
-                textHtml: ""
-            }
-        };
-    },
     computed: {
         ...mapState("session", { userLang: ({ settings }) => settings.remote.lang }),
-        ...mapState("preferences", {
-            isMailboxFilterLoaded: ({ mailboxFilter }) => mailboxFilter.loaded
-        }),
         isValid() {
-            return !this.value.enabled || this.value.subject.trim() !== "";
+            return !this.value.enabled || this.subject.trim() !== "";
         },
         startDate: {
             get() {
@@ -176,17 +158,28 @@ export default {
                     this.value.end = date.getTime();
                 }
             }
+        },
+        textHtml: {
+            get() {
+                return this.value.textHtml || "";
+            },
+            set(value) {
+                this.value.textHtml = value;
+            }
+        },
+        subject: {
+            get() {
+                return this.value.subject || "";
+            },
+            set(value) {
+                this.value.subject = value;
+            }
         }
     },
     watch: {
-        isMailboxFilterLoaded() {
-            if (this.isMailboxFilterLoaded) {
-                this.init();
-            }
-        },
         value: {
             async handler(value, old) {
-                if (value.textHtml !== old.textHtml) {
+                if (value.textHtml !== old?.textHtml) {
                     await this.$nextTick();
                     this.$refs["message"]?.updateContent();
                 }
@@ -195,24 +188,12 @@ export default {
         }
     },
     created() {
-        const save = async ({ state: { current, saved }, dispatch }) => {
-            if (current && !current.options.saved) {
-                try {
-                    await dispatch("preferences/SAVE_MAILBOX_FILTER", { vacation: current.value }, { root: true });
-                    this.PUSH_STATE({ value: current.value, options: { saved: true } });
-                } catch {
-                    this.PUSH_STATE(saved);
-                }
-            }
+        const save = async ({ state: { current }, dispatch }) => {
+            await dispatch("preferences/SAVE_MAILBOX_FILTER", { vacation: current.value }, { root: true });
         };
         this.registerSaveAction(save);
-    },
-    methods: {
-        async init() {
-            this.value = { ...this.$store.state.preferences.mailboxFilter.remote.vacation };
-            await this.$nextTick();
-            this.$refs["message"].updateContent();
-        }
+
+        this.value = { ...this.$store.state.preferences.mailboxFilter.remote.vacation };
     }
 };
 </script>

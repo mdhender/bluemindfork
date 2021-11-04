@@ -8,6 +8,8 @@ import threadSettingImageOff from "../../../../assets/setting-thread-off.svg";
 
 import { mapExtensions } from "@bluemind/extensions";
 
+import PrefSoonAvailable from "../PrefEntryName/PrefSoonAvailable";
+
 export default function (i18n) {
     const mail = mapExtensions("webapp.banner", ["application"]).application?.find(
         ({ $id }) => $id === "net.bluemind.webapp.mail.js"
@@ -26,12 +28,8 @@ export default function (i18n) {
                 groups: [
                     {
                         id: "thread",
-                        name: {
-                            name: "PrefSoonAvailable",
-                            options: {
-                                label: i18n.t("preferences.mail.thread")
-                            }
-                        },
+                        name: i18n.t("preferences.mail.thread"),
+                        nameRenderer: PrefSoonAvailable,
                         disabled: { name: "StoreFieldCondition", args: ["mail.main.thread.field", "unavailable"] },
                         fields: [
                             {
@@ -180,6 +178,19 @@ export default function (i18n) {
                             {
                                 id: "field",
                                 component: { name: "PrefEmailsForwarding" }
+                            }
+                        ]
+                    },
+                    {
+                        id: "filters",
+                        name: i18n.t("preferences.mail.filters"),
+                        fields: [
+                            {
+                                id: "field",
+                                component: {
+                                    name: "PrefFilterRules",
+                                    options: { autosave: true }
+                                }
                             }
                         ]
                     }

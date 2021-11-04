@@ -106,6 +106,7 @@
 </template>
 
 <script>
+import cloneDeep from "lodash.clonedeep";
 import { mapGetters, mapMutations, mapState } from "vuex";
 import { EmailValidator } from "@bluemind/email";
 import { sanitizeHtml } from "@bluemind/html-utils";
@@ -217,7 +218,7 @@ export default {
                 } catch {
                     this.modalStatus = "ERROR";
                 }
-                this.originalIdentity = JSON.parse(JSON.stringify(this.identity));
+                this.originalIdentity = cloneDeep(this.identity);
                 this.emailInput = this.identity.email;
             } else {
                 this.modalStatus = "LOADED";

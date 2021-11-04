@@ -2,7 +2,7 @@
     <bm-col lg="10" cols="12" class="pref-right-panel d-lg-flex flex-column h-100">
         <pref-right-panel-header :selected-section="section" @close="$emit('close')" />
         <pref-right-panel-nav v-if="!HAS_SEARCH" :sections="sections" />
-        <bm-alert-area :alerts="alerts" @remove="REMOVE">
+        <bm-alert-area :alerts="alerts" stackable @remove="REMOVE">
             <template v-slot="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
         </bm-alert-area>
         <pref-sections v-show="!HAS_SEARCH" ref="sections" :sections="sections" />
@@ -24,7 +24,9 @@ import PrefRightPanelNav from "./PrefRightPanelNav";
 import PrefSections from "../PrefSections";
 import PrefSearchResults from "./PrefSearchResults";
 import NeedReconnectionAlert from "../Alerts/NeedReconnectionAlert";
+import NotValidAlert from "../Alerts/NotValidAlert";
 import ReloadAppAlert from "../Alerts/ReloadAppAlert";
+import SaveErrorAlert from "../Alerts/SaveErrorAlert";
 
 export default {
     name: "PrefRightPanel",
@@ -37,7 +39,9 @@ export default {
         PrefSections,
         PrefSearchResults,
         NeedReconnectionAlert,
-        ReloadAppAlert
+        NotValidAlert,
+        ReloadAppAlert,
+        SaveErrorAlert
     },
     props: {
         sections: {
@@ -60,13 +64,19 @@ export default {
                 });
                 this.searchResults = Array.from(groupMap.values());
                 this.isSearchLoading = false;
-            }, 500)
+            }, 500),
+            warnings: []
         };
     },
     computed: {
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "pref-right-panel") }),
         ...mapState("preferences", ["selectedSectionId", "sectionById"]),
-        ...mapGetters("preferences/fields", ["IS_LOGOUT_NEEDED", "IS_RELOAD_NEEDED"]),
+        ...mapGetters("preferences/fields", [
+            "ERRORS",
+            "IS_LOGOUT_NEEDED",
+            "IS_RELOAD_NEEDED",
+            "NOT_VALID_PREFERENCES"
+        ]),
         ...mapGetters("preferences", ["GET_GROUP", "HAS_SEARCH", "SEARCH_PATTERN"]),
         isReloadNeeded() {
             return this.IS_LOGOUT_NEEDED || this.IS_RELOAD_NEEDED;
@@ -100,6 +110,37 @@ export default {
             } else {
                 this.searchResults = [];
             }
+        },
+        ERRORS(fieldIds) {
+            const errors = [];
+            fieldIds.forEach(fieldId => {
+                const group = this.GROUP_BY_FIELD_ID(fieldId);
+                if (!errors.includes(group.id)) {
+                    errors.push(group.id);
+                    const alert = {
+                        alert: { uid: group.id, payload: { group } },
+                        options: { area: "pref-right-panel", renderer: "SaveErrorAlert", dismissible: true }
+                    };
+                    this.ERROR(alert);
+                }
+            });
+        },
+        NOT_VALID_PREFERENCES(fieldIds) {
+            const warnings = [];
+            fieldIds.forEach(fieldId => {
+                const group = this.GROUP_BY_FIELD_ID(fieldId);
+                if (!warnings.includes(group.id)) {
+                    warnings.push(group.id);
+                    const alert = {
+                        alert: { uid: group.id, payload: { group } },
+                        options: { area: "pref-right-panel", renderer: "NotValidAlert", dismissible: true }
+                    };
+                    this.WARNING(alert);
+                }
+            });
+            const toRemoveWarnings = this.warnings.filter(groupId => !warnings.includes(groupId));
+            toRemoveWarnings.forEach(groupId => this.REMOVE({ uid: groupId }));
+            this.warnings = warnings;
         }
     },
     methods: {

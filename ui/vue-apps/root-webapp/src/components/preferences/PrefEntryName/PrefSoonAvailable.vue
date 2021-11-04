@@ -1,6 +1,6 @@
 <template>
     <div class="d-flex align-items-center">
-        <span class="h2 pr-2" :class="{ 'text-alternate-light': entry.disabled }">{{ label }}</span>
+        <span class="h2 pr-2" :class="{ 'text-alternate-light': entry.disabled }">{{ entry.name }}</span>
         <span v-if="entry.disabled" class="available-soon h2">{{ $t("common.available_soon") }}</span>
     </div>
 </template>
@@ -10,10 +10,6 @@ export default {
     props: {
         entry: {
             type: Object,
-            required: true
-        },
-        label: {
-            type: String,
             required: true
         }
     }

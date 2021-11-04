@@ -10,8 +10,9 @@
             />
             <div class="pref-item-width"><hr /></div>
             <pref-tags-subset
-                :tags="userTags"
-                :title="$t('preferences.general.tags.subset.user', { count: userTags.length })"
+                v-if="value"
+                :tags="value"
+                :title="$t('preferences.general.tags.subset.user', { count: value.length })"
                 editable
                 @remove="removeUserTag"
                 @edit="
@@ -24,35 +25,36 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
-
 import { inject } from "@bluemind/inject";
-import { ERROR } from "@bluemind/alert.store";
 import UUIDGenerator from "@bluemind/uuid";
 
-import BaseField from "../../../mixins/BaseField";
 import PrefTagModal from "./PrefTagModal";
 import PrefTagsSubset from "./PrefTagsSubset";
+import CentralizedSaving from "../../../mixins/CentralizedSaving";
 
 export default {
     name: "PrefTags",
     components: { PrefTagModal, PrefTagsSubset },
-    mixins: [BaseField],
+    mixins: [CentralizedSaving],
     data() {
-        return { domainTags: [], userTags: [], editingTag: {} };
+        return { domainTags: [], editingTag: {} };
     },
     async created() {
+        const save = async ({ state: { current, saved } }) => {
+            await this.saveUserTags(current.value, saved?.value);
+        };
+        this.registerSaveAction(save);
+
+        this.value = await this.fetchUserTags();
         this.domainTags = await this.fetchDomainTags();
-        this.userTags = await this.fetchUserTags();
     },
     methods: {
-        ...mapActions("alert", { ERROR }),
         async fetchDomainTags() {
             const containerId = "tags_" + inject("UserSession").domain;
             const domainTags = await inject("TagsPersistence", containerId)?.all();
             return domainTags.map(t => ({
                 label: t.value.label,
-                color: this.normalizeColor(t.value.color),
+                color: normalizeColor(t.value.color),
                 id: t.uid
             }));
         },
@@ -61,78 +63,66 @@ export default {
             const userTags = await inject("TagsPersistence", containerId)?.all();
             return userTags.map(t => ({
                 label: t.value.label,
-                color: this.normalizeColor(t.value.color),
+                color: normalizeColor(t.value.color),
                 id: t.uid,
                 editable: true
             }));
         },
+        async saveUserTags(current, previous = []) {
+            const previousById = previous.reduce((result, value) => ({ ...result, [value.id]: value }), {});
+            const previousIds = Object.keys(previousById);
+            const currentIds = current.map(c => c.id);
+
+            const added = current.filter(c => !previousIds.includes(c.id));
+            const removed = previous.filter(p => !currentIds.includes(p.id));
+            const modified = current.filter(c => previousIds.includes(c.id) && !areEqual(c, previousById[c.id]));
+
+            const operations = {
+                add: toStoredTags(added),
+                modify: toStoredTags(modified),
+                delete: toStoredTags(removed)
+            };
+
+            const containerId = "tags_" + inject("UserSession").userId;
+            await inject("TagsPersistence", containerId)?.updates(operations);
+        },
         async addUserTag(tag) {
             const label = tag.label.trim();
-            const color = this.toStoredColor(tag.color);
+            const color = toStoredColor(tag.color);
             const uid = UUIDGenerator.generate();
 
-            this.userTags.push({ label, color, id: uid, editable: true });
-
-            try {
-                const containerId = "tags_" + inject("UserSession").userId;
-                await inject("TagsPersistence", containerId)?.updates({ add: [{ uid, value: { label, color } }] });
-            } catch (e) {
-                this.userTags.pop();
-                this.error();
-                throw e;
-            }
+            this.value.push({ label, color, id: uid, editable: true });
         },
         async updateUserTag(tag) {
             if (!tag.id) {
                 this.addUserTag(tag);
             } else {
-                const tagIndex = this.userTags.findIndex(t => t.id === tag.id);
-                const previous = { ...this.userTags[tagIndex] };
-
-                this.userTags.splice(tagIndex, 1, { ...previous, ...tag });
-
-                try {
-                    const containerId = "tags_" + inject("UserSession").userId;
-                    await inject("TagsPersistence", containerId)?.updates({
-                        modify: [
-                            { uid: tag.id, value: { label: tag.label.trim(), color: this.toStoredColor(tag.color) } }
-                        ]
-                    });
-                } catch (e) {
-                    this.userTags[tagIndex] = previous;
-                    this.error();
-                    throw e;
-                }
+                const tagIndex = this.value.findIndex(t => t.id === tag.id);
+                const previous = { ...this.value[tagIndex] };
+                this.value.splice(tagIndex, 1, { ...previous, ...tag });
             }
         },
         async removeUserTag(tag) {
-            const tagIndex = this.userTags.findIndex(t => t.id === tag.id);
-
-            this.userTags.splice(tagIndex, 1);
-
-            try {
-                const containerId = "tags_" + inject("UserSession").userId;
-                await inject("TagsPersistence", containerId)?.updates({ delete: [{ uid: tag.id }] });
-            } catch (e) {
-                this.userTags.splice(tagIndex, 0, tag);
-                this.error();
-                throw e;
-            }
-        },
-        error() {
-            this.ERROR({
-                alert: { name: "preferences.update", uid: "TAG_UPDATE_ERROR" },
-                options: { area: "pref-right-panel", renderer: "DefaultAlert" }
-            });
-        },
-        normalizeColor(color) {
-            return color.startsWith("#") ? color : "#" + color;
-        },
-        toStoredColor(color) {
-            return color.startsWith("#") ? color.substring(1) : color;
+            const tagIndex = this.value.findIndex(t => t.id === tag.id);
+            this.value.splice(tagIndex, 1);
         }
     }
 };
+
+function normalizeColor(color) {
+    return color.startsWith("#") ? color : "#" + color;
+}
+
+function toStoredColor(color) {
+    return color.startsWith("#") ? color.substring(1) : color;
+}
+function areEqual(tagA, tagB) {
+    return tagA.id === tagB.id && tagA.color === tagB.color && tagA.label === tagB.label;
+}
+
+function toStoredTags(tags) {
+    return tags.map(t => ({ uid: t.id, value: { label: t.label.trim(), color: toStoredColor(t.color) } }));
+}
 </script>
 
 <style lang="scss">

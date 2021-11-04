@@ -1,6 +1,7 @@
 import preferenceContainers from "./preferences/store/preferenceContainers";
 import { html2text, text2html } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
+import cloneDeep from "lodash.clonedeep";
 
 const state = {
     offset: 0,
@@ -39,7 +40,7 @@ const actions = {
         }
         commit("SET_MAILBOX_FILTER", mailboxFilter);
     },
-    async SAVE_MAILBOX_FILTER({ commit, state }, { vacation, forwarding }) {
+    async SAVE_MAILBOX_FILTER({ commit, state }, { vacation, forwarding, rules }) {
         if (vacation) {
             if (vacation.textHtml) {
                 vacation = { ...vacation, text: html2text(vacation.textHtml) };
@@ -49,19 +50,30 @@ const actions = {
         if (forwarding) {
             commit("SET_FORWARDING", forwarding);
         }
+        if (rules) {
+            commit("SET_RULES", rules);
+        }
         const userId = inject("UserSession").userId;
         await inject("MailboxesPersistence").setMailboxFilter(userId, state.mailboxFilter.local);
         commit("SET_MAILBOX_FILTER", state.mailboxFilter.local);
     },
     async SAVE({ commit, dispatch }) {
         commit("SET_STATUS", "saving");
-        await dispatch("fields/SAVE");
-        commit("SET_STATUS", "saved");
+        try {
+            await dispatch("fields/SAVE");
+            commit("SET_STATUS", "saved");
+        } catch {
+            commit("SET_STATUS", "error");
+        }
     },
     async AUTOSAVE({ commit, dispatch }) {
         commit("SET_STATUS", "saving");
-        await dispatch("fields/AUTOSAVE");
-        commit("SET_STATUS", "saved");
+        try {
+            await dispatch("fields/AUTOSAVE");
+            commit("SET_STATUS", "saved");
+        } catch {
+            commit("SET_STATUS", "error");
+        }
     },
     CANCEL({ dispatch }) {
         return dispatch("fields/CANCEL");
@@ -112,18 +124,21 @@ const mutations = {
 
     // mailboxFilter
     SET_MAILBOX_FILTER: (state, mailboxFilter) => {
-        state.mailboxFilter.remote = JSON.parse(JSON.stringify(mailboxFilter));
-        state.mailboxFilter.local = JSON.parse(JSON.stringify(mailboxFilter));
+        state.mailboxFilter.remote = cloneDeep(mailboxFilter);
+        state.mailboxFilter.local = cloneDeep(mailboxFilter);
         state.mailboxFilter.loaded = true;
     },
     ROLLBACK_MAILBOX_FILTER: state => {
-        state.mailboxFilter.local = JSON.parse(JSON.stringify(state.mailboxFilter.remote));
+        state.mailboxFilter.local = cloneDeep(state.mailboxFilter.remote);
     },
     SET_VACATION: (state, vacation) => {
-        state.mailboxFilter.local.vacation = JSON.parse(JSON.stringify(vacation));
+        state.mailboxFilter.local.vacation = cloneDeep(vacation);
     },
     SET_FORWARDING: (state, forwarding) => {
-        state.mailboxFilter.local.forwarding = JSON.parse(JSON.stringify(forwarding));
+        state.mailboxFilter.local.forwarding = cloneDeep(forwarding);
+    },
+    SET_RULES: (state, rules) => {
+        state.mailboxFilter.local.rules = cloneDeep(rules);
     }
 };
 
@@ -137,6 +152,15 @@ const getters = {
             .flatMap(category => category.groups)
             .find(group => group.id === groupId),
     SECTIONS: ({ sectionById }) => Object.values(sectionById).filter(section => section.visible),
+    GROUP_BY_FIELD_ID: state => fieldId => {
+        const splitId = fieldId.split(".");
+        const sectionId = splitId[0];
+        const categoryId = `${sectionId}.${splitId[1]}`;
+        const groupId = `${categoryId}.${splitId[2]}`;
+        return state.sectionById[sectionId]?.categories
+            .find(c => c.id === categoryId)
+            ?.groups.find(g => g.id === groupId);
+    },
     STATUS: ({ status }, getters) => {
         if (getters["fields/HAS_CHANGED"]) return "idle";
         if (status === "saved" && getters["fields/HAS_ERROR"]) return "error";
@@ -189,13 +213,16 @@ export default {
                 }
             },
             getters: {
+                ERRORS: state => Object.keys(state).filter(id => state[id]?.current?.options.error),
                 HAS_CHANGED: state =>
                     Object.values(state).some(
                         ({ current }) => current?.options && !current.options.saved && !current.options.autosave
                     ),
                 HAS_ERROR: state => Object.values(state).some(({ current }) => current?.options.error),
+                HAS_NOT_VALID: state => Object.values(state).some(({ current }) => current?.options.notValid),
                 IS_RELOAD_NEEDED: state => Object.values(state).some(({ saved }) => saved?.options.reload),
-                IS_LOGOUT_NEEDED: state => Object.values(state).some(({ saved }) => saved?.options.logout)
+                IS_LOGOUT_NEEDED: state => Object.values(state).some(({ saved }) => saved?.options.logout),
+                NOT_VALID_PREFERENCES: state => Object.keys(state).filter(id => state[id]?.current?.options.notValid)
             }
         }
     }

@@ -26,8 +26,9 @@ import { TagsClient } from "@bluemind/tag.api";
 import { TodoListClient, TodoListsClient, VTodoClient } from "@bluemind/todolist.api";
 import { UserClient, UserMailIdentitiesClient, UserSubscriptionClient } from "@bluemind/user.api";
 import VueBus from "@bluemind/vue-bus";
-import { MailboxesClientProxy } from "../api/MailboxesClientProxy";
-import { UserSettingsClientProxy } from "../api/UserSettingsClientProxy";
+import { MailboxesClientProxy } from "./api/MailboxesClientProxy";
+import { MailboxFoldersClientProxy } from "./api/MailboxFoldersClientProxy";
+import { UserSettingsClientProxy } from "./api/UserSettingsClientProxy";
 
 export default function (userSession) {
     injector.register({
@@ -127,6 +128,13 @@ export default function (userSession) {
     injector.register({
         provide: "TaskService",
         factory: taskId => new TaskClient(userSession.sid, taskId)
+    });
+
+    injector.register({
+        provide: "MailboxFoldersPersistence",
+        factory: mailboxUid => {
+            return new MailboxFoldersClientProxy(userSession.sid, userSession.domain.replace(".", "_"), mailboxUid);
+        }
     });
 
     injector.register({
