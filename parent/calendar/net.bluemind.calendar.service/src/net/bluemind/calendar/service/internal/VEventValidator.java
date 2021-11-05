@@ -29,6 +29,7 @@ import com.google.common.base.Strings;
 import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventCounter;
+import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeValidator;
@@ -61,6 +62,7 @@ public class VEventValidator implements IValidator<VEventSeries> {
 			validate(vevent.main);
 		}
 		vevent.occurrences.forEach(this::validate);
+		validateRecurIds(vevent.occurrences);
 		validateCounters(vevent);
 	}
 
@@ -159,6 +161,22 @@ public class VEventValidator implements IValidator<VEventSeries> {
 		}
 
 		validateAttachments(vevent.attachments);
+	}
+
+	private void validateRecurIds(List<VEventOccurrence> occurrences) {
+		if (occurrences.isEmpty()) {
+			return;
+		}
+		Set<String> ids = new HashSet<>();
+
+		for (VEventOccurrence occ : occurrences) {
+			if (occ.recurid != null) {
+				if (ids.contains(occ.recurid.toString())) {
+					throw new ServerFault("Duplicated recurid found", ErrorCode.EVENT_DUPLICATED_RECURID);
+				}
+				ids.add(occ.recurid.toString());
+			}
+		}
 	}
 
 	private void validateAttachments(List<AttachedFile> attachments) {

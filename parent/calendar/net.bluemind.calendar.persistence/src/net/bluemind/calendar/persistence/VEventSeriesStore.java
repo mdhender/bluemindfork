@@ -79,9 +79,6 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 	@Override
 	public void update(Item item, VEventSeries series) throws SQLException {
 		logger.debug("updating vevent series for item {} ", item.id);
-		insert("UPDATE t_calendar_series SET " + //
-				"(" + SeriesColumns.cols.names() + ") = (" + SeriesColumns.cols.values() + ") " + //
-				" WHERE item_id = ? ", series, SeriesColumns.values(item.id));
 		delete(item);
 		create(item, series);
 	}

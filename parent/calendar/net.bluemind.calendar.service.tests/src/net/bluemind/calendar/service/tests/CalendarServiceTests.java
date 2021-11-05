@@ -192,6 +192,33 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	}
 
 	@Test
+	public void testDuplicateRecurIdValidation() throws ServerFault {
+		VEventSeries event = new VEventSeries();
+		BmDateTime recurid = BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis());
+		event.occurrences = new ArrayList<>(Arrays.asList((VEventOccurrence.fromEvent(defaultVEvent().main, recurid))));
+		String uid = "test_" + System.nanoTime();
+
+		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
+		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
+
+		event.occurrences.add(event.occurrences.get(0));
+		try {
+			getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
+			fail();
+		} catch (ServerFault e) {
+			assertEquals(e.getCode(), ErrorCode.EVENT_DUPLICATED_RECURID);
+		}
+
+		uid = "test_" + System.nanoTime();
+		try {
+			getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
+			fail();
+		} catch (ServerFault e) {
+			assertEquals(e.getCode(), ErrorCode.EVENT_DUPLICATED_RECURID);
+		}
+	}
+
+	@Test
 	public void testOrganizer() throws ServerFault {
 		VEventSeries event = defaultVEvent();
 		String uid = "test_" + System.nanoTime();
