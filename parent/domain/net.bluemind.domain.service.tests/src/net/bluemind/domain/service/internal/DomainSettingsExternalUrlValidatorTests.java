@@ -17,68 +17,136 @@
   */
 package net.bluemind.domain.service.internal;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
+import org.junit.Before;
 import org.junit.Test;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.jdbc.JdbcActivator;
+import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.tests.BmTestContext;
-import net.bluemind.domain.api.DomainSettings;
 import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.role.api.BasicRoles;
+import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class DomainSettingsExternalUrlValidatorTests {
 
-	private static final String DOMAIN_SETTINGS_KEY = DomainSettingsKeys.external_url.name();
-	String domainUid = "bm.lan";
-
-	private DomainSettings emptySettings = new DomainSettings("bm.lan", new HashMap<>());
+	private String domainUid1 = "bm.lan";
+	private BmTestContext domain1Admin;
 	private BmTestContext admin0 = new BmTestContext(SecurityContext.SYSTEM);
 	private DomainSettingsValidator validator = new DomainSettingsValidator();
 
-	@Test
-	public void testNullDomainExternalUrl() {
-		DomainSettings ds = new DomainSettings(domainUid, new HashMap<>());
+	@Before
+	public void before() throws Exception {
+		JdbcTestHelper.getInstance().beforeTest();
+		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
-		validator.create(admin0, ds.settings, domainUid);
-		validator.update(admin0, emptySettings.settings, ds.settings, domainUid);
+		PopulateHelper.initGlobalVirt();
 
-		ds.settings.put(DOMAIN_SETTINGS_KEY, null);
-		validator.create(admin0, ds.settings, domainUid);
-		validator.update(admin0, emptySettings.settings, ds.settings, domainUid);
+		PopulateHelper.createTestDomain(domainUid1);
+
+		domain1Admin = BmTestContext.contextWithSession("adminSessionId", "testAdmin", domainUid1,
+				BasicRoles.ROLE_ADMIN);
+
+		final CountDownLatch launched = new CountDownLatch(1);
+		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
+			@Override
+			public void handle(AsyncResult<Void> event) {
+				launched.countDown();
+			}
+		});
+
+		launched.await();
 	}
 
 	@Test
-	public void testEmptyDomainExternalUrl() {
-		DomainSettings ds = new DomainSettings(domainUid, new HashMap<>());
-		ds.settings.put(DOMAIN_SETTINGS_KEY, "");
+	public void checkDomainUrl_admin0() {
+		Map<String, String> settings = new HashMap<>();
+		validator.create(admin0, settings, domainUid1);
+		validator.update(admin0, Collections.emptyMap(), settings, domainUid1);
 
-		validator.create(admin0, ds.settings, domainUid);
-		validator.update(admin0, emptySettings.settings, ds.settings, domainUid);
-	}
+		settings.put(DomainSettingsKeys.external_url.name(), null);
+		validator.create(admin0, settings, domainUid1);
+		validator.update(admin0, Collections.emptyMap(), settings, domainUid1);
 
-	@Test
-	public void testValidDomainExternalUrl() {
-		DomainSettings ds = new DomainSettings(domainUid, new HashMap<>());
-		ds.settings.put(DOMAIN_SETTINGS_KEY, "ext.bm.lan");
+		settings.put(DomainSettingsKeys.external_url.name(), "");
+		validator.create(admin0, settings, domainUid1);
+		validator.update(admin0, Collections.emptyMap(), settings, domainUid1);
 
-		validator.create(admin0, ds.settings, domainUid);
-		validator.update(admin0, emptySettings.settings, ds.settings, domainUid);
-	}
+		settings.put(DomainSettingsKeys.external_url.name(), "valid.domain.tld");
+		validator.create(admin0, settings, domainUid1);
+		validator.update(admin0, Collections.emptyMap(), settings, domainUid1);
 
-	@Test
-	public void testInvalidDomainExternalUrl() {
-		DomainSettings ds = new DomainSettings(domainUid, new HashMap<>());
-		ds.settings.put(DOMAIN_SETTINGS_KEY, "invalid");
+		settings.put(DomainSettingsKeys.external_url.name(), "cpt");
+		try {
+			validator.create(admin0, settings, domainUid1);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
 
 		try {
-			validator.create(admin0, ds.settings, domainUid);
-			fail("invalid " + DOMAIN_SETTINGS_KEY);
+			validator.update(admin0, Collections.emptyMap(), settings, domainUid1);
+			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
-
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
 		}
 	}
 
+	@Test
+	public void checkDomainUrl_domainAdmin() {
+		Map<String, String> settings = new HashMap<>();
+		validator.create(domain1Admin, settings, domainUid1);
+		validator.update(domain1Admin, Collections.emptyMap(), settings, domainUid1);
+
+		settings.put(DomainSettingsKeys.external_url.name(), null);
+		validator.create(domain1Admin, settings, domainUid1);
+		validator.update(domain1Admin, Collections.emptyMap(), settings, domainUid1);
+
+		settings.put(DomainSettingsKeys.external_url.name(), "");
+		validator.create(domain1Admin, settings, domainUid1);
+		validator.update(domain1Admin, Collections.emptyMap(), settings, domainUid1);
+
+		settings.put(DomainSettingsKeys.external_url.name(), "valid.domain.tld");
+		try {
+			validator.create(domain1Admin, settings, domainUid1);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.FORBIDDEN, sf.getCode());
+		}
+
+		try {
+			validator.update(domain1Admin, Collections.emptyMap(), settings, domainUid1);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.FORBIDDEN, sf.getCode());
+		}
+
+		settings.put(DomainSettingsKeys.external_url.name(), "cpt");
+		try {
+			validator.create(domain1Admin, settings, domainUid1);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.FORBIDDEN, sf.getCode());
+		}
+
+		try {
+			validator.update(domain1Admin, Collections.emptyMap(), settings, domainUid1);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.FORBIDDEN, sf.getCode());
+		}
+	}
 }

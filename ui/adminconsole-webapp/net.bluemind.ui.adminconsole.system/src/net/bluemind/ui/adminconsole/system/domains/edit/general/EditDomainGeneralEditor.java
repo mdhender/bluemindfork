@@ -54,6 +54,7 @@ import net.bluemind.ui.adminconsole.system.SettingsModel;
 import net.bluemind.ui.adminconsole.system.domains.DomainKeys;
 import net.bluemind.ui.adminconsole.system.domains.edit.general.l10n.LocaleIdTranslation;
 import net.bluemind.ui.adminconsole.system.systemconf.auth.SysConfAuthenticationEditor;
+import net.bluemind.ui.common.client.forms.Ajax;
 import net.bluemind.ui.common.client.forms.GwtTimeZone;
 
 public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
@@ -187,6 +188,8 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		if (null != externalUrlSetting) {
 			externalUrl.setText(externalUrlSetting);
 		}
+		externalUrl.setReadOnly(!Ajax.TOKEN.isDomainGlobal());
+		externalUrl.setEnabled(!externalUrl.isReadOnly());
 
 		String defaultDomainSetting = SettingsModel.domainSettingsFrom(model)
 				.get(DomainSettingsKeys.default_domain.name());

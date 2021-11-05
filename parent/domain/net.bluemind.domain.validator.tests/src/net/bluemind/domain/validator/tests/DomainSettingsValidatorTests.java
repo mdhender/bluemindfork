@@ -43,6 +43,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.service.internal.DomainSettingsValidator;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -58,6 +59,7 @@ public class DomainSettingsValidatorTests {
 	private DomainSettingsValidator validator;
 	private String domainUid;
 	private ContainerStoreService<Mailbox> mailboxStoreService;
+	private BmTestContext admin0 = new BmTestContext(SecurityContext.SYSTEM);
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -69,7 +71,6 @@ public class DomainSettingsValidatorTests {
 		domainUid = "bm.lan";
 
 		JdbcTestHelper.getInstance().beforeTest();
-
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		Server esServer = new Server();
@@ -109,7 +110,7 @@ public class DomainSettingsValidatorTests {
 	@Test
 	public void splitDomainValidatorTests() {
 		try {
-			validator.create(null, Collections.<String, String>emptyMap(), domainUid);
+			validator.create(admin0, Collections.<String, String>emptyMap(), domainUid);
 		} catch (ServerFault e) {
 			fail();
 		}
@@ -118,28 +119,28 @@ public class DomainSettingsValidatorTests {
 		settings.put(DomainSettingsKeys.mail_forward_unknown_to_relay.name(), "true");
 
 		try {
-			validator.create(null, settings, domainUid);
+			validator.create(admin0, settings, domainUid);
 			fail();
 		} catch (ServerFault e) {
 		}
 
 		settings.put(DomainSettingsKeys.mail_routing_relay.name(), "");
 		try {
-			validator.create(null, settings, domainUid);
+			validator.create(admin0, settings, domainUid);
 			fail();
 		} catch (ServerFault e) {
 		}
 
 		settings.put(DomainSettingsKeys.mail_routing_relay.name(), "       ");
 		try {
-			validator.create(null, settings, domainUid);
+			validator.create(admin0, settings, domainUid);
 			fail();
 		} catch (ServerFault e) {
 		}
 
 		settings.put(DomainSettingsKeys.mail_routing_relay.name(), "whatever");
 		try {
-			validator.create(null, settings, domainUid);
+			validator.create(admin0, settings, domainUid);
 		} catch (ServerFault e) {
 			fail();
 		}
@@ -155,7 +156,7 @@ public class DomainSettingsValidatorTests {
 		oldSettings.put(DomainSettingsKeys.mail_forward_unknown_to_relay.name(), "true");
 		oldSettings.put(DomainSettingsKeys.mail_routing_relay.name(), "whatever.bm.lan");
 		try {
-			validator.update(null, oldSettings, settings, "bm.lan");
+			validator.update(admin0, oldSettings, settings, "bm.lan");
 		} catch (ServerFault sf) {
 			fail();
 		}
@@ -164,7 +165,7 @@ public class DomainSettingsValidatorTests {
 		Mailbox mailbox = defaultMailbox("splitDomainExternalUserValidator." + System.nanoTime());
 		mailboxStoreService.create(UUID.randomUUID().toString(), mailbox.name, mailbox);
 		try {
-			validator.update(null, oldSettings, settings, "bm.lan");
+			validator.update(admin0, oldSettings, settings, "bm.lan");
 			fail();
 		} catch (ServerFault sf) {
 		}

@@ -25,8 +25,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Strings;
-
 import net.bluemind.core.api.Regex;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -46,7 +44,9 @@ public class DomainSettingsValidator {
 	public void create(BmContext context, Map<String, String> settings, String domainUid) throws ServerFault {
 		checkSplitDomain(settings);
 		checkDomainMaxUsers(settings);
-		checkDomainUrl(settings.getOrDefault(DomainSettingsKeys.external_url.name(), ""), domainUid);
+		checkDomainUrl(context, Optional.empty(), Optional
+				.ofNullable(settings.get(DomainSettingsKeys.external_url.name())).map(eu -> eu.isEmpty() ? null : eu),
+				domainUid);
 		checkDefaultDomain(context, domainUid,
 				Optional.ofNullable(settings.get(DomainSettingsKeys.default_domain.name()))
 						.map(dd -> dd.isEmpty() ? null : dd));
@@ -68,7 +68,12 @@ public class DomainSettingsValidator {
 		}
 
 		checkDomainMaxUsers(newSettings);
-		checkDomainUrl(newSettings.getOrDefault(DomainSettingsKeys.external_url.name(), ""), domainUid);
+		checkDomainUrl(context,
+				Optional.ofNullable(oldSettings.get(DomainSettingsKeys.external_url.name()))
+						.map(eu -> eu.isEmpty() ? null : eu),
+				Optional.ofNullable(newSettings.get(DomainSettingsKeys.external_url.name()))
+						.map(eu -> eu.isEmpty() ? null : eu),
+				domainUid);
 		checkDefaultDomain(context, domainUid,
 				Optional.ofNullable(newSettings.get(DomainSettingsKeys.default_domain.name()))
 						.map(dd -> dd.isEmpty() ? null : dd));
@@ -116,16 +121,33 @@ public class DomainSettingsValidator {
 		}
 	}
 
-	private void checkDomainUrl(String domainUrl, String domainUid) {
+	private void checkDomainUrl(BmContext context, Optional<String> oldDomainUrl, Optional<String> domainUrl,
+			String domainUid) {
+		if (!context.getSecurityContext().isDomainGlobal() && oldDomainUrl
+				.map(odu -> isDomainUrlUpdated(odu, domainUrl)).orElseGet(() -> isDomainUrlUpdated(null, domainUrl))) {
+			throw new ServerFault("Only global admin can update domain external URL", ErrorCode.FORBIDDEN);
+		}
 
-		if (Strings.isNullOrEmpty(domainUrl)) {
+		if (!domainUrl.isPresent()) {
 			return;
 		}
 
-		if (!Regex.DOMAIN.validate(domainUrl)) {
+		if (!domainUrl.map(du -> Regex.DOMAIN.validate(du)).orElse(false)) {
 			throw new ServerFault(String.format("Invalid external URL '%s' for domain '%s'", domainUrl, domainUid),
 					ErrorCode.INVALID_PARAMETER);
 		}
+	}
+
+	private boolean isDomainUrlUpdated(String oldDomainUrl, Optional<String> domainUrl) {
+		if (oldDomainUrl == null && !domainUrl.isPresent()) {
+			return false;
+		}
+
+		if (oldDomainUrl != null && domainUrl.isPresent()) {
+			return domainUrl.map(du -> !du.equals(oldDomainUrl)).orElse(true);
+		}
+
+		return true;
 	}
 
 	private void checkDefaultDomain(BmContext context, String domainUid, Optional<String> defaultDomain) {
