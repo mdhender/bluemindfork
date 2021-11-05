@@ -21,6 +21,7 @@ package net.bluemind.core.container.service.internal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
@@ -557,6 +558,9 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	public List<ItemValue<T>> getMultiple(List<String> uids) {
+		if (uids == null || uids.isEmpty()) {
+			return Collections.emptyList();
+		}
 		return doOrFail(() -> {
 			List<Item> items = null;
 
@@ -571,6 +575,9 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	public List<ItemValue<T>> getMultipleById(List<Long> ids) {
+		if (ids == null || ids.isEmpty()) {
+			return Collections.emptyList();
+		}
 		return doOrFail(() -> {
 			List<Item> items = null;
 
