@@ -52,7 +52,7 @@ public class DomainSettingsConfigFileUpdate extends AbstractVerticle {
 
 	public static boolean suspended = false;
 
-	private static final String BM_EXTERNAL_URL_FILEPATH = "/etc/bm/domains-settings";
+	static final String BM_EXTERNAL_URL_FILEPATH = "/etc/bm/domains-settings";
 	private static final String NEW_LINE_SEPARATOR = "\n";
 	private static final String NEW_DATA_SEPARATOR = ":";
 

@@ -41,8 +41,6 @@ createDefaultVhost() {
     local vhostFile="/etc/nginx/bluemind/bluemind-vhosts.conf"
     local externalUrl=$(setDefaultExternalUrl)
 
-    [ -f /etc/bm/bm.ini ] && externalUrl=$(grep '^[^#]*external-url' /etc/bm/bm.ini | sed -e 's/ //g' | cut -d'=' -f2)
-
     [ ! -e /etc/ssl/certs/bm_cert.pem ] && {
         # Installation
         /usr/share/bm-client-access/bin/createcert.sh configure.your.external.url ${externalurl} $(hostname -I)
@@ -124,7 +122,10 @@ enableVhost() {
     if [ -f /etc/bm/bm.ini ]; then
         cp -f ../sites-available/bm-client-access .
     else
-        cp -f ../sites-available/bm-client-access-without-password .
+        local vhostFile="bm-client-access-without-password"
+        local externalUrl=$(setDefaultExternalUrl)
+        cp -f "../sites-available/"${vhostFile} .
+        setExternalUrl ${vhostFile} ${externalUrl}
     fi
     popd  2>&1 > /dev/null
 }

@@ -13,4 +13,10 @@
             impl="net.bluemind.domain.settings.config.DomainSettingsConfigFileUpdateFactory">
       </verticle>
    </extension>
+      <extension
+            point="net.bluemind.server.hook.serverhook">
+         <hook
+               impl="net.bluemind.domain.settings.config.ExternalUrlServerHook">
+         </hook>
+      </extension>
 </plugin>

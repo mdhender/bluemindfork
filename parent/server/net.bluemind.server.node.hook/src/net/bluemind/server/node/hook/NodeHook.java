@@ -8,12 +8,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -51,11 +54,12 @@ public class NodeHook extends DefaultServerHook {
 				fullInitLocalhost();
 			}
 			INodeClient remote = NodeActivator.get(adr);
-			remote.writeFile(serverCert, new ByteArrayInputStream(Files.toByteArray(new File(serverCert))));
+			remote.writeFile(serverCert, new ByteArrayInputStream(Files.readAllBytes((new File(serverCert)).toPath())));
 			remote.executeCommandNoOut("chmod 400 " + serverCert);
-			remote.writeFile(trustClientCert, new ByteArrayInputStream(Files.toByteArray(new File(trustClientCert))));
+			remote.writeFile(trustClientCert,
+					new ByteArrayInputStream(Files.readAllBytes((new File(trustClientCert)).toPath())));
 			remote.executeCommandNoOut("chmod 400 " + trustClientCert);
-			remote.writeFile(cacert, new ByteArrayInputStream(Files.toByteArray(new File(cacert))));
+			remote.writeFile(cacert, new ByteArrayInputStream(Files.readAllBytes((new File(cacert)).toPath())));
 			// make it easy to figure out which server we are
 			remote.writeFile("/etc/bm/server.uid", new ByteArrayInputStream(server.uid.getBytes()));
 			remote.ping();
@@ -73,13 +77,13 @@ public class NodeHook extends DefaultServerHook {
 			} else {
 				logger.info("Using overriden bm.ini for host {}", adr);
 			}
-			remote.writeFile("/etc/bm/bm.ini", new ByteArrayInputStream(Files.toByteArray(f)));
+			remote.writeFile("/etc/bm/bm.ini", new ByteArrayInputStream(Files.readAllBytes(f.toPath())));
 
-			remote.writeFile(bmcoretok, new ByteArrayInputStream(Files.toByteArray(new File(bmcoretok))));
+			remote.writeFile(bmcoretok, new ByteArrayInputStream(Files.readAllBytes((new File(bmcoretok)).toPath())));
 			remote.executeCommandNoOut("chmod 440 " + bmcoretok);
 			remote.executeCommandNoOut("chown root:bluemind " + bmcoretok);
 
-			copyBmCertFile(remote);
+			copyBmCertFile(adr, remote);
 
 			if (!NCUtils.connectedToMyself(remote)) {
 				if (!new File("/etc/bm/skip.restart").exists()) {
@@ -91,18 +95,31 @@ public class NodeHook extends DefaultServerHook {
 		}
 	}
 
-	private void copyBmCertFile(INodeClient remote) {
-		File bmcertFile = new File(bmCerts);
-		if (!bmcertFile.exists()) {
+	private void copyBmCertFile(String adr, INodeClient remote) {
+		File bmCertFile = new File(bmCerts);
+		if (!bmCertFile.exists()) {
 			return;
 		}
 
+		if (NCUtils.connectedToMyself(remote)) {
+			return;
+		}
+
+		copyToRemote(adr, remote, bmCertFile.toPath());
+
+		try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(Paths.get("/etc/ssl/certs"), "bm_cert-*.pem")) {
+			dirStream.forEach(path -> copyToRemote(adr, remote, path));
+		} catch (IOException e) {
+			throw new ServerFault(String.format("Fail to copy /etc/ssl/certs/bm_cert-*.pem to server %s", adr), e);
+		}
+	}
+
+	private void copyToRemote(String adr, INodeClient remote, Path file) {
 		try {
-			if (!NCUtils.connectedToMyself(remote)) {
-				remote.writeFile(bmCerts, new ByteArrayInputStream(Files.toByteArray(new File(bmCerts))));
-			}
-		} catch (Exception sf) {
-			throw new ServerFault(String.format("Cannot transfer %s", bmCerts), sf);
+			remote.writeFile(file.toFile().getAbsolutePath(), new ByteArrayInputStream(Files.readAllBytes(file)));
+		} catch (IOException e) {
+			throw new ServerFault(String.format("Fail to copy %s to server %s", file.toFile().getAbsolutePath(), adr),
+					e);
 		}
 	}
 
@@ -168,7 +185,7 @@ public class NodeHook extends DefaultServerHook {
 		logger.info("***** new core, must copy " + clientCert);
 		try {
 			INodeClient remote = NodeActivator.get(s.address());
-			remote.writeFile(clientCert, new ByteArrayInputStream(Files.toByteArray(new File(clientCert))));
+			remote.writeFile(clientCert, new ByteArrayInputStream(Files.readAllBytes((new File(clientCert)).toPath())));
 			NCUtils.execNoOut(remote, "chmod 400 " + clientCert);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
