@@ -11,9 +11,7 @@
         <parts-viewer v-if="selectedChoice === 0" :message="message" />
         <event-viewer-invitation v-else :message="message" />
     </div>
-    <div v-else-if="currentEvent.loading === LoadingStatus.ERROR">
-        <parts-viewer :message="message" />
-    </div>
+    <parts-viewer v-else-if="currentEvent.loading === LoadingStatus.ERROR" :message="message" />
 </template>
 
 <script>

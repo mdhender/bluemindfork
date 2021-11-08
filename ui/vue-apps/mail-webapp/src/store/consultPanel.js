@@ -17,25 +17,26 @@ export default {
     actions: {
         async [FETCH_EVENT]({ commit }, { message, mailbox }) {
             commit(SET_CURRENT_EVENT, { loading: LoadingStatus.LOADING });
-            let event;
-            if (message.eventInfo.icsUid) {
-                const events = await inject("CalendarPersistence").getByIcsUid(message.eventInfo.icsUid);
-                event = findEvent(events, message.eventInfo.recuridIsoDate) || events[0];
-            } else if (message.eventInfo.isResourceBooking) {
-                event = await inject("CalendarPersistence", "calendar:" + message.eventInfo.resourceUid).getComplete(
-                    message.eventInfo.eventUid
-                );
-            } else {
-                event = await inject("CalendarPersistence").getComplete(message.eventInfo.eventUid);
-            }
 
-            if (event) {
+            try {
+                let event;
+                if (message.eventInfo.icsUid) {
+                    const events = await inject("CalendarPersistence").getByIcsUid(message.eventInfo.icsUid);
+                    event = findEvent(events, message.eventInfo.recuridIsoDate) || events[0];
+                } else if (message.eventInfo.isResourceBooking) {
+                    event = await inject(
+                        "CalendarPersistence",
+                        "calendar:" + message.eventInfo.resourceUid
+                    ).getComplete(message.eventInfo.eventUid);
+                } else {
+                    event = await inject("CalendarPersistence").getComplete(message.eventInfo.eventUid);
+                }
                 const mailboxOwner = message.eventInfo.isResourceBooking
                     ? message.eventInfo.resourceUid
                     : mailbox.owner;
                 event = EventHelper.adapt(event, mailboxOwner, message.from.address, message.eventInfo.recuridIsoDate);
                 commit(SET_CURRENT_EVENT, event);
-            } else {
+            } catch {
                 commit(SET_CURRENT_EVENT, { loading: LoadingStatus.ERROR });
                 throw "Event not found";
             }
