@@ -18,7 +18,6 @@
   */
 package net.bluemind.domain.validator.tests;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.Collections;
@@ -36,7 +35,6 @@ import com.google.common.collect.Lists;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -150,6 +148,7 @@ public class DomainSettingsValidatorTests {
 
 	@Test
 	public void splitDomainExternalMailboxValidator() throws ServerFault {
+
 		Map<String, String> settings = new HashMap<>();
 		settings.put(DomainSettingsKeys.mail_forward_unknown_to_relay.name(), "false");
 
@@ -172,107 +171,6 @@ public class DomainSettingsValidatorTests {
 		}
 	}
 
-	@Test
-	public void maxUser_create() {
-		Map<String, String> settings = new HashMap<>();
-		validator.create(settings, domainUid);
-
-		settings.put(DomainSettingsKeys.domain_max_users.name(), null);
-		validator.create(settings, domainUid);
-
-		settings.put(DomainSettingsKeys.domain_max_users.name(), "");
-		validator.create(settings, domainUid);
-
-		try {
-			settings.put(DomainSettingsKeys.domain_max_users.name(), "invalid");
-			validator.create(settings, domainUid);
-			fail("Test must thrown an exception");
-		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
-		}
-
-		try {
-			settings.put(DomainSettingsKeys.domain_max_users.name(), "-1");
-			validator.create(settings, domainUid);
-			fail("Test must thrown an exception");
-		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
-		}
-
-		try {
-			settings.put(DomainSettingsKeys.domain_max_users.name(), "0");
-			validator.create(settings, domainUid);
-			fail("Test must thrown an exception");
-		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
-		}
-
-		settings.put(DomainSettingsKeys.domain_max_users.name(), "1");
-		validator.create(settings, domainUid);
-	}
-
-	@Test
-	public void maxUser_update() {
-		Map<String, String> oldSettings = new HashMap<>();
-		updateMaxUserSetting(oldSettings);
-
-		oldSettings.put(DomainSettingsKeys.domain_max_users.name(), null);
-		updateMaxUserSetting(oldSettings);
-
-		oldSettings.put(DomainSettingsKeys.domain_max_users.name(), "");
-		updateMaxUserSetting(oldSettings);
-
-		oldSettings.put(DomainSettingsKeys.domain_max_users.name(), "invalid");
-		updateMaxUserSetting(oldSettings);
-
-		oldSettings.put(DomainSettingsKeys.domain_max_users.name(), "-1");
-		updateMaxUserSetting(oldSettings);
-
-		oldSettings.put(DomainSettingsKeys.domain_max_users.name(), "0");
-		updateMaxUserSetting(oldSettings);
-
-		oldSettings.put(DomainSettingsKeys.domain_max_users.name(), "1");
-		updateMaxUserSetting(oldSettings);
-	}
-
-	private void updateMaxUserSetting(Map<String, String> oldSettings) {
-		Map<String, String> settings = new HashMap<>();
-		validator.update(oldSettings, settings, domainUid);
-
-		settings.put(DomainSettingsKeys.domain_max_users.name(), null);
-		validator.update(oldSettings, settings, domainUid);
-
-		settings.put(DomainSettingsKeys.domain_max_users.name(), "");
-		validator.update(oldSettings, settings, domainUid);
-
-		try {
-			settings.put(DomainSettingsKeys.domain_max_users.name(), "invalid");
-			validator.update(oldSettings, settings, domainUid);
-			fail("Test must thrown an exception");
-		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
-		}
-
-		try {
-			settings.put(DomainSettingsKeys.domain_max_users.name(), "-1");
-			validator.update(oldSettings, settings, domainUid);
-			fail("Test must thrown an exception");
-		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
-		}
-
-		try {
-			settings.put(DomainSettingsKeys.domain_max_users.name(), "0");
-			validator.update(oldSettings, settings, domainUid);
-			fail("Test must thrown an exception");
-		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
-		}
-
-		settings.put(DomainSettingsKeys.domain_max_users.name(), "1");
-		validator.update(oldSettings, settings, domainUid);
-	}
-
 	private Mailbox defaultMailbox(String name) {
 		Mailbox mailbox = new Mailbox();
 		mailbox.type = Type.user;
@@ -284,4 +182,5 @@ public class DomainSettingsValidatorTests {
 
 		return mailbox;
 	}
+
 }
