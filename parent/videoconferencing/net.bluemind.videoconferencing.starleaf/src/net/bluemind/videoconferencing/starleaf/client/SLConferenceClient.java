@@ -22,8 +22,9 @@ import java.util.List;
 
 import io.netty.handler.codec.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
-import net.bluemind.videoconferencing.starleaf.dto.SLConference;
+import net.bluemind.videoconferencing.starleaf.dto.SLConferenceDetails;
 import net.bluemind.videoconferencing.starleaf.dto.SLConferenceDialInfo;
+import net.bluemind.videoconferencing.starleaf.dto.SLConferenceSettings;
 
 public class SLConferenceClient extends SLClient {
 
@@ -51,7 +52,7 @@ public class SLConferenceClient extends SLClient {
 	/**
 	 * https://support.starleaf.com/integrating/cloud-api/org-admin-level-requests/#Create_conf
 	 */
-	public SLConferenceDialInfo create(SLConference conf) {
+	public SLConferenceDialInfo create(SLConferenceSettings conf) {
 
 		JsonObject body = new JsonObject();
 		body.put("settings", conf.asJson());
@@ -72,23 +73,27 @@ public class SLConferenceClient extends SLClient {
 	/**
 	 * https://support.starleaf.com/integrating/cloud-api/org-admin-level-requests/#Update_conf
 	 */
-	public SLConferenceDialInfo update(String confId, SLConference conf) {
+	public void update(String confId, SLConferenceSettings conf) {
 
 		JsonObject body = new JsonObject();
 		body.put("settings", conf.asJson());
 		body.put("owner_id", conf.ownerId);
 
-		JsonObject resp = execute(URL + "/" + confId, HttpMethod.PUT, body);
+		execute(URL + "/" + confId, HttpMethod.PUT, body);
 
-		return SLConferenceDialInfo.fromJson(confId, resp);
 	}
 
 	/**
 	 * https://support.starleaf.com/integrating/cloud-api/org-admin-level-requests/#find_conf_details
 	 */
-	public SLConference get(String confId) {
+	public SLConferenceDetails get(String confId) {
 		JsonObject resp = execute(URL + "/" + confId, HttpMethod.GET);
-		return SLConference.fromJson(resp);
+		SLConferenceDetails ret = new SLConferenceDetails();
+		ret.settings = SLConferenceSettings.fromJson(resp);
+		ret.dialInfo = SLConferenceDialInfo.fromJson(confId, resp.getJsonObject("dial_info"));
+
+		return ret;
+
 	}
 
 }

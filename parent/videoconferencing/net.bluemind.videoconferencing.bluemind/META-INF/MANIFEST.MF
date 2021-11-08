@@ -9,9 +9,9 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.videoconferencing.service,
  net.bluemind.videoconferencing.api,
  com.google.guava,
- net.bluemind.icalendar.api,
  net.bluemind.core.container.persistence,
  net.bluemind.resource.api,
  net.bluemind.core.rest,
  net.bluemind.system.api;bundle-version="4.1.0",
- net.bluemind.videoconferencing.saas.api
+ net.bluemind.videoconferencing.saas.api,
+ net.bluemind.calendar.api

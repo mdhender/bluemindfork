@@ -25,6 +25,8 @@ import java.util.Optional;
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 
+import net.bluemind.calendar.api.VEvent;
+import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
@@ -37,9 +39,9 @@ import net.bluemind.videoconferencing.api.VideoConference;
 import net.bluemind.videoconferencing.service.template.VideoConferencingTemplateHelper;
 import net.bluemind.videoconferencing.starleaf.client.SLConferenceClient;
 import net.bluemind.videoconferencing.starleaf.client.SLUserClient;
-import net.bluemind.videoconferencing.starleaf.dto.SLConference;
-import net.bluemind.videoconferencing.starleaf.dto.SLConference.Layout;
 import net.bluemind.videoconferencing.starleaf.dto.SLConferenceDialInfo;
+import net.bluemind.videoconferencing.starleaf.dto.SLConferenceRepetition;
+import net.bluemind.videoconferencing.starleaf.dto.SLConferenceSettings;
 import net.bluemind.videoconferencing.starleaf.dto.SLUser;
 
 public class StarLeafProvider implements IVideoConferencingProvider {
@@ -68,19 +70,52 @@ public class StarLeafProvider implements IVideoConferencingProvider {
 
 	@Override
 	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
-			ItemValue<ResourceDescriptor> resource, ICalendarElement vevent) {
+			ItemValue<ResourceDescriptor> resource, VEvent vevent) {
 
 		String token = resourceSettings.get("token");
 		String conferenceOwner = getStarLeafUserUid(context, vevent, token);
 		String title = Strings.isNullOrEmpty(vevent.summary) ? "conf" : vevent.summary;
 
-		SLConference conference = new SLConference(conferenceOwner, title, vevent.description,
-				Layout.speaker_with_strip, false, false, false, "", "");
-		SLConferenceClient starLeafConferenceClient = new SLConferenceClient(token);
-		SLConferenceDialInfo dialInfo = starLeafConferenceClient.create(conference);
+		String tz = vevent.timezone();
+		String start = new BmDateTimeWrapper(vevent.dtstart).format("yyyy-MM-dd'T'HH:mm:ss");
+		String end = new BmDateTimeWrapper(vevent.dtend).format("yyyy-MM-dd'T'HH:mm:ss");
 
+		SLConferenceRepetition repetition = null;
+
+		if (vevent.rrule != null) {
+			String until = null;
+			if (vevent.rrule.until != null) {
+				until = new BmDateTimeWrapper(vevent.rrule.until).format("yyyy-MM-dd'T'HH:mm:ss");
+			}
+			repetition = new SLConferenceRepetition(SLConferenceRepetition.frequency(vevent.rrule.frequency),
+					vevent.rrule.interval, vevent.rrule.count, until, null, null, null, null, null);
+		}
+
+		SLConferenceSettings conference = new SLConferenceSettings(conferenceOwner, title, vevent.description, true,
+				start, end, tz, repetition);
+		SLConferenceClient starLeafConferenceClient = new SLConferenceClient(token);
+
+		String confId = vevent.conferenceId;
+		SLConferenceDialInfo dialInfo;
+		if (Strings.isNullOrEmpty(confId)) {
+			dialInfo = starLeafConferenceClient.create(conference);
+			confId = dialInfo.confId;
+		} else {
+			dialInfo = starLeafConferenceClient.get(confId).dialInfo;
+			conference = new SLConferenceSettings(conferenceOwner, title,
+					templateHelper.removeTemplate(vevent.description, resource.uid), false, start, end, tz, repetition);
+			starLeafConferenceClient.update(confId, conference);
+		}
 		String description = templateHelper.addTag(dialInfo.customInviteFooter.replace("\n", "<br/>"), resource.uid);
-		return new VideoConference(dialInfo.confId, dialInfo.dialInfoUrl, description);
+		return new VideoConference(confId, dialInfo.dialInfoUrl, description);
+	}
+
+	@Override
+	public void deleteConference(BmContext context, Map<String, String> resourceSettings, String conferenceId) {
+		String token = resourceSettings.get("token");
+		SLConferenceClient starLeafConferenceClient = new SLConferenceClient(token);
+
+		starLeafConferenceClient.delete(conferenceId);
 	}
 
 	private String resolveOrganizer(BmContext context, ICalendarElement vevent) {

@@ -35,6 +35,7 @@ import net.bluemind.calendar.api.CalendarSettingsData;
 import net.bluemind.calendar.api.CalendarSettingsData.Day;
 import net.bluemind.calendar.api.ICalendarSettings;
 import net.bluemind.calendar.api.ICalendarUids;
+import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
@@ -76,7 +77,7 @@ public class VideoConferencingService implements IVideoConferencing {
 	}
 
 	@Override
-	public ICalendarElement add(ICalendarElement vevent) {
+	public VEvent add(VEvent vevent) {
 		List<ItemValue<ResourceDescriptor>> videoConferencingResoures = getVideoConferencingResource(vevent.attendees);
 		if (videoConferencingResoures.isEmpty()) {
 			return vevent;
@@ -122,10 +123,13 @@ public class VideoConferencingService implements IVideoConferencing {
 	}
 
 	@Override
-	public ICalendarElement remove(ICalendarElement vevent) {
+	public VEvent remove(VEvent vevent) {
 		if (Strings.isNullOrEmpty(vevent.conference)) {
 			return vevent;
 		}
+
+		String confId = vevent.conferenceId;
+
 		vevent.conference = null;
 		vevent.conferenceId = null;
 		vevent.conferenceConfiguration = new HashMap<>();
@@ -148,6 +152,11 @@ public class VideoConferencingService implements IVideoConferencing {
 
 		vevent.attendees.removeIf(a -> a.cutype == CUType.Resource && a.dir
 				.equals("bm://" + context.getSecurityContext().getContainerUid() + "/resources/" + resource.uid));
+
+		IContainerManagement containerMgmtService = context.getServiceProvider().instance(IContainerManagement.class,
+				resource.uid + "-settings-container");
+
+		videoConferencingProvider.get().deleteConference(context, containerMgmtService.getSettings(), confId);
 
 		return vevent;
 	}
@@ -175,7 +184,7 @@ public class VideoConferencingService implements IVideoConferencing {
 	}
 
 	@Override
-	public ICalendarElement update(ICalendarElement old, ICalendarElement current) {
+	public VEvent update(VEvent old, VEvent current) {
 		if (Strings.isNullOrEmpty(old.conference)) {
 			return add(current);
 		}

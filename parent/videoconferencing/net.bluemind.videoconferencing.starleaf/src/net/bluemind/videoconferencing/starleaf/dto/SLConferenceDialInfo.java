@@ -50,4 +50,11 @@ public class SLConferenceDialInfo {
 		return new SLConferenceDialInfo(confId, dialInfo.getString("dial_info_url"),
 				dialInfo.getString("custom_invite_footer"), dialInfo.getString("custom_invite_plain_text"));
 	}
+
+	@Override
+	public String toString() {
+		return "SLConferenceDialInfo [confId=" + confId + ", dialInfoUrl=" + dialInfoUrl + ", customInviteFooter="
+				+ customInviteFooter + ", customInvitePlainText=" + customInvitePlainText + "]";
+	}
+
 }

@@ -9,7 +9,7 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0",
  net.bluemind.core.container.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  com.google.gwt.user;resolution:=optional,
  net.bluemind.resource.api.gwt;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.icalendar.api.gwt;bundle-version="4.1.0";visibility:=reexport
+ net.bluemind.calendar.api.gwt;bundle-version="4.1.0";visibility:=reexport
 Export-Package: net.bluemind.videoconferencing.api.gwt.endpoint,
  net.bluemind.videoconferencing.api.gwt.js,
  net.bluemind.videoconferencing.api.gwt.serder

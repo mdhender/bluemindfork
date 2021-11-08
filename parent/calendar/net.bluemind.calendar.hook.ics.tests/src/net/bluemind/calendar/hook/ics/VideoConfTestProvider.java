@@ -20,9 +20,9 @@ package net.bluemind.calendar.hook.ics;
 import java.util.Map;
 import java.util.Optional;
 
+import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
 import net.bluemind.videoconferencing.api.VideoConference;
@@ -46,8 +46,14 @@ public class VideoConfTestProvider implements IVideoConferencingProvider {
 
 	@Override
 	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
-			ItemValue<ResourceDescriptor> resource, ICalendarElement vevent) {
+			ItemValue<ResourceDescriptor> resource, VEvent vevent) {
 		return null;
+	}
+
+	@Override
+	public void deleteConference(BmContext context, Map<String, String> resourceSettings, String conferenceId) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

@@ -20,9 +20,9 @@ package net.bluemind.videoconferencing.api;
 import java.util.Map;
 import java.util.Optional;
 
+import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.resource.api.ResourceDescriptor;
 
 public interface IVideoConferencingProvider {
@@ -32,7 +32,9 @@ public interface IVideoConferencingProvider {
 	public String name();
 
 	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
-			ItemValue<ResourceDescriptor> resource, ICalendarElement vevent);
+			ItemValue<ResourceDescriptor> resource, VEvent vevent);
+
+	public void deleteConference(BmContext context, Map<String, String> resourceSettings, String conferenceId);
 
 	public Optional<byte[]> getIcon();
 

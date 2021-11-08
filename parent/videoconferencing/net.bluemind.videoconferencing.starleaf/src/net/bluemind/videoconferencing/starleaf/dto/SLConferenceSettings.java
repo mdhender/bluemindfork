@@ -24,7 +24,7 @@ import io.vertx.core.json.JsonObject;
 /**
  * https://support.starleaf.com/integrating/cloud-api/request-objects/#conf_set
  */
-public class SLConference {
+public class SLConferenceSettings {
 
 	public enum Layout {
 		speaker_with_strip, equal_panes, speaker_only, large_speaker
@@ -65,8 +65,30 @@ public class SLConference {
 	// the Stream key field
 	public final String rtmpToken;
 
-	public SLConference(String ownerId, String title, String description, Layout layout, boolean dummy,
-			boolean recording, boolean rtmpEnable, String rtmpUri, String rtmpToken) {
+	// The start date and time of the conference in ISO 8601 format (without time
+	// zone). Must be null if the conference is permanent.
+	public final String start;
+
+	// The end date and time of the conference in ISO 8601 format (without time
+	// zone). Must be null if the conference is permanent.
+	public final String end;
+
+	// The name of the conference time zone, as per the IANA Time Zone Database.
+	// This must match one of the StarLeaf supported time zone names – see Timezone
+	// for more details.
+	public final String timezone;
+
+	public final SLConferenceRepetition repetition;
+
+	public SLConferenceSettings(String ownerId, String title, String description, boolean dummy, String start,
+			String end, String timezone, SLConferenceRepetition repetition) {
+		this(ownerId, title, description, Layout.speaker_with_strip, dummy, false, false, "", "", start, end, timezone,
+				repetition);
+	}
+
+	public SLConferenceSettings(String ownerId, String title, String description, Layout layout, boolean dummy,
+			boolean recording, boolean rtmpEnable, String rtmpUri, String rtmpToken, String start, String end,
+			String timezone, SLConferenceRepetition repetition) {
 		this.ownerId = ownerId;
 		this.title = title;
 		this.description = description;
@@ -76,6 +98,11 @@ public class SLConference {
 		this.rtmpEnable = rtmpEnable;
 		this.rtmpUri = rtmpUri;
 		this.rtmpToken = rtmpToken;
+		this.start = start;
+		this.end = end;
+		this.timezone = timezone;
+
+		this.repetition = repetition;
 	}
 
 	public JsonObject asJson() {
@@ -95,28 +122,37 @@ public class SLConference {
 		ret.put("rtmp_uri", rtmpUri);
 		ret.put("rtmp_token", rtmpToken);
 
-		ret.put("timezone", "Europe/Paris");
+		ret.put("timezone", timezone);
 		ret.put("hide_dir_entry", true);
 		ret.put("require_owner", false);
-		ret.put("permanent", true);
+		ret.put("permanent", false);
+
+		ret.put("start", start);
+		ret.put("end", end);
+
+		if (repetition != null) {
+			ret.put("repetition", repetition.asJson());
+		}
 
 		return ret;
 	}
 
-	public static final SLConference fromJson(JsonObject json) {
+	public static final SLConferenceSettings fromJson(JsonObject json) {
 		JsonObject settings = json.getJsonObject("settings");
 
-		return new SLConference(json.getString("owner_id"), settings.getString("title"),
+		return new SLConferenceSettings(json.getString("owner_id"), settings.getString("title"),
 				settings.getString("description"), Layout.valueOf(settings.getString("layout")),
 				settings.getBoolean("dummy"), settings.getBoolean("recording"), settings.getBoolean("rtmp_enable"),
-				settings.getString("rtmp_uri"), settings.getString("rtmp_token"));
+				settings.getString("rtmp_uri"), settings.getString("rtmp_token"), settings.getString("start"),
+				settings.getString("end"), settings.getString("timezone"), SLConferenceRepetition.fromJson(json));
 	}
 
 	@Override
 	public String toString() {
 		return "SLConference [ownerId=" + ownerId + ", title=" + title + ", description=" + description + ", layout="
 				+ layout + ", dummy=" + dummy + ", recording=" + recording + ", rtmpEnable=" + rtmpEnable + ", rtmpUri="
-				+ rtmpUri + ", rtmpToken=" + rtmpToken + "]";
+				+ rtmpUri + ", rtmpToken=" + rtmpToken + ", start=" + start + ", end=" + end + ", timezone=" + timezone
+				+ "]";
 	}
 
 }

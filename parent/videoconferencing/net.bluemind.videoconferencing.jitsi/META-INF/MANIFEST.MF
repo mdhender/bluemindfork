@@ -5,10 +5,10 @@ Bundle-SymbolicName: net.bluemind.videoconferencing.jitsi;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Automatic-Module-Name: net.bluemind.videoconferencing.jitsi
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: net.bluemind.icalendar.api,
- net.bluemind.core.rest,
+Require-Bundle: net.bluemind.core.rest,
  net.bluemind.resource.api,
  net.bluemind.videoconferencing.api;bundle-version="4.1.0",
  com.google.guava,
  net.bluemind.videoconferencing.service,
- net.bluemind.core.container.persistence
+ net.bluemind.core.container.persistence,
+ net.bluemind.calendar.api

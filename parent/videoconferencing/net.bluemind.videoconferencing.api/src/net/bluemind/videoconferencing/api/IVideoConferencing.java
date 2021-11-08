@@ -22,20 +22,20 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
+import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.api.BMApi;
-import net.bluemind.icalendar.api.ICalendarElement;
 
 @BMApi(version = "3")
 @Path("/videoconferencing/{containerUid}")
 public interface IVideoConferencing {
 
 	@PUT
-	public ICalendarElement add(ICalendarElement vevent);
+	public VEvent add(VEvent vevent);
 
 	@DELETE
-	public ICalendarElement remove(ICalendarElement vevent);
+	public VEvent remove(VEvent vevent);
 
-	public ICalendarElement update(ICalendarElement old, ICalendarElement current);
+	public VEvent update(VEvent old, VEvent current);
 
 	@PUT
 	@Path("createResource/{uid}")

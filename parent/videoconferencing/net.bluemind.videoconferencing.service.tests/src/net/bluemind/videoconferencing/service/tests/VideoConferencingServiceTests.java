@@ -49,7 +49,6 @@ import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.tests.BmTestContext;
-import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
@@ -93,7 +92,7 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 		event.main.attendees.add(videoconf);
 
 		// hello videoconf
-		ICalendarElement main = getService(domainAdminCtx.getSecurityContext()).add(event.main);
+		VEvent main = getService(domainAdminCtx.getSecurityContext()).add(event.main);
 		assertNotNull(main.conference);
 		assertEquals(
 				"Lorem ipsum blah blah<videoconferencingtemplate id=\"" + videoconfProviderId
@@ -174,7 +173,7 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 		VEventSeries event = defaultVEvent();
 		event.main.conference = "https://teams.yeah.yeah";
 
-		ICalendarElement main = getService(domainAdminCtx.getSecurityContext()).add(event.main);
+		VEvent main = getService(domainAdminCtx.getSecurityContext()).add(event.main);
 		assertEquals(event.main.conference, main.conference);
 
 		main = getService(domainAdminCtx.getSecurityContext()).remove(main);

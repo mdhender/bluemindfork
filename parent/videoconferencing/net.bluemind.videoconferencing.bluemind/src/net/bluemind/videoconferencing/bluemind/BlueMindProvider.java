@@ -25,11 +25,11 @@ import java.util.UUID;
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 
+import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
@@ -63,7 +63,7 @@ public class BlueMindProvider extends TemplateBasedVideoConferencingProvider imp
 
 	@Override
 	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
-			ItemValue<ResourceDescriptor> resource, ICalendarElement vevent) {
+			ItemValue<ResourceDescriptor> resource, VEvent vevent) {
 		ServerSideServiceProvider serviceProvider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		Optional<String> externalUrl = Optional
 				.ofNullable(serviceProvider.instance(ISystemConfiguration.class).getValues().values

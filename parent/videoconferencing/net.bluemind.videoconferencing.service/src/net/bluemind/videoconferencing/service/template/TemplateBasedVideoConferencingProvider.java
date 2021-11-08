@@ -20,9 +20,9 @@ package net.bluemind.videoconferencing.service.template;
 import java.util.Map;
 import java.util.UUID;
 
+import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.videoconferencing.api.VideoConference;
 
@@ -31,7 +31,7 @@ public abstract class TemplateBasedVideoConferencingProvider {
 	private static final VideoConferencingTemplateHelper templateHelper = new VideoConferencingTemplateHelper();
 
 	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
-			ItemValue<ResourceDescriptor> resource, ICalendarElement vevent) {
+			ItemValue<ResourceDescriptor> resource, VEvent vevent) {
 
 		String conference = vevent.conference;
 		String conferenceId = vevent.conferenceId;
@@ -52,6 +52,10 @@ public abstract class TemplateBasedVideoConferencingProvider {
 		String description = templateHelper.processTemplate(context, resource, vevent, conference);
 
 		return new VideoConference(conferenceId, conference, description);
+	}
+
+	public void deleteConference(BmContext context, Map<String, String> resourceSettings, String conferenceId) {
+		// nothing to do
 	}
 
 }

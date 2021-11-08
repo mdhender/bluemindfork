@@ -5,10 +5,10 @@ Bundle-SymbolicName: net.bluemind.videoconferencing.api;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Automatic-Module-Name: net.bluemind.videoconferencing.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: net.bluemind.icalendar.api,
- net.bluemind.core.commons,
+Require-Bundle: net.bluemind.core.commons,
  net.bluemind.resource.api,
  net.bluemind.core.container.api,
- net.bluemind.core.rest
+ net.bluemind.core.rest,
+ net.bluemind.calendar.api
 Export-Package: net.bluemind.videoconferencing.api
 Eclipse-RegisterBuddy: net.bluemind.core.rest

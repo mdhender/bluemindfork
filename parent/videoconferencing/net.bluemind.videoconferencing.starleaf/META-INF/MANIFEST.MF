@@ -13,8 +13,8 @@ Require-Bundle: net.bluemind.videoconferencing.api,
  net.bluemind.core.commons,
  net.bluemind.core.container.persistence,
  net.bluemind.resource.api,
- net.bluemind.icalendar.api,
  net.bluemind.videoconferencing.service,
- net.bluemind.directory.api
+ net.bluemind.directory.api,
+ net.bluemind.calendar.api
 Export-Package: net.bluemind.videoconferencing.starleaf.client,
  net.bluemind.videoconferencing.starleaf.dto
