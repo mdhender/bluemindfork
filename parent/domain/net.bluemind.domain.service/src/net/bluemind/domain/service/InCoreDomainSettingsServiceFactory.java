@@ -19,16 +19,11 @@
 package net.bluemind.domain.service;
 
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.directory.service.AbstractDirServiceFactory;
-import net.bluemind.domain.api.Domain;
-import net.bluemind.domain.service.internal.DomainSettingsService;
 import net.bluemind.domain.service.internal.IInCoreDomainSettings;
 
-public class InCoreDomainSettingsServiceFactory extends AbstractDirServiceFactory<IInCoreDomainSettings>
+public class InCoreDomainSettingsServiceFactory extends DomainSettingsCommonFactory
 		implements ServerSideServiceProvider.IServerSideServiceFactory<IInCoreDomainSettings> {
 
 	public InCoreDomainSettingsServiceFactory() {
@@ -40,8 +35,7 @@ public class InCoreDomainSettingsServiceFactory extends AbstractDirServiceFactor
 	}
 
 	@Override
-	protected IInCoreDomainSettings instanceImpl(BmContext context, ItemValue<Domain> domainValue, Container container)
-			throws ServerFault {
-		return new DomainSettingsService(context, container, domainValue.uid);
+	public IInCoreDomainSettings instance(BmContext context, String... params) throws ServerFault {
+		return instanceImpl(context, params);
 	}
 }

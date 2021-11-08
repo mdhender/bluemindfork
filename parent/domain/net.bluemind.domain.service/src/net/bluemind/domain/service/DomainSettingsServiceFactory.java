@@ -18,17 +18,12 @@
  */
 package net.bluemind.domain.service;
 
-import java.sql.SQLException;
-
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.IDomainSettings;
-import net.bluemind.domain.service.internal.DomainSettingsService;
 
-public class DomainSettingsServiceFactory
+public class DomainSettingsServiceFactory extends DomainSettingsCommonFactory
 		implements ServerSideServiceProvider.IServerSideServiceFactory<IDomainSettings> {
 
 	public DomainSettingsServiceFactory() {
@@ -41,27 +36,7 @@ public class DomainSettingsServiceFactory
 
 	@Override
 	public IDomainSettings instance(BmContext context, String... params) throws ServerFault {
-		if (params == null || params.length < 1) {
-			throw new ServerFault("wrong number of instance parameters");
-		}
-
-		String domainUid = params[0];
-
-		ContainerStore containerStore = new ContainerStore(context, context.getDataSource(),
-				context.getSecurityContext());
-
-		Container domainsContainers = null;
-		try {
-			domainsContainers = containerStore.get(DomainsContainerIdentifier.getIdentifier());
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
-		}
-
-		if (domainsContainers == null) {
-			throw new ServerFault("container " + DomainsContainerIdentifier.getIdentifier() + " not found");
-		}
-
-		DomainSettingsService service = new DomainSettingsService(context, domainsContainers, domainUid);
-		return service;
+		return instanceImpl(context, params);
 	}
+
 }

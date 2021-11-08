@@ -19,28 +19,80 @@
 package net.bluemind.system.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.Lists;
+
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
+import net.bluemind.domain.api.IDomains;
+import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.node.api.INodeClient;
+import net.bluemind.node.api.NodeActivator;
+import net.bluemind.pool.impl.BmConfIni;
+import net.bluemind.pool.impl.docker.DockerContainer;
+import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
+import net.bluemind.system.api.CertData;
+import net.bluemind.system.api.CertData.CertificateDomainEngine;
+import net.bluemind.system.api.ICertificateSecurityMgmt;
 import net.bluemind.system.api.ISecurityMgmt;
+import net.bluemind.system.service.certificate.lets.encrypt.LetsEncryptCertificate;
+import net.bluemind.system.service.internal.CertificateMgmtUpdateCertificateTests;
 import net.bluemind.system.service.internal.ValidatorHook;
+import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class SecurityTests {
+
+	String domainUid = "test.bluemind.net";
+	ItemValue<Domain> domain;
+	IDomains domainService;
+	BmTestContext context;
+	INodeClient nodeClient;
 
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
+
+		context = new BmTestContext(SecurityContext.SYSTEM);
+
+		Server nodeServer = new Server();
+		nodeServer.ip = new BmConfIni().get(DockerContainer.NODE.getName());
+		nodeServer.tags = Lists.newArrayList(TagDescriptor.bm_core.getTag(), TagDescriptor.mail_imap.getTag(),
+				TagDescriptor.bm_nginx.getTag());
+		assertNotNull(nodeServer);
+		nodeClient = NodeActivator.get(nodeServer.ip);
+
+		// create domain test.bluemind.net
+		PopulateHelper.initGlobalVirt(false, nodeServer);
+		PopulateHelper.createDomain(domainUid);
+
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
+
+		domainService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
+		domain = domainService.get(domainUid);
+		assertNotNull(domain);
 
 		ValidatorHook.throwException = false;
 	}
@@ -48,7 +100,8 @@ public class SecurityTests {
 	@Test
 	public void updateFirewallRulesAsAnonymous() {
 		try {
-			service(SecurityContext.ANONYMOUS).updateFirewallRules();
+			ServerSideServiceProvider.getProvider(SecurityContext.ANONYMOUS).instance(ISecurityMgmt.class)
+					.updateFirewallRules();
 			fail("Only global domain users can update firewall");
 		} catch (ServerFault e) {
 			System.out.println(e.getMessage());
@@ -56,7 +109,90 @@ public class SecurityTests {
 		}
 	}
 
-	private ISecurityMgmt service(SecurityContext sc) throws ServerFault {
-		return ServerSideServiceProvider.getProvider(sc).instance(ISecurityMgmt.class);
+	@Test
+	public void updateCertificateAsAnonymous() throws IOException {
+
+		// add domain settings
+		IDomainSettings settingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid);
+		Map<String, String> settingsMap = new HashMap<String, String>();
+		settingsMap.put(DomainSettingsKeys.external_url.name(), "test.bluemind.net");
+		settingsMap.put(DomainSettingsKeys.default_domain.name(), domainUid);
+		settingsMap.put(DomainSettingsKeys.ssl_certif_engine.name(), CertificateDomainEngine.FILE.name());
+		settingsApi.set(settingsMap);
+
+		VertxPlatform.spawnBlocking(10, TimeUnit.SECONDS);
+
+		try {
+			CertData certData = CertificateMgmtUpdateCertificateTests.createCertData(CertificateDomainEngine.FILE,
+					domainUid, "test@bluemind.net");
+			ServerSideServiceProvider.getProvider(SecurityContext.ANONYMOUS).instance(ISecurityMgmt.class)
+					.updateCertificate(certData);
+		} catch (ServerFault e) {
+			System.out.println(e.getMessage());
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
 	}
+
+	@Test
+	public void renewCertificateAsAnonymous() throws IOException {
+
+		// add domain settings
+		IDomainSettings settingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid);
+		Map<String, String> settingsMap = new HashMap<String, String>();
+		settingsMap.put(DomainSettingsKeys.external_url.name(), "test.bluemind.net");
+		settingsMap.put(DomainSettingsKeys.default_domain.name(), domainUid);
+		settingsMap.put(DomainSettingsKeys.ssl_certif_engine.name(), CertificateDomainEngine.LETS_ENCRYPT.name());
+		settingsApi.set(settingsMap);
+
+		VertxPlatform.spawnBlocking(10, TimeUnit.SECONDS);
+
+		try {
+			ServerSideServiceProvider.getProvider(SecurityContext.ANONYMOUS).instance(ICertificateSecurityMgmt.class)
+					.renewLetsEncryptCertificate(domainUid, "test.bluemind.net", "test@bluemind.net");
+		} catch (ServerFault e) {
+			System.out.println(e.getMessage());
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+	}
+
+	@Test
+	public void getAndApproveLetsEncryptTerms() {
+
+		ISecurityMgmt service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISecurityMgmt.class);
+		String letsEncryptTos = service.getLetsEncryptTos();
+		assertNotNull(letsEncryptTos);
+		assertTrue(letsEncryptTos.startsWith("https://letsencrypt.org"));
+		assertTrue(letsEncryptTos.endsWith(".pdf"));
+		service.approveLetsEncryptTos(domainUid);
+		assertTrue(LetsEncryptCertificate.isTosApproved(domainService.get(domainUid).value));
+	}
+
+	@Test
+	public void generateLetsEncryptAsAnonymous() throws IOException {
+
+		// add domain settings
+		IDomainSettings settingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid);
+		Map<String, String> settingsMap = new HashMap<String, String>();
+		settingsMap.put(DomainSettingsKeys.external_url.name(), "test.bluemind.net");
+		settingsMap.put(DomainSettingsKeys.default_domain.name(), domainUid);
+		settingsMap.put(DomainSettingsKeys.ssl_certif_engine.name(), CertificateDomainEngine.FILE.name());
+		settingsApi.set(settingsMap);
+
+		VertxPlatform.spawnBlocking(10, TimeUnit.SECONDS);
+
+		try {
+			CertData certData = CertificateMgmtUpdateCertificateTests
+					.createCertData(CertificateDomainEngine.LETS_ENCRYPT, domainUid, "test@bluemind.net");
+			ServerSideServiceProvider.getProvider(SecurityContext.ANONYMOUS).instance(ISecurityMgmt.class)
+					.generateLetsEncrypt(certData);
+		} catch (ServerFault e) {
+			System.out.println(e.getMessage());
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+	}
+
 }

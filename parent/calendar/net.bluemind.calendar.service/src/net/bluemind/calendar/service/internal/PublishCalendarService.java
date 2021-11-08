@@ -56,6 +56,8 @@ import net.bluemind.domain.service.internal.IInCoreDomainSettings;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.fortuna.ical4j.model.property.Method;
 import net.fortuna.ical4j.model.property.XProperty;
 
@@ -147,8 +149,10 @@ public class PublishCalendarService implements IPublishCalendar {
 
 	private String computeUrl(PublishMode mode, String aclSubject) {
 
-		String url = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IInCoreDomainSettings.class, container.domainUid).getExternalUrl("");
+		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		String url = provider.instance(IInCoreDomainSettings.class, container.domainUid).getExternalUrl()
+				.orElseGet(() -> provider.instance(ISystemConfiguration.class).getValues().values
+						.getOrDefault(SysConfKeys.external_url.name(), ""));
 
 		return String.format("https://%s/api/calendars/publish/%s/%s", url, container.uid, aclSubject);
 	}

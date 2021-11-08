@@ -4,10 +4,9 @@
 	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
 	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
 	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui"
-	xmlns:my="urn:import:net.bluemind.ui.adminconsole.security.certificate">
+	xmlns:my="urn:import:net.bluemind.ui.adminconsole.system.certificate"
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
 
-	<ui:with field="c"
-		type="net.bluemind.ui.adminconsole.security.certificate.l10n.CertificateEditorConstants" />
 	<ui:with field="d"
 		type="net.bluemind.ui.adminconsole.system.domains.l10n.DomainConstants" />
 
@@ -16,7 +15,7 @@
 		<table border="0">
 			<tr>
 				<td style='width:200px'>
-					<g:Label text="{c.domainUid}:"></g:Label>
+					<g:Label text="{d.domainUid}:"></g:Label>
 				</td>
 				<td style='width:400px'>
 					<g:Label width="400px" ui:field="domainUid" />
@@ -25,4 +24,5 @@
 		</table>
 		<my:CertificateEditorComponent ui:field="certificateData" />
 	</g:HTMLPanel>
+
 </ui:UiBinder>

@@ -36,6 +36,7 @@
 		<module>net.bluemind.cli.inject.imap.tests</module>
 		<module>net.bluemind.cli.inject.node</module>
 		<module>net.bluemind.cli.wazo</module>
+		<module>net.bluemind.cli.certificate</module>
 	</modules>
 
 </project>

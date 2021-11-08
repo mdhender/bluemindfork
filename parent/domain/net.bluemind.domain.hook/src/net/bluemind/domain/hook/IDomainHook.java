@@ -42,4 +42,7 @@ public interface IDomainHook {
 
 	public void onAliasesUpdated(BmContext context, ItemValue<Domain> domain, Set<String> previousAliases)
 			throws ServerFault;
+
+	public void onDomainItemsDeleted(BmContext context, ItemValue<Domain> domain) throws ServerFault;
+
 }

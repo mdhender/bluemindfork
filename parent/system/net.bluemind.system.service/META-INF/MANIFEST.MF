@@ -48,12 +48,22 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.server.hook,
  net.bluemind.core.sanitizer,
  org.ini4j,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ org.shredzone.acme4j.client,
+ org.shredzone.acme4j.utils,
+ bcprov,
+ bcpkix,
+ org.bitbucket.b_c.jose4j,
+ net.bluemind.system.nginx,
+ net.bluemind.domain.hook
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.system.service,
  net.bluemind.system.service.certificate,
+ net.bluemind.system.service.certificate.engine,
+ net.bluemind.system.service.certificate.lets.encrypt,
  net.bluemind.system.service.clone,
+ net.bluemind.system.service.helper,
  net.bluemind.system.service.hooks
 Bundle-Localization: OSGI-INF/l10n/bundle
 Bundle-Activator: net.bluemind.system.service.Activator

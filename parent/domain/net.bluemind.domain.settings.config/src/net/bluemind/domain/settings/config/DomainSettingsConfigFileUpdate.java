@@ -41,6 +41,7 @@ import net.bluemind.domain.api.IDomainUids;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Producer;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
@@ -58,7 +59,7 @@ public class DomainSettingsConfigFileUpdate extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		vertx.eventBus().consumer("domainsettings.config.file.update", this::domainSettingsEvent);
+		vertx.eventBus().consumer("domainsettings.config.updated", this::domainSettingsEvent);
 	}
 
 	private void domainSettingsEvent(Message<JsonObject> event) {
@@ -66,8 +67,6 @@ public class DomainSettingsConfigFileUpdate extends AbstractVerticle {
 			logger.warn("Domain settings config file creation is suspended");
 			return;
 		}
-
-		Boolean externalUrlUpdated = event.body().getBoolean("externalUrlUpdated");
 
 		// get domain uid list excluding global.virt domain
 		IDomains domainService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
@@ -94,36 +93,39 @@ public class DomainSettingsConfigFileUpdate extends AbstractVerticle {
 		}
 
 		try {
-			writeAndPropagate(externalUrlUpdated, infoByDomain);
+			writeAndPropagate(event.body(), infoByDomain);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 
 	}
 
-	private void writeAndPropagate(Boolean externalUrlUpdated, StringBuilder infoByDomain) {
+	private void writeAndPropagate(JsonObject payload, StringBuilder infoByDomain) {
 		Map<Server, INodeClient> serverList = createServersNodeClientMap();
 
 		serverList.entrySet().forEach(s -> {
 			writeDomainSettingsFile(infoByDomain, s);
 		});
 
-		if (externalUrlUpdated) {
+		Boolean externalUrlUpdated = payload.getBoolean("externalUrlUpdated");
+		if (externalUrlUpdated != null && externalUrlUpdated) {
 			new NginxService().restart();
+			VertxPlatform.eventBus().publish("end.domain.settings.file.updated", payload);
 		}
 
-		MQ.init(() -> {
-			Producer prod = MQ.getProducer("end.domain.settings.file.updated");
-			if (prod != null) {
-				JsonObject infos = new JsonObject();
-				infos.put("filepath", BM_EXTERNAL_URL_FILEPATH);
-				prod.send(infos);
-				logger.debug("Message sent on 'end.domain.settings.file.updated'");
-			} else {
-				logger.error("Message cannot be sent on 'end.domain.settings.file.updated'");
-			}
-		});
-
+		Boolean domainUpdated = payload.getBoolean("defaultDomainUpdated");
+		if (domainUpdated != null && domainUpdated) {
+			MQ.init(() -> {
+				Producer prod = MQ.getProducer("end.domain.settings.file.updated");
+				if (prod != null) {
+					payload.put("filepath", BM_EXTERNAL_URL_FILEPATH);
+					prod.send(payload);
+					logger.debug("Message sent on 'end.domain.settings.file.updated'");
+				} else {
+					logger.error("Message cannot be sent on 'end.domain.settings.file.updated'");
+				}
+			});
+		}
 	}
 
 	private Map<Server, INodeClient> createServersNodeClientMap() {

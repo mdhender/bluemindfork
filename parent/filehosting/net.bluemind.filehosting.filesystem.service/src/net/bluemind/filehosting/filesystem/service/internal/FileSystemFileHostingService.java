@@ -215,9 +215,9 @@ public class FileSystemFileHostingService implements IFileHostingService {
 	private String getServerAddress(String domainUid) {
 
 		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-
-		String url = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IInCoreDomainSettings.class, domainUid).getExternalUrl("configure.your.external.url");
+		String url = provider.instance(IInCoreDomainSettings.class, domainUid).getExternalUrl()
+				.orElseGet(() -> provider.instance(ISystemConfiguration.class).getValues().values
+						.getOrDefault(SysConfKeys.external_url.name(), "configure.your.external.url"));
 
 		String protocol = provider.instance(ISystemConfiguration.class).getValues().values
 				.getOrDefault(SysConfKeys.external_protocol.name(), "https");

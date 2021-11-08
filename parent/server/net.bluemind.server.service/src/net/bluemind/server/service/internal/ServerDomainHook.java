@@ -55,5 +55,4 @@ public class ServerDomainHook extends DomainHookAdapter {
 			throw new ServerFault(e);
 		}
 	}
-
 }

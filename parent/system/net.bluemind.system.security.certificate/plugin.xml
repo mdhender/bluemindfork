@@ -6,6 +6,8 @@
       <verticle
             impl="net.bluemind.system.security.certificate.CertificateExpirationReportFactory">
       </verticle>
+      <verticle
+            impl="net.bluemind.system.security.certificate.CertificateUpdateVerticleFactory">
+      </verticle>
    </extension>
-
 </plugin>

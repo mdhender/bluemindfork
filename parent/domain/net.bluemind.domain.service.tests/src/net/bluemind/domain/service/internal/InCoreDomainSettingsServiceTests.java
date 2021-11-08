@@ -36,7 +36,6 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
-import net.bluemind.domain.api.IDomains;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
@@ -47,7 +46,6 @@ public class InCoreDomainSettingsServiceTests {
 	private String testDomainUid;
 	private ISystemConfiguration globalSettingsApi;
 	private IDomainSettings domainSettingsApi;
-	private IDomains domainApi;
 
 	private Map<String, String> globalSettings;
 	private Map<String, String> domainSettings;
@@ -87,7 +85,6 @@ public class InCoreDomainSettingsServiceTests {
 		domainSettings.put(DomainSettingsKeys.external_url.name(), DOMAIN_EXTERNAL_URL);
 		domainSettings.put(DomainSettingsKeys.default_domain.name(), DOMAIN_DEFAULT_DOMAIN);
 		domainSettingsApi.set(domainSettings);
-
 	}
 
 	@After
@@ -101,14 +98,16 @@ public class InCoreDomainSettingsServiceTests {
 
 	@Test
 	public void testGetExternalUrl_domain() {
-		String url = getSettingsService(SecurityContext.SYSTEM).getExternalUrl("");
+		String url = getSettingsService(SecurityContext.SYSTEM).getExternalUrl()
+				.orElseGet(() -> globalSettingsApi.getValues().values.get(SysConfKeys.external_url.name()));
 		assertNotNull(url);
 		assertEquals(DOMAIN_EXTERNAL_URL, url);
 	}
 
 	@Test
 	public void testGetDefaultDomain_domain() {
-		String url = getSettingsService(SecurityContext.SYSTEM).getDefaultDomain("");
+		String url = getSettingsService(SecurityContext.SYSTEM).getDefaultDomain()
+				.orElseGet(() -> globalSettingsApi.getValues().values.get(SysConfKeys.default_domain.name()));
 		assertNotNull(url);
 		assertEquals(DOMAIN_DEFAULT_DOMAIN, url);
 	}
@@ -119,7 +118,8 @@ public class InCoreDomainSettingsServiceTests {
 		domainSettings.put(DomainSettingsKeys.external_url.name(), null);
 		domainSettingsApi.set(domainSettings);
 
-		String url = getSettingsService(SecurityContext.SYSTEM).getExternalUrl("");
+		String url = getSettingsService(SecurityContext.SYSTEM).getExternalUrl()
+				.orElseGet(() -> globalSettingsApi.getValues().values.get(SysConfKeys.external_url.name()));
 		assertNotNull(url);
 		assertEquals(GLOBAL_EXTERNAL_URL, url);
 	}
@@ -130,7 +130,8 @@ public class InCoreDomainSettingsServiceTests {
 		domainSettings.put(DomainSettingsKeys.default_domain.name(), null);
 		domainSettingsApi.set(domainSettings);
 
-		String url = getSettingsService(SecurityContext.SYSTEM).getDefaultDomain("");
+		String url = getSettingsService(SecurityContext.SYSTEM).getDefaultDomain()
+				.orElseGet(() -> globalSettingsApi.getValues().values.get(SysConfKeys.default_domain.name()));
 		assertNotNull(url);
 		assertEquals(GLOBAL_DEFAULT_DOMAIN, url);
 	}
@@ -144,7 +145,9 @@ public class InCoreDomainSettingsServiceTests {
 		globalSettings.put(SysConfKeys.external_url.name(), null);
 		globalSettingsApi.updateMutableValues(globalSettings);
 
-		String url = getSettingsService(SecurityContext.SYSTEM).getExternalUrl(DEFAULT_EXTERNAL_URL);
+		String url = getSettingsService(SecurityContext.SYSTEM).getExternalUrl()
+				.orElseGet(() -> globalSettingsApi.getValues().values.getOrDefault(SysConfKeys.external_url.name(),
+						DEFAULT_EXTERNAL_URL));
 		assertNotNull(url);
 		assertEquals(DEFAULT_EXTERNAL_URL, url);
 	}
@@ -158,7 +161,9 @@ public class InCoreDomainSettingsServiceTests {
 		globalSettings.put(SysConfKeys.default_domain.name(), null);
 		globalSettingsApi.updateMutableValues(globalSettings);
 
-		String url = getSettingsService(SecurityContext.SYSTEM).getDefaultDomain(DEFAULT_DEFAULT_DOMAIN);
+		String url = getSettingsService(SecurityContext.SYSTEM).getDefaultDomain()
+				.orElseGet(() -> globalSettingsApi.getValues().values.getOrDefault(SysConfKeys.default_domain.name(),
+						DEFAULT_DEFAULT_DOMAIN));
 		assertNotNull(url);
 		assertEquals(DEFAULT_DEFAULT_DOMAIN, url);
 	}

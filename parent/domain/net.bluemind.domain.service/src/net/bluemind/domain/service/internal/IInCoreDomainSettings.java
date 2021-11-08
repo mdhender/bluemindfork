@@ -18,11 +18,13 @@
  */
 package net.bluemind.domain.service.internal;
 
+import java.util.Optional;
+
 import net.bluemind.domain.api.IDomainSettings;
 
 public interface IInCoreDomainSettings extends IDomainSettings {
 
-	public String getExternalUrl(String defaultValue);
+	public Optional<String> getExternalUrl();
 
-	public String getDefaultDomain(String defaultValue);
+	public Optional<String> getDefaultDomain();
 }

@@ -49,8 +49,6 @@ import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.globalsettings.persistence.GlobalSettingsStore;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
-import net.bluemind.system.api.ISystemConfiguration;
-import net.bluemind.system.api.SysConfKeys;
 
 public class DomainSettingsService implements IDomainSettings, IInCoreDomainSettings {
 	private static final Logger logger = LoggerFactory.getLogger(DomainSettingsService.class);
@@ -146,24 +144,14 @@ public class DomainSettingsService implements IDomainSettings, IInCoreDomainSett
 	}
 
 	@Override
-	public String getExternalUrl(String defaultValue) {
-		return Optional
-				.ofNullable(context.su().getServiceProvider().instance(IDomainSettings.class, domainUid).get()
-						.get(DomainSettingsKeys.external_url.name()))
-				.orElse(fromSysConf(SysConfKeys.external_url, defaultValue));
+	public Optional<String> getExternalUrl() {
+		return Optional.ofNullable(context.su().getServiceProvider().instance(IDomainSettings.class, domainUid).get()
+				.get(DomainSettingsKeys.external_url.name()));
 	}
 
 	@Override
-	public String getDefaultDomain(String defaultValue) {
-		return Optional
-				.ofNullable(context.su().getServiceProvider().instance(IDomainSettings.class, domainUid).get()
-						.get(DomainSettingsKeys.default_domain.name()))
-				.orElse(fromSysConf(SysConfKeys.default_domain, defaultValue));
+	public Optional<String> getDefaultDomain() {
+		return Optional.ofNullable(context.su().getServiceProvider().instance(IDomainSettings.class, domainUid).get()
+				.get(DomainSettingsKeys.default_domain.name()));
 	}
-
-	private String fromSysConf(SysConfKeys settingKey, String defaultValue) {
-		return context.su().getServiceProvider().instance(ISystemConfiguration.class).getValues().values
-				.getOrDefault(settingKey.name(), defaultValue);
-	}
-
 }

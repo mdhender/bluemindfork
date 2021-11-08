@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -59,6 +60,8 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.service.DirEntryHandlers;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomainUids;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.hook.IDomainHook;
@@ -75,6 +78,7 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.persistence.MailboxStore;
 import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.system.api.CertData.CertificateDomainEngine;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
@@ -136,6 +140,12 @@ public class DomainsService implements IDomains {
 		for (IDomainHook hook : hooks) {
 			hook.onCreated(context, value);
 		}
+
+		// init settings
+		IDomainSettings settingsApi = context.provider().instance(IDomainSettings.class, uid);
+		Map<String, String> settings = settingsApi.get();
+		settings.put(DomainSettingsKeys.ssl_certif_engine.name(), CertificateDomainEngine.DISABLED.name());
+		settingsApi.set(settings);
 
 		// BMHIDDENSYSADMIN
 		User u = new User();
@@ -266,15 +276,16 @@ public class DomainsService implements IDomains {
 		}
 
 		ITasksManager tasksMananger = context.provider().instance(ITasksManager.class);
-
 		return tasksMananger.run(new IServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
 				deepDelete(domain);
+				for (IDomainHook hook : hooks) {
+					hook.onDomainItemsDeleted(context, domain);
+				}
 			}
 		});
-
 	}
 
 	private void deepDelete(ItemValue<Domain> domain) {

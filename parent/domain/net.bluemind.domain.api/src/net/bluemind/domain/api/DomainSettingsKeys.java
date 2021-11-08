@@ -35,5 +35,6 @@ public enum DomainSettingsKeys {
 	cti_implementation, //
 	cti_host, //
 	external_url, //
-	default_domain;
+	default_domain, //
+	ssl_certif_engine
 }

@@ -18,8 +18,11 @@
   */
 package net.bluemind.system.api;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
@@ -47,4 +50,33 @@ public interface ISecurityMgmt {
 	@POST
 	void updateCertificate(CertData certData) throws ServerFault;
 
+	/**
+	 * Get the URL to Let's Encrypt terms of service document
+	 * 
+	 * @return URL
+	 * @throws ServerFault
+	 */
+	@GET
+	@Path("lets_encrypt_tos")
+	String getLetsEncryptTos() throws ServerFault;
+
+	/**
+	 * Accept Let's Encrypt terms of service document
+	 * 
+	 * @param domainUid the domain uid
+	 * @throws ServerFault
+	 */
+	@PUT
+	@Path("lets_encrypt_tos/{uid}")
+	void approveLetsEncryptTos(@PathParam("uid") String domainUid) throws ServerFault;
+
+	/**
+	 * Generate Let's Encrypt certificate
+	 * 
+	 * @param certData Certificate data
+	 * @throws ServerFault
+	 */
+	@POST
+	@Path("lets_encrypt")
+	TaskRef generateLetsEncrypt(CertData certData) throws ServerFault;
 }

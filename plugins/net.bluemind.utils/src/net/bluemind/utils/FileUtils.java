@@ -132,6 +132,14 @@ public class FileUtils {
 		file.delete();
 	}
 
+	public static void cleanDir(File file) {
+		if (file.isDirectory()) {
+			for (File sFile : file.listFiles()) {
+				delete(sFile);
+			}
+		}
+	}
+
 	public static class CopyFileVisitor extends SimpleFileVisitor<Path> {
 		private final Path targetPath;
 		private Path sourcePath = null;

@@ -30,6 +30,9 @@
       <endpoint
             api="net.bluemind.system.api.ICacheMgmt">
       </endpoint>
+      <endpoint
+            api="net.bluemind.system.api.ICertificateSecurityMgmt">
+      </endpoint>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">
@@ -45,6 +48,12 @@
             class="net.bluemind.system.service.SystemConfigurationFactory"></serviceFactory>
       <serviceFactory
       		class="net.bluemind.system.service.SecurityMgmtFactory">
+      </serviceFactory>
+      <serviceFactory
+      		class="net.bluemind.system.service.InCoreSecurityMgmtFactory">
+      </serviceFactory>
+      <serviceFactory
+      		class="net.bluemind.system.service.CertificateSecurityMgmtFactory">
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.system.service.GlobalSettingsFactory">
@@ -85,5 +94,10 @@
             class="net.bluemind.system.service.internal.SharedSystemConfigurationVerticle$Updater">
       </observer>
    </extension>
-
+   <extension
+         point="net.bluemind.domain.domainHook">
+      <hook
+            class="net.bluemind.system.service.internal.DeleteDomainHook">
+      </hook>
+   </extension>
 </plugin>

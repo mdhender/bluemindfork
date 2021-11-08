@@ -58,8 +58,12 @@ public class DomainHookAdapter implements IDomainHook {
 
 	@Override
 	public void onBeforeDelete(BmContext context, ItemValue<Domain> domain) throws ServerFault {
-		// TODO Auto-generated method stub
+		// empty impl
+	}
 
+	@Override
+	public void onDomainItemsDeleted(BmContext context, ItemValue<Domain> domain) throws ServerFault {
+		// empty impl
 	}
 
 }

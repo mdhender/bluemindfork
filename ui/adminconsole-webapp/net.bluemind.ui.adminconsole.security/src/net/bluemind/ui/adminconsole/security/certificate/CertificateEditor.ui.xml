@@ -4,7 +4,7 @@
 	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
 	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
 	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui"
-	xmlns:my="urn:import:net.bluemind.ui.adminconsole.security.certificate">
+	xmlns:my="urn:import:net.bluemind.ui.adminconsole.system.certificate">
 
 	<ui:with field="c"
 		type="net.bluemind.ui.adminconsole.security.certificate.l10n.CertificateEditorConstants" />

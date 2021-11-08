@@ -33,7 +33,8 @@ Require-Bundle: net.bluemind.commons.ui.closure;bundle-version="4.1.0",
  net.bluemind.mailshare.api.gwt;visibility:=reexport,
  net.bluemind.core.task.api,
  net.bluemind.webmodule.uploadhandler;bundle-version="4.1.0",
- net.bluemind.role.api
+ net.bluemind.role.api,
+ net.bluemind.ui.adminconsole.system;bundle-version="4.1.0";visibility:=reexport
 Export-Package: net.bluemind.ui.adminconsole.security,
  net.bluemind.ui.adminconsole.security.certificate,
  net.bluemind.ui.adminconsole.security.iptables

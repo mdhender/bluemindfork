@@ -78,9 +78,9 @@ public class NginxService {
 
 	/**
 	 * Get all servers matching tag.
-	 * 
+	 *
 	 * If no tags specified, return all server tags as "bm/nginx" or "bm/nginx-edge"
-	 * 
+	 *
 	 * @param tags matching tag - support only "bm/nginx" or "bm/nginx-edge"
 	 * @return
 	 * @throws ServerFault
@@ -107,7 +107,7 @@ public class NginxService {
 
 	/**
 	 * Restart NGinx on all servers tagged as "bm/nginx" and "bm/nginx-edge"
-	 * 
+	 *
 	 * @param nc
 	 * @throws ServerFault
 	 */
@@ -117,7 +117,7 @@ public class NginxService {
 
 	/**
 	 * Reload NGinx & FPM on specific server
-	 * 
+	 *
 	 * @param nc
 	 * @throws ServerFault
 	 */
@@ -128,7 +128,7 @@ public class NginxService {
 
 	/**
 	 * Restart NGinx on specific server
-	 * 
+	 *
 	 * @param nc
 	 * @throws ServerFault
 	 */

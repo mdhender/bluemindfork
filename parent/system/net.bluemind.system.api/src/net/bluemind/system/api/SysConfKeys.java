@@ -139,7 +139,12 @@ public enum SysConfKeys {
 	/**
 	 * Sentry (web) endpoint. Disabled if not defined
 	 */
-	sentry_web_endpoint;
+	sentry_web_endpoint,
+
+	/**
+	 * SSL certificate engine
+	 */
+	ssl_certif_engine;
 
 	public static boolean isSysConfigKey(String key) {
 		for (SysConfKeys k : SysConfKeys.values()) {

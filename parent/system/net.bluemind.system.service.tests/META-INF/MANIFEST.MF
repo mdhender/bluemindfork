@@ -18,7 +18,6 @@ Require-Bundle: org.junit,
  net.bluemind.core.node.testshelper,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.core.tests.testshelper,
- org.mockito.mockito-core;bundle-version="1.10.17",
  org.objenesis;bundle-version="1.0.0",
  net.bluemind.document.service;bundle-version="4.1.0",
  net.bluemind.system.api,
@@ -26,5 +25,6 @@ Require-Bundle: org.junit,
  net.bluemind.system.hook,
  net.bluemind.system.persistence,
  net.bluemind.tests.defaultdata,
- net.bluemind.node.api
+ net.bluemind.node.api,
+ net.bluemind.core.task.service
 Automatic-Module-Name: net.bluemind.system.service.tests

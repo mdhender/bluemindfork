@@ -83,4 +83,10 @@ public class FakeDomainHook implements IDomainHook {
 
 	}
 
+	@Override
+	public void onDomainItemsDeleted(BmContext context, ItemValue<Domain> domain) throws ServerFault {
+		// TODO Auto-generated method stub
+
+	}
+
 }

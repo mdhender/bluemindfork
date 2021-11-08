@@ -47,6 +47,7 @@ import net.bluemind.domain.api.gwt.js.JsDomain;
 import net.bluemind.domain.api.gwt.serder.DomainGwtSerDer;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
+import net.bluemind.system.api.CertData.CertificateDomainEngine;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.ui.admin.client.forms.MultiStringEditContainer;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
@@ -220,6 +221,10 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.external_url.name(),
 				externalUrl.getText());
+		if (externalUrl.getText().isEmpty()) {
+			SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.ssl_certif_engine.name(),
+					CertificateDomainEngine.DISABLED.name());
+		}
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.default_domain.name(),
 				domainList.getSelectedValue());
 

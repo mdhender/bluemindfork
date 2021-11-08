@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.cli.certificate
+Bundle-SymbolicName: net.bluemind.cli.certificate;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.cli.certificate.Activator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.cli.cmd.api,
+ net.bluemind.system.api,
+ net.bluemind.domain.api,
+ net.bluemind.cli.utils
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.cli.certificate
+Bundle-ActivationPolicy: lazy

@@ -29,11 +29,14 @@ import com.google.gwt.user.client.ui.Label;
 
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.gwt.js.JsDomain;
 import net.bluemind.domain.api.gwt.serder.DomainGwtSerDer;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
-import net.bluemind.ui.adminconsole.security.certificate.CertificateEditorComponent;
+import net.bluemind.system.api.CertData.CertificateDomainEngine;
+import net.bluemind.ui.adminconsole.system.SettingsModel;
+import net.bluemind.ui.adminconsole.system.certificate.CertificateEditorComponent;
 import net.bluemind.ui.adminconsole.system.domains.DomainKeys;
 
 public class DomainCertificateEditor extends CompositeGwtWidgetElement {
@@ -46,6 +49,8 @@ public class DomainCertificateEditor extends CompositeGwtWidgetElement {
 	@UiField
 	Label domainUid;
 
+	SettingsModel domainSettings;
+
 	private static DomainCertificateEditorUiBinder uiBinder = GWT.create(DomainCertificateEditorUiBinder.class);
 
 	interface DomainCertificateEditorUiBinder extends UiBinder<HTMLPanel, DomainCertificateEditor> {
@@ -54,8 +59,7 @@ public class DomainCertificateEditor extends CompositeGwtWidgetElement {
 	protected DomainCertificateEditor() {
 		HTMLPanel panel = uiBinder.createAndBindUi(this);
 		initWidget(panel);
-		certificateData.setupUploadForms();
-		certificateData.enableCheckBoxes(false);
+		certificateData.init(false);
 	}
 
 	public static void registerType() {
@@ -69,11 +73,17 @@ public class DomainCertificateEditor extends CompositeGwtWidgetElement {
 
 		Domain domain = new DomainGwtSerDer().deserialize(new JSONObject(jsDomain));
 		domainUid.setText(domain.name);
+
+		domainSettings = SettingsModel.domainSettingsFrom(model);
+		String certifFromSettings = domainSettings.get(DomainSettingsKeys.ssl_certif_engine.name());
+		String externalUrl = domainSettings.get(DomainSettingsKeys.external_url.name());
+		CertificateDomainEngine sslCertifEngine = certifFromSettings == null ? CertificateDomainEngine.DISABLED
+				: CertificateDomainEngine.valueOf(certifFromSettings);
+		certificateData.load(sslCertifEngine, domain.name, domain, model, externalUrl);
 	}
 
 	@Override
 	public void saveModel(JavaScriptObject model) {
-		certificateData.saveCertificate(domainUid.getText() != null ? domainUid.getText() : "global.virt", false);
 	}
 
 	protected void doCancel() {

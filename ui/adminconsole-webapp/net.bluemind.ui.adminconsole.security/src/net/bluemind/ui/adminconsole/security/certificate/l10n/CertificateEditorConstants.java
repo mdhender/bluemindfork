@@ -26,15 +26,4 @@ public interface CertificateEditorConstants extends Constants {
 	public static final CertificateEditorConstants INST = GWT.create(CertificateEditorConstants.class);
 
 	String title();
-
-	String attach();
-
-	String keyUpload();
-
-	String certUpload();
-
-	String caUpload();
-	
-	String domainUid();
-	
 }

@@ -85,6 +85,7 @@
       <plugin id="net.bluemind.cli.launcher"/>
       <plugin id="net.bluemind.cli.mail"/>
       <plugin id="net.bluemind.cli.mapi"/>
+      <plugin id="net.bluemind.cli.certificate"/>
       <plugin id="net.bluemind.cli.metrics"/>
       <plugin id="net.bluemind.cli.node"/>
       <plugin id="net.bluemind.cli.sds"/>

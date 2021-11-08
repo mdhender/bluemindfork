@@ -285,4 +285,6 @@ public interface DomainConstants extends Messages {
 
 	String externalUrlHelp();
 
+	String domainUid();
+
 }

@@ -38,40 +38,49 @@ public class DomainSettingsHook extends DomainHookAdapter {
 
 		boolean externalUrlSettingsChange = true;
 		boolean defaultDomainSettingsChange = true;
+
+		Optional<String> previousExternal = Optional.empty();
+		Optional<String> currentExternal = Optional.empty();
+		Optional<String> previousDefaultDomain = Optional.empty();
+		Optional<String> currentDefaultDomain = Optional.empty();
+
 		if (previousSettings != null && !previousSettings.isEmpty()) {
-			externalUrlSettingsChange = externalUrlHasChanged(previousSettings, currentSettings);
-			defaultDomainSettingsChange = defaultDomainHasChanged(previousSettings, currentSettings);
+			previousExternal = getExternalUrlSetting(previousSettings);
+			currentExternal = getExternalUrlSetting(currentSettings);
+			externalUrlSettingsChange = !(previousExternal.equals(currentExternal));
+
+			previousDefaultDomain = getDefaultDomainSetting(previousSettings);
+			currentDefaultDomain = getDefaultDomainSetting(currentSettings);
+			defaultDomainSettingsChange = !(previousDefaultDomain.equals(currentDefaultDomain));
 		}
 
 		if (externalUrlSettingsChange || defaultDomainSettingsChange) {
 			JsonObject payload = new JsonObject();
-			payload.put("externalUrlUpdated", externalUrlSettingsChange).put("defaultDomainUpdated",
-					defaultDomainSettingsChange);
-			VertxPlatform.eventBus().publish("domainsettings.config.file.update", payload);
+			payload.put("domainUid", domain.uid);
+
+			if (externalUrlSettingsChange) {
+				payload.put("externalUrlUpdated", externalUrlSettingsChange)
+						.put("externalUrlOld", previousExternal.orElse(null))
+						.put("externalUrlNew", currentExternal.orElse(null));
+			}
+
+			if (defaultDomainSettingsChange) {
+				payload.put("defaultDomainUpdated", defaultDomainSettingsChange)
+						.put("defaultDomainOld", previousDefaultDomain.orElse(null))
+						.put("defaultDomainNew", currentDefaultDomain.orElse(null));
+			}
+
+			VertxPlatform.eventBus().publish("domainsettings.config.updated", payload);
 		}
 
 	}
 
-	private boolean externalUrlHasChanged(Map<String, String> previousSettings, Map<String, String> currentSettings) {
-
-		Optional<String> previousExternal = Optional
-				.ofNullable(previousSettings.get(DomainSettingsKeys.external_url.name()));
-		Optional<String> currentExternal = Optional
-				.ofNullable(currentSettings.get(DomainSettingsKeys.external_url.name()));
-
-		return !(previousExternal.equals(currentExternal));
-
+	private static Optional<String> getDefaultDomainSetting(Map<String, String> settings) {
+		return Optional.ofNullable(settings.get(DomainSettingsKeys.default_domain.name()));
 	}
 
-	private boolean defaultDomainHasChanged(Map<String, String> previousSettings, Map<String, String> currentSettings) {
-
-		Optional<String> previousDefaultDomain = Optional
-				.ofNullable(previousSettings.get(DomainSettingsKeys.default_domain.name()));
-		Optional<String> currentDefaultDomain = Optional
-				.ofNullable(currentSettings.get(DomainSettingsKeys.default_domain.name()));
-
-		return !(previousDefaultDomain.equals(currentDefaultDomain));
-
+	private static Optional<String> getExternalUrlSetting(Map<String, String> settings) {
+		return Optional.ofNullable(settings.get(DomainSettingsKeys.external_url.name()));
 	}
 
 }
