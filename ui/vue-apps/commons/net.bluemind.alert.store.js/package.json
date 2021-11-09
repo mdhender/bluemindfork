@@ -1,7 +1,7 @@
 {
     "name": "@bluemind/alert.store",
     "version": "4.1.0",
-    "description": "Bluemind alert module : Vuex model",
+    "description": "BlueMind alert module : Vuex model",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js",

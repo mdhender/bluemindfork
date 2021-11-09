@@ -1,7 +1,7 @@
 {
     "name": "@bluemind/router",
     "version": "4.1.0",
-    "description": "Bluemind package to export global Vuex store",
+    "description": "BlueMind package to export global Vuex store",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js",

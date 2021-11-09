@@ -1,7 +1,7 @@
 {
     "name": "@bluemind/conf",
     "version": "4.1.0",
-    "description": "Bluemind configuration files for front-end development",
+    "description": "BlueMind configuration files for front-end development",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "dependencies": {

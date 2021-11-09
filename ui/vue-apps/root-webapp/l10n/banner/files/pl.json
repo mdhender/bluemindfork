@@ -2,10 +2,10 @@
     "banner.label": "Baner",
     "banner.logout": "Zaloguj się",
     "banner.main.brand": "Powrót do strony głównej aplikacji",
-    "banner.main.apps": "Aplikacje Bluemind",
+    "banner.main.apps": "Aplikacje BlueMind",
     "banner.menu.logout": "Wyloguj",
     "banner.menu.settings.aria": "Dostęp do ustawień konta",
-    "banner.reach.all_apps": "Dostęp do wszystkich aplikacji Bluemind",
-    "banner.reach.help": "Dostęp do pomocy Bluemind",
+    "banner.reach.all_apps": "Dostęp do wszystkich aplikacji BlueMind",
+    "banner.reach.help": "Dostęp do pomocy BlueMind",
     "banner.menu.preferences.aria": "Dostęp do ustawień konta"
 }

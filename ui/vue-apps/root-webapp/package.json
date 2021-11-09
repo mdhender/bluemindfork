@@ -1,7 +1,7 @@
 {
     "name": "@bluemind/webapp.root",
     "version": "4.1.0",
-    "description": "Bluemind root application",
+    "description": "BlueMind root application",
     "author": "Blue Mind SAS",
     "license": "AGPL-3.0-only",
     "main": "src/run.js",

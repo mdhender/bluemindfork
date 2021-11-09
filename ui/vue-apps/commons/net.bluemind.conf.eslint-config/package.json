@@ -1,7 +1,7 @@
 {
     "name": "@bluemind/eslint-config",
     "version": "4.1.0",
-    "description": "Shareable eslint config by Bluemind",
+    "description": "Shareable eslint config by BlueMind",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "index.js",

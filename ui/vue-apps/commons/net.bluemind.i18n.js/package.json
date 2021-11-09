@@ -1,7 +1,7 @@
 {
     "name": "@bluemind/i18n",
     "version": "4.1.0",
-    "description": "Bluemind i18n helper",
+    "description": "BlueMind i18n helper",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js",

@@ -169,7 +169,7 @@ export default {
     },
     created() {
         FaviconHelper.setFavicon();
-        const documentTitle = this.$t("mail.application.title") + " - Bluemind";
+        const documentTitle = this.$t("mail.application.title") + " - BlueMind";
         document.title = documentTitle;
         FaviconHelper.handleUnreadNotifInFavicon(this.userSession, documentTitle);
         this.$store.commit(`mail/${SET_MAIL_THREAD_SETTING}`, this.$store.state.session.settings.remote.mail_thread);

@@ -13,7 +13,7 @@ const websocket = (global.$websocket = global.$websocket || createWebsocket());
 
 /**
  *
- * @param url specify an URL for the websocket you want to use. Default matchs Bluemind websocket.
+ * @param url specify an URL for the websocket you want to use. Default matchs BlueMind websocket.
  *
  */
 export default class WebSocketClient {

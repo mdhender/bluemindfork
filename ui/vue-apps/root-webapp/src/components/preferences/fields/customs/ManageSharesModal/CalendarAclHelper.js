@@ -2,7 +2,7 @@ import { Verb } from "@bluemind/core.container.api";
 import { inject } from "@bluemind/inject";
 
 /**
- * Bluemind core API have 2 distincts acl data linked to default user calendar:
+ * BlueMind core API have 2 distincts acl data linked to default user calendar:
  *      - freebusy container
  *      - calendar container
  * This helper allows to unify those ACL by ordering them.

@@ -1,7 +1,7 @@
 {
     "name": "@bluemind/task",
     "version": "4.1.0",
-    "description": "Bluemind task helper",
+    "description": "BlueMind task helper",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js"

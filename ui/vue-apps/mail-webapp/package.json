@@ -1,7 +1,7 @@
 {
     "name": "@bluemind/webapp.mail",
     "version": "4.1.0",
-    "description": "Bluemind MailApp",
+    "description": "BlueMind webmail",
     "author": "Blue Mind SAS",
     "main": "src/run.js",
     "license": "AGPL-3.0-only",

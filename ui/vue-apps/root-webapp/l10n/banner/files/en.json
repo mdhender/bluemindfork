@@ -2,11 +2,11 @@
     "banner.label": "Banner",
     "banner.login": "Log in",
     "banner.main.brand": "Go back to the application home page",
-    "banner.main.apps": "Bluemind applications",
+    "banner.main.apps": "BlueMind applications",
     "banner.menu.logout": "Logout",
     "banner.menu.preferences.aria": "Access account settings",
     "banner.reach.all_apps": "Access to all BlueMind applications",
-    "banner.help": "Access to Bluemind help",
+    "banner.help": "Access to BlueMind help",
     "banner.about": "About",
     "banner.about.version": "{brand} ({technical})",
     "banner.about.version.brand": "Version {0}"

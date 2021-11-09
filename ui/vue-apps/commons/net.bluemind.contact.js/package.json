@@ -1,7 +1,7 @@
 {
     "name": "@bluemind/contact",
     "version": "4.1.0",
-    "description": "Bluemind contact helper",
+    "description": "BlueMind contact helper",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js"

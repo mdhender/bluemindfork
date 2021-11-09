@@ -4,7 +4,7 @@ import xss from "xss";
 import { WEBSERVER_HANDLER_BASE_URL } from "@bluemind/email";
 
 // since we are writing the email content in an iframe, we need to add some tags to the whitelist
-// some other tags like 'resourcetemplate' are very specific to Bluemind and need to be kept
+// some other tags like 'resourcetemplate' are very specific to BlueMind and need to be kept
 const ADDITIONAL_ALLOWED_TAGS = {
     html: [],
     body: [],

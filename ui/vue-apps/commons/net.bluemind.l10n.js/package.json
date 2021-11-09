@@ -1,7 +1,7 @@
 {
     "name": "@bluemind/l10n",
     "version": "4.1.0",
-    "description": "Bluemind common translations",
+    "description": "BlueMind common translations",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "index.js",

@@ -1,6 +1,6 @@
 {
     "name": "@bluemind/webmodules.fonts",
-    "description": "Bluemind webmodule to provide fonts",
+    "description": "BlueMind webmodule to provide fonts",
     "version": "4.1.0",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",

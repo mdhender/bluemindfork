@@ -1,7 +1,7 @@
 {
     "name": "@bluemind/webapp.wrapper",
     "version": "4.1.0",
-    "description": "Bluemind old application wrapper",
+    "description": "BlueMind old application wrapper",
     "author": "BlueMind SAS",
     "main": "src/run.js",
     "license": "AGPL-3.0-only",
