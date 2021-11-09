@@ -155,5 +155,6 @@
     "common.manage_my_shares": "Gérer mes partages",
     "common.read_more": "En savoir plus",
     "common.container_type.mailboxacl": "la boîte aux lettres",
-    "common.container_type.calendar": "le calendrier"
+    "common.container_type.calendar": "le calendrier",
+    "common.product": " - BlueMind"
 }

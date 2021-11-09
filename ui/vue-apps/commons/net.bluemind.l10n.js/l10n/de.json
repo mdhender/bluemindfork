@@ -155,5 +155,6 @@
     "common.manage_my_shares": "Manage my shares",
     "common.read_more": "Read more",
     "common.container_type.mailboxacl": "das mailbox",
-    "common.container_type.calendar": "das calendar"
+    "common.container_type.calendar": "das calendar",
+    "common.product": " - BlueMind"
 }
