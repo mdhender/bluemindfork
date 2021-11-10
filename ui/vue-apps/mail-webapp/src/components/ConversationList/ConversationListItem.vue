@@ -95,9 +95,6 @@ export default {
     cursor: pointer;
     border-left: transparent solid 4px !important;
 
-    .states .fa-event {
-        color: $calendar-color;
-    }
     &.not-seen {
         border-left: theme-color("primary") 4px solid !important;
     }

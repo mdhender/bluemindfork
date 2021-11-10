@@ -30,12 +30,13 @@
 <script>
 import BmCalendarBadge from "../Calendars/BmCalendarBadge";
 import BmCalendarItem from "../Calendars/BmCalendarItem";
+import { isDefault } from "../container";
 import { inject } from "@bluemind/inject";
 import { BmFormAutocompleteInput, BmSpinner } from "@bluemind/styleguide";
 import { mapState } from "vuex";
 
 export default {
-    name: "AvailabilitiesAdvancedManagement",
+    name: "AvailabilitiesManagement",
     components: { BmCalendarBadge, BmCalendarItem, BmFormAutocompleteInput, BmSpinner },
     data() {
         return {
@@ -91,7 +92,7 @@ export default {
         },
 
         isDefaultCalendar(uid) {
-            return uid === "calendar:Default:" + inject("UserSession").userId;
+            return isDefault(uid);
         },
         getCalendar(uid) {
             return this.myCalendars.find(myCal => myCal.uid === uid);

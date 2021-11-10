@@ -7,7 +7,8 @@
         :title="modalTitle"
         :cancel-title="$t('common.cancel')"
         :ok-title="okTitle"
-        :ok-disabled="selected.length === 0"
+        :ok-only="allReadableContainers.length === 0"
+        :ok-disabled="allReadableContainers.length > 0 && selected.length === 0"
         @ok="subscribe"
     >
         <bm-spinner v-if="loadingStatus === 'LOADING'" :size="2" class="d-flex justify-content-center" />
@@ -64,7 +65,7 @@ import { BmFormCheckbox, BmFormInput, BmModal, BmPagination, BmSpinner, BmTable 
 import { mapActions } from "vuex";
 
 export default {
-    name: "AddContainersModal",
+    name: "SubscribeOtherContainersModal",
     components: { BmFormCheckbox, BmFormInput, BmModal, BmPagination, BmSpinner, BmTable },
     props: {
         containerType: {
@@ -104,10 +105,14 @@ export default {
             });
         },
         okTitle() {
-            return this.$tc("preferences.add_containers.add_n_containers", this.selected.length, {
-                count: this.selected.length,
-                type: this.$tc("common.container_type." + this.containerType, this.selected.length)
-            });
+            if (this.allReadableContainers.length === 0) {
+                return this.$t("common.got_it");
+            } else {
+                return this.$tc("preferences.add_containers.add_n_containers", this.selected.length, {
+                    count: this.selected.length,
+                    type: this.$tc("common.container_type." + this.containerType, this.selected.length)
+                });
+            }
         },
         suggested() {
             const realPattern = this.pattern.toLowerCase();
@@ -160,12 +165,12 @@ export default {
         },
 
         async subscribe() {
-            const containers = this.selected.map(container => ({ ...container, offlineSync: true }));
-            const subscriptions = containers.map(container =>
-                containerToSubscription(inject("UserSession"), container)
-            );
-            await this.SET_SUBSCRIPTIONS(subscriptions);
-            this.$emit("add-containers", containers);
+            if (this.selected.length > 0) {
+                const containers = this.selected.map(container => ({ ...container, offlineSync: true }));
+                const subscriptions = containers.map(containerToSubscription);
+                await this.SET_SUBSCRIPTIONS(subscriptions);
+                this.$emit("subscribe", containers);
+            }
         }
     }
 };

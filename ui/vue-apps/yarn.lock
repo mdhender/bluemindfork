@@ -1083,9 +1083,9 @@
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
 "@bluemind/addressbook.api@^4.1.0":
-  version "4.1.54799"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/addressbook.api/-/addressbook.api-4.1.54799.tgz#b17bd16c501efce96dd19b8bfaa6c00f998d6019"
-  integrity sha512-YE3fvkMjI591xDnhJYPGx905bRqYV+gUmDKS8xLh/5X9KsV2tvTjEoglMU/PNZErqVrjEo8kAakBH3FXax0qlQ==
+  version "4.1.58652"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/addressbook.api/-/addressbook.api-4.1.58652.tgz#f9b40e4902cab277cd0cf2a7dc3b7f89ee7d928e"
+  integrity sha512-FRtPTZjd4pa5MZBKLu6WqYmzVtzKFROOzNYr7guHHtXImw24rsx9EawuJZvBjxRYUL39prOzGPOKKbD4qhph5g==
   dependencies:
     axios "^0.18.0"
 

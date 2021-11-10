@@ -23,7 +23,7 @@
     "preferences.advanced.reinit_local_data.success": "Local data successfully reset",
     "preferences.advanced.reinit_local_data.error": "Error while resetting local data, please try again in a moment.",
 
-    "preferences.calendar.main.working_days": "Working days as displayed in the agenda :",
+    "preferences.calendar.main.working_days": "Working days as displayed in the agenda:",
     "preferences.calendar.main.working_days.none": "No days selected",
     "preferences.calendar.main.working_days.all": "All days",
 
@@ -70,19 +70,38 @@
     "preferences.manage_shares.title": "Manage shares for {type} \"{name}\"",
     "preferences.manage_shares.no_acl_set": "No share is set for {type} \"{name}\"",
     "preferences.manage_shares.no_external_share_set": "No share outside my organization is set for {type} \"{name}\"",
+    "preferences.manage_shares.has_no_rights": "Has no rights | Have no rights",
+    "preferences.manage_shares.inside_my_organization": "Inside my organization",
+    "preferences.manage_shares.outside_my_organization": "Outside my organization",
+    "preferences.manage_shares.all_users_in_my_organization": "All users in my organization",
 
     "preferences.add_containers.subscribe": "Subscribe to other {type}",
     "preferences.add_containers.add_n_containers": "Add | Add 1 {type} | Add {count} {type}",
     "preferences.add_containers.search": "Search {type} or a user",
-    "preferences.add_containers.calendar.nothing_to_add": "No additional calendars can be added.",
-    "preferences.add_containers.mailboxacl.nothing_to_add": "No additional mailboxes can be added.",
+    "preferences.add_containers.calendar.nothing_to_add": "You don't have read permissions on other calendars. Contact your administrator for more informations.",
+    "preferences.add_containers.mailboxacl.nothing_to_add": "You don't have read permissions on other mailboxes. Contact your administrator for more informations.",
+    "preferences.add_containers.addressbook.nothing_to_add": "You don't have read permissions on other address books. Contact your administrator for more informations.",
 
-    "preferences.display_containers.calendar.empty_list": "You did not subscribe yet, and you don't manage any other calendar.",
-    "preferences.display_containers.mailboxacl.empty_list": "You did not subscribe yet, and you don't manage any other mailbox.",
+    "preferences.display_containers.calendar.empty_list": "You have not subscribe yet, and you don't manage any other calendar.",
+    "preferences.display_containers.mailboxacl.empty_list": "You have not subscribe yet, and you don't manage any other mailbox.",
+    "preferences.display_containers.addressbook.empty_list": "You have not subscribe yet, and you don't manage any other addressbook.",
+    "preferences.display_containers.default": "Default {type}",
+
+    "preferences.display_containers.import_file.calendar": "Drop your ICS file",
+    "preferences.display_containers.import_file.addressbook": "Drop your vCard file",
+
+    "preferences.reset_containers_data.calendar": "All calendar data will be removed.",
+    "preferences.reset_containers_data.addressbook": "All addressbook data will be removed.",
+
+    "preferences.delete_containers": "Remove {type} definitely ?",
+
+    "preferences.create_container.label.description": "Label, as it'll be displayed in your {type}",
+    "preferences.create_container.name_already_exists": "This label is already used",
+    "preferences.create_container.button": "Create {type}",
+    "preferences.update_container.button": "Update {type} \"{name}\"",
 
     "preferences.mail.my_mailbox.switch_offline_sync": "Activate offline messaging on my mailbox.",
     "preferences.mail.my_mailbox.modal_title": "Manage shares for my mailbox",
-    "preferences.mail.my_mailbox.has_no_rights": "Has no rights",
     "preferences.mail.my_mailbox.can_send_on_my_behalf": "Can send on my behalf",
     "preferences.mail.my_mailbox.can_read_my_mailbox": "Can read my mailbox",
     "preferences.mail.my_mailbox.can_edit_my_mailbox": "Can edit my mailbox",
@@ -96,6 +115,7 @@
     "preferences.mail.advanced.switch.features.shared": "User shared mailbox",
     "preferences.mail.advanced.switch.features.filehosting": "Send large files as link",
     "preferences.mail.advanced.switch.features.move_folder": "Move folder",
+    
     "preferences.mail.identities.manage": "Manage identities",
     "preferences.mail.identities.always_show_from": "Always show field \"From\" (sender)",
     "preferences.mail.identities.create": "Add an identity",
@@ -124,18 +144,8 @@
     "preferences.calendar.main.configure_view": "Calendar display",
     "preferences.calendar.main.reminders": "Reminders",
 
-    "preferences.calendar.my_calendars.create": "Create a calendar",
-    "preferences.calendar.my_calendars.reset_data": "All calendar data will be removed.",
-    "preferences.calendar.my_calendars.remove": "Remove calendar definitely ?",
-    "preferences.calendar.my_calendars.update": "Update calendar \"{calendarName}\"",
-    "preferences.calendar.my_calendars.new": "Create a calendar",
-    "preferences.calendar.my_calendars.label.description": "Label, as it'll be displayed in your calendar",
     "preferences.calendar.my_calendars.type": "Calendar type",
-    "preferences.calendar.my_calendars.drop_ics_file": "Drop your ICS file",
     "preferences.calendar.my_calendars.availabilities_advanced_management": "Availabilities advanced management",
-    "preferences.calendar.my_calendars.inside_my_organization": "Inside my organization",
-    "preferences.calendar.my_calendars.outside_my_organization": "Outside my organization",
-    "preferences.calendar.my_calendars.all_users_in_my_organization": "All users in my organization",
     "preferences.calendar.my_calendars.add_calendar_to_my_availability": "Add a calendar to my availabilities",
     "preferences.calendar.my_calendars.choose_calendar_for_my_availabilities": "Choose among my calendars those which are taken into account in my availabilities",
     "preferences.calendar.my_calendars.cant_invite_me_to_a_meeting": "Can't invite me to a meeting",
@@ -146,7 +156,6 @@
     "preferences.calendar.my_calendars.can_edit_my_events_and_manage_shares": "Can edit my appointments and manage my shares",
     "preferences.calendar.my_calendars.publish_link_private_mode": "Can see my private appointments",
     "preferences.calendar.my_calendars.publish_link_public_mode": "Can only see my public appointments",
-    "preferences.calendar.my_calendars.default": "Default calendar",
 
     "preferences.downloads": "Downloads",
     "preferences.downloads.none": "No available downloads",
@@ -181,5 +190,9 @@
     "preferences.role.missing.warning": "You do not have the rights to modify this preference",
     "preferences.save.error": "Error while saving, check your network connection",
     "preferences.save.success": "Successfully saved",
-    "preferences.menu.apps": "Applications preferences menu"
+    "preferences.menu.apps": "Applications preferences menu",
+
+    "preferences.contacts.can_read_my_addressbook": "Can see this address book",
+    "preferences.contacts.can_edit_my_addressbook": "Can edit my contacts",
+    "preferences.contacts.can_edit_my_addressbook_and_manage_shares": "Can edit my contacts and manage my shares"
 }

@@ -2,7 +2,7 @@
     <div class="containers-management">
         <template v-if="containers.length > 0">
             <bm-form-input
-                v-if="canFilter"
+                v-if="!manageMine"
                 v-model="pattern"
                 class="mt-1 mb-3"
                 :placeholder="$t('common.filter')"
@@ -13,59 +13,44 @@
                 autocomplete="off"
                 @reset="pattern = ''"
             />
-            <bm-table
+            <containers-management-table
                 v-if="filtered.length > 0"
-                :items="filtered"
-                :fields="fields"
+                :container-type="containerType"
+                :filtered="filtered"
+                :manage-mine="manageMine"
+                :has-share-column="hasShareColumn"
                 :per-page="perPage"
                 :current-page="currentPage"
-                :sort-by="sortBy"
-                :sort-desc="sortDesc"
+                @open-import-modal="openImportModal"
+                @open-share-modal="openShareModal"
+                @offline-sync-changed="container => $emit('offline-sync-changed', container)"
+                @remove="container => $emit('remove', container)"
+                @reset-data="container => $emit('reset-data', container)"
+                @update="update"
             >
-                <template #cell(defaultContainer)="row">
-                    <slot name="default-container-column" :isDefault="row.value" />
-                </template>
-                <template #cell(name)="row"><slot name="item" :container="row.item" /></template>
-                <template #cell(ownerDisplayname)="row">
-                    <span class="font-italic text-secondary">{{ $t("common.shared_by", { name: row.value }) }}</span>
-                </template>
-                <template #cell(share)="row">
-                    <bm-button v-if="isManaged(row.item)" variant="inline" @click="openShareModal(row.item)">
-                        <bm-icon icon="share" size="lg" />
-                    </bm-button>
-                </template>
-                <template #cell(offlineSync)="row">
-                    <bm-form-checkbox :checked="row.value" switch @change="toggleOfflineSync(row.item)" />
-                </template>
-                <template #cell(action)="row">
-                    <slot
-                        name="action"
-                        :container="row.item"
-                        :openShareModal="openShareModal"
-                        :isManaged="isManaged"
-                        :toggleSubscription="toggleSubscription"
-                    >
-                        <bm-button variant="outline-secondary" @click="toggleSubscription(row.item)">
-                            <template v-if="isSubscribed(row.item)">{{ $t("common.unsubscribe") }}</template>
-                            <template v-else>{{ $t("common.subscribe") }}</template>
-                        </bm-button>
-                    </slot>
-                </template>
-            </bm-table>
+                <template v-slot:item="{ container }"><slot name="item" :container="container" /></template>
+            </containers-management-table>
             <div v-else>{{ $t("common.search.no_result") }}</div>
             <bm-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage" class="d-inline-flex" />
         </template>
         <div v-else>{{ $t("preferences.display_containers." + containerType + ".empty_list") }}</div>
-        <bm-button variant="outline-secondary" class="float-right" @click="actionBtnListener">
-            <slot name="action-btn-content">{{ defaultBottomRightBtnLabel }}</slot>
+        <bm-button variant="outline-secondary" class="float-right" @click="openBottomActionModal">
+            <template v-if="manageMine"><bm-icon icon="plus" /> {{ createContainerLabel }} </template>
+            <template v-else>{{ subscribeToContainerLabel }}</template>
         </bm-button>
+        <create-or-update-container-modal
+            ref="create-or-update-container"
+            :containers="containers"
+            @create="container => $emit('create', container)"
+            @update="container => $emit('update', container)"
+        />
+        <import-modal ref="import" />
         <manage-container-shares-modal ref="manage-shares" />
-        <add-containers-modal
-            v-if="defaultActionModal"
+        <subscribe-other-containers-modal
             ref="add-containers"
             :container-type="containerType"
             :excluded-containers="containers"
-            @add-containers="containers => $emit('add', containers)"
+            @subscribe="containers => $emit('subscribe', containers)"
         >
             <template v-slot:selected="{ container, closeFn }">
                 <slot name="badge-item" :container="container" :closeFn="closeFn" />
@@ -73,31 +58,31 @@
             <template v-slot:item="{ container }">
                 <slot name="item" :container="container" />
             </template>
-        </add-containers-modal>
-        <slot name="additionnal-modals" />
+        </subscribe-other-containers-modal>
     </div>
 </template>
 
 <script>
-import { containerToSubscription } from "./container";
-import AddContainersModal from "./AddContainersModal";
+import { create, isManaged } from "./container";
+import ContainersManagementTable from "./ContainersManagementTable";
+import CreateOrUpdateContainerModal from "./CreateOrUpdateContainerModal";
+import ImportModal from "./ImportModal";
 import ManageContainerSharesModal from "./ManageContainerSharesModal/ManageContainerSharesModal";
-import { Verb } from "@bluemind/core.container.api";
-import { inject } from "@bluemind/inject";
-import { BmButton, BmFormCheckbox, BmFormInput, BmIcon, BmPagination, BmTable } from "@bluemind/styleguide";
-import { mapActions, mapState } from "vuex";
+import SubscribeOtherContainersModal from "./SubscribeOtherContainersModal";
+import { BmButton, BmFormInput, BmIcon, BmPagination } from "@bluemind/styleguide";
 
 export default {
     name: "ContainersManagement",
     components: {
-        AddContainersModal,
         BmButton,
-        BmFormCheckbox,
         BmFormInput,
         BmIcon,
         BmPagination,
-        BmTable,
-        ManageContainerSharesModal
+        ContainersManagementTable,
+        CreateOrUpdateContainerModal,
+        ImportModal,
+        ManageContainerSharesModal,
+        SubscribeOtherContainersModal
     },
     props: {
         containers: {
@@ -108,55 +93,28 @@ export default {
             type: String,
             required: true
         },
+        manageMine: {
+            type: Boolean,
+            default: false
+        },
         hasShareColumn: {
             type: Boolean,
-            default: true
-        },
-        defaultContainerField: {
-            type: [Boolean, Object],
             default: false
-        },
-        canFilter: {
-            type: Boolean,
-            default: true
-        },
-        sortBy: {
-            type: String,
-            default: "name"
-        },
-        sortDesc: {
-            type: Boolean,
-            default: false
-        },
-        defaultActionModal: {
-            type: Boolean,
-            default: true
         }
     },
     data() {
-        return { currentPage: 1, perPage: 5, pattern: "" };
+        return { currentPage: 1, isManaged, perPage: 5, pattern: "" };
     },
     computed: {
-        ...mapState("preferences", ["subscriptions"]),
-        defaultBottomRightBtnLabel() {
+        subscribeToContainerLabel() {
             return this.$t("preferences.add_containers.subscribe", {
                 type: this.$tc("common.container_type." + this.containerType, 2)
             });
         },
-        fields() {
-            const fields = [
-                { key: "name", sortable: true, label: this.$t("common.label") },
-                { key: "ownerDisplayname", headerTitle: this.$t("common.shared_by"), label: "" },
-                { key: "offlineSync", label: this.$t("common.synchronization"), sortable: true },
-                { key: "action", headerTitle: this.$t("common.action"), label: "", class: "text-right" }
-            ];
-            if (this.hasShareColumn) {
-                fields.splice(2, 0, { key: "share", label: this.$t("common.sharing") });
-            }
-            if (this.defaultContainerField) {
-                fields.splice(0, 0, this.defaultContainerField);
-            }
-            return fields;
+        createContainerLabel() {
+            return this.$t("preferences.create_container.button", {
+                type: this.$t("common.container_type_with_indefinite_article." + this.containerType)
+            });
         },
         filtered() {
             const realPattern = this.pattern.toLowerCase();
@@ -171,44 +129,22 @@ export default {
         }
     },
     methods: {
-        ...mapActions("preferences", ["SET_SUBSCRIPTIONS", "REMOVE_SUBSCRIPTIONS"]),
-        isManaged(container) {
-            return container.verbs.some(verb => verb === Verb.All || verb === Verb.Manage);
-        },
-        isSubscribed(container) {
-            return this.subscriptions.findIndex(sub => sub.value.containerUid === container.uid) !== -1;
-        },
-        async toggleOfflineSync(container) {
-            const updatedContainer = { ...container, offlineSync: !container.offlineSync };
-            const subscription = containerToSubscription(inject("UserSession"), updatedContainer);
-            await this.SET_SUBSCRIPTIONS([subscription]);
-            this.$emit("update", updatedContainer);
-        },
-        async toggleSubscription(container) {
-            if (this.isSubscribed(container)) {
-                await this.REMOVE_SUBSCRIPTIONS([container.uid]);
-                if (!this.isManaged(container)) {
-                    this.$emit("remove", container.uid);
-                } else {
-                    const updatedContainer = { ...container, offlineSync: false };
-                    this.$emit("update", updatedContainer);
-                }
+        openBottomActionModal() {
+            if (this.manageMine) {
+                const container = create(this.containerType);
+                this.$refs["create-or-update-container"].open(container);
             } else {
-                const updatedContainer = { ...container, offlineSync: true };
-                const subscription = containerToSubscription(inject("UserSession"), updatedContainer);
-                await this.SET_SUBSCRIPTIONS([subscription]);
-                this.$emit("update", updatedContainer);
+                this.$refs["add-containers"].open();
             }
         },
         openShareModal(container) {
             this.$refs["manage-shares"].open(container);
         },
-        actionBtnListener() {
-            if (this.defaultActionModal) {
-                this.$refs["add-containers"].open();
-            } else {
-                this.$emit("action-btn-clicked");
-            }
+        openImportModal(container) {
+            this.$refs["import"].open(container);
+        },
+        update(container) {
+            this.$refs["create-or-update-container"].open(container);
         }
     }
 };
@@ -217,7 +153,12 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
-.containers-management .b-table .fa-star-fill {
-    color: $primary;
+.containers-management {
+    .bm-contextual-menu .dropdown-toggle {
+        text-align: right;
+    }
+    .b-table .fa-star-fill {
+        color: $primary;
+    }
 }
 </style>

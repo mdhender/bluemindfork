@@ -121,6 +121,10 @@ export default {
         transform: translateX(4px);
     }
 
+    .fa-calendar {
+        color: $calendar-color;
+    }
+
     .custom-control-label::after,
     .custom-control-label::before {
         top: 0.2rem !important;

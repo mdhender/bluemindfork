@@ -1,27 +1,29 @@
 <template>
-    <bm-modal v-model="show" centered hide-footer :title="$t('common.import')" body-class="import-ics-modal-body">
+    <bm-modal v-model="show" centered hide-footer :title="$t('common.import')" body-class="import-modal-body">
         <bm-file-drop-zone
             v-if="uploadStatus === 'IDLE'"
             class="mt-1"
-            :file-type-regex="allowOnlyIcs"
+            :file-type-regex="allowedFileTypes"
             always-show-dropzone
-            @drop-files="uploadIcsFile($event)"
+            @drop-files="uploadFile($event)"
         >
             <template #dropZone>
                 <div class="text-center my-4">
-                    <bm-icon icon="file-type-ics" size="lg" />
-                    <h2 class="mt-2 mb-4">{{ $t("preferences.calendar.my_calendars.drop_ics_file") }}</h2>
+                    <bm-icon :icon="fileTypeIcon" size="lg" />
+                    <h2 class="mt-2 mb-4">{{ $t("preferences.display_containers.import_file." + container.type) }}</h2>
                     <div class="mb-2">{{ $t("common.or") }}</div>
                     <bm-button variant="primary" @click="openFilePicker">{{ $t("common.browse") }}</bm-button>
                 </div>
             </template>
         </bm-file-drop-zone>
         <template v-else>
-            <bm-progress :value="uploaded" :max="uploadSize" class="mt-5 mb-2" />
-            <bm-icon icon="file-type-ics" size="lg" class="mr-2 mt-1 align-top" />
-            <div class="d-inline-block">
-                <h2>{{ filename }}</h2>
-                <span class="text-secondary">{{ uploadedWithUnit }} / {{ uploadSizeWithUnit }}</span>
+            <bm-progress :value="uploaded" :max="uploadSize" class="mt-4 mb-2" />
+            <div class="d-flex">
+                <bm-icon :icon="fileTypeIcon" size="lg" class="mr-2 mt-1 align-top" />
+                <div>
+                    <h2>{{ filename }}</h2>
+                    <span class="text-secondary">{{ uploadedWithUnit }} / {{ uploadSizeWithUnit }}</span>
+                </div>
             </div>
             <div class="float-right">
                 <bm-button-close v-if="uploadStatus === 'IN_PROGRESS'" @click="cancelUpload" />
@@ -36,30 +38,31 @@
             </div>
         </template>
         <input
-            ref="chooseIcsFileInputRef"
-            :accept="allowOnlyIcs"
+            ref="fileChooserRef"
+            :accept="allowedFileTypes"
             tabindex="-1"
             aria-hidden="true"
             type="file"
             hidden
-            @change="uploadIcsFile($event.target.files)"
+            @change="uploadFile($event.target.files)"
         />
     </bm-modal>
 </template>
 
 <script>
-import { MimeType } from "@bluemind/email";
+import { allowedFileTypes, importFileRequest, matchingFileTypeIcon } from "./container";
 import { computeUnit } from "@bluemind/file-utils";
 import { inject } from "@bluemind/inject";
 import { BmButton, BmButtonClose, BmFileDropZone, BmIcon, BmModal, BmProgress } from "@bluemind/styleguide";
+import { retrieveTaskResult } from "@bluemind/task";
 
 export default {
-    name: "ImportIcsModal",
+    name: "ImportModal",
     components: { BmButton, BmButtonClose, BmFileDropZone, BmIcon, BmModal, BmProgress },
     data() {
         return {
             show: false,
-            calendarContainerUid: "",
+            container: {},
 
             uploadStatus: "IDLE",
             filename: "",
@@ -69,20 +72,23 @@ export default {
         };
     },
     computed: {
-        allowOnlyIcs() {
-            return MimeType.TEXT_CALENDAR || MimeType.ICS || MimeType.TEXT_PLAIN;
+        allowedFileTypes() {
+            return allowedFileTypes(this.container.type);
+        },
+        fileTypeIcon() {
+            return matchingFileTypeIcon(this.container.type);
         },
         uploadedWithUnit() {
-            return computeUnit(this.uploaded);
+            return computeUnit(this.uploaded, inject("i18n"));
         },
         uploadSizeWithUnit() {
-            return computeUnit(this.uploadSize);
+            return computeUnit(this.uploadSize, inject("i18n"));
         }
     },
     methods: {
-        open(calendar) {
+        open(container) {
             this.show = true;
-            this.calendarContainerUid = calendar.uid;
+            this.container = container;
             this.initUploadInfos();
         },
         initUploadInfos() {
@@ -93,25 +99,35 @@ export default {
             this.uploadCanceller = { cancel: undefined };
         },
         openFilePicker() {
-            this.$refs.chooseIcsFileInputRef.click();
+            this.$refs.fileChooserRef.click();
         },
-        async uploadIcsFile(files) {
+        async uploadFile(files) {
             const file = files[0];
+            // console.log(file);
 
             this.uploadStatus = "IN_PROGRESS";
             this.filename = file.name;
             this.uploadSize = file.size;
 
-            const onUploadProgress = progress => {
-                this.uploaded = progress.loaded;
-                this.uploadSize = progress.total;
-                if (this.uploaded === this.uploadSize) {
+            // const onUploadProgress = taskStatus => {
+            // FIXME: choose between displaying progress with file size or "number of elements":
+            // - pass an onUploadProgress fn to axios (need to modify codegen to add this possibility when request returns a taskRef)
+            // - display progression thanks to taskStatus results
+            // console.log("coucou onUploadProgress ! ");
+            // console.log(taskStatus);
+            // // this.uploaded = progress.loaded;
+            // // this.uploadSize = progress.total;
+            // if (this.uploaded === this.uploadSize) {
+            //     this.uploadStatus = "SUCCESS";
+            // }
+            // };
+            const onUploadProgress = () => {};
+            const taskRef = await importFileRequest(this.container, file, this.uploadCanceller);
+            const taskService = inject("TaskService", taskRef.id);
+            retrieveTaskResult(taskService, onUploadProgress)
+                .then(() => {
                     this.uploadStatus = "SUCCESS";
-                }
-            };
-
-            await inject("VEventPersistence", this.calendarContainerUid)
-                .importIcs(file, this.uploadCanceller, onUploadProgress)
+                })
                 .catch(() => {
                     this.uploadStatus = "ERROR";
                 });
@@ -127,7 +143,7 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
-.import-ics-modal-body {
+.import-modal-body {
     .progress {
         height: 0.125rem;
     }

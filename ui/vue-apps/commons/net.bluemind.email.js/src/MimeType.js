@@ -7,6 +7,7 @@ const MULTIPART_MIXED = "multipart/mixed";
 const MULTIPART = "multipart/";
 
 const ICS = "application/ics";
+const VCARD = "text/vcard";
 const IMAGE = "image/";
 const AUDIO = "audio/";
 const VIDEO = "video/";
@@ -51,6 +52,7 @@ export default {
     MULTIPART_MIXED,
     IMAGE,
     ICS,
+    VCARD,
     equals,
     typeEquals,
     isRelated,
@@ -167,6 +169,8 @@ function matchingIcon(mimeType) {
         return "file-type-code";
     } else if (equals(mimeType, ICS)) {
         return "file-type-ics";
+    } else if (equals(mimeType, VCARD)) {
+        return "file-type-vcard";
     } else {
         return "file-type-unknown";
     }

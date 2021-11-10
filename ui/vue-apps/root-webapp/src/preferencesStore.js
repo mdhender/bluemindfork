@@ -1,5 +1,4 @@
-import { ContainerType } from "./components/preferences/fields/customs/ContainersManagement/container";
-import { Verb } from "@bluemind/core.container.api";
+import { ContainerType, isManaged } from "./components/preferences/fields/customs/ContainersManagement/container";
 import { html2text, text2html } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
 
@@ -12,9 +11,11 @@ const state = {
     userPasswordLastChange: null,
     subscriptions: [],
     myCalendars: [],
-    otherCalendars: [], // includes the calendars I subscribe to and those I manage (excluding mines)
+    otherCalendars: [], // includes calendars I subscribe to and those I manage (excluding mines)
     myMailboxContainer: null,
-    otherMailboxesContainers: [], // includes the mailboxes I subscribe to and those I manage (excluding mine)
+    otherMailboxesContainers: [], // includes mailboxes I subscribe to and those I manage (excluding mine)
+    myAddressbooks: [],
+    otherAddressbooks: [], // includes addressbooks I subscribe to and those I manage (excluding mine)
     mailboxFilter: { remote: {}, local: {}, loaded: false }
 };
 
@@ -26,45 +27,15 @@ const actions = {
     },
     async FETCH_CONTAINERS({ commit, state }) {
         const allReadableContainers = await inject("ContainersPersistence").all({});
-        const userId = inject("UserSession").userId;
-
-        const allReadableCalendars = allReadableContainers.filter(
-            container => container.type === ContainerType.CALENDAR
+        commit("SET_CALENDARS", getContainers(ContainerType.CALENDAR, allReadableContainers, state.subscriptions));
+        commit(
+            "SET_MAILBOX_CONTAINERS",
+            getContainers(ContainerType.MAILBOX, allReadableContainers, state.subscriptions)
         );
-        const myCalendars = allReadableCalendars
-            .filter(container => container.owner === userId)
-            .sort(container => (container.defaultContainer ? 0 : 1));
-        const otherOwnerCalendars = allReadableCalendars.filter(container => container.owner !== userId);
-        const otherManagedCalendars = otherOwnerCalendars.filter(container =>
-            container.verbs.some(verb => verb === Verb.All || verb === Verb.Manage)
+        commit(
+            "SET_ADDRESSBOOKS",
+            getContainers(ContainerType.ADDRESSBOOK, allReadableContainers, state.subscriptions)
         );
-        const subscribedCalendars = otherOwnerCalendars.filter(
-            calContainer =>
-                state.subscriptions.findIndex(sub => sub.value.containerUid === calContainer.uid) !== -1 &&
-                otherManagedCalendars.findIndex(managed => managed.uid === calContainer.uid) === -1
-        );
-        commit("SET_CALENDARS", { myCalendars, otherCalendars: otherManagedCalendars.concat(subscribedCalendars) });
-
-        const allReadableMailboxes = allReadableContainers.filter(
-            container => container.type === ContainerType.MAILBOX
-        );
-        const myMailboxContainer = allReadableMailboxes.find(
-            container => container.owner === userId && container.defaultContainer
-        );
-        const otherOwnerMailboxes = allReadableMailboxes.filter(container => container.owner !== userId);
-        const otherManagedMailboxes = otherOwnerMailboxes.filter(
-            container =>
-                container.owner !== userId && container.verbs.some(verb => verb === Verb.All || verb === Verb.Manage)
-        );
-        const subscribedMailboxes = otherOwnerMailboxes.filter(
-            container =>
-                state.subscriptions.findIndex(sub => sub.value.containerUid === container.uid) !== -1 &&
-                otherManagedMailboxes.findIndex(managed => managed.uid === container.uid) === -1
-        );
-        commit("SET_MAILBOX_CONTAINERS", {
-            myMailboxContainer,
-            otherMailboxesContainers: otherManagedMailboxes.concat(subscribedMailboxes)
-        });
     },
     async FETCH_SUBSCRIPTIONS({ commit }) {
         const subscriptions = await inject("OwnerSubscriptionsPersistence").list();
@@ -180,9 +151,9 @@ const mutations = {
     },
 
     // calendars
-    SET_CALENDARS: (state, { myCalendars, otherCalendars }) => {
-        state.myCalendars = myCalendars;
-        state.otherCalendars = otherCalendars;
+    SET_CALENDARS: (state, { myContainers, otherContainers }) => {
+        state.myCalendars = myContainers;
+        state.otherCalendars = otherContainers;
     },
     ADD_PERSONAL_CALENDAR: (state, myCalendar) => {
         state.myCalendars.push(myCalendar);
@@ -216,9 +187,9 @@ const mutations = {
     },
 
     // mailboxes
-    SET_MAILBOX_CONTAINERS: (state, { myMailboxContainer, otherMailboxesContainers }) => {
-        state.myMailboxContainer = myMailboxContainer;
-        state.otherMailboxesContainers = otherMailboxesContainers;
+    SET_MAILBOX_CONTAINERS: (state, { myContainers, otherContainers }) => {
+        state.myMailboxContainer = myContainers[0];
+        state.otherMailboxesContainers = otherContainers;
     },
     ADD_OTHER_MAILBOXES: (state, mailboxes) => {
         state.otherMailboxesContainers.push(...mailboxes);
@@ -235,6 +206,42 @@ const mutations = {
         );
         if (index !== -1) {
             state.otherMailboxesContainers.splice(index, 1, updatedContainer);
+        }
+    },
+
+    // addressbooks
+    SET_ADDRESSBOOKS: (state, { myContainers, otherContainers }) => {
+        state.myAddressbooks = myContainers;
+        state.otherAddressbooks = otherContainers;
+    },
+    ADD_PERSONAL_ADDRESSBOOK: (state, myAddressbook) => {
+        state.myAddressbooks.push(myAddressbook);
+    },
+    REMOVE_PERSONAL_ADDRESSBOOK: (state, addressbookUid) => {
+        const index = state.myAddressbooks.findIndex(myAddressbook => myAddressbook.uid === addressbookUid);
+        if (index !== -1) {
+            state.myAddressbooks.splice(index, 1);
+        }
+    },
+    UPDATE_PERSONAL_ADDRESSBOOK: (state, addressbook) => {
+        const index = state.myAddressbooks.findIndex(myAddressbook => myAddressbook.uid === addressbook.uid);
+        if (index !== -1) {
+            state.myAddressbooks.splice(index, 1, addressbook);
+        }
+    },
+    ADD_OTHER_ADDRESSBOOK: (state, calendars) => {
+        state.otherAddressbooks.push(...calendars);
+    },
+    REMOVE_OTHER_ADDRESSBOOK: (state, uid) => {
+        const index = state.otherAddressbooks.findIndex(otherAddressbook => otherAddressbook.uid === uid);
+        if (index !== -1) {
+            state.otherAddressbooks.splice(index, 1);
+        }
+    },
+    UPDATE_OTHER_ADDRESSBOOK: (state, addressbook) => {
+        const index = state.otherAddressbooks.findIndex(otherAddressbook => otherAddressbook.uid === addressbook.uid);
+        if (index !== -1) {
+            state.otherAddressbooks.splice(index, 1, addressbook);
         }
     }
 };
@@ -306,3 +313,22 @@ export default {
         }
     }
 };
+
+function getContainers(expectedContainerType, allReadableContainers, subscriptions) {
+    const userId = inject("UserSession").userId;
+    const filteredByContainerType = allReadableContainers.filter(container => container.type === expectedContainerType);
+    const myContainers = filteredByContainerType
+        .filter(container => container.owner === userId)
+        .sort(container => (container.defaultContainer ? 0 : 1));
+    const otherOwnerContainers = filteredByContainerType.filter(container => container.owner !== userId);
+    const otherManagedContainers = otherOwnerContainers.filter(isManaged);
+    const subscribedContainers = otherOwnerContainers.filter(
+        container =>
+            subscriptions.findIndex(sub => sub.value.containerUid === container.uid) !== -1 &&
+            otherManagedContainers.findIndex(managed => managed.uid === container.uid) === -1
+    );
+    return {
+        myContainers,
+        otherContainers: otherManagedContainers.concat(subscribedContainers)
+    };
+}

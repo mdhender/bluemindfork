@@ -1,9 +1,15 @@
+import { Verb } from "@bluemind/core.container.api";
+import { inject } from "@bluemind/inject";
+import { MimeType } from "@bluemind/email";
+
 export const ContainerType = {
     CALENDAR: "calendar",
-    MAILBOX: "mailboxacl"
+    MAILBOX: "mailboxacl",
+    ADDRESSBOOK: "addressbook"
 };
 
-export function containerToSubscription(userSession, { uid, name, offlineSync }) {
+export function containerToSubscription({ uid, name, offlineSync }) {
+    const userSession = inject("UserSession");
     return {
         value: {
             containerUid: uid,
@@ -24,4 +30,97 @@ export function containerToSubscription(userSession, { uid, name, offlineSync })
         updated: Date.now(),
         flags: []
     };
+}
+
+export function containerToCalendarDescriptor({ name, settings }) {
+    const userSession = inject("UserSession");
+    return {
+        domainUid: userSession.domain,
+        name: name,
+        owner: userSession.userId,
+        settings
+    };
+}
+
+export function containerToAddressBookDescriptor({ name, settings }) {
+    const userSession = inject("UserSession");
+    return {
+        domainUid: userSession.domain,
+        name: name,
+        owner: userSession.userId,
+        settings,
+        system: false
+    };
+}
+
+export function matchingIcon(containerType) {
+    switch (containerType) {
+        case ContainerType.CALENDAR:
+            return "calendar";
+        case ContainerType.MAILBOX:
+            return "user-enveloppe";
+        case ContainerType.ADDRESSBOOK:
+            return "addressbook";
+    }
+}
+
+export function matchingFileTypeIcon(containerType) {
+    switch (containerType) {
+        case ContainerType.CALENDAR:
+            return "file-type-ics";
+        case ContainerType.ADDRESSBOOK:
+            return "file-type-vcard";
+        default:
+            return "file-type-unknown";
+    }
+}
+
+export function allowedFileTypes(containerType) {
+    switch (containerType) {
+        case ContainerType.CALENDAR:
+            return MimeType.TEXT_CALENDAR || MimeType.ICS || MimeType.TEXT_PLAIN;
+        case ContainerType.ADDRESSBOOK:
+            return MimeType.VCARD;
+    }
+}
+
+export async function importFileRequest(container, file, uploadCanceller) {
+    // be careful here: we expect request to return a task ref
+    if (container.type === ContainerType.CALENDAR) {
+        return inject("VEventPersistence", container.uid).importIcs(file, uploadCanceller);
+    } else if (container.type === ContainerType.ADDRESSBOOK) {
+        const encoded = await file.text().then(res => JSON.stringify(res));
+        return inject("VCardServicePersistence", container.uid).importCards(encoded, uploadCanceller);
+    }
+}
+
+export function isDefault(containerUid) {
+    const prefixes = ["calendar:Default:", "book:Contacts_", "book:CollectedContacts_"];
+    return prefixes.some(prefix => containerUid.startsWith(prefix));
+}
+
+export function isManaged(container) {
+    return container.verbs.some(verb => verb === Verb.All || verb === Verb.Manage);
+}
+
+export function create(type) {
+    const userSession = inject("UserSession");
+    const container = {
+        uid: "",
+        name: "",
+        owner: userSession.userId,
+        offlineSync: true,
+        type,
+        defaultContainer: false,
+        readOnly: false,
+        domainUid: userSession.domain,
+        ownerDisplayname: userSession.formatedName,
+        ownerDirEntryPath: userSession.domain + "/users/" + userSession.userId,
+        settings: {},
+        deleted: false
+    };
+    if (type === ContainerType.CALENDAR) {
+        container.settings = { ...container.settings, type: "internal" };
+    }
+    return container;
 }

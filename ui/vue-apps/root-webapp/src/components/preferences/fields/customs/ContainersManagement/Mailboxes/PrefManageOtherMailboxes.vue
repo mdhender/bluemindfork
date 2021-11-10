@@ -2,9 +2,11 @@
     <containers-management
         :containers="otherMailboxesContainers"
         :container-type="containerType"
-        @add="ADD_OTHER_MAILBOXES"
-        @update="UPDATE_OTHER_MAILBOX_CONTAINER"
+        has-share-column
+        @offline-sync-changed="UPDATE_OTHER_MAILBOX_CONTAINER"
         @remove="REMOVE_OTHER_MAILBOX_CONTAINER"
+        @subscribe="ADD_OTHER_MAILBOXES"
+        @update="UPDATE_OTHER_MAILBOX_CONTAINER"
     >
         <template v-slot:item="{ container }">
             <!-- FIXME: group may not be displayed as user -->

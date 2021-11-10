@@ -1,25 +1,25 @@
 <template>
     <bm-contextual-menu>
-        <bm-dropdown-item-button icon="pencil" @click="$emit('update')">
+        <bm-dropdown-item-button icon="pencil" :disabled="isDefault && !isCalendarType" @click="$emit('update')">
             {{ $t("common.edit") }}
         </bm-dropdown-item-button>
         <bm-dropdown-item-button icon="share" @click="$emit('manage-shares')">
             {{ $t("common.share") }}
         </bm-dropdown-item-button>
-        <bm-dropdown-item-button icon="upload" @click="$emit('import-ics')">
+        <bm-dropdown-item-button icon="upload" @click="$emit('import')">
             {{ $t("common.import") }}
         </bm-dropdown-item-button>
         <bm-dropdown-item-button icon="broom" @click="$emit('reset-data')">
             {{ $t("common.action.reset") }}
         </bm-dropdown-item-button>
-        <bm-dropdown-item-button icon="trash" :disabled="isDefaultCalendar" @click="$emit('remove')">
+        <bm-dropdown-item-button icon="trash" :disabled="isDefault" @click="$emit('remove')">
             {{ $t("common.delete") }}
         </bm-dropdown-item-button>
         <bm-dropdown-item-button
-            v-if="calendar.settings.type === 'externalIcs'"
+            v-if="displaySyncBtn"
             icon="loop"
             :disabled="isSyncInProgress"
-            @click="$emit('synchronize-external-ics')"
+            @click="$emit('synchronize')"
         >
             {{ $t("common.start_synchronization") }}
         </bm-dropdown-item-button>
@@ -27,14 +27,14 @@
 </template>
 
 <script>
-import { inject } from "@bluemind/inject";
+import { ContainerType, isDefault } from "./container";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
 
 export default {
-    name: "PrefManageMyCalendarsMenu",
+    name: "ManageMyContainerMenu",
     components: { BmContextualMenu, BmDropdownItemButton },
     props: {
-        calendar: {
+        container: {
             type: Object,
             required: true
         },
@@ -44,8 +44,14 @@ export default {
         }
     },
     computed: {
-        isDefaultCalendar() {
-            return this.calendar.uid && this.calendar.uid === "calendar:Default:" + inject("UserSession").userId;
+        isDefault() {
+            return isDefault(this.container.uid);
+        },
+        isCalendarType() {
+            return this.container.type === ContainerType.CALENDAR;
+        },
+        displaySyncBtn() {
+            return this.isCalendarType && this.container.settings.type === "externalIcs";
         }
     }
 };

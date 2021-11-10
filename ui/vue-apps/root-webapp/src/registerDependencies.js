@@ -1,4 +1,9 @@
-import { AddressBookClient, AddressBooksClient } from "@bluemind/addressbook.api";
+import {
+    AddressBookClient,
+    AddressBooksClient,
+    AddressBooksMgmtClient,
+    VCardServiceClient
+} from "@bluemind/addressbook.api";
 import { APIKeysClient } from "@bluemind/authentication.api";
 import {
     CalendarClient,
@@ -24,6 +29,11 @@ import { MailboxesClientProxy } from "../api/MailboxesClientProxy";
 import { UserSettingsClientProxy } from "../api/UserSettingsClientProxy";
 
 export default function (userSession) {
+    injector.register({
+        provide: "AddressBooksMgmtPersistence",
+        factory: () => new AddressBooksMgmtClient(userSession.sid)
+    });
+
     injector.register({
         provide: "AddressBooksPersistence",
         factory: () => new AddressBooksClient(userSession.sid)
@@ -136,6 +146,11 @@ export default function (userSession) {
     injector.register({
         provide: "UserSettingsPersistence",
         factory: () => new UserSettingsClientProxy(userSession.sid, userSession.domain)
+    });
+
+    injector.register({
+        provide: "VCardServicePersistence",
+        factory: containerUid => new VCardServiceClient(userSession.sid, containerUid)
     });
 
     injector.register({

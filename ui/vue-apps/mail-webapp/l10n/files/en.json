@@ -208,7 +208,7 @@
     "mail.content.body": "Message content",
     "mail.content.copy": "copy",
     "mail.content.download": "Download {fileType} '{name}'.",
-    "mail.content.file-type": "File type : {fileType}.",
+    "mail.content.file-type": "File type: {fileType}.",
     "mail.content.file-type-audio": "Audio",
     "mail.content.file-type-code": "Code",
     "mail.content.file-type-compressed": "Archive",

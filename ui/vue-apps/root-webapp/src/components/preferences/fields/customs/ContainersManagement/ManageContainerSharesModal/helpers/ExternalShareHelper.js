@@ -31,3 +31,20 @@ export function sendExternalToServer(publishMode, shareToken, calendarUid) {
         ? inject("PublishCalendarPersistence", calendarUid).createUrl(publishMode, shareToken)
         : inject("PublishCalendarPersistence", calendarUid).generateUrl(publishMode);
 }
+
+export function urlToAclSubject({ url }) {
+    return url.substring(url.lastIndexOf("/") + 1, url.length);
+}
+
+export function publishModeOptions(i18n) {
+    return [
+        {
+            text: i18n.t("preferences.calendar.my_calendars.publish_link_public_mode"),
+            value: PublishMode.PUBLIC
+        },
+        {
+            text: i18n.t("preferences.calendar.my_calendars.publish_link_private_mode"),
+            value: PublishMode.PRIVATE
+        }
+    ];
+}

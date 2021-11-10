@@ -46,10 +46,6 @@ export function calendarAclToVerb(acl, isFreebusy) {
     }
 }
 
-export function urlToAclSubject({ url }) {
-    return url.substring(url.lastIndexOf("/") + 1, url.length);
-}
-
 export async function mergeFreebusyWithCalAcl(aclList, domainAcl, dirEntriesAcl) {
     const userSession = inject("UserSession");
     const hasDomainAcl = aclList.find(acl => acl.subject === userSession.domain);
@@ -116,32 +112,32 @@ function adaptAclForFreebusy(calendarAcl, freebusyVerb) {
     return calendarAcl;
 }
 
-export function getCalendarOptions(count, vueI18n, isMyDefaultCalendar) {
+export function getCalendarOptions(i18n, count, isMyDefaultCalendar) {
     const options = [
         {
-            text: vueI18n.tc("preferences.calendar.my_calendars.cant_invite_me_to_a_meeting", count),
+            text: i18n.tc("preferences.calendar.my_calendars.cant_invite_me_to_a_meeting", count),
             value: CalendarAcl.CANT_INVITE_ME
         },
         {
-            text: vueI18n.tc("preferences.calendar.my_calendars.can_invite_me_to_a_meeting", count),
+            text: i18n.tc("preferences.calendar.my_calendars.can_invite_me_to_a_meeting", count),
             value: CalendarAcl.CAN_INVITE_ME
         },
         {
-            text: vueI18n.tc("preferences.calendar.my_calendars.can_invite_me_to_a_meeting_and_see_my_events", count),
+            text: i18n.tc("preferences.calendar.my_calendars.can_invite_me_to_a_meeting_and_see_my_events", count),
             value: CalendarAcl.CAN_SEE_MY_EVENTS
         },
         {
-            text: vueI18n.tc("preferences.calendar.my_calendars.can_edit_my_events", count),
+            text: i18n.tc("preferences.calendar.my_calendars.can_edit_my_events", count),
             value: CalendarAcl.CAN_EDIT_MY_EVENTS
         },
         {
-            text: vueI18n.tc("preferences.calendar.my_calendars.can_edit_my_events_and_manage_shares", count),
+            text: i18n.tc("preferences.calendar.my_calendars.can_edit_my_events_and_manage_shares", count),
             value: CalendarAcl.CAN_MANAGE_SHARES
         }
     ];
     if (isMyDefaultCalendar) {
         options.splice(2, 0, {
-            text: vueI18n.tc(
+            text: i18n.tc(
                 "preferences.calendar.my_calendars.can_invite_me_to_a_meeting_and_see_my_availability",
                 count
             ),

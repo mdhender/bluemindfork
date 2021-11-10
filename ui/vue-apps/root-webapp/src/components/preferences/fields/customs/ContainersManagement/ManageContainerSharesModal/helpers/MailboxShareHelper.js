@@ -38,26 +38,26 @@ export function verbToMailboxAcl(verb) {
     }
 }
 
-export function getMailboxOptions(vueI18n) {
+export function getMailboxOptions(i18n) {
     return [
         {
-            text: vueI18n.t("preferences.mail.my_mailbox.has_no_rights"),
+            text: i18n.tc("preferences.manage_shares.has_no_rights", 1),
             value: MailboxAcl.HAS_NO_RIGHTS
         },
         {
-            text: vueI18n.t("preferences.mail.my_mailbox.can_send_on_my_behalf"),
+            text: i18n.t("preferences.mail.my_mailbox.can_send_on_my_behalf"),
             value: MailboxAcl.CAN_SEND_ON_MY_BEHALF
         },
         {
-            text: vueI18n.t("preferences.mail.my_mailbox.can_read_my_mailbox"),
+            text: i18n.t("preferences.mail.my_mailbox.can_read_my_mailbox"),
             value: MailboxAcl.CAN_READ_MY_MAILBOX
         },
         {
-            text: vueI18n.t("preferences.mail.my_mailbox.can_edit_my_mailbox"),
+            text: i18n.t("preferences.mail.my_mailbox.can_edit_my_mailbox"),
             value: MailboxAcl.CAN_EDIT_MY_MAILBOX
         },
         {
-            text: vueI18n.t("preferences.mail.my_mailbox.can_edit_my_mailbox_and_manage_shares"),
+            text: i18n.t("preferences.mail.my_mailbox.can_edit_my_mailbox_and_manage_shares"),
             value: MailboxAcl.CAN_MANAGE_SHARES
         }
     ];

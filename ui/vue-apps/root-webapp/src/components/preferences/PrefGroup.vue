@@ -36,8 +36,10 @@ import PrefEnableNotifications from "./fields/customs/PrefEnableNotifications";
 import PrefEventReminder from "./fields/customs/PrefEventReminder";
 import PrefIMSetPhonePresence from "./fields/customs/PrefIMSetPhonePresence";
 import PrefManageIdentities from "./fields/customs/PrefManageIdentities";
+import PrefManageMyAddressBooks from "./fields/customs/ContainersManagement/Contacts/PrefManageMyAddressBooks";
 import PrefManageMyCalendars from "./fields/customs/ContainersManagement/Calendars/MyCalendars/PrefManageMyCalendars";
 import PrefManageMyMailbox from "./fields/customs/ContainersManagement/Mailboxes/PrefManageMyMailbox";
+import PrefManageOtherAddressBooks from "./fields/customs/ContainersManagement/Contacts/PrefManageOtherAddressBooks";
 import PrefManageOtherCalendars from "./fields/customs/ContainersManagement/Calendars/PrefManageOtherCalendars";
 import PrefManageOtherMailboxes from "./fields/customs/ContainersManagement/Mailboxes/PrefManageOtherMailboxes";
 import PrefPassword from "./fields/customs/PrefPassword";
@@ -73,8 +75,10 @@ export default {
         PrefEventReminder,
         PrefIMSetPhonePresence,
         PrefManageIdentities,
+        PrefManageMyAddressBooks,
         PrefManageMyCalendars,
         PrefManageMyMailbox,
+        PrefManageOtherAddressBooks,
         PrefManageOtherCalendars,
         PrefManageOtherMailboxes,
         PrefPassword,
