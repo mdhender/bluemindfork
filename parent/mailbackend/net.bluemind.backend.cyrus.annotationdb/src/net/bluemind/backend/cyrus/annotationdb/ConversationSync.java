@@ -44,6 +44,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.backend.cyrus.Sudo;
 import net.bluemind.backend.cyrus.annotationdb.ConversationInfo.ConversationElement;
 import net.bluemind.backend.cyrus.annotationdb.ConversationInfo.FORMAT;
 import net.bluemind.backend.cyrus.index.CyrusIndex;
@@ -53,6 +54,7 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.partitions.MailboxDescriptor;
 import net.bluemind.backend.mail.api.Conversation;
 import net.bluemind.backend.mail.api.Conversation.MessageRef;
+import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmt;
@@ -76,7 +78,9 @@ import net.bluemind.node.shared.ExecDescriptor;
 import net.bluemind.node.shared.ExecRequest;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
+import net.bluemind.user.api.User;
 
 public class ConversationSync {
 
@@ -119,7 +123,7 @@ public class ConversationSync {
 		ItemValue<Server> server = getImapServer(dataLocation);
 
 		try {
-			initConversationDb(server, domainUid, box.value.name + "@" + domainUid, userUid);
+			initConversationDb(server, domainUid, box, userUid);
 		} catch (CyrusConversationDbInitException e1) {
 			logger.warn("cannot init db", e1);
 			monitor.log("cannot init db: " + e1.getMessage());
@@ -149,37 +153,57 @@ public class ConversationSync {
 		}
 	}
 
-	private void initConversationDb(ItemValue<Server> server, String domainUid, String mailbox, String userUid)
+	private void initConversationDb(ItemValue<Server> server, String domainUid, ItemValue<Mailbox> box, String userUid)
 			throws CyrusConversationDbInitException {
 		try {
 			INodeClient nc = NodeActivator.get(server.value.address());
-			checkCyrusIndexVersion(nc, server, domainUid, userUid, mailbox);
-			NCUtils.execNoOut(nc, "/usr/sbin/ctl_conversationsdb -b " + mailbox);
+			checkCyrusIndexVersion(nc, server, domainUid, box);
+			String boxName = box.value.name + "@" + domainUid;
+			NCUtils.execNoOut(nc, "/usr/sbin/ctl_conversationsdb -b " + boxName);
 		} catch (Exception e) {
 			throw new CyrusConversationDbInitException(task, e);
 		}
 	}
 
-	private void checkCyrusIndexVersion(INodeClient nc, ItemValue<Server> server, String domainUid, String userUid,
-			String mailbox) throws IOException, FileNotFoundException {
-		CyrusContext cyrusContext = CyrusContext.build(context, domainUid, userUid);
+	private void checkCyrusIndexVersion(INodeClient nc, ItemValue<Server> server, String domainUid,
+			ItemValue<Mailbox> box) throws IOException, FileNotFoundException {
+		boolean needsReconstruct = false;
+		String boxName = box.value.name + "@" + domainUid;
+
+		String partition = domainUid.replace('.', '_');
+		String mboxForApi = box.value.type.nsPrefix + box.value.name.replace('.', '^');
+		List<String> folders = null;
+		ItemValue<User> user = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IUser.class, domainUid).getComplete(box.uid);
+		try (Sudo su = Sudo.forUser(user, domainUid)) {
+			IMailboxFolders folderService = ServerSideServiceProvider.getProvider(su.context)
+					.instance(IMailboxFolders.class, partition, mboxForApi);
+			folders = folderService.all().stream().map(f -> f.value.fullName).collect(Collectors.toList());
+		}
+		needsReconstruct |= folders.isEmpty();
+		for (String folder : folders) {
+			needsReconstruct |= checkIndexVersion(nc, domainUid, box.uid, boxName, folder);
+		}
+		if (needsReconstruct) {
+			NCUtils.execNoOut(nc, "reconstruct -r -V max user/" + boxName);
+		}
+	}
+
+	private boolean checkIndexVersion(INodeClient nc, String domainUid, String userUid, String mailbox, String folder)
+			throws IOException, FileNotFoundException {
+		CyrusContext cyrusContext = CyrusContext.build(context, domainUid, userUid, folder);
 		if (cyrusContext.index.exists()) {
-			boolean needsReconstruct = false;
 			try (FileInputStream fis = new FileInputStream(cyrusContext.index)) {
 				CyrusIndex index = new CyrusIndex(fis);
 				index.readHeader();
-				logger.info("Cyrus index version of {}: {}", mailbox, index.getHeader().version);
-				if (index.getHeader().version < 13) {
-					needsReconstruct = true;
-				}
+				logger.info("Cyrus index version of {}-{}: {}", mailbox, folder, index.getHeader().version);
+				return index.getHeader().version < 13;
 			} catch (UnknownVersion v) {
-				logger.info("Cyrus index of {} needs reconstruction: {}", mailbox, v.getMessage());
-				needsReconstruct = true;
-			}
-			if (needsReconstruct) {
-				NCUtils.execNoOut(nc, "reconstruct -r -V max user/" + mailbox);
+				logger.info("Cyrus index of {}-{} needs reconstruction: {}", mailbox, folder, v.getMessage());
+				return true;
 			}
 		}
+		return true;
 	}
 
 	private void syncConversationInfo(String domainUid, ItemValue<Server> server, ItemValue<Mailbox> box) {
@@ -443,14 +467,14 @@ public class ConversationSync {
 			this.dataLocation = dataLocation;
 		}
 
-		public static CyrusContext build(BmContext context, String domainUid, String userUid) {
+		public static CyrusContext build(BmContext context, String domainUid, String userUid, String folder) {
 			ItemValue<Mailbox> box = context.provider().instance(IMailboxes.class, domainUid).getComplete(userUid);
 			IDirectory dir = context.provider().instance(IDirectory.class, domainUid);
 			String dataLocation = getDataLocation(dir, box);
 			MailboxDescriptor mboxDescriptor = new MailboxDescriptor();
 			mboxDescriptor.mailboxName = box.value.name;
 			mboxDescriptor.type = Mailbox.Type.user;
-			mboxDescriptor.utf7FolderPath = "INBOX";
+			mboxDescriptor.utf7FolderPath = folder;
 			CyrusPartition partition = CyrusPartition.forServerAndDomain(dataLocation, domainUid);
 			String indexPath = CyrusFileSystemPathHelper.getMetaFileSystemPath(domainUid, mboxDescriptor, partition,
 					"cyrus.index");

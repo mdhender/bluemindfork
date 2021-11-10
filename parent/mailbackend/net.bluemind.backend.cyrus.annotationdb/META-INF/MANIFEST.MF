@@ -19,5 +19,6 @@ Require-Bundle: slf4j.api,
  net.bluemind.backend.mail.replica.api,
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.network.topology,
- net.bluemind.directory.service
+ net.bluemind.directory.service,
+ net.bluemind.backend.cyrus
 Export-Package: net.bluemind.backend.cyrus.annotationdb
