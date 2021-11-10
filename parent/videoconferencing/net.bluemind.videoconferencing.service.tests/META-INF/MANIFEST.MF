@@ -21,4 +21,4 @@ Require-Bundle: org.junit,
  net.bluemind.calendar.service;bundle-version="4.1.0",
  net.bluemind.core.sanitizer;bundle-version="4.1.0",
  net.bluemind.resource.hook;bundle-version="4.1.0",
- com.robbypond.boilerpipe
+ net.bluemind.utils

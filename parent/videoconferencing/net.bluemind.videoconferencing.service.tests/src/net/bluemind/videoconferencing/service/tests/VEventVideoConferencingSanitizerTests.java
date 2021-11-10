@@ -31,9 +31,6 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import de.l3s.boilerpipe.BoilerpipeExtractor;
-import de.l3s.boilerpipe.BoilerpipeProcessingException;
-import de.l3s.boilerpipe.extractors.CommonExtractors;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
@@ -53,6 +50,7 @@ import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.utils.HtmlToPlainText;
 import net.bluemind.videoconferencing.api.IVideoConferenceUids;
 import net.bluemind.videoconferencing.service.calendar.VEventVideoConferencingSanitizer;
 
@@ -206,7 +204,7 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 	}
 
 	@Test
-	public void testUpdateVideoConfRemoveResource_TXT_DESCRIPTION() throws BoilerpipeProcessingException {
+	public void testUpdateVideoConfRemoveResource_TXT_DESCRIPTION() {
 		VEventSeries event = defaultVEvent();
 		VEvent.Attendee videoconf = VEvent.Attendee.create(VEvent.CUType.Resource, "", VEvent.Role.OptionalParticipant,
 				VEvent.ParticipationStatus.Accepted, true, "", "", "", "osef",
@@ -222,8 +220,7 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 		updated.main.attendees = defaultVEvent().main.attendees;
 
 		// txt/plain description (EAS does that)
-		BoilerpipeExtractor extractor = CommonExtractors.KEEP_EVERYTHING_EXTRACTOR;
-		updated.main.description = extractor.getText(updated.main.description);
+		updated.main.description = new HtmlToPlainText().convert(updated.main.description);
 
 		sanitizer.update(event, updated);
 

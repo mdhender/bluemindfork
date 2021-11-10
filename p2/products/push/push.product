@@ -41,7 +41,6 @@
       <plugin id="com.hazelcast"/>
       <plugin id="com.netflix.hollow"/>
       <plugin id="com.netflix.spectator.api"/>
-      <plugin id="com.robbypond.boilerpipe"/>
       <plugin id="com.sun.mail.javax.mail"/>
       <plugin id="com.typesafe.netty.reactive-streams"/>
       <plugin id="io.netty"/>

@@ -21,8 +21,7 @@ package net.bluemind.eas.data.formatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.l3s.boilerpipe.BoilerpipeExtractor;
-import de.l3s.boilerpipe.extractors.CommonExtractors;
+import net.bluemind.utils.HtmlToPlainText;
 
 /**
  * Converts HTML mail body to text
@@ -33,7 +32,7 @@ public final class PlainBodyFormatter {
 
 	private static final Logger logger = LoggerFactory.getLogger(PlainBodyFormatter.class);
 
-	private static final BoilerpipeExtractor extractor = CommonExtractors.KEEP_EVERYTHING_EXTRACTOR;
+	private static final HtmlToPlainText extractor = new HtmlToPlainText();
 
 	public PlainBodyFormatter() {
 	}
@@ -41,7 +40,7 @@ public final class PlainBodyFormatter {
 	public String convert(String html) {
 		if (html != null && !html.trim().isEmpty()) {
 			try {
-				return extractor.getText(html);
+				return extractor.convert(html);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
