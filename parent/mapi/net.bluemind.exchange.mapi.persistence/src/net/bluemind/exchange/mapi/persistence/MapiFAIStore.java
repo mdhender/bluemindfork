@@ -21,6 +21,7 @@ package net.bluemind.exchange.mapi.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -85,6 +86,19 @@ public class MapiFAIStore extends AbstractItemValueStore<MapiFAI> {
 		return select(query, rs -> rs.getString(1), (ResultSet rs, int index, String value) -> {
 			return index;
 		}, new Object[] { container.id, folder });
+	}
+
+	@Override
+	public List<MapiFAI> getMultiple(List<Item> items) throws SQLException {
+		String joinedIds = items.stream().map(it -> Long.toString(it.id)).collect(Collectors.joining(","));
+		String query = "SELECT " + MapiFAIColumns.cols.names() + ",item_id FROM t_mapi_fai "//
+				+ "JOIN unnest('{" + joinedIds + "}'::int[]) WITH ORDINALITY t(item_id,ord) using (item_id) "//
+				+ " ORDER BY t.ord ";
+		return select(query, rs -> new MapiFAI(), (ResultSet rs, int index, MapiFAI value) -> {
+			value.folderId = rs.getString(index++);
+			value.faiJson = rs.getString(index++);
+			return index;
+		}, new Object[] {});
 	}
 
 }

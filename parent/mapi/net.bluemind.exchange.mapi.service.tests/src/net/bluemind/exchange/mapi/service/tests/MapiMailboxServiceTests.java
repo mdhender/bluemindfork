@@ -40,13 +40,17 @@ import com.google.common.collect.Lists;
 
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
+import net.bluemind.core.container.api.IOfflineMgmt;
+import net.bluemind.core.container.api.IdRange;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.exchange.mapi.api.IMapiFolderAssociatedInformation;
 import net.bluemind.exchange.mapi.api.IMapiMailbox;
 import net.bluemind.exchange.mapi.api.IMapiMailboxes;
+import net.bluemind.exchange.mapi.api.MapiFAI;
 import net.bluemind.exchange.mapi.api.MapiFAIContainer;
 import net.bluemind.exchange.mapi.api.MapiReplica;
 import net.bluemind.locator.LocatorVerticle;
@@ -104,6 +108,18 @@ public class MapiMailboxServiceTests {
 		JdbcTestHelper.getInstance().afterTest();
 	}
 
+	protected IMapiFolderAssociatedInformation faisApi(String replicaUid) {
+		IMapiFolderAssociatedInformation service = ServerSideServiceProvider.getProvider(userSecurityContext)
+				.instance(IMapiFolderAssociatedInformation.class, replicaUid);
+		return service;
+	}
+
+	protected IOfflineMgmt offlineApi() {
+		IOfflineMgmt service = ServerSideServiceProvider.getProvider(userSecurityContext).instance(IOfflineMgmt.class,
+				domainUid, mailbox.uid);
+		return service;
+	}
+
 	protected IMapiMailbox mapiMboxApi() {
 		IMapiMailbox service = ServerSideServiceProvider.getProvider(userSecurityContext).instance(IMapiMailbox.class,
 				domainUid, mailbox.uid);
@@ -153,6 +169,43 @@ public class MapiMailboxServiceTests {
 		ItemValue<ContainerHierarchyNode> item = faiContainerFound.get();
 		ItemValue<ContainerHierarchyNode> byId = hierApi.getCompleteById(item.internalId);
 		assertNotNull(byId);
+	}
+
+	@Test
+	public void testFais() {
+		IMapiMailbox api = mapiMboxApi();
+		MapiReplica replica = api.get();
+		assertNull(replica);
+		replica = new MapiReplica();
+		replica.localReplicaGuid = "local";
+		replica.logonReplicaGuid = "logon";
+		replica.mailboxGuid = "mboxGuid";
+		replica.mailboxUid = mailbox.uid;
+		api.create(replica);
+		MapiReplica found = api.get();
+		assertNotNull(found);
+
+		IMapiFolderAssociatedInformation faiApi = faisApi(replica.localReplicaGuid);
+		IOfflineMgmt ids = offlineApi();
+		int allocCnt = 250;
+		IdRange alloc = ids.allocateOfflineIds(allocCnt);
+		String[] folders = new String[] { "f1", "f2", "f3", "f4" };
+		for (int i = 0; i < alloc.count; i++) {
+			long itemid = alloc.globalCounter + i;
+			MapiFAI fai = new MapiFAI();
+			fai.folderId = folders[(int) itemid % folders.length];
+			fai.faiJson = "{}";
+			faiApi.store(itemid, fai);
+		}
+		int total = 0;
+		for (int i = 0; i < folders.length; i++) {
+			List<ItemValue<MapiFAI>> result = faiApi.getByFolderId(folders[i]);
+			total += result.size();
+			System.err.println("Got " + result.size() + " for " + folders[i]);
+		}
+		total += faiApi.getByFolderId("fake").size();
+		assertEquals(allocCnt, total);
+
 	}
 
 	@Test
