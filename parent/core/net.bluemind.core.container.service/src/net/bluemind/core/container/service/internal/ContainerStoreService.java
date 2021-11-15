@@ -113,7 +113,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		this.itemStore = new ItemStore(pool, container, securityContext);
 		this.changelogStore = new ChangelogStore(pool, container);
 		this.itemValueStore = itemValueStore;
-		this.aclStore = new AclStore(pool);
+		this.aclStore = new AclStore(null, pool);
 		this.flagsProvider = fProv;
 		this.weightSeedProvider = wsProv;
 		this.weightProvider = wProv;
