@@ -18,10 +18,10 @@
 
 package net.bluemind.system.helper.distrib.list;
 
-public class DebianJessie extends Debian {
-	
+public class DebianBullseye extends Debian {
+
 	@Override
 	public String getName() {
-		return "jessie";
+		return "bullseye";
 	}
 }
