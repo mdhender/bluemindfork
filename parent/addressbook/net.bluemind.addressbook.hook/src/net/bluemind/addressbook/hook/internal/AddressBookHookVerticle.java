@@ -41,12 +41,12 @@ public class AddressBookHookVerticle extends AbstractVerticle {
 		EventBus eventBus = vertx.eventBus();
 
 		for (final IAddressBookEventConsumer hook : hooks) {
-			eventBus.consumer(AddressBookBusAddresses.CREATED,
-					(Message<LocalJsonObject<VCardMessage>> message) -> hook.vcardCreated(message.body().getValue()));
-			eventBus.consumer(AddressBookBusAddresses.UPDATED,
-					(Message<LocalJsonObject<VCardMessage>> message) -> hook.vcardUpdated(message.body().getValue()));
-			eventBus.consumer(AddressBookBusAddresses.DELETED,
-					(Message<LocalJsonObject<VCardMessage>> message) -> hook.vcardDeleted(message.body().getValue()));
+			eventBus.consumer(AddressBookBusAddresses.CREATED, (Message<LocalJsonObject<VCardMessage>> message) -> vertx
+					.executeBlocking(prom -> hook.vcardCreated(message.body().getValue()), false));
+			eventBus.consumer(AddressBookBusAddresses.UPDATED, (Message<LocalJsonObject<VCardMessage>> message) -> vertx
+					.executeBlocking(prom -> hook.vcardUpdated(message.body().getValue()), false));
+			eventBus.consumer(AddressBookBusAddresses.DELETED, (Message<LocalJsonObject<VCardMessage>> message) -> vertx
+					.executeBlocking(prom -> hook.vcardDeleted(message.body().getValue()), false));
 		}
 	}
 }

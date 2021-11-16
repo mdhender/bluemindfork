@@ -37,12 +37,12 @@ public class TodoListHookVerticle extends AbstractVerticle {
 		EventBus eventBus = vertx.eventBus();
 
 		for (final ITodoListHook hook : hooks) {
-			eventBus.consumer(TodoListHookAddress.CREATED,
-					(Message<LocalJsonObject<VTodoMessage>> message) -> hook.onTodoCreated(message.body().getValue()));
-			eventBus.consumer(TodoListHookAddress.UPDATED,
-					(Message<LocalJsonObject<VTodoMessage>> message) -> hook.onTodoUpdated(message.body().getValue()));
-			eventBus.consumer(TodoListHookAddress.DELETED,
-					(Message<LocalJsonObject<VTodoMessage>> message) -> hook.onTodoDeleted(message.body().getValue()));
+			eventBus.consumer(TodoListHookAddress.CREATED, (Message<LocalJsonObject<VTodoMessage>> message) -> vertx
+					.executeBlocking(prom -> hook.onTodoCreated(message.body().getValue()), false));
+			eventBus.consumer(TodoListHookAddress.UPDATED, (Message<LocalJsonObject<VTodoMessage>> message) -> vertx
+					.executeBlocking(prom -> hook.onTodoUpdated(message.body().getValue()), false));
+			eventBus.consumer(TodoListHookAddress.DELETED, (Message<LocalJsonObject<VTodoMessage>> message) -> vertx
+					.executeBlocking(prom -> hook.onTodoDeleted(message.body().getValue()), false));
 		}
 
 	}

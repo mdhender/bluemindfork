@@ -9,12 +9,12 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.hornetq.client.MQ;
-import net.bluemind.hornetq.client.MQ.IMQConnectHandler;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class MQMessageForwarder extends AbstractVerticle {
 
-	public static class Factory implements IVerticleFactory {
+	public static class Factory implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {

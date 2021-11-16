@@ -35,13 +35,14 @@ import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.Producer;
 import net.bluemind.hornetq.client.Topic;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class ItemNotificationVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(ItemNotificationVerticle.class);
 
-	public static class Factory implements IVerticleFactory {
+	public static class Factory implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {
@@ -60,7 +61,7 @@ public class ItemNotificationVerticle extends AbstractVerticle {
 		EventBus eb = vertx.eventBus();
 		MQ.init(() -> {
 			final Producer producer = MQ.registerProducer(Topic.MAPI_ITEM_NOTIFICATIONS);
-			eb.consumer(Topic.MAPI_ITEM_NOTIFICATIONS, (Message<JsonObject> msg) -> {
+			eb.consumer(Topic.MAPI_ITEM_NOTIFICATIONS, (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
 				JsonObject body = msg.body();
 				OOPMessage mqMsg = MQ.newMessage();
 				IContainers contApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
@@ -77,30 +78,28 @@ public class ItemNotificationVerticle extends AbstractVerticle {
 				if (logger.isDebugEnabled()) {
 					logger.debug("ItemNotification to MQ: {}", mqMsg.toJson().encode());
 				}
-			});
+			}, false));
 
 			final Producer hierProducer = MQ.registerProducer(Topic.MAPI_HIERARCHY_NOTIFICATIONS);
-			eb.consumer(Topic.MAPI_HIERARCHY_NOTIFICATIONS, (Message<JsonObject> msg) -> {
+			eb.consumer(Topic.MAPI_HIERARCHY_NOTIFICATIONS, (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
 				JsonObject body = msg.body();
 				hierProducer.send(body);
 				if (logger.isDebugEnabled()) {
 					logger.debug("HierarchyNotification to MQ: {}", body.encode());
 				}
-			});
+			}, false));
 
 			final Producer dioProducer = MQ.registerProducer(Topic.MAPI_DELEGATION_NOTIFICATIONS);
-			eb.consumer(Topic.MAPI_DELEGATION_NOTIFICATIONS, (Message<JsonObject> msg) -> {
-				dioProducer.send(msg.body());
-			});
+			eb.consumer(Topic.MAPI_DELEGATION_NOTIFICATIONS,
+					(Message<JsonObject> msg) -> vertx.executeBlocking(prom -> dioProducer.send(msg.body()), false));
 
-			eb.consumer(OwnerSubscriptionsBusAddresses.ALL_SUBSCRIPTION_CHANGES, (Message<JsonObject> domAndOwner) -> {
-				dioProducer.send(domAndOwner.body());
-			});
+			eb.consumer(OwnerSubscriptionsBusAddresses.ALL_SUBSCRIPTION_CHANGES,
+					(Message<JsonObject> domAndOwner) -> vertx
+							.executeBlocking(prom -> dioProducer.send(domAndOwner.body()), false));
 
 			final Producer pfAclUpdateProducer = MQ.registerProducer(Topic.MAPI_PF_ACL_UPDATE);
-			eb.consumer(Topic.MAPI_PF_ACL_UPDATE, (Message<JsonObject> msg) -> {
-				pfAclUpdateProducer.send(msg.body());
-			});
+			eb.consumer(Topic.MAPI_PF_ACL_UPDATE, (Message<JsonObject> msg) -> vertx
+					.executeBlocking(prom -> pfAclUpdateProducer.send(msg.body()), false));
 		});
 
 	}

@@ -55,6 +55,7 @@ import net.bluemind.kafka.configuration.Brokers;
 import net.bluemind.kafka.configuration.IKafkaBroker;
 import net.bluemind.kafka.configuration.LocalConsumer;
 import net.bluemind.kafka.configuration.LocalProducer;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 /**
@@ -208,7 +209,7 @@ public class JoiningInstancesProcessor extends AbstractVerticle {
 
 	}
 
-	public static class VertxFacto implements IVerticleFactory {
+	public static class VertxFacto implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {

@@ -19,9 +19,10 @@
 package net.bluemind.tag.service;
 
 import io.vertx.core.Verticle;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class TagEventVerticleFactory implements IVerticleFactory {
+public class TagEventVerticleFactory implements IVerticleFactory, IUniqueVerticleFactory {
 
 	@Override
 	public boolean isWorker() {

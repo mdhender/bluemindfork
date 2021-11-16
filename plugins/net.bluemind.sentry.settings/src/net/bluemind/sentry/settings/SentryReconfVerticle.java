@@ -28,12 +28,13 @@ import io.vertx.core.Verticle;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class SentryReconfVerticle extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(SentryReconfVerticle.class);
 
-	public static class Reg implements IVerticleFactory {
+	public static class Reg implements IVerticleFactory, IUniqueVerticleFactory {
 		@Override
 		public boolean isWorker() {
 			return true;

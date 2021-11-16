@@ -19,6 +19,7 @@ package net.bluemind.metrics.core.service;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class ChecksConsumerVerticle extends AbstractVerticle {
@@ -27,7 +28,7 @@ public class ChecksConsumerVerticle extends AbstractVerticle {
 		ProductChecksService.initConsumer();
 	}
 
-	public static class ConsumerFactory implements IVerticleFactory {
+	public static class ConsumerFactory implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {

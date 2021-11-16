@@ -36,6 +36,7 @@ import net.bluemind.cti.service.CTIDeferredAction;
 import net.bluemind.deferredaction.api.DeferredAction;
 import net.bluemind.deferredaction.api.IDeferredAction;
 import net.bluemind.deferredaction.api.IDeferredActionContainerUids;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.user.api.IUserSettings;
 
@@ -86,7 +87,7 @@ public class CTIUserSettingsVerticle extends AbstractVerticle {
 		return !"false".equals(settings.get("cal_set_phone_presence"));
 	}
 
-	public static class CTIUserSettingsVerticleFactory implements IVerticleFactory {
+	public static class CTIUserSettingsVerticleFactory implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {

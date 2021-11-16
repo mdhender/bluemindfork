@@ -49,7 +49,7 @@ public class NodeLauncher implements IApplication {
 		pm.deployVerticle(BlueMindNode::new, new DeploymentOptions().setInstances(instances), httpDep);
 
 		DepDoneHandler workerDep = new DepDoneHandler();
-		pm.deployVerticle(SysCommand::new, new DeploymentOptions().setInstances(1).setWorker(true), workerDep);
+		pm.deployVerticle(SysCommand::new, new DeploymentOptions().setInstances(1), workerDep);
 
 		this.tikaTimer = pm.setPeriodic(10000, new TikaMonitor());
 

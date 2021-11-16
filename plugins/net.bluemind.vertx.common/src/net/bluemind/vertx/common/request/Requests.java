@@ -39,6 +39,9 @@ public final class Requests {
 
 	private static final Logger logger = LoggerFactory.getLogger(Requests.class);
 
+	private Requests() {
+	}
+
 	/**
 	 * Wraps a request into a {@link WrappedRequest} that will store tags & log them
 	 * with execution time at the end.

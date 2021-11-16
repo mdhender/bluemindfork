@@ -28,6 +28,7 @@ import io.vertx.core.Verticle;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.system.api.SystemState;
@@ -38,7 +39,7 @@ public class MQIptablesListener extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(MQIptablesListener.class);
 	private String currentState;
 
-	public static class Factory implements IVerticleFactory {
+	public static class Factory implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {

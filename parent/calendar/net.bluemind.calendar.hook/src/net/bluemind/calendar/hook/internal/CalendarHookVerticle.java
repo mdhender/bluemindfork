@@ -41,19 +41,19 @@ public class CalendarHookVerticle extends AbstractVerticle {
 
 		eventBus.consumer(CalendarHookAddress.EVENT_CREATED, (Message<LocalJsonObject<VEventMessage>> message) -> {
 			for (final ICalendarHook hook : hooks) {
-				hook.onEventCreated(message.body().getValue());
+				vertx.executeBlocking(prop -> hook.onEventCreated(message.body().getValue()), false);
 			}
 		});
 
 		eventBus.consumer(CalendarHookAddress.EVENT_UPDATED, (Message<LocalJsonObject<VEventMessage>> message) -> {
 			for (final ICalendarHook hook : hooks) {
-				hook.onEventUpdated(message.body().getValue());
+				vertx.executeBlocking(prop -> hook.onEventUpdated(message.body().getValue()), false);
 			}
 		});
 
 		eventBus.consumer(CalendarHookAddress.EVENT_DELETED, (Message<LocalJsonObject<VEventMessage>> message) -> {
 			for (final ICalendarHook hook : hooks) {
-				hook.onEventDeleted(message.body().getValue());
+				vertx.executeBlocking(prop -> hook.onEventDeleted(message.body().getValue()), false);
 			}
 		});
 

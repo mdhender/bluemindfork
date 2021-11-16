@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.AddressBookBusAddresses;
@@ -42,21 +41,14 @@ public class EasContainerChangeVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		MQ.init(new MQ.IMQConnectHandler() {
-
-			@Override
-			public void connected() {
-				calendarProducer = MQ.registerProducer(Topic.CALENDAR_NOTIFICATIONS);
-				addressbookProducer = MQ.registerProducer(Topic.CONTACT_NOTIFICATIONS);
-				todolistProducer = MQ.registerProducer(Topic.TASK_NOTIFICATIONS);
-
-			}
+		MQ.init(() -> {
+			calendarProducer = MQ.registerProducer(Topic.CALENDAR_NOTIFICATIONS);
+			addressbookProducer = MQ.registerProducer(Topic.CONTACT_NOTIFICATIONS);
+			todolistProducer = MQ.registerProducer(Topic.TASK_NOTIFICATIONS);
 		});
 
-		vertx.eventBus().consumer(CalendarHookAddress.CHANGED, new Handler<Message<JsonObject>>() {
-
-			@Override
-			public void handle(Message<JsonObject> event) {
+		vertx.eventBus().consumer(CalendarHookAddress.CHANGED, (Message<JsonObject> event) -> {
+			vertx.executeBlocking(prom -> {
 				if (calendarProducer != null) {
 					OOPMessage msg = buildMessage(event);
 					calendarProducer.send(msg);
@@ -65,15 +57,11 @@ public class EasContainerChangeVerticle extends AbstractVerticle {
 				} else {
 					logger.warn("no calendar change notification, failed to create producer");
 				}
-
-			}
-
+			}, false);
 		});
 
-		vertx.eventBus().consumer(AddressBookBusAddresses.CHANGED, new Handler<Message<JsonObject>>() {
-
-			@Override
-			public void handle(Message<JsonObject> event) {
+		vertx.eventBus().consumer(AddressBookBusAddresses.CHANGED, (Message<JsonObject> event) -> {
+			vertx.executeBlocking(prom -> {
 				if (addressbookProducer != null) {
 					OOPMessage msg = buildMessage(event);
 					addressbookProducer.send(msg);
@@ -81,25 +69,19 @@ public class EasContainerChangeVerticle extends AbstractVerticle {
 				} else {
 					logger.warn("no contacts change notification, failed to create producer");
 				}
-
-			}
-
+			}, false);
 		});
 
-		vertx.eventBus().consumer(TodoListHookAddress.CHANGED, new Handler<Message<JsonObject>>() {
-
-			@Override
-			public void handle(Message<JsonObject> event) {
+		vertx.eventBus().consumer(TodoListHookAddress.CHANGED, (Message<JsonObject> event) -> {
+			vertx.executeBlocking(prom -> {
 				if (todolistProducer != null) {
 					OOPMessage msg = buildMessage(event);
 					todolistProducer.send(msg);
 					logger.info("Wake up {} devices for todolist changes", event.body().getString("loginAtDomain"));
-
 				} else {
 					logger.warn("no todolist change notification, failed to create producer");
 				}
-
-			}
+			}, false);
 		});
 
 	}

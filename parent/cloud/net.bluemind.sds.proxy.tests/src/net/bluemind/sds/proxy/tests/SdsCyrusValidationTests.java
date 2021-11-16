@@ -32,7 +32,7 @@ public class SdsCyrusValidationTests {
 	@Before
 	public void before() throws InterruptedException, ExecutionException, TimeoutException {
 		populateTopology();
-		startVerticles();
+		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
 	}
 
 	protected SocketAddress socket() {
@@ -40,23 +40,7 @@ public class SdsCyrusValidationTests {
 	}
 
 	private RequestOptions uri(String s) {
-		RequestOptions options = new RequestOptions().setURI(s);
-		SocketAddress sock = socket();
-		options.setPort(sock.port());
-		options.setHost(sock.host());
-		return options;
-	}
-
-	private void startVerticles() throws InterruptedException, ExecutionException, TimeoutException {
-		CompletableFuture<Void> startResult = new CompletableFuture<>();
-		VertxPlatform.spawnVerticles(spawnResult -> {
-			if (spawnResult.succeeded()) {
-				startResult.complete(null);
-			} else {
-				startResult.completeExceptionally(spawnResult.cause());
-			}
-		});
-		startResult.get(20, TimeUnit.SECONDS);
+		return new RequestOptions().setURI(s).setServer(socket());
 	}
 
 	private void populateTopology() {

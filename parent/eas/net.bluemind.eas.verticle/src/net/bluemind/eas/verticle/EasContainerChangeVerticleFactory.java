@@ -19,9 +19,10 @@
 package net.bluemind.eas.verticle;
 
 import io.vertx.core.Verticle;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class EasContainerChangeVerticleFactory implements IVerticleFactory {
+public class EasContainerChangeVerticleFactory implements IVerticleFactory, IUniqueVerticleFactory {
 
 	@Override
 	public boolean isWorker() {

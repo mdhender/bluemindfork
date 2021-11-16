@@ -29,6 +29,7 @@ import com.netflix.spectator.api.Registry;
 
 import io.netty.handler.codec.DecoderResult;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
@@ -43,19 +44,20 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.http.HttpVersion;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.http.StreamPriority;
+import io.vertx.core.http.impl.HttpServerRequestInternal;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.net.SocketAddress;
 import io.vertx.core.streams.Pipe;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.metrics.registry.IdFactory;
 
-public class WrappedRequest implements HttpServerRequest {
+public class WrappedRequest implements HttpServerRequestInternal {
 
-	private final HttpServerRequest impl;
+	private final HttpServerRequestInternal impl;
 	private final WrappedResponse response;
 
 	private WrappedRequest(Registry registry, IdFactory idfactory, HttpServerRequest impl) {
-		this.impl = impl;
+		this.impl = (HttpServerRequestInternal) impl;
 		this.response = new WrappedResponse(registry, idfactory, impl.response());
 	}
 
@@ -313,4 +315,13 @@ public class WrappedRequest implements HttpServerRequest {
 		return impl.cookies();
 	}
 
+	@Override
+	public Object metric() {
+		return impl.metric();
+	}
+
+	@Override
+	public Context context() {
+		return impl.context();
+	}
 }

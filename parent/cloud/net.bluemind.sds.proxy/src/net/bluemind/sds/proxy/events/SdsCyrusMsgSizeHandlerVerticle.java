@@ -13,13 +13,14 @@ import io.vertx.core.eventbus.Message;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.system.api.SysConfKeys;
 
 public class SdsCyrusMsgSizeHandlerVerticle extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(SdsCyrusMsgSizeHandlerVerticle.class);
 
-	public static class SdsSizeCheckFactory implements IVerticleFactory {
+	public static class SdsSizeCheckFactory implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {

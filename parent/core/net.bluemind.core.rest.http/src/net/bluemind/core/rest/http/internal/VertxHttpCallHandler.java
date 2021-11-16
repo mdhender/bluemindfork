@@ -24,7 +24,6 @@ import java.util.Map;
 
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
-import io.vertx.core.http.HttpClientResponse;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.base.IRestCallHandler;
 import net.bluemind.core.rest.base.RestRequest;
@@ -70,20 +69,7 @@ public class VertxHttpCallHandler implements IRestCallHandler {
 				if (request.origin != null) {
 					req.headers().add("X-BM-Origin", request.origin);
 				}
-				req.send(ar2 -> {
-					if (ar2.succeeded()) {
-						HttpClientResponse resp = ar2.result();
-						if ("chunked".equals(resp.headers().get("Transfer-Encoding"))) {
-							RestResponse rr = RestResponse.stream(resp);
-							rr.headers = resp.headers();
-							response.success(rr);
-						} else {
-							resp.bodyHandler(buffer -> {
-								response.success(RestResponse.ok(resp.headers(), resp.statusCode(), buffer));
-							});
-						}
-					}
-				});
+
 				if (request.body != null) {
 					req.end(request.body);
 				} else if (request.bodyStream != null) {
@@ -93,6 +79,17 @@ public class VertxHttpCallHandler implements IRestCallHandler {
 				} else {
 					req.end();
 				}
+				req.response().onSuccess(resp -> {
+					if ("chunked".equals(resp.headers().get("Transfer-Encoding"))) {
+						RestResponse rr = RestResponse.stream(resp);
+						rr.headers = resp.headers();
+						response.success(rr);
+					} else {
+						resp.bodyHandler(buffer -> {
+							response.success(RestResponse.ok(resp.headers(), resp.statusCode(), buffer));
+						});
+					}
+				});
 			} else {
 				response.failure(ar.cause());
 			}

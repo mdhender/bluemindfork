@@ -59,12 +59,18 @@ public class SysCommand extends AbstractVerticle {
 			prom.complete(rc);
 		}, false, ar -> js.reply(ar.result())));
 
-		eb.consumer("cmd.status", this::reqStatus);
-
-		eb.consumer("cmd.interrupt", this::interruptMsg);
-
-		eb.consumer("cmd.executions", this::executions);
-
+		eb.consumer("cmd.status", (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
+			reqStatus(msg);
+			prom.complete();
+		}, false));
+		eb.consumer("cmd.interrupt", (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
+			interruptMsg(msg);
+			prom.complete();
+		}, false, ar -> msg.reply(new JsonObject())));
+		eb.consumer("cmd.executions", (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
+			executions(msg);
+			prom.complete();
+		}, false));
 		setupStaleWatcher();
 	}
 
@@ -99,7 +105,6 @@ public class SysCommand extends AbstractVerticle {
 		}
 		long pid = interruptReq.getLong("pid", 0L);
 		interrupt(pid);
-		event.reply(new JsonObject());
 	}
 
 	private void interrupt(long pid) {

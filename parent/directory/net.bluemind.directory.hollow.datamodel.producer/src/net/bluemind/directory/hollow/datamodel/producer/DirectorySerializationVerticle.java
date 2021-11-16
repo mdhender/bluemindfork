@@ -29,6 +29,7 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.IDomains;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.lib.vertx.utils.ThrottleMessages;
 
@@ -39,7 +40,9 @@ public class DirectorySerializationVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
+		// Only one must be instantiated
 		activateSerializers();
+		// Concurrency is handled inside eventbus handlers
 		registerDomainChangeHandler();
 		registerDirectoryChangeHandler();
 	}
@@ -73,44 +76,48 @@ public class DirectorySerializationVerticle extends AbstractVerticle {
 
 	private void registerDomainChangeHandler() {
 		vertx.eventBus().consumer(DirectorySerializationDomainHook.DOMAIN_CHANGE_EVENT, msg -> {
-			JsonObject data = (JsonObject) msg.body();
-			String domain = data.getString(DOMAIN_FIELD);
-			String action = data.getString("action");
-			switch (action) {
-			case "create":
-				Serializers.put(domain, createSerializer(domain)).produce();
-				break;
-			case "delete":
-				Serializers.forDomain(domain).remove();
-				Serializers.remove(domain);
-				break;
-			default:
-				// only 2 possible actions
-				break;
-			}
+			vertx.executeBlocking(prom -> {
+				JsonObject data = (JsonObject) msg.body();
+				String domain = data.getString(DOMAIN_FIELD);
+				String action = data.getString("action");
+				switch (action) {
+				case "create":
+					Serializers.put(domain, createSerializer(domain)).produce();
+					break;
+				case "delete":
+					Serializers.forDomain(domain).remove();
+					Serializers.remove(domain);
+					break;
+				default:
+					// only 2 possible actions
+					break;
+				}
+			}, false);
 		});
 	}
 
 	private void registerDirectoryChangeHandler() {
 		Handler<Message<JsonObject>> dirChangeHandler = (Message<JsonObject> msg) -> {
-			String dom = msg.body().getString(DOMAIN_FIELD);
-			DirectorySerializer ser = Serializers.forDomain(dom);
-			if (ser != null) {
-				ser.produce();
-			} else {
-				logger.warn("Missing serializer for domain {}", dom);
-			}
+			vertx.executeBlocking(prom -> {
+				String dom = msg.body().getString(DOMAIN_FIELD);
+				DirectorySerializer ser = Serializers.forDomain(dom);
+				if (ser != null) {
+					ser.produce();
+				} else {
+					logger.warn("Missing serializer for domain {}", dom);
+				}
+			}, false);
 		};
 		ThrottleMessages<JsonObject> tm = new ThrottleMessages<>(msg -> msg.body().getString(DOMAIN_FIELD),
 				dirChangeHandler, vertx, 5000);
 		vertx.eventBus().consumer("dir.changed", tm);
 	}
 
-	public static class DirectorySerializationVerticleFactory implements IVerticleFactory {
+	public static class DirectorySerializationVerticleFactory implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {
-			return true;
+			return false;
 		}
 
 		@Override

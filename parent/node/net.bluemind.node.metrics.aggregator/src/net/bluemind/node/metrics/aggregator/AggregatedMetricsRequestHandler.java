@@ -34,7 +34,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
-import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
@@ -65,33 +64,24 @@ public class AggregatedMetricsRequestHandler implements Handler<HttpServerReques
 			HttpServerResponse resp = event.response();
 			resp.setChunked(true);
 			CompletableFuture<Void> root = CompletableFuture.completedFuture(null);
-			RequestOptions unixSockReqOpts = new RequestOptions().setURI("/metrics");
+			RequestOptions unixSockReqOpts = new RequestOptions().setURI("/metrics").setMethod(HttpMethod.GET);
 			// let's aggregate all the unix sockets responses in one chunked response
 			for (SocketAddress sock : sockets) {
 				root = root.thenCompose(prev -> {
 					CompletableFuture<Void> ret = new CompletableFuture<>();
-
-					httpClient
-							.request(
-									unixSockReqOpts.setHost(sock.host()).setPort(sock.port()).setMethod(HttpMethod.GET))
-							.onSuccess(req -> {
-								req.setTimeout(1000);
-								req.exceptionHandler(t -> {
+					httpClient.request(unixSockReqOpts.setServer(sock)).onSuccess(req -> {
+						req.setTimeout(1000);
+						req.send()
+								.onSuccess(clientResponse -> clientResponse.pipe().endOnComplete(false).to(resp, ar -> {
+									if (ar.failed()) {
+										logger.error("Resp error with sock {}", sock, ar.cause());
+									}
+									ret.complete(null);
+								})).onFailure(t -> {
 									logger.error("Req error with sock {}", sock, t);
 									ret.complete(null);
 								});
-								req.send(ar2 -> {
-									if (ar2.succeeded()) {
-										HttpClientResponse clientResponse = ar2.result();
-										clientResponse.pipe().endOnComplete(false).to(resp, ar3 -> {
-											if (ar3.failed()) {
-												logger.error("Resp error with sock {}", sock, ar3.cause());
-											}
-											ret.complete(null);
-										});
-									}
-								});
-							}).onFailure(ret::completeExceptionally);
+					}).onFailure(t -> ret.complete(null));
 					return ret;
 				});
 			}

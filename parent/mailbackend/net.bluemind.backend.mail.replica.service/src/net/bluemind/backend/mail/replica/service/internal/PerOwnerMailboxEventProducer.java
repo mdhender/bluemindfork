@@ -32,6 +32,7 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IEventBusAccessRule;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 
@@ -41,7 +42,7 @@ public class PerOwnerMailboxEventProducer extends AbstractVerticle {
 	private static final String ADDRESS_PREFIX = "mailreplica.";
 	private static final String ADDRESS_SUFFIX = ".updated";
 
-	public static class Factory implements IVerticleFactory {
+	public static class Factory implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {
@@ -58,18 +59,18 @@ public class PerOwnerMailboxEventProducer extends AbstractVerticle {
 	@Override
 	public void start() {
 		EventBus eb = vertx.eventBus();
-		eb.consumer(ReplicationEvents.MBOX_UPD_ADDR, (Message<JsonObject> msg) -> {
+		eb.consumer(ReplicationEvents.MBOX_UPD_ADDR, (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
 			String owner = msg.body().getString("owner");
 			JsonObject ownerEvent = createMailboxEvent(msg, owner);
 			eb.publish(ADDRESS_PREFIX + owner + ADDRESS_SUFFIX, ownerEvent);
-		});
-		eb.consumer(ReplicationEvents.HIER_UPD_ADDR, (Message<JsonObject> msg) -> {
+		}, false));
+		eb.consumer(ReplicationEvents.HIER_UPD_ADDR, (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
 			if (!msg.body().getBoolean("minor")) {
 				String owner = msg.body().getString("owner");
 				JsonObject ownerEvent = createHierarchyEvent(msg, owner);
 				eb.publish(ADDRESS_PREFIX + owner + ADDRESS_SUFFIX, ownerEvent);
 			}
-		});
+		}, false));
 	}
 
 	private JsonObject createMailboxEvent(Message<JsonObject> msg, String owner) {

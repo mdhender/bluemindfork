@@ -30,13 +30,14 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.Topic;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class MailboxEventsConsumer extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(MailboxEventsConsumer.class);
 
-	public static class Factory implements IVerticleFactory {
+	public static class Factory implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {
@@ -53,7 +54,7 @@ public class MailboxEventsConsumer extends AbstractVerticle {
 	@Override
 	public void start() {
 		EventBus eb = vertx.eventBus();
-		eb.consumer("mailreplica.mailbox.updated", (Message<JsonObject> msg) -> {
+		eb.consumer("mailreplica.mailbox.updated", (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
 			JsonObject replicaNotif = msg.body();
 			String cont = replicaNotif.getString("container");
 			Set<Long> changed = new HashSet<>();
@@ -99,7 +100,7 @@ public class MailboxEventsConsumer extends AbstractVerticle {
 				eb.publish(Topic.MAPI_ITEM_NOTIFICATIONS, asCreateNotif);
 			}
 
-		});
+		}, false));
 
 	}
 

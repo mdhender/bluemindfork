@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.systemd.notify.SystemD;
 
@@ -31,7 +32,7 @@ public class WatchdogVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(WatchdogVerticle.class);
 
-	public static class Factory implements IVerticleFactory {
+	public static class Factory implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {

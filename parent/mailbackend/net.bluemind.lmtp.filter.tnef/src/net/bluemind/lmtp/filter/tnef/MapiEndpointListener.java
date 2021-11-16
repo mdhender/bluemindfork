@@ -21,11 +21,12 @@ package net.bluemind.lmtp.filter.tnef;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
 import net.bluemind.hornetq.client.MQ;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class MapiEndpointListener extends AbstractVerticle {
 
-	public static class Factory implements IVerticleFactory {
+	public static class Factory implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {

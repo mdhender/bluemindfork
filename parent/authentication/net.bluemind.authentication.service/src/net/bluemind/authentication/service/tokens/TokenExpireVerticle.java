@@ -24,12 +24,13 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class TokenExpireVerticle extends AbstractVerticle {
 
-	public static class Factory implements IVerticleFactory {
+	public static class Factory implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {
@@ -47,10 +48,8 @@ public class TokenExpireVerticle extends AbstractVerticle {
 	public void start() {
 		VertxPlatform.executeBlockingPeriodic(TimeUnit.HOURS.toMillis(1), tid -> TokensStore.get().expireOldTokens());
 		TokensStore.get().expireOldTokens();
-		vertx.eventBus().localConsumer("hollow.tokens.store.expire", (Message<JsonObject> msg) -> {
-			int expired = TokensStore.get().expireOldTokens();
-			msg.reply(expired);
-		});
+		vertx.eventBus().localConsumer("hollow.tokens.store.expire", (Message<JsonObject> msg) -> vertx
+				.executeBlocking(prop -> msg.reply(TokensStore.get().expireOldTokens()), false));
 	}
 
 }

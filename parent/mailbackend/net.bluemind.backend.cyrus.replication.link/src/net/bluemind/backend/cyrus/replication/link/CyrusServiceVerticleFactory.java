@@ -18,9 +18,10 @@
 package net.bluemind.backend.cyrus.replication.link;
 
 import io.vertx.core.Verticle;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class CyrusServiceVerticleFactory implements IVerticleFactory {
+public class CyrusServiceVerticleFactory implements IVerticleFactory, IUniqueVerticleFactory {
 
 	@Override
 	public boolean isWorker() {

@@ -36,8 +36,9 @@ public class TagEventVerticle extends AbstractVerticle {
 		consumers = loader.loadExtensions("net.bluemind.tag", "eventConsumer", "consumer", "class");
 		EventBus eventBus = vertx.eventBus();
 		eventBus.consumer("tags.changed",
-				(Message<JsonObject> event) -> tagChanged(event.body().getString("containerUid"),
-						event.body().getString("itemUid")));
+				(Message<JsonObject> event) -> vertx.executeBlocking(
+						prom -> tagChanged(event.body().getString("containerUid"), event.body().getString("itemUid")),
+						false));
 	}
 
 	protected void tagChanged(String tagContainerUid, String tagUid) {

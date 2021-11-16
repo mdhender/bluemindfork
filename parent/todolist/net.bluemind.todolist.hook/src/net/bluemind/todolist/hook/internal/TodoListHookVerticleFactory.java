@@ -19,9 +19,10 @@
 package net.bluemind.todolist.hook.internal;
 
 import io.vertx.core.Verticle;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class TodoListHookVerticleFactory implements IVerticleFactory {
+public class TodoListHookVerticleFactory implements IVerticleFactory, IUniqueVerticleFactory {
 
 	@Override
 	public boolean isWorker() {

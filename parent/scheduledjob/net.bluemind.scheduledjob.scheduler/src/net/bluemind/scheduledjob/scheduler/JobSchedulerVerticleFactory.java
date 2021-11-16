@@ -19,15 +19,12 @@
 package net.bluemind.scheduledjob.scheduler;
 
 import io.vertx.core.Verticle;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.scheduledjob.scheduler.impl.JobRegistry;
 import net.bluemind.scheduledjob.scheduler.impl.JobSchedulerVerticle;
 
-public class JobSchedulerVerticleFactory implements IVerticleFactory {
-
-	public JobSchedulerVerticleFactory() {
-	}
-
+public class JobSchedulerVerticleFactory implements IVerticleFactory, IUniqueVerticleFactory {
 	@Override
 	public boolean isWorker() {
 		return true;
@@ -35,7 +32,7 @@ public class JobSchedulerVerticleFactory implements IVerticleFactory {
 
 	@Override
 	public Verticle newInstance() {
-		new JobRegistry();
+		new JobRegistry(); // NOSONAR: initializes the static context of JobRegistry
 		return new JobSchedulerVerticle();
 	}
 

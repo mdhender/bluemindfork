@@ -18,9 +18,10 @@
 package net.bluemind.eas.busmods;
 
 import io.vertx.core.Verticle;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class CoreStateListenerVerticleFactory implements IVerticleFactory {
+public class CoreStateListenerVerticleFactory implements IVerticleFactory, IUniqueVerticleFactory {
 
 	@Override
 	public boolean isWorker() {

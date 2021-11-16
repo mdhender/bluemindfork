@@ -28,6 +28,7 @@ import com.netflix.spectator.api.Registry;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
@@ -39,7 +40,7 @@ public class CacheRegistryStatisticsVerticle extends AbstractVerticle {
 	private static final IdFactory idFactory = new IdFactory("cache", MetricsRegistry.get(),
 			CacheRegistryStatisticsVerticle.class);
 
-	public static class Factory implements IVerticleFactory {
+	public static class Factory implements IVerticleFactory, IUniqueVerticleFactory {
 		@Override
 		public boolean isWorker() {
 			return true;

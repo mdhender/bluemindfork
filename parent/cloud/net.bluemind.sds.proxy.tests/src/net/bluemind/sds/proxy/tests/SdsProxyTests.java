@@ -54,15 +54,7 @@ public class SdsProxyTests {
 
 	@Before
 	public void before() throws InterruptedException, ExecutionException, TimeoutException, IOException {
-		CompletableFuture<Void> startResult = new CompletableFuture<>();
-		VertxPlatform.spawnVerticles(spawnResult -> {
-			if (spawnResult.succeeded()) {
-				startResult.complete(null);
-			} else {
-				startResult.completeExceptionally(spawnResult.cause());
-			}
-		});
-		startResult.get(20, TimeUnit.SECONDS);
+		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
 
 		this.root = new File(System.getProperty("user.home"), "dummy-sds");
 		if (!root.mkdirs()) {
@@ -87,11 +79,7 @@ public class SdsProxyTests {
 	}
 
 	private RequestOptions uri(String s) {
-		RequestOptions options = new RequestOptions().setURI(s);
-		SocketAddress sock = socket();
-		options.setPort(sock.port());
-		options.setHost(sock.host());
-		return options;
+		return new RequestOptions().setURI(s).setServer(socket());
 	}
 
 	@After
@@ -159,22 +147,13 @@ public class SdsProxyTests {
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "789");
-		client.request(uri("/sds").setMethod(HttpMethod.OPTIONS), ar -> {
-			if (ar.succeeded()) {
-				HttpClientRequest req = ar.result();
-				req.setChunked(true);
-				req.send(Buffer.buffer(payload.encode()), ar2 -> {
-					if (ar2.succeeded()) {
-						HttpClientResponse resp = ar2.result();
-						System.err.println("resp " + resp);
-						waitResp.complete(resp.statusCode());
-					} else {
-						waitResp.completeExceptionally(ar2.cause());
-					}
-				});
-			} else {
-				waitResp.completeExceptionally(ar.cause());
-			}
+		client.request(uri("/sds").setMethod(HttpMethod.OPTIONS)).onSuccess(req -> {
+			req.setChunked(true);
+			req.write(Buffer.buffer(payload.encode()));
+			req.response().onSuccess(resp -> {
+				System.err.println("resp " + resp);
+				waitResp.complete(resp.statusCode());
+			}).onFailure(t -> waitResp.completeExceptionally(t));
 		});
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
@@ -243,23 +222,16 @@ public class SdsProxyTests {
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "123").put("filename",
 				new File(root, "dest.txt").getAbsolutePath());
-		client.request(uri("/sds").setMethod(HttpMethod.PUT), ar -> {
-			if (ar.succeeded()) {
-				HttpClientRequest req = ar.result();
-				req.setChunked(true);
-				req.send(Buffer.buffer(payload.encode()), ar2 -> {
-					if (ar2.succeeded()) {
-						HttpClientResponse resp = ar2.result();
-						System.err.println("resp " + resp);
+		client.request(uri("/sds").setMethod(HttpMethod.GET)).onSuccess(req -> {
+			req.setChunked(true);
+			req.send(Buffer.buffer(payload.encode())) //
+					.onSuccess(resp -> {
 						waitResp.complete(resp.statusCode());
-					} else {
-						waitResp.completeExceptionally(ar2.cause());
-					}
-				});
-			} else {
-				waitResp.completeExceptionally(ar.cause());
-			}
-		});
+					}) //
+					.onFailure(t -> {
+						waitResp.completeExceptionally(t);
+					});
+		}).onFailure(t -> System.err.println("request failed" + t));
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
@@ -323,11 +295,11 @@ public class SdsProxyTests {
 			existCall.complete(msg.body());
 		});
 
-		JsonObject payload = new JsonObject().put("storeType", "test");
 		client.request(uri("/configuration").setMethod(HttpMethod.POST), ar -> {
 			if (ar.succeeded()) {
 				HttpClientRequest req = ar.result();
 				req.setChunked(true);
+				JsonObject payload = new JsonObject().put("storeType", "test");
 				req.send(Buffer.buffer(payload.encode()), ar2 -> {
 					if (ar2.succeeded()) {
 						HttpClientResponse resp = ar2.result();
@@ -346,6 +318,7 @@ public class SdsProxyTests {
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
 
+		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "123");
 		client.request(uri("/sds").setMethod(HttpMethod.OPTIONS)).onSuccess(req -> {
 			req.setChunked(true);
 			req.send(Buffer.buffer(payload.encode()));

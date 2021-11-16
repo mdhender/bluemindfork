@@ -31,13 +31,14 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.hook.ISystemConfigurationObserver;
 
 public class SharedSystemConfigurationVerticle extends AbstractVerticle {
-	public static class Init implements IVerticleFactory {
+	public static class Init implements IVerticleFactory, IUniqueVerticleFactory {
 		@Override
 		public boolean isWorker() {
 			return true;

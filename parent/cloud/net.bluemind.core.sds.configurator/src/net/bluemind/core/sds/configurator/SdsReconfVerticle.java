@@ -7,6 +7,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.sds.proxy.mgmt.SdsProxyManager;
 
@@ -14,7 +15,7 @@ public class SdsReconfVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(SdsReconfVerticle.class);
 
-	public static class SdsReconfFactory implements IVerticleFactory {
+	public static class SdsReconfFactory implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {

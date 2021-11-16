@@ -19,9 +19,10 @@
 package net.bluemind.core.sendmail;
 
 import io.vertx.core.Verticle;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class SendMailVerticleFactory implements IVerticleFactory {
+public class SendMailVerticleFactory implements IVerticleFactory, IUniqueVerticleFactory {
 
 	@Override
 	public boolean isWorker() {

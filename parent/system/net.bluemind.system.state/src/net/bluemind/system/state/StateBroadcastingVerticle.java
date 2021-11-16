@@ -38,6 +38,7 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Producer;
 import net.bluemind.hornetq.client.Topic;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
@@ -47,7 +48,7 @@ public class StateBroadcastingVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(StateBroadcastingVerticle.class);
 
-	public static final class Factory implements IVerticleFactory {
+	public static final class Factory implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {

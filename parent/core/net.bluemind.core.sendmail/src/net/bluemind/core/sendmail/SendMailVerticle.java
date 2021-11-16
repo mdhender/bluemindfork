@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.LocalJsonObject;
@@ -33,18 +32,14 @@ public class SendMailVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-
 		final ISendmail mailer = new Sendmail();
-		vertx.eventBus().consumer(SendMailAddress.SEND, new Handler<Message<LocalJsonObject<Mail>>>() {
-			public void handle(Message<LocalJsonObject<Mail>> message) {
-				try {
-					mailer.send(message.body().getValue());
-				} catch (ServerFault e) {
-					logger.error(e.getMessage(), e);
-				}
-
-			}
-		});
-
+		vertx.eventBus().consumer(SendMailAddress.SEND,
+				(Message<LocalJsonObject<Mail>> message) -> vertx.executeBlocking(prom -> {
+					try {
+						mailer.send(message.body().getValue());
+					} catch (ServerFault e) {
+						logger.error(e.getMessage(), e);
+					}
+				}, false));
 	}
 }

@@ -84,22 +84,16 @@ public class BMModule extends AbstractVerticle {
 		Vertx vx = getVertx();
 
 		logger.info("deploying {} verticle {}", vf.isWorker() ? "worker" : "std", vf);
+		int cpus = Runtime.getRuntime().availableProcessors();
+		if (vf instanceof IUniqueVerticleFactory) {
+			cpus = 1;
+		}
 		if (vf.isWorker()) {
-			DeploymentOptions workerOpts = new DeploymentOptions().setInstances(1).setWorker(true);
-			// LC TODO: what i need to do ?
-//			if (vf instanceof IUniqueVerticleFactory) {
+			DeploymentOptions workerOpts = new DeploymentOptions().setInstances(cpus).setWorkerPoolSize(cpus)
+					.setWorker(true);
 			vx.deployVerticle(vc, workerOpts, done);
-//			} else {
-//				vx.deployVerticle(vc, workerOpts.setMultiThreaded(true), done);
-//			}
 		} else {
-
-			if (vf instanceof IUniqueVerticleFactory) {
-				vx.deployVerticle(vc, new DeploymentOptions().setInstances(1), done);
-			} else {
-				vx.deployVerticle(vc,
-						new DeploymentOptions().setInstances(Runtime.getRuntime().availableProcessors() * 2), done);
-			}
+			vx.deployVerticle(vc, new DeploymentOptions().setInstances(cpus), done);
 		}
 	}
 

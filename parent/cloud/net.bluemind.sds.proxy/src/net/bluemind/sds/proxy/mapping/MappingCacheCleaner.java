@@ -22,11 +22,12 @@ import io.vertx.core.Verticle;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class MappingCacheCleaner extends AbstractVerticle {
 
-	public static class Build implements IVerticleFactory {
+	public static class Build implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {
