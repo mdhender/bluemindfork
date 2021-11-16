@@ -18,6 +18,8 @@
  */
 package net.bluemind.core.task.service;
 
+import org.slf4j.Logger;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
@@ -40,12 +42,33 @@ public interface ITasksManager {
 	/**
 	 * Launch {@link IServerTask}
 	 * 
+	 * @param logger     complementary logger to use with the monitor
+	 * @param serverTask task to run
+	 * @return ref to running task
+	 * @throws ServerFault
+	 */
+	public TaskRef run(Logger logger, IServerTask serverTask) throws ServerFault;
+
+	/**
+	 * Launch {@link IServerTask}
+	 * 
 	 * @param uniqueId
 	 * @param serverTask task to run
 	 * @return ref to running task
 	 * @throws ServerFault
 	 */
 	public TaskRef run(String uniqueId, IServerTask serverTask) throws ServerFault;
+
+	/**
+	 * Launch {@link IServerTask}
+	 * 
+	 * @param uniqueId
+	 * @param logger     complementary logger to use with the monitor
+	 * @param serverTask task to run
+	 * @return ref to running task
+	 * @throws ServerFault
+	 */
+	public TaskRef run(String uniqueId, Logger logger, IServerTask serverTask) throws ServerFault;
 
 	/**
 	 * Retrieve task service

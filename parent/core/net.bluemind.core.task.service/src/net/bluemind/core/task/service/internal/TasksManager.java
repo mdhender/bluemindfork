@@ -62,11 +62,28 @@ public class TasksManager implements ITasksManager {
 	}
 
 	@Override
+	public TaskRef run(final IServerTask serverTask) {
+		final String taskId = UUID.randomUUID().toString();
+		return run(taskId, null, serverTask);
+	}
+
+	@Override
+	public TaskRef run(Logger logger, final IServerTask serverTask) {
+		final String taskId = UUID.randomUUID().toString();
+		return run(taskId, logger, serverTask);
+	}
+
+	@Override
 	public TaskRef run(final String taskId, final IServerTask serverTask) {
+		return run(taskId, null, serverTask);
+	}
+
+	@Override
+	public TaskRef run(final String taskId, Logger logger, final IServerTask serverTask) {
 		MessageConsumer<JsonObject> cons = vertx.eventBus().consumer(addr(taskId));
 		final TaskManager task = new TaskManager(taskId, cons);
 		final TaskMonitor monitor = new TaskMonitor(vertx.eventBus(), addr(taskId));
-		final LoggingTaskMonitor loggingMonitor = new LoggingTaskMonitor(null, monitor, 0);
+		final LoggingTaskMonitor loggingMonitor = new LoggingTaskMonitor(logger, monitor, 0);
 		TaskManager oldTask = tasks.putIfAbsent(taskId, task);
 		if (oldTask != null) {
 			if (oldTask.status().state.ended) {
@@ -116,12 +133,6 @@ public class TasksManager implements ITasksManager {
 		};
 
 		futures.put(taskId, new FutureThreadInfo(es.submit(runnable), runnable));
-	}
-
-	@Override
-	public TaskRef run(final IServerTask serverTask) {
-		final String taskId = UUID.randomUUID().toString();
-		return run(taskId, serverTask);
 	}
 
 	private void cleanupTask(TaskManager task) {

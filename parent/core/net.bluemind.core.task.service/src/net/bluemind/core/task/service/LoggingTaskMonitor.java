@@ -20,6 +20,7 @@ package net.bluemind.core.task.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 public class LoggingTaskMonitor extends AbstractTaskMonitor {
 	private static final String[] depthPattern;
@@ -53,28 +54,74 @@ public class LoggingTaskMonitor extends AbstractTaskMonitor {
 
 	@Override
 	public void begin(double totalWork, String log) {
+		begin(totalWork, log, Level.DEBUG);
+	}
+
+	@Override
+	public void begin(double totalWork, String log, Level level) {
 		this.totalWork = totalWork;
-		instanceLogger.debug("{}BEGIN: total work: {}, {}", depthPattern[childDepth], totalWork, log);
+		logWithLevel(level, "{}BEGIN: total work: {}, {}", depthPattern[childDepth], totalWork, log);
 		delegate.begin(totalWork, log);
 	}
 
 	@Override
 	public void progress(double doneWork, String log) {
+		progress(doneWork, log, Level.DEBUG);
+	}
+
+	@Override
+	public void progress(double doneWork, String log, Level level) {
 		done += doneWork;
-		instanceLogger.debug("{}PROGRESS: done work {}, progress {} on {}, {}", depthPattern[childDepth], doneWork,
-				done, totalWork, log);
+		logWithLevel(level, "{}PROGRESS: done work {}, progress {} on {}, {}", depthPattern[childDepth], doneWork, done,
+				totalWork, log);
 		delegate.progress(doneWork, log);
 	}
 
 	@Override
 	public void end(boolean success, String log, String result) {
-		instanceLogger.debug("{}END: {}, {}, Result: {}", depthPattern[childDepth], success, log, result);
+		end(success, log, result, Level.DEBUG);
+	}
+
+	@Override
+	public void end(boolean success, String log, String result, Level level) {
+		logWithLevel(level, "{}END: {}, {}, Result: {}", depthPattern[childDepth], success, log, result);
 		delegate.end(success, log, result);
 	}
 
 	@Override
 	public void log(String log) {
-		instanceLogger.debug("{}LOG: {}", depthPattern[childDepth], log);
+		log(log, Level.DEBUG);
+	}
+
+	@Override
+	public void log(String log, Level level) {
+		logWithLevel(level, "{}LOG: {}", depthPattern[childDepth], log);
 		delegate.log(log);
+	}
+
+	@Override
+	public void log(String log, Throwable t) {
+		logWithLevel(Level.ERROR, "{}LOG: {}", depthPattern[childDepth], log, t);
+		delegate.log(log + ":\n" + t.getMessage());
+	}
+
+	public void logWithLevel(Level level, String pattern, Object... args) {
+		switch (level) {
+		case ERROR:
+			instanceLogger.error(pattern, args);
+			break;
+		case WARN:
+			instanceLogger.warn(pattern, args);
+			break;
+		case INFO:
+			instanceLogger.info(pattern, args);
+			break;
+		case DEBUG:
+			instanceLogger.debug(pattern, args);
+			break;
+		case TRACE:
+			instanceLogger.trace(pattern, args);
+			break;
+		}
 	}
 }

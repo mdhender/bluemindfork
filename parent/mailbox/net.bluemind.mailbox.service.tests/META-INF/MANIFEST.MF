@@ -37,6 +37,7 @@ Require-Bundle: org.junit,
  net.bluemind.system.api,
  net.bluemind.config,
  net.bluemind.scheduledjob.scheduler,
- net.bluemind.core.task.service
+ net.bluemind.core.task.service,
+ slf4j.api
 Automatic-Module-Name: net.bluemind.mailbox.service.tests
 

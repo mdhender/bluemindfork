@@ -18,12 +18,14 @@
  */
 package net.bluemind.core.task.service;
 
+import org.slf4j.event.Level;
+
 public interface IServerTaskMonitor {
 
 	/**
 	 * @see #subWork(String, double)
 	 */
-	public IServerTaskMonitor subWork(double work);
+	IServerTaskMonitor subWork(double work);
 
 	/**
 	 * Create a sub task monitor that uses a given amount of work unit from the task
@@ -33,7 +35,7 @@ public interface IServerTaskMonitor {
 	 *                  task.
 	 * @return a sub task monitor. Begin must be called on the return monitor
 	 */
-	public IServerTaskMonitor subWork(String logPrefix, double work);
+	IServerTaskMonitor subWork(String logPrefix, double work);
 
 	/**
 	 * Notifies that the task is beginning. This must only be called once on a given
@@ -42,7 +44,7 @@ public interface IServerTaskMonitor {
 	 * @param totalWork the total number of work units into which the task is been
 	 *                  subdivided.
 	 */
-	public void begin(double totalWork, String log);
+	void begin(double totalWork, String log);
 
 	/**
 	 * Notifies that a given number of work unit of the task has been completed.
@@ -50,7 +52,7 @@ public interface IServerTaskMonitor {
 	 * @param doneWork number of work units just completed
 	 * @param log
 	 */
-	public void progress(double doneWork, String log);
+	void progress(double doneWork, String log);
 
 	/**
 	 * Notifies that the task has been completed.
@@ -59,7 +61,27 @@ public interface IServerTaskMonitor {
 	 * @param log
 	 * @param result
 	 */
-	public void end(boolean success, String log, String result);
+	void end(boolean success, String log, String result);
 
-	public void log(String log);
+	void log(String log);
+
+	default void begin(double totalWork, String log, Level level) {
+		begin(totalWork, log);
+	}
+
+	default void progress(double doneWork, String log, Level level) {
+		progress(doneWork, log);
+	}
+
+	default void end(boolean success, String log, String result, Level level) {
+		end(success, log, result);
+	}
+
+	default void log(String log, Level level) {
+		log(log);
+	}
+
+	default void log(String log, Throwable t) {
+		log(log);
+	}
 }
