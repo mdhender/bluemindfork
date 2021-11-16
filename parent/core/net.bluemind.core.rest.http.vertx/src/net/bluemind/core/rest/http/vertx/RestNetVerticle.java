@@ -52,7 +52,7 @@ public class RestNetVerticle extends AbstractVerticle {
 		SockJSHandler wsHandler = routeMatcher.websocket("/eventbus",
 				new SockJSHandlerOptions().setInsertJSESSIONID(false)
 						.setLibraryURL("https://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js")
-						.setHeartbeatInterval(50000));
+						.setRegisterWriteHandler(true).setHeartbeatInterval(50000));
 		wsHandler.socketHandler(new RestSockJSProxyServer(vertx, rootHandler, rootHandler));
 
 		httpServer.listen(PORT, (AsyncResult<HttpServer> event) -> {
