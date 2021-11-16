@@ -5,7 +5,6 @@ import org.apache.commons.lang.StringUtils;
 import com.netflix.spectator.api.Registry;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.Verticle;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
@@ -34,15 +33,12 @@ public class DirectoryVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		getVertx().eventBus().consumer("dir.changed", new Handler<Message<JsonObject>>() {
-			@Override
-			public void handle(Message<JsonObject> event) {
-				String domain = event.body().getString("domain");
-				String version = event.body().getString("version");
-				if (containsValidVersion(domain, version)) {
-					registry.gauge(idFactory.name("dirVersion", "domainUid", domain, "source", "database"))
-							.set(Long.parseLong(version));
-				}
+		getVertx().eventBus().consumer("dir.changed", (Message<JsonObject> event) -> {
+			String domain = event.body().getString("domain");
+			String version = event.body().getString("version");
+			if (containsValidVersion(domain, version)) {
+				registry.gauge(idFactory.name("dirVersion", "domainUid", domain, "source", "database"))
+						.set(Long.parseLong(version));
 			}
 		});
 	}

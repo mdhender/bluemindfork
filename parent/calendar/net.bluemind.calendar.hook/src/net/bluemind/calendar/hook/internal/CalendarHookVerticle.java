@@ -21,7 +21,6 @@ package net.bluemind.calendar.hook.internal;
 import java.util.List;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import net.bluemind.calendar.hook.CalendarHookAddress;
@@ -40,27 +39,21 @@ public class CalendarHookVerticle extends AbstractVerticle {
 
 		EventBus eventBus = vertx.eventBus();
 
-		eventBus.consumer(CalendarHookAddress.EVENT_CREATED, new Handler<Message<LocalJsonObject<VEventMessage>>>() {
-			public void handle(Message<LocalJsonObject<VEventMessage>> message) {
-				for (final ICalendarHook hook : hooks) {
-					hook.onEventCreated(message.body().getValue());
-				}
+		eventBus.consumer(CalendarHookAddress.EVENT_CREATED, (Message<LocalJsonObject<VEventMessage>> message) -> {
+			for (final ICalendarHook hook : hooks) {
+				hook.onEventCreated(message.body().getValue());
 			}
 		});
 
-		eventBus.consumer(CalendarHookAddress.EVENT_UPDATED, new Handler<Message<LocalJsonObject<VEventMessage>>>() {
-			public void handle(Message<LocalJsonObject<VEventMessage>> message) {
-				for (final ICalendarHook hook : hooks) {
-					hook.onEventUpdated(message.body().getValue());
-				}
+		eventBus.consumer(CalendarHookAddress.EVENT_UPDATED, (Message<LocalJsonObject<VEventMessage>> message) -> {
+			for (final ICalendarHook hook : hooks) {
+				hook.onEventUpdated(message.body().getValue());
 			}
 		});
 
-		eventBus.consumer(CalendarHookAddress.EVENT_DELETED, new Handler<Message<LocalJsonObject<VEventMessage>>>() {
-			public void handle(Message<LocalJsonObject<VEventMessage>> message) {
-				for (final ICalendarHook hook : hooks) {
-					hook.onEventDeleted(message.body().getValue());
-				}
+		eventBus.consumer(CalendarHookAddress.EVENT_DELETED, (Message<LocalJsonObject<VEventMessage>> message) -> {
+			for (final ICalendarHook hook : hooks) {
+				hook.onEventDeleted(message.body().getValue());
 			}
 		});
 

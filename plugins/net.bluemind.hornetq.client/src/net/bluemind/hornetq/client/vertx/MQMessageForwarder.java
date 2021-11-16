@@ -31,32 +31,24 @@ public class MQMessageForwarder extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(MQMessageForwarder.class);
 	private List<IMessageForwarder> forwarders = null;
 
+	@Override
 	public void start() {
-
-		RunnableExtensionLoader<IMessageForwarder> loader = new RunnableExtensionLoader<IMessageForwarder>();
+		RunnableExtensionLoader<IMessageForwarder> loader = new RunnableExtensionLoader<>();
 		forwarders = loader.loadExtensions("net.bluemind.hornetq", "forwardToVertx", "vertx-forwarder", "class");
 		if (forwarders.isEmpty()) {
 			return;
 		}
 		logger.info("start MQMessageForwared, forwarders : {}", forwarders.size());
 
-		MQ.init(new IMQConnectHandler() {
-
-			@Override
-			public void connected() {
-
-				for (IMessageForwarder forwarder : forwarders) {
-					String topic = forwarder.getTopic();
-					MQ.registerConsumer(topic, message -> {
-
-						if (logger.isDebugEnabled()) {
-							logger.debug(forwarder + " onMsg op:" + message);
-						}
-
-						forwarder.forward(getVertx(), message);
-
-					});
-				}
+		MQ.init(() -> {
+			for (IMessageForwarder forwarder : forwarders) {
+				String topic = forwarder.getTopic();
+				MQ.registerConsumer(topic, message -> {
+					if (logger.isDebugEnabled()) {
+						logger.debug("{} onMsg op: {}", forwarder, message);
+					}
+					forwarder.forward(getVertx(), message);
+				});
 			}
 		});
 	}

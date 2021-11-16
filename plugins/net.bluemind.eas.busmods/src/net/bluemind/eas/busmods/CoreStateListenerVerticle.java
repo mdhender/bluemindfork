@@ -18,7 +18,6 @@
 package net.bluemind.eas.busmods;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import net.bluemind.eas.dto.EasBusEndpoints;
 import net.bluemind.eas.impl.Backends;
@@ -27,15 +26,8 @@ public class CoreStateListenerVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-
-		vertx.eventBus().consumer(EasBusEndpoints.PURGE_SESSIONS, new Handler<Message<Object>>() {
-
-			@Override
-			public void handle(Message<Object> event) {
-				Backends.dataAccess().purgeSessions();
-			}
-		});
-
+		vertx.eventBus().consumer(EasBusEndpoints.PURGE_SESSIONS,
+				(Message<Object> event) -> Backends.dataAccess().purgeSessions());
 	}
 
 }

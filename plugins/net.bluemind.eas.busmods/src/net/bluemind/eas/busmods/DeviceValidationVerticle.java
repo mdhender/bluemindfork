@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import net.bluemind.eas.dto.EasBusEndpoints;
 import net.bluemind.eas.dto.device.DeviceValidationRequest;
@@ -32,34 +31,22 @@ import net.bluemind.eas.partnership.Provider;
 import net.bluemind.vertx.common.LocalJsonObject;
 
 public class DeviceValidationVerticle extends AbstractVerticle {
-
 	private static final Logger logger = LoggerFactory.getLogger(DeviceValidationVerticle.class);
-	private Handler<Message<LocalJsonObject<DeviceValidationRequest>>> validationHandler;
 
 	@Override
 	public void start() {
-
-		validationHandler = new Handler<Message<LocalJsonObject<DeviceValidationRequest>>>() {
-
-			@Override
-			public void handle(final Message<LocalJsonObject<DeviceValidationRequest>> msg) {
-				IDevicePartnershipProvider partProv = Provider.get();
-				partProv.setupAndCheck(msg.body().getValue(), new Handler<DeviceValidationResponse>() {
-
-					@Override
-					public void handle(DeviceValidationResponse ev) {
+		vertx.eventBus().consumer(EasBusEndpoints.DEVICE_VALIDATION,
+				(Message<LocalJsonObject<DeviceValidationRequest>> msg) -> {
+					IDevicePartnershipProvider partProv = Provider.get();
+					partProv.setupAndCheck(msg.body().getValue(), (DeviceValidationResponse ev) -> {
 						if (logger.isDebugEnabled()) {
 							logger.debug("Sending partnership response, success: {}, id: {}", ev.success,
 									ev.internalId);
 						}
 						LocalJsonObject<DeviceValidationResponse> jso = new LocalJsonObject<>(ev);
 						msg.reply(jso);
-					}
+					});
 				});
-
-			}
-		};
-		vertx.eventBus().consumer(EasBusEndpoints.DEVICE_VALIDATION, validationHandler);
 	}
 
 }

@@ -52,10 +52,10 @@ public class MQIptablesListener extends AbstractVerticle {
 
 	}
 
+	@Override
 	public void start() {
-		VertxPlatform.eventBus().consumer(SystemState.BROADCAST, (Message<JsonObject> m) -> {
-			stateChanged(m.body().getString("operation"));
-		});
+		VertxPlatform.eventBus().consumer(SystemState.BROADCAST,
+				(Message<JsonObject> m) -> stateChanged(m.body().getString("operation")));
 	}
 
 	private void stateChanged(String op) {

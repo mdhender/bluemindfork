@@ -21,7 +21,6 @@ package net.bluemind.todolist.hook.internal;
 import java.util.List;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import net.bluemind.core.rest.LocalJsonObject;
@@ -33,31 +32,17 @@ public class TodoListHookVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-
-		RunnableExtensionLoader<ITodoListHook> loader = new RunnableExtensionLoader<ITodoListHook>();
-
+		RunnableExtensionLoader<ITodoListHook> loader = new RunnableExtensionLoader<>();
 		List<ITodoListHook> hooks = loader.loadExtensions("net.bluemind.todolist", "hook", "hook", "impl");
-
 		EventBus eventBus = vertx.eventBus();
 
 		for (final ITodoListHook hook : hooks) {
-			eventBus.consumer(TodoListHookAddress.CREATED, new Handler<Message<LocalJsonObject<VTodoMessage>>>() {
-				public void handle(Message<LocalJsonObject<VTodoMessage>> message) {
-					hook.onTodoCreated(message.body().getValue());
-				}
-			});
-
-			eventBus.consumer(TodoListHookAddress.UPDATED, new Handler<Message<LocalJsonObject<VTodoMessage>>>() {
-				public void handle(Message<LocalJsonObject<VTodoMessage>> message) {
-					hook.onTodoUpdated(message.body().getValue());
-				}
-			});
-
-			eventBus.consumer(TodoListHookAddress.DELETED, new Handler<Message<LocalJsonObject<VTodoMessage>>>() {
-				public void handle(Message<LocalJsonObject<VTodoMessage>> message) {
-					hook.onTodoDeleted(message.body().getValue());
-				}
-			});
+			eventBus.consumer(TodoListHookAddress.CREATED,
+					(Message<LocalJsonObject<VTodoMessage>> message) -> hook.onTodoCreated(message.body().getValue()));
+			eventBus.consumer(TodoListHookAddress.UPDATED,
+					(Message<LocalJsonObject<VTodoMessage>> message) -> hook.onTodoUpdated(message.body().getValue()));
+			eventBus.consumer(TodoListHookAddress.DELETED,
+					(Message<LocalJsonObject<VTodoMessage>> message) -> hook.onTodoDeleted(message.body().getValue()));
 		}
 
 	}

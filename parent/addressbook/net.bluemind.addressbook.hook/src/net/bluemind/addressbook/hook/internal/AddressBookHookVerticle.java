@@ -21,7 +21,6 @@ package net.bluemind.addressbook.hook.internal;
 import java.util.List;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import net.bluemind.addressbook.api.AddressBookBusAddresses;
@@ -42,24 +41,12 @@ public class AddressBookHookVerticle extends AbstractVerticle {
 		EventBus eventBus = vertx.eventBus();
 
 		for (final IAddressBookEventConsumer hook : hooks) {
-			eventBus.consumer(AddressBookBusAddresses.CREATED, new Handler<Message<LocalJsonObject<VCardMessage>>>() {
-				public void handle(Message<LocalJsonObject<VCardMessage>> message) {
-					hook.vcardCreated(message.body().getValue());
-				}
-			});
-
-			eventBus.consumer(AddressBookBusAddresses.UPDATED, new Handler<Message<LocalJsonObject<VCardMessage>>>() {
-				public void handle(Message<LocalJsonObject<VCardMessage>> message) {
-					hook.vcardUpdated(message.body().getValue());
-				}
-			});
-
-			eventBus.consumer(AddressBookBusAddresses.DELETED, new Handler<Message<LocalJsonObject<VCardMessage>>>() {
-				public void handle(Message<LocalJsonObject<VCardMessage>> message) {
-					hook.vcardDeleted(message.body().getValue());
-				}
-			});
+			eventBus.consumer(AddressBookBusAddresses.CREATED,
+					(Message<LocalJsonObject<VCardMessage>> message) -> hook.vcardCreated(message.body().getValue()));
+			eventBus.consumer(AddressBookBusAddresses.UPDATED,
+					(Message<LocalJsonObject<VCardMessage>> message) -> hook.vcardUpdated(message.body().getValue()));
+			eventBus.consumer(AddressBookBusAddresses.DELETED,
+					(Message<LocalJsonObject<VCardMessage>> message) -> hook.vcardDeleted(message.body().getValue()));
 		}
-
 	}
 }

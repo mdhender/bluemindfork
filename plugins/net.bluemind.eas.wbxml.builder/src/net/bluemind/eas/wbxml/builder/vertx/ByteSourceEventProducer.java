@@ -47,24 +47,19 @@ public class ByteSourceEventProducer extends AbstractVerticle {
 
 	@Override
 	public void start() {
-
-		vertx.eventBus().consumer(REGISTER, new Handler<Message<LocalJsonObject<DisposableByteSource>>>() {
-
-			@Override
-			public void handle(Message<LocalJsonObject<DisposableByteSource>> event) {
-				DisposableByteSource dbs = event.body().getValue();
-				String streamAddr = "stream" + streamId.incrementAndGet();
-				try {
-					InputStream input = dbs.source().openStream();
-					liveStreams.put(streamAddr, input);
-					disposables.put(streamAddr, dbs);
-					if (logger.isDebugEnabled()) {
-						logger.debug("{} stream {} registered {}", this, streamAddr, input);
-					}
-					event.reply(streamAddr);
-				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
+		vertx.eventBus().consumer(REGISTER, (Message<LocalJsonObject<DisposableByteSource>> event) -> {
+			DisposableByteSource dbs = event.body().getValue();
+			String streamAddr = "stream" + streamId.incrementAndGet();
+			try {
+				InputStream input = dbs.source().openStream();
+				liveStreams.put(streamAddr, input);
+				disposables.put(streamAddr, dbs);
+				if (logger.isDebugEnabled()) {
+					logger.debug("{} stream {} registered {}", this, streamAddr, input);
 				}
+				event.reply(streamAddr);
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
 			}
 		});
 
@@ -74,7 +69,7 @@ public class ByteSourceEventProducer extends AbstractVerticle {
 
 	private final class NextStreamChunkRequestHandler implements Handler<Message<String>> {
 
-		private final LocalJsonObject<Chunk> LAST = new LocalJsonObject<Chunk>(Chunk.LAST);
+		private final LocalJsonObject<Chunk> LAST = new LocalJsonObject<>(Chunk.LAST);
 
 		@Override
 		public void handle(Message<String> event) {
