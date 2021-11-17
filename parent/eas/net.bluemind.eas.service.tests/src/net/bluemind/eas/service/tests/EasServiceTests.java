@@ -30,15 +30,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.util.concurrent.SettableFuture;
-
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -58,17 +55,7 @@ public class EasServiceTests {
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		adminSC = new SecurityContext(UUID.randomUUID().toString(), "system", Arrays.<String>asList(),
 				Arrays.<String>asList(SecurityContext.ROLE_SYSTEM), Collections.emptyMap(), "global.virt", "en",
