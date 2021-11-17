@@ -22,11 +22,6 @@ import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class SimpleTestVerticleFactory implements IVerticleFactory {
-
-	public SimpleTestVerticleFactory() {
-		// TODO Auto-generated constructor stub
-	}
-
 	@Override
 	public boolean isWorker() {
 		return false;

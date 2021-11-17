@@ -22,9 +22,6 @@ import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class CoreStateListenerVerticleFactory implements IVerticleFactory {
 
-	public CoreStateListenerVerticleFactory() {
-	}
-
 	@Override
 	public boolean isWorker() {
 		return true;

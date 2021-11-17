@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import net.bluemind.lmtp.Activator;
 import net.bluemind.lmtp.backend.DeliveredVersion;
@@ -41,19 +40,10 @@ public class LmtpDoneActionVerticle extends AbstractVerticle {
 	public static final String ADDR = "lmtp.doneActions";
 
 	private static final Logger logger = LoggerFactory.getLogger(LmtpDoneActionVerticle.class);
-	private Handler<Message<DeliveredMailMessage>> doneHandler;
 
 	@Override
 	public void start() {
-
-		doneHandler = new Handler<Message<DeliveredMailMessage>>() {
-
-			@Override
-			public void handle(Message<DeliveredMailMessage> event) {
-				done(event.body().getEnvelope());
-			}
-		};
-		getVertx().eventBus().consumer(ADDR, doneHandler);
+		getVertx().eventBus().consumer(ADDR, (Message<DeliveredMailMessage> event) -> done(event.body().getEnvelope()));
 	}
 
 	protected void done(LmtpEnvelope mEnvelope) {
@@ -67,7 +57,7 @@ public class LmtpDoneActionVerticle extends AbstractVerticle {
 			LmtpReply reply = recipient.getDeliveryStatus();
 
 			if (logger.isDebugEnabled()) {
-				logger.debug(recipient.getEmailAddress() + " return status: " + reply.toString());
+				logger.debug("{} return status: {}", recipient.getEmailAddress(), reply.toString());
 			}
 
 			String rmail = recipient.getEmailAddress();
@@ -96,7 +86,7 @@ public class LmtpDoneActionVerticle extends AbstractVerticle {
 		}
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("delivery count: " + numDelivered);
+			logger.debug("delivery count: {}", numDelivered);
 		}
 
 	}

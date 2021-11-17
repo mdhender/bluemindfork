@@ -275,32 +275,33 @@ public class LmtpSessionProxy implements LmtpRequestHandler, LmtpResponseHandler
 			mEnvelope.addRecipient(tmp);
 		}
 
-		eventBus.request("lmtp.filters", new MailMessage(mEnvelope, data), (AsyncResult<Message<MailMessage>> ar) -> {
-			Message<MailMessage> event = ar.result();
-			// remove recipients
-			// recipients will be added on delivered response
-			mEnvelope.getRecipients().clear();
-			ByteBuf finalDataBuffer = Unpooled.wrappedBuffer(header.getByteBuf(), event.body().getData(),
-					CRLF_DOT_CRLF);
+		eventBus.request(LmtpFiltersVerticle.ADDR, new MailMessage(mEnvelope, data),
+				(AsyncResult<Message<MailMessage>> ar) -> {
+					Message<MailMessage> event = ar.result();
+					// remove recipients
+					// recipients will be added on delivered response
+					mEnvelope.getRecipients().clear();
+					ByteBuf finalDataBuffer = Unpooled.wrappedBuffer(header.getByteBuf(), event.body().getData(),
+							CRLF_DOT_CRLF);
 
-			Buffer buf = Buffer.buffer(finalDataBuffer);
-			logger.debug("send data body  (size: {}) to backend ", buf.length());
-			backend.write(buf);
+					Buffer buf = Buffer.buffer(finalDataBuffer);
+					logger.debug("send data body  (size: {}) to backend ", buf.length());
+					backend.write(buf);
 
-			if (backend.writeQueueFull()) {
-				logger.debug("backend socket is full, put a drainHandler");
-				backend.drainHandler(new Handler<Void>() {
+					if (backend.writeQueueFull()) {
+						logger.debug("backend socket is full, put a drainHandler");
+						backend.drainHandler(new Handler<Void>() {
 
-					@Override
-					public void handle(Void event) {
+							@Override
+							public void handle(Void event) {
+								logger.debug("ready to recieve more command from client");
+							}
+
+						});
+					} else {
 						logger.debug("ready to recieve more command from client");
 					}
-
 				});
-			} else {
-				logger.debug("ready to recieve more command from client");
-			}
-		});
 
 	}
 
