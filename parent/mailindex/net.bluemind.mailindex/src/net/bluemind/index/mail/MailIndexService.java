@@ -549,6 +549,14 @@ public class MailIndexService implements IMailIndexService {
 			return;
 		}
 
+		GetIndexResponse resp = client.admin().indices().prepareGetIndex().addIndices("mailspool*").get();
+		List<String> shards = filterMailspoolIndexNames(resp);
+
+		if (shards.isEmpty()) {
+			logger.warn("no shards found");
+			return;
+		}
+
 		GetAliasesResponse t = client.admin().indices().prepareGetAliases(getIndexAliasName(entityId)).execute()
 				.actionGet();
 
@@ -563,10 +571,6 @@ public class MailIndexService implements IMailIndexService {
 		if (t == null || t.getAliases().isEmpty()) {
 			monitor.progress(1, "no alias, check mailspool index");
 			monitor.progress(1, String.format("create alias %s from mailspool ", getIndexAliasName(entityId)));
-
-			GetIndexResponse resp = client.admin().indices().prepareGetIndex().addIndices("mailspool*").get();
-			List<String> shards = filterMailspoolIndexNames(resp);
-
 			String indexName = MailIndexActivator.getMailIndexHook().getMailspoolIndexName(client, shards, entityId);
 
 			logger.info("create alias {} from {} ", getIndexAliasName(entityId), indexName);
