@@ -36,6 +36,7 @@ public abstract class AbstractMailInjectCommand implements ICmdLet, Runnable {
 	private static final Map<String, IMessageProducer> prods = ImmutableMap.of(//
 			"got1024", new GOTMessageProducer(1024), //
 			"got128", new GOTMessageProducer(128), //
+			"attach", new Mime4jMessageProducer(), //
 			"small", new SmallRandomMessageProducer());
 
 	@Parameters(paramLabel = "<domain_name>", description = "the domain (uid or alias)")
@@ -44,7 +45,7 @@ public abstract class AbstractMailInjectCommand implements ICmdLet, Runnable {
 	@Option(names = "--msg", description = "The number of messages to add (defaults to 100)")
 	public int cycles = 100;
 
-	@Option(names = "--prod", description = "Random message producer (got1024 (default)), got128 or small)")
+	@Option(names = "--prod", description = "Random message producer (got1024 (default)), got128, attach or small)")
 	public String producer = "got1024";
 
 	@Option(names = "--workers", description = "number of workers for simultaneous operations")

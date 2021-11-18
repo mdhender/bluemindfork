@@ -13,7 +13,9 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  com.github.javafaker,
  net.bluemind.cli.cmd.api,
- net.bluemind.cli.utils
+ net.bluemind.cli.utils,
+ org.apache.james.apache-mime4j-dom,
+ net.bluemind.mime4j.common
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.inject.common
 Bundle-ActivationPolicy: lazy
