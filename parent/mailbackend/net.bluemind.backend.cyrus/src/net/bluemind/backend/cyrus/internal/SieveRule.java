@@ -25,7 +25,9 @@ public class SieveRule extends MailFilter.Rule {
 
 	public SieveRule(MailFilter.Rule f, String rule) {
 		this.rule = rule;
+		this.name = f.name;
 		this.active = f.active;
+		this.stop = f.stop;
 		this.criteria = f.criteria;
 		this.delete = f.delete;
 		this.deliver = f.deliver;

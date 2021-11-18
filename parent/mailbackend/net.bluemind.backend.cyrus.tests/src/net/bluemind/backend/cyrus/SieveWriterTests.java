@@ -226,7 +226,7 @@ public class SieveWriterTests {
 		rule.criteria = "FROM:IS: sid@pinkfloyd.net";
 		rule.deliver = "test";
 
-		// cet regle match et fait un redirect
+		// This rule will match and use a redirect action
 		MailFilter.Rule rule2 = new MailFilter.Rule();
 		rule2.active = true;
 		rule2.criteria = "SUBJECT:IS: SubjectTest";
@@ -243,6 +243,31 @@ public class SieveWriterTests {
 
 	}
 
+	@Test
+	public void testContinueAfterMatch() throws Exception {
+		MailFilter.Rule rule = new MailFilter.Rule();
+		rule.active = true;
+		rule.criteria = "FROM:IS: sid@pinkfloyd.net";
+		rule.discard = true;
+
+		// This rule will match and use a redirect action
+		MailFilter.Rule rule2 = new MailFilter.Rule();
+		rule2.active = true;
+		rule2.stop = false;
+		rule2.criteria = "SUBJECT:IS: SubjectTest";
+		rule2.forward.emails.add("toto@gmail.com");
+      
+		// This rule will match and use a fileinto action
+		MailFilter.Rule rule3 = new MailFilter.Rule();
+		rule3.active = true;
+		rule3.criteria = "FROM:IS: roger.water@pinkfloyd.net";
+		rule3.deliver = "test";
+
+		Results r = check(writer.generateSieveScript(Type.USER, mbox, null, getTestDomain(),
+				MailFilter.create(rule, rule2, rule3)));
+		assertAction(Arrays.<Class<?>>asList(ActionRedirect.class, ActionFileInto.class), r);
+
+	}
 	@Test
 	public void testFrom() throws Exception {
 		MailFilter.Rule rule = new MailFilter.Rule();

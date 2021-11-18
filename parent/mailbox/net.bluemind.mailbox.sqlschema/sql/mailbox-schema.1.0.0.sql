@@ -33,6 +33,7 @@ CREATE INDEX idx_mailbox_email_full_address ON t_mailbox_email ((left_address||'
 
 CREATE TABLE t_domainmailfilter_rule (
     container_id		int4 references t_container(id),
+    name text,
     criteria 	text NOT NULL,
     star 		boolean NOT NULL,
     mark_read 	boolean NOT NULL,
@@ -42,12 +43,14 @@ CREATE TABLE t_domainmailfilter_rule (
     deliver 	character varying(255),
     discard 	boolean DEFAULT false NOT NULL,
     row_idx 	integer DEFAULT 0 NOT NULL,
-    active		boolean DEFAULT true
+    active		boolean DEFAULT true,
+    stop      boolean DEFAULT true
 );
 CREATE INDEX idx_domainfilter_rule_item_id ON t_domainmailfilter_rule(container_id);
 
 CREATE TABLE t_mailfilter_rule (
     item_id		int4 references t_container_item(id) on delete cascade,
+    name text,
     criteria 	text NOT NULL,
     star 		boolean NOT NULL,
     mark_read 	boolean NOT NULL,
@@ -57,7 +60,8 @@ CREATE TABLE t_mailfilter_rule (
     deliver 	character varying(255),
     discard 	boolean DEFAULT false NOT NULL,
     row_idx 	integer DEFAULT 0 NOT NULL,
-    active		boolean DEFAULT true
+    active		boolean DEFAULT true,
+    stop      boolean DEFAULT true
 );
 CREATE INDEX idx_mailfilter_rule_item_id ON t_mailfilter_rule(item_id);
 

@@ -33,6 +33,7 @@ public class MailFilter {
 	@BMApi(version = "3")
 	public static class Rule {
 		// FIXME: add doc...
+		public String name;
 		public String criteria;
 		public boolean star;
 		public boolean read;
@@ -41,9 +42,11 @@ public class MailFilter {
 		public Forwarding forward = new Forwarding();
 		public String deliver;
 		public boolean active = true;
+		public boolean stop = true;
 
 		public static Rule copy(Rule f) {
 			Rule ret = new Rule();
+			ret.name = f.name;
 			ret.criteria = f.criteria;
 			ret.star = f.star;
 			ret.read = f.read;
@@ -52,6 +55,7 @@ public class MailFilter {
 			ret.forward = f.forward;
 			ret.deliver = f.deliver;
 			ret.active = f.active;
+			ret.stop = f.stop;
 			return ret;
 		}
 
@@ -60,6 +64,7 @@ public class MailFilter {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + (active ? 1231 : 1237);
+			result = prime * result + (stop? 1231 : 1237);
 			result = prime * result + ((criteria == null) ? 0 : criteria.hashCode());
 			result = prime * result + (delete ? 1231 : 1237);
 			result = prime * result + ((deliver == null) ? 0 : deliver.hashCode());
@@ -80,6 +85,8 @@ public class MailFilter {
 				return false;
 			Rule other = (Rule) obj;
 			if (active != other.active)
+				return false;
+			if (stop != other.stop)
 				return false;
 			if (criteria == null) {
 				if (other.criteria != null)

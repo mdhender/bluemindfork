@@ -22,7 +22,9 @@ public final class MailFilterRuleColumns {
 			.col("deliver") //
 			.col("discard") //
 			.col("row_idx") //
-			.col("active");
+			.col("active") //
+			.col("stop")//
+			.col("name");
 
 	public static Creator<MailFilter.Rule> creator() {
 		return new Creator<MailFilter.Rule>() {
@@ -51,7 +53,8 @@ public final class MailFilterRuleColumns {
 				statement.setBoolean(index++, value.discard);
 				statement.setInt(index++, currentRow);
 				statement.setBoolean(index++, value.active);
-
+				statement.setBoolean(index++, value.stop);
+				statement.setString(index++, value.name);
 				statement.setLong(index++, itemId);
 				return index;
 			}
@@ -84,6 +87,8 @@ public final class MailFilterRuleColumns {
 				value.discard = rs.getBoolean(index++);
 				index++; // discard row_index
 				value.active = rs.getBoolean(index++);
+				value.stop = rs.getBoolean(index++);
+				value.name = rs.getString(index++);
 				return index;
 			}
 
