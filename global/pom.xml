@@ -413,7 +413,7 @@
 					<artifactId>gwt-maven-plugin</artifactId>
 					<version>${gwt-version}</version>
 					<configuration>
-						<extraJvmArgs>-Xmx1024M</extraJvmArgs>
+						<extraJvmArgs>-Xmx768M</extraJvmArgs>
 					</configuration>
 					<executions>
 						<execution>
@@ -423,11 +423,9 @@
 							<configuration>
 								<draftCompile>false</draftCompile>
 								<inplace>true</inplace>
-								<force>true</force>
 								<generateJsInteropExports>true</generateJsInteropExports>
 								<warSourceDirectory>web-resources</warSourceDirectory>
 								<collapse-all-properties/>
-								<!--<incremental>true</incremental>-->
 							</configuration>
 						</execution>
 					</executions>
