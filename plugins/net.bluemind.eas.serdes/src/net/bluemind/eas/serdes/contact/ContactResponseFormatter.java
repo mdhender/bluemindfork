@@ -18,21 +18,27 @@
  */
 package net.bluemind.eas.serdes.contact;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+
 import net.bluemind.eas.dto.NamespaceMapping;
 import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.contact.ContactResponse;
-import net.bluemind.eas.serdes.FastDateFormat;
 import net.bluemind.eas.serdes.IEasFragmentFormatter;
 import net.bluemind.eas.serdes.IResponseBuilder;
 
 public class ContactResponseFormatter implements IEasFragmentFormatter<ContactResponse> {
+	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSS'Z'");
 
 	@Override
 	public void append(IResponseBuilder b, double protocolVersion, ContactResponse contact,
 			Callback<IResponseBuilder> cb) {
 
 		if (contact.anniversary != null) {
-			b.text(NamespaceMapping.Contacts, "Anniversary", FastDateFormat.format(contact.anniversary));
+			b.text(NamespaceMapping.Contacts, "Anniversary", formatDate(contact.anniversary));
 		}
 
 		if (notEmpty(contact.assistantName)) {
@@ -42,7 +48,7 @@ public class ContactResponseFormatter implements IEasFragmentFormatter<ContactRe
 		// AssistantPhoneNumber
 
 		if (contact.birthday != null) {
-			b.text(NamespaceMapping.Contacts, "Birthday", FastDateFormat.format(contact.birthday));
+			b.text(NamespaceMapping.Contacts, "Birthday", formatDate(contact.birthday));
 		}
 
 		if (notEmpty(contact.business2PhoneNumber)) {
@@ -246,6 +252,12 @@ public class ContactResponseFormatter implements IEasFragmentFormatter<ContactRe
 		// Contacts2:MMS
 
 		cb.onResult(b);
+	}
+
+	private String formatDate(Date date) {
+		Instant instant = Instant.ofEpochMilli(date.getTime());
+		LocalDateTime localDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+		return dtf.format(localDateTime);
 	}
 
 	private boolean notEmpty(String s) {
