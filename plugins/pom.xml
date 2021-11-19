@@ -66,7 +66,6 @@
 		<module>net.bluemind.lib.jutf7</module>
 		<module>net.bluemind.lib.ldap.tests</module>
 		<module>net.bluemind.lib.ldap</module>
-		<module>net.bluemind.lib.neko.tests</module>
 		<module>net.bluemind.lib.quartz.tests</module>
 		<module>net.bluemind.lib.ristretto</module>
 		<module>net.bluemind.lib.vertx</module>
@@ -80,8 +79,6 @@
 		<module>net.bluemind.milter</module>
 		<module>net.bluemind.mime4j.common</module>
 		<module>net.bluemind.mime4j.bodies</module>
-		<module>net.bluemind.neko.common.tests</module>
-		<module>net.bluemind.neko.common</module>
 		<module>net.bluemind.node.client.build</module>
 		<module>net.bluemind.node.client.tests</module>
 		<module>net.bluemind.node.client</module>

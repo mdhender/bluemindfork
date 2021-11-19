@@ -9,7 +9,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eas,
  net.bluemind.utils,
  com.google.guava;bundle-version="19.0.0",
- com.robbypond.boilerpipe,
  org.jsoup
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

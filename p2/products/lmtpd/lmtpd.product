@@ -99,7 +99,6 @@
       <plugin id="net.bluemind.metrics.registry"/>
       <plugin id="net.bluemind.metrics.transport"/>
       <plugin id="net.bluemind.mime4j.common"/>
-      <plugin id="net.bluemind.neko.common"/>
       <plugin id="net.bluemind.network.topology"/>
       <plugin id="net.bluemind.network.topology.consumer"/>
       <plugin id="net.bluemind.node.api"/>
@@ -123,7 +122,6 @@
       <plugin id="net.bluemind.vertx.core.patch" fragment="true"/>
       <plugin id="net.bluemind.videoconferencing.teams"/>
       <plugin id="net.java.dev.jna"/>
-      <plugin id="net.sourceforge.nekohtml"/>
       <plugin id="org.apache.commons.codec"/>
       <plugin id="org.apache.commons.lang"/>
       <plugin id="org.apache.james.apache-mime4j-core"/>

@@ -291,7 +291,6 @@
    <bundle id="net.bluemind.milter" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mime4j.common" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mvp.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.neko.common" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.node.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.node.client" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.node.client.build" version="1.0.0"/>

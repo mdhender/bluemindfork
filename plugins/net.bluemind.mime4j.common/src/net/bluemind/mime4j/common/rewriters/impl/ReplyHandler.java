@@ -21,8 +21,6 @@ package net.bluemind.mime4j.common.rewriters.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,11 +29,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.james.mime4j.dom.Body;
 import org.apache.james.mime4j.dom.Entity;
@@ -55,15 +48,12 @@ import org.apache.james.mime4j.message.MultipartImpl;
 import org.apache.james.mime4j.stream.Field;
 import org.apache.james.mime4j.stream.RawField;
 import org.apache.james.mime4j.util.CharsetUtil;
-import org.cyberneko.html.parsers.DOMFragmentParser;
-import org.cyberneko.html.parsers.DOMParser;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.DocumentFragment;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import net.bluemind.mime4j.common.AddressableEntity;
 import net.bluemind.mime4j.common.Mime4JHelper;
@@ -337,55 +327,24 @@ public class ReplyHandler extends DontTouchHandler {
 		if (parsedBodyHtml) {
 			if ("text/html".equals(e.getBody().getParent().getMimeType())) {
 
-				DOMParser p = new DOMParser();
 				try {
-					p.parse(new InputSource(new StringReader(reply)));
-					Document doc = p.getDocument();
-					NodeList blockquotes = doc.getElementsByTagName("blockquote");
-
-					// Android
-					if (blockquotes.getLength() > 0) {
-						Node blockquote = blockquotes.item(0);
-
-						DocumentFragment fragment = doc.createDocumentFragment();
-						DOMFragmentParser parser = new DOMFragmentParser();
-						parser.parse(new InputSource(new StringReader(quotePart)), fragment);
-
-						blockquote.insertBefore(fragment, blockquote.getFirstChild());
-
-						DOMSource domSource = new DOMSource(doc);
-						StringWriter writer = new StringWriter();
-						StreamResult result = new StreamResult(writer);
-						TransformerFactory tf = TransformerFactory.newInstance();
-						Transformer transformer = tf.newTransformer();
-						transformer.transform(domSource, result);
-
-						return writer.toString();
+					Document doc = Jsoup.parse(reply);
+					Elements blockquotes = doc.getElementsByTag("blockquote");
+					if (!blockquotes.isEmpty()) {
+						Element blockquote = blockquotes.get(0);
+						Element fragementBody = Jsoup.parseBodyFragment(quotePart).body();
+						blockquote.prependChild(fragementBody);
+						return doc.html();
 					}
 
-					// WP8
-					NodeList bodies = doc.getElementsByTagName("body");
-					if (bodies.getLength() > 0) {
-						Node body = bodies.item(0);
-
-						DocumentFragment fragment = doc.createDocumentFragment();
-						DOMFragmentParser parser = new DOMFragmentParser();
+					Elements bodies = doc.getElementsByTag("body");
+					if (!bodies.isEmpty()) {
+						Element body = bodies.get(0);
 						String blockquote = "<blockquote type=\"cite\" style=\"padding-left:5px; border-left:2px solid #1010ff; margin-left:5px\">"
 								+ quotePart + "</blockquote>";
-						parser.parse(new InputSource(new StringReader(blockquote)), fragment);
-
-						Node fra = doc.importNode(fragment, true);
-						body.appendChild(fra);
-
-						DOMSource domSource = new DOMSource(doc);
-						StringWriter writer = new StringWriter();
-						StreamResult result = new StreamResult(writer);
-						TransformerFactory tf = TransformerFactory.newInstance();
-						Transformer transformer = tf.newTransformer();
-						transformer.transform(domSource, result);
-
-						return writer.toString();
-
+						Element fragementBody = Jsoup.parseBodyFragment(blockquote).body();
+						body.appendChild(fragementBody);
+						return doc.html();
 					}
 
 					return reply

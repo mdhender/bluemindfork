@@ -70,7 +70,6 @@
       <plugin id="net.bluemind.user.api"/>
       <plugin id="net.bluemind.utils"/>
       <plugin id="net.bluemind.vertx.common"/>
-      <plugin id="net.sourceforge.nekohtml"/>
       <plugin id="org.apache.commons.codec"/>
       <plugin id="org.apache.commons.lang"/>
       <plugin id="org.apache.james.apache-mime4j-core"/>

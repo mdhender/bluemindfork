@@ -129,7 +129,6 @@
       <plugin id="net.bluemind.metrics.agent-api"/>
       <plugin id="net.bluemind.metrics.registry"/>
       <plugin id="net.bluemind.mime4j.common"/>
-      <plugin id="net.bluemind.neko.common"/>
       <plugin id="net.bluemind.network.topology"/>
       <plugin id="net.bluemind.network.topology.consumer"/>
       <plugin id="net.bluemind.network.utils"/>
@@ -151,7 +150,6 @@
       <plugin id="net.bluemind.vertx.common"/>
       <plugin id="net.freeutils.tnef"/>
       <plugin id="net.java.dev.jna"/>
-      <plugin id="net.sourceforge.nekohtml"/>
       <plugin id="org.aopalliance"/>
       <plugin id="org.apache.commons.codec"/>
       <plugin id="org.apache.commons.compress"/>

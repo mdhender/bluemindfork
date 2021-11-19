@@ -317,7 +317,6 @@
       <plugin id="net.bluemind.metrics.ui.role"/>
       <plugin id="net.bluemind.mime4j.bodies"/>
       <plugin id="net.bluemind.mime4j.common"/>
-      <plugin id="net.bluemind.neko.common"/>
       <plugin id="net.bluemind.network.topology"/>
       <plugin id="net.bluemind.network.topology.producer"/>
       <plugin id="net.bluemind.network.utils"/>
@@ -430,7 +429,6 @@
       <plugin id="net.bluemind.xmpp.coresession"/>
       <plugin id="net.java.dev.jna"/>
       <plugin id="net.sf.jtidy"/>
-      <plugin id="net.sourceforge.nekohtml"/>
       <plugin id="org.apache.batik.bridge"/>
       <plugin id="org.apache.batik.css"/>
       <plugin id="org.apache.batik.dom"/>

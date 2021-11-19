@@ -3,18 +3,13 @@ package net.bluemind.eas.data.formatter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
-import org.junit.Ignore;
 import org.junit.Test;
-import org.xml.sax.InputSource;
 
-import de.l3s.boilerpipe.extractors.CommonExtractors;
-import de.l3s.boilerpipe.sax.BoilerpipeSAXInput;
 import net.bluemind.utils.HtmlToPlainText;
 
 public class PlainBodyFormatterTest {
@@ -28,16 +23,6 @@ public class PlainBodyFormatterTest {
 		assertTrue(memory < 60);
 	}
 
-	@Ignore
-	@Test
-	public void testBoilerPipeWith1397043() throws Exception {
-		Path path = Paths.get("data/1397043.html");
-		double memory = convert(path,
-				html -> new BoilerpipeSAXInput(new InputSource(new StringReader(html))).getTextDocument(),
-				doc -> CommonExtractors.KEEP_EVERYTHING_EXTRACTOR.getText(doc));
-		assertTrue(memory > 7500);
-	}
-
 	@Test
 	public void testJsoupWith486328() throws Exception {
 		Path path = Paths.get("data/486328.html");
@@ -46,16 +31,6 @@ public class PlainBodyFormatterTest {
 				doc -> new HtmlToPlainText().getPlainText(doc));
 		assertTrue(memory < 40);
 
-	}
-
-	@Ignore
-	@Test
-	public void testBoilerPipeWith486328() throws Exception {
-		Path path = Paths.get("data/486328.html");
-		double memory = convert(path,
-				html -> new BoilerpipeSAXInput(new InputSource(new StringReader(html))).getTextDocument(),
-				doc -> CommonExtractors.KEEP_EVERYTHING_EXTRACTOR.getText(doc));
-		assertTrue(memory > 400);
 	}
 
 	@Test

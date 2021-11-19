@@ -8,7 +8,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.calendar.api;bundle-version="1.0.0",
  slf4j.api,
  net.bluemind.core.container.persistence,
- net.bluemind.neko.common,
  net.bluemind.core.context;bundle-version="1.0.0",
  net.bluemind.core.rest,
  net.bluemind.core.container.api,
