@@ -31,7 +31,7 @@ def main(repomd_baseurl, postgresql_version, rhel_version):
     root = ET.fromstring(primary_xmldata)
     for pkgname, varname in (
         ("postgresql%s" % postgresql_version, "PG"),
-        ("pg_repack%s" % postgresql_version, "PG_REPACK"),
+        ("pg_repack_%s" % postgresql_version, "PG_REPACK"),
         ("pg_qualstats_%s" % postgresql_version, "PG_QUALSTATS"),
         ("pg_stat_kcache_%s" % postgresql_version, "PG_STAT_KCACHE"),
         ("pg_track_settings%s" % postgresql_version, "PG_TRACK_SETTINGS"),

@@ -21,7 +21,7 @@ INFLUXDB="1.8.3.bm1~247d383a3"
 # PostgreSQL
 # Use EXTDEPS-getlastpg.sh if you need to modify (requires python3 + requests for RHEL)
 # Example: ./EXTDEPS-getlastpg.sh 12 | sort # for PostgreSQL 12
-BMPOSTGRESQL="12.9-bluemind168"
+BMPOSTGRESQL="12.9-bluemind169"
 
 # Override from EXTDEPS-getlastpg
 PG_XENIAL="12.7-1.pgdg16.04+1"
@@ -80,7 +80,7 @@ PG_HYPOPG_BULLSEYE="1.3.1-1.pgdg110+1"
 PG_POWA_BULLSEYE="4.1.2-3.pgdg110+1"
 PGKEYRING="2018.2"
 PG_RHEL7="12.9-1PGDG.rhel7"
-PG_REPACK_RHEL7="1.4.6-1.rhel7"
+PG_REPACK_RHEL7="1.4.7-1.rhel7"
 PG_QUALSTATS_RHEL7="2.0.3-1.rhel7"
 PG_STAT_KCACHE_RHEL7="2.2.0-1.rhel7"
 PG_TRACK_SETTINGS_RHEL7="2.0.1-1.rhel7"
@@ -89,7 +89,7 @@ PG_HYPOPG_RHEL7="1.3.0-1.rhel7"
 PG_POWA_WEB_RHEL7="4.1.2-3.rhel7"
 PG_POWA_RHEL7="4.1.2-3.rhel7"
 PG_RHEL8="12.9-1PGDG.rhel8"
-PG_REPACK_RHEL8="1.4.6-1.rhel8"
+PG_REPACK_RHEL8="1.4.7-1.rhel8"
 PG_QUALSTATS_RHEL8="2.0.3-1.rhel8"
 PG_STAT_KCACHE_RHEL8="2.2.0-1.rhel8"
 PG_TRACK_SETTINGS_RHEL8="2.0.1-1.rhel8"
@@ -101,7 +101,7 @@ PG_POWA_RHEL8="4.1.2-3.rhel8"
 
 # Additional PostgreSQL extensions
 PG_REPACK_DEB="postgresql-12-repack"
-PG_REPACK_RPM="pg_repack12"
+PG_REPACK_RPM="pg_repack_12"
 PG_QUALSTATS_DEB="postgresql-12-pg-qualstats"
 PG_QUALSTATS_RPM="pg_qualstats_12"
 PG_STAT_KCACHE_DEB="postgresql-12-pg-stat-kcache"
