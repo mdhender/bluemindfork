@@ -167,12 +167,17 @@
     "common.container_type.addressbook": "carnet d'adresses | carnets d'adresses",
     "common.container_type_with_definite_article.addressbook": "le carnet d'adresses",
     "common.container_type_with_indefinite_article.addressbook": "un carnet d'adresses",
+    "common.container_type.todolist": "liste de tâches | listes de tâches",
+    "common.container_type_with_definite_article.todolist": "la liste de tâches",
+    "common.container_type_with_indefinite_article.todolist": "une liste de tâches",
     "common.subscription": "Abonnement",
     "common.subscribe": "S'abonner",
     "common.unsubscribe": "Se désabonner",
     "common.product": " - BlueMind",
     "common.my_address_books": "Mes carnets d'adresses",
     "common.other_address_books": "Autres carnets d'adresses",
+    "common.my_todo_lists": "Mes listes de tâches",
+    "common.other_todo_lists": "Autres listes de tâches",
     "common.close": "Fermer",
     "common.got_it": "J'ai compris"
 }

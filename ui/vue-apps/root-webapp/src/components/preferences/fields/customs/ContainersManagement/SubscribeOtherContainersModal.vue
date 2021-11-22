@@ -59,7 +59,6 @@
 </template>
 
 <script>
-import { containerToSubscription } from "./container";
 import { inject } from "@bluemind/inject";
 import { BmFormCheckbox, BmFormInput, BmModal, BmPagination, BmSpinner, BmTable } from "@bluemind/styleguide";
 import { mapActions } from "vuex";
@@ -127,7 +126,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("preferences", ["SET_SUBSCRIPTIONS"]),
+        ...mapActions("preferences", ["SUBSCRIBE_TO_CONTAINERS"]),
         async open() {
             this.loadingStatus = "LOADING";
             this.show = true;
@@ -165,12 +164,9 @@ export default {
         },
 
         async subscribe() {
-            if (this.selected.length > 0) {
-                const containers = this.selected.map(container => ({ ...container, offlineSync: true }));
-                const subscriptions = containers.map(containerToSubscription);
-                await this.SET_SUBSCRIPTIONS(subscriptions);
-                this.$emit("subscribe", containers);
-            }
+            const containers = this.selected.map(container => ({ ...container, offlineSync: true }));
+            await this.SUBSCRIBE_TO_CONTAINERS(containers);
+            this.$emit("subscribe", containers);
         }
     }
 };

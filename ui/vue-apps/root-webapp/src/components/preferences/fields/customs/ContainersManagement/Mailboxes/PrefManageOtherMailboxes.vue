@@ -2,7 +2,7 @@
     <containers-management
         :containers="otherMailboxesContainers"
         :container-type="containerType"
-        has-share-column
+        share-column
         @offline-sync-changed="UPDATE_OTHER_MAILBOX_CONTAINER"
         @remove="REMOVE_OTHER_MAILBOX_CONTAINER"
         @subscribe="ADD_OTHER_MAILBOXES"

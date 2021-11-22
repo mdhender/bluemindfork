@@ -12,31 +12,24 @@
         @ok="save"
     >
         <div class="col-2"><bm-icon :icon="containerIcon" size="3x" class="mt-3" /></div>
-        <bm-form class="col-10">
-            <bm-form-group
-                :label="$t('common.label')"
-                label-for="label"
-                :description="labelDesc()"
-                :invalid-feedback="$t('preferences.create_container.name_already_exists')"
-                :state="isLabelValid"
-            >
+        <bm-form class="col-10" @submit.prevent="save">
+            <bm-form-group :label="$t('common.label')" label-for="label" :description="labelDesc()">
                 <bm-form-input
                     id="label"
-                    v-model.trim="container.name"
+                    v-model="container.name"
                     type="text"
                     required
                     :disabled="isDefault"
-                    :state="container.name ? isLabelValid : null"
+                    autofocus
                 />
             </bm-form-group>
-            <template v-if="isCalendarType">
-                <create-or-update-calendar
-                    v-model="container"
-                    :is-default="isDefault"
-                    :is-new="isNew"
-                    @is-valid="isValid => (isCalValid = isValid)"
-                />
-            </template>
+            <create-or-update-calendar
+                v-if="isCalendarType"
+                v-model="container"
+                :is-default="isDefault"
+                :is-new="isNew"
+                @is-valid="isValid => (isCalValid = isValid)"
+            />
         </bm-form>
     </bm-modal>
 </template>
@@ -106,14 +99,16 @@ export default {
             } else {
                 this.$emit("update", this.container);
             }
+            this.show = false;
         },
 
         modalTitle() {
             if (this.container.type) {
-                const containerLabel = this.$t("common.container_type_with_indefinite_article." + this.container.type);
                 return this.isNew
-                    ? this.$t("preferences.create_container.button", { type: containerLabel })
-                    : this.$t("preferences.update_container.button", { type: containerLabel });
+                    ? this.$t("preferences.create_container." + this.container.type + ".button")
+                    : this.$t("preferences.update_container." + this.container.type + ".button", {
+                          name: this.container.name
+                      });
             }
         },
         labelDesc() {

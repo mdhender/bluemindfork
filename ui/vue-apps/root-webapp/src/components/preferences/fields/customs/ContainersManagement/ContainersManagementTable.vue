@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import { containerToSubscription, ContainerType, isDefault, isManaged } from "./container";
+import { ContainerType, isDefault, isManaged } from "./container";
 import ManageMyContainerMenu from "./ManageMyContainerMenu";
 import { ERROR, LOADING, SUCCESS } from "@bluemind/alert.store";
 import { inject } from "@bluemind/inject";
@@ -78,7 +78,7 @@ export default {
             type: Boolean,
             required: true
         },
-        hasShareColumn: {
+        shareColumn: {
             type: Boolean,
             required: true
         },
@@ -116,7 +116,7 @@ export default {
             if (!this.manageMine) {
                 fields.splice(1, 0, { key: "ownerDisplayname", headerTitle: this.$t("common.shared_by"), label: "" });
             }
-            if (this.hasShareColumn) {
+            if (this.shareColumn) {
                 fields.splice(2, 0, { key: "share", label: this.$t("common.sharing") });
             }
             if (this.manageMine) {
@@ -131,7 +131,7 @@ export default {
     },
     methods: {
         ...mapActions("alert", { ERROR, LOADING, SUCCESS }),
-        ...mapActions("preferences", ["SET_SUBSCRIPTIONS", "REMOVE_SUBSCRIPTIONS"]),
+        ...mapActions("preferences", ["SUBSCRIBE_TO_CONTAINERS", "REMOVE_SUBSCRIPTIONS"]),
         isSubscribed(container) {
             return this.subscriptions.findIndex(sub => sub.value.containerUid === container.uid) !== -1;
         },
@@ -195,8 +195,7 @@ export default {
         },
         async toggleOfflineSync(container) {
             const updatedContainer = { ...container, offlineSync: !container.offlineSync };
-            const subscription = containerToSubscription(updatedContainer);
-            await this.SET_SUBSCRIPTIONS([subscription]);
+            await this.SUBSCRIBE_TO_CONTAINERS([updatedContainer]);
             this.$emit("offline-sync-changed", updatedContainer);
         },
         async toggleSubscription(container) {
@@ -210,8 +209,7 @@ export default {
                 }
             } else {
                 const updatedContainer = { ...container, offlineSync: true };
-                const subscription = containerToSubscription(updatedContainer);
-                await this.SET_SUBSCRIPTIONS([subscription]);
+                await this.SUBSCRIBE_TO_CONTAINERS([updatedContainer]);
                 this.$emit("offline-sync-changed", updatedContainer);
             }
         }

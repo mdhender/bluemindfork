@@ -24,6 +24,14 @@ import {
     mailboxAclToVerb,
     verbToMailboxAcl
 } from "./MailboxShareHelper";
+import {
+    defaultTodoListDirEntryAcl,
+    defaultTodoListDomainAcl,
+    getTodoListOptions,
+    TodoListAcl,
+    todoListAclToVerb,
+    verbToTodoListAcl
+} from "./TodoListShareHelper";
 
 export async function loadAcl(container, isMyDefaultCalendar) {
     let domainAcl = -1,
@@ -60,6 +68,8 @@ export function defaultDirEntryAcl(containerType) {
             return defaultCalendarDirEntryAcl();
         case ContainerType.MAILBOX:
             return defaultMailboxDirEntryAcl();
+        case ContainerType.TODOLIST:
+            return defaultTodoListDirEntryAcl();
     }
 }
 
@@ -71,6 +81,8 @@ export function getOptions(containerType, count, i18n, isMyDefaultCalendar) {
             return getCalendarOptions(i18n, count, isMyDefaultCalendar);
         case ContainerType.MAILBOX:
             return getMailboxOptions(i18n);
+        case ContainerType.TODOLIST:
+            return getTodoListOptions(i18n, count);
     }
 }
 
@@ -82,6 +94,8 @@ export function aclToVerb(containerType, acl, isFreebusy = false) {
             return calendarAclToVerb(acl, isFreebusy);
         case ContainerType.MAILBOX:
             return mailboxAclToVerb(acl);
+        case ContainerType.TODOLIST:
+            return todoListAclToVerb(acl);
     }
 }
 
@@ -93,6 +107,8 @@ export function noRightAcl(containerType) {
             return CalendarAcl.CANT_INVITE_ME;
         case ContainerType.MAILBOX:
             return MailboxAcl.HAS_NO_RIGHTS;
+        case ContainerType.TODOLIST:
+            return TodoListAcl.HAS_NO_RIGHTS;
     }
 }
 
@@ -109,6 +125,8 @@ function verbToAcl(verb, containerType) {
             return verbToCalendarAcl(verb);
         case ContainerType.MAILBOX:
             return verbToMailboxAcl(verb);
+        case ContainerType.TODOLIST:
+            return verbToTodoListAcl(verb);
     }
 }
 
@@ -118,6 +136,8 @@ function defaultDomainAcl(containerType) {
             return defaultAddressBookDomainAcl();
         case ContainerType.CALENDAR:
             return defaultCalendarDomainAcl();
+        case ContainerType.TODOLIST:
+            return defaultTodoListDomainAcl();
     }
 }
 

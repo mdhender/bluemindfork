@@ -18,7 +18,7 @@
                 :container-type="containerType"
                 :filtered="filtered"
                 :manage-mine="manageMine"
-                :has-share-column="hasShareColumn"
+                :share-column="showShareColumn"
                 :per-page="perPage"
                 :current-page="currentPage"
                 @open-import-modal="openImportModal"
@@ -97,7 +97,7 @@ export default {
             type: Boolean,
             default: false
         },
-        hasShareColumn: {
+        shareColumn: {
             type: Boolean,
             default: false
         }
@@ -112,9 +112,7 @@ export default {
             });
         },
         createContainerLabel() {
-            return this.$t("preferences.create_container.button", {
-                type: this.$t("common.container_type_with_indefinite_article." + this.containerType)
-            });
+            return this.$t("preferences.create_container." + this.containerType + ".button");
         },
         filtered() {
             const realPattern = this.pattern.toLowerCase();
@@ -123,6 +121,9 @@ export default {
                     container.name.toLowerCase().includes(realPattern) ||
                     container.ownerDisplayname.toLowerCase().includes(realPattern)
             );
+        },
+        showShareColumn() {
+            return this.shareColumn && this.containers.some(this.isManaged);
         },
         totalRows() {
             return this.filtered.length;

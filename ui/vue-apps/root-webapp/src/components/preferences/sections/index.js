@@ -1,10 +1,11 @@
 import { mapExtensions } from "@bluemind/extensions";
+import { merge, reactive, sanitize } from "./builder";
 import account from "./account";
 import calendar from "./calendar";
-import contact from "./contact";
-import mail from "./mail";
+import contacts from "./contacts";
 import downloads from "./downloads";
-import { merge, reactive, sanitize } from "./builder";
+import mail from "./mail";
+import todolists from "./todolists";
 
 export default function (vm) {
     let preferences = defaultSections(vm);
@@ -16,9 +17,10 @@ export default function (vm) {
 function defaultSections(vm) {
     let preferences = merge([], account(vm.$i18n));
     preferences = merge(preferences, calendar(vm.$i18n));
+    preferences = merge(preferences, downloads(vm.$i18n));
     preferences = merge(preferences, mail(vm.$i18n));
-    preferences = merge(preferences, contact(vm.$i18n));
-    return merge(preferences, downloads(vm.$i18n));
+    preferences = merge(preferences, contacts(vm.$i18n));
+    return merge(preferences, todolists(vm.$i18n));
 }
 
 function extendedPreferences() {

@@ -44,4 +44,5 @@ Require-Bundle: net.bluemind.addressbook.api,
  net.bluemind.system.api,
  net.bluemind.system.ldap.importation.api,
  net.bluemind.tag.api,
+ net.bluemind.todolist.api,
  net.bluemind.videoconferencing.saas.api

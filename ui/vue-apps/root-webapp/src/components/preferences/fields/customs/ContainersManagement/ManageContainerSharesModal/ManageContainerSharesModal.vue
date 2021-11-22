@@ -44,9 +44,13 @@ export default {
             if (this.isMyMailbox) {
                 return this.$t("preferences.mail.my_mailbox.modal_title");
             }
+            const share = this.isOwnerMyself
+                ? ""
+                : "(" + this.$t("common.shared_by", { name: this.container.ownerDisplayname }) + ")";
             return this.$t("preferences.manage_shares.title", {
                 name: this.container.name,
-                type: this.$t("common.container_type_with_definite_article." + this.container.type)
+                type: this.$t("common.container_type_with_definite_article." + this.container.type),
+                share
             });
         },
         displayFooter() {

@@ -18,11 +18,12 @@ import {
     ContainerSyncClient,
     OwnerSubscriptionsClient
 } from "@bluemind/core.container.api";
-import { TagsClient } from "@bluemind/tag.api";
 import { TaskClient } from "@bluemind/core.task.api";
 import { DirectoryClient } from "@bluemind/directory.api";
 import { FirstDayOfWeek } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
+import { TagsClient } from "@bluemind/tag.api";
+import { TodoListClient, TodoListsClient, VTodoClient } from "@bluemind/todolist.api";
 import { UserClient, UserMailIdentitiesClient, UserSubscriptionClient } from "@bluemind/user.api";
 import VueBus from "@bluemind/vue-bus";
 import { MailboxesClientProxy } from "../api/MailboxesClientProxy";
@@ -129,6 +130,16 @@ export default function (userSession) {
     });
 
     injector.register({
+        provide: "TodoListPersistence",
+        factory: taskId => new TodoListClient(userSession.sid, taskId)
+    });
+
+    injector.register({
+        provide: "TodoListsPersistence",
+        factory: taskId => new TodoListsClient(userSession.sid, taskId)
+    });
+
+    injector.register({
         provide: "UserSubscriptionPersistence",
         factory: () => new UserSubscriptionClient(userSession.sid, userSession.domain)
     });
@@ -156,5 +167,10 @@ export default function (userSession) {
     injector.register({
         provide: "VEventPersistence",
         factory: containerUid => new VEventClient(userSession.sid, containerUid)
+    });
+
+    injector.register({
+        provide: "VTodoPersistence",
+        factory: containerUid => new VTodoClient(userSession.sid, containerUid)
     });
 }

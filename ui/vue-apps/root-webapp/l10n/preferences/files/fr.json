@@ -67,7 +67,7 @@
     "preferences.telephony.forward_calls": "Transférer les appels reçus au",
     "preferences.telephony.invalid_phone_number": "Veuillez entrer un numéro de téléphone valide",
 
-    "preferences.manage_shares.title": "Gérer les partages pour {type} \"{name}\"",
+    "preferences.manage_shares.title": "Gérer les partages pour {type} \"{name}\" {share}",
     "preferences.manage_shares.no_acl_set": "Aucun partage n'est défini pour {type} \"{name}\"",
     "preferences.manage_shares.no_external_share_set": "Aucun partage en dehors de mon organisation n'est défini pour {type} \"{name}\"",
     "preferences.manage_shares.has_no_rights": "N'a aucun droit | N'ont aucun droit",
@@ -81,24 +81,32 @@
     "preferences.add_containers.calendar.nothing_to_add": "Vous n'avez pas le droit de lecture sur d'autres calendriers. Contactez votre administrateur pour plus d'informations.",
     "preferences.add_containers.mailboxacl.nothing_to_add": "Vous n'avez pas le droit de lecture sur d'autres boîtes aux lettres. Contactez votre administrateur pour plus d'informations.",
     "preferences.add_containers.addressbook.nothing_to_add": "Vous n'avez pas le droit de lecture sur d'autres carnets d'adresses. Contactez votre administrateur pour plus d'informations.",
+    "preferences.add_containers.todolist.nothing_to_add": "Vous n'avez pas le droit de lecture sur d'autres liste de tâches. Contactez votre administrateur pour plus d'informations.",
 
     "preferences.display_containers.calendar.empty_list": "Vous n'êtes pas encore abonné, et vous ne gérez aucun autre calendrier.",
     "preferences.display_containers.mailboxacl.empty_list": "Vous n'êtes pas encore abonné, et vous ne gérez aucune autre boîte aux lettres.",
     "preferences.display_containers.addressbook.empty_list": "Vous n'êtes pas encore abonné, et vous ne gérez aucun autre carnet d'adresses.",
+    "preferences.display_containers.todolist.empty_list": "Vous n'êtes pas encore abonné, et vous ne gérez aucune autre liste de tâches.",
     "preferences.display_containers.default": "{type} par défaut",
     
-    "preferences.display_containers.import_file.calendar": "Déposer votre fichier ICS",
-    "preferences.display_containers.import_file.addressbook": "Déposer votre fichier vCard",
+    "preferences.display_containers.import_file.calendar": "Déposer un fichier ICS",
+    "preferences.display_containers.import_file.addressbook": "Déposer un fichier vCard",
+    "preferences.display_containers.import_file.todolist": "Déposer un fichier ICS",
 
     "preferences.reset_containers_data.calendar": "Toutes les données de ce calendrier seront supprimées.",
     "preferences.reset_containers_data.addressbook": "Toutes les données de ce carnet d'adresses seront supprimées.",
+    "preferences.reset_containers_data.todolist": "Toutes les données de cette liste de tâches seront supprimées.",
 
     "preferences.delete_containers": "Supprimer définitivement {type} ?",
 
     "preferences.create_container.label.description": "Le label, tel qu'il s'affichera dans votre {type}",
     "preferences.create_container.name_already_exists": "Ce label est déjà utilisé",
-    "preferences.create_container.button": "Créer {type}",
-    "preferences.update_container.button": "Modifier {type} \"{name}\"",
+    "preferences.create_container.calendar.button": "Créer @:common.container_type_with_indefinite_article.calendar",
+    "preferences.create_container.addressbook.button": "Créer @:common.container_type_with_indefinite_article.addressbook",
+    "preferences.create_container.todolist.button": "Créer @:common.container_type_with_indefinite_article.todolist",
+    "preferences.update_container.calendar.button": "Modifier @:common.container_type_with_definite_article.calendar \"{name}\"",
+    "preferences.update_container.addressbook.button": "Modifier @:common.container_type_with_definite_article.addressbook \"{name}\"",
+    "preferences.update_container.todolist.button": "Modifier @:common.container_type_with_definite_article.todolist \"{name}\"",
 
     "preferences.mail.my_mailbox.switch_offline_sync": "Activer la messagerie hors-ligne sur ma boîte aux lettres.",
     "preferences.mail.my_mailbox.modal_title": "Gérer les partages pour ma boîte aux lettres",
@@ -194,5 +202,9 @@
 
     "preferences.contacts.can_read_my_addressbook": "Peut voir ce carnet d'adresses | Peuvent voir ce carnet d'adresses",
     "preferences.contacts.can_edit_my_addressbook": "Peut modifier mes contacts | Peuvent modifier mes contacts",
-    "preferences.contacts.can_edit_my_addressbook_and_manage_shares": "Peut modifier mes contacts et gérer mes partages | Peuvent modifier mes contacts et gérer mes partages"
+    "preferences.contacts.can_edit_my_addressbook_and_manage_shares": "Peut modifier mes contacts et gérer mes partages | Peuvent modifier mes contacts et gérer mes partages",
+
+    "preferences.tasks.can_read_my_todolist": "Peut lire ma liste de tâches | Peuvent lire ma liste de tâches",
+    "preferences.tasks.can_edit_my_todolist": "Peut modifier ma liste de tâches | Peuvent modifier ma liste de tâches",
+    "preferences.tasks.can_edit_my_todolist_and_manage_shares": "Peut modifier ma liste de tâches et gérer mes partages | Peuvent modifier ma liste de tâches et gérer mes partages"
 }

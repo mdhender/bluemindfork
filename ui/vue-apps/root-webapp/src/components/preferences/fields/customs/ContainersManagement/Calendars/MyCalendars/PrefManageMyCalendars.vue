@@ -19,7 +19,7 @@ import { mapActions, mapMutations, mapState } from "vuex";
 
 import { inject } from "@bluemind/inject";
 
-import { containerToCalendarDescriptor, containerToSubscription, ContainerType } from "../../container";
+import { containerToCalendarDescriptor, ContainerType } from "../../container";
 import BmCalendarItem from "../BmCalendarItem";
 import ContainersManagement from "../../ContainersManagement";
 
@@ -33,7 +33,7 @@ export default {
         ...mapState("preferences", ["myCalendars"])
     },
     methods: {
-        ...mapActions("preferences", ["SET_SUBSCRIPTIONS"]),
+        ...mapActions("preferences", ["SUBSCRIBE_TO_CONTAINERS"]),
         ...mapMutations("preferences", [
             "ADD_PERSONAL_CALENDAR",
             "REMOVE_PERSONAL_CALENDAR",
@@ -56,9 +56,7 @@ export default {
                 });
             }
             this.ADD_PERSONAL_CALENDAR(container);
-
-            const subscription = containerToSubscription(container);
-            this.SET_SUBSCRIPTIONS([subscription]);
+            this.SUBSCRIBE_TO_CONTAINERS([container]);
         },
         async update(container) {
             const calendarDescriptor = containerToCalendarDescriptor(container);

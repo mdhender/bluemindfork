@@ -15,18 +15,12 @@
             centered
             @ok="generateAPIKey"
         >
-            <bm-form class="mt-4">
+            <bm-form class="mt-4" @submit.prevent="generateAndClose">
                 <bm-form-group
                     :label="$t('preferences.security.api_key.generate.modal.project_label')"
                     label-for="project-label"
                 >
-                    <bm-form-input
-                        id="project-label"
-                        ref="project-label-input"
-                        v-model="projectLabel"
-                        autofocus
-                        @keypress.prevent.enter="generateAndClose"
-                    />
+                    <bm-form-input id="project-label" ref="project-label-input" v-model="projectLabel" autofocus />
                 </bm-form-group>
             </bm-form>
         </bm-modal>

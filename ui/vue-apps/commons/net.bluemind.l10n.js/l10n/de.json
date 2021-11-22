@@ -167,12 +167,17 @@
     "common.container_type.addressbook": "Adressbuch | Adressbücher",
     "common.container_type_with_definite_article.addressbook": "das Adressbuch",
     "common.container_type_with_indefinite_article.addressbook": "ein Adressbuch",
+    "common.container_type.todolist": "Todoliste | Todolisten",
+    "common.container_type_with_definite_article.todolist": "die Todoliste",
+    "common.container_type_with_indefinite_article.todolist": "eine Todoliste",
     "common.subscription": "Subskription",
     "common.subscribe": "Abonnieren",
     "common.unsubscribe": "De-Abonnieren",
     "common.product": " - BlueMind",
     "common.my_address_books": "Meine anderen Adressbücher",
     "common.other_address_books": "Andere Adressbücher",
+    "common.my_todo_lists": "Meine Todolisten",
+    "common.other_todo_lists": "Weitere Todolisten",
     "common.close": "Schliessen",
     "common.got_it": "I got it"
 }

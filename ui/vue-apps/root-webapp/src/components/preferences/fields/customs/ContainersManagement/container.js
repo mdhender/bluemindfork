@@ -3,9 +3,10 @@ import { inject } from "@bluemind/inject";
 import { MimeType } from "@bluemind/email";
 
 export const ContainerType = {
+    ADDRESSBOOK: "addressbook",
     CALENDAR: "calendar",
     MAILBOX: "mailboxacl",
-    ADDRESSBOOK: "addressbook"
+    TODOLIST: "todolist"
 };
 
 export function containerToSubscription({ uid, name, offlineSync }) {
@@ -53,6 +54,10 @@ export function containerToAddressBookDescriptor({ name, settings }) {
     };
 }
 
+export function containerToModifiableDescriptor({ defaultContainer, name }) {
+    return { name, defaultContainer, deleted: false };
+}
+
 export function matchingIcon(containerType) {
     switch (containerType) {
         case ContainerType.CALENDAR:
@@ -61,11 +66,14 @@ export function matchingIcon(containerType) {
             return "user-enveloppe";
         case ContainerType.ADDRESSBOOK:
             return "addressbook";
+        case ContainerType.TODOLIST:
+            return "list";
     }
 }
 
 export function matchingFileTypeIcon(containerType) {
     switch (containerType) {
+        case ContainerType.TODOLIST:
         case ContainerType.CALENDAR:
             return "file-type-ics";
         case ContainerType.ADDRESSBOOK:
@@ -77,6 +85,7 @@ export function matchingFileTypeIcon(containerType) {
 
 export function allowedFileTypes(containerType) {
     switch (containerType) {
+        case ContainerType.TODOLIST:
         case ContainerType.CALENDAR:
             return MimeType.TEXT_CALENDAR || MimeType.ICS || MimeType.TEXT_PLAIN;
         case ContainerType.ADDRESSBOOK:
@@ -91,11 +100,14 @@ export async function importFileRequest(container, file, uploadCanceller) {
     } else if (container.type === ContainerType.ADDRESSBOOK) {
         const encoded = await file.text().then(res => JSON.stringify(res));
         return inject("VCardServicePersistence", container.uid).importCards(encoded, uploadCanceller);
+    } else if (container.type === ContainerType.TODOLIST) {
+        const encoded = await file.text().then(res => JSON.stringify(res));
+        return inject("VTodoPersistence", container.uid).importIcs(encoded, uploadCanceller);
     }
 }
 
 export function isDefault(containerUid) {
-    const prefixes = ["calendar:Default:", "book:Contacts_", "book:CollectedContacts_"];
+    const prefixes = ["calendar:Default:", "book:Contacts_", "book:CollectedContacts_", "todolist:default_"];
     return prefixes.some(prefix => containerUid.startsWith(prefix));
 }
 

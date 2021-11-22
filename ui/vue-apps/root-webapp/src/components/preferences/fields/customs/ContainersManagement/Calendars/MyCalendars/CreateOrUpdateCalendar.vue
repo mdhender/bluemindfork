@@ -2,7 +2,7 @@
     <div>
         <bm-form-group label-for="calendar-type" :label="$t('preferences.calendar.my_calendars.type')">
             <bm-form-select
-                :value="value.settings.type"
+                :value="value.settings.type || 'internal'"
                 :options="possibleTypes"
                 class="w-100"
                 :disabled="isDefault"

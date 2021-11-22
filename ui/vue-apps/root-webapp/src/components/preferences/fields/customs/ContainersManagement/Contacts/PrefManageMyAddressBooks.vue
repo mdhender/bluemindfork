@@ -19,7 +19,7 @@ import { mapActions, mapMutations, mapState } from "vuex";
 
 import { inject } from "@bluemind/inject";
 
-import { containerToAddressBookDescriptor, containerToSubscription, ContainerType } from "../container";
+import { containerToAddressBookDescriptor, ContainerType } from "../container";
 import BmAddressbookItem from "./BmAddressbookItem";
 import ContainersManagement from "../ContainersManagement";
 
@@ -33,7 +33,7 @@ export default {
         ...mapState("preferences", ["myAddressbooks"])
     },
     methods: {
-        ...mapActions("preferences", ["SET_SUBSCRIPTIONS"]),
+        ...mapActions("preferences", ["SUBSCRIBE_TO_CONTAINERS"]),
         ...mapMutations("preferences", [
             "ADD_PERSONAL_ADDRESSBOOK",
             "REMOVE_PERSONAL_ADDRESSBOOK",
@@ -48,12 +48,9 @@ export default {
         },
         async create(addressbook) {
             const addressBookDescriptor = containerToAddressBookDescriptor(addressbook);
-
             await inject("AddressBooksMgmtPersistence").create(addressbook.uid, addressBookDescriptor, false);
             this.ADD_PERSONAL_ADDRESSBOOK(addressbook);
-
-            const subscription = containerToSubscription(addressbook);
-            this.SET_SUBSCRIPTIONS([subscription]);
+            this.SUBSCRIBE_TO_CONTAINERS([addressbook]);
         },
         async update(container) {
             const addressBookDescriptor = containerToAddressBookDescriptor(container);

@@ -11,15 +11,9 @@
         @ok="save"
         @shown="init"
     >
-        <bm-form class="mt-4">
+        <bm-form class="mt-4" @submit.prevent="submit">
             <bm-form-group id="label-group" :label="$t('preferences.general.tags.modal.label')" label-for="label">
-                <bm-form-input
-                    id="label"
-                    ref="label-input"
-                    v-model="tag.label"
-                    required
-                    @keypress.enter.prevent="submit"
-                />
+                <bm-form-input id="label" ref="label-input" v-model="tag.label" required />
             </bm-form-group>
             <bm-form-group id="color-group" label-for="color" :label="$t('preferences.general.tags.modal.color')">
                 <bm-form-color-picker

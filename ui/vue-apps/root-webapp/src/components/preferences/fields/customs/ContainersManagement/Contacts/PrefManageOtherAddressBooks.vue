@@ -2,7 +2,7 @@
     <containers-management
         :containers="otherAddressbooks"
         :container-type="containerType"
-        has-share-column
+        share-column
         @offline-sync-changed="UPDATE_OTHER_ADDRESSBOOK"
         @remove="REMOVE_OTHER_ADDRESSBOOK"
         @subscribe="ADD_OTHER_ADDRESSBOOK"

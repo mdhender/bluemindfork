@@ -39,15 +39,17 @@ import PrefManageIdentities from "./fields/customs/PrefManageIdentities";
 import PrefManageMyAddressBooks from "./fields/customs/ContainersManagement/Contacts/PrefManageMyAddressBooks";
 import PrefManageMyCalendars from "./fields/customs/ContainersManagement/Calendars/MyCalendars/PrefManageMyCalendars";
 import PrefManageMyMailbox from "./fields/customs/ContainersManagement/Mailboxes/PrefManageMyMailbox";
+import PrefManageMyTodoLists from "./fields/customs/ContainersManagement/Tasks/PrefManageMyTodoLists";
 import PrefManageOtherAddressBooks from "./fields/customs/ContainersManagement/Contacts/PrefManageOtherAddressBooks";
 import PrefManageOtherCalendars from "./fields/customs/ContainersManagement/Calendars/PrefManageOtherCalendars";
 import PrefManageOtherMailboxes from "./fields/customs/ContainersManagement/Mailboxes/PrefManageOtherMailboxes";
+import PrefManageOtherTodoLists from "./fields/customs/ContainersManagement/Tasks/PrefManageOtherTodoLists";
 import PrefPassword from "./fields/customs/PrefPassword";
 import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
 import PrefResetLocalData from "./fields/customs/PrefResetLocalData";
 import PrefTags from "./fields/customs/Tags/PrefTags";
 import PrefWorkHours from "./fields/customs/PrefWorkHours";
-import PrefSwitchWebmail from "./fields/customs/PrefSwitchWebmail.vue";
+import PrefSwitchWebmail from "./fields/customs/PrefSwitchWebmail";
 import PrefEntryName from "./PrefEntryName";
 
 import { BmFormGroup } from "@bluemind/styleguide";
@@ -78,9 +80,11 @@ export default {
         PrefManageMyAddressBooks,
         PrefManageMyCalendars,
         PrefManageMyMailbox,
+        PrefManageMyTodoLists,
         PrefManageOtherAddressBooks,
         PrefManageOtherCalendars,
         PrefManageOtherMailboxes,
+        PrefManageOtherTodoLists,
         PrefPassword,
         PrefRemoteImage,
         PrefResetLocalData,

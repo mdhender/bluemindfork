@@ -16,7 +16,6 @@
             :aria-label="$t('mail.new.subject.aria')"
             type="text"
             @input="updateSubject"
-            @keydown.enter.native.prevent
         />
         <hr class="mail-composer-splitter m-0" />
         <mail-composer-attachments

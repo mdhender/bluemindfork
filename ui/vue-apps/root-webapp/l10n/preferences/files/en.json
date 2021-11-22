@@ -64,7 +64,7 @@
     "preferences.telephony.status": "Phone status",
     "preferences.telephony.update_phone_status": "Update my phone status when I am not available on instant messaging",
     "preferences.telephony.answering_machine": "Answering machine",
-    "preferences.telephony.forward_calls": "Forward received calls at",
+    "preferences.telephony.forward_calls": "Forward received calls to",
     "preferences.telephony.invalid_phone_number": "Please enter a valid phone number",
 
     "preferences.manage_shares.title": "Manage shares for {type} \"{name}\"",
@@ -81,24 +81,32 @@
     "preferences.add_containers.calendar.nothing_to_add": "You don't have read permissions on other calendars. Contact your administrator for more informations.",
     "preferences.add_containers.mailboxacl.nothing_to_add": "You don't have read permissions on other mailboxes. Contact your administrator for more informations.",
     "preferences.add_containers.addressbook.nothing_to_add": "You don't have read permissions on other address books. Contact your administrator for more informations.",
+    "preferences.add_containers.todolist.nothing_to_add": "You don't have read permissions on other to-do list. Contact your administrator for more informations.",
 
     "preferences.display_containers.calendar.empty_list": "You have not subscribe yet, and you don't manage any other calendar.",
     "preferences.display_containers.mailboxacl.empty_list": "You have not subscribe yet, and you don't manage any other mailbox.",
     "preferences.display_containers.addressbook.empty_list": "You have not subscribe yet, and you don't manage any other addressbook.",
+    "preferences.display_containers.todolist.empty_list": "You have not subscribe yet, and you don't manage any other to-do list.",
     "preferences.display_containers.default": "Default {type}",
 
     "preferences.display_containers.import_file.calendar": "Drop your ICS file",
     "preferences.display_containers.import_file.addressbook": "Drop your vCard file",
+    "preferences.display_containers.import_file.todolist": "Drop your ICS file",
 
     "preferences.reset_containers_data.calendar": "All calendar data will be removed.",
     "preferences.reset_containers_data.addressbook": "All addressbook data will be removed.",
+    "preferences.reset_containers_data.todolist": "All to-do list data will be removed.",
 
     "preferences.delete_containers": "Remove {type} definitely ?",
 
     "preferences.create_container.label.description": "Label, as it'll be displayed in your {type}",
     "preferences.create_container.name_already_exists": "This label is already used",
-    "preferences.create_container.button": "Create {type}",
-    "preferences.update_container.button": "Update {type} \"{name}\"",
+    "preferences.create_container.calendar.button": "Create @:common.container_type_with_indefinite_article.calendar",
+    "preferences.create_container.addressbook.button": "Create @:common.container_type_with_indefinite_article.addressbook",
+    "preferences.create_container.todolist.button": "Create @:common.container_type_with_indefinite_article.todolist",
+    "preferences.update_container.calendar.button": "Update @:common.container_type_with_definite_article.calendar \"{name}\"",
+    "preferences.update_container.addressbook.button": "Update @:common.container_type_with_definite_article.addressbook \"{name}\"",
+    "preferences.update_container.todolist.button": "Update @:common.container_type_with_definite_article.todolist \"{name}\"",
 
     "preferences.mail.my_mailbox.switch_offline_sync": "Activate offline messaging on my mailbox.",
     "preferences.mail.my_mailbox.modal_title": "Manage shares for my mailbox",
@@ -194,5 +202,9 @@
 
     "preferences.contacts.can_read_my_addressbook": "Can see this address book",
     "preferences.contacts.can_edit_my_addressbook": "Can edit my contacts",
-    "preferences.contacts.can_edit_my_addressbook_and_manage_shares": "Can edit my contacts and manage my shares"
+    "preferences.contacts.can_edit_my_addressbook_and_manage_shares": "Can edit my contacts and manage my shares",
+
+    "preferences.tasks.can_read_my_todolist": "Can read my to-do list | Can read my to-do list",
+    "preferences.tasks.can_edit_my_todolist": "Can edit my to-do list | Can edit my to-do list",
+    "preferences.tasks.can_edit_my_todolist_and_manage_shares": "Can edit my to-do list and manage my shares | Can edit my to-do list and manage my shares"
 }
