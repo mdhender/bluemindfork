@@ -1,0 +1,35 @@
+dn: uid=user00,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetLocalMailRecipient
+objectClass: inetOrgPerson
+uid: user00
+sn: Nom00
+cn: Prenom00 Nom00
+givenName: Prenom00
+description: Description Prenom00 Nom00
+title: title
+o: organization
+ou: division
+departmentNumber: department
+l: locality
+postalCode: postalcode
+postOfficeBox: postofficebox
+postalAddress: postaladdress1$postaladdress2
+st: countryname
+homePhone: 2222
+homePhone: 22222
+mobile: 3333
+mobile: 33333
+pager: 5555
+pager: 55555
+telephoneNumber: 1111
+telephoneNumber: 11111
+facsimileTelephoneNumber: 4444
+facsimileTelephoneNumber: 44444
+mail: user00@memberof.virt
+mailLocalAddress: user00.alias00@memberof.virt
+mailLocalAddress: user00.alias01@memberof.virt
+userPassword:: e1NIQX1rN1liU0NTUzdPSkhsaUpRWkF2RkNUNFlZNTA9
+

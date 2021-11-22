@@ -185,6 +185,8 @@ public class UserManagerImpl extends UserManager {
 		if (entry.containsAttribute(LDAP_DISPLAYNAME)) {
 			user.value.contactInfos.identification.formatedName = FormatedName
 					.create(getAttributeValue(entry, LDAP_DISPLAYNAME));
+		} else {
+			user.value.contactInfos.identification.formatedName = FormatedName.create(null);
 		}
 
 		user.value.contactInfos.identification.name.givenNames = getAttributeValue(entry, LDAP_FIRSTNAME);

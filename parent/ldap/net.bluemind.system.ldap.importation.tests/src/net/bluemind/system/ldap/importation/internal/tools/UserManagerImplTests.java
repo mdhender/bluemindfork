@@ -57,6 +57,7 @@ import com.google.common.collect.ImmutableSet;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Communications.Tel;
 import net.bluemind.addressbook.api.VCard.DeliveryAddressing;
+import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
@@ -813,5 +814,38 @@ public class UserManagerImplTests {
 
 		assertEquals("user00", userManager.user.value.login);
 		assertEquals(1, userManager.user.value.emails.size());
+	}
+
+	@Test
+	public void entryToUserNoDisplayName() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
+		Entry testUserEntry = getTestUserEntry(
+				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
+		UserManager userManager = UserManagerImpl
+				.build(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()), domain,
+						testUserEntry)
+				.get();
+
+		ImportLogger importLogger = getImportLogger();
+		userManager.update(importLogger, null, new MailFilter());
+		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
+
+		assertNotNull(userManager.user.value.contactInfos.identification.formatedName);
+		assertNull(userManager.user.value.contactInfos.identification.formatedName.value);
+		assertTrue(userManager.user.value.contactInfos.identification.formatedName.parameters.isEmpty());
+
+		ItemValue<User> previousUser = ItemValue.create(Item.create("old", "oldextid"), new User());
+		previousUser.value.login = "oldlogin";
+		previousUser.value.password = "oldpasswd";
+		previousUser.value.contactInfos = new VCard();
+		previousUser.value.contactInfos.identification.formatedName = FormatedName.create("Previous formated name");
+
+		importLogger = getImportLogger();
+		userManager.update(importLogger, previousUser, new MailFilter());
+		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
+
+		assertNotNull(previousUser.value.contactInfos.identification.formatedName);
+		assertNull(previousUser.value.contactInfos.identification.formatedName.value);
+		assertTrue(previousUser.value.contactInfos.identification.formatedName.parameters.isEmpty());
 	}
 }
