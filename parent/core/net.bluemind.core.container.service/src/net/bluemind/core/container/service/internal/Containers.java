@@ -332,7 +332,7 @@ public class Containers implements IContainers {
 		List<ContainerDescriptor> ret = new ArrayList<>();
 
 		ret.addAll(allContainers(context.getAllMailboxDataSource(), query, this::isSharded));
-		ret.addAll(allContainers(Arrays.asList(context.getDataSource()), query, c -> !isSharded(c)));
+		ret.addAll(allContainers(Arrays.asList(context.getDataSource()), query, c -> true));
 		return dedup(ret);
 	}
 
