@@ -290,9 +290,11 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				changelogStore.itemCreated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
-				containerChangeEventProducer.get().produceEvent();
 			}
 			createValue(item, value);
+			if (hasChangeLog) {
+				containerChangeEventProducer.get().produceEvent();
+			}
 			return ItemUpdate.of(item);
 		});
 	}
