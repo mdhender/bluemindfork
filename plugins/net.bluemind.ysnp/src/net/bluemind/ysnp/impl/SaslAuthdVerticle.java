@@ -32,8 +32,6 @@ import io.netty.buffer.ByteBuf;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.net.NetServer;
-import io.vertx.core.net.NetServerOptions;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.net.SocketAddress;
 import net.bluemind.hornetq.client.MQ;
@@ -74,16 +72,14 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 								: null))
 				.orElse(Optional.empty());
 
-		NetServerOptions nso = new NetServerOptions().setTcpNoDelay(true);
-		NetServer ns = vertx.createNetServer(nso);
-
-		ns.connectHandler(netsock -> handleNetSock(netsock, POLICY));
-		SocketAddress sock = SocketAddress.domainSocketAddress(socketPath);
-		ns.listen(sock, res -> {
-			if (res.failed()) {
-				logger.error(res.cause().getMessage(), res.cause());
-			}
-		});
+		vertx.createNetServer().connectHandler(netsock -> handleNetSock(netsock, POLICY))
+				.listen(SocketAddress.domainSocketAddress(socketPath), res -> {
+					if (res.failed()) {
+						logger.error(res.cause().getMessage(), res.cause());
+					} else {
+						logger.info("Listening on {}", socketPath);
+					}
+				});
 	}
 
 	protected void handleNetSock(NetSocket netsock, ValidationPolicy vp) {

@@ -157,4 +157,8 @@ public class YSNPConfiguration {
 	public String getString(String confKey) {
 		return conf.getProperty(confKey);
 	}
+
+	public String toString() {
+		return conf.toString();
+	}
 }
