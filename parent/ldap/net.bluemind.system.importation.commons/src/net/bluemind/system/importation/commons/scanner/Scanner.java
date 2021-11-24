@@ -464,7 +464,7 @@ public abstract class Scanner {
 		try {
 			entry = getGroupFromDn(groupDn).orElse(null);
 		} catch (LdapException le) {
-			importLogger.warning(Messages.groupMemberNotFound(groupDn.getName()));
+			importLogger.info(Messages.groupMemberNotFound(groupDn.getName()));
 		}
 
 		if (entry == null) {
