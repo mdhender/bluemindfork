@@ -61,12 +61,14 @@ import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmt;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.api.report.DiagnosticReport;
+import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.network.topology.Topology;
@@ -127,14 +129,17 @@ public class ConversationSync {
 		} catch (CyrusConversationDbInitException e1) {
 			logger.warn("cannot init db", e1);
 			monitor.log("cannot init db: " + e1.getMessage());
-			return;
+			throw e1;
 		}
 		try {
 			syncConversationInfo(domainUid, server, box);
 			updateUserSettings(domainUid, userUid);
+		} catch (CyrusConversationDbInitException ex) {
+			throw ex;
 		} catch (Exception e) {
 			logger.warn("Cannot create conversations", e);
 			monitor.log("Cannot create conversations: " + e.getMessage());
+			throw new CyrusConversationDbInitException(dataLocation, e);
 		}
 	}
 
@@ -166,10 +171,23 @@ public class ConversationSync {
 	}
 
 	private void checkCyrusIndexVersion(INodeClient nc, ItemValue<Server> server, String domainUid,
-			ItemValue<Mailbox> box) throws IOException, FileNotFoundException {
-		boolean needsReconstruct = false;
+			ItemValue<Mailbox> box) throws Exception {
 		String boxName = box.value.name + "@" + domainUid;
 
+		if (needsReconstruct(nc, domainUid, box)) {
+			logger.info("Mailbox {} needs reconstruction", boxName);
+			NCUtils.execNoOut(nc, "reconstruct -r -V max user/" + boxName);
+			logger.info("Rechecking Mailbox {}", boxName);
+			if (needsReconstruct(nc, domainUid, box)) {
+				throw new Exception("Reconstruct of " + boxName + " had no effect");
+			}
+			logger.info("Mailbox {} is ok now", boxName);
+		}
+	}
+
+	private boolean needsReconstruct(INodeClient nc, String domainUid, ItemValue<Mailbox> box)
+			throws FileNotFoundException, IOException {
+		String boxName = box.value.name + "@" + domainUid;
 		String partition = domainUid.replace('.', '_');
 		String mboxForApi = box.value.type.nsPrefix + box.value.name.replace('.', '^');
 		List<String> folders = null;
@@ -178,15 +196,21 @@ public class ConversationSync {
 		try (Sudo su = Sudo.forUser(user, domainUid)) {
 			IMailboxFolders folderService = ServerSideServiceProvider.getProvider(su.context)
 					.instance(IMailboxFolders.class, partition, mboxForApi);
-			folders = folderService.all().stream().map(f -> f.value.fullName).collect(Collectors.toList());
+			folders = folderService.all() //
+					.stream().filter(f -> !f.flags.contains(ItemFlag.Deleted)) //
+					.map(f -> f.value.fullName) //
+					.collect(Collectors.toList());
 		}
-		needsReconstruct |= folders.isEmpty();
+		if (folders.isEmpty()) {
+			logger.warn("No folders found for mailbox {}", boxName);
+			return true;
+		}
+
+		boolean needsReconstruct = false;
 		for (String folder : folders) {
 			needsReconstruct |= checkIndexVersion(nc, domainUid, box.uid, boxName, folder);
 		}
-		if (needsReconstruct) {
-			NCUtils.execNoOut(nc, "reconstruct -r -V max user/" + boxName);
-		}
+		return needsReconstruct;
 	}
 
 	private boolean checkIndexVersion(INodeClient nc, String domainUid, String userUid, String mailbox, String folder)
@@ -202,21 +226,23 @@ public class ConversationSync {
 				logger.info("Cyrus index of {}-{} needs reconstruction: {}", mailbox, folder, v.getMessage());
 				return true;
 			}
+		} else {
+			logger.warn("Cannot find index file of folder {}/{} --> {}", mailbox, folder, cyrusContext.index);
+			return true;
 		}
-		return true;
 	}
 
-	private void syncConversationInfo(String domainUid, ItemValue<Server> server, ItemValue<Mailbox> box) {
+	private void syncConversationInfo(String domainUid, ItemValue<Server> server, ItemValue<Mailbox> box)
+			throws Exception {
 		try {
-			CompletableFuture<Void> handleMbox = handleMbox(domainUid, server, box);
-			handleMbox.join();
+			handleMbox(domainUid, server, box);
 		} catch (Exception e) {
 			logger.warn("Cannot handle mbox {}", box, e);
+			throw e;
 		}
 	}
 
-	private CompletableFuture<Void> handleMbox(String domainUid, ItemValue<Server> server, ItemValue<Mailbox> box)
-			throws Exception {
+	private void handleMbox(String domainUid, ItemValue<Server> server, ItemValue<Mailbox> box) throws Exception {
 		logger.info("Creating conversations of mailbox {} on server {}", box.value.name, server.uid);
 		AnnotationDb parser = new AnnotationDb();
 		INodeClient nodeClient = NodeActivator.get(server.value.address());
@@ -228,24 +254,17 @@ public class ConversationSync {
 			nodeClient.interrupt(ExecDescriptor.forTask(parseCyrusAnnotationDb.taskRef));
 			throw to;
 		}
-		return CompletableFuture.runAsync(() -> {
-			ConversationInfo conversationInfos = parser.get();
-			logger.info("Migrating {} conversations of mailbox {} on server {}", conversationInfos.conversations.size(),
-					box.value.name, server.uid);
-			if (!conversationInfos.conversations.isEmpty()) {
-				try {
-					MailboxReplicaRootDescriptor descriptor = MailboxReplicaRootDescriptor.create(box.value);
-					CyrusPartition cyrusPartition = CyrusPartition.forServerAndDomain(box.value.dataLocation,
-							domainUid);
-					IReplicatedMailboxesRootMgmt subtreeMgmt = context.provider()
-							.instance(IReplicatedMailboxesRootMgmt.class, cyrusPartition.name);
-					subtreeMgmt.create(descriptor);
-					migrateConversations(domainUid, server, box, conversationInfos);
-				} catch (Exception e) {
-					logger.warn("Cannot migrate mbox {}", box.value.name, e);
-				}
-			}
-		});
+		ConversationInfo conversationInfos = parser.get();
+		logger.info("Migrating {} conversations of mailbox {} on server {}", conversationInfos.conversations.size(),
+				box.value.name, server.uid);
+		if (!conversationInfos.conversations.isEmpty()) {
+			MailboxReplicaRootDescriptor descriptor = MailboxReplicaRootDescriptor.create(box.value);
+			CyrusPartition cyrusPartition = CyrusPartition.forServerAndDomain(box.value.dataLocation, domainUid);
+			IReplicatedMailboxesRootMgmt subtreeMgmt = context.provider().instance(IReplicatedMailboxesRootMgmt.class,
+					cyrusPartition.name);
+			subtreeMgmt.create(descriptor);
+			migrateConversations(domainUid, server, box, conversationInfos);
+		}
 	}
 
 	private void migrateConversations(String domainUid, ItemValue<Server> server, ItemValue<Mailbox> box,
@@ -441,6 +460,7 @@ public class ConversationSync {
 
 		} catch (Exception e) {
 			logger.warn("Cannot read conversation db content of box {}", box);
+			throw e;
 		}
 		return exec;
 	}
@@ -474,7 +494,7 @@ public class ConversationSync {
 			MailboxDescriptor mboxDescriptor = new MailboxDescriptor();
 			mboxDescriptor.mailboxName = box.value.name;
 			mboxDescriptor.type = Mailbox.Type.user;
-			mboxDescriptor.utf7FolderPath = folder;
+			mboxDescriptor.utf7FolderPath = UTF7Converter.encode(folder);
 			CyrusPartition partition = CyrusPartition.forServerAndDomain(dataLocation, domainUid);
 			String indexPath = CyrusFileSystemPathHelper.getMetaFileSystemPath(domainUid, mboxDescriptor, partition,
 					"cyrus.index");

@@ -20,5 +20,6 @@ Require-Bundle: slf4j.api,
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.network.topology,
  net.bluemind.directory.service,
- net.bluemind.backend.cyrus
+ net.bluemind.backend.cyrus,
+ net.bluemind.lib.jutf7
 Export-Package: net.bluemind.backend.cyrus.annotationdb
