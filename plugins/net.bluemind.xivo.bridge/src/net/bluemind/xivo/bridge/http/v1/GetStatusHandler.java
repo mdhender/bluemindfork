@@ -37,30 +37,26 @@ public class GetStatusHandler implements Handler<HttpServerRequest> {
 
 	@Override
 	public void handle(final HttpServerRequest event) {
-		event.endHandler(new Handler<Void>() {
+		event.endHandler(v -> {
+			MultiMap p = event.params();
+			String latd = new StringBuilder()//
+					.append(p.get("login")) //
+					.append('@') //
+					.append(p.get("domain")) //
+					.toString();
+			Map<String, Integer> sharedStatus = VertxPlatform.getVertx().sharedData().getLocalMap("phone_status");
+			Integer statusCode = sharedStatus.get(latd);
+			JsonObject status = new JsonObject();
 
-			@Override
-			public void handle(Void v) {
-				MultiMap p = event.params();
-				String latd = new StringBuilder()//
-						.append(p.get("login")) //
-						.append('@') //
-						.append(p.get("domain")) //
-						.toString();
-				Map<String, Integer> sharedStatus = VertxPlatform.getVertx().sharedData().getLocalMap("phone_status");
-				Integer statusCode = sharedStatus.get(latd);
-				JsonObject status = new JsonObject();
-
-				if (statusCode == null) {
-					logger.warn("Unknown status for '{}'", latd);
-					status.put("status", "UNKNOWN");
-				} else {
-					status.put("status", PhoneStatus.fromCode(statusCode).name());
-				}
-				logger.info("Fetch status of '{}' => {}", latd, status.encodePrettily());
-				HttpServerResponse resp = event.response();
-				resp.end(status.encode());
+			if (statusCode == null) {
+				logger.warn("Unknown status for '{}'", latd);
+				status.put("status", "UNKNOWN");
+			} else {
+				status.put("status", PhoneStatus.fromCode(statusCode).name());
 			}
+			logger.info("Fetch status of '{}' => {}", latd, status.encodePrettily());
+			HttpServerResponse resp = event.response();
+			resp.end(status.encode());
 		});
 	}
 }

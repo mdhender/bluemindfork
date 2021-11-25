@@ -65,8 +65,7 @@ public class BridgeApplication implements IApplication {
 
 	@Override
 	public void stop() {
-		// TODO Auto-generated method stub
-
+		// nothing to do
 	}
 
 }

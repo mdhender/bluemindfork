@@ -50,17 +50,14 @@ public class TikaServer implements IApplication {
 
 		Vertx pm = VertxPlatform.getVertx();
 		CountDownLatch cdl = new CountDownLatch(2);
-		Handler<AsyncResult<String>> doneHandler = new Handler<AsyncResult<String>>() {
-
-			@Override
-			public void handle(AsyncResult<String> event) {
-				if (event.succeeded()) {
-					logger.info("Deployement done with id: {}", event.result());
-					cdl.countDown();
-				} else {
-					logger.error("Deployement failed", event.cause());
-				}
+		Handler<AsyncResult<String>> doneHandler = event -> {
+			if (event.succeeded()) {
+				logger.info("Deployement done with id: {}", event.result());
+				cdl.countDown();
+			} else {
+				logger.error("Deployement failed", event.cause());
 			}
+
 		};
 
 		pm.deployVerticle(ReceiveDocumentVerticle::new, new DeploymentOptions().setInstances(32), doneHandler);

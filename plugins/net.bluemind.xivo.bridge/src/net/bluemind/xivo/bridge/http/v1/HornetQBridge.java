@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.MQ;
@@ -41,13 +40,7 @@ public class HornetQBridge extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		Handler<Message<JsonObject>> phoneStatus = new Handler<Message<JsonObject>>() {
-			@Override
-			public void handle(Message<JsonObject> msg) {
-				forwardStatus(msg);
-			}
-		};
-		vertx.eventBus().consumer(Topic.XIVO_PHONE_STATUS, phoneStatus);
+		vertx.eventBus().consumer(Topic.XIVO_PHONE_STATUS, this::forwardStatus);
 	}
 
 	private void forwardStatus(Message<JsonObject> msg) {
