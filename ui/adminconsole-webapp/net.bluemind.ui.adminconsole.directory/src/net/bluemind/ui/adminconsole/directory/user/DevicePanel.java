@@ -455,9 +455,7 @@ public class DevicePanel extends CompositeGwtWidgetElement {
 			setDeviceMessage(UserConstants.INST.noDevice());
 		} else {
 			addDeviceRowHeader();
-			for (ItemValue<Device> d : devices) {
-				addDeviceRow(d);
-			}
+			devices.stream().filter(d -> d != null && d.value != null).forEach(d -> addDeviceRow(d));
 		}
 	}
 
