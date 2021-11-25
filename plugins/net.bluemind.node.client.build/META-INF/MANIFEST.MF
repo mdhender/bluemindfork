@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.node.client.build
 Bundle-SymbolicName: net.bluemind.node.client.build;singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.node.client.build.Activator
 Require-Bundle: org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
