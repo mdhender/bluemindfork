@@ -152,7 +152,7 @@ public class QuotaGatheringJob implements IScheduledJob {
 			}
 
 			if (usage > 0) {
-				int pct = (100 * usage) / limit;
+				long pct = (100L * usage) / limit;
 				if (pct >= WARNING_PERCENT) {
 					warn = true;
 					sched.warn(rid, "en",
