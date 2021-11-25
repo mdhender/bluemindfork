@@ -21,6 +21,7 @@ package net.bluemind.system.auth;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,9 +157,10 @@ public class KrbAuthConfigChangeHandler implements ISystemConfigurationObserver 
 	}
 
 	private String buildJaasFile(String adDomain) {
-		String externalUrl = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(ISystemConfiguration.class).getValues().values.getOrDefault(SysConfKeys.external_url.name(),
-						"configure.your.external.url");
+		String externalUrl = Optional
+				.ofNullable(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+						.instance(ISystemConfiguration.class).getValues().values.get(SysConfKeys.external_url.name()))
+				.orElseThrow(() -> new ServerFault("External URL missing"));
 
 		StringBuilder sb = new StringBuilder();
 

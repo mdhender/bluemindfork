@@ -26,6 +26,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.james.mime4j.dom.Header;
 import org.apache.james.mime4j.dom.Message;
@@ -43,6 +44,7 @@ import com.google.common.collect.ImmutableMap;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.mime4j.common.Mime4JHelper;
@@ -103,6 +105,8 @@ public class Composer {
 				.instance(ISystemConfiguration.class).getValues();
 		return String.format("%s://%s/webmail/?_task=mail&_action=show&_uid=%s",
 				sysconf.values.getOrDefault(SysConfKeys.external_protocol.name(), "https"),
-				sysconf.values.getOrDefault(SysConfKeys.external_url.name(), "configure.your.external.url"), hsmId);
+				Optional.ofNullable(sysconf.values.get(SysConfKeys.external_url.name()))
+						.orElseThrow(() -> new ServerFault("External URL missing")),
+				hsmId);
 	}
 }

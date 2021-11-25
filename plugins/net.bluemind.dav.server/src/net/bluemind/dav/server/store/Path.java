@@ -21,6 +21,7 @@ package net.bluemind.dav.server.store;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.dav.server.Proxy;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.system.api.SysConfKeys;
@@ -88,7 +89,7 @@ public final class Path {
 	public static String getExtUrl() {
 		String externalUrl = Optional
 				.ofNullable(MQ.<String, String>sharedMap("system.configuration").get(SysConfKeys.external_url.name()))
-				.orElse("configure.your.external.url");
+				.orElseThrow(() -> new ServerFault("External URL missing"));
 
 		return externalUrl.trim();
 	}

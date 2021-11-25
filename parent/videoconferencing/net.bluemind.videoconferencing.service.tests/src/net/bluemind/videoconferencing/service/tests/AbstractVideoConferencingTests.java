@@ -17,6 +17,8 @@
   */
 package net.bluemind.videoconferencing.service.tests;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
@@ -26,7 +28,12 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public abstract class AbstractVideoConferencingTests {
@@ -34,6 +41,40 @@ public abstract class AbstractVideoConferencingTests {
 	protected SecurityContext context;
 
 	protected final String domainUid = "bm.lan";
+
+	IDomainSettings domainSettings;
+	ISystemConfiguration systemConfiguration;
+
+	protected static final String DOMAIN_EXTERNAL_URL = "my.test.domain.external.url";
+	protected static final String GLOBAL_EXTERNAL_URL = "my.test.external.url";
+
+	protected Map<String, String> setGlobalExternalUrl() {
+		Map<String, String> sysValues = systemConfiguration.getValues().values;
+		sysValues.put(SysConfKeys.external_url.name(), GLOBAL_EXTERNAL_URL);
+		systemConfiguration.updateMutableValues(sysValues);
+		return sysValues;
+	}
+
+	protected Map<String, String> setDomainExternalUrl() {
+		Map<String, String> domainValues = new HashMap<>();
+		domainValues.put(DomainSettingsKeys.external_url.name(), DOMAIN_EXTERNAL_URL);
+		domainSettings.set(domainValues);
+		return domainValues;
+	}
+
+	protected Map<String, String> deleteGlobalExternalUrl() {
+		Map<String, String> sysValues = systemConfiguration.getValues().values;
+		sysValues.put(SysConfKeys.external_url.name(), null);
+		systemConfiguration.updateMutableValues(sysValues);
+		return sysValues;
+	}
+
+	protected Map<String, String> deleteDomainExternalUrl() {
+		Map<String, String> domainValues = new HashMap<>();
+		domainValues.put(DomainSettingsKeys.external_url.name(), null);
+		domainSettings.set(domainValues);
+		return domainValues;
+	}
 
 	@Before
 	public void before() throws Exception {
@@ -51,6 +92,12 @@ public abstract class AbstractVideoConferencingTests {
 		launched.await();
 
 		context = SecurityContext.SYSTEM;
+
+		systemConfiguration = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class);
+
+		domainSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomainSettings.class,
+				domainUid);
 	}
 
 	@After

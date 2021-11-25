@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
@@ -74,12 +75,16 @@ import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 import net.bluemind.utils.FileUtils;
 
 public class HSMServiceTests {
+	static final String GLOBAL_EXTERNAL_URL = "my.test.external.url";
+
 	private BmContext ctx;
 	private Server imapServer;
 
@@ -131,6 +136,12 @@ public class HSMServiceTests {
 		adminUid = PopulateHelper.addDomainAdmin(adminLogin, domainUid, Routing.internal);
 		PopulateHelper.domainAdmin(domainUid, adminUid);
 		ctx = BmTestContext.contextWithSession(adminUid, adminUid, domainUid, BasicRoles.ROLE_ADMIN);
+
+		ISystemConfiguration systemConfiguration = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class);
+		Map<String, String> sysValues = systemConfiguration.getValues().values;
+		sysValues.put(SysConfKeys.external_url.name(), GLOBAL_EXTERNAL_URL);
+		systemConfiguration.updateMutableValues(sysValues);
 	}
 
 	protected IHSM getService(SecurityContext context) throws ServerFault {

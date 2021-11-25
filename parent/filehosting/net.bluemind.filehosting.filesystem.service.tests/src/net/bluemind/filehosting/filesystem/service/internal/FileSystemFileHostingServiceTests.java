@@ -23,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -497,13 +498,12 @@ public class FileSystemFileHostingServiceTests {
 		systemConfiguration.updateMutableValues(sysconfValues);
 		assertNull(systemConfiguration.getValues().values.get(SysConfKeys.external_url.name()));
 
-		FileHostingPublicLink publicLink = service.share(path, -1, null);
-		assertTrue(publicLink.url.contains("://configure.your.external.url"));
-		String id = ID.extract(publicLink.url);
-
-		FileHostingItem complete = service.getComplete(id);
-		service.getSharedFile(id);
-		Assert.assertEquals("test.txt", complete.name);
+		try {
+			service.share(path, -1, null);
+			fail("Error message expected on External URL missing");
+		} catch (ServerFault e) {
+			assertEquals("External URL missing", e.getMessage());
+		}
 	}
 
 	@Test

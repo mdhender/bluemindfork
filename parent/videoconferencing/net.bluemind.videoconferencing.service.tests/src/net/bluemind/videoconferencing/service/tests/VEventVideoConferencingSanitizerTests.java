@@ -90,6 +90,8 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 		Container cal = Container.create(ICalendarUids.defaultUserCalendar("admin"), ICalendarUids.TYPE,
 				"admin's calenddar", "admin");
 
+		setGlobalExternalUrl();
+
 		sanitizer = new VEventVideoConferencingSanitizer(domainAdminCtx, cal);
 
 	}

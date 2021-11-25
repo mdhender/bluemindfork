@@ -52,10 +52,8 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.domain.api.DomainSettingsKeys;
-import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
-import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -67,12 +65,6 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 	private BmTestContext domainAdminCtx;
 
 	private String videoconfProviderId = "test-provider";
-
-	private static final String DOMAIN_EXTERNAL_URL = "my.test.domain.external.url";
-	private static final String GLOBAL_EXTERNAL_URL = "my.test.external.url";
-
-	IDomainSettings domainSettings;
-	ISystemConfiguration systemConfiguration;
 
 	@Override
 	public void before() throws Exception {
@@ -107,6 +99,8 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 				"bm://" + domainUid + "/resources/" + videoconfProviderId, null, null,
 				"videoconferencing@" + domainUid);
 		event.main.attendees.add(videoconf);
+
+		setGlobalExternalUrl();
 
 		// hello videoconf
 		VEvent main = getService(domainAdminCtx.getSecurityContext()).add(event.main);
@@ -206,20 +200,18 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 				"videoconferencing@" + domainUid);
 		event.main.attendees.add(videoconf);
 
-		setGlobalExternalUrl(null);
+		deleteGlobalExternalUrl();
 		assertNull(systemConfiguration.getValues().values.get(SysConfKeys.external_url.name()));
-		setDomainExternalUrl(null);
+		deleteDomainExternalUrl();
 		assertNull(domainSettings.get().get(DomainSettingsKeys.external_url.name()));
 
 		// hello videoconf
-		VEvent main = getService(domainAdminCtx.getSecurityContext()).add(event.main);
-		assertNotNull(main.conference);
-		assertFalse(main.conference.contains(GLOBAL_EXTERNAL_URL));
-		assertFalse(main.conference.contains(DOMAIN_EXTERNAL_URL));
-
-		// bye-bye videoconf
-		main = getService(domainAdminCtx.getSecurityContext()).remove(main);
-		assertNull(main.conference);
+		try {
+			getService(domainAdminCtx.getSecurityContext()).add(event.main);
+			fail("Error message expected: External URL missing");
+		} catch (ServerFault e) {
+			assertEquals("External URL missing", e.getMessage());
+		}
 	}
 
 	@Test
@@ -231,7 +223,7 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 				"videoconferencing@" + domainUid);
 		event.main.attendees.add(videoconf);
 
-		Map<String, String> settings = setGlobalExternalUrl(GLOBAL_EXTERNAL_URL);
+		Map<String, String> settings = setGlobalExternalUrl();
 
 		// hello videoconf
 		VEvent main = getService(domainAdminCtx.getSecurityContext()).add(event.main);
@@ -256,7 +248,7 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 				"videoconferencing@" + domainUid);
 		event.main.attendees.add(videoconf);
 
-		Map<String, String> settings = setDomainExternalUrl(DOMAIN_EXTERNAL_URL);
+		Map<String, String> settings = setDomainExternalUrl();
 
 		// hello videoconf
 		VEvent main = getService(domainAdminCtx.getSecurityContext()).add(event.main);
@@ -281,8 +273,8 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 				"videoconferencing@" + domainUid);
 		event.main.attendees.add(videoconf);
 
-		Map<String, String> settings = setDomainExternalUrl(DOMAIN_EXTERNAL_URL);
-		Map<String, String> globalSettings = setGlobalExternalUrl(GLOBAL_EXTERNAL_URL);
+		Map<String, String> settings = setDomainExternalUrl();
+		Map<String, String> globalSettings = setGlobalExternalUrl();
 
 		// hello videoconf
 		VEvent main = getService(domainAdminCtx.getSecurityContext()).add(event.main);
@@ -311,24 +303,6 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 		}
 
 		return status;
-	}
-
-	private Map<String, String> setGlobalExternalUrl(String url) {
-		systemConfiguration = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(ISystemConfiguration.class);
-		Map<String, String> sysValues = systemConfiguration.getValues().values;
-		sysValues.put(SysConfKeys.external_url.name(), url);
-		systemConfiguration.updateMutableValues(sysValues);
-		return sysValues;
-	}
-
-	private Map<String, String> setDomainExternalUrl(String url) {
-		domainSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomainSettings.class,
-				domainUid);
-		Map<String, String> domainValues = new HashMap<>();
-		domainValues.put(DomainSettingsKeys.external_url.name(), url);
-		domainSettings.set(domainValues);
-		return domainValues;
 	}
 
 	protected IVideoConferencing getService(SecurityContext context) throws ServerFault {

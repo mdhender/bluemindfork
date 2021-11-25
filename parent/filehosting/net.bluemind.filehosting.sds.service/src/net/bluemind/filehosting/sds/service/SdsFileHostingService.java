@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -153,7 +154,8 @@ public class SdsFileHostingService implements IFileHostingService {
 	private String getServerAddress() {
 		SystemConf sysconf = LocalSysconfCache.get();
 		return String.format("%s://%s", sysconf.values.getOrDefault(SysConfKeys.external_protocol.name(), "https"),
-				sysconf.values.getOrDefault(SysConfKeys.external_url.name(), "configure.your.external.url"));
+				Optional.ofNullable(sysconf.values.get(SysConfKeys.external_url.name()))
+						.orElseThrow(() -> new ServerFault("External URL missing")));
 	}
 
 	@Override

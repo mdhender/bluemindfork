@@ -31,5 +31,6 @@ Require-Bundle: org.junit,
  net.bluemind.core.tests.testshelper,
  net.bluemind.role.api,
  net.bluemind.externaluser.service;bundle-version="4.1.0",
- net.bluemind.common.freemarker;bundle-version="4.1.0"
+ net.bluemind.common.freemarker;bundle-version="4.1.0",
+ net.bluemind.system.api
 Automatic-Module-Name: net.bluemind.hsm.service.tests

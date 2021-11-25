@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
 
@@ -55,6 +56,8 @@ import net.bluemind.filehosting.api.IFileHosting;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.pool.impl.docker.DockerContainer;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class AttachmentServiceTests {
@@ -64,6 +67,7 @@ public class AttachmentServiceTests {
 	private SecurityContext securityContext;
 
 	private static final String domainName = "testdomain.loc";
+	private static final String GLOBAL_EXTERNAL_URL = "my.test.external.url";
 
 	@Before
 	public void setup() throws Exception {
@@ -94,6 +98,12 @@ public class AttachmentServiceTests {
 		securityContext = new SecurityContext(null, subject, Arrays.asList(),
 				Arrays.asList(SecurityContext.ROLE_SYSTEM), Collections.emptyMap(), "global.virt", "en",
 				"internal-system");
+
+		ISystemConfiguration systemConfiguration = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class);
+		Map<String, String> sysValues = systemConfiguration.getValues().values;
+		sysValues.put(SysConfKeys.external_url.name(), GLOBAL_EXTERNAL_URL);
+		systemConfiguration.updateMutableValues(sysValues);
 
 		service = getAttachmentService(securityContext);
 		this.rootFolder = new File("/var/spool/bm-filehosting");

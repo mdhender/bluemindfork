@@ -18,11 +18,13 @@
 package net.bluemind.videoconferencing.service.template;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.google.common.base.Strings;
 
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -68,9 +70,12 @@ public abstract class TemplateBasedVideoConferencingProvider {
 
 	public void setExternalUrl(BmContext context, String domainUid, Map<String, String> resourceSettings) {
 		IServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		String url = provider.instance(IInCoreDomainSettings.class, domainUid).getExternalUrl()
-				.orElseGet(() -> provider.instance(ISystemConfiguration.class).getValues().values
-						.getOrDefault(SysConfKeys.external_url.name(), ""));
+		String url = Optional
+				.ofNullable(provider.instance(IInCoreDomainSettings.class, domainUid).getExternalUrl()
+						.orElseGet(() -> provider.instance(ISystemConfiguration.class).getValues().values
+								.get(SysConfKeys.external_url.name())))
+				.orElseThrow(() -> new ServerFault("External URL missing"));
+		;
 
 		resourceSettings.put("url", url + "/visio/");
 	}

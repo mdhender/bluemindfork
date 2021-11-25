@@ -28,6 +28,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
@@ -213,11 +214,12 @@ public class FileSystemFileHostingService implements IFileHostingService {
 	}
 
 	private String getServerAddress(String domainUid) {
-
 		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		String url = provider.instance(IInCoreDomainSettings.class, domainUid).getExternalUrl()
-				.orElseGet(() -> provider.instance(ISystemConfiguration.class).getValues().values
-						.getOrDefault(SysConfKeys.external_url.name(), "configure.your.external.url"));
+		String url = Optional
+				.ofNullable(provider.instance(IInCoreDomainSettings.class, domainUid).getExternalUrl()
+						.orElseGet(() -> provider.instance(ISystemConfiguration.class).getValues().values
+								.get(SysConfKeys.external_url.name())))
+				.orElseThrow(() -> new ServerFault("External URL missing"));
 
 		String protocol = provider.instance(ISystemConfiguration.class).getValues().values
 				.getOrDefault(SysConfKeys.external_protocol.name(), "https");

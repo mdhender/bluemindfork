@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -87,6 +88,8 @@ import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.DomainTemplate;
 import net.bluemind.system.api.IDomainTemplate;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -97,6 +100,7 @@ public class MboxRestoreHSMTests {
 	static final String login = "changhsm" + System.currentTimeMillis();
 	static final String domain = "junit.lan";
 	static final String latd = login + "@" + domain;
+	static final String GLOBAL_EXTERNAL_URL = "my.test.external.url";
 
 	private DataProtectGeneration latestGen;
 	private IDataProtect backupApi;
@@ -165,6 +169,12 @@ public class MboxRestoreHSMTests {
 
 		IServer serverService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
 				InstallationId.getIdentifier());
+
+		ISystemConfiguration systemConfiguration = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class);
+		Map<String, String> sysValues = systemConfiguration.getValues().values;
+		sysValues.put(SysConfKeys.external_url.name(), GLOBAL_EXTERNAL_URL);
+		systemConfiguration.updateMutableValues(sysValues);
 
 		ItemValue<Server> serverValue = serverService.getComplete(cyrusIp);
 		BmContext ctx = new BmTestContext(SecurityContext.SYSTEM);

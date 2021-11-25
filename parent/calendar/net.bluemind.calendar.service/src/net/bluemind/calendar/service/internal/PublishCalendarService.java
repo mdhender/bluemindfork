@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -150,9 +151,11 @@ public class PublishCalendarService implements IPublishCalendar {
 	private String computeUrl(PublishMode mode, String aclSubject) {
 
 		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		String url = provider.instance(IInCoreDomainSettings.class, container.domainUid).getExternalUrl()
-				.orElseGet(() -> provider.instance(ISystemConfiguration.class).getValues().values
-						.getOrDefault(SysConfKeys.external_url.name(), ""));
+		String url = Optional
+				.ofNullable(provider.instance(IInCoreDomainSettings.class, container.domainUid).getExternalUrl()
+						.orElseGet(() -> provider.instance(ISystemConfiguration.class).getValues().values
+								.get(SysConfKeys.external_url.name())))
+				.orElseThrow(() -> new ServerFault("External URL missing"));
 
 		return String.format("https://%s/api/calendars/publish/%s/%s", url, container.uid, aclSubject);
 	}
