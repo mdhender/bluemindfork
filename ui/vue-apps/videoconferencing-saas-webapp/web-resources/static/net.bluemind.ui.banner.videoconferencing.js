@@ -1,6 +1,6 @@
 function VideoWidgetCreator() {
     const roles = ["hasFullVideoconferencing", "hasSimpleVideoconferencing"];
-    var allowed = window.bmcSessionInfos.roles.split(",").find(role => roles.includes(role));
+    var allowed = roles.some(role => RegExp(`\\b${role}\\b`).test(window.bmcSessionInfos.roles));
 
     if (allowed) {
         var shortid = function () {
