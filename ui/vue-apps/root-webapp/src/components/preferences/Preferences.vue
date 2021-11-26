@@ -87,7 +87,7 @@ export default {
         await Promise.all([
             this.FETCH_USER_PASSWORD_LAST_CHANGE(),
             this.FETCH_ALL_SETTINGS().then(() => this.FETCH_MAILBOX_FILTER(this.lang)), // lang is set once all settings are loaded
-            this.FETCH_SUBSCRIPTIONS().then(() => this.FETCH_CONTAINERS()) // FETCH_CONTAINERS action need subscriptions to be loaded
+            this.FETCH_SUBSCRIPTIONS().then(subscriptions => this.FETCH_CONTAINERS(subscriptions)) // FETCH_CONTAINERS action need subscriptions to be loaded
         ]);
 
         this.loaded = true;

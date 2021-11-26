@@ -29,7 +29,7 @@ export default {
         return { containerType: ContainerType.TODOLIST };
     },
     computed: {
-        ...mapState("preferences", ["myTodoLists"])
+        ...mapState("preferences", { myTodoLists: state => state.preferenceContainers.myTodoLists })
     },
     methods: {
         ...mapActions("preferences", ["SUBSCRIBE_TO_CONTAINERS"]),

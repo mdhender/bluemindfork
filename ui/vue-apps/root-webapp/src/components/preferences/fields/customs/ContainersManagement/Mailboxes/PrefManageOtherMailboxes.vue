@@ -36,7 +36,9 @@ export default {
         return { containerType: ContainerType.MAILBOX };
     },
     computed: {
-        ...mapState("preferences", ["otherMailboxesContainers"])
+        ...mapState("preferences", {
+            otherMailboxesContainers: state => state.preferenceContainers.otherMailboxesContainers
+        })
     },
     methods: {
         ...mapMutations("preferences", [

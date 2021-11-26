@@ -23,7 +23,7 @@ export default {
     name: "PrefManageMyMailbox",
     components: { BmButton, BmFormCheckbox, ManageContainerSharesModal },
     computed: {
-        ...mapState("preferences", ["myMailboxContainer"])
+        ...mapState("preferences", { myMailboxContainer: state => state.preferenceContainers.myMailboxContainer })
     },
     methods: {
         openShareModal() {

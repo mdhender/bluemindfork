@@ -29,7 +29,7 @@ export default {
         return { containerType: ContainerType.TODOLIST };
     },
     computed: {
-        ...mapState("preferences", ["otherTodoLists"])
+        ...mapState("preferences", { otherTodoLists: state => state.preferenceContainers.otherTodoLists })
     },
     methods: {
         ...mapMutations("preferences", ["ADD_OTHER_TODO_LIST", "REMOVE_OTHER_TODO_LIST", "UPDATE_OTHER_TODO_LIST"])

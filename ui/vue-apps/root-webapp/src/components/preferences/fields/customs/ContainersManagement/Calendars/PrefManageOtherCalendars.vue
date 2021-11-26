@@ -28,7 +28,7 @@ export default {
         return { containerType: ContainerType.CALENDAR };
     },
     computed: {
-        ...mapState("preferences", ["otherCalendars"])
+        ...mapState("preferences", { otherCalendars: state => state.preferenceContainers.otherCalendars })
     },
     methods: {
         ...mapMutations("preferences", ["ADD_OTHER_CALENDARS", "REMOVE_OTHER_CALENDAR", "UPDATE_OTHER_CALENDAR"])

@@ -30,7 +30,7 @@ export default {
         return { containerType: ContainerType.ADDRESSBOOK };
     },
     computed: {
-        ...mapState("preferences", ["myAddressbooks"])
+        ...mapState("preferences", { myAddressbooks: state => state.preferenceContainers.myAddressbooks })
     },
     methods: {
         ...mapActions("preferences", ["SUBSCRIBE_TO_CONTAINERS"]),

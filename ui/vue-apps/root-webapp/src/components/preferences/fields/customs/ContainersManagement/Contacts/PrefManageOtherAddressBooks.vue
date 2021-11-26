@@ -29,7 +29,7 @@ export default {
         return { containerType: ContainerType.ADDRESSBOOK };
     },
     computed: {
-        ...mapState("preferences", ["otherAddressbooks"])
+        ...mapState("preferences", { otherAddressbooks: state => state.preferenceContainers.otherAddressbooks })
     },
     methods: {
         ...mapMutations("preferences", [
