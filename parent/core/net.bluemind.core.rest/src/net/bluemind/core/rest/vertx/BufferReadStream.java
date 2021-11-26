@@ -18,20 +18,21 @@
  */
 package net.bluemind.core.rest.vertx;
 
+import io.netty.buffer.ByteBuf;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
 
 public class BufferReadStream implements ReadStream<Buffer> {
 
-	private Buffer data;
+	private final ByteBuf data;
 	private boolean finished;
 	private Handler<Void> endHandler;
-	private boolean running = true;
+	private volatile boolean running = true;
 	private Handler<Buffer> dataHandler;
 
 	public BufferReadStream(Buffer data) {
-		this.data = data;
+		this.data = data.getByteBuf();
 	}
 
 	@Override
@@ -45,8 +46,13 @@ public class BufferReadStream implements ReadStream<Buffer> {
 		if (!running) {
 			return;
 		}
-		dataHandler.handle(data);
-		ended();
+		while (running && data.readableBytes() > 0) {
+			ByteBuf slice = data.readSlice(Math.min(65536, data.readableBytes()));
+			dataHandler.handle(Buffer.buffer(slice));
+		}
+		if (data.readableBytes() == 0) {
+			ended();
+		}
 	}
 
 	private void ended() {
