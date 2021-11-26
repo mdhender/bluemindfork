@@ -109,6 +109,7 @@ public class HsmToCyrus implements ICmdLet, Runnable {
 			}
 
 			// Move snappy to mailbox
+			int orphanCount = 0;
 			for (String rootLvl : topDir) {
 				for (String subLvl : topDir) {
 					String sourceDir = String.format("/var/spool/bm-hsm/snappy/user/%s/%s/%s/%s", domainUid, uid,
@@ -117,12 +118,15 @@ public class HsmToCyrus implements ICmdLet, Runnable {
 					if (srcDir.exists() && srcDir.isDirectory()) {
 						try (Stream<Path> dirStream = Files.list(srcDir.toPath())) {
 							dirStream.forEach(p -> inject(sc, p));
+							orphanCount++;
 						} catch (IOException e) {
 							ctx.error("Error streaming dir " + srcDir.getAbsolutePath());
 						}
 					}
 				}
 			}
+
+			ctx.info("%d orphan mail injected", orphanCount);
 		} catch (Exception e) {
 			ctx.error("Unable to connect to IMAP server 127.0.0.1: " + e);
 		}

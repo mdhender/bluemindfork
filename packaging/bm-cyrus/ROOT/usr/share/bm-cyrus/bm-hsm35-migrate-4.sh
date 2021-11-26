@@ -181,11 +181,12 @@ worker() {
 
     while true; do
         flock 4
-        read -su 3 work_id domain email uid login quota_update
+        read -su 3 work_id total domain email uid login quota_update
         read_status=$?
         flock -u 4
 
         if [[ $read_status -eq 0 ]]; then
+            echo "*** Starting for user "$((work_id+1))"/"${total}" ***"
             ( migrate_user "$work_id" "$domain" "$email" "$uid" "$login" "$quota_update" )
         else
             break
@@ -336,7 +337,7 @@ if [ "$WORKERS" -gt 1 ]; then
 
     i=0
     for u in "${migration_list[@]}"; do
-        send $i $u
+        send $i ${#migration_list[@]} $u
         i=$((i+1))
     done
 
@@ -346,7 +347,10 @@ if [ "$WORKERS" -gt 1 ]; then
     cleanup
     wait
 else
+    count=0
     for u in "${migration_list[@]}"; do
+        count=$((count+1))
+        echo "*** Starting for user "${count}"/"${#migration_list[@]}" ***"
         migrate_user 1 $u
     done
 fi
