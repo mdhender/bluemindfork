@@ -3,8 +3,8 @@
         class="pref-manage-my-addressbooks"
         :containers="myAddressbooks"
         :container-type="containerType"
+        :create-container-fn="create"
         manage-mine
-        @create="create"
         @offline-sync-changed="UPDATE_PERSONAL_ADDRESSBOOK"
         @update="update"
         @remove="remove"

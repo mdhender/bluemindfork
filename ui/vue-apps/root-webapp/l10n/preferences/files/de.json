@@ -2,9 +2,10 @@
     "alert.preferences.need_reconnection.warning": "Einige Änderungen sind erst nach erneutem Login aktiv.",
     "alert.preferences.reload_app.warning": "Einige Änderungen sind erst nach Neuladen der Anwendung aktiv.",
     "alert.preferences.update.error": "Update-Fehler.",
-    "alert.preferences.sync_calendar_in_progress.loading": "Synchronisation in Bearbeitung...",
-    "alert.preferences.sync_calendar_in_progress.success": "Synchronisation erfolgreich beendet",
-    "alert.preferences.sync_calendar_in_progress.error": "Fehler bei der Synchronisation",
+    "alert.preferences.sync_calendar.loading": "Synchronisation in Bearbeitung...",
+    "alert.preferences.sync_calendar.success": "Synchronisation erfolgreich beendet",
+    "alert.preferences.sync_calendar.error": "Fehler bei der Synchronisation",
+    "alert.preferences.containers.import_data.warning": "Nicht alle Daten konnten erfolgreich importiert werden.",
 
     "preferences.access_old_settings_app": "Einstellungen der alten Version der Anwendung",
     "preferences.access_old_settings_app.confirm": "Sie haben ungespeicherte Einstellungen, die beim Verlassen der Anwendung verloren gehen.",

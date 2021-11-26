@@ -182,16 +182,14 @@ export default {
             this.LOADING(ALERT);
             const taskRef = await inject("ContainerSyncPersistence", container.uid).sync();
             const taskService = inject("TaskService", taskRef.id);
-            retrieveTaskResult(taskService)
-                .then(() => {
-                    this.SUCCESS(ALERT);
-                })
-                .catch(() => {
-                    this.ERROR(ALERT);
-                })
-                .finally(() => {
-                    this.syncInProgress[container.uid] = false;
-                });
+            try {
+                await retrieveTaskResult(taskService);
+                this.SUCCESS(ALERT);
+            } catch {
+                this.ERROR(ALERT);
+            } finally {
+                this.syncInProgress[container.uid] = false;
+            }
         },
         async toggleOfflineSync(container) {
             const updatedContainer = { ...container, offlineSync: !container.offlineSync };

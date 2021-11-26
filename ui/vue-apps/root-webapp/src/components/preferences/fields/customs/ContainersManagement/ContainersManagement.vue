@@ -41,7 +41,7 @@
         <create-or-update-container-modal
             ref="create-or-update-container"
             :containers="containers"
-            @create="container => $emit('create', container)"
+            :create-fn="createContainerFn"
             @update="container => $emit('update', container)"
         />
         <import-modal ref="import" />
@@ -92,6 +92,10 @@ export default {
         containerType: {
             type: String,
             required: true
+        },
+        createContainerFn: {
+            type: Function,
+            default: () => {}
         },
         manageMine: {
             type: Boolean,

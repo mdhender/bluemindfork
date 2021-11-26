@@ -2,8 +2,8 @@
     <containers-management
         :containers="myTodoLists"
         :container-type="containerType"
+        :create-container-fn="create"
         manage-mine
-        @create="create"
         @offline-sync-changed="UPDATE_PERSONAL_TODO_LIST"
         @update="update"
         @remove="remove"

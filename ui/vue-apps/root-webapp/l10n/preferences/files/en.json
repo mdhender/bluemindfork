@@ -5,6 +5,7 @@
     "alert.preferences.sync_calendar.loading": "Synchronization in progress...",
     "alert.preferences.sync_calendar.success": "Synchronization successful",
     "alert.preferences.sync_calendar.error": "Error during synchronization",
+    "alert.preferences.containers.import_data.warning": "Not all data could be imported successfully.",
 
     "preferences.access_old_settings_app": "access old preferences application",
     "preferences.access_old_settings_app.confirm": "You have unsaved settings, you will lose these changes upon quitting this application.",

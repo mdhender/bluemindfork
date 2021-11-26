@@ -3,8 +3,8 @@
         class="pref-manage-my-calendars"
         :containers="myCalendars"
         :container-type="containerType"
+        :create-container-fn="create"
         manage-mine
-        @create="create"
         @offline-sync-changed="UPDATE_PERSONAL_CALENDAR"
         @update="update"
         @remove="remove"

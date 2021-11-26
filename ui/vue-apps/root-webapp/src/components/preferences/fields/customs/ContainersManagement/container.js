@@ -93,16 +93,16 @@ export function allowedFileTypes(containerType) {
     }
 }
 
-export async function importFileRequest(container, file, uploadCanceller) {
+export async function importFileRequest(containerType, containerUid, file, uploadCanceller) {
     // be careful here: we expect request to return a task ref
-    if (container.type === ContainerType.CALENDAR) {
-        return inject("VEventPersistence", container.uid).importIcs(file, uploadCanceller);
-    } else if (container.type === ContainerType.ADDRESSBOOK) {
+    if (containerType === ContainerType.CALENDAR) {
+        return inject("VEventPersistence", containerUid).importIcs(file, uploadCanceller);
+    } else if (containerType === ContainerType.ADDRESSBOOK) {
         const encoded = await file.text().then(res => JSON.stringify(res));
-        return inject("VCardServicePersistence", container.uid).importCards(encoded, uploadCanceller);
-    } else if (container.type === ContainerType.TODOLIST) {
+        return inject("VCardServicePersistence", containerUid).importCards(encoded, uploadCanceller);
+    } else if (containerType === ContainerType.TODOLIST) {
         const encoded = await file.text().then(res => JSON.stringify(res));
-        return inject("VTodoPersistence", container.uid).importIcs(encoded, uploadCanceller);
+        return inject("VTodoPersistence", containerUid).importIcs(encoded, uploadCanceller);
     }
 }
 
