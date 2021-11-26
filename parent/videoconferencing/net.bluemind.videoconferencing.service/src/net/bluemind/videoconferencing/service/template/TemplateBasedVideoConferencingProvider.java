@@ -20,6 +20,8 @@ package net.bluemind.videoconferencing.service.template;
 import java.util.Map;
 import java.util.UUID;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -38,8 +40,8 @@ public abstract class TemplateBasedVideoConferencingProvider {
 
 		String conference = vevent.conference;
 		String conferenceId = vevent.conferenceId;
-		if (conference == null || conference.trim().isEmpty()) {
 
+		if (Strings.isNullOrEmpty(conference)) {
 			String baseUrl = resourceSettings.get("url");
 			if (!baseUrl.startsWith("http")) {
 				baseUrl = "https://" + baseUrl;
@@ -47,7 +49,7 @@ public abstract class TemplateBasedVideoConferencingProvider {
 			if (!baseUrl.endsWith("/")) {
 				baseUrl += "/";
 			}
-			if (conferenceId == null) {
+			if (Strings.isNullOrEmpty(conferenceId)) {
 				conferenceId = UUID.randomUUID().toString();
 			}
 			conference = baseUrl + conferenceId;
