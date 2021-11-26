@@ -19,9 +19,9 @@ package net.bluemind.cti.wazo.config;
 
 public enum WazoEndpoints {
 
-	TOKEN("/auth/0.1/token"), //
-	CALLD("/calld/1.0/users/me/calls"), //
-	CONFD("/confd/1.1/users");
+	TOKEN("/api/auth/0.1/token"), //
+	CALLD("/api/calld/1.0/users/me/calls"), //
+	CONFD("/api/confd/1.1/users");
 
 	private final String endpoint;
 
