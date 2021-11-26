@@ -19,9 +19,15 @@
 package net.bluemind.mime4j.common;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel.MapMode;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -352,6 +358,18 @@ public class Mime4JHelper {
 		ks.input = FBOSInput.from(fbos);
 		ks.size = (int) fbos.asByteSource().size();
 		return ks;
+	}
+
+	public static MappedByteBuffer mmapedEML(Message msg) throws IOException {
+		Path tmpPath = Files.createTempFile(TMP_PREFIX, ".eml");
+		try (FileOutputStream out = new FileOutputStream(tmpPath.toFile())) {
+			serialize(msg, out);
+		}
+		try (RandomAccessFile raf = new RandomAccessFile(tmpPath.toFile(), "r")) {
+			return raf.getChannel().map(MapMode.READ_ONLY, 0, raf.length());
+		} finally {
+			Files.deleteIfExists(tmpPath);
+		}
 	}
 
 	/**
