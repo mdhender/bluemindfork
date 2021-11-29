@@ -236,13 +236,18 @@ public class MailboxesDbEntry {
 
 	public static boolean validate(MailboxesDbEntry dbEntry) {
 		if (dbEntry == null || isInDefaultPartition(dbEntry.partition)) {
+			try {
+				logger.warn("Invalid mailboxes db entry: {}", dbEntry);
+			} catch (Exception e) {
+				logger.warn("Invalid mailboxes db entry found...");
+			}
 			return false;
 		}
 		return true;
 	}
 
 	private static boolean isInDefaultPartition(String partition) {
-		return partition.equals("default");
+		return partition == null || partition.equals("default");
 	}
 
 }
