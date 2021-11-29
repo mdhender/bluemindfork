@@ -5,7 +5,7 @@
     "alert.preferences.sync_calendar.loading": "Synchronisation en cours...",
     "alert.preferences.sync_calendar.success": "Synchronisation réussie",
     "alert.preferences.sync_calendar.error": "Erreur lors de la synchronisation",
-    "alert.preferences.containers.import_data.warning": "Toutes les données n'ont pas pu être importées correctement.",
+    "alert.preferences.containers.create_and_import_data.warning": "La création a bien été effectuée mais certaines données n'ont pas pu être importées.",
 
     "preferences.access_old_settings_app": "accéder à l'ancienne application de préférences",
     "preferences.access_old_settings_app.confirm": "Vous avez des modifications non sauvegardées, en changeant d'application ces changements seront perdus.",

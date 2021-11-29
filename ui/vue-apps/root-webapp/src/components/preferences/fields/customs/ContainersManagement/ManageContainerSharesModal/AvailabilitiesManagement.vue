@@ -51,7 +51,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("preferences", ["myCalendars"])
+        ...mapState("preferences", { myCalendars: state => state.preferenceContainers.myCalendars })
     },
     async mounted() {
         this.isLoading = true;

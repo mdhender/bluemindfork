@@ -48,12 +48,10 @@
 </template>
 
 <script>
-import { allowedFileTypes, importFileRequest, matchingFileTypeIcon } from "./container";
-import { WARNING } from "@bluemind/alert.store";
+import { ContainerHelper } from "./container";
 import { inject } from "@bluemind/inject";
 import { BmButton, BmButtonClose, BmFileDropZone, BmIcon, BmProgress } from "@bluemind/styleguide";
 import { retrieveTaskResult } from "@bluemind/task";
-import { mapActions } from "vuex";
 
 export default {
     name: "ImportFile",
@@ -77,15 +75,17 @@ export default {
         };
     },
     computed: {
+        helper() {
+            return ContainerHelper.use(this.container.type);
+        },
         allowedFileTypes() {
-            return allowedFileTypes(this.container.type);
+            return this.helper.allowedFileTypes();
         },
         fileTypeIcon() {
-            return matchingFileTypeIcon(this.container.type);
+            return this.helper.matchingFileTypeIcon();
         }
     },
     methods: {
-        ...mapActions("alert", { WARNING }),
         openFilePicker() {
             this.$refs.fileChooserRef.click();
         },
@@ -99,10 +99,6 @@ export default {
         // is also called by parent component with
         async uploadFile(containerUid) {
             if (this.file) {
-                const IMPORT_DATA_ALERT = {
-                    alert: { name: "preferences.containers.import_data", uid: "IMPORT_DATA_UID" },
-                    options: { area: "pref-right-panel", renderer: "DefaultAlert" }
-                };
                 this.uploadStatus = "IN_PROGRESS";
                 const onUploadProgress = () => {
                     if (this.uploaded < 90) {
@@ -110,20 +106,14 @@ export default {
                     }
                 };
                 try {
-                    const taskRef = await importFileRequest(
-                        this.container.type,
-                        containerUid,
-                        this.file,
-                        this.uploadCanceller
-                    );
+                    const taskRef = await this.helper.importFileRequest(containerUid, this.file, this.uploadCanceller);
                     const taskService = inject("TaskService", taskRef.id);
                     await retrieveTaskResult(taskService, onUploadProgress);
                     this.uploaded = 100;
                     this.uploadStatus = "SUCCESS";
-                } catch {
+                } catch (e) {
                     this.uploadStatus = "ERROR";
-                    this.WARNING(IMPORT_DATA_ALERT);
-                    throw new Error();
+                    throw new Error(e);
                 }
             }
         },

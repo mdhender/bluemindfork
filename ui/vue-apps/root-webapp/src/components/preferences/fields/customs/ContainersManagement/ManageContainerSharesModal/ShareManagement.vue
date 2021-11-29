@@ -43,13 +43,12 @@
 <script>
 import ExternalShareManagement from "./ExternalShareManagement";
 import InternalShareManagement from "./InternalShareManagement";
-import { aclToVerb, defaultDirEntryAcl, loadAcl, noRightAcl } from "./helpers/ContainerShareHelper";
-import { loadCalendarUrls, sendExternalToServer, urlToAclSubject } from "./helpers/ExternalShareHelper";
-import { ContainerType } from "../container";
+import { loadAcl } from "./ContainerShareHelper";
+import { loadCalendarUrls, sendExternalToServer, urlToAclSubject } from "./ExternalShareHelper";
+import { ContainerHelper, ContainerType } from "../container";
 import { PublishMode } from "@bluemind/calendar.api";
-import { getQuery } from "@bluemind/contact";
+import { getQuery, VCardInfoAdaptor } from "@bluemind/contact";
 import { Verb } from "@bluemind/core.container.api";
-import { VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { BmContact, BmFormAutocompleteInput, BmSpinner } from "@bluemind/styleguide";
@@ -92,6 +91,9 @@ export default {
         };
     },
     computed: {
+        helper() {
+            return ContainerHelper.use(this.container.type);
+        },
         isCalendarType() {
             return this.container.type === ContainerType.CALENDAR;
         },
@@ -102,16 +104,16 @@ export default {
             const dirEntries = this.dirEntriesAcl.filter(this.filterNoRightsAcl);
             const res = dirEntries.map(entry => ({
                 subject: entry.uid,
-                verb: aclToVerb(this.container.type, entry.acl)
+                verb: this.helper.aclToVerb(entry.acl)
             }));
             if (!this.isMyContainer) {
                 res.push({ subject: inject("UserSession").userId, verb: Verb.All });
             }
 
-            if (!this.isMailboxType && this.domainAcl !== noRightAcl(this.container.type)) {
+            if (!this.isMailboxType && this.domainAcl !== this.helper.noRightAcl) {
                 res.push({
                     subject: inject("UserSession").domain,
-                    verb: aclToVerb(this.container.type, this.domainAcl)
+                    verb: this.helper.aclToVerb(this.domainAcl)
                 });
             }
             if (this.isCalendarType) {
@@ -129,12 +131,12 @@ export default {
                 const dirEntries = this.dirEntriesAcl.filter(this.filterNoRightsAcl);
                 res = dirEntries.map(entry => ({
                     subject: entry.uid,
-                    verb: aclToVerb(this.container.type, entry.acl, true)
+                    verb: this.helper.aclToVerb(entry.acl, true)
                 }));
-                if (this.domainAcl !== noRightAcl(this.container.type)) {
+                if (this.domainAcl !== this.helper.noRightAcl) {
                     res.push({
                         subject: inject("UserSession").domain,
-                        verb: aclToVerb(this.container.type, this.domainAcl, true)
+                        verb: this.helper.aclToVerb(this.domainAcl, true)
                     });
                 }
             }
@@ -155,7 +157,7 @@ export default {
     },
     methods: {
         filterNoRightsAcl(entry) {
-            return entry.acl !== noRightAcl(this.container.type);
+            return entry.acl !== this.helper.noRightAcl;
         },
 
         // search autocomplete
@@ -195,7 +197,10 @@ export default {
                 this.addExternal(selected);
             } else {
                 const newDirEntry = vcardToDirEntry(selected);
-                this.dirEntriesAcl.push({ ...newDirEntry, acl: defaultDirEntryAcl(this.container.type) });
+                this.dirEntriesAcl.push({
+                    ...newDirEntry,
+                    acl: this.helper.defaultDirEntryAcl
+                });
                 this.saveShares();
             }
             this.suggestions = [];

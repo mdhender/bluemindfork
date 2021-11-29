@@ -17,9 +17,12 @@
 <script>
 import BmCalendarBadge from "./BmCalendarBadge";
 import BmCalendarItem from "./BmCalendarItem";
-import { ContainerType } from "../container";
+import { ContainerHelper, ContainerType } from "../container";
+import CalendarHelper from "./helper";
 import ContainersManagement from "../ContainersManagement";
 import { mapMutations, mapState } from "vuex";
+
+ContainerHelper.register(ContainerType.CALENDAR, CalendarHelper);
 
 export default {
     name: "PrefManageOtherCalendars",

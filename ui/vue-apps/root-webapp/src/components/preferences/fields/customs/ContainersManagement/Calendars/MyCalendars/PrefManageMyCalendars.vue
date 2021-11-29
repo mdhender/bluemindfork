@@ -19,9 +19,12 @@ import { mapActions, mapMutations, mapState } from "vuex";
 
 import { inject } from "@bluemind/inject";
 
-import { containerToCalendarDescriptor, ContainerType } from "../../container";
+import { containerToCalendarDescriptor, ContainerHelper, ContainerType } from "../../container";
+import CalendarHelper from "../helper";
 import BmCalendarItem from "../BmCalendarItem";
 import ContainersManagement from "../../ContainersManagement";
+
+ContainerHelper.register(ContainerType.CALENDAR, CalendarHelper);
 
 export default {
     name: "PrefManageMyCalendars",

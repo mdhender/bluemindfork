@@ -5,7 +5,7 @@
     "alert.preferences.sync_calendar.loading": "Synchronisation in Bearbeitung...",
     "alert.preferences.sync_calendar.success": "Synchronisation erfolgreich beendet",
     "alert.preferences.sync_calendar.error": "Fehler bei der Synchronisation",
-    "alert.preferences.containers.import_data.warning": "Nicht alle Daten konnten erfolgreich importiert werden.",
+    "alert.preferences.containers.create_and_import_data.warning": " Das Anlegen wurde erfolgreich abgeschlossen, es konnten jedoch nicht alle Daten importiert werden.",
 
     "preferences.access_old_settings_app": "Einstellungen der alten Version der Anwendung",
     "preferences.access_old_settings_app.confirm": "Sie haben ungespeicherte Einstellungen, die beim Verlassen der Anwendung verloren gehen.",

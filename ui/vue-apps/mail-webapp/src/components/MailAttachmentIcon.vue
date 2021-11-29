@@ -2,7 +2,7 @@
     <bm-icon
         v-if="message.hasAttachment || message.hasICS"
         class="mail-attachment-icon"
-        :icon="message.hasICS ? 'event' : 'paper-clip'"
+        :icon="message.hasICS ? 'calendar' : 'paper-clip'"
         :size="size"
     />
 </template>

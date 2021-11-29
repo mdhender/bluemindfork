@@ -15,9 +15,13 @@
 </template>
 
 <script>
+import { ContainerHelper, ContainerType } from "../container";
 import ManageContainerSharesModal from "../ManageContainerSharesModal/ManageContainerSharesModal";
+import MailboxHelper from "./helper";
 import { BmButton, BmFormCheckbox } from "@bluemind/styleguide";
 import { mapState } from "vuex";
+
+ContainerHelper.register(ContainerType.MAILBOX, MailboxHelper);
 
 export default {
     name: "PrefManageMyMailbox",

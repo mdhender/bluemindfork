@@ -31,8 +31,7 @@
 </template>
 
 <script>
-import { ContainerType } from "../container";
-import { getOptions } from "./helpers/ContainerShareHelper";
+import { ContainerHelper, ContainerType } from "../container";
 import { inject } from "@bluemind/inject";
 import { BmContact, BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/styleguide";
 
@@ -76,7 +75,7 @@ export default {
         },
         shareOptions(isPlural = false) {
             const count = isPlural ? 0 : 1;
-            return getOptions(this.container.type, count, inject("i18n"), this.isMyDefaultCalendar);
+            return ContainerHelper.use(this.container.type).getOptions(inject("i18n"), count, this.isMyDefaultCalendar);
         }
     }
 };

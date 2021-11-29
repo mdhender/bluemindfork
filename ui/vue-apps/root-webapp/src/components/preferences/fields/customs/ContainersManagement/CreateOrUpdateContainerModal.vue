@@ -9,17 +9,24 @@
         :ok-disabled="disableSave"
         modal-class="create-or-update-container-modal"
         body-class="row mt-3"
-        @ok.prevent="save"
+        @ok="save"
     >
         <div class="col-2"><bm-icon :icon="containerIcon" size="3x" class="mt-3" /></div>
         <bm-form class="col-10" @submit.prevent="save">
-            <bm-form-group :label="$t('common.label')" label-for="label" :description="labelDesc()">
+            <bm-form-group
+                :label="$t('common.label')"
+                label-for="label"
+                :description="labelDesc()"
+                :invalid-feedback="$t('preferences.create_container.name_already_exists')"
+                :state="isLabelValid"
+            >
                 <bm-form-input
                     id="label"
-                    v-model="container.name"
+                    v-model.trim="container.name"
                     type="text"
                     required
                     :disabled="isDefault"
+                    :state="container.name ? isLabelValid : null"
                     autofocus
                 />
             </bm-form-group>
@@ -36,12 +43,14 @@
 </template>
 
 <script>
-import { ContainerType, isDefault, matchingIcon } from "./container";
+import { ContainerHelper, ContainerType, isDefault } from "./container";
 import CreateOrUpdateCalendar from "./Calendars/MyCalendars/CreateOrUpdateCalendar";
 import ImportFile from "./ImportFile";
+import { WARNING } from "@bluemind/alert.store";
 import { BmForm, BmFormGroup, BmFormInput, BmIcon, BmModal } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
 import cloneDeep from "lodash.clonedeep";
+import { mapActions } from "vuex";
 
 export default {
     name: "CreateOrUpdateContainerModal",
@@ -71,7 +80,7 @@ export default {
             return this.container.type === ContainerType.CALENDAR;
         },
         containerIcon() {
-            return matchingIcon(this.container.type);
+            return this.container.type ? ContainerHelper.use(this.container.type).matchingIcon() : "";
         },
         disableSave() {
             return !this.anyChange || this.isInvalid || this.actionsInProgress;
@@ -100,6 +109,7 @@ export default {
         }
     },
     methods: {
+        ...mapActions("alert", { WARNING }),
         async open(container) {
             this.originalContainer = container;
             this.container = cloneDeep(container);
@@ -114,12 +124,18 @@ export default {
                 this.$emit("update", this.container);
             }
             this.actionsInProgress = false;
-            this.show = false;
         },
         async create() {
             const uid = UUIDGenerator.generate();
             await this.createFn({ ...this.container, uid });
-            await this.$refs["import-file"].uploadFile(uid);
+            try {
+                await this.$refs["import-file"].uploadFile(uid);
+            } catch (e) {
+                this.WARNING({
+                    alert: { name: "preferences.containers.create_and_import_data", uid: "IMPORT_DATA_UID" },
+                    options: { area: "pref-right-panel", renderer: "DefaultAlert" }
+                });
+            }
         },
 
         modalTitle() {

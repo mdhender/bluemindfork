@@ -24,10 +24,13 @@
 </template>
 
 <script>
-import { ContainerType } from "../container";
+import { ContainerHelper, ContainerType } from "../container";
 import ContainersManagement from "../ContainersManagement";
+import MailboxHelper from "./helper";
 import { BmContact } from "@bluemind/styleguide";
 import { mapMutations, mapState } from "vuex";
+
+ContainerHelper.register(ContainerType.MAILBOX, MailboxHelper);
 
 export default {
     name: "PrefManageOtherMailboxes",

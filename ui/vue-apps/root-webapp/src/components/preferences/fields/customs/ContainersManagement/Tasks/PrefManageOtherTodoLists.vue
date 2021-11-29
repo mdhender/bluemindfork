@@ -18,9 +18,12 @@
 <script>
 import BmTodoListBadge from "./BmTodoListBadge";
 import BmTodoListItem from "./BmTodoListItem";
-import { ContainerType } from "../container";
+import { ContainerHelper, ContainerType } from "../container";
 import ContainersManagement from "../ContainersManagement";
+import TodoListHelper from "./helper";
 import { mapMutations, mapState } from "vuex";
+
+ContainerHelper.register(ContainerType.TODOLIST, TodoListHelper);
 
 export default {
     name: "PrefManageOtherTodoLists",

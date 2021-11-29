@@ -19,9 +19,12 @@ import { mapActions, mapMutations, mapState } from "vuex";
 
 import { inject } from "@bluemind/inject";
 
-import { containerToAddressBookDescriptor, ContainerType } from "../container";
+import { containerToAddressBookDescriptor, ContainerHelper, ContainerType } from "../container";
+import AddressbookHelper from "./helper";
 import BmAddressbookItem from "./BmAddressbookItem";
 import ContainersManagement from "../ContainersManagement";
+
+ContainerHelper.register(ContainerType.ADDRESSBOOK, AddressbookHelper);
 
 export default {
     name: "PrefManageMyAddressBooks",

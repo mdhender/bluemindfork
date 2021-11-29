@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { publishModeOptions } from "./helpers/ExternalShareHelper";
+import { publishModeOptions } from "./ExternalShareHelper";
 import { PublishMode } from "@bluemind/calendar.api";
 import { VCardInfoAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";

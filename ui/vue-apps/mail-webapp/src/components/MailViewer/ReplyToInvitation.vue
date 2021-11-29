@@ -10,7 +10,7 @@
                     <template v-else>{{ $t("mail.ics") }}</template>
                 </template>
                 <template v-else>
-                    <bm-icon :stacked="['event', computeEventIcon]" class="mr-2" size="lg" />
+                    <bm-icon :stacked="['calendar', computeEventIcon]" class="mr-2" size="lg" />
                     <template v-if="currentEvent.status === 'Accepted'">
                         <template v-if="message.eventInfo.isResourceBooking">
                             {{ $t("mail.ics.resourcebooking.accepted") }}

@@ -16,11 +16,14 @@
 </template>
 
 <script>
+import AddressbookHelper from "./helper";
 import BmAddressbookBadge from "./BmAddressbookBadge";
 import BmAddressbookItem from "./BmAddressbookItem";
-import { ContainerType } from "../container";
+import { ContainerHelper, ContainerType } from "../container";
 import ContainersManagement from "../ContainersManagement";
 import { mapMutations, mapState } from "vuex";
+
+ContainerHelper.register(ContainerType.ADDRESSBOOK, AddressbookHelper);
 
 export default {
     name: "PrefManageOtherAddressBooks",

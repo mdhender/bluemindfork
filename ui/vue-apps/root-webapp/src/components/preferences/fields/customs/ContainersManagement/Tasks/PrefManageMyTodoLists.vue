@@ -18,9 +18,12 @@ import { mapActions, mapMutations, mapState } from "vuex";
 
 import { inject } from "@bluemind/inject";
 
-import { containerToModifiableDescriptor, ContainerType } from "../container";
+import { containerToModifiableDescriptor, ContainerHelper, ContainerType } from "../container";
 import BmTodoListItem from "./BmTodoListItem";
 import ContainersManagement from "../ContainersManagement";
+import TodoListHelper from "./helper";
+
+ContainerHelper.register(ContainerType.TODOLIST, TodoListHelper);
 
 export default {
     name: "PrefManageMyTodoLists",
