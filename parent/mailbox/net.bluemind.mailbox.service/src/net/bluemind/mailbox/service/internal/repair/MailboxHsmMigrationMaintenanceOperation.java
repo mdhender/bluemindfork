@@ -200,7 +200,7 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 			return;
 		}
 		SearchQuery sq = new SearchQuery();
-		sq.setKeyword(Flag.BMARCHIVED.toString());
+		sq.getHeaders().put("X-BM_HSM_ID", "");
 		Collection<Integer> archived = sc.uidSearch(sq);
 		IDSet idset = IDSet.create(archived.iterator(), 100);
 
