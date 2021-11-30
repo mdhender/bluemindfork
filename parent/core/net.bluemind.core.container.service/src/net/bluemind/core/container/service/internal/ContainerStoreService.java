@@ -308,8 +308,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 						+ " already exists (" + e.getMessage() + ")");
 			}
 			if (hasChangeLog) {
-				changelogStore.itemCreated(LogEntry.create(item.version, item.uid, item.externalId,
-						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
+				changelogStore.itemCreated(LogEntry.create(created.version, created.uid, created.externalId,
+						securityContext.getSubject(), origin, created.id, weightSeedProvider.weightSeed(value)));
 			}
 			createValue(created, value);
 			if (hasChangeLog) {
@@ -382,9 +382,11 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(created.version, created.uid, created.externalId,
 						securityContext.getSubject(), origin, created.id, weightSeedProvider.weightSeed(value)));
-				containerChangeEventProducer.get().produceEvent();
 			}
 			updateValue(created, value);
+			if (hasChangeLog) {
+				containerChangeEventProducer.get().produceEvent();
+			}
 
 			ItemValue<T> iv = ItemValue.create(created, value);
 			backupStream.store(iv);
