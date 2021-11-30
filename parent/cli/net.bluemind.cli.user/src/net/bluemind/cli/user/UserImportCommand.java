@@ -52,6 +52,7 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.server.api.IServer;
+import net.bluemind.server.api.NodeUtils;
 import net.bluemind.todolist.api.ITodoLists;
 import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.todolist.api.IVTodo;
@@ -101,14 +102,10 @@ public class UserImportCommand extends SingleOrDomainOperation {
 
 			IServer serversApi = ctx.adminApi().instance(IServer.class, InstallationId.getIdentifier());
 
-			Tasks.follow(ctx, true,
-					serversApi.submit(de.value.dataLocation,
-							"bm-cli maintenance repair --ops mailboxFilesystem " + de.value.email),
-					"Cannot repair (mailboxFilesystem) " + de.uid);
-			Tasks.follow(ctx, true,
-					serversApi.submit(de.value.dataLocation,
-							"bm-cli maintenance repair --ops mailboxAcls " + de.value.email),
-					"Cannot repair (mailboxAcls) " + de.uid);
+			NodeUtils.exec(serversApi, de.value.dataLocation,
+					"bm-cli maintenance repair --ops mailboxFilesystem " + de.value.email);
+			NodeUtils.exec(serversApi, de.value.dataLocation,
+					"bm-cli maintenance repair --ops mailboxAcls " + de.value.email);
 
 		} catch (IOException e) {
 			ctx.error("Error extracting archive " + e.getMessage());
@@ -301,8 +298,7 @@ public class UserImportCommand extends SingleOrDomainOperation {
 	private void copyEmails(ItemValue<DirEntry> de, Path directory, String outputDir) {
 		String command = String.format("rsync -r %s/ %s", directory.toAbsolutePath().toString(), outputDir);
 		IServer serversApi = ctx.adminApi().instance(IServer.class, InstallationId.getIdentifier());
-		Tasks.follow(ctx, true, serversApi.submit(de.value.dataLocation, command),
-				"Cannot copy mails from " + directory.toAbsolutePath().toString());
+		NodeUtils.exec(serversApi, de.value.dataLocation, command);
 	}
 
 	private char firstLetterMailbox(String mbox) {
