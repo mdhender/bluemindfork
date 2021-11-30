@@ -49,9 +49,7 @@ export default {
         NewMessage
     },
     data() {
-        return {
-            emptyMessageIllustration
-        };
+        return { emptyMessageIllustration };
     },
     computed: {
         ...mapGetters("mail", { MY_DRAFTS })

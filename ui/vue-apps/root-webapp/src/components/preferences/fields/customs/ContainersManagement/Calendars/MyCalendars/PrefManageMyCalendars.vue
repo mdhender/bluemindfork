@@ -4,6 +4,7 @@
         :containers="myCalendars"
         :container-type="containerType"
         :create-container-fn="create"
+        :collapsed="collapsed"
         manage-mine
         @offline-sync-changed="UPDATE_PERSONAL_CALENDAR"
         @update="update"
@@ -21,6 +22,7 @@ import { inject } from "@bluemind/inject";
 
 import { containerToCalendarDescriptor, ContainerHelper, ContainerType } from "../../container";
 import CalendarHelper from "../helper";
+import BaseField from "../../../../../mixins/BaseField";
 import BmCalendarItem from "../BmCalendarItem";
 import ContainersManagement from "../../ContainersManagement";
 
@@ -29,6 +31,7 @@ ContainerHelper.register(ContainerType.CALENDAR, CalendarHelper);
 export default {
     name: "PrefManageMyCalendars",
     components: { BmCalendarItem, ContainersManagement },
+    mixins: [BaseField],
     data() {
         return { containerType: ContainerType.CALENDAR };
     },

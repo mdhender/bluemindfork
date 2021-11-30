@@ -1,5 +1,5 @@
 <template>
-    <div class="ml-4 text-secondary d-flex">
+    <div v-if="!collapsed" class="ml-4 text-secondary d-flex">
         <bm-icon icon="info-circle" class="mr-1 mt-1 align-items-start" />
         <span>
             {{ $t("preferences.mail.remote.images.explanations") }}
@@ -11,10 +11,12 @@
 </template>
 
 <script>
+import BaseField from "../../mixins/BaseField";
 import { BmIcon } from "@bluemind/styleguide";
 
 export default {
     name: "PrefRemoteImage",
-    components: { BmIcon }
+    components: { BmIcon },
+    mixins: [BaseField]
 };
 </script>

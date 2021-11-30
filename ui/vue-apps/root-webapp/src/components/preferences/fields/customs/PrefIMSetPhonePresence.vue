@@ -1,25 +1,27 @@
 <template>
     <bm-form-radio-group v-model="value" class="pref-im-set-phone-presence">
         <div class="mb-2">{{ $t("preferences.telephony.update_phone_status") }}</div>
-        <bm-form-radio :value="doNothingValue" :aria-label="$t('common.do_nothing')">
-            {{ $t("common.do_nothing") }}
-        </bm-form-radio>
-        <bm-form-radio :value="answeringMachineValue" :aria-label="$t('preferences.telephony.answering_machine')">
-            {{ $t("preferences.telephony.answering_machine") }}
-        </bm-form-radio>
-        <bm-form-radio :value="phone" :aria-label="$t('preferences.telephony.forward_calls')">
-            {{ $t("preferences.telephony.forward_calls") }}
-        </bm-form-radio>
-        <bm-form-input
-            v-model="phone"
-            aria-describedby="phone-number-input-feedback"
-            type="tel"
-            :disabled="isInputDisabled"
-            :state="isValid"
-        />
-        <bm-form-invalid-feedback id="phone-number-input-feedback" :state="isValid">
-            {{ $t("preferences.telephony.invalid_phone_number") }}
-        </bm-form-invalid-feedback>
+        <template>
+            <bm-form-radio :value="doNothingValue" :aria-label="$t('common.do_nothing')">
+                {{ $t("common.do_nothing") }}
+            </bm-form-radio>
+            <bm-form-radio :value="answeringMachineValue" :aria-label="$t('preferences.telephony.answering_machine')">
+                {{ $t("preferences.telephony.answering_machine") }}
+            </bm-form-radio>
+            <bm-form-radio :value="phone" :aria-label="$t('preferences.telephony.forward_calls')">
+                {{ $t("preferences.telephony.forward_calls") }}
+            </bm-form-radio>
+            <bm-form-input
+                v-model="phone"
+                aria-describedby="phone-number-input-feedback"
+                type="tel"
+                :disabled="isInputDisabled"
+                :state="isValid"
+            />
+            <bm-form-invalid-feedback id="phone-number-input-feedback" :state="isValid">
+                {{ $t("preferences.telephony.invalid_phone_number") }}
+            </bm-form-invalid-feedback>
+        </template>
     </bm-form-radio-group>
 </template>
 

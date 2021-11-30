@@ -1,5 +1,5 @@
 <template>
-    <div class="mt-4 d-flex align-items-center">
+    <div v-if="!collapsed" class="mt-4 d-flex align-items-center">
         <bm-progress
             circular
             :value="quota.used"
@@ -27,9 +27,12 @@ import { inject } from "@bluemind/inject";
 import { computeUnit } from "@bluemind/file-utils";
 import { BmProgress } from "@bluemind/styleguide";
 
+import BaseField from "../../mixins/BaseField";
+
 export default {
     name: "PrefAlwaysShowQuota",
     components: { BmProgress },
+    mixins: [BaseField],
     data() {
         return { USED_QUOTA_PERCENTAGE_WARNING };
     },

@@ -3,6 +3,7 @@
         :containers="myTodoLists"
         :container-type="containerType"
         :create-container-fn="create"
+        :collapsed="collapsed"
         manage-mine
         @offline-sync-changed="UPDATE_PERSONAL_TODO_LIST"
         @update="update"
@@ -20,6 +21,7 @@ import { inject } from "@bluemind/inject";
 
 import { containerToModifiableDescriptor, ContainerHelper, ContainerType } from "../container";
 import BmTodoListItem from "./BmTodoListItem";
+import BaseField from "../../../../mixins/BaseField";
 import ContainersManagement from "../ContainersManagement";
 import TodoListHelper from "./helper";
 
@@ -28,6 +30,7 @@ ContainerHelper.register(ContainerType.TODOLIST, TodoListHelper);
 export default {
     name: "PrefManageMyTodoLists",
     components: { BmTodoListItem, ContainersManagement },
+    mixins: [BaseField],
     data() {
         return { containerType: ContainerType.TODOLIST };
     },

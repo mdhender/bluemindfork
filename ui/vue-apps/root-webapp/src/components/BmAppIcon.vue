@@ -11,9 +11,7 @@
 import { BmIcon } from "@bluemind/styleguide";
 export default {
     name: "BmAppIcon",
-    components: {
-        BmIcon
-    },
+    components: { BmIcon },
     props: {
         iconApp: {
             type: Object,

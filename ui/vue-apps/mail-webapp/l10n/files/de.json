@@ -283,7 +283,6 @@
     "mail.list.range.yesterday": "Gestern",
     "mail.list.replied.aria": "Geantwortet",
     "mail.list.search.no_result.found": "wurden gefunden.",
-    "mail.list.search.no_result.try_otherwise": "Bitte versuchen Sie einen allgemeineren Suchbegriff.",
     "mail.list.search.no_result": "Keine E-Mail enthält",
     "mail.list.sr_info.attachment": "Enthält einen oder mehrere Anhänge.",
     "mail.list.sr_info.event": "Enthält einen Termin.",

@@ -249,7 +249,8 @@ export default function (i18n) {
                                         autosave: true,
                                         label: i18n.t("preferences.mail.advanced.switch.label"),
                                         checkedValue: "mail-webapp",
-                                        uncheckedValue: "webmail"
+                                        uncheckedValue: "webmail",
+                                        needReload: true
                                     }
                                 }
                             },

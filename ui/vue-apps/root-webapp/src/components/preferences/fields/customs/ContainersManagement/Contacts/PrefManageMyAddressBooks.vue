@@ -4,6 +4,7 @@
         :containers="myAddressbooks"
         :container-type="containerType"
         :create-container-fn="create"
+        :collapsed="collapsed"
         manage-mine
         @offline-sync-changed="UPDATE_PERSONAL_ADDRESSBOOK"
         @update="update"
@@ -22,6 +23,7 @@ import { inject } from "@bluemind/inject";
 import { containerToAddressBookDescriptor, ContainerHelper, ContainerType } from "../container";
 import AddressbookHelper from "./helper";
 import BmAddressbookItem from "./BmAddressbookItem";
+import BaseField from "../../../../mixins/BaseField";
 import ContainersManagement from "../ContainersManagement";
 
 ContainerHelper.register(ContainerType.ADDRESSBOOK, AddressbookHelper);
@@ -29,6 +31,7 @@ ContainerHelper.register(ContainerType.ADDRESSBOOK, AddressbookHelper);
 export default {
     name: "PrefManageMyAddressBooks",
     components: { BmAddressbookItem, ContainersManagement },
+    mixins: [BaseField],
     data() {
         return { containerType: ContainerType.ADDRESSBOOK };
     },

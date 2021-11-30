@@ -11,7 +11,7 @@
         </bm-nav-item>
         <bm-nav-item-dropdown right offset="5" class="flex-fill">
             <template v-if="logged" slot="button-content">
-                <bm-avatar :alt="user.displayname" class="flex-shrink-0" width="2em" :status="status" />
+                <bm-avatar :alt="user.displayname" :urn="user.urn" class="flex-shrink-0" width="2em" :status="status" />
                 <span class="pr-4 username text-truncate m-auto">
                     {{ user.displayname }}
                 </span>

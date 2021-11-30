@@ -148,7 +148,9 @@
     "common.days": "jours",
     "common.days_before": "1 jour avant | {count} jours avant",
     "common.expand": "Déplier",
+    "common.expand_all": "tout déplier",
     "common.collapse": "Replier",
+    "common.collapse_all": "tout replier",
     "common.hour": "Heure",
     "common.until": "Jusqu'au",
     "common.download": "Télécharger",
@@ -179,5 +181,6 @@
     "common.my_todo_lists": "Mes listes de tâches",
     "common.other_todo_lists": "Autres listes de tâches",
     "common.close": "Fermer",
-    "common.got_it": "J'ai compris"
+    "common.got_it": "J'ai compris",
+    "common.search.try_otherwise": "Essayez un terme plus générique."
 }

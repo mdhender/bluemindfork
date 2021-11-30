@@ -1,5 +1,5 @@
 <template>
-    <div class="text-center pr-0 d-flex flex-column">
+    <div class="empty-search-result text-center pr-0 d-flex flex-column">
         <div class="py-4 font-size-lg">
             <p>
                 {{ $t("mail.list.search.no_result") }}<br />
@@ -7,7 +7,7 @@
                 {{ $t("mail.list.search.no_result.found") }}
             </p>
             <p>
-                {{ $t("mail.list.search.no_result.try_otherwise") }}
+                {{ $t("common.search.try_otherwise") }}
             </p>
         </div>
         <div
@@ -36,20 +36,21 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import "~@bluemind/styleguide/css/variables";
+.empty-search-result {
+    .font-size-lg {
+        font-size: $font-size-lg;
+    }
 
-.font-size-lg {
-    font-size: $font-size-lg;
-}
+    .search-pattern {
+        color: $info-dark;
+        font-weight: $font-weight-bold;
+        word-break: break-all;
+    }
 
-.search-pattern {
-    color: $info-dark;
-    font-weight: $font-weight-bold;
-    word-break: break-all;
-}
-
-.no-search-results-illustration {
-    flex: auto 1 1;
+    .no-search-results-illustration {
+        flex: auto 1 1;
+    }
 }
 </style>

@@ -10,9 +10,7 @@ import OneSettingField from "../mixins/OneSettingField";
 
 export default {
     name: "PrefFieldCheck",
-    components: {
-        BmFormCheckbox
-    },
+    components: { BmFormCheckbox },
     mixins: [OneSettingField],
     props: {
         label: {

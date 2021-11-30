@@ -1,8 +1,7 @@
 <template>
     <div class="pref-section-navbar d-flex">
         <bm-list-group-item class="d-flex align-items-center" :to="anchor(section, true)" @click="scrollTo(section)">
-            <bm-avatar v-if="section.id === 'my_account'" :alt="userDisplayName" class="mx-3" />
-            <bm-app-icon v-else :icon-app="section.icon" class="text-primary" />
+            <pref-section-icon :section="section" />
         </bm-list-group-item>
         <bm-list-group-item
             v-for="category in section.categories"
@@ -17,30 +16,18 @@
     </div>
 </template>
 <script>
-import BmAppIcon from "../BmAppIcon";
 import Navigation from "./mixins/Navigation";
-
-import { inject } from "@bluemind/inject";
-import { BmAvatar, BmLabelIcon, BmListGroupItem } from "@bluemind/styleguide";
+import PrefSectionIcon from "./PrefSectionIcon";
+import { BmLabelIcon, BmListGroupItem } from "@bluemind/styleguide";
 
 export default {
     name: "PrefSectionNavbar",
-    components: {
-        BmAvatar,
-        BmLabelIcon,
-        BmAppIcon,
-        BmListGroupItem
-    },
+    components: { BmLabelIcon, BmListGroupItem, PrefSectionIcon },
     mixins: [Navigation],
     props: {
         section: {
             required: true,
             type: Object
-        }
-    },
-    computed: {
-        userDisplayName() {
-            return inject("UserSession").formatedName;
         }
     }
 };
@@ -76,22 +63,11 @@ export default {
 
         &:first-child {
             padding: 0;
-
-            // a total width of 4rem, should be used as for the content's left margin
-            .bm-app-icon svg {
-                width: 2rem;
-                height: 2rem;
-                margin: 0 1rem 0 1rem;
-            }
         }
 
         &:focus {
             background-color: $white;
         }
-    }
-
-    .bm-avatar {
-        font-size: 1rem;
     }
 }
 </style>

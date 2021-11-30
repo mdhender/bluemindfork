@@ -148,7 +148,9 @@
     "common.days": "days",
     "common.days_before": "1 day before | {count} days before",
     "common.expand": "Expand",
+    "common.expand_all": "expand all",
     "common.collapse": "Collapse",
+    "common.collapse_all": "collapse all",
     "common.hour": "Hour",
     "common.until": "Until",
     "common.download": "Download",
@@ -179,5 +181,6 @@
     "common.my_todo_lists": "My to-do lists",
     "common.other_todo_lists": "Other to-do lists",
     "common.close": "Close",
-    "common.got_it": "I got it"
+    "common.got_it": "I got it",
+    "common.search.try_otherwise": "Please retry using a more generic search term."
 }

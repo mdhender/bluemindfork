@@ -1,5 +1,5 @@
 <template>
-    <div class="pref-group">
+    <div :id="group.id" class="pref-group">
         <pref-entry-name :id="anchor(group)" class="pt-4 pb-2" :entry="group" />
         <bm-form-group :aria-describedby="anchor(group)" :disabled="group.disabled">
             <template v-for="field in group.fields">
@@ -10,6 +10,7 @@
                     :key="field.id"
                     class="pref-field"
                     :disabled="field.disabled"
+                    :collapsed="collapsed"
                     v-bind="field.component.options"
                 />
             </template>
@@ -97,6 +98,10 @@ export default {
         group: {
             type: Object,
             required: true
+        },
+        collapsed: {
+            type: Boolean,
+            default: false
         }
     }
 };
@@ -106,7 +111,6 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .pref-group {
-    padding-left: 4rem;
     padding-right: 4rem;
 
     .pref-field {

@@ -2,6 +2,7 @@
     <containers-management
         :containers="otherTodoLists"
         :container-type="containerType"
+        :collapsed="collapsed"
         share-column
         @offline-sync-changed="UPDATE_OTHER_TODO_LIST"
         @remove="REMOVE_OTHER_TODO_LIST"
@@ -19,6 +20,7 @@
 import BmTodoListBadge from "./BmTodoListBadge";
 import BmTodoListItem from "./BmTodoListItem";
 import { ContainerHelper, ContainerType } from "../container";
+import BaseField from "../../../../mixins/BaseField";
 import ContainersManagement from "../ContainersManagement";
 import TodoListHelper from "./helper";
 import { mapMutations, mapState } from "vuex";
@@ -28,6 +30,7 @@ ContainerHelper.register(ContainerType.TODOLIST, TodoListHelper);
 export default {
     name: "PrefManageOtherTodoLists",
     components: { BmTodoListBadge, BmTodoListItem, ContainersManagement },
+    mixins: [BaseField],
     data() {
         return { containerType: ContainerType.TODOLIST };
     },

@@ -200,6 +200,7 @@
     "preferences.role.missing.warning": "Vous n'avez pas les droits pour modifier cette préférence",
     "preferences.save.error": "Erreur lors de l'enregistrement, vérifiez votre connexion internet",
     "preferences.save.success": "Modifications enregistrées",
+    "preferences.search.no_result": "Aucune préférence avec le terme \"{pattern}\" n'a été trouvée.",
     "preferences.menu.apps": "Menu des préférences d'application",
 
     "preferences.contacts.can_read_my_addressbook": "Peut voir ce carnet d'adresses | Peuvent voir ce carnet d'adresses",

@@ -4,7 +4,7 @@
         <bm-form-checkbox v-model="value.enabled" class="mb-3">
             {{ $t("preferences.mail.automatic_reply.activate") }}
         </bm-form-checkbox>
-        <div :class="{ disabled: !value.enabled }">
+        <div v-if="!collapsed" :class="{ disabled: !value.enabled }">
             <bm-form-group
                 :label="$t('mail.new.subject')"
                 label-for="subject"

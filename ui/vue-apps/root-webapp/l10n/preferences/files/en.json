@@ -125,7 +125,7 @@
     "preferences.mail.advanced.switch.features.shared": "User shared mailbox",
     "preferences.mail.advanced.switch.features.filehosting": "Send large files as link",
     "preferences.mail.advanced.switch.features.move_folder": "Move folder",
-    
+
     "preferences.mail.identities.manage": "Manage identities",
     "preferences.mail.identities.always_show_from": "Always show field \"From\" (sender)",
     "preferences.mail.identities.create": "Add an identity",
@@ -200,6 +200,7 @@
     "preferences.role.missing.warning": "You do not have the rights to modify this preference",
     "preferences.save.error": "Error while saving, check your network connection",
     "preferences.save.success": "Successfully saved",
+    "preferences.search.no_result": "No preference containing \"{pattern}\" has been found.",
     "preferences.menu.apps": "Applications preferences menu",
 
     "preferences.contacts.can_read_my_addressbook": "Can see this address book",

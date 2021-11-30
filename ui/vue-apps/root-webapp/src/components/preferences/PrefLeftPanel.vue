@@ -5,13 +5,13 @@
                 <bm-label-icon icon="preferences">{{ $t("common.preference") }}</bm-label-icon>
             </h2>
             <div class="d-lg-none">
-                <bm-button variant="inline-light" class="btn-sm mr-auto" @click="$emit('close')">
+                <bm-button variant="inline-light" class="mr-auto" @click="$emit('close')">
                     <bm-icon icon="arrow-back" size="2x" />
                 </bm-button>
                 <h2 class="d-inline align-middle">{{ $t("common.preference") }}</h2>
             </div>
         </div>
-        <pref-left-panel-nav :sections="sections" :user="user" />
+        <pref-left-panel-nav :sections="sections" />
         <div class="p-3">
             <bm-button class="text-white font-weight-bold text-left" variant="link" @click="goToOldPrefs">
                 {{ $t("preferences.access_old_settings_app") }}
@@ -37,10 +37,6 @@ export default {
         sections: {
             required: true,
             type: Array
-        },
-        user: {
-            required: true,
-            type: Object
         }
     },
     methods: {

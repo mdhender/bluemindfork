@@ -16,7 +16,6 @@
         >
             <bm-row class="h-100">
                 <pref-left-panel
-                    :user="user"
                     :sections="SECTIONS"
                     :class="selectedSection ? 'd-none' : ''"
                     @close="closePreferences"
@@ -40,7 +39,7 @@ import { BmContainer, BmRow, BmSpinner } from "@bluemind/styleguide";
 import getPreferenceSections from "./sections";
 import SettingsL10N from "../../../l10n/preferences/";
 import PrefLeftPanel from "./PrefLeftPanel";
-import PrefRightPanel from "./PrefRightPanel";
+import PrefRightPanel from "./PrefRightPanel/PrefRightPanel";
 import Navigation from "./mixins/Navigation";
 
 export default {
@@ -57,15 +56,11 @@ export default {
         applications: {
             required: true,
             type: Array
-        },
-        user: {
-            required: true,
-            type: Object
         }
     },
     componentI18N: { messages: SettingsL10N },
     data() {
-        return { loaded: false, mount: false, lockClose: false };
+        return { loaded: false, lockClose: false };
     },
     computed: {
         ...mapState("preferences", { selectedSection: "selectedSectionId" }),
@@ -97,11 +92,6 @@ export default {
         this.loaded = true;
         this.scrollOnLoad();
     },
-    mounted() {
-        this.mounted = true;
-        this.scrollOnLoad();
-    },
-
     methods: {
         ...mapActions("preferences", [
             "FETCH_CONTAINERS",
@@ -115,12 +105,14 @@ export default {
             "SET_SELECTED_SECTION",
             "SET_SECTIONS",
             "SET_OFFSET",
+            "SET_SEARCH",
             "SET_STATUS"
         ]),
         closePreferences() {
             this.$router.push({ hash: "" });
             this.TOGGLE_PREFERENCES();
             this.SET_OFFSET(0);
+            this.SET_SEARCH("");
         },
         unlockOrClose() {
             if (!this.lockClose) {
@@ -129,22 +121,23 @@ export default {
             this.lockClose = false;
         },
         async scrollOnLoad() {
-            if (this.mounted && this.loaded) {
-                // @see https://bootstrap-vue.org/docs/directives/scrollspy#events
-                this.$root.$on("bv::scrollspy::activate", path => {
-                    this.SET_SELECTED_SECTION(path.split("-")[1]);
-                    if (this.$route.hash !== path) {
-                        this.$router.push({ hash: path });
-                    }
-                });
-                await this.$nextTick();
-                if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
-                    const path = this.$route.hash.replace("#preferences-", "");
-                    this.SET_SELECTED_SECTION(path.split("-").shift());
-                    this.scrollTo(path);
-                } else {
-                    this.SET_SELECTED_SECTION("main");
+            // @see https://bootstrap-vue.org/docs/directives/scrollspy#events
+            this.$root.$on("bv::scrollspy::activate", path => {
+                const newSectionId = path.split("-")[1];
+                if (this.selectedSection !== newSectionId) {
+                    this.SET_SELECTED_SECTION(newSectionId);
                 }
+                if (this.$route.hash !== path) {
+                    this.$router.push({ hash: path });
+                }
+            });
+            await this.$nextTick();
+            if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
+                const path = this.$route.hash.replace("#preferences-", "");
+                this.SET_SELECTED_SECTION(path.split("-").shift());
+                this.scrollTo(path);
+            } else {
+                this.SET_SELECTED_SECTION("my_account");
             }
         }
     }

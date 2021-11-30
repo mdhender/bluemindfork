@@ -8,17 +8,14 @@ export default {
         },
         default: {
             type: String,
-            required: false,
             default: undefined
         },
         needReload: {
             type: Boolean,
-            required: false,
             default: false
         },
         needLogout: {
             type: Boolean,
-            required: false,
             default: false
         }
     },

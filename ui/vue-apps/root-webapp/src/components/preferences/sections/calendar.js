@@ -153,7 +153,8 @@ function myCalendarsCategory(i18n) {
                 fields: [
                     {
                         id: "field",
-                        component: { name: "PrefManageMyCalendars" }
+                        component: { name: "PrefManageMyCalendars" },
+                        keywords: [i18n.t("preferences.calendar.my_calendars.availabilities_advanced_management")]
                     }
                 ]
             }

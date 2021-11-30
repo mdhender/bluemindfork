@@ -103,8 +103,6 @@
 
     "preferences.create_container.label.description": "Bezeichnung, die im {type} verwendet wird",
     "preferences.create_container.name_already_exists": "Dieser Beschriftung wird bereits verwendet",
-    "preferences.create_container.button": "{type} erstellen",
-    "preferences.update_container.button": "{type} aktualisieren \"{name}\"",
     "preferences.create_container.calendar.button": "@:common.container_type_with_indefinite_article.calendar erstellen",
     "preferences.create_container.addressbook.button": "@:common.container_type_with_indefinite_article.addressbook erstellen",
     "preferences.create_container.todolist.button": "@:common.container_type_with_indefinite_article.todolist erstellen",
@@ -202,6 +200,7 @@
     "preferences.role.missing.warning": "Sie haben keine Berechtigung diese Einstellung zu verändern",
     "preferences.save.error": "Fehler beim Speichern, bitte Netzwerkverfügbarkeit prüfen",
     "preferences.save.success": "Erfolgreich gespeichert",
+    "preferences.search.no_result": "No preference with the term \"{pattern}\" has been found.",
     "preferences.menu.apps": "Anwendungseinstellungen",
 
     "preferences.contacts.can_read_my_addressbook": "Kann lesend auf das Adressbuch zugreifen | Können lesend auf das Adressbuch zugreifen",

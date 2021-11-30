@@ -283,7 +283,6 @@
     "mail.list.range.yesterday": "Hier",
     "mail.list.replied.aria": "Répondu",
     "mail.list.search.no_result.found": "n'a été trouvé.",
-    "mail.list.search.no_result.try_otherwise": "Essayez un terme plus générique.",
     "mail.list.search.no_result": "Aucun message contenant",
     "mail.list.sr_info": "{title}{props}",
     "mail.list.sr_info.props": "{flagged}{unread}{read}{event}{attachment}{replied}{forwarded}",

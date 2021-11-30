@@ -1,11 +1,9 @@
 <template>
-    <div id="scroll-area" class="pref-content" @scroll="({ target }) => SET_OFFSET(target.scrollTop)">
-        <div v-for="(section, index) in sections" :key="section.id" class="mb-5">
-            <template v-if="index !== 0">
-                <bm-list-group :id="'section-' + section.id" horizontal>
-                    <pref-section-navbar :section="section" />
-                </bm-list-group>
-            </template>
+    <div id="scroll-area" class="pref-sections" @scroll="({ target }) => SET_OFFSET(target.scrollTop)">
+        <div v-for="(section, index) in sections" :id="section.id" :key="section.id" class="mb-5 pref-section">
+            <bm-list-group v-if="index !== 0" :id="'section-' + section.id" horizontal>
+                <pref-section-navbar :section="section" />
+            </bm-list-group>
             <div :id="anchor(section)" :v-show="false"></div>
             <pref-category v-for="category in section.categories" :key="category.id" :category="category" />
         </div>
@@ -20,7 +18,7 @@ import PrefSectionNavbar from "./PrefSectionNavbar";
 import Navigation from "./mixins/Navigation";
 
 export default {
-    name: "PrefContent",
+    name: "PrefSections",
     components: {
         BmListGroup,
         PrefCategory,
@@ -41,13 +39,16 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
-.pref-content {
+.pref-sections {
     position: relative;
     overflow: auto;
     background-color: $surface-bg;
     z-index: 1;
     .pref-section-navbar {
         border-bottom: 1px solid $secondary;
+    }
+    .pref-group {
+        padding-left: 4rem;
     }
 }
 </style>

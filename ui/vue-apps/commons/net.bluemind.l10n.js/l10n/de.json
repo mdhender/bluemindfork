@@ -148,7 +148,9 @@
     "common.days": "Tage",
     "common.days_before": "1 Tag vorher | {count} Tage vorher",
     "common.expand": "Aufklappen",
+    "common.expand_all": "Alle aufklappen",
     "common.collapse": "Einklappen",
+    "common.collapse_all": "Alle einklappen",
     "common.hour": "Stunde",
     "common.until": "Bis",
     "common.download": "Herunterladen",
@@ -179,5 +181,6 @@
     "common.my_todo_lists": "Meine Todolisten",
     "common.other_todo_lists": "Weitere Todolisten",
     "common.close": "Schliessen",
-    "common.got_it": "I got it"
+    "common.got_it": "I got it",
+    "common.search.try_otherwise": "Bitte versuchen Sie einen allgemeineren Suchbegriff."
 }

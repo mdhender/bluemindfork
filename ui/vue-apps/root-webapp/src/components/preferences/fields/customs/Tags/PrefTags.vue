@@ -2,36 +2,42 @@
     <div class="pref-tags">
         <p>{{ $t("preferences.general.tags.desc") }}</p>
         <pref-tag-modal ref="tag-editing-modal" :tag="editingTag" @updateTag="updateUserTag" />
-        <div class="pref-item-width"><hr /></div>
-        <pref-tags-subset
-            :tags="domainTags"
-            :title="$t('preferences.general.tags.subset.domain', { count: domainTags.length })"
-        />
-        <div class="pref-item-width"><hr /></div>
-        <pref-tags-subset
-            :tags="userTags"
-            :title="$t('preferences.general.tags.subset.user', { count: userTags.length })"
-            editable
-            @remove="removeUserTag"
-            @edit="
-                editingTag = { ...$event };
-                $refs['tag-editing-modal'].show();
-            "
-        />
+        <template v-if="!collapsed">
+            <div class="pref-item-width"><hr /></div>
+            <pref-tags-subset
+                :tags="domainTags"
+                :title="$t('preferences.general.tags.subset.domain', { count: domainTags.length })"
+            />
+            <div class="pref-item-width"><hr /></div>
+            <pref-tags-subset
+                :tags="userTags"
+                :title="$t('preferences.general.tags.subset.user', { count: userTags.length })"
+                editable
+                @remove="removeUserTag"
+                @edit="
+                    editingTag = { ...$event };
+                    $refs['tag-editing-modal'].show();
+                "
+            />
+        </template>
     </div>
 </template>
 
 <script>
-import { inject } from "@bluemind/inject";
 import { mapActions } from "vuex";
+
+import { inject } from "@bluemind/inject";
 import { ERROR } from "@bluemind/alert.store";
 import UUIDGenerator from "@bluemind/uuid";
+
+import BaseField from "../../../mixins/BaseField";
 import PrefTagModal from "./PrefTagModal";
 import PrefTagsSubset from "./PrefTagsSubset";
 
 export default {
     name: "PrefTags",
     components: { PrefTagModal, PrefTagsSubset },
+    mixins: [BaseField],
     data() {
         return { domainTags: [], userTags: [], editingTag: {} };
     },

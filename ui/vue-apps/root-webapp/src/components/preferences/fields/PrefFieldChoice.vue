@@ -8,9 +8,11 @@
             :aria-label="choice.name"
         >
             <template #img>
-                <img v-if="choice.img" :src="choice.img" alt="null" />
-                <!-- eslint-disable-next-line vue/no-v-html -->
-                <div v-if="choice.svg" v-html="choice.svg" />
+                <template v-if="!collapsed">
+                    <img v-if="choice.img" :src="choice.img" alt="null" />
+                    <!-- eslint-disable-next-line vue/no-v-html -->
+                    <div v-if="choice.svg" v-html="choice.svg" />
+                </template>
             </template>
             {{ choice.name }}
         </bm-form-radio>
@@ -23,10 +25,7 @@ import OneSettingField from "../mixins/OneSettingField";
 
 export default {
     name: "PrefFieldChoice",
-    components: {
-        BmFormRadio,
-        BmFormRadioGroup
-    },
+    components: { BmFormRadio, BmFormRadioGroup },
     mixins: [OneSettingField],
     props: {
         choices: {

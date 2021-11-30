@@ -110,6 +110,7 @@ function sanitizeField(field, prefix) {
         priority: sanitizePriority(field.priority),
         visible: sanitizeCondition(field.visible, true),
         disabled: sanitizeCondition(field.disabled, false),
+        keywords: sanitizeKeywords(field.keywords),
         id: sanitizeId(field.id, prefix)
     };
 }
@@ -119,6 +120,15 @@ function sanitizePriority(priority) {
 }
 function sanitizeId(id, prefix) {
     return [...prefix, id.split(".").pop()].join(".");
+}
+function sanitizeKeywords(keywords) {
+    if (typeof keywords === "string") {
+        return [keywords];
+    }
+    if (!Array.isArray(keywords)) {
+        return [];
+    }
+    return keywords;
 }
 
 function sanitizeCondition(value, fallback) {

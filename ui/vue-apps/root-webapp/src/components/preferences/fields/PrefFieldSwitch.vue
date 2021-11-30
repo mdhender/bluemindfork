@@ -1,15 +1,13 @@
 <template>
-    <div class="pref-field-switch">
-        <bm-form-checkbox
-            v-model="value"
-            class="d-inline-block"
-            :value="checkedValue"
-            :unchecked-value="uncheckedValue"
-            switch
-        >
-            {{ label }}
-        </bm-form-checkbox>
-    </div>
+    <bm-form-checkbox
+        v-model="value"
+        class="pref-field-switch d-inline-block"
+        :value="checkedValue"
+        :unchecked-value="uncheckedValue"
+        switch
+    >
+        {{ label }}
+    </bm-form-checkbox>
 </template>
 
 <script>

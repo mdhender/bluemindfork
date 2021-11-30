@@ -2,6 +2,7 @@
     <containers-management
         :containers="otherMailboxesContainers"
         :container-type="containerType"
+        :collapsed="collapsed"
         share-column
         @offline-sync-changed="UPDATE_OTHER_MAILBOX_CONTAINER"
         @remove="REMOVE_OTHER_MAILBOX_CONTAINER"
@@ -25,6 +26,7 @@
 
 <script>
 import { ContainerHelper, ContainerType } from "../container";
+import BaseField from "../../../../mixins/BaseField";
 import ContainersManagement from "../ContainersManagement";
 import MailboxHelper from "./helper";
 import { BmContact } from "@bluemind/styleguide";
@@ -35,6 +37,7 @@ ContainerHelper.register(ContainerType.MAILBOX, MailboxHelper);
 export default {
     name: "PrefManageOtherMailboxes",
     components: { BmContact, ContainersManagement },
+    mixins: [BaseField],
     data() {
         return { containerType: ContainerType.MAILBOX };
     },

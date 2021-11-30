@@ -107,5 +107,6 @@
     "common.email_address": "Adres e-mail",
     "common.manage": "Zarządzanie",
     "common.display_name": "Nazwa wyświetlana",
-    "common.invalid.character": "Ten znak jest nieprawidłowy: \"{character}\""
+    "common.invalid.character": "Ten znak jest nieprawidłowy: \"{character}\"",
+    "common.search.try_otherwise": "Spróbuj ponownie używając bardziej ogólnych kryteriów wyszukiwania."
 }

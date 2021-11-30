@@ -2,7 +2,7 @@
     <div class="main-app d-flex flex-column h-100 bg-light">
         <global-events target="self" @resize="appHeight" />
         <bm-banner v-if="showBanner" :applications="applications" :user="user" />
-        <preferences v-if="showPreferences" :user="user" :applications="applications" />
+        <preferences v-if="showPreferences" :applications="applications" />
         <about v-if="showAbout" :version="software.version" />
         <div
             v-if="appState == 'error'"
@@ -60,7 +60,8 @@ export default {
             user: session.userId
                 ? {
                       displayname: session["formatedName"],
-                      email: session["defaultEmail"]
+                      email: session["defaultEmail"],
+                      urn: session["userId"] + "@addressbook_" + session["domain"]
                   }
                 : {
                       displayname: "Anonymous",

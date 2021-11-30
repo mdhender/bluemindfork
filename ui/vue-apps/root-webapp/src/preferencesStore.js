@@ -5,6 +5,7 @@ import { inject } from "@bluemind/inject";
 const state = {
     offset: 0,
     showPreferences: false,
+    search: "",
     selectedSectionId: "",
     sectionById: {},
     status: "idle",
@@ -69,6 +70,9 @@ const actions = {
 
 const mutations = {
     SET_STATUS: (state, status) => (state.status = status),
+    SET_SEARCH: (state, search) => {
+        state.search = search;
+    },
     SET_OFFSET: (state, offset) => (state.offset = offset),
     TOGGLE_PREFERENCES: state => (state.showPreferences = !state.showPreferences),
     SET_SECTIONS: (state, sections = []) => {
@@ -124,14 +128,22 @@ const mutations = {
 };
 
 const getters = {
-    SECTIONS: state => Object.values(state.sectionById).filter(section => section.visible),
-    MAILBOX_FILTER_CHANGED: state =>
-        JSON.stringify(state.mailboxFilter.local) !== JSON.stringify(state.mailboxFilter.remote),
+    GET_SECTION: (state, { SECTIONS }) => groupId =>
+        SECTIONS.find(section =>
+            section.categories.flatMap(category => category.groups).find(group => group.id === groupId)
+        ),
+    GET_GROUP: (state, { SECTIONS }) => groupId =>
+        SECTIONS.flatMap(section => section.categories)
+            .flatMap(category => category.groups)
+            .find(group => group.id === groupId),
+    SECTIONS: ({ sectionById }) => Object.values(sectionById).filter(section => section.visible),
     STATUS: ({ status }, getters) => {
         if (getters["fields/HAS_CHANGED"]) return "idle";
         if (status === "saved" && getters["fields/HAS_ERROR"]) return "error";
         return status;
-    }
+    },
+    SEARCH_PATTERN: ({ search }) => search.trim().toLowerCase(),
+    HAS_SEARCH: (state, { SEARCH_PATTERN }) => SEARCH_PATTERN !== ""
 };
 
 export default {

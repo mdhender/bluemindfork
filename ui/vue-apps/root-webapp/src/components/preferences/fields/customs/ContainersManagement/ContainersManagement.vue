@@ -2,7 +2,7 @@
     <div class="containers-management">
         <template v-if="containers.length > 0">
             <bm-form-input
-                v-if="!manageMine"
+                v-if="!manageMine && !collapsed"
                 v-model="pattern"
                 class="mt-1 mb-3"
                 :placeholder="$t('common.filter')"
@@ -104,12 +104,19 @@ export default {
         shareColumn: {
             type: Boolean,
             default: false
+        },
+        collapsed: {
+            type: Boolean,
+            required: true
         }
     },
     data() {
-        return { currentPage: 1, isManaged, perPage: 5, pattern: "" };
+        return { currentPage: 1, isManaged, pattern: "" };
     },
     computed: {
+        perPage() {
+            return this.collapsed ? 2 : 5;
+        },
         subscribeToContainerLabel() {
             return this.$t("preferences.add_containers.subscribe", {
                 type: this.$tc("common.container_type." + this.containerType, 2)

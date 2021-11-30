@@ -2,13 +2,12 @@
     <div class="text-center pr-0 d-flex flex-column">
         <div class="py-4 font-size-lg">
             <p>
+                <!-- need to be refactored with i18n component interpolation -->
                 {{ $t("mail.list.search.no_result") }}<br />
                 <span class="search-pattern">"{{ pattern }}"</span><br />
                 {{ $t("mail.list.search.no_result.found") }}
             </p>
-            <p>
-                {{ $t("mail.list.search.no_result.try_otherwise") }}
-            </p>
+            <p>{{ $t("common.search.try_otherwise") }}</p>
             <p v-if="CONVERSATION_LIST_FILTERED">
                 <router-link :to="$router.relative({ name: 'v:mail:home', params: { filter: null } }, $route)">
                     {{ $t("mail.list.filter.remove") }}

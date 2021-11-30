@@ -2,6 +2,7 @@
     <containers-management
         :containers="otherCalendars"
         :container-type="containerType"
+        :collapsed="collapsed"
         @offline-sync-changed="UPDATE_OTHER_CALENDAR"
         @remove="REMOVE_OTHER_CALENDAR"
         @subscribe="ADD_OTHER_CALENDARS"
@@ -19,6 +20,7 @@ import BmCalendarBadge from "./BmCalendarBadge";
 import BmCalendarItem from "./BmCalendarItem";
 import { ContainerHelper, ContainerType } from "../container";
 import CalendarHelper from "./helper";
+import BaseField from "../../../../mixins/BaseField";
 import ContainersManagement from "../ContainersManagement";
 import { mapMutations, mapState } from "vuex";
 
@@ -27,6 +29,7 @@ ContainerHelper.register(ContainerType.CALENDAR, CalendarHelper);
 export default {
     name: "PrefManageOtherCalendars",
     components: { BmCalendarBadge, BmCalendarItem, ContainersManagement },
+    mixins: [BaseField],
     data() {
         return { containerType: ContainerType.CALENDAR };
     },

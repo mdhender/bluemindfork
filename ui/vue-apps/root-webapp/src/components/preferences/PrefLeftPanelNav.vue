@@ -5,21 +5,18 @@
                 v-for="section in sections"
                 ref="section"
                 :key="section.id"
-                :active="section.id === selectedSectionId"
+                :active="isActive(section.id)"
                 class="app-item container px-4 py-3"
                 role="button"
                 tabindex="0"
                 :to="anchor(section, true)"
-                @click="scrollTo(section)"
+                @click="goToSection(section)"
             >
                 <div class="row align-items-center">
-                    <div class="col-2 text-center">
-                        <bm-avatar v-if="section.id === 'my_account'" :alt="user.displayname" />
-                        <bm-app-icon v-else :icon-app="section.icon" class="text-primary" />
-                    </div>
+                    <div class="col-2 text-center"><pref-section-icon :section="section" /></div>
                     <div class="col">
                         <div v-if="section.id === 'my_account'" class="text-white display-name">
-                            {{ user.displayname }}
+                            {{ userDisplayName }}
                         </div>
                         <div v-else class="text-primary-or-white font-size-lg">{{ section.name }}</div>
                     </div>
@@ -35,38 +32,40 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-
+import { mapGetters, mapMutations, mapState } from "vuex";
 import { inject } from "@bluemind/inject";
-import { BmAvatar, BmListGroup, BmListGroupItem, BmScrollspy } from "@bluemind/styleguide";
-
-import BmAppIcon from "../BmAppIcon";
+import { BmListGroup, BmListGroupItem, BmScrollspy } from "@bluemind/styleguide";
 import Navigation from "./mixins/Navigation";
+import PrefSectionIcon from "./PrefSectionIcon";
 
 export default {
     name: "PrefLeftPanelNav",
-    components: {
-        BmAppIcon,
-        BmAvatar,
-        BmListGroup,
-        BmListGroupItem
-    },
+    components: { BmListGroup, BmListGroupItem, PrefSectionIcon },
     directives: { BmScrollspy },
     mixins: [Navigation],
     props: {
         sections: {
             required: true,
             type: Array
-        },
-        user: {
-            required: true,
-            type: Object
         }
     },
+    data() {
+        return { userDisplayName: inject("UserSession").formatedName };
+    },
     computed: {
-        ...mapState("preferences", ["selectedSectionId"]),
-        userDisplayName() {
-            return inject("UserSession").formatedName;
+        ...mapGetters("preferences", ["HAS_SEARCH"]),
+        ...mapState("preferences", ["selectedSectionId"])
+    },
+    methods: {
+        ...mapMutations("preferences", ["SET_SEARCH", "SET_SELECTED_SECTION"]),
+        async goToSection(section) {
+            this.SET_SEARCH("");
+            this.SET_SELECTED_SECTION(section.id);
+            await this.$nextTick();
+            this.scrollTo(section);
+        },
+        isActive(sectionId) {
+            return !this.HAS_SEARCH && sectionId === this.selectedSectionId;
         }
     },
     mounted() {
@@ -109,10 +108,6 @@ export default {
 
     &.active .text-primary-or-white {
         color: $primary;
-    }
-
-    .bm-avatar {
-        font-size: 1rem;
     }
 
     .display-name {

@@ -284,7 +284,6 @@
     "mail.list.range.yesterday": "Yesterday",
     "mail.list.replied.aria": "Replied",
     "mail.list.search.no_result.found": "has been found.",
-    "mail.list.search.no_result.try_otherwise": "Please retry using a more generic search term.",
     "mail.list.search.no_result": "No message containing",
     "mail.list.sr_info.attachment": "Contains one or more attachments.",
     "mail.list.sr_info.event": "Contains an event.",
