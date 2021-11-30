@@ -27,6 +27,13 @@ public final class NodeUtils {
 		CommandStatus status;
 		do {
 			status = service.getStatus(serverUid, ref);
+			if (!status.complete) {
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+			}
 		} while (!status.complete);
 	}
 
