@@ -101,10 +101,15 @@ public class UserImportCommand extends SingleOrDomainOperation {
 
 			IServer serversApi = ctx.adminApi().instance(IServer.class, InstallationId.getIdentifier());
 
-			serversApi.submitAndWait(de.value.dataLocation,
-					"bm-cli maintenance repair --ops mailboxFilesystem " + de.value.email);
-			serversApi.submitAndWait(de.value.dataLocation,
-					"bm-cli maintenance repair --ops mailboxAcls " + de.value.email);
+			Tasks.follow(ctx, true,
+					serversApi.submit(de.value.dataLocation,
+							"bm-cli maintenance repair --ops mailboxFilesystem " + de.value.email),
+					"Cannot repair (mailboxFilesystem) " + de.uid);
+			Tasks.follow(ctx, true,
+					serversApi.submit(de.value.dataLocation,
+							"bm-cli maintenance repair --ops mailboxAcls " + de.value.email),
+					"Cannot repair (mailboxAcls) " + de.uid);
+
 		} catch (IOException e) {
 			ctx.error("Error extracting archive " + e.getMessage());
 			throw new CliException(e);
@@ -112,7 +117,7 @@ public class UserImportCommand extends SingleOrDomainOperation {
 			FileUtils.delete(tempDir.toFile());
 		}
 	}
-	
+
 	private void extractArchive(Path archivePath, Path tempDir) throws IOException {
 
 		try (InputStream in = Files.newInputStream(archivePath)) {
@@ -277,24 +282,27 @@ public class UserImportCommand extends SingleOrDomainOperation {
 	private void importMail(ItemValue<DirEntry> de, Path directory) {
 		String type = directory.getFileName().toString();
 		String filename = directory.getFileName().toString();
-		
+
 		ctx.info("Importing mail " + type);
 		String login = ctx.adminApi().instance(IUser.class, domainUid).getComplete(de.uid).value.login;
-		
-		char firstDomainLetter= (Character.isLetter(domainUid.charAt(0))) ? domainUid.charAt(0) : 'q';
-		
-		String basePath = filename.equalsIgnoreCase("data") || filename.equalsIgnoreCase("meta") ? "/var/spool/cyrus/" + filename : "/var/spool/bm-hsm/cyrus-archives"; 
-		String cyrusPath = basePath + "/" + de.value.dataLocation + "__" + domainUid.replace('.', '_')
-					+ "/domain/" + firstDomainLetter + "/" + domainUid + "/" + firstLetterMailbox(login) + "/user/"
-					+ login.replace('.', '^');
-		
+
+		char firstDomainLetter = (Character.isLetter(domainUid.charAt(0))) ? domainUid.charAt(0) : 'q';
+
+		String basePath = filename.equalsIgnoreCase("data") || filename.equalsIgnoreCase("meta")
+				? "/var/spool/cyrus/" + filename
+				: "/var/spool/bm-hsm/cyrus-archives";
+		String cyrusPath = basePath + "/" + de.value.dataLocation + "__" + domainUid.replace('.', '_') + "/domain/"
+				+ firstDomainLetter + "/" + domainUid + "/" + firstLetterMailbox(login) + "/user/"
+				+ login.replace('.', '^');
+
 		copyEmails(de, directory, cyrusPath);
 	}
 
 	private void copyEmails(ItemValue<DirEntry> de, Path directory, String outputDir) {
 		String command = String.format("rsync -r %s/ %s", directory.toAbsolutePath().toString(), outputDir);
 		IServer serversApi = ctx.adminApi().instance(IServer.class, InstallationId.getIdentifier());
-		serversApi.submitAndWait(de.value.dataLocation, command);
+		Tasks.follow(ctx, true, serversApi.submit(de.value.dataLocation, command),
+				"Cannot copy mails from " + directory.toAbsolutePath().toString());
 	}
 
 	private char firstLetterMailbox(String mbox) {

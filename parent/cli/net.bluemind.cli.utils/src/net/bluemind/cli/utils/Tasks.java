@@ -33,7 +33,11 @@ public class Tasks {
 	}
 
 	public static TaskStatus follow(CliContext ctx, boolean shouldLog, TaskRef ref, String errorMessage) {
-		ITask trackApi = ctx.adminApi().instance(ITask.class, ref.id);
+		return follow(ctx, shouldLog, ref.id, errorMessage);
+	}
+
+	public static TaskStatus follow(CliContext ctx, boolean shouldLog, String ref, String errorMessage) {
+		ITask trackApi = ctx.adminApi().instance(ITask.class, ref);
 		TaskStatus ts = null;
 		int logIdx = 0;
 		do {
