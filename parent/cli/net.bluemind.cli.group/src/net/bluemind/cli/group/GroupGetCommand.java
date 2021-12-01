@@ -163,11 +163,11 @@ public class GroupGetCommand implements ICmdLet, Runnable {
 	private String getEmailAddress(Member member, String domainUid) {
 		if (member.type == Type.user) {
 			IUser userApi = ctx.adminApi().instance(IUser.class, domainUid);
-			return userApi.getComplete(member.uid).value.login.concat(domainUid);
+			return userApi.getComplete(member.uid).value.login + "@" + domainUid;
 		}
 		if (member.type == Type.group) {
 			IGroup groupApi = ctx.adminApi().instance(IGroup.class, domainUid);
-			return groupApi.getComplete(member.uid).value.name.concat(domainUid);
+			return groupApi.getComplete(member.uid).value.name + "@" + domainUid;
 		}
 		if (member.type == Type.external_user) {
 			IExternalUser extUserApi = ctx.adminApi().instance(IExternalUser.class, domainUid);
