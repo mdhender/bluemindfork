@@ -92,11 +92,11 @@ public class DomainSettingsService implements IDomainSettings, IInCoreDomainSett
 		Map<String, String> prev;
 		if (null == oldValues || null == oldValues.value || oldValues.value.settings == null
 				|| oldValues.value.settings.isEmpty()) {
-			validator.create(settings);
+			validator.create(context, settings, domainUid);
 			extValidator.create(newDomainSettings);
 			prev = Collections.emptyMap();
 		} else {
-			validator.update(oldValues.value.settings, settings, domainUid);
+			validator.update(context, oldValues.value.settings, settings, domainUid);
 			extValidator.update(oldValues.value, newDomainSettings);
 			prev = oldValues.value.settings;
 		}
