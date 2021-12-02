@@ -245,6 +245,7 @@ export default function (i18n) {
                 id: "advanced",
                 name: i18n.t("common.advanced"),
                 icon: "plus",
+                priority: -1,
                 groups: [
                     {
                         id: "application",

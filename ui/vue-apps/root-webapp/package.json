@@ -22,6 +22,7 @@
         "@bluemind/sockjs": "^4.1.0",
         "@bluemind/store": "^4.1.0",
         "@bluemind/styleguide": "^0.1.0",
+        "@bluemind/system.api": "^4.1.0",
         "@bluemind/tag.api": "^4.1.0",
         "@bluemind/todolist.api": "^4.1.0",
         "@bluemind/user.api": "^4.1.0",

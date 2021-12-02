@@ -4,7 +4,7 @@
             <pref-section-icon :section="section" />
         </bm-list-group-item>
         <bm-list-group-item
-            v-for="category in section.categories"
+            v-for="category in section.categories.filter(c => c.visible)"
             :key="category.id"
             :to="anchor(category, true)"
             @click="scrollTo(category)"

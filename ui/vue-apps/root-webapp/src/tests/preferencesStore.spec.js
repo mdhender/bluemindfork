@@ -80,4 +80,9 @@ describe("Preferences store", () => {
         store.state.search = " Blabla ";
         expect(preferencesStore.getters.SEARCH_PATTERN(store.state)).toEqual("blabla");
     });
+
+    test("SET_EXTERNAL_ACCOUNTS mutation", () => {
+        preferencesStore.mutations.SET_EXTERNAL_ACCOUNTS(store.state, ["a", "b", "c"]);
+        expect(store.state.externalAccounts).toEqual(["a", "b", "c"]);
+    });
 });

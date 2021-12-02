@@ -13,7 +13,8 @@ const state = {
     status: "idle",
     userPasswordLastChange: null,
     subscriptions: [],
-    mailboxFilter: { remote: {}, local: {}, loaded: false }
+    mailboxFilter: { remote: {}, local: {}, loaded: false },
+    externalAccounts: []
 };
 
 const actions = {
@@ -140,6 +141,11 @@ const mutations = {
     },
     SET_RULES: (state, rules) => {
         state.mailboxFilter.local.rules = cloneDeep(rules);
+    },
+
+    // external accounts
+    SET_EXTERNAL_ACCOUNTS: (state, externalAccounts) => {
+        state.externalAccounts = externalAccounts;
     }
 };
 

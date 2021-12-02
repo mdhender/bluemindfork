@@ -24,7 +24,13 @@ import { FirstDayOfWeek } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
 import { TagsClient } from "@bluemind/tag.api";
 import { TodoListClient, TodoListsClient, VTodoClient } from "@bluemind/todolist.api";
-import { UserClient, UserMailIdentitiesClient, UserSubscriptionClient } from "@bluemind/user.api";
+import {
+    UserClient,
+    UserMailIdentitiesClient,
+    UserSubscriptionClient,
+    UserExternalAccountClient
+} from "@bluemind/user.api";
+import { ExternalSystemClient } from "@bluemind/system.api";
 import VueBus from "@bluemind/vue-bus";
 import { MailboxesClientProxy } from "./api/MailboxesClientProxy";
 import { MailboxFoldersClientProxy } from "./api/MailboxFoldersClientProxy";
@@ -96,6 +102,11 @@ export default function (userSession) {
     });
 
     injector.register({
+        provide: "ExternalSystemPersistence",
+        factory: () => new ExternalSystemClient(userSession.sid)
+    });
+
+    injector.register({
         provide: "FreebusyMgmtPersistence",
         factory: containerUid => new FreebusyMgmtClient(userSession.sid, containerUid)
     });
@@ -155,6 +166,11 @@ export default function (userSession) {
     injector.register({
         provide: "UserMailIdentitiesPersistence",
         factory: () => new UserMailIdentitiesClient(userSession.sid, userSession.domain, userSession.userId)
+    });
+
+    injector.register({
+        provide: "UserExternalAccountPersistence",
+        factory: () => new UserExternalAccountClient(userSession.sid, userSession.domain, userSession.userId)
     });
 
     injector.register({

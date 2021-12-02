@@ -9,7 +9,7 @@ export default function (i18n) {
         name: i18n.t("common.my_account"),
         icon: { name: "preferences" },
         priority: Number.MAX_SAFE_INTEGER,
-        categories: [main(i18n), security(i18n), cti(i18n), advanced(i18n)]
+        categories: [main(i18n), security(i18n), cti(i18n), advanced(i18n), externalAccounts(i18n)]
     };
 }
 
@@ -101,6 +101,7 @@ function advanced(i18n) {
         id: "my_account.advanced",
         name: i18n.t("common.advanced"),
         icon: "plus",
+        priority: -1,
         groups: [
             {
                 id: "local_data",
@@ -187,6 +188,37 @@ function cti(i18n) {
                                 setting: "im_set_phone_presence"
                             }
                         }
+                    }
+                ]
+            }
+        ]
+    };
+}
+
+function externalAccounts(i18n) {
+    return {
+        id: "my_account.external_accounts",
+        name: i18n.t("preferences.account.external_accounts"),
+        icon: "user",
+        visible: { name: "RoleCondition", args: [Roles.SELF_MANAGE_EXTERNAL_ACCOUNT] },
+        groups: [
+            {
+                id: "creation",
+                name: i18n.t("preferences.account.external_accounts.creation"),
+                fields: [
+                    {
+                        id: "field",
+                        component: { name: "PrefExtAccountCreation" }
+                    }
+                ]
+            },
+            {
+                id: "list",
+                name: i18n.t("preferences.account.external_accounts.list"),
+                fields: [
+                    {
+                        id: "field",
+                        component: { name: "PrefExtAccountList", options: { autosave: true } }
                     }
                 ]
             }

@@ -101,6 +101,8 @@
     "common.add": "Add",
     "common.display_name": "Display name",
     "common.label": "Label",
+    "common.login": "Login",
+    "common.test": "Test",
     "common.signature": "Signature",
     "common.localisation": "Localisation",
     "common.reload_now": "Reload now",

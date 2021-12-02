@@ -36,6 +36,8 @@ import PrefEmailsForwarding from "./fields/customs/PrefEmailsForwarding";
 import PrefEnableNotifications from "./fields/customs/PrefEnableNotifications";
 import PrefEventReminder from "./fields/customs/PrefEventReminder";
 import PrefFilterRules from "./fields/customs/FilterRules/PrefFilterRules";
+import PrefExtAccountCreation from "./fields/customs/ExternalAccounts/PrefExtAccountCreation";
+import PrefExtAccountList from "./fields/customs/ExternalAccounts/PrefExtAccountList";
 import PrefIMSetPhonePresence from "./fields/customs/PrefIMSetPhonePresence";
 import PrefManageIdentities from "./fields/customs/PrefManageIdentities";
 import PrefManageMyAddressBooks from "./fields/customs/ContainersManagement/Contacts/PrefManageMyAddressBooks";
@@ -78,6 +80,8 @@ export default {
         PrefEnableNotifications,
         PrefEventReminder,
         PrefFilterRules,
+        PrefExtAccountCreation,
+        PrefExtAccountList,
         PrefIMSetPhonePresence,
         PrefManageIdentities,
         PrefManageMyAddressBooks,

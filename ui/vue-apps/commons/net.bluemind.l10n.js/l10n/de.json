@@ -101,6 +101,8 @@
     "common.add": "Hinzufügen",
     "common.display_name": "Anzeigename",
     "common.label": "Bezeichnung",
+    "common.login": "Login",
+    "common.test": "Test",
     "common.signature": "Signatur",
     "common.localisation": "Lokalisierung",
     "common.reload_now": "Jetzt neu laden",

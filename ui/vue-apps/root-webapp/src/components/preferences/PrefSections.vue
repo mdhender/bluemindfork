@@ -5,7 +5,11 @@
                 <pref-section-navbar :section="section" />
             </bm-list-group>
             <div :id="anchor(section)" :v-show="false"></div>
-            <pref-category v-for="category in section.categories" :key="category.id" :category="category" />
+            <pref-category
+                v-for="category in section.categories.filter(c => c.visible)"
+                :key="category.id"
+                :category="category"
+            />
         </div>
     </div>
 </template>
