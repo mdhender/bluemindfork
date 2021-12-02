@@ -375,21 +375,14 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 			ItemStore it = new ItemStore(savedDs, container, SecurityContext.SYSTEM);
 			for (ItemValue<MailboxRecord> toClone : knownRecs) {
 				Item inDb = it.getById(toClone.internalId);
-				try {
-					if (inDb != null) {
-						storeService.update(toClone.item(), toClone.displayName, toClone.value);
-						upd++;
-					} else {
-						storeService.create(toClone.item(), toClone.value);
-						create++;
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-					System.err.println("inDb: " + inDb);
-					System.exit(1);
+				if (inDb != null) {
+					storeService.update(toClone.item(), toClone.displayName, toClone.value);
+					upd++;
+				} else {
+					storeService.create(toClone.item(), toClone.value);
+					create++;
 				}
 			}
-			System.err.println("cloneRefs cr: " + create + ", upd: " + upd);
 			return true;
 		});
 
