@@ -92,12 +92,13 @@ public class SubscriptionInfoHolder {
 			@Override
 			public void success(Map<String, String> values) {
 				if (values.containsKey(DomainSettingsKeys.domain_max_basic_account.name())) {
-					domainHasSimpleAccounts = Integer
-							.valueOf(values.get(DomainSettingsKeys.domain_max_basic_account.name())) > 0;
+					String basicValue = values.get(DomainSettingsKeys.domain_max_basic_account.name());
+					domainHasSimpleAccounts = basicValue != null && Integer.valueOf(basicValue) > 0;
 				}
+
 				if (values.containsKey(DomainSettingsKeys.domain_max_fullvisio_accounts.name())) {
-					domainHasVisioAccounts = Integer
-							.valueOf(values.get(DomainSettingsKeys.domain_max_fullvisio_accounts.toString())) > 0;
+					String visioValue = values.get(DomainSettingsKeys.domain_max_fullvisio_accounts.name());
+					domainHasVisioAccounts = visioValue != null && Integer.valueOf(visioValue) > 0;
 				}
 			}
 
