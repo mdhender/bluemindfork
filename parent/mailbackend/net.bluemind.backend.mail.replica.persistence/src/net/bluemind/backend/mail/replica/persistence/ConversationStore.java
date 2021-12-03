@@ -73,7 +73,8 @@ public class ConversationStore extends AbstractItemValueStore<InternalConversati
 
 	@Override
 	public void deleteAll() throws SQLException {
-		logger.error("deleteAll not implemented");
+		String query = "DELETE FROM " + ConversationColumns.TABLE + " WHERE container_id = ?";
+		delete(query, new Object[] { container.id });
 	}
 
 	public List<ItemV<InternalConversation>> byFolder(long folderId) throws SQLException {

@@ -53,12 +53,16 @@ public class MailConversationService implements IInternalMailConversation {
 	private final ConversationStore conversationStore;
 	private final RBACManager rbacManager;
 	private final ContainerStore containerStore;
+	private final BmContext context;
+	private final Container container;
 
 	public MailConversationService(BmContext context, DataSource ds, Container conversationContainer) {
+		this.container = conversationContainer;
 		this.conversationStore = new ConversationStore(ds, conversationContainer);
 		this.storeService = new ConversationStoreService(ds, context.getSecurityContext(), conversationContainer);
 		rbacManager = RBACManager.forContext(context).forContainer(conversationContainer);
 		this.containerStore = new ContainerStore(context, ds, context.getSecurityContext());
+		this.context = context;
 	}
 
 	@Override
@@ -190,6 +194,19 @@ public class MailConversationService implements IInternalMailConversation {
 		} catch (SQLException e) {
 			throw new ServerFault(e);
 		}
+	}
+
+	@Override
+	public void xfer(String serverUid) throws ServerFault {
+		DataSource ds = context.getMailboxDataSource(serverUid);
+		ContainerStore cs = new ContainerStore(null, ds, context.getSecurityContext());
+		Container c;
+		try {
+			c = cs.get(container.uid);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+		storeService.xfer(ds, c, new ConversationStore(ds, c));
 	}
 
 }

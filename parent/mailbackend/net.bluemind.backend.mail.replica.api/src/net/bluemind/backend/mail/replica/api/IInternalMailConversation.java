@@ -26,13 +26,14 @@ import javax.ws.rs.PathParam;
 import net.bluemind.backend.mail.api.Conversation;
 import net.bluemind.backend.mail.api.IMailConversation;
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.container.api.IDataShardSupport;
 
 /**
  * Handle message conversations for a given container (per user or mail-share).
  */
 @BMApi(version = "3", internal = true)
 @Path("/mail_conversation/{conversationContainer}")
-public interface IInternalMailConversation extends IMailConversation {
+public interface IInternalMailConversation extends IMailConversation, IDataShardSupport {
 
 	/** Create a new conversation. */
 	@PUT
