@@ -107,10 +107,9 @@ public class MailConversationService implements IInternalMailConversation {
 	}
 
 	private Set<Long> getValidIds(String folderUid, ItemFlagFilter filter) {
-		Set<Long> validIds = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDbMailboxRecords.class, folderUid).filteredChangesetById(0l, filter).created.stream()
 						.map(i -> i.id).collect(Collectors.toSet());
-		return validIds;
 	}
 
 	@Override

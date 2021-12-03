@@ -674,7 +674,6 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 	@Override
 	public void xfer(String serverUid) {
-
 		DataSource ds = context.getMailboxDataSource(serverUid);
 		ContainerStore cs = new ContainerStore(null, ds, context.getSecurityContext());
 		Container c;
@@ -683,9 +682,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
-
 		storeService.xfer(ds, c, new MailboxRecordStore(ds, c));
-
 	}
 
 	@Override

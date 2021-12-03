@@ -43,7 +43,7 @@ public class PromiseServiceProvider implements IServiceProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(PromiseServiceProvider.class);
 	public static DataSource defaultDataSource = null;
-	public static Map<String, DataSource> mailboxDataSource = new HashMap<String, DataSource>();
+	public static Map<String, DataSource> mailboxDataSource = new HashMap<>();
 
 	private final BmContext context;
 	private final Vertx vertx;

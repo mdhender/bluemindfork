@@ -148,5 +148,4 @@ public class CyrusArtifactsService implements ICyrusReplicationArtifacts {
 			throw ServerFault.sqlFault(e);
 		}
 	}
-
 }

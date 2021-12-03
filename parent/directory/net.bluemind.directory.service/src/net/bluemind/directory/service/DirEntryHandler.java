@@ -25,9 +25,6 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
@@ -35,8 +32,6 @@ import net.bluemind.directory.api.BaseDirEntry.AccountType;
 import net.bluemind.directory.api.DirEntry;
 
 public abstract class DirEntryHandler {
-
-	private static final Logger logger = LoggerFactory.getLogger(DirEntryHandler.class);
 	public static byte[] EMPTY_PNG;
 
 	static {
@@ -52,7 +47,6 @@ public abstract class DirEntryHandler {
 		} catch (IOException e) {
 			EMPTY_PNG = null;
 		}
-		// }
 	}
 
 	public abstract DirEntry.Kind kind();

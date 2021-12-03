@@ -41,6 +41,7 @@ public class VertxPromiseServiceProvider extends VertxServiceProvider implements
 		this(httpClientProvider, locator, apiKey, Collections.emptyList());
 	}
 
+	@Override
 	public VertxPromiseServiceProvider from(HttpServerRequest req) {
 		super.from(req);
 		return this;

@@ -204,7 +204,6 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 
 	@Override
 	public void xfer(String serverUid) throws ServerFault {
-
 		DataSource ds = context.getMailboxDataSource(serverUid);
 		ContainerStore cs = new ContainerStore(null, ds, context.getSecurityContext());
 		Container c;
@@ -213,9 +212,7 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
-
 		storeService.xfer(ds, c, new MailboxReplicaStore(ds, c, replicaStore.partition));
-
 	}
 
 }

@@ -176,7 +176,6 @@ public class MapiFolderService implements IMapiFolder {
 
 	@Override
 	public void xfer(String serverUid) throws ServerFault {
-
 		DataSource ds = context.getMailboxDataSource(serverUid);
 		ContainerStore cs = new ContainerStore(null, ds, context.getSecurityContext());
 		Container c;
@@ -185,9 +184,7 @@ public class MapiFolderService implements IMapiFolder {
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
-
 		storeService.xfer(ds, c, new MapiRawMessageStore(ds, c));
-
 	}
 
 	@Override

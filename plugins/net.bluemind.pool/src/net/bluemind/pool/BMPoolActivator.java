@@ -70,20 +70,16 @@ public class BMPoolActivator extends Plugin {
 	 * The constructor
 	 */
 	public BMPoolActivator() {
-		dataPool = new HashMap<String, Pool>();
+		dataPool = new HashMap<>();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.runtime.Plugins#start(org.osgi.framework.BundleContext)
-	 */
+	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 
-		RunnableExtensionLoader<IJDBCDriver> rel = new RunnableExtensionLoader<IJDBCDriver>();
+		RunnableExtensionLoader<IJDBCDriver> rel = new RunnableExtensionLoader<>();
 		factories = rel.loadExtensions("net.bluemind.pool", "jdbcdriver", "jdbc_driver", "implementation");
-		listeners = new LinkedList<IPoolListener>();
+		listeners = new LinkedList<>();
 
 		try {
 			defaultPool = startPool();
@@ -218,14 +214,8 @@ public class BMPoolActivator extends Plugin {
 		return cf;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
-	 */
+	@Override
 	public void stop(BundleContext context) throws Exception {
-		// defaultPool.stop();
-
 		plugin = null;
 		super.stop(context);
 	}

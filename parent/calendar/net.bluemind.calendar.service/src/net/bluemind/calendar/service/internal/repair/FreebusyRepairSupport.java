@@ -48,7 +48,7 @@ public class FreebusyRepairSupport {
 	public void check(String containerUid, DiagnosticReport report, IServerTaskMonitor monitor) throws SQLException {
 		RepairContext ctx = RepairContext.create(context, containerUid);
 
-		if (streamErrors(ctx).anyMatch(e -> e.getKey() == true)) {
+		if (streamErrors(ctx).anyMatch(Map.Entry::getKey)) {
 			report.ko(parentReportId, String.format("Freebusy %s need a repair", containerUid));
 		} else {
 			report.ok(parentReportId, String.format("Freebusy %s is ok", containerUid));
@@ -58,7 +58,7 @@ public class FreebusyRepairSupport {
 	public void repair(String containerUid, DiagnosticReport report, IServerTaskMonitor monitor) throws SQLException {
 		RepairContext ctx = RepairContext.create(context, containerUid);
 
-		long repairCount = streamErrors(ctx).filter(e -> e.getKey() == true).map(e -> e.getValue()).map(e -> {
+		long repairCount = streamErrors(ctx).filter(Map.Entry::getKey).map(Map.Entry::getValue).map(e -> {
 			try {
 				ctx.store.remove(e);
 			} catch (SQLException e1) {
@@ -106,10 +106,7 @@ public class FreebusyRepairSupport {
 			ContainerStore cStore = new ContainerStore(context, ds, context.getSecurityContext());
 			Container container = cStore.doOrFail(() -> cStore.get(containerUid));
 			FreebusyStore store = new FreebusyStore(ds, container);
-
-			RepairContext ctx = new RepairContext(store);
-
-			return ctx;
+			return new RepairContext(store);
 		}
 
 	}

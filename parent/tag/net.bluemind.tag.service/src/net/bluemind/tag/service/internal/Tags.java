@@ -271,7 +271,6 @@ public class Tags implements ITags {
 
 	@Override
 	public void xfer(String serverUid) throws ServerFault {
-
 		DataSource ds = context.getMailboxDataSource(serverUid);
 		ContainerStore cs = new ContainerStore(null, ds, context.getSecurityContext());
 		Container c;
@@ -280,9 +279,7 @@ public class Tags implements ITags {
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
-
 		storeService.xfer(ds, c, new TagStore(ds, c));
-
 	}
 
 }

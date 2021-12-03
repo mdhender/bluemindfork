@@ -285,5 +285,4 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		return new HashSet<>(
 				select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id, uid, owner }));
 	}
-
 }

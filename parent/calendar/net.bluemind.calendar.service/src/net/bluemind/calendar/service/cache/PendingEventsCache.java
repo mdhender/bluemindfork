@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
-import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.calendar.api.VEventSeries;
@@ -41,14 +40,8 @@ public class PendingEventsCache implements ICacheRegistration {
 	@Override
 	public void registerCaches(CacheRegistry cr) {
 		cr.register(PendingEventsCache.class, contCache);
-
-		VertxPlatform.getVertx().eventBus().consumer(CalendarHookAddress.CHANGED, new Handler<Message<JsonObject>>() {
-
-			@Override
-			public void handle(Message<JsonObject> event) {
-				invalidate(event.body().getString("container"));
-			}
-		});
+		VertxPlatform.getVertx().eventBus().consumer(CalendarHookAddress.CHANGED,
+				(Message<JsonObject> event) -> invalidate(event.body().getString("container")));
 	}
 
 	public static ListResult<ItemValue<VEventSeries>> getIfPresent(String uid) {

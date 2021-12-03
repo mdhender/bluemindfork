@@ -66,7 +66,7 @@ public class VEventStore extends AbstractItemValueStore<VEvent> {
 		String query = "INSERT INTO t_calendar_vevent (" + VEventColumns.ALL.names() + ", item_id ) values ("
 				+ VEventColumns.ALL.values() + ", ? )";
 
-		insert(query.toString(), event, VEventColumns.values(item.id));
+		insert(query, event, VEventColumns.values(item.id));
 	}
 
 	@Override

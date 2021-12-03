@@ -44,7 +44,7 @@ public class CyrusArtifactsServiceFactory
 		implements ServerSideServiceProvider.IServerSideServiceFactory<ICyrusReplicationArtifacts> {
 
 	@SuppressWarnings("unused")
-	private static final Logger logger = LoggerFactory.getLogger(CyrusAnnotationsServiceFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(CyrusArtifactsServiceFactory.class);
 
 	@Override
 	public Class<ICyrusReplicationArtifacts> factoryClass() {

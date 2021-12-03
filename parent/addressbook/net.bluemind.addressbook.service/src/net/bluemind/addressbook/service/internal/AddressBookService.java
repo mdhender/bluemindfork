@@ -665,7 +665,6 @@ public class AddressBookService implements IInCoreAddressBook {
 
 	@Override
 	public void xfer(String serverUid) {
-
 		DataSource ds = context.getMailboxDataSource(serverUid);
 		ContainerStore cs = new ContainerStore(null, ds, context.getSecurityContext());
 		Container c;
@@ -674,9 +673,7 @@ public class AddressBookService implements IInCoreAddressBook {
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
-
 		storeService.xfer(ds, c, new VCardStore(ds, c));
-
 	}
 
 	@Override

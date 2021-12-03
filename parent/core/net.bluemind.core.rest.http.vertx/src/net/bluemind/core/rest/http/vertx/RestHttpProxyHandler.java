@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.api.AsyncHandler;
@@ -101,13 +100,9 @@ public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 			rr.bodyStream = request;
 			handleBody(request, rr, wrapped);
 		} else {
-			request.bodyHandler(new Handler<Buffer>() {
-
-				@Override
-				public void handle(Buffer body) {
-					rr.body = body;
-					handleBody(request, rr, wrapped);
-				}
+			request.bodyHandler(body -> {
+				rr.body = body;
+				handleBody(request, rr, wrapped);
 			});
 		}
 	}
@@ -172,13 +167,7 @@ public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 	}
 
 	private Handler<Throwable> exceptionHandler(final HttpServerRequest request) {
-		return new Handler<Throwable>() {
-
-			@Override
-			public void handle(Throwable throwable) {
-				handleExceptionDuringRequest(request, throwable);
-			}
-		};
+		return throwable -> handleExceptionDuringRequest(request, throwable);
 	}
 
 }

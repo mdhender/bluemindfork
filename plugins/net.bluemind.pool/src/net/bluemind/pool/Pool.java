@@ -42,7 +42,7 @@ public final class Pool {
 		this.lastInsertIdQuery = lastIdQuery;
 	}
 
-	public void stop() throws SQLException, InterruptedException {
+	public void stop() {
 		wrapped.close();
 	}
 

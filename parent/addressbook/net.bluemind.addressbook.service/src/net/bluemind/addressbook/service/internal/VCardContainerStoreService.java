@@ -79,7 +79,7 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 		Iterator<Item> itItems = items.iterator();
 		Iterator<ItemValue<VCard>> itValues = values.iterator();
 		Iterator<List<TagRef>> itRefs = refs.iterator();
-		for (; itItems.hasNext();) {
+		while (itItems.hasNext()) {
 			Item item = itItems.next();
 			ItemValue<VCard> value = itValues.next();
 			List<TagRef> ref = itRefs.next();

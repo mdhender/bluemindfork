@@ -211,9 +211,7 @@ public class ChangelogStore extends JdbcAbstractStore {
 		List<ChangeLogEntry> entries = select(ITEM_CHANGELOG_QUERY, CREATOR, new ChangelogEntryPopulator(),
 				new Object[] { container.id, itemUid, from, to });
 		ItemChangelog changelog = new ItemChangelog();
-		changelog.entries = entries.stream().map((entry) -> {
-			return new ItemChangeLogEntry(entry);
-		}).collect(Collectors.toList());
+		changelog.entries = entries.stream().map(ItemChangeLogEntry::new).collect(Collectors.toList());
 		return changelog;
 	}
 
@@ -244,27 +242,26 @@ public class ChangelogStore extends JdbcAbstractStore {
 			throws SQLException {
 		List<FlaggedChangeLogEntry> entries = select(FLAGGED_CHANGESET_QUERY, con -> new FlaggedChangeLogEntry(),
 				new FlaggedChangelogEntryPopulator(), new Object[] { container.id, from });
-		return ChangelogUtils.toChangeset(s -> s, from, entries, entry -> new ItemVersion(entry), filter);
+		return ChangelogUtils.toChangeset(s -> s, from, entries, ItemVersion::new, filter);
 	}
 
 	public ContainerChangeset<ItemVersion> changesetById(IWeightProvider wp, long from, long to, ItemFlagFilter filter)
 			throws SQLException {
 		List<FlaggedChangeLogEntry> entries = select(FLAGGED_CHANGESET_QUERY, con -> new FlaggedChangeLogEntry(),
 				new FlaggedChangelogEntryPopulator(), new Object[] { container.id, from });
-		return ChangelogUtils.toChangeset(wp, from, entries, entry -> new ItemVersion(entry), filter);
+		return ChangelogUtils.toChangeset(wp, from, entries, ItemVersion::new, filter);
 	}
 
 	public ContainerChangeset<ItemIdentifier> fullChangesetById(IWeightProvider wp, long from, long to)
 			throws SQLException {
 		List<FlaggedChangeLogEntry> entries = select(FLAGGED_CHANGESET_QUERY, con -> new FlaggedChangeLogEntry(),
 				new FlaggedChangelogEntryPopulator(), new Object[] { container.id, from });
-		return ChangelogUtils.toChangeset(wp, from, entries, entry -> new ItemIdentifier(entry), ItemFlagFilter.all());
+		return ChangelogUtils.toChangeset(wp, from, entries, ItemIdentifier::new, ItemFlagFilter.all());
 	}
 
 	public void deleteLog() throws SQLException {
 		delete("delete from t_container_changelog where container_id = ?", new Object[] { container.id });
 		delete(DELETE_CHANGESET_QUERY, new Object[] { container.id });
-
 	}
 
 	public void insertLog(List<ChangeLogEntry> entries) throws SQLException {

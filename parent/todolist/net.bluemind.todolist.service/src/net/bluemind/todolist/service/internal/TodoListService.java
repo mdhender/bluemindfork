@@ -458,7 +458,7 @@ public class TodoListService implements ITodoList {
 
 	@Override
 	public void multipleDeleteById(List<Long> ids) throws ServerFault {
-		ids.forEach(id -> deleteById(id));
+		ids.forEach(this::deleteById);
 	}
 
 }

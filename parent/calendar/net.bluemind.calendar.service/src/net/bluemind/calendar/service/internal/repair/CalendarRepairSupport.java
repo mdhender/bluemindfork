@@ -60,7 +60,7 @@ public class CalendarRepairSupport {
 
 		boolean settingsOk = checkAndRepairSettings(ctx, false);
 
-		if (streamErrors(ctx).anyMatch(e -> e.getKey() == true) || !settingsOk) {
+		if (streamErrors(ctx).anyMatch(Map.Entry::getKey) || !settingsOk) {
 			report.ko(parentReportId, String.format("Calendar %s need a repair", calUid));
 		} else {
 			report.ok(parentReportId, String.format("Calendar %s is ok", calUid));
@@ -69,7 +69,7 @@ public class CalendarRepairSupport {
 
 	public void repair(String calUid, DiagnosticReport report, IServerTaskMonitor monitor) {
 		RepairContext ctx = RepairContext.create(context, calUid);
-		long repairCount = streamErrors(ctx).filter(e -> e.getKey() == true).map(e -> e.getValue())
+		long repairCount = streamErrors(ctx).filter(Map.Entry::getKey).map(Map.Entry::getValue)
 				.map(e -> ctx.vStore.update(e.uid, e.displayName, e.value)).count();
 
 		boolean settingsOk = checkAndRepairSettings(ctx, true);
@@ -92,7 +92,7 @@ public class CalendarRepairSupport {
 		Map<String, String> settings = service.get();
 
 		if (settings == null) {
-			settings = new HashMap<String, String>();
+			settings = new HashMap<>();
 		}
 
 		if (!settings.containsKey("calendar.workingDays")) {
@@ -178,9 +178,7 @@ public class CalendarRepairSupport {
 			Container container = cStore.doOrFail(() -> cStore.get(calUid));
 			VEventContainerStoreService vStore = new VEventContainerStoreService(context, ds,
 					context.getSecurityContext(), container);
-			RepairContext ctx = new RepairContext(context, container, vStore);
-
-			return ctx;
+			return new RepairContext(context, container, vStore);
 		}
 
 	}

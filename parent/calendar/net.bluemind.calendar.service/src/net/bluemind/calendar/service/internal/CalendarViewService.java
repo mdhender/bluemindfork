@@ -48,25 +48,19 @@ public class CalendarViewService implements ICalendarView, IInCoreCalendarView, 
 	private static final Logger logger = LoggerFactory.getLogger(CalendarViewService.class);
 
 	private Container container;
-
 	private ContainerCalendarViewStoreService storeService;
 	private CalendarViewStore store;
 	private CalendarViewSanitizer sanitizer;
-
 	private RBACManager rbacManager;
 
 	public CalendarViewService(BmContext context, Container container) {
-
 		DataSource ds = DataSourceRouter.get(context, container.uid);
-
 		this.container = container;
-
 		store = new CalendarViewStore(ds, container);
 		storeService = new ContainerCalendarViewStoreService(ds, context.getSecurityContext(), container,
 				"calendarview", store);
 		sanitizer = new CalendarViewSanitizer();
 		rbacManager = RBACManager.forContext(context).forContainer(container);
-
 	}
 
 	@Override

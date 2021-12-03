@@ -131,7 +131,7 @@ public class ContainerStore extends JdbcAbstractStore {
 			args = new Object[] { owner };
 		}
 
-		return select(selectQuery, (rs) -> new Container(),
+		return select(selectQuery, rs -> new Container(),
 				Arrays.<EntityPopulator<Container>>asList(CONTAINER_POPULATOR), args);
 
 	}
@@ -192,7 +192,7 @@ public class ContainerStore extends JdbcAbstractStore {
 		parameters.add(s);
 
 		if (query.verb != null && !query.verb.isEmpty()) {
-			List<String> verbs = new ArrayList<String>();
+			List<String> verbs = new ArrayList<>();
 			for (Verb v : query.verb) {
 				verbs.add(v.name());
 			}
@@ -226,7 +226,7 @@ public class ContainerStore extends JdbcAbstractStore {
 			parameters.add(query.size);
 		}
 
-		return select(q.toString(), (rs) -> new Container(),
+		return select(q.toString(), rs -> new Container(),
 				Arrays.<EntityPopulator<Container>>asList(CONTAINER_POPULATOR), parameters.toArray());
 
 	}
@@ -235,7 +235,7 @@ public class ContainerStore extends JdbcAbstractStore {
 
 		String insertQuery = "INSERT INTO t_container (uid,container_type, "
 				+ "name, owner,createdby , updatedby , created ,updated, defaultContainer, domain_uid, readonly) "
-				+ " values ( ?, ?, ?, ?, ?, ?, now(), now(), ?, ?, ?)";
+				+ " values (?, ?, ?, ?, ?, ?, now(), now(), ?, ?, ?)";
 		insert(insertQuery, container,
 				Arrays.<StatementValues<Container>>asList((con, statement, index, rowIndex, value) -> {
 
@@ -255,7 +255,7 @@ public class ContainerStore extends JdbcAbstractStore {
 		Container c = get(container.uid);
 
 		// container settings
-		insert("INSERT INTO t_container_settings (container_id, settings) values (?,'')", new Object[] { c.id });
+		insert("INSERT INTO t_container_settings (container_id, settings) values (?, '')", new Object[] { c.id });
 		// insert seq
 		insert("INSERT INTO t_container_sequence (container_id) values (?)", new Object[] { c.id });
 		return c;
@@ -277,7 +277,7 @@ public class ContainerStore extends JdbcAbstractStore {
 		if (c == null) {
 			String selectQuery = "SELECT id, uid, container_type, name, owner, createdby, updatedby, created, updated, defaultContainer, domain_uid, readonly from t_container where uid = ?";
 
-			c = unique(selectQuery, (rs) -> new Container(),
+			c = unique(selectQuery, rs -> new Container(),
 					Arrays.<EntityPopulator<Container>>asList(CONTAINER_POPULATOR), new Object[] { uid });
 			if (c != null) {
 				cache.put(uid, c.id, c);
@@ -295,7 +295,7 @@ public class ContainerStore extends JdbcAbstractStore {
 		if (c == null) {
 			String selectQuery = "SELECT id, uid, container_type, name, owner, createdby, updatedby, created, updated, defaultContainer, domain_uid, readonly from t_container where id = ?";
 
-			c = unique(selectQuery, (rs) -> new Container(),
+			c = unique(selectQuery, rs -> new Container(),
 					Arrays.<EntityPopulator<Container>>asList(CONTAINER_POPULATOR), new Object[] { id });
 			if (c != null) {
 				cache.put(c.uid, c.id, c);
@@ -310,7 +310,7 @@ public class ContainerStore extends JdbcAbstractStore {
 	}
 
 	public void deleteAllSubscriptions(Container container) throws SQLException {
-		delete("delete from t_container_sub where container_uid  = ? ", new Object[] { container.uid });
+		delete("delete from t_container_sub where container_uid = ? ", new Object[] { container.uid });
 	}
 
 	public void delete(String uid) throws SQLException {
@@ -358,7 +358,7 @@ public class ContainerStore extends JdbcAbstractStore {
 	}
 
 	public void deleteContainerLocation(Container container) throws SQLException {
-		delete("delete from t_container_location where container_uid  = ? ", new Object[] { container.uid });
+		delete("delete from t_container_location where container_uid = ? ", new Object[] { container.uid });
 	}
 
 	/**

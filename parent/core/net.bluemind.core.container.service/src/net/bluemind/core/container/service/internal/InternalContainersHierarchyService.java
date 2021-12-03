@@ -163,7 +163,6 @@ public class InternalContainersHierarchyService implements IInternalContainersFl
 
 	@Override
 	public void xfer(String serverUid) throws ServerFault {
-
 		DataSource ds = context.getMailboxDataSource(serverUid);
 		ContainerStore cs = new ContainerStore(null, ds, context.getSecurityContext());
 		Container c;
@@ -172,9 +171,7 @@ public class InternalContainersHierarchyService implements IInternalContainersFl
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
-
 		storeService.xfer(ds, c, new ContainersHierarchyNodeStore(ds, c));
-
 	}
 
 }
