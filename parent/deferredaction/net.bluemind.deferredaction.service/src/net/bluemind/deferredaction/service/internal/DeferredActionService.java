@@ -18,6 +18,7 @@
  */
 package net.bluemind.deferredaction.service.internal;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.acl.Verb;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.ChangeLogUtil;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
@@ -164,6 +166,19 @@ public class DeferredActionService implements IDeferredAction {
 		RBACManager.forContext(context).forContainer(container).check(Verb.Read.name());
 
 		return storeService.getMultiple(uids);
+	}
+
+	@Override
+	public void xfer(String serverUid) throws ServerFault {
+		DataSource ds = context.getMailboxDataSource(serverUid);
+		ContainerStore cs = new ContainerStore(null, ds, context.getSecurityContext());
+		Container c;
+		try {
+			c = cs.get(container.uid);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+		storeService.xfer(ds, c, new DeferredActionStore(ds, c));
 	}
 
 }

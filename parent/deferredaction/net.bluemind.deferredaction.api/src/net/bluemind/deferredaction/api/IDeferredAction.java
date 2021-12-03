@@ -31,6 +31,7 @@ import javax.ws.rs.QueryParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IChangelogSupport;
+import net.bluemind.core.container.api.IDataShardSupport;
 import net.bluemind.core.container.model.ItemValue;
 
 /**
@@ -42,7 +43,7 @@ import net.bluemind.core.container.model.ItemValue;
  */
 @BMApi(version = "3")
 @Path("/deferredaction/{containerUid}")
-public interface IDeferredAction extends IChangelogSupport {
+public interface IDeferredAction extends IChangelogSupport, IDataShardSupport {
 
 	/**
 	 * Creates a new {@link DeferredAction} with the given uid.
