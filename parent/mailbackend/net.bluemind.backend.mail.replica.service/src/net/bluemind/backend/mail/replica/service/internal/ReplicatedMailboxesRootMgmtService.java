@@ -44,6 +44,8 @@ import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.MailboxReplicaRootUpdate;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.backend.mail.replica.api.utils.Subtree;
+import net.bluemind.backend.mail.replica.persistence.ConversationStore;
+import net.bluemind.backend.mail.replica.persistence.InternalConversation;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
 import net.bluemind.backend.mail.replica.service.internal.hooks.DeletedDataMementos;
@@ -225,15 +227,14 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		IServiceProvider prov = ServerSideServiceProvider.getProvider(context);
 		IContainers containersApi = prov.instance(IContainers.class);
 		ContainerStore contStore = new ContainerStore(context, ds, context.getSecurityContext());
+
 		List<Container> recordsContainers = lookup.apply(new Lookup(IMailReplicaUids.MAILBOX_RECORDS, contStore));
-
 		logger.info("Found {} mailbox_records containers", recordsContainers.size());
-
 		for (Container cont : recordsContainers) {
 			MailboxRecordStore store = new MailboxRecordStore(ds, cont);
 			ContainerStoreService<MailboxRecord> storeService = new ContainerStoreService<>(ds,
 					context.getSecurityContext(), cont, store);
-			logger.info("Clearing {}", cont.uid);
+			logger.info("remove mailbox_records container {}", cont.uid);
 			storeService.deleteAll();
 			containersApi.delete(cont.uid);
 		}
@@ -245,9 +246,21 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 			MailboxReplicaStore store = new MailboxReplicaStore(ds, cont, partition.domainUid);
 			ContainerStoreService<MailboxReplica> storeService = new ContainerStoreService<>(ds,
 					context.getSecurityContext(), cont, store);
-			logger.info("Clearing {}", cont.uid);
+			logger.info("remove mailbox_replica container {}", cont.uid);
 			storeService.deleteAll();
 			containersApi.delete(cont.uid);
+		}
+
+		List<Container> conversationsContainers = lookup
+				.apply(new Lookup(IMailReplicaUids.REPLICATED_CONVERSATIONS, contStore));
+		logger.info("Found {} replicated_conversations containers", recordsContainers.size());
+		for (Container container : conversationsContainers) {
+			ConversationStore store = new ConversationStore(ds, container);
+			ContainerStoreService<InternalConversation> storeService = new ContainerStoreService<>(ds,
+					context.getSecurityContext(), container, store);
+			logger.info("remove replicated_conversations container {}", container.uid);
+			storeService.deleteAll();
+			containersApi.delete(container.uid);
 		}
 
 		logger.info("Cleanup of {} complete.", partition);
