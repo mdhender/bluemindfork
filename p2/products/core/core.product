@@ -96,6 +96,7 @@
       <plugin id="net.bluemind.backend.cyrus.integrity.check"/>
       <plugin id="net.bluemind.backend.cyrus.mailboxesdb"/>
       <plugin id="net.bluemind.backend.cyrus.partitions"/>
+      <plugin id="net.bluemind.backend.cyrus.replication.client"/>
       <plugin id="net.bluemind.backend.cyrus.replication.link"/>
       <plugin id="net.bluemind.backend.cyrus.replication.observers"/>
       <plugin id="net.bluemind.backend.cyrus.replication.protocol"/>
@@ -225,8 +226,8 @@
       <plugin id="net.bluemind.domain.hook"/>
       <plugin id="net.bluemind.domain.persistence"/>
       <plugin id="net.bluemind.domain.service"/>
-      <plugin id="net.bluemind.domain.sqlschema"/>
       <plugin id="net.bluemind.domain.settings.config"/>
+      <plugin id="net.bluemind.domain.sqlschema"/>
       <plugin id="net.bluemind.eas.api"/>
       <plugin id="net.bluemind.eas.config"/>
       <plugin id="net.bluemind.eas.persistence"/>
@@ -319,6 +320,7 @@
       <plugin id="net.bluemind.maintenance"/>
       <plugin id="net.bluemind.maintenance.job"/>
       <plugin id="net.bluemind.maintenance.postgresql"/>
+      <plugin id="net.bluemind.mapdb"/>
       <plugin id="net.bluemind.metrics.agent-api"/>
       <plugin id="net.bluemind.metrics.alerts.api"/>
       <plugin id="net.bluemind.metrics.annotations"/>
@@ -511,8 +513,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
       <property name="osgi.noShutdown" value="true" />
+      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
    </configurations>
 
    <preferencesInfo>

@@ -29,7 +29,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.domain.api;bundle-version="4.1.0",
  net.bluemind.server.api;bundle-version="4.1.0",
  com.github.luben.zstd,
- net.bluemind.mapdb;bundle-version="3.0.8",
  net.bluemind.backend.cyrus.replication.client,
  net.bluemind.imap,
  net.bluemind.node.api,
@@ -42,7 +41,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.exchange.mapi.api,
  net.bluemind.core.rest.http,
  net.bluemind.authentication.api,
- net.bluemind.system.state
+ net.bluemind.system.state,
+ net.bluemind.mapdb;bundle-version="3.0.8"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.backup.continuous.clone
 Bundle-ActivationPolicy: lazy
