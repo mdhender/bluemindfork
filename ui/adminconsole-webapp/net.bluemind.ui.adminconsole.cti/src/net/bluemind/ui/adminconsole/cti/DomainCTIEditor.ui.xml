@@ -1,68 +1,81 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
-	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
-	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
 	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
-	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui" xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui"
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
 
 	<ui:with field="c"
 		type="net.bluemind.ui.adminconsole.cti.l10n.DomainCTIEditorConstants" />
-		
+
 	<ui:style>
-		.labelMandatory {
-			color: #24638F;
-			font-weight: bold;
-		}
+	.labelMandatory {
+		color: #24638F;
+		font-weight: bold;
+	}
 	</ui:style>
-		
-		
+
+
 	<g:HTMLPanel>
 		<g:ScrollPanel height="100%">
 			<g:HTMLPanel>
-		
-			<f:FieldSetPanel name="{c.tabName}"/>
-		
-			<table border="0">
-				<tr>
-					<td>
-						<common:TrPanel styleName="setting" ui:field="choicePanel" />
-					</td>
-				</tr>
-			</table>
-					
+
+				<f:FieldSetPanel name="{c.tabName}" />
+
+				<table border="0">
+					<tr>
+						<td>
+							<common:TrPanel styleName="setting"
+								ui:field="choicePanel" />
+						</td>
+					</tr>
+				</table>
+
 				<g:HTMLPanel ui:field="wazoParams">
 					<table border="0">
 						<tr>
 							<td style='width:200px'>
-								<g:Label styleName="{style.labelMandatory}" text="{c.server}:"></g:Label>
+								<g:Label styleName="{style.labelMandatory}"
+									text="{c.server}:"></g:Label>
 							</td>
 							<td style='width:200px'>
-								<g:TextBox width="500px" enabled="true" ui:field="wazoHost" />
+								<div style="display:flex" title="{c.wazoHostHelp}">
+									<g:TextBox width="500px" enabled="true"
+										ui:field="wazoHost" />
+									<sup>
+										<i class="fa fa-exclamation-circle" />
+									</sup>
+								</div>
 							</td>
 						</tr>
 					</table>
-			
+
 				</g:HTMLPanel>
-			
-			
+
+
 				<g:HTMLPanel ui:field="xivoParams">
 					<table border="0">
 						<tr>
 							<td style='width:200px'>
-								<g:Label styleName="{style.labelMandatory}" text="{c.server}:"></g:Label>
+								<g:Label styleName="{style.labelMandatory}"
+									text="{c.server}:"></g:Label>
 							</td>
 							<td style='width:200px'>
-								<g:TextBox width="500px" enabled="true" ui:field="xivoHost" />
+								<g:TextBox width="500px" enabled="true"
+									ui:field="xivoHost" />
 							</td>
 						</tr>
 					</table>
-			
+
 				</g:HTMLPanel>
-			
+
 			</g:HTMLPanel>
 		</g:ScrollPanel>
 	</g:HTMLPanel>
-			
-			
+
+
 
 </ui:UiBinder>

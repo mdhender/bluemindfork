@@ -36,5 +36,7 @@ public interface DomainCTIEditorConstants extends Constants {
 	public String implementation();
 
 	public String server();
+	
+	public String wazoHostHelp();
 
 }
