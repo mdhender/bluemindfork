@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.acl.Verb;
@@ -314,16 +315,15 @@ public class ContainerStore extends JdbcAbstractStore {
 	}
 
 	public void delete(String uid) throws SQLException {
-		Long id = get(uid).id;
-		// delete container settings
-		delete("DELETE FROM t_container_settings WHERE container_id in (SELECT id from t_container WHERE uid = ? )",
-				new Object[] { uid });
-		delete("DELETE FROM t_container_sequence WHERE container_id in (SELECT id from t_container WHERE uid = ? )",
-				new Object[] { uid });
-		// delete changelog
-		String query = "DELETE FROM t_container where uid= ? ";
-		delete(query, new Object[] { uid });
-		invalidateCache(uid, id);
+		Container c = get(uid);
+		if (c == null) {
+			throw ServerFault.notFound(uid);
+		}
+		delete("DELETE FROM t_container_settings WHERE container_id = ?", new Object[] { c.id });
+		delete("DELETE FROM t_container_sequence WHERE container_id = ?", new Object[] { c.id });
+		delete("DELETE FROM t_container_item WHERE container_id = ?", new Object[] { c.id });
+		delete("DELETE FROM t_container where id = ?", new Object[] { c.id });
+		invalidateCache(uid, c.id);
 	}
 
 	public void invalidateCache(String uid, Long id) {
