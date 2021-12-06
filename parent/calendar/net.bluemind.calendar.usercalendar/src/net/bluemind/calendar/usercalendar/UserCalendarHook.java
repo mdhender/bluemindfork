@@ -153,7 +153,13 @@ public class UserCalendarHook extends DefaultUserHook {
 
 		try {
 			final IInCoreCalendarView viewService = serviceProvider.instance(IInCoreCalendarView.class, containerUid);
-			viewService.list().values.forEach(view -> viewService.delete(view.uid, true));
+			viewService.list().values.forEach(view -> {
+				try {
+					viewService.delete(view.uid, true);
+				} catch (Exception e) {
+					logger.error("Error in viewService.delete: ", e.getMessage(), e);
+				}
+			});
 			serviceProvider.instance(IContainers.class).delete(containerUid);
 		} catch (ServerFault e) {
 			logger.error(e.getMessage(), e);
@@ -190,7 +196,7 @@ public class UserCalendarHook extends DefaultUserHook {
 		try {
 			IFreebusyMgmt fb = serviceProvider.instance(IFreebusyMgmt.class,
 					IFreebusyUids.getFreebusyContainerUid(user.uid));
-			fb.get().forEach(f -> fb.remove(f));
+			fb.get().forEach(fb::remove);
 			serviceProvider.instance(IContainers.class).delete(IFreebusyUids.getFreebusyContainerUid(user.uid));
 		} catch (ServerFault e) {
 			logger.error(e.getMessage(), e);

@@ -108,8 +108,6 @@ public class CalendarViewService implements ICalendarView, IInCoreCalendarView, 
 			throw new ServerFault("entry[" + uid + "]@" + container.uid + " is the default view and cannot be deleted ",
 					ErrorCode.PERMISSION_DENIED);
 		}
-
-		logger.info("Delete view {}", old.value.label);
 		storeService.delete(uid);
 	}
 
