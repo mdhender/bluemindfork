@@ -329,6 +329,8 @@ public class CyrusMailboxesStorageTests {
 		try (StoreClient sc = new StoreClient(imapServerAddress, 1143, "admin0", "password")) {
 			assertTrue(sc.login());
 			assertTrue(sc.deleteMailbox(mailshareUid + "/Sent@" + domainUid).isOk());
+			assertTrue(sc.deleteMailbox(mailshareUid + "/Trash@" + domainUid).isOk());
+
 		}
 
 		CyrusMailboxesStorage cms = new CyrusMailboxesStorage();
@@ -338,20 +340,22 @@ public class CyrusMailboxesStorageTests {
 		assertFalse(status.isOk());
 		assertTrue(status.fixed.isEmpty());
 		assertTrue(status.invalidSpecialuse.isEmpty());
-		assertEquals(1, status.missing.size());
+		assertEquals(2, status.missing.size());
 		Set<String> missing = status.missing.stream().map(df -> df.name).collect(Collectors.toSet());
 		assertTrue(missing.contains("Sent"));
+		assertTrue(missing.contains("Trash"));
 
 		status = cms.checkAndRepairDefaultFolders(new BmTestContext(SecurityContext.SYSTEM), domainUid, mbox, true);
 		assertTrue(status.isOk());
 		assertTrue(status.missing.isEmpty());
 		assertTrue(status.invalidSpecialuse.isEmpty());
-		assertEquals(1, status.fixed.size());
+		assertEquals(2, status.fixed.size());
 
 		try (StoreClient sc = new StoreClient(imapServerAddress, 1143, "admin0", "password")) {
 			assertTrue(sc.login());
 			Set<String> allFolders = sc.listAll().stream().map(li -> li.getName()).collect(Collectors.toSet());
 			assertTrue(allFolders.contains(mailshareUid + "/Sent@" + domainUid));
+			assertTrue(allFolders.contains(mailshareUid + "/Trash@" + domainUid));
 		}
 	}
 

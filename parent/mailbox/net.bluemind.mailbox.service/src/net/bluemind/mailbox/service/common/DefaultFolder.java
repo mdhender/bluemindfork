@@ -23,7 +23,8 @@ public class DefaultFolder {
 	public static final Set<String> USER_FOLDERS_NAME = USER_FOLDERS.stream().map(df -> df.name)
 			.collect(ImmutableSet.toImmutableSet());
 
-	public static final Set<DefaultFolder> MAILSHARE_FOLDERS = ImmutableSet.of(new DefaultFolder("Sent", "Sent"));
+	public static final Set<DefaultFolder> MAILSHARE_FOLDERS = ImmutableSet.of(new DefaultFolder("Sent", "Sent"),
+			new DefaultFolder("Trash", "Trash"));
 	public static final Set<String> MAILSHARE_FOLDERS_NAME = MAILSHARE_FOLDERS.stream().map(f -> f.name)
 			.collect(ImmutableSet.toImmutableSet());
 
