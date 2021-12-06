@@ -164,7 +164,7 @@ public class BMPoolActivator extends Plugin {
 				config.setJdbcUrl(jdbcUrl);
 				config.setUsername(login);
 				config.setPassword(password);
-				config.setPoolName(dbName);
+				config.setPoolName(dbName + "@" + dbHost);
 
 				config.setDriverClassName(cf.getDriverClass());
 				config.addDataSourceProperty("cachePrepStmts", "true");
