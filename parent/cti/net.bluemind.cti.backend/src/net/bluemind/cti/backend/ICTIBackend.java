@@ -43,8 +43,6 @@ public interface ICTIBackend {
 
 	Status.PhoneState getPhoneState(String domain, ItemValue<User> caller) throws ServerFault;
 
-	public default boolean supports(String domain, String uid) {
-		return true;
-	}
+	public boolean supports(String domain, String uid);
 
 }

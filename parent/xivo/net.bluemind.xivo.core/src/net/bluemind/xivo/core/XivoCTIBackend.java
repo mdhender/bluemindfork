@@ -32,11 +32,15 @@ import com.google.common.io.ByteStreams;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.cti.api.Status;
 import net.bluemind.cti.api.Status.PhoneState;
 import net.bluemind.cti.backend.ICTIBackend;
-import net.bluemind.network.topology.Topology;
-import net.bluemind.server.api.Server;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
+import net.bluemind.domain.api.IDomains;
 import net.bluemind.user.api.User;
 import net.bluemind.xivo.client.XivoClient;
 import net.bluemind.xivo.client.XivoFault;
@@ -46,6 +50,8 @@ import net.bluemind.xivo.common.PhoneStatus;
 public class XivoCTIBackend implements ICTIBackend {
 
 	private static final Logger logger = LoggerFactory.getLogger(XivoCTIBackend.class);
+
+	private static final String SYSTEM_IDENTIFIER = "Xivo";
 
 	@Override
 	public void forward(String domain, ItemValue<User> caller, String number) throws ServerFault {
@@ -100,26 +106,33 @@ public class XivoCTIBackend implements ICTIBackend {
 	}
 
 	@Override
+	public boolean supports(String domain, String uid) {
+		return Optional.ofNullable(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domain).get().get(DomainSettingsKeys.cti_implementation.name()))
+				.equals(Optional.of(SYSTEM_IDENTIFIER));
+	}
+
+	@Override
 	public Status.PhoneState getPhoneState(String domain, ItemValue<User> caller) throws ServerFault {
+		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
 		try {
-			// OPTIMIZE
-			Optional<ItemValue<Server>> optHost = Topology.get().anyIfPresent("cti/frontend");
-			if (optHost.isPresent()) {
-				String host = optHost.get().value.address();
-				String url = "http://" + host + ":9091/xivo/1.0/status/" + domain + "/" + caller.value.login + "/";
-				try (InputStream in = new URL(url).openStream()) {
-					JsonObject status = new JsonObject(new String(ByteStreams.toByteArray(in), "utf-8"));
-					Integer ret = status.getInteger("status");
-					if (ret != null) {
-						PhoneStatus xivoStatus = PhoneStatus.fromCode(ret);
-						return adapt(xivoStatus);
-					} else {
-						return Status.PhoneState.Unknown;
-					}
+			String host = Optional
+					.ofNullable(provider.instance(IDomainSettings.class, domain).get()
+							.get(DomainSettingsKeys.cti_host.name()))
+					.orElseThrow(() -> new ServerFault("Xivo host not found"));
+			ItemValue<Domain> domainItem = provider.instance(IDomains.class).findByNameOrAliases(domain);
+			String url = "http://" + host + ":9091/xivo/1.0/status/" + domainItem.value.defaultAlias + "/"
+					+ caller.value.login + "/";
+			try (InputStream in = new URL(url).openStream()) {
+				JsonObject status = new JsonObject(new String(ByteStreams.toByteArray(in), "utf-8"));
+				Integer ret = status.getInteger("status");
+				if (ret != null) {
+					PhoneStatus xivoStatus = PhoneStatus.fromCode(ret);
+					return adapt(xivoStatus);
+				} else {
+					return Status.PhoneState.Unknown;
 				}
-			} else {
-				return Status.PhoneState.Unknown;
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

@@ -34,7 +34,9 @@ import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.cti.api.IComputerTelephonyIntegration;
+import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserExternalAccount;
@@ -61,8 +63,8 @@ public class WazoUserPopulateCommand implements ICmdLet, Runnable {
 	@Option(names = { "--show", "-s" }, description = "only show matching users found in Wazo")
 	public boolean display = false;
 
-	@Option(names = { "--domain", "-d" }, required = true, description = "the domain uid to populate users")
-	public String domainUid;
+	@Option(names = { "--domain", "-d" }, required = true, description = "the domain to populate users")
+	public String domain;
 
 	@Option(names = { "--user",
 			"-u" }, required = true, description = "the BM user login (must have existing account to connect Wazo API")
@@ -73,6 +75,7 @@ public class WazoUserPopulateCommand implements ICmdLet, Runnable {
 	protected CliContext ctx;
 	protected CliUtils cliUtils;
 	private String userUid;
+	private ItemValue<Domain> domainItem;
 
 	@Override
 	public Runnable forContext(CliContext ctx) {
@@ -88,7 +91,7 @@ public class WazoUserPopulateCommand implements ICmdLet, Runnable {
 
 		try {
 			IComputerTelephonyIntegration telApi = ctx.adminApi().instance(IComputerTelephonyIntegration.class,
-					domainUid, userUid);
+					domainItem.uid, userUid);
 			populate(telApi.getUserEmails());
 		} catch (ServerFault e) {
 			throw new CliException(e.getMessage());
@@ -97,11 +100,10 @@ public class WazoUserPopulateCommand implements ICmdLet, Runnable {
 
 	private void checkParams() {
 
-		cliUtils.getDomain(domainUid)
-				.orElseThrow(() -> new CliException(String.format("Domain '%s' not found", domainUid)));
+		domainItem = cliUtils.getDomain(domain)
+				.orElseThrow(() -> new CliException(String.format("Domain '%s' not found", domain)));
 
-		userUid = cliUtils.getUserUidByLogin(domainUid, userLogin);
-
+		userUid = cliUtils.getUserUidByLogin(domainItem.uid, userLogin);
 	}
 
 	private void populate(List<String> wazoUserEmails) {
@@ -128,10 +130,10 @@ public class WazoUserPopulateCommand implements ICmdLet, Runnable {
 
 	private Map<String, Set<String>> buildUserEmailsMap() {
 
-		IUser userService = ctx.adminApi().instance(IUser.class, domainUid);
+		IUser userService = ctx.adminApi().instance(IUser.class, domainItem.uid);
 		Map<String, Set<String>> usersEmailMap = new HashMap<>();
 
-		Set<String> domainAliases = ctx.adminApi().instance(IDomains.class).get(domainUid).value.aliases;
+		Set<String> domainAliases = ctx.adminApi().instance(IDomains.class).get(domainItem.uid).value.aliases;
 		List<String> userUids = userService.allUids();
 		userUids.forEach(uid -> {
 			Collection<Email> userEmails = userService.getComplete(uid).value.emails;
@@ -161,8 +163,8 @@ public class WazoUserPopulateCommand implements ICmdLet, Runnable {
 		matchingUsers.entrySet().forEach(u -> {
 			UserAccount account = new UserAccount(u.getValue());
 			account.credentials = Strings.nullToEmpty(account.credentials);
-			IUserExternalAccount userAccountService = ctx.adminApi().instance(IUserExternalAccount.class, domainUid,
-					u.getKey());
+			IUserExternalAccount userAccountService = ctx.adminApi().instance(IUserExternalAccount.class,
+					domainItem.uid, u.getKey());
 			try {
 				UserAccount existingAccount = userAccountService.get(SYSTEM_IDENTIFIER);
 				if (existingAccount != null && existingAccount.login.equals(account.login)) {

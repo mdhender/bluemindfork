@@ -54,4 +54,9 @@ public class NoCtiBackend implements ICTIBackend {
 		return Collections.emptyList();
 	}
 
+	@Override
+	public boolean supports(String domain, String uid) {
+		return false;
+	}
+
 }
