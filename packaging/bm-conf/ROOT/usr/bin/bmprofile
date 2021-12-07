@@ -30,7 +30,7 @@ test $# -eq 1 || {
 
 product=$1
 
-service_pid=$(systemctl show -p MainPID --value ${product}.service)
+service_pid=$(systemctl show -p MainPID ${product}.service | cut -b9-)
 
 test ${service_pid} -gt 0 || {
 	echo "PID for ${product} not found"
