@@ -99,13 +99,13 @@
 			<fileNamePattern>/var/log/bm/replication.log.%d{yyyy-MM-dd}.gz</fileNamePattern>
 			<maxHistory>7</maxHistory>
 			<totalSizeCap>250MB</totalSizeCap>
-	</rollingPolicy>
+		</rollingPolicy>
 	</appender>
 	<appender name="AsyncRepl" class="ch.qos.logback.classic.AsyncAppender">
 		<queueSize>500</queueSize>
 		<discardingThreshold>0</discardingThreshold>
 		<appender-ref ref="Replication" />
-	</appender>  
+	</appender>
 	<logger name="net.bluemind.backend.cyrus.replication.server" level="INFO" additivity="false">
 		<appender-ref ref="AsyncRepl" />
 	</logger>

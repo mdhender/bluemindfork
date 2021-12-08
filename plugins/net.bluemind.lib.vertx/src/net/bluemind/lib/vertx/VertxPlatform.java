@@ -82,9 +82,9 @@ public final class VertxPlatform implements BundleActivator {
 		if (future != null) {
 			logger.info("============ VERTICLES ALREADY SPAWNED ({}) =========", deploymentId);
 			if (future.isDone()) {
-				complete.handle(new Result<Void>());
+				complete.handle(new Result<>());
 			} else {
-				future.thenAccept(v -> complete.handle(new Result<Void>()));
+				future.thenAccept(v -> complete.handle(new Result<>()));
 			}
 			return;
 		}
@@ -97,11 +97,11 @@ public final class VertxPlatform implements BundleActivator {
 			if (event.succeeded()) {
 				logger.info("Deployement id is {}", event.result());
 				deploymentId = event.result();
-				complete.handle(new Result<Void>());
+				complete.handle(new Result<>());
 				future.complete(null);
 			} else {
 				logger.error(event.cause().getMessage(), event.cause());
-				complete.handle(new Result<Void>(event.cause()));
+				complete.handle(new Result<>(event.cause()));
 				future.completeExceptionally(event.cause());
 			}
 		});
