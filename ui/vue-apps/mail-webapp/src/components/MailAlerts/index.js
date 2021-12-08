@@ -4,6 +4,7 @@ export { default as EmptyFolder } from "./EmptyFolder";
 export { default as MarkFolderAsRead } from "./MarkFolderAsRead";
 export { default as MoveMessages } from "./MoveMessages";
 export { default as RemoveFolder } from "./RemoveFolder";
+export { default as MoveFolder } from "./MoveFolder";
 export { default as RemoveMessages } from "./RemoveMessages";
 export { default as RenameFolder } from "./RenameFolder";
 export { default as SendMessage } from "./SendMessage";

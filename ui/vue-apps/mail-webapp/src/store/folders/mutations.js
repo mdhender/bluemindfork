@@ -6,6 +6,7 @@ import {
     ADD_FOLDER,
     DELETE_FLAG,
     REMOVE_FOLDER,
+    MOVE_FOLDER,
     SET_ACTIVE_FOLDER,
     SET_FOLDER_EXPANDED,
     SET_MAILBOX_FOLDERS,
@@ -20,6 +21,10 @@ export default {
         folders.forEach(folder => {
             Vue.set(state, folder.key, folder);
         });
+    },
+    [MOVE_FOLDER]: (state, { key, parent, path }) => {
+        state[key].parent = parent;
+        state[key].path = path;
     },
     [RENAME_FOLDER]: (state, { key, name, path }) => {
         state[key].name = name;

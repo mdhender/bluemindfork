@@ -5,6 +5,7 @@ import {
     ADD_FOLDER,
     RENAME_FOLDER,
     DELETE_FLAG,
+    MOVE_FOLDER,
     REMOVE_FOLDER,
     SET_FOLDER_EXPANDED,
     SET_UNREAD_COUNT
@@ -110,6 +111,38 @@ describe("folder mutations", () => {
             const initialState = JSON.parse(JSON.stringify(state));
             removeFolder(state, { key: "42" });
             expect(state).toEqual(initialState);
+        });
+    });
+
+    describe("MOVE_FOLDER", () => {
+        const { [MOVE_FOLDER]: moveFolder } = mutations;
+        test("rename an existing folder with name", () => {
+            const state = {
+                "123": {
+                    path: "foo",
+                    parent: null
+                }
+            };
+            moveFolder(state, { key: "123", path: "foobar", parent: "foobar" });
+            expect(state["123"]).toEqual({ path: "foobar", parent: "foobar" });
+        });
+
+        test("move a folder only change the parent and the path property", () => {
+            const state = {
+                "123": {
+                    aprop: "bar",
+                    parent: "foo",
+                    path: "foo",
+                    otherprop: "bar"
+                }
+            };
+            moveFolder(state, { key: "123", parent: "foobar", path: "foobar" });
+            expect(state["123"]).toEqual({
+                aprop: "bar",
+                parent: "foobar",
+                path: "foobar",
+                otherprop: "bar"
+            });
         });
     });
 

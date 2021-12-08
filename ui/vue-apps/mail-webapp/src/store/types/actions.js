@@ -11,6 +11,7 @@ export const CREATE_FOLDER_HIERARCHY = "CREATE_FOLDER_HIERARCHY";
 export const EMPTY_FOLDER = "EMPTY_FOLDER";
 export const FETCH_FOLDERS = "FETCH_FOLDERS";
 export const MARK_FOLDER_AS_READ = "MARK_FOLDER_AS_READ";
+export const MOVE_FOLDER = "MOVE_FOLDER";
 export const REMOVE_FOLDER = "REMOVE_FOLDER";
 export const RENAME_FOLDER = "RENAME_FOLDER";
 export const UNREAD_FOLDER_COUNT = "$_VueBus_mail-webapp_unread_folder_count";

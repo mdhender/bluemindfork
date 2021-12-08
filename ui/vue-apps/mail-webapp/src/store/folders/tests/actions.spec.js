@@ -8,13 +8,13 @@ import {
     CREATE_FOLDER,
     EMPTY_FOLDER,
     MARK_FOLDER_AS_READ,
+    MOVE_FOLDER,
     REMOVE_FOLDER,
     RENAME_FOLDER,
     UNREAD_FOLDER_COUNT
 } from "~/actions";
 import { ADD_FOLDER } from "~/mutations";
 import injector from "@bluemind/inject";
-import apiFolders from "../../api/apiFolders";
 
 Vue.use(Vuex);
 jest.mock("../../api/apiFolders");
@@ -32,7 +32,8 @@ describe("actions", () => {
         storeConfig.actions["alert/LOADING"] = jest.fn();
         storeConfig.actions["alert/SUCCESS"] = jest.fn();
         storeConfig.actions["alert/ERROR"] = jest.fn();
-        apiFolders.createNewFolder.mockClear();
+        api.createNewFolder.mockClear();
+        api.updateFolder.mockClear();
         api.getAllFolders.mockClear();
         storeConfig.actions["alert/LOADING"] = jest.fn();
         storeConfig.actions["alert/SUCCESS"] = jest.fn();
@@ -119,7 +120,7 @@ describe("actions", () => {
                 name: "",
                 remoteRef: {}
             };
-            api.createNewFolder.mockRejectedValue(new Error("Mocked rejection"));
+            api.createNewFolder.mockRejectedValueOnce(new Error("Mocked rejection"));
             expect.assertions(2);
             try {
                 await store.dispatch(CREATE_FOLDER, {
@@ -158,7 +159,7 @@ describe("actions", () => {
         test("Rename folder with failure", async () => {
             const mailbox = { type: "", name: "", remoteRef: {} };
             const oldFolder = { key: "1", name: "foo", path: "baz", remoteRef: {} };
-            api.updateFolder.mockRejectedValue(new Error("Mocked rejection"));
+            api.updateFolder.mockRejectedValueOnce(new Error("Mocked rejection"));
             store.commit(ADD_FOLDER, oldFolder);
             expect.assertions(2);
             try {
@@ -170,13 +171,95 @@ describe("actions", () => {
             }
         });
     });
+    describe("MOVE_FOLDER", () => {
+        test("move folder", async () => {
+            const mailbox = {
+                type: "",
+                name: "",
+                remoteRef: {}
+            };
+            const oldFolder = {
+                key: "1",
+                remoteRef: {},
+                name: "bar",
+                path: "foobaz/bar",
+                parent: "-1"
+            };
+            const newFolder = {
+                key: "1",
+                remoteRef: {},
+                name: "bar",
+                path: "foo/bar",
+                parent: "2"
+            };
+            const newParent = { key: "2", remoteRef: { uid: "uid-2" }, name: "foo", path: "foo" };
+
+            store.commit(ADD_FOLDER, oldFolder);
+            store.commit(ADD_FOLDER, newParent);
+            await store.dispatch(MOVE_FOLDER, { folder: oldFolder, parent: newParent, mailbox });
+            expect(api.updateFolder).toHaveBeenCalledWith(mailbox, {
+                internalId: undefined,
+                uid: "1",
+                value: {
+                    fullName: "foo/bar",
+                    name: "bar",
+                    parentUid: "2"
+                }
+            });
+            expect(store.state[newFolder.key]).toEqual(newFolder);
+        });
+        test("move folder with failure", async () => {
+            const mailbox = {
+                type: "",
+                name: "",
+                remoteRef: {}
+            };
+            const oldFolder = {
+                key: "1",
+                remoteRef: {},
+                name: "bar",
+                path: "foobaz/bar",
+                parent: "-1"
+            };
+
+            const newParent = { key: "2", remoteRef: { uid: "uid-2" }, name: "foo", path: "foo" };
+
+            store.commit(ADD_FOLDER, oldFolder);
+            store.commit(ADD_FOLDER, newParent);
+            api.updateFolder.mockRejectedValue(new Error("Mocked rejection"));
+            store.commit(ADD_FOLDER, oldFolder);
+            expect.assertions(2);
+            try {
+                await store.dispatch(MOVE_FOLDER, { folder: oldFolder, parent: newParent, mailbox });
+            } catch (error) {
+                expect(error.message).toEqual("Mocked rejection");
+            } finally {
+                expect(store.state[oldFolder.key]).toEqual(oldFolder);
+            }
+        });
+    });
     describe("REMOVE_FOLDER", () => {
         test("Remove folder with children", async () => {
             const mailbox = { type: "", name: "", remoteRef: {} };
-            const folder = { key: "1", name: "foo", path: "baz" };
-            const childFolder1 = { key: "2", name: "child1", path: "baz/child1", parent: "1" };
-            const childFolder2 = { key: "3", name: "child2", path: "baz/child2", parent: "1" };
-            const anotherfolder = { key: "4", name: "another", path: "another" };
+            const mailboxRef = { key: 1 };
+            const folder = { key: "1", imapName: "foo", name: "foo", path: "baz", mailboxRef };
+            const childFolder1 = {
+                key: "2",
+                imapName: "foo",
+                name: "child1",
+                path: "baz/child1",
+                parent: "1",
+                mailboxRef
+            };
+            const childFolder2 = {
+                key: "3",
+                imapName: "foo",
+                name: "child2",
+                path: "baz/child2",
+                parent: "1",
+                mailboxRef
+            };
+            const anotherfolder = { key: "4", imapName: "foo", name: "another", path: "another", mailboxRef };
             store.commit(ADD_FOLDER, folder);
             store.commit(ADD_FOLDER, childFolder1);
             store.commit(ADD_FOLDER, childFolder2);
@@ -192,9 +275,10 @@ describe("actions", () => {
         });
         test("Remove folder with optimistic return", async () => {
             const mailbox = { type: "", name: "", remoteRef: {} };
-            const folder1 = { key: "1", name: "foo", path: "baz" };
+
+            const folder1 = { key: "1", imapName: "foo", name: "foo", path: "baz", mailboxRef: { key: 1 } };
             store.commit(ADD_FOLDER, folder1);
-            const folder2 = { key: "2", name: "bar", path: "baz" };
+            const folder2 = { key: "2", imapName: "foo", name: "bar", path: "baz", mailboxRef: { key: 1 } };
             store.commit(ADD_FOLDER, folder2);
             const promise = await store.dispatch(REMOVE_FOLDER, { folder: folder1, mailbox });
             expect(api.deleteFolder).toHaveBeenLastCalledWith(mailbox, folder1);
@@ -204,9 +288,10 @@ describe("actions", () => {
         });
         test("Remove folder optimistic return with failure", async () => {
             const mailbox = { type: "", name: "", remoteRef: {} };
-            const folder1 = { key: "1", name: "foo", path: "baz" };
+
+            const folder1 = { key: "1", imapName: "foo", name: "foo", path: "baz", mailboxRef: { key: 1 } };
             store.commit(ADD_FOLDER, folder1);
-            const folder2 = { key: "2", name: "bar", path: "baz" };
+            const folder2 = { key: "2", imapName: "bar", name: "bar", path: "baz", mailboxRef: { key: 1 } };
             store.commit(ADD_FOLDER, folder2);
             api.deleteFolder.mockRejectedValue(new Error("Mocked rejection"));
             expect.assertions(2);
@@ -226,7 +311,17 @@ describe("actions", () => {
                 name: "bar",
                 remoteRef: {}
             };
-            const folder = { key: "1", name: "foo", path: "baz", remoteRef: { uid: "uid" }, unread: 10 };
+            const mailboxRef = { key: 1 };
+
+            const folder = {
+                key: "1",
+                imapName: "foo",
+                name: "foo",
+                path: "baz",
+                remoteRef: { uid: "uid" },
+                unread: 10,
+                mailboxRef
+            };
             store.commit(ADD_FOLDER, folder);
             store.dispatch(MARK_FOLDER_AS_READ, { folder, mailbox });
             expect(api.markAsRead).toHaveBeenCalledWith(mailbox, folder);
@@ -280,7 +375,7 @@ describe("actions", () => {
                 name: "bar",
                 remoteRef: {}
             };
-            const folder = { key: "1", name: "foo", path: "baz", remoteRef: {}, unread: 10 };
+            const folder = { key: "1", imapName: "foo", name: "foo", path: "baz", remoteRef: {}, unread: 10 };
             store.commit(ADD_FOLDER, folder);
             await store.dispatch(EMPTY_FOLDER, { folder: { key: "1", remoteRef: { uid: "uid" } }, mailbox });
             expect(store.state["1"].unread).toEqual(0);

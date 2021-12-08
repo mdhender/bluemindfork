@@ -11,8 +11,12 @@ import {
     ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
     CONVERSATIONS_ACTIVATED,
     CURRENT_MAILBOX,
+    FOLDERS,
     IS_ACTIVE_MESSAGE,
     IS_CURRENT_CONVERSATION,
+    MAILBOX_FOLDERS,
+    MAILBOX_SENT,
+    MAILBOX_TRASH,
     MAILSHARE_FOLDERS,
     MAILSHARE_KEYS,
     MAILSHARE_ROOT_FOLDERS,
@@ -20,7 +24,6 @@ import {
     MY_DRAFTS,
     MY_INBOX,
     MY_MAILBOX_FOLDERS,
-    MY_MAILBOX_KEY,
     MY_MAILBOX_ROOT_FOLDERS,
     MY_MAILBOX,
     MY_OUTBOX,
@@ -69,20 +72,27 @@ export const getters = {
         state.mailThreadSetting === "true" &&
         state.folders[state.activeFolder].allowConversations &&
         !CONVERSATION_LIST_IS_SEARCH_MODE,
-    [MAILSHARE_FOLDERS]: ({ folders }, getters) =>
-        Object.values(folders).filter(folder => getters[MAILSHARE_KEYS].includes(folder.mailboxRef.key)),
-    [MY_MAILBOX_FOLDERS]: ({ folders }, getters) =>
-        Object.values(folders).filter(folder => getters[MY_MAILBOX_KEY] === folder.mailboxRef.key),
-    [MY_MAILBOX_ROOT_FOLDERS]: (state, { MY_MAILBOX_FOLDERS }) =>
-        MY_MAILBOX_FOLDERS.filter(({ parent }) => !parent).sort(compare),
-    [MAILSHARE_ROOT_FOLDERS]: (state, { MAILSHARE_FOLDERS }) =>
-        MAILSHARE_FOLDERS.filter(({ parent }) => !parent).sort(compare),
-    [MY_INBOX]: myGetterFor(INBOX),
-    [MY_OUTBOX]: myGetterFor(OUTBOX),
-    [MY_DRAFTS]: myGetterFor(DRAFTS),
-    [MY_SENT]: myGetterFor(SENT),
-    [MY_TEMPLATES]: myGetterFor(TEMPLATES),
-    [MY_TRASH]: myGetterFor(TRASH),
+    [MAILBOX_FOLDERS]: (state, getters) => {
+        const foldersByMailbox = getters[FOLDERS].reduce(
+            (cache, folder) => cache.get(folder.mailboxRef.key).push(folder) && cache,
+            new Cache(() => [])
+        );
+        return ({ key }) => foldersByMailbox.get(key);
+    },
+    [MAILSHARE_FOLDERS]: (state, getters) => getters[MAILSHARE_KEYS].flatMap(key => getters[MAILBOX_FOLDERS]({ key })),
+    [MY_MAILBOX_FOLDERS]: (state, getters) => getters[MAILBOX_FOLDERS](getters[MY_MAILBOX]),
+    [MY_MAILBOX_ROOT_FOLDERS]: (state, getters) =>
+        getters[MY_MAILBOX_FOLDERS].filter(({ parent }) => !parent).sort(compare),
+    [MAILSHARE_ROOT_FOLDERS]: (state, getters) =>
+        getters[MAILSHARE_FOLDERS].filter(({ parent }) => !parent).sort(compare),
+    [MY_INBOX]: (state, getters) => mailboxGetterFor(INBOX)(state, getters)(getters[MY_MAILBOX]),
+    [MY_OUTBOX]: (state, getters) => mailboxGetterFor(OUTBOX)(state, getters)(getters[MY_MAILBOX]),
+    [MY_DRAFTS]: (state, getters) => mailboxGetterFor(DRAFTS)(state, getters)(getters[MY_MAILBOX]),
+    [MY_SENT]: (state, getters) => mailboxGetterFor(SENT)(state, getters)(getters[MY_MAILBOX]),
+    [MY_TEMPLATES]: (state, getters) => mailboxGetterFor(TEMPLATES)(state, getters)(getters[MY_MAILBOX]),
+    [MY_TRASH]: (state, getters) => mailboxGetterFor(TRASH)(state, getters)(getters[MY_MAILBOX]),
+    [MAILBOX_TRASH]: mailboxGetterFor(TRASH),
+    [MAILBOX_SENT]: mailboxGetterFor(SENT),
     [ACTIVE_MESSAGE]: ({ conversations: { messages }, activeMessage }) => messages[activeMessage.key],
     [IS_ACTIVE_MESSAGE]: ({ activeMessage, conversations: { conversationByKey } }) => ({ key }) =>
         key === activeMessage.key || conversationByKey[key].messages?.includes(activeMessage.key),
@@ -123,12 +133,27 @@ export const getters = {
     }
 };
 
-function myGetterFor(name) {
-    return (state, getters) => {
-        if (getters[MY_MAILBOX].loading === LoadingStatus.LOADED) {
-            return getters[MY_MAILBOX_ROOT_FOLDERS].find(({ imapName }) => imapName === name);
+function mailboxGetterFor(name) {
+    return (state, getters) => ({ key }) => {
+        const mailbox = state.mailboxes[key];
+        if (mailbox.loading === LoadingStatus.LOADED) {
+            return getters[MAILBOX_FOLDERS]({ key }).find(folder => folder.default && folder.imapName === name);
         } else {
-            return create(undefined, name, null, getters[MY_MAILBOX]);
+            return create(undefined, name, null, mailbox);
         }
     };
+}
+
+class Cache extends Map {
+    constructor(iterableOrLoader, loader) {
+        let iterable = typeof iterableOrLoader !== "function" ? iterableOrLoader : undefined;
+        super(iterable);
+        this.loader = typeof iterableOrLoader === "function" ? iterableOrLoader : loader;
+    }
+    get(key, loader) {
+        if (!this.has(key)) {
+            this.set(key, loader ? loader(key) : this.loader(key));
+        }
+        return super.get(key);
+    }
 }

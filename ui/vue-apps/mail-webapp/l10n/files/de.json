@@ -87,6 +87,11 @@
                     "plural": "Fehler beim Verschieben der ausgewählten E-Mails in den Ordner {folder}."
                 }
             },
+            "move_folder": {
+                "loading": "\"{folder}\" wird in den Ordner {destination} verschoben...",
+                "success": "\"{folder}\" wurde erfolgreich in den Ordner {destination} verschoben.",
+                "error": "Fehler beim Verschieben von \"{folder}\" in den Ordner {destination}."
+            },
             "read_only_folder": {
                 "info": "E-Mail im Lesemdodus. Einige Aktionen (z.B. Löschen/Verschieben) sind nicht auswählbar."
             },

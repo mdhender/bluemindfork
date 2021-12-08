@@ -87,6 +87,11 @@
                     "plural": "Les messages sélectionnés n'ont pas pu être déplacés dans {folder}."
                 }
             },
+            "move_folder": {
+                "loading": "\"{folder}\" est en train d'être déplacé vers {destination}...",
+                "success": "\"{folder}\" a bien été déplacé vers {destination}.",
+                "error": "\"{folder}\" n'a pas pu être déplacé vers {destination}."
+            },
             "read_only_folder": {
                 "info": "Message en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles."
             },

@@ -34,6 +34,10 @@ export function rename(folder, name) {
     return { ...folder, name, path };
 }
 
+export function move(folder, parent, mailbox) {
+    return { ...folder, path: path(mailbox, folder.name, parent), parent: parent.key };
+}
+
 export const DEFAULT_FOLDERS = {
     INBOX: "INBOX",
     SENT: "Sent",
@@ -44,6 +48,8 @@ export const DEFAULT_FOLDERS = {
     OUTBOX: "Outbox"
 };
 
+const DEFAULT_FOLDER_AS_ARRAY = Object.values(DEFAULT_FOLDERS);
+
 function path(mailbox, name, parent) {
     if (parent) {
         return [parent.path, name].filter(Boolean).join("/");
@@ -53,7 +59,6 @@ function path(mailbox, name, parent) {
         return name;
     }
 }
-
 export function isDefault(isRoot, name, mailbox) {
     if (mailbox.type === MailboxType.USER) {
         return isRoot && !!DEFAULT_FOLDERS[name.toUpperCase()];
@@ -191,17 +196,15 @@ function translate(name) {
 }
 
 export function compare(f1, f2) {
-    const f1Weight = Object.values(DEFAULT_FOLDERS).indexOf(f1.imapName);
-    const f2Weight = Object.values(DEFAULT_FOLDERS).indexOf(f2.imapName);
-    if (f1Weight >= 0 && f2Weight >= 0) {
-        return f1Weight - f2Weight;
-    } else if (f1Weight >= 0 && f2Weight < 0) {
-        return -1;
-    } else if (f1Weight < 0 && f2Weight >= 0) {
-        return 1;
-    } else {
-        return f1.imapName.localeCompare(f2.imapName);
+    if (f1.mailboxRef.key !== f2.mailboxRef.key) {
+        return f1.mailboxRef.key > f2.mailboxRef.key ? 1 : -1;
     }
+    if (f1.parent !== f2.parent) {
+        return f1.path.localeCompare(f2.path);
+    }
+    let w1 = DEFAULT_FOLDER_AS_ARRAY.indexOf(f1.imapName) + 1 || DEFAULT_FOLDER_AS_ARRAY.length;
+    let w2 = DEFAULT_FOLDER_AS_ARRAY.indexOf(f2.imapName) + 1 || DEFAULT_FOLDER_AS_ARRAY.length;
+    return w1 - w2 || f1.imapName.localeCompare(f2.imapName);
 }
 
 export function generateKey(folderUid) {

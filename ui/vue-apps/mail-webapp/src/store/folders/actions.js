@@ -1,25 +1,27 @@
 import { ItemFlag } from "@bluemind/core.container.api";
 import api from "../api/apiFolders";
 import {
-    SET_MAILBOX_FOLDERS,
     ADD_FOLDER,
+    RENAME_FOLDER,
+    SET_MAILBOX_FOLDERS,
+    SET_UNREAD_COUNT,
     //TODO: change mutation names
     REMOVE_FOLDER as MUTATION_REMOVE_FOLDER,
     RENAME_FOLDER as MUTATION_RENAME_FOLDER,
-    REMOVE_FOLDER,
-    RENAME_FOLDER,
-    SET_UNREAD_COUNT
+    MOVE_FOLDER as MUTATION_MOVE_FOLDER
 } from "~/mutations";
 import { FOLDERS_BY_UPPERCASE_PATH, FOLDER_GET_DESCENDANTS } from "~/getters";
 import { FolderAdaptor } from "./helpers/FolderAdaptor";
-import { create, rename } from "~/model/folder";
+import { create, rename, move } from "~/model/folder";
 import { withAlert } from "../helpers/withAlert";
 import {
+    CREATE_FOLDER_HIERARCHY,
     CREATE_FOLDER,
     EMPTY_FOLDER,
     FETCH_FOLDERS,
-    CREATE_FOLDER_HIERARCHY,
     MARK_FOLDER_AS_READ,
+    MOVE_FOLDER,
+    REMOVE_FOLDER,
     UNREAD_FOLDER_COUNT
 } from "~/actions";
 
@@ -62,6 +64,21 @@ const removeFolder = async function ({ commit, getters }, { folder, mailbox }) {
         toBeRemoved.forEach(folderToRemove => {
             commit(ADD_FOLDER, folderToRemove);
         });
+        throw e;
+    }
+};
+
+const moveFolder = async function ({ commit, state }, { folder, parent, mailbox }) {
+    const { parent: oldParent, path: oldPath } = folder;
+    parent = state[parent.key];
+    const moved = move(folder, parent, mailbox);
+    commit(MUTATION_MOVE_FOLDER, moved);
+
+    const item = FolderAdaptor.toMailboxFolder(moved, mailbox);
+    try {
+        await api.updateFolder(mailbox, item);
+    } catch (e) {
+        commit(MUTATION_MOVE_FOLDER, { key: folder.key, parent: oldParent, path: oldPath });
         throw e;
     }
 };
@@ -109,6 +126,7 @@ export default {
     [CREATE_FOLDER_HIERARCHY]: createFolderHierarchy,
     [EMPTY_FOLDER]: emptyFolder,
     [REMOVE_FOLDER]: withAlert(removeFolder, REMOVE_FOLDER, "RemoveFolder"),
+    [MOVE_FOLDER]: withAlert(moveFolder, MOVE_FOLDER, "MoveFolder"),
     [RENAME_FOLDER]: withAlert(renameFolder, RENAME_FOLDER, "RenameFolder"),
     [MARK_FOLDER_AS_READ]: withAlert(markFolderAsRead, MARK_FOLDER_AS_READ, "MarkFolderAsRead"),
     [UNREAD_FOLDER_COUNT]: unreadFolderCount

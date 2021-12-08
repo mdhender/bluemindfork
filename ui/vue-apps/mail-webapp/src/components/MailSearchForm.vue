@@ -91,7 +91,7 @@ import { mapGetters, mapMutations, mapState } from "vuex";
 import debounce from "lodash.debounce";
 import GlobalEvents from "vue-global-events";
 import { SearchHelper } from "./SearchHelper";
-import { MY_SENT, MY_MAILBOX, MY_INBOX, MY_TRASH } from "~/getters";
+import { MY_SENT, MY_MAILBOX, MY_INBOX, MY_TRASH, FOLDERS } from "~/getters";
 import { isMailshareRoot } from "~/model/folder";
 import { ConversationListStatus } from "~/store/conversationList";
 import { SET_CONVERSATION_LIST_STATUS } from "~/mutations";
@@ -146,10 +146,10 @@ export default {
     computed: {
         ...mapState("mail", { currentSearch: ({ conversationList }) => conversationList.search }),
         ...mapState("mail", ["folders", "mailboxes", "activeFolder"]),
-        ...mapGetters("mail", { MY_INBOX, MY_MAILBOX, MY_SENT, MY_TRASH }),
+        ...mapGetters("mail", { MY_INBOX, MY_MAILBOX, MY_SENT, MY_TRASH, FOLDERS }),
         filteredFolders() {
             if (this.folderPattern !== "") {
-                const filtered = Object.values(this.folders).filter(
+                const filtered = this.FOLDERS.filter(
                     folder =>
                         folder.path.toLowerCase().includes(this.folderPattern.toLowerCase()) ||
                         translatePath(folder.path).toLowerCase().includes(this.folderPattern.toLowerCase())

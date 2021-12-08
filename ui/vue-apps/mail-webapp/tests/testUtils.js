@@ -50,10 +50,31 @@ export function createStore() {
     store.commit("mail/ADD_MAILBOXES", [mailbox]);
     store.commit("mail/SET_MAILBOX_FOLDERS", {
         folders: [
-            { key: folderUid, mailboxRef: { key: "MY_MAILBOX" }, writable: true, path: "my/folder" },
-            { key: "TraskKey", imapName: "Trash", path: "Trash", mailboxRef: { key: "MY_MAILBOX" }, writable: true },
-            { key: "SentKey", imapName: "Sent", path: "Sent", mailboxRef: { key: "MY_MAILBOX" }, writable: true },
-            { key: "tpl", imapName: "Templates", path: "Templates", mailboxRef: { key: "MY_MAILBOX" }, writable: true }
+            { key: folderUid, imapName: "fol", mailboxRef: { key: "MY_MAILBOX" }, writable: true, path: "my/folder" },
+            {
+                key: "TraskKey",
+                imapName: "Trash",
+                path: "Trash",
+                default: true,
+                mailboxRef: { key: "MY_MAILBOX" },
+                writable: true
+            },
+            {
+                key: "SentKey",
+                imapName: "Sent",
+                path: "Sent",
+                default: true,
+                mailboxRef: { key: "MY_MAILBOX" },
+                writable: true
+            },
+            {
+                key: "tpl",
+                imapName: "Templates",
+                path: "Templates",
+                default: true,
+                mailboxRef: { key: "MY_MAILBOX" },
+                writable: true
+            }
         ],
         mailbox
     });

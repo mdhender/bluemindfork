@@ -1,15 +1,18 @@
 import {
+    FOLDERS,
     FOLDERS_BY_UPPERCASE_PATH,
     FOLDER_GET_DESCENDANTS,
     FOLDER_HAS_CHILDREN,
     IS_DESCENDANT,
     FOLDER_GET_CHILDREN
 } from "~/getters";
+import { compare } from "~/model/folder";
 
 export default {
-    [FOLDERS_BY_UPPERCASE_PATH]: state => {
+    [FOLDERS]: state => Object.values(state).sort(compare),
+    [FOLDERS_BY_UPPERCASE_PATH]: (state, { FOLDERS }) => {
         const foldersByPath = {};
-        Object.values(state).forEach(folder => (foldersByPath[folder.path.toUpperCase()] = folder));
+        FOLDERS.forEach(folder => (foldersByPath[folder.path.toUpperCase()] = folder));
         return foldersByPath;
     },
     [IS_DESCENDANT]: state => (parentKey, key) => {
@@ -23,8 +26,8 @@ export default {
         );
     },
     [FOLDER_HAS_CHILDREN]: (state, { FOLDER_GET_CHILDREN }) => folder => FOLDER_GET_CHILDREN(folder).length > 0,
-    [FOLDER_GET_CHILDREN]: state => {
-        const folderByParent = Object.values(state).reduce((byParent, folder) => {
+    [FOLDER_GET_CHILDREN]: (state, { FOLDERS }) => {
+        const folderByParent = FOLDERS.reduce((byParent, folder) => {
             byParent[folder.parent] ? byParent[folder.parent].push(folder) : (byParent[folder.parent] = [folder]);
             return byParent;
         }, {});

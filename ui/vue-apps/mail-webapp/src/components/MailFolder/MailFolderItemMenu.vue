@@ -32,8 +32,8 @@ import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
 import { create, isDefault, isMailshareRoot } from "~/model/folder";
 import { SET_FOLDER_EXPANDED, ADD_FOLDER, TOGGLE_EDIT_FOLDER } from "~/mutations";
-import { IS_DESCENDANT, FOLDER_HAS_CHILDREN } from "~/getters";
-import { EMPTY_FOLDER, MARK_FOLDER_AS_READ, REMOVE_FOLDER } from "~/actions";
+import { IS_DESCENDANT, FOLDER_HAS_CHILDREN, MY_TRASH } from "~/getters";
+import { EMPTY_FOLDER, MARK_FOLDER_AS_READ, MOVE_FOLDER } from "~/actions";
 import { MailRoutesMixin } from "~/mixins";
 
 export default {
@@ -50,7 +50,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", { IS_DESCENDANT, FOLDER_HAS_CHILDREN }),
+        ...mapGetters("mail", { IS_DESCENDANT, FOLDER_HAS_CHILDREN, MY_TRASH }),
         ...mapState("mail", ["mailboxes", "folders", "activeFolder"]),
         isMailshareRoot() {
             return isMailshareRoot(this.folder, this.mailbox);
@@ -63,7 +63,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", { EMPTY_FOLDER, REMOVE_FOLDER, MARK_FOLDER_AS_READ }),
+        ...mapActions("mail", { EMPTY_FOLDER, MOVE_FOLDER, MARK_FOLDER_AS_READ }),
         ...mapMutations("mail", { ADD_FOLDER, TOGGLE_EDIT_FOLDER, SET_FOLDER_EXPANDED }),
         async deleteFolder() {
             const modalTitleKey = this.FOLDER_HAS_CHILDREN(this.folder)
@@ -82,7 +82,7 @@ export default {
                 if (this.IS_DESCENDANT(this.folder.key, this.activeFolder) || this.activeFolder === this.folder.key) {
                     await this.$router.push({ name: "mail:home" });
                 }
-                this.REMOVE_FOLDER({ folder: this.folder, mailbox: this.mailbox });
+                this.MOVE_FOLDER({ folder: this.folder, parent: this.MY_TRASH, mailbox: this.mailbox });
             }
         },
         async createSubFolder() {

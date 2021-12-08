@@ -83,9 +83,14 @@
                     "plural": "{count} messages have been successfully moved to {folder}."
                 },
                 "error": {
-                    "single": "Failed to move \"{subject}\" in {folder}.",
-                    "plural": "Failed to move selected messages in {folder}."
+                    "single": "Failed to move \"{subject}\" to {folder}.",
+                    "plural": "Failed to move selected messages to {folder}."
                 }
+            },
+            "move_folder": {
+                "loading": "\"{folder}\" is being moved to {destination}...",
+                "success": "\"{folder}\" has been successfully moved to {destination}.",
+                "error": "Failed to move \"{folder}\" to {destination}."
             },
             "read_only_folder": {
                 "info": "Read-only message. Some actions (like Move or Remove) may not be available."
