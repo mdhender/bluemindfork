@@ -1,13 +1,19 @@
 <template>
     <div class="preferences position-absolute w-100 h-100 overlay d-flex z-index-500" @click="unlockOrClose">
-        <global-events @keydown.esc="closePreferences" />
         <bm-spinner
             v-if="!loaded"
             class="flex-fill align-self-center text-center"
             :size="2.5"
             @click="lockClose = true"
         />
-        <bm-container v-else fluid class="flex-fill bg-surface m-lg-5" @click="lockClose = true">
+        <bm-container
+            v-else
+            fluid
+            class="flex-fill bg-surface m-lg-5"
+            tabindex="0"
+            @click="lockClose = true"
+            @keydown.esc="closePreferences"
+        >
             <bm-row class="h-100">
                 <pref-left-panel
                     :user="user"
@@ -26,7 +32,6 @@
 </template>
 
 <script>
-import GlobalEvents from "vue-global-events";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { generateDateTimeFormats } from "@bluemind/i18n";
@@ -41,7 +46,6 @@ import Navigation from "./mixins/Navigation";
 export default {
     name: "Preferences",
     components: {
-        GlobalEvents,
         PrefRightPanel,
         BmContainer,
         BmRow,

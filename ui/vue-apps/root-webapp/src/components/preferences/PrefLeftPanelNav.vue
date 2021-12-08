@@ -3,7 +3,7 @@
         <bm-list-group v-bm-scrollspy:scroll-area>
             <bm-list-group-item
                 v-for="section in sections"
-                :ref="section.id"
+                ref="section"
                 :key="section.id"
                 :active="section.id === selectedSectionId"
                 class="app-item container px-4 py-3"
@@ -68,6 +68,9 @@ export default {
         userDisplayName() {
             return inject("UserSession").formatedName;
         }
+    },
+    mounted() {
+        this.$refs.section[0].focus();
     }
 };
 </script>
