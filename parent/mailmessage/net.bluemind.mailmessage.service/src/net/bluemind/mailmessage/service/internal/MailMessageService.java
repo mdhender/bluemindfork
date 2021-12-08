@@ -54,8 +54,8 @@ public class MailMessageService implements IMailTip {
 		for (Entry<String, List<IMailTipEvaluation>> handlers : Activator.mailtipHandlers.entrySet()) {
 			if (handles(handlers.getKey(), mailtipContext.filter)) {
 				for (IMailTipEvaluation handler : handlers.getValue()) {
-					matchingTips
-							.addAll(handler.evaluate(domainUid, mailtipContext.messageContext).stream().map((result) -> {
+					matchingTips.addAll(
+							handler.evaluate(domainUid, mailtipContext.messageContext).stream().map((result) -> {
 								return createTip(handler, result);
 							}).collect(Collectors.toList()));
 				}
