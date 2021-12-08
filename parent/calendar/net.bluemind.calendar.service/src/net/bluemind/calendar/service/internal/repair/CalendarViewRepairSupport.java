@@ -17,6 +17,7 @@
   */
 package net.bluemind.calendar.service.internal.repair;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,7 +35,6 @@ import com.google.common.collect.ImmutableSet;
 
 import net.bluemind.calendar.api.CalendarView;
 import net.bluemind.calendar.api.IUserCalendarViews;
-import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ItemValue;
@@ -78,7 +78,7 @@ public class CalendarViewRepairSupport implements IDirEntryRepairSupport {
 		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
 			IUserCalendarViews view = context.provider().instance(IUserCalendarViews.class, domainUid, entry.entryUid);
 
-			processCalendarViews(view.list(), viewData -> {
+			processCalendarViews(view.list().values, viewData -> {
 				logger.info("Calendarview {}:{} contains inaccessible calendars {}", viewData.view.uid,
 						viewData.view.displayName, Arrays.toString(viewData.missingCalendars.toArray()));
 				monitor.log("Calendarview " + viewData.view.uid + ":" + viewData.view.displayName
@@ -91,8 +91,22 @@ public class CalendarViewRepairSupport implements IDirEntryRepairSupport {
 		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
 			IUserCalendarViews view = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(IUserCalendarViews.class, domainUid, entry.entryUid);
+			IContainers containerService = context.provider().instance(IContainers.class);
 
-			processCalendarViews(view.list(), viewData -> {
+			ArrayList<ItemValue<CalendarView>> views = new ArrayList<>(view.list().values);
+			for (ItemValue<CalendarView> calendarview : views.stream().collect(Collectors.toList())) {
+				if (calendarview.value == null) {
+					// t_container exists, t_container_item exists, but value does not exists
+					logger.info("calendarview {}:{} has no corresponding t_calendarview entry", calendarview.uid,
+							calendarview.displayName);
+					monitor.log("calendarview " + calendarview.uid + ":" + calendarview.displayName
+							+ " has no corresponding t_calendarview entry");
+					views.remove(calendarview);
+					containerService.delete(calendarview.uid);
+				}
+			}
+
+			processCalendarViews(views, viewData -> {
 				logger.info("Calendarview {}:{} contains inaccessible calendar {}", viewData.view.uid,
 						viewData.view.displayName, viewData.existingCalendars);
 				monitor.log("Calendarview " + viewData.view.uid + ":" + viewData.view.displayName
@@ -103,10 +117,10 @@ public class CalendarViewRepairSupport implements IDirEntryRepairSupport {
 			});
 		}
 
-		private void processCalendarViews(ListResult<ItemValue<CalendarView>> views, Consumer<ViewCalendarData> op) {
+		private void processCalendarViews(List<ItemValue<CalendarView>> views, Consumer<ViewCalendarData> op) {
 			IContainers containerService = context.provider().instance(IContainers.class);
 
-			for (ItemValue<CalendarView> view : views.values) {
+			for (ItemValue<CalendarView> view : views) {
 				List<String> existing = containerService.getContainersLight(view.value.calendars).stream()
 						.map(c -> c.uid).collect(Collectors.toList());
 				Collection<String> missing = Collections2.filter(view.value.calendars,
