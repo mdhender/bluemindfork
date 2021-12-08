@@ -54,13 +54,13 @@ public class DomainSettingsStore extends AbstractItemValueStore<DomainSettings> 
 
 	@Override
 	public void create(Item item, DomainSettings value) throws SQLException {
-		StringBuilder query = new StringBuilder("INSERT INTO t_settings_domain (item_id, ");
+		StringBuilder query = new StringBuilder("INSERT INTO t_settings_domain (");
 		DomainSettingsColumns.appendNames(null, query);
-		query.append(") VALUES (" + item.id + ", ");
+		query.append(", item_id) VALUES (");
 		DomainSettingsColumns.appendValues(query);
-		query.append(")");
+		query.append(", ?)");
 
-		insert(query.toString(), value.settings, DomainSettingsColumns.statementValues());
+		insert(query.toString(), value.settings, DomainSettingsColumns.statementValues(), new Object[] { item.id });
 	}
 
 	@Override
@@ -84,13 +84,10 @@ public class DomainSettingsStore extends AbstractItemValueStore<DomainSettings> 
 	@Override
 	public DomainSettings get(Item item) throws SQLException {
 		StringBuilder query = new StringBuilder("SELECT ");
-
 		DomainSettingsColumns.appendNames(null, query);
-
-		query.append(" FROM t_settings_domain");
-		query.append(" WHERE item_id = ").append(item.id);
-		Map<String, String> settings = unique(query.toString(), DOMAIN_CREATOR, DomainSettingsColumns.populator());
-
+		query.append(" FROM t_settings_domain WHERE item_id = ?");
+		Map<String, String> settings = unique(query.toString(), DOMAIN_CREATOR, DomainSettingsColumns.populator(),
+				new Object[] { item.id });
 		return settings == null ? null : new DomainSettings(item.uid, settings);
 	}
 

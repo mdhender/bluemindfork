@@ -61,7 +61,7 @@ public class DummyStore extends AbstractItemValueStore<Dummy> {
 
 	@Override
 	public void deleteAll() throws SQLException {
-		delete("DELETE FROM t_dummy_value WHERE item_id IN ( SELECT id FROM t_container_item WHERE  container_id = ?)",
+		delete("DELETE FROM t_dummy_value WHERE item_id IN ( SELECT id FROM t_container_item WHERE container_id = ?)",
 				new Object[] { container.id });
 	}
 

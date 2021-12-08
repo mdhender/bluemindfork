@@ -61,18 +61,14 @@ public class VEventStore extends AbstractItemValueStore<VEvent> {
 
 	@Override
 	public void create(Item item, VEvent event) throws SQLException {
-		logger.debug("creating ical vevent for item {} ", item.id);
-
-		String query = "INSERT INTO t_calendar_vevent (" + VEventColumns.ALL.names() + ", item_id ) values ("
-				+ VEventColumns.ALL.values() + ", ? )";
+		String query = "INSERT INTO t_calendar_vevent (" + VEventColumns.ALL.names() + ", item_id) VALUES ("
+				+ VEventColumns.ALL.values() + ", ?)";
 
 		insert(query, event, VEventColumns.values(item.id));
 	}
 
 	@Override
 	public void update(Item item, VEvent value) throws SQLException {
-		logger.debug("updating vevent for item {} ", item.id);
-
 		delete(item);
 		create(item, value);
 	}
@@ -80,29 +76,28 @@ public class VEventStore extends AbstractItemValueStore<VEvent> {
 	@Override
 	public VEvent get(Item item) throws SQLException {
 		String query = "SELECT " + VEventColumns.ALL.names()
-				+ " FROM t_calendar_vevent where item_id = ? and recurid_timestamp is null";
-
+				+ " FROM t_calendar_vevent WHERE item_id = ? AND recurid_timestamp is null";
 		return unique(query, EVENT_CREATOR, VEventColumns.populator(), new Object[] { item.id });
 	}
 
 	@Override
 	public void delete(Item item) throws SQLException {
-		delete("delete from t_calendar_vevent where item_id = ?", new Object[] { item.id });
+		delete("DELETE FROM t_calendar_vevent WHERE item_id = ?", new Object[] { item.id });
 	}
 
 	@Override
 	public void deleteAll() throws SQLException {
-		delete("delete from t_calendar_vevent where item_id in ( select id from t_container_item where container_id = ?) and recurid_timestamp is null",
+		delete("DELETE FROM t_calendar_vevent WHERE item_id IN (SELECT id FROM t_container_item WHERE container_id = ?) AND recurid_timestamp IS NULL",
 				new Object[] { container.id });
 		recurringStore.deleteAll();
 	}
 
 	@Override
 	public List<VEvent> getMultiple(List<Item> items) throws SQLException {
-		String query = "select item_id, " + VEventColumns.ALL.names()
-				+ " from t_calendar_vevent where item_id = ANY(?::int4[]) and recurid_timestamp is null order by item_id asc";
+		String query = "SELECT item_id, " + VEventColumns.ALL.names()
+				+ " FROM t_calendar_vevent WHERE item_id = ANY(?::int4[]) AND recurid_timestamp IS NULL ORDER BY item_id ASC";
 		List<ItemV<VEvent>> values = select(query, (ResultSet con) -> {
-			return new ItemV<VEvent>();
+			return new ItemV<>();
 		}, (ResultSet rs, int index, ItemV<VEvent> card) -> {
 			card.itemId = rs.getLong(index++);
 			card.value = new VEvent();
@@ -119,12 +114,12 @@ public class VEventStore extends AbstractItemValueStore<VEvent> {
 	 * @throws SQLException
 	 */
 	public List<ItemUid> getReminder(BmDateTime dtalarm) throws SQLException {
-		String query = "SELECT DISTINCT i.uid from t_container_item i, t_calendar_vevent v, "
-				+ "unnest(v.rdate_timestamp  || (array[null]::timestamp without time zone[])) rdate, "
-				+ "unnest(v.valarm_trigger|| (array[null]::integer[])) alarm "
-				+ " where i.id = v.item_id and container_id = ? " + " AND valarm_trigger IS NOT NULL " + " AND ( "
+		String query = "SELECT DISTINCT i.uid FROM t_container_item i, t_calendar_vevent v, "
+				+ "unnest(v.rdate_timestamp || (array[null]::timestamp without time zone[])) rdate, "
+				+ "unnest(v.valarm_trigger || (array[null]::integer[])) alarm "
+				+ " WHERE i.id = v.item_id AND container_id = ? AND valarm_trigger IS NOT NULL AND ( "
 				+ "    (dtstart_timestamp + (alarm || ' seconds')::interval) = (COALESCE(timezone(dtstart_timezone, ?), ?)) "
-				+ "	     OR (rrule_frequency IS NOT NULL AND (rrule_until_timestamp IS NULL OR rrule_until_timestamp > (COALESCE(timezone(dtstart_timezone, ?), ?)) ))"
+				+ "      OR (rrule_frequency IS NOT NULL AND (rrule_until_timestamp IS NULL OR rrule_until_timestamp > (COALESCE(timezone(dtstart_timezone, ?), ?)) ))"
 				+ "      OR (rdate + (alarm || ' seconds')::interval) = (COALESCE(timezone(dtstart_timezone, ?), ?))"
 				+ " )";
 
@@ -134,9 +129,8 @@ public class VEventStore extends AbstractItemValueStore<VEvent> {
 	}
 
 	public List<String> getEventUidsWithAlarm() throws SQLException {
-		String query = "SELECT DISTINCT i.uid from t_container_item i, t_calendar_vevent v "
-				+ " where i.id = v.item_id and container_id = ? AND valarm_trigger IS NOT NULL";
-
+		String query = "SELECT DISTINCT i.uid FROM t_container_item i, t_calendar_vevent v "
+				+ " WHERE i.id = v.item_id AND container_id = ? AND valarm_trigger IS NOT NULL";
 		return select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
 	}
 

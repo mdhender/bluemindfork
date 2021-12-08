@@ -42,17 +42,14 @@ public class OwnerSubscriptionStore extends AbstractItemValueStore<ContainerSubs
 	@Override
 	public void create(Item item, ContainerSubscriptionModel value) throws SQLException {
 		String query = "INSERT INTO t_owner_subscription (" + OwnerSubscriptionColumns.cols.names()
-				+ ", item_id) VALUES (" + OwnerSubscriptionColumns.cols.values() + ",?)";
-		if (logger.isDebugEnabled()) {
-			logger.debug("Creating with {} {} {}", item, item.id, item.uid);
-		}
+				+ ", item_id) VALUES (" + OwnerSubscriptionColumns.cols.values() + ", ?)";
 		insert(query, value, OwnerSubscriptionColumns.values(item.id));
 	}
 
 	@Override
 	public void update(Item item, ContainerSubscriptionModel value) throws SQLException {
 		String query = "UPDATE t_owner_subscription SET (" + OwnerSubscriptionColumns.cols.names() + ") = ("
-				+ OwnerSubscriptionColumns.cols.values() + ") WHERE item_id=?";
+				+ OwnerSubscriptionColumns.cols.values() + ") WHERE item_id = ?";
 		update(query, value, OwnerSubscriptionColumns.values(item.id));
 	}
 
@@ -63,14 +60,15 @@ public class OwnerSubscriptionStore extends AbstractItemValueStore<ContainerSubs
 
 	@Override
 	public ContainerSubscriptionModel get(Item item) throws SQLException {
-		String query = "SELECT " + OwnerSubscriptionColumns.cols.names() + " FROM t_owner_subscription WHERE item_id=?";
+		String query = "SELECT " + OwnerSubscriptionColumns.cols.names()
+				+ " FROM t_owner_subscription WHERE item_id = ?";
 		return unique(query, rs -> new ContainerSubscriptionModel(), OwnerSubscriptionColumns.POPULATOR,
 				new Object[] { item.id });
 	}
 
 	@Override
 	public void deleteAll() throws SQLException {
-		delete("delete from t_owner_subscription where item_id in ( select id from t_container_item where  container_id = ?)",
+		delete("DELETE FROM t_owner_subscription WHERE item_id in (SELECT id FROM t_container_item WHERE container_id = ?)",
 				new Object[] { container.id });
 	}
 

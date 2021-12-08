@@ -51,19 +51,9 @@ public abstract class AbstractItemValueStore<T> extends JdbcAbstractStore implem
 		public long itemId;
 	}
 
-	protected List<T> join(List<Item> items, List<ItemV<T>> values) throws SQLException {
-
-		Map<Long, T> map = values.stream().collect(Collectors.toMap(iv -> {
-			return iv.itemId;
-		}, iv -> {
-			return iv.value;
-		}, (v1, v2) -> {
-			return v1;
-		}));
-
-		return items.stream().map(i -> {
-			return map.get(i.id);
-		}).collect(Collectors.toList());
+	protected List<T> join(List<Item> items, List<ItemV<T>> values) {
+		Map<Long, T> map = values.stream().collect(Collectors.toMap(iv -> iv.itemId, iv -> iv.value, (v1, v2) -> v1));
+		return items.stream().map(i -> map.get(i.id)).collect(Collectors.toList());
 	}
 
 }

@@ -68,7 +68,7 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 	@Override
 	public void create(Item item, VEventSeries series) throws SQLException {
 		insert("INSERT INTO t_calendar_series ( " + SeriesColumns.cols.names() + ", item_id) VALUES ("
-				+ SeriesColumns.cols.values() + ",?)", series, SeriesColumns.values(item.id));
+				+ SeriesColumns.cols.values() + ", ?)", series, SeriesColumns.values(item.id));
 		if (null != series.main) {
 			eventStore.create(item, series.main);
 		}
@@ -104,9 +104,9 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 
 	private List<VEventSeries> loadSeries(List<Item> items) throws SQLException {
 
-		String query = "select series.item_id, series.ics_uid, properties, accept_counters, recurid_timestamp IS NULL, "
-				+ VEventOccurrenceColumns.ALL.names()
-				+ " from t_calendar_series series, t_calendar_vevent v where series.item_id = ANY(?::int4[]) and series.item_id = v.item_id order by series.item_id ";
+		String query = "SELECT series.item_id, series.ics_uid, properties, accept_counters, recurid_timestamp IS NULL, "
+				+ VEventOccurrenceColumns.ALL.names() + " FROM t_calendar_series series, t_calendar_vevent v" //
+				+ " WHERE series.item_id = ANY(?::int4[]) AND series.item_id = v.item_id ORDER BY series.item_id";
 
 		Long[] itemsId = items.stream().map(i -> i.id).toArray(i -> new Long[i]);
 		List<VEventDB> values = select(query, (ResultSet con) -> {
@@ -143,8 +143,9 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 	}
 
 	private Map<Long, List<VEventCounter>> loadCounters(Long[] items) throws SQLException {
-		String query = "select series.item_id, " + VEventCounterColumns.SELECT_ALL.names()
-				+ " from t_calendar_series series, t_calendar_vevent_counter v where series.item_id = ANY(?::int4[]) and series.item_id = (v.vevent).item_id order by series.item_id ";
+		String query = "SELECT series.item_id, " + VEventCounterColumns.SELECT_ALL.names()
+				+ " FROM t_calendar_series series, t_calendar_vevent_counter v" //
+				+ " WHERE series.item_id = ANY(?::int4[]) AND series.item_id = (v.vevent).item_id ORDER BY series.item_id";
 
 		List<VEventCounterDB> values = select(query, (ResultSet con) -> {
 			return new VEventCounterDB();
@@ -157,15 +158,13 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 			return VEventCounterColumns.populator().populate(rs, index, event.counter);
 		}, new Object[] { items });
 
-		Map<Long, List<VEventCounter>> asMap = values.stream().collect(Collectors.toMap(counter -> counter.itemId,
+		return values.stream().collect(Collectors.toMap(counter -> counter.itemId,
 				counter -> Arrays.asList(counter.counter), (counter1, counter2) -> {
 					List<VEventCounter> mergedCounters = new ArrayList<>();
 					mergedCounters.addAll(counter1);
 					mergedCounters.addAll(counter2);
 					return mergedCounters;
 				}));
-
-		return asMap;
 	}
 
 	private List<VEventSeries> asSeries(List<VEventDB> values, List<Item> items,
@@ -206,16 +205,16 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 
 	@Override
 	public void delete(Item item) throws SQLException {
-		delete("delete from t_calendar_series where item_id = ?", new Object[] { item.id });
-		delete("delete from t_calendar_vevent where item_id = ?", new Object[] { item.id });
-		delete("delete from t_calendar_vevent_counter where (vevent).item_id = ?", new Object[] { item.id });
+		delete("DELETE FROM t_calendar_series WHERE item_id = ?", new Object[] { item.id });
+		delete("DELETE FROM t_calendar_vevent WHERE item_id = ?", new Object[] { item.id });
+		delete("DELETE FROM t_calendar_vevent_counter WHERE (vevent).item_id = ?", new Object[] { item.id });
 	}
 
 	@Override
 	public void deleteAll() throws SQLException {
-		delete("delete from t_calendar_series where item_id in ( select id from t_container_item where container_id = ?)",
+		delete("DELETE FROM t_calendar_series WHERE item_id in (SELECT id FROM t_container_item WHERE container_id = ?)",
 				new Object[] { container.id });
-		delete("delete from t_calendar_vevent where item_id in ( select id from t_container_item where container_id = ?) and recurid_timestamp is null",
+		delete("DELETE FROM t_calendar_vevent WHERE item_id in (SELECT id FROM t_container_item WHERE container_id = ?) AND recurid_timestamp is null",
 				new Object[] { container.id });
 		recurringStore.deleteAll();
 		counterStore.deleteAll();
@@ -236,20 +235,18 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 	}
 
 	public List<String> findByIcsUid(String uid) throws SQLException {
-		return select(
-				"SELECT item.uid FROM t_container_item item, t_calendar_series series WHERE item.id = series.item_id AND item.container_id = ? AND lower(series.ics_uid) = ? ",
-				(rs) -> {
-					return rs.getString(1);
-				}, Collections.emptyList(), new Object[] { container.id, uid.toLowerCase() });
+		return select("SELECT item.uid FROM t_container_item item, t_calendar_series series" //
+				+ " WHERE item.id = series.item_id AND item.container_id = ? AND lower(series.ics_uid) = ?", //
+				rs -> rs.getString(1), Collections.emptyList(), new Object[] { container.id, uid.toLowerCase() });
 	}
 
 	public List<Long> sortedIds(SortDescriptor sorted) throws SQLException {
 		logger.debug("sorted by {}", sorted);
 		String query = "SELECT item.id FROM t_calendar_series rec "
-				+ "INNER JOIN t_container_item item ON rec.item_id=item.id " //
-				+ "INNER JOIN t_calendar_vevent ev ON (rec.item_id=ev.item_id AND ev.recurid_timestamp IS NULL) "//
+				+ "INNER JOIN t_container_item item ON rec.item_id = item.id " //
+				+ "INNER JOIN t_calendar_vevent ev ON (rec.item_id = ev.item_id AND ev.recurid_timestamp IS NULL) "//
 				+ "WHERE item.container_id=? " //
-				+ "AND (item.flags::bit(32) & 2::bit(32))=0::bit(32) " // not deleted
+				+ "AND (item.flags::bit(32) & 2::bit(32)) = 0::bit(32) " // not deleted
 		;
 		int added = 0;
 		for (int i = 0; i < sorted.fields.size(); i++) {
@@ -277,7 +274,6 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 				break;
 			}
 		}
-		logger.debug("query: {}, cid: {}", query, container.id);
 		return select(query, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
 	}
 
@@ -286,12 +282,12 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 	}
 
 	public List<String> searchPendingPropositions(String owner) throws SQLException {
-		String query = "select distinct ci.uid from t_calendar_series series " //
-				+ "join t_calendar_vevent_counter v on (v.vevent).item_id = series.item_id " //
-				+ "join t_calendar_vevent ve on ve.item_id = series.item_id " //
-				+ "join t_container_item ci on ci.id = series.item_id " //
-				+ "join t_container c on ci.container_id = c.id " //
-				+ "where c.id = ? and ve.organizer_dir = ?";
+		String query = "SELECT DISTINCT ci.uid FROM t_calendar_series series " //
+				+ "JOIN t_calendar_vevent_counter v ON (v.vevent).item_id = series.item_id " //
+				+ "JOIN t_calendar_vevent ve ON ve.item_id = series.item_id " //
+				+ "JOIN t_container_item ci ON ci.id = series.item_id " //
+				+ "JOIN t_container c ON ci.container_id = c.id " //
+				+ "WHERE c.id = ? AND ve.organizer_dir = ?";
 		return select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id, owner });
 	}
 }

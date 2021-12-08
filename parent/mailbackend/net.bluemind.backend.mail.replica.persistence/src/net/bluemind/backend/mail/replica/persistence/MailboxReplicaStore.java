@@ -47,18 +47,17 @@ public class MailboxReplicaStore extends AbstractItemValueStore<MailboxReplica> 
 
 	@Override
 	public void create(Item item, MailboxReplica value) throws SQLException {
-		String query = "INSERT INTO t_mailbox_replica ( " + MailboxReplicaColumns.COLUMNS.names()
+		String query = "INSERT INTO t_mailbox_replica (" + MailboxReplicaColumns.COLUMNS.names()
 				+ ", unique_id, container_id, item_id) VALUES (" + MailboxReplicaColumns.COLUMNS.values()
-				+ ", ?, ?, ? )";
+				+ ", ?, ?, ?)";
 		insert(query, value, MailboxReplicaColumns.values(container, item));
 	}
 
 	@Override
 	public void update(Item item, MailboxReplica value) throws SQLException {
-		String query = "UPDATE t_mailbox_replica SET ( " + MailboxReplicaColumns.COLUMNS.names()
+		String query = "UPDATE t_mailbox_replica SET (" + MailboxReplicaColumns.COLUMNS.names()
 				+ ", unique_id, container_id) = (" + MailboxReplicaColumns.COLUMNS.values() + ", ?, ?)"
-				+ " WHERE item_id = ? ";
-
+				+ " WHERE item_id = ?";
 		update(query, value, MailboxReplicaColumns.values(container, item));
 	}
 
@@ -81,7 +80,7 @@ public class MailboxReplicaStore extends AbstractItemValueStore<MailboxReplica> 
 	}
 
 	public String byName(String name) throws SQLException {
-		String query = "SELECT unique_id FROM t_mailbox_replica WHERE container_id = ? and name = ?";
+		String query = "SELECT unique_id FROM t_mailbox_replica WHERE container_id = ? AND name = ?";
 		String ret = unique(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id, name });
 		if (logger.isDebugEnabled()) {
 			logger.debug("byName({}) in container {} => {}", name, container.id, ret);

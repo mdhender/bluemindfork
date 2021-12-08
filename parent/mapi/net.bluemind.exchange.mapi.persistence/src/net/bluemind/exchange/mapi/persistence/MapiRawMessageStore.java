@@ -43,14 +43,13 @@ public class MapiRawMessageStore extends AbstractItemValueStore<MapiRawMessage> 
 	public MapiRawMessageStore(DataSource dataSource, Container container) {
 		super(dataSource);
 		this.container = container;
-		logger.debug("Created on {}.", this.container);
 	}
 
 	@Override
 	public void create(Item item, MapiRawMessage value) throws SQLException {
 		logger.info("Create {} {}", item.id, item.uid);
 		String query = "INSERT INTO t_mapi_raw_message (" + MapiRawMessageColumns.cols.names() + ", item_id) VALUES ("
-				+ MapiRawMessageColumns.cols.values() + ",?)";
+				+ MapiRawMessageColumns.cols.values() + ", ?)";
 		insert(query, value, MapiRawMessageColumns.values(item.id));
 	}
 
@@ -59,7 +58,7 @@ public class MapiRawMessageStore extends AbstractItemValueStore<MapiRawMessage> 
 		logger.info("Update {} {}", item.id, item.uid);
 
 		String query = "UPDATE t_mapi_raw_message SET (" + MapiRawMessageColumns.cols.names() + ") = ROW("
-				+ MapiRawMessageColumns.cols.values() + ") WHERE item_id=?";
+				+ MapiRawMessageColumns.cols.values() + ") WHERE item_id = ?";
 		update(query, value, MapiRawMessageColumns.values(item.id));
 	}
 
@@ -72,7 +71,7 @@ public class MapiRawMessageStore extends AbstractItemValueStore<MapiRawMessage> 
 
 	@Override
 	public MapiRawMessage get(Item item) throws SQLException {
-		String query = "SELECT " + MapiRawMessageColumns.cols.names() + " FROM t_mapi_raw_message WHERE item_id=?";
+		String query = "SELECT " + MapiRawMessageColumns.cols.names() + " FROM t_mapi_raw_message WHERE item_id = ?";
 		return unique(query, rs -> new MapiRawMessage(), (ResultSet rs, int index, MapiRawMessage value) -> {
 			value.contentJson = rs.getString(index++);
 			return index;
@@ -81,12 +80,11 @@ public class MapiRawMessageStore extends AbstractItemValueStore<MapiRawMessage> 
 
 	@Override
 	public void deleteAll() throws SQLException {
-		delete("DELETE FROM t_mapi_raw_message where item_id in ( select id from t_container_item where  container_id = ?)",
+		delete("DELETE FROM t_mapi_raw_message WHERE item_id IN (SELECT id FROM t_container_item WHERE container_id = ?)",
 				new Object[] { container.id });
 	}
 
 	public List<Long> sortedIds(SortDescriptor sorted) throws SQLException {
-		logger.debug("sorted by {}", sorted);
 		String query = "SELECT item.id FROM t_mapi_raw_message rec "
 				+ "INNER JOIN t_container_item item ON rec.item_id=item.id " //
 				+ "WHERE item.container_id=? " //

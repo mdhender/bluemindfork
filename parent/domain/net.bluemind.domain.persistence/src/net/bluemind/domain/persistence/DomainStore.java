@@ -41,50 +41,39 @@ public class DomainStore extends AbstractItemValueStore<Domain> {
 
 	@Override
 	public void create(Item item, Domain value) throws SQLException {
-		logger.debug("create domain for item {} ", item.id);
-
-		String query = "INSERT INTO t_domain ( " + DomainColumns.cols.names() + ", item_id)" + " VALUES ( "
+		String query = "INSERT INTO t_domain (" + DomainColumns.cols.names() + ", item_id)" + " VALUES ( "
 				+ DomainColumns.cols.values() + ", ?)";
-
 		insert(query, value, DomainColumns.statementValues(item.id));
 	}
 
 	@Override
 	public void update(Item item, Domain value) throws SQLException {
-		logger.debug("update domain for item {} ", item.id);
-
-		String query = "UPDATE t_domain SET (  " + DomainColumns.cols.names() + " " + ") = ( "
+		String query = "UPDATE t_domain SET (" + DomainColumns.cols.names() + " " + ") = ("
 				+ DomainColumns.cols.values() + ") WHERE item_id = ?";
-
 		insert(query, value, DomainColumns.statementValues(item.id));
 
 	}
 
 	@Override
 	public void delete(Item item) throws SQLException {
-		logger.debug("delete domain for item {} ", item.id);
-
 		String query = "DELETE FROM t_domain WHERE item_id = ?";
-
 		delete(query, new Object[] { item.id });
 	}
 
 	@Override
 	public Domain get(Item item) throws SQLException {
 		String query = "SELECT " + DomainColumns.cols.names() + " FROM t_domain WHERE item_id = ?";
-
 		return unique(query, DomainColumns.creator(), DomainColumns.populator(), new Object[] { item.id });
 	}
 
 	@Override
 	public void deleteAll() throws SQLException {
-		// FIXME don't know if i need to implement this
-		throw new RuntimeException("Not implemented");
+		throw new UnsupportedOperationException();
 	}
 
 	public String findByNameOrAliases(String name) throws SQLException {
 		String query = "SELECT item.uid FROM t_container_item item, t_domain domain WHERE domain.item_id = item.id AND "
-				+ " ( domain.name = ? or ?::text = ANY (domain.aliases)) ";
+				+ " (domain.name = ? or ?::text = ANY (domain.aliases))";
 
 		return unique(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { name, name });
 	}

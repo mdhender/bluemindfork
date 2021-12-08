@@ -42,8 +42,8 @@ public class VEventOccurrenceStore extends AbstractItemValueStore<List<VEventOcc
 
 	@Override
 	public void create(Item item, List<VEventOccurrence> value) throws SQLException {
-		String query = "INSERT INTO t_calendar_vevent (" + VEventOccurrenceColumns.ALL.names() + ", item_id ) values ("
-				+ VEventOccurrenceColumns.ALL.values() + ", ? )";
+		String query = "INSERT INTO t_calendar_vevent (" + VEventOccurrenceColumns.ALL.names() + ", item_id) VALUES ("
+				+ VEventOccurrenceColumns.ALL.values() + ", ?)";
 
 		batchInsert(query, value, VEventOccurrenceColumns.values(item.id));
 	}
@@ -60,20 +60,18 @@ public class VEventOccurrenceStore extends AbstractItemValueStore<List<VEventOcc
 
 	@Override
 	public List<VEventOccurrence> get(Item item) throws SQLException {
-		String query = "select " + VEventOccurrenceColumns.ALL.names()
-				+ " from t_calendar_vevent v join t_container_item ci on ci.id = v.item_id where ci.id = ? and not v.recurid_timestamp is null";
-		List<VEventOccurrence> values = select(query, (ResultSet con) -> {
+		String query = "SELECT " + VEventOccurrenceColumns.ALL.names()
+				+ " FROM t_calendar_vevent v JOIN t_container_item ci ON ci.id = v.item_id WHERE ci.id = ? AND NOT v.recurid_timestamp IS NULL";
+		return select(query, (ResultSet con) -> {
 			return new VEventOccurrence();
 		}, (ResultSet rs, int index, VEventOccurrence event) -> {
 			return VEventOccurrenceColumns.populator().populate(rs, index, event);
 		}, new Object[] { item.id });
-
-		return values;
 	}
 
 	@Override
 	public void deleteAll() throws SQLException {
-		delete("delete from t_calendar_vevent where item_id in ( select id from t_container_item where container_id = ?) and not recurid_timestamp is null",
+		delete("DELETE FROM t_calendar_vevent WHERE item_id IN (SELECT id FROM t_container_item WHERE container_id = ?) AND NOT recurid_timestamp IS NULL",
 				new Object[] { container.id });
 	}
 
@@ -81,10 +79,10 @@ public class VEventOccurrenceStore extends AbstractItemValueStore<List<VEventOcc
 	public List<List<VEventOccurrence>> getMultiple(List<Item> items) throws SQLException {
 		List<ItemV<List<VEventOccurrence>>> values = new ArrayList<>();
 		for (Item item : items) {
-			String query = "select item_id, " + VEventOccurrenceColumns.ALL.names()
-					+ " from t_calendar_vevent where item_id = ANY(?::int4[]) and not recurid_timestamp is null order by item_id asc";
+			String query = "SELECT item_id, " + VEventOccurrenceColumns.ALL.names()
+					+ " FROM t_calendar_vevent WHERE item_id = ANY(?::int4[]) AND NOT recurid_timestamp IS NULL ORDER BY item_id ASC";
 			List<ItemV<VEventOccurrence>> value = select(query, (ResultSet con) -> {
-				return new ItemV<VEventOccurrence>();
+				return new ItemV<>();
 			}, (ResultSet rs, int index, ItemV<VEventOccurrence> event) -> {
 				event.itemId = rs.getLong(index++);
 				event.value = new VEventOccurrence();

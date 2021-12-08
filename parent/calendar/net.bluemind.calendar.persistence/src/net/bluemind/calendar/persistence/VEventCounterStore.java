@@ -46,7 +46,7 @@ public class VEventCounterStore extends AbstractItemValueStore<List<VEventCounte
 			return;
 		}
 		String query = "INSERT INTO t_calendar_vevent_counter (" + VEventCounterColumns.ALL.names()
-				+ ", vevent.item_id ) values (" + VEventCounterColumns.ALL.values() + ", ? )";
+				+ ", vevent.item_id) VALUES (" + VEventCounterColumns.ALL.values() + ", ?)";
 
 		batchInsert(query, value, VEventCounterColumns.values(item.id));
 	}
@@ -63,20 +63,18 @@ public class VEventCounterStore extends AbstractItemValueStore<List<VEventCounte
 
 	@Override
 	public List<VEventCounter> get(Item item) throws SQLException {
-		String query = "select " + VEventCounterColumns.SELECT_ALL.names()
-				+ " from t_calendar_vevent_counter v join t_container_item ci on ci.id = (v.vevent).item_id where ci.id = ?";
-		List<VEventCounter> values = select(query, (ResultSet con) -> {
-			return new VEventCounter();
-		}, (ResultSet rs, int index, VEventCounter event) -> {
-			return VEventCounterColumns.populator().populate(rs, index, event);
-		}, new Object[] { item.id });
-
-		return values;
+		String query = "SELECT " + VEventCounterColumns.SELECT_ALL.names()
+				+ " FROM t_calendar_vevent_counter v JOIN t_container_item ci ON ci.id = (v.vevent).item_id WHERE ci.id = ?";
+		return select(query, //
+				(ResultSet con) -> new VEventCounter(), //
+				(ResultSet rs, int index, VEventCounter event) -> VEventCounterColumns.populator().populate(rs, index,
+						event),
+				new Object[] { item.id });
 	}
 
 	@Override
 	public void deleteAll() throws SQLException {
-		delete("delete from t_calendar_vevent_counter where (vevent).item_id in ( select id from t_container_item where container_id = ?)",
+		delete("DELETE FROM t_calendar_vevent_counter WHERE (vevent).item_id IN (SELECT id FROM t_container_item WHERE container_id = ?)",
 				new Object[] { container.id });
 	}
 
@@ -84,16 +82,16 @@ public class VEventCounterStore extends AbstractItemValueStore<List<VEventCounte
 	public List<List<VEventCounter>> getMultiple(List<Item> items) throws SQLException {
 		List<ItemV<List<VEventCounter>>> values = new ArrayList<>();
 		for (Item item : items) {
-			String query = "select (vevent).item_id, " + VEventCounterColumns.SELECT_ALL.names()
-					+ " from t_calendar_vevent_counter where item_id = ANY(?::int4[]) order by item_id asc";
-			List<ItemV<VEventCounter>> value = select(query, (ResultSet con) -> {
-				return new ItemV<VEventCounter>();
-			}, (ResultSet rs, int index, ItemV<VEventCounter> event) -> {
-				event.itemId = rs.getLong(index++);
-				event.value = new VEventCounter();
-				return VEventCounterColumns.populator().populate(rs, index, event.value);
+			String query = "SELECT (vevent).item_id, " + VEventCounterColumns.SELECT_ALL.names()
+					+ " FROM t_calendar_vevent_counter WHERE item_id = ANY(?::int4[]) ORDER BY item_id ASC";
+			List<ItemV<VEventCounter>> value = select(query, //
+					con -> new ItemV<VEventCounter>(), //
+					(ResultSet rs, int index, ItemV<VEventCounter> event) -> {
+						event.itemId = rs.getLong(index++);
+						event.value = new VEventCounter();
+						return VEventCounterColumns.populator().populate(rs, index, event.value);
 
-			}, new Object[] { item.id });
+					}, new Object[] { item.id });
 			ItemV<List<VEventCounter>> itemV = new ItemV<>();
 			itemV.itemId = item.id;
 			itemV.value = value.stream().map(val -> val.value).collect(Collectors.toList());

@@ -37,7 +37,7 @@ public class UserSettingsStore extends AbstractItemValueStore<UserSettings> {
 
 	private final Container container;
 
-	private static final Creator<Map<String, String>> SETTINGS_CREATOR = con -> new HashMap<String, String>();
+	private static final Creator<Map<String, String>> SETTINGS_CREATOR = con -> new HashMap<>();
 
 	public UserSettingsStore(DataSource pool, Container container) {
 		super(pool);
@@ -77,13 +77,10 @@ public class UserSettingsStore extends AbstractItemValueStore<UserSettings> {
 	@Override
 	public UserSettings get(Item item) throws SQLException {
 		StringBuilder query = new StringBuilder("SELECT ");
-
 		UserSettingsColumns.cols.appendNames(null, query);
-
-		query.append(" FROM t_settings_user");
-		query.append(" WHERE item_id = ").append(item.id);
-		Map<String, String> settings = unique(query.toString(), SETTINGS_CREATOR, UserSettingsColumns.populator());
-
+		query.append(" FROM t_settings_user WHERE item_id = ?");
+		Map<String, String> settings = unique(query.toString(), SETTINGS_CREATOR, UserSettingsColumns.populator(),
+				new Object[] { item.id });
 		return settings == null ? null : UserSettings.of(settings);
 	}
 

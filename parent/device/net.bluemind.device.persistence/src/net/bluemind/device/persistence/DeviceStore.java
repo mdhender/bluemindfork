@@ -49,9 +49,9 @@ public class DeviceStore extends AbstractItemValueStore<Device> {
 
 	@Override
 	public void create(Item item, Device value) throws SQLException {
-		StringBuilder query = new StringBuilder("insert into t_eas_device (  ");
+		StringBuilder query = new StringBuilder("INSERT INTO t_eas_device (");
 		DeviceColumns.cols.appendNames(null, query);
-		query.append(", item_id) values (");
+		query.append(", item_id) VALUES (");
 		DeviceColumns.cols.appendValues(query);
 		query.append(", ?)");
 
@@ -60,14 +60,12 @@ public class DeviceStore extends AbstractItemValueStore<Device> {
 	}
 
 	private static String updateRequest() {
-		StringBuilder query = new StringBuilder("update t_eas_device set ( ");
-
+		StringBuilder query = new StringBuilder("UPDATE t_eas_device SET (");
 		DeviceColumns.cols.appendNames(null, query);
-		query.append(") = ( ");
+		query.append(") = (");
 		DeviceColumns.cols.appendValues(query);
-
 		query.append(")");
-		query.append("where item_id = ?");
+		query.append("WHERE item_id = ?");
 		return query.toString();
 	}
 
@@ -75,27 +73,26 @@ public class DeviceStore extends AbstractItemValueStore<Device> {
 
 	@Override
 	public void update(Item item, Device value) throws SQLException {
-
 		update(UPDATE_REQ, value, DeviceColumns.values(item));
 	}
 
 	@Override
 	public void delete(Item item) throws SQLException {
-		delete("delete from t_eas_device where item_id = ?", new Object[] { item.id });
+		delete("DELETE FROM t_eas_device WHERE item_id = ?", new Object[] { item.id });
 	}
 
 	@Override
 	public Device get(Item item) throws SQLException {
-		StringBuilder query = new StringBuilder("select ");
+		StringBuilder query = new StringBuilder("SELECT ");
 		DeviceColumns.cols.appendNames("device", query);
-		query.append(" from t_eas_device device where item_id = ?");
+		query.append(" FROM t_eas_device device WHERE item_id = ?");
 		return unique(query.toString(), DEVICE_CREATOR,
 				Arrays.<EntityPopulator<Device>>asList(DeviceColumns.populator()), new Object[] { item.id });
 	}
 
 	@Override
 	public void deleteAll() throws SQLException {
-		delete("delete from t_eas_device where item_id in ( select id from t_container_item where container_id = ?)",
+		delete("DELETE FROM t_eas_device WHERE item_id IN (SELECT id FROM t_container_item WHERE container_id = ?)",
 				new Object[] { container.id });
 	}
 
@@ -104,10 +101,7 @@ public class DeviceStore extends AbstractItemValueStore<Device> {
 		query.append("SELECT ");
 		DeviceColumns.cols.appendNames(null, query);
 		query.append(" FROM t_eas_device WHERE wipe");
-
-		List<Device> list = select(query.toString(), DEVICE_CREATOR, DeviceColumns.populator());
-		return list;
-
+		return select(query.toString(), DEVICE_CREATOR, DeviceColumns.populator());
 	}
 
 	public String byIdentifier(String identifier) throws SQLException {

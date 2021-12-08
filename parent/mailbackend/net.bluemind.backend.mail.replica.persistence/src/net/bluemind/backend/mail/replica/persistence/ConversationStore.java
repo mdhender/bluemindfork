@@ -44,7 +44,7 @@ public class ConversationStore extends AbstractItemValueStore<InternalConversati
 	@Override
 	public void create(Item item, InternalConversation conversation) throws SQLException {
 		String query = "INSERT INTO " + ConversationColumns.TABLE + " (" + ConversationColumns.COLUMNS.names()
-				+ ", item_id, container_id" + ") VALUES (" + ConversationColumns.COLUMNS.values() + " , ?, ?)";
+				+ ", item_id, container_id) VALUES (" + ConversationColumns.COLUMNS.values() + ", ?, ?)";
 		insert(query, conversation, ConversationColumns.values(item, container.id));
 	}
 
@@ -58,7 +58,7 @@ public class ConversationStore extends AbstractItemValueStore<InternalConversati
 
 	@Override
 	public void delete(Item item) throws SQLException {
-		String query = "DELETE FROM " + ConversationColumns.TABLE + " WHERE item_id=?";
+		String query = "DELETE FROM " + ConversationColumns.TABLE + " WHERE item_id = ?";
 		delete(query, new Object[] { item.id });
 		logger.debug("Conversation {} deleted.", item.id);
 	}
@@ -97,13 +97,13 @@ public class ConversationStore extends AbstractItemValueStore<InternalConversati
 
 	public void deleteMessagesInFolder(long folderId) throws SQLException {
 
-		String update = "with to_update as (select container_id, item_id, messages from " + ConversationColumns.TABLE
+		String update = "WITH to_update AS (SELECT container_id, item_id, messages FROM " + ConversationColumns.TABLE
 				+ " WHERE container_id = ? AND messages @> '[{\"folderId\": " + folderId
-				+ "}]'::jsonb), clean_conversations as "
-				+ "(select coalesce(jsonb_agg(msg) filter (where msg is not null), '[]'::jsonb) as messages, item_id "
-				+ "from to_update left join jsonb_array_elements(messages) as msg on (msg->>'folderId')::bigint != ? "
-				+ "group by item_id) update t_conversation as c set messages=clean.messages from clean_conversations clean"
-				+ " where container_id = ? and c.item_id=clean.item_id";
+				+ "}]'::jsonb), clean_conversations AS "
+				+ "(SELECT coalesce(jsonb_agg(msg) FILTER (WHERE msg IS NOT NULL), '[]'::jsonb) AS messages, item_id "
+				+ "FROM to_update LEFT JOIN jsonb_array_elements(messages) AS msg ON (msg->>'folderId')::bigint != ? "
+				+ "GROUP BY item_id) UPDATE t_conversation AS c SET messages = clean.messages FROM clean_conversations clean"
+				+ " WHERE container_id = ? and c.item_id = clean.item_id";
 
 		update(update, new Object[] { container.id, folderId, container.id });
 	}

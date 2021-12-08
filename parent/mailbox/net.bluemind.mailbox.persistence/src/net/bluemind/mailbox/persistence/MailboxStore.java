@@ -67,9 +67,9 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 	public void create(Item item, Mailbox value) throws SQLException {
 		String query = //
 				"INSERT INTO t_mailbox " //
-						+ " (" + MailboxColumns.cols.names() + ",item_id) " //
+						+ " (" + MailboxColumns.cols.names() + ", item_id) " //
 						+ " VALUES " //
-						+ "( " + MailboxColumns.cols.values() + ", ? )";
+						+ "(" + MailboxColumns.cols.values() + ", ?)";
 
 		insert(query, value, MailboxColumns.statementValues(item.id));
 
@@ -80,14 +80,12 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 	@Override
 	public void update(Item item, Mailbox value) throws SQLException {
 		String query = //
-				"UPDATE t_mailbox SET ( " //
+				"UPDATE t_mailbox SET (" //
 						+ MailboxColumns.cols.names() //
 						+ ") = (" //
 						+ MailboxColumns.cols.values() //
-						+ ")  WHERE item_id = ? ";
-
+						+ ")  WHERE item_id = ?";
 		update(query, value, MailboxColumns.statementValues(item.id));
-
 		setEmails(item, value.emails);
 	}
 
@@ -103,16 +101,16 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 	private static final String MBOX_GET_QUERY = "SELECT " //
 			+ MailboxColumns.cols.names() //
 			+ ", t_directory_entry.datalocation "//
-			+ ", la,ra,all_aliases,is_def " //
+			+ ", la, ra, all_aliases, is_def " //
 			+ " FROM t_mailbox " //
-			+ " left join t_directory_entry on t_directory_entry.item_id = t_mailbox.item_id " + " left outer join (" //
+			+ " LEFT JOIN t_directory_entry ON t_directory_entry.item_id = t_mailbox.item_id " + " LEFT OUTER JOIN (" //
 			+ "   SELECT item_id," //
 			+ "   array_agg(" + EmailColumns.left_address.name() + ") la, "//
 			+ "   array_agg(" + EmailColumns.right_address.name() + ") ra, "//
 			+ "   array_agg(" + EmailColumns.all_aliases.name() + ") all_aliases, "//
 			+ "   array_agg(" + EmailColumns.is_default.name() + ") is_def"//
-			+ "   FROM t_mailbox_email group by t_mailbox_email.item_id) as emails " //
-			+ " on emails.item_id = t_mailbox.item_id " //
+			+ "   FROM t_mailbox_email GROUP BY t_mailbox_email.item_id) AS emails " //
+			+ " ON emails.item_id = t_mailbox.item_id " //
 			+ " WHERE t_mailbox.item_id = ?";
 
 	@Override
@@ -139,7 +137,7 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 			return;
 		}
 
-		StringBuilder query = new StringBuilder("INSERT INTO t_mailbox_email (item_id,");
+		StringBuilder query = new StringBuilder("INSERT INTO t_mailbox_email (item_id, ");
 		EmailColumns.appendNames(null, query);
 		query.append(") VALUES (?, ");
 		EmailColumns.appendValues(query);
@@ -256,8 +254,8 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 				+ " ON t_container_item.id = t_mailbox_email.item_id " //
 				+ " , ( SELECT ?::text[] as left, ?::text[] as full, ?::text[] as leftall ) as param " + //
 				" WHERE container_id = ? AND ( " //
-				+ "    ( all_aliases = true and left_address= ANY (param.left)) OR "
-				+ "    ( all_aliases = false and ( left_address || '@' || right_address = ANY (param.full) OR left_address = ANY(leftall) )) "
+				+ "    (all_aliases = true AND left_address = ANY (param.left)) OR "
+				+ "    (all_aliases = false AND ( left_address || '@' || right_address = ANY (param.full) OR left_address = ANY(leftall) )) "
 				+ ")";
 
 		String[] left = emails.stream().map(e -> AT_SPLITTER.split(e.address).iterator().next()).toArray(String[]::new);
@@ -315,7 +313,7 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 		return select(ALLUIDS_QUERY, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
 	}
 
-	private static final String IS_QUOTA_GREATER_QUERY = "SELECT EXISTS(" //
+	private static final String IS_QUOTA_GREATER_QUERY = "SELECT EXISTS (" //
 			+ " SELECT m.item_id FROM t_mailbox m " //
 			+ " INNER JOIN t_container_item item ON m.item_id = item.id " //
 			+ " WHERE m.quota > ? AND item.container_id = ?)";

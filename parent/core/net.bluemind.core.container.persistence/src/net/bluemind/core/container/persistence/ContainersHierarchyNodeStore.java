@@ -45,7 +45,7 @@ public class ContainersHierarchyNodeStore extends AbstractItemValueStore<Contain
 	@Override
 	public void create(Item item, ContainerHierarchyNode value) throws SQLException {
 		String query = "INSERT INTO t_container_hierarchy (" + ContainersHierarchyNodeColumns.cols.names()
-				+ ", item_id) VALUES (" + ContainersHierarchyNodeColumns.cols.values() + ",?)";
+				+ ", item_id) VALUES (" + ContainersHierarchyNodeColumns.cols.values() + ", ?)";
 		if (logger.isDebugEnabled()) {
 			logger.debug("Creating with {} {} {}", item, item.id, item.uid);
 		}
@@ -55,7 +55,7 @@ public class ContainersHierarchyNodeStore extends AbstractItemValueStore<Contain
 	@Override
 	public void update(Item item, ContainerHierarchyNode value) throws SQLException {
 		String query = "UPDATE t_container_hierarchy SET (" + ContainersHierarchyNodeColumns.cols.names() + ") = ("
-				+ ContainersHierarchyNodeColumns.cols.values() + ") WHERE item_id=?";
+				+ ContainersHierarchyNodeColumns.cols.values() + ") WHERE item_id = ?";
 		update(query, value, ContainersHierarchyNodeColumns.values(item.id));
 	}
 
@@ -65,7 +65,7 @@ public class ContainersHierarchyNodeStore extends AbstractItemValueStore<Contain
 	}
 
 	private static final String SELECT_NODE = "SELECT " + ContainersHierarchyNodeColumns.cols.names()
-			+ " FROM t_container_hierarchy WHERE item_id=?";
+			+ " FROM t_container_hierarchy WHERE item_id = ?";
 
 	@Override
 	public ContainerHierarchyNode get(Item item) throws SQLException {
@@ -75,14 +75,14 @@ public class ContainersHierarchyNodeStore extends AbstractItemValueStore<Contain
 
 	@Override
 	public void deleteAll() throws SQLException {
-		delete("delete from t_container_hierarchy where item_id in ( select id from t_container_item where  container_id = ?)",
+		delete("DELETE FROM t_container_hierarchy WHERE item_id IN (SELECT id FROM t_container_item WHERE container_id = ?)",
 				new Object[] { container.id });
 	}
 
 	public void removeDeletedRecords(int days) throws SQLException {
-		String select = "select ci.id from t_container_hierarchy h join t_container_item ci on h.item_id = ci.id "
-				+ "where container_type = '" + IMailReplicaUids.MAILBOX_RECORDS + "' and ci.flags::bit(32) & ("
-				+ ItemFlag.Deleted.value + ")::bit(32)= (" + ItemFlag.Deleted.value + ")::bit(32) " + //
+		String select = "SELECT ci.id FROM t_container_hierarchy h JOIN t_container_item ci ON h.item_id = ci.id "
+				+ "WHERE container_type = '" + IMailReplicaUids.MAILBOX_RECORDS + "' AND ci.flags::bit(32) & ("
+				+ ItemFlag.Deleted.value + ")::bit(32) = (" + ItemFlag.Deleted.value + ")::bit(32) " + //
 				"AND ci.updated < (now() - interval '" + days + " days')";
 		List<Long> selected = select(select, rs -> rs.getLong(1), (rs, index, val) -> index);
 

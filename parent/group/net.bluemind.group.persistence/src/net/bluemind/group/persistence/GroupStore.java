@@ -97,9 +97,9 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 	}
 
 	private static final String INSERT_GROUP = "INSERT INTO t_group " //
-			+ " ( " + GroupColumns.cols.names() + ",item_id, container_id)" //
+			+ " ( " + GroupColumns.cols.names() + ", item_id, container_id)" //
 			+ " VALUES "//
-			+ "(" + GroupColumns.cols.values() + ", ?, ? )";
+			+ "(" + GroupColumns.cols.values() + ", ?, ?)";
 
 	@Override
 	public void create(Item item, Group value) throws SQLException {
@@ -129,10 +129,10 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 
 	private static final String SELECT_GROUP = "SELECT " + GroupColumns.cols.names("g")
 			+ ", (SELECT count(group_id) FROM t_group_flat_members WHERE group_id = item.id )"
-			+ " FROM t_group g ,  t_container_item item  " //
+			+ " FROM t_group g, t_container_item item " //
 			+ " WHERE " //
 			+ " g.item_id = item.id AND " //
-			+ " g.item_id = ? ";
+			+ " g.item_id = ?";
 
 	@Override
 	public Group get(Item item) throws SQLException {
@@ -167,7 +167,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 			return;
 		}
 
-		batchInsert("INSERT INTO t_group_usermember (group_id, user_id) VALUES (?,?)", usersMembers,
+		batchInsert("INSERT INTO t_group_usermember (group_id, user_id) VALUES (?, ?)", usersMembers,
 				MemberColumns.statementValues(item));
 
 		updateUserGroupHierarchy(item);
@@ -196,7 +196,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 			return;
 		}
 
-		batchInsert("INSERT INTO t_group_externalusermember (group_id, external_user_id) VALUES (?,?)",
+		batchInsert("INSERT INTO t_group_externalusermember (group_id, external_user_id) VALUES (?, ?)",
 				externalUsersMembers, MemberColumns.statementValues(item));
 
 		updateUserGroupHierarchy(item);
@@ -206,7 +206,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 		Set<Long> parents = getParents(item.id);
 		parents.add(item.id);
 
-		Integer count = unique("SELECT count(*) FROM t_container_item WHERE id = ANY (?) AND id = ANY(?) ",
+		Integer count = unique("SELECT count(*) FROM t_container_item WHERE id = ANY (?) AND id = ANY(?)",
 				TOTALFOUND_CREATOR, Collections.emptyList(),
 				new Object[] { groupsMembers.stream().map(i -> i.id).toArray(s -> new Long[s]),
 						parents.toArray(new Long[0]) });
@@ -261,10 +261,8 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 					+ " WHERE group_parent_id = ?";
 
 	public List<Member> getMembers(Item item) throws SQLException {
-
-		List<Member> members = select(SELECT_MEMBERS, MEMBER_CREATOR, MemberColumns.populator(),
+		return select(SELECT_MEMBERS, MEMBER_CREATOR, MemberColumns.populator(),
 				new Object[] { item.id, item.id, item.id });
-		return members;
 	}
 
 	private void updateUserGroupHierarchy(Item item) throws SQLException {
@@ -310,12 +308,12 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 		childs.add(new Long(groupItemId));
 
 		Set<Long> members = new HashSet<Long>(
-				select("SELECT user_id FROM t_group_usermember WHERE group_id = ANY (?) ", (rs) -> {
+				select("SELECT user_id FROM t_group_usermember WHERE group_id = ANY (?)", (rs) -> {
 					return rs.getLong(1);
 				}, Collections.emptyList(), new Object[] { childs.toArray(new Long[childs.size()]) }));
 
 		members.addAll(
-				select("SELECT external_user_id FROM t_group_externalusermember WHERE group_id = ANY (?) ", (rs) -> {
+				select("SELECT external_user_id FROM t_group_externalusermember WHERE group_id = ANY (?)", (rs) -> {
 					return rs.getLong(1);
 				}, Collections.emptyList(), new Object[] { childs.toArray(new Long[childs.size()]) }));
 
@@ -342,7 +340,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 	public List<String> getParents(Item item) throws SQLException {
 		Set<Long> parents = getParents(item.id);
 
-		return select("SELECT uid FROM t_container_item WHERE id = ANY(?) ", UIDFOUND_CREATOR, Collections.emptyList(),
+		return select("SELECT uid FROM t_container_item WHERE id = ANY(?)", UIDFOUND_CREATOR, Collections.emptyList(),
 				new Object[] { parents.toArray(new Long[0]) });
 
 	}
@@ -367,7 +365,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 	}
 
 	public List<Member> getFlatUsersMembers(Item item) throws SQLException {
-		List<Member> members = select("SELECT 'user', ui.uid FROM t_group_flat_members m " //
+		return select("SELECT 'user', ui.uid FROM t_group_flat_members m " //
 				+ "INNER JOIN t_container_item ui ON ui.id = m.user_id " //
 				+ "INNER JOIN t_group_usermember um ON um.user_id = m.user_id " //
 				+ "WHERE m.group_id = ? " //
@@ -375,9 +373,8 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 				+ "SELECT 'external_user', ui.uid FROM t_group_flat_members member " //
 				+ "INNER JOIN t_container_item ui ON ui.id = member.user_id " //
 				+ "INNER JOIN t_group_externalusermember eum ON eum.external_user_id = member.user_id " //
-				+ "WHERE member.group_id = ? ", MEMBER_CREATOR, MemberColumns.populator(),
+				+ "WHERE member.group_id = ?", MEMBER_CREATOR, MemberColumns.populator(),
 				new Object[] { item.id, item.id });
-		return members;
 	}
 
 	public final String SELECT_USER_GROUPS = //
@@ -388,10 +385,8 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 					+ " WHERE member.user_id = ? AND memberitem.container_id = ?";
 
 	public List<String> getUserGroups(Container userContainer, Item item) throws SQLException {
-		List<String> groupUidList = select(SELECT_USER_GROUPS, UIDFOUND_CREATOR, Collections.emptyList(),
+		return select(SELECT_USER_GROUPS, UIDFOUND_CREATOR, Collections.emptyList(),
 				new Object[] { item.id, userContainer.id });
-
-		return groupUidList;
 	}
 
 	public final String SELECT_GROUP_GROUPS = //
@@ -402,13 +397,12 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 					+ " WHERE member.group_child_id = ? AND memberitem.container_id = ?";
 
 	public List<String> getGroupGroups(Item item) throws SQLException {
-		List<String> groupUidList = select(SELECT_GROUP_GROUPS, UIDFOUND_CREATOR, Collections.emptyList(),
+		return select(SELECT_GROUP_GROUPS, UIDFOUND_CREATOR, Collections.emptyList(),
 				new Object[] { item.id, container.id });
-		return groupUidList;
 	}
 
 	public boolean areValid(String[] groupsUids) throws SQLException {
-		String query = "select count(*) from t_group g join t_container_item i ON i.id = g.item_id WHERE i.container_id = ? and i.uid = ANY(?)";
+		String query = "SELECT count(*) FROM t_group g JOIN t_container_item i ON i.id = g.item_id WHERE i.container_id = ? AND i.uid = ANY(?)";
 		int count = unique(query, INTEGER_CREATOR, new ArrayList<EntityPopulator<Integer>>(0),
 				new Object[] { container.id, groupsUids });
 
@@ -458,7 +452,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 
 	public static final String SELECT_ALL = //
 			"SELECT item.uid FROM t_group g, t_container_item item " + //
-					" WHERE item.id = g.item_id AND item.container_id = ? ";
+					" WHERE item.id = g.item_id AND item.container_id = ?";
 
 	public List<String> allUids() throws SQLException {
 		return select(SELECT_ALL, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id });

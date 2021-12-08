@@ -53,46 +53,42 @@ public class TagStore extends AbstractItemValueStore<Tag> {
 	public void create(Item item, Tag tag) throws SQLException {
 		logger.debug("create tag for item {} ", item.id);
 
-		StringBuilder query = new StringBuilder("insert into t_tagvalue ( item_id, ");
+		StringBuilder query = new StringBuilder("INSERT INTO t_tagvalue (");
 		TagColumns.COLUMNS.appendNames(null, query);
-
-		query.append(") values ( " + item.id + " ,");
+		query.append(", item_id) VALUES (");
 		TagColumns.COLUMNS.appendValues(query);
-		query.append(")");
-		insert(query.toString(), tag, TagColumns.values());
+		query.append(", ?)");
+		insert(query.toString(), tag, TagColumns.values(), new Object[] { item.id });
 	}
 
 	@Override
 	public void update(Item item, Tag value) throws SQLException {
 		logger.debug("update tag for item {} ", item.id);
-		StringBuilder query = new StringBuilder("update t_tagvalue set ( ");
-
+		StringBuilder query = new StringBuilder("UPDATE t_tagvalue SET (");
 		TagColumns.COLUMNS.appendNames(null, query);
-		query.append(") = ( ");
+		query.append(") = (");
 		TagColumns.COLUMNS.appendValues(query);
-
 		query.append(")");
-		query.append("where item_id = " + item.id);
-
-		update(query.toString(), value, TagColumns.values());
+		query.append("WHERE item_id = ?");
+		update(query.toString(), value, TagColumns.values(), new Object[] { item.id });
 	}
 
 	@Override
 	public Tag get(Item item) throws SQLException {
-		StringBuilder query = new StringBuilder("select ");
+		StringBuilder query = new StringBuilder("SELECT ");
 		TagColumns.COLUMNS.appendNames("tag", query);
-		query.append(" from t_tagvalue tag where item_id = " + item.id);
-		return unique(query.toString(), TAG_CREATOR, TagColumns.populator());
+		query.append(" FROM t_tagvalue tag WHERE item_id = ?");
+		return unique(query.toString(), TAG_CREATOR, TagColumns.populator(), new Object[] { item.id });
 	}
 
 	@Override
 	public void delete(Item item) throws SQLException {
-		delete("delete from t_tagvalue where item_id = ?", new Object[] { item.id });
+		delete("DELETE FROM t_tagvalue WHERE item_id = ?", new Object[] { item.id });
 	}
 
 	@Override
 	public void deleteAll() throws SQLException {
-		delete("delete from t_tagvalue where item_id in ( select id from t_container_item where  container_id = ?)",
+		delete("DELETE FROM t_tagvalue WHERE item_id IN (SELECT id FROM t_container_item WHERE container_id = ?)",
 				new Object[] { container.id });
 	}
 

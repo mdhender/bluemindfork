@@ -59,53 +59,41 @@ public class VTodoStore extends AbstractItemValueStore<VTodo> {
 
 	@Override
 	public void create(Item item, VTodo todo) throws SQLException {
-		logger.debug("create ical vtodo for item {} ", item.id);
-
-		StringBuilder query = new StringBuilder("insert into t_todolist_vtodo ( item_id, ");
-
+		StringBuilder query = new StringBuilder("INSERT INTO t_todolist_vtodo (");
 		VTodoColumns.appendNames(null, query);
-		query.append(") values ( " + item.id + " ,");
+		query.append(", item_id) VALUES (");
 		VTodoColumns.appendValues(query);
-		query.append(")");
-		insert(query.toString(), todo, VTodoColumns.values());
+		query.append(", ?)");
+		insert(query.toString(), todo, VTodoColumns.values(), new Object[] { item.id });
 	}
 
 	@Override
 	public void update(Item item, VTodo value) throws SQLException {
-		logger.debug("create vtodo for item {} ", item.id);
-		StringBuilder query = new StringBuilder("update t_todolist_vtodo set ( ");
-
+		StringBuilder query = new StringBuilder("UPDATE t_todolist_vtodo SET (");
 		VTodoColumns.appendNames(null, query);
-		query.append(") = ( ");
+		query.append(") = (");
 		VTodoColumns.appendValues(query);
+		query.append(") WHERE item_id = ?");
 
-		query.append(")");
-		query.append("where item_id = " + item.id);
-
-		update(query.toString(), value, VTodoColumns.values());
-
+		update(query.toString(), value, VTodoColumns.values(), new Object[] { item.id });
 	}
 
 	@Override
 	public VTodo get(Item item) throws SQLException {
-		StringBuilder query = new StringBuilder("select ");
-
+		StringBuilder query = new StringBuilder("SELECT ");
 		VTodoColumns.appendNames("vtodo", query);
-
-		query.append(" from t_todolist_vtodo vtodo where item_id = " + item.id);
-		VTodo ret = unique(query.toString(), TODO_CREATOR, VTodoColumns.populator());
-
-		return ret;
+		query.append(" FROM t_todolist_vtodo vtodo WHERE item_id = ?");
+		return unique(query.toString(), TODO_CREATOR, VTodoColumns.populator(), new Object[] { item.id });
 	}
 
 	@Override
 	public void delete(Item item) throws SQLException {
-		delete("delete from t_todolist_vtodo where item_id = ?", new Object[] { item.id });
+		delete("DELETE FROM t_todolist_vtodo WHERE item_id = ?", new Object[] { item.id });
 	}
 
 	@Override
 	public void deleteAll() throws SQLException {
-		delete("delete from t_todolist_vtodo where item_id in ( select id from t_container_item where container_id = ?)",
+		delete("DELETE FROM t_todolist_vtodo WHERE item_id IN (SELECT id FROM t_container_item WHERE container_id = ?)",
 				new Object[] { container.id });
 	}
 
@@ -117,12 +105,12 @@ public class VTodoStore extends AbstractItemValueStore<VTodo> {
 	};
 
 	public List<ItemUid> getReminder(BmDateTime dtalarm) throws SQLException {
-		String query = "SELECT DISTINCT i.uid from t_container_item i, t_todolist_vtodo v, "
+		String query = "SELECT DISTINCT i.uid FROM t_container_item i, t_todolist_vtodo v, "
 				+ "unnest(v.rdate_timestamp  || (array[null]::timestamp without time zone[])) rdate, "
 				+ "unnest(v.valarm_trigger|| (array[null]::integer[])) alarm "
-				+ " where i.id = v.item_id and container_id = ? " + " AND valarm_trigger IS NOT NULL " + " AND ( "
+				+ " WHERE i.id = v.item_id AND container_id = ? AND valarm_trigger IS NOT NULL AND ( "
 				+ "    (dtstart_timestamp + (alarm || ' seconds')::interval) = (COALESCE(timezone(dtstart_timezone, ?), ?)) "
-				+ "	     OR (rrule_frequency IS NOT NULL AND (rrule_until_timestamp IS NULL OR rrule_until_timestamp > (COALESCE(timezone(dtstart_timezone, ?), ?)) ))"
+				+ "      OR (rrule_frequency IS NOT NULL AND (rrule_until_timestamp IS NULL OR rrule_until_timestamp > (COALESCE(timezone(dtstart_timezone, ?), ?)) ))"
 				+ "      OR (rdate + (alarm || ' seconds')::interval) = (COALESCE(timezone(dtstart_timezone, ?), ?))"
 				+ " )";
 		Timestamp reminder = DateTimeType.asTimestamp(dtalarm);
@@ -146,7 +134,7 @@ public class VTodoStore extends AbstractItemValueStore<VTodo> {
 		String query = "SELECT item.id FROM t_todolist_vtodo rec "
 				+ "INNER JOIN t_container_item item ON rec.item_id=item.id " //
 				+ "WHERE item.container_id=? " //
-				+ "AND (item.flags::bit(32) & 2::bit(32))=0::bit(32) " // not deleted
+				+ "AND (item.flags::bit(32) & 2::bit(32)) = 0::bit(32) " // not deleted
 		;
 
 		int added = 0;
@@ -166,7 +154,6 @@ public class VTodoStore extends AbstractItemValueStore<VTodo> {
 				break;
 			}
 		}
-		logger.debug("query: '{}'", query);
 		return select(query, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
 	}
 

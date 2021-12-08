@@ -45,60 +45,49 @@ public class CalendarViewStore extends AbstractItemValueStore<CalendarView> {
 
 	@Override
 	public void create(Item item, CalendarView value) throws SQLException {
-		logger.debug("create calendarview for item {} ", item.id);
-
-		StringBuilder query = new StringBuilder("insert into t_calendarview ( item_id, ");
-
+		StringBuilder query = new StringBuilder("INSERT INTO t_calendarview (");
 		CalendarViewColumns.cols.appendNames(null, query);
-		query.append(") values ( " + item.id + " ,");
+		query.append(", item_id) VALUES (");
 		CalendarViewColumns.cols.appendValues(query);
-		query.append(")");
-
-		insert(query.toString(), value, CalendarViewColumns.values());
+		query.append(", ?)");
+		insert(query.toString(), value, CalendarViewColumns.values(), new Object[] { item.id });
 	}
 
 	@Override
 	public void update(Item item, CalendarView value) throws SQLException {
-		logger.debug("update calendarview for item {} ", item.id);
-
-		StringBuilder query = new StringBuilder("update t_calendarview set ( ");
-
+		StringBuilder query = new StringBuilder("UPDATE t_calendarview SET (");
 		CalendarViewColumns.cols.appendNames(null, query);
-		query.append(") = ( ");
+		query.append(") = (");
 		CalendarViewColumns.cols.appendValues(query);
-
 		query.append(")");
-		query.append("where item_id = " + item.id);
-
-		update(query.toString(), value, CalendarViewColumns.values());
+		query.append("WHERE item_id = ?");
+		update(query.toString(), value, CalendarViewColumns.values(), new Object[] { item.id });
 	}
 
 	@Override
 	public void delete(Item item) throws SQLException {
-		logger.debug("delete calendarview for item {} ", item.id);
-
-		delete("delete from t_calendarview where item_id = ?", new Object[] { item.id });
+		delete("DELETE FROM t_calendarview WHERE item_id = ?", new Object[] { item.id });
 	}
 
 	@Override
 	public CalendarView get(Item item) throws SQLException {
-		StringBuilder query = new StringBuilder("select ");
+		StringBuilder query = new StringBuilder("SELECT ");
 		Columns cols = Columns.create().cols(CalendarViewColumns.cols).col("is_default");
 		cols.appendNames("calendarview", query);
-		query.append(" from t_calendarview calendarview where item_id = " + item.id);
+		query.append(" FROM t_calendarview calendarview WHERE item_id = ?");
 
-		return unique(query.toString(), VIEW_CREATOR, CalendarViewColumns.populator());
+		return unique(query.toString(), VIEW_CREATOR, CalendarViewColumns.populator(), new Object[] { item.id });
 	}
 
 	@Override
 	public void deleteAll() throws SQLException {
-		delete("delete from t_calendarview where item_id in ( select id from t_container_item where container_id = ?)",
+		delete("DELETE FROM t_calendarview WHERE item_id in (SELECT id FROM t_container_item WHERE container_id = ?)",
 				new Object[] { container.id });
 
 	}
 
 	public void setDefault(Item item) throws SQLException {
-		String query = "UPDATE t_calendarview set is_default = ( item_id = ? ) where item_id in ( select id from t_container_item where container_id = ?)";
+		String query = "UPDATE t_calendarview set is_default = (item_id = ?) WHERE item_id in (SELECT id FROM t_container_item WHERE container_id = ?)";
 		update(query, null, new Object[] { item.id, container.id });
 	}
 }

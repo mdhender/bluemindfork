@@ -47,14 +47,14 @@ public class MapiFAIStore extends AbstractItemValueStore<MapiFAI> {
 	@Override
 	public void create(Item item, MapiFAI value) throws SQLException {
 		String query = "INSERT INTO t_mapi_fai (" + MapiFAIColumns.cols.names() + ", item_id) VALUES ("
-				+ MapiFAIColumns.cols.values() + ",?)";
+				+ MapiFAIColumns.cols.values() + ", ?)";
 		insert(query, value, MapiFAIColumns.values(item.id));
 	}
 
 	@Override
 	public void update(Item item, MapiFAI value) throws SQLException {
 		String query = "UPDATE t_mapi_fai SET (" + MapiFAIColumns.cols.names() + ") = (" + MapiFAIColumns.cols.values()
-				+ ") WHERE item_id=?";
+				+ ") WHERE item_id = ?";
 		update(query, value, MapiFAIColumns.values(item.id));
 	}
 
@@ -65,7 +65,7 @@ public class MapiFAIStore extends AbstractItemValueStore<MapiFAI> {
 
 	@Override
 	public MapiFAI get(Item item) throws SQLException {
-		String query = "SELECT " + MapiFAIColumns.cols.names() + " FROM t_mapi_fai WHERE item_id=?";
+		String query = "SELECT " + MapiFAIColumns.cols.names() + " FROM t_mapi_fai WHERE item_id = ?";
 		return unique(query, rs -> new MapiFAI(), (ResultSet rs, int index, MapiFAI value) -> {
 			value.folderId = rs.getString(index++);
 			value.faiJson = rs.getString(index++);
@@ -75,14 +75,14 @@ public class MapiFAIStore extends AbstractItemValueStore<MapiFAI> {
 
 	@Override
 	public void deleteAll() throws SQLException {
-		delete("DELETE FROM t_mapi_fai where item_id in ( select id from t_container_item where  container_id = ?)",
+		delete("DELETE FROM t_mapi_fai WHERE item_id IN (SELECT id FROM t_container_item WHERE container_id = ?)",
 				new Object[] { container.id });
 	}
 
 	public List<String> byFolder(String folder) throws SQLException {
 		String query = "SELECT item.uid FROM t_mapi_fai e "
 				+ " INNER JOIN t_container_item item ON e.item_id = item.id "
-				+ " WHERE item.container_id=? AND e.folder_id=?";
+				+ " WHERE item.container_id = ? AND e.folder_id = ?";
 		return select(query, rs -> rs.getString(1), (ResultSet rs, int index, String value) -> {
 			return index;
 		}, new Object[] { container.id, folder });
@@ -91,9 +91,9 @@ public class MapiFAIStore extends AbstractItemValueStore<MapiFAI> {
 	@Override
 	public List<MapiFAI> getMultiple(List<Item> items) throws SQLException {
 		String joinedIds = items.stream().map(it -> Long.toString(it.id)).collect(Collectors.joining(","));
-		String query = "SELECT " + MapiFAIColumns.cols.names() + ",item_id FROM t_mapi_fai "//
-				+ "JOIN unnest('{" + joinedIds + "}'::int[]) WITH ORDINALITY t(item_id,ord) using (item_id) "//
-				+ " ORDER BY t.ord ";
+		String query = "SELECT " + MapiFAIColumns.cols.names() + ", item_id FROM t_mapi_fai "//
+				+ "JOIN unnest('{" + joinedIds + "}'::int[]) WITH ORDINALITY t(item_id, ord) USING (item_id) "//
+				+ "ORDER BY t.ord";
 		return select(query, rs -> new MapiFAI(), (ResultSet rs, int index, MapiFAI value) -> {
 			value.folderId = rs.getString(index++);
 			value.faiJson = rs.getString(index++);
