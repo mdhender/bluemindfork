@@ -28,6 +28,7 @@ import net.bluemind.backend.mail.replica.api.MailboxSub;
 import net.bluemind.backend.mail.replica.api.QuotaRoot;
 import net.bluemind.backend.mail.replica.api.SeenOverlay;
 import net.bluemind.backend.mail.replica.api.SieveScript;
+import net.bluemind.core.api.fault.ServerFault;
 
 public class NoopCyrusArtifacts implements ICyrusReplicationArtifacts {
 	private static final Logger logger = LoggerFactory.getLogger(NoopCyrusArtifacts.class);
@@ -97,6 +98,11 @@ public class NoopCyrusArtifacts implements ICyrusReplicationArtifacts {
 	public List<SeenOverlay> seens() {
 		logger.info("NOOP #seens() for {}", userId);
 		return Collections.emptyList();
+	}
+
+	@Override
+	public void xfer(String serverUid) throws ServerFault {
+		// noop
 	}
 
 }

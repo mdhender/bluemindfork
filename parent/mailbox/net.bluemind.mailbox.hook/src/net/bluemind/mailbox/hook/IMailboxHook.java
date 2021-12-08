@@ -42,7 +42,6 @@ public interface IMailboxHook {
 
 	default void preMailboxUpdate(BmContext context, String domainUid, ItemValue<Mailbox> previousValue,
 			ItemValue<Mailbox> value) {
-
 	}
 
 	public void onMailboxUpdated(BmContext context, String domainUid, ItemValue<Mailbox> previousValue,
@@ -56,6 +55,12 @@ public interface IMailboxHook {
 	public void onDomainMailFilterChanged(BmContext context, String domainUid, MailFilter filter) throws ServerFault;
 
 	default void preMailboxDeleted(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault {
-
 	}
+
+	default void preMailboxMoved(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault {
+	}
+
+	default void postMailboxMoved(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault {
+	}
+
 }

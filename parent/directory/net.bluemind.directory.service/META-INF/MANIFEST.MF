@@ -50,7 +50,10 @@ Require-Bundle: net.bluemind.core.rest,
  net.bluemind.user.hook,
  net.bluemind.user.api,
  com.github.ben-manes.caffeine,
- net.bluemind.directory.external;bundle-version="4.1.0"
+ net.bluemind.directory.external,
+ net.bluemind.deferredaction.api,
+ net.bluemind.mailbox.hook,
+ org.postgresql.jdbc42
 Export-Package: net.bluemind.directory.service,
  net.bluemind.directory.service.internal
 Bundle-Activator: net.bluemind.directory.service.DirectoryActivator

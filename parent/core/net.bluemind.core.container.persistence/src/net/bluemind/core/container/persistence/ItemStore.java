@@ -362,6 +362,11 @@ public class ItemStore extends JdbcAbstractStore {
 		return select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
 	}
 
+	public List<Long> allItemIds() throws SQLException {
+		return select("SELECT id FROM t_container_item where container_id = ?", LongCreator.FIRST,
+				Collections.emptyList(), new Object[] { container.id });
+	}
+
 	private static final String GET_FOR_UPDATE = "SELECT " + COLUMNS.names() + " FROM t_container_item "
 			+ " WHERE uid = ? AND container_id = ? FOR NO KEY UPDATE";
 

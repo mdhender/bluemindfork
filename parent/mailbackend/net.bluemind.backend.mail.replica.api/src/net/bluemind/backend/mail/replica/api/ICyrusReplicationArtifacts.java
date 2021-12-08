@@ -25,10 +25,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.container.api.IDataShardSupport;
 
 @BMApi(version = "3", internal = true)
 @Path("/cyrus_artifacts/{userId}")
-public interface ICyrusReplicationArtifacts {
+public interface ICyrusReplicationArtifacts extends IDataShardSupport {
 
 	@PUT
 	@Path("_sieve")

@@ -20,6 +20,11 @@ package net.bluemind.backend.mail.replica.service.internal;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifacts;
 import net.bluemind.backend.mail.replica.api.MailboxSub;
 import net.bluemind.backend.mail.replica.api.QuotaRoot;
@@ -30,22 +35,24 @@ import net.bluemind.backend.mail.replica.persistence.QuotaStore;
 import net.bluemind.backend.mail.replica.persistence.SeenOverlayStore;
 import net.bluemind.backend.mail.replica.persistence.SieveScriptStore;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.rest.BmContext;
 
 public class CyrusArtifactsService implements ICyrusReplicationArtifacts {
-
+	private static final Logger logger = LoggerFactory.getLogger(CyrusArtifactsService.class);
 	private final MailboxSubStore subStore;
 	private final QuotaStore quotaStore;
 	private final SeenOverlayStore seenStore;
 	private final SieveScriptStore sieveStore;
 	private final String userId;
+	private final BmContext context;
 
-	public CyrusArtifactsService(String userId, MailboxSubStore sub, QuotaStore quota, SeenOverlayStore seen,
-			SieveScriptStore sieve) {
+	public CyrusArtifactsService(BmContext context, String userId, DataSource dataSource) {
+		this.context = context;
 		this.userId = userId;
-		this.subStore = sub;
-		this.quotaStore = quota;
-		this.seenStore = seen;
-		this.sieveStore = sieve;
+		subStore = new MailboxSubStore(dataSource);
+		quotaStore = new QuotaStore(dataSource);
+		seenStore = new SeenOverlayStore(dataSource);
+		sieveStore = new SieveScriptStore(dataSource);
 	}
 
 	@Override
@@ -148,4 +155,54 @@ public class CyrusArtifactsService implements ICyrusReplicationArtifacts {
 			throw ServerFault.sqlFault(e);
 		}
 	}
+
+	@Override
+	public void xfer(String serverUid) throws ServerFault {
+		DataSource targetDataSource = context.getMailboxDataSource(serverUid);
+		MailboxSubStore targetSubStore = new MailboxSubStore(targetDataSource);
+		QuotaStore targetQuotaStore = new QuotaStore(targetDataSource);
+		SeenOverlayStore targetSeenStore = new SeenOverlayStore(targetDataSource);
+		SieveScriptStore targetSieveStore = new SieveScriptStore(targetDataSource);
+
+		for (SeenOverlay seen : seens()) {
+			try {
+				targetSeenStore.store(seen);
+			} catch (SQLException e) {
+				logger.error("xfer: unable to copy to seen overlay: {}", e.getMessage());
+			}
+		}
+		try {
+			seenStore.deleteByUser(userId);
+		} catch (SQLException e) {
+			logger.error("Unable to cleanup seen store", e);
+		}
+
+		for (QuotaRoot quota : quotas()) {
+			try {
+				targetQuotaStore.store(quota);
+				quotaStore.delete(quota);
+			} catch (SQLException e) {
+				logger.error("xfer: unable to copy mailbox quota: {}", e.getMessage());
+			}
+		}
+
+		for (SieveScript sieveScript : sieves()) {
+			try {
+				targetSieveStore.store(sieveScript);
+				sieveStore.delete(sieveScript);
+			} catch (SQLException e) {
+				logger.error("xfer: unable to copy sieve script: {}", e.getMessage());
+			}
+		}
+
+		for (MailboxSub mailboxSub : subs()) {
+			try {
+				targetSubStore.store(mailboxSub);
+				subStore.delete(mailboxSub);
+			} catch (SQLException e) {
+				logger.error("xfer: unable to copy mailbox subscription: {}", e.getMessage());
+			}
+		}
+	}
+
 }

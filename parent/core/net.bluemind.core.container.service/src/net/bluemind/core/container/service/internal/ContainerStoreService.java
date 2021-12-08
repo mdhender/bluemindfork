@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Suppliers;
+import com.google.common.collect.Lists;
 
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -44,8 +45,6 @@ import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.api.Providers;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
-import net.bluemind.core.container.model.ChangeLogEntry;
-import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
@@ -280,8 +279,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		return createWithId(uid, null, extId, displayName, value);
 	}
 
-	@Override
-	public ItemVersion createWithId(String uid, Long internalId, String extId, String displayName, T value) {
+	private ItemVersion createWithId(String uid, Long internalId, String extId, String displayName, T value,
+			ChangelogStore changelogStore, ItemStore itemStore, IItemValueStore<T> itemValueStore) {
 		Item item = new Item();
 		item.uid = uid;
 		item.externalId = extId;
@@ -290,11 +289,21 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		}
 		item.displayName = displayName;
 		item.flags = flagsProvider.flags(value);
-		return create(item, value);
+		return create(item, value, changelogStore, itemStore, itemValueStore);
+	}
+
+	@Override
+	public ItemVersion createWithId(String uid, Long internalId, String extId, String displayName, T value) {
+		return createWithId(uid, internalId, extId, displayName, value, changelogStore, itemStore, itemValueStore);
 	}
 
 	@Override
 	public ItemVersion create(Item item, T value) {
+		return create(item, value, changelogStore, itemStore, itemValueStore);
+	}
+
+	private ItemVersion create(Item item, T value, ChangelogStore changelogStore, ItemStore itemStore,
+			IItemValueStore<T> itemValueStore) {
 		checkWritable();
 
 		String uid = item.uid;
@@ -311,7 +320,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				changelogStore.itemCreated(LogEntry.create(created.version, created.uid, created.externalId,
 						securityContext.getSubject(), origin, created.id, weightSeedProvider.weightSeed(value)));
 			}
-			createValue(created, value);
+			createValue(created, value, itemValueStore);
 			if (hasChangeLog) {
 				containerChangeEventProducer.get().produceEvent();
 			}
@@ -348,6 +357,10 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	protected void createValue(Item item, T value) throws SQLException {
+		createValue(item, value, itemValueStore);
+	}
+
+	protected void createValue(Item item, T value, IItemValueStore<T> itemValueStore) throws SQLException {
 		itemValueStore.create(item, value);
 	}
 
@@ -532,7 +545,9 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			// delete values
 			deleteValues();
 			// delete changelog
-			changelogStore.deleteLog();
+			if (hasChangeLog) {
+				changelogStore.deleteLog();
+			}
 			// delete items
 			itemStore.deleteAll();
 			return null;
@@ -755,37 +770,18 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			IItemValueStore<T> targetItemValueStore) {
 		logger.info("Starting xfer to {} with {} on db {}", targetContainer, itemStore, targetDataSource);
 		try {
-			List<String> uids = itemStore.allItemUids();
-			if (uids.isEmpty()) {
-				logger.info("xfer {}: no data", targetContainer.uid);
-				return;
-			}
-
-			ContainerChangelog cc = changelogStore.changelog(0, Long.MAX_VALUE);
-
-			ItemStore is = new ItemStore(targetDataSource, targetContainer, securityContext);
-			ChangelogStore cs = new ChangelogStore(targetDataSource, targetContainer);
-
-			for (ChangeLogEntry entry : cc.entries) {
-				if (entry.type == Type.Created && uids.contains(entry.itemUid)) {
-					ItemValue<T> itemValue = get(entry.itemUid, null);
-					Item item = new Item();
-					item.uid = itemValue.uid;
-					item.externalId = itemValue.externalId;
-					item.displayName = itemValue.displayName;
-					item.flags = flagsProvider.flags(itemValue.value);
-					item.version = itemValue.version;
-					item = is.create(item);
-
-					targetItemValueStore.create(item, itemValue.value);
-
-				} else {
-					is.touch(entry.itemUid);
+			ItemStore targetItemStore = new ItemStore(targetDataSource, targetContainer, securityContext);
+			ChangelogStore targetChangelogStore = new ChangelogStore(targetDataSource, targetContainer);
+			long transferred = 0;
+			List<List<Long>> uidPartitions = Lists.partition(itemStore.allItemIds(), 4096);
+			for (List<Long> uids : uidPartitions) {
+				for (Item oldItem : itemStore.getMultipleById(uids)) {
+					createWithId(oldItem.uid, null, oldItem.externalId, oldItem.displayName, getValue(oldItem),
+							targetChangelogStore, targetItemStore, targetItemValueStore);
+					transferred++;
 				}
 			}
-			logger.info("xfer {}: {} items", targetContainer.uid, cc.entries.size());
-
-			cs.insertLog(cc.entries);
+			logger.info("xfer container uid={}: transferred {} items", targetContainer.uid, transferred);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		} catch (Exception e) {
@@ -793,8 +789,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		}
 
 		doOrFail(() -> {
-			deleteAll();
-			changelogStore.deleteLog();
+			prepareContainerDelete();
 			return null;
 		});
 

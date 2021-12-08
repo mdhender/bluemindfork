@@ -783,10 +783,20 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 			}
 		}
 
-		setMailboxAccessControlList(uid, Collections.emptyList());
+		try {
+			setMailboxAccessControlList(uid, Collections.emptyList());
+			deleteMailboxesAclsContainer(uid);
+		} catch (ServerFault sf) {
+			if (ErrorCode.NOT_FOUND.equals(sf.getCode())) {
+				logger.error("unable to remove access control list: {}", sf.getMessage());
+			}
+		}
 
-		deleteMailboxesAclsContainer(uid);
-		mailboxStorage().delete(context, domainUid, itemValue);
+		try {
+			mailboxStorage().delete(context, domainUid, itemValue);
+		} catch (Exception e) {
+			logger.error("Unable to remove mailbox storage: {}", e.getMessage(), e);
+		}
 
 		for (IMailboxHook hook : hooks) {
 			try {
@@ -798,7 +808,6 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		}
 
 		eventProducer.deleted(uid);
-
 	}
 
 	@Override

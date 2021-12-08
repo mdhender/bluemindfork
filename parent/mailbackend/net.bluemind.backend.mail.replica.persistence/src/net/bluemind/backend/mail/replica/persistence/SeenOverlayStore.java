@@ -48,12 +48,15 @@ public class SeenOverlayStore extends JdbcAbstractStore {
 	public List<SeenOverlay> byUser(String userId) throws SQLException {
 		String query = "SELECT " + SeenOverlayColumns.COLUMNS.names() + " FROM t_seen_overlay WHERE user_id = ?";
 		return select(query, rs -> new SeenOverlay(), SeenOverlayColumns.populator(), new Object[] { userId });
+	}
 
+	public void deleteByUser(String userId) throws SQLException {
+		delete("DELETE FROM t_seen_overlay WHERE user_id = ?", new Object[] { userId });
 	}
 
 	public SeenOverlay byUser(String userId, String mboxId) throws SQLException {
 		String query = "SELECT " + SeenOverlayColumns.COLUMNS.names()
-				+ " FROM t_seen_overlay WHERE user_id = ? AND unique_id=?";
+				+ " FROM t_seen_overlay WHERE user_id = ? AND unique_id = ?";
 		return unique(query, rs -> new SeenOverlay(), SeenOverlayColumns.populator(), new Object[] { userId, mboxId });
 
 	}

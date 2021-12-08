@@ -41,6 +41,16 @@ public class MailboxSubtreeHook implements IMailboxHook {
 	private static final Logger logger = LoggerFactory.getLogger(MailboxSubtreeHook.class);
 
 	@Override
+	public void preMailboxMoved(BmContext context, String domainUid, ItemValue<Mailbox> boxItem) throws ServerFault {
+		forgetDeletion(context, domainUid, boxItem);
+	}
+
+	@Override
+	public void postMailboxMoved(BmContext context, String domainUid, ItemValue<Mailbox> boxItem) throws ServerFault {
+		forgetDeletion(context, domainUid, boxItem);
+	}
+
+	@Override
 	public void preMailboxCreated(BmContext context, String domainUid, ItemValue<Mailbox> boxItem) throws ServerFault {
 		forgetDeletion(context, domainUid, boxItem);
 

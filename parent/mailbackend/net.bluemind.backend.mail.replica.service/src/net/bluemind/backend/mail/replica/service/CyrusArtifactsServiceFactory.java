@@ -23,10 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifacts;
-import net.bluemind.backend.mail.replica.persistence.MailboxSubStore;
-import net.bluemind.backend.mail.replica.persistence.QuotaStore;
-import net.bluemind.backend.mail.replica.persistence.SeenOverlayStore;
-import net.bluemind.backend.mail.replica.persistence.SieveScriptStore;
 import net.bluemind.backend.mail.replica.service.internal.CyrusArtifactsService;
 import net.bluemind.backend.mail.replica.service.internal.NoopCyrusArtifacts;
 import net.bluemind.core.api.fault.ServerFault;
@@ -65,9 +61,9 @@ public class CyrusArtifactsServiceFactory
 			domain = splitted[1];
 		}
 		String email = userId.replace('^', '.');
-		DataSource pool;
+		DataSource dataSource;
 		if ("".equals(domain) || ("bmhiddensysadmin@" + domain).equals(email)) {
-			pool = context.getDataSource();
+			dataSource = context.getDataSource();
 		} else {
 			IDomains domApi = context.getServiceProvider().instance(IDomains.class);
 			ItemValue<Domain> theDomain = domApi.findByNameOrAliases(domain);
@@ -88,13 +84,10 @@ public class CyrusArtifactsServiceFactory
 					return new NoopCyrusArtifacts(userId);
 				}
 			}
-			pool = context.getMailboxDataSource(entry.dataLocation);
+			dataSource = context.getMailboxDataSource(entry.dataLocation);
 		}
-		MailboxSubStore sub = new MailboxSubStore(pool);
-		QuotaStore qs = new QuotaStore(pool);
-		SeenOverlayStore seen = new SeenOverlayStore(pool);
-		SieveScriptStore sieve = new SieveScriptStore(pool);
-		return new CyrusArtifactsService(userId, sub, qs, seen, sieve);
+
+		return new CyrusArtifactsService(context, userId, dataSource);
 	}
 
 }
