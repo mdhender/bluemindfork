@@ -123,6 +123,7 @@ export default {
             } else {
                 this.$emit("update", this.container);
             }
+            this.show = false;
             this.actionsInProgress = false;
         },
         async create() {
