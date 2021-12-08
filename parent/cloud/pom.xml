@@ -39,11 +39,13 @@
 	  <module>net.bluemind.forest.instance.service</module>
 	  <module>net.bluemind.forest.join.tests</module>
       <module>net.bluemind.forest.cloud.launcher</module>
+	  <!-- Disabled for now, needs upgrade to Vert.x 4
       <module>net.bluemind.central.reverse.proxy</module>
       <module>net.bluemind.central.reverse.proxy.tests</module>
       <module>net.bluemind.central.reverse.proxy.launcher</module>
       <module>net.bluemind.central.reverse.proxy.model</module>
       <module>net.bluemind.central.reverse.proxy.model.tests</module>
+	  -->
 
 	</modules>
 

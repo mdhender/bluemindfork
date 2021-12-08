@@ -374,9 +374,11 @@
     <bundle id="net.bluemind.forest.cloud.service" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.forest.instance.service" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.forest.cloud.launcher" version="4.1.0.qualifier" />
+    <!-- Disabled for now, needs porting to Vert.x 4
     <bundle id="net.bluemind.central.reverse.proxy.model" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.central.reverse.proxy" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.central.reverse.proxy.launcher" version="4.1.0.qualifier" />
+	-->
     <bundle id="net.bluemind.vertx.core.patch" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.tika.client" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.core.container.hierarchy.repair" version="4.1.0.qualifier" />
