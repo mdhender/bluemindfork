@@ -83,7 +83,7 @@ public class JdbcAbstractStore {
 					}
 				}
 			}
-			logger.debug("S: {}", st);
+			logger.debug("[{}] S: {}", datasource, st);
 			long time = System.currentTimeMillis();
 			rs = st.executeQuery();
 			long elapsedTime = System.currentTimeMillis() - time;
@@ -128,7 +128,7 @@ public class JdbcAbstractStore {
 			} else {
 				st.setObject(1, param);
 			}
-			logger.debug("S: {}", st);
+			logger.debug("[{}] S: {}", datasource, st);
 			long time = System.currentTimeMillis();
 			rs = st.executeQuery();
 			long elapsedTime = System.currentTimeMillis() - time;
@@ -237,7 +237,7 @@ public class JdbcAbstractStore {
 					}
 				}
 			}
-			logger.debug("U: {}", st);
+			logger.debug("[{}] U: {}", datasource, st);
 			return st.executeUpdate();
 		} finally {
 			JdbcHelper.cleanup(conn, null, st);
@@ -272,7 +272,7 @@ public class JdbcAbstractStore {
 					}
 				}
 			}
-			logger.debug("D: {}", st);
+			logger.debug("[{}] D: {}", datasource, st);
 			return st.executeUpdate();
 		} finally {
 			JdbcHelper.cleanup(conn, null, st);
@@ -343,7 +343,7 @@ public class JdbcAbstractStore {
 				st.addBatch();
 				row++;
 			}
-			logger.debug("batch I: {}", st);
+			logger.debug("[{}] batch I: {}", datasource, st);
 			st.executeBatch();
 		} catch (BatchUpdateException bue) {
 			throw bue.getNextException();
@@ -357,13 +357,12 @@ public class JdbcAbstractStore {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		try {
-			logger.debug("Insert query {}", query);
 			st = conn.prepareStatement(query);
 			int index = 1;
 			for (StatementValues<T> stValue : values) {
 				index = stValue.setValues(conn, st, index, 0, value);
 			}
-			logger.debug("I: {}", st);
+			logger.debug("[{}] I: {}", datasource, st);
 			st.executeUpdate();
 		} finally {
 			JdbcHelper.cleanup(conn, null, st);
@@ -376,7 +375,6 @@ public class JdbcAbstractStore {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		try {
-			logger.debug("Insert query {}", query);
 			st = conn.prepareStatement(query);
 			int index = 1;
 			index = stValue.setValues(conn, st, index, 0, value);
@@ -394,7 +392,7 @@ public class JdbcAbstractStore {
 					}
 				}
 			}
-			logger.debug("I: {}", st);
+			logger.debug("[{}] I: {}", datasource, st);
 			st.executeUpdate();
 		} finally {
 			JdbcHelper.cleanup(conn, null, st);
@@ -409,13 +407,12 @@ public class JdbcAbstractStore {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			logger.debug("Insert query {}", query);
 			st = conn.prepareStatement(query);
 			int index = 1;
 			for (StatementValues<T> stValue : values) {
 				index = stValue.setValues(conn, st, index, 0, value);
 			}
-			logger.debug("I: {}", st);
+			logger.debug("[{}] I: {}", datasource, st);
 			rs = st.executeQuery();
 			if (rs.next()) {
 
@@ -441,7 +438,6 @@ public class JdbcAbstractStore {
 	}
 
 	private int insertImpl(String query, Object[] parameters, Connection conn) throws SQLException {
-		logger.debug("Insert query {}", query);
 		try (PreparedStatement st = conn.prepareStatement(query)) {
 			int index = 1;
 			if (parameters != null) {
@@ -458,7 +454,7 @@ public class JdbcAbstractStore {
 					}
 				}
 			}
-			logger.debug("I: {}", st);
+			logger.debug("[{}] I: {}", datasource, st);
 			return st.executeUpdate();
 		}
 	}
@@ -507,7 +503,7 @@ public class JdbcAbstractStore {
 		try {
 			return op.execute();
 		} catch (Exception e) {
-			logger.warn("error during applying {} ", action, e);
+			logger.warn("error applying {} ", action, e);
 			return null;
 		}
 	}
