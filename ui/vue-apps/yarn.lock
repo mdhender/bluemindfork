@@ -1165,10 +1165,10 @@
   dependencies:
     axios "^0.18.0"
 
-"@bluemind/todolist.api@^4.1.58652":
-  version "4.1.61185"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/todolist.api/-/todolist.api-4.1.61185.tgz#a43c3fad3e39e5d0f26f6b61b7fd3f5d02d8bbca"
-  integrity sha512-sU9aylgQIF5BIQG4dOeF67SAM3veepGvmD/7ciXIrdlD5EwF2Hto6MzuF/1fsv2QZ64IJto1VxtbWnp8n4UXEg==
+"@bluemind/todolist.api@^4.1.0":
+  version "4.1.61271"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/todolist.api/-/todolist.api-4.1.61271.tgz#fae01a969f75556cfdc0acfb4fa8770664f1486f"
+  integrity sha512-RZCH9sMmtqPsK0cbqyHWfHdIETNCz9DmovF95tlX7NVnDy0ag2DGv8cKg5r40a2ftZECSd9PsFk4J7ufJVyVfg==
   dependencies:
     axios "^0.18.0"
 
