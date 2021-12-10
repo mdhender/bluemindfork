@@ -1,4 +1,4 @@
-import { CONVERSATIONS_ACTIVATED, IS_CURRENT_CONVERSATION, MY_TRASH, NEXT_CONVERSATION } from "~/getters";
+import { CONVERSATIONS_ACTIVATED, IS_CURRENT_CONVERSATION, MAILBOX_TRASH, NEXT_CONVERSATION } from "~/getters";
 import {
     MOVE_CONVERSATIONS,
     MOVE_CONVERSATION_MESSAGES,
@@ -18,8 +18,7 @@ export default {
     },
     methods: {
         MOVE_CONVERSATIONS_TO_TRASH: navigateConversations(async function (conversations) {
-            const trash = this.$store.getters[`mail/${MY_TRASH}`];
-
+            const trash = getConversationsTrash(this.$store, conversations);
             if (conversations.some(conversation => conversation.folderRef.key !== trash.key)) {
                 this.$store.dispatch(`mail/${MOVE_CONVERSATIONS}`, { conversations, folder: trash });
                 return true;
@@ -52,7 +51,7 @@ export default {
             return confirm;
         }),
         MOVE_MESSAGES_TO_TRASH: navigate(async function (conversation, messages) {
-            const trash = this.$store.getters[`mail/${MY_TRASH}`];
+            const trash = getConversationsTrash(this.$store, messages);
 
             if (messages.some(message => message.folderRef.key !== trash.key)) {
                 this.$store.dispatch(`mail/${MOVE_CONVERSATION_MESSAGES}`, { conversation, messages, folder: trash });
@@ -106,6 +105,17 @@ export default {
         }
     }
 };
+
+function getConversationsTrash(store, conversations) {
+    // Here we assume that all messages are from the same mailbox.
+    // If one day the multi-mailbox selection is implemented, there are 2 ways :
+    // - Simple way : If messages are from different mailboxes then all message are moved to the user's trash
+    // - Complex way : If messages are from different mailboxes then all message are moved to the mailbox's trash
+    const conversation = conversations[0];
+    const folder = store.state.mail.folders[conversation.folderRef.key];
+    const mailbox = store.state.mail.mailboxes[folder.mailboxRef.key];
+    return store.getters[`mail/${MAILBOX_TRASH}`](mailbox);
+}
 
 function navigateConversations(action) {
     return async function (conversations) {

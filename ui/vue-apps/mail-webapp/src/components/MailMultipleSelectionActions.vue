@@ -105,7 +105,6 @@ import { ActionTextMixin, FlagMixin, RemoveMixin } from "~/mixins";
 import {
     ALL_CONVERSATIONS_ARE_SELECTED,
     ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
-    MY_TRASH,
     CONVERSATIONS_ACTIVATED,
     CONVERSATION_LIST_ALL_KEYS,
     CONVERSATION_LIST_IS_SEARCH_MODE,
@@ -136,7 +135,6 @@ export default {
         ...mapGetters("mail", {
             ALL_CONVERSATIONS_ARE_SELECTED,
             ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
-            MY_TRASH,
             CONVERSATION_LIST_ALL_KEYS,
             CONVERSATION_LIST_IS_SEARCH_MODE,
             SELECTION_KEYS
