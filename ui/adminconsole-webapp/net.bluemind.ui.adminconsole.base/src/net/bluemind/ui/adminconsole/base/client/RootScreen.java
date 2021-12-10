@@ -178,12 +178,12 @@ public class RootScreen extends Composite implements IGwtScreenRoot {
 		if (Arrays.stream(screen.getRoles()).map(r -> Ajax.TOKEN.getRoles().contains(r)).filter(f -> f).count() > 0) {
 			return true;
 		} else if (screen.getOURoles() != null && Arrays.stream(screen.getOURoles()).map(r -> {
-			return Ajax.TOKEN.getRolesByOrgUnits().values().stream().map(ouRoles -> ouRoles.contains(r)).count() > 0;
+			return Ajax.TOKEN.getRolesByOrgUnits().values().stream().filter(ouRoles -> ouRoles.contains(r)).count() > 0;
 		}).filter(f -> f).count() > 0) {
 			return true;
-		} else {
-			return false;
 		}
+
+		return false;
 	}
 
 	private SectionAnchor createSectionAnchor(Section section) {
@@ -222,11 +222,11 @@ public class RootScreen extends Composite implements IGwtScreenRoot {
 
 	public static native ScreenElement model()
 	/*-{
-    var ret = {
-      'id' : null,
-      'type' : 'bm.ac.RootScreen'
-    };
-    return ret;
+		var ret = {
+			'id' : null,
+			'type' : 'bm.ac.RootScreen'
+		};
+		return ret;
 	}-*/;
 
 	@Override
