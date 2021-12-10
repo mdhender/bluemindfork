@@ -13,7 +13,12 @@
                 @search="onSearch"
                 @update:contacts="updateEmails"
             />
-            <bm-form-select v-model="value.localCopy" :options="options" :disabled="!value.enabled" />
+            <bm-form-select
+                v-model="value.localCopy"
+                :options="options"
+                :disabled="!value.enabled"
+                class="align-self-start"
+            />
         </div>
     </div>
 </template>
