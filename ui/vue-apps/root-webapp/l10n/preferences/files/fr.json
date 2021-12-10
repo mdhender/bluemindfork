@@ -53,6 +53,7 @@
     "preferences.security.api_key.generate": "Générer une clé d’API",
     "preferences.security.api_key.generate.modal.ok_button": "Générer",
     "preferences.security.api_key.generate.modal.project_label": "Libellé",
+    "preferences.security.api_key.remove": "Supprimer définitivement la clef d'API \"{name}\" ?",
 
     "preferences.security.change_password": "Changement de mot de passe",
     "preferences.security.change_password.old": "Ancien mot de passe",

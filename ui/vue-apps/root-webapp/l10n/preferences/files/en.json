@@ -53,6 +53,7 @@
     "preferences.security.api_key.generate": "Generate API key",
     "preferences.security.api_key.generate.modal.ok_button": "Create",
     "preferences.security.api_key.generate.modal.project_label": "Label",
+    "preferences.security.api_key.remove": "Remove \"{name}\" API key definitely ?",
 
     "preferences.security.change_password": "Password change",
     "preferences.security.change_password.old": "Old password",

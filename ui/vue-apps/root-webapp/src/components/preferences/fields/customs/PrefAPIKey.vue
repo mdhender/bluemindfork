@@ -124,9 +124,21 @@ export default {
             }
         },
         async remove(key) {
-            await inject("APIKeysPersistence").remove(key.sid);
-            const index = this.keys.findIndex(k => k.sid === key.sid);
-            this.keys.splice(index, 1);
+            const modalContent = this.$t("preferences.security.api_key.remove", { name: key.displayName });
+            const confirm = await this.$bvModal.msgBoxConfirm(modalContent, {
+                title: this.$t("common.delete"),
+                okTitle: this.$t("common.delete"),
+                cancelVariant: "outline-secondary",
+                cancelTitle: this.$t("common.cancel"),
+                centered: true,
+                hideHeaderClose: false,
+                autoFocusButton: "ok"
+            });
+            if (confirm) {
+                await inject("APIKeysPersistence").remove(key.sid);
+                const index = this.keys.findIndex(k => k.sid === key.sid);
+                this.keys.splice(index, 1);
+            }
         },
         copySid(sid) {
             navigator.clipboard.writeText(sid);
