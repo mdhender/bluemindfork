@@ -239,9 +239,6 @@
     "mail.folder.empty": "Leeren Sie den Ordner",
     "mail.folder.empty.confirm.content": "Nachrichten dauerhaft aus diesem Ordner löschen?",
     "mail.folder.create.subfolder": "Unterordner erstellen",
-    "mail.folder.delete.dialog.question.with_subfolders": "Ordner \"{name}\" rekursiv löschen?",
-    "mail.folder.delete.dialog.question": "Ordner \"{name}\" löschen?",
-    "mail.folder.delete.dialog.title": "Ordner löschen",
     "mail.folder.mark_as_read": "Alle als Gelesen markieren",
     "mail.folder.new.from_pattern": "{0} (Neuer Ordner)",
     "mail.folder.new.from_scratch": "Neuer Ordner",
@@ -329,6 +326,24 @@
     "mail.viewer.no.subject": "(Kein Betreff)",
     "mail": {
         "actions": {
+            "move_folder_to_trash": {
+                "modal": {
+                    "title": "Ordner löschen",
+                    "content": {
+                        "with_subfolder": "Ordner \"{name}\" löschen? Dieser und alle seine Unterordner werden in den Papierkorb verschoben.",
+                        "without_subfolder": "Ordner \"{name}\" löschen? Dieser wird in den Papierkorb verschoben."
+                    }
+                }
+            },
+            "remove_folder": {
+                "modal": {
+                    "title": "Ordner permanent löschen",
+                    "content": {
+                        "with_subfolder": "Ordner \"{name}\" rekursiv permanent löschen?",
+                        "without_subfolder": "Ordner \"{name}\" permanent löschen?"
+                    }
+                }
+            },
             "modify_template": "Vorlage ändern",
             "save_draft": "Als Entwurf speichern",
             "save_template": "Als Vorlage speichern",

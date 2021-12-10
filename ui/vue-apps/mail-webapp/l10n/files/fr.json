@@ -239,9 +239,6 @@
     "mail.folder.empty": "Vider le dossier",
     "mail.folder.empty.confirm.content": "Supprimer définitivement les messages de ce dossier ?",
     "mail.folder.create.subfolder": "Créer un sous-dossier",
-    "mail.folder.delete.dialog.question.with_subfolders": "Supprimer le dossier \"{name}\" et l'ensemble de ses sous-dossiers ?",
-    "mail.folder.delete.dialog.question": "Supprimer le dossier \"{name}\" ?",
-    "mail.folder.delete.dialog.title": "Supprimer un dossier",
     "mail.folder.mark_as_read": "Marquer tout comme lu",
     "mail.folder.new.from_pattern": "{0} (Nouveau dossier)",
     "mail.folder.new.from_scratch": "Nouveau dossier",
@@ -329,6 +326,24 @@
     "mail.viewer.no.preview": "(Pas d'aperçu disponible)",
     "mail": {
         "actions": {
+            "move_folder_to_trash": {
+                "modal": {
+                    "title": "Supprimer le dossier",
+                    "content": {
+                        "with_subfolder": "Supprimer le dossier \"{name}\" ? Celui-ci et l'ensemble de ses sous-dossiers seront déplacés vers la Corbeille.",
+                        "without_subfolder": "Supprimer le dossier \"{name}\" ? Celui-ci sera déplacé vers la Corbeille."
+                    }
+                }
+            },
+            "remove_folder": {
+                "modal": {
+                    "title": "Supprimer le dossier définitivement",
+                    "content": {
+                        "with_subfolder": "Supprimer définitivement le dossier \"{name}\" et l'ensemble de ses sous-dossiers ?",
+                        "without_subfolder": "Supprimer définitivement le dossier \"{name}\" ?"
+                    }
+                }
+            },
             "modify_template": "Modifier le modèle",
             "save_draft": "Enregistrer en tant que brouillon",
             "save_template": "Enregistrer en tant que modèle",

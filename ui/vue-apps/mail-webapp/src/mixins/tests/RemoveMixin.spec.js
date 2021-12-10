@@ -23,9 +23,17 @@ describe("RemoveMixin", () => {
             getters: {
                 "mail/NEXT_CONVERSATION": jest.fn(() => ({ key: "nextKey", messages: ["m1", "m2"] })),
                 "mail/IS_CURRENT_CONVERSATION": jest.fn().mockReturnValue(false),
-                "mail/MY_TRASH": { key: "trash" }
+                "mail/MAILBOX_TRASH": () => ({ key: "trash" })
             },
-            state: { mail: {} }
+            state: {
+                mail: {
+                    folders: {
+                        "no-trash": { key: "no-trash", mailboxRef: { key: "my" } },
+                        trash: { key: "trash", mailboxRef: { key: "my" } }
+                    },
+                    mailboxes: { my: {} }
+                }
+            }
         };
         RemoveMixin.MOVE_CONVERSATIONS_TO_TRASH = RemoveMixin.methods.MOVE_CONVERSATIONS_TO_TRASH;
         RemoveMixin.REMOVE_CONVERSATIONS = RemoveMixin.methods.REMOVE_CONVERSATIONS;

@@ -66,11 +66,16 @@ export default {
         ...mapActions("mail", { EMPTY_FOLDER, MOVE_FOLDER, MARK_FOLDER_AS_READ, REMOVE_FOLDER }),
         ...mapMutations("mail", { ADD_FOLDER, TOGGLE_EDIT_FOLDER, SET_FOLDER_EXPANDED }),
         async deleteFolder() {
-            const modalTitleKey = this.FOLDER_HAS_CHILDREN(this.folder)
-                ? "mail.folder.delete.dialog.question.with_subfolders"
-                : "mail.folder.delete.dialog.question";
-            const confirm = await this.$bvModal.msgBoxConfirm(this.$t(modalTitleKey, { name: this.folder.name }), {
-                title: this.$t("mail.folder.delete.dialog.title"),
+            const trash = this.MAILBOX_TRASH(this.mailbox);
+            const remove = this.IS_DESCENDANT(trash.key, this.folder.key);
+            const prefix = `mail.actions.${remove ? "remove_folder" : "move_folder_to_trash"}.modal`;
+            const title = this.$t(`${prefix}.title`);
+            const content = this.$t(
+                `${prefix}.content.${this.FOLDER_HAS_CHILDREN(this.folder) ? "with_subfolder" : "without_subfolder"}`,
+                { name: this.folder.name }
+            );
+            const confirm = await this.$bvModal.msgBoxConfirm(content, {
+                title: title,
                 okTitle: this.$t("common.delete"),
                 cancelVariant: "outline-secondary",
                 cancelTitle: this.$t("common.cancel"),
@@ -82,8 +87,7 @@ export default {
                 if (this.IS_DESCENDANT(this.folder.key, this.activeFolder) || this.activeFolder === this.folder.key) {
                     await this.$router.push({ name: "mail:home" });
                 }
-                const trash = this.MAILBOX_TRASH(this.mailbox);
-                if (this.IS_DESCENDANT(trash.key, this.folder.key)) {
+                if (remove) {
                     this.REMOVE_FOLDER({ folder: this.folder, mailbox: this.mailbox });
                 } else {
                     this.MOVE_FOLDER({
