@@ -21,7 +21,11 @@ package net.bluemind.dataprotect.service.internal;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -30,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
@@ -43,6 +46,9 @@ import net.bluemind.dataprotect.api.IDataProtect;
 import net.bluemind.dataprotect.api.PartGeneration;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.DirEntryQuery;
+import net.bluemind.directory.api.IDirectory;
+import net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord;
 import net.bluemind.directory.hollow.datamodel.consumer.DirectoryDeserializer;
 import net.bluemind.directory.hollow.datamodel.consumer.Email;
 import net.bluemind.domain.api.Domain;
@@ -51,17 +57,13 @@ import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 
 public class LoadGenerationTask implements IServerTask {
-
 	private static final Logger logger = LoggerFactory.getLogger(LoadGenerationTask.class);
 
 	private final PartGeneration directory;
 	private final List<PartGeneration> parts;
 	private BmContext ctx;
 
-	private RBACManager rbac;
-
 	public LoadGenerationTask(BmContext ctx, PartGeneration directory, List<PartGeneration> parts) {
-		this.rbac = RBACManager.forContext(ctx);
 		this.directory = directory;
 		this.parts = parts;
 		this.ctx = ctx;
@@ -99,15 +101,12 @@ public class LoadGenerationTask implements IServerTask {
 
 			String domainUid = snapshot.getName();
 
-			if (!rbac.forDomain(domainUid).can(BasicRoles.ROLE_MANAGE_RESTORE, BasicRoles.ROLE_DATAPROTECT)) {
+			if (!ctx.getSecurityContext().isDomainGlobal()
+					&& !domainUid.equals(ctx.getSecurityContext().getContainerUid())) {
 				continue;
 			}
 
-			Domain dom = new Domain();
-			dom.name = domainUid;
-			gc.domains.add(ItemValue.create(domainUid, dom));
-
-			dd.all().stream().forEach(abRecord -> {
+			dd.all().stream().filter(isAllowed()).forEach(abRecord -> {
 				DirEntry de = new DirEntry();
 				de.entryUid = abRecord.getUid();
 				de.displayName = abRecord.getName();
@@ -128,7 +127,32 @@ public class LoadGenerationTask implements IServerTask {
 
 		logger.info("Sending generation with {} capabilities", gc.capabilities.size());
 		monitor.end(true, "restored", JsonUtils.asString(gc));
-
 	}
 
+	private Predicate<AddressBookRecord> isAllowed() {
+		Set<String> allowedUids = new HashSet<>();
+
+		if (!ctx.getSecurityContext().isDomainGlobal()
+				&& !ctx.getSecurityContext().getRoles().contains(BasicRoles.ROLE_DATAPROTECT)
+				&& !ctx.getSecurityContext().getRoles().contains(BasicRoles.ROLE_MANAGE_RESTORE)) {
+			Collection<String> allowedOu = DPService.expandContextManageRestoreOrgUnitPerms(ctx);
+
+			try {
+				allowedUids.addAll(
+						ctx.getServiceProvider().instance(IDirectory.class, ctx.getSecurityContext().getContainerUid())
+								.search(DirEntryQuery.all()).values
+										.stream().filter(e -> e.value.orgUnitPath != null)
+										.filter(e -> e.value.orgUnitPath.path().stream()
+												.anyMatch(oup -> allowedOu.contains(oup)))
+										.map(e -> e.uid).collect(Collectors.toSet()));
+			} catch (ServerFault sf) {
+				logger.error("Unable to get allowed entries UIDs for {}@{}: {}", ctx.getSecurityContext().getSubject(),
+						ctx.getSecurityContext().getContainerUid(), sf.getMessage(), sf);
+			}
+
+			return x -> allowedUids.contains(x.getUid());
+		}
+
+		return x -> true;
+	}
 }

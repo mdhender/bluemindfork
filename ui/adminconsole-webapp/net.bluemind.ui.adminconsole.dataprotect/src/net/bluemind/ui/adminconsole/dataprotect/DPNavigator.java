@@ -33,6 +33,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PushButton;
 
 import net.bluemind.core.api.AsyncHandler;
@@ -74,6 +75,9 @@ public class DPNavigator extends Composite implements IGwtScreenRoot {
 	@UiField
 	PushButton sync;
 
+	@UiField
+	Label syncLabel;
+
 	private ScreenRoot instance;
 
 	public DPNavigator(ScreenRoot instance) {
@@ -95,6 +99,11 @@ public class DPNavigator extends Composite implements IGwtScreenRoot {
 	}
 
 	protected void onScreenShown(ScreenShowRequest ssr) {
+		if (!Ajax.TOKEN.isDomainGlobal()) {
+			sync.setVisible(false);
+			syncLabel.setVisible(false);
+		}
+
 		final InstallationGwtEndpoint installationApi = new InstallationGwtEndpoint(Ajax.TOKEN.getSessionId());
 
 		installationApi.getSubscriptionInformations(new AsyncHandler<SubscriptionInformations>() {

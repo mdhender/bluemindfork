@@ -20,9 +20,12 @@
 package net.bluemind.dataprotect.service.internal;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +40,7 @@ import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.IDataProtect;
 import net.bluemind.dataprotect.api.PartGeneration;
+import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.api.RestoreDefinition;
 import net.bluemind.dataprotect.api.RestoreOperation;
 import net.bluemind.dataprotect.api.RetentionPolicy;
@@ -44,6 +48,8 @@ import net.bluemind.dataprotect.persistence.DataProtectGenerationStore;
 import net.bluemind.dataprotect.persistence.GenerationWriter;
 import net.bluemind.dataprotect.persistence.RetentionPolicyStore;
 import net.bluemind.dataprotect.service.IRestoreActionProvider;
+import net.bluemind.directory.api.DirEntryQuery;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.role.api.BasicRoles;
 
 public class DPService implements IDataProtect {
@@ -73,6 +79,7 @@ public class DPService implements IDataProtect {
 	@Override
 	public List<DataProtectGeneration> getAvailableGenerations() throws ServerFault {
 		checkAccess();
+
 		try {
 			return dpgStore.getGenerations();
 		} catch (SQLException e) {
@@ -83,6 +90,7 @@ public class DPService implements IDataProtect {
 	@Override
 	public TaskRef getContent(String generationId) throws ServerFault {
 		checkAccess();
+
 		logger.info("Access is fine for {} loading gen {}", ctx, generationId);
 		List<DataProtectGeneration> generations = getAvailableGenerations();
 		DataProtectGeneration gen = null;
@@ -132,7 +140,13 @@ public class DPService implements IDataProtect {
 		ParametersValidator.notNull(restoreDefinition.item.domainUid);
 		ParametersValidator.notNull(restoreDefinition.restoreOperationIdenfitier);
 
-		rbac.forDomain(restoreDefinition.item.domainUid).check(BasicRoles.ROLE_MANAGE_RESTORE);
+		checkAccess();
+		if (!ctx.getSecurityContext().isDomainGlobal()
+				&& (!ctx.getSecurityContext().getRoles().contains(BasicRoles.ROLE_DATAPROTECT)
+						|| !ctx.getSecurityContext().getRoles().contains(BasicRoles.ROLE_MANAGE_RESTORE))) {
+			checkRestoreItemAccess(restoreDefinition.item);
+		}
+
 		List<DataProtectGeneration> generations = getAvailableGenerations();
 		DataProtectGeneration dataSource = null;
 		for (DataProtectGeneration dpg : generations) {
@@ -230,15 +244,48 @@ public class DPService implements IDataProtect {
 	}
 
 	@Override
-	public TaskRef saveAll() throws ServerFault {
+	public TaskRef saveAll() {
 		rbac.check(BasicRoles.ROLE_SYSTEM_MANAGER);
 		logger.info("Backup TIME....");
 		return ctx.provider().instance(ITasksManager.class).run(new SaveAllTask(ctx, this));
 	}
 
-	private void checkAccess() throws ServerFault {
-		rbac.forDomain(ctx.getSecurityContext().getContainerUid()).check(BasicRoles.ROLE_MANAGE_RESTORE,
-				BasicRoles.ROLE_DATAPROTECT);
+	private void checkAccess() {
+		if (!ctx.getSecurityContext().isDomainGlobal()
+				&& !ctx.getSecurityContext().getRoles().contains(BasicRoles.ROLE_DATAPROTECT)
+				&& !Stream
+						.concat(ctx.getSecurityContext().getRolesByOrgUnits().values().stream()
+								.flatMap(Collection::stream).collect(Collectors.toSet()).stream(),
+								ctx.getSecurityContext().getRoles().stream())
+						.anyMatch(v -> v.equals(BasicRoles.ROLE_MANAGE_RESTORE))) {
+			throw new ServerFault(String.format("%s@%s Doesnt have role %s or %s", //
+					ctx.getSecurityContext().getSubject(), ctx.getSecurityContext().getContainerUid(), //
+					BasicRoles.ROLE_DATAPROTECT, BasicRoles.ROLE_MANAGE_RESTORE), ErrorCode.PERMISSION_DENIED);
+		}
 	}
 
+	private void checkRestoreItemAccess(Restorable item) {
+		if (!item.domainUid.equals(ctx.getSecurityContext().getContainerUid()) || item.entryUid == null) {
+			throw new ServerFault(String.format("%s@%s Doesnt have perms to restore {}", //
+					ctx.getSecurityContext().getSubject(), ctx.getSecurityContext().getContainerUid(), //
+					item.domainUid), ErrorCode.PERMISSION_DENIED);
+		}
+
+		Collection<String> allowedOu = expandContextManageRestoreOrgUnitPerms(ctx);
+
+		if (!ctx.getServiceProvider().instance(IDirectory.class, ctx.getSecurityContext().getContainerUid())
+				.search(DirEntryQuery.entries(item.entryUid)).values.stream().filter(e -> e.value.orgUnitPath != null)
+						.filter(e -> e.value.orgUnitPath.path().stream().anyMatch(oup -> allowedOu.contains(oup)))
+						.findFirst().isPresent()) {
+			throw new ServerFault(String.format("%s@%s Doesnt have perms to restore {} from domain {}", //
+					ctx.getSecurityContext().getSubject(), ctx.getSecurityContext().getContainerUid(), //
+					item.entryUid, item.domainUid), ErrorCode.PERMISSION_DENIED);
+		}
+	}
+
+	protected static Collection<String> expandContextManageRestoreOrgUnitPerms(BmContext context) {
+		return context.getSecurityContext().getRolesByOrgUnits().entrySet().stream()
+				.filter(es -> es.getValue().contains(BasicRoles.ROLE_MANAGE_RESTORE)).map(Entry::getKey)
+				.collect(Collectors.toSet());
+	}
 }

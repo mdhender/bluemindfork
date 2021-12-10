@@ -48,8 +48,9 @@ public class DataprotectMenusContributor implements MenuContributorUnwrapped {
 		ssections.push(Section.createSimple("dpSettings", v.settings(), BasicRoles.ROLE_DATAPROTECT, ssscreens));
 
 		ssscreens = JsArray.createArray().cast();
-		ssscreens.push(Screen.create("dpNavigator", v.navigator(), BasicRoles.ROLE_SYSTEM_MANAGER, true)
-				.withRoles(BasicRoles.ROLE_DATAPROTECT, BasicRoles.ROLE_MANAGE_RESTORE));
+		ssscreens.push(Screen.create("dpNavigator", v.navigator(), true)
+				.withRoles(BasicRoles.ROLE_DATAPROTECT, BasicRoles.ROLE_MANAGE_RESTORE)
+				.withOURoles(BasicRoles.ROLE_MANAGE_RESTORE));
 
 		ssections.push(Section.createSimple("dataProtect", v.protectedData(), null, ssscreens));
 

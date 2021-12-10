@@ -35,7 +35,6 @@ import net.bluemind.directory.api.OrgUnitPath;
 import net.bluemind.role.api.BasicRoles;
 
 public class DirEntryPermissionResolver {
-
 	private static final Map<String, Set<Permission>> selfRoles = new HashMap<>();
 	private static final Map<String, Set<Permission>> permsForSameDomain = new HashMap<>();
 

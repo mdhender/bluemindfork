@@ -27,6 +27,10 @@
 		.genTable tr {
 			border-bottom: 1px solid #f8f8f8;
 		}
+		
+		.syncbar>div {
+			display: inline-block;
+		}
 	</ui:style>
 
 	<ui:with field="txt"
@@ -41,11 +45,10 @@
 			<ui:text from="{txt.navigatorDesc}" />
 		</p>
 		
-		<p>
-			<g:PushButton ui:field="sync" styleName="button fa fa-lg fa-refresh">
-			</g:PushButton>
-			<ui:text from="{txt.sync}" />
-		</p>
+		<div class="{style.syncbar}">
+			<g:PushButton ui:field="sync" styleName="button fa fa-lg fa-refresh" />
+			<g:Label ui:field="syncLabel" text="{txt.sync}" />
+		</div>
 
 		<div ui:field="contentDiv" class="{style.genDiv}">
 			<f:TablePanel ui:field="table" styleName="{style.genTable}">
