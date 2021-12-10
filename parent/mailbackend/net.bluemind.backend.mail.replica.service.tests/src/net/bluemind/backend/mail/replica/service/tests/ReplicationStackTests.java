@@ -1474,6 +1474,76 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		assertNull(subFound);
 	}
 
+	@Test 
+	public void mailshareSimpleMoveFolder() 
+			throws IMAPException, InterruptedException, ExecutionException, TimeoutException {
+		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		IMailshare mailshareApi = prov.instance(IMailshare.class, domainUid);
+		Mailshare mailshare = new Mailshare();
+		mailshare.name = "shared" + System.currentTimeMillis();
+		mailshare.emails = Arrays.asList(Email.create(mailshare.name + "@" + domainUid, true));
+		mailshare.routing = Routing.internal;
+
+		// setup events expectations
+		CompletableFuture<MailboxReplicaRootDescriptor> onRoot = ReplicationEvents.onMailboxRootCreated();
+		MailboxReplicaRootDescriptor expected = MailboxReplicaRootDescriptor.create(Namespace.shared, mailshare.name);
+		Subtree sub = SubtreeContainer.mailSubtreeUid(domainUid, expected.ns, mailshare.name);
+		String subtreeUid = sub.subtreeUid();
+		System.err.println("On subtree update " + subtreeUid);
+		CompletableFuture<ItemIdentifier> onSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
+		CompletableFuture<Void> allEvents = CompletableFuture.allOf(onRoot, onSubtree);
+
+		System.err.println("Before create.....");
+		mailshareApi.create(mailshare.name, mailshare);
+		allEvents.get(10, TimeUnit.SECONDS);
+		MailboxReplicaRootDescriptor created = onRoot.get();
+		assertNotNull(created);
+
+		IContainerManagement aclApi = prov.instance(IContainerManagement.class,
+				IMailboxAclUids.uidForMailbox(mailshare.name));
+		System.err.println("Setting ACLs....");
+		aclApi.setAccessControlList(Arrays.asList(AccessControlEntry.create(userUid, Verb.Write)));
+		System.err.println("**** ROOT is " + created.ns + ", " + created.name + ", version: " + onSubtree.get());
+
+		IMailboxFolders folders = provider().instance(IMailboxFolders.class, partition, mailshare.name);
+		List<ItemValue<MailboxFolder>> allFolders = folders.all();
+		ItemValue<MailboxFolder> root = null;
+		for (ItemValue<MailboxFolder> folder : allFolders) {
+			System.out.println("Got " + folder.uid + ", " + folder.value.name);
+			if (mailshare.name.equals(folder.value.name)) {
+				root = folder;
+			}
+		}
+		assertNotNull(root);
+		System.err.println("ROOT is " + root.uid + " " + root.value);
+
+		long millis = System.currentTimeMillis();
+		MailboxFolder child = new MailboxFolder();
+		child.name = "test" + millis;
+		child.parentUid = root.uid;
+		ItemIdentifier freshId = folders.createBasic(child);
+		ItemValue<MailboxFolder> freshFolder = folders.getComplete(freshId.uid);
+		assertNotNull(freshFolder);
+
+		MailboxFolder child2 = new MailboxFolder();
+		child2.name = "su.b" + millis;
+		child2.parentUid = freshFolder.uid;
+		ItemIdentifier freshId2 = folders.createBasic(child2);
+		ItemValue<MailboxFolder> freshFolder2 = folders.getComplete(freshId2.uid);
+		freshFolder2.value.parentUid = root.uid;
+		
+		folders.updateById(freshFolder2.internalId, freshFolder2.value);
+		freshFolder2 = folders.getComplete(freshId2.uid);
+		assertNotNull(freshFolder2);
+		assertEquals(freshFolder2.value.parentUid, root.uid);
+		assertEquals(freshFolder2.value.fullName, root.value.fullName + "/" + freshFolder2.value.name);
+		freshFolder2.value.parentUid = freshFolder.uid;
+		System.err.println("Move it back in place");
+		folders.updateById(freshFolder2.internalId, freshFolder2.value);
+		ItemValue<MailboxFolder> refetch = folders.getComplete(freshFolder2.uid);
+		assertEquals(freshFolder.uid, refetch.value.parentUid);
+	}
+	
 	@Test
 	public void mailshareCreateSubfolderContainingSpecialChars()
 			throws IMAPException, InterruptedException, ExecutionException, TimeoutException {

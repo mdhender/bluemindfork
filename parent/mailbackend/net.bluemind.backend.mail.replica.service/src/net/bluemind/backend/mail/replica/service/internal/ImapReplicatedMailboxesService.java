@@ -122,7 +122,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			}
 			SubtreeLocation recLoc = optRecordsLocation.get();
 			toWatch = recLoc.subtreeContainer;
-			oldName = recLoc.imapPath(context) + "/" + current.value.name;
+			oldName = imapPath(current.value);
 			newName = recLoc.imapPath(context) + "/" + value.name;
 		}
 		final String fnOld = oldName;
@@ -134,6 +134,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			ItemValue<MailboxFolder> touched = getCompleteById(id);
 			return Ack.create(touched.version);
 		}
+		
 		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(toWatch);
 		return imapContext.withImapClient(sc -> {
 			logger.info("Rename attempt of '{}' to '{}'", fnOld, fnNew);

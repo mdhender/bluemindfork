@@ -26,7 +26,7 @@ export default {
             return this.payload.folder;
         },
         destination() {
-            return this.payload.destination;
+            return this.payload.parent;
         }
     }
 };
