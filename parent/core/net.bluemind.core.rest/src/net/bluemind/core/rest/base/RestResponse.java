@@ -20,7 +20,6 @@ package net.bluemind.core.rest.base;
 
 import io.vertx.core.MultiMap;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.CaseInsensitiveHeaders;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -30,7 +29,7 @@ public class RestResponse {
 	public Buffer data;
 	public ReadStream<Buffer> responseStream = null;
 
-	public MultiMap headers = new CaseInsensitiveHeaders();
+	public MultiMap headers = MultiMap.caseInsensitiveMultiMap();
 	public final int statusCode;
 
 	public RestResponse(int statusCode) {
@@ -70,7 +69,7 @@ public class RestResponse {
 
 	public static RestResponse ok(MultiMap headers, int statusCode, Buffer buffer) {
 		RestResponse ret = new RestResponse(statusCode);
-		ret.headers = new CaseInsensitiveHeaders();
+		ret.headers = MultiMap.caseInsensitiveMultiMap();
 		ret.headers.addAll(headers);
 		ret.data = buffer;
 		return ret;

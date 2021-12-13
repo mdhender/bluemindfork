@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
 
@@ -29,7 +29,8 @@ public class MockServerVerticle extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(MockServerVerticle.class);
 	private NetServer srv;
 
-	public void start(Future<Void> done) {
+	@Override
+	public void start(Promise<Void> done) {
 		this.srv = vertx.createNetServer(new NetServerOptions().setTcpNoDelay(true));
 		srv.connectHandler(sock -> {
 			LmtpServerSession session = new LmtpServerSession(vertx, sock);

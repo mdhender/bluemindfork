@@ -24,34 +24,33 @@ import net.bluemind.core.task.service.AbstractTaskMonitor;
 import net.bluemind.core.task.service.LoggingTaskMonitor;
 
 public class TaskMonitor extends AbstractTaskMonitor {
-
 	private EventBus eventBus;
-	private String address;
+	private String taskId;
 	private Handler<Void> endHandler;
 	private boolean ended;
 
-	public TaskMonitor(EventBus eventBus, String address) {
+	public TaskMonitor(EventBus eventBus, String taskId) {
 		super(0);
 		this.eventBus = eventBus;
-		this.address = address;
+		this.taskId = taskId;
 	}
 
 	@Override
 	public void begin(double work, String log) {
-		LoggingTaskMonitor.logger.debug("send begin {} {} {}", address, work, log);
-		eventBus.publish(address, MonitorMessage.begin(work, log));
+		LoggingTaskMonitor.logger.debug("send begin {} {}", work, log);
+		eventBus.publish(TasksManager.TASKS_MANAGER_EVENT, MonitorMessage.begin(taskId, work, log));
 	}
 
 	@Override
 	public void progress(double step, String log) {
-		LoggingTaskMonitor.logger.debug("send progress {} {} {}", address, step, log);
-		eventBus.publish(address, MonitorMessage.progress(step, log));
+		LoggingTaskMonitor.logger.debug("send progress {} {}", step, log);
+		eventBus.publish(TasksManager.TASKS_MANAGER_EVENT, MonitorMessage.progress(taskId, step, log));
 	}
 
 	@Override
 	public void log(String log) {
-		LoggingTaskMonitor.logger.debug("send log {} {}", address, log);
-		eventBus.publish(address, MonitorMessage.log(log));
+		LoggingTaskMonitor.logger.debug("send log {}", log);
+		eventBus.publish(TasksManager.TASKS_MANAGER_EVENT, MonitorMessage.log(taskId, log));
 	}
 
 	@Override
@@ -60,8 +59,8 @@ public class TaskMonitor extends AbstractTaskMonitor {
 			return;
 		}
 		ended = true;
-		LoggingTaskMonitor.logger.debug("send end {} {} result {}", address, log, result);
-		eventBus.publish(address, MonitorMessage.end(success, log, result));
+		LoggingTaskMonitor.logger.info("send end {} result {}", log, result);
+		eventBus.publish(TasksManager.TASKS_MANAGER_EVENT, MonitorMessage.end(taskId, success, log, result));
 		if (endHandler != null)
 			endHandler.handle(null);
 

@@ -18,7 +18,6 @@
  */
 package net.bluemind.core.rest.base;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -292,7 +291,7 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 		}
 	}
 
-	private Map<HttpMethod, TreePathNode> pathsByMethod = new EnumMap<>(
+	private Map<HttpMethod, TreePathNode> pathsByMethod = new HashMap<>(
 			new ImmutableMap.Builder<HttpMethod, TreePathNode>().put(HttpMethod.GET, new TreePathNode())//
 					.put(HttpMethod.POST, new TreePathNode()) //
 					.put(HttpMethod.PUT, new TreePathNode()) //

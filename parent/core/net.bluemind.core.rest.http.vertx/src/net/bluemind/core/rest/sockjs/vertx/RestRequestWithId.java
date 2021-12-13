@@ -20,18 +20,6 @@ public class RestRequestWithId extends RestRequest {
 	public final String verb;
 
 	private static HttpMethod safeValue(String v) {
-		switch (v) {
-		case "register":
-		case "unregister":
-		case "log":
-		case "event":
-			return HttpMethod.OTHER;
-		default:
-			try {
-				return io.vertx.core.http.HttpMethod.valueOf(v);
-			} catch (Exception e) {
-				return io.vertx.core.http.HttpMethod.OTHER;
-			}
-		}
+		return io.vertx.core.http.HttpMethod.valueOf(v);
 	}
 }

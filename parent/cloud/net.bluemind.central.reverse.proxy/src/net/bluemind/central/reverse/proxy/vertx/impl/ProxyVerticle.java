@@ -36,6 +36,7 @@ public class ProxyVerticle extends AbstractVerticle {
 	public void start(Promise<Void> p) {
 		HttpClient proxyClient = vertx.createHttpClient(new HttpClientOptions() //
 				.setKeepAlive(true).setTcpKeepAlive(true).setTcpNoDelay(true).setMaxPoolSize(200) //
+				.setMaxWebSockets(200) //
 				// le certificat ssl n'est pas valide pour l'ip
 				.setSsl(true).setVerifyHost(false));
 

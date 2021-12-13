@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -70,11 +71,10 @@ public class VertxStreamProducer implements WriteStream<Buffer>, Stream {
 	}
 
 	@Override
-	public VertxStreamProducer write(Buffer data) {
+	public Future<Void> write(Buffer data) {
 		logger.debug("send data {} to stream {} queueFull {} ended : {}", data, dataStream, queueFull, ended);
-
 		vertx.eventBus().send(dataStream, new VertxRestStreamObject(data, false));
-		return this;
+		return Future.succeededFuture();
 	}
 
 	protected void drain() {
@@ -104,15 +104,14 @@ public class VertxStreamProducer implements WriteStream<Buffer>, Stream {
 	}
 
 	@Override
-	public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
+	public void write(Buffer data, Handler<AsyncResult<Void>> handler) {
 		write(data);
 		handler.handle(Result.success());
-		return this;
 	}
 
 	@Override
-	public void end() {
-		// that's ok
+	public Future<Void> end() {
+		return Future.succeededFuture();
 	}
 
 	@Override

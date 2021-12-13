@@ -147,7 +147,7 @@ public final class MethodRouter implements Handler<AuthenticatedRequest> {
 	}
 
 	public void handle(LoggedCore lc, HttpServerRequest r) {
-		String method = r.rawMethod();
+		String method = r.method().name();
 		DavStore ds = new DavStore(lc);
 		DavResource res = ds.from(r.path());
 		if (!"CREATE".equals(method) && !"MKCALENDAR".equals(method) && !ds.existingResource(res)) {

@@ -19,6 +19,7 @@
 package net.bluemind.vertx.common.request.impl;
 
 import java.util.Map;
+import java.util.Set;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
@@ -26,7 +27,9 @@ import javax.security.cert.X509Certificate;
 
 import com.netflix.spectator.api.Registry;
 
+import io.netty.handler.codec.DecoderResult;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.buffer.Buffer;
@@ -116,6 +119,7 @@ public class WrappedRequest implements HttpServerRequest {
 		return impl.params();
 	}
 
+	@Override
 	public SocketAddress remoteAddress() {
 		return impl.remoteAddress();
 	}
@@ -124,13 +128,10 @@ public class WrappedRequest implements HttpServerRequest {
 		return impl.peerCertificateChain();
 	}
 
+	@Override
 	public HttpServerRequest bodyHandler(Handler<Buffer> bodyHandler) {
 		impl.bodyHandler(bodyHandler);
 		return this;
-	}
-
-	public NetSocket netSocket() {
-		return impl.netSocket();
 	}
 
 	public HttpServerRequest uploadHandler(Handler<HttpServerFileUpload> uploadHandler) {
@@ -156,10 +157,7 @@ public class WrappedRequest implements HttpServerRequest {
 		return impl.method();
 	}
 
-	public String rawMethod() {
-		return impl.rawMethod();
-	}
-
+	@Override
 	public boolean isSSL() {
 		return impl.isSSL();
 	}
@@ -176,34 +174,42 @@ public class WrappedRequest implements HttpServerRequest {
 		return impl.bytesRead();
 	}
 
+	@Override
 	public String getHeader(String headerName) {
 		return impl.getHeader(headerName);
 	}
 
+	@Override
 	public String getHeader(CharSequence headerName) {
 		return impl.getHeader(headerName);
 	}
 
+	@Override
 	public Pipe<Buffer> pipe() {
 		return impl.pipe();
 	}
 
+	@Override
 	public String getParam(String paramName) {
 		return impl.getParam(paramName);
 	}
 
-	public void pipeTo(WriteStream<Buffer> dst) {
-		impl.pipeTo(dst);
+	@Override
+	public Future<Void> pipeTo(WriteStream<Buffer> dst) {
+		return impl.pipeTo(dst);
 	}
 
+	@Override
 	public void pipeTo(WriteStream<Buffer> dst, Handler<AsyncResult<Void>> handler) {
 		impl.pipeTo(dst, handler);
 	}
 
+	@Override
 	public SocketAddress localAddress() {
 		return impl.localAddress();
 	}
 
+	@Override
 	public SSLSession sslSession() {
 		return impl.sslSession();
 	}
@@ -225,8 +231,8 @@ public class WrappedRequest implements HttpServerRequest {
 		return impl.getFormAttribute(attributeName);
 	}
 
-	public ServerWebSocket upgrade() {
-		return impl.upgrade();
+	public Future<ServerWebSocket> upgrade() {
+		return impl.toWebSocket();
 	}
 
 	public boolean isEnded() {
@@ -242,6 +248,7 @@ public class WrappedRequest implements HttpServerRequest {
 		return impl.connection();
 	}
 
+	@Override
 	public StreamPriority streamPriority() {
 		return impl.streamPriority();
 	}
@@ -255,12 +262,55 @@ public class WrappedRequest implements HttpServerRequest {
 		return impl.getCookie(name);
 	}
 
+	@Override
 	public int cookieCount() {
 		return impl.cookieCount();
 	}
 
+	@Override
+	@Deprecated
 	public Map<String, Cookie> cookieMap() {
 		return impl.cookieMap();
+	}
+
+	@Override
+	public Future<Buffer> body() {
+		return impl.body();
+	}
+
+	@Override
+	public Future<Void> end() {
+		return impl.end();
+	}
+
+	@Override
+	public Future<NetSocket> toNetSocket() {
+		return impl.toNetSocket();
+	}
+
+	@Override
+	public Future<ServerWebSocket> toWebSocket() {
+		return impl.toWebSocket();
+	}
+
+	@Override
+	public DecoderResult decoderResult() {
+		return impl.decoderResult();
+	}
+
+	@Override
+	public Cookie getCookie(String name, String domain, String path) {
+		return impl.getCookie(name, domain, path);
+	}
+
+	@Override
+	public Set<Cookie> cookies(String name) {
+		return impl.cookies(name);
+	}
+
+	@Override
+	public Set<Cookie> cookies() {
+		return impl.cookies();
 	}
 
 }

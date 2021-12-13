@@ -1,15 +1,18 @@
 package net.bluemind.eas.testhelper.mock;
 
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.security.cert.X509Certificate;
 
+import io.netty.handler.codec.DecoderResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.CaseInsensitiveHeaders;
 import io.vertx.core.http.Cookie;
 import io.vertx.core.http.HttpConnection;
 import io.vertx.core.http.HttpFrame;
@@ -27,8 +30,8 @@ public class RequestObject implements HttpServerRequest {
 	private final String base;
 	private final String path;
 	private final String query;
-	private CaseInsensitiveHeaders params;
-	private CaseInsensitiveHeaders headers;
+	private MultiMap params;
+	private MultiMap headers;
 	private final ResponseObject response;
 	private HttpMethod method;
 	private Handler<Buffer> dataHandler;
@@ -44,10 +47,11 @@ public class RequestObject implements HttpServerRequest {
 		this.path = path;
 		StringBuilder q = new StringBuilder();
 		boolean first = true;
-		this.params = new CaseInsensitiveHeaders();
-		this.headers = new CaseInsensitiveHeaders();
-		for (String k : queryParams.keySet()) {
-			String v = queryParams.get(k);
+		this.params = MultiMap.caseInsensitiveMultiMap();
+		this.headers = MultiMap.caseInsensitiveMultiMap();
+		for (Entry<String, String> kv : queryParams.entrySet()) {
+			String v = kv.getValue();
+			String k = kv.getKey();
 			params.add(k, v);
 			if (!first) {
 				q.append('&');
@@ -56,9 +60,8 @@ public class RequestObject implements HttpServerRequest {
 			q.append(k).append('=').append(v);
 		}
 		this.query = q.toString();
-		for (String k : reqHeaders.keySet()) {
-			String v = reqHeaders.get(k);
-			headers.add(k, v);
+		for (Entry<String, String> kv : reqHeaders.entrySet()) {
+			headers.add(kv.getKey(), kv.getValue());
 		}
 		this.method = method;
 		this.response = new ResponseObject();
@@ -67,12 +70,11 @@ public class RequestObject implements HttpServerRequest {
 	public RequestObject(HttpMethod method, Map<String, String> reqHeaders, String base, String path, String query) {
 		this.base = base;
 		this.path = path;
-		this.params = new CaseInsensitiveHeaders();
-		this.headers = new CaseInsensitiveHeaders();
+		this.params = MultiMap.caseInsensitiveMultiMap();
+		this.headers = MultiMap.caseInsensitiveMultiMap();
 		this.query = query;
-		for (String k : reqHeaders.keySet()) {
-			String v = reqHeaders.get(k);
-			headers.add(k, v);
+		for (Entry<String, String> kv : reqHeaders.entrySet()) {
+			headers.add(kv.getKey(), kv.getValue());
 		}
 		this.method = method;
 		this.response = new ResponseObject();
@@ -167,7 +169,7 @@ public class RequestObject implements HttpServerRequest {
 	}
 
 	@Override
-	public NetSocket netSocket() {
+	public Future<NetSocket> toNetSocket() {
 		throw new RuntimeException("Just an un-connected mock object");
 	}
 
@@ -178,7 +180,7 @@ public class RequestObject implements HttpServerRequest {
 
 	@Override
 	public MultiMap formAttributes() {
-		return new CaseInsensitiveHeaders();
+		return MultiMap.caseInsensitiveMultiMap();
 	}
 
 	public void trigger(byte[] bs) {
@@ -192,133 +194,131 @@ public class RequestObject implements HttpServerRequest {
 
 	@Override
 	public HttpServerRequest fetch(long amount) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String rawMethod() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean isSSL() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public String scheme() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String host() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public long bytesRead() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public String getHeader(String headerName) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getHeader(CharSequence headerName) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getParam(String paramName) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public SSLSession sslSession() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String absoluteURI() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public HttpServerRequest setExpectMultipart(boolean expect) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean isExpectMultipart() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public String getFormAttribute(String attributeName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ServerWebSocket upgrade() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean isEnded() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public HttpServerRequest customFrameHandler(Handler<HttpFrame> handler) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public HttpConnection connection() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public HttpServerRequest streamPriorityHandler(Handler<StreamPriority> handler) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Cookie getCookie(String name) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public int cookieCount() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public Map<String, Cookie> cookieMap() {
-		// TODO Auto-generated method stub
+	public Future<Buffer> body() {
+		return null;
+	}
+
+	@Override
+	public Future<Void> end() {
+		return null;
+	}
+
+	@Override
+	public Future<ServerWebSocket> toWebSocket() {
+		return null;
+	}
+
+	@Override
+	public DecoderResult decoderResult() {
+		return null;
+	}
+
+	@Override
+	public Cookie getCookie(String name, String domain, String path) {
+		return null;
+	}
+
+	@Override
+	public Set<Cookie> cookies(String name) {
+		return null;
+	}
+
+	@Override
+	public Set<Cookie> cookies() {
+		return null;
+	}
+
+	@Override
+	public Cookie getCookie(String name) {
 		return null;
 	}
 

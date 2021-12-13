@@ -335,7 +335,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		ItemValue<Mailbox> mailbox = ItemValue.create(userUid, new Mailbox());
 		ItemValue<MailboxFolder> sentFolder = ItemValue.create("sent", new MailboxFolder());
 		ItemValue<MailboxFolder> inboxFolder = ItemValue.create("inbox", new MailboxFolder());
-		IDSet emptySet = IDSet.create(new ArrayList());
+		IDSet emptySet = IDSet.create(new ArrayList<>());
 
 		ESearchActivator.refreshIndex(INDEX_NAME);
 
@@ -365,7 +365,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		ItemValue<Mailbox> mailbox = ItemValue.create(userUid, new Mailbox());
 		ItemValue<MailboxFolder> sentFolder = ItemValue.create("sent", new MailboxFolder());
 		ItemValue<MailboxFolder> inboxFolder = ItemValue.create("inbox", new MailboxFolder());
-		IDSet emptySet = IDSet.create(new ArrayList());
+		IDSet emptySet = IDSet.create(new ArrayList<>());
 
 		ESearchActivator.refreshIndex(INDEX_NAME);
 

@@ -81,8 +81,7 @@ public class WorkerExecutorService extends AbstractExecutorService {
 			} catch (Exception e) {
 				prom.fail(e);
 			}
-		}, false, res -> {
-
+		}, false, ar -> {
 		});
 	}
 

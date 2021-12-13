@@ -32,6 +32,9 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpClientResponse;
+import io.vertx.core.http.HttpMethod;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.vertx.testhelper.Deploy;
 
@@ -66,11 +69,19 @@ public class BlockingCodeTests {
 		CompletableFuture<Integer> httpResponseStatus = new CompletableFuture<>();
 		HttpClient client = VertxPlatform.getVertx()
 				.createHttpClient(new HttpClientOptions().setDefaultHost("127.0.0.1").setDefaultPort(6666));
-		client.get("/", httpResp -> {
-			httpResp.bodyHandler(buf -> {
-				httpResponseStatus.complete(httpResp.statusCode());
-			});
-		}).end();
+		client.request(HttpMethod.GET, "/", ar -> {
+			if (ar.succeeded()) {
+				HttpClientRequest httpReq = ar.result();
+				httpReq.send(ar2 -> {
+					if (ar2.succeeded()) {
+						HttpClientResponse httpResp = ar2.result();
+						httpResp.bodyHandler(buf -> {
+							httpResponseStatus.complete(httpResp.statusCode());
+						});
+					}
+				});
+			}
+		});
 		int httpStatus = httpResponseStatus.get(1, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
 		ThreadPair usedThreads = pair.get();

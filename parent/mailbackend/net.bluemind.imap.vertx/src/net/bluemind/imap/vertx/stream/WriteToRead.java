@@ -20,6 +20,7 @@ package net.bluemind.imap.vertx.stream;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.streams.ReadStream;
@@ -45,26 +46,26 @@ public class WriteToRead<T> implements WriteStream<T>, ReadStream<T> {
 	}
 
 	@Override
-	public WriteToRead<T> write(T data) {
+	public Future<Void> write(T data) {
 		queue.add(data);
 		readLoop();
-		return this;
+		return Future.succeededFuture();
 	}
 
 	@Override
-	public WriteToRead<T> write(T data, Handler<AsyncResult<Void>> handler) {
+	public void write(T data, Handler<AsyncResult<Void>> handler) {
 		write(data);
 		handler.handle(Result.success());
-		return this;
 	}
 
 	@Override
-	public void end() {
+	public Future<Void> end() {
 		this.ended = true;
 		if (end != null) {
 			final Handler<Void> endRef = end;
 			Vertx.currentContext().runOnContext(endRef);
 		}
+		return Future.succeededFuture();
 	}
 
 	@Override

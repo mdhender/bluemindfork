@@ -39,6 +39,8 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.RequestOptions;
 import io.vertx.core.json.JsonArray;
@@ -85,7 +87,11 @@ public class SdsProxyTests {
 	}
 
 	private RequestOptions uri(String s) {
-		return new RequestOptions().setURI(s);
+		RequestOptions options = new RequestOptions().setURI(s);
+		SocketAddress sock = socket();
+		options.setPort(sock.port());
+		options.setHost(sock.host());
+		return options;
 	}
 
 	@After
@@ -96,14 +102,24 @@ public class SdsProxyTests {
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("storeType", "dummy");
-		client.request(HttpMethod.POST, socket(), uri("/configuration"), resp -> {
-			System.err.println("resp " + resp);
-			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
-			resp.endHandler(v -> {
-				System.err.println(resp.statusCode());
-				waitResp.complete(resp.statusCode());
-			});
-		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
+
+		client.request(uri("/configuration").setMethod(HttpMethod.POST), ar -> {
+			if (ar.succeeded()) {
+				HttpClientRequest req = ar.result();
+				req.setChunked(true);
+				req.send(Buffer.buffer(payload.encode()), ar2 -> {
+					if (ar2.succeeded()) {
+						HttpClientResponse resp = ar2.result();
+						System.err.println("resp " + resp);
+						waitResp.complete(resp.statusCode());
+					} else {
+						waitResp.completeExceptionally(ar2.cause());
+					}
+				});
+			} else {
+				waitResp.completeExceptionally(ar.cause());
+			}
+		});
 		try {
 			waitResp.get(30, TimeUnit.SECONDS);
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -116,14 +132,23 @@ public class SdsProxyTests {
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "123");
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
-		client.request(HttpMethod.OPTIONS, socket(), uri("/sds"), resp -> {
-			System.err.println("resp " + resp);
-			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
-			resp.endHandler(v -> {
-				System.err.println(resp.statusCode());
-				waitResp.complete(resp.statusCode());
-			});
-		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
+		client.request(uri("/sds").setMethod(HttpMethod.OPTIONS), ar -> {
+			if (ar.succeeded()) {
+				HttpClientRequest req = ar.result();
+				req.setChunked(true);
+				req.send(Buffer.buffer(payload.encode()), ar2 -> {
+					if (ar2.succeeded()) {
+						HttpClientResponse resp = ar2.result();
+						System.err.println("resp " + resp);
+						waitResp.complete(resp.statusCode());
+					} else {
+						waitResp.completeExceptionally(ar2.cause());
+					}
+				});
+			} else {
+				waitResp.completeExceptionally(ar.cause());
+			}
+		});
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
@@ -134,14 +159,23 @@ public class SdsProxyTests {
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "789");
-		client.request(HttpMethod.OPTIONS, socket(), uri("/sds"), resp -> {
-			System.err.println("resp " + resp);
-			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
-			resp.endHandler(v -> {
-				System.err.println(resp.statusCode());
-				waitResp.complete(resp.statusCode());
-			});
-		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
+		client.request(uri("/sds").setMethod(HttpMethod.OPTIONS), ar -> {
+			if (ar.succeeded()) {
+				HttpClientRequest req = ar.result();
+				req.setChunked(true);
+				req.send(Buffer.buffer(payload.encode()), ar2 -> {
+					if (ar2.succeeded()) {
+						HttpClientResponse resp = ar2.result();
+						System.err.println("resp " + resp);
+						waitResp.complete(resp.statusCode());
+					} else {
+						waitResp.completeExceptionally(ar2.cause());
+					}
+				});
+			} else {
+				waitResp.completeExceptionally(ar.cause());
+			}
+		});
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(404, httpStatus);
@@ -152,14 +186,23 @@ public class SdsProxyTests {
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "123");
-		client.request(HttpMethod.DELETE, socket(), uri("/sds"), resp -> {
-			System.err.println("resp " + resp);
-			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
-			resp.endHandler(v -> {
-				System.err.println(resp.statusCode());
-				waitResp.complete(resp.statusCode());
-			});
-		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
+		client.request(uri("/sds").setMethod(HttpMethod.DELETE), ar -> {
+			if (ar.succeeded()) {
+				HttpClientRequest req = ar.result();
+				req.setChunked(true);
+				req.send(Buffer.buffer(payload.encode()), ar2 -> {
+					if (ar2.succeeded()) {
+						HttpClientResponse resp = ar2.result();
+						System.err.println("resp " + resp);
+						waitResp.complete(resp.statusCode());
+					} else {
+						waitResp.completeExceptionally(ar2.cause());
+					}
+				});
+			} else {
+				waitResp.completeExceptionally(ar.cause());
+			}
+		});
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
@@ -171,14 +214,23 @@ public class SdsProxyTests {
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "put.dest").put("filename",
 				new File(root, "orig.txt").getAbsolutePath());
-		client.request(HttpMethod.PUT, socket(), uri("/sds"), resp -> {
-			System.err.println("resp " + resp);
-			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
-			resp.endHandler(v -> {
-				System.err.println(resp.statusCode());
-				waitResp.complete(resp.statusCode());
-			});
-		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
+		client.request(uri("/sds").setMethod(HttpMethod.PUT), ar -> {
+			if (ar.succeeded()) {
+				HttpClientRequest req = ar.result();
+				req.setChunked(true);
+				req.send(Buffer.buffer(payload.encode()), ar2 -> {
+					if (ar2.succeeded()) {
+						HttpClientResponse resp = ar2.result();
+						System.err.println("resp " + resp);
+						waitResp.complete(resp.statusCode());
+					} else {
+						waitResp.completeExceptionally(ar2.cause());
+					}
+				});
+			} else {
+				waitResp.completeExceptionally(ar.cause());
+			}
+		});
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
@@ -191,13 +243,23 @@ public class SdsProxyTests {
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "123").put("filename",
 				new File(root, "dest.txt").getAbsolutePath());
-		client.request(HttpMethod.GET, socket(), uri("/sds"), resp -> {
-			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
-			resp.endHandler(v -> {
-				System.err.println(resp.statusCode());
-				waitResp.complete(resp.statusCode());
-			});
-		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
+		client.request(uri("/sds").setMethod(HttpMethod.PUT), ar -> {
+			if (ar.succeeded()) {
+				HttpClientRequest req = ar.result();
+				req.setChunked(true);
+				req.send(Buffer.buffer(payload.encode()), ar2 -> {
+					if (ar2.succeeded()) {
+						HttpClientResponse resp = ar2.result();
+						System.err.println("resp " + resp);
+						waitResp.complete(resp.statusCode());
+					} else {
+						waitResp.completeExceptionally(ar2.cause());
+					}
+				});
+			} else {
+				waitResp.completeExceptionally(ar.cause());
+			}
+		});
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
@@ -215,13 +277,23 @@ public class SdsProxyTests {
 					new File(root, "dest" + i + ".txt").getAbsolutePath()));
 		}
 		payload.put("transfers", transfers);
-		client.request(HttpMethod.POST, socket(), uri("/sds/mget"), resp -> {
-			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
-			resp.endHandler(v -> {
-				System.err.println(resp.statusCode());
-				waitResp.complete(resp.statusCode());
-			});
-		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
+		client.request(uri("/sds/mget").setMethod(HttpMethod.POST), ar -> {
+			if (ar.succeeded()) {
+				HttpClientRequest req = ar.result();
+				req.setChunked(true);
+				req.send(Buffer.buffer(payload.encode()), ar2 -> {
+					if (ar2.succeeded()) {
+						HttpClientResponse resp = ar2.result();
+						System.err.println("resp " + resp);
+						waitResp.complete(resp.statusCode());
+					} else {
+						waitResp.completeExceptionally(ar2.cause());
+					}
+				});
+			} else {
+				waitResp.completeExceptionally(ar.cause());
+			}
+		});
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
@@ -252,25 +324,32 @@ public class SdsProxyTests {
 		});
 
 		JsonObject payload = new JsonObject().put("storeType", "test");
-		client.request(HttpMethod.POST, socket(), uri("/configuration"), resp -> {
-			System.err.println("resp " + resp);
-			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
-			resp.endHandler(v -> {
-				System.err.println(resp.statusCode());
-				waitResp.complete(resp.statusCode());
-			});
-		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
+		client.request(uri("/configuration").setMethod(HttpMethod.POST), ar -> {
+			if (ar.succeeded()) {
+				HttpClientRequest req = ar.result();
+				req.setChunked(true);
+				req.send(Buffer.buffer(payload.encode()), ar2 -> {
+					if (ar2.succeeded()) {
+						HttpClientResponse resp = ar2.result();
+						System.err.println("resp " + resp);
+						waitResp.complete(resp.statusCode());
+					} else {
+						waitResp.completeExceptionally(ar2.cause());
+					}
+				});
+			} else {
+				waitResp.completeExceptionally(ar.cause());
+			}
+		});
 
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
 
-		payload = new JsonObject().put("mailbox", "yeah").put("guid", "123");
-		client.request(HttpMethod.OPTIONS, socket(), uri("/sds"), resp -> {
-			resp.endHandler(v -> {
-			});
-		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
-
+		client.request(uri("/sds").setMethod(HttpMethod.OPTIONS)).onSuccess(req -> {
+			req.setChunked(true);
+			req.send(Buffer.buffer(payload.encode()));
+		});
 		assertTrue(reconfigured.get(5, TimeUnit.SECONDS));
 		assertNotNull(storeMsg.get(5, TimeUnit.SECONDS));
 		assertNotNull(existCall.get(5, TimeUnit.SECONDS));

@@ -53,7 +53,7 @@ public class CramMD5Mechanism implements AuthenticationMechanism, CallbackHandle
 		try {
 			sasl = new SaslWrapper();
 			sasl.createClient(new String[] { "CRAM-MD5" }, user, server.getService(), server.getHostName(),
-					new Hashtable(), this);
+					new Hashtable<>(), this);
 			byte[] serverChallenge = server.authReceive();
 			LOG.fine(new String(serverChallenge));
 

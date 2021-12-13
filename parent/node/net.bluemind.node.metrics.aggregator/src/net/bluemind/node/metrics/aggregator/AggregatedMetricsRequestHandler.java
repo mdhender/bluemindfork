@@ -34,6 +34,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
@@ -69,22 +70,35 @@ public class AggregatedMetricsRequestHandler implements Handler<HttpServerReques
 			for (SocketAddress sock : sockets) {
 				root = root.thenCompose(prev -> {
 					CompletableFuture<Void> ret = new CompletableFuture<>();
-					httpClient.request(HttpMethod.GET, sock, unixSockReqOpts, clientResponse -> {
-						clientResponse.pipe().endOnComplete(false).to(resp, ar -> {
-							if (ar.failed()) {
-								logger.error("Resp error with sock {}", sock, ar.cause());
-							}
-							ret.complete(null);
-						});
-					}).setTimeout(1000).exceptionHandler(t -> {
-						logger.error("Req error with sock {}", sock, t);
-						ret.complete(null);
-					}).end();
+
+					httpClient
+							.request(
+									unixSockReqOpts.setHost(sock.host()).setPort(sock.port()).setMethod(HttpMethod.GET))
+							.onSuccess(req -> {
+								req.setTimeout(1000);
+								req.exceptionHandler(t -> {
+									logger.error("Req error with sock {}", sock, t);
+									ret.complete(null);
+								});
+								req.send(ar2 -> {
+									if (ar2.succeeded()) {
+										HttpClientResponse clientResponse = ar2.result();
+										clientResponse.pipe().endOnComplete(false).to(resp, ar3 -> {
+											if (ar3.failed()) {
+												logger.error("Resp error with sock {}", sock, ar3.cause());
+											}
+											ret.complete(null);
+										});
+									}
+								});
+							}).onFailure(ret::completeExceptionally);
 					return ret;
 				});
 			}
 			root.whenComplete((v, ex) -> resp.end());
-		} catch (Exception e) {
+		} catch (
+
+		Exception e) {
 			endRequest(event, e);
 		}
 	}

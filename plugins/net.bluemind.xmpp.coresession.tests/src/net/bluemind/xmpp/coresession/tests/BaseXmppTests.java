@@ -26,7 +26,6 @@ import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
@@ -143,14 +142,9 @@ public class BaseXmppTests extends AsyncTestMethods {
 				}
 			});
 		}
-		eventBus.send("xmpp/sessions-manager:open",
-				new JsonObject().put("sessionId", sessionId).put("latd", user.login + "@" + domainName),
-				new Handler<AsyncResult<Message<Void>>>() {
-
-					@Override
-					public void handle(AsyncResult<Message<Void>> event) {
-						queueAssertValue("conn", event.result().body());
-					}
+		eventBus.request("xmpp/sessions-manager:open",
+				new JsonObject().put("sessionId", sessionId).put("latd", user.login + "@" + domainName), event -> {
+					queueAssertValue("conn", event.result().body());
 				});
 
 		assertNull(waitAssert("conn"));

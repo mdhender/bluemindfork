@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.Message;
-import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.task.api.TaskStatus;
@@ -49,16 +48,12 @@ public class TaskManager implements Handler<Message<JsonObject>> {
 	private double steps;
 	private double currentStep;
 	private String taskId;
-	private MessageConsumer<JsonObject> cons;
 
-	public TaskManager(String taskId, MessageConsumer<JsonObject> cons) {
+	public TaskManager(String taskId) {
 		this.taskId = taskId;
-		this.cons = cons;
-		cons.handler(this);
 	}
 
 	public void cleanUp() {
-		cons.unregister();
 	}
 
 	public ReadStream<Buffer> log() {
@@ -145,14 +140,13 @@ public class TaskManager implements Handler<Message<JsonObject>> {
 		boolean ended = status.state.ended || type == MessageType.end;
 		TaskStatus newStatus = TaskStatus.create(steps, currentStep, body.getString("message"),
 				TaskStatus.State.status(success, ended), body.getString("result"));
-		logger.debug("update task {} status: {} {} on {}", taskId, newStatus.state, newStatus.progress,
-				newStatus.steps);
+		logger.info("update task {} status: {} {} on {}", taskId, newStatus.state, newStatus.progress, newStatus.steps);
 		this.status = newStatus;
 	}
 
 	public TaskStatus status() {
 		TaskStatus s = status;
-		logger.debug("retrieve task status : {} {} on {}", status.state, status.progress, status.steps);
+		logger.info("retrieve task status : {} {} on {}", status.state, status.progress, status.steps);
 		return s;
 	}
 

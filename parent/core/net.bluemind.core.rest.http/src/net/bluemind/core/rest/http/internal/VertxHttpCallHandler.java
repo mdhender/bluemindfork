@@ -22,7 +22,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
 
-import io.vertx.core.Handler;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpClientResponse;
@@ -62,40 +61,43 @@ public class VertxHttpCallHandler implements IRestCallHandler {
 		}
 
 		p += q;
-		Handler<HttpClientResponse> responseHandler = new Handler<HttpClientResponse>() {
 
-			@Override
-			public void handle(final HttpClientResponse resp) {
-				if ("chunked".equals(resp.headers().get("Transfer-Encoding"))) {
-					RestResponse rr = RestResponse.stream(resp);
-					rr.headers = resp.headers();
-					response.success(rr);
-				} else {
-					resp.bodyHandler(buffer -> {
-						response.success(RestResponse.ok(resp.headers(), resp.statusCode(), buffer));
-					});
+		client.request(request.method, p, ar -> {
+			if (ar.succeeded()) {
+				HttpClientRequest req = ar.result();
+				req.headers().addAll(request.headers);
+				req.headers().add("X-Forwarded-For", request.remoteAddresses);
+				if (request.origin != null) {
+					req.headers().add("X-BM-Origin", request.origin);
 				}
+				req.send(ar2 -> {
+					if (ar2.succeeded()) {
+						HttpClientResponse resp = ar2.result();
+						if ("chunked".equals(resp.headers().get("Transfer-Encoding"))) {
+							RestResponse rr = RestResponse.stream(resp);
+							rr.headers = resp.headers();
+							response.success(rr);
+						} else {
+							resp.bodyHandler(buffer -> {
+								response.success(RestResponse.ok(resp.headers(), resp.statusCode(), buffer));
+							});
+						}
+					}
+				});
+				if (request.body != null) {
+					req.end(request.body);
+				} else if (request.bodyStream != null) {
+					req.setChunked(true);
+					request.bodyStream.pipeTo(req, ar2 -> {
+					});
+				} else {
+					req.end();
+				}
+			} else {
+				response.failure(ar.cause());
 			}
-		};
+		});
 
-		final HttpClientRequest req = client.request(request.method, p, responseHandler);
-		req.headers().addAll(request.headers);
-
-		req.headers().add("X-Forwarded-For", request.remoteAddresses);
-
-		if (request.origin != null) {
-			req.headers().add("X-BM-Origin", request.origin);
-		}
-
-		req.exceptionHandler(e -> response.failure(e));
-		if (request.body != null) {
-			req.end(request.body);
-		} else if (request.bodyStream != null) {
-			req.setChunked(true);
-			request.bodyStream.pipeTo(req);
-		} else {
-			req.end();
-		}
 	}
 
 }

@@ -30,7 +30,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import io.netty.util.concurrent.FastThreadLocal;
+import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -48,6 +50,7 @@ public class TasksManager implements ITasksManager {
 
 	private static Logger logger = LoggerFactory.getLogger(TasksManager.class);
 	private static final Object ROOT_TASK_MARKER = new Object();
+	public static final String TASKS_MANAGER_EVENT = "tasks-manager";
 
 	private final ConcurrentHashMap<String, TaskManager> tasks = new ConcurrentHashMap<>();
 	private final ConcurrentHashMap<String, FutureThreadInfo> futures = new ConcurrentHashMap<>();
@@ -57,8 +60,33 @@ public class TasksManager implements ITasksManager {
 			() -> threadLocal.set(ROOT_TASK_MARKER));
 	private final ExecutorService directExecutor = MoreExecutors.newDirectExecutorService();
 
+	public static class EventBusReceiveVerticle extends AbstractVerticle {
+		private TasksManager tasksManager;
+
+		public EventBusReceiveVerticle(TasksManager tasksManager) {
+			this.tasksManager = tasksManager;
+		}
+
+		@Override
+		public void start() {
+			EventBus eventBus = vertx.eventBus();
+			MessageConsumer<JsonObject> eventBusConsumer = eventBus.consumer(TASKS_MANAGER_EVENT);
+			eventBusConsumer.handler(msg -> {
+				String taskId = msg.body().getString("id");
+				TaskManager manager = tasksManager.getTaskManager(taskId);
+				if (manager != null) {
+					manager.handle(msg);
+				} else {
+					logger.error("[{}] task manager not found", taskId);
+				}
+			});
+		}
+
+	}
+
 	public TasksManager(Vertx vertx) {
 		this.vertx = vertx;
+		vertx.deployVerticle(new EventBusReceiveVerticle(this));
 	}
 
 	@Override
@@ -80,15 +108,13 @@ public class TasksManager implements ITasksManager {
 
 	@Override
 	public TaskRef run(final String taskId, Logger logger, final IServerTask serverTask) {
-		MessageConsumer<JsonObject> cons = vertx.eventBus().consumer(addr(taskId));
-		final TaskManager task = new TaskManager(taskId, cons);
-		final TaskMonitor monitor = new TaskMonitor(vertx.eventBus(), addr(taskId));
+		final TaskManager task = new TaskManager(taskId);
+		final TaskMonitor monitor = new TaskMonitor(vertx.eventBus(), taskId);
 		final LoggingTaskMonitor loggingMonitor = new LoggingTaskMonitor(logger, monitor, 0);
 		TaskManager oldTask = tasks.putIfAbsent(taskId, task);
 		if (oldTask != null) {
 			if (oldTask.status().state.ended) {
 				cleanupTask(oldTask);
-				tasks.put(taskId, task);
 			} else {
 				throw new ServerFault("task " + taskId + " already running");
 			}
@@ -131,7 +157,7 @@ public class TasksManager implements ITasksManager {
 				serverTask.cancel();
 			}
 		};
-
+		tasks.put(taskId, task);
 		futures.put(taskId, new FutureThreadInfo(es.submit(runnable), runnable));
 	}
 
@@ -154,10 +180,6 @@ public class TasksManager implements ITasksManager {
 
 	public TaskManager getTaskManager(String taskId) {
 		return tasks.get(taskId);
-	}
-
-	private String addr(String taskId) {
-		return "tasks-" + taskId;
 	}
 
 	@Override

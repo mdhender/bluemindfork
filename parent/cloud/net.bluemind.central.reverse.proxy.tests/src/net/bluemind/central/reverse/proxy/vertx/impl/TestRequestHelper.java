@@ -2,11 +2,14 @@ package net.bluemind.central.reverse.proxy.vertx.impl;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.security.cert.X509Certificate;
 
+import io.netty.handler.codec.DecoderResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.buffer.Buffer;
@@ -91,11 +94,6 @@ public class TestRequestHelper {
 			}
 
 			@Override
-			public ServerWebSocket upgrade() {
-				return null;
-			}
-
-			@Override
 			public HttpServerRequest streamPriorityHandler(Handler<StreamPriority> handler) {
 				return this;
 			}
@@ -132,11 +130,6 @@ public class TestRequestHelper {
 			}
 
 			@Override
-			public String rawMethod() {
-				return null;
-			}
-
-			@Override
 			public String query() {
 				return null;
 			}
@@ -154,11 +147,6 @@ public class TestRequestHelper {
 			@Override
 			public MultiMap params() {
 				return MultiMap.caseInsensitiveMultiMap();
-			}
-
-			@Override
-			public NetSocket netSocket() {
-				return null;
 			}
 
 			@Override
@@ -233,6 +221,46 @@ public class TestRequestHelper {
 
 			@Override
 			public String absoluteURI() {
+				return null;
+			}
+
+			@Override
+			public Future<Buffer> body() {
+				return null;
+			}
+
+			@Override
+			public Future<Void> end() {
+				return null;
+			}
+
+			@Override
+			public Future<NetSocket> toNetSocket() {
+				return null;
+			}
+
+			@Override
+			public Future<ServerWebSocket> toWebSocket() {
+				return null;
+			}
+
+			@Override
+			public DecoderResult decoderResult() {
+				return null;
+			}
+
+			@Override
+			public Cookie getCookie(String name, String domain, String path) {
+				return null;
+			}
+
+			@Override
+			public Set<Cookie> cookies(String name) {
+				return null;
+			}
+
+			@Override
+			public Set<Cookie> cookies() {
 				return null;
 			}
 		};

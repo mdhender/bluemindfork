@@ -19,6 +19,7 @@ package net.bluemind.imap.vertx.stream;
 
 import io.netty.util.ByteProcessor;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.WriteStream;
@@ -129,7 +130,7 @@ public class QuotedPrintableDecoder implements WriteStream<Buffer> {
 	}
 
 	@Override
-	public QuotedPrintableDecoder write(Buffer data) {
+	public Future<Void> write(Buffer data) {
 		data.getByteBuf().forEachByte(new ByteProcessor() {
 
 			@Override
@@ -139,21 +140,18 @@ public class QuotedPrintableDecoder implements WriteStream<Buffer> {
 			}
 
 		});
-		delegate.write(qpProc.flush());
-
-		return this;
+		return delegate.write(qpProc.flush());
 	}
 
 	@Override
-	public QuotedPrintableDecoder write(Buffer data, Handler<AsyncResult<Void>> handler) {
+	public void write(Buffer data, Handler<AsyncResult<Void>> handler) {
 		write(data);
 		handler.handle(Result.success());
-		return this;
 	}
 
 	@Override
-	public void end() {
-		delegate.end();
+	public Future<Void> end() {
+		return delegate.end();
 	}
 
 	@Override

@@ -25,6 +25,7 @@ import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpMethod;
 import junit.framework.TestCase;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
@@ -62,6 +63,7 @@ public class EASVerticleTests extends TestCase {
 
 	private VerticleConstructor[] workerClasses = VerticleConstructor.of(DeviceValidationVerticle::new);
 
+	@Override
 	public void setUp() {
 		GlobalConfig.DISABLE_POLICIES = true;
 		deploymentIDs = Deploy.beforeTest(verticlesClasses, workerClasses);
@@ -72,8 +74,16 @@ public class EASVerticleTests extends TestCase {
 		HttpClient client = client();
 		try {
 			TestResponseHandler options = new TestResponseHandler();
-			HttpClientRequest request = client.options(EasUrls.ROOT, options);
-			request.end();
+			client.request(HttpMethod.OPTIONS, EasUrls.ROOT, ar -> {
+				if (ar.succeeded()) {
+					HttpClientRequest request = ar.result();
+					request.send(ar2 -> {
+						if (ar2.succeeded()) {
+							options.handle(ar2.result());
+						}
+					});
+				}
+			});
 			options.waitForIt();
 			assertEquals(401, options.status());
 		} finally {
@@ -85,9 +95,17 @@ public class EASVerticleTests extends TestCase {
 		HttpClient client = client();
 		try {
 			TestResponseHandler options = new TestResponseHandler();
-			HttpClientRequest request = client.options(EasUrls.ROOT, options);
-			addClientHeaders(request, false);
-			request.end();
+			client.request(HttpMethod.OPTIONS, EasUrls.ROOT, ar -> {
+				if (ar.succeeded()) {
+					HttpClientRequest request = ar.result();
+					addClientHeaders(request, false);
+					request.send(ar2 -> {
+						if (ar2.succeeded()) {
+							options.handle(ar2.result());
+						}
+					});
+				}
+			});
 			options.waitForIt();
 			assertEquals(200, options.status());
 			MultiMap serverHeaders = options.headers();
@@ -103,9 +121,17 @@ public class EASVerticleTests extends TestCase {
 		HttpClient client = client();
 		try {
 			TestResponseHandler options = new TestResponseHandler();
-			HttpClientRequest request = client.options(EasUrls.ROOT, options);
-			addClientHeaders(request, true);
-			request.end();
+			client.request(HttpMethod.OPTIONS, EasUrls.ROOT, ar -> {
+				if (ar.succeeded()) {
+					HttpClientRequest request = ar.result();
+					addClientHeaders(request, false);
+					request.send(ar2 -> {
+						if (ar2.succeeded()) {
+							options.handle(ar2.result());
+						}
+					});
+				}
+			});
 			options.waitForIt();
 			assertEquals(200, options.status());
 			MultiMap serverHeaders = options.headers();
@@ -126,18 +152,34 @@ public class EASVerticleTests extends TestCase {
 			String devType = "iPhone";
 			String cmd = EasUrls.ROOT + "?DeviceId=" + devId + "&DeviceType=" + devType + "&User=" + latd
 					+ "&Cmd=Dummy";
-			HttpClientRequest request = client.post(cmd, rejected);
-			addClientHeaders(request, windowsStyle);
-			request.end();
+			client.request(HttpMethod.POST, cmd, ar -> {
+				if (ar.succeeded()) {
+					HttpClientRequest request = ar.result();
+					addClientHeaders(request, windowsStyle);
+					request.send(ar2 -> {
+						if (ar2.succeeded()) {
+							rejected.handle(ar2.result());
+						}
+					});
+				}
+			});
 			rejected.waitForIt();
 			assertEquals("Unknown device was not rejected", 403, rejected.status());
 
 			addPartnership(devId);
 
 			TestResponseHandler intoDummy = new TestResponseHandler();
-			request = client.post(cmd, intoDummy);
-			addClientHeaders(request, windowsStyle);
-			request.end();
+			client.request(HttpMethod.POST, cmd, ar -> {
+				if (ar.succeeded()) {
+					HttpClientRequest request = ar.result();
+					addClientHeaders(request, windowsStyle);
+					request.send(ar2 -> {
+						if (ar2.succeeded()) {
+							intoDummy.handle(ar2.result());
+						}
+					});
+				}
+			});
 			intoDummy.waitForIt();
 			assertTrue(DummyEndpoint.handled);
 			assertEquals("Device should be accepted.", 200, intoDummy.status());
@@ -162,18 +204,35 @@ public class EASVerticleTests extends TestCase {
 			String devType = "iPhone";
 			String cmd = EasUrls.ROOT + "?DeviceId=" + devId + "&DeviceType=" + devType + "&User=" + latd
 					+ "&Cmd=Broken";
-			HttpClientRequest request = client.post(cmd, rejected);
-			addClientHeaders(request, false);
-			request.end();
+			client.request(HttpMethod.POST, cmd, ar -> {
+				if (ar.succeeded()) {
+					HttpClientRequest request = ar.result();
+					addClientHeaders(request, false);
+					request.send(ar2 -> {
+						if (ar2.succeeded()) {
+							rejected.handle(ar2.result());
+						}
+					});
+				}
+			});
+
 			rejected.waitForIt();
 			assertEquals("Unknown device was not rejected", 403, rejected.status());
 
 			addPartnership(devId);
 
 			TestResponseHandler intoBroken = new TestResponseHandler();
-			request = client.post(cmd, intoBroken);
-			addClientHeaders(request, false);
-			request.end();
+			client.request(HttpMethod.POST, cmd, ar -> {
+				if (ar.succeeded()) {
+					HttpClientRequest request = ar.result();
+					addClientHeaders(request, false);
+					request.send(ar2 -> {
+						if (ar2.succeeded()) {
+							intoBroken.handle(ar2.result());
+						}
+					});
+				}
+			});
 			intoBroken.waitForIt();
 			assertEquals("Error 500 should be received", 500, intoBroken.status());
 		} finally {
@@ -202,6 +261,7 @@ public class EASVerticleTests extends TestCase {
 				.createHttpClient(new HttpClientOptions().setDefaultHost("127.0.0.1").setDefaultPort(8082));
 	}
 
+	@Override
 	public void tearDown() {
 		Deploy.afterTest(deploymentIDs);
 	}

@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.WriteStream;
@@ -56,7 +57,7 @@ public abstract class GenericJsonObjectWriteStream<T> implements WriteStream<Buf
 	}
 
 	@Override
-	public GenericJsonObjectWriteStream<T> write(Buffer buffer) {
+	public Future<Void> write(Buffer buffer) {
 		try {
 			T value = JsonUtils.read(buffer.toString(), type);
 
@@ -64,14 +65,13 @@ public abstract class GenericJsonObjectWriteStream<T> implements WriteStream<Buf
 		} catch (Exception e) {
 			error(e);
 		}
-		return this;
+		return Future.succeededFuture();
 	}
 
 	@Override
-	public GenericJsonObjectWriteStream<T> write(Buffer buffer, Handler<AsyncResult<Void>> res) {
+	public void write(Buffer buffer, Handler<AsyncResult<Void>> res) {
 		write(buffer);
 		res.handle(Result.success());
-		return this;
 	}
 
 	@Override
@@ -80,7 +80,8 @@ public abstract class GenericJsonObjectWriteStream<T> implements WriteStream<Buf
 	}
 
 	@Override
-	public void end() {
+	public Future<Void> end() {
+		return Future.succeededFuture();
 	}
 
 	protected abstract void next(T value) throws Exception;

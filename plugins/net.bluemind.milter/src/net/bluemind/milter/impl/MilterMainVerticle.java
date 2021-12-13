@@ -47,8 +47,8 @@ public class MilterMainVerticle extends AbstractVerticle {
 
 	@Override
 	public void start(Promise<Void> start) {
-		NetServer srv = vertx.createNetServer(new NetServerOptions().setUsePooledBuffers(true).setTcpNoDelay(true)
-				.setTcpKeepAlive(true).setTcpFastOpen(true).setTcpQuickAck(true));
+		NetServer srv = vertx.createNetServer(new NetServerOptions().setTcpNoDelay(true).setTcpKeepAlive(true)
+				.setTcpFastOpen(true).setTcpQuickAck(true));
 
 		srv.connectHandler(socket -> {
 			MilterSession session = new MilterSession(socket);

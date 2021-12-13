@@ -16,6 +16,8 @@ import com.google.common.collect.Lists;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.RequestOptions;
 import io.vertx.core.json.JsonObject;
@@ -38,7 +40,11 @@ public class SdsCyrusValidationTests {
 	}
 
 	private RequestOptions uri(String s) {
-		return new RequestOptions().setURI(s);
+		RequestOptions options = new RequestOptions().setURI(s);
+		SocketAddress sock = socket();
+		options.setPort(sock.port());
+		options.setHost(sock.host());
+		return options;
 	}
 
 	private void startVerticles() throws InterruptedException, ExecutionException, TimeoutException {
@@ -67,13 +73,22 @@ public class SdsCyrusValidationTests {
 	public void headCallNoPayload() throws InterruptedException, ExecutionException, TimeoutException {
 		HttpClient client = client();
 		CompletableFuture<Integer> async = new CompletableFuture<>();
-		client.request(HttpMethod.POST, socket(), uri("/mailbox"), resp -> {
-			System.err.println("resp " + resp);
-			resp.exceptionHandler(t -> async.completeExceptionally(t));
-			resp.endHandler(v -> {
-				async.complete(resp.statusCode());
-			});
-		}).setChunked(true).end();
+		client.request(uri("/mailbox").setMethod(HttpMethod.POST), ar -> {
+			if (ar.succeeded()) {
+				HttpClientRequest req = ar.result();
+				req.setChunked(true);
+				req.send(ar2 -> {
+					if (ar2.succeeded()) {
+						HttpClientResponse resp = ar2.result();
+						async.complete(resp.statusCode());
+					} else {
+						async.completeExceptionally(ar2.cause());
+					}
+				});
+			} else {
+				async.completeExceptionally(ar.cause());
+			}
+		});
 		int httpStatus = async.get(5, TimeUnit.SECONDS);
 		assertEquals(403, httpStatus);
 	}
@@ -90,13 +105,23 @@ public class SdsCyrusValidationTests {
 		HttpClient client = client();
 		CompletableFuture<Integer> asyncStatusCode = new CompletableFuture<Integer>();
 
-		client.request(HttpMethod.POST, socket(), uri("/mailbox"), resp -> {
-			System.err.println("resp " + resp);
-			resp.exceptionHandler(t -> asyncStatusCode.completeExceptionally(t));
-			resp.endHandler(v -> {
-				asyncStatusCode.complete(resp.statusCode());
-			});
-		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
+		client.request(uri("/mailbox").setMethod(HttpMethod.POST), ar -> {
+			if (ar.succeeded()) {
+				HttpClientRequest req = ar.result();
+				req.setChunked(true);
+				req.send(Buffer.buffer(payload.encode()), ar2 -> {
+					if (ar2.succeeded()) {
+						HttpClientResponse resp = ar2.result();
+						System.err.println("resp " + resp);
+						asyncStatusCode.complete(resp.statusCode());
+					} else {
+						asyncStatusCode.completeExceptionally(ar2.cause());
+					}
+				});
+			} else {
+				asyncStatusCode.completeExceptionally(ar.cause());
+			}
+		});
 
 		int statusCode = asyncStatusCode.get(5, TimeUnit.SECONDS);
 		assertEquals(403, statusCode);
@@ -109,13 +134,23 @@ public class SdsCyrusValidationTests {
 		HttpClient client = client();
 		CompletableFuture<Integer> asyncStatusCode = new CompletableFuture<Integer>();
 
-		client.request(HttpMethod.POST, socket(), uri("/mailbox"), resp -> {
-			System.err.println("resp " + resp);
-			resp.exceptionHandler(t -> asyncStatusCode.completeExceptionally(t));
-			resp.endHandler(v -> {
-				asyncStatusCode.complete(resp.statusCode());
-			});
-		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
+		client.request(uri("/mailbox").setMethod(HttpMethod.POST), ar -> {
+			if (ar.succeeded()) {
+				HttpClientRequest req = ar.result();
+				req.setChunked(true);
+				req.send(Buffer.buffer(payload.encode()), ar2 -> {
+					if (ar2.succeeded()) {
+						HttpClientResponse resp = ar2.result();
+						System.err.println("resp " + resp);
+						asyncStatusCode.complete(resp.statusCode());
+					} else {
+						asyncStatusCode.completeExceptionally(ar2.cause());
+					}
+				});
+			} else {
+				asyncStatusCode.completeExceptionally(ar.cause());
+			}
+		});
 
 		int statusCode = asyncStatusCode.get(5, TimeUnit.SECONDS);
 		assertEquals(403, statusCode);
@@ -128,13 +163,23 @@ public class SdsCyrusValidationTests {
 		HttpClient client = client();
 		CompletableFuture<Integer> asyncStatusCode = new CompletableFuture<Integer>();
 
-		client.request(HttpMethod.POST, socket(), uri("/mailbox"), resp -> {
-			System.err.println("resp " + resp);
-			resp.exceptionHandler(t -> asyncStatusCode.completeExceptionally(t));
-			resp.endHandler(v -> {
-				asyncStatusCode.complete(resp.statusCode());
-			});
-		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
+		client.request(uri("/mailbox").setMethod(HttpMethod.POST), ar -> {
+			if (ar.succeeded()) {
+				HttpClientRequest req = ar.result();
+				req.setChunked(true);
+				req.send(Buffer.buffer(payload.encode()), ar2 -> {
+					if (ar2.succeeded()) {
+						HttpClientResponse resp = ar2.result();
+						System.err.println("resp " + resp);
+						asyncStatusCode.complete(resp.statusCode());
+					} else {
+						asyncStatusCode.completeExceptionally(ar2.cause());
+					}
+				});
+			} else {
+				asyncStatusCode.completeExceptionally(ar.cause());
+			}
+		});
 
 		int statusCode = asyncStatusCode.get(5, TimeUnit.SECONDS);
 		assertEquals(403, statusCode);
@@ -149,13 +194,23 @@ public class SdsCyrusValidationTests {
 		HttpClient client = client();
 		CompletableFuture<Integer> asyncStatusCode = new CompletableFuture<Integer>();
 
-		client.request(HttpMethod.POST, socket(), uri("/mailbox"), resp -> {
-			System.err.println("resp " + resp);
-			resp.exceptionHandler(t -> asyncStatusCode.completeExceptionally(t));
-			resp.endHandler(v -> {
-				asyncStatusCode.complete(resp.statusCode());
-			});
-		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
+		client.request(uri("/mailbox").setMethod(HttpMethod.POST), ar -> {
+			if (ar.succeeded()) {
+				HttpClientRequest req = ar.result();
+				req.setChunked(true);
+				req.send(Buffer.buffer(payload.encode()), ar2 -> {
+					if (ar2.succeeded()) {
+						HttpClientResponse resp = ar2.result();
+						System.err.println("resp " + resp);
+						asyncStatusCode.complete(resp.statusCode());
+					} else {
+						asyncStatusCode.completeExceptionally(ar2.cause());
+					}
+				});
+			} else {
+				asyncStatusCode.completeExceptionally(ar.cause());
+			}
+		});
 
 		int statusCode = asyncStatusCode.get(5, TimeUnit.SECONDS);
 		assertEquals(200, statusCode);

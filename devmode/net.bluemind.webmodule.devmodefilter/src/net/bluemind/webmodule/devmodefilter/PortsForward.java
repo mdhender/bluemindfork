@@ -54,19 +54,22 @@ public class PortsForward extends AbstractVerticle {
 
 		state.forwardPorts.forEach(forwardPort -> {
 			ServerPort server = state.servers.get(forwardPort.serverId);
-			NetServer netServer = vertx.createNetServer().connectHandler(sock -> {
-				sock.pause();
-				logger.info("forward to {}:{}", server.ip, server.port);
-				vertx.createNetClient().connect(server.port, server.ip, cSock -> {
-					if (cSock.succeeded()) {
-						sock.resume();
-						biPump(cSock.result(), sock);
-					} else {
-						sock.close();
-					}
-				});
-			}).listen(forwardPort.src);
-			servers.add(netServer);
+			vertx.createNetServer() //
+					.connectHandler(sock -> {
+						sock.pause();
+						logger.info("forward to {}:{}", server.ip, server.port);
+						vertx.createNetClient().connect(server.port, server.ip, cSock -> {
+							if (cSock.succeeded()) {
+								sock.resume();
+								biPump(cSock.result(), sock);
+							} else {
+								sock.close();
+							}
+						});
+					}).listen(forwardPort.src) //
+					.onSuccess(netServer -> {
+						servers.add(netServer);
+					});
 		});
 
 	}

@@ -17,24 +17,19 @@
   */
 package net.bluemind.lib.vertx.tests;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
-import net.bluemind.lib.vertx.BlockingCode;
+import io.vertx.core.Promise;
 
 public class SimpleHttpServer extends AbstractVerticle {
 
 	public static final Logger logger = LoggerFactory.getLogger(BlockingCodeTests.class);
 
-	private static final ExecutorService blockingPool = Executors.newFixedThreadPool(1);
-
 	public SimpleHttpServer() {
-
 	}
 
 	private static BiConsumer<String, String> usedThreads;
@@ -43,6 +38,7 @@ public class SimpleHttpServer extends AbstractVerticle {
 		usedThreads = ut;
 	}
 
+	@Override
 	public void start() {
 		vertx.createHttpServer().requestHandler(req -> {
 			req.exceptionHandler(t -> logger.error(t.getMessage(), t));
@@ -50,7 +46,7 @@ public class SimpleHttpServer extends AbstractVerticle {
 				String eventLoop = Thread.currentThread().getName();
 				logger.info("Req body handler...");
 
-				BlockingCode.forVertx(vertx).withExecutor(blockingPool).run(() -> {
+				vertx.executeBlocking((Promise<String> prom) -> {
 					String blockingCodeThread = Thread.currentThread().getName();
 					logger.info("Blocking code starts...");
 					try {
@@ -58,8 +54,9 @@ public class SimpleHttpServer extends AbstractVerticle {
 					} catch (InterruptedException e) {
 					}
 					logger.info("Blocking code finishes.");
-					return blockingCodeThread;
-				}).thenAccept(value -> {
+					prom.complete(blockingCodeThread);
+				}, false, ar -> {
+					String value = ar.result();
 					logger.info("Got value {}", value);
 					String afterBlocking = Thread.currentThread().getName();
 					usedThreads.accept(eventLoop, afterBlocking);

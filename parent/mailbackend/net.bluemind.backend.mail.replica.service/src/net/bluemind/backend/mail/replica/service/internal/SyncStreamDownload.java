@@ -22,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
@@ -60,21 +61,20 @@ public class SyncStreamDownload {
 		}
 
 		@Override
-		public TargetStream write(Buffer data) {
+		public Future<Void> write(Buffer data) {
 			out.writeBytes(data.getBytes());
-			return this;
+			return Future.succeededFuture();
 		}
 
 		@Override
-		public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
+		public void write(Buffer data, Handler<AsyncResult<Void>> handler) {
 			write(data);
 			handler.handle(Result.success());
-			return this;
 		}
 
 		@Override
-		public void end() {
-			// yeah
+		public Future<Void> end() {
+			return Future.succeededFuture();
 		}
 
 		@Override

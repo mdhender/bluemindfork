@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
@@ -172,9 +173,9 @@ public class SendUserTodolistsICSTasks implements IServerTask {
 		}
 
 		@Override
-		public AccumulatorStream write(Buffer data) {
+		public Future<Void> write(Buffer data) {
 			buffer.appendBuffer(data);
-			return this;
+			return Future.succeededFuture();
 
 		}
 
@@ -183,14 +184,14 @@ public class SendUserTodolistsICSTasks implements IServerTask {
 		}
 
 		@Override
-		public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
+		public void write(Buffer data, Handler<AsyncResult<Void>> handler) {
 			write(data);
 			handler.handle(Result.success());
-			return this;
 		}
 
 		@Override
-		public void end() {
+		public Future<Void> end() {
+			return Future.succeededFuture();
 		}
 
 		@Override

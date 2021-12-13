@@ -34,6 +34,7 @@ import io.vertx.core.Vertx;
  *             instead
  *
  */
+@Deprecated
 public class BlockingCode {
 
 	private static final Logger logger = LoggerFactory.getLogger(BlockingCode.class);

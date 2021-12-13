@@ -25,6 +25,7 @@ import org.apache.commons.codec.binary.Base64OutputStream;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.WriteStream;
@@ -60,30 +61,29 @@ public class Base64Decoder implements WriteStream<Buffer> {
 	}
 
 	@Override
-	public Base64Decoder write(Buffer data) {
+	public Future<Void> write(Buffer data) {
 		try {
 			base64.write(data.getBytes());
 		} catch (IOException e) {
 			// ok
 		}
-		return this;
+		return Future.succeededFuture();
 	}
 
 	@Override
-	public Base64Decoder write(Buffer data, Handler<AsyncResult<Void>> handler) {
+	public void write(Buffer data, Handler<AsyncResult<Void>> handler) {
 		write(data);
 		handler.handle(Result.success());
-		return this;
 	}
 
 	@Override
-	public void end() {
+	public Future<Void> end() {
 		try {
 			base64.flush();
 		} catch (IOException e) {
 			// ok
 		}
-		delegate.end();
+		return delegate.end();
 	}
 
 	@Override

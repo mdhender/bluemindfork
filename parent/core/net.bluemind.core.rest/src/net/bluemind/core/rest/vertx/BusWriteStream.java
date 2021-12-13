@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -124,7 +125,7 @@ public class BusWriteStream implements WriteStream<Buffer> {
 	}
 
 	@Override
-	public BusWriteStream write(final Buffer data) {
+	public Future<Void> write(final Buffer data) {
 		if (queueFull) {
 			logger.error("should not write when queue is full");
 			throw new RuntimeException("should not write when queue is full");
@@ -144,18 +145,18 @@ public class BusWriteStream implements WriteStream<Buffer> {
 					}
 				});
 
-		return this;
+		return Future.succeededFuture();
 	}
 
 	@Override
-	public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
+	public void write(Buffer data, Handler<AsyncResult<Void>> handler) {
 		write(data);
 		handler.handle(Result.success());
-		return this;
 	}
 
 	@Override
-	public void end() {
+	public Future<Void> end() {
+		return Future.succeededFuture();
 	}
 
 	@Override

@@ -29,7 +29,6 @@ import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.Message;
-import io.vertx.core.http.CaseInsensitiveHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -54,10 +53,10 @@ public class RestJsonVertxRootHandler implements Handler<Message<JsonObject>> {
 		JsonObject body = request.body();
 		Map h = body.getJsonObject("headers").getMap();
 		Map p = body.getJsonObject("params").getMap();
-		MultiMap params = new CaseInsensitiveHeaders();
+		MultiMap params = MultiMap.caseInsensitiveMultiMap();
 		params.addAll(p);
 
-		MultiMap headers = new CaseInsensitiveHeaders();
+		MultiMap headers = MultiMap.caseInsensitiveMultiMap();
 		headers.addAll(h);
 		byte[] br = body.getBinary("body");
 		Buffer b = null;

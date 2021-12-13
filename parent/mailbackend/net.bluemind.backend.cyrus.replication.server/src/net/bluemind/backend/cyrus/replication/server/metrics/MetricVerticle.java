@@ -46,6 +46,7 @@ public class MetricVerticle extends AbstractVerticle {
 
 	}
 
+	@Override
 	public void start() {
 		AtomicInteger loop = new AtomicInteger();
 		vertx.setPeriodic(10000, tid -> {

@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.rest.http.HttpClientProvider;
@@ -84,39 +85,52 @@ public class DevModeForwardFilter implements IWebFilter, NeedVertx, IHasPriority
 
 		HttpClient client = clientProvider.getClient(ff.serverPort.ip, ff.serverPort.port);
 
-		HttpClientRequest remoteRequest = client.request(request.method(), uri, r -> {
-			logger.info("response for request http://{}:{}{} ({}): {}", ff.serverPort.ip, ff.serverPort.port, uri,
-					r.statusCode(), r.statusMessage());
-
-			request.response().headers().addAll(r.headers());
-
-			request.response().setStatusCode(r.statusCode());
-			request.response().setStatusMessage(r.statusMessage());
-			request.response().exceptionHandler(e -> {
-				logger.error("Response error :" + e.getMessage(), e);
-				request.response().setStatusCode(500).setStatusMessage(e.getMessage() != null ? e.getMessage() : "null")
-						.end();
-			});
-			r.pipe().endOnComplete(false).to(request.response(), ar -> {
-				if (ar.succeeded()) {
-					request.response().end();
-				} else {
-					Throwable t = ar.cause();
-					logger.error("Client response error", t);
+		client.request(request.method(), uri, ar -> {
+			if (ar.succeeded()) {
+				HttpClientRequest remoteRequest = ar.result();
+				remoteRequest.headers().addAll(request.headers());
+				remoteRequest.exceptionHandler(h -> {
+					logger.error("Remote error: " + h.getMessage(), h);
 					request.response().setStatusCode(500)
-							.setStatusMessage(t.getMessage() != null ? t.getMessage() : "null").end();
-				}
-			});
+							.setStatusMessage(h.getMessage() != null ? h.getMessage() : "null").end();
+				});
+				remoteRequest
+						.setChunked(HttpHeaders.CHUNKED.equals(request.headers().get(HttpHeaders.TRANSFER_ENCODING)));
+				request.pipeTo(remoteRequest);
+				remoteRequest.send(ar2 -> {
+					if (ar2.succeeded()) {
+						HttpClientResponse r = ar2.result();
+						logger.info("response for request http://{}:{}{} ({}): {}", ff.serverPort.ip,
+								ff.serverPort.port, uri, r.statusCode(), r.statusMessage());
+
+						request.response().headers().addAll(r.headers());
+
+						request.response().setStatusCode(r.statusCode());
+						request.response().setStatusMessage(r.statusMessage());
+						request.response().exceptionHandler(e -> {
+							logger.error("Response error :" + e.getMessage(), e);
+							request.response().setStatusCode(500)
+									.setStatusMessage(e.getMessage() != null ? e.getMessage() : "null").end();
+						});
+						r.pipe().endOnComplete(false).to(request.response(), ar3 -> {
+							if (ar3.succeeded()) {
+								request.response().end();
+							} else {
+								Throwable t = ar3.cause();
+								logger.error("Client response error", t);
+								request.response().setStatusCode(500)
+										.setStatusMessage(t.getMessage() != null ? t.getMessage() : "null").end();
+							}
+						});
+					} else {
+						logger.error("remoteRequest send failure", ar2.cause());
+					}
+				});
+			} else {
+				logger.error("client request failed", ar.cause());
+			}
 		});
 
-		remoteRequest.headers().addAll(request.headers());
-		remoteRequest.exceptionHandler(h -> {
-			logger.error("Remote error: " + h.getMessage(), h);
-			request.response().setStatusCode(500).setStatusMessage(h.getMessage() != null ? h.getMessage() : "null")
-					.end();
-		});
-		remoteRequest.setChunked(HttpHeaders.CHUNKED.equals(request.headers().get(HttpHeaders.TRANSFER_ENCODING)));
-		request.pipeTo(remoteRequest);
 		return CompletableFuture.completedFuture(null);
 	}
 

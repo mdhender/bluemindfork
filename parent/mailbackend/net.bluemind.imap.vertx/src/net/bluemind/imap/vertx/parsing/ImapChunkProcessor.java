@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.imap.vertx.parsing.ImapChunker.ImapChunk;
@@ -48,10 +49,10 @@ public class ImapChunkProcessor implements WriteStream<ImapChunk> {
 	}
 
 	@Override
-	public ImapChunkProcessor write(ImapChunk data) {
+	public Future<Void> write(ImapChunk data) {
 		logger.debug("on {}", data);
 		if (del == null) {
-			return this;
+			return Future.succeededFuture();
 		}
 
 		if (data.type() == Type.Text) {
@@ -64,21 +65,21 @@ public class ImapChunkProcessor implements WriteStream<ImapChunk> {
 				}
 			});
 		}
-		return this;
+		return Future.succeededFuture();
 	}
 
 	@Override
-	public ImapChunkProcessor write(ImapChunk data, Handler<AsyncResult<Void>> handler) {
+	public void write(ImapChunk data, Handler<AsyncResult<Void>> handler) {
 		write(data);
 		handler.handle(Result.success());
-		return this;
 	}
 
 	@Override
-	public void end() {
+	public Future<Void> end() {
 		if (del != null) {
 			del.delegateStream().ifPresent(WriteStream::end);
 		}
+		return Future.succeededFuture();
 	}
 
 	@Override

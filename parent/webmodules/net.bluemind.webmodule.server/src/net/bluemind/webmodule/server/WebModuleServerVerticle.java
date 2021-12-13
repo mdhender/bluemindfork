@@ -35,8 +35,8 @@ public class WebModuleServerVerticle extends AbstractVerticle {
 	@Override
 	public void start() {
 
-		HttpServer httpServer = vertx.createHttpServer(new HttpServerOptions().setAcceptBacklog(1024)
-				.setTcpNoDelay(true).setReuseAddress(true).setUsePooledBuffers(true));
+		HttpServer httpServer = vertx.createHttpServer(
+				new HttpServerOptions().setAcceptBacklog(1024).setTcpNoDelay(true).setReuseAddress(true));
 
 		WebModuleRootHandler rootHandler = WebModuleRootHandler.build(getVertx());
 

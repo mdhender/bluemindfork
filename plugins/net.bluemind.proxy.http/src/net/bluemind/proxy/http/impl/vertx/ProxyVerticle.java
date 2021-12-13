@@ -82,7 +82,6 @@ public class ProxyVerticle extends AbstractVerticle {
 
 		HttpServerOptions opts = new HttpServerOptions();
 		opts.setTcpNoDelay(true);
-		opts.setUsePooledBuffers(true);
 		opts.setTcpKeepAlive(true);
 		HttpServer proxy = vertx.createHttpServer(opts);
 

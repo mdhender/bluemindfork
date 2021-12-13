@@ -23,6 +23,7 @@ import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -35,6 +36,7 @@ import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.Timer;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.buffer.Buffer;
@@ -188,56 +190,59 @@ final class WrappedResponse implements HttpServerResponse {
 		return this;
 	}
 
-	public HttpServerResponse write(Buffer chunk) {
+	@Override
+	public Future<Void> write(Buffer chunk) {
 		respSize.add(chunk.length());
-		impl.write(chunk);
-		return this;
-	}
-
-	public HttpServerResponse write(String chunk, String enc) {
-		respSize.add(chunk.getBytes(Charset.forName(enc)).length);
-		impl.write(chunk, enc);
-		return this;
-	}
-
-	public HttpServerResponse write(String chunk) {
-		respSize.add(chunk.getBytes().length);
-		impl.write(chunk);
-		return this;
-	}
-
-	public void end(String chunk) {
-		respSize.add(chunk.getBytes().length);
-		endImpl();
-		impl.end(chunk);
-	}
-
-	public void end(String chunk, String enc) {
-		respSize.add(chunk.getBytes(Charset.forName(enc)).length);
-		endImpl();
-		impl.end(chunk, enc);
-	}
-
-	public void end(Buffer chunk) {
-		respSize.add(chunk.length());
-		endImpl();
-		impl.end(chunk);
-	}
-
-	public void end() {
-		endImpl();
-		impl.end();
+		return impl.write(chunk);
 	}
 
 	@Override
-	public HttpServerResponse sendFile(String filename) {
+	public Future<Void> write(String chunk, String enc) {
+		respSize.add(chunk.getBytes(Charset.forName(enc)).length);
+		return impl.write(chunk, enc);
+	}
+
+	@Override
+	public Future<Void> write(String chunk) {
+		respSize.add(chunk.getBytes().length);
+		return impl.write(chunk);
+	}
+
+	@Override
+	public Future<Void> end(String chunk) {
+		respSize.add(chunk.getBytes().length);
+		endImpl();
+		return impl.end(chunk);
+	}
+
+	@Override
+	public Future<Void> end(String chunk, String enc) {
+		respSize.add(chunk.getBytes(Charset.forName(enc)).length);
+		endImpl();
+		return impl.end(chunk, enc);
+	}
+
+	@Override
+	public Future<Void> end(Buffer chunk) {
+		respSize.add(chunk.length());
+		endImpl();
+		return impl.end(chunk);
+	}
+
+	@Override
+	public Future<Void> end() {
+		endImpl();
+		return impl.end();
+	}
+
+	@Override
+	public Future<Void> sendFile(String filename) {
 		File toSend = new File(filename);
 		if (toSend.exists()) {
 			respSize.add(toSend.length());
 		}
 		endImpl();
-		impl.sendFile(filename);
-		return this;
+		return impl.sendFile(filename);
 	}
 
 	public void close() {
@@ -248,8 +253,18 @@ final class WrappedResponse implements HttpServerResponse {
 		return logAttributes.get(k);
 	}
 
-	public HttpServerResponse write(Buffer data, Handler<AsyncResult<Void>> handler) {
-		return impl.write(data, handler);
+	public void write(Buffer data, Handler<AsyncResult<Void>> handler) {
+		impl.write(data, handler);
+	}
+
+	@Override
+	public void write(String chunk, String enc, Handler<AsyncResult<Void>> handler) {
+		impl.write(chunk, enc, handler);
+	}
+
+	@Override
+	public void write(String chunk, Handler<AsyncResult<Void>> handler) {
+		impl.write(chunk, handler);
 	}
 
 	public void end(Handler<AsyncResult<Void>> handler) {
@@ -258,14 +273,6 @@ final class WrappedResponse implements HttpServerResponse {
 
 	public HttpServerResponse endHandler(Handler<Void> handler) {
 		return impl.endHandler(handler);
-	}
-
-	public HttpServerResponse write(String chunk, String enc, Handler<AsyncResult<Void>> handler) {
-		return impl.write(chunk, enc, handler);
-	}
-
-	public HttpServerResponse write(String chunk, Handler<AsyncResult<Void>> handler) {
-		return impl.write(chunk, handler);
 	}
 
 	public HttpServerResponse writeContinue() {
@@ -284,16 +291,19 @@ final class WrappedResponse implements HttpServerResponse {
 		impl.end(chunk, handler);
 	}
 
-	public HttpServerResponse sendFile(String filename, long offset) {
+	@Override
+	public Future<Void> sendFile(String filename, long offset) {
 		endImpl();
 		return impl.sendFile(filename, offset);
 	}
 
-	public HttpServerResponse sendFile(String filename, long offset, long length) {
+	@Override
+	public Future<Void> sendFile(String filename, long offset, long length) {
 		endImpl();
 		return impl.sendFile(filename, offset, length);
 	}
 
+	@Override
 	public HttpServerResponse sendFile(String filename, Handler<AsyncResult<Void>> resultHandler) {
 		return impl.sendFile(filename, res -> {
 			endImpl();
@@ -301,6 +311,7 @@ final class WrappedResponse implements HttpServerResponse {
 		});
 	}
 
+	@Override
 	public HttpServerResponse sendFile(String filename, long offset, Handler<AsyncResult<Void>> resultHandler) {
 		return impl.sendFile(filename, offset, res -> {
 			endImpl();
@@ -344,55 +355,76 @@ final class WrappedResponse implements HttpServerResponse {
 		return impl.streamId();
 	}
 
+	@Override
 	public HttpServerResponse push(HttpMethod method, String host, String path,
 			Handler<AsyncResult<HttpServerResponse>> handler) {
 		return impl.push(method, host, path, handler);
 	}
 
+	@Override
 	public HttpServerResponse push(HttpMethod method, String path, MultiMap headers,
 			Handler<AsyncResult<HttpServerResponse>> handler) {
 		return impl.push(method, path, headers, handler);
 	}
 
+	@Override
 	public HttpServerResponse push(HttpMethod method, String path, Handler<AsyncResult<HttpServerResponse>> handler) {
 		return impl.push(method, path, handler);
 	}
 
+	@Override
 	public HttpServerResponse push(HttpMethod method, String host, String path, MultiMap headers,
 			Handler<AsyncResult<HttpServerResponse>> handler) {
 		return impl.push(method, host, path, headers, handler);
 	}
 
-	public void reset() {
-		impl.reset();
-	}
-
-	public void reset(long code) {
-		impl.reset(code);
-	}
-
+	@Override
 	public HttpServerResponse writeCustomFrame(int type, int flags, Buffer payload) {
 		return impl.writeCustomFrame(type, flags, payload);
 	}
 
+	@Override
 	public HttpServerResponse writeCustomFrame(HttpFrame frame) {
 		return impl.writeCustomFrame(frame);
 	}
 
+	@Override
 	public HttpServerResponse setStreamPriority(StreamPriority streamPriority) {
 		return impl.setStreamPriority(streamPriority);
 	}
 
+	@Override
 	public HttpServerResponse addCookie(Cookie cookie) {
 		return impl.addCookie(cookie);
 	}
 
+	@Override
 	public Cookie removeCookie(String name) {
 		return impl.removeCookie(name);
 	}
 
+	@Override
 	public Cookie removeCookie(String name, boolean invalidate) {
 		return impl.removeCookie(name, invalidate);
 	}
 
+	@Override
+	public Future<HttpServerResponse> push(HttpMethod method, String host, String path, MultiMap headers) {
+		return impl.push(method, host, path, headers);
+	}
+
+	@Override
+	public boolean reset(long code) {
+		return impl.reset(code);
+	}
+
+	@Override
+	public Set<Cookie> removeCookies(String name, boolean invalidate) {
+		return impl.removeCookies(name, invalidate);
+	}
+
+	@Override
+	public Cookie removeCookie(String name, String domain, String path, boolean invalidate) {
+		return impl.removeCookie(name, domain, path, invalidate);
+	}
 }

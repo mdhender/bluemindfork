@@ -18,6 +18,8 @@
  */
 package net.bluemind.vertx.testhelper;
 
+import java.security.cert.Certificate;
+import java.util.List;
 import java.util.UUID;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -25,6 +27,7 @@ import javax.net.ssl.SSLSession;
 import javax.security.cert.X509Certificate;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -100,24 +103,24 @@ public class FakeNetSocket implements NetSocket {
 	}
 
 	@Override
-	public NetSocket write(Buffer data) {
+	public Future<Void> write(Buffer data) {
 		writeHandler.write(data);
-		return this;
+		return Future.succeededFuture();
 	}
 
 	@Override
-	public NetSocket write(String str) {
+	public Future<Void> write(String str) {
 		return write(Buffer.buffer(str));
 	}
 
 	@Override
-	public NetSocket write(String str, String enc) {
+	public Future<Void> write(String str, String enc) {
 		return write(Buffer.buffer(str, enc));
 	}
 
 	@Override
-	public NetSocket sendFile(String filename) {
-		return this;
+	public Future<Void> sendFile(String filename) {
+		return Future.succeededFuture();
 	}
 
 	@Override
@@ -137,10 +140,12 @@ public class FakeNetSocket implements NetSocket {
 	}
 
 	@Override
-	public void close() {
-		if (close != null) {
-			vx.runOnContext(v -> close.handle(null));
-		}
+	public Future<Void> close() {
+		return Future.future(h -> {
+			if (close != null) {
+				vx.runOnContext(v -> close.handle(null));
+			}
+		});
 	}
 
 	@Override
@@ -160,25 +165,24 @@ public class FakeNetSocket implements NetSocket {
 	}
 
 	@Override
-	public NetSocket write(String str, Handler<AsyncResult<Void>> handler) {
-		return write(Buffer.buffer(str), handler);
+	public void write(String str, Handler<AsyncResult<Void>> handler) {
+		write(Buffer.buffer(str), handler);
 	}
 
 	@Override
-	public NetSocket write(String str, String enc, Handler<AsyncResult<Void>> handler) {
-		return write(Buffer.buffer(str, enc), handler);
+	public void write(String str, String enc, Handler<AsyncResult<Void>> handler) {
+		write(Buffer.buffer(str, enc), handler);
 	}
 
 	@Override
-	public NetSocket write(Buffer message, Handler<AsyncResult<Void>> handler) {
+	public void write(Buffer message, Handler<AsyncResult<Void>> handler) {
 		write(message);
 		handler.handle(FakeResult.ok(null));
-		return this;
 	}
 
 	@Override
-	public NetSocket sendFile(String filename, long offset, long length) {
-		return this;
+	public Future<Void> sendFile(String filename, long offset, long length) {
+		return Future.succeededFuture();
 	}
 
 	@Override
@@ -187,8 +191,8 @@ public class FakeNetSocket implements NetSocket {
 	}
 
 	@Override
-	public void end() {
-		// yeah
+	public Future<Void> end() {
+		return Future.succeededFuture();
 	}
 
 	@Override
@@ -199,16 +203,6 @@ public class FakeNetSocket implements NetSocket {
 	@Override
 	public void close(Handler<AsyncResult<Void>> handler) {
 		handler.handle(FakeResult.ok(null));
-	}
-
-	@Override
-	public NetSocket upgradeToSsl(Handler<Void> handler) {
-		return this;
-	}
-
-	@Override
-	public NetSocket upgradeToSsl(String serverName, Handler<Void> handler) {
-		return this;
 	}
 
 	@Override
@@ -223,6 +217,36 @@ public class FakeNetSocket implements NetSocket {
 
 	@Override
 	public String indicatedServerName() {
+		return null;
+	}
+
+	@Override
+	public NetSocket upgradeToSsl(Handler<AsyncResult<Void>> handler) {
+		return null;
+	}
+
+	@Override
+	public Future<Void> upgradeToSsl() {
+		return null;
+	}
+
+	@Override
+	public NetSocket upgradeToSsl(String serverName, Handler<AsyncResult<Void>> handler) {
+		return null;
+	}
+
+	@Override
+	public Future<Void> upgradeToSsl(String serverName) {
+		return null;
+	}
+
+	@Override
+	public List<Certificate> peerCertificates() throws SSLPeerUnverifiedException {
+		return null;
+	}
+
+	@Override
+	public String applicationLayerProtocol() {
 		return null;
 	}
 

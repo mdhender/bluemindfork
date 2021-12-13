@@ -138,6 +138,7 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 		roleHooks.forEach(hook -> hook.onRolesSet(event));
 	}
 
+	@Override
 	protected void deleteValues() throws ServerFault {
 		throw new ServerFault("Should not be called !");
 		// try {

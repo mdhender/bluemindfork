@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
@@ -237,17 +238,14 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 		}
 
 		@Override
-		public abstract BaseStream<T> write(T data);
-
-		@Override
-		public BaseStream<T> write(T data, Handler<AsyncResult<Void>> handler) {
+		public void write(T data, Handler<AsyncResult<Void>> handler) {
 			write(data);
 			handler.handle(Result.success());
-			return this;
 		}
 
 		@Override
-		public void end() {
+		public Future<Void> end() {
+			return Future.succeededFuture();
 		}
 
 		@Override
@@ -262,14 +260,13 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 		private final Buffer buffer = Buffer.buffer();
 
 		@Override
-		public AccumulatorStream write(Buffer data) {
+		public Future<Void> write(Buffer data) {
 			if (data != null) {
 				synchronized (this) {
 					buffer.appendBuffer(data);
 				}
 			}
-			return this;
-
+			return Future.succeededFuture();
 		}
 
 		public Buffer buffer() {
@@ -292,14 +289,13 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 		}
 
 		@Override
-		public FileWriterStream write(Buffer data) {
+		public Future<Void> write(Buffer data) {
 			try {
 				out.write(data.getBytes());
 			} catch (IOException e) {
 				logger.warn("Cannot stream to file", e);
 			}
-			return this;
-
+			return Future.succeededFuture();
 		}
 
 		@Override

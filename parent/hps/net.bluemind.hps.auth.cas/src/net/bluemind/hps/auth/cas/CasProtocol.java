@@ -45,8 +45,8 @@ import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.core.api.AsyncHandler;
@@ -100,29 +100,29 @@ public class CasProtocol implements IAuthProtocol {
 		String validationURI = getBaseUri() + "serviceValidate?service=" + callbackTo(req) + "&ticket=" + ticket;
 
 		logger.info("validate CAS ticket {} : {}", ticket, validationURI);
-		HttpClientRequest casReq = httpClient.get(validationURI, res -> {
-			logger.info("receive resp {}", res.statusCode());
-			if (res.statusCode() >= 400) {
-				logger.error("error during cas ticket validation {} : {}", res.statusCode(), res.statusMessage());
-				replyError(req);
-				return;
-			}
+		httpClient.request(HttpMethod.GET, validationURI).onSuccess(casReq -> {
+			casReq.send().onSuccess(res -> {
+				logger.info("receive resp {}", res.statusCode());
+				if (res.statusCode() >= 400) {
+					logger.error("error during cas ticket validation {} : {}", res.statusCode(), res.statusMessage());
+					replyError(req);
+					return;
+				}
+				res.exceptionHandler(event -> {
+					logger.error("error during cas ticket validation ", event);
+					replyError(req);
+				});
+				res.bodyHandler(body -> validationUriResponseBody(req, protocol, prov, ss, forwadedFor, ticket, body));
 
-			res.exceptionHandler(event -> {
-				logger.error("error during cas ticket validation ", event);
+			}).onFailure(t -> {
+				logger.error("error during cas ticket validation (send)", t);
 				replyError(req);
 			});
-
-			res.bodyHandler(body -> validationUriResponseBody(req, protocol, prov, ss, forwadedFor, ticket, body));
-		});
-
-		casReq.exceptionHandler(e -> {
-			logger.error("error during cas auth", e);
+		}).onFailure(t -> {
+			logger.error("error during cas auth", t);
 			req.response().setStatusCode(500);
 			req.response().end();
 		});
-
-		casReq.end();
 
 	}
 

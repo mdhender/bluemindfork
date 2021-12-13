@@ -79,7 +79,6 @@ public class BlueMindNode extends AbstractVerticle {
 		HttpServerOptions options = new HttpServerOptions();
 		options.setAcceptBacklog(1024).setReuseAddress(true);
 		options.setTcpNoDelay(true);
-		options.setUsePooledBuffers(true);
 		boolean ssl = serverJks.exists() && trustClientCert.exists();
 		if (ssl) {
 			options.setKeyStoreOptions(new JksOptions().setPath("/etc/bm/bm.jks").setPassword("bluemind"));

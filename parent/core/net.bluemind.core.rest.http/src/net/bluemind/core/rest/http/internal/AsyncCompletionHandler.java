@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.vertx.core.MultiMap;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.CaseInsensitiveHeaders;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.base.RestResponse;
@@ -87,7 +87,7 @@ public class AsyncCompletionHandler extends AsyncCompletionHandlerBase {
 				logger.debug("normal response  {}", response.getStatusCode());
 				RestResponse resp = new RestResponse(response.getStatusCode());
 
-				CaseInsensitiveHeaders h = new CaseInsensitiveHeaders();
+				MultiMap h = MultiMap.caseInsensitiveMultiMap();
 				for (Entry<String, String> he : response.getHeaders().entries()) {
 					h.add(he.getKey(), he.getValue());
 				}

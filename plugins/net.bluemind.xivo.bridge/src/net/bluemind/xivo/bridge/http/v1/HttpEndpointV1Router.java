@@ -39,8 +39,8 @@ public class HttpEndpointV1Router extends AbstractVerticle {
 	@Override
 	public void start() {
 
-		HttpServer srv = vertx.createHttpServer(new HttpServerOptions().setTcpNoDelay(true).setAcceptBacklog(1024)
-				.setReuseAddress(true).setUsePooledBuffers(true));
+		HttpServer srv = vertx.createHttpServer(
+				new HttpServerOptions().setTcpNoDelay(true).setAcceptBacklog(1024).setReuseAddress(true));
 
 		RouteMatcher rm = new RouteMatcher(vertx);
 		rm.post("/xivo/1.0/event/:domain/dropbox/", new EventsDropboxHandler(vertx.eventBus()));

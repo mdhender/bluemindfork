@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.MultiMap;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.CaseInsensitiveHeaders;
 import io.vertx.core.http.WebSocket;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.AsyncHandler;
@@ -74,7 +73,7 @@ public class VertxSockJsCallHandler implements IRestCallHandler {
 		String rId = UIDGenerator.uid();
 		JsonObject msg = new JsonObject();
 		msg.put("requestId", rId);
-		msg.put("method", request.method);
+		msg.put("method", request.method.name());
 		msg.put("path", request.path);
 
 		JsonObject headers = new JsonObject();
@@ -113,7 +112,7 @@ public class VertxSockJsCallHandler implements IRestCallHandler {
 			throw new IllegalArgumentException("requestId is null");
 		}
 
-		MultiMap headers = new CaseInsensitiveHeaders();
+		MultiMap headers = MultiMap.caseInsensitiveMultiMap();
 		headers.addAll(asMap(msg.getJsonObject("headers")));
 
 		Buffer body = null;

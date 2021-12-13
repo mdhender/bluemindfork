@@ -78,7 +78,7 @@ public class DigestMD5Mechanism implements AuthenticationMechanism, CallbackHand
 		try {
 			sasl = new SaslWrapper();
 			sasl.createClient(new String[] { "DIGEST-MD5" }, user, server.getService(), server.getHostName(),
-					new Hashtable(), this);
+					new Hashtable<>(), this);
 			byte[] serverChallenge = server.authReceive();
 			LOG.fine(new String(serverChallenge));
 

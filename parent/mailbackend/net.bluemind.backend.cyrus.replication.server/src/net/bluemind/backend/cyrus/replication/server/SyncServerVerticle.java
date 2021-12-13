@@ -63,7 +63,7 @@ public class SyncServerVerticle extends AbstractVerticle {
 
 	private void startSyncServer() {
 		NetServerOptions syncOpts = new NetServerOptions().setAcceptBacklog(1024).setTcpNoDelay(true)
-				.setTcpKeepAlive(true).setReuseAddress(true).setUsePooledBuffers(true);
+				.setTcpKeepAlive(true).setReuseAddress(true);
 		// syncOpts.setReceiveBufferSize(8 * 1024 * 1024);
 
 		NetServer srv = vertx.createNetServer(syncOpts);

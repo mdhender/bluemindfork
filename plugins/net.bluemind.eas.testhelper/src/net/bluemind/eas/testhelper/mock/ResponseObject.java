@@ -1,5 +1,6 @@
 package net.bluemind.eas.testhelper.mock;
 
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -7,10 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.CaseInsensitiveHeaders;
 import io.vertx.core.http.Cookie;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
@@ -21,15 +22,15 @@ public class ResponseObject implements HttpServerResponse {
 
 	private int statusCode;
 	private String statusMessage;
-	private final CaseInsensitiveHeaders headers;
-	private final CaseInsensitiveHeaders trailers;
+	private final MultiMap headers;
+	private final MultiMap trailers;
 	public final Buffer content;
 
 	private final CountDownLatch latch;
 
 	public ResponseObject() {
-		this.headers = new CaseInsensitiveHeaders();
-		this.trailers = new CaseInsensitiveHeaders();
+		this.headers = MultiMap.caseInsensitiveMultiMap();
+		this.trailers = MultiMap.caseInsensitiveMultiMap();
 		this.content = Buffer.buffer();
 		this.statusCode = 200;
 		this.statusMessage = "OK";
@@ -144,26 +145,25 @@ public class ResponseObject implements HttpServerResponse {
 
 	@Override
 	public HttpServerResponse closeHandler(Handler<Void> handler) {
-		// TODO Auto-generated method stub
 		return this;
 	}
 
 	@Override
-	public HttpServerResponse write(Buffer chunk) {
+	public Future<Void> write(Buffer chunk) {
 		content.appendBuffer(chunk);
-		return this;
+		return Future.succeededFuture();
 	}
 
 	@Override
-	public HttpServerResponse write(String chunk, String enc) {
+	public Future<Void> write(String chunk, String enc) {
 		content.appendString(chunk, enc);
-		return this;
+		return Future.succeededFuture();
 	}
 
 	@Override
-	public HttpServerResponse write(String chunk) {
+	public Future<Void> write(String chunk) {
 		content.appendString(chunk);
-		return this;
+		return Future.succeededFuture();
 	}
 
 	private void endImpl() {
@@ -184,31 +184,35 @@ public class ResponseObject implements HttpServerResponse {
 	}
 
 	@Override
-	public void end(String chunk) {
+	public Future<Void> end(String chunk) {
 		content.appendString(chunk);
 		endImpl();
+		return Future.succeededFuture();
 	}
 
 	@Override
-	public void end(String chunk, String enc) {
+	public Future<Void> end(String chunk, String enc) {
 		content.appendString(chunk, enc);
 		endImpl();
+		return Future.succeededFuture();
 	}
 
 	@Override
-	public void end(Buffer chunk) {
+	public Future<Void> end(Buffer chunk) {
 		content.appendBuffer(chunk);
 		endImpl();
+		return Future.succeededFuture();
 	}
 
 	@Override
-	public void end() {
+	public Future<Void> end() {
 		endImpl();
+		return Future.succeededFuture();
 	}
 
 	@Override
-	public HttpServerResponse sendFile(String filename) {
-		throw new RuntimeException("Not implemented.");
+	public Future<Void> sendFile(String filename) {
+		return Future.failedFuture(new RuntimeException("Not implemented."));
 	}
 
 	@Override
@@ -217,162 +221,125 @@ public class ResponseObject implements HttpServerResponse {
 
 	@Override
 	public void end(Handler<AsyncResult<Void>> handler) {
-		// TODO Auto-generated method stub
-
+		endImpl();
+		handler.handle(Future.succeededFuture());
 	}
 
 	@Override
-	public HttpServerResponse write(Buffer data, Handler<AsyncResult<Void>> handler) {
-		// TODO Auto-generated method stub
-		return null;
+	public void write(Buffer data, Handler<AsyncResult<Void>> handler) {
+		content.appendBuffer(data);
+		handler.handle(Future.succeededFuture());
+	}
+
+	@Override
+	public long bytesWritten() {
+		return 0;
+	}
+
+	@Override
+	public int streamId() {
+		return 0;
 	}
 
 	@Override
 	public HttpServerResponse endHandler(Handler<Void> handler) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public HttpServerResponse write(String chunk, String enc, Handler<AsyncResult<Void>> handler) {
-		// TODO Auto-generated method stub
-		return null;
+	public void write(String chunk, String enc, Handler<AsyncResult<Void>> handler) {
+
 	}
 
 	@Override
-	public HttpServerResponse write(String chunk, Handler<AsyncResult<Void>> handler) {
-		// TODO Auto-generated method stub
-		return null;
+	public void write(String chunk, Handler<AsyncResult<Void>> handler) {
 	}
 
 	@Override
 	public HttpServerResponse writeContinue() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void end(String chunk, Handler<AsyncResult<Void>> handler) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void end(String chunk, String enc, Handler<AsyncResult<Void>> handler) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void end(Buffer chunk, Handler<AsyncResult<Void>> handler) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
-	public HttpServerResponse sendFile(String filename, long offset, long length) {
-		// TODO Auto-generated method stub
+	public Future<Void> sendFile(String filename, long offset, long length) {
 		return null;
 	}
 
 	@Override
 	public HttpServerResponse sendFile(String filename, long offset, long length,
 			Handler<AsyncResult<Void>> resultHandler) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean ended() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean closed() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean headWritten() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public HttpServerResponse headersEndHandler(Handler<Void> handler) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public HttpServerResponse bodyEndHandler(Handler<Void> handler) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public long bytesWritten() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int streamId() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public HttpServerResponse push(HttpMethod method, String host, String path,
-			Handler<AsyncResult<HttpServerResponse>> handler) {
-		// TODO Auto-generated method stub
+	public Future<HttpServerResponse> push(HttpMethod method, String host, String path, MultiMap headers) {
 		return null;
 	}
 
 	@Override
-	public HttpServerResponse push(HttpMethod method, String path, MultiMap headers,
-			Handler<AsyncResult<HttpServerResponse>> handler) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public HttpServerResponse push(HttpMethod method, String path, Handler<AsyncResult<HttpServerResponse>> handler) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public HttpServerResponse push(HttpMethod method, String host, String path, MultiMap headers,
-			Handler<AsyncResult<HttpServerResponse>> handler) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void reset(long code) {
-		// TODO Auto-generated method stub
-
+	public boolean reset(long code) {
+		return false;
 	}
 
 	@Override
 	public HttpServerResponse writeCustomFrame(int type, int flags, Buffer payload) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public HttpServerResponse addCookie(Cookie cookie) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Cookie removeCookie(String name, boolean invalidate) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
+	public Set<Cookie> removeCookies(String name, boolean invalidate) {
+		return null;
+	}
+
+	@Override
+	public Cookie removeCookie(String name, String domain, String path, boolean invalidate) {
+		return null;
+	}
 }

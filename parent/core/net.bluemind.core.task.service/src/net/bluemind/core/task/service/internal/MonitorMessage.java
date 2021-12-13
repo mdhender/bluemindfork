@@ -22,39 +22,43 @@ import io.vertx.core.json.JsonObject;
 
 public class MonitorMessage {
 
-	public static enum MessageType {
+	public enum MessageType {
 		begin, progress, end, log
 	}
 
-	public static JsonObject begin(double work, String message) {
+	public static JsonObject begin(String taskId, double work, String message) {
 		JsonObject m = new JsonObject();
+		m.put("id", taskId);
 		m.put("type", MessageType.begin.name());
 		m.put("work", work);
 		m.put("message", message);
 		return m;
 	}
 
-	public static JsonObject progress(double step, String message) {
+	public static JsonObject progress(String taskId, double step, String message) {
 		JsonObject m = new JsonObject();
+		m.put("id", taskId);
 		m.put("type", MessageType.progress.name());
 		m.put("step", step);
 		m.put("message", message);
 		return m;
 	}
 
-	public static JsonObject log(String message) {
+	public static JsonObject log(String taskId, String message) {
 		JsonObject m = new JsonObject();
+		m.put("id", taskId);
 		m.put("type", MessageType.log.name());
 		m.put("message", message);
 		return m;
 	}
 
-	public static JsonObject end(boolean success, String message) {
-		return end(success, message, null);
+	public static JsonObject end(String taskId, boolean success, String message) {
+		return end(taskId, success, message, null);
 	}
 
-	public static JsonObject end(boolean success, String message, String result) {
+	public static JsonObject end(String taskId, boolean success, String message, String result) {
 		JsonObject m = new JsonObject();
+		m.put("id", taskId);
 		m.put("type", MessageType.end.name());
 		m.put("success", success);
 		m.put("message", message);

@@ -14,7 +14,6 @@ import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.impl.headers.VertxHttpHeaders;
 import net.bluemind.central.reverse.proxy.model.ProxyInfoStoreClient;
 import net.bluemind.central.reverse.proxy.vertx.HttpServerRequestContext;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -34,7 +33,7 @@ public class DownstreamSelectorTests {
 
 		final CountDownLatch cdl = new CountDownLatch(2);
 
-		MultiMap formAttributes = new VertxHttpHeaders().add("login", "one");
+		MultiMap formAttributes = MultiMap.caseInsensitiveMultiMap().add("login", "one");
 		HttpServerRequest request = TestRequestHelper.createRequest(HttpMethod.POST, "/login", formAttributes);
 
 		selector.apply(new HttpServerRequestContextImpl(request)).onSuccess(socketAddress -> {
@@ -42,7 +41,7 @@ public class DownstreamSelectorTests {
 			cdl.countDown();
 		});
 
-		formAttributes = new VertxHttpHeaders().add("login", "two");
+		formAttributes = MultiMap.caseInsensitiveMultiMap().add("login", "two");
 		request = TestRequestHelper.createRequest(HttpMethod.POST, "/login", formAttributes);
 
 		selector.apply(new HttpServerRequestContextImpl(request)).onSuccess(socketAddress -> {

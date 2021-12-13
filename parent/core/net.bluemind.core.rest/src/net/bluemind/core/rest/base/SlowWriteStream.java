@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.WriteStream;
@@ -46,9 +47,10 @@ public class SlowWriteStream implements WriteStream<Buffer> {
 	}
 
 	@Override
-	public WriteStream<Buffer> write(Buffer data) {
-		return write(data, ar -> {
+	public Future<Void> write(Buffer data) {
+		write(data, ar -> {
 		});
+		return Future.succeededFuture();
 	}
 
 	private void markQueueFull() {
@@ -56,7 +58,7 @@ public class SlowWriteStream implements WriteStream<Buffer> {
 	}
 
 	@Override
-	public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
+	public void write(Buffer data, Handler<AsyncResult<Void>> handler) {
 		markQueueFull();
 		dl.add(data.length());
 		VertxPlatform.getVertx().setTimer(100, tid -> {
@@ -66,13 +68,13 @@ public class SlowWriteStream implements WriteStream<Buffer> {
 			}
 			handler.handle(Result.success());
 		});
-		return this;
 	}
 
 	@Override
-	public void end() {
+	public Future<Void> end() {
 		queueFull.set(false);
 		VertxPlatform.getVertx().cancelTimer(report);
+		return Future.succeededFuture();
 	}
 
 	@Override

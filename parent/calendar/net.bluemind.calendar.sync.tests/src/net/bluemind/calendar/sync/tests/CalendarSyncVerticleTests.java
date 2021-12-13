@@ -194,7 +194,8 @@ public class CalendarSyncVerticleTests {
 	private void handleGet(final HttpServerRequest event) throws IOException {
 		this.nextResponse.headers.forEach((key, value) -> event.response().putHeader(key, value));
 		event.response().setStatusCode(this.computeStatus(event))
-				.sendFile(this.handleIcsVariables(this.nextResponse.returnedIcs)).end();
+				.sendFile(this.handleIcsVariables(this.nextResponse.returnedIcs));
+		event.response().end();
 	}
 
 	private String handleIcsVariables(String icsFile) throws IOException {

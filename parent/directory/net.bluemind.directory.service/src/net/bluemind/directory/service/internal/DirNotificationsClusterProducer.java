@@ -58,8 +58,8 @@ public class DirNotificationsClusterProducer extends AbstractVerticle {
 
 	}
 
+	@Override
 	public void start() {
-
 		Registry reg = MetricsRegistry.get();
 		IdFactory metricsId = new IdFactory("directory", reg, DirNotificationsClusterProducer.class);
 		Counter sentEvents = reg.counter(metricsId.name("cluster.events"));

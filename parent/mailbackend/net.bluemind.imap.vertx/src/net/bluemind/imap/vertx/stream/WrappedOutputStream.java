@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.WriteStream;
@@ -45,7 +46,7 @@ public class WrappedOutputStream implements WriteStream<Buffer> {
 	}
 
 	@Override
-	public WriteStream<Buffer> write(Buffer data) {
+	public Future<Void> write(Buffer data) {
 		try {
 			Files.write(path, data.getBytes(), StandardOpenOption.APPEND, StandardOpenOption.CREATE);
 		} catch (IOException e) {
@@ -53,19 +54,18 @@ public class WrappedOutputStream implements WriteStream<Buffer> {
 				excep.handle(e);
 			}
 		}
-		return this;
+		return Future.succeededFuture();
 	}
 
 	@Override
-	public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
+	public void write(Buffer data, Handler<AsyncResult<Void>> handler) {
 		write(data);
 		handler.handle(Result.success());
-		return this;
 	}
 
 	@Override
-	public void end() {
-		// file is written
+	public Future<Void> end() {
+		return Future.succeededFuture();
 	}
 
 	@Override

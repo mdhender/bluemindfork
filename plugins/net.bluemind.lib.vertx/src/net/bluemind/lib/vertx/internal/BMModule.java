@@ -86,11 +86,12 @@ public class BMModule extends AbstractVerticle {
 		logger.info("deploying {} verticle {}", vf.isWorker() ? "worker" : "std", vf);
 		if (vf.isWorker()) {
 			DeploymentOptions workerOpts = new DeploymentOptions().setInstances(1).setWorker(true);
-			if (vf instanceof IUniqueVerticleFactory) {
-				vx.deployVerticle(vc, workerOpts, done);
-			} else {
-				vx.deployVerticle(vc, workerOpts.setMultiThreaded(true), done);
-			}
+			// LC TODO: what i need to do ?
+//			if (vf instanceof IUniqueVerticleFactory) {
+			vx.deployVerticle(vc, workerOpts, done);
+//			} else {
+//				vx.deployVerticle(vc, workerOpts.setMultiThreaded(true), done);
+//			}
 		} else {
 
 			if (vf instanceof IUniqueVerticleFactory) {

@@ -73,7 +73,7 @@ public class ImapConnectionsManager extends AbstractVerticle {
 					MessageConsumer<Buffer> cons = eb.consumer(stream + ".write");
 					cons.setMaxBufferedMessages(50);
 					MessageProducer<Buffer> pub = eb.sender(stream + ".read");
-					pub.setWriteQueueMaxSize(10);
+//					pub.setWriteQueueMaxSize(10);
 					logger.info("EventBus streams setup on {} for {}", stream, ns);
 					eb.consumer(disco, discoMsg -> {
 						cons.unregister();
@@ -84,7 +84,8 @@ public class ImapConnectionsManager extends AbstractVerticle {
 					ns.pause();
 					msg.replyAndRequest(stream, streamSetupOk -> {
 						if (streamSetupOk.succeeded()) {
-							ns.pipeTo(pub);
+							// LC TODO: This is a big problem: will not work at all
+//							ns.pipeTo(pub);
 							cons.bodyStream().pipeTo(ns);
 							ns.resume();
 							logger.info("Event bus streaming is ok for address {}", stream);
