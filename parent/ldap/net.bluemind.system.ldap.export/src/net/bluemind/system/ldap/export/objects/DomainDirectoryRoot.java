@@ -17,9 +17,16 @@
   */
 package net.bluemind.system.ldap.export.objects;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.message.ModifyRequest;
+import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
+
+import com.google.common.collect.ImmutableList;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -29,6 +36,9 @@ public class DomainDirectoryRoot extends LdapObjects {
 	private static final String RDN_ATTRIBUTE = "dc";
 
 	private final ItemValue<Domain> domain;
+
+	public static final List<String> ldapAttrsStringsValues = ImmutableList.of(//
+			"objectclass", "o", "description");
 
 	public DomainDirectoryRoot(ItemValue<Domain> domain) {
 		this.domain = domain;
@@ -61,5 +71,19 @@ public class DomainDirectoryRoot extends LdapObjects {
 	@Override
 	public String getRDn() {
 		return RDN_ATTRIBUTE + "=" + domain.value.name;
+	}
+
+	@Override
+	public ModifyRequest getModifyRequest(Entry currentEntry) throws ServerFault {
+		ModifyRequest modifyRequest = new ModifyRequestImpl();
+		modifyRequest.setName(currentEntry.getDn());
+
+		Entry entry = getLdapEntry();
+
+		for (String attr : ldapAttrsStringsValues.stream().map(String::toLowerCase).collect(Collectors.toSet())) {
+			modifyRequest = updateLdapAttribute(modifyRequest, currentEntry, entry, attr);
+		}
+
+		return modifyRequest;
 	}
 }

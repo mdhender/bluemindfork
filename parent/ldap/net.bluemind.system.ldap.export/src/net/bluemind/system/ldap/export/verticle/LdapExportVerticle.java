@@ -28,8 +28,8 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.directory.service.DirEventProducer;
 import net.bluemind.system.ldap.export.services.LdapExportService;
-import net.bluemind.system.ldap.export.services.PasswordUpdateService;
 import net.bluemind.system.ldap.export.services.PasswordLifetimeService;
+import net.bluemind.system.ldap.export.services.PasswordUpdateService;
 import net.bluemind.user.api.UsersHookAddress;
 
 public class LdapExportVerticle extends AbstractVerticle {
@@ -42,6 +42,10 @@ public class LdapExportVerticle extends AbstractVerticle {
 		vertx.eventBus().consumer(DirEventProducer.address, this::dirChangedEvent);
 		vertx.eventBus().consumer("domainsettings.updated", this::domainSettingsEvent);
 		vertx.eventBus().consumer(UsersHookAddress.PASSWORD_UPDATED, this::userPasswordUpdatedEvent);
+
+		if (!suspended) {
+			MQManager.init();
+		}
 	}
 
 	private void dirChangedEvent(Message<JsonObject> event) {
@@ -104,8 +108,7 @@ public class LdapExportVerticle extends AbstractVerticle {
 		long time = System.currentTimeMillis();
 
 		try {
-			Optional<PasswordUpdateService> passwordLastChangeUpdater = PasswordUpdateService.build(domain,
-					userUid);
+			Optional<PasswordUpdateService> passwordLastChangeUpdater = PasswordUpdateService.build(domain, userUid);
 			if (passwordLastChangeUpdater.isPresent()) {
 				logger.info("Update LDAP user {}, domain {} password last change", userUid, domain);
 				passwordLastChangeUpdater.get().sync();

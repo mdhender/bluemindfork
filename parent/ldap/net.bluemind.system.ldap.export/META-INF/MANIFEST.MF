@@ -29,7 +29,8 @@ Require-Bundle: net.bluemind.system.domaintemplate;bundle-version="4.1.0",
  net.bluemind.eclipse.common,
  net.bluemind.directory.service,
  net.bluemind.system.api,
- net.bluemind.ldap.directory.client
+ net.bluemind.ldap.directory.client,
+ net.bluemind.hornetq.client
 Bundle-Activator: net.bluemind.system.ldap.export.Activator
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.system.ldap.export,
