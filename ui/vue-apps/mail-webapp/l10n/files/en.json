@@ -237,8 +237,6 @@
     "mail.empty": "is empty",
     "mail.error.email.address.invalid": "Invalid email address.",
     "mail.folder.access.limited": "Limited access",
-    "mail.folder.empty": "Empty folder",
-    "mail.folder.empty.confirm.content": "Permanently delete messages from this folder?",
     "mail.folder.create.subfolder": "Create a subfolder",
     "mail.folder.mark_as_read": "Mark all as read",
     "mail.folder.new.from_pattern": "{0} (New folder)",
@@ -351,6 +349,23 @@
             "end_template_edition": {
                 "label": "Quit",
                 "aria": "Quit editing this template"
+            },
+            "empty_folder": {
+                "label": "Empty folder",
+                "modal": {
+                    "title": "Empty this folder",
+                    "content": "Permanently delete all messages in folder \"{name}\"?"
+                }
+            },
+            "empty_trash": {
+                "label": "Empty trash",
+                "modal": {
+                    "title": "Empty trash",
+                    "content": {
+                        "with_subfolder": "Permanently delete all messages and subfolders in Trash?",
+                        "without_subfolder": "Permanently delete all messages in Trash?"
+                    }
+                }
             }
         },
         "compose": {

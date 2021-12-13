@@ -236,8 +236,6 @@
     "mail.empty": "hat keinen Inhalt",
     "mail.error.email.address.invalid": "Ungültige E-Mailadresse.",
     "mail.folder.access.limited": "Beschränkter Zugriff",
-    "mail.folder.empty": "Leeren Sie den Ordner",
-    "mail.folder.empty.confirm.content": "Nachrichten dauerhaft aus diesem Ordner löschen?",
     "mail.folder.create.subfolder": "Unterordner erstellen",
     "mail.folder.mark_as_read": "Alle als Gelesen markieren",
     "mail.folder.new.from_pattern": "{0} (Neuer Ordner)",
@@ -350,6 +348,23 @@
             "end_template_edition": {
                 "label": "Beenden",
                 "aria": "Vorlagenbearbeitung beenden"
+            },
+            "empty_folder": {
+                "label": "Ordnerinhalt löschen",
+                "modal": {
+                    "title": "Ordnerinhalt löschen",
+                    "content": "E-Mails des Ordners \"{name}\" definitiv löschen?"
+                }
+            },
+            "empty_trash": {
+                "label": "Papierkorb leeren",
+                "modal": {
+                    "title": "Papierkorb leeren",
+                    "content": {
+                        "with_subfolder": "E-Mails im Papierkorb und den Unterordnern definitiv löschen?",
+                        "without_subfolder": "E-Mails im Papierkorb definitiv löschen?"
+                    }
+                }
             }
         },
         "compose": {

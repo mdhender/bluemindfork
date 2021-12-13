@@ -236,8 +236,6 @@
     "mail.empty": "est vide",
     "mail.error.email.address.invalid": "Adresse de courriel invalide.",
     "mail.folder.access.limited": "Droits restreints",
-    "mail.folder.empty": "Vider le dossier",
-    "mail.folder.empty.confirm.content": "Supprimer définitivement les messages de ce dossier ?",
     "mail.folder.create.subfolder": "Créer un sous-dossier",
     "mail.folder.mark_as_read": "Marquer tout comme lu",
     "mail.folder.new.from_pattern": "{0} (Nouveau dossier)",
@@ -350,6 +348,23 @@
             "end_template_edition": {
                 "label": "Quitter",
                 "aria": "Quitter l'édition du modèle"
+            },
+            "empty_folder": {
+                "label": "Vider le dossier",
+                "modal": {
+                    "title": "Vider ce dossier",
+                    "content": "Supprimer définitivement les messages du dossier \"{name}\" ?"
+                }
+            },
+            "empty_trash": {
+                "label": "Vider la corbeille",
+                "modal": {
+                    "title": "Vider la corbeille",
+                    "content": {
+                        "with_subfolder": "Supprimer tous les messages et sous-dossiers de la Corbeille ?",
+                        "without_subfolder": "Supprimer tous les messages de la Corbeille ?"
+                    }
+                }
             }
         },
         "compose": {
