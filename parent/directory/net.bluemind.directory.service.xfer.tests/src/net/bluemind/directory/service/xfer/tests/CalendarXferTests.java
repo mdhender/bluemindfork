@@ -26,19 +26,17 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
@@ -75,6 +73,11 @@ public class CalendarXferTests {
 	private String shardIp;
 	private SecurityContext context;
 
+	@BeforeClass
+	public static void setXferTestMode() {
+		System.setProperty("bluemind.testmode", "true");
+	}
+
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
@@ -106,23 +109,14 @@ public class CalendarXferTests {
 		PopulateHelper.addDomain(domainUid, Routing.none);
 		PopulateHelper.addUser(userUid, domainUid, Routing.none);
 
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		System.err.println("PG2 " + pg2.ip + " IMAP1: " + imapServer.ip + " IMAP2: " + imapServer2.ip);
 		JdbcTestHelper.getInstance().initNewServer(pg2.ip);
 		SplittedShardsMapping.map(pg2.ip, imapServer2.ip);
 
 		context = new SecurityContext("user", userUid, Arrays.<String>asList(), Arrays.<String>asList(), domainUid);
-
 		Sessions.get().put(context.getSessionId(), context);
-
 	}
 
 	@After
@@ -186,11 +180,12 @@ public class CalendarXferTests {
 		service = ServerSideServiceProvider.getProvider(context).instance(ICalendar.class, container);
 
 		assertEquals(nbItems, service.all().size());
-		assertEquals(version, service.getVersion());
+		assertEquals(3L, service.getVersion());
 
 		service.create("new-one", defaultVEvent(), false);
 
-		ContainerChangeset<String> changeset = service.changeset(version);
+		ContainerChangeset<String> changeset = service.changeset(3L);
+		System.err.println("changeset: " + changeset);
 		assertEquals(1, changeset.created.size());
 		assertEquals("new-one", changeset.created.get(0));
 		assertTrue(changeset.updated.isEmpty());

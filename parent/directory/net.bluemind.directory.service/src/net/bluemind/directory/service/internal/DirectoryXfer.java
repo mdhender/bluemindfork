@@ -68,6 +68,7 @@ import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.deferredaction.api.IDeferredAction;
 import net.bluemind.deferredaction.api.IDeferredActionContainerUids;
@@ -99,6 +100,7 @@ public class DirectoryXfer implements AutoCloseable {
 	private final String domainUid;
 	private final String targetServerUid;
 	private final TransactionalContext transactionalContext;
+	private final BmContext dataContext;
 	private final BmContext context;
 
 	private final ItemValue<Server> targetServer;
@@ -126,18 +128,28 @@ public class DirectoryXfer implements AutoCloseable {
 		}
 		this.targetServerUid = serverUid;
 
-		transactionalContext = new TransactionalContext(context.getSecurityContext());
+		if (!Boolean.getBoolean("bluemind.testmode")) {
+			transactionalContext = new TransactionalContext(context.getSecurityContext());
+			dataContext = transactionalContext;
+		} else {
+			transactionalContext = null;
+			dataContext = context;
+		}
 
-		this.directoryDs = transactionalContext.getDataSource();
-		this.origDs = transactionalContext.getMailboxDataSource(dirEntry.value.dataLocation);
-		this.targetDs = transactionalContext.getMailboxDataSource(serverUid);
-		this.dirContainerStore = new ContainerStore(transactionalContext, transactionalContext.getDataSource(),
-				transactionalContext.getSecurityContext());
-		this.containerStoreOrig = new ContainerStore(null, origDs, transactionalContext.getSecurityContext());
-		this.containerStoreTarget = new ContainerStore(null, targetDs, transactionalContext.getSecurityContext());
+		this.directoryDs = dataContext.getDataSource();
+		this.origDs = dataContext.getMailboxDataSource(dirEntry.value.dataLocation);
+		this.targetDs = dataContext.getMailboxDataSource(serverUid);
+		this.dirContainerStore = new ContainerStore(dataContext, dataContext.getDataSource(),
+				dataContext.getSecurityContext());
+		this.containerStoreOrig = new ContainerStore(null, origDs, dataContext.getSecurityContext());
+		this.containerStoreTarget = new ContainerStore(null, targetDs, dataContext.getSecurityContext());
 	}
 
 	private void commitAll() throws SQLException {
+		if (transactionalContext == null) {
+			// test mode
+			return;
+		}
 		logger.info("commit connections: directory:{} origin datasource: {} target datasource: {}",
 				directoryDs.getConnection(), origDs.getConnection(), targetDs.getConnection());
 		// Warning: the order is important, some constraints can fail to commit, so
@@ -149,6 +161,12 @@ public class DirectoryXfer implements AutoCloseable {
 	}
 
 	private void rollbackAll() {
+		CacheRegistry.get().invalidateAll();
+
+		if (transactionalContext == null) {
+			// test mode
+			return;
+		}
 		try {
 			logger.info("rollback connections: directory:{} origin datasource: {} target datasource: {}",
 					directoryDs.getConnection(), origDs.getConnection(), targetDs.getConnection());
@@ -166,7 +184,6 @@ public class DirectoryXfer implements AutoCloseable {
 			targetDs.getConnection().rollback();
 		} catch (SQLException e) {
 		}
-		CacheRegistry.get().invalidateAll();
 	}
 
 	public void doXfer(String entryUid, IServerTaskMonitor monitor) {
@@ -187,7 +204,7 @@ public class DirectoryXfer implements AutoCloseable {
 			return;
 		}
 
-		IServiceProvider sp = ServerSideServiceProvider.getProvider(transactionalContext);
+		IServiceProvider sp = ServerSideServiceProvider.getProvider(dataContext);
 		ItemValue<Mailbox> mailbox = sp.instance(IMailboxes.class, domainUid).getComplete(entryUid);
 
 		try {
@@ -226,7 +243,7 @@ public class DirectoryXfer implements AutoCloseable {
 	private void doXferCyrusArtifacts(String entryUid, String domainUid, ItemValue<Mailbox> mailbox,
 			IServerTaskMonitor monitor) {
 		String userId = mailbox.value.name + "@" + domainUid;
-		IServiceProvider sp = ServerSideServiceProvider.getProvider(transactionalContext);
+		IServiceProvider sp = ServerSideServiceProvider.getProvider(dataContext);
 		ICyrusReplicationArtifacts cyrusArtifcatsService = sp.instance(ICyrusReplicationArtifacts.class, userId);
 		cyrusArtifcatsService.xfer(targetServerUid);
 	}
@@ -238,7 +255,7 @@ public class DirectoryXfer implements AutoCloseable {
 		List<Container> toRemoveContainers = containerStoreTarget.findByTypeOwnerReadOnly(null, dirEntry.uid, null);
 		cleanupTargetContainers(toRemoveContainers);
 
-		IServiceProvider sp = ServerSideServiceProvider.getProvider(transactionalContext);
+		IServiceProvider sp = ServerSideServiceProvider.getProvider(dataContext);
 		xferContainers(monitor.subWork(1), IAddressBookUids.TYPE,
 				containerUid -> sp.instance(IAddressBook.class, containerUid));
 		xferContainers(monitor.subWork(1), ICalendarUids.TYPE,
@@ -253,7 +270,7 @@ public class DirectoryXfer implements AutoCloseable {
 				containerUid -> sp.instance(IOwnerSubscriptions.class, domainUid, entryUid));
 
 		// Avoid removing future xfer mailbox records from object storage
-		transactionalContext.getAllMailboxDataSource().stream().forEach(ds -> {
+		dataContext.getAllMailboxDataSource().stream().forEach(ds -> {
 			try {
 				Connection conn = ds.getConnection();
 				try (Statement stmt = conn.createStatement()) {
@@ -291,9 +308,9 @@ public class DirectoryXfer implements AutoCloseable {
 			logger.info("Try to clean container {}", c);
 			logger.info("try to delete container {}", c.uid);
 			try {
-				new AclStore(transactionalContext, targetDs).deleteAll(c);
+				new AclStore(dataContext, targetDs).deleteAll(c);
 				new ContainerSyncStore(targetDs, c).delete();
-				new ContainerPersonalSettingsStore(targetDs, transactionalContext.getSecurityContext(), c).deleteAll();
+				new ContainerPersonalSettingsStore(targetDs, dataContext.getSecurityContext(), c).deleteAll();
 				new ContainerSettingsStore(targetDs, c).delete();
 				new ChangelogStore(targetDs, c).deleteLog();
 				if (containerStoreTarget.get(c.uid) != null) {
@@ -334,16 +351,16 @@ public class DirectoryXfer implements AutoCloseable {
 			dirContainerStore.invalidateCache(c.uid, c.id);
 			DataSourceRouter.invalidateContainer(c.uid);
 
-			AclStore aclStoreOrig = new AclStore(transactionalContext, origDs);
+			AclStore aclStoreOrig = new AclStore(dataContext, origDs);
 			ContainerSyncStore containerSyncStoreOrig = new ContainerSyncStore(origDs, oldContainer);
 			ContainerPersonalSettingsStore containerPersonalSettingStoreOrig = new ContainerPersonalSettingsStore(
-					origDs, transactionalContext.getSecurityContext(), oldContainer);
+					origDs, dataContext.getSecurityContext(), oldContainer);
 			ContainerSettingsStore containerSettingStoreOrig = new ContainerSettingsStore(origDs, oldContainer);
 
 			if (newContainer != null) {
 				List<AccessControlEntry> acls = aclStoreOrig.get(oldContainer);
 				if (acls != null && !acls.isEmpty()) {
-					AclStore aclStoreTarget = new AclStore(transactionalContext, targetDs);
+					AclStore aclStoreTarget = new AclStore(dataContext, targetDs);
 					if (newContainer != null) {
 						aclStoreTarget.store(newContainer, acls);
 					}
@@ -358,7 +375,7 @@ public class DirectoryXfer implements AutoCloseable {
 				Map<String, String> personnelsettings = containerPersonalSettingStoreOrig.get();
 				if (personnelsettings != null && !personnelsettings.isEmpty()) {
 					ContainerPersonalSettingsStore containerPersonalSettingStoreTarget = new ContainerPersonalSettingsStore(
-							targetDs, transactionalContext.getSecurityContext(), newContainer);
+							targetDs, dataContext.getSecurityContext(), newContainer);
 					containerPersonalSettingStoreTarget.set(personnelsettings);
 				}
 
@@ -390,6 +407,7 @@ public class DirectoryXfer implements AutoCloseable {
 
 			// At this step, the mailbox is transfered between cyrus backends, but the
 			// replication must be re-synced
+			monitor.log("re-syncing replication");
 			IDirEntryMaintenance dirEntryMaintenanceService = context.provider().instance(IDirEntryMaintenance.class,
 					domainUid, entryUid);
 			dirEntryMaintenanceService.repair(Sets.newHashSet("replication.subtree", "replication.parentUid"));
@@ -412,7 +430,7 @@ public class DirectoryXfer implements AutoCloseable {
 	private void doPostMove(ItemValue<Mailbox> mailbox) {
 		for (IMailboxHook hook : hooks) {
 			try {
-				hook.postMailboxMoved(transactionalContext, domainUid, mailbox);
+				hook.postMailboxMoved(dataContext, domainUid, mailbox);
 			} catch (Exception e) {
 				logger.error("error during call to hook (preMailboxMoved) {}: {} ", hook.getClass(), e.getMessage(), e);
 			}
@@ -426,6 +444,8 @@ public class DirectoryXfer implements AutoCloseable {
 
 	@Override
 	public void close() throws Exception {
-		transactionalContext.stop();
+		if (transactionalContext != null) {
+			transactionalContext.stop();
+		}
 	}
 }

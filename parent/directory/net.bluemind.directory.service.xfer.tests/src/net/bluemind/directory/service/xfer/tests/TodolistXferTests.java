@@ -18,6 +18,7 @@
 package net.bluemind.directory.service.xfer.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.ZoneId;
@@ -26,16 +27,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
@@ -53,6 +53,9 @@ import net.bluemind.core.task.api.TaskStatus.State;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.icalendar.api.ICalendarElement.Status;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.locator.LocatorVerticle;
+import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.mailbox.service.SplittedShardsMapping;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -61,6 +64,7 @@ import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.todolist.api.VTodo;
 import net.bluemind.todolist.api.VTodoChanges;
 import net.bluemind.todolist.api.VTodoChanges.ItemDelete;
+import net.bluemind.vertx.testhelper.Deploy;
 
 public class TodolistXferTests {
 
@@ -69,41 +73,50 @@ public class TodolistXferTests {
 	private String shardIp;
 	private SecurityContext context;
 
+	@BeforeClass
+	public static void setXferTestMode() {
+		System.setProperty("bluemind.testmode", "true");
+	}
+
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
-		ElasticsearchTestHelper.getInstance().beforeTest();
+		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
+
+		Server esServer = new Server();
+		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
+		System.out.println("ES is " + esServer.ip);
+		assertNotNull(esServer.ip);
+		esServer.tags = Lists.newArrayList("bm/es");
 
 		Server imapServer = new Server();
 		imapServer.ip = new BmConfIni().get("imap-role");
 		imapServer.tags = Lists.newArrayList("mail/imap");
+
+		Server imapServer2 = new Server();
+		imapServer2.ip = new BmConfIni().get("imap2-role");
+		imapServer2.tags = Lists.newArrayList("mail/imap");
 
 		Server pg2 = new Server();
 		shardIp = new BmConfIni().get("pg2");
 		pg2.ip = shardIp;
 		pg2.tags = Lists.newArrayList("mail/shard");
 
-		PopulateHelper.initGlobalVirt(imapServer, pg2);
-		PopulateHelper.createTestDomain(domainUid, imapServer);
-		PopulateHelper.addUser(userUid, domainUid);
+		PopulateHelper.initGlobalVirt(pg2, esServer, imapServer, imapServer2);
+		ElasticsearchTestHelper.getInstance().beforeTest();
 
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		PopulateHelper.addDomain(domainUid, Routing.none);
+		PopulateHelper.addUser(userUid, domainUid, Routing.none);
 
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
+
+		System.err.println("PG2 " + pg2.ip + " IMAP1: " + imapServer.ip + " IMAP2: " + imapServer2.ip);
 		JdbcTestHelper.getInstance().initNewServer(pg2.ip);
+		SplittedShardsMapping.map(pg2.ip, imapServer2.ip);
 
 		context = new SecurityContext("user", userUid, Arrays.<String>asList(), Arrays.<String>asList(), domainUid);
-
 		Sessions.get().put(context.getSessionId(), context);
-
 	}
 
 	@After
@@ -161,16 +174,15 @@ public class TodolistXferTests {
 		service = ServerSideServiceProvider.getProvider(context).instance(ITodoList.class, container);
 
 		assertEquals(nbItems, service.all().size());
-		assertEquals(version, service.getVersion());
+		assertEquals(3L, service.getVersion());
 
 		service.create("new-one", defaultVTodo());
 
-		ContainerChangeset<String> changeset = service.changeset(version);
+		ContainerChangeset<String> changeset = service.changeset(3L);
 		assertEquals(1, changeset.created.size());
 		assertEquals("new-one", changeset.created.get(0));
 		assertTrue(changeset.updated.isEmpty());
 		assertTrue(changeset.deleted.isEmpty());
-
 	}
 
 	private void waitTaskEnd(TaskRef taskRef) throws ServerFault {
@@ -189,7 +201,6 @@ public class TodolistXferTests {
 	}
 
 	protected VTodo defaultVTodo() {
-
 		VTodo todo = new VTodo();
 		todo.uid = UUID.randomUUID().toString();
 		ZonedDateTime temp = ZonedDateTime.of(2024, 12, 28, 0, 0, 0, 0, ZoneId.of("UTC"));
@@ -216,9 +227,6 @@ public class TodolistXferTests {
 		attendees.add(jane);
 
 		todo.attendees = attendees;
-
-		todo.attendees = attendees;
-
 		return todo;
 	}
 

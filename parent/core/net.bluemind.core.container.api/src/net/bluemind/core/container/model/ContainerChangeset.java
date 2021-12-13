@@ -49,12 +49,15 @@ public class ContainerChangeset<T> {
 	public long version;
 
 	public static <T> ContainerChangeset<T> create(List<T> created, List<T> updated, List<T> deleted, long version) {
-
 		ContainerChangeset<T> set = new ContainerChangeset<>();
 		set.created = created;
 		set.updated = updated;
 		set.deleted = deleted;
 		set.version = version;
 		return set;
+	}
+
+	public String toString() {
+		return "created: " + created + " updated: " + updated + " deleted: " + deleted + " version: " + version;
 	}
 }
