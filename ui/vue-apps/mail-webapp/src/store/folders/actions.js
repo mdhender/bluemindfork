@@ -18,6 +18,7 @@ import {
     CREATE_FOLDER_HIERARCHY,
     CREATE_FOLDER,
     EMPTY_FOLDER,
+    EMPTY_TRASH,
     FETCH_FOLDERS,
     MARK_FOLDER_AS_READ,
     MOVE_FOLDER,
@@ -108,8 +109,14 @@ const markFolderAsRead = async function ({ commit }, { folder, mailbox }) {
     }
 };
 
-const emptyFolder = async function ({ commit }, { folder }) {
+const emptyFolder = async function ({ commit, getters }, { folder, deep }) {
     commit(SET_UNREAD_COUNT, { ...folder, unread: 0 });
+    if (deep) {
+        const descendants = getters[FOLDER_GET_DESCENDANTS](folder);
+        descendants.forEach(folderToRemove => {
+            commit(MUTATION_REMOVE_FOLDER, folderToRemove);
+        });
+    }
 };
 
 const unreadFolderCount = async function ({ commit }, folder) {
@@ -125,6 +132,7 @@ export default {
     [CREATE_FOLDER]: withAlert(createFolderHierarchy, CREATE_FOLDER, "CreateFolder"),
     [CREATE_FOLDER_HIERARCHY]: createFolderHierarchy,
     [EMPTY_FOLDER]: emptyFolder,
+    [EMPTY_TRASH]: emptyFolder,
     [REMOVE_FOLDER]: withAlert(removeFolder, REMOVE_FOLDER, "RemoveFolder"),
     [MOVE_FOLDER]: withAlert(moveFolder, MOVE_FOLDER, "MoveFolder"),
     [RENAME_FOLDER]: withAlert(renameFolder, RENAME_FOLDER, "RenameFolder"),

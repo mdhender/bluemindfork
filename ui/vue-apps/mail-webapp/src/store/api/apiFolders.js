@@ -17,8 +17,12 @@ async function updateFolder(mailbox, remoteFolder) {
 async function markAsRead(mailbox, folder) {
     return await apiClient(mailbox.remoteRef).markFolderAsRead(folder.remoteRef.internalId);
 }
-async function emptyFolder(mailbox, folder) {
-    return await apiClient(mailbox.remoteRef).removeMessages(folder.remoteRef.internalId);
+async function emptyFolder(mailbox, folder, deep) {
+    if (deep) {
+        return await apiClient(mailbox.remoteRef).emptyFolder(folder.remoteRef.internalId);
+    } else {
+        return await apiClient(mailbox.remoteRef).removeMessages(folder.remoteRef.internalId);
+    }
 }
 async function unreadCount(folder) {
     return apiItems(folder).count({ must: [], mustNot: [ItemFlag.Deleted, ItemFlag.Seen] });

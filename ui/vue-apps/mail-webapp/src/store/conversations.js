@@ -338,7 +338,7 @@ function replaceDraftMessage({ commit }, { draft, message }) {
     commit(REMOVE_MESSAGES, { messages: [draft] });
 }
 
-async function emptyFolder({ commit, state }, { folder, mailbox }) {
+async function emptyFolder({ commit, state }, { folder, mailbox, deep }) {
     const messagesToRemove = [];
     const conversationsToRemove = [];
     const conversationsToRemoveMessages = [];
@@ -365,7 +365,7 @@ async function emptyFolder({ commit, state }, { folder, mailbox }) {
     }
 
     try {
-        await apiFolders.emptyFolder(mailbox, folder);
+        await apiFolders.emptyFolder(mailbox, folder, deep);
     } catch (e) {
         if (messagesToRemove) {
             commit(ADD_MESSAGES, messagesToRemove);

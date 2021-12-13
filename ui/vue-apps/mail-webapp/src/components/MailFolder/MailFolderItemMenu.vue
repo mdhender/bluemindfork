@@ -122,7 +122,7 @@ export default {
                 this.$t(`mail.actions.empty_trash.modal.content.${this.hasChildren ? "with" : "without"}_subfolder`)
             );
             if (confirm) {
-                this.EMPTY_FOLDER({ folder: this.folder, mailbox: this.mailbox });
+                this.EMPTY_FOLDER({ folder: this.folder, mailbox: this.mailbox, deep: true });
                 this.$router.navigate(this.folderRoute(this.folder));
             }
         },

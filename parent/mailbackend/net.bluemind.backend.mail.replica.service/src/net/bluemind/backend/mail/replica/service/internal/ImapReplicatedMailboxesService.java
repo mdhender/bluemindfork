@@ -284,18 +284,18 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		}
 		ItemFlagFilter filter = ItemFlagFilter.create().mustNot(ItemFlag.Deleted);
 		Count count = context.provider().instance(IDbMailboxRecords.class, folder.uid).count(filter);
-		if (count.total == 0) {
-			logger.info("Folder {} already empty ..", folder);
-			return;
-		}
 		logger.info("Start emptying {} (deleteChildFolders={})...", folder, deleteChildFolders);
 		imapContext.withImapClient(storeClient -> {
 			selectInbox(storeClient);
 			CompletableFuture<?> promise = deleteChildFolders ? deleteChildFolders(folder, storeClient)
 					: CompletableFuture.completedFuture(null);
-			return promise.thenCompose(v -> {
+			return promise.thenApply(v -> {
 				logger.info("On purge of '{}'", folder.value.fullName);
-				return this.flag(storeClient, folder, Flag.DELETED, storeClient::expunge);
+				if (count.total > 0) {
+					return this.flag(storeClient, folder, Flag.DELETED, storeClient::expunge);
+				} else {
+					return CompletableFuture.completedFuture(null);
+				}
 			}).get(15, TimeUnit.SECONDS);
 		});
 	}
