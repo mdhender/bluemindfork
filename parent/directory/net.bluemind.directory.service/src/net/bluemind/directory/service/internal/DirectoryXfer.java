@@ -32,6 +32,8 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
+
 import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.IAddressBookUids;
@@ -69,6 +71,7 @@ import net.bluemind.deferredaction.api.IDeferredAction;
 import net.bluemind.deferredaction.api.IDeferredActionContainerUids;
 import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirEntryMaintenance;
 import net.bluemind.directory.service.IInCoreDirectory;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
@@ -169,14 +172,15 @@ public class DirectoryXfer implements AutoCloseable {
 				dirEntry.value.dataLocation, targetDs, targetServerUid);
 
 		if (targetServer == null) {
-			logger.error("fail to transfert data. entryUid {}, serverUid {}. Server not found", entryUid, targetServerUid);
+			logger.error("fail to transfert data. entryUid {}, serverUid {}. Server not found", entryUid,
+					targetServerUid);
 			monitor.end(false, "destination server not found", "{}");
 			return;
 		}
 
 		if (dirEntry.value.kind != BaseDirEntry.Kind.USER) {
-			logger.error("fail to transfert data. entryUid {}, serverUid {}. Unsupported kind {}", entryUid, targetServerUid,
-					dirEntry.value.kind);
+			logger.error("fail to transfert data. entryUid {}, serverUid {}. Unsupported kind {}", entryUid,
+					targetServerUid, dirEntry.value.kind);
 			monitor.end(false, "source is not a user", "{}");
 			return;
 		}
@@ -362,6 +366,12 @@ public class DirectoryXfer implements AutoCloseable {
 		if (mailbox != null) {
 			logger.info("[{}] xfer mailbox", entryUid);
 			context.provider().instance(IMailboxMgmt.class, domainUid).move(mailbox, targetServer);
+
+			// At this step, the mailbox is transfered between cyrus backends, but the
+			// replication must be re-synced
+			IDirEntryMaintenance dirEntryMaintenanceService = context.provider().instance(IDirEntryMaintenance.class,
+					domainUid, entryUid);
+			dirEntryMaintenanceService.repair(Sets.newHashSet("replication.subtree", "replication.parentUid"));
 			monitor.progress(1, "mailbox moved.");
 		} else {
 			monitor.progress(2, "no mailbox to move.");
