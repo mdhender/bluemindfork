@@ -22,7 +22,9 @@
   */
 package net.bluemind.directory.service.internal;
 
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -219,7 +221,6 @@ public class DirectoryXfer implements AutoCloseable {
 			monitor.end(false, "transfer failed: " + e, null);
 			throw new ServerFault(e);
 		}
-
 	}
 
 	private void doXferCyrusArtifacts(String entryUid, String domainUid, ItemValue<Mailbox> mailbox,
@@ -250,16 +251,31 @@ public class DirectoryXfer implements AutoCloseable {
 				containerUid -> sp.instance(IContainersFlatHierarchy.class, domainUid, entryUid));
 		xferContainers(monitor.subWork(1), IOwnerSubscriptionUids.TYPE,
 				containerUid -> sp.instance(IOwnerSubscriptions.class, domainUid, entryUid));
+
+		// Avoid removing future xfer mailbox records from object storage
+		transactionalContext.getAllMailboxDataSource().stream().forEach(ds -> {
+			try {
+				Connection conn = ds.getConnection();
+				try (Statement stmt = conn.createStatement()) {
+					stmt.execute("SET bluemind.bypass_message_body_purge_queue = true");
+				}
+			} catch (SQLException e) {
+				logger.error("Unable to bypass message_body_purge queue: {}", e.getMessage(), e);
+			}
+		});
+
 		// Theses containers can't be migrated: item_id are changed, so all the data is
 		// useless and lost
 		xferContainers(monitor.subWork(1), IMailReplicaUids.MAILBOX_RECORDS,
-				containerUid -> sp.instance(IDbMailboxRecords.class, IMailReplicaUids.uniqueId(containerUid)));
+				containerUid -> sp.instance(IDbMailboxRecords.class, IMailReplicaUids.uniqueId(containerUid)), false);
 		xferContainers(monitor.subWork(1), IMailReplicaUids.REPLICATED_CONVERSATIONS,
-				containerUid -> sp.instance(IInternalMailConversation.class, containerUid));
+				containerUid -> sp.instance(IInternalMailConversation.class, containerUid), false);
 		xferContainers(monitor.subWork(1), MapiFolderContainer.TYPE,
-				containerUid -> sp.instance(IMapiFolder.class, containerUid));
-		xferContainers(monitor.subWork(1), MapiFAIContainer.TYPE, containerUid -> sp
-				.instance(IMapiFolderAssociatedInformation.class, MapiFAIContainer.getIdentifier(containerUid)));
+				containerUid -> sp.instance(IMapiFolder.class, containerUid), false);
+		xferContainers(
+				monitor.subWork(1), MapiFAIContainer.TYPE, containerUid -> sp
+						.instance(IMapiFolderAssociatedInformation.class, MapiFAIContainer.getIdentifier(containerUid)),
+				false);
 		if (mailbox != null) {
 			xferContainers(monitor.subWork(1), IMailReplicaUids.REPLICATED_MBOXES, containerUid -> {
 				CyrusPartition part = CyrusPartition.forServerAndDomain(targetServerUid, domainUid);
@@ -291,6 +307,11 @@ public class DirectoryXfer implements AutoCloseable {
 
 	private void xferContainers(IServerTaskMonitor monitor, String containerType,
 			Function<String, IDataShardSupport> fn) throws SQLException {
+		xferContainers(monitor, containerType, fn, true);
+	}
+
+	private void xferContainers(IServerTaskMonitor monitor, String containerType,
+			Function<String, IDataShardSupport> fn, boolean transferData) throws SQLException {
 		List<Container> containers = containerStoreOrig.findByTypeAndOwner(containerType, dirEntry.uid);
 		logger.info("[{}] xfer {} {} ({})", dirEntry.uid, containers.size(), containerType, containers);
 		monitor.begin(containers.size(), "processing " + containers.size() + " container(s)");
@@ -304,11 +325,11 @@ public class DirectoryXfer implements AutoCloseable {
 			Container newContainer = null;
 			dirContainerStore.deleteContainerLocation(oldContainer);
 
-//			if (transferData) {
-			newContainer = containerStoreTarget.create(c);
-			dirContainerStore.createContainerLocation(newContainer, targetServerUid);
-			service.xfer(targetServerUid);
-//			}
+			if (transferData) {
+				newContainer = containerStoreTarget.create(c);
+				dirContainerStore.createContainerLocation(newContainer, targetServerUid);
+				service.xfer(targetServerUid);
+			}
 
 			dirContainerStore.invalidateCache(c.uid, c.id);
 			DataSourceRouter.invalidateContainer(c.uid);

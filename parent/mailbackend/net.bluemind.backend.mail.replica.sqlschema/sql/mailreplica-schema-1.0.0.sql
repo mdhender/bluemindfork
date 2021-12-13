@@ -74,18 +74,23 @@ CREATE INDEX ON t_message_body_purge_queue (removed);
 
 CREATE OR REPLACE FUNCTION trigger_message_record_purge() RETURNS trigger AS
 $$
+DECLARE
+	bypass boolean;
 BEGIN
-	IF TG_OP = 'DELETE' THEN
-		-- Find references to other t_mailbox_record
-		-- we want to add to the purge body queue unreferenced messages
-		PERFORM 1 FROM t_mailbox_record WHERE message_body_guid = OLD.message_body_guid;
-		IF NOT FOUND THEN
-			INSERT INTO t_message_body_purge_queue (message_body_guid) VALUES (OLD.message_body_guid)
-				ON CONFLICT(message_body_guid) DO NOTHING;
+	SELECT INTO bypass coalesce(current_setting('bluemind.bypass_message_body_purge_queue', true)::boolean, false);
+	IF bypass = false THEN
+		IF TG_OP = 'DELETE' THEN
+			-- Find references to other t_mailbox_record
+			-- we want to add to the purge body queue unreferenced messages
+			PERFORM 1 FROM t_mailbox_record WHERE message_body_guid = OLD.message_body_guid;
+			IF NOT FOUND THEN
+				INSERT INTO t_message_body_purge_queue (message_body_guid) VALUES (OLD.message_body_guid)
+					ON CONFLICT(message_body_guid) DO NOTHING;
+			END IF;
+		ELSIF TG_OP = 'INSERT' THEN
+			-- delete from the purge queue if present
+			DELETE FROM t_message_body_purge_queue WHERE message_body_guid = NEW.message_body_guid;
 		END IF;
-	ELSIF TG_OP = 'INSERT' THEN
-		-- delete from the purge queue if present
-		DELETE FROM t_message_body_purge_queue WHERE message_body_guid = NEW.message_body_guid;
 	END IF;
 	RETURN NULL;
 END;
