@@ -392,6 +392,10 @@ public class StoreClient implements AutoCloseable {
 		return cs.setAnnotation(mailbox, annotationId, keyValues);
 	}
 
+	public boolean setMessageAnnotation(int uid, String annotationId, String value) {
+		return cs.setMessageAnnotation(uid, annotationId, value);
+	}
+
 	public AnnotationList getAnnotation(String mailbox) {
 		return cs.getAnnotation(mailbox);
 	}

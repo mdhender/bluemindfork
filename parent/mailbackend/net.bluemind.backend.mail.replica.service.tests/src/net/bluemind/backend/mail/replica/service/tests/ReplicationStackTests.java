@@ -151,6 +151,8 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	private static final ItemFlagFilter UNREAD_NOT_DELETED = ItemFlagFilter.create().mustNot(ItemFlag.Deleted,
 			ItemFlag.Seen);
 
+	private int knownInboxUid;
+
 	@Before
 	@Override
 	public void before() throws Exception {
@@ -159,6 +161,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		imapAsUser(sc -> {
 			int added = sc.append("INBOX", testEml(), new FlagsList());
 			assertTrue(added > 0);
+			knownInboxUid = added;
 			sc.select("INBOX");
 			Collection<MimeTree> bs = sc.uidFetchBodyStructure(Arrays.asList(added));
 			MimeTree tree = bs.iterator().next();
@@ -1032,6 +1035,21 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		});
 
 		Thread.sleep(500);
+
+	}
+
+	@Test
+	public void annotateMessage() throws IMAPException, InterruptedException {
+		IServiceProvider clientProv = provider();
+
+		boolean res = imapAsUser(sc -> {
+			sc.select("INBOX");
+			return sc.setMessageAnnotation(knownInboxUid, "/vendor/blue-mind/mapi/json",
+					new JsonObject().put("fille", "bédouin").encode());
+		});
+		assertTrue(res);
+
+		Thread.sleep(200);
 
 	}
 

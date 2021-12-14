@@ -84,6 +84,7 @@ import net.bluemind.imap.command.RenameCommand;
 import net.bluemind.imap.command.SelectCommand;
 import net.bluemind.imap.command.SetAclCommand;
 import net.bluemind.imap.command.SetMailboxAnnotationCommand;
+import net.bluemind.imap.command.SetMessageAnnotationCommand;
 import net.bluemind.imap.command.SetQuotaCommand;
 import net.bluemind.imap.command.SubscribeCommand;
 import net.bluemind.imap.command.SyncCommand;
@@ -460,6 +461,10 @@ public final class ClientSupport {
 
 	public boolean setAnnotation(String mbox, String annotation, Map<String, String> kv) {
 		return run(new SetMailboxAnnotationCommand(mbox, annotation, kv));
+	}
+
+	public boolean setMessageAnnotation(int uid, String annotation, String value) {
+		return run(new SetMessageAnnotationCommand(uid, annotation, value));
 	}
 
 	public AnnotationList getAnnotation(String mailbox) {
