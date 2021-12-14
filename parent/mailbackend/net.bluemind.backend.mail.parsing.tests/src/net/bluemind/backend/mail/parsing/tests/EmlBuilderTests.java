@@ -44,6 +44,7 @@ import com.google.common.io.Files;
 
 import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.MessageBody;
+import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.parsing.Bodies;
 import net.bluemind.backend.mail.parsing.EmlBuilder;
@@ -71,6 +72,24 @@ public class EmlBuilderTests {
 		assertNotNull(eml);
 		assertFalse("Euro unicode character must be encoded", eml.contains("€"));
 		assertTrue("UTF-8 charset must be explicit in eml", eml.contains("charset=utf-8"));
+	}
+
+	@Test
+	public void nullCharInFilename() throws IOException {
+		MessageBody mb = new MessageBody();
+		mb.subject = "un mail réaliste";
+		Part text = text("Coucou, tu veux...", TextStyle.plain);
+		Part img = new Part();
+		img.mime = "image/png";
+		img.contentId = "toto_id";
+		img.fileName = "zizi \u0000 coptere.png";
+		img.dispositionType = DispositionType.ATTACHMENT;
+		img.address = genPart(new byte[0]);
+		img.headers.add(Header.create("Content-Disposition", "bédoin\u0000.png"));
+		Part alternative = multipart(MultipartStyle.mixed, text, img);
+		mb.structure = alternative;
+		String eml = toEML(EmlBuilder.of(mb, sid));
+		assertTrue(eml.contains("=?utf-8?Q?zizi"));
 	}
 
 	@Test

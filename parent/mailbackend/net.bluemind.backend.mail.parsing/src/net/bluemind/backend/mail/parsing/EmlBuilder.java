@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.mail.internet.MimeUtility;
 
@@ -54,6 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Sets;
 
 import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.MessageBody;
@@ -182,7 +184,8 @@ public class EmlBuilder {
 			return MimeUtility.encodeWord(s, "utf-8", "Q");
 		} catch (UnsupportedEncodingException e) {
 			// should not happen as utf-8 is always available
-			return s;
+			logger.error(e.getMessage(), e);
+			return "broken-name-" + System.nanoTime() + ".bin";
 		}
 	}
 
@@ -224,12 +227,20 @@ public class EmlBuilder {
 		return body;
 	}
 
+	private static final Set<String> IGNORED_CLIENT_HEADERS = Sets.newHashSet("content-disposition");
+
 	private static void fillHeader(Header partHeader, List<net.bluemind.backend.mail.api.MessageBody.Header> headers,
 			boolean replace) throws MimeException {
 		for (net.bluemind.backend.mail.api.MessageBody.Header h : headers) {
+			if (IGNORED_CLIENT_HEADERS.contains(h.name.toLowerCase())) {
+				logger.warn("Ignoring client provided {}: {}", h.name, h.values);
+				continue;
+			}
+
 			if (replace || h.name.equals("Content-Type") || h.name.equals("Content-Transfer-Encoding")) {
 				partHeader.removeFields(h.name);
 			}
+
 			if (h.values.size() == 1) {
 				ParsedField parsed = LenientFieldParser.parse(h.name + ": " + h.values.get(0));
 				partHeader.addField(parsed);
