@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -45,14 +44,11 @@ import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportStatus;
 import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportedMailboxItem;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
-import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
-import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
-import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -67,8 +63,8 @@ import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.ContainerStore;
-import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.imap.CreateMailboxResult;
 import net.bluemind.imap.Flag;
@@ -110,23 +106,9 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 		MailboxFolder value = nameSanitizer.sanitizeNames(v);
 
-		String oldName = current.value.fullName;
-		String newName = value.fullName;
 		String toWatch = container.uid;
-		if (root.ns == Namespace.shared && value.parentUid != null) {
-			String parentRecs = IMailReplicaUids.mboxRecords(value.parentUid);
-			ReplicasStore repStore = new ReplicasStore(DataSourceRouter.get(context, parentRecs));
-			Optional<SubtreeLocation> optRecordsLocation = SubtreeLocations.getById(repStore, value.parentUid);
-			if (!optRecordsLocation.isPresent()) {
-				throw ServerFault.notFound("subtree loc not found for parent " + value.parentUid);
-			}
-			SubtreeLocation recLoc = optRecordsLocation.get();
-			toWatch = recLoc.subtreeContainer;
-			oldName = imapPath(current.value);
-			newName = recLoc.imapPath(context) + "/" + value.name;
-		}
-		final String fnOld = oldName;
-		final String fnNew = newName;
+		final String fnOld = imapPath(current.value);
+		final String fnNew = imapPath(value);
 
 		if (fnOld.equals(fnNew)) {
 			logger.warn("Rename attempt to same name '{}'", fnOld);
@@ -158,7 +140,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		}
 
 		FolderInternalIdCache.storeExpectedRecordId(container, value.fullName, hierId);
-		final String computedName = newName.fullName;
+		final String computedName = newName.imapName;
 
 		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onMailboxCreated(newName.subtreeContainer,
 				newName.fullName);
@@ -187,21 +169,19 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		String subtreeContainer;
 		String fullName;
 		String parentUid;
+		String imapName;
 
-		public UpdatedName(String subtreeContainer, String fullName, String parentUid) {
+		public UpdatedName(String subtreeContainer, String fullName, String imapName, String parentUid) {
 			this.subtreeContainer = subtreeContainer;
 			this.fullName = fullName;
+			this.imapName = imapName;
 			this.parentUid = parentUid;
 		}
 
 	}
 
 	private UpdatedName updateName(MailboxFolder folder, String containerUid) {
-		if (root.ns == Namespace.shared) {
-			return new UpdatedName(containerUid, "Dossiers partagés/" + folder.fullName, folder.parentUid);
-		} else {
-			return new UpdatedName(containerUid, folder.fullName, folder.parentUid);
-		}
+		return new UpdatedName(containerUid, fullPath(folder), imapPath(folder), folder.parentUid);
 	}
 
 	@Override
@@ -218,7 +198,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		logger.info("toDelete: {}", toDelete);
 		UpdatedName newName = updateName(toDelete.value, container.uid);
 		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(newName.subtreeContainer);
-		final String fnName = newName.fullName;
+		final String fnName = newName.imapName;
 		final String fnToWath = newName.subtreeContainer;
 		imapContext.withImapClient(sc -> {
 			logger.info("Deleting {}", fnName);
@@ -326,8 +306,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			FlagsList flags = new FlagsList();
 			flags.add(flag);
 
-			String folderName = root.ns == Namespace.shared ? computeSharedFolderFullName(folder)
-					: folder.value.fullName;
+			String folderName = imapPath(folder.value);
 			logger.info("Add flag {} to '{}'", flag, folderName);
 			if (storeClient.select(folderName)) {
 				boolean flagApplied = storeClient.uidStore("1:*", flags, true);
@@ -345,17 +324,8 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		return future;
 	}
 
-	private String computeSharedFolderFullName(ItemValue<MailboxFolder> folder) {
-		String parentUid = folder.value.parentUid != null ? folder.value.parentUid : folder.uid;
-		String parentRecs = IMailReplicaUids.mboxRecords(parentUid);
-		ReplicasStore repStore = new ReplicasStore(DataSourceRouter.get(context, parentRecs));
-		return SubtreeLocations.getById(repStore, parentUid)
-				.map(sl -> sl.imapPath(context) + (folder.value.parentUid != null ? "/" + folder.value.name : ""))
-				.orElseThrow(() -> new ServerFault("subtree loc not found for parent " + parentUid));
-	}
-
 	private CompletableFuture<?> deleteChildFolders(ItemValue<MailboxFolder> toClean, StoreClient sc) {
-		String childPrefix = (root.ns == Namespace.shared ? "Dossiers partagés/" : "") + toClean.value.fullName + "/";
+		String childPrefix = imapPath(toClean.value) + "/";
 		ListResult allFolders = sc.listAll();
 		List<String> toRemove = allFolders.stream()//
 				.filter(ListInfo::isSelectable).filter(li -> {
@@ -525,12 +495,34 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 	}
 
 	private String imapPath(MailboxFolder folder) {
+		return imapPath(folder.fullName);
+	}
+
+	private String imapPath(String fullName) {
 		Namespace ns = root.ns;
-		if (ns == Namespace.users) {
-			return folder.fullName;
+		SecurityContext security = context.getSecurityContext();
+		if (ns == Namespace.users && !security.isDomainGlobal() && !container.owner.equals(security.getSubject())) {
+			String root = container.name.substring(6);
+			if (fullName.equals("INBOX")) {
+				return "Autres utilisateurs/" + root;
+			}
+			return "Autres utilisateurs/" + root + "/" + fullName;
+
 		} else {
-			return "Dossiers partagés/" + folder.fullName;
+			return fullPath(fullName);
 		}
 	}
+
+	private String fullPath(MailboxFolder folder) {
+		return fullPath(folder.fullName);
+	}
+	private String fullPath(String fullName) {
+		if (root.ns == Namespace.users) {
+			return fullName;
+		} else {
+			return "Dossiers partagés/" + fullName;
+		}
+	}
+
 
 }
