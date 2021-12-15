@@ -3,9 +3,9 @@
         <bm-icon icon="info-circle" class="mr-1 mt-1 align-items-start" />
         <span>
             {{ $t("preferences.mail.remote.images.explanations") }}
-            <a href="https://forge.bluemind.net/confluence/display/BM4/La+messagerie" target="_blank">
+            <!-- <a href="https://forge.bluemind.net/confluence/display/BM4/La+messagerie" target="_blank">
                 {{ $t("preferences.mail.remote.images.help") }}
-            </a>
+            </a> -->
         </span>
     </div>
 </template>
