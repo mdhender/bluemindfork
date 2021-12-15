@@ -28,7 +28,7 @@
 		<tycho-version>1.7.0</tycho-version>
 		<tycho-extras-version>1.7.0</tycho-extras-version>
 		<bm-plugins-version>1.0.426</bm-plugins-version>
-		<bm.metrics.agent>1.27.0</bm.metrics.agent>
+		<bm.metrics.agent>1.28.0</bm.metrics.agent>
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
 		<sonar.language>java</sonar.language>
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -44,7 +44,7 @@
 		<repository>
 			<id>bluemind-deps</id>
 			<layout>p2</layout>
-			<url>https://forge.bluemind.net/staging/p2/dependencies/573/</url>
+			<url>https://forge.bluemind.net/staging/p2/dependencies/574/</url>
 		</repository>
 		<repository>
 			<id>tigase</id>
