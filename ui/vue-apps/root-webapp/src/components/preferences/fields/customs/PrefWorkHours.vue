@@ -8,7 +8,7 @@
             <bm-form-time-picker
                 class="mt-1"
                 :max="adaptedWorkHoursEnd"
-                :value="adaptedWorkHoursStart"
+                :value="displayedStart"
                 :disabled="isWholeDay"
                 @input="onHoursStartChanged"
             />
@@ -18,7 +18,7 @@
             <bm-form-time-picker
                 class="mt-1"
                 :min="adaptedWorkHoursStart"
-                :value="adaptedWorkHoursEnd"
+                :value="displayedEnd"
                 :disabled="isWholeDay"
                 @input="onHoursEndChanged"
             />
@@ -44,6 +44,9 @@ export default {
             default: () => [WORK_HOURS_START_SETTING, WORK_HOURS_END_SETTING]
         }
     },
+    data() {
+        return { tmpStart: null, tmpEnd: null };
+    },
     computed: {
         workHoursEnd() {
             return this.value[WORK_HOURS_END_SETTING];
@@ -59,14 +62,24 @@ export default {
         },
         adaptedWorkHoursEnd() {
             return decimalToTime(this.workHoursEnd);
+        },
+        displayedStart() {
+            return this.workHoursStart === "0" && this.tmpStart
+                ? decimalToTime(this.tmpStart)
+                : this.adaptedWorkHoursStart;
+        },
+        displayedEnd() {
+            return this.workHoursEnd === "0" && this.tmpEnd ? decimalToTime(this.tmpEnd) : this.adaptedWorkHoursEnd;
         }
     },
     methods: {
         setDefault() {
-            this.value[WORK_HOURS_START_SETTING] = "8";
-            this.value[WORK_HOURS_END_SETTING] = "18";
+            this.value[WORK_HOURS_START_SETTING] = this.tmpStart ? this.tmpStart : "8";
+            this.value[WORK_HOURS_END_SETTING] = this.tmpEnd ? this.tmpEnd : "18";
         },
         setWholeDay() {
+            this.tmpStart = this.value[WORK_HOURS_START_SETTING];
+            this.tmpEnd = this.value[WORK_HOURS_END_SETTING];
             this.value[WORK_HOURS_START_SETTING] = "0";
             this.value[WORK_HOURS_END_SETTING] = "0";
         },
