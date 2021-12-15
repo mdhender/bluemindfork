@@ -30,7 +30,8 @@ describe("getters", () => {
         const folder = {
             name: "foo",
             path: "foo",
-            key: "123"
+            key: "123",
+            mailboxRef: { key: "mbkey" }
         };
         const state = {
             "123": folder
@@ -39,7 +40,6 @@ describe("getters", () => {
         expect(getters[FOLDERS_BY_UPPERCASE_PATH](state, fakeGetters)["foo".toUpperCase()]).toEqual(folder);
         expect(getters[FOLDERS_BY_UPPERCASE_PATH](state, fakeGetters)["whatever".toUpperCase()]).toEqual(undefined);
     });
-
     test("FOLDER_HAS_CHILDREN", () => {
         const state = {
             "1": { key: "1", imapName: "1", path: "1", parent: null, mailboxRef: { key: "1" } },

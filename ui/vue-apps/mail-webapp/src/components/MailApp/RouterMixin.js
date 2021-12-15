@@ -74,7 +74,7 @@ export default {
             async handler() {
                 await this.$_RouterMixin_isReady(this.route.mailbox);
                 try {
-                    const folder = this.$_RouterMixin_resolveFolder(this.route);
+                    const folder = this.$_RouterMixin_resolveFolder();
                     this.SET_CONVERSATION_LIST_FILTER(this.route.filter);
                     this.SET_SEARCH_PATTERN(this.route.search.pattern);
                     if (this.route.search.pattern) {
@@ -112,14 +112,14 @@ export default {
             SET_SEARCH_PATTERN,
             SET_SEARCH_FOLDER
         }),
-        $_RouterMixin_resolveFolder({ folder }) {
-            if (folder) {
-                let path = folder;
-                const result = this.FOLDERS_BY_UPPERCASE_PATH[path.toUpperCase()];
-                if (!result) {
-                    throw "Folder " + path + " not found";
+        $_RouterMixin_resolveFolder() {
+            let path = this.route.folder;
+            if (path) {
+                let mailbox = this.MY_MAILBOX;
+                if (this.route.mailbox) {
+                    mailbox = this.MAILBOX_BY_NAME(this.route.mailbox);
                 }
-                return result;
+                return this.FOLDERS_BY_UPPERCASE_PATH(mailbox.key)[path.toUpperCase()];
             }
             return this.MY_INBOX;
         },

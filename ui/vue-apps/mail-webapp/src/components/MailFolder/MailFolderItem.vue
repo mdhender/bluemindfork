@@ -38,6 +38,7 @@
     <mail-folder-input
         v-else
         ref="folder-input"
+        :mailbox-key="folder.mailboxRef.key"
         :folder="folder"
         :shared="shared"
         @close="closeInput"

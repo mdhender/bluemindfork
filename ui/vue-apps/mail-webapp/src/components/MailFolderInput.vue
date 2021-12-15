@@ -42,6 +42,10 @@ export default {
         BmNotice
     },
     props: {
+        mailboxKey: {
+            type: String,
+            required: true
+        },
         folder: {
             type: Object,
             required: false,
@@ -70,7 +74,7 @@ export default {
             if ((this.folder && this.folder.name === this.newFolderName) || this.newFolderName === "") {
                 return true;
             }
-            return isNameValid(this.newFolderName, this.path, this.FOLDERS_BY_UPPERCASE_PATH);
+            return isNameValid(this.newFolderName, this.path, this.FOLDERS_BY_UPPERCASE_PATH(this.mailboxKey));
         },
         path() {
             let path = "";
@@ -126,7 +130,7 @@ export default {
                 if (this.folder && this.folder.name === this.newFolderName) {
                     return;
                 }
-                const normalizedName = normalize(this.newFolderName, this.FOLDERS_BY_UPPERCASE_PATH);
+                const normalizedName = normalize(this.newFolderName, this.FOLDERS_BY_UPPERCASE_PATH(this.mailboxKey));
                 this.$emit("submit", normalizedName);
                 this.closeInput();
             }

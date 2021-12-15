@@ -46,6 +46,7 @@
             <mail-folder-input
                 class="pl-2 pr-1"
                 :submit-on-focusout="false"
+                :mailbox-key="mailboxKey"
                 @submit="newFolderName => moveToFolder({ name: newFolderName, path: newFolderName })"
                 @keydown.left.native.stop
                 @keydown.right.native.stop
@@ -97,7 +98,7 @@ export default {
     },
     mixins: [ActionTextMixin, FilterFolderMixin, MoveMixin, SelectionMixin],
     computed: {
-        ...mapState("mail", ["mailboxes"]),
+        ...mapState("mail", ["folders", "mailboxes"]),
         ...mapGetters("mail", { FOLDERS_BY_UPPERCASE_PATH }),
         displayCreateFolderBtnFromPattern() {
             let pattern = this.pattern;
@@ -106,6 +107,9 @@ export default {
                 return pattern && isNameValid(pattern, pattern, this.FOLDERS_BY_UPPERCASE_PATH) === true;
             }
             return false;
+        },
+        mailboxKey() {
+            return this.folders[this.selected[0]?.folderRef.key]?.mailboxRef.key;
         }
     },
     methods: {
@@ -128,9 +132,6 @@ export default {
         },
         translatePath(path) {
             return translatePath(path);
-        },
-        mailbox(folder) {
-            return this.mailboxes[folder.mailboxRef.key];
         }
     }
 };

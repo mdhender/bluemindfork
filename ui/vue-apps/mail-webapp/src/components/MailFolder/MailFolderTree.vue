@@ -24,7 +24,7 @@
                     <mail-folder-item :folder-key="value.key" />
                 </template>
             </bm-tree>
-            <mail-folder-input v-if="showInput" class="pl-4" @submit="add" />
+            <mail-folder-input v-if="showInput" class="pl-4" :mailbox-key="MY_MAILBOX.key" @submit="add" />
         </bm-collapse>
     </div>
 </template>
@@ -40,7 +40,7 @@ import { MY_MAILBOX, FOLDER_GET_CHILDREN } from "~/getters";
 import { MailRoutesMixin } from "~/mixins";
 
 export default {
-    name: "MailFolderMyMailbox",
+    name: "MailFolderTree",
     components: {
         BmButton,
         BmCollapse,

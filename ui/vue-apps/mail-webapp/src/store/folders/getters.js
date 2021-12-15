@@ -10,9 +10,13 @@ import { compare } from "~/model/folder";
 
 export default {
     [FOLDERS]: state => Object.values(state).sort(compare),
-    [FOLDERS_BY_UPPERCASE_PATH]: (state, { FOLDERS }) => {
+    [FOLDERS_BY_UPPERCASE_PATH]: state => mailboxKey => {
         const foldersByPath = {};
-        FOLDERS.forEach(folder => (foldersByPath[folder.path.toUpperCase()] = folder));
+        Object.values(state).forEach(folder => {
+            if (folder.mailboxRef.key === mailboxKey) {
+                foldersByPath[folder.path.toUpperCase()] = folder;
+            }
+        });
         return foldersByPath;
     },
     [IS_DESCENDANT]: state => (parentKey, key) => {
