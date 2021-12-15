@@ -7,7 +7,7 @@
         </bm-alert-area>
         <pref-sections v-show="!HAS_SEARCH" ref="sections" :sections="sections" />
         <pref-search-results v-if="HAS_SEARCH" :results="searchResults" :is-loading="isSearchLoading" />
-        <pref-right-panel-footer />
+        <transition name="slide-fade"><pref-right-panel-footer /></transition>
     </bm-col>
 </template>
 
@@ -158,6 +158,16 @@ function doesNodeMatch(node, pattern) {
             margin-right: $sp-3;
             margin-left: $sp-3;
         }
+    }
+
+    .slide-fade-enter-active,
+    .slide-fade-leave-active {
+        transition: all 0.1s ease-out;
+    }
+
+    .slide-fade-enter,
+    .slide-fade-leave-to {
+        transform: translateY(20px);
     }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <div class="d-flex mt-auto pl-5 py-3 border-top border-secondary">
+    <div v-if="HAS_CHANGED" class="d-flex mt-auto pl-5 py-3 border-top border-secondary">
         <bm-button type="submit" variant="primary" :disabled="!HAS_CHANGED || HAS_ERROR" @click.prevent="SAVE">
             {{ $t("common.save") }}
         </bm-button>

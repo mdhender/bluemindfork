@@ -11,7 +11,7 @@
                 <h2 class="d-inline align-middle">{{ $t("common.preference") }}</h2>
             </div>
         </div>
-        <pref-left-panel-nav :sections="sections" />
+        <pref-left-panel-nav :sections="sections" class="flex-grow-1" />
         <div class="p-3">
             <bm-button class="text-white font-weight-bold text-left" variant="link" @click="goToOldPrefs">
                 {{ $t("preferences.access_old_settings_app") }}

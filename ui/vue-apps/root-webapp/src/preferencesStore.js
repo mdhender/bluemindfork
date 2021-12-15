@@ -158,9 +158,6 @@ export default {
             namespaced: true,
             state: {},
             actions: {
-                // async SAVE() {
-                //     //ALERT !
-                // },
                 CANCEL({ state, commit }) {
                     Object.keys(state).forEach(id => {
                         if (state[id].current && !state[id].current.options.saved) {

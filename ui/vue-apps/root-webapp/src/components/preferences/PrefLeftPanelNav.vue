@@ -13,7 +13,7 @@
                 @click="goToSection(section)"
             >
                 <div class="row align-items-center">
-                    <div class="col-2 text-center"><pref-section-icon :section="section" /></div>
+                    <div class="col-2 text-center mr-1"><pref-section-icon :section="section" /></div>
                     <div class="col">
                         <div v-if="section.id === 'my_account'" class="text-white display-name">
                             {{ userDisplayName }}
@@ -56,6 +56,9 @@ export default {
         ...mapGetters("preferences", ["HAS_SEARCH"]),
         ...mapState("preferences", ["selectedSectionId"])
     },
+    mounted() {
+        this.$refs.section[0].focus();
+    },
     methods: {
         ...mapMutations("preferences", ["SET_SEARCH", "SET_SELECTED_SECTION"]),
         async goToSection(section) {
@@ -67,9 +70,6 @@ export default {
         isActive(sectionId) {
             return !this.HAS_SEARCH && sectionId === this.selectedSectionId;
         }
-    },
-    mounted() {
-        this.$refs.section[0].focus();
     }
 };
 </script>

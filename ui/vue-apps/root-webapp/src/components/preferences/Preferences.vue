@@ -9,7 +9,7 @@
         <bm-container
             v-else
             fluid
-            class="flex-fill bg-surface m-lg-5"
+            class="flex-fill bg-surface visible-container"
             tabindex="0"
             @click="lockClose = true"
             @keydown.esc="closePreferences"
@@ -143,3 +143,15 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+@media only screen and (min-width: map-get($grid-breakpoints, "lg")) {
+    .preferences .visible-container {
+        max-width: 80%;
+        margin-top: $sp-5;
+        margin-bottom: $sp-5;
+    }
+}
+</style>
