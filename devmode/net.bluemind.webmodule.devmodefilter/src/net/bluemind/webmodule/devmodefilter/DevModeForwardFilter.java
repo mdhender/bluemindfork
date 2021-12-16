@@ -60,6 +60,9 @@ public class DevModeForwardFilter implements IWebFilter, NeedVertx, IHasPriority
 
 	@Override
 	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
+		// Wait for the forward request
+		request.pause();
+
 		String path = request.path();
 
 		if (denyFilters.stream().anyMatch(f -> f.matcher(path).matches())) {
