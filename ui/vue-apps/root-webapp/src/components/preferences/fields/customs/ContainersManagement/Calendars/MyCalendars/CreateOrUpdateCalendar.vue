@@ -13,22 +13,19 @@
             v-if="value.settings.type === 'externalIcs'"
             :label="$t('common.external_ics.url')"
             label-for="calendar-ics-url"
+            :state="icsUrlInputState"
+            :invalid-feedback="$t('common.invalid_url')"
         >
             <bm-form-input
                 id="calendar-ics-url"
                 :value="value.settings.icsUrl"
+                :state="icsUrlInputState"
                 type="text"
                 class="mb-1"
                 required
                 @input="onIcsUrlChange"
             />
             <bm-spinner v-if="checkUrlStatus === 'LOADING'" :size="0.2" />
-            <template v-if="checkUrlStatus === 'VALID'">
-                <bm-icon icon="check-circle" size="lg" class="text-success" /> {{ $t("common.valid_url") }}
-            </template>
-            <template v-if="checkUrlStatus === 'ERROR'">
-                <bm-icon icon="exclamation-circle" size="lg" class="text-danger" /> {{ $t("common.invalid_url") }}
-            </template>
         </bm-form-group>
         <bm-form-group :label="$t('common.color')" label-for="calendar-color">
             <!-- FIXME: required is an unknown prop for BmFormColorPicker ? -->
@@ -46,11 +43,11 @@
 
 <script>
 import debounce from "lodash/debounce";
-import { BmFormColorPicker, BmFormGroup, BmFormInput, BmFormSelect, BmIcon, BmSpinner } from "@bluemind/styleguide";
+import { BmFormColorPicker, BmFormGroup, BmFormInput, BmFormSelect, BmSpinner } from "@bluemind/styleguide";
 
 export default {
     name: "CreateOrUpdateCalendar",
-    components: { BmFormColorPicker, BmFormGroup, BmFormInput, BmFormSelect, BmIcon, BmSpinner },
+    components: { BmFormColorPicker, BmFormGroup, BmFormInput, BmFormSelect, BmSpinner },
     props: {
         value: {
             type: Object,
@@ -92,6 +89,16 @@ export default {
     computed: {
         isValid() {
             return this.value.settings.type !== "externalIcs" || this.checkUrlStatus === "VALID";
+        },
+        icsUrlInputState() {
+            switch (this.checkUrlStatus) {
+                case "ERROR":
+                    return false;
+                case "VALID":
+                    return true;
+                default:
+                    return null;
+            }
         }
     },
     watch: {
