@@ -121,7 +121,7 @@ public class DirectorySerializer implements DataSerializer {
 
 		BlobStorageCleaner cleaner = new BmFilesystemBlobStorageCleaner(localPublishDir, 10);
 		this.producer = HollowProducer.withPublisher(publisher).withAnnouncer(announcer) //
-				.withBlobStorageCleaner(cleaner).buildIncremental();
+				.noIntegrityCheck().withBlobStorageCleaner(cleaner).buildIncremental();
 		producer.initializeDataModel(AddressBookRecord.class);
 		producer.initializeDataModel(OfflineAddressBook.class);
 		logger.info("Announcement watcher current version: {}", announcementWatcher.getLatestVersion());
