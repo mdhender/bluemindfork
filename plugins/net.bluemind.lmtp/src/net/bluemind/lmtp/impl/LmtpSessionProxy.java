@@ -18,7 +18,8 @@
  */
 package net.bluemind.lmtp.impl;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -322,7 +323,7 @@ public class LmtpSessionProxy implements LmtpRequestHandler, LmtpResponseHandler
 
 		// Assemble Received header
 		String localHostname = "unknown";
-		String timestamp = new MailDateFormat().format(new Date());
+		String timestamp = DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now());
 		String name = "Received: ";
 		String value = String.format("from %s (LHLO %s) by %s with LMTP; %s", remoteAddress, lhloArg, localHostname,
 				timestamp);
