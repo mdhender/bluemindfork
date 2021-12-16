@@ -60,7 +60,7 @@ public class DomainRootUpdateService {
 		BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
 		ItemValue<Domain> domain = context.provider().instance(IDomains.class, domainUid).get(domainUid);
 		if (domain == null) {
-			throw new ServerFault.notFound(String.format("Domain %s not found", domainUid));
+			throw ServerFault.notFound(String.format("Domain %s not found", domainUid));
 		}
 
 		List<ItemValue<Server>> ldapExportServers = ldapExportServer(context, domain.uid);
