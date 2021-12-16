@@ -167,10 +167,20 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 	}
 
 	public static String streamToString(Stream stream) {
+		AccumulatorStream writer = streamToBuffer(stream);
+		return writer.buffer().toString();
+	}
+
+	public static byte[] streamToBytes(Stream stream) {
+		final AccumulatorStream writer = streamToBuffer(stream);
+		return writer.buffer().getBytes();
+	}
+
+	private static AccumulatorStream streamToBuffer(Stream stream) {
 		final ReadStream<Buffer> reader = VertxStream.read(stream);
 		final AccumulatorStream writer = new AccumulatorStream();
 		stream(reader, writer);
-		return writer.buffer().toString();
+		return writer;
 	}
 
 	public static <T> CompletableFuture<Buffer> asyncStreamToBuffer(Stream stream) {

@@ -30,12 +30,14 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
+import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.stream.Field;
 import org.junit.After;
 import org.junit.Before;
@@ -50,6 +52,7 @@ import com.google.common.util.concurrent.SettableFuture;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.VCard;
+import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.backend.cyrus.CyrusAdmins;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.ICalendar;
@@ -61,6 +64,7 @@ import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.calendar.hook.CalendarHookAddress;
 import net.bluemind.core.api.Email;
+import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
@@ -73,11 +77,14 @@ import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.sendmail.testhelper.FakeSendmail;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.core.tests.vertx.VertxEventChecker;
+import net.bluemind.dockerclient.DockerEnv;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
+import net.bluemind.filehosting.api.IFileHosting;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
@@ -85,6 +92,7 @@ import net.bluemind.icalendar.api.ICalendarElement.RRule;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.imip.parser.IMIPInfos;
+import net.bluemind.imip.parser.IMIPParserFactory;
 import net.bluemind.imip.parser.ITIPMethod;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.lmtp.backend.LmtpAddress;
@@ -98,6 +106,8 @@ import net.bluemind.lmtp.filter.imip.IIMIPHandler;
 import net.bluemind.lmtp.filter.imip.IMIPResponse;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
@@ -152,11 +162,15 @@ public class ImipFilterVEventTests {
 		imapServer.ip = cyrusIp;
 		imapServer.tags = Lists.newArrayList("mail/imap");
 
-		PopulateHelper.initGlobalVirt(esServer, imapServer);
+		Server nodeServer = new Server();
+		nodeServer.ip = DockerEnv.getIp("bluemind/node-tests");
+		nodeServer.tags = Lists.newArrayList("filehosting/data");
+
+		PopulateHelper.initGlobalVirt(esServer, imapServer, nodeServer);
 
 		PopulateHelper.addDomainAdmin("admin0", "global.virt");
 
-		PopulateHelper.createTestDomain(domainUid, esServer, imapServer);
+		PopulateHelper.createTestDomain(domainUid, esServer, imapServer, nodeServer);
 		new CyrusService(cyrusIp).createPartition(domainUid);
 		new CyrusService(cyrusIp).refreshPartitions(Arrays.asList(domainUid));
 		new CyrusAdmins(
@@ -180,7 +194,7 @@ public class ImipFilterVEventTests {
 
 		testContext = new BmTestContext(SecurityContext.SYSTEM);
 
-		user1Uid = PopulateHelper.addUser("user1", domainUid);
+		user1Uid = PopulateHelper.addUser("user1", domainUid, Routing.none, "canRemoteAttach");
 		user1 = testContext.provider().instance(IUser.class, domainUid).getComplete(user1Uid);
 		user1Mailbox = testContext.provider().instance(IMailboxes.class, domainUid).getComplete(user1Uid);
 		user1Calendar = testContext.provider().instance(ICalendar.class, ICalendarUids.defaultUserCalendar(user1Uid));
@@ -225,6 +239,76 @@ public class ImipFilterVEventTests {
 		assertNotNull(res);
 		assertEquals("updated", res.value.main.summary);
 		assertEquals(2, res.value.main.attendees.size());
+	}
+
+	@Test
+	public void requestHandler_Event_CID_Attachments() throws Exception {
+		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
+
+		IMIPInfos imip = null;
+
+		try (InputStream in = Ex2003Tests.class.getClassLoader()
+				.getResourceAsStream("ics/office365_invitation_inline_image.eml");
+				Message parsed = Mime4JHelper.parse(in)) {
+			imip = IMIPParserFactory.create().parse(parsed);
+		}
+
+		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		handler.handle(imip, recipient, domain, user1Mailbox);
+
+		List<ItemValue<VEventSeries>> byIcsUid = user1Calendar.getByIcsUid(
+				"040000008200E00074C5B7101A82E00800000000DEE9BEDA6DF2D7010000000000000000100000007F3854933A325346B9433160D5F41CEA");
+		assertEquals(1, byIcsUid.size());
+
+		VEvent main = byIcsUid.get(0).value.main;
+		assertEquals(1, main.attachments.size());
+
+		AttachedFile attachedFile = main.attachments.get(0);
+		assertEquals("CID:a2008ab2-a526-4687-9bfb-259fd6c5bbdc", attachedFile.cid);
+		assertNotNull(attachedFile.publicUrl);
+
+		byte[] image = download(attachedFile.publicUrl);
+		assertEquals(7522, image.length);
+		assertEquals("Screenshot 2021-12-16 at 10.30.00.png", attachedFile.name);
+	}
+
+	@Test
+	public void requestHandler_Event_CID_Attachments_BlueMind_MAPI() throws Exception {
+		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
+
+		IMIPInfos imip = null;
+
+		try (InputStream in = Ex2003Tests.class.getClassLoader()
+				.getResourceAsStream("ics/bluemind_mapi_invitation_inline.eml");
+				Message parsed = Mime4JHelper.parse(in)) {
+			imip = IMIPParserFactory.create().parse(parsed);
+		}
+
+		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		handler.handle(imip, recipient, domain, user1Mailbox);
+
+		List<ItemValue<VEventSeries>> byIcsUid = user1Calendar.getByIcsUid(
+				"040000008200e00074c5b7101a82e00800000000e015ba780bfcd7010000000000000000100000000bfbc82d3f1c81458f25ba118ea29e2d");
+		assertEquals(1, byIcsUid.size());
+
+		VEvent main = byIcsUid.get(0).value.main;
+		assertEquals(1, main.attachments.size());
+
+		AttachedFile attachedFile = main.attachments.get(0);
+		assertEquals("image001.gif@01D7FC0B.78B7A4E0", attachedFile.cid);
+		assertEquals("cd0006cbfcfa0aab9671db2c9d0a3f6d.gif", attachedFile.name);
+		assertNotNull(attachedFile.publicUrl);
+
+	}
+
+	private byte[] download(String publicUrl) throws Exception {
+		int idx = publicUrl.indexOf("fh/bm-fh/");
+		String uid = publicUrl.substring(idx + "fh/bm-fh/".length());
+
+		IFileHosting fh = testContext.provider().instance(IFileHosting.class, domain.uid);
+		Stream sharedFile = fh.getSharedFile(uid);
+
+		return GenericStream.streamToBytes(sharedFile);
 	}
 
 	@Test
@@ -1134,6 +1218,7 @@ public class ImipFilterVEventTests {
 		imip.organizerEmail = "external@ext-domain.lan";
 		imip.uid = icsUid;
 		imip.sequence = 0;
+		imip.cid = Collections.emptyMap();
 
 		return imip;
 	}

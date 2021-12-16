@@ -38,5 +38,8 @@ Require-Bundle: org.junit,
  org.apache.james.apache-mime4j-core,
  net.bluemind.calendar.helper,
  net.bluemind.icalendar.parser;bundle-version="4.1.0",
- net.bluemind.mime4j.common
+ net.bluemind.mime4j.common,
+ net.bluemind.attachment.api,
+ net.bluemind.dockerclient,
+ net.bluemind.filehosting.api
 Automatic-Module-Name: net.bluemind.lmtp.filter.imip.tests

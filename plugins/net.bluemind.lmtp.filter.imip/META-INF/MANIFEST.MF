@@ -34,7 +34,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.icalendar.parser,
  net.bluemind.hornetq.client,
  net.bluemind.network.topology,
- com.github.ben-manes.caffeine
+ com.github.ben-manes.caffeine,
+ net.bluemind.attachment.api
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: blue-mind.net

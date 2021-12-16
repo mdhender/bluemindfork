@@ -406,6 +406,14 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		att.expirationDate = 0l;
 		att.name = filename;
 		att.publicUrl = url;
+		if (prop.getParameter("X-CID") != null) {
+			att.cid = prop.getParameter("X-CID").getValue();
+		} else {
+			if (url != null && url.toUpperCase().startsWith("CID:")) {
+				att.cid = url;
+				att.name = url;
+			}
+		}
 		if (Strings.isNullOrEmpty(att.name) || Strings.isNullOrEmpty(att.publicUrl)) {
 			logger.info("Skipping broken attachment property {}:{}", att.name, att.publicUrl);
 			return Optional.empty();
@@ -1059,6 +1067,9 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			for (AttachedFile attachment : iCalendarElement.attachments) {
 				ParameterList params = new ParameterList();
 				params.add(new XParameter("X-FILE-NAME", attachment.name));
+				if (attachment.cid != null) {
+					params.add(new XParameter("X-CID", attachment.cid));
+				}
 				try {
 					Attach attach = new Attach(params, attachment.publicUrl);
 					properties.add(attach);

@@ -126,6 +126,7 @@ create table t_calendar_vevent (
     */
    attach_uri text[],
    attach_name text[],
+   attach_cid text[],
 
   /*
    * 4.8.7.4.  Sequence Number

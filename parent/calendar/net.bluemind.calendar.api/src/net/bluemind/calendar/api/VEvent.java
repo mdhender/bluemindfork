@@ -97,6 +97,7 @@ public class VEvent extends ICalendarElement {
 			file.name = att.name;
 			file.expirationDate = att.expirationDate;
 			file.publicUrl = att.publicUrl;
+			file.cid = att.cid;
 			return file;
 		}).collect(Collectors.toList());
 

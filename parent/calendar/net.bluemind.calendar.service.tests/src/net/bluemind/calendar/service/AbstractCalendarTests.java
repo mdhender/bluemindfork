@@ -433,6 +433,7 @@ public abstract class AbstractCalendarTests {
 		AttachedFile attachment1 = new AttachedFile();
 		attachment1.publicUrl = "http://somewhere/1";
 		attachment1.name = "test.gif";
+		attachment1.cid = "cid0123456789";
 		event.attachments.add(attachment1);
 		AttachedFile attachment2 = new AttachedFile();
 		attachment2.publicUrl = "http://somewhere/2";

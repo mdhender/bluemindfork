@@ -1058,7 +1058,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.setModelValues_ = function() {
     this.getChild('tags').setValue(model.tags);
     this.getChild('tags').setEnabled(model.states.main)
     
-    this.editor_.setValue(model.description);
+    this.editor_.setValue(this.adaptDescription_());
 
     if (model.states.busy) {
       this.setFormValue_('opacity-busy', true);
@@ -1188,6 +1188,42 @@ net.bluemind.calendar.vevent.ui.Form.prototype.setModelValues_ = function() {
 
 };
 
+net.bluemind.calendar.vevent.ui.Form.prototype.adaptDescription_ = function() {
+	var el = document.createElement( 'html' );
+	el.innerHTML = this.getModel().description;
+	
+	var imgs = el.getElementsByTagName( 'img' );
+
+  goog.array.forEach(imgs, function(img) {
+    var imgSrc = img.src;
+		if (imgSrc.toLowerCase().startsWith('cid:')){
+		    var cid = imgSrc.substring(4);
+        goog.array.forEach(this.getModel().attachments, function(att) {
+          if (att.cid && att.cid == cid){
+            img.src = att.publicUrl;
+            img.alt = imgSrc;
+          }
+        }, this);
+      }
+  }, this);
+	return el.innerHTML;
+}
+
+net.bluemind.calendar.vevent.ui.Form.prototype.adaptDescriptionEditorValue_ = function(value) {
+	var el = document.createElement( 'html' );
+	el.innerHTML = value;
+	
+	var imgs = el.getElementsByTagName( 'img' );
+
+  goog.array.forEach(imgs, function(img) {
+    var imgAlt = img.alt;
+		if (imgAlt && imgAlt.startsWith('cid')){
+			img.src = imgAlt;
+		}
+  }, this);
+
+  return el.innerHTML;
+}
 
 net.bluemind.calendar.vevent.ui.Form.prototype.updateReminderForm_ = function() {
   var elem = this.getElementByClass(goog.getCssName('bm-ui-form-reminder'))
@@ -1400,10 +1436,11 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onTEndChange_ = function(e) {
  */
 net.bluemind.calendar.vevent.ui.Form.prototype.onEditorChange_ = function(e) {
   var value = this.editor_.getValue();
+  
   if (value.length > (1024 * 1024)) {
     this.editor_.setValue(this.getModel().description || '');
   } else {
-    this.getModel().description = value;
+    this.getModel().description = this.adaptDescriptionEditorValue_(value);
     this.setFormActions_();
   }
 };

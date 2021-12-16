@@ -138,7 +138,7 @@ public abstract class AbstractLmtpHandler {
 	/**
 	 * @return
 	 */
-	private String getCoreUrl() {
+	protected String getCoreUrl() {
 		return "http://" + Topology.get().core().value.address() + ":8090";
 	}
 
@@ -190,5 +190,4 @@ public abstract class AbstractLmtpHandler {
 					imip.uid, imip.iCalendarElements.size()));
 		}
 	}
-
 }

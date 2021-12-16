@@ -59,6 +59,7 @@ public class ICalendarElementColumns {
 			.col("rdate_precision", "e_datetime_precision") //
 			.col("attach_uri") //
 			.col("attach_name") //
+			.col("attach_cid") //
 			.col("draft") //
 			.col("sequence");
 
@@ -114,14 +115,17 @@ public class ICalendarElementColumns {
 
 				String[] attachmentUrls = new String[value.attachments.size()];
 				String[] attachmentNames = new String[value.attachments.size()];
+				String[] attachmentCids = new String[value.attachments.size()];
 
 				for (int i = 0; i < value.attachments.size(); i++) {
 					attachmentUrls[i] = value.attachments.get(i).publicUrl;
 					attachmentNames[i] = value.attachments.get(i).name;
+					attachmentCids[i] = value.attachments.get(i).cid;
 				}
 
 				statement.setArray(index++, conn.createArrayOf("text", attachmentUrls));
 				statement.setArray(index++, conn.createArrayOf("text", attachmentNames));
+				statement.setArray(index++, conn.createArrayOf("text", attachmentCids));
 
 				statement.setBoolean(index++, value.draft);
 
@@ -130,6 +134,7 @@ public class ICalendarElementColumns {
 				} else {
 					statement.setInt(index++, value.sequence);
 				}
+
 				return index;
 
 			}
@@ -185,6 +190,7 @@ public class ICalendarElementColumns {
 
 				String[] attachmentUrls = arrayOfString(rs.getArray(index++));
 				String[] attachmentNames = arrayOfString(rs.getArray(index++));
+				String[] attachmentCids = arrayOfString(rs.getArray(index++));
 
 				List<AttachedFile> attachments = new ArrayList<>(attachmentUrls.length);
 				for (int i = 0; i < attachmentUrls.length; i++) {
@@ -192,15 +198,14 @@ public class ICalendarElementColumns {
 					file.publicUrl = attachmentUrls[i];
 					file.name = attachmentNames[i];
 					file.expirationDate = 0l;
+					file.cid = attachmentCids[i];
 					attachments.add(file);
 				}
-
 				value.attachments = attachments;
 
 				value.draft = rs.getBoolean(index++);
 
 				value.sequence = rs.getInt(index++);
-
 				return index;
 			}
 

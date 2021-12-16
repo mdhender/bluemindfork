@@ -83,73 +83,81 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 		IMIPInfos infos = parser.parse(message);
 
 		if (infos != null) {
-			LmtpAddress sender = null;
-			MailboxList fromHeader = message.getFrom();
-			org.apache.james.mime4j.dom.address.Mailbox senderHeader = message.getSender();
-
-			// see #3766, clever mail system override lmtp mail from with a
-			// custom bounce address. So we prioritize From: and Sender: over
-			// lmtp sender
-			if (fromHeader != null && !fromHeader.isEmpty()) {
-				String fromMail = fromHeader.iterator().next().getAddress();
-				sender = new LmtpAddress("<" + fromMail.toLowerCase() + ">", null, null);
-			} else if (senderHeader != null) {
-				sender = new LmtpAddress("<" + senderHeader.getAddress().toLowerCase() + ">", null, null);
-			} else if (env.hasSender()) {
-				sender = env.getSender();
-				logger.info("sender is: {}", sender);
-			} else if (infos.organizerEmail != null) {
-				String em = "<" + infos.organizerEmail.toLowerCase() + ">";
-				logger.warn("Missing sender in envelope, using organizer email");
-				sender = new LmtpAddress(em, null, null);
-			} else {
-				logger.error("No sender or organizer email, don't know how to process");
-				return message;
+			try {
+				return filter(env, message, infos);
+			} finally {
+				infos.release();
 			}
-
-			// BM-7151 fix null organizer email
-			if (infos.organizerEmail == null) {
-				infos.organizerEmail = sender.getEmailAddress();
-			}
-
-			List<LmtpAddress> recipients = env.getRecipients();
-			HeaderList headers = new HeaderList();
-			if (sender != null && recipients != null) {
-				List<String> deniedRecipients = new ArrayList<>(recipients.size());
-				for (LmtpAddress recipient : recipients) {
-					try {
-						IMIPResponse resp = handleIMIPMessage(sender, recipient, infos.copy());
-						headers.addAll(resp.headerFields);
-					} catch (MailboxInvitationDeniedException e) {
-						deniedRecipients.add(e.mboxUid);
-					} catch (CounterNotAllowedException e) {
-						deniedRecipients.add(e.targetMailbox);
-					} catch (ServerFault e) {
-						logger.error("[{}] Error while handling imip message: {}", infos.messageId, e.getCode(), e);
-						throw new FilterException();
-					}
-				}
-				// Mail modifications must be discarded only if all recipients
-				// are denied.
-				if (deniedRecipients.size() == recipients.size()) {
-					throw new PermissionDeniedException(deniedRecipients);
-				} else if (!deniedRecipients.isEmpty()) {
-					RawField rf = new RawField("X-BM-Discard",
-							deniedRecipients.stream().collect(Collectors.joining(",")));
-					UnstructuredField discard = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
-					headers.add(discard);
-				}
-			}
-
-			headers.stream().forEach(field -> {
-				message.getHeader().addField(field);
-			});
-
-			return message;
 		} else {
 			return null;
 		}
 
+	}
+
+	private Message filter(LmtpEnvelope env, Message message, IMIPInfos infos)
+			throws FilterException, PermissionDeniedException {
+		LmtpAddress sender = null;
+		MailboxList fromHeader = message.getFrom();
+		org.apache.james.mime4j.dom.address.Mailbox senderHeader = message.getSender();
+
+		// see #3766, clever mail system override lmtp mail from with a
+		// custom bounce address. So we prioritize From: and Sender: over
+		// lmtp sender
+		if (fromHeader != null && !fromHeader.isEmpty()) {
+			String fromMail = fromHeader.iterator().next().getAddress();
+			sender = new LmtpAddress("<" + fromMail.toLowerCase() + ">", null, null);
+		} else if (senderHeader != null) {
+			sender = new LmtpAddress("<" + senderHeader.getAddress().toLowerCase() + ">", null, null);
+		} else if (env.hasSender()) {
+			sender = env.getSender();
+			logger.info("sender is: {}", sender);
+		} else if (infos.organizerEmail != null) {
+			String em = "<" + infos.organizerEmail.toLowerCase() + ">";
+			logger.warn("Missing sender in envelope, using organizer email");
+			sender = new LmtpAddress(em, null, null);
+		} else {
+			logger.error("No sender or organizer email, don't know how to process");
+			return message;
+		}
+
+		// BM-7151 fix null organizer email
+		if (infos.organizerEmail == null) {
+			infos.organizerEmail = sender.getEmailAddress();
+		}
+
+		List<LmtpAddress> recipients = env.getRecipients();
+		HeaderList headers = new HeaderList();
+		if (sender != null && recipients != null) {
+			List<String> deniedRecipients = new ArrayList<>(recipients.size());
+			for (LmtpAddress recipient : recipients) {
+				try {
+					IMIPResponse resp = handleIMIPMessage(sender, recipient, infos.copy());
+					headers.addAll(resp.headerFields);
+				} catch (MailboxInvitationDeniedException e) {
+					deniedRecipients.add(e.mboxUid);
+				} catch (CounterNotAllowedException e) {
+					deniedRecipients.add(e.targetMailbox);
+				} catch (ServerFault e) {
+					logger.error("[{}] Error while handling imip message: {}", infos.messageId, e.getCode(), e);
+					throw new FilterException();
+				}
+			}
+			// Mail modifications must be discarded only if all recipients
+			// are denied.
+			if (deniedRecipients.size() == recipients.size()) {
+				throw new PermissionDeniedException(deniedRecipients);
+			} else if (!deniedRecipients.isEmpty()) {
+				RawField rf = new RawField("X-BM-Discard", deniedRecipients.stream().collect(Collectors.joining(",")));
+				UnstructuredField discard = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
+				headers.add(discard);
+			}
+		}
+
+		headers.stream().forEach(field -> {
+			message.getHeader().addField(field);
+		});
+
+		return message;
 	}
 
 	/**

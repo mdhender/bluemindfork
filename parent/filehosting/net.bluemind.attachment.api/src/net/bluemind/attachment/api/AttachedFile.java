@@ -26,6 +26,7 @@ public class AttachedFile {
 	public String publicUrl;
 	public Long expirationDate;
 	public String name;
+	public String cid;
 
 	public AttachedFile() {
 
@@ -35,6 +36,7 @@ public class AttachedFile {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((cid == null) ? 0 : cid.hashCode());
 		result = prime * result + ((expirationDate == null) ? 0 : expirationDate.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((publicUrl == null) ? 0 : publicUrl.hashCode());
@@ -50,6 +52,11 @@ public class AttachedFile {
 		if (getClass() != obj.getClass())
 			return false;
 		AttachedFile other = (AttachedFile) obj;
+		if (cid == null) {
+			if (other.cid != null)
+				return false;
+		} else if (!cid.equals(other.cid))
+			return false;
 		if (expirationDate == null) {
 			if (other.expirationDate != null)
 				return false;

@@ -18,6 +18,9 @@
  */
 package net.bluemind.imip.parser;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +48,7 @@ public class IMIPInfos {
 	public int sequence;
 	public Map<String, String> properties = new HashMap<>();
 	public List<ICalendarElement> iCalendarElements = new ArrayList<>();
+	public Map<String, Cid> cid;
 
 	public IMIPInfos() {
 	}
@@ -77,8 +81,30 @@ public class IMIPInfos {
 		infos.organizerEmail = this.organizerEmail;
 		infos.sequence = this.sequence;
 		infos.properties = this.properties;
+		infos.cid = this.cid;
 		infos.iCalendarElements = this.iCalendarElements.stream().map(cal -> cal.copy()).collect(Collectors.toList());
 		return infos;
+	}
+
+	public static class Cid {
+		public final String name;
+		public final String tmpFile;
+
+		public Cid(String name, String tmpFile) {
+			this.name = name;
+			this.tmpFile = tmpFile;
+		}
+	}
+
+	public void release() {
+		if (cid != null && !cid.isEmpty()) {
+			cid.values().forEach(cid -> {
+				try {
+					Files.delete(new File(cid.tmpFile).toPath());
+				} catch (IOException e) {
+				}
+			});
+		}
 	}
 
 }

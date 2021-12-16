@@ -85,7 +85,8 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 	private static final Cache<String, Map<String, String>> senderSettingsCache = Caffeine.newBuilder().recordStats()
 			.expireAfterAccess(2, TimeUnit.MINUTES).build();
 
-	private ISendmail mailer;
+	private final ISendmail mailer;
+	private final EventAttachmentHandler attachmentHandler;
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override
@@ -103,6 +104,7 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 	public EventRequestHandler(ISendmail mailer, LmtpAddress recipient, LmtpAddress sender) {
 		super(recipient, sender);
 		this.mailer = mailer;
+		this.attachmentHandler = new EventAttachmentHandler(provider(), getCoreUrl());
 	}
 
 	@Override
@@ -112,13 +114,20 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 		try {
 			String calUid = getCalendarUid(recipientMailbox);
 
+			IUser userService = provider().instance(IUser.class, recipient.getDomainPart());
+			ItemValue<User> resolvedRecipient = userService.byEmail(recipient.getEmailAddress());
+			Optional<String> userLogin = Optional.ofNullable(resolvedRecipient).map(r -> r.value.login);
+
 			// BM-2892 invitation right
 			ItemValue<User> sender = senderCache.getIfPresent(recipient.getDomainPart() + "#" + imip.organizerEmail);
 			if (sender == null) {
-				IUser userService = provider().instance(IUser.class, recipient.getDomainPart());
+				userService = provider().instance(IUser.class, recipient.getDomainPart());
 				sender = userService.byEmail(imip.organizerEmail);
 				if (sender != null) {
 					senderCache.put(recipient.getDomainPart() + "#" + imip.organizerEmail, sender);
+					if (!userLogin.isPresent()) {
+						userLogin = Optional.of(sender.value.login);
+					}
 				}
 			}
 
@@ -144,6 +153,8 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 			});
 
 			List<ItemValue<VEventSeries>> vseries = cal.getByIcsUid(imip.uid);
+
+			attachmentHandler.detachCidAttachments(series, vseries, imip.cid, userLogin, recipient.getDomainPart());
 
 			setDefaultAlarm(domain, recipientMailbox.uid, series);
 

@@ -141,9 +141,11 @@ public class VEventSeriesStoreTests {
 		for (AttachedFile attachedFile : attachments) {
 			if (attachedFile.name.equals("test.gif")) {
 				assertEquals("http://somewhere/1", attachedFile.publicUrl);
+				assertEquals("cid:012345", attachedFile.cid);
 				checked++;
 			} else if (attachedFile.name.equals("test.png")) {
 				assertEquals("http://somewhere/2", attachedFile.publicUrl);
+				assertNull(attachedFile.cid);
 				checked++;
 			}
 		}
@@ -174,6 +176,18 @@ public class VEventSeriesStoreTests {
 		VEvent.Attendee attendee = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.RequiredParticipant,
 				VEvent.ParticipationStatus.NeedsAction, true, "", "", "", "Kevin", "", "", "uid3", "kevin@bm.lan");
 		attendees.add(attendee);
+
+		evt.main.attachments = new ArrayList<>();
+		AttachedFile attachment1 = new AttachedFile();
+		attachment1.publicUrl = "http://somewhere/1";
+		attachment1.name = "test.gif";
+		attachment1.cid = "cid:012349";
+		evt.main.attachments.add(attachment1);
+		AttachedFile attachment2 = new AttachedFile();
+		attachment2.publicUrl = "http://somewhere/2";
+		attachment2.name = "test.png";
+		attachment2.cid = "cid:xxxxxxxxxx";
+		evt.main.attachments.add(attachment2);
 
 		vEventStore.update(item, evt);
 		VEventSeries updated = vEventStore.get(item);
@@ -206,6 +220,22 @@ public class VEventSeriesStoreTests {
 				new BmDateTimeWrapper(updated.main.exdate.iterator().next()).toUTCTimestamp());
 		assertNull(updated.main.rrule);
 		assertEquals(3, updated.main.attendees.size());
+
+		attachments = updated.main.attachments;
+		checked = 0;
+		for (AttachedFile attachedFile : attachments) {
+			if (attachedFile.name.equals("test.gif")) {
+				assertEquals("http://somewhere/1", attachedFile.publicUrl);
+				assertEquals("cid:012349", attachedFile.cid);
+				checked++;
+			} else if (attachedFile.name.equals("test.png")) {
+				assertEquals("http://somewhere/2", attachedFile.publicUrl);
+				assertEquals("cid:xxxxxxxxxx", attachedFile.cid);
+				checked++;
+			}
+		}
+		assertEquals(2, checked);
+
 	}
 
 	@Test
@@ -1072,6 +1102,7 @@ public class VEventSeriesStoreTests {
 		AttachedFile attachment1 = new AttachedFile();
 		attachment1.publicUrl = "http://somewhere/1";
 		attachment1.name = "test.gif";
+		attachment1.cid = "cid:012345";
 		event.attachments.add(attachment1);
 		AttachedFile attachment2 = new AttachedFile();
 		attachment2.publicUrl = "http://somewhere/2";

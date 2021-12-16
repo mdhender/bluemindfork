@@ -242,7 +242,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(export.contains("X-MOZ-LASTACK:"));
 		assertTrue(mozStackIsValid(export));
 
-		assertTrue(export.contains("ATTACH;X-FILE-NAME=test.gif:http://somewhere/1"));
+		assertTrue(export.contains("ATTACH;X-FILE-NAME=test.gif;X-CID=cid0123456789:http://somewhere/1"));
 		assertTrue(export.contains("ATTACH;X-FILE-NAME=test.png:http://somewhere/2"));
 
 		assertTrue(export.contains("X-CONFERENCE:https://video.conf.url/XXX"));
@@ -522,6 +522,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		for (AttachedFile attachedFile : attachments) {
 			if (attachedFile.name.equals("test.gif")) {
 				assertEquals("http://somewhere/1", attachedFile.publicUrl);
+				assertEquals("cid0123456789", attachedFile.cid);
 				checked++;
 			} else if (attachedFile.name.equals("test.png")) {
 				assertEquals("http://somewhere/2", attachedFile.publicUrl);

@@ -383,7 +383,8 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.parseAttachments_ = functio
   var attachments = goog.array.map(vevent['attachments'], function(attachment) {
     return {
       publicUrl : attachment['publicUrl'],
-      name : attachment['name']
+      name : attachment['name'],
+      cid : attachment['cid']
     };
   }, this);
   
@@ -471,7 +472,8 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.fromModelView = function(mo
     vevent['attachments'] = goog.array.map(model.attachments, function(attachment) {
       return {
         'publicUrl' : attachment.publicUrl,
-        'name' : attachment.name
+        'name' : attachment.name,
+        'cid' : attachment.cid
       }
     });
   }
@@ -714,7 +716,8 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.attachmentsHasBeenModified 
   } else {
     return !goog.array.equals(remote['attachments'], modified.attachments, function(remoteAttachment, modifiedAttachment) {
       return remoteAttachment['name'] == modifiedAttachment.name
-          && remoteAttachment['publicUrl'] == modifiedAttachment.publicUrl;
+          && remoteAttachment['publicUrl'] == modifiedAttachment.publicUrl 
+          && remoteAttachment['cid'] == modifiedAttachment.cid;
     });
   }
 }
