@@ -172,6 +172,7 @@ public class BMPoolActivator extends Plugin {
 
 				config.setDriverClassName(cf.getDriverClass());
 				config.addDataSourceProperty("cachePrepStmts", "true");
+				config.addDataSourceProperty("sslmode", "disable");
 				config.addDataSourceProperty("prepStmtCacheSize", "250");
 				config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 				config.setConnectionTestQuery(cf.getKeepAliveQuery());
