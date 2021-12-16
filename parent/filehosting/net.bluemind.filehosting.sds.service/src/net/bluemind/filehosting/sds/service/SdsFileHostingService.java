@@ -222,7 +222,7 @@ public class SdsFileHostingService implements IFileHostingService {
 
 	@Override
 	public boolean supports(SecurityContext context) {
-		return true;
+		return sds.get() != null;
 	}
 
 }
