@@ -27,7 +27,7 @@ export default {
         [MAILBOX_BY_NAME]: (state, getters) => name =>
             getters[MAILBOXES].find(mailbox => mailbox.name.toLowerCase() === name.toLowerCase()),
         [MAILBOXES_ARE_LOADED]: (state, getters) =>
-            getters[MAILBOXES].length >= 1 && getters[MAILBOXES].pop().remoteRef.id,
+            getters[MAILBOXES].length >= 1 && getters[MAILBOXES][getters[MAILBOXES].length - 1].remoteRef.id,
         [MAILBOXES]: state => Object.values(state),
         [USER_MAILBOXES]: (state, getters) =>
             getters[MAILBOXES].filter(mailbox => mailbox.type === MailboxType.USER).sort((a, b) =>

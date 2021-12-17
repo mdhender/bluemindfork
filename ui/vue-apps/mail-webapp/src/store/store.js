@@ -16,7 +16,9 @@ import {
     FOLDERS,
     IS_ACTIVE_MESSAGE,
     IS_CURRENT_CONVERSATION,
+    MAILBOXES,
     MAILBOX_FOLDERS,
+    MAILBOX_ROOT_FOLDERS,
     MAILBOX_SENT,
     MAILBOX_TRASH,
     MAILSHARE_FOLDERS,
@@ -37,7 +39,7 @@ import {
     SELECTION_FLAGS
 } from "~/getters";
 import { SET_ACTIVE_FOLDER, SET_MAIL_THREAD_SETTING } from "~/mutations";
-import { compare, create } from "~/model/folder";
+import { create } from "~/model/folder";
 import { LoadingStatus } from "~/model/loading-status";
 import { equal } from "~/model/message";
 
@@ -83,10 +85,9 @@ export const getters = {
     },
     [MAILSHARE_FOLDERS]: (state, getters) => getters[MAILSHARE_KEYS].flatMap(key => getters[MAILBOX_FOLDERS]({ key })),
     [MY_MAILBOX_FOLDERS]: (state, getters) => getters[MAILBOX_FOLDERS](getters[MY_MAILBOX]),
-    [MY_MAILBOX_ROOT_FOLDERS]: (state, getters) =>
-        getters[MY_MAILBOX_FOLDERS].filter(({ parent }) => !parent).sort(compare),
+    [MY_MAILBOX_ROOT_FOLDERS]: (state, getters) => getters[MAILBOX_ROOT_FOLDERS](getters[MY_MAILBOX]),
     [MAILSHARE_ROOT_FOLDERS]: (state, getters) =>
-        getters[MAILSHARE_FOLDERS].filter(({ parent }) => !parent).sort(compare),
+        getters[MAILSHARE_KEYS].flatMap(key => getters[MAILBOX_ROOT_FOLDERS]({ key })),
     [MY_INBOX]: (state, getters) => mailboxGetterFor(INBOX)(state, getters)(getters[MY_MAILBOX]),
     [MY_OUTBOX]: (state, getters) => mailboxGetterFor(OUTBOX)(state, getters)(getters[MY_MAILBOX]),
     [MY_DRAFTS]: (state, getters) => mailboxGetterFor(DRAFTS)(state, getters)(getters[MY_MAILBOX]),
@@ -118,6 +119,14 @@ export const getters = {
             }
         }
         return nextConversation;
+    },
+    [MAILBOX_ROOT_FOLDERS]: (state, getters) => {
+        const rootFolders = new Map();
+        getters[MAILBOXES].forEach(mailbox => {
+            const folders = getters[MAILBOX_FOLDERS](mailbox).filter(({ parent }) => !parent);
+            rootFolders.set(mailbox.key, folders);
+        });
+        return ({ key }) => rootFolders.get(key);
     },
     [SELECTION]: (state, { CONVERSATION_METADATA, SELECTION_KEYS }) =>
         SELECTION_KEYS.map(key => CONVERSATION_METADATA(key)),

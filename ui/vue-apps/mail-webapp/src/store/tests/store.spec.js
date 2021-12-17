@@ -10,9 +10,10 @@ import {
     ALL_SELECTED_CONVERSATIONS_ARE_READ,
     ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED,
     ALL_SELECTED_CONVERSATIONS_ARE_UNREAD,
-    CONVERSATIONS_ACTIVATED,
     CONVERSATION_METADATA,
+    CONVERSATIONS_ACTIVATED,
     MAILBOX_FOLDERS,
+    MAILBOX_ROOT_FOLDERS,
     MAILBOX_SENT,
     MAILBOX_TRASH,
     MAILSHARE_FOLDERS,
@@ -243,6 +244,25 @@ describe("Mail store", () => {
                 use: { userId: "B" }
             });
             expect(store.getters[MY_MAILBOX_ROOT_FOLDERS]).toEqual([store.state.folders["3"]]);
+        });
+        test("MAILBOX_ROOT_FOLDERS", () => {
+            store.state.folders = {
+                "1": { key: "1", imapName: "a", path: "a", mailboxRef: { key: "A" } },
+                "2": { key: "2", imapName: "b", path: "b", mailboxRef: { key: "C" }, parent: null },
+                "3": { key: "3", imapName: "c", path: "c", mailboxRef: { key: "B" }, parent: null },
+                "4": { key: "4", imapName: "d", path: "d", mailboxRef: { key: "B" }, parent: "3" },
+                "5": { key: "5", imapName: "b", path: "b", mailboxRef: { key: "C" }, parent: "2" },
+                "6": { key: "6", imapName: "b", path: "b", mailboxRef: { key: "C" }, parent: null }
+            };
+            store.state.mailboxes = {
+                B: { key: "B", owner: "B" },
+                C: { key: "C", owner: "C" }
+            };
+            expect(store.getters[MAILBOX_ROOT_FOLDERS]({ key: "B" })).toEqual([store.state.folders["3"]]);
+            expect(store.getters[MAILBOX_ROOT_FOLDERS]({ key: "C" })).toEqual([
+                store.state.folders["2"],
+                store.state.folders["6"]
+            ]);
         });
         test("MAILBOX_FOLDERS", () => {
             store.state.folders = {

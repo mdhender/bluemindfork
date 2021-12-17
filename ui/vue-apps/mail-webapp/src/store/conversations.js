@@ -276,7 +276,7 @@ async function fetchConversationIfNotLoaded({ commit, state }, { uid, folder, co
     if (!state.conversationByKey[key]) {
         let conversations, messages;
         if (conversationsActivated) {
-            const rawConversation = await inject("MailConversationPersistence").getComplete(uid);
+            const rawConversation = await inject("MailConversationPersistence", folder.mailboxRef.uid).getComplete(uid);
             ({ conversations, messages } = createConversationStubsFromRawConversations([rawConversation], folder));
         } else {
             let id = Number(uid);

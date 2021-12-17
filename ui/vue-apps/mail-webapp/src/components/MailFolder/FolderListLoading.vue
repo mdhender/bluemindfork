@@ -25,7 +25,6 @@ export default {
     props: {
         name: {
             type: String,
-            required: false,
             default: ""
         }
     },

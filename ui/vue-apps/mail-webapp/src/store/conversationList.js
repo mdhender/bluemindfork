@@ -127,7 +127,10 @@ async function list(state, folder, conversationsActivated) {
                 flagFilter.must = [ItemFlag.Important];
                 break;
         }
-        const rawConversations = await inject("MailConversationPersistence").byFolder(folder.remoteRef.uid, flagFilter);
+        const rawConversations = await inject("MailConversationPersistence", folder.mailboxRef.uid).byFolder(
+            folder.remoteRef.uid,
+            flagFilter
+        );
         return createConversationStubsFromRawConversations(rawConversations, folder);
     } else {
         let sortedIds = await apiMessages.sortedIds(state.filter, folder);

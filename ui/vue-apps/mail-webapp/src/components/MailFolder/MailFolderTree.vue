@@ -24,19 +24,17 @@
                     <mail-folder-item :folder-key="value.key" />
                 </template>
             </bm-tree>
-            <mail-folder-input v-if="showInput" class="pl-4" :mailbox-key="MY_MAILBOX.key" @submit="add" />
+            <slot />
         </bm-collapse>
     </div>
 </template>
 
 <script>
-import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 import { BmButton, BmCollapse, BmIcon, BmTree } from "@bluemind/styleguide";
-import MailFolderInput from "../MailFolderInput";
 import MailFolderItem from "./MailFolderItem";
 import { SET_FOLDER_EXPANDED } from "~/mutations";
-import { CREATE_FOLDER } from "~/actions";
-import { MY_MAILBOX, FOLDER_GET_CHILDREN } from "~/getters";
+import { FOLDER_GET_CHILDREN } from "~/getters";
 import { MailRoutesMixin } from "~/mixins";
 
 export default {
@@ -46,17 +44,16 @@ export default {
         BmCollapse,
         BmIcon,
         BmTree,
-        MailFolderInput,
         MailFolderItem
     },
     mixins: [MailRoutesMixin],
     props: {
-        tree: {
-            type: Array,
-            required: true
-        },
         name: {
             type: String,
+            default: ""
+        },
+        tree: {
+            type: Array,
             required: true
         },
         showInput: {
@@ -70,15 +67,12 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", { MY_MAILBOX, FOLDER_GET_CHILDREN }),
+        ...mapGetters("mail", { FOLDER_GET_CHILDREN }),
         ...mapState("mail", ["folders", "activeFolder"])
     },
     methods: {
-        ...mapActions("mail", { CREATE_FOLDER }),
         ...mapMutations("mail", { SET_FOLDER_EXPANDED }),
-        add(name) {
-            this.CREATE_FOLDER({ name, parent: null, mailbox: this.MY_MAILBOX });
-        },
+
         selectFolder(key) {
             this.$router.push(this.folderRoute(this.folders[key]));
         }

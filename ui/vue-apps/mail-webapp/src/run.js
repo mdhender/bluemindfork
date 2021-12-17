@@ -47,10 +47,14 @@ function registerAPIClients() {
 
     injector.register({
         provide: "MailConversationPersistence",
-        factory: () => {
+        factory: mailboxUid => {
             const userSession = injector.getProvider("UserSession").get();
             const conversationContainerId =
-                "subtree_" + userSession.domain.replace(".", "_") + "!" + userSession.userId + "_conversations";
+                "subtree_" +
+                userSession.domain.replace(".", "_") +
+                "!" +
+                mailboxUid.replace(/^user\./, "") +
+                "_conversations";
             return new MailConversationClient(userSession.sid, conversationContainerId);
         }
     });
