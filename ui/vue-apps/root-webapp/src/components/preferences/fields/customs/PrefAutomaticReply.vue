@@ -8,9 +8,15 @@
                 :label="$t('mail.new.subject')"
                 label-for="subject"
                 :invalid-feedback="$t('preferences.mail.automatic_reply.invalid_empty_subject')"
-                :state="!value.enabled || value.subject !== ''"
+                :state="subjectInputState"
             >
-                <bm-form-input id="subject" v-model="value.subject" required :disabled="!value.enabled" />
+                <bm-form-input
+                    id="subject"
+                    v-model="value.subject"
+                    required
+                    :disabled="!value.enabled"
+                    :state="subjectInputState"
+                />
             </bm-form-group>
             <bm-form-group :label="$t('common.message')" label-for="message" label-class="text-capitalize">
                 <bm-rich-editor
@@ -102,6 +108,12 @@ export default {
         ...mapState("session", { userLang: ({ settings }) => settings.remote.lang }),
         isValid() {
             return !this.value.enabled || this.subject.trim() !== "";
+        },
+        subjectInputState() {
+            if (!this.value.enabled) {
+                return null;
+            }
+            return this.value.subject !== "";
         },
         startDate: {
             get() {

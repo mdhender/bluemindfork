@@ -11,16 +11,20 @@
             <bm-form-radio :value="phone" :aria-label="$t('preferences.telephony.forward_calls')">
                 {{ $t("preferences.telephony.forward_calls") }}
             </bm-form-radio>
-            <bm-form-input
-                v-model="phone"
-                aria-describedby="phone-number-input-feedback"
-                type="tel"
-                :disabled="isInputDisabled"
-                :state="isValid"
-            />
-            <bm-form-invalid-feedback id="phone-number-input-feedback" :state="isValid">
-                {{ $t("preferences.telephony.invalid_phone_number") }}
-            </bm-form-invalid-feedback>
+            <bm-form-group
+                label-for="forward-calls"
+                :state="forwardCallsInputState"
+                :invalid-feedback="$t('preferences.telephony.invalid_phone_number')"
+            >
+                <bm-form-input
+                    id="forward-calls"
+                    v-model="phone"
+                    aria-describedby="phone-number-input-feedback"
+                    type="tel"
+                    :disabled="isInputDisabled"
+                    :state="forwardCallsInputState"
+                />
+            </bm-form-group>
         </template>
     </bm-form-radio-group>
 </template>
@@ -29,18 +33,13 @@
 import { isValidPhoneNumber } from "libphonenumber-js";
 import { mapState } from "vuex";
 
-import { BmFormInput, BmFormInvalidFeedback, BmFormRadio, BmFormRadioGroup } from "@bluemind/styleguide";
+import { BmFormGroup, BmFormInput, BmFormRadio, BmFormRadioGroup } from "@bluemind/styleguide";
 
 import OneSettingField from "../../mixins/OneSettingField";
 
 export default {
     name: "PrefIMSetPhonePresence",
-    components: {
-        BmFormInput,
-        BmFormInvalidFeedback,
-        BmFormRadio,
-        BmFormRadioGroup
-    },
+    components: { BmFormGroup, BmFormInput, BmFormRadio, BmFormRadioGroup },
     mixins: [OneSettingField],
     data() {
         return {
@@ -61,9 +60,9 @@ export default {
         isInputDisabled() {
             return this.value === this.doNothingValue || this.value === this.answeringMachineValue;
         },
-        isValid() {
+        forwardCallsInputState() {
             if (this.isInputDisabled) {
-                return true;
+                return null;
             }
             return isValidPhoneNumber(this.phone, this.settings.lang.toUpperCase());
         }
