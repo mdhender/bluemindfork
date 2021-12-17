@@ -230,7 +230,7 @@ export default function (i18n) {
                         name: i18n.t("preferences.mail.identities.manage"),
                         disabled: {
                             name: "RoleCondition.none",
-                            args: [Roles.MANAGE_MAILBOX_IDENTITIES, Roles.SELF_CHANGE_MAIL_IDENTITIES]
+                            args: [Roles.MANAGE_USER_MAIL_IDENTITIES, Roles.SELF_CHANGE_MAIL_IDENTITIES]
                         },
                         fields: [
                             {

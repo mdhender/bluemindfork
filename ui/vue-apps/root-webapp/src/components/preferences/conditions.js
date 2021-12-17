@@ -11,7 +11,7 @@ RoleCondition.some = function () {
     return checkRole(Array.from(arguments), Array.prototype.some);
 };
 RoleCondition.none = function () {
-    return !RoleCondition.or.apply(null, arguments);
+    return !RoleCondition.some.apply(null, arguments);
 };
 
 function checkRole(required, assert) {

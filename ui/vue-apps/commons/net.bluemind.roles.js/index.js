@@ -18,5 +18,6 @@ export default {
     CAN_CREATE_EXTERNAL_IDENTITY: "canCreateExternalIdentity",
     MAIL_FORWARDING: "mailForwarding",
     MANAGE_MAILBOX_IDENTITIES: "manageMailboxIdentities",
+    MANAGE_USER_MAIL_IDENTITIES: "managerUserMailIdentities",
     READ_DOMAIN_FILTERS: "readDomainFilters"
 };
