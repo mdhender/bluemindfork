@@ -82,7 +82,7 @@ export default {
             const content = this.$t(`${prefix}.content.${this.hasChildren ? "with_subfolder" : "without_subfolder"}`, {
                 name: this.folder.name
             });
-            const confirm = await confirm(content, title);
+            const confirm = await this.confirm(content, title);
             if (confirm) {
                 if (this.IS_DESCENDANT(this.folder.key, this.activeFolder) || this.activeFolder === this.folder.key) {
                     await this.$router.push({ name: "mail:home" });
