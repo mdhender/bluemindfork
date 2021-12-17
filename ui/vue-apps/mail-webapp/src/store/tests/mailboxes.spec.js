@@ -8,7 +8,7 @@ import initialStore from "../mailboxes";
 import aliceContainers from "./data/users/alice/containers";
 import { ADD_MAILBOXES } from "~/mutations";
 import { FETCH_MAILBOXES } from "~/actions";
-import { MAILSHARES, MAILSHARE_KEYS, MY_MAILBOX, MY_MAILBOX_KEY } from "~/getters";
+import { MAILBOXES, MAILSHARES, MAILSHARE_KEYS, MY_MAILBOX, MY_MAILBOX_KEY, USER_MAILBOXES } from "~/getters";
 import { MailboxType } from "../../model/mailbox";
 
 const userId = "6793466E-F5D4-490F-97BF-DF09D3327BF4";
@@ -90,12 +90,29 @@ describe("mailboxes store", () => {
     });
 
     describe("getters", () => {
+        test("MAILBOXES", () => {
+            store.state["1"] = {
+                key: "1",
+                type: "mailshares"
+            };
+            store.state["2"] = {
+                key: "2",
+                type: "users",
+                owner: "unknown"
+            };
+            store.state["3"] = {
+                key: "3",
+                type: "users",
+                owner: userId
+            };
+            expect(store.getters[MAILBOXES]).toEqual([store.state["1"], store.state["2"], store.state["3"]]);
+        });
         test("MY_MAILBOX", () => {
             store.state["1"] = {
                 key: "1",
                 type: "mailshares"
             };
-            store.state["1"] = {
+            store.state["2"] = {
                 key: "2",
                 type: "users",
                 owner: "unknown"
@@ -143,6 +160,23 @@ describe("mailboxes store", () => {
                 { key: "1", type: "mailshares" },
                 { key: "3", type: "mailshares" }
             ]);
+        });
+        test("USER_MAILBOXES", () => {
+            store.state["1"] = {
+                key: "1",
+                type: "mailshares"
+            };
+            store.state["2"] = {
+                key: "2",
+                type: "users",
+                owner: "unknown"
+            };
+            store.state["3"] = {
+                key: "3",
+                type: "users",
+                owner: userId
+            };
+            expect(store.getters[USER_MAILBOXES]).toEqual([store.state["3"], store.state["2"]]);
         });
     });
 });

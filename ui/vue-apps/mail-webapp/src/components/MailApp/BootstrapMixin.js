@@ -1,6 +1,14 @@
 import { inject } from "@bluemind/inject";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import { MAILBOXES_ARE_LOADED, MAILSHARES, MAILBOX_BY_NAME, MY_MAILBOX, MY_MAILBOX_FOLDERS, MY_INBOX } from "~/getters";
+import {
+    MAILBOXES_ARE_LOADED,
+    MAILSHARES,
+    MAILBOX_BY_NAME,
+    MY_MAILBOX,
+    MY_MAILBOX_FOLDERS,
+    MY_INBOX,
+    MAILBOXES
+} from "~/getters";
 import { FETCH_FOLDERS, FETCH_MAILBOXES, LOAD_MAX_MESSAGE_SIZE, UNREAD_FOLDER_COUNT } from "~/actions";
 import { ADD_MAILBOXES } from "~/mutations";
 import { LoadingStatus } from "~/model/loading-status";
@@ -9,12 +17,13 @@ import { create, MailboxType } from "~/model/mailbox";
 export default {
     computed: {
         ...mapGetters("mail", {
-            MAILBOXES_ARE_LOADED,
             MAILBOX_BY_NAME,
-            MY_MAILBOX,
-            MY_MAILBOX_FOLDERS,
+            MAILBOXES_ARE_LOADED,
+            MAILBOXES,
             MAILSHARES,
-            MY_INBOX
+            MY_INBOX,
+            MY_MAILBOX_FOLDERS,
+            MY_MAILBOX
         }),
         ...mapState("mail", ["folders", "conversationList"])
     },
@@ -35,17 +44,17 @@ export default {
             }
             await this.FETCH_FOLDERS(this.MY_MAILBOX);
         },
-        async $_BootstrapMixin_loadMailshare(name) {
+        async $_BootstrapMixin_loadMailbox(name) {
             await this.FETCH_MAILBOXES();
             const mailbox = this.MAILBOX_BY_NAME(name);
             await this.FETCH_FOLDERS(mailbox);
         },
-        async $_BootstrapMixin_loadAllMailshares() {
+        async $_BootstrapMixin_loadAllMailboxes() {
             if (!this.MAILBOXES_ARE_LOADED) {
                 await this.FETCH_MAILBOXES();
             }
             await Promise.all(
-                this.MAILSHARES.filter(({ loading }) => loading === LoadingStatus.NOT_LOADED).map(async mailbox =>
+                this.MAILBOXES.filter(({ loading }) => loading === LoadingStatus.NOT_LOADED).map(mailbox =>
                     this.FETCH_FOLDERS(mailbox)
                 )
             );
@@ -55,10 +64,10 @@ export default {
     async created() {
         try {
             if (this.route.mailbox) {
-                await this.$_BootstrapMixin_loadMailshare(this.route.mailbox);
+                await this.$_BootstrapMixin_loadMailbox(this.route.mailbox);
             }
             await this.$_BootstrapMixin_loadMyMailbox();
-            await this.$_BootstrapMixin_loadAllMailshares();
+            await this.$_BootstrapMixin_loadAllMailboxes();
             if (this.MY_INBOX?.unread === undefined) {
                 await this.UNREAD_FOLDER_COUNT(this.MY_INBOX);
             }

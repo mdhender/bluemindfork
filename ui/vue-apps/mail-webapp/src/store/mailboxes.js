@@ -8,7 +8,9 @@ import {
     MAILSHARES,
     MAILSHARE_KEYS,
     MY_MAILBOX,
-    MY_MAILBOX_KEY
+    MY_MAILBOX_KEY,
+    MAILBOXES,
+    USER_MAILBOXES
 } from "~/getters";
 import { ADD_MAILBOXES, SET_MAILBOX_FOLDERS } from "~/mutations";
 import { FETCH_MAILBOXES } from "~/actions";
@@ -18,12 +20,23 @@ export default {
     state: {},
     getters: {
         [MY_MAILBOX_KEY]: (state, getters) => getters[MY_MAILBOX].key,
-        [MY_MAILBOX]: state => Object.values(state).find(mailbox => mailbox.owner === inject("UserSession").userId),
+        [MY_MAILBOX]: (state, getters) =>
+            getters[MAILBOXES].find(mailbox => mailbox.owner === inject("UserSession").userId),
         [MAILSHARE_KEYS]: (state, getters) => getters[MAILSHARES].map(({ key }) => key),
-        [MAILSHARES]: state => Object.values(state).filter(({ type }) => type === MailboxType.MAILSHARE),
-        [MAILBOX_BY_NAME]: state => name =>
-            Object.values(state).find(mailbox => mailbox.name.toLowerCase() === name.toLowerCase()),
-        [MAILBOXES_ARE_LOADED]: state => Object.values(state).length >= 1 && Object.values(state).pop().remoteRef.id
+        [MAILSHARES]: (state, getters) => getters[MAILBOXES].filter(({ type }) => type === MailboxType.MAILSHARE),
+        [MAILBOX_BY_NAME]: (state, getters) => name =>
+            getters[MAILBOXES].find(mailbox => mailbox.name.toLowerCase() === name.toLowerCase()),
+        [MAILBOXES_ARE_LOADED]: (state, getters) =>
+            getters[MAILBOXES].length >= 1 && getters[MAILBOXES].pop().remoteRef.id,
+        [MAILBOXES]: state => Object.values(state),
+        [USER_MAILBOXES]: (state, getters) =>
+            getters[MAILBOXES].filter(mailbox => mailbox.type === MailboxType.USER).sort((a, b) =>
+                a.owner === inject("UserSession").userId
+                    ? -1
+                    : b.owner === inject("UserSession").userId
+                    ? 1
+                    : a.name.localeCompare(b.name)
+            )
     },
 
     mutations: {

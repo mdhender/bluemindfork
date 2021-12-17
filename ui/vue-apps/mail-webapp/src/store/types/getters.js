@@ -31,11 +31,13 @@ export const SELECTION_FLAGS = "SELECTION_FLAGS";
 
 // mailboxes
 export const MAILBOX_BY_NAME = "MAILBOX_BY_NAME";
+export const MAILBOXES = "MAILBOXES";
 export const MAILBOXES_ARE_LOADED = "MAILBOXES_ARE_LOADED";
 export const MAILSHARE_KEYS = "MAILSHARE_KEYS";
 export const MAILSHARES = "MAILSHARES";
 export const MY_MAILBOX = "MY_MAILBOX";
 export const MY_MAILBOX_KEY = "MY_MAILBOX_KEY";
+export const USER_MAILBOXES = "USER_MAILBOXES";
 
 // folders
 export const FOLDER_BY_PATH = "FOLDER_BY_PATH";
