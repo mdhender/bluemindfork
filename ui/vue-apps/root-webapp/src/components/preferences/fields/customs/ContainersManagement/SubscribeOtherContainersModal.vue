@@ -62,6 +62,7 @@
 import { inject } from "@bluemind/inject";
 import { BmFormCheckbox, BmFormInput, BmModal, BmPagination, BmSpinner, BmTable } from "@bluemind/styleguide";
 import { mapActions } from "vuex";
+import { ContainerType } from "./container";
 
 export default {
     name: "SubscribeOtherContainersModal",
@@ -73,6 +74,10 @@ export default {
         },
         excludedContainers: {
             type: Array,
+            required: true
+        },
+        fieldId: {
+            type: String,
             required: true
         }
     },
@@ -166,6 +171,9 @@ export default {
         async subscribe() {
             const containers = this.selected.map(container => ({ ...container, offlineSync: true }));
             await this.SUBSCRIBE_TO_CONTAINERS(containers);
+            if (this.containerType === ContainerType.MAILBOX && this.$route.path.startsWith("/mail/")) {
+                this.$store.commit("preferences/fields/NEED_RELOAD", { id: this.fieldId });
+            }
             this.$emit("subscribe", containers);
         }
     }

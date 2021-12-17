@@ -89,6 +89,10 @@ export default {
         currentPage: {
             type: Number,
             required: true
+        },
+        fieldId: {
+            type: String,
+            required: true
         }
     },
     data() {
@@ -194,11 +198,17 @@ export default {
         async toggleOfflineSync(container) {
             const updatedContainer = { ...container, offlineSync: !container.offlineSync };
             await this.SUBSCRIBE_TO_CONTAINERS([updatedContainer]);
+            if (this.containerType === ContainerType.MAILBOX && this.$route.path.startsWith("/mail/")) {
+                this.$store.commit("preferences/fields/NEED_RELOAD", { id: this.fieldId });
+            }
             this.$emit("offline-sync-changed", updatedContainer);
         },
         async toggleSubscription(container) {
             if (this.isSubscribed(container)) {
                 await this.REMOVE_SUBSCRIPTIONS([container.uid]);
+                if (this.containerType === ContainerType.MAILBOX && this.$route.path.startsWith("/mail/")) {
+                    this.$store.commit("preferences/fields/NEED_RELOAD", { id: this.fieldId });
+                }
                 if (!this.isManaged(container)) {
                     this.$emit("remove", container.uid);
                 } else {
@@ -208,6 +218,9 @@ export default {
             } else {
                 const updatedContainer = { ...container, offlineSync: true };
                 await this.SUBSCRIBE_TO_CONTAINERS([updatedContainer]);
+                if (this.containerType === ContainerType.MAILBOX && this.$route.path.startsWith("/mail/")) {
+                    this.$store.commit("preferences/fields/NEED_RELOAD", { id: this.fieldId });
+                }
                 this.$emit("offline-sync-changed", updatedContainer);
             }
         }

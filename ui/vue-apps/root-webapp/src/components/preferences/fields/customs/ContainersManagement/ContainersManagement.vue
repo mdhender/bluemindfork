@@ -21,6 +21,7 @@
                 :share-column="showShareColumn"
                 :per-page="perPage"
                 :current-page="currentPage"
+                :field-id="fieldId"
                 @open-import-modal="openImportModal"
                 @open-share-modal="openShareModal"
                 @offline-sync-changed="container => $emit('offline-sync-changed', container)"
@@ -50,6 +51,7 @@
             ref="add-containers"
             :container-type="containerType"
             :excluded-containers="containers"
+            :field-id="fieldId"
             @subscribe="containers => $emit('subscribe', containers)"
         >
             <template v-slot:selected="{ container, closeFn }">
@@ -107,6 +109,10 @@ export default {
         },
         collapsed: {
             type: Boolean,
+            required: true
+        },
+        fieldId: {
+            type: String,
             required: true
         }
     },

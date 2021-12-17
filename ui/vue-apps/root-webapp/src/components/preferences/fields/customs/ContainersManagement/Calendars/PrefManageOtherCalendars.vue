@@ -3,6 +3,7 @@
         :containers="otherCalendars"
         :container-type="containerType"
         :collapsed="collapsed"
+        :field-id="id"
         @offline-sync-changed="UPDATE_OTHER_CALENDAR"
         @remove="REMOVE_OTHER_CALENDAR"
         @subscribe="ADD_OTHER_CALENDARS"

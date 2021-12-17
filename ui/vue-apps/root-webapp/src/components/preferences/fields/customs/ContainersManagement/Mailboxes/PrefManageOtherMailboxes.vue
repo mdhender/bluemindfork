@@ -3,6 +3,7 @@
         :containers="otherMailboxesContainers"
         :container-type="containerType"
         :collapsed="collapsed"
+        :field-id="id"
         share-column
         @offline-sync-changed="UPDATE_OTHER_MAILBOX_CONTAINER"
         @remove="REMOVE_OTHER_MAILBOX_CONTAINER"
