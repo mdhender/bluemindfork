@@ -48,8 +48,8 @@ import net.bluemind.exchange.mapi.api.MapiReplica;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Producer;
 import net.bluemind.hornetq.client.Topic;
-import net.bluemind.user.api.IUser;
-import net.bluemind.user.api.User;
+import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
 
 public class MapiFoldersRepair implements IDirEntryRepairSupport {
 
@@ -72,7 +72,7 @@ public class MapiFoldersRepair implements IDirEntryRepairSupport {
 
 	@Override
 	public Set<MaintenanceOperation> availableOperations(Kind kind) {
-		if (kind == Kind.USER) {
+		if (kind == Kind.USER || kind == Kind.MAILSHARE) {
 			return ImmutableSet.of(mapiFoldersOp);
 		}
 		return Collections.emptySet();
@@ -136,8 +136,9 @@ public class MapiFoldersRepair implements IDirEntryRepairSupport {
 				}
 			});
 			Producer prod = MQ.getProducer(Topic.MAPI_REPAIRS);
-			ItemValue<User> user = context.provider().instance(IUser.class, domainUid).getComplete(entry.entryUid);
-			String latd = user.value.login + "@" + domainUid;
+			ItemValue<Mailbox> mb = context.provider().instance(IMailboxes.class, domainUid)
+					.getComplete(entry.entryUid);
+			String latd = mb.value.name + "@" + domainUid;
 			prod.send(new JsonObject().put("owner", latd));
 			prod.close();
 		}
