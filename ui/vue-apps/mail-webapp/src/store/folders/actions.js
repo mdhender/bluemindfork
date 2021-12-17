@@ -10,7 +10,7 @@ import {
     RENAME_FOLDER as MUTATION_RENAME_FOLDER,
     MOVE_FOLDER as MUTATION_MOVE_FOLDER
 } from "~/mutations";
-import { FOLDERS_BY_UPPERCASE_PATH, FOLDER_GET_DESCENDANTS } from "~/getters";
+import { FOLDER_BY_PATH, FOLDER_GET_DESCENDANTS } from "~/getters";
 import { FolderAdaptor } from "./helpers/FolderAdaptor";
 import { create, rename, move } from "~/model/folder";
 import { withAlert } from "../helpers/withAlert";
@@ -42,7 +42,7 @@ const createFolderHierarchy = async function ({ commit, getters, dispatch }, { n
         parent = await dispatch(CREATE_FOLDER_HIERARCHY, { name: hierarchy.join("/"), parent, mailbox });
     }
     const folder = create(undefined, name, parent, mailbox);
-    let created = getters[FOLDERS_BY_UPPERCASE_PATH][folder.path.toUpperCase()];
+    let created = getters[FOLDER_BY_PATH](folder.path, mailbox);
     if (!created) {
         const item = FolderAdaptor.toMailboxFolder(folder, mailbox);
         const { uid, id: internalId } = await api.createNewFolder(mailbox, item);

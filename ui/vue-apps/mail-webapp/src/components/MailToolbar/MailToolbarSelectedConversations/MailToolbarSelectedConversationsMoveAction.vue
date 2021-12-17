@@ -46,7 +46,6 @@
             <mail-folder-input
                 class="pl-2 pr-1"
                 :submit-on-focusout="false"
-                :mailbox-key="mailboxKey"
                 @submit="newFolderName => moveToFolder({ name: newFolderName, path: newFolderName })"
                 @keydown.left.native.stop
                 @keydown.right.native.stop
@@ -80,7 +79,7 @@ import MailFolderIcon from "../../MailFolderIcon";
 import MailFolderInput from "../../MailFolderInput";
 import { MailboxType } from "~/model/mailbox";
 import { isNameValid, translatePath } from "~/model/folder";
-import { FOLDERS_BY_UPPERCASE_PATH } from "~/getters";
+import { FOLDERS_BY_PATH } from "~/getters";
 import { ActionTextMixin, FilterFolderMixin, MoveMixin, SelectionMixin } from "~/mixins";
 
 export default {
@@ -99,17 +98,14 @@ export default {
     mixins: [ActionTextMixin, FilterFolderMixin, MoveMixin, SelectionMixin],
     computed: {
         ...mapState("mail", ["folders", "mailboxes"]),
-        ...mapGetters("mail", { FOLDERS_BY_UPPERCASE_PATH }),
+        ...mapGetters("mail", { FOLDERS_BY_PATH }),
         displayCreateFolderBtnFromPattern() {
             let pattern = this.pattern;
             if (pattern !== "") {
                 pattern = pattern.replace(/\/+/, "/").replace(/^\/?(.*)\/?$/g, "$1");
-                return pattern && isNameValid(pattern, pattern, this.FOLDERS_BY_UPPERCASE_PATH) === true;
+                return pattern && isNameValid(pattern, pattern, p => this.FOLDERS_BY_PATH(p)[0]) === true;
             }
             return false;
-        },
-        mailboxKey() {
-            return this.folders[this.selected[0]?.folderRef.key]?.mailboxRef.key;
         }
     },
     methods: {

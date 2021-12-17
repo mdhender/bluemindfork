@@ -1,24 +1,35 @@
 import {
     FOLDERS,
-    FOLDERS_BY_UPPERCASE_PATH,
+    FOLDER_BY_PATH,
+    FOLDERS_BY_PATH,
     FOLDER_GET_DESCENDANTS,
     FOLDER_HAS_CHILDREN,
     IS_DESCENDANT,
     FOLDER_GET_CHILDREN
 } from "~/getters";
 import { compare } from "~/model/folder";
+import { Cache } from "~/utils/cache";
 
 export default {
     [FOLDERS]: state => Object.values(state).sort(compare),
-    [FOLDERS_BY_UPPERCASE_PATH]: state => mailboxKey => {
-        const foldersByPath = {};
-        Object.values(state).forEach(folder => {
-            if (folder.mailboxRef.key === mailboxKey) {
-                foldersByPath[folder.path.toUpperCase()] = folder;
-            }
-        });
-        return foldersByPath;
+    // [FOLDERS_BY_UPPERCASE_PATH]: state => mailboxKey => {
+    //     const foldersByPath = {};
+    //     Object.values(state).forEach(folder => {
+    //         if (folder.mailboxRef.key === mailboxKey) {
+    //             foldersByPath[folder.path.toUpperCase()] = folder;
+    //         }
+    //     });
+    //     return foldersByPath;
+    // },
+    [FOLDERS_BY_PATH]: (state, getters) => {
+        const foldersByPath = getters[FOLDERS].reduce(
+            (cache, folder) => cache.get(folder.path.toUpperCase()).push(folder) && cache,
+            new Cache(() => [])
+        );
+        return path => foldersByPath.get(path.toUpperCase());
     },
+    [FOLDER_BY_PATH]: (state, getters) => (path, mailbox) =>
+        getters[FOLDERS_BY_PATH](path).find(f => f.mailboxRef.key === mailbox.key),
     [IS_DESCENDANT]: state => (parentKey, key) => {
         const parent = state[parentKey];
         const folder = state[key];

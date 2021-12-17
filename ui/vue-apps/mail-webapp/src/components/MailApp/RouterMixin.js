@@ -3,7 +3,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { FETCH_CONVERSATION_LIST_KEYS, UNREAD_FOLDER_COUNT } from "~/actions";
 import {
     CONVERSATIONS_ACTIVATED,
-    FOLDERS_BY_UPPERCASE_PATH,
+    FOLDER_BY_PATH,
     MY_INBOX,
     MY_MAILBOX,
     MAILBOX_BY_NAME,
@@ -30,7 +30,7 @@ export default {
     mixins: [WaitForMixin],
     computed: {
         ...mapGetters("mail", {
-            FOLDERS_BY_UPPERCASE_PATH,
+            FOLDER_BY_PATH,
             MAILBOX_BY_NAME,
             MAILBOXES_ARE_LOADED,
             MY_INBOX,
@@ -119,7 +119,7 @@ export default {
                 if (this.route.mailbox) {
                     mailbox = this.MAILBOX_BY_NAME(this.route.mailbox);
                 }
-                return this.FOLDERS_BY_UPPERCASE_PATH(mailbox.key)[path.toUpperCase()];
+                return this.FOLDER_BY_PATH(path, mailbox);
             }
             return this.MY_INBOX;
         },

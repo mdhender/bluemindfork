@@ -32,7 +32,7 @@
 import { mapGetters } from "vuex";
 import { BmFormInput, BmIcon, BmNotice } from "@bluemind/styleguide";
 import { isNameValid, normalize } from "~/model/folder";
-import { FOLDERS_BY_UPPERCASE_PATH } from "~/getters";
+import { FOLDER_BY_PATH, FOLDERS_BY_PATH, MY_MAILBOX } from "~/getters";
 
 export default {
     name: "MailFolderInput",
@@ -44,7 +44,7 @@ export default {
     props: {
         mailboxKey: {
             type: String,
-            required: true
+            default: null
         },
         folder: {
             type: Object,
@@ -69,12 +69,12 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", { FOLDERS_BY_UPPERCASE_PATH }),
+        ...mapGetters("mail", { FOLDER_BY_PATH, FOLDERS_BY_PATH, MY_MAILBOX }),
         isNewFolderNameValid() {
             if ((this.folder && this.folder.name === this.newFolderName) || this.newFolderName === "") {
                 return true;
             }
-            return isNameValid(this.newFolderName, this.path, this.FOLDERS_BY_UPPERCASE_PATH(this.mailboxKey));
+            return isNameValid(this.newFolderName, this.path, this.folderByPath());
         },
         path() {
             let path = "";
@@ -120,6 +120,15 @@ export default {
         }
     },
     methods: {
+        folderByPath() {
+            const mailboxKey = this.mailboxKey || this.folder?.mailboxRef.key;
+            return mailboxKey
+                ? path => this.FOLDER_BY_PATH(path, mailboxKey)
+                : path =>
+                      this.FOLDERS_BY_PATH(path).find(
+                          ({ key }, index, arr) => key === this.MY_MAILBOX.key || index === arr.length - 1
+                      );
+        },
         closeInput() {
             this.$emit("close");
             this.isActive = false;
@@ -130,7 +139,7 @@ export default {
                 if (this.folder && this.folder.name === this.newFolderName) {
                     return;
                 }
-                const normalizedName = normalize(this.newFolderName, this.FOLDERS_BY_UPPERCASE_PATH(this.mailboxKey));
+                const normalizedName = normalize(this.newFolderName, this.folderByPath());
                 this.$emit("submit", normalizedName);
                 this.closeInput();
             }

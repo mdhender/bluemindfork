@@ -111,18 +111,18 @@ function translateDefaultName(name) {
     return vueI18n.t("common.folder." + name.toLowerCase());
 }
 
-export function normalize(folderPath, foldersByUpperCasePath) {
+export function normalize(folderPath, getFolderByPath) {
     let fixedPath = "";
     folderPath.split("/").forEach(pathPart => {
         fixedPath += pathPart;
-        fixedPath = fixExistingFolderName(fixedPath, foldersByUpperCasePath);
+        fixedPath = fixExistingFolderName(fixedPath, getFolderByPath);
         fixedPath += "/";
     });
     return removeTrailingSlashes(fixedPath);
 }
 
-function fixExistingFolderName(folderName, foldersByUpperCasePath) {
-    let folder = foldersByUpperCasePath[folderName.toUpperCase()];
+function fixExistingFolderName(folderName, getFolderByPath) {
+    let folder = getFolderByPath(folderName);
     if (!folder) {
         const defaultFolder = Object.values(DEFAULT_FOLDERS).find(
             f => translateDefaultName(f).toUpperCase() === folderName.toUpperCase()
@@ -139,7 +139,7 @@ function removeTrailingSlashes(path) {
 const FOLDER_PATH_MAX_LENGTH = 250;
 
 /** @return true or an explanation about why it's not valid */
-export function isNameValid(name, path, foldersByUpperCasePath) {
+export function isNameValid(name, path, getFolderByPath) {
     const vueI18n = injector.getProvider("i18n").get();
 
     path = removeTrailingSlashes(path);
@@ -155,24 +155,24 @@ export function isNameValid(name, path, foldersByUpperCasePath) {
         });
     }
 
-    const normalizedPath = normalize(path, foldersByUpperCasePath);
-    if (foldersByUpperCasePath[normalizedPath.toUpperCase()]) {
+    const normalizedPath = normalize(path, getFolderByPath);
+    if (getFolderByPath(normalizedPath)) {
         return vueI18n.t("mail.actions.folder.invalid.already_exist");
     }
 
-    if (!ascendantsAllowSubfolder(normalizedPath, foldersByUpperCasePath)) {
+    if (!ascendantsAllowSubfolder(normalizedPath, getFolderByPath)) {
         return vueI18n.t("mail.actions.folder.subfolder.forbidden");
     }
 
     return true;
 }
 
-function ascendantsAllowSubfolder(normalizedPath, foldersByUpperCasePath) {
+function ascendantsAllowSubfolder(normalizedPath, getFolderByPath) {
     const parentPath = normalizedPath.substring(0, normalizedPath.lastIndexOf("/"));
-    const parentFolder = foldersByUpperCasePath[parentPath.toUpperCase()];
+    const parentFolder = getFolderByPath(parentPath);
     return (
         !parentPath ||
-        (ascendantsAllowSubfolder(parentPath, foldersByUpperCasePath) && (!parentFolder || parentFolder.allowSubfolder))
+        (ascendantsAllowSubfolder(parentPath, getFolderByPath) && (!parentFolder || parentFolder.allowSubfolder))
     );
 }
 

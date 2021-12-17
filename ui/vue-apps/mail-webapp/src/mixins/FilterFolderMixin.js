@@ -15,13 +15,14 @@ export default {
         ...mapGetters("mail", { $_FilterFolderMixin_trash: MY_TRASH, $_FilterFolderMixin_inbox: MY_INBOX }),
         matchingFolders() {
             if (this.pattern !== "") {
-                const filtered = this.$store.getters[`mail/${FOLDERS}`].filter(
-                    folder =>
+                const filtered = this.$store.getters[`mail/${FOLDERS}`].filter(folder => {
+                    return (
                         folder.key !== this.$_FilterFolderMixin_activeFolder &&
                         folder.writable &&
                         (folder.path.toLowerCase().includes(this.pattern.toLowerCase()) ||
                             folder.name.toLowerCase().includes(this.pattern.toLowerCase()))
-                );
+                    );
+                });
                 if (filtered) {
                     return filtered.slice(0, this.maxFolders);
                 }

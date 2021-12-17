@@ -1,4 +1,4 @@
-import { FOLDERS, FOLDERS_BY_UPPERCASE_PATH, FOLDER_HAS_CHILDREN, FOLDER_GET_CHILDREN } from "~/getters";
+import { FOLDERS, FOLDER_BY_PATH, FOLDERS_BY_PATH, FOLDER_HAS_CHILDREN, FOLDER_GET_CHILDREN } from "~/getters";
 import { FOLDER_GET_DESCENDANTS } from "../../types/getters";
 import getters from "../getters";
 
@@ -25,8 +25,7 @@ describe("getters", () => {
             state["8"]
         ]);
     });
-
-    test("FOLDERS_BY_UPPERCASE_PATH", () => {
+    test("FOLDERS_BY_PATH", () => {
         const folder = {
             name: "foo",
             path: "foo",
@@ -37,8 +36,24 @@ describe("getters", () => {
             "123": folder
         };
         const fakeGetters = { [FOLDERS]: getters[FOLDERS](state) };
-        expect(getters[FOLDERS_BY_UPPERCASE_PATH](state, fakeGetters)["foo".toUpperCase()]).toEqual(folder);
-        expect(getters[FOLDERS_BY_UPPERCASE_PATH](state, fakeGetters)["whatever".toUpperCase()]).toEqual(undefined);
+        expect(getters[FOLDERS_BY_PATH](state, fakeGetters)("foo")).toEqual([folder]);
+        expect(getters[FOLDERS_BY_PATH](state, fakeGetters)("whatever")).toEqual([]);
+    });
+    test("FOLDER_BY_PATH", () => {
+        const folder = {
+            name: "foo",
+            path: "foo",
+            key: "123",
+            mailboxRef: { key: "mbkey" }
+        };
+        const state = {
+            "123": folder
+        };
+        const fakeGetters = {
+            [FOLDERS_BY_PATH]: getters[FOLDERS_BY_PATH](state, { [FOLDERS]: getters[FOLDERS](state) })
+        };
+        expect(getters[FOLDER_BY_PATH](state, fakeGetters)("foo", { key: "mbkey" })).toEqual(folder);
+        expect(getters[FOLDER_BY_PATH](state, fakeGetters)("foo", { key: "wrongKey" })).toBeFalsy();
     });
     test("FOLDER_HAS_CHILDREN", () => {
         const state = {

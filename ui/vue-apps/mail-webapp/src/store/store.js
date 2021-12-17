@@ -1,5 +1,7 @@
 import { Flag } from "@bluemind/email";
 
+import { Cache } from "~/utils/cache";
+
 import { DEFAULT_FOLDER_NAMES } from "./folders/helpers/DefaultFolders";
 import {
     ACTIVE_MESSAGE,
@@ -142,18 +144,4 @@ function mailboxGetterFor(name) {
             return create(undefined, name, null, mailbox);
         }
     };
-}
-
-class Cache extends Map {
-    constructor(iterableOrLoader, loader) {
-        let iterable = typeof iterableOrLoader !== "function" ? iterableOrLoader : undefined;
-        super(iterable);
-        this.loader = typeof iterableOrLoader === "function" ? iterableOrLoader : loader;
-    }
-    get(key, loader) {
-        if (!this.has(key)) {
-            this.set(key, loader ? loader(key) : this.loader(key));
-        }
-        return super.get(key);
-    }
 }
