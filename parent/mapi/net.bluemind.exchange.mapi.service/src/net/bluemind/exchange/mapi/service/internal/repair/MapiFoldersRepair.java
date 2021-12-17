@@ -80,7 +80,7 @@ public class MapiFoldersRepair implements IDirEntryRepairSupport {
 
 	@Override
 	public Set<InternalMaintenanceOperation> ops(Kind kind) {
-		if (kind == Kind.USER) {
+		if (kind == Kind.USER || kind == Kind.MAILSHARE) {
 			return ImmutableSet.of(new MapiFoldersMaintenance(ctx));
 		}
 		return Collections.emptySet();
