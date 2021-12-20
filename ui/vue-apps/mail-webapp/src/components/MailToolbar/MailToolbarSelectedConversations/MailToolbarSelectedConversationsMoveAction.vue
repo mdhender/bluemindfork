@@ -31,9 +31,12 @@
                 @click="moveToFolder(item)"
             >
                 <template #icon>
-                    <mail-folder-icon no-text :shared="isFolderOfMailshare(item)" :folder="item" />
+                    <mail-folder-icon no-text :shared="isSharedMailbox(item)" :folder="item" />
                 </template>
-                {{ translatePath(item.path) }}
+                <div class="d-flex align-items-center">
+                    <span class="flex-fill"> {{ translatePath(item.path) }}</span>
+                    <mail-mailbox-icon no-text :mailbox="mailboxes[item.mailboxRef.key]" />
+                </div>
             </bm-dropdown-item-button>
         </bm-dropdown-autocomplete>
         <bm-dropdown-divider />
@@ -43,14 +46,17 @@
             :aria-label="$t('mail.actions.create.folder')"
             :title="$t('mail.actions.create.folder')"
         >
-            <mail-folder-input
-                class="pl-2 pr-1"
-                :submit-on-focusout="false"
-                @submit="newFolderName => moveToFolder({ name: newFolderName, path: newFolderName })"
-                @keydown.left.native.stop
-                @keydown.right.native.stop
-                @keydown.esc.native.stop
-            />
+            <div class="d-flex align-items-center">
+                <mail-folder-input
+                    class="pl-2 pr-1 flex-fill"
+                    :submit-on-focusout="false"
+                    @submit="newFolderName => moveToFolder({ name: newFolderName, path: newFolderName })"
+                    @keydown.left.native.stop
+                    @keydown.right.native.stop
+                    @keydown.esc.native.stop
+                />
+                <mail-mailbox-icon no-text :mailbox="MY_MAILBOX" />
+            </div>
         </bm-dropdown-form>
         <bm-dropdown-item-button
             v-else-if="displayCreateFolderBtnFromPattern"
@@ -59,7 +65,10 @@
             icon="plus"
             @click="moveToFolder({ name: pattern, path: pattern })"
         >
-            {{ $t("mail.folder.new.from_pattern", [pattern]) }}
+            <div class="d-flex align-items-center">
+                <span class="flex-fill"> {{ $t("mail.folder.new.from_pattern", [pattern]) }}</span>
+                <mail-mailbox-icon no-text :mailbox="MY_MAILBOX" />
+            </div>
         </bm-dropdown-item-button>
     </bm-dropdown>
 </template>
@@ -76,10 +85,11 @@ import {
 import { mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import MailFolderIcon from "../../MailFolderIcon";
+import MailMailboxIcon from "../../MailMailboxIcon";
 import MailFolderInput from "../../MailFolderInput";
-import { MailboxType } from "~/model/mailbox";
 import { isNameValid, translatePath } from "~/model/folder";
-import { FOLDERS_BY_PATH } from "~/getters";
+import { MailboxType } from "~/model/mailbox";
+import { MY_MAILBOX, FOLDERS_BY_PATH } from "~/getters";
 import { ActionTextMixin, FilterFolderMixin, MoveMixin, SelectionMixin } from "~/mixins";
 
 export default {
@@ -93,12 +103,13 @@ export default {
         BmIcon,
         GlobalEvents,
         MailFolderIcon,
-        MailFolderInput
+        MailFolderInput,
+        MailMailboxIcon
     },
     mixins: [ActionTextMixin, FilterFolderMixin, MoveMixin, SelectionMixin],
     computed: {
         ...mapState("mail", ["folders", "mailboxes"]),
-        ...mapGetters("mail", { FOLDERS_BY_PATH }),
+        ...mapGetters("mail", { MY_MAILBOX, FOLDERS_BY_PATH }),
         displayCreateFolderBtnFromPattern() {
             let pattern = this.pattern;
             if (pattern !== "") {
@@ -123,7 +134,7 @@ export default {
         resetPattern() {
             this.pattern = "";
         },
-        isFolderOfMailshare(folder) {
+        isSharedMailbox(folder) {
             return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         },
         translatePath(path) {
@@ -179,7 +190,6 @@ export default {
     }
 
     .new-folder .b-dropdown-form {
-        padding-right: 0;
         padding-left: 0;
         padding-bottom: 0;
     }

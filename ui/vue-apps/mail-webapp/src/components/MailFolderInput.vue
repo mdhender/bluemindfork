@@ -3,7 +3,7 @@
         :class="computeClassNames"
         class="mail-folder-input flex-fill d-none d-lg-flex align-items-center position-relative"
     >
-        <bm-icon :icon="computeIconName" fixed-width />
+        <bm-icon icon="plus" fixed-width />
         <bm-form-input
             ref="input"
             v-model="newFolderName"
@@ -90,9 +90,6 @@ export default {
         },
         isRename() {
             return this.folder && this.folder.name !== "";
-        },
-        computeIconName() {
-            return this.isActive ? (this.shared ? "plus-folder-shared" : "plus-folder") : "plus-folder";
         },
         computeClassNames() {
             if (!this.isActive) {

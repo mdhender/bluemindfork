@@ -1,6 +1,11 @@
 <template>
     <mail-folder-tree v-if="isLoaded" :tree="MAILBOX_ROOT_FOLDERS(mailbox)" :name="mailbox.name">
-        <mail-folder-input class="pl-4" :mailbox-key="mailbox.key" @submit="name => add(name, mailbox)" />
+        <template v-slot:avatar>
+            <mail-mailbox-icon :mailbox="mailbox" class="mr-1" />
+        </template>
+        <template v-slot:footer>
+            <mail-folder-input class="pl-4" :mailbox-key="mailbox.key" @submit="name => add(name, mailbox)" />
+        </template>
     </mail-folder-tree>
     <folder-list-loading v-else :name="mailbox.name" />
 </template>
@@ -13,9 +18,10 @@ import MailFolderTree from "./MailFolderTree";
 import FolderListLoading from "./FolderListLoading";
 import MailFolderInput from "../MailFolderInput";
 import { LoadingStatus } from "~/model/loading-status";
+import MailMailboxIcon from "../MailMailboxIcon.vue";
 export default {
     name: "UserFolders",
-    components: { MailFolderInput, MailFolderTree, FolderListLoading },
+    components: { MailMailboxIcon, MailFolderInput, MailFolderTree, FolderListLoading },
     props: {
         mailbox: {
             type: Object,

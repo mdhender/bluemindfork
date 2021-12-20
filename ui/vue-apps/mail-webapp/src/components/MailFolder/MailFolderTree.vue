@@ -8,6 +8,7 @@
             @click.stop="isTreeExpanded = !isTreeExpanded"
         >
             <bm-icon :icon="isTreeExpanded ? 'caret-down' : 'caret-right'" size="sm" class="bm-icon mr-2" />
+            <slot name="avatar" />
             <span class="font-weight-bold">{{ name }}</span>
         </bm-button>
         <bm-collapse :id="'collapse-tree-' + name" v-model="isTreeExpanded">
@@ -24,7 +25,7 @@
                     <mail-folder-item :folder-key="value.key" />
                 </template>
             </bm-tree>
-            <slot />
+            <slot name="footer" />
         </bm-collapse>
     </div>
 </template>

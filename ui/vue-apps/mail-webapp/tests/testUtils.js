@@ -33,6 +33,7 @@ const mailbox = {
     key: "MY_MAILBOX",
     type: "users",
     owner: userId,
+    name: "bluemind",
     writable: true
 };
 
