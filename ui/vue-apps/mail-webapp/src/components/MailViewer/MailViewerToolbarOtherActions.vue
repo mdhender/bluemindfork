@@ -74,8 +74,9 @@
                             @selected="folderSelection"
                             @input="onInputUpdate"
                         >
-                            <div>
-                                {{ translatePath(item.path) }}
+                            <div class="d-flex align-items-center">
+                                <span class="flex-fill"> {{ translatePath(item.path) }}</span>
+                                <mail-mailbox-icon no-text :mailbox="mailboxes[item.mailboxRef.key]" />
                             </div>
                         </bm-form-autocomplete-input>
                     </div>
@@ -95,7 +96,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 import { Flag } from "@bluemind/email";
 import { BmButton, BmDropdown, BmDropdownItem, BmFormAutocompleteInput, BmIcon, BmModal } from "@bluemind/styleguide";
 import { RemoveMixin, MoveMixin, FilterFolderMixin } from "~/mixins";
@@ -110,6 +111,7 @@ import { MY_DRAFTS } from "~/getters";
 import { MessageCreationModes } from "~/model/message";
 import { draftPath } from "~/model/draft";
 import MessagePathParam from "~/router/MessagePathParam";
+import MailMailboxIcon from "../MailMailboxIcon.vue";
 
 export default {
     name: "MailViewerToolbarOtherActions",
@@ -119,7 +121,8 @@ export default {
         BmDropdownItem,
         BmFormAutocompleteInput,
         BmIcon,
-        BmModal
+        BmModal,
+        MailMailboxIcon
     },
     mixins: [RemoveMixin, MoveMixin, FilterFolderMixin],
     props: {
@@ -139,7 +142,8 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", { MY_DRAFTS })
+        ...mapGetters("mail", { MY_DRAFTS }),
+        ...mapState("mail", ["mailboxes"])
     },
     methods: {
         ...mapActions("mail", {

@@ -60,7 +60,10 @@
                         @close="folderPattern = translatePath(selectedFolder.path)"
                         @icon-click="folderPattern = ''"
                     >
-                        {{ translatePath(item.path) }}
+                        <div class="d-flex align-items-center">
+                            <span class="flex-fill"> {{ translatePath(item.path) }}</span>
+                            <mail-mailbox-icon no-text :mailbox="mailboxes[item.mailboxRef.key]" />
+                        </div>
                     </bm-combo-box>
                 </bm-form-group>
                 <div class="d-flex flex-grow-1 align-items-end justify-content-end">
@@ -98,6 +101,7 @@ import { SET_CONVERSATION_LIST_STATUS } from "~/mutations";
 import { translatePath } from "~/model/folder";
 import { MailRoutesMixin } from "~/mixins";
 import { LoadingStatus } from "~/model/loading-status";
+import MailMailboxIcon from "./MailMailboxIcon.vue";
 
 const SPINNER_TIMEOUT = 250;
 const UPDATE_ROUTE_TIMEOUT = 1000;
@@ -112,7 +116,8 @@ export default {
         BmFormGroup,
         BmFormInput,
         BmIcon,
-        GlobalEvents
+        GlobalEvents,
+        MailMailboxIcon
     },
     directives: {
         BmToggle
