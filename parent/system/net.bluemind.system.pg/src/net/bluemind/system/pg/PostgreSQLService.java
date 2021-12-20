@@ -42,7 +42,7 @@ import net.bluemind.server.api.Server;
 public class PostgreSQLService {
 	private static final Logger logger = LoggerFactory.getLogger(PostgreSQLService.class);
 
-	private static final String PG_CONF_PATH = "/etc/postgresql/12/main";
+	private static final String PG_CONF_PATH = "/etc/postgresql/14/main";
 	private static String SQL_SW_PATH = "/usr/share/bm-setup-wizard/tpl/sql/install_bmdb_pgsql_0.sh";
 	private static String SQL_IW_PATH = "/usr/share/bm-installation-wizard/tpl/sql/install_bmdb_pgsql_0.sh";
 

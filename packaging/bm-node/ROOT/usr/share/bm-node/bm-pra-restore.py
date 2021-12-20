@@ -414,8 +414,8 @@ def restoreBmPgsql(bmPgsqlPath):
             "rsync",
             "-avH",
             "--delete",
-            bmPgsqlPath + "/var/backups/bluemind/work/pgsql/configuration/12/",
-            "/etc/postgresql/12/",
+            bmPgsqlPath + "/var/backups/bluemind/work/pgsql/configuration/14/",
+            "/etc/postgresql/14/",
         ],
         None,
         "Restoring PostgreSQL configuration",
@@ -423,7 +423,7 @@ def restoreBmPgsql(bmPgsqlPath):
 
     execCmd(
         LOG_FILE,
-        ["chown", "-R", "postgres:postgres", "/etc/postgresql/12/"],
+        ["chown", "-R", "postgres:postgres", "/etc/postgresql/14/"],
         None,
         "Fixing PostgreSQL configuration rights",
     )
@@ -497,8 +497,8 @@ def restoreBmPgsqlData(bmPgsqlPath):
             "rsync",
             "-avH",
             "--delete",
-            bmPgsqlPath + "/var/backups/bluemind/work/pgsql-data/configuration/12/",
-            "/etc/postgresql/12/",
+            bmPgsqlPath + "/var/backups/bluemind/work/pgsql-data/configuration/14/",
+            "/etc/postgresql/14/",
         ],
         None,
         "Restoring PostgreSQL configuration",
@@ -506,7 +506,7 @@ def restoreBmPgsqlData(bmPgsqlPath):
 
     execCmd(
         LOG_FILE,
-        ["chown", "-R", "postgres:postgres", "/etc/postgresql/12/"],
+        ["chown", "-R", "postgres:postgres", "/etc/postgresql/14/"],
         None,
         "Fixing PostgreSQL configuration rights",
     )

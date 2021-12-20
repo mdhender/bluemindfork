@@ -74,7 +74,7 @@ public class PimpMyRam implements IApplication {
 							.getBytes());
 			bos.write(ByteStreams.toByteArray(in));
 
-			Files.write(bos.toByteArray(), new File("/etc/postgresql/12/main/postgresql.conf.pimp"));
+			Files.write(bos.toByteArray(), new File("/etc/postgresql/14/main/postgresql.conf.pimp"));
 			logger.info("PostgreSQL memory configured ({})", tplName);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);

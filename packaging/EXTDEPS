@@ -20,20 +20,11 @@ INFLUXDB="1.8.3.bm1~247d383a3"
 
 # PostgreSQL
 # Use EXTDEPS-getlastpg.sh if you need to modify (requires python3 + requests for RHEL)
-# Example: ./EXTDEPS-getlastpg.sh 12 | sort # for PostgreSQL 12
-BMPOSTGRESQL="12.9-bluemind169"
+# Example: ./EXTDEPS-getlastpg.sh 14 | sort # for PostgreSQL 14
+BMPOSTGRESQL="14.1-bluemind170"
 
 # Override from EXTDEPS-getlastpg
-PG_XENIAL="12.7-1.pgdg16.04+1"
-PGCOMMON_XENIAL="226.pgdg16.04+1"
-PG_REPACK_XENIAL="1.4.6-1.pgdg16.04+1"
-PG_QUALSTATS_XENIAL="2.0.2-2.pgdg16.04+1"
-PG_STAT_KCACHE_XENIAL="2.2.0-1.pgdg16.04+1"
-PG_TRACK_SETTINGS_XENIAL="2.0.1-1.pgdg16.04+1"
-PG_WAIT_SAMPLING_XENIAL="1.1.3-1.pgdg16.04+1"
-PG_HYPOPG_XENIAL="1.1.4-2.pgdg16.04+1"
-PG_POWA_XENIAL="4.1.2-1.pgdg16.04+1"
-PG_BIONIC="12.9-1.pgdg18.04+1"
+PG_BIONIC="14.1-1.pgdg18.04+1"
 PGCOMMON_BIONIC="232.pgdg18.04+1"
 PG_REPACK_BIONIC="1.4.7-1.pgdg18.04+1"
 PG_QUALSTATS_BIONIC="2.0.3-1.pgdg18.04+1"
@@ -42,7 +33,7 @@ PG_TRACK_SETTINGS_BIONIC="2.0.1-2.pgdg18.04+1"
 PG_WAIT_SAMPLING_BIONIC="1.1.3-2.pgdg18.04+1"
 PG_HYPOPG_BIONIC="1.3.1-1.pgdg18.04+1"
 PG_POWA_BIONIC="4.1.2-3.pgdg18.04+1"
-PG_FOCAL="12.9-2.pgdg20.04+1"
+PG_FOCAL="14.1-2.pgdg20.04+1"
 PGCOMMON_FOCAL="232.pgdg20.04+1"
 PG_REPACK_FOCAL="1.4.7-1.pgdg20.04+1"
 PG_QUALSTATS_FOCAL="2.0.3-1.pgdg20.04+1"
@@ -51,7 +42,7 @@ PG_TRACK_SETTINGS_FOCAL="2.0.1-2.pgdg20.04+1"
 PG_WAIT_SAMPLING_FOCAL="1.1.3-2.pgdg20.04+1"
 PG_HYPOPG_FOCAL="1.3.1-1.pgdg20.04+1"
 PG_POWA_FOCAL="4.1.2-3.pgdg20.04+1"
-PG_STRETCH="12.9-1.pgdg90+1"
+PG_STRETCH="14.1-1.pgdg90+1"
 PGCOMMON_STRETCH="232.pgdg90+1"
 PG_REPACK_STRETCH="1.4.7-1.pgdg90+1"
 PG_QUALSTATS_STRETCH="2.0.3-1.pgdg90+1"
@@ -60,7 +51,7 @@ PG_TRACK_SETTINGS_STRETCH="2.0.1-2.pgdg90+1"
 PG_WAIT_SAMPLING_STRETCH="1.1.3-2.pgdg90+1"
 PG_HYPOPG_STRETCH="1.3.1-1.pgdg90+1"
 PG_POWA_STRETCH="4.1.2-3.pgdg90+1"
-PG_BUSTER="12.9-1.pgdg100+1"
+PG_BUSTER="14.1-1.pgdg100+1"
 PGCOMMON_BUSTER="232.pgdg100+1"
 PG_REPACK_BUSTER="1.4.7-1.pgdg100+1"
 PG_QUALSTATS_BUSTER="2.0.3-1.pgdg100+1"
@@ -69,7 +60,7 @@ PG_TRACK_SETTINGS_BUSTER="2.0.1-2.pgdg100+1"
 PG_WAIT_SAMPLING_BUSTER="1.1.3-2.pgdg100+1"
 PG_HYPOPG_BUSTER="1.3.1-1.pgdg100+1"
 PG_POWA_BUSTER="4.1.2-3.pgdg100+1"
-PG_BULLSEYE="12.9-1.pgdg110+1"
+PG_BULLSEYE="14.1-1.pgdg110+1"
 PGCOMMON_BULLSEYE="232.pgdg110+1"
 PG_REPACK_BULLSEYE="1.4.7-1.pgdg110+1"
 PG_QUALSTATS_BULLSEYE="2.0.3-1.pgdg110+1"
@@ -79,42 +70,42 @@ PG_WAIT_SAMPLING_BULLSEYE="1.1.3-2.pgdg110+1"
 PG_HYPOPG_BULLSEYE="1.3.1-1.pgdg110+1"
 PG_POWA_BULLSEYE="4.1.2-3.pgdg110+1"
 PGKEYRING="2018.2"
-PG_RHEL7="12.9-1PGDG.rhel7"
+PG_RHEL7="14.1-1PGDG.rhel7"
 PG_REPACK_RHEL7="1.4.7-1.rhel7"
 PG_QUALSTATS_RHEL7="2.0.3-1.rhel7"
-PG_STAT_KCACHE_RHEL7="2.2.0-1.rhel7"
-PG_TRACK_SETTINGS_RHEL7="2.0.1-1.rhel7"
+PG_STAT_KCACHE_RHEL7="2.2.0-2.rhel7"
+PG_TRACK_SETTINGS_RHEL7="2.0.1-3.rhel7"
 PG_WAIT_SAMPLING_RHEL7="1.1.3-1.rhel7"
-PG_HYPOPG_RHEL7="1.3.0-1.rhel7"
-PG_POWA_WEB_RHEL7="4.1.2-3.rhel7"
-PG_POWA_RHEL7="4.1.2-3.rhel7"
-PG_RHEL8="12.9-1PGDG.rhel8"
+PG_HYPOPG_RHEL7="1.3.1-1.rhel7"
+PG_POWA_WEB_RHEL7="4.1.2-4.rhel7"
+PG_POWA_RHEL7="4.1.2-4.rhel7"
+PG_RHEL8="14.1-1PGDG.rhel8"
 PG_REPACK_RHEL8="1.4.7-1.rhel8"
 PG_QUALSTATS_RHEL8="2.0.3-1.rhel8"
-PG_STAT_KCACHE_RHEL8="2.2.0-1.rhel8"
-PG_TRACK_SETTINGS_RHEL8="2.0.1-1.rhel8"
+PG_STAT_KCACHE_RHEL8="2.2.0-2.rhel8"
+PG_TRACK_SETTINGS_RHEL8="2.0.1-3.rhel8"
 PG_WAIT_SAMPLING_RHEL8="1.1.3-1.rhel8"
-PG_HYPOPG_RHEL8="1.3.0-1.rhel8"
-PG_POWA_WEB_RHEL8="4.1.2-3.rhel8"
-PG_POWA_RHEL8="4.1.2-3.rhel8"
+PG_HYPOPG_RHEL8="1.3.1-1.rhel8"
+PG_POWA_WEB_RHEL8="4.1.2-4.rhel8"
+PG_POWA_RHEL8="4.1.2-4.rhel8"
 # End override from EXTDEPS-getlastpg
 
 # Additional PostgreSQL extensions
-PG_REPACK_DEB="postgresql-12-repack"
-PG_REPACK_RPM="pg_repack_12"
-PG_QUALSTATS_DEB="postgresql-12-pg-qualstats"
-PG_QUALSTATS_RPM="pg_qualstats_12"
-PG_STAT_KCACHE_DEB="postgresql-12-pg-stat-kcache"
-PG_STAT_KCACHE_RPM="pg_stat_kcache_12"
-PG_TRACK_SETTINGS_DEB="postgresql-12-track-settings"
-PG_TRACK_SETTINGS_RPM="pg_track_settings12"
-PG_WAIT_SAMPLING_DEB="postgresql-12-pg-wait-sampling"
+PG_REPACK_DEB="postgresql-14-repack"
+PG_REPACK_RPM="pg_repack_14"
+PG_QUALSTATS_DEB="postgresql-14-pg-qualstats"
+PG_QUALSTATS_RPM="pg_qualstats_14"
+PG_STAT_KCACHE_DEB="postgresql-14-pg-stat-kcache"
+PG_STAT_KCACHE_RPM="pg_stat_kcache_14"
+PG_TRACK_SETTINGS_DEB="postgresql-14-track-settings"
+PG_TRACK_SETTINGS_RPM="pg_track_settings_14"
+PG_WAIT_SAMPLING_DEB="postgresql-14-pg-wait-sampling"
 PG_WAIT_SAMPLING_RPM="pg_wait_sampling"
-PG_HYPOPG_DEB="postgresql-12-hypopg"
-PG_HYPOPG_RPM="hypopg_12"
-PG_POWA_DEB="postgresql-12-powa"
-PG_POWA_RPM="powa_12"
-PG_POWA_WEB_RPM="powa_12"
+PG_HYPOPG_DEB="postgresql-14-hypopg"
+PG_HYPOPG_RPM="hypopg_14"
+PG_POWA_DEB="postgresql-14-powa"
+PG_POWA_RPM="powa_14"
+PG_POWA_WEB_RPM="powa_14"
 
 PG_EXT_MODULES_FOCAL=" \
 	${PG_REPACK_DEB}=${PG_REPACK_FOCAL} \
@@ -133,15 +124,6 @@ PG_EXT_MODULES_BIONIC=" \
 	${PG_WAIT_SAMPLING_DEB}=${PG_WAIT_SAMPLING_BIONIC} \
 	${PG_POWA_DEB}=${PG_POWA_BIONIC} \
 	${PG_HYPOPG_DEB}=${PG_HYPOPG_BIONIC}"
-
-PG_EXT_MODULES_XENIAL=" \
-	${PG_REPACK_DEB}=${PG_REPACK_XENIAL} \
-	${PG_QUALSTATS_DEB}=${PG_QUALSTATS_XENIAL} \
-	${PG_STAT_KCACHE_DEB}=${PG_STAT_KCACHE_XENIAL} \
-	${PG_TRACK_SETTINGS_DEB}=${PG_TRACK_SETTINGS_XENIAL} \
-	${PG_WAIT_SAMPLING_DEB}=${PG_WAIT_SAMPLING_XENIAL} \
-	${PG_POWA_DEB}=${PG_POWA_XENIAL} \
-	${PG_HYPOPG_DEB}=${PG_HYPOPG_XENIAL}"
 
 PG_EXT_MODULES_BULLSEYE=" \
 	${PG_REPACK_DEB}=${PG_REPACK_BULLSEYE} \
@@ -254,77 +236,68 @@ BMPOSTGRESQLRPM="bm-postgresql=${BMPOSTGRESQL} \
 
 PGKEYRINGDEB="pgdg-keyring=${PGKEYRING}"
 
-PGDEB_STRETCH="postgresql-12=${PG_STRETCH} \
-		postgresql-client-12=${PG_STRETCH} \
-		postgresql-contrib-12=${PG_STRETCH} \
-		postgresql-server-dev-12=${PG_STRETCH} \
+PGDEB_STRETCH="postgresql-14=${PG_STRETCH} \
+		postgresql-client-14=${PG_STRETCH} \
+		postgresql-contrib-14=${PG_STRETCH} \
+		postgresql-server-dev-14=${PG_STRETCH} \
 		libpq5=${PG_STRETCH} \
 		libpq-dev=${PG_STRETCH} \
 		libllvm6.0 ${PG_EXT_MODULES_STRETCH}"
 PGCOMMONDEB_STRETCH="postgresql-client-common=${PGCOMMON_STRETCH} \
 		postgresql-common=${PGCOMMON_STRETCH}"
 
-PGDEB_BULLSEYE="postgresql-12=${PG_BULLSEYE} \
-		postgresql-client-12=${PG_BULLSEYE} \
-		postgresql-contrib-12=${PG_BULLSEYE} \
-		postgresql-server-dev-12=${PG_BULLSEYE} \
+PGDEB_BULLSEYE="postgresql-14=${PG_BULLSEYE} \
+		postgresql-client-14=${PG_BULLSEYE} \
+		postgresql-contrib-14=${PG_BULLSEYE} \
+		postgresql-server-dev-14=${PG_BULLSEYE} \
 		libpq5=${PG_BULLSEYE} \
 		libpq-dev=${PG_BULLSEYE} \
 		libllvm11 ${PG_EXT_MODULES_BULLSEYE}"
 PGCOMMONDEB_BULLSEYE="postgresql-client-common=${PGCOMMON_BULLSEYE} \
 		postgresql-common=${PGCOMMON_BULLSEYE}"
 
-PGDEB_BUSTER="postgresql-12=${PG_BUSTER} \
-		postgresql-client-12=${PG_BUSTER} \
-		postgresql-contrib-12=${PG_BUSTER} \
-		postgresql-server-dev-12=${PG_BUSTER} \
+PGDEB_BUSTER="postgresql-14=${PG_BUSTER} \
+		postgresql-client-14=${PG_BUSTER} \
+		postgresql-contrib-14=${PG_BUSTER} \
+		postgresql-server-dev-14=${PG_BUSTER} \
 		libpq5=${PG_BUSTER} \
 		libpq-dev=${PG_BUSTER} \
 		libllvm6.0 ${PG_EXT_MODULES_BUSTER}"
 PGCOMMONDEB_BUSTER="postgresql-client-common=${PGCOMMON_BUSTER} \
 		postgresql-common=${PGCOMMON_BUSTER}"
 
-PGDEB_XENIAL="postgresql-12=${PG_XENIAL} \
-		postgresql-client-12=${PG_XENIAL} \
-		postgresql-contrib-12=${PG_XENIAL} \
-		postgresql-server-dev-12=${PG_XENIAL} \
-		libpq5=${PG_XENIAL} \
-		libpq-dev=${PG_XENIAL} ${PG_EXT_MODULES_XENIAL}"
-PGCOMMONDEB_XENIAL="postgresql-client-common=${PGCOMMON_XENIAL} \
-		postgresql-common=${PGCOMMON_XENIAL}"
-
-PGDEB_BIONIC="postgresql-12=${PG_BIONIC} \
-		postgresql-client-12=${PG_BIONIC} \
-		postgresql-contrib-12=${PG_BIONIC} \
-		postgresql-server-dev-12=${PG_BIONIC} \
+PGDEB_BIONIC="postgresql-14=${PG_BIONIC} \
+		postgresql-client-14=${PG_BIONIC} \
+		postgresql-contrib-14=${PG_BIONIC} \
+		postgresql-server-dev-14=${PG_BIONIC} \
 		libpq5=${PG_BIONIC} \
 		libpq-dev=${PG_BIONIC} ${PG_EXT_MODULES_BIONIC}"
 PGCOMMONDEB_BIONIC="postgresql-client-common=${PGCOMMON_BIONIC} \
 		postgresql-common=${PGCOMMON_BIONIC}"
 		
-PGDEB_FOCAL="postgresql-12=${PG_FOCAL} \
-		postgresql-client-12=${PG_FOCAL} \
-		postgresql-contrib-12=${PG_FOCAL} \
-		postgresql-server-dev-12=${PG_FOCAL} \
+PGDEB_FOCAL="postgresql-14=${PG_FOCAL} \
+		postgresql-client-14=${PG_FOCAL} \
+		postgresql-contrib-14=${PG_FOCAL} \
+		postgresql-server-dev-14=${PG_FOCAL} \
 		libpq5=${PG_FOCAL} \
 		libpq-dev=${PG_FOCAL} ${PG_EXT_MODULES_FOCAL}"
 PGCOMMONDEB_FOCAL="postgresql-client-common=${PGCOMMON_FOCAL} \
 		postgresql-common=${PGCOMMON_FOCAL}"
 
-PGRPM_RHEL7="postgresql12=${PG_RHEL7} \
-		postgresql12-contrib=${PG_RHEL7} \
-		postgresql12-devel=${PG_RHEL7} \
-		postgresql12-libs=${PG_RHEL7} \
-		postgresql12-server=${PG_RHEL7} ${PG_EXT_MODULES_RHEL7}"
+PGRPM_RHEL7="postgresql14=${PG_RHEL7} \
+		postgresql14-contrib=${PG_RHEL7} \
+		postgresql14-devel=${PG_RHEL7} \
+		postgresql14-libs=${PG_RHEL7} \
+		postgresql14-server=${PG_RHEL7} ${PG_EXT_MODULES_RHEL7}"
 
-PGRPM_RHEL8="postgresql12=${PG_RHEL8} \
-		postgresql12-contrib=${PG_RHEL8} \
-		postgresql12-devel=${PG_RHEL8} \
-		postgresql12-libs=${PG_RHEL8} \
-		postgresql12-server=${PG_RHEL8} ${PG_EXT_MODULES_RHEL8}"
+PGRPM_RHEL8="postgresql14=${PG_RHEL8} \
+		postgresql14-contrib=${PG_RHEL8} \
+		postgresql14-devel=${PG_RHEL8} \
+		postgresql14-libs=${PG_RHEL8} \
+		postgresql14-server=${PG_RHEL8} ${PG_EXT_MODULES_RHEL8}"
 
 # Distribution
-DEB_DISTRIBUTION="STRETCH BUSTER BULLSEYE XENIAL BIONIC FOCAL"
+DEB_DISTRIBUTION="STRETCH BUSTER BULLSEYE BIONIC FOCAL"
 
 DEB="${BMCYRUSDEB} \
 		${BMESDEB} \

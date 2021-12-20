@@ -4,7 +4,7 @@
 
 set -e
 
-APT_DISTNAMES="xenial bionic focal stretch buster bullseye"  # Use space separator
+APT_DISTNAMES="bionic focal stretch buster bullseye"  # Use space separator
 RPM_RHEL_VERSIONS="7 8"  # Use space separator
 
 

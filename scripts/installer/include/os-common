@@ -1,7 +1,6 @@
 # On success, at the end INSTALLER_VERSION and OS_VERSION equal to one of those values
 REDHAT7="redhat-7"
 REDHAT8="redhat-8"
-UBUNTU_XENIAL="ubuntu-xenial"
 UBUNTU_BIONIC="ubuntu-bionic"
 UBUNTU_FOCAL="ubuntu-focal"
 DEBIAN_STRETCH="debian-stretch"
@@ -106,14 +105,6 @@ detect_os() {
         fi
     fi
 
-    if [ -e "./xenial" ]; then
-        INSTALLER_VERSION=${UBUNTU_XENIAL}
-        if check_ubuntu "16.04"; then
-            OS_VERSION=${INSTALLER_VERSION}
-            source "./include/os-debian-squeeze-base"
-        fi
-    fi
-    
     if [ -e "./bionic" ]; then
         INSTALLER_VERSION=${UBUNTU_BIONIC}
         if check_ubuntu "18.04"; then

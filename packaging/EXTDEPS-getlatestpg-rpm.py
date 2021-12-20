@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import gzip
-import posixpath
 import re
 try:
     import requests
@@ -34,7 +33,7 @@ def main(repomd_baseurl, postgresql_version, rhel_version):
         ("pg_repack_%s" % postgresql_version, "PG_REPACK"),
         ("pg_qualstats_%s" % postgresql_version, "PG_QUALSTATS"),
         ("pg_stat_kcache_%s" % postgresql_version, "PG_STAT_KCACHE"),
-        ("pg_track_settings%s" % postgresql_version, "PG_TRACK_SETTINGS"),
+        ("pg_track_settings_%s" % postgresql_version, "PG_TRACK_SETTINGS"),
         ("pg_wait_sampling_%s" % postgresql_version, "PG_WAIT_SAMPLING"),
         ("hypopg_%s" % postgresql_version, "PG_HYPOPG"),
         ("powa_%s" % postgresql_version, "PG_POWA_WEB"),
