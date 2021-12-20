@@ -11,12 +11,23 @@ import { FETCH_MAILBOXES } from "~/actions";
 import { MAILBOXES, MAILSHARES, MAILSHARE_KEYS, MY_MAILBOX, MY_MAILBOX_KEY, USER_MAILBOXES } from "~/getters";
 import { MailboxType } from "../../model/mailbox";
 
-const userId = "6793466E-F5D4-490F-97BF-DF09D3327BF4";
+const aliceUid = "6793466E-F5D4-490F-97BF-DF09D3327BF4";
+const bobUid = "AB6A2A90-04DA-4BD8-8E56-C4A11666E6CC";
+const userId = aliceUid;
 
 const containersService = new MockContainersClient();
 inject.register({ provide: "ContainersPersistence", factory: () => containersService });
 inject.register({ provide: "OwnerSubscriptionsPersistence", factory: () => new MockOwnerSubscriptionsClient() });
 inject.register({ provide: "UserSession", use: { userId } });
+inject.register({
+    provide: "DirectoryPersistence",
+    factory: () => ({
+        getMultiple: () => [
+            { uid: aliceUid, value: { email: "alice.coupeur@bluemind.net", displayName: "Alice Coupeur" } },
+            { uid: bobUid, value: { email: "bob.leponge@bluemind.net", displayName: "Bob Leponge" } }
+        ]
+    })
+});
 Vue.use(Vuex);
 
 describe("mailboxes store", () => {
@@ -47,7 +58,7 @@ describe("mailboxes store", () => {
             containersService.getContainers.mockClear();
         });
         describe("FETCH_MAILBOXES", () => {
-            test("Fetch a mailboxe", async () => {
+            test("Fetch a mailbox", async () => {
                 const mailbox = aliceContainers.find(container => {
                     return container.type === "mailboxacl";
                 });
@@ -56,7 +67,6 @@ describe("mailboxes store", () => {
                 await store.dispatch(FETCH_MAILBOXES);
                 expect(Object.keys(store.state).length).toEqual(1);
                 expect(Object.values(store.state)[0]).toMatchObject({
-                    name: mailbox.ownerDisplayname,
                     writable: mailbox.verbs.includes(Verb.Write)
                 });
             });
@@ -72,6 +82,16 @@ describe("mailboxes store", () => {
                     expect(mailbox.remoteRef.uid).toEqual("user." + mailbox.owner);
                     expect(mailbox.root).toEqual("");
                 });
+
+                const aliceMailbox = store.state["user." + aliceUid];
+                expect(aliceMailbox.address).toEqual("alice.coupeur@bluemind.net");
+                expect(aliceMailbox.dn).toEqual("Alice Coupeur");
+                expect(aliceMailbox.name).toEqual("alice.coupeur@bluemind.net");
+
+                const bobMailbox = store.state["user." + bobUid];
+                expect(bobMailbox.address).toEqual("bob.leponge@bluemind.net");
+                expect(bobMailbox.dn).toEqual("Bob Leponge");
+                expect(bobMailbox.name).toEqual("bob.leponge@bluemind.net");
             });
             test("Fetch mailshare mailboxes", async () => {
                 const mailboxes = aliceContainers.filter(container => {

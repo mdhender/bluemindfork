@@ -19,7 +19,6 @@
 import { mapGetters, mapState } from "vuex";
 
 import { BmCol, BmIcon } from "@bluemind/styleguide";
-import { inject } from "@bluemind/inject";
 import { USED_QUOTA_PERCENTAGE_WARNING } from "@bluemind/email";
 
 import { MAILSHARES, MY_MAILBOX, USER_MAILBOXES } from "~/getters";
@@ -30,9 +29,6 @@ import MailshareFolders from "./MailshareFolders";
 export default {
     name: "MailFolderSidebar",
     components: { BmCol, BmIcon, MailFolderSidebarHeader, UserFolders, MailshareFolders },
-    data() {
-        return { mailboxEmail: inject("UserSession").defaultEmail };
-    },
     computed: {
         ...mapGetters("mail", { MAILSHARES, MY_MAILBOX, USER_MAILBOXES }),
         ...mapState("root-app", ["quota"]),

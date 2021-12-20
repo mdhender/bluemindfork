@@ -38,7 +38,7 @@ export default {
         ...mapMutations("root-app", ["SET_APP_STATE"]),
         async $_BootstrapMixin_loadMyMailbox() {
             if (!this.MAILBOXES_ARE_LOADED) {
-                const { userId: owner, formatedName: name } = inject("UserSession");
+                const { userId: owner, defaultEmail: name } = inject("UserSession");
                 const myMailbox = create({ owner, name, type: MailboxType.USER });
                 this.ADD_MAILBOXES([myMailbox]);
             }
