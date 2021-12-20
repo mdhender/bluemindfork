@@ -4,8 +4,7 @@ Bundle-Name: net.bluemind.sentry
 Bundle-SymbolicName: net.bluemind.sentry
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: net.bluemind
-Require-Bundle: sentry,
- sentry-logback
+Require-Bundle: sentry
 Fragment-Host: ch.qos.logback.classic
 Automatic-Module-Name: net.bluemind.sentry
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -506,7 +506,6 @@
       <plugin id="org.xhtmlrenderer.flying-saucer-core"/>
       <plugin id="org.xhtmlrenderer.flying-saucer-pdf"/>
       <plugin id="sentry"/>
-      <plugin id="sentry-logback"/>
       <plugin id="slf4j.api"/>
       <plugin id="xpp3"/>
    </plugins>

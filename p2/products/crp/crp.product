@@ -94,7 +94,6 @@
       <plugin id="org.ini4j"/>
       <plugin id="org.reactivestreams.reactive-streams"/>
       <plugin id="sentry"/>
-      <plugin id="sentry-logback"/>
       <plugin id="slf4j.api"/>
    </plugins>
 

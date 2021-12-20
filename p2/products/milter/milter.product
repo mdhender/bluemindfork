@@ -136,7 +136,6 @@
       <plugin id="org.jsoup"/>
       <plugin id="org.reactivestreams.reactive-streams"/>
       <plugin id="sentry"/>
-      <plugin id="sentry-logback"/>
       <plugin id="slf4j.api"/>
    </plugins>
 
