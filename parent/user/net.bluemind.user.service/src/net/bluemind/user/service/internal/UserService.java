@@ -707,7 +707,6 @@ public class UserService implements IInCoreUser, IUser {
 		}
 
 		IInternalRoles roleService = bmContext.su().provider().instance(IInternalRoles.class);
-
 		if (user.accountType == AccountType.SIMPLE) {
 			return roleService.resolve(DefaultRoles.SIMPLE_USER_DEFAULT_ROLES);
 		}
@@ -725,27 +724,29 @@ public class UserService implements IInCoreUser, IUser {
 			roles.remove("hasMail");
 		}
 
-		IInstallation installationService = bmContext.su().getServiceProvider().instance(IInstallation.class);
-		SubscriptionInformations subInfos = installationService.getSubscriptionInformations();
-		Optional<InstallationIndicator> fullVisioIndicator = subInfos.indicator.stream()
-				.filter(indicator -> indicator.kind == InstallationIndicator.Kind.FullVisioAccount).findFirst();
-
-		if (fullVisioIndicator.isPresent()) {
-			if (user.accountType == AccountType.FULL) {
-				roles.add("hasSimpleVideoconferencing");
-			} else if (user.accountType == AccountType.FULL_AND_VISIO) {
-				if (fullVisioIndicator.get().expiration != null
-						&& Calendar.getInstance().getTime().before(fullVisioIndicator.get().expiration)) {
-					roles.add("hasFullVideoconferencing");
-				} else {
-					roles.add("hasSimpleVideoconferencing");
-				}
+		if (visioSubscriptionIsActive()) {
+			if (user.accountType == AccountType.FULL_AND_VISIO) {
+				roles.add("hasFullVideoconferencing");
+			}
+		} else {
+			if (roles.contains("hasSimpleVideoconferencing")) {
+				roles.remove("hasSimpleVideoconferencing");
 			}
 		}
 
 		roles = roleService.filter(roles);
 		return roleService.resolve(roles);
+	}
 
+	private boolean visioSubscriptionIsActive() {
+		IInstallation installationService = bmContext.su().getServiceProvider().instance(IInstallation.class);
+		SubscriptionInformations subInfos = installationService.getSubscriptionInformations();
+
+		Optional<InstallationIndicator> fullVisioIndicator = subInfos.indicator.stream()
+				.filter(indicator -> indicator.kind == InstallationIndicator.Kind.FullVisioAccount).findFirst();
+
+		return fullVisioIndicator.isPresent() && fullVisioIndicator.get().expiration != null
+				&& Calendar.getInstance().getTime().before(fullVisioIndicator.get().expiration);
 	}
 
 	@Override

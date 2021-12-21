@@ -82,6 +82,10 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 		domainAdminCtx = BmTestContext.contextWithSession("sid", "admin", domainUid, SecurityContext.ROLE_ADMIN,
 				SecurityContext.ROLE_SYSTEM);
 
+		Map<String, String> domSettings = new HashMap<>();
+		domSettings.put(DomainSettingsKeys.domain_max_fullvisio_accounts.name(), "10");
+		PopulateHelper.createDomainSettings(domainUid, domSettings);
+
 		// videoconf resource
 		ServerSideServiceProvider.getProvider(domainAdminCtx).instance(IVideoConferencing.class, domainUid)
 				.createResource(videoconfProviderId, VideoConferencingResourceDescriptor.create("coucou",

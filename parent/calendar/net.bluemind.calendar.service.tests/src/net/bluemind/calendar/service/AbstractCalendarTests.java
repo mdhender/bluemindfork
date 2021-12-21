@@ -229,12 +229,12 @@ public abstract class AbstractCalendarTests {
 		vcardStore.create("user_" + testUser.uid, "John Doe", testUser.value.contactInfos);
 
 		userSecurityContext = new SecurityContext("user", testUser.uid, Arrays.<String>asList(),
-				Arrays.<String>asList(), domainUid);
+				Arrays.<String>asList("hasSimpleVideoconferencing"), domainUid);
 
 		Sessions.get().put(userSecurityContext.getSessionId(), userSecurityContext);
 
-		basicUserSecurityContext = new SecurityContext("fake", "fake", Arrays.<String>asList(), Arrays.<String>asList(),
-				domainUid);
+		basicUserSecurityContext = new SecurityContext("fake", "fake", Arrays.<String>asList(),
+				Arrays.<String>asList("hasSimpleVideoconferencing"), domainUid);
 		Sessions.get().put(basicUserSecurityContext.getSessionId(), basicUserSecurityContext);
 
 		userCalendarContainer = createTestContainer(userSecurityContext, dataDataSource, ICalendarUids.TYPE, "John Doe",

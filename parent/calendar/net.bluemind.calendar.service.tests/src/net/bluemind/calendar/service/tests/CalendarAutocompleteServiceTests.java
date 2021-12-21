@@ -112,12 +112,12 @@ public class CalendarAutocompleteServiceTests {
 
 		PopulateHelper.addUser("test", DOMAIN);
 		defaultSecurityContext = new SecurityContext("testUser", "test", Arrays.<String>asList(),
-				Arrays.<String>asList(), DOMAIN);
+				Arrays.<String>asList("hasSimpleVideoconferencing"), DOMAIN);
 
 		Sessions.get().put(defaultSecurityContext.getSessionId(), defaultSecurityContext);
 
 		adminSecurityContext = new SecurityContext("testAdmin", "testAdmin", Arrays.<String>asList(),
-				Arrays.<String>asList(BasicRoles.ROLE_ADMIN), DOMAIN);
+				Arrays.<String>asList(BasicRoles.ROLE_ADMIN, "hasSimpleVideoconferencing"), DOMAIN);
 
 		Sessions.get().put(adminSecurityContext.getSessionId(), adminSecurityContext);
 		testContext = new BmTestContext(SecurityContext.SYSTEM);

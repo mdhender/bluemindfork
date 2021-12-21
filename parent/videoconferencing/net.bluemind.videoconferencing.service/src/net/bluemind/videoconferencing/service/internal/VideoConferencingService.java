@@ -43,6 +43,7 @@ import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
+import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.domain.api.IDomainSettings;
@@ -59,6 +60,7 @@ import net.bluemind.videoconferencing.api.IVideoConferencing;
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
 import net.bluemind.videoconferencing.api.VideoConference;
 import net.bluemind.videoconferencing.api.VideoConferencingResourceDescriptor;
+import net.bluemind.videoconferencing.hosting.VideoConferencingRolesProvider;
 import net.bluemind.videoconferencing.service.template.VideoConferencingTemplateHelper;
 
 public class VideoConferencingService implements IVideoConferencing {
@@ -67,6 +69,7 @@ public class VideoConferencingService implements IVideoConferencing {
 
 	private BmContext context;
 	private String domainUid;
+	private RBACManager rbac;
 
 	private static final List<IVideoConferencingProvider> providers = loadProviders();
 	private static final VideoConferencingTemplateHelper templateHelper = new VideoConferencingTemplateHelper();
@@ -74,10 +77,12 @@ public class VideoConferencingService implements IVideoConferencing {
 	public VideoConferencingService(BmContext context, String domainUid) {
 		this.context = context;
 		this.domainUid = domainUid;
+		rbac = new RBACManager(context);
 	}
 
 	@Override
 	public VEvent add(VEvent vevent) {
+		rbac.check(VideoConferencingRolesProvider.ROLE_VISIO, VideoConferencingRolesProvider.ROLE_FULL_VISIO);
 		List<ItemValue<ResourceDescriptor>> videoConferencingResoures = getVideoConferencingResource(vevent.attendees);
 		if (videoConferencingResoures.isEmpty()) {
 			return vevent;
@@ -214,7 +219,6 @@ public class VideoConferencingService implements IVideoConferencing {
 
 	@Override
 	public void createResource(String uid, VideoConferencingResourceDescriptor descriptor) {
-
 		Optional<IVideoConferencingProvider> provider = providers.stream()
 				.filter(p -> p.id().equals(descriptor.provider)).findFirst();
 
@@ -345,7 +349,7 @@ public class VideoConferencingService implements IVideoConferencing {
 			case "fri":
 				days.add(Day.FR);
 				break;
-			case "sam":
+			case "sat":
 				days.add(Day.SA);
 				break;
 			case "sun":

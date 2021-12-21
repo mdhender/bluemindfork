@@ -40,5 +40,4 @@ public interface IVideoConferencing {
 	@PUT
 	@Path("createResource/{uid}")
 	public void createResource(@PathParam(value = "uid") String uid, VideoConferencingResourceDescriptor descriptor);
-
 }

@@ -22,4 +22,5 @@ Require-Bundle: org.junit,
  net.bluemind.core.sanitizer;bundle-version="4.1.0",
  net.bluemind.resource.hook;bundle-version="4.1.0",
  net.bluemind.utils,
- net.bluemind.system.api
+ net.bluemind.system.api,
+ net.bluemind.videoconferencing.hosting

@@ -31,21 +31,26 @@ import net.bluemind.role.provider.IRolesProvider;
 public class VideoConferencingRolesProvider implements IRolesProvider {
 
 	public static final String ROLE_FULL_VISIO = "hasFullVideoconferencing";
+	public static final String ROLE_VISIO = "hasSimpleVideoconferencing";
 	public static final String CATEGORY_VIDEO_CONFERENCING = "Videoconferencing";
 
 	@Override
 	public Set<String> getRoles() {
-		return ImmutableSet.<String>builder().add(ROLE_FULL_VISIO).build();
+		return ImmutableSet.<String>builder().add(ROLE_FULL_VISIO, ROLE_VISIO).build();
 	}
 
 	@Override
 	public Set<RoleDescriptor> getDescriptors(Locale locale) {
 		ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/bundle", locale);
 
-		RoleDescriptor attachment = RoleDescriptor.create(ROLE_FULL_VISIO, CATEGORY_VIDEO_CONFERENCING,
-				rb.getString("role.visio.label"), rb.getString("role.visio.description")).delegable().notVisible();
+		RoleDescriptor full = RoleDescriptor.create(ROLE_FULL_VISIO, CATEGORY_VIDEO_CONFERENCING,
+				rb.getString("role.full.visio.label"), rb.getString("role.full.visio.description")).delegable()
+				.notVisible();
 
-		return ImmutableSet.<RoleDescriptor>builder().add(attachment).build();
+		RoleDescriptor visio = RoleDescriptor.create(ROLE_VISIO, CATEGORY_VIDEO_CONFERENCING,
+				rb.getString("role.simple.visio.label"), rb.getString("role.simple.visio.description")).delegable();
+
+		return ImmutableSet.<RoleDescriptor>builder().add(full).add(visio).build();
 	}
 
 	@Override

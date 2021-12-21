@@ -52,6 +52,7 @@ import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.utils.HtmlToPlainText;
 import net.bluemind.videoconferencing.api.IVideoConferenceUids;
+import net.bluemind.videoconferencing.hosting.VideoConferencingRolesProvider;
 import net.bluemind.videoconferencing.service.calendar.VEventVideoConferencingSanitizer;
 
 public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferencingTests {
@@ -65,7 +66,8 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 		super.before();
 		PopulateHelper.addDomain(domainUid);
 
-		domainAdminCtx = BmTestContext.contextWithSession("sid", "admin", domainUid, SecurityContext.ROLE_ADMIN);
+		domainAdminCtx = BmTestContext.contextWithSession("sid", "admin", domainUid, SecurityContext.ROLE_ADMIN,
+				VideoConferencingRolesProvider.ROLE_VISIO);
 
 		// videoconf resource
 		ServerSideServiceProvider.getProvider(domainAdminCtx).instance(IResources.class, domainUid)

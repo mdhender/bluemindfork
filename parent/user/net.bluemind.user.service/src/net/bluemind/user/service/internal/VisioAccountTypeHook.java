@@ -34,30 +34,30 @@ public class VisioAccountTypeHook extends DefaultUserHook implements IUserHook {
 
 	@Override
 	public void onUserCreated(BmContext context, String domainUid, ItemValue<User> created) throws ServerFault {
-
-		if (created.value.accountType == AccountType.FULL_AND_VISIO) {
-			IUser user = context.getServiceProvider().instance(IUser.class, domainUid);
-			Set<String> roles = new HashSet<>(user.getRoles(created.uid));
-			if (!roles.contains("hasFullVideoconferencing")) {
-				roles.add("hasFullVideoconferencing");
-				user.setRoles(created.uid, roles);
+		IUser user = context.getServiceProvider().instance(IUser.class, domainUid);
+		Set<String> roles = new HashSet<>(user.getRoles(created.uid));
+		if (created.value.accountType == AccountType.FULL) {
+			if (!roles.contains("hasSimpleVideoconferencing")) {
+				roles.add("hasSimpleVideoconferencing");
 			}
-
 		}
-
+		user.setRoles(created.uid, roles);
 	}
 
 	@Override
 	public void beforeUpdate(BmContext context, String domainUid, String uid, User update, User previous)
 			throws ServerFault {
-		if (previous.accountType == AccountType.FULL_AND_VISIO && update.accountType != AccountType.FULL_AND_VISIO) {
-			IUser user = context.getServiceProvider().instance(IUser.class, domainUid);
-			Set<String> roles = new HashSet<>(user.getRoles(uid));
-			if (roles.contains("hasFullVideoconferencing")) { // role may have been removed in the meantime
-				roles.remove("hasFullVideoconferencing");
-				user.setRoles(uid, roles);
+		IUser user = context.getServiceProvider().instance(IUser.class, domainUid);
+		Set<String> roles = new HashSet<>(user.getRoles(uid));
+		if (previous.accountType != AccountType.FULL_AND_VISIO && update.accountType == AccountType.FULL_AND_VISIO) {
+			if (roles.contains("hasSimpleVideoconferencing")) { // role may have been removed in the meantime
+				roles.remove("hasSimpleVideoconferencing");
 			}
 		}
+		if (previous.accountType == AccountType.FULL_AND_VISIO && update.accountType == AccountType.FULL) {
+			roles.add("hasSimpleVideoconferencing");
+		}
+		user.setRoles(uid, roles);
 	}
 
 }
