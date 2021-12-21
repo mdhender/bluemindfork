@@ -242,7 +242,7 @@
     "mail.folder.new.from_scratch": "Nouveau dossier",
     "mail.folder.rename": "Renommer le dossier",
     "mail.folder.search.placeholder": "Filtrer mes dossiers",
-    "mail.folder.unread": "Nombre de messages non-lus : ",
+    "mail.folder.unread": "Nombre de messages non-lus : {count}",
     "mail.folder": "Le dossier",
     "mail.ics.accepted.tentatively": "Invitation acceptée provisoirement",
     "mail.ics.accepted": "Invitation acceptée",
@@ -407,6 +407,9 @@
                 "insert_signature": "Insérer ma signature",
                 "use_template": "Utiliser un modèle"
             }
+        },
+        "folder": {
+            "root": "Dossier racine"
         }
     },
     "mail.save.date": "enregistré le {date}",

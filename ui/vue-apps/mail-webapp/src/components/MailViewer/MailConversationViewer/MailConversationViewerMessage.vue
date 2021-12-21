@@ -9,7 +9,7 @@
                     v-if="folder.key !== conversation.folderRef.key"
                     :shared="shared"
                     :folder="folder"
-                    class="text-secondary font-italic font-size-sm pl-2"
+                    class="text-secondary font-italic pl-2"
                 />
             </div>
             <div class="d-lg-none d-flex align-items-center">

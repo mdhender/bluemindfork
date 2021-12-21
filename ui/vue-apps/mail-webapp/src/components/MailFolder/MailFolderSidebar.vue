@@ -2,8 +2,7 @@
     <bm-col cols="10" lg="12" class="mail-folder-sidebar-wrapper bg-surface h-100 d-flex flex-column">
         <mail-folder-sidebar-header />
         <nav class="mail-folder-sidebar scroller-y scroller-visible-on-hover flex-grow-1">
-            <user-folders v-for="mailbox in USER_MAILBOXES" :key="mailbox.key" :mailbox="mailbox" />
-            <mailshare-folders />
+            <folder-list />
         </nav>
         <div v-if="mustDisplayQuota" class="my-1" :class="showQuotaWarning ? 'text-danger' : ''">
             <hr class="my-1" />
@@ -16,21 +15,18 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex";
+import { mapState } from "vuex";
 
 import { BmCol, BmIcon } from "@bluemind/styleguide";
 import { USED_QUOTA_PERCENTAGE_WARNING } from "@bluemind/email";
 
-import { MAILSHARES, MY_MAILBOX, USER_MAILBOXES } from "~/getters";
 import MailFolderSidebarHeader from "./MailFolderSidebarHeader";
-import UserFolders from "./UserFolders";
-import MailshareFolders from "./MailshareFolders";
+import FolderList from "./FolderList";
 
 export default {
     name: "MailFolderSidebar",
-    components: { BmCol, BmIcon, MailFolderSidebarHeader, UserFolders, MailshareFolders },
+    components: { BmCol, BmIcon, FolderList, MailFolderSidebarHeader },
     computed: {
-        ...mapGetters("mail", { MAILSHARES, MY_MAILBOX, USER_MAILBOXES }),
         ...mapState("root-app", ["quota"]),
         ...mapState("session", { settings: ({ settings }) => settings.remote }),
         usedQuotaPercentage() {

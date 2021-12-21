@@ -32,7 +32,7 @@
             :variant="folder.key != activeFolder ? 'secondary' : 'primary'"
             class="mx-1 d-block"
             :class="{ 'read-only': !folder.writable }"
-            :aria-label="$t('mail.folder.unread') + folder.unread"
+            :aria-label="$t('mail.folder.unread', { count: folder.unread })"
         />
     </bm-dropzone>
     <mail-folder-input

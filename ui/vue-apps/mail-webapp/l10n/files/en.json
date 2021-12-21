@@ -243,7 +243,7 @@
     "mail.folder.new.from_scratch": "New folder",
     "mail.folder.rename": "Rename folder",
     "mail.folder.search.placeholder": "Filter my folders",
-    "mail.folder.unread": "Unread messages counter: ",
+    "mail.folder.unread": "Unread messages counter: {count}",
     "mail.folder": "Folder",
     "mail.ics.accepted.tentatively": "Invitation tentatively accepted",
     "mail.ics.accepted": "Invitation accepted",
@@ -408,6 +408,9 @@
                 "insert_signature": "Insert my signature",
                 "use_template": "Use a template"
             }
+        },
+        "folder": {
+            "root": "Root folder"
         }
     },
     "mail.save.date": "saved on {date}",

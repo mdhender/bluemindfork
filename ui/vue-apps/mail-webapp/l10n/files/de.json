@@ -242,7 +242,7 @@
     "mail.folder.new.from_scratch": "Neuer Ordner",
     "mail.folder.rename": "Ordner umbenennen",
     "mail.folder.search.placeholder": "Meine Ordner filtern",
-    "mail.folder.unread": "Ungelesen Nachrichten:",
+    "mail.folder.unread": "Ungelesen Nachrichten:{count}",
     "mail.folder": "Ordner",
     "mail.ics.accepted.tentatively": "Einladung unter Vorbehalt annenhmen",
     "mail.ics.accepted": "Einladung annehmen",
@@ -406,6 +406,9 @@
             "toolbar": {
                 "insert_signature": "Meine Signatur einfügen"
             }
+        },
+        "folder": {
+            "root": "Wurzelordner"
         }
     },
     "mail.save.date": "am {date} gespeichert",
