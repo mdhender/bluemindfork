@@ -1,4 +1,4 @@
-const { create, rename } = require("../folder");
+const { create, rename, compare } = require("../folder");
 const { MailboxType } = require("../mailbox");
 import injector from "@bluemind/inject";
 
@@ -173,6 +173,36 @@ describe("Folder model functions", () => {
                 name: "newName",
                 path: "parent/newName"
             });
+        });
+    });
+    describe("compare", () => {
+        const mailboxRef = { key: "mbk1" };
+        const mailboxRef2 = { key: "mbk2" };
+        const sortedFolders = [
+            { imapName: "INBOX", path: "INBOX", mailboxRef },
+            { imapName: "a", path: "a", mailboxRef },
+            { imapName: "a", path: "a/a", parent: "a", mailboxRef },
+            { imapName: "a", path: "a/a/a", parent: "a/a", mailboxRef },
+            { imapName: "a", path: "a/a/INBOX", parent: "a/a", mailboxRef },
+            { imapName: "b", path: "a/b", parent: "a", mailboxRef },
+            { imapName: "a", path: "a/b/a", parent: "a/b", mailboxRef },
+            { imapName: "toto", path: "toto", mailboxRef },
+            { imapName: "inOtherMailbox", path: "a/inOtherMailbox", parent: "a", mailboxRef: mailboxRef2 }
+        ];
+        test("sort", () => {
+            const unsortedFolders = [
+                { imapName: "a", path: "a/b/a", parent: "a/b", mailboxRef },
+                { imapName: "INBOX", path: "INBOX", mailboxRef },
+                { imapName: "a", path: "a/a/a", parent: "a/a", mailboxRef },
+                { imapName: "toto", path: "toto", mailboxRef },
+                { imapName: "b", path: "a/b", parent: "a", mailboxRef },
+                { imapName: "inOtherMailbox", path: "a/inOtherMailbox", parent: "a", mailboxRef: mailboxRef2 },
+                { imapName: "a", path: "a/a", parent: "a", mailboxRef },
+                { imapName: "a", path: "a", mailboxRef },
+                { imapName: "a", path: "a/a/INBOX", parent: "a/a", mailboxRef }
+            ];
+            const result = unsortedFolders.sort(compare);
+            expect(result).toEqual(sortedFolders);
         });
     });
 });

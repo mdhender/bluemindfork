@@ -12,15 +12,6 @@ import { Cache } from "~/utils/cache";
 
 export default {
     [FOLDERS]: state => Object.values(state).sort(compare),
-    // [FOLDERS_BY_UPPERCASE_PATH]: state => mailboxKey => {
-    //     const foldersByPath = {};
-    //     Object.values(state).forEach(folder => {
-    //         if (folder.mailboxRef.key === mailboxKey) {
-    //             foldersByPath[folder.path.toUpperCase()] = folder;
-    //         }
-    //     });
-    //     return foldersByPath;
-    // },
     [FOLDERS_BY_PATH]: (state, getters) => {
         const foldersByPath = getters[FOLDERS].reduce(
             (cache, folder) => cache.get(folder.path.toUpperCase()).push(folder) && cache,

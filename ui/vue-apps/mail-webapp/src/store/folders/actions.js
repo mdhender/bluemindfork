@@ -30,7 +30,6 @@ const fetchFolders = async function ({ commit }, mailbox) {
     const items = await api.getAllFolders(mailbox);
     const folders = items
         .filter(item => !item.flags.includes(ItemFlag.Deleted))
-        .sort((a, b) => a.value.fullName.toLowerCase().localeCompare(b.value.fullName.toLowerCase()))
         .map(item => FolderAdaptor.fromMailboxFolder(item, mailbox));
     commit(SET_MAILBOX_FOLDERS, { folders, mailbox });
 };
