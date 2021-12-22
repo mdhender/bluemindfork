@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration scan="true" scanPeriod="30 seconds">
+<configuration scan="true">
+  <property name="DEFAULT_PATTERN"
+    value="%date{ISO8601, ${net.bluemind.property.system.timezone:-GMT}} [%thread] %c{1} %p - %m%n" />
+
   <appender name="R" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
     <File>/var/log/bm-hps/hps.log</File>
     <encoder>
-      <pattern>%d [%thread] %c{1} %p - %m\n</pattern>
+      <pattern>${DEFAULT_PATTERN}</pattern>
     </encoder>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
       <maxIndex>5</maxIndex>

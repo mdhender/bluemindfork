@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration scan="true" scanPeriod="30 seconds">
+<configuration scan="true">
+  <property name="DEFAULT_PATTERN"
+    value="%date{ISO8601, ${net.bluemind.property.system.timezone:-GMT}} [%thread] %c{1} %p - %m%n" />
+
   <!-- Sentry send exceptions -->
   <appender name="Sentry" class="io.sentry.logback.SentryAppender">
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -11,7 +14,7 @@
     <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
     <File>/var/log/bm-eas/eas.log</File>
     <encoder>
-      <pattern>%d [%thread] %c{1} %p - %m\n</pattern>
+      <pattern>${DEFAULT_PATTERN}</pattern>
     </encoder>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
       <maxIndex>5</maxIndex>
@@ -21,7 +24,7 @@
       <MaxFileSize>50000KB</MaxFileSize>
     </triggeringPolicy>
   </appender>
-  
+
   <appender name="ASYNC_ALL" class="ch.qos.logback.classic.AsyncAppender">
     <queueSize>500</queueSize>
     <discardingThreshold>0</discardingThreshold>
@@ -32,7 +35,7 @@
     <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
     <File>/var/log/bm-eas/requests.log</File>
     <encoder>
-      <pattern>%d [%thread] %c{1} %p - %m\n</pattern>
+      <pattern>${DEFAULT_PATTERN}</pattern>
     </encoder>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
       <maxIndex>5</maxIndex>
@@ -62,7 +65,7 @@
 	  <MaxFileSize>5000KB</MaxFileSize>
 	</triggeringPolicy>
         <encoder>
-          <pattern>%d [%thread] %c{1} %p - %m\n</pattern>
+          <pattern>${DEFAULT_PATTERN}</pattern>
         </encoder>
       </appender>
     </sift>

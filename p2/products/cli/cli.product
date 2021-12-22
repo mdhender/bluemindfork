@@ -159,8 +159,6 @@
       <plugin id="net.bluemind.sds.store"/>
       <plugin id="net.bluemind.sds.store.s3"/>
       <plugin id="net.bluemind.sds.store.scalityring"/>
-      <plugin id="net.bluemind.sentry" fragment="true"/>
-      <plugin id="net.bluemind.sentry.settings"/>
       <plugin id="net.bluemind.serialization.client"/>
       <plugin id="net.bluemind.server.api"/>
       <plugin id="net.bluemind.slf4j"/>
@@ -211,9 +209,6 @@
       <plugin id="org.reactivestreams.reactive-streams"/>
       <plugin id="org.yaml.snakeyaml"/>
       <plugin id="picocli"/>
-      <plugin id="sentry"/>
       <plugin id="slf4j.api"/>
    </plugins>
-
-
 </product>

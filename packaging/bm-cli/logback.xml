@@ -4,14 +4,8 @@
   <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
     <target>System.err</target>
     <encoder>
-      <pattern>%d{ISO8601, Europe/Paris} [%thread] %c{1} %p - %m\n</pattern>
+      <pattern>%m%n</pattern>
     </encoder>
-  </appender>
-  <!-- Sentry send exceptions -->
-  <appender name="Sentry" class="io.sentry.logback.SentryAppender">
-    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-      <level>ERROR</level>
-    </filter>
   </appender>
   <logger name="org.apache.directory.shared" level="ERROR">
     <appender-ref ref="Console"/>
@@ -24,6 +18,5 @@
   </logger>
   <root level="WARN">
     <appender-ref ref="Console"/>
-    <appender-ref ref="Sentry"/>
   </root>
 </configuration>
