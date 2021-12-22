@@ -104,6 +104,7 @@ public class MilterHandler implements JilterHandler {
 	@Override
 	public JilterStatus helo(String helohost, Properties properties) {
 		logger.debug("helo");
+		accumulator.helo(properties);
 		return JilterStatus.SMFIS_CONTINUE;
 	}
 
@@ -366,7 +367,7 @@ public class MilterHandler implements JilterHandler {
 	@Override
 	public JilterStatus eom(JilterEOMActions eomActions, Properties properties) {
 		logger.debug("eom");
-		accumulator.done();
+		accumulator.done(properties);
 
 		forEachActions(accumulator.getEnvelope(), accumulator.getMessage(), eomActions);
 

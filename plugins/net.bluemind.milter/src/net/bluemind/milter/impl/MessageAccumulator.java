@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.james.mime4j.dom.Message;
@@ -12,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.milter.SmtpAddress;
@@ -28,6 +32,7 @@ public class MessageAccumulator {
 
 	private FileBackedOutputStream current = new FileBackedOutputStream(32768, "message-accu");
 
+	private Multimap<String, String> properties = ArrayListMultimap.create();
 	private SmtpEnvelope currentEnvelope = new SmtpEnvelope();
 	private Message message;
 
@@ -46,16 +51,15 @@ public class MessageAccumulator {
 			for (String arg : argv) {
 				logger.debug("from arg {}", arg);
 			}
-
-			for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-				logger.debug("prop {} {}", entry.getKey(), entry.getValue());
-			}
 		}
+
+		storeProperties(properties);
 
 		currentEnvelope.setSender(new SmtpAddress(argv[0]));
 	}
 
 	void envrcpt(String[] argv, Properties properties) {
+		storeProperties(properties);
 		currentEnvelope.addRecipient(new SmtpAddress(argv[0]));
 	}
 
@@ -87,7 +91,9 @@ public class MessageAccumulator {
 		}
 	}
 
-	void done() {
+	void done(Properties properties) {
+		storeProperties(properties);
+
 		try (InputStream in = current.asByteSource().openStream()) {
 			message = Mime4JHelper.parse(in);
 		} catch (IOException e) {
@@ -109,14 +115,38 @@ public class MessageAccumulator {
 		return message;
 	}
 
+	public Map<String, Collection<String>> getProperties() {
+		if (logger.isDebugEnabled()) {
+			properties.keys().stream()
+					.forEach(k -> logger.debug("Accumulator properties: {} {}", k, properties.get(k)));
+		}
+
+		return properties.asMap();
+	}
+
 	void reset() {
 		if (message != null) {
 			message.dispose();
 		}
 		currentEnvelope = new SmtpEnvelope();
+		properties.clear();
 		try {
 			current.reset();
 		} catch (IOException e) {
 		}
+	}
+
+	public void helo(Properties properties) {
+		storeProperties(properties);
+	}
+
+	private void storeProperties(Properties properties) {
+		if (logger.isDebugEnabled()) {
+			properties.entrySet()
+					.forEach(entry -> logger.debug("Accumulator new property {} {}", entry.getKey(), entry.getValue()));
+		}
+
+		properties.keySet().stream().map(k -> k instanceof String ? (String) k : null).filter(Objects::nonNull)
+				.forEach(k -> this.properties.put(k, properties.getProperty(k)));
 	}
 }
