@@ -408,9 +408,7 @@
                 "use_template": "Utiliser un modèle"
             }
         },
-        "folder": {
-            "root": "Dossier racine"
-        }
+        "rootFolder": "Dossier racine"
     },
     "mail.save.date": "enregistré le {date}",
     "mail.save.date.time": "enregistré à {time}"

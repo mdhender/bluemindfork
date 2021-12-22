@@ -1,55 +1,36 @@
 <template>
-    <bm-dropzone
-        :states="{ active: false }"
-        :accept="['conversation']"
-        :value="folder"
-        class="filtered-item align-items-center d-inline-flex border-bottom border-ligth pl-2"
-    >
-        <div class="d-flex flex-column flex-fill">
-            <mail-folder-icon
-                :shared="shared"
-                :folder="folder"
-                class="pl-3"
-                :class="{ 'font-weight-bold': isUnread }"
-            />
-            <div class="folder-path">
-                <span class="d-inline-block text-truncate">{{ path.start }}</span
-                ><span>{{ path.end }}</span>
+    <div class="filtered-item" @click="select">
+        <folder-item :folder="folder" class="w-100">
+            <div class="d-flex flex-column flex-fill">
+                <mail-folder-icon
+                    :shared="shared"
+                    :folder="folder"
+                    class="pl-3"
+                    :class="{ 'font-weight-bold': isUnread }"
+                />
+                <div class="folder-path">
+                    <span class="d-inline-block text-truncate">{{ path.start }}</span>
+                    <span>{{ path.end }}</span>
+                </div>
             </div>
-        </div>
-        <div v-if="!folder.writable" :title="$t('mail.folder.access.limited')" :class="isUnread ? 'pr-1' : 'pr-2'">
-            <bm-icon icon="info-circle" />
-        </div>
-        <mail-folder-item-menu v-if="folder.writable" :folder="folder" class="mx-1" :class="{ 'd-none': isUnread }" />
-        <bm-counter-badge
-            v-if="isUnread"
-            :value="folder.unread"
-            :variant="isActive ? 'secondary' : 'primary'"
-            class="mx-1 d-block"
-            :class="{ 'read-only': !folder.writable }"
-            :aria-label="$t('mail.folder.unread', { count: folder.unread })"
-        />
-    </bm-dropzone>
+        </folder-item>
+    </div>
 </template>
 
 <script>
-import { mapActions, mapMutations, mapState } from "vuex";
-import { BmCounterBadge, BmDropzone, BmIcon } from "@bluemind/styleguide";
+import { mapState } from "vuex";
 import MailFolderIcon from "../MailFolderIcon";
-import MailFolderItemMenu from "./MailFolderItemMenu";
-import { REMOVE_FOLDER, TOGGLE_EDIT_FOLDER } from "~/mutations";
-import { RENAME_FOLDER, CREATE_FOLDER } from "~/actions";
 import { MailboxType } from "~/model/mailbox";
+import FolderItem from "./FolderItem";
+import { MailRoutesMixin } from "~/mixins";
 
 export default {
     name: "FilteredItem",
     components: {
-        BmCounterBadge,
-        BmDropzone,
-        BmIcon,
         MailFolderIcon,
-        MailFolderItemMenu
+        FolderItem
     },
+    mixins: [MailRoutesMixin],
     props: {
         folder: {
             type: Object,
@@ -57,10 +38,7 @@ export default {
         }
     },
     computed: {
-        ...mapState("mail", ["folderList", "folders", "activeFolder", "mailboxes"]),
-        isActive() {
-            return this.folder.key === this.activeFolder;
-        },
+        ...mapState("mail", ["mailboxes"]),
         isUnread() {
             return this.folder.unread > 0;
         },
@@ -68,7 +46,7 @@ export default {
             let path = this.folder.path;
             path = path.substring(0, path.lastIndexOf("/"));
             return {
-                start: path.length ? "/" + path.substring(0, path.lastIndexOf("/")) : this.$t("mail.folder.root"),
+                start: path.length ? "/" + path.substring(0, path.lastIndexOf("/")) : this.$t("mail.rootFolder"),
                 end: path.substring(path.lastIndexOf("/"))
             };
         },
@@ -78,8 +56,9 @@ export default {
     },
 
     methods: {
-        ...mapActions("mail", { RENAME_FOLDER, CREATE_FOLDER }),
-        ...mapMutations("mail", { REMOVE_FOLDER, TOGGLE_EDIT_FOLDER })
+        select() {
+            this.$router.push(this.folderRoute(this.folder));
+        }
     }
 };
 </script>
@@ -96,33 +75,6 @@ export default {
         color: $secondary;
         *:first-child {
             @include text-overflow;
-        }
-    }
-    .mail-folder-item-menu,
-    .bm-counter-badge {
-        min-width: 1.4rem;
-    }
-
-    .mail-folder-item-menu {
-        visibility: hidden;
-
-        & > button {
-            padding: 0;
-        }
-        &.d-flex + .bm-counter-badge {
-            display: none !important;
-        }
-    }
-}
-
-@include media-breakpoint-up(lg) {
-    .filtered-item:hover {
-        .mail-folder-item-menu {
-            display: flex !important;
-            visibility: visible;
-        }
-        .bm-counter-badge:not(.read-only) {
-            display: none !important;
         }
     }
 }

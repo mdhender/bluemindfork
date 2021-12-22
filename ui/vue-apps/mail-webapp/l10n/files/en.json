@@ -409,9 +409,7 @@
                 "use_template": "Use a template"
             }
         },
-        "folder": {
-            "root": "Root folder"
-        }
+        "rootFolder": "Root folder"
     },
     "mail.save.date": "saved on {date}",
     "mail.save.date.time": "saved at {time}"

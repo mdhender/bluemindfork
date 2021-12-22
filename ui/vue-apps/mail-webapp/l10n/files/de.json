@@ -407,9 +407,7 @@
                 "insert_signature": "Meine Signatur einfügen"
             }
         },
-        "folder": {
-            "root": "Wurzelordner"
-        }
+        "rootFolder": "Wurzelordner"
     },
     "mail.save.date": "am {date} gespeichert",
     "mail.save.date.time": "um {time} gespeichert"
