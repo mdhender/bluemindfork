@@ -13,4 +13,10 @@
             class="net.bluemind.authentication.mgmt.service.SessionsMgmtFactory">
       </serviceFactory>
    </extension>
+   <extension
+         point="net.bluemind.user.hook.userhook">
+      <hook
+            impl="net.bluemind.authentication.mgmt.service.SessionsUserHook">
+      </hook>
+   </extension>
 </plugin>

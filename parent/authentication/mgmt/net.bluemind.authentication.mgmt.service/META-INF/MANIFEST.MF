@@ -12,5 +12,6 @@ Require-Bundle: net.bluemind.authentication.mgmt.api,
  net.bluemind.core.container.service,
  net.bluemind.role.api,
  net.bluemind.user.api,
+ net.bluemind.user.hook,
  net.bluemind.core.sessions,
- com.google.guava;bundle-version="19.0.0"
+ com.google.guava
