@@ -60,7 +60,7 @@ sql_disconnect="SELECT pg_terminate_backend(pg_stat_activity.pid)
 sudo -n -u postgres -i -- psql -c "$sql_disconnect"
 
 echo " ** Delete old database"
-sudo -n -u postgres -i -- dropdb ${db}
+sudo -n -u postgres -i -- dropdb "${db}"
 
 sudo -n -u postgres -i -- dropuser ${user}
 
@@ -75,12 +75,12 @@ echo " ** Create new ${db} database"
 
 sudo -n -u postgres -i -- createdb --owner=${user} --encoding=UTF-8 ${db}
 
-sudo -n -u postgres -i -- psql ${db} <<EOF
+sudo -n -u postgres -i -- psql "${db}" <<EOF
 CREATE OR REPLACE PROCEDURAL LANGUAGE plpgsql;
 EOF
 
 sudo -n -u postgres -i -- psql ${db} <<EOF
-ALTER DATABASE ${db} SET TIMEZONE='GMT'
+ALTER DATABASE "${db}" SET TIMEZONE='GMT'
 EOF
 
 #psql -U ${user} -h ${host} ${db} -f \

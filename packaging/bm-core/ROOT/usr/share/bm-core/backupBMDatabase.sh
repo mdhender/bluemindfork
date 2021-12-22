@@ -28,4 +28,4 @@ fi
 db=$1
 cyrusDump=$2
 
-sudo -n -u postgres -i -- pg_dump ${db} > ${cyrusDump}
+sudo -n -u postgres -i -- pg_dump "${db}" > ${cyrusDump}

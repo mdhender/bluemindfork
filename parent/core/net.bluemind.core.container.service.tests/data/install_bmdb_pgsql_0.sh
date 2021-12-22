@@ -53,7 +53,7 @@ CREATE DATABASE postgres TEMPLATE=template1;
 EOF
 
 echo " ** Delete old database"
-sudo -n -u postgres -i -- dropdb ${db}
+sudo -n -u postgres -i -- dropdb "${db}"
 
 sudo -n -u postgres -i -- dropuser ${user}
 
@@ -66,14 +66,14 @@ EOF
 
 echo " ** Create new ${db} database"
 
-sudo -n -u postgres -i -- createdb --owner=${user} --encoding=UTF-8 ${db}
+sudo -n -u postgres -i -- createdb --owner=${user} --encoding=UTF-8 "${db}"
 
-sudo -n -u postgres -i -- psql ${db} <<EOF
+sudo -n -u postgres -i -- psql "${db}" <<EOF
 CREATE OR REPLACE PROCEDURAL LANGUAGE plpgsql;
 EOF
 
-sudo -n -u postgres -i -- psql ${db} <<EOF
-ALTER DATABASE ${db} SET TIMEZONE='GMT'
+sudo -n -u postgres -i -- psql "${db}" <<EOF
+ALTER DATABASE "${db}" SET TIMEZONE='GMT'
 EOF
 
 #psql -U ${user} -h ${host} ${db} -f \
