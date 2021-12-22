@@ -1,26 +1,34 @@
 <template>
     <list-collapse v-if="hasResult" :name="$t('common.mailshares')">
-        <filtered-item v-for="folder in folders" :key="folder.key" :folder="folder" class="flex-fill" />
+        <template v-slot:avatar>
+            <mail-mailbox-icon :mailbox="MAILSHARES[0]" class="mr-1" />
+        </template>
+        <div class="d-flex flex-column">
+            <filtered-item v-for="folder in folders" :key="folder.key" :folder="folder" class="flex-fill" />
+        </div>
     </list-collapse>
 </template>
 <script>
+import { mapGetters } from "vuex";
+import MailMailboxIcon from "../MailMailboxIcon";
 import FilteredItem from "./FilteredItem";
 import ListCollapse from "./ListCollapse.vue";
+import { FILTERED_MAILSHARE_RESULTS, MAILSHARES } from "~/getters";
 
 export default {
     name: "FilteredMailshares",
     components: {
         FilteredItem,
-        ListCollapse
+        ListCollapse,
+        MailMailboxIcon
     },
     computed: {
+        ...mapGetters("mail", { FILTERED_MAILSHARE_RESULTS, MAILSHARES }),
         hasResult() {
-            // TODO: connect to store;
-            return this.$store.getters[`mail/MAILSHARES`].length > 0;
+            return this.MAILSHARES.length > 0 && this.FILTERED_MAILSHARE_RESULTS.length > 0;
         },
         folders() {
-            // TODO: connect to store;
-            return this.$store.getters[`mail/MAILSHARE_FOLDERS`];
+            return this.FILTERED_MAILSHARE_RESULTS;
         }
     }
 };

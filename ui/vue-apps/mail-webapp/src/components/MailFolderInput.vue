@@ -120,7 +120,7 @@ export default {
         folderByPath() {
             const mailboxKey = this.mailboxKey || this.folder?.mailboxRef.key;
             return mailboxKey
-                ? path => this.FOLDER_BY_PATH(path, mailboxKey)
+                ? path => this.FOLDER_BY_PATH(path, { key: mailboxKey })
                 : path =>
                       this.FOLDERS_BY_PATH(path).find(
                           ({ key }, index, arr) => key === this.MY_MAILBOX.key || index === arr.length - 1

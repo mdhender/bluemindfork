@@ -1,17 +1,26 @@
 <template>
-    <list-collapse v-if="hasResult" :name="mailbox.name">
-        <filtered-item v-for="folder in folders" :key="folder.key" :folder="folder" class="flex-fill" />
+    <list-collapse v-if="!isEmpty" :name="mailbox.name">
+        <template v-slot:avatar>
+            <mail-mailbox-icon :mailbox="mailbox" class="mr-1" />
+        </template>
+        <div class="d-flex flex-column">
+            <filtered-item v-for="folder in folders" :key="folder.key" :folder="folder" class="flex-fill" />
+        </div>
     </list-collapse>
 </template>
 <script>
+import { mapGetters } from "vuex";
+import { FILTERED_USER_RESULTS } from "~/getters";
+import MailMailboxIcon from "../MailMailboxIcon";
 import FilteredItem from "./FilteredItem";
-import ListCollapse from "./ListCollapse.vue";
+import ListCollapse from "./ListCollapse";
 
 export default {
     name: "FilteredUserMailbox",
     components: {
         FilteredItem,
-        ListCollapse
+        ListCollapse,
+        MailMailboxIcon
     },
     props: {
         mailbox: {
@@ -20,13 +29,12 @@ export default {
         }
     },
     computed: {
-        hasResult() {
-            // TODO: connect to store;
-            return true;
+        ...mapGetters("mail", { FILTERED_USER_RESULTS }),
+        isEmpty() {
+            return this.folders.length === 0;
         },
         folders() {
-            // TODO: connect to store;
-            return this.$store.getters[`mail/MAILBOX_FOLDERS`](this.mailbox);
+            return this.FILTERED_USER_RESULTS[this.mailbox.key];
         }
     }
 };

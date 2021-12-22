@@ -8,9 +8,10 @@
             @click.stop="isExpanded = !isExpanded"
         >
             <bm-icon :icon="isExpanded ? 'caret-down' : 'caret-right'" size="sm" class="bm-icon mr-2" />
+            <slot name="avatar" />
             <span class="font-weight-bold">{{ name }}</span>
         </bm-button>
-        <bm-collapse :id="`collapse-${name}`" v-model="isExpanded" class="d-flex flex-column">
+        <bm-collapse :id="`collapse-${name}`" v-model="isExpanded">
             <slot />
         </bm-collapse>
     </div>

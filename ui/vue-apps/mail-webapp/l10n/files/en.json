@@ -144,6 +144,7 @@
     "mail.actions.edit_from_template.aria": "New message using template {subject}",
     "mail.actions.edit_from_template": "Use template",
     "mail.actions.extend": "Extend",
+    "mail.actions.folder.invalid.empty": "Folder name cannot be empty",
     "mail.actions.folder.invalid.already_exist": "This folder name is already used",
     "mail.actions.folder.invalid.too_long": "Folder name is too long",
     "mail.actions.folder.subfolder.forbidden": "Forbidden subfolders",
@@ -237,7 +238,7 @@
     "mail.empty": "is empty",
     "mail.error.email.address.invalid": "Invalid email address.",
     "mail.folder.access.limited": "Limited access",
-    "mail.folder.create.subfolder": "Create a subfolder",
+    "mail.folder.create_subfolder": "Create a subfolder",
     "mail.folder.mark_as_read": "Mark all as read",
     "mail.folder.new.from_pattern": "{0} (New folder)",
     "mail.folder.new.from_scratch": "New folder",
@@ -407,6 +408,16 @@
             "toolbar": {
                 "insert_signature": "Insert my signature",
                 "use_template": "Use a template"
+            }
+        },
+        "create_subfolder": {
+            "modal": {
+                "title": "Create a subfolder of \"{name}\""
+            }
+        },
+        "rename_folder": {
+            "modal": {
+                "title": "Rename the \"{name}\" folder"
             }
         },
         "rootFolder": "Root folder"

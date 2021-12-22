@@ -144,6 +144,7 @@
     "mail.actions.edit_from_template.aria": "Nouveau message à partir du modèle {subject}",
     "mail.actions.edit_from_template": "Utiliser le modèle",
     "mail.actions.extend": "Agrandir",
+    "mail.actions.folder.invalid.empty": "Le nom du dossier ne peut pas être vide",
     "mail.actions.folder.invalid.already_exist": "Ce nom de dossier est déjà utilisé",
     "mail.actions.folder.invalid.too_long": "Nom de dossier trop long",
     "mail.actions.folder.subfolder.forbidden": "Sous-dossiers interdits",
@@ -236,7 +237,7 @@
     "mail.empty": "est vide",
     "mail.error.email.address.invalid": "Adresse de courriel invalide.",
     "mail.folder.access.limited": "Droits restreints",
-    "mail.folder.create.subfolder": "Créer un sous-dossier",
+    "mail.folder.create_subfolder": "Créer un sous-dossier",
     "mail.folder.mark_as_read": "Marquer tout comme lu",
     "mail.folder.new.from_pattern": "{0} (Nouveau dossier)",
     "mail.folder.new.from_scratch": "Nouveau dossier",
@@ -406,6 +407,16 @@
             "toolbar": {
                 "insert_signature": "Insérer ma signature",
                 "use_template": "Utiliser un modèle"
+            }
+        },
+        "create_subfolder": {
+            "modal": {
+                "title": "Créer un sous-dossier de \"{name}\""
+            }
+        },
+        "rename_folder": {
+            "modal": {
+                "title": "Renommer le dossier \"{name}\""
             }
         },
         "rootFolder": "Dossier racine"

@@ -1,7 +1,7 @@
 <template>
     <div class="filtered-item" @click="select">
-        <rename-folder-modal :id="renameModalId" :folder="folder" />
-        <folder-item :folder="folder" class="w-100" @edit="rename">
+        <edit-folder-modal ref="edit-modal" />
+        <folder-item :folder="folder" class="w-100" @edit="rename" @create="create">
             <div class="d-flex flex-column flex-fill">
                 <mail-folder-icon
                     :shared="shared"
@@ -19,19 +19,20 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import UUIDGenerator from "@bluemind/uuid";
 import MailFolderIcon from "../MailFolderIcon";
 import { MailboxType } from "~/model/mailbox";
-import FolderItem from "./FolderItem";
+import { create } from "~/model/folder";
 import { MailRoutesMixin } from "~/mixins";
-import RenameFolderModal from "./modals/RenameFolderModal";
+import FolderItem from "./FolderItem";
+import EditFolderModal from "./modals/EditFolderModal";
 
 export default {
     name: "FilteredItem",
     components: {
         MailFolderIcon,
         FolderItem,
-        RenameFolderModal
+        EditFolderModal
     },
     mixins: [MailRoutesMixin],
     props: {
@@ -41,7 +42,6 @@ export default {
         }
     },
     computed: {
-        ...mapState("mail", ["mailboxes"]),
         isUnread() {
             return this.folder.unread > 0;
         },
@@ -53,19 +53,23 @@ export default {
                 end: path.substring(path.lastIndexOf("/"))
             };
         },
-        shared() {
-            return this.mailboxes[this.folder.mailboxRef.key].type === MailboxType.MAILSHARE;
+        mailbox() {
+            return this.$store.state.mail.mailboxes[this.folder.mailboxRef.key];
         },
-        renameModalId() {
-            return `RENAME_FOLDER_${this.folder.key}`;
+        shared() {
+            return this.mailbox.type === MailboxType.MAILSHARE;
         }
     },
     methods: {
         select() {
             this.$router.push(this.folderRoute(this.folder));
         },
+        create() {
+            const folder = create(UUIDGenerator.generate(), "", this.folder, this.mailbox);
+            this.$refs["edit-modal"].show(folder);
+        },
         rename() {
-            this.$bvModal.show(this.renameModalId);
+            this.$refs["edit-modal"].show(this.folder);
         }
     }
 };

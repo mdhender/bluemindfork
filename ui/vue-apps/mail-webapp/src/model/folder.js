@@ -144,6 +144,9 @@ export function isNameValid(name, path, getFolderByPath) {
 
     path = removeTrailingSlashes(path);
 
+    if (name.trim().length === 0) {
+        return vueI18n.t("mail.actions.folder.invalid.empty");
+    }
     if (path.length > FOLDER_PATH_MAX_LENGTH) {
         return vueI18n.t("mail.actions.folder.invalid.too_long");
     }

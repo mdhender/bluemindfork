@@ -1,7 +1,7 @@
 <template>
     <bm-contextual-menu class="mail-folder-item-menu" boundary="viewport">
-        <bm-dropdown-item-button :disabled="!folder.allowSubfolder" icon="plus" @click.stop.prevent="createSubFolder">
-            {{ $t("mail.folder.create.subfolder") }}
+        <bm-dropdown-item-button :disabled="!folder.allowSubfolder" icon="plus" @click.stop.prevent="$emit('create')">
+            {{ $t("mail.folder.create_subfolder") }}
         </bm-dropdown-item-button>
         <bm-dropdown-item-button
             :disabled="isDefaultFolder || isMailshareRoot"
@@ -30,11 +30,9 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
-import UUIDGenerator from "@bluemind/uuid";
-import { create, isDefault, isMailshareRoot, DEFAULT_FOLDERS } from "~/model/folder";
-import { SET_FOLDER_EXPANDED, ADD_FOLDER, TOGGLE_EDIT_FOLDER } from "~/mutations";
+import { isDefault, isMailshareRoot, DEFAULT_FOLDERS } from "~/model/folder";
 import { IS_DESCENDANT, FOLDER_HAS_CHILDREN, MAILBOX_TRASH } from "~/getters";
 import { EMPTY_FOLDER, MARK_FOLDER_AS_READ, MOVE_FOLDER, REMOVE_FOLDER } from "~/actions";
 import { MailRoutesMixin } from "~/mixins";
@@ -73,7 +71,6 @@ export default {
     },
     methods: {
         ...mapActions("mail", { EMPTY_FOLDER, MOVE_FOLDER, MARK_FOLDER_AS_READ, REMOVE_FOLDER }),
-        ...mapMutations("mail", { ADD_FOLDER, TOGGLE_EDIT_FOLDER, SET_FOLDER_EXPANDED }),
         async deleteFolder() {
             const trash = this.MAILBOX_TRASH(this.mailbox);
             const remove = this.IS_DESCENDANT(trash.key, this.folder.key);
@@ -98,14 +95,7 @@ export default {
                 }
             }
         },
-        async createSubFolder() {
-            const key = UUIDGenerator.generate();
-            this.ADD_FOLDER(create(key, "", this.folder, this.mailbox));
-            await this.$nextTick();
-            // FIXME: FEATWEBML-1386
-            this.TOGGLE_EDIT_FOLDER(key);
-            this.SET_FOLDER_EXPANDED({ ...this.folder, expanded: true });
-        },
+
         async emptyFolder() {
             const confirm = await this.confirm(
                 this.$t("mail.actions.empty_folder.modal.title"),

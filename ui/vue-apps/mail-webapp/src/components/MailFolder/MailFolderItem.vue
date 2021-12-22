@@ -25,6 +25,7 @@
             class="mx-1"
             :class="folder.unread > 0 ? 'd-none' : ''"
             @edit="toggleEditFolder(folder.key)"
+            @create="createSubFolder()"
         />
         <bm-counter-badge
             v-if="folder.unread > 0"
@@ -53,12 +54,14 @@
 <script>
 import { mapActions, mapMutations, mapState } from "vuex";
 import { BmCounterBadge, BmDropzone, BmIcon } from "@bluemind/styleguide";
+import UUIDGenerator from "@bluemind/uuid";
 import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItemMenu from "./MailFolderItemMenu";
-import { REMOVE_FOLDER, TOGGLE_EDIT_FOLDER } from "~/mutations";
+import { ADD_FOLDER, REMOVE_FOLDER, TOGGLE_EDIT_FOLDER } from "~/mutations";
 import { RENAME_FOLDER, CREATE_FOLDER } from "~/actions";
 import { MailboxType } from "~/model/mailbox";
+import { create } from "~/model/folder";
 
 export default {
     name: "MailFolderItem",
@@ -102,7 +105,7 @@ export default {
     },
     methods: {
         ...mapActions("mail", { RENAME_FOLDER, CREATE_FOLDER }),
-        ...mapMutations("mail", { REMOVE_FOLDER, TOGGLE_EDIT_FOLDER }),
+        ...mapMutations("mail", { ADD_FOLDER, REMOVE_FOLDER, TOGGLE_EDIT_FOLDER }),
         toggleEditFolder(folderUid) {
             this.TOGGLE_EDIT_FOLDER(folderUid);
         },
@@ -126,6 +129,14 @@ export default {
             } else if (this.folder) {
                 this.REMOVE_FOLDER(this.folder);
             }
+        },
+        async createSubFolder() {
+            const key = UUIDGenerator.generate();
+            this.ADD_FOLDER(create(key, "", this.folder, this.mailbox));
+            await this.$nextTick();
+            // FIXME: FEATWEBML-1386
+            this.TOGGLE_EDIT_FOLDER(key);
+            this.SET_FOLDER_EXPANDED({ ...this.folder, expanded: true });
         }
     }
 };

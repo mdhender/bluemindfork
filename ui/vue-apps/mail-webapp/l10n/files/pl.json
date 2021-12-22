@@ -139,7 +139,7 @@
     "mail.folder.access.limited": "Ograniczony dostęp",
     "mail.folder.empty": "Opróżnij folder",
     "mail.folder.empty.confirm.content": "Trwale usunąć wiadomości z tego folderu?",
-    "mail.folder.create.subfolder": "Utwórz podfolder",
+    "mail.folder.create_subfolder": "Utwórz podfolder",
     "mail.folder.delete.dialog.question": "Usunąć folder \"{name}”?",
     "mail.folder.delete.dialog.title": "Usuń folder",
     "mail.folder.mark_as_read": "Oznacz wszystkie jako przeczytane",

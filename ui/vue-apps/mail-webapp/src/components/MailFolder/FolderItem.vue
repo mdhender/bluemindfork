@@ -16,6 +16,7 @@
             class="mx-1"
             :class="{ 'd-none': isUnread }"
             @edit="$emit('edit')"
+            @create="$emit('create')"
         />
         <bm-counter-badge
             v-if="isUnread"
