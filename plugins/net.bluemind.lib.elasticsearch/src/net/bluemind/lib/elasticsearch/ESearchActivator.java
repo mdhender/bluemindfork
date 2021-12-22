@@ -57,7 +57,6 @@ import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -68,6 +67,7 @@ import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
 import org.elasticsearch.search.Scroll;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.elasticsearch.xcontent.XContentType;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -206,7 +206,7 @@ public final class ESearchActivator implements BundleActivator {
 				.setFrom(from).setSize(size) // pagination
 				.execute().actionGet();
 		SearchHits hits = sr.getHits();
-		logger.info("{} hit(s) {}ms.", hits.getTotalHits(), sr.getTook().millis());
+		logger.info("{} hit(s) {}ms.", hits.getTotalHits().value, sr.getTook().millis());
 
 		return hits;
 	}

@@ -101,7 +101,7 @@ public class VTodoIndexStoreTests {
 
 		SearchResponse resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits());
+		assertEquals(1, resp.getHits().getTotalHits().value);
 		SearchHit hit = resp.getHits().getAt(0);
 		Map<String, Object> source = hit.getSourceAsMap();
 		assertEquals(uid, source.get("uid"));
@@ -127,7 +127,7 @@ public class VTodoIndexStoreTests {
 
 		SearchResponse resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits());
+		assertEquals(1, resp.getHits().getTotalHits().value);
 		SearchHit hit = resp.getHits().getAt(0);
 		Map<String, Object> source = hit.getSourceAsMap();
 		assertEquals(uid, source.get("uid"));
@@ -140,7 +140,7 @@ public class VTodoIndexStoreTests {
 
 		resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits());
+		assertEquals(1, resp.getHits().getTotalHits().value);
 		hit = resp.getHits().getAt(0);
 		source = hit.getSourceAsMap();
 		assertEquals(uid, source.get("uid"));
@@ -164,7 +164,7 @@ public class VTodoIndexStoreTests {
 
 		SearchResponse resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits());
+		assertEquals(1, resp.getHits().getTotalHits().value);
 
 		SearchHit hit = resp.getHits().getAt(0);
 		assertNotNull(hit);
@@ -174,7 +174,7 @@ public class VTodoIndexStoreTests {
 		resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 
-		assertEquals(0, resp.getHits().getTotalHits());
+		assertEquals(0, resp.getHits().getTotalHits().value);
 	}
 
 	@Test
@@ -197,14 +197,14 @@ public class VTodoIndexStoreTests {
 
 		SearchResponse resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
 				.setQuery(QueryBuilders.termQuery("containerUid", container.uid)).execute().actionGet();
-		assertEquals(2, resp.getHits().getTotalHits());
+		assertEquals(2, resp.getHits().getTotalHits().value);
 
 		indexStore.deleteAll();
 		indexStore.refresh();
 
 		resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
 				.setQuery(QueryBuilders.termQuery("containerUid", container.uid)).execute().actionGet();
-		assertEquals(0, resp.getHits().getTotalHits());
+		assertEquals(0, resp.getHits().getTotalHits().value);
 	}
 
 	@Test

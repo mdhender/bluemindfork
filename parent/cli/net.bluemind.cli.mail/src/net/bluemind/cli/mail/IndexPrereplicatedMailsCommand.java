@@ -41,7 +41,7 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 
@@ -138,13 +138,13 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 				.execute().actionGet();
 
 		long current = 0;
-		while (current < r.getHits().getTotalHits()) {
+		while (current < r.getHits().getTotalHits().value) {
 			for (SearchHit h : r.getHits().getHits()) {
 				uids.add(h.getId());
 				current++;
 			}
 
-			if (current < r.getHits().getTotalHits()) {
+			if (current < r.getHits().getTotalHits().value) {
 				r = client.prepareSearchScroll(r.getScrollId()).setScroll(TimeValue.timeValueSeconds(180)).execute()
 						.actionGet();
 			}

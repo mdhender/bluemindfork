@@ -131,7 +131,7 @@ public class ReindexMailspoolPending implements ICmdLet, Runnable {
 	}
 
 	private Optional<BulkByScrollResponse> reindexAndMonitor(Client client, String fromIndexName, String toIndexName) {
-		ReindexRequestBuilder builder = ReindexAction.INSTANCE.newRequestBuilder(client).source(INDEX_ALIAS)
+		ReindexRequestBuilder builder = new ReindexRequestBuilder(client, ReindexAction.INSTANCE).source(INDEX_ALIAS)
 				.destination(toIndexName).setSlices(5).abortOnVersionConflict(false);
 		builder.destination().setOpType(OpType.INDEX);
 

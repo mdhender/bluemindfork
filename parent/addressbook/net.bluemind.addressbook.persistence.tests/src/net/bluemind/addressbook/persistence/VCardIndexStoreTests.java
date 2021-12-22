@@ -108,7 +108,7 @@ public class VCardIndexStoreTests {
 		SearchResponse resp = client.prepareSearch("contact").setTypes(VCardIndexStore.VCARD_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 
-		assertEquals(1, resp.getHits().getTotalHits());
+		assertEquals(1, resp.getHits().getTotalHits().value);
 	}
 
 	@Test
@@ -131,7 +131,7 @@ public class VCardIndexStoreTests {
 		SearchResponse resp = client.prepareSearch("contact").setTypes(VCardIndexStore.VCARD_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 
-		assertEquals(0, resp.getHits().getTotalHits());
+		assertEquals(0, resp.getHits().getTotalHits().value);
 	}
 
 	@Test
@@ -154,7 +154,7 @@ public class VCardIndexStoreTests {
 		SearchResponse resp = client.prepareSearch("contact").setTypes(VCardIndexStore.VCARD_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 
-		assertEquals(0, resp.getHits().getTotalHits());
+		assertEquals(0, resp.getHits().getTotalHits().value);
 	}
 
 	@Test

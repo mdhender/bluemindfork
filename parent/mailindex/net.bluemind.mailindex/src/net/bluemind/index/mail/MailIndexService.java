@@ -38,9 +38,8 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.metadata.AliasMetaData;
-import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.cluster.metadata.AliasMetadata;
+import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -55,9 +54,10 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
-import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
-import org.elasticsearch.search.aggregations.metrics.sum.SumAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.InternalSum;
+import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.elasticsearch.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -357,8 +357,8 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	private long bulkDelete(String indexName, QueryBuilder q) {
-		return DeleteByQueryAction.INSTANCE.newRequestBuilder(getIndexClient()).filter(q).source(indexName).get()
-				.getDeleted();
+		return new DeleteByQueryRequestBuilder(getIndexClient(), DeleteByQueryAction.INSTANCE).filter(q)
+				.source(indexName).get().getDeleted();
 	}
 
 	private QueryBuilder asFilter(Iterator<IDRange> iter, int max) {
@@ -440,8 +440,8 @@ public class MailIndexService implements IMailIndexService {
 
 		long current = 0;
 
-		List<MailSummary> ret = new ArrayList<>((int) r.getHits().getTotalHits());
-		while (current < r.getHits().getTotalHits()) {
+		List<MailSummary> ret = new ArrayList<>((int) r.getHits().getTotalHits().value);
+		while (current < r.getHits().getTotalHits().value) {
 
 			for (SearchHit h : r.getHits().getHits()) {
 				Map<String, Object> source = h.getSourceAsMap();
@@ -454,7 +454,7 @@ public class MailIndexService implements IMailIndexService {
 				current++;
 			}
 
-			if (current < r.getHits().getTotalHits()) {
+			if (current < r.getHits().getTotalHits().value) {
 				r = client.prepareSearchScroll(r.getScrollId()).setScroll(TimeValue.timeValueSeconds(20)).execute()
 						.actionGet();
 			}
@@ -475,7 +475,7 @@ public class MailIndexService implements IMailIndexService {
 			String id = f.uid + ":" + sum.uid;
 			UpdateRequestBuilder urb = client.prepareUpdate().setIndex(getIndexAliasName(box.uid))
 					.setType(MAILSPOOL_TYPE).setId(id);
-			urb.setParent(sum.parentId);
+			urb.setRouting(sum.parentId);
 			if (logger.isDebugEnabled()) {
 				logger.debug("update {} flags {} parentId {}", id, sum.flags, sum.parentId);
 			}
@@ -621,7 +621,7 @@ public class MailIndexService implements IMailIndexService {
 
 		// bulk copy mails
 		// msg body
-		ReindexRequestBuilder builder = ReindexAction.INSTANCE.newRequestBuilder(client).source(fromIndex)
+		ReindexRequestBuilder builder = new ReindexRequestBuilder(client, ReindexAction.INSTANCE).source(fromIndex)
 				.destination(indexName);
 		builder.destination().setOpType(OpType.INDEX);
 		builder.abortOnVersionConflict(false);
@@ -634,7 +634,7 @@ public class MailIndexService implements IMailIndexService {
 		logger.info("bulk copy of msgBody response {}", copyResp);
 
 		// copy msg
-		builder = ReindexAction.INSTANCE.newRequestBuilder(client).source(fromIndex).destination(indexName);
+		builder = new ReindexRequestBuilder(client, ReindexAction.INSTANCE).source(fromIndex).destination(indexName);
 		builder.destination().setOpType(OpType.INDEX);
 		builder.abortOnVersionConflict(false);
 		builder.filter(QueryBuilders.termQuery("owner", mailboxUid));
@@ -677,7 +677,7 @@ public class MailIndexService implements IMailIndexService {
 
 			GetAliasesResponse aliasesRsp = client.admin().indices().prepareGetAliases().addIndices(indexName).get();
 
-			List<AliasMetaData> indexAliases = aliasesRsp.getAliases().get(indexName);
+			List<AliasMetadata> indexAliases = aliasesRsp.getAliases().get(indexName);
 			if (indexAliases == null) {
 				is.mailboxes = Collections.emptySet();
 			} else {
@@ -689,7 +689,7 @@ public class MailIndexService implements IMailIndexService {
 
 			SearchResponse msgCountResp = client.prepareSearch(indexName).setQuery(QueryBuilders.matchAllQuery())
 					.setSize(0).get();
-			is.docCount = msgCountResp.getHits().getTotalHits();
+			is.docCount = msgCountResp.getHits().getTotalHits().value;
 			is.indexName = indexName;
 
 			is.state = ShardStats.State.OK;
@@ -782,8 +782,8 @@ public class MailIndexService implements IMailIndexService {
 
 			SearchResult result = new SearchResult();
 			result.results = new ArrayList<>(results.values());
-			result.totalResults = (int) searchHits.getTotalHits() - deduplicated.get();
-			result.hasMoreResults = (searchHits.getTotalHits() > results.size());
+			result.totalResults = (int) searchHits.getTotalHits().value - deduplicated.get();
+			result.hasMoreResults = (searchHits.getTotalHits().value > results.size());
 			logger.info("[{}] results: {} (tried {}) / {}, hasMore: {}", dirEntryUid, results.size(),
 					searchHits.getHits().length, result.totalResults, result.hasMoreResults);
 			return result;

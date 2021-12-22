@@ -161,9 +161,9 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 		do {
 			Thread.sleep(100);
 			found = client.prepareSearch("mailspool_alias_" + userUid).setQuery(freshMailQuery).execute().actionGet();
-		} while (found.getHits().getTotalHits() == 0 && ++attempt < 400);
+		} while (found.getHits().getTotalHits().value == 0 && ++attempt < 400);
 		assertTrue("We tried " + attempt + " times & didn't found the doc with uid " + lastUid,
-				found.getHits().getTotalHits() > 0);
+				found.getHits().getTotalHits().value > 0);
 
 		System.err.println("Flags change starts");
 		long time = System.currentTimeMillis();
@@ -221,9 +221,9 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 		do {
 			Thread.sleep(50);
 			found = client.prepareSearch("mailspool_alias_" + userUid).setQuery(freshMailQuery).execute().actionGet();
-		} while (found.getHits().getTotalHits() == 0 && ++attempt < 200);
+		} while (found.getHits().getTotalHits().value == 0 && ++attempt < 200);
 		assertTrue("We tried " + attempt + " times & didn't found the doc with uid " + addedUid,
-				found.getHits().getTotalHits() > 0);
+				found.getHits().getTotalHits().value > 0);
 
 		FlagsList trashed = new FlagsList();
 		trashed.add(Flag.SEEN);
@@ -279,14 +279,14 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 		do {
 			Thread.sleep(50);
 			found = client.prepareSearch(index).setQuery(freshMailQuery).execute().actionGet();
-		} while (found.getHits().getTotalHits() == 0 && ++attempt < 200);
+		} while (found.getHits().getTotalHits().value == 0 && ++attempt < 200);
 		assertTrue("We tried " + attempt + " times & didn't find the doc with uid " + addedUid,
-				found.getHits().getTotalHits() > 0);
+				found.getHits().getTotalHits().value > 0);
 
 		ESearchActivator.refreshIndex(index);
 
 		SearchResponse all = client.prepareSearch(index).setFetchSource(true).execute().actionGet();
-		assertEquals(2, all.getHits().totalHits);
+		assertEquals(2, all.getHits().getTotalHits().value);
 
 		BoolQueryBuilder orphans = QueryBuilders.boolQuery()
 				.mustNot(JoinQueryBuilders.hasChildQuery("record", QueryBuilders.matchAllQuery(), ScoreMode.None)) //
@@ -297,7 +297,7 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 				.setTypes("recordOrBody").setFrom(0).setSize(40)//
 				.execute().actionGet();
 
-		assertEquals(0, orphanFound.getHits().getTotalHits());
+		assertEquals(0, orphanFound.getHits().getTotalHits().value);
 
 		found.getHits().forEach(hit -> {
 			System.err.println(" *** DELETE " + hit.getId());
@@ -312,7 +312,7 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 				.setTypes("recordOrBody").setFrom(0).setSize(40)//
 				.execute().actionGet();
 
-		assertEquals(1, orphanFound.getHits().getTotalHits());
+		assertEquals(1, orphanFound.getHits().getTotalHits().value);
 
 		FlagsList trashed = new FlagsList();
 		trashed.add(Flag.SEEN);
@@ -338,7 +338,7 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 				.setTypes("recordOrBody").setFrom(0).setSize(40)//
 				.execute().actionGet();
 
-		assertEquals(0, orphanFound.getHits().getTotalHits());
+		assertEquals(0, orphanFound.getHits().getTotalHits().value);
 
 	}
 
@@ -378,9 +378,9 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 		do {
 			Thread.sleep(50);
 			found = client.prepareSearch(index).setQuery(freshMailQuery).execute().actionGet();
-		} while (found.getHits().getTotalHits() == 0 && ++attempt < 200);
+		} while (found.getHits().getTotalHits().value == 0 && ++attempt < 200);
 		assertTrue("We tried " + attempt + " times & didn't find the doc with uid " + addedUid,
-				found.getHits().getTotalHits() > 0);
+				found.getHits().getTotalHits().value > 0);
 
 		SearchHit hit = found.getHits().getAt(0);
 		List<String> isValue = (List<String>) hit.getSourceAsMap().get("is");

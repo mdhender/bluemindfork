@@ -22,6 +22,7 @@ import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryAction;
+import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
 import org.elasticsearch.join.query.JoinQueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,7 @@ public class ExpungeVerticle extends AbstractVerticle {
 				.mustNot(JoinQueryBuilders.hasChildQuery(MailIndexService.CHILD_TYPE, QueryBuilders.matchAllQuery(),
 						ScoreMode.None))//
 				.must(QueryBuilders.termQuery(MailIndexService.JOIN_FIELD, MailIndexService.PARENT_TYPE));
-		long deleted = DeleteByQueryAction.INSTANCE.newRequestBuilder(MailIndexService.getIndexClient())
+		long deleted = new DeleteByQueryRequestBuilder(MailIndexService.getIndexClient(), DeleteByQueryAction.INSTANCE)
 				.filter(queryBuilder).source(index).get().getDeleted();
 
 		logger.info(" *** cleanup parents in {} ({} deletion(s)) took {} ms", index, deleted,

@@ -244,7 +244,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 
 		SearchResponse resp = c.prepareSearch(INDEX_NAME)
 				.setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(44) + "\"")).execute().get();
-		assertEquals(1L, resp.getHits().getTotalHits());
+		assertEquals(1L, resp.getHits().getTotalHits().value);
 
 		Map<String, Object> source = resp.getHits().getAt(0).getSourceAsMap();
 		assertEquals(bodyUid, source.get("parentId"));
@@ -253,7 +253,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 
 		// search by IN in alias
 		resp = c.prepareSearch(ALIAS).setQuery(QueryBuilders.termQuery("in", folderUid)).execute().get();
-		assertEquals(1L, resp.getHits().getTotalHits());
+		assertEquals(1L, resp.getHits().getTotalHits().value);
 
 		source = resp.getHits().getAt(0).getSourceAsMap();
 		assertEquals(bodyUid, source.get("parentId"));
@@ -273,7 +273,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 
 		SearchResponse resp = c.prepareSearch(INDEX_NAME)
 				.setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(44) + "\"")).execute().get();
-		assertEquals(1L, resp.getHits().getTotalHits());
+		assertEquals(1L, resp.getHits().getTotalHits().value);
 
 		List<MailboxItemFlag> deleteFlag = Arrays.asList(MailboxItemFlag.System.Deleted.value());
 		storeMessage(mboxUid, userUid, bodyUid, imapUid, deleteFlag);
@@ -285,7 +285,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 
 		resp = c.prepareSearch(ALIAS).setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(44) + "\"")).execute()
 				.get();
-		assertEquals(0L, resp.getHits().getTotalHits());
+		assertEquals(0L, resp.getHits().getTotalHits().value);
 	}
 
 	@Test
@@ -300,10 +300,10 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 
 		SearchResponse resp = c.prepareSearch(INDEX_NAME)
 				.setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(2) + "\"")).execute().get();
-		assertEquals(1L, resp.getHits().getTotalHits());
+		assertEquals(1L, resp.getHits().getTotalHits().value);
 		resp = c.prepareSearch(INDEX_NAME).setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(2) + "\""))
 				.execute().get();
-		assertEquals(1L, resp.getHits().getTotalHits());
+		assertEquals(1L, resp.getHits().getTotalHits().value);
 
 		Set<Integer> ordered = Sets.newLinkedHashSet();
 		ordered.add(-1); // does not exist
@@ -316,10 +316,10 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		ESearchActivator.refreshIndex(INDEX_NAME);
 		resp = c.prepareSearch(INDEX_NAME).setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(1) + "\""))
 				.execute().get();
-		assertEquals(0L, resp.getHits().getTotalHits());
+		assertEquals(0L, resp.getHits().getTotalHits().value);
 		resp = c.prepareSearch(INDEX_NAME).setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(2) + "\""))
 				.execute().get();
-		assertEquals(0L, resp.getHits().getTotalHits());
+		assertEquals(0L, resp.getHits().getTotalHits().value);
 	}
 
 	@Test
@@ -413,14 +413,14 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 
 		SearchResponse resp = c.prepareSearch(INDEX_NAME)
 				.setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(1) + "\"")).execute().get();
-		assertEquals(1L, resp.getHits().getTotalHits());
+		assertEquals(1L, resp.getHits().getTotalHits().value);
 		List<String> flags = (List<String>) resp.getHits().getAt(0).getSourceAsMap().get("is");
 		assertTrue(flags.contains("flag1"));
 		assertTrue(flags.contains("flag2"));
 
 		resp = c.prepareSearch(INDEX_NAME).setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(2) + "\""))
 				.execute().get();
-		assertEquals(1L, resp.getHits().getTotalHits());
+		assertEquals(1L, resp.getHits().getTotalHits().value);
 		flags = (List<String>) resp.getHits().getAt(0).getSourceAsMap().get("is");
 		assertTrue(flags.contains("flag2"));
 		assertTrue(flags.contains("flag3"));
@@ -457,15 +457,15 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 
 		SearchResponse resp = c.prepareSearch("mailspool_test2")
 				.setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(44) + "\"")).execute().get();
-		assertEquals(1L, resp.getHits().getTotalHits());
+		assertEquals(1L, resp.getHits().getTotalHits().value);
 
 		resp = c.prepareSearch(ALIAS).setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(44) + "\"")).execute()
 				.get();
-		assertEquals(1L, resp.getHits().getTotalHits());
+		assertEquals(1L, resp.getHits().getTotalHits().value);
 
 		resp = c.prepareSearch(INDEX_NAME).setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(44) + "\""))
 				.execute().get();
-		assertEquals(0L, resp.getHits().getTotalHits());
+		assertEquals(0L, resp.getHits().getTotalHits().value);
 	}
 
 	@Test

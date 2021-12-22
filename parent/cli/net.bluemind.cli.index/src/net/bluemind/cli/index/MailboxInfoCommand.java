@@ -25,7 +25,7 @@ import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
+import org.elasticsearch.search.aggregations.metrics.Sum;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -89,7 +89,7 @@ public class MailboxInfoCommand extends SingleOrDomainOperation {
 					.addAggregation(AggregationBuilders.sum("used_quota").field("size")).setSize(0).execute()
 					.actionGet();
 
-			InternalSum sum = (InternalSum) sr.getAggregations().get("used_quota");
+			Sum sum = (Sum) sr.getAggregations().get("used_quota");
 			return Optional.of((long) sum.getValue() / 1024); // to KiB
 		} catch (IndexNotFoundException e) {
 			return Optional.empty();

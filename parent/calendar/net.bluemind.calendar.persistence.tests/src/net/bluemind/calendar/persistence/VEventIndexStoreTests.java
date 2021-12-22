@@ -100,7 +100,7 @@ public class VEventIndexStoreTests {
 
 		SearchResponse resp = client.prepareSearch(VEventIndexStore.VEVENT_INDEX).setTypes(VEventIndexStore.VEVENT_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", event.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits());
+		assertEquals(1, resp.getHits().getTotalHits().value);
 		SearchHit hit = resp.getHits().getAt(0);
 		Map<String, Object> source = hit.getSourceAsMap();
 		assertEquals(event.uid, source.get("uid"));
@@ -129,7 +129,7 @@ public class VEventIndexStoreTests {
 
 		SearchResponse resp = client.prepareSearch(VEventIndexStore.VEVENT_INDEX).setTypes(VEventIndexStore.VEVENT_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", event.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits());
+		assertEquals(1, resp.getHits().getTotalHits().value);
 		SearchHit hit = resp.getHits().getAt(0);
 		Map<String, Object> source = hit.getSourceAsMap();
 		assertEquals(event.uid, source.get("uid"));
@@ -142,7 +142,7 @@ public class VEventIndexStoreTests {
 
 		resp = client.prepareSearch(VEventIndexStore.VEVENT_INDEX).setTypes(VEventIndexStore.VEVENT_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", event.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits());
+		assertEquals(1, resp.getHits().getTotalHits().value);
 		hit = resp.getHits().getAt(0);
 		source = hit.getSourceAsMap();
 		assertEquals(event.uid, source.get("uid"));
@@ -167,7 +167,7 @@ public class VEventIndexStoreTests {
 
 		SearchResponse resp = client.prepareSearch(VEventIndexStore.VEVENT_INDEX).setTypes(VEventIndexStore.VEVENT_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", event.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits());
+		assertEquals(1, resp.getHits().getTotalHits().value);
 
 		SearchHit hit = resp.getHits().getAt(0);
 		assertNotNull(hit);
@@ -177,7 +177,7 @@ public class VEventIndexStoreTests {
 
 		resp = client.prepareSearch(VEventIndexStore.VEVENT_INDEX).setTypes(VEventIndexStore.VEVENT_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", event.uid)).execute().actionGet();
-		assertEquals(0, resp.getHits().getTotalHits());
+		assertEquals(0, resp.getHits().getTotalHits().value);
 	}
 
 	@Test
@@ -194,14 +194,14 @@ public class VEventIndexStoreTests {
 
 		SearchResponse resp = client.prepareSearch(VEventIndexStore.VEVENT_INDEX).setTypes(VEventIndexStore.VEVENT_TYPE)
 				.setQuery(QueryBuilders.termQuery("containerUid", container.uid)).execute().actionGet();
-		assertEquals(2, resp.getHits().getTotalHits());
+		assertEquals(2, resp.getHits().getTotalHits().value);
 
 		indexStore.deleteAll();
 		indexStore.refresh();
 
 		resp = client.prepareSearch(VEventIndexStore.VEVENT_INDEX).setTypes(VEventIndexStore.VEVENT_TYPE)
 				.setQuery(QueryBuilders.termQuery("containerUid", container.uid)).execute().actionGet();
-		assertEquals(0, resp.getHits().getTotalHits());
+		assertEquals(0, resp.getHits().getTotalHits().value);
 	}
 
 	@Test

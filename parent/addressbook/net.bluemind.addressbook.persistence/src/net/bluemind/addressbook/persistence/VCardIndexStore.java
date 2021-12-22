@@ -27,13 +27,13 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -178,7 +178,7 @@ public class VCardIndexStore {
 
 		ListResult<String> ret = new ListResult<>();
 		ret.values = uids;
-		ret.total = (int) resp.getHits().getTotalHits();
+		ret.total = (int) resp.getHits().getTotalHits().value;
 		return ret;
 	}
 

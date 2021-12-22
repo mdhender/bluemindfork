@@ -64,7 +64,7 @@ public class WebmailStyleSearchTests extends AbstractSearchTests {
 				.execute().actionGet();
 		JsonObject js = new JsonObject(results.toString());
 		System.err.println("resp: " + js.encodePrettily());
-		assertTrue(results.getHits().getTotalHits() > 0);
+		assertTrue(results.getHits().getTotalHits().value > 0);
 
 	}
 
@@ -93,7 +93,7 @@ public class WebmailStyleSearchTests extends AbstractSearchTests {
 				.execute().actionGet();
 		JsonObject js = new JsonObject(results.toString());
 		System.err.println("resp: " + js.encodePrettily());
-		assertTrue(results.getHits().getTotalHits() == 1);
+		assertEquals(1, results.getHits().getTotalHits().value);
 		results.getHits().forEach((SearchHit hit) -> {
 			DeleteResponse delResponse = client.prepareDelete(INDEX_NAME, "recordOrBody", hit.getId())
 					.setRefreshPolicy(RefreshPolicy.WAIT_UNTIL).execute().actionGet();
@@ -110,7 +110,7 @@ public class WebmailStyleSearchTests extends AbstractSearchTests {
 				.execute().actionGet();
 
 		System.err.println("ORPHANS:\n" + new JsonObject(orphanFound.toString()).encodePrettily());
-		assertEquals(1, orphanFound.getHits().getTotalHits());
+		assertEquals(1, orphanFound.getHits().getTotalHits().value);
 
 	}
 

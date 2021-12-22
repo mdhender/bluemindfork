@@ -28,7 +28,7 @@ import org.elasticsearch.action.admin.cluster.snapshots.create.CreateSnapshotRes
 import org.elasticsearch.action.admin.cluster.snapshots.delete.DeleteSnapshotRequest;
 import org.elasticsearch.action.admin.cluster.snapshots.get.GetSnapshotsResponse;
 import org.elasticsearch.client.ClusterAdminClient;
-import org.elasticsearch.cluster.metadata.RepositoryMetaData;
+import org.elasticsearch.cluster.metadata.RepositoryMetadata;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.snapshots.SnapshotInfo;
@@ -110,13 +110,13 @@ public class ElasticWorker extends DefaultWorker {
 		GetSnapshotsResponse snaps = cluster.prepareGetSnapshots(repository).get();
 		if (!snaps.getSnapshots().isEmpty()
 				&& snaps.getSnapshots().stream().allMatch(s -> snapshot.equals(s.snapshotId().getName()))) {
-			cluster.deleteSnapshot(new DeleteSnapshotRequest().repository(repository).snapshot(snapshot)).actionGet();
+			cluster.deleteSnapshot(new DeleteSnapshotRequest().repository(repository).snapshots(snapshot)).actionGet();
 		}
 	}
 
 	private void registerRepositoryIfNecessary(ClusterAdminClient cluster) {
 		GetRepositoriesResponse repos = cluster.getRepositories(new GetRepositoriesRequest()).actionGet();
-		for (RepositoryMetaData r : repos.repositories()) {
+		for (RepositoryMetadata r : repos.repositories()) {
 			if (r.name().equals(repository)) {
 				return;
 			}
