@@ -82,7 +82,7 @@ export default {
             const content = this.$t(`${prefix}.content.${this.hasChildren ? "with_subfolder" : "without_subfolder"}`, {
                 name: this.folder.name
             });
-            const confirm = await this.confirm(content, title);
+            const confirm = await this.confirm(title, content);
             if (confirm) {
                 if (this.IS_DESCENDANT(this.folder.key, this.activeFolder) || this.activeFolder === this.folder.key) {
                     await this.$router.push({ name: "mail:home" });
@@ -109,7 +109,7 @@ export default {
         async emptyFolder() {
             const confirm = await this.confirm(
                 this.$t("mail.actions.empty_folder.modal.title"),
-                this.$t("mail.actions.empty_folder.modal.content")
+                this.$t("mail.actions.empty_folder.modal.content", { name: this.folder.name })
             );
             if (confirm) {
                 this.EMPTY_FOLDER({ folder: this.folder, mailbox: this.mailbox });
