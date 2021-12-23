@@ -32,30 +32,20 @@ public class CalendarHookVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-
 		RunnableExtensionLoader<ICalendarHook> loader = new RunnableExtensionLoader<>();
-
 		List<ICalendarHook> hooks = loader.loadExtensionsWithPriority("net.bluemind.calendar", "hook", "hook", "impl");
-
 		EventBus eventBus = vertx.eventBus();
+		eventBus.consumer(CalendarHookAddress.EVENT_CREATED,
+				(Message<LocalJsonObject<VEventMessage>> message) -> vertx.executeBlocking(
+						prom -> hooks.stream().forEach(h -> h.onEventCreated(message.body().getValue())), false));
 
-		eventBus.consumer(CalendarHookAddress.EVENT_CREATED, (Message<LocalJsonObject<VEventMessage>> message) -> {
-			for (final ICalendarHook hook : hooks) {
-				vertx.executeBlocking(prop -> hook.onEventCreated(message.body().getValue()), false);
-			}
-		});
+		eventBus.consumer(CalendarHookAddress.EVENT_UPDATED,
+				(Message<LocalJsonObject<VEventMessage>> message) -> vertx.executeBlocking(
+						prom -> hooks.stream().forEach(h -> h.onEventUpdated(message.body().getValue())), false));
 
-		eventBus.consumer(CalendarHookAddress.EVENT_UPDATED, (Message<LocalJsonObject<VEventMessage>> message) -> {
-			for (final ICalendarHook hook : hooks) {
-				vertx.executeBlocking(prop -> hook.onEventUpdated(message.body().getValue()), false);
-			}
-		});
-
-		eventBus.consumer(CalendarHookAddress.EVENT_DELETED, (Message<LocalJsonObject<VEventMessage>> message) -> {
-			for (final ICalendarHook hook : hooks) {
-				vertx.executeBlocking(prop -> hook.onEventDeleted(message.body().getValue()), false);
-			}
-		});
+		eventBus.consumer(CalendarHookAddress.EVENT_DELETED,
+				(Message<LocalJsonObject<VEventMessage>> message) -> vertx.executeBlocking(
+						prom -> hooks.stream().forEach(h -> h.onEventDeleted(message.body().getValue())), false));
 
 	}
 }
