@@ -9,7 +9,7 @@
 import folderFilterNoResults from "../../../assets/folder-filter-no-results.png";
 import { BmButton } from "@bluemind/styleguide";
 import { mapMutations } from "vuex";
-import { SET_FILTER_PATTERN, SET_FILTER_RESULTS, RESET_FILTER_LIMITS } from "~/mutations";
+import { SET_FOLDER_FILTER_PATTERN, SET_FOLDER_FILTER_RESULTS, RESET_FOLDER_FILTER_LIMITS } from "~/mutations";
 
 export default {
     name: "FilteredListEmpty",
@@ -20,11 +20,11 @@ export default {
         };
     },
     methods: {
-        ...mapMutations("mail", { SET_FILTER_PATTERN, SET_FILTER_RESULTS, RESET_FILTER_LIMITS }),
+        ...mapMutations("mail", { SET_FOLDER_FILTER_PATTERN, SET_FOLDER_FILTER_RESULTS, RESET_FOLDER_FILTER_LIMITS }),
         clearFilter() {
-            this.SET_FILTER_PATTERN(null);
-            this.SET_FILTER_RESULTS({});
-            this.RESET_FILTER_LIMITS();
+            this.SET_FOLDER_FILTER_PATTERN(null);
+            this.SET_FOLDER_FILTER_RESULTS({});
+            this.RESET_FOLDER_FILTER_LIMITS();
         }
     }
 };

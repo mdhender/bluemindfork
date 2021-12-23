@@ -6,17 +6,18 @@ import {
     FOLDER_LIST_LIMIT_FOR_USER
 } from "~/getters";
 import {
-    RESET_FILTER_LIMITS,
-    SET_FILTER_PATTERN,
-    SET_FILTER_RESULTS,
-    SET_FILTER_LIMIT,
-    SET_FILTER_STATUS,
+    RESET_FOLDER_FILTER_LIMITS,
+    SET_FOLDER_FILTER_PATTERN,
+    SET_FOLDER_FILTER_RESULTS,
+    SET_FOLDER_FILTER_LIMIT,
+    SET_FOLDER_FILTER_LOADED,
+    SET_FOLDER_FILTER_LOADING,
     TOGGLE_EDIT_FOLDER
 } from "~/mutations";
 
 const DEFAULT_LIMIT = 10;
 
-export const FolderListStatus = {
+const FolderListStatus = {
     IDLE: Symbol("idle"),
     LOADING: Symbol("loading")
 };
@@ -30,20 +31,23 @@ export default {
         status: FolderListStatus.IDLE
     },
     mutations: {
-        [RESET_FILTER_LIMITS]: state => {
+        [RESET_FOLDER_FILTER_LIMITS]: state => {
             state.limits = {};
         },
-        [SET_FILTER_PATTERN]: (state, pattern) => {
+        [SET_FOLDER_FILTER_PATTERN]: (state, pattern) => {
             state.pattern = pattern?.trim();
         },
-        [SET_FILTER_RESULTS]: (state, results) => {
+        [SET_FOLDER_FILTER_RESULTS]: (state, results) => {
             state.results = results;
         },
-        [SET_FILTER_LIMIT]: (state, { mailbox, limits }) => {
+        [SET_FOLDER_FILTER_LIMIT]: (state, { mailbox, limits }) => {
             Vue.set(state.limits, mailbox.key, limits);
         },
-        [SET_FILTER_STATUS]: (state, status) => {
-            state.status = status;
+        [SET_FOLDER_FILTER_LOADING]: state => {
+            state.status = FolderListStatus.LOADING;
+        },
+        [SET_FOLDER_FILTER_LOADED]: state => {
+            state.status = FolderListStatus.IDLE;
         },
         [TOGGLE_EDIT_FOLDER]: (state, key) => {
             if (state.editing && state.editing === key) {

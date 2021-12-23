@@ -35,9 +35,8 @@ import {
 import { DEFAULT_FOLDER_NAMES } from "../folders/helpers/DefaultFolders";
 import { MailboxType } from "~/model/mailbox";
 import injector from "@bluemind/inject";
-import { SET_ACTIVE_FOLDER } from "~/mutations";
+import { SET_FOLDER_FILTER_LOADED, SET_FOLDER_FILTER_LOADING, SET_ACTIVE_FOLDER } from "~/mutations";
 import { LoadingStatus } from "../../model/loading-status";
-import { FolderListStatus } from "../folderList";
 
 Vue.use(Vuex);
 injector.register({ provide: "UserSession", use: { userId: "B" } });
@@ -141,7 +140,7 @@ describe("Mail store", () => {
             };
 
             store.state.folderList.pattern = " ";
-            store.state.folderList.status = FolderListStatus.IDLE;
+            store.commit(SET_FOLDER_FILTER_LOADED);
             expect(store.getters[FILTERED_MAILSHARE_RESULTS]).toEqual([]);
             store.state.folderList.pattern = "B";
             expect(store.getters[FILTERED_MAILSHARE_RESULTS]).toEqual([store.state.folders["2"]]);
@@ -162,7 +161,7 @@ describe("Mail store", () => {
                 C: { key: "C", type: MailboxType.USER, owner: "C" }
             };
             store.state.folderList.pattern = "";
-            store.state.folderList.status = FolderListStatus.IDLE;
+            store.commit(SET_FOLDER_FILTER_LOADED);
             expect(store.getters[FILTERED_USER_RESULTS]).toEqual({});
             store.state.folderList.pattern = "A";
             expect(store.getters[FILTERED_USER_RESULTS]).toEqual({
@@ -191,13 +190,13 @@ describe("Mail store", () => {
             };
             /* Not in filtered state */
             store.state.folderList.pattern = "";
-            store.state.folderList.status = FolderListStatus.IDLE;
+            store.commit(SET_FOLDER_FILTER_LOADED);
             expect(store.getters[FOLDER_LIST_IS_EMPTY]).toBeTruthy();
             store.state.folderList.pattern = "a";
-            store.state.folderList.status = FolderListStatus.LOADING;
+            store.commit(SET_FOLDER_FILTER_LOADING);
             expect(store.getters[FOLDER_LIST_IS_EMPTY]).toBeTruthy();
             /* Result in both user and mailshare */
-            store.state.folderList.status = FolderListStatus.IDLE;
+            store.commit(SET_FOLDER_FILTER_LOADED);
             expect(store.getters[FOLDER_LIST_IS_EMPTY]).toBeFalsy();
             /* Result in none */
             store.state.folderList.pattern = "zzz";
