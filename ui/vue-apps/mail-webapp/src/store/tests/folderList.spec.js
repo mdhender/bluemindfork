@@ -9,7 +9,7 @@ import {
     SET_FILTER_STATUS,
     TOGGLE_EDIT_FOLDER
 } from "~/mutations";
-import { FOLDER_LIST_IS_EMPTY, FOLDER_LIST_IS_FILTERED, FOLDER_LIST_IS_LOADING, FOLDER_LIST_RESULTS } from "~/getters";
+import { FOLDER_LIST_IS_FILTERED, FOLDER_LIST_IS_LOADING } from "~/getters";
 import { default as initialStore, FolderListStatus } from "../folderList";
 
 Vue.use(Vuex);
@@ -63,17 +63,6 @@ describe("folderList store", () => {
         });
     });
     describe("getters", () => {
-        test("FOLDER_LIST_IS_EMPTY", () => {
-            expect(store.getters[FOLDER_LIST_IS_EMPTY](store.state)).toBeTruthy();
-            store.state.results["machin"] = [];
-            expect(store.getters[FOLDER_LIST_IS_EMPTY](store.state)).toBeTruthy();
-            store.state.results["machin"] = ["a", "b", "c"];
-            expect(store.getters[FOLDER_LIST_IS_EMPTY](store.state)).toBeFalsy();
-            store.state.results["machin"] = [];
-            store.state.results["truc"] = ["a", "b", "c"];
-            store.state.results["bidule"] = undefined;
-            expect(store.getters[FOLDER_LIST_IS_EMPTY](store.state)).toBeFalsy();
-        });
         test("FOLDER_LIST_IS_FILTERED", () => {
             expect(store.getters[FOLDER_LIST_IS_FILTERED](store.state)).toBeFalsy();
             store.state.pattern = "blabla";
@@ -91,16 +80,6 @@ describe("folderList store", () => {
             expect(store.getters[FOLDER_LIST_IS_LOADING](store.state)).toBeFalsy();
             store.state.status = FolderListStatus.LOADING;
             expect(store.getters[FOLDER_LIST_IS_LOADING](store.state)).toBeTruthy();
-        });
-        test("FOLDER_LIST_RESULTS", () => {
-            expect(store.getters[FOLDER_LIST_RESULTS](store.state)({ key: "machin" })).toBeFalsy();
-            store.state.results["machin"] = "truc";
-            expect(store.getters[FOLDER_LIST_RESULTS](store.state)({ key: "machin" })).toEqual("truc");
-        });
-    });
-    describe("actions", () => {
-        test.skip("FILTER_FOLDERS", () => {
-            // TODO
         });
     });
 });

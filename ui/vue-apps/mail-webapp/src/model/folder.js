@@ -212,3 +212,11 @@ export function isDraftFolder(path) {
     const rootFolderName = path.split("/")[0];
     return DEFAULT_FOLDERS.DRAFTS === rootFolderName;
 }
+
+export function match(folder, pattern) {
+    pattern = pattern.toLowerCase();
+    if (folder.path.toLowerCase().includes(pattern)) {
+        return true;
+    }
+    return false;
+}

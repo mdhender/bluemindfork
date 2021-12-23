@@ -12,6 +12,9 @@ import {
     ALL_SELECTED_CONVERSATIONS_ARE_UNREAD,
     CONVERSATION_METADATA,
     CONVERSATIONS_ACTIVATED,
+    FILTERED_MAILSHARE_RESULTS,
+    FILTERED_USER_RESULTS,
+    FOLDER_LIST_IS_EMPTY,
     MAILBOX_FOLDERS,
     MAILBOX_ROOT_FOLDERS,
     MAILBOX_SENT,
@@ -34,8 +37,10 @@ import { MailboxType } from "~/model/mailbox";
 import injector from "@bluemind/inject";
 import { SET_ACTIVE_FOLDER } from "~/mutations";
 import { LoadingStatus } from "../../model/loading-status";
+import { FolderListStatus } from "../folderList";
 
 Vue.use(Vuex);
+injector.register({ provide: "UserSession", use: { userId: "B" } });
 
 describe("Mail store", () => {
     let store;
@@ -123,7 +128,87 @@ describe("Mail store", () => {
             store.state.conversationList = { _keys: [], _removed: [] };
             expect(store.getters[ALL_CONVERSATIONS_ARE_SELECTED]).toBeFalsy();
         });
+        test("FILTERED_MAILSHARE_RESULTS", () => {
+            store.state.folders = {
+                "1": { key: "1", imapName: "a", path: "a", mailboxRef: { key: "A" } },
+                "2": { key: "2", imapName: "bab", path: "a/bab", mailboxRef: { key: "A" } },
+                "3": { key: "3", imapName: "a", path: "a", mailboxRef: { key: "B" }, parent: null },
+                "4": { key: "4", imapName: "c", path: "c", mailboxRef: { key: "B" }, parent: "3" }
+            };
+            store.state.mailboxes = {
+                A: { key: "A", type: MailboxType.MAILSHARE, owner: "B" },
+                B: { key: "B", type: MailboxType.USER, owner: "B" }
+            };
 
+            store.state.folderList.pattern = " ";
+            store.state.folderList.status = FolderListStatus.IDLE;
+            expect(store.getters[FILTERED_MAILSHARE_RESULTS]).toEqual([]);
+            store.state.folderList.pattern = "B";
+            expect(store.getters[FILTERED_MAILSHARE_RESULTS]).toEqual([store.state.folders["2"]]);
+            store.state.folderList.pattern = "C";
+            expect(store.getters[FILTERED_MAILSHARE_RESULTS]).toEqual([]);
+        });
+        test("FILTERED_USER_RESULTS", () => {
+            store.state.folders = {
+                "1": { key: "1", imapName: "a", path: "a", mailboxRef: { key: "A" } },
+                "2": { key: "2", imapName: "b", path: "a/b", mailboxRef: { key: "A" } },
+                "3": { key: "3", imapName: "a", path: "a", mailboxRef: { key: "B" }, parent: null },
+                "4": { key: "4", imapName: "c", path: "c", mailboxRef: { key: "B" }, parent: "3" },
+                "5": { key: "4", imapName: "c", path: "c", mailboxRef: { key: "C" }, parent: "3" }
+            };
+            store.state.mailboxes = {
+                A: { key: "A", type: MailboxType.MAILSHARE, owner: "B" },
+                B: { key: "B", type: MailboxType.USER, owner: "B" },
+                C: { key: "C", type: MailboxType.USER, owner: "C" }
+            };
+            store.state.folderList.pattern = "";
+            store.state.folderList.status = FolderListStatus.IDLE;
+            expect(store.getters[FILTERED_USER_RESULTS]).toEqual({});
+            store.state.folderList.pattern = "A";
+            expect(store.getters[FILTERED_USER_RESULTS]).toEqual({
+                B: [store.state.folders["3"]],
+                C: []
+            });
+            store.state.folderList.pattern = "c";
+            expect(store.getters[FILTERED_USER_RESULTS]).toEqual({
+                B: [store.state.folders["4"]],
+                C: [store.state.folders["5"]]
+            });
+        });
+        test("FOLDER_LIST_IS_EMPTY", () => {
+            store.state.folders = {
+                "1": { key: "1", imapName: "a", path: "a", mailboxRef: { key: "A" } },
+                "2": { key: "2", imapName: "b", path: "a/b", mailboxRef: { key: "A" } },
+                "3": { key: "3", imapName: "a", path: "a", mailboxRef: { key: "B" }, parent: null },
+                "4": { key: "4", imapName: "c", path: "c", mailboxRef: { key: "B" }, parent: "3" },
+                "5": { key: "4", imapName: "c", path: "c", mailboxRef: { key: "C" }, parent: "3" },
+                "6": { key: "1", imapName: "y", path: "y", mailboxRef: { key: "A" } }
+            };
+            store.state.mailboxes = {
+                A: { key: "A", type: MailboxType.MAILSHARE, owner: "B" },
+                B: { key: "B", type: MailboxType.USER, owner: "B" },
+                C: { key: "C", type: MailboxType.USER, owner: "C" }
+            };
+            /* Not in filtered state */
+            store.state.folderList.pattern = "";
+            store.state.folderList.status = FolderListStatus.IDLE;
+            expect(store.getters[FOLDER_LIST_IS_EMPTY]).toBeTruthy();
+            store.state.folderList.pattern = "a";
+            store.state.folderList.status = FolderListStatus.LOADING;
+            expect(store.getters[FOLDER_LIST_IS_EMPTY]).toBeTruthy();
+            /* Result in both user and mailshare */
+            store.state.folderList.status = FolderListStatus.IDLE;
+            expect(store.getters[FOLDER_LIST_IS_EMPTY]).toBeFalsy();
+            /* Result in none */
+            store.state.folderList.pattern = "zzz";
+            expect(store.getters[FOLDER_LIST_IS_EMPTY]).toBeTruthy();
+            /* Result in mailshares */
+            store.state.folderList.pattern = "y";
+            expect(store.getters[FOLDER_LIST_IS_EMPTY]).toBeFalsy();
+            /* Result in user */
+            store.state.folderList.pattern = "c";
+            expect(store.getters[FOLDER_LIST_IS_EMPTY]).toBeFalsy();
+        });
         test("MAILSHARE_FOLDERS", () => {
             store.state.folders = {
                 "1": { key: "1", mailboxRef: { key: "A" } },

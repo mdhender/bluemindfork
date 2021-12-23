@@ -11,20 +11,27 @@ import {
     ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED,
     ALL_SELECTED_CONVERSATIONS_ARE_UNREAD,
     ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
+    CONVERSATION_LIST_ALL_KEYS,
     CONVERSATIONS_ACTIVATED,
     CURRENT_MAILBOX,
+    FILTERED_MAILSHARE_RESULTS,
+    FILTERED_USER_RESULTS,
+    FOLDER_LIST_IS_EMPTY,
+    FOLDER_LIST_IS_FILTERED,
+    FOLDER_LIST_IS_LOADING,
+    FOLDER_LIST_LIMIT_FOR_MAILSHARE,
+    FOLDER_LIST_LIMIT_FOR_USER,
     FOLDERS,
     IS_ACTIVE_MESSAGE,
     IS_CURRENT_CONVERSATION,
-    MAILBOXES,
     MAILBOX_FOLDERS,
     MAILBOX_ROOT_FOLDERS,
     MAILBOX_SENT,
     MAILBOX_TRASH,
+    MAILBOXES,
     MAILSHARE_FOLDERS,
     MAILSHARE_KEYS,
     MAILSHARE_ROOT_FOLDERS,
-    CONVERSATION_LIST_ALL_KEYS,
     MY_DRAFTS,
     MY_INBOX,
     MY_MAILBOX_FOLDERS,
@@ -36,10 +43,11 @@ import {
     MY_TRASH,
     NEXT_CONVERSATION,
     SELECTION,
-    SELECTION_FLAGS
+    SELECTION_FLAGS,
+    USER_MAILBOXES
 } from "~/getters";
 import { SET_ACTIVE_FOLDER, SET_MAIL_THREAD_SETTING } from "~/mutations";
-import { create } from "~/model/folder";
+import { create, match } from "~/model/folder";
 import { LoadingStatus } from "~/model/loading-status";
 import { equal } from "~/model/message";
 
@@ -76,6 +84,39 @@ export const getters = {
         state.mailThreadSetting === "true" &&
         state.folders[state.activeFolder].allowConversations &&
         !CONVERSATION_LIST_IS_SEARCH_MODE,
+    [FILTERED_USER_RESULTS]: ({ folderList }, getters) => {
+        const results = {};
+        if (getters[FOLDER_LIST_IS_FILTERED] && !getters[FOLDER_LIST_IS_LOADING]) {
+            getters[USER_MAILBOXES].forEach(mailbox => {
+                const limit = getters[FOLDER_LIST_LIMIT_FOR_USER](mailbox);
+                results[mailbox.key] = filterFolders(getters[MAILBOX_FOLDERS](mailbox), folderList.pattern, limit);
+            });
+        }
+        return results;
+    },
+    [FILTERED_MAILSHARE_RESULTS]: ({ folderList }, getters) => {
+        if (getters[FOLDER_LIST_IS_FILTERED] && !getters[FOLDER_LIST_IS_LOADING]) {
+            return filterFolders(
+                getters[MAILSHARE_FOLDERS],
+                folderList.pattern,
+                getters[FOLDER_LIST_LIMIT_FOR_MAILSHARE]
+            );
+        }
+        return [];
+    },
+    [FOLDER_LIST_IS_EMPTY]: (state, getters) => {
+        if (getters[FOLDER_LIST_IS_FILTERED] && !getters[FOLDER_LIST_IS_LOADING]) {
+            if (getters[FILTERED_MAILSHARE_RESULTS].length > 0) {
+                return false;
+            }
+            for (let key in getters[FILTERED_USER_RESULTS]) {
+                if (getters[FILTERED_USER_RESULTS][key].length > 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    },
     [MAILBOX_FOLDERS]: (state, getters) => {
         const foldersByMailbox = getters[FOLDERS].reduce(
             (cache, folder) => cache.get(folder.mailboxRef.key).push(folder) && cache,
@@ -153,4 +194,17 @@ function mailboxGetterFor(name) {
             return create(undefined, name, null, mailbox);
         }
     };
+}
+
+function filterFolders(folders, pattern, limit) {
+    const results = [];
+    for (let folder of folders) {
+        if (match(folder, pattern)) {
+            results.push(folder);
+            if (results.length >= limit) {
+                return results;
+            }
+        }
+    }
+    return results;
 }
