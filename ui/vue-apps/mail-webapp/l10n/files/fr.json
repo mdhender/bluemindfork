@@ -238,6 +238,8 @@
     "mail.error.email.address.invalid": "Adresse de courriel invalide.",
     "mail.folder.access.limited": "Droits restreints",
     "mail.folder.create_subfolder": "Créer un sous-dossier",
+    "mail.folder.filter.no_results": "Aucun résultat",
+    "mail.folder.filter.remove": "Effacer le filtre",
     "mail.folder.mark_as_read": "Marquer tout comme lu",
     "mail.folder.new.from_pattern": "{0} (Nouveau dossier)",
     "mail.folder.new.from_scratch": "Nouveau dossier",
