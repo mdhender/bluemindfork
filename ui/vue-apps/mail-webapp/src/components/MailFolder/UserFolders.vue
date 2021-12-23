@@ -4,7 +4,12 @@
             <mail-mailbox-icon :mailbox="mailbox" class="mr-1" />
         </template>
         <template v-slot:footer>
-            <mail-folder-input class="pl-4" :mailbox-key="mailbox.key" @submit="name => add(name, mailbox)" />
+            <mail-folder-input
+                v-if="mailbox.writable"
+                class="pl-4"
+                :mailbox-key="mailbox.key"
+                @submit="name => add(name, mailbox)"
+            />
         </template>
     </mail-folder-tree>
     <folder-list-loading v-else :name="mailbox.name" />
