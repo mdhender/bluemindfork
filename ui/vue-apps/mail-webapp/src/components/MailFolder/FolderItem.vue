@@ -10,7 +10,13 @@
         <div v-if="!folder.writable" :title="$t('mail.folder.access.limited')" :class="isUnread ? 'pr-1' : 'pr-2'">
             <bm-icon icon="info-circle" />
         </div>
-        <mail-folder-item-menu v-if="folder.writable" :folder="folder" class="mx-1" :class="{ 'd-none': isUnread }" />
+        <mail-folder-item-menu
+            v-if="folder.writable"
+            :folder="folder"
+            class="mx-1"
+            :class="{ 'd-none': isUnread }"
+            @edit="$emit('edit')"
+        />
         <bm-counter-badge
             v-if="isUnread"
             :value="folder.unread"
@@ -23,11 +29,9 @@
 </template>
 
 <script>
-import { mapActions, mapMutations, mapState } from "vuex";
+import { mapState } from "vuex";
 import { BmCounterBadge, BmDropzone, BmIcon } from "@bluemind/styleguide";
 import MailFolderItemMenu from "./MailFolderItemMenu";
-import { REMOVE_FOLDER, TOGGLE_EDIT_FOLDER } from "~/mutations";
-import { RENAME_FOLDER, CREATE_FOLDER } from "~/actions";
 
 export default {
     name: "FolderItem",
@@ -44,18 +48,13 @@ export default {
         }
     },
     computed: {
-        ...mapState("mail", ["folders", "activeFolder", "mailboxes"]),
+        ...mapState("mail", ["activeFolder"]),
         isActive() {
             return this.folder.key === this.activeFolder;
         },
         isUnread() {
             return this.folder.unread > 0;
         }
-    },
-
-    methods: {
-        ...mapActions("mail", { RENAME_FOLDER, CREATE_FOLDER }),
-        ...mapMutations("mail", { REMOVE_FOLDER, TOGGLE_EDIT_FOLDER })
     }
 };
 </script>

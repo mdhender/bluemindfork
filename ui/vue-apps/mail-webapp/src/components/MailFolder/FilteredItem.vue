@@ -1,6 +1,7 @@
 <template>
     <div class="filtered-item" @click="select">
-        <folder-item :folder="folder" class="w-100">
+        <rename-folder-modal :id="renameModalId" :folder="folder" />
+        <folder-item :folder="folder" class="w-100" @edit="rename">
             <div class="d-flex flex-column flex-fill">
                 <mail-folder-icon
                     :shared="shared"
@@ -23,12 +24,14 @@ import MailFolderIcon from "../MailFolderIcon";
 import { MailboxType } from "~/model/mailbox";
 import FolderItem from "./FolderItem";
 import { MailRoutesMixin } from "~/mixins";
+import RenameFolderModal from "./modals/RenameFolderModal";
 
 export default {
     name: "FilteredItem",
     components: {
         MailFolderIcon,
-        FolderItem
+        FolderItem,
+        RenameFolderModal
     },
     mixins: [MailRoutesMixin],
     props: {
@@ -52,12 +55,17 @@ export default {
         },
         shared() {
             return this.mailboxes[this.folder.mailboxRef.key].type === MailboxType.MAILSHARE;
+        },
+        renameModalId() {
+            return `RENAME_FOLDER_${this.folder.key}`;
         }
     },
-
     methods: {
         select() {
             this.$router.push(this.folderRoute(this.folder));
+        },
+        rename() {
+            this.$bvModal.show(this.renameModalId);
         }
     }
 };
