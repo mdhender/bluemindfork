@@ -129,10 +129,10 @@ describe("Mail store", () => {
         });
         test("FILTERED_MAILSHARE_RESULTS", () => {
             store.state.folders = {
-                "1": { key: "1", imapName: "a", path: "a", mailboxRef: { key: "A" } },
-                "2": { key: "2", imapName: "bab", path: "a/bab", mailboxRef: { key: "A" } },
-                "3": { key: "3", imapName: "a", path: "a", mailboxRef: { key: "B" }, parent: null },
-                "4": { key: "4", imapName: "c", path: "c", mailboxRef: { key: "B" }, parent: "3" }
+                "1": { key: "1", name: "", imapName: "a", path: "a", mailboxRef: { key: "A" } },
+                "2": { key: "2", name: "", imapName: "bab", path: "a/bab", mailboxRef: { key: "A" } },
+                "3": { key: "3", name: "", imapName: "a", path: "a", mailboxRef: { key: "B" }, parent: null },
+                "4": { key: "4", name: "", imapName: "c", path: "c", mailboxRef: { key: "B" }, parent: "3" }
             };
             store.state.mailboxes = {
                 A: { key: "A", type: MailboxType.MAILSHARE, owner: "B" },
@@ -149,11 +149,11 @@ describe("Mail store", () => {
         });
         test("FILTERED_USER_RESULTS", () => {
             store.state.folders = {
-                "1": { key: "1", imapName: "a", path: "a", mailboxRef: { key: "A" } },
-                "2": { key: "2", imapName: "b", path: "a/b", mailboxRef: { key: "A" } },
-                "3": { key: "3", imapName: "a", path: "a", mailboxRef: { key: "B" }, parent: null },
-                "4": { key: "4", imapName: "c", path: "c", mailboxRef: { key: "B" }, parent: "3" },
-                "5": { key: "4", imapName: "c", path: "c", mailboxRef: { key: "C" }, parent: "3" }
+                "1": { key: "1", name: "", imapName: "a", path: "a", mailboxRef: { key: "A" } },
+                "2": { key: "2", name: "", imapName: "b", path: "a/b", mailboxRef: { key: "A" } },
+                "3": { key: "3", name: "", imapName: "a", path: "a", mailboxRef: { key: "B" }, parent: null },
+                "4": { key: "4", name: "", imapName: "c", path: "c", mailboxRef: { key: "B" }, parent: "3" },
+                "5": { key: "4", name: "", imapName: "c", path: "c", mailboxRef: { key: "C" }, parent: "3" }
             };
             store.state.mailboxes = {
                 A: { key: "A", type: MailboxType.MAILSHARE, owner: "B" },
@@ -176,12 +176,12 @@ describe("Mail store", () => {
         });
         test("FOLDER_LIST_IS_EMPTY", () => {
             store.state.folders = {
-                "1": { key: "1", imapName: "a", path: "a", mailboxRef: { key: "A" } },
-                "2": { key: "2", imapName: "b", path: "a/b", mailboxRef: { key: "A" } },
-                "3": { key: "3", imapName: "a", path: "a", mailboxRef: { key: "B" }, parent: null },
-                "4": { key: "4", imapName: "c", path: "c", mailboxRef: { key: "B" }, parent: "3" },
-                "5": { key: "4", imapName: "c", path: "c", mailboxRef: { key: "C" }, parent: "3" },
-                "6": { key: "1", imapName: "y", path: "y", mailboxRef: { key: "A" } }
+                "1": { key: "1", name: "", imapName: "a", path: "a", mailboxRef: { key: "A" } },
+                "2": { key: "2", name: "", imapName: "b", path: "a/b", mailboxRef: { key: "A" } },
+                "3": { key: "3", name: "", imapName: "a", path: "a", mailboxRef: { key: "B" }, parent: null },
+                "4": { key: "4", name: "", imapName: "c", path: "c", mailboxRef: { key: "B" }, parent: "3" },
+                "5": { key: "4", name: "", imapName: "c", path: "c", mailboxRef: { key: "C" }, parent: "3" },
+                "6": { key: "1", name: "", imapName: "y", path: "y", mailboxRef: { key: "A" } }
             };
             store.state.mailboxes = {
                 A: { key: "A", type: MailboxType.MAILSHARE, owner: "B" },

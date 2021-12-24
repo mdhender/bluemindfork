@@ -1,4 +1,4 @@
-const { create, rename, compare } = require("../folder");
+const { create, rename, compare, match } = require("../folder");
 const { MailboxType } = require("../mailbox");
 import injector from "@bluemind/inject";
 
@@ -203,6 +203,44 @@ describe("Folder model functions", () => {
             ];
             const result = unsortedFolders.sort(compare);
             expect(result).toEqual(sortedFolders);
+        });
+    });
+    describe.only("match", () => {
+        test.skip("match test folder name with wildcard", () => {
+            let folder = { name: "MyTest", imapName: "Yean", path: "/path/" };
+            expect(match(folder, "my")).toBeTruthy();
+            expect(match(folder, "tesT")).toBeTruthy();
+            expect(match(folder, "YTes")).toBeTruthy();
+            expect(match(folder, "mytest")).toBeTruthy();
+            expect(match(folder, "Pouic")).toBeFalsy();
+        });
+        test.skip("match test folder imapName with wildcard", () => {
+            let folder = { name: "Yeah", imapName: "MyTest", path: "/path/" };
+            expect(match(folder, "my")).toBeTruthy();
+            expect(match(folder, "TeSt")).toBeTruthy();
+            expect(match(folder, "yTeS")).toBeTruthy();
+            expect(match(folder, "MYTEst")).toBeTruthy();
+            expect(match(folder, "Pouic")).toBeFalsy();
+        });
+        test("match search pattern at the end of the path", () => {
+            let folder = { name: "MyTest", imapName: "Yeah", path: "/start/path/MyTest" };
+            expect(match(folder, "ath/My")).toBeTruthy();
+            expect(match(folder, "path/My")).toBeTruthy();
+            expect(match(folder, "start/My")).toBeFalsy();
+            expect(match(folder, "a/path/My")).toBeFalsy();
+            expect(match(folder, "tart/path/MyT")).toBeTruthy();
+            expect(match(folder, "path/Test")).toBeFalsy();
+            expect(match(folder, "path/MyTest/Other")).toBeFalsy();
+        });
+        test("match to search for imap name at the end of the path", () => {
+            let folder = { name: "MyTest", imapName: "Yeah", path: "/start/path/MyTest" };
+            expect(match(folder, "ath/My")).toBeTruthy();
+            expect(match(folder, "path/My")).toBeTruthy();
+            expect(match(folder, "start/My")).toBeFalsy();
+            expect(match(folder, "a/path/My")).toBeFalsy();
+            expect(match(folder, "tart/path/MyT")).toBeTruthy();
+            expect(match(folder, "path/Test")).toBeFalsy();
+            expect(match(folder, "path/MyTest/Other")).toBeFalsy();
         });
     });
 });

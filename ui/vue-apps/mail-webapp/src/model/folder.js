@@ -217,9 +217,16 @@ export function isDraftFolder(path) {
 }
 
 export function match(folder, pattern) {
-    pattern = pattern.toLowerCase();
-    if (folder.path.toLowerCase().includes(pattern)) {
-        return true;
+    const start = pattern.lastIndexOf("/") + 1;
+    const name = pattern.toLowerCase().substring(start);
+    const path = pattern.toLowerCase().substring(0, start);
+    if (path) {
+        const matcher = new RegExp(`${path}[^/]*$`, "gi");
+        return (
+            matcher.test(folder.path) &&
+            (folder.name.toLowerCase().startsWith(name) || folder.imapName.toLowerCase().startsWith(name))
+        );
+    } else {
+        return folder.name.toLowerCase().includes(name) || folder.imapName.toLowerCase().includes(name);
     }
-    return false;
 }
