@@ -3,17 +3,14 @@
         <div class="h-50 text-center">
             <bm-spinner />
         </div>
-        <bm-button variant="inline-secondary" @click="$emit('clearFilter')">
-            {{ $t("mail.folder.filter.remove") }}
-        </bm-button>
     </div>
 </template>
 
 <script>
-import { BmButton, BmSpinner } from "@bluemind/styleguide";
+import { BmSpinner } from "@bluemind/styleguide";
 
 export default {
     name: "FilteredListLoading",
-    components: { BmButton, BmSpinner }
+    components: { BmSpinner }
 };
 </script>

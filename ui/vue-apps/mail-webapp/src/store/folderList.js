@@ -14,8 +14,10 @@ import {
     SET_FOLDER_FILTER_LOADING,
     TOGGLE_EDIT_FOLDER
 } from "~/mutations";
+import { RESET_FILTER, SHOW_MORE_FOR_MAILSHARES, SHOW_MORE_FOR_USERS } from "~/actions";
 
-const DEFAULT_LIMIT = 10;
+const MAILSHARES = "mailshares";
+export const DEFAULT_LIMIT = 10;
 
 const FolderListStatus = {
     IDLE: Symbol("idle"),
@@ -40,8 +42,8 @@ export default {
         [SET_FOLDER_FILTER_RESULTS]: (state, results) => {
             state.results = results;
         },
-        [SET_FOLDER_FILTER_LIMIT]: (state, { mailbox, limits }) => {
-            Vue.set(state.limits, mailbox.key, limits);
+        [SET_FOLDER_FILTER_LIMIT]: (state, { mailbox, limit }) => {
+            Vue.set(state.limits, mailbox.key, limit);
         },
         [SET_FOLDER_FILTER_LOADING]: state => {
             state.status = FolderListStatus.LOADING;
@@ -58,13 +60,28 @@ export default {
         }
     },
     getters: {
-        [FOLDER_LIST_IS_FILTERED]: state => {
-            return Boolean(state.pattern);
+        [FOLDER_LIST_IS_FILTERED]: (state, getters) => {
+            return getters[FOLDER_LIST_IS_LOADING] || Boolean(state.pattern);
         },
         [FOLDER_LIST_IS_LOADING]: state => {
             return state.status === FolderListStatus.LOADING;
         },
-        [FOLDER_LIST_LIMIT_FOR_MAILSHARE]: state => state.limits.mailshares || DEFAULT_LIMIT,
+        [FOLDER_LIST_LIMIT_FOR_MAILSHARE]: state => state.limits[MAILSHARES] || DEFAULT_LIMIT,
         [FOLDER_LIST_LIMIT_FOR_USER]: state => ({ key }) => state.limits[key] || DEFAULT_LIMIT
+    },
+    actions: {
+        [SHOW_MORE_FOR_USERS]: ({ state, commit }, mailbox) => {
+            const currentLimit = state.limits[mailbox.key] || DEFAULT_LIMIT;
+            commit(SET_FOLDER_FILTER_LIMIT, { mailbox, limit: currentLimit + DEFAULT_LIMIT });
+        },
+        [SHOW_MORE_FOR_MAILSHARES]: ({ state, commit }) => {
+            const currentLimit = state.limits[MAILSHARES] || DEFAULT_LIMIT;
+            commit(SET_FOLDER_FILTER_LIMIT, { mailbox: { key: MAILSHARES }, limit: currentLimit + DEFAULT_LIMIT });
+        },
+        [RESET_FILTER]: ({ commit }) => {
+            commit(SET_FOLDER_FILTER_PATTERN, null);
+            commit(SET_FOLDER_FILTER_RESULTS, {});
+            commit(RESET_FOLDER_FILTER_LIMITS);
+        }
     }
 };
