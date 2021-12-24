@@ -156,7 +156,7 @@ public class CalendarSettingsModelHandler implements IGwtModelHandler {
 			case "fri":
 				days.add(Day.FR);
 				break;
-			case "sam":
+			case "sat":
 				days.add(Day.SA);
 				break;
 			case "sun":
