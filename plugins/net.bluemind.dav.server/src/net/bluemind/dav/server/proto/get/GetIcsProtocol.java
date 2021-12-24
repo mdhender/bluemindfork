@@ -18,7 +18,6 @@
  */
 package net.bluemind.dav.server.proto.get;
 
-import java.util.List;
 import java.util.regex.Matcher;
 
 import org.slf4j.Logger;
@@ -34,13 +33,14 @@ import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.dav.server.proto.IDavProtocol;
+import net.bluemind.dav.server.proto.get.GetIcsProtocol.IcsProtocolResponse;
 import net.bluemind.dav.server.store.DavResource;
 import net.bluemind.dav.server.store.LoggedCore;
 import net.bluemind.todolist.adapter.VTodoAdapter;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.VTodo;
 
-public class GetIcsProtocol implements IDavProtocol<GetQuery, GetResponse<?>> {
+public class GetIcsProtocol implements IDavProtocol<GetQuery, GetResponse<IcsProtocolResponse>> {
 
 	private static final Logger logger = LoggerFactory.getLogger(GetIcsProtocol.class);
 
@@ -51,8 +51,8 @@ public class GetIcsProtocol implements IDavProtocol<GetQuery, GetResponse<?>> {
 	}
 
 	@Override
-	public void execute(LoggedCore lc, GetQuery query, Handler<GetResponse<?>> handler) {
-		GetResponse<Object> gr = new GetResponse<>();
+	public void execute(LoggedCore lc, GetQuery query, Handler<GetResponse<IcsProtocolResponse>> handler) {
+		GetResponse<IcsProtocolResponse> gr = new GetResponse<>();
 		DavResource dr = query.getResource();
 		ContainerDescriptor container = lc.vStuffContainer(dr);
 
@@ -63,7 +63,7 @@ public class GetIcsProtocol implements IDavProtocol<GetQuery, GetResponse<?>> {
 				m.find();
 				String eventUid = m.group(3);
 				ItemValue<VEventSeries> event = calApi.getComplete(eventUid);
-				gr.setValue(event);
+				gr.setValue(new IcsProtocolResponse(IcsProtocolResponseType.EVENT, event));
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 				gr.setStatus(500);
@@ -75,7 +75,7 @@ public class GetIcsProtocol implements IDavProtocol<GetQuery, GetResponse<?>> {
 				m.find();
 				String eventUid = m.group(3);
 				ItemValue<VTodo> task = todolistApi.getComplete(eventUid);
-				gr.setValue(task);
+				gr.setValue(new IcsProtocolResponse(IcsProtocolResponseType.TODO, task));
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 				gr.setStatus(500);
@@ -88,28 +88,45 @@ public class GetIcsProtocol implements IDavProtocol<GetQuery, GetResponse<?>> {
 		handler.handle(gr);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public void write(GetResponse<?> response, HttpServerResponse sr) {
+	public void write(GetResponse<IcsProtocolResponse> response, HttpServerResponse sr) {
 		Buffer b = Buffer.buffer();
 		if (response.getValue() != null) {
-			Object r = response.getValue();
-			if (r instanceof List<?>) {
-				ItemValue<VEventSeries> vevents = (ItemValue<VEventSeries>) response.getValue();
+			IcsProtocolResponse r = response.getValue();
+			switch (r.type) {
+			case EVENT:
+				ItemValue<VEventSeries> vevents = (ItemValue<VEventSeries>) r.value;
 				String ics = VEventServiceHelper.convertToIcs(vevents);
 				b.appendString(ics);
 				sr.headers().set("Content-Type", "text/calendar; charset=\"utf-8\"");
 				sr.headers().set("Content-Length", "" + b.length());
 				logger.info("[{} Bytes]:\n{}", b.length(), ics);
-			} else {
-				ItemValue<VTodo> task = (ItemValue<VTodo>) response.getValue();
-				String ics = VTodoAdapter.convertToIcs(task);
+				break;
+			case TODO:
+				ItemValue<VTodo> task = (ItemValue<VTodo>) r.value;
+				ics = VTodoAdapter.convertToIcs(task);
 				b.appendString(ics);
 				sr.headers().set("Content-Type", "text/calendar; charset=\"utf-8\"");
 				sr.headers().set("Content-Length", "" + b.length());
 				logger.info("[{} Bytes]:\n{}", b.length(), b.toString());
+				break;
 			}
 		}
 		sr.setStatusCode(response.getStatus()).end(b);
 	}
 
+	public static class IcsProtocolResponse {
+		public final IcsProtocolResponseType type;
+		public final ItemValue<?> value;
+
+		public IcsProtocolResponse(IcsProtocolResponseType type, ItemValue<?> value) {
+			this.type = type;
+			this.value = value;
+		}
+	}
+
+	public enum IcsProtocolResponseType {
+		EVENT, TODO
+	}
 }
