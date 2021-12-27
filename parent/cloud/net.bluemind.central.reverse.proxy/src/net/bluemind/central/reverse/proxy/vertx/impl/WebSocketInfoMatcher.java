@@ -17,8 +17,8 @@ public class WebSocketInfoMatcher implements AuthMatcher<ServerWebSocket> {
 
 	private final Logger logger = LoggerFactory.getLogger(WebSocketInfoMatcher.class);
 
-	public Future<Optional<Auth>> match(ServerWebSocket webSocket) {
-		String cookies = webSocket.headers().get(HttpHeaders.COOKIE);
+	public Future<Optional<Auth>> match(ServerWebSocket websocket) {
+		String cookies = websocket.headers().get(HttpHeaders.COOKIE);
 		Optional<Auth> auth = ServerCookieDecoder.LAX.decode(cookies).stream()
 				.filter(cookie -> "BMCRP".equals(cookie.name())).findFirst().map(Cookie::value).map(Auth::create);
 		return Future.succeededFuture(auth);

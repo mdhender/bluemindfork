@@ -45,7 +45,7 @@ public class HttpServerRequestContextImpl implements HttpServerRequestContext {
 
 	@Override
 	public ReadStream<Buffer> bodyStream() {
-		return body != null ? new BufferReadStream(body) : request;
+		return body != null ? new BufferedReadStream(body) : request;
 	}
 
 	@Override

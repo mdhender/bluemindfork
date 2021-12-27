@@ -30,7 +30,7 @@ public class ByteArrayRecordHandler implements RecordHandler<byte[], byte[]> {
 	@Override
 	public void handle(ConsumerRecord<byte[], byte[]> rec) {
 		keyMapper.map(rec.key()).flatMap(key -> store(rec, key))
-				.ifPresent(storedKey -> logger.info("handling key:{}", storedKey));
+				.ifPresent(storedKey -> logger.info("Storing {}:{}", storedKey.type, storedKey));
 	}
 
 	private Optional<RecordKey> store(ConsumerRecord<byte[], byte[]> rec, RecordKey key) {

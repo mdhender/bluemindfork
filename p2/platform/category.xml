@@ -96,11 +96,9 @@
     <bundle id="net.bluemind.calendar.sqlschema" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.calendar.sync" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.calendar.usercalendar" version="4.1.0.qualifier" />
-    <!-- Disabled for now, needs porting to Vert.x 4
     <bundle id="net.bluemind.central.reverse.proxy.model" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.central.reverse.proxy" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.central.reverse.proxy.launcher" version="4.1.0.qualifier" />
-    -->
     <bundle id="net.bluemind.chooser.application.closure" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.cli.adm" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.cli.calendar" version="4.1.0.qualifier" />

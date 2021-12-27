@@ -11,25 +11,22 @@ import org.mockito.Mockito;
 
 import io.vertx.core.Future;
 import io.vertx.core.MultiMap;
-import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.central.reverse.proxy.model.ProxyInfoStoreClient;
 import net.bluemind.central.reverse.proxy.vertx.HttpServerRequestContext;
-import net.bluemind.lib.vertx.VertxPlatform;
 
 public class DownstreamSelectorTests {
 
 	@Test
 	public void testLoginRouteSelection() throws InterruptedException {
-		Vertx vertx = VertxPlatform.getVertx();
 
 		ProxyInfoStoreClient storeClient = Mockito.mock(ProxyInfoStoreClient.class);
 		when(storeClient.ip("one")).thenReturn(Future.succeededFuture("1.1.1.1"));
 		when(storeClient.ip("two")).thenReturn(Future.succeededFuture("2.2.2.2"));
 
-		DownstreamSelector<HttpServerRequestContext> selector = new DownstreamSelector<>(vertx,
-				new RequestInfoMatcher(), storeClient);
+		DownstreamSelector<HttpServerRequestContext> selector = new DownstreamSelector<>(new RequestInfoMatcher(),
+				storeClient);
 
 		final CountDownLatch cdl = new CountDownLatch(2);
 
@@ -54,14 +51,13 @@ public class DownstreamSelectorTests {
 
 	@Test
 	public void testAnonymousRouteSelection() throws InterruptedException {
-		Vertx vertx = VertxPlatform.getVertx();
 
 		ProxyInfoStoreClient storeClient = Mockito.mock(ProxyInfoStoreClient.class);
 		when(storeClient.ip(anyString())).thenReturn(Future.succeededFuture());
 		when(storeClient.anyIp()).thenReturn(Future.succeededFuture("1.1.1.1"), Future.succeededFuture("2.2.2.2"));
 
-		DownstreamSelector<HttpServerRequestContext> selector = new DownstreamSelector<>(vertx,
-				new RequestInfoMatcher(), storeClient);
+		DownstreamSelector<HttpServerRequestContext> selector = new DownstreamSelector<>(new RequestInfoMatcher(),
+				storeClient);
 
 		final CountDownLatch cdl = new CountDownLatch(2);
 		HttpServerRequest request = TestRequestHelper.createRequest(HttpMethod.GET, "/", null);

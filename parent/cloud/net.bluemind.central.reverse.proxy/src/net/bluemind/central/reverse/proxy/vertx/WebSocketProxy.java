@@ -21,6 +21,6 @@ public interface WebSocketProxy extends Handler<ServerWebSocket> {
 
 	WebSocketProxy target(int port, String host);
 
-	WebSocketProxy selector(Function<ServerWebSocket, Future<SocketAddress>> selector);
+	WebSocketProxy originSelector(Function<ServerWebSocket, Future<SocketAddress>> selector);
 
 }

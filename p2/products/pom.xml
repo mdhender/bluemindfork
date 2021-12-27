@@ -30,8 +30,6 @@
 		<module>core-extensions</module>
 		<module>sdsproxy</module>
 		<module>forest</module>
-		<!-- Disabled for now, needs porting to Vert.x 4
 		<module>crp</module>
-		-->
 	</modules>
 </project>

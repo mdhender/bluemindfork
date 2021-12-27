@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.admin.AdminClient;
@@ -75,7 +76,7 @@ public class ProxyInfoVerticleTests {
 					context.assertions(() -> {
 						ArgumentCaptor<String> dataLocation = ArgumentCaptor.forClass(String.class);
 						ArgumentCaptor<String> ip = ArgumentCaptor.forClass(String.class);
-						verify(storage, timeout(5000).times(numberOfRecords)).addDataLocation(dataLocation.capture(),
+						verify(storage, timeout(15000).times(numberOfRecords)).addDataLocation(dataLocation.capture(),
 								ip.capture());
 						assertTrue(dataLocation.getAllValues().containsAll(Arrays.asList("0", "1", "2", "3", "4")));
 						assertTrue(ip.getAllValues().containsAll(Arrays.asList("0", "1", "2", "3", "4")));
@@ -108,9 +109,8 @@ public class ProxyInfoVerticleTests {
 		props.put("key.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
 		props.put("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
 		props.put("acks", "1");
-		Producer<byte[], byte[]> producer = new KafkaProducer<>(props);
 
-		return producer;
+		return new KafkaProducer<>(props);
 	}
 
 	private ProxyInfoVerticle createVerticle(Vertx vertx, ProxyInfoStorage storage) {
@@ -129,6 +129,7 @@ public class ProxyInfoVerticleTests {
 					: createDir(indice, indice);
 			producer.send(producerRecord);
 		}
+		producer.flush();
 	}
 
 	private ProducerRecord<byte[], byte[]> createDomain() {
@@ -142,15 +143,15 @@ public class ProxyInfoVerticleTests {
 
 	private ProducerRecord<byte[], byte[]> createInstallation(String uid, String ip) {
 		JsonObject key = new JsonObject().put("type", "installation").put("owner", "owner").put("uid", "uid")
-				.put("id", 42).put("valueClass", "valueClass");
+				.put("id", new Random().nextInt()).put("valueClass", "valueClass");
 		JsonObject installationValue = new JsonObject().put("tags", new JsonArray().add("bm/nginx")).put("ip", ip);
 		JsonObject installation = new JsonObject().put("uid", uid).put("value", installationValue);
 		return new ProducerRecord<>(ORPHANS_TOPIC_NAME, key.encode().getBytes(), installation.encode().getBytes());
 	}
 
 	private ProducerRecord<byte[], byte[]> createDir(String email, String dataLocation) {
-		JsonObject key = new JsonObject().put("type", "dir").put("owner", "owner").put("uid", "uid").put("id", 42)
-				.put("valueClass", "valueClass");
+		JsonObject key = new JsonObject().put("type", "dir").put("owner", "owner").put("uid", "uid")
+				.put("id", new Random().nextInt()).put("valueClass", "valueClass");
 		JsonObject dirEntryValue = new JsonObject().put("dataLocation", dataLocation);
 		JsonObject dirEmail = new JsonObject().put("address", email).put("allAliases", false);
 		JsonObject dirValueValue = new JsonObject().put("emails", new JsonArray().add(dirEmail));

@@ -4,9 +4,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.vertx.core.Future;
@@ -17,8 +14,6 @@ import net.bluemind.central.reverse.proxy.vertx.AuthMatcher;
 import net.bluemind.central.reverse.proxy.vertx.HttpServerRequestContext;
 
 public class RequestInfoMatcher implements AuthMatcher<HttpServerRequestContext> {
-
-	private final Logger logger = LoggerFactory.getLogger(RequestInfoMatcher.class);
 
 	public Future<Optional<Auth>> match(HttpServerRequestContext context) {
 		Future<Auth> futureAuth = Future.succeededFuture(null);

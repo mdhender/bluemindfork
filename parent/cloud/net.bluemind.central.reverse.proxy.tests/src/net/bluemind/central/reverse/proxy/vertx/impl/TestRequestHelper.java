@@ -30,7 +30,8 @@ public class TestRequestHelper {
 
 	public static HttpServerRequest createRequest(HttpMethod method, String path, MultiMap formAttributes) {
 		return new HttpServerRequest() {
-			Handler<Void> endHandler;
+			Handler<Void> endHandler = v -> {
+			};
 
 			@Override
 			public HttpMethod method() {
@@ -226,12 +227,12 @@ public class TestRequestHelper {
 
 			@Override
 			public Future<Buffer> body() {
-				return null;
+				return Future.succeededFuture();
 			}
 
 			@Override
 			public Future<Void> end() {
-				return null;
+				return Future.succeededFuture();
 			}
 
 			@Override

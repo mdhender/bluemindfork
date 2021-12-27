@@ -54,22 +54,20 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient<K, V> 
 	private void consume() {
 		vertx.executeBlocking((Promise<Void> promise) -> {
 			final ConsumerRecords<K, V> records = consumer.poll(Duration.ofSeconds(1));
-			if (records.count() > 0) {
-				logger.info("before handling records: {}", records.count());
-			}
 			handle(records);
 			promise.complete(null);
 		}, true, v -> consume());
 	}
 
 	private void handle(final ConsumerRecords<K, V> records) {
-		if (records != null && records.count() > 0) {
-			logger.info("consume {} records", records.count());
-			if (Objects.isNull(this.batchHandler) && !Objects.isNull(this.handler)) {
-				records.forEach(handler::handle);
-			} else if (!Objects.isNull(this.batchHandler)) {
-				this.batchHandler.handle(records);
-			}
+		if (records == null || records.count() == 0) {
+			return;
+		}
+		logger.info("consuming {} records", records.count());
+		if (Objects.isNull(this.batchHandler) && !Objects.isNull(this.handler)) {
+			records.forEach(handler::handle);
+		} else if (!Objects.isNull(this.batchHandler)) {
+			this.batchHandler.handle(records);
 		}
 	}
 }

@@ -43,12 +43,12 @@ public class ProxyVerticle extends AbstractVerticle {
 		HttpProxy httpProxy = HttpProxy.reverseProxy(proxyClient);
 		AuthMatcher<HttpServerRequestContext> requestInfoMatcher = AuthMatcher.requestMatcher();
 		ProxyInfoStoreClient storeClient = ProxyInfoStoreClient.create(vertx);
-		httpProxy.selector(new DownstreamSelector<>(vertx, requestInfoMatcher, storeClient));
+		httpProxy.originSelector(new DownstreamSelector<>(requestInfoMatcher, storeClient));
 		httpProxy.responseHook(new LoginCookieHook(requestInfoMatcher));
 
 		WebSocketProxy webSocketProxy = WebSocketProxy.reverseProxy(proxyClient);
 		AuthMatcher<ServerWebSocket> webSocketInfoMatcher = AuthMatcher.webSocketMatcher();
-		webSocketProxy.selector(new DownstreamSelector<>(vertx, webSocketInfoMatcher, storeClient));
+		webSocketProxy.originSelector(new DownstreamSelector<>(webSocketInfoMatcher, storeClient));
 
 		HttpServer proxyServer = vertx.createHttpServer();
 		proxyServer.requestHandler(httpProxy).webSocketHandler(webSocketProxy).listen(8080);

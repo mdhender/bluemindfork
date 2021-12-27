@@ -39,7 +39,7 @@ public class WebSocketProxyImpl implements WebSocketProxy {
 	}
 
 	@Override
-	public WebSocketProxy selector(Function<ServerWebSocket, Future<SocketAddress>> selector) {
+	public WebSocketProxy originSelector(Function<ServerWebSocket, Future<SocketAddress>> selector) {
 		targetSelector = selector;
 		return this;
 	}

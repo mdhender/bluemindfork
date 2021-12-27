@@ -41,6 +41,7 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.http.RequestOptions;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.proxy.http.InvalidSession;
+import net.bluemind.proxy.http.auth.api.SecurityConfig;
 import net.bluemind.proxy.http.config.ForwardedLocation;
 import net.bluemind.proxy.http.config.ForwardedLocation.ResolvedLoc;
 import net.bluemind.proxy.http.impl.CachedTemplate;
@@ -219,7 +220,7 @@ public final class AuthenticatedHandler implements Handler<UserReq> {
 			} else {
 				Cookie c = ClientCookieDecoder.LAX.decode(h.getValue());
 				c.setHttpOnly(true);
-				c.setSecure(true);
+				c.setSecure(SecurityConfig.secureCookies);
 				clientResp.headers().add("Set-Cookie", ServerCookieEncoder.LAX.encode(c));
 			}
 		});
