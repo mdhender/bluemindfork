@@ -18,8 +18,11 @@
 package net.bluemind.milter.action;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.james.mime4j.dom.Body;
@@ -28,21 +31,21 @@ import org.apache.james.mime4j.dom.field.FieldName;
 import org.apache.james.mime4j.stream.RawField;
 
 public class UpdatedMailMessage {
-
+	public final Map<String, Collection<String>> properties;
 	private Message message;
 
-	public List<RawField> newHeaders;
-	public List<String> bodyChangedBy;
-	public List<String> headerChangedBy;
-	public Set<String> removeHeaders;
+	public Optional<String> envelopSender = Optional.empty();
+	public final Set<String> addRcpt = new HashSet<>();
+	public final Set<String> removeRcpt = new HashSet<>();
 
-	public UpdatedMailMessage(Message m) {
-		newHeaders = new ArrayList<RawField>();
-		bodyChangedBy = new ArrayList<String>();
-		headerChangedBy = new ArrayList<String>();
-		removeHeaders = new HashSet<>();
+	public final List<RawField> newHeaders = new ArrayList<RawField>();
+	public final List<String> bodyChangedBy = new ArrayList<String>();
+	public final List<String> headerChangedBy = new ArrayList<String>();
+	public final Set<String> removeHeaders = new HashSet<>();
 
-		message = m;
+	public UpdatedMailMessage(Map<String, Collection<String>> properties, Message message) {
+		this.properties = properties;
+		this.message = message;
 	}
 
 	public Message getMessage() {
@@ -76,5 +79,4 @@ public class UpdatedMailMessage {
 	public Body getBody() {
 		return message.getBody();
 	}
-
 }

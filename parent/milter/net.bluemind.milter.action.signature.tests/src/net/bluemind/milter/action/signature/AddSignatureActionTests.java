@@ -28,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -330,7 +331,8 @@ public class AddSignatureActionTests {
 			buffer.write(data, 0, nRead);
 		}
 
-		return new UpdatedMailMessage(Mime4JHelper.parse(new ByteArrayInputStream(buffer.toByteArray())));
+		return new UpdatedMailMessage(Collections.emptyMap(),
+				Mime4JHelper.parse(new ByteArrayInputStream(buffer.toByteArray())));
 	}
 
 	@Test

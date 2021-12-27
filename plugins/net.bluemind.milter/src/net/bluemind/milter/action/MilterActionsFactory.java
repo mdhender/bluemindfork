@@ -18,6 +18,5 @@
 package net.bluemind.milter.action;
 
 public interface MilterActionsFactory {
-
 	MilterAction create();
 }

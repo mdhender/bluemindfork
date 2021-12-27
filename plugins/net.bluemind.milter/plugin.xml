@@ -3,6 +3,7 @@
 <plugin>
    <extension-point id="net.bluemind.milter.milterfactory" name="milterfactory" schema="schema/net.bluemind.milter.milterfactory.exsd"/>
    <extension-point id="net.bluemind.milter.actionfactory" name="actionfactory" schema="schema/net.bluemind.milter.actionfactory.exsd"/>
+   <extension-point id="net.bluemind.milter.preactionfactory" name="preactionfactory" schema="schema/net.bluemind.milter.preactionfactory.exsd"/>
    <extension
          id="milter"
          name="Blue Mind milter"

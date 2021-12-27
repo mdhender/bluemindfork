@@ -19,7 +19,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.address.Address;
 import org.apache.james.mime4j.dom.address.AddressList;
 import org.apache.james.mime4j.dom.address.Group;
@@ -53,9 +52,9 @@ import net.bluemind.milter.IMilterListenerFactory;
 import net.bluemind.milter.MilterHeaders;
 import net.bluemind.milter.MilterInstanceID;
 import net.bluemind.milter.SmtpAddress;
-import net.bluemind.milter.SmtpEnvelope;
 import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.action.MilterAction;
+import net.bluemind.milter.action.MilterPreAction;
 import net.bluemind.milter.action.UpdatedMailMessage;
 import net.bluemind.mime4j.common.Mime4JHelper;
 
@@ -137,14 +136,22 @@ public class MilterHandler implements JilterHandler {
 
 	}
 
-	private void forEachActions(SmtpEnvelope smtpEnvelope, Message message, JilterEOMActions eomActions) {
-		UpdatedMailMessage modifiedMail = new UpdatedMailMessage(message);
-		if (message.getHeader().getField(MilterHeaders.HANDLED) == null) {
-			int appliedActions = applyActions(smtpEnvelope, message, modifiedMail);
+	private void forEachActions(JilterEOMActions eomActions) {
+		UpdatedMailMessage modifiedMail = new UpdatedMailMessage(accumulator.getProperties(), accumulator.getMessage());
+		if (accumulator.getMessage().getHeader().getField(MilterHeaders.HANDLED) == null) {
+			MilterPreActionsRegistry.get().forEach(action -> applyPreAction(action, modifiedMail));
+			logger.debug("Applied {} milter pre-actions", MilterPreActionsRegistry.get().size());
+
+			int appliedActions = applyActions(modifiedMail);
 			logger.debug("Applied {} milter actions", appliedActions);
 			modifiedMail.newHeaders.add(new RawField(MilterHeaders.HANDLED, MilterInstanceID.get()));
 			modifiedMail.newHeaders.add(new RawField(MilterHeaders.TIMESTAMP, Long.toString(MQ.clusterTime())));
 		}
+
+		applyMailModifications(eomActions, modifiedMail);
+	}
+
+	private void applyMailModifications(JilterEOMActions eomActions, UpdatedMailMessage modifiedMail) {
 		if (!modifiedMail.bodyChangedBy.isEmpty()) {
 			logger.debug("replacing body ({})", modifiedMail.bodyChangedBy);
 			File out = null;
@@ -180,7 +187,6 @@ public class MilterHandler implements JilterHandler {
 				} catch (IOException e) {
 					logger.error(e.getMessage(), e);
 				}
-
 			}
 		}
 
@@ -192,21 +198,63 @@ public class MilterHandler implements JilterHandler {
 				} catch (IOException e) {
 					logger.error(e.getMessage(), e);
 				}
-
 			}
+		}
+
+		modifiedMail.envelopSender.ifPresent(envelopSender -> updateEnvelopSender(eomActions, envelopSender));
+
+		if (!modifiedMail.addRcpt.isEmpty()) {
+			logger.debug("Add recipients {}", modifiedMail.addRcpt);
+			modifiedMail.addRcpt.forEach(r -> {
+				try {
+					eomActions.addrcpt(r);
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
+				}
+			});
+		}
+
+		if (!modifiedMail.removeRcpt.isEmpty()) {
+			logger.debug("Remove recipients {}", modifiedMail.removeRcpt);
+			modifiedMail.removeRcpt.forEach(r -> {
+				try {
+					eomActions.delrcpt(r);
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
+				}
+			});
 		}
 	}
 
-	private int applyActions(SmtpEnvelope smtpEnvelope, Message message, UpdatedMailMessage modifiedMail) {
+	private void updateEnvelopSender(JilterEOMActions eomActions, String envelopSender) {
+		logger.debug("Update envelop sender from {} to {}", accumulator.getEnvelope().getSender(), envelopSender);
+		try {
+			eomActions.chgfrom(envelopSender);
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
+	private void applyPreAction(MilterPreAction action, UpdatedMailMessage modifiedMail) {
+		logger.debug("Executing pre-action {}", action.getIdentifier());
+		try {
+			messageModified = messageModified || action.execute(modifiedMail);
+		} catch (RuntimeException e) {
+			registry.counter(idFactory.name("preActionsFails")).increment();
+			throw e;
+		}
+	}
+
+	private int applyActions(UpdatedMailMessage modifiedMail) {
 		Optional<Integer> executedActions = Optional.empty();
 
 		try {
-			executedActions = getSenderDomain(smtpEnvelope.getSender())
-					.map(d -> applyActions(d, MailflowRouting.OUTGOING, smtpEnvelope, message, modifiedMail));
+			executedActions = getSenderDomain(accumulator.getEnvelope().getSender())
+					.map(d -> applyActions(d, MailflowRouting.OUTGOING, modifiedMail));
 
 			if (!executedActions.isPresent()) {
-				executedActions = getRecipientDomain(smtpEnvelope.getRecipients())
-						.map(d -> applyActions(d, MailflowRouting.INCOMING, smtpEnvelope, message, modifiedMail));
+				executedActions = getRecipientDomain(accumulator.getEnvelope().getRecipients())
+						.map(d -> applyActions(d, MailflowRouting.INCOMING, modifiedMail));
 			}
 		} catch (Exception e) {
 			logger.warn("Error while applying milter actions", e);
@@ -215,8 +263,8 @@ public class MilterHandler implements JilterHandler {
 		return executedActions.orElse(0);
 	}
 
-	private Integer applyActions(ItemValue<Domain> domain, MailflowRouting mailflowRouting, SmtpEnvelope smtpEnvelope,
-			Message message, UpdatedMailMessage modifiedMail) {
+	private Integer applyActions(ItemValue<Domain> domain, MailflowRouting mailflowRouting,
+			UpdatedMailMessage modifiedMail) {
 		Integer executedActions = 0;
 
 		IClientContext mailflowContext = new ClientContext(domain);
@@ -225,8 +273,7 @@ public class MilterHandler implements JilterHandler {
 				.filter(rule -> rule.routing == mailflowRouting || rule.routing == MailflowRouting.ALL)
 				.collect(Collectors.toList());
 
-		List<RuleAction> matches = new MailflowRuleEngine(mailflowContext).evaluate(storedRules,
-				toBmMessage(smtpEnvelope, message));
+		List<RuleAction> matches = new MailflowRuleEngine(mailflowContext).evaluate(storedRules, toBmMessage());
 		for (RuleAction ruleAction : matches) {
 			executedActions++;
 			ExecutionMode mode = executeAction(ruleAction, mailflowContext, modifiedMail);
@@ -264,27 +311,27 @@ public class MilterHandler implements JilterHandler {
 		return Optional.ofNullable(DomainAliasCache.getDomain(sender.getDomainPart()));
 	}
 
-	private net.bluemind.mailflow.common.api.Message toBmMessage(SmtpEnvelope smtpEnvelope, Message message) {
+	private net.bluemind.mailflow.common.api.Message toBmMessage() {
 		net.bluemind.mailflow.common.api.Message msg = new net.bluemind.mailflow.common.api.Message();
 		msg.sendingAs = new SendingAs();
-		msg.sendingAs.from = message.getFrom().get(0).getAddress();
-		if (null != message.getSender()) {
-			msg.sendingAs.sender = message.getSender().getAddress();
+		msg.sendingAs.from = accumulator.getMessage().getFrom().get(0).getAddress();
+		if (null != accumulator.getMessage().getSender()) {
+			msg.sendingAs.sender = accumulator.getMessage().getSender().getAddress();
 		} else {
 			msg.sendingAs.sender = msg.sendingAs.from;
 		}
-		AddressList to = message.getTo();
+		AddressList to = accumulator.getMessage().getTo();
 		if (null != to) {
 			msg.to = addressListToEmail(to);
 		}
-		AddressList cc = message.getCc();
+		AddressList cc = accumulator.getMessage().getCc();
 		if (null != cc) {
 			msg.cc = addressListToEmail(cc);
 		}
 
-		msg.recipients = smtpEnvelope.getRecipients().stream().map(r -> r.getEmailAddress())
+		msg.recipients = accumulator.getEnvelope().getRecipients().stream().map(r -> r.getEmailAddress())
 				.collect(Collectors.toList());
-		msg.subject = message.getSubject();
+		msg.subject = accumulator.getMessage().getSubject();
 		return msg;
 	}
 
@@ -369,7 +416,7 @@ public class MilterHandler implements JilterHandler {
 		logger.debug("eom");
 		accumulator.done(properties);
 
-		forEachActions(accumulator.getEnvelope(), accumulator.getMessage(), eomActions);
+		forEachActions(eomActions);
 
 		JilterStatus ret = forEachListener(
 				listener -> listener.onMessage(accumulator.getEnvelope(), accumulator.getMessage()));
