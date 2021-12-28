@@ -50,6 +50,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.AclStore;
@@ -237,7 +238,7 @@ public abstract class AbstractServiceTests {
 
 	protected abstract IAddressBook getService(SecurityContext context) throws ServerFault;
 
-	protected VCard createAndGet(String uid, VCard card) {
+	protected ItemValue<VCard> createAndGet(String uid, VCard card) {
 		try {
 			itemStore.create(Item.create(uid, UUID.randomUUID().toString()));
 			Item item = itemStore.get(uid);
@@ -248,11 +249,9 @@ public abstract class AbstractServiceTests {
 			tagRefStore.create(item, card.explanatory.categories.stream().map(ref -> {
 				return ItemTagRef.create(ref.containerUid, ref.itemUid);
 			}).collect(Collectors.toList()));
-			return vCardStore.get(item);
+			return ItemValue.create(item, vCardStore.get(item));
 
-		} catch (
-
-		SQLException e) {
+		} catch (SQLException e) {
 			logger.error("error during vcard persistence call", e);
 			fail(e.getMessage());
 			return null;

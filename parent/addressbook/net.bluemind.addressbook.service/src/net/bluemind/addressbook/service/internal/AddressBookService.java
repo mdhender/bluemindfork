@@ -58,6 +58,7 @@ import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerSyncStatus;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
+import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
@@ -128,26 +129,33 @@ public class AddressBookService implements IInCoreAddressBook {
 	@Override
 	public void create(String uid, VCard card) {
 		rbacManager.check(Verb.Write.name());
-		// ext point sanitizer
-		doCreate(uid, null, card, null);
-		eventProducer.vcardCreated(uid);
-		emitNotification();
+		Item item = Item.create(uid, null);
+		createAndNotify(item, card);
 	}
 
 	@Override
 	public Ack createById(long id, VCard card) {
-		rbacManager.check(Verb.Write.name());
-
-		String uid = "vcard-by-id:" + id;
-		long version = doCreate(uid, id, card, null);
-		eventProducer.vcardCreated(uid);
-		emitNotification();
-		logger.info("createdById {} ({}) => v{}", id, uid, version);
+		Item item = Item.create("vcard-by-id:" + id, id);
+		long version = createAndNotify(item, card);
 		return Ack.create(version);
 	}
 
+	@Override
+	public void createWithItem(ItemValue<VCard> cardItem) {
+		createAndNotify(cardItem.item(), cardItem.value);
+	}
+
+	private long createAndNotify(Item item, VCard card) {
+		rbacManager.check(Verb.Write.name());
+		long version = doCreate(item, card, null);
+		eventProducer.vcardCreated(item.uid);
+		emitNotification();
+		logger.info("createdById {} ({}) => v{}", item.id, item.uid, version);
+		return version;
+	}
+
 	@SuppressWarnings("serial")
-	private long doCreate(String uid, Long internalId, VCard card, byte[] photo) {
+	private long doCreate(Item item, VCard card, byte[] photo) {
 
 		if (!isDomainAddressbook() && storeService.getItemCount() >= MAX_SIZE) {
 			throw new ServerFault("Max items count in addressbook exceeded", ErrorCode.MAX_ITEM_COUNT);
@@ -158,46 +166,62 @@ public class AddressBookService implements IInCoreAddressBook {
 
 		extValidator.create(card, ImmutableMap.of(CONTAINER_UID_PARAM, container.uid));
 
-		ItemVersion version = storeService.createWithId(uid, internalId, null, getDisplayName(card), card);
+		item.displayName = getDisplayName(card);
+		ItemVersion version = storeService.create(item, card);
 		if (photo != null) {
 			if (photo.length == 0) {
-				storeService.deletePhoto(uid);
-				storeService.deleteIcon(uid);
+				storeService.deletePhoto(item.uid);
+				storeService.deleteIcon(item.uid);
 			} else {
-				storeService.setPhoto(uid, photo);
-				storeService.setIcon(uid, ImageUtils.resize(photo, 22, 22));
+				storeService.setPhoto(item.uid, photo);
+				storeService.setIcon(item.uid, ImageUtils.resize(photo, 22, 22));
 			}
 		}
 		return version.version;
 	}
 
 	private boolean doCreateOrUpdate(String uid, VCard value, byte[] photo) {
-
+		Item item = Item.create(uid, null);
 		try {
-			doCreate(uid, null, value, photo);
+			doCreate(item, value, photo);
 			return false;
 		} catch (ServerFault sf) {
 			if (sf.getCode() == ErrorCode.ALREADY_EXISTS) {
 				logger.warn("vcard uid {} was sent as created but already exists. We update it", uid);
-				return doUpdate(uid, null, value, photo).dnChanged;
+				return doUpdate(item, value, photo).dnChanged;
 			} else {
 				throw sf;
 			}
 		}
-
 	}
 
 	@Override
 	public void update(String uid, VCard card) {
+		Item item = Item.create(uid, null);
+		updateAndNotify(item, card);
+	}
+
+	@Override
+	public Ack updateById(long id, VCard card) {
+		Item item = Item.create(null, id);
+		long version = updateAndNotify(item, card);
+		return Ack.create(version);
+	}
+
+	@Override
+	public void updateWithItem(ItemValue<VCard> cardItem) {
+		updateAndNotify(cardItem.item(), cardItem.value);
+	}
+
+	private long updateAndNotify(Item item, VCard card) {
 		rbacManager.check(Verb.Write.name());
-		boolean importantChanges = doUpdate(uid, null, card, null).dnChanged;
-
-		if (importantChanges) {
-			refreshGroupsFor(ImmutableList.of(ItemValue.create(uid, card)));
+		Updated upd = doUpdate(item, card, null);
+		if (upd.dnChanged) {
+			refreshGroupsFor(ImmutableList.of(ItemValue.create(upd.uid, card)));
 		}
-
-		eventProducer.vcardUpdated(uid);
+		eventProducer.vcardUpdated(upd.uid);
 		emitNotification();
+		return upd.version;
 	}
 
 	private static class Updated {
@@ -243,15 +267,15 @@ public class AddressBookService implements IInCoreAddressBook {
 	 * @throws ServerFault
 	 */
 	@SuppressWarnings("serial")
-	private Updated doUpdate(String givenUid, Long itemId, VCard card, byte[] photo) {
-
-		ItemValue<VCard> previousItemValue = itemId == null ? storeService.get(givenUid, null)
-				: storeService.get(itemId, null);
+//	private Updated doUpdate(String givenUid, Long itemId, VCard card, byte[] photo) {
+	private Updated doUpdate(Item item, VCard card, byte[] photo) {
+		ItemValue<VCard> previousItemValue = item.uid != null ? storeService.get(item.uid, null)
+				: storeService.get(item.id, null);
 		if (previousItemValue == null || previousItemValue.value == null) {
-			logger.error("VCard uid: {} doesn't exist !", givenUid);
-			throw new ServerFault("VCard uid:" + givenUid + " doesn't exist !", ErrorCode.NOT_FOUND);
+			logger.error("VCard uid: {} doesn't exist !", item.uid);
+			throw new ServerFault("VCard uid:" + item.uid + " doesn't exist !", ErrorCode.NOT_FOUND);
 		}
-		String uid = previousItemValue.uid;
+		item.uid = previousItemValue.uid;
 
 		boolean emailEquals = card.defaultMail() == null ? previousItemValue.value.defaultMail() == null
 				: card.defaultMail().equals(previousItemValue.value.defaultMail());
@@ -262,26 +286,28 @@ public class AddressBookService implements IInCoreAddressBook {
 		extSanitizer.update(previousItemValue.value, card, ImmutableMap.of(CONTAINER_UID_PARAM, container.uid));
 		extValidator.update(previousItemValue.value, card, ImmutableMap.of(CONTAINER_UID_PARAM, container.uid));
 
-		ItemVersion upd = storeService.update(uid, getDisplayName(card), card);
+		ItemVersion upd = storeService.update(item, getDisplayName(card), card);
 		if (photo != null) {
 			if (photo.length == 0) {
-				storeService.deletePhoto(uid);
-				storeService.deleteIcon(uid);
+				storeService.deletePhoto(item.uid);
+				storeService.deleteIcon(item.uid);
 			} else {
-				storeService.setPhoto(uid, photo);
-				storeService.setIcon(uid, ImageUtils.resize(photo, 22, 22));
+				storeService.setPhoto(item.uid, photo);
+				storeService.setIcon(item.uid, ImageUtils.resize(photo, 22, 22));
 			}
 		}
-		return new Updated(uid, upd.version, directoryValueChanged);
+		return new Updated(item.uid, upd.version, directoryValueChanged);
 	}
 
 	private boolean doUpdateOrCreate(String uid, VCard card, byte[] photo) {
+		Item item = Item.create(uid, null);
+		item.displayName = getDisplayName(card);
 		try {
-			return doUpdate(uid, null, card, photo).dnChanged;
+			return doUpdate(item, card, photo).dnChanged;
 		} catch (ServerFault sf) {
 			if (sf.getCode() == ErrorCode.NOT_FOUND) {
 				logger.warn("vcard uid {} was sent as created but already exists. We update it", uid);
-				doCreate(uid, null, card, photo);
+				doCreate(item, card, photo);
 				return false;
 			} else {
 				throw sf;
@@ -627,16 +653,6 @@ public class AddressBookService implements IInCoreAddressBook {
 	public long getVersion() {
 		rbacManager.check(Verb.Read.name());
 		return storeService.getVersion();
-	}
-
-	public Ack updateById(long id, VCard card) {
-		rbacManager.check(Verb.Write.name());
-
-		Updated upd = doUpdate(null, id, card, null);
-		refreshGroupsFor(ImmutableList.of(ItemValue.create(upd.uid, card)));
-		eventProducer.vcardUpdated(upd.uid);
-		emitNotification();
-		return Ack.create(upd.version);
 	}
 
 	@Override

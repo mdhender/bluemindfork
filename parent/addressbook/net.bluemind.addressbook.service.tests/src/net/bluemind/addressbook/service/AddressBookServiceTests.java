@@ -25,6 +25,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -142,6 +144,82 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 			card.communications.emails = Arrays.asList(Email.create("ti#to@.com", Arrays.<VCard.Parameter>asList()));
 			uid = "test_email" + System.nanoTime();
 			getService(defaultSecurityContext).create(uid, card);
+			fail();
+		} catch (ServerFault e) {
+		}
+
+		createdMessageChecker.shouldFail();
+		changedMessageChecker.shouldFail();
+	}
+
+	@Test
+	public void testCreateWithItem() throws Exception {
+
+		ItemValue<VCard> vcardItem = defaultVCardItem(42);
+
+		VertxEventChecker<LocalJsonObject<VCardMessage>> createdMessageChecker = new VertxEventChecker<>(
+				AddressBookBusAddresses.CREATED);
+
+		VertxEventChecker<JsonObject> changedMessageChecker = new VertxEventChecker<>(
+				AddressBookBusAddresses.getChangedEventAddress(container.uid));
+
+		getService(defaultSecurityContext).createWithItem(vcardItem);
+
+		Item createdItem = itemStore.get(vcardItem.uid);
+		assertNotNull(createdItem);
+		assertEquals(vcardItem.internalId, createdItem.id);
+		assertEquals(vcardItem.uid, createdItem.uid);
+		assertEquals(vcardItem.externalId, createdItem.externalId);
+		assertEquals(vcardItem.created, createdItem.created);
+
+		VCard vcard = vCardStore.get(createdItem);
+		assertNotNull(vcard);
+
+		assertEquals(false, vcard.identification.photo);
+
+		assertEquals("Clara Morgane", vcard.related.spouse);
+		assertEquals("David Phan", vcard.related.manager);
+		assertEquals("Sylvain Garcia", vcard.related.assistant);
+
+		assertEquals("Loser", vcard.organizational.title);
+		assertEquals("Boss", vcard.organizational.role);
+		assertEquals("Dev", vcard.organizational.org.department);
+
+		List<ItemTagRef> tags = tagRefStore.get(createdItem);
+		assertNotNull(tags);
+		assertEquals(2, tags.size());
+
+		Message<LocalJsonObject<VCardMessage>> message = createdMessageChecker.shouldSuccess();
+		assertNotNull(message);
+		assertEquals(vcardItem.uid, message.body().getValue().itemUid);
+		assertEquals(container.uid, message.body().getValue().container.uid);
+
+		Message<JsonObject> containerMessage = changedMessageChecker.shouldSuccess();
+		assertNotNull(containerMessage);
+
+		createdMessageChecker = new VertxEventChecker<>(AddressBookBusAddresses.CREATED);
+
+		changedMessageChecker = new VertxEventChecker<>(AddressBookBusAddresses.getChangedEventAddress(container.uid));
+		// test anonymous
+		try {
+			getService(SecurityContext.ANONYMOUS).createWithItem(vcardItem);
+			fail();
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+		createdMessageChecker.shouldFail();
+		changedMessageChecker.shouldFail();
+
+		createdMessageChecker = new VertxEventChecker<>(AddressBookBusAddresses.CREATED);
+
+		changedMessageChecker = new VertxEventChecker<>(AddressBookBusAddresses.getChangedEventAddress(container.uid));
+
+		// test data validation
+		try {
+			vcardItem = defaultVCardItem(43);
+			vcardItem.value.communications.emails = Arrays
+					.asList(Email.create("ti#to@.com", Arrays.<VCard.Parameter>asList()));
+			getService(defaultSecurityContext).createWithItem(vcardItem);
 			fail();
 		} catch (ServerFault e) {
 		}
@@ -299,6 +377,67 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 
 		try {
 			getService(SecurityContext.ANONYMOUS).update(uid, card);
+			fail();
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+		createdMessageChecker.shouldFail();
+		changedMessageChecker.shouldFail();
+
+	}
+
+	@Test
+	public void testUpdateWithItem() throws Exception {
+		ItemValue<VCard> vcardItem = createAndGet("vcarduid_" + System.nanoTime(), defaultVCard());
+		VCard card = vcardItem.value;
+
+		vcardItem.version += 2;
+		vcardItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:48:00");
+		card.identification.name = VCard.Identification.Name.create("update", null, null, null, null,
+				Collections.<VCard.Parameter>emptyList());
+		card.explanatory.categories = Arrays.asList(tagRef1);
+
+		VertxEventChecker<LocalJsonObject<VCardMessage>> createdMessageChecker = new VertxEventChecker<>(
+				AddressBookBusAddresses.UPDATED);
+
+		VertxEventChecker<JsonObject> changedMessageChecker = new VertxEventChecker<>(
+				AddressBookBusAddresses.getChangedEventAddress(container.uid));
+
+		getService(defaultSecurityContext).updateWithItem(vcardItem);
+
+		Item updatedItem = itemStore.get(vcardItem.uid);
+		assertNotNull(updatedItem);
+		assertEquals(vcardItem.internalId, updatedItem.id);
+		assertEquals(vcardItem.uid, updatedItem.uid);
+		assertEquals(vcardItem.externalId, updatedItem.externalId);
+		assertEquals(vcardItem.updated, updatedItem.updated);
+		assertEquals(vcardItem.version, updatedItem.version);
+		VCard vcard = vCardStore.get(updatedItem);
+		assertNotNull(vcard);
+		List<ItemTagRef> tags = tagRefStore.get(updatedItem);
+		assertNotNull(tags);
+		assertEquals(1, tags.size());
+
+		Message<LocalJsonObject<VCardMessage>> message = createdMessageChecker.shouldSuccess();
+		assertNotNull(message);
+		assertEquals(vcardItem.uid, message.body().getValue().itemUid);
+		assertEquals(container.uid, message.body().getValue().container.uid);
+
+		Message<JsonObject> containerMessage = changedMessageChecker.shouldSuccess();
+		assertNotNull(containerMessage);
+
+		getService(defaultSecurityContext).updateWithItem(vcardItem);
+		getService(defaultSecurityContext).updateWithItem(vcardItem);
+
+		ItemValue<VCard> itemCard = getService(defaultSecurityContext).getComplete(vcardItem.uid);
+		assertTrue(itemCard.version > 0);
+
+		createdMessageChecker = new VertxEventChecker<>(AddressBookBusAddresses.UPDATED);
+
+		changedMessageChecker = new VertxEventChecker<>(AddressBookBusAddresses.getChangedEventAddress(container.uid));
+
+		try {
+			getService(SecurityContext.ANONYMOUS).updateWithItem(vcardItem);
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
@@ -1220,6 +1359,18 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		gcardItem = getService(defaultSecurityContext).getComplete("gcard");
 		assertTrue(gcardItem.version > version);
 
+	}
+
+	private ItemValue<VCard> defaultVCardItem(long id) throws ParseException {
+		Item item = new Item();
+		item.id = id;
+		item.uid = "test_" + System.nanoTime();
+		item.externalId = "externalId" + System.nanoTime();
+		item.displayName = "test";
+		item.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
+		item.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		item.version = 17;
+		return ItemValue.create(item, defaultVCard());
 	}
 
 }

@@ -79,6 +79,10 @@ public interface IAddressBook
 	@Path("id/{id}")
 	Ack createById(@PathParam("id") long id, VCard value);
 
+	@PUT
+	@Path("_createWithItem")
+	public void createWithItem(ItemValue<VCard> cardItem);
+
 	@GET
 	@Path("id/{id}")
 	ItemValue<VCard> getCompleteById(@PathParam("id") long id);
@@ -86,6 +90,10 @@ public interface IAddressBook
 	@POST
 	@Path("id/{id}")
 	Ack updateById(@PathParam("id") long id, VCard value);
+
+	@POST
+	@Path("_updateWithItem")
+	public void updateWithItem(ItemValue<VCard> cardItem);
 
 	@DELETE
 	@Path("id/{id}")
