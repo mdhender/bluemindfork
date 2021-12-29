@@ -596,7 +596,7 @@ public class GroupServiceTests {
 		groupItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
 		groupItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		groupItem.version = 17;
-		getGroupService(adminSecurityContext).createWithItem(uid, groupItem);
+		getGroupService(adminSecurityContext).createWithItem(groupItem);
 
 		ItemValue<Group> createdGroup = getGroupService(adminSecurityContext).getComplete(uid);
 		assertIGroupValueEquals(uid, groupItem.externalId, group, createdGroup);
@@ -650,7 +650,7 @@ public class GroupServiceTests {
 		groupItem.externalId = "external-" + group.name;
 		groupItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:45:32");
 		groupItem.version = 17;
-		getGroupService(adminSecurityContext).createWithItem(uid, groupItem);
+		getGroupService(adminSecurityContext).createWithItem(groupItem);
 
 		group.hidden = !group.hidden;
 		group.hiddenMembers = !group.hiddenMembers;
@@ -661,7 +661,7 @@ public class GroupServiceTests {
 		group.emails = Arrays.asList(group.emails.iterator().next(), e);
 		groupItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		groupItem.version = 18;
-		getGroupService(adminSecurityContext).updateWithItem(uid, groupItem);
+		getGroupService(adminSecurityContext).updateWithItem(groupItem);
 
 		ItemValue<Group> updatedGroup = getGroupService(adminSecurityContext).getComplete(uid);
 		assertIGroupValueEquals(groupItem, updatedGroup);

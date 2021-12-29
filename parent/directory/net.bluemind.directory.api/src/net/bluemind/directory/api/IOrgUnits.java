@@ -80,15 +80,14 @@ public interface IOrgUnits {
 	public void create(@PathParam(value = "uid") String uid, OrgUnit value);
 
 	/**
-	 * Creates a new {@link OrgUnit} with the given uid and {@link ItemValue}
+	 * Creates a new {@link OrgUnit} from the given {@link ItemValue}
 	 * 
-	 * @param uid         the {@link OrgUnit}'s unique id
 	 * @param orgUnitItem {@link ItemValue}
 	 * @throws ServerFault standard error object
 	 */
 	@PUT
-	@Path("{uid}/createwithitem")
-	public void createWithItem(@PathParam(value = "uid") String uid, ItemValue<OrgUnit> orgUnitItem);
+	@Path("_createWithItem")
+	public void createWithItem(ItemValue<OrgUnit> orgUnitItem);
 
 	/**
 	 * Update an {@link OrgUnit}
@@ -103,13 +102,12 @@ public interface IOrgUnits {
 	/**
 	 * Modify an existing {@link OrgUnit}
 	 * 
-	 * @param uid         {@link OrgUnit}'s unique id
 	 * @param orgUnitItem updated {@link ItemValue}
 	 * @throws ServerFault standard error object
 	 */
 	@POST
-	@Path("{uid}/updatewithitem")
-	public void updateWithItem(@PathParam("uid") String uid, ItemValue<OrgUnit> orgUnitItem);
+	@Path("_updateWithItem")
+	public void updateWithItem(ItemValue<OrgUnit> orgUnitItem);
 
 	/**
 	 * Delete an {@link OrgUnit}

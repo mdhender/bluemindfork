@@ -78,11 +78,12 @@ public class OrgUnits implements IOrgUnits {
 	@Override
 	public void create(String uid, OrgUnit value) {
 		ItemValue<OrgUnit> orgUnitItem = ItemValue.create(uid, value);
-		createWithItem(uid, orgUnitItem);
+		createWithItem(orgUnitItem);
 	}
 
 	@Override
-	public void createWithItem(String uid, ItemValue<OrgUnit> orgUnitItem) {
+	public void createWithItem(ItemValue<OrgUnit> orgUnitItem) {
+		String uid = orgUnitItem.uid;
 		OrgUnit value = orgUnitItem.value;
 		if (value.parentUid != null) {
 			rbacManager.forOrgUnit(value.parentUid).check(BasicRoles.ROLE_MANAGE_OU);
@@ -111,11 +112,12 @@ public class OrgUnits implements IOrgUnits {
 	@Override
 	public void update(String uid, OrgUnit value) {
 		ItemValue<OrgUnit> orgUnitItem = ItemValue.create(uid, value);
-		updateWithItem(uid, orgUnitItem);
+		updateWithItem(orgUnitItem);
 	}
 
 	@Override
-	public void updateWithItem(String uid, ItemValue<OrgUnit> orgUnitItem) {
+	public void updateWithItem(ItemValue<OrgUnit> orgUnitItem) {
+		String uid = orgUnitItem.uid;
 		OrgUnit value = orgUnitItem.value;
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_OU);
 		ItemValue<OrgUnit> previous = storeService.get(uid);

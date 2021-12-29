@@ -279,7 +279,7 @@ public class ResourcesServiceTests {
 		rdItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
 		rdItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		rdItem.version = 17;
-		service(domainAdminSC).createWithItem(rtId, rdItem);
+		service(domainAdminSC).createWithItem(rdItem);
 		rdItem = store.get(rtId);
 
 		rdItem.value.label = "updated";
@@ -288,7 +288,7 @@ public class ResourcesServiceTests {
 		rdItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		rdItem.version = 23;
 
-		service(domainAdminSC).updateWithItem(rtId, rdItem);
+		service(domainAdminSC).updateWithItem(rdItem);
 
 		ItemValue<DirEntryAndValue<ResourceDescriptor>> updatedItem = store.get(rtId, null);
 		assertNotNull(updatedItem.value.vcard);
@@ -429,11 +429,8 @@ public class ResourcesServiceTests {
 		rdItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		rdItem.version = 17;
 
-		service(domainAdminSC).createWithItem(rtId, rdItem);
-		ItemValue<DirEntryAndValue<ResourceDescriptor>> createdItemx = store.get(rtId, null);
-		System.out.println("createdItemx:" + createdItemx.displayName);
+		service(domainAdminSC).createWithItem(rdItem);
 		ItemValue<ResourceDescriptor> createdItem = store.get(rtId);
-		System.out.println("createdItem:" + createdItem.displayName);
 
 		assertNotNull(createdItem);
 

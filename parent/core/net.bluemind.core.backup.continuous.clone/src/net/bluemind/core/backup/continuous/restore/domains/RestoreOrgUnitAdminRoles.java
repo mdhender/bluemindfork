@@ -33,10 +33,12 @@ public class RestoreOrgUnitAdminRoles implements RestoreDomainType {
 		this.target = target;
 	}
 
+	@Override
 	public String type() {
 		return "ou-roles";
 	}
 
+	@Override
 	public void restore(DataElement de) {
 		try {
 			monitor.log("Processing org unit administrator role:\n" + de.key + "\n" + new String(de.payload));
@@ -48,7 +50,7 @@ public class RestoreOrgUnitAdminRoles implements RestoreDomainType {
 			ItemValue<OrgUnit> existingOrgUnitItem = orgUnitApi.getComplete(orgUnitItem.uid);
 			if (existingOrgUnitItem == null) {
 				ItemValue<OrgUnit> newOrgUnitItem = ItemValue.create(orgUnitItem, adminRoleEvent.orgUnit);
-				orgUnitApi.createWithItem(orgUnitItem.uid, newOrgUnitItem);
+				orgUnitApi.createWithItem(newOrgUnitItem);
 			}
 
 			orgUnitApi.setAdministratorRoles(orgUnitItem.uid, adminRoleEvent.dirUid, adminRoleEvent.roles);

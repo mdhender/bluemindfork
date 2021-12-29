@@ -39,10 +39,12 @@ public class RestoreReplicatedMailboxes extends RestoreReplicated implements Res
 		this.state = state;
 	}
 
+	@Override
 	public String type() {
 		return IMailReplicaUids.REPLICATED_MBOXES;
 	}
 
+	@Override
 	public void restore(DataElement de) {
 		if (de.payload.length == 0) {
 			return;

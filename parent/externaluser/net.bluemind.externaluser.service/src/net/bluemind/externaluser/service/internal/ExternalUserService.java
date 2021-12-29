@@ -85,11 +85,12 @@ public class ExternalUserService implements IInCoreExternalUser {
 	public void createWithExtId(String uid, String extId, ExternalUser externalUser) throws ServerFault {
 		ItemValue<ExternalUser> externalUserItem = ItemValue.create(uid, externalUser);
 		externalUserItem.externalId = extId;
-		createWithItem(uid, externalUserItem);
+		createWithItem(externalUserItem);
 	}
 
 	@Override
-	public void createWithItem(String uid, ItemValue<ExternalUser> externalUserItem) throws ServerFault {
+	public void createWithItem(ItemValue<ExternalUser> externalUserItem) throws ServerFault {
+		String uid = externalUserItem.uid;
 		ExternalUser externalUser = externalUserItem.value;
 		rbacManager.forOrgUnit(externalUser.orgUnitUid).check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER);
 		ParametersValidator.notNullAndNotEmpty(uid);
@@ -105,11 +106,12 @@ public class ExternalUserService implements IInCoreExternalUser {
 	@Override
 	public void update(String uid, ExternalUser externalUser) throws ServerFault {
 		ItemValue<ExternalUser> externalUserItem = ItemValue.create(uid, externalUser);
-		updateWithItem(uid, externalUserItem);
+		updateWithItem(externalUserItem);
 	}
 
 	@Override
-	public void updateWithItem(String uid, ItemValue<ExternalUser> externalUserItem) throws ServerFault {
+	public void updateWithItem(ItemValue<ExternalUser> externalUserItem) throws ServerFault {
+		String uid = externalUserItem.uid;
 		ExternalUser externalUser = externalUserItem.value;
 		rbacManager.forOrgUnit(externalUser.orgUnitUid).check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER);
 		ParametersValidator.notNullAndNotEmpty(uid);

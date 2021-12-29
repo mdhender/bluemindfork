@@ -79,11 +79,12 @@ public class MailshareService implements IMailshare {
 	@Override
 	public void create(String uid, Mailshare mailshare) throws ServerFault {
 		ItemValue<Mailshare> itemValue = ItemValue.create(uid, mailshare);
-		createWithItem(uid, itemValue);
+		createWithItem(itemValue);
 	}
 
 	@Override
-	public void createWithItem(String uid, ItemValue<Mailshare> mailshareItem) throws ServerFault {
+	public void createWithItem(ItemValue<Mailshare> mailshareItem) throws ServerFault {
+		String uid = mailshareItem.uid;
 		Mailshare mailshare = mailshareItem.value;
 		rbacManager.forOrgUnit(mailshare.orgUnitUid).check(BasicRoles.ROLE_MANAGE_MAILSHARE);
 
@@ -108,11 +109,12 @@ public class MailshareService implements IMailshare {
 	@Override
 	public void update(String uid, Mailshare mailshare) throws ServerFault {
 		ItemValue<Mailshare> itemValue = ItemValue.create(uid, mailshare);
-		updateWithItem(uid, itemValue);
+		updateWithItem(itemValue);
 	}
 
 	@Override
-	public void updateWithItem(String uid, ItemValue<Mailshare> mailshareItem) throws ServerFault {
+	public void updateWithItem(ItemValue<Mailshare> mailshareItem) throws ServerFault {
+		String uid = mailshareItem.uid;
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_MAILSHARE);
 		Mailshare mailshare = mailshareItem.value;
 

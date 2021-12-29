@@ -287,7 +287,7 @@ public class UserServiceTests {
 		item.version = 17;
 
 		ItemValue<User> userItem = ItemValue.create(item, user);
-		getService(domainAdminSecurityContext).createWithItem(uid, userItem);
+		getService(domainAdminSecurityContext).createWithItem(userItem);
 
 		Item createdItem = userItemStore.get(uid);
 		assertNotNull(createdItem);
@@ -492,7 +492,7 @@ public class UserServiceTests {
 		ItemValue<User> created = getService(domainAdminSecurityContext).getComplete(uid);
 		created.version += 2;
 		created.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:48:00");
-		getService(domainAdminSecurityContext).updateWithItem(uid, created);
+		getService(domainAdminSecurityContext).updateWithItem(created);
 
 		Item updatedItem = userItemStore.get(uid);
 		assertNotNull(updatedItem);

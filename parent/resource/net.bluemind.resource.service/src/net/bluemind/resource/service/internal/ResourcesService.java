@@ -119,11 +119,12 @@ public class ResourcesService implements IResources {
 	@Override
 	public void create(String uid, ResourceDescriptor rd) throws ServerFault {
 		ItemValue<ResourceDescriptor> resourceDescriptorItem = ItemValue.create(uid, rd);
-		createWithItem(uid, resourceDescriptorItem);
+		createWithItem(resourceDescriptorItem);
 	}
 
 	@Override
-	public void createWithItem(String uid, ItemValue<ResourceDescriptor> resourceDescriptorItem) throws ServerFault {
+	public void createWithItem(ItemValue<ResourceDescriptor> resourceDescriptorItem) throws ServerFault {
+		String uid = resourceDescriptorItem.uid;
 		ResourceDescriptor rd = resourceDescriptorItem.value;
 		rbacManager.forOrgUnit(rd.orgUnitUid).check(BasicRoles.ROLE_MANAGE_RESOURCE);
 
@@ -175,11 +176,12 @@ public class ResourcesService implements IResources {
 	@Override
 	public void update(String uid, ResourceDescriptor rd) throws ServerFault {
 		ItemValue<ResourceDescriptor> resourceDescriptorItem = ItemValue.create(uid, rd);
-		updateWithItem(uid, resourceDescriptorItem);
+		updateWithItem(resourceDescriptorItem);
 	}
 
 	@Override
-	public void updateWithItem(String uid, ItemValue<ResourceDescriptor> resourceDescriptorItem) throws ServerFault {
+	public void updateWithItem(ItemValue<ResourceDescriptor> resourceDescriptorItem) throws ServerFault {
+		String uid = resourceDescriptorItem.uid;
 		checkManageResource(uid);
 
 		ParametersValidator.notNullAndNotEmpty(uid);

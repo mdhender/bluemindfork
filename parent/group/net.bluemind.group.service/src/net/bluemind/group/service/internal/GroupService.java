@@ -121,11 +121,12 @@ public class GroupService implements IGroup, IInCoreGroup {
 	public void createWithExtId(String uid, String extId, Group group) throws ServerFault {
 		ItemValue<Group> groupItem = ItemValue.create(uid, group);
 		groupItem.externalId = extId;
-		createWithItem(uid, groupItem);
+		createWithItem(groupItem);
 	}
 
 	@Override
-	public void createWithItem(String uid, ItemValue<Group> groupItem) throws ServerFault {
+	public void createWithItem(ItemValue<Group> groupItem) throws ServerFault {
+		String uid = groupItem.uid;
 		Group group = groupItem.value;
 		sanitizer.create(group);
 		sanitizer.create(new DirDomainValue<>(domainUid, uid, group));
@@ -160,11 +161,12 @@ public class GroupService implements IGroup, IInCoreGroup {
 	@Override
 	public void update(String uid, Group group) throws ServerFault {
 		ItemValue<Group> groupItem = ItemValue.create(uid, group);
-		updateWithItem(uid, groupItem);
+		updateWithItem(groupItem);
 	}
 
 	@Override
-	public void updateWithItem(String uid, ItemValue<Group> groupItem) throws ServerFault {
+	public void updateWithItem(ItemValue<Group> groupItem) throws ServerFault {
+		String uid = groupItem.uid;
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_GROUP);
 		Group group = groupItem.value;
 		ItemValue<Group> previousItemValue = getFull(uid);

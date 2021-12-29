@@ -159,12 +159,13 @@ public class UserService implements IInCoreUser, IUser {
 	public void createWithExtId(String uid, String extId, User user) throws ServerFault {
 		ItemValue<User> itemValue = createItemValue(uid, user);
 		itemValue.externalId = extId;
-		createWithItem(uid, itemValue);
+		createWithItem(itemValue);
 	}
 
 	@Override
-	public void createWithItem(String uid, ItemValue<User> userItemValue) throws ServerFault {
+	public void createWithItem(ItemValue<User> userItemValue) throws ServerFault {
 		User user = userItemValue.value;
+		String uid = userItemValue.uid;
 		rbacManager.forOrgUnit(user.orgUnitUid).check(BasicRoles.ROLE_MANAGE_USER);
 		sanitizer.create(user);
 		sanitizer.create(new DirDomainValue<>(domainName, uid, user));
@@ -242,12 +243,12 @@ public class UserService implements IInCoreUser, IUser {
 	@Override
 	public void update(String uid, User user) throws ServerFault {
 		ItemValue<User> itemValue = createItemValue(uid, user);
-		updateWithItem(uid, itemValue);
+		updateWithItem(itemValue);
 	}
 
 	@Override
-	public void updateWithItem(String uid, ItemValue<User> userItem) throws ServerFault {
-
+	public void updateWithItem(ItemValue<User> userItem) throws ServerFault {
+		String uid = userItem.uid;
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER);
 
 		User user = userItem.value;

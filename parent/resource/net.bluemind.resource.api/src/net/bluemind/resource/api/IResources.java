@@ -63,14 +63,12 @@ public interface IResources {
 	/**
 	 * Creates a {@link ResourceDescriptor}.
 	 * 
-	 * @param uid                    { @link ResourceDescriptor } unique id
 	 * @param resourceDescriptorItem { {@link ItemValue }
 	 * @throws ServerFault standard error object
 	 */
 	@PUT
-	@Path("{uid}/createwithitem")
-	public void createWithItem(@PathParam("uid") String uid, ItemValue<ResourceDescriptor> resourceDescriptorItem)
-			throws ServerFault;
+	@Path("_createWithItem")
+	public void createWithItem(ItemValue<ResourceDescriptor> resourceDescriptorItem) throws ServerFault;
 
 	/**
 	 * Modify an existing {@link ResourceDescriptor}.
@@ -86,14 +84,12 @@ public interface IResources {
 	/**
 	 * Modify an existing {@link ResourceDescriptor}.
 	 * 
-	 * @param uid                    { @link ResourceDescriptor } unique id
 	 * @param resourceDescriptorItem updated { {@link ResourceDescriptor }
 	 * @throws ServerFault standard error object
 	 */
 	@POST
-	@Path("{uid}/updatewithitem")
-	public void updateWithItem(@PathParam("uid") String uid, ItemValue<ResourceDescriptor> resourceDescriptorItem)
-			throws ServerFault;
+	@Path("_updateWithItem")
+	public void updateWithItem(ItemValue<ResourceDescriptor> resourceDescriptorItem) throws ServerFault;
 
 	/**
 	 * Delete an existing {@link ResourceDescriptor}.

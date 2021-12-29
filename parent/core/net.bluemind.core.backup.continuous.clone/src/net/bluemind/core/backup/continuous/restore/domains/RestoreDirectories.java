@@ -94,10 +94,12 @@ public class RestoreDirectories implements RestoreDomainType {
 		this.state = state;
 	}
 
+	@Override
 	public String type() {
 		return "dir";
 	}
 
+	@Override
 	public void restore(DataElement de) {
 		if ("net.bluemind.core.backup.continuous.events.BubbleEventsVerticle.FullDirEntry".equals(de.key.valueClass)) {
 			return;
@@ -235,10 +237,10 @@ public class RestoreDirectories implements RestoreDomainType {
 		ItemValue<ExternalUser> externalUserItem = ItemValue.create(ext.item(), ext.value.value);
 		if (existingExt != null) {
 			monitor.log("Update external-user " + ext.value.value);
-			extApi.updateWithItem(ext.uid, externalUserItem);
+			extApi.updateWithItem(externalUserItem);
 		} else {
 			monitor.log("Create external-user " + ext.value.value);
-			extApi.createWithItem(ext.uid, externalUserItem);
+			extApi.createWithItem(externalUserItem);
 		}
 	}
 
@@ -265,10 +267,10 @@ public class RestoreDirectories implements RestoreDomainType {
 		ItemValue<ResourceDescriptor> resourceItem = ItemValue.create(res.item(), res.value.value);
 		if (existingres != null) {
 			monitor.log("Update resource " + res.value.value);
-			resApi.updateWithItem(res.uid, resourceItem);
+			resApi.updateWithItem(resourceItem);
 		} else {
 			monitor.log("Create resource " + res.value.value);
-			resApi.createWithItem(res.uid, resourceItem);
+			resApi.createWithItem(resourceItem);
 		}
 	}
 
@@ -282,12 +284,12 @@ public class RestoreDirectories implements RestoreDomainType {
 		ItemValue<Mailshare> mailshareItem = ItemValue.create(share.item(), share.value.value);
 		if (existingShare != null) {
 			monitor.log("Update mailshare " + share.value.value);
-			shareApi.updateWithItem(share.uid, mailshareItem);
+			shareApi.updateWithItem(mailshareItem);
 		} else {
 			monitor.log("Create mailshare " + share.value.value);
 			ItemValue<Mailbox> mbox = ItemValue.create(share.uid, share.value.mailbox);
 			state.storeMailbox(share.uid, mbox);
-			shareApi.createWithItem(share.uid, mailshareItem);
+			shareApi.createWithItem(mailshareItem);
 		}
 	}
 
@@ -299,10 +301,10 @@ public class RestoreDirectories implements RestoreDomainType {
 		ItemValue<Group> groupItem = ItemValue.create(group.item(), group.value.value);
 		if (existing != null) {
 			monitor.log("Update group " + group.value.value);
-			groupApi.updateWithItem(group.uid, groupItem);
+			groupApi.updateWithItem(groupItem);
 		} else {
 			monitor.log("Create group " + group);
-			groupApi.createWithItem(group.uid, groupItem);
+			groupApi.createWithItem(groupItem);
 		}
 	}
 
@@ -317,12 +319,12 @@ public class RestoreDirectories implements RestoreDomainType {
 		ItemValue<User> userItem = ItemValue.create(user.item(), user.value.value);
 		if (existing != null) {
 			monitor.log("Update user " + user.value.value);
-			userApi.updateWithItem(user.uid, userItem);
+			userApi.updateWithItem(userItem);
 		} else {
 			monitor.log("Create user " + user.value.value);
 			ItemValue<Mailbox> mbox = ItemValue.create(user.uid, user.value.mailbox);
 			state.storeMailbox(user.uid, mbox);
-			userApi.createWithItem(user.uid, userItem);
+			userApi.createWithItem(userItem);
 		}
 	}
 

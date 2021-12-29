@@ -208,7 +208,7 @@ public class ExternalUserServiceTests {
 		externalUserItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
 		externalUserItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		externalUserItem.version = 17;
-		getExternalUserService().createWithItem(itemUid, externalUserItem);
+		getExternalUserService().createWithItem(externalUserItem);
 		ItemValue<ExternalUser> created = externalUserContainerStore.get(itemUid);
 
 		assertEquals(externalUserItem.externalId, created.externalId);
@@ -322,11 +322,11 @@ public class ExternalUserServiceTests {
 		externalUserItem.displayName = "test";
 		externalUserItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
 		externalUserItem.version = 17;
-		getExternalUserService().createWithItem(itemUid, externalUserItem);
+		getExternalUserService().createWithItem(externalUserItem);
 		externalUserItem = externalUserContainerStore.get(itemUid);
 		externalUserItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		externalUserItem.version = 23;
-		getExternalUserService().updateWithItem(itemUid, externalUserItem);
+		getExternalUserService().updateWithItem(externalUserItem);
 
 		ItemValue<ExternalUser> updatedItem = externalUserContainerStore.get(itemUid);
 

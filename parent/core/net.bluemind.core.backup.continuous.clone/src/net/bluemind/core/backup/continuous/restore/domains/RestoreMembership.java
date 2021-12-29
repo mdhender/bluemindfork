@@ -35,10 +35,12 @@ public class RestoreMembership implements RestoreDomainType {
 		this.target = target;
 	}
 
+	@Override
 	public String type() {
 		return "memberships";
 	}
 
+	@Override
 	public void restore(DataElement de) {
 		try {
 			monitor.log("Processing membership:\n" + de.key + "\n" + new String(de.payload));
@@ -48,7 +50,7 @@ public class RestoreMembership implements RestoreDomainType {
 			ItemValue<Group> existingGroup = groupApi.getComplete(ms.uid);
 			if (existingGroup == null) {
 				ItemValue<Group> clonedGroup = ItemValue.create(ms.item(), ms.value.group);
-				groupApi.createWithItem(ms.uid, clonedGroup);
+				groupApi.createWithItem(clonedGroup);
 			}
 			if (ms.value.added) {
 				monitor.log("Saving 1 member for group " + ms.uid);

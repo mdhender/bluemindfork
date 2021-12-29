@@ -40,10 +40,12 @@ public class RestoreMailboxRecords extends RestoreReplicated implements RestoreD
 		this.state = state;
 	}
 
+	@Override
 	public String type() {
 		return IMailReplicaUids.MAILBOX_RECORDS;
 	}
 
+	@Override
 	public void restore(DataElement de) {
 		monitor.log("Processing mailbox record:\n" + de.key + "\n" + new String(de.payload));
 		System.err.println("RECS for " + de.key);

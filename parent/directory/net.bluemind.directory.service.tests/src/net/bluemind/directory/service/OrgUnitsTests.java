@@ -205,7 +205,7 @@ public class OrgUnitsTests {
 		orgUnitItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
 		orgUnitItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		orgUnitItem.version = 17;
-		orgUnits(domainAdminSC).createWithItem(itemUid, orgUnitItem);
+		orgUnits(domainAdminSC).createWithItem(orgUnitItem);
 
 		ItemValue<OrgUnit> created = orgUnits(domainAdminSC).getComplete(itemUid);
 		assertItemEquals(orgUnitItem, created);
@@ -313,11 +313,11 @@ public class OrgUnitsTests {
 		orgUnitItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
 		orgUnitItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		orgUnitItem.version = 17;
-		orgUnits(domainAdminSC).createWithItem(itemUid, orgUnitItem);
+		orgUnits(domainAdminSC).createWithItem(orgUnitItem);
 		orgUnitItem.value.name = "ou name updated";
 		orgUnitItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		orgUnitItem.version = 23;
-		orgUnits(domainAdminSC).updateWithItem(itemUid, orgUnitItem);
+		orgUnits(domainAdminSC).updateWithItem(orgUnitItem);
 
 		ItemValue<OrgUnit> updated = orgUnits(domainAdminSC).getComplete(itemUid);
 		assertItemEquals(orgUnitItem, updated);

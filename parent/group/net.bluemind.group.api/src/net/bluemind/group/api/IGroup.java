@@ -65,13 +65,12 @@ public interface IGroup extends IDirEntryExtIdSupport {
 	/**
 	 * Create group from a given item value
 	 * 
-	 * @param uid
 	 * @param groupItem
 	 * @throws ServerFault
 	 */
 	@PUT
-	@Path("{uid}/createwithitem")
-	public void createWithItem(@PathParam(value = "uid") String uid, ItemValue<Group> groupItem) throws ServerFault;
+	@Path("_createWithItem")
+	public void createWithItem(ItemValue<Group> groupItem) throws ServerFault;
 
 	/**
 	 * Update group
@@ -87,13 +86,12 @@ public interface IGroup extends IDirEntryExtIdSupport {
 	/**
 	 * Update group from a given item value
 	 * 
-	 * @param uid
 	 * @param groupItem
 	 * @throws ServerFault
 	 */
 	@POST
-	@Path("{uid}/updatewithitem")
-	public void updateWithItem(@PathParam(value = "uid") String uid, ItemValue<Group> groupItem) throws ServerFault;
+	@Path("_updateWithItem")
+	public void updateWithItem(ItemValue<Group> groupItem) throws ServerFault;
 
 	/**
 	 * Touch group (update direntry, vcard etc..)

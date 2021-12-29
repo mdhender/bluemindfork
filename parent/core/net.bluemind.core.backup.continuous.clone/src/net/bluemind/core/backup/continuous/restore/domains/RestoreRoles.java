@@ -33,10 +33,12 @@ public class RestoreRoles implements RestoreDomainType {
 		this.target = target;
 	}
 
+	@Override
 	public String type() {
 		return "roles";
 	}
 
+	@Override
 	public void restore(DataElement de) {
 		try {
 			monitor.log("Processing membership:\n" + de.key + "\n" + new String(de.payload));

@@ -57,15 +57,14 @@ public interface IUser extends IDirEntryPhotoSupport, IDirEntryExtIdSupport {
 			User user) throws ServerFault;
 
 	/**
-	 * Creates a new {@link User} with the given uid and item value
+	 * Creates a new {@link User} with the given item value
 	 * 
-	 * @param uid      the user's unique id
 	 * @param userItem user item value
 	 * @throws ServerFault standard error object
 	 */
 	@PUT
-	@Path("{uid}/createwithitem")
-	public void createWithItem(@PathParam(value = "uid") String uid, ItemValue<User> userItem) throws ServerFault;
+	@Path("_createWithItem")
+	public void createWithItem(ItemValue<User> userItem) throws ServerFault;
 
 	/**
 	 * Modifies an existing {@link User}
@@ -81,13 +80,12 @@ public interface IUser extends IDirEntryPhotoSupport, IDirEntryExtIdSupport {
 	/**
 	 * Modifies an existing {@link User}
 	 * 
-	 * @param uid      the user's unique id
 	 * @param userItem user item value used for update
 	 * @throws ServerFault standard error object (unchecked exception)
 	 */
 	@POST
-	@Path("{uid}/updatewithitem")
-	public void updateWithItem(@PathParam(value = "uid") String uid, ItemValue<User> userItem) throws ServerFault;
+	@Path("_updateWithItem")
+	public void updateWithItem(ItemValue<User> userItem) throws ServerFault;
 
 	/**
 	 * Fetches a {@link User} by its unique id

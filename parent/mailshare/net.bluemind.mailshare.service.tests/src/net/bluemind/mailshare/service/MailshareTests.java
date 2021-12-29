@@ -157,7 +157,7 @@ public class MailshareTests {
 		mailshareItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
 		mailshareItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		mailshareItem.version = 17;
-		service(domainAdminSecurityContext).createWithItem(uid, mailshareItem);
+		service(domainAdminSecurityContext).createWithItem(mailshareItem);
 
 		// check direntry exists
 		List<DirEntry> entries = testContext.provider().instance(IDirectory.class, domainUid)
@@ -265,7 +265,7 @@ public class MailshareTests {
 		mailshareItem.value.name = "testupdated" + System.currentTimeMillis();
 		mailshareItem.value.card = new VCard();
 		mailshareItem.value.card.organizational.title = "Master !";
-		service(domainAdminSecurityContext).updateWithItem(uid, mailshareItem);
+		service(domainAdminSecurityContext).updateWithItem(mailshareItem);
 
 		// check direntry updated
 		List<DirEntry> entries = testContext.provider().instance(IDirectory.class, domainUid)

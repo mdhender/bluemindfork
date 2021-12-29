@@ -72,16 +72,14 @@ public interface IExternalUser {
 			ExternalUser externalUser) throws ServerFault;
 
 	/**
-	 * Creates a new {@link ExternalUser} with the given uid and {@link ItemValue}
+	 * Creates a new {@link ExternalUser} from the given {@link ItemValue}
 	 * 
-	 * @param uid              the {@link ExternalUser}'s unique id
 	 * @param externalUserItem {@link ItemValue}
 	 * @throws ServerFault standard error object
 	 */
 	@PUT
-	@Path("{uid}/createwithitem")
-	public void createWithItem(@PathParam(value = "uid") String uid, ItemValue<ExternalUser> externalUserItem)
-			throws ServerFault;
+	@Path("_createWithItem")
+	public void createWithItem(ItemValue<ExternalUser> externalUserItem) throws ServerFault;
 
 	/**
 	 * Modify an existing external user.
@@ -97,14 +95,12 @@ public interface IExternalUser {
 	/**
 	 * Modify an existing external user.
 	 * 
-	 * @param uid              {@link ExternalUser}'s unique id
 	 * @param externalUserItem updated {@link ItemValue}
 	 * @throws ServerFault standard error object
 	 */
 	@POST
-	@Path("{uid}/updatewithitem")
-	public void updateWithItem(@PathParam("uid") String uid, ItemValue<ExternalUser> externalUserItem)
-			throws ServerFault;
+	@Path("_updateWithItem")
+	public void updateWithItem(ItemValue<ExternalUser> externalUserItem) throws ServerFault;
 
 	/**
 	 * Delete an external user.
