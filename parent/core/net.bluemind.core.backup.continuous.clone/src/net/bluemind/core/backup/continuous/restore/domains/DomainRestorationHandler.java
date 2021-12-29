@@ -35,6 +35,7 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 				new RestoreFlatHierarchy(monitor, domain, target), //
 				new RestoreVCard(monitor, target), //
 				new RestoreVEventSeries(monitor, target), //
+				new RestoreVTodo(monitor, target), //
 				new RestoreMembership(monitor, domain, target), //
 				new RestoreRoles(monitor, domain, target), //
 				new RestoreOrgUnitAdminRoles(monitor, domain, target) //

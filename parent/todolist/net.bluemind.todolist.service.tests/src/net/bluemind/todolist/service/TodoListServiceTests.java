@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,6 +92,35 @@ public class TodoListServiceTests extends AbstractServiceTests {
 
 		Item item = itemStore.get(uid);
 		assertNotNull(item);
+		VTodo vtodo = vtodoStore.get(item);
+		assertNotNull(vtodo);
+
+		List<ItemTagRef> tags = tagRefStore.get(item);
+		assertNotNull(tags);
+		assertEquals(2, tags.size());
+
+		Message<JsonObject> message = createdMessageChecker.shouldSuccess();
+		assertNotNull(message);
+	}
+
+	@Test
+	public void testCreateWithItem() throws Exception {
+		VertxEventChecker<JsonObject> createdMessageChecker = new VertxEventChecker<>(TodoListHookAddress.CREATED);
+
+		ItemValue<VTodo> todoItem = defaultVTodoItem(42);
+
+		// test anonymous
+		try {
+			getService(SecurityContext.ANONYMOUS).createWithItem(todoItem);
+			fail();
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+
+		getService(defaultSecurityContext).createWithItem(todoItem);
+
+		Item item = itemStore.get(todoItem.uid);
+		assertItemEquals(todoItem.item(), item);
 		VTodo vtodo = vtodoStore.get(item);
 		assertNotNull(vtodo);
 
@@ -189,6 +220,36 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		}
 
 		getService(defaultSecurityContext).update(uid, todo);
+
+		Message<JsonObject> message = updatedMessageChecker.shouldSuccess();
+		assertNotNull(message);
+	}
+
+	@Test
+	public void testUpdateWithItem() throws Exception {
+		VertxEventChecker<JsonObject> updatedMessageChecker = new VertxEventChecker<>(TodoListHookAddress.UPDATED);
+
+		VTodo todo = defaultVTodo();
+		String uid = "test_" + System.nanoTime();
+		getService(defaultSecurityContext).create(uid, todo);
+		Item item = itemStore.get(uid);
+		VTodo vtodo = vtodoStore.get(item);
+		ItemValue<VTodo> todoItem = ItemValue.create(item, vtodo);
+		todoItem.version += 10;
+		todoItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:48:00");
+
+		// test anonymous
+		try {
+			getService(SecurityContext.ANONYMOUS).updateWithItem(todoItem);
+			fail();
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+
+		getService(defaultSecurityContext).updateWithItem(todoItem);
+
+		Item updated = itemStore.get(uid);
+		assertItemEquals(todoItem.item(), updated);
 
 		Message<JsonObject> message = updatedMessageChecker.shouldSuccess();
 		assertNotNull(message);
@@ -1148,4 +1209,24 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		return ServerSideServiceProvider.getProvider(context).instance(ITodoList.class, container.uid);
 	}
 
+	private ItemValue<VTodo> defaultVTodoItem(long id) throws ParseException {
+		Item item = new Item();
+		item.id = id;
+		item.uid = "test_" + System.nanoTime();
+		item.externalId = "externalId" + System.nanoTime();
+		item.displayName = "test";
+		item.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
+		item.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		item.version = 17;
+		return ItemValue.create(item, defaultVTodo());
+	}
+
+	private static <T> void assertItemEquals(Item expected, Item actual) {
+		assertNotNull(actual);
+		assertEquals(expected.id, actual.id);
+		assertEquals(expected.uid, actual.uid);
+		assertEquals(expected.externalId, actual.externalId);
+		assertEquals(expected.updated, actual.updated);
+		assertEquals(expected.version, actual.version);
+	}
 }

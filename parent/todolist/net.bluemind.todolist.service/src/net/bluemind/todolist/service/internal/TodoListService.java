@@ -108,31 +108,41 @@ public class TodoListService implements ITodoList {
 
 	@Override
 	public void create(String uid, VTodo todo) throws ServerFault {
-		rbacManager.check(Verb.Write.name());
-		doCreate(uid, todo);
-		eventProducer.vtodoCreated(uid, todo);
-		eventProducer.changed();
-		indexStore.refresh();
-
+		Item item = Item.create(uid, null);
+		create(item, todo);
 	}
 
-	private void doCreate(String uid, VTodo todo) throws ServerFault {
+	@Override
+	public void createWithItem(ItemValue<VTodo> todoItem) throws ServerFault {
+		create(todoItem.item(), todoItem.value);
+	}
+
+	private void create(Item item, VTodo todo) {
+		rbacManager.check(Verb.Write.name());
+		doCreate(item, todo);
+		eventProducer.vtodoCreated(item.uid, todo);
+		eventProducer.changed();
+		indexStore.refresh();
+	}
+
+	private void doCreate(Item item, VTodo todo) throws ServerFault {
 		sanitizer.sanitize(todo);
 		extSanitizer.create(todo);
 		validator.validate(todo);
 		extValidator.create(todo);
-		ItemVersion iv = storeService.create(uid, todo.summary, todo);
-		indexStore.create(Item.create(uid, iv.id), todo);
+		item.displayName = todo.summary;
+		ItemVersion iv = storeService.create(item, todo);
+		indexStore.create(Item.create(item.uid, iv.id), todo);
 	}
 
 	private void doCreateOrUpdate(String uid, VTodo todo) throws ServerFault {
-
+		Item item = Item.create(uid, null);
 		try {
-			doCreate(uid, todo);
+			doCreate(item, todo);
 		} catch (ServerFault sf) {
 			if (sf.getCode() == ErrorCode.ALREADY_EXISTS) {
-				logger.warn("task uid {} was sent as created but already exists. We update it", uid);
-				doUpdate(uid, todo);
+				logger.warn("task uid {} was sent as created but already exists. We update it", uid);
+				doUpdate(item, todo);
 			} else {
 				throw sf;
 			}
@@ -142,17 +152,27 @@ public class TodoListService implements ITodoList {
 
 	@Override
 	public void update(String uid, VTodo todo) throws ServerFault {
+		Item item = Item.create(uid, null);
+		update(item, todo);
+	}
+
+	@Override
+	public void updateWithItem(ItemValue<VTodo> todoItem) throws ServerFault {
+		update(todoItem.item(), todoItem.value);
+	}
+
+	private void update(Item item, VTodo todo) throws ServerFault {
 		rbacManager.check(Verb.Write.name());
-		ItemValue<VTodo> previous = doUpdate(uid, todo);
-		eventProducer.vtodoUpdated(uid, previous.value, todo);
+		ItemValue<VTodo> previous = doUpdate(item, todo);
+		eventProducer.vtodoUpdated(item.uid, previous.value, todo);
 		eventProducer.changed();
 		indexStore.refresh();
 	}
 
-	private ItemValue<VTodo> doUpdate(String uid, VTodo todo) throws ServerFault {
-		ItemValue<VTodo> previousItemValue = storeService.get(uid, null);
+	private ItemValue<VTodo> doUpdate(Item item, VTodo todo) throws ServerFault {
+		ItemValue<VTodo> previousItemValue = storeService.get(item.uid, null);
 		if (previousItemValue == null || previousItemValue.value == null) {
-			throw new ServerFault("VTodo uid:" + uid + " doesn't exist !", ErrorCode.NOT_FOUND);
+			throw new ServerFault("VTodo uid:" + item.uid + " doesn't exist !", ErrorCode.NOT_FOUND);
 		}
 
 		sanitizer.sanitize(todo);
@@ -161,18 +181,19 @@ public class TodoListService implements ITodoList {
 		validator.validate(todo);
 		extValidator.update(previousItemValue.value, todo);
 
-		storeService.update(uid, todo.summary, todo);
-		indexStore.update(Item.create(uid, previousItemValue.internalId), todo);
+		storeService.update(item, todo.summary, todo);
+		indexStore.update(Item.create(item.uid, previousItemValue.internalId), todo);
 		return previousItemValue;
 	}
 
 	private void doUpdateOrCreate(String uid, VTodo todo) throws ServerFault {
+		Item item = Item.create(uid, null);
 		try {
-			doUpdate(uid, todo);
+			doUpdate(item, todo);
 		} catch (ServerFault sf) {
 			if (sf.getCode() == ErrorCode.NOT_FOUND) {
-				logger.warn("task uid {} was sent as created but already exists. We update it", uid);
-				doCreate(uid, todo);
+				logger.warn("task uid {} was sent as created but already exists. We update it", uid);
+				doCreate(item, todo);
 			} else {
 				throw sf;
 			}
@@ -224,7 +245,7 @@ public class TodoListService implements ITodoList {
 
 		ListResult<String> res = indexStore.search(query);
 
-		List<ItemValue<VTodo>> values = new ArrayList<ItemValue<VTodo>>(res.values.size());
+		List<ItemValue<VTodo>> values = new ArrayList<>(res.values.size());
 
 		for (String uid : res.values) {
 			ItemValue<VTodo> item = getComplete(uid);
@@ -287,7 +308,7 @@ public class TodoListService implements ITodoList {
 		ret.removed = new ArrayList<String>();
 		ret.errors = new ArrayList<>();
 
-		if (changes.add != null && changes.add.size() > 0) {
+		if (changes.add != null && !changes.add.isEmpty()) {
 			change = true;
 			for (VTodoChanges.ItemAdd add : changes.add) {
 				try {
@@ -300,7 +321,7 @@ public class TodoListService implements ITodoList {
 			}
 		}
 
-		if (changes.modify != null && changes.modify.size() > 0) {
+		if (changes.modify != null && !changes.modify.isEmpty()) {
 			change = true;
 			for (VTodoChanges.ItemModify update : changes.modify) {
 				try {
@@ -313,7 +334,7 @@ public class TodoListService implements ITodoList {
 			}
 		}
 
-		if (changes.delete != null && changes.delete.size() > 0) {
+		if (changes.delete != null && !changes.delete.isEmpty()) {
 			change = true;
 			for (VTodoChanges.ItemDelete item : changes.delete) {
 				try {
@@ -321,7 +342,7 @@ public class TodoListService implements ITodoList {
 					ret.removed.add(item.uid);
 				} catch (ServerFault sf) {
 					if (sf.getCode() == ErrorCode.NOT_FOUND) {
-						logger.warn("task uid {} was sent as deleted but does not exist.", item.uid);
+						logger.warn("task uid {} was sent as deleted but does not exist.", item.uid);
 						ret.removed.add(item.uid);
 					} else {
 						ret.errors.add(ContainerUpdatesResult.InError.create(sf.getMessage(), sf.getCode(), item.uid));

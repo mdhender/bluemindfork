@@ -76,6 +76,15 @@ public interface ITodoList
 	public void create(@PathParam(value = "uid") String uid, VTodo todo) throws ServerFault;
 
 	/**
+	 * Creates a new {@link VTodo} entry from an {@link ItemValue}.
+	 * 
+	 * @param todoItem {@link VTodo} {@link ItemValue}.
+	 * @throws ServerFault common error object
+	 */
+	@Path("_createWithItem")
+	public void createWithItem(ItemValue<VTodo> todoItem) throws ServerFault;
+
+	/**
 	 * Modifies an existing {@link VTodo}.
 	 * 
 	 * @param uid  Unique entry UID
@@ -85,6 +94,15 @@ public interface ITodoList
 	@POST
 	@Path("{uid}")
 	public void update(@PathParam(value = "uid") String uid, VTodo todo) throws ServerFault;
+
+	/**
+	 * Creates a new {@link VTodo} entry from an {@link ItemValue}.
+	 * 
+	 * @param todoItem {@link VTodo} {@link ItemValue}.
+	 * @throws ServerFault common error object
+	 */
+	@Path("_updateWithItem")
+	public void updateWithItem(ItemValue<VTodo> todoItem) throws ServerFault;
 
 	/**
 	 * Fetch a {@link VTodo} by its unique UID
