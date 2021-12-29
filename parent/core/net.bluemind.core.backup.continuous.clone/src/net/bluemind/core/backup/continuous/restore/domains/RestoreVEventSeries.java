@@ -23,6 +23,7 @@ import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.backup.continuous.DataElement;
+import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -49,15 +50,28 @@ public class RestoreVEventSeries implements RestoreDomainType {
 
 	@Override
 	public void restore(DataElement de) {
-		ItemValue<VEventSeries> item = mrReader.read(new String(de.payload));
 		ICalendar calApi = target.instance(ICalendar.class, de.key.uid);
+		if (de.payload.length > 0) {
+			createOrUpdate(new String(de.payload), calApi);
+		} else {
+			delete(de.key, calApi);
+		}
+	}
+
+	private void createOrUpdate(String payload, ICalendar calApi) {
+		ItemValue<VEventSeries> item = mrReader.read(payload);
 		ItemValue<VEventSeries> existing = calApi.getCompleteById(item.internalId);
 		if (existing != null) {
-			calApi.updateById(item.internalId, item.value);
+			calApi.updateWithItem(item);
+			monitor.log("Update VEventSeries '" + item.displayName + "' " + item.value.icsUid);
 		} else {
-			calApi.createById(item.internalId, item.value);
+			calApi.createWithItem(item);
 			monitor.log("Create VEventSeries '" + item.displayName + "' " + item.value.icsUid);
 		}
+	}
+
+	private void delete(RecordKey key, ICalendar calApi) {
+		calApi.deleteById(key.id);
 	}
 
 }

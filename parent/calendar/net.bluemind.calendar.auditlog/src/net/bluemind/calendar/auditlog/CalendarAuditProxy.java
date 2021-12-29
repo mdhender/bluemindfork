@@ -92,10 +92,22 @@ public class CalendarAuditProxy implements IInternalCalendar {
 	}
 
 	@Override
+	public void createWithItem(ItemValue<VEventSeries> eventItem) {
+		auditor.actionCreateOn(eventItem.uid).addActionMetadata("byItem", Boolean.TRUE).actionValue(eventItem.value)
+				.withSendNotification(false).audit(() -> calendar.createWithItem(eventItem));
+	}
+
+	@Override
 	public void update(String uid, VEventSeries event, Boolean sendNotifications) throws ServerFault {
 		auditor.actionUpdateOn(uid).actionValue(event).withSendNotification(sendNotifications)
 				.audit(() -> calendar.update(uid, event, sendNotifications));
 
+	}
+
+	@Override
+	public void updateWithItem(ItemValue<VEventSeries> eventItem) {
+		auditor.actionUpdateOn(eventItem.uid).addActionMetadata("byItem", Boolean.TRUE).actionValue(eventItem.value)
+				.withSendNotification(false).audit(() -> calendar.updateWithItem(eventItem));
 	}
 
 	@Override

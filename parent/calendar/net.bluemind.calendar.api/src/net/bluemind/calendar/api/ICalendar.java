@@ -63,6 +63,15 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 			@QueryParam(value = "sendNotifications") Boolean sendNotifications) throws ServerFault;
 
 	/**
+	 * Creates a {@link VEvent}.
+	 * 
+	 * @param eventItem the {@link VEventSeries} {@link ItemValue} to store
+	 */
+	@PUT
+	@Path("_createWithItem")
+	public void createWithItem(ItemValue<VEventSeries> eventItem);
+
+	/**
 	 * Update the event identified by the given <i>item identifier</i>.
 	 * 
 	 * @param id    the <i>item identifier</i> of the {@link VEventSeries}
@@ -72,6 +81,15 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	@POST
 	@Path("id/{id}")
 	Ack updateById(@PathParam("id") long id, VEventSeries value);
+
+	/**
+	 * Updates a {@link VEventSeries}.
+	 * 
+	 * @param eventItem the {@link VEventSeries} {@link ItemValue} to store
+	 */
+	@POST
+	@Path("_updateWithItem")
+	public void updateWithItem(ItemValue<VEventSeries> eventItem);
 
 	/**
 	 * Delete the event identified by the given <i>item identifier</i>.

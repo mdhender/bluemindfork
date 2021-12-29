@@ -37,6 +37,7 @@ import com.google.common.base.Strings;
 import io.vertx.core.eventbus.EventBus;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventChanges;
+import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventQuery;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.api.internal.IInternalCalendar;
@@ -150,17 +151,23 @@ public class CalendarService implements IInternalCalendar {
 
 	@Override
 	public void create(String uid, VEventSeries event, Boolean sendNotifications) throws ServerFault {
-		create(uid, null, event, sendNotifications);
+		Item item = Item.create(uid, null);
+		create(item, event, sendNotifications);
 	}
 
 	@Override
 	public Ack createById(long id, VEventSeries event) throws ServerFault {
-		String uid = "vevent-by-id:" + id;
-		long version = create(uid, id, event, false);
+		Item item = Item.create("vevent-by-id:" + id, id);
+		long version = create(item, event, false);
 		return Ack.create(version);
 	}
 
-	private long create(String uid, Long internalId, VEventSeries event, Boolean sendNotifications) {
+	@Override
+	public void createWithItem(ItemValue<VEventSeries> eventItem) {
+		create(eventItem.item(), eventItem.value, false);
+	}
+
+	private long create(Item item, VEventSeries event, Boolean sendNotifications) {
 		rbacManager.check(Verb.Write.name());
 
 		if (event == null) {
@@ -171,19 +178,18 @@ public class CalendarService implements IInternalCalendar {
 			sendNotifications = false;
 		}
 
-		long version = doCreate(uid, internalId, event, sendNotifications);
+		long version = doCreate(item, event, sendNotifications);
 
 		emitNotification();
 
 		return version;
 	}
 
-	private long doCreate(String uid, Long internalId, VEventSeries event, boolean sendNotifications)
-			throws ServerFault {
+	private long doCreate(Item item, VEventSeries event, boolean sendNotifications) throws ServerFault {
 		rbacManager.check(Verb.Write.name());
 
 		if (Strings.isNullOrEmpty(event.icsUid)) {
-			event.icsUid = uid;
+			event.icsUid = item.uid;
 		}
 
 		sanitizer.sanitize(event, sendNotifications);
@@ -194,22 +200,23 @@ public class CalendarService implements IInternalCalendar {
 		validator.create(event);
 		extValidator.create(event);
 
-		String summary = event.displayName();
-		ItemVersion version = storeService.createWithId(uid, internalId, null, summary, event);
-		indexStore.create(Item.create(uid, version.id), event);
+		item.displayName = event.displayName();
+		ItemVersion version = storeService.create(item, event);
+		indexStore.create(Item.create(item.uid, version.id), event);
 
-		calendarEventProducer.veventCreated(event, uid, sendNotifications);
+		calendarEventProducer.veventCreated(event, item.uid, sendNotifications);
 
 		return version.version;
 	}
 
 	private void doCreateOrUpdate(String uid, VEventSeries event, boolean sendNotification) throws ServerFault {
+		Item item = Item.create(uid, null);
 		try {
-			doCreate(uid, null, event, sendNotification);
+			doCreate(item, event, sendNotification);
 		} catch (ServerFault sf) {
 			if (sf.getCode() == ErrorCode.ALREADY_EXISTS) {
-				logger.warn("Event uid {} was sent as created but already exists. We update it", uid);
-				doUpdate(uid, null, event, sendNotification);
+				logger.warn("Event uid {} was sent as created but already exists. We update it", uid);
+				doUpdate(item, event, sendNotification);
 			} else {
 				throw sf;
 			}
@@ -217,12 +224,13 @@ public class CalendarService implements IInternalCalendar {
 	}
 
 	private void doUpdateOrCreate(String uid, VEventSeries event, boolean sendNotification) throws ServerFault {
+		Item item = Item.create(uid, null);
 		try {
-			doUpdate(uid, null, event, sendNotification);
+			doUpdate(item, event, sendNotification);
 		} catch (ServerFault sf) {
 			if (sf.getCode() == ErrorCode.NOT_FOUND) {
-				logger.warn("Event uid {} was sent as created but already exists. We update it", uid);
-				doCreate(uid, null, event, sendNotification);
+				logger.warn("Event uid {} was sent as created but already exists. We update it", uid);
+				doCreate(item, event, sendNotification);
 			} else {
 				throw sf;
 			}
@@ -231,20 +239,23 @@ public class CalendarService implements IInternalCalendar {
 
 	@Override
 	public Ack updateById(long id, VEventSeries event) {
-		rbacManager.check(Verb.Write.name());
-
-		if (event == null) {
-			throw new ServerFault("VEvent is null", ErrorCode.EVENT_ERROR);
-		}
-
-		ItemVersion upd = doUpdate(null, id, event, false);
-
-		emitNotification();
-		return Ack.create(upd.version);
+		Item item = Item.create(null, id);
+		long version = update(item, event, false);
+		return Ack.create(version);
 	}
 
 	@Override
 	public void update(String uid, VEventSeries event, Boolean sendNotifications) throws ServerFault {
+		Item item = Item.create(uid, null);
+		update(item, event, sendNotifications);
+	}
+
+	@Override
+	public void updateWithItem(ItemValue<VEventSeries> cardItem) {
+		update(cardItem.item(), cardItem.value, false);
+	}
+
+	private long update(Item item, VEventSeries event, Boolean sendNotifications) {
 		rbacManager.check(Verb.Write.name());
 		if (event == null) {
 			throw new ServerFault("VEvent is null", ErrorCode.EVENT_ERROR);
@@ -254,18 +265,19 @@ public class CalendarService implements IInternalCalendar {
 			sendNotifications = false;
 		}
 
-		doUpdate(uid, null, event, sendNotifications);
+		ItemVersion upd = doUpdate(item, event, sendNotifications);
 
 		emitNotification();
+		return upd.version;
 	}
 
-	private ItemVersion doUpdate(String optUid, Long itemId, VEventSeries event, Boolean sendNotifications)
-			throws ServerFault {
-		ItemValue<VEventSeries> old = itemId != null ? storeService.get(itemId, null) : storeService.get(optUid, null);
+	private ItemVersion doUpdate(Item item, VEventSeries event, Boolean sendNotifications) throws ServerFault {
+		ItemValue<VEventSeries> old = item.uid == null ? storeService.get(item.id, null)
+				: storeService.get(item.uid, null);
 		if (old == null || old.value == null) {
-			throw ServerFault.notFound("entry[" + optUid + "/" + itemId + "]@" + container.uid + " not found");
+			throw ServerFault.notFound("entry[" + item.uid + "/" + item.id + "]@" + container.uid + " not found");
 		}
-		String uid = old.uid;
+		item.uid = old.uid;
 
 		auditor.previousValue(old.value);
 		if ((old.value != null && old.value.main != null
@@ -294,10 +306,9 @@ public class CalendarService implements IInternalCalendar {
 			event.properties = old.value.properties;
 		}
 
-		String summary = event.displayName();
-		ItemVersion upd = storeService.update(uid, summary, event);
-		indexStore.update(Item.create(uid, upd.id), event);
-		calendarEventProducer.veventUpdated(old.value, event, uid, sendNotifications);
+		ItemVersion upd = storeService.update(item, event.displayName(), event);
+		indexStore.update(Item.create(item.uid, upd.id), event);
+		calendarEventProducer.veventUpdated(old.value, event, item.uid, sendNotifications);
 		return upd;
 	}
 
@@ -305,8 +316,7 @@ public class CalendarService implements IInternalCalendar {
 	public ItemValue<VEventSeries> getComplete(String uid) throws ServerFault {
 		rbacManager.check(Verb.Read.name());
 
-		ItemValue<VEventSeries> ret = getItemValue(uid);
-		return ret;
+		return getItemValue(uid);
 	}
 
 	@Override
@@ -336,9 +346,8 @@ public class CalendarService implements IInternalCalendar {
 		if (ret.value.main != null && ret.value.main.classification != Classification.Public
 				&& !rbacManager.can(Verb.All.name())) {
 			ret.value.main = ret.value.main.filtered();
-			ret.value.occurrences = ret.value.occurrences.stream().map(occurrence -> {
-				return occurrence.filtered();
-			}).collect(Collectors.toList());
+			ret.value.occurrences = ret.value.occurrences.stream().map(VEventOccurrence::filtered)
+					.collect(Collectors.toList());
 		}
 
 		return ret;
@@ -363,11 +372,7 @@ public class CalendarService implements IInternalCalendar {
 	}
 
 	private List<ItemValue<VEventSeries>> filterValues(List<ItemValue<VEventSeries>> values) throws ServerFault {
-
-		// tom: what the fuck does this do ?
-		for (ItemValue<VEventSeries> value : values) {
-			value = filter(value);
-		}
+		values.forEach(this::filter);
 		return values;
 	}
 
@@ -480,7 +485,7 @@ public class CalendarService implements IInternalCalendar {
 						ret.removed.add(item.uid);
 					} catch (ServerFault sf) {
 						if (sf.getCode() == ErrorCode.NOT_FOUND) {
-							logger.warn("Event uid {} was sent as deleted but does not exist.", item.uid);
+							logger.warn("Event uid {} was sent as deleted but does not exist.", item.uid);
 							ret.removed.add(item.uid);
 						} else {
 							ret.errors.add(
@@ -515,9 +520,8 @@ public class CalendarService implements IInternalCalendar {
 		List<ItemValue<VEventSeries>> items;
 		if (isPendingEventsSearch(query)) {
 			ListResult<ItemValue<VEventSeries>> res = searchPendingEvents(query);
-			items = filterValues(res.values.stream().map(iv -> {
-				return ItemValue.create(iv, iv.value.copy());
-			}).collect(Collectors.toList()));
+			items = filterValues(res.values.stream() //
+					.map(iv -> ItemValue.create(iv, iv.value.copy())).collect(Collectors.toList()));
 			ret.total = res.total;
 		} else {
 			if (query.attendee != null && query.attendee.calendarOwnerAsDir) {
@@ -563,9 +567,9 @@ public class CalendarService implements IInternalCalendar {
 		}
 		res.values = res.values.stream().map(series -> {
 			if (series.value.occurrences != null && !series.value.occurrences.isEmpty()) {
-				series.value.occurrences = series.value.occurrences.stream().filter(occ -> {
-					return new BmDateTimeWrapper(occ.dtend).isAfter(query.dateMin);
-				}).collect(Collectors.toList());
+				series.value.occurrences = series.value.occurrences.stream()
+						.filter(occ -> new BmDateTimeWrapper(occ.dtend).isAfter(query.dateMin))
+						.collect(Collectors.toList());
 			}
 			return series;
 		}).collect(Collectors.toList());

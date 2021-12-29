@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -67,6 +69,7 @@ import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerChangeset;
+import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
@@ -80,9 +83,12 @@ import net.bluemind.core.task.api.TaskStatus.State;
 import net.bluemind.core.tests.vertx.VertxEventChecker;
 import net.bluemind.core.utils.UIDGenerator;
 import net.bluemind.icalendar.api.ICalendarElement;
+import net.bluemind.icalendar.api.ICalendarElement.Attendee;
+import net.bluemind.icalendar.api.ICalendarElement.CUType;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.RRule;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
+import net.bluemind.icalendar.api.ICalendarElement.Role;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
 import net.bluemind.tag.api.ITags;
@@ -107,6 +113,30 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		}
 
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
+
+		Message<JsonObject> message = createdMessageChecker.shouldSuccess();
+		assertNotNull(message);
+	}
+
+	@Test
+	public void testCreateWithItem() throws Exception {
+		VertxEventChecker<JsonObject> createdMessageChecker = new VertxEventChecker<>(
+				CalendarHookAddress.EVENT_CREATED);
+
+		ItemValue<VEventSeries> eventItem = defaultVEventItem(42);
+
+		// test anonymous
+		try {
+			getCalendarService(SecurityContext.ANONYMOUS, userCalendarContainer).createWithItem(eventItem);
+			fail();
+		} catch (ServerFault e) {
+		}
+
+		ICalendar api = getCalendarService(userSecurityContext, userCalendarContainer);
+		api.createWithItem(eventItem);
+
+		ItemValue<VEventSeries> createdItem = api.getComplete(eventItem.uid);
+		assertItemEquals(eventItem, createdItem);
 
 		Message<JsonObject> message = createdMessageChecker.shouldSuccess();
 		assertNotNull(message);
@@ -262,9 +292,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		String externalEmail = "external@attendee" + System.currentTimeMillis() + ".lan";
 		String externalDisplayName = "External Attendee";
 
-		VEvent.Attendee external = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.RequiredParticipant,
-				VEvent.ParticipationStatus.NeedsAction, false, "", "", "", externalDisplayName, "", "", null,
-				externalEmail);
+		Attendee external = Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, false, "", "", "", externalDisplayName, "", "", null, externalEmail);
 
 		event.main.attendees.add(external);
 
@@ -281,7 +310,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		boolean externalAttendeeFound = false;
 
-		for (VEvent.Attendee att : vevent.value.main.attendees) {
+		for (Attendee att : vevent.value.main.attendees) {
 			if (externalEmail.equals(att.mailto)) {
 				// FIXME why was that ?
 				// assertEquals(externalEmail, att.commonName);
@@ -351,7 +380,72 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		message = updatedMessageChecker.shouldSuccess();
 		assertNotNull(message);
+	}
 
+	@Test
+	public void testUpdateWithItem() throws Exception {
+
+		VertxEventChecker<JsonObject> updatedMessageChecker = new VertxEventChecker<>(
+				CalendarHookAddress.EVENT_UPDATED);
+
+		VEventSeries event = defaultVEvent();
+		String uid = "test_" + System.nanoTime();
+		ICalendar userCalApi = getCalendarService(userSecurityContext, userCalendarContainer);
+		userCalApi.create(uid, event, sendNotifications);
+		ItemValue<VEventSeries> eventItem = userCalApi.getComplete(uid);
+
+		try {
+			ICalendar anonymousCalApi = getCalendarService(SecurityContext.ANONYMOUS, userCalendarContainer);
+			anonymousCalApi.updateWithItem(eventItem);
+			fail();
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+
+		userCalApi.updateWithItem(eventItem);
+
+		ItemValue<VEventSeries> updatedItem = userCalApi.getComplete(eventItem.uid);
+		assertItemEquals(eventItem, updatedItem);
+		Message<JsonObject> message = updatedMessageChecker.shouldSuccess();
+		assertNotNull(message);
+
+		List<AccessControlEntry> ace = Arrays.asList(
+				AccessControlEntry.create(userSecurityContext.getSubject(), Verb.All),
+				AccessControlEntry.create(attendee1SecurityContext.getSubject(), Verb.All),
+				AccessControlEntry.create(attendee2SecurityContext.getSubject(), Verb.Write));
+		try {
+			aclStoreData.store(userCalendarContainer, ace);
+			aclStoreData.store(userTagContainer, ace);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			// Cannot modifiy private event with write verb
+			ICalendar attendee2CalApi = getCalendarService(attendee2SecurityContext, userCalendarContainer);
+			attendee2CalApi.updateWithItem(eventItem);
+			fail();
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+
+		// Can modifiy private event with manage verb
+		ICalendar attendee1CalApi = getCalendarService(attendee1SecurityContext, userCalendarContainer);
+		eventItem.version++;
+		attendee1CalApi.updateWithItem(eventItem);
+
+		ItemValue<VEventSeries> attendee1UpdatedItem = attendee1CalApi.getComplete(eventItem.uid);
+		assertItemEquals(eventItem, attendee1UpdatedItem);
+		message = updatedMessageChecker.shouldSuccess();
+		assertNotNull(message);
+	}
+
+	private static <T> void assertItemEquals(ItemValue<T> expected, ItemValue<T> actual) {
+		assertNotNull(actual);
+		assertEquals(expected.internalId, actual.internalId);
+		assertEquals(expected.uid, actual.uid);
+		assertEquals(expected.externalId, actual.externalId);
+		assertEquals(expected.updated, actual.updated);
+		assertEquals(expected.version, actual.version);
 	}
 
 	@Test
@@ -362,8 +456,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		VEventSeries event = defaultVEvent();
 		// add attendee1
-		VEvent.Attendee attendee = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.RequiredParticipant,
-				VEvent.ParticipationStatus.NeedsAction, true, "", "", "",
+		Attendee attendee = Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, true, "", "", "",
 				attendee1.value.contactInfos.identification.formatedName.value, "", "", null,
 				attendee1.value.login + "@bm.lan");
 		event.main.attendees.add(attendee);
@@ -400,8 +494,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		event.main.rrule = rrule;
 
 		// add attendee1
-		VEvent.Attendee attendee = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.RequiredParticipant,
-				VEvent.ParticipationStatus.NeedsAction, true, "", "", "",
+		Attendee attendee = Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+				ParticipationStatus.NeedsAction, true, "", "", "",
 				attendee1.value.contactInfos.identification.formatedName.value, "", "", null,
 				attendee1.value.login + "@bm.lan");
 		event.main.attendees.add(attendee);
@@ -813,10 +907,10 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		VEventSeries event = defaultVEvent();
 		event.main.organizer = new VEvent.Organizer(attendee1.value.login + "@bm.lan");
 		String dir = "bm://" + domainUid + "/users/" + testUser.uid;
-		VEvent.Attendee me = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.RequiredParticipant,
-				VEvent.ParticipationStatus.NeedsAction, true, "", "", "", "osef", dir, null, null, null);
+		Attendee me = Attendee.create(CUType.Individual, "", Role.RequiredParticipant, ParticipationStatus.NeedsAction,
+				true, "", "", "", "osef", dir, null, null, null);
 		event.main.attendees = Arrays.asList(me);
-		event.main.rrule = new VEvent.RRule();
+		event.main.rrule = new RRule();
 		event.main.rrule.frequency = Frequency.DAILY;
 		event.main.rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2030, 2, 13, 0, 0, 0, 0, tz));
 		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 0, 0, 0, 0, tz));
@@ -857,14 +951,14 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		VEventSeries event = defaultVEvent();
 		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 5, 29, 0, 0, 0, 0, tz));
 
-		VEvent.RRule rrule = new VEvent.RRule();
-		rrule.frequency = VEvent.RRule.Frequency.WEEKLY;
+		RRule rrule = new RRule();
+		rrule.frequency = RRule.Frequency.WEEKLY;
 		rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2014, 6, 4, 0, 0, 0, 0, tz));
-		List<VEvent.RRule.WeekDay> weekDay = new ArrayList<VEvent.RRule.WeekDay>(4);
-		weekDay.add(VEvent.RRule.WeekDay.MO);
-		weekDay.add(VEvent.RRule.WeekDay.TU);
-		weekDay.add(VEvent.RRule.WeekDay.TH);
-		weekDay.add(VEvent.RRule.WeekDay.FR);
+		List<RRule.WeekDay> weekDay = new ArrayList<RRule.WeekDay>(4);
+		weekDay.add(RRule.WeekDay.MO);
+		weekDay.add(RRule.WeekDay.TU);
+		weekDay.add(RRule.WeekDay.TH);
+		weekDay.add(RRule.WeekDay.FR);
 		rrule.byDay = weekDay;
 
 		event.main.rrule = rrule;
@@ -911,8 +1005,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	public void testDailyOccurrences() throws ServerFault {
 		VEventSeries event = defaultVEvent();
 		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 8, 0, 0, 0, tz));
-		VEvent.RRule rrule = new VEvent.RRule();
-		rrule.frequency = VEvent.RRule.Frequency.DAILY;
+		RRule rrule = new RRule();
+		rrule.frequency = RRule.Frequency.DAILY;
 		rrule.interval = 1;
 		rrule.count = 5;
 		event.main.rrule = rrule;
@@ -955,8 +1049,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	public void testMonthlyOccurrences() throws ServerFault {
 		VEventSeries event = defaultVEvent();
 		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 8, 0, 0, 0, tz));
-		VEvent.RRule rrule = new VEvent.RRule();
-		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
+		RRule rrule = new RRule();
+		rrule.frequency = RRule.Frequency.MONTHLY;
 		rrule.interval = 1;
 		event.main.rrule = rrule;
 
@@ -1007,8 +1101,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	public void testMonthlyOccurrencesException() throws ServerFault {
 		VEventSeries event = defaultVEvent();
 		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 8, 0, 0, 0, tz));
-		VEvent.RRule rrule = new VEvent.RRule();
-		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
+		RRule rrule = new RRule();
+		rrule.frequency = RRule.Frequency.MONTHLY;
 		rrule.interval = 1;
 		event.main.rrule = rrule;
 
@@ -1041,10 +1135,10 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		event.main.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2010, 2, 4, 18, 0, 0, 0, tz), Precision.DateTime);
 
 		// Every _1st_ thurday
-		VEvent.RRule rrule = new VEvent.RRule();
-		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
-		List<VEvent.RRule.WeekDay> weekDay = new ArrayList<VEvent.RRule.WeekDay>(1);
-		weekDay.add(new VEvent.RRule.WeekDay("TH", 1));
+		RRule rrule = new RRule();
+		rrule.frequency = RRule.Frequency.MONTHLY;
+		List<RRule.WeekDay> weekDay = new ArrayList<RRule.WeekDay>(1);
+		weekDay.add(new RRule.WeekDay("TH", 1));
 		rrule.byDay = weekDay;
 		rrule.interval = 1;
 		event.main.rrule = rrule;
@@ -1084,10 +1178,10 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		assertTrue(found.contains(ZonedDateTime.of(2011, 12, 1, 17, 0, 0, 0, tz)));
 
 		// Every _LAST_ monday
-		rrule = new VEvent.RRule();
-		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
-		weekDay = new ArrayList<VEvent.RRule.WeekDay>(1);
-		weekDay.add(new VEvent.RRule.WeekDay("MO", -1));
+		rrule = new RRule();
+		rrule.frequency = RRule.Frequency.MONTHLY;
+		weekDay = new ArrayList<RRule.WeekDay>(1);
+		weekDay.add(new RRule.WeekDay("MO", -1));
 		rrule.byDay = weekDay;
 		rrule.interval = 1;
 		event.main.rrule = rrule;
@@ -1148,8 +1242,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 				Precision.DateTime);
 		event.main.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2000, 12, 25, 20, 0, 0, 0, tz),
 				Precision.DateTime);
-		VEvent.RRule rrule = new VEvent.RRule();
-		rrule.frequency = VEvent.RRule.Frequency.YEARLY;
+		RRule rrule = new RRule();
+		rrule.frequency = RRule.Frequency.YEARLY;
 		rrule.interval = 1;
 		event.main.rrule = rrule;
 
@@ -1281,15 +1375,15 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
 
 		event = item.value;
-		assertEquals(VEvent.ParticipationStatus.Accepted, event.main.attendees.get(0).partStatus);
+		assertEquals(ParticipationStatus.Accepted, event.main.attendees.get(0).partStatus);
 
-		event.main.attendees.get(0).partStatus = VEvent.ParticipationStatus.NeedsAction;
+		event.main.attendees.get(0).partStatus = ParticipationStatus.NeedsAction;
 
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
 
 		item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
 		event = item.value;
-		assertEquals(VEvent.ParticipationStatus.NeedsAction, event.main.attendees.get(0).partStatus);
+		assertEquals(ParticipationStatus.NeedsAction, event.main.attendees.get(0).partStatus);
 	}
 
 	@Test
@@ -1302,19 +1396,19 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
 
 		event = item.value;
-		assertEquals(VEvent.ParticipationStatus.Accepted, event.main.attendees.get(0).partStatus);
+		assertEquals(ParticipationStatus.Accepted, event.main.attendees.get(0).partStatus);
 
 		assertNotNull(event.main.categories);
 		assertEquals(1, event.main.categories.size());
 
-		event.main.attendees.get(0).partStatus = VEvent.ParticipationStatus.NeedsAction;
+		event.main.attendees.get(0).partStatus = ParticipationStatus.NeedsAction;
 		event.main.categories.add(tagRef2);
 
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
 
 		item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
 		event = item.value;
-		assertEquals(VEvent.ParticipationStatus.NeedsAction, event.main.attendees.get(0).partStatus);
+		assertEquals(ParticipationStatus.NeedsAction, event.main.attendees.get(0).partStatus);
 		assertEquals(2, event.main.categories.size());
 	}
 
@@ -1324,10 +1418,10 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	// String uid = "test_" + System.nanoTime();
 	//
 	// // add forbidden
-	// VEvent.Attendee attendee =
-	// VEvent.Attendee.create(VEvent.CUType.Individual, "",
-	// VEvent.Role.RequiredParticipant,
-	// VEvent.ParticipationStatus.NeedsAction, true, "", "", "",
+	// Attendee attendee =
+	// Attendee.create(CUType.Individual, "",
+	// Role.RequiredParticipant,
+	// ParticipationStatus.NeedsAction, true, "", "", "",
 	// forbidden.value.contactInfos.identification.formatedName.value, "", "",
 	// null,
 	// forbidden.value.login + "@bm.lan");
@@ -1342,9 +1436,9 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	// assertEquals(2, event.attendees.size());
 	//
 	// boolean forbiddenFound = false;
-	// for (VEvent.Attendee a : event.attendees) {
+	// for (Attendee a : event.attendees) {
 	// if (a.mailto.equals(forbidden.value.login + "@bm.lan")) {
-	// assertEquals(VEvent.ParticipationStatus.Forbidden, a.partStatus);
+	// assertEquals(ParticipationStatus.Forbidden, a.partStatus);
 	// forbiddenFound = true;
 	// }
 	// }
@@ -1358,10 +1452,10 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		String uid = "test_" + System.nanoTime();
 
 		// add vcard with 2 members to event attendees
-		// FIXME VEvent.CUType.Group ? don't really care for now
-		VEvent.Attendee attendee = VEvent.Attendee.create(VEvent.CUType.Group, "", VEvent.Role.RequiredParticipant,
-				VEvent.ParticipationStatus.NeedsAction, true, "", "", "", "", "", "",
-				"book:Contacts_" + testUser.uid + "/" + dlistItemValue.uid, dlistItemValue.value.defaultMail());
+		// FIXME CUType.Group ? don't really care for now
+		Attendee attendee = Attendee.create(CUType.Group, "", Role.RequiredParticipant, ParticipationStatus.NeedsAction,
+				true, "", "", "", "", "", "", "book:Contacts_" + testUser.uid + "/" + dlistItemValue.uid,
+				dlistItemValue.value.defaultMail());
 
 		event.main.attendees.add(attendee);
 
@@ -1403,8 +1497,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		VEventSeries event = defaultVEvent();
 		String uid = "test_" + System.nanoTime();
 		// add group with 2 members to event attendees
-		VEvent.Attendee attendee = VEvent.Attendee.create(VEvent.CUType.Group, "", VEvent.Role.RequiredParticipant,
-				VEvent.ParticipationStatus.NeedsAction, true, "", "", "", "", "", "", "", null);
+		Attendee attendee = Attendee.create(CUType.Group, "", Role.RequiredParticipant, ParticipationStatus.NeedsAction,
+				true, "", "", "", "", "", "", "", null);
 		attendee.dir = "bm://bm.lan/groups/" + groupUid;
 		event.main.attendees.add(attendee);
 
@@ -1420,9 +1514,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		VEventSeries event = defaultVEvent();
 		String uid = "test_" + System.nanoTime();
 		// add group with 2 members to event attendees
-		VEvent.Attendee attendee = VEvent.Attendee.create(VEvent.CUType.Group, "", VEvent.Role.RequiredParticipant,
-				VEvent.ParticipationStatus.NeedsAction, true, "", "", "", "", "", "", null,
-				group.emails.iterator().next().address);
+		Attendee attendee = Attendee.create(CUType.Group, "", Role.RequiredParticipant, ParticipationStatus.NeedsAction,
+				true, "", "", "", "", "", "", null, group.emails.iterator().next().address);
 
 		event.main.attendees.add(attendee);
 
@@ -1514,8 +1607,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		VEventSeries event = defaultVEvent();
 		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 8, 0, 0, 0, tz));
-		VEvent.RRule rrule = new VEvent.RRule();
-		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
+		RRule rrule = new RRule();
+		rrule.frequency = RRule.Frequency.MONTHLY;
 		rrule.interval = 1;
 		event.main.rrule = rrule;
 
@@ -1579,7 +1672,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testUpdateRecurringEventShouldDeleteExceptions() throws Exception {
 		VEventSeries event = defaultVEvent();
-		event.main.rrule = new VEvent.RRule();
+		event.main.rrule = new RRule();
 		event.main.rrule.frequency = Frequency.DAILY;
 		String uid = "test_" + System.nanoTime();
 
@@ -1696,8 +1789,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	public void testSearchOccurrences() throws ServerFault {
 		VEventSeries event = defaultVEvent();
 		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 8, 0, 0, 0, tz));
-		VEvent.RRule rrule = new VEvent.RRule();
-		rrule.frequency = VEvent.RRule.Frequency.DAILY;
+		RRule rrule = new RRule();
+		rrule.frequency = RRule.Frequency.DAILY;
 		rrule.interval = 1;
 		rrule.count = 5;
 		event.main.rrule = rrule;
@@ -1871,5 +1964,17 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		ItemValue<VEventSeries> updated = service.getComplete(uid);
 		assertEquals(updated.value.main.url, created.value.main.url);
 		assertEquals(updated.value.main.conference, created.value.main.conference);
+	}
+
+	private ItemValue<VEventSeries> defaultVEventItem(long id) throws ParseException {
+		Item item = new Item();
+		item.id = id;
+		item.uid = "test_" + System.nanoTime();
+		item.externalId = "externalId" + System.nanoTime();
+		item.displayName = "test";
+		item.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
+		item.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
+		item.version = 17;
+		return ItemValue.create(item, defaultVEvent());
 	}
 }
