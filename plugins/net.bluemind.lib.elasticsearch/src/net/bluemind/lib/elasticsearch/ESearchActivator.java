@@ -24,8 +24,10 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -358,10 +360,12 @@ public final class ESearchActivator implements BundleActivator {
 	public static void resetAll() {
 		Client client = ESearchActivator.getClient();
 		GetIndexResponse resp = client.admin().indices().prepareGetIndex().addIndices("*").get();
+		List<String> indices = Arrays.asList(resp.indices()).stream().filter(indexName -> !indexName.startsWith(".ds-"))
+				.collect(Collectors.toList());
 
-		if (resp.indices().length > 0) {
-			logger.warn("Full ES reset of {} ", (Object) resp.indices());
-			client.admin().indices().prepareDelete(resp.indices()).get();
+		if (!indices.isEmpty()) {
+			logger.warn("Full ES reset of {} ", indices);
+			client.admin().indices().prepareDelete(indices.toArray(new String[0])).get();
 		}
 	}
 
