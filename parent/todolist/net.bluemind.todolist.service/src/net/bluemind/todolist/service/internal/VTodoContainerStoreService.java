@@ -68,8 +68,9 @@ public class VTodoContainerStoreService extends ContainerStoreService<VTodo> {
 	}
 
 	@Override
-	protected void createValue(Item item, VTodo value) throws ServerFault, SQLException {
-		super.createValue(item, value);
+	protected void createValue(Item item, VTodo value, IItemValueStore<VTodo> itemValueStore)
+			throws ServerFault, SQLException {
+		super.createValue(item, value, itemValueStore);
 		List<TagRef> tags = value.categories;
 		if (tags == null) {
 			tags = Collections.emptyList();

@@ -356,7 +356,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 	}
 
-	protected void createValue(Item item, T value) throws SQLException {
+	private void createValue(Item item, T value) throws SQLException {
 		createValue(item, value, itemValueStore);
 	}
 

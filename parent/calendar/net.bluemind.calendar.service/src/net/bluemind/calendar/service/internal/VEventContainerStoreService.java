@@ -121,8 +121,9 @@ public class VEventContainerStoreService extends ContainerStoreService<VEventSer
 	}
 
 	@Override
-	protected void createValue(Item item, VEventSeries value) throws ServerFault, SQLException {
-		super.createValue(item, value);
+	protected void createValue(Item item, VEventSeries value, IItemValueStore<VEventSeries> itemValueStore)
+			throws ServerFault, SQLException {
+		super.createValue(item, value, itemValueStore);
 		if (value.main == null) {
 			return;
 		}

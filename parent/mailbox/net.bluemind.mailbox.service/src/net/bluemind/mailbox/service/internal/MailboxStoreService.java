@@ -28,6 +28,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.persistence.ChangelogStore.LogEntry;
+import net.bluemind.core.container.persistence.IItemValueStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.mailbox.api.MailFilter;
@@ -52,8 +53,9 @@ public class MailboxStoreService extends ContainerStoreService<Mailbox> {
 	}
 
 	@Override
-	protected void createValue(Item item, Mailbox value) throws ServerFault, SQLException {
-		super.createValue(item, value);
+	protected void createValue(Item item, Mailbox value, IItemValueStore<Mailbox> itemValueStore)
+			throws ServerFault, SQLException {
+		super.createValue(item, value, itemValueStore);
 		try {
 			mailFilterStore.set(item, new MailFilter());
 		} catch (SQLException e) {

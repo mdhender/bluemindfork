@@ -108,16 +108,15 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 	}
 
 	@Override
-	protected void createValue(Item item, VCard value) throws ServerFault, SQLException {
-		super.createValue(item, value);
+	protected void createValue(Item item, VCard value, IItemValueStore<VCard> itemValueStore)
+			throws ServerFault, SQLException {
+		super.createValue(item, value, itemValueStore);
 		List<TagRef> tags = value.explanatory.categories;
 		if (tags == null) {
 			tags = Collections.emptyList();
 		}
 		tagRefService.create(item, tags);
-
 		indexStore.create(item, value);
-
 	}
 
 	@Override
