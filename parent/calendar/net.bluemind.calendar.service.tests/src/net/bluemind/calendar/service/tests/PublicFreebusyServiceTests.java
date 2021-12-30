@@ -60,7 +60,7 @@ public class PublicFreebusyServiceTests extends AbstractCalendarTests {
 	public void testSimple() throws ServerFault, IOException, ParserException {
 		VEventSeries vevent = defaultVEvent();
 		ZonedDateTime dtstart = ZonedDateTime.now().minusMonths(3).minusDays(2);
-		while (dtstart.get(ChronoField.DAY_OF_MONTH) > 28) {
+		while (dtstart.get(ChronoField.DAY_OF_MONTH) >= 28) {
 			dtstart = dtstart.minusDays(1);
 		}
 		vevent.main.dtstart = BmDateTimeHelper.time(dtstart);
