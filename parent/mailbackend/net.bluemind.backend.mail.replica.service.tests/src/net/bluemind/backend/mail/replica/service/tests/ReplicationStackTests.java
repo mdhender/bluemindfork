@@ -1474,8 +1474,8 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		assertNull(subFound);
 	}
 
-	@Test 
-	public void mailshareSimpleMoveFolder() 
+	@Test
+	public void mailshareSimpleMoveFolder()
 			throws IMAPException, InterruptedException, ExecutionException, TimeoutException {
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IMailshare mailshareApi = prov.instance(IMailshare.class, domainUid);
@@ -1531,7 +1531,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		ItemIdentifier freshId2 = folders.createBasic(child2);
 		ItemValue<MailboxFolder> freshFolder2 = folders.getComplete(freshId2.uid);
 		freshFolder2.value.parentUid = root.uid;
-		
+
 		folders.updateById(freshFolder2.internalId, freshFolder2.value);
 		freshFolder2 = folders.getComplete(freshId2.uid);
 		assertNotNull(freshFolder2);
@@ -1543,7 +1543,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		ItemValue<MailboxFolder> refetch = folders.getComplete(freshFolder2.uid);
 		assertEquals(freshFolder.uid, refetch.value.parentUid);
 	}
-	
+
 	@Test
 	public void mailshareCreateSubfolderContainingSpecialChars()
 			throws IMAPException, InterruptedException, ExecutionException, TimeoutException {
@@ -2162,7 +2162,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 					+ iv.value.parentUid);
 		}
 	}
-	
+
 	@Test
 	public void emptyEmptyFolderWithMultipleChildren() throws IMAPException, InterruptedException, IOException {
 		IServiceProvider clientProv = provider();
@@ -2211,6 +2211,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 					+ iv.value.parentUid);
 		}
 	}
+
 	@Test
 	public void emptyEmptyFolder() throws IMAPException, InterruptedException, IOException {
 		IServiceProvider clientProv = provider();
@@ -3111,15 +3112,15 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		IDbReplicatedMailboxes fullFolders = provider().instance(IDbReplicatedMailboxes.class, partition,
 				mailshare.name);
 		List<ItemValue<MailboxReplica>> allFoldersFull = fullFolders.allReplicas();
-		assertEquals(2, allFoldersFull.size());
+		assertEquals(3, allFoldersFull.size());
 		boolean found = false;
 		boolean foundSent = false;
+		boolean foundTrash = false;
 
 		for (ItemValue<MailboxReplica> folder : allFoldersFull) {
 			System.out.println("Got " + folder.uid + ", " + folder.value.fullName);
-			if ((mailshare.name + "/Sent").equals(folder.value.fullName)) {
-				foundSent = true;
-			}
+			foundSent |= (mailshare.name + "/Sent").equals(folder.value.fullName);
+			foundTrash |= (mailshare.name + "/Trash").equals(folder.value.fullName);
 			if (mailshare.name.equals(folder.value.fullName)) {
 				found = true;
 			}
@@ -3127,7 +3128,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
 		assertTrue(found);
 		assertTrue(foundSent);
-
+		assertTrue(foundTrash);
 	}
 
 	@Test
