@@ -457,6 +457,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				return null;
 			}
 			item = itemStore.touch(uid);
+			ItemValue<T> itemValue = getItemValue(item);
 			deleteValue(item);
 			if (hasChangeLog) {
 				changelogStore.itemDeleted(LogEntry.create(item.version, item.uid, item.externalId,
@@ -464,6 +465,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				containerChangeEventProducer.get().produceEvent();
 			}
 			itemStore.delete(item);
+			backupStream.delete(itemValue);
 			return ItemUpdate.of(item);
 		});
 	}

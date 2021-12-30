@@ -23,6 +23,7 @@ import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.backup.continuous.DataElement;
+import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -49,14 +50,33 @@ public class RestoreVCard implements RestoreDomainType {
 
 	@Override
 	public void restore(DataElement de) {
-		ItemValue<VCard> item = mrReader.read(new String(de.payload));
+		String payload = new String(de.payload);
 		IAddressBook bookApi = target.instance(IAddressBook.class, de.key.uid);
+		if (de.payload.length > 0) {
+			createOrUpdate(payload, bookApi);
+		} else {
+			delete(de.key, bookApi);
+		}
+
+	}
+
+	private void createOrUpdate(String payload, IAddressBook bookApi) {
+		ItemValue<VCard> item = mrReader.read(payload);
 		ItemValue<VCard> existing = bookApi.getCompleteById(item.internalId);
 		if (existing != null) {
-			bookApi.updateById(item.internalId, item.value);
+			bookApi.updateWithItem(item);
+			monitor.log("Update VCard '" + item.displayName + "'");
 		} else {
-			bookApi.createById(item.internalId, item.value);
+			bookApi.createWithItem(item);
 			monitor.log("Create VCard '" + item.displayName + "'");
+		}
+	}
+
+	private void delete(RecordKey key, IAddressBook bookApi) {
+		try {
+			bookApi.deleteById(key.id);
+		} catch (Exception e) {
+			monitor.log("Fails to delete resourceTypes: " + key);
 		}
 	}
 
