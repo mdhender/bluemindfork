@@ -103,6 +103,8 @@ import net.bluemind.mailbox.api.IMailboxMgmt;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.hook.IMailboxHook;
+import net.bluemind.notes.api.INote;
+import net.bluemind.notes.api.INoteUids;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tag.api.ITagUids;
@@ -356,6 +358,7 @@ public class DirectoryXfer implements AutoCloseable {
 		xferContainers(monitor.subWork(1), IDeferredActionContainerUids.TYPE,
 				containerUid -> sp.instance(IDeferredAction.class, containerUid));
 		xferContainers(monitor.subWork(1), ITodoUids.TYPE, containerUid -> sp.instance(ITodoList.class, containerUid));
+		xferContainers(monitor.subWork(1), INoteUids.TYPE, containerUid -> sp.instance(INote.class, containerUid));
 		xferContainers(monitor.subWork(1), ITagUids.TYPE, containerUid -> sp.instance(ITags.class, containerUid));
 		xferContainers(monitor.subWork(1), IFlatHierarchyUids.TYPE,
 				containerUid -> sp.instance(IContainersFlatHierarchy.class, domainUid, entryUid));

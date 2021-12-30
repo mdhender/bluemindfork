@@ -42,6 +42,7 @@
 		<module>net.bluemind.mailflow.common.api.php</module>
 		<module>net.bluemind.scheduledjob.api.php</module>
 		<module>net.bluemind.backend.mail.api.php</module>
+		<module>net.bluemind.notes.api.php</module>
 	</modules>
 
 	<build>

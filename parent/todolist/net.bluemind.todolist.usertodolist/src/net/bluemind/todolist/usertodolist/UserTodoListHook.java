@@ -93,7 +93,7 @@ public class UserTodoListHook extends DefaultUserHook {
 				deleteTodoList(user, defaultTodo);
 				IContainers cs = sp().instance(IContainers.class);
 				ContainerQuery query = new ContainerQuery();
-				query.type = "todolist";
+				query.type = ITodoUids.TYPE;
 				query.owner = user.uid;
 				cs.all(query).forEach(todo -> deleteTodoList(user, todo.uid));
 			} catch (ServerFault e) {

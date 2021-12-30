@@ -55,25 +55,25 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin> 
-			  <artifactId>maven-javadoc-plugin</artifactId> 
-			  <version>2.7</version> 
-			    <executions> 
-			      <execution> 
-			        <phase>package</phase> 
-			        <goals> 
-			            <goal>jar</goal> 
-			        </goals> 
-			        <configuration> 
-			          <failOnError>false</failOnError>
-				  <includeDependencySources>true</includeDependencySources> 
-			          <dependencySourceIncludes> 
-			            <dependencySourceInclude>net.bluemind:*</dependencySourceInclude> 
-			          </dependencySourceIncludes> 
-			        </configuration> 
-			      </execution> 
-			    </executions> 
-			</plugin> 
+			<plugin>
+			  <artifactId>maven-javadoc-plugin</artifactId>
+			  <version>2.7</version>
+		    <executions>
+		      <execution>
+		        <phase>package</phase>
+		        <goals>
+		            <goal>jar</goal>
+		        </goals>
+		        <configuration>
+		          <failOnError>false</failOnError>
+			  			<includeDependencySources>true</includeDependencySources>
+		          <dependencySourceIncludes>
+		            <dependencySourceInclude>net.bluemind:*</dependencySourceInclude>
+		          </dependencySourceIncludes>
+		        </configuration>
+		      </execution>
+		    </executions>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -426,6 +426,12 @@
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.videoconferencing.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.notes.api</artifactId>
 			<version>4.1.0-SNAPSHOT</version>
 		</dependency>
 

@@ -18,6 +18,7 @@
  */
 package net.bluemind.ui.adminconsole.dataprotect;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Style.Unit;
@@ -77,7 +78,7 @@ public class DPRestoreDialog extends DialogBox {
 		dlp.addNorth(content, 300);
 		dlp.addSouth(buttons, 30);
 
-		dlp.setHeight("260px");
+		dlp.setHeight("300px");
 		dlp.setWidth("472px");
 		setWidget(dlp);
 

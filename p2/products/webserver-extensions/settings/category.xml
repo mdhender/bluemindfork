@@ -44,6 +44,8 @@
    <bundle id="net.bluemind.ui.gwttag" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.todolist.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.todolist.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.notes.api.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.notes.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.authentication.api.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.ui.banner" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.databases.utils" version="4.1.0.qualifier"/>

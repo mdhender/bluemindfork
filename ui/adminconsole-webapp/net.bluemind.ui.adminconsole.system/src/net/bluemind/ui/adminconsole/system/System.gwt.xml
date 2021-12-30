@@ -8,5 +8,6 @@
 	<inherits name="net.bluemind.mailflow.MailflowApi" />
 	<inherits name="net.bluemind.system.SystemApi" />
 	<inherits name="net.bluemind.server.ServerApi"/>
+	<inherits name="net.bluemind.notes.NotesApi"/>
 	<source path='' />
 </module>

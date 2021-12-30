@@ -46,6 +46,7 @@ Require-Bundle: net.bluemind.core.context;bundle-version="1.0.0";resolution:=opt
  net.bluemind.system.ldap.importation.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.tag.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.todolist.api;bundle-version="1.0.0";resolution:=optional,
+ net.bluemind.notes.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.user.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.backend.mail.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.backend.mail.replica.api;bundle-version="1.0.0";resolution:=optional,

@@ -50,7 +50,8 @@
 						<apiName>net.bluemind.todolist.api</apiName>
 						<apiName>net.bluemind.user.api</apiName>
 						<apiName>net.bluemind.mailmessage.api</apiName>
-                        <apiName>net.bluemind.externaluser.api</apiName>
+            <apiName>net.bluemind.externaluser.api</apiName>
+            <apiName>net.bluemind.notes.api</apiName>
 					</apiNames>
 				</configuration>
 				<executions>

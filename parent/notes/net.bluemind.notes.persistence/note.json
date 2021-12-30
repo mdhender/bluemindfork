@@ -1,0 +1,35 @@
+{
+	"settings": {
+		"index": {
+		    "number_of_shards": 1,
+		    "number_of_replicas": 0
+		}
+	},
+	"mappings": {
+		"vnote": {
+			"properties": {
+				"containerUid": {
+					"type": "keyword",
+					"index":true
+				},
+				"uid": {
+					"type": "keyword",
+					"store": true
+				},
+				"value": {
+					"properties": {
+					    "subject": {
+							"type": "text"
+						},
+					    "body": {
+							"type": "text"
+						},
+						"color": {
+							"type": "keyword"
+						}
+					}
+				}
+			}
+		}
+	}
+}

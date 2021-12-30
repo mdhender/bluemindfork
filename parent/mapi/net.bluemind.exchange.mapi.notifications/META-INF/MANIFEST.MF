@@ -21,8 +21,10 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.mail.replica.api,
  net.bluemind.calendar.api,
  net.bluemind.todolist.api,
+ net.bluemind.notes.api,
  net.bluemind.mailbox.api,
- net.bluemind.exchange.publicfolders.common
+ net.bluemind.exchange.publicfolders.common,
+ net.bluemind.notes.hook
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.exchange.mapi.notifications

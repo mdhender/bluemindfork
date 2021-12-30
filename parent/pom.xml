@@ -66,6 +66,7 @@
 		<module>tag</module>
 		<module>testhelpers</module>
 		<module>todolist</module>
+		<module>notes</module>
 		<module>topology</module>
 		<module>user</module>
 		<module>webmail</module>

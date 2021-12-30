@@ -60,6 +60,7 @@ import net.bluemind.tag.api.TagRef;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.ITodoLists;
+import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.todolist.api.TodoListsVTodoQuery;
 import net.bluemind.todolist.api.VTodo;
 import net.bluemind.todolist.api.VTodoQuery;
@@ -121,14 +122,14 @@ public class TodoListsServiceTests {
 	@Test
 	public void create() throws Exception {
 
-		List<String> subs = userSubscriptionStore.listSubscriptions(userUid, "todolist");
+		List<String> subs = userSubscriptionStore.listSubscriptions(userUid, ITodoUids.TYPE);
 
 		String uid = UUID.randomUUID().toString();
 		ContainerDescriptor cd = new ContainerDescriptor();
 		cd.defaultContainer = false;
 		cd.domainUid = "bm.lan";
 		cd.name = "new container";
-		cd.type = "todolist";
+		cd.type = ITodoUids.TYPE;
 		cd.uid = uid;
 		cd.owner = userUid;
 
@@ -136,7 +137,7 @@ public class TodoListsServiceTests {
 
 		Container c = containerStore.get(uid);
 		assertNotNull(c);
-		assertEquals(subs.size() + 1, userSubscriptionStore.listSubscriptions(userUid, "todolist").size());
+		assertEquals(subs.size() + 1, userSubscriptionStore.listSubscriptions(userUid, ITodoUids.TYPE).size());
 
 		List<AccessControlEntry> acls = aclStore.get(c);
 		assertEquals(1, acls.size());
@@ -149,7 +150,7 @@ public class TodoListsServiceTests {
 		cd.defaultContainer = false;
 		cd.domainUid = "bm.lan";
 		cd.name = "new container";
-		cd.type = "todolist";
+		cd.type = ITodoUids.TYPE;
 		cd.uid = uid;
 		cd.owner = "test";
 
@@ -185,7 +186,7 @@ public class TodoListsServiceTests {
 		cd.defaultContainer = false;
 		cd.domainUid = "bm.lan";
 		cd.name = "new container";
-		cd.type = "todolist";
+		cd.type = ITodoUids.TYPE;
 		cd.uid = containerUid;
 		cd.owner = userUid;
 

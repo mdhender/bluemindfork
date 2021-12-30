@@ -54,6 +54,7 @@
 						<apiName>net.bluemind.user.api</apiName>
 						<apiName>net.bluemind.externaluser.api</apiName>
 						<apiName>net.bluemind.attachment.api</apiName>
+						<apiName>net.bluemind.notes.api</apiName>
 					</apiNames>
 				</configuration>
 				<executions>

@@ -1,0 +1,6 @@
+[{ 
+ 	"name":"bluemind/postgres-tests" 
+ },
+ { 
+    "name":"bluemind/elasticsearch-tests" 
+}]

@@ -97,4 +97,6 @@ public interface DPTexts extends Messages {
 
 	String sendtodolistics();
 
+	String replacenotes();
+
 }

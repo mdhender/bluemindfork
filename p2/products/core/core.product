@@ -193,6 +193,7 @@
       <plugin id="net.bluemind.dataprotect.service"/>
       <plugin id="net.bluemind.dataprotect.sqlschema"/>
       <plugin id="net.bluemind.dataprotect.todolist"/>
+      <plugin id="net.bluemind.dataprotect.notes"/>
       <plugin id="net.bluemind.dataprotect.user"/>
       <plugin id="net.bluemind.deferredaction.api"/>
       <plugin id="net.bluemind.deferredaction.persistence"/>
@@ -418,6 +419,12 @@
       <plugin id="net.bluemind.todolist.service"/>
       <plugin id="net.bluemind.todolist.sqlschema"/>
       <plugin id="net.bluemind.todolist.usertodolist"/>
+      <plugin id="net.bluemind.notes.api"/>
+      <plugin id="net.bluemind.notes.hook"/>
+      <plugin id="net.bluemind.notes.persistence"/>
+      <plugin id="net.bluemind.notes.service"/>
+      <plugin id="net.bluemind.notes.sqlschema"/>
+      <plugin id="net.bluemind.notes.usernotes"/>
       <plugin id="net.bluemind.user.accounts.persistence"/>
       <plugin id="net.bluemind.user.accounts.service"/>
       <plugin id="net.bluemind.user.accounts.sqlschema"/>

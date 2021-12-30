@@ -30,6 +30,8 @@
 		<module>net.bluemind.dataprotect.todolist.tests</module>
 		<module>net.bluemind.dataprotect.config</module>
 		<module>net.bluemind.dataprotect.directory</module>
+		<module>net.bluemind.dataprotect.notes</module>
+		<module>net.bluemind.dataprotect.notes.tests</module>
 	</modules>
 
 </project>

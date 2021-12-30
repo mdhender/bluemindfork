@@ -19,6 +19,7 @@ Require-Bundle: net.bluemind.ui.gwtcommon.icons;bundle-version="4.1.0";visibilit
  net.bluemind.addressbook.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.domain.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.todolist.api.gwt;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.notes.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.ui.gwttag;visibility:=reexport,
  net.bluemind.ui.gwtcalendar
 Export-Package: net.bluemind.ui.gwtuser.client,

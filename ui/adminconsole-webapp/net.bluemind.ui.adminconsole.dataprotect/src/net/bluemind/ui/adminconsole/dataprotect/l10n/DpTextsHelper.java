@@ -40,6 +40,8 @@ public class DpTextsHelper {
 			return DPTexts.INST.replacecalendars();
 		case "replace.todolists":
 			return DPTexts.INST.replacetodolists();
+		case "replace.notes":
+			return DPTexts.INST.replacenotes();
 		case "send.books.vcf":
 			return DPTexts.INST.sendbooksvcf();
 		case "send.calendars.ics":

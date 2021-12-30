@@ -41,6 +41,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtScreenRoot;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.mailbox.api.gwt.endpoint.MailboxMgmtGwtEndpoint;
+import net.bluemind.notes.api.gwt.endpoint.NoteIndexMgmtGwtEndpoint;
 import net.bluemind.todolist.api.gwt.endpoint.TodoListsMgmtGwtEndpoint;
 import net.bluemind.ui.adminconsole.base.Actions;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
@@ -65,6 +66,9 @@ public class ReindexScreen extends Composite implements IGwtScreenRoot {
 
 	@UiField
 	Button todolist;
+
+	@UiField
+	Button notes;
 
 	private static UpdateBinder uiBinder = GWT.create(UpdateBinder.class);
 
@@ -113,6 +117,18 @@ public class ReindexScreen extends Composite implements IGwtScreenRoot {
 
 		todolist.addClickHandler((e) -> {
 			TodoListsMgmtGwtEndpoint service = new TodoListsMgmtGwtEndpoint(Ajax.TOKEN.getSessionId());
+			service.reindexAll(new DefaultAsyncHandler<TaskRef>() {
+
+				@Override
+				public void success(TaskRef value) {
+					progress(value);
+				}
+
+			});
+		});
+
+		notes.addClickHandler((e) -> {
+			NoteIndexMgmtGwtEndpoint service = new NoteIndexMgmtGwtEndpoint(Ajax.TOKEN.getSessionId());
 			service.reindexAll(new DefaultAsyncHandler<TaskRef>() {
 
 				@Override

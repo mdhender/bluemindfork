@@ -135,6 +135,7 @@
       <plugin id="net.bluemind.tag.api.gwt"/>
       <plugin id="net.bluemind.todolist.adapter"/>
       <plugin id="net.bluemind.todolist.api"/>
+      <plugin id="net.bluemind.notes.api"/>
       <plugin id="net.bluemind.ui.dynresources"/>
       <plugin id="net.bluemind.ui.resources"/>
       <plugin id="net.bluemind.user.api"/>

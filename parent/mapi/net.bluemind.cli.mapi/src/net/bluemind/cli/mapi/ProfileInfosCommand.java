@@ -53,6 +53,7 @@ import net.bluemind.exchange.mapi.api.MapiReplica;
 import net.bluemind.exchange.publicfolders.common.PublicFolders;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.notes.api.INoteUids;
 import net.bluemind.todolist.api.ITodoUids;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
@@ -61,7 +62,7 @@ import picocli.CommandLine.Parameters;
 public class ProfileInfosCommand implements ICmdLet, Runnable {
 
 	Set<String> mapiRelatedTypes = Sets.newHashSet(IAddressBookUids.TYPE, ICalendarUids.TYPE, MapiFolderContainer.TYPE,
-			MapiFAIContainer.TYPE, IMailReplicaUids.REPLICATED_MBOXES, ITodoUids.TYPE);
+			MapiFAIContainer.TYPE, IMailReplicaUids.REPLICATED_MBOXES, ITodoUids.TYPE, INoteUids.TYPE);
 
 	private static class SubtreeProc implements NodeProcessor {
 

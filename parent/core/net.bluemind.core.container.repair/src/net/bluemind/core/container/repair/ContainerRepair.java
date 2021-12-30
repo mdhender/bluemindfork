@@ -34,7 +34,7 @@ import net.bluemind.directory.service.IDirEntryRepairSupport;
 
 public class ContainerRepair implements IDirEntryRepairSupport {
 
-	private static final String REPAIR_OP_ID = "containers";
+	public static final String REPAIR_OP_ID = "containers";
 	private final BmContext context;
 
 	public static final MaintenanceOperation containerOp = MaintenanceOperation.create(ContainerRepair.REPAIR_OP_ID,

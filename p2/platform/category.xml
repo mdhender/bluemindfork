@@ -590,6 +590,14 @@
     <bundle id="net.bluemind.todolist.sqlschema" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.todolist.ui.closure" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.todolist.usertodolist" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.notes.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.notes.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.notes.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.notes.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.notes.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.notes.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.notes.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.notes.usernotes" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.tracing" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.ui.adminconsole.base" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.ui.adminconsole.cti" version="4.1.0.qualifier" />

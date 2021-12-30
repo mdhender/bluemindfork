@@ -126,8 +126,12 @@ public class RestoreUserTask implements IServerTask {
 		RestoreDefinition restoreTodolists = new RestoreDefinition("replace.todolists", backup.id, item);
 		executeTask(dp, restoreTodolists);
 
-		monitor.end(true, "user " + item.entryUid + ":" + item.displayName + " restored", "");
+		logger.info("Restoring user notes {}:{}", item.entryUid, item.displayName);
 
+		RestoreDefinition restoreNotes = new RestoreDefinition("replace.notes", backup.id, item);
+		executeTask(dp, restoreNotes);
+
+		monitor.end(true, "user " + item.entryUid + ":" + item.displayName + " restored", "");
 	}
 
 	private ItemValue<User> createOrUpdateLiveUser(IServiceProvider live, ItemValue<User> backupUser) {

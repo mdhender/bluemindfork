@@ -12,12 +12,12 @@
 		<version>4.1.0-SNAPSHOT</version>
 	</parent>
 	<modules>
-        <module>api-jar</module>
+    <module>api-jar</module>
 		<module>csharp</module>
 		<module>js</module>
 		<module>mozjs-libs</module>
 		<module>python</module>
 		<module>php-libs</module>
-        <module>php</module>
+    <module>php</module>
 	</modules>
 </project>

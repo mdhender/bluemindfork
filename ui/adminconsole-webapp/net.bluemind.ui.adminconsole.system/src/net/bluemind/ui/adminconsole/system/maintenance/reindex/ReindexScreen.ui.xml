@@ -46,6 +46,15 @@
 				</td>
 			</tr>
 		</table>
+		
+		<f:FieldSetPanel name="{c.notes}" />
+		<table border="0">
+			<tr>
+				<td style='width:400px'>
+					<g:Button ui:field="notes" text="{c.reindex}"></g:Button>
+				</td>
+			</tr>
+		</table>
 	
 	</g:HTMLPanel>
 </ui:UiBinder>

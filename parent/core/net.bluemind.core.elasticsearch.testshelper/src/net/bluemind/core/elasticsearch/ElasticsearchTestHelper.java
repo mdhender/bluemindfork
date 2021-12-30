@@ -125,14 +125,15 @@ public class ElasticsearchTestHelper implements BundleActivator {
 		} catch (Exception e) {
 		}
 		try {
-
 			getClient().admin().indices().prepareDelete("event").execute().actionGet();
 		} catch (Exception e) {
 		}
-
 		try {
-
 			getClient().admin().indices().prepareDelete("todo").execute().actionGet();
+		} catch (Exception e) {
+		}
+		try {
+			getClient().admin().indices().prepareDelete("note").execute().actionGet();
 		} catch (Exception e) {
 		}
 	}
@@ -149,6 +150,7 @@ public class ElasticsearchTestHelper implements BundleActivator {
 			ESearchActivator.resetIndex("contact");
 			ESearchActivator.resetIndex("event");
 			ESearchActivator.resetIndex("todo");
+			ESearchActivator.resetIndex("note");
 			ESearchActivator.resetIndex("im");
 		} catch (Exception n) {
 			String host = getHost();

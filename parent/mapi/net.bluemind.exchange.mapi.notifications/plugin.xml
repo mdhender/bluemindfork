@@ -32,6 +32,12 @@
       </hook>
    </extension>
    <extension
+         point="net.bluemind.notes.hook">
+      <hook
+            impl="net.bluemind.exchange.mapi.notifications.VNoteConsumer">
+      </hook>
+   </extension>
+   <extension
          point="net.bluemind.core.rest.eventBusAccessRule">
       <access-rule
             class="net.bluemind.exchange.mapi.notifications.MapiItemNotificationAccessRule">

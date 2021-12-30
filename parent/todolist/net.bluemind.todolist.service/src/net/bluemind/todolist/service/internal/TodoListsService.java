@@ -140,7 +140,7 @@ public class TodoListsService implements ITodoLists {
 		Set<String> containers = null == query.containers ? new HashSet<>() : new HashSet<>(query.containers);
 
 		if (null != query.owner) {
-			ContainerQuery containerQuery = ContainerQuery.ownerAndType(query.owner, "todolist");
+			ContainerQuery containerQuery = ContainerQuery.ownerAndType(query.owner, ITodoUids.TYPE);
 			final IContainers containerService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(IContainers.class);
 			containerService.allForUser(ctx.getSecurityContext().getContainerUid(), query.owner, containerQuery)

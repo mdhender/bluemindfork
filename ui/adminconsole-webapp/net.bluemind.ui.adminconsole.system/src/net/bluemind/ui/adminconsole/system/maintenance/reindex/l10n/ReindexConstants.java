@@ -34,4 +34,6 @@ public interface ReindexConstants extends ConstantsWithLookup {
 	public String calendar();
 
 	public String todolist();
+
+	public String notes();
 }
