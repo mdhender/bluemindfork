@@ -38,7 +38,8 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 				new RestoreVTodo(monitor, target), //
 				new RestoreMembership(monitor, domain, target), //
 				new RestoreRoles(monitor, domain, target), //
-				new RestoreOrgUnitAdminRoles(monitor, domain, target) //
+				new RestoreOrgUnitAdminRoles(monitor, domain, target), //
+				new RestoreMailFilter(monitor, domain, target) //
 		).stream().collect(Collectors.toMap(RestoreDomainType::type, Function.identity()));
 	}
 
@@ -46,7 +47,7 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 	public void handle(DataElement event) {
 		RestoreDomainType restore = restoresByType.get(event.key.type);
 		// logger.info("Restoring {} with {}", event.key.type, restore);
-		if (restore != null) { // system == "system".equals(event.key.owner) &&
+		if (restore != null) {
 			System.err.println("Restore " + event.key.type + " " + event.key.id);
 			restore.restore(event);
 		} else {

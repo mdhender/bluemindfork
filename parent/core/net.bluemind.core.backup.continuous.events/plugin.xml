@@ -50,5 +50,11 @@
             class="net.bluemind.core.backup.continuous.events.TokenContinuousHook">
       </state-listener>
    </extension>
+   <extension
+         point="net.bluemind.mailbox.hook">
+      <hook
+            class="net.bluemind.core.backup.continuous.events.MailFilterContinuousHook">
+      </hook>
+   </extension>
 
 </plugin>

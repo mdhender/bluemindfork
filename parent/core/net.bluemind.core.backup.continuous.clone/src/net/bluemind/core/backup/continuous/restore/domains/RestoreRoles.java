@@ -41,7 +41,7 @@ public class RestoreRoles implements RestoreDomainType {
 	@Override
 	public void restore(DataElement de) {
 		try {
-			monitor.log("Processing membership:\n" + de.key + "\n" + new String(de.payload));
+			monitor.log("Processing role:\n" + de.key + "\n" + new String(de.payload));
 			ItemValue<DirEntryRole> itemValue = rolesReader.read(new String(de.payload));
 			DirEntryRole roleEvent = itemValue.value;
 			switch (roleEvent.kind) {
@@ -61,7 +61,7 @@ public class RestoreRoles implements RestoreDomainType {
 				logger.warn("Receive roles for uid {} of unknown kind {}", itemValue.uid, roleEvent.kind);
 			}
 		} catch (Throwable t) {
-			monitor.log("Failed to restore membership: " + t.getMessage());
+			monitor.log("Failed to restore role: " + t.getMessage());
 		}
 	}
 }

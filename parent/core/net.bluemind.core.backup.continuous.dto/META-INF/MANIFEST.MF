@@ -7,7 +7,8 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.container.api,
  net.bluemind.group.api,
- net.bluemind.directory.api
+ net.bluemind.directory.api,
+ net.bluemind.mailbox.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.backup.continuous.dto
 Bundle-ActivationPolicy: lazy
