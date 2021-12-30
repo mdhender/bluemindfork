@@ -44,6 +44,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.api.Email;
+import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -60,8 +61,10 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.api.TaskStatus.State;
 import net.bluemind.core.utils.UIDGenerator;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.DirEntryQuery;
+import net.bluemind.directory.api.DirEntryQuery.StateFilter;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.domain.service.DomainsContainerIdentifier;
 import net.bluemind.group.api.Group;
@@ -384,6 +387,46 @@ public class DirectoryTests {
 		IDirectory dirFr = ServerSideServiceProvider.getProvider(ctxFr).instance(IDirectory.class, domainUid);
 		entry = dirFr.getEntry(String.format("%s/%s/%s", domainUid, "addressbooks", "addressbook_" + domainUid));
 		assertEquals("Annuaire", entry.displayName);
+	}
+
+	@Test
+	public void testSearchFilterByKindAndState() throws ServerFault, IOException {
+		IGroup groupService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IGroup.class,
+				domainUid);
+		Group group = new Group();
+		group.name = "group";
+		group.dataLocation = PopulateHelper.FAKE_CYRUS_IP;
+		groupService.create(UIDGenerator.uid(), group);
+
+		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
+				domainUid);
+
+		User user = new User();
+		user.login = "test";
+		user.contactInfos = new VCard();
+		user.contactInfos.identification.name.familyNames = "myName";
+		user.password = "test";
+		user.routing = Mailbox.Routing.none;
+		user.dataLocation = PopulateHelper.FAKE_CYRUS_IP;
+		userService.create(UIDGenerator.uid(), user);
+
+		user = new User();
+		user.login = "archived";
+		user.archived = true;
+		user.contactInfos = new VCard();
+		user.contactInfos.identification.name.familyNames = "archived";
+		user.password = "archived";
+		user.routing = Mailbox.Routing.none;
+		user.dataLocation = PopulateHelper.FAKE_CYRUS_IP;
+
+		String uid = UIDGenerator.uid();
+		userService.create(uid, user);
+
+		DirEntryQuery deq = DirEntryQuery.filterKind(Kind.USER);
+		deq.stateFilter = StateFilter.Archived;
+		ListResult<ItemValue<DirEntry>> result = service().search(deq);
+		assertEquals(1, result.total);
+		assertEquals(uid, result.values.get(0).uid);
 	}
 
 	private void waitTaskEnd(TaskRef taskRef) throws ServerFault {
