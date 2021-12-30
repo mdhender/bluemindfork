@@ -33,6 +33,12 @@
       </hook>
    </extension>
    <extension
+         point="net.bluemind.resource.resourceTypeHook">
+      <hook
+            class="net.bluemind.core.backup.continuous.events.ResourceTypeContinuousHook">
+      </hook>
+   </extension>
+   <extension
          point="net.bluemind.lib.vertx.verticles">
       <verticle
             impl="net.bluemind.core.backup.continuous.events.BubbleEventsVerticle$Factory">

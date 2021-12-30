@@ -39,11 +39,13 @@ import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.document.storage.DocumentStorage;
 import net.bluemind.document.storage.IDocumentStore;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.resource.api.type.ResourceType;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
+import net.bluemind.resource.hook.IResourceTypeHook;
 import net.bluemind.resource.persistence.ResourceTypeStore;
 import net.bluemind.role.api.BasicRoles;
 
@@ -57,6 +59,7 @@ public class ResourceTypesService implements IResourceTypes {
 	private Validator extValidator;
 	private IDocumentStore iconStore;
 	private RBACManager rbacManager;
+	private static List<IResourceTypeHook> hooks = getHooks();
 
 	public ResourceTypesService(BmContext context, String domainUid, Container resourcesContainer) throws ServerFault {
 		this.context = context;
@@ -66,6 +69,11 @@ public class ResourceTypesService implements IResourceTypes {
 		sanitizer = new Sanitizer(context);
 		extValidator = new Validator(context);
 		rbacManager = new RBACManager(context).forContainer(resourcesContainer);
+	}
+
+	private static List<IResourceTypeHook> getHooks() {
+		RunnableExtensionLoader<IResourceTypeHook> loader = new RunnableExtensionLoader<>();
+		return loader.loadExtensions("net.bluemind.resource", "resourceTypeHook", "hook", "class");
 	}
 
 	@Override
@@ -83,6 +91,8 @@ public class ResourceTypesService implements IResourceTypes {
 		extValidator.create(descriptor);
 
 		store.create(uid, descriptor);
+
+		hooks.forEach(hook -> hook.onCreate(context, domainUid, uid, descriptor));
 	}
 
 	@Override
@@ -114,6 +124,7 @@ public class ResourceTypesService implements IResourceTypes {
 		// FIXME Check Resource ref type
 		store.update(uid, descriptor);
 
+		hooks.forEach(hook -> hook.onUpdate(context, domainUid, uid, descriptor));
 	}
 
 	@Override
@@ -121,7 +132,7 @@ public class ResourceTypesService implements IResourceTypes {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_RESOURCE_TYPE);
 
 		ParametersValidator.notNullAndNotEmpty(uid);
-		ResourceTypeDescriptor previous = null;
+		ResourceTypeDescriptor previous;
 		try {
 			previous = store.get(uid);
 		} catch (SQLException e) {
@@ -147,6 +158,7 @@ public class ResourceTypesService implements IResourceTypes {
 
 		store.delete(uid);
 
+		hooks.forEach(hook -> hook.onDelete(context, domainUid, uid, previous));
 	}
 
 	@Override
