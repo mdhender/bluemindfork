@@ -54,6 +54,7 @@ public class MilterMainVerticle extends AbstractVerticle {
 			MilterSession session = new MilterSession(socket);
 			session.start();
 		});
+
 		srv.listen(2500, ar -> {
 			if (ar.succeeded()) {
 				logger.info("Milter verticle listening on {}.", 2500);
@@ -62,7 +63,5 @@ public class MilterMainVerticle extends AbstractVerticle {
 				start.fail(ar.cause());
 			}
 		});
-
 	}
-
 }

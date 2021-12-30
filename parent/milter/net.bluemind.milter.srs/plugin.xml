@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.milter.preactionfactory">
+      <pre_action_factory
+            impl="net.bluemind.milter.srs.SrsSender$SrsSenderFactory"></pre_action_factory>
+   </extension>
+   <extension
+         point="net.bluemind.milter.recipientcanonicalfactory">
+      <recipientcanonical_factory
+            impl="net.bluemind.milter.srs.SrsRecipient$SrsRecipientFactory">
+      </recipientcanonical_factory>
+   </extension>
+</plugin>

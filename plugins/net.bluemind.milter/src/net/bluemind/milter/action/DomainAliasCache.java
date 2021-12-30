@@ -19,16 +19,18 @@
 package net.bluemind.milter.action;
 
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.config.Token;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
@@ -36,27 +38,39 @@ import net.bluemind.milter.mq.MilterMessageForwarder;
 import net.bluemind.network.topology.Topology;
 
 public class DomainAliasCache extends AbstractVerticle {
-
 	private static final Logger logger = LoggerFactory.getLogger(DomainAliasCache.class);
-	private static Map<String, Optional<ItemValue<Domain>>> domainCache = new ConcurrentHashMap<>();
+
+	protected static Map<String, ItemValue<Domain>> domainCache = new ConcurrentHashMap<>();
 
 	public static ItemValue<Domain> getDomain(String domainPart) {
 		if (domainPart == null) {
 			return null;
 		}
-		return domainCache.computeIfAbsent(domainPart, domOrAlias -> {
-			String host = "http://" + Topology.get().core().value.address() + ":8090";
-			IServiceProvider prov = ClientSideServiceProvider.getProvider(host, Token.admin0());
-			return Optional.ofNullable(prov.instance(IDomains.class).findByNameOrAliases(domOrAlias));
-		}).orElse(null);
+
+		return domainCache.get(domainPart);
+	}
+
+	public static Set<String> allAliases() {
+		return domainCache.keySet();
+	}
+
+	private static void fillCache() {
+		logger.debug("Invalidating domain <-> alias cache with {} entries", domainCache.size());
+		String host = "http://" + Topology.get().core().value.address() + ":8090";
+		domainCache = ClientSideServiceProvider.getProvider(host, Token.admin0()).instance(IDomains.class).all()
+				.stream().map(DomainAliasCache::expandAliases).map(Map::entrySet).flatMap(Set::stream)
+				.collect(Collectors.toConcurrentMap(entry -> entry.getKey(), entry -> entry.getValue()));
+		logger.info("Alias cache contains {} entries", domainCache.size());
+	}
+
+	private static Map<String, ItemValue<Domain>> expandAliases(ItemValue<Domain> domain) {
+		return domain.value.aliases.stream().collect(Collectors.toMap(alias -> alias, alias -> domain));
 	}
 
 	@Override
 	public void start() {
 		logger.info("Starting domain cache {}", this);
-		vertx.eventBus().consumer(MilterMessageForwarder.domainChanged, (message) -> {
-			logger.info("Invalidating domain <-> alias cache with {} entries", domainCache.size());
-			domainCache.clear();
-		});
+		vertx.eventBus().consumer(MilterMessageForwarder.domainChanged,
+				(Message<JsonObject> message) -> DomainAliasCache.fillCache());
 	}
 }

@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.milter.srs
-Bundle-SymbolicName: net.bluemind.milter.srs
+Bundle-SymbolicName: net.bluemind.milter.srs;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.milter.srs
@@ -10,6 +10,8 @@ Require-Bundle: com.google.guava,
  slf4j.api,
  net.bluemind.config,
  net.bluemind.milter,
- net.bluemind.core.commons
+ net.bluemind.core.commons,
+ net.bluemind.hornetq.client,
+ net.bluemind.system.api
 Export-Package: net.bluemind.milter.srs,
  net.bluemind.milter.srs.tools

@@ -19,6 +19,7 @@ package net.bluemind.milter.impl;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ public class MilterPreActionsRegistry {
 		logger.info("loading net.bluemind.milter.preactionfactory extensions");
 		RunnableExtensionLoader<MilterPreActionsFactory> rel = new RunnableExtensionLoader<MilterPreActionsFactory>();
 		loaded = rel.loadExtensionsWithPriority("net.bluemind.milter", "preactionfactory", "pre_action_factory", "impl")
-				.stream().map(f -> f.create()).collect(Collectors.toList());
+				.stream().map(f -> f.create()).filter(Objects::nonNull).collect(Collectors.toList());
 		logger.info("{} implementation found for extensionpoint net.bluemind.milter.preactionfactory", loaded.size());
 	}
 }

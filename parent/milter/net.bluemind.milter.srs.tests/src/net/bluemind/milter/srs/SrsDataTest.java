@@ -105,14 +105,24 @@ public class SrsDataTest {
 		assertEquals(leftPart + "@bm.tld", sd.srsEmail("bm.tld"));
 		assertEquals("john.doe@domain.tld", sd.originalEmail());
 
+		// Lowered case left part
+		srsData = SrsData.fromLeftPart(SRSHASH, leftPart.toLowerCase());
+		assertTrue(srsData.isPresent());
+
+		sd = srsData.orElse(null);
+		assertEquals(hash.toLowerCase(), sd.hash);
+		assertEquals(timeStamp.toLowerCase(), sd.timestamp);
+		assertEquals("john.doe", sd.localPart);
+		assertEquals("domain.tld", sd.hostname);
+		assertTrue((leftPart + "@bm.tld").equalsIgnoreCase(sd.srsEmail("bm.tld")));
+		assertEquals("john.doe@domain.tld", sd.originalEmail());
+
 		// Email with = in left part
 		hash = SRSHASH.encode(timeStamp, "john=doe", "domain.tld");
 		leftPart = new StringBuilder().append("SRS0=").append(hash).append("=").append(timeStamp)
 				.append("=domain.tld=john=doe").toString();
 
 		srsData = SrsData.fromLeftPart(SRSHASH, leftPart);
-		assertTrue(srsData.isPresent());
-
 		assertTrue(srsData.isPresent());
 
 		sd = srsData.orElse(null);

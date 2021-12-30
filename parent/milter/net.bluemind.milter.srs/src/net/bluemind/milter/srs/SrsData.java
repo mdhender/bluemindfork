@@ -62,7 +62,7 @@ public class SrsData {
 	}
 
 	public static Optional<SrsData> fromLeftPart(SrsHash srsHash, String leftPart) {
-		if (Strings.isNullOrEmpty(leftPart) || !leftPart.startsWith(PREFIX)) {
+		if (Strings.isNullOrEmpty(leftPart) || !leftPart.toUpperCase().startsWith(PREFIX)) {
 			logger.debug("SRS part {} is invalid", leftPart);
 			return Optional.empty();
 		}

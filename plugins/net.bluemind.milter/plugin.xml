@@ -4,6 +4,7 @@
    <extension-point id="net.bluemind.milter.milterfactory" name="milterfactory" schema="schema/net.bluemind.milter.milterfactory.exsd"/>
    <extension-point id="net.bluemind.milter.actionfactory" name="actionfactory" schema="schema/net.bluemind.milter.actionfactory.exsd"/>
    <extension-point id="net.bluemind.milter.preactionfactory" name="preactionfactory" schema="schema/net.bluemind.milter.preactionfactory.exsd"/>
+   <extension-point id="net.bluemind.milter.recipientcanonicalfactory" name="recipientcanonicalfactory" schema="schema/net.bluemind.milter.recipientcanonicalfactory.exsd"/>
    <extension
          id="milter"
          name="Blue Mind milter"
@@ -53,12 +54,16 @@
             impl="net.bluemind.milter.impl.MilterMainVerticle$Factory">
       </verticle>
    </extension>
-      <extension
-            point="net.bluemind.system.state">
-         <state-listener
-               class="net.bluemind.milter.CoreStateListener">
-         </state-listener>
-      </extension>
-   
-
+   <extension
+            point="net.bluemind.lib.vertx.verticles">
+         <verticle
+               impl="net.bluemind.milter.impl.map.RecipientCanonicalVerticle$Factory">
+         </verticle>
+   </extension>
+   <extension
+        point="net.bluemind.system.state">
+     <state-listener
+           class="net.bluemind.milter.CoreStateListener">
+     </state-listener>
+   </extension>
 </plugin>

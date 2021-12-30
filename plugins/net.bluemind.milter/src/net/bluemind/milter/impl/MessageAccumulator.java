@@ -59,6 +59,7 @@ public class MessageAccumulator {
 	}
 
 	void envrcpt(String[] argv, Properties properties) {
+		properties.put("rcpt", argv[0]);
 		storeProperties(properties);
 		currentEnvelope.addRecipient(new SmtpAddress(argv[0]));
 	}

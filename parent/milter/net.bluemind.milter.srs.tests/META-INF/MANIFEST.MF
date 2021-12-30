@@ -7,4 +7,9 @@ Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.milter.srs.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.milter.srs,
- org.junit
+ org.junit,
+ net.bluemind.milter,
+ net.bluemind.core.container.persistence,
+ net.bluemind.domain.api,
+ org.apache.james.apache-mime4j-dom,
+ net.bluemind.config

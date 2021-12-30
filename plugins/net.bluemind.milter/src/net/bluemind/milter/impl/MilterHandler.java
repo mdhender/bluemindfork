@@ -13,6 +13,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Function;
@@ -137,6 +138,10 @@ public class MilterHandler implements JilterHandler {
 	}
 
 	private void forEachActions(JilterEOMActions eomActions) {
+		// Set message as not modified
+		// Use if more than one mail was sent using same SMTP connection
+		messageModified = false;
+
 		UpdatedMailMessage modifiedMail = new UpdatedMailMessage(accumulator.getProperties(), accumulator.getMessage());
 		if (accumulator.getMessage().getHeader().getField(MilterHeaders.HANDLED) == null) {
 			MilterPreActionsRegistry.get().forEach(action -> applyPreAction(action, modifiedMail));
@@ -299,7 +304,7 @@ public class MilterHandler implements JilterHandler {
 		}
 
 		if (recipients.stream().map(recipient -> DomainAliasCache.getDomain(recipient.getDomainPart()))
-				.anyMatch(d -> !d.uid.equals(domain.uid))) {
+				.filter(Objects::nonNull).anyMatch(d -> !d.uid.equals(domain.uid))) {
 			logger.warn("Recipients are not in the same BlueMind domain {}", domain.uid);
 			return Optional.empty();
 		}
