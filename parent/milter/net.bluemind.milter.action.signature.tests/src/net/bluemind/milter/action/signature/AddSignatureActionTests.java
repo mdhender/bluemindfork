@@ -78,6 +78,27 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
+	public void testSingleHtmlPart() throws Exception {
+		String template = "single_html_non_mp.eml";
+		UpdatedMailMessage mm = loadTemplate(template);
+
+		AddSignatureAction action = new MockAddSignatureAction();
+		Map<String, String> configuration = new HashMap<>();
+		configuration.put("plain", "plain-signature");
+		configuration.put("html", "html-signature<img src=\"http://someimg\">");
+		boolean added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		assertTrue(added);
+		added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		assertTrue(added);
+
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		Mime4JHelper.serializeBody(mm.getMessage(), baos);
+
+		String eml = toEml(baos);
+		assertTrue(eml.startsWith("MIME-Version")); // test for broken multipart declaration
+	}
+
+	@Test
 	public void testBase64EncodedBodyPart() throws Exception {
 		String template = "template1.eml";
 		UpdatedMailMessage mm = loadTemplate(template);

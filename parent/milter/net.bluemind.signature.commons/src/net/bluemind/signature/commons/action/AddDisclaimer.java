@@ -111,8 +111,9 @@ public class AddDisclaimer {
 		Document disclaimerContent = Jsoup.parse(html);
 		Elements images = disclaimerContent.getElementsByTag("img");
 
+		boolean isMultipart = e.getParent() != null && e.getParent().getMimeType().startsWith("multipart");
 		Body body = null;
-		if (images.isEmpty()) {
+		if (images.isEmpty() || !isMultipart) {
 			body = updateBodyWithDisclaimer(e, disclaimerContent, configuration);
 		} else if (e.getParent() != null && "multipart/related".equals(e.getParent().getMimeType())) {
 			body = updateRelatedBodyWithDisclaimer(e, disclaimerContent, images, configuration);
