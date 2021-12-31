@@ -1,0 +1,15 @@
+dn: cn=grptest00,dc=local
+objectClass: bmGroup
+objectClass: top
+objectClass: posixGroup
+cn: grptest00
+gidNumber: 10000
+description: Test group 00
+
+dn: cn=grptest01,dc=local
+objectClass: bmGroup
+objectClass: top
+objectClass: posixGroup
+cn: grptest01
+gidNumber: 10001
+description: Test group 01

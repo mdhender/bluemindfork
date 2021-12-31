@@ -10,10 +10,14 @@ givenName: Prenom00
 description: Description Prenom00 Nom00
 userPassword:: e1NIQX1rN1liU0NTUzdPSkhsaUpRWkF2RkNUNFlZNTA9
 
-dn: cn=grptest00,dc=local
-objectClass: bmGroup
+dn: uid=user01,dc=local
 objectClass: top
-objectClass: posixGroup
-cn: grptest00
-gidNumber: 10000
-description: Test group 00
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: user01
+sn: Nom01
+cn: Prenom01 Nom01
+givenName: Prenom01
+description: Description Prenom01 Nom01
+userPassword:: e1NIQX1rN1liU0NTUzdPSkhsaUpRWkF2RkNUNFlZNTA9

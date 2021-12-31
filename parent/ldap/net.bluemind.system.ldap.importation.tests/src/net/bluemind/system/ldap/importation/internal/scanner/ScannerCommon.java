@@ -18,6 +18,7 @@
 package net.bluemind.system.ldap.importation.internal.scanner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -126,11 +127,11 @@ public abstract class ScannerCommon {
 		CoreServicesTest coreService = new CoreServicesTest();
 
 		ItemValue<User> u = ItemValue.create(Item.create("1", LdapConstants.EXTID_PREFIX + "doesntexist"), new User());
-		coreService.existingUsersExtIds.add(u.externalId);
+		coreService.existingUsersExtIds.active.add(u.externalId);
 		coreService.users.put(u.uid, u);
 
 		u = ItemValue.create(Item.create("2", "notimportedfromldap"), new User());
-		coreService.existingUsersExtIds.add(u.externalId);
+		coreService.existingUsersExtIds.active.add(u.externalId);
 		coreService.users.put(u.uid, u);
 
 		ImportLogger importLogger = getImportLogger();
@@ -466,16 +467,24 @@ public abstract class ScannerCommon {
 				user00Entry);
 		coreService.addExistingUser(user00);
 
-		Entry group00Entry = getExistingGroupEntry("cn=grptest01," + LdapDockerTestHelper.LDAP_ROOT_DN);
+		Entry user01Entry = getExistingUserEntry("uid=user01," + LdapDockerTestHelper.LDAP_ROOT_DN);
+		UuidMapper user01Uuid = LdapUuidMapper.fromEntry(LdapProperties.import_ldap_ext_id_attribute.getDefaultValue(),
+				user01Entry);
+
+		Entry group00Entry = getExistingGroupEntry("cn=grptest00," + LdapDockerTestHelper.LDAP_ROOT_DN);
 		UuidMapper group00Uuid = LdapUuidMapper.fromEntry(LdapProperties.import_ldap_ext_id_attribute.getDefaultValue(),
 				group00Entry);
+
+		Entry group01Entry = getExistingGroupEntry("cn=grptest01," + LdapDockerTestHelper.LDAP_ROOT_DN);
+		UuidMapper group01Uuid = LdapUuidMapper.fromEntry(LdapProperties.import_ldap_ext_id_attribute.getDefaultValue(),
+				group01Entry);
 
 		Thread.sleep(1500);
 		String beforeDate = getDate();
 		Thread.sleep(1500);
 
 		updateEntry(user00Entry);
-		updateEntry(group00Entry);
+		updateEntry(group01Entry);
 
 		ImportLogger importLogger = getImportLogger();
 
@@ -483,7 +492,10 @@ public abstract class ScannerCommon {
 		scanLdap(importLogger, coreService, LdapParameters.build(getDomain(), Collections.<String, String>emptyMap()),
 				Optional.of(beforeDate));
 
-		assertEquals(0, coreService.createdUsers.size());
+		assertEquals(1, coreService.createdUsers.size());
+		assertEquals(user01Uuid.getExtId(),
+				coreService.createdUsers.values().stream().map(u -> u.externalId).findFirst().orElse(null));
+
 		assertEquals(0, coreService.suspendedUserUids.size());
 
 		assertEquals(1, coreService.updatedUsers.size());
@@ -493,9 +505,10 @@ public abstract class ScannerCommon {
 		assertEquals(0, coreService.updatedGroups.size());
 		assertEquals(0, coreService.deletedGroupUids.size());
 
-		assertEquals(1, coreService.createdGroups.size());
-		assertEquals(group00Uuid.getExtId(),
-				coreService.createdGroups.get(coreService.createdGroups.keySet().iterator().next()).externalId);
+		assertEquals(2, coreService.createdGroups.size());
+		assertFalse(coreService.createdGroups.keySet().stream().map(coreService.createdGroups::get)
+				.filter(g -> !g.externalId.equals(group00Uuid.getExtId()))
+				.filter(g -> !g.externalId.equals(group01Uuid.getExtId())).findFirst().isPresent());
 	}
 
 	@Test
@@ -504,11 +517,11 @@ public abstract class ScannerCommon {
 
 		ItemValue<User> u = ItemValue.create(Item.create("1", LdapConstants.EXTID_PREFIX + "userdoesntexist"),
 				new User());
-		coreService.existingUsersExtIds.add(u.externalId);
+		coreService.existingUsersExtIds.active.add(u.externalId);
 		coreService.users.put(u.uid, u);
 
 		u = ItemValue.create(Item.create("2", "notimportedfromldap"), new User());
-		coreService.existingUsersExtIds.add(u.externalId);
+		coreService.existingUsersExtIds.active.add(u.externalId);
 		coreService.users.put(u.uid, u);
 
 		ItemValue<Group> g = ItemValue.create(Item.create("3", LdapConstants.EXTID_PREFIX + "groupdoesntexist"),
@@ -547,6 +560,16 @@ public abstract class ScannerCommon {
 			CursorException, LdapSearchException, InterruptedException {
 		CoreServicesTest coreService = new CoreServicesTest();
 
+		ItemValue<User> user00Entry = getExistingUser("uid=user00," + LdapDockerTestHelper.LDAP_ROOT_DN);
+		coreService.addExistingUser(user00Entry);
+
+		ItemValue<User> user01Entry = getExistingUser("uid=user01," + LdapDockerTestHelper.LDAP_ROOT_DN);
+		coreService.addExistingUser(user01Entry);
+
+		Entry group00Entry = getExistingGroupEntry("cn=grptest00," + LdapDockerTestHelper.LDAP_ROOT_DN);
+		ItemValue<Group> group00 = getExistingGroup(group00Entry.getDn().getName());
+		coreService.addExistingGroup(group00);
+
 		Entry group01Entry = getExistingGroupEntry("cn=grptest01," + LdapDockerTestHelper.LDAP_ROOT_DN);
 		ItemValue<Group> group01 = getExistingGroup(group01Entry.getDn().getName());
 		coreService.addExistingGroup(group01);
@@ -567,22 +590,96 @@ public abstract class ScannerCommon {
 
 		assertEquals(0, coreService.deletedGroupUids.size());
 
-		assertEquals(2, coreService.createdUsers.size());
-		assertEquals(getDomain().name.equals("memberuid.virt") ? 0 : 1, coreService.createdGroups.size());
+		assertEquals(0, coreService.createdUsers.size());
+		assertEquals(0, coreService.createdGroups.size());
 		assertEquals(1, coreService.updatedGroups.size());
 
-		assertEquals(getDomain().name.equals("memberuid.virt") ? 1 : 2, coreService.groupMembersToAdd.size());
+		assertEquals(1, coreService.groupMembersToAdd.size());
 
 		assertTrue(coreService.groupMembersToAdd.containsKey(group01.uid));
 		assertEquals(2, coreService.groupMembersToAdd.get(group01.uid).size());
 
-		if (!getDomain().name.equals("memberuid.virt")) {
-			assertTrue(coreService.groupMembersToAdd.containsKey(coreService.createdGroups.keySet().iterator().next()));
-			assertEquals(1,
-					coreService.groupMembersToAdd.get(coreService.createdGroups.keySet().iterator().next()).size());
-		}
-
 		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
+	}
+
+	@Test
+	public void incremental_userInDirectory_notInBm() throws InterruptedException, LdapInvalidDnException, ServerFault,
+			LdapException, CursorException, IOException, LdapSearchException {
+		CoreServicesTest coreService = new CoreServicesTest();
+
+		ItemValue<User> user00Entry = getExistingUser("uid=user00," + LdapDockerTestHelper.LDAP_ROOT_DN);
+
+		ItemValue<User> user01Entry = getExistingUser("uid=user01," + LdapDockerTestHelper.LDAP_ROOT_DN);
+		coreService.addExistingUser(user01Entry);
+
+		Thread.sleep(1500);
+		String beforeDate = getDate();
+
+		ImportLogger importLogger = getImportLogger();
+
+		System.out.println("Scan from: " + beforeDate);
+		scanLdap(importLogger, coreService, LdapParameters.build(getDomain(), Collections.<String, String>emptyMap()),
+				Optional.of(beforeDate));
+
+		assertEquals(0, coreService.suspendedUserUids.size());
+		assertEquals(0, coreService.unsuspendedUserUids.size());
+		assertEquals(0, coreService.updatedUsers.size());
+		assertEquals(1, coreService.createdUsers.size());
+		assertTrue(coreService.createdUsers.values().stream().filter(u -> u.externalId.equals(user00Entry.externalId))
+				.findFirst().isPresent());
+	}
+
+	@Test
+	public void incremental_userInDirectory_suspendedInBm() throws InterruptedException, LdapInvalidDnException,
+			ServerFault, LdapException, CursorException, IOException, LdapSearchException {
+		CoreServicesTest coreService = new CoreServicesTest();
+
+		ItemValue<User> user00Entry = getExistingUser("uid=user00," + LdapDockerTestHelper.LDAP_ROOT_DN);
+		user00Entry.value.archived = true;
+		coreService.addExistingUser(user00Entry);
+
+		ItemValue<User> user01Entry = getExistingUser("uid=user01," + LdapDockerTestHelper.LDAP_ROOT_DN);
+		coreService.addExistingUser(user01Entry);
+
+		Thread.sleep(1500);
+		String beforeDate = getDate();
+
+		ImportLogger importLogger = getImportLogger();
+
+		System.out.println("Scan from: " + beforeDate);
+		scanLdap(importLogger, coreService, LdapParameters.build(getDomain(), Collections.<String, String>emptyMap()),
+				Optional.of(beforeDate));
+
+		assertEquals(0, coreService.suspendedUserUids.size());
+		assertEquals(0, coreService.updatedUsers.size());
+		assertEquals(0, coreService.createdUsers.size());
+		assertEquals(1, coreService.unsuspendedUserUids.size());
+		assertTrue(coreService.unsuspendedUserUids.contains(user00Entry.uid));
+	}
+
+	@Test
+	public void incremental_groupInDirectory_notInBm() throws InterruptedException, LdapInvalidDnException, ServerFault,
+			LdapException, CursorException, IOException, LdapSearchException {
+		CoreServicesTest coreService = new CoreServicesTest();
+
+		ItemValue<Group> grp00 = getExistingGroup("cn=grptest00," + LdapDockerTestHelper.LDAP_ROOT_DN);
+
+		ItemValue<Group> grp01 = getExistingGroup("cn=grptest01," + LdapDockerTestHelper.LDAP_ROOT_DN);
+		coreService.addExistingGroup(grp01);
+
+		Thread.sleep(1500);
+		String beforeDate = getDate();
+
+		ImportLogger importLogger = getImportLogger();
+
+		System.out.println("Scan from: " + beforeDate);
+		scanLdap(importLogger, coreService, LdapParameters.build(getDomain(), Collections.<String, String>emptyMap()),
+				Optional.of(beforeDate));
+
+		assertEquals(0, coreService.updatedGroups.size());
+		assertEquals(1, coreService.createdGroups.size());
+		assertTrue(coreService.createdGroups.values().stream().filter(g -> g.externalId.equals(grp00.externalId))
+				.findFirst().isPresent());
 	}
 
 	@Test

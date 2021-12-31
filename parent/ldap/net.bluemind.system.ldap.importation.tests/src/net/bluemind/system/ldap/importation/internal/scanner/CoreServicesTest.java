@@ -29,6 +29,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableMap;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
@@ -44,8 +46,8 @@ public class CoreServicesTest implements ICoreServices {
 	public int userDeletePhoto = 0;
 
 	// Already exists on server
-	public HashMap<String, ItemValue<Group>> groups = new HashMap<>();
-	private HashMap<String, Set<Member>> groupMembers = new HashMap<>();
+	public Map<String, ItemValue<Group>> groups = new HashMap<>();
+	private Map<String, Set<Member>> groupMembers = new HashMap<>();
 	private Map<String, Set<ItemValue<Group>>> userMemberOf = new HashMap<>();
 	public Set<String> memberUpdateToInternal = new HashSet<>();
 	public Set<String> memberUpdateToExternal = new HashSet<>();
@@ -64,9 +66,11 @@ public class CoreServicesTest implements ICoreServices {
 	public Map<String, Integer> quotaSet = new HashMap<>();
 
 	public Set<String> existingGroupsExtIds = new HashSet<>();
-	public Set<String> existingUsersExtIds = new HashSet<>();
+	public ExtUidState existingUsersExtIds = new ExtUidState(
+			ImmutableMap.of(true, new HashSet<>(), false, new HashSet<>()));
 	public Set<String> deletedGroupUids = new HashSet<>();
 	public Set<String> suspendedUserUids = new HashSet<>();
+	public Set<String> unsuspendedUserUids = new HashSet<>();
 
 	public HashMap<String, List<Member>> groupMembersToRemove = new HashMap<>();
 	public HashMap<String, List<Member>> groupMembersToAdd = new HashMap<>();
@@ -74,144 +78,78 @@ public class CoreServicesTest implements ICoreServices {
 	public CoreServicesTest() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * getUserStats()
-	 */
 	@Override
 	public Map<String, String> getUserStats() {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * getGroupStats()
-	 */
 	@Override
 	public Map<String, String> getGroupStats() {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * deleteGroup (java.lang.String)
-	 */
 	@Override
 	public void deleteGroup(String deletedGroupUid) throws ServerFault {
 		deletedGroupUids.add(deletedGroupUid);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * createGroup (net.bluemind.core.container.model.ItemValue)
-	 */
 	@Override
 	public void createGroup(ItemValue<Group> group) throws ServerFault {
 		createdGroups.put(group.uid, group);
+		existingGroupsExtIds.add(group.externalId);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * updateGroup (net.bluemind.core.container.model.ItemValue)
-	 */
 	@Override
 	public void updateGroup(ItemValue<Group> group) throws ServerFault {
 		updatedGroups.put(group.uid, group);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * deleteUser (java.lang.String)
-	 */
 	@Override
 	public void suspendUser(ItemValue<User> user) throws ServerFault {
 		suspendedUserUids.add(user.uid);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * createUser (net.bluemind.core.container.model.ItemValue)
-	 */
+	@Override
+	public void unsuspendUser(ItemValue<User> user) {
+		unsuspendedUserUids.add(user.uid);
+	}
+
 	@Override
 	public void createUser(ItemValue<User> user) throws ServerFault {
 		createdUsers.put(user.uid, user);
+
+		if (user.value.archived) {
+			existingUsersExtIds.suspended.add(user.externalId);
+		} else {
+			existingUsersExtIds.active.add(user.externalId);
+		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * updateUser (net.bluemind.core.container.model.ItemValue)
-	 */
 	@Override
 	public void updateUser(ItemValue<User> user) throws ServerFault {
 		updatedUsers.put(user.uid, user);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * getAllGroupItems()
-	 */
 	@Override
-	public List<String> getImportedGroupsExtId() throws ServerFault {
-		return new ArrayList<>(existingGroupsExtIds);
+	public Set<String> getImportedGroupsExtId() throws ServerFault {
+		return existingGroupsExtIds;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * getAllUserItems()
-	 */
 	@Override
-	public List<String> getImportedUsersExtId() throws ServerFault {
-		return new ArrayList<>(existingUsersExtIds);
+	public ExtUidState getUsersExtIdByState() {
+		return existingUsersExtIds;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * getMailboxFilter(java.lang.String)
-	 */
 	@Override
 	public MailFilter getMailboxFilter(String uid) throws ServerFault {
 		return usersMailfilters.get(uid);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * setMailboxFilter(java.lang.String, net.bluemind.mailbox.api.MailFilter)
-	 */
 	@Override
 	public void setMailboxFilter(String mailboxUid, MailFilter filter) throws ServerFault {
 		mailfiltersSet.put(mailboxUid, filter);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * getGroupComplete(java.lang.String)
-	 */
 	@Override
 	public ItemValue<Group> getGroupByExtId(String extId) throws ServerFault {
 		for (ItemValue<Group> g : groups.values()) {
@@ -229,12 +167,6 @@ public class CoreServicesTest implements ICoreServices {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * getGroupMembers(java.lang.String)
-	 */
 	@Override
 	public List<Member> getGroupMembers(String uid) throws ServerFault {
 		if (!groupMembers.containsKey(uid) || groupMembers.get(uid) == null) {
@@ -244,12 +176,6 @@ public class CoreServicesTest implements ICoreServices {
 		return new ArrayList<>(groupMembers.get(uid));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * removeMembers(java.lang.String, java.util.List)
-	 */
 	@Override
 	public void removeMembers(String uid, List<Member> membersToRemove) throws ServerFault {
 		if (groupMembersToRemove.containsKey(uid)) {
@@ -264,12 +190,6 @@ public class CoreServicesTest implements ICoreServices {
 		});
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * addMembers (java.lang.String, java.util.List)
-	 */
 	@Override
 	public void addMembers(String uid, List<Member> membersToAdd) throws ServerFault {
 		if (membersToAdd.size() == 0) {
@@ -288,12 +208,6 @@ public class CoreServicesTest implements ICoreServices {
 		});
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * getUserComplete(java.lang.String)
-	 */
 	@Override
 	public ItemValue<User> getUserByExtId(String extId) throws ServerFault {
 		for (ItemValue<User> u : users.values()) {
@@ -311,12 +225,6 @@ public class CoreServicesTest implements ICoreServices {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * memberOf (java.lang.String)
-	 */
 	@Override
 	public List<ItemValue<Group>> memberOf(String uid) throws ServerFault {
 		Set<ItemValue<Group>> groups = userMemberOf.get(uid);
@@ -326,52 +234,6 @@ public class CoreServicesTest implements ICoreServices {
 		}
 
 		return new ArrayList<>(groups);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * userExternalId(java.lang.String)
-	 */
-	@Override
-	public String userExternalId(String uid) throws ServerFault {
-		if (users.containsKey(uid)) {
-			return users.get(uid).externalId;
-		}
-
-		if (createdUsers.containsKey(uid)) {
-			return createdUsers.get(uid).externalId;
-		}
-
-		if (updatedUsers.containsKey(uid)) {
-			return updatedUsers.get(uid).externalId;
-		}
-
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * groupExternalId(java.lang.String)
-	 */
-	@Override
-	public String groupExternalId(String uid) throws ServerFault {
-		if (groups.containsKey(uid)) {
-			return groups.get(uid).externalId;
-		}
-
-		if (createdGroups.containsKey(uid)) {
-			return createdGroups.get(uid).externalId;
-		}
-
-		if (updatedGroups.containsKey(uid)) {
-			return updatedGroups.get(uid).externalId;
-		}
-
-		return null;
 	}
 
 	@Override
@@ -385,7 +247,12 @@ public class CoreServicesTest implements ICoreServices {
 	}
 
 	public void addExistingUser(ItemValue<User> user) {
-		existingUsersExtIds.add(user.externalId);
+		if (user.value.archived) {
+			existingUsersExtIds.suspended.add(user.externalId);
+		} else {
+			existingUsersExtIds.active.add(user.externalId);
+		}
+
 		users.put(user.uid, user);
 		usersMailfilters.put(user.uid, new MailFilter());
 	}

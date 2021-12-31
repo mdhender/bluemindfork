@@ -17,10 +17,9 @@
   */
 package net.bluemind.system.ldap.importation.internal.tools;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
@@ -84,14 +83,9 @@ public class LdapUuidMapper extends UuidMapper {
 	 * @param extIds BlueMind external ID list
 	 * @return
 	 */
-	public static Set<UuidMapper> fromExtIdList(List<String> extIds) {
-		Set<UuidMapper> entryUuids = new HashSet<>();
-
-		for (String extId : extIds) {
-			LdapUuidMapper.fromExtId(extId).ifPresent(uM -> entryUuids.add(uM));
-		}
-
-		return entryUuids;
+	public static Set<UuidMapper> fromExtIdList(Set<String> extIds) {
+		return extIds.stream().map(extId -> LdapUuidMapper.fromExtId(extId)).filter(Optional::isPresent)
+				.map(Optional::get).collect(Collectors.toSet());
 	}
 
 	@Override

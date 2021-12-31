@@ -20,12 +20,16 @@ package net.bluemind.system.importation.commons.scanner;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
@@ -55,6 +59,7 @@ import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.system.importation.commons.CoreServices;
 import net.bluemind.system.importation.commons.ICoreServices;
+import net.bluemind.system.importation.commons.ICoreServices.ExtUidState;
 import net.bluemind.system.importation.commons.Parameters;
 import net.bluemind.system.importation.commons.UuidMapper;
 import net.bluemind.system.importation.commons.enhancer.GroupMembershipData;
@@ -110,17 +115,17 @@ public abstract class Scanner {
 
 			setupSplitGroup();
 
-			logger.info("Suspend users from BM which are removed in {}", getKind());
-			deletedUsers();
+			logger.info("Manage BM users suspend state from {}", getKind());
+			Set<Dn> directoryExistingUsersDn = managerUsersState();
 
 			logger.info("Deleting groups from BM which are removed in {}", getKind());
-			deletedGroups();
+			Set<Dn> directoryExistingGroupsDn = deletedGroups();
 
 			logger.info("Updating or creating BM users from {}", getKind());
-			scanUsers();
+			scanUsers(directoryExistingUsersDn);
 
 			logger.info("Updating or creating BM groups from {}", getKind());
-			scanGroups();
+			scanGroups(directoryExistingGroupsDn);
 
 			logger.info("Doing after import operations from {}", getKind());
 			afterImport();
@@ -156,7 +161,7 @@ public abstract class Scanner {
 
 	protected abstract Optional<UuidMapper> getUuidMapperFromExtId(String externalId);
 
-	protected abstract Set<UuidMapper> uuidMapperFromExtIds(List<String> importedUsersExtId);
+	protected abstract Set<UuidMapper> uuidMapperFromExtIds(Set<String> importedUsersExtId);
 
 	protected abstract Optional<UuidMapper> getUuidMapperFromEntry(Entry entry);
 
@@ -188,10 +193,12 @@ public abstract class Scanner {
 
 	protected abstract List<IScannerEnhancer> getScannerEnhancerHooks();
 
-	private void deletedUsers() {
-		Set<UuidMapper> bmUsersUuid = uuidMapperFromExtIds(coreService.getImportedUsersExtId());
-
-		Set<UuidMapper> adUsersUuid = new HashSet<>();
+	/**
+	 * 
+	 * @return Users DN existing in directory and not found in BlueMind
+	 */
+	private Set<Dn> managerUsersState() {
+		Map<UuidMapper, Dn> directoryExtUids = new HashMap<>();
 		try (PagedSearchResult cursor = allUsersFromDirectory()) {
 			while (cursor.next()) {
 				Response response = cursor.get();
@@ -200,38 +207,74 @@ public abstract class Scanner {
 				}
 
 				Entry entry = ((SearchResultEntryDecorator) response).getEntry();
-				getUuidMapperFromEntry(entry).ifPresent(adUsersUuid::add);
+				getUuidMapperFromEntry(entry).ifPresent(extUid -> directoryExtUids.put(extUid, entry.getDn()));
 			}
 		} catch (LdapException | CursorException | LdapSearchException e) {
 			throw new ServerFault(e);
 		}
 
-		SetView<UuidMapper> deletedUsersUuid = Sets.difference(bmUsersUuid, adUsersUuid);
+		ExtUidState bmExtUidState = coreService.getUsersExtIdByState();
 
-		for (UuidMapper deletedUserUuid : deletedUsersUuid) {
-			try {
-				ItemValue<User> user = coreService.getUserByExtId(deletedUserUuid.getExtId());
+		Set<UuidMapper> active = uuidMapperFromExtIds(bmExtUidState.active);
+		Sets.difference(active, directoryExtUids.keySet()).stream().map(UuidMapper::getExtId)
+				.forEach(this::suspendUser);
 
-				if (user != null) {
-					if (user.value.archived) {
-						continue;
-					}
+		Set<UuidMapper> suspended = uuidMapperFromExtIds(bmExtUidState.suspended);
+		Sets.intersection(suspended, directoryExtUids.keySet()).stream().map(UuidMapper::getExtId)
+				.forEach(this::unsuspendUser);
 
-					importLogger.info(Messages.suspendUser(user));
-					coreService.suspendUser(user);
-				} else {
-					importLogger.warning(Messages.suspendedUserNotFound(deletedUserUuid.getExtId()));
+		return Sets
+				.difference(directoryExtUids.keySet(),
+						Stream.concat(active.stream(), suspended.stream()).collect(Collectors.toSet()))
+				.stream().map(directoryExtUids::get).collect(Collectors.toSet());
+	}
+
+	private void unsuspendUser(String extId) {
+		try {
+			ItemValue<User> user = coreService.getUserByExtId(extId);
+
+			if (user != null) {
+				if (!user.value.archived) {
+					return;
 				}
-			} catch (ServerFault e) {
-				importLogger.error(Messages.suspendingBMUserFailed(deletedUserUuid.getExtId(), e));
+
+				importLogger.info(Messages.unsuspendUser(user));
+				coreService.unsuspendUser(user);
+			} else {
+				importLogger.warning(Messages.userNotFound(extId));
 			}
+		} catch (ServerFault e) {
+			importLogger.error(Messages.unsuspendingBMUserFailed(extId, e));
 		}
 	}
 
-	private void deletedGroups() {
-		Set<UuidMapper> bmGroupsUuid = uuidMapperFromExtIds(coreService.getImportedGroupsExtId());
+	private void suspendUser(String extId) {
+		try {
+			ItemValue<User> user = coreService.getUserByExtId(extId);
 
-		Set<UuidMapper> adGroupsUuid = new HashSet<>();
+			if (user != null) {
+				if (user.value.archived) {
+					return;
+				}
+
+				importLogger.info(Messages.suspendUser(user));
+				coreService.suspendUser(user);
+			} else {
+				importLogger.warning(Messages.userNotFound(extId));
+			}
+		} catch (ServerFault e) {
+			importLogger.error(Messages.suspendingBMUserFailed(extId, e));
+		}
+	}
+
+	/**
+	 * 
+	 * @return Groups DN existing in directory and not found in BlueMind
+	 */
+	private Set<Dn> deletedGroups() {
+		Set<UuidMapper> bmExtUid = uuidMapperFromExtIds(coreService.getImportedGroupsExtId());
+
+		Map<UuidMapper, Dn> directoryDnByExtuid = new HashMap<>();
 		try (PagedSearchResult cursor = allGroupsFromDirectory()) {
 			while (cursor.next()) {
 				Response response = cursor.get();
@@ -240,32 +283,44 @@ public abstract class Scanner {
 				}
 
 				Entry entry = ((SearchResultEntryDecorator) response).getEntry();
-				getUuidMapperFromEntry(entry).ifPresent(adGroupsUuid::add);
+				getUuidMapperFromEntry(entry)
+						.ifPresent(groupExtUid -> directoryDnByExtuid.put(groupExtUid, entry.getDn()));
 			}
 		} catch (LdapException | CursorException | LdapSearchException e) {
 			throw new ServerFault(e);
 		}
 
-		SetView<UuidMapper> deletedGroupsUuid = Sets.difference(bmGroupsUuid, adGroupsUuid);
+		SetView<UuidMapper> deletedExtUuids = Sets.difference(bmExtUid, directoryDnByExtuid.keySet());
 
-		for (UuidMapper deletedGroupUuid : deletedGroupsUuid) {
+		for (UuidMapper deletedExtUid : deletedExtUuids) {
 			try {
-				ItemValue<Group> group = coreService.getGroupByExtId(deletedGroupUuid.getExtId());
+				ItemValue<Group> group = coreService.getGroupByExtId(deletedExtUid.getExtId());
 
 				if (group != null) {
 					importLogger.info(Messages.deleteGroup(group));
 					coreService.deleteGroup(group.uid);
 				} else {
-					importLogger.warning(Messages.deletedGroupNotFound(deletedGroupUuid.getExtId()));
+					importLogger.warning(Messages.deletedGroupNotFound(deletedExtUid.getExtId()));
 				}
 			} catch (ServerFault sf) {
-				importLogger.error(Messages.failedToDeleteGroup(deletedGroupUuid.getExtId(), sf));
+				importLogger.error(Messages.failedToDeleteGroup(deletedExtUid.getExtId(), sf));
 			}
+
+			directoryDnByExtuid.remove(deletedExtUid);
 		}
+
+		return Sets.difference(directoryDnByExtuid.keySet(), bmExtUid).stream().map(directoryDnByExtuid::get)
+				.collect(Collectors.toSet());
 	}
 
-	private void scanGroups() {
-		List<Dn> entriesDn = new LinkedList<>();
+	/**
+	 * 
+	 * @param directoryExistingGroupsDn
+	 *                                      Groups DN to scan even if not modified
+	 *                                      since last import
+	 */
+	private void scanGroups(Set<Dn> directoryExistingGroupsDn) {
+		Set<Dn> entriesDn = new HashSet<>();
 		try (PagedSearchResult cursor = groupsDnByLastModification(getParameter().lastUpdate)) {
 			while (cursor.next()) {
 				Response response = cursor.get();
@@ -279,17 +334,16 @@ public abstract class Scanner {
 			throw new ServerFault(e);
 		}
 
-		List<GroupManager> groupEntries = new ArrayList<>();
-		entriesDn.forEach(groupDn -> manageGroup(groupDn).ifPresent(groupEntries::add));
-
-		groupEntries.forEach(this::manageGroupMembers);
+		Stream.concat(entriesDn.stream(), Sets.difference(directoryExistingGroupsDn, entriesDn).stream())
+				.map(this::manageGroup).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet())
+				.forEach(this::manageGroupMembers);
 	}
 
 	private Optional<GroupManager> manageGroup(Dn groupDn) {
 		Entry entry = null;
 		try {
 			// modifyTimestamp and canonicalName are return only if explicitly requested by
-			// some directory
+			// some directory server
 			entry = ldapCon.lookup(groupDn, "*", "+", getParameter().ldapDirectory.extIdAttribute, "modifyTimestamp",
 					"canonicalName");
 		} catch (LdapException le) {
@@ -409,7 +463,8 @@ public abstract class Scanner {
 	 * Convert groupMember to DN. Search for user DN using groupMember as login if
 	 * groupMember is not a valid DN.
 	 * 
-	 * @param groupMember valid DN or user login
+	 * @param groupMember
+	 *                        valid DN or user login
 	 * @return
 	 */
 	protected Optional<Dn> getMemberDn(String groupMember) {
@@ -496,8 +551,14 @@ public abstract class Scanner {
 		return Optional.of(member);
 	}
 
-	private void scanUsers() {
-		List<Dn> entriesDn = new LinkedList<>();
+	/**
+	 * 
+	 * @param directoryExistingUsersDn
+	 *                                     User DN to scan even if not modified
+	 *                                     since last import
+	 */
+	private void scanUsers(Set<Dn> directoryExistingUsersDn) {
+		Set<Dn> entriesDn = new HashSet<>();
 		try (PagedSearchResult cursor = usersDnByLastModification(getParameter().lastUpdate)) {
 			while (cursor.next()) {
 				Response response = cursor.get();
@@ -511,7 +572,8 @@ public abstract class Scanner {
 			throw new ServerFault(e);
 		}
 
-		entriesDn.forEach(this::manageUser);
+		Stream.concat(entriesDn.stream(), Sets.difference(directoryExistingUsersDn, entriesDn).stream())
+				.forEach(this::manageUser);
 	}
 
 	private void manageUser(Dn userDn) {

@@ -18,11 +18,12 @@
  */
 package net.bluemind.system.importation.commons;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import net.bluemind.core.api.fault.ServerFault;
@@ -48,17 +49,16 @@ public class CoreServices implements ICoreServices {
 		private int created = 0;
 		private int updated = 0;
 		private int suspended = 0;
+		private int unsuspended = 0;
 		private int deleted = 0;
 	}
 
-	private ImportStats userStats;
-	private ImportStats groupStats;
-	private IUser userService;
-	private IMailboxes mailboxService;
-	private IGroup groupService;
+	private final ImportStats userStats;
+	private final ImportStats groupStats;
 
-	private Map<String, String> userUidExtId = new HashMap<>();
-	private Map<String, String> groupUidExtId = new HashMap<>();
+	private final IUser userService;
+	private final IMailboxes mailboxService;
+	private final IGroup groupService;
 
 	public static ICoreServices build(String domainUid) {
 		if (domainUid == null || domainUid.trim().isEmpty()) {
@@ -76,10 +76,8 @@ public class CoreServices implements ICoreServices {
 	}
 
 	/**
-	 * @param userContainerManagement
 	 * @param userService
 	 * @param mailboxService
-	 * @param groupContainerManagement
 	 * @param groupService
 	 */
 	private CoreServices(IUser userService, IMailboxes mailboxService, IGroup groupService) {
@@ -91,30 +89,17 @@ public class CoreServices implements ICoreServices {
 		this.groupStats = new ImportStats();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * getUserStats()
-	 */
 	@Override
 	public Map<String, String> getUserStats() {
-		return ImmutableMap
-				.of("en",
-						userStats.created + " users created, " + userStats.updated + " users updated, "
-								+ userStats.suspended + " users suspended, " + userStats.deleted + " users deleted",
-						"fr",
-						userStats.created + " utilisateurs créés, " + userStats.updated + " utilisateurs mis à jour, "
-								+ userStats.suspended + " utilisateurs suspendus, " + userStats.deleted
-								+ " utilisateurs supprimés");
+		return ImmutableMap.of(
+				"en", userStats.created + " users created, " + userStats.updated + " users updated, "
+						+ userStats.suspended + " users suspended, " + userStats.unsuspended + " users unsuspended",
+				"fr",
+				userStats.created + " utilisateurs créés, " + userStats.updated + " utilisateurs mis à jour, "
+						+ userStats.suspended + " utilisateurs suspendus, " + userStats.unsuspended
+						+ " utilisateurs ré-activés");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * getGroupStats()
-	 */
 	@Override
 	public Map<String, String> getGroupStats() {
 		return ImmutableMap.of("en",
@@ -124,48 +109,24 @@ public class CoreServices implements ICoreServices {
 						+ groupStats.deleted + " groupes supprimés");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * deleteGroup (java.lang.String)
-	 */
 	@Override
 	public void deleteGroup(String groupUid) {
 		groupService.delete(groupUid);
 		groupStats.deleted++;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * createGroup (net.bluemind.core.container.model.ItemValue)
-	 */
 	@Override
 	public void createGroup(ItemValue<Group> group) {
 		groupService.createWithExtId(group.uid, group.externalId, group.value);
 		groupStats.created++;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * updateGroup (net.bluemind.core.container.model.ItemValue)
-	 */
 	@Override
 	public void updateGroup(ItemValue<Group> group) {
 		groupService.update(group.uid, group.value);
 		groupStats.updated++;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * deleteUser (java.lang.String)
-	 */
 	@Override
 	public void suspendUser(ItemValue<User> user) {
 		user.value.archived = true;
@@ -173,260 +134,98 @@ public class CoreServices implements ICoreServices {
 		userStats.suspended++;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * createUser (net.bluemind.core.container.model.ItemValue)
-	 */
+	@Override
+	public void unsuspendUser(ItemValue<User> user) {
+		user.value.archived = false;
+		userService.update(user.uid, user.value);
+		userStats.unsuspended++;
+	}
+
 	@Override
 	public void createUser(ItemValue<User> user) {
 		userService.createWithExtId(user.uid, user.externalId, user.value);
 		userStats.created++;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * updateUser (net.bluemind.core.container.model.ItemValue)
-	 */
 	@Override
 	public void updateUser(ItemValue<User> user) {
 		userService.update(user.uid, user.value);
 		userStats.updated++;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * getAllGroupItems()
-	 */
 	@Override
-	public List<String> getImportedGroupsExtId() {
-		List<String> groupsExtIds = new ArrayList<>();
-
-		for (String groupUid : groupService.allUids()) {
-			if (groupUidExtId.containsKey(groupUid)) {
-				groupsExtIds.add(groupUidExtId.get(groupUid));
-				continue;
-			}
-
-			ItemValue<Group> group = groupService.getComplete(groupUid);
-			if (group.externalId == null || group.externalId.isEmpty()) {
-				continue;
-			}
-
-			groupsExtIds.add(group.externalId);
-			groupUidExtId.put(groupUid, group.externalId);
-		}
-
-		return groupsExtIds;
+	public Set<String> getImportedGroupsExtId() {
+		return groupService.allUids().stream().map(groupService::getComplete).map(g -> g.externalId)
+				.filter(extUid -> !Strings.isNullOrEmpty(extUid)).collect(Collectors.toSet());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * getAllUserItems()
-	 */
 	@Override
-	public List<String> getImportedUsersExtId() {
-		List<String> usersExtIds = new ArrayList<>();
-
-		for (String userUid : userService.allUids()) {
-			if (userUidExtId.containsKey(userUid)) {
-				usersExtIds.add(userUidExtId.get(userUid));
-				continue;
-			}
-
-			ItemValue<User> user = userService.getComplete(userUid);
-			if (user.externalId == null || user.externalId.isEmpty()) {
-				continue;
-			}
-
-			usersExtIds.add(user.externalId);
-			userUidExtId.put(userUid, user.externalId);
-		}
-
-		return usersExtIds;
+	public ExtUidState getUsersExtIdByState() {
+		return new ExtUidState(userService.allUids().stream().map(userService::getComplete)
+				.filter(u -> !Strings.isNullOrEmpty(u.externalId)).collect(Collectors.partitioningBy(
+						u -> u.value.archived, Collectors.mapping(u1 -> u1.externalId, Collectors.toSet()))));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * getMailboxFilter(java.lang.String)
-	 */
 	@Override
 	public MailFilter getMailboxFilter(String uuid) {
 		return mailboxService.getMailboxFilter(uuid);
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * setMailboxFilter(java.lang.String, net.bluemind.mailbox.api.MailFilter)
-	 */
 	@Override
 	public void setMailboxFilter(String mailboxUid, MailFilter filter) {
 		mailboxService.setMailboxFilter(mailboxUid, filter);
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * getGroupComplete(java.lang.String)
-	 */
 	@Override
 	public ItemValue<Group> getGroupByExtId(String extId) {
 		return groupService.getByExtId(extId);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * byName(java.lang.String)
-	 */
 	@Override
 	public ItemValue<Group> getGroupByName(String name) {
 		return groupService.byName(name);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * getGroupMembers(java.lang.String)
-	 */
 	@Override
 	public List<Member> getGroupMembers(String uid) {
 		return groupService.getMembers(uid);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * removeMembers(java.lang.String, java.util.List)
-	 */
 	@Override
 	public void removeMembers(String uid, List<Member> membersToRemove) {
 		groupService.remove(uid, membersToRemove);
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * addMembers (java.lang.String, java.util.List)
-	 */
 	@Override
 	public void addMembers(String uid, List<Member> membersToAdd) {
 		groupService.add(uid, membersToAdd);
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * getUserComplete(java.lang.String)
-	 */
 	@Override
 	public ItemValue<User> getUserByExtId(String extId) {
 		return userService.byExtId(extId);
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * memberOf (java.lang.String)
-	 */
 	@Override
 	public List<ItemValue<Group>> memberOf(String uid) {
 		return userService.memberOf(uid);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * userExternalId(java.lang.String)
-	 */
-	@Override
-	public String userExternalId(String uid) {
-		if (userUidExtId.containsKey(uid)) {
-			return userUidExtId.get(uid);
-		}
-
-		ItemValue<User> user = userService.getComplete(uid);
-		if (user == null) {
-			return null;
-		}
-
-		userUidExtId.put(uid, user.externalId);
-		return user.externalId;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.ldap.importation.internal.tools.ICoreServices#
-	 * groupExternalId(java.lang.String)
-	 */
-	@Override
-	public String groupExternalId(String uid) {
-		if (groupUidExtId.containsKey(uid)) {
-			return groupUidExtId.get(uid);
-		}
-
-		ItemValue<Group> group = groupService.getComplete(uid);
-		if (group == null) {
-			return null;
-		}
-
-		groupUidExtId.put(uid, group.externalId);
-		return group.externalId;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.importation.commons.ICoreServices#userSetPhoto(java.
-	 * lang.String, byte[])
-	 */
 	@Override
 	public void userSetPhoto(String uid, byte[] photo) {
 		userService.setPhoto(uid, photo);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.importation.commons.ICoreServices#userDeletePhoto(
-	 * java.lang.String)
-	 */
 	@Override
 	public void userDeletePhoto(String uid) {
 		userService.deletePhoto(uid);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bluemind.system.importation.commons.ICoreServices#setMailboxQuota(
-	 * java.lang.String, int)
-	 */
 	@Override
 	public void setMailboxQuota(String uid, int mailboxQuota) {
 		ItemValue<Mailbox> mailbox = mailboxService.getComplete(uid);
@@ -445,13 +244,6 @@ public class CoreServices implements ICoreServices {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.bluemind.system.importation.commons.ICoreServices#setUserMailRouting(
-	 * net.bluemind.mailbox.api.Mailbox.Routing, java.lang.String)
-	 */
 	@Override
 	public void setUserMailRouting(Routing routing, String userUid) {
 		ItemValue<User> user = userService.getComplete(userUid);

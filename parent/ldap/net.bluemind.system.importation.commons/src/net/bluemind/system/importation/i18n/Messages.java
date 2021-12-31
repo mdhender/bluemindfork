@@ -39,11 +39,20 @@ public class Messages {
 		return messages;
 	}
 
-	public static Map<String, String> suspendingBMUserFailed(String deletedUserExtId, ServerFault sf) {
+	public static Map<String, String> suspendingBMUserFailed(String userExtId, ServerFault sf) {
 		Map<String, String> messages = new HashMap<String, String>(2);
-		messages.put("en", "Fail to suspend BM user UID: " + deletedUserExtId + ", error: " + sf.getMessage() + " ("
+		messages.put("en", "Fail to suspend BM user UID: " + userExtId + ", error: " + sf.getMessage() + " ("
 				+ sf.getCode() + ")");
-		messages.put("fr", "Impossible de suspendre l'utilisateur UID: " + deletedUserExtId + ", erreur: "
+		messages.put("fr", "Impossible de suspendre l'utilisateur UID: " + userExtId + ", erreur: " + sf.getMessage()
+				+ " (" + sf.getCode() + ")");
+		return messages;
+	}
+
+	public static Map<String, String> unsuspendingBMUserFailed(String userExtId, ServerFault sf) {
+		Map<String, String> messages = new HashMap<String, String>(2);
+		messages.put("en", "Fail to unsuspend BM user extUID: " + userExtId + ", error: " + sf.getMessage() + " ("
+				+ sf.getCode() + ")");
+		messages.put("fr", "Impossible de ré-activer l'utilisateur extUID: " + userExtId + ", erreur: "
 				+ sf.getMessage() + " (" + sf.getCode() + ")");
 		return messages;
 	}
@@ -238,7 +247,15 @@ public class Messages {
 		return messages;
 	}
 
-	public static Map<String, String> suspendedUserNotFound(String extId) {
+	public static Map<String, String> unsuspendUser(ItemValue<User> user) {
+		Map<String, String> messages = new HashMap<String, String>(2);
+		messages.put("en", String.format("Unsuspend user: %s, externalID: %s", user.value.login, user.externalId));
+		messages.put("fr",
+				String.format("Ré-activation de l'utilisateur: %s, ID externe: %s", user.value.login, user.externalId));
+		return messages;
+	}
+
+	public static Map<String, String> userNotFound(String extId) {
 		Map<String, String> messages = new HashMap<String, String>(2);
 		messages.put("en", String.format("User with externalID: %s not found", extId));
 		messages.put("fr", String.format("Utilisateur d'ID externe: %s non trouvé", extId));

@@ -144,7 +144,7 @@ public abstract class LdapScanner extends Scanner {
 	}
 
 	@Override
-	protected Set<UuidMapper> uuidMapperFromExtIds(List<String> externalIds) {
+	protected Set<UuidMapper> uuidMapperFromExtIds(Set<String> externalIds) {
 		return LdapUuidMapper.fromExtIdList(externalIds);
 	}
 
