@@ -36,7 +36,7 @@ var outputMeasurement = 'alerts'
 
 var triggerType = 'threshold'
 
-var crit = 4000
+var crit = 6000
 
 var data = stream
     |from()
