@@ -13,6 +13,7 @@ import {
     RENAME_FOLDER,
     UNREAD_FOLDER_COUNT
 } from "~/actions";
+import { FOLDER_BY_PATH } from "~/getters";
 import { ADD_FOLDER } from "~/mutations";
 import injector from "@bluemind/inject";
 
@@ -38,6 +39,7 @@ describe("actions", () => {
         storeConfig.actions["alert/LOADING"] = jest.fn();
         storeConfig.actions["alert/SUCCESS"] = jest.fn();
         storeConfig.actions["alert/ERROR"] = jest.fn();
+        storeConfig.getters[FOLDER_BY_PATH] = jest.fn(() => path => path.match(/\/foo$/) || path.match(/\/foo \(1\)$/));
         store = new Vuex.Store(deepClone(storeConfig));
     });
     describe("FETCH_FOLDERS", () => {
@@ -141,8 +143,8 @@ describe("actions", () => {
                 name: "",
                 remoteRef: {}
             };
-            const oldFolder = { key: "1", remoteRef: {}, name: "foo", path: "foobaz/foo" };
-            const newFolder = { key: "1", remoteRef: {}, name: "bar", path: "foobaz/bar" };
+            const oldFolder = { key: "1", remoteRef: {}, name: "foo", imapName: "foo", path: "foobaz/foo" };
+            const newFolder = { key: "1", remoteRef: {}, name: "bar", imapName: "bar", path: "foobaz/bar" };
             store.commit(ADD_FOLDER, oldFolder);
             await store.dispatch(RENAME_FOLDER, { folder: oldFolder, name: "bar", mailbox });
             expect(api.updateFolder).toHaveBeenCalledWith(mailbox, {
@@ -203,6 +205,59 @@ describe("actions", () => {
                 value: {
                     fullName: "foo/bar",
                     name: "bar",
+                    parentUid: "2"
+                }
+            });
+            expect(store.state[newFolder.key]).toEqual(newFolder);
+        });
+        test("move folder to existing path will increment its name", async () => {
+            const mailbox = {
+                type: "",
+                name: "",
+                remoteRef: {}
+            };
+            const oldFolder = {
+                key: "1",
+                remoteRef: {},
+                name: "foo",
+                path: "toh/foo",
+                parent: "-1"
+            };
+            const existingFolder = {
+                key: "3",
+                remoteRef: {},
+                name: "foo",
+                path: "kung/foo",
+                parent: "2"
+            };
+            const existingFolder2 = {
+                key: "4",
+                remoteRef: {},
+                name: "foo (1)",
+                path: "kung/foo (1)",
+                parent: "2"
+            };
+            const newFolder = {
+                key: "1",
+                remoteRef: {},
+                name: "foo (2)",
+                imapName: "foo (2)",
+                path: "kung/foo (2)",
+                parent: "2"
+            };
+            const newParent = { key: "2", remoteRef: { uid: "uid-2" }, name: "kung", path: "kung" };
+
+            store.commit(ADD_FOLDER, oldFolder);
+            store.commit(ADD_FOLDER, existingFolder);
+            store.commit(ADD_FOLDER, existingFolder2);
+            store.commit(ADD_FOLDER, newParent);
+            await store.dispatch(MOVE_FOLDER, { folder: oldFolder, parent: newParent, mailbox });
+            expect(api.updateFolder).toHaveBeenCalledWith(mailbox, {
+                internalId: undefined,
+                uid: "1",
+                value: {
+                    fullName: "kung/foo (2)",
+                    name: "foo (2)",
                     parentUid: "2"
                 }
             });

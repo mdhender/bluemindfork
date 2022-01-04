@@ -174,6 +174,18 @@ describe("Folder model functions", () => {
                 path: "parent/newName"
             });
         });
+        test("Rename folder having special characters", () => {
+            expect(rename({ name: "name\\ ^ $ * + ? . ( ) | { } [ ]", path: "parent/name" }, "newName")).toStrictEqual({
+                name: "newName",
+                path: "parent/newName"
+            });
+        });
+        test("Rename folder to a name containing special characters", () => {
+            expect(rename({ name: "name", path: "parent/name" }, "newName\\ ^ $ * + ? . ( ) | { } [ ]")).toStrictEqual({
+                name: "newName\\ ^ $ * + ? . ( ) | { } [ ]",
+                path: "parent/newName\\ ^ $ * + ? . ( ) | { } [ ]"
+            });
+        });
     });
     describe("compare", () => {
         const mailboxRef = { key: "mbk1" };

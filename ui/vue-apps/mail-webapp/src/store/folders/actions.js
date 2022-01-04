@@ -2,13 +2,11 @@ import { ItemFlag } from "@bluemind/core.container.api";
 import api from "../api/apiFolders";
 import {
     ADD_FOLDER,
-    RENAME_FOLDER,
     SET_MAILBOX_FOLDERS,
     SET_UNREAD_COUNT,
     //TODO: change mutation names
     REMOVE_FOLDER as MUTATION_REMOVE_FOLDER,
-    RENAME_FOLDER as MUTATION_RENAME_FOLDER,
-    MOVE_FOLDER as MUTATION_MOVE_FOLDER
+    UPDATE_FOLDER
 } from "~/mutations";
 import { FOLDER_BY_PATH, FOLDER_GET_DESCENDANTS } from "~/getters";
 import { FolderAdaptor } from "./helpers/FolderAdaptor";
@@ -23,6 +21,7 @@ import {
     MARK_FOLDER_AS_READ,
     MOVE_FOLDER,
     REMOVE_FOLDER,
+    RENAME_FOLDER,
     UNREAD_FOLDER_COUNT
 } from "~/actions";
 
@@ -68,33 +67,31 @@ const removeFolder = async function ({ commit, getters }, { folder, mailbox }) {
     }
 };
 
-const moveFolder = async function ({ commit, state }, { folder, parent, mailbox }) {
-    const { parent: oldParent, path: oldPath } = folder;
-    parent = state[parent.key];
-    const moved = move(folder, parent, mailbox);
-    commit(MUTATION_MOVE_FOLDER, moved);
-
-    const item = FolderAdaptor.toMailboxFolder(moved, mailbox);
+const updateFolder = async function ({ commit }, { initial, updated, mailbox }) {
+    commit(UPDATE_FOLDER, updated);
+    const item = FolderAdaptor.toMailboxFolder(updated, mailbox);
     try {
         await api.updateFolder(mailbox, item);
+        return updated;
     } catch (e) {
-        commit(MUTATION_MOVE_FOLDER, { key: folder.key, parent: oldParent, path: oldPath });
+        commit(UPDATE_FOLDER, { ...initial });
         throw e;
     }
 };
 
-const renameFolder = async function ({ commit }, { folder, name, mailbox }) {
-    const { name: oldName, path: oldPath } = folder;
-    const renamed = rename(folder, name);
-    commit(MUTATION_RENAME_FOLDER, renamed);
-
-    const item = FolderAdaptor.toMailboxFolder(renamed, mailbox);
-    try {
-        await api.updateFolder(mailbox, item);
-    } catch (e) {
-        commit(MUTATION_RENAME_FOLDER, { name: oldName, key: folder.key, path: oldPath });
-        throw e;
+const moveFolder = async function (store, { folder, parent, mailbox }) {
+    parent = store.state[parent.key];
+    let updated = move(folder, parent, mailbox);
+    let i = 1;
+    while (store.getters[FOLDER_BY_PATH](updated.path, mailbox)) {
+        updated = rename(updated, `${folder.name} (${i++})`);
     }
+    return await updateFolder(store, { initial: folder, updated, mailbox });
+};
+
+const renameFolder = async function (store, { folder, name, mailbox }) {
+    const updated = rename(folder, name);
+    return await updateFolder(store, { initial: folder, updated, mailbox });
 };
 
 const markFolderAsRead = async function ({ commit }, { folder, mailbox }) {

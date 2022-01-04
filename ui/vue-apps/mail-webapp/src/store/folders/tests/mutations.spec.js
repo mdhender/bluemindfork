@@ -3,12 +3,11 @@ import {
     ADD_FLAG,
     SET_MAILBOX_FOLDERS,
     ADD_FOLDER,
-    RENAME_FOLDER,
     DELETE_FLAG,
-    MOVE_FOLDER,
     REMOVE_FOLDER,
     SET_FOLDER_EXPANDED,
-    SET_UNREAD_COUNT
+    SET_UNREAD_COUNT,
+    UPDATE_FOLDER
 } from "~/mutations";
 import { Flag } from "@bluemind/email";
 
@@ -114,20 +113,20 @@ describe("folder mutations", () => {
         });
     });
 
-    describe("MOVE_FOLDER", () => {
-        const { [MOVE_FOLDER]: moveFolder } = mutations;
-        test("rename an existing folder with name", () => {
+    describe("UPDATE_FOLDER", () => {
+        const { [UPDATE_FOLDER]: updateFolder } = mutations;
+        test("update an existing folder with name", () => {
             const state = {
                 "123": {
                     path: "foo",
                     parent: null
                 }
             };
-            moveFolder(state, { key: "123", path: "foobar", parent: "foobar" });
+            updateFolder(state, { key: "123", path: "foobar", parent: "foobar" });
             expect(state["123"]).toEqual({ path: "foobar", parent: "foobar" });
         });
 
-        test("move a folder only change the parent and the path property", () => {
+        test("update a folder only change the parent and the path property", () => {
             const state = {
                 "123": {
                     aprop: "bar",
@@ -136,42 +135,10 @@ describe("folder mutations", () => {
                     otherprop: "bar"
                 }
             };
-            moveFolder(state, { key: "123", parent: "foobar", path: "foobar" });
+            updateFolder(state, { key: "123", parent: "foobar", path: "foobar" });
             expect(state["123"]).toEqual({
                 aprop: "bar",
                 parent: "foobar",
-                path: "foobar",
-                otherprop: "bar"
-            });
-        });
-    });
-
-    describe("RENAME_FOLDER", () => {
-        const { [RENAME_FOLDER]: renameFolder } = mutations;
-        test("rename an existing folder with name", () => {
-            const state = {
-                "123": {
-                    name: "foo",
-                    path: "foo"
-                }
-            };
-            renameFolder(state, { key: "123", name: "foobar", path: "foobar" });
-            expect(state["123"]).toEqual({ name: "foobar", path: "foobar" });
-        });
-
-        test("rename a folder only change the name and the path property", () => {
-            const state = {
-                "123": {
-                    aprop: "bar",
-                    name: "foo",
-                    path: "foo",
-                    otherprop: "bar"
-                }
-            };
-            renameFolder(state, { key: "123", name: "foobar", path: "foobar" });
-            expect(state["123"]).toEqual({
-                aprop: "bar",
-                name: "foobar",
                 path: "foobar",
                 otherprop: "bar"
             });

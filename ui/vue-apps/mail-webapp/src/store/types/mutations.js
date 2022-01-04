@@ -12,13 +12,12 @@ export const ADD_MAILBOXES = "ADD_MAILBOXES";
 
 // folders
 export const ADD_FOLDER = "ADD_FOLDER";
-export const MOVE_FOLDER = "MOVE_FOLDER";
 export const SET_MAILBOX_FOLDERS = "SET_MAILBOX_FOLDERS";
-export const RENAME_FOLDER = "RENAME_FOLDER";
 export const REMOVE_FOLDER = "REMOVE_FOLDER";
 export const SET_ACTIVE_FOLDER = "SET_ACTIVE_FOLDER";
 export const SET_UNREAD_COUNT = "SET_UNREAD_COUNT";
 export const SET_FOLDER_EXPANDED = "SET_FOLDER_EXPANDED";
+export const UPDATE_FOLDER = "UPDATE_FOLDER";
 
 // message
 export const ADD_ATTACHMENT = "ADD_ATTACHMENT";

@@ -30,8 +30,11 @@ export function create(key, name, parent, mailbox) {
 }
 
 export function rename(folder, name) {
-    const path = folder.path.replace(new RegExp(folder.name + "$"), name);
-    return { ...folder, name, path };
+    const pathArray = folder.path.split("/");
+    pathArray.pop();
+    pathArray.push(name);
+    const path = pathArray.join("/");
+    return { ...folder, name, path, imapName: name };
 }
 
 export function move(folder, parent, mailbox) {
