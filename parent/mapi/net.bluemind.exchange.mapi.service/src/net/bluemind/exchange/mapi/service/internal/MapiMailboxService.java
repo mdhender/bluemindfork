@@ -90,6 +90,16 @@ public class MapiMailboxService implements IMapiMailbox {
 
 	}
 
+	@Override
+	public void check() {
+		MapiReplica replica = get();
+		if (replica != null) {
+			checkFaiContainer(replica);
+		} else {
+			logger.warn("Missing replica for {}", mailboxUid);
+		}
+	}
+
 	private void checkFaiContainer(MapiReplica replica) {
 		String faiContainerId = MapiFAIContainer.getIdentifier(replica);
 		DataSourceRouter.invalidateContainer(faiContainerId);

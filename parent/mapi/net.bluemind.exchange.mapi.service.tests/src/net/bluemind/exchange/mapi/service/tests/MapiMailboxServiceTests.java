@@ -160,6 +160,8 @@ public class MapiMailboxServiceTests {
 		MapiReplica reFound = mboxesApi.byMailboxGuid(replica.mailboxGuid);
 		assertEquals(replica.mailboxUid, reFound.mailboxUid);
 
+		api.check();
+
 		IContainersFlatHierarchy hierApi = hierarchyApi();
 		List<ItemValue<ContainerHierarchyNode>> containers = hierApi.list();
 		assertNotNull(containers);

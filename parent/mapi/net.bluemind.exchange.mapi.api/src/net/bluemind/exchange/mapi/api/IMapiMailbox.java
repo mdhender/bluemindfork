@@ -36,6 +36,10 @@ public interface IMapiMailbox {
 	@PUT
 	public void create(MapiReplica mailbox) throws ServerFault;
 
+	@POST
+	@Path("_check")
+	public void check();
+
 	@GET
 	MapiReplica get() throws ServerFault;
 
