@@ -57,6 +57,8 @@ public class ICalendarElement {
 	public Map<String, String> conferenceConfiguration = new HashMap<>();
 	public List<AttachedFile> attachments = new ArrayList<>();
 
+	public Map<String, String> properties = new HashMap<>();
+
 	/**
 	 * When a ICalendarElement is created, its sequence number is 0. It is
 	 * monotonically incremented by the "Organizer's" each time the "Organizer"

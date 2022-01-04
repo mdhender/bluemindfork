@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.core.jdbc.Columns;
@@ -61,7 +62,8 @@ public class ICalendarElementColumns {
 			.col("attach_name") //
 			.col("attach_cid") //
 			.col("draft") //
-			.col("sequence");
+			.col("sequence")//
+			.col("custom_properties");
 
 	public static StatementValues<ICalendarElement> values() {
 		return new StatementValues<ICalendarElement>() {
@@ -135,6 +137,8 @@ public class ICalendarElementColumns {
 					statement.setInt(index++, value.sequence);
 				}
 
+				statement.setObject(index++, value.properties);
+
 				return index;
 
 			}
@@ -206,6 +210,13 @@ public class ICalendarElementColumns {
 				value.draft = rs.getBoolean(index++);
 
 				value.sequence = rs.getInt(index++);
+
+				@SuppressWarnings("unchecked")
+				Map<String, String> properties = (Map<String, String>) rs.getObject(index++);
+				if (properties != null) {
+					value.properties.putAll(properties);
+				}
+
 				return index;
 			}
 

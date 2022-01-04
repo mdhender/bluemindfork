@@ -161,7 +161,9 @@ create table t_todolist_vtodo (
    */
   sequence int,
 
-  draft boolean, 
+  draft boolean,
+  
+  custom_properties hstore,
 
   item_id int4 references t_container_item(id) on delete cascade primary key 
 );
