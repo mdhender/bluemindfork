@@ -1,7 +1,9 @@
 [Unit]
 Description=BlueMind Core Server
 ConditionPathExists=!/etc/bm/bm-core.disabled
-After=bm-node.service postgresql.service
+# optional dep on kafka if installed on same host https://unix.stackexchange.com/questions/423722/systemd-service-file-with-optional-dependency
+Wants=bm-kafka-broker.service
+After=bm-node.service postgresql.service bm-kafka-broker.service
 PartOf=bluemind.target
 
 [Service]
