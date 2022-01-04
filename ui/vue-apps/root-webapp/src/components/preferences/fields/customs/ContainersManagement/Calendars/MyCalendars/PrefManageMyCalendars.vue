@@ -37,7 +37,7 @@ export default {
         return { containerType: ContainerType.CALENDAR };
     },
     computed: {
-        ...mapState("preferences", { myCalendars: state => state.preferenceContainers.myCalendars })
+        ...mapState("preferences", { myCalendars: state => state.containers.myCalendars })
     },
     methods: {
         ...mapActions("preferences", ["SUBSCRIBE_TO_CONTAINERS"]),

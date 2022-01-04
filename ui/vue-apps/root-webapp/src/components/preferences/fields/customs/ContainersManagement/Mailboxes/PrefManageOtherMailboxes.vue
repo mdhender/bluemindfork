@@ -44,7 +44,7 @@ export default {
     },
     computed: {
         ...mapState("preferences", {
-            otherMailboxesContainers: state => state.preferenceContainers.otherMailboxesContainers
+            otherMailboxesContainers: state => state.containers.otherMailboxesContainers
         })
     },
     methods: {
