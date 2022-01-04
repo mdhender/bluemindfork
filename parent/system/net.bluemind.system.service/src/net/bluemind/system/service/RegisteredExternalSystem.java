@@ -18,7 +18,9 @@
  */
 package net.bluemind.system.service;
 
+import net.bluemind.system.api.ConnectionTestStatus;
 import net.bluemind.system.api.ExternalSystem;
+import net.bluemind.user.api.UserAccount;
 
 public abstract class RegisteredExternalSystem extends ExternalSystem {
 
@@ -29,5 +31,9 @@ public abstract class RegisteredExternalSystem extends ExternalSystem {
 	public abstract byte[] getLogo();
 
 	public abstract boolean handles(String userAccountIdentifier);
+
+	public ConnectionTestStatus testConnection(String domain, UserAccount account) {
+		return ConnectionTestStatus.NOT_SUPPORTED;
+	}
 
 }

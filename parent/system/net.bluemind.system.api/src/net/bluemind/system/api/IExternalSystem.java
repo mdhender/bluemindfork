@@ -21,11 +21,13 @@ package net.bluemind.system.api;
 import java.util.List;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.user.api.UserAccount;
 
 @BMApi(version = "3")
 @Path("/system/external")
@@ -42,5 +44,10 @@ public interface IExternalSystem {
 	@GET
 	@Path("{systemIdentifier}/_logo")
 	public byte[] getLogo(@PathParam(value = "systemIdentifier") String systemIdentifier) throws ServerFault;
+
+	@POST
+	@Path("{systemIdentifier}/_test_connection")
+	public ConnectionTestStatus testConnection(@PathParam(value = "systemIdentifier") String systemIdentifier,
+			UserAccount account);
 
 }

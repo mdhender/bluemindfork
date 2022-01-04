@@ -9,7 +9,8 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:
  com.google.gwt.user;resolution:=optional,
  net.bluemind.system.api;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.core.task.api.gwt;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.restbus.api.gwt;bundle-version="4.1.0";visibility:=reexport
+ net.bluemind.restbus.api.gwt;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.user.api.gwt;bundle-version="4.1.0"
 Export-Package: net.bluemind.system.api.gwt.endpoint,
  net.bluemind.system.api.gwt.serder,
  net.bluemind.system.api.gwt.js

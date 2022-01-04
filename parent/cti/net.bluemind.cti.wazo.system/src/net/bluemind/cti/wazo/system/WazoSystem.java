@@ -25,7 +25,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 
+import net.bluemind.cti.wazo.service.WazoBackend;
+import net.bluemind.system.api.ConnectionTestStatus;
 import net.bluemind.system.service.RegisteredExternalSystem;
+import net.bluemind.user.api.UserAccount;
 
 public class WazoSystem extends RegisteredExternalSystem {
 
@@ -49,6 +52,12 @@ public class WazoSystem extends RegisteredExternalSystem {
 	@Override
 	public boolean handles(String userAccountIdentifier) {
 		return userAccountIdentifier.startsWith(super.identifier);
+	}
+
+	@Override
+	public ConnectionTestStatus testConnection(String domain, UserAccount account) {
+		boolean testConnection = new WazoBackend().testConnection(domain, account);
+		return testConnection ? ConnectionTestStatus.OK : ConnectionTestStatus.NOK;
 	}
 
 }

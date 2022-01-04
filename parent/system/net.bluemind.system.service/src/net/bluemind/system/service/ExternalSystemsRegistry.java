@@ -29,7 +29,9 @@ import com.google.common.collect.ImmutableList;
 
 import net.bluemind.core.utils.ImageUtils;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
+import net.bluemind.system.api.ConnectionTestStatus;
 import net.bluemind.system.api.ExternalSystem;
+import net.bluemind.user.api.UserAccount;
 
 public class ExternalSystemsRegistry {
 
@@ -85,6 +87,10 @@ public class ExternalSystemsRegistry {
 
 	private static RegisteredExternalSystem getSystem(String systemIdentifier) {
 		return externalSystems.stream().filter(s -> s.identifier.equals(systemIdentifier)).findFirst().orElse(null);
+	}
+
+	public static ConnectionTestStatus testConnection(String domain, String systemIdentifier, UserAccount account) {
+		return getSystem(systemIdentifier).testConnection(domain, account);
 	}
 
 }

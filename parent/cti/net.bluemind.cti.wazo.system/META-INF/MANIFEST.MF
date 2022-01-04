@@ -10,4 +10,7 @@ Automatic-Module-Name: net.bluemind.cti.wazo.system
 Require-Bundle: net.bluemind.system.service,
  net.bluemind.system.api,
  com.google.guava,
- slf4j.api
+ slf4j.api,
+ net.bluemind.user.api,
+ slf4j.api,
+ net.bluemind.cti.wazo.service

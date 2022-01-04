@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Strings;
 
 import net.bluemind.core.api.fault.ServerFault;
@@ -30,26 +33,28 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.cti.api.Status.PhoneState;
 import net.bluemind.cti.backend.ICTIBackend;
+import net.bluemind.cti.wazo.api.client.WazoAuthentifiedApiClient;
 import net.bluemind.cti.wazo.api.client.WazoClickToCallClient;
 import net.bluemind.cti.wazo.api.client.WazoUsersClient;
+import net.bluemind.cti.wazo.api.client.exception.WazoApiException;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.user.api.IInternalUserExternalAccount;
 import net.bluemind.user.api.User;
+import net.bluemind.user.api.UserAccount;
+import net.bluemind.user.api.UserAccountInfo;
 
 public class WazoBackend implements ICTIBackend {
 
 	private static final String SYSTEM_IDENTIFIER = "Wazo";
+	Logger logger = LoggerFactory.getLogger(WazoBackend.class);
 
 	@Override
 	public void forward(String domain, ItemValue<User> caller, String imSetPhonePresence) throws ServerFault {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void dnd(String domain, ItemValue<User> caller, boolean dndEnabled) throws ServerFault {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -81,7 +86,6 @@ public class WazoBackend implements ICTIBackend {
 
 	@Override
 	public PhoneState getPhoneState(String domain, ItemValue<User> caller) throws ServerFault {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -109,6 +113,17 @@ public class WazoBackend implements ICTIBackend {
 		return Optional.ofNullable(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomainSettings.class, domainUid).get().get(DomainSettingsKeys.cti_implementation.name()))
 				.equals(Optional.of(SYSTEM_IDENTIFIER));
+	}
+
+	public boolean testConnection(String domain, UserAccount account) {
+		try {
+			String token = new WazoAuthentifiedApiClient(domain,
+					new UserAccountInfo(account, WazoBackend.SYSTEM_IDENTIFIER)).getToken();
+			return !Strings.isNullOrEmpty(token);
+		} catch (WazoApiException e) {
+			logger.info("Connection test failed for account {}: {}", account.login, e.getMessage());
+			return false;
+		}
 	}
 
 }
