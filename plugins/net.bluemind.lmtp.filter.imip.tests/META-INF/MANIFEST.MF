@@ -41,5 +41,8 @@ Require-Bundle: org.junit,
  net.bluemind.mime4j.common,
  net.bluemind.attachment.api,
  net.bluemind.dockerclient,
- net.bluemind.filehosting.api
+ net.bluemind.filehosting.api,
+ net.bluemind.filehosting.filesystem.service;bundle-version="4.1.0",
+ net.bluemind.filehosting.service;bundle-version="4.1.0",
+ net.bluemind.attachment.service;bundle-version="4.1.0"
 Automatic-Module-Name: net.bluemind.lmtp.filter.imip.tests
