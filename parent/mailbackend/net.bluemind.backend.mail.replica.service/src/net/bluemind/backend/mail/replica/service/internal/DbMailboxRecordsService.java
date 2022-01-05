@@ -17,6 +17,7 @@
   */
 package net.bluemind.backend.mail.replica.service.internal;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -583,19 +584,33 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 	}
 
 	private static final ExecutorService ES_CRUD_POOL = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
-			new ArrayBlockingQueue<>(2), new DefaultThreadFactory("replication-es-crud", true), new CallerRunsPolicy());
+			new ArrayBlockingQueue<>(2), new DefaultThreadFactory("replication-es-crud", true) {
+				private final UncaughtExceptionHandler handler = (Thread t, Throwable e) -> logger
+						.error("Es CRUD error for {}: {}", t.getName(), e.getMessage());
+
+				@Override
+				protected Thread newThread(Runnable r, String name) {
+					Thread t = super.newThread(r, name);
+					t.setUncaughtExceptionHandler(handler);
+					return t;
+				}
+			}, new CallerRunsPolicy());
 
 	private void updateIndex(List<ItemValue<MailboxRecord>> pushToIndex) {
 		if (!pushToIndex.isEmpty()) {
 			ES_CRUD_POOL.execute(() -> {
-				long esTime = System.currentTimeMillis();
-				Optional<BulkOperation> bulkOp = Optional.of(indexService.startBulk());
-				for (ItemValue<MailboxRecord> forIndex : pushToIndex) {
-					index(forIndex, bulkOp);
+				try {
+					long esTime = System.currentTimeMillis();
+					Optional<BulkOperation> bulkOp = Optional.of(indexService.startBulk());
+					for (ItemValue<MailboxRecord> forIndex : pushToIndex) {
+						index(forIndex, bulkOp);
+					}
+					bulkOp.ifPresent(bul -> bul.commit(false));
+					esTime = System.currentTimeMillis() - esTime;
+					logger.info("[{}] Es CRUD op, idx: {} in {}ms", mailboxUniqueId, pushToIndex.size(), esTime);
+				} catch (Exception e) {
+					logger.error("[{}] Es CRUD op failed", mailboxUniqueId, e);
 				}
-				bulkOp.ifPresent(bul -> bul.commit(false));
-				esTime = System.currentTimeMillis() - esTime;
-				logger.info("[{}] Es CRUD op, idx: {} in {}ms", mailboxUniqueId, pushToIndex.size(), esTime);
 			});
 
 		}
