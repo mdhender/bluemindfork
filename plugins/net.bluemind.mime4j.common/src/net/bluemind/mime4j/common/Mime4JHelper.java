@@ -61,6 +61,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteSource;
 
+import io.netty.util.internal.PlatformDependent;
 import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.mime4j.common.OffloadedBodyFactory.SizedBody;
 import net.bluemind.mime4j.common.rewriters.impl.DontTouchHandler;
@@ -70,6 +71,7 @@ import net.bluemind.utils.FBOSInput;
 public class Mime4JHelper {
 	private static final String TMP_PREFIX = System.getProperty("net.bluemind.property.product", "unknown-jvm") + "-"
 			+ Mime4JHelper.class.getName();
+	private static final boolean IS_WINWDOWS = PlatformDependent.isWindows();
 
 	public static final String M_ALTERNATIVE = "multipart/alternative";
 	public static final String M_SIGNED = "multipart/signed";
@@ -368,7 +370,10 @@ public class Mime4JHelper {
 		try (RandomAccessFile raf = new RandomAccessFile(tmpPath.toFile(), "r")) {
 			return raf.getChannel().map(MapMode.READ_ONLY, 0, raf.length());
 		} finally {
-			Files.deleteIfExists(tmpPath);
+			// workaround https://bugs.openjdk.java.net/browse/JDK-4715154
+			if (!IS_WINWDOWS) {
+				Files.deleteIfExists(tmpPath);
+			}
 		}
 	}
 

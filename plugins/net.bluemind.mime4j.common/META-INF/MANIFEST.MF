@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.james.apache-mime4j-dom;bundle-version="0.7.3";visibility:=reexport,
  net.bluemind.common.io;bundle-version="4.1.0",
  org.apache.xerces;bundle-version="2.9.0",
- org.jsoup
+ org.jsoup,
+ io.netty
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.mime4j.common
