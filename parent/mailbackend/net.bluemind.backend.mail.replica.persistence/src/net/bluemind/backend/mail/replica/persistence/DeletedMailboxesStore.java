@@ -32,7 +32,7 @@ public class DeletedMailboxesStore extends JdbcAbstractStore {
 
 	public void store(Subtree subtree) throws SQLException {
 		String query = "INSERT INTO t_subtree_uid ( " + SubtreeUidColumns.COLUMNS.names() + ") VALUES ("
-				+ SubtreeUidColumns.COLUMNS.values() + ")";
+				+ SubtreeUidColumns.COLUMNS.values() + ") ON CONFLICT(domain_uid, mailbox_uid) DO NOTHING";
 		insert(query, subtree, SubtreeUidColumns.values());
 	}
 
