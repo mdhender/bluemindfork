@@ -20,36 +20,25 @@ package net.bluemind.directory.hollow.datamodel.consumer;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Predicate;
 
 public class DirectorySearchFactory {
 
 	private static Map<String, DirectoryDeserializer> deserializers = new HashMap<>();
 
+	private DirectorySearchFactory() {
+
+	}
+
 	public static SerializedDirectorySearch get(String domain) {
-		return DirectorySearchFactory.get(domain, Optional.empty());
+		return new DefaultDirectorySearch(deserializer(domain));
 	}
 
-	/**
-	 * Filter hidden entities
-	 * 
-	 * @param domain
-	 * @return SerializedDirectorySearch sorting out all hidden entities when
-	 *         querying Hollow
-	 */
-	public static SerializedDirectorySearch getFiltered(String domain) {
-		return DirectorySearchFactory.get(domain, Optional.of(rec -> !rec.getHidden()));
+	public static BrowsableDirectorySearch browser(String domain) {
+		return new FilteredDirectorySearch(deserializer(domain), r -> !r.getHidden());
 	}
 
-	private static SerializedDirectorySearch get(String domain, Optional<Predicate<AddressBookRecord>> matcher) {
-		DirectoryDeserializer deserializer = DirectorySearchFactory.deserializers.computeIfAbsent(domain,
-				DirectoryDeserializer::new);
-		if (!matcher.isPresent()) {
-			return new DefaultDirectorySearch(deserializer);
-		} else {
-			return new FilteredDirectorySearch(deserializer, matcher.get());
-		}
+	private static DirectoryDeserializer deserializer(String domain) {
+		return deserializers.computeIfAbsent(domain, DirectoryDeserializer::new);
 	}
 
 	public static Map<String, DirectoryDeserializer> getDeserializers() {

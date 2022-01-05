@@ -49,6 +49,7 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord;
 import net.bluemind.directory.hollow.datamodel.consumer.AnrToken;
+import net.bluemind.directory.hollow.datamodel.consumer.BrowsableDirectorySearch;
 import net.bluemind.directory.hollow.datamodel.consumer.DirectorySearchFactory;
 import net.bluemind.directory.hollow.datamodel.consumer.SerializedDirectorySearch;
 import net.bluemind.domain.api.Domain;
@@ -231,7 +232,7 @@ public class ProducerTests {
 		DirectoryTestConsumer consumer = new DirectoryTestConsumer(producer.file);
 		DirectorySearchFactory.getDeserializers().remove(domainUid);
 		DirectorySearchFactory.getDeserializers().put(domainUid, consumer);
-		SerializedDirectorySearch search = DirectorySearchFactory.get(domainUid);
+		BrowsableDirectorySearch search = DirectorySearchFactory.browser(domainUid);
 
 		consumer.refreshTo(snap);
 
@@ -251,7 +252,7 @@ public class ProducerTests {
 						+ "' ANRs: " + rec.getAnr().stream().map(AnrToken::getToken).collect(Collectors.joining(", ")));
 			}
 		}
-		assertEquals(5, ret.size());
+		assertEquals(4, ret.size());
 
 		ret = search.byNameOrEmailPrefix("external");
 		assertEquals(1, ret.size());

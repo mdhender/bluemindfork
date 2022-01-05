@@ -239,11 +239,12 @@ public class DirectoryDeserializer {
 		return results;
 	}
 
-	public SearchResults byKind(List<String> kinds, int offset, int limit, SerializedDirectorySearch search) {
-		List<AddressBookRecord> all = new ArrayList<>();
-		for (String kind : kinds) {
-			all.addAll(search.byKind(kind));
-		}
+	public SearchResults byKind(List<String> kinds, int offset, int limit, Predicate<AddressBookRecord> filter) {
+		List<AddressBookRecord> all = kinds.stream() //
+				.flatMap(kind -> byKind(kind).stream()) //
+				.filter(filter) //
+				.sorted((a, b) -> a.getName().compareTo(b.getName())) //
+				.collect(Collectors.toList());
 		int total = all.size();
 		if (offset < 0) {
 			offset = 0;
@@ -253,11 +254,7 @@ public class DirectoryDeserializer {
 		}
 		offset = Math.min(total, offset);
 		int to = Math.min(total, offset + limit);
-		return new SearchResults(total, order(all).subList(offset, to));
-	}
-
-	private List<AddressBookRecord> order(List<AddressBookRecord> list) {
-		return list.stream().sorted((a, b) -> a.getName().compareTo(b.getName())).collect(Collectors.toList());
+		return new SearchResults(total, all.subList(offset, to));
 	}
 
 	public List<AddressBookRecord> search(Query query) {
@@ -273,23 +270,23 @@ public class DirectoryDeserializer {
 	}
 
 	private Predicate<? super AddressBookRecord> toFilter(Query query) {
-		return (record -> eval(query, record));
+		return entry -> eval(query, entry);
 	}
 
-	private boolean eval(Query query, AddressBookRecord record) {
+	private boolean eval(Query query, AddressBookRecord entry) {
 		switch (query.type) {
 		case VALUE:
-			return evalValue(query.key, query.value, record);
+			return evalValue(query.key, query.value, entry);
 		case AND:
 			boolean match = true;
 			for (Query child : query.children) {
-				match = match && eval(child, record);
+				match = match && eval(child, entry);
 			}
 			return match;
 		case OR:
 			match = false;
 			for (Query child : query.children) {
-				match = match || eval(child, record);
+				match = match || eval(child, entry);
 			}
 			return match;
 		default:
@@ -297,8 +294,8 @@ public class DirectoryDeserializer {
 		}
 	}
 
-	private boolean evalValue(String key, String value, AddressBookRecord record) {
-		return AddressBookMatcher.matches(key, value, root(), record);
+	private boolean evalValue(String key, String value, AddressBookRecord entry) {
+		return AddressBookMatcher.matches(key, value, root(), entry);
 	}
 
 	private List<AddressBookRecord> simpleQuery(String key, String value) {

@@ -69,7 +69,7 @@ public abstract class BaseIncrementalUpdatesAndSearchTests {
 	}
 
 	private File file;
-	private SerializedDirectorySearch defaultSearch;
+	private BrowsableDirectorySearch defaultSearch;
 	AddressBookRecord rec1;
 	AddressBookRecord rec2;
 	AddressBookRecord rec3;
@@ -103,7 +103,7 @@ public abstract class BaseIncrementalUpdatesAndSearchTests {
 		serialize(rec1, rec2, rec3, rec4);
 		wait.await();
 
-		this.defaultSearch = DirectorySearchFactory.get("bm.loc");
+		this.defaultSearch = DirectorySearchFactory.browser("bm.loc");
 	}
 
 	protected abstract IncrementalProductionStrategy strategy(File dir, CountDownLatch latch);
@@ -171,6 +171,8 @@ public abstract class BaseIncrementalUpdatesAndSearchTests {
 	public void testStableSearchWithConcurrentUpdates() throws InterruptedException {
 		int count = 5000;
 		int start = 10;
+		int existingUserCount = 4;
+		int hiddenUserCount = 1;
 		System.err.println("testStableSearchWithConcurrentUpdates STARTS...");
 		checkByEmail("uid2@bm.loc", 2);
 		checkByEmail("uid4@bm.loc", 4);
@@ -260,7 +262,7 @@ public abstract class BaseIncrementalUpdatesAndSearchTests {
 		Collection<net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord> allRecs = defaultSearch.all();
 		System.err.println("TEST finishes with " + allRecs.size() + " item(s) in hollow");
 		System.err.println("deleted " + deleted + " record(s) during test.");
-		int total = count - start + 4 - deleted;
+		int total = count - start + (existingUserCount - hiddenUserCount) - deleted;
 		assertEquals(total, allRecs.size());
 
 		stop.set(true);

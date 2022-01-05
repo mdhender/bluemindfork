@@ -32,7 +32,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
@@ -52,7 +54,7 @@ public class DirectorySearchTest {
 
 	private File file;
 	private SerializedDirectorySearch defaultSearch;
-	private SerializedDirectorySearch filteredSearch;
+	private BrowsableDirectorySearch filteredSearch;
 	AddressBookRecord rec1;
 	AddressBookRecord rec2;
 	AddressBookRecord rec3;
@@ -110,7 +112,7 @@ public class DirectorySearchTest {
 		byUid = filteredSearch.byUid(rec2.uid);
 		assertTrue(byUid.isPresent());
 		byUid = filteredSearch.byUid(rec3.uid);
-		assertFalse(byUid.isPresent());
+		assertTrue(byUid.isPresent());
 	}
 
 	@Test
@@ -123,7 +125,7 @@ public class DirectorySearchTest {
 		assertEquals(rec3.email, byEmail.get().getEmail());
 
 		byEmail = filteredSearch.byEmail(rec3.email);
-		assertFalse(byEmail.isPresent());
+		assertTrue(byEmail.isPresent());
 
 		byEmail = filteredSearch.byEmail(rec4.email);
 		assertTrue(byEmail.isPresent());
@@ -141,44 +143,12 @@ public class DirectorySearchTest {
 
 	@Test
 	public void testSearchByKind() throws Exception {
-		Collection<net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord> byKind = defaultSearch
-				.byKind("user");
-
-		assertEquals(3, byKind.size());
-		boolean found1 = false;
-		boolean found2 = false;
-		boolean found3 = false;
-		for (net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord ar : byKind) {
-			if (ar.getUid().equals(rec1.uid)) {
-				found1 = true;
-			} else if (ar.getUid().equals(rec2.uid)) {
-				found2 = true;
-			} else if (ar.getUid().equals(rec3.uid)) {
-				found3 = true;
-			}
-		}
-		assertTrue(found1);
-		assertTrue(found2);
-		assertTrue(found3);
-
-		SearchResults ret = defaultSearch.byKind(Arrays.asList("user"), 1, 1);
-		assertEquals(3, ret.totalCount);
-		assertEquals(1, ret.records.size());
-
-		byKind = filteredSearch.byKind("user");
-
-		assertEquals(2, byKind.size());
-		found1 = false;
-		found2 = false;
-		for (net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord ar : byKind) {
-			if (ar.getUid().equals(rec1.uid)) {
-				found1 = true;
-			} else if (ar.getUid().equals(rec2.uid)) {
-				found2 = true;
-			}
-		}
-		assertTrue(found1);
-		assertTrue(found2);
+		SearchResults ret = filteredSearch.byKind(Arrays.asList("user"), 0, -1);
+		assertEquals(2, ret.totalCount);
+		assertEquals(2, ret.records.size());
+		Set<String> uids = ret.records.stream().map(r -> r.getUid()).collect(Collectors.toSet());
+		assertTrue(uids.contains(rec1.uid));
+		assertTrue(uids.contains(rec2.uid));
 
 		ret = filteredSearch.byKind(Arrays.asList("user"), 1, 1);
 		assertEquals(2, ret.totalCount);
@@ -189,28 +159,19 @@ public class DirectorySearchTest {
 	@Test
 	public void testSimpleQuery() throws Exception {
 		Query query = Query.contentQuery("name", rec1.name);
-		List<net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord> result = defaultSearch.search(query);
+		List<net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord> result = filteredSearch.search(query);
 		assertEquals(1, result.size());
 		assertEquals(rec1.uid, result.get(0).getUid());
 
 		query = Query.contentQuery("name", rec2.name);
-		result = defaultSearch.search(query);
+		result = filteredSearch.search(query);
 		assertEquals(1, result.size());
 		assertEquals(rec2.uid, result.get(0).getUid());
-
-		query = Query.contentQuery("name", rec3.name);
-		result = defaultSearch.search(query);
-		assertEquals(1, result.size());
-		assertEquals(rec3.uid, result.get(0).getUid());
 
 		query = Query.contentQuery("name", rec3.name);
 		result = filteredSearch.search(query);
 		assertEquals(0, result.size());
 
-		query = Query.contentQuery("name", rec2.name);
-		result = filteredSearch.search(query);
-		assertEquals(1, result.size());
-		assertEquals(rec2.uid, result.get(0).getUid());
 	}
 
 	@Test
@@ -219,7 +180,7 @@ public class DirectorySearchTest {
 		Query query2 = Query.contentQuery("anr", rec2.email);
 
 		Query query = Query.andQuery(Arrays.asList(query1, query2));
-		List<net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord> result = defaultSearch.search(query);
+		List<net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord> result = filteredSearch.search(query);
 		assertEquals(1, result.size());
 		assertEquals(rec2.uid, result.get(0).getUid());
 	}
@@ -230,7 +191,7 @@ public class DirectorySearchTest {
 		Query query2 = Query.contentQuery("uid", rec2.uid);
 
 		Query query = Query.orQuery(Arrays.asList(query1, query2));
-		List<net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord> result = defaultSearch.search(query);
+		List<net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord> result = filteredSearch.search(query);
 		assertEquals(2, result.size());
 	}
 

@@ -19,26 +19,17 @@
 package net.bluemind.directory.hollow.datamodel.consumer;
 
 import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
+import java.util.function.Predicate;
 
-public interface SerializedDirectorySearch {
+public interface BrowsableDirectorySearch extends SerializedDirectorySearch {
 
-	Optional<OfflineAddressBook> root();
+	List<AddressBookRecord> search(Query query);
 
-	/**
-	 * The given name will be lower cased for case insensitive matches
-	 * 
-	 * @param distinguishedName
-	 * @return
-	 */
-	public Optional<AddressBookRecord> byDistinguishedName(String distinguishedName);
+	List<AddressBookRecord> search(List<Predicate<? super AddressBookRecord>> predicates);
 
-	public Optional<AddressBookRecord> byUid(String uid);
+	Collection<AddressBookRecord> byNameOrEmailPrefix(String value);
 
-	public Optional<AddressBookRecord> byMinimalId(long minimalId);
-
-	public Optional<AddressBookRecord> byEmail(String email);
-
-	public Collection<AddressBookRecord> all();
+	SearchResults byKind(List<String> kinds, int offset, int limit);
 
 }

@@ -19,13 +19,11 @@
 package net.bluemind.directory.hollow.datamodel.consumer;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 public class DefaultDirectorySearch implements SerializedDirectorySearch {
 
-	private final DirectoryDeserializer deserializer;
+	protected final DirectoryDeserializer deserializer;
 
 	public DefaultDirectorySearch(DirectoryDeserializer deserializer) {
 		this.deserializer = deserializer;
@@ -34,11 +32,6 @@ public class DefaultDirectorySearch implements SerializedDirectorySearch {
 	@Override
 	public Optional<OfflineAddressBook> root() {
 		return deserializer.root();
-	}
-
-	@Override
-	public List<AddressBookRecord> search(List<Predicate<? super AddressBookRecord>> predicates) {
-		return deserializer.search(predicates);
 	}
 
 	@Override
@@ -57,33 +50,13 @@ public class DefaultDirectorySearch implements SerializedDirectorySearch {
 	}
 
 	@Override
-	public Collection<AddressBookRecord> byNameOrEmailPrefix(String value) {
-		return deserializer.byNameOrEmailPrefix(value);
-	}
-
-	@Override
 	public Optional<AddressBookRecord> byEmail(String email) {
 		return deserializer.byEmail(email);
 	}
 
 	@Override
-	public Collection<AddressBookRecord> byKind(String kind) {
-		return deserializer.byKind(kind);
-	}
-
-	@Override
-	public SearchResults byKind(List<String> kinds, int offset, int limit) {
-		return deserializer.byKind(kinds, offset, limit, this);
-	}
-
-	@Override
 	public Collection<AddressBookRecord> all() {
 		return deserializer.all();
-	}
-
-	@Override
-	public List<AddressBookRecord> search(Query query) {
-		return deserializer.search(query);
 	}
 
 }
