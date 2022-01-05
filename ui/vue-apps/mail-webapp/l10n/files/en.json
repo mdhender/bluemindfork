@@ -247,6 +247,7 @@
     "mail.folder.new.from_scratch": "New folder",
     "mail.folder.rename": "Rename folder",
     "mail.folder.search.placeholder": "Filter my folders",
+    "mail.folder.search.tooltip": "Active filter. Remove it to show all folders",
     "mail.folder.unread": "Unread messages counter: {count}",
     "mail.folder": "Folder",
     "mail.ics.accepted.tentatively": "Invitation tentatively accepted",
@@ -420,7 +421,7 @@
         },
         "rename_folder": {
             "modal": {
-                "title": "Rename the \"{name}\" folder"
+                "title": "Rename folder \"{name}\""
             }
         },
         "rootFolder": "Root folder"

@@ -36,13 +36,10 @@ export default {
         }),
         ...mapMutations("mail", { ADD_MAILBOXES }),
         ...mapMutations("root-app", ["SET_APP_STATE"]),
-        async $_BootstrapMixin_loadMyMailbox() {
-            if (!this.MAILBOXES_ARE_LOADED) {
-                const { userId: owner, defaultEmail: name } = inject("UserSession");
-                const myMailbox = create({ owner, name, type: MailboxType.USER });
-                this.ADD_MAILBOXES([myMailbox]);
-            }
-            await this.FETCH_FOLDERS(this.MY_MAILBOX);
+        $_BootstrapMixin_initMyMailbox() {
+            const { userId: owner, defaultEmail: name } = inject("UserSession");
+            const myMailbox = create({ owner, name, type: MailboxType.USER });
+            this.ADD_MAILBOXES([myMailbox]);
         },
         async $_BootstrapMixin_loadMailbox() {
             await this.FETCH_MAILBOXES();
@@ -63,10 +60,11 @@ export default {
 
     async created() {
         try {
+            this.$_BootstrapMixin_initMyMailbox();
             if (this.route.mailbox) {
                 await this.$_BootstrapMixin_loadMailbox();
             }
-            await this.$_BootstrapMixin_loadMyMailbox();
+            await this.FETCH_FOLDERS(this.MY_MAILBOX);
             await this.$_BootstrapMixin_loadAllMailboxes();
             if (this.MY_INBOX?.unread === undefined) {
                 await this.UNREAD_FOLDER_COUNT(this.MY_INBOX);

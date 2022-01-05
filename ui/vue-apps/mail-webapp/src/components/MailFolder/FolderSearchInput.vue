@@ -6,6 +6,7 @@
         resettable
         left-icon
         :placeholder="$t('mail.folder.search.placeholder')"
+        :title="folderSearchPattern && $t('mail.folder.search.tooltip')"
         @reset="folderSearchPattern = ''"
     />
 </template>

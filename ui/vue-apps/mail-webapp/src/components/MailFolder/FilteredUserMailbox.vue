@@ -7,7 +7,7 @@
             <filtered-item v-for="folder in folders" :key="folder.key" :folder="folder" class="flex-fill" />
         </div>
         <div v-if="showMoreResultsButton" class="text-center">
-            <bm-button variant="inline-primary" @click="showMore">
+            <bm-button variant="inline-primary" @click="SHOW_MORE_FOR_USERS(mailbox)">
                 {{ $t("mail.folder.filter.show_more") }}
             </bm-button>
         </div>
@@ -21,6 +21,7 @@ import { FILTERED_USER_RESULTS } from "~/getters";
 import MailMailboxIcon from "../MailMailboxIcon";
 import FilteredItem from "./FilteredItem";
 import ListCollapse from "./ListCollapse";
+import { DEFAULT_LIMIT } from "../../store/folderList";
 
 export default {
     name: "FilteredUserMailbox",
@@ -43,13 +44,17 @@ export default {
             return this.FILTERED_USER_RESULTS[this.mailbox.key];
         }
     },
-    methods: {
-        ...mapActions("mail", { SHOW_MORE_FOR_USERS }),
-        async showMore() {
-            const count = this.folders.length;
-            await this.SHOW_MORE_FOR_USERS(this.mailbox);
-            this.showMoreResultsButton = this.folders.length > count;
+    watch: {
+        folders: {
+            handler: function (value, oldValue) {
+                this.showMoreResultsButton =
+                    value.length % DEFAULT_LIMIT === 0 || (oldValue && oldValue.length !== value.length);
+            },
+            immediate: true
         }
+    },
+    methods: {
+        ...mapActions("mail", { SHOW_MORE_FOR_USERS })
     }
 };
 </script>

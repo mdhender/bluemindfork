@@ -9,7 +9,7 @@
         >
             <bm-icon :icon="isTreeExpanded ? 'caret-down' : 'caret-right'" size="sm" class="bm-icon mr-2" />
             <slot name="avatar" />
-            <span class="font-weight-bold">{{ name }}</span>
+            <span class="font-weight-bold text-left">{{ name }}</span>
         </bm-button>
         <bm-collapse :id="'collapse-tree-' + name" v-model="isTreeExpanded">
             <bm-tree

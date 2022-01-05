@@ -1,6 +1,6 @@
 <template>
-    <bm-avatar v-if="isUserMailbox" :alt="mailbox.name" />
-    <bm-avatar v-else icon="folder-shared" :alt="$t('common.mailshares')" />
+    <bm-avatar v-if="isUserMailbox" class="flex-shrink-0" :alt="mailbox.name" />
+    <bm-avatar v-else class="flex-shrink-0" icon="folder-shared" :alt="$t('common.mailshares')" />
 </template>
 
 <script>

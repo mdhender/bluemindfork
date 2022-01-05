@@ -58,7 +58,7 @@ import UUIDGenerator from "@bluemind/uuid";
 import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItemMenu from "./MailFolderItemMenu";
-import { ADD_FOLDER, REMOVE_FOLDER, TOGGLE_EDIT_FOLDER } from "~/mutations";
+import { ADD_FOLDER, REMOVE_FOLDER, SET_FOLDER_EXPANDED, TOGGLE_EDIT_FOLDER } from "~/mutations";
 import { RENAME_FOLDER, CREATE_FOLDER } from "~/actions";
 import { MailboxType } from "~/model/mailbox";
 import { create } from "~/model/folder";
@@ -105,7 +105,7 @@ export default {
     },
     methods: {
         ...mapActions("mail", { RENAME_FOLDER, CREATE_FOLDER }),
-        ...mapMutations("mail", { ADD_FOLDER, REMOVE_FOLDER, TOGGLE_EDIT_FOLDER }),
+        ...mapMutations("mail", { ADD_FOLDER, REMOVE_FOLDER, SET_FOLDER_EXPANDED, TOGGLE_EDIT_FOLDER }),
         toggleEditFolder(folderUid) {
             this.TOGGLE_EDIT_FOLDER(folderUid);
         },
@@ -132,7 +132,8 @@ export default {
         },
         async createSubFolder() {
             const key = UUIDGenerator.generate();
-            this.ADD_FOLDER(create(key, "", this.folder, this.mailbox));
+            const mailbox = this.mailboxes[this.folder.mailboxRef.key];
+            this.ADD_FOLDER(create(key, "", this.folder, mailbox));
             await this.$nextTick();
             // FIXME: FEATWEBML-1386
             this.TOGGLE_EDIT_FOLDER(key);

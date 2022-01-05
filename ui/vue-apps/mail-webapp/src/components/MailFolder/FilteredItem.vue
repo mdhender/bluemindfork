@@ -11,7 +11,7 @@
                 />
                 <div class="folder-path">
                     <span class="d-inline-block text-truncate">{{ path.start }}</span>
-                    <span>{{ path.end }}</span>
+                    <span class="text-nowrap">{{ path.end }}</span>
                 </div>
             </div>
         </folder-item>

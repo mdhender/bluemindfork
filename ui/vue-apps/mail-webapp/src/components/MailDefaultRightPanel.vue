@@ -10,6 +10,7 @@ import MailMultipleSelectionActions from "./MailMultipleSelectionActions";
 import { mapGetters, mapMutations } from "vuex";
 import {
     CONVERSATION_METADATA,
+    MY_MAILBOX,
     ONE_CONVERSATION_SELECTED,
     SEVERAL_CONVERSATIONS_SELECTED,
     SELECTION_KEYS
@@ -29,9 +30,13 @@ export default {
         MailMessageStarter,
         MailMultipleSelectionActions
     },
+    data() {
+        return { mailboxLoaded: false };
+    },
     computed: {
         ...mapGetters("mail", {
             CONVERSATION_METADATA,
+            MY_MAILBOX,
             ONE_CONVERSATION_SELECTED,
             SEVERAL_CONVERSATIONS_SELECTED,
             SELECTION_KEYS

@@ -202,8 +202,8 @@ export function compare(f1, f2) {
     if (f1.mailboxRef.key !== f2.mailboxRef.key) {
         return f1.mailboxRef.key > f2.mailboxRef.key ? 1 : -1;
     }
-    let w1 = DEFAULT_FOLDER_AS_ARRAY.indexOf(f1.imapName) + 1 || DEFAULT_FOLDER_AS_ARRAY.length;
-    let w2 = DEFAULT_FOLDER_AS_ARRAY.indexOf(f2.imapName) + 1 || DEFAULT_FOLDER_AS_ARRAY.length;
+    let w1 = DEFAULT_FOLDER_AS_ARRAY.indexOf(f1.imapName) + 1 || DEFAULT_FOLDER_AS_ARRAY.length + 1;
+    let w2 = DEFAULT_FOLDER_AS_ARRAY.indexOf(f2.imapName) + 1 || DEFAULT_FOLDER_AS_ARRAY.length + 1;
     return w1 - w2 || f1.path.localeCompare(f2.path);
 }
 
