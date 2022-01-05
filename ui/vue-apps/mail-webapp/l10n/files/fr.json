@@ -322,7 +322,6 @@
     "mail.search.options.folder.current": "Ce dossier",
     "mail.search.options.folder.label": "Rechercher dans",
     "mail.selection.alert.readonly": "Certains message sélectionnés sont en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles",
-    "mail.shortcuts.purge": "Maj + Suppr",
     "mail.toolbar.more.aria": "Autres actions possibles sur la sélection",
     "mail.toolbar.more": "Autres",
     "mail.toolbar.move.tooltip": "Déplacer le message",
@@ -423,7 +422,11 @@
                 "title": "Renommer le dossier \"{name}\""
             }
         },
-        "rootFolder": "Dossier racine"
+        "rootFolder": "Dossier racine",
+        "shortcuts": {
+            "print": "Ctrl + P",
+            "purge": "Maj + Suppr"
+        }
     },
     "mail.save.date": "enregistré le {date}",
     "mail.save.date.time": "enregistré à {time}"

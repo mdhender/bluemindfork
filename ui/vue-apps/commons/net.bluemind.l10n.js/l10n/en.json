@@ -11,6 +11,7 @@
     "common.cc": "Cc",
     "common.bcc": "Bcc",
     "common.save": "Save",
+    "common.print": "Print",
     "common.delete": "Delete",
     "common.attachments": "1 attachment | {count} attachments",
     "common.downloadAttachment": "Download attachment",

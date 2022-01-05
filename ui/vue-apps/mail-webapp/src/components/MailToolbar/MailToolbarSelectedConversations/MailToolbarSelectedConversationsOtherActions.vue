@@ -37,7 +37,13 @@
             {{ markAsUnreadText }}
         </bm-dropdown-item>
         <bm-dropdown-item
-            class="shadow-sm"
+            icon="printer"
+            :disabled="selectionLength > 1"
+            @click="printLastMessage()"
+        >
+            {{ $t("common.print") }}
+        </bm-dropdown-item>
+        <bm-dropdown-item
             :shortcut="$t('mail.shortcuts.purge')"
             :title="removeAriaText()"
             :aria-label="removeAriaText()"
@@ -51,7 +57,7 @@
 <script>
 import { mapGetters, mapMutations, mapState } from "vuex";
 import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
-import { ActionTextMixin, RemoveMixin, SelectionMixin, FlagMixin } from "~/mixins";
+import { ActionTextMixin, RemoveMixin, SelectionMixin, FlagMixin, PrintMixin } from "~/mixins";
 import { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES } from "~/getters";
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
 import { draftPath } from "~/model/draft";
@@ -61,7 +67,7 @@ import MessagePathParam from "~/router/MessagePathParam";
 export default {
     name: "MailToolbarConsultMessageOtherActions",
     components: { BmDropdown, BmDropdownItem, BmIcon },
-    mixins: [ActionTextMixin, RemoveMixin, FlagMixin, SelectionMixin],
+    mixins: [ActionTextMixin, RemoveMixin, FlagMixin, PrintMixin, SelectionMixin],
     computed: {
         ...mapGetters("mail", { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES }),
         ...mapState("mail", { messages: state => state.conversations.messages }),
@@ -80,6 +86,13 @@ export default {
     },
     methods: {
         ...mapMutations("mail", { SET_MESSAGE_COMPOSING }),
+        printLastMessage() {
+            if (this.selectionLength === 1) {
+                const messages = this.CURRENT_CONVERSATION_METADATA.messages;
+                const message = this.messages[messages[messages.length - 1]];
+                this.printMessage(message);
+            }
+        },
         editAsNew() {
             const template = this.messages[this.CURRENT_CONVERSATION_METADATA.messages[0]];
             this.$router.navigate({

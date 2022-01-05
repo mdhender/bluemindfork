@@ -11,6 +11,7 @@
     "common.cc": "Cc",
     "common.bcc": "Cci",
     "common.save": "Enregistrer",
+    "common.print": "Imprimer",
     "common.delete": "Supprimer",
     "common.attachments": "1 pièce jointe | {count} pièces jointes",
     "common.downloadAttachment": "Télécharger la pièce jointe",

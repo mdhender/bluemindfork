@@ -323,7 +323,6 @@
     "mail.search.options.folder.current": "This folder",
     "mail.search.options.folder.label": "Search in",
     "mail.selection.alert.readonly": "Some selected messages are read-only. Some actions (like Move or Remove) may not be available.",
-    "mail.shortcuts.purge": "Shift + Delete",
     "mail.toolbar.more.aria": "Other actions for selected messages",
     "mail.toolbar.more": "Others",
     "mail.toolbar.move.tooltip": "Move message",
@@ -424,7 +423,11 @@
                 "title": "Rename folder \"{name}\""
             }
         },
-        "rootFolder": "Root folder"
+        "rootFolder": "Root folder",
+        "shortcuts": {
+            "print": "Ctrl + P",
+            "purge": "Shift + Delete"
+        }
     },
     "mail.save.date": "saved on {date}",
     "mail.save.date.time": "saved at {time}"

@@ -9,6 +9,7 @@ export { default as FlagMixin } from "./FlagMixin";
 export { default as FormattedDateMixin } from "./FormattedDateMixin";
 export { default as MailRoutesMixin } from "./MailRoutesMixin";
 export { default as MoveMixin } from "./MoveMixin";
+export { default as PrintMixin } from "./PrintMixin";
 export { default as RemoveMixin } from "./RemoveMixin";
 export { default as ReplyAndForwardRoutesMixin } from "./ReplyAndForwardRoutesMixin";
 export { default as SelectionMixin } from "./SelectionMixin";

@@ -11,6 +11,7 @@
     "common.cc": "Cc",
     "common.bcc": "Bcc",
     "common.save": "Speichern",
+    "common.print": "Drucken",
     "common.delete": "Löschen",
     "common.attachments": "1 Anhang | {count} Anhänge",
     "common.downloadAttachment": "Anhang speichern",

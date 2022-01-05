@@ -21,7 +21,7 @@
             "request": "launch",
             "type": "pwa-chrome",
             "url": "https://my.bm.dev/webapp/mail/",
-            "webRoot": "${workspaceFolder},
+            "webRoot": "${workspaceFolder}",
             "sourceMapPathOverrides": {
                 "webpack://@bluemind/webapp.mail/./src/components/*.vue": "/dev/null",
                 "webpack://@bluemind/webapp.mail/*": "${webRoot}/mail-webapp/*",

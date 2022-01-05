@@ -34,6 +34,9 @@ class bm_switch_webmail extends rcube_plugin {
   }
 
   public function startup($args) {
+    if ($this->rcmail->task == 'mail' && $this->rcmail->action == 'print') {
+      return $args;
+    }
     if (!in_array('hasWebmail', $_SESSION['bm_sso']['bmRoles'])) {
         $this->redirectToMailApp();
     }

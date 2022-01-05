@@ -38,11 +38,14 @@
             >
                 {{ $t("mail.actions.remove") }}
             </bm-dropdown-item>
-            <bm-dropdown-item @click.prevent.stop.exact="REMOVE_MESSAGES(conversation, message)">
-                {{ $t("mail.actions.purge") }}
-            </bm-dropdown-item>
             <bm-dropdown-item icon="pencil" @click="editAsNew()">
                 {{ $t("mail.actions.edit_as_new") }}
+            </bm-dropdown-item>
+            <bm-dropdown-item icon="printer" @click="printMessage(message)">
+                {{ $t("common.print") }}
+            </bm-dropdown-item>
+            <bm-dropdown-item @click.prevent.stop.exact="REMOVE_MESSAGES(conversation, message)">
+                {{ $t("mail.actions.purge") }}
             </bm-dropdown-item>
         </bm-dropdown>
 
@@ -99,7 +102,7 @@
 import { mapActions, mapGetters, mapState } from "vuex";
 import { Flag } from "@bluemind/email";
 import { BmButton, BmDropdown, BmDropdownItem, BmFormAutocompleteInput, BmIcon, BmModal } from "@bluemind/styleguide";
-import { RemoveMixin, MoveMixin, FilterFolderMixin } from "~/mixins";
+import { RemoveMixin, MoveMixin, FilterFolderMixin, PrintMixin } from "~/mixins";
 import { translatePath } from "~/model/folder";
 import {
     MARK_MESSAGE_AS_FLAGGED,
@@ -112,6 +115,8 @@ import { MessageCreationModes } from "~/model/message";
 import { draftPath } from "~/model/draft";
 import MessagePathParam from "~/router/MessagePathParam";
 import MailMailboxIcon from "../MailMailboxIcon.vue";
+import Vue from "vue";
+Vue.component("BmButton", BmButton);
 
 export default {
     name: "MailViewerToolbarOtherActions",
@@ -124,7 +129,7 @@ export default {
         BmModal,
         MailMailboxIcon
     },
-    mixins: [RemoveMixin, MoveMixin, FilterFolderMixin],
+    mixins: [RemoveMixin, MoveMixin, FilterFolderMixin, PrintMixin],
     props: {
         message: {
             type: Object,
