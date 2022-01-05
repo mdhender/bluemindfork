@@ -33,17 +33,18 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.SettableFuture;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -59,15 +60,22 @@ import net.bluemind.hornetq.client.MQ;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
+import net.bluemind.node.server.BlueMindNode;
+import net.bluemind.node.server.busmod.SysCommand;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.pool.impl.docker.DockerContainer;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.vertx.testhelper.Deploy;
 
 public class DomainSettingsConfigFileUpdateTests {
 
 	private static final String externalUrlFilePath = "/etc/bm/domains-settings";
+
+	private static Set<String> inEventLoop;
+
+	private static Set<String> asWorkers;
 
 	String domainUid, newAlias;
 	ItemValue<Domain> defaultDomain, newDomain;
@@ -76,31 +84,40 @@ public class DomainSettingsConfigFileUpdateTests {
 	INodeClient nodeClient;
 	IDomainSettings domainSettingsService;
 
+	@BeforeClass
+	public static void beforeClass() throws Exception {
+		inEventLoop = Deploy.verticles(false, BlueMindNode::new).get(5, TimeUnit.SECONDS);
+		asWorkers = Deploy.verticles(true, SysCommand::new).get(5, TimeUnit.SECONDS);
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		Deploy.afterTest(asWorkers);
+		Deploy.afterTest(inEventLoop);
+	}
+
 	@Before
 	public void setup() throws Exception {
 
 		JdbcTestHelper.getInstance().beforeTest();
 
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
 
 		Server nodeServer = new Server();
 		nodeServer.ip = new BmConfIni().get(DockerContainer.NODE.getName());
-		nodeServer.tags = Lists.newArrayList(TagDescriptor.bm_core.getTag(), TagDescriptor.mail_imap.getTag());
-		assertNotNull(nodeServer);
+		nodeServer.tags = Lists.newArrayList(TagDescriptor.bm_core.getTag());
 		nodeClient = NodeActivator.get(nodeServer.ip);
+
+		Server imapServer = new Server();
+		imapServer.ip = new BmConfIni().get(DockerContainer.IMAP.getName());
+		imapServer.tags = Lists.newArrayList(TagDescriptor.mail_imap.getTag());
 
 		domainUid = "testdomain" + System.currentTimeMillis() + ".loc";
 		newAlias = "newdomain" + System.currentTimeMillis() + ".loc";
-		PopulateHelper.initGlobalVirt(false, nodeServer);
+		PopulateHelper.initGlobalVirt(false, imapServer, nodeServer);
+
+		MQ.init().get(10, TimeUnit.SECONDS);
+
 		PopulateHelper.createDomain(domainUid);
 
 		domainService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
@@ -230,14 +247,14 @@ public class DomainSettingsConfigFileUpdateTests {
 		checkFileContent(domainUid, "external.url", defaultDomain.value.name);
 	}
 
-	private void waitForMqMsg() throws InterruptedException, ExecutionException {
+	private void waitForMqMsg() throws InterruptedException, ExecutionException, TimeoutException {
 
 		CompletableFuture<JsonObject> storeMsg = new CompletableFuture<>();
 		MQ.init(() -> MQ.registerConsumer("end.domain.settings.file.updated", msg -> {
 			storeMsg.complete(msg.toJson());
 		}));
 
-		String domainSettingsFilepath = storeMsg.get().getString("filepath");
+		String domainSettingsFilepath = storeMsg.get(10, TimeUnit.SECONDS).getString("filepath");
 		assertNotNull(domainSettingsFilepath);
 	}
 

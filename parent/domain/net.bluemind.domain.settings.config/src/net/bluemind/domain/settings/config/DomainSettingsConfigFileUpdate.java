@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Promise;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.context.SecurityContext;
@@ -57,9 +58,19 @@ public class DomainSettingsConfigFileUpdate extends AbstractVerticle {
 	private static final String NEW_LINE_SEPARATOR = "\n";
 	private static final String NEW_DATA_SEPARATOR = ":";
 
+	private Producer mqProd;
+
 	@Override
-	public void start() {
-		vertx.eventBus().consumer("domainsettings.config.updated", this::domainSettingsEvent);
+	public void start(Promise<Void> startProm) {
+		MQ.init().whenComplete((v, ex) -> {
+			if (ex != null) {
+				startProm.fail(ex);
+			} else {
+				mqProd = MQ.getProducer("end.domain.settings.file.updated");
+				vertx.eventBus().consumer("domainsettings.config.updated", this::domainSettingsEvent);
+				startProm.complete();
+			}
+		});
 	}
 
 	private void domainSettingsEvent(Message<JsonObject> event) {
@@ -103,9 +114,7 @@ public class DomainSettingsConfigFileUpdate extends AbstractVerticle {
 	private void writeAndPropagate(JsonObject payload, StringBuilder infoByDomain) {
 		Map<Server, INodeClient> serverList = createServersNodeClientMap();
 
-		serverList.entrySet().forEach(s -> {
-			writeDomainSettingsFile(infoByDomain, s);
-		});
+		serverList.entrySet().forEach(s -> writeDomainSettingsFile(infoByDomain, s));
 
 		Boolean externalUrlUpdated = payload.getBoolean("externalUrlUpdated");
 		if (externalUrlUpdated != null && externalUrlUpdated) {
@@ -113,19 +122,8 @@ public class DomainSettingsConfigFileUpdate extends AbstractVerticle {
 			VertxPlatform.eventBus().publish("end.domain.settings.file.updated", payload);
 		}
 
-		Boolean domainUpdated = payload.getBoolean("defaultDomainUpdated");
-		if (domainUpdated != null && domainUpdated) {
-			MQ.init(() -> {
-				Producer prod = MQ.getProducer("end.domain.settings.file.updated");
-				if (prod != null) {
-					payload.put("filepath", BM_EXTERNAL_URL_FILEPATH);
-					prod.send(payload);
-					logger.debug("Message sent on 'end.domain.settings.file.updated'");
-				} else {
-					logger.error("Message cannot be sent on 'end.domain.settings.file.updated'");
-				}
-			});
-		}
+		payload.put("filepath", BM_EXTERNAL_URL_FILEPATH);
+		mqProd.send(payload);
 	}
 
 	private Map<Server, INodeClient> createServersNodeClientMap() {

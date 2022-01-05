@@ -21,5 +21,7 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.pool,
  net.bluemind.hornetq.client,
  net.bluemind.core.task.api,
- net.bluemind.core.task.service;bundle-version="4.1.0"
+ net.bluemind.core.task.service;bundle-version="4.1.0",
+ net.bluemind.node.server;bundle-version="4.1.0"
 Automatic-Module-Name: net.bluemind.domain.settings.config.tests
+Import-Package: net.bluemind.vertx.testhelper
