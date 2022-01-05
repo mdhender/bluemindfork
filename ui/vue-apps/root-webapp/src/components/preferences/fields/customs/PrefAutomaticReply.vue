@@ -31,7 +31,7 @@
             <div class="my-3 date-range-label">{{ $t("preferences.mail.automatic_reply.period") }}</div>
 
             <div class="d-flex date-range">
-                <bm-form-group :label="$t('common.from')" label-for="from_date" class="mr-2">
+                <bm-form-group :label="$t('common.from_date')" label-for="from_date" class="mr-2">
                     <bm-form-date-picker
                         id="from_date"
                         v-model="startDate"

@@ -3,6 +3,7 @@
         <h3 class="d-none d-lg-flex text-nowrap text-truncate card-header px-2 py-1">
             {{ panelTitle }}
         </h3>
+        <mail-composer-sender />
         <mail-composer-recipients
             ref="recipients"
             class="pl-3"
@@ -51,6 +52,7 @@ import MailComposerAttachments from "./MailComposerAttachments";
 import MailComposerContent from "./MailComposerContent";
 import MailComposerRecipients from "./MailComposerRecipients";
 import MailComposerFooter from "./MailComposerFooter";
+import MailComposerSender from "./MailComposerSender";
 import TemplateChooser from "~/components/TemplateChooser";
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
 
@@ -62,6 +64,7 @@ export default {
         MailComposerAttachments,
         MailComposerFooter,
         MailComposerContent,
+        MailComposerSender,
         MailComposerRecipients,
         TemplateChooser
     },
@@ -110,7 +113,8 @@ export default {
         box-shadow: none;
     }
 
-    .mail-composer-subject {
+    .mail-composer-subject,
+    .mail-composer-sender {
         min-height: 2.5rem;
     }
 

@@ -8,6 +8,7 @@
     "common.send": "Send",
     "common.to": "To",
     "common.from": "From",
+    "common.from_date": "From",
     "common.cc": "Cc",
     "common.bcc": "Bcc",
     "common.save": "Save",
