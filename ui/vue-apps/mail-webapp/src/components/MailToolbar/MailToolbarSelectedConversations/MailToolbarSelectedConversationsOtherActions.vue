@@ -36,7 +36,12 @@
         >
             {{ markAsUnreadText }}
         </bm-dropdown-item>
-        <bm-dropdown-item icon="printer" :disabled="selectionLength > 1" @click="printLastMessage()">
+        <bm-dropdown-item
+            icon="printer"
+            :shortcut="$t('mail.shortcuts.print')"
+            :disabled="selectionLength > 1"
+            @click="print()"
+        >
             {{ $t("common.print") }}
         </bm-dropdown-item>
         <bm-dropdown-item
@@ -82,12 +87,8 @@ export default {
     },
     methods: {
         ...mapMutations("mail", { SET_MESSAGE_COMPOSING }),
-        printLastMessage() {
-            if (this.selectionLength === 1) {
-                const messages = this.CURRENT_CONVERSATION_METADATA.messages;
-                const message = this.messages[messages[messages.length - 1]];
-                this.printMessage(message);
-            }
+        print() {
+            window.print();
         },
         editAsNew() {
             const template = this.messages[this.CURRENT_CONVERSATION_METADATA.messages[0]];
