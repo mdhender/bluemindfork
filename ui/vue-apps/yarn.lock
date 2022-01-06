@@ -1097,9 +1097,9 @@
     axios "^0.18.0"
 
 "@bluemind/backend.mail.api@^4.1.0":
-  version "4.1.58652"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/backend.mail.api/-/backend.mail.api-4.1.58652.tgz#d1d1648479629265b9078eea4cee509b6cd4fa20"
-  integrity sha512-Q2aJFEtN5yZ2RcFinlwQOBjGjUoz6YyJbKDnu1HHFLB828PAQxlmgfxp4aZ5zTcZdpzQrD71Uz71/Prxt8F6Eg==
+  version "4.1.61271"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/backend.mail.api/-/backend.mail.api-4.1.61271.tgz#4eb335c8adde93bec2c7c23a31caef00355c5011"
+  integrity sha512-6tWRncTmCOFPsPT/UXKbx0NY/L/Anhn7fFuX/Cw9N7/ZFuJmzJzxJI/1HFGJdi3Qq82wwWnvlSwTSzEh+TfSCg==
   dependencies:
     axios "^0.18.0"
 
@@ -1160,9 +1160,9 @@
     vue-i18n "^8.14.0"
 
 "@bluemind/system.api@^4.1.0":
-  version "4.1.61186"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/system.api/-/system.api-4.1.61186.tgz#b43f18474e9edcb04b6bb26e2993bda1ebeabc7b"
-  integrity sha512-+VS4N0PP15oVRB5uYlOJUL2vLnOHQa29CIKRRpDh3SHaDidwqCfqzwG+wfIzAJWcqOGPbA4bw9LYYZvS344KJQ==
+  version "4.1.61541"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/system.api/-/system.api-4.1.61541.tgz#b9735dfa4b9bbfa1ced153b8cac93407d8bf5ca2"
+  integrity sha512-qtScOuQX0P2zpLKCHbsyfLXnUMGQp1kqxxZJifMD77tOZ1VH9VF0tMt3ekBfc+SgJHlx36r0rAVGQ7lCJ9aG5w==
   dependencies:
     axios "^0.18.0"
 

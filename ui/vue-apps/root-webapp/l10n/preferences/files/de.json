@@ -19,6 +19,7 @@
     "preferences.account.external_accounts.creation.none": "Es kann kein externes Konto hinzugefügt werden.",
     "preferences.account.external_accounts.modal.title.create": "Benutzerkonto konfigurieren",
     "preferences.account.external_accounts.modal.title.edit": "Benutzerkonto bearbeiten",
+    "preferences.account.external_accounts.modal.authentication.not_supported": "Diese Art von externem Konto unterstützt keine Authentifizierungstests",
     "preferences.account.external_accounts.modal.authentication.test": "Authentifizierung testen",
     "preferences.account.external_accounts.modal.authentication.verified": "Authentifizierung erfolgreich",
     "preferences.account.external_accounts.modal.authentication.failed": "Authentifizierung fehlgeschlagen",

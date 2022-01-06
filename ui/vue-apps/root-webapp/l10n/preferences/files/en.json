@@ -19,6 +19,7 @@
     "preferences.account.external_accounts.creation.none": "No external account can be added.",
     "preferences.account.external_accounts.modal.title.create": "Configure an account",
     "preferences.account.external_accounts.modal.title.edit": "Modify an account",
+    "preferences.account.external_accounts.modal.authentication.not_supported": "That kind of external account does not support authentication testing",
     "preferences.account.external_accounts.modal.authentication.test": "Test authentication",
     "preferences.account.external_accounts.modal.authentication.verified": "Authentication succeeded",
     "preferences.account.external_accounts.modal.authentication.failed": "Authentication failed",

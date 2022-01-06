@@ -66,7 +66,7 @@
                         !externalAccount_.login ||
                         !externalAccount_.credentials
                     "
-                    @click="testAccount"
+                    @click="testAccount(externalAccount_)"
                 >
                     {{ $t("common.test") }}
                 </bm-button>
@@ -74,14 +74,10 @@
             <bm-spinner v-if="testStatus === TestStatus.IN_PROGRESS" :size="0.15" />
             <bm-label-icon
                 v-else-if="testStatus !== TestStatus.IDLE"
-                :icon="testStatus === TestStatus.VERIFIED ? 'check-circle' : 'exclamation-circle'"
-                :class="testStatus === TestStatus.VERIFIED ? 'text-success' : 'text-danger'"
+                :icon="testAccountResultIcon"
+                :class="testAccountResultIconClass"
             >
-                {{
-                    testStatus === TestStatus.VERIFIED
-                        ? $t("preferences.account.external_accounts.modal.authentication.verified")
-                        : $t("preferences.account.external_accounts.modal.authentication.failed")
-                }}
+                {{ testAccountResultText }}
             </bm-label-icon>
         </bm-form>
     </bm-modal>
@@ -89,14 +85,20 @@
 
 <script>
 import cloneDeep from "lodash.clonedeep";
+import { inject } from "@bluemind/inject";
 import { BmButton, BmForm, BmFormGroup, BmFormInput, BmLabelIcon, BmModal, BmSpinner } from "@bluemind/styleguide";
 
-const TestStatus = { IDLE: "IDLE", IN_PROGRESS: "IN_PROGRESS", VERIFIED: "VERIFIED", REJECTED: "REJECTED" };
+const TestStatus = {
+    IDLE: Symbol("IDLE"),
+    IN_PROGRESS: Symbol("IN_PROGRESS"),
+    NOT_SUPPORTED: Symbol("NOT_SUPPORTED"),
+    REJECTED: Symbol("REJECTED"),
+    VERIFIED: Symbol("VERIFIED")
+};
 
 export default {
     name: "PrefExtAccountModal",
     components: { BmButton, BmForm, BmFormGroup, BmFormInput, BmLabelIcon, BmModal, BmSpinner },
-
     props: {
         externalAccount: {
             type: Object,
@@ -114,6 +116,27 @@ export default {
     computed: {
         okDisabled() {
             return !this.externalAccount_.login || (this.externalAccount_.isNew && !this.externalAccount_.credentials);
+        },
+        testAccountResultIcon() {
+            return this.testStatus === TestStatus.VERIFIED
+                ? "check-circle"
+                : this.testStatus === TestStatus.REJECTED
+                ? "exclamation-circle-fill"
+                : "info-circle";
+        },
+        testAccountResultIconClass() {
+            return this.testStatus === TestStatus.VERIFIED
+                ? "text-success"
+                : this.testStatus === TestStatus.REJECTED
+                ? "text-danger"
+                : "text-info";
+        },
+        testAccountResultText() {
+            return this.testStatus === TestStatus.VERIFIED
+                ? this.$t("preferences.account.external_accounts.modal.authentication.verified")
+                : this.testStatus === TestStatus.REJECTED
+                ? this.$t("preferences.account.external_accounts.modal.authentication.failed")
+                : this.$t("preferences.account.external_accounts.modal.authentication.not_supported");
         }
     },
     methods: {
@@ -140,16 +163,34 @@ export default {
                 this.hide();
             }
         },
-        testAccount() {
+        async testAccount(externalAccount) {
             this.testStatus = TestStatus.IN_PROGRESS;
-            setTimeout(() => {
-                if (Math.round(Math.random())) {
-                    this.testStatus = TestStatus.VERIFIED;
-                } else {
-                    this.testStatus = TestStatus.REJECTED;
+            try {
+                const result = await testAccount(externalAccount);
+                switch (result) {
+                    case ConnectionTestStatus.OK:
+                        this.testStatus = TestStatus.VERIFIED;
+                        break;
+                    case ConnectionTestStatus.NOK:
+                        this.testStatus = TestStatus.REJECTED;
+                        break;
+                    case ConnectionTestStatus.NOT_SUPPORTED:
+                    default:
+                        this.testStatus = TestStatus.NOT_SUPPORTED;
                 }
-            }, 1000);
+            } catch (e) {
+                this.testStatus = TestStatus.IDLE;
+                throw e;
+            }
         }
     }
 };
+
+const ConnectionTestStatus = { OK: "OK", NOK: "NOK", NOT_SUPPORTED: "NOT_SUPPORTED" };
+async function testAccount(externalAccount) {
+    return await inject("ExternalSystemPersistence").testConnection(externalAccount.identifier, {
+        login: externalAccount.login,
+        credentials: externalAccount.credentials
+    });
+}
 </script>
