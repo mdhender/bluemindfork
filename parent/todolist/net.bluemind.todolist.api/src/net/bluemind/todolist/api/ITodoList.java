@@ -81,6 +81,7 @@ public interface ITodoList
 	 * @param todoItem {@link VTodo} {@link ItemValue}.
 	 * @throws ServerFault common error object
 	 */
+	@PUT
 	@Path("_createWithItem")
 	public void createWithItem(ItemValue<VTodo> todoItem) throws ServerFault;
 
@@ -101,6 +102,7 @@ public interface ITodoList
 	 * @param todoItem {@link VTodo} {@link ItemValue}.
 	 * @throws ServerFault common error object
 	 */
+	@POST
 	@Path("_updateWithItem")
 	public void updateWithItem(ItemValue<VTodo> todoItem) throws ServerFault;
 
