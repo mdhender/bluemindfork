@@ -96,7 +96,12 @@ public class HollowDataHandler implements Handler<HttpServerRequest>, NeedVertxE
 				BlobData blob = ar.result();
 				resp.putHeader("Content-Type", "application/octet-stream");
 				resp.putHeader("X-BM-DATASET_VERSION", "" + blob.toVersion);
-				resp.sendFile(blob.file.getAbsolutePath(), result -> blob.file.delete()).end();
+				resp.sendFile(blob.file.getAbsolutePath(), result -> {
+					if (!resp.ended()) {
+						resp.end();
+					}
+					blob.file.delete();
+				});
 			}
 		});
 	}
