@@ -188,6 +188,7 @@
     "mail.actions.save.aria": "Save message being written",
     "mail.actions.send.aria": "Send message being written",
     "mail.actions.send": "Send",
+    "mail.actions.show_sender": "Display the \"From\" field",
     "mail.actions.spam.aria": "Report this message as spam",
     "mail.actions.spam": "Spam",
     "mail.actions.textformat.hide.aria": "Hide the text formatting toolbar",

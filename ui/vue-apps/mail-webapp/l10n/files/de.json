@@ -188,6 +188,7 @@
     "mail.actions.save.aria": "E-Mail speichern",
     "mail.actions.send.aria": "E-Mail versenden",
     "mail.actions.send": "Senden",
+    "mail.actions.show_sender": "Feld \"Von\" anzeigen",
     "mail.actions.spam.aria": "Nachricht als Spam kennzeichnen",
     "mail.actions.spam": "Spam",
     "mail.actions.textformat.hide.aria": "Formatierungs-Leiste verbergen",

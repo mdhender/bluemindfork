@@ -66,6 +66,22 @@
             <bm-icon icon="trash" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.remove") }}</span>
         </bm-button>
+        <bm-dropdown
+            :no-caret="true"
+            variant="simple-dark"
+            :aria-label="$tc('mail.toolbar.more.aria')"
+            :title="$tc('mail.toolbar.more.aria')"
+            :disabled="noOtherActions"
+            class="other-viewer-actions"
+        >
+            <template slot="button-content">
+                <bm-icon icon="3dots" size="2x" />
+                <span class="d-none d-lg-block">{{ $t("mail.toolbar.more") }}</span>
+            </template>
+            <bm-dropdown-item v-if="!senderShown" @click="showSender">
+                {{ $tc("mail.actions.show_sender", 1) }}
+            </bm-dropdown-item>
+        </bm-dropdown>
     </bm-button-group>
 </template>
 
@@ -114,11 +130,24 @@ export default {
             } else {
                 return this.$t("mail.actions.save_template");
             }
+        },
+        // TODO replace with getter when ready
+        senderShown() {
+            return true;
+        },
+        noOtherActions() {
+            return this.senderAlwaysShown;
         }
     },
     methods: {
         openFilePicker() {
             this.$refs.attachInputRef.click();
+        },
+        //TODO replace with mutation when ready
+        showSender() {
+            this.$bvModal.msgBoxConfirm("Coming soon !", {
+                title: "Not yet implemented"
+            });
         }
     }
 };
