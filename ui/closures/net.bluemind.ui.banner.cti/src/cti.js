@@ -28,7 +28,7 @@ goog.require('relief.cache.Cache');
 function CTIWidgetCreator() {
 
   var el = goog.soy.renderAsElement(net.bluemin.ui.banner.template.widget);
-  initializeDialer(el);
+  return initializeDialer(el);
 }
 
 function initializeDialer(el) {
