@@ -25,7 +25,7 @@ import net.bluemind.core.container.model.acl.AccessControlEntry;
 public class ContainerMetadata {
 
 	public enum MetaType {
-		Acl, Setting;
+		ACL, SETTING;
 	}
 
 	public String containerUid;
@@ -35,5 +35,21 @@ public class ContainerMetadata {
 	public List<AccessControlEntry> acls;
 
 	public Map<String, String> settings;
+
+	public static ContainerMetadata forAcls(String containerUid, List<AccessControlEntry> acls) {
+		ContainerMetadata metadata = new ContainerMetadata();
+		metadata.type = MetaType.ACL;
+		metadata.containerUid = containerUid;
+		metadata.acls = acls;
+		return metadata;
+	}
+
+	public static ContainerMetadata forSettings(String containerUid, Map<String, String> settings) {
+		ContainerMetadata metadata = new ContainerMetadata();
+		metadata.type = MetaType.SETTING;
+		metadata.containerUid = containerUid;
+		metadata.settings = settings;
+		return metadata;
+	}
 
 }

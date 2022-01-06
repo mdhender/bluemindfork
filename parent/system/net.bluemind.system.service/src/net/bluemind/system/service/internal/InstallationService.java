@@ -69,7 +69,6 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
@@ -228,8 +227,9 @@ public class InstallationService implements IInstallation {
 		Set<String> filteredOps = Collections.singleton("hollow.directory");
 		logger.info("Starting hollow repair task for {}", domainUid);
 		TaskRef ref = demService.repair(filteredOps);
-		TaskStatus status = TaskUtils.wait(provider, ref, log -> logger.info(" - {}", log));
-		logger.info("Ending hollow repair task for {}, state:{}", domainUid, status.state);
+		String log = TaskUtils.logStreamWait(provider, ref);
+		logger.debug("Hollow repair task log for {}: {}", domainUid, log);
+		logger.info("Ending hollow repair task for {}", domainUid);
 	}
 
 	@Override

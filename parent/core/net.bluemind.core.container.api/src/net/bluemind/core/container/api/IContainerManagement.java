@@ -46,8 +46,7 @@ public interface IContainerManagement {
 	/**
 	 * store container ACL
 	 * 
-	 * @param entries
-	 *                    acl
+	 * @param entries acl
 	 * @throws ServerFault
 	 */
 	@PUT

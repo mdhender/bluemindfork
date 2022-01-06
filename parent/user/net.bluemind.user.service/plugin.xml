@@ -52,6 +52,9 @@
       <serviceFactory
             class="net.bluemind.user.service.UserSubscriptionFactory">
       </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.user.service.InternalUserSubscriptionFactory">
+      </serviceFactory>
    </extension>
    <extension
          point="net.bluemind.directory.handler">

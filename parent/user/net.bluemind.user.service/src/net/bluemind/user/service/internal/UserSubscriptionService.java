@@ -47,10 +47,10 @@ import net.bluemind.directory.api.IDirectory;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.i18n.labels.I18nLabels;
 import net.bluemind.role.api.BasicRoles;
-import net.bluemind.user.api.IUserSubscription;
+import net.bluemind.user.api.IInternalUserSubscription;
 import net.bluemind.user.persistence.UserSubscriptionStore;
 
-public class UserSubscriptionService implements IUserSubscription {
+public class UserSubscriptionService implements IInternalUserSubscription {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserSubscriptionService.class);
 
@@ -60,10 +60,8 @@ public class UserSubscriptionService implements IUserSubscription {
 	private static final List<IContainersHook> cHooks = loadContainerHooks();
 
 	private static List<IContainersHook> loadContainerHooks() {
-		RunnableExtensionLoader<IContainersHook> rel = new RunnableExtensionLoader<IContainersHook>();
-		List<IContainersHook> hooks = rel.loadExtensions("net.bluemind.core.container.hooks", "container", "hook",
-				"impl");
-		return hooks;
+		RunnableExtensionLoader<IContainersHook> rel = new RunnableExtensionLoader<>();
+		return rel.loadExtensions("net.bluemind.core.container.hooks", "container", "hook", "impl");
 	}
 
 	public UserSubscriptionService(BmContext context, Container container) {
@@ -123,29 +121,44 @@ public class UserSubscriptionService implements IUserSubscription {
 			if (container == null) {
 				throw ServerFault.notFound("Failed to subscribe. Container not found : " + sub.containerUid);
 			}
-			new RBACManager(context).forDomain(container.domainUid).forEntry(subject)
-					.check(BasicRoles.ROLE_MANAGE_USER_SUBSCRIPTIONS, BasicRoles.ROLE_SELF);
-			try {
-				ContainerDescriptor descriptor = ContainerDescriptor.create(container.uid, container.name,
-						container.owner, container.type, container.domainUid, container.defaultContainer);
-				descriptor.offlineSync = sub.offlineSync;
-				if (!store.isSubscribed(subject, container)) {
-					store.subscribe(subject, container);
-					store.allowSynchronization(subject, container, sub.offlineSync);
+
+			ContainerDescriptor descriptor = ContainerDescriptor.create(container.uid, container.name, container.owner,
+					container.type, container.domainUid, container.defaultContainer);
+			descriptor.offlineSync = sub.offlineSync;
+			subscribe(container, descriptor, subject, false);
+		}
+	}
+
+	@Override
+	public void subscribe(String subject, ContainerDescriptor descriptor) throws ServerFault {
+		Container container = Container.create(descriptor.uid, descriptor.type, descriptor.name, descriptor.owner,
+				descriptor.domainUid, descriptor.defaultContainer);
+		subscribe(container, descriptor, subject, true);
+	}
+
+	private void subscribe(Container container, ContainerDescriptor descriptor, String subject, boolean disableHook) {
+		new RBACManager(context).forDomain(container.domainUid).forEntry(subject)
+				.check(BasicRoles.ROLE_MANAGE_USER_SUBSCRIPTIONS, BasicRoles.ROLE_SELF);
+		try {
+			if (!store.isSubscribed(subject, container)) {
+				store.subscribe(subject, container);
+				store.allowSynchronization(subject, container, descriptor.offlineSync);
+				if (!disableHook) {
 					for (IContainersHook hook : cHooks) {
 						hook.onContainerSubscriptionsChanged(context, descriptor, Arrays.asList(subject),
 								Collections.<String>emptyList());
 					}
-				} else if (store.isSyncAllowed(subject, container) != sub.offlineSync) {
-					store.allowSynchronization(subject, container, sub.offlineSync);
+				}
+			} else if (store.isSyncAllowed(subject, container) != descriptor.offlineSync) {
+				store.allowSynchronization(subject, container, descriptor.offlineSync);
+				if (!disableHook) {
 					for (IContainersHook hook : cHooks) {
 						hook.onContainerOfflineSyncStatusChanged(context, descriptor, subject);
 					}
 				}
-			} catch (SQLException e) {
-				throw ServerFault.sqlFault(e);
 			}
-
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
 		}
 	}
 
@@ -171,29 +184,39 @@ public class UserSubscriptionService implements IUserSubscription {
 				continue;
 			}
 
-			if (container.defaultContainer && container.owner.equals(subject)) {
-				logger.info("do not unsub default container id {}, type {}, name {}", container.id, container.type,
-						container.name);
-				continue;
-			}
-
-			new RBACManager(context).forDomain(container.domainUid).forEntry(subject)
-					.check(BasicRoles.ROLE_MANAGE_USER_SUBSCRIPTIONS, BasicRoles.ROLE_SELF);
-			try {
-				store.unsubscribe(subject, uid);
-			} catch (SQLException e) {
-				throw ServerFault.sqlFault(e);
-			}
-
 			ContainerDescriptor descriptor = ContainerDescriptor.create(container.uid, container.name, container.owner,
-					container.type, container.domainUid, false);
+					container.type, container.domainUid, container.defaultContainer);
+			unsubscribe(container, descriptor, subject, false);
+		}
+	}
 
+	@Override
+	public void unsubscribe(String subject, ContainerDescriptor descriptor) throws ServerFault {
+		Container container = Container.create(descriptor.uid, descriptor.type, descriptor.name, descriptor.owner,
+				descriptor.domainUid, descriptor.defaultContainer);
+		unsubscribe(container, descriptor, subject, true);
+	}
+
+	private void unsubscribe(Container container, ContainerDescriptor descriptor, String subject, boolean disableHook) {
+		if (container.defaultContainer && container.owner.equals(subject)) {
+			logger.info("do not unsub default container id {}, type {}, name {}", container.id, container.type,
+					container.name);
+			return;
+		}
+		new RBACManager(context).forDomain(container.domainUid).forEntry(subject)
+				.check(BasicRoles.ROLE_MANAGE_USER_SUBSCRIPTIONS, BasicRoles.ROLE_SELF);
+		try {
+			store.unsubscribe(subject, container.uid);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+
+		if (!disableHook) {
 			for (IContainersHook hook : cHooks) {
 				hook.onContainerSubscriptionsChanged(context, descriptor, Collections.<String>emptyList(),
 						Arrays.asList(subject));
 			}
 		}
-
 	}
 
 	@Override

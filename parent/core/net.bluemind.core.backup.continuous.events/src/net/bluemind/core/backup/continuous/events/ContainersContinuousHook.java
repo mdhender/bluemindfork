@@ -18,6 +18,7 @@
 package net.bluemind.core.backup.continuous.events;
 
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +60,7 @@ public class ContainersContinuousHook implements IContainersHook, IAclHook {
 	public void onContainerSubscriptionsChanged(BmContext ctx, ContainerDescriptor cd, List<String> subs,
 			List<String> unsubs) throws ServerFault {
 		Bubble.owner(cd);
+
 	}
 
 	@Override
@@ -68,15 +70,10 @@ public class ContainersContinuousHook implements IContainersHook, IAclHook {
 
 	@Override
 	public void onContainerSettingsChanged(BmContext ctx, ContainerDescriptor cd) throws ServerFault {
-		ContainerDescriptor metaDesc = ContainerDescriptor.create(cd.owner + "_containers_meta",
-				"containers meta of " + cd.owner, cd.owner, "containers_meta", cd.domainUid, false);
-		ContainerMetadata cm = new ContainerMetadata();
-		cm.containerUid = cd.uid;
-		cm.type = ContainerMetadata.MetaType.Setting;
-		IContainerManagement mgmApi = ctx.provider().instance(IContainerManagement.class, cd.uid);
-		cm.settings = mgmApi.getSettings();
-		ItemValue<ContainerMetadata> metaItem = ItemValue.create(cd.uid + "_settings", cm);
-		metaItem.internalId = metaItem.uid.hashCode();
+		ContainerDescriptor metaDesc = metadataDescriptor(cd, cd.owner);
+		Map<String, String> settings = ctx.provider().instance(IContainerManagement.class, cd.uid).getSettings();
+		ContainerMetadata cm = ContainerMetadata.forSettings(cd.uid, settings);
+		ItemValue<ContainerMetadata> metaItem = metadataItem(cd, cm);
 		DefaultBackupStore.store().<ContainerMetadata>forContainer(metaDesc).store(metaItem);
 		logger.info("Saved settings for {}", cd.uid);
 		Bubble.owner(cd);
@@ -85,17 +82,23 @@ public class ContainersContinuousHook implements IContainersHook, IAclHook {
 	@Override
 	public void onAclChanged(BmContext context, ContainerDescriptor cd, List<AccessControlEntry> previous,
 			List<AccessControlEntry> current) {
-		ContainerDescriptor metaDesc = ContainerDescriptor.create(cd.owner + "_containers_meta",
-				"containers meta of " + cd.owner, cd.owner, "containers_meta", cd.domainUid, false);
-		ContainerMetadata cm = new ContainerMetadata();
-		cm.containerUid = cd.uid;
-		cm.type = ContainerMetadata.MetaType.Acl;
-		cm.acls = current;
-		ItemValue<ContainerMetadata> metaItem = ItemValue.create(cd.uid + "_acls", cm);
-		metaItem.internalId = metaItem.uid.hashCode();
+		ContainerDescriptor metaDesc = metadataDescriptor(cd, cd.owner);
+		ContainerMetadata cm = ContainerMetadata.forAcls(cd.uid, current);
+		ItemValue<ContainerMetadata> metaItem = metadataItem(cd, cm);
 		DefaultBackupStore.store().<ContainerMetadata>forContainer(metaDesc).store(metaItem);
 		logger.info("Saved acls for {}", cd.uid);
 		Bubble.owner(cd);
+	}
+
+	private ContainerDescriptor metadataDescriptor(ContainerDescriptor descriptor, String owner) {
+		return ContainerDescriptor.create(descriptor.owner + "_containers_meta",
+				"containers meta of " + descriptor.owner, owner, "containers_meta", descriptor.domainUid, false);
+	}
+
+	private ItemValue<ContainerMetadata> metadataItem(ContainerDescriptor descriptor, ContainerMetadata metadata) {
+		ItemValue<ContainerMetadata> metadataItem = ItemValue.create(descriptor.uid, metadata);
+		metadataItem.internalId = metadataItem.uid.hashCode();
+		return metadataItem;
 	}
 
 }

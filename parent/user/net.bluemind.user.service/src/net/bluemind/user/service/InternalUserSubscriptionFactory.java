@@ -19,18 +19,18 @@ package net.bluemind.user.service;
 
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.user.api.IInternalUserSubscription;
+import net.bluemind.user.api.IUserSubscription;
 import net.bluemind.user.service.internal.UserSubscriptionService;
 
-public class UserSubscriptionFactory extends UserSubscriptionBaseFactory<IInternalUserSubscription> {
+public class InternalUserSubscriptionFactory extends UserSubscriptionBaseFactory<IUserSubscription> {
 
 	@Override
-	public Class<IInternalUserSubscription> factoryClass() {
-		return IInternalUserSubscription.class;
+	public Class<IUserSubscription> factoryClass() {
+		return IUserSubscription.class;
 	}
 
 	@Override
-	protected IInternalUserSubscription create(BmContext context, Container domain) {
+	protected IUserSubscription create(BmContext context, Container domain) {
 		return new UserSubscriptionService(context, domain);
 	}
 

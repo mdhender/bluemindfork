@@ -34,7 +34,11 @@
    <extension
          point="net.bluemind.core.rest.serviceFactory">
       <serviceFactory
-            class="net.bluemind.core.container.service.ContainerManagementFactory"></serviceFactory>
+            class="net.bluemind.core.container.service.ContainerManagementFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.core.container.service.InternalContainerManagementFactory">
+      </serviceFactory>
       <serviceFactory
             class="net.bluemind.core.container.service.ContainersFactory">
       </serviceFactory>

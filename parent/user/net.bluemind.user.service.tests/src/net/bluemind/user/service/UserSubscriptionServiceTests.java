@@ -39,6 +39,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.api.ContainerSubscriptionDescriptor;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
@@ -50,6 +51,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.user.api.IInternalUserSubscription;
 import net.bluemind.user.api.IUserSubscription;
 
 public class UserSubscriptionServiceTests {
@@ -92,6 +94,10 @@ public class UserSubscriptionServiceTests {
 
 	protected IUserSubscription getService(SecurityContext context) throws ServerFault {
 		return ServerSideServiceProvider.getProvider(context).instance(IUserSubscription.class, "bm.lan");
+	}
+
+	protected IInternalUserSubscription getInternalService(SecurityContext context) throws ServerFault {
+		return ServerSideServiceProvider.getProvider(context).instance(IInternalUserSubscription.class, "bm.lan");
 	}
 
 	@Test
@@ -194,6 +200,50 @@ public class UserSubscriptionServiceTests {
 		} catch (ServerFault sf) {
 			fail();
 		}
+	}
+
+	@Test
+	public void testSubscribeWithContainerDescriptor() throws SQLException {
+		List<String> subscribers = getService(testContext).subscribers("uid");
+		assertTrue(subscribers.isEmpty());
+
+		ContainerDescriptor descriptor = ContainerDescriptor.create("uid", "osef", "test", "type", "bm.lan", false);
+		descriptor.offlineSync = false;
+		getInternalService(testContext).subscribe("test", descriptor);
+
+		subscribers = getService(testContext).subscribers("uid");
+		assertEquals(1, subscribers.size());
+		assertEquals("test", subscribers.get(0));
+
+		List<ContainerSubscriptionDescriptor> subs = getService(testContext).listSubscriptions("test", "type");
+		assertEquals(0, subs.size());
+	}
+
+	@Test
+	public void testUnsubscribeWithContainerDescriptor() throws SQLException {
+		List<ContainerSubscriptionDescriptor> subs = getService(testContext).listSubscriptions("test", "type");
+		assertTrue(subs.isEmpty());
+
+		ContainerStore cs = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
+				SecurityContext.SYSTEM);
+		Container container = Container.create("uid", "type", "osef", "test", "bm.lan");
+		cs.create(container);
+		getService(testContext).subscribe("test", Arrays.asList(ContainerSubscription.create("uid", false)));
+
+		subs = getService(testContext).listSubscriptions("test", "type");
+		assertEquals(1, subs.size());
+		List<String> subscribers = getService(testContext).subscribers("uid");
+		assertEquals(1, subscribers.size());
+
+		ContainerDescriptor descriptor = ContainerDescriptor.create(container.uid, container.name, container.owner,
+				container.type, container.domainUid, container.defaultContainer);
+		getInternalService(testContext).unsubscribe("test", descriptor);
+
+		subs = getService(testContext).listSubscriptions("test", "type");
+		assertEquals(1, subs.size());
+		subscribers = getService(testContext).subscribers("uid");
+		assertTrue(subscribers.isEmpty());
+
 	}
 
 }

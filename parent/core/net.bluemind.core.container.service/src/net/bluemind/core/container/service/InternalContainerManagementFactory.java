@@ -18,20 +18,20 @@
  */
 package net.bluemind.core.container.service;
 
-import net.bluemind.core.container.api.IContainerManagement;
+import net.bluemind.core.container.api.IInternalContainerManagement;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.service.internal.ContainerManagement;
 import net.bluemind.core.rest.BmContext;
 
-public class ContainerManagementFactory extends CommonContainerManagementFactory<IContainerManagement> {
+public class InternalContainerManagementFactory extends CommonContainerManagementFactory<IInternalContainerManagement> {
 
 	@Override
-	protected IContainerManagement create(BmContext context, Container container) {
+	protected IInternalContainerManagement create(BmContext context, Container container) {
 		return new ContainerManagement(context, container);
 	}
 
 	@Override
-	public Class<IContainerManagement> factoryClass() {
-		return IContainerManagement.class;
+	public Class<IInternalContainerManagement> factoryClass() {
+		return IInternalContainerManagement.class;
 	}
 }

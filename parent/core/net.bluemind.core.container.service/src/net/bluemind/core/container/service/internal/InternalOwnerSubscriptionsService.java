@@ -74,8 +74,20 @@ public class InternalOwnerSubscriptionsService implements IInternalOwnerSubscrip
 	}
 
 	@Override
+	public void createWithItem(ItemValue<ContainerSubscriptionModel> nodeItem) throws ServerFault {
+		ItemVersion itemVersion = storeService.create(nodeItem.item(), nodeItem.value);
+		eventsProducer.changed(itemVersion.version);
+	}
+
+	@Override
 	public void update(String uid, ContainerSubscriptionModel node) throws ServerFault {
 		ItemVersion itemVersion = storeService.update(uid, node.containerUid, node);
+		eventsProducer.changed(itemVersion.version);
+	}
+
+	@Override
+	public void updateWithItem(ItemValue<ContainerSubscriptionModel> nodeItem) throws ServerFault {
+		ItemVersion itemVersion = storeService.update(nodeItem.item(), nodeItem.value.containerUid, nodeItem.value);
 		eventsProducer.changed(itemVersion.version);
 	}
 

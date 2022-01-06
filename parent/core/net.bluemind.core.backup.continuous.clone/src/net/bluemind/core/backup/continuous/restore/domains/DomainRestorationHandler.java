@@ -40,8 +40,10 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 				new RestoreRoles(monitor, domain, target), //
 				new RestoreOrgUnitAdminRoles(monitor, domain, target), //
 				new RestoreResourceType(monitor, domain, target), //
-				new RestoreMailFilter(monitor, domain, target) //
-		).stream().collect(Collectors.toMap(RestoreDomainType::type, Function.identity()));
+				new RestoreMailFilter(monitor, domain, target), //
+				new RestoreContainerMetadata(monitor, target), //
+				new RestoreOwnerSubscriptions(monitor, domain, target)) //
+				.stream().collect(Collectors.toMap(RestoreDomainType::type, Function.identity()));
 	}
 
 	@Override

@@ -33,7 +33,8 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Count;
-import net.bluemind.core.container.api.IContainerManagement;
+import net.bluemind.core.container.api.IInternalContainerManagement;
+import net.bluemind.core.container.hooks.AbstractEmailHook;
 import net.bluemind.core.container.hooks.IAclHook;
 import net.bluemind.core.container.hooks.IContainersHook;
 import net.bluemind.core.container.model.Container;
@@ -58,7 +59,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.user.persistence.UserSubscriptionStore;
 
-public class ContainerManagement implements IContainerManagement {
+public class ContainerManagement implements IInternalContainerManagement {
 
 	private AclStore aclStore;
 	private SecurityContext securityContext;
@@ -79,17 +80,13 @@ public class ContainerManagement implements IContainerManagement {
 	private static final Logger logger = LoggerFactory.getLogger(ContainerManagement.class);
 
 	private static List<IAclHook> loadHooks() {
-		RunnableExtensionLoader<IAclHook> rel = new RunnableExtensionLoader<IAclHook>();
-		List<IAclHook> aclHooks = rel.loadExtensions("net.bluemind.core.container.hooks", "aclhook", "acl_hook",
-				"impl");
-		return aclHooks;
+		RunnableExtensionLoader<IAclHook> rel = new RunnableExtensionLoader<>();
+		return rel.loadExtensions("net.bluemind.core.container.hooks", "aclhook", "acl_hook", "impl");
 	}
 
 	private static List<IContainersHook> loadContainerHooks() {
-		RunnableExtensionLoader<IContainersHook> rel = new RunnableExtensionLoader<IContainersHook>();
-		List<IContainersHook> hooks = rel.loadExtensions("net.bluemind.core.container.hooks", "container", "hook",
-				"impl");
-		return hooks;
+		RunnableExtensionLoader<IContainersHook> rel = new RunnableExtensionLoader<>();
+		return rel.loadExtensions("net.bluemind.core.container.hooks", "container", "hook", "impl");
 	}
 
 	public ContainerManagement(BmContext context, Container container) throws ServerFault {
@@ -122,6 +119,11 @@ public class ContainerManagement implements IContainerManagement {
 
 	@Override
 	public void setAccessControlList(List<AccessControlEntry> entries) throws ServerFault {
+		setAccessControlList(entries, true);
+	}
+
+	@Override
+	public void setAccessControlList(List<AccessControlEntry> entries, boolean sendNotification) throws ServerFault {
 		checkWritable();
 		if (!(container.owner.equals(securityContext.getSubject()) || rbacManager.can(Verb.Manage.name()))) {
 			throw new ServerFault("container " + container.uid + " is not manageable", ErrorCode.PERMISSION_DENIED);
@@ -135,14 +137,17 @@ public class ContainerManagement implements IContainerManagement {
 		ContainerDescriptor descriptor = ContainerDescriptor.create(container.uid, container.name, container.owner,
 				container.type, container.domainUid, false);
 
-		for (IAclHook hook : hooks) {
-			try {
-				hook.onAclChanged(context, descriptor, Collections.unmodifiableList(previous),
-						Collections.unmodifiableList(entries));
-			} catch (Exception e) {
-				logger.error("error executing hook on setACL (container {}@{})", container.uid, container.domainUid, e);
-			}
-		}
+		hooks.stream() //
+				.filter(hook -> sendNotification || !(hook instanceof AbstractEmailHook)) //
+				.forEach(hook -> {
+					try {
+						hook.onAclChanged(context, descriptor, Collections.unmodifiableList(previous),
+								Collections.unmodifiableList(entries));
+					} catch (Exception e) {
+						logger.error("error executing hook on setACL (container {}@{})", container.uid,
+								container.domainUid, e);
+					}
+				});
 
 		eventProducer().changed(container.type, container.uid);
 	}
