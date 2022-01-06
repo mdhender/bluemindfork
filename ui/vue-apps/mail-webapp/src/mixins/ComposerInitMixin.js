@@ -152,7 +152,7 @@ export default {
 
         // case of a new message
         initNewMessage() {
-            const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS, inject("UserSession"));
+            const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS, this.$_ComposerInitMixin_defaultIdentity);
             this.$_ComposerInitMixin_ADD_MESSAGES([message]);
             let content = "";
             if (this.$_ComposerInitMixin_signature && this.$_ComposerInitMixin_insertSignaturePref === "true") {
@@ -171,7 +171,8 @@ export default {
                 previousMessage,
                 this.$_ComposerInitMixin_MY_DRAFTS,
                 inject("UserSession"),
-                creationMode
+                creationMode,
+                this.$_ComposerInitMixin_defaultIdentity
             );
 
             const parts = getPartsFromCapabilities(previousMessage, COMPOSER_CAPABILITIES);
@@ -233,7 +234,7 @@ export default {
         },
 
         async initEditAsNew(related) {
-            const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS, inject("UserSession"));
+            const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS, this.$_ComposerInitMixin_defaultIdentity);
             this.$_ComposerInitMixin_ADD_MESSAGES([message]);
             this.mergeRecipients(message, related);
             this.mergeSubject(message, related);

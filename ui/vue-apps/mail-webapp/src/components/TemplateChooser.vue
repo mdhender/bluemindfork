@@ -91,6 +91,7 @@ export default {
                 if (!(target.to.length || target.cc.length || target.bcc.length)) {
                     this.mergeRecipients(target, template);
                 }
+                target.from = { ...template.from };
                 await this.mergeAttachments(target, template);
                 await this.mergeBody(target, template);
                 this.DEBOUNCED_SAVE_MESSAGE({ draft: target, messageCompose: this.$store.state.mail.messageCompose });

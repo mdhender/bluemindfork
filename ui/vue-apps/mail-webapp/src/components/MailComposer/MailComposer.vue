@@ -3,7 +3,7 @@
         <h3 class="d-none d-lg-flex text-nowrap text-truncate card-header px-2 py-1">
             {{ panelTitle }}
         </h3>
-        <mail-composer-sender />
+        <mail-composer-sender :message="message" />
         <mail-composer-recipients
             ref="recipients"
             class="pl-3"
@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapMutations } from "vuex";
 
 import { BmFormInput, BmForm } from "@bluemind/styleguide";
 
@@ -70,7 +70,6 @@ export default {
     },
     mixins: [ComposerActionsMixin, ComposerMixin],
     computed: {
-        ...mapGetters("root-app", ["DEFAULT_IDENTITY"]),
         panelTitle() {
             return this.message.subject.trim() ? this.message.subject : this.$t("mail.main.new");
         }

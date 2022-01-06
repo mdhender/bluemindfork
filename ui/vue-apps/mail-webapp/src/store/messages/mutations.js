@@ -20,6 +20,7 @@ import {
     SET_MESSAGE_CC,
     SET_MESSAGE_COMPOSING,
     SET_MESSAGE_DATE,
+    SET_MESSAGE_FROM,
     SET_MESSAGE_HAS_ATTACHMENT,
     SET_MESSAGE_HEADERS,
     SET_MESSAGE_INTERNAL_ID,
@@ -67,6 +68,9 @@ export default {
     },
     [SET_MESSAGE_DATE]: (state, { messageKey, date }) => {
         state[messageKey].date = date;
+    },
+    [SET_MESSAGE_FROM]: (state, { messageKey, from }) => {
+        state[messageKey].from = from;
     },
     [SET_MESSAGE_HAS_ATTACHMENT]: (state, { key, hasAttachment }) => {
         state[key].hasAttachment = hasAttachment;

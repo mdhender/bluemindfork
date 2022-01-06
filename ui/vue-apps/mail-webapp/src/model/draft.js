@@ -39,7 +39,7 @@ export function draftPath(myDrafts) {
 // FIXME remove once we use 'real' message ids for new message
 export let FIXME_NEW_DRAFT_KEY;
 
-export function createEmpty(myDraftsFolder, userSession) {
+export function createEmpty(myDraftsFolder, defaultIdentity) {
     const metadata = {
         internalId: TEMPORARY_MESSAGE_ID,
         folder: { key: myDraftsFolder.key, uid: myDraftsFolder.remoteRef.uid }
@@ -50,8 +50,8 @@ export function createEmpty(myDraftsFolder, userSession) {
 
     message.date = new Date();
     message.from = {
-        address: userSession.defaultEmail,
-        dn: userSession.formatedName
+        address: defaultIdentity.email,
+        dn: defaultIdentity.displayname
     };
     message.flags = [Flag.SEEN];
     message.status = MessageStatus.NEW;
@@ -63,8 +63,8 @@ export function createEmpty(myDraftsFolder, userSession) {
     return message;
 }
 
-export function createReplyOrForward(previousMessage, myDraftsFolder, userSession, creationMode) {
-    const message = createEmpty(myDraftsFolder, userSession);
+export function createReplyOrForward(previousMessage, myDraftsFolder, userSession, creationMode, defaultIdentity) {
+    const message = createEmpty(myDraftsFolder, defaultIdentity);
 
     const draftInfoHeader = {
         type: creationMode,

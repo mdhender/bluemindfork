@@ -131,4 +131,13 @@ describe("mutations", () => {
             expect(state["key4"]).toBeDefined();
         });
     });
+
+    describe("SET_MESSAGE_FROM", () => {
+        test("can change from", () => {
+            const message = { key: "key1", from: "toto" };
+            const state = { [message.key]: message };
+            mutations.SET_MESSAGE_FROM(state, { messageKey: message.key, from: "blabla" });
+            expect(state[message.key].from).toEqual("blabla");
+        });
+    });
 });
