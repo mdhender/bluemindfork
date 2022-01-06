@@ -38,7 +38,6 @@ import net.bluemind.core.container.model.ItemUri;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.exchange.mapi.api.IMapiFolderAssociatedInformation;
@@ -102,19 +101,20 @@ public class MapiMailboxService implements IMapiMailbox {
 
 	private void checkFaiContainer(MapiReplica replica) {
 		String faiContainerId = MapiFAIContainer.getIdentifier(replica);
-		DataSourceRouter.invalidateContainer(faiContainerId);
 		ContainerDescriptor fais = ContainerDescriptor.create(faiContainerId, faiContainerId, mailboxUid,
 				MapiFAIContainer.TYPE, domainUid, true);
 		IContainers contApi = context.su().provider().instance(IContainers.class);
 		ContainerDescriptor current = contApi.getIfPresent(faiContainerId);
 		if (current != null && !current.owner.equals(fais.owner)) {
-			logger.info("Reset FAI container {} as owner is wrong", faiContainerId);
-			contApi.delete(faiContainerId);
-			current = null;
-		}
-		if (current == null) {
-			contApi.create(faiContainerId, fais);
-			logger.info("Created FAI container {}", faiContainerId);
+			logger.warn("We should reset FAI container {} as owner is wrong (cur: {}, wanted: {})", faiContainerId,
+					current.owner, fais.owner);
+		} else if (current == null) {
+			try {
+				contApi.create(faiContainerId, fais);
+				logger.info("Created FAI container {}", faiContainerId);
+			} catch (Exception e) {
+				logger.warn("Error creating fai container {}: {}", faiContainerId, e.getMessage());
+			}
 		}
 		if (pfMailbox) {
 			logger.info("Setting domain-wide {} ACLs for PF FAI folder {}", domainUid, faiContainerId);
