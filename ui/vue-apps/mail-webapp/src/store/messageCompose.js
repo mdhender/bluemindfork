@@ -71,7 +71,7 @@ export default {
     },
 
     getters: {
-        [IS_SENDER_SHOWN]: state => userSettings => state.isSenderShown || !!userSettings.always_show_from
+        [IS_SENDER_SHOWN]: state => userSettings => state.isSenderShown || userSettings.always_show_from === "true"
     },
 
     state: {

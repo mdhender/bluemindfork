@@ -63,9 +63,13 @@
                 <template #button-content>
                     <bm-icon icon="3dots-v" size="lg" />
                 </template>
-                <bm-dropdown-item-toggle :checked="isSignatureInserted" @click="$emit('toggle-signature')">{{
-                    $t("mail.compose.toolbar.insert_signature")
-                }}</bm-dropdown-item-toggle>
+                <bm-dropdown-item-toggle
+                    :disabled="hasCorporateSignature"
+                    :checked="isSignatureInserted"
+                    @click="$emit('toggle-signature')"
+                >
+                    {{ $t("mail.compose.toolbar.insert_signature") }}
+                </bm-dropdown-item-toggle>
                 <bm-dropdown-item-button icon="documents" @click="openTemplateChooser">
                     {{ $t("mail.compose.toolbar.use_template") }}
                 </bm-dropdown-item-button>
@@ -91,14 +95,8 @@ import { mapGetters, mapMutations, mapState } from "vuex";
 
 export default {
     name: "MailComposerFooter",
-    components: {
-        BmButton,
+    components: { BmButton, BmDropdown, BmDropdownItemButton, BmDropdownItemToggle, BmIcon },
         BmExtension,
-        BmDropdown,
-        BmDropdownItemButton,
-        BmDropdownItemToggle,
-        BmIcon
-    },
     mixins: [ComposerActionsMixin, FormattedDateMixin],
     props: {
         userPrefIsMenuBarOpened: {
@@ -117,6 +115,9 @@ export default {
     computed: {
         ...mapGetters("mail", { IS_SENDER_SHOWN }),
         ...mapState("session", { userSettings: ({ settings }) => settings.remote }),
+        hasCorporateSignature() {
+            return this.$store.state.mail.messageCompose.corporateSignature !== null;
+        },
         hasRecipient() {
             return this.message.to.length > 0 || this.message.cc.length > 0 || this.message.bcc.length > 0;
         },
