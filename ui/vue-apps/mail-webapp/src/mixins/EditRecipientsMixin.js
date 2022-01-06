@@ -3,7 +3,8 @@ import { VCardQueryOrderBy } from "@bluemind/addressbook.api";
 import { getQuery, VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
-import { mapMutations } from "vuex";
+import { mapActions, mapMutations } from "vuex";
+import { CHECK_CORPORATE_SIGNATURE } from "~/actions";
 import { SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~/mutations";
 
 const recipientModes = { TO: 1, CC: 2, BCC: 4 }; // flags for the display mode of MailComposer's recipients fields
@@ -61,6 +62,7 @@ export default {
             : recipientModes.TO | recipientModes.CC;
     },
     methods: {
+        ...mapActions("mail", { CHECK_CORPORATE_SIGNATURE }),
         ...mapMutations("mail", { SET_MESSAGE_TO, SET_MESSAGE_CC, SET_MESSAGE_BCC }),
         focus() {
             this.$refs.to.focus();
@@ -102,14 +104,17 @@ export default {
         },
         updateTo(contacts) {
             this.SET_MESSAGE_TO({ messageKey: this.message.key, to: contacts });
+            this.CHECK_CORPORATE_SIGNATURE({ message: this.message, selectedIdentity: {} });
             this.debouncedSave();
         },
         updateCc(contacts) {
             this.SET_MESSAGE_CC({ messageKey: this.message.key, cc: contacts });
+            this.CHECK_CORPORATE_SIGNATURE({ message: this.message, selectedIdentity: {} });
             this.debouncedSave();
         },
         updateBcc(contacts) {
             this.SET_MESSAGE_BCC({ messageKey: this.message.key, bcc: contacts });
+            this.CHECK_CORPORATE_SIGNATURE({ message: this.message, selectedIdentity: {} });
             this.debouncedSave();
         },
         validateAddress: EmailValidator.validateAddress

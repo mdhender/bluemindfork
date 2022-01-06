@@ -1138,6 +1138,13 @@
   dependencies:
     axios "^0.18.0"
 
+"@bluemind/mailmessage.api@^4.1.0":
+  version "4.1.61271"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/mailmessage.api/-/mailmessage.api-4.1.61271.tgz#3768d53ce466141225d7d0a89cb18227a119aed6"
+  integrity sha512-dUK82ZSQdubLbHncV+CkrGdazjHrYWdyO2ta89Z4fpQQ/Raw5df8Z21ZChGBasz5SU4g8zfpLfYoJ2XVTje3zQ==
+  dependencies:
+    axios "^0.18.0"
+
 "@bluemind/styleguide@^0.1.0":
   version "0.1.1849"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1849.tgz#42f8b8548786c2965bf83d24248101d90c72e03a"

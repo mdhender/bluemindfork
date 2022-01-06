@@ -1,6 +1,7 @@
 import Vue from "vue";
 
 import { ItemsTransferClient, MailConversationClient, OutboxClient } from "@bluemind/backend.mail.api";
+import { MailTipClient } from "@bluemind/mailmessage.api";
 import injector from "@bluemind/inject";
 import router from "@bluemind/router";
 import store from "@bluemind/store";
@@ -56,6 +57,14 @@ function registerAPIClients() {
                 mailboxUid.replace(/^user\./, "") +
                 "_conversations";
             return new MailConversationClient(userSession.sid, conversationContainerId);
+        }
+    });
+
+    injector.register({
+        provide: "MailTipPersistence",
+        factory: () => {
+            const userSession = injector.getProvider("UserSession").get();
+            return new MailTipClient(userSession.sid, userSession.domain);
         }
     });
 }
