@@ -41,7 +41,7 @@
             <bm-dropdown-item icon="pencil" @click="editAsNew()">
                 {{ $t("mail.actions.edit_as_new") }}
             </bm-dropdown-item>
-            <bm-dropdown-item icon="printer" :shortcut="$t('mail.shortcuts.print')" @click="print()">
+            <bm-dropdown-item icon="printer" :shortcut="$t('mail.shortcuts.print')" @click="printContent()">
                 {{ $t("common.print") }}
             </bm-dropdown-item>
             <bm-dropdown-item @click.prevent.stop.exact="REMOVE_MESSAGES(conversation, message)">
@@ -157,7 +157,9 @@ export default {
             MARK_MESSAGE_AS_UNFLAGGED,
             MARK_MESSAGE_AS_UNREAD
         }),
-
+        printContent() {
+            this.print(this.$createElement("bm-button", "Yeah"));
+        },
         folderSelection(folder) {
             this.folderSelected = folder;
             this.pattern = translatePath(folder.path);
@@ -191,9 +193,6 @@ export default {
                 params: { messagepath: draftPath(this.MY_DRAFTS) },
                 query: { action: MessageCreationModes.EDIT_AS_NEW, message: MessagePathParam.build("", this.message) }
             });
-        },
-        print() {
-            window.print();
         }
     }
 };

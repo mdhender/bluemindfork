@@ -40,7 +40,7 @@
             icon="printer"
             :shortcut="$t('mail.shortcuts.print')"
             :disabled="selectionLength > 1"
-            @click="print()"
+            @click="printContent()"
         >
             {{ $t("common.print") }}
         </bm-dropdown-item>
@@ -87,8 +87,8 @@ export default {
     },
     methods: {
         ...mapMutations("mail", { SET_MESSAGE_COMPOSING }),
-        print() {
-            window.print();
+        printContent() {
+            this.print(this.$createElement("h1", "Yeah"), "h1 {color: red;}");
         },
         editAsNew() {
             const template = this.messages[this.CURRENT_CONVERSATION_METADATA.messages[0]];
