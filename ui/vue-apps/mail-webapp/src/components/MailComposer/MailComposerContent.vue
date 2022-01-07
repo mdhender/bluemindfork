@@ -25,11 +25,13 @@
                 <bm-button
                     v-if="messageCompose.collapsedContent"
                     variant="outline-dark"
-                    class="align-self-start ml-3 mb-2"
+                    class="align-self-start mb-1"
                     @click="expandContent"
                 >
                     <bm-icon icon="3dots" size="sm" />
                 </bm-button>
+                <!-- eslint-disable-next-line vue/no-v-html -->
+                <div v-if="corporateSignature" v-html="corporateSignature.html" />
             </bm-rich-editor>
         </bm-file-drop-zone>
     </bm-file-drop-zone>
@@ -46,12 +48,7 @@ import { ComposerActionsMixin, ComposerInitMixin } from "~/mixins";
 
 export default {
     name: "MailComposerContent",
-    components: {
-        BmButton,
-        BmFileDropZone,
-        BmIcon,
-        BmRichEditor
-    },
+    components: { BmButton, BmFileDropZone, BmIcon, BmRichEditor },
     mixins: [ComposerActionsMixin, ComposerInitMixin],
     props: {
         userPrefIsMenuBarOpened: {
@@ -67,7 +64,10 @@ export default {
         return { draggedFilesCount: -1 };
     },
     computed: {
-        ...mapState("mail", ["messageCompose"])
+        ...mapState("mail", ["messageCompose"]),
+        corporateSignature() {
+            return this.messageCompose.corporateSignature;
+        }
     },
     watch: {
         "message.key": {

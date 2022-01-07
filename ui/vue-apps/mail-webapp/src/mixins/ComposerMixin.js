@@ -42,6 +42,27 @@ export default {
         },
         isSenderShown() {
             return this.IS_SENDER_SHOWN(this.userSettings);
+        },
+        $_ComposerMixin_insertSignaturePref() {
+            return this.$store.state.session.settings.remote.insert_signature;
+        }
+    },
+    watch: {
+        "messageCompose.corporateSignature"(corporateSignature, oldCorporateSignature) {
+            if (corporateSignature && this.isSignatureInserted) {
+                this.SET_DRAFT_EDITOR_CONTENT(
+                    removeSignature(this.messageCompose.editorContent, this.userPrefTextOnly, this.signature)
+                );
+            } else if (
+                oldCorporateSignature &&
+                !corporateSignature &&
+                this.signature &&
+                this.$_ComposerMixin_insertSignaturePref === "true"
+            ) {
+                this.SET_DRAFT_EDITOR_CONTENT(
+                    addSignature(this.messageCompose.editorContent, this.userPrefTextOnly, this.signature)
+                );
+            }
         }
     },
     destroyed() {
