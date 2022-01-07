@@ -104,17 +104,17 @@ export default {
         },
         updateTo(contacts) {
             this.SET_MESSAGE_TO({ messageKey: this.message.key, to: contacts });
-            this.CHECK_CORPORATE_SIGNATURE({ message: this.message, selectedIdentity: {} });
+            this.CHECK_CORPORATE_SIGNATURE({ message: this.message });
             this.debouncedSave();
         },
         updateCc(contacts) {
             this.SET_MESSAGE_CC({ messageKey: this.message.key, cc: contacts });
-            this.CHECK_CORPORATE_SIGNATURE({ message: this.message, selectedIdentity: {} });
+            this.CHECK_CORPORATE_SIGNATURE({ message: this.message });
             this.debouncedSave();
         },
         updateBcc(contacts) {
             this.SET_MESSAGE_BCC({ messageKey: this.message.key, bcc: contacts });
-            this.CHECK_CORPORATE_SIGNATURE({ message: this.message, selectedIdentity: {} });
+            this.CHECK_CORPORATE_SIGNATURE({ message: this.message });
             this.debouncedSave();
         },
         validateAddress: EmailValidator.validateAddress

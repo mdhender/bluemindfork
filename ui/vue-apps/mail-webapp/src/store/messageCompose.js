@@ -49,11 +49,11 @@ export default {
             // take into account the email base64 encoding : 33% more space
             commit(SET_MAX_MESSAGE_SIZE, messageMaxSize / 1.33);
         },
-        async [CHECK_CORPORATE_SIGNATURE]({ commit }, { message, selectedIdentity }) {
+        async [CHECK_CORPORATE_SIGNATURE]({ commit }, { message }) {
             commit(SET_DISCLAIMER, null);
             commit(SET_CORPORATE_SIGNATURE, null);
 
-            const context = getMailTipContext(message, selectedIdentity);
+            const context = getMailTipContext(message);
             const mailTips = await inject("MailTipPersistence").getMailTips(context);
             if (mailTips.length > 0) {
                 mailTips[0].matchingTips.forEach(tip => {
@@ -89,12 +89,12 @@ export default {
     }
 };
 
-function getMailTipContext(message, selectedIdentity) {
+function getMailTipContext(message) {
     return {
         messageContext: {
             fromIdentity: {
                 sender: inject("UserSession").defaultEmail,
-                from: selectedIdentity.email || inject("UserSession").defaultEmail // FIXME
+                from: message.from.address
             },
             messageClass: "Mail",
             recipients: getRecipients(message),

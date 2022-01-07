@@ -73,9 +73,8 @@ describe("messageCompose", () => {
             ]);
 
             inject.register({ provide: "UserSession", factory: () => ({ defaultEmail: "user@mail.com" }) });
-            const message = { to: [{ address: "test@mail.com", dn: "" }], cc: [], bcc: [] };
-            const selectedIdentity = {};
-            await store.dispatch(CHECK_CORPORATE_SIGNATURE, { message, selectedIdentity });
+            const message = { from: {}, to: [{ address: "test@mail.com", dn: "" }], cc: [], bcc: [] };
+            await store.dispatch(CHECK_CORPORATE_SIGNATURE, { message });
             expect(mailtipService.getMailTips).toHaveBeenCalled();
             expect(store.state.disclaimer).toStrictEqual(JSON.parse(disclaimer));
             expect(store.state.corporateSignature).toStrictEqual(JSON.parse(corpSign));

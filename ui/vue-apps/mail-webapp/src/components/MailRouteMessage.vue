@@ -57,7 +57,7 @@ export default {
                             const { action, message: related } = this.$route.query;
                             message = await this.initRelatedMessage(action, MessagePathParam.parse(related));
                         } else {
-                            message = this.initNewMessage();
+                            message = await this.initNewMessage();
                         }
                     } else {
                         message = await this.FETCH_MESSAGE_IF_NOT_LOADED({
