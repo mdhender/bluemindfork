@@ -105,6 +105,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 
 	@Test
 	public void testCreateWithItem() throws Exception {
+		setGlobalExternalUrl();
 		VertxEventChecker<JsonObject> createdMessageChecker = new VertxEventChecker<>(TodoListHookAddress.CREATED);
 
 		ItemValue<VTodo> todoItem = defaultVTodoItem(42);
@@ -227,6 +228,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 
 	@Test
 	public void testUpdateWithItem() throws Exception {
+		setGlobalExternalUrl();
 		VertxEventChecker<JsonObject> updatedMessageChecker = new VertxEventChecker<>(TodoListHookAddress.UPDATED);
 
 		VTodo todo = defaultVTodo();

@@ -598,6 +598,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 
 	@Test
 	public void testBinaryAttachmentImport() throws ServerFault, IOException {
+		setGlobalExternalUrl();
 		Stream ics = getIcsFromFile("testBinaryAttachmentImport.ics");
 
 		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer).importIcs(ics);

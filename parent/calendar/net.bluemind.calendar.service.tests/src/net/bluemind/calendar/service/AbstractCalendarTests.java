@@ -25,7 +25,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -77,6 +79,7 @@ import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.core.utils.UIDGenerator;
@@ -85,6 +88,8 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.service.DirEntryHandlers;
 import net.bluemind.dockerclient.DockerEnv;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.persistence.GroupStore;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -94,6 +99,8 @@ import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.mailbox.service.internal.MailboxStoreService;
 import net.bluemind.pool.impl.docker.DockerContainer;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
@@ -105,6 +112,12 @@ import net.bluemind.user.api.User;
 import net.bluemind.user.service.internal.ContainerUserStoreService;
 
 public abstract class AbstractCalendarTests {
+
+	protected static final String DOMAIN_EXTERNAL_URL = "my.test.domain.external.url";
+	protected static final String GLOBAL_EXTERNAL_URL = "my.test.external.url";
+
+	protected IDomainSettings domainSettings;
+	protected ISystemConfiguration systemConfiguration;
 
 	protected TransportClient esearchClient;
 
@@ -554,6 +567,24 @@ public abstract class AbstractCalendarTests {
 		DataSource ds = DataSourceRouter.get(ctx, container.uid);
 		return new CalendarService(ds, esearchClient, container, ctx,
 				CalendarAuditor.auditor(IAuditManager.instance(), ctx, container));
+	}
+
+	protected Map<String, String> setGlobalExternalUrl() {
+		systemConfiguration = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class);
+		Map<String, String> sysValues = systemConfiguration.getValues().values;
+		sysValues.put(SysConfKeys.external_url.name(), GLOBAL_EXTERNAL_URL);
+		systemConfiguration.updateMutableValues(sysValues);
+		return sysValues;
+	}
+
+	protected Map<String, String> setDomainExternalUrl() {
+		domainSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomainSettings.class,
+				domainUid);
+		Map<String, String> domainValues = new HashMap<>();
+		domainValues.put(DomainSettingsKeys.external_url.name(), DOMAIN_EXTERNAL_URL);
+		domainSettings.set(domainValues);
+		return domainValues;
 	}
 
 }

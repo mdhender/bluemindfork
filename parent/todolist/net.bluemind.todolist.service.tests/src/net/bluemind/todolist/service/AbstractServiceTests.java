@@ -26,6 +26,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -55,11 +56,14 @@ import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.icalendar.api.ICalendarElement.Status;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
@@ -104,6 +108,9 @@ public abstract class AbstractServiceTests {
 	protected DataSource dataDataSource;
 	protected String domainUid;
 	protected String owner;
+
+	protected static final String GLOBAL_EXTERNAL_URL = "my.test.external.url";
+	protected ISystemConfiguration systemConfiguration;
 
 	@Before
 	public void before() throws Exception {
@@ -253,5 +260,14 @@ public abstract class AbstractServiceTests {
 
 	protected void refreshIndex() {
 		esearchClient.admin().indices().prepareRefresh(VTodoIndexStore.VTODO_INDEX).execute().actionGet();
+	}
+
+	protected Map<String, String> setGlobalExternalUrl() {
+		systemConfiguration = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class);
+		Map<String, String> sysValues = systemConfiguration.getValues().values;
+		sysValues.put(SysConfKeys.external_url.name(), GLOBAL_EXTERNAL_URL);
+		systemConfiguration.updateMutableValues(sysValues);
+		return sysValues;
 	}
 }
