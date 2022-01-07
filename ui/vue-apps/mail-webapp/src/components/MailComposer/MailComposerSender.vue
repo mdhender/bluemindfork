@@ -7,12 +7,7 @@
                 :options="options"
                 class="ml-2 flex-fill"
                 variant="inline-secondary"
-                @input="
-                    SET_MESSAGE_FROM({
-                        messageKey: message.key,
-                        from: { address: $event.email, dn: $event.displayname }
-                    })
-                "
+                @input="changeIdentity"
             />
         </div>
         <hr class="m-0" />
@@ -43,7 +38,14 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("mail", { SET_MESSAGE_FROM })
+        ...mapMutations("mail", { SET_MESSAGE_FROM }),
+        changeIdentity(identity) {
+            this.SET_MESSAGE_FROM({
+                messageKey: this.message.key,
+                from: { address: identity.email, dn: identity.displayname }
+            });
+            this.$emit("update");
+        }
     }
 };
 </script>

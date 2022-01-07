@@ -3,7 +3,7 @@
         <h3 class="d-none d-lg-flex text-nowrap text-truncate card-header px-2 py-1">
             {{ panelTitle }}
         </h3>
-        <mail-composer-sender :message="message" />
+        <mail-composer-sender :message="message" @update="updateSignatureIfNeeded" />
         <mail-composer-recipients
             ref="recipients"
             class="pl-3"
@@ -33,7 +33,6 @@
         <mail-composer-footer
             :message="message"
             :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened"
-            :signature="signature"
             :is-signature-inserted="isSignatureInserted"
             @toggle-text-format="userPrefIsMenuBarOpened = !userPrefIsMenuBarOpened"
             @toggle-signature="toggleSignature"

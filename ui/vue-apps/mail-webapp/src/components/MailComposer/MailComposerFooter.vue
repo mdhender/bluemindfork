@@ -105,10 +105,6 @@ export default {
             type: Object,
             required: true
         },
-        signature: {
-            type: String,
-            required: true
-        },
         isSignatureInserted: {
             type: Boolean,
             required: true

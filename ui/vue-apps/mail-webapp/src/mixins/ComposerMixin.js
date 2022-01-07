@@ -1,5 +1,11 @@
-import { mapGetters, mapMutations, mapState } from "vuex";
-import { addSignature, removeSignature, isHtmlSignaturePresent, isTextSignaturePresent } from "~/model/signature";
+import { mapMutations, mapState } from "vuex";
+import {
+    addSignature,
+    removeSignature,
+    replaceSignature,
+    isHtmlSignaturePresent,
+    isTextSignaturePresent
+} from "~/model/signature";
 import { SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_SUBJECT } from "~/mutations";
 
 export default {
@@ -17,9 +23,11 @@ export default {
     },
     computed: {
         ...mapState("mail", ["messageCompose"]),
-        ...mapGetters("root-app", ["DEFAULT_IDENTITY"]),
+        ...mapState("root-app", ["identities"]),
         signature() {
-            return this.DEFAULT_IDENTITY.signature;
+            return this.identities.find(
+                i => i.email === this.message.from.address && i.displayname === this.message.from.dn
+            ).signature;
         },
         isSignatureInserted() {
             return (
@@ -44,6 +52,13 @@ export default {
             } else {
                 this.SET_DRAFT_EDITOR_CONTENT(
                     removeSignature(this.messageCompose.editorContent, this.userPrefTextOnly, this.signature)
+                );
+            }
+        },
+        updateSignatureIfNeeded() {
+            if (this.isSignatureInserted) {
+                this.SET_DRAFT_EDITOR_CONTENT(
+                    replaceSignature(this.messageCompose.editorContent, this.userPrefTextOnly, this.signature)
                 );
             }
         }
