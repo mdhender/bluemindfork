@@ -61,7 +61,6 @@ public class DisclaimerVariables {
 				}
 			}
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
 		}
 		return generateDisclaimerId();
 	}
@@ -75,9 +74,7 @@ public class DisclaimerVariables {
 	}
 
 	public String replace(final String input) {
-		return replace(input, (key, value) -> {
-			return value;
-		});
+		return replace(input, (key, value) -> value);
 	}
 
 	public String replace(final String input, final IVariableDecorator decorator) {

@@ -88,12 +88,12 @@ public class AddDisclaimer {
 		String content = getBodyContent(e);
 
 		e.getHeader().setField(Fields.contentTransferEncoding("quoted-printable"));
-		if (Boolean.valueOf(configuration.get("usePlaceholder"))) {
+		if (Boolean.TRUE.equals(Boolean.valueOf(configuration.get("usePlaceholder")))) {
 			int index = content.indexOf(PLACEHOLDER);
 			if (index >= 0 && content.lastIndexOf(PLACEHOLDER) == index) {
 				content = content.replaceFirst(PLACEHOLDER, disclaimer);
 			} else {
-				content = content.replaceAll(PLACEHOLDER, "");
+				content = content.replace(PLACEHOLDER, "");
 				content += disclaimer;
 			}
 		} else {
@@ -126,15 +126,14 @@ public class AddDisclaimer {
 	private Body updateBodyWithDisclaimer(Entity e, Document disclaimerContent, Map<String, String> configuration) {
 		Document bodyContent = extractBody(e);
 		addDisclaimerToContent(disclaimerContent, bodyContent, configuration);
-		Body body = toBodyPart(e, bodyContent.html());
-		return body;
+		return toBodyPart(e, bodyContent.html());
 	}
 
 	private Body updateRelatedBodyWithDisclaimer(Entity e, Document disclaimerContent, Elements images,
 			Map<String, String> configuration) {
 		Multipart parent = (Multipart) e.getParent().getBody();
 		Document bodyContent = extractBody(e);
-		if (Boolean.valueOf(configuration.get("removePrevious"))) {
+		if (Boolean.TRUE.equals(Boolean.valueOf(configuration.get("removePrevious")))) {
 			removeDisclaimerImageFromMessage(parent, bodyContent);
 		}
 		addDisclaimerImagesToMessage(images, parent);
@@ -165,21 +164,19 @@ public class AddDisclaimer {
 	private void addDisclaimerToContent(Document disclaimerContent, Document bodyContent,
 			Map<String, String> configuration) {
 		String hash = variables.uid();
-		if (Boolean.valueOf(configuration.get("removePrevious"))) {
+		if (Boolean.TRUE.equals(Boolean.valueOf(configuration.get("removePrevious")))) {
 			bodyContent.body().getElementsByClass(hash).remove();
 		}
 		String disclaimer = "<div class='" + hash + "'>" + disclaimerContent.html() + "</div>";
-		if (Boolean.valueOf(configuration.get("usePlaceholder"))) {
+		if (Boolean.TRUE.equals(Boolean.valueOf(configuration.get("usePlaceholder")))) {
 			Elements placeholderContainers = bodyContent.body().getElementsContainingOwnText(PLACEHOLDER);
 			if (placeholderContainers.size() == 1) {
 				String html = placeholderContainers.html().replaceFirst(PLACEHOLDER, disclaimer);
-				html = html.replaceAll(PLACEHOLDER, "");
+				html = html.replace(PLACEHOLDER, "");
 				placeholderContainers.html(html);
 				return;
 			} else if (placeholderContainers.size() > 1) {
-				placeholderContainers.forEach(container -> {
-					container.html(container.html().replaceAll(PLACEHOLDER, ""));
-				});
+				placeholderContainers.forEach(container -> container.html(container.html().replace(PLACEHOLDER, "")));
 			}
 		}
 		bodyContent.body().append(disclaimer);
@@ -208,7 +205,7 @@ public class AddDisclaimer {
 	private void addDisclaimerImagesToMessage(Elements images, Multipart parent) {
 		String hash = variables.uid();
 		Iterator<Element> it = images.iterator();
-		int i = 0;
+		long i = System.currentTimeMillis();
 		while (it.hasNext()) {
 			Element img = it.next();
 			String src = img.attr("src");
