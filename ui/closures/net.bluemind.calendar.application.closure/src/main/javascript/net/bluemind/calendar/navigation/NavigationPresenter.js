@@ -337,23 +337,8 @@ net.bluemind.calendar.navigation.NavigationPresenter.prototype.showView_ = funct
   this.ctx.service('calendarviews').getView(e.viewUid).then(function(view) {
     lview = view;
     this.view_.setSelected(view);
-    return this.ctx.service('folders').getFoldersRemote(null, view['value']['calendars']);
-  }, null, this).then(function(folders) {
-    return this.ctx.service('calendarsMgmt').setCalendars(folders);
-  }, function(e) {
-    var validFolders = [];
-    var futures = goog.array.map(lview['value']['calendars'], function(c) {
-      return this.ctx.service('folders').getFoldersRemote(null, new Array(c)).then(function(f) {
-        validFolders.push(f);
-      }, function(error) {
-      }, this);
-    }, this);
-    return goog.Promise.all(futures).then(function(e) {
-      return this.ctx.service('calendarsMgmt').setCalendars(validFolders);
-    }, null, this);
-  }, this).then(function() {
     if (this.ctx.online) {
-      var viewType = lview['value']['type'];
+      var viewType = view['value']['type'];
       if (viewType == 'DAY') {
         this.ctx.helper('url').redirect("/day/?range=day&refresh=" + goog.now(), true);
       } else if (viewType == 'WEEK') {
@@ -365,7 +350,23 @@ net.bluemind.calendar.navigation.NavigationPresenter.prototype.showView_ = funct
       } else {
         this.ctx.helper('url').reload();
       }
+      return 
     }
+  }, null, this).then(function() {
+    return this.ctx.service('folders').getFoldersRemote(null, lview['value']['calendars']);
+  }, null, this).thenCatch(function(e) {
+    var validFolders = [];
+    var futures = goog.array.map(lview['value']['calendars'], function(c) {
+      return this.ctx.service('folders').getFoldersRemote(null, new Array(c)).then(function(f) {
+        validFolders.push(f);
+      }, function(error) {
+      }, this);
+    }, this);
+    return goog.Promise.all(futures).then(function(e) {
+      return validFolders;
+    });
+  }, this).then(function(folders) {
+    this.ctx.service('calendarsMgmt').setCalendars(folders);
   }, function(error) {
     this.ctx.notifyError(net.bluemind.calendar.Messages.errorLoading(error), error);
   }, this);
