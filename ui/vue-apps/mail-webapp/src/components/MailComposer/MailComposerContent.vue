@@ -32,6 +32,8 @@
                 </bm-button>
                 <!-- eslint-disable-next-line vue/no-v-html -->
                 <div v-if="corporateSignature" v-html="corporateSignature.html" />
+                <!-- eslint-disable-next-line vue/no-v-html -->
+                <div v-if="disclaimer" v-html="disclaimer.html" />
             </bm-rich-editor>
         </bm-file-drop-zone>
     </bm-file-drop-zone>
@@ -67,6 +69,9 @@ export default {
         ...mapState("mail", ["messageCompose"]),
         corporateSignature() {
             return this.messageCompose.corporateSignature;
+        },
+        disclaimer() {
+            return this.messageCompose.disclaimer;
         }
     },
     watch: {
