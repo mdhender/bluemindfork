@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -60,7 +61,6 @@ import net.bluemind.videoconferencing.api.IVideoConferencing;
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
 import net.bluemind.videoconferencing.api.VideoConference;
 import net.bluemind.videoconferencing.api.VideoConferencingResourceDescriptor;
-import net.bluemind.videoconferencing.hosting.VideoConferencingRolesProvider;
 import net.bluemind.videoconferencing.service.template.VideoConferencingTemplateHelper;
 
 public class VideoConferencingService implements IVideoConferencing {
@@ -82,7 +82,6 @@ public class VideoConferencingService implements IVideoConferencing {
 
 	@Override
 	public VEvent add(VEvent vevent) {
-		rbac.check(VideoConferencingRolesProvider.ROLE_VISIO, VideoConferencingRolesProvider.ROLE_FULL_VISIO);
 		List<ItemValue<ResourceDescriptor>> videoConferencingResoures = getVideoConferencingResource(vevent.attendees);
 		if (videoConferencingResoures.isEmpty()) {
 			return vevent;
@@ -102,6 +101,12 @@ public class VideoConferencingService implements IVideoConferencing {
 		}
 
 		IVideoConferencingProvider videoConferencingProvider = videoConferencingProviderOpt.get();
+
+		Set<String> requiredRoles = videoConferencingProvider.getRequiredRoles();
+		if (!requiredRoles.isEmpty()) {
+			rbac.check(requiredRoles);
+		}
+
 		IContainerManagement containerMgmtService = context.getServiceProvider().instance(IContainerManagement.class,
 				resource.uid + "-settings-container");
 

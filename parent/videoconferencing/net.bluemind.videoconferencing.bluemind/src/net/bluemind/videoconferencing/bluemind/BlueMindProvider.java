@@ -18,8 +18,11 @@
 package net.bluemind.videoconferencing.bluemind;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import com.google.common.base.Strings;
@@ -33,6 +36,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
 import net.bluemind.videoconferencing.api.VideoConference;
+import net.bluemind.videoconferencing.hosting.VideoConferencingRolesProvider;
 import net.bluemind.videoconferencing.saas.api.BlueMindVideoRoom;
 import net.bluemind.videoconferencing.saas.api.IVideoConferencingSaas;
 import net.bluemind.videoconferencing.service.template.TemplateBasedVideoConferencingProvider;
@@ -87,4 +91,11 @@ public class BlueMindProvider extends TemplateBasedVideoConferencingProvider imp
 		}
 		return super.getConferenceInfo(context, resourceSettings, resource, vevent);
 	}
+
+	@Override
+	public Set<String> getRequiredRoles() {
+		return new HashSet<>(Arrays.asList(VideoConferencingRolesProvider.ROLE_VISIO,
+				VideoConferencingRolesProvider.ROLE_FULL_VISIO));
+	}
+
 }

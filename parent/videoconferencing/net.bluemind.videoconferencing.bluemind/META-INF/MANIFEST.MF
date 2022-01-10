@@ -15,4 +15,5 @@ Require-Bundle: net.bluemind.videoconferencing.service,
  net.bluemind.system.api;bundle-version="4.1.0",
  net.bluemind.videoconferencing.saas.api,
  net.bluemind.calendar.api,
- net.bluemind.domain.api
+ net.bluemind.domain.api,
+ net.bluemind.videoconferencing.hosting

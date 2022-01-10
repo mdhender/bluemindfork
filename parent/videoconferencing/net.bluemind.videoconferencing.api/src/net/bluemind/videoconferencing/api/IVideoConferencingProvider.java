@@ -17,8 +17,10 @@
   */
 package net.bluemind.videoconferencing.api;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.container.model.ItemValue;
@@ -37,5 +39,9 @@ public interface IVideoConferencingProvider {
 	public void deleteConference(BmContext context, Map<String, String> resourceSettings, String conferenceId);
 
 	public Optional<byte[]> getIcon();
+
+	public default Set<String> getRequiredRoles() {
+		return Collections.emptySet();
+	}
 
 }
