@@ -31,9 +31,9 @@
                     <bm-icon icon="3dots" size="sm" />
                 </bm-button>
                 <!-- eslint-disable-next-line vue/no-v-html -->
-                <div v-if="corporateSignature" v-html="corporateSignature.html" />
+                <div v-if="corporateSignature" class="cursor-not-allowed" v-html="corporateSignature.html" />
                 <!-- eslint-disable-next-line vue/no-v-html -->
-                <div v-if="disclaimer" v-html="disclaimer.html" />
+                <div v-if="disclaimer" class="cursor-not-allowed" v-html="disclaimer.html" />
             </bm-rich-editor>
         </bm-file-drop-zone>
     </bm-file-drop-zone>

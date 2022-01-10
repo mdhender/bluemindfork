@@ -3,6 +3,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { InlineImageHelper, MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { sanitizeHtml } from "@bluemind/html-utils";
+import { BmRichEditor } from "@bluemind/styleguide";
 
 import { CHECK_CORPORATE_SIGNATURE, FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import { CURRENT_MAILBOX, MY_DRAFTS } from "~/getters";
@@ -149,7 +150,7 @@ export default {
         async initNewMessage() {
             const message = this.$_ComposerInitMixin_createEmpty();
             this.$_ComposerInitMixin_ADD_MESSAGES([message]);
-            const content = await this.$_ComposerInitMixin_handleSignature(message, "");
+            const content = await this.$_ComposerInitMixin_handleSignature(message, BmRichEditor.constants.NEW_LINE);
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(null);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
@@ -203,7 +204,7 @@ export default {
                 inject("i18n")
             );
 
-            const content = await this.$_ComposerInitMixin_handleSignature(message, "");
+            const content = await this.$_ComposerInitMixin_handleSignature(message, BmRichEditor.constants.NEW_LINE);
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(collapsed);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);

@@ -16,7 +16,7 @@ import {
     messageKey
 } from "./message";
 import { mergePartsForRichEditor, mergePartsForTextarea } from "./part";
-import { removeSignature, removeSignatureIds } from "./signature";
+import { removeSignature, removeSignatureAttr } from "./signature";
 
 const TEMPORARY_MESSAGE_ID = 0;
 let DRAFT_HASH = 0;
@@ -343,7 +343,7 @@ export function addSeparator(content, previousMessage, creationMode, userPrefTex
 
     if (!userPrefTextOnly) {
         const id = MessageCreationModes.FORWARD ? MessageForwardAttributeSeparator : MessageReplyAttributeSeparator;
-        newContent = '<div id="' + id + '">' + removeSignatureIds(newContent) + "</div>";
+        newContent = '<div id="' + id + '">' + removeSignatureAttr(newContent) + "</div>";
     }
     return lineBreakSeparator + newContent;
 }
