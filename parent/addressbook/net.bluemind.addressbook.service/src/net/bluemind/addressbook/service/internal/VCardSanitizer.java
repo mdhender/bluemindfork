@@ -206,8 +206,8 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 	}
 
 	private Parameter removeInvalidCharacters(Parameter p) {
-		p.label = p.label.replaceAll(";", "");
-		p.value = p.value.replaceAll(";", "");
+		p.label = p.label.replace(";", "");
+		p.value = p.value.replace(";", "");
 		return p;
 	}
 

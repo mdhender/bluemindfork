@@ -40,7 +40,7 @@ public final class Token {
 		if (tokenFile.exists()) {
 			try {
 				String ret = Files.toString(new File("/etc/bm/bm-core.tok"), Charset.defaultCharset()).trim()
-						.replaceAll("\r\n", "");
+						.replace("\r\n", "");
 				return ret;
 			} catch (IOException e) {
 				throw Throwables.propagate(e);

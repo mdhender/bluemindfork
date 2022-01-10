@@ -27,7 +27,7 @@ public class CyrusGUID {
 	private static final Random r = new Random();
 
 	public static String randomGuid() {
-		String left = UUID.randomUUID().toString().replaceAll("-", "");
+		String left = UUID.randomUUID().toString().replace("-", "");
 		String right = Strings.padStart(Integer.toHexString(r.nextInt()), 8, '0');
 		return left + right;
 	}

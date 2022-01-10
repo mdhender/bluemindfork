@@ -119,7 +119,7 @@ public abstract class WebDavFileHostingService implements IFileHostingService {
 		return webdav(() -> {
 			logger.info("Listing {}", uri.toString());
 			return webdavContext.sardine.list(uri.toString()).stream().filter(dav -> {
-				return !uriDecoded.replaceAll("/", "").equals(URLDecoder.decode(dav.getPath()).replaceAll("/", ""));
+				return !uriDecoded.replace("/", "").equals(URLDecoder.decode(dav.getPath()).replace("/", ""));
 			}).map(dav -> {
 				String itemPath = path + dav.getName();
 				List<Metadata> metadata = new ArrayList<>();

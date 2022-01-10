@@ -265,7 +265,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 
 	private static String stripEmptyLines(String ics) {
 		StringBuilder sb = new StringBuilder();
-		for (String line : ics.replaceAll("\r\n", "\n").split("\n")) {
+		for (String line : ics.replace("\r\n", "\n").split("\n")) {
 			if (!line.trim().isEmpty()) {
 				sb.append(line + "\r\n");
 			}
