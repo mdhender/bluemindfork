@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.apache.james.mime4j.codec.QuotedPrintableInputStream;
 import org.apache.james.mime4j.dom.Body;
@@ -253,13 +254,14 @@ public class AddSignatureActionTests {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		Body body = mm.getMessage().getBody();
 		Mime4JHelper.serializeBody(body, baos);
-		String myCid = "<" + DisclaimerVariables.generateDisclaimerId("test@bm.loc") + "-0.png@bm-disclaimer>";
+		Pattern myCid = Pattern
+				.compile("<" + DisclaimerVariables.generateDisclaimerId("test@bm.loc") + "-[0-9]+.png@bm-disclaimer>");
 		boolean first = false;
 		try {
 			Multipart related = (Multipart) mm.getMessage().getBody();
 			for (Entity part : related.getBodyParts()) {
 				Field cid = part.getHeader().getField("Content-ID");
-				if (cid != null && cid.getBody().equals(myCid)) {
+				if (cid != null && myCid.matcher(cid.getBody()).matches()) {
 					assertFalse("Previous disclaimer image part should have been removed", first);
 					first = true;
 				}
