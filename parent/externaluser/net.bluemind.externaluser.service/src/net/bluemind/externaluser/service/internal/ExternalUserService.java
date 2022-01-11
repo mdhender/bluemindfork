@@ -47,6 +47,7 @@ import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
 import net.bluemind.group.persistence.GroupStore;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.persistence.MailboxStore;
 import net.bluemind.role.api.BasicRoles;
 
 public class ExternalUserService implements IInCoreExternalUser {
@@ -66,7 +67,7 @@ public class ExternalUserService implements IInCoreExternalUser {
 	public ExternalUserService(BmContext context, ItemValue<Domain> domain, Container externalUserContainer) {
 		storeService = new ExternalUserContainerStoreService(context, domain, externalUserContainer);
 		rbacManager = new RBACManager(context).forDomain(domain.uid);
-		validator = new ExternalUserValidator();
+		validator = new ExternalUserValidator(new MailboxStore(context.getDataSource(), externalUserContainer));
 		sanitizer = new Sanitizer(context);
 		domainUid = domain.uid;
 		bmContext = context;
@@ -97,7 +98,7 @@ public class ExternalUserService implements IInCoreExternalUser {
 
 		sanitizer.create(externalUser);
 		sanitizer.create(new DirDomainValue<>(domainUid, uid, externalUser));
-		validator.validate(externalUser, uid, domainUid, bmContext);
+		validator.validate(externalUser, null, domainUid, bmContext);
 
 		storeService.create(externalUserItem);
 		eventProducer.changed(uid, storeService.getVersion());
@@ -124,7 +125,7 @@ public class ExternalUserService implements IInCoreExternalUser {
 		sanitizer.update(previous.value, externalUser);
 		sanitizer.update(new DirDomainValue<>(domainUid, uid, previous.value),
 				new DirDomainValue<>(domainUid, uid, externalUser));
-		validator.validate(externalUser, uid, domainUid, bmContext);
+		validator.validate(externalUser, previous.internalId, domainUid, bmContext);
 
 		storeService.update(externalUserItem);
 		eventProducer.changed(uid, storeService.getVersion());

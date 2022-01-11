@@ -43,6 +43,7 @@ import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.mailbox.service.internal.MailboxValidator;
+import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 
@@ -104,6 +105,42 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		mailshare.routing = Mailbox.Routing.internal;
 		mailshare.dataLocation = imapServer.address();
 		validator.validate(mailshare, uid);
+	}
+
+	@Test
+	public void emailAlreadyUsedByExternalUser() throws ServerFault, SQLException {
+
+		PopulateHelper.addExternalUser(domainUid, "ext@ext.com", "ext");
+
+		Email email = Email.create("mailshare1@bm.lan", true);
+
+		Mailbox mailshare = new Mailbox();
+		mailshare.type = Type.mailshare;
+		mailshare.routing = Mailbox.Routing.internal;
+		mailshare.dataLocation = imapServer.address();
+		mailshare.name = "mailshare1";
+		mailshare.emails = new ArrayList<Email>();
+		mailshare.emails.add(email);
+
+		itemStore.create(Item.create("mailshare1@bm.lan", null));
+		Item item = itemStore.get("mailshare1@bm.lan");
+		mailboxStore.create(item, mailshare);
+
+		mailshare.emails.add(Email.create("ext@ext.com", false));
+
+		ErrorCode err = null;
+		String errMsg = null;
+		try {
+			validator.validate(mailshare, item.uid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault e) {
+			err = e.getCode();
+			errMsg = e.getMessage();
+		}
+
+		assertTrue(ErrorCode.ALREADY_EXISTS == err);
+		assertEquals("Following emails of mailbox mailshare1@bm.lan:mailshare1 are already in use: ext@ext.com",
+				errMsg);
 	}
 
 	@Test

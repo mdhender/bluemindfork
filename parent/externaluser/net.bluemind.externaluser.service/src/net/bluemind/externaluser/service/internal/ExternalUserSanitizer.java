@@ -37,7 +37,8 @@ public class ExternalUserSanitizer implements ISanitizer<ExternalUser> {
 		}
 
 		if (extUser.contactInfos.defaultMail() == null && extUser.defaultEmail() != null) {
-			extUser.contactInfos.communications.emails = Arrays.asList(VCard.Communications.Email.create(extUser.defaultEmailAddress()));
+			extUser.contactInfos.communications.emails = Arrays
+					.asList(VCard.Communications.Email.create(extUser.defaultEmailAddress()));
 		} else if (extUser.contactInfos.defaultMail() != null) {
 			extUser.emails = Arrays.asList(Email.create(extUser.contactInfos.defaultMail(), true));
 		}

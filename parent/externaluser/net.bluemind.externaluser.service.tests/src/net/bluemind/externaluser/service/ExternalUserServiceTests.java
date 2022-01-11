@@ -270,7 +270,7 @@ public class ExternalUserServiceTests {
 			getExternalUserService().create(extUserItemUid, externalUser);
 			fail("can't create an external user whose right part is a domain alias already used by an user.");
 		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.EMAIL_ALREADY_USED, sf.getCode());
+			assertEquals(ErrorCode.ALREADY_EXISTS, sf.getCode());
 		}
 	}
 
@@ -287,7 +287,7 @@ public class ExternalUserServiceTests {
 			getExternalUserService().create(itemUid2, eu2);
 			fail("can't create an external user with same email than an existing external user.");
 		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.EMAIL_ALREADY_USED, sf.getCode());
+			assertEquals(ErrorCode.ALREADY_EXISTS, sf.getCode());
 		}
 	}
 

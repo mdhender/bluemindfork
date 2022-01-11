@@ -17,6 +17,8 @@
   */
 package net.bluemind.externaluser.service.internal;
 
+import java.sql.SQLException;
+
 import com.google.common.base.Strings;
 
 import net.bluemind.core.api.ParametersValidator;
@@ -25,20 +27,25 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.email.EmailHelper;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.directory.api.DirEntry;
-import net.bluemind.directory.api.IDirectory;
 import net.bluemind.externaluser.api.ExternalUser;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.persistence.MailboxStore;
 
 public class ExternalUserValidator {
 
-	public void validate(ExternalUser eu, String externalUserUid, String domainUid, BmContext bmContext)
+	private final MailboxStore mailboxStore;
+
+	public ExternalUserValidator(MailboxStore mailboxStore) {
+		this.mailboxStore = mailboxStore;
+	}
+
+	public void validate(ExternalUser eu, Long externalUserId, String domainUid, BmContext bmContext)
 			throws ServerFault {
 		ParametersValidator.notNull(eu);
 		ParametersValidator.notNullAndNotEmpty(eu.defaultEmailAddress());
 		ParametersValidator.notNullAndNotEmpty(eu.contactInfos.defaultMail());
-		if ((eu.contactInfos.communications.emails.size() < 1) || (eu.emails.size() != 1)) {
+		if ((eu.contactInfos.communications.emails.isEmpty()) || (eu.emails.size() != 1)) {
 			throw new ServerFault("Invalid parameter, an external user should have at least one email.",
 					ErrorCode.INVALID_PARAMETER);
 		}
@@ -51,12 +58,14 @@ public class ExternalUserValidator {
 			throw new ServerFault("An external user should have a last name.", ErrorCode.EMPTY_LASTNAME);
 		}
 
-		DirEntry dirEntry = bmContext.provider().instance(IDirectory.class, domainUid)
-				.getByEmail(eu.defaultEmailAddress());
-		if (dirEntry != null && !dirEntry.entryUid.equals(externalUserUid)) {
-			throw new ServerFault(
-					"Can't create external user: An entry with the same email address already exists in this domain",
-					ErrorCode.EMAIL_ALREADY_USED);
+		try {
+			if (mailboxStore.emailAlreadyUsed(externalUserId, eu.emails)) {
+				throw new ServerFault(
+						"Email of external user is already in use: " + eu.emails.iterator().next().address,
+						ErrorCode.ALREADY_EXISTS);
+			}
+		} catch (SQLException sqle) {
+			throw ServerFault.sqlFault(sqle);
 		}
 
 		ItemValue<Mailbox> mbox = bmContext.provider().instance(IMailboxes.class, domainUid)

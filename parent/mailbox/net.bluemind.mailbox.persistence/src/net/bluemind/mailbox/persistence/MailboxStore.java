@@ -265,17 +265,25 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 
 		String[] all = emails.stream().map(e -> e.address).toArray(String[]::new);
 
-		Object[] parameters = null;
+		List<Object> parameters = new ArrayList<>();
 
 		if (itemId != null) {
 			query += " AND item_id != ?";
-			parameters = new Object[] { left, all, leftAll, container.id, itemId };
+			parameters.addAll(Arrays.asList(left, all, leftAll, container.id, itemId));
 		} else {
-			parameters = new Object[] { left, all, leftAll, container.id };
+			parameters.addAll(Arrays.asList(left, all, leftAll, container.id));
 		}
+
+		query += " UNION ALL SELECT 1 from t_directory_entry where email = ANY (?::text[])";
+		parameters.add(all);
+		if (itemId != null) {
+			query += " AND item_id != ?";
+			parameters.add(itemId);
+		}
+
 		query = "SELECT EXISTS (" + query + ")";
 
-		return unique(query, BooleanCreator.FIRST, Collections.emptyList(), parameters);
+		return unique(query, BooleanCreator.FIRST, Collections.emptyList(), parameters.toArray());
 
 	}
 
