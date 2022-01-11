@@ -235,7 +235,18 @@ export default function (i18n) {
                         fields: [
                             {
                                 id: "field",
-                                component: { name: "PrefManageIdentities", setting: "always_show_from", options: {} }
+                                component: {
+                                    name: "PrefFieldSwitch",
+                                    options: {
+                                        setting: "always_show_from",
+                                        autosave: true,
+                                        label: i18n.t("preferences.mail.identities.always_show_from")
+                                    }
+                                }
+                            },
+                            {
+                                id: "manage",
+                                component: { name: "PrefManageIdentities" }
                             }
                         ]
                     }

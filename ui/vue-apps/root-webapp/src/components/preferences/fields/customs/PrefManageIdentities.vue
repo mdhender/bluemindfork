@@ -1,9 +1,5 @@
 <template>
     <div class="pref-manage-identities">
-        <!-- FIXME: uncomment this when doing https://forge.bluemind.net/jira/browse/FEATWEBML-101
-        <bm-form-checkbox v-model="localUserSettings[setting]" class="mb-4" value="true" unchecked-value="false">
-            {{ $t("preferences.mail.identities.always_show_from") }}
-        </bm-form-checkbox> -->
         <bm-table
             :items="identities"
             :fields="fields"
