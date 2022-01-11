@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,18 +113,16 @@ public class InstallFromBackupTask implements IServerTask {
 		List<ILiveStream> domainStreams = streams.domains();
 		ISdsSyncStore sdsStore = sdsAccess.forSysconf(orphans.sysconf);
 		cloneDomains(monitor.subWork(1), domainStreams, cloneState, orphans, sdsStore);
-
 	}
 
 	public static class ClonedOrphans {
 
-		public Map<String, PromotingServer> topology;
-		public Map<String, ItemValue<Domain>> domains;
-		public SystemConf sysconf;
-		public String admin0Token;
+		public final Map<String, PromotingServer> topology;
+		public final Map<String, ItemValue<Domain>> domains;
+		public final SystemConf sysconf;
 
 		public ClonedOrphans(Map<String, PromotingServer> topology, Map<String, ItemValue<Domain>> domains,
-				SystemConf sysconf, String admin0Token) {
+				SystemConf sysconf) {
 			this.topology = topology;
 			this.domains = domains;
 			this.sysconf = sysconf;
@@ -138,10 +135,8 @@ public class InstallFromBackupTask implements IServerTask {
 		Map<String, List<DataElement>> orphansByType = new HashMap<>();
 		IResumeToken prevState = cloneState.forTopic(orphansStream);
 		System.err.println("prevState for " + orphansStream + " -> " + prevState);
-		AtomicReference<String> coreToke = new AtomicReference<>();
-		IResumeToken orphansStreamIndex = orphansStream.subscribe(prevState, de -> {
-			orphansByType.computeIfAbsent(de.key.type, key -> new ArrayList<>()).add(de);
-		});
+		IResumeToken orphansStreamIndex = orphansStream.subscribe(prevState,
+				de -> orphansByType.computeIfAbsent(de.key.type, key -> new ArrayList<>()).add(de));
 
 		String coreTok = new RestoreToken().restore(monitor,
 				orphansByType.getOrDefault("installation", new ArrayList<>()));
@@ -158,7 +153,7 @@ public class InstallFromBackupTask implements IServerTask {
 		recordProcessed(monitor, cloneState, orphansStream, orphansStreamIndex);
 		orphansByType.clear();
 		monitor.end(true, "Orphans cloned", null);
-		return new ClonedOrphans(topology, domains, sysconf, coreTok);
+		return new ClonedOrphans(topology, domains, sysconf);
 	}
 
 	public void cloneDomains(IServerTaskMonitor monitor, List<ILiveStream> domainStreams, CloneState cloneState,
@@ -202,7 +197,6 @@ public class InstallFromBackupTask implements IServerTask {
 		CompletableFuture<Void> globalProm = CompletableFuture.allOf(toWait);
 		monitor.log("Waiting for domains cloning global promise...");
 		globalProm.join();
-
 	}
 
 	private void recordProcessed(IServerTaskMonitor monitor, CloneState cloneState, ILiveStream stream,
@@ -211,5 +205,4 @@ public class InstallFromBackupTask implements IServerTask {
 		processedStreams.put(stream.domainUid(), index);
 		cloneState.record(stream.fullName(), index).save();
 	}
-
 }

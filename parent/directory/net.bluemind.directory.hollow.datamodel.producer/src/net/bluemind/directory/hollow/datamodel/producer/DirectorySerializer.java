@@ -174,9 +174,7 @@ public class DirectorySerializer implements DataSerializer {
 
 		long version = Optional.ofNullable(DomainVersions.get().getIfPresent(domainUid)).orElse(0L);
 		if (StateContext.getState() == SystemState.CORE_STATE_CLONING) {
-			// we might restore DirEntry 3v42 first and then skip entries when we create
-			// 2v12 from another kafka partition
-			version = 0;
+			return 0l;
 		}
 
 		ContainerChangeset<String> changeset = dirApi.changeset(version);

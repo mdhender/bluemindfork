@@ -29,6 +29,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -64,12 +65,16 @@ import net.bluemind.core.jdbc.DbSchemaService;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
+import net.bluemind.core.task.service.TaskUtils;
+import net.bluemind.directory.api.IDirEntryMaintenance;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.service.DomainsContainerIdentifier;
@@ -204,9 +209,27 @@ public class InstallationService implements IInstallation {
 			public void run(IServerTaskMonitor monitor) throws Exception {
 				tsk.run(monitor);
 				StateContext.setState("core.cloning.end");
+				repairHollow(context.provider());
 			}
 		};
+
 		return context.provider().instance(ITasksManager.class).run(wrapped);
+	}
+
+	private void repairHollow(IServiceProvider provider) {
+		IDomains domains = context.provider().instance(IDomains.class);
+		domains.all().stream() //
+				.filter(domain -> !domain.uid.equals("global.virt")) //
+				.forEach(domain -> repairHollow(context.provider(), domain.uid));
+	}
+
+	private void repairHollow(IServiceProvider provider, String domainUid) {
+		IDirEntryMaintenance demService = provider.instance(IDirEntryMaintenance.class, domainUid, domainUid);
+		Set<String> filteredOps = Collections.singleton("hollow.directory");
+		logger.info("Starting hollow repair task for {}", domainUid);
+		TaskRef ref = demService.repair(filteredOps);
+		TaskStatus status = TaskUtils.wait(provider, ref, log -> logger.info(" - {}", log));
+		logger.info("Ending hollow repair task for {}, state:{}", domainUid, status.state);
 	}
 
 	@Override
