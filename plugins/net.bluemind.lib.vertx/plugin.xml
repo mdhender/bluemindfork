@@ -2,5 +2,11 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="net.bluemind.lib.vertx.verticles" name="verticles" schema="schema/net.bluemind.lib.vertx.verticles.exsd"/>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.lib.vertx.metrics.NettyHealth$Factory">
+      </verticle>
+   </extension>
 
 </plugin>

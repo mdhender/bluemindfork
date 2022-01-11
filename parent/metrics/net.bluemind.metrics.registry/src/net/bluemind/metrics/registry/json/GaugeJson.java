@@ -4,14 +4,14 @@ import com.netflix.spectator.api.Id;
 
 public class GaugeJson extends RegJson {
 
-	private final Double value;
+	private final double value;
 
-	public GaugeJson(Id id, Double value) {
+	public GaugeJson(Id id, double v) {
 		super("Gauge", id);
-		this.value = value;
+		this.value = Double.isNaN(v) ? 0 : v;
 	}
 
 	public double getValue() {
-		return this.value;
+		return value;
 	}
 }

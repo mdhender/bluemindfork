@@ -44,7 +44,7 @@ public class BMMaxGauge implements Gauge {
 	@Override
 	public void set(double v) {
 		value.max(v);
-		GaugeJson gaugeJson = new GaugeJson(id, this.value.get());
+		GaugeJson gaugeJson = new GaugeJson(id, value());
 		this.webSockClient.queue(gaugeJson);
 	}
 

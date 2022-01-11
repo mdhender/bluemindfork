@@ -49,7 +49,7 @@ public class BMGauge implements Gauge {
 	public void set(double v) {
 		value.set(v);
 		if (limiter.tryAcquire()) {
-			GaugeJson gaugeJson = new GaugeJson(id, value());
+			GaugeJson gaugeJson = new GaugeJson(id, v);
 			webSockClient.queue(gaugeJson);
 		}
 	}
