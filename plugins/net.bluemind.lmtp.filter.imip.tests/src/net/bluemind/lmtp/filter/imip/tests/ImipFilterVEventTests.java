@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -113,6 +114,8 @@ import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -243,6 +246,7 @@ public class ImipFilterVEventTests {
 
 	@Test
 	public void requestHandler_Event_CID_Attachments() throws Exception {
+		setGlobalExternalUrl();
 		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
 
 		IMIPInfos imip = null;
@@ -270,6 +274,15 @@ public class ImipFilterVEventTests {
 		byte[] image = download(attachedFile.publicUrl);
 		assertEquals(7522, image.length);
 		assertEquals("Screenshot 2021-12-16 at 10.30.00.png", attachedFile.name);
+	}
+
+	private Map<String, String> setGlobalExternalUrl() {
+		ISystemConfiguration systemConfiguration = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class);
+		Map<String, String> sysValues = systemConfiguration.getValues().values;
+		sysValues.put(SysConfKeys.external_url.name(), "localhost");
+		systemConfiguration.updateMutableValues(sysValues);
+		return sysValues;
 	}
 
 	@Test
