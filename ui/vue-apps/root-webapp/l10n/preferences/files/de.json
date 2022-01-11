@@ -210,6 +210,9 @@
     "preferences.mail.identities.external_address": "{email} (externe Adresse)",
     "preferences.mail.identities.possible_identities_error": "Beim Laden möglicher E-Mail Identitäten ist ein Fehler aufgetreten.",
     "preferences.mail.identities.identity_error": "Beim Laden der E-Mail Identität ist ein Fehler aufgetreten.",
+    "preferences.mail.identities.auto_select.label": "Automatically select field \"From\" (sender).",
+    "preferences.mail.identities.auto_select.only_for_replies": "Only for replies",
+    "preferences.mail.identities.auto_select.replies_and_new": "For replies and new messages",
 
     "preferences.calendar.main.week_starts_on": "Woche startet am",
     "preferences.calendar.main.default_view": "Standardansicht",

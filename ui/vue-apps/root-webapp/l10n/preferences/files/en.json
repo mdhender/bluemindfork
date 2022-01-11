@@ -210,6 +210,9 @@
     "preferences.mail.identities.external_address": "{email} (external address)",
     "preferences.mail.identities.possible_identities_error": "An error occured when retrieving possible identities.",
     "preferences.mail.identities.identity_error": "An error occured when retrieving identity.",
+    "preferences.mail.identities.auto_select.label": "Automatically select field \"From\" (sender).",
+    "preferences.mail.identities.auto_select.only_for_replies": "Only for replies",
+    "preferences.mail.identities.auto_select.replies_and_new": "For replies and new messages",
 
     "preferences.calendar.main.week_starts_on": "Week starts on",
     "preferences.calendar.main.default_view": "Default view",

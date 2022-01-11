@@ -187,5 +187,6 @@
     "common.other_todo_lists": "Other to-do lists",
     "common.close": "Close",
     "common.got_it": "I got it",
-    "common.search.try_otherwise": "Please retry using a more generic search term."
+    "common.search.try_otherwise": "Please retry using a more generic search term.",
+    "common.never": "Never"
 }

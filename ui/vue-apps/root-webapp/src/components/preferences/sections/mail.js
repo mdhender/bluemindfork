@@ -234,6 +234,29 @@ export default function (i18n) {
                         },
                         fields: [
                             {
+                                id: "automatic",
+                                component: {
+                                    name: "PrefFieldSelect",
+                                    options: {
+                                        setting: "auto_select_from",
+                                        label: i18n.t("preferences.mail.identities.auto_select.label"),
+                                        choices: [
+                                            { text: i18n.t("common.never"), value: "never" },
+                                            {
+                                                text: i18n.t(
+                                                    "preferences.mail.identities.auto_select.only_for_replies"
+                                                ),
+                                                value: "only_replies"
+                                            },
+                                            {
+                                                text: i18n.t("preferences.mail.identities.auto_select.replies_and_new"),
+                                                value: "replies_and_new_messages"
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            {
                                 id: "field",
                                 component: {
                                     name: "PrefFieldSwitch",

@@ -187,5 +187,6 @@
     "common.other_todo_lists": "Autres listes de tâches",
     "common.close": "Fermer",
     "common.got_it": "J'ai compris",
-    "common.search.try_otherwise": "Essayez un terme plus générique."
+    "common.search.try_otherwise": "Essayez un terme plus générique.",
+    "common.never": "Jamais"
 }

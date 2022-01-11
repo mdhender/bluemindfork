@@ -187,5 +187,6 @@
     "common.other_todo_lists": "Weitere Todolisten",
     "common.close": "Schliessen",
     "common.got_it": "I got it",
-    "common.search.try_otherwise": "Bitte versuchen Sie einen allgemeineren Suchbegriff."
+    "common.search.try_otherwise": "Bitte versuchen Sie einen allgemeineren Suchbegriff.",
+    "common.never": "Niemals"
 }

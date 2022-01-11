@@ -210,6 +210,9 @@
     "preferences.mail.identities.external_address": "{email} (adresse externe)",
     "preferences.mail.identities.possible_identities_error": "Une erreur s'est produite lors de la récupération des identités possibles.",
     "preferences.mail.identities.identity_error": "Une erreur s'est produite lors de la récupération de l'identité.",
+    "preferences.mail.identities.auto_select.label": "Sélectionner automatiquement le champ \"De\" (expéditeur).",
+    "preferences.mail.identities.auto_select.only_for_replies": "Uniquement pour les réponses",
+    "preferences.mail.identities.auto_select.replies_and_new": "Pour les réponses et les nouveaux messages",
 
     "preferences.calendar.main.week_starts_on": "La semaine commence le",
     "preferences.calendar.main.default_view": "Vue par défaut",
