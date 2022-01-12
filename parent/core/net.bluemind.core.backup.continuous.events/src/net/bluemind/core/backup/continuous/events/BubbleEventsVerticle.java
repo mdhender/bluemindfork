@@ -46,6 +46,7 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
@@ -59,7 +60,7 @@ public class BubbleEventsVerticle extends AbstractVerticle {
 
 	public static final String BUBBLE_ADDR = "bubble.owner";
 
-	public static class Factory implements IVerticleFactory {
+	public static class Factory implements IVerticleFactory, IUniqueVerticleFactory {
 
 		@Override
 		public boolean isWorker() {
@@ -92,8 +93,8 @@ public class BubbleEventsVerticle extends AbstractVerticle {
 
 	}
 
-	Map<String, RateLimiter> ownerRateLimit = new ConcurrentHashMap<>();
-	Map<String, RateLimiter> domainRateLimit = new ConcurrentHashMap<>();
+	public static final Map<String, RateLimiter> ownerRateLimit = new ConcurrentHashMap<>();
+	public static final Map<String, RateLimiter> domainRateLimit = new ConcurrentHashMap<>();
 
 	@Override
 	public void start(Promise<Void> startPromise) throws Exception {

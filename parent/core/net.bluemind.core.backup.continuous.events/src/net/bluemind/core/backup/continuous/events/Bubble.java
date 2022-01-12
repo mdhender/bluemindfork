@@ -29,7 +29,7 @@ public class Bubble {
 	}
 
 	public static void owner(String domain, String owner) {
-		VertxPlatform.eventBus().publish(BubbleEventsVerticle.BUBBLE_ADDR,
+		VertxPlatform.eventBus().send(BubbleEventsVerticle.BUBBLE_ADDR,
 				new JsonObject().put("domain", domain).put("owner", owner));
 	}
 
