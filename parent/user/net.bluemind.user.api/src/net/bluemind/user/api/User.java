@@ -88,6 +88,12 @@ public final class User extends DirBaseValue {
 	public Integer quota;
 
 	/**
+	 * Order the "clients" (webapp, calendar, contacts) to clear their local data if
+	 * their data was initialized with a different mailboxCopyGuid.
+	 */
+	public String mailboxCopyGuid;
+
+	/**
 	 * Custom properties
 	 */
 	public Map<String, String> properties = new HashMap<>();

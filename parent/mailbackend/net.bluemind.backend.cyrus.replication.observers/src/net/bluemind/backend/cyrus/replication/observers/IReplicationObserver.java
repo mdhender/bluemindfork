@@ -21,6 +21,6 @@ public interface IReplicationObserver {
 
 	void onApplyMessages(int total);
 
-	void onApplyMailbox(String mboxUniqueId);
+	void onApplyMailbox(String mboxUniqueId, long lastUid);
 
 }

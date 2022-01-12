@@ -34,7 +34,7 @@ public class ApplyCounter implements IReplicationObserverProvider {
 		}
 
 		@Override
-		public void onApplyMailbox(String mboxUniqueId) {
+		public void onApplyMailbox(String mboxUniqueId, long lastUid) {
 		}
 	};
 

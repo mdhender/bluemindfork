@@ -51,7 +51,7 @@ public class CommandObserver implements IReplicationObserver {
 	}
 
 	@Override
-	public void onApplyMailbox(String mboxUniqueId) {
+	public void onApplyMailbox(String mboxUniqueId, long lastUid) {
 		logger.debug("On APPLY MAILBOX {}", mboxUniqueId);
 		vertx.eventBus().publish("replication.apply.mailbox." + mboxUniqueId, new JsonObject());
 	}

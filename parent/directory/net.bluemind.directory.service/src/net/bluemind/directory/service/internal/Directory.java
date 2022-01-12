@@ -58,6 +58,8 @@ import net.bluemind.directory.external.IExternalDirectory;
 import net.bluemind.directory.persistence.ManageableOrgUnit;
 import net.bluemind.directory.service.DirEntryHandler;
 import net.bluemind.directory.service.DirEntryHandlers;
+import net.bluemind.directory.service.IInCoreDirectory;
+import net.bluemind.directory.xfer.DirectoryXfer;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.role.persistence.RoleStore;
@@ -283,7 +285,8 @@ public class Directory {
 		return context.provider().instance(ITasksManager.class).run("xfer-" + entryUid + "@" + domainUid, monitor -> {
 			try {
 				try (DirectoryXfer directoryXfer = new DirectoryXfer(context, domain, itemStore, entryUid, serverUid)) {
-					directoryXfer.doXfer(entryUid, monitor);
+					directoryXfer.doXfer(entryUid, monitor, (ItemValue<DirEntry> ivDirEntry) -> context.provider()
+							.instance(IInCoreDirectory.class, domainUid).update(ivDirEntry.uid, ivDirEntry.value));
 				}
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);

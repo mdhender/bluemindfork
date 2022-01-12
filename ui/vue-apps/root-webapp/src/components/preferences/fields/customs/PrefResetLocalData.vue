@@ -17,9 +17,7 @@
 </template>
 
 <script>
-import { inject } from "@bluemind/inject";
 import { BmButton, BmLabelIcon, BmSpinner } from "@bluemind/styleguide";
-
 import BaseField from "../../mixins/BaseField";
 
 export default {
@@ -33,50 +31,37 @@ export default {
     data() {
         return { status: "IDLE" };
     },
+    mounted() {
+        navigator.serviceWorker?.addEventListener("message", this.handleResetStatus);
+    },
+    destroyed() {
+        navigator.serviceWorker?.removeEventListener("message", this.handleResetStatus);
+    },
     methods: {
-        async resetLocalData() {
-            this.status = "LOADING";
-
-            // LocalStorage
-            localStorage.clear();
-
-            // Cache API
-            const baseUrl = location.protocol + "//" + location.hostname + "/webapp/";
-            const cacheNames = ["css-cache", "part-cache", "bm-assets", "workbox-runtime-" + baseUrl];
-            await Promise.all(cacheNames.map(name => caches.delete(name))).catch(() => {
-                this.status = "ERROR";
-            });
-
-            // IndexedDB
-            const { userId, domain } = inject("UserSession");
-            const newWebmailDbName = `user.${userId}@${domain.replace(".", "_")}:webapp/mail`;
-            const dbNames = [
-                "capabilities",
-                "context",
-                "tag",
-                "folder",
-                "contact",
-                "calendarview",
-                "calendar",
-                "todolist",
-                "auth",
-                "deferredaction",
-                newWebmailDbName
-            ];
-            let successfullDeletions = 0;
-            dbNames.forEach(name => {
-                const deleteDBRequest = indexedDB.deleteDatabase(name);
-                deleteDBRequest.onerror = () => {
-                    this.status = "ERROR";
-                };
-                deleteDBRequest.onsuccess = () => {
-                    successfullDeletions++;
-                    if (successfullDeletions === dbNames.length && this.status !== "ERROR") {
+        handleResetStatus({ data: { type, status } }) {
+            if (type === "RESET") {
+                switch (status) {
+                    case "START":
+                        this.status = "LOADING";
+                        break;
+                    case "ERROR":
+                        this.status = "ERROR";
+                        break;
+                    case "SUCCESS":
                         this.status = "SUCCESS";
                         this.NEED_RELOAD();
-                    }
-                };
-            });
+                        break;
+                    default:
+                        this.status = "IDLE";
+                }
+            }
+        },
+        resetLocalData() {
+            localStorage.clear();
+            const serviceWorker = navigator.serviceWorker?.controller;
+            if (serviceWorker) {
+                serviceWorker.postMessage({ type: "RESET" });
+            }
         }
     }
 };

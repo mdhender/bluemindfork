@@ -249,6 +249,7 @@
     <bundle id="net.bluemind.directory.persistence" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.directory.service" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.directory.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.directory.xfer" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.dockerclient" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.document.api" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.document.api.php" version="4.1.0.qualifier" />

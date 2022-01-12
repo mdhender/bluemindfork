@@ -46,6 +46,7 @@ public class SessionData implements Serializable {
 	public Set<String> roles;
 	protected String userUid;
 	public final long createStamp;
+	public final String mailboxCopyGuid;
 
 	public final String accountType;
 	public final String login;
@@ -70,7 +71,8 @@ public class SessionData implements Serializable {
 			String givenNames, //
 			String familyNames, //
 			String formatedName, //
-			String dataLocation //
+			String dataLocation, //
+			String mailboxCopyGuid //
 	) {
 		this.authKey = authKey;
 		this.passwordStatus = passwordStatus;
@@ -92,6 +94,7 @@ public class SessionData implements Serializable {
 		this.familyNames = familyNames;
 		this.formatedName = formatedName;
 		this.dataLocation = dataLocation;
+		this.mailboxCopyGuid = mailboxCopyGuid;
 	}
 
 	public SessionData(User user) {
@@ -108,6 +111,7 @@ public class SessionData implements Serializable {
 		this.formatedName = user.contactInfos != null ? user.contactInfos.identification.formatedName.value : null;
 
 		this.dataLocation = user.dataLocation;
+		this.mailboxCopyGuid = user.mailboxCopyGuid;
 	}
 
 	public String getUserUid() {
@@ -136,6 +140,10 @@ public class SessionData implements Serializable {
 
 	public void setLastPing(long lastPing) {
 		this.lastPing = lastPing;
+	}
+
+	public String getMailboxCopyGuid() {
+		return mailboxCopyGuid;
 	}
 
 	public void setRole(Set<String> roles) {
@@ -175,7 +183,7 @@ public class SessionData implements Serializable {
 		jsonObject.put("familyNames", sd.familyNames);
 		jsonObject.put("formatedName", sd.formatedName);
 		jsonObject.put("dataLocation", sd.dataLocation);
-
+		jsonObject.put("mailboxCopyGuid", sd.getMailboxCopyGuid());
 		return jsonObject;
 	}
 
@@ -204,9 +212,11 @@ public class SessionData implements Serializable {
 		String formatedName = jsonObject.getString("formatedName");
 		String dataLocation = jsonObject.getString("dataLocation");
 
+		String mailboxCopyGuid = jsonObject.getString("mailboxCopyGuid");
+
 		SessionData sessionData = new SessionData(authKey, passwordStatus, settings, privateComputer, loginAtDomain,
 				domainUid, rolesAsString, userUid, createStamp, accountType, login, defaultEmail, givenNames,
-				familyNames, formatedName, dataLocation);
+				familyNames, formatedName, dataLocation, mailboxCopyGuid);
 		sessionData.setRole(rolesAsString);
 		return sessionData;
 	}

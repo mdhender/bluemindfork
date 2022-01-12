@@ -255,6 +255,10 @@ public class C2Provider implements IAuthProvider {
 			proxyReq.addHeader("BMUserDefaultEmail", sd.defaultEmail);
 		}
 
+		// Used to order the client to reset it's local data if guid specified
+		// in sessionsInfos is different from the one in the local application data
+		proxyReq.addHeader("BMMailboxCopyGuid", sd.getMailboxCopyGuid());
+
 		proxyReq.addHeader("BMUserDomainId", sd.domainUid);
 
 		addIfPresent(proxyReq, sd.givenNames, "BMUserFirstName");

@@ -678,7 +678,9 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		String folderUid = IMailReplicaUids.uniqueId(container.uid);
 		ItemValue<Mailbox> box = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IMailboxes.class, container.domainUid).getComplete(container.owner);
-		indexService.deleteBox(box, folderUid);
+		if (box != null) {
+			indexService.deleteBox(box, folderUid);
+		}
 		storeService.prepareContainerDelete();
 	}
 

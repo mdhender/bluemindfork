@@ -274,9 +274,11 @@ public class UserServiceTests {
 
 	@Test
 	public void testCreateWithItem() throws ServerFault, SQLException, ParseException {
+		String mailboxCopyGuid = UUID.randomUUID().toString();
 		String login = "test." + System.nanoTime();
 		String uid = login;
 		User user = defaultUser(login);
+		user.mailboxCopyGuid = mailboxCopyGuid;
 		Item item = new Item();
 		item.id = 73;
 		item.uid = login;
@@ -296,6 +298,7 @@ public class UserServiceTests {
 
 		ItemValue<User> full = userStoreService.get(uid);
 		assertUserEquals(user, full.value);
+		assertEquals(mailboxCopyGuid, user.mailboxCopyGuid);
 		assertItemEquals(userItem.item(), full.item());
 		// after creation, user item is touched 2 times:
 		// - UserService.createWithItem: setMailboxFilter
@@ -521,6 +524,7 @@ public class UserServiceTests {
 		String uid = create(user);
 		assertNotNull(uid);
 		Date passwordUpdated = getPasswordLastChange(user);
+		String mailboxCopyGuid = UUID.randomUUID().toString();
 
 		// flush dir events..
 		try {
@@ -529,6 +533,7 @@ public class UserServiceTests {
 		}
 		user.login = "update" + System.currentTimeMillis();
 		user.emails = Arrays.asList(Email.create(user.login + "@" + domainUid, true));
+		user.mailboxCopyGuid = mailboxCopyGuid;
 
 		getService(domainAdminSecurityContext).update(uid, user);
 
@@ -537,6 +542,9 @@ public class UserServiceTests {
 		User updated = userStore.get(item);
 		assertNotNull(updated);
 		assertEquals(user.login, updated.login);
+
+		// Check mailboxCopyGuid update
+		assertEquals(mailboxCopyGuid, user.mailboxCopyGuid);
 
 		// Check password from store
 		assertNotNull(updated.password);

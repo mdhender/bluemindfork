@@ -15,5 +15,6 @@
     "sentryRelease": "${(sentryRelease)!}",
     "sentryEnvironment": "${(sentryEnvironment)!}",
     "sentryServername": "${(sentryServername)!}",
-    "sentryTags": "${(sentryTags)!}"
+    "sentryTags": "${(sentryTags)!}",
+    "mailboxCopyGuid": "${(BMMailboxCopyGuid)!}"
 }

@@ -213,6 +213,7 @@
       <plugin id="net.bluemind.directory.persistence"/>
       <plugin id="net.bluemind.directory.service"/>
       <plugin id="net.bluemind.directory.sqlschema"/>
+      <plugin id="net.bluemind.directory.xfer"/>
       <plugin id="net.bluemind.document.api"/>
       <plugin id="net.bluemind.document.persistence"/>
       <plugin id="net.bluemind.document.persistence.fs"/>

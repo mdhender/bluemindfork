@@ -9,23 +9,24 @@
 	<artifactId>net.bluemind.directory.plugins</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>net.bluemind.directory.api</module>
-		<module>net.bluemind.directory.sqlschema</module>
-		<module>net.bluemind.directory.persistence</module>
-		<module>net.bluemind.directory.persistence.tests</module>
-		<module>net.bluemind.directory.external</module>
-		<module>net.bluemind.directory.service</module>
-		<module>net.bluemind.dataprotect.ou</module>
+		<module>net.bluemind.cli.hollow</module>
 		<module>net.bluemind.dataprotect.ou.tests</module>
+		<module>net.bluemind.dataprotect.ou</module>
+		<module>net.bluemind.directory.api</module>
+		<module>net.bluemind.directory.external</module>
+		<module>net.bluemind.directory.hollow.datamodel.consumer.tests</module>
+		<module>net.bluemind.directory.hollow.datamodel.consumer</module>
+		<module>net.bluemind.directory.hollow.datamodel.producer.tests</module>
+		<module>net.bluemind.directory.hollow.datamodel.producer</module>
+		<module>net.bluemind.directory.hollow.datamodel.utils</module>
+		<module>net.bluemind.directory.hollow.datamodel</module>
+		<module>net.bluemind.directory.persistence.tests</module>
+		<module>net.bluemind.directory.persistence</module>
 		<module>net.bluemind.directory.service.tests</module>
 		<module>net.bluemind.directory.service.xfer.tests</module>
-		<module>net.bluemind.directory.hollow.datamodel</module>
-		<module>net.bluemind.directory.hollow.datamodel.consumer</module>
-		<module>net.bluemind.directory.hollow.datamodel.consumer.tests</module>
-		<module>net.bluemind.directory.hollow.datamodel.producer</module>
-		<module>net.bluemind.directory.hollow.datamodel.producer.tests</module>
-		<module>net.bluemind.directory.hollow.datamodel.utils</module>
-		<module>net.bluemind.cli.hollow</module>
+		<module>net.bluemind.directory.service</module>
+		<module>net.bluemind.directory.sqlschema</module>
+		<module>net.bluemind.directory.xfer</module>
 	</modules>
 
 </project>

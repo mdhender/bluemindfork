@@ -1,6 +1,7 @@
 import { MailAPI } from "./MailAPI";
 import { MailDB } from "./MailDB";
 import { SessionInfo } from "./entry";
+import { EnvironmentDB } from "./EnvironmentDB";
 
 let instance: Session | null = null;
 
@@ -8,11 +9,13 @@ export default class Session {
     infos: SessionInfo;
     _api: MailAPI | null;
     _db: MailDB | null;
+    _environment: EnvironmentDB | null;
 
     constructor(infos: SessionInfo) {
         this.infos = infos;
         this._api = null;
         this._db = null;
+        this._environment = null;
     }
 
     get api(): MailAPI {
@@ -29,6 +32,13 @@ export default class Session {
             this._db = new MailDB(dbName);
         }
         return this._db;
+    }
+
+    get environment(): EnvironmentDB {
+        if (!this._environment) {
+            this._environment = new EnvironmentDB();
+        }
+        return this._environment;
     }
 
     get userAtDomain(): string {
@@ -54,6 +64,10 @@ export default class Session {
 
     static async db(): Promise<MailDB> {
         return (await Session.instance()).db;
+    }
+
+    static async environment(): Promise<EnvironmentDB> {
+        return (await Session.instance()).environment;
     }
 
     static async userAtDomain() {

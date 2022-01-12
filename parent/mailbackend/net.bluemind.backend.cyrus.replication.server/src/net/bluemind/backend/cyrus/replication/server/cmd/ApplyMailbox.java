@@ -118,7 +118,7 @@ public class ApplyMailbox implements IAsyncReplicationCommand {
 			}
 			return state.updateRecords(folder.getUniqueId(), mboxState);
 		}).thenApply(v -> {
-			observers.stream().forEach(obs -> obs.onApplyMailbox(folder.getUniqueId()));
+			observers.stream().forEach(obs -> obs.onApplyMailbox(folder.getUniqueId(), folder.getLastUid()));
 			return CommandResult.success();
 		});
 	}

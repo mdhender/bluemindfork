@@ -104,7 +104,7 @@ public class ElasticsearchTestHelper implements BundleActivator {
 		logger.info("elasticsearch host : {}, mcastId : {}", host, mcastId);
 
 		settingsBuilder.put("node.name", "client-" + UUID.randomUUID());
-		Settings settings = settingsBuilder.put("transport.tcp.connect_timeout", "5s").build();
+		Settings settings = settingsBuilder.put("transport.connect_timeout", "5s").build();
 
 		cli = new PreBuiltTransportClient(settings);
 		try {

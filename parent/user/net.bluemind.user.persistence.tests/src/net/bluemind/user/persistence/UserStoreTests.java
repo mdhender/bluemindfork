@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
@@ -42,12 +43,11 @@ public class UserStoreTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
 		PopulateHelper.initGlobalVirt();
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 
 		domainUid = "test" + System.nanoTime() + ".fr";
@@ -91,6 +91,7 @@ public class UserStoreTests {
 		User created = userStore.get(item);
 		assertNotNull("Nothing found", created);
 		created.login = "updated_" + System.nanoTime();
+		assertNull(created.mailboxCopyGuid);
 		userStore.update(item, created);
 
 		User found = userStore.get(item);
@@ -194,5 +195,17 @@ public class UserStoreTests {
 		uid = userStore2.byLogin("tEst1");
 		assertNotNull(uid);
 		assertEquals("t2", uid);
+	}
+
+	@Test
+	public void testMailboxCopyGuid() throws Exception {
+		String mailboxCopyGuid = UUID.randomUUID().toString();
+		userItemStore.create(Item.create(uid, null));
+		Item item = userItemStore.get(uid);
+		User u = getDefaultUser();
+		u.mailboxCopyGuid = mailboxCopyGuid;
+		userStore.create(item, u);
+		User created = userStore.get(item);
+		assertEquals(mailboxCopyGuid, created.mailboxCopyGuid);
 	}
 }

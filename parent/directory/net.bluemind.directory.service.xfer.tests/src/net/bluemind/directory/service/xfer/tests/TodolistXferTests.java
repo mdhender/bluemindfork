@@ -18,7 +18,6 @@
 package net.bluemind.directory.service.xfer.tests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.ZoneId;
@@ -27,106 +26,37 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.google.common.collect.Lists;
 
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
-import net.bluemind.core.jdbc.JdbcActivator;
-import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.api.TaskStatus.State;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.icalendar.api.ICalendarElement.Status;
-import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.locator.LocatorVerticle;
-import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.mailbox.service.SplittedShardsMapping;
-import net.bluemind.pool.impl.BmConfIni;
-import net.bluemind.server.api.Server;
-import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.todolist.api.VTodo;
 import net.bluemind.todolist.api.VTodoChanges;
 import net.bluemind.todolist.api.VTodoChanges.ItemDelete;
-import net.bluemind.vertx.testhelper.Deploy;
 
-public class TodolistXferTests {
-
-	private String domainUid = "bm.lan";
-	private String userUid = "test" + System.currentTimeMillis();
-	private String shardIp;
-	private SecurityContext context;
+public class TodolistXferTests extends AbstractMultibackendTests {
 
 	@BeforeClass
 	public static void setXferTestMode() {
 		System.setProperty("bluemind.testmode", "true");
 	}
 
-	@Before
-	public void before() throws Exception {
-		JdbcTestHelper.getInstance().beforeTest();
-		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
-		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
-
-		Server esServer = new Server();
-		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		System.out.println("ES is " + esServer.ip);
-		assertNotNull(esServer.ip);
-		esServer.tags = Lists.newArrayList("bm/es");
-
-		Server imapServer = new Server();
-		imapServer.ip = new BmConfIni().get("imap-role");
-		imapServer.tags = Lists.newArrayList("mail/imap");
-
-		Server imapServer2 = new Server();
-		imapServer2.ip = new BmConfIni().get("imap2-role");
-		imapServer2.tags = Lists.newArrayList("mail/imap");
-
-		Server pg2 = new Server();
-		shardIp = new BmConfIni().get("pg2");
-		pg2.ip = shardIp;
-		pg2.tags = Lists.newArrayList("mail/shard");
-
-		PopulateHelper.initGlobalVirt(pg2, esServer, imapServer, imapServer2);
-		ElasticsearchTestHelper.getInstance().beforeTest();
-
-		PopulateHelper.addDomain(domainUid, Routing.none);
-		PopulateHelper.addUser(userUid, domainUid, Routing.none);
-
-		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
-
-		System.err.println("PG2 " + pg2.ip + " IMAP1: " + imapServer.ip + " IMAP2: " + imapServer2.ip);
-		JdbcTestHelper.getInstance().initNewServer(pg2.ip);
-		SplittedShardsMapping.map(pg2.ip, imapServer2.ip);
-
-		context = new SecurityContext("user", userUid, Arrays.<String>asList(), Arrays.<String>asList(), domainUid);
-		Sessions.get().put(context.getSessionId(), context);
-	}
-
-	@After
-	public void after() throws Exception {
-		JdbcTestHelper.getInstance().afterTest();
-	}
-
 	@Test
 	public void testXferTodolist() {
-
 		String container = ITodoUids.defaultUserTodoList(userUid);
 
 		ITodoList service = ServerSideServiceProvider.getProvider(context).instance(ITodoList.class, container);

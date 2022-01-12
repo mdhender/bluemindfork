@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
-  * Copyright © Blue Mind SAS, 2012-2021
+  * Copyright © Blue Mind SAS, 2012-2022
   *
   * This file is part of Blue Mind. Blue Mind is a messaging and collaborative
   * solution.
@@ -20,7 +20,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.directory.service.internal;
+package net.bluemind.directory.xfer;
 
 import java.io.PrintWriter;
 import java.sql.Array;
@@ -380,7 +380,11 @@ public class TransactionalContext implements BmContext {
 		}
 
 		public String toString() {
-			return wrappedDs.toString();
+			try {
+				return "UnpoolDataSource@" + connection.getMetaData().getURL();
+			} catch (SQLException e) {
+				return wrappedDs.toString();
+			}
 		}
 
 		@Override

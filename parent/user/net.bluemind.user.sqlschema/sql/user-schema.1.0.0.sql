@@ -19,7 +19,8 @@ create table t_domain_user (
 	routing		  	t_domain_routing,
 	server_id	  	text, -- uid
 	properties hstore,
-	password_algorithm 	varchar(64)
+	password_algorithm 	varchar(64),
+	mailbox_copy_guid text
 );
 CREATE INDEX idx_domain_user_login ON t_domain_user(login);
 

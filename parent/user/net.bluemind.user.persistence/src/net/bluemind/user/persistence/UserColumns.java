@@ -45,7 +45,8 @@ public class UserColumns {
 			.col("archived") //
 			.col("system") //
 			.col("server_id") //
-			.col("properties"); //
+			.col("properties") //
+			.col("mailbox_copy_guid"); //
 
 	/**
 	 * @return
@@ -71,9 +72,8 @@ public class UserColumns {
 				} else {
 					statement.setNull(index++, Types.VARCHAR);
 				}
-
 				statement.setObject(index++, u.properties);
-
+				statement.setString(index++, u.mailboxCopyGuid);
 				return index;
 			}
 		};
@@ -104,7 +104,7 @@ public class UserColumns {
 				if (properties != null) {
 					value.properties.putAll((Map<String, String>) properties);
 				}
-
+				value.mailboxCopyGuid = rs.getString(index++);
 				return index;
 			}
 
