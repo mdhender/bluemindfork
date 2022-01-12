@@ -42,6 +42,7 @@ import net.bluemind.core.backup.continuous.restore.domains.DomainRestorationHand
 import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.backup.continuous.restore.mbox.DefaultSdsStoreLoader;
 import net.bluemind.core.backup.continuous.restore.mbox.ISdsStoreLoader;
+import net.bluemind.core.backup.continuous.restore.orphans.RestoreContainerItemIdSeq;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreDomains;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreSysconf;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreToken;
@@ -143,6 +144,9 @@ public class InstallFromBackupTask implements IServerTask {
 		Map<String, PromotingServer> topology = new RestoreTopology(installationId, target, topologyMapping, coreTok)
 				.restore(monitor, orphansByType.getOrDefault("installation", new ArrayList<>()));
 		System.err.println("topo is " + topology);
+
+		new RestoreContainerItemIdSeq(topology.values()).restore(monitor,
+				orphansByType.getOrDefault("container_item_id_seq", new ArrayList<>()));
 
 		Map<String, ItemValue<Domain>> domains = new RestoreDomains(installationId, target, topology.values())
 				.restore(monitor, orphansByType.getOrDefault("domains", new ArrayList<>()));

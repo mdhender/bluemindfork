@@ -45,6 +45,12 @@
       </verticle>
    </extension>
    <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.core.backup.continuous.events.ContainerItemIdSeqVerticle$Factory">
+      </verticle>
+   </extension>
+   <extension
          point="net.bluemind.exchange.mapi.hook.artifacts">
       <artifacts
             impl="net.bluemind.core.backup.continuous.events.MapiArtifactsHook">

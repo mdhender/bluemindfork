@@ -227,6 +227,7 @@ public class InstallationService implements IInstallation {
 		Set<String> filteredOps = Collections.singleton("hollow.directory");
 		logger.info("Starting hollow repair task for {}", domainUid);
 		TaskRef ref = demService.repair(filteredOps);
+
 		String log = TaskUtils.logStreamWait(provider, ref);
 		logger.debug("Hollow repair task log for {}: {}", domainUid, log);
 		logger.info("Ending hollow repair task for {}", domainUid);
