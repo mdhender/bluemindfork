@@ -35,7 +35,7 @@ public class InternalHeaders implements HeaderList {
 
 	private static final Set<String> fromMailApi = Sets.newHashSet(MailApiHeaders.ALL);
 
-	private static final Set<String> toAdd = Sets.newHashSet("IN-REPLY-TO", "REFERENCES");
+	private static final Set<String> toAdd = Sets.newHashSet("IN-REPLY-TO", "REFERENCES", "X-BM-SENT-FOLDER");
 
 	@Override
 	public Set<String> getWhiteList() {

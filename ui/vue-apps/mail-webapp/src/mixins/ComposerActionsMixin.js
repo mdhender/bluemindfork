@@ -198,9 +198,8 @@ export default {
             this.$_ComposerActionsMixin_SEND_MESSAGE({
                 draftKey: this.message.key,
                 myMailboxKey: this.$_ComposerActionsMixin_MY_MAILBOX_KEY,
-                outboxId: this.$_ComposerActionsMixin_MY_OUTBOX.remoteRef.internalId,
+                outbox: this.$_ComposerActionsMixin_MY_OUTBOX,
                 myDraftsFolder: this.$_ComposerActionsMixin_MY_DRAFTS,
-                sentFolder: this.$_ComposerActionsMixin_MY_SENT,
                 messageCompose: this.$_ComposerActionsMixin_messageCompose
             });
             if (

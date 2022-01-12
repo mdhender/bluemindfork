@@ -6,31 +6,30 @@ import { ADD_FLAG, REPLACE_DRAFT_MESSAGE, SAVE_MESSAGE } from "~/actions";
 import { MessageStatus, MessageHeader, MessageCreationModes } from "~/model/message";
 import { SET_MESSAGES_STATUS } from "~/mutations";
 import MessageAdaptor from "../helpers/MessageAdaptor";
-import { FolderAdaptor } from "../../folders/helpers/FolderAdaptor";
 import * as Folder from "~/model/folder";
 import * as Message from "~/model/message";
 
 /** Send the last draft: move it to the Outbox then flush. */
-export default async function (
-    context,
-    { draftKey, myMailboxKey, outboxId, myDraftsFolder, sentFolder, messageCompose }
-) {
+export default async function (context, { draftKey, myMailboxKey, outbox, myDraftsFolder, messageCompose }) {
     const draft = context.state[draftKey];
 
     await context.dispatch(SAVE_MESSAGE, { draft, messageCompose });
 
-    let draftId = draft.remoteRef.internalId;
-
     context.commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENDING }]);
     validateDraft(draft, inject("i18n"));
-    draftId = await moveToOutbox(draftId, myMailboxKey, outboxId, myDraftsFolder.remoteRef.internalId);
+    const messageInOutboxId = await moveToOutbox(
+        draft.remoteRef.internalId,
+        myMailboxKey,
+        outbox.remoteRef.internalId,
+        myDraftsFolder.remoteRef.internalId
+    );
     const taskResult = await flush(); // flush means send mail + move to sentbox
     context.commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENT }]);
 
     manageFlagOnPreviousMessage(context, draft);
     removeAttachmentAndInlineTmpParts(draft, messageCompose);
 
-    const message = await getSentMessage(taskResult, draftId, sentFolder);
+    const message = await getSentMessage(taskResult, messageInOutboxId, outbox);
     message.conversationRef = draft.conversationRef;
     await context.dispatch(REPLACE_DRAFT_MESSAGE, { draft, message });
     return message;
@@ -42,17 +41,19 @@ function removeAttachmentAndInlineTmpParts(draft, messageCompose) {
     addresses.forEach(address => service.removePart(address));
 }
 
-async function getSentMessage(taskResult, draftId, sentFolder) {
-    let mailItem;
-    if (taskResult.result && Array.isArray(taskResult.result)) {
-        let importedMailboxItem = taskResult.result.find(r => r.source === draftId);
-        mailItem = await inject("MailboxItemsPersistence", sentFolder.remoteRef.uid).getCompleteById(
-            importedMailboxItem.destination
-        );
-    } else {
-        throw "Unable to retrieve task result";
-    }
-    return MessageAdaptor.fromMailboxItem(mailItem, FolderAdaptor.toRef(sentFolder));
+async function getSentMessage(taskResult, messageInOutboxId, outbox) {
+    const flushResult = taskResult.result.find(
+        r =>
+            r.sourceFolderUid.toUpperCase() === outbox.remoteRef.uid.toUpperCase() &&
+            r.sourceInternalId === messageInOutboxId
+    );
+    const mailItem = await inject("MailboxItemsPersistence", flushResult.destinationFolderUid).getCompleteById(
+        flushResult.destinationInternalId
+    );
+    return MessageAdaptor.fromMailboxItem(mailItem, {
+        key: flushResult.destinationFolderUid,
+        uid: flushResult.destinationFolderUid
+    });
 }
 
 function flush() {

@@ -17,10 +17,11 @@ export default {
     mixins: [AlertMixin],
     computed: {
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
+        ...mapState("mail", ["folders"]),
         link() {
             return {
                 name: "v:mail:message",
-                params: { message: this.result, folder: this.alert.payload.sentFolder.path }
+                params: { message: this.result, folder: this.folders[this.result.folderRef.key]?.path }
             };
         },
         subject() {

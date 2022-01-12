@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -35,19 +37,18 @@ import com.google.common.collect.Iterables;
 import io.netty.buffer.ByteBufInputStream;
 import net.bluemind.authentication.api.AuthUser;
 import net.bluemind.authentication.api.IAuthentication;
+import net.bluemind.backend.mail.api.IItemsTransfer;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.IOutbox;
-import net.bluemind.backend.mail.api.ImportMailboxItemSet;
-import net.bluemind.backend.mail.api.ImportMailboxItemSet.MailboxItemId;
-import net.bluemind.backend.mail.api.ImportMailboxItemsStatus;
-import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportedMailboxItem;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
+import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.model.SortDescriptor.Direction;
@@ -69,6 +70,7 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mime4j.common.Mime4JHelper;
+import net.bluemind.core.container.model.ItemUri;
 
 public class OutboxService implements IOutbox {
 
@@ -101,8 +103,7 @@ public class OutboxService implements IOutbox {
 
 			ItemValue<MailboxFolder> outboxFolder = mailboxFoldersService.byName("Outbox");
 			String outboxUid = outboxFolder.uid;
-			long outboxInternalId = outboxFolder.internalId;
-			long sentInternalId = mailboxFoldersService.byName("Sent").internalId;
+			ItemValue<MailboxFolder> sentFolder = mailboxFoldersService.byName("Sent");
 
 			IMailboxItems mailboxItemsService = serviceProvider.instance(IMailboxItems.class, outboxUid);
 			long enumerate = System.currentTimeMillis();
@@ -116,15 +117,15 @@ public class OutboxService implements IOutbox {
 			AuthUser user = serviceProvider.instance(IAuthentication.class).getCurrentUser();
 
 			List<CompletableFuture<Void>> promises = new ArrayList<>(mailCount);
-			final List<ImportedMailboxItem> importedMailboxItems = new ArrayList<>(mailCount);
-			mails.forEach(item -> promises.add(flushOne(monitor, mailboxFoldersService, outboxInternalId,
-					sentInternalId, mailboxItemsService, user, importedMailboxItems, item)));
+		 List<FlushResult> flushResults = new ArrayList<>(mailCount);
+			mails.forEach(item -> promises.add(flushOne(monitor, mailboxFoldersService, outboxFolder, sentFolder,
+					mailboxItemsService, user, flushResults, item)));
 
 			try {
 				CompletableFuture.allOf(Iterables.toArray(promises, CompletableFuture.class)).thenAccept(finished -> {
 					logger.info("[{}] flushed {}", context.getSecurityContext().getSubject(), mailCount);
 					monitor.end(true, "FLUSHING OUTBOX finished successfully",
-							String.format("{\"result\": %s}", JsonUtils.asString(importedMailboxItems)));
+							String.format("{\"result\": %s}", JsonUtils.asString(flushResults)));
 				}).get(30, TimeUnit.SECONDS);
 			} catch (TimeoutException e) {
 				monitor.end(false, "FLUSHING OUTBOX - timeout reached", "{\"result\": \"" + e + "\"}");
@@ -137,8 +138,9 @@ public class OutboxService implements IOutbox {
 	}
 
 	private CompletableFuture<Void> flushOne(IServerTaskMonitor monitor, IMailboxFolders mailboxFoldersService,
-			long outboxInternalId, long sentInternalId, IMailboxItems mailboxItemsService, AuthUser user,
-			List<ImportedMailboxItem> importedMailboxItems, ItemValue<MailboxItem> item) {
+			ItemValue<MailboxFolder> outboxFolder, ItemValue<MailboxFolder> sentFolder,
+			IMailboxItems mailboxItemsService, AuthUser user, List<FlushResult> flushResults,
+			ItemValue<MailboxItem> item) {
 		return SyncStreamDownload.read(mailboxItemsService.fetchComplete(item.value.imapUid)).thenAccept(buf -> {
 			InputStream in = new ByteBufInputStream(buf.duplicate());
 			InputStream forSend = new ByteBufInputStream(buf);
@@ -151,14 +153,7 @@ public class OutboxService implements IOutbox {
 				String fromMail = msg.getFrom().iterator().next().getAddress();
 				MailboxList rcptTo = allRecipients(msg);
 				send(user.value.login, forSend, fromMail, rcptTo, msg);
-
-				ImportMailboxItemsStatus importMailboxItemsStatus = mailboxFoldersService.importItems(sentInternalId,
-						ImportMailboxItemSet.moveIn(outboxInternalId, Arrays.asList(MailboxItemId.of(item.internalId)),
-								null));
-				List<ImportedMailboxItem> doneIds = importMailboxItemsStatus.doneIds;
-				if (doneIds != null && !doneIds.isEmpty()) {
-					importedMailboxItems.addAll(doneIds);
-				}
+				moveToSent(item, sentFolder, outboxFolder, flushResults);
 				monitor.progress(1, "FLUSHING OUTBOX - mail " + msg.getMessageId() + " sent and moved in Sent folder.");
 			} catch (Exception e) {
 				throw new ServerFault(e);
@@ -177,6 +172,51 @@ public class OutboxService implements IOutbox {
 		} else if (sendmailResponse.isError()) {
 			throw new Exception(sendmailResponse.toString());
 		}
+	}
+
+	/**
+	 * Move to default Sent folder or the one given in the X-BM-SENT-FOLDER header.
+	 * Fall back to default Sent folder if an error occurs.
+	 */
+	private void moveToSent(ItemValue<MailboxItem> item, ItemValue<MailboxFolder> sentFolder,
+			ItemValue<MailboxFolder> outboxFolder, List<FlushResult> flushResults) {
+		Optional<String> xBmSentFolder = extractXBmSentFolder(item);
+		FlushResult flushResult;
+		if (xBmSentFolder.isPresent()) {
+			try {
+				flushResult = moveTo(item, outboxFolder.uid, xBmSentFolder.get());
+			} catch (ServerFault e) {
+				logger.warn(String.format(
+						"Could not move sent messages to separate Sent folder %s, fall back to default Sent folder.",
+						xBmSentFolder.get()));
+				flushResult = moveTo(item, outboxFolder.uid, sentFolder.uid);
+			}
+		} else {
+			flushResult = moveTo(item, outboxFolder.uid, sentFolder.uid);
+		}
+
+		if (flushResult != null) {
+			flushResults.add(flushResult);
+		}
+	}
+
+	private FlushResult moveTo(ItemValue<MailboxItem> item, String sourceUid, String targetUid) {
+		IItemsTransfer itemsTransferService = serviceProvider.instance(IItemsTransfer.class, sourceUid, targetUid);
+		List<ItemIdentifier> targetItems = itemsTransferService.move(Arrays.asList(item.internalId));
+		if (targetItems == null || targetItems.isEmpty()) {
+			return null;
+		}
+		FlushResult flushResult = new FlushResult();
+		flushResult.setSourceInternalId(item.internalId);
+		flushResult.setSourceFolderUid(sourceUid);
+		flushResult.setDestinationInternalId(targetItems.get(0).id);
+		flushResult.setDestinationFolderUid(targetUid);
+		return flushResult;
+	}
+
+	private Optional<String> extractXBmSentFolder(ItemValue<MailboxItem> item) {
+		return item.value.body.headers.stream().filter(header -> header.name.equalsIgnoreCase("X-BM-SENT-FOLDER"))
+				.findFirst().map(MessageBody.Header::firstValue);
 	}
 
 	private void sendNonDeliveryReport(List<FailedRecipient> failedRecipients, SendmailCredentials creds, String sender,
@@ -270,6 +310,47 @@ public class OutboxService implements IOutbox {
 				.filter(item -> item.value.body.headers.stream()
 						.anyMatch(header -> header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)))
 				.collect(Collectors.toList());
+	}
+
+	@SuppressWarnings("unused")
+	private final class FlushResult {
+		private long sourceInternalId;
+		private String sourceFolderUid;
+		private long destinationInternalId;
+		private String destinationFolderUid;
+
+		public long getSourceInternalId() {
+			return sourceInternalId;
+		}
+
+		public void setSourceInternalId(long sourceInternalId) {
+			this.sourceInternalId = sourceInternalId;
+		}
+
+		public String getSourceFolderUid() {
+			return sourceFolderUid;
+		}
+
+		public void setSourceFolderUid(String sourceFolderUid) {
+			this.sourceFolderUid = sourceFolderUid;
+		}
+
+		public long getDestinationInternalId() {
+			return destinationInternalId;
+		}
+
+		public void setDestinationInternalId(long destinationInternalId) {
+			this.destinationInternalId = destinationInternalId;
+		}
+
+		public String getDestinationFolderUid() {
+			return destinationFolderUid;
+		}
+
+		public void setDestinationFolderUid(String destinationFolderUid) {
+			this.destinationFolderUid = destinationFolderUid;
+		}
+
 	}
 
 }
