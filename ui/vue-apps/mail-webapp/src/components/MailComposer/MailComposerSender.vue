@@ -15,9 +15,13 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
+import { inject } from "@bluemind/inject";
 import { BmFormSelect } from "@bluemind/styleguide";
-import { SET_MESSAGE_FROM } from "~/mutations";
+import { FOLDERS, MAILBOX_SENT } from "~/getters";
+import { SET_MESSAGE_FROM, SET_MESSAGE_HEADERS } from "~/mutations";
+import { MessageHeader } from "~/model/message";
+import { DEFAULT_FOLDER_NAMES } from "~/store/folders/helpers/DefaultFolders";
 
 export default {
     name: "MailComposerSender",
@@ -30,6 +34,9 @@ export default {
     },
     computed: {
         ...mapState("root-app", ["identities"]),
+        ...mapState("mail", ["mailboxes"]),
+        ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
+        ...mapGetters("mail", { FOLDERS, MAILBOX_SENT }),
         options() {
             return this.identities.map(i => ({
                 text: i.displayname ? `${i.displayname} <${i.email}>` : i.email,
@@ -38,12 +45,26 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("mail", { SET_MESSAGE_FROM }),
-        changeIdentity(identity) {
+        ...mapMutations("mail", { SET_MESSAGE_FROM, SET_MESSAGE_HEADERS }),
+        async changeIdentity(identity) {
             this.SET_MESSAGE_FROM({
                 messageKey: this.message.key,
                 from: { address: identity.email, dn: identity.displayname }
             });
+            const fullIdentity = this.identities.find(
+                i => i.email === identity.email && i.displayname === identity.displayname
+            );
+            const rawIdentity = await inject("UserMailIdentitiesPersistence").get(fullIdentity.id);
+            if (rawIdentity.sentFolder !== DEFAULT_FOLDER_NAMES.SENT) {
+                const mailbox =
+                    this.mailboxes[`user.${rawIdentity.mailboxUid}`] || this.mailboxes[rawIdentity.mailboxUid];
+                const sentFolder = this.MAILBOX_SENT(mailbox);
+                if (sentFolder) {
+                    const headers = this.messages[this.message.key]?.headers || [];
+                    const xBmSentFolder = { name: MessageHeader.X_BM_SENT_FOLDER, values: [sentFolder.remoteRef.uid] };
+                    this.SET_MESSAGE_HEADERS({ messageKey: this.message.key, headers: [...headers, xBmSentFolder] });
+                }
+            }
             this.$emit("update");
         }
     }
