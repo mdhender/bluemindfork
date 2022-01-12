@@ -24,6 +24,7 @@ import static org.junit.Assert.fail;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -36,10 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.SettableFuture;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.VCard;
@@ -151,16 +149,7 @@ public abstract class AbstractServiceTests {
 
 		esearchClient = ElasticsearchTestHelper.getInstance().getClient();
 
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		cardStoreService = new VCardContainerStoreService(context, dataDataSource, SecurityContext.SYSTEM, container,
 				new VCardStore(dataDataSource, container),
 				new VCardIndexStore(ElasticsearchTestHelper.getInstance().getClient(), container, null));
