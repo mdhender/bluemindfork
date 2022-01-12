@@ -1,5 +1,5 @@
 <template>
-    <bm-button-toolbar key-nav class="mail-viewer-toolbar mail-viewer-mobile-actions bg-white float-right">
+    <bm-button-toolbar key-nav class="mail-viewer-toolbar bg-surface">
         <bm-button
             variant="simple-primary"
             :aria-label="$t('mail.content.reply.aria')"
@@ -68,10 +68,9 @@ export default {
 <style lang="scss" scoped>
 @import "~@bluemind/styleguide/css/_variables";
 @media (max-width: map-get($grid-breakpoints, "lg")) {
-    .mail-viewer-mobile-actions {
+    .mail-viewer-toolbar {
         bottom: 0;
         box-shadow: 0 -0.125rem 0.125rem rgba($dark, 0.25);
-        justify-content: space-evenly;
     }
 }
 </style>
