@@ -19,9 +19,8 @@
 package net.bluemind.backend.cyrus.annotationdb;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -185,8 +184,7 @@ public class ConversationSync {
 		}
 	}
 
-	private boolean needsReconstruct(INodeClient nc, String domainUid, ItemValue<Mailbox> box)
-			throws FileNotFoundException, IOException {
+	private boolean needsReconstruct(INodeClient nc, String domainUid, ItemValue<Mailbox> box) throws IOException {
 		String boxName = box.value.name + "@" + domainUid;
 		String partition = domainUid.replace('.', '_');
 		String mboxForApi = box.value.type.nsPrefix + box.value.name.replace('.', '^');
@@ -214,10 +212,16 @@ public class ConversationSync {
 	}
 
 	private boolean checkIndexVersion(INodeClient nc, String domainUid, String userUid, String mailbox, String folder)
-			throws IOException, FileNotFoundException {
+			throws IOException {
 		CyrusContext cyrusContext = CyrusContext.build(context, domainUid, userUid, folder);
-		if (cyrusContext.index.exists()) {
-			try (FileInputStream fis = new FileInputStream(cyrusContext.index)) {
+		File indexFileName = new File(cyrusContext.index);
+		File parent = indexFileName.getParentFile();
+		boolean exists = nc.listFiles(parent.getAbsolutePath()).stream()
+				.anyMatch(f -> f.getName().equals(indexFileName.getName()));
+		if (exists) {
+			InputStream fis = null; // does not support autocloseable
+			try {
+				fis = nc.openStream(cyrusContext.index);
 				CyrusIndex index = new CyrusIndex(fis);
 				index.readHeader();
 				logger.info("Cyrus index version of {}-{}: {}", mailbox, folder, index.getHeader().version);
@@ -225,6 +229,10 @@ public class ConversationSync {
 			} catch (UnknownVersion v) {
 				logger.info("Cyrus index of {}-{} needs reconstruction: {}", mailbox, folder, v.getMessage());
 				return true;
+			} finally {
+				if (fis != null) {
+					fis.close();
+				}
 			}
 		} else {
 			logger.warn("Cannot find index file of folder {}/{} --> {}", mailbox, folder, cyrusContext.index);
@@ -479,10 +487,10 @@ public class ConversationSync {
 	}
 
 	public static class CyrusContext {
-		private final File index;
+		private final String index;
 		public final String dataLocation;
 
-		private CyrusContext(File index, String dataLocation) {
+		private CyrusContext(String index, String dataLocation) {
 			this.index = index;
 			this.dataLocation = dataLocation;
 		}
@@ -498,8 +506,7 @@ public class ConversationSync {
 			CyrusPartition partition = CyrusPartition.forServerAndDomain(dataLocation, domainUid);
 			String indexPath = CyrusFileSystemPathHelper.getMetaFileSystemPath(domainUid, mboxDescriptor, partition,
 					"cyrus.index");
-			File index = new File(indexPath);
-			return new CyrusContext(index, dataLocation);
+			return new CyrusContext(indexPath, dataLocation);
 		}
 
 	}
