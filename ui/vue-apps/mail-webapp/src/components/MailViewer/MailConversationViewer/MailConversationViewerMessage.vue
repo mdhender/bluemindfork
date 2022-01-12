@@ -41,10 +41,6 @@
         <template slot="content">
             <div v-if="!isMessageExpanded" class="col pl-3 pb-2 pr-3 text-truncate">{{ message.preview }}...</div>
             <div v-else class="col pl-3 pb-2 pr-3">
-                <mail-attachments-block
-                    v-if="message.attachments && message.attachments.length > 0"
-                    :message="message"
-                />
                 <body-viewer v-if="MESSAGE_IS_LOADED(message.key)" :message="message" />
                 <mail-viewer-content-loading v-else />
             </div>
@@ -62,7 +58,6 @@ import MailViewerToolbarForMobile from "../MailViewerToolbarForMobile";
 import MailConversationViewerFlags from "./MailConversationViewerFlags";
 import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import BodyViewer from "../BodyViewer";
-import MailAttachmentsBlock from "../../MailAttachment/MailAttachmentsBlock";
 import { MESSAGE_IS_LOADED } from "~/getters";
 import MailFolderIcon from "../../MailFolderIcon";
 import { MailboxType } from "~/model/mailbox";
@@ -73,7 +68,6 @@ export default {
         BmContact,
         BmExtension,
         BodyViewer,
-        MailAttachmentsBlock,
         MailFolderIcon,
         MailConversationViewerFlags,
         MailConversationViewerItem,

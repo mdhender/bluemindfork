@@ -10,7 +10,7 @@
                 {{ $tc("mail.new.attachments.images.drop.zone", draggedFilesCount) }}
             </h2>
         </template>
-        <mail-attachments-block v-if="message.attachments.length > 0" :message="message" expanded />
+        <mail-attachments-block :attachments="message.attachments" :message="message" expanded />
     </bm-file-drop-zone>
 </template>
 

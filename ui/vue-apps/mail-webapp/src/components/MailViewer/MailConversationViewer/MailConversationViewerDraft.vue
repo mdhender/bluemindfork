@@ -41,7 +41,6 @@
         <template slot="content">
             <div v-if="!isMessageExpanded" class="col pl-3 pb-2 pr-3 text-truncate">{{ message.preview }}...</div>
             <div v-else class="col pl-3 pb-2 pr-3">
-                <mail-attachments-block v-if="message.attachments.length > 0" :message="message" />
                 <body-viewer :message="message" />
             </div>
         </template>
@@ -57,13 +56,11 @@ import MailViewerDraftToolbarForMobile from "../MailViewerDraftToolbarForMobile"
 import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import { FormattedDateMixin } from "~/mixins";
 import BodyViewer from "../BodyViewer.vue";
-import MailAttachmentsBlock from "../../MailAttachment/MailAttachmentsBlock";
 
 export default {
     name: "MailConversationViewerDraft",
     components: {
         BodyViewer,
-        MailAttachmentsBlock,
         MailConversationViewerItem,
         MailViewerDraftToolbar,
         MailViewerDraftToolbarForMobile

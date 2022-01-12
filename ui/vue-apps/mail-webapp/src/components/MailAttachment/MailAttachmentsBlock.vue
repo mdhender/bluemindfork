@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-attachments-block p-2 bg-extra-light">
+    <div v-if="attachments.length > 0" class="mail-attachments-block p-2 bg-extra-light">
         <div class="d-flex align-items-center">
             <bm-button
                 variant="inline-dark"
@@ -103,6 +103,10 @@ export default {
         expanded: {
             type: Boolean,
             default: false
+        },
+        attachments: {
+            type: Array,
+            required: true
         }
     },
     data() {
@@ -110,9 +114,6 @@ export default {
     },
     computed: {
         ...mapState("mail", { attachmentsMaxWeight: ({ messageCompose }) => messageCompose.maxMessageSize }),
-        attachments() {
-            return this.message.attachments;
-        },
         hasMoreThan3Attachments() {
             return this.attachments.length > 3;
         },

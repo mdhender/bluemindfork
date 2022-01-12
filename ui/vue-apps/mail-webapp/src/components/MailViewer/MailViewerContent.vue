@@ -19,25 +19,18 @@
             </bm-col>
         </bm-row>
         <mail-viewer-recipients :message="message" class="px-lg-5 px-4" />
-        <bm-row class="px-lg-5">
-            <bm-col cols="12">
-                <hr class="mail-viewer-splitter my-0" />
-                <mail-attachments-block v-if="message.attachments.length > 0" :message="message" />
-            </bm-col>
-        </bm-row>
-        <bm-row ref="scrollableContainer" class="pt-1 flex-fill px-lg-5 px-4">
-            <bm-col col>
-                <body-viewer :message="message" />
-            </bm-col>
-        </bm-row>
+        <hr class="mail-viewer-splitter my-0 mx-lg-5" />
+        <body-viewer :message="message">
+            <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+                <slot :name="slot" v-bind="scope" />
+            </template>
+        </body-viewer>
     </div>
 </template>
-
 <script>
 import { BmCol, BmRow } from "@bluemind/styleguide";
 
 import BodyViewer from "./BodyViewer";
-import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
 import MailViewerFrom from "./MailViewerFrom";
 import MailViewerRecipients from "./MailViewerRecipients";
 
@@ -47,7 +40,6 @@ export default {
         BmCol,
         BmRow,
         BodyViewer,
-        MailAttachmentsBlock,
         MailViewerFrom,
         MailViewerRecipients
     },
@@ -61,21 +53,6 @@ export default {
         subject() {
             return this.message.subject || this.$t("mail.viewer.no.subject");
         }
-    },
-    watch: {
-        "message.key": {
-            handler: function () {
-                this.resetScroll();
-            }
-        }
-    },
-    methods: {
-        resetScroll() {
-            this.$nextTick(() => {
-                this.$refs.scrollableContainer.scrollTop = 0;
-                this.$refs.scrollableContainer.scrollLeft = 0;
-            });
-        }
     }
 };
 </script>
@@ -83,10 +60,20 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 .mail-viewer-content {
+    .body-viewer {
+        @include media-breakpoint-up(lg) {
+            & > * {
+                padding: 0 $sp-5;
+            }
+        }
+        .mail-inlines-block {
+            padding: 0 $sp-4;
+        }
+    }
+
     .row {
         min-height: fit-content;
     }
-
     .mail-viewer-splitter {
         border-top-color: $alternate-light;
     }

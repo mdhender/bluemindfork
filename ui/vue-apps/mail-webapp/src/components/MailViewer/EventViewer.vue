@@ -8,17 +8,17 @@
             :selected="choices[selectedChoice]"
             @select="index => (selectedChoice = index)"
         />
-        <parts-viewer v-if="selectedChoice === 0" :message="message" />
+        <mail-inlines-block v-if="selectedChoice === 0" :parts="parts" :message="message" />
         <event-viewer-invitation v-else :message="message" />
     </div>
-    <parts-viewer v-else-if="currentEvent.loading === LoadingStatus.ERROR" :message="message" />
+    <mail-inlines-block v-else-if="currentEvent.loading === LoadingStatus.ERROR" :parts="parts" :message="message" />
 </template>
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 import { INFO, WARNING, REMOVE } from "@bluemind/alert.store";
 import { BmChoiceGroup } from "@bluemind/styleguide";
-import PartsViewer from "./PartsViewer/PartsViewer";
+import MailInlinesBlock from "./MailInlinesBlock";
 import ReplyToCounterProposal from "./ReplyToCounterProposal";
 import ReplyToInvitation from "./ReplyToInvitation";
 import { FETCH_EVENT } from "~/actions";
@@ -30,7 +30,7 @@ export default {
     name: "EventViewer",
     components: {
         BmChoiceGroup,
-        PartsViewer,
+        MailInlinesBlock,
         ReplyToInvitation,
         ReplyToCounterProposal,
         EventViewerInvitation
@@ -38,6 +38,10 @@ export default {
     props: {
         message: {
             type: Object,
+            required: true
+        },
+        parts: {
+            type: Array,
             required: true
         }
     },

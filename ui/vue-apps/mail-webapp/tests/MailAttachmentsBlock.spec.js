@@ -37,5 +37,9 @@ function mountAttachmentBlock(attachmentSize) {
     message.conversationRef = { key };
     store.commit("mail/ADD_MESSAGES", [message]);
 
-    return createWrapper(MailAttachmentsBlock, { store }, { message, expanded: false });
+    return createWrapper(
+        MailAttachmentsBlock,
+        { store },
+        { message, attachments: message.attachments, expanded: false }
+    );
 }

@@ -3,16 +3,18 @@ import { computePreviewOrDownloadUrl, WEBSERVER_HANDLER_BASE_URL } from "./index
 const CID_DATA_ATTRIBUTE = "data-bm-cid";
 
 export default {
-    async insertAsUrl(contentsWithCids, imageParts, folderUid, imapUid) {
+    insertAsUrl(contentsWithCids, imageParts, folderUid, imapUid) {
         const getNewSrcFn = part => computePreviewOrDownloadUrl(folderUid, imapUid, part);
         return insertInHtml(contentsWithCids, imageParts, getNewSrcFn);
     },
 
-    async insertAsBase64(contentsWithCids, imageParts, contentByAddress) {
+    insertAsBase64(contentsWithCids, imageParts, contentByAddress) {
         const getNewSrcFn = part => contentByAddress[part.address];
         return insertInHtml(contentsWithCids, imageParts, getNewSrcFn);
     },
-
+    cids(html) {
+        return getCids(html);
+    },
     insertCid(html, inlineImagesSaved) {
         const result = {
             htmlWithCids: html,
@@ -61,6 +63,11 @@ export default {
     }
 };
 
+const CID_REFERENCE_REGEXP = /<img[^>]+?src\s*=\s*['"]cid:([^'"]*)['"][^>]*?>/gim;
+function getCids(html) {
+    return [...html.matchAll(CID_REFERENCE_REGEXP)].map(match => match[1].toUpperCase());
+}
+
 function isImgAlreadySaved(cid, inlineImagesSaved) {
     return inlineImagesSaved.findIndex(part => part.contentId === cid) !== -1;
 }
@@ -93,13 +100,10 @@ function convertData(b64Data) {
  */
 function insertInHtml(htmlWithCids = [], imageParts = [], getNewSrcFn) {
     const result = { imageInlined: [], contentsWithImageInserted: [] };
-    const inlineReferenceRegex = /<img[^>]+?src\s*=\s*['"]cid:([^'"]*)['"][^>]*?>{1}?/gim;
 
     for (const html of htmlWithCids) {
-        let inlineReferences,
-            modifiedHtml = html;
-        while ((inlineReferences = inlineReferenceRegex.exec(modifiedHtml)) !== null) {
-            const cid = inlineReferences[1];
+        let modifiedHtml = html;
+        for (let cid of getCids(html)) {
             const replaceRegex = new RegExp("(<img[^>]+?src\\s*=\\s*['\"])cid:" + cid + "(['\"][^>]*?>{1}?)", "gmi");
             const imagePart = imageParts.find(
                 part =>

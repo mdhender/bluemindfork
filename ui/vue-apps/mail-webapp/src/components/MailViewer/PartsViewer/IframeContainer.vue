@@ -82,7 +82,7 @@ export default {
         this.init();
     },
     methods: {
-        ...mapMutations("mail", [SET_BLOCK_REMOTE_IMAGES]),
+        ...mapMutations("mail", { SET_BLOCK_REMOTE_IMAGES }),
         ...mapActions("alert", { WARNING, REMOVE }),
         async init() {
             let content = this.body;

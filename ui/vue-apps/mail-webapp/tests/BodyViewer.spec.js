@@ -1,9 +1,9 @@
 import flushPromises from "flush-promises";
 
 import { createStore, createWrapper } from "./testUtils";
-import PartsViewer from "../src/components/MailViewer/PartsViewer/PartsViewer";
+import BodyViewer from "../src/components/MailViewer/BodyViewer";
 
-describe("PartsViewer", () => {
+describe("BodyViewer.spec", () => {
     test("image/* file type is a viewer capacity", async () => {
         const inlinePartsByCapabilities = [
             {
@@ -27,8 +27,8 @@ describe("PartsViewer", () => {
 
         const wrapper = mountComponent(inlinePartsByCapabilities);
         await flushPromises();
-        expect(wrapper.vm.parts.length).toBe(1);
-        expect(wrapper.vm.parts[0].mime).toBe("image/jpeg");
+        expect(wrapper.vm.inlines.length).toBe(1);
+        expect(wrapper.vm.inlines[0].mime).toBe("image/jpeg");
     });
 
     test("unsupported part are displayed as attachment", async () => {
@@ -38,8 +38,8 @@ describe("PartsViewer", () => {
         const wrapper = mountComponent(inlinePartsByCapabilities);
         await flushPromises();
 
-        expect(wrapper.vm.localAttachments.length).toBe(1);
-        expect(wrapper.props().message.attachments.length).toBe(1);
+        expect(wrapper.vm.attachments.length).toBe(1);
+        expect(wrapper.props().message.attachments.length).toBe(0);
 
         // if message key, localAttachments are cleaned
         const clonedMessage = JSON.parse(JSON.stringify(message));
@@ -50,7 +50,7 @@ describe("PartsViewer", () => {
         wrapper.setProps({ message: clonedMessage });
         await flushPromises();
 
-        expect(wrapper.vm.localAttachments.length).toBe(0);
+        expect(wrapper.vm.attachments.length).toBe(0);
         expect(wrapper.props().message.attachments.length).toBe(0);
     });
 });
@@ -72,5 +72,5 @@ function mountComponent(inlinePartsByCapabilities) {
     const key = Object.keys(mockedStore.state.mail.conversations.conversationByKey).pop();
     message.conversationRef = { key };
     mockedStore.commit("mail/ADD_MESSAGES", [message]);
-    return createWrapper(PartsViewer, { store: mockedStore }, { message });
+    return createWrapper(BodyViewer, { store: mockedStore }, { message });
 }

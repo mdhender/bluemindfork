@@ -158,7 +158,12 @@ export default {
             MARK_MESSAGE_AS_UNREAD
         }),
         printContent() {
-            this.print(this.$createElement("bm-button", "Yeah"));
+            this.print(
+                this.$createElement("mail-viewer-content", {
+                    props: { message: this.message },
+                    scopedSlots: { "text-html": props => this.$createElement("text-html-part-viewer", { props }) }
+                })
+            );
         },
         folderSelection(folder) {
             this.folderSelected = folder;

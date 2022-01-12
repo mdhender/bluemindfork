@@ -1,29 +1,27 @@
 <template>
     <!-- eslint-disable-next-line vue/no-v-html -->
-    <div v-if="value !== undefined" class="text-plain-part-viewer" v-html="toHtml" />
+    <div v-if="content !== undefined" class="text-plain-part-viewer" v-html="toHtml" />
     <mail-viewer-content-loading v-else />
 </template>
 
 <script>
 import { mailText2Html } from "@bluemind/email";
 import MailViewerContentLoading from "../MailViewerContentLoading";
+import PartViewerMixin from "./PartViewerMixin";
 
 export default {
     name: "TextPlainPartViewer",
     components: { MailViewerContentLoading },
-    props: {
-        value: {
-            type: String,
-            required: false,
-            default: undefined
-        }
-    },
+    mixins: [PartViewerMixin],
     computed: {
         lang() {
             return this.$store.state.settings.lang;
         },
+        content() {
+            return this.$store.state.mail.partsData.partsByMessageKey[this.message.key]?.[this.part.address];
+        },
         toHtml() {
-            return mailText2Html(this.value, this.lang);
+            return mailText2Html(this.content, this.lang);
         }
     }
 };
