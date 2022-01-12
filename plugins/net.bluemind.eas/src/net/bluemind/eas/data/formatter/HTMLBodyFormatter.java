@@ -22,6 +22,8 @@
  */
 package net.bluemind.eas.data.formatter;
 
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,23 +35,23 @@ import org.slf4j.LoggerFactory;
  */
 public class HTMLBodyFormatter {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(HTMLBodyFormatter.class);
+	private static final Logger logger = LoggerFactory.getLogger(HTMLBodyFormatter.class);
+
+	private static final Pattern urlPattern = Pattern.compile(
+			"(?i)\\b((?:https?://|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|])");
 
 	public HTMLBodyFormatter() {
 	}
 
 	public String convert(String plain) {
 
-		String urlRegexp = "(?i)\\b((?:https?://|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|])";
-
 		StringBuilder sb = new StringBuilder(plain.length() * 2);
 		sb.append("<html><body>");
 		String escaped = simpleEscape(plain);
 		escaped = escaped.replace("\r\n", "\n");
 		escaped = escaped.replace("\n", "<br>\n");
-		escaped = escaped.replaceAll(urlRegexp, "<a href=\"$1\">$1</a>");
-		escaped = escaped.replaceAll("<a href=\"www", "<a href=\"http://www");
+		escaped = urlPattern.matcher(escaped).replaceAll("<a href=\"$1\">$1</a>");
+		escaped = escaped.replace("<a href=\"www", "<a href=\"http://www");
 		sb.append(escaped);
 		sb.append("</body></html>");
 

@@ -330,9 +330,8 @@ public abstract class WebDavFileHostingService implements IFileHostingService {
 
 	private String encodeURIComponent(String path) {
 		try {
-			return URLEncoder.encode(path, "UTF-8").replaceAll("\\+", "%20").replaceAll("\\%21", "!")
-					.replaceAll("\\%27", "'").replaceAll("\\%28", "(").replaceAll("\\%29", ")")
-					.replaceAll("\\%7E", "~");
+			return URLEncoder.encode(path, "UTF-8").replace("+", "%20").replace("%21", "!").replace("%27", "'")
+					.replace("%28", "(").replace("%29", ")").replace("%7E", "~");
 		} catch (UnsupportedEncodingException e) {
 			return path;
 		}

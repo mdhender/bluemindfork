@@ -57,6 +57,9 @@ public class VCardIndexStore {
 	public static final String VCARD_INDEX = "contact";
 	public static final String VCARD_TYPE = "vcard";
 
+	private static final Pattern alreadyEscapedRegex = Pattern.compile(".*?\\\\[\\[\\]+!-&|!(){}^\"~*?].*");
+	private static final Pattern escapeRegex = Pattern.compile("([+\\-!\\(\\){}\\[\\]^\"~*?\\\\]|[&\\|]{2})");
+
 	private Client esearchClient;
 
 	private Container container;
@@ -190,14 +193,12 @@ public class VCardIndexStore {
 	 * @return
 	 */
 	String escape(String query) {
-		String alreadyEscaped = ".*?\\\\[\\[\\]+!-&|!(){}^\"~*?].*";
-		if (Pattern.matches(alreadyEscaped, query)) {
+		if (alreadyEscapedRegex.matcher(query).matches()) {
 			logger.warn("Escaping already escaped query {}", query);
 		}
-		query = query.replaceAll("\\\\:", "##");
-		String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?\\\\]|[&\\|]{2})";
-		query = query.replaceAll(regex, "\\\\$1");
-		return query.replaceAll("##", "\\\\:");
+		query = query.replace("\\:", "##");
+		query = escapeRegex.matcher(query).replaceAll("\\\\$1");
+		return query.replace("##", "\\:");
 	}
 
 	public void refresh() {

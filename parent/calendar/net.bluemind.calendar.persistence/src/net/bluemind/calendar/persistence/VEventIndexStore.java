@@ -67,6 +67,9 @@ public class VEventIndexStore {
 	public static final String VEVENT_INDEX = "event";
 	public static final String VEVENT_TYPE = "vevent";
 
+	private static final Pattern alreadyEscapedRegex = Pattern.compile(".*?\\\\[\\[\\]+!-&|!(){}^\"~*?].*");
+	private static final Pattern escapeRegex = Pattern.compile("([+\\-!\\(\\){}\\[\\]^\"~*?\\\\]|[&\\|]{2})");
+
 	private Client esearchClient;
 	private Container container;
 	private long shardId;
@@ -296,15 +299,13 @@ public class VEventIndexStore {
 	 * @param query
 	 * @return
 	 */
-	private String escape(String query) {
-		String alreadyEscaped = ".*?\\\\[\\[\\]+!-&|!(){}^\"~*?].*";
-		if (Pattern.matches(alreadyEscaped, query)) {
+	String escape(String query) {
+		if (alreadyEscapedRegex.matcher(query).matches()) {
 			logger.warn("Escaping already escaped query {}", query);
 		}
-		query = query.replaceAll("\\\\:", "##");
-		String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?\\\\]|[&\\|]{2})";
-		query = query.replaceAll(regex, "\\\\$1");
-		return query.replaceAll("##", "\\\\:");
+		query = query.replace("\\:", "##");
+		query = escapeRegex.matcher(query).replaceAll("\\\\$1");
+		return query.replace("##", "\\:");
 	}
 
 	private String getId(long itemId) {

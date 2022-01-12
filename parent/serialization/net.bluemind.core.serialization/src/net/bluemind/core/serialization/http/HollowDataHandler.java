@@ -169,7 +169,11 @@ public class HollowDataHandler implements Handler<HttpServerRequest>, NeedVertxE
 		}
 
 		public static Target fromPath(String path) {
-			path = path.replaceAll("/$", "").replace("..", "");
+			// Remove trailing slash
+			if (path.endsWith("/")) {
+				path = path.substring(0, path.length() - 1);
+			}
+			path = path.replace("..", "");
 			Matcher matcher = pattern.matcher(path);
 			if (matcher.matches()) {
 				String set = matcher.group(1);
