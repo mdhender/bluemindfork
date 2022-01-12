@@ -72,7 +72,7 @@ public class WebAppHandler implements Handler<HttpServerRequest>, NeedVertx {
 					sessionId);
 			provider.instance(IUserSettingsPromise.class, domainUid).getOne(userUid, "mail-application")
 					.thenAccept((mailApplication) -> {
-						if (mailApplication.equals("mail-webapp")) {
+						if ("mail-webapp".equals(mailApplication)) {
 							redirectToNewBanner(request);
 						} else {
 							redirectToOldBanner(request);
