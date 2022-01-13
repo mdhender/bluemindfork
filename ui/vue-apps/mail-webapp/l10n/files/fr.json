@@ -1,6 +1,12 @@
 {
     "alert": {
         "mail": {
+            "corporate_signature_inserted": {
+                "info": "Une signature définie par votre organisation remplace votre signature personnelle."
+            },
+            "corporate_signature_removed": {
+                "info": "La signature définie par votre organisation a été retirée."
+            },
             "create_folder": {
                 "loading": "Le dossier \"{name}\" est en cours de création...",
                 "success": "Le dossier {name} a bien été créé !",

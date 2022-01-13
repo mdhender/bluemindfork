@@ -1,24 +1,21 @@
 <template functional>
-    <span>
-        {{ parent.$tc($options.i18n(props.alert), $options.count(props), props.options) }}
-    </span>
+    <span>{{ parent.$tc($options.i18n(props.alert), $options.count(props), props.options) }}</span>
 </template>
+
 <script>
 export default {
     name: "DefaultAlert",
     props: {
         alert: {
             type: Object,
-            default: () => ({})
+            required: true
         },
         options: {
             type: Object,
-            required: false,
             default: () => ({})
         },
         count: {
             type: Number,
-            required: false,
             default: 0
         }
     },

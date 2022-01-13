@@ -4,6 +4,7 @@ import { ADD, CLEAR, ERROR, INFO, LOADING, REMOVE, SUCCESS, WARNING } from "./ty
 export { default as AlertTypes } from "./AlertTypes";
 export { default as AlertMixin } from "./AlertMixin";
 export { default as DefaultAlert } from "./DefaultAlert";
+export { default as ReadMoreAlert } from "./ReadMoreAlert";
 export { withAlert } from "./withAlert";
 export * from "./types";
 
@@ -86,8 +87,8 @@ function remove(state, uid) {
     }
 }
 
-function create({ name, error, payload, result, uid, type }, { area, dismissible, icon, renderer }) {
-    return { name, error, payload, result, uid, type, renderer, icon, dismissible, area };
+function create({ name, error, payload, result, uid, type }, { area, dismissible, icon, link, renderer }) {
+    return { name, error, payload, result, uid, type, renderer, icon, dismissible, area, link };
 }
 
 function clearDelay({ uid }) {

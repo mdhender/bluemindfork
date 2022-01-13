@@ -1,9 +1,7 @@
 <template>
     <div class="mail-message d-flex flex-column">
         <bm-alert-area :alerts="alerts" @remove="REMOVE">
-            <template v-slot="context">
-                <component :is="context.alert.renderer" :alert="context.alert" />
-            </template>
+            <template v-slot="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
         </bm-alert-area>
         <template v-if="ACTIVE_MESSAGE.composing">
             <mail-composer v-if="DEFAULT_IDENTITY" :message="ACTIVE_MESSAGE" />
