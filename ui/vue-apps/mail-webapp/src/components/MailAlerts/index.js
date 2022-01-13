@@ -1,3 +1,4 @@
+export { default as CorporateSignatureAlert } from "./CorporateSignatureAlert";
 export { default as CreateFolder } from "./CreateFolder";
 export { default as DefaultConversationAlert } from "./DefaultConversationAlert";
 export { default as EmptyFolder } from "./EmptyFolder";

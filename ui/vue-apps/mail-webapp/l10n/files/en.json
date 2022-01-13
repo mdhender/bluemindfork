@@ -2,10 +2,10 @@
     "alert": {
         "mail": {
             "corporate_signature_inserted": {
-                "info": "A signature set by your organization replace your personal signature."
+                "info": "A signature set by your organization replaces your personal signature."
             },
             "corporate_signature_removed": {
-                "info": "Signature set by your organization has been withdraw."
+                "info": "The signature set by your organization has been withdrawn."
             },
             "create_folder": {
                 "loading": "Folder \"{name}\" is being created...",
@@ -240,7 +240,6 @@
     "mail.conversation.icon.title": "Conversation of {count} messages",
     "mail.conversations.selected": "{count} conversations selected",
     "mail.conversation.show.middle.messages": "Show {count} messages",
-
     "mail.draft.not.sent": "This message has not been sent",
     "mail.empty": "is empty",
     "mail.error.email.address.invalid": "Invalid email address.",
@@ -418,7 +417,8 @@
             "toolbar": {
                 "insert_signature": "Insert my signature",
                 "use_template": "Use a template"
-            }
+            },
+            "read_only": "This content is set by your organization and can't be edited"
         },
         "create_subfolder": {
             "modal": {

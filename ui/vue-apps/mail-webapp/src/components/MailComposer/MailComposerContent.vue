@@ -1,5 +1,7 @@
 <template>
+    <mail-viewer-content-loading v-if="loading" class="flex-grow-1 mx-2" />
     <bm-file-drop-zone
+        v-else
         class="mail-composer-content z-index-110 as-attachments flex-grow-1"
         file-type-regex="^(?!.*image/(jpeg|jpg|png|gif)).*$"
         at-least-one-match
@@ -30,10 +32,14 @@
                 >
                     <bm-icon icon="3dots" size="sm" />
                 </bm-button>
-                <!-- eslint-disable-next-line vue/no-v-html -->
-                <div v-if="corporateSignature" class="cursor-not-allowed" v-html="corporateSignature.html" />
-                <!-- eslint-disable-next-line vue/no-v-html -->
-                <div v-if="disclaimer" class="cursor-not-allowed" v-html="disclaimer.html" />
+                <!-- eslint-disable vue/no-v-html -->
+                <div
+                    v-if="corporateSignature"
+                    class="cursor-not-allowed"
+                    :title="contentIsReadOnly"
+                    v-html="corporateSignature.html"
+                />
+                <div v-if="disclaimer" class="cursor-not-allowed" :title="contentIsReadOnly" v-html="disclaimer.html" />
             </bm-rich-editor>
         </bm-file-drop-zone>
     </bm-file-drop-zone>
@@ -47,10 +53,11 @@ import { BmButton, BmFileDropZone, BmIcon, BmRichEditor } from "@bluemind/styleg
 import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
 import { isNewMessage } from "~/model/draft";
 import { ComposerActionsMixin, ComposerInitMixin } from "~/mixins";
+import MailViewerContentLoading from "../MailViewer/MailViewerContentLoading";
 
 export default {
     name: "MailComposerContent",
-    components: { BmButton, BmFileDropZone, BmIcon, BmRichEditor },
+    components: { BmButton, BmFileDropZone, BmIcon, BmRichEditor, MailViewerContentLoading },
     mixins: [ComposerActionsMixin, ComposerInitMixin],
     props: {
         userPrefIsMenuBarOpened: {
@@ -63,7 +70,7 @@ export default {
         }
     },
     data() {
-        return { draggedFilesCount: -1 };
+        return { draggedFilesCount: -1, loading: false };
     },
     computed: {
         ...mapState("mail", ["messageCompose"]),
@@ -72,6 +79,9 @@ export default {
         },
         disclaimer() {
             return this.messageCompose.disclaimer;
+        },
+        contentIsReadOnly() {
+            return this.$t("mail.compose.read_only");
         }
     },
     watch: {
@@ -80,7 +90,9 @@ export default {
                 const newMessage = isNewMessage(this.message);
 
                 if (!newMessage) {
+                    this.loading = true;
                     await this.initFromRemoteMessage(this.message);
+                    this.loading = false;
                 }
 
                 // focus on content when a recipient is already set

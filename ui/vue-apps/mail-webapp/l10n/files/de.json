@@ -2,10 +2,10 @@
     "alert": {
         "mail": {
             "corporate_signature_inserted": {
-                "info": "A signature set by your organization replace your personal signature."
+                "info": "Eine unternehmensweite Signatur ersetzt Ihre persönliche Signatur."
             },
             "corporate_signature_removed": {
-                "info": "Signature set by your organization has been withdraw."
+                "info": "Die unternehmensweite Signatur wurde zurückgezogen."
             },
             "create_folder": {
                 "loading": "Der Ordner \"{name}\" wird erstellt...",
@@ -415,8 +415,10 @@
                 }
             },
             "toolbar": {
-                "insert_signature": "Meine Signatur einfügen"
-            }
+                "insert_signature": "Meine Signatur einfügen",
+                "use_template": "Vorlage verwenden"
+            },
+            "read_only": "Der Inhalt ist von Ihrem Unternehmen vorgegeben und kann nicht editiert werden"
         },
         "create_subfolder": {
             "modal": {

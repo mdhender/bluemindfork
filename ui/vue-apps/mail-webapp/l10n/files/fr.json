@@ -417,7 +417,8 @@
             "toolbar": {
                 "insert_signature": "Insérer ma signature",
                 "use_template": "Utiliser un modèle"
-            }
+            },
+            "read_only": "Ce contenu est défini par votre organisation et ne peut pas être modifié"
         },
         "create_subfolder": {
             "modal": {
