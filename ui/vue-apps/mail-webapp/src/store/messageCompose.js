@@ -6,8 +6,10 @@ import {
     SET_DRAFT_EDITOR_CONTENT,
     SET_MAX_MESSAGE_SIZE,
     SET_PENDING_ATTACHMENTS,
-    SET_SAVED_INLINE_IMAGES
+    SET_SAVED_INLINE_IMAGES,
+    SHOW_SENDER
 } from "~/mutations";
+import { IS_SENDER_SHOWN } from "~/getters";
 import templateChooser from "./templateChooser";
 
 export default {
@@ -29,7 +31,8 @@ export default {
         },
         [SET_MAX_MESSAGE_SIZE](state, size) {
             state.maxMessageSize = size;
-        }
+        },
+        [SHOW_SENDER]: (state, value) => (state.isSenderShown = value)
     },
 
     actions: {
@@ -40,12 +43,17 @@ export default {
         }
     },
 
+    getters: {
+        [IS_SENDER_SHOWN]: state => userSettings => state.isSenderShown || !!userSettings.always_show_sender
+    },
+
     state: {
         editorContent: "",
         collapsedContent: null,
         inlineImagesSaved: [],
         maxMessageSize: 0,
-        pendingAttachments: [] // used only to store forwarded attachments when they are not uploaded
+        pendingAttachments: [], // used only to store forwarded attachments when they are not uploaded
+        isSenderShown: false
     },
     modules: {
         templateChooser

@@ -3,7 +3,13 @@
         <h3 class="d-none d-lg-flex text-nowrap text-truncate card-header px-2 py-1">
             {{ panelTitle }}
         </h3>
-        <mail-composer-sender :message="message" @update="updateSignatureIfNeeded" />
+        <mail-composer-sender
+            v-if="isSenderShown"
+            class="ml-3"
+            label-class="ml-2"
+            :message="message"
+            @update="updateSignatureIfNeeded"
+        />
         <mail-composer-recipients
             ref="recipients"
             class="pl-3"

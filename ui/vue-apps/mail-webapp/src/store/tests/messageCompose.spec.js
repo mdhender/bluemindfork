@@ -4,8 +4,9 @@ import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
 import { MockMailboxesClient } from "@bluemind/test-utils";
 import storeOptions from "../messageCompose";
-import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT, SET_MAX_MESSAGE_SIZE } from "~/mutations";
+import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT, SET_MAX_MESSAGE_SIZE, SHOW_SENDER } from "~/mutations";
 import { LOAD_MAX_MESSAGE_SIZE } from "~/actions";
+import { IS_SENDER_SHOWN } from "~/getters";
 
 Vue.use(Vuex);
 
@@ -31,6 +32,11 @@ describe("messageCompose", () => {
             store.commit(SET_MAX_MESSAGE_SIZE, 30);
             expect(store.state.maxMessageSize).toBe(30);
         });
+        test("SHOW_SENDER", () => {
+            expect(store.state.isSenderShown).toBeFalsy();
+            store.commit(SHOW_SENDER, "pouet");
+            expect(store.state.isSenderShown).toBe("pouet");
+        });
     });
 
     describe("actions", () => {
@@ -45,6 +51,18 @@ describe("messageCompose", () => {
             await store.dispatch(LOAD_MAX_MESSAGE_SIZE, 3);
             expect(mailboxesService.getMailboxConfig).toHaveBeenCalledWith(3);
             expect(store.state.maxMessageSize).toBe(30 / 1.33);
+        });
+    });
+
+    describe("getters", () => {
+        test("IS_SENDER_SHOWN", () => {
+            const userSettings = {};
+            expect(store.getters[IS_SENDER_SHOWN](userSettings)).toBeFalsy();
+            userSettings.always_show_sender = true;
+            expect(store.getters[IS_SENDER_SHOWN](userSettings)).toBeTruthy();
+            userSettings.always_show_sender = false;
+            store.commit(SHOW_SENDER, true);
+            expect(store.getters[IS_SENDER_SHOWN](userSettings)).toBeTruthy();
         });
     });
 });

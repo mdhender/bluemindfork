@@ -1,7 +1,7 @@
 <template>
-    <div class="mail-composer-sender ml-3 d-flex flex-column justify-content-between">
+    <div class="mail-composer-sender d-flex flex-column justify-content-between">
         <div class="d-flex align-items-center flex-fill">
-            <span class="ml-2">{{ $t("common.from") }}</span>
+            <span :class="labelClass">{{ $t("common.from") }}</span>
             <bm-form-select
                 :value="{ email: message.from.address, displayname: message.from.dn }"
                 :options="options"
@@ -30,6 +30,10 @@ export default {
         message: {
             type: Object,
             required: true
+        },
+        labelClass: {
+            type: String,
+            default: ""
         }
     },
     computed: {

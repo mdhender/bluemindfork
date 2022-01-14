@@ -78,7 +78,7 @@
                 <bm-icon icon="3dots" size="2x" />
                 <span class="d-none d-lg-block">{{ $t("mail.toolbar.more") }}</span>
             </template>
-            <bm-dropdown-item v-if="!senderShown" @click="showSender">
+            <bm-dropdown-item v-if="!isSenderShown" @click="SHOW_SENDER(true)">
                 {{ $tc("mail.actions.show_sender", 1) }}
             </bm-dropdown-item>
         </bm-dropdown>
@@ -86,13 +86,14 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 
 import { BmButton, BmButtonGroup, BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
 
 import { ComposerActionsMixin } from "~/mixins";
 import { MessageStatus } from "~/model/message";
-import { MY_DRAFTS } from "~/getters";
+import { IS_SENDER_SHOWN, MY_DRAFTS } from "~/getters";
+import { SHOW_SENDER } from "~/mutations";
 
 export default {
     name: "MailToolbarComposeMessage",
@@ -111,7 +112,8 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", { MY_DRAFTS }),
+        ...mapGetters("mail", { IS_SENDER_SHOWN, MY_DRAFTS }),
+        ...mapState("session", { userSettings: ({ settings }) => settings.remote }),
         hasRecipient() {
             return this.message.to.length > 0 || this.message.cc.length > 0 || this.message.bcc.length > 0;
         },
@@ -131,23 +133,17 @@ export default {
                 return this.$t("mail.actions.save_template");
             }
         },
-        // TODO replace with getter when ready
-        senderShown() {
-            return true;
-        },
         noOtherActions() {
-            return this.senderAlwaysShown;
+            return this.isSenderShown;
+        },
+        isSenderShown() {
+            return this.IS_SENDER_SHOWN(this.userSettings);
         }
     },
     methods: {
+        ...mapMutations("mail", { SHOW_SENDER }),
         openFilePicker() {
             this.$refs.attachInputRef.click();
-        },
-        //TODO replace with mutation when ready
-        showSender() {
-            this.$bvModal.msgBoxConfirm("Coming soon !", {
-                title: "Not yet implemented"
-            });
         }
     }
 };

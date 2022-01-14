@@ -1,4 +1,4 @@
-import { mapMutations, mapState } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 import {
     addSignature,
     removeSignature,
@@ -6,7 +6,8 @@ import {
     isHtmlSignaturePresent,
     isTextSignaturePresent
 } from "~/model/signature";
-import { SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_SUBJECT } from "~/mutations";
+import { SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_SUBJECT, SHOW_SENDER } from "~/mutations";
+import { IS_SENDER_SHOWN } from "~/getters";
 
 export default {
     props: {
@@ -24,6 +25,8 @@ export default {
     computed: {
         ...mapState("mail", ["messageCompose"]),
         ...mapState("root-app", ["identities"]),
+        ...mapState("session", { userSettings: ({ settings }) => settings.remote }),
+        ...mapGetters("mail", { IS_SENDER_SHOWN }),
         signature() {
             return this.identities.find(
                 i => i.email === this.message.from.address && i.displayname === this.message.from.dn
@@ -36,10 +39,16 @@ export default {
                     ? isTextSignaturePresent(this.messageCompose.editorContent, this.signature)
                     : isHtmlSignaturePresent(this.messageCompose.editorContent, this.signature))
             );
+        },
+        isSenderShown() {
+            return this.IS_SENDER_SHOWN(this.userSettings);
         }
     },
+    destroyed() {
+        this.SHOW_SENDER(false);
+    },
     methods: {
-        ...mapMutations("mail", { SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_SUBJECT }),
+        ...mapMutations("mail", { SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_SUBJECT, SHOW_SENDER }),
         updateSubject(subject) {
             this.SET_MESSAGE_SUBJECT({ messageKey: this.message.key, subject });
             this.debouncedSave();
