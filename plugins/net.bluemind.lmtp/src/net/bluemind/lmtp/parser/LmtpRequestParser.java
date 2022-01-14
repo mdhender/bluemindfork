@@ -80,7 +80,7 @@ public class LmtpRequestParser implements Handler<Buffer> {
 					parseCmd(next);
 					break;
 				case Data:
-					logger.debug("request data size ", next.length());
+					logger.debug("request data size: {}", next.length());
 					requestHandler.handleDataBuffer(next);
 					break;
 				}

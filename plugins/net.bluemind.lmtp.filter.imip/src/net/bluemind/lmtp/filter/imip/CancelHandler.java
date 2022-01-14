@@ -35,7 +35,7 @@ public abstract class CancelHandler extends AbstractLmtpHandler {
 	protected boolean validate(IMIPInfos imip) {
 
 		if (imip.iCalendarElements.isEmpty()) {
-			logger.info("[" + imip.messageId + "] Event does not exist in BM, nothing to do.");
+			logger.info("[{}] Event does not exist in BM, nothing to do.", imip.messageId);
 			return false;
 		}
 

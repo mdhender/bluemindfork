@@ -31,6 +31,7 @@ public class PermissionDeniedException extends FilterException {
 		this.recipients = recipients;
 	}
 
+	@Override
 	public String getErrorCode() {
 		return "PERMISSION_DENIED";
 	}

@@ -95,7 +95,7 @@ public class TodoRequestHandler extends AbstractLmtpHandler implements IIMIPHand
 	private void create(ITodoList todoService, ItemValue<User> user, IMIPInfos imip, ICalendarElement element)
 			throws ServerFault {
 		if (imip.organizerEmail == null) {
-			logger.warn("[" + imip.messageId + "] We need a contact to identify the organizer");
+			logger.warn("[{}] we need a contact to identify the organizer", imip.messageId);
 		}
 
 		VTodo todo = (VTodo) element;

@@ -29,7 +29,7 @@ public final class LmtpEnvelope {
 	private final String id;
 
 	public LmtpEnvelope() {
-		mRecipients = new LinkedList<LmtpAddress>();
+		mRecipients = new LinkedList<>();
 		id = UUID.randomUUID().toString();
 	}
 
@@ -38,7 +38,7 @@ public final class LmtpEnvelope {
 	}
 
 	public boolean hasRecipients() {
-		return mRecipients.size() > 0;
+		return !mRecipients.isEmpty();
 	}
 
 	public void setSender(LmtpAddress sender) {

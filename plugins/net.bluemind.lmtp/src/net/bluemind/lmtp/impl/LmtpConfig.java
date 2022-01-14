@@ -47,7 +47,7 @@ public class LmtpConfig {
 			p.load(in);
 			String fromFile = p.getProperty("version");
 			if (fromFile == null) {
-				logger.warn("version property not found. Defaulting to " + defaultVersion);
+				logger.warn("version property not found. Defaulting to {}", defaultVersion);
 			} else {
 				fullVersion = fromFile;
 			}

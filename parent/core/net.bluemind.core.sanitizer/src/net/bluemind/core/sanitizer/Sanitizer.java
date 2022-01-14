@@ -36,7 +36,7 @@ public class Sanitizer {
 	private static final List<ISanitizerFactory<Object>> sanitizers = loadSanitizer();
 
 	private static List<ISanitizerFactory<Object>> loadSanitizer() {
-		RunnableExtensionLoader<ISanitizerFactory<Object>> rel = new RunnableExtensionLoader<ISanitizerFactory<Object>>();
+		RunnableExtensionLoader<ISanitizerFactory<Object>> rel = new RunnableExtensionLoader<>();
 		List<ISanitizerFactory<Object>> stores = rel.loadExtensionsWithPriority("net.bluemind.core", "sanitizerfactory",
 				"sanitizerfactory", "implementation");
 

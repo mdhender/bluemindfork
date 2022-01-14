@@ -55,7 +55,7 @@ public class MailboxCache extends AbstractVerticle {
 	public void start() {
 		logger.info("Registering mailbox cache listener");
 
-		vertx.eventBus().consumer(MailboxMessageForwarder.mailboxChanged, message -> {
+		vertx.eventBus().consumer(MailboxMessageForwarder.MAILBOX_CHANGED_EVENT, message -> {
 			JsonObject eventData = (JsonObject) message.body();
 			String uid = key(eventData.getString("mailbox"), eventData.getString("domain"));
 			logger.debug("Invalidating mailbox {}", uid);

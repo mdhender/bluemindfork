@@ -26,7 +26,7 @@ import net.bluemind.hornetq.client.vertx.IMessageForwarder;
 
 public class MailboxMessageForwarder implements IMessageForwarder {
 
-	public static String mailboxChanged = "bm.mailbox.changed";
+	public static String MAILBOX_CHANGED_EVENT = "bm.mailbox.changed";
 
 	@Override
 	public String getTopic() {
@@ -42,7 +42,7 @@ public class MailboxMessageForwarder implements IMessageForwarder {
 		msg.put("mailbox", mailbox);
 		msg.put("domain", domain);
 
-		vertx.eventBus().send(mailboxChanged, msg);
+		vertx.eventBus().send(MAILBOX_CHANGED_EVENT, msg);
 
 	}
 

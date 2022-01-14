@@ -23,8 +23,6 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.systemd.notify.Startup;
 
@@ -35,30 +33,17 @@ public class LMTPDaemon implements IApplication {
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		logger.info("Starting LMTP daemon...");
-		Handler<AsyncResult<Void>> doneHandler = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				logger.info("LMTP daemon started.");
-				Startup.notifyReady();
-			}
-		};
-		VertxPlatform.spawnVerticles(doneHandler);
+		VertxPlatform.spawnVerticles(event -> {
+			logger.info("LMTP daemon started.");
+			Startup.notifyReady();
+		});
 		return IApplication.EXIT_OK;
 	}
 
 	@Override
 	public void stop() {
 		logger.info("Stopping LMTP daemon...");
-
-		VertxPlatform.undeployVerticles(new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				logger.info("LMTP daemon really stopped.");
-			}
-		});
-
+		VertxPlatform.undeployVerticles(event -> logger.info("LMTP daemon really stopped."));
 		logger.info("LMTP daemon stopped.");
 	}
 

@@ -44,7 +44,7 @@ public class MilterActionsRegistry {
 
 	private static final void init() {
 		logger.info("loading net.bluemind.milter.actionfactory extensions");
-		RunnableExtensionLoader<MilterActionsFactory> rel = new RunnableExtensionLoader<MilterActionsFactory>();
+		RunnableExtensionLoader<MilterActionsFactory> rel = new RunnableExtensionLoader<>();
 		loaded = rel.loadExtensionsWithPriority("net.bluemind.milter", "actionfactory", "action_factory", "impl");
 		logger.info("{} implementation found for extensionpoint net.bluemind.milter.actionfactory", loaded.size());
 	}

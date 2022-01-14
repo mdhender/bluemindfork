@@ -367,21 +367,16 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 				.map(MailboxRecordItemCache::getAndInvalidate).filter(Optional::isPresent).map(Optional::get)
 				.collect(Collectors.toList());
 		if (knownRecs.isEmpty()) {
-			System.err.println("0 known recs out of " + recs.size() + " records.");
 			return false;
 		}
 		return storeService.doOrFail(() -> {
-			int upd = 0;
-			int create = 0;
 			ItemStore it = new ItemStore(savedDs, container, SecurityContext.SYSTEM);
 			for (ItemValue<MailboxRecord> toClone : knownRecs) {
 				Item inDb = it.getById(toClone.internalId);
 				if (inDb != null) {
 					storeService.update(toClone.item(), toClone.displayName, toClone.value);
-					upd++;
 				} else {
 					storeService.create(toClone.item(), toClone.value);
-					create++;
 				}
 			}
 			return true;

@@ -122,8 +122,7 @@ public class DirEntryQuery {
 	 * @return {@link DirEntryQuery}
 	 */
 	public static DirEntryQuery all() {
-		DirEntryQuery q = new DirEntryQuery();
-		return q;
+		return new DirEntryQuery();
 	}
 
 	/**

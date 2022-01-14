@@ -111,7 +111,7 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 
 		// create executor & completion service with workers thread
 		ExecutorService pool = Executors.newFixedThreadPool(workers);
-		CompletionService<OperationResult> opsWatcher = new ExecutorCompletionService<OperationResult>(pool);
+		CompletionService<OperationResult> opsWatcher = new ExecutorCompletionService<>(pool);
 
 		entriesWithDomainUid.forEach(de -> opsWatcher.submit(() -> {
 			try {

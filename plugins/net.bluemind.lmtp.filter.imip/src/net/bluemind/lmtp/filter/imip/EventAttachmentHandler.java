@@ -77,7 +77,7 @@ public class EventAttachmentHandler {
 				});
 			});
 		} catch (Exception e) {
-			logger.warn("Cannot detach event attachments", e);
+			logger.warn("Cannot detach event attachments: {}", e.getMessage(), e);
 		}
 
 	}

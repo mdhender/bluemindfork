@@ -95,7 +95,7 @@ public class MilterHandler implements JilterHandler {
 
 	@Override
 	public JilterStatus connect(String hostname, InetAddress hostaddr, Properties properties) {
-		logger.debug("connect " + hostname + " " + hostaddr);
+		logger.debug("connect {} {}", hostname, hostaddr);
 		accumulator = new MessageAccumulator();
 		accumulator.connect(hostname, hostaddr, properties);
 		return JilterStatus.SMFIS_CONTINUE;
@@ -395,7 +395,7 @@ public class MilterHandler implements JilterHandler {
 	public int getSupportedProcesses() {
 		int supported = PROCESS_CONNECT | PROCESS_BODY | PROCESS_ENVFROM | PROCESS_ENVRCPT | PROCESS_HEADER
 				| PROCESS_HELO;
-		logger.debug("supportedProcesses: " + Integer.toBinaryString(supported));
+		logger.debug("supportedProcesses: {}", Integer.toBinaryString(supported));
 		return supported;
 	}
 

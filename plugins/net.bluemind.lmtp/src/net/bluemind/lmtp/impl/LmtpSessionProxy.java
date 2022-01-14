@@ -37,7 +37,6 @@ import com.netflix.spectator.api.patterns.PolledMeter;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
@@ -128,41 +127,15 @@ public class LmtpSessionProxy implements LmtpRequestHandler, LmtpResponseHandler
 		client.handler(lmtpRequestParser);
 		backend.handler(new LmtpResponseParser(backend.writeHandlerID(), this));
 
-		client.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				numConnections.decrementAndGet();
-				final long end = registry.clock().monotonicTime();
-				timer.record(end - start, TimeUnit.NANOSECONDS);
-				backend.close();
-			}
+		client.endHandler(event -> {
+			numConnections.decrementAndGet();
+			final long end = registry.clock().monotonicTime();
+			timer.record(end - start, TimeUnit.NANOSECONDS);
+			backend.close();
 		});
-
-		backend.closeHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				client.close();
-			}
-		});
-
-		backend.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				client.close();
-			}
-		});
-
-		client.closeHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				backend.close();
-			}
-
-		});
+		backend.closeHandler(event -> client.close());
+		backend.endHandler(event -> client.close());
+		client.closeHandler(event -> backend.close());
 
 		client.resume();
 		backend.resume();
@@ -262,7 +235,7 @@ public class LmtpSessionProxy implements LmtpRequestHandler, LmtpResponseHandler
 
 		registry.distributionSummary(idFactory.name("emailSize")).record(data.readableBytes());
 
-		if (toValidate.size() != 0) {
+		if (!toValidate.isEmpty()) {
 			logger.warn("rcpt should be empty at this stage");
 		}
 
@@ -291,14 +264,7 @@ public class LmtpSessionProxy implements LmtpRequestHandler, LmtpResponseHandler
 
 					if (backend.writeQueueFull()) {
 						logger.debug("backend socket is full, put a drainHandler");
-						backend.drainHandler(new Handler<Void>() {
-
-							@Override
-							public void handle(Void event) {
-								logger.debug("ready to recieve more command from client");
-							}
-
-						});
+						backend.drainHandler(evt -> logger.debug("ready to recieve more command from client"));
 					} else {
 						logger.debug("ready to recieve more command from client");
 					}
@@ -376,7 +342,7 @@ public class LmtpSessionProxy implements LmtpRequestHandler, LmtpResponseHandler
 			mEnvelope.addRecipient(value);
 		}
 
-		if (toDeliver.size() == 0) {
+		if (toDeliver.isEmpty()) {
 			deliveryDone();
 			reset();
 			resume();

@@ -37,17 +37,9 @@ public class LmtpResponseParser implements Handler<Buffer> {
 
 	private static final Logger logger = LoggerFactory.getLogger(LmtpResponseParser.class);
 
-	private Handler<Buffer> lineHandler = new Handler<Buffer>() {
-
-		@Override
-		public void handle(final Buffer buf) {
-			handleDelimited(buf);
-		}
-	};
-
 	private List<String> response = new LinkedList<>();
 
-	private RecordParser recordParser = RecordParser.newDelimited("\r\n", lineHandler);
+	private RecordParser recordParser = RecordParser.newDelimited("\r\n", this::handleDelimited);
 
 	private LmtpResponseHandler responseHandler;
 
@@ -67,8 +59,8 @@ public class LmtpResponseParser implements Handler<Buffer> {
 	private void handleDelimited(Buffer buf) {
 		logger.debug("response \n{}\nend response", buf);
 		if (buf.length() < 3) {
-			logger.warn("Response is too short: {}", buf.toString());
-			doResponse(Buffer.buffer("451 4.5.0 Too short response from Cyrus LMTP: " + buf.toString()));
+			logger.warn("Response is too short: {}", buf);
+			doResponse(Buffer.buffer("451 4.5.0 Too short response from Cyrus LMTP: " + buf));
 			return;
 		}
 
@@ -86,7 +78,7 @@ public class LmtpResponseParser implements Handler<Buffer> {
 		} else if (spc == ' ') {
 			doResponse(buf);
 		} else {
-			logger.warn("Wrongly formated response: {}" + buf.toString());
+			logger.warn("Wrongly formated response: {}", buf);
 			doResponse(Buffer.buffer("451 4.5.0 Invalid response from Cyrus LMTP: "
 					+ buf.getBuffer(0, buf.length() < 10 ? buf.length() : 10).toString() + "..."));
 		}

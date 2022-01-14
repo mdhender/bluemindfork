@@ -68,11 +68,9 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 		Header header = m.getHeader();
 		if (header != null) {
 			Field spamFlag = header.getField("X-Spam-Flag");
-			if (spamFlag != null) {
-				if ("YES".equals(spamFlag.getBody())) {
-					logger.info("Not attempting IMIP processing on Spam message");
-					return null;
-				}
+			if (spamFlag != null && "YES".equals(spamFlag.getBody())) {
+				logger.info("Not attempting IMIP processing on Spam message");
+				return null;
 			}
 		}
 
@@ -169,8 +167,8 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 	 */
 	private IMIPResponse handleIMIPMessage(LmtpAddress sender, final LmtpAddress recipient, final IMIPInfos imip)
 			throws ServerFault, MailboxInvitationDeniedException, CounterNotAllowedException {
-		logger.info("[" + imip.messageId + "] IMIP message from: " + sender + " to " + recipient + ". Method: "
-				+ imip.method + ". Organizer: " + imip.organizerEmail);
+		logger.info("[{}] IMIP message from: {} to {}. Method: {}. Organizer: {}", imip.messageId, sender, recipient,
+				imip.method, imip.organizerEmail);
 
 		ItemValue<Domain> domain = provider().instance(IDomains.class).findByNameOrAliases(recipient.getDomainPart());
 		if (domain == null) {
@@ -211,7 +209,7 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 		}
 
 		if (mailbox.get().value.type != Mailbox.Type.user && mailbox.get().value.type != Mailbox.Type.resource) {
-			logger.warn("Unsuported entry kind: {} for email {}", mailbox.get().value.type.toString(),
+			logger.warn("Unsuported entry kind: {} for email {}", mailbox.get().value.type,
 					recipient.getEmailAddress());
 			throw new MailboxInvitationDeniedException(mailbox.get().uid);
 		}
@@ -220,7 +218,7 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 	}
 
 	private static class HeaderList {
-		private List<String> exclusiveKeys = Arrays.asList(new String[] { "X-BM-EVENT" });
+		private List<String> exclusiveKeys = Arrays.asList("X-BM-EVENT");
 		private List<Field> headers = new ArrayList<>();
 
 		public void add(Field f) {

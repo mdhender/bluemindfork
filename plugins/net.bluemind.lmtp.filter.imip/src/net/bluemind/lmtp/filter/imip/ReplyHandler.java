@@ -38,7 +38,7 @@ public abstract class ReplyHandler extends AbstractLmtpHandler {
 	protected boolean validate(IMIPInfos imip, List<Attendee> atts) {
 
 		if (imip.iCalendarElements.isEmpty()) {
-			logger.warn("[" + imip.messageId + "] can't handle reply, no VEvents/VTodos found");
+			logger.warn("[{}] can't handle reply, no VEvents/VTodos found", imip.messageId);
 			return false;
 		}
 

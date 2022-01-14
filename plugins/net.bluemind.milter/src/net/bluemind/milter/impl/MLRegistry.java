@@ -26,7 +26,7 @@ public class MLRegistry {
 
 	private static final void init() {
 		logger.info("loading net.bluemind.milter.milterfactory extensions");
-		RunnableExtensionLoader<IMilterListenerFactory> rel = new RunnableExtensionLoader<IMilterListenerFactory>();
+		RunnableExtensionLoader<IMilterListenerFactory> rel = new RunnableExtensionLoader<>();
 		List<IMilterListenerFactory> tmp = rel.loadExtensions("net.bluemind.milter", "milterfactory", "milter_factory",
 				"impl");
 		logger.info("{} implementation found for extensionpoint net.bluemind.milter.milterfactory", tmp.size());

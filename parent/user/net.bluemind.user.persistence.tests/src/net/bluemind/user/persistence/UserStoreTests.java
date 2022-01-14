@@ -127,7 +127,7 @@ public class UserStoreTests {
 		User created = userStore.get(item);
 		assertEquals(0, created.properties.size());
 
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		u.properties = properties;
 		userStore.update(item, u);
 		created = userStore.get(item);

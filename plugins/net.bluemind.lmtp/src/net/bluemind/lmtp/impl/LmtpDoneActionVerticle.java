@@ -57,7 +57,7 @@ public class LmtpDoneActionVerticle extends AbstractVerticle {
 			LmtpReply reply = recipient.getDeliveryStatus();
 
 			if (logger.isDebugEnabled()) {
-				logger.debug("{} return status: {}", recipient.getEmailAddress(), reply.toString());
+				logger.debug("{} return status: {}", recipient.getEmailAddress(), reply);
 			}
 
 			String rmail = recipient.getEmailAddress();

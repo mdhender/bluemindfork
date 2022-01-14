@@ -36,19 +36,13 @@ public class MilterApplication implements IApplication {
 
 	private CompletableFuture<Void> launchVerticles() {
 		CompletableFuture<Void> future = new CompletableFuture<>();
-		MQ.init(new MQ.IMQConnectHandler() {
-
-			@Override
-			public void connected() {
-				VertxPlatform.spawnVerticles((e) -> {
-					if (!e.succeeded()) {
-						future.completeExceptionally(e.cause());
-					} else {
-						future.complete(null);
-					}
-				});
+		MQ.init(() -> VertxPlatform.spawnVerticles((e) -> {
+			if (!e.succeeded()) {
+				future.completeExceptionally(e.cause());
+			} else {
+				future.complete(null);
 			}
-		});
+		}));
 		return future;
 	}
 

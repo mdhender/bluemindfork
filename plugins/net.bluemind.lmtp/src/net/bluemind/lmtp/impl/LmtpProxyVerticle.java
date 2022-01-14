@@ -64,7 +64,7 @@ public class LmtpProxyVerticle extends AbstractVerticle {
 		if (f.exists()) {
 			try {
 				host = Files.asCharSource(f, StandardCharsets.US_ASCII).readFirstLine();
-				if (host.indexOf(':') > 0) {
+				if (host.indexOf(':') >= 0) {
 					String[] splitted = host.split(":");
 					host = splitted[0];
 					port = Integer.parseInt(splitted[1]);
@@ -103,69 +103,52 @@ public class LmtpProxyVerticle extends AbstractVerticle {
 	}
 
 	private Handler<NetSocket> onConnect() {
-
-		return new Handler<NetSocket>() {
-
-			@Override
-			public void handle(final NetSocket socket) {
-				socket.exceptionHandler(exceptionHandler(socket));
-				logger.info("connect from {}, initialize backend connection ", socket.remoteAddress());
-				if (CoreStateListener.state == SystemState.CORE_STATE_RUNNING) {
-					initiateProxySession(socket);
-				} else {
-					logger.warn("Core is not running, refusing LMTP proxy connection");
-					socket.close();
-				}
+		return (NetSocket socket) -> {
+			socket.exceptionHandler(exceptionHandler(socket));
+			logger.info("connect from {}, initialize backend connection ", socket.remoteAddress());
+			if (CoreStateListener.state == SystemState.CORE_STATE_RUNNING) {
+				initiateProxySession(socket);
+			} else {
+				logger.warn("Core is not running, refusing LMTP proxy connection");
+				socket.close();
 			}
 		};
 
 	}
 
 	protected Handler<Throwable> exceptionHandler(NetSocket socket) {
-		return new Handler<Throwable>() {
-
-			@Override
-			public void handle(Throwable throwable) {
-				logger.error("error during handling socket {}", socket, throwable);
-				socket.close();
-			}
+		return (Throwable throwable) -> {
+			logger.error("error during handling socket {}", socket, throwable);
+			socket.close();
 		};
 	}
 
 	protected void initiateProxySession(final NetSocket socket) {
 		socket.pause();
-		netClient.connect(LMTP_HOST.port, LMTP_HOST.host, new Handler<AsyncResult<NetSocket>>() {
+		netClient.connect(LMTP_HOST.port, LMTP_HOST.host, (AsyncResult<NetSocket> event) -> {
+			if (event.succeeded()) {
+				logger.debug("connected to {}", LMTP_HOST);
+				NetSocket backend = event.result();
+				LmtpSessionProxy proxy = new LmtpSessionProxy(MetricsRegistry.get(), vertx.eventBus(), socket, backend,
+						config);
 
-			@Override
-			public void handle(AsyncResult<NetSocket> event) {
-				if (event.succeeded()) {
-					logger.debug("connected to {}", LMTP_HOST);
-					NetSocket backend = event.result();
-					LmtpSessionProxy proxy = new LmtpSessionProxy(MetricsRegistry.get(), vertx.eventBus(), socket,
-							backend, config);
-
-					proxy.start();
-				} else {
-					logger.error("error during connecting to lmtp backend. LMTP_HOST: {}", LMTP_HOST, event.cause());
-					socket.close();
-				}
+				proxy.start();
+			} else {
+				logger.error("error during connecting to lmtp backend. LMTP_HOST: {}", LMTP_HOST, event.cause());
+				socket.close();
 			}
 		});
 
 	}
 
 	private Handler<AsyncResult<NetServer>> listenHandler(Promise<Void> start) {
-		return new Handler<AsyncResult<NetServer>>() {
+		return (AsyncResult<NetServer> event) -> {
+			logger.info("listen, success: {}", event.succeeded());
+			if (event.succeeded()) {
+				start.complete(null);
 
-			@Override
-			public void handle(AsyncResult<NetServer> event) {
-				logger.info("listen, success: {}", event.succeeded());
-				if (event.succeeded()) {
-					start.complete(null);
-
-				} else {
-					start.fail(event.cause());
-				}
+			} else {
+				start.fail(event.cause());
 			}
 		};
 	}
