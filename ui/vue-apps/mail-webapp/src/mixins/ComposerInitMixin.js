@@ -5,7 +5,7 @@ import { inject } from "@bluemind/inject";
 import { sanitizeHtml } from "@bluemind/html-utils";
 
 import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
-import { MY_DRAFTS } from "~/getters";
+import { CURRENT_MAILBOX, MY_DRAFTS } from "~/getters";
 import {
     ADD_ATTACHMENT,
     ADD_MESSAGES,
@@ -170,9 +170,10 @@ export default {
             const message = createReplyOrForward(
                 previousMessage,
                 this.$_ComposerInitMixin_MY_DRAFTS,
-                inject("UserSession"),
+                this.$store.getters["mail/" + CURRENT_MAILBOX],
                 creationMode,
-                this.$_ComposerInitMixin_defaultIdentity
+                this.$store.state["root-app"].identities,
+                this.$store.state.session.settings.remote.auto_select_from
             );
 
             const parts = getPartsFromCapabilities(previousMessage, COMPOSER_CAPABILITIES);

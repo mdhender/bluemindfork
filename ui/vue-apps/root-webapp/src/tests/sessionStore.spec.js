@@ -34,6 +34,7 @@ describe("Store session", () => {
         expect(context.commit).toHaveBeenCalledWith("SET_SETTINGS", {
             always_show_from: "false",
             always_show_quota: "false",
+            auto_select_from: "never",
             default_event_alert_mode: "Display",
             insert_signature: "true",
             logout_purge: "false",

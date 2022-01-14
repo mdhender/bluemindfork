@@ -63,8 +63,16 @@ export function createEmpty(myDraftsFolder, defaultIdentity) {
     return message;
 }
 
-export function createReplyOrForward(previousMessage, myDraftsFolder, userSession, creationMode, defaultIdentity) {
-    const message = createEmpty(myDraftsFolder, defaultIdentity);
+export function createReplyOrForward(
+    previousMessage,
+    myDraftsFolder,
+    currentMailbox,
+    creationMode,
+    identities,
+    autoSelectFromPref
+) {
+    // FIXME userSession = {} when merging with Vincent feature (defaultIdentity is set by createEmpty function)
+    const message = createEmpty(myDraftsFolder, {});
 
     const draftInfoHeader = {
         type: creationMode,
@@ -74,12 +82,10 @@ export function createReplyOrForward(previousMessage, myDraftsFolder, userSessio
     message.headers = [{ name: MessageHeader.X_BM_DRAFT_INFO, values: [JSON.stringify(draftInfoHeader)] }];
 
     if (creationMode === MessageCreationModes.REPLY_ALL || creationMode === MessageCreationModes.REPLY) {
-        message.to = computeToRecipients(
-            creationMode,
-            previousMessage,
-            userSession.defaultEmail,
-            userSession.formatedName
-        );
+        if (autoSelectFromPref === "only_replies" || autoSelectFromPref === "replies_and_new_messages") {
+            message.from = computeFrom(previousMessage, identities);
+        }
+        message.to = computeToRecipients(creationMode, previousMessage, message.from);
         message.cc = computeCcRecipients(creationMode, previousMessage);
     }
     if (creationMode === MessageCreationModes.FORWARD) {
@@ -140,6 +146,46 @@ export function createFromDraft(previous, folder) {
 }
 
 // INTERNAL METHOD (exported only for testing purpose)
+export function computeFrom(message, identities) {
+    let chosenIdentity;
+    const defaultIdentity = identities.find(id => !!id.isDefault);
+    const identitiesFoundInTo = findIdentities(message.to, identities);
+    const identitiesFoundInCc = findIdentities(message.cc, identities);
+    const identitiesFound = identitiesFoundInTo.concat(identitiesFoundInCc);
+    if (identitiesFound.length === 0) {
+        chosenIdentity = defaultIdentity;
+    } else if (identitiesFound.length === 1) {
+        chosenIdentity = identitiesFound[0];
+    } else {
+        // multiple identities matching recipients
+        if (identitiesFound.find(id => !!id.isDefault)) {
+            chosenIdentity = defaultIdentity;
+        } else if (identitiesFoundInTo.length > 0) {
+            chosenIdentity = identitiesFoundInTo[0];
+        } else {
+            chosenIdentity = identitiesFound[0];
+        }
+    }
+    return { address: chosenIdentity.email, dn: chosenIdentity.displayname };
+}
+
+function findIdentities(recipients, identities) {
+    let matchingIdentities = [];
+    recipients.forEach(recipient => {
+        const exactMatch = identities.find(id => id.displayname === recipient.dn && id.email === recipient.address);
+        if (exactMatch) {
+            matchingIdentities.push(exactMatch);
+        } else {
+            const approximateMatch = identities.find(id => id.email === recipient.address);
+            if (approximateMatch) {
+                matchingIdentities.push(approximateMatch);
+            }
+        }
+    });
+    return matchingIdentities;
+}
+
+// INTERNAL METHOD (exported only for testing purpose)
 export function computeCcRecipients(creationMode, previousMessage) {
     let cc = [];
     const mailFollowUpTo = previousMessage.headers.find(header => header.name === MessageHeader.MAIL_FOLLOWUP_TO);
@@ -150,47 +196,43 @@ export function computeCcRecipients(creationMode, previousMessage) {
 }
 
 // INTERNAL METHOD (exported only for testing purpose)
-export function computeToRecipients(creationMode, previousMessage, myEmail, myName) {
-    let to = [];
-
+export function computeToRecipients(creationMode, previousMessage, from) {
     const isReplyAll = creationMode === MessageCreationModes.REPLY_ALL;
     const mailFollowUpTo = previousMessage.headers.find(header => header.name === MessageHeader.MAIL_FOLLOWUP_TO);
-
     const mailReplyToHeader = previousMessage.headers.find(header => header.name === MessageHeader.MAIL_REPLY_TO);
     const replyToHeader = previousMessage.headers.find(header => header.name === MessageHeader.REPLY_TO);
 
     if (isReplyAll && mailFollowUpTo) {
-        to = extractAddressesFromHeader(mailFollowUpTo, true);
+        return extractAddressesFromHeader(mailFollowUpTo, true);
     } else if (mailReplyToHeader) {
-        to = extractAddressesFromHeader(mailReplyToHeader, isReplyAll);
+        return extractAddressesFromHeader(mailReplyToHeader, isReplyAll);
     } else if (replyToHeader) {
-        to = extractAddressesFromHeader(replyToHeader, isReplyAll);
+        return extractAddressesFromHeader(replyToHeader, isReplyAll);
     } else {
         // compute recipients from "From" or "To"
         let recipients = [previousMessage.from];
         if (isReplyAll) {
             // respond to sender and all recipients except myself
             recipients.push(...previousMessage.to);
-            recipients = recipients.filter(r => r.address !== myEmail);
+            recipients = recipients.filter(r => r.address !== from.address);
             // FIXME: avoid duplicates
             if (recipients.length === 0) {
                 // I was alone, respond to myself then
-                recipients = [{ address: myEmail, name: myName }];
+                recipients = [{ ...from }];
             }
-        } else if (recipients.map(r => r.address).includes(myEmail)) {
+        } else if (recipients.map(r => r.address).includes(from.address)) {
             // all recipients except myself
-            recipients = previousMessage.to.filter(r => r.address !== myEmail);
+            recipients = previousMessage.to.filter(r => r.address !== from.address);
             if (recipients.length === 0) {
                 // I was alone, respond to myself then
-                recipients = [{ address: myEmail, name: myName }];
+                recipients = [{ ...from }];
             } else {
                 // respond to the first "not me" recipient only
                 recipients = [recipients[0]];
             }
         }
-        to = recipients;
+        return recipients;
     }
-    return to;
 }
 
 function extractAddressesFromHeader(header, isReplyAll) {

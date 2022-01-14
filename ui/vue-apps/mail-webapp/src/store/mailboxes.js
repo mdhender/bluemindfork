@@ -67,9 +67,8 @@ export default {
 };
 
 async function consolidateWithDirEntries(mailboxes) {
-    const userMailboxes = mailboxes.filter(m => m.type === MailboxType.USER);
-    const dirEntries = await inject("DirectoryPersistence").getMultiple(userMailboxes.map(({ owner }) => owner));
-    userMailboxes.forEach(mailbox => {
+    const dirEntries = await inject("DirectoryPersistence").getMultiple(mailboxes.map(({ owner }) => owner));
+    mailboxes.forEach(mailbox => {
         const dirEntry = dirEntries.find(dirEntry => dirEntry.uid === mailbox.owner);
         if (dirEntry) {
             mailbox.dn = dirEntry.value.displayName;
