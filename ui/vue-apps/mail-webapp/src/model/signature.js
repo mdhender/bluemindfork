@@ -1,11 +1,32 @@
 import { createDocumentFragment } from "@bluemind/html-utils";
 
+export function addSignature(content, userPrefTextOnly, signature) {
+    return userPrefTextOnly ? addTextSignature(content, signature) : addHtmlSignature(content, signature);
+}
+
+export function removeSignature(content, userPrefTextOnly, signature) {
+    return userPrefTextOnly ? removeTextSignature(content, signature) : removeHtmlSignature(content, signature);
+}
+
+export function removeSignatureAttr(content) {
+    const patternToRemove = "<" + HTML_SIGNATURE_TAG + " " + HTML_SIGNATURE_ATTR + '="">';
+    return content.replace(patternToRemove, "<div>");
+}
+
+export function replaceSignature(content, userPrefTextOnly, signature) {
+    return userPrefTextOnly ? replaceTextSignature(content, signature) : replaceHtmlSignature(content, signature);
+}
+
+export function isSignaturePresent(content, signature, userPrefTextOnly) {
+    return signature && userPrefTextOnly ? isTextSignaturePresent(content, signature) : isHtmlSignaturePresent(content);
+}
+
 const HTML_SIGNATURE_ATTR = "data-bm-signature"; // must match same attr defined in RichEditor.Signature extension and in sanitizeHtml
 const HTML_SIGNATURE_TAG = "div";
 const HTML_SIGNATURE_SELECTOR = HTML_SIGNATURE_TAG + "[" + HTML_SIGNATURE_ATTR + "]";
 const TEXT_SIGNATURE_PREFIX = "--\n";
 
-export function isHtmlSignaturePresent(raw) {
+function isHtmlSignaturePresent(raw) {
     const fragment = createDocumentFragment(raw);
     const signature = fragment.querySelector(HTML_SIGNATURE_SELECTOR);
     return !!signature;
@@ -47,7 +68,7 @@ function replaceHtmlSignature(raw, signatureContent) {
     return fragment.firstElementChild.innerHTML;
 }
 
-export function isTextSignaturePresent(raw, content) {
+function isTextSignaturePresent(raw, content) {
     // FIXME does not work if 'content' contains regex special characters like '('
     const regexp = new RegExp("^" + TEXT_SIGNATURE_PREFIX + content, "mi");
     return regexp.test(raw);
@@ -68,21 +89,4 @@ function replaceTextSignature(raw, content) {
     // FIXME does not work if 'content' contains regex special characters like '('
     const regexp = new RegExp("^" + TEXT_SIGNATURE_PREFIX + content, "mi");
     return raw.replace(regexp, "").replace(regexp, TEXT_SIGNATURE_PREFIX + content);
-}
-
-export function addSignature(content, userPrefTextOnly, signature) {
-    return userPrefTextOnly ? addTextSignature(content, signature) : addHtmlSignature(content, signature);
-}
-
-export function removeSignature(content, userPrefTextOnly, signature) {
-    return userPrefTextOnly ? removeTextSignature(content, signature) : removeHtmlSignature(content, signature);
-}
-
-export function removeSignatureAttr(content) {
-    const patternToRemove = "<" + HTML_SIGNATURE_TAG + " " + HTML_SIGNATURE_ATTR + '="">';
-    return content.replace(patternToRemove, "<div>");
-}
-
-export function replaceSignature(content, userPrefTextOnly, signature) {
-    return userPrefTextOnly ? replaceTextSignature(content, signature) : replaceHtmlSignature(content, signature);
 }

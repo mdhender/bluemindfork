@@ -2,7 +2,7 @@ import Vue from "vue";
 import Vue2TouchEvents from "vue2-touch-events";
 import VueI18n from "vue-i18n";
 
-import { default as AlertStore, DefaultAlert, ReadMoreAlert } from "@bluemind/alert.store";
+import { default as AlertStore, DefaultAlert } from "@bluemind/alert.store";
 import { generateDateTimeFormats, InheritTranslationsMixin } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
 import router from "@bluemind/router";
@@ -35,7 +35,6 @@ async function initWebApp() {
     }
     const i18n = initI18N(userSession);
     Vue.component("DefaultAlert", DefaultAlert);
-    Vue.component("ReadMoreAlert", ReadMoreAlert);
     adaptLegacyNotificationSystem();
     new Vue({
         el: "#app",

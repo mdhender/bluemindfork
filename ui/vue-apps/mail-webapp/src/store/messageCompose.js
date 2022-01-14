@@ -1,6 +1,7 @@
 import { inject } from "@bluemind/inject";
 import { CHECK_CORPORATE_SIGNATURE, LOAD_MAX_MESSAGE_SIZE } from "~/actions";
 import {
+    RESET_COMPOSER,
     RESET_PENDING_ATTACHMENTS,
     SET_CORPORATE_SIGNATURE,
     SET_DISCLAIMER,
@@ -16,6 +17,15 @@ import templateChooser from "./templateChooser";
 
 export default {
     mutations: {
+        [RESET_COMPOSER]: state => {
+            state.disclaimer = null;
+            state.corporateSignature = null;
+            state.editorContent = "";
+            state.collapsedContent = null;
+            state.inlineImagesSaved = [];
+            state.pendingAttachments = [];
+            state.isSenderShown = false;
+        },
         [RESET_PENDING_ATTACHMENTS]: state => {
             state.pendingAttachments = [];
         },
@@ -80,7 +90,7 @@ export default {
         editorContent: "",
         collapsedContent: null,
         inlineImagesSaved: [],
-        maxMessageSize: 0,
+        maxMessageSize: 0, // FIXME: it's a cross-composer data, it must be moved in another store
         pendingAttachments: [], // used only to store forwarded attachments when they are not uploaded
         isSenderShown: false
     },

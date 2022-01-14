@@ -1,13 +1,7 @@
 import { mapGetters, mapMutations, mapState } from "vuex";
-import { INFO } from "@bluemind/alert.store";
-import {
-    addSignature,
-    removeSignature,
-    replaceSignature,
-    isHtmlSignaturePresent,
-    isTextSignaturePresent
-} from "~/model/signature";
-import { SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_SUBJECT, SHOW_SENDER } from "~/mutations";
+import { INFO, REMOVE } from "@bluemind/alert.store";
+import { addSignature, removeSignature, replaceSignature, isSignaturePresent } from "~/model/signature";
+import { RESET_COMPOSER, SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_SUBJECT } from "~/mutations";
 import { IS_SENDER_SHOWN } from "~/getters";
 
 const corporateSignatureGotInserted = {
@@ -43,12 +37,7 @@ export default {
             ).signature;
         },
         isSignatureInserted() {
-            return (
-                this.signature &&
-                (this.userPrefTextOnly
-                    ? isTextSignaturePresent(this.messageCompose.editorContent, this.signature)
-                    : isHtmlSignaturePresent(this.messageCompose.editorContent, this.signature))
-            );
+            return isSignaturePresent(this.messageCompose.editorContent, this.signature, this.userPrefTextOnly);
         },
         isSenderShown() {
             return this.IS_SENDER_SHOWN(this.userSettings);
@@ -78,10 +67,12 @@ export default {
         }
     },
     destroyed() {
-        this.SHOW_SENDER(false);
+        this.$store.commit("mail/" + RESET_COMPOSER);
+        this.$store.dispatch("alert/" + REMOVE, corporateSignatureGotRemoved.alert);
+        this.$store.dispatch("alert/" + REMOVE, corporateSignatureGotInserted.alert);
     },
     methods: {
-        ...mapMutations("mail", { SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_SUBJECT, SHOW_SENDER }),
+        ...mapMutations("mail", { SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_SUBJECT }),
         updateSubject(subject) {
             this.SET_MESSAGE_SUBJECT({ messageKey: this.message.key, subject });
             this.debouncedSave();
