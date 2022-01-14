@@ -70,7 +70,6 @@ import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.utils.JsonUtils;
@@ -101,36 +100,17 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 
 	@Override
 	public TaskRef reindexAll() throws ServerFault {
-		return context.provider().instance(ITasksManager.class).run(new IServerTask() {
-
-			@Override
-			public void run(IServerTaskMonitor monitor) throws Exception {
-				reindexAll(monitor);
-			}
-		});
-
+		return context.provider().instance(ITasksManager.class).run(this::reindexAll);
 	}
 
 	@Override
 	public TaskRef reindexDomain(final String domainUid) throws ServerFault {
-		return context.provider().instance(ITasksManager.class).run(new IServerTask() {
-
-			@Override
-			public void run(IServerTaskMonitor monitor) throws Exception {
-				reindexDomain(domainUid, monitor);
-			}
-		});
+		return context.provider().instance(ITasksManager.class).run(monitor -> reindexDomain(domainUid, monitor));
 	}
 
 	@Override
 	public TaskRef reindex(final String bookUid) throws ServerFault {
-
-		return context.provider().instance(ITasksManager.class).run(new IServerTask() {
-			@Override
-			public void run(IServerTaskMonitor monitor) throws Exception {
-				reindex(bookUid, monitor);
-			}
-		});
+		return context.provider().instance(ITasksManager.class).run(monitor -> reindex(bookUid, monitor));
 	}
 
 	@Override
