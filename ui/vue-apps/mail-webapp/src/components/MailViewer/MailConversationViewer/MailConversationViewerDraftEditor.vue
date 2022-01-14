@@ -7,6 +7,12 @@
     >
         <template slot="head">
             <div class="col pl-3 align-self-center">
+                <mail-composer-sender
+                    v-if="isSenderShown"
+                    label-class="font-weight-bold text-secondary"
+                    :message="message"
+                    @update="updateSignatureIfNeeded"
+                />
                 <bm-contact-input
                     ref="to"
                     :contacts="message.to"
@@ -113,8 +119,10 @@
                         :message-key="message.key"
                         :signature="signature"
                         :is-signature-inserted="isSignatureInserted"
+                        :is-sender-shown="isSenderShown"
                         @toggle-text-format="userPrefIsMenuBarOpened = !userPrefIsMenuBarOpened"
                         @toggle-signature="toggleSignature"
+                        @toggle-sender="toggleSender"
                     />
                 </div>
             </div>
@@ -129,6 +137,7 @@ import { ComposerActionsMixin, ComposerInitMixin, ComposerMixin, EditRecipientsM
 import MailComposerAttachments from "../../MailComposer/MailComposerAttachments";
 import MailComposerContent from "../../MailComposer/MailComposerContent";
 import MailComposerFooter from "../../MailComposer/MailComposerFooter";
+import MailComposerSender from "../../MailComposer/MailComposerSender";
 import MailConversationViewerItem from "./MailConversationViewerItem";
 import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import MailConversationViewerFieldSep from "./MailConversationViewerFieldSep";
@@ -145,6 +154,7 @@ export default {
         MailComposerAttachments,
         MailComposerContent,
         MailComposerFooter,
+        MailComposerSender,
         MailConversationViewerItem,
         MailConversationViewerFieldSep,
         MailConversationViewerVerticalLine

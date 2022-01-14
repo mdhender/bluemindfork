@@ -69,6 +69,9 @@
                 <bm-dropdown-item-button icon="documents" @click="openTemplateChooser">
                     {{ $t("mail.compose.toolbar.use_template") }}
                 </bm-dropdown-item-button>
+                <bm-dropdown-item-toggle v-if="!isSenderShown" :checked="isSenderShown" @click="SHOW_SENDER(true)">
+                    {{ $t("mail.actions.show_sender") }}
+                </bm-dropdown-item-toggle>
             </bm-dropdown>
         </div>
     </div>
@@ -82,8 +85,9 @@ import { BmExtension } from "@bluemind/extensions";
 import { ComposerActionsMixin, FormattedDateMixin } from "~/mixins";
 import { MessageStatus } from "~/model/message";
 import { isNewMessage } from "~/model/draft";
-import { SET_TEMPLATE_CHOOSER_TARGET, SET_TEMPLATE_CHOOSER_VISIBLE } from "~/mutations";
-import { mapMutations } from "vuex";
+import { SET_TEMPLATE_CHOOSER_TARGET, SET_TEMPLATE_CHOOSER_VISIBLE, SHOW_SENDER } from "~/mutations";
+import { IS_SENDER_SHOWN } from "~/getters";
+import { mapGetters, mapMutations, mapState } from "vuex";
 
 export default {
     name: "MailComposerFooter",
@@ -111,6 +115,8 @@ export default {
         }
     },
     computed: {
+        ...mapGetters("mail", { IS_SENDER_SHOWN }),
+        ...mapState("session", { userSettings: ({ settings }) => settings.remote }),
         hasRecipient() {
             return this.message.to.length > 0 || this.message.cc.length > 0 || this.message.bcc.length > 0;
         },
@@ -155,10 +161,13 @@ export default {
         },
         disableSend() {
             return this.errorOccuredOnSave || this.isSending || !this.hasRecipient || this.anyRecipientInError;
+        },
+        isSenderShown() {
+            return this.IS_SENDER_SHOWN(this.userSettings);
         }
     },
     methods: {
-        ...mapMutations("mail", { SET_TEMPLATE_CHOOSER_TARGET, SET_TEMPLATE_CHOOSER_VISIBLE }),
+        ...mapMutations("mail", { SET_TEMPLATE_CHOOSER_TARGET, SET_TEMPLATE_CHOOSER_VISIBLE, SHOW_SENDER }),
         openFilePicker() {
             this.$refs.attachInputRef.click();
         },
