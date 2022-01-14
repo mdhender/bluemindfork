@@ -19,6 +19,7 @@
 package net.bluemind.core.task.service;
 
 import org.slf4j.event.Level;
+import org.slf4j.helpers.MessageFormatter;
 
 public interface IServerTaskMonitor {
 
@@ -83,5 +84,9 @@ public interface IServerTaskMonitor {
 
 	default void log(String log, Throwable t) {
 		log(log);
+	}
+
+	default void log(String format, Object... params) {
+		log(MessageFormatter.arrayFormat(format, params).getMessage());
 	}
 }

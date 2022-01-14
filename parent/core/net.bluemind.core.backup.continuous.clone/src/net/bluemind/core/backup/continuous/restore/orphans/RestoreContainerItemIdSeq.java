@@ -53,12 +53,12 @@ public class RestoreContainerItemIdSeq {
 	}
 
 	public void restore(IServerTaskMonitor monitor, List<DataElement> dataElements) {
-		monitor.log("Bumping container item id seq for " + servers.size() + " server(s)");
+		monitor.log("Bumping container item id sequence for {} server(s)", serverItems.size());
 
 		String payload = new String(dataElements.get(dataElements.size() - 1).payload);
 		ContainerItemIdSeq itemIdSeq = reader.read(payload).value;
 		bumpAllContainerItemId(monitor, itemIdSeq);
-		monitor.progress(1, "Dealt with topology");
+		monitor.progress(1, "Container item id sequence bumped");
 	}
 
 	private void bumpAllContainerItemId(IServerTaskMonitor monitor, ContainerItemIdSeq itemIdSeq) {
@@ -75,10 +75,8 @@ public class RestoreContainerItemIdSeq {
 	private void bumpContainerItemId(IServerTaskMonitor monitor, String dbName, String ip, long seq) {
 		INodeClient nodeClient = NodeActivator.get(ip);
 		long shiftedSeq = SEQ_SHIFT + seq;
-		monitor.log("Bumping t_container_item_id_seq to " + shiftedSeq + " (ip:" + ip + " db:" + dbName + " seq:"
-				+ shiftedSeq + ")");
-//		monitor.log("Bumping t_container_item_id_seq to {} (server '{}', db '{}', max item id '{}')", shiftedSeq, ip, dbName,
-//				maxItemId);
+		monitor.log("Bumping t_container_item_id_seq to {} (server '{}', db '{}', leader seq '{}')", shiftedSeq, ip,
+				dbName, seq);
 		String bumpCmd = String.format(
 				"PGPASSWORD=%s psql -h localhost -c \"select setval('t_container_item_id_seq', %d)\" %s %s", "bj",
 				shiftedSeq, dbName, "bj");
