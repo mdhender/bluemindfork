@@ -17,11 +17,16 @@ export default {
     mixins: [AlertMixin],
     computed: {
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
-        ...mapState("mail", ["folders"]),
+        ...mapState("mail", ["folders", "mailboxes"]),
         link() {
+            const folder = this.folders[this.result.folderRef.key];
             return {
                 name: "v:mail:message",
-                params: { message: this.result, folder: this.folders[this.result.folderRef.key]?.path }
+                params: {
+                    message: this.result,
+                    folder: folder?.path,
+                    mailbox: this.mailboxes[folder?.mailboxRef.key]?.name
+                }
             };
         },
         subject() {
