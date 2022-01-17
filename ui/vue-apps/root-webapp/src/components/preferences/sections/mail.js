@@ -234,6 +234,17 @@ export default function (i18n) {
                         },
                         fields: [
                             {
+                                id: "field",
+                                component: {
+                                    name: "PrefFieldSwitch",
+                                    options: {
+                                        setting: "always_show_from",
+                                        autosave: true,
+                                        label: i18n.t("preferences.mail.identities.always_show_from")
+                                    }
+                                }
+                            },
+                            {
                                 id: "automatic",
                                 component: {
                                     name: "PrefFieldSelect",
@@ -253,17 +264,6 @@ export default function (i18n) {
                                                 value: "replies_and_new_messages"
                                             }
                                         ]
-                                    }
-                                }
-                            },
-                            {
-                                id: "field",
-                                component: {
-                                    name: "PrefFieldSwitch",
-                                    options: {
-                                        setting: "always_show_from",
-                                        autosave: true,
-                                        label: i18n.t("preferences.mail.identities.always_show_from")
                                     }
                                 }
                             },

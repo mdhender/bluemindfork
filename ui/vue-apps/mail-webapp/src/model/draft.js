@@ -39,20 +39,22 @@ export function draftPath(myDrafts) {
 // FIXME remove once we use 'real' message ids for new message
 export let FIXME_NEW_DRAFT_KEY;
 
-export function createEmpty(myDraftsFolder, defaultIdentity) {
+export function createEmpty(folder, currentMailbox, identities, autoSelectFromPref) {
     const metadata = {
         internalId: TEMPORARY_MESSAGE_ID,
-        folder: { key: myDraftsFolder.key, uid: myDraftsFolder.remoteRef.uid }
+        folder: { key: folder.key, uid: folder.remoteRef.uid }
     };
     const message = createMessage(metadata);
-    FIXME_NEW_DRAFT_KEY = messageKey(--DRAFT_HASH, myDraftsFolder.key);
+    FIXME_NEW_DRAFT_KEY = messageKey(--DRAFT_HASH, folder.key);
     message.key = FIXME_NEW_DRAFT_KEY;
 
     message.date = new Date();
-    message.from = {
-        address: defaultIdentity.email,
-        dn: defaultIdentity.displayname
-    };
+    const defaultIdentity = identities.find(id => !!id.isDefault);
+    if (autoSelectFromPref === "replies_and_new_messages") {
+        message.from = identityToFrom(findIdentityFromMailbox(currentMailbox, identities, defaultIdentity));
+    } else {
+        message.from = identityToFrom(defaultIdentity);
+    }
     message.flags = [Flag.SEEN];
     message.status = MessageStatus.NEW;
     message.loading = LoadingStatus.LOADED;
@@ -71,8 +73,7 @@ export function createReplyOrForward(
     identities,
     autoSelectFromPref
 ) {
-    // FIXME userSession = {} when merging with Vincent feature (defaultIdentity is set by createEmpty function)
-    const message = createEmpty(myDraftsFolder, {});
+    const message = createEmpty(myDraftsFolder, currentMailbox, identities, autoSelectFromPref);
 
     const draftInfoHeader = {
         type: creationMode,
@@ -83,7 +84,7 @@ export function createReplyOrForward(
 
     if (creationMode === MessageCreationModes.REPLY_ALL || creationMode === MessageCreationModes.REPLY) {
         if (autoSelectFromPref === "only_replies" || autoSelectFromPref === "replies_and_new_messages") {
-            message.from = computeFrom(previousMessage, identities);
+            message.from = computeFrom(previousMessage, identities, currentMailbox);
         }
         message.to = computeToRecipients(creationMode, previousMessage, message.from);
         message.cc = computeCcRecipients(creationMode, previousMessage);
@@ -131,7 +132,8 @@ function handleIdentificationFields(message, previousMessage) {
 }
 
 export function createFromDraft(previous, folder) {
-    const message = createEmpty(folder, {});
+    // passing null arguments because there are useless here : there are used only to compute From, which is overwrite the line just after
+    const message = createEmpty(folder, {}, [], "");
     message.from = { ...previous.from };
     message.to = previous.to.slice();
     message.cc = previous.cc.slice();
@@ -146,14 +148,14 @@ export function createFromDraft(previous, folder) {
 }
 
 // INTERNAL METHOD (exported only for testing purpose)
-export function computeFrom(message, identities) {
+export function computeFrom(message, identities, currentMailbox) {
     let chosenIdentity;
     const defaultIdentity = identities.find(id => !!id.isDefault);
     const identitiesFoundInTo = findIdentities(message.to, identities);
     const identitiesFoundInCc = findIdentities(message.cc, identities);
     const identitiesFound = identitiesFoundInTo.concat(identitiesFoundInCc);
     if (identitiesFound.length === 0) {
-        chosenIdentity = defaultIdentity;
+        chosenIdentity = findIdentityFromMailbox(currentMailbox, identities, defaultIdentity);
     } else if (identitiesFound.length === 1) {
         chosenIdentity = identitiesFound[0];
     } else {
@@ -166,7 +168,20 @@ export function computeFrom(message, identities) {
             chosenIdentity = identitiesFound[0];
         }
     }
-    return { address: chosenIdentity.email, dn: chosenIdentity.displayname };
+    return identityToFrom(chosenIdentity);
+}
+
+function findIdentityFromMailbox(currentMailbox, identities, defaultIdentity) {
+    // we can use findIdentities here because mailbox & recipients have both { address, dn } properties
+    const matchingId = findIdentities([currentMailbox], identities);
+    if (matchingId[0]) {
+        return matchingId[0];
+    }
+    return defaultIdentity;
+}
+
+function identityToFrom(identity) {
+    return { address: identity.email, dn: identity.displayname };
 }
 
 function findIdentities(recipients, identities) {

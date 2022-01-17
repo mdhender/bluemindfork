@@ -152,7 +152,7 @@ export default {
 
         // case of a new message
         initNewMessage() {
-            const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS, this.$_ComposerInitMixin_defaultIdentity);
+            const message = this.$_ComposerInitMixin_createEmpty();
             this.$_ComposerInitMixin_ADD_MESSAGES([message]);
             let content = "";
             if (this.$_ComposerInitMixin_signature && this.$_ComposerInitMixin_insertSignaturePref === "true") {
@@ -235,7 +235,7 @@ export default {
         },
 
         async initEditAsNew(related) {
-            const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS, this.$_ComposerInitMixin_defaultIdentity);
+            const message = this.$_ComposerInitMixin_createEmpty();
             this.$_ComposerInitMixin_ADD_MESSAGES([message]);
             this.mergeRecipients(message, related);
             this.mergeSubject(message, related);
@@ -298,6 +298,15 @@ export default {
             rcpts.push(...message.bcc);
             recipients = message.bcc.concat(bcc.filter(bcc => rcpts.every(rcpt => bcc.address !== rcpt.address)));
             this.$store.commit(`mail/${SET_MESSAGE_BCC}`, { messageKey: message.key, bcc: recipients });
+        },
+
+        $_ComposerInitMixin_createEmpty() {
+            return createEmpty(
+                this.$_ComposerInitMixin_MY_DRAFTS,
+                this.$store.getters["mail/" + CURRENT_MAILBOX],
+                this.$store.state["root-app"].identities,
+                this.$store.state.session.settings.remote.auto_select_from
+            );
         }
     }
 };

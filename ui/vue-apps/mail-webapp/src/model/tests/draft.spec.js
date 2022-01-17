@@ -2,7 +2,14 @@ import { MockI18NProvider } from "@bluemind/test-utils";
 import ServiceLocator from "@bluemind/inject";
 
 import { create, MessageCreationModes, MessageHeader } from "../message";
-import { computeCcRecipients, computeToRecipients, computeSubject, addSeparator, computeFrom } from "../draft";
+import {
+    computeCcRecipients,
+    computeToRecipients,
+    computeSubject,
+    createEmpty,
+    addSeparator,
+    computeFrom
+} from "../draft";
 
 ServiceLocator.register({ provide: "i18n", factory: () => MockI18NProvider });
 const vueI18n = ServiceLocator.getProvider("i18n").get();
@@ -238,19 +245,11 @@ describe("compute From when replying", () => {
     const anotherAgain = { email: "rh@mail.org", name: "rh", isDefault: false, displayname: "RH" };
     const identities = [defaultId, other, anotherAgain];
 
-    test("use default identity when there are no recipients or no identities found", () => {
-        let message = { to: [], cc: [] };
-        let from = computeFrom(message, identities);
-        expect(from.address).toBe("default@mail.org");
-
-        message = { to: [{ address: "blabla@mail.com" }], cc: [{ address: "moreblabla@mail.org" }] };
-        from = computeFrom(message, identities);
-        expect(from.address).toBe("default@mail.org");
-    });
+    const currentMailbox = { address: "rh@mail.org" };
 
     test("only one identity", () => {
         const message = { to: [{ address: "contact@mail.org" }], cc: [] };
-        const from = computeFrom(message, identities);
+        const from = computeFrom(message, identities, currentMailbox);
         expect(from.address).toBe("contact@mail.org");
     });
 
@@ -259,13 +258,48 @@ describe("compute From when replying", () => {
             to: [{ address: "contact@mail.org" }, { address: "default@mail.org" }],
             cc: [{ address: "rh@mail.org" }]
         };
-        const from = computeFrom(message, identities);
+        const from = computeFrom(message, identities, currentMailbox);
         expect(from.address).toBe("default@mail.org");
     });
 
     test("priorize 'to' recipient if multiple found (and no default)", () => {
         const message = { to: [{ address: "contact@mail.org" }], cc: [{ address: "rh@mail.org" }] };
-        const from = computeFrom(message, identities);
+        const from = computeFrom(message, identities, currentMailbox);
         expect(from.address).toBe("contact@mail.org");
+    });
+
+    test("if no identities found in recipients, take current mailbox one", () => {
+        const message = { to: [], cc: [] };
+        const from = computeFrom(message, identities, currentMailbox);
+        expect(from.address).toBe("rh@mail.org");
+    });
+
+    test("if no identities found in recipients, and mailbox dont match any identity, use default", () => {
+        let message = { to: [], cc: [] };
+        let from = computeFrom(message, identities, {});
+        expect(from.address).toBe("default@mail.org");
+
+        message = { to: [{ address: "blabla@mail.com" }], cc: [{ address: "moreblabla@mail.org" }] };
+        from = computeFrom(message, identities, { address: "cantfindme@mail.org", dn: "Cant find me" });
+        expect(from.address).toBe("default@mail.org");
+    });
+});
+
+describe("Compute From when creating message", () => {
+    const defaultId = { email: "default@mail.org", name: "default", isDefault: true, displayname: "default" };
+    const other = { email: "contact@mail.org", name: "contacts", isDefault: false, displayname: "Contact" };
+    const identities = [other, defaultId];
+
+    const myDraftsFolder = { key: "drafts-key", remoteRef: { uid: "drafts-uid" } };
+    const currentMailbox = { dn: other.displayname, address: other.email };
+
+    test("set default identity if no automatic behavior set", () => {
+        const message = createEmpty(myDraftsFolder, currentMailbox, identities, "never");
+        expect(message.from).toMatchObject({ address: defaultId.email, dn: defaultId.displayname });
+    });
+
+    test("set identity according to currentMailbox if automatic behavior is set", () => {
+        const message = createEmpty(myDraftsFolder, currentMailbox, identities, "replies_and_new_messages");
+        expect(message.from).toMatchObject(currentMailbox);
     });
 });
