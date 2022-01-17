@@ -6,32 +6,38 @@ import { MailboxType } from "../../../model/mailbox";
 describe("MailboxAdaptor", () => {
     describe("fromMailboxContainer", () => {
         const mailshare = containers.find(({ type, name }) => type === "mailboxacl" && name === "read.write");
+        const mailshareDirEntry = { displayName: "my mailshare", email: "mail@share.net" };
         const user = containers.find(({ type, name }) => type === "mailboxacl" && name === "alice");
+        const userDirEntry = { displayName: "Alice ", email: "alice@mails.net" };
         test("mailshare mailbox", () => {
-            expect(MailboxAdaptor.fromMailboxContainer(mailshare)).toMatchInlineSnapshot(`
+            expect(MailboxAdaptor.fromMailboxContainer(mailshare, mailshareDirEntry)).toMatchInlineSnapshot(`
                 Object {
+                  "address": "mail@share.net",
+                  "dn": "my mailshare",
                   "key": "2814CC5D-D372-4F66-A434-89863E99B8CD",
                   "loading": "NOT-LOADED",
-                  "name": "read.write",
+                  "name": "my mailshare",
                   "offlineSync": false,
                   "owner": "2814CC5D-D372-4F66-A434-89863E99B8CD",
                   "remoteRef": Object {
                     "id": 48,
                     "uid": "2814CC5D-D372-4F66-A434-89863E99B8CD",
                   },
-                  "root": "read.write",
+                  "root": "my mailshare",
                   "type": "mailshares",
                   "writable": true,
                 }
             `);
         });
         test("user mailbox", () => {
-            const mailbox = MailboxAdaptor.fromMailboxContainer(user);
+            const mailbox = MailboxAdaptor.fromMailboxContainer(user, userDirEntry);
             expect(mailbox).toMatchInlineSnapshot(`
                 Object {
+                  "address": "alice@mails.net",
+                  "dn": "Alice ",
                   "key": "user.6793466E-F5D4-490F-97BF-DF09D3327BF4",
                   "loading": "NOT-LOADED",
-                  "name": "Alice",
+                  "name": "alice@mails.net",
                   "offlineSync": false,
                   "owner": "6793466E-F5D4-490F-97BF-DF09D3327BF4",
                   "remoteRef": Object {
@@ -43,40 +49,6 @@ describe("MailboxAdaptor", () => {
                   "writable": true,
                 }
             `);
-        });
-    });
-    describe("toMailboxContainer", () => {
-        test("mailshare mailbox", () => {
-            expect(
-                MailboxAdaptor.toMailboxContainer({
-                    type: MailboxType.MAILSHARE,
-                    owner: "boss",
-                    name: "mailbox",
-                    writable: false
-                })
-            ).toStrictEqual({
-                ownerDirEntryPath: "/mailshares",
-                owner: "boss",
-                ownerDisplayname: "mailbox",
-                verbs: [Verb.Read],
-                type: "mailboxacl"
-            });
-        });
-        test("user mailbox", () => {
-            expect(
-                MailboxAdaptor.toMailboxContainer({
-                    type: MailboxType.USER,
-                    owner: "boss",
-                    name: "mailbox",
-                    writable: true
-                })
-            ).toStrictEqual({
-                ownerDirEntryPath: "/users",
-                owner: "boss",
-                ownerDisplayname: "mailbox",
-                verbs: [Verb.Write],
-                type: "mailboxacl"
-            });
         });
     });
 });

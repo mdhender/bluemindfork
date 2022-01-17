@@ -53,27 +53,21 @@ export default {
             const mailboxUids = subscriptions
                 .filter(subscription => subscription.value.containerType === "mailboxacl")
                 .map(subscription => subscription.value.containerUid);
-            const mailboxes = (await inject("ContainersPersistence").getContainers(mailboxUids))
-                .map(MailboxAdaptor.fromMailboxContainer)
-                .filter(Boolean)
+            const remoteMailboxes = await inject("ContainersPersistence").getContainers(mailboxUids);
+            const dirEntries = await inject("DirectoryPersistence").getMultiple(
+                remoteMailboxes.map(({ owner }) => owner)
+            );
+            const mailboxes = remoteMailboxes
+                .map(remote => {
+                    const dirEntry = dirEntries.find(dirEntry => dirEntry.uid === remote.owner);
+                    return MailboxAdaptor.fromMailboxContainer(remote, dirEntry.value);
+                })
+                .filter(Boolean) // unsupported mailbox (like groups one) are undefined here (due to mailbox model #create fn)
                 .map(mailbox => {
                     mailbox.loading = state[mailbox.key]?.loading || mailbox.loading;
                     return mailbox;
                 });
-            await consolidateWithDirEntries(mailboxes);
             commit(ADD_MAILBOXES, mailboxes);
         }
     }
 };
-
-async function consolidateWithDirEntries(mailboxes) {
-    const dirEntries = await inject("DirectoryPersistence").getMultiple(mailboxes.map(({ owner }) => owner));
-    mailboxes.forEach(mailbox => {
-        const dirEntry = dirEntries.find(dirEntry => dirEntry.uid === mailbox.owner);
-        if (dirEntry) {
-            mailbox.dn = dirEntry.value.displayName;
-            mailbox.address = dirEntry.value.email;
-            mailbox.name = mailbox.address;
-        }
-    });
-}

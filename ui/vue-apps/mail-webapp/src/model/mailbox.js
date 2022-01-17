@@ -5,18 +5,18 @@ export const MailboxType = {
     USER: "users"
 };
 
-export function create({ owner, name, type }) {
+export function create({ owner, dn, address, type }) {
     switch (type) {
         case MailboxType.USER:
-            return createUserMailbox({ owner, name });
+            return createUserMailbox({ owner, dn, address });
         case MailboxType.MAILSHARE:
-            return createSharedMailbox({ owner, name });
+            return createSharedMailbox({ owner, dn, address });
     }
 }
 
-function createUserMailbox({ owner, name }) {
+function createUserMailbox({ owner, dn, address }) {
     return {
-        ...createBaseMailbox({ owner, name }),
+        ...createBaseMailbox({ owner, name: address, dn, address }),
         type: MailboxType.USER,
         remoteRef: {
             uid: "user." + owner
@@ -26,20 +26,22 @@ function createUserMailbox({ owner, name }) {
     };
 }
 
-function createSharedMailbox({ owner, name }) {
+function createSharedMailbox({ owner, dn, address }) {
     return {
-        ...createBaseMailbox({ owner, name }),
+        ...createBaseMailbox({ owner, name: dn, dn, address }),
         type: MailboxType.MAILSHARE,
         remoteRef: {
             uid: owner
         },
         key: owner,
-        root: name
+        root: dn
     };
 }
 
-function createBaseMailbox({ owner, name }) {
+function createBaseMailbox({ owner, name, dn, address }) {
     return {
+        dn,
+        address,
         owner,
         name,
         loading: LoadingStatus.NOT_LOADED,

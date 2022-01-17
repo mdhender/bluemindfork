@@ -24,7 +24,15 @@ inject.register({
     factory: () => ({
         getMultiple: () => [
             { uid: aliceUid, value: { email: "alice.coupeur@bluemind.net", displayName: "Alice Coupeur" } },
-            { uid: bobUid, value: { email: "bob.leponge@bluemind.net", displayName: "Bob Leponge" } }
+            { uid: bobUid, value: { email: "bob.leponge@bluemind.net", displayName: "Bob Leponge" } },
+            {
+                uid: "2814CC5D-D372-4F66-A434-89863E99B8CD",
+                value: { email: "some@mails.org", displayName: "Some mails" }
+            },
+            {
+                uid: "A78219B7-6F50-457D-BECA-4614865B3E2B",
+                value: { email: "other@mails.org", displayName: "Others mails" }
+            }
         ]
     })
 });

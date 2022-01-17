@@ -28,17 +28,12 @@ export default {
         ...mapState("mail", ["folders", "conversationList"])
     },
     methods: {
-        ...mapActions("mail", {
-            LOAD_MAX_MESSAGE_SIZE,
-            FETCH_FOLDERS,
-            FETCH_MAILBOXES,
-            UNREAD_FOLDER_COUNT
-        }),
+        ...mapActions("mail", { LOAD_MAX_MESSAGE_SIZE, FETCH_FOLDERS, FETCH_MAILBOXES, UNREAD_FOLDER_COUNT }),
         ...mapMutations("mail", { ADD_MAILBOXES }),
         ...mapMutations("root-app", ["SET_APP_STATE"]),
         $_BootstrapMixin_initMyMailbox() {
-            const { userId: owner, defaultEmail: name } = inject("UserSession");
-            const myMailbox = create({ owner, name, type: MailboxType.USER });
+            const { userId: owner, defaultEmail: address } = inject("UserSession");
+            const myMailbox = create({ owner, dn: address, address, type: MailboxType.USER });
             this.ADD_MAILBOXES([myMailbox]);
         },
         async $_BootstrapMixin_loadMailbox() {
