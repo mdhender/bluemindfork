@@ -50,6 +50,7 @@ smtpd_recipient_restrictions=permit_sasl_authenticated,permit_mynetworks,reject_
 smtpd_sasl_authenticated_header=yes
 
 smtpd_sender_restrictions = check_sender_access tcp:127.0.0.1:25250
+recipient_canonical_maps = tcp:127.0.0.1:25251
 
 # Misc
 disable_vrfy_command=yes
