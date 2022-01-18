@@ -39,9 +39,9 @@ public class ByteSourceEventProducer extends AbstractVerticle {
 	public static final String REGISTER = "wbxml.bytesource.register";
 	public static final String NEXT_CHUNK = "wbxml.stream.next.chunk";
 
-	private final Map<String, InputStream> liveStreams = new ConcurrentHashMap<>();
-	private final Map<String, DisposableByteSource> disposables = new ConcurrentHashMap<>();
-	private final AtomicLong streamId = new AtomicLong(0);
+	private static final Map<String, InputStream> liveStreams = new ConcurrentHashMap<>();
+	private static final Map<String, DisposableByteSource> disposables = new ConcurrentHashMap<>();
+	private static final AtomicLong streamId = new AtomicLong(0);
 	private final NextStreamChunkRequestHandler nextHandler = new NextStreamChunkRequestHandler();
 	private static final Logger logger = LoggerFactory.getLogger(ByteSourceEventProducer.class);
 
