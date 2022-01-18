@@ -1,5 +1,6 @@
 import { mapGetters, mapMutations, mapState } from "vuex";
 import { INFO, REMOVE } from "@bluemind/alert.store";
+import { CHECK_CORPORATE_SIGNATURE } from "~/actions";
 import { addSignature, removeSignature, replaceSignature, isSignaturePresent } from "~/model/signature";
 import { RESET_COMPOSER, SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_SUBJECT } from "~/mutations";
 import { IS_SENDER_SHOWN } from "~/getters";
@@ -88,8 +89,9 @@ export default {
                 );
             }
         },
-        updateSignatureIfNeeded() {
-            if (this.isSignatureInserted) {
+        async updateSignatureIfNeeded() {
+            await this.$store.dispatch("mail/" + CHECK_CORPORATE_SIGNATURE, { message: this.message });
+            if (this.isSignatureInserted && !this.messageCompose.corporateSignature) {
                 this.SET_DRAFT_EDITOR_CONTENT(
                     replaceSignature(this.messageCompose.editorContent, this.userPrefTextOnly, this.signature)
                 );

@@ -95,9 +95,9 @@ describe("messageCompose", () => {
         test("IS_SENDER_SHOWN", () => {
             const userSettings = {};
             expect(store.getters[IS_SENDER_SHOWN](userSettings)).toBeFalsy();
-            userSettings.always_show_from = true;
+            userSettings.always_show_from = "true";
             expect(store.getters[IS_SENDER_SHOWN](userSettings)).toBeTruthy();
-            userSettings.always_show_from = false;
+            userSettings.always_show_from = "false";
             store.commit(SHOW_SENDER, true);
             expect(store.getters[IS_SENDER_SHOWN](userSettings)).toBeTruthy();
         });

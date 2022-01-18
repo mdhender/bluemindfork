@@ -60,8 +60,8 @@ export default {
             commit(SET_MAX_MESSAGE_SIZE, messageMaxSize / 1.33);
         },
         async [CHECK_CORPORATE_SIGNATURE]({ commit }, { message }) {
-            commit(SET_DISCLAIMER, null);
-            commit(SET_CORPORATE_SIGNATURE, null);
+            let anyDisclaimerApplied = false;
+            let anyCorporateSignatureApplied = false;
 
             const context = getMailTipContext(message);
             const mailTips = await inject("MailTipPersistence").getMailTips(context);
@@ -70,12 +70,21 @@ export default {
                     const desc = JSON.parse(tip.value);
                     if (tip.mailtipType === "Signature") {
                         if (desc.isDisclaimer) {
+                            anyDisclaimerApplied = true;
                             commit(SET_DISCLAIMER, desc);
                         } else {
+                            anyCorporateSignatureApplied = true;
                             commit(SET_CORPORATE_SIGNATURE, desc);
                         }
                     }
                 });
+            }
+
+            if (!anyDisclaimerApplied) {
+                commit(SET_DISCLAIMER, null);
+            }
+            if (!anyCorporateSignatureApplied) {
+                commit(SET_CORPORATE_SIGNATURE, null);
             }
         }
     },
