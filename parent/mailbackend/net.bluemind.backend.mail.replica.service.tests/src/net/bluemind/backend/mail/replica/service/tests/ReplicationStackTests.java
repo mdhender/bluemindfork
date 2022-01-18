@@ -2191,11 +2191,11 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		ItemValue<MailboxFolder> foundItem = mboxesApi.byName(base);
 		System.out.println("Found " + foundItem.value.name);
 
-		CountDownLatch hierUpdLock = expectMessages("mailreplica.hierarchy.updated", 3);
+		CountDownLatch hierUpdLock = expectMessages("mailreplica.hierarchy.updated", 2);
 
 		mboxesApi.emptyFolder(foundItem.internalId);
 
-		assertTrue("Expected 3 updates to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
+		assertTrue("Expected 2 updates to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
 		imapAsUser(sc -> {
 			ListResult foundFolders = sc.listAll();
 			for (ListInfo f : foundFolders) {
