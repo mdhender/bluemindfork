@@ -207,7 +207,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		String mailshareName = boxname(mbox.value, domainUid);
 		CyrusPartition partition = CyrusPartition.forServerAndDomain(srv, domainUid);
 		try (SyncClientOIO sync = new SyncClientOIO(srv.value.address(), 2502)) {
-			sync.authenticate("admin0", "admin");
+			sync.authenticate("admin0", Token.admin0());
 			for (DefaultFolder f : folders) {
 				if (createWithSyncClient(sync, partition, domainUid, mbox, f)) {
 					created.add(f.name);
