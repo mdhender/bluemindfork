@@ -47,6 +47,7 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.mailbox.persistence.MailboxStore;
+import net.bluemind.mailbox.service.SplittedShardsMapping;
 import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
@@ -228,7 +229,7 @@ public class MailboxValidator {
 		}
 
 		IServer serverService = context.provider().instance(IServer.class, InstallationId.getIdentifier());
-		ItemValue<Server> dataLocation = serverService.getComplete(mailbox.dataLocation);
+		ItemValue<Server> dataLocation = SplittedShardsMapping.remap(serverService.getComplete(mailbox.dataLocation));
 		if (dataLocation == null) {
 			throw new ServerFault("Datalocation " + mailbox.dataLocation + " must exist", ErrorCode.INVALID_PARAMETER);
 		}
@@ -237,6 +238,7 @@ public class MailboxValidator {
 		boolean assignedAsImapServer = false;
 
 		List<Assignment> assignments = serverService.getAssignments(domainUid);
+
 		for (Assignment assignment : assignments) {
 			if (!assignment.serverUid.equals(dataLocation.uid)) {
 				continue;

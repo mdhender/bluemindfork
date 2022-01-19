@@ -63,6 +63,7 @@ import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.MailFilter.Vacation;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.service.SplittedShardsMapping;
 import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
@@ -408,7 +409,8 @@ public class SieveWriter {
 			// mailboxuid == userUid
 			ItemValue<User> user = userService.getComplete(mailbox.uid);
 			String login = user.value.login + "@" + domain;
-			ItemValue<Server> server = serverService.getComplete(mailbox.value.dataLocation);
+			ItemValue<Server> server = SplittedShardsMapping
+					.remap(serverService.getComplete(mailbox.value.dataLocation));
 			connectionData = new SieveConnectionData(login, "admin0", Token.admin0(), server.value.ip);
 		} else {
 			String login = "bmhiddensysadmin@" + domain;
