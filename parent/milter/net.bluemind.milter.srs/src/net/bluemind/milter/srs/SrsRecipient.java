@@ -26,14 +26,12 @@ import net.bluemind.config.InstallationId;
 import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.map.RecipientCanonical;
 import net.bluemind.milter.map.RecipientCanonicalFactory;
-import net.bluemind.milter.srs.SrsSender.SrsSenderFactory;
 import net.bluemind.milter.srs.tools.SrsHash;
 import net.bluemind.milter.srs.tools.SrsUtils;
 
 public class SrsRecipient implements RecipientCanonical {
-
 	public static class SrsRecipientFactory implements RecipientCanonicalFactory {
-		private static final Logger logger = LoggerFactory.getLogger(SrsSenderFactory.class);
+		private static final Logger logger = LoggerFactory.getLogger(SrsRecipientFactory.class);
 
 		@Override
 		public RecipientCanonical create() {

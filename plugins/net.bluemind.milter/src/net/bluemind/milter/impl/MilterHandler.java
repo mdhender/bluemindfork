@@ -143,10 +143,12 @@ public class MilterHandler implements JilterHandler {
 		messageModified = false;
 
 		UpdatedMailMessage modifiedMail = new UpdatedMailMessage(accumulator.getProperties(), accumulator.getMessage());
-		if (accumulator.getMessage().getHeader().getField(MilterHeaders.HANDLED) == null) {
-			MilterPreActionsRegistry.get().forEach(action -> applyPreAction(action, modifiedMail));
-			logger.debug("Applied {} milter pre-actions", MilterPreActionsRegistry.get().size());
 
+		MilterPreActionsRegistry.get().forEach(action -> applyPreAction(action, modifiedMail));
+		logger.debug("Applied {} milter pre-actions", MilterPreActionsRegistry.get().size());
+		modifiedMail.removeHeaders.add(MilterHeaders.SIEVE_REDIRECT);
+
+		if (accumulator.getMessage().getHeader().getField(MilterHeaders.HANDLED) == null) {
 			int appliedActions = applyActions(modifiedMail);
 			logger.debug("Applied {} milter actions", appliedActions);
 			modifiedMail.newHeaders.add(new RawField(MilterHeaders.HANDLED, MilterInstanceID.get()));

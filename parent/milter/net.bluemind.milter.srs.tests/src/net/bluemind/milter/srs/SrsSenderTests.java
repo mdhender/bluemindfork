@@ -26,13 +26,17 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.james.mime4j.dom.Header;
+import org.apache.james.mime4j.message.HeaderImpl;
 import org.apache.james.mime4j.message.MessageImpl;
+import org.apache.james.mime4j.stream.RawField;
 import org.junit.Before;
 import org.junit.Test;
 
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.milter.MilterHeaders;
 import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.action.MilterPreAction;
 import net.bluemind.milter.action.UpdatedMailMessage;
@@ -41,15 +45,21 @@ public class SrsSenderTests {
 	public static class DomainAliasCacheFiller extends DomainAliasCache {
 		public static void addDomain(ItemValue<Domain> domain) {
 			domain.value.aliases.forEach(alias -> domainCache.put(alias, domain));
+			domainCache.put(domain.uid, domain);
 		}
 	}
+
+	private String domainUid;
 
 	@Before
 	public void before() {
 		Domain domain = new Domain();
 		domain.aliases = new HashSet<>(Arrays.asList("domain.tld", "alias.tld"));
+		domain.defaultAlias = "domain.tld";
 
-		DomainAliasCacheFiller.addDomain(ItemValue.create(Item.create(UUID.randomUUID().toString(), null), domain));
+		domainUid = UUID.randomUUID().toString() + ".internal";
+
+		DomainAliasCacheFiller.addDomain(ItemValue.create(Item.create(domainUid, null), domain));
 	}
 
 	@Test
@@ -100,36 +110,138 @@ public class SrsSenderTests {
 		updateMailMessage.properties.put("{mail_addr}", Arrays.asList("sender@ext-domain.tld"));
 		updateMailMessage.properties.put("{rcpt_addr}", Arrays.asList("rcpt@ext-domain.tld", "rcpt@domain.tld"));
 
-		// No auth and no default domain
+		// No auth, no default domain, null header
 		assertFalse(srsSender().execute(updateMailMessage));
 		assertFalse(updateMailMessage.envelopSender.isPresent());
 
-		// Null auth and no default domain
+		// Null auth, no default domain, null header
 		updateMailMessage.properties.put("{auth_authen}", Arrays.asList((String) null));
 		assertFalse(srsSender().execute(updateMailMessage));
 		assertFalse(updateMailMessage.envelopSender.isPresent());
 
-		// Empty auth and no default domain
+		// Empty auth, no default domain, null header
 		updateMailMessage.properties.put("{auth_authen}", Arrays.asList(""));
 		assertFalse(srsSender().execute(updateMailMessage));
 		assertFalse(updateMailMessage.envelopSender.isPresent());
 
-		// Auth with no domain and no default domain
+		// Auth with no domain, no default domain, null header
 		updateMailMessage.properties.put("{auth_authen}", Arrays.asList("login"));
 		assertFalse(srsSender().execute(updateMailMessage));
 		assertFalse(updateMailMessage.envelopSender.isPresent());
 
-		// Auth with no domain and default domain
+		// Auth with no domain, default domain, null header
 		updateMailMessage.envelopSender = Optional.empty();
 		updateMailMessage.properties.put("{auth_authen}", Arrays.asList("login"));
 		assertTrue(SrsSender.build("default-domain.tld").execute(updateMailMessage));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@default-domain.tld")).orElse(false));
 
-		// Auth with domain and default domain
+		// Auth with domain, default domain, null header
 		updateMailMessage.envelopSender = Optional.empty();
 		updateMailMessage.properties.put("{auth_authen}", Arrays.asList("login@domain.tld"));
 		assertTrue(SrsSender.build("default-domain.tld").execute(updateMailMessage));
+		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
+		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@domain.tld")).orElse(false));
+
+		// Auth with domain, default domain, null header
+		updateMailMessage = new UpdatedMailMessage(new HashMap<>(), new MessageImpl());
+		updateMailMessage.properties.put("{mail_addr}", Arrays.asList("sender@ext-domain.tld"));
+		updateMailMessage.properties.put("{rcpt_addr}", Arrays.asList("rcpt@ext-domain.tld", "rcpt@domain.tld"));
+
+		Header header = new HeaderImpl();
+		header.setField(new RawField(MilterHeaders.SIEVE_REDIRECT, "login@header-domain.tld"));
+		updateMailMessage.getMessage().setHeader(header);
+
+		updateMailMessage.envelopSender = Optional.empty();
+		updateMailMessage.properties.put("{auth_authen}", Arrays.asList("login@domain.tld"));
+		assertTrue(SrsSender.build("default-domain.tld").execute(updateMailMessage));
+		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
+		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@domain.tld")).orElse(false));
+	}
+
+	@Test
+	public void execute_nonLocalSender_nonLocalRcpt_redirectHeader() {
+		UpdatedMailMessage updateMailMessage = new UpdatedMailMessage(new HashMap<>(), new MessageImpl());
+		updateMailMessage.properties.put("{mail_addr}", Arrays.asList("sender@ext-domain.tld"));
+		updateMailMessage.properties.put("{rcpt_addr}", Arrays.asList("rcpt@ext-domain.tld", "rcpt@domain.tld"));
+
+		// null header
+		assertFalse(srsSender().execute(updateMailMessage));
+		assertFalse(updateMailMessage.envelopSender.isPresent());
+
+		// null X-BM-redirect-for
+		Header header = new HeaderImpl();
+		updateMailMessage.getMessage().setHeader(header);
+
+		assertFalse(srsSender().execute(updateMailMessage));
+		assertFalse(updateMailMessage.envelopSender.isPresent());
+
+		header = new HeaderImpl();
+		header.setField(new RawField(MilterHeaders.SIEVE_REDIRECT, null));
+		updateMailMessage.getMessage().setHeader(header);
+
+		assertFalse(srsSender().execute(updateMailMessage));
+		assertFalse(updateMailMessage.envelopSender.isPresent());
+
+		// empty X-BM-redirect-for
+		header = new HeaderImpl();
+		header.setField(new RawField(MilterHeaders.SIEVE_REDIRECT, ""));
+		updateMailMessage.getMessage().setHeader(header);
+
+		assertFalse(srsSender().execute(updateMailMessage));
+		assertFalse(updateMailMessage.envelopSender.isPresent());
+
+		// invalid X-BM-redirect-for
+		header = new HeaderImpl();
+		header.setField(new RawField(MilterHeaders.SIEVE_REDIRECT, "invalid"));
+		updateMailMessage.getMessage().setHeader(header);
+
+		assertFalse(srsSender().execute(updateMailMessage));
+		assertFalse(updateMailMessage.envelopSender.isPresent());
+
+		// Invalid domain X-BM-redirect-for
+		updateMailMessage.envelopSender = Optional.empty();
+		header = new HeaderImpl();
+		header.setField(new RawField(MilterHeaders.SIEVE_REDIRECT, "john@"));
+		updateMailMessage.getMessage().setHeader(header);
+
+		assertFalse(srsSender().execute(updateMailMessage));
+		assertFalse(updateMailMessage.envelopSender.isPresent());
+
+		// Unknown domain X-BM-redirect-for
+		updateMailMessage.envelopSender = Optional.empty();
+		header = new HeaderImpl();
+		header.setField(new RawField(MilterHeaders.SIEVE_REDIRECT, "john@unknown.tld"));
+		updateMailMessage.getMessage().setHeader(header);
+
+		assertFalse(srsSender().execute(updateMailMessage));
+		assertFalse(updateMailMessage.envelopSender.isPresent());
+
+		// domain alias X-BM-redirect-for
+		header = new HeaderImpl();
+		header.setField(new RawField(MilterHeaders.SIEVE_REDIRECT, "john@domain.tld"));
+		updateMailMessage.getMessage().setHeader(header);
+
+		assertTrue(srsSender().execute(updateMailMessage));
+		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
+		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@domain.tld")).orElse(false));
+
+		updateMailMessage.envelopSender = Optional.empty();
+		header = new HeaderImpl();
+		header.setField(new RawField(MilterHeaders.SIEVE_REDIRECT, "john@alias.tld"));
+		updateMailMessage.getMessage().setHeader(header);
+
+		assertTrue(srsSender().execute(updateMailMessage));
+		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
+		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@alias.tld")).orElse(false));
+
+		// domain uid X-BM-redirect-for
+		updateMailMessage.envelopSender = Optional.empty();
+		header = new HeaderImpl();
+		header.setField(new RawField(MilterHeaders.SIEVE_REDIRECT, "john@" + domainUid));
+		updateMailMessage.getMessage().setHeader(header);
+
+		assertTrue(srsSender().execute(updateMailMessage));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@domain.tld")).orElse(false));
 	}

@@ -18,7 +18,7 @@
 package net.bluemind.milter;
 
 public class MilterHeaders {
-
 	public static final String HANDLED = "X-Bm-Milter-Handled";
 	public static final String TIMESTAMP = "X-Bm-Transport-Timestamp";
+	public static final String SIEVE_REDIRECT = "X-BM-redirect-for";
 }

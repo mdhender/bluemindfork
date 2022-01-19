@@ -18,10 +18,12 @@
  */
 package net.bluemind.milter.action;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +66,8 @@ public class DomainAliasCache extends AbstractVerticle {
 	}
 
 	private static Map<String, ItemValue<Domain>> expandAliases(ItemValue<Domain> domain) {
-		return domain.value.aliases.stream().collect(Collectors.toMap(alias -> alias, alias -> domain));
+		return Stream.concat(Arrays.asList(domain.uid).stream(), domain.value.aliases.stream())
+				.collect(Collectors.toMap(alias -> alias, alias -> domain, (alias1, alias2) -> alias1));
 	}
 
 	@Override

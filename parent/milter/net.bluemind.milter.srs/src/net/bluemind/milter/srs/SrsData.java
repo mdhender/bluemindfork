@@ -49,7 +49,9 @@ public class SrsData {
 	}
 
 	public static Optional<SrsData> forEmail(SrsHash srsHash, String email) {
-		if (Strings.isNullOrEmpty(email) || !Regex.EMAIL.validate(email)) {
+		// SRS left part email must be lesser or equals to 64 chars
+		// prefix + hash + timestamp +separators use 13 chars
+		if (Strings.isNullOrEmpty(email) || !Regex.EMAIL.validate(email) || email.length() > 51) {
 			return Optional.empty();
 		}
 

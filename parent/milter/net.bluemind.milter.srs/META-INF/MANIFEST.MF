@@ -12,6 +12,10 @@ Require-Bundle: com.google.guava,
  net.bluemind.milter,
  net.bluemind.core.commons,
  net.bluemind.hornetq.client,
- net.bluemind.system.api
+ net.bluemind.system.api,
+ org.apache.james.apache-mime4j-dom,
+ org.apache.james.apache-mime4j-core,
+ net.bluemind.core.container.api,
+ net.bluemind.domain.api
 Export-Package: net.bluemind.milter.srs,
  net.bluemind.milter.srs.tools

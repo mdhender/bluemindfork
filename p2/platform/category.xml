@@ -449,6 +449,7 @@
     <bundle id="net.bluemind.milter.action.misc" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.milter.action.signature" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.milter.metrics" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.milter.srs" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.mime4j.bodies" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.mime4j.common" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.mvp.closure" version="4.1.0.qualifier" />

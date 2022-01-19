@@ -68,6 +68,12 @@ public class SrsDataTest {
 	}
 
 	@Test
+	public void fromEmail_longEmail() {
+		assertTrue(SrsData.forEmail(SRSHASH, "abcdefghijklmnopqrstuvwxyz@abcdefghijklmnopqrst.tld").isPresent());
+		assertFalse(SrsData.forEmail(SRSHASH, "abcdefghijklmnopqrstuvwxyz@abcdefghijklmnopqrstu.tld").isPresent());
+	}
+
+	@Test
 	public void fromLeftPart_invalidLeftPart() {
 		assertFalse(SrsData.fromLeftPart(SRSHASH, null).isPresent());
 		assertFalse(SrsData.fromLeftPart(SRSHASH, "").isPresent());

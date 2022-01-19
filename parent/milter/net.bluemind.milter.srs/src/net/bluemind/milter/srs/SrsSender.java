@@ -24,6 +24,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+import org.apache.james.mime4j.dom.Message;
+import org.apache.james.mime4j.stream.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,8 +146,28 @@ public class SrsSender implements MilterPreAction {
 	}
 
 	private Optional<String> senderSrsDomain(UpdatedMailMessage modifiedMail) {
-		return Optional.ofNullable(modifiedMail.properties.get("{auth_authen}"))
+		Optional<String> senderSrs = Optional.ofNullable(modifiedMail.properties.get("{auth_authen}"))
 				.map(authAuthens -> authAuthens.stream().filter(Objects::nonNull).findFirst().orElse(null))
 				.map(login -> SrsUtils.getDomainFromEmail(login).orElseGet(defaultDomain::get));
+
+		if (senderSrs.isPresent()) {
+			return senderSrs;
+		}
+
+		return senderSrsDomainFromHeader(modifiedMail);
+	}
+
+	private Optional<String> senderSrsDomainFromHeader(UpdatedMailMessage modifiedMail) {
+		return Optional.ofNullable(modifiedMail.getMessage()).map(Message::getHeader)
+				.map(header -> header.getField("X-BM-redirect-for")).map(Field::getBody)
+				.map(email -> SrsUtils.getDomainFromEmail(email)
+						.filter(domain -> DomainAliasCache.allAliases().contains(domain)).orElse(null))
+				.map(this::getDomainAlias);
+	}
+
+	private String getDomainAlias(String domain) {
+		return Optional.ofNullable(domain).map(DomainAliasCache::getDomain)
+				.filter(domainValue -> !domainValue.value.aliases.contains(domain))
+				.map(domainValue -> domainValue.value.defaultAlias).orElse(domain);
 	}
 }
