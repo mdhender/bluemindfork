@@ -1,17 +1,16 @@
 <template>
-    <div
-        :class="computeClassNames"
-        class="mail-folder-input flex-fill d-none d-lg-flex align-items-center position-relative"
-    >
-        <bm-icon icon="plus" fixed-width />
+    <div class="mail-folder-input flex-fill d-none d-lg-flex align-items-center position-relative">
         <bm-form-input
             ref="input"
             v-model="newFolderName"
             type="text"
             class="d-inline-block flex-fill"
+            variant="underline"
+            icon="plus"
+            left-icon
             resettable
             :placeholder="folder ? '' : $t('mail.folder.new.from_scratch')"
-            :state="isInputValid"
+            :state="inputState"
             aria-describedby="mail-folder-input-invalid"
             @focus="isActive = true"
             @focusout="onFocusOut"
@@ -30,7 +29,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { BmFormInput, BmIcon, BmNotice } from "@bluemind/styleguide";
+import { BmFormInput, BmNotice } from "@bluemind/styleguide";
 import { isNameValid, normalize } from "~/model/folder";
 import { FOLDER_BY_PATH, FOLDERS_BY_PATH, MY_MAILBOX } from "~/getters";
 
@@ -38,7 +37,6 @@ export default {
     name: "MailFolderInput",
     components: {
         BmFormInput,
-        BmIcon,
         BmNotice
     },
     props: {
@@ -91,19 +89,10 @@ export default {
         isRename() {
             return this.folder && this.folder.name !== "";
         },
-        computeClassNames() {
-            if (!this.isActive) {
-                return "border-bottom";
-            }
-            return this.isNewFolderNameValid === true
-                ? "valid border-bottom border-primary"
-                : "invalid border-bottom border-danger";
-        },
-        isInputValid() {
-            if (!this.newFolderName) {
-                return null;
-            }
-            return this.isNewFolderNameValid === true;
+        inputState() {
+            if (!this.newFolderName) return null;
+            if (this.isNewFolderNameValid === false) return false;
+            return null;
         }
     },
     watch: {
@@ -163,36 +152,14 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
-
 .mail-folder-input {
-    &.valid .fa-folder,
-    &.valid .fa-folder-shared {
-        color: $primary;
+    .bm-form-input input:not(:focus) {
+        border-bottom-color: $light;
     }
-
-    &.invalid {
-        .fa-folder,
-        .fa-folder-shared,
-        input {
-            color: $danger;
-        }
-    }
-
-    input {
-        border: none !important;
-        background-color: transparent !important;
-        box-shadow: none !important;
-        padding-left: $sp-1 !important;
-    }
-
     .bm-notice {
         top: 30px;
         left: 0px;
         width: calc(100% - 2 * #{$sp-2});
-    }
-
-    .fa-plus {
-        color: $secondary;
     }
 }
 </style>

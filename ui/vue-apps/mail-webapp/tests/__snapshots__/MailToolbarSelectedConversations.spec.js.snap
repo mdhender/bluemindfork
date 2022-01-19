@@ -302,37 +302,43 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
             class="d-flex align-items-center"
           >
             <div
-              class="mail-folder-input flex-fill d-none d-lg-flex align-items-center position-relative pl-2 pr-1 flex-fill border-bottom"
+              class="mail-folder-input flex-fill d-none d-lg-flex align-items-center position-relative pl-2 pr-1 flex-fill"
             >
-              <svg
-                aria-hidden="true"
-                class="bm-icon svg-inline--fa fa-plus fa-w-16 fa-fw"
-                data-icon="plus"
-                data-prefix="fas"
-                focusable="false"
-                role="img"
-                viewBox="0 0 12 12"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  class=""
-                  d="M5.25 6.75L5.25 10.5H6.75V6.75H10.5V5.25H6.75V1.5H5.25L5.25 5.25H1.5V6.75H5.25Z"
-                  fill="currentColor"
-                />
-              </svg>
-               
               <div
-                class="bm-form-input position-relative d-inline-block flex-fill"
+                class="bm-form-input position-relative d-inline-block flex-fill underline"
               >
                 <input
                   aria-describedby="mail-folder-input-invalid"
-                  class="form-control bm-form-input-padding"
+                  class="form-control bm-form-input-padding icon-left"
+                  icon="plus"
+                  lefticon="true"
                   resettable="true"
                   type="text"
-                  variant=""
+                  variant="underline"
                 />
                  
-                <!---->
+                <div
+                  class="icon-wrapper position-absolute d-flex icon-left"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="bm-icon ornament-icon h-100 svg-inline--fa fa-plus fa-w-16"
+                    data-icon="plus"
+                    data-prefix="fas"
+                    focusable="false"
+                    role="img"
+                    viewBox="0 0 12 12"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      class=""
+                      d="M5.25 6.75L5.25 10.5H6.75V6.75H10.5V5.25H6.75V1.5H5.25L5.25 5.25H1.5V6.75H5.25Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                   
+                  <!---->
+                </div>
               </div>
                
               <!---->

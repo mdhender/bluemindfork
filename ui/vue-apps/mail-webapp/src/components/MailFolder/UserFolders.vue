@@ -6,7 +6,6 @@
         <template v-slot:footer>
             <mail-folder-input
                 v-if="mailbox.writable"
-                class="pl-4"
                 :mailbox-key="mailbox.key"
                 @submit="name => add(name, mailbox)"
             />

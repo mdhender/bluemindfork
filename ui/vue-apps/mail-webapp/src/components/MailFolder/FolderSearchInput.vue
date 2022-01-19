@@ -3,6 +3,7 @@
         v-model="folderSearchPattern"
         class="folder-search-input"
         icon="filter"
+        variant="underline"
         resettable
         left-icon
         :placeholder="$t('mail.folder.search.placeholder')"
