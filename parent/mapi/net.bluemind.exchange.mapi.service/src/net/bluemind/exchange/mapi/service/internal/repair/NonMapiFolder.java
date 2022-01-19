@@ -21,6 +21,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
+import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.exchange.mapi.api.MapiFolderContainer;
 
 /**
@@ -36,12 +37,23 @@ public class NonMapiFolder {
 	private static final Set<String> invalidKinds = Sets.newHashSet("INBOX", "SENT_ITEMS", "DELETED_ITEMS", "DRAFTS",
 			"JUNK_EMAIL", "CALENDAR", "CONTACTS", "TASKS", "TEMPLATES");
 
+	private static final Set<String> invalidKindsMailshare = Sets.newHashSet("INBOX", "SENT_ITEMS", "DELETED_ITEMS");
+
+	private static final Set<String> invalidKindsRoom = Sets.newHashSet("CALENDAR");
+
 	/**
 	 * @param k
 	 * @return true if a mapi folder with this kind is legitimate
 	 */
-	public static boolean legitKind(String k) {
-		return !invalidKinds.contains(k);
+	public static boolean legitKind(String k, BaseDirEntry.Kind kind) {
+		switch (kind) {
+		case MAILSHARE:
+			return invalidKindsMailshare.contains(k);
+		case RESOURCE:
+			return invalidKindsRoom.contains(k);
+		default:
+			return !invalidKinds.contains(k);
+		}
 
 	}
 

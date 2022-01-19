@@ -173,7 +173,7 @@ public class MapiFoldersRepair implements IDirEntryRepairSupport {
 					logger.warn("Empty-ing {} => {}", k, folder);
 					processExtra.extraContent(contentApi, c);
 				}
-				if (!NonMapiFolder.legitKind(k)) {
+				if (!NonMapiFolder.legitKind(k, entry.kind)) {
 					MapiFolder folder = foldersApi.get(c.uid);
 					logger.warn("We should not have a folder for kind {} => {}", k, folder);
 					processExtra.extraFolder(foldersApi, c);
