@@ -368,8 +368,8 @@ public class SieveWriter {
 					storeShareAnnotation(mailboxItem, domain, scriptName, clientConnectionData);
 				}
 			} else {
-				logger.error("Fail to login to sieve. Login: '{}'", clientConnectionData.login);
-				throw new ServerFault("Fail to login to sieve. Login '" + clientConnectionData.login + "'");
+				logger.error("Fail to login to sieve as: '{}'", clientConnectionData);
+				throw new ServerFault("Fail to login to sieve as '" + clientConnectionData + "'");
 			}
 		} catch (Exception e) {
 			// BM-13462

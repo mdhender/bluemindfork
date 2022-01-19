@@ -116,7 +116,10 @@ public class SieveClient implements AutoCloseable {
 
 		@Override
 		public void close() throws IOException {
+		}
 
+		public String toString() {
+			return login + "@" + host + ":" + port;
 		}
 
 	}
