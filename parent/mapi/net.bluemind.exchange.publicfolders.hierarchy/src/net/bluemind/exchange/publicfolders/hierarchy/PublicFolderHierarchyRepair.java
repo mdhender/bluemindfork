@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 
+import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.ContainerQuery;
@@ -102,6 +103,11 @@ public class PublicFolderHierarchyRepair implements IDirEntryRepairSupport {
 				mgmtApi.delete();
 				// we re-init to ensure we have a clean hierarchy on domains without mailshares
 				mgmtApi.init();
+				return;
+			}
+
+			if (entry.entryUid.equals(IAddressBookUids.userVCards(domainUid))) {
+				monitor.log("SKIP directory of " + domainUid + " " + entry.entryUid);
 				return;
 			}
 
