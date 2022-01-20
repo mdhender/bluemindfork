@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -42,7 +41,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
@@ -114,15 +112,8 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 		System.err.println("Registered " + mailboxes.size() + " mailboxes.");
 		System.err.println("Connecting in 2sec...");
 		Thread.sleep(2000);
-		CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.eventBus().request("sc.connect", "hello", new Handler<AsyncResult<Message<Void>>>() {
-
-			@Override
-			public void handle(AsyncResult<Message<Void>> event) {
-				cdl.countDown();
-			}
-		});
-		cdl.await(10, TimeUnit.SECONDS);
+		VertxPlatform.eventBus().request("sc.connect", "hello").toCompletionStage().toCompletableFuture().get(10,
+				TimeUnit.SECONDS);
 	}
 
 	private static CompletableFuture<UnparsedResponse> mailboxes(String... mboxes) {
@@ -165,13 +156,8 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 
 	@Override
 	public void after() throws Exception {
-		CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.eventBus().request("sc.disconnect", "bye", new Handler<AsyncResult<Message<Void>>>() {
-			public void handle(AsyncResult<Message<Void>> event) {
-				cdl.countDown();
-			}
-		});
-		cdl.await(10, TimeUnit.SECONDS);
+		VertxPlatform.eventBus().request("sc.disconnect", "bye").toCompletionStage().toCompletableFuture().get(10,
+				TimeUnit.SECONDS);
 		super.after();
 	}
 
