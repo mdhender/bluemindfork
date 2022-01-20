@@ -41,6 +41,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.api.SystemConf;
 
 public class SdsMessageBodyExpirationTimer extends AbstractVerticle {
 	public static class Factory implements IVerticleFactory, IUniqueVerticleFactory {
@@ -85,7 +86,12 @@ public class SdsMessageBodyExpirationTimer extends AbstractVerticle {
 
 	private int getRetentionDays() {
 		ISystemConfiguration confService = provider.instance(ISystemConfiguration.class);
-		Integer days = confService.getValues().integerValue(SysConfKeys.sds_backup_rentention_days.name());
-		return days == null ? DEFAULT_RETENTION_DAYS : days;
+		SystemConf sysconf = confService.getValues();
+		Integer days = sysconf.integerValue(SysConfKeys.sds_backup_rentention_days.name());
+		if (sysconf.isArchiveKindSds()) {
+			return days == null ? DEFAULT_RETENTION_DAYS : days;
+		} else {
+			return 0;
+		}
 	}
 }
