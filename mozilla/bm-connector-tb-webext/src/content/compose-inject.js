@@ -21,15 +21,17 @@
 /* Main window overlay */
 
 Services.scriptloader.loadSubScript("chrome://bm/content/compose.js", window, "UTF-8");
+Services.scriptloader.loadSubScript("chrome://bm/content/fileProvider/remoteChooser.js", window, "UTF-8");
 
 function onLoad(activatedWhileWindowOpen) {
     WL.injectElements(`
+        <command id="cmd_attachBm" oncommand="attachFilesFromHosting();"/>
         <menuitem id="button-attachPopup_BlueMind"
                 appendto="button-attachPopup"
                 insertbefore="button-attachPopup_attachPageItem"
                 label="__MSG_bm.compose.attach.link__"
                 accesskey="B"
-                oncommand="attachFilesFromHosting();"
+                command="cmd_attachBm"
                 hidden="true"/>
         <vbox id="bmSignature"
                 collapsed="true"

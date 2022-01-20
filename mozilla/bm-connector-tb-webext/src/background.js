@@ -101,6 +101,15 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
     case "i18n":
       let msg = messenger.i18n.getMessage("extensions.bm." + info.key);
       return msg;
+    case "openPopup":
+      await browser.windows.create({
+        width: 800,
+        height: 500,
+        type: "popup",
+        allowScriptsToClose: true,
+        url: info.url
+      });
+      break;
   }
 });
 
@@ -178,7 +187,7 @@ messenger.mailingLists.onMemberRemoved.addListener(async (parentId, id) => {
 
 let bmCalNotificationId = "bm-cal-notif";
 
-// commands from scripts injected in bm tabs
+// commands from injected content scripts
 messenger.runtime.onMessage.addListener(async (message) => {
   console.log("message received:", message);
   switch (message.type) {
@@ -189,6 +198,9 @@ messenger.runtime.onMessage.addListener(async (message) => {
         message: message.text,
         iconUrl: "/content/skin/BM_Icone01_16.png"
       });
+      break;
+    case "remotechooser-success":
+      await messenger.NotifyTools.notifyExperiment({command: "onRemotechooserSuccess", files: message.files});
       break;
   }
 });

@@ -36,6 +36,12 @@
       "background.js"
     ]
   },
+  "content_scripts": [
+    {
+      "matches": ["https://*/chooser/*"],
+      "js": ["content/fileProvider/popupScript.js"]
+    }
+  ],
   "experiment_apis": {
     "NotifyTools": {
       "schema": "content/api/NotifyTools/schema.json",

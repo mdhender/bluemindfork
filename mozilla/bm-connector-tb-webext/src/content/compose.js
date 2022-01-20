@@ -31,6 +31,8 @@ try {
     //TB 78
 }
 
+Services.scriptloader.loadSubScript("chrome://bm/content/notifyTools.js", null, "UTF-8");
+
 function canAttachFilesFromHosting() {
     let accs = cloudFileAccounts.getAccountsForType("BlueMind");
     if (accs.length > 0) {
@@ -40,10 +42,7 @@ function canAttachFilesFromHosting() {
 }
 
 function attachFilesFromHosting() {
-    window.openDialog("chrome://bm/content/fileProvider/remoteChooser.xhtml",
-                      "",
-                      "centerparent,chrome,modal,width=800,height=500",
-                      onRemoteFileChoosed);
+    gBMRemoteChooser.loadWindow();
 }
 
 function onRemoteFileChoosed(aFiles) {
@@ -423,4 +422,13 @@ function BmInitCompose() {
         console.log("compose-from-changed");
         gBMCompose.checkSignature();
     });
+
+    notifyTools.registerListener((data) => {
+        switch (data.command) {
+            case "onRemotechooserSuccess":
+                onRemoteFileChoosed(data.files);
+                break;
+        }
+    });
+    notifyTools.enable();
 }

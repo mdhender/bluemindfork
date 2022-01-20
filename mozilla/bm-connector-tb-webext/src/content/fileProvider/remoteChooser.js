@@ -30,13 +30,14 @@ var { percentEncode } = ChromeUtils.import("resource://gre/modules/Http.jsm");
 
 var { bmUtils } = ChromeUtils.import("chrome://bm/content/modules/bmUtils.jsm");
 
+Services.scriptloader.loadSubScript("chrome://bm/content/notifyTools.js", null, "UTF-8");
+
 var gBMRemoteChooser = {
   _logger: Components.classes["@blue-mind.net/logger;1"].getService().wrappedJSObject.getLogger("gBMRemoteChooser: "),
   _callback: null,
   _baseUri: null,
   loadWindow: function () {
     console.trace("loadWindow");
-    this._callback = window.arguments[0];
     let user = {};
     let pwd = {};
     let srv = {};
@@ -131,49 +132,6 @@ var gBMRemoteChooser = {
     }
   },
   _openWebPage: function () {
-    let rBrowser = document.getElementById("remote-browser");
-    let win;
-    let self = this;
-    rBrowser.addEventListener("DOMContentLoaded", function (e) {
-      win = rBrowser.contentWindow.wrappedJSObject;
-      let options = {
-        success: function (links) {
-          var files = [];
-          for (var i = 0; i < links.length; i++) {
-            var size = 0;
-            var sizeKeys = ['Content-Length', 'size'];
-            for (var j = 0; j < links[i].metadata.length; j++) {
-              if (sizeKeys.indexOf(links[i].metadata[j]['key']) >= 0) {
-                size = links[i].metadata[j]['value'];
-                break;
-              }
-            }
-            files.push({
-              size: size,
-              path: links[i].path,
-              name: links[i].name,
-            });
-          }
-          self._callback(files);
-          window.close();
-        },
-        cancel: function () {
-          window.close();
-        },
-        multi: true,
-        close: false
-      };
-      let opts = Components.utils.cloneInto(options, win, { cloneFunctions: true });
-      win.application.setOptions(opts);
-    });
-    if (!Components.interfaces.nsIMsgCloudFileProvider) {
-      // TB 68 loadURI extra param
-      let params = {
-        triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal()
-      };
-      rBrowser.loadURI(this._baseUri + "/chooser/#", params);
-    } else {
-      rBrowser.loadURI(this._baseUri + "/chooser/#");
-    }
+    notifyTools.notifyBackground({command: "openPopup", url: this._baseUri + "/chooser/#"});
   },
 }
