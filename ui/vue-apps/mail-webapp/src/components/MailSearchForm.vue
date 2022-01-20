@@ -62,7 +62,11 @@
                     >
                         <div class="d-flex align-items-center">
                             <span class="flex-fill"> {{ translatePath(item.path) }}</span>
-                            <mail-mailbox-icon no-text :mailbox="mailboxes[item.mailboxRef.key]" />
+                            <mail-mailbox-icon
+                                v-if="item.key !== null"
+                                no-text
+                                :mailbox="mailboxes[item.mailboxRef.key]"
+                            />
                         </div>
                     </bm-combo-box>
                 </bm-form-group>
