@@ -8,7 +8,7 @@
             class="ml-3"
             label-class="ml-2"
             :message="message"
-            @update="updateSignatureIfNeeded"
+            @update="setFrom"
         />
         <mail-composer-recipients
             ref="recipients"

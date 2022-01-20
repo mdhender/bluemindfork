@@ -27,7 +27,8 @@ import {
     REMOVE_MESSAGES,
     RESET_PARTS_DATA,
     SET_ACTIVE_MESSAGE,
-    SET_MESSAGE_COMPOSING
+    SET_MESSAGE_COMPOSING,
+    SET_MESSAGE_SUBJECT
 } from "~/mutations";
 import { isNewMessage } from "~/model/draft";
 import { createFromDraft } from "../model/draft";
@@ -76,9 +77,7 @@ export default {
             $_ComposerActionsMixin_DEBOUNCED_SAVE: DEBOUNCED_SAVE_MESSAGE,
             $_ComposerActionsMixin_REMOVE_ATTACHMENT: REMOVE_ATTACHMENT
         }),
-        ...mapMutations("mail", {
-            $_ComposerActionsMixin_ADD_MESSAGES: ADD_MESSAGES
-        }),
+        ...mapMutations("mail", { $_ComposerActionsMixin_ADD_MESSAGES: ADD_MESSAGES }),
         async debouncedSave() {
             const wasMessageOnlyLocal = isNewMessage(this.message);
             await this.$_ComposerActionsMixin_DEBOUNCED_SAVE({
@@ -130,10 +129,7 @@ export default {
                 this.$store.getters["mail/" + ACTIVE_MESSAGE]?.key === this.message.key &&
                 !displayedInConversationMode
             ) {
-                this.$router.navigate({
-                    name: "v:mail:message",
-                    params: { message: this.message }
-                });
+                this.$router.navigate({ name: "v:mail:message", params: { message: this.message } });
             }
         },
         addAttachments(files) {
@@ -149,6 +145,10 @@ export default {
                 attachmentAddress: address,
                 messageCompose: this.$_ComposerActionsMixin_messageCompose
             });
+        },
+        updateSubject(subject) {
+            this.$store.commit("mail/" + SET_MESSAGE_SUBJECT, { messageKey: this.message.key, subject });
+            this.debouncedSave();
         },
         async deleteDraft() {
             if (isNewMessage(this.message)) {

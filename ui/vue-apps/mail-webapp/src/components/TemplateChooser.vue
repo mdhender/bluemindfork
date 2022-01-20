@@ -40,7 +40,7 @@ import { DEBOUNCED_SAVE_MESSAGE, FETCH_TEMPLATES_KEYS } from "~/actions";
 import { MY_TEMPLATES } from "~/getters";
 import TemplatesList from "./TemplateChooser/TemplatesList";
 import { ComposerInitMixin } from "~/mixins";
-import { isEditorContentEmpty } from "~/model/draft";
+import { isEditorContentEmpty, preserveFromOrDefault } from "~/model/draft";
 
 export default {
     name: "TemplateChooser",
@@ -67,6 +67,7 @@ export default {
             messages: state => state.conversations.messages,
             editorContent: state => state.messageCompose.editorContent
         }),
+        ...mapState("root-app", ["identities"]),
         ...mapGetters("root-app", { identity: "DEFAULT_IDENTITY" })
     },
     methods: {
@@ -91,7 +92,7 @@ export default {
                 if (!(target.to.length || target.cc.length || target.bcc.length)) {
                     this.mergeRecipients(target, template);
                 }
-                target.from = { ...template.from };
+                target.from = preserveFromOrDefault(template.from, this.identities);
                 await this.mergeAttachments(target, template);
                 await this.mergeBody(target, template);
                 this.DEBOUNCED_SAVE_MESSAGE({ draft: target, messageCompose: this.$store.state.mail.messageCompose });

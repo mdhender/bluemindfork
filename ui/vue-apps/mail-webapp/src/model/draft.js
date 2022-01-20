@@ -52,8 +52,12 @@ export function createEmpty(folder, currentMailbox, identities, autoSelectFromPr
     const defaultIdentity = identities.find(id => !!id.isDefault);
     if (autoSelectFromPref === "replies_and_new_messages") {
         message.from = identityToFrom(findIdentityFromMailbox(currentMailbox, identities, defaultIdentity));
-    } else {
+    } else if (defaultIdentity) {
         message.from = identityToFrom(defaultIdentity);
+    } else {
+        // a default identity must always be set for a user (BM-18071)
+        // only valid usage for passing here is if parent intentionally called createEmpty with wrong params
+        message.from = {};
     }
     message.flags = [Flag.SEEN];
     message.status = MessageStatus.NEW;
@@ -172,7 +176,6 @@ export function computeFrom(message, identities, currentMailbox) {
 }
 
 function findIdentityFromMailbox(currentMailbox, identities, defaultIdentity) {
-    // we can use findIdentities here because mailbox & recipients have both { address, dn } properties
     const matchingId = findIdentities([currentMailbox], identities);
     if (matchingId[0]) {
         return matchingId[0];
@@ -184,14 +187,23 @@ function identityToFrom(identity) {
     return { address: identity.email, dn: identity.displayname };
 }
 
-function findIdentities(recipients, identities) {
+export function preserveFromOrDefault(previous, identities) {
+    const matchingIdentities = findIdentities([previous], identities);
+    if (!matchingIdentities[0]) {
+        return identityToFrom(identities.find(identity => !!identity.isDefault));
+    }
+    return identityToFrom(matchingIdentities[0]);
+}
+
+// items must have both { address, dn } properties
+function findIdentities(items, identities) {
     let matchingIdentities = [];
-    recipients.forEach(recipient => {
-        const exactMatch = identities.find(id => id.displayname === recipient.dn && id.email === recipient.address);
+    items.forEach(({ address, dn }) => {
+        const exactMatch = identities.find(id => id.displayname === dn && id.email === address);
         if (exactMatch) {
             matchingIdentities.push(exactMatch);
         } else {
-            const approximateMatch = identities.find(id => id.email === recipient.address);
+            const approximateMatch = identities.find(id => id.email === address);
             if (approximateMatch) {
                 matchingIdentities.push(approximateMatch);
             }

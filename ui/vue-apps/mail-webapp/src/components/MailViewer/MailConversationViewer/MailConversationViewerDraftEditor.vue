@@ -11,7 +11,7 @@
                     v-if="isSenderShown"
                     label-class="font-weight-bold text-secondary"
                     :message="message"
-                    @update="updateSignatureIfNeeded"
+                    @update="setFrom"
                 />
                 <bm-contact-input
                     ref="to"

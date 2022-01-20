@@ -1,9 +1,12 @@
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapMutations, mapState } from "vuex";
 import { INFO, REMOVE } from "@bluemind/alert.store";
+import { inject } from "@bluemind/inject";
 import { CHECK_CORPORATE_SIGNATURE } from "~/actions";
+import { MessageHeader } from "~/model/message";
 import { addSignature, removeSignature, replaceSignature, isSignaturePresent } from "~/model/signature";
-import { RESET_COMPOSER, SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_SUBJECT } from "~/mutations";
-import { IS_SENDER_SHOWN } from "~/getters";
+import { RESET_COMPOSER, SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_FROM, SET_MESSAGE_HEADERS } from "~/mutations";
+import { IS_SENDER_SHOWN, MAILBOX_SENT } from "~/getters";
+import { DEFAULT_FOLDER_NAMES } from "~/store/folders/helpers/DefaultFolders";
 
 const corporateSignatureGotInserted = {
     alert: { name: "mail.CORPORATE_SIGNATURE_INSERTED", uid: "CORPORATE_SIGNATURE" },
@@ -31,17 +34,16 @@ export default {
         ...mapState("mail", ["messageCompose"]),
         ...mapState("root-app", ["identities"]),
         ...mapState("session", { userSettings: ({ settings }) => settings.remote }),
-        ...mapGetters("mail", { IS_SENDER_SHOWN }),
         signature() {
             return this.identities.find(
                 i => i.email === this.message.from.address && i.displayname === this.message.from.dn
             ).signature;
         },
         isSignatureInserted() {
-            return isSignaturePresent(this.messageCompose.editorContent, this.signature, this.userPrefTextOnly);
+            return isSignaturePresent(this.messageCompose.editorContent, this.userPrefTextOnly);
         },
         isSenderShown() {
-            return this.IS_SENDER_SHOWN(this.userSettings);
+            return this.$store.getters["mail/" + IS_SENDER_SHOWN](this.userSettings);
         },
         $_ComposerMixin_insertSignaturePref() {
             return this.$store.state.session.settings.remote.insert_signature;
@@ -51,7 +53,7 @@ export default {
         "messageCompose.corporateSignature"(corporateSignature, oldCorporateSignature) {
             if (corporateSignature && this.isSignatureInserted) {
                 this.$store.dispatch("alert/" + INFO, corporateSignatureGotInserted);
-                this.SET_DRAFT_EDITOR_CONTENT(
+                this.$_ComposerMixin_SET_DRAFT_EDITOR_CONTENT(
                     removeSignature(this.messageCompose.editorContent, this.userPrefTextOnly, this.signature)
                 );
             } else if (
@@ -61,11 +63,14 @@ export default {
                 this.$_ComposerMixin_insertSignaturePref === "true"
             ) {
                 this.$store.dispatch("alert/" + INFO, corporateSignatureGotRemoved);
-                this.SET_DRAFT_EDITOR_CONTENT(
+                this.$_ComposerMixin_SET_DRAFT_EDITOR_CONTENT(
                     addSignature(this.messageCompose.editorContent, this.userPrefTextOnly, this.signature)
                 );
             }
         }
+    },
+    created() {
+        this.$_ComposerMixin_checkAndRepairFrom();
     },
     destroyed() {
         this.$store.commit("mail/" + RESET_COMPOSER);
@@ -73,28 +78,57 @@ export default {
         this.$store.dispatch("alert/" + REMOVE, corporateSignatureGotInserted.alert);
     },
     methods: {
-        ...mapMutations("mail", { SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_SUBJECT }),
-        updateSubject(subject) {
-            this.SET_MESSAGE_SUBJECT({ messageKey: this.message.key, subject });
-            this.debouncedSave();
-        },
+        ...mapMutations("mail", { $_ComposerMixin_SET_DRAFT_EDITOR_CONTENT: SET_DRAFT_EDITOR_CONTENT }),
         toggleSignature() {
             if (!this.isSignatureInserted) {
-                this.SET_DRAFT_EDITOR_CONTENT(
+                this.$_ComposerMixin_SET_DRAFT_EDITOR_CONTENT(
                     addSignature(this.messageCompose.editorContent, this.userPrefTextOnly, this.signature)
                 );
             } else {
-                this.SET_DRAFT_EDITOR_CONTENT(
+                this.$_ComposerMixin_SET_DRAFT_EDITOR_CONTENT(
                     removeSignature(this.messageCompose.editorContent, this.userPrefTextOnly, this.signature)
                 );
             }
         },
-        async updateSignatureIfNeeded() {
+        async setFrom(identity) {
+            this.$store.commit("mail/" + SET_MESSAGE_FROM, {
+                messageKey: this.message.key,
+                from: { address: identity.email, dn: identity.displayname }
+            });
+            const fullIdentity = this.identities.find(
+                i => i.email === identity.email && i.displayname === identity.displayname
+            );
+            const rawIdentity = await inject("UserMailIdentitiesPersistence").get(fullIdentity.id);
+            if (rawIdentity.sentFolder !== DEFAULT_FOLDER_NAMES.SENT) {
+                const mailboxes = this.$store.state.mail.mailboxes;
+                const mailbox = mailboxes[`user.${rawIdentity.mailboxUid}`] || mailboxes[rawIdentity.mailboxUid];
+                const sentFolder = this.$store.getters["mail/" + MAILBOX_SENT](mailbox);
+                if (sentFolder) {
+                    const headers = this.message.headers;
+                    const xBmSentFolder = { name: MessageHeader.X_BM_SENT_FOLDER, values: [sentFolder.remoteRef.uid] };
+                    this.$store.commit("mail/" + SET_MESSAGE_HEADERS, {
+                        messageKey: this.message.key,
+                        headers: [...headers, xBmSentFolder]
+                    });
+                    // FIXME: need A SET_MESSAGE_HEADER mutation
+                }
+            }
             await this.$store.dispatch("mail/" + CHECK_CORPORATE_SIGNATURE, { message: this.message });
             if (this.isSignatureInserted && !this.messageCompose.corporateSignature) {
-                this.SET_DRAFT_EDITOR_CONTENT(
+                this.$_ComposerMixin_SET_DRAFT_EDITOR_CONTENT(
                     replaceSignature(this.messageCompose.editorContent, this.userPrefTextOnly, this.signature)
                 );
+            }
+        },
+        $_ComposerMixin_checkAndRepairFrom() {
+            const matchingIdentity = this.identities.find(
+                i => i.email === this.message.from.address && i.displayname === this.message.from.dn
+            );
+            if (!matchingIdentity) {
+                // eslint-disable-next-line no-console
+                console.warn("identity changed because no identity matched message.from");
+                const defaultIdentity = this.identities.find(identity => !!identity.isDefault);
+                this.setFrom(defaultIdentity);
             }
         }
     }

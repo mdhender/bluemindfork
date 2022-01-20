@@ -17,8 +17,8 @@ export function replaceSignature(content, userPrefTextOnly, signature) {
     return userPrefTextOnly ? replaceTextSignature(content, signature) : replaceHtmlSignature(content, signature);
 }
 
-export function isSignaturePresent(content, signature, userPrefTextOnly) {
-    return signature && userPrefTextOnly ? isTextSignaturePresent(content, signature) : isHtmlSignaturePresent(content);
+export function isSignaturePresent(content, userPrefTextOnly) {
+    return userPrefTextOnly ? isTextSignaturePresent(content) : isHtmlSignaturePresent(content);
 }
 
 const HTML_SIGNATURE_ATTR = "data-bm-signature"; // must match same attr defined in RichEditor.Signature extension and in sanitizeHtml
@@ -68,9 +68,8 @@ function replaceHtmlSignature(raw, signatureContent) {
     return fragment.firstElementChild.innerHTML;
 }
 
-function isTextSignaturePresent(raw, content) {
-    // FIXME does not work if 'content' contains regex special characters like '('
-    const regexp = new RegExp("^" + TEXT_SIGNATURE_PREFIX + content, "mi");
+function isTextSignaturePresent(raw) {
+    const regexp = new RegExp("^" + TEXT_SIGNATURE_PREFIX, "mi");
     return regexp.test(raw);
 }
 

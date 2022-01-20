@@ -71,14 +71,13 @@
             variant="simple-dark"
             :aria-label="$tc('mail.toolbar.more.aria')"
             :title="$tc('mail.toolbar.more.aria')"
-            :disabled="noOtherActions"
             class="other-viewer-actions"
         >
             <template slot="button-content">
                 <bm-icon icon="3dots" size="2x" />
                 <span class="d-none d-lg-block">{{ $t("mail.toolbar.more") }}</span>
             </template>
-            <bm-dropdown-item v-if="!isSenderShown" @click="SHOW_SENDER(true)">
+            <bm-dropdown-item :disabled="isSenderShown" @click="SHOW_SENDER(true)">
                 {{ $tc("mail.actions.show_sender", 1) }}
             </bm-dropdown-item>
         </bm-dropdown>
@@ -132,9 +131,6 @@ export default {
             } else {
                 return this.$t("mail.actions.save_template");
             }
-        },
-        noOtherActions() {
-            return this.isSenderShown;
         },
         isSenderShown() {
             return this.IS_SENDER_SHOWN(this.userSettings);

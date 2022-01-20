@@ -6,9 +6,11 @@ import { inject } from "@bluemind/inject";
 import { mapActions, mapMutations } from "vuex";
 import { CHECK_CORPORATE_SIGNATURE } from "~/actions";
 import { SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~/mutations";
+import ComposerActionsMixin from "./ComposerActionsMixin";
 
 const recipientModes = { TO: 1, CC: 2, BCC: 4 }; // flags for the display mode of MailComposer's recipients fields
 export default {
+    mixins: [ComposerActionsMixin],
     props: {
         message: {
             type: Object,
