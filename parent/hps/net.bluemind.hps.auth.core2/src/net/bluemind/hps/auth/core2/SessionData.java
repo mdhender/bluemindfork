@@ -143,7 +143,7 @@ public class SessionData implements Serializable {
 	}
 
 	public String getMailboxCopyGuid() {
-		return mailboxCopyGuid;
+		return mailboxCopyGuid != null ? mailboxCopyGuid : "";
 	}
 
 	public void setRole(Set<String> roles) {
