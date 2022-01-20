@@ -8,17 +8,18 @@ interface EnvironmentSchema extends DBSchema {
     };
 }
 
+const VERSION: number = 1;
+
 export class EnvironmentDB {
     db: Promise<IDBPDatabase<EnvironmentSchema>>;
-    static version = 1;
     constructor() {
         this.db = this.openDB();
     }
     private async openDB() {
-        return await openDB<EnvironmentSchema>("environment", EnvironmentDB.version, {
+        return await openDB<EnvironmentSchema>("environment", VERSION, {
             upgrade(db, oldVersion) {
-                logger.log(`[SW][DB] Upgrading from ${oldVersion} to ${EnvironmentDB.version}`);
-                if (oldVersion < EnvironmentDB.version) {
+                logger.log(`[SW][DB] Upgrading from ${oldVersion} to ${VERSION}`);
+                if (oldVersion < VERSION) {
                     logger.log("[SW][DB] Upgrading deleting existing object store");
                     for (const name of Object.values(db.objectStoreNames)) {
                         db.deleteObjectStore(name);
