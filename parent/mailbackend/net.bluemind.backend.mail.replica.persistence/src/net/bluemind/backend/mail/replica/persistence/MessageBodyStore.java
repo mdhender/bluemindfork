@@ -121,7 +121,7 @@ public class MessageBodyStore extends JdbcAbstractStore {
 				+ "    pq LEFT JOIN t_message_body mb ON (mb.guid = pq.message_body_guid) " //
 				+ "    WHERE mb.guid IS NULL" //
 				+ ") pqnull " //
-				+ "WHERE pqnull.message_body_guid = t_message_body_purge_queue.message_body_guid";
+				+ "WHERE removed IS NULL AND pqnull.message_body_guid = t_message_body_purge_queue.message_body_guid";
 		update(query, null);
 	}
 
