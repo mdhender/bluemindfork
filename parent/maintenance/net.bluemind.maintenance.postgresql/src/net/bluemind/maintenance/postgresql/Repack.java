@@ -56,7 +56,7 @@ import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
 
 public class Repack implements IMaintenanceScript {
-	private static final long TIMEOUT_HOURS = 6;
+	private static final long TIMEOUT_HOURS = 8;
 	private static final int DEFAULT_CHANGESET_PARTITION_COUNT = 256;
 	private static final int DEFAULT_CONVERSATION_PARTITION_COUNT = 25;
 
@@ -266,7 +266,8 @@ public class Repack implements IMaintenanceScript {
 						+ " -AtqE -c \"SELECT COALESCE(current_setting('bm.changeset_partitions', true)::integer, "
 						+ DEFAULT_CHANGESET_PARTITION_COUNT + ") -1 AS partition_count;\")\n");
 				sb.append("for i in $(seq 0 ${partitionCount}); do\n");
-				sb.append("  pg_repack -d " + dbName + " -t \"t_container_changeset_${i}\"\n");
+				sb.append("  pg_repack --wait-timeout " + TimeUnit.HOURS.toSeconds(4) + " -d " + dbName
+						+ " -t \"t_container_changeset_${i}\"\n");
 				sb.append("done\n");
 
 				// Conversations
@@ -274,7 +275,8 @@ public class Repack implements IMaintenanceScript {
 						+ " -AtqE -c \"SELECT COALESCE(current_setting('bm.conversation_partitions', true)::integer, "
 						+ DEFAULT_CONVERSATION_PARTITION_COUNT + ") -1 AS partition_count;\")\n");
 				sb.append("for i in $(seq 0 ${conversationsPartitionCount}); do\n");
-				sb.append("  pg_repack -d " + dbName + " -t \"t_conversation_${i}\"\n");
+				sb.append("  pg_repack --wait-timeout " + TimeUnit.HOURS.toSeconds(4) + " -d " + dbName
+						+ " -t \"t_conversation_${i}\"\n");
 				sb.append("done\n");
 			}
 			String scriptPath = "/tmp/maintenance_repack_" + System.nanoTime() + ".sh";

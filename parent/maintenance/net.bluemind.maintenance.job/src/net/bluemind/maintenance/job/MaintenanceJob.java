@@ -64,7 +64,7 @@ public class MaintenanceJob implements IScheduledJob {
 		if (!forced) {
 			GregorianCalendar gc = new GregorianCalendar();
 			gc.setTime(startDate);
-			if (gc.get(Calendar.MINUTE) != 0 || gc.get(Calendar.HOUR_OF_DAY) != 3) {
+			if (gc.get(Calendar.MINUTE) != 0 || gc.get(Calendar.HOUR_OF_DAY) != 1) {
 				logger.info("automatic mode, not running at {}", gc.getTime());
 				return;
 			}
