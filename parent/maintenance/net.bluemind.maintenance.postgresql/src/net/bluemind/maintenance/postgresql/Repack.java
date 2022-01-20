@@ -232,6 +232,8 @@ public class Repack implements IMaintenanceScript {
 					"t_container_changelog", "item_id");
 			setColumnNotNull(ds, monitor.subWork(ds.toString() + " check unique constraints", 1),
 					"t_container_changeset", "item_id");
+			setColumnNotNull(ds, monitor.subWork(ds.toString() + " check unique constraints", 1), "t_conversation",
+					"item_id");
 			indexesCreated |= createRepackIndexes(ds, monitor.subWork(ds.toString(), 1));
 		}
 		if (indexesCreated) {
