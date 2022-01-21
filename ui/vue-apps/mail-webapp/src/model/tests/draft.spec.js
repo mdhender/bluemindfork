@@ -6,9 +6,9 @@ import {
     computeCcRecipients,
     computeToRecipients,
     computeSubject,
-    createEmpty,
+    findIdentityFromMailbox,
     addSeparator,
-    computeFrom
+    computeIdentityForReplyOrForward
 } from "../draft";
 
 ServiceLocator.register({ provide: "i18n", factory: () => MockI18NProvider });
@@ -239,7 +239,7 @@ describe("compute To and Cc recipients when replying", () => {
     });
 });
 
-describe("compute From when replying", () => {
+describe("compute From when replying or forwarding", () => {
     const defaultId = { email: "default@mail.org", name: "default", isDefault: true, displayname: "default" };
     const other = { email: "contact@mail.org", name: "contacts", isDefault: false, displayname: "Contact" };
     const anotherAgain = { email: "rh@mail.org", name: "rh", isDefault: false, displayname: "RH" };
@@ -249,8 +249,8 @@ describe("compute From when replying", () => {
 
     test("only one identity", () => {
         const message = { to: [{ address: "contact@mail.org" }], cc: [] };
-        const from = computeFrom(message, identities, currentMailbox);
-        expect(from.address).toBe("contact@mail.org");
+        const from = computeIdentityForReplyOrForward(message, identities, currentMailbox);
+        expect(from.email).toBe("contact@mail.org");
     });
 
     test("priorize default identity if multiple found", () => {
@@ -258,48 +258,54 @@ describe("compute From when replying", () => {
             to: [{ address: "contact@mail.org" }, { address: "default@mail.org" }],
             cc: [{ address: "rh@mail.org" }]
         };
-        const from = computeFrom(message, identities, currentMailbox);
-        expect(from.address).toBe("default@mail.org");
+        const from = computeIdentityForReplyOrForward(message, identities, currentMailbox);
+        expect(from.email).toBe("default@mail.org");
     });
 
     test("priorize 'to' recipient if multiple found (and no default)", () => {
         const message = { to: [{ address: "contact@mail.org" }], cc: [{ address: "rh@mail.org" }] };
-        const from = computeFrom(message, identities, currentMailbox);
-        expect(from.address).toBe("contact@mail.org");
+        const from = computeIdentityForReplyOrForward(message, identities, currentMailbox);
+        expect(from.email).toBe("contact@mail.org");
     });
 
     test("if no identities found in recipients, take current mailbox one", () => {
         const message = { to: [], cc: [] };
-        const from = computeFrom(message, identities, currentMailbox);
-        expect(from.address).toBe("rh@mail.org");
+        const from = computeIdentityForReplyOrForward(message, identities, currentMailbox);
+        expect(from.email).toBe("rh@mail.org");
     });
 
     test("if no identities found in recipients, and mailbox dont match any identity, use default", () => {
         let message = { to: [], cc: [] };
-        let from = computeFrom(message, identities, {});
-        expect(from.address).toBe("default@mail.org");
+        let from = computeIdentityForReplyOrForward(message, identities, {});
+        expect(from.email).toBe("default@mail.org");
 
         message = { to: [{ address: "blabla@mail.com" }], cc: [{ address: "moreblabla@mail.org" }] };
-        from = computeFrom(message, identities, { address: "cantfindme@mail.org", dn: "Cant find me" });
-        expect(from.address).toBe("default@mail.org");
+        from = computeIdentityForReplyOrForward(message, identities, {
+            address: "cantfindme@mail.org",
+            dn: "Cant find me"
+        });
+        expect(from.email).toBe("default@mail.org");
     });
 });
 
-describe("Compute From when creating message", () => {
-    const defaultId = { email: "default@mail.org", name: "default", isDefault: true, displayname: "default" };
+describe("find identity given a current mailbox, or fallback on default", () => {
+    const defaultIdentity = { email: "default@mail.org", name: "default", isDefault: true, displayname: "default" };
     const other = { email: "contact@mail.org", name: "contacts", isDefault: false, displayname: "Contact" };
-    const identities = [other, defaultId];
 
-    const myDraftsFolder = { key: "drafts-key", remoteRef: { uid: "drafts-uid" } };
+    const identities = [other, defaultIdentity];
     const currentMailbox = { dn: other.displayname, address: other.email };
 
-    test("set default identity if no automatic behavior set", () => {
-        const message = createEmpty(myDraftsFolder, currentMailbox, identities, "never");
-        expect(message.from).toMatchObject({ address: defaultId.email, dn: defaultId.displayname });
+    test("set identity according to currentMailbox", () => {
+        const identity = findIdentityFromMailbox(currentMailbox, identities, defaultIdentity);
+        expect(identity).toMatchObject(other);
     });
 
-    test("set identity according to currentMailbox if automatic behavior is set", () => {
-        const message = createEmpty(myDraftsFolder, currentMailbox, identities, "replies_and_new_messages");
-        expect(message.from).toMatchObject(currentMailbox);
+    test("set default identity if no identity matches currentMailbox", () => {
+        const identity = findIdentityFromMailbox(
+            { dn: "unknown", address: "un@known.org" },
+            identities,
+            defaultIdentity
+        );
+        expect(identity).toMatchObject(defaultIdentity);
     });
 });

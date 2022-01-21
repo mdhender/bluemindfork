@@ -8,7 +8,7 @@
             class="ml-3"
             label-class="ml-2"
             :message="message"
-            @update="setFrom"
+            @update="identity => changeFrom(identity, message)"
             @check-and-repair="checkAndRepairFrom"
         />
         <mail-composer-recipients

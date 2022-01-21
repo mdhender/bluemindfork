@@ -5,8 +5,8 @@ import { inject } from "@bluemind/inject";
 import { sanitizeHtml } from "@bluemind/html-utils";
 import { BmRichEditor } from "@bluemind/styleguide";
 
-import { CHECK_CORPORATE_SIGNATURE, FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
-import { CURRENT_MAILBOX, MY_DRAFTS } from "~/getters";
+import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
+import { MY_DRAFTS } from "~/getters";
 import {
     ADD_ATTACHMENT,
     ADD_MESSAGES,
@@ -20,7 +20,6 @@ import {
     SET_PENDING_ATTACHMENTS,
     SET_SAVED_INLINE_IMAGES
 } from "~/mutations";
-import { addSignature } from "~/model/signature";
 import { getPartsFromCapabilities } from "~/model/part";
 // FIXME: all those methods are helper of mixin, not model..
 import {
@@ -33,6 +32,7 @@ import {
 } from "~/model/draft";
 import { MessageCreationModes } from "~/model/message";
 import apiMessages from "~/store/api/apiMessages";
+import { ComposerFromMixin } from "~/mixins";
 
 /**
  * Manage different cases of composer initialization
@@ -43,25 +43,17 @@ export default {
             userPrefTextOnly: false // FIXME: https://forge.bluemind.net/jira/browse/FEATWEBML-88
         };
     },
+    mixins: [ComposerFromMixin],
     computed: {
         ...mapGetters("mail", { $_ComposerInitMixin_MY_DRAFTS: MY_DRAFTS }),
-        ...mapState("mail", {
-            $_ComposerInitMixin_partsByMessageKey: ({ partsData }) => partsData.partsByMessageKey,
-            $_ComposerInitMixin_corporateSignature: ({ messageCompose }) => messageCompose.corporateSignature
-        }),
+        ...mapState("mail", { $_ComposerInitMixin_partsByMessageKey: ({ partsData }) => partsData.partsByMessageKey }),
         ...mapState("session", { $_ComposerInitMixin_settings: ({ settings }) => settings.remote }),
-        $_ComposerInitMixin_insertSignaturePref() {
-            return this.$_ComposerInitMixin_settings.insert_signature;
-        },
         $_ComposerInitMixin_lang() {
             return this.$_ComposerInitMixin_settings.lang;
         }
     },
     methods: {
-        ...mapActions("mail", {
-            $_ComposerInitMixin_FETCH_PART_DATA: FETCH_PART_DATA,
-            $_ComposerInitMixin_CHECK_CORPORATE_SIGNATURE: CHECK_CORPORATE_SIGNATURE
-        }),
+        ...mapActions("mail", { $_ComposerInitMixin_FETCH_PART_DATA: FETCH_PART_DATA }),
         ...mapMutations("mail", {
             $_ComposerInitMixin_ADD_MESSAGES: ADD_MESSAGES,
             $_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT: SET_DRAFT_COLLAPSED_CONTENT,
@@ -108,7 +100,7 @@ export default {
                 content = sanitizeHtml(content);
             }
             const editorData = handleSeparator(content);
-            editorData.content = await this.$_ComposerInitMixin_handleSignature(message, editorData.content);
+            editorData.content = await this.handleSignature(message, editorData.content);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(editorData.collapsed);
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(editorData.content);
         },
@@ -144,9 +136,11 @@ export default {
 
         // case of a new message
         async initNewMessage() {
-            const message = this.$_ComposerInitMixin_createEmpty();
+            const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS);
             this.$_ComposerInitMixin_ADD_MESSAGES([message]);
-            const content = await this.$_ComposerInitMixin_handleSignature(message, BmRichEditor.constants.NEW_LINE);
+            const identity = this.getIdentityForNewMessage();
+            await this.setFrom(identity, message);
+            const content = await this.handleSignature(message, BmRichEditor.constants.NEW_LINE);
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(null);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
@@ -155,14 +149,10 @@ export default {
 
         // case of a reply or forward message
         async initReplyOrForward(creationMode, previousMessage) {
-            const message = createReplyOrForward(
-                previousMessage,
-                this.$_ComposerInitMixin_MY_DRAFTS,
-                this.$store.getters["mail/" + CURRENT_MAILBOX],
-                creationMode,
-                this.$store.state["root-app"].identities,
-                this.$store.state.session.settings.remote.auto_select_from
-            );
+            const message = createReplyOrForward(previousMessage, this.$_ComposerInitMixin_MY_DRAFTS, creationMode);
+            this.$_ComposerInitMixin_ADD_MESSAGES([message]);
+            const identity = this.getIdentityForReplyOrForward(previousMessage);
+            await this.setFrom(identity, message);
 
             const parts = getPartsFromCapabilities(previousMessage, COMPOSER_CAPABILITIES);
 
@@ -200,7 +190,7 @@ export default {
                 inject("i18n")
             );
 
-            const content = await this.$_ComposerInitMixin_handleSignature(message, BmRichEditor.constants.NEW_LINE);
+            const content = await this.handleSignature(message, BmRichEditor.constants.NEW_LINE);
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(collapsed);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
@@ -208,7 +198,6 @@ export default {
             if (creationMode !== MessageCreationModes.FORWARD) {
                 message.conversationRef = { ...previousMessage.conversationRef };
             }
-            this.$_ComposerInitMixin_ADD_MESSAGES([message]);
 
             if (creationMode === MessageCreationModes.FORWARD) {
                 const attachments = await uploadAttachments(previousMessage);
@@ -219,8 +208,10 @@ export default {
         },
 
         async initEditAsNew(related) {
-            const message = this.$_ComposerInitMixin_createEmpty();
+            const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS);
             this.$_ComposerInitMixin_ADD_MESSAGES([message]);
+            const identity = this.getIdentityForNewMessage();
+            await this.setFrom(identity, message);
             this.mergeRecipients(message, related);
             this.mergeSubject(message, related);
             await this.mergeBody(message, related);
@@ -257,7 +248,7 @@ export default {
                 );
                 content = sanitizeHtml(result.contentsWithImageInserted[0]);
             }
-            content = await this.$_ComposerInitMixin_handleSignature(message, content);
+            content = await this.handleSignature(message, content);
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
         },
@@ -283,28 +274,6 @@ export default {
             rcpts.push(...message.bcc);
             recipients = message.bcc.concat(bcc.filter(bcc => rcpts.every(rcpt => bcc.address !== rcpt.address)));
             this.$store.commit(`mail/${SET_MESSAGE_BCC}`, { messageKey: message.key, bcc: recipients });
-        },
-        $_ComposerInitMixin_createEmpty() {
-            return createEmpty(
-                this.$_ComposerInitMixin_MY_DRAFTS,
-                this.$store.getters["mail/" + CURRENT_MAILBOX],
-                this.$store.state["root-app"].identities,
-                this.$store.state.session.settings.remote.auto_select_from
-            );
-        },
-        async $_ComposerInitMixin_handleSignature(message, content) {
-            await this.$_ComposerInitMixin_CHECK_CORPORATE_SIGNATURE({ message });
-            const signature = this.$store.state["root-app"].identities.find(
-                i => i.email === this.message.from.address && i.displayname === this.message.from.dn
-            ).signature;
-            if (
-                !this.$_ComposerInitMixin_corporateSignature &&
-                signature &&
-                this.$_ComposerInitMixin_insertSignaturePref === "true"
-            ) {
-                return addSignature(content, this.userPrefTextOnly, signature);
-            }
-            return content;
         }
     }
 };

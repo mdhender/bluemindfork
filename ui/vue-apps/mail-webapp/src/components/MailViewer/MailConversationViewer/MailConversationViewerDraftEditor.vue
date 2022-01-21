@@ -11,7 +11,7 @@
                     v-if="isSenderShown"
                     label-class="font-weight-bold text-secondary"
                     :message="message"
-                    @update="setFrom"
+                    @update="identity => changeFrom(identity, message)"
                     @check-and-repair="checkAndRepairFrom"
                 />
                 <bm-contact-input

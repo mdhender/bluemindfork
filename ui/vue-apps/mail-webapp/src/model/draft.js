@@ -39,7 +39,7 @@ export function draftPath(myDrafts) {
 // FIXME remove once we use 'real' message ids for new message
 export let FIXME_NEW_DRAFT_KEY;
 
-export function createEmpty(folder, currentMailbox, identities, autoSelectFromPref) {
+export function createEmpty(folder) {
     const metadata = {
         internalId: TEMPORARY_MESSAGE_ID,
         folder: { key: folder.key, uid: folder.remoteRef.uid }
@@ -49,16 +49,6 @@ export function createEmpty(folder, currentMailbox, identities, autoSelectFromPr
     message.key = FIXME_NEW_DRAFT_KEY;
 
     message.date = new Date();
-    const defaultIdentity = identities.find(id => !!id.isDefault);
-    if (autoSelectFromPref === "replies_and_new_messages") {
-        message.from = identityToFrom(findIdentityFromMailbox(currentMailbox, identities, defaultIdentity));
-    } else if (defaultIdentity) {
-        message.from = identityToFrom(defaultIdentity);
-    } else {
-        // a default identity must always be set for a user (BM-18071)
-        // only valid usage for passing here is if parent intentionally called createEmpty with wrong params
-        message.from = {};
-    }
     message.flags = [Flag.SEEN];
     message.status = MessageStatus.NEW;
     message.loading = LoadingStatus.LOADED;
@@ -69,15 +59,8 @@ export function createEmpty(folder, currentMailbox, identities, autoSelectFromPr
     return message;
 }
 
-export function createReplyOrForward(
-    previousMessage,
-    myDraftsFolder,
-    currentMailbox,
-    creationMode,
-    identities,
-    autoSelectFromPref
-) {
-    const message = createEmpty(myDraftsFolder, currentMailbox, identities, autoSelectFromPref);
+export function createReplyOrForward(previousMessage, myDraftsFolder, creationMode) {
+    const message = createEmpty(myDraftsFolder);
 
     const draftInfoHeader = {
         type: creationMode,
@@ -87,9 +70,6 @@ export function createReplyOrForward(
     message.headers = [{ name: MessageHeader.X_BM_DRAFT_INFO, values: [JSON.stringify(draftInfoHeader)] }];
 
     if (creationMode === MessageCreationModes.REPLY_ALL || creationMode === MessageCreationModes.REPLY) {
-        if (autoSelectFromPref === "only_replies" || autoSelectFromPref === "replies_and_new_messages") {
-            message.from = computeFrom(previousMessage, identities, currentMailbox);
-        }
         message.to = computeToRecipients(creationMode, previousMessage, message.from);
         message.cc = computeCcRecipients(creationMode, previousMessage);
     }
@@ -136,8 +116,7 @@ function handleIdentificationFields(message, previousMessage) {
 }
 
 export function createFromDraft(previous, folder) {
-    // passing null arguments because there are useless here : there are used only to compute From, which is overwrite the line just after
-    const message = createEmpty(folder, {}, [], "");
+    const message = createEmpty(folder);
     message.from = { ...previous.from };
     message.to = previous.to.slice();
     message.cc = previous.cc.slice();
@@ -151,8 +130,7 @@ export function createFromDraft(previous, folder) {
     return message;
 }
 
-// INTERNAL METHOD (exported only for testing purpose)
-export function computeFrom(message, identities, currentMailbox) {
+export function computeIdentityForReplyOrForward(message, identities, currentMailbox) {
     let chosenIdentity;
     const defaultIdentity = identities.find(id => !!id.isDefault);
     const identitiesFoundInTo = findIdentities(message.to, identities);
@@ -172,10 +150,10 @@ export function computeFrom(message, identities, currentMailbox) {
             chosenIdentity = identitiesFound[0];
         }
     }
-    return identityToFrom(chosenIdentity);
+    return chosenIdentity;
 }
 
-function findIdentityFromMailbox(currentMailbox, identities, defaultIdentity) {
+export function findIdentityFromMailbox(currentMailbox, identities, defaultIdentity) {
     const matchingId = findIdentities([currentMailbox], identities);
     if (matchingId[0]) {
         return matchingId[0];
