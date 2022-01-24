@@ -48,6 +48,7 @@ createDefaultVhost() {
 
     forceNginxConfiguration ${vhostFile} /usr/share/doc/bm-client-access/bluemind-vhosts.conf
     setDefaultServer ${vhostFile}
+    setUseProxyProtocol ${vhostFile}
     setExternalUrl ${vhostFile} ${externalUrl}
     setSslCertFile ${vhostFile}
     setVhostExtensionDir ${vhostFile}
@@ -73,10 +74,29 @@ createDomainsVhosts() {
 
         forceNginxConfiguration ${vhostFile} /usr/share/doc/bm-client-access/bluemind-vhosts.conf
         unsetDefaultServer ${vhostFile}
+        setUseProxyProtocol ${vhostFile}
         setExternalUrl ${vhostFile} ${externalUrl}
         setSslCertFile ${vhostFile} ${domainUid}
         setVhostExtensionDir ${vhostFile} ${domainUid}
     done < ${domainSettings}
+}
+
+setUseProxyProtocol() {
+    [ -e /etc/nginx/bm-nginx-use-proxy-protocol ] && {
+        local validIpFrom=$(head -n 1 /etc/nginx/bm-nginx-use-proxy-protocol)
+
+        sed -i -e "s/###proxy-protocol###/proxy_protocol/g" ${1}
+
+        if [ "${validIpFrom}" != "" ]; then
+            sed -i -e "s/###proxy-protocol-conf###/real_ip_header proxy_protocol;\nset_real_ip_from ${validIpFrom};/g" ${1}
+        else
+            sed -i -e "s/###proxy-protocol-conf###//g" ${1}
+        fi
+    	return
+    }
+
+    sed -i -e "s/###proxy-protocol###//g" ${1}
+    sed -i -e "s/###proxy-protocol-conf###//g" ${1}
 }
 
 setVhostExtensionDir() {
