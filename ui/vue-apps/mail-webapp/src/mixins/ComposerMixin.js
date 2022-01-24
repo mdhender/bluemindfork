@@ -7,6 +7,7 @@ import { addSignature, removeSignature, replaceSignature, isSignaturePresent } f
 import { RESET_COMPOSER, SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_FROM, SET_MESSAGE_HEADERS } from "~/mutations";
 import { IS_SENDER_SHOWN, MAILBOX_SENT } from "~/getters";
 import { DEFAULT_FOLDER_NAMES } from "~/store/folders/helpers/DefaultFolders";
+import { MailboxAdaptor } from "../store/helpers/MailboxAdaptor";
 
 const corporateSignatureGotInserted = {
     alert: { name: "mail.CORPORATE_SIGNATURE_INSERTED", uid: "CORPORATE_SIGNATURE" },
@@ -69,9 +70,6 @@ export default {
             }
         }
     },
-    created() {
-        this.$_ComposerMixin_checkAndRepairFrom();
-    },
     destroyed() {
         this.$store.commit("mail/" + RESET_COMPOSER);
         this.$store.dispatch("alert/" + REMOVE, corporateSignatureGotRemoved.alert);
@@ -101,11 +99,23 @@ export default {
             const rawIdentity = await inject("UserMailIdentitiesPersistence").get(fullIdentity.id);
             if (rawIdentity.sentFolder !== DEFAULT_FOLDER_NAMES.SENT) {
                 const mailboxes = this.$store.state.mail.mailboxes;
-                const mailbox = mailboxes[`user.${rawIdentity.mailboxUid}`] || mailboxes[rawIdentity.mailboxUid];
-                const sentFolder = this.$store.getters["mail/" + MAILBOX_SENT](mailbox);
-                if (sentFolder) {
+                let mailbox = mailboxes[`user.${rawIdentity.mailboxUid}`] || mailboxes[rawIdentity.mailboxUid];
+                let sentFolderUid;
+                if (mailbox) {
+                    sentFolderUid = this.$store.getters["mail/" + MAILBOX_SENT](mailbox)?.remoteRef.uid;
+                } else {
+                    const mailboxContainer = await inject("ContainersPersistence").get(
+                        "mailbox:acls-" + rawIdentity.mailboxUid
+                    );
+                    mailbox = MailboxAdaptor.fromMailboxContainer(mailboxContainer);
+                    const folderName = [mailbox.root, "Sent"].filter(Boolean).join("%2f");
+                    sentFolderUid = (
+                        await inject("MailboxFoldersPersistence", mailbox.remoteRef.uid).byName(folderName)
+                    )?.uid;
+                }
+                if (sentFolderUid) {
                     const headers = this.message.headers;
-                    const xBmSentFolder = { name: MessageHeader.X_BM_SENT_FOLDER, values: [sentFolder.remoteRef.uid] };
+                    const xBmSentFolder = { name: MessageHeader.X_BM_SENT_FOLDER, values: [sentFolderUid] };
                     this.$store.commit("mail/" + SET_MESSAGE_HEADERS, {
                         messageKey: this.message.key,
                         headers: [...headers, xBmSentFolder]
@@ -120,7 +130,7 @@ export default {
                 );
             }
         },
-        $_ComposerMixin_checkAndRepairFrom() {
+        checkAndRepairFrom() {
             const matchingIdentity = this.identities.find(
                 i => i.email === this.message.from.address && i.displayname === this.message.from.dn
             );

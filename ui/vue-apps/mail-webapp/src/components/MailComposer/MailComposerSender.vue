@@ -41,8 +41,12 @@ export default {
         }
     },
     methods: {
-        async changeIdentity(identity) {
-            this.$emit("update", identity);
+        changeIdentity(identity) {
+            if (identity !== undefined) {
+                this.$emit("update", identity);
+            } else {
+                this.$emit("check-and-repair");
+            }
         }
     }
 };

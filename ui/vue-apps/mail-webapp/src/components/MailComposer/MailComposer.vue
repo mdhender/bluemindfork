@@ -9,6 +9,7 @@
             label-class="ml-2"
             :message="message"
             @update="setFrom"
+            @check-and-repair="checkAndRepairFrom"
         />
         <mail-composer-recipients
             ref="recipients"

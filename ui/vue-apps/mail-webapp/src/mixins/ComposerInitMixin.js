@@ -55,10 +55,6 @@ export default {
         },
         $_ComposerInitMixin_lang() {
             return this.$_ComposerInitMixin_settings.lang;
-        },
-        ...mapGetters("root-app", { $_ComposerInitMixin_defaultIdentity: "DEFAULT_IDENTITY" }),
-        $_ComposerInitMixin_signature() {
-            return this.$_ComposerInitMixin_defaultIdentity.signature;
         }
     },
     methods: {
@@ -298,12 +294,15 @@ export default {
         },
         async $_ComposerInitMixin_handleSignature(message, content) {
             await this.$_ComposerInitMixin_CHECK_CORPORATE_SIGNATURE({ message });
+            const signature = this.$store.state["root-app"].identities.find(
+                i => i.email === this.message.from.address && i.displayname === this.message.from.dn
+            ).signature;
             if (
                 !this.$_ComposerInitMixin_corporateSignature &&
-                this.$_ComposerInitMixin_signature &&
+                signature &&
                 this.$_ComposerInitMixin_insertSignaturePref === "true"
             ) {
-                return addSignature(content, this.userPrefTextOnly, this.$_ComposerInitMixin_signature);
+                return addSignature(content, this.userPrefTextOnly, signature);
             }
             return content;
         }

@@ -12,6 +12,7 @@
                     label-class="font-weight-bold text-secondary"
                     :message="message"
                     @update="setFrom"
+                    @check-and-repair="checkAndRepairFrom"
                 />
                 <bm-contact-input
                     ref="to"
