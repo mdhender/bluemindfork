@@ -88,7 +88,7 @@ setUseProxyProtocol() {
         sed -i -e "s/###proxy-protocol###/proxy_protocol/g" ${1}
 
         if [ "${validIpFrom}" != "" ]; then
-            sed -i -e "s/###proxy-protocol-conf###/real_ip_header proxy_protocol;\nset_real_ip_from ${validIpFrom};/g" ${1}
+            sed -i -e "s/###proxy-protocol-conf###/real_ip_header proxy_protocol;\n  set_real_ip_from ${validIpFrom};/g" ${1}
         else
             sed -i -e "s/###proxy-protocol-conf###//g" ${1}
         fi
