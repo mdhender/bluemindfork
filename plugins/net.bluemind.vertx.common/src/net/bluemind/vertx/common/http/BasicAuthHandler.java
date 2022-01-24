@@ -57,12 +57,15 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxPromiseServiceProvider;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxesPromise;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.network.topology.TopologyException;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.vertx.common.CoreStateListener;
 
 public class BasicAuthHandler implements Handler<HttpServerRequest> {
 	public final Handler<AuthenticatedRequest> lh;
@@ -188,6 +191,15 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 
 	@Override
 	public void handle(final HttpServerRequest r) {
+
+		if (CoreStateListener.state != SystemState.CORE_STATE_RUNNING) {
+			VertxPlatform.getVertx().setTimer(500, timerId -> {
+				logger.warn("Core state is {}", CoreStateListener.state);
+				r.response().setStatusCode(503).setStatusMessage("Service Unavailable").end();
+			});
+			return;
+		}
+
 		MultiMap headers = r.headers();
 		final String auth = headers.get(HttpHeaders.AUTHORIZATION);
 

@@ -35,7 +35,6 @@ import net.bluemind.eas.http.EasUrls;
 import net.bluemind.eas.http.IEasRequestEndpoint;
 import net.bluemind.lib.vertx.RouteMatcher;
 import net.bluemind.role.api.BasicRoles;
-import net.bluemind.system.api.SystemState;
 import net.bluemind.vertx.common.http.BasicAuthHandler;
 import net.bluemind.vertx.common.request.Requests;
 
@@ -45,7 +44,6 @@ public final class EASRouter implements Handler<HttpServerRequest> {
 
 	private final RouteMatcher rm;
 
-	private Vertx vertx;
 	private static final ConcurrentHashMap<String, IEasRequestEndpoint> endpoints;
 	private static final AtomicLong requestId = new AtomicLong();
 
@@ -69,7 +67,6 @@ public final class EASRouter implements Handler<HttpServerRequest> {
 	}
 
 	public EASRouter(Vertx vertx) {
-		this.vertx = vertx;
 		rm = new RouteMatcher(vertx);
 		rm.noMatch(new NoMatch());
 		rm.get(EasUrls.ROOT, new BrokenGet());
@@ -111,14 +108,6 @@ public final class EASRouter implements Handler<HttpServerRequest> {
 
 	@Override
 	public void handle(final HttpServerRequest event) {
-
-		// FEATBL-21 returns 503 if core is not available
-		if (CoreStateListener.state != SystemState.CORE_STATE_RUNNING) {
-			HttpServerResponse resp = event.response();
-			resp.setStatusCode(503).setStatusMessage("Service Unavailable").end();
-			return;
-		}
-
 		final HttpServerRequest wrapped = Requests.wrap(event);
 		Requests.tag(wrapped, "m", event.method().name());
 		Requests.tag(wrapped, "rid", Long.toString(requestId.incrementAndGet()));

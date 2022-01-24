@@ -45,7 +45,6 @@ import net.bluemind.dav.server.proto.report.ReportProtocol;
 import net.bluemind.dav.server.proto.sharing.SharingProtocol;
 import net.bluemind.dav.server.routing.MethodRouter;
 import net.bluemind.dav.server.store.ResType;
-import net.bluemind.system.api.SystemState;
 import net.bluemind.vertx.common.http.BasicAuthHandler;
 
 public final class DavRouter implements Handler<HttpServerRequest> {
@@ -105,13 +104,6 @@ public final class DavRouter implements Handler<HttpServerRequest> {
 
 	@Override
 	public void handle(final HttpServerRequest r) {
-
-		if (CoreStateListener.state != SystemState.CORE_STATE_RUNNING) {
-			logger.error("bm-core is not running");
-			r.response().setStatusCode(503).setStatusMessage("Service unavailable").end();
-			return;
-		}
-
 		r.exceptionHandler(new Handler<Throwable>() {
 
 			@Override

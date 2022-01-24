@@ -7,4 +7,10 @@
             impl="net.bluemind.vertx.common.http.BasicAuthHandler$CacheRegistration">
       </reg>
    </extension>
+   <extension
+         point="net.bluemind.system.state">
+      <state-listener
+            class="net.bluemind.vertx.common.CoreStateListener">
+      </state-listener>
+   </extension>
 </plugin>
