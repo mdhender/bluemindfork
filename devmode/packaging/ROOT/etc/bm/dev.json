@@ -31,11 +31,15 @@
     },
     "filters": [
         {
-            "serverId": "webpack-dev-server-mail",
-            "search": "/webapp/js/net.bluemind.webapp.mail.js",
-            "replace": "/js/net.bluemind.webapp.mail.js",
+            "search": "/.*/css/styleguide.css",
             "active": true
         },
+        {
+            "serverId": "webpack-dev-server-mail",
+            "search": "/webapp/js/net.bluemind.webapp.mail.js(.*)",
+            "replace": "/js/net.bluemind.webapp.mail.js$1",
+            "active": true
+        },  
         {                
             "serverId": "webpack-dev-server-mail",
             "search": "/webapp/service-worker.js",
@@ -44,14 +48,14 @@
         },
         {
             "serverId": "webpack-dev-server-root",
-            "search": "/(.*)/js/net.bluemind.webapp.root.js",
-            "replace": "/js/net.bluemind.webapp.root.js",
+            "search": "/.*/js/net.bluemind.webapp.root.js(.*)?",
+            "replace": "/js/net.bluemind.webapp.root.js$1",
             "active": true
         },
         {
             "serverId": "webpack-dev-server-visio",
-            "search": "/visio/js/net.bluemind.videoconferencing.saas.js",
-            "replace": "/js/net.bluemind.videoconferencing.saas.js",
+            "search": "/visio/js/net.bluemind.videoconferencing.saas.js(.*)",
+            "replace": "/js/net.bluemind.videoconferencing.saas.js$1",
             "active": false
         },
         {
