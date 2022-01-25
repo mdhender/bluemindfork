@@ -19,12 +19,15 @@
         @keydown.ctrl.exact.65.prevent
     >
         <div
-            v-for="(conversation, index) in conversations"
+            v-for="conversation in conversations"
             :key="conversation.key"
             :set="(conversationIsSelected = isSelected(conversation.key))"
         >
             <template v-if="CONVERSATION_IS_LOADED(conversation)">
-                <date-separator :conversation="conversation" :v-if="showSeparator" :index="index" />
+                <conversation-list-separator
+                    v-if="dateSeparatorByKey[conversation.key]"
+                    :text="$t(dateSeparatorByKey[conversation.key].i18n)"
+                />
                 <draggable-conversation
                     :ref="'conversation-' + conversation.key"
                     :conversation="conversation"
@@ -55,14 +58,13 @@
 <script>
 import { BmListGroup } from "@bluemind/styleguide";
 import { mapState, mapGetters, mapActions } from "vuex";
-import ConversationListItemLoading from "./ConversationListItemLoading";
-import DateSeparator from "./DateSeparator";
-import { init as initDateSeparator } from "./DateSeparator";
-import DraggableConversation from "./DraggableConversation";
 import { CONVERSATION_IS_LOADED, CONVERSATION_METADATA } from "~/getters";
 import { FETCH_MESSAGE_METADATA } from "~/actions";
-
 import { LoadingStatus } from "~/model/loading-status";
+import ConversationListItemLoading from "./ConversationListItemLoading";
+import ConversationListSeparator from "./ConversationListSeparator";
+import DateRanges from "./DateRanges";
+import DraggableConversation from "./DraggableConversation";
 
 const PAGE = 9;
 export const SELECTION_MODE = {
@@ -75,7 +77,7 @@ export default {
     components: {
         BmListGroup,
         ConversationListItemLoading,
-        DateSeparator,
+        ConversationListSeparator,
         DraggableConversation
     },
     props: {
@@ -127,6 +129,20 @@ export default {
                 .map(key => this.CONVERSATION_METADATA(key))
                 .filter(conversation => conversation.loading !== LoadingStatus.ERROR);
         },
+        dateSeparatorByKey() {
+            const dateSeparatorByKey = {};
+            const dateRanges = new DateRanges();
+            const dateSeparators = [];
+            this.conversations.forEach(conversation => {
+                if (conversation.date) {
+                    const dateSeparator = getDateSeparator(conversation, dateRanges, dateSeparators);
+                    if (dateSeparator) {
+                        dateSeparatorByKey[conversation.key] = dateSeparator;
+                    }
+                }
+            });
+            return dateSeparatorByKey;
+        },
         selectionMode() {
             return Array.isArray(this.selected) && this.selected.length > 0
                 ? SELECTION_MODE.MULTI
@@ -160,7 +176,6 @@ export default {
         if (this.selected && !Array.isArray(this.selected)) {
             this.focusByKey(this.selected?.key);
         }
-        initDateSeparator();
     },
     mounted() {
         this.onScroll();
@@ -251,6 +266,15 @@ function selectionKeys({ type }, selected, key) {
         return [key];
     } else {
         return [selected, key];
+    }
+}
+function getDateSeparator(conversation, dateRanges, dateSeparators) {
+    const dateRange = dateRanges.sortedArray.find(dateRange =>
+        dateRange.contains(typeof conversation.date === "number" ? conversation.date : conversation.date.getTime())
+    );
+    if (!dateSeparators.includes(dateRange)) {
+        dateSeparators.push(dateRange);
+        return dateRange;
     }
 }
 </script>

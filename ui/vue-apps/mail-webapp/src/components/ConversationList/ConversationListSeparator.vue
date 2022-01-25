@@ -1,4 +1,4 @@
-<template fonctional>
+<template>
     <bm-list-group-separator class="px-2 py-0">
         <div class="text-right text-muted font-weight-bold">
             {{ text }}
