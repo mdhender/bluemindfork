@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@bluemind/styleguide@0.1.1681":
-  version "0.1.1681"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1681.tgz#236b4d0a0ebb4a36a463577c6d5d3454d3fcf7a3"
-  integrity sha512-jdN4o1kXJ0R/AWFdRX2uuNS0Bp1bun/mK872AKqv9rN2/2bVvv7R8KE7xwD13M9BoYKI3KPWuk5XRxnDykNDPA==
+"@bluemind/styleguide@0.1.1849":
+  version "0.1.1849"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1849.tgz#42f8b8548786c2965bf83d24248101d90c72e03a"
+  integrity sha512-+ERgemmx73mdLFL8ujQkwGWPZ1oaUWsAsehSVjpIJ+L1S2nw3tNhY4oTZkV99zHNupI+LaBUBZ+I4cuvItXb1A==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
     "@fortawesome/vue-fontawesome" "^0.1.4"
@@ -13,7 +13,10 @@
     bootstrap-vue "^2.17.0"
     interactjs "^1.9.20"
     lodash.clonedeep "^4.5.0"
+    lodash.debounce "^4.0.8"
+    lodash.isequal "^4.5.0"
     lodash.iteratee "^4.7.0"
+    lodash.sortedindexby "^4.6.0"
     lodash.throttle "^4.1.1"
     tiptap "^1.30.0"
     tiptap-extensions "^1.33.2"
@@ -413,10 +416,25 @@ lodash.clonedeep@^4.5.0:
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
   integrity sha1-4j8/nE+Pvd6HJSnBBxhXoIblzO8=
 
+lodash.debounce@^4.0.8:
+  version "4.0.8"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
+  integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
+
+lodash.isequal@^4.5.0:
+  version "4.5.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
+  integrity sha1-QVxEePK8wwEgwizhDtMib30+GOA=
+
 lodash.iteratee@^4.7.0:
   version "4.7.0"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.iteratee/-/lodash.iteratee-4.7.0.tgz#be4177db289a8ccc3c0990f1db26b5b22fc1554c"
   integrity sha1-vkF32yiajMw8CZDx2ya1si/BVUw=
+
+lodash.sortedindexby@^4.6.0:
+  version "4.6.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.sortedindexby/-/lodash.sortedindexby-4.6.0.tgz#46f198fbdfbcd09c6fd4c177d37cda3cc652d9f9"
+  integrity sha1-RvGY+9+80Jxv1MF303zaPMZS2fk=
 
 lodash.throttle@^4.1.1:
   version "4.1.1"
