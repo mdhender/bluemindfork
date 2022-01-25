@@ -53,20 +53,20 @@ public class MapRow {
 	private static final Logger logger = LoggerFactory.getLogger(MapRow.class);
 	private static final String EXTERNALUSER_DATALOCATION = "EXTERNALUSER-" + UUID.randomUUID().toString();
 
-	public final int itemId;
+	public final long itemId;
 
 	public final ItemValue<Domain> domain;
 	public final Type type;
 	public final Routing routing;
 	public final String dataLocation;
-	private final Integer[] membersItemsIds;
+	private final Long[] membersItemsIds;
 	public final Set<String> emails = new HashSet<>();
 	private String recipients;
 	private String mailboxName;
 	private String defaultEmail;
 
-	public MapRow(ItemValue<Domain> domain, int itemId, String name, Type type, Routing routing, String dataLocation,
-			String mailboxName, Integer[] membersItemsIds) {
+	public MapRow(ItemValue<Domain> domain, long itemId, String name, Type type, Routing routing, String dataLocation,
+			String mailboxName, Long[] membersItemsIds) {
 		this.domain = domain;
 		this.itemId = itemId;
 		this.type = type;
@@ -82,7 +82,7 @@ public class MapRow {
 	 * @param itemId
 	 * @param externalEmail
 	 */
-	public MapRow(int itemId, String externalEmail) {
+	public MapRow(long itemId, String externalEmail) {
 		this.domain = null;
 		this.itemId = itemId;
 		this.type = null;
@@ -115,7 +115,7 @@ public class MapRow {
 				+ " INNER JOIN t_directory_entry tde ON tm.item_id=tde.item_id" //
 				+ " WHERE NOT tm.archived  AND tm.type != '" + Mailbox.Type.group.name() + "'::enum_mailbox_type" //
 				+ " UNION" //
-				+ " SELECT " + fields + ", array_agg(member) AS members" //
+				+ " SELECT " + fields + ", array_agg(member::bigint) AS members" //
 				+ " FROM t_mailbox tm" //
 				+ " INNER JOIN t_mailbox_email tme ON tm.item_id=tme.item_id" //
 				+ " INNER JOIN t_container_item tci ON tm.item_id=tci.id" //
@@ -142,7 +142,7 @@ public class MapRow {
 				+ " FROM t_directory_entry tde WHERE tde.kind = 'EXTERNALUSER' AND NOT tde.flag_archived" //
 				+ " GROUP BY tde.item_id, tde.displayname, type, routing, tde.email, right_address, all_aliases, is_default, domain_uid, datalocation";
 
-		Map<Integer, MapRow> rowsByItemId = new HashMap<>();
+		Map<Long, MapRow> rowsByItemId = new HashMap<>();
 
 		Connection conn = context.getDataSource().getConnection();
 		ResultSet rs = null;
@@ -152,7 +152,7 @@ public class MapRow {
 			rs = st.executeQuery();
 
 			while (rs.next()) {
-				int itemId = rs.getInt("item_id");
+				long itemId = rs.getLong("item_id");
 
 				if (rowsByItemId.containsKey(itemId)) {
 					rowsByItemId.get(itemId).addEmail(rs.getString("left_address"), rs.getString("right_address"),
@@ -176,10 +176,10 @@ public class MapRow {
 		String dataLocationUid = rs.getString("datalocation");
 		if (EXTERNALUSER_DATALOCATION.equals(dataLocationUid)) {
 			// External user
-			return Optional.of(new MapRow(rs.getInt("item_id"), rs.getString("left_address")));
+			return Optional.of(new MapRow(rs.getLong("item_id"), rs.getString("left_address")));
 		}
 
-		int itemId = rs.getInt("item_id");
+		long itemId = rs.getLong("item_id");
 		String name = rs.getString("name");
 		Type type = Mailbox.Type.valueOf(rs.getString("type"));
 		Routing routing = Mailbox.Routing.valueOf(rs.getString("routing"));
@@ -191,10 +191,10 @@ public class MapRow {
 
 		String domainUid = rs.getString("domain_uid");
 
-		Integer[] membersItemsIds = new Integer[0];
+		Long[] membersItemsIds = new Long[0];
 		Array array = rs.getArray("members");
 		if (array != null) {
-			membersItemsIds = (Integer[]) array.getArray();
+			membersItemsIds = (Long[]) array.getArray();
 		}
 
 		if (!domainInfoByUid.containsKey(domainUid)) {
@@ -257,7 +257,7 @@ public class MapRow {
 		}
 	}
 
-	public void expandRecipients(Map<Integer, MapRow> emailsByItemId) {
+	public void expandRecipients(Map<Long, MapRow> emailsByItemId) {
 		if (type == null) {
 			return;
 		}
@@ -277,7 +277,7 @@ public class MapRow {
 			r.add(mailboxName);
 		}
 
-		for (Integer memberItemId : membersItemsIds) {
+		for (Long memberItemId : membersItemsIds) {
 			if (memberItemId == null) {
 				continue;
 			}
@@ -308,7 +308,7 @@ public class MapRow {
 			return mailboxName;
 		}
 
-		if (emails.size() == 0) {
+		if (emails.isEmpty()) {
 			return null;
 		}
 

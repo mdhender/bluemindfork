@@ -733,7 +733,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			throw new ServerFault("negative offset or limit");
 		}
 		try {
-			int len = query.filter == null ? itemStore.getItemCount() : itemStore.count(query.filter);
+			long len = query.filter == null ? itemStore.getItemCount() : itemStore.count(query.filter);
 			List<Item> items = query.filter == null ? itemStore.all()
 					: itemStore.filtered(query.filter, query.offset, query.limit);
 

@@ -66,13 +66,13 @@ public class UserOrExternalUserSimpleFinder implements SimpleBaseDirEntryFinder 
 					ret.values = value.values.stream().map(d -> d.value).collect(Collectors.toList());
 				}
 
-				int totalSize = size;
+				long totalSize = size;
 				if (totalSize == -1) {
 					totalSize = ret.total;
 				}
 
 				// detect total size
-				int maxPossibleSize = value.total;
+				long maxPossibleSize = value.total;
 				if (filterOut != null && (tQuery.nameFilter == null || tQuery.nameFilter.isEmpty())) {
 					// non-filtered search. size is result.total - assigned elements
 					maxPossibleSize = maxPossibleSize - filterOut.size() + 1;
@@ -82,7 +82,7 @@ public class UserOrExternalUserSimpleFinder implements SimpleBaseDirEntryFinder 
 				}
 				// pagination
 				ret.values = ret.values.subList(from,
-						Math.min(ret.values.size(), Math.min(from + totalSize, ret.values.size())));
+						Math.min(ret.values.size(), Math.min(from + (int) totalSize, ret.values.size())));
 				if (ret.values.size() > size) {
 					ret.values = ret.values.subList(0, size);
 				}

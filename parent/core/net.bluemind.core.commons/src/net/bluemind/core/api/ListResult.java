@@ -25,7 +25,7 @@ import java.util.List;
 public class ListResult<E> {
 
 	public List<E> values;
-	public int total;
+	public long total;
 
 	public ListResult() {
 		values = Collections.emptyList();
@@ -36,7 +36,7 @@ public class ListResult<E> {
 		return create(values, values.size());
 	}
 
-	public static <E> ListResult<E> create(List<E> values, int total) {
+	public static <E> ListResult<E> create(List<E> values, long total) {
 		ListResult<E> ret = new ListResult<>();
 		ret.total = total;
 		ret.values = values;

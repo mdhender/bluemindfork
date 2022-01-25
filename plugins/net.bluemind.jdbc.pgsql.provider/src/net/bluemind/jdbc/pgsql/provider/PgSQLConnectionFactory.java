@@ -44,7 +44,6 @@ public class PgSQLConnectionFactory implements IJDBCDriver {
 
 	@Override
 	public String getLastInsertIdQuery() {
-		return "SELECT lastval()";
+		throw new UnsupportedOperationException("lastIdQuery is not supported");
 	}
-
 }

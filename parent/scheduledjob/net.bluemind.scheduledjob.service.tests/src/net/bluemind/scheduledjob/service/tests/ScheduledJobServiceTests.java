@@ -168,14 +168,14 @@ public class ScheduledJobServiceTests {
 		JobExecutionQuery query = new JobExecutionQuery();
 		query.jobId = GLOBAL_JOB;
 		ListResult<JobExecution> executions = serviceAdmin0.searchExecution(query);
-		assertEquals(0, executions.total);
+		assertEquals(0L, executions.total);
 
 		serviceAdmin0.start(GLOBAL_JOB, null);
 		waitFor(GLOBAL_JOB);
 
 		executions = serviceAdmin0.searchExecution(query);
 
-		assertEquals(1, executions.total);
+		assertEquals(1L, executions.total);
 	}
 
 	@Test
@@ -184,7 +184,7 @@ public class ScheduledJobServiceTests {
 		query.jobId = DOMAIN_JOB;
 		ListResult<JobExecution> executions = serviceAdmin.searchExecution(query);
 
-		assertEquals(0, executions.total);
+		assertEquals(0L, executions.total);
 
 		serviceAdmin.start(DOMAIN_JOB, null);
 		waitFor(DOMAIN_JOB);
@@ -196,7 +196,7 @@ public class ScheduledJobServiceTests {
 		}
 
 		executions = serviceAdmin.searchExecution(query);
-		assertEquals(1, executions.total);
+		assertEquals(1L, executions.total);
 
 		JobExecution latest = executions.values.get(0);
 		assertNotNull(latest.startDate);
@@ -348,16 +348,16 @@ public class ScheduledJobServiceTests {
 
 		assertTrue("We expected one execution of event alert here", execs.total > 0);
 
-		int total = execs.total;
+		long total = execs.total;
 		System.out.println("execs before delete: " + total);
 
 		// remove the oldest one
-		JobExecution toDelete = execs.values.get(total - 1);
+		JobExecution toDelete = execs.values.get((int) total - 1);
 		assertTrue(toDelete.id > 0);
 		serviceAdmin0.deleteExecution(toDelete.id);
 
 		execs = serviceAdmin0.searchExecution(query);
-		int newTotal = execs.total;
+		long newTotal = execs.total;
 
 		// ok, this test does not check that we deleted the correct execution
 		assertEquals(total - 1, newTotal);
@@ -461,7 +461,7 @@ public class ScheduledJobServiceTests {
 
 		ret = serviceAdmin0.searchJob(jq);
 
-		int newCount = ret.total;
+		long newCount = ret.total;
 		assertTrue("must find less jobs when querying from only one domain", newCount < count);
 
 		System.err.println("bm.lan jobs: " + newCount);
@@ -518,7 +518,7 @@ public class ScheduledJobServiceTests {
 
 		ListResult<JobExecution> executions = serviceAdmin.searchExecution(query);
 		assertNotNull(executions);
-		int total = executions.total;
+		long total = executions.total;
 		System.out.println("Before force-starting QUOTA: " + total + " executions.");
 
 		serviceAdmin.start(DOMAIN_JOB, null);

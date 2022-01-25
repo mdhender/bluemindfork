@@ -22,9 +22,9 @@ import net.bluemind.core.api.BMApi;
 @BMApi(version = "3")
 public class Count {
 
-	public int total;
+	public long total;
 
-	public static final Count of(int v) {
+	public static final Count of(long v) {
 		Count c = new Count();
 		c.total = v;
 		return c;

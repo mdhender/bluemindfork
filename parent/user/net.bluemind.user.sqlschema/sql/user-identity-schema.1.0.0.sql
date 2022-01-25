@@ -2,7 +2,7 @@
 create table t_user_mailidentity (
 	id		  varchar(64) not null,
 	mbox_uid 	  varchar(64),
-	user_id 	  int4 references t_domain_user(item_id),
+	user_id 	  bigint references t_domain_user(item_id),
 	name 		  varchar(64) not null,
 	format		  enum_identity_format not null,
 	signature	  TEXT not null,

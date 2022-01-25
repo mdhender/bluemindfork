@@ -78,7 +78,9 @@ public class MailboxRecordColumns {
 				value.internalFlags = InternalFlag.of(encodedFlags);
 				value.flags.addAll(
 						toList(rs.getArray(index++)).stream().map(MailboxItemFlag::new).collect(Collectors.toList()));
-				value.conversationId = (Long) rs.getObject(index++);
+				// TODO: Why this cast instead of getLong ??
+				// value.conversationId = (Long) rs.getObject(index++);
+				value.conversationId = rs.getLong(index++);
 				return index;
 			}
 		};

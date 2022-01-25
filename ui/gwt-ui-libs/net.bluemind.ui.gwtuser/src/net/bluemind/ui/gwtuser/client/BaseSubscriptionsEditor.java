@@ -300,7 +300,7 @@ public abstract class BaseSubscriptionsEditor extends CompositeGwtWidgetElement 
 	 * @param items
 	 * @param sb
 	 */
-	private void fatContainerWarning(int items, SwitchButton sb, Label warningIcon) {
+	private void fatContainerWarning(long items, SwitchButton sb, Label warningIcon) {
 		DialogBox os = new DialogBox();
 
 		FlowPanel buttons = new FlowPanel();

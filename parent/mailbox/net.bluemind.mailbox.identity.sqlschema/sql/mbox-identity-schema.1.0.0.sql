@@ -4,7 +4,7 @@ create type enum_identity_format as enum
 
 create table t_mailbox_identity (
 	id		  varchar(64) not null,
-	mbox_id 	  int4 references t_mailbox(item_id),
+	mbox_id 	  bigint references t_mailbox(item_id),
 	name 		  varchar(64) not null,
 
 	format		  enum_identity_format not null,

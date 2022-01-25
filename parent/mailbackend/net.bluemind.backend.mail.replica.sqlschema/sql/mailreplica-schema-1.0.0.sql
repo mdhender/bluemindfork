@@ -31,7 +31,7 @@ create table IF NOT EXISTS t_mailbox_replica (
 	xconv_mod_seq int8,
 	unique_id text not null,
 	container_id int4 not null references t_container(id) ON UPDATE CASCADE  on delete cascade,
-	item_id int4 references t_container_item(id) on delete cascade UNIQUE
+	item_id bigint references t_container_item(id) on delete cascade UNIQUE
 );
 
 create index IF NOT EXISTS i_mailbox_replica on t_mailbox_replica (item_id);
@@ -48,7 +48,7 @@ create table IF NOT EXISTS t_mailbox_record (
 	other_flags text[],
 	container_id int4 not null references t_container(id) ON UPDATE CASCADE  on delete cascade,
 	conversation_id bigint,
-	item_id int4 references t_container_item(id) ON UPDATE CASCADE  on delete cascade
+	item_id bigint references t_container_item(id) ON UPDATE CASCADE  on delete cascade
 );
 create index IF NOT EXISTS t_mailbox_record_imap_uid ON t_mailbox_record (imap_uid);
 create index IF NOT EXISTS i_mailbox_record_cid_imap_uid ON t_mailbox_record (container_id, imap_uid);

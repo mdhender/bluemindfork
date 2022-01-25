@@ -408,7 +408,7 @@ public class UserServiceTests {
 		query.size = 0;
 		ListResult<ItemValue<DirEntry>> users = service.search(query);
 
-		int maxUsers = users.total + 1;
+		int maxUsers = (int) users.total + 1;
 		setDomainMaxUsers(domainUid, maxUsers);
 
 		String login = "test." + System.nanoTime();

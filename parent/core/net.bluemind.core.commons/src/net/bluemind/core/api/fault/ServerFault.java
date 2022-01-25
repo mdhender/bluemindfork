@@ -82,4 +82,10 @@ public class ServerFault extends RuntimeException {
 		sf.setCode(ErrorCode.ALREADY_EXISTS);
 		return sf;
 	}
+
+	public static ServerFault tooManyResults(String message) {
+		ServerFault sf = new ServerFault(message);
+		sf.setCode(ErrorCode.MAX_ITEM_COUNT);
+		return sf;
+	}
 }

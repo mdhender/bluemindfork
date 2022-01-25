@@ -48,7 +48,7 @@ public final class UserInboxService implements IUserInbox {
 	@Override
 	public Integer unseen() {
 		rbac.check(Verb.Read.name());
-		return itemsApi.count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted, ItemFlag.Seen)).total;
+		return (int) itemsApi.count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted, ItemFlag.Seen)).total;
 	}
 
 }

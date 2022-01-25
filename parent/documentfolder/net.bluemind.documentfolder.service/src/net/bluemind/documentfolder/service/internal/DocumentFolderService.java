@@ -81,8 +81,7 @@ public class DocumentFolderService implements IDocumentFolder {
 		try {
 			Item item = store.get(uid);
 			if (item != null) {
-				IDocument documentService = context.provider().instance(IDocument.class,
-						container.uid, item.uid);
+				IDocument documentService = context.provider().instance(IDocument.class, container.uid, item.uid);
 				List<DocumentMetadata> docs = documentService.list();
 				if (docs.size() > 0) {
 					// FIXME throw exception or remove docs?
@@ -122,14 +121,16 @@ public class DocumentFolderService implements IDocumentFolder {
 	public ListResult<DocumentFolder> list() throws ServerFault {
 		rbacManager.check(Verb.Read.name());
 
-		ListResult<DocumentFolder> ret = new ListResult<DocumentFolder>();
+		ListResult<DocumentFolder> ret = new ListResult<>();
 		try {
 			List<Item> items = store.all();
 			ret.total = items.size();
-
-			ArrayList<DocumentFolder> values = new ArrayList<DocumentFolder>(ret.total);
+			if (ret.total > 10000) {
+				throw ServerFault.tooManyResults("Too many DocumentFolder");
+			}
+			ret.values = new ArrayList<>((int) ret.total);
 			for (Item item : items) {
-				values.add(DocumentFolder.create(item.uid, item.displayName));
+				ret.values.add(DocumentFolder.create(item.uid, item.displayName));
 			}
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);

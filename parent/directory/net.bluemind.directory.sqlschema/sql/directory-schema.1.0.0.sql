@@ -15,9 +15,9 @@ create table t_directory_entry (
 	flag_hidden	boolean default false,
 	flag_system	boolean default false,
 	flag_archived	boolean default false,
-	orgunit_item_id int4 references t_container_item(id) on delete cascade,
+	orgunit_item_id bigint references t_container_item(id) on delete cascade,
 	datalocation text,
-	item_id int4 references t_container_item(id) on delete cascade UNIQUE
+	item_id bigint references t_container_item(id) on delete cascade UNIQUE
 );
 
 create index idx_t_directory_entry_uid on t_directory_entry (entry_uid);

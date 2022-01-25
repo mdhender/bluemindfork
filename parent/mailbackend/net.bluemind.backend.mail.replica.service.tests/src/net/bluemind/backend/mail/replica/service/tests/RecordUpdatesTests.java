@@ -83,7 +83,7 @@ public class RecordUpdatesTests extends AbstractRollingReplicationTests {
 			return null;
 		});
 
-		int count = 0;
+		long count = 0;
 		while (count < MESSAGES) {
 			Thread.sleep(20);
 			count = itemsApi().count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).total;
@@ -172,7 +172,7 @@ public class RecordUpdatesTests extends AbstractRollingReplicationTests {
 			return sc.uidStore("1:*", fl, setSeen);
 		});
 		assertTrue(result);
-		int unseen = itemsApi().count(expectedMatch).total;
+		long unseen = itemsApi().count(expectedMatch).total;
 		System.err.println("match: " + unseen);
 		long time = System.currentTimeMillis();
 		int attempt = 0;

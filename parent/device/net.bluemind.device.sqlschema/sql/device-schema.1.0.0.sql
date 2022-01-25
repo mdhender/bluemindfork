@@ -15,7 +15,7 @@ CREATE TABLE t_eas_device (
     
     last_sync timestamp without time zone,
     
-    item_id int4 references t_container_item(id) on delete cascade,
+    item_id bigint references t_container_item(id) on delete cascade,
     
     unique(identifier, owner)
 );

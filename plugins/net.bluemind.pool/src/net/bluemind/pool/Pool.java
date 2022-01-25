@@ -19,9 +19,6 @@
 package net.bluemind.pool;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +31,10 @@ public final class Pool {
 
 	private static final Logger logger = LoggerFactory.getLogger(Pool.class);
 
-	private final String lastInsertIdQuery;
 	private final WrappedDS wrapped;
 
-	Pool(String lastIdQuery, HikariDataSource xa) {
+	Pool(HikariDataSource xa) {
 		this.wrapped = new WrappedDS(xa);
-		this.lastInsertIdQuery = lastIdQuery;
 	}
 
 	public void stop() {
@@ -54,22 +49,6 @@ public final class Pool {
 			logger.error("Error getting SQL connection to database", e);
 		}
 		return con;
-	}
-
-	public int lastInsertId(Connection con) throws SQLException {
-		int ret = 0;
-		Statement st = null;
-		ResultSet rs = null;
-		try {
-			st = con.createStatement();
-			rs = st.executeQuery(lastInsertIdQuery);
-			if (rs.next()) {
-				ret = rs.getInt(1);
-			}
-		} finally {
-			BMPoolActivator.cleanup(null, st, rs);
-		}
-		return ret;
 	}
 
 	public CloseableDataSource getDataSource() {

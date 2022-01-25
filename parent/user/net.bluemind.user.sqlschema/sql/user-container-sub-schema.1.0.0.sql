@@ -1,7 +1,7 @@
 CREATE TABLE t_container_sub (
 	container_uid text,
 	container_type text,
-	user_id int4 references t_domain_user(item_id),
+	user_id bigint references t_domain_user(item_id),
 	offline_sync boolean default true,
 	PRIMARY KEY(container_uid, user_id)
 );

@@ -11,7 +11,7 @@ CREATE INDEX IF NOT EXISTS t_mapi_folders_container_uid ON t_mapi_folders(contai
 
 CREATE TABLE if not exists t_mapi_raw_message (
 	content jsonb,
-	item_id int4 references t_container_item(id) on delete cascade
+	item_id bigint references t_container_item(id) on delete cascade
 );
 create index if not exists tmrm_item_id_fkey on t_mapi_raw_message(item_id);
 

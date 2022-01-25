@@ -361,7 +361,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 
 		logger.debug("Found {} parents group for group {}", parents.size(), groupItemId);
 
-		return new HashSet<Long>(parents);
+		return new HashSet<>(parents);
 	}
 
 	public List<Member> getFlatUsersMembers(Item item) throws SQLException {

@@ -27,11 +27,11 @@ public interface SubscriptionConstants extends Messages {
 
 	String off();
 
-	String tooFat(int items);
+	String tooFat(long total);
 
 	String tooFatWarningTitle();
 
-	String tooFatWarningContent(int items);
+	String tooFatWarningContent(long items);
 
 	String yes();
 

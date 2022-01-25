@@ -103,7 +103,7 @@ public class ItemStore extends JdbcAbstractStore {
 				: String.format(FORCED_VERSION_QUERY, item.version);
 		String itemIdSeq = null;
 		if (item.id > 0) {
-			int currentSeqValue = unique("SELECT last_value FROM t_container_item_id_seq", new IntegerCreator(1),
+			long currentSeqValue = unique("SELECT last_value FROM t_container_item_id_seq", new LongCreator(1),
 					Collections.emptyList());
 			if (currentSeqValue < item.id && item.version == 0L) {
 				throw new SQLException(
@@ -143,10 +143,10 @@ public class ItemStore extends JdbcAbstractStore {
 		return Timestamp.from(Instant.now());
 	}
 
-	public int count(ItemFlagFilter filter) throws SQLException {
+	public long count(ItemFlagFilter filter) throws SQLException {
 		String q = "SELECT COUNT(*) FROM t_container_item ci WHERE container_id = " + container.id;
 		q += FlagsSqlFilter.filterSql("ci", filter);
-		return unique(q, rs -> rs.getInt(1), (rs, index, v) -> index);
+		return unique(q, rs -> rs.getLong(1), (rs, index, v) -> index);
 	}
 
 	public Item createWithUidNull(Item item) throws SQLException {

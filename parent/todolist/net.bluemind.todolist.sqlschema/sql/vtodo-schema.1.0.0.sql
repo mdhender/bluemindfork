@@ -152,9 +152,9 @@ create table t_todolist_vtodo (
   /*
     * 3.8.1.1.  Attachment
     */
-   attach_uri text[],
-   attach_name text[],
-   attach_cid text[],
+  attach_uri text[],
+  attach_name text[],
+  attach_cid text[],
 
   /*
    * 4.8.7.4.  Sequence Number
@@ -165,7 +165,7 @@ create table t_todolist_vtodo (
   
   custom_properties hstore,
 
-  item_id int4 references t_container_item(id) on delete cascade primary key 
+  item_id bigint references t_container_item(id) on delete cascade primary key 
 );
 
 create index idx_todolist_uid on t_todolist_vtodo (uid);

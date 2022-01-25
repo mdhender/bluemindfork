@@ -21,7 +21,6 @@ package net.bluemind.pool;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -148,7 +147,6 @@ public class BMPoolActivator extends Plugin {
 				throw new Exception("No connection factory found for dbtype " + dbType);
 			} else {
 				String jdbcUrl = cf.getJDBCUrl(dbHost, dbName, login, password);
-				String lastIdQuery = cf.getLastInsertIdQuery();
 
 				// try to detect we are running in eclipse, on host
 				String os = System.getProperty("os.name");
@@ -184,7 +182,7 @@ public class BMPoolActivator extends Plugin {
 						HikariDataSource ds = new HikariDataSource(config);
 						logger.info("Got DS {}", ds);
 
-						return new Pool(lastIdQuery, ds);
+						return new Pool(ds);
 					} catch (Exception e) {
 						logger.warn("Pool {} startup problem: {}, retrying in 2sec", jdbcUrl, e.getMessage());
 						Thread.sleep(2000);
@@ -231,10 +229,6 @@ public class BMPoolActivator extends Plugin {
 
 	public Connection getConnection() {
 		return defaultPool.getConnection();
-	}
-
-	public int lastInsertId(Connection con) throws SQLException {
-		return defaultPool.lastInsertId(con);
 	}
 
 	public static void cleanup(Connection con, Statement st, ResultSet rs) {
