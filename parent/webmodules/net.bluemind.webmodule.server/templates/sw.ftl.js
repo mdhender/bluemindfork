@@ -164,7 +164,7 @@ const BrowserData = {
         const sessionMailboxCopyGuid = await (await Session.environment()).getMailboxCopyGuid();
         if (mailboxCopyGuid !== sessionMailboxCopyGuid) {
             logger.log(
-                `[SW][BrowserData] Browser date reset needed (${mailboxCopyGuid} != ${sessionMailboxCopyGuid}).`
+                `[SW][BrowserData] Data reset needed (` + mailboxCopyGuid + ` != ` + sessionMailboxCopyGuid + `).`
             );
             await this.reset();
         }
