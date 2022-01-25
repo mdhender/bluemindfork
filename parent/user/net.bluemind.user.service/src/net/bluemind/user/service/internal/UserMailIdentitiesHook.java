@@ -52,7 +52,7 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.mailbox.hook.DefaultMailboxHook;
 import net.bluemind.mailbox.identity.api.IdentityDescription;
-import net.bluemind.mailbox.identity.api.SignatureFormat;
+import net.bluemind.user.api.IInternalUserMailIdentities;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserMailIdentities;
 import net.bluemind.user.api.UserMailIdentity;
@@ -162,26 +162,9 @@ public class UserMailIdentitiesHook extends DefaultMailboxHook implements IAclHo
 
 		if (value.value.defaultEmail() != null) {
 			DirEntry dirEntry = context.su().provider().instance(IDirectory.class, domainUid).findByEntryUid(value.uid);
-			IUserMailIdentities userMailIdentities = context.su().provider().instance(IUserMailIdentities.class,
-					domainUid, value.uid);
-
-			UserMailIdentity umi = createDefaultEmail(value, dirEntry);
-			userMailIdentities.create("default", umi);
-			userMailIdentities.setDefault("default");
+			context.su().provider().instance(IInternalUserMailIdentities.class, domainUid, value.uid)
+					.createDefaultIdentity(value, dirEntry);
 		}
-	}
-
-	private UserMailIdentity createDefaultEmail(ItemValue<Mailbox> value, DirEntry dirEntry) {
-		UserMailIdentity umi = new UserMailIdentity();
-		umi.mailboxUid = value.uid;
-		umi.email = value.value.defaultEmail().address;
-		umi.format = SignatureFormat.HTML;
-		umi.signature = "";
-		umi.sentFolder = "Sent";
-		umi.displayname = dirEntry.displayName;
-		umi.name = umi.displayname;
-		umi.isDefault = true;
-		return umi;
 	}
 
 	@Override
@@ -195,8 +178,8 @@ public class UserMailIdentitiesHook extends DefaultMailboxHook implements IAclHo
 			return;
 		}
 
-		IUserMailIdentities userMailIdentities = context.su().provider().instance(IUserMailIdentities.class, domainUid,
-				value.uid);
+		IInternalUserMailIdentities userMailIdentities = context.su().provider()
+				.instance(IInternalUserMailIdentities.class, domainUid, value.uid);
 
 		DirEntry dirEntry = context.su().provider().instance(IDirectory.class, domainUid).findByEntryUid(value.uid);
 		boolean needToAddDefaultEmail = value.value.defaultEmail() != null;
@@ -218,9 +201,7 @@ public class UserMailIdentitiesHook extends DefaultMailboxHook implements IAclHo
 		}
 
 		if (needToAddDefaultEmail) {
-			UserMailIdentity umi = createDefaultEmail(value, dirEntry);
-			userMailIdentities.create("default", umi);
-			userMailIdentities.setDefault("default");
+			userMailIdentities.createDefaultIdentity(value, dirEntry);
 		}
 
 	}

@@ -23,19 +23,19 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.user.api.IUserMailIdentities;
+import net.bluemind.user.api.IInternalUserMailIdentities;
 import net.bluemind.user.hook.identity.IUserMailIdentityHook;
 import net.bluemind.user.service.internal.UserMailIdentities;
 
-public class UserMailIdentitiesFactory extends UserMailIdentitiesBaseFactory<IUserMailIdentities> {
+public class InternalUserMailIdentitiesFactory extends UserMailIdentitiesBaseFactory<IInternalUserMailIdentities> {
 
 	@Override
-	public Class<IUserMailIdentities> factoryClass() {
-		return IUserMailIdentities.class;
+	public Class<IInternalUserMailIdentities> factoryClass() {
+		return IInternalUserMailIdentities.class;
 	}
 
 	@Override
-	protected IUserMailIdentities create(BmContext context, ItemValue<Domain> domainValue, Container container,
+	protected IInternalUserMailIdentities create(BmContext context, ItemValue<Domain> domainValue, Container container,
 			String userUid, List<IUserMailIdentityHook> identityHooks) {
 		return new UserMailIdentities(context, domainValue, container, userUid, identityHooks);
 	}

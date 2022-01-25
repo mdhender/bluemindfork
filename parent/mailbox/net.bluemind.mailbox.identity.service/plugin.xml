@@ -6,12 +6,21 @@
       <endpoint
             api="net.bluemind.mailbox.identity.api.IMailboxIdentity">
       </endpoint>
+      <endpoint
+            api="net.bluemind.user.api.IInternalUserMaiIdentities">
+      </endpoint>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">
       <serviceFactory
             class="net.bluemind.mailbox.identity.service.MailboxIdentityServiceFactory">
       </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.directory.repairSupport">
+      <repairSupport
+            factory="net.bluemind.mailbox.identity.service.repair.DefaultIdentityRepair$RepairFactory">
+      </repairSupport>
    </extension>
 
 </plugin>

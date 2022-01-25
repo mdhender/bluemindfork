@@ -33,17 +33,21 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.directory.api.DirEntry;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.identity.api.IMailboxIdentity;
 import net.bluemind.mailbox.identity.api.IdentityDescription;
+import net.bluemind.mailbox.identity.api.SignatureFormat;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.user.api.IInternalUserMailIdentities;
 import net.bluemind.user.api.IUserMailIdentities;
 import net.bluemind.user.api.UserMailIdentity;
 import net.bluemind.user.hook.identity.IUserMailIdentityHook;
 
-public class UserMailIdentities implements IUserMailIdentities {
+public class UserMailIdentities implements IUserMailIdentities, IInternalUserMailIdentities {
 
 	private ContainerUserStoreService storeService;
 	private String userUid;
@@ -175,5 +179,21 @@ public class UserMailIdentities implements IUserMailIdentities {
 		rbacManager.forEntry(userUid).check(BasicRoles.ROLE_MANAGE_USER_MAIL_IDENTITIES);
 		storeService.setDefaultIdentify(userUid, id);
 		hooks.forEach(hook -> hook.onIdentityDefault(context, domainUid, userUid, id));
+	}
+
+	@Override
+	public void createDefaultIdentity(ItemValue<Mailbox> mailboxItem, DirEntry dirEntry) throws ServerFault {
+		UserMailIdentity umi = new UserMailIdentity();
+		umi.mailboxUid = mailboxItem.uid;
+		umi.email = mailboxItem.value.defaultEmail().address;
+		umi.format = SignatureFormat.HTML;
+		umi.signature = "";
+		umi.sentFolder = "Sent";
+		umi.displayname = dirEntry.displayName;
+		umi.name = umi.displayname;
+		umi.isDefault = true;
+
+		create("default", umi);
+		setDefault("default");
 	}
 }

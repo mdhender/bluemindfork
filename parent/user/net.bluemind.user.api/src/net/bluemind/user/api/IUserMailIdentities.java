@@ -36,9 +36,11 @@ import net.bluemind.mailbox.identity.api.IdentityDescription;
 @Path("/users/{domainUid}/{userUid}/identity")
 public interface IUserMailIdentities {
 
+	public static final String REPAIR_OP = "identities";
+
 	/**
-	 * Create an {@link Identity}. An {@link UserMailIdentity} can be used by a
-	 * user to set the from header in a mail and add a signature.
+	 * Create an {@link Identity}. An {@link UserMailIdentity} can be used by a user
+	 * to set the from header in a mail and add a signature.
 	 * 
 	 * @param id
 	 * @param identity
@@ -48,9 +50,8 @@ public interface IUserMailIdentities {
 	public void create(@PathParam("uid") String id, UserMailIdentity identity) throws ServerFault;
 
 	/**
-	 * Update an existing {@link UserMailIdentity}. An {@link UserMailIdentity}
-	 * can be used by a user to set the from header in a mail and add a
-	 * signature.
+	 * Update an existing {@link UserMailIdentity}. An {@link UserMailIdentity} can
+	 * be used by a user to set the from header in a mail and add a signature.
 	 * 
 	 * @param id
 	 * @param identity

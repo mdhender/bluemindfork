@@ -42,10 +42,11 @@
             class="net.bluemind.user.service.InCoreUserServiceFactory">
       </serviceFactory>
       <serviceFactory
-            class="net.bluemind.user.service.UserMailIdentitiesFactory"></serviceFactory>
-   </extension>
-   <extension
-         point="net.bluemind.core.rest.serviceFactory">
+            class="net.bluemind.user.service.UserMailIdentitiesFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.user.service.InternalUserMailIdentitiesFactory">
+      </serviceFactory>
       <serviceFactory
             class="net.bluemind.user.service.UserServiceFactory">
       </serviceFactory>
