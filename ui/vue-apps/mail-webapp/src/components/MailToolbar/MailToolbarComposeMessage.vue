@@ -67,6 +67,7 @@
             <span class="d-none d-lg-block">{{ $tc("mail.actions.remove") }}</span>
         </bm-button>
         <bm-dropdown
+            ref="other-dropdown"
             :no-caret="true"
             variant="simple-dark"
             :aria-label="$tc('mail.toolbar.more.aria')"
@@ -77,7 +78,7 @@
                 <bm-icon icon="3dots" size="2x" />
                 <span class="d-none d-lg-block">{{ $t("mail.toolbar.more") }}</span>
             </template>
-            <bm-dropdown-item :disabled="isSenderShown" @click="SHOW_SENDER(true)">
+            <bm-dropdown-item :disabled="isSenderShown" @click="showSender">
                 {{ $tc("mail.actions.show_sender", 1) }}
             </bm-dropdown-item>
         </bm-dropdown>
@@ -140,6 +141,10 @@ export default {
         ...mapMutations("mail", { SHOW_SENDER }),
         openFilePicker() {
             this.$refs.attachInputRef.click();
+        },
+        showSender() {
+            this.SHOW_SENDER(true);
+            this.$refs["other-dropdown"].hide(false);
         }
     }
 };

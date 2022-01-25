@@ -59,7 +59,7 @@
             >
                 <bm-icon icon="paper-clip" size="lg" />
             </bm-button>
-            <bm-dropdown dropup right no-caret variant="simple-dark">
+            <bm-dropdown ref="3dots-dropdown" dropup right no-caret variant="simple-dark">
                 <template #button-content>
                     <bm-icon icon="3dots-v" size="lg" />
                 </template>
@@ -73,9 +73,9 @@
                 <bm-dropdown-item-button icon="documents" @click="openTemplateChooser">
                     {{ $t("mail.compose.toolbar.use_template") }}
                 </bm-dropdown-item-button>
-                <bm-dropdown-item-toggle v-if="!isSenderShown" :checked="isSenderShown" @click="SHOW_SENDER(true)">
+                <bm-dropdown-item :disabled="isSenderShown" @click="showSender">
                     {{ $t("mail.actions.show_sender") }}
-                </bm-dropdown-item-toggle>
+                </bm-dropdown-item>
             </bm-dropdown>
         </div>
     </div>
@@ -83,8 +83,15 @@
 
 <script>
 import { EmailValidator } from "@bluemind/email";
-import { BmButton, BmIcon, BmDropdown, BmDropdownItemButton, BmDropdownItemToggle } from "@bluemind/styleguide";
 import { BmExtension } from "@bluemind/extensions";
+import {
+    BmButton,
+    BmIcon,
+    BmDropdown,
+    BmDropdownItem,
+    BmDropdownItemButton,
+    BmDropdownItemToggle
+} from "@bluemind/styleguide";
 
 import { ComposerActionsMixin, FormattedDateMixin } from "~/mixins";
 import { MessageStatus } from "~/model/message";
@@ -95,8 +102,15 @@ import { mapGetters, mapMutations, mapState } from "vuex";
 
 export default {
     name: "MailComposerFooter",
-    components: { BmButton, BmDropdown, BmDropdownItemButton, BmDropdownItemToggle, BmIcon },
+    components: {
+        BmButton,
+        BmDropdown,
+        BmDropdownItem,
+        BmDropdownItemButton,
+        BmDropdownItemToggle,
         BmExtension,
+        BmIcon
+    },
     mixins: [ComposerActionsMixin, FormattedDateMixin],
     props: {
         userPrefIsMenuBarOpened: {
@@ -175,6 +189,10 @@ export default {
         openTemplateChooser() {
             this.SET_TEMPLATE_CHOOSER_VISIBLE(true);
             this.SET_TEMPLATE_CHOOSER_TARGET(this.message.key);
+        },
+        showSender() {
+            this.SHOW_SENDER(true);
+            this.$refs["3dots-dropdown"].hide(false);
         }
     }
 };

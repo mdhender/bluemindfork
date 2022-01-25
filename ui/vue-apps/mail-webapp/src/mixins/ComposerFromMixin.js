@@ -1,4 +1,4 @@
-import { mapMutations, mapState } from "vuex";
+import { mapState } from "vuex";
 import { inject } from "@bluemind/inject";
 import { computeIdentityForReplyOrForward, findIdentityFromMailbox } from "~/model/draft";
 import { MessageHeader } from "~/model/message";
@@ -16,11 +16,9 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail", { $_ComposerFromMixin_messageCompose: "messageCompose" }),
         ...mapState("root-app", { $_ComposerFromMixin_identities: "identities" })
     },
     methods: {
-        ...mapMutations("mail", { $_ComposerFromMixin_SET_DRAFT_EDITOR_CONTENT: SET_DRAFT_EDITOR_CONTENT }),
         async setFrom(identity, message) {
             this.$store.commit("mail/" + SET_MESSAGE_FROM, {
                 messageKey: message.key,
@@ -77,7 +75,8 @@ export default {
         },
         async changeFrom(identity, message) {
             await this.setFrom(identity, message);
-            await this.handleSignature(message, this.$store.state.mail.messageCompose.editorContent);
+            const content = await this.handleSignature(message, this.$store.state.mail.messageCompose.editorContent);
+            this.$store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, content);
         },
         async handleSignature(message, content) {
             await this.$store.dispatch("mail/" + CHECK_CORPORATE_SIGNATURE, { message });
