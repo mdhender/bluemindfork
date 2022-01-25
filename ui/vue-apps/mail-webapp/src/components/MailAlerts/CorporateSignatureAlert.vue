@@ -1,7 +1,11 @@
 <template>
     <span>
         <default-alert :alert="alert" />
-        <a target="_blank" href="https://forge.bluemind.net/confluence/display/BM4/Signatures+d%27entreprise">
+        <a
+            class="text-nowrap"
+            target="_blank"
+            href="https://forge.bluemind.net/confluence/display/BM4/Signatures+d%27entreprise"
+        >
             {{ $t("common.read_more") }}
         </a>
     </span>
