@@ -42,13 +42,13 @@ export default {
     },
 
     actions: {
-        async [FETCH_PART_DATA]({ commit, state }, { folderUid, imapUid, inlines, messageKey }) {
+        async [FETCH_PART_DATA]({ commit, state }, { folderUid, imapUid, parts, messageKey }) {
             const service = inject("MailboxItemsPersistence", folderUid);
             const notLoaded = state.partsByMessageKey[messageKey]
-                ? inlines.filter(
+                ? parts.filter(
                       part => !Object.prototype.hasOwnProperty.call(state.partsByMessageKey[messageKey], part.address)
                   )
-                : inlines;
+                : parts;
 
             return Promise.all(
                 notLoaded.map(async part => {
@@ -155,7 +155,7 @@ async function findQuoteNodesUsingTextComparison(
                     messageKey: relatedMessage.key,
                     folderUid: relatedMessage.folderRef.uid,
                     imapUid: relatedMessage.remoteRef.imapUid,
-                    inlines: inlines.filter(part => MimeType.isHtml(part))
+                    parts: inlines.filter(part => MimeType.isHtml(part))
                 });
                 relatedParts = partsByMessageKey[relatedMessage.key];
             }

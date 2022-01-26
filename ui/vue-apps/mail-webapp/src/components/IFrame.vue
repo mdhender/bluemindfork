@@ -12,13 +12,13 @@ export default {
     data() {
         return {
             body: new Vue({
-                data: { content: Object.freeze(this.$slots.default) },
+                data: { content: null },
                 render(h) {
                     return h("body", [this.content]);
                 }
             }),
             head: new Vue({
-                data: { content: Object.freeze(this.$slots.head), style: Object.freeze(this.$slots.style) },
+                data: { content: null, style: null },
                 render(h) {
                     return h("head", [this.content, h("style", this.style)]);
                 }
@@ -42,9 +42,10 @@ export default {
 
             if (this.fitContent) {
                 //https://bugzilla.mozilla.org/show_bug.cgi?id=1689099
-                this.resize = new this.$el.contentWindow.ResizeObserver(([content]) => {
-                    this.$el.style.height = content.contentRect.height + "px";
-                    this.$emit("resized", content.contentRect);
+                this.resize = new this.$el.contentWindow.ResizeObserver(([{ contentRect }]) => {
+                    this.$el.style.height = contentRect.height + "px";
+                    this.$el.style.height = fixScrollbarOffset(this.$el, doc.documentElement) + "px";
+                    this.$emit("resized", contentRect);
                 });
                 this.resize.observe(doc.documentElement);
             }
@@ -64,4 +65,12 @@ export default {
         return h("iframe", { class: "i-frame", on: { load: this.mount }, domProps: { srcdoc: "<html></html>" } });
     }
 };
+
+// Fix a bug with Firefox and big images.
+function fixScrollbarOffset(iframe, html) {
+    if (iframe.offsetHeight === html.offsetHeight && html.offsetHeight > html.clientHeight) {
+        return iframe.offsetHeight + (html.offsetHeight - html.clientHeight);
+    }
+    return iframe.offsetHeight;
+}
 </script>

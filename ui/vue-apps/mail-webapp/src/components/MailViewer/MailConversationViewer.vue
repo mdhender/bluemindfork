@@ -32,7 +32,6 @@
                     @expand="expand(index)"
                     @collapse="collapse(index)"
                     @darken="darken"
-                    @resized="messageResized"
                 />
             </div>
         </div>
@@ -232,10 +231,6 @@ export default {
         },
         hiddenCandidates() {
             return this.conversationMessages.map((m, index) => this.isHiddenCandidate(index));
-        },
-        messageResized() {
-            // if a message has been resized and a draft is being edited then show it into view
-            this.$nextTick(() => document.querySelector(".mail-conversation-viewer-draft-editor")?.scrollIntoView());
         }
     }
 };

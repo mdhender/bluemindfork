@@ -78,7 +78,7 @@ export default {
                 messageKey: message.key,
                 folderUid: message.folderRef.uid,
                 imapUid: message.remoteRef.imapUid,
-                inlines: parts.filter(part => MimeType.isHtml(part) || MimeType.isText(part))
+                parts: parts.filter(part => MimeType.isHtml(part) || MimeType.isText(part))
             });
 
             let content = getEditorContent(
@@ -173,7 +173,7 @@ export default {
                 messageKey: previousMessage.key,
                 folderUid: previousMessage.folderRef.uid,
                 imapUid: previousMessage.remoteRef.imapUid,
-                inlines: parts.filter(
+                parts: parts.filter(
                     part => MimeType.isHtml(part) || MimeType.isText(part) || (MimeType.isImage(part) && part.contentId)
                 )
             });
@@ -240,7 +240,7 @@ export default {
                 messageKey: previousMessage.key,
                 folderUid: previousMessage.folderRef.uid,
                 imapUid: previousMessage.remoteRef.imapUid,
-                inlines: parts.filter(
+                parts: parts.filter(
                     part => MimeType.isHtml(part) || MimeType.isText(part) || (MimeType.isImage(part) && part.contentId)
                 )
             });

@@ -3,6 +3,7 @@
         <i-frame class="border-0">
             <template v-slot:head>
                 <base target="_blank" />
+                <link type="text/css" rel="stylesheet" href="css/montserrat/index.css" />
             </template>
             <template v-slot:style>
                 {{ IFRAME_STYLE }}
@@ -27,7 +28,6 @@ export default {
     }
 };
 const IFRAME_STYLE = `
-        @import url('/webapp/css/montserrat/index.css');
 
         body {
             font-family: "Montserrat", sans-serif;
@@ -38,5 +38,19 @@ const IFRAME_STYLE = `
             overflow-wrap: break-word !important;
         }
 
+        main * {
+            max-width: 100%;
+        }
+        pre {
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
         `;
 </script>
+<style lang="scss">
+.text-html-part-viewer {
+    .i-frame {
+        min-width: 100%;
+    }
+}
+</style>

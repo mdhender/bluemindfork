@@ -163,7 +163,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                 >
                   <svg
                     aria-hidden="true"
-                    class="bm-icon icon h-100 svg-inline--fa fa-search fa-w-16"
+                    class="bm-icon ornament-icon h-100 svg-inline--fa fa-search fa-w-16"
                     data-icon="search"
                     data-prefix="fas"
                     focusable="false"
@@ -331,7 +331,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                   lefticon="true"
                   resettable="true"
                   type="text"
-                  variant="underline"
+                  variant=""
                 />
                  
                 <div

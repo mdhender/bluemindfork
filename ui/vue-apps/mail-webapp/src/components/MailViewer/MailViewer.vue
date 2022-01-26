@@ -1,5 +1,5 @@
 <template>
-    <section class="mail-viewer d-flex flex-column flex-grow-1 bg-surface overflow-auto pt-2">
+    <section class="mail-viewer d-flex flex-column flex-grow-1 bg-surface pt-2">
         <bm-extension id="webapp.mail" path="viewer.header" :message="message" />
         <mail-viewer-toolbar
             v-if="conversation"

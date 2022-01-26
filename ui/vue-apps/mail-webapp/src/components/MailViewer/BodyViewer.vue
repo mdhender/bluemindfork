@@ -18,7 +18,8 @@ import { WARNING } from "@bluemind/alert.store";
 
 import { create as createAttachment, AttachmentStatus } from "~/model/attachment";
 import { VIEWER_CAPABILITIES, getPartsFromCapabilities } from "~/model/part";
-import { COMPUTE_QUOTE_NODES, FETCH_PART_DATA, SET_BLOCK_REMOTE_IMAGES } from "~/actions";
+import { COMPUTE_QUOTE_NODES, FETCH_PART_DATA } from "~/actions";
+import { SET_BLOCK_REMOTE_IMAGES } from "~/mutations";
 import { CONVERSATION_MESSAGE_BY_KEY } from "~/getters";
 import apiAddressbooks from "~/store/api/apiAddressbooks";
 
@@ -75,13 +76,13 @@ export default {
         }
     },
     async created() {
-        this.SET_BLOCK_REMOTE_IMAGES(true);
+        this.SET_BLOCK_REMOTE_IMAGES(!this.trustRemoteContent);
         const texts = this.parts.filter(part => MimeType.isHtml(part) || MimeType.isText(part));
         await this.FETCH_PART_DATA({
             messageKey: this.message.key,
             folderUid: this.message.folderRef.uid,
             imapUid: this.message.remoteRef.imapUid,
-            inlines: texts
+            parts: texts
         });
         const conversationMessages = this.message.conversationRef
             ? this.CONVERSATION_MESSAGE_BY_KEY(this.message.conversationRef.key)

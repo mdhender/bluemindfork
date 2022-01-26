@@ -2,7 +2,7 @@
     <mail-viewer-content-loading v-if="content === undefined" />
     <div v-else class="text-html-part-viewer">
         <slot :html="html" :styles="styles">
-            <inline-style>{{ style }}</inline-style>
+            <inline-style>{{ styles }}</inline-style>
             <!-- eslint-disable-next-line vue/no-v-html -->
             <div v-html="html"></div>
         </slot>
@@ -44,10 +44,7 @@ export default {
             return this.$store.getters[`mail/${QUOTE_NODES}`](this.message.key, this.part.address);
         },
         blockImages() {
-            return (
-                this.$store.state.session.settings.remote.trust_every_remote_content !== "false" ||
-                this.$store.state.mail.consultPanel.remoteImages.mustBeBlocked
-            );
+            return this.$store.state.mail.consultPanel.remoteImages.mustBeBlocked;
         },
         content() {
             return this.$store.state.mail.partsData.partsByMessageKey[this.message.key]?.[this.part.address];
