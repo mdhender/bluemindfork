@@ -123,7 +123,6 @@
                         :is-sender-shown="isSenderShown"
                         @toggle-text-format="userPrefIsMenuBarOpened = !userPrefIsMenuBarOpened"
                         @toggle-signature="toggleSignature"
-                        @toggle-sender="toggleSender"
                     />
                 </div>
             </div>

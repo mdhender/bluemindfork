@@ -150,7 +150,13 @@ export default {
         // case of a reply or forward message
         async initReplyOrForward(creationMode, previousMessage) {
             const message = createReplyOrForward(previousMessage, this.$_ComposerInitMixin_MY_DRAFTS, creationMode);
+
+            if (creationMode !== MessageCreationModes.FORWARD) {
+                message.conversationRef = { ...previousMessage.conversationRef };
+            }
+
             this.$_ComposerInitMixin_ADD_MESSAGES([message]);
+
             const identity = this.getIdentityForReplyOrForward(previousMessage);
             await this.setFrom(identity, message);
 
@@ -194,10 +200,6 @@ export default {
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(collapsed);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
-
-            if (creationMode !== MessageCreationModes.FORWARD) {
-                message.conversationRef = { ...previousMessage.conversationRef };
-            }
 
             if (creationMode === MessageCreationModes.FORWARD) {
                 const attachments = await uploadAttachments(previousMessage);
