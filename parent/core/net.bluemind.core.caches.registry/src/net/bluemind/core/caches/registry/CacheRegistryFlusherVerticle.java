@@ -45,6 +45,9 @@ public class CacheRegistryFlusherVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		MQ.init(() -> MQ.registerConsumer(Topic.CACHE_FLUSH, (OOPMessage cm) -> CacheRegistry.get().invalidateAll()));
+		MQ.init(() -> MQ.registerConsumer(Topic.CACHE_FLUSH, (OOPMessage cm) -> {
+			logger.debug("Flush order {}", cm);
+			CacheRegistry.get().invalidateAll();
+		}));
 	}
 }

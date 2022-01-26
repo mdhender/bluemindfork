@@ -6,7 +6,7 @@
    <extension
          point="net.bluemind.core.rest.serviceFactory">
       <serviceFactory
-            class="net.bluemind.core.caches.registry.CacheRegistry$Factory">
+            class="net.bluemind.core.caches.registry.CacheRegistryAsService">
       </serviceFactory>
    </extension>
    <extension

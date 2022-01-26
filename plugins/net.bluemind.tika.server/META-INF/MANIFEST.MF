@@ -10,11 +10,10 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.caches.registry,
  net.bluemind.lib.vertx;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
- org.apache.tika.bundle;bundle-version="1.13.0",
- org.apache.tika.core;bundle-version="1.13.0",
  io.netty,
  net.bluemind.systemd.notify,
- com.github.ben-manes.caffeine
+ com.github.ben-manes.caffeine,
+ net.bluemind.tika;bundle-version="2.2.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx

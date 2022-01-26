@@ -28,25 +28,9 @@ import org.slf4j.LoggerFactory;
 
 import com.github.benmanes.caffeine.cache.Cache;
 
-import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.rest.ServerSideServiceProvider.IServerSideServiceFactory;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
 public class CacheRegistry {
-
-	public static final class Factory implements IServerSideServiceFactory<CacheRegistry> {
-
-		@Override
-		public Class<CacheRegistry> factoryClass() {
-			return CacheRegistry.class;
-		}
-
-		@Override
-		public CacheRegistry instance(BmContext context, String... params) {
-			return registry;
-		}
-
-	}
 
 	private static final Logger logger = LoggerFactory.getLogger(CacheRegistry.class);
 	private static CacheRegistry registry;
