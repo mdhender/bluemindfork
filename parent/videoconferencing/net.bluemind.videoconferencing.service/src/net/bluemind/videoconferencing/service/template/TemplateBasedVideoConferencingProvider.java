@@ -75,7 +75,6 @@ public abstract class TemplateBasedVideoConferencingProvider {
 						.orElseGet(() -> provider.instance(ISystemConfiguration.class).getValues().values
 								.get(SysConfKeys.external_url.name())))
 				.orElseThrow(() -> new ServerFault("External URL missing"));
-		;
 
 		resourceSettings.put("url", url + "/visio/");
 	}

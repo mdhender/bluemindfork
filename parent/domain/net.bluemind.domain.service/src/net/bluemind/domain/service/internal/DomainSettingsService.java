@@ -145,13 +145,17 @@ public class DomainSettingsService implements IDomainSettings, IInCoreDomainSett
 
 	@Override
 	public Optional<String> getExternalUrl() {
-		return Optional.ofNullable(context.su().getServiceProvider().instance(IDomainSettings.class, domainUid).get()
-				.get(DomainSettingsKeys.external_url.name()));
+		return Optional
+				.ofNullable(context.su().getServiceProvider().instance(IDomainSettings.class, domainUid).get()
+						.get(DomainSettingsKeys.external_url.name()))
+				.map(url -> url == null || url.isEmpty() ? null : url);
 	}
 
 	@Override
 	public Optional<String> getDefaultDomain() {
-		return Optional.ofNullable(context.su().getServiceProvider().instance(IDomainSettings.class, domainUid).get()
-				.get(DomainSettingsKeys.default_domain.name()));
+		return Optional
+				.ofNullable(context.su().getServiceProvider().instance(IDomainSettings.class, domainUid).get()
+						.get(DomainSettingsKeys.default_domain.name()))
+				.map(defaultDomain -> defaultDomain == null || defaultDomain.isEmpty() ? null : defaultDomain);
 	}
 }

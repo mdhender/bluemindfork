@@ -464,6 +464,25 @@ public class FileSystemFileHostingServiceTests {
 	}
 
 	@Test
+	public void testSharingAFile_withEmptyDomainExternalUrl() throws Exception {
+		String testString = "test";
+		String path = "/test.txt";
+		service.store(path, bytesToStream(testString.getBytes()));
+
+		Map<String, String> map = domainSettings.get();
+		map.put(DomainSettingsKeys.external_url.name(), "");
+		domainSettings.set(map);
+
+		FileHostingPublicLink publicLink = service.share(path, -1, null);
+		assertTrue(publicLink.url.contains("://" + GLOBAL_EXTERNAL_URL));
+		String id = ID.extract(publicLink.url);
+
+		FileHostingItem complete = service.getComplete(id);
+		service.getSharedFile(id);
+		Assert.assertEquals("test.txt", complete.name);
+	}
+
+	@Test
 	public void testSharingAFile_withGlobalExternalUrl() throws Exception {
 		String testString = "test";
 		String path = "/test.txt";

@@ -149,7 +149,6 @@ public class PublishCalendarService implements IPublishCalendar {
 	}
 
 	private String computeUrl(PublishMode mode, String aclSubject) {
-
 		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		String url = Optional
 				.ofNullable(provider.instance(IInCoreDomainSettings.class, container.domainUid).getExternalUrl()
