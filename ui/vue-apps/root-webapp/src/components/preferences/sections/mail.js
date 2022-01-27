@@ -66,6 +66,7 @@ export default function (i18n) {
                                     name: "PrefFieldChoice",
                                     options: {
                                         setting: "mail_message_list_style",
+                                        autosave: true,
                                         choices: [
                                             {
                                                 name: i18n.t("preferences.mail.message.list.display.full"),
@@ -95,9 +96,10 @@ export default function (i18n) {
                             {
                                 id: "field",
                                 component: {
-                                    name: "PrefFieldCheck",
+                                    name: "PrefFieldSwitch",
                                     options: {
                                         setting: "insert_signature",
+                                        autosave: true,
                                         label: i18n.t("preferences.mail.signature.insert")
                                     }
                                 }
@@ -111,9 +113,10 @@ export default function (i18n) {
                             {
                                 id: "field",
                                 component: {
-                                    name: "PrefFieldCheck",
+                                    name: "PrefFieldSwitch",
                                     options: {
                                         setting: "logout_purge",
+                                        autosave: true,
                                         label: i18n.t("preferences.mail.logout.empty.trash")
                                     }
                                 }
@@ -127,9 +130,10 @@ export default function (i18n) {
                             {
                                 id: "field",
                                 component: {
-                                    name: "PrefFieldCheck",
+                                    name: "PrefFieldSwitch",
                                     options: {
                                         setting: "trust_every_remote_content",
+                                        autosave: true,
                                         additional_component: "PrefRemoteImage",
                                         label: i18n.t("preferences.mail.remote.images.trust")
                                     }
@@ -148,8 +152,9 @@ export default function (i18n) {
                             {
                                 id: "field",
                                 component: {
-                                    name: "PrefFieldCheck",
+                                    name: "PrefFieldSwitch",
                                     options: {
+                                        autosave: true,
                                         setting: "always_show_quota",
                                         label: i18n.t("preferences.mail.quota.always.display")
                                     }
@@ -250,6 +255,7 @@ export default function (i18n) {
                                     name: "PrefFieldSelect",
                                     options: {
                                         setting: "auto_select_from",
+                                        autosave: true,
                                         label: i18n.t("preferences.mail.identities.auto_select.label"),
                                         choices: [
                                             { text: i18n.t("common.never"), value: "never" },
@@ -292,7 +298,6 @@ export default function (i18n) {
                                     name: "PrefFieldSwitch",
                                     options: {
                                         setting: "mail-application",
-                                        autosave: true,
                                         label: i18n.t("preferences.mail.advanced.switch.label"),
                                         checkedValue: "mail-webapp",
                                         uncheckedValue: "webmail",

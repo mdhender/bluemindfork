@@ -1,4 +1,4 @@
-import { withAlert as _withAlert } from "@bluemind/alert.store/src/withAlert";
+import { withAlert as _withAlert } from "@bluemind/alert.store";
 
 export function withAlert(action, actionName = "", options = {}) {
     const name = "mail." + (actionName || action.name);

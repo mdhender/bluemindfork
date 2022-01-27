@@ -1,5 +1,6 @@
 import containers from "./preferences/store/containers";
 import fields from "./preferences/store/fields";
+import withAlert from "./helpers/withAlert";
 import { html2text, text2html } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
 import cloneDeep from "lodash.clonedeep";
@@ -10,11 +11,18 @@ const state = {
     search: "",
     selectedSectionId: "",
     sectionById: {},
-    status: "idle",
     userPasswordLastChange: null,
     subscriptions: [],
     mailboxFilter: { remote: {}, local: {}, loaded: false },
     externalAccounts: []
+};
+
+const saveAction = async function ({ dispatch }) {
+    await dispatch("fields/SAVE");
+};
+
+const autoSaveAction = async function ({ dispatch }) {
+    await dispatch("fields/AUTOSAVE");
 };
 
 const actions = {
@@ -59,31 +67,14 @@ const actions = {
         await inject("MailboxesPersistence").setMailboxFilter(userId, state.mailboxFilter.local);
         commit("SET_MAILBOX_FILTER", state.mailboxFilter.local);
     },
-    async SAVE({ commit, dispatch }) {
-        commit("SET_STATUS", "saving");
-        try {
-            await dispatch("fields/SAVE");
-            commit("SET_STATUS", "saved");
-        } catch {
-            commit("SET_STATUS", "error");
-        }
-    },
-    async AUTOSAVE({ commit, dispatch }) {
-        commit("SET_STATUS", "saving");
-        try {
-            await dispatch("fields/AUTOSAVE");
-            commit("SET_STATUS", "saved");
-        } catch {
-            commit("SET_STATUS", "error");
-        }
-    },
+    SAVE: withAlert(saveAction, "SAVE"),
+    AUTOSAVE: withAlert(autoSaveAction, "SAVE"),
     CANCEL({ dispatch }) {
         return dispatch("fields/CANCEL");
     }
 };
 
 const mutations = {
-    SET_STATUS: (state, status) => (state.status = status),
     SET_SEARCH: (state, search) => {
         state.search = search;
     },
@@ -167,11 +158,6 @@ const getters = {
         return state.sectionById[sectionId]?.categories
             .find(c => c.id === categoryId)
             ?.groups.find(g => g.id === groupId);
-    },
-    STATUS: ({ status }, getters) => {
-        if (getters["fields/HAS_CHANGED"]) return "idle";
-        if (status === "saved" && getters["fields/HAS_ERROR"]) return "error";
-        return status;
     },
     SEARCH_PATTERN: ({ search }) => search.trim().toLowerCase(),
     HAS_SEARCH: (state, { SEARCH_PATTERN }) => SEARCH_PATTERN !== ""

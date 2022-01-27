@@ -45,14 +45,6 @@ describe("Store session", () => {
         });
     });
 
-    test("SAVE_SETTINGS action", async () => {
-        const settings = { mySetting: "MY_SETTING" };
-        context.state.settings.local = settings;
-        await sessionStore.actions.SAVE_SETTINGS(context);
-        expect(userSettingsClient.set).toHaveBeenCalledWith(userId, settings);
-        expect(context.commit).toHaveBeenCalledWith("SET_SETTINGS", settings);
-    });
-
     test("SET_SETTINGS mutation", () => {
         const settings = { mySetting: "MY_SETTING" };
         sessionStore.mutations.SET_SETTINGS(context.state, settings);

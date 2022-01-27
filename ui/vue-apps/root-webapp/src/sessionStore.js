@@ -40,15 +40,10 @@ const actions = {
         try {
             const userId = inject("UserSession").userId;
             await inject("UserSettingsPersistence").setOne(userId, setting, JSON.stringify(value));
-        } catch {
+        } catch (e) {
             commit("SET_SETTING", { setting, value: old });
+            throw e;
         }
-    },
-
-    async SAVE_SETTINGS({ state, commit }) {
-        commit("SET_SETTINGS", state.settings.local);
-        const userId = inject("UserSession").userId;
-        return inject("UserSettingsPersistence").set(userId, state.settings.local);
     }
 };
 

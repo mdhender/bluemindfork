@@ -46,7 +46,8 @@ function main(i18n) {
                             options: {
                                 choices: AvailablesTimezones,
                                 label: i18n.t("preferences.general.timezone"),
-                                setting: "timezone"
+                                setting: "timezone",
+                                needReload: true
                             }
                         }
                     },
@@ -57,7 +58,8 @@ function main(i18n) {
                             options: {
                                 choices: AvailableDateFormats,
                                 label: i18n.t("preferences.general.date_format"),
-                                setting: "date"
+                                setting: "date",
+                                autosave: true
                             }
                         }
                     },
@@ -68,7 +70,8 @@ function main(i18n) {
                             options: {
                                 choices: AvailableTimeFormats,
                                 label: i18n.t("preferences.general.time_format"),
-                                setting: "timeformat"
+                                setting: "timeformat",
+                                autosave: true
                             }
                         }
                     }
@@ -82,7 +85,11 @@ function main(i18n) {
                         id: "field",
                         component: {
                             name: "PrefFieldSelect",
-                            options: { choices: availableDefaultApps, setting: "default_app", needLogout: true }
+                            options: {
+                                choices: availableDefaultApps,
+                                setting: "default_app",
+                                needLogout: true
+                            }
                         }
                     }
                 ]

@@ -20,6 +20,15 @@
                 {{ areAllExpanded ? $t("common.collapse_all") : $t("common.expand_all") }}
             </bm-button>
         </div>
+        <bm-alert-area
+            v-if="alerts.length > 0"
+            class="border-top border-secondary"
+            :alerts="alerts"
+            stackable
+            @remove="REMOVE"
+        >
+            <template v-slot="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
+        </bm-alert-area>
         <div class="border-bottom border-secondary" />
         <template v-for="(group, index) in results">
             <div :key="group.id" class="d-flex">
@@ -42,12 +51,14 @@
 import emptyResultsIllustration from "../../../../assets/setting-empty-search-results.png";
 import PrefGroup from "../PrefGroup";
 import PrefSectionIcon from "../PrefSectionIcon";
+import RightPanelAlerts from "../mixins/RightPanelAlerts";
 import { BmButton, BmIcon, BmSpinner } from "@bluemind/styleguide";
 import { mapGetters } from "vuex";
 
 export default {
     name: "PrefSearchResults",
     components: { BmButton, BmIcon, BmSpinner, PrefGroup, PrefSectionIcon },
+    mixins: [RightPanelAlerts],
     props: {
         isLoading: {
             type: Boolean,
@@ -133,9 +144,11 @@ function parseNodeAndHighlight(node, search) {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/variables";
 
-.pref-search-results .search-pattern {
-    color: $info-dark;
-    font-weight: $font-weight-bold;
-    word-break: break-all;
+.pref-search-results {
+    .search-pattern {
+        color: $info-dark;
+        font-weight: $font-weight-bold;
+        word-break: break-all;
+    }
 }
 </style>

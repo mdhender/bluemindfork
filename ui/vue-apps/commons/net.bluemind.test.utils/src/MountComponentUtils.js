@@ -36,16 +36,9 @@ export default {
             modules: {
                 session: {
                     namespaced: true,
-                    state: {
-                        settings: { remote: {}, local: {} }
-                    },
-                    actions: {
-                        FETCH_ALL_SETTINGS: jest.fn(),
-                        SAVE_SETTINGS: jest.fn()
-                    },
-                    mutations: {
-                        SET_SETTINGS: jest.fn()
-                    }
+                    state: { settings: { remote: {}, local: {} } },
+                    actions: { FETCH_ALL_SETTINGS: jest.fn() },
+                    mutations: { SET_SETTINGS: jest.fn() }
                 },
                 preferences: {
                     namespaced: true,
@@ -56,7 +49,6 @@ export default {
                         sectionByCode: { main: {} }
                     },
                     mutations: {
-                        SET_STATUS: jest.fn(),
                         SET_OFFSET: jest.fn(),
                         TOGGLE_PREFERENCES: jest.fn(),
                         SET_SECTIONS: jest.fn(),

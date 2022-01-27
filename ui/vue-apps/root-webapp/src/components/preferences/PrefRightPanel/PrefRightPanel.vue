@@ -2,9 +2,6 @@
     <bm-col lg="10" cols="12" class="pref-right-panel d-lg-flex flex-column h-100">
         <pref-right-panel-header :selected-section="section" @close="$emit('close')" />
         <pref-right-panel-nav v-if="!HAS_SEARCH" :sections="sections" />
-        <bm-alert-area :alerts="alerts" stackable @remove="REMOVE">
-            <template v-slot="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
-        </bm-alert-area>
         <pref-sections v-show="!HAS_SEARCH" ref="sections" :sections="sections" />
         <pref-search-results v-if="HAS_SEARCH" :results="searchResults" :is-loading="isSearchLoading" />
         <transition name="slide-fade"><pref-right-panel-footer /></transition>
@@ -15,33 +12,24 @@
 import debounce from "lodash.debounce";
 import { mapActions, mapGetters, mapState } from "vuex";
 
-import { BmAlertArea, BmCol } from "@bluemind/styleguide";
-import { REMOVE, WARNING } from "@bluemind/alert.store";
+import { BmCol } from "@bluemind/styleguide";
+import { ERROR, REMOVE, WARNING } from "@bluemind/alert.store";
 
 import PrefRightPanelFooter from "./PrefRightPanelFooter";
 import PrefRightPanelHeader from "./PrefRightPanelHeader";
 import PrefRightPanelNav from "./PrefRightPanelNav";
 import PrefSections from "../PrefSections";
 import PrefSearchResults from "./PrefSearchResults";
-import NeedReconnectionAlert from "../Alerts/NeedReconnectionAlert";
-import NotValidAlert from "../Alerts/NotValidAlert";
-import ReloadAppAlert from "../Alerts/ReloadAppAlert";
-import SaveErrorAlert from "../Alerts/SaveErrorAlert";
 
 export default {
     name: "PrefRightPanel",
     components: {
-        BmAlertArea,
         BmCol,
         PrefRightPanelFooter,
         PrefRightPanelHeader,
         PrefRightPanelNav,
         PrefSections,
-        PrefSearchResults,
-        NeedReconnectionAlert,
-        NotValidAlert,
-        ReloadAppAlert,
-        SaveErrorAlert
+        PrefSearchResults
     },
     props: {
         sections: {
@@ -69,7 +57,6 @@ export default {
         };
     },
     computed: {
-        ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "pref-right-panel") }),
         ...mapState("preferences", ["selectedSectionId", "sectionById"]),
         ...mapGetters("preferences/fields", [
             "ERRORS",
@@ -77,7 +64,7 @@ export default {
             "IS_RELOAD_NEEDED",
             "NOT_VALID_PREFERENCES"
         ]),
-        ...mapGetters("preferences", ["GET_GROUP", "HAS_SEARCH", "SEARCH_PATTERN"]),
+        ...mapGetters("preferences", ["GET_GROUP", "HAS_SEARCH", "SEARCH_PATTERN", "GROUP_BY_FIELD_ID"]),
         isReloadNeeded() {
             return this.IS_LOGOUT_NEEDED || this.IS_RELOAD_NEEDED;
         },
@@ -111,17 +98,13 @@ export default {
             }
         },
         ERRORS(fieldIds) {
-            const errors = [];
             fieldIds.forEach(fieldId => {
                 const group = this.GROUP_BY_FIELD_ID(fieldId);
-                if (!errors.includes(group.id)) {
-                    errors.push(group.id);
-                    const alert = {
-                        alert: { uid: group.id, payload: { group } },
-                        options: { area: "pref-right-panel", renderer: "SaveErrorAlert", dismissible: true }
-                    };
-                    this.ERROR(alert);
-                }
+                const alert = {
+                    alert: { uid: group.id, payload: { group } },
+                    options: { area: "pref-right-panel", renderer: "SaveErrorAlert", dismissible: true }
+                };
+                this.ERROR(alert);
             });
         },
         NOT_VALID_PREFERENCES(fieldIds) {
@@ -143,7 +126,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("alert", { REMOVE, WARNING })
+        ...mapActions("alert", { ERROR, REMOVE, WARNING })
     }
 };
 
@@ -203,6 +186,13 @@ function doesNodeMatch(node, pattern) {
             margin-right: $sp-3;
             margin-left: $sp-3;
         }
+    }
+
+    .bm-alert-area {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        width: 100%;
     }
 
     .slide-fade-enter-active,

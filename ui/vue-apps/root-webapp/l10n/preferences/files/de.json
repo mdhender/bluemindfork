@@ -1,8 +1,11 @@
 {
     "alert.preferences.need_reconnection.warning": "Einige Änderungen sind erst nach erneutem Login aktiv.",
-    "alert.preferences.validity.warning": "Champ invalide dans {name}",
+    "alert.preferences.validity.warning": "Invalider Eintrag unter {name}",
     "alert.preferences.reload_app.warning": "Einige Änderungen sind erst nach Neuladen der Anwendung aktiv.",
-    "alert.preferences.save.error": "Erreur lors de l'enregistrement de {name}",
+    "alert.preferences.field.save.error": "Fehler beim Speichern von {name}",
+    "alert.preferences.save.success": "Erfolgreich gespeichert",
+    "alert.preferences.save.loading": "Wird gespeichert...",
+    "alert.preferences.save.error": "Fehler beim Speichern der Änderungen",
     "alert.preferences.sync_calendar.loading": "Synchronisation in Bearbeitung...",
     "alert.preferences.sync_calendar.success": "Synchronisation erfolgreich beendet",
     "alert.preferences.sync_calendar.error": "Fehler bei der Synchronisation",
@@ -271,8 +274,6 @@
     "preferences.mail.emails_forwarding.no_local_copy": "Keine Kopie lokal speichern",
 
     "preferences.role.missing.warning": "Sie haben keine Berechtigung diese Einstellung zu verändern",
-    "preferences.save.error": "Fehler beim Speichern, bitte Netzwerkverfügbarkeit prüfen",
-    "preferences.save.success": "Erfolgreich gespeichert",
     "preferences.search.no_result": "No preference with the term \"{pattern}\" has been found.",
     "preferences.menu.apps": "Anwendungseinstellungen",
 

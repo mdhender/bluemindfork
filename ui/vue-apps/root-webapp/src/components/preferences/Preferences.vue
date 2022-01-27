@@ -79,7 +79,6 @@ export default {
         }
     },
     async created() {
-        this.SET_STATUS("idle");
         const sections = getPreferenceSections(this);
         this.SET_SECTIONS(sections);
 
@@ -105,8 +104,7 @@ export default {
             "SET_SELECTED_SECTION",
             "SET_SECTIONS",
             "SET_OFFSET",
-            "SET_SEARCH",
-            "SET_STATUS"
+            "SET_SEARCH"
         ]),
         closePreferences() {
             this.$router.push({ hash: "" });

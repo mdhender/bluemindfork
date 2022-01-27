@@ -32,6 +32,7 @@ function mainCategory(i18n) {
                             name: "PrefFieldSelect",
                             options: {
                                 setting: "day_weekstart",
+                                needReload: true,
                                 label: i18n.t("preferences.calendar.main.week_starts_on"),
                                 choices: [
                                     { text: i18n.t("common.monday"), value: "monday" },
@@ -62,13 +63,14 @@ function mainCategory(i18n) {
                             name: "PrefFieldCheck",
                             options: {
                                 setting: "showweekends",
+                                needReload: true,
                                 label: i18n.t("preferences.calendar.main.show_weekends")
                             }
                         }
                     },
                     {
                         id: "workhours",
-                        component: { name: "PrefWorkHours" }
+                        component: { name: "PrefWorkHours", options: { needReload: true } }
                     },
                     {
                         id: "show_declined_events",
@@ -76,6 +78,7 @@ function mainCategory(i18n) {
                             name: "PrefFieldCheck",
                             options: {
                                 setting: "show_declined_events",
+                                needReload: true,
                                 label: i18n.t("preferences.calendar.main.show_declined_events")
                             }
                         }
@@ -86,6 +89,7 @@ function mainCategory(i18n) {
                             name: "PrefFieldMultiSelect",
                             options: {
                                 setting: "working_days",
+                                needReload: true,
                                 label: i18n.t("preferences.calendar.main.working_days"),
                                 choices: [
                                     { value: "mon", text: i18n.t("common.monday") },
@@ -111,14 +115,14 @@ function mainCategory(i18n) {
                         id: "default",
                         component: {
                             name: "PrefEventReminder",
-                            options: { setting: "default_event_alert" }
+                            options: { setting: "default_event_alert", needReload: true }
                         }
                     },
                     {
                         id: "default_allday",
                         component: {
                             name: "PrefAllDayEventReminder",
-                            options: { setting: "default_allday_event_alert" }
+                            options: { setting: "default_allday_event_alert", needReload: true }
                         }
                     },
                     {
@@ -128,6 +132,7 @@ function mainCategory(i18n) {
                             options: {
                                 label: i18n.t("preferences.calendar.main.default_reminder_kind"),
                                 setting: "default_event_alert_mode",
+                                needReload: true,
                                 choices: [
                                     { text: i18n.t("common.email"), value: "Email" },
                                     { text: i18n.t("common.notification"), value: "Display" }

@@ -31,7 +31,7 @@ export default {
             return this.$store.state.preferences.fields[this.id]?.saved;
         },
         isValid() {
-            return true;
+            return true; // can be overwritten by component
         }
     },
     methods: {

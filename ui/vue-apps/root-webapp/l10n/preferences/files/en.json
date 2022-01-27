@@ -2,7 +2,10 @@
     "alert.preferences.need_reconnection.warning": "Some modifications will be effective at next connection.",
     "alert.preferences.validity.warning": "A field in {name} is not valid",
     "alert.preferences.reload_app.warning": "Some modifications will be effective only after the application got reloaded.",
-    "alert.preferences.save.error": "Error while saving {name}",
+    "alert.preferences.field.save.error": "Error while saving {name}",
+    "alert.preferences.save.success": "Successfully saved",
+    "alert.preferences.save.loading": "Saving...",
+    "alert.preferences.save.error": "Error while saving changes",
     "alert.preferences.sync_calendar.loading": "Synchronization in progress...",
     "alert.preferences.sync_calendar.success": "Synchronization successful",
     "alert.preferences.sync_calendar.error": "Error during synchronization",
@@ -271,8 +274,6 @@
     "preferences.mail.emails_forwarding.no_local_copy": "do not keep a local copy",
 
     "preferences.role.missing.warning": "You do not have the rights to modify this preference",
-    "preferences.save.error": "Error while saving, check your network connection",
-    "preferences.save.success": "Successfully saved",
     "preferences.search.no_result": "No preference containing \"{pattern}\" has been found.",
     "preferences.menu.apps": "Applications preferences menu",
 

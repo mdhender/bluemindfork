@@ -1,5 +1,8 @@
 <template>
     <div id="scroll-area" class="pref-sections" @scroll="({ target }) => SET_OFFSET(target.scrollTop)">
+        <bm-alert-area :alerts="alerts" stackable @remove="REMOVE">
+            <template v-slot="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
+        </bm-alert-area>
         <div v-for="(section, index) in sections" :id="section.id" :key="section.id" class="mb-5 pref-section">
             <bm-list-group v-if="index !== 0" :id="'section-' + section.id" horizontal>
                 <pref-section-navbar :section="section" />
@@ -20,15 +23,12 @@ import { BmListGroup } from "@bluemind/styleguide";
 import PrefCategory from "./PrefCategory";
 import PrefSectionNavbar from "./PrefSectionNavbar";
 import Navigation from "./mixins/Navigation";
+import RightPanelAlerts from "./mixins/RightPanelAlerts";
 
 export default {
     name: "PrefSections",
-    components: {
-        BmListGroup,
-        PrefCategory,
-        PrefSectionNavbar
-    },
-    mixins: [Navigation],
+    components: { BmListGroup, PrefCategory, PrefSectionNavbar },
+    mixins: [Navigation, RightPanelAlerts],
     props: {
         sections: {
             type: Array,

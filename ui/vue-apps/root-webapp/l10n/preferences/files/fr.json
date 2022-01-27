@@ -2,7 +2,10 @@
     "alert.preferences.need_reconnection.warning": "Certaines modifications seront effectives à la prochaine connexion.",
     "alert.preferences.validity.warning": "Champ invalide dans {name}",
     "alert.preferences.reload_app.warning": "Certaines modifications seront effectives au prochain démarrage de l'application.",
-    "alert.preferences.save.error": "Erreur lors de l'enregistrement de {name}",
+    "alert.preferences.field.save.error": "Erreur lors de l'enregistrement de {name}",
+    "alert.preferences.save.success": "Enregistrement effectué",
+    "alert.preferences.save.loading": "Enregistrement en cours...",
+    "alert.preferences.save.error": "Erreur lors de l'enregistrement des modifications",
     "alert.preferences.sync_calendar.loading": "Synchronisation en cours...",
     "alert.preferences.sync_calendar.success": "Synchronisation réussie",
     "alert.preferences.sync_calendar.error": "Erreur lors de la synchronisation",
@@ -271,8 +274,6 @@
     "preferences.mail.emails_forwarding.no_local_copy": "ne pas conserver de copie",
 
     "preferences.role.missing.warning": "Vous n'avez pas les droits pour modifier cette préférence",
-    "preferences.save.error": "Erreur lors de l'enregistrement, vérifiez votre connexion internet",
-    "preferences.save.success": "Modifications enregistrées",
     "preferences.search.no_result": "Aucune préférence avec le terme \"{pattern}\" n'a été trouvée.",
     "preferences.menu.apps": "Menu des préférences d'application",
 
