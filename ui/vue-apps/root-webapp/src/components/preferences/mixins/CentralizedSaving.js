@@ -9,7 +9,14 @@ export default {
     props: {
         autosave: {
             type: Boolean,
-            required: false,
+            default: false
+        },
+        needReload: {
+            type: Boolean,
+            default: false
+        },
+        needLogout: {
+            type: Boolean,
             default: false
         }
     },
@@ -29,23 +36,27 @@ export default {
     },
     methods: {
         ...mapActions("alert", { ERROR }),
+        $_CentralizedSaving_defaultOptions() {
+            return {
+                saved: true,
+                error: false,
+                autosave: this.autosave,
+                reload: this.needReload,
+                logout: this.needLogout
+            };
+        },
         registerSaveAction(save) {
             const actions = {};
             const state = { current: null, saved: null };
 
             const wrappedSave = async (...args) => {
                 if (this.current && !this.current.options.saved) {
+                    const options = this.$_CentralizedSaving_defaultOptions();
                     try {
                         await save(...args);
-                        this.PUSH_STATE({
-                            value: cloneDeep(this.value),
-                            options: { saved: true, error: false, autosave: this.autosave }
-                        });
+                        this.PUSH_STATE({ value: cloneDeep(this.value), options });
                     } catch {
-                        this.PUSH_STATE({
-                            value: this.saved.value,
-                            options: { saved: true, error: true, autosave: this.autosave }
-                        });
+                        this.PUSH_STATE({ value: this.saved.value, options: { ...options, error: true } });
                     }
                 }
             };

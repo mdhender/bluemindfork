@@ -36,11 +36,7 @@
         >
             {{ markAsUnreadText }}
         </bm-dropdown-item>
-        <bm-dropdown-item
-            icon="printer"
-            :disabled="selectionLength > 1"
-            @click="printLastMessage()"
-        >
+        <bm-dropdown-item icon="printer" :disabled="selectionLength > 1" @click="printLastMessage()">
             {{ $t("common.print") }}
         </bm-dropdown-item>
         <bm-dropdown-item

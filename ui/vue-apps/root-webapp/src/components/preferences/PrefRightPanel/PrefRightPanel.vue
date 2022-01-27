@@ -86,21 +86,20 @@ export default {
         }
     },
     watch: {
-        isReloadNeeded() {
-            const alert = {
-                alert: { uid: "IS_RELOAD_NEEDED" },
-                options: { area: "pref-right-panel", dismissible: false }
-            };
-            if (this.isReloadNeeded && this.IS_LOGOUT_NEEDED) {
-                alert.name = "preferences.NEED_RECONNECTION";
-                alert.options.renderer = "NeedReconnectionAlert";
-                this.WARNING(alert);
-            } else if (this.isReloadNeeded) {
-                alert.name = "preferences.NEED_APP_RELOAD";
-                alert.options.renderer = "ReloadAppAlert";
-                this.WARNING(alert);
-            } else {
-                this.REMOVE(alert.alert);
+        IS_LOGOUT_NEEDED() {
+            if (this.IS_LOGOUT_NEEDED) {
+                const logoutAlert = { ...alert };
+                logoutAlert.name = "preferences.NEED_RECONNECTION";
+                logoutAlert.options.renderer = "NeedReconnectionAlert";
+                this.WARNING(logoutAlert);
+            }
+        },
+        IS_RELOAD_NEEDED() {
+            if (this.IS_RELOAD_NEEDED && !this.IS_LOGOUT_NEEDED) {
+                const reloadAlert = { ...alert };
+                reloadAlert.name = "preferences.NEED_APP_RELOAD";
+                reloadAlert.options.renderer = "ReloadAppAlert";
+                this.WARNING(reloadAlert);
             }
         },
         SEARCH_PATTERN() {
@@ -146,6 +145,11 @@ export default {
     methods: {
         ...mapActions("alert", { REMOVE, WARNING })
     }
+};
+
+const alert = {
+    alert: { uid: "IS_RELOAD_OR_LOGOUT_NEEDED" },
+    options: { area: "pref-right-panel", dismissible: false }
 };
 
 function getGroupsFromTextNodes(ref, pattern) {

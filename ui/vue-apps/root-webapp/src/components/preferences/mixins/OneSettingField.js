@@ -9,14 +9,6 @@ export default {
         default: {
             type: String,
             default: undefined
-        },
-        needReload: {
-            type: Boolean,
-            default: false
-        },
-        needLogout: {
-            type: Boolean,
-            default: false
         }
     },
     mixins: [CentralizedSaving],
