@@ -732,18 +732,27 @@ public class MailIndexService implements IMailIndexService {
 		return ret;
 	}
 
-	private static final long TIME_BUDGET = TimeUnit.SECONDS.toNanos(5);
+	private static final long TIME_BUDGET = TimeUnit.SECONDS.toNanos(15);
 
 	@Override
 	public SearchResult searchItems(String dirEntryUid, MailboxFolderSearchQuery searchQuery) {
 		SearchQuery query = searchQuery.query;
-		SearchRequestBuilder searchBuilder = ESearchActivator.getClient().prepareSearch(getIndexAliasName(dirEntryUid));
+		Client client = ESearchActivator.getClient();
+		SearchRequestBuilder searchBuilder = client.prepareSearch(getIndexAliasName(dirEntryUid));
 		QueryBuilder bq = buildEsQuery(query);
 
 		searchBuilder.setQuery(bq);
 		searchBuilder.setFetchSource(true);
-		searchBuilder.setFrom((int) query.offset);
-		searchBuilder.setSize((int) query.maxResults);
+
+		boolean scrolled = false;
+		if (query.offset == 0 && query.maxResults >= Integer.MAX_VALUE) {
+			searchBuilder.setScroll(TimeValue.timeValueSeconds(5));
+			searchBuilder.setSize(1000);
+			scrolled = true;
+		} else {
+			searchBuilder.setFrom((int) query.offset);
+			searchBuilder.setSize((int) query.maxResults);
+		}
 
 		if (searchQuery.sort != null && searchQuery.sort.hasCriterias()) {
 			searchQuery.sort.criteria
@@ -763,22 +772,34 @@ public class MailIndexService implements IMailIndexService {
 			Map<Integer, InternalMessageSearchResult> results = new LinkedHashMap<>();
 
 			AtomicInteger deduplicated = new AtomicInteger();
-			for (SearchHit sh : searchHits.getHits()) {
-				safeResult(sh).ifPresent(result -> {
-					if (results.containsKey(result.itemId)) {
-						deduplicated.incrementAndGet();
-						if (results.get(result.itemId).imapUid < result.imapUid) {
+			do {
+				for (SearchHit sh : searchHits.getHits()) {
+					safeResult(sh).ifPresent(result -> {
+						if (results.containsKey(result.itemId)) {
+							deduplicated.incrementAndGet();
+							if (results.get(result.itemId).imapUid < result.imapUid) {
+								results.put(result.itemId, result);
+							}
+						} else {
 							results.put(result.itemId, result);
 						}
-					} else {
-						results.put(result.itemId, result);
+					});
+					if (System.nanoTime() - start > TIME_BUDGET) {
+						logger.warn("Stopped processing search results as timebudget ({} ns) is exhausted",
+								TIME_BUDGET);
+						scrolled = false;
+						break;
 					}
-				});
-				if (System.nanoTime() - start > TIME_BUDGET) {
-					logger.warn("Stopped processing search results as timebudget ({} ns) is exhausted", TIME_BUDGET);
-					break;
 				}
-			}
+				if (scrolled && sr.getScrollId() != null) {
+					sr = client.prepareSearchScroll(sr.getScrollId()).setScroll(TimeValue.timeValueSeconds(5)).execute()
+							.actionGet();
+					searchHits = sr.getHits();
+					if (searchHits.getHits().length == 0) {
+						break;
+					}
+				}
+			} while (scrolled);
 
 			SearchResult result = new SearchResult();
 			result.results = new ArrayList<>(results.values());
@@ -823,8 +844,7 @@ public class MailIndexService implements IMailIndexService {
 
 	private Optional<InternalMessageSearchResult> safeResult(SearchHit sh) {
 		try {
-			InternalMessageSearchResult msr = createSearchResult(sh);
-			return Optional.of(msr);
+			return Optional.of(createSearchResult(sh));
 		} catch (Exception e) {
 			logger.warn("Cannot create result object", e);
 			return Optional.empty();
