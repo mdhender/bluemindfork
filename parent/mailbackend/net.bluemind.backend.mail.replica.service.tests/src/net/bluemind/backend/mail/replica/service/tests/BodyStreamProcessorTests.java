@@ -259,6 +259,24 @@ public class BodyStreamProcessorTests {
 		Assert.assertEquals(2, result.body.structure.nonInlineAttachments().size());
 	}
 
+	@Test
+	public void testSingleBodyHavingContentId()
+			throws InterruptedException, ExecutionException, TimeoutException, IOException {
+		Stream stream = openResource("data/single_body_cid.eml");
+		// Apple-Mail inline attachments not displayed by other client
+
+		MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);
+		assertNotNull(result);
+
+		Part bodyPart = result.body.structure.children.get(0).children.get(0);
+		DispositionType firstChildDispositionType = bodyPart.dispositionType;
+		Assert.assertEquals("text/html", bodyPart.mime);
+		Assert.assertEquals("<CZT9PGZUJFU4.ZWYKFCEACM0U3@valerie>", bodyPart.contentId);
+		Assert.assertEquals(DispositionType.INLINE, firstChildDispositionType);
+		DispositionType secondChildDispositionType = result.body.structure.children.get(1).dispositionType;
+		Assert.assertEquals(DispositionType.ATTACHMENT, secondChildDispositionType);
+	}
+
 	/**
 	 * When Content-Id is set without CID nor Disposition-Type then we should keep a
 	 * NULL disposition type (Linkedin mails).

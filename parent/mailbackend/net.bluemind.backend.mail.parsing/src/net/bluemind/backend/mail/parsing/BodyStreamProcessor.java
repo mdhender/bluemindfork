@@ -198,14 +198,14 @@ public class BodyStreamProcessor {
 	private static void cleanUnreferencedInlineAttachments(Optional<Document> jsoup, MessageBody mb, Message parsed) {
 		List<Part> withContentIds = partsWithContentIds(mb.structure, null, new LinkedList<>());
 		if (!withContentIds.isEmpty()) {
+			Optional<AddressableEntity> ae = htmlBody(parsed);
 			Set<String> refCids = findCIDs(jsoup.orElseGet(() -> {
-				Optional<AddressableEntity> ae = htmlBody(parsed);
 				String body = ae.map(BodyStreamProcessor::getBodyContent).orElse("");
 				return Jsoup.parse(body);
 			}));
 			for (Part p : withContentIds) {
 				String cid = CharMatcher.anyOf("<>").trimFrom(p.contentId);
-				if (!refCids.contains(cid)) {
+				if (!identifiesAsBody(ae, p) && !refCids.contains(cid)) {
 					p.dispositionType = DispositionType.ATTACHMENT;
 					p.contentId = null;
 				} else {
@@ -213,6 +213,17 @@ public class BodyStreamProcessor {
 				}
 			}
 		}
+	}
+
+	private static boolean identifiesAsBody(Optional<AddressableEntity> ae, Part p) {
+		if (!ae.isPresent()) {
+			return false;
+		}
+		Field field = ae.get().getHeader().getField(FieldName.CONTENT_ID);
+		if (field == null) {
+			return false;
+		}
+		return field.getBody().equals(p.contentId);
 	}
 
 	private static List<Part> partsWithContentIds(Part structure, Part parent, List<Part> attach) {
