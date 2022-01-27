@@ -10,7 +10,7 @@
             {{ $t("common.import") }}
         </bm-dropdown-item-button>
         <bm-dropdown-item-button icon="broom" @click="$emit('reset-data')">
-            {{ $t("common.action.reset") }}
+            {{ $t("common.action.empty") }}
         </bm-dropdown-item-button>
         <bm-dropdown-item-button icon="trash" :disabled="isDefault" @click="$emit('remove')">
             {{ $t("common.delete") }}

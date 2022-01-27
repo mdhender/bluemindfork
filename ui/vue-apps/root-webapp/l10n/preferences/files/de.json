@@ -116,9 +116,9 @@
     "preferences.display_containers.import_file.addressbook": "vCard Datei ablegen",
     "preferences.display_containers.import_file.todolist": "ICS Datei ablegen",
 
-    "preferences.reset_containers_data.calendar": "Alle Kalenderdaten werden gelöscht.",
-    "preferences.reset_containers_data.addressbook": "Alle Adressbuchdaten werden gelöscht",
-    "preferences.reset_containers_data.todolist": "Alle Daten der Todoliste werden gelöscht.",
+    "preferences.reset_containers_data.calendar": "Alle Termine dieses Kalenders werden gelöscht.",
+    "preferences.reset_containers_data.addressbook": "Alle Adressen dieses Adressbuchs werden gelöscht",
+    "preferences.reset_containers_data.todolist": "Alle Aufgaben dieser Todoliste werden gelöscht.",
 
     "preferences.delete_containers": "{type} endgültig löschen?",
 

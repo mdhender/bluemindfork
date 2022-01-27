@@ -1,5 +1,6 @@
 {
     "common.and": "i",
+    "common.action.empty": "Empty",
     "common.action.reset": "Reset",
     "common.action.search": "Szukaj",
     "common.send": "Wyślij",

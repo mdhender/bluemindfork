@@ -164,8 +164,8 @@ export default {
             const confirm = await this.$bvModal.msgBoxConfirm(
                 this.$t("preferences.reset_containers_data." + this.containerType),
                 {
-                    title: this.$t("common.action.reset"),
-                    okTitle: this.$t("common.action.reset"),
+                    title: this.$t("common.action.empty"),
+                    okTitle: this.$t("common.action.empty"),
                     cancelVariant: "outline-secondary",
                     cancelTitle: this.$t("common.cancel"),
                     centered: true,

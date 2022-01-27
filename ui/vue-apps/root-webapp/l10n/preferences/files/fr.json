@@ -116,9 +116,9 @@
     "preferences.display_containers.import_file.addressbook": "Déposer un fichier vCard",
     "preferences.display_containers.import_file.todolist": "Déposer un fichier ICS",
 
-    "preferences.reset_containers_data.calendar": "Toutes les données de ce calendrier seront supprimées.",
-    "preferences.reset_containers_data.addressbook": "Toutes les données de ce carnet d'adresses seront supprimées.",
-    "preferences.reset_containers_data.todolist": "Toutes les données de cette liste de tâches seront supprimées.",
+    "preferences.reset_containers_data.calendar": "Tous les événements de ce calendrier seront supprimés.",
+    "preferences.reset_containers_data.addressbook": "Toutes les adresses de ce carnet seront supprimées.",
+    "preferences.reset_containers_data.todolist": "Toutes les tâches de cette liste seront supprimées.",
 
     "preferences.delete_containers": "Supprimer définitivement {type} ?",
 

@@ -116,9 +116,9 @@
     "preferences.display_containers.import_file.addressbook": "Drop your vCard file",
     "preferences.display_containers.import_file.todolist": "Drop your ICS file",
 
-    "preferences.reset_containers_data.calendar": "All calendar data will be removed.",
-    "preferences.reset_containers_data.addressbook": "All addressbook data will be removed.",
-    "preferences.reset_containers_data.todolist": "All to-do list data will be removed.",
+    "preferences.reset_containers_data.calendar": "All events of this calendar will be removed.",
+    "preferences.reset_containers_data.addressbook": "All addresses of this addressbook will be removed.",
+    "preferences.reset_containers_data.todolist": "All tasks of this list will be removed.",
 
     "preferences.delete_containers": "Remove {type} definitely ?",
 
