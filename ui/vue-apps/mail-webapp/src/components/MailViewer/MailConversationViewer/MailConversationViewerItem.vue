@@ -16,7 +16,7 @@
                     class="col-1 d-flex align-items-center vertical-line"
                     :class="{ first: index === 0, last: index === maxIndex }"
                 >
-                    <bm-avatar :alt="message.from ? message.from.dn || message.from.address : ''" />
+                    <bm-contact :contact="message.from" variant="no-text" />
                 </div>
                 <slot name="head" />
             </div>
@@ -49,14 +49,14 @@
     </div>
 </template>
 <script>
-import { BmAvatar } from "@bluemind/styleguide";
+import { BmContact } from "@bluemind/styleguide";
 import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import MailConversationViewerVerticalLine from "./MailConversationViewerVerticalLine";
 import MailViewerRecipients from "../MailViewerRecipients";
 
 export default {
     name: "MailConversationViewerItem",
-    components: { BmAvatar, MailConversationViewerVerticalLine, MailViewerRecipients },
+    components: { BmContact, MailConversationViewerVerticalLine, MailViewerRecipients },
     mixins: [MailConversationViewerItemMixin],
     props: {
         isDraft: {

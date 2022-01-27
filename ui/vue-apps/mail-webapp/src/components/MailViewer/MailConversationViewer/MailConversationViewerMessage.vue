@@ -3,9 +3,7 @@
         <bm-extension id="webapp.mail" path="viewer.header" :message="message" />
         <template slot="head">
             <div class="col pl-3 align-self-center">
-                <span class="h3 font-weight-bold">
-                    {{ message.from ? message.from.dn || message.from.address : "" }}
-                </span>
+                <bm-contact :contact="message.from" variant="no-avatar" />
                 <mail-folder-icon
                     v-if="folder.key !== conversation.folderRef.key"
                     :shared="shared"
@@ -57,6 +55,7 @@
 <script>
 import { mapGetters, mapState } from "vuex";
 import { BmExtension } from "@bluemind/extensions";
+import { BmContact } from "@bluemind/styleguide";
 import MailConversationViewerItem from "./MailConversationViewerItem";
 import MailViewerContentLoading from "../../MailViewer/MailViewerContentLoading";
 import MailViewerToolbar from "../MailViewerToolbar";
@@ -72,6 +71,7 @@ import { MailboxType } from "~/model/mailbox";
 export default {
     name: "MailConversationViewerMessage",
     components: {
+        BmContact,
         BmExtension,
         BodyViewer,
         MailAttachmentsBlock,
