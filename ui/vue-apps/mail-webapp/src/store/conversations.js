@@ -219,6 +219,9 @@ function reducedMetadata(folderKey, messages) {
                 flags.add(Flag.FLAGGED);
             }
         }
+
+        m.flags?.forEach(flag => [Flag.ANSWERED, Flag.FORWARDED].includes(flag) && flags.add(flag));
+
         if (m.loading === LoadingStatus.NOT_LOADED || m.loading === LoadingStatus.LOADING) {
             loading = m.loading;
         }
@@ -232,6 +235,7 @@ function reducedMetadata(folderKey, messages) {
             preview = m.preview;
         }
     });
+
     return { unreadCount, flags: Array.from(flags), loading, hasAttachment, hasICS, preview };
 }
 
