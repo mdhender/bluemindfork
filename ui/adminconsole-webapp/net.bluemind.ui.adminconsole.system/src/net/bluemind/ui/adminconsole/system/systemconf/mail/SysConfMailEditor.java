@@ -177,6 +177,11 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 		scalitySdsBackupRetentionDays.setTitle(SysConfMailConstants.INST.sdsBackupRetentionDaysTooltip());
 
 		switch (archiveKindIndex) {
+		case 0:
+		case 1:
+			archiveKindSelectBox.removeItem(3);
+			archiveKindSelectBox.removeItem(2);
+			break;
 		case 2:
 			s3EndpointAddress.setText(map.get(SysConfKeys.sds_s3_endpoint.name()));
 			s3Region.setText(map.get(SysConfKeys.sds_s3_region.name()));
@@ -188,8 +193,9 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 			break;
 		case 3:
 			scalityEndpointAddress.setText(map.get(SysConfKeys.sds_s3_endpoint.name()));
-			scalitySdsBackupRetentionDays.setText(Optional.ofNullable(map.get(SysConfKeys.sds_backup_rentention_days.name()))
-					.orElse(_SDS_BACKUP_RETENTION_DAYS_DEFAULT));
+			scalitySdsBackupRetentionDays
+					.setText(Optional.ofNullable(map.get(SysConfKeys.sds_backup_rentention_days.name()))
+							.orElse(_SDS_BACKUP_RETENTION_DAYS_DEFAULT));
 			break;
 		default:
 			break;
