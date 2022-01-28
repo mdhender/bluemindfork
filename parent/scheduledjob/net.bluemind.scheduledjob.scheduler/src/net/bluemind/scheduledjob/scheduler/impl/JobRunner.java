@@ -76,17 +76,13 @@ public class JobRunner {
 
 		for (String domain : domains) {
 			logger.debug("tick for {} on domain {}", bjp.getJobId(), domain);
-
 			JobPlanification plan = getJobPlan(job, domain);
 
 			if (forced) {
 				tick(domain, gid, true);
-
 			} else if (plan == null || plan.kind == PlanKind.OPPORTUNISTIC) {
 				tick(domain, gid, false);
-
 			} else if (plan.kind == PlanKind.SCHEDULED) {
-
 				Date nextRun = plan.nextRun;
 
 				if (nextRun == null) {
@@ -94,12 +90,7 @@ public class JobRunner {
 				} else if (nextRun.compareTo(new Date()) <= 0) {
 					logger.info("{}@{}: scheduling execution.", job.id, domain);
 					tick(domain, gid, true);
-				} else {
-					// Diablo III pre-release reference
-					logger.info("{}@{}: The fire from the sky still falls  (launch date: {})", job.id, domain, nextRun);
-
 				}
-
 			} else if (plan.kind == PlanKind.DISABLED) {
 				logger.info("{} is disabled for {}", job.id, domain);
 			}
