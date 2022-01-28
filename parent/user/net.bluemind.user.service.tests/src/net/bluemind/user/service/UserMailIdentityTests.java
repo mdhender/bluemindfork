@@ -207,6 +207,23 @@ public class UserMailIdentityTests {
 	}
 
 	@Test
+	public void testDeleteDefault() throws Exception {
+
+		UserMailIdentity defaultIdentity = defaultIdentity("test@bm.lan", userUid);
+		service(userSecurityContext, userUid).create("work", defaultIdentity);
+		service(userSecurityContext, userUid).setDefault("work");
+
+		try {
+			service(userSecurityContext, userUid).delete("work");
+			fail("should fail because delete default identity is forbidden");
+		} catch (ServerFault e) {
+			assertEquals(String.format("Default identity %s cannot be deleted", defaultIdentity.displayname),
+					e.getMessage());
+		}
+
+	}
+
+	@Test
 	public void testGetAvailableIdenties() throws Exception {
 		List<IdentityDescription> res = service(userSecurityContext, userUid).getAvailableIdentities();
 		assertEquals(1, res.size());

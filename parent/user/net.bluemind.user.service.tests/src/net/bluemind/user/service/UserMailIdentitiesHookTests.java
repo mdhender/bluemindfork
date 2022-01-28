@@ -54,7 +54,6 @@ import net.bluemind.group.api.Member;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.Mailbox;
-import net.bluemind.mailbox.identity.api.IdentityDescription;
 import net.bluemind.mailbox.identity.api.SignatureFormat;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
@@ -108,21 +107,6 @@ public class UserMailIdentitiesHookTests {
 
 	@Test
 	public void testCreateMBoxShouldCreateDefaultIdentity() {
-		assertEquals(1, service().getIdentities().size());
-		assertTrue(service().getIdentities().get(0).isDefault);
-	}
-
-	@Test
-	public void testUpdateMBoxShouldCreateDefaultIdentityIfThereIsNoDefaultPresent() {
-		assertEquals(1, service().getIdentities().size());
-		IdentityDescription identityDescription = service().getIdentities().get(0);
-		assertTrue(identityDescription.isDefault);
-
-		service().delete(identityDescription.id);
-		assertEquals(0, service().getIdentities().size());
-
-		userService().update(userUid, userService().getComplete(userUid).value);
-
 		assertEquals(1, service().getIdentities().size());
 		assertTrue(service().getIdentities().get(0).isDefault);
 	}

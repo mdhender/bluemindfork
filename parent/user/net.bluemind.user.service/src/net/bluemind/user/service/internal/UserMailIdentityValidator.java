@@ -102,4 +102,11 @@ public class UserMailIdentityValidator {
 
 		return ret;
 	}
+
+	public void beforeDelete(UserMailIdentity identity) {
+		if (identity.isDefault) {
+			String msg = String.format("Default identity %s cannot be deleted", identity.displayname);
+			throw new ServerFault(msg);
+		}
+	}
 }

@@ -40,6 +40,7 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.identity.api.SignatureFormat;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserMailIdentities;
@@ -82,13 +83,29 @@ public class UserMailIdentityHookTests {
 		user.create(userUid, defaultUser(userUid));
 
 		IUserMailIdentities identityService = getIdentityService(userUid);
-		String identityUid = "default";
+		String identityUid = "john-id";
+		UserMailIdentity userMailIdentity = createIdentity(userUid);
+		identityService.create(identityUid, userMailIdentity);
+
 		UserMailIdentity identity = identityService.get(identityUid);
 		identity.name = "John Doe Updated";
 		identityService.update(identityUid, identity);
 		identityService.delete(identityUid);
 
 		assertTrue(IdentityHook.latch.await(15, TimeUnit.SECONDS));
+	}
+
+	private UserMailIdentity createIdentity(String userUid) {
+		UserMailIdentity userMailIdentity = new UserMailIdentity();
+		userMailIdentity.displayname = "John Doe";
+		userMailIdentity.name = "John Doe";
+		userMailIdentity.email = userUid + "@" + domainUid;
+		userMailIdentity.format = SignatureFormat.HTML;
+		userMailIdentity.signature = "-- gg";
+		userMailIdentity.mailboxUid = userUid;
+		userMailIdentity.sentFolder = "Sent";
+		userMailIdentity.isDefault = false;
+		return userMailIdentity;
 	}
 
 	private User defaultUser(String login) {

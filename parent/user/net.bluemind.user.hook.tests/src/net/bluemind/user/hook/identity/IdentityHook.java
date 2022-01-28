@@ -19,6 +19,7 @@
 package net.bluemind.user.hook.identity;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.concurrent.CountDownLatch;
@@ -61,6 +62,7 @@ public class IdentityHook implements IUserMailIdentityHook {
 		assertNotNull(domainUid);
 		assertNotNull(previous);
 		assertEquals("John Doe Updated", previous.name);
+		assertFalse(previous.isDefault);
 		latch.countDown();
 	}
 

@@ -128,6 +128,7 @@ public class UserMailIdentities implements IUserMailIdentities, IInternalUserMai
 	public void delete(String id) {
 		rbacManager.forEntry(userUid).check(BasicRoles.ROLE_MANAGE_USER_MAIL_IDENTITIES);
 		UserMailIdentity identity = get(id);
+		validator.beforeDelete(identity);
 		hooks.forEach(hook -> hook.beforeDelete(context, domainUid, id, identity));
 		storeService.deleteIdentity(userUid, id);
 	}

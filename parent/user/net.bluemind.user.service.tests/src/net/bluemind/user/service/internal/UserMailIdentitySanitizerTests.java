@@ -182,24 +182,6 @@ public class UserMailIdentitySanitizerTests {
 	}
 
 	@Test
-	public void testUpdatingWithoutIdentitiesShouldCreateDefaultIdentity() throws ServerFault, SQLException {
-		User user = defaultUser("test." + System.nanoTime());
-		String uid = create(user);
-
-		IUserMailIdentities userMailIdentities = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IUserMailIdentities.class, domainUid, uid);
-
-		userMailIdentities.getIdentities().forEach(iden -> {
-			userMailIdentities.delete(iden.id);
-		});
-
-		getService(domainAdminSecurityContext).update(uid, user);
-
-		assertEquals(1, userMailIdentities.getIdentities().size());
-
-	}
-
-	@Test
 	public void testUpdatingUsingInvalidDefaultIdentityShouldFixAddress() throws ServerFault, SQLException {
 		User user = defaultUser("test." + System.nanoTime());
 		user.emails = new ArrayList<>();
