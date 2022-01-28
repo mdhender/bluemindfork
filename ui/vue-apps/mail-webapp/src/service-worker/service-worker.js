@@ -34,7 +34,7 @@ self.addEventListener("message", async ({ data }) => {
             }
             break;
         case "RESET":
-            await BrowserData.reset();
+            await BrowserData.reset(await Session.infos());
             break;
     }
 });

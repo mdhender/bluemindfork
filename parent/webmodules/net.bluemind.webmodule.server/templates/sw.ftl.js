@@ -51,7 +51,7 @@ async function precacheredirected(files) {
 self.addEventListener("message", async ({ data }) => {
     switch (data.type) {
         case "RESET":
-            await BrowserData.reset();
+            await BrowserData.reset(await Session.infos());
             break;
     }
 });
@@ -149,29 +149,28 @@ class EnvironmentDB {
 // root-webapp/sevice-worker/workbox/BrowserData.ts
 
 const BrowserData = {
-    async resetIfNeeded({ mailboxCopyGuid }) {
-        if (await areBrowserDataDeprecated(mailboxCopyGuid)) {
-            await this.reset();
+    async resetIfNeeded(userSession) {
+        if (await areBrowserDataDeprecated(userSession.mailboxCopyGuid)) {
+            await this.reset(userSession);
         }
     },
 
-    async reset() {
+    async reset(userSession) {
         broadcast("RESET", { status: "START" });
         try {
             // Cache API
             logger.log(`[SW][BrowserData] Resetting caches.`);
             const cacheNames = await caches.keys();
             await Promise.all(cacheNames.map(name => deleteCache(name)));
+            
             // IndexedDB
-
             logger.log(`[SW][BrowserData] Resetting databases.`);
-            const databases = await indexedDB.databases();
-            await Promise.all(databases.map(database => deleteDatabase(database)));
+            const databaseNames = await listDatabases(userSession);
+            await Promise.all(databaseNames.map(name => deleteDatabase(name)));
+            broadcast("RESET", { status: "SUCCESS" });
         } catch (e) {
             broadcast("RESET", { status: "ERROR" });
         }
-        // (await Session.environment()).initialize();
-        broadcast("RESET", { status: "SUCCESS" });
     }
 };
 
@@ -183,6 +182,32 @@ async function areBrowserDataDeprecated(remote) {
         return false;
     }
     return local !== remote;
+}
+
+async function listDatabases(userSession) {
+    try {
+        const databases = await indexedDB.databases();
+        return databases.map(({ name }) => name);
+    } catch {
+        // remove this catch once Firefox will support indexedDB.databases()
+        // https://developer.mozilla.org/en-US/docs/Web/API/IDBFactory/databases#browser_compatibility
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=934640
+        const newWebmailDbName = `user.${userSession.userId}@${userSession.domain.replace(".", "_")}:webapp/mail`;
+        return [
+            "capabilities",
+            "context",
+            "environment",
+            "tag",
+            "folder",
+            "contact",
+            "calendarview",
+            "calendar",
+            "todolist",
+            "auth",
+            "deferredaction",
+            newWebmailDbName
+        ];
+    }
 }
 
 function broadcast(type, data) {
@@ -197,8 +222,8 @@ async function deleteCache(name) {
     logger.log(`[SW][BrowserData] Cache ` + name + ` reseted.`);
 }
 
-async function deleteDatabase({ name }) {
-    logger.log(`[SW][BrowserData] Start deleting databe ` + name + `.`);
+async function deleteDatabase(name) {
+    logger.log(`[SW][BrowserData] Start deleting database ` + name + `.`);
     await deleteDB(name);
     logger.log(`[SW][BrowserData] Database ` + name + ` deleted.`);
 }

@@ -56,11 +56,22 @@ export default {
                 }
             }
         },
-        resetLocalData() {
-            localStorage.clear();
-            const serviceWorker = navigator.serviceWorker?.controller;
-            if (serviceWorker) {
-                serviceWorker.postMessage({ type: "RESET" });
+        async resetLocalData() {
+            const confirm = await this.$bvModal.msgBoxConfirm(this.label, {
+                title: this.$t("preferences.advanced.reinit_local_data"),
+                okTitle: this.text,
+                cancelVariant: "outline-secondary",
+                cancelTitle: this.$t("common.cancel"),
+                centered: true,
+                hideHeaderClose: false,
+                autoFocusButton: "ok"
+            });
+            if (confirm) {
+                localStorage.clear();
+                const serviceWorker = navigator.serviceWorker?.controller;
+                if (serviceWorker) {
+                    serviceWorker.postMessage({ type: "RESET" });
+                }
             }
         }
     }
