@@ -172,6 +172,8 @@
     "mail.list.range.last_month": "W zeszłym miesiącu",
     "mail.list.range.last_week": "W zeszłym tygodniu",
     "mail.list.range.older": "Starsze",
+    "mail.list.range.past_month": "{date}",
+    "mail.list.range.past_year": "{date}",
     "mail.list.range.this_week": "Ten tydzień",
     "mail.list.range.today": "Dziś",
     "mail.list.range.yesterday": "Wczoraj",

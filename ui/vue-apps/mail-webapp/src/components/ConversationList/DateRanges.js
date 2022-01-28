@@ -13,10 +13,13 @@ export default class DateRanges {
         .map(range => {
             range.date = range.start;
             range.dateFormat = "month";
+            range.i18n = "mail.list.range.past_month";
             return range;
         });
     pastYears = DateRange.pastYears().map(range => {
-        range.text = String(range.start.getFullYear());
+        range.date = range.start;
+        range.dateFormat = "year";
+        range.i18n = "mail.list.range.past_year";
         return range;
     });
     older;

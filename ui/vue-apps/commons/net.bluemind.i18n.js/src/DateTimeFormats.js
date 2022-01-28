@@ -61,6 +61,9 @@ export default function (timeformat) {
         },
         short_weekday: {
             weekday: "short"
+        },
+        year: {
+            year: "numeric"
         }
     };
 

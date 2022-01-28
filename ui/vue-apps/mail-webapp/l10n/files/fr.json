@@ -290,6 +290,8 @@
     "mail.list.range.last_month": "Le mois dernier",
     "mail.list.range.last_week": "La semaine dernière",
     "mail.list.range.older": "Anciens",
+    "mail.list.range.past_month": "{date}",
+    "mail.list.range.past_year": "{date}",
     "mail.list.range.this_month": "Ce mois",
     "mail.list.range.this_week": "Cette semaine",
     "mail.list.range.today": "Aujourd'hui",

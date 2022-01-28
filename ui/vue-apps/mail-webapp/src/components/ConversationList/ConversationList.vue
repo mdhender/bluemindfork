@@ -25,8 +25,8 @@
         >
             <template v-if="CONVERSATION_IS_LOADED(conversation)">
                 <conversation-list-separator
-                    v-if="dateSeparatorByKey[conversation.key]"
-                    :text="$t(dateSeparatorByKey[conversation.key].i18n)"
+                    v-if="dateRangeByKey[conversation.key]"
+                    :text="dateRangeText(dateRangeByKey[conversation.key])"
                 />
                 <draggable-conversation
                     :ref="'conversation-' + conversation.key"
@@ -129,19 +129,19 @@ export default {
                 .map(key => this.CONVERSATION_METADATA(key))
                 .filter(conversation => conversation.loading !== LoadingStatus.ERROR);
         },
-        dateSeparatorByKey() {
-            const dateSeparatorByKey = {};
-            const dateRanges = new DateRanges();
-            const dateSeparators = [];
+        dateRangeByKey() {
+            const dateRangeByKey = {};
+            const allDateRanges = new DateRanges();
+            const currentDateRanges = [];
             this.conversations.forEach(conversation => {
                 if (conversation.date) {
-                    const dateSeparator = getDateSeparator(conversation, dateRanges, dateSeparators);
-                    if (dateSeparator) {
-                        dateSeparatorByKey[conversation.key] = dateSeparator;
+                    const dateRange = getDateRange(conversation, allDateRanges, currentDateRanges);
+                    if (dateRange) {
+                        dateRangeByKey[conversation.key] = dateRange;
                     }
                 }
             });
-            return dateSeparatorByKey;
+            return dateRangeByKey;
         },
         selectionMode() {
             return Array.isArray(this.selected) && this.selected.length > 0
@@ -236,15 +236,18 @@ export default {
             }
             this.focusByKey(key);
         },
-
         selectAll() {
             if (this.multiple) {
                 this.$emit("set-selection", this.allConversationKeys, SELECTION_MODE.MULTI);
             }
         },
-
         isSelected(key) {
             return Array.isArray(this.selected) ? this.selected.indexOf(key) >= 0 : this.selected === key;
+        },
+        dateRangeText(dateRange) {
+            return this.$t(dateRange.i18n, {
+                date: this.$d(dateRange.date, dateRange.dateFormat)
+            });
         }
     }
 };
@@ -268,12 +271,12 @@ function selectionKeys({ type }, selected, key) {
         return [selected, key];
     }
 }
-function getDateSeparator(conversation, dateRanges, dateSeparators) {
-    const dateRange = dateRanges.sortedArray.find(dateRange =>
+function getDateRange(conversation, allDateRanges, currentDateRanges) {
+    const dateRange = allDateRanges.sortedArray.find(dateRange =>
         dateRange.contains(typeof conversation.date === "number" ? conversation.date : conversation.date.getTime())
     );
-    if (!dateSeparators.includes(dateRange)) {
-        dateSeparators.push(dateRange);
+    if (!currentDateRanges.includes(dateRange)) {
+        currentDateRanges.push(dateRange);
         return dateRange;
     }
 }
