@@ -42,6 +42,8 @@ import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.container.service.internal.ContainerStoreService.IWeightSeedProvider;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectory;
 
 public abstract class AbstractMailboxRecordServiceFactory<T>
 		implements ServerSideServiceProvider.IServerSideServiceFactory<T> {
@@ -74,10 +76,25 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 			ContainerStoreService<MailboxRecord> storeService = new ContainerStoreService<>(ds,
 					context.getSecurityContext(), recordsContainer, recordStore, flagsProvider, recordSeedProvider,
 					toWeight);
+			storeService = disableChangelogIfSystem(context, recordsContainer, storeService);
 			return create(ds, recordsContainer, context, mailboxUniqueId, recordStore, storeService);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+	}
+
+	private <W> ContainerStoreService<W> disableChangelogIfSystem(BmContext context, Container cont,
+			ContainerStoreService<W> storeService) {
+		try {
+			DirEntry owner = context.su().provider().instance(IDirectory.class, cont.domainUid)
+					.findByEntryUid(cont.owner);
+			if (owner.system) {
+				storeService = storeService.withoutChangelog();
+			}
+		} catch (Exception e) {
+			// some junit might fail on missing on domains_bluemind-noid missing
+		}
+		return storeService;
 	}
 
 	@SuppressWarnings("unchecked")

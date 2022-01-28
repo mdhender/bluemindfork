@@ -123,6 +123,11 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				.memoize(() -> new ContainerChangeEventProducer(securityContext, VertxPlatform.eventBus(), container));
 	}
 
+	public ContainerStoreService<T> withoutChangelog() {
+		hasChangeLog = false;
+		return this;
+	}
+
 	public ContainerStoreService(DataSource pool, SecurityContext securityContext, Container container,
 			IItemValueStore<T> itemValueStore) {
 		this(pool, securityContext, container, itemValueStore, v -> UNFLAGGED, v -> 0L, seed -> seed);

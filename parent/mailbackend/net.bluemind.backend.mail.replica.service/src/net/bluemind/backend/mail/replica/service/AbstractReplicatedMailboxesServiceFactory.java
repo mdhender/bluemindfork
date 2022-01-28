@@ -50,6 +50,8 @@ import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.container.service.internal.ContainerStoreService.IWeightSeedProvider;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectory;
 
 public abstract class AbstractReplicatedMailboxesServiceFactory<T>
 		implements ServerSideServiceProvider.IServerSideServiceFactory<T> {
@@ -86,10 +88,25 @@ public abstract class AbstractReplicatedMailboxesServiceFactory<T>
 			ContainerStoreService<MailboxReplica> storeService = new ContainerStoreService<>(ds,
 					context.getSecurityContext(), foldersContainer, mboxReplicaStore, flagProvider, weightSeedProvider,
 					seed -> seed);
+			storeService = disableChangelogIfSystem(context, foldersContainer, storeService);
 			return create(mailboxRoot, foldersContainer, context, mboxReplicaStore, storeService, containerStore);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+	}
+
+	private <W> ContainerStoreService<W> disableChangelogIfSystem(BmContext context, Container cont,
+			ContainerStoreService<W> storeService) {
+		try {
+			DirEntry owner = context.su().provider().instance(IDirectory.class, cont.domainUid)
+					.findByEntryUid(cont.owner);
+			if (owner.system) {
+				storeService = storeService.withoutChangelog();
+			}
+		} catch (Exception e) {
+			// some junit might fail on missing on domains_bluemind-noid missing
+		}
+		return storeService;
 	}
 
 	protected abstract T create(MailboxReplicaRootDescriptor root, Container cont, BmContext context,
