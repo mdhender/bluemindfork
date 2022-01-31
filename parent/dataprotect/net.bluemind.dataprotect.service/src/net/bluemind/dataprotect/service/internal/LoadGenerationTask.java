@@ -95,7 +95,7 @@ public class LoadGenerationTask implements IServerTask {
 
 		File[] files = dir.listFiles(File::isDirectory);
 		for (File snapshot : files) {
-			DirectoryDeserializer dd = new DirectoryDeserializer(snapshot);
+			DirectoryDeserializer dd = new DirectoryDeserializer(snapshot, false);
 
 			String domainUid = snapshot.getName();
 

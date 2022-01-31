@@ -37,10 +37,10 @@ public class HollowContext {
 		this.announcementWatcher = announcementWatcher;
 	}
 
-	public static HollowContext get(File dir, String set) {
+	public static HollowContext get(File dir, String set, boolean watchChanges) {
 		if (dir.exists()) {
 			logger.info("HOLLOW local strategy selected for set {} and dir {}.", set, dir.getAbsolutePath());
-			return new LocalHollowContext().create(dir);
+			return new LocalHollowContext().create(dir, watchChanges);
 		} else {
 			logger.info("HOLLOW remote strategy selected for set {} as '{}' is missing.", set, dir.getAbsolutePath());
 			return new BmHollowContext().create(set, dir.getName());

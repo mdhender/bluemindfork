@@ -38,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netflix.hollow.api.consumer.HollowConsumer;
-import com.netflix.hollow.api.consumer.HollowConsumer.AnnouncementWatcher;
 import com.netflix.hollow.api.consumer.HollowConsumer.ObjectLongevityConfig;
 import com.netflix.hollow.api.consumer.HollowConsumer.ObjectLongevityDetector;
 import com.netflix.hollow.api.consumer.index.UniqueKeyIndex;
@@ -141,12 +140,15 @@ public class DirectoryDeserializer {
 	private static final ObjectLongevityDetector detector = new LongevityDetector();
 
 	public DirectoryDeserializer(File dir) {
+		this(dir, true);
+	}
+
+	public DirectoryDeserializer(File dir, boolean watchChanges) {
 		this.domainUid = dir.getName();
 		logger.info("Consuming from directory {} for domain {}", dir.getAbsolutePath(), domainUid);
-		HollowContext context = HollowContext.get(dir, "directory");
-		AnnouncementWatcher watcher = watcher(context);
+		HollowContext context = HollowContext.get(dir, "directory", watchChanges);
 		this.consumer = new HollowConsumer.Builder<>()//
-				.withBlobRetriever(context.blobRetriever).withAnnouncementWatcher(watcher)//
+				.withBlobRetriever(context.blobRetriever).withAnnouncementWatcher(context.announcementWatcher)//
 				.withObjectLongevityConfig(longevity).withObjectLongevityDetector(detector)//
 				.withGeneratedAPIClass(OfflineDirectoryAPI.class).build();
 		this.consumer.addRefreshListener(new LoggingRefreshListener(
@@ -172,10 +174,6 @@ public class DirectoryDeserializer {
 		emailIndex.listenForDeltaUpdates();
 		this.kindIndex = new HollowHashIndex(consumer.getStateEngine(), "AddressBookRecord", "", "kind.value");
 		kindIndex.listenForDeltaUpdates();
-	}
-
-	protected AnnouncementWatcher watcher(HollowContext ctx) {
-		return ctx.announcementWatcher;
 	}
 
 	public Collection<AddressBookRecord> all() {
