@@ -22,12 +22,19 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.imip.parser.ITIPMethod;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.lmtp.filter.imip.EventCancelHandler;
 import net.bluemind.lmtp.filter.imip.EventReplyHandler;
 import net.bluemind.lmtp.filter.imip.EventRequestHandler;
@@ -36,9 +43,34 @@ import net.bluemind.lmtp.filter.imip.IMIPHandlerFactory;
 import net.bluemind.lmtp.filter.imip.TodoCancelHandler;
 import net.bluemind.lmtp.filter.imip.TodoReplyHandler;
 import net.bluemind.lmtp.filter.imip.TodoRequestHandler;
+import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.todolist.api.VTodo;
 
-public class ImipFactoryTest {
+public class ImipFactoryTests {
+
+	@Before
+	public void before() throws Exception {
+		JdbcTestHelper.getInstance().beforeTest();
+
+		final CountDownLatch launched = new CountDownLatch(1);
+		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
+			@Override
+			public void handle(AsyncResult<Void> event) {
+				launched.countDown();
+			}
+		});
+		launched.await();
+
+		PopulateHelper.initGlobalVirt();
+		PopulateHelper.addDomainAdmin("admin0", "global.virt");
+
+		PopulateHelper.createTestDomain(System.currentTimeMillis() + ".loc");
+	}
+
+	@After
+	public void after() throws Exception {
+		JdbcTestHelper.getInstance().afterTest();
+	}
 
 	@Test
 	public void testEventRequestHandler() {
