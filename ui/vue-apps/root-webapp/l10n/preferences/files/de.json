@@ -11,9 +11,9 @@
     "alert.preferences.sync_calendar.error": "Fehler bei der Synchronisation",
     "alert.preferences.containers.create_and_import_data.warning": " Das Anlegen wurde erfolgreich abgeschlossen, es konnten jedoch nicht alle Daten importiert werden.",
 
-    "preferences.access_old_settings_app": "Einstellungen der alten Version der Anwendung",
-    "preferences.access_old_settings_app.confirm": "Sie haben ungespeicherte Einstellungen, die beim Verlassen der Anwendung verloren gehen.",
-    "preferences.access_old_settings_app.confirm.title": "Ungespeicherte Einstellungen",
+    "preferences.leave_app.confirm": "Sie haben ungespeicherte Einstellungen, die beim Verlassen der Anwendung verloren gehen.",
+    "preferences.leave_app.confirm.title": "Ungespeicherte Einstellungen",
+    "preferences.leave_app.confirm.button": "Einstellungen verlassen",
 
     "preferences.account.external_accounts": "Externe Benutzerkonten",
     "preferences.account.external_accounts.creation": "Externes Benutzerkonto erstellen",

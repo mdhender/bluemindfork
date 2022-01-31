@@ -11,9 +11,9 @@
     "alert.preferences.sync_calendar.error": "Error during synchronization",
     "alert.preferences.containers.create_and_import_data.warning": "Creation was successful but some data could not be imported.",
 
-    "preferences.access_old_settings_app": "access old preferences application",
-    "preferences.access_old_settings_app.confirm": "You have unsaved settings, you will lose these changes upon quitting this application.",
-    "preferences.access_old_settings_app.confirm.title": "Unsaved settings",
+    "preferences.leave_app.confirm": "You have unsaved changes. You will lose them upon exiting preferences.",
+    "preferences.leave_app.confirm.title": "Unsaved settings",
+    "preferences.leave_app.confirm.button": "Exit preferences",
 
     "preferences.account.external_accounts": "External accounts",
     "preferences.account.external_accounts.creation": "External account creation",

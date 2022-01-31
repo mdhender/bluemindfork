@@ -106,11 +106,28 @@ export default {
             "SET_OFFSET",
             "SET_SEARCH"
         ]),
-        closePreferences() {
-            this.$router.push({ hash: "" });
-            this.TOGGLE_PREFERENCES();
-            this.SET_OFFSET(0);
-            this.SET_SEARCH("");
+        async closePreferences() {
+            const confirm = await this.checkUnsavedChanges();
+            if (confirm) {
+                this.$router.push({ hash: "" });
+                this.TOGGLE_PREFERENCES();
+                this.SET_OFFSET(0);
+                this.SET_SEARCH("");
+            }
+        },
+        async checkUnsavedChanges() {
+            if (this.$store.getters["preferences/fields/HAS_CHANGED"]) {
+                return await this.$bvModal.msgBoxConfirm(this.$t("preferences.leave_app.confirm"), {
+                    title: this.$t("preferences.leave_app.confirm.title"),
+                    cancelVariant: "outline-secondary",
+                    cancelTitle: this.$t("common.cancel"),
+                    okTitle: this.$t("preferences.leave_app.confirm.button"),
+                    centered: true,
+                    hideHeaderClose: false,
+                    autoFocusButton: "cancel"
+                });
+            }
+            return true;
         },
         unlockOrClose() {
             if (!this.lockClose) {
