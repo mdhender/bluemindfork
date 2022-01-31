@@ -46,6 +46,7 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.mailbox.api.IMailboxAclUids;
 
 public class MailConversationService implements IInternalMailConversation {
 
@@ -60,7 +61,8 @@ public class MailConversationService implements IInternalMailConversation {
 		this.container = conversationContainer;
 		this.conversationStore = new ConversationStore(ds, conversationContainer);
 		this.storeService = new ConversationStoreService(ds, context.getSecurityContext(), conversationContainer);
-		rbacManager = RBACManager.forContext(context).forContainer(conversationContainer);
+		this.rbacManager = RBACManager.forContext(context)
+				.forContainer(IMailboxAclUids.uidForMailbox(conversationContainer.owner));
 		this.containerStore = new ContainerStore(context, ds, context.getSecurityContext());
 		this.context = context;
 	}
