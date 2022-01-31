@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -116,7 +115,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			ItemValue<MailboxFolder> touched = getCompleteById(id);
 			return Ack.create(touched.version);
 		}
-		
+
 		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(toWatch);
 		return imapContext.withImapClient(sc -> {
 			logger.info("Rename attempt of '{}' to '{}'", fnOld, fnNew);
@@ -218,8 +217,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		});
 	}
 
-	private void selectInbox(StoreClient sc)
-			throws IMAPException, InterruptedException, ExecutionException, TimeoutException {
+	private void selectInbox(StoreClient sc) throws IMAPException {
 		sc.select("INBOX");
 	}
 
@@ -269,7 +267,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			selectInbox(storeClient);
 			CompletableFuture<?> promise = deleteChildFolders ? deleteChildFolders(folder, storeClient)
 					: CompletableFuture.completedFuture(null);
-			return promise.thenApply(v -> {
+			return promise.thenCompose(v -> {
 				logger.info("On purge of '{}'", folder.value.fullName);
 				if (count.total > 0) {
 					return this.flag(storeClient, folder, Flag.DELETED, storeClient::expunge);
@@ -403,8 +401,8 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 				return;
 			}
 
-			Map<Long, Long> imapUidItemId = new HashMap<Long, Long>();
-			Map<Long, Long> imapUidExpectedId = new HashMap<Long, Long>();
+			Map<Long, Long> imapUidItemId = new HashMap<>();
+			Map<Long, Long> imapUidExpectedId = new HashMap<>();
 
 			List<Integer> allImapUids = new ArrayList<>(itemsSlice.size());
 			itemsSlice.forEach(item -> {
@@ -516,6 +514,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 	private String fullPath(MailboxFolder folder) {
 		return fullPath(folder.fullName);
 	}
+
 	private String fullPath(String fullName) {
 		if (root.ns == Namespace.users) {
 			return fullName;
@@ -523,6 +522,5 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			return "Dossiers partagés/" + fullName;
 		}
 	}
-
 
 }
