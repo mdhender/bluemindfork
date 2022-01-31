@@ -53,7 +53,7 @@ specialTabs.bmTabType = {
      *  the second parameter's contentWindow property.
      */
     openTab(aTab, aArgs) {
-      console.trace("OPEN TAB:", aTab, aArgs);
+      console.trace("OPEN TAB:", aArgs);
       specialTabs.contentTabType.openTab(aTab, aArgs);
       aTab.tabNode.setAttribute("bmApp", aArgs.bmApp);
       aTab.progressListener.addProgressListener({
@@ -66,9 +66,7 @@ specialTabs.bmTabType = {
               // nsIURI.path deprecated in tb >= 57
               let path = aLocationURI.pathQueryRef ? aLocationURI.pathQueryRef : aLocationURI.path;
               gBMOverlay._logger.debug("path:" + path);
-              if ((path && (path.indexOf("/login/index.html") == 0)
-                || (aLocationURI.spec != "about:blank" && aLocationURI.spec.indexOf(aArgs.contentPage) != 0))) {
-                let openInBackGround = !aTab.tabNode.selected;
+              if ((path && (path.indexOf("/login/index.html") == 0))) {
                 let tabmail = document.getElementById("tabmail");
                 tabmail.closeTab(aTab);
                 delayOpener.open({
