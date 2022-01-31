@@ -56,7 +56,7 @@ self.addEventListener("message", async ({ data }) => {
     }
 });
 
-// root-webapp/sevice-worker/session.ts
+// root-webapp/sevice-worker/workbox/registerSessionInfoRoute.js
 
 async function fetchSessionInfo(request) {
     try {
@@ -68,9 +68,10 @@ async function fetchSessionInfo(request) {
     return fromNetwork(request);
 }
 
-// root-webapp/sevice-worker/workbox/registerSessionInfoRoute.js
 
 let instance;
+
+// root-webapp/sevice-worker/session.ts
 
 class Session {
     constructor(infos) {
@@ -109,11 +110,11 @@ class EnvironmentDB {
     static version = 1;
 
     constructor() {
-        this.db = this.initialize();
+        this.db = this.openDB();
     }
 
-    async initialize() {
-        const db = await openDB("environment", EnvironmentDB.version, {
+    async openDB() {
+        return openDB("environment", EnvironmentDB.version, {
             upgrade(db, oldVersion) {
                 logger.log(`[SW][DB] Upgrading from ` + oldVersion + ` to ` + EnvironmentDB.version);
                 if (oldVersion < EnvironmentDB.version) {
@@ -129,43 +130,27 @@ class EnvironmentDB {
                 this.db = this.initialize();
             }
         });
-        await setMailboxCopyGuid(db);
-        return db;
     }
 
-    async setMailboxCopyGuid() {
-        await setMailboxCopyGuid(await this.db);
+    async setMailboxCopyGuid(uid) {
+        logger.log(`[SW][DB] Initialize environment mailboxCopyGuid to ` + uid `.`);
+        await putInDb(await this.db, "system", { key: "mailboxCopyGuid", value: uid });
     }
 
     async getMailboxCopyGuid() {
-        return await getMailboxCopyGuid(await this.db);
+        const data = await getFromDb(await this.db,"system", "mailboxCopyGuid");
+        if (data === undefined) {
+            return undefined;
+        }
+        return data.value;
     }
-}
-
-async function setMailboxCopyGuid(db) {
-    if ((await getMailboxCopyGuid(db)) === undefined) {
-        logger.log(`[SW][DB] Set environment mailboxCopyGuid value to null.`);
-        await putInDb(db, "system", { key: "mailboxCopyGuid", value: null });
-    }
-}
-
-async function getMailboxCopyGuid(db) {
-    const data = await getFromDb(db, "system", "mailboxCopyGuid");
-    if (data === undefined) {
-        return undefined;
-    }
-    return data.value;
 }
 
 // root-webapp/sevice-worker/workbox/BrowserData.ts
 
 const BrowserData = {
     async resetIfNeeded({ mailboxCopyGuid }) {
-        const sessionMailboxCopyGuid = await (await Session.environment()).getMailboxCopyGuid();
-        if (mailboxCopyGuid !== sessionMailboxCopyGuid) {
-            logger.log(
-                `[SW][BrowserData] Data reset needed (` + mailboxCopyGuid + ` != ` + sessionMailboxCopyGuid + `).`
-            );
+        if (await areBrowserDataDeprecated(mailboxCopyGuid)) {
             await this.reset();
         }
     },
@@ -189,6 +174,16 @@ const BrowserData = {
         broadcast("RESET", { status: "SUCCESS" });
     }
 };
+
+async function areBrowserDataDeprecated(remote) {
+    const local = await (await Session.environment()).getMailboxCopyGuid();
+    if (local === undefined) {
+        logger.log(`[SW][BrowserData] Browser copy uid initialized (` + remote + `).`);
+        await (await Session.environment()).setMailboxCopyGuid(remote);
+        return false;
+    }
+    return local !== remote;
+}
 
 function broadcast(type, data) {
     self.clients.matchAll().then(clients => {

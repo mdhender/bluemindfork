@@ -35,7 +35,6 @@ async function areBrowserDataDeprecated(remote) {
         await (await Session.environment()).setMailboxCopyGuid(remote);
         return false;
     }
-    logger.log(`[SW][BrowserData] Browser copy uid reset needed (${local} != ${remote}).`);
     return local !== remote;
 }
 

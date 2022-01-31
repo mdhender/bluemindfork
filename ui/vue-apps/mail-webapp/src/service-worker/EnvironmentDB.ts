@@ -16,7 +16,7 @@ export class EnvironmentDB {
         this.db = this.openDB();
     }
     private async openDB() {
-        return await openDB<EnvironmentSchema>("environment", VERSION, {
+        return openDB<EnvironmentSchema>("environment", VERSION, {
             upgrade(db, oldVersion) {
                 logger.log(`[SW][DB] Upgrading from ${oldVersion} to ${VERSION}`);
                 if (oldVersion < VERSION) {
@@ -35,7 +35,7 @@ export class EnvironmentDB {
     }
 
     async setMailboxCopyGuid(uid: String) {
-        logger.log(`[SW][DB] Initialize environment mailboxCopyGuid}.`);
+        logger.log(`[SW][DB] Initialize environment mailboxCopyGuid to ${uid}.`);
         await (await this.db).put("system", { key: "mailboxCopyGuid", value: uid });
     }
 
