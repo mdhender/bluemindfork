@@ -208,7 +208,7 @@ describe("Mail store", () => {
             store.state.folderList.pattern = "c";
             expect(store.getters[FOLDER_LIST_IS_EMPTY]).toBeFalsy();
         });
-        test("MAILSHARE_FOLDERS", () => {
+        test("MAILSHARE_FOLDERS (sorted by mailshare dn)", () => {
             store.state.folders = {
                 "1": { key: "1", mailboxRef: { key: "A" } },
                 "2": { key: "2", mailboxRef: { key: "unknown" } },
@@ -216,10 +216,10 @@ describe("Mail store", () => {
                 "4": { key: "4", mailboxRef: { key: "C" } }
             };
             store.state.mailboxes = {
-                A: { key: "A", type: MailboxType.MAILSHARE },
-                C: { key: "C", type: MailboxType.MAILSHARE }
+                A: { key: "A", type: MailboxType.MAILSHARE, dn: "zzz" },
+                C: { key: "C", type: MailboxType.MAILSHARE, dn: "aaa" }
             };
-            expect(store.getters[MAILSHARE_FOLDERS]).toEqual([store.state.folders["1"], store.state.folders["4"]]);
+            expect(store.getters[MAILSHARE_FOLDERS]).toEqual([store.state.folders["4"], store.state.folders["1"]]);
         });
 
         test("MY_MAILBOX_FOLDERS", () => {
@@ -426,18 +426,19 @@ describe("Mail store", () => {
             expect(store.getters[MAILBOX_SENT]({ key: "other" }).key).toEqual("1bis");
             expect(store.getters[MAILBOX_SENT]({ key: "next" }).key).toEqual("2");
         });
-        test("MAILSHARE_ROOT_FOLDERS", () => {
+        test("MAILSHARE_ROOT_FOLDERS (sorted by mailshare dn)", () => {
             store.state.folders = {
                 "1": { key: "1", mailboxRef: { key: "A" }, parent: null },
                 "2": { key: "2", mailboxRef: { key: "unknown" }, parent: null },
                 "3": { key: "3", mailboxRef: { key: "B" }, parent: "1" },
-                "4": { key: "4", mailboxRef: { key: "C" }, parent: "4" }
+                "4": { key: "4", mailboxRef: { key: "C" }, parent: "4" },
+                "5": { key: "5", mailboxRef: { key: "D" }, parent: null }
             };
             store.state.mailboxes = {
-                A: { key: "A", type: MailboxType.MAILSHARE },
-                C: { key: "C", type: MailboxType.MAILSHARE }
+                A: { key: "A", type: MailboxType.MAILSHARE, dn: "zzz" },
+                D: { key: "D", type: MailboxType.MAILSHARE, dn: "aaa" }
             };
-            expect(store.getters[MAILSHARE_ROOT_FOLDERS]).toEqual([store.state.folders["1"]]);
+            expect(store.getters[MAILSHARE_ROOT_FOLDERS]).toEqual([store.state.folders["5"], store.state.folders["1"]]);
         });
         describe("NEXT_CONVERSATION", () => {
             beforeEach(() => {

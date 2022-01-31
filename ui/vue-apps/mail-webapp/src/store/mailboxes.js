@@ -23,7 +23,10 @@ export default {
         [MY_MAILBOX]: (state, getters) =>
             getters[MAILBOXES].find(mailbox => mailbox.owner === inject("UserSession").userId),
         [MAILSHARE_KEYS]: (state, getters) => getters[MAILSHARES].map(({ key }) => key),
-        [MAILSHARES]: (state, getters) => getters[MAILBOXES].filter(({ type }) => type === MailboxType.MAILSHARE),
+        [MAILSHARES]: (state, getters) =>
+            getters[MAILBOXES].filter(({ type }) => type === MailboxType.MAILSHARE).sort((a, b) =>
+                a.dn.localeCompare(b.dn)
+            ),
         [MAILBOX_BY_NAME]: (state, getters) => name =>
             getters[MAILBOXES].find(mailbox => mailbox.name.toLowerCase() === name.toLowerCase()),
         [MAILBOXES_ARE_LOADED]: (state, getters) =>

@@ -170,23 +170,26 @@ describe("mailboxes store", () => {
             expect(store.getters[MY_MAILBOX_KEY]).toEqual("MY_REAL_MAILBOX_KEY");
         });
 
-        test("MAILSHARES", () => {
+        test("MAILSHARES (sorted by dn)", () => {
             store.state["1"] = {
                 key: "1",
-                type: MailboxType.MAILSHARE
+                type: MailboxType.MAILSHARE,
+                dn: "ccc"
             };
             store.state["2"] = {
                 key: "2",
-                type: MailboxType.USER
+                type: MailboxType.USER,
+                dn: "aaa"
             };
             store.state["3"] = {
                 key: "3",
-                type: MailboxType.MAILSHARE
+                type: MailboxType.MAILSHARE,
+                dn: "bbb"
             };
-            expect(store.getters[MAILSHARE_KEYS]).toEqual(["1", "3"]);
+            expect(store.getters[MAILSHARE_KEYS]).toEqual(["3", "1"]);
             expect(store.getters[MAILSHARES]).toEqual([
-                { key: "1", type: "mailshares" },
-                { key: "3", type: "mailshares" }
+                { key: "3", type: "mailshares", dn: "bbb" },
+                { key: "1", type: "mailshares", dn: "ccc" }
             ]);
         });
         test("USER_MAILBOXES", () => {
