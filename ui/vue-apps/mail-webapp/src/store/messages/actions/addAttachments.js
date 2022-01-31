@@ -18,7 +18,7 @@ export default async function ({ commit, dispatch }, { draft, files, messageComp
     if (files.length > 0) {
         const promises = [];
         for (let file of files) {
-            promises.push(addAttachment(commit, draft, file));
+            promises.push(addAttachment(commit, draft, file, messageCompose.maxMessageSize));
         }
         await Promise.all(promises);
 
@@ -26,40 +26,50 @@ export default async function ({ commit, dispatch }, { draft, files, messageComp
     }
 }
 
-async function addAttachment(commit, draft, file) {
+async function addAttachment(commit, draft, file, maxMessageSize) {
     const part = createPartFromFile(UUIDGenerator.generate(), file);
     const attachment = create(part, AttachmentStatus.NOT_LOADED);
 
-    // this will contain a function for cancelling the upload, do not store it in Vuex
-    global.cancellers = global.cancellers || {};
-    global.cancellers[attachment.address + draft.key] = { cancel: undefined };
+    const newMessageSize = [...draft.attachments, attachment].reduce(
+        (messageSize, attachment) => messageSize + attachment.size,
+        0
+    );
 
-    try {
-        // this will make the attachment component appear in the UI
-        commit(ADD_ATTACHMENT, { messageKey: draft.key, attachment });
+    // this will make the attachment component appear in the UI
+    commit(ADD_ATTACHMENT, { messageKey: draft.key, attachment });
 
-        commit(SET_MESSAGE_HAS_ATTACHMENT, { key: draft.key, hasAttachment: true });
-
-        const service = inject("MailboxItemsPersistence", draft.folderRef.uid);
-        const address = await service.uploadPart(
-            file,
-            global.cancellers[attachment.address + draft.key],
-            createOnUploadProgress(commit, draft.key, attachment)
-        );
-
-        commit(SET_ATTACHMENT_ADDRESS, {
-            messageKey: draft.key,
-            oldAddress: attachment.address,
-            address
-        });
-        commit(SET_ATTACHMENT_STATUS, {
-            messageKey: draft.key,
-            address: attachment.address,
-            status: AttachmentStatus.UPLOADED
-        });
-    } catch (event) {
-        const error = event.target && event.target.error ? event.target.error : event;
+    if (newMessageSize > maxMessageSize) {
+        const error = { message: "MAX_MESSAGE_SIZE_OVERREACHED" };
         handleError(commit, draft, error, attachment);
+    } else {
+        // this will contain a function for cancelling the upload, do not store it in Vuex
+        global.cancellers = global.cancellers || {};
+        global.cancellers[attachment.address + draft.key] = { cancel: undefined };
+
+        try {
+            commit(SET_MESSAGE_HAS_ATTACHMENT, { key: draft.key, hasAttachment: true });
+
+            const service = inject("MailboxItemsPersistence", draft.folderRef.uid);
+            const address = await service.uploadPart(
+                file,
+                global.cancellers[attachment.address + draft.key],
+                createOnUploadProgress(commit, draft.key, attachment)
+            );
+
+            commit(SET_ATTACHMENT_ADDRESS, {
+                messageKey: draft.key,
+                oldAddress: attachment.address,
+                address
+            });
+            commit(SET_ATTACHMENT_STATUS, {
+                messageKey: draft.key,
+                address: attachment.address,
+                status: AttachmentStatus.UPLOADED
+            });
+        } catch (event) {
+            const error = event.target && event.target.error ? event.target.error : event;
+            handleError(commit, draft, error, attachment);
+        }
     }
 }
 

@@ -38,6 +38,7 @@
                     variant="simple-secondary"
                     :aria-label="$t('mail.actions.extend')"
                     :title="$t('mail.actions.extend')"
+                    :disabled="anyAttachmentInError"
                     @click="openExtendedEditing"
                 >
                     <bm-icon icon="extend" size="lg" />

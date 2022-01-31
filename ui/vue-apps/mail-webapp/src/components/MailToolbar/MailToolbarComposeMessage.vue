@@ -6,7 +6,7 @@
             class="btn-lg-simple-dark"
             :aria-label="$t('mail.actions.send.aria')"
             :title="$t('mail.actions.send.aria')"
-            :disabled="errorOccuredOnSave || isSending || !hasRecipient"
+            :disabled="errorOccuredOnSave || isSending || !hasRecipient || anyAttachmentInError"
             @click="send()"
         >
             <bm-icon icon="send" size="2x" />
@@ -40,7 +40,7 @@
             variant="simple-dark"
             split-class="btn-lg-simple-dark"
             toggle-class="btn-lg-simple-dark"
-            :disabled="isSaving || isSending"
+            :disabled="isSaving || isSending || anyAttachmentInError"
             right
             @click="saveAsap"
         >

@@ -32,6 +32,7 @@ import {
 } from "~/mutations";
 import { isNewMessage } from "~/model/draft";
 import { createFromDraft } from "../model/draft";
+import { AttachmentStatus } from "~/model/attachment";
 
 /**
  * Provide composition Vuex actions to components
@@ -67,6 +68,9 @@ export default {
         },
         isTemplate() {
             return this.message.folderRef.key === this.$store.getters[`mail/${MY_TEMPLATES}`].key;
+        },
+        anyAttachmentInError() {
+            return this.message.attachments.some(a => a.status === AttachmentStatus.ERROR);
         }
     },
     methods: {

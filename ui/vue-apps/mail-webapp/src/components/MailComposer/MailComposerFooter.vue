@@ -174,8 +174,15 @@ export default {
                 .concat(this.message.bcc)
                 .some(contact => !EmailValidator.validateAddress(contact.address));
         },
+
         disableSend() {
-            return this.errorOccuredOnSave || this.isSending || !this.hasRecipient || this.anyRecipientInError;
+            return (
+                this.errorOccuredOnSave ||
+                this.isSending ||
+                !this.hasRecipient ||
+                this.anyRecipientInError ||
+                this.anyAttachmentInError
+            );
         },
         isSenderShown() {
             return this.IS_SENDER_SHOWN(this.userSettings);
