@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -229,10 +230,10 @@ public class MailboxValidator {
 		}
 
 		IServer serverService = context.provider().instance(IServer.class, InstallationId.getIdentifier());
-		ItemValue<Server> dataLocation = SplittedShardsMapping.remap(serverService.getComplete(mailbox.dataLocation));
-		if (dataLocation == null) {
-			throw new ServerFault("Datalocation " + mailbox.dataLocation + " must exist", ErrorCode.INVALID_PARAMETER);
-		}
+		ItemValue<Server> dataLocation = Optional.ofNullable(serverService.getComplete(mailbox.dataLocation)) //
+				.map(SplittedShardsMapping::remap) //
+				.orElseThrow(() -> new ServerFault("Datalocation " + mailbox.dataLocation + " must exist",
+						ErrorCode.INVALID_PARAMETER));
 
 		boolean assigned = false;
 		boolean assignedAsImapServer = false;
