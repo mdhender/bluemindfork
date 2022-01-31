@@ -46,7 +46,7 @@ export default {
 
                     const conversationsActivated = this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`];
 
-                    const isMessageId = !isNaN(internalId);
+                    const isMessageId = /^\d+$/.test(internalId);
                     if (isMessageId && conversationsActivated) {
                         const message = await this.FETCH_MESSAGE_IF_NOT_LOADED({
                             internalId: parseInt(internalId),
