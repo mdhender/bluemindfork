@@ -394,7 +394,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	private boolean isImapAddress(String address) {
-		return address.equals("TEXT") || CharMatcher.inRange('0', '9').or(CharMatcher.is('.')).matchesAllOf(address);
+		return address.equals("TEXT") || address.equals("HEADER")
+				|| CharMatcher.inRange('0', '9').or(CharMatcher.is('.')).matchesAllOf(address);
 	}
 
 	private SizedStream createEmlStructure(long id, String previousBody, MessageBody body) {
