@@ -6,9 +6,6 @@
       <endpoint
             api="net.bluemind.mailbox.identity.api.IMailboxIdentity">
       </endpoint>
-      <endpoint
-            api="net.bluemind.user.api.IInternalUserMaiIdentities">
-      </endpoint>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">
