@@ -10,18 +10,21 @@ import net.bluemind.core.api.BMApi;
 public class HotUpgradeTaskFilter {
 
 	private final List<HotUpgradeTaskStatus> statuses;
-	private final int maxFailure;
+	private final boolean onlyRetryable;
+	private final boolean onlyReady;
 	private final List<HotUpgradeTaskExecutionMode> mode;
 
-	private HotUpgradeTaskFilter(List<HotUpgradeTaskStatus> statuses, int maxFailure,
+	private HotUpgradeTaskFilter(List<HotUpgradeTaskStatus> statuses, boolean onlyRetryable, boolean onlyReady,
 			List<HotUpgradeTaskExecutionMode> mode) {
 		this.statuses = Collections.unmodifiableList(statuses);
-		this.maxFailure = maxFailure;
+		this.onlyRetryable = onlyRetryable;
+		this.onlyReady = onlyReady;
 		this.mode = Collections.unmodifiableList(mode);
 	}
 
 	private HotUpgradeTaskFilter(List<HotUpgradeTaskStatus> statuses) {
-		this(statuses, -1, Arrays.asList(HotUpgradeTaskExecutionMode.DIRECT, HotUpgradeTaskExecutionMode.JOB));
+		this(statuses, false, false,
+				Arrays.asList(HotUpgradeTaskExecutionMode.DIRECT, HotUpgradeTaskExecutionMode.JOB));
 	}
 
 	public HotUpgradeTaskFilter() {
@@ -32,16 +35,24 @@ public class HotUpgradeTaskFilter {
 		return statuses;
 	}
 
-	public int getMaxFailure() {
-		return maxFailure;
+	public boolean onlyRetryable() {
+		return onlyRetryable;
 	}
 
-	public HotUpgradeTaskFilter withMaxFailure(int maxFailure) {
-		return new HotUpgradeTaskFilter(statuses, maxFailure, mode);
+	public HotUpgradeTaskFilter onlyRetryable(boolean onlyRetryable) {
+		return new HotUpgradeTaskFilter(statuses, onlyRetryable, onlyReady, mode);
+	}
+
+	public boolean onlyReady() {
+		return onlyReady;
+	}
+
+	public HotUpgradeTaskFilter onlyReady(boolean onlyReady) {
+		return new HotUpgradeTaskFilter(statuses, onlyRetryable, onlyReady, mode);
 	}
 
 	public HotUpgradeTaskFilter mode(HotUpgradeTaskExecutionMode... mode) {
-		return new HotUpgradeTaskFilter(statuses, maxFailure, Arrays.asList(mode));
+		return new HotUpgradeTaskFilter(statuses, onlyRetryable, onlyReady, Arrays.asList(mode));
 	}
 
 	public static HotUpgradeTaskFilter filter(HotUpgradeTaskStatus... statuses) {
@@ -59,8 +70,9 @@ public class HotUpgradeTaskFilter {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("HotUpgradeTaskFilter [statuses=").append(statuses).append(", maxFailure=").append(maxFailure)
-				.append(", modes=").append(mode).append("]");
+		builder.append("HotUpgradeTaskFilter [statuses=").append(statuses).append(", onlyRetryable=")
+				.append(onlyRetryable).append(", onlyReady=").append(onlyReady).append(", modes=").append(mode)
+				.append("]");
 		return builder.toString();
 	}
 

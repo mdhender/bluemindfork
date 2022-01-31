@@ -2,7 +2,7 @@ package net.bluemind.system.api.hot.upgrade;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.task.api.TaskRef;
@@ -31,9 +31,10 @@ public interface IInternalHotUpgrade extends IHotUpgrade {
 
 	@POST
 	@Path("start")
-	TaskRef start(HotUpgradeTaskExecutionMode mode);
+	TaskRef start(@QueryParam(value = "onlyReady") boolean onlyReady, HotUpgradeTaskExecutionMode mode);
 
 	@POST
 	@Path("limitedStart")
-	TaskRef startLimited(@PathParam(value = "maxDuration") long maxDuration, HotUpgradeTaskExecutionMode mode);
+	TaskRef startLimited(@QueryParam(value = "maxDuration") long maxDuration, HotUpgradeTaskExecutionMode mode);
+
 }

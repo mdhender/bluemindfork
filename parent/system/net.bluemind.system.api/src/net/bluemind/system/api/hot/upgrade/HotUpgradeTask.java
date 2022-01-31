@@ -18,6 +18,9 @@ public class HotUpgradeTask {
 	public Date createdAt;
 	public Date updatedAt;
 	public HotUpgradeTaskExecutionMode executionMode;
+	public int retryCount = 3;
+	public int retryDelay = 0;
+	public boolean reportFailure = false;
 
 	public HotUpgradeTask() {
 		executionMode = HotUpgradeTaskExecutionMode.DIRECT;
@@ -66,8 +69,9 @@ public class HotUpgradeTask {
 		StringBuilder builder = new StringBuilder();
 		builder.append("HotUpgradeTask [id=").append(id).append(", operation=").append(operation)
 				.append(", parameters=").append(parameters).append(", status=").append(status).append(", failure=")
-				.append(failure).append(", createdAt=").append(createdAt).append(", updatedAt=").append(updatedAt)
-				.append("]");
+				.append(failure).append(", retryCount=").append(retryCount).append(", retryDelay=").append(retryDelay)
+				.append(", reportFailure=").append(reportFailure).append("s, createdAt=").append(createdAt)
+				.append(", updatedAt=").append(updatedAt).append("]");
 		return builder.toString();
 	}
 
