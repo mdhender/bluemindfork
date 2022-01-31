@@ -52,8 +52,8 @@ public class InCoreDomainSettingsServiceTests {
 
 	private static final String DOMAIN_EXTERNAL_URL = "my.domain.external.url";
 	private static final String GLOBAL_EXTERNAL_URL = "global.external.url";
-	private static final String DOMAIN_DEFAULT_DOMAIN = "global.default.domain";
-	private static final String GLOBAL_DEFAULT_DOMAIN = "my.domain.default.domain";
+	private static final String DOMAIN_DEFAULT_DOMAIN = "my.domain.default.domain";
+	private static final String GLOBAL_DEFAULT_DOMAIN = "global.default.domain";
 	private static final String DEFAULT_EXTERNAL_URL = "default.external.url";
 	private static final String DEFAULT_DEFAULT_DOMAIN = "default.default.domain";
 
@@ -77,14 +77,6 @@ public class InCoreDomainSettingsServiceTests {
 		globalSettings.put(SysConfKeys.external_url.name(), GLOBAL_EXTERNAL_URL);
 		globalSettings.put(SysConfKeys.default_domain.name(), GLOBAL_DEFAULT_DOMAIN);
 		globalSettingsApi.updateMutableValues(globalSettings);
-
-		// initialize domain settings
-		domainSettingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDomainSettings.class, testDomainUid);
-		domainSettings = new HashMap<>();
-		domainSettings.put(DomainSettingsKeys.external_url.name(), DOMAIN_EXTERNAL_URL);
-		domainSettings.put(DomainSettingsKeys.default_domain.name(), DOMAIN_DEFAULT_DOMAIN);
-		domainSettingsApi.set(domainSettings);
 	}
 
 	@After
@@ -98,26 +90,32 @@ public class InCoreDomainSettingsServiceTests {
 
 	@Test
 	public void testGetExternalUrl_domain() {
-		String url = getSettingsService(SecurityContext.SYSTEM).getExternalUrl()
-				.orElseGet(() -> globalSettingsApi.getValues().values.get(SysConfKeys.external_url.name()));
+		domainSettingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, testDomainUid);
+		domainSettings = new HashMap<>();
+		domainSettings.put(DomainSettingsKeys.external_url.name(), DOMAIN_EXTERNAL_URL);
+		domainSettingsApi.set(domainSettings);
+
+		String url = getSettingsService(SecurityContext.SYSTEM).getExternalUrl().orElse(null);
 		assertNotNull(url);
 		assertEquals(DOMAIN_EXTERNAL_URL, url);
 	}
 
 	@Test
 	public void testGetDefaultDomain_domain() {
-		String url = getSettingsService(SecurityContext.SYSTEM).getDefaultDomain()
-				.orElseGet(() -> globalSettingsApi.getValues().values.get(SysConfKeys.default_domain.name()));
+		domainSettingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, testDomainUid);
+		domainSettings = new HashMap<>();
+		domainSettings.put(DomainSettingsKeys.default_domain.name(), DOMAIN_DEFAULT_DOMAIN);
+		domainSettingsApi.set(domainSettings);
+
+		String url = getSettingsService(SecurityContext.SYSTEM).getDefaultDomain().orElse(null);
 		assertNotNull(url);
 		assertEquals(DOMAIN_DEFAULT_DOMAIN, url);
 	}
 
 	@Test
 	public void testGetExternalUrl_global() {
-
-		domainSettings.put(DomainSettingsKeys.external_url.name(), null);
-		domainSettingsApi.set(domainSettings);
-
 		String url = getSettingsService(SecurityContext.SYSTEM).getExternalUrl()
 				.orElseGet(() -> globalSettingsApi.getValues().values.get(SysConfKeys.external_url.name()));
 		assertNotNull(url);
@@ -126,10 +124,6 @@ public class InCoreDomainSettingsServiceTests {
 
 	@Test
 	public void testGetDefaultDomain_global() {
-
-		domainSettings.put(DomainSettingsKeys.default_domain.name(), null);
-		domainSettingsApi.set(domainSettings);
-
 		String url = getSettingsService(SecurityContext.SYSTEM).getDefaultDomain()
 				.orElseGet(() -> globalSettingsApi.getValues().values.get(SysConfKeys.default_domain.name()));
 		assertNotNull(url);
@@ -138,10 +132,6 @@ public class InCoreDomainSettingsServiceTests {
 
 	@Test
 	public void testGetExternalUrl_default() {
-
-		domainSettings.put(DomainSettingsKeys.external_url.name(), null);
-		domainSettingsApi.set(domainSettings);
-
 		globalSettings.put(SysConfKeys.external_url.name(), null);
 		globalSettingsApi.updateMutableValues(globalSettings);
 
@@ -154,10 +144,6 @@ public class InCoreDomainSettingsServiceTests {
 
 	@Test
 	public void testGetDefaultDomain_default() {
-
-		domainSettings.put(DomainSettingsKeys.default_domain.name(), null);
-		domainSettingsApi.set(domainSettings);
-
 		globalSettings.put(SysConfKeys.default_domain.name(), null);
 		globalSettingsApi.updateMutableValues(globalSettings);
 
