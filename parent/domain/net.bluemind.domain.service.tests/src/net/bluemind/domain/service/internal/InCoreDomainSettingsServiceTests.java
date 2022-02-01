@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -35,7 +36,6 @@ import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.DomainSettingsKeys;
-import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
@@ -45,10 +45,7 @@ public class InCoreDomainSettingsServiceTests {
 
 	private String testDomainUid;
 	private ISystemConfiguration globalSettingsApi;
-	private IDomainSettings domainSettingsApi;
-
 	private Map<String, String> globalSettings;
-	private Map<String, String> domainSettings;
 
 	private static final String DOMAIN_EXTERNAL_URL = "my.domain.external.url";
 	private static final String GLOBAL_EXTERNAL_URL = "global.external.url";
@@ -61,7 +58,7 @@ public class InCoreDomainSettingsServiceTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		testDomainUid = "test.lan";
+		testDomainUid = System.currentTimeMillis() + "test.lan";
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
@@ -90,28 +87,24 @@ public class InCoreDomainSettingsServiceTests {
 
 	@Test
 	public void testGetExternalUrl_domain() {
-		domainSettingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDomainSettings.class, testDomainUid);
-		domainSettings = new HashMap<>();
+		IInCoreDomainSettings settingsService = getSettingsService(SecurityContext.SYSTEM);
+		Map<String, String> domainSettings = new HashMap<>();
 		domainSettings.put(DomainSettingsKeys.external_url.name(), DOMAIN_EXTERNAL_URL);
-		domainSettingsApi.set(domainSettings);
+		settingsService.set(domainSettings);
 
-		String url = getSettingsService(SecurityContext.SYSTEM).getExternalUrl().orElse(null);
-		assertNotNull(url);
-		assertEquals(DOMAIN_EXTERNAL_URL, url);
+		Optional<String> url = settingsService.getExternalUrl();
+		assertEquals(DOMAIN_EXTERNAL_URL, url.get());
 	}
 
 	@Test
 	public void testGetDefaultDomain_domain() {
-		domainSettingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDomainSettings.class, testDomainUid);
-		domainSettings = new HashMap<>();
+		IInCoreDomainSettings settingsService = getSettingsService(SecurityContext.SYSTEM);
+		Map<String, String> domainSettings = new HashMap<>();
 		domainSettings.put(DomainSettingsKeys.default_domain.name(), DOMAIN_DEFAULT_DOMAIN);
-		domainSettingsApi.set(domainSettings);
+		settingsService.set(domainSettings);
 
-		String url = getSettingsService(SecurityContext.SYSTEM).getDefaultDomain().orElse(null);
-		assertNotNull(url);
-		assertEquals(DOMAIN_DEFAULT_DOMAIN, url);
+		Optional<String> url = settingsService.getDefaultDomain();
+		assertEquals(DOMAIN_DEFAULT_DOMAIN, url.get());
 	}
 
 	@Test
