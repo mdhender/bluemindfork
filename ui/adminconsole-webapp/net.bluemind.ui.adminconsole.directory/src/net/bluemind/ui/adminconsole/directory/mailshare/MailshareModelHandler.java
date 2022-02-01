@@ -35,6 +35,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtModelHandler;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtModelHandler;
 import net.bluemind.mailshare.api.IMailsharePromise;
+import net.bluemind.mailshare.api.Mailshare;
 import net.bluemind.mailshare.api.gwt.endpoint.MailshareGwtEndpoint;
 import net.bluemind.mailshare.api.gwt.js.JsMailshare;
 import net.bluemind.mailshare.api.gwt.serder.MailshareGwtSerDer;
@@ -101,8 +102,12 @@ public class MailshareModelHandler implements IGwtModelHandler {
 
 		JsMailshare mailshare = map.get("mailshare").cast();
 		mailshare.setCard(map.get("vcard").cast());
+		Mailshare m = new MailshareGwtSerDer().deserialize(new JSONObject(mailshare));
+		m.card.identification.formatedName.value = m.card.identification.name.givenNames + " "
+				+ m.card.identification.name.familyNames;
+
 		mailshares.update(s, new MailshareGwtSerDer().deserialize(new JSONObject(mailshare.<JavaScriptObject>cast())))
-				.thenCompose((v) -> {
+				.thenCompose(v -> {
 					if (map.getString("vcardPhoto") != null) {
 						return mailshares.setPhoto(s, btoa(map.getString("vcardPhoto")).getBytes());
 					} else if (map.getString("deletePhoto") != null) {

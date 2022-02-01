@@ -253,6 +253,34 @@ public class MailshareTests {
 	}
 
 	@Test
+	public void testUpdateFormatedName() throws ServerFault {
+		Mailshare ms = defaultMailshare();
+		String uid = "ms" + System.currentTimeMillis();
+		service(domainAdminSecurityContext).create(uid, ms);
+
+		// now, update
+		ms = defaultMailshare();
+		ms.name = "testupdated" + System.currentTimeMillis();
+		ms.card = new VCard();
+		ms.card.organizational.title = "Master !";
+		ms.card.identification.formatedName.value = "John Doe";
+		service(domainAdminSecurityContext).update(uid, ms);
+
+		// check direntry updated
+		List<DirEntry> res = testContext.provider().instance(IDirectory.class, domainUid)
+				.getEntries(domainUid + "/mailshares");
+
+		assertEquals(1, res.size());
+		assertEquals("John Doe", res.get(0).displayName);
+
+		// check vcard
+		ItemValue<VCard> vcard = testContext.provider().instance(IDirectory.class, domainUid).getVCard(uid);
+		assertNotNull(vcard);
+		assertEquals("Master !", vcard.value.organizational.title);
+		assertEquals("John Doe", vcard.value.identification.formatedName.value);
+	}
+
+	@Test
 	public void testUpateWithItem() throws ServerFault, ParseException {
 		Mailshare mailshare = defaultMailshare();
 		String uid = "ms" + System.currentTimeMillis();
