@@ -185,7 +185,6 @@ const BM_STYLE = `
             min-height: 50px;
             min-width: 55px;
             display: inline-block;
-            border: 1px solid black;
             border: solid 1px #727272 !important;
             vertical-align: top;
         }
@@ -216,6 +215,13 @@ const BM_STYLE = `
         a img.blocked-image:before {
             color: #00AAEB !important;
             text-decoration-line: underline;
+        }
+
+        .blocked-background {
+            background-image: url(${brokenImageIcon});
+            background-position: 7px 7px;
+            background-repeat: no-repeat;
+            border: solid 1px #727272 !important;
         }
 
         blockquote {

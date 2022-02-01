@@ -1,5 +1,8 @@
+const imageTagRegex = /<img[\s\S]+?src\s*=\s*['"]http.*?['"]/i;
+const imageBackgroundRegex = /background\s*:[\s\S]*?url\(\s*['"]http.*?['"]/i;
+
 export function hasRemoteImages(html) {
-    return /<img[\s\S]+?src\s*=\s*['"]http.*?['"]/i.test(html);
+    return imageTagRegex.test(html) || imageBackgroundRegex.test(html);
 }
 
 export function blockRemoteImages(html) {
@@ -15,6 +18,7 @@ export function unblockRemoteImages(html) {
 }
 
 const blockedImageClass = "blocked-image";
+const blockedBackgroundClass = "blocked-background";
 const blockedImageSrc = "//:0";
 
 function block(htmlDoc) {
@@ -33,6 +37,15 @@ function block(htmlDoc) {
             img.classList.add(blockedImageClass);
         }
     }
+
+    const backgrounds = htmlDoc.querySelectorAll("*[style*='background'i][style*='url('i][style*='http'i]");
+    for (let background of backgrounds) {
+        const style = background.getAttribute("style");
+        background.setAttribute("data-style", style);
+        const modifiedStyle = style.replace(/(.*)(background.*?;)(.*)/i, (p1, p2, p3, p4) => `${p2}${p4}`);
+        background.setAttribute("style", modifiedStyle);
+        background.classList.add(blockedBackgroundClass);
+    }
 }
 
 function unblock(htmlDoc) {
@@ -44,6 +57,14 @@ function unblock(htmlDoc) {
         }
         if (img.getAttribute("alt") === " ") {
             img.removeAttribute("alt");
+        }
+    }
+
+    for (let elementWithBackground of htmlDoc.querySelectorAll("." + blockedBackgroundClass)) {
+        elementWithBackground.setAttribute("style", elementWithBackground.getAttribute("data-style"));
+        elementWithBackground.classList.remove(blockedBackgroundClass);
+        if (elementWithBackground.classList.length === 0) {
+            elementWithBackground.removeAttribute("class");
         }
     }
 }
