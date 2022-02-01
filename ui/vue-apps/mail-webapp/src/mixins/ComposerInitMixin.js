@@ -151,7 +151,10 @@ export default {
         async initReplyOrForward(creationMode, previousMessage) {
             const message = createReplyOrForward(previousMessage, this.$_ComposerInitMixin_MY_DRAFTS, creationMode);
 
-            if (creationMode !== MessageCreationModes.FORWARD) {
+            if (
+                creationMode !== MessageCreationModes.FORWARD &&
+                this.$store.state.session.settings.remote.mail_thread === "true"
+            ) {
                 message.conversationRef = { ...previousMessage.conversationRef };
             }
 

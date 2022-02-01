@@ -156,10 +156,10 @@ export default {
         },
         async deleteDraft() {
             if (isNewMessage(this.message)) {
+                this.$store.commit(`mail/${REMOVE_MESSAGES}`, { messages: [this.message] });
                 if (!this.$_ComposerActionsMixin_currentConversation) {
                     this.$router.navigate("v:mail:home");
                 } else {
-                    this.$store.commit(`mail/${REMOVE_MESSAGES}`, { messages: [this.message] });
                     this.$router.navigate({
                         name: "v:mail:conversation",
                         params: { conversation: this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA }
