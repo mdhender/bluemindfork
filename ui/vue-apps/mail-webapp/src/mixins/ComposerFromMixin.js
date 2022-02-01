@@ -57,7 +57,7 @@ export default {
         getIdentityForNewMessage() {
             const currentMailbox = this.$store.getters["mail/" + CURRENT_MAILBOX];
             const identities = this.$store.state["root-app"].identities;
-            const autoSelectFromPref = this.$store.state.session.settings.remote.auto_select_from;
+            const autoSelectFromPref = this.$store.state.settings.auto_select_from;
             const defaultIdentity = identities.find(id => !!id.isDefault);
             if (autoSelectFromPref === "replies_and_new_messages") {
                 return findIdentityFromMailbox(currentMailbox, identities, defaultIdentity);
@@ -67,7 +67,7 @@ export default {
         getIdentityForReplyOrForward(previousMessage) {
             const currentMailbox = this.$store.getters["mail/" + CURRENT_MAILBOX];
             const identities = this.$store.state["root-app"].identities;
-            const autoSelectFromPref = this.$store.state.session.settings.remote.auto_select_from;
+            const autoSelectFromPref = this.$store.state.settings.auto_select_from;
             if (autoSelectFromPref === "only_replies" || autoSelectFromPref === "replies_and_new_messages") {
                 return computeIdentityForReplyOrForward(previousMessage, identities, currentMailbox);
             }
@@ -86,7 +86,7 @@ export default {
             if (
                 !this.$store.state.mail.messageCompose.corporateSignature &&
                 signature &&
-                this.$store.state.session.settings.remote.insert_signature === "true"
+                this.$store.state.settings.insert_signature === "true"
             ) {
                 return replaceSignature(content, this.userPrefTextOnly, signature);
             }

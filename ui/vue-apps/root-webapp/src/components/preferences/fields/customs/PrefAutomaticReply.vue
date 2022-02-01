@@ -88,7 +88,6 @@ import {
     BmIcon,
     BmRichEditor
 } from "@bluemind/styleguide";
-import { mapState } from "vuex";
 import CentralizedSaving from "../../mixins/CentralizedSaving";
 
 export default {
@@ -105,7 +104,9 @@ export default {
     },
     mixins: [CentralizedSaving],
     computed: {
-        ...mapState("session", { userLang: ({ settings }) => settings.remote.lang }),
+        userLang() {
+            return this.$store.state.settings.lang;
+        },
         isValid() {
             return !this.value.enabled || this.subject.trim() !== "";
         },

@@ -17,13 +17,13 @@ export default {
         const save = async ({ state: { current } }) => {
             await Promise.all(
                 this.settings.map(setting =>
-                    this.$store.dispatch("session/SAVE_SETTING", { setting, value: current.value[setting] })
+                    this.$store.dispatch("settings/SAVE_SETTING", { setting, value: current.value[setting] })
                 )
             );
         };
         this.registerSaveAction(save);
         this.value = this.settings.reduce((values, prop) => {
-            const value = this.$store.state.session.settings.remote[prop];
+            const value = this.$store.state.settings[prop];
             values[prop] = value || this.defaults?.[prop];
             return values;
         }, {});

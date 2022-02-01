@@ -2,7 +2,7 @@
     <bm-list-group-item
         class="conversation-list-item-loading d-flex"
         :class="{
-            ['conversation-list-item-' + settings.mail_message_list_style]: true,
+            ['conversation-list-item-' + messageListStyle]: true,
             active: isSelected
         }"
         aria-hidden="true"
@@ -22,7 +22,6 @@
 
 <script>
 import { BmListGroupItem, BmSkeleton, BmSkeletonAvatar } from "@bluemind/styleguide";
-import { mapState } from "vuex";
 
 export default {
     name: "ConversationListItemLoading",
@@ -43,7 +42,9 @@ export default {
         }
     },
     computed: {
-        ...mapState("session", { settings: ({ settings }) => settings.remote })
+        messageListStyle() {
+            return this.$store.state.settings.mail_message_list_style;
+        }
     }
 };
 </script>

@@ -17,7 +17,7 @@ import VueSockjsPlugin from "@bluemind/vue-sockjs";
 import registerDependencies from "./registerDependencies";
 import PreferencesStore from "./preferencesStore";
 import RootAppStore from "./rootAppStore";
-import SessionStore from "./sessionStore";
+import SettingsStore from "./settingsStore";
 import MainApp from "./components/MainApp";
 import NotificationManager from "./NotificationManager";
 
@@ -31,7 +31,7 @@ async function initWebApp() {
     initStore();
     setVuePlugins(userSession);
     if (userSession.userId) {
-        await store.dispatch("session/FETCH_ALL_SETTINGS"); // needed to initialize i18n
+        await store.dispatch("settings/FETCH_ALL_SETTINGS"); // needed to initialize i18n
     }
     const i18n = initI18N(userSession);
     Vue.component("DefaultAlert", DefaultAlert);
@@ -91,13 +91,13 @@ function initStore() {
     extend(router, store);
     store.registerModule("alert", AlertStore);
     store.registerModule("root-app", RootAppStore);
-    store.registerModule("session", SessionStore);
+    store.registerModule("settings", SettingsStore);
     store.registerModule("preferences", PreferencesStore);
 }
 
 function initI18N() {
     // lang can be any of AvailableLanguages
-    const lang = store.state.session.settings.remote.lang;
+    const lang = store.state.settings.lang;
 
     Vue.mixin(InheritTranslationsMixin);
 
@@ -109,7 +109,7 @@ function initI18N() {
     const i18n = new VueI18n({
         locale: lang,
         fallbackLocale: fallbackLang,
-        dateTimeFormats: generateDateTimeFormats(store.state.session.settings.remote.timeformat)
+        dateTimeFormats: generateDateTimeFormats(store.state.settings.timeformat)
     });
 
     injector.register({

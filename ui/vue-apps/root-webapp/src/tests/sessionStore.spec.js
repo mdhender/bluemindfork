@@ -1,4 +1,4 @@
-import sessionStore from "../sessionStore";
+import settingsStore from "../settingsStore";
 import inject from "@bluemind/inject";
 import { MockUserSettingsClient } from "@bluemind/test-utils";
 
@@ -12,7 +12,7 @@ describe("Store session", () => {
 
     beforeEach(() => {
         context = {
-            state: { settings: { local: {}, remote: {} } },
+            state: {},
             commit: jest.fn()
         };
     });
@@ -21,7 +21,7 @@ describe("Store session", () => {
         const mockedSettings = { mySetting: "MY_SETTING" };
         userSettingsClient.get.mockReturnValue(mockedSettings);
 
-        await sessionStore.actions.FETCH_ALL_SETTINGS(context);
+        await settingsStore.actions.FETCH_ALL_SETTINGS(context);
         expect(userSettingsClient.get).toHaveBeenCalledWith(userId);
         expect(context.commit).toHaveBeenCalledWith("SET_SETTINGS", expect.anything());
     });
@@ -30,7 +30,7 @@ describe("Store session", () => {
         const mockedSettings = { mySetting: "MY_SETTING", mail_message_list_style: "compact" };
         userSettingsClient.get.mockReturnValue(mockedSettings);
 
-        await sessionStore.actions.FETCH_ALL_SETTINGS(context);
+        await settingsStore.actions.FETCH_ALL_SETTINGS(context);
         expect(context.commit).toHaveBeenCalledWith("SET_SETTINGS", {
             always_show_from: "false",
             always_show_quota: "false",
@@ -47,17 +47,7 @@ describe("Store session", () => {
 
     test("SET_SETTINGS mutation", () => {
         const settings = { mySetting: "MY_SETTING" };
-        sessionStore.mutations.SET_SETTINGS(context.state, settings);
-        expect(context.state).toEqual({
-            settings: { local: { mySetting: "MY_SETTING" }, remote: { mySetting: "MY_SETTING" } }
-        });
-    });
-
-    test("SETTINGS_CHANGED getter", () => {
-        context.state.settings.local = { settingOne: "blue" };
-        context.state.settings.remote = { settingOne: "mind" };
-        expect(sessionStore.getters.SETTINGS_CHANGED(context.state)).toBeTruthy();
-        context.state.settings.remote = { settingOne: "blue" };
-        expect(sessionStore.getters.SETTINGS_CHANGED(context.state)).toBeFalsy();
+        settingsStore.mutations.SET_SETTINGS(context.state, settings);
+        expect(context.state).toEqual({ mySetting: "MY_SETTING" });
     });
 });

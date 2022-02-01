@@ -47,7 +47,9 @@ export default {
     inject: ["$messageViewerRoot"],
     computed: {
         ...mapState("mail", { mustBlockRemoteImages: state => state.consultPanel.remoteImages.mustBeBlocked }),
-        ...mapState("session", { settings: ({ settings }) => settings.remote }),
+        trustEveryRemoteContent() {
+            return this.$store.state.settings.trust_every_remote_content;
+        },
         blockedContentAlert() {
             return {
                 alert: { name: "mail.BLOCK_REMOTE_CONTENT", uid: "BLOCK_REMOTE_CONTENT", payload: this.message },
@@ -62,7 +64,7 @@ export default {
                 this.iFrameContent = this.buildHtml(content);
             }
         },
-        "settings.trust_every_remote_content"(newValue) {
+        trustEveryRemoteContent(newValue) {
             if (newValue === "true") {
                 const content = unblockRemoteImages(this.body);
                 this.iFrameContent = this.buildHtml(content);
@@ -85,7 +87,7 @@ export default {
         async init() {
             let content = this.body;
 
-            if (hasRemoteImages(content) && this.settings.trust_every_remote_content === "false") {
+            if (hasRemoteImages(content) && this.trustEveryRemoteContent === "false") {
                 // block remote content while waiting for search request
                 this.SET_BLOCK_REMOTE_IMAGES(true);
                 content = blockRemoteImages(content);

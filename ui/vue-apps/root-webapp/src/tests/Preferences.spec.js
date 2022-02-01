@@ -24,7 +24,7 @@ describe("Preferences", () => {
             applications: [{ href: "/mail/", icon: {} }, { href: "unknown" }, { href: "/cal/", icon: {} }],
             user: { displayname: "my name" }
         };
-        mockedStore = MountComponentUtils.mockSessionStore();
+        mockedStore = MountComponentUtils.mockSettingsStore();
         window.bmExtensions_ = [];
     });
 

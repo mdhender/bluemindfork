@@ -31,7 +31,6 @@ export default {
     computed: {
         ...mapState("mail", ["messageCompose"]),
         ...mapState("root-app", ["identities"]),
-        ...mapState("session", { userSettings: ({ settings }) => settings.remote }),
         signature() {
             return this.identities.find(
                 i => i.email === this.message.from.address && i.displayname === this.message.from.dn
@@ -41,10 +40,10 @@ export default {
             return isSignaturePresent(this.messageCompose.editorContent, this.userPrefTextOnly);
         },
         isSenderShown() {
-            return this.$store.getters["mail/" + IS_SENDER_SHOWN](this.userSettings);
+            return this.$store.getters["mail/" + IS_SENDER_SHOWN](this.$store.state.settings);
         },
         $_ComposerMixin_insertSignaturePref() {
-            return this.$store.state.session.settings.remote.insert_signature;
+            return this.$store.state.settings.insert_signature;
         }
     },
     watch: {

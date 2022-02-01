@@ -47,9 +47,8 @@ export default {
     computed: {
         ...mapGetters("mail", { $_ComposerInitMixin_MY_DRAFTS: MY_DRAFTS }),
         ...mapState("mail", { $_ComposerInitMixin_partsByMessageKey: ({ partsData }) => partsData.partsByMessageKey }),
-        ...mapState("session", { $_ComposerInitMixin_settings: ({ settings }) => settings.remote }),
         $_ComposerInitMixin_lang() {
-            return this.$_ComposerInitMixin_settings.lang;
+            return this.$store.state.settings.lang;
         }
     },
     methods: {

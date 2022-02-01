@@ -1,7 +1,7 @@
 <template>
     <div
         class="conversation-list-item-left d-flex flex-column align-items-center justify-content-between"
-        :class="{ full: userSettings.mail_message_list_style === 'full' }"
+        :class="{ full: isMessageListStyleFull }"
     >
         <conversation-avatar
             v-if="isConversation"
@@ -20,11 +20,11 @@
             @keyup.native.space.stop
         />
 
-        <template v-if="!isConversation && userSettings.mail_message_list_style === 'full'">
+        <template v-if="!isConversation && isMessageListStyleFull">
             <bm-icon v-if="conversation.hasAttachment" icon="paper-clip" />
             <bm-icon v-if="conversation.hasICS" icon="calendar" />
         </template>
-        <template v-else-if="!isConversation || userSettings.mail_message_list_style === 'full'">
+        <template v-else-if="!isConversation || isMessageListStyleFull">
             <mail-attachment-icon :message="conversation" />
         </template>
     </div>
@@ -75,8 +75,9 @@ export default {
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapGetters("mail", { MY_DRAFTS, MY_SENT }),
-        ...mapState("session", { userSettings: ({ settings }) => settings.remote }),
-
+        isMessageListStyleFull() {
+            return this.$store.state.settings.mail_message_list_style === "full";
+        },
         fromOrTo() {
             const conversationFolder = this.conversation.folderRef.key;
             const isSentOrDraftBox = [this.MY_DRAFTS.key, this.MY_SENT.key].includes(conversationFolder);

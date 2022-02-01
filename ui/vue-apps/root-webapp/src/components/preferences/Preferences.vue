@@ -64,10 +64,7 @@ export default {
     },
     computed: {
         ...mapState("preferences", { selectedSection: "selectedSectionId" }),
-        ...mapState("session", {
-            lang: ({ settings }) => settings.remote && settings.remote.lang,
-            timeformat: ({ settings }) => settings.remote && settings.remote.timeformat
-        }),
+        ...mapState("settings", ["lang", "timeformat"]),
         ...mapGetters("preferences", ["SECTIONS"])
     },
     watch: {
@@ -98,7 +95,7 @@ export default {
             "FETCH_USER_PASSWORD_LAST_CHANGE",
             "FETCH_MAILBOX_FILTER"
         ]),
-        ...mapActions("session", ["FETCH_ALL_SETTINGS"]),
+        ...mapActions("settings", ["FETCH_ALL_SETTINGS"]),
         ...mapMutations("preferences", [
             "TOGGLE_PREFERENCES",
             "SET_SELECTED_SECTION",

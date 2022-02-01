@@ -28,15 +28,15 @@ export default {
     components: { BmCol, BmIcon, FolderList, MailFolderSidebarHeader },
     computed: {
         ...mapState("root-app", ["quota"]),
-        ...mapState("session", { settings: ({ settings }) => settings.remote }),
+        alwaysShowQuotaSetting() {
+            return this.$store.state.settings.always_show_quota;
+        },
         usedQuotaPercentage() {
             return Math.ceil((this.quota.used / this.quota.total) * 100);
         },
         mustDisplayQuota() {
             return (
-                this.quota.used &&
-                this.quota.total &&
-                (this.settings.always_show_quota === "true" || this.showQuotaWarning)
+                this.quota.used && this.quota.total && (this.alwaysShowQuotaSetting === "true" || this.showQuotaWarning)
             );
         },
         showQuotaWarning() {

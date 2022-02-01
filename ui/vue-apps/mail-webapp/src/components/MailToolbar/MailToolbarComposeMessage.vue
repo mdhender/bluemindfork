@@ -86,7 +86,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 
 import { BmButton, BmButtonGroup, BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
 
@@ -113,7 +113,9 @@ export default {
     },
     computed: {
         ...mapGetters("mail", { IS_SENDER_SHOWN, MY_DRAFTS }),
-        ...mapState("session", { userSettings: ({ settings }) => settings.remote }),
+        userSettings() {
+            return this.$store.state.settings;
+        },
         hasRecipient() {
             return this.message.to.length > 0 || this.message.cc.length > 0 || this.message.bcc.length > 0;
         },

@@ -37,16 +37,16 @@ const mailbox = {
     writable: true
 };
 
-const fakedSessionStore = {
+const fakedSettingsStore = {
     namespaced: true,
-    state: { settings: { remote: { mail_thread: "false" } } }
+    state: { mail_thread: "false" }
 };
 
 export function createStore() {
     const store = new Vuex.Store();
     store.registerModule("alert", AlertStore);
     store.registerModule("mail", MailAppStore);
-    store.registerModule("session", fakedSessionStore);
+    store.registerModule("settings", fakedSettingsStore);
     store.commit("mail/SET_MAX_MESSAGE_SIZE", 10);
     store.commit("mail/ADD_MAILBOXES", [mailbox]);
     store.commit("mail/SET_MAILBOX_FOLDERS", {

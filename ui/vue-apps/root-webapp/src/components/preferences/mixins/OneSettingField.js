@@ -14,9 +14,9 @@ export default {
     mixins: [CentralizedSaving],
     created() {
         const save = async ({ state: { current } }) =>
-            this.$store.dispatch("session/SAVE_SETTING", { setting: this.setting, value: current.value });
+            this.$store.dispatch("settings/SAVE_SETTING", { setting: this.setting, value: current.value });
         this.registerSaveAction(save);
-        const value = this.$store.state.session.settings.remote[this.setting];
+        const value = this.$store.state.settings[this.setting];
         this.value = value !== undefined ? value : this.default;
     }
 };

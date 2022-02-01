@@ -79,7 +79,6 @@ export default {
         ...mapState({ alerts: state => state.alert.filter(({ area }) => !area) }),
         ...mapState("root-app", ["appState"]),
         ...mapState("preferences", ["showPreferences"]),
-        ...mapState("session", { settings: ({ settings }) => settings.remote }),
         showAbout() {
             return this.$route.hash && this.$route.hash === "#about";
         },
@@ -92,7 +91,7 @@ export default {
         if (inject("UserSession").userId) {
             this.FETCH_MY_MAILBOX_QUOTA();
             window.setInterval(() => this.FETCH_MY_MAILBOX_QUOTA(), 1000 * 60 * 30);
-            this.FETCH_IDENTITIES(this.settings.lang);
+            this.FETCH_IDENTITIES(this.$store.state.settings.lang);
 
             this.$router.onReady(() => {
                 if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {

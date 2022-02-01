@@ -3,7 +3,7 @@
         v-touch:touchhold="() => $emit('check')"
         class="d-flex conversation-list-item"
         :class="{
-            ['conversation-list-item-' + userSettings.mail_message_list_style]: true,
+            ['conversation-list-item-' + messageListStyle]: true,
             'not-seen': isUnread,
             'warning-custom': isFlagged,
             active: isSelected
@@ -74,7 +74,6 @@ export default {
     },
     computed: {
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
-        ...mapState("session", { userSettings: ({ settings }) => settings.remote }),
         isUnread() {
             return isUnread(this.conversation);
         },
@@ -83,6 +82,9 @@ export default {
         },
         conversationSize() {
             return this.conversation.messages.length;
+        },
+        messageListStyle() {
+            return this.$store.state.settings.mail_message_list_style;
         }
     }
 };

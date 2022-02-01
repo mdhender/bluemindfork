@@ -25,7 +25,7 @@ export default {
         return mount(component, defaultMountingOptions);
     },
 
-    mockSessionStore() {
+    mockSettingsStore() {
         return {
             state: {},
             getters: {
@@ -34,9 +34,9 @@ export default {
                 ]
             },
             modules: {
-                session: {
+                settings: {
                     namespaced: true,
-                    state: { settings: { remote: {}, local: {} } },
+                    state: {},
                     actions: { FETCH_ALL_SETTINGS: jest.fn() },
                     mutations: { SET_SETTINGS: jest.fn() }
                 },

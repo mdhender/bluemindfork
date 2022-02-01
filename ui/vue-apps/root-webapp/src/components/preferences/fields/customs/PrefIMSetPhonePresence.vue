@@ -31,7 +31,6 @@
 
 <script>
 import { isValidPhoneNumber } from "libphonenumber-js";
-import { mapState } from "vuex";
 
 import { BmFormGroup, BmFormInput, BmFormRadio, BmFormRadioGroup } from "@bluemind/styleguide";
 
@@ -48,7 +47,9 @@ export default {
         };
     },
     computed: {
-        ...mapState("session", { settings: ({ settings }) => settings.remote }),
+        userLang() {
+            return this.$store.state.settings.lang;
+        },
         phone: {
             get() {
                 return this.isInputDisabled ? "" : this.value;
@@ -64,7 +65,7 @@ export default {
             if (this.isInputDisabled) {
                 return null;
             }
-            return isValidPhoneNumber(this.phone, this.settings.lang.toUpperCase());
+            return isValidPhoneNumber(this.phone, this.userLang.toUpperCase());
         }
     }
 };

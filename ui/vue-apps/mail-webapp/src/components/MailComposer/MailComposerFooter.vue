@@ -98,7 +98,7 @@ import { MessageStatus } from "~/model/message";
 import { isNewMessage } from "~/model/draft";
 import { SET_TEMPLATE_CHOOSER_TARGET, SET_TEMPLATE_CHOOSER_VISIBLE, SHOW_SENDER } from "~/mutations";
 import { IS_SENDER_SHOWN } from "~/getters";
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 
 export default {
     name: "MailComposerFooter",
@@ -128,7 +128,9 @@ export default {
     },
     computed: {
         ...mapGetters("mail", { IS_SENDER_SHOWN }),
-        ...mapState("session", { userSettings: ({ settings }) => settings.remote }),
+        userSettings() {
+            return this.$store.state.settings;
+        },
         hasCorporateSignature() {
             return this.$store.state.mail.messageCompose.corporateSignature !== null;
         },
