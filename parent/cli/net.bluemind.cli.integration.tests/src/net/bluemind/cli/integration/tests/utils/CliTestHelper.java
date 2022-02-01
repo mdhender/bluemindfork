@@ -160,33 +160,22 @@ public class CliTestHelper {
 
 		replication.ifPresent(helper -> helper.installReplication());
 
-		final CompletableFuture<Void> spawn = new CompletableFuture<Void>();
-		VertxPlatform.spawnVerticles(ar -> {
-			if (ar.succeeded()) {
-				spawn.complete(ar.result());
-			} else {
-				spawn.completeExceptionally(ar.cause());
-			}
-		});
+		VertxPlatform.spawnBlocking(1, TimeUnit.MINUTES);
 
-		spawn.thenCompose(depDone -> {
-			System.err.println("Reloading index support...");
-			RecordIndexActivator.reload();
-			System.err.println("Starting replication if needed...");
-			return replication.map(helper -> {
-				SyncServerHelper.waitFor();
-				return helper.startReplication();
-			}).orElse(CompletableFuture.completedFuture(null));
-		}).thenApply(replicationStarted -> {
-			for (String domUid : domains) {
-				for (int i = 0; i < toProvision.userCount; i++) {
-					String loginAndUid = String.format("user%02d", i);
-					PopulateHelper.addUser(loginAndUid, domUid, Routing.internal);
-					System.err.println("User " + loginAndUid + " provisionned.");
-				}
+		System.err.println("Reloading index support...");
+		RecordIndexActivator.reload();
+		System.err.println("Starting replication if needed...");
+		SyncServerHelper.waitFor();
+		replication.map(helper -> helper.startReplication()).orElseGet(() -> CompletableFuture.completedFuture(null))
+				.get(1, TimeUnit.MINUTES);
+
+		for (String domUid : domains) {
+			for (int i = 0; i < toProvision.userCount; i++) {
+				String loginAndUid = String.format("user%02d", i);
+				PopulateHelper.addUser(loginAndUid, domUid, Routing.internal);
+				System.err.println("User " + loginAndUid + " provisionned.");
 			}
-			return "yeah";
-		}).get(1, TimeUnit.MINUTES);
+		}
 
 		// ensure every throttled event has finished...
 		Thread.sleep(2000);

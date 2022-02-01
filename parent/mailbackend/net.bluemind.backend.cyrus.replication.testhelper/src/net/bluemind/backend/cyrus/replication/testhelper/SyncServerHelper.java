@@ -18,6 +18,7 @@
  */
 package net.bluemind.backend.cyrus.replication.testhelper;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import net.bluemind.network.utils.NetworkHelper;
@@ -29,8 +30,9 @@ public class SyncServerHelper {
 	}
 
 	public static void waitFor() {
-		StateTestHelper.blockUntilRunning();
+		CompletableFuture<Void> stateProm = StateTestHelper.blockUntilRunning();
 		new NetworkHelper("127.0.0.1").waitForListeningPort(2501, 10, TimeUnit.SECONDS);
+		stateProm.join();
 	}
 
 }

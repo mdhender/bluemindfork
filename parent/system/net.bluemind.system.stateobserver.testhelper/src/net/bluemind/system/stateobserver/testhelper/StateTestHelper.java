@@ -18,11 +18,10 @@
 package net.bluemind.system.stateobserver.testhelper;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -30,32 +29,44 @@ import net.bluemind.system.state.StateContext;
 
 public class StateTestHelper {
 
-	public static CompletableFuture<Void> runningLatch = new CompletableFuture<>();
+	private static final AtomicReference<Long> timerId = new AtomicReference<>();
+	public static final String BUS_ADDR = "state.test.internal";
+
+	private StateTestHelper() {
+
+	}
 
 	/**
 	 * This helper is useful when a unit test needs core and a component that
 	 * observes state (eg. ips which blocks imap connections when state is not
 	 * running).
 	 */
-	public static void blockUntilRunning() {
-		if (runningLatch.isDone()) {
-			System.out.println("We reached running state at least one time");
-			return;
-		}
+	public static synchronized CompletableFuture<Void> blockUntilRunning() {
+
+		CompletableFuture<Void> doneProm = new CompletableFuture<>();
+
+		Vertx vertx = VertxPlatform.getVertx();
+
+		MessageConsumer<String> cons = vertx.eventBus().consumer(BUS_ADDR);
+		cons.handler(done -> {
+			cons.unregister();
+			System.err.println("running event received (" + done + ")");
+			doneProm.complete(null);
+		});
+
 		StateContext.setState("core.started");
 		StateContext.setState("core.upgrade.start");
 		StateContext.setState("core.upgrade.end");
-		Vertx vertx = VertxPlatform.getVertx();
+
+		if (timerId.get() != null) {
+			vertx.cancelTimer(timerId.get());
+		}
 		// simulate how the hearbeat would flow from one component to another
 		vertx.eventBus().publish(Topic.CORE_NOTIFICATIONS, new JsonObject().put("operation", "core.state.running"));
-		vertx.setPeriodic(4000, tid -> {
+		timerId.set(vertx.setPeriodic(4000, tid -> {
 			vertx.eventBus().publish(Topic.CORE_NOTIFICATIONS, new JsonObject().put("operation", "core.state.running"));
-		});
-		try {
-			runningLatch.get(1, TimeUnit.MINUTES);
-		} catch (InterruptedException | ExecutionException | TimeoutException e) {
-			throw new RuntimeException("Failed to reach running state in 1min.", e);
-		}
+		}));
+		return doneProm;
 	}
 
 }

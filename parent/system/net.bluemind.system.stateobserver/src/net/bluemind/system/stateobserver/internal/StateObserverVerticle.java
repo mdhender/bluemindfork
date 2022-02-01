@@ -64,6 +64,8 @@ public class StateObserverVerticle extends AbstractVerticle {
 	private Counter failuresCounter;
 	private long activeRefresh;
 
+	private List<IStateListener> listeners;
+
 	private enum StateUpdateOrigin {
 
 		/**
@@ -99,6 +101,12 @@ public class StateObserverVerticle extends AbstractVerticle {
 		IdFactory metricsId = new IdFactory("heartbeat.receiver", reg, CoreForward.class);
 		this.ageGauge = reg.gauge(metricsId.name("age"));
 		this.failuresCounter = reg.counter(metricsId.name("failures"));
+
+		RunnableExtensionLoader<IStateListener> loader = new RunnableExtensionLoader<>();
+		this.listeners = loader.loadExtensions("net.bluemind.system", "state", "state-listener", "class");
+		for (IStateListener sl : listeners) {
+			sl.init(vertx);
+		}
 
 		HttpClientProvider clientProvider = new HttpClientProvider(vertx);
 		ILocator topoLocator = (String service, AsyncHandler<String[]> asyncHandler) -> {
@@ -175,12 +183,8 @@ public class StateObserverVerticle extends AbstractVerticle {
 		lastUpdate = System.nanoTime();
 		if (newState != state) {
 			logger.info("New core state is {}, cause: {}", newState, origin);
-			RunnableExtensionLoader<IStateListener> loader = new RunnableExtensionLoader<>();
-			List<IStateListener> listeners = loader.loadExtensions("net.bluemind.system", "state", "state-listener",
-					"class");
 
 			for (IStateListener listener : listeners) {
-				listener.init(vertx);
 				listener.stateChanged(newState);
 			}
 

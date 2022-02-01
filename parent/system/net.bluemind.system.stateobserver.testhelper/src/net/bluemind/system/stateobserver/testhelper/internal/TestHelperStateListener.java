@@ -17,6 +17,7 @@
   */
 package net.bluemind.system.stateobserver.testhelper.internal;
 
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.stateobserver.IStateListener;
 import net.bluemind.system.stateobserver.testhelper.StateTestHelper;
@@ -25,9 +26,8 @@ public class TestHelperStateListener implements IStateListener {
 
 	@Override
 	public void stateChanged(SystemState newState) {
-		System.out.println("stateChanged: " + newState);
 		if (newState == SystemState.CORE_STATE_RUNNING) {
-			StateTestHelper.runningLatch.complete(null);
+			VertxPlatform.eventBus().publish(StateTestHelper.BUS_ADDR, "running !!");
 		}
 	}
 

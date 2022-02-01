@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.system.stateobserver.testhelper
 Bundle-SymbolicName: net.bluemind.system.stateobserver.testhelper;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-Activator: net.bluemind.system.stateobserver.testhelper.Activator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.state,
