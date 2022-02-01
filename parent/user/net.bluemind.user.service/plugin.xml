@@ -13,9 +13,6 @@
             api="net.bluemind.user.api.IUserMailIdentities">
       </endpoint>
       <endpoint
-            api="net.bluemind.user.api.IInternalUserMailIdentities">
-      </endpoint>
-      <endpoint
             api="net.bluemind.user.api.IUserSubscription">
       </endpoint>
    </extension>
