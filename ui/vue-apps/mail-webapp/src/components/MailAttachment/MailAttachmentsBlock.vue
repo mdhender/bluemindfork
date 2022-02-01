@@ -1,5 +1,5 @@
 <template>
-    <bm-container class="mail-attachments-block p-2 bg-extra-light">
+    <div class="mail-attachments-block p-2 bg-extra-light">
         <div class="d-flex align-items-center">
             <bm-button
                 variant="inline-dark"
@@ -73,7 +73,7 @@
         >
             {{ $t("common.save_all") }}
         </bm-button>-->
-    </bm-container>
+    </div>
 </template>
 
 <script>
@@ -81,7 +81,7 @@ import { mapState } from "vuex";
 
 import { displayWithUnit } from "@bluemind/file-utils";
 import { inject } from "@bluemind/inject";
-import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmProgress } from "@bluemind/styleguide";
+import { BmButton, BmCol, BmIcon, BmRow, BmProgress } from "@bluemind/styleguide";
 
 import MailAttachmentItem from "./MailAttachmentItem";
 
@@ -90,7 +90,6 @@ export default {
     components: {
         BmButton,
         BmCol,
-        BmContainer,
         BmIcon,
         BmProgress,
         BmRow,
