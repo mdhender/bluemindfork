@@ -9,7 +9,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.stateobserver,
  net.bluemind.system.api,
  net.bluemind.lib.vertx,
- net.bluemind.hornetq.client
+ net.bluemind.hornetq.client,
+ slf4j.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.system.stateobserver.testhelper
 Bundle-ActivationPolicy: lazy

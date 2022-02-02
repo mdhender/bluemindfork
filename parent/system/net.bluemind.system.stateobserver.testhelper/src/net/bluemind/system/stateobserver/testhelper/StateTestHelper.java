@@ -20,17 +20,24 @@ package net.bluemind.system.stateobserver.testhelper;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.system.api.SystemState;
 import net.bluemind.system.state.StateContext;
 
 public class StateTestHelper {
 
-	private static final AtomicReference<Long> timerId = new AtomicReference<>();
 	public static final String BUS_ADDR = "state.test.internal";
+	private static final Logger logger = LoggerFactory.getLogger(StateTestHelper.class);
+
+	private static final AtomicReference<Long> timerId = new AtomicReference<>();
 
 	private StateTestHelper() {
 
@@ -42,15 +49,19 @@ public class StateTestHelper {
 	 * running).
 	 */
 	public static synchronized CompletableFuture<Void> blockUntilRunning() {
+		if (StateContext.getState() == SystemState.CORE_STATE_RUNNING) {
+			return CompletableFuture.completedFuture(null);
+		}
 
 		CompletableFuture<Void> doneProm = new CompletableFuture<>();
 
 		Vertx vertx = VertxPlatform.getVertx();
+		EventBus eb = vertx.eventBus();
 
-		MessageConsumer<String> cons = vertx.eventBus().consumer(BUS_ADDR);
+		MessageConsumer<String> cons = eb.consumer(BUS_ADDR);
 		cons.handler(done -> {
 			cons.unregister();
-			System.err.println("running event received (" + done + ")");
+			logger.info("running event received '{}'", done.body());
 			doneProm.complete(null);
 		});
 
@@ -63,9 +74,8 @@ public class StateTestHelper {
 		}
 		// simulate how the hearbeat would flow from one component to another
 		vertx.eventBus().publish(Topic.CORE_NOTIFICATIONS, new JsonObject().put("operation", "core.state.running"));
-		timerId.set(vertx.setPeriodic(4000, tid -> {
-			vertx.eventBus().publish(Topic.CORE_NOTIFICATIONS, new JsonObject().put("operation", "core.state.running"));
-		}));
+		timerId.set(vertx.setPeriodic(4000,
+				tid -> eb.publish(Topic.CORE_NOTIFICATIONS, new JsonObject().put("operation", "core.state.running"))));
 		return doneProm;
 	}
 
