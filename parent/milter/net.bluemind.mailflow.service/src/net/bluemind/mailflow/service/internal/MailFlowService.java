@@ -34,12 +34,14 @@ import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.mailflow.api.IMailflowRules;
 import net.bluemind.mailflow.api.MailActionDescriptor;
 import net.bluemind.mailflow.api.MailRuleActionAssignment;
 import net.bluemind.mailflow.api.MailRuleActionAssignmentDescriptor;
 import net.bluemind.mailflow.api.MailRuleDescriptor;
 import net.bluemind.mailflow.common.api.Message;
+import net.bluemind.mailflow.hook.IMailflowHook;
 import net.bluemind.mailflow.persistence.MailFlowStore;
 import net.bluemind.mailflow.rbe.CoreClientContext;
 import net.bluemind.mailflow.rbe.MailflowRuleEngine;
@@ -55,12 +57,19 @@ public class MailFlowService implements IMailflowRules {
 	private final RBACManager rbacManager;
 	private String domainUid;
 
+	private static List<IMailflowHook> hooks = getHooks();
+
 	public MailFlowService(BmContext context, String domainUid) {
 		this.validator = new Validator(context);
 		this.sanitizer = new Sanitizer(context);
 		this.store = new MailFlowStore(context.getDataSource(), domainUid);
 		rbacManager = new RBACManager(context).forDomain(domainUid);
 		this.domainUid = domainUid;
+	}
+
+	private static List<IMailflowHook> getHooks() {
+		RunnableExtensionLoader<IMailflowHook> loader = new RunnableExtensionLoader<>();
+		return loader.loadExtensions("net.bluemind.mailflow", "mailflowHook", "hook", "class");
 	}
 
 	@Override
@@ -71,6 +80,7 @@ public class MailFlowService implements IMailflowRules {
 		validator.create(assignment);
 
 		store.create(uid, assignment);
+		hooks.forEach(hook -> hook.onCreate(domainUid, uid, assignment));
 		EmitMailflowEvent.invalidateConfig(domainUid);
 	}
 
@@ -82,6 +92,7 @@ public class MailFlowService implements IMailflowRules {
 		validator.create(assignment);
 
 		store.reCreate(uid, assignment);
+		hooks.forEach(hook -> hook.onUpdate(domainUid, uid, assignment));
 		EmitMailflowEvent.invalidateConfig(domainUid);
 	}
 
@@ -89,7 +100,9 @@ public class MailFlowService implements IMailflowRules {
 	public void delete(String uid) {
 		rbacManager.check(BasicRoles.ROLE_ADMIN);
 		logger.debug("Deleting mailflow rule {}", uid);
+		MailRuleActionAssignmentDescriptor assignment = store.get(uid);
 		store.delete(uid);
+		hooks.forEach(hook -> hook.onDelete(domainUid, uid, assignment));
 		EmitMailflowEvent.invalidateConfig(domainUid);
 	}
 
@@ -128,6 +141,21 @@ public class MailFlowService implements IMailflowRules {
 		String domainPart = from.substring(from.indexOf("@") + 1);
 		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class)
 				.findByNameOrAliases(domainPart);
+	}
+
+	@Override
+	public MailRuleActionAssignmentDescriptor get(String uid) {
+		return getAssignment(uid);
+	}
+
+	@Override
+	public void restore(ItemValue<MailRuleActionAssignmentDescriptor> item, boolean isCreate) {
+		if (isCreate) {
+			create(item.uid, item.value);
+		} else {
+			update(item.uid, item.value);
+		}
+
 	}
 
 }

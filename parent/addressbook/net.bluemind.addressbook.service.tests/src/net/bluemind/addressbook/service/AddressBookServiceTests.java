@@ -153,7 +153,7 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testCreateWithItem() throws Exception {
+	public void testRestoreCreate() throws Exception {
 
 		ItemValue<VCard> vcardItem = defaultVCardItem(42);
 
@@ -163,7 +163,7 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		VertxEventChecker<JsonObject> changedMessageChecker = new VertxEventChecker<>(
 				AddressBookBusAddresses.getChangedEventAddress(container.uid));
 
-		getService(defaultSecurityContext).createWithItem(vcardItem);
+		getService(defaultSecurityContext).restore(vcardItem, true);
 
 		Item createdItem = itemStore.get(vcardItem.uid);
 		assertNotNull(createdItem);
@@ -202,7 +202,7 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		changedMessageChecker = new VertxEventChecker<>(AddressBookBusAddresses.getChangedEventAddress(container.uid));
 		// test anonymous
 		try {
-			getService(SecurityContext.ANONYMOUS).createWithItem(vcardItem);
+			getService(SecurityContext.ANONYMOUS).restore(vcardItem, true);
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
@@ -219,7 +219,7 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 			vcardItem = defaultVCardItem(43);
 			vcardItem.value.communications.emails = Arrays
 					.asList(Email.create("ti#to@.com", Arrays.<VCard.Parameter>asList()));
-			getService(defaultSecurityContext).createWithItem(vcardItem);
+			getService(defaultSecurityContext).restore(vcardItem, true);
 			fail();
 		} catch (ServerFault e) {
 		}
@@ -387,7 +387,7 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testUpdateWithItem() throws Exception {
+	public void testRestoreUpdate() throws Exception {
 		ItemValue<VCard> vcardItem = createAndGet("vcarduid_" + System.nanoTime(), defaultVCard());
 		VCard card = vcardItem.value;
 
@@ -403,7 +403,7 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		VertxEventChecker<JsonObject> changedMessageChecker = new VertxEventChecker<>(
 				AddressBookBusAddresses.getChangedEventAddress(container.uid));
 
-		getService(defaultSecurityContext).updateWithItem(vcardItem);
+		getService(defaultSecurityContext).restore(vcardItem, false);
 
 		Item updatedItem = itemStore.get(vcardItem.uid);
 		assertNotNull(updatedItem);
@@ -426,8 +426,8 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		Message<JsonObject> containerMessage = changedMessageChecker.shouldSuccess();
 		assertNotNull(containerMessage);
 
-		getService(defaultSecurityContext).updateWithItem(vcardItem);
-		getService(defaultSecurityContext).updateWithItem(vcardItem);
+		getService(defaultSecurityContext).restore(vcardItem, false);
+		getService(defaultSecurityContext).restore(vcardItem, false);
 
 		ItemValue<VCard> itemCard = getService(defaultSecurityContext).getComplete(vcardItem.uid);
 		assertTrue(itemCard.version > 0);
@@ -437,7 +437,7 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		changedMessageChecker = new VertxEventChecker<>(AddressBookBusAddresses.getChangedEventAddress(container.uid));
 
 		try {
-			getService(SecurityContext.ANONYMOUS).updateWithItem(vcardItem);
+			getService(SecurityContext.ANONYMOUS).restore(vcardItem, false);
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());

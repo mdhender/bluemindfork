@@ -29,4 +29,14 @@ public class GroupServiceHttpTests extends GroupServiceTests {
 		return ClientSideServiceProvider.getProvider("http://localhost:8090", context.getSessionId())
 				.instance(IGroup.class, domainUid);
 	}
+
+	@Override
+	public void testRestoreCreate() {
+		// no restore endpoint available over http
+	}
+
+	@Override
+	public void testRestoreUpdate() {
+		// no restore endpoint available over http
+	}
 }

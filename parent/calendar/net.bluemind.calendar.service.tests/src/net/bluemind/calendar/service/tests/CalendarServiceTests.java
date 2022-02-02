@@ -119,7 +119,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	}
 
 	@Test
-	public void testCreateWithItem() throws Exception {
+	public void testRestoreCreate() throws Exception {
 		VertxEventChecker<JsonObject> createdMessageChecker = new VertxEventChecker<>(
 				CalendarHookAddress.EVENT_CREATED);
 
@@ -127,13 +127,13 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		// test anonymous
 		try {
-			getCalendarService(SecurityContext.ANONYMOUS, userCalendarContainer).createWithItem(eventItem);
+			getCalendarService(SecurityContext.ANONYMOUS, userCalendarContainer).restore(eventItem, true);
 			fail();
 		} catch (ServerFault e) {
 		}
 
 		ICalendar api = getCalendarService(userSecurityContext, userCalendarContainer);
-		api.createWithItem(eventItem);
+		api.restore(eventItem, true);
 
 		ItemValue<VEventSeries> createdItem = api.getComplete(eventItem.uid);
 		assertItemEquals(eventItem, createdItem);
@@ -383,7 +383,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	}
 
 	@Test
-	public void testUpdateWithItem() throws Exception {
+	public void testRestoreUpdate() throws Exception {
 
 		VertxEventChecker<JsonObject> updatedMessageChecker = new VertxEventChecker<>(
 				CalendarHookAddress.EVENT_UPDATED);
@@ -396,13 +396,13 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		try {
 			ICalendar anonymousCalApi = getCalendarService(SecurityContext.ANONYMOUS, userCalendarContainer);
-			anonymousCalApi.updateWithItem(eventItem);
+			anonymousCalApi.restore(eventItem, false);
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 
-		userCalApi.updateWithItem(eventItem);
+		userCalApi.restore(eventItem, false);
 
 		ItemValue<VEventSeries> updatedItem = userCalApi.getComplete(eventItem.uid);
 		assertItemEquals(eventItem, updatedItem);
@@ -422,7 +422,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		try {
 			// Cannot modifiy private event with write verb
 			ICalendar attendee2CalApi = getCalendarService(attendee2SecurityContext, userCalendarContainer);
-			attendee2CalApi.updateWithItem(eventItem);
+			attendee2CalApi.restore(eventItem, false);
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
@@ -431,7 +431,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		// Can modifiy private event with manage verb
 		ICalendar attendee1CalApi = getCalendarService(attendee1SecurityContext, userCalendarContainer);
 		eventItem.version++;
-		attendee1CalApi.updateWithItem(eventItem);
+		attendee1CalApi.restore(eventItem, false);
 
 		ItemValue<VEventSeries> attendee1UpdatedItem = attendee1CalApi.getComplete(eventItem.uid);
 		assertItemEquals(eventItem, attendee1UpdatedItem);

@@ -92,22 +92,10 @@ public class CalendarAuditProxy implements IInternalCalendar {
 	}
 
 	@Override
-	public void createWithItem(ItemValue<VEventSeries> eventItem) {
-		auditor.actionCreateOn(eventItem.uid).addActionMetadata("byItem", Boolean.TRUE).actionValue(eventItem.value)
-				.withSendNotification(false).audit(() -> calendar.createWithItem(eventItem));
-	}
-
-	@Override
 	public void update(String uid, VEventSeries event, Boolean sendNotifications) throws ServerFault {
 		auditor.actionUpdateOn(uid).actionValue(event).withSendNotification(sendNotifications)
 				.audit(() -> calendar.update(uid, event, sendNotifications));
 
-	}
-
-	@Override
-	public void updateWithItem(ItemValue<VEventSeries> eventItem) {
-		auditor.actionUpdateOn(eventItem.uid).addActionMetadata("byItem", Boolean.TRUE).actionValue(eventItem.value)
-				.withSendNotification(false).audit(() -> calendar.updateWithItem(eventItem));
 	}
 
 	@Override
@@ -240,5 +228,23 @@ public class CalendarAuditProxy implements IInternalCalendar {
 	@Override
 	public ListResult<ItemValue<VEventSeries>> searchPendingCounters() {
 		return calendar.searchPendingCounters();
+	}
+
+	@Override
+	public void delete(String uid) {
+		delete(uid, false);
+	}
+
+	@Override
+	public VEventSeries get(String uid) {
+		ItemValue<VEventSeries> item = getComplete(uid);
+		return item != null ? item.value : null;
+	}
+
+	@Override
+	public void restore(ItemValue<VEventSeries> item, boolean isCreate) {
+		String action = isCreate ? "create" : "update";
+		auditor.action(action).actionItemUid(item.uid).actionValue(item.value).withSendNotification(false)
+				.audit(() -> calendar.restore(item, isCreate));
 	}
 }

@@ -30,11 +30,23 @@ public class CyrusIdentityHook implements IUserMailIdentityHook {
 	}
 
 	@Override
-	public void onIdentityUpdated(BmContext context, String domainUid, String userUid, UserMailIdentity current,
-			UserMailIdentity previous) throws ServerFault {
+	public void onIdentityCreated(BmContext context, String domainUid, String userUid, String id,
+			UserMailIdentity current) {
+		// Do nothing
+	}
+
+	@Override
+	public void onIdentityUpdated(BmContext context, String domainUid, String userUid, String id,
+			UserMailIdentity current, UserMailIdentity previous) throws ServerFault {
 		if (current.isDefault && !current.displayname.equals(previous.displayname)) {
 			refreshCyrusSieve(context, domainUid, userUid);
 		}
+	}
+
+	@Override
+	public void onIdentityDeleted(BmContext context, String domainUid, String userUid, String id,
+			UserMailIdentity previous) {
+		// Do nothing
 	}
 
 	@Override

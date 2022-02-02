@@ -93,7 +93,7 @@ public class NoteServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testCreateWithItem() throws Exception {
+	public void testRestoreCreate() throws Exception {
 		setGlobalExternalUrl();
 		VertxEventChecker<JsonObject> createdMessageChecker = new VertxEventChecker<>(NoteHookAddress.CREATED);
 
@@ -101,13 +101,13 @@ public class NoteServiceTests extends AbstractServiceTests {
 
 		// test anonymous
 		try {
-			getServiceNote(SecurityContext.ANONYMOUS, container.uid).createWithItem(noteItem);
+			getServiceNote(SecurityContext.ANONYMOUS, container.uid).restore(noteItem, true);
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 
-		getServiceNote(defaultSecurityContext, container.uid).createWithItem(noteItem);
+		getServiceNote(defaultSecurityContext, container.uid).restore(noteItem, true);
 
 		Item item = itemStore.get(noteItem.uid);
 		assertItemEquals(noteItem.item(), item);
@@ -146,7 +146,7 @@ public class NoteServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testUpdateWithItem() throws Exception {
+	public void testRestoreUpdate() throws Exception {
 		setGlobalExternalUrl();
 		VertxEventChecker<JsonObject> updatedMessageChecker = new VertxEventChecker<>(NoteHookAddress.UPDATED);
 
@@ -163,13 +163,13 @@ public class NoteServiceTests extends AbstractServiceTests {
 
 		// test anonymous
 		try {
-			getServiceNote(SecurityContext.ANONYMOUS, container.uid).updateWithItem(noteItem);
+			getServiceNote(SecurityContext.ANONYMOUS, container.uid).restore(noteItem, false);
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 
-		getServiceNote(defaultSecurityContext, container.uid).updateWithItem(noteItem);
+		getServiceNote(defaultSecurityContext, container.uid).restore(noteItem, false);
 
 		Item updated = itemStore.get(uid);
 		assertItemEquals(noteItem.item(), updated);

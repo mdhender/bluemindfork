@@ -36,7 +36,7 @@ public class BackupStore<T> implements IBackupStore<T> {
 
 	@Override
 	public CompletableFuture<Void> store(ItemValue<T> data) {
-		RecordKey key = RecordKey.forItemValue(descriptor, data);
+		RecordKey key = RecordKey.forItemValue(descriptor, data, false);
 		byte[] serializedKey = serializer.key(key);
 		byte[] serializedItem = serializer.value(data);
 		String partitionKey = descriptor.partitionKey(data.uid);
@@ -51,9 +51,9 @@ public class BackupStore<T> implements IBackupStore<T> {
 
 	@Override
 	public CompletableFuture<Void> delete(ItemValue<T> data) {
-		RecordKey key = RecordKey.forItemValue(descriptor, data);
+		RecordKey key = RecordKey.forItemValue(descriptor, data, true);
 		byte[] serializedKey = serializer.key(key);
-		byte[] serializedItem = "".getBytes();
+		byte[] serializedItem = ("{\"uid\":\"" + data.uid + "\"}").getBytes();
 		String partitionKey = descriptor.partitionKey(data.uid);
 		return storeRaw(partitionKey, serializedKey, serializedItem).whenComplete((v, ex) -> {
 			if (ex != null) {

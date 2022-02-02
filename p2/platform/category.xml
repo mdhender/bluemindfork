@@ -404,6 +404,7 @@
     <bundle id="net.bluemind.mailbox.identity.api" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.mailbox.identity.api.gwt" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.mailbox.identity.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.identity.hook" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.mailbox.identity.persistence" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.mailbox.identity.service" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.mailbox.identity.sqlschema" version="4.1.0.qualifier" />
@@ -416,6 +417,7 @@
     <bundle id="net.bluemind.mailflow.common.api" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.mailflow.common.api.gwt" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.mailflow.common.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailflow.hook" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.mailflow.persistence" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.mailflow.rbe" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.mailflow.registration" version="4.1.0.qualifier" />
@@ -656,6 +658,7 @@
     <bundle id="net.bluemind.ui.settings.task" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.ui.webmail.application" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.unixsocket" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.user.accounts.hook" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.user.accounts.persistence" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.user.accounts.service" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.user.accounts.sqlschema" version="4.1.0.qualifier" />

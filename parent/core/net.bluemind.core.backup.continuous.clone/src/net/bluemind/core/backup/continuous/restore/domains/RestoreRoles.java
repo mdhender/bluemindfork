@@ -5,11 +5,10 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import net.bluemind.core.backup.continuous.DataElement;
+import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.DirEntryRole;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.domain.api.Domain;
@@ -23,12 +22,12 @@ public class RestoreRoles implements RestoreDomainType {
 			.reader(new TypeReference<ItemValue<DirEntryRole>>() {
 			});
 
-	private final IServerTaskMonitor monitor;
+	private final RestoreLogger log;
 	private final ItemValue<Domain> domain;
 	private final IServiceProvider target;
 
-	public RestoreRoles(IServerTaskMonitor monitor, ItemValue<Domain> domain, IServiceProvider target) {
-		this.monitor = monitor;
+	public RestoreRoles(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
+		this.log = log;
 		this.domain = domain;
 		this.target = target;
 	}
@@ -39,29 +38,27 @@ public class RestoreRoles implements RestoreDomainType {
 	}
 
 	@Override
-	public void restore(DataElement de) {
-		try {
-			monitor.log("Processing role:\n" + de.key + "\n" + new String(de.payload));
-			ItemValue<DirEntryRole> itemValue = rolesReader.read(new String(de.payload));
-			DirEntryRole roleEvent = itemValue.value;
-			switch (roleEvent.kind) {
-			case DOMAIN:
-				IDomains domainApi = target.instance(IDomains.class);
-				domainApi.setRoles(itemValue.uid, roleEvent.roles);
-				break;
-			case GROUP:
-				IGroup groupApi = target.instance(IGroup.class, domain.uid);
-				groupApi.setRoles(itemValue.uid, roleEvent.roles);
-				break;
-			case USER:
-				IUser userApi = target.instance(IUser.class, domain.uid);
-				userApi.setRoles(itemValue.uid, roleEvent.roles);
-				break;
-			default:
-				logger.warn("Receive roles for uid {} of unknown kind {}", itemValue.uid, roleEvent.kind);
-			}
-		} catch (Throwable t) {
-			monitor.log("Failed to restore role: " + t.getMessage());
+	public void restore(RecordKey key, String payload) {
+		ItemValue<DirEntryRole> itemValue = rolesReader.read(payload);
+		DirEntryRole roleEvent = itemValue.value;
+		switch (roleEvent.kind) {
+		case DOMAIN:
+			log.set(type(), roleEvent.kind.name(), key);
+			IDomains domainApi = target.instance(IDomains.class);
+			domainApi.setRoles(itemValue.uid, roleEvent.roles);
+			break;
+		case GROUP:
+			log.set(type(), roleEvent.kind.name(), key);
+			IGroup groupApi = target.instance(IGroup.class, domain.uid);
+			groupApi.setRoles(itemValue.uid, roleEvent.roles);
+			break;
+		case USER:
+			log.set(type(), roleEvent.kind.name(), key);
+			IUser userApi = target.instance(IUser.class, domain.uid);
+			userApi.setRoles(itemValue.uid, roleEvent.roles);
+			break;
+		default:
+			log.skip(type(), roleEvent.kind.name(), key, payload);
 		}
 	}
 }

@@ -194,7 +194,7 @@ public class OrgUnitsTests {
 	}
 
 	@Test
-	public void testCreateWithItem() throws ParseException {
+	public void testRestoreCreate() throws ParseException {
 		String itemUid = UUID.randomUUID().toString();
 		OrgUnit ou = new OrgUnit();
 		ou.name = "ou name";
@@ -205,7 +205,7 @@ public class OrgUnitsTests {
 		orgUnitItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
 		orgUnitItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		orgUnitItem.version = 17;
-		orgUnits(domainAdminSC).createWithItem(orgUnitItem);
+		orgUnits(domainAdminSC).restore(orgUnitItem, true);
 
 		ItemValue<OrgUnit> created = orgUnits(domainAdminSC).getComplete(itemUid);
 		assertItemEquals(orgUnitItem, created);
@@ -302,7 +302,7 @@ public class OrgUnitsTests {
 	}
 
 	@Test
-	public void testUpdateWithItem() throws ParseException {
+	public void testRestoreUpdate() throws ParseException {
 		String itemUid = UUID.randomUUID().toString();
 		OrgUnit ou = new OrgUnit();
 		ou.name = "ou name";
@@ -313,11 +313,11 @@ public class OrgUnitsTests {
 		orgUnitItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
 		orgUnitItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		orgUnitItem.version = 17;
-		orgUnits(domainAdminSC).createWithItem(orgUnitItem);
+		orgUnits(domainAdminSC).restore(orgUnitItem, true);
 		orgUnitItem.value.name = "ou name updated";
 		orgUnitItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		orgUnitItem.version = 23;
-		orgUnits(domainAdminSC).updateWithItem(orgUnitItem);
+		orgUnits(domainAdminSC).restore(orgUnitItem, false);
 
 		ItemValue<OrgUnit> updated = orgUnits(domainAdminSC).getComplete(itemUid);
 		assertItemEquals(orgUnitItem, updated);

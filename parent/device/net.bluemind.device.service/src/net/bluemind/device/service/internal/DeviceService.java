@@ -92,8 +92,6 @@ public class DeviceService implements IDevice {
 		for (String uid : uids) {
 			doDelete(uid);
 		}
-		// deleteAll removes container ACL
-		// storeService.deleteAll();
 	}
 
 	@Override
@@ -109,7 +107,7 @@ public class DeviceService implements IDevice {
 		ListResult<ItemValue<Device>> ret = new ListResult<>();
 
 		List<String> allUids = storeService.allUids();
-		List<ItemValue<Device>> values = new ArrayList<ItemValue<Device>>(allUids.size());
+		List<ItemValue<Device>> values = new ArrayList<>(allUids.size());
 
 		for (String uid : allUids) {
 			values.add(storeService.get(uid, null));
@@ -185,6 +183,22 @@ public class DeviceService implements IDevice {
 	public ItemValue<Device> byIdentifier(String identifier) throws ServerFault {
 		rbacManager.check(Verb.Read.name(), BasicRoles.ROLE_MANAGE_USER_DEVICE);
 		return storeService.byIdentifier(identifier);
+	}
+
+	@Override
+	public Device get(String uid) {
+		ItemValue<Device> item = getComplete(uid);
+		return item != null ? item.value : null;
+	}
+
+	@Override
+	public void restore(ItemValue<Device> deviceItem, boolean isCreate) {
+		rbacManager.check(BasicRoles.ROLE_MANAGE_USER_DEVICE);
+		if (isCreate) {
+			storeService.create(deviceItem.item(), deviceItem.value);
+		} else {
+			storeService.update(deviceItem.item(), deviceItem.value.identifier, deviceItem.value);
+		}
 	}
 
 }

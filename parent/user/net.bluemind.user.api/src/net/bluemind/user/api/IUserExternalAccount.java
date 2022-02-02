@@ -29,6 +29,7 @@ import javax.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IRestoreCrudSupport;
 
 /**
  * {@link UserAccount} API.
@@ -40,7 +41,7 @@ import net.bluemind.core.api.fault.ServerFault;
 
 @BMApi(version = "3")
 @Path("/users/{domain}/{uid}/accounts")
-public interface IUserExternalAccount {
+public interface IUserExternalAccount extends IRestoreCrudSupport<UserAccount> {
 
 	@PUT
 	@Path("{system}")

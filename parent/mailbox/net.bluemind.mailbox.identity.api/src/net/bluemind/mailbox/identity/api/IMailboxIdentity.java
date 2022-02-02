@@ -29,14 +29,15 @@ import javax.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IRestoreCrudSupport;
 
 @BMApi(version = "3")
 @Path("/mailboxes/{domainUid}/identity/{mboxUid}")
-public interface IMailboxIdentity {
+public interface IMailboxIdentity extends IRestoreCrudSupport<Identity> {
 
 	/**
-	 * Create an {@link Identity}. An {@link Identity} can be used by a user to
-	 * set the from header in a mail and add a signature.
+	 * Create an {@link Identity}. An {@link Identity} can be used by a user to set
+	 * the from header in a mail and add a signature.
 	 * 
 	 * @param id
 	 * @param identity
@@ -84,9 +85,9 @@ public interface IMailboxIdentity {
 	public List<IdentityDescription> getIdentities() throws ServerFault;
 
 	/**
-	 * Retrieve all possible mailbox {@link Identity}s (for each email defined
-	 * in mailbox even if no identies are defined ( if identity doesnt exists
-	 * for one mail, {@link IdentityDescription#id} will be null
+	 * Retrieve all possible mailbox {@link Identity}s (for each email defined in
+	 * mailbox even if no identies are defined ( if identity doesnt exists for one
+	 * mail, {@link IdentityDescription#id} will be null
 	 * 
 	 * @return
 	 */

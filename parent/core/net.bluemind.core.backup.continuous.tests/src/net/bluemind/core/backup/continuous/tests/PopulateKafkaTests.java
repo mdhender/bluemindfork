@@ -260,13 +260,13 @@ public class PopulateKafkaTests {
 					TopicNames topicNames = new TopicNames(iid);
 					js.forEach(keyValue -> {
 						JsonObject key = ((JsonObject) keyValue).getJsonObject("key");
-						JsonObject value = ((JsonObject) keyValue).getJsonObject("value");
 						BaseContainerDescriptor descriptor = new BaseContainerDescriptor();
 						descriptor.type = key.getString("type");
 						descriptor.domainUid = domainUid;
 						descriptor.owner = key.getString("owner");
 						descriptor.uid = key.getString("uid");
-						IBackupStore<Object> topic = store.forContainer(descriptor);
+
+						JsonObject value = ((JsonObject) keyValue).getJsonObject("value");
 						if (key.getString("type").equals("sysconf") && key.getString("owner").equals("system")) {
 							JsonObject sysconfMap = value.getJsonObject("value").getJsonObject("values");
 							sysconfMap.put(SysConfKeys.sds_s3_endpoint.name(), s3);
@@ -278,6 +278,7 @@ public class PopulateKafkaTests {
 						// System.err.println(descriptor + ":\nkey:" + key.encode() + "\nvalue:" +
 						// value.encode());
 						String partitionKey = topicNames.forContainer(descriptor).partitionKey(value.getString("uid"));
+						IBackupStore<Object> topic = store.forContainer(descriptor);
 						topic.storeRaw(partitionKey, key.toBuffer().getBytes(), value.toBuffer().getBytes());
 					});
 				}

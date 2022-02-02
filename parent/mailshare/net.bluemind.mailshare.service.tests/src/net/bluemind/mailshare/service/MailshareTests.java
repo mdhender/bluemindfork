@@ -147,7 +147,7 @@ public class MailshareTests {
 	}
 
 	@Test
-	public void testCreateWithItem() throws ServerFault, ParseException {
+	public void testRestoreCreate() throws ServerFault, ParseException {
 		Mailshare mailshare = defaultMailshare();
 		String uid = "ms" + System.currentTimeMillis();
 		ItemValue<Mailshare> mailshareItem = ItemValue.create(uid, mailshare);
@@ -157,7 +157,7 @@ public class MailshareTests {
 		mailshareItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
 		mailshareItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		mailshareItem.version = 17;
-		service(domainAdminSecurityContext).createWithItem(mailshareItem);
+		service(domainAdminSecurityContext).restore(mailshareItem, true);
 
 		// check direntry exists
 		List<DirEntry> entries = testContext.provider().instance(IDirectory.class, domainUid)
@@ -281,7 +281,7 @@ public class MailshareTests {
 	}
 
 	@Test
-	public void testUpateWithItem() throws ServerFault, ParseException {
+	public void testRestoreUpdate() throws ServerFault, ParseException {
 		Mailshare mailshare = defaultMailshare();
 		String uid = "ms" + System.currentTimeMillis();
 		service(domainAdminSecurityContext).create(uid, mailshare);
@@ -293,7 +293,7 @@ public class MailshareTests {
 		mailshareItem.value.name = "testupdated" + System.currentTimeMillis();
 		mailshareItem.value.card = new VCard();
 		mailshareItem.value.card.organizational.title = "Master !";
-		service(domainAdminSecurityContext).updateWithItem(mailshareItem);
+		service(domainAdminSecurityContext).restore(mailshareItem, false);
 
 		// check direntry updated
 		List<DirEntry> entries = testContext.provider().instance(IDirectory.class, domainUid)

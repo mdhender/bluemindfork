@@ -111,11 +111,6 @@ public class NoteService implements INote {
 		create(item, note);
 	}
 
-	@Override
-	public void createWithItem(ItemValue<VNote> noteItem) throws ServerFault {
-		create(noteItem.item(), noteItem.value);
-	}
-
 	private void create(Item item, VNote note) {
 		rbacManager.check(Verb.Write.name());
 		doCreate(item, note);
@@ -152,11 +147,6 @@ public class NoteService implements INote {
 	public void update(String uid, VNote note) throws ServerFault {
 		Item item = Item.create(uid, null);
 		update(item, note);
-	}
-
-	@Override
-	public void updateWithItem(ItemValue<VNote> noteItem) throws ServerFault {
-		update(noteItem.item(), noteItem.value);
 	}
 
 	private void update(Item item, VNote note) throws ServerFault {
@@ -428,4 +418,18 @@ public class NoteService implements INote {
 		return ret;
 	}
 
+	@Override
+	public VNote get(String uid) {
+		ItemValue<VNote> item = getComplete(uid);
+		return item != null ? item.value : null;
+	}
+
+	@Override
+	public void restore(ItemValue<VNote> noteItem, boolean isCreate) {
+		if (isCreate) {
+			create(noteItem.item(), noteItem.value);
+		} else {
+			update(noteItem.item(), noteItem.value);
+		}
+	}
 }

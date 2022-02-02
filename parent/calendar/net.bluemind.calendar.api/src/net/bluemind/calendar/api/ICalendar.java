@@ -36,6 +36,7 @@ import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
 import net.bluemind.core.container.api.ICrudByIdSupport;
 import net.bluemind.core.container.api.IDataShardSupport;
+import net.bluemind.core.container.api.IRestoreCrudSupport;
 import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
@@ -47,7 +48,7 @@ import net.bluemind.core.task.api.TaskRef;
 @BMApi(version = "3")
 @Path("/calendars/{containerUid}")
 public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSeries>, ICountingSupport, ISortingSupport,
-		IDataShardSupport {
+		IDataShardSupport, IRestoreCrudSupport<VEventSeries> {
 
 	/**
 	 * Creates a {@link VEvent}.
@@ -63,15 +64,6 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 			@QueryParam(value = "sendNotifications") Boolean sendNotifications) throws ServerFault;
 
 	/**
-	 * Creates a {@link VEvent}.
-	 * 
-	 * @param eventItem the {@link VEventSeries} {@link ItemValue} to store
-	 */
-	@PUT
-	@Path("_createWithItem")
-	public void createWithItem(ItemValue<VEventSeries> eventItem);
-
-	/**
 	 * Update the event identified by the given <i>item identifier</i>.
 	 * 
 	 * @param id    the <i>item identifier</i> of the {@link VEventSeries}
@@ -81,15 +73,6 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	@POST
 	@Path("id/{id}")
 	Ack updateById(@PathParam("id") long id, VEventSeries value);
-
-	/**
-	 * Updates a {@link VEventSeries}.
-	 * 
-	 * @param eventItem the {@link VEventSeries} {@link ItemValue} to store
-	 */
-	@POST
-	@Path("_updateWithItem")
-	public void updateWithItem(ItemValue<VEventSeries> eventItem);
 
 	/**
 	 * Delete the event identified by the given <i>item identifier</i>.

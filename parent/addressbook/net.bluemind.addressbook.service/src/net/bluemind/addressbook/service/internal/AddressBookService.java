@@ -140,11 +140,6 @@ public class AddressBookService implements IInCoreAddressBook {
 		return Ack.create(version);
 	}
 
-	@Override
-	public void createWithItem(ItemValue<VCard> cardItem) {
-		createAndNotify(cardItem.item(), cardItem.value);
-	}
-
 	private long createAndNotify(Item item, VCard card) {
 		rbacManager.check(Verb.Write.name());
 		long version = doCreate(item, card, null);
@@ -206,11 +201,6 @@ public class AddressBookService implements IInCoreAddressBook {
 		Item item = Item.create(null, id);
 		long version = updateAndNotify(item, card);
 		return Ack.create(version);
-	}
-
-	@Override
-	public void updateWithItem(ItemValue<VCard> cardItem) {
-		updateAndNotify(cardItem.item(), cardItem.value);
 	}
 
 	private long updateAndNotify(Item item, VCard card) {
@@ -704,5 +694,21 @@ public class AddressBookService implements IInCoreAddressBook {
 	public void emitNotification() {
 		indexStore.refresh();
 		eventProducer.changed();
+	}
+
+	@Override
+	public VCard get(String uid) {
+		ItemValue<VCard> item = getComplete(uid);
+		return item != null ? item.value : null;
+	}
+
+	@Override
+	public void restore(ItemValue<VCard> cardItem, boolean isCreate) {
+		if (isCreate) {
+			createAndNotify(cardItem.item(), cardItem.value);
+		} else {
+			updateAndNotify(cardItem.item(), cardItem.value);
+		}
+
 	}
 }

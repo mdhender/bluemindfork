@@ -162,8 +162,7 @@ public class UserService implements IInCoreUser, IUser {
 		createWithItem(itemValue);
 	}
 
-	@Override
-	public void createWithItem(ItemValue<User> userItemValue) throws ServerFault {
+	private void createWithItem(ItemValue<User> userItemValue) throws ServerFault {
 		User user = userItemValue.value;
 		String uid = userItemValue.uid;
 		rbacManager.forOrgUnit(user.orgUnitUid).check(BasicRoles.ROLE_MANAGE_USER);
@@ -246,8 +245,7 @@ public class UserService implements IInCoreUser, IUser {
 		updateWithItem(itemValue);
 	}
 
-	@Override
-	public void updateWithItem(ItemValue<User> userItem) throws ServerFault {
+	private void updateWithItem(ItemValue<User> userItem) throws ServerFault {
 		String uid = userItem.uid;
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER);
 
@@ -958,6 +956,21 @@ public class UserService implements IInCoreUser, IUser {
 
 	private boolean isExternalEmail(List<String> domainAndAliases, Email mail) {
 		return !mail.allAliases && !domainAndAliases.contains(mail.domainPart());
+	}
+
+	@Override
+	public User get(String uid) {
+		ItemValue<User> item = getComplete(uid);
+		return item != null ? item.value : null;
+	}
+
+	@Override
+	public void restore(ItemValue<User> item, boolean isCreate) {
+		if (isCreate) {
+			createWithItem(item);
+		} else {
+			updateWithItem(item);
+		}
 	}
 
 }

@@ -31,6 +31,7 @@ import javax.ws.rs.Produces;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IRestoreCrudSupport;
 
 /**
  * Resource types API. Allows you to categorize resources by type.
@@ -39,7 +40,7 @@ import net.bluemind.core.api.fault.ServerFault;
  */
 @BMApi(version = "3")
 @Path("/resources/{domainUid}/type")
-public interface IResourceTypes {
+public interface IResourceTypes extends IRestoreCrudSupport<ResourceTypeDescriptor> {
 
 	/**
 	 * Create a { @link ResourceTypeDescriptor }.

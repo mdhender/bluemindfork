@@ -124,8 +124,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 		createWithItem(groupItem);
 	}
 
-	@Override
-	public void createWithItem(ItemValue<Group> groupItem) throws ServerFault {
+	private void createWithItem(ItemValue<Group> groupItem) throws ServerFault {
 		String uid = groupItem.uid;
 		Group group = groupItem.value;
 		sanitizer.create(group);
@@ -164,8 +163,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 		updateWithItem(groupItem);
 	}
 
-	@Override
-	public void updateWithItem(ItemValue<Group> groupItem) throws ServerFault {
+	private void updateWithItem(ItemValue<Group> groupItem) throws ServerFault {
 		String uid = groupItem.uid;
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_GROUP);
 		Group group = groupItem.value;
@@ -586,6 +584,21 @@ public class GroupService implements IGroup, IInCoreGroup {
 	private void throwNotFoundServerFault(String uid) {
 		logger.error("Group uid: {} doesn't exist !", uid);
 		throw new ServerFault("Group uid:" + uid + " doesn't exist !", ErrorCode.NOT_FOUND);
+	}
+
+	@Override
+	public Group get(String uid) {
+		ItemValue<Group> item = getComplete(uid);
+		return item != null ? item.value : null;
+	}
+
+	@Override
+	public void restore(ItemValue<Group> item, boolean isCreate) {
+		if (isCreate) {
+			createWithItem(item);
+		} else {
+			updateWithItem(item);
+		}
 	}
 
 }

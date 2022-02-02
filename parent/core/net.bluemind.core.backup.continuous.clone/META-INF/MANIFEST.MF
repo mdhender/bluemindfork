@@ -48,7 +48,10 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.task.service,
  net.bluemind.mailbox.api,
  net.bluemind.core.container.api,
- net.bluemind.notes.api
+ net.bluemind.notes.api,
+ net.bluemind.device.api,
+ net.bluemind.mailflow.api,
+ net.bluemind.mailbox.identity.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.backup.continuous.clone
 Bundle-ActivationPolicy: lazy

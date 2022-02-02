@@ -30,13 +30,14 @@ import javax.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IRestoreDirEntryWithMailboxSupport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.directory.api.IDirEntryExtIdSupport;
 
 @BMApi(version = "3")
 @Path("/groups/{domainUid}")
-public interface IGroup extends IDirEntryExtIdSupport {
+public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailboxSupport<Group> {
 
 	/**
 	 * Create group
@@ -63,16 +64,6 @@ public interface IGroup extends IDirEntryExtIdSupport {
 			Group group) throws ServerFault;
 
 	/**
-	 * Create group from a given item value
-	 * 
-	 * @param groupItem
-	 * @throws ServerFault
-	 */
-	@PUT
-	@Path("_createWithItem")
-	public void createWithItem(ItemValue<Group> groupItem) throws ServerFault;
-
-	/**
 	 * Update group
 	 * 
 	 * @param uid
@@ -82,16 +73,6 @@ public interface IGroup extends IDirEntryExtIdSupport {
 	@POST
 	@Path("{uid}")
 	public void update(@PathParam(value = "uid") String uid, Group group) throws ServerFault;
-
-	/**
-	 * Update group from a given item value
-	 * 
-	 * @param groupItem
-	 * @throws ServerFault
-	 */
-	@POST
-	@Path("_updateWithItem")
-	public void updateWithItem(ItemValue<Group> groupItem) throws ServerFault;
 
 	/**
 	 * Touch group (update direntry, vcard etc..)

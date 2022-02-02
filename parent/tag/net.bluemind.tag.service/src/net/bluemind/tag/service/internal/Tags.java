@@ -35,6 +35,7 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
+import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -76,25 +77,27 @@ public class Tags implements ITags {
 	@Override
 	public void create(String uid, Tag tag) throws ServerFault {
 		checkWrite();
-		doCreate(uid, tag);
+		Item item = Item.create(uid, null);
+		doCreate(item, tag);
 	}
 
-	private void doCreate(String uid, Tag tag) throws ServerFault {
+	private void doCreate(Item item, Tag tag) throws ServerFault {
 		validator.validate(tag);
-		storeService.create(uid, getDisplayName(tag), tag);
-		fireEventChanged(uid);
+		storeService.create(item, tag);
+		fireEventChanged(item.uid);
 	}
 
 	@Override
 	public void update(String uid, Tag tag) throws ServerFault {
 		checkWrite();
-		doUpdate(uid, tag);
+		Item item = Item.create(uid, null);
+		doUpdate(item, tag);
 	}
 
-	private void doUpdate(String uid, Tag tag) throws ServerFault {
+	private void doUpdate(Item item, Tag tag) throws ServerFault {
 		validator.validate(tag);
-		storeService.update(uid, getDisplayName(tag), tag);
-		fireEventChanged(uid);
+		storeService.update(item, getDisplayName(tag), tag);
+		fireEventChanged(item.uid);
 	}
 
 	@Override
@@ -160,10 +163,10 @@ public class Tags implements ITags {
 		ret.errors = new ArrayList<>();
 		if (changes.add != null && changes.add.size() > 0) {
 			for (TagChanges.ItemAdd add : changes.add) {
-
+				Item item = Item.create(add.uid, null);
 				if (storeService.get(add.uid, null) == null) {
 					try {
-						doCreate(add.uid, add.value);
+						doCreate(item, add.value);
 						ret.added.add(add.uid);
 					} catch (ServerFault sf) {
 						ret.errors.add(ContainerUpdatesResult.InError.create(sf.getMessage(), sf.getCode(), add.uid));
@@ -172,7 +175,7 @@ public class Tags implements ITags {
 
 				} else {
 					try {
-						doUpdate(add.uid, add.value);
+						doUpdate(item, add.value);
 						ret.updated.add(add.uid);
 					} catch (ServerFault sf) {
 						ret.errors.add(ContainerUpdatesResult.InError.create(sf.getMessage(), sf.getCode(), add.uid));
@@ -185,10 +188,10 @@ public class Tags implements ITags {
 
 		if (changes.modify != null && changes.modify.size() > 0) {
 			for (TagChanges.ItemModify update : changes.modify) {
-
+				Item item = Item.create(update.uid, null);
 				if (storeService.get(update.uid, null) != null) {
 					try {
-						doUpdate(update.uid, update.value);
+						doUpdate(item, update.value);
 						ret.updated.add(update.uid);
 					} catch (ServerFault sf) {
 						ret.errors
@@ -198,7 +201,7 @@ public class Tags implements ITags {
 
 				} else {
 					try {
-						doCreate(update.uid, update.value);
+						doCreate(item, update.value);
 						ret.added.add(update.uid);
 					} catch (ServerFault sf) {
 						ret.errors
@@ -280,6 +283,22 @@ public class Tags implements ITags {
 			throw ServerFault.sqlFault(e);
 		}
 		storeService.xfer(ds, c, new TagStore(ds, c));
+	}
+
+	@Override
+	public Tag get(String uid) {
+		ItemValue<Tag> item = getComplete(uid);
+		return item != null ? item.value : null;
+	}
+
+	@Override
+	public void restore(ItemValue<Tag> tagItem, boolean isCreate) {
+		checkWrite();
+		if (isCreate) {
+			doCreate(tagItem.item(), tagItem.value);
+		} else {
+			doUpdate(tagItem.item(), tagItem.value);
+		}
 	}
 
 }

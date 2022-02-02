@@ -19,6 +19,8 @@ Require-Bundle: net.bluemind.user.api;bundle-version="1.0.0",
  net.bluemind.core.sanitizer,
  net.bluemind.core.validator,
  net.bluemind.user.hook,
- net.bluemind.core.annotationvalidator
+ net.bluemind.core.annotationvalidator,
+ net.bluemind.user.accounts.hook,
+ net.bluemind.eclipse.common
 Export-Package: net.bluemind.user.accounts.service
 Automatic-Module-Name: net.bluemind.user.accounts.service

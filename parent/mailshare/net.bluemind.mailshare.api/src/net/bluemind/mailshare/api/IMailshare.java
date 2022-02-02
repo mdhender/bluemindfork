@@ -11,13 +11,14 @@ import javax.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IRestoreDirEntryWithMailboxSupport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.directory.api.IDirEntryPhotoSupport;
 
 @BMApi(version = "3")
 @Path("/mailshares/{domainUid}")
-public interface IMailshare extends IDirEntryPhotoSupport {
+public interface IMailshare extends IDirEntryPhotoSupport, IRestoreDirEntryWithMailboxSupport<Mailshare> {
 
 	/**
 	 * Creates a new {@link Mailshare} entry.
@@ -31,16 +32,6 @@ public interface IMailshare extends IDirEntryPhotoSupport {
 	public void create(@PathParam(value = "uid") String uid, Mailshare mailshare) throws ServerFault;
 
 	/**
-	 * Creates a new {@link Mailshare} entry with a given item value.
-	 * 
-	 * @param mailshareItem item value of the entry
-	 * @throws ServerFault
-	 */
-	@PUT
-	@Path("_createWithItem")
-	public void createWithItem(ItemValue<Mailshare> mailshareItem) throws ServerFault;
-
-	/**
 	 * Modifies an existing {@link Mailshare} entry.
 	 * 
 	 * @param uid       uid of the entry
@@ -50,16 +41,6 @@ public interface IMailshare extends IDirEntryPhotoSupport {
 	@POST
 	@Path("{uid}")
 	public void update(@PathParam(value = "uid") String uid, Mailshare mailshare) throws ServerFault;
-
-	/**
-	 * Modifies an existing {@link Mailshare} entry
-	 * 
-	 * @param mailshareItem item value of the entry
-	 * @throws ServerFault
-	 */
-	@POST
-	@Path("_updateWithItem")
-	public void updateWithItem(ItemValue<Mailshare> mailshareItem) throws ServerFault;
 
 	/**
 	 * Fetch a {@link Mailshare} from its unique uid

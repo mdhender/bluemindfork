@@ -33,4 +33,14 @@ public class AddressbookServiceHttpTests extends AddressBookServiceTests {
 
 		return provider.instance(IAddressBook.class, container.uid);
 	}
+
+	@Override
+	public void testRestoreCreate() throws Exception {
+		// no restore endpoint available over http
+	}
+
+	@Override
+	public void testRestoreUpdate() throws Exception {
+		// no restore endpoint available over http
+	}
 }

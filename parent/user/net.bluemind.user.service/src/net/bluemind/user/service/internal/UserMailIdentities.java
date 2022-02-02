@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.bluemind.authentication.api.incore.IInCoreAuthentication;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainers;
@@ -92,6 +93,7 @@ public class UserMailIdentities implements IUserMailIdentities, IInternalUserMai
 
 		hooks.forEach(hook -> hook.beforeCreate(context, domainUid, id, identity));
 		storeService.createIdentity(userUid, id, identity);
+		hooks.forEach(hook -> hook.onIdentityCreated(context, domainUid, userUid, id, identity));
 	}
 
 	@Override
@@ -103,7 +105,7 @@ public class UserMailIdentities implements IUserMailIdentities, IInternalUserMai
 		UserMailIdentity previousIdentity = get(id);
 		hooks.forEach(hook -> hook.beforeUpdate(context, domainUid, id, identity, previousIdentity));
 		storeService.updateIdentity(userUid, id, identity);
-		hooks.forEach(hook -> hook.onIdentityUpdated(context, domainUid, userUid, identity, previousIdentity));
+		hooks.forEach(hook -> hook.onIdentityUpdated(context, domainUid, userUid, id, identity, previousIdentity));
 	}
 
 	private void checkMailboxAclContainer(UserMailIdentity identity) {
@@ -131,9 +133,13 @@ public class UserMailIdentities implements IUserMailIdentities, IInternalUserMai
 	public void delete(String id) {
 		rbacManager.forEntry(userUid).check(BasicRoles.ROLE_MANAGE_USER_MAIL_IDENTITIES);
 		UserMailIdentity identity = get(id);
+		if (identity == null) {
+			throw new ServerFault("Identity " + id + " not found", ErrorCode.NOT_FOUND);
+		}
 		validator.beforeDelete(identity);
 		hooks.forEach(hook -> hook.beforeDelete(context, domainUid, id, identity));
 		storeService.deleteIdentity(userUid, id);
+		hooks.forEach(hook -> hook.onIdentityDeleted(context, domainUid, userUid, id, identity));
 	}
 
 	@Override
@@ -200,5 +206,14 @@ public class UserMailIdentities implements IUserMailIdentities, IInternalUserMai
 
 		create("default", umi);
 		setDefault("default");
+	}
+
+	@Override
+	public void restore(ItemValue<UserMailIdentity> item, boolean isCreate) {
+		if (isCreate) {
+			create(item.uid, item.value);
+		} else {
+			update(item.uid, item.value);
+		}
 	}
 }

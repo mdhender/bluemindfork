@@ -30,4 +30,14 @@ public class NoteServiceHttpTests extends NoteServiceTests {
 		return ClientSideServiceProvider.getProvider("http://localhost:8090", context.getSessionId())
 				.instance(INote.class, containerUid);
 	}
+
+	@Override
+	public void testRestoreCreate() throws Exception {
+		// no restore endpoint available over http
+	}
+
+	@Override
+	public void testRestoreUpdate() throws Exception {
+		// no restore endpoint available over http
+	}
 }

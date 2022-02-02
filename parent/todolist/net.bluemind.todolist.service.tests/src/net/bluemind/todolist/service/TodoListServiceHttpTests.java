@@ -30,4 +30,14 @@ public class TodoListServiceHttpTests extends TodoListServiceTests {
 		return ClientSideServiceProvider.getProvider("http://localhost:8090", context.getSessionId())
 				.instance(ITodoList.class, container.uid);
 	}
+
+	@Override
+	public void testRestoreCreate() {
+		// no restore endpoint available over http
+	}
+
+	@Override
+	public void testRestoreUpdate() {
+		// no restore endpoint available over http
+	}
 }

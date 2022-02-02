@@ -25,7 +25,8 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.domain.hook,
  net.bluemind.hornetq.client,
  net.bluemind.mailflow.rbe,
- net.bluemind.mailflow.common.api;bundle-version="4.1.0"
+ net.bluemind.mailflow.common.api;bundle-version="4.1.0",
+ net.bluemind.mailflow.hook
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.mailflow.service.internal.Activator
 Automatic-Module-Name: net.bluemind.mailflow.service

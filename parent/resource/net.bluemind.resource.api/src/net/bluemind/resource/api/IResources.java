@@ -31,6 +31,7 @@ import javax.ws.rs.Produces;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IRestoreDirEntryWithMailboxSupport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
@@ -47,7 +48,7 @@ import net.bluemind.resource.api.type.ResourceTypeDescriptor;
  */
 @BMApi(version = "3")
 @Path("/resources/{domainUid}")
-public interface IResources {
+public interface IResources extends IRestoreDirEntryWithMailboxSupport<ResourceDescriptor> {
 
 	/**
 	 * Creates a {@link ResourceDescriptor}.
@@ -61,16 +62,6 @@ public interface IResources {
 	public void create(@PathParam("uid") String uid, ResourceDescriptor resourceDescriptor) throws ServerFault;
 
 	/**
-	 * Creates a {@link ResourceDescriptor}.
-	 * 
-	 * @param resourceDescriptorItem { {@link ItemValue }
-	 * @throws ServerFault standard error object
-	 */
-	@PUT
-	@Path("_createWithItem")
-	public void createWithItem(ItemValue<ResourceDescriptor> resourceDescriptorItem) throws ServerFault;
-
-	/**
 	 * Modify an existing {@link ResourceDescriptor}.
 	 * 
 	 * @param uid                { @link ResourceDescriptor } unique id
@@ -80,16 +71,6 @@ public interface IResources {
 	@POST
 	@Path("{uid}")
 	public void update(@PathParam("uid") String uid, ResourceDescriptor resourceDescriptor) throws ServerFault;
-
-	/**
-	 * Modify an existing {@link ResourceDescriptor}.
-	 * 
-	 * @param resourceDescriptorItem updated { {@link ResourceDescriptor }
-	 * @throws ServerFault standard error object
-	 */
-	@POST
-	@Path("_updateWithItem")
-	public void updateWithItem(ItemValue<ResourceDescriptor> resourceDescriptorItem) throws ServerFault;
 
 	/**
 	 * Delete an existing {@link ResourceDescriptor}.

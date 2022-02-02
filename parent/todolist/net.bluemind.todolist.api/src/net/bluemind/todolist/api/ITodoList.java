@@ -36,6 +36,7 @@ import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
 import net.bluemind.core.container.api.ICrudByIdSupport;
 import net.bluemind.core.container.api.IDataShardSupport;
+import net.bluemind.core.container.api.IRestoreCrudSupport;
 import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
@@ -52,8 +53,8 @@ import net.bluemind.core.container.model.SortDescriptor;
  */
 @BMApi(version = "3")
 @Path("/todolist/{containerUid}")
-public interface ITodoList
-		extends IChangelogSupport, ICountingSupport, ICrudByIdSupport<VTodo>, ISortingSupport, IDataShardSupport {
+public interface ITodoList extends IChangelogSupport, ICountingSupport, ICrudByIdSupport<VTodo>, ISortingSupport,
+		IDataShardSupport, IRestoreCrudSupport<VTodo> {
 
 	/**
 	 * List all Tasks of a Todolist container
@@ -76,16 +77,6 @@ public interface ITodoList
 	public void create(@PathParam(value = "uid") String uid, VTodo todo) throws ServerFault;
 
 	/**
-	 * Creates a new {@link VTodo} entry from an {@link ItemValue}.
-	 * 
-	 * @param todoItem {@link VTodo} {@link ItemValue}.
-	 * @throws ServerFault common error object
-	 */
-	@PUT
-	@Path("_createWithItem")
-	public void createWithItem(ItemValue<VTodo> todoItem) throws ServerFault;
-
-	/**
 	 * Modifies an existing {@link VTodo}.
 	 * 
 	 * @param uid  Unique entry UID
@@ -95,16 +86,6 @@ public interface ITodoList
 	@POST
 	@Path("{uid}")
 	public void update(@PathParam(value = "uid") String uid, VTodo todo) throws ServerFault;
-
-	/**
-	 * Creates a new {@link VTodo} entry from an {@link ItemValue}.
-	 * 
-	 * @param todoItem {@link VTodo} {@link ItemValue}.
-	 * @throws ServerFault common error object
-	 */
-	@POST
-	@Path("_updateWithItem")
-	public void updateWithItem(ItemValue<VTodo> todoItem) throws ServerFault;
 
 	/**
 	 * Fetch a {@link VTodo} by its unique UID

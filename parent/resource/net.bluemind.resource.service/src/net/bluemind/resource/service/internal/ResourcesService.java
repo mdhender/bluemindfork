@@ -122,8 +122,7 @@ public class ResourcesService implements IResources {
 		createWithItem(resourceDescriptorItem);
 	}
 
-	@Override
-	public void createWithItem(ItemValue<ResourceDescriptor> resourceDescriptorItem) throws ServerFault {
+	private void createWithItem(ItemValue<ResourceDescriptor> resourceDescriptorItem) throws ServerFault {
 		String uid = resourceDescriptorItem.uid;
 		ResourceDescriptor rd = resourceDescriptorItem.value;
 		rbacManager.forOrgUnit(rd.orgUnitUid).check(BasicRoles.ROLE_MANAGE_RESOURCE);
@@ -179,8 +178,7 @@ public class ResourcesService implements IResources {
 		updateWithItem(resourceDescriptorItem);
 	}
 
-	@Override
-	public void updateWithItem(ItemValue<ResourceDescriptor> resourceDescriptorItem) throws ServerFault {
+	private void updateWithItem(ItemValue<ResourceDescriptor> resourceDescriptorItem) throws ServerFault {
 		String uid = resourceDescriptorItem.uid;
 		checkManageResource(uid);
 
@@ -391,6 +389,16 @@ public class ResourcesService implements IResources {
 
 	private String notFoundMessage(String uid) {
 		return "Resource " + uid + " doesnt exists";
+	}
+
+	@Override
+	public void restore(ItemValue<ResourceDescriptor> item, boolean isCreate) {
+		if (isCreate) {
+			createWithItem(item);
+		} else {
+			updateWithItem(item);
+		}
+
 	}
 
 }

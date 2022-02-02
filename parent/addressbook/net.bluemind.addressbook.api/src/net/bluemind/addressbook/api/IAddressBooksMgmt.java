@@ -29,6 +29,7 @@ import javax.ws.rs.QueryParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IRestoreSupport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.api.TaskRef;
 
@@ -38,7 +39,7 @@ import net.bluemind.core.task.api.TaskRef;
  */
 @BMApi(version = "3")
 @Path("/mgmt/addressbooks")
-public interface IAddressBooksMgmt {
+public interface IAddressBooksMgmt extends IRestoreSupport<AddressBookDescriptor> {
 
 	@POST
 	@Path("_reindex")

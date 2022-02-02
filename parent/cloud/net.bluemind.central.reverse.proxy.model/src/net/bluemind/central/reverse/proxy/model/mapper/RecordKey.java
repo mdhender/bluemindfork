@@ -7,19 +7,19 @@ public class RecordKey {
 	public String uid;
 	public long id;
 	public String valueClass;
-	public boolean created;
+	public String operation;
 
 	public RecordKey() {
 
 	}
 
-	public RecordKey(String type, String owner, String uid, long id, String valueClass, boolean created) {
+	public RecordKey(String type, String owner, String uid, long id, String valueClass, String operation) {
 		this.type = type;
 		this.owner = owner;
 		this.uid = uid;
 		this.id = id;
 		this.valueClass = valueClass;
-		this.created = created;
+		this.operation = operation;
 	}
 
 	@Override

@@ -33,4 +33,14 @@ public class HttpCalendarServiceTests extends CalendarServiceTests {
 				.instance(ICalendar.class, container.uid);
 	}
 
+	@Override
+	public void testRestoreCreate() throws Exception {
+		// no restore endpoint available over http
+	}
+
+	@Override
+	public void testRestoreUpdate() throws Exception {
+		// no restore endpoint available over http
+	}
+
 }

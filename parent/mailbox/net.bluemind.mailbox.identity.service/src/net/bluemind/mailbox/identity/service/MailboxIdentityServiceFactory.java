@@ -106,7 +106,6 @@ public class MailboxIdentityServiceFactory
 		if (mboxValue == null) {
 			throw new ServerFault("mbox " + mboxUid + " not found", ErrorCode.NOT_FOUND);
 		}
-		return new MailboxIdentityService(context, mboxesContainer, boxContainer, mboxItem, mboxValue,
-				domainValue.value);
+		return new MailboxIdentityService(context, mboxesContainer, boxContainer, mboxItem, mboxValue, domainValue);
 	}
 }

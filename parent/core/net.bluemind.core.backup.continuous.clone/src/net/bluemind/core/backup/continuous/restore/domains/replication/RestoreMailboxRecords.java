@@ -1,7 +1,6 @@
-package net.bluemind.core.backup.continuous.restore.domains;
+package net.bluemind.core.backup.continuous.restore.domains.replication;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -11,12 +10,14 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.service.internal.MailboxRecordItemCache;
 import net.bluemind.config.Token;
-import net.bluemind.core.backup.continuous.DataElement;
+import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.restore.CloneException;
+import net.bluemind.core.backup.continuous.restore.domains.RestoreDomainType;
+import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
+import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.backup.continuous.restore.mbox.MsgBodyTask;
 import net.bluemind.core.backup.continuous.restore.mbox.UidDatalocMapping.Replica;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.sds.store.ISdsSyncStore;
@@ -24,18 +25,16 @@ import net.bluemind.server.api.Server;
 
 public class RestoreMailboxRecords extends RestoreReplicated implements RestoreDomainType {
 
-	private static final Logger logger = LoggerFactory.getLogger(RestoreMailboxRecords.class);
-
 	private final ValueReader<ItemValue<MailboxRecord>> recReader = JsonUtils
 			.reader(new TypeReference<ItemValue<MailboxRecord>>() {
 			});
 
-	private final IServerTaskMonitor monitor;
+	private final RestoreLogger log;
 	private final ISdsSyncStore sdsStore;
 	private final RestoreState state;
 
-	public RestoreMailboxRecords(IServerTaskMonitor monitor, ISdsSyncStore sdsStore, RestoreState state) {
-		this.monitor = monitor;
+	public RestoreMailboxRecords(RestoreLogger log, ISdsSyncStore sdsStore, RestoreState state) {
+		this.log = log;
 		this.sdsStore = sdsStore;
 		this.state = state;
 	}
@@ -46,33 +45,28 @@ public class RestoreMailboxRecords extends RestoreReplicated implements RestoreD
 	}
 
 	@Override
-	public void restore(DataElement de) {
-		monitor.log("Processing mailbox record:\n" + de.key + "\n" + new String(de.payload));
-		System.err.println("RECS for " + de.key);
-		String uniqueId = IMailReplicaUids.getUniqueId(de.key.uid);
+	public void restore(RecordKey key, String payload) {
+		String uniqueId = IMailReplicaUids.getUniqueId(key.uid);
 		Replica repl = state.getReplica(uniqueId);
 		if (repl == null) {
-			System.err.println("MAILBOX unknown " + de.key.uid + " !!!!! (record will be skipped)");
-			monitor.log("No replica for " + de.key.uid);
+			log.filter(type(), key);
 			return;
 		}
 
 		ItemValue<Server> server = state.getServer(repl.part.serverUid);
 		String ip = (server != null) ? server.value.ip : "127.0.0.1";
 		try (SyncClientOIO sync = new SyncClientOIO(ip, 2502)) {
+			log.applyMailbox(type(), key);
 			sync.authenticate("admin0", Token.admin0());
-			ItemValue<MailboxRecord> rec = recReader.read(new String(de.payload));
+			ItemValue<MailboxRecord> rec = recReader.read(payload);
 			MailboxRecordItemCache.store(uniqueId, rec);
-			// if (!state.containsBody(rec.value.messageBody)) {
 			MsgBodyTask bodyTask = new MsgBodyTask(sdsStore, sync, repl);
 			try {
-				int len = bodyTask.run(monitor, rec.value.messageBody);
+				int len = bodyTask.run(log.monitor(), rec.value.messageBody);
 				state.storeBodySize(rec.value.messageBody, len);
 			} catch (Exception e) {
-				e.printStackTrace();
-				return;
+				throw new CloneException(e);
 			}
-			// }
 			repl.appliedUid = Math.max(repl.appliedUid, rec.value.imapUid);
 			repl.appliedModseq = Math.max(repl.appliedModseq, rec.value.modSeq);
 
@@ -93,14 +87,11 @@ public class RestoreMailboxRecords extends RestoreReplicated implements RestoreD
 			String recBuf = recordsBuffer.toString();
 			String syncResponse = sync.applyMailbox(replicatedMbox, recBuf);
 			if (!syncResponse.startsWith("OK")) {
-				logger.error("APPLY MAILBOX {} => {}, exit(1)", repl.mbox.uid, syncResponse);
-				logger.info("Failed on {}", replicatedMbox.applyMailboxCommand(recBuf));
+				String message = String.format("Failed to apply mailbox. syncResponse:%s, command:%s", syncResponse,
+						replicatedMbox.applyMailboxCommand(recBuf));
+				throw new CloneException(message);
 			}
-
-			monitor.log("APPLY MAILBOX aka " + repl.mbox.uid + " => " + syncResponse);
-
-		} catch (Exception e) {
-			monitor.log("ERROR: " + e.getMessage());
+		} catch (IOException e) {
 			throw new CloneException(e);
 		}
 

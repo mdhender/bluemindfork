@@ -27,6 +27,8 @@ Require-Bundle: net.bluemind.core.rest,
  net.bluemind.role.api,
  net.bluemind.directory.service,
  net.bluemind.user.api,
- net.bluemind.core.task.spi
+ net.bluemind.core.task.spi,
+ net.bluemind.eclipse.common,
+ net.bluemind.mailbox.identity.hook
 Export-Package: net.bluemind.mailbox.identity.service
 Automatic-Module-Name: net.bluemind.mailbox.identity.service

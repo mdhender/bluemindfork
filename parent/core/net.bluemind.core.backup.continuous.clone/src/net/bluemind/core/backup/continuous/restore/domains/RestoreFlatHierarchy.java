@@ -19,13 +19,12 @@ package net.bluemind.core.backup.continuous.restore.domains;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import net.bluemind.core.backup.continuous.DataElement;
+import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IFlatHierarchyUids;
 import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.domain.api.Domain;
@@ -35,12 +34,12 @@ public class RestoreFlatHierarchy implements RestoreDomainType {
 	private static final ValueReader<ItemValue<ContainerHierarchyNode>> mrReader = JsonUtils
 			.reader(new TypeReference<ItemValue<ContainerHierarchyNode>>() {
 			});
-	private final IServerTaskMonitor monitor;
+	private final RestoreLogger log;
 	private ItemValue<Domain> domain;
 	private IServiceProvider target;
 
-	public RestoreFlatHierarchy(IServerTaskMonitor monitor, ItemValue<Domain> domain, IServiceProvider target) {
-		this.monitor = monitor;
+	public RestoreFlatHierarchy(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
+		this.log = log;
 		this.domain = domain;
 		this.target = target;
 	}
@@ -51,21 +50,21 @@ public class RestoreFlatHierarchy implements RestoreDomainType {
 	}
 
 	@Override
-	public void restore(DataElement de) {
-		ItemValue<ContainerHierarchyNode> item = mrReader.read(new String(de.payload));
-		System.err.println("kafka: " + item);
-		System.err.println("de: " + de);
+	public void restore(RecordKey key, String payload) {
+		ItemValue<ContainerHierarchyNode> item = mrReader.read(payload);
 		IInternalContainersFlatHierarchy intApi = target.instance(IInternalContainersFlatHierarchy.class, domain.uid,
-				de.key.owner);
+				key.owner);
 		ItemValue<ContainerHierarchyNode> existing = intApi.getComplete(item.uid);
-		System.err.println("current: " + existing);
 		if (existing != null && existing.internalId != item.internalId) {
+			log.delete(type(), key);
 			intApi.delete(item.uid);
-			System.err.println("Re-create " + item);
+			log.create(type(), key);
 			intApi.createWithId(item.internalId, item.uid, item.value);
 		} else if (existing != null && existing.internalId == item.internalId) {
+			log.update(type(), key);
 			intApi.update(item.uid, item.value);
 		} else {
+			log.create(type(), key);
 			intApi.createWithId(item.internalId, item.uid, item.value);
 		}
 	}

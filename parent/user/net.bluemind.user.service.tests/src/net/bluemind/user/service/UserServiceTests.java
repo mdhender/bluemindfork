@@ -273,7 +273,7 @@ public class UserServiceTests {
 	}
 
 	@Test
-	public void testCreateWithItem() throws ServerFault, SQLException, ParseException {
+	public void testRestoreCreate() throws ServerFault, SQLException, ParseException {
 		String mailboxCopyGuid = UUID.randomUUID().toString();
 		String login = "test." + System.nanoTime();
 		String uid = login;
@@ -289,7 +289,7 @@ public class UserServiceTests {
 		item.version = 17;
 
 		ItemValue<User> userItem = ItemValue.create(item, user);
-		getService(domainAdminSecurityContext).createWithItem(userItem);
+		getService(domainAdminSecurityContext).restore(userItem, true);
 
 		Item createdItem = userItemStore.get(uid);
 		assertNotNull(createdItem);
@@ -487,7 +487,7 @@ public class UserServiceTests {
 	}
 
 	@Test
-	public void testUpdateWithItem() throws ServerFault, SQLException, ParseException {
+	public void testRestoreUpdate() throws ServerFault, SQLException, ParseException {
 		User user = defaultUser("test." + System.nanoTime());
 		String uid = create(user);
 		assertNotNull(uid);
@@ -495,7 +495,7 @@ public class UserServiceTests {
 		ItemValue<User> created = getService(domainAdminSecurityContext).getComplete(uid);
 		created.version += 2;
 		created.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:48:00");
-		getService(domainAdminSecurityContext).updateWithItem(created);
+		getService(domainAdminSecurityContext).restore(created, false);
 
 		Item updatedItem = userItemStore.get(uid);
 		assertNotNull(updatedItem);

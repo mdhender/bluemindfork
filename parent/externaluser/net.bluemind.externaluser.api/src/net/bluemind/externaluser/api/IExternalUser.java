@@ -33,6 +33,7 @@ import javax.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IRestoreCrudSupport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.group.api.Group;
 
@@ -43,7 +44,7 @@ import net.bluemind.group.api.Group;
  */
 @BMApi(version = "3")
 @Path("/externaluser/{domainUid}")
-public interface IExternalUser {
+public interface IExternalUser extends IRestoreCrudSupport<ExternalUser> {
 
 	/**
 	 * Creates a new {@link ExternalUser}.
@@ -72,16 +73,6 @@ public interface IExternalUser {
 			ExternalUser externalUser) throws ServerFault;
 
 	/**
-	 * Creates a new {@link ExternalUser} from the given {@link ItemValue}
-	 * 
-	 * @param externalUserItem {@link ItemValue}
-	 * @throws ServerFault standard error object
-	 */
-	@PUT
-	@Path("_createWithItem")
-	public void createWithItem(ItemValue<ExternalUser> externalUserItem) throws ServerFault;
-
-	/**
 	 * Modify an existing external user.
 	 * 
 	 * @param uid          {@link ExternalUser}'s unique id
@@ -91,16 +82,6 @@ public interface IExternalUser {
 	@POST
 	@Path("{uid}")
 	public void update(@PathParam("uid") String uid, ExternalUser externalUser) throws ServerFault;
-
-	/**
-	 * Modify an existing external user.
-	 * 
-	 * @param externalUserItem updated {@link ItemValue}
-	 * @throws ServerFault standard error object
-	 */
-	@POST
-	@Path("_updateWithItem")
-	public void updateWithItem(ItemValue<ExternalUser> externalUserItem) throws ServerFault;
 
 	/**
 	 * Delete an external user.

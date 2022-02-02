@@ -220,7 +220,7 @@ public class InstallationService implements IInstallation {
 			}
 		};
 
-		return context.provider().instance(ITasksManager.class).run(wrapped);
+		return context.provider().instance(ITasksManager.class).run(logger, wrapped);
 	}
 
 	private CloneSupport cloneSupport() {

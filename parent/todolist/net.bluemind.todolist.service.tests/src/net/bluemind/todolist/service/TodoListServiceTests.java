@@ -104,7 +104,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testCreateWithItem() throws Exception {
+	public void testRestoreCreate() throws Exception {
 		setGlobalExternalUrl();
 		VertxEventChecker<JsonObject> createdMessageChecker = new VertxEventChecker<>(TodoListHookAddress.CREATED);
 
@@ -112,13 +112,13 @@ public class TodoListServiceTests extends AbstractServiceTests {
 
 		// test anonymous
 		try {
-			getService(SecurityContext.ANONYMOUS).createWithItem(todoItem);
+			getService(SecurityContext.ANONYMOUS).restore(todoItem, true);
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 
-		getService(defaultSecurityContext).createWithItem(todoItem);
+		getService(defaultSecurityContext).restore(todoItem, true);
 
 		Item item = itemStore.get(todoItem.uid);
 		assertItemEquals(todoItem.item(), item);
@@ -227,7 +227,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testUpdateWithItem() throws Exception {
+	public void testRestoreUpdate() throws Exception {
 		setGlobalExternalUrl();
 		VertxEventChecker<JsonObject> updatedMessageChecker = new VertxEventChecker<>(TodoListHookAddress.UPDATED);
 
@@ -242,13 +242,13 @@ public class TodoListServiceTests extends AbstractServiceTests {
 
 		// test anonymous
 		try {
-			getService(SecurityContext.ANONYMOUS).updateWithItem(todoItem);
+			getService(SecurityContext.ANONYMOUS).restore(todoItem, false);
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 
-		getService(defaultSecurityContext).updateWithItem(todoItem);
+		getService(defaultSecurityContext).restore(todoItem, false);
 
 		Item updated = itemStore.get(uid);
 		assertItemEquals(todoItem.item(), updated);

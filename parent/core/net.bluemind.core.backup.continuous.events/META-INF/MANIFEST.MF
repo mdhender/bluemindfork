@@ -15,6 +15,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  net.bluemind.addressbook.api,
  net.bluemind.user.api,
+ net.bluemind.user.hook,
  net.bluemind.config,
  net.bluemind.domain.api,
  net.bluemind.calendar.hook,
@@ -26,7 +27,11 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.role.hook,
  net.bluemind.mailbox.hook,
  net.bluemind.resource.hook,
- net.bluemind.resource.api
+ net.bluemind.resource.api,
+ net.bluemind.mailflow.hook,
+ net.bluemind.mailflow.api,
+ net.bluemind.user.accounts.hook,
+ net.bluemind.mailbox.identity.hook
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.backup.continuous.events
 Import-Package: net.bluemind.mailbox.api

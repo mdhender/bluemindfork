@@ -53,6 +53,7 @@ import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.api.IRestoreCrudSupport;
 import net.bluemind.core.container.hierarchy.hook.HierarchyIdsHints;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangeset;
@@ -83,7 +84,8 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
 
-public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksMgmt {
+public class AddressBooksMgmt
+		implements IAddressBooksMgmt, IInCoreAddressBooksMgmt, IRestoreCrudSupport<AddressBookDescriptor> {
 	private static final Logger logger = LoggerFactory.getLogger(AddressBooksMgmt.class);
 	private BmContext context;
 	private RBACManager rbacManager;
@@ -543,6 +545,20 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 		all.addAll(containers.stream().map(c -> c.uid).collect(Collectors.toList()));
 
 		return all;
+	}
+
+	@Override
+	public AddressBookDescriptor get(String uid) {
+		return getComplete(uid);
+	}
+
+	@Override
+	public void restore(ItemValue<AddressBookDescriptor> item, boolean isCreate) {
+		if (isCreate) {
+			create(item.uid, item.value, false);
+		} else {
+			update(item.uid, item.value);
+		}
 	}
 
 }

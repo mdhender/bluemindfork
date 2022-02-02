@@ -31,4 +31,14 @@ public class UserServiceHttpTests extends UserServiceTests {
 				.instance(IUser.class, domainUid);
 	}
 
+	@Override
+	public void testRestoreCreate() {
+		// no restore endpoint available over http
+	}
+
+	@Override
+	public void testRestoreUpdate() {
+		// no restore endpoint available over http
+	}
+
 }

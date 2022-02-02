@@ -10,6 +10,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>net.bluemind.mailflow.api</module>
+		<module>net.bluemind.mailflow.hook</module>
 		<module>net.bluemind.mailflow.rules</module>
 		<module>net.bluemind.mailflow.service</module>
 		<module>net.bluemind.mailflow.common.api</module>

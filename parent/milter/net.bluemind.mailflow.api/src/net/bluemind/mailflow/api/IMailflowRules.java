@@ -29,11 +29,12 @@ import javax.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IRestoreCrudSupport;
 import net.bluemind.mailflow.common.api.Message;
 
 @BMApi(version = "3")
 @Path("/mailflow/{domainUid}")
-public interface IMailflowRules {
+public interface IMailflowRules extends IRestoreCrudSupport<MailRuleActionAssignmentDescriptor> {
 
 	@PUT
 	@Path("{uid}")

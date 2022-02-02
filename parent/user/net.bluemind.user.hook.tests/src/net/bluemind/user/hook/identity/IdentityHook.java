@@ -67,8 +67,14 @@ public class IdentityHook implements IUserMailIdentityHook {
 	}
 
 	@Override
-	public void onIdentityUpdated(BmContext context, String domainUid, String userUid, UserMailIdentity current,
-			UserMailIdentity previous) throws ServerFault {
+	public void onIdentityCreated(BmContext context, String domainUid, String userUid, String id,
+			UserMailIdentity current) {
+		// Do nothing
+	}
+
+	@Override
+	public void onIdentityUpdated(BmContext context, String domainUid, String userUid, String id,
+			UserMailIdentity current, UserMailIdentity previous) throws ServerFault {
 		// Nothing to do on update
 		assertNotNull(domainUid);
 		assertNotNull(previous);
@@ -76,6 +82,12 @@ public class IdentityHook implements IUserMailIdentityHook {
 		assertNotNull(current);
 		assertEquals("John Doe Updated", current.name);
 		latch.countDown();
+	}
+
+	@Override
+	public void onIdentityDeleted(BmContext context, String domainUid, String userUid, String id,
+			UserMailIdentity previous) {
+		// Do nothing
 	}
 
 	@Override

@@ -81,8 +81,7 @@ public class OrgUnits implements IOrgUnits {
 		createWithItem(orgUnitItem);
 	}
 
-	@Override
-	public void createWithItem(ItemValue<OrgUnit> orgUnitItem) {
+	private void createWithItem(ItemValue<OrgUnit> orgUnitItem) {
 		String uid = orgUnitItem.uid;
 		OrgUnit value = orgUnitItem.value;
 		if (value.parentUid != null) {
@@ -115,8 +114,7 @@ public class OrgUnits implements IOrgUnits {
 		updateWithItem(orgUnitItem);
 	}
 
-	@Override
-	public void updateWithItem(ItemValue<OrgUnit> orgUnitItem) {
+	private void updateWithItem(ItemValue<OrgUnit> orgUnitItem) {
 		String uid = orgUnitItem.uid;
 		OrgUnit value = orgUnitItem.value;
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_OU);
@@ -274,6 +272,21 @@ public class OrgUnits implements IOrgUnits {
 		RBACManager.forContext(context).can(BasicRoles.ROLE_ADMIN);
 
 		storeService.removeAdministrator(administrator);
+	}
+
+	@Override
+	public OrgUnit get(String uid) {
+		ItemValue<OrgUnit> item = getComplete(uid);
+		return item != null ? item.value : null;
+	}
+
+	@Override
+	public void restore(ItemValue<OrgUnit> item, boolean isCreate) {
+		if (isCreate) {
+			createWithItem(item);
+		} else {
+			updateWithItem(item);
+		}
 	}
 
 }

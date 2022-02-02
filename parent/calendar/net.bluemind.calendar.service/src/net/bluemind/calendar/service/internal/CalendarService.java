@@ -162,11 +162,6 @@ public class CalendarService implements IInternalCalendar {
 		return Ack.create(version);
 	}
 
-	@Override
-	public void createWithItem(ItemValue<VEventSeries> eventItem) {
-		create(eventItem.item(), eventItem.value, false);
-	}
-
 	private long create(Item item, VEventSeries event, Boolean sendNotifications) {
 		rbacManager.check(Verb.Write.name());
 
@@ -248,11 +243,6 @@ public class CalendarService implements IInternalCalendar {
 	public void update(String uid, VEventSeries event, Boolean sendNotifications) throws ServerFault {
 		Item item = Item.create(uid, null);
 		update(item, event, sendNotifications);
-	}
-
-	@Override
-	public void updateWithItem(ItemValue<VEventSeries> cardItem) {
-		update(cardItem.item(), cardItem.value, false);
 	}
 
 	private long update(Item item, VEventSeries event, Boolean sendNotifications) {
@@ -737,5 +727,25 @@ public class CalendarService implements IInternalCalendar {
 			return new BmDateTimeWrapper(main.dtend).isAfter(now);
 		}).collect(Collectors.toList());
 		return ListResult.create(pendingPropositions);
+	}
+
+	@Override
+	public VEventSeries get(String uid) {
+		ItemValue<VEventSeries> item = getComplete(uid);
+		return item != null ? item.value : null;
+	}
+
+	@Override
+	public void restore(ItemValue<VEventSeries> eventItem, boolean isCreate) {
+		if (isCreate) {
+			create(eventItem.item(), eventItem.value, false);
+		} else {
+			update(eventItem.item(), eventItem.value, false);
+		}
+	}
+
+	@Override
+	public void delete(String uid) {
+		delete(uid, false);
 	}
 }

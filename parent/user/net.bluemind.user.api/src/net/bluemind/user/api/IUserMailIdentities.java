@@ -29,12 +29,13 @@ import javax.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IRestoreCrudSupport;
 import net.bluemind.mailbox.identity.api.Identity;
 import net.bluemind.mailbox.identity.api.IdentityDescription;
 
 @BMApi(version = "3")
 @Path("/users/{domainUid}/{userUid}/identity")
-public interface IUserMailIdentities {
+public interface IUserMailIdentities extends IRestoreCrudSupport<UserMailIdentity> {
 
 	public static final String REPAIR_OP = "identities";
 

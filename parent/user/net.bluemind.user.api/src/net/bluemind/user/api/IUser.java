@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IRestoreDirEntryWithMailboxSupport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.directory.api.BaseDirEntry.AccountType;
@@ -27,7 +28,7 @@ import net.bluemind.group.api.Group;
  */
 @BMApi(version = "3")
 @Path("/users/{domainUid}")
-public interface IUser extends IDirEntryPhotoSupport, IDirEntryExtIdSupport {
+public interface IUser extends IDirEntryPhotoSupport, IDirEntryExtIdSupport, IRestoreDirEntryWithMailboxSupport<User> {
 
 	/**
 	 * Creates a new {@link User} with the given uid. Also creates default calendar,
@@ -57,16 +58,6 @@ public interface IUser extends IDirEntryPhotoSupport, IDirEntryExtIdSupport {
 			User user) throws ServerFault;
 
 	/**
-	 * Creates a new {@link User} with the given item value
-	 * 
-	 * @param userItem user item value
-	 * @throws ServerFault standard error object
-	 */
-	@PUT
-	@Path("_createWithItem")
-	public void createWithItem(ItemValue<User> userItem) throws ServerFault;
-
-	/**
 	 * Modifies an existing {@link User}
 	 * 
 	 * @param uid  the user's unique id
@@ -76,16 +67,6 @@ public interface IUser extends IDirEntryPhotoSupport, IDirEntryExtIdSupport {
 	@POST
 	@Path("{uid}")
 	public void update(@PathParam(value = "uid") String uid, User user) throws ServerFault;
-
-	/**
-	 * Modifies an existing {@link User}
-	 * 
-	 * @param userItem user item value used for update
-	 * @throws ServerFault standard error object (unchecked exception)
-	 */
-	@POST
-	@Path("_updateWithItem")
-	public void updateWithItem(ItemValue<User> userItem) throws ServerFault;
 
 	/**
 	 * Fetches a {@link User} by its unique id

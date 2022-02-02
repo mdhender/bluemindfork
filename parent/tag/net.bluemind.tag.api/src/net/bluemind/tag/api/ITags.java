@@ -31,6 +31,7 @@ import javax.ws.rs.QueryParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IDataShardSupport;
+import net.bluemind.core.container.api.IRestoreCrudSupport;
 import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
@@ -46,7 +47,7 @@ import net.bluemind.core.container.model.ItemValue;
  */
 @Path("/tags/{containerUid}")
 @BMApi(version = "3.0")
-public interface ITags extends IDataShardSupport {
+public interface ITags extends IDataShardSupport, IRestoreCrudSupport<Tag> {
 
 	/**
 	 * Create a new {@link Tag}. Tags can be associated with items and may be used

@@ -35,6 +35,7 @@ import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
 import net.bluemind.core.container.api.ICrudByIdSupport;
 import net.bluemind.core.container.api.IDataShardSupport;
+import net.bluemind.core.container.api.IRestoreCrudSupport;
 import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.ItemValue;
@@ -49,8 +50,8 @@ import net.bluemind.core.container.model.SortDescriptor;
  */
 @BMApi(version = "3")
 @Path("/notes/{containerUid}")
-public interface INote
-		extends IChangelogSupport, ICountingSupport, ICrudByIdSupport<VNote>, ISortingSupport, IDataShardSupport {
+public interface INote extends IChangelogSupport, ICountingSupport, ICrudByIdSupport<VNote>, ISortingSupport,
+		IDataShardSupport, IRestoreCrudSupport<VNote> {
 
 	/**
 	 * List all Notes of a container
@@ -73,16 +74,6 @@ public interface INote
 	public void create(@PathParam(value = "uid") String uid, VNote note) throws ServerFault;
 
 	/**
-	 * Creates a new {@link VNote} entry from an {@link ItemValue}.
-	 * 
-	 * @param noteItem {@link VNote} {@link ItemValue}.
-	 * @throws ServerFault common error object
-	 */
-	@PUT
-	@Path("_createWithItem")
-	public void createWithItem(ItemValue<VNote> noteItem) throws ServerFault;
-
-	/**
 	 * Modifies an existing {@link VNote}.
 	 * 
 	 * @param uid  Unique entry UID
@@ -92,16 +83,6 @@ public interface INote
 	@POST
 	@Path("{uid}")
 	public void update(@PathParam(value = "uid") String uid, VNote note) throws ServerFault;
-
-	/**
-	 * Modifies an existing {@link VNote} entry from an {@link ItemValue}.
-	 * 
-	 * @param noteItem {@link VNote} {@link ItemValue}.
-	 * @throws ServerFault common error object
-	 */
-	@PUT
-	@Path("_updateWithItem")
-	public void updateWithItem(ItemValue<VNote> noteItem) throws ServerFault;
 
 	/**
 	 * Fetch a {@link VNote} by its unique UID

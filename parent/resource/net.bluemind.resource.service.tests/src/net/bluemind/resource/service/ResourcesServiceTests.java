@@ -269,7 +269,7 @@ public class ResourcesServiceTests {
 	}
 
 	@Test
-	public void testUpdateWithItem() throws Exception {
+	public void testRestore() throws Exception {
 		String rtId = UUID.randomUUID().toString();
 		ResourceDescriptor rd = defaultDescriptor();
 		ItemValue<ResourceDescriptor> rdItem = ItemValue.create(rtId, rd);
@@ -279,7 +279,7 @@ public class ResourcesServiceTests {
 		rdItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
 		rdItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		rdItem.version = 17;
-		service(domainAdminSC).createWithItem(rdItem);
+		service(domainAdminSC).restore(rdItem, true);
 		rdItem = store.get(rtId);
 
 		rdItem.value.label = "updated";
@@ -288,7 +288,7 @@ public class ResourcesServiceTests {
 		rdItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		rdItem.version = 23;
 
-		service(domainAdminSC).updateWithItem(rdItem);
+		service(domainAdminSC).restore(rdItem, false);
 
 		ItemValue<DirEntryAndValue<ResourceDescriptor>> updatedItem = store.get(rtId, null);
 		assertNotNull(updatedItem.value.vcard);
@@ -418,7 +418,7 @@ public class ResourcesServiceTests {
 	}
 
 	@Test
-	public void testCreateWithItem() throws Exception {
+	public void testRestoreCreate() throws Exception {
 		String rtId = UUID.randomUUID().toString();
 		ResourceDescriptor rd = defaultDescriptor();
 		ItemValue<ResourceDescriptor> rdItem = ItemValue.create(rtId, rd);
@@ -429,7 +429,7 @@ public class ResourcesServiceTests {
 		rdItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		rdItem.version = 17;
 
-		service(domainAdminSC).createWithItem(rdItem);
+		service(domainAdminSC).restore(rdItem, true);
 		ItemValue<ResourceDescriptor> createdItem = store.get(rtId);
 
 		assertNotNull(createdItem);

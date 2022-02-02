@@ -5,12 +5,11 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import net.bluemind.core.backup.continuous.DataElement;
+import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.OrgUnitAdminRole;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.directory.api.IOrgUnits;
@@ -23,12 +22,12 @@ public class RestoreOrgUnitAdminRoles implements RestoreDomainType {
 			.reader(new TypeReference<ItemValue<OrgUnitAdminRole>>() {
 			});
 
-	private final IServerTaskMonitor monitor;
+	private final RestoreLogger log;
 	private final ItemValue<Domain> domain;
 	private final IServiceProvider target;
 
-	public RestoreOrgUnitAdminRoles(IServerTaskMonitor monitor, ItemValue<Domain> domain, IServiceProvider target) {
-		this.monitor = monitor;
+	public RestoreOrgUnitAdminRoles(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
+		this.log = log;
 		this.domain = domain;
 		this.target = target;
 	}
@@ -39,23 +38,20 @@ public class RestoreOrgUnitAdminRoles implements RestoreDomainType {
 	}
 
 	@Override
-	public void restore(DataElement de) {
-		try {
-			monitor.log("Processing org unit administrator role:\n" + de.key + "\n" + new String(de.payload));
-			ItemValue<OrgUnitAdminRole> itemValue = adminRolesReader.read(new String(de.payload));
-			OrgUnitAdminRole adminRoleEvent = itemValue.value;
-			Item orgUnitItem = itemValue.item();
+	public void restore(RecordKey key, String payload) {
+		ItemValue<OrgUnitAdminRole> itemValue = adminRolesReader.read(payload);
+		OrgUnitAdminRole adminRoleEvent = itemValue.value;
+		Item orgUnitItem = itemValue.item();
 
-			IOrgUnits orgUnitApi = target.instance(IOrgUnits.class, domain.uid);
-			ItemValue<OrgUnit> existingOrgUnitItem = orgUnitApi.getComplete(orgUnitItem.uid);
-			if (existingOrgUnitItem == null) {
-				ItemValue<OrgUnit> newOrgUnitItem = ItemValue.create(orgUnitItem, adminRoleEvent.orgUnit);
-				orgUnitApi.createWithItem(newOrgUnitItem);
-			}
-
-			orgUnitApi.setAdministratorRoles(orgUnitItem.uid, adminRoleEvent.dirUid, adminRoleEvent.roles);
-		} catch (Throwable t) {
-			monitor.log("Failed to restore org unit administrator role: " + t.getMessage());
+		IOrgUnits orgUnitApi = target.instance(IOrgUnits.class, domain.uid);
+		ItemValue<OrgUnit> existingOrgUnitItem = orgUnitApi.getComplete(orgUnitItem.uid);
+		if (existingOrgUnitItem == null) {
+			log.createParent(type(), key, orgUnitItem.uid);
+			ItemValue<OrgUnit> newOrgUnitItem = ItemValue.create(orgUnitItem, adminRoleEvent.orgUnit);
+			orgUnitApi.restore(newOrgUnitItem, true);
 		}
+
+		log.set(type(), key);
+		orgUnitApi.setAdministratorRoles(orgUnitItem.uid, adminRoleEvent.dirUid, adminRoleEvent.roles);
 	}
 }

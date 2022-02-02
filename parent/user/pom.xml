@@ -17,6 +17,7 @@
 		<module>net.bluemind.user.service.tests</module>
 		<module>net.bluemind.user.hook</module>
 		<module>net.bluemind.user.hook.tests</module>
+		<module>net.bluemind.user.accounts.hook</module>
 		<module>net.bluemind.user.accounts.service</module>
 		<module>net.bluemind.user.accounts.service.tests</module>
 		<module>net.bluemind.user.accounts.persistence</module>

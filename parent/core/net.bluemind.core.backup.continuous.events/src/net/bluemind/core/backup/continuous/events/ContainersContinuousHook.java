@@ -20,23 +20,25 @@ package net.bluemind.core.backup.continuous.events;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.backup.continuous.DefaultBackupStore;
 import net.bluemind.core.backup.continuous.dto.ContainerMetadata;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.hooks.IAclHook;
 import net.bluemind.core.container.hooks.IContainersHook;
 import net.bluemind.core.container.model.ContainerDescriptor;
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.rest.BmContext;
 
 public class ContainersContinuousHook implements IContainersHook, IAclHook {
 
-	private static final Logger logger = LoggerFactory.getLogger(ContainersContinuousHook.class);
+	private final ContainerMetadataContinuousBackup metadataBackup = new ContainerMetadataContinuousBackup();
+
+	public class ContainerMetadataContinuousBackup implements ContinuousContenairization<ContainerMetadata> {
+		@Override
+		public String type() {
+			return "containers_meta";
+		}
+	}
 
 	@Override
 	public void onContainerCreated(BmContext ctx, ContainerDescriptor cd) throws ServerFault {
@@ -67,33 +69,16 @@ public class ContainersContinuousHook implements IContainersHook, IAclHook {
 
 	@Override
 	public void onContainerSettingsChanged(BmContext ctx, ContainerDescriptor cd) throws ServerFault {
-		ContainerDescriptor metaDesc = metadataDescriptor(cd, cd.owner);
 		Map<String, String> settings = ctx.provider().instance(IContainerManagement.class, cd.uid).getSettings();
 		ContainerMetadata cm = ContainerMetadata.forSettings(cd.uid, settings);
-		ItemValue<ContainerMetadata> metaItem = metadataItem(cd, cm);
-		DefaultBackupStore.store().<ContainerMetadata>forContainer(metaDesc).store(metaItem);
-		logger.info("Saved settings for {}", cd.uid);
+		metadataBackup.save(cd.domainUid, cd.owner, cd.uid, cm, true);
 	}
 
 	@Override
 	public void onAclChanged(BmContext context, ContainerDescriptor cd, List<AccessControlEntry> previous,
 			List<AccessControlEntry> current) {
-		ContainerDescriptor metaDesc = metadataDescriptor(cd, cd.owner);
 		ContainerMetadata cm = ContainerMetadata.forAcls(cd.uid, current);
-		ItemValue<ContainerMetadata> metaItem = metadataItem(cd, cm);
-		DefaultBackupStore.store().<ContainerMetadata>forContainer(metaDesc).store(metaItem);
-		logger.info("Saved acls for {}", cd.uid);
-	}
-
-	private ContainerDescriptor metadataDescriptor(ContainerDescriptor descriptor, String owner) {
-		return ContainerDescriptor.create(descriptor.owner + "_containers_meta",
-				"containers meta of " + descriptor.owner, owner, "containers_meta", descriptor.domainUid, false);
-	}
-
-	private ItemValue<ContainerMetadata> metadataItem(ContainerDescriptor descriptor, ContainerMetadata metadata) {
-		ItemValue<ContainerMetadata> metadataItem = ItemValue.create(descriptor.uid, metadata);
-		metadataItem.internalId = metadataItem.uid.hashCode();
-		return metadataItem;
+		metadataBackup.save(cd.domainUid, cd.owner, cd.uid, cm, true);
 	}
 
 }

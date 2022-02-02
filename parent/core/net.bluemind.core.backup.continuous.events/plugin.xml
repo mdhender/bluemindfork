@@ -62,5 +62,28 @@
             class="net.bluemind.core.backup.continuous.events.MailFilterContinuousHook">
       </hook>
    </extension>
-
+   <extension
+         point="net.bluemind.mailflow.mailflowHook">
+      <hook
+            class="net.bluemind.core.backup.continuous.events.MailflowContinuousHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.user.accounts.userAccountsHook">
+      <hook
+            class="net.bluemind.core.backup.continuous.events.UserAccountsContinuousHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.mailbox.identity.mailboxIdentityHook">
+      <hook
+            impl="net.bluemind.core.backup.continuous.events.MailboxIdentityContinuousHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.user.hook.usermailidentity">
+      <hook 
+      		impl="net.bluemind.core.backup.continuous.events.UserMailIdentitiesContinuousHook">
+      </hook>
+   </extension>
 </plugin>

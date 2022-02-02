@@ -7,11 +7,10 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import net.bluemind.core.backup.continuous.DataElement;
+import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.GroupMembership;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.domain.api.Domain;
@@ -25,12 +24,12 @@ public class RestoreMembership implements RestoreDomainType {
 			.reader(new TypeReference<ItemValue<GroupMembership>>() {
 			});
 
-	private final IServerTaskMonitor monitor;
+	private final RestoreLogger log;
 	private ItemValue<Domain> domain;
 	private final IServiceProvider target;
 
-	public RestoreMembership(IServerTaskMonitor monitor, ItemValue<Domain> domain, IServiceProvider target) {
-		this.monitor = monitor;
+	public RestoreMembership(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
+		this.log = log;
 		this.domain = domain;
 		this.target = target;
 	}
@@ -41,26 +40,22 @@ public class RestoreMembership implements RestoreDomainType {
 	}
 
 	@Override
-	public void restore(DataElement de) {
-		try {
-			monitor.log("Processing membership:\n" + de.key + "\n" + new String(de.payload));
-			ItemValue<GroupMembership> ms = membersReader.read(new String(de.payload));
+	public void restore(RecordKey key, String payload) {
+		ItemValue<GroupMembership> ms = membersReader.read(payload);
 
-			IGroup groupApi = target.instance(IGroup.class, domain.uid);
-			ItemValue<Group> existingGroup = groupApi.getComplete(ms.uid);
-			if (existingGroup == null) {
-				ItemValue<Group> clonedGroup = ItemValue.create(ms.item(), ms.value.group);
-				groupApi.createWithItem(clonedGroup);
-			}
-			if (ms.value.added) {
-				monitor.log("Saving 1 member for group " + ms.uid);
-				groupApi.add(ms.uid, Arrays.asList(ms.value.member));
-			} else {
-				monitor.log("Removing 1 member for group " + ms.uid);
-				groupApi.remove(ms.uid, Arrays.asList(ms.value.member));
-			}
-		} catch (Throwable t) {
-			monitor.log("Failed to restore membership: " + t.getMessage());
+		IGroup groupApi = target.instance(IGroup.class, domain.uid);
+		ItemValue<Group> existingGroup = groupApi.getComplete(ms.uid);
+		if (existingGroup == null) {
+			ItemValue<Group> clonedGroup = ItemValue.create(ms.item(), ms.value.group);
+			log.createParent(type(), key, clonedGroup.uid);
+			groupApi.restore(clonedGroup, true);
+		}
+		if (ms.value.added) {
+			log.create(type(), key);
+			groupApi.add(ms.uid, Arrays.asList(ms.value.member));
+		} else {
+			log.delete(type(), key);
+			groupApi.remove(ms.uid, Arrays.asList(ms.value.member));
 		}
 	}
 }

@@ -55,14 +55,14 @@ public interface ITopicStore {
 
 		String type();
 
-		String id();
+		String uid();
 
 		static String trimInstallationId(String installationId) {
 			return installationId;
 		}
 
 		default String fullName() {
-			return installation() + "/" + domainUid() + "/" + owner() + "/" + type() + "/" + id();
+			return installation() + "/" + domainUid() + "/" + owner() + "/" + type() + "/" + uid();
 		}
 
 		default String physicalTopic() {
@@ -81,14 +81,14 @@ public interface ITopicStore {
 		private String domainUid;
 		private String owner;
 		private String type;
-		private String id;
+		private String uid;
 
-		public DefaultTopicDescriptor(String install, String dom, String own, String type, String id) {
+		public DefaultTopicDescriptor(String install, String dom, String own, String type, String uid) {
 			this.install = install;
 			this.domainUid = dom;
 			this.owner = own;
 			this.type = type;
-			this.id = id;
+			this.uid = uid;
 		}
 
 		/**
@@ -117,8 +117,8 @@ public interface ITopicStore {
 			return type;
 		}
 
-		public String id() {
-			return id;
+		public String uid() {
+			return uid;
 		}
 
 		@Override
@@ -128,7 +128,7 @@ public interface ITopicStore {
 					.add("d", domainUid)//
 					.add("o", owner)//
 					.add("t", type)//
-					.add("id", id)//
+					.add("uid", uid)//
 					.toString();
 		}
 
@@ -137,7 +137,7 @@ public interface ITopicStore {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + ((domainUid == null) ? 0 : domainUid.hashCode());
-			result = prime * result + ((id == null) ? 0 : id.hashCode());
+			result = prime * result + ((uid == null) ? 0 : uid.hashCode());
 			result = prime * result + ((install == null) ? 0 : install.hashCode());
 			result = prime * result + ((owner == null) ? 0 : owner.hashCode());
 			result = prime * result + ((type == null) ? 0 : type.hashCode());
@@ -158,10 +158,10 @@ public interface ITopicStore {
 					return false;
 			} else if (!domainUid.equals(other.domainUid))
 				return false;
-			if (id == null) {
-				if (other.id != null)
+			if (uid == null) {
+				if (other.uid != null)
 					return false;
-			} else if (!id.equals(other.id))
+			} else if (!uid.equals(other.uid))
 				return false;
 			if (install == null) {
 				if (other.install != null)

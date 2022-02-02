@@ -198,7 +198,7 @@ public class ExternalUserServiceTests {
 	}
 
 	@Test
-	public void testCreateWithItem() throws ParseException {
+	public void testRestoreCreate() throws ParseException {
 		String itemUid = UUID.randomUUID().toString();
 		ExternalUser eu = createDefaultExternalUser();
 		ItemValue<ExternalUser> externalUserItem = ItemValue.create(itemUid, eu);
@@ -208,7 +208,7 @@ public class ExternalUserServiceTests {
 		externalUserItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
 		externalUserItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		externalUserItem.version = 17;
-		getExternalUserService().createWithItem(externalUserItem);
+		getExternalUserService().restore(externalUserItem, true);
 		ItemValue<ExternalUser> created = externalUserContainerStore.get(itemUid);
 
 		assertEquals(externalUserItem.externalId, created.externalId);
@@ -313,7 +313,7 @@ public class ExternalUserServiceTests {
 	}
 
 	@Test
-	public void testUpdateWithItem() throws ParseException {
+	public void testRestoreUpdate() throws ParseException {
 		String itemUid = UUID.randomUUID().toString();
 		ExternalUser eu = createDefaultExternalUser();
 		ItemValue<ExternalUser> externalUserItem = ItemValue.create(itemUid, eu);
@@ -322,11 +322,11 @@ public class ExternalUserServiceTests {
 		externalUserItem.displayName = "test";
 		externalUserItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
 		externalUserItem.version = 17;
-		getExternalUserService().createWithItem(externalUserItem);
+		getExternalUserService().restore(externalUserItem, true);
 		externalUserItem = externalUserContainerStore.get(itemUid);
 		externalUserItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		externalUserItem.version = 23;
-		getExternalUserService().updateWithItem(externalUserItem);
+		getExternalUserService().restore(externalUserItem, false);
 
 		ItemValue<ExternalUser> updatedItem = externalUserContainerStore.get(itemUid);
 

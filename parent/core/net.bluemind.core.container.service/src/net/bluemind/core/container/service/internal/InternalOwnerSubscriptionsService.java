@@ -74,20 +74,8 @@ public class InternalOwnerSubscriptionsService implements IInternalOwnerSubscrip
 	}
 
 	@Override
-	public void createWithItem(ItemValue<ContainerSubscriptionModel> nodeItem) throws ServerFault {
-		ItemVersion itemVersion = storeService.create(nodeItem.item(), nodeItem.value);
-		eventsProducer.changed(itemVersion.version);
-	}
-
-	@Override
 	public void update(String uid, ContainerSubscriptionModel node) throws ServerFault {
 		ItemVersion itemVersion = storeService.update(uid, node.containerUid, node);
-		eventsProducer.changed(itemVersion.version);
-	}
-
-	@Override
-	public void updateWithItem(ItemValue<ContainerSubscriptionModel> nodeItem) throws ServerFault {
-		ItemVersion itemVersion = storeService.update(nodeItem.item(), nodeItem.value.containerUid, nodeItem.value);
 		eventsProducer.changed(itemVersion.version);
 	}
 
@@ -175,6 +163,20 @@ public class InternalOwnerSubscriptionsService implements IInternalOwnerSubscrip
 			throw ServerFault.sqlFault(e);
 		}
 		storeService.xfer(ds, c, new OwnerSubscriptionStore(ds, c));
+	}
+
+	@Override
+	public ContainerSubscriptionModel get(String uid) {
+		ItemValue<ContainerSubscriptionModel> item = getComplete(uid);
+		return item != null ? item.value : null;
+	}
+
+	@Override
+	public void restore(ItemValue<ContainerSubscriptionModel> nodeItem, boolean isCreate) {
+		ItemVersion itemVersion = (isCreate) //
+				? storeService.create(nodeItem.item(), nodeItem.value)
+				: storeService.update(nodeItem.item(), nodeItem.value.containerUid, nodeItem.value);
+		eventsProducer.changed(itemVersion.version);
 	}
 
 }

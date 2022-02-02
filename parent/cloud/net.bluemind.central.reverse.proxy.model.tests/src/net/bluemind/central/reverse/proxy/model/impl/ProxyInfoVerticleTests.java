@@ -84,7 +84,7 @@ public class ProxyInfoVerticleTests {
 
 						ArgumentCaptor<String> login = ArgumentCaptor.forClass(String.class);
 						ArgumentCaptor<String> dataLocation2 = ArgumentCaptor.forClass(String.class);
-						verify(storage, timeout(5000).times(numberOfRecords)).addLogin(login.capture(),
+						verify(storage, timeout(15000).times(numberOfRecords)).addLogin(login.capture(),
 								dataLocation2.capture());
 						assertTrue(login.getAllValues().containsAll(Arrays.asList("5", "6", "7", "8", "9")));
 						assertTrue(dataLocation2.getAllValues().containsAll(Arrays.asList("5", "6", "7", "8", "9")));

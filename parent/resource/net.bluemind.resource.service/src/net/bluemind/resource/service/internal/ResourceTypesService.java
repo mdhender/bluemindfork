@@ -28,6 +28,7 @@ import net.bluemind.core.api.ParametersValidator;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
@@ -207,6 +208,15 @@ public class ResourceTypesService implements IResourceTypes {
 		byte[] png = ImageUtils.checkAndSanitize(icon);
 
 		iconStore.store(domainUid + "/resourceTypes/" + uid + "-icon", png);
+	}
+
+	@Override
+	public void restore(ItemValue<ResourceTypeDescriptor> item, boolean isCreate) {
+		if (isCreate) {
+			create(item.uid, item.value);
+		} else {
+			update(item.uid, item.value);
+		}
 	}
 
 }

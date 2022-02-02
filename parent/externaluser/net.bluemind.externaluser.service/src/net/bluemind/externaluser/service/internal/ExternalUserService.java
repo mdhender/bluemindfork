@@ -89,8 +89,7 @@ public class ExternalUserService implements IInCoreExternalUser {
 		createWithItem(externalUserItem);
 	}
 
-	@Override
-	public void createWithItem(ItemValue<ExternalUser> externalUserItem) throws ServerFault {
+	private void createWithItem(ItemValue<ExternalUser> externalUserItem) throws ServerFault {
 		String uid = externalUserItem.uid;
 		ExternalUser externalUser = externalUserItem.value;
 		rbacManager.forOrgUnit(externalUser.orgUnitUid).check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER);
@@ -110,8 +109,7 @@ public class ExternalUserService implements IInCoreExternalUser {
 		updateWithItem(externalUserItem);
 	}
 
-	@Override
-	public void updateWithItem(ItemValue<ExternalUser> externalUserItem) throws ServerFault {
+	private void updateWithItem(ItemValue<ExternalUser> externalUserItem) throws ServerFault {
 		String uid = externalUserItem.uid;
 		ExternalUser externalUser = externalUserItem.value;
 		rbacManager.forOrgUnit(externalUser.orgUnitUid).check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER);
@@ -229,5 +227,21 @@ public class ExternalUserService implements IInCoreExternalUser {
 		ParametersValidator.notNullAndNotEmpty(extId);
 
 		return storeService.findByExtId(extId);
+	}
+
+	@Override
+	public ExternalUser get(String uid) {
+		ItemValue<ExternalUser> item = getComplete(uid);
+		return item != null ? item.value : null;
+	}
+
+	@Override
+	public void restore(ItemValue<ExternalUser> item, boolean isCreate) {
+		if (isCreate) {
+			createWithItem(item);
+		} else {
+			updateWithItem(item);
+		}
+
 	}
 }

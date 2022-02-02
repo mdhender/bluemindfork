@@ -19,19 +19,15 @@ package net.bluemind.core.container.api.internal;
 
 import net.bluemind.core.container.api.ContainerSubscriptionModel;
 import net.bluemind.core.container.api.IOwnerSubscriptions;
-import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.api.IRestoreCrudSupport;
 
-public interface IInternalOwnerSubscriptions extends IOwnerSubscriptions {
+public interface IInternalOwnerSubscriptions extends IOwnerSubscriptions, IRestoreCrudSupport<ContainerSubscriptionModel> {
 
 	void create(String uid, ContainerSubscriptionModel node);
 
 	void createWithId(long id, String uid, ContainerSubscriptionModel node);
 
-	void createWithItem(ItemValue<ContainerSubscriptionModel> node);
-
 	void update(String uid, ContainerSubscriptionModel node);
-
-	void updateWithItem(ItemValue<ContainerSubscriptionModel> node);
 
 	void delete(String uid);
 

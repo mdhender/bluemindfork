@@ -19,25 +19,22 @@ package net.bluemind.core.backup.continuous.events;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.backup.continuous.DefaultBackupStore;
-import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.dto.GroupMembership;
-import net.bluemind.core.container.model.ContainerDescriptor;
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
 import net.bluemind.group.hook.GroupMessage;
 import net.bluemind.group.hook.IGroupHook;
 
-public class MembershipsContinuousHook implements IGroupHook {
+public class MembershipsContinuousHook implements IGroupHook, ContinuousContenairization<GroupMembership> {
 
-	private static final Logger logger = LoggerFactory.getLogger(MembershipsContinuousHook.class);
+	@Override
+	public String type() {
+		return "memberships";
+	}
 
 	@Override
 	public void onGroupCreated(GroupMessage created) throws ServerFault {
@@ -67,19 +64,17 @@ public class MembershipsContinuousHook implements IGroupHook {
 
 	private void saveMembers(GroupMessage group, List<Member> members, boolean added) {
 		members.forEach(member -> {
-			ContainerDescriptor metaDesc = ContainerDescriptor.create(group.container.domainUid + "_membership",
-					group.container.domainUid + " membership", member.uid, "memberships", group.container.domainUid,
-					true);
-			GroupMembership gm = new GroupMembership();
-			gm.member = member;
-			gm.added = added;
-			gm.group = group.group.value;
-			ItemValue<GroupMembership> iv = ItemValue.create(group.group, gm);
-			iv.internalId = iv.uid.hashCode();
-			IBackupStore<GroupMembership> store = DefaultBackupStore.store().<GroupMembership>forContainer(metaDesc);
-			store.store(iv);
-			logger.info("Saved memberships for {}", group.group.uid);
+			GroupMembership gm = createGroupMembership(group.group.value, member, added);
+			save(group.container.domainUid, member.uid, group.group.item(), gm);
 		});
+	}
+
+	private GroupMembership createGroupMembership(Group group, Member member, boolean added) {
+		GroupMembership gm = new GroupMembership();
+		gm.member = member;
+		gm.added = added;
+		gm.group = group;
+		return gm;
 	}
 
 }

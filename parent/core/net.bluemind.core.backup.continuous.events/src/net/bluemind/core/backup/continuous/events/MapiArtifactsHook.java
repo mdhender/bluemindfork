@@ -17,56 +17,37 @@
  */
 package net.bluemind.core.backup.continuous.events;
 
-import java.util.Date;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.bluemind.core.backup.continuous.DefaultBackupStore;
-import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
-import net.bluemind.core.container.model.ContainerDescriptor;
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.exchange.mapi.api.MapiFolder;
 import net.bluemind.exchange.mapi.api.MapiReplica;
 import net.bluemind.exchange.mapi.hook.IMapiArtifactsHook;
 
 public class MapiArtifactsHook implements IMapiArtifactsHook {
+	private static final String TYPE = "mapi_artifacts";
+	private MapiReplicaContinuousBackup replicaBackup = new MapiReplicaContinuousBackup();
+	private MapiFolderContinuousBackup folderBackup = new MapiFolderContinuousBackup();
 
-	private static final Logger logger = LoggerFactory.getLogger(MapiArtifactsHook.class);
+	public class MapiReplicaContinuousBackup implements ContinuousContenairization<MapiReplica> {
+		@Override
+		public String type() {
+			return TYPE;
+		}
+	}
+
+	public class MapiFolderContinuousBackup implements ContinuousContenairization<MapiFolder> {
+		@Override
+		public String type() {
+			return TYPE;
+		}
+	}
 
 	@Override
 	public void onReplicaStored(String domainUid, MapiReplica mr) {
-		ContainerDescriptor metaDesc = ContainerDescriptor.create(mr.mailboxUid + "_mapi_artifacts",
-				mr.mailboxUid + " mapi_artifacts", mr.mailboxUid, "mapi_artifacts", domainUid, true);
-		ItemValue<MapiReplica> replitem = ItemValue.create("replica", mr);
-		replitem.internalId = replitem.uid.hashCode();
-		replitem.created = new Date();
-		IBackupStoreFactory store = DefaultBackupStore.store();
-		store.<MapiReplica>forContainer(metaDesc).store(replitem).whenComplete((v, ex) -> {
-			if (ex != null) {
-				logger.error(ex.getMessage(), ex);
-			} else {
-				logger.info("Pushed {} to {} via {}", mr, metaDesc, store);
-			}
-		});
+		replicaBackup.save(domainUid, mr.mailboxUid, "replica", mr, true);
 	}
 
 	@Override
 	public void onMapiFolderStored(String domainUid, String ownerUid, MapiFolder mf) {
-
-		ContainerDescriptor metaDesc = ContainerDescriptor.create(ownerUid + "_mapi_artifacts",
-				ownerUid + " mapi_artifacts", ownerUid, "mapi_artifacts", domainUid, true);
-		ItemValue<MapiFolder> folder = ItemValue.create(mf.containerUid, mf);
-		folder.internalId = folder.uid.hashCode();
-		folder.created = new Date();
-		IBackupStoreFactory store = DefaultBackupStore.store();
-		store.<MapiFolder>forContainer(metaDesc).store(folder).whenComplete((v, ex) -> {
-			if (ex != null) {
-				logger.error(ex.getMessage(), ex);
-			} else {
-				logger.info("Pushed {} to {} via {}", mf, metaDesc, store);
-			}
-		});
+		folderBackup.save(domainUid, ownerUid, mf.containerUid, mf, true);
 	}
 
 }

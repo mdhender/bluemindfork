@@ -35,34 +35,45 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.identity.api.IMailboxIdentity;
 import net.bluemind.mailbox.identity.api.Identity;
 import net.bluemind.mailbox.identity.api.IdentityDescription;
+import net.bluemind.mailbox.identity.hook.IMailboxIdentityHook;
 import net.bluemind.mailbox.identity.persistence.MailboxIdentityStore;
 import net.bluemind.role.api.BasicRoles;
 
 public class MailboxIdentityService implements IMailboxIdentity {
 
+	private BmContext context;
 	private Item mboxItem;
 	private MailboxIdentityStore identityStore;
 	private IdentityValidator validator;
 	private Mailbox mboxValue;
-	private Domain domain;
+	private ItemValue<Domain> domain;
 	private Sanitizer sanitizer;
 	private Validator extValidator;
 	private RBACManager rbacManager;
 
+	private static List<IMailboxIdentityHook> hooks = getHooks();
+
 	public MailboxIdentityService(BmContext context, Container mboxesContainer, Container boxContainer, Item mboxItem,
-			Mailbox mboxValue, Domain domain) throws ServerFault {
+			Mailbox mboxValue, ItemValue<Domain> domain) throws ServerFault {
+		this.context = context;
 		this.mboxItem = mboxItem;
 		this.mboxValue = mboxValue;
 		this.domain = domain;
 		this.identityStore = new MailboxIdentityStore(context.getDataSource());
-		this.validator = new IdentityValidator(mboxValue, domain.aliases, domain.name);
+		this.validator = new IdentityValidator(mboxValue, domain.value.aliases, domain.value.name);
 		rbacManager = new RBACManager(context).forContainer(boxContainer);
 		sanitizer = new Sanitizer(context);
 		extValidator = new Validator(context);
+	}
+
+	private static List<IMailboxIdentityHook> getHooks() {
+		RunnableExtensionLoader<IMailboxIdentityHook> loader = new RunnableExtensionLoader<>();
+		return loader.loadExtensions("net.bluemind.mailbox.identity", "mailboxIdentityHook", "hook", "impl");
 	}
 
 	@Override
@@ -84,6 +95,8 @@ public class MailboxIdentityService implements IMailboxIdentity {
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+
+		hooks.forEach(hook -> hook.onCreate(context, domain.uid, mboxItem.uid, id, identity));
 	}
 
 	@Override
@@ -110,6 +123,8 @@ public class MailboxIdentityService implements IMailboxIdentity {
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+
+		hooks.forEach(hook -> hook.onUpdate(context, domain.uid, mboxItem.uid, id, identity));
 	}
 
 	@Override
@@ -121,6 +136,7 @@ public class MailboxIdentityService implements IMailboxIdentity {
 				throw new ServerFault("identity " + id + " doesnt exists", ErrorCode.NOT_FOUND);
 			}
 			identityStore.delete(mboxItem, id);
+			hooks.forEach(hook -> hook.onDelete(context, domain.uid, mboxItem.uid, id, previousValue));
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
@@ -164,11 +180,11 @@ public class MailboxIdentityService implements IMailboxIdentity {
 				if (adr.contains("@")) {
 					adr = adr.split("@")[0];
 				}
-				for (String alias : domain.aliases) {
+				for (String alias : domain.value.aliases) {
 					addIfNotPresent(adr + "@" + alias, ret);
 				}
 
-				addIfNotPresent(adr + "@" + domain.name, ret);
+				addIfNotPresent(adr + "@" + domain.value.name, ret);
 			} else {
 				addIfNotPresent(email.address, ret);
 			}
@@ -192,5 +208,15 @@ public class MailboxIdentityService implements IMailboxIdentity {
 		id.name = mboxValue.name;
 		id.id = null;
 		ret.add(id);
+	}
+
+	@Override
+	public void restore(ItemValue<Identity> identityItem, boolean isCreate) {
+		if (isCreate) {
+			create(identityItem.uid, identityItem.value);
+		} else {
+			update(identityItem.uid, identityItem.value);
+		}
+
 	}
 }

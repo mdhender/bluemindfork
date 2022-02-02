@@ -30,7 +30,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
 import net.bluemind.core.api.BMApi;
-import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IRestoreCrudSupport;
 import net.bluemind.core.container.model.ItemValue;
 
 /**
@@ -45,7 +45,7 @@ import net.bluemind.core.container.model.ItemValue;
  */
 @BMApi(version = "3")
 @Path("/directory/_ou/{domain}")
-public interface IOrgUnits {
+public interface IOrgUnits extends IRestoreCrudSupport<OrgUnit> {
 
 	/**
 	 * Get {@link OrgUnit} by UID
@@ -80,16 +80,6 @@ public interface IOrgUnits {
 	public void create(@PathParam(value = "uid") String uid, OrgUnit value);
 
 	/**
-	 * Creates a new {@link OrgUnit} from the given {@link ItemValue}
-	 * 
-	 * @param orgUnitItem {@link ItemValue}
-	 * @throws ServerFault standard error object
-	 */
-	@PUT
-	@Path("_createWithItem")
-	public void createWithItem(ItemValue<OrgUnit> orgUnitItem);
-
-	/**
 	 * Update an {@link OrgUnit}
 	 * 
 	 * @param uid   UID of the {@link OrgUnit}
@@ -98,16 +88,6 @@ public interface IOrgUnits {
 	@POST
 	@Path("{uid}")
 	public void update(@PathParam(value = "uid") String uid, OrgUnit value);
-
-	/**
-	 * Modify an existing {@link OrgUnit}
-	 * 
-	 * @param orgUnitItem updated {@link ItemValue}
-	 * @throws ServerFault standard error object
-	 */
-	@POST
-	@Path("_updateWithItem")
-	public void updateWithItem(ItemValue<OrgUnit> orgUnitItem);
 
 	/**
 	 * Delete an {@link OrgUnit}

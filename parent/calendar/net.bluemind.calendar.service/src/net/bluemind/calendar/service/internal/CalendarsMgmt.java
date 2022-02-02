@@ -379,4 +379,18 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 		return all;
 	}
 
+	@Override
+	public CalendarDescriptor get(String uid) {
+		return getComplete(uid);
+	}
+
+	@Override
+	public void restore(ItemValue<CalendarDescriptor> item, boolean isCreate) {
+		if (isCreate) {
+			create(item.uid, item.value);
+		} else {
+			update(item.uid, item.value);
+		}
+	}
+
 }

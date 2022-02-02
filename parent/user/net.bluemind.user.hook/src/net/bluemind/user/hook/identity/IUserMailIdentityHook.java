@@ -29,13 +29,17 @@ public interface IUserMailIdentityHook {
 
 	void beforeCreate(BmContext context, String domainUid, String uid, UserMailIdentity identity);
 
+	void onIdentityCreated(BmContext context, String domainUid, String userUid, String id, UserMailIdentity current);
+
 	void beforeUpdate(BmContext context, String domainUid, String uid, UserMailIdentity update,
+			UserMailIdentity previous);
+
+	void onIdentityUpdated(BmContext context, String domainUid, String userUid, String id, UserMailIdentity current,
 			UserMailIdentity previous);
 
 	void beforeDelete(BmContext context, String domainUid, String uid, UserMailIdentity previous);
 
-	void onIdentityUpdated(BmContext context, String domainUid, String userUid, UserMailIdentity current,
-			UserMailIdentity previous);
+	void onIdentityDeleted(BmContext context, String domainUid, String userUid, String id, UserMailIdentity previous);
 
 	void onIdentityDefault(BmContext context, String domainUid, String userUid, String id);
 

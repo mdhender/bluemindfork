@@ -112,11 +112,6 @@ public class TodoListService implements ITodoList {
 		create(item, todo);
 	}
 
-	@Override
-	public void createWithItem(ItemValue<VTodo> todoItem) throws ServerFault {
-		create(todoItem.item(), todoItem.value);
-	}
-
 	private void create(Item item, VTodo todo) {
 		rbacManager.check(Verb.Write.name());
 		doCreate(item, todo);
@@ -154,11 +149,6 @@ public class TodoListService implements ITodoList {
 	public void update(String uid, VTodo todo) throws ServerFault {
 		Item item = Item.create(uid, null);
 		update(item, todo);
-	}
-
-	@Override
-	public void updateWithItem(ItemValue<VTodo> todoItem) throws ServerFault {
-		update(todoItem.item(), todoItem.value);
 	}
 
 	private void update(Item item, VTodo todo) throws ServerFault {
@@ -480,6 +470,21 @@ public class TodoListService implements ITodoList {
 	@Override
 	public void multipleDeleteById(List<Long> ids) throws ServerFault {
 		ids.forEach(this::deleteById);
+	}
+
+	@Override
+	public VTodo get(String uid) {
+		ItemValue<VTodo> item = getComplete(uid);
+		return item != null ? item.value : null;
+	}
+
+	@Override
+	public void restore(ItemValue<VTodo> todoItem, boolean isCreate) {
+		if (isCreate) {
+			create(todoItem.item(), todoItem.value);
+		} else {
+			update(todoItem.item(), todoItem.value);
+		}
 	}
 
 }

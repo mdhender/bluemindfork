@@ -29,6 +29,10 @@ public class CloneException extends RuntimeException {
 		super(string);
 	}
 
+	public CloneException(String string, Throwable t) {
+		super(string, t);
+	}
+
 	public static RuntimeException propagate(Exception e) {
 		if (e instanceof RuntimeException) {
 			throw (RuntimeException) e;

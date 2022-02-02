@@ -22,10 +22,9 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import net.bluemind.core.backup.continuous.DataElement;
+import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.domain.api.Domain;
@@ -45,12 +44,12 @@ public class RestoreMapiArtifacts implements RestoreDomainType {
 			.reader(new TypeReference<ItemValue<MapiFolder>>() {
 			});
 
-	private final IServerTaskMonitor monitor;
+	private final RestoreLogger log;
 	private ItemValue<Domain> domain;
 	private IServiceProvider target;
 
-	public RestoreMapiArtifacts(IServerTaskMonitor monitor, ItemValue<Domain> domain, IServiceProvider target) {
-		this.monitor = monitor;
+	public RestoreMapiArtifacts(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
+		this.log = log;
 		this.domain = domain;
 		this.target = target;
 	}
@@ -61,37 +60,37 @@ public class RestoreMapiArtifacts implements RestoreDomainType {
 	}
 
 	@Override
-	public void restore(DataElement de) {
-		switch (de.key.valueClass) {
+	public void restore(RecordKey key, String payload) {
+		switch (key.valueClass) {
 		case "net.bluemind.exchange.mapi.api.MapiReplica":
-			setupReplica(de);
+			setupReplica(key, payload);
 			break;
 		case "net.bluemind.exchange.mapi.api.MapiFolder":
-			setupFolder(de);
+			setupFolder(key, payload);
 			break;
 		default:
-			logger.warn("Not handled type {}", de.key.valueClass);
+			log.skip(type(), key, payload);
 			break;
 		}
 	}
 
-	private void setupReplica(DataElement de) {
-		IMapiMailbox replApi = target.instance(IMapiMailbox.class, domain.uid, de.key.owner);
-		ItemValue<MapiReplica> replicaItem = replReader.read(new String(de.payload));
-		logger.info("Restore {}", replicaItem.value);
+	private void setupReplica(RecordKey key, String payload) {
+		IMapiMailbox replApi = target.instance(IMapiMailbox.class, domain.uid, key.owner);
+		ItemValue<MapiReplica> replicaItem = replReader.read(payload);
+		log.create(type(), "replica", key);
 		replApi.create(replicaItem.value);
 	}
 
-	private void setupFolder(DataElement de) {
-		IMapiMailbox replApi = target.instance(IMapiMailbox.class, domain.uid, de.key.owner);
+	private void setupFolder(RecordKey key, String payload) {
+		IMapiMailbox replApi = target.instance(IMapiMailbox.class, domain.uid, key.owner);
 		MapiReplica replica = replApi.get();
 		if (replica == null) {
-			logger.warn("Mapi folder setup occurs for {} before replica...");
+			log.filter(type(), "folder", key);
 			return;
 		}
-		IMapiFoldersMgmt foldersApi = target.instance(IMapiFoldersMgmt.class, domain.uid, de.key.owner);
-		ItemValue<MapiFolder> folderItem = folderReader.read(new String(de.payload));
-		logger.info("Restore {}", folderItem.value);
+		log.create(type(), "folder", key);
+		IMapiFoldersMgmt foldersApi = target.instance(IMapiFoldersMgmt.class, domain.uid, key.owner);
+		ItemValue<MapiFolder> folderItem = folderReader.read(payload);
 		foldersApi.store(folderItem.value);
 	}
 
