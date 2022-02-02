@@ -27,11 +27,7 @@
             <bm-icon icon="forward" size="2x" />
             <span class="d-lg-none">{{ $t("common.forward") }}</span>
         </bm-button>
-        <mail-viewer-toolbar-other-actions
-            v-if="showOtherActions && !isFolderReadOnly"
-            :message="message"
-            :conversation="conversation"
-        />
+        <mail-viewer-toolbar-other-actions v-if="!isFolderReadOnly" :message="message" :conversation="conversation" />
     </bm-button-toolbar>
 </template>
 
@@ -54,11 +50,6 @@ export default {
         message: {
             type: Object,
             required: true
-        },
-        showOtherActions: {
-            type: Boolean,
-            required: false,
-            default: false
         },
         conversation: {
             type: Object,

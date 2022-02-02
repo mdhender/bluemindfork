@@ -35,7 +35,6 @@
                     v-if="isMessageExpanded && conversation"
                     :message="message"
                     :conversation="conversation"
-                    show-other-actions
                 />
             </div>
         </template>
