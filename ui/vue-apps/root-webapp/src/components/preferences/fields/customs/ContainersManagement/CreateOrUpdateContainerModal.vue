@@ -9,7 +9,7 @@
         :ok-disabled="disableSave"
         modal-class="create-or-update-container-modal"
         body-class="row mt-3"
-        @ok="save"
+        @ok.prevent="save"
     >
         <div class="col-2"><bm-icon :icon="containerIcon" size="3x" class="mt-3" /></div>
         <bm-form class="col-10" @submit.prevent="save">
