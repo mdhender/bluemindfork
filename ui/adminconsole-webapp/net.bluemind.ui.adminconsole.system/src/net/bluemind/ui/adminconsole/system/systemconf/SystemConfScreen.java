@@ -41,6 +41,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.ui.adminconsole.base.Actions;
 import net.bluemind.ui.adminconsole.base.ui.CrudActionBar;
+import net.bluemind.ui.adminconsole.system.hosts.edit.UserLanguageModelHandler;
 import net.bluemind.ui.adminconsole.system.systemconf.auth.SysConfAuthenticationEditor;
 import net.bluemind.ui.adminconsole.system.systemconf.auth.l10n.SysConfAuthConstants;
 import net.bluemind.ui.adminconsole.system.systemconf.eas.SysConfEasServerEditor;
@@ -49,6 +50,8 @@ import net.bluemind.ui.adminconsole.system.systemconf.mail.SysConfMailEditor;
 import net.bluemind.ui.adminconsole.system.systemconf.mail.l10n.SysConfMailConstants;
 import net.bluemind.ui.adminconsole.system.systemconf.reverseProxy.SysConfReverseProxyEditor;
 import net.bluemind.ui.adminconsole.system.systemconf.reverseProxy.l10n.SysConfReverseProxyConstants;
+import net.bluemind.ui.adminconsole.system.systemconf.settings.SysConfAdminSettingsEditor;
+import net.bluemind.ui.adminconsole.system.systemconf.settings.l10n.SysConfAdminSettingsConstants;
 
 public class SystemConfScreen extends Composite implements IGwtCompositeScreenRoot {
 
@@ -145,8 +148,12 @@ public class SystemConfScreen extends Composite implements IGwtCompositeScreenRo
 
 		screenRoot.getHandlers().push(ModelHandler.create(null, SysConfModelHandler.TYPE).cast());
 		screenRoot.getHandlers().push(ModelHandler.create(null, GlobalSettingsModelHandler.TYPE).cast());
+		screenRoot.getHandlers().push(ModelHandler.create(null, UserLanguageModelHandler.TYPE).cast());
 
 		JsArray<Tab> tabs = JsArray.createArray().cast();
+
+		tabs.push(Tab.create(null, SysConfAdminSettingsConstants.INST.settings(),
+				ScreenElement.create("sysConfSettings", SysConfAdminSettingsEditor.TYPE)));
 
 		tabs.push(Tab.create(null, SysConfMailConstants.INST.mail(),
 				ScreenElement.create("sysConfMail", SysConfMailEditor.TYPE)));

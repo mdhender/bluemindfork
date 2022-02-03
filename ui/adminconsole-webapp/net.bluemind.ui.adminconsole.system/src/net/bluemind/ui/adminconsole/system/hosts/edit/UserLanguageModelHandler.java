@@ -32,6 +32,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtModelHandler;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtModelHandler;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
+import net.bluemind.gwtconsoleapp.base.notification.Notification;
 import net.bluemind.ui.adminconsole.system.hosts.HostKeys;
 import net.bluemind.ui.common.client.forms.Ajax;
 import net.bluemind.user.api.gwt.endpoint.UserSettingsGwtEndpoint;
@@ -72,7 +73,20 @@ public class UserLanguageModelHandler implements IGwtModelHandler {
 
 	@Override
 	public void save(JavaScriptObject model, final AsyncHandler<Void> handler) {
-		handler.success(null);
+		final JsMapStringJsObject map = model.cast();
+		UserSettingsGwtEndpoint userSettingsService = new UserSettingsGwtEndpoint(Ajax.TOKEN.getSessionId(),
+				Ajax.TOKEN.getContainerUid());
+
+		String lang = map.getString(HostKeys.lang.name());
+		userSettingsService.setOne(Ajax.TOKEN.getSubject(), HostKeys.lang.name(), lang,
+				new DefaultAsyncHandler<Void>(handler) {
+
+					@Override
+					public void success(Void value) {
+						Notification.get().reportInfo("Admin language updated");
+						handler.success(null);
+					}
+				});
 	}
 
 }

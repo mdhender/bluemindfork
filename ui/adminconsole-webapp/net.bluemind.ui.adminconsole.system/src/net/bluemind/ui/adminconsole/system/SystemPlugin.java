@@ -69,6 +69,7 @@ import net.bluemind.ui.adminconsole.system.systemconf.auth.SysConfAuthentication
 import net.bluemind.ui.adminconsole.system.systemconf.eas.SysConfEasServerEditor;
 import net.bluemind.ui.adminconsole.system.systemconf.mail.SysConfMailEditor;
 import net.bluemind.ui.adminconsole.system.systemconf.reverseProxy.SysConfReverseProxyEditor;
+import net.bluemind.ui.adminconsole.system.systemconf.settings.SysConfAdminSettingsEditor;
 import net.bluemind.ui.gwttag.client.DomainTagsEditor;
 import net.bluemind.ui.gwttag.client.DomainTagsModelHandler;
 
@@ -139,6 +140,9 @@ public class SystemPlugin {
 
 		// External calendars
 		EditExternalCalendarsEditor.registerType();
+
+		// settings
+		SysConfAdminSettingsEditor.registerType();
 
 		MenuContributor.exportAsfunction("NetBluemindUiAdminconsoleSystemContributor",
 				MenuContributor.create(new SystemMenusContributor()));

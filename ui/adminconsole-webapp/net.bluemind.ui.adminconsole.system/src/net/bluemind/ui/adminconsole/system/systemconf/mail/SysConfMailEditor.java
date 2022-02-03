@@ -143,18 +143,17 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 
 	@Override
 	public void loadModel(JavaScriptObject model) {
-		String _CYRUS_RETENTION_TIME_DEFAULT = "7";
-		String _CYRUS_ARCHIVE_DAYS_DEFAULT = "7";
-		String _CYRUS_MAX_CHILD_DEFAULT = "200";
-		String _ARCHIVE_KIND_DEFAULT = ArchiveKindValue.none.name();
-		String _SDS_BACKUP_RETENTION_DAYS_DEFAULT = "90";
+		final String _CYRUS_RETENTION_TIME_DEFAULT = "7";
+		final String _CYRUS_ARCHIVE_DAYS_DEFAULT = "7";
+		final String _CYRUS_MAX_CHILD_DEFAULT = "200";
+		final String _ARCHIVE_KIND_DEFAULT = ArchiveKindValue.none.name();
+		final String _SDS_BACKUP_RETENTION_DAYS_DEFAULT = "90";
 
 		SysConfModel map = SysConfModel.from(model);
-
-		myNetworks.setText(map.get(SysConfKeys.mynetworks.name()).toString());
+		myNetworks.setText(map.get(SysConfKeys.mynetworks.name()));
 		maxMailSize.setText(readMbIntegerValue(map, SysConfKeys.message_size_limit, DEFAULT_MESSAGE_SIZE_LIMIT));
 		if (map.get(SysConfKeys.relayhost.name()) != null) {
-			relayHost.setText(map.get(SysConfKeys.relayhost.name()).toString());
+			relayHost.setText(map.get(SysConfKeys.relayhost.name()));
 		}
 
 		String cyrusMaxChildValue = Optional.ofNullable(map.get(SysConfKeys.imap_max_child.name()))
@@ -206,10 +205,9 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 
 	@Override
 	public void saveModel(JavaScriptObject model) {
-		String sanitizedMaxMessageSize = sanitizeMbIntegerValue(maxMailSize, DEFAULT_MESSAGE_SIZE_LIMIT);
 		SysConfModel map = SysConfModel.from(model);
-
 		map.putString(SysConfKeys.mynetworks.name(), myNetworks.getText());
+		String sanitizedMaxMessageSize = sanitizeMbIntegerValue(maxMailSize, DEFAULT_MESSAGE_SIZE_LIMIT);
 		map.putString(SysConfKeys.message_size_limit.name(), sanitizedMaxMessageSize);
 		map.putString(SysConfKeys.relayhost.name(), relayHost.getText());
 
@@ -261,7 +259,7 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 	}
 
 	private String readMbIntegerValue(SysConfModel map, SysConfKeys key, int defaultValue) {
-		String limit = map.get(key.name()).toString();
+		String limit = map.get(key.name());
 		limit = ValueUtil.removeNonDigitCharacters(limit, defaultValue);
 		int limitInt = Integer.parseInt(limit) / (1024 * 1024);
 		return String.valueOf(limitInt);
