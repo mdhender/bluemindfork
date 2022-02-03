@@ -3,6 +3,7 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import { MOVE_CONVERSATIONS, MOVE_MESSAGES, CREATE_FOLDER_HIERARCHY } from "~/actions";
 import { IS_CURRENT_CONVERSATION, MY_MAILBOX, NEXT_CONVERSATION } from "~/getters";
 import { MailRoutesMixin } from "~/mixins";
+import { LoadingStatus } from "../model/loading-status";
 
 export default {
     mixins: [MailRoutesMixin],
@@ -72,9 +73,13 @@ function navigateConversationMessage(action) {
     return function ({ conversation, message, folder }) {
         const next = this.$store.getters["mail/" + NEXT_CONVERSATION]([conversation]);
         const isCurrentConversation = this.$store.getters["mail/" + IS_CURRENT_CONVERSATION](conversation);
-        const messageInFolder = conversation.messages.filter(m => m.folderRef.key === conversation.folderRef.key);
+        const messages = this.$store.state.mail.conversations.messages;
+        const messageKeysInFolder = conversation.messages.filter(messageKey => {
+            const message = messages[messageKey];
+            return message.loading !== LoadingStatus.ERROR && message.folderRef.key === conversation.folderRef.key;
+        });
         action.call(this, { conversation, messages: [message], folder });
-        if (messageInFolder.length === 1 && messageInFolder[0].key === message.key && isCurrentConversation) {
+        if (messageKeysInFolder.length === 1 && messageKeysInFolder[0] === message.key && isCurrentConversation) {
             this.navigateTo(next, conversation.folderRef);
         }
     };

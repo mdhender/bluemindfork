@@ -16,7 +16,7 @@ export default {
     computed: {
         subject() {
             const payload = this.alert.payload;
-            const firstItem = payload.conversations?.[0] || payload.messages?.[0] || payload[0] || payload;
+            const firstItem = payload.messages?.[0] || payload.conversations?.[0] || payload[0] || payload;
             return firstItem.subject;
         }
     }

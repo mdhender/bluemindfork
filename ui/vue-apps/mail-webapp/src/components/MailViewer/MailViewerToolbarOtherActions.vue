@@ -33,8 +33,8 @@
                 {{ $t("mail.actions.move") }}
             </bm-dropdown-item>
             <bm-dropdown-item
-                @click.exact="MOVE_MESSAGES_TO_TRASH(conversation, message)"
-                @click.shift.exact="REMOVE_MESSAGES(conversation, message)"
+                @click.exact="MOVE_MESSAGES_TO_TRASH(conversation, [message])"
+                @click.shift.exact="REMOVE_MESSAGES(conversation, [message])"
             >
                 {{ $t("mail.actions.remove") }}
             </bm-dropdown-item>
@@ -44,13 +44,13 @@
             <bm-dropdown-item icon="printer" @click="printMessage(message)">
                 {{ $t("common.print") }}
             </bm-dropdown-item>
-            <bm-dropdown-item @click.prevent.stop.exact="REMOVE_MESSAGES(conversation, message)">
+            <bm-dropdown-item @click.prevent.stop.exact="REMOVE_MESSAGES(conversation, [message])">
                 {{ $t("mail.actions.purge") }}
             </bm-dropdown-item>
         </bm-dropdown>
 
         <bm-modal
-            :id="'move-modal-' + message.key"
+            :ref="'move-modal-' + message.key"
             centered
             :title="$t('mail.toolbar.move.tooltip')"
             auto-focus-button="ok"
@@ -168,7 +168,7 @@ export default {
             this.folderSelected = null;
         },
         move() {
-            this.$bvModal.show(`move-modal-${this.message.key}`);
+            this.$refs[`move-modal-${this.message.key}`].show();
         },
         moveOk() {
             this.MOVE_CONVERSATION_MESSAGE({

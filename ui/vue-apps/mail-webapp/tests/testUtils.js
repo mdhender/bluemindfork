@@ -84,6 +84,7 @@ export function createStore() {
             key: conversationKey,
             flags: [],
             folderRef: { key: folderUid, uid: folderUid },
+            remoteRef: { uid: "a1b2c3d4e5f6" },
             messages: [messageKey],
             date: new Date(123456)
         }

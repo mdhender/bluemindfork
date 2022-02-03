@@ -651,25 +651,29 @@ function initConversations(store) {
             key: 1,
             folderRef,
             messages: [1],
-            loading: LoadingStatus.LOADED
+            loading: LoadingStatus.LOADED,
+            remoteRef: { uid: "a1b2c3d4e5f61" }
         },
         {
             key: 2,
             folderRef,
             messages: [2],
-            loading: LoadingStatus.NOT_LOADED
+            loading: LoadingStatus.NOT_LOADED,
+            remoteRef: { uid: "a1b2c3d4e5f62" }
         },
         {
             key: 3,
             folderRef,
             messages: [3],
-            loading: LoadingStatus.LOADED
+            loading: LoadingStatus.LOADED,
+            remoteRef: { uid: "a1b2c3d4e5f63" }
         },
         {
             key: 4,
             folderRef,
             messages: [4],
-            loading: LoadingStatus.LOADED
+            loading: LoadingStatus.LOADED,
+            remoteRef: { uid: "a1b2c3d4e5f64" }
         }
     ];
     const messages = [

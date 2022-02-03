@@ -71,7 +71,7 @@ const actions = {
     [MARK_CONVERSATIONS_AS_UNFLAGGED]: withAlertOrNot(markConversationsAsUnflagged, "MARK", "_AS_UNFLAGGED"),
     [MOVE_CONVERSATION_MESSAGES]: async ({ state, dispatch }, { conversation, messages, folder }) => {
         if (conversationMustBeRemoved(state, conversation, messages)) {
-            await dispatch(MOVE_CONVERSATIONS, { conversations: [conversation], folder });
+            await dispatch(MOVE_CONVERSATIONS, { conversations: [conversation], folder, messages });
         } else {
             await dispatch(MOVE_MESSAGES, { messages, folder });
         }
@@ -79,7 +79,7 @@ const actions = {
     [MOVE_CONVERSATIONS]: withAlertOrNot(moveConversations, "MOVE", "", "MoveMessages", 1),
     [REMOVE_CONVERSATION_MESSAGES]: async ({ state, dispatch }, { conversation, messages }) => {
         if (conversationMustBeRemoved(state, conversation, messages)) {
-            await dispatch(REMOVE_CONVERSATIONS, { conversations: [conversation] });
+            await dispatch(REMOVE_CONVERSATIONS, { conversations: [conversation], messages });
         } else {
             await dispatch(REMOVE_MESSAGES, { messages });
         }

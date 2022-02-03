@@ -57,7 +57,7 @@ export default {
                 this.$store.dispatch(`mail/${MOVE_CONVERSATION_MESSAGES}`, { conversation, messages, folder: trash });
                 return true;
             } else {
-                return await this.REMOVE_MESSAGES({ conversation, messages });
+                return await this.REMOVE_MESSAGES(conversation, messages);
             }
         }),
         REMOVE_MESSAGES: navigate(async function (conversation, messages) {
