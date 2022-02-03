@@ -20,7 +20,7 @@
         </bm-row>
         <mail-viewer-recipients :message="message" class="px-lg-5 px-4" />
         <hr class="mail-viewer-splitter my-0 mx-lg-5" />
-        <body-viewer :message="message">
+        <body-viewer :message="message" :expand-attachments="expandAttachments" :expand-quotes="expandQuotes">
             <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
                 <slot :name="slot" v-bind="scope" />
             </template>
@@ -47,6 +47,14 @@ export default {
         message: {
             type: Object,
             required: true
+        },
+        expandAttachments: {
+            type: Boolean,
+            default: false
+        },
+        expandQuotes: {
+            type: Boolean,
+            default: false
         }
     },
     computed: {

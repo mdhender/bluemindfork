@@ -9,10 +9,12 @@ export default {
             const print = document.createElement("iframe");
             print.style.width = "0";
             print.style.height = "0";
+            print.addEventListener("load", () => {
+                content.$mount(print.contentDocument.body);
+                print.contentWindow.addEventListener("afterprint", () => print.remove());
+                setTimeout(() => print.contentWindow.print(), 250);
+            });
             document.body.appendChild(print);
-            content.$mount(print.contentDocument.body);
-            print.contentWindow.print();
-            print.contentWindow.onafterprint = () => print.remove();
         }
     }
 };

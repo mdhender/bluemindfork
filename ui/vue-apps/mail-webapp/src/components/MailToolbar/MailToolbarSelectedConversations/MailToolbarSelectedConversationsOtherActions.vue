@@ -64,13 +64,12 @@ import { SET_MESSAGE_COMPOSING } from "~/mutations";
 import { draftPath } from "~/model/draft";
 import { MessageCreationModes } from "~/model/message";
 import MessagePathParam from "~/router/MessagePathParam";
-import MailViewerContent from "~/components/MailViewer/MailViewerContent";
-import TextHtmlPartViewer from "~/components/MailViewer/PartsViewer/TextHtmlPartViewer";
+import MailMessagePrint from "~/components/MailViewer/MailMessagePrint";
 
 export default {
-    name: "MailToolbarConsultMessageOtherActions",
+    name: "MailToolbarSelectedConversationsOtherActions",
     // eslint-disable-next-line vue/no-unused-components
-    components: { BmDropdown, BmDropdownItem, BmIcon, MailViewerContent, TextHtmlPartViewer },
+    components: { BmDropdown, BmDropdownItem, BmIcon, MailMessagePrint, TextHtmlPartViewer },
     mixins: [ActionTextMixin, RemoveMixin, FlagMixin, PrintMixin, SelectionMixin],
     computed: {
         ...mapGetters("mail", { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES }),
@@ -92,12 +91,7 @@ export default {
         ...mapMutations("mail", { SET_MESSAGE_COMPOSING }),
         printContent() {
             const message = this.messages[this.selected[0].messages[0]];
-            this.print(
-                this.$createElement("mail-viewer-content", {
-                    props: { message },
-                    scopedSlots: { "text-html": props => this.$createElement("text-html-part-viewer", { props }) }
-                })
-            );
+            this.print(this.$createElement("mail-message-print", { props: { message } }));
         },
         editAsNew() {
             const template = this.messages[this.CURRENT_CONVERSATION_METADATA.messages[0]];

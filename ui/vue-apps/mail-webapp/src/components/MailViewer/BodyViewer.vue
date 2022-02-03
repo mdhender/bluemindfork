@@ -1,6 +1,6 @@
 <template>
     <div class="body-viewer">
-        <mail-attachments-block :attachments="attachments" :message="message" />
+        <mail-attachments-block :attachments="attachments" :message="message" :expanded="expandAttachments" />
         <event-viewer v-if="message.hasICS && currentEvent" :parts="inlines" :message="message" />
         <mail-inlines-block v-else :message="message" :parts="inlines">
             <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
@@ -34,11 +34,18 @@ export default {
         message: {
             type: Object,
             required: true
+        },
+        expandAttachments: {
+            type: Boolean,
+            default: false
+        },
+        expandQuotes: {
+            type: Boolean,
+            default: false
         }
     },
     data() {
         return {
-            quotedCollapsed: true,
             alert: {
                 alert: { name: "mail.BLOCK_REMOTE_CONTENT", uid: "BLOCK_REMOTE_CONTENT", payload: this.message },
                 options: { area: "right-panel", renderer: "BlockedRemoteContent" }
@@ -87,7 +94,9 @@ export default {
         const conversationMessages = this.message.conversationRef
             ? this.CONVERSATION_MESSAGE_BY_KEY(this.message.conversationRef.key)
             : [this.message];
-        this.COMPUTE_QUOTE_NODES({ message: this.message, conversationMessages });
+        if (!this.expandQuotes) {
+            this.COMPUTE_QUOTE_NODES({ message: this.message, conversationMessages });
+        }
         if (!this.trustRemoteContent) {
             const hasImages = texts.some(part => MimeType.isHtml(part) && hasRemoteImages(this.contents[part.address]));
             if (hasImages) {

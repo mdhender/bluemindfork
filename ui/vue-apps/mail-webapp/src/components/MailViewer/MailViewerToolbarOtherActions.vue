@@ -85,7 +85,6 @@
                     </div>
                 </div>
             </template>
-
             <template #modal-footer="{ ok, cancel }">
                 <bm-button type="submit" variant="primary" :disabled="!folderSelected" @click.prevent="ok()">
                     {{ $t("mail.actions.move") }}
@@ -115,8 +114,7 @@ import { MessageCreationModes } from "~/model/message";
 import { draftPath } from "~/model/draft";
 import MessagePathParam from "~/router/MessagePathParam";
 import MailMailboxIcon from "../MailMailboxIcon.vue";
-import Vue from "vue";
-Vue.component("BmButton", BmButton);
+import MailMessagePrint from "./MailMessagePrint.vue";
 
 export default {
     name: "MailViewerToolbarOtherActions",
@@ -127,7 +125,9 @@ export default {
         BmFormAutocompleteInput,
         BmIcon,
         BmModal,
-        MailMailboxIcon
+        MailMailboxIcon,
+        // eslint-disable-next-line vue/no-unused-components
+        MailMessagePrint
     },
     mixins: [RemoveMixin, MoveMixin, FilterFolderMixin, PrintMixin],
     props: {
@@ -158,12 +158,7 @@ export default {
             MARK_MESSAGE_AS_UNREAD
         }),
         printContent() {
-            this.print(
-                this.$createElement("mail-viewer-content", {
-                    props: { message: this.message },
-                    scopedSlots: { "text-html": props => this.$createElement("text-html-part-viewer", { props }) }
-                })
-            );
+            this.print(this.$createElement("mail-message-print", { props: { message: this.message } }));
         },
         folderSelection(folder) {
             this.folderSelected = folder;
