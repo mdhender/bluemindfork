@@ -32,8 +32,6 @@ export default {
         },
         features() {
             return [
-                this.$t("preferences.mail.advanced.switch.features.identity"),
-                this.$t("preferences.mail.advanced.switch.features.shared"),
                 this.$t("preferences.mail.advanced.switch.features.filehosting"),
                 this.$t("preferences.mail.advanced.switch.features.move_folder")
             ];

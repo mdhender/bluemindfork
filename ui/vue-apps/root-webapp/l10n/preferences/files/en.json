@@ -145,8 +145,6 @@
     "preferences.mail.advanced.switch.label": "Try the new webmail version",
     "preferences.mail.advanced.switch.modern.missing_features": "You are using the new version of the mail application, please note, some features might not be present yet:",
     "preferences.mail.advanced.switch.classic.missing_features": "Please note, some features might not be present in the new version of the mail application :",
-    "preferences.mail.advanced.switch.features.identity": "Mail identity",
-    "preferences.mail.advanced.switch.features.shared": "User shared mailbox",
     "preferences.mail.advanced.switch.features.filehosting": "Send large files as link",
     "preferences.mail.advanced.switch.features.move_folder": "Move folder",
 

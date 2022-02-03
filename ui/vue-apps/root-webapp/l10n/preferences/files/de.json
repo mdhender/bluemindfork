@@ -145,8 +145,6 @@
     "preferences.mail.advanced.switch.label": "den neuen Webmailer testen",
     "preferences.mail.advanced.switch.modern.missing_features": "Sie verwenden die neue Version des Webmailers, beachten Sie dass manche Funktionen noch nicht enthalten sind:",
     "preferences.mail.advanced.switch.classic.missing_features": "Beachten Sie dass manche Funktionen noch nicht in der neuen Version enthalten sind:",
-    "preferences.mail.advanced.switch.features.identity": "Mail-Identitäten",
-    "preferences.mail.advanced.switch.features.shared": "Geteilte Benutzer-Mailkonten",
     "preferences.mail.advanced.switch.features.filehosting": "Größe Dateianhänge als Link versenden",
     "preferences.mail.advanced.switch.features.move_folder": "Ordner verschieben",
 
