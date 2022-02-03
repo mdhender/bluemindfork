@@ -148,7 +148,14 @@ export default {
 
         // case of a reply or forward message
         async initReplyOrForward(creationMode, previousMessage) {
-            const message = createReplyOrForward(previousMessage, this.$_ComposerInitMixin_MY_DRAFTS, creationMode);
+            const identity = this.getIdentityForReplyOrForward(previousMessage);
+
+            const message = createReplyOrForward(
+                previousMessage,
+                this.$_ComposerInitMixin_MY_DRAFTS,
+                creationMode,
+                identity
+            );
 
             if (creationMode !== MessageCreationModes.FORWARD && this.$store.state.mail.mailThreadSetting === "true") {
                 message.conversationRef = { ...previousMessage.conversationRef };
@@ -156,7 +163,6 @@ export default {
 
             this.$_ComposerInitMixin_ADD_MESSAGES([message]);
 
-            const identity = this.getIdentityForReplyOrForward(previousMessage);
             await this.setFrom(identity, message);
 
             const parts = getPartsFromCapabilities(previousMessage, COMPOSER_CAPABILITIES);

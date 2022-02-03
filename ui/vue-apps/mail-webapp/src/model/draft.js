@@ -59,7 +59,7 @@ export function createEmpty(folder) {
     return message;
 }
 
-export function createReplyOrForward(previousMessage, myDraftsFolder, creationMode) {
+export function createReplyOrForward(previousMessage, myDraftsFolder, creationMode, identity) {
     const message = createEmpty(myDraftsFolder);
 
     const draftInfoHeader = {
@@ -70,7 +70,7 @@ export function createReplyOrForward(previousMessage, myDraftsFolder, creationMo
     message.headers = [{ name: MessageHeader.X_BM_DRAFT_INFO, values: [JSON.stringify(draftInfoHeader)] }];
 
     if (creationMode === MessageCreationModes.REPLY_ALL || creationMode === MessageCreationModes.REPLY) {
-        message.to = computeToRecipients(creationMode, previousMessage, message.from);
+        message.to = computeToRecipients(creationMode, previousMessage, identity);
         message.cc = computeCcRecipients(creationMode, previousMessage);
     }
     if (creationMode === MessageCreationModes.FORWARD) {
@@ -201,7 +201,8 @@ export function computeCcRecipients(creationMode, previousMessage) {
 }
 
 // INTERNAL METHOD (exported only for testing purpose)
-export function computeToRecipients(creationMode, previousMessage, from) {
+export function computeToRecipients(creationMode, previousMessage, identity) {
+    const from = identityToFrom(identity);
     const isReplyAll = creationMode === MessageCreationModes.REPLY_ALL;
     const mailFollowUpTo = previousMessage.headers.find(header => header.name === MessageHeader.MAIL_FOLLOWUP_TO);
     const mailReplyToHeader = previousMessage.headers.find(header => header.name === MessageHeader.MAIL_REPLY_TO);

@@ -150,12 +150,12 @@ describe("compute To and Cc recipients when replying", () => {
         previousMessage.headers = [];
     });
 
-    const currentFrom = { address: "jdoe@vm40.net", dn: "John Doe" };
+    const currentIdentity = { email: "jdoe@vm40.net", displayname: "John Doe" };
     const otherRecipients = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
     const otherRecipientsWithDn = otherRecipients.map(address => ({ address, dn: "" }));
 
     test("Reply and no header", () => {
-        const to = computeToRecipients(MessageCreationModes.REPLY, previousMessage, currentFrom);
+        const to = computeToRecipients(MessageCreationModes.REPLY, previousMessage, currentIdentity);
         expect(to).toEqual([previousMessageFrom]);
 
         const cc = computeCcRecipients(MessageCreationModes.REPLY, previousMessage);
@@ -165,7 +165,7 @@ describe("compute To and Cc recipients when replying", () => {
     test("Reply and Mail-Followup-To header", () => {
         previousMessage.headers = [{ name: MessageHeader.MAIL_FOLLOWUP_TO, values: otherRecipients }];
 
-        const to = computeToRecipients(MessageCreationModes.REPLY, previousMessage, currentFrom);
+        const to = computeToRecipients(MessageCreationModes.REPLY, previousMessage, currentIdentity);
         expect(to).toEqual([previousMessageFrom]);
 
         const cc = computeCcRecipients(MessageCreationModes.REPLY, previousMessage);
@@ -175,7 +175,7 @@ describe("compute To and Cc recipients when replying", () => {
     test("Reply and Mail-Reply-To header", () => {
         previousMessage.headers = [{ name: MessageHeader.MAIL_REPLY_TO, values: otherRecipients }];
 
-        const to = computeToRecipients(MessageCreationModes.REPLY, previousMessage, currentFrom);
+        const to = computeToRecipients(MessageCreationModes.REPLY, previousMessage, currentIdentity);
         expect(to).toEqual([{ address: "azerty@keyboard.com", dn: "" }]);
 
         const cc = computeCcRecipients(MessageCreationModes.REPLY, previousMessage);
@@ -185,17 +185,17 @@ describe("compute To and Cc recipients when replying", () => {
     test("Reply and Reply-To header", () => {
         previousMessage.headers = [{ name: MessageHeader.REPLY_TO, values: otherRecipients }];
 
-        const to = computeToRecipients(MessageCreationModes.REPLY, previousMessage, currentFrom);
+        const to = computeToRecipients(MessageCreationModes.REPLY, previousMessage, currentIdentity);
         expect(to).toEqual([{ address: "azerty@keyboard.com", dn: "" }]);
 
         const cc = computeCcRecipients(MessageCreationModes.REPLY, previousMessage);
         expect(cc).toEqual([]);
     });
 
-    const previousToWithoutMe = previousMessageTo.filter(to => to.address !== currentFrom.address);
+    const previousToWithoutMe = previousMessageTo.filter(to => to.address !== currentIdentity.email);
 
     test("ReplyAll and no header", () => {
-        const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentFrom);
+        const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
         expect(to).toEqual([previousMessageFrom].concat(previousToWithoutMe));
 
         const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage);
@@ -205,7 +205,7 @@ describe("compute To and Cc recipients when replying", () => {
     test("ReplyAll and Mail-Followup-To header", () => {
         previousMessage.headers = [{ name: MessageHeader.MAIL_FOLLOWUP_TO, values: otherRecipients }];
 
-        const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentFrom);
+        const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
         expect(to).toEqual(otherRecipientsWithDn);
 
         const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage);
@@ -215,7 +215,7 @@ describe("compute To and Cc recipients when replying", () => {
     test("ReplyAll and Mail-Reply-To header", () => {
         previousMessage.headers = [{ name: MessageHeader.MAIL_REPLY_TO, values: otherRecipients }];
 
-        const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentFrom);
+        const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
         expect(to).toEqual(otherRecipientsWithDn);
 
         const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage);
@@ -225,7 +225,7 @@ describe("compute To and Cc recipients when replying", () => {
     test("ReplyAll and Reply-To header", () => {
         previousMessage.headers = [{ name: MessageHeader.REPLY_TO, values: otherRecipients }];
 
-        const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentFrom);
+        const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
         expect(to).toEqual(otherRecipientsWithDn);
 
         const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage);
@@ -233,9 +233,9 @@ describe("compute To and Cc recipients when replying", () => {
     });
 
     test("Remove 'From' from recipients", () => {
-        previousMessage.to.push(currentFrom);
-        const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentFrom);
-        expect(to.findIndex(recipient => recipient.address === currentFrom.address)).toBe(-1);
+        previousMessage.to.push(currentIdentity);
+        const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
+        expect(to.findIndex(recipient => recipient.address === currentIdentity.email)).toBe(-1);
     });
 });
 
