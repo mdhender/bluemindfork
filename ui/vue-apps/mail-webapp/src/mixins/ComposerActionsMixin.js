@@ -1,3 +1,4 @@
+import cloneDeep from "lodash.clonedeep";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { inject } from "@bluemind/inject";
@@ -86,7 +87,7 @@ export default {
             const wasMessageOnlyLocal = isNewMessage(this.message);
             await this.$_ComposerActionsMixin_DEBOUNCED_SAVE({
                 draft: this.message,
-                messageCompose: this.$_ComposerActionsMixin_messageCompose
+                messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose)
             });
             this.updateRoute(wasMessageOnlyLocal);
         },
@@ -94,7 +95,7 @@ export default {
             const wasMessageOnlyLocal = isNewMessage(this.message);
             await this.$_ComposerActionsMixin_SAVE_MESSAGE({
                 draft: this.message,
-                messageCompose: this.$_ComposerActionsMixin_messageCompose
+                messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose)
             });
             this.updateRoute(wasMessageOnlyLocal);
         },
@@ -204,7 +205,7 @@ export default {
                 myMailboxKey: this.$_ComposerActionsMixin_MY_MAILBOX_KEY,
                 outbox: this.$_ComposerActionsMixin_MY_OUTBOX,
                 myDraftsFolder: this.$_ComposerActionsMixin_MY_DRAFTS,
-                messageCompose: this.$_ComposerActionsMixin_messageCompose
+                messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose)
             });
             if (
                 !this.$_ComposerActionsMixin_CONVERSATIONS_ACTIVATED ||

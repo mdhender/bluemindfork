@@ -59,7 +59,6 @@
         "@vue/test-utils": "^1.1.4",
         "fake-indexeddb": "^3.1.2",
         "fetch-mock": "^9.10.7",
-        "lodash.clonedeep": "^4.5.0",
         "lodash.merge": "^4.6.2",
         "node-fetch": "^2.6.1",
         "webpack-bundle-analyzer": "^3.6.0"

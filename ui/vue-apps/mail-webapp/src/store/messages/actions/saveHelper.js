@@ -30,9 +30,6 @@ export function isReadyToBeSaved(draft, messageCompose) {
 }
 
 export async function save(context, draft, messageCompose) {
-    if (!draft) {
-        return;
-    }
     try {
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVING }]);
 
@@ -51,12 +48,12 @@ export async function save(context, draft, messageCompose) {
 }
 
 async function prepareDraft(context, service, draft, messageCompose) {
-    let editorContent = messageCompose.collapsedContent
+    let wholeContent = messageCompose.collapsedContent
         ? messageCompose.editorContent + messageCompose.collapsedContent
         : messageCompose.editorContent;
-    editorContent = sanitizeHtml(editorContent);
+    wholeContent = sanitizeHtml(wholeContent);
 
-    const insertionResult = InlineImageHelper.insertCid(editorContent, messageCompose.inlineImagesSaved);
+    const insertionResult = InlineImageHelper.insertCid(wholeContent, messageCompose.inlineImagesSaved);
 
     const textHtml = sanitizeForCyrus(insertionResult.htmlWithCids);
     const textPlain = sanitizeForCyrus(html2text(insertionResult.htmlWithCids));
