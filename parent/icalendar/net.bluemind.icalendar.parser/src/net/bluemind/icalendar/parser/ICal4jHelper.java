@@ -37,7 +37,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
-import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +64,7 @@ import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
+import net.bluemind.utils.HtmlToPlainText;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ComponentList;
 import net.fortuna.ical4j.model.Date;
@@ -1271,7 +1271,8 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 	private static void parseICalendarElementDescription(PropertyList properties, ICalendarElement iCalendarElement) {
 		if (isStringNotNull(iCalendarElement.description)) {
-			properties.add(new Description(Jsoup.parse(iCalendarElement.description).text().trim()));
+			HtmlToPlainText formater = new HtmlToPlainText();
+			properties.add(new Description(formater.convert(iCalendarElement.description).trim()));
 
 			String desc = iCalendarElement.description;
 			if (!desc.startsWith("<html>")) {

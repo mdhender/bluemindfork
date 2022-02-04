@@ -169,6 +169,9 @@ public class VEventServiceTests extends AbstractCalendarTests {
 
 		vevent.main.rrule = rrule;
 
+		// html description
+		vevent.main.description = "This is <a href=\"www.bluemind.net\">bluemind</a>";
+
 		String uid = "test_" + System.nanoTime();
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, vevent, sendNotifications);
 
@@ -209,7 +212,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(export.contains("SEQUENCE:1"));
 		assertTrue(export.contains("CLASS:PRIVATE"));
 		assertTrue(export.contains("TRANSP:OPAQUE"));
-		assertTrue(export.contains("DESCRIPTION:Lorem ipsum"));
+		assertTrue(export.contains("DESCRIPTION:This is bluemind <www.bluemind.net>"));
 		assertTrue(export.contains("LOCATION:Toulouse"));
 		assertTrue(export.contains("PRIORITY:3"));
 		assertTrue(export.contains("STATUS:CONFIRMED"));
