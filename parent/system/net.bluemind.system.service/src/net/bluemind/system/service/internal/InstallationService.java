@@ -88,6 +88,7 @@ import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.CloneConfiguration;
 import net.bluemind.system.api.CustomLogo;
+import net.bluemind.system.api.IGlobalSettings;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.InstallationVersion;
@@ -631,6 +632,10 @@ public class InstallationService implements IInstallation {
 
 	private ISystemConfiguration systemConfService() {
 		return context.su().provider().instance(ISystemConfiguration.class);
+	}
+
+	private IGlobalSettings globalSettingsService() {
+		return context.su().provider().instance(IGlobalSettings.class);
 	}
 
 	@Override

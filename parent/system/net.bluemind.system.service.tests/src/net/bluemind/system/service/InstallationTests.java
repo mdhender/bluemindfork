@@ -52,8 +52,8 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.system.api.CustomLogo;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.InstallationVersion;
-import net.bluemind.system.persistence.UpgraderStore;
 import net.bluemind.system.persistence.SystemConfStore;
+import net.bluemind.system.persistence.UpgraderStore;
 
 public class InstallationTests {
 
@@ -64,7 +64,6 @@ public class InstallationTests {
 	public void before() throws Exception {
 
 		JdbcTestHelper.getInstance().beforeTest();
-		
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		testContext = new BmTestContext(SecurityContext.SYSTEM);
@@ -111,7 +110,8 @@ public class InstallationTests {
 	@Test
 	public void testCustomlogo() throws Exception {
 		InstallationId.reload();
-		ContainerStore cs = new ContainerStore(testContext, JdbcActivator.getInstance().getDataSource(), SecurityContext.SYSTEM);
+		ContainerStore cs = new ContainerStore(testContext, JdbcActivator.getInstance().getDataSource(),
+				SecurityContext.SYSTEM);
 		cs.create(Container.create("installation_resources", "installation_resources", "installation_resources",
 				SecurityContext.SYSTEM.getSubject(), true));
 
@@ -159,9 +159,10 @@ public class InstallationTests {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 	}
-	
-	private List<String> notifiedEmails = new ArrayList<String>(Arrays.asList("email@email.fr", "rfzefze@mail.com", "fzefzef@fzef.fr"));
-	
+
+	private List<String> notifiedEmails = new ArrayList<String>(
+			Arrays.asList("email@email.fr", "rfzefze@mail.com", "fzefzef@fzef.fr"));
+
 	@Test
 	public void testSetAndGetNotifiedEmails() {
 		try {
