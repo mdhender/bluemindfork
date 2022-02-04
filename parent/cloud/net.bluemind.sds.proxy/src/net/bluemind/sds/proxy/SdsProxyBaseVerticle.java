@@ -125,23 +125,39 @@ public abstract class SdsProxyBaseVerticle extends AbstractVerticle {
 
 		router.options("/sds",
 				sdsOperation("sds.exists", (ISdsBackingStore store, ExistRequest req) -> store.exists(req),
-						js -> ExistRequest.of(js.getString("mailbox"), js.getString("guid")),
-						(httpResp, existResp) -> httpResp.setStatusCode(existResp.exists ? 200 : 404).end()));
+						js -> ExistRequest.of(js.getString("mailbox"), js.getString("guid")), (httpResp, existResp) -> {
+							/* unrecoverable errors are directly handled by sdsOperation */
+							if (!httpResp.ended()) {
+								httpResp.setStatusCode(existResp.exists ? 200 : 404).end();
+							}
+						}));
 
 		router.delete("/sds",
 				sdsOperation("sds.delete", (ISdsBackingStore store, DeleteRequest req) -> store.delete(req),
-						js -> DeleteRequest.of(js.getString("guid")),
-						(httpResp, delResp) -> httpResp.setStatusCode(200).end()));
+						js -> DeleteRequest.of(js.getString("guid")), (httpResp, delResp) -> {
+							/* Errors are directly handled by sdsOperation */
+							if (!httpResp.ended()) {
+								httpResp.setStatusCode(200).end();
+							}
+						}));
 
-		router.put("/sds",
-				sdsOperation("sds.put", (ISdsBackingStore store, PutRequest req) -> store.upload(req),
-						js -> PutRequest.of(js.getString("guid"), js.getString("filename")),
-						(httpResp, putResp) -> httpResp.setStatusCode(200).end()));
+		router.put("/sds", sdsOperation("sds.put", (ISdsBackingStore store, PutRequest req) -> store.upload(req),
+				js -> PutRequest.of(js.getString("guid"), js.getString("filename")), (httpResp, putResp) -> {
+					/* Errors are directly handled by sdsOperation */
+					if (!httpResp.ended()) {
+						httpResp.setStatusCode(200).end();
+					}
+				}));
 
 		router.get("/sds",
 				sdsOperation("sds.get", (ISdsBackingStore store, GetRequest req) -> store.download(req),
 						js -> GetRequest.of(js.getString("mailbox"), js.getString("guid"), js.getString("filename")),
-						(httpResp, putResp) -> httpResp.setStatusCode(200).end()));
+						(httpResp, getResp) -> {
+							/* Errors are directly handled by sdsOperation */
+							if (!httpResp.ended()) {
+								httpResp.setStatusCode(200).end();
+							}
+						}));
 
 		router.post("/sds/mget",
 				sdsOperation("sds.mget", (ISdsBackingStore store, MgetRequest req) -> store.downloads(req), js -> {
