@@ -13,15 +13,21 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.ListenableFuture;
 import org.asynchttpclient.Response;
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
+import org.mapdb.HTreeMap;
+import org.mapdb.Serializer;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,21 +55,20 @@ public class MigrateCommand implements ICmdLet, Runnable {
 	private CliContext ctx;
 	private AsyncHttpClient ahc;
 	private CliUtils cliUtils;
+	private final DB db;
+	private final HTreeMap<Long, Integer> migrationMap;
+	private static final AtomicInteger uploadCount = new AtomicInteger(0);
 
-	public static class Reg implements ICmdLetRegistration {
-		@Override
-		public Optional<String> group() {
-			return Optional.of("sds");
-		}
-
-		@Override
-		public Class<? extends ICmdLet> commandClass() {
-			return MigrateCommand.class;
-		}
+	private static final Path root = Paths.get("/var/spool/bm-cli/");
+	static {
+		root.toFile().mkdirs();
 	}
 
 	public MigrateCommand() {
-		// sonar: OK
+		db = DBMaker.fileDB(root.resolve("sds-migrate.db").toAbsolutePath().toString()).transactionEnable()
+				.fileMmapEnable().make();
+		migrationMap = db.hashMap("migrate").keySerializer(Serializer.LONG).valueSerializer(Serializer.INTEGER)
+				.createOrOpen();
 	}
 
 	@Override
@@ -80,10 +85,13 @@ public class MigrateCommand implements ICmdLet, Runnable {
 	public String format = null;
 
 	@Option(names = "--workers", description = "run with X workers")
-	public int workers = 1;
+	public int workers = 32;
 
 	@Option(names = "--force", description = "Force running, even if we are not happy about current SystemConfiguration")
 	public boolean force = false;
+
+	@Option(names = "--cache", description = "Check the cache file before trying to push to SDS", negatable = true)
+	public boolean cache = true;
 
 	private Map<String, String> jsonFileToMap(Path filepath) {
 		Map<String, String> map = new HashMap<>();
@@ -137,16 +145,20 @@ public class MigrateCommand implements ICmdLet, Runnable {
 			ctx.error(String.format("%s not found or is not readable", file));
 		}
 
-		for (String domain : cliUtils.getDomainUids()) {
-			try {
-				String currentServer = new String(Files.readAllBytes(Paths.get("/etc/bm/server.uid")));
-				CyrusPartition partition = CyrusPartition.forServerAndDomain(currentServer, domain);
-				migrate(partition);
-			} catch (IOException e) {
-				ctx.error(e.getMessage());
-				e.printStackTrace();
-				System.exit(1);
+		try {
+			for (String domain : cliUtils.getDomainUids()) {
+				try {
+					String currentServer = new String(Files.readAllBytes(Paths.get("/etc/bm/server.uid")));
+					CyrusPartition partition = CyrusPartition.forServerAndDomain(currentServer, domain);
+					migrate(partition);
+				} catch (IOException e) {
+					ctx.error(e.getMessage());
+					e.printStackTrace();
+					System.exit(1);
+				}
 			}
+		} finally {
+			db.close();
 		}
 	}
 
@@ -181,25 +193,41 @@ public class MigrateCommand implements ICmdLet, Runnable {
 	private void migrate(CyrusPartition partition) throws IOException {
 		ArrayBlockingQueue<Path> q = new ArrayBlockingQueue<>(workers);
 		ExecutorService pool = Executors.newFixedThreadPool(workers);
+
 		Files.walk(partition.archiveParent(), FileVisitOption.FOLLOW_LINKS).filter(p -> {
 			File asFile = p.toFile();
 			return asFile.isFile() && asFile.getName().endsWith(".");
 		}).forEach(p -> {
+			long inode;
+			try {
+				inode = (long) Files.getAttribute(p, "unix:ino");
+			} catch (IOException e) {
+				throw new ServerFault(e);
+			}
+			if (cache && migrationMap.getOrDefault(inode, 404) == 200) {
+				return;
+			}
+
 			try {
 				q.put(p); // block until a slot is free
 			} catch (InterruptedException ie) {
 			}
 			pool.submit(() -> {
-				ListenableFuture<Response> resp = pushToSdsProxy(ahc, p);
+				CompletableFuture<Response> respFut = pushToSdsProxy(ahc, p);
 				try {
-					resp.get(30, TimeUnit.SECONDS);
+					Response resp = respFut.get(30, TimeUnit.SECONDS);
+					migrationMap.put(inode, resp.getStatusCode());
+					if (uploadCount.incrementAndGet() % 1000 == 0) {
+						db.commit();
+					}
 				} catch (Exception e) {
 					throw new ServerFault(e);
 				} finally {
-					q.remove(); // We don't care what path we remove
+					q.remove(); // NOSONAR: We don't care what path we remove
 				}
 			});
 		});
+		db.commit();
 		pool.shutdown();
 		try {
 			pool.awaitTermination(1, TimeUnit.MINUTES);
@@ -207,15 +235,19 @@ public class MigrateCommand implements ICmdLet, Runnable {
 		}
 	}
 
-	private ListenableFuture<Response> pushToSdsProxy(AsyncHttpClient ahc, Path p) {
+	private CompletableFuture<Response> pushToSdsProxy(AsyncHttpClient ahc, Path p) {
 		try {
 			String fn = p.toFile().getAbsolutePath();
 			@SuppressWarnings("deprecation")
 			String guid = com.google.common.io.Files.asByteSource(p.toFile()).hash(Hashing.sha1()).toString();
 			JsonObject upload = new JsonObject().put("mailbox", "migration").put("guid", guid).put("filename", fn);
-			ctx.info(fn + " -> " + guid);
+
 			return ahc.preparePut(SDS_ENDPOINT_PUTOBJECT).setBody(upload.encode().getBytes())
-					.setHeader("Content-Type", "application/json").execute();
+					.setHeader("Content-Type", "application/json").execute().toCompletableFuture()
+					.thenApply(ahcresp -> {
+						ctx.info("{} -> {}: {}", fn, guid, ahcresp.getStatusCode() == 200 ? "OK" : "FAILED");
+						return ahcresp;
+					});
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
@@ -244,4 +276,15 @@ public class MigrateCommand implements ICmdLet, Runnable {
 		}
 	}
 
+	public static class Reg implements ICmdLetRegistration {
+		@Override
+		public Optional<String> group() {
+			return Optional.of("sds");
+		}
+
+		@Override
+		public Class<? extends ICmdLet> commandClass() {
+			return MigrateCommand.class;
+		}
+	}
 }
