@@ -15,7 +15,7 @@ import { extend } from "@bluemind/vuex-router";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
 
 import registerDependencies from "./registerDependencies";
-import PreferencesStore from "./preferencesStore";
+import PreferencesStore from "./preferences/store";
 import RootAppStore from "./rootAppStore";
 import SettingsStore from "./settingsStore";
 import MainApp from "./components/MainApp";

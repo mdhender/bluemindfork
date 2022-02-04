@@ -64,14 +64,14 @@ export default {
     async created() {
         const save = async ({ state: { current }, dispatch }) => {
             await dispatch(
-                "preferences/SAVE_MAILBOX_FILTER",
-                { rules: current.value.map(v => writeRule(v)) },
+                "preferences/SAVE_RULES",
+                current.value.map(v => writeRule(v)),
                 { root: true }
             );
         };
         this.registerSaveAction(save);
 
-        this.value = this.normalizeUserFilters(this.$store.state.preferences.mailboxFilter.remote);
+        this.value = this.normalizeUserFilters(this.$store.state.preferences.mailboxFilter);
 
         this.domainFilters = await this.fetchDomainFilters();
     },

@@ -1,11 +1,9 @@
 import { MailboxFoldersClient } from "@bluemind/backend.mail.api";
 
-let sequentialRequest = Promise.resolve();
+let lock = Promise.resolve();
 export class MailboxFoldersClientProxy extends MailboxFoldersClient {
-    importItems(...args) {
-        sequentialRequest = sequentialRequest
-            .then(() => super.importItems(...args))
-            .catch(() => super.importItems(...args));
-        return sequentialRequest;
+    importItems() {
+        lock = lock.catch(Function).then(() => super.importItems(...arguments));
+        return lock;
     }
 }

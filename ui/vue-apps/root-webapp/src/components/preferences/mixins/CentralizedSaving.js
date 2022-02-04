@@ -66,7 +66,6 @@ export default {
             } else {
                 actions.SAVE = wrappedSave;
             }
-
             this.$store.registerModule(["preferences", "fields", this.id], { state, actions });
         }
     },

@@ -1,31 +1,27 @@
 import { MailboxItemsClient } from "@bluemind/backend.mail.api";
 import { ItemFlag } from "@bluemind/core.container.api";
 
-let sequentialRequest = Promise.resolve();
+let lock = Promise.resolve();
 
 export class MailboxItemsClientProxy extends MailboxItemsClient {
-    addFlag(...args) {
-        sequentialRequest = sequentialRequest.then(() => super.addFlag(...args)).catch(() => super.addFlag(...args));
-        return sequentialRequest;
+    addFlag() {
+        lock = lock.catch(Function).then(() => super.addFlag(...arguments));
+        return lock;
     }
 
-    deleteFlag(...args) {
-        sequentialRequest = sequentialRequest
-            .then(() => super.deleteFlag(...args))
-            .catch(() => super.deleteFlag(...args));
-        return sequentialRequest;
+    deleteFlag() {
+        lock = lock.catch(Function).then(() => super.deleteFlag(...arguments));
+        return lock;
     }
 
-    fetch(...args) {
-        sequentialRequest = sequentialRequest.then(() => super.fetch(...args)).catch(() => super.fetch(...args));
-        return sequentialRequest;
+    fetch() {
+        lock = lock.catch(Function).then(() => super.fetch(...arguments));
+        return lock;
     }
 
-    getForUpdate(...args) {
-        sequentialRequest = sequentialRequest
-            .then(() => super.getForUpdate(...args))
-            .catch(() => super.getForUpdate(...args));
-        return sequentialRequest;
+    getForUpdate() {
+        lock = lock.catch(Function).then(() => super.getForUpdate(...arguments));
+        return lock;
     }
 
     sortedIds(sorted = { column: "internal_date", dir: "Desc" }) {

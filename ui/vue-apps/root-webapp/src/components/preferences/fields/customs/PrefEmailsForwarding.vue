@@ -54,11 +54,11 @@ export default {
     },
     created() {
         const save = async ({ state: { current }, dispatch }) => {
-            await dispatch("preferences/SAVE_MAILBOX_FILTER", { forwarding: current.value }, { root: true });
+            await dispatch("preferences/SAVE_FORWARDING", current.value, { root: true });
         };
         this.registerSaveAction(save);
 
-        this.value = { ...this.$store.state.preferences.mailboxFilter.remote.forwarding };
+        this.value = { ...this.$store.state.preferences.mailboxFilter.forwarding };
     },
     methods: {
         async onSearch(pattern) {

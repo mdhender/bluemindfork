@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
-import preferencesStore from "../preferencesStore";
+import preferencesStore from "../preferences/store";
 
 describe("Preferences store", () => {
     let store;

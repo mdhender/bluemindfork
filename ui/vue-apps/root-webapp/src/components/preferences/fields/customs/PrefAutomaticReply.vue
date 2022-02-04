@@ -202,11 +202,11 @@ export default {
     },
     created() {
         const save = async ({ state: { current }, dispatch }) => {
-            await dispatch("preferences/SAVE_MAILBOX_FILTER", { vacation: current.value }, { root: true });
+            await dispatch("preferences/SAVE_VACATION", current.value, { root: true });
         };
         this.registerSaveAction(save);
 
-        this.value = { ...this.$store.state.preferences.mailboxFilter.remote.vacation };
+        this.value = { ...this.$store.state.preferences.mailboxFilter.vacation };
     }
 };
 </script>

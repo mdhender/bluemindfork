@@ -1,9 +1,8 @@
-import containers from "./preferences/store/containers";
-import fields from "./preferences/store/fields";
+import containers from "./containers";
+import fields from "./fields";
+import mailboxFilter from "./mailboxFilter";
 import withAlert from "./helpers/withAlert";
-import { html2text, text2html } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
-import cloneDeep from "lodash.clonedeep";
 
 const state = {
     offset: 0,
@@ -13,7 +12,6 @@ const state = {
     sectionById: {},
     userPasswordLastChange: null,
     subscriptions: [],
-    mailboxFilter: { remote: {}, local: {}, loaded: false },
     externalAccounts: []
 };
 
@@ -41,31 +39,6 @@ const actions = {
         await inject("UserSubscriptionPersistence").unsubscribe(userId, containerUids);
         const subscriptionsToRemove = state.subscriptions.filter(sub => containerUids.includes(sub.value.containerUid));
         commit("REMOVE_SUBSCRIPTIONS", subscriptionsToRemove);
-    },
-    async FETCH_MAILBOX_FILTER({ commit }, userLang) {
-        const userId = inject("UserSession").userId;
-        const mailboxFilter = await inject("MailboxesPersistence").getMailboxFilter(userId);
-        if (!mailboxFilter.vacation.textHtml && mailboxFilter.vacation.text) {
-            mailboxFilter.vacation.textHtml = text2html(mailboxFilter.vacation.text, userLang);
-        }
-        commit("SET_MAILBOX_FILTER", mailboxFilter);
-    },
-    async SAVE_MAILBOX_FILTER({ commit, state }, { vacation, forwarding, rules }) {
-        if (vacation) {
-            if (vacation.textHtml) {
-                vacation = { ...vacation, text: html2text(vacation.textHtml) };
-            }
-            commit("SET_VACATION", vacation);
-        }
-        if (forwarding) {
-            commit("SET_FORWARDING", forwarding);
-        }
-        if (rules) {
-            commit("SET_RULES", rules);
-        }
-        const userId = inject("UserSession").userId;
-        await inject("MailboxesPersistence").setMailboxFilter(userId, state.mailboxFilter.local);
-        commit("SET_MAILBOX_FILTER", state.mailboxFilter.local);
     },
     SAVE: withAlert(saveAction, "SAVE"),
     AUTOSAVE: withAlert(autoSaveAction, "SAVE"),
@@ -114,26 +87,6 @@ const mutations = {
             }
         });
     },
-
-    // mailboxFilter
-    SET_MAILBOX_FILTER: (state, mailboxFilter) => {
-        state.mailboxFilter.remote = cloneDeep(mailboxFilter);
-        state.mailboxFilter.local = cloneDeep(mailboxFilter);
-        state.mailboxFilter.loaded = true;
-    },
-    ROLLBACK_MAILBOX_FILTER: state => {
-        state.mailboxFilter.local = cloneDeep(state.mailboxFilter.remote);
-    },
-    SET_VACATION: (state, vacation) => {
-        state.mailboxFilter.local.vacation = cloneDeep(vacation);
-    },
-    SET_FORWARDING: (state, forwarding) => {
-        state.mailboxFilter.local.forwarding = cloneDeep(forwarding);
-    },
-    SET_RULES: (state, rules) => {
-        state.mailboxFilter.local.rules = cloneDeep(rules);
-    },
-
     // external accounts
     SET_EXTERNAL_ACCOUNTS: (state, externalAccounts) => {
         state.externalAccounts = externalAccounts;
@@ -171,6 +124,7 @@ export default {
     getters,
     modules: {
         containers,
-        fields
+        fields,
+        mailboxFilter
     }
 };
