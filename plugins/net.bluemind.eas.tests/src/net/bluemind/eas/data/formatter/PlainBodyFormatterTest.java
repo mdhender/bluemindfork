@@ -40,6 +40,18 @@ public class PlainBodyFormatterTest {
 		assertEquals("One\n", text);
 	}
 
+	@Test
+	public void testHref() {
+		String html = "<a href=\"www.bluemind.net\">THIS IS BLUEMIND</a>";
+		String text = new HtmlToPlainText().convert(html);
+		assertEquals("THIS IS BLUEMIND <www.bluemind.net>", text);
+
+		html = "<a nothref=\"www.bluemind.net\">THIS IS BLUEMIND</a>";
+		text = new HtmlToPlainText().convert(html);
+		assertEquals("THIS IS BLUEMIND", text);
+
+	}
+
 	private <T> double convert(Path path, Function<String, T> map, Function<T, String> convert) throws Exception {
 		String read = Files.readAllLines(path).stream().collect(Collectors.joining("\n"));
 		System.gc();

@@ -8,6 +8,8 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.select.NodeTraversor;
 import org.jsoup.select.NodeVisitor;
 
+import com.google.common.base.Strings;
+
 public class HtmlToPlainText {
 
 	public String convert(String html) {
@@ -43,8 +45,14 @@ public class HtmlToPlainText {
 
 		public void tail(Node node, int depth) {
 			String name = node.nodeName();
-			if (in(name, "br", "dd", "dt", "p", "h1", "h2", "h3", "h4", "h5"))
+			if (name.equals("a")) {
+				String href = node.attributes().get("href");
+				if (!Strings.isNullOrEmpty(href)) {
+					append(" <" + href + ">");
+				}
+			} else if (in(name, "br", "dd", "dt", "p", "h1", "h2", "h3", "h4", "h5")) {
 				append("\n");
+			}
 		}
 
 		private void append(String text) {
