@@ -15,12 +15,17 @@
 
 package software.amazon.awssdk.utils.http;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 import static software.amazon.awssdk.utils.FunctionalUtils.invokeSafely;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,8 +37,6 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.net.UrlEscapers;
-
 import software.amazon.awssdk.annotations.SdkProtectedApi;
 import software.amazon.awssdk.utils.StringUtils;
 import software.amazon.awssdk.utils.Validate;
@@ -44,6 +47,16 @@ import software.amazon.awssdk.utils.Validate;
 @SdkProtectedApi
 public final class SdkHttpUtils {
 	private static final String DEFAULT_ENCODING = "UTF-8";
+
+	/**
+	 * Characters that we need to fix up after URLEncoder.encode().
+	 */
+	private static final String[] ENCODED_CHARACTERS_WITH_SLASHES = new String[] { "+", "*", "%7E", "%2F" };
+	private static final String[] ENCODED_CHARACTERS_WITH_SLASHES_REPLACEMENTS = new String[] { "%20", "%2A", "~",
+			"/" };
+
+	private static final String[] ENCODED_CHARACTERS_WITHOUT_SLASHES = new String[] { "+", "*", "%7E" };
+	private static final String[] ENCODED_CHARACTERS_WITHOUT_SLASHES_REPLACEMENTS = new String[] { "%20", "%2A", "~" };
 
 	// List of headers that may appear only once in a request; i.e. is not a list of
 	// values.
@@ -155,9 +168,16 @@ public final class SdkHttpUtils {
 		if (value == null) {
 			return null;
 		}
-		// BM: use guava path escapers which are way faster than the JDK one
-		return ignoreSlashes ? UrlEscapers.urlFragmentEscaper().escape(value)
-				: UrlEscapers.urlPathSegmentEscaper().escape(value);
+
+		String encoded = invokeSafely(() -> URLEncoder.encode(value, DEFAULT_ENCODING));
+
+		if (!ignoreSlashes) {
+			return StringUtils.replaceEach(encoded, ENCODED_CHARACTERS_WITHOUT_SLASHES,
+					ENCODED_CHARACTERS_WITHOUT_SLASHES_REPLACEMENTS);
+		}
+
+		return StringUtils.replaceEach(encoded, ENCODED_CHARACTERS_WITH_SLASHES,
+				ENCODED_CHARACTERS_WITH_SLASHES_REPLACEMENTS);
 	}
 
 	/**
@@ -280,6 +300,22 @@ public final class SdkHttpUtils {
 
 	/**
 	 * Perform a case-insensitive search for a particular header in the provided map
+	 * of headers.
+	 *
+	 * @param headersToSearch The headers to search.
+	 * @param headersToFind   The headers to search for (case insensitively).
+	 * @return A stream providing the values for the headers that matched the
+	 *         requested header.
+	 */
+	public static Stream<String> allMatchingHeadersFromCollection(Map<String, List<String>> headersToSearch,
+			Collection<String> headersToFind) {
+		return headersToSearch.entrySet().stream()
+				.filter(e -> headersToFind.stream().anyMatch(headerToFind -> e.getKey().equalsIgnoreCase(headerToFind)))
+				.flatMap(e -> e.getValue() != null ? e.getValue().stream() : Stream.empty());
+	}
+
+	/**
+	 * Perform a case-insensitive search for a particular header in the provided map
 	 * of headers, returning the first matching header, if one is found. <br>
 	 * This is useful for headers like 'Content-Type' or 'Content-Length' of which
 	 * there is expected to be only one value present.
@@ -294,7 +330,47 @@ public final class SdkHttpUtils {
 		return Optional.ofNullable(headers.get(header.toLowerCase())).map(l -> l.get(0));
 	}
 
+	/**
+	 * Perform a case-insensitive search for a set of headers in the provided map of
+	 * headers, returning the first matching header, if one is found.
+	 *
+	 * @param headersToSearch The headers to search.
+	 * @param headersToFind   The header to search for (case insensitively).
+	 * @return The first header that matched a requested one, or empty if one was
+	 *         not found.
+	 */
+	public static Optional<String> firstMatchingHeaderFromCollection(Map<String, List<String>> headersToSearch,
+			Collection<String> headersToFind) {
+		return allMatchingHeadersFromCollection(headersToSearch, headersToFind).findFirst();
+	}
+
 	public static boolean isSingleHeader(String h) {
 		return SINGLE_HEADERS.contains(StringUtils.lowerCase(h));
 	}
+
+	/**
+	 * Extracts query parameters from the given URI
+	 */
+	public static Map<String, List<String>> uriParams(URI uri) {
+		return splitQueryString(uri.getRawQuery()).stream().map(s -> s.split("="))
+				.map(s -> s.length == 1 ? new String[] { s[0], null } : s)
+				.collect(groupingBy(a -> urlDecode(a[0]), mapping(a -> urlDecode(a[1]), toList())));
+	}
+
+	public static List<String> splitQueryString(String queryString) {
+		List<String> results = new ArrayList<>();
+		StringBuilder result = new StringBuilder();
+		for (int i = 0; i < queryString.length(); i++) {
+			char character = queryString.charAt(i);
+			if (character != '&') {
+				result.append(character);
+			} else {
+				results.add(StringUtils.trimToEmpty(result.toString()));
+				result.setLength(0);
+			}
+		}
+		results.add(StringUtils.trimToEmpty(result.toString()));
+		return results;
+	}
+
 }

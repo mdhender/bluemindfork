@@ -22,7 +22,11 @@ import static software.amazon.awssdk.http.nio.netty.internal.ChannelAttributeKey
 import static software.amazon.awssdk.http.nio.netty.internal.ChannelAttributeKey.LAST_HTTP_CONTENT_RECEIVED_KEY;
 import static software.amazon.awssdk.http.nio.netty.internal.ChannelAttributeKey.REQUEST_CONTEXT_KEY;
 import static software.amazon.awssdk.http.nio.netty.internal.ChannelAttributeKey.RESPONSE_COMPLETE_KEY;
+import static software.amazon.awssdk.http.nio.netty.internal.ChannelAttributeKey.RESPONSE_CONTENT_LENGTH;
+import static software.amazon.awssdk.http.nio.netty.internal.ChannelAttributeKey.RESPONSE_DATA_READ;
+import static software.amazon.awssdk.http.nio.netty.internal.ChannelAttributeKey.RESPONSE_STATUS_CODE;
 import static software.amazon.awssdk.http.nio.netty.internal.utils.ExceptionHandlingUtils.tryCatch;
+import static software.amazon.awssdk.http.nio.netty.internal.utils.ExceptionHandlingUtils.tryCatchFinally;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -36,8 +40,6 @@ import java.util.stream.Collectors;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -46,21 +48,26 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
-import io.netty.handler.timeout.ReadTimeoutException;
-import io.netty.handler.timeout.WriteTimeoutException;
+import io.netty.util.ReferenceCountUtil;
 import software.amazon.awssdk.annotations.SdkInternalApi;
+import software.amazon.awssdk.http.HttpStatusFamily;
 import software.amazon.awssdk.http.Protocol;
 import software.amazon.awssdk.http.SdkCancellationException;
 import software.amazon.awssdk.http.SdkHttpFullResponse;
+import software.amazon.awssdk.http.SdkHttpMethod;
 import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.http.async.SdkAsyncHttpResponseHandler;
 import software.amazon.awssdk.http.nio.netty.internal.http2.Http2ResetSendingSubscription;
 import software.amazon.awssdk.http.nio.netty.internal.nrs.HttpStreamsClientHandler;
 import software.amazon.awssdk.http.nio.netty.internal.nrs.StreamedHttpResponse;
+import software.amazon.awssdk.http.nio.netty.internal.utils.NettyClientLogger;
+import software.amazon.awssdk.http.nio.netty.internal.utils.NettyUtils;
 import software.amazon.awssdk.utils.FunctionalUtils.UnsafeRunnable;
 import software.amazon.awssdk.utils.async.DelegatingSubscription;
 
@@ -68,7 +75,7 @@ import software.amazon.awssdk.utils.async.DelegatingSubscription;
 @SdkInternalApi
 public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 
-	private static final Logger log = LoggerFactory.getLogger(ResponseHandler.class);
+	private static final NettyClientLogger log = NettyClientLogger.getLogger(ResponseHandler.class);
 
 	private static final ResponseHandler INSTANCE = new ResponseHandler();
 
@@ -83,14 +90,16 @@ public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 			HttpResponse response = (HttpResponse) msg;
 			SdkHttpResponse sdkResponse = SdkHttpFullResponse.builder().headers(fromNettyHeaders(response.headers()))
 					.statusCode(response.status().code()).statusText(response.status().reasonPhrase()).build();
-			channelContext.channel().attr(KEEP_ALIVE).set(HttpUtil.isKeepAlive(response));
+			channelContext.channel().attr(RESPONSE_STATUS_CODE).set(response.status().code());
+			channelContext.channel().attr(RESPONSE_CONTENT_LENGTH).set(responseContentLength(response));
+			channelContext.channel().attr(KEEP_ALIVE).set(shouldKeepAlive(response));
 			requestContext.handler().onHeaders(sdkResponse);
 		}
 
 		CompletableFuture<Void> ef = executeFuture(channelContext);
 		if (msg instanceof StreamedHttpResponse) {
-			requestContext.handler()
-					.onStream(new PublisherAdapter((StreamedHttpResponse) msg, channelContext, requestContext, ef));
+			requestContext.handler().onStream(new DataCountingPublisher(channelContext,
+					new PublisherAdapter((StreamedHttpResponse) msg, channelContext, requestContext, ef)));
 		} else if (msg instanceof FullHttpResponse) {
 			ByteBuf fullContent = null;
 			try {
@@ -101,12 +110,69 @@ public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 
 				fullContent = ((FullHttpResponse) msg).content();
 				ByteBuffer bb = copyToByteBuffer(fullContent);
-				requestContext.handler().onStream(new FullResponseContentPublisher(channelContext, bb, ef));
-				finalizeResponse(requestContext, channelContext);
+				requestContext.handler().onStream(new DataCountingPublisher(channelContext,
+						new FullResponseContentPublisher(channelContext, bb, ef)));
+
+				try {
+					validateResponseContentLength(channelContext);
+					finalizeResponse(requestContext, channelContext);
+				} catch (IOException e) {
+					exceptionCaught(channelContext, e);
+				}
 			} finally {
 				Optional.ofNullable(fullContent).ifPresent(ByteBuf::release);
 			}
 		}
+	}
+
+	private Long responseContentLength(HttpResponse response) {
+		String length = response.headers().get(HttpHeaderNames.CONTENT_LENGTH);
+		if (length == null) {
+			return null;
+		}
+
+		return Long.parseLong(length);
+	}
+
+	private static void validateResponseContentLength(ChannelHandlerContext ctx) throws IOException {
+		if (!shouldValidateResponseContentLength(ctx)) {
+			return;
+		}
+
+		Long contentLengthHeader = ctx.channel().attr(RESPONSE_CONTENT_LENGTH).get();
+		Long actualContentLength = ctx.channel().attr(RESPONSE_DATA_READ).get();
+
+		if (contentLengthHeader == null) {
+			return;
+		}
+
+		if (actualContentLength == null) {
+			actualContentLength = 0L;
+		}
+
+		if (actualContentLength.equals(contentLengthHeader)) {
+			return;
+		}
+
+		throw new IOException("Response had content-length of " + contentLengthHeader + " bytes, but only received "
+				+ actualContentLength + " bytes before the connection was closed.");
+	}
+
+	private static boolean shouldValidateResponseContentLength(ChannelHandlerContext ctx) {
+		RequestContext requestContext = ctx.channel().attr(REQUEST_CONTEXT_KEY).get();
+
+		// HEAD requests may return Content-Length without a payload
+		if (requestContext.executeRequest().request().method() == SdkHttpMethod.HEAD) {
+			return false;
+		}
+
+		// 304 responses may contain Content-Length without a payload
+		Integer responseStatusCode = ctx.channel().attr(RESPONSE_STATUS_CODE).get();
+		if (responseStatusCode != null && responseStatusCode == HttpResponseStatus.NOT_MODIFIED.code()) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -118,6 +184,7 @@ public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 	 */
 	private static void finalizeResponse(RequestContext requestContext, ChannelHandlerContext channelContext) {
 		channelContext.channel().attr(RESPONSE_COMPLETE_KEY).set(true);
+
 		executeFuture(channelContext).complete(null);
 		if (!channelContext.channel().attr(KEEP_ALIVE).get()) {
 			closeAndRelease(channelContext);
@@ -126,15 +193,23 @@ public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 		}
 	}
 
+	private boolean shouldKeepAlive(HttpResponse response) {
+		if (HttpStatusFamily.of(response.status().code()) == HttpStatusFamily.SERVER_ERROR) {
+			return false;
+		}
+		return HttpUtil.isKeepAlive(response);
+	}
+
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		RequestContext requestContext = ctx.channel().attr(REQUEST_CONTEXT_KEY).get();
-		log.debug("Exception processing request: {}", requestContext.executeRequest().request(), cause);
-		Throwable throwable = wrapException(cause);
+		log.debug(ctx.channel(), () -> "Exception processing request: " + requestContext.executeRequest().request(),
+				cause);
+		Throwable throwable = NettyUtils.decorateException(ctx.channel(), cause);
 		executeFuture(ctx).completeExceptionally(throwable);
-		runAndLogError("Fail to execute SdkAsyncHttpResponseHandler#onError",
+		runAndLogError(ctx.channel(), "Fail to execute SdkAsyncHttpResponseHandler#onError",
 				() -> requestContext.handler().onError(throwable));
-		runAndLogError("Could not release channel back to the pool", () -> closeAndRelease(ctx));
+		runAndLogError(ctx.channel(), "Could not release channel back to the pool", () -> closeAndRelease(ctx));
 	}
 
 	@Override
@@ -165,11 +240,11 @@ public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 	 * @param errorMsg Message to log with exception thrown.
 	 * @param runnable Action to perform.
 	 */
-	private static void runAndLogError(String errorMsg, UnsafeRunnable runnable) {
+	private static void runAndLogError(Channel ch, String errorMsg, UnsafeRunnable runnable) {
 		try {
 			runnable.run();
 		} catch (Exception e) {
-			log.error(errorMsg, e);
+			log.error(ch, () -> errorMsg, e);
 		}
 	}
 
@@ -216,7 +291,7 @@ public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 				private Subscription resolveSubscription(Subscription subscription) {
 					// For HTTP2 we send a RST_STREAM frame on cancel to stop the service from
 					// sending more data
-					if (Protocol.HTTP2.equals(ChannelAttributeKey.getProtocolNow(channelContext.channel()))) {
+					if (ChannelAttributeKey.getProtocolNow(channelContext.channel()) == Protocol.HTTP2) {
 						return new Http2ResetSendingSubscription(channelContext, subscription);
 					} else {
 						return subscription;
@@ -230,10 +305,11 @@ public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 					try {
 						SdkCancellationException e = new SdkCancellationException(
 								"Subscriber cancelled before all events were published");
-						log.warn("Subscriber cancelled before all events were published");
+						log.warn(channelContext.channel(),
+								() -> "Subscriber cancelled before all events were published");
 						executeFuture.completeExceptionally(e);
 					} finally {
-						runAndLogError("Could not release channel back to the pool",
+						runAndLogError(channelContext.channel(), "Could not release channel back to the pool",
 								() -> closeAndRelease(channelContext));
 					}
 				}
@@ -242,18 +318,20 @@ public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 				public void onNext(HttpContent httpContent) {
 					// isDone may be true if the subscriber cancelled
 					if (isDone.get()) {
+						ReferenceCountUtil.release(httpContent);
 						return;
 					}
 
 					// Needed to prevent use-after-free bug if the subscriber's onNext is
 					// asynchronous
-					// BM get rid of try/catch and npe check
-					ByteBuffer byteBuffer = copyToByteBuffer(httpContent.content());
-					httpContent.release();
+					ByteBuffer byteBuffer = tryCatchFinally(() -> copyToByteBuffer(httpContent.content()),
+							this::onError, httpContent::release);
 
 					// As per reactive-streams rule 2.13, we should not call subscriber#onError when
 					// exception is thrown from subscriber#onNext
-					tryCatch(() -> subscriber.onNext(byteBuffer), this::notifyError);
+					if (byteBuffer != null) {
+						tryCatch(() -> subscriber.onNext(byteBuffer), this::notifyError);
+					}
 				}
 
 				@Override
@@ -262,12 +340,12 @@ public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 						return;
 					}
 					try {
-						runAndLogError(
+						runAndLogError(channelContext.channel(),
 								String.format("Subscriber %s threw an exception in onError.", subscriber.toString()),
 								() -> subscriber.onError(t));
 						notifyError(t);
 					} finally {
-						runAndLogError("Could not release channel back to the pool",
+						runAndLogError(channelContext.channel(), "Could not release channel back to the pool",
 								() -> closeAndRelease(channelContext));
 					}
 				}
@@ -281,17 +359,24 @@ public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 					if (!isDone.compareAndSet(false, true)) {
 						return;
 					}
+
 					try {
-						// BM: get rid of error message formating before running the code
-						runAndLogError("Subscriber threw an exception in onComplete.", subscriber::onComplete);
-					} finally {
-						finalizeResponse(requestContext, channelContext);
+						validateResponseContentLength(channelContext);
+						try {
+							runAndLogError(channelContext.channel(), String
+									.format("Subscriber %s threw an exception in onComplete.", subscriber.toString()),
+									subscriber::onComplete);
+						} finally {
+							finalizeResponse(requestContext, channelContext);
+						}
+					} catch (IOException e) {
+						notifyError(e);
 					}
 				}
 
 				private void notifyError(Throwable throwable) {
 					SdkAsyncHttpResponseHandler handler = requestContext.handler();
-					runAndLogError(
+					runAndLogError(channelContext.channel(),
 							String.format("SdkAsyncHttpResponseHandler %s threw an exception in onError.", handler),
 							() -> handler.onError(throwable));
 					executeFuture.completeExceptionally(throwable);
@@ -351,7 +436,9 @@ public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 						if (l <= 0) {
 							subscriber.onError(new IllegalArgumentException("Demand must be positive!"));
 						} else {
-							subscriber.onNext(fullContent);
+							if (fullContent.hasRemaining()) {
+								subscriber.onNext(fullContent);
+							}
 							subscriber.onComplete();
 							executeFuture.complete(null);
 						}
@@ -367,16 +454,6 @@ public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 		}
 	}
 
-	private Throwable wrapException(Throwable originalCause) {
-		if (originalCause instanceof ReadTimeoutException) {
-			return new IOException("Read timed out", originalCause);
-		} else if (originalCause instanceof WriteTimeoutException) {
-			return new IOException("Write timed out", originalCause);
-		}
-
-		return originalCause;
-	}
-
 	private void notifyIfResponseNotCompleted(ChannelHandlerContext handlerCtx) {
 		RequestContext requestCtx = handlerCtx.channel().attr(REQUEST_CONTEXT_KEY).get();
 		Boolean responseCompleted = handlerCtx.channel().attr(RESPONSE_COMPLETE_KEY).get();
@@ -384,11 +461,52 @@ public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 		handlerCtx.channel().attr(KEEP_ALIVE).set(false);
 
 		if (!Boolean.TRUE.equals(responseCompleted) && !Boolean.TRUE.equals(lastHttpContentReceived)) {
-			IOException err = new IOException("Server failed to send complete response");
-			runAndLogError("Fail to execute SdkAsyncHttpResponseHandler#onError",
+			IOException err = new IOException(NettyUtils.closedChannelMessage(handlerCtx.channel()));
+			runAndLogError(handlerCtx.channel(), "Fail to execute SdkAsyncHttpResponseHandler#onError",
 					() -> requestCtx.handler().onError(err));
 			executeFuture(handlerCtx).completeExceptionally(err);
-			runAndLogError("Could not release channel", () -> closeAndRelease(handlerCtx));
+			runAndLogError(handlerCtx.channel(), "Could not release channel", () -> closeAndRelease(handlerCtx));
+		}
+	}
+
+	private static final class DataCountingPublisher implements Publisher<ByteBuffer> {
+		private final ChannelHandlerContext ctx;
+		private final Publisher<ByteBuffer> delegate;
+
+		private DataCountingPublisher(ChannelHandlerContext ctx, Publisher<ByteBuffer> delegate) {
+			this.ctx = ctx;
+			this.delegate = delegate;
+		}
+
+		@Override
+		public void subscribe(Subscriber<? super ByteBuffer> subscriber) {
+			delegate.subscribe(new Subscriber<ByteBuffer>() {
+				@Override
+				public void onSubscribe(Subscription subscription) {
+					subscriber.onSubscribe(subscription);
+				}
+
+				@Override
+				public void onNext(ByteBuffer byteBuffer) {
+					Long responseDataSoFar = ctx.channel().attr(RESPONSE_DATA_READ).get();
+					if (responseDataSoFar == null) {
+						responseDataSoFar = 0L;
+					}
+
+					ctx.channel().attr(RESPONSE_DATA_READ).set(responseDataSoFar + byteBuffer.remaining());
+					subscriber.onNext(byteBuffer);
+				}
+
+				@Override
+				public void onError(Throwable throwable) {
+					subscriber.onError(throwable);
+				}
+
+				@Override
+				public void onComplete() {
+					subscriber.onComplete();
+				}
+			});
 		}
 	}
 }
