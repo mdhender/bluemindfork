@@ -1,6 +1,8 @@
 package net.bluemind.core.backup.continuous.impl;
 
 import java.io.File;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +14,10 @@ import net.bluemind.core.backup.continuous.DefaultBackupStore;
 import net.bluemind.core.backup.continuous.NoopStore;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.TopicSerializer;
+import net.bluemind.core.backup.continuous.api.CloneDefaults;
 import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
+import net.bluemind.core.backup.continuous.api.InstallationWriteLeader;
 import net.bluemind.core.backup.continuous.store.ITopicStore;
 import net.bluemind.core.backup.continuous.store.ITopicStore.TopicDescriptor;
 import net.bluemind.core.backup.continuous.store.TopicNames;
@@ -25,17 +29,23 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 
 	private static final Logger logger = LoggerFactory.getLogger(BackupStoreFactory.class);
 
-	private static final File CLONE_MARKER = new File("/etc/bm/continuous.clone");
+	private static final File CLONE_MARKER = new File(CloneDefaults.MARKER_FILE_PATH);
 
 	private final TopicNames names;
 	private final ITopicStore topicStore;
-	private final boolean disabled;
 
-	public BackupStoreFactory(ITopicStore topicStore, boolean disabled) {
+	private final Supplier<InstallationWriteLeader> election;
+
+	public BackupStoreFactory(ITopicStore topicStore, Supplier<InstallationWriteLeader> election) {
 		String iid = InstallationId.getIdentifier();
+		this.election = election;
 		this.names = new TopicNames(iid);
 		this.topicStore = topicStore;
-		this.disabled = disabled;
+	}
+
+	private boolean disabledFromSystemPropperty() {
+		return Optional.ofNullable(System.getProperty("backup.continuous.store.disabled")).map(s -> s.equals("true"))
+				.orElse(false);
 	}
 
 	@Override
@@ -51,7 +61,8 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 	}
 
 	private boolean isNoop(TopicDescriptor descriptor) {
-		boolean ret = CLONE_MARKER.exists() || disabled || "global.virt".equals(descriptor.domainUid());
+		boolean ret = !election.get().isLeader() || CLONE_MARKER.exists() || disabledFromSystemPropperty()
+				|| "global.virt".equals(descriptor.domainUid());
 		if (logger.isDebugEnabled() && ret) {
 			logger.debug("noop for {}", descriptor);
 		}
@@ -62,6 +73,11 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 	public String toString() {
 		return MoreObjects.toStringHelper(DefaultBackupStore.class).add("topicStore", topicStore)
 				.add("clone", CLONE_MARKER.exists()).toString();
+	}
+
+	@Override
+	public InstallationWriteLeader leadership() {
+		return election.get();
 	}
 
 }

@@ -22,6 +22,7 @@ import java.util.Map;
 
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
 import net.bluemind.core.backup.continuous.IBackupReader;
+import net.bluemind.core.backup.continuous.api.InstallationWriteLeader;
 import net.bluemind.core.backup.continuous.restore.InstallFromBackupTask;
 import net.bluemind.core.backup.continuous.restore.SysconfOverride;
 import net.bluemind.core.backup.continuous.restore.TopologyMapping;
@@ -37,6 +38,11 @@ public class DefaultCloneSupport implements CloneSupport {
 		TopologyMapping tm = new TopologyMapping(conf.uidToIpMapping);
 		IBackupReader reader = DefaultBackupStore.reader();
 		return new InstallFromBackupTask(conf, reader, new SysconfOverride(sysconfOverride), tm, prov);
+	}
+
+	@Override
+	public InstallationWriteLeader leadership() {
+		return DefaultBackupStore.store().leadership();
 	}
 
 }

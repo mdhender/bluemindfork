@@ -39,6 +39,7 @@ import net.bluemind.core.backup.continuous.ILiveStream;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
+import net.bluemind.core.backup.continuous.leader.DefaultLeader;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.kafka.container.ZkKafkaContainer;
@@ -54,6 +55,7 @@ public class DefaultBackupStoreTests {
 		String ip = kafka.inspectAddress();
 		System.setProperty("bm.kafka.bootstrap.servers", ip + ":9093");
 		System.setProperty("bm.zk.servers", ip + ":2181");
+		DefaultLeader.reset();
 	}
 
 	@AfterClass
@@ -118,6 +120,7 @@ public class DefaultBackupStoreTests {
 		IBackupStoreFactory store = DefaultBackupStore.store();
 		IBackupReader reader = DefaultBackupStore.reader();
 		assertNotNull("store must not be null", store);
+		System.err.println("LEADER: " + store.leadership().isLeader());
 		long time = 1;
 		RecordKey expectedKey = randomKey();
 		ItemValue<RecordKey> rand = ItemValue.create("yeah" + time, expectedKey);

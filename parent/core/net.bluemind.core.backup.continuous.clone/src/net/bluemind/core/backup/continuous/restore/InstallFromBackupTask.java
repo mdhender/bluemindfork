@@ -121,12 +121,14 @@ public class InstallFromBackupTask implements IServerTask {
 		public final Map<String, PromotingServer> topology;
 		public final Map<String, ItemValue<Domain>> domains;
 		public final SystemConf sysconf;
+		public final String token;
 
 		public ClonedOrphans(Map<String, PromotingServer> topology, Map<String, ItemValue<Domain>> domains,
-				SystemConf sysconf) {
+				SystemConf sysconf, String coreTok) {
 			this.topology = topology;
 			this.domains = domains;
 			this.sysconf = sysconf;
+			this.token = coreTok;
 		}
 
 	}
@@ -157,7 +159,7 @@ public class InstallFromBackupTask implements IServerTask {
 		recordProcessed(monitor, cloneState, orphansStream, orphansStreamIndex);
 		orphansByType.clear();
 		monitor.end(true, "Orphans cloned", null);
-		return new ClonedOrphans(topology, domains, sysconf);
+		return new ClonedOrphans(topology, domains, sysconf, coreTok);
 	}
 
 	public void cloneDomains(IServerTaskMonitor monitor, List<ILiveStream> domainStreams, CloneState cloneState,

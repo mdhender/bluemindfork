@@ -119,7 +119,7 @@ public class RecordStarvationHandler implements IRecordStarvationStrategy, ISepp
 		String url = "http://" + leaderCore.value.address() + ":8090";
 		ClientSideServiceProvider prov = ClientSideServiceProvider.getProvider(url, null);
 		IAuthentication authApi = prov.instance(IAuthentication.class);
-		LoginResponse auth = authApi.login("admin0@global.virt", "admin", "clone-demote");
+		LoginResponse auth = authApi.login("admin0@global.virt", orphans.token, "clone-demote");
 		if (auth.status != Status.Ok) {
 			System.err.println("Failed auth on " + url + " -> " + auth);
 			System.exit(1);

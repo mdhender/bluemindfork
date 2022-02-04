@@ -71,8 +71,10 @@ import net.bluemind.core.backup.continuous.DefaultBackupStore;
 import net.bluemind.core.backup.continuous.IBackupReader;
 import net.bluemind.core.backup.continuous.ILiveBackupStreams;
 import net.bluemind.core.backup.continuous.ILiveStream;
+import net.bluemind.core.backup.continuous.api.CloneDefaults;
 import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
+import net.bluemind.core.backup.continuous.leader.DefaultLeader;
 import net.bluemind.core.backup.continuous.restore.CloneState;
 import net.bluemind.core.backup.continuous.restore.IClonePhaseObserver;
 import net.bluemind.core.backup.continuous.restore.InstallFromBackupTask;
@@ -119,7 +121,7 @@ public class PopulateKafkaTests {
 
 	private String cyrusIp;
 	private ZkKafkaContainer kafka;
-	Path marker = Paths.get("/etc/bm/continuous.clone");
+	Path marker = Paths.get(CloneDefaults.MARKER_FILE_PATH);
 	private String s3;
 	private String bucket;
 	private CyrusReplicationHelper replicationHelper;
@@ -132,11 +134,18 @@ public class PopulateKafkaTests {
 		System.setProperty("bm.kafka.bootstrap.servers", ip + ":9093");
 		System.setProperty("bm.zk.servers", ip + ":2181");
 
+		DefaultLeader.reset();
+
 		this.s3 = "http://" + DockerEnv.getIp("bluemind/s3") + ":8000";
 		this.bucket = "junit-clone-kafka-" + System.currentTimeMillis();
 		S3Configuration s3conf = S3Configuration.withEndpointAndBucket(s3, bucket);
 		System.err.println(s3conf.asJson().encodePrettily());
 		ISdsBackingStore sds = new S3StoreFactory().create(VertxPlatform.getVertx(), s3conf.asJson());
+
+		do {
+			System.err.println("LEADER: " + DefaultLeader.leader().isLeader());
+			Thread.sleep(500);
+		} while (!DefaultLeader.leader().isLeader());
 
 		System.err.println("sds: " + sds);
 		try (InputStream in = getClass().getClassLoader().getResourceAsStream("data/kafka/emls.tar.bz2");
@@ -280,8 +289,7 @@ public class PopulateKafkaTests {
 			System.err.println("After populating kafka we have " + streams.domains().size() + " domain streams");
 			assertNotNull(streams.orphans());
 			assertFalse(streams.domains().isEmpty());
-			DefaultBackupStore.disabled = true;
-
+			System.setProperty("backup.continuous.store.disabled", "true");
 		}
 		return domains;
 	}
@@ -392,7 +400,7 @@ public class PopulateKafkaTests {
 		Thread.sleep(2000);
 		Files.deleteIfExists(marker);
 		kafka.stop();
-		DefaultBackupStore.disabled = false;
+		System.clearProperty("backup.continuous.store.disabled");
 		JdbcTestHelper.getInstance().afterTest();
 	}
 

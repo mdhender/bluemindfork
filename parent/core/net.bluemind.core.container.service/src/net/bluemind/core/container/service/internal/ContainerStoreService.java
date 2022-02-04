@@ -88,8 +88,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	private final IItemFlagsProvider<T> flagsProvider;
 	private final IWeightSeedProvider<T> weightSeedProvider;
 	private final IWeightProvider weightProvider;
-	private Supplier<ContainerChangeEventProducer> containerChangeEventProducer;
-	private final IBackupStore<T> backupStream;
+	private final Supplier<ContainerChangeEventProducer> containerChangeEventProducer;
+	private final Supplier<IBackupStore<T>> backupStream;
 
 	public static interface IItemFlagsProvider<W> {
 		Collection<ItemFlag> flags(W value);
@@ -118,7 +118,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		this.weightProvider = wProv;
 		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
 				container.owner, container.type, container.domainUid, container.defaultContainer);
-		this.backupStream = Providers.get().forContainer(descriptor);
+		this.backupStream = Suppliers.memoize(() -> Providers.get().forContainer(descriptor));
 		this.containerChangeEventProducer = Suppliers
 				.memoize(() -> new ContainerChangeEventProducer(securityContext, VertxPlatform.eventBus(), container));
 	}
@@ -331,7 +331,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			}
 
 			ItemValue<T> iv = ItemValue.create(created, value);
-			backupStream.store(iv);
+			backupStream.get().store(iv);
 
 			return ItemUpdate.of(created);
 		});
@@ -407,7 +407,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			}
 
 			ItemValue<T> iv = ItemValue.create(created, value);
-			backupStream.store(iv);
+			backupStream.get().store(iv);
 
 			return ItemUpdate.of(created);
 		});
@@ -442,7 +442,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			updateValue(item, value);
 
 			ItemValue<T> iv = ItemValue.create(item, value);
-			backupStream.store(iv);
+			backupStream.get().store(iv);
 
 			return ItemUpdate.of(item);
 		});
@@ -470,7 +470,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				containerChangeEventProducer.get().produceEvent();
 			}
 			itemStore.delete(item);
-			backupStream.delete(itemValue);
+			backupStream.get().delete(itemValue);
 			return ItemUpdate.of(item);
 		});
 	}
@@ -494,7 +494,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			}
 			itemStore.delete(item);
 
-			backupStream.delete(itemValue);
+			backupStream.get().delete(itemValue);
 
 			return ItemUpdate.of(item);
 		});
@@ -703,7 +703,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
 
 				ItemValue<T> iv = ItemValue.create(item, value);
-				backupStream.store(iv);
+				backupStream.get().store(iv);
 
 				containerChangeEventProducer.get().produceEvent();
 			}

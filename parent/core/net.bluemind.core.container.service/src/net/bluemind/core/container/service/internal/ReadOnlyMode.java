@@ -18,6 +18,7 @@
 package net.bluemind.core.container.service.internal;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.backup.continuous.api.Providers;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.state.StateContext;
 
@@ -26,7 +27,8 @@ public class ReadOnlyMode {
 	}
 
 	public static void checkWritable() {
-		if (StateContext.getState() == SystemState.CORE_STATE_DEMOTED) {
+		if (StateContext.getState() == SystemState.CORE_STATE_DEMOTED || (!Providers.get().leadership().isLeader()
+				&& StateContext.getState() != SystemState.CORE_STATE_CLONING)) {
 			throw new ServerFault("instance is not writable as state is " + SystemState.CORE_STATE_DEMOTED);
 		}
 	}

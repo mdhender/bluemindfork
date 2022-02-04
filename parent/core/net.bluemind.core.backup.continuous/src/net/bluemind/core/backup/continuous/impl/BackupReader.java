@@ -1,6 +1,5 @@
 package net.bluemind.core.backup.continuous.impl;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -14,7 +13,6 @@ import com.google.common.base.MoreObjects;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.bluemind.core.backup.continuous.DefaultBackupStore;
 import net.bluemind.core.backup.continuous.IBackupReader;
 import net.bluemind.core.backup.continuous.ILiveBackupStreams;
 import net.bluemind.core.backup.continuous.ILiveStream;
@@ -27,8 +25,6 @@ import net.bluemind.core.backup.continuous.store.TopicSubscriber;
 public class BackupReader implements IBackupReader {
 
 	private static final Logger logger = LoggerFactory.getLogger(BackupReader.class);
-
-	private static final boolean CLONE_MARKER = new File("/etc/bm/continuous.clone").exists();
 
 	private final ITopicStore topicStore;
 
@@ -132,8 +128,7 @@ public class BackupReader implements IBackupReader {
 
 	@Override
 	public String toString() {
-		return MoreObjects.toStringHelper(DefaultBackupStore.class).add("topicStore", topicStore)
-				.add("clone", CLONE_MARKER).toString();
+		return MoreObjects.toStringHelper(BackupReader.class).add("topicStore", topicStore).toString();
 	}
 
 	private ILiveStream build(String installationid, String domainUid, TopicSubscriber subscriber) {

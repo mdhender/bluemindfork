@@ -68,6 +68,7 @@
 		<module>net.bluemind.core.backup.continuous.api</module>
 		<module>net.bluemind.core.backup.continuous</module>
 		<module>net.bluemind.core.backup.continuous.dto</module>
+		<module>net.bluemind.core.backup.continuous.leader</module>
 		<module>net.bluemind.core.backup.continuous.clone</module>
 		<module>net.bluemind.core.backup.continuous.events</module>
 		<module>net.bluemind.core.backup.continuous.state</module>

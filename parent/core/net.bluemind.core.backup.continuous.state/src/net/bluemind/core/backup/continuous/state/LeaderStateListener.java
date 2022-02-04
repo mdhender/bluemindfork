@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
 import net.bluemind.core.backup.continuous.api.IBackupStore;
-import net.bluemind.core.backup.continuous.api.Providers;
+import net.bluemind.core.backup.continuous.api.InstallationWriteLeader;
 import net.bluemind.core.backup.continuous.dto.Seppuku;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
@@ -54,13 +54,16 @@ public class LeaderStateListener implements IStateListener {
 	}
 
 	private void demote() {
+		InstallationWriteLeader leadership = DefaultBackupStore.store().leadership();
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
 		preventCoreStart();
-
-		writeByeMessageToKafka(prov);
-
-		Providers.disable();
+		if (leadership.isLeader()) {
+			writeByeMessageToKafka(prov);
+			leadership.releaseLeadership();
+		} else {
+			logger.warn("{} says we are not leaders", leadership);
+		}
 	}
 
 	private void preventCoreStart() {

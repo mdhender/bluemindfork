@@ -55,6 +55,8 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.VersionInfo;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.backup.continuous.api.CloneDefaults;
+import net.bluemind.core.backup.continuous.api.InstallationWriteLeader;
 import net.bluemind.core.bo.report.provider.HostReportProvider;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
@@ -88,7 +90,6 @@ import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.CloneConfiguration;
 import net.bluemind.system.api.CustomLogo;
-import net.bluemind.system.api.IGlobalSettings;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.InstallationVersion;
@@ -172,7 +173,19 @@ public class InstallationService implements IInstallation {
 			throw new ServerFault("Promote leader can only be called in cloning state");
 		}
 		// enable backup store
-		new File("/etc/bm/continuous.clone").delete();
+		boolean del = new File(CloneDefaults.MARKER_FILE_PATH).delete();
+		logger.info("continuous clone marker deletion: {}", del);
+		InstallationWriteLeader leadership = cloneSupport().leadership();
+		int retry = 0;
+		while (!leadership.isLeader() && ++retry < 20) {
+			logger.info("Waiting for election as leader with {} (retry {})", leadership, retry);
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+		logger.info("Elected as leader with {} (leader: {})", leadership, leadership.isLeader());
 
 		// write topo with backup store enabled
 		IServer srvApi = context.provider().instance(IServer.class, InstallationId.getIdentifier());
@@ -189,13 +202,7 @@ public class InstallationService implements IInstallation {
 		if (!context.getSecurityContext().isDomainGlobal()) {
 			throw new ServerFault("Operation is only permitted for admin0", ErrorCode.PERMISSION_DENIED);
 		}
-		RunnableExtensionLoader<CloneSupport> clones = new RunnableExtensionLoader<>();
-		List<CloneSupport> loaded = clones.loadExtensions("net.bluemind.system.service", "clone_support",
-				"clone_support", "impl");
-		if (loaded.isEmpty()) {
-			throw new ServerFault("No implementors of clone_support");
-		}
-		CloneSupport impl = loaded.get(0);
+		CloneSupport impl = cloneSupport();
 		InstallationId.reload();
 
 		logger.info("Set sysconf overrides {}...", conf.sysconfOverride);
@@ -216,11 +223,21 @@ public class InstallationService implements IInstallation {
 		return context.provider().instance(ITasksManager.class).run(wrapped);
 	}
 
+	private CloneSupport cloneSupport() {
+		RunnableExtensionLoader<CloneSupport> clones = new RunnableExtensionLoader<>();
+		List<CloneSupport> loaded = clones.loadExtensions("net.bluemind.system.service", "clone_support",
+				"clone_support", "impl");
+		if (loaded.isEmpty()) {
+			throw new ServerFault("No implementors of clone_support");
+		}
+		return loaded.get(0);
+	}
+
 	private void repairHollow(IServiceProvider provider) {
-		IDomains domains = context.provider().instance(IDomains.class);
+		IDomains domains = provider.instance(IDomains.class);
 		domains.all().stream() //
 				.filter(domain -> !domain.uid.equals("global.virt")) //
-				.forEach(domain -> repairHollow(context.provider(), domain.uid));
+				.forEach(domain -> repairHollow(provider, domain.uid));
 	}
 
 	private void repairHollow(IServiceProvider provider, String domainUid) {
@@ -632,10 +649,6 @@ public class InstallationService implements IInstallation {
 
 	private ISystemConfiguration systemConfService() {
 		return context.su().provider().instance(ISystemConfiguration.class);
-	}
-
-	private IGlobalSettings globalSettingsService() {
-		return context.su().provider().instance(IGlobalSettings.class);
 	}
 
 	@Override

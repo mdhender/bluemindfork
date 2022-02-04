@@ -21,6 +21,8 @@ import net.bluemind.core.container.model.BaseContainerDescriptor;
 
 public interface IBackupStoreFactory {
 
+	InstallationWriteLeader leadership();
+
 	<T> IBackupStore<T> forContainer(BaseContainerDescriptor c);
 
 }

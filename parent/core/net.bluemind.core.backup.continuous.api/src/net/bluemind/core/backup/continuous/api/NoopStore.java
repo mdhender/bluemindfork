@@ -47,4 +47,22 @@ public final class NoopStore implements IBackupStoreFactory {
 		};
 	}
 
+	private static final InstallationWriteLeader ALWAYS_LEADER = new InstallationWriteLeader() {
+
+		@Override
+		public void releaseLeadership() {
+			// OK
+		}
+
+		@Override
+		public boolean isLeader() {
+			return true;
+		}
+	};
+
+	@Override
+	public InstallationWriteLeader leadership() {
+		return ALWAYS_LEADER;
+	}
+
 }
