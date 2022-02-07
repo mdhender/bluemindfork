@@ -102,10 +102,7 @@ public class FileHostingListCommand implements ICmdLet, Runnable {
 		List<String> columnValues;
 
 		public TblRow(String... values) {
-			this.columnValues = new ArrayList<>();
-			for (String value : values) {
-				columnValues.add(value);
-			}
+			this.columnValues = Arrays.asList(values);
 		}
 
 		public String value(int column) {
