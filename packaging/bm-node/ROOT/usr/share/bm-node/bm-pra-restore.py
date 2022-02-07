@@ -396,6 +396,14 @@ def restoreBmEs(bmEsBackupPath, p_ids, bmEsPath):
     )
 
     execCmd(
+        LOG_FILE, ["service", "bm-elasticsearch", "restart"], None, "Restarting Elasticsearch",
+    )
+
+    execCmd(
+        LOG_FILE, ['bash', '-c', 'while [[ "$(curl -s -o /dev/null -w \'\'%{http_code}\'\' localhost:9200/_cluster/health?pretty=true)" != "200" ]]; do sleep 5; done'], None, "Waiting for ES cluster is up",
+    )
+
+    execCmd(
         LOG_FILE,
         [
             "curl",
@@ -406,6 +414,7 @@ def restoreBmEs(bmEsBackupPath, p_ids, bmEsPath):
         None,
         "Restoring ES index files",
     )
+
 
 def restoreBmPgsql(bmPgsqlPath):
     execCmd(
@@ -429,7 +438,15 @@ def restoreBmPgsql(bmPgsqlPath):
     )
 
     execCmd(
-        LOG_FILE, ["service", "postgresql", "restart"], None, "Restarting PostGreSQL"
+        LOG_FILE, ["service", "postgresql", "stop"], None, "Stopping PostGreSQL"
+    )
+
+    execCmd(
+        LOG_FILE, ["service", "telegraf", "stop"], None, "Stopping Telegraf"
+    )
+
+    execCmd(
+        LOG_FILE, ["service", "postgresql", "start"], None, "Starting PostGreSQL"
     )
 
     execCmd(
@@ -489,6 +506,10 @@ def restoreBmPgsql(bmPgsqlPath):
         "Reset BlueMind SW password",
     )
 
+    execCmd(
+        LOG_FILE, ["service", "telegraf", "start"], None, "Starting Telegraf"
+    )
+
 
 def restoreBmPgsqlData(bmPgsqlPath):
     execCmd(
@@ -512,7 +533,15 @@ def restoreBmPgsqlData(bmPgsqlPath):
     )
 
     execCmd(
-        LOG_FILE, ["service", "postgresql", "restart"], None, "Restarting PostGreSQL"
+        LOG_FILE, ["service", "postgresql", "stop"], None, "Stopping PostGreSQL"
+    )
+
+    execCmd(
+        LOG_FILE, ["service", "telegraf", "stop"], None, "Stopping Telegraf"
+    )
+
+    execCmd(
+        LOG_FILE, ["service", "postgresql", "start"], None, "Starting PostGreSQL"
     )
 
     execCmd(
@@ -556,6 +585,10 @@ def restoreBmPgsqlData(bmPgsqlPath):
         ],
         {"PGPASSWORD": "bj"},
         "Restaure DB bj-data",
+    )
+
+    execCmd(
+        LOG_FILE, ["service", "telegraf", "start"], None, "Stopping Telegraf"
     )
 
 
