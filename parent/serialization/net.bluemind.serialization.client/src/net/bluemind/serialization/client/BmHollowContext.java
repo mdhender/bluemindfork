@@ -29,14 +29,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.netflix.hollow.api.consumer.HollowConsumer;
-import com.netflix.hollow.api.consumer.HollowConsumer.AnnouncementWatcher;
 import com.netflix.hollow.api.consumer.HollowConsumer.Blob;
 import com.netflix.hollow.api.consumer.HollowConsumer.BlobRetriever;
+
+import net.bluemind.common.hollow.IAnnouncementWatcher;
 
 public class BmHollowContext {
 
 	public HollowContext create(String set, String subset) {
-		AnnouncementWatcher announcementWatcher = new BmAnnouncementWatcher(set, subset);
+		IAnnouncementWatcher announcementWatcher = new BmAnnouncementWatcher(set, subset);
 		BlobRetriever blobRetriever = new BmBlobRetriever(set, subset);
 		return new HollowContext(blobRetriever, announcementWatcher);
 	}
@@ -118,7 +119,7 @@ public class BmHollowContext {
 
 	}
 
-	public class BmAnnouncementWatcher implements AnnouncementWatcher, HollowVersionObserver {
+	public class BmAnnouncementWatcher implements IAnnouncementWatcher, HollowVersionObserver {
 		private List<HollowConsumer> observers = new ArrayList<>();
 		private final String set;
 		private final String subset;
@@ -144,6 +145,11 @@ public class BmHollowContext {
 			if (set.equals(this.set) && subset.equals(this.subset)) {
 				observers.forEach(HollowConsumer::triggerAsyncRefresh);
 			}
+		}
+
+		@Override
+		public boolean isListening() {
+			return HollowVersion.isListening();
 		}
 
 	}

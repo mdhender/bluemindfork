@@ -42,16 +42,16 @@ import org.slf4j.LoggerFactory;
 import com.netflix.hollow.api.consumer.HollowConsumer;
 import com.netflix.hollow.api.producer.fs.HollowFilesystemAnnouncer;
 
-public class BmFilesystemAnnoucementWatcher implements HollowConsumer.AnnouncementWatcher {
+public class BmFilesystemAnnoucementWatcher implements IAnnouncementWatcher {
 
 	private static final Logger logger = LoggerFactory.getLogger(BmFilesystemAnnoucementWatcher.class);
 	private static final AtomicLong tid = new AtomicLong();
 	private final List<HollowConsumer> sub;
 	private final Path announcePath;
 	private final Path toWatch;
+	private final Thread watcherThread;
 
-	private long version;
-	private final ToStop fsWatch;
+	private volatile long version;
 	private volatile boolean stopped;
 
 	public BmFilesystemAnnoucementWatcher(Path publishPath) {
@@ -61,16 +61,12 @@ public class BmFilesystemAnnoucementWatcher implements HollowConsumer.Announceme
 		this.announcePath = publishPath.resolve(HollowFilesystemAnnouncer.ANNOUNCEMENT_FILENAME);
 		this.version = readLatestVersion();
 		try {
-			this.fsWatch = setupWatchService();
+			watcherThread = setupWatchService();
 		} catch (Exception e) {
 			throw new BmHollowException(e);
 		}
 		logger.info("STARTED with version {}", version);
 
-	}
-
-	private interface ToStop {
-		void stop();
 	}
 
 	private static final Modifier[] modifiers = reflectSensitivity();
@@ -91,59 +87,12 @@ public class BmFilesystemAnnoucementWatcher implements HollowConsumer.Announceme
 		}
 	}
 
-	private ToStop setupWatchService() throws IOException {
-		WatchService watcher = FileSystems.getDefault().newWatchService();
-		WatchKey key = toWatch.register(watcher, new Kind[] { ENTRY_CREATE, ENTRY_MODIFY }, modifiers);
-		logger.info("Key {} for {}", key, toWatch.toFile().getAbsolutePath());
-
-		Thread t = new Thread(() -> loop(watcher),
-				"hollow-watch-" + toWatch.toFile().getName() + "-" + tid.incrementAndGet());
+	private Thread setupWatchService() {
+		FilesystemWatcherRunnable runnable = new FilesystemWatcherRunnable();
+		Thread t = new Thread(runnable, "hollow-watch-" + toWatch.toFile().getName() + "-" + tid.incrementAndGet());
 		t.setDaemon(true);
 		t.start();
-
-		return () -> {
-			try {
-				watcher.close();
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-			}
-		};
-	}
-
-	private void loop(WatchService w) {
-		while (!stopped) {
-			WatchKey key;
-			try {
-				key = w.take();
-			} catch (Exception e1) {
-				logger.info("Leaving watch thread thanks to {}", e1.getMessage());
-				break;
-			}
-			for (WatchEvent<?> event : key.pollEvents()) {
-				if (event.kind() != OVERFLOW) {
-					checkFsEvent(event);
-				}
-			}
-			if (!key.reset()) {
-				logger.warn("Key {} reset failed, leaving", key);
-				stopped = true;
-			}
-		}
-	}
-
-	private void checkFsEvent(WatchEvent<?> event) {
-		WatchEvent<Path> ev = cast(event);
-		File changed = toWatch.resolve(ev.context()).toFile();
-		if (changed.getName().equals(HollowFilesystemAnnouncer.ANNOUNCEMENT_FILENAME)) {
-			long freshVersion = readLatestVersion();
-			if (freshVersion > version) {
-				version = freshVersion;
-				logger.info("Announce hollow version {}", freshVersion);
-				for (HollowConsumer cons : sub) {
-					cons.triggerAsyncRefresh();
-				}
-			}
-		}
+		return t;
 	}
 
 	@Override
@@ -151,10 +100,8 @@ public class BmFilesystemAnnoucementWatcher implements HollowConsumer.Announceme
 		// cancel watch service
 		logger.info("Clearing watcher {}", this);
 		stopped = true;
-		fsWatch.stop();
 
 		// we don't call super because Object#finalize is empty by definition
-
 	}
 
 	private long readLatestVersion() {
@@ -182,6 +129,86 @@ public class BmFilesystemAnnoucementWatcher implements HollowConsumer.Announceme
 	@SuppressWarnings("unchecked")
 	static <T> WatchEvent<T> cast(WatchEvent<?> event) {
 		return (WatchEvent<T>) event;
+	}
+
+	@Override
+	public boolean isListening() {
+		return watcherThread != null && watcherThread.isAlive() && !watcherThread.isInterrupted();
+	}
+
+	class FilesystemWatcherRunnable implements Runnable {
+
+		private WatchService watcher;
+
+		@Override
+		public void run() {
+			while (!stopped) {
+				try {
+					watcher = FileSystems.getDefault().newWatchService();
+					WatchKey key = toWatch.register(watcher, new Kind[] { ENTRY_CREATE, ENTRY_MODIFY }, modifiers);
+					logger.info("Registering WatchKey {} for {}", key, toWatch.toFile().getAbsolutePath());
+					watch(watcher);
+				} catch (IOException e) {
+					throw new BmHollowException("Unable to setup hollow filesystem watcher on " + toWatch, e);
+				} catch (InterruptedException e) {
+					logger.error("Hollow filesystem watcher interrupted while watching, leaving");
+					stopped = true;
+					Thread.currentThread().interrupt();
+				} catch (Exception e) {
+					logger.error("Hollow filesystem watcher failed while watching, going to retry: {}", !stopped, e);
+				} finally {
+					logger.info("Closing current watch service, going to retry: {}", !stopped);
+					close();
+				}
+
+				if (!stopped) {
+					checkVersion();
+				}
+			}
+
+		}
+
+		private void watch(WatchService service) throws InterruptedException {
+			while (!stopped) {
+				WatchKey key = service.take();
+				for (WatchEvent<?> event : key.pollEvents()) {
+					if (event.kind() != OVERFLOW) {
+						checkFsEvent(event);
+					}
+				}
+				if (!key.reset()) {
+					throw new RuntimeException("Failed to reset hollow filesystem watcher watch key");
+				}
+			}
+		}
+
+		private void checkFsEvent(WatchEvent<?> event) {
+			WatchEvent<Path> ev = cast(event);
+			File changed = toWatch.resolve(ev.context()).toFile();
+			if (changed.getName().equals(HollowFilesystemAnnouncer.ANNOUNCEMENT_FILENAME)) {
+				checkVersion();
+			}
+		}
+
+		private void checkVersion() {
+			long freshVersion = readLatestVersion();
+			if (freshVersion > version) {
+				version = freshVersion;
+				logger.info("Announce hollow version {}", freshVersion);
+				for (HollowConsumer cons : sub) {
+					cons.triggerAsyncRefresh();
+				}
+			}
+		}
+
+		public void close() {
+			try {
+				watcher.close();
+			} catch (Exception e) {
+				logger.warn("Fails to stop hollow filesystem watcher", e);
+			}
+		}
+
 	}
 
 }

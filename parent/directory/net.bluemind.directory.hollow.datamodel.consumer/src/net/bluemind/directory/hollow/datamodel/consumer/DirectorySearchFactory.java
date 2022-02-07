@@ -18,12 +18,12 @@
  */
 package net.bluemind.directory.hollow.datamodel.consumer;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DirectorySearchFactory {
 
-	private static Map<String, DirectoryDeserializer> deserializers = new HashMap<>();
+	private static Map<String, DirectoryDeserializer> deserializers = new ConcurrentHashMap<>();
 
 	private DirectorySearchFactory() {
 
@@ -46,7 +46,7 @@ public class DirectorySearchFactory {
 	}
 
 	public static void reset() {
-		DirectorySearchFactory.deserializers = new HashMap<>();
+		DirectorySearchFactory.deserializers = new ConcurrentHashMap<>();
 	}
 
 }

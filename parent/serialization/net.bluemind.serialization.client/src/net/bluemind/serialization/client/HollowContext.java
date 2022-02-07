@@ -25,14 +25,15 @@ import org.slf4j.LoggerFactory;
 
 import com.netflix.hollow.api.consumer.HollowConsumer;
 
+import net.bluemind.common.hollow.IAnnouncementWatcher;
+
 public class HollowContext {
 
 	public final HollowConsumer.BlobRetriever blobRetriever;
-	public final HollowConsumer.AnnouncementWatcher announcementWatcher;
+	public final IAnnouncementWatcher announcementWatcher;
 	private static final Logger logger = LoggerFactory.getLogger(HollowContext.class);
 
-	public HollowContext(HollowConsumer.BlobRetriever blobRetriever,
-			HollowConsumer.AnnouncementWatcher announcementWatcher) {
+	public HollowContext(HollowConsumer.BlobRetriever blobRetriever, IAnnouncementWatcher announcementWatcher) {
 		this.blobRetriever = blobRetriever;
 		this.announcementWatcher = announcementWatcher;
 	}
@@ -45,6 +46,10 @@ public class HollowContext {
 			logger.info("HOLLOW remote strategy selected for set {} as '{}' is missing.", set, dir.getAbsolutePath());
 			return new BmHollowContext().create(set, dir.getName());
 		}
+	}
+
+	public boolean isWatcherListening() {
+		return announcementWatcher.isListening();
 	}
 
 }

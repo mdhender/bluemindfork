@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
@@ -39,6 +40,8 @@ public class HollowVersion extends AbstractVerticle {
 
 	private static Map<String, Long> versions = new HashMap<>();
 	private static List<HollowVersionObserver> observers = new ArrayList<>();
+
+	private static MessageConsumer<Object> consumer;
 
 	public static class Factory implements IVerticleFactory, IUniqueVerticleFactory {
 
@@ -56,7 +59,8 @@ public class HollowVersion extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		vertx.eventBus().consumer(HollowMessageForwarder.dataSetChanged, message -> {
+		consumer = vertx.eventBus().consumer(HollowMessageForwarder.dataSetChanged);
+		consumer.handler(message -> {
 			JsonObject data = (JsonObject) message.body();
 			String dataset = data.getString("dataset");
 			String set = dataset.substring(0, dataset.indexOf("/"));
@@ -78,6 +82,10 @@ public class HollowVersion extends AbstractVerticle {
 	public static long registerObserver(HollowVersionObserver observer, String set, String subset) {
 		observers.add(observer);
 		return getVersion(set, subset);
+	}
+
+	public static boolean isListening() {
+		return consumer != null && consumer.isRegistered();
 	}
 
 	private static Long loadDataSetVersion(String set, String subset) {

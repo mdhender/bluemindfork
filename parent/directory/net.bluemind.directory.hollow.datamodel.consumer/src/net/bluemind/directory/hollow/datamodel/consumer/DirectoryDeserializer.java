@@ -64,6 +64,7 @@ public class DirectoryDeserializer {
 	protected UniqueKeyIndex<AddressBookRecord, Long> minimalIndex;
 	protected HollowHashIndex kindIndex;
 	protected final HollowConsumer consumer;
+	public final HollowContext context;
 	private final HollowHashIndex anrIndex;
 	private final HollowHashIndex emailIndex;
 
@@ -146,7 +147,7 @@ public class DirectoryDeserializer {
 	public DirectoryDeserializer(File dir, boolean watchChanges) {
 		this.domainUid = dir.getName();
 		logger.info("Consuming from directory {} for domain {}", dir.getAbsolutePath(), domainUid);
-		HollowContext context = HollowContext.get(dir, "directory", watchChanges);
+		this.context = HollowContext.get(dir, "directory", watchChanges);
 		this.consumer = new HollowConsumer.Builder<>()//
 				.withBlobRetriever(context.blobRetriever).withAnnouncementWatcher(context.announcementWatcher)//
 				.withObjectLongevityConfig(longevity).withObjectLongevityDetector(detector)//
@@ -174,6 +175,10 @@ public class DirectoryDeserializer {
 		emailIndex.listenForDeltaUpdates();
 		this.kindIndex = new HollowHashIndex(consumer.getStateEngine(), "AddressBookRecord", "", "kind.value");
 		kindIndex.listenForDeltaUpdates();
+	}
+
+	public boolean isWatcherListening() {
+		return context.isWatcherListening();
 	}
 
 	public Collection<AddressBookRecord> all() {

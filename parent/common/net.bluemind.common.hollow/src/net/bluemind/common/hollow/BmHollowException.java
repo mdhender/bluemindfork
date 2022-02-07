@@ -20,6 +20,10 @@ package net.bluemind.common.hollow;
 @SuppressWarnings("serial")
 public class BmHollowException extends RuntimeException {
 
+	public BmHollowException(String message, Throwable t) {
+		super(message, t);
+	}
+
 	public BmHollowException(Throwable t) {
 		super(t);
 	}
