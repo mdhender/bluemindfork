@@ -9,14 +9,10 @@
         >
             <bm-icon :icon="showTable ? 'chevron' : 'chevron-right'" />
         </bm-button>
-        <pref-filter-rules-table v-if="showTable" :filters="filters" v-on="$listeners" />
+        <pref-filter-rules-table v-if="showTable" :filters="filters" :editable="editable" v-on="$listeners" />
         <div v-if="editable" class="d-flex justify-content-end">
-            <bm-button
-                variant="outline-secondary"
-                @click="$emit('edit', { criteria: [], actions: [], active: true, editable: true })"
-            >
-                <bm-icon icon="plus" class="mr-1" />
-                {{ $t("preferences.mail.filters.create") }}
+            <bm-button variant="outline-secondary" @click="onEdit">
+                <bm-icon icon="plus" class="mr-1" />{{ $t("preferences.mail.filters.create") }}
             </bm-button>
         </div>
     </div>
@@ -52,6 +48,11 @@ export default {
         },
         editableFilters() {
             return this.filters.map(f => ({ ...f, editable: this.editable }));
+        }
+    },
+    methods: {
+        onEdit() {
+            this.$emit("edit", { criteria: [], actions: [], active: true, editable: true });
         }
     }
 };

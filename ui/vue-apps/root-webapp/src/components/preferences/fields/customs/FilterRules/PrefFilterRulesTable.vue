@@ -11,6 +11,7 @@
             <template #cell(active)="cell">
                 <bm-form-checkbox
                     v-model="cell.item.active"
+                    :disabled="!editable"
                     :value="true"
                     :unchecked-value="false"
                     switch
@@ -63,6 +64,10 @@ export default {
     name: "PrefFilterRulesTable",
     components: { BmBadge, BmButton, BmIcon, BmFormCheckbox, BmPagination, BmTable, PrefFilterRuleDetails },
     props: {
+        editable: {
+            type: Boolean,
+            required: true
+        },
         filters: {
             type: Array,
             required: true
