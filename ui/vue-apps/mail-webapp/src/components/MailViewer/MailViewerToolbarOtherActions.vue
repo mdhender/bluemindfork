@@ -162,7 +162,7 @@ export default {
             this.pattern = translatePath(folder.path);
         },
         itemsOrDefaults() {
-            return this.folderSelected ? [] : this.matchingFolders;
+            return this.folderSelected ? [] : this.matchingFolders([this.message.folderRef.key]);
         },
         onInputUpdate() {
             this.folderSelected = null;
