@@ -45,7 +45,18 @@
                         variant="light"
                         class="p-0"
                         size="md"
-                        :title="$tc('common.downloadAttachment')"
+                        :title="$t('mail.attachment.preview')"
+                        @click.stop
+                    >
+                        <bm-icon icon="eye" size="2x" class="p-1" />
+                    </bm-button>
+
+                    <bm-button
+                        v-if="isDownloadable"
+                        variant="light"
+                        class="p-0"
+                        size="md"
+                        :title="$t('common.downloadAttachment')"
                         :aria-label="
                             $t('mail.content.download', {
                                 fileType: $t('mail.content.' + fileTypeIcon),
