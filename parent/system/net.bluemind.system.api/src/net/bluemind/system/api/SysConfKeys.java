@@ -80,6 +80,23 @@ public enum SysConfKeys {
 	sds_backup_rentention_days,
 
 	/**
+	 * SDS FileHosting settings
+	 */
+	/* can be null/empty, s3 or scality (ArchiveKind) */
+	sds_filehosting_storetype, //
+
+	sds_filehosting_endpoint, //
+
+	// thoses are not used with "scality" driver
+	sds_filehosting_s3_bucket, //
+
+	sds_filehosting_s3_access_key, //
+
+	sds_filehosting_s3_secret_key, //
+
+	sds_filehosting_s3_region, //
+
+	/**
 	 * 
 	 */
 	subscription_contacts, cyrus_expunged_retention_time,

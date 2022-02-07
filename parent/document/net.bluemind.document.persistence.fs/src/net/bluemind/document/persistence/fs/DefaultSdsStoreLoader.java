@@ -21,6 +21,8 @@ package net.bluemind.document.persistence.fs;
 import java.util.List;
 import java.util.Optional;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.sds.store.ISdsBackingStoreFactory;
@@ -30,7 +32,6 @@ import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 
 public class DefaultSdsStoreLoader {
-
 	private final List<ISdsBackingStoreFactory> stores;
 
 	public DefaultSdsStoreLoader() {
@@ -38,14 +39,23 @@ public class DefaultSdsStoreLoader {
 		this.stores = rel.loadExtensions("net.bluemind.sds", "store", "store", "factory");
 	}
 
-	public Optional<ISdsSyncStore> forSysconf(SystemConf sysconf) {
-		ArchiveKind archiveKind = ArchiveKind.fromName(sysconf.stringValue(SysConfKeys.archive_kind.name()));
-		if (archiveKind == null) {
-			return Optional.empty();
-		}
-
-		return stores.stream().filter(sbs -> sbs.kind() == archiveKind).findAny()
-				.map(s -> s.createSync(VertxPlatform.getVertx(), sysconf));
+	protected ISdsSyncStore createSync(ISdsBackingStoreFactory factory, Vertx vertx, SystemConf sysconf) {
+		JsonObject jsonconf = new JsonObject()//
+				.put("storeType", sysconf.stringValue(SysConfKeys.sds_filehosting_storetype.name()))//
+				.put("endpoint", sysconf.stringValue(SysConfKeys.sds_filehosting_endpoint.name()))//
+				.put("accessKey", sysconf.stringValue(SysConfKeys.sds_filehosting_s3_access_key.name()))//
+				.put("secretKey", sysconf.stringValue(SysConfKeys.sds_filehosting_s3_secret_key.name()))//
+				.put("region", sysconf.stringValue(SysConfKeys.sds_filehosting_s3_region.name()))//
+				.put("bucket", sysconf.stringValue(SysConfKeys.sds_filehosting_s3_bucket.name()));
+		return factory.syncStore(factory.create(vertx, jsonconf));
 	}
 
+	public Optional<ISdsSyncStore> forSysconf(SystemConf sysconf) {
+		ArchiveKind storeType = ArchiveKind.fromName(sysconf.stringValue(SysConfKeys.sds_filehosting_storetype.name()));
+		if (storeType == null || !storeType.isSdsArchive()) {
+			return Optional.empty();
+		}
+		return stores.stream().filter(sbs -> sbs.kind() == storeType).findAny()
+				.map(s -> createSync(s, VertxPlatform.getVertx(), sysconf));
+	}
 }
