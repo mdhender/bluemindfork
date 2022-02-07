@@ -1,8 +1,7 @@
 <template>
-    <default-alert v-if="alert.type === AlertTypes.LOADING" :alert="alert" :options="{ name, previousName }" />
-    <default-alert v-else-if="alert.type === AlertTypes.ERROR" :alert="alert" :options="{ previousName }" />
+    <default-alert v-if="alert.type === AlertTypes.LOADING" :alert="alert" :options="{ name }" />
+    <default-alert v-else-if="alert.type === AlertTypes.ERROR" :alert="alert" />
     <i18n v-else-if="alert.type === AlertTypes.SUCCESS" :path="path" tag="span">
-        <template #previousName>{{ previousName }}</template>
         <template #name>
             <router-link :to="folderRoute(folder)">
                 <strong><mail-folder-icon :folder="folder" :shared="shared" /></strong>
@@ -28,9 +27,6 @@ export default {
         },
         shared() {
             return this.mailboxes[this.folder.mailboxRef.key].type === MailboxType.MAILSHARE;
-        },
-        previousName() {
-            return this.payload.folder.name;
         },
         folder() {
             return this.folders[this.payload.folder.key];

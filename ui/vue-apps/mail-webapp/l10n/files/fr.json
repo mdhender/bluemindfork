@@ -102,9 +102,9 @@
                 "info": "Message en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles."
             },
             "rename_folder": {
-                "loading": "Le dossier \"{previousName}\" est en train d'être renommé en \"{name}\"...",
-                "success": "Le dossier \"{previousName}\" a bien été renommé en {name}.",
-                "error": "Le dossier \"{previousName}\" n'a pas pu être renommé."
+                "loading": "Le dossier est en train d'être renommé en \"{name}\"...",
+                "success": "Le dossier a bien été renommé en {name}.",
+                "error": "Le dossier n'a pas pu être renommé."
             },
             "remove_conversations": {
                 "loading": "La conversation \"{subject}\" est en train d'être supprimée définitivement...|Les conversations sélectionnées sont en train d'être supprimées définitivement...",
