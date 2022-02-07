@@ -1,12 +1,13 @@
 package net.bluemind.document.persistence.fs;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
-	private static String path;
+	private static Path path;
 
 	private static BundleContext context;
 
@@ -18,14 +19,12 @@ public class Activator implements BundleActivator {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext
-	 * )
+	 * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext )
 	 */
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
-		path = "/var/spool/bm-docs";
-		new File(path).mkdirs();
-
+		path = Paths.get("/var/spool/bm-docs");
+		path.toFile().mkdirs();
 	}
 
 	/*
@@ -38,7 +37,7 @@ public class Activator implements BundleActivator {
 		Activator.context = null;
 	}
 
-	public static String getStorageDir() {
+	public static Path getStorageDir() {
 		return path;
 	}
 }

@@ -19,6 +19,7 @@
 package net.bluemind.calendar.hook.ics;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.document.persistence.fs.FilesystemStoreImpl;
@@ -29,7 +30,7 @@ public class TestFileSystemStore extends FilesystemStoreImpl implements IDocumen
 	public TestFileSystemStore() {
 		File file = new File(System.getProperty("java.io.tmpdir"), "bm-docs35");
 		file.mkdirs();
-		super.STORAGE_DIR = file.getAbsolutePath();
+		super.STORAGE_DIR = Paths.get(file.getAbsolutePath());
 	}
 
 	@Override

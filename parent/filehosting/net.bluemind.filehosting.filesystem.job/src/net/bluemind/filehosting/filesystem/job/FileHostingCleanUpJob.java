@@ -74,7 +74,7 @@ public class FileHostingCleanUpJob implements IScheduledJob {
 				return;
 			}
 
-			final AtomicReference<Integer> count = new AtomicReference<Integer>(0);
+			final AtomicReference<Integer> count = new AtomicReference<>(0);
 			IDomains domainService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(IDomains.class);
 			domainService.all().stream() //
@@ -129,7 +129,7 @@ public class FileHostingCleanUpJob implements IScheduledJob {
 		RunnableExtensionLoader<IFileHostingService> epLoader = new RunnableExtensionLoader<>();
 		List<IFileHostingService> services = epLoader.loadExtensions("net.bluemind.filehosting", "service", "service",
 				"api");
-		return services.stream().filter(service -> service instanceof FileSystemFileHostingService).findAny();
+		return services.stream().filter(FileSystemFileHostingService.class::isInstance).findAny();
 	}
 
 	@Override

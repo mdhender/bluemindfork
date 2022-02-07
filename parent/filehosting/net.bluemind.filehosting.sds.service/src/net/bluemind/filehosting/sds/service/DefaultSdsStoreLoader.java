@@ -32,7 +32,6 @@ import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 
 public class DefaultSdsStoreLoader {
-
 	private final List<ISdsBackingStoreFactory> stores;
 
 	public DefaultSdsStoreLoader() {
@@ -59,5 +58,4 @@ public class DefaultSdsStoreLoader {
 		return stores.stream().filter(sbs -> sbs.kind() == storeType).findAny()
 				.map(s -> createSync(s, VertxPlatform.getVertx(), sysconf));
 	}
-
 }

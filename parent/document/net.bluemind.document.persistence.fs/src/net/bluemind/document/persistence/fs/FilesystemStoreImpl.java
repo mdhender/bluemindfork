@@ -21,6 +21,7 @@ package net.bluemind.document.persistence.fs;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ import net.bluemind.document.storage.IDocumentStore;
 public class FilesystemStoreImpl implements IDocumentStore {
 	private static final Logger logger = LoggerFactory.getLogger(FilesystemStoreImpl.class);
 
-	protected String STORAGE_DIR = Activator.getStorageDir();
+	protected Path STORAGE_DIR = Activator.getStorageDir();
 
 	public FilesystemStoreImpl() {
 
@@ -95,10 +96,11 @@ public class FilesystemStoreImpl implements IDocumentStore {
 	}
 
 	private File getFile(String uid) {
-		// FIXME check '../..' ?
-		String path = STORAGE_DIR + "/" + uid + ".bin";
-		return new File(path);
-
+		Path filePath = STORAGE_DIR.resolve(uid + ".bin").toAbsolutePath();
+		if (!filePath.startsWith(STORAGE_DIR)) {
+			throw new ServerFault("Invalid path " + filePath + " is not a subpath of " + STORAGE_DIR);
+		}
+		return filePath.toFile();
 	}
 
 }

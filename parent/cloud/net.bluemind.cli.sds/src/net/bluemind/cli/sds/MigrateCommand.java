@@ -55,8 +55,8 @@ public class MigrateCommand implements ICmdLet, Runnable {
 	private CliContext ctx;
 	private AsyncHttpClient ahc;
 	private CliUtils cliUtils;
-	private final DB db;
-	private final HTreeMap<Long, Integer> migrationMap;
+	private DB db;
+	private HTreeMap<Long, Integer> migrationMap;
 	private static final AtomicInteger uploadCount = new AtomicInteger(0);
 
 	private static final Path root = Paths.get("/var/spool/bm-cli/");
@@ -65,10 +65,16 @@ public class MigrateCommand implements ICmdLet, Runnable {
 	}
 
 	public MigrateCommand() {
-		db = DBMaker.fileDB(root.resolve("sds-migrate.db").toAbsolutePath().toString()).transactionEnable()
-				.fileMmapEnable().make();
-		migrationMap = db.hashMap("migrate").keySerializer(Serializer.LONG).valueSerializer(Serializer.INTEGER)
-				.createOrOpen();
+		try {
+			db = DBMaker.fileDB(root.resolve("sds-migrate.db").toAbsolutePath().toString()).transactionEnable()
+					.fileMmapEnable().make();
+			migrationMap = db.hashMap("migrate").keySerializer(Serializer.LONG).valueSerializer(Serializer.INTEGER)
+					.createOrOpen();
+		} catch (Exception e) {
+			System.err.println("Unable to open sds-migrate database");
+			e.printStackTrace(System.err);
+			System.exit(1);
+		}
 	}
 
 	@Override
@@ -92,6 +98,18 @@ public class MigrateCommand implements ICmdLet, Runnable {
 
 	@Option(names = "--cache", description = "Check the cache file before trying to push to SDS", negatable = true)
 	public boolean cache = true;
+
+	@Option(names = "--no-emails", description = "Migrate emails from cyrus archives to SDS", negatable = true)
+	public boolean migrateEmails = true;
+
+	@Option(names = "--no-filehosting", description = "Migrate filehosting to SDS", negatable = true)
+	public boolean migrateFileHosting = true;
+
+	@Option(names = "--filehosting-root", description = "Where the migration should search for filehosting files")
+	public Path filehostingRoot = Paths.get("/var/spool/bm-filehosting");
+
+	@Option(names = "--document-root", description = "Where the migration should search for document files")
+	public Path documentRoot = Paths.get("/var/spool/bm-docs");
 
 	private Map<String, String> jsonFileToMap(Path filepath) {
 		Map<String, String> map = new HashMap<>();
@@ -125,40 +143,62 @@ public class MigrateCommand implements ICmdLet, Runnable {
 		}
 
 		ahc = new DefaultAsyncHttpClient();
+		Map<String, String> conf = Collections.emptyMap();
 
 		if (Files.isReadable(file)) {
-			Map<String, String> map;
 			if (format.equalsIgnoreCase("json")) {
-				map = jsonFileToMap(file);
+				conf = jsonFileToMap(file);
 			} else if (format.equalsIgnoreCase("properties")) {
-				map = propertiesFileToMap(file);
+				conf = propertiesFileToMap(file);
 			} else {
 				ctx.error(String.format("format unrecognized: %s", format));
 				return;
-			}
-			try {
-				updateSdsConfiguration(ahc, map);
-			} catch (Exception e) {
-				System.exit(1);
 			}
 		} else {
 			ctx.error(String.format("%s not found or is not readable", file));
 		}
 
-		try {
-			for (String domain : cliUtils.getDomainUids()) {
-				try {
-					String currentServer = new String(Files.readAllBytes(Paths.get("/etc/bm/server.uid")));
-					CyrusPartition partition = CyrusPartition.forServerAndDomain(currentServer, domain);
-					migrate(partition);
-				} catch (IOException e) {
-					ctx.error(e.getMessage());
-					e.printStackTrace();
-					System.exit(1);
-				}
+		if (conf.isEmpty()) {
+			ctx.error("Configuration file is required");
+			System.exit(1);
+		}
+
+		if (migrateFileHosting) {
+			ctx.info("Migrating FileHosting...");
+			FileHostingMigrator fileHostingMigrator = new FileHostingMigrator(ctx, workers, conf);
+			try {
+				fileHostingMigrator.migrateFileHosting(filehostingRoot);
+				fileHostingMigrator.migrateDocuments(documentRoot);
+			} catch (IOException e) {
+				ctx.error(e.getMessage());
+				e.printStackTrace();
+				System.exit(2);
 			}
-		} finally {
-			db.close();
+		}
+
+		if (migrateEmails) {
+			try {
+				updateSdsConfiguration(ahc, conf);
+			} catch (Exception e) {
+				System.exit(1);
+			}
+
+			ctx.info("Migrating emails...");
+			try {
+				for (String domain : cliUtils.getDomainUids()) {
+					try {
+						String currentServer = new String(Files.readAllBytes(Paths.get("/etc/bm/server.uid")));
+						CyrusPartition partition = CyrusPartition.forServerAndDomain(currentServer, domain);
+						doMigrateEmails(partition);
+					} catch (IOException e) {
+						ctx.error(e.getMessage());
+						e.printStackTrace();
+						System.exit(1);
+					}
+				}
+			} finally {
+				db.close();
+			}
 		}
 	}
 
@@ -190,7 +230,7 @@ public class MigrateCommand implements ICmdLet, Runnable {
 		return ret;
 	}
 
-	private void migrate(CyrusPartition partition) throws IOException {
+	private void doMigrateEmails(CyrusPartition partition) throws IOException {
 		ArrayBlockingQueue<Path> q = new ArrayBlockingQueue<>(workers);
 		ExecutorService pool = Executors.newFixedThreadPool(workers);
 
