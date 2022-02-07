@@ -12,29 +12,27 @@ const USED_QUOTA_PERCENTAGE_WARNING = 80; // quota usage is considered as "to be
 
 const WEBSERVER_HANDLER_BASE_URL = "part/url/";
 
-function computePreviewOrDownloadUrl(folderUid, imapUid, part) {
-    const filename = part.fileName ? "&filename=" + part.fileName : "";
+function getPartUrl(folderUid, imapUid, { address, charset, encoding, mime }) {
+    const url = new URL(WEBSERVER_HANDLER_BASE_URL, document.baseURI);
+    url.searchParams.set("folderUid", folderUid);
+    url.searchParams.set("imapUid", imapUid);
+    url.searchParams.set("address", address);
+    url.searchParams.set("charset", charset);
+    url.searchParams.set("encoding", encoding);
+    url.searchParams.set("mime", mime);
 
-    const baseUrl = document.baseURI;
+    return url;
+}
 
-    const url = new URL(
-        WEBSERVER_HANDLER_BASE_URL +
-            "?folderUid=" +
-            folderUid +
-            "&imapUid=" +
-            imapUid +
-            "&address=" +
-            part.address +
-            "&encoding=" +
-            part.encoding +
-            "&mime=" +
-            part.mime +
-            "&charset=" +
-            part.charset +
-            filename,
-        baseUrl
-    );
-    return url.href.replace(baseUrl, "");
+function getPartDownloadUrl(folderUid, imapUid, part) {
+    const filename = part.fileName || "";
+    const partUrl = getPartUrl(folderUid, imapUid, part);
+    partUrl.searchParams.set("filename", filename);
+    return partUrl.href.replace(document.baseURI, "");
+}
+
+function getPartPreviewUrl(folderUid, imapUid, part) {
+    return getPartUrl(folderUid, imapUid, part).href.replace(document.baseURI, "");
 }
 
 function createCid() {
@@ -43,10 +41,11 @@ function createCid() {
 
 export {
     createCid,
-    computePreviewOrDownloadUrl,
     EmailExtractor,
     EmailValidator,
     Flag,
+    getPartDownloadUrl,
+    getPartPreviewUrl,
     InlineImageHelper,
     mailText2Html,
     MimeType,

@@ -2,8 +2,8 @@
     <div>
         <bm-container
             class="mail-attachment-item bg-white border border-light text-condensed py-2 px-2 mt-2"
-            :class="isDownloadable ? 'cursor-pointer' : ''"
-            @click="isDownloadable ? download() : null"
+            :class="isRemovable ? '' : 'cursor-pointer'"
+            @click="isRemovable ? null : download()"
         >
             <div
                 v-if="!compact"
@@ -41,18 +41,19 @@
                 </bm-col>
                 <bm-col class="col-auto py-1">
                     <bm-button
-                        v-if="isDownloadable"
+                        v-if="!isRemovable"
+                        v-b-modal.mail-attachment-preview
                         variant="light"
                         class="p-0"
                         size="md"
                         :title="$t('mail.attachment.preview')"
-                        @click.stop
+                        @click.stop="setPreviewInfos"
                     >
                         <bm-icon icon="eye" size="2x" class="p-1" />
                     </bm-button>
 
                     <bm-button
-                        v-if="isDownloadable"
+                        v-if="!isRemovable"
                         variant="light"
                         class="p-0"
                         size="md"
@@ -93,14 +94,15 @@
 </template>
 
 <script>
-import { MimeType, computePreviewOrDownloadUrl } from "@bluemind/email";
+import { MimeType, getPartDownloadUrl } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { computeUnit } from "@bluemind/file-utils";
 import global from "@bluemind/global";
 import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmProgress, BmButtonClose, BmNotice } from "@bluemind/styleguide";
-
 import { AttachmentStatus } from "~/model/attachment";
 import { ComposerActionsMixin } from "~/mixins";
+import { mapMutations } from "vuex";
+import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_PART_ADDRESS } from "~/mutations";
 
 export default {
     name: "MailAttachmentItem",
@@ -139,9 +141,6 @@ export default {
         isRemovable() {
             return this.message.composing;
         },
-        isDownloadable() {
-            return !this.message.composing;
-        },
         fileTypeIcon() {
             return MimeType.matchingIcon(this.attachment.mime);
         },
@@ -170,14 +169,18 @@ export default {
             return this.attachment.progress.loaded === this.attachment.progress.total;
         },
         previewUrl() {
-            return computePreviewOrDownloadUrl(
-                this.message.folderRef.uid,
-                this.message.remoteRef.imapUid,
-                this.attachment
-            );
+            return getPartDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.attachment);
         }
     },
     methods: {
+        ...mapMutations("mail", {
+            SET_PREVIEW_MESSAGE_KEY,
+            SET_PREVIEW_PART_ADDRESS
+        }),
+        setPreviewInfos() {
+            this.SET_PREVIEW_MESSAGE_KEY(this.message.key);
+            this.SET_PREVIEW_PART_ADDRESS(this.attachment.address);
+        },
         cancel() {
             global.cancellers[this.attachment.address + this.message.key].cancel();
         },

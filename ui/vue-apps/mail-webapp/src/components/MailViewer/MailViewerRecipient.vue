@@ -1,9 +1,10 @@
 <template>
-    <div class="d-flex flex-wrap mb-1">
+    <div class="mail-viewer-recipient d-flex mb-1">
         <span class="text-secondary"><slot />&nbsp;</span>
-        <div v-for="(recipient, index) in recipients" :key="recipient.address" class="d-flex">
-            <bm-contact :contact="recipient" variant="simple" />
-            <span v-if="index != recipients.length - 1" class="pr-1">,</span>
+        <div v-for="(recipient, index) in recipients" :key="recipient.address">
+            <bm-contact :contact="recipient" variant="simple" /><template v-if="index != recipients.length - 1"
+                >,&nbsp;</template
+            >
         </div>
     </div>
 </template>
@@ -24,3 +25,8 @@ export default {
     }
 };
 </script>
+<style lang="scss">
+.mail-viewer-recipient {
+    flex-wrap: wrap;
+}
+</style>

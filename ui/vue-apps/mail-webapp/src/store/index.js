@@ -9,6 +9,7 @@ import conversationList from "./conversationList";
 import partsData from "./partsData";
 import route from "./route";
 import selection from "./selection";
+import preview from "./preview";
 import { state, getters, mutations } from "./store";
 
 export default {
@@ -27,6 +28,7 @@ export default {
         messageCompose,
         conversationList,
         route,
-        selection
+        selection,
+        preview
     }
 };

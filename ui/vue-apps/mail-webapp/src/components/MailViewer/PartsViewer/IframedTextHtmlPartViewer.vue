@@ -52,6 +52,7 @@ const IFRAME_STYLE = `
 .text-html-part-viewer {
     .i-frame {
         min-width: 100%;
+        max-width: 100%;
     }
 }
 </style>

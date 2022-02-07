@@ -1,10 +1,10 @@
-import { computePreviewOrDownloadUrl, WEBSERVER_HANDLER_BASE_URL } from "./index";
+import { getPartPreviewUrl, WEBSERVER_HANDLER_BASE_URL } from "./index";
 
 const CID_DATA_ATTRIBUTE = "data-bm-cid";
 
 export default {
     insertAsUrl(contentsWithCids, imageParts, folderUid, imapUid) {
-        const getNewSrcFn = part => computePreviewOrDownloadUrl(folderUid, imapUid, part);
+        const getNewSrcFn = part => getPartPreviewUrl(folderUid, imapUid, part);
         return insertInHtml(contentsWithCids, imageParts, getNewSrcFn);
     },
 

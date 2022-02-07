@@ -1,25 +1,19 @@
 <template>
     <div class="mail-viewer-content">
-        <bm-row class="px-lg-5 px-4">
-            <bm-col cols="12">
-                <h1 class="subject">{{ subject }}</h1>
-            </bm-col>
-        </bm-row>
-        <bm-row class="d-flex px-lg-5 px-4">
-            <bm-col cols="8" class="d-flex">
+        <h1 class="subject">{{ subject }}</h1>
+
+        <bm-row class="sender">
+            <bm-col cols="8">
                 <mail-viewer-from :contact="message.from" />
             </bm-col>
-            <bm-col cols="4" class="align-self-center text-right text-secondary">
+            <bm-col cols="4" class="date">
                 {{ $d(message.date, "full_date_time_short") }}
             </bm-col>
         </bm-row>
-        <bm-row class="px-lg-5">
-            <bm-col cols="12">
-                <hr class="my-2" />
-            </bm-col>
-        </bm-row>
-        <mail-viewer-recipients :message="message" class="px-lg-5 px-4" />
-        <hr class="mail-viewer-splitter my-0 mx-lg-5" />
+        <hr />
+
+        <mail-viewer-recipients :message="message" />
+        <hr class="mail-viewer-splitter" />
         <body-viewer
             :message="message"
             :expand-attachments="expandAttachments"
@@ -33,7 +27,6 @@
 </template>
 <script>
 import { BmCol, BmRow } from "@bluemind/styleguide";
-
 import BodyViewer from "./BodyViewer";
 import MailViewerFrom from "./MailViewerFrom";
 import MailViewerRecipients from "./MailViewerRecipients";
@@ -83,12 +76,45 @@ export default {
     .row {
         min-height: fit-content;
     }
-    .mail-viewer-splitter {
-        border-top-color: $alternate-light;
+    & > hr {
+        &:last-of-type {
+            border-top-color: $alternate-light;
+        }
+        @include media-breakpoint-up(lg) {
+            margin-left: $sp-5;
+            margin-right: $sp-5;
+        }
+        margin-top: 0;
+        margin-bottom: 0;
     }
 
     .subject {
         word-break: break-word;
+    }
+    .mail-viewer-recipients {
+        margin-top: $sp-2;
+    }
+
+    .mail-viewer-recipients,
+    .subject {
+        padding: 0 $sp-4;
+        @include media-breakpoint-up(lg) {
+            padding: 0 $sp-5;
+        }
+    }
+
+    .sender {
+        padding: 0 $sp-4;
+        @include media-breakpoint-up(lg) {
+            padding: 0 $sp-5;
+        }
+        margin: $sp-2 0;
+    }
+
+    .date {
+        align-self: center;
+        text-align: right;
+        color: $secondary;
     }
 }
 </style>

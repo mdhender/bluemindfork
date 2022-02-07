@@ -8,7 +8,7 @@
             <mail-composer-loading v-else />
         </template>
         <mail-viewer v-else :message="ACTIVE_MESSAGE" />
-        <div />
+        <mail-attachment-preview />
     </div>
 </template>
 
@@ -26,6 +26,7 @@ import MailComposer from "../MailComposer";
 import MailComposerLoading from "../MailComposer/MailComposerLoading";
 import MailViewer from "../MailViewer";
 import MailViewerLoading from "../MailViewer/MailViewerLoading";
+import MailAttachmentPreview from "../MailAttachment/MailAttachmentPreview";
 
 export default {
     name: "MailMessage",
@@ -36,7 +37,8 @@ export default {
         MailComposerLoading,
         MailViewer,
         MailViewerLoading,
-        VideoConferencing
+        VideoConferencing,
+        MailAttachmentPreview
     },
     provide() {
         return { $messageViewerRoot: this };

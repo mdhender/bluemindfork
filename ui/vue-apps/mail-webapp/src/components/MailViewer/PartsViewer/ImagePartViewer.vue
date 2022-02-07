@@ -5,7 +5,7 @@
 
 <script>
 import { BmSkeletonImg } from "@bluemind/styleguide";
-import { computePreviewOrDownloadUrl } from "@bluemind/email";
+import { getPartPreviewUrl } from "@bluemind/email";
 
 import PartViewerMixin from "./PartViewerMixin";
 export default {
@@ -14,7 +14,7 @@ export default {
     mixins: [PartViewerMixin],
     computed: {
         src() {
-            return computePreviewOrDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.part);
+            return getPartPreviewUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.part);
         }
     }
 };
