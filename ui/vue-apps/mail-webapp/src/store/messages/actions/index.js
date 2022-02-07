@@ -19,6 +19,7 @@ import {
     DELETE_FLAG,
     FETCH_MESSAGE_IF_NOT_LOADED,
     FETCH_MESSAGE_METADATA,
+    FETCH_CONVERSATION_LIST_KEYS,
     MARK_MESSAGE_AS_FLAGGED,
     MARK_MESSAGE_AS_READ,
     MARK_MESSAGE_AS_UNFLAGGED,
@@ -37,6 +38,7 @@ import {
 } from "~/actions";
 
 import { Flag } from "@bluemind/email";
+import Vue from "vue";
 
 const markAsUnread = ({ dispatch }, messages) => dispatch(DELETE_FLAG, { messages, flag: Flag.SEEN });
 const markAsRead = ({ dispatch }, messages) => dispatch(ADD_FLAG, { messages, flag: Flag.SEEN });
@@ -64,5 +66,10 @@ export default {
     [SAVE_MESSAGE]: saveAsap,
     [SAVE_AS_TEMPLATE]: withAlert(saveAs, SAVE_AS_TEMPLATE, "SaveMessageAs"),
     [SAVE_AS_DRAFT]: withAlert(saveAs, SAVE_AS_DRAFT, "SaveMessageAs"),
-    [SEND_MESSAGE]: withAlert(send, SEND_MESSAGE, "SendMessage")
+    [SEND_MESSAGE]: withAlert(send, SEND_MESSAGE, "SendMessage"),
+    [FETCH_CONVERSATION_LIST_KEYS]: ({ state }) => {
+        for (const key in state) {
+            Vue.delete(state, key);
+        }
+    }
 };

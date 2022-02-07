@@ -33,8 +33,8 @@
                 {{ $t("mail.actions.move") }}
             </bm-dropdown-item>
             <bm-dropdown-item
-                @click.exact="MOVE_MESSAGES_TO_TRASH(conversation, [message])"
-                @click.shift.exact="REMOVE_MESSAGES(conversation, [message])"
+                @click.exact="MOVE_MESSAGES_TO_TRASH(conversation, message)"
+                @click.shift.exact="REMOVE_MESSAGES(conversation, message)"
             >
                 {{ $t("mail.actions.remove") }}
             </bm-dropdown-item>
@@ -44,7 +44,7 @@
             <bm-dropdown-item icon="printer" @click="printMessage(message)">
                 {{ $t("common.print") }}
             </bm-dropdown-item>
-            <bm-dropdown-item @click.prevent.stop.exact="REMOVE_MESSAGES(conversation, [message])">
+            <bm-dropdown-item @click.prevent.stop.exact="REMOVE_MESSAGES(conversation, message)">
                 {{ $t("mail.actions.purge") }}
             </bm-dropdown-item>
         </bm-dropdown>

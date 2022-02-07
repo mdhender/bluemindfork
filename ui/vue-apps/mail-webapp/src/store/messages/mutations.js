@@ -139,12 +139,6 @@ export default {
     }
 };
 
-function ADD_MESSAGES_STUBS(state, { conversations, messages }) {
-    messages.forEach(message => {
-        if (!state[message.key]) {
-            Vue.set(state, message.key, message);
-        }
-        const conversation = conversations.find(c => c.messages.includes(message.key));
-        state[message.key].conversationRef = { key: conversation.key, uid: conversation.remoteRef.uid };
-    });
+function ADD_MESSAGES_STUBS(state, { messages }) {
+    messages.forEach(message => state[message.key] || Vue.set(state, message.key, message));
 }

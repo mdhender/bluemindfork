@@ -49,7 +49,7 @@
             <span class="pl-1">{{ $t("mail.actions.mark_unflagged") }}</span>
         </bm-dropdown-item-button>
         <bm-dropdown-divider />
-        <bm-dropdown-item-button @click.exact.prevent.stop="MOVE_MESSAGES_TO_TRASH(conversation, [message])">
+        <bm-dropdown-item-button @click.exact.prevent.stop="MOVE_MESSAGES_TO_TRASH(conversation, message)">
             <bm-icon icon="trash" size="1x" />
             <span class="pl-1">{{ $t("mail.actions.remove") }}</span>
         </bm-dropdown-item-button>

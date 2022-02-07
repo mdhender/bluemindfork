@@ -58,7 +58,8 @@ export async function fetchMessageIfNotLoaded({ state, commit, dispatch }, { int
 
 export async function fetchMessageMetadata({ state, commit }, { messages: messageKeys }) {
     const messages = [];
-    (Array.isArray(messageKeys) ? messageKeys : [messageKeys]).forEach(key => {
+    messageKeys = new Set(Array.isArray(messageKeys) ? messageKeys : [messageKeys]);
+    messageKeys.forEach(key => {
         const message = state[key];
         if (!message.composing) {
             // BM-17736 fetch message with LOADING status
@@ -69,22 +70,29 @@ export async function fetchMessageMetadata({ state, commit }, { messages: messag
     });
     commit(
         SET_MESSAGES_LOADING_STATUS,
-        messages
-            .filter(({ key }) => state[key] && state[key].loading !== LoadingStatus.LOADED)
-            .map(message => ({ ...message, loading: LoadingStatus.LOADING }))
+        messages.reduce((loadings, message) => {
+            if (message.loading !== LoadingStatus.LOADED) {
+                loadings.push({ ...message, loading: LoadingStatus.LOADING });
+            }
+            return loadings;
+        }, [])
     );
-    const fullMessages = (await apiMessages.multipleById(messages))
-        .filter(message => !state[message.key].version || state[message.key].version < message.version)
-        .map(message => ({
-            ...message,
-            conversationRef: state[message.key].conversationRef
-        }));
-    commit(ADD_MESSAGES, fullMessages);
+    const results = (await apiMessages.multipleById(messages)).reduce((results, message) => {
+        if (!state[message.key].version || state[message.key].version < message.version) {
+            results.push({ ...message, conversationRef: state[message.key].conversationRef });
+        }
+        messageKeys.delete(message.key);
+        return results;
+    }, []);
+    commit(ADD_MESSAGES, results);
     commit(
         SET_MESSAGES_LOADING_STATUS,
-        messages
-            .filter(({ key }) => state[key] && state[key].loading !== LoadingStatus.LOADED)
-            .map(message => ({ ...message, loading: LoadingStatus.ERROR }))
+        messages.reduce((errors, message) => {
+            if (messageKeys.has(message.key)) {
+                errors.push({ ...message, loading: LoadingStatus.ERROR });
+            }
+            return errors;
+        }, [])
     );
 }
 
