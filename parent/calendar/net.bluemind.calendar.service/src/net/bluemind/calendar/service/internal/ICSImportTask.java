@@ -24,6 +24,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.elasticsearch.common.Strings;
+
 import net.bluemind.calendar.EventChangesMerge;
 import net.bluemind.calendar.api.VEventChanges;
 import net.bluemind.calendar.api.VEventChanges.ItemDelete;
@@ -58,6 +60,7 @@ public abstract class ICSImportTask implements IServerTask {
 		ContainerUpdatesResult ret = new ContainerUpdatesResult();
 		try {
 			Consumer<ItemValue<VEventSeries>> consumer = (series -> {
+				sanitizeSeries(series);
 				ContainerUpdatesResult importEventResult = importEvent(series);
 				ret.added.addAll(importEventResult.added);
 				ret.updated.addAll(importEventResult.updated);
@@ -95,6 +98,42 @@ public abstract class ICSImportTask implements IServerTask {
 				service.emitNotification();
 			}
 		}
+	}
+
+	protected void sanitizeSeries(ItemValue<VEventSeries> series) {
+		if (series.value.main == null || series.value.occurrences == null || series.value.occurrences.isEmpty()) {
+			return;
+		}
+
+		series.value.occurrences.stream().filter(occ -> occ.exception()).forEach(exception -> {
+			// BM-18062 fix broken exceptions sent by outlook
+			if (exception.summary == null || exception.summary.equals("-")) {
+				exception.summary = series.value.main.summary;
+			}
+			if (Strings.isNullOrEmpty(exception.description)) {
+				exception.description = series.value.main.description;
+			}
+			if (Strings.isNullOrEmpty(exception.location)) {
+				exception.location = series.value.main.location;
+			}
+			if (exception.priority == null) {
+				exception.priority = series.value.main.priority;
+			}
+			if (exception.status == null) {
+				exception.status = series.value.main.status;
+			}
+			if (exception.attendees == null || exception.attendees.isEmpty()) {
+				exception.attendees = series.value.main.attendees;
+			}
+			if (exception.organizer == null) {
+				exception.organizer = series.value.main.organizer;
+			}
+			if (exception.categories == null || exception.categories.isEmpty()) {
+				exception.categories = series.value.main.categories;
+			}
+
+		});
+
 	}
 
 	private ContainerUpdatesResult importEvent(ItemValue<VEventSeries> itemValue) {

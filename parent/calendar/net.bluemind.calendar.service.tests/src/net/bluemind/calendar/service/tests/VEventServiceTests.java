@@ -503,6 +503,34 @@ public class VEventServiceTests extends AbstractCalendarTests {
 	}
 
 	@Test
+	public void test_Outlook_Recurring_Event() throws ServerFault, IOException {
+		Stream ics = getIcsFromFile("outlookexc.ics");
+
+		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer).importIcs(ics);
+		ImportStats stats = waitImportEnd(taskRef);
+		assertNotNull(stats);
+		assertEquals(1, stats.importedCount());
+
+		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
+				.getByIcsUid("test0123456789").get(0);
+
+		VEvent exception = item.value.occurrences.get(0);
+		VEvent main = item.value.main;
+		assertNotNull(exception);
+
+		assertEquals(exception.summary, "exception");
+		assertEquals(main.description, exception.description);
+		assertEquals(main.classification, exception.classification);
+		assertEquals(main.location, exception.location);
+		assertEquals(main.priority, exception.priority);
+		assertEquals(main.status, exception.status);
+		assertEquals(main.attendees, exception.attendees);
+		assertEquals(main.organizer, exception.organizer);
+		assertEquals(main.categories, exception.categories);
+		assertEquals(main.transparency, exception.transparency);
+	}
+
+	@Test
 	public void testAttachmentImport() throws ServerFault, IOException {
 		Stream ics = getIcsFromFile("testAttachmentImport.ics");
 
