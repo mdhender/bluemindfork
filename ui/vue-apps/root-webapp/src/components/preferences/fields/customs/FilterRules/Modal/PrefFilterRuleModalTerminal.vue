@@ -8,20 +8,20 @@
                 <span class="align-self-center mr-1">
                     {{ $t("preferences.mail.filters.modal.terminal.desc") }}
                 </span>
-                <bm-button variant="link">
+                <!-- <bm-button variant="link">
                     <small>{{ $t("preferences.mail.filters.modal.terminal.desc.link") }}</small>
-                </bm-button>
+                </bm-button> -->
             </div>
         </template>
     </bm-form-group>
 </template>
 
 <script>
-import { BmButton, BmFormCheckbox, BmFormGroup } from "@bluemind/styleguide";
+import { BmFormCheckbox, BmFormGroup } from "@bluemind/styleguide";
 
 export default {
     name: "PrefFilterRuleModalTerminal",
-    components: { BmButton, BmFormCheckbox, BmFormGroup },
+    components: { BmFormCheckbox, BmFormGroup },
     props: {
         filter: {
             type: Object,
