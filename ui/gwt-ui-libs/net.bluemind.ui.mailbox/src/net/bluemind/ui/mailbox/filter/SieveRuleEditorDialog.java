@@ -298,12 +298,6 @@ public class SieveRuleEditorDialog extends Composite {
 	}
 
 	private void initUI() {
-		if ("mailshare".equals(entity)) {
-			cbMarkAsRead.setVisible(false);
-			cbMarkAsImportant.setVisible(false);
-			cbDiscard.setVisible(false);
-		}
-
 		fromMatchType.getElement().setId("filter-from-select");
 		from.getElement().setId("filter-from-text");
 		toMatchType.getElement().setId("filter-to-select");
