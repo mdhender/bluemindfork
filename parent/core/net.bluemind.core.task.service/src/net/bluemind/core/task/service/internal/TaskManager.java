@@ -19,12 +19,14 @@
 package net.bluemind.core.task.service.internal;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.EvictingQueue;
+import com.google.common.collect.Queues;
 
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
@@ -38,9 +40,7 @@ import net.bluemind.core.utils.JsonUtils;
 public class TaskManager implements Handler<Message<JsonObject>> {
 
 	private static final Logger logger = LoggerFactory.getLogger(TaskManager.class);
-	private Collection<JsonObject> logs = new ConcurrentLinkedDeque<>();
-
-	private Object lock = new Object();
+	private Queue<JsonObject> logs = Queues.synchronizedQueue(EvictingQueue.create(10000));
 
 	private List<LogStream> readers = new ArrayList<>();
 
@@ -57,18 +57,15 @@ public class TaskManager implements Handler<Message<JsonObject>> {
 	}
 
 	public ReadStream<Buffer> log() {
-		synchronized (lock) {
-			LogStream reader = new LogStream();
+		LogStream reader = new LogStream();
 
-			registerReader(reader);
-			return reader;
-		}
-
+		registerReader(reader);
+		return reader;
 	}
 
 	public List<String> getCurrentLogs() {
 
-		synchronized (lock) {
+		synchronized (logs) {
 			List<String> ret = new ArrayList<>(logs.size());
 			for (JsonObject o : logs) {
 				ret.add(o.getString("message"));
@@ -78,14 +75,15 @@ public class TaskManager implements Handler<Message<JsonObject>> {
 	}
 
 	private void registerReader(LogStream reader) {
-		this.readers.add(reader);
-		for (JsonObject l : logs) {
-			reader.pushData(l);
-			if (Boolean.TRUE.equals(l.getBoolean("end"))) {
-				reader.end();
+		synchronized (logs) {
+			this.readers.add(reader);
+			for (JsonObject l : logs) {
+				reader.pushData(l);
+				if (Boolean.TRUE.equals(l.getBoolean("end"))) {
+					reader.end();
+				}
 			}
 		}
-
 	}
 
 	@Override
@@ -94,7 +92,7 @@ public class TaskManager implements Handler<Message<JsonObject>> {
 
 		updateStatus(event.body());
 		MessageType type = MessageType.valueOf(event.body().getString("type"));
-		synchronized (lock) {
+		synchronized (logs) {
 
 			if (type == MessageType.begin) {
 				steps = event.body().getDouble("work");
