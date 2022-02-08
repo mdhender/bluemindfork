@@ -102,9 +102,9 @@
                 "info": "E-Mail im Lesemdodus. Einige Aktionen (z.B. Löschen/Verschieben) sind nicht auswählbar."
             },
             "rename_folder": {
-                "loading": "Fehler beim Umbenennen von \"{previousName}\" in \"{name}\".",
-                "success": "Ordner {previousName} wurde in {name} umbenannt!",
-                "error": "Fehler beim Umbenennen von \"{previousName}\" in \"{name}\"."
+                "loading": "Der Ordner wird in \"{name}\" umbenannt.",
+                "success": "Ordner wurde in {name} umbenannt!",
+                "error": "Fehler beim Umbenennen von \"{name}\"."
             },
             "remove_conversations": {
                 "loading": "Konversation \"{subject}\" wird dauerhaft gelöscht...|{count} Konversationen werden dauerhaft gelöscht...",

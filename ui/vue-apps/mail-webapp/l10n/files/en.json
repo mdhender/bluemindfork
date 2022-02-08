@@ -102,9 +102,9 @@
                 "info": "Read-only message. Some actions (like Move or Remove) may not be available."
             },
             "rename_folder": {
-                "loading": "Folder {previousName} is being renamed into {name}...",
-                "success": "Folder {previousName} renamed to {name}!",
-                "error": "Failed to renaming folder \"{previousName}\" to \"{name}\"."
+                "loading": "Folder is being renamed into {name}...",
+                "success": "Folder renamed to {name}!",
+                "error": "Failed to renaming folder to \"{name}\"."
             },
             "remove_conversations": {
                 "loading": "Conversation \"{subject}\" is being removed permanently...|{count} conversations are being removed permanently...",
