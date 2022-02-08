@@ -39,7 +39,6 @@
             database="net.bluemind.system.schemaupgrader.UpgraderDatabase$ALL" 
             date_yyyyMMdd="20200428" 
             sequence="10"
-            major="5"
             script="sql/containers-hierarchy-1.0.0-SNAPSHOT.sql">
       </sql>
    </extension>
@@ -50,7 +49,6 @@
             database="net.bluemind.system.schemaupgrader.UpgraderDatabase$ALL" 
             date_yyyyMMdd="20200428" 
             sequence="10"
-            major="5"
             script="sql/owner-subscriptions-1.0.0-SNAPSHOT.sql">
       </sql>
    </extension>
