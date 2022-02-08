@@ -77,7 +77,7 @@ public class ImapContext {
 				.maximumSize(100)//
 				.recordStats()//
 				.build();
-		VertxPlatform.getVertx().setPeriodic(30000, tid -> ret.cleanUp());
+		VertxPlatform.getVertx().setPeriodic(TimeUnit.SECONDS.toMillis(30), tid -> ret.cleanUp());
 		VertxPlatform.getVertx().setPeriodic(TimeUnit.MINUTES.toMillis(5), tid -> {
 			logger.info("ImapContext CACHE: {}", ret.stats());
 		});
