@@ -76,7 +76,7 @@
                 <div class="row pl-5">
                     <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                     <bm-contact-input
-                        class="col pl-3"
+                        class="col-11"
                         :contacts="message.bcc"
                         :autocomplete-results="autocompleteResultsBcc"
                         :validate-address-fn="validateAddress"
@@ -90,18 +90,19 @@
             </template>
             <div class="row pl-5">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
-                <mail-composer-attachments
-                    class="col pl-3"
-                    :dragged-files-count="draggedFilesCount"
-                    :message="message"
-                    @files-count="draggedFilesCount = $event"
-                    @drop-files="addAttachments($event)"
-                />
+                <div class="col-11">
+                    <mail-composer-attachments
+                        :dragged-files-count="draggedFilesCount"
+                        :message="message"
+                        @files-count="draggedFilesCount = $event"
+                        @drop-files="addAttachments($event)"
+                    />
+                </div>
             </div>
         </template>
 
         <template slot="content">
-            <div class="col pl-3 flex-grow-1">
+            <div class="col-11 flex-grow-1">
                 <mail-composer-content
                     ref="content"
                     :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened"
@@ -110,7 +111,7 @@
             </div>
         </template>
         <template slot="bottom">
-            <div class="col pl-3">
+            <div class="col-11">
                 <div class="row">
                     <div class="col py-0"><hr /></div>
                 </div>
@@ -193,12 +194,17 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
 .mail-conversation-viewer-draft-editor {
     .bm-contact-input-label {
         padding-left: unset !important;
     }
     .mail-composer-footer {
         border-top: unset !important;
+    }
+    .bm-rich-editor .ProseMirror {
+        padding: $sp-2 0 $sp-2 $sp-3;
     }
 }
 </style>
