@@ -41,7 +41,7 @@
         <template slot="content">
             <div v-if="!isMessageExpanded" class="col pl-3 pb-2 pr-3 text-truncate">{{ message.preview }}...</div>
             <div v-else class="col pl-3 pb-2 pr-3">
-                <body-viewer :message="message" />
+                <body-viewer :message="message" @remote-content="from => $emit('remote-content', from)" />
             </div>
         </template>
         <template slot="bottom">

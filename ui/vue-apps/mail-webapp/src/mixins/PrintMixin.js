@@ -7,13 +7,14 @@ export default {
             content.$slots.body = body;
             content.$slots.style = style;
             const print = document.createElement("iframe");
-            print.srcdoc = "<html></html>";
+            print.srcdoc = `<html><head><base href="${document.baseURI}"/></head></html>`;
             print.style.width = "0";
             print.style.height = "0";
-            print.addEventListener("load", () => {
+            print.addEventListener("load", async () => {
                 content.$mount(print.contentDocument.body);
+                await this.$nextTick();
                 print.contentWindow.addEventListener("afterprint", () => print.remove());
-                setTimeout(() => print.contentWindow.print(), 50);
+                setTimeout(() => print.contentWindow.print(), 350);
             });
             document.body.appendChild(print);
         }

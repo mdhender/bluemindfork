@@ -145,6 +145,9 @@ body {
 }
 
 @media print {
+    body {
+        background-color: $white;
+    }
     .main-app {
         height: auto !important;
         .bm-banner {

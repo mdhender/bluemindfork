@@ -379,6 +379,9 @@
                         "without_subfolder": "Supprimer tous les messages de la Corbeille ?"
                     }
                 }
+            },
+            "print": {
+                "title": "Imprimer le dernier message de la conversation \"{subject}\""
             }
         },
         "compose": {

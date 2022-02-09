@@ -22,34 +22,22 @@
             v-if="isTemplate && showMarkAsRead"
             icon="read"
             :title="markAsReadAriaText()"
-            :aria-label="markAsReadAriaText()"
             @click="markAsRead()"
         >
             {{ markAsReadText }}
         </bm-dropdown-item>
-        <bm-dropdown-item
-            v-else-if="isTemplate"
-            icon="unread"
-            :title="markAsUnreadAriaText()"
-            :aria-label="markAsUnreadAriaText()"
-            @click="markAsUnread()"
-        >
+        <bm-dropdown-item v-else-if="isTemplate" icon="unread" :title="markAsUnreadAriaText()" @click="markAsUnread()">
             {{ markAsUnreadText }}
         </bm-dropdown-item>
         <bm-dropdown-item
             icon="printer"
-            :shortcut="$t('mail.shortcuts.print')"
+            :title="$t('mail.actions.print.title', { subject })"
             :disabled="selectionLength > 1"
             @click="printContent()"
         >
             {{ $t("common.print") }}
         </bm-dropdown-item>
-        <bm-dropdown-item
-            :shortcut="$t('mail.shortcuts.purge')"
-            :title="removeAriaText()"
-            :aria-label="removeAriaText()"
-            @click="remove()"
-        >
+        <bm-dropdown-item :shortcut="$t('mail.shortcuts.purge')" :title="removeAriaText()" @click="remove()">
             {{ $t("mail.actions.purge") }}
         </bm-dropdown-item>
     </bm-dropdown>
@@ -85,12 +73,19 @@ export default {
                 return this.CURRENT_CONVERSATION_METADATA.size === 1;
             }
             return false;
+        },
+        subject() {
+            if (this.selectionLength === 1) {
+                return this.CURRENT_CONVERSATION_METADATA.subject;
+            }
+            return "";
         }
     },
     methods: {
         ...mapMutations("mail", { SET_MESSAGE_COMPOSING }),
         printContent() {
-            const message = this.messages[this.selected[0].messages[0]];
+            const index = this.CURRENT_CONVERSATION_METADATA.messages.length - 1;
+            const message = this.messages[this.CURRENT_CONVERSATION_METADATA.messages[index]];
             this.print(this.$createElement("mail-message-print", { props: { message } }));
         },
         editAsNew() {

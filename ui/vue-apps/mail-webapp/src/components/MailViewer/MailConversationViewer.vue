@@ -32,6 +32,7 @@
                     @expand="expand(index)"
                     @collapse="collapse(index)"
                     @darken="darken"
+                    @remote-content="setBlockRemote"
                 />
             </div>
         </div>
@@ -45,13 +46,15 @@
 </template>
 <script>
 import Vue from "vue";
+import { REMOVE, WARNING } from "@bluemind/alert.store";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import MailConversationViewerCompoSwitcher from "./MailConversationViewerCompoSwitcher";
 import MailConversationViewerFooter from "./MailConversationViewer/MailConversationViewerFooter";
 import MailConversationViewerHeader from "./MailConversationViewer/MailConversationViewerHeader";
 import MailConversationViewerHiddenItems from "./MailConversationViewer/MailConversationViewerHiddenItems";
-import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+import apiAddressbooks from "~/store/api/apiAddressbooks";
 import { CONVERSATION_LIST_UNREAD_FILTER_ENABLED, CONVERSATION_MESSAGE_BY_KEY, MY_DRAFTS } from "~/getters";
-import { SET_MESSAGE_COMPOSING } from "~/mutations";
+import { SET_BLOCK_REMOTE_IMAGES, SET_MESSAGE_COMPOSING } from "~/mutations";
 import { MARK_CONVERSATIONS_AS_READ } from "~/actions";
 import { sortConversationMessages } from "~/model/conversations";
 import { Flag } from "@bluemind/email";
@@ -74,6 +77,10 @@ export default {
     },
     data() {
         return {
+            alert: {
+                alert: { name: "mail.BLOCK_REMOTE_CONTENT", uid: "BLOCK_REMOTE_CONTENT" },
+                options: { area: "right-panel", renderer: "BlockedRemoteContent" }
+            },
             darkened: false,
             showHiddenMessages: [],
             expandedMessages: []
@@ -83,6 +90,12 @@ export default {
         ...mapGetters("mail", { CONVERSATION_LIST_UNREAD_FILTER_ENABLED, CONVERSATION_MESSAGE_BY_KEY, MY_DRAFTS }),
         ...mapState("mail", ["folders"]),
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
+        trustRemoteContent() {
+            return this.$store.state.settings.trust_every_remote_content !== "false";
+        },
+        remoteBlocked() {
+            return this.$store.state.mail.consultPanel.remoteImages.mustBeBlocked;
+        },
         conversationMessages() {
             return sortConversationMessages(this.CONVERSATION_MESSAGE_BY_KEY(this.conversation.key), this.folders);
         },
@@ -127,12 +140,16 @@ export default {
     },
     destroyed() {
         this.resetComposingStatuses();
+        this.REMOVE(this.alert.alert);
     },
     methods: {
-        ...mapMutations("mail", { SET_MESSAGE_COMPOSING }),
+        ...mapMutations("mail", { SET_BLOCK_REMOTE_IMAGES, SET_MESSAGE_COMPOSING }),
         ...mapActions("mail", { MARK_CONVERSATIONS_AS_READ }),
+        ...mapActions("alert", { REMOVE, WARNING }),
         init() {
             this.darkened = false;
+            this.REMOVE(this.alert.alert);
+            this.SET_BLOCK_REMOTE_IMAGES(!this.trustRemoteContent);
             this.collapseAll();
             this.markAsRead();
         },
@@ -231,6 +248,21 @@ export default {
         },
         hiddenCandidates() {
             return this.conversationMessages.map((m, index) => this.isHiddenCandidate(index));
+        },
+
+        async setBlockRemote(message) {
+            if (this.remoteBlocked) {
+                const { total } = await apiAddressbooks.search(message.from.address);
+                if (total === 0) {
+                    const alert = {
+                        alert: { ...this.alert.alert, payload: message },
+                        options: this.alert.options
+                    };
+                    this.WARNING(alert);
+                } else {
+                    this.SET_BLOCK_REMOTE_IMAGES(false);
+                }
+            }
         }
     }
 };

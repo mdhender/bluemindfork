@@ -42,7 +42,11 @@
         <template slot="content">
             <div v-if="!isMessageExpanded" class="col pl-3 pb-2 pr-3 text-truncate">{{ message.preview }}...</div>
             <div v-else class="col pl-3 pb-2 pr-3">
-                <body-viewer v-if="MESSAGE_IS_LOADED(message.key)" :message="message" />
+                <body-viewer
+                    v-if="MESSAGE_IS_LOADED(message.key)"
+                    :message="message"
+                    @remote-content="$emit('remote-content', message)"
+                />
                 <mail-viewer-content-loading v-else />
             </div>
         </template>

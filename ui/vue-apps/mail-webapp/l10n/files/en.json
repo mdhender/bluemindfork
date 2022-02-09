@@ -379,6 +379,9 @@
                         "without_subfolder": "Permanently delete all messages in Trash?"
                     }
                 }
+            },
+            "print": {
+                "title": "Print the last message of the conversation \"{subject}\""
             }
         },
         "compose": {

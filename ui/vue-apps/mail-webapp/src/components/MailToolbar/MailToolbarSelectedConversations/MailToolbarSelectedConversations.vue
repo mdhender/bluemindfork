@@ -6,7 +6,6 @@
                 variant="inline-light"
                 class="unread btn-lg-simple-dark"
                 :title="$t('mail.actions.edit_from_template.aria', { subject })"
-                :aria-label="$t('mail.actions.edit_from_template.aria', { subject })"
                 @click="editFromTemplate"
             >
                 <bm-icon icon="plus-enveloppe" size="2x" />
@@ -17,7 +16,6 @@
                 variant="inline-light"
                 class="unread btn-lg-simple-dark"
                 :title="markAsReadAriaText()"
-                :aria-label="markAsReadAriaText()"
                 @click="markAsRead()"
             >
                 <bm-icon icon="read" size="2x" />
@@ -28,7 +26,6 @@
                 variant="inline-light"
                 class="read btn-lg-simple-dark"
                 :title="markAsUnreadAriaText()"
-                :aria-label="markAsUnreadAriaText()"
                 @click="markAsUnread()"
             >
                 <bm-icon icon="unread" size="2x" />
@@ -39,7 +36,6 @@
                 variant="inline-light"
                 class="btn-lg-simple-dark"
                 :title="removeAriaText()"
-                :aria-label="removeAriaText()"
                 @click.exact="moveToTrash()"
                 @click.shift.exact="remove()"
             >
@@ -51,7 +47,6 @@
                 variant="inline-light"
                 class="flagged btn-lg-simple-dark"
                 :title="markAsFlaggedAriaText()"
-                :aria-label="markAsFlaggedAriaText()"
                 @click="markAsFlagged()"
             >
                 <bm-icon icon="flag-outline" size="2x" />
@@ -62,7 +57,6 @@
                 variant="inline-light"
                 class="unflagged btn-lg-simple-dark"
                 :title="markAsUnflaggedAriaText()"
-                :aria-label="markAsUnflaggedAriaText()"
                 @click="markAsUnflagged()"
             >
                 <bm-icon icon="flag-fill" size="2x" class="text-warning" />

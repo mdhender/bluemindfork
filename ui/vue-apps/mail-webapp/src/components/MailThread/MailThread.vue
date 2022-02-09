@@ -11,12 +11,11 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 
 import { INFO, REMOVE } from "@bluemind/alert.store";
 import { BmAlertArea } from "@bluemind/styleguide";
 
-import { SET_BLOCK_REMOTE_IMAGES } from "~/mutations";
 import { CURRENT_CONVERSATION_METADATA } from "~/getters";
 import BlockedRemoteContent from "./Alerts/BlockedRemoteContent";
 import VideoConferencing from "./Alerts/VideoConferencing";
@@ -49,13 +48,9 @@ export default {
                 }
             },
             immediate: true
-        },
-        "CURRENT_CONVERSATION_METADATA.key"() {
-            this.SET_BLOCK_REMOTE_IMAGES(false);
         }
     },
     methods: {
-        ...mapMutations("mail", { SET_BLOCK_REMOTE_IMAGES }),
         ...mapActions("alert", { REMOVE, INFO })
     }
 };

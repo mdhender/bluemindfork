@@ -8,10 +8,18 @@
             :selected="choices[selectedChoice]"
             @select="index => (selectedChoice = index)"
         />
-        <mail-inlines-block v-if="selectedChoice === 0" :parts="parts" :message="message" />
+        <mail-inlines-block v-if="selectedChoice === 0" :parts="parts" :message="message">
+            <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+                <slot :name="slot" v-bind="scope" />
+            </template>
+        </mail-inlines-block>
         <event-viewer-invitation v-else :message="message" />
     </div>
-    <mail-inlines-block v-else-if="currentEvent.loading === LoadingStatus.ERROR" :parts="parts" :message="message" />
+    <mail-inlines-block v-else-if="currentEvent.loading === LoadingStatus.ERROR" :parts="parts" :message="message">
+        <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+            <slot :name="slot" v-bind="scope" />
+        </template>
+    </mail-inlines-block>
 </template>
 
 <script>

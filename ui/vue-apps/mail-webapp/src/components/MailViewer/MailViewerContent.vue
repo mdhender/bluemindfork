@@ -20,7 +20,11 @@
         </bm-row>
         <mail-viewer-recipients :message="message" class="px-lg-5 px-4" />
         <hr class="mail-viewer-splitter my-0 mx-lg-5" />
-        <body-viewer :message="message" :expand-attachments="expandAttachments" :expand-quotes="expandQuotes">
+        <body-viewer
+            :message="message"
+            :expand-attachments="expandAttachments"
+            @remote-content="from => $emit('remote-content', from)"
+        >
             <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
                 <slot :name="slot" v-bind="scope" />
             </template>
@@ -51,10 +55,6 @@ export default {
         expandAttachments: {
             type: Boolean,
             default: false
-        },
-        expandQuotes: {
-            type: Boolean,
-            default: false
         }
     },
     computed: {
@@ -69,13 +69,14 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 .mail-viewer-content {
     .body-viewer {
-        @include media-breakpoint-up(lg) {
-            & > * {
-                padding: 0 $sp-5;
-            }
-        }
         .mail-inlines-block {
             padding: 0 $sp-4;
+        }
+        @include media-breakpoint-up(lg) {
+            .mail-inlines-block {
+                padding: 0;
+            }
+            padding: 0 $sp-5;
         }
     }
 

@@ -379,6 +379,9 @@
                         "without_subfolder": "E-Mails im Papierkorb definitiv löschen?"
                     }
                 }
+            },
+            "print": {
+                "title": "Die letzte Nachricht der Konversation ausdrucken \"{subject}\""
             }
         },
         "compose": {

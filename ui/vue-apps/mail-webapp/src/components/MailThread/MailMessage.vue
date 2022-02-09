@@ -69,7 +69,6 @@ export default {
         },
         "ACTIVE_MESSAGE.key": {
             handler(value, oldValue) {
-                this.SET_BLOCK_REMOTE_IMAGES(false);
                 try {
                     if (oldValue) {
                         const oldMessage = this.messages[oldValue];

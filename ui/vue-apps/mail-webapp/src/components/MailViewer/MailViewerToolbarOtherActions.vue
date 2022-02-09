@@ -11,25 +11,22 @@
                 <bm-icon icon="3dots" size="2x" />
                 <span class="d-lg-none">{{ $t("mail.toolbar.more") }}</span>
             </template>
-            <bm-dropdown-item
-                v-if="!message.flags.includes(Flag.SEEN)"
-                @click.prevent.stop="MARK_MESSAGE_AS_READ(message)"
-            >
+            <bm-dropdown-item v-if="!message.flags.includes(Flag.SEEN)" @click.stop="MARK_MESSAGE_AS_READ(message)">
                 {{ $tc("mail.actions.mark_as_read", 1) }}
             </bm-dropdown-item>
-            <bm-dropdown-item v-else @click.prevent.stop="MARK_MESSAGE_AS_UNREAD(message)">
+            <bm-dropdown-item v-else @click.stop="MARK_MESSAGE_AS_UNREAD(message)">
                 {{ $tc("mail.actions.mark_as_unread", 1) }}
             </bm-dropdown-item>
             <bm-dropdown-item
                 v-if="!message.flags.includes(Flag.FLAGGED)"
-                @click.prevent.stop="MARK_MESSAGE_AS_FLAGGED(message)"
+                @click.stop="MARK_MESSAGE_AS_FLAGGED(message)"
             >
                 {{ $t("mail.actions.mark_flagged") }}
             </bm-dropdown-item>
-            <bm-dropdown-item v-else @click.prevent.stop="MARK_MESSAGE_AS_UNFLAGGED(message)">
+            <bm-dropdown-item v-else @click.stop="MARK_MESSAGE_AS_UNFLAGGED(message)">
                 {{ $t("mail.actions.mark_unflagged") }}
             </bm-dropdown-item>
-            <bm-dropdown-item @click.prevent.stop="move(message)">
+            <bm-dropdown-item @click.stop="move(message)">
                 {{ $t("mail.actions.move") }}
             </bm-dropdown-item>
             <bm-dropdown-item
@@ -41,10 +38,10 @@
             <bm-dropdown-item icon="pencil" @click="editAsNew()">
                 {{ $t("mail.actions.edit_as_new") }}
             </bm-dropdown-item>
-            <bm-dropdown-item icon="printer" :shortcut="$t('mail.shortcuts.print')" @click="printContent()">
+            <bm-dropdown-item icon="printer" @click.stop="printContent()">
                 {{ $t("common.print") }}
             </bm-dropdown-item>
-            <bm-dropdown-item @click.prevent.stop.exact="REMOVE_MESSAGES(conversation, message)">
+            <bm-dropdown-item @click.stop.exact="REMOVE_MESSAGES(conversation, message)">
                 {{ $t("mail.actions.purge") }}
             </bm-dropdown-item>
         </bm-dropdown>

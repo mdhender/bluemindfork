@@ -1,9 +1,9 @@
 <template>
     <main class="mail-message-print">
         <inline-style>{{ STYLES }}</inline-style>
-        <mail-viewer-content :message="message" :expand-attachments="true" :expand-quotes="true">
+        <mail-viewer-content :message="message" :expand-attachments="true">
             <template v-slot:text-html="scope">
-                <text-html-part-viewer v-bind="scope" />
+                <text-html-part-viewer v-bind="scope" :collapse="false" />
             </template>
         </mail-viewer-content>
     </main>
@@ -165,6 +165,8 @@ h1.subject {
 .mail-attachment-item svg.preview-file-type {
     display: none;
 }
+.event-viewer > .reply-to-invitation, .event-viewer > .btn-toolbar {
+    display: none;
+}
 `;
 </script>
-

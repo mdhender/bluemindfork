@@ -10,7 +10,7 @@
             v-if="isCollapseActive"
             variant="outline-dark"
             class="align-self-start ml-3 mb-2"
-            @click="quotedCollapsed = false"
+            @click="collapse_ = false"
         >
             <bm-icon icon="3dots" size="sm" />
         </bm-button>
@@ -37,8 +37,10 @@ export default {
     name: "TextHtmlPartViewer",
     components: { BmButton, BmIcon, MailViewerContentLoading, InlineStyle },
     mixins: [PartViewerMixin],
-    props: { collapse: { type: Boolean, required: false, default: true } },
-    data: () => ({ quotedCollapsed: true }),
+    props: { collapse: { type: Boolean, default: true } },
+    data() {
+        return { collapse_: this.collapse && !isForward(this.message) };
+    },
     computed: {
         quoteNodes() {
             return this.$store.getters[`mail/${QUOTE_NODES}`](this.message.key, this.part.address);
@@ -64,7 +66,7 @@ export default {
         },
         html() {
             let html = this.isCollapseActive
-                ? QuoteHelper.removeQuotes(this.parsedContent, this.quoteNodes).body.innerHTML
+                ? QuoteHelper.removeQuotes(this.parsedContent.cloneNode(true), this.quoteNodes).body.innerHTML
                 : this.parsedContent.body.innerHTML;
             html = linkifyHtml(sanitizeHtml(html, true));
             if (this.blockImages) {
@@ -76,7 +78,7 @@ export default {
             return extractStyleNotInBody(this.parsedContent) + BM_STYLE;
         },
         isCollapseActive() {
-            return this.quotedCollapsed && !isForward(this.message) && this.quoteNodes;
+            return this.collapse_ && this.quoteNodes;
         }
     }
 };
@@ -110,11 +112,15 @@ const BM_STYLE = `
             min-height: 50px;
             min-width: 55px;
             display: inline-block;
-            border: 1px solid black;
             border: solid 1px #727272 !important;
             vertical-align: top;
         }
-
+        .blocked-background { 
+            background-image: url(${brokenImageIcon}); 
+            background-position: 7px 7px; 
+            background-repeat: no-repeat; 
+            border: solid 1px #727272 !important; 
+        }
         img.blocked-image:before {
             content: attr(alt);
             color: #2F2F2F;

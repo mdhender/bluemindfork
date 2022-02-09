@@ -23,6 +23,7 @@ export default {
     name: "IframedTextHtmlPartViewer",
     components: { TextHtmlPartViewer, IFrame },
     mixins: [PartViewerMixin],
+    props: { collapse: { type: Boolean, default: true } },
     data() {
         return { IFRAME_STYLE };
     }
