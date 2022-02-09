@@ -36,9 +36,9 @@ public interface IReplicatedMailboxesMgmt {
 	Set<MailboxRecordItemUri> getBodyGuidReferences(@PathParam("guid") String guid);
 
 	@GET
-	@Path("{mailbox}/{uid}/references_byuid")
+	@Path("{mailbox}/{replicatedmailboxuid}/{uid}/references_byuid")
 	List<Set<MailboxRecordItemUri>> getImapUidReferences(@PathParam("mailbox") String mailbox,
-			@PathParam("uid") Long uid);
+			@PathParam("replicatedmailboxuid") String replicatedMailboxUid, @PathParam("uid") Long uid);
 
 	@GET
 	@Path("{mailbox}/references/query")
