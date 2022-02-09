@@ -17,6 +17,7 @@
                     :class="{ 'pr-3': !isMessageExpanded }"
                     :message="message"
                 />
+                {{ $d(message.date, "full_date_time_short") }}
                 <mail-viewer-toolbar-for-mobile
                     v-if="isMessageExpanded"
                     :message="message"

@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-conversation-viewer-footer py-3">
+    <bm-button-toolbar key-nav class="mail-conversation-viewer-footer py-3">
         <bm-button
             variant="primary"
             :aria-label="$t('mail.content.reply.aria')"
@@ -21,17 +21,17 @@
                 {{ $t("mail.content.reply_all.aria") }}
             </div>
         </bm-button>
-    </div>
+    </bm-button-toolbar>
 </template>
 
 <script>
 import { mapState } from "vuex";
-import { BmButton, BmIcon } from "@bluemind/styleguide";
+import { BmButtonToolbar, BmButton, BmIcon } from "@bluemind/styleguide";
 import { ReplyAndForwardRoutesMixin } from "~/mixins";
 
 export default {
     name: "MailConversationViewerFooter",
-    components: { BmButton, BmIcon },
+    components: { BmButtonToolbar, BmButton, BmIcon },
     mixins: [ReplyAndForwardRoutesMixin],
     props: {
         lastNonDraft: {

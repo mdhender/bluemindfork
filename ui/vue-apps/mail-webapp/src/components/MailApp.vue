@@ -282,4 +282,12 @@ export default {
 .flex-basis-0 {
     flex-basis: 0;
 }
+
+@media print {
+    .mail-app {
+        .topbar {
+            display: none !important;
+        }
+    }
+}
 </style>

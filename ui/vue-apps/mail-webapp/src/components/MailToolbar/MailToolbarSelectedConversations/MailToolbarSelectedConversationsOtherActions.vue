@@ -69,7 +69,7 @@ import MailMessagePrint from "~/components/MailViewer/MailMessagePrint";
 export default {
     name: "MailToolbarSelectedConversationsOtherActions",
     // eslint-disable-next-line vue/no-unused-components
-    components: { BmDropdown, BmDropdownItem, BmIcon, MailMessagePrint, TextHtmlPartViewer },
+    components: { BmDropdown, BmDropdownItem, BmIcon, MailMessagePrint },
     mixins: [ActionTextMixin, RemoveMixin, FlagMixin, PrintMixin, SelectionMixin],
     computed: {
         ...mapGetters("mail", { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES }),

@@ -143,4 +143,19 @@ body {
         right: initial;
     }
 }
+
+@media print {
+    .main-app {
+        height: auto !important;
+        .bm-banner {
+            display: none !important;
+        }
+        .btn-toolbar {
+            display: none !important;
+        }
+        .navbar {
+            display: none !important;
+        }
+    }
+}
 </style>
