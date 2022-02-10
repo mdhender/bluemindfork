@@ -32,32 +32,44 @@ import net.bluemind.user.hook.IUserHook;
 
 public class VisioAccountTypeHook extends DefaultUserHook implements IUserHook {
 
+	private static final String HAS_SIMPLE_VISIO_ROLE = "hasSimpleVideoconferencing";
+
 	@Override
 	public void onUserCreated(BmContext context, String domainUid, ItemValue<User> created) throws ServerFault {
+		if (created.value.accountType == AccountType.SIMPLE) {
+			return;
+		}
+
 		IUser user = context.getServiceProvider().instance(IUser.class, domainUid);
 		Set<String> roles = new HashSet<>(user.getRoles(created.uid));
-		if (created.value.accountType == AccountType.FULL) {
-			if (!roles.contains("hasSimpleVideoconferencing")) {
-				roles.add("hasSimpleVideoconferencing");
-			}
+		if (created.value.accountType == AccountType.FULL && !roles.contains(HAS_SIMPLE_VISIO_ROLE)) {
+			roles.add(HAS_SIMPLE_VISIO_ROLE);
+			user.setRoles(created.uid, roles);
 		}
-		user.setRoles(created.uid, roles);
 	}
 
 	@Override
 	public void beforeUpdate(BmContext context, String domainUid, String uid, User update, User previous)
 			throws ServerFault {
+		if (update.accountType == AccountType.SIMPLE) {
+			return;
+		}
+
 		IUser user = context.getServiceProvider().instance(IUser.class, domainUid);
 		Set<String> roles = new HashSet<>(user.getRoles(uid));
+		Set<String> previousRoles = new HashSet<>(roles);
 		if (previous.accountType != AccountType.FULL_AND_VISIO && update.accountType == AccountType.FULL_AND_VISIO) {
-			if (roles.contains("hasSimpleVideoconferencing")) { // role may have been removed in the meantime
-				roles.remove("hasSimpleVideoconferencing");
+			if (roles.contains(HAS_SIMPLE_VISIO_ROLE)) { // role may have been removed in the meantime
+				roles.remove(HAS_SIMPLE_VISIO_ROLE);
 			}
 		}
 		if (previous.accountType == AccountType.FULL_AND_VISIO && update.accountType == AccountType.FULL) {
-			roles.add("hasSimpleVideoconferencing");
+			roles.add(HAS_SIMPLE_VISIO_ROLE);
 		}
-		user.setRoles(uid, roles);
+
+		if (!previousRoles.equals(roles)) {
+			user.setRoles(uid, roles);
+		}
 	}
 
 }
