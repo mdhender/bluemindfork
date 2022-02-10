@@ -15,9 +15,11 @@ export default {
     SELF_MANAGE_EXTERNAL_ACCOUNT: "selfManageExternalAccount",
     SELF_MANAGE_VCARD: "selfManageVCard",
 
+    MANAGE_MAILBOX_IDENTITIES: "manageMailboxIdentities",
+    MANAGE_MAILBOX_FILTERS: "manageMailboxFilter",
+    MANAGE_USER_MAIL_IDENTITIES: "managerUserMailIdentities",
+
     CAN_CREATE_EXTERNAL_IDENTITY: "canCreateExternalIdentity",
     MAIL_FORWARDING: "mailForwarding",
-    MANAGE_MAILBOX_IDENTITIES: "manageMailboxIdentities",
-    MANAGE_USER_MAIL_IDENTITIES: "managerUserMailIdentities",
     READ_DOMAIN_FILTERS: "readDomainFilters"
 };

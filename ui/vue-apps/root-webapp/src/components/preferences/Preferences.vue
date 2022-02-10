@@ -34,6 +34,8 @@
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { generateDateTimeFormats } from "@bluemind/i18n";
+import { inject } from "@bluemind/inject";
+import Roles from "@bluemind/roles";
 import { BmContainer, BmRow, BmSpinner } from "@bluemind/styleguide";
 
 import getPreferenceSections from "./sections";
@@ -81,7 +83,11 @@ export default {
 
         await Promise.all([
             this.FETCH_USER_PASSWORD_LAST_CHANGE(),
-            this.FETCH_ALL_SETTINGS().then(() => this.FETCH_MAILBOX_FILTER(this.lang)), // lang is set once all settings are loaded
+            this.FETCH_ALL_SETTINGS().then(() => {
+                if (inject("UserSession").roles.includes(Roles.SELF_CHANGE_MAILBOX_FILTER)) {
+                    return this.FETCH_MAILBOX_FILTER(this.lang); // lang is set once all settings are loaded
+                }
+            }),
             this.FETCH_SUBSCRIPTIONS().then(subscriptions => this.FETCH_CONTAINERS(subscriptions)) // FETCH_CONTAINERS action need subscriptions to be loaded
         ]);
 

@@ -1,12 +1,6 @@
 <template>
-    <div class="pref-filter-rules">
-        <p>{{ $t("preferences.mail.filters.desc") }}</p>
+    <div class="pref-my-filter-rules">
         <pref-filter-rule-modal ref="filters-editing-modal" :filter="editingFilter" @updateFilter="updateUserFilter" />
-        <hr />
-        <pref-filter-rules-subset
-            :filters="domainFilters"
-            :title="$t('preferences.mail.filters.subset.domain', { count: domainFilters.length })"
-        />
         <hr />
         <pref-filter-rules-subset
             :filters="userFilters"
@@ -25,7 +19,6 @@
 </template>
 
 <script>
-import { inject } from "@bluemind/inject";
 import { read as readRule, write as writeRule } from "./filterRules.js";
 import PrefFilterRuleModal from "./Modal/PrefFilterRuleModal";
 import PrefFilterRulesSubset from "./PrefFilterRulesSubset";
@@ -36,11 +29,7 @@ export default {
     components: { PrefFilterRuleModal, PrefFilterRulesSubset },
     mixins: [CentralizedSaving],
     data() {
-        return {
-            domainFilters: [],
-            editingFilter: {},
-            expanded: []
-        };
+        return { editingFilter: {}, expanded: [] };
     },
     computed: {
         /**
@@ -72,14 +61,8 @@ export default {
         this.registerSaveAction(save);
 
         this.value = this.normalizeUserFilters(this.$store.state.preferences.mailboxFilter);
-
-        this.domainFilters = await this.fetchDomainFilters();
     },
     methods: {
-        async fetchDomainFilters() {
-            const domainFilters = await inject("MailboxesPersistence")?.getDomainFilter();
-            return domainFilters.rules.map((f, index) => ({ ...readRule(f), index }));
-        },
         normalizeUserFilters(rawFilters) {
             return rawFilters.rules.map((rule, index) => ({
                 ...readRule(rule),
@@ -156,7 +139,7 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
-.pref-filter-rules {
+.pref-my-filter-rules {
     hr {
         background-color: $alternate-light;
     }

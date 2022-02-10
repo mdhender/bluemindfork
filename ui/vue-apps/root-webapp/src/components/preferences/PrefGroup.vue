@@ -1,6 +1,7 @@
 <template>
     <div :id="group.id" class="pref-group">
         <pref-entry-name :id="anchor(group)" class="pt-4 pb-2" :entry="group" />
+        <div v-if="group.description">{{ group.description }}</div>
         <bm-form-group :aria-describedby="anchor(group)" :disabled="group.disabled">
             <template v-for="field in group.fields">
                 <component
@@ -35,7 +36,8 @@ import PrefDownloads from "./fields/customs/PrefDownloads";
 import PrefEmailsForwarding from "./fields/customs/PrefEmailsForwarding";
 import PrefEnableNotifications from "./fields/customs/PrefEnableNotifications";
 import PrefEventReminder from "./fields/customs/PrefEventReminder";
-import PrefFilterRules from "./fields/customs/FilterRules/PrefFilterRules";
+import PrefDomainFilterRules from "./fields/customs/FilterRules/PrefDomainFilterRules";
+import PrefMyFilterRules from "./fields/customs/FilterRules/PrefMyFilterRules";
 import PrefExtAccountCreation from "./fields/customs/ExternalAccounts/PrefExtAccountCreation";
 import PrefExtAccountList from "./fields/customs/ExternalAccounts/PrefExtAccountList";
 import PrefIMSetPhonePresence from "./fields/customs/PrefIMSetPhonePresence";
@@ -75,11 +77,11 @@ export default {
         PrefAlwaysShowQuota,
         PrefAPIKey,
         PrefAutomaticReply,
+        PrefDomainFilterRules,
         PrefDownloads,
         PrefEmailsForwarding,
         PrefEnableNotifications,
         PrefEventReminder,
-        PrefFilterRules,
         PrefExtAccountCreation,
         PrefExtAccountList,
         PrefIMSetPhonePresence,
@@ -92,6 +94,7 @@ export default {
         PrefManageOtherCalendars,
         PrefManageOtherMailboxes,
         PrefManageOtherTodoLists,
+        PrefMyFilterRules,
         PrefPassword,
         PrefRemoteImage,
         PrefResetLocalData,

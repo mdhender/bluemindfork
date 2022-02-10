@@ -169,6 +169,7 @@ export default function (i18n) {
                     {
                         id: "automatic_reply",
                         name: i18n.t("preferences.mail.automatic_reply"),
+                        visible: { name: "RoleCondition", args: [Roles.SELF_CHANGE_MAILBOX_FILTER] },
                         fields: [
                             {
                                 id: "field",
@@ -179,6 +180,7 @@ export default function (i18n) {
                     {
                         id: "forwarding",
                         name: i18n.t("preferences.mail.emails_forwarding"),
+                        visible: { name: "RoleCondition", args: [Roles.SELF_CHANGE_MAILBOX_FILTER] },
                         fields: [
                             {
                                 id: "field",
@@ -189,11 +191,18 @@ export default function (i18n) {
                     {
                         id: "filters",
                         name: i18n.t("preferences.mail.filters"),
+                        description: i18n.t("preferences.mail.filters.desc"),
                         fields: [
                             {
-                                id: "field",
+                                id: "domain_filters",
+                                visible: { name: "RoleCondition", args: [Roles.READ_DOMAIN_FILTERS] },
+                                component: { name: "PrefDomainFilterRules" }
+                            },
+                            {
+                                id: "my_filters",
+                                visible: { name: "RoleCondition", args: [Roles.SELF_CHANGE_MAILBOX_FILTER] },
                                 component: {
-                                    name: "PrefFilterRules",
+                                    name: "PrefMyFilterRules",
                                     options: { autosave: true }
                                 }
                             }
