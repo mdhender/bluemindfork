@@ -80,6 +80,7 @@ export function createReplyOrForward(previousMessage, myDraftsFolder, creationMo
         }));
     }
 
+    message.loading = LoadingStatus.LOADING; // will be loaded once content has been computed
     message.subject = computeSubject(creationMode, previousMessage);
 
     handleIdentificationFields(message, previousMessage);

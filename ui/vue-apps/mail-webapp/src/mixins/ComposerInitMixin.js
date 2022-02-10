@@ -14,6 +14,7 @@ import {
     SET_DRAFT_EDITOR_CONTENT,
     SET_MESSAGE_BCC,
     SET_MESSAGE_CC,
+    SET_MESSAGES_LOADING_STATUS,
     SET_MESSAGE_SUBJECT,
     SET_MESSAGE_TMP_ADDRESSES,
     SET_MESSAGE_TO,
@@ -33,6 +34,7 @@ import {
 import { MessageCreationModes } from "~/model/message";
 import apiMessages from "~/store/api/apiMessages";
 import { ComposerFromMixin } from "~/mixins";
+import { LoadingStatus } from "../model/loading-status";
 
 /**
  * Manage different cases of composer initialization
@@ -210,6 +212,10 @@ export default {
                 const attachments = await uploadAttachments(previousMessage);
                 this.$store.commit(`mail/${SET_PENDING_ATTACHMENTS}`, attachments);
             }
+
+            this.$store.commit("mail/" + SET_MESSAGES_LOADING_STATUS, [
+                { key: message.key, loading: LoadingStatus.LOADED }
+            ]);
 
             return message;
         },

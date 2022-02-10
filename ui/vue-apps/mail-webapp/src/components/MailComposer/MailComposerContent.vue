@@ -127,7 +127,7 @@ export default {
         },
         async focus() {
             await this.$nextTick();
-            this.$refs["message-content"]?.focus("start");
+            this.$refs["message-content"]?.focusBeforeSignature();
         },
         async updateHtmlComposer() {
             await this.$nextTick();

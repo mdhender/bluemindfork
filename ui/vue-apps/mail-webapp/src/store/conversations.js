@@ -152,7 +152,7 @@ const getters = {
             const conversationIsInTrash = conversation.folderRef.key === MY_TRASH.key;
             conversation.messages.forEach(key => {
                 const message = state.messages[key];
-                const messageIsInTrash = message.folderRef.key === MY_TRASH.key;
+                const messageIsInTrash = message && message.folderRef.key === MY_TRASH.key;
                 const sentDuplicateIndex = findSentDuplicateIndex(state, conversation, message, MY_SENT);
                 if (
                     message &&
@@ -222,7 +222,7 @@ function reducedMetadata(folderKey, messages) {
 
         m.flags?.forEach(flag => [Flag.ANSWERED, Flag.FORWARDED].includes(flag) && flags.add(flag));
 
-        if (m.loading === LoadingStatus.NOT_LOADED || m.loading === LoadingStatus.LOADING) {
+        if (!m.composing && (m.loading === LoadingStatus.NOT_LOADED || m.loading === LoadingStatus.LOADING)) {
             loading = m.loading;
         }
         if (m.hasAttachment) {
