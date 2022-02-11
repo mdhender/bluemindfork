@@ -1,19 +1,28 @@
 <template>
-    <bm-modal id="mail-attachment-preview" centered size="fluid" hide-footer hide-header class="d-flex">
-        <preview-message :message="message" />
-        <preview-attachment :message="message" :part="part" @close="$bvModal.hide('mail-attachment-preview')" />
+    <bm-modal id="mail-attachment-preview" ref="modal" centered size="fluid" hide-footer hide-header>
+        <preview-header :part="part" :expanded.sync="expanded" @close="$refs.modal.hide()" />
+        <div class="content">
+            <bm-collapse v-model="expanded">
+                <preview-message :message="message" />
+            </bm-collapse>
+            <preview-attachment :message="message" :part="part" />
+        </div>
     </bm-modal>
 </template>
 
 <script>
-import { BmModal } from "@bluemind/styleguide";
+import { BmCollapse, BmModal } from "@bluemind/styleguide";
 
 import PreviewAttachment from "./Preview/PreviewAttachment";
 import PreviewMessage from "./Preview/PreviewMessage";
+import PreviewHeader from "./Preview/PreviewHeader";
 
 export default {
     name: "MailAttachmentPreview",
-    components: { BmModal, PreviewAttachment, PreviewMessage },
+    components: { BmCollapse, BmModal, PreviewAttachment, PreviewMessage, PreviewHeader },
+    data() {
+        return { expanded: true };
+    },
     computed: {
         message() {
             return this.$store.state.mail.conversations.messages[this.$store.state.mail.preview.messageKey];
@@ -28,21 +37,31 @@ export default {
 </script>
 
 <style lang="scss">
-#mail-attachment-preview {
-    .modal-body {
-        height: 80vh;
+@import "~@bluemind/styleguide/css/variables";
+#mail-attachment-preview .modal-body {
+    .content {
         display: flex;
-        padding: 0;
+        flex: 1 1 auto;
+        min-height: 0;
     }
-
-    .preview-message {
+    height: 80vh;
+    flex-direction: column;
+    display: flex;
+    padding: 0;
+    .preview-message-header,
+    .collapse {
         flex-basis: 25%;
         max-width: 25%;
         flex-grow: 0;
         flex-shrink: 0;
     }
+    .collapse {
+        overflow: auto;
+    }
+    .preview-attachment-header,
     .preview-attachment {
         flex: 1 1 auto;
+        min-height: 0;
     }
 }
 </style>

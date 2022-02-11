@@ -1,5 +1,5 @@
 <template>
-    <div class="preview-message-header p-3 d-flex align-items-center" @click="$emit('click')">
+    <div class="preview-message-header px-3 d-flex align-items-center">
         <bm-icon :icon="icon" />
         <span class="font-weight-bold ml-2"> Message </span>
     </div>
@@ -11,9 +11,11 @@ export default {
     name: "PreviewMessageHeader",
     components: { BmIcon },
     props: {
-        icon: {
-            type: String,
-            required: true
+        expanded: { type: Boolean, required: true }
+    },
+    computed: {
+        icon() {
+            return this.expanded ? "chevron" : "chevron-right";
         }
     }
 };

@@ -328,6 +328,7 @@
     "mail.new.subject.placeholder": "Objet",
     "mail.new.subject": "Sujet",
     "mail.new.to.placeholder": "Ajouter un ou des destinataires",
+    "mail.preview.message": "Message",
     "mail.search.options.folder.current": "Ce dossier",
     "mail.search.options.folder.label": "Rechercher dans",
     "mail.selection.alert.readonly": "Certains message sélectionnés sont en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles",

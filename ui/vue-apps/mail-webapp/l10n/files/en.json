@@ -328,6 +328,7 @@
     "mail.new.subject.placeholder": "Define your message subject",
     "mail.new.subject": "Subject",
     "mail.new.to.placeholder": "Subject",
+    "mail.preview.message": "Message",
     "mail.search.options.folder.current": "This folder",
     "mail.search.options.folder.label": "Search in",
     "mail.selection.alert.readonly": "Some selected messages are read-only. Some actions (like Move or Remove) may not be available.",
