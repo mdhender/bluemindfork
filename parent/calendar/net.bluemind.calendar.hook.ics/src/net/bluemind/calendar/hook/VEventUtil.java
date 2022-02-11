@@ -19,10 +19,7 @@
 package net.bluemind.calendar.hook;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-
-import com.google.common.collect.Sets;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.icalendar.api.ICalendarElement.RRule;
@@ -185,7 +182,7 @@ public class VEventUtil {
 			if (list2 == null) {
 				list2 = Collections.emptyList();
 			}
-			return !Sets.difference(new HashSet<T>(list1), new HashSet<T>(list2)).isEmpty();
+			return !list1.equals(list2);
 		}
 	}
 
