@@ -263,7 +263,7 @@ function deleteDB(name) {
     const promise = new Promise((resolve, reject) => {
         const request = indexedDB.deleteDatabase(name);
         request.onerror = reject;
-        request.onsuccess = resolve(request.result);
+        request.onsuccess =  () => resolve(request.result);
     });
     return promise;
 }
