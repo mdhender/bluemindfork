@@ -1,5 +1,5 @@
 <template>
-    <bm-modal id="mail-attachment-preview" centered size="xl" hide-footer hide-header class="d-flex">
+    <bm-modal id="mail-attachment-preview" centered size="fluid" hide-footer hide-header class="d-flex">
         <preview-message :message="message" />
         <preview-attachment :message="message" :part="part" @close="$bvModal.hide('mail-attachment-preview')" />
     </bm-modal>

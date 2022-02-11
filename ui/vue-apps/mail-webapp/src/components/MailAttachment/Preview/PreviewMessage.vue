@@ -1,7 +1,7 @@
 <template>
     <div class="preview-message">
         <preview-message-header :icon="icon" @click="toggle" />
-        <mail-viewer-content v-if="!hidden" :message="message" />
+        <mail-viewer-content v-if="!hidden" :message="message" :expand-attachments="true" />
     </div>
 </template>
 
@@ -34,17 +34,23 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .preview-message {
+    overflow: auto;
+
     .mail-viewer-content {
         display: flex;
         flex-direction: column;
-        .date {
+        .from {
             display: none;
+        }
+        * .date {
+            text-align: left;
+            white-space: nowrap;
         }
         .mail-viewer-splitter {
-            display: none;
+            order: 1;
         }
         .mail-attachments-block {
-            order: 2;
+            order: 0;
             & > .row {
                 flex-direction: column;
                 & > * {
@@ -53,12 +59,15 @@ export default {
                 }
             }
         }
+        .mail-sender-splitter {
+            display: none;
+        }
         .mail-viewer-recipients {
-            font-size: $font-size-sm;
+            display: none;
         }
         .sender,
         .mail-viewer-recipients {
-            order: 1;
+            order: 0;
             margin: 0;
         }
         .body-viewer {
@@ -71,7 +80,7 @@ export default {
             padding-right: $sp-4;
         }
         & > hr {
-            margin: $sp-3 0 $sp-1 0;
+            margin: $sp-3 0 0 0;
         }
         .bm-contact .address {
             display: none;

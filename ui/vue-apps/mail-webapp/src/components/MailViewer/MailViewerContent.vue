@@ -3,14 +3,14 @@
         <h1 class="subject">{{ subject }}</h1>
 
         <bm-row class="sender">
-            <bm-col cols="8">
+            <bm-col class="from" cols="8">
                 <mail-viewer-from :contact="message.from" />
             </bm-col>
             <bm-col cols="4" class="date">
                 {{ $d(message.date, "full_date_time_short") }}
             </bm-col>
         </bm-row>
-        <hr />
+        <hr class="mail-sender-splitter" />
 
         <mail-viewer-recipients :message="message" />
         <hr class="mail-viewer-splitter" />

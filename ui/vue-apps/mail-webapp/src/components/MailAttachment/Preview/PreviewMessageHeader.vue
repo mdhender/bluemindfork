@@ -1,6 +1,6 @@
 <template>
     <div class="preview-message-header p-3 d-flex align-items-center" @click="$emit('click')">
-        <bm-icon :icon="icon"></bm-icon>
+        <bm-icon :icon="icon" />
         <span class="font-weight-bold ml-2"> Message </span>
     </div>
 </template>
