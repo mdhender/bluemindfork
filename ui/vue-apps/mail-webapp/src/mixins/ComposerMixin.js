@@ -91,7 +91,7 @@ export default {
             if (!matchingIdentity) {
                 // eslint-disable-next-line no-console
                 console.warn("identity changed because no identity matched message.from");
-                const defaultIdentity = this.identities.find(identity => !!identity.isDefault);
+                const defaultIdentity = this.$store.getters["root-app/DEFAULT_IDENTITY"];
                 await this.setFrom(defaultIdentity, this.message);
             }
         }

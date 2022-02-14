@@ -58,7 +58,7 @@ export default {
             const currentMailbox = this.$store.getters["mail/" + CURRENT_MAILBOX];
             const identities = this.$store.state["root-app"].identities;
             const autoSelectFromPref = this.$store.state.settings.auto_select_from;
-            const defaultIdentity = identities.find(id => !!id.isDefault);
+            const defaultIdentity = this.$store.getters["root-app/DEFAULT_IDENTITY"];
             if (autoSelectFromPref === "replies_and_new_messages") {
                 return findIdentityFromMailbox(currentMailbox, identities, defaultIdentity);
             }
@@ -69,7 +69,8 @@ export default {
             const identities = this.$store.state["root-app"].identities;
             const autoSelectFromPref = this.$store.state.settings.auto_select_from;
             if (autoSelectFromPref === "only_replies" || autoSelectFromPref === "replies_and_new_messages") {
-                return computeIdentityForReplyOrForward(previousMessage, identities, currentMailbox);
+                const defaultIdentity = this.$store.getters["root-app/DEFAULT_IDENTITY"];
+                return computeIdentityForReplyOrForward(previousMessage, identities, currentMailbox, defaultIdentity);
             }
             return this.getIdentityForNewMessage();
         },

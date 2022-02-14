@@ -130,9 +130,8 @@ export function createFromDraft(previous, folder) {
     return message;
 }
 
-export function computeIdentityForReplyOrForward(message, identities, currentMailbox) {
+export function computeIdentityForReplyOrForward(message, identities, currentMailbox, defaultIdentity) {
     let chosenIdentity;
-    const defaultIdentity = identities.find(id => !!id.isDefault);
     const identitiesFoundInTo = findIdentities(message.to, identities);
     const identitiesFoundInCc = findIdentities(message.cc, identities);
     const identitiesFound = identitiesFoundInTo.concat(identitiesFoundInCc);
@@ -165,10 +164,10 @@ function identityToFrom(identity) {
     return { address: identity.email, dn: identity.displayname };
 }
 
-export function preserveFromOrDefault(previous, identities) {
+export function preserveFromOrDefault(previous, identities, defaultIdentity) {
     const matchingIdentities = findIdentities([previous], identities);
     if (!matchingIdentities[0]) {
-        return identityToFrom(identities.find(identity => !!identity.isDefault));
+        return identityToFrom(defaultIdentity);
     }
     return identityToFrom(matchingIdentities[0]);
 }

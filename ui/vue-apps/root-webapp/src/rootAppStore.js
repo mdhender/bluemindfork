@@ -52,7 +52,18 @@ const actions = {
 };
 
 const getters = {
-    DEFAULT_IDENTITY: state => state.identities.find(identity => identity.isDefault)
+    DEFAULT_IDENTITY: state => {
+        let identity = state.identities.find(identity => identity.isDefault);
+        if (!identity) {
+            // fallback to current user identity
+            const userSession = inject("UserSession");
+            identity = state.identities.find(identity => identity.email === userSession.defaultEmail);
+            if (!identity) {
+                identity = { email: userSession.defaultEmail, displayname: userSession.formatedName };
+            }
+        }
+        return identity;
+    }
 };
 
 function convertSignaturesToHtml(identities, userLang) {

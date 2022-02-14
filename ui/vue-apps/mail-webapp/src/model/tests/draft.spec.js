@@ -258,8 +258,9 @@ describe("compute From when replying or forwarding", () => {
             to: [{ address: "contact@mail.org" }, { address: "default@mail.org" }],
             cc: [{ address: "rh@mail.org" }]
         };
-        const from = computeIdentityForReplyOrForward(message, identities, currentMailbox);
-        expect(from.email).toBe("default@mail.org");
+        const defaultIdentity = { email: "plop@plop.plop", displayname: "Plop Plop" };
+        const from = computeIdentityForReplyOrForward(message, identities, currentMailbox, defaultIdentity);
+        expect(from.email).toBe("plop@plop.plop");
     });
 
     test("priorize 'to' recipient if multiple found (and no default)", () => {
@@ -276,15 +277,21 @@ describe("compute From when replying or forwarding", () => {
 
     test("if no identities found in recipients, and mailbox dont match any identity, use default", () => {
         let message = { to: [], cc: [] };
-        let from = computeIdentityForReplyOrForward(message, identities, {});
-        expect(from.email).toBe("default@mail.org");
+        const defaultIdentity = { email: "plop@plop.plop", displayname: "Plop Plop" };
+        let from = computeIdentityForReplyOrForward(message, identities, {}, defaultIdentity);
+        expect(from.email).toBe("plop@plop.plop");
 
         message = { to: [{ address: "blabla@mail.com" }], cc: [{ address: "moreblabla@mail.org" }] };
-        from = computeIdentityForReplyOrForward(message, identities, {
-            address: "cantfindme@mail.org",
-            dn: "Cant find me"
-        });
-        expect(from.email).toBe("default@mail.org");
+        from = computeIdentityForReplyOrForward(
+            message,
+            identities,
+            {
+                address: "cantfindme@mail.org",
+                dn: "Cant find me"
+            },
+            defaultIdentity
+        );
+        expect(from.email).toBe("plop@plop.plop");
     });
 });
 
