@@ -103,11 +103,13 @@ public class ItemStore extends JdbcAbstractStore {
 				: String.format(FORCED_VERSION_QUERY, item.version);
 		String itemIdSeq = null;
 		if (item.id > 0) {
-			long currentSeqValue = unique("SELECT last_value FROM t_container_item_id_seq", new LongCreator(1),
-					Collections.emptyList());
-			if (currentSeqValue < item.id && item.version == 0L) {
-				throw new SQLException(
-						"ItemId " + item.id + " needs to be smaller than current sequence value of " + currentSeqValue);
+			if (item.version == 0L) {
+				long currentSeqValue = unique("SELECT last_value FROM t_container_item_id_seq", new LongCreator(1),
+						Collections.emptyList());
+				if (currentSeqValue < item.id) {
+					throw new SQLException("ItemId " + item.id + " needs to be smaller than current sequence value of "
+							+ currentSeqValue);
+				}
 			}
 			itemIdSeq = Long.toString(item.id);
 		} else {
