@@ -274,18 +274,6 @@ public class OrgUnitStore extends AbstractItemValueStore<OrgUnit> {
 				new Object[] { items.stream().map(item -> item.id).toArray(size -> new Long[size]) });
 	}
 
-	public List<String> getMembers(Item item) throws SQLException {
-		String query = //
-				"WITH RECURSIVE parts(item_id, parentId) AS ( " //
-						+ "     SELECT item_id, parent_item_id from t_directory_ou ou where ou.item_id = ?"
-						+ " UNION ALL "
-						+ "     SELECT pou.item_id, pou.parent_item_id from t_directory_ou pou, parts where pou.parent_item_id = parts.item_id "
-						+ " )" //
-						+ "SELECT m.uid FROM t_directory_ou_member, t_container_item m WHERE "
-						+ " t_directory_ou_member.ou_id in ( select item_id from parts) AND m.id = t_directory_ou_member.member_item_id ";
-		return select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { item.id });
-	}
-
 	public boolean hasChilds(Item item) throws SQLException {
 		Integer count = unique("SELECT COUNT(*) FROM t_directory_ou WHERE parent_item_id = ? ", res -> res.getInt(1),
 				Collections.emptyList(), new Object[] { item.id });
