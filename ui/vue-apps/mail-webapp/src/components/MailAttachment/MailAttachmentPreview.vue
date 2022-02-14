@@ -1,6 +1,14 @@
 <template>
     <bm-modal id="mail-attachment-preview" ref="modal" centered size="fluid" hide-footer hide-header>
-        <preview-header :part="part" :expanded.sync="expanded" @close="$refs.modal.hide()" />
+        <global-events @keydown.left="previous" @keydown.right="next" />
+
+        <preview-header
+            :part="part"
+            :expanded.sync="expanded"
+            @close="$refs.modal.hide()"
+            @previous="previous"
+            @next="next"
+        />
         <div class="content">
             <bm-collapse v-model="expanded">
                 <preview-message :message="message" />
@@ -11,15 +19,17 @@
 </template>
 
 <script>
+import { mapMutations } from "vuex";
 import { BmCollapse, BmModal } from "@bluemind/styleguide";
-
+import { SET_PREVIEW_PART_ADDRESS } from "~/mutations";
 import PreviewAttachment from "./Preview/PreviewAttachment";
 import PreviewMessage from "./Preview/PreviewMessage";
 import PreviewHeader from "./Preview/PreviewHeader";
+import GlobalEvents from "vue-global-events";
 
 export default {
     name: "MailAttachmentPreview",
-    components: { BmCollapse, BmModal, PreviewAttachment, PreviewMessage, PreviewHeader },
+    components: { BmCollapse, BmModal, PreviewAttachment, PreviewMessage, PreviewHeader, GlobalEvents },
     data() {
         return { expanded: true };
     },
@@ -31,6 +41,25 @@ export default {
             return this.message?.attachments.find(
                 ({ address }) => this.$store.state.mail.preview.partAddress === address
             );
+        },
+        partIndex() {
+            return this.message?.attachments.findIndex(
+                ({ address }) => this.$store.state.mail.preview.partAddress === address
+            );
+        },
+        attachmentsCount() {
+            return this.message?.attachments.length;
+        }
+    },
+    methods: {
+        ...mapMutations("mail", { SET_PREVIEW_PART_ADDRESS }),
+        previous() {
+            let previousIndex = (this.partIndex + this.attachmentsCount - 1) % this.attachmentsCount;
+            this.SET_PREVIEW_PART_ADDRESS(this.message.attachments[previousIndex].address);
+        },
+        next() {
+            let nextIndex = (this.partIndex + 1) % this.attachmentsCount;
+            this.SET_PREVIEW_PART_ADDRESS(this.message.attachments[nextIndex].address);
         }
     }
 };
