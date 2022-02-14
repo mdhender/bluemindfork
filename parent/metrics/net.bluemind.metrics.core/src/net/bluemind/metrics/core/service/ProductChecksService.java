@@ -106,7 +106,7 @@ public class ProductChecksService implements IProductChecks {
 
 	@Override
 	public CheckResult lastResult(String checkName) {
-		return results.computeIfAbsent(checkName, k -> Optional.empty()).orElse(null);
+		return results.computeIfAbsent(checkName, k -> Optional.empty()).orElse(CheckResult.unknown());
 	}
 
 	@Override
