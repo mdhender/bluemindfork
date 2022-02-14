@@ -1,10 +1,11 @@
 <template>
     <div class="containers-management">
+        <a v-if="readMore" target="_blank" :href="readMore.href">{{ readMore.text }}</a>
         <template v-if="containers.length > 0">
             <bm-form-input
                 v-if="!manageMine && !collapsed"
                 v-model="pattern"
-                class="mt-1 mb-3"
+                class="mt-2 mb-3"
                 :placeholder="$t('common.filter')"
                 icon="filter"
                 resettable
@@ -114,6 +115,10 @@ export default {
         fieldId: {
             type: String,
             required: true
+        },
+        readMore: {
+            type: Object,
+            default: undefined
         }
     },
     data() {

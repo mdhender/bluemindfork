@@ -4,6 +4,7 @@
         :container-type="containerType"
         :collapsed="collapsed"
         :field-id="id"
+        :read-more="readMore"
         @offline-sync-changed="UPDATE_OTHER_CALENDAR"
         @remove="REMOVE_OTHER_CALENDAR"
         @subscribe="ADD_OTHER_CALENDARS"
@@ -32,7 +33,14 @@ export default {
     components: { BmCalendarBadge, BmCalendarItem, ContainersManagement },
     mixins: [BaseField],
     data() {
-        return { containerType: ContainerType.CALENDAR };
+        return {
+            containerType: ContainerType.CALENDAR,
+            readMore: {
+                href:
+                    "https://forge.bluemind.net/confluence/display/BM4/Preferences+de+l+agenda#Preferencesdelagenda-abonnementsAbonnements",
+                text: this.$t("preferences.display_containers.other_calendars.read_more")
+            }
+        };
     },
     computed: {
         ...mapState("preferences", { otherCalendars: state => state.containers.otherCalendars })

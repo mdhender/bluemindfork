@@ -114,6 +114,7 @@
     "preferences.display_containers.addressbook.empty_list": "Vous n'êtes pas encore abonné, et vous ne gérez aucun autre carnet d'adresses.",
     "preferences.display_containers.todolist.empty_list": "Vous n'êtes pas encore abonné, et vous ne gérez aucune autre liste de tâches.",
     "preferences.display_containers.default": "{type} par défaut",
+    "preferences.display_containers.other_calendars.read_more": "En savoir plus sur l'abonnement à d'autres calendriers",
 
     "preferences.display_containers.import_file.calendar": "Déposer un fichier ICS",
     "preferences.display_containers.import_file.addressbook": "Déposer un fichier vCard",

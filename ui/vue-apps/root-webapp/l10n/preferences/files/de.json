@@ -114,6 +114,7 @@
     "preferences.display_containers.addressbook.empty_list": "Sie haben noch kein Adressbuch abonniert und verwalten kein weiteres Adressbuch.",
     "preferences.display_containers.todolist.empty_list": "Sie haben noch keine Todoliste abonniert und verwalten keine weitere Todoliste.",
     "preferences.display_containers.default": "Standard-{type}",
+    "preferences.display_containers.other_calendars.read_more": "Mehr über das Freigeben von zusätzlichen Kalendern erfahren.",
 
     "preferences.display_containers.import_file.calendar": "ICS Datei ablegen",
     "preferences.display_containers.import_file.addressbook": "vCard Datei ablegen",

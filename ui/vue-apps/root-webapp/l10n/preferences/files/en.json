@@ -114,6 +114,7 @@
     "preferences.display_containers.addressbook.empty_list": "You have not subscribe yet, and you don't manage any other addressbook.",
     "preferences.display_containers.todolist.empty_list": "You have not subscribe yet, and you don't manage any other to-do list.",
     "preferences.display_containers.default": "Default {type}",
+    "preferences.display_containers.other_calendars.read_more": "Read more about other calendars subscriptions.",
 
     "preferences.display_containers.import_file.calendar": "Drop your ICS file",
     "preferences.display_containers.import_file.addressbook": "Drop your vCard file",
