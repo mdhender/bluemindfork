@@ -1,15 +1,15 @@
 <template>
-    <div class="preview-attachment d-flex flex-column bg-dark">
-        <image-part-viewer :message="message" :part="part" class="flex-shrink-1" />
+    <div class="preview-attachment bg-dark">
+        <part-viewer-facade :message="message" :part="part" />
     </div>
 </template>
 
 <script>
-import ImagePartViewer from "../../MailViewer/PartsViewer/ImagePartViewer";
+import PartViewerFacade from "../../MailViewer/PartsViewer/PartViewerFacade";
 
 export default {
     name: "PreviewAttachment",
-    components: { ImagePartViewer },
+    components: { PartViewerFacade },
     props: {
         message: {
             type: Object,
@@ -24,12 +24,28 @@ export default {
 </script>
 
 <style lang="scss">
-.preview-attachment {
-    flex: 1 1 auto;
+@import "@bluemind/styleguide/css/_variables.scss";
 
-    .image-part-viewer {
-        max-width: 100%;
-        min-height: 0;
+.preview-attachment {
+    .part-viewer-facade {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+
+        .image-part-viewer {
+            height: 100%;
+        }
+        .text-html-part-viewer,
+        .text-plain-part-viewer {
+            background-color: $surface-bg;
+            width: 80%;
+            min-height: 100%;
+            margin: 0 auto;
+        }
+
+        .text-plain-part-viewer {
+            padding: $sp-4;
+        }
     }
 }
 </style>

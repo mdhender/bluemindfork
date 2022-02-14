@@ -5,14 +5,17 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
 import { mailText2Html } from "@bluemind/email";
-import MailViewerContentLoading from "../MailViewerContentLoading";
-import PartViewerMixin from "./PartViewerMixin";
+import MailViewerContentLoading from "../../MailViewerContentLoading";
+import PartViewerMixin from "../PartViewerMixin";
+import { FETCH_PART_DATA } from "~/actions";
 
 export default {
     name: "TextPlainPartViewer",
     components: { MailViewerContentLoading },
     mixins: [PartViewerMixin],
+    $capabilities: ["text/plain", "text/*"],
     computed: {
         lang() {
             return this.$store.state.settings.lang;
@@ -23,6 +26,17 @@ export default {
         toHtml() {
             return mailText2Html(this.content, this.lang);
         }
+    },
+    async created() {
+        await this.FETCH_PART_DATA({
+            messageKey: this.message.key,
+            folderUid: this.message.folderRef.uid,
+            imapUid: this.message.remoteRef.imapUid,
+            parts: [this.part]
+        });
+    },
+    methods: {
+        ...mapActions("mail", { FETCH_PART_DATA })
     }
 };
 </script>

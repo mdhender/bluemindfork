@@ -69,7 +69,7 @@ export default {
         }
     },
     async created() {
-        const texts = this.parts.filter(part => MimeType.isHtml(part) || MimeType.isText(part));
+        const texts = this.parts.filter(part => MimeType.isHtml(part));
         await this.FETCH_PART_DATA({
             messageKey: this.message.key,
             folderUid: this.message.folderRef.uid,

@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
 import linkifyHtml from "linkifyjs/html";
 import { MimeType, InlineImageHelper } from "@bluemind/email";
 import { sanitizeHtml, blockRemoteImages } from "@bluemind/html-utils";
@@ -25,6 +26,7 @@ import { BmButton, BmIcon } from "@bluemind/styleguide";
 
 import brokenImageIcon from "~/../assets/brokenImageIcon.png";
 import { QUOTE_NODES } from "~/getters";
+import { FETCH_PART_DATA } from "~/actions";
 import { isForward } from "~/model/message";
 import { getPartsFromCapabilities, VIEWER_CAPABILITIES } from "~/model/part";
 import QuoteHelper from "~/store/helpers/QuoteHelper";
@@ -80,6 +82,17 @@ export default {
         isCollapseActive() {
             return this.collapse_ && this.quoteNodes;
         }
+    },
+    async created() {
+        await this.FETCH_PART_DATA({
+            messageKey: this.message.key,
+            folderUid: this.message.folderRef.uid,
+            imapUid: this.message.remoteRef.imapUid,
+            parts: [this.part]
+        });
+    },
+    methods: {
+        ...mapActions("mail", { FETCH_PART_DATA })
     }
 };
 

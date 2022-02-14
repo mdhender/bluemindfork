@@ -2,23 +2,17 @@
     <div class="mail-inlines-block py-2">
         <div v-for="(part, index) in parts" :key="part.address">
             <hr v-if="index !== 0" class="part-separator" />
-            <slot :name="slotName(part)" :message="message" :part="part">
-                <component :is="componentName(part)" :message="message" :part="part"></component>
-            </slot>
+            <part-viewer-facade :message="message" :part="part" />
         </div>
     </div>
 </template>
 
 <script>
-import { MimeType } from "@bluemind/email";
-
-import ImagePartViewer from "./PartsViewer/ImagePartViewer";
-import IframedTextHtmlPartViewer from "./PartsViewer/IframedTextHtmlPartViewer.vue";
-import TextPlainPartViewer from "./PartsViewer/TextPlainPartViewer";
+import PartViewerFacade from "./PartsViewer/PartViewerFacade";
 
 export default {
     name: "MailInlinesBlock",
-    components: { ImagePartViewer, IframedTextHtmlPartViewer, TextPlainPartViewer },
+    components: { PartViewerFacade },
     props: {
         message: {
             type: Object,
@@ -31,20 +25,6 @@ export default {
     },
     data() {
         return { htmlWithImageInserted: [], localAttachments: [] };
-    },
-    methods: {
-        slotName({ mime }) {
-            return mime.replaceAll("/", "-");
-        },
-        componentName(part) {
-            if (MimeType.isHtml(part)) {
-                return "iframed-text-html-part-viewer";
-            } else if (MimeType.isImage(part)) {
-                return "image-part-viewer";
-            } else if (MimeType.isText(part)) {
-                return "text-plain-part-viewer";
-            }
-        }
     }
 };
 </script>

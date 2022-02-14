@@ -52,6 +52,8 @@ export default {
 
             return Promise.all(
                 notLoaded.map(async part => {
+                    commit(SET_PART_DATA, { messageKey, data: undefined, address: part.address });
+
                     const blob = await service.fetch(imapUid, part.address, part.encoding, part.mime, part.charset);
                     const converted =
                         MimeType.isHtml(part) || MimeType.isText(part)

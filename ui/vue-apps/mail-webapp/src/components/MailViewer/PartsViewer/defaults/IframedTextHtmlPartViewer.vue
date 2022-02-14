@@ -15,14 +15,15 @@
     </text-html-part-viewer>
 </template>
 <script>
-import IFrame from "../../IFrame";
-import PartViewerMixin from "./PartViewerMixin";
-import TextHtmlPartViewer from "./TextHtmlPartViewer";
+import IFrame from "../../../IFrame";
+import PartViewerMixin from "./../PartViewerMixin";
+import TextHtmlPartViewer from "./../TextHtmlPartViewer";
 
 export default {
     name: "IframedTextHtmlPartViewer",
     components: { TextHtmlPartViewer, IFrame },
     mixins: [PartViewerMixin],
+    $capabilities: ["text/html"],
     props: { collapse: { type: Boolean, default: true } },
     data() {
         return { IFRAME_STYLE };
@@ -37,6 +38,7 @@ const IFRAME_STYLE = `
             color: #1f1f1f;
             margin: 0;
             overflow-wrap: break-word !important;
+            height: auto !important;
         }
 
         main * {

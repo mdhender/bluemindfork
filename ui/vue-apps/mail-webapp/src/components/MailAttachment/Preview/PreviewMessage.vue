@@ -45,6 +45,9 @@ export default {
             }
         }
     }
+    .mail-inlines-block {
+        padding: 0 $sp-4;
+    }
     .mail-sender-splitter {
         display: none;
     }
@@ -58,6 +61,7 @@ export default {
     }
     .body-viewer {
         order: 2;
+        padding: 0;
     }
     .sender,
     .mail-viewer-recipients,
