@@ -488,7 +488,7 @@ public class CertificateEditorComponent extends CompositeGwtWidgetElement {
 
 			@Override
 			public void failure(Throwable e) {
-				Notification.get().reportError(e);
+				Notification.get().reportError(constants.unableToGetLetsEncryptTos());
 			}
 		});
 	}

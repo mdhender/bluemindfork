@@ -63,4 +63,6 @@ public interface CertificateEditorComponentConstants extends Constants {
 	String fileBtn();
 
 	String reloadConfirmation();
+
+	String unableToGetLetsEncryptTos();
 }
