@@ -329,12 +329,12 @@ function freq_(frequency) {
  * @private
  * @return {boolean}
  */
-function isAnExDate_(exdates, iso8601) {
+ function isAnExDate_(exdates, iso8601) {
+    var isoAsDate = new Date(iso8601);
     return goog.array.some(exdates, function(exdate) {
-        return exdate === iso8601;
+        return isoAsDate.getTime() == new Date(exdate).getTime();
     });
 }
-
 net.bluemind.rrule.OccurrencesHelper.prototype.getNextOccurrence = function(ctx, vseries, dtstart, from) {
     var dateHelperCreate = getDateHelperCreate(ctx);
     var exdates = deepClone(vseries.value["main"]["exdate"]);
