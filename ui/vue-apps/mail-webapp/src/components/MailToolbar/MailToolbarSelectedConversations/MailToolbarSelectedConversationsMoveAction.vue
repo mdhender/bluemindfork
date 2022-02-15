@@ -45,9 +45,11 @@
             class="new-folder position-relative"
             :aria-label="$t('mail.actions.create.folder')"
             :title="$t('mail.actions.create.folder')"
+            @focus="$refs['mail-folder-input'].focus()"
         >
             <div class="d-flex align-items-center">
                 <mail-folder-input
+                    ref="mail-folder-input"
                     class="pl-2 pr-1 flex-fill"
                     :submit-on-focusout="false"
                     @submit="newFolderName => moveToFolder({ name: newFolderName, path: newFolderName })"

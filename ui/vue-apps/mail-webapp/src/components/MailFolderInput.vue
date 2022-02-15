@@ -145,6 +145,9 @@ export default {
         },
         select() {
             this.$refs["input"].select();
+        },
+        focus() {
+            this.$refs["input"].focus();
         }
     }
 };
