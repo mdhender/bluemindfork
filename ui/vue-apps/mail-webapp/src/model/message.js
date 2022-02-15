@@ -127,19 +127,6 @@ export const MessageQuoteClasses = [
 ];
 export const MessageQuoteOutlookId = "divRplyFwdMsg";
 
-export function equal(a, b) {
-    return (
-        a &&
-        b &&
-        (a.key === b.key ||
-            (a.remoteRef &&
-                a.remoteRef.internalId &&
-                a.folderRef &&
-                a.remoteRef.internalId === b.remoteRef?.internalId &&
-                a.folderRef.key === b.folderRef?.key))
-    );
-}
-
 export function isUnread(message) {
     return message.loading === LoadingStatus.LOADED && !message.flags.includes(Flag.SEEN);
 }
