@@ -11,9 +11,11 @@ Require-Bundle: net.bluemind.videoconferencing.service,
  com.google.guava,
  net.bluemind.core.container.persistence,
  net.bluemind.resource.api,
+ slf4j.api,
  net.bluemind.core.rest,
  net.bluemind.system.api;bundle-version="4.1.0",
  net.bluemind.videoconferencing.saas.api,
  net.bluemind.calendar.api,
  net.bluemind.domain.api,
- net.bluemind.videoconferencing.hosting
+ net.bluemind.videoconferencing.hosting,
+ net.bluemind.videoconferencing.saas.service

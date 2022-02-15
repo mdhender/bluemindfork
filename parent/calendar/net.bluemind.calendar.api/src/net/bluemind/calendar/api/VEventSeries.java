@@ -137,4 +137,5 @@ public class VEventSeries {
 		return IDirEntryPath.getDomain(eventOrganizerPath).equals(domainUid)
 				&& IDirEntryPath.getEntryUid(eventOrganizerPath).equals(ownerEntryUid);
 	}
+
 }

@@ -54,4 +54,9 @@ public class VideoConfTestProvider extends TemplateBasedVideoConferencingProvide
 		return super.getConferenceInfo(context, resourceSettings, resource, vevent);
 	}
 
+	@Override
+	public void deleteConference(BmContext context, Map<String, String> resourceSettings, String conferenceId) {
+		// do nothing
+	}
+
 }

@@ -58,8 +58,9 @@ import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 import net.bluemind.videoconferencing.saas.api.BlueMindVideoRoom;
 import net.bluemind.videoconferencing.saas.api.BlueMindVideoTokenResponse;
 import net.bluemind.videoconferencing.saas.api.IVideoConferencingSaas;
+import net.bluemind.videoconferencing.saas.service.IInCoreVideoConferencingSaas;
 
-public class VideoConferencingSaasService implements IVideoConferencingSaas {
+public class VideoConferencingSaasService implements IVideoConferencingSaas, IInCoreVideoConferencingSaas {
 	private static final Logger logger = LoggerFactory.getLogger(VideoConferencingSaasService.class);
 	private final IServiceProvider serviceProvider;
 	private final BmContext context;
@@ -303,6 +304,13 @@ public class VideoConferencingSaasService implements IVideoConferencingSaas {
 	public BlueMindVideoRoom get(String roomName) {
 		ItemValue<BlueMindVideoRoom> room = storeService.byIdentifier(roomName);
 		return room != null ? room.value : null;
+	}
+
+	@Override
+	public void delete(String roomName) {
+		RBACManager.forContext(context).check("hasFullVideoconferencing", "hasSimpleVideoconferencing");
+		ItemValue<BlueMindVideoRoom> itemRoom = storeService.byIdentifier(roomName);
+		storeService.delete(itemRoom.uid);
 	}
 
 }

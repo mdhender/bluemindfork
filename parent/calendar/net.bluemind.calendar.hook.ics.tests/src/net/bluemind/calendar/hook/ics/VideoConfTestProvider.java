@@ -52,8 +52,6 @@ public class VideoConfTestProvider implements IVideoConferencingProvider {
 
 	@Override
 	public void deleteConference(BmContext context, Map<String, String> resourceSettings, String conferenceId) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

@@ -26,7 +26,9 @@ Require-Bundle: net.bluemind.core.rest,
  net.bluemind.system.api,
  net.bluemind.domain.service,
  net.bluemind.videoconferencing.hosting,
- net.bluemind.core.container.service
+ net.bluemind.core.container.service,
+ net.bluemind.calendar.hook
 Export-Package: net.bluemind.videoconferencing.service,
  net.bluemind.videoconferencing.service.calendar,
- net.bluemind.videoconferencing.service.template
+ net.bluemind.videoconferencing.service.template,
+ net.bluemind.videoconferencing.service.videoconfhook

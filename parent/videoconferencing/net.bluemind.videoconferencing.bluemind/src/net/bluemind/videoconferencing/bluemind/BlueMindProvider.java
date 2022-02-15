@@ -39,6 +39,7 @@ import net.bluemind.videoconferencing.api.VideoConference;
 import net.bluemind.videoconferencing.hosting.VideoConferencingRolesProvider;
 import net.bluemind.videoconferencing.saas.api.BlueMindVideoRoom;
 import net.bluemind.videoconferencing.saas.api.IVideoConferencingSaas;
+import net.bluemind.videoconferencing.saas.service.IInCoreVideoConferencingSaas;
 import net.bluemind.videoconferencing.service.template.TemplateBasedVideoConferencingProvider;
 
 public class BlueMindProvider extends TemplateBasedVideoConferencingProvider implements IVideoConferencingProvider {
@@ -96,6 +97,12 @@ public class BlueMindProvider extends TemplateBasedVideoConferencingProvider imp
 	public Set<String> getRequiredRoles() {
 		return new HashSet<>(Arrays.asList(VideoConferencingRolesProvider.ROLE_VISIO,
 				VideoConferencingRolesProvider.ROLE_FULL_VISIO));
+	}
+
+	@Override
+	public void deleteConference(BmContext context, Map<String, String> resourceSettings, String conferenceId) {
+		ServerSideServiceProvider.getProvider(context).instance(IInCoreVideoConferencingSaas.class)
+				.delete(conferenceId);
 	}
 
 }

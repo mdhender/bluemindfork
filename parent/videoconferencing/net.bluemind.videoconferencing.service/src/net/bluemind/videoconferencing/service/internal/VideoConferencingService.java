@@ -88,7 +88,6 @@ public class VideoConferencingService implements IVideoConferencing {
 		}
 
 		ItemValue<ResourceDescriptor> resource = videoConferencingResoures.get(0);
-
 		Optional<PropertyValue> videoConferencingType = resource.value.properties.stream()
 				.filter(p -> p.propertyId.equals(IVideoConferenceUids.PROVIDER_TYPE)).findFirst();
 
@@ -135,6 +134,8 @@ public class VideoConferencingService implements IVideoConferencing {
 	@Override
 	public VEvent remove(VEvent vevent) {
 		if (Strings.isNullOrEmpty(vevent.conference)) {
+			logger.info("Video conference not removed from to the event {} on domain {} because does not exist",
+					vevent.summary, domainUid);
 			return vevent;
 		}
 
@@ -144,12 +145,12 @@ public class VideoConferencingService implements IVideoConferencing {
 		vevent.conferenceId = null;
 		vevent.conferenceConfiguration = new HashMap<>();
 
-		List<ItemValue<ResourceDescriptor>> videoConferencingResoures = getVideoConferencingResource(vevent.attendees);
-		if (videoConferencingResoures.isEmpty()) {
+		List<ItemValue<ResourceDescriptor>> videoConferencingResources = getVideoConferencingResource(vevent.attendees);
+		if (videoConferencingResources.isEmpty()) {
 			return vevent;
 		}
 
-		ItemValue<ResourceDescriptor> resource = videoConferencingResoures.get(0);
+		ItemValue<ResourceDescriptor> resource = videoConferencingResources.get(0);
 		Optional<PropertyValue> videoConferencingType = resource.value.properties.stream()
 				.filter(p -> p.propertyId.equals(IVideoConferenceUids.PROVIDER_TYPE)).findFirst();
 		Optional<IVideoConferencingProvider> videoConferencingProvider = providers.stream()
@@ -175,17 +176,18 @@ public class VideoConferencingService implements IVideoConferencing {
 		IResources resourceService = context.getServiceProvider().instance(IResources.class,
 				context.getSecurityContext().getContainerUid());
 		return attendees.stream().filter(a -> a.cutype == CUType.Resource).map(a -> getResource(a, resourceService))
-				.filter(res -> res != null && res.value.typeIdentifier.equals(IVideoConferenceUids.RESOURCETYPE_UID))
-				.collect(Collectors.toList());
+				.filter(res -> res.isPresent()
+						&& res.get().value.typeIdentifier.equals(IVideoConferenceUids.RESOURCETYPE_UID))
+				.map(Optional::get).collect(Collectors.toList());
 	}
 
-	private ItemValue<ResourceDescriptor> getResource(Attendee a, IResources service) {
+	private Optional<ItemValue<ResourceDescriptor>> getResource(Attendee a, IResources service) {
 		String uid = a.dir.substring(a.dir.lastIndexOf("/") + 1);
 		ResourceDescriptor res = service.get(uid);
 		if (res != null) {
-			return ItemValue.create(uid, res);
+			return Optional.ofNullable(ItemValue.create(uid, res));
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	private static List<IVideoConferencingProvider> loadProviders() {

@@ -18,10 +18,12 @@
 package net.bluemind.videoconferencing.jitsi;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 import com.google.common.io.ByteStreams;
 
+import net.bluemind.core.rest.BmContext;
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
 import net.bluemind.videoconferencing.service.template.TemplateBasedVideoConferencingProvider;
 
@@ -45,6 +47,10 @@ public class JitsiProvider extends TemplateBasedVideoConferencingProvider implem
 		} catch (IOException e) {
 		}
 		return Optional.empty();
+	}
+
+	@Override
+	public void deleteConference(BmContext context, Map<String, String> resourceSettings, String conferenceId) {
 	}
 
 }

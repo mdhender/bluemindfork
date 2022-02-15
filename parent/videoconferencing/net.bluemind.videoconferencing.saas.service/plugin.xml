@@ -12,5 +12,8 @@
       <serviceFactory
             class="net.bluemind.videoconferencing.saas.service.VideoConferencingSaasServiceFactory">
       </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.videoconferencing.saas.service.InCoreVideoConferencingSaasServiceFactory">
+      </serviceFactory>
    </extension>
 </plugin>

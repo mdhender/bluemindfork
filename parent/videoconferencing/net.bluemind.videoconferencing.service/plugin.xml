@@ -36,10 +36,15 @@
       </sanitizerfactory>
    </extension>
    <extension
+         point="net.bluemind.calendar.hook">
+      <hook
+            impl="net.bluemind.videoconferencing.service.videoconfhook.VideoConferencingCalHook">
+      </hook>
+   </extension>
+   <extension
          point="net.bluemind.resource.resourceHook">
       <hook
             class="net.bluemind.videoconferencing.service.resourcehook.VideoConferencingResourceHook">
       </hook>
    </extension>
-
 </plugin>

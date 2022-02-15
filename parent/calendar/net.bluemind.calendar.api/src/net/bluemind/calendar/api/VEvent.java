@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.date.BmDateTime;
+import net.bluemind.directory.api.IDirEntryPath;
 import net.bluemind.icalendar.api.ICalendarElement;
 
 @BMApi(version = "3")
@@ -127,6 +128,14 @@ public class VEvent extends ICalendarElement {
 
 	public boolean exception() {
 		return false;
+	}
+
+	public boolean eventOrganizer(String ownerEntryUid) {
+		if (organizer == null || organizer.dir == null) {
+			return false;
+		}
+
+		return IDirEntryPath.getEntryUid(organizer.dir.substring("bm://".length())).equals(ownerEntryUid);
 	}
 
 }

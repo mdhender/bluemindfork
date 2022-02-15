@@ -64,9 +64,7 @@ public abstract class TemplateBasedVideoConferencingProvider {
 		return new VideoConference(conferenceId, conference, description);
 	}
 
-	public void deleteConference(BmContext context, Map<String, String> resourceSettings, String conferenceId) {
-		// nothing to do
-	}
+	public abstract void deleteConference(BmContext context, Map<String, String> resourceSettings, String conferenceId);
 
 	public void setExternalUrl(BmContext context, String domainUid, Map<String, String> resourceSettings) {
 		IServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
