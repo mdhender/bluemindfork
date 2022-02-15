@@ -106,6 +106,10 @@ public class LoadGenerationTask implements IServerTask {
 				continue;
 			}
 
+			Domain dom = new Domain();
+			dom.name = domainUid;
+			gc.domains.add(ItemValue.create(domainUid, dom));
+
 			dd.all().stream().filter(isAllowed()).forEach(abRecord -> {
 				DirEntry de = new DirEntry();
 				de.entryUid = abRecord.getUid();

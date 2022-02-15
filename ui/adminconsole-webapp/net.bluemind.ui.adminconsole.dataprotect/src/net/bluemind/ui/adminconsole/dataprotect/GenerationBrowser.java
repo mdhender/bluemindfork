@@ -48,7 +48,6 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.GenerationContent;
 import net.bluemind.dataprotect.api.Restorable;
-import net.bluemind.dataprotect.api.RestorableKind;
 import net.bluemind.dataprotect.api.gwt.endpoint.DataProtectGwtEndpoint;
 import net.bluemind.dataprotect.api.gwt.serder.GenerationContentGwtSerDer;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
@@ -232,18 +231,6 @@ public class GenerationBrowser extends Composite implements IGwtScreenRoot {
 		LinkedList<Restorable> matches = new LinkedList<Restorable>();
 		int limit = 500;
 
-		if (activeFilters == 0 || domainsToggle.isDown()) {
-			for (ItemValue<Domain> d : content.domains) {
-				if (matches(d.value, q)) {
-					Restorable r = new Restorable();
-					r.domainUid = d.uid;
-					r.entryUid = d.uid;
-					r.kind = RestorableKind.DOMAIN;
-					r.displayName = d.value.name;
-					matches.add(r);
-				}
-			}
-		}
 		if (activeFilters == 0 || usersToggle.isDown() || mailsharesToggle.isDown() || ouToggle.isDown()) {
 			for (ItemValue<DirEntry> de : content.entries) {
 				if (matches.size() >= limit) {

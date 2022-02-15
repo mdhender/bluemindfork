@@ -276,7 +276,7 @@ public class DPServiceTests {
 
 	@Test
 	public void testGetGenerationContentWithRoleDataprotect() throws Exception {
-		getGenerationContentWithContext(withRoleDataprotect, "bm.lan", "test.lan");
+		getGenerationContentWithContext(withRoleDataprotect, "bm.lan");
 	}
 
 	@Test
