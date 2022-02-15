@@ -37,7 +37,7 @@ public class OfflineMgmtStore {
 	}
 
 	private static final String query(int count) {
-		return "select multi_nextval('t_container_item_id_seq', " + count + ")"; // NOSONAR
+		return "select locked_multi_nextval('t_container_item_id_seq', " + count + ")"; // NOSONAR
 	}
 
 	public long reserveItemIds(int count) throws SQLException {

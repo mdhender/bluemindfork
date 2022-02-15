@@ -137,19 +137,33 @@ CREATE TRIGGER changelog_insert AFTER INSERT  ON t_container_changelog FOR EACH 
 CREATE TRIGGER changelog_update AFTER UPDATE ON t_container_changelog FOR EACH ROW WHEN (OLD.item_id IS DISTINCT FROM NEW.item_id) EXECUTE PROCEDURE changeset_insert();
 
 /* Method to book a range of id */
-
-CREATE OR REPLACE FUNCTION multi_nextval(
+CREATE OR REPLACE FUNCTION locked_multi_nextval(
    use_seqname regclass,
    use_increment integer
 ) RETURNS bigint AS $$
 DECLARE
-  reply bigint;
-  lock_id bigint := (use_seqname::bigint - 2147483648)::integer;
+   reply bigint;
+   lock_id bigint := (use_seqname::bigint - 2147483648)::integer;
 BEGIN
-  PERFORM pg_advisory_lock(lock_id);
-  reply := nextval(use_seqname);
-  PERFORM setval(use_seqname, reply + use_increment - 1, TRUE);
-  PERFORM pg_advisory_unlock(lock_id);
-  RETURN reply;
+   PERFORM pg_advisory_lock(lock_id);
+   reply := nextval(use_seqname);
+   PERFORM setval(use_seqname, reply + use_increment - 1, TRUE);
+   PERFORM pg_advisory_unlock(lock_id);
+   RETURN reply;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION locked_nextval(
+   use_seqname regclass
+) RETURNS bigint AS $$
+DECLARE
+   reply bigint;
+   lock_id bigint := (use_seqname::bigint - 2147483648)::integer;
+BEGIN
+   PERFORM pg_advisory_lock(lock_id);
+   reply := nextval(use_seqname);
+   PERFORM pg_advisory_unlock(lock_id);
+   RETURN reply;
 END;
 $$ LANGUAGE plpgsql;
