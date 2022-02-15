@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -188,16 +189,17 @@ public class DeferredActionCalendarHookTests {
 		ICalendar cal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
-		VEventSeries defaultVEvent = defaultVEvent();
+		ZoneId tz = ZoneId.of("Europe/Paris");
+		ZonedDateTime start = ZonedDateTime.now(tz).plusDays(3);
+		VEventSeries defaultVEvent = defaultVEvent(start);
 		addAlarm(defaultVEvent.main, 120);
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.DAILY;
 		defaultVEvent.main.rrule = rrule;
 
-		ZoneId tz = ZoneId.of("Europe/Paris");
-		BmDateTime ex1 = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 8, 0, 0, 0, tz));
-		BmDateTime ex2 = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 14, 8, 0, 0, 0, tz));
-		BmDateTime ex3 = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 15, 8, 0, 0, 0, tz));
+		BmDateTime ex1 = BmDateTimeHelper.time(start);
+		BmDateTime ex2 = BmDateTimeHelper.time(start.plusDays(1));
+		BmDateTime ex3 = BmDateTimeHelper.time(start.plusDays(2));
 		defaultVEvent.main.exdate = new HashSet<>(Arrays.asList(ex1, ex2, ex3));
 
 		CompletableFuture<Void> wait = registerOnHook("uid2");
@@ -208,7 +210,7 @@ public class DeferredActionCalendarHookTests {
 				new Date(200, 0, 0).getTime());
 		assertEquals(1, byActionId.size());
 
-		BmDateTime expected = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 16, 8, 0, 0, 0, tz));
+		BmDateTime expected = BmDateTimeHelper.time(start.plusDays(3));
 		checkDate(expected, byActionId, 120);
 	}
 
@@ -470,8 +472,8 @@ public class DeferredActionCalendarHookTests {
 				ICalendarUids.defaultUserCalendar("testuser"));
 
 		ZoneId tz = ZoneId.of("Europe/Paris");
-		VEventSeries event = defaultVEvent();
-		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 11, 0, 0, 0, tz));
+		ZonedDateTime start = ZonedDateTime.now(tz).plusDays(3);
+		VEventSeries event = defaultVEvent(start);
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.DAILY;
 		rrule.interval = 3;
@@ -480,8 +482,8 @@ public class DeferredActionCalendarHookTests {
 		addAlarm(event.main, 120);
 
 		VEventOccurrence event2 = recurringVEvent();
-		event2.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 14, 15, 0, 0, 0, tz));
-		event2.recurid = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 14, 11, 0, 0, 0, tz));
+		event2.dtstart = BmDateTimeHelper.time(start.plusDays(1).plusHours(4));
+		event2.recurid = BmDateTimeHelper.time(start.plusDays(1));
 		event.occurrences = Arrays.asList(event2);
 		addAlarm(event2, 240);
 
@@ -518,7 +520,8 @@ public class DeferredActionCalendarHookTests {
 			for (ItemValue<DeferredAction> triggerValue : storedTriggers) {
 				LocalDateTime triggerValueAsDate = new java.sql.Timestamp(triggerValue.value.executionDate.getTime())
 						.toLocalDateTime().atZone(ZoneId.of(dtstart.timezone)).toLocalDateTime();
-				if (triggerValueAsDate.equals(expectedTriggerDate)) {
+				if (triggerValueAsDate.toEpochSecond(ZoneOffset.UTC) == expectedTriggerDate
+						.toEpochSecond(ZoneOffset.UTC)) {
 					ok = true;
 				}
 			}
@@ -542,10 +545,14 @@ public class DeferredActionCalendarHookTests {
 	}
 
 	private VEventSeries defaultVEvent() {
+		ZoneId tz = ZoneId.of("Europe/Paris");
+		return defaultVEvent(ZonedDateTime.now(tz).plusDays(3));
+	}
+
+	private VEventSeries defaultVEvent(ZonedDateTime startAt) {
 		VEventSeries series = new VEventSeries();
 		VEvent event = new VEvent();
-		ZoneId tz = ZoneId.of("Europe/Paris");
-		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 8, 0, 0, 0, tz));
+		event.dtstart = BmDateTimeHelper.time(startAt);
 		event.summary = "event " + System.currentTimeMillis();
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";

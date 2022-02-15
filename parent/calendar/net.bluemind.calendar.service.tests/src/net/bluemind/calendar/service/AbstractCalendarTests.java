@@ -422,14 +422,18 @@ public abstract class AbstractCalendarTests {
 		JdbcTestHelper.getInstance().afterTest();
 	}
 
+	protected VEventSeries defaultVEvent() {
+		return defaultVEvent(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, tz));
+	}
+
 	/**
 	 * @return
 	 */
-	protected VEventSeries defaultVEvent() {
+	protected VEventSeries defaultVEvent(ZonedDateTime start) {
 		VEventSeries series = new VEventSeries();
 		VEvent event = new VEvent();
 		ZoneId tz = ZoneId.of("Asia/Ho_Chi_Minh");
-		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, tz));
+		event.dtstart = BmDateTimeHelper.time(start);
 		event.summary = "event " + System.currentTimeMillis();
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";

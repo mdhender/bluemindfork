@@ -21,6 +21,7 @@ package net.bluemind.calendar.service.tests;
 import static org.junit.Assert.assertEquals;
 
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -79,7 +80,7 @@ public class CalendarsServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testSearchPendingCounters() {
 
-		VEventSeries event = defaultVEvent();
+		VEventSeries event = defaultVEvent(ZonedDateTime.now().plusDays(3));
 		event.main.summary = "toto";
 
 		VEventCounter counter = new VEventCounter();
