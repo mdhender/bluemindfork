@@ -19,7 +19,7 @@ public class HotUpgradeTask {
 	public Date updatedAt;
 	public HotUpgradeTaskExecutionMode executionMode;
 	public int retryCount = 3;
-	public int retryDelay = 0;
+	public int retryDelay = 0; // TimeUnit.SECONDS
 	public boolean reportFailure = false;
 
 	public HotUpgradeTask() {
