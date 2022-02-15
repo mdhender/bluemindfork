@@ -26,11 +26,11 @@ import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.cli.utils.Tasks;
-import net.bluemind.server.api.IServer;
-import net.bluemind.server.api.Server;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
+import net.bluemind.server.api.IServer;
+import net.bluemind.server.api.Server;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -70,18 +70,27 @@ public class TagServerCommand implements ICmdLet, Runnable {
 	public void run() {
 		IServer serverService = ctx.adminApi().instance(IServer.class, "default");
 		List<String> ptags = Arrays.asList(tags);
-		ItemValue<Server> h = serverService.getComplete(serverName);
+		Optional<ItemValue<Server>> serverItem = serverService.allComplete().stream()
+				.filter(s -> s.value.name.equals(serverName) || s.uid.equals(serverName)).findFirst();
+
+		if (!serverItem.isPresent()) {
+			ctx.error("Cannot find server " + serverName + " by name or uid");
+			return;
+		}
+
+		ItemValue<Server> h = serverItem.get();
 		for (String tag : ptags) {
 			h.value.tags.add(tag);
 		}
-		
-		TaskRef taskRef= serverService.setTags(serverName, h.value.tags);
+
+		TaskRef taskRef = serverService.setTags(h.uid, h.value.tags);
 		TaskStatus ts = Tasks.follow(ctx, taskRef, "Could not tag server.");
-		
+
 		if (ts.state == TaskStatus.State.Success) {
 			ctx.info(String.format("Server %s is tagged as %s", serverName, String.join(",", Arrays.asList(tags))));
 		} else if (ts.state == TaskStatus.State.InError) {
-			ctx.error(String.format("Server %s cannot be tagged as %s", serverName, String.join(",", Arrays.asList(tags))));
+			ctx.error(String.format("Server %s cannot be tagged as %s", serverName,
+					String.join(",", Arrays.asList(tags))));
 		}
 	}
 }
