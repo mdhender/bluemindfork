@@ -63,7 +63,6 @@ export function create() {
 
         eventInfo: {
             isCounterEvent: false,
-            eventUid: "",
             icsUid: "",
             needsReply: false
         },

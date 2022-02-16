@@ -99,7 +99,7 @@ function buildRecipientsForKind(kind, recipients) {
     }));
 }
 
-function getEventInfo(headers) {
+export function getEventInfo(headers) {
     let isCounterEvent = false;
     const icsHeader = headers.find(({ name }) => {
         if (MessageHeader.X_BM_EVENT_COUNTERED.toUpperCase() === name.toUpperCase()) {
@@ -132,10 +132,8 @@ function getEventInfo(headers) {
     recuridIsoDate = recuridIsoDate && recuridIsoDate[1];
 
     const hasICS = !!uid;
-    const eventUid = isCounterEvent || recuridIsoDate ? null : uid;
-    const icsUid = isCounterEvent || recuridIsoDate ? uid : null;
     const needsReply =
         isCounterEvent || icsHeaderValue.includes('rsvp="true"') || icsHeaderValue.includes("rsvp='true'"); //TODO regexp
 
-    return { hasICS, isCounterEvent, eventUid, icsUid, needsReply, recuridIsoDate, isResourceBooking, resourceUid };
+    return { hasICS, isCounterEvent, icsUid: uid, needsReply, recuridIsoDate, isResourceBooking, resourceUid };
 }

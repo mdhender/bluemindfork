@@ -20,16 +20,14 @@ export default {
 
             try {
                 let event;
-                if (message.eventInfo.icsUid) {
-                    const events = await inject("CalendarPersistence").getByIcsUid(message.eventInfo.icsUid);
-                    event = findEvent(events, message.eventInfo.recuridIsoDate) || events[0];
-                } else if (message.eventInfo.isResourceBooking) {
+                if (message.eventInfo.isResourceBooking) {
                     event = await inject(
                         "CalendarPersistence",
                         "calendar:" + message.eventInfo.resourceUid
-                    ).getComplete(message.eventInfo.eventUid);
+                    ).getComplete(message.eventInfo.icsUid);
                 } else {
-                    event = await inject("CalendarPersistence").getComplete(message.eventInfo.eventUid);
+                    const events = await inject("CalendarPersistence").getByIcsUid(message.eventInfo.icsUid);
+                    event = findEvent(events, message.eventInfo.recuridIsoDate);
                 }
                 const mailboxOwner = message.eventInfo.isResourceBooking
                     ? message.eventInfo.resourceUid

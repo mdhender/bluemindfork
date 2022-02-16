@@ -14,7 +14,7 @@ Vue.use(Vuex);
 
 describe("consultPanel node", () => {
     const userUid = "user:uid",
-        eventUid = "event:uid",
+        icsUid = "event:uid",
         newStatus = "ACCEPTED",
         previousStatus = "NO-NO-NO",
         serverEvent = {
@@ -34,32 +34,49 @@ describe("consultPanel node", () => {
 
     describe("currentEvent", () => {
         test("FETCH_EVENT action", async () => {
-            calendarService.getComplete.mockReturnValue("event");
+            calendarService.getByIcsUid.mockReturnValue(["event"]);
             EventHelper.adapt = jest.fn().mockReturnValue("adaptedEvent");
             await store.dispatch(FETCH_EVENT, {
-                message: { eventInfo: { eventUid }, from: { address: "ori@gina.tor" } },
+                message: { eventInfo: { icsUid }, from: { address: "ori@gina.tor" } },
                 mailbox: { owner: userUid }
             });
-            expect(calendarService.getComplete).toHaveBeenCalledWith(eventUid);
+            expect(calendarService.getByIcsUid).toHaveBeenCalledWith(icsUid);
             expect(EventHelper.adapt).toHaveBeenCalledWith("event", userUid, "ori@gina.tor", undefined);
             expect(store.state.currentEvent).toEqual("adaptedEvent");
         });
 
-        test("FETCH_EVENT action with icsUid", async () => {
-            calendarService.getByIcsUid.mockReturnValue(["event"]);
+        test("FETCH_EVENT action with resource booking", async () => {
+            calendarService.getComplete.mockReturnValue("event");
             EventHelper.adapt = jest.fn().mockReturnValue("adaptedEvent");
             await store.dispatch(FETCH_EVENT, {
-                message: { eventInfo: { icsUid: "myICS" }, from: { address: "ori@gina.tor" } },
+                message: {
+                    eventInfo: { icsUid: "myICS", isResourceBooking: true, resourceUid: "resourceUid" },
+                    from: { address: "ori@gina.tor" }
+                },
                 mailbox: { owner: userUid }
             });
-            expect(calendarService.getByIcsUid).toHaveBeenCalledWith("myICS");
-            expect(EventHelper.adapt).toHaveBeenCalledWith("event", userUid, "ori@gina.tor", undefined);
+            expect(calendarService.getComplete).toHaveBeenCalledWith("myICS");
+            expect(EventHelper.adapt).toHaveBeenCalledWith("event", "resourceUid", "ori@gina.tor", undefined);
+            expect(store.state.currentEvent).toEqual("adaptedEvent");
+        });
+
+        test("FETCH_EVENT with exceptional event", async () => {
+            const exceptionalEvent = { value: { occurrences: [{ recurid: { iso8601: "isoDate" } }] } };
+            const otherEvent = { value: { occurrences: [] } };
+            calendarService.getByIcsUid.mockReturnValue([otherEvent, exceptionalEvent]);
+            EventHelper.adapt = jest.fn().mockReturnValue("adaptedEvent");
+            await store.dispatch(FETCH_EVENT, {
+                message: { eventInfo: { icsUid, recuridIsoDate: "isoDate" }, from: { address: "ori@gina.tor" } },
+                mailbox: { owner: userUid }
+            });
+            expect(calendarService.getByIcsUid).toHaveBeenCalledWith(icsUid);
+            expect(EventHelper.adapt).toHaveBeenCalledWith(exceptionalEvent, userUid, "ori@gina.tor", "isoDate");
             expect(store.state.currentEvent).toEqual("adaptedEvent");
         });
 
         test("SET_EVENT_STATUS action is a success", async () => {
             store.state.currentEvent = {
-                uid: eventUid,
+                uid: icsUid,
                 status: previousStatus,
                 serverEvent,
                 mailboxOwner: userUid
@@ -67,13 +84,13 @@ describe("consultPanel node", () => {
             const message = { eventInfo: { isResourceBooking: false } };
 
             await store.dispatch(SET_EVENT_STATUS, { status: newStatus, message });
-            expect(calendarService.update).toHaveBeenCalledWith(eventUid, serverEvent.value, true);
+            expect(calendarService.update).toHaveBeenCalledWith(icsUid, serverEvent.value, true);
             expect(store.state.currentEvent.status).toEqual(newStatus);
         });
 
         test("SET_EVENT_STATUS action, optimistic rendering and revert changes if client fails to answer", async () => {
             store.state.currentEvent = {
-                uid: eventUid,
+                uid: icsUid,
                 status: previousStatus,
                 serverEvent,
                 mailboxOwner: userUid
@@ -82,7 +99,7 @@ describe("consultPanel node", () => {
             const message = { eventInfo: { isResourceBooking: false } };
             const promise = store.dispatch(SET_EVENT_STATUS, { status: newStatus, message });
             expect(store.state.currentEvent.status).toEqual(newStatus);
-            expect(calendarService.update).toHaveBeenCalledWith(eventUid, serverEvent.value, true);
+            expect(calendarService.update).toHaveBeenCalledWith(icsUid, serverEvent.value, true);
             await promise;
             expect(store.state.currentEvent.status).toEqual(previousStatus);
         });
