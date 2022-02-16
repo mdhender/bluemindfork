@@ -150,7 +150,7 @@
     "mail.folder": "Folder",
     "mail.ics.accepted": "Zaproszenie przyjęte",
     "mail.ics.declined": "Zaproszenie odrzucone",
-    "mail.ics.got_invited": "zaprosił Cię na",
+    "mail.ics.got_invited": "{organizer} zaprosił Cię na {summary}",
     "mail.ics": "Ta wiadomość zawiera zaproszenie",
     "mail.ics.counter.declined": "{uczestnik} odrzucił i proponuje nowy termin",
     "mail.ics.counter.schedule.proposal.accept": "Zaktualizuj spotkanie",

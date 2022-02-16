@@ -1,14 +1,16 @@
 <template>
     <div v-if="currentEvent.loading === LoadingStatus.LOADED" class="event-viewer-invitation pl-5">
         <h1>
-            {{ currentEvent.organizer.name }}
-            <template v-if="message.eventInfo.isResourceBooking">
-                {{ $t("mail.ics.resource_got_invited") }}
-            </template>
-            <template v-else>
-                {{ $t("mail.ics.got_invited") }}
-            </template>
-            <span class="font-weight-bold">&laquo;{{ currentEvent.summary }}&raquo;</span>
+            <i18n
+                :path="message.eventInfo.isResourceBooking ? 'mail.ics.resource_got_invited' : 'mail.ics.got_invited'"
+            >
+                <template v-slot:organizer>
+                    {{ currentEvent.organizer.name }}
+                </template>
+                <template v-slot:summary>
+                    <span class="font-weight-bold">&laquo;{{ currentEvent.summary }}&raquo;</span>
+                </template>
+            </i18n>
         </h1>
         <hr />
         <div class="font-weight-bold">
