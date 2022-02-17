@@ -9,31 +9,7 @@
             >
                 <bm-icon :icon="isExpanded ? 'caret-down' : 'caret-right'" />
             </bm-button>
-            <template v-if="message.composing">
-                <bm-icon icon="paper-clip" class="mr-1 ml-2" :class="paperClipColor" size="lg" />
-                <span :class="isTooHeavy ? 'text-danger font-weight-bold' : ''">
-                    {{
-                        $tc("common.attachments", attachments.length, {
-                            count: attachments.length
-                        })
-                    }}
-                    ({{ displaySize(attachmentsWeight) }} / {{ displaySize(attachmentsMaxWeight) }})
-                    <bm-icon v-if="isTooHeavy" icon="exclamation-circle" />
-                </span>
-                <bm-progress
-                    :value="attachmentsWeight"
-                    :max="attachmentsMaxWeight"
-                    height="2px"
-                    class="flex-fill d-flex pl-1 align-self-center"
-                    :variant="attachmentsWeightColor"
-                />
-            </template>
-            <template v-else>
-                <bm-icon icon="paper-clip" class="mr-1 ml-2" size="lg" />
-                <span class="font-weight-bold pr-2">
-                    {{ $tc("common.attachments", attachments.length, { count: attachments.length }) }}
-                </span>
-            </template>
+            <mail-attachments-header :attachments="attachments" :message="message" />
         </div>
         <bm-row v-if="seeMoreAttachments" class="ml-3 mr-1">
             <bm-col lg="4" cols="12">
@@ -77,13 +53,10 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-
-import { displayWithUnit } from "@bluemind/file-utils";
-import { inject } from "@bluemind/inject";
-import { BmButton, BmCol, BmIcon, BmRow, BmProgress } from "@bluemind/styleguide";
+import { BmButton, BmCol, BmIcon, BmRow } from "@bluemind/styleguide";
 
 import MailAttachmentItem from "./MailAttachmentItem";
+import MailAttachmentsHeader from "./MailAttachmentsHeader";
 
 export default {
     name: "MailAttachmentsBlock",
@@ -91,9 +64,9 @@ export default {
         BmButton,
         BmCol,
         BmIcon,
-        BmProgress,
         BmRow,
-        MailAttachmentItem
+        MailAttachmentItem,
+        MailAttachmentsHeader
     },
     props: {
         message: {
@@ -113,41 +86,11 @@ export default {
         return { isExpanded: this.expanded };
     },
     computed: {
-        ...mapState("mail", { attachmentsMaxWeight: ({ messageCompose }) => messageCompose.maxMessageSize }),
         hasMoreThan3Attachments() {
             return this.attachments.length > 3;
         },
         seeMoreAttachments() {
             return !this.isExpanded && this.hasMoreThan3Attachments;
-        },
-        attachmentsWeight() {
-            return this.attachments.map(attachment => attachment.size).reduce((total, size) => total + size, 0);
-        },
-        attachmentsWeightInPercent() {
-            return (this.attachmentsWeight * 100) / this.attachmentsMaxWeight;
-        },
-        attachmentsWeightColor() {
-            let color = "success";
-            if (this.attachmentsWeightInPercent > 100) {
-                color = "danger";
-            } else if (this.isHeavy) {
-                color = "warning";
-            }
-            return color;
-        },
-        paperClipColor() {
-            if (this.isTooHeavy) {
-                return "text-danger";
-            } else if (this.isHeavy) {
-                return "text-warning";
-            }
-            return "";
-        },
-        isTooHeavy() {
-            return this.attachmentsWeight > this.attachmentsMaxWeight;
-        },
-        isHeavy() {
-            return this.attachmentsWeightInPercent > 50 && this.attachmentsWeightInPercent <= 100;
         }
     },
     watch: {
@@ -158,10 +101,6 @@ export default {
     methods: {
         async toggleExpand() {
             this.isExpanded = !this.isExpanded;
-        },
-        displaySize(size) {
-            size = size < 100000 ? 100000 : size;
-            return displayWithUnit(size, 6, inject("i18n"));
         }
     }
 };

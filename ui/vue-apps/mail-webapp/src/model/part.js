@@ -48,4 +48,12 @@ export function mergePartsForRichEditor(partsToMerge, parts, userLang) {
     return result;
 }
 
-export const VIEWER_CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN, MimeType.IMAGE];
+export const VIEWER_CAPABILITIES = [
+    MimeType.TEXT_HTML,
+    MimeType.TEXT_PLAIN,
+    MimeType.IMAGE,
+    MimeType.AUDIO,
+    MimeType.VIDEO,
+    MimeType.PDF,
+    MimeType.TEXT
+];

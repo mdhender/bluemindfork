@@ -14,11 +14,11 @@
 
         <mail-viewer-recipients :message="message" />
         <hr class="mail-viewer-splitter" />
-        <body-viewer
-            :message="message"
-            :expand-attachments="expandAttachments"
-            @remote-content="from => $emit('remote-content', from)"
-        >
+        <body-viewer :message="message" @remote-content="from => $emit('remote-content', from)">
+            <template v-slot:attachments-block="scope">
+                <slot name="attachments-block" v-bind="scope" />
+            </template>
+
             <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
                 <slot :name="slot" v-bind="scope" />
             </template>

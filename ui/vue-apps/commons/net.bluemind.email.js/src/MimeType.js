@@ -1,4 +1,5 @@
 const TEXT_PLAIN = "text/plain";
+const TEXT = "text/";
 const TEXT_HTML = "text/html";
 const TEXT_CALENDAR = "text/calendar";
 const MULTIPART_RELATED = "multipart/related";
@@ -44,6 +45,8 @@ const OPEN_DOCUMENT_PRESENTATION = "application/vnd.oasis.opendocument.presentat
 const SVG = "image/svg+xml";
 
 export default {
+    AUDIO,
+    TEXT,
     TEXT_PLAIN,
     TEXT_HTML,
     TEXT_CALENDAR,
@@ -52,7 +55,9 @@ export default {
     MULTIPART_MIXED,
     IMAGE,
     ICS,
+    PDF,
     VCARD,
+    VIDEO,
     equals,
     typeEquals,
     isRelated,

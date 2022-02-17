@@ -1,6 +1,8 @@
 <template>
     <div class="body-viewer">
-        <mail-attachments-block :attachments="attachments" :message="message" :expanded="expandAttachments" />
+        <slot name="attachments-block" :attachments="attachments" :message="message">
+            <mail-attachments-block :attachments="attachments" :message="message" />
+        </slot>
         <event-viewer v-if="message.hasICS && currentEvent" :parts="inlines" :message="message">
             <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
                 <slot :name="slot" v-bind="scope" />
@@ -35,10 +37,6 @@ export default {
         message: {
             type: Object,
             required: true
-        },
-        expandAttachments: {
-            type: Boolean,
-            default: false
         }
     },
     computed: {

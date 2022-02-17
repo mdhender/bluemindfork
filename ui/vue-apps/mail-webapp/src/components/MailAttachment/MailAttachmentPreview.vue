@@ -1,6 +1,6 @@
 <template>
     <bm-modal id="mail-attachment-preview" ref="modal" centered size="fluid" hide-footer hide-header>
-        <global-events @keydown.left="previous" @keydown.right="next" />
+        <global-events @keydown.left="previous" @keydown.up="previous" @keydown.down="next" @keydown.right="next" />
 
         <preview-header
             :part="part"
@@ -11,7 +11,7 @@
         />
         <div class="content">
             <bm-collapse v-model="expanded">
-                <preview-message :message="message" />
+                <preview-message :message="message" :active-part="part" />
             </bm-collapse>
             <preview-attachment :message="message" :part="part" />
         </div>

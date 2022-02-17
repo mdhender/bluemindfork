@@ -1,7 +1,10 @@
 <template>
     <main class="mail-message-print">
         <inline-style>{{ STYLES }}</inline-style>
-        <mail-viewer-content :message="message" :expand-attachments="true">
+        <mail-viewer-content :message="message">
+            <template v-slot:attachments-block="scope">
+                <mail-attachments-block v-bind="scope" :expanded="true" />
+            </template>
             <template v-slot:text-html="scope">
                 <text-html-part-viewer v-bind="scope" :collapse="false" />
             </template>
@@ -11,11 +14,12 @@
 <script>
 import brokenImageIcon from "~/../assets/brokenImageIcon.png";
 import InlineStyle from "../InlineStyle.vue";
+import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock.vue";
 import MailViewerContent from "./MailViewerContent.vue";
 import TextHtmlPartViewer from "./PartsViewer/TextHtmlPartViewer.vue";
 export default {
     name: "MailMessagePrint",
-    components: { MailViewerContent, InlineStyle, TextHtmlPartViewer },
+    components: { MailViewerContent, InlineStyle, TextHtmlPartViewer, MailAttachmentsBlock },
     props: {
         message: {
             type: Object,
