@@ -21,6 +21,7 @@ import MailViewerContentLoading from "../MailViewerContentLoading";
 import { BmButton, BmIcon } from "@bluemind/styleguide";
 import { mapGetters } from "vuex";
 import { QUOTE_NODES } from "~/getters";
+import { isForward } from "~/model/message";
 import QuoteHelper from "../../../store/helpers/QuoteHelper";
 
 export default {
@@ -41,7 +42,7 @@ export default {
             required: true
         }
     },
-    data: () => ({ quotedCollapsed: true }),
+    data: () => ({ quotedCollapsed: undefined }),
     computed: {
         ...mapGetters("mail", { QUOTE_NODES }),
         quoteNodes() {
@@ -59,6 +60,9 @@ export default {
         isCollapseActive() {
             return this.quotedCollapsed && this.quoteNodes;
         }
+    },
+    created() {
+        this.quotedCollapsed = !isForward(this.message);
     }
 };
 

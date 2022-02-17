@@ -102,6 +102,10 @@ export const MessageHeader = {
     REPLY_TO: "Reply-To",
     IN_REPLY_TO: "In-Reply-To",
     REFERENCES: "References",
+    DELIVERED_TO: "Delivered-To",
+
+    X_LOOP: "X-Loop",
+    X_ORIGINAL_TO: "X-Original-To",
 
     X_BM_DRAFT_INFO: "X-Bm-Draft-Info",
     X_BM_DRAFT_REFRESH_DATE: "X-Bm-Draft-Refresh-Date",
@@ -141,4 +145,44 @@ export function extractHeaderValues(message, headerName) {
     return header && header.values && header.values.length
         ? header.values.reduce((a, b) => (a.length ? a + " " + b : b), "").split(/\s+/)
         : undefined;
+}
+
+/**
+ * Try to detect a message is a Forward.
+ * @see https://stackoverflow.com/questions/4735293/forwarded-email-detection
+ */
+export function isForward(message) {
+    let hasAForwardFriendlyHeader = false;
+    let hasBmDraftHeaderWithFwdType = false;
+
+    message.headers?.forEach(header => {
+        // MUAs should add one of these headers
+        if (
+            [
+                MessageHeader.MAIL_FOLLOWUP_TO.toUpperCase(),
+                MessageHeader.DELIVERED_TO.toUpperCase(),
+                MessageHeader.X_LOOP.toUpperCase(),
+                MessageHeader.X_ORIGINAL_TO.toUpperCase()
+            ].includes(header.name.toUpperCase())
+        ) {
+            hasAForwardFriendlyHeader = true;
+        }
+
+        // BM specific
+        if (
+            header.name.toUpperCase() === MessageHeader.X_BM_DRAFT_INFO.toUpperCase() &&
+            header.values?.some(v => JSON.parse(v).type === MessageCreationModes.FORWARD)
+        ) {
+            hasBmDraftHeaderWithFwdType = true;
+        }
+    });
+
+    // MUAs tend to add the 'Fwd' token in the subject (which may be rewritten by the user)
+    const subjectStartsWithFwd = /^\[*Fwd?:/i.test(message.subject);
+    const subjectEndsWithFwd = /\(fwd?\)$/i.test(message.subject);
+    const hasAForwardFriendlySubject = subjectStartsWithFwd || subjectEndsWithFwd;
+
+    const shouldBeForward = hasBmDraftHeaderWithFwdType || hasAForwardFriendlyHeader || hasAForwardFriendlySubject;
+
+    return shouldBeForward;
 }
