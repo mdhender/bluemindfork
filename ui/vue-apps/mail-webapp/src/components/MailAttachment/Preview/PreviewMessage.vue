@@ -17,9 +17,9 @@
 </template>
 
 <script>
+import { isViewable } from "~/model/part";
 import MailViewerContent from "../../MailViewer/MailViewerContent";
 import MailAttachmentItem from "../MailAttachmentItem";
-import { VIEWER_CAPABILITIES } from "~/model/part";
 import MailAttachmentsHeader from "../MailAttachmentsHeader";
 
 export default {
@@ -36,9 +36,7 @@ export default {
         }
     },
     methods: {
-        isViewable({ mime }) {
-            return VIEWER_CAPABILITIES.some(available => mime.startsWith(available));
-        }
+        isViewable
     }
 };
 </script>

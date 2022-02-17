@@ -22,7 +22,7 @@ import { MimeType, InlineImageHelper } from "@bluemind/email";
 import { hasRemoteImages } from "@bluemind/html-utils";
 
 import { create as createAttachment, AttachmentStatus } from "~/model/attachment";
-import { VIEWER_CAPABILITIES, getPartsFromCapabilities } from "~/model/part";
+import { VIEWER_CAPABILITIES, getPartsFromCapabilities, isViewable } from "~/model/part";
 import { COMPUTE_QUOTE_NODES, FETCH_PART_DATA } from "~/actions";
 import { CONVERSATION_MESSAGE_BY_KEY } from "~/getters";
 
@@ -52,16 +52,14 @@ export default {
                     MimeType.isHtml({ mime }) && contents[address] ? InlineImageHelper.cids(contents[address]) : []
                 )
             );
-            return this.parts.filter(
-                part => isDisplayable(part) && !(MimeType.isImage(part) && cids.has(part.contentId))
-            );
+            return this.parts.filter(part => isViewable(part) && !(MimeType.isImage(part) && cids.has(part.contentId)));
         },
         parts() {
             return getPartsFromCapabilities(this.message, VIEWER_CAPABILITIES);
         },
         attachments() {
             const fallback = this.parts
-                .filter(part => !isDisplayable(part))
+                .filter(part => !isViewable(part))
                 .map(part => createAttachment(part, AttachmentStatus.ONLY_LOCAL));
             return [...this.message.attachments, ...fallback];
         }
@@ -87,10 +85,6 @@ export default {
         ...mapActions("mail", { FETCH_PART_DATA, COMPUTE_QUOTE_NODES })
     }
 };
-
-function isDisplayable({ mime }) {
-    return VIEWER_CAPABILITIES.some(available => mime.startsWith(available));
-}
 
 class CidSet extends Set {
     has(cid) {

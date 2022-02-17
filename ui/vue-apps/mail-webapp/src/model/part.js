@@ -48,12 +48,15 @@ export function mergePartsForRichEditor(partsToMerge, parts, userLang) {
     return result;
 }
 
+export function isViewable({ mime }) {
+    return VIEWER_CAPABILITIES.some(available => mime.startsWith(available));
+}
+
 export const VIEWER_CAPABILITIES = [
     MimeType.TEXT_HTML,
     MimeType.TEXT_PLAIN,
     MimeType.IMAGE,
     MimeType.AUDIO,
     MimeType.VIDEO,
-    MimeType.PDF,
-    MimeType.TEXT
+    MimeType.PDF
 ];

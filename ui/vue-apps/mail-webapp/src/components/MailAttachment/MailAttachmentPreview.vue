@@ -1,13 +1,18 @@
 <template>
     <bm-modal id="mail-attachment-preview" ref="modal" centered size="fluid" hide-footer hide-header>
-        <global-events @keydown.left="previous" @keydown.up="previous" @keydown.down="next" @keydown.right="next" />
+        <global-events
+            @keydown.left="previous(partIndex)"
+            @keydown.up="previous(partIndex)"
+            @keydown.down="next(partIndex)"
+            @keydown.right="next(partIndex)"
+        />
 
         <preview-header
             :part="part"
             :expanded.sync="expanded"
             @close="$refs.modal.hide()"
-            @previous="previous"
-            @next="next"
+            @previous="previous(partIndex)"
+            @next="next(partIndex)"
         />
         <div class="content">
             <bm-collapse v-model="expanded">
@@ -26,6 +31,7 @@ import PreviewAttachment from "./Preview/PreviewAttachment";
 import PreviewMessage from "./Preview/PreviewMessage";
 import PreviewHeader from "./Preview/PreviewHeader";
 import GlobalEvents from "vue-global-events";
+import { isViewable } from "~/model/part";
 
 export default {
     name: "MailAttachmentPreview",
@@ -53,13 +59,20 @@ export default {
     },
     methods: {
         ...mapMutations("mail", { SET_PREVIEW_PART_ADDRESS }),
-        previous() {
-            let previousIndex = (this.partIndex + this.attachmentsCount - 1) % this.attachmentsCount;
-            this.SET_PREVIEW_PART_ADDRESS(this.message.attachments[previousIndex].address);
-        },
         next() {
-            let nextIndex = (this.partIndex + 1) % this.attachmentsCount;
-            this.SET_PREVIEW_PART_ADDRESS(this.message.attachments[nextIndex].address);
+            this.selectAttachmentHelper(this.partIndex, index => index + 1);
+        },
+        previous() {
+            this.selectAttachmentHelper(this.partIndex, index => index + this.attachmentsCount - 1);
+        },
+        selectAttachmentHelper(current, iterator) {
+            const index = iterator(current) % this.attachmentsCount;
+            if (index !== this.partIndex) {
+                const attachment = this.message.attachments[index];
+                isViewable(attachment)
+                    ? this.SET_PREVIEW_PART_ADDRESS(attachment.address)
+                    : this.selectAttachmentHelper(index, iterator);
+            }
         }
     }
 };

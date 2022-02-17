@@ -3,7 +3,7 @@
         <bm-container
             class="mail-attachment-item bg-white border border-light text-condensed py-2 px-2 mt-2"
             :class="isRemovable ? '' : 'cursor-pointer'"
-            @click="isRemovable ? null : download()"
+            @click="isViewable(attachment) ? openPreview() : download()"
         >
             <div
                 v-if="!compact"
@@ -42,14 +42,13 @@
                 <bm-col class="col-auto py-1">
                     <bm-button
                         v-if="!isRemovable"
-                        v-b-modal.mail-attachment-preview
                         variant="light"
                         class="p-0"
                         size="md"
                         :title="$t('mail.attachment.preview')"
-                        @click.stop="setPreviewInfos"
+                        @click.stop="openPreview"
                     >
-                        <bm-icon icon="eye" size="2x" class="p-1" />
+                        <bm-icon v-if="isViewable(attachment)" icon="eye" size="2x" class="p-1" />
                     </bm-button>
 
                     <bm-button
@@ -103,6 +102,7 @@ import { AttachmentStatus } from "~/model/attachment";
 import { ComposerActionsMixin } from "~/mixins";
 import { mapMutations } from "vuex";
 import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_PART_ADDRESS } from "~/mutations";
+import { isViewable } from "~/model/part";
 
 export default {
     name: "MailAttachmentItem",
@@ -177,10 +177,6 @@ export default {
             SET_PREVIEW_MESSAGE_KEY,
             SET_PREVIEW_PART_ADDRESS
         }),
-        setPreviewInfos() {
-            this.SET_PREVIEW_MESSAGE_KEY(this.message.key);
-            this.SET_PREVIEW_PART_ADDRESS(this.attachment.address);
-        },
         cancel() {
             global.cancellers[this.attachment.address + this.message.key].cancel();
         },
@@ -194,6 +190,12 @@ export default {
             const divHeight = this.$refs["preview-div"].clientHeight;
             const scaleRatio = divWidth / width;
             this.fitPreviewImage = width > height && height * scaleRatio > divHeight;
+        },
+        isViewable,
+        openPreview() {
+            this.SET_PREVIEW_MESSAGE_KEY(this.message.key);
+            this.SET_PREVIEW_PART_ADDRESS(this.attachment.address);
+            this.$bvModal.show("mail-attachment-preview");
         }
     }
 };

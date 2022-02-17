@@ -106,7 +106,11 @@ export function createWrapper(component, overrides, propsData = {}) {
         propsData: propsData,
         mocks: {
             $t: () => {},
-            $tc: () => {}
+            $tc: () => {},
+            $i18n: {
+                t: () => {},
+                tc: () => {}
+            }
         }
     };
     const mergedMountingOptions = merge(defaultMountingOptions, overrides);

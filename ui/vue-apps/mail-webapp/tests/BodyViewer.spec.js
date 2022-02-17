@@ -33,7 +33,10 @@ describe("BodyViewer.spec", () => {
 
     test("unsupported part are displayed as attachment", async () => {
         const inlinePartsByCapabilities = [
-            { capabilities: [], parts: [{ mime: "application/pdf", address: "1", encoding: "base64", size: 27032 }] }
+            {
+                capabilities: [],
+                parts: [{ mime: "application/octet-stream", address: "1", encoding: "base64", size: 27032 }]
+            }
         ];
         const wrapper = mountComponent(inlinePartsByCapabilities);
         await flushPromises();
