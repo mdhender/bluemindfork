@@ -423,6 +423,7 @@ public abstract class AbstractCalendarTests {
 	}
 
 	protected VEventSeries defaultVEvent() {
+		ZoneId tz = ZoneId.of("Asia/Ho_Chi_Minh");
 		return defaultVEvent(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, tz));
 	}
 
@@ -432,7 +433,6 @@ public abstract class AbstractCalendarTests {
 	protected VEventSeries defaultVEvent(ZonedDateTime start) {
 		VEventSeries series = new VEventSeries();
 		VEvent event = new VEvent();
-		ZoneId tz = ZoneId.of("Asia/Ho_Chi_Minh");
 		event.dtstart = BmDateTimeHelper.time(start);
 		event.summary = "event " + System.currentTimeMillis();
 		event.location = "Toulouse";
