@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.fusesource.jansi;visibility:=reexport,
  net.bluemind.network.topology,
  com.google.guava,
- picocli;bundle-version="4.5.2";visibility:=reexport
+ picocli;bundle-version="4.5.2";visibility:=reexport,
+ slf4j.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.cmd.api
 Bundle-ActivationPolicy: lazy

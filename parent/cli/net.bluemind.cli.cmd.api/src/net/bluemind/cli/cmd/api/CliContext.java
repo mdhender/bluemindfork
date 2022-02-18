@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.fusesource.jansi.Ansi;
+import org.slf4j.helpers.MessageFormatter;
 
 import com.google.common.base.Suppliers;
 
@@ -110,10 +111,7 @@ public class CliContext {
 	}
 
 	public void info(String msg, Object... args) {
-		for (Object o : args) {
-			msg = msg.replaceFirst("\\{\\}", o.toString());
-		}
-		info(msg);
+		info(MessageFormatter.arrayFormat(msg, args).getMessage());
 	}
 
 	public void progress(int total, int current) {
