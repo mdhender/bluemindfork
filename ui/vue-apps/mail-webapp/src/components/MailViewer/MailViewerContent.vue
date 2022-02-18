@@ -10,10 +10,10 @@
                 {{ $d(message.date, "full_date_time_short") }}
             </bm-col>
         </bm-row>
-        <hr class="mail-sender-splitter" />
+        <div class="mail-sender-splitter"><hr /></div>
 
         <mail-viewer-recipients :message="message" />
-        <hr class="mail-viewer-splitter" />
+        <div class="mail-viewer-splitter"><hr /></div>
         <body-viewer :message="message" @remote-content="from => $emit('remote-content', from)">
             <template v-slot:attachments-block="scope">
                 <slot name="attachments-block" v-bind="scope" />
@@ -103,12 +103,24 @@ export default {
         }
     }
 
-    .sender {
+    .sender,
+    .mail-sender-splitter,
+    .mail-viewer-splitter {
         padding: 0 $sp-4;
         @include media-breakpoint-up(lg) {
             padding: 0 $sp-5;
         }
+    }
+    .mail-sender-splitter > hr {
         margin: $sp-2 0;
+    }
+    .mail-viewer-splitter > hr {
+        border-color: $secondary;
+        margin: $sp-1 0 0 0;
+    }
+
+    .mail-viewer-splitter {
+        padding-top: $sp-1;
     }
 
     .date {

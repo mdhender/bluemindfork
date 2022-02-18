@@ -1,15 +1,15 @@
 <template>
-    <div class="preview-message-header px-3 d-flex align-items-center">
+    <bm-button class="preview-message-header px-3 d-none d-lg-flex align-items-center" variant="simple-dark">
         <bm-icon :icon="icon" />
         <span class="font-weight-bold ml-2"> Message </span>
-    </div>
+    </bm-button>
 </template>
 <script>
-import { BmIcon } from "@bluemind/styleguide";
+import { BmIcon, BmButton } from "@bluemind/styleguide";
 
 export default {
     name: "PreviewMessageHeader",
-    components: { BmIcon },
+    components: { BmIcon, BmButton },
     props: {
         expanded: { type: Boolean, required: true }
     },
@@ -27,7 +27,6 @@ export default {
 .preview-message-header {
     &:hover {
         background-color: $light;
-        cursor: pointer;
     }
 }
 </style>

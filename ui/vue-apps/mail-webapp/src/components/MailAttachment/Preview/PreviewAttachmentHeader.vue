@@ -1,5 +1,5 @@
 <template>
-    <div class="preview-attachment-header bg-light px-3 d-flex align-items-center">
+    <div class="preview-attachment-header bg-light px-3 align-items-center">
         <bm-icon :icon="fileTypeIcon" size="2x" class="align-bottom" />
         <span :title="part.fileName" class="font-weight-bold ml-2">{{ part.fileName }} </span>
     </div>
@@ -25,3 +25,8 @@ export default {
     }
 };
 </script>
+<style lang="scss">
+.preview-attachement-header {
+    display: flex;
+}
+</style>

@@ -1,5 +1,10 @@
+import injector from "@bluemind/inject";
+
 export function create(part, status) {
     const progress = status === AttachmentStatus.NOT_LOADED ? { loaded: 0, total: 100 } : { loaded: 100, total: 100 };
+    if (!part.fileName) {
+        part.fileName = injector.getProvider("i18n").get().t("mail.attachment.untitled", { mimeType: part.mime });
+    }
     return { ...part, dispositionType: "ATTACHMENT", headers: getAttachmentHeaders(part), progress, status };
 }
 

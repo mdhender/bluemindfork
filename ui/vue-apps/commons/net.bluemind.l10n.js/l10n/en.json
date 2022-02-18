@@ -190,5 +190,6 @@
     "common.close": "Close",
     "common.got_it": "I got it",
     "common.search.try_otherwise": "Please retry using a more generic search term.",
-    "common.never": "Never"
+    "common.never": "Never",
+    "common.close_window": "Close the window"
 }

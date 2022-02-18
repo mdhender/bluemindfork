@@ -131,5 +131,14 @@ export default {
     .bm-file-drop-zone.as-attachments.bm-dropzone-hover {
         background: url("~@bluemind/styleguide/assets/attachment.png") no-repeat center center;
     }
+
+    .mail-attachments-header {
+        display: flex;
+        flex: 1 1 auto;
+        .progress {
+            display: flex;
+            flex: 1 1 auto;
+        }
+    }
 }
 </style>

@@ -58,8 +58,12 @@ export default {
     }
     .mail-viewer-splitter {
         order: 1;
+        padding: 0;
+        margin-top: $sp-3;
     }
-
+    .mail-viewer-splitter > hr {
+        margin: 0;
+    }
     .mail-inlines-block {
         padding: 0 $sp-4;
     }

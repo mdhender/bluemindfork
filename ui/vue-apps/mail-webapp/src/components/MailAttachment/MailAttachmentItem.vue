@@ -41,14 +41,14 @@
                 </bm-col>
                 <bm-col class="col-auto py-1">
                     <bm-button
-                        v-if="!isRemovable"
+                        v-if="isViewable(attachment)"
                         variant="light"
                         class="p-0"
                         size="md"
-                        :title="$t('mail.attachment.preview')"
+                        :title="$t('mail.preview.open')"
                         @click.stop="openPreview"
                     >
-                        <bm-icon v-if="isViewable(attachment)" icon="eye" size="2x" class="p-1" />
+                        <bm-icon icon="eye" size="2x" class="p-1" />
                     </bm-button>
 
                     <bm-button
@@ -72,11 +72,11 @@
                     <bm-button-close
                         v-if="isRemovable"
                         variant="light"
-                        class="p-0"
+                        class="p-0 remove-attachment"
                         size="md"
                         :title="isCancellable ? $tc('common.cancel') : $tc('common.removeAttachment')"
                         :aria-label="isCancellable ? $tc('common.cancel') : $tc('common.removeAttachment')"
-                        @click="isCancellable ? cancel() : removeAttachment(attachment.address)"
+                        @click.stop="isCancellable ? cancel() : removeAttachment(attachment.address)"
                     />
                 </bm-col>
             </bm-row>
@@ -145,9 +145,7 @@ export default {
             return MimeType.matchingIcon(this.attachment.mime);
         },
         fileName() {
-            return this.attachment.fileName
-                ? this.attachment.fileName
-                : this.$t("mail.attachment.untitled", { mimeType: this.attachment.mime });
+            return this.attachment.fileName;
         },
         fileSize() {
             return computeUnit(this.attachment.size, inject("i18n"));
@@ -235,6 +233,9 @@ export default {
 
     .attachment-text {
         line-height: 1.085em;
+    }
+    .remove-attachment {
+        margin-left: $sp-2;
     }
 }
 </style>

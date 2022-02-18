@@ -7,14 +7,16 @@
                     count: attachments.length
                 })
             }}
-            ({{ displaySize(attachmentsWeight) }} / {{ displaySize(attachmentsMaxWeight) }})
+            <span class="attachements-weigth">
+                ({{ displaySize(attachmentsWeight) }} / {{ displaySize(attachmentsMaxWeight) }})</span
+            >
             <bm-icon v-if="isTooHeavy" icon="exclamation-circle" />
         </span>
         <bm-progress
             :value="attachmentsWeight"
             :max="attachmentsMaxWeight"
             height="2px"
-            class="flex-fill d-flex pl-1 align-self-center"
+            class="pl-1 align-self-center"
             :variant="attachmentsWeightColor"
         />
     </div>
