@@ -353,7 +353,7 @@ async function emptyFolder({ commit, state }, { folder, mailbox, deep }) {
             conversationsToRemoveMessages.push(...conversation.messages.map(key => state.messages[key]));
         } else {
             conversation.messages.forEach(messageKey => {
-                if (state.messages[messageKey].folderRef.key === folder.key) {
+                if (state.messages[messageKey]?.folderRef.key === folder.key) {
                     messagesToRemove.push(state.messages[messageKey]);
                 }
             });
