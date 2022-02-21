@@ -23,7 +23,6 @@ import java.util.HashMap;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.i18n.client.LocaleInfo;
-import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.HTMLPanel;
@@ -64,8 +63,7 @@ public class SysConfAdminSettingsEditor extends CompositeGwtWidgetElement {
 	@Override
 	public void loadModel(JavaScriptObject model) {
 		JsMapStringJsObject mapObj = model.cast();
-		JSONObject jsonObj = new JSONObject(mapObj.get(HostKeys.lang.name()).cast());
-		String hostLanguage = jsonObj.get(HostKeys.lang.name()).toString().replace("\"", "");
+		String hostLanguage = mapObj.getString(HostKeys.lang.name());
 		hostLanguage = null != hostLanguage ? hostLanguage : LocaleIdTranslation.DEFAULT_ID;
 		language.setSelectedIndex(languageMapping.get(hostLanguage));
 	}

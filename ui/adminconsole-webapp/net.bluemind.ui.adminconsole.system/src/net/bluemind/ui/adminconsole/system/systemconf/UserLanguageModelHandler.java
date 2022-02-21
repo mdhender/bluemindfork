@@ -16,14 +16,12 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.ui.adminconsole.system.hosts.edit;
+package net.bluemind.ui.adminconsole.system.systemconf;
 
 import java.util.Map;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.shared.GWT;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONString;
 
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
@@ -61,10 +59,7 @@ public class UserLanguageModelHandler implements IGwtModelHandler {
 
 			@Override
 			public void success(Map<String, String> value) {
-				String lang = value.get("lang");
-				JSONObject langObject = new JSONObject();
-				langObject.put(HostKeys.lang.name(), new JSONString(lang));
-				map.put(HostKeys.lang.name(), langObject.getJavaScriptObject());
+				map.put(HostKeys.lang.name(), value.get("lang"));
 				handler.success(null);
 			}
 		});

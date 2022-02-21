@@ -26,7 +26,6 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -40,7 +39,6 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.server.api.gwt.js.JsServer;
 import net.bluemind.system.api.gwt.js.JsDomainTemplate;
-import net.bluemind.system.api.gwt.js.JsDomainTemplateDescriptionI18NDescription;
 import net.bluemind.system.api.gwt.js.JsDomainTemplateKind;
 import net.bluemind.system.api.gwt.js.JsDomainTemplateTag;
 import net.bluemind.ui.adminconsole.base.ui.FieldSetPanel;
@@ -81,9 +79,7 @@ public class EditHostServerRolesEditor extends CompositeGwtWidgetElement {
 		JsMapStringJsObject map = model.cast();
 		JsServer server = map.get(HostKeys.server.name()).cast();
 		JsDomainTemplate domainTemplate = map.get(HostKeys.domainTemplate.name()).cast();
-		JSONObject langObject = new JSONObject(map.get(HostKeys.lang.name()));
-		String lang = langObject.get(HostKeys.lang.name()).toString().replaceAll("\"", "");
-		setupTagsPanel(server.getTags(), domainTemplate, lang);
+		setupTagsPanel(server.getTags(), domainTemplate);
 	}
 
 	@Override
@@ -106,7 +102,7 @@ public class EditHostServerRolesEditor extends CompositeGwtWidgetElement {
 		return newTags;
 	}
 
-	private void setupTagsPanel(JsArrayString serverTags, JsDomainTemplate domainTemplate, String lang) {
+	private void setupTagsPanel(JsArrayString serverTags, JsDomainTemplate domainTemplate) {
 		JsArray<JsDomainTemplateKind> kinds = domainTemplate.getKinds();
 		for (int i = 0; i < kinds.length(); i++) {
 			JsDomainTemplateKind kind = kinds.get(i);
@@ -117,10 +113,15 @@ public class EditHostServerRolesEditor extends CompositeGwtWidgetElement {
 				continue;
 			}
 
-			FieldSetPanel fsp = new FieldSetPanel();
-			fsp.setName(getDescription(kind, lang));
-			tagsPanel.add(fsp);
+			// Define default lang to EN
+			// Index is the position of lang in domain.xml - FR first, EN second
+			// Only FR and EN are supported in domain.xml
 			int langIndex = null != Ajax.getLang() && Ajax.getLang().toLowerCase().indexOf("fr") != -1 ? 0 : 1;
+
+			FieldSetPanel fsp = new FieldSetPanel();
+			fsp.setName(getDescription(kind, langIndex));
+			tagsPanel.add(fsp);
+
 			for (int j = 0; j < tags.length(); j++) {
 				JsDomainTemplateTag tag = tags.get(j);
 				BooleanEdit be = new BooleanEdit(tag.getValue());
@@ -146,15 +147,13 @@ public class EditHostServerRolesEditor extends CompositeGwtWidgetElement {
 		}
 	}
 
-	private String getDescription(JsDomainTemplateKind k, String lang) {
-		for (int i = 0; i < k.getDescription().getI18n().length(); i++) {
-			JsDomainTemplateDescriptionI18NDescription jsDomainTemplateDescriptionI18NDescription = k.getDescription()
-					.getI18n().get(i);
-			if (jsDomainTemplateDescriptionI18NDescription.getLang().toLowerCase().equals(lang)) {
-				return jsDomainTemplateDescriptionI18NDescription.getText();
-			}
-		}
-		return "";
-	}
+	private String getDescription(JsDomainTemplateKind k, int langIndex) {
+		String description = k.getDescription().getI18n().get(langIndex).getText();
 
+		if (description == null || description.isEmpty()) {
+			return k.getId();
+		}
+
+		return description;
+	}
 }

@@ -38,8 +38,6 @@ public class EditHostScreens {
 		contribs.push(ScreenElementContribution.create("editHost", "modelHandlers",
 				ScreenElement.create(null, DomainTemplateModelHandler.TYPE)));
 		contribs.push(ScreenElementContribution.create("editHost", "modelHandlers",
-				ScreenElement.create(null, UserLanguageModelHandler.TYPE)));
-		contribs.push(ScreenElementContribution.create("editHost", "modelHandlers",
 				ScreenElement.create(null, ServerModelHandler.TYPE)));
 
 		JsArray<Tab> tabs = JsArray.createArray().cast();
