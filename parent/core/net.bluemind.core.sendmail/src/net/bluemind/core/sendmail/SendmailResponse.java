@@ -103,6 +103,10 @@ public class SendmailResponse {
 		return code == 450 || code > 500;
 	}
 
+	public boolean isOk() {
+		return code == 250;
+	}
+
 	public List<FailedRecipient> getFailedRecipients() {
 		return failedRecipients;
 	}

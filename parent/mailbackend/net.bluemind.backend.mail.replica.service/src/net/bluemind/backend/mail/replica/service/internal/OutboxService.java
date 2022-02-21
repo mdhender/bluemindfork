@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -70,7 +69,6 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mime4j.common.Mime4JHelper;
-import net.bluemind.core.container.model.ItemUri;
 
 public class OutboxService implements IOutbox {
 
@@ -169,9 +167,9 @@ public class OutboxService implements IOutbox {
 
 		if (!sendmailResponse.getFailedRecipients().isEmpty()) {
 			sendNonDeliveryReport(sendmailResponse.getFailedRecipients(), creds, fromMail, relatedMsg);
-		} else if (sendmailResponse.isError()) {
+		} else if (!sendmailResponse.isOk()) {
 			throw new Exception(sendmailResponse.toString());
-		}
+		} 
 	}
 
 	/**
