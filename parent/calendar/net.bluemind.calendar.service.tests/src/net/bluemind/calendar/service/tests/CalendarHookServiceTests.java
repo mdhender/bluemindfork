@@ -21,6 +21,7 @@ package net.bluemind.calendar.service.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.time.ZonedDateTime;
@@ -198,7 +199,7 @@ public class CalendarHookServiceTests {
 	}
 
 	@Test
-	public void testDeleteVideoConfEvent() throws ServerFault {
+	public void testDeleteVideoConfEvent() throws ServerFault, InterruptedException {
 		VertxEventChecker<JsonObject> deletedMessageChecker = new VertxEventChecker<>(
 				CalendarHookAddress.EVENT_DELETED);
 
@@ -243,8 +244,18 @@ public class CalendarHookServiceTests {
 
 		vevent = getCalendarService(defaultSecurityContext, container).getComplete(uid);
 		assertNull(vevent);
-		blueMindVideoRoom = getVideoConfSaasService().get(conferenceId);
-		assertNull(blueMindVideoRoom);
+
+		boolean deleted = false;
+		for (int i = 0; i < 10; i++) {
+			blueMindVideoRoom = getVideoConfSaasService().get(conferenceId);
+			if (blueMindVideoRoom == null) {
+				deleted = true;
+				break;
+			}
+			Thread.sleep(100);
+		}
+
+		assertTrue(deleted);
 	}
 
 	@After
