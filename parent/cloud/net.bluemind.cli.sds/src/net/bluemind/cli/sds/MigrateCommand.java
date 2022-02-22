@@ -65,16 +65,7 @@ public class MigrateCommand implements ICmdLet, Runnable {
 	}
 
 	public MigrateCommand() {
-		try {
-			db = DBMaker.fileDB(root.resolve("sds-migrate.db").toAbsolutePath().toString()).transactionEnable()
-					.fileMmapEnable().make();
-			migrationMap = db.hashMap("migrate").keySerializer(Serializer.LONG).valueSerializer(Serializer.INTEGER)
-					.createOrOpen();
-		} catch (Exception e) {
-			System.err.println("Unable to open sds-migrate database");
-			e.printStackTrace(System.err);
-			System.exit(1);
-		}
+		// ok
 	}
 
 	@Override
@@ -140,6 +131,17 @@ public class MigrateCommand implements ICmdLet, Runnable {
 	public void run() {
 		if (!checkSysConf() && !force) {
 			return;
+		}
+
+		try {
+			db = DBMaker.fileDB(root.resolve("sds-migrate.db").toAbsolutePath().toString()).transactionEnable()
+					.fileMmapEnable().make();
+			migrationMap = db.hashMap("migrate").keySerializer(Serializer.LONG).valueSerializer(Serializer.INTEGER)
+					.createOrOpen();
+		} catch (Exception e) {
+			System.err.println("Unable to open sds-migrate database");
+			e.printStackTrace(System.err);
+			System.exit(1);
 		}
 
 		ahc = new DefaultAsyncHttpClient();
