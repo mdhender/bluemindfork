@@ -12,7 +12,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { AlertMixin, REMOVE } from "@bluemind/alert.store";
-import { createFromRecipient, VCardAdaptor } from "@bluemind/contact";
+import { RecipientAdaptor, VCardAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
 import { BmButton } from "@bluemind/styleguide";
 import { SET_BLOCK_REMOTE_IMAGES } from "~/mutations";
@@ -34,7 +34,7 @@ export default {
         },
         trustSender() {
             this.SET_BLOCK_REMOTE_IMAGES();
-            const contact = createFromRecipient(this.ACTIVE_MESSAGE.from);
+            const contact = RecipientAdaptor.toContact(this.ACTIVE_MESSAGE.from);
             const collectedContactsUid = "book:CollectedContacts_" + inject("UserSession").userId;
             inject("AddressBookPersistence", collectedContactsUid).create(contact.uid, VCardAdaptor.toVCard(contact));
             this.remove();

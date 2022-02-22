@@ -50,6 +50,10 @@ export default {
         dirEntriesAcl: {
             type: Array,
             required: true
+        },
+        isMyDefaultCalendar: {
+            type: Boolean,
+            required: true
         }
     },
     computed: {

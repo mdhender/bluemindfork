@@ -13,11 +13,8 @@
             @selected="onSelect"
         >
             <template v-slot="{ item }">
-                <span v-if="item.isNewContact">{{ item.value.mail }} ({{ $t("common.external") }})</span>
-                <template v-else>
-                    <bm-contact :contact="VCardInfoAdaptor.toContact(item)" variant="transparent" />
-                    <span v-if="!item.value.source"> ({{ $t("common.external") }}) </span>
-                </template>
+                <bm-contact :contact="item" variant="transparent" />
+                <span v-if="!item.urn"> ({{ $t("common.external") }}) </span>
             </template>
         </bm-form-autocomplete-input>
         <hr />
@@ -25,6 +22,7 @@
             :container="container"
             :domain-acl="domainAcl"
             :dir-entries-acl="dirEntriesAcl"
+            :is-my-default-calendar="isMyDefaultCalendar"
             @dir-entry-acl-changed="onDirEntryAclChange"
             @domain-acl-changed="onDomainAclChange"
         />
@@ -47,8 +45,9 @@ import { loadAcl } from "./ContainerShareHelper";
 import { loadCalendarUrls, sendExternalToServer, urlToAclSubject } from "./ExternalShareHelper";
 import { ContainerHelper, ContainerType } from "../container";
 import { PublishMode } from "@bluemind/calendar.api";
-import { getQuery, VCardInfoAdaptor } from "@bluemind/contact";
+import { getQuery, DirEntryAdaptor, VCardInfoAdaptor, VCardAdaptor } from "@bluemind/contact";
 import { Verb } from "@bluemind/core.container.api";
+import { BaseDirEntryKind } from "@bluemind/directory.api";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { BmContact, BmFormAutocompleteInput, BmSpinner } from "@bluemind/styleguide";
@@ -166,39 +165,66 @@ export default {
                 this.suggestions = [];
                 return;
             }
-            const userSession = inject("UserSession");
+            const directorySuggestions = await this.loadDirectorySuggestions();
+            if (this.isCalendarType) {
+                const addressbooksSuggestions = await this.loadAddressbooksSuggestions();
+                this.suggestions = this.mergeSuggestions(directorySuggestions, addressbooksSuggestions);
+            } else {
+                this.suggestions = directorySuggestions;
+            }
+        }, 500),
+        async loadDirectorySuggestions() {
+            const dirEntries = await inject("DirectoryPersistence").search({
+                nameOrEmailFilter: this.searchedInput,
+                kindsFilter: [BaseDirEntryKind.USER, BaseDirEntryKind.GROUP],
+                size: 10
+            });
+            return dirEntries.values.filter(this.filterSearchResults).map(DirEntryAdaptor.toContact);
+        },
+        async loadAddressbooksSuggestions() {
             const vcards = await inject("AddressBooksPersistence").search({
                 size: 10,
                 query: getQuery(this.searchedInput)
             });
-            this.suggestions = vcards.values.filter(vcard => {
-                if (!this.isCalendarType && vcard.value.source === null) {
-                    return false;
-                }
-                return (
-                    !this.dirEntriesAcl.find(alreadyInList => alreadyInList.uid === vcard.uid) &&
-                    vcard.uid !== userSession.userId &&
-                    !this.externalShares.find(share => share.vcard?.uid === vcard.uid)
-                );
-            });
-
+            const filtered = vcards.values
+                .filter(
+                    vcardInfo =>
+                        !vcardInfo.value.source ||
+                        vcardInfo.value.source.includes("/users/") ||
+                        vcardInfo.value.source.includes("/groups/")
+                )
+                .filter(this.filterSearchResults)
+                .map(VCardInfoAdaptor.toContact);
             if (
-                this.isCalendarType &&
-                !this.searchedInput.endsWith(userSession.domain) &&
+                !this.searchedInput.endsWith(inject("UserSession").domain) &&
                 EmailValidator.validateAddress(this.searchedInput)
             ) {
-                this.suggestions.push({ value: { mail: this.searchedInput }, isNewContact: true });
+                filtered.push({ address: this.searchedInput, isNewContact: true });
             }
-        }, 500),
+            return filtered;
+        },
+        mergeSuggestions(directorySuggestions, addressbooksSuggestions) {
+            return directorySuggestions.concat(
+                addressbooksSuggestions.filter(
+                    suggestion => directorySuggestions.findIndex(dir => dir.uid === suggestion.uid) === -1
+                )
+            );
+        },
+        filterSearchResults({ uid }) {
+            return (
+                !this.dirEntriesAcl.find(alreadyInList => alreadyInList.uid === uid) &&
+                uid !== inject("UserSession").userId &&
+                !this.externalShares.find(share => share.vcard?.uid === uid)
+            );
+        },
         onSelect(selected) {
             if (selected.isNewContact) {
                 this.createContactAndAddExternal(selected);
-            } else if (!selected.value.source) {
+            } else if (!selected.isInternal) {
                 this.addExternal(selected);
             } else {
-                const newDirEntry = vcardToDirEntry(selected);
                 this.dirEntriesAcl.push({
-                    ...newDirEntry,
+                    ...DirEntryAdaptor.toDirEntry(selected),
                     acl: this.helper.defaultDirEntryAcl
                 });
                 this.saveShares();
@@ -255,30 +281,20 @@ export default {
                 inject("PublishCalendarPersistence", this.container.uid).disableUrl('"' + oldUrl + '"');
             }
         },
-        async addExternal(vcardInfo) {
+        async addExternal(contact) {
+            const vCardInfo = VCardInfoAdaptor.toVCardInfo(contact);
             const publishMode = PublishMode.PUBLIC;
-            const newUrl = await sendExternalToServer(publishMode, vcardInfo.uid, this.container.uid);
-            this.externalShares.push({ publishMode, url: newUrl, vcard: vcardInfo, token: vcardInfo.uid });
+            const newUrl = await sendExternalToServer(publishMode, vCardInfo.uid, this.container.uid);
+            this.externalShares.push({ publishMode, url: newUrl, vcard: vCardInfo, token: vCardInfo.uid });
         },
-        async createContactAndAddExternal(vcardInfo) {
+        async createContactAndAddExternal(contact) {
             const vcardUid = UUIDHelper.generate();
-            vcardInfo.uid = vcardUid;
+            contact.uid = vcardUid;
             const collectedContactsUid = "book:CollectedContacts_" + inject("UserSession").userId;
-            await inject("AddressBookPersistence", collectedContactsUid).create(vcardUid, {
-                communications: { emails: [{ value: vcardInfo.value.mail }] }
-            });
-            this.addExternal(vcardInfo);
+            const vCard = VCardAdaptor.toVCard(contact);
+            await inject("AddressBookPersistence", collectedContactsUid).create(vcardUid, vCard);
+            this.addExternal(contact);
         }
     }
 };
-
-function vcardToDirEntry(vcard) {
-    return {
-        uid: vcard.uid,
-        value: {
-            displayName: vcard.value.formatedName,
-            email: vcard.value.mail
-        }
-    };
-}
 </script>

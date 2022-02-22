@@ -1,13 +1,30 @@
+import { create } from "./model";
+
 export default {
     toContact(vCardInfo) {
         const uid = vCardInfo.uid;
-        return {
-            address: vCardInfo.value.mail,
-            dn: vCardInfo.value.formatedName,
-            kind: vCardInfo.value.kind,
-            photo: vCardInfo.value.photo,
+        return create(
             uid,
-            urn: uid && vCardInfo.containerUid ? uid + "@" + vCardInfo.containerUid : ""
+            vCardInfo.value.mail,
+            vCardInfo.value.formatedName,
+            vCardInfo.value.kind,
+            vCardInfo.value.photo,
+            vCardInfo.containerUid,
+            !!vCardInfo.value.source
+        );
+    },
+    toVCardInfo(contact) {
+        return {
+            containerUid: contact.urn ? contact.urn.split("@")[1] : "",
+            value: {
+                kind: contact.kind,
+                mail: contact.address,
+                formatedName: contact.dn,
+                tel: "",
+                categories: [],
+                photo: contact.photo,
+                source: ""
+            }
         };
     }
 };
