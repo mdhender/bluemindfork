@@ -310,7 +310,9 @@ public class VideoConferencingSaasService implements IVideoConferencingSaas, IIn
 	public void delete(String roomName) {
 		RBACManager.forContext(context).check("hasFullVideoconferencing", "hasSimpleVideoconferencing");
 		ItemValue<BlueMindVideoRoom> itemRoom = storeService.byIdentifier(roomName);
-		storeService.delete(itemRoom.uid);
+		if (itemRoom != null) {
+			storeService.delete(itemRoom.uid);
+		}
 	}
 
 }
