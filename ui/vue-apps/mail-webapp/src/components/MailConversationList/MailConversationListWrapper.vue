@@ -3,9 +3,9 @@
         :all-conversation-keys="CONVERSATION_LIST_ALL_KEYS"
         :conversation-keys="CONVERSATION_LIST_KEYS"
         :draggable="true"
-        :selected="selected"
-        @keyup.delete.exact.prevent="moveToTrash()"
-        @keyup.shift.delete.exact.prevent="remove()"
+        :selected="SELECTION_IS_EMPTY ? currentConversationKey : SELECTION_KEYS"
+        @keyup.native.delete.exact.prevent="moveToTrash()"
+        @keyup.native.shift.delete.exact.prevent="remove()"
         @next-page="goNextPage"
         @set-selection="setSelection"
         @add-to-selection="addToSelection"
@@ -44,12 +44,8 @@ export default {
             SELECTION_IS_EMPTY
         }),
         ...mapState("mail", { conversationByKey: ({ conversations }) => conversations.conversationByKey }),
-        selected() {
-            if (this.SELECTION_IS_EMPTY) {
-                return this.$store.state.mail.conversations.currentConversation;
-            } else {
-                return this.SELECTION_KEYS;
-            }
+        currentConversationKey() {
+            return this.$store.state.mail.conversations.currentConversation;
         }
     },
     created() {

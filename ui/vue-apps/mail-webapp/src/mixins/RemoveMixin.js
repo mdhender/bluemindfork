@@ -1,3 +1,4 @@
+import { mapGetters } from "vuex";
 import { CONVERSATIONS_ACTIVATED, IS_CURRENT_CONVERSATION, MAILBOX_TRASH, NEXT_CONVERSATION } from "~/getters";
 import {
     MOVE_CONVERSATIONS,
@@ -9,12 +10,13 @@ import FormattedDateMixin from "./FormattedDateMixin";
 import SelectionMixin from "./SelectionMixin";
 import { conversationMustBeRemoved } from "~/model/conversations";
 import { MailRoutesMixin } from "~/mixins";
-import { mapGetters } from "vuex";
 
 export default {
     mixins: [FormattedDateMixin, MailRoutesMixin, SelectionMixin],
     computed: {
-        ...mapGetters("mail", { $_RemoveMixin_CONVERSATIONS_ACTIVATED: CONVERSATIONS_ACTIVATED })
+        ...mapGetters("mail", {
+            $_RemoveMixin_CONVERSATIONS_ACTIVATED: CONVERSATIONS_ACTIVATED
+        })
     },
     methods: {
         MOVE_CONVERSATIONS_TO_TRASH: navigateConversations(async function (conversations) {
