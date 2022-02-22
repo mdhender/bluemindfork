@@ -16,6 +16,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -45,6 +48,9 @@ class ProxyResponseImpl implements ProxyResponse {
 	private String etag;
 	private boolean publicCacheControl;
 	private Function<ReadStream<Buffer>, ReadStream<Buffer>> bodyFilter = Function.identity();
+	private String target;
+
+	private static final Logger logger = LoggerFactory.getLogger(ProxyResponseImpl.class);
 
 	ProxyResponseImpl(ProxyRequestImpl request, HttpServerResponse outboundResponse) {
 		this.inboundResponse = null;
@@ -67,6 +73,7 @@ class ProxyResponseImpl implements ProxyResponse {
 				// Ignore ???
 			}
 		}
+		this.target = inboundResponse.netSocket().remoteAddress().hostAddress();
 
 		this.request = request;
 		this.inboundResponse = inboundResponse;
@@ -98,6 +105,10 @@ class ProxyResponseImpl implements ProxyResponse {
 		this.publicCacheControl = publicCacheControl;
 		this.etag = inboundResponse.getHeader(HttpHeaders.ETAG);
 		this.headers = MultiMap.caseInsensitiveMultiMap().addAll(inboundResponse.headers());
+	}
+
+	String targetAddress() {
+		return target;
 	}
 
 	@Override
@@ -273,6 +284,7 @@ class ProxyResponseImpl implements ProxyResponse {
 		pipe.endOnFailure(false);
 		pipe.to(outboundResponse, ar -> {
 			if (ar.failed()) {
+				logger.error("Failed piping outbound: {}", ar.cause().getMessage());
 				request.inboundRequest.reset();
 				outboundResponse.reset();
 			}

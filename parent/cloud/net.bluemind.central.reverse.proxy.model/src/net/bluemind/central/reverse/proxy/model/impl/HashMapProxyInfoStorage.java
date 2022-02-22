@@ -1,12 +1,12 @@
 package net.bluemind.central.reverse.proxy.model.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import net.bluemind.central.reverse.proxy.model.ProxyInfoStorage;
 
@@ -39,10 +39,10 @@ public class HashMapProxyInfoStorage implements ProxyInfoStorage {
 
 	public String anyIp() {
 		List<String> allIps = allIps();
-		return !allIps.isEmpty() ? allIps.get(new Random().nextInt(allIps.size())) : null;
+		return !allIps.isEmpty() ? allIps.get(ThreadLocalRandom.current().nextInt(allIps.size())) : null;
 	}
 
 	public Set<String> domainAliases(String domainUid) {
-		return domainUidAliases.getOrDefault(domainUid, Collections.emptySet());
+		return domainUidAliases.getOrDefault(domainUid, new HashSet<>());
 	}
 }

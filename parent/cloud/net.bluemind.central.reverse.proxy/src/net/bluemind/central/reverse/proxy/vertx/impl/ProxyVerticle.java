@@ -18,6 +18,8 @@
  */
 package net.bluemind.central.reverse.proxy.vertx.impl;
 
+import java.util.Arrays;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpClient;
@@ -44,7 +46,8 @@ public class ProxyVerticle extends AbstractVerticle {
 		AuthMatcher<HttpServerRequestContext> requestInfoMatcher = AuthMatcher.requestMatcher();
 		ProxyInfoStoreClient storeClient = ProxyInfoStoreClient.create(vertx);
 		httpProxy.originSelector(new DownstreamSelector<>(requestInfoMatcher, storeClient));
-		httpProxy.responseHook(new LoginCookieHook(requestInfoMatcher));
+		httpProxy.responseHook(CompositeResponseHook
+				.of(Arrays.asList(new LoginCookieHook(requestInfoMatcher), new ProxyLogHook(requestInfoMatcher))));
 
 		WebSocketProxy webSocketProxy = WebSocketProxy.reverseProxy(proxyClient);
 		AuthMatcher<ServerWebSocket> webSocketInfoMatcher = AuthMatcher.webSocketMatcher();
