@@ -36,12 +36,14 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
+import net.bluemind.gwtconsoleapp.base.notification.Notification;
 import net.bluemind.mailflow.api.IMailflowRulesPromise;
 import net.bluemind.mailflow.api.MailActionDescriptor;
 import net.bluemind.mailflow.api.MailRuleActionAssignment;
 import net.bluemind.mailflow.api.MailRuleDescriptor;
 import net.bluemind.mailflow.api.gwt.endpoint.MailflowRulesGwtEndpoint;
 import net.bluemind.ui.adminconsole.system.domains.DomainKeys;
+import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.exceptions.MailflowException;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.rules.SenderInGroupRule;
 import net.bluemind.ui.common.client.forms.Ajax;
 
@@ -117,18 +119,24 @@ public class EditMailflowRulesEditor extends CompositeGwtWidgetElement {
 
 			int widgetCount = ruleTable.getWidgetCount();
 			for (int i = 0; i < widgetCount; i++) {
-				RuleAssignmentWidget widget = (RuleAssignmentWidget) ruleTable.getWidget(i);
-				Optional<MailRuleActionAssignment> ruleAssignment = widget.get();
-
-				ruleAssignment.ifPresent(assignment -> {
-					if (assignment.uid == null) {
-						String uid = net.bluemind.ui.common.client.forms.tag.UUID.uuid();
-						ruleService.create(uid, assignment);
-					} else {
-						uids.remove(assignment.uid);
-						ruleService.update(assignment.uid, assignment);
+				try {
+					RuleAssignmentWidget widget = (RuleAssignmentWidget) ruleTable.getWidget(i);
+					Optional<MailRuleActionAssignment> ruleAssignment = widget.get();
+					ruleAssignment.ifPresent(assignment -> {
+						if (assignment.uid == null) {
+							String uid = net.bluemind.ui.common.client.forms.tag.UUID.uuid();
+							ruleService.create(uid, assignment);
+						} else {
+							uids.remove(assignment.uid);
+							ruleService.update(assignment.uid, assignment);
+						}
+					});
+				} catch (MailflowException e) {
+					Notification.get().reportError(e.getMessage());
+					if (e.uid != null) {
+						uids.remove(e.uid);
 					}
-				});
+				}
 			}
 			uids.forEach(ruleService::delete);
 		});

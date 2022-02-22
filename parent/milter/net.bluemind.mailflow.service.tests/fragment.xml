@@ -50,5 +50,12 @@
             description="action 4">
       </action>
    </extension>
+   <extension
+         point="net.bluemind.mailflow.actions_extensions">
+      <action
+            actionIdentifier="JournalingAction"
+            description="Add journaling action">
+      </action>
+   </extension>
 
 </fragment>

@@ -24,6 +24,7 @@ import com.google.gwt.user.client.ui.Panel;
 
 import net.bluemind.mailflow.api.MailRuleDescriptor;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.actions.AddSignatureConfig;
+import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.actions.JournalingConfig;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.actions.MailflowActionConfig;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.actions.UpdateSubjectConfig;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.rules.CompositeTreeItem;
@@ -76,6 +77,9 @@ public class RuleActionElementFactory {
 
 		case "UpdateSubjectAction":
 			return new UpdateSubjectConfig();
+
+		case "JournalingAction":
+			return new JournalingConfig();
 
 		default:
 			throw new IllegalArgumentException("Unknown identifier " + identifier);

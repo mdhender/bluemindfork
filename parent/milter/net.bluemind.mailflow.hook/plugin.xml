@@ -2,4 +2,5 @@
 <?eclipse version="3.4"?>
 <plugin>
 	<extension-point id="net.bluemind.mailflow.mailflowHook" name="mailflowHook" schema="schema/net.bluemind.mailflow.mailflowHook.exsd"/>
+	<extension-point id="net.bluemind.mailflow.mailflowConfig" name="mailflowConfig" schema="schema/net.bluemind.mailflow.mailflowConfig.exsd"/>
 </plugin>

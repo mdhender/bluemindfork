@@ -4,7 +4,8 @@
    <extension
          point="net.bluemind.milter.actionfactory">
       <action_factory
-            impl="net.bluemind.milter.action.misc.updatesubject.UpdateSubjectAction$UpdateSubjectActionFactory">
+            impl="net.bluemind.milter.action.misc.updatesubject.UpdateSubjectAction$UpdateSubjectActionFactory"
+            priority="1">
       </action_factory>
    </extension>
 

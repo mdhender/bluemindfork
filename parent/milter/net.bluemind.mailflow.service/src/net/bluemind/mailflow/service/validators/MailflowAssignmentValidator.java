@@ -16,22 +16,30 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.mailflow.service.internal;
+package net.bluemind.mailflow.service.validators;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.validator.IValidator;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.mailflow.api.MailRuleActionAssignmentDescriptor;
 import net.bluemind.mailflow.api.MailflowRule;
+import net.bluemind.mailflow.hook.IMailflowConfigValidator;
 import net.bluemind.mailflow.service.MailFlowRegistry;
 
 public class MailflowAssignmentValidator implements IValidator<MailRuleActionAssignmentDescriptor> {
 
+	private static final List<IMailflowConfigValidator> hooks = getHooks();
+
+	private static List<IMailflowConfigValidator> getHooks() {
+		RunnableExtensionLoader<IMailflowConfigValidator> loader = new RunnableExtensionLoader<>();
+		return loader.loadExtensions("net.bluemind.mailflow", "mailflowConfig", "hook", "impl");
+	}
+
 	@Override
 	public void create(MailRuleActionAssignmentDescriptor assignment) throws ServerFault {
-
 		List<String> actionIdentifiers = MailFlowRegistry.getActions().stream().map(a -> a.actionIdentifier)
 				.collect(Collectors.toList());
 		List<String> ruleIdentifiers = MailFlowRegistry.getRules().stream().map(r -> r.ruleIdentifier)
@@ -42,6 +50,15 @@ public class MailflowAssignmentValidator implements IValidator<MailRuleActionAss
 		}
 
 		validateRules(assignment.rules, ruleIdentifiers);
+		validateConfiguration(assignment);
+	}
+
+	private void validateConfiguration(MailRuleActionAssignmentDescriptor assignment) {
+		hooks.forEach(hook -> {
+			if (hook.getAction().equals(assignment.actionIdentifier)) {
+				hook.validate(assignment.actionConfiguration);
+			}
+		});
 	}
 
 	private void validateRules(MailflowRule rule, List<String> ruleIdentifiers) {

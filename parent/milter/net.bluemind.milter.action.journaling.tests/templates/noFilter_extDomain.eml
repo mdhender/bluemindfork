@@ -1,0 +1,30 @@
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="=_07cbaa9cc585fb3336e064245bf152af"
+Date: Mon, 07 Mar 2022 10:37:03 +0100
+From: harry potter <hpot@ext.test.bm.lan>
+To: hermione granger <hgran@ext.test.bm.lan>
+Subject: no filter
+Message-ID: <2723a6e29029da5943b0a508b1d0ab2a@1aeb7620.internal>
+X-Sender: hpot@ext.test.bm.lan
+User-Agent: Roundcube Webmail/0.8.5
+
+--=_07cbaa9cc585fb3336e064245bf152af
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+
+no filter 
+
+  
+--=_07cbaa9cc585fb3336e064245bf152af
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset=UTF-8
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+<html><body>
+<p>&nbsp;</p>
+<p>filter on sender</p>
+<div>&nbsp;</div>
+</body></html>
+
+--=_07cbaa9cc585fb3336e064245bf152af--

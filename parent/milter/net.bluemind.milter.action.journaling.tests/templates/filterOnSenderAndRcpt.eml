@@ -1,0 +1,31 @@
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="=_1de6c63ca85b79d1092540d06dab2ae3"
+Date: Thu, 03 Mar 2022 10:22:45 +0100
+From: harry potter <hpot@test.bm.lan>
+To: cedric digory <cdig@test.bm.lan>
+Subject: sender & receiver in filter 
+Message-ID: <7da1a2f9c6ae3fa8e5ed49a143b90afc@1aeb7620.internal>
+X-Sender: hpot@test.bm.lan
+User-Agent: Roundcube Webmail/0.8.5
+
+--=_1de6c63ca85b79d1092540d06dab2ae3
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+
+sender & receiver in filter 
+
+  
+--=_1de6c63ca85b79d1092540d06dab2ae3
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset=UTF-8
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+<html><body>
+<p><span style=3D"font-family: Arial; font-size: 12px;">sender &amp; receiv=
+er in filter</span></p>
+<p>&nbsp;</p>
+<div>&nbsp;</div>
+</body></html>
+
+--=_1de6c63ca85b79d1092540d06dab2ae3--

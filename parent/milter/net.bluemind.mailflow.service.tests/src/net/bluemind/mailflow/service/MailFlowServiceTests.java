@@ -98,12 +98,12 @@ public class MailFlowServiceTests {
 
 		List<MailActionDescriptor> actions = rulesService.listActions();
 
-		assertEquals(5, actions.size());
+		assertEquals(6, actions.size());
 
-		List<String> identifiers = Arrays
-				.asList(new String[] { "AddSignatureAction", "action1", "action2", "action3", "action4" });
-		List<String> descriptions = Arrays
-				.asList(new String[] { "AddSignatureAction", "action 1", "action 2", "action 3", "action 4" });
+		List<String> identifiers = Arrays.asList(new String[] { "JournalingAction", "AddSignatureAction", "action1",
+				"action2", "action3", "action4" });
+		List<String> descriptions = Arrays.asList(new String[] { "Add journaling action", "AddSignatureAction",
+				"action 1", "action 2", "action 3", "action 4" });
 
 		for (MailActionDescriptor action : actions) {
 			assertTrue(identifiers.contains(action.actionIdentifier));

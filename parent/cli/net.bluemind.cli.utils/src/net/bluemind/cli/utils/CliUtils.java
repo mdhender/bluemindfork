@@ -193,4 +193,9 @@ public class CliUtils {
 		}
 		return AsciiTable.getTable(headers, asTable);
 	}
+
+	public String getAsciiTable(String[] headers, String[][] table) {
+		return AsciiTable.getTable(headers, table);
+	}
+
 }

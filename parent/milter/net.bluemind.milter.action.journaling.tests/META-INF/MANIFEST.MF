@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.milter.action.journaling.tests
+Bundle-SymbolicName: net.bluemind.milter.action.journaling.tests;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.milter.action.journaling,
+ org.junit,
+ net.bluemind.milter,
+ net.bluemind.core.container.persistence,
+ net.bluemind.domain.api,
+ net.bluemind.mailflow.rbe,
+ net.bluemind.mime4j.common,
+ net.bluemind.mailflow.api
+Automatic-Module-Name: net.bluemind.milter.action.journaling.tests

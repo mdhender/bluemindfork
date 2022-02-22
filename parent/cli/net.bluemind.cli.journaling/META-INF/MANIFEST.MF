@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.cli.journaling
+Bundle-SymbolicName: net.bluemind.cli.journaling;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ com.google.guava,
+ net.bluemind.cli.cmd.api,
+ net.bluemind.cli.utils,
+ net.bluemind.core.commons,
+ net.bluemind.domain.api,
+ net.bluemind.mailflow.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.cli.journaling
+Bundle-ActivationPolicy: lazy

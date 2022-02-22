@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.cli.cmd.api.cmdlet">
+      <registration
+            impl="net.bluemind.cli.journaling.AddJournalingActionCommand$Reg"
+            priority="50">
+      </registration>
+      <registration
+            impl="net.bluemind.cli.journaling.UpdateJournalingActionCommand$Reg"
+            priority="60">
+      </registration>
+      <registration
+            impl="net.bluemind.cli.journaling.DeleteJournalingActionCommand$Reg"
+            priority="70">
+      </registration>
+      <registration
+            impl="net.bluemind.cli.journaling.ListJournalingActionCommand$Reg"
+            priority="80">
+      </registration>
+      <registration
+            impl="net.bluemind.cli.journaling.DisableJournalingActionCommand$Reg"
+            priority="90">
+      </registration>
+      <registration
+            impl="net.bluemind.cli.journaling.EnableJournalingActionCommand$Reg"
+            priority="100">
+      </registration>
+   </extension>
+
+</plugin>

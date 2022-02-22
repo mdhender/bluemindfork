@@ -22,9 +22,11 @@ import java.util.Map;
 
 import com.google.gwt.user.client.ui.Widget;
 
+import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.exceptions.MailflowException;
+
 public interface MailflowActionConfig {
 
-	public Map<String, String> get();
+	public Map<String, String> get() throws MailflowException;
 
 	public void set(Map<String, String> config);
 

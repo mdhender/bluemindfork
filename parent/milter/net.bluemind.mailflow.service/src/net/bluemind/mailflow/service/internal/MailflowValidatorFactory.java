@@ -22,6 +22,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.validator.IValidator;
 import net.bluemind.core.validator.IValidatorFactory;
 import net.bluemind.mailflow.api.MailRuleActionAssignmentDescriptor;
+import net.bluemind.mailflow.service.validators.MailflowAssignmentValidator;
 
 public class MailflowValidatorFactory implements IValidatorFactory<MailRuleActionAssignmentDescriptor> {
 

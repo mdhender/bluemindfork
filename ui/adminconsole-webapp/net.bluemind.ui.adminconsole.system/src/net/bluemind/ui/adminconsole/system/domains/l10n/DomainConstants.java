@@ -287,4 +287,12 @@ public interface DomainConstants extends Messages {
 
 	String domainUid();
 
+	String addTargetEmail();
+
+	String addEmailsFiltered();
+
+	String journalingAction();
+
+	String invalidEmail(String email);
+
 }

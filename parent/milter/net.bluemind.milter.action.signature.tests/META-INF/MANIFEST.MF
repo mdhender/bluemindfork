@@ -14,5 +14,6 @@ Require-Bundle: org.junit,
  net.bluemind.addressbook.api,
  net.bluemind.mime4j.common,
  net.bluemind.signature.commons,
- com.google.guava
+ com.google.guava,
+ net.bluemind.mailflow.api
 Automatic-Module-Name: net.bluemind.milter.action.signature.tests

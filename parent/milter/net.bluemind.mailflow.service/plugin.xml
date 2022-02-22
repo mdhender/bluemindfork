@@ -27,5 +27,11 @@
             implementation="net.bluemind.mailflow.service.internal.MailflowSanitizerFactory">
       </sanitizerfactory>
    </extension>
+      <extension
+         point="net.bluemind.mailflow.mailflowConfig">
+      <hook
+            impl="net.bluemind.mailflow.service.validators.MailflowJournalingConfigValidator">
+      </hook>
+   </extension>
    
 </plugin>

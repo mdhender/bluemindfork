@@ -27,7 +27,7 @@ public interface MilterAction {
 
 	public String description();
 
-	public void execute(UpdatedMailMessage modifier, Map<String, String> configuration, Map<String, String> evaluationData,
-			IClientContext mailflowContext);
+	public void execute(UpdatedMailMessage modifier, Map<String, String> configuration,
+			Map<String, String> evaluationData, IClientContext mailflowContext);
 
 }

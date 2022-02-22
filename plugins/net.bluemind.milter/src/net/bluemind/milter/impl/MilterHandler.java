@@ -55,6 +55,7 @@ import net.bluemind.milter.MilterInstanceID;
 import net.bluemind.milter.SmtpAddress;
 import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.action.MilterAction;
+import net.bluemind.milter.action.MilterActionException;
 import net.bluemind.milter.action.MilterPreAction;
 import net.bluemind.milter.action.UpdatedMailMessage;
 import net.bluemind.mime4j.common.Mime4JHelper;
@@ -253,21 +254,21 @@ public class MilterHandler implements JilterHandler {
 	}
 
 	private int applyActions(UpdatedMailMessage modifiedMail) {
-		Optional<Integer> executedActions = Optional.empty();
+		Integer executedActions = 0;
 
 		try {
 			executedActions = getSenderDomain(accumulator.getEnvelope().getSender())
-					.map(d -> applyActions(d, MailflowRouting.OUTGOING, modifiedMail));
-
-			if (!executedActions.isPresent()) {
+					.map(d -> applyActions(d, MailflowRouting.OUTGOING, modifiedMail)).orElse(0);
+			if (executedActions == 0) {
+				// rcptTo from properties is empty !!!
 				executedActions = getRecipientDomain(accumulator.getEnvelope().getRecipients())
-						.map(d -> applyActions(d, MailflowRouting.INCOMING, modifiedMail));
+						.map(d -> applyActions(d, MailflowRouting.INCOMING, modifiedMail)).orElse(0);
 			}
 		} catch (Exception e) {
 			logger.warn("Error while applying milter actions", e);
 		}
 
-		return executedActions.orElse(0);
+		return executedActions;
 	}
 
 	private Integer applyActions(ItemValue<Domain> domain, MailflowRouting mailflowRouting,
@@ -282,11 +283,16 @@ public class MilterHandler implements JilterHandler {
 
 		List<RuleAction> matches = new MailflowRuleEngine(mailflowContext).evaluate(storedRules, toBmMessage());
 		for (RuleAction ruleAction : matches) {
-			executedActions++;
-			ExecutionMode mode = executeAction(ruleAction, mailflowContext, modifiedMail);
-			if (mode == ExecutionMode.STOP_AFTER_EXECUTION) {
-				logger.debug("Stopping execution of Milter actions after ruleAssignment {}", ruleAction.assignment.uid);
-				return executedActions;
+			try {
+				ExecutionMode mode = executeAction(ruleAction, mailflowContext, modifiedMail);
+				executedActions++;
+				if (mode == ExecutionMode.STOP_AFTER_EXECUTION) {
+					logger.debug("Stopping execution of Milter actions after ruleAssignment {}",
+							ruleAction.assignment.uid);
+					return executedActions;
+				}
+			} catch (MilterActionException e) {
+				logger.warn("Milter action not executed : {}", e.getMessage());
 			}
 		}
 
@@ -294,6 +300,7 @@ public class MilterHandler implements JilterHandler {
 	}
 
 	private Optional<ItemValue<Domain>> getRecipientDomain(List<SmtpAddress> recipients) {
+
 		if (recipients.isEmpty()) {
 			logger.warn("No recipients found");
 			return Optional.empty();
@@ -369,11 +376,11 @@ public class MilterHandler implements JilterHandler {
 			try {
 				action.get().execute(modifiedMail, ruleAssignment.assignment.actionConfiguration,
 						ruleAssignment.rule.data, mailflowContext);
+				messageModified = true;
 			} catch (RuntimeException e) {
 				registry.counter(idFactory.name("actionsFails")).increment();
 				throw e;
 			}
-			messageModified = true;
 		}
 		return ruleAssignment.assignment.mode;
 	}

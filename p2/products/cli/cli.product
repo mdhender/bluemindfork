@@ -95,6 +95,7 @@
       <plugin id="net.bluemind.cli.user"/>
       <plugin id="net.bluemind.cli.utils"/>
       <plugin id="net.bluemind.cli.wazo"/>
+      <plugin id="net.bluemind.cli.journaling"/>
       <plugin id="net.bluemind.common.cache.persistence"/>
       <plugin id="net.bluemind.common.hollow"/>
       <plugin id="net.bluemind.common.io"/>

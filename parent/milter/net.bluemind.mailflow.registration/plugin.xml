@@ -75,6 +75,13 @@
    <extension
          point="net.bluemind.mailflow.actions_extensions">
       <action
+            actionContext="journaling"
+            actionIdentifier="JournalingAction"
+            description="Adds mail journaling"></action>
+   </extension>
+   <extension
+         point="net.bluemind.mailflow.actions_extensions">
+      <action
             actionContext="updatesubject"
             actionIdentifier="UpdateSubjectAction"
             description="Update mail subject"></action>

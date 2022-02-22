@@ -45,6 +45,7 @@ import net.bluemind.mailflow.api.MailRuleDescriptor;
 import net.bluemind.mailflow.api.MailflowRouting;
 import net.bluemind.mailflow.api.MailflowRule;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.actions.MailflowActionConfig;
+import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.exceptions.MailflowException;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.rules.RuleTreeItem;
 import net.bluemind.ui.adminconsole.system.domains.l10n.DomainConstants;
 
@@ -277,7 +278,7 @@ public class RuleAssignmentWidget extends Composite {
 		return this.description.getText();
 	}
 
-	public Optional<MailRuleActionAssignment> get() {
+	public Optional<MailRuleActionAssignment> get() throws MailflowException {
 		MailRuleActionAssignment assignment;
 		try {
 			assignment = new MailRuleActionAssignment();
@@ -300,6 +301,9 @@ public class RuleAssignmentWidget extends Composite {
 			assignment.actionConfiguration = action.get();
 			assignment.position = Integer.parseInt(positionSelect.getSelectedItemText());
 			assignment.uid = uid;
+		} catch (MailflowException e) {
+			e.uid = uid;
+			throw e;
 		} catch (Exception e) {
 			return Optional.empty();
 		}
