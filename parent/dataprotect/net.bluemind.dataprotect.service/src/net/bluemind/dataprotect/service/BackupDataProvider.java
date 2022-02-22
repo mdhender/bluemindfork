@@ -91,6 +91,7 @@ public class BackupDataProvider implements AutoCloseable {
 	private IServerTaskMonitor monitor;
 	private static final String pgsqlDataTag = "bm/pgsql-data";
 	private static final String pgsqlTag = "bm/pgsql";
+	private boolean cleanup = false;
 
 	/**
 	 * @param target the name of the database the data will be restored into
@@ -114,6 +115,7 @@ public class BackupDataProvider implements AutoCloseable {
 		if (pgWorker == null) {
 			throw new ServerFault("PG worker is missing");
 		}
+		cleanup = true;
 		DPContext dpc = new DPContext(monitor);
 		BmConfIni ini = new BmConfIni();
 		Map<String, Object> params = ImmutableMap.<String, Object>of("toDatabase", targetDatabase, "user",
@@ -133,11 +135,12 @@ public class BackupDataProvider implements AutoCloseable {
 		upgradeSchema(dpVersion, Database.DIRECTORY, pgPart.server, pool.getDataSource(), false,
 				new UpgraderStore(pool.getDataSource()));
 
-		return new BackupContext(pool.getDataSource(), null, sc);
+		return new BackupContext(pool::getDataSource, () -> null, sc);
 	}
 
 	public BmContext createContextWithData(DataProtectGeneration dpg, Restorable restorable) throws Exception {
 		VersionInfo dpVersion = dpg.blueMind;
+		cleanup = false;
 		monitor.progress(1, "Fetching data from temporary database...");
 		logger.info("Fetching data from temporary database...");
 
@@ -166,7 +169,11 @@ public class BackupDataProvider implements AutoCloseable {
 		upgradeSchema(dpVersion, Database.DIRECTORY, bjDatalocation, restorePgContext.pool.getDataSource(), false,
 				store);
 
-		return new BackupContext(restorePgContext.pool.getDataSource(), restorePgDataContext.pool.getDataSource(), sc);
+		pgContext.add(restorePgContext);
+		pgContext.add(restorePgDataContext);
+
+		return new BackupContext(() -> restorePgContext.pool.getDataSource(),
+				() -> restorePgDataContext.pool.getDataSource(), sc);
 	}
 
 	private void upgradeSchema(VersionInfo dpVersion, Database database, String datalocation, DataSource ds,
@@ -264,14 +271,16 @@ public class BackupDataProvider implements AutoCloseable {
 	public void close() throws Exception {
 		for (PgContext ctx : pgContext) {
 			if (ctx.pool == null) {
-				return;
+				continue;
 			}
 			logger.info("Destroy dataprotected database {}", ctx.databaseName);
 			ctx.pool.getDataSource().close();
 
-			DPContext dpc = new DPContext(monitor);
-			Map<String, Object> params = ImmutableMap.<String, Object>of("database", ctx.databaseName);
-			ctx.pgWorker.cleanup(dpc, ctx.pgPart, params);
+			if (cleanup) {
+				DPContext dpc = new DPContext(monitor);
+				Map<String, Object> params = ImmutableMap.<String, Object>of("database", ctx.databaseName);
+				ctx.pgWorker.cleanup(dpc, ctx.pgPart, params);
+			}
 		}
 	}
 

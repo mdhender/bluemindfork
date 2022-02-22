@@ -21,6 +21,7 @@ package net.bluemind.dataprotect.service;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.sql.DataSource;
 
@@ -33,10 +34,10 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 
 public class BackupContext implements BmContext {
 
-	private final javax.sql.DataSource pool;
+	private final Supplier<javax.sql.DataSource> pool;
 	private final SecurityContext ctx;
 	private final IServiceProvider provider;
-	private final javax.sql.DataSource dataPool;
+	private final Supplier<javax.sql.DataSource> dataPool;
 
 	public static class RestoreServiceProvider implements IServiceProvider {
 
@@ -57,7 +58,7 @@ public class BackupContext implements BmContext {
 
 	}
 
-	public BackupContext(javax.sql.DataSource ds, DataSource dataPool, SecurityContext ctx) {
+	public BackupContext(Supplier<javax.sql.DataSource> ds, Supplier<DataSource> dataPool, SecurityContext ctx) {
 		this.pool = ds;
 		this.dataPool = dataPool;
 		this.ctx = ctx;
@@ -91,7 +92,7 @@ public class BackupContext implements BmContext {
 
 	@Override
 	public javax.sql.DataSource getDataSource() {
-		return pool;
+		return pool.get();
 	}
 
 	@Override
@@ -116,12 +117,12 @@ public class BackupContext implements BmContext {
 
 	@Override
 	public DataSource getMailboxDataSource(String datalocation) {
-		return dataPool;
+		return dataPool.get();
 	}
 
 	@Override
 	public List<DataSource> getAllMailboxDataSource() {
-		return Arrays.asList(dataPool);
+		return Arrays.asList(dataPool.get());
 	}
 
 }
