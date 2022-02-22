@@ -104,7 +104,8 @@ public class SendmailResponse {
 	}
 
 	public boolean isOk() {
-		return code == 250;
+		int majorDigit = Integer.parseInt(Integer.toString(code).substring(0, 1));
+		return majorDigit == 2;
 	}
 
 	public List<FailedRecipient> getFailedRecipients() {
