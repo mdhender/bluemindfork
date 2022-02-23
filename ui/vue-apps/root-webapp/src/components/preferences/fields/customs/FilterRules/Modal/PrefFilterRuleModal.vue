@@ -29,6 +29,7 @@ import PrefFilterRuleModalActions from "./PrefFilterRuleModalActions";
 import PrefFilterRuleModalCriteria from "./PrefFilterRuleModalCriteria";
 import PrefFilterRuleModalName from "./PrefFilterRuleModalName";
 import PrefFilterRuleModalTerminal from "./PrefFilterRuleModalTerminal";
+import { createEmpty } from "../filterRules";
 
 export default {
     name: "PrefFilterRuleModal",
@@ -64,7 +65,7 @@ export default {
     },
     methods: {
         init() {
-            const emptyFilter = { criteria: [], actions: [], name: "" };
+            const emptyFilter = createEmpty();
             const filter = cloneDeep(this.filter);
             this.filterCopy = { ...emptyFilter, ...filter };
             document.querySelector("#pref-filter-rule-modal-name-input")?.focus();

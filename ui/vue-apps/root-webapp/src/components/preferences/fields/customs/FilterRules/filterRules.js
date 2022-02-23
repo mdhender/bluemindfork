@@ -89,6 +89,10 @@ function extractAction(rawFilter, action) {
     return action.isValid(value) ? { type: action.type, value } : undefined;
 }
 
+export function createEmpty() {
+    return { criteria: [], actions: [], name: "", exceptions: [] };
+}
+
 export function read(rawFilter) {
     return {
         active: rawFilter.active,
