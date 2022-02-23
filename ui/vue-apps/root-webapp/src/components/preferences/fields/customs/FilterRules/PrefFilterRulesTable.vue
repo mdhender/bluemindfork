@@ -19,18 +19,21 @@
                 />
             </template>
             <template #cell(name)="cell">
-                <div class="d-flex align-items-center">
-                    <h2 class="d-flex">
-                        <span class="mr-2" :class="{ 'text-alternate-light': !cell.item.active }">
-                            {{ cell.value }}
+                <div class="d-flex align-items-center" @click="cell.toggleDetails">
+                    <bm-button class="pl-0" variant="inline-secondary">
+                        <bm-icon :icon="cell.detailsShowing ? 'chevron' : 'chevron-right'" size="lg" />
+                    </bm-button>
+                    <h2>
+                        <span class="mr-2 text-nowrap" :class="{ 'text-alternate-light': !cell.item.active }">
+                            {{ cell.value || $t("preferences.mail.filters.unnamed") }}
                         </span>
-                        <bm-badge v-if="cell.item.terminal" variant="secondary" pill>
+                    </h2>
+                    <span class="text-truncate flex-fill">{{ buildDesc(cell.item) }}</span>
+                    <h2 v-if="cell.item.terminal">
+                        <bm-badge class="ml-3" variant="secondary" pill>
                             {{ $t("preferences.mail.filters.terminal") }}
                         </bm-badge>
                     </h2>
-                    <bm-button variant="inline-secondary" @click="cell.toggleDetails">
-                        <bm-icon :icon="cell.detailsShowing ? 'chevron' : 'chevron-right'" size="lg" />
-                    </bm-button>
                 </div>
             </template>
             <template #cell(editable)="cell">
@@ -60,6 +63,8 @@
 <script>
 import { BmBadge, BmButton, BmIcon, BmFormCheckbox, BmPagination, BmTable } from "@bluemind/styleguide";
 import PrefFilterRuleDetails from "./PrefFilterRuleDetails";
+import { toString as filterToString } from "./filterRules";
+
 export default {
     name: "PrefFilterRulesTable",
     components: { BmBadge, BmButton, BmIcon, BmFormCheckbox, BmPagination, BmTable, PrefFilterRuleDetails },
@@ -81,9 +86,9 @@ export default {
         return {
             currentPage: 1,
             fields: [
-                { key: "active", label: "", thStyle: "width: 5%;", tdClass: "align-middle" },
-                { key: "name", label: "", thStyle: "width: 60%;" },
-                { key: "editable", label: "", thStyle: "width: 35%;" }
+                { key: "active", label: "", tdClass: "align-middle" },
+                { key: "name", label: "", tdClass: "filter-info px-0" },
+                { key: "editable", label: "" }
             ]
         };
     },
@@ -105,7 +110,20 @@ export default {
             if (confirm) {
                 this.$emit("remove", item);
             }
+        },
+        buildDesc(filter) {
+            return filterToString(filter, this.$i18n);
         }
     }
 };
 </script>
+
+<style lang="scss">
+.pref-filter-rules-table {
+    .filter-info {
+        width: 100%;
+        max-width: 0; // needed by sub elements with text-truncate class
+        cursor: pointer;
+    }
+}
+</style>

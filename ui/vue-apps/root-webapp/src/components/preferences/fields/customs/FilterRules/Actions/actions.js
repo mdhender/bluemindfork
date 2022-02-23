@@ -27,5 +27,5 @@ export default [
 ];
 
 function defaultName(action, i18n) {
-    return i18n.t(`preferences.mail.filters.action.${action.type}`);
+    return i18n.t(`preferences.mail.filters.action.${action.type}`, { value: "" });
 }

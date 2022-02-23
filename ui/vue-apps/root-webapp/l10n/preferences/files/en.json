@@ -151,8 +151,8 @@
 
     "preferences.mail.filters": "Message filters",
     "preferences.mail.filters.action.delete": "Delete",
-    "preferences.mail.filters.action.deliver": "Move to",
-    "preferences.mail.filters.action.forward": "Forward to",
+    "preferences.mail.filters.action.deliver": "Move to {value}",
+    "preferences.mail.filters.action.forward": "Forward to {value}",
     "preferences.mail.filters.action.forward.keep_copy": "Keep a copy",
     "preferences.mail.filters.action.read": "Mark as read",
     "preferences.mail.filters.action.star": "Mark as flagged",
@@ -197,6 +197,7 @@
     "preferences.mail.filters.target.SUBJECT": "The subject",
     "preferences.mail.filters.target.TO": "The recipient",
     "preferences.mail.filters.terminal": "Terminal",
+    "preferences.mail.filters.unnamed": "(Unnamed filter)",
 
     "preferences.mail.identities.manage": "Manage identities",
     "preferences.mail.identities.always_show_from": "Always show field \"From\" (sender)",

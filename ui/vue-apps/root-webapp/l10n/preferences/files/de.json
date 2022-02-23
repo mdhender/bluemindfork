@@ -151,8 +151,8 @@
 
     "preferences.mail.filters": "E-Mail Filter",
     "preferences.mail.filters.action.delete": "Löschen",
-    "preferences.mail.filters.action.deliver": "Verschieben nach",
-    "preferences.mail.filters.action.forward": "Weiterleiten an",
+    "preferences.mail.filters.action.deliver": "Verschieben nach {value}",
+    "preferences.mail.filters.action.forward": "Weiterleiten an {value}",
     "preferences.mail.filters.action.forward.keep_copy": "Kopie behalten",
     "preferences.mail.filters.action.read": "Als Gelesen markieren",
     "preferences.mail.filters.action.star": "Kennzeichnen",
@@ -197,6 +197,7 @@
     "preferences.mail.filters.target.SUBJECT": "Der Betreff",
     "preferences.mail.filters.target.TO": "Der Empfänger",
     "preferences.mail.filters.terminal": "Terminal",
+    "preferences.mail.filters.unnamed": "(Unbenannter Filter)",
 
     "preferences.mail.identities.manage": "E-Mail Identitäten verwalten",
     "preferences.mail.identities.always_show_from": "Feld \"Absender\" immer anzeigen",

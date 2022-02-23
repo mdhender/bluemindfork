@@ -128,3 +128,40 @@ export function write(filter) {
 export function reverseMatcher(matcherName) {
     return CRITERIA_REVERSED_MATCHERS[matcherName];
 }
+
+export function toString(filter, i18n) {
+    const and = ` ${i18n.t("common.and")} `;
+
+    const actions = filter.actions
+        .map(action =>
+            i18n.t(`preferences.mail.filters.action.${action.type}`, {
+                value:
+                    action.type === ACTIONS.FORWARD.type ? action.value.emails.join(i18n.t("common.and")) : action.value
+            })
+        )
+        .join(and);
+
+    const criteria = filter.criteria
+        .map(criterion => {
+            const target = i18n.t(`preferences.mail.filters.target.${criterion.target.type}`, {
+                name: criterion.target.name
+            });
+            const matcher = i18n.t(`preferences.mail.filters.matcher.${criterion.matcher}`);
+            return `${target} ${matcher} ${criterion.value}`;
+        })
+        .join(and);
+
+    const exceptions = filter.exceptions
+        .map(exception => {
+            const target = i18n.t(`preferences.mail.filters.target.${exception.target.type}`, {
+                name: exception.target.name
+            });
+            const matcher = i18n.t(`preferences.mail.filters.matcher.${reverseMatcher(exception.matcher)}`);
+            return `${target} ${matcher} ${exception.value}`;
+        })
+        .join(and);
+
+    const conditions = [criteria, exceptions].filter(Boolean).join(and);
+
+    return [actions, conditions].join(` ${i18n.t("common.if")} `);
+}

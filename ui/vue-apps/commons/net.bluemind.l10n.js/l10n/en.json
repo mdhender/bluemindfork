@@ -1,6 +1,7 @@
 {
     "common.and": "and",
     "common.back": "back",
+    "common.if": "if",
     "common.the": "The",
     "common.action.empty": "Empty",
     "common.action.reset": "Reset",

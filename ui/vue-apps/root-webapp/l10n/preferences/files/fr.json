@@ -151,8 +151,8 @@
 
     "preferences.mail.filters": "Filtres de messagerie",
     "preferences.mail.filters.action.delete": "Supprimer",
-    "preferences.mail.filters.action.deliver": "Déplacer vers",
-    "preferences.mail.filters.action.forward": "Transférer à",
+    "preferences.mail.filters.action.deliver": "Déplacer vers {value}",
+    "preferences.mail.filters.action.forward": "Transférer à {value}",
     "preferences.mail.filters.action.forward.keep_copy": "Conserver une copie",
     "preferences.mail.filters.action.read": "Marquer comme lu",
     "preferences.mail.filters.action.star": "Marquer comme important",
@@ -197,6 +197,7 @@
     "preferences.mail.filters.target.SUBJECT": "L'objet",
     "preferences.mail.filters.target.TO": "Le destinataire",
     "preferences.mail.filters.terminal": "Terminal",
+    "preferences.mail.filters.unnamed": "(Filtre sans nom)",
 
     "preferences.mail.identities.manage": "Gestion des identités",
     "preferences.mail.identities.always_show_from": "Afficher en permanence le champ \"De\" (expéditeur)",
