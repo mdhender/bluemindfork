@@ -11,20 +11,22 @@
                 :key="index"
                 class="d-flex align-items-start justify-content-between row mb-1"
             >
-                <bm-form-select
-                    ref="actionCombo"
-                    :value="actionComboValue(action)"
-                    :options="actionChoices"
-                    :placeholder="$t('preferences.mail.filters.modal.actions.add.placeholder')"
-                    class="col-5"
-                    @input="modifyActionType(index, $event)"
-                />
-                <component
-                    :is="resolvedActions[index].editor"
-                    v-if="resolvedActions[index].editor"
-                    class="col-5"
-                    :action="action"
-                />
+                <div class="d-flex col align-items-start">
+                    <bm-form-select
+                        ref="actionCombo"
+                        :value="actionComboValue(action)"
+                        :options="actionChoices"
+                        :placeholder="$t('preferences.mail.filters.modal.actions.add.placeholder')"
+                        class="col-6 pr-4"
+                        @input="modifyActionType(index, $event)"
+                    />
+                    <component
+                        :is="resolvedActions[index].editor"
+                        v-if="resolvedActions[index].editor"
+                        class="col-6"
+                        :action="action"
+                    />
+                </div>
                 <bm-button-close class="col-1" @click="removeAction(index)" />
             </div>
         </template>

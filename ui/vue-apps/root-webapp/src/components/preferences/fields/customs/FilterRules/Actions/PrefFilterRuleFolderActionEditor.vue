@@ -4,42 +4,47 @@
         v-model="action.value"
         :options="userFolders"
         class="pref-filter-rule-folder-action-editor"
-        menu-class="col-5"
-        :boundary="$el"
-        no-flip
+        scrollbar
     >
         <template v-slot:selected="slotProps">
-            <span class="selected-text float-left mr-2 font-weight-normal">
-                <bm-label-icon
-                    v-if="slotProps.selected"
+            <div v-if="slotProps.selected" class="folder-path font-weight-normal" :title="slotProps.selected.value">
+                <bm-icon
+                    class="mr-1"
                     :icon="icon(slotProps.selected.value)"
                     :tooltip="slotProps.selected.value"
                     :aria-label="slotProps.selected.value"
                 >
-                    {{ slotProps.selected.text }}
-                </bm-label-icon>
-                <template v-else>{{ $t("preferences.mail.filters.modal.action.deliver.placeholder") }}</template>
-            </span>
+                </bm-icon>
+                <span class="d-inline-block text-truncate">{{ start(slotProps.selected.text) }}</span>
+                <span class="text-nowrap">{{ end(slotProps.selected.text) }}</span>
+            </div>
+            <div v-else class="folder-path font-weight-normal">
+                {{ $t("preferences.mail.filters.modal.action.deliver.placeholder") }}
+            </div>
         </template>
         <template v-slot:item="slotProps">
-            <bm-label-icon
-                :icon="icon(slotProps.item.value)"
-                :tooltip="slotProps.item.value"
-                :aria-label="slotProps.item.value"
-            >
-                {{ slotProps.item.text }}
-            </bm-label-icon>
+            <div class="folder-path" :title="slotProps.item.value">
+                <bm-icon
+                    class="mr-1"
+                    :icon="icon(slotProps.item.value)"
+                    :tooltip="slotProps.item.value"
+                    :aria-label="slotProps.item.value"
+                >
+                </bm-icon>
+                <span class="d-inline-block text-truncate">{{ start(slotProps.item.text) }}</span>
+                <span class="text-nowrap"> {{ end(slotProps.item.text) }}</span>
+            </div>
         </template>
     </bm-form-select>
 </template>
 
 <script>
 import { inject } from "@bluemind/inject";
-import { BmFormSelect, BmLabelIcon } from "@bluemind/styleguide";
+import { BmFormSelect, BmIcon } from "@bluemind/styleguide";
 
 export default {
     name: "PrefFilterRuleFolderActionEditor",
-    components: { BmFormSelect, BmLabelIcon },
+    components: { BmFormSelect, BmIcon },
     props: {
         action: {
             type: Object,
@@ -77,6 +82,12 @@ export default {
                 default:
                     return "folder";
             }
+        },
+        start(path) {
+            return path.substring(0, path.lastIndexOf("/"));
+        },
+        end(path) {
+            return path.substring(path.lastIndexOf("/"));
         }
     }
 };
@@ -92,17 +103,19 @@ const DEFAULT_FOLDER_NAMES = {
 };
 
 function sort(raw) {
+    const i18n = inject("i18n");
+
     const result = [];
 
-    result.push({ text: DEFAULT_FOLDER_NAMES.INBOX, value: DEFAULT_FOLDER_NAMES.INBOX });
-    result.push({ text: DEFAULT_FOLDER_NAMES.TRASH, value: DEFAULT_FOLDER_NAMES.TRASH });
-    result.push({ text: DEFAULT_FOLDER_NAMES.JUNK, value: DEFAULT_FOLDER_NAMES.JUNK });
+    result.push({ text: i18n.t("common.folder.inbox"), value: DEFAULT_FOLDER_NAMES.INBOX });
+    result.push({ text: i18n.t("common.folder.trash"), value: DEFAULT_FOLDER_NAMES.TRASH });
+    result.push({ text: i18n.t("common.folder.junk"), value: DEFAULT_FOLDER_NAMES.JUNK });
 
     let customFolders = raw
         .map(
             r =>
                 !Object.values(DEFAULT_FOLDER_NAMES).includes(r.value.fullName) && {
-                    text: r.displayName,
+                    text: r.value.fullName,
                     value: r.value.fullName
                 }
         )
@@ -110,19 +123,39 @@ function sort(raw) {
     customFolders = customFolders.sort((a, b) => a.text.localeCompare(b.text));
     result.push.apply(result, customFolders);
 
-    result.push({ text: DEFAULT_FOLDER_NAMES.TEMPLATES, value: DEFAULT_FOLDER_NAMES.TEMPLATES });
-    result.push({ text: DEFAULT_FOLDER_NAMES.DRAFTS, value: DEFAULT_FOLDER_NAMES.DRAFTS });
-    result.push({ text: DEFAULT_FOLDER_NAMES.SENT, value: DEFAULT_FOLDER_NAMES.SENT });
-    result.push({ text: DEFAULT_FOLDER_NAMES.OUTBOX, value: DEFAULT_FOLDER_NAMES.OUTBOX });
+    result.push({ text: i18n.t("common.folder.templates"), value: DEFAULT_FOLDER_NAMES.TEMPLATES });
+    result.push({ text: i18n.t("common.folder.drafts"), value: DEFAULT_FOLDER_NAMES.DRAFTS });
+    result.push({ text: i18n.t("common.folder.sent"), value: DEFAULT_FOLDER_NAMES.SENT });
+    result.push({ text: i18n.t("common.folder.outbox"), value: DEFAULT_FOLDER_NAMES.OUTBOX });
 
     return result;
 }
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins";
+
 .pref-filter-rule-folder-action-editor {
-    .dropdown-menu {
-        min-width: unset;
+    min-width: 0 !important;
+    .scrollbar {
+        overflow-x: hidden;
+        width: 100%;
+    }
+    .dropdown-item-content {
+        max-width: 100%;
+    }
+    .dropdown-toggle {
+        min-width: 0;
+    }
+
+    .folder-path {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+        flex: 1 1 auto;
+        *:nth-child(2) {
+            @include text-overflow;
+        }
     }
 }
 </style>
