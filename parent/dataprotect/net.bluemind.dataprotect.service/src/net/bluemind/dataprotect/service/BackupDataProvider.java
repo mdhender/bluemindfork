@@ -19,9 +19,6 @@
 
 package net.bluemind.dataprotect.service;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.ByteStreams;
 
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.VersionInfo;
@@ -58,9 +54,6 @@ import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.service.internal.DPContext;
 import net.bluemind.dataprotect.service.internal.PgContext;
 import net.bluemind.dataprotect.service.internal.Workers;
-import net.bluemind.node.api.INodeClient;
-import net.bluemind.node.api.NCUtils;
-import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.BMPoolActivator;
 import net.bluemind.pool.Pool;
 import net.bluemind.pool.impl.BmConfIni;
@@ -91,7 +84,6 @@ public class BackupDataProvider implements AutoCloseable {
 	private IServerTaskMonitor monitor;
 	private static final String pgsqlDataTag = "bm/pgsql-data";
 	private static final String pgsqlTag = "bm/pgsql";
-	private boolean cleanup = false;
 
 	/**
 	 * @param target the name of the database the data will be restored into
@@ -115,7 +107,6 @@ public class BackupDataProvider implements AutoCloseable {
 		if (pgWorker == null) {
 			throw new ServerFault("PG worker is missing");
 		}
-		cleanup = true;
 		DPContext dpc = new DPContext(monitor);
 		BmConfIni ini = new BmConfIni();
 		Map<String, Object> params = ImmutableMap.<String, Object>of("toDatabase", targetDatabase, "user",
@@ -140,11 +131,9 @@ public class BackupDataProvider implements AutoCloseable {
 
 	public BmContext createContextWithData(DataProtectGeneration dpg, Restorable restorable) throws Exception {
 		VersionInfo dpVersion = dpg.blueMind;
-		cleanup = false;
 		monitor.progress(1, "Fetching data from temporary database...");
 		logger.info("Fetching data from temporary database...");
 
-		cleanupOldTemporaryDatabases(dpg, Arrays.asList(pgsqlTag, pgsqlDataTag));
 		PgContext restorePgContext = restorePg(dpg, pgsqlTag, targetDatabase);
 		PgContext restorePgDataContext = restorePg(dpg, pgsqlDataTag, targetDatabase + "data");
 		String bjDataDatalocation = dpg.parts.stream().filter(g -> g.tag.equals(pgsqlDataTag)).findFirst().get().server;
@@ -210,34 +199,6 @@ public class BackupDataProvider implements AutoCloseable {
 		}
 	}
 
-	private void cleanupOldTemporaryDatabases(DataProtectGeneration dpg, List<String> tags) {
-		final String script;
-		try (InputStream in = BackupDataProvider.class.getClassLoader().getResourceAsStream("scripts/cleanup.sh")) {
-			script = new String(ByteStreams.toByteArray(in));
-		} catch (IOException ioe) {
-			logger.error("Unable to load scripts/cleanup.sh: {}", ioe.getMessage());
-			throw new ServerFault("Unable to load scripts/cleanup.sh: " + ioe.getMessage());
-		}
-
-		final List<PartGeneration> pgParts = dpg.parts.stream().filter(g -> tags.contains(g.tag))
-				.collect(Collectors.toList());
-		for (PartGeneration pgPart : pgParts) {
-			String serverUid = pgPart.server;
-			ItemValue<Server> server = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(IServer.class, InstallationId.getIdentifier()).getComplete(serverUid);
-			INodeClient nc = NodeActivator.get(server.value.address());
-			String scriptPath = "/tmp/cleanup_dataprotect_" + System.nanoTime() + ".sh";
-			nc.writeFile(scriptPath, new ByteArrayInputStream(script.getBytes()));
-			NCUtils.exec(nc, "chmod +x " + scriptPath);
-			List<String> output = NCUtils.exec(nc, scriptPath);
-			for (String s : output) {
-				logger.info("[cleanup_dataprotect]: {}", s);
-				monitor.log("[cleanup_dataprotect]: " + s);
-			}
-			NCUtils.exec(nc, "rm -f " + scriptPath);
-		}
-	}
-
 	private PgContext restorePg(DataProtectGeneration dpg, String tag, String dbName) throws Exception {
 		Optional<PartGeneration> pgPart = dpg.parts.stream().filter(g -> g.tag.equals(tag)).findFirst();
 		if (!pgPart.isPresent()) {
@@ -276,11 +237,9 @@ public class BackupDataProvider implements AutoCloseable {
 			logger.info("Destroy dataprotected database {}", ctx.databaseName);
 			ctx.pool.getDataSource().close();
 
-			if (cleanup) {
-				DPContext dpc = new DPContext(monitor);
-				Map<String, Object> params = ImmutableMap.<String, Object>of("database", ctx.databaseName);
-				ctx.pgWorker.cleanup(dpc, ctx.pgPart, params);
-			}
+			DPContext dpc = new DPContext(monitor);
+			Map<String, Object> params = ImmutableMap.<String, Object>of("database", ctx.databaseName);
+			ctx.pgWorker.cleanup(dpc, ctx.pgPart, params);
 		}
 	}
 
