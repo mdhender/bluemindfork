@@ -315,9 +315,8 @@ public abstract class Scanner {
 
 	/**
 	 * 
-	 * @param directoryExistingGroupsDn
-	 *                                      Groups DN to scan even if not modified
-	 *                                      since last import
+	 * @param directoryExistingGroupsDn Groups DN to scan even if not modified since
+	 *                                  last import
 	 */
 	private void scanGroups(Set<Dn> directoryExistingGroupsDn) {
 		Set<Dn> entriesDn = new HashSet<>();
@@ -463,8 +462,7 @@ public abstract class Scanner {
 	 * Convert groupMember to DN. Search for user DN using groupMember as login if
 	 * groupMember is not a valid DN.
 	 * 
-	 * @param groupMember
-	 *                        valid DN or user login
+	 * @param groupMember valid DN or user login
 	 * @return
 	 */
 	protected Optional<Dn> getMemberDn(String groupMember) {
@@ -553,9 +551,8 @@ public abstract class Scanner {
 
 	/**
 	 * 
-	 * @param directoryExistingUsersDn
-	 *                                     User DN to scan even if not modified
-	 *                                     since last import
+	 * @param directoryExistingUsersDn User DN to scan even if not modified since
+	 *                                 last import
 	 */
 	private void scanUsers(Set<Dn> directoryExistingUsersDn) {
 		Set<Dn> entriesDn = new HashSet<>();
@@ -584,7 +581,7 @@ public abstract class Scanner {
 			entry = ldapCon.lookup(userDn, "*", "+", getParameter().ldapDirectory.extIdAttribute, "modifyTimestamp",
 					"canonicalName");
 		} catch (LdapException le) {
-			logger.error(userDn.getName() + ": " + le.getMessage(), le);
+			logger.error("{}: {}", userDn.getName(), le.getMessage(), le);
 			importLogger.error(Messages.failedLookupEntryDn(userDn, le));
 			return;
 		}
@@ -618,7 +615,7 @@ public abstract class Scanner {
 				coreService.setMailboxQuota(userManager.user.uid, userManager.mailboxQuota);
 			}
 		} catch (Exception e) {
-			logger.error(String.format("Error on managing user DN: %s", userManager.entry.getDn().getName()), e);
+			logger.error("Error on managing user DN: {}", userManager.entry.getDn().getName(), e);
 			importLogger.error(Messages.manageUserFailed(userManager.entry, e));
 			return;
 		}
@@ -628,8 +625,7 @@ public abstract class Scanner {
 		try {
 			manageUserGroups(userManager);
 		} catch (Exception e) {
-			logger.error(String.format("Error on managing user DN: %s groups membership",
-					userManager.entry.getDn().getName()), e);
+			logger.error("Error on managing user DN: {} groups membership", userManager.entry.getDn().getName(), e);
 			importLogger.error(Messages.manageUserGroupsMemberships(userManager.entry, e));
 		}
 	}
@@ -642,7 +638,7 @@ public abstract class Scanner {
 				coreService.userDeletePhoto(userManager.user.uid);
 			}
 		} catch (Exception e) {
-			logger.warn(String.format("Error on managing user DN: %s photo", userManager.entry.getDn()), e);
+			logger.warn("Unable to manage user photo for DN {}: {}", userManager.entry.getDn(), e.getMessage());
 			importLogger.warning(Messages.manageUserPhotoFailed(userManager.entry, e));
 		}
 	}
