@@ -52,6 +52,7 @@ public class VisioHandler extends AbstractIndexHandler implements NeedVertx, IWe
 			try {
 				return new String(Files.readAllBytes(p)).trim();
 			} catch (IOException ie) {
+				logger.warn(ie.getMessage());
 			}
 		}
 		return defaultValue;

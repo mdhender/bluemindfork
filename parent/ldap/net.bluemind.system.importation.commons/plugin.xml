@@ -2,12 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="net.bluemind.customproperties">
-      <customproperties
-            implementation="net.bluemind.system.importation.commons.LdapImportCustomProperties">
-      </customproperties>
-   </extension>
-   <extension
          point="net.bluemind.core.caches.registry.registration">
       <reg
             impl="net.bluemind.system.importation.commons.hooks.ImportAuthenticationService$CacheRegistration">

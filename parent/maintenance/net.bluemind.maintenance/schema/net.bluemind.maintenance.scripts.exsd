@@ -17,6 +17,9 @@
          </appinfo>
       </annotation>
       <complexType>
+         <sequence>
+            <element ref="java" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
                <documentation>
@@ -44,6 +47,28 @@
       </complexType>
    </element>
 
+   <element name="java">
+      <complexType>
+         <attribute name="code" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":net.bluemind.maintenance.IMaintenanceScript"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="priority" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
    <annotation>
       <appinfo>
          <meta.section type="since"/>
@@ -52,4 +77,9 @@
          BlueMind 4.5.0
       </documentation>
    </annotation>
+
+
+
+
+
 </schema>
