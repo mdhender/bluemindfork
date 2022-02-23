@@ -17,6 +17,7 @@
   */
 package net.bluemind.backend.mail.api;
 
+import java.util.Collections;
 import java.util.List;
 
 import net.bluemind.core.api.BMApi;
@@ -27,5 +28,13 @@ public class SearchResult {
 	public List<MessageSearchResult> results;
 	public int totalResults;
 	public boolean hasMoreResults;
+
+	public static SearchResult noResult() {
+		SearchResult ret = new SearchResult();
+		ret.results = Collections.emptyList();
+		ret.totalResults = 0;
+		ret.hasMoreResults = false;
+		return ret;
+	}
 
 }

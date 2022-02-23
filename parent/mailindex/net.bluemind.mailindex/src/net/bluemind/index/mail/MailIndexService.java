@@ -809,8 +809,8 @@ public class MailIndexService implements IMailIndexService {
 					searchHits.getHits().length, result.totalResults, result.hasMoreResults);
 			return result;
 		} catch (Exception e) {
-			logger.warn("Failed to search {}", searchBuilder);
-			return new SearchResult();
+			logger.warn("Failed to search {} ({})", searchBuilder, e.getMessage());
+			return SearchResult.noResult();
 		}
 	}
 
