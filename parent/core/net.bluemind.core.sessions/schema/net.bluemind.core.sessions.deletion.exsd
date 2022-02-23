@@ -59,6 +59,13 @@
                </appinfo>
             </annotation>
          </attribute>
+         <attribute name="priority" type="string">
+            <annotation>
+               <documentation>
+                  For our loadWithPriority
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 
