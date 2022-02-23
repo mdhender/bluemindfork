@@ -80,6 +80,7 @@ public class Authentication implements IInCoreAuthentication {
 	private final List<IAuthProvider> authProviders;
 	private final List<ILoginValidationListener> loginListeners;
 	private final List<ILoginSessionValidator> sessionValidators;
+	private final IDomains domainService;
 
 	private BmContext context;
 
@@ -91,6 +92,7 @@ public class Authentication implements IInCoreAuthentication {
 		this.authProviders = authProviders;
 		this.loginListeners = loginListeners;
 		this.sessionValidators = sessionValidators;
+		this.domainService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
 	}
 
 	private static class AuthContext implements IAuthContext {
@@ -107,6 +109,14 @@ public class Authentication implements IInCoreAuthentication {
 			this.user = user;
 			this.localPart = localPart;
 			this.userPassword = userPassword;
+		}
+
+		public AuthContext(ItemValue<Domain> domain, String localPart, String password) {
+			this.securityContext = null;
+			this.domain = domain;
+			this.user = null;
+			this.localPart = localPart;
+			this.userPassword = password;
 		}
 
 		@Override
@@ -143,9 +153,12 @@ public class Authentication implements IInCoreAuthentication {
 	@Override
 	public LoginResponse loginWithParams(String login, String password, String origin, Boolean interactive)
 			throws ServerFault {
-		if (interactive == null) {
-			interactive = false;
+		if (!verifyNonEmptyCredentials(login, password, origin)) {
+			LoginResponse resp = new LoginResponse();
+			resp.status = Status.Bad;
+			return resp;
 		}
+
 		logger.debug("try login with l: '{}', o: '{}'", login, origin);
 
 		SystemState systemState = StateContext.getState();
@@ -158,47 +171,73 @@ public class Authentication implements IInCoreAuthentication {
 			return maintenanceResponse;
 		}
 
-		AuthContext authContext = buildAuthContext(login, password);
+		Optional<AuthContext> authContext = buildAuthContext(login, password);
 
-		if (authContext == null) {
-			LoginResponse resp = new LoginResponse();
-			resp.status = Status.Bad;
-			logger.error("authContext not constructed for login: {} origin: {} remoteIps: {}", login, origin,
-					securityContext.getRemoteAddresses());
-			return resp;
+		// Is user archived ?
+		if (authContext.map(ac -> ac.user).filter(u -> u.value.archived).isPresent()) {
+			return authContextNotFoundResponse(origin, login);
 		}
 
 		SecurityContext sc = Sessions.get().getIfPresent(password);
-
-		AuthResult result = AuthResult.UNKNOWN;
-		if (sc != null) {
-			if (authContext.user != null && authContext.user.uid.equals(sc.getSubject())) {
-				logger.debug("login with token by {}", authContext.user);
-				result = AuthResult.YES;
-			}
-
-			if (authContext.user != null && !authContext.user.uid.equals(sc.getSubject())) {
-				logger.debug("login with token by {} but user doesnt match session", authContext.user);
-			}
-		}
+		AuthResult result = authContext.map(ac -> checkToken(sc, ac)).orElse(AuthResult.UNKNOWN);
 
 		if (result != AuthResult.YES) {
-			result = checkProviders(authContext, origin);
+			// checkProviders are able to create user on the fly
+			// If AuthContext is null, try to build a fake AuthContext from login
+			// If fake AuthContext is null too, do not try checkProviders
+			AuthContext providerAuthContext = authContext.orElseGet(() -> getFakeAuthContext(login, password));
+			if (providerAuthContext != null) {
+				try {
+					result = checkProviders(providerAuthContext, origin);
+				} catch (Exception e) {
+					logger.error("Unable to check auth provider for {}", login, e);
+					return authContextNotFoundResponse(origin, login);
+				}
+			}
 		}
 
-		// user created JIT
-		if ((result == AuthResult.YES || result == AuthResult.EXPIRED) && authContext.user == null) {
+		// user created on the fly ?
+		// re-try to build AuthContext if null and AuthResult is ok
+		if ((result == AuthResult.YES || result == AuthResult.EXPIRED) && !authContext.isPresent()) {
 			authContext = buildAuthContext(login, password);
 		}
 
-		if (authContext == null || authContext.user == null) {
-			LoginResponse resp = new LoginResponse();
-			resp.status = Status.Bad;
-			logger.error("authContext.user is null for login: {} origin: {} remoteIps: {}", login, origin,
-					securityContext.getRemoteAddresses());
-			return resp;
+		AuthResult finalResult = result;
+		return authContext.filter(ac -> ac.user != null)
+				.map(ac -> finalResponse(finalResult, sc, origin, interactive == null ? false : interactive, ac, login))
+				.orElseGet(() -> authContextNotFoundResponse(origin, login));
+	}
+
+	private AuthResult checkToken(SecurityContext sc, AuthContext authContext) {
+		if (sc != null) {
+			if (logger.isDebugEnabled()) {
+				if (authContext.user != null && !authContext.user.uid.equals(sc.getSubject())) {
+					logger.debug("login with token by {} but user doesnt match session", authContext.user);
+				}
+			}
+
+			if (authContext.user != null && authContext.user.uid.equals(sc.getSubject())) {
+				logger.debug("login with token by {}", authContext.user);
+				return AuthResult.YES;
+			}
 		}
 
+		return null;
+	}
+
+	private AuthContext getFakeAuthContext(String login, String password) {
+		Iterator<String> splitted = atSplitter.split(login).iterator();
+		String localPart = splitted.next();
+
+		if (!splitted.hasNext()) {
+			return null;
+		}
+
+		return new AuthContext(findDomainByNameOrAliases(splitted.next()), localPart, password);
+	}
+
+	private LoginResponse finalResponse(AuthResult result, SecurityContext sc, String origin, boolean interactive,
+			AuthContext authContext, String login) {
 		LoginResponse resp = null;
 		switch (result) {
 		case YES:
@@ -208,14 +247,24 @@ public class Authentication implements IInCoreAuthentication {
 			resp = getLoginResponse(sc, origin, interactive, authContext, login, Status.Expired);
 			break;
 		default:
+			logger.error("result auth is {} for login: {} origin: {} remoteIps: {}", result, login, origin,
+					securityContext.getRemoteAddresses());
+
 			resp = new LoginResponse();
 			resp.status = Status.Bad;
 			resp.message = String.format("Result auth is %s for login: %s", result, login);
-			logger.error("result auth is {} for login: {} origin: {} remoteIps: {}", result, login, origin,
-					securityContext.getRemoteAddresses());
 		}
 
 		// update the security context ?
+		return resp;
+	}
+
+	private LoginResponse authContextNotFoundResponse(String origin, String login) {
+		logger.error("authContext.user not constructed for login: {} origin: {} remoteIps: {}", login, origin,
+				String.join(",", securityContext.getRemoteAddresses()));
+
+		LoginResponse resp = new LoginResponse();
+		resp.status = Status.Bad;
 		return resp;
 	}
 
@@ -260,24 +309,31 @@ public class Authentication implements IInCoreAuthentication {
 		return resp;
 	}
 
-	private AuthContext buildAuthContext(String login, String password) throws ServerFault {
+	private boolean verifyNonEmptyCredentials(String login, String password, String origin) {
 		if (Strings.isNullOrEmpty(login)) {
-			logger.error("empty login forbidden");
-			return null;
-		}
-		if (Strings.isNullOrEmpty(password)) {
-			logger.error("empty password forbidden for login: {}", login);
-			return null;
+			logger.error("Empty login forbidden from {}, remote IPs {}", origin,
+					String.join(",", securityContext.getRemoteAddresses()));
+			return false;
 		}
 
+		if (Strings.isNullOrEmpty(password)) {
+			logger.error("Empty password forbidden for login: {} from {}, remote IPs {}", login, origin,
+					String.join(",", securityContext.getRemoteAddresses()));
+			return false;
+		}
+
+		return true;
+	}
+
+	private Optional<AuthContext> buildAuthContext(String login, String password) throws ServerFault {
 		IAuthContext nakedAuthContext = AuthContextCache.getCache().get(login, this::loadFromDb).orElse(null);
 
 		if (nakedAuthContext == null) {
-			return null;
+			return Optional.empty();
 		}
 
-		return new AuthContext(context.getSecurityContext(), nakedAuthContext.getDomain(), nakedAuthContext.getUser(),
-				nakedAuthContext.getRealUserLogin(), password);
+		return Optional.of(new AuthContext(context.getSecurityContext(), nakedAuthContext.getDomain(),
+				nakedAuthContext.getUser(), nakedAuthContext.getRealUserLogin(), password));
 
 	}
 
@@ -287,15 +343,13 @@ public class Authentication implements IInCoreAuthentication {
 		String domainPart = splitted.hasNext() ? splitted.next() : IDomainUids.GLOBAL_VIRT;
 		boolean isStandardDomain = !domainPart.equals(IDomainUids.GLOBAL_VIRT);
 
-		ServerSideServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		IDomains domainService = sp.instance(IDomains.class);
-		ItemValue<Domain> theDomain = domainService.findByNameOrAliases(domainPart);
+		ItemValue<Domain> theDomain = findDomainByNameOrAliases(domainPart);
 		if (theDomain == null) {
 			logger.error("Domain {} not found.", domainPart);
 			return Optional.empty();
 		}
 
-		ItemValue<User> internalUser = getUser(login, localPart, domainPart, isStandardDomain, sp, theDomain);
+		ItemValue<User> internalUser = getUser(login, localPart, domainPart, isStandardDomain, theDomain);
 		if (internalUser == null) {
 			return Optional.empty();
 		}
@@ -304,9 +358,14 @@ public class Authentication implements IInCoreAuthentication {
 		return Optional.of(authContext);
 	}
 
+	private ItemValue<Domain> findDomainByNameOrAliases(String domainName) {
+		return domainService.findByNameOrAliases(domainName);
+	}
+
 	private ItemValue<User> getUser(String login, String localPart, String domainPart, boolean isStandardDomain,
-			ServerSideServiceProvider sp, ItemValue<Domain> theDomain) {
-		IUser userService = sp.instance(IUser.class, theDomain.uid);
+			ItemValue<Domain> theDomain) {
+		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
+				theDomain.uid);
 
 		ItemValue<User> internalUser = null;
 
@@ -323,16 +382,12 @@ public class Authentication implements IInCoreAuthentication {
 			if (logger.isDebugEnabled()) {
 				logger.debug("found user {}, domain {} for login {}", internalUser.value.login, theDomain.uid, login);
 			}
-
-			if (internalUser.value.archived) {
-				logger.warn("user {} is archived", login);
-				internalUser = null;
-			}
 		}
+
 		return internalUser;
 	}
 
-	private AuthResult checkProviders(AuthContext authContext, String origin) throws ServerFault {
+	private AuthResult checkProviders(AuthContext authContext, String origin) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("[{}@{}] Auth attempt from {}", authContext.localPart, authContext.domain.value.name, origin);
 		}
@@ -411,8 +466,7 @@ public class Authentication implements IInCoreAuthentication {
 		String localPart = splitted.next();
 		String domainPart = splitted.next();
 
-		IDomains domainApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
-		ItemValue<Domain> domain = domainApi.findByNameOrAliases(domainPart);
+		ItemValue<Domain> domain = findDomainByNameOrAliases(domainPart);
 		if (domain != null) {
 			domainPart = domain.uid;
 		}
@@ -535,8 +589,12 @@ public class Authentication implements IInCoreAuthentication {
 
 	@Override
 	public ValidationKind validate(String login, String password, String origin) throws ServerFault {
-		AuthContext authContext = buildAuthContext(login, password);
-		if (authContext == null || authContext.user == null) {
+		if (!verifyNonEmptyCredentials(login, password, origin)) {
+			return ValidationKind.NONE;
+		}
+
+		AuthContext authContext = buildAuthContext(login, password).orElse(null);
+		if (authContext == null || authContext.user == null || authContext.user.value.archived) {
 			logger.error("validate failed for login: {} origin: {} remoteIps: {}", login, origin,
 					securityContext.getRemoteAddresses());
 			return ValidationKind.NONE;

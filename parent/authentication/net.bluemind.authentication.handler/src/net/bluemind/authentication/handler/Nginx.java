@@ -158,7 +158,7 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 				if (ex != null) {
 					logger.error(ex.getMessage(), ex);
 					fail(qp, resp);
-				} else if (ar.validation == ValidationKind.NONE) {
+				} else if (ar.validation == ValidationKind.NONE || ar.validation == ValidationKind.PASSWORDEXPIRED) {
 					fail(qp, resp);
 				} else {
 					succeed(resp, qp, ar.backendSrv, ar.backendLatd);

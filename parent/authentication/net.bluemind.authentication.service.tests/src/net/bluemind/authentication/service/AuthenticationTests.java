@@ -19,6 +19,7 @@
 package net.bluemind.authentication.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -54,7 +55,9 @@ import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.ISecurityToken;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
+import net.bluemind.authentication.api.ValidationKind;
 import net.bluemind.authentication.api.incore.IInCoreAuthentication;
+import net.bluemind.authentication.service.tests.TestAuthProvider;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -492,4 +495,100 @@ public class AuthenticationTests {
 
 	}
 
+	@Test
+	public void iAuthProvider_validUser() {
+		initState();
+		TestAuthProvider.passed.set(false);
+
+		assertFalse(TestAuthProvider.passed.get());
+		LoginResponse response = getService(null).login("nomail@bm.lan", "nomail", "junit");
+		assertEquals(Status.Ok, response.status);
+		assertTrue(TestAuthProvider.passed.get());
+	}
+
+	@Test
+	public void iAuthProvider_expiredUser() {
+		initState();
+		TestAuthProvider.passed.set(false);
+
+		IAuthentication authentication = getService(null);
+
+		assertFalse(TestAuthProvider.passed.get());
+		LoginResponse response = authentication.login("expiredpassword@bm.lan", "expiredpassword", "junit");
+		assertEquals(Status.Expired, response.status);
+		assertTrue(TestAuthProvider.passed.get());
+
+		TestAuthProvider.passed.set(false);
+		assertFalse(TestAuthProvider.passed.get());
+		response = authentication.login("expiredpassword@bm.lan", "badexpiredpassword", "junit");
+		assertEquals(Status.Bad, response.status);
+		assertTrue(TestAuthProvider.passed.get());
+	}
+
+	@Test
+	public void iAuthProvider_archivedUser() throws Exception {
+		initState();
+		TestAuthProvider.passed.set(false);
+
+		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
+				"bm.lan");
+		ItemValue<User> archived = userService.byLogin("archived");
+		archived.value.archived = true;
+		userService.update(archived.uid, archived.value);
+
+		assertFalse(TestAuthProvider.passed.get());
+		LoginResponse response = getService(null).login("archived@bm.lan", "archived", "testLoginArchived");
+		assertEquals(Status.Bad, response.status);
+		assertFalse(TestAuthProvider.passed.get());
+	}
+
+	@Test
+	public void iAuthProvider_inexistentUser() {
+		initState();
+		TestAuthProvider.passed.set(false);
+
+		assertFalse(TestAuthProvider.passed.get());
+		LoginResponse response = getService(null).login("inexistent@bm.lan", "inexistant", "junit");
+		assertEquals(Status.Bad, response.status);
+		assertTrue(TestAuthProvider.passed.get());
+	}
+
+	@Test
+	public void validate_validUser() {
+		initState();
+
+		assertEquals(ValidationKind.PASSWORD, getService(null).validate("nomail@bm.lan", "nomail", "junit"));
+	}
+
+	@Test
+	public void validate_inexistentUser() {
+		initState();
+
+		assertEquals(ValidationKind.NONE, getService(null).validate("inexistent@bm.lan", "inexistant", "junit"));
+	}
+
+	@Test
+	public void validate_archivedtUser() {
+		initState();
+
+		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
+				"bm.lan");
+		ItemValue<User> archived = userService.byLogin("archived");
+		archived.value.archived = true;
+		userService.update(archived.uid, archived.value);
+
+		assertEquals(ValidationKind.NONE,
+				getService(null).validate("archived@bm.lan", "archived", "testLoginArchived"));
+	}
+
+	@Test
+	public void validate_expiredtUser() {
+		initState();
+
+		assertEquals(ValidationKind.PASSWORDEXPIRED,
+				getService(null).validate("expiredpassword@bm.lan", "expiredpassword", "junit"));
+
+		assertEquals(ValidationKind.NONE,
+				getService(null).validate("expiredpassword@bm.lan", "badexpiredpassword", "junit"));
+	}
 }

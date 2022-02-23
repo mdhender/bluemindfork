@@ -37,5 +37,11 @@
             implementation="net.bluemind.authentication.service.tests.TestRoleValidatorRole5False">
       </validator>
    </extension>
+   <extension
+         point="net.bluemind.authentication.provider.authprovider">
+      <auth_provider
+            impl="net.bluemind.authentication.service.tests.TestAuthProvider">
+      </auth_provider>
+   </extension>
 
 </plugin>
