@@ -19,6 +19,10 @@
             impl="net.bluemind.cli.index.MoveCommand$Reg"
             priority="200">
       </registration>
+       <registration
+            impl="net.bluemind.cli.index.ReindexMailIndexesCommand$Reg"
+            priority="200">
+      </registration>
    </extension>
 
 </plugin>
