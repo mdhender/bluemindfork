@@ -40,32 +40,29 @@ public class ContainersContinuousHook implements IContainersHook, IAclHook {
 
 	@Override
 	public void onContainerCreated(BmContext ctx, ContainerDescriptor cd) throws ServerFault {
-		// ensure we have a queue for empty containers
-//		DefaultBackupStore.get().forContainer(cd).delete(0L);
-//		Bubble.owner(cd);
+		// ok
 	}
 
 	@Override
 	public void onContainerUpdated(BmContext ctx, ContainerDescriptor prev, ContainerDescriptor cur)
 			throws ServerFault {
-		Bubble.owner(cur);
+		// ok
 	}
 
 	@Override
 	public void onContainerDeleted(BmContext ctx, ContainerDescriptor cd) throws ServerFault {
-		Bubble.owner(cd);
+		// ok
 	}
 
 	@Override
 	public void onContainerSubscriptionsChanged(BmContext ctx, ContainerDescriptor cd, List<String> subs,
 			List<String> unsubs) throws ServerFault {
-		Bubble.owner(cd);
-
+		// ok
 	}
 
 	@Override
 	public void onContainerOfflineSyncStatusChanged(BmContext ctx, ContainerDescriptor cd, String subject) {
-		Bubble.owner(cd);
+		// ok
 	}
 
 	@Override
@@ -76,7 +73,6 @@ public class ContainersContinuousHook implements IContainersHook, IAclHook {
 		ItemValue<ContainerMetadata> metaItem = metadataItem(cd, cm);
 		DefaultBackupStore.store().<ContainerMetadata>forContainer(metaDesc).store(metaItem);
 		logger.info("Saved settings for {}", cd.uid);
-		Bubble.owner(cd);
 	}
 
 	@Override
@@ -87,7 +83,6 @@ public class ContainersContinuousHook implements IContainersHook, IAclHook {
 		ItemValue<ContainerMetadata> metaItem = metadataItem(cd, cm);
 		DefaultBackupStore.store().<ContainerMetadata>forContainer(metaDesc).store(metaItem);
 		logger.info("Saved acls for {}", cd.uid);
-		Bubble.owner(cd);
 	}
 
 	private ContainerDescriptor metadataDescriptor(ContainerDescriptor descriptor, String owner) {
