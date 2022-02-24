@@ -845,11 +845,14 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	public ItemValue<MailboxItem> getForUpdate(long id) {
 		rbac.check(Verb.Read.name());
 
-		ItemValue<MailboxRecord> record = storeService.get(id, null);
+		ItemValue<MailboxRecord> mbRec = storeService.get(id, null);
+		if (mbRec == null) {
+			throw ServerFault.notFound("Record " + id + " not found in " + container.uid + " (aka " + imapFolder + ")");
+		}
 
-		long imapUid = record.value.imapUid;
+		long imapUid = mbRec.value.imapUid;
 
-		String bodyGuid = record.value.messageBody;
+		String bodyGuid = mbRec.value.messageBody;
 		MessageBody body;
 		try {
 			body = bodyStore.get(bodyGuid);
@@ -857,10 +860,10 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			throw new ServerFault(e.getMessage(), e);
 		}
 
-		ItemValue<MailboxItem> adapted = adapt(record);
+		ItemValue<MailboxItem> adapted = adapt(mbRec);
 		adapted.value.body = body;
 
-		logger.debug("Decomposing parts into tmp files for EML (id=" + id + ", imapUid=" + imapUid + ")");
+		logger.debug("Decomposing parts into tmp files for EML (id={}, imapUid={})", id, imapUid);
 		PartsWalker<Object> walker = new PartsWalker<>(null);
 		CompletableFuture<Void> root = CompletableFuture.completedFuture(null);
 		AtomicReference<CompletableFuture<Void>> ref = new AtomicReference<>(root);
