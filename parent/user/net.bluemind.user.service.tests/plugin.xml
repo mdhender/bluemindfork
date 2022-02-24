@@ -14,5 +14,12 @@
             priority="1">
       </password_updater>
    </extension>
+   <extension
+         point="net.bluemind.system.subscriptionprovider">
+      <sub-provider
+            class="net.bluemind.user.service.DummySubProvider"
+            priority="1">
+      </sub-provider>
+   </extension>
 
 </plugin>

@@ -32,8 +32,8 @@ public class SubscriptionProviders {
 
 	static {
 		RunnableExtensionLoader<ISubscriptionProvider> loader = new RunnableExtensionLoader<ISubscriptionProvider>();
-		List<ISubscriptionProvider> providers = loader.loadExtensions("net.bluemind.system", "subscriptionprovider",
-				"sub-provider", "class");
+		List<ISubscriptionProvider> providers = loader.loadExtensionsWithPriority("net.bluemind.system",
+				"subscriptionprovider", "sub-provider", "class");
 		if (providers.size() == 0) {
 			logger.warn("no subscription provider found");
 			provider = new EmptySubscriptionProvider();

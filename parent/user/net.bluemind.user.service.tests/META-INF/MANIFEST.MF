@@ -39,5 +39,9 @@ Require-Bundle: org.junit,
  net.bluemind.role.api,
  net.bluemind.group.member;bundle-version="4.1.0",
  net.bluemind.mailshare.api,
- net.bluemind.mailshare.service
+ net.bluemind.mailshare.service,
+ net.bluemind.system.helper,
+ net.bluemind.system.api,
+ net.bluemind.system.subscriptionprovider,
+ net.bluemind.videoconferencing.hosting
 Automatic-Module-Name: net.bluemind.user.service.tests

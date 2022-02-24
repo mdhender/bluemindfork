@@ -51,24 +51,27 @@ public class VisioAccountTypeHook extends DefaultUserHook implements IUserHook {
 	@Override
 	public void beforeUpdate(BmContext context, String domainUid, String uid, User update, User previous)
 			throws ServerFault {
-		if (update.accountType == AccountType.SIMPLE) {
+		updateRolesList(context, domainUid, uid, update.accountType, previous.accountType);
+	}
+
+	@Override
+	public void onAccountTypeUpdated(BmContext context, String domainUid, String uid, AccountType update,
+			AccountType previous) throws ServerFault {
+
+		updateRolesList(context, domainUid, uid, update, previous);
+	}
+
+	private void updateRolesList(BmContext context, String domainUid, String uid, AccountType update,
+			AccountType previous) {
+		if (update == AccountType.SIMPLE) {
 			return;
 		}
 
-		IUser user = context.getServiceProvider().instance(IUser.class, domainUid);
-		Set<String> roles = new HashSet<>(user.getRoles(uid));
-		Set<String> previousRoles = new HashSet<>(roles);
-		if (previous.accountType != AccountType.FULL_AND_VISIO && update.accountType == AccountType.FULL_AND_VISIO) {
-			if (roles.contains(HAS_SIMPLE_VISIO_ROLE)) { // role may have been removed in the meantime
-				roles.remove(HAS_SIMPLE_VISIO_ROLE);
-			}
-		}
-		if (previous.accountType == AccountType.FULL_AND_VISIO && update.accountType == AccountType.FULL) {
+		IUser userService = context.getServiceProvider().instance(IUser.class, domainUid);
+		Set<String> roles = new HashSet<>(userService.getRoles(uid));
+		if (!roles.contains(HAS_SIMPLE_VISIO_ROLE)) {
 			roles.add(HAS_SIMPLE_VISIO_ROLE);
-		}
-
-		if (!previousRoles.equals(roles)) {
-			user.setRoles(uid, roles);
+			userService.setRoles(uid, roles);
 		}
 	}
 

@@ -726,6 +726,7 @@ public class UserService implements IInCoreUser, IUser {
 		}
 
 		if (visioSubscriptionIsActive()) {
+			roles.add("hasSimpleVideoconferencing");
 			if (user.accountType == AccountType.FULL_AND_VISIO) {
 				roles.add("hasFullVideoconferencing");
 			}
@@ -921,7 +922,11 @@ public class UserService implements IInCoreUser, IUser {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER);
 
 		if (accountType != null) {
+			AccountType previousAccountType = getComplete(uid).value.accountType;
 			DirEntryHandlers.byKind(BaseDirEntry.Kind.USER).updateAccountType(bmContext, domainName, uid, accountType);
+			for (IUserHook uh : userHooks) {
+				uh.onAccountTypeUpdated(bmContext, domainName, uid, accountType, previousAccountType);
+			}
 			eventProducer.changed(uid, storeService.getVersion());
 		}
 	}

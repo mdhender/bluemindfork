@@ -1659,6 +1659,48 @@ public class UserServiceTests {
 	}
 
 	@Test
+	public void testUpdateAccountType_fullToFullvisio() throws Exception {
+		setDomainMaxBasicUsers(domainUid, 1);
+
+		String login = "test." + System.nanoTime();
+		User user = defaultUser(login);
+		user.accountType = AccountType.FULL;
+		String uid = login;
+		getService(domainAdminSecurityContext).create(uid, user);
+		ItemValue<User> u = getService(domainAdminSecurityContext).getComplete(uid);
+		assertEquals(AccountType.FULL, u.value.accountType);
+		Set<String> roles = getService(domainAdminSecurityContext).getResolvedRoles(u.uid);
+		assertTrue(roles.stream().anyMatch(r -> r.equals("hasSimpleVideoconferencing")));
+		assertTrue(roles.stream().noneMatch(r -> r.equals("hasFullVideoconferencing")));
+
+		// SIMPLE
+		getService(domainAdminSecurityContext).updateAccountType(uid, AccountType.SIMPLE);
+
+		DirEntry de = testContext.provider().instance(IDirectory.class, domainUid).findByEntryUid(uid);
+		assertEquals(AccountType.SIMPLE, de.accountType);
+
+		u = getService(domainAdminSecurityContext).getComplete(uid);
+		assertEquals(AccountType.SIMPLE, u.value.accountType);
+
+		roles = getService(domainAdminSecurityContext).getResolvedRoles(u.uid);
+		assertTrue(roles.stream().noneMatch(r -> r.equals("hasFullVideoconferencing")));
+		assertTrue(roles.stream().noneMatch(r -> r.equals("hasSimpleVideoconferencing")));
+
+		// FULL_AND_VISIO
+		getService(domainAdminSecurityContext).updateAccountType(uid, AccountType.FULL_AND_VISIO);
+
+		de = testContext.provider().instance(IDirectory.class, domainUid).findByEntryUid(uid);
+		assertEquals(AccountType.FULL_AND_VISIO, de.accountType);
+
+		u = getService(domainAdminSecurityContext).getComplete(uid);
+		assertEquals(AccountType.FULL_AND_VISIO, u.value.accountType);
+
+		roles = getService(domainAdminSecurityContext).getResolvedRoles(u.uid);
+		assertTrue(roles.stream().anyMatch(r -> r.equals("hasFullVideoconferencing")));
+		assertTrue(roles.stream().anyMatch(r -> r.equals("hasSimpleVideoconferencing")));
+	}
+
+	@Test
 	public void testSimpleAccount_setRoles() {
 
 		setDomainMaxBasicUsers(domainUid, 1);

@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.directory.api.BaseDirEntry.AccountType;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
@@ -77,6 +78,11 @@ public class UserHsmHook implements IUserHook {
 		INodeClient nc = NodeActivator.get(server.value.address());
 		NCUtils.execNoOut(nc, "rm -Rf " + path);
 
+	}
+
+	@Override
+	public void onAccountTypeUpdated(BmContext context, String domainUid, String uid, AccountType update,
+			AccountType previous) throws ServerFault {
 	}
 
 }

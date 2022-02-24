@@ -21,6 +21,7 @@ package net.bluemind.user.hook;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.directory.api.BaseDirEntry.AccountType;
 import net.bluemind.user.api.User;
 
 public class DefaultUserHook implements IUserHook {
@@ -60,6 +61,11 @@ public class DefaultUserHook implements IUserHook {
 	@Override
 	public void beforeDelete(BmContext context, String domainUid, String uid, User previous) throws ServerFault {
 
+	}
+
+	@Override
+	public void onAccountTypeUpdated(BmContext context, String domainUid, String uid, AccountType update,
+			AccountType previous) throws ServerFault {
 	}
 
 }
