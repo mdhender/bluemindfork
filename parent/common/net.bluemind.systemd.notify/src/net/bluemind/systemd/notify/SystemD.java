@@ -25,9 +25,11 @@ public class SystemD {
 	public static enum SystemDLocation {
 		Centos("/usr/lib64/libsystemd.so.0"),
 
-		OldUbuntu("/usr/lib/libsystemd.so.0"),
+		// 16.04, 18.04, stretch
+		OldUbuntuDebian("/lib/x86_64-linux-gnu/libsystemd.so.0"),
 
-		UbuntuDebian("/lib/x86_64-linux-gnu/libsystemd.so.0");
+		// /lib link to /usr/lib
+		UbuntuDebian("/usr/lib/x86_64-linux-gnu/libsystemd.so.0");
 
 		public final String systemdLibLocation;
 
