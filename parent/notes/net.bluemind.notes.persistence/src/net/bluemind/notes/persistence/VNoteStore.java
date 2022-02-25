@@ -40,10 +40,6 @@ public class VNoteStore extends AbstractItemValueStore<VNote> {
 
 	private static final Creator<VNote> NOTE_CREATOR = con -> new VNote();
 
-	public static class ItemUid {
-		public String itemUid;
-	}
-
 	private Container container;
 
 	public VNoteStore(DataSource pool, Container container) {
@@ -61,7 +57,7 @@ public class VNoteStore extends AbstractItemValueStore<VNote> {
 	@Override
 	public void update(Item item, VNote value) throws SQLException {
 		String query = "UPDATE t_notes_vnote SET (" + VNoteColumns.cols.names() + ") = (" + VNoteColumns.cols.values()
-				+ ") " + " WHERE item_id = ?";
+				+ ") WHERE item_id = ?";
 		update(query, value, VNoteColumns.values(item));
 	}
 
@@ -83,9 +79,8 @@ public class VNoteStore extends AbstractItemValueStore<VNote> {
 	}
 
 	public List<Long> sortedIds(SortDescriptor sorted) throws SQLException {
-		logger.debug("sorted by {}", sorted);
-		String query = "SELECT item.id FROM t_notes_vnote rec "
-				+ "INNER JOIN t_container_item item ON rec.item_id = item.id " //
+		String query = "SELECT item.id FROM t_notes_vnote "
+				+ "INNER JOIN t_container_item AS item ON t_notes_vnote.item_id = item.id " //
 				+ "WHERE item.container_id = ? " //
 				+ "AND (item.flags::bit(32) & 2::bit(32)) = 0::bit(32) " // not deleted
 				+ "ORDER BY item.created DESC";
