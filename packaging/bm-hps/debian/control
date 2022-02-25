@@ -6,6 +6,6 @@ Standards-Version: 3.9.1
 
 Package: bm-hps
 Architecture: amd64
-Depends: bm-jdk (= 8u302-bluemind47)
+Depends: bm-jdk (= 8u322-bluemind48)
 Description: BlueMind HTTP proxy server
  BlueMind HTTP proxy server with SSO capabilities

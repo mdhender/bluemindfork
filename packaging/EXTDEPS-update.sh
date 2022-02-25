@@ -65,6 +65,7 @@ function updateDependencies() {
         updatePomFile ${file} bm-influxdb ${INFLUXDB}
         updatePomFile ${file} bm-kafka ${KAFKA}
         updatePomFile ${file} bm-sds-storage-s3-minio ${MINIO}
+        updatePomFile ${file} bm-sds-storage-s3-seaweedfs ${WEED}
         updatePomFile ${file} bm-cyrus-imapd ${BMCYRUS}
         updatePomFile ${file} bm-postgresql ${BMPOSTGRESQL}
         updatePomFile ${file} bm-jdk ${BMJDK}
@@ -81,6 +82,7 @@ function updateDependencies() {
         updateControlFile ${file} bm-influxdb ${INFLUXDB}
         updateControlFile ${file} bm-kafka ${KAFKA}
         updateControlFile ${file} bm-sds-storage-s3-minio ${MINIO}
+        updateControlFile ${file} bm-sds-storage-s3-seaweedfs ${WEED}
         updateControlFile ${file} bm-cyrus-imapd ${BMCYRUS}
         updateControlFile ${file} bm-postgresql ${BMPOSTGRESQL}
         updateControlFile ${file} bm-jdk ${BMJDK}

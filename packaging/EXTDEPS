@@ -3,10 +3,11 @@ BMSDS="1.0.0-321"
 
 BMES="7.17.0-bluemind99"
 
-KAFKA="2.8.0-bluemind17"
-MINIO="2021.04.22-bluemind17"
+KAFKA="3.1.0-bluemind21"
+MINIO="2022.02.24-bluemind21"
+WEED="2.90-bluemind21"
 
-BMJDK="8u302-bluemind47"
+BMJDK="8u322-bluemind48"
 BMSNZIP="1.0.4-bluemind4"
 BMNGINX="1.20.1-bluemind101"
 BMPHP="5.6.40-bluemind104"
@@ -203,6 +204,7 @@ BMJDKRPM="bm-jdk=${BMJDK}"
 # KAFKA
 BMKAFKADEB="bm-kafka=${KAFKA}"
 BMMINIODEB="bm-sds-storage-s3-minio=${MINIO}"
+BMWEEDDEB="bm-sds-storage-s3-seaweedfs=${WEED}"
 
 # SNZIP
 BMSNZIPDEB="bm-maintenance-snzip=${BMSNZIP}"
@@ -305,6 +307,7 @@ DEB="${BMCYRUSDEB} \
 		${BMJDKDEB} \
 		${BMKAFKADEB} \
 		${BMMINIODEB} \
+		${BMWEEDDEB} \
 		${BMSNZIPDEB} \
 		${BMNGINXDEB} \
 		${BMPHPDEB} ${BMPHPMEMCACHEDEB} \

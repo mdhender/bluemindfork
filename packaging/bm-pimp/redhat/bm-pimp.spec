@@ -7,7 +7,7 @@ Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
 Requires(post):     systemd systemd-sysv
-Requires:           bm-jdk = 8u302-bluemind47
+Requires:           bm-jdk = 8u322-bluemind48
 Requires(post):     /bin/bash, initscripts
 
 %description
