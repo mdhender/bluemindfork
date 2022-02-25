@@ -19,6 +19,7 @@
 package net.bluemind.document.persistence.fs;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ public class FilesystemStore implements IDocumentStore {
 	private final Supplier<IDocumentStore> delegate;
 
 	public FilesystemStore() {
-		this.delegate = Suppliers.memoize(() -> selectStoreStrategy());
+		this.delegate = Suppliers.memoizeWithExpiration(this::selectStoreStrategy, 1, TimeUnit.MINUTES);
 		logger.info("Selected delegate is {}", delegate);
 	}
 
