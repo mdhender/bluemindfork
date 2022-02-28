@@ -1293,6 +1293,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		ItemValue<MailboxFolder> trash = foldersApi.byName("Trash");
 		IItemsTransfer transferApi = provider().instance(IItemsTransfer.class, sent.uid, trash.uid);
 		long time = System.currentTimeMillis();
+		System.err.println("Copying " + idsToTransfer);
 		List<ItemIdentifier> copied = transferApi.copy(idsToTransfer);
 		time = System.currentTimeMillis() - time;
 		System.err.println("Copied " + txSize + " in " + time + "ms");

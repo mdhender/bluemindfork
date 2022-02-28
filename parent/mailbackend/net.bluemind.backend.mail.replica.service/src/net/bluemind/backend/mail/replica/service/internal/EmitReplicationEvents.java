@@ -45,6 +45,7 @@ public class EmitReplicationEvents {
 		payload.put("itemId", upd.id);
 		eb.publish("mailreplica.record.updated." + mboxUniqueId + "." + mr.imapUid, payload);
 		eb.publish("mailreplica.record.changed." + mboxUniqueId + "." + mr.imapUid, payload);
+		eb.publish("mailreplica.record.idchanged." + mboxUniqueId + "." + upd.id, payload);
 	}
 
 	public static void recordCreated(String mboxUniqueId, long version, long internalId, long imapUid) {
@@ -54,6 +55,7 @@ public class EmitReplicationEvents {
 		payload.put("itemId", internalId);
 		eb.publish("mailreplica.record.created." + mboxUniqueId, payload);
 		eb.publish("mailreplica.record.changed." + mboxUniqueId + "." + imapUid, payload);
+		eb.publish("mailreplica.record.idchanged." + mboxUniqueId + "." + internalId, payload);
 		JsonObject copy = payload.copy();
 		copy.put("mailbox", mboxUniqueId);
 		copy.put("container", IMailReplicaUids.mboxRecords(mboxUniqueId));

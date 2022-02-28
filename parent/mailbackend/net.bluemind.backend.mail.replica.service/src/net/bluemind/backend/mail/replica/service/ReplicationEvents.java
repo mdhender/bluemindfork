@@ -93,6 +93,23 @@ public class ReplicationEvents {
 
 	}
 
+	public static CompletableFuture<ItemChange> onRecordIdChanged(String mboxUniqueId, long itemId) {
+		long time = System.currentTimeMillis();
+		CompletableFuture<ItemChange> done = new CompletableFuture<>();
+		String addr = "mailreplica.record.idchanged." + mboxUniqueId + "." + itemId;
+		MessageConsumer<JsonObject> cons = eb.consumer(addr);
+		Handler<Message<JsonObject>> handler = (Message<JsonObject> msg) -> {
+			System.err.println("itemId " + itemId + " changed.");
+			long latency = System.currentTimeMillis() - time;
+			JsonObject change = msg.body();
+			cons.unregister();
+			done.complete(new ItemChange(change.getLong("version"), change.getLong("itemId"), latency));
+		};
+		cons.handler(handler);
+		return ThreadContextHelper.inWorkerThread(done);
+
+	}
+
 	public static CompletableFuture<ItemChange> onRecordCreate(String mboxUniqueId, long expectedId) {
 		long time = System.currentTimeMillis();
 		CompletableFuture<ItemChange> done = new CompletableFuture<>();

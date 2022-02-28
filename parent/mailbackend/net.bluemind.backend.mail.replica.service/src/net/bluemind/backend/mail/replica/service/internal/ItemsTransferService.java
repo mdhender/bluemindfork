@@ -155,7 +155,7 @@ public class ItemsTransferService implements IItemsTransfer {
 				long expec = idRange.globalCounter++;
 				GuidExpectedIdCache.store(toUid + ":" + ib.bodyGuid, expec);
 			}
-			CompletableFuture<?> replicated = ReplicationEvents.onRecordCreate(toUid, startId);
+			CompletableFuture<?> replicated = ReplicationEvents.onRecordIdChanged(toUid, startId);
 			CompletableFuture<Map<Integer, Integer>> freshImapUids = new CompletableFuture<>();
 			toRecords.imapExecutor().withClient(sc -> {
 				if (sc.select(srcImap)) {
