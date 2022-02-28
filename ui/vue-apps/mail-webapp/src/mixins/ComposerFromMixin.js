@@ -79,7 +79,7 @@ export default {
             const content = await this.handleSignature(message, this.$store.state.mail.messageCompose.editorContent);
             this.$store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, content);
         },
-        async handleSignature(message, content) {
+        async handleSignature(message, content, preservePersonalSignature = false) {
             await this.$store.dispatch("mail/" + CHECK_CORPORATE_SIGNATURE, { message });
             const signature = this.$store.state["root-app"].identities.find(
                 i => i.email === message.from.address && i.displayname === message.from.dn
@@ -87,7 +87,8 @@ export default {
             if (
                 !this.$store.state.mail.messageCompose.corporateSignature &&
                 signature &&
-                this.$store.state.settings.insert_signature === "true"
+                this.$store.state.settings.insert_signature === "true" &&
+                !preservePersonalSignature
             ) {
                 return replaceSignature(content, this.userPrefTextOnly, signature);
             }

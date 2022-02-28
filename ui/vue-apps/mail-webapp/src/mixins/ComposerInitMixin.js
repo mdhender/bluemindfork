@@ -100,8 +100,9 @@ export default {
                 content = insertionResult.contentsWithImageInserted[0];
                 content = sanitizeHtml(content);
             }
+
             const editorData = handleSeparator(content);
-            editorData.content = await this.handleSignature(message, editorData.content);
+            editorData.content = await this.handleSignature(message, editorData.content, true);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(editorData.collapsed);
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(editorData.content);
         },

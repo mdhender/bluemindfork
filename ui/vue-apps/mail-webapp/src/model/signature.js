@@ -1,4 +1,5 @@
 import { createDocumentFragment } from "@bluemind/html-utils";
+// import { BmRichEditor } from "@bluemind/styleguide";
 
 export function addSignature(content, userPrefTextOnly, signature) {
     return userPrefTextOnly ? addTextSignature(content, signature) : addHtmlSignature(content, signature);
@@ -19,6 +20,14 @@ export function replaceSignature(content, userPrefTextOnly, signature) {
 
 export function isSignaturePresent(content, userPrefTextOnly) {
     return userPrefTextOnly ? isTextSignaturePresent(content) : isHtmlSignaturePresent(content);
+}
+
+export function isTextHtmlSignatureEmpty(signature) {
+    if (signature) {
+        const signatureNode = createDocumentFragment(signature).firstElementChild;
+        return !signatureNode.textContent && !hasImage(signatureNode);
+    }
+    return true;
 }
 
 const HTML_SIGNATURE_ATTR = "data-bm-signature"; // must match same attr defined in RichEditor.Signature extension and in sanitizeHtml
@@ -42,6 +51,9 @@ function removeHtmlSignature(raw) {
 }
 
 function addHtmlSignature(raw, signatureContent) {
+    if (isTextHtmlSignatureEmpty(signatureContent)) {
+        return raw;
+    }
     const fragment = createDocumentFragment(raw);
     let signature = fragment.querySelector(HTML_SIGNATURE_SELECTOR);
     if (!signature) {
@@ -59,6 +71,9 @@ function addSignatureToFragment(signatureContent, fragment) {
 }
 
 function replaceHtmlSignature(raw, signatureContent) {
+    if (isTextHtmlSignatureEmpty(signatureContent)) {
+        return raw;
+    }
     const fragment = createDocumentFragment(raw);
     const signature = fragment.querySelector(HTML_SIGNATURE_SELECTOR);
     if (signature) {
@@ -88,4 +103,11 @@ function replaceTextSignature(raw, content) {
     // FIXME does not work if 'content' contains regex special characters like '('
     const regexp = new RegExp("^" + TEXT_SIGNATURE_PREFIX + content, "mi");
     return raw.replace(regexp, "").replace(regexp, TEXT_SIGNATURE_PREFIX + content);
+}
+
+function hasImage(node) {
+    const xPaths = [".//img[@src!='']", ".//*[contains(@style,'background-image:')]"];
+    return xPaths.some(
+        xpath => node.ownerDocument.evaluate(xpath, node, null, XPathResult.BOOLEAN_TYPE, null)?.booleanValue
+    );
 }
