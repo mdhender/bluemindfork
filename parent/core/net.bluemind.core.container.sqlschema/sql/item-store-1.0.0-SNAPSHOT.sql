@@ -95,6 +95,9 @@ CREATE TABLE t_container_location (
 /** Changeset */
 
 CREATE TABLE t_container_changeset (LIKE t_container_changelog) PARTITION  BY HASH (container_id);
+CREATE UNIQUE INDEX ON t_container_changeset (item_id, version, container_id);
+
+ALTER TABLE t_container_changeset ALTER COLUMN item_id SET NOT NULL;
 
 CREATE INDEX idx_container_changeset_container_id ON t_container_changeset(container_id);
 
