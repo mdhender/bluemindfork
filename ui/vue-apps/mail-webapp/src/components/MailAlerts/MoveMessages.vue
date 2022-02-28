@@ -1,7 +1,7 @@
 <template>
     <i18n :path="path" tag="span">
         <template #count>{{ count }}</template>
-        <template #subject>{{ message.subject }}</template>
+        <template #subject>{{ message.subject.trim() || $t("mail.viewer.no.subject") }}</template>
         <template #folder>
             <router-link :to="folderRoute(folder)">
                 <strong><mail-folder-icon :folder="folder" :shared="shared" /></strong>

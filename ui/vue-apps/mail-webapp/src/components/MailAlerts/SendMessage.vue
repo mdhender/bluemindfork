@@ -30,12 +30,13 @@ export default {
             };
         },
         subject() {
+            let subject = "";
             if (this.messages[this.payload.draftKey]) {
-                return this.messages[this.alert.payload.draftKey].subject;
+                subject = this.messages[this.alert.payload.draftKey].subject;
             } else if (this.result) {
-                return this.result.subject;
+                subject = this.result.subject;
             }
-            return "";
+            return subject.trim() || this.$t("mail.viewer.no.subject");
         }
     }
 };

@@ -17,7 +17,7 @@ export default {
         subject() {
             const payload = this.alert.payload;
             const firstItem = payload.messages?.[0] || payload.conversations?.[0] || payload[0] || payload;
-            return firstItem.subject;
+            return firstItem.subject.trim() || this.$t("mail.viewer.no.subject");
         },
 
         count() {
