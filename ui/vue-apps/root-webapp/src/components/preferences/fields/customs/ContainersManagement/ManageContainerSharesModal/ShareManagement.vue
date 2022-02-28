@@ -45,7 +45,7 @@ import { loadAcl } from "./ContainerShareHelper";
 import { loadCalendarUrls, sendExternalToServer, urlToAclSubject } from "./ExternalShareHelper";
 import { ContainerHelper, ContainerType } from "../container";
 import { PublishMode } from "@bluemind/calendar.api";
-import { getQuery, DirEntryAdaptor, VCardInfoAdaptor, VCardAdaptor } from "@bluemind/contact";
+import { searchVCardsHelper, DirEntryAdaptor, VCardInfoAdaptor, VCardAdaptor } from "@bluemind/contact";
 import { Verb } from "@bluemind/core.container.api";
 import { BaseDirEntryKind } from "@bluemind/directory.api";
 import { EmailValidator } from "@bluemind/email";
@@ -182,10 +182,7 @@ export default {
             return dirEntries.values.filter(this.filterSearchResults).map(DirEntryAdaptor.toContact);
         },
         async loadAddressbooksSuggestions() {
-            const vcards = await inject("AddressBooksPersistence").search({
-                size: 10,
-                query: getQuery(this.searchedInput)
-            });
+            const vcards = await inject("AddressBooksPersistence").search(searchVCardsHelper(this.searchedInput, 10));
             const filtered = vcards.values
                 .filter(
                     vcardInfo =>

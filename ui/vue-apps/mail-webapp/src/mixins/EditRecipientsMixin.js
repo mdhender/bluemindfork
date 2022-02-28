@@ -1,6 +1,5 @@
 import debounce from "lodash/debounce";
-import { VCardQueryOrderBy } from "@bluemind/addressbook.api";
-import { getQuery, VCardInfoAdaptor } from "@bluemind/contact";
+import { searchVCardsHelper, VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { mapActions, mapMutations } from "vuex";
@@ -78,13 +77,7 @@ export default {
                 this.autocompleteResults = [];
             } else {
                 return inject("AddressBooksPersistence")
-                    .search({
-                        from: 0,
-                        size: 5,
-                        query: getQuery(searchedRecipient),
-                        orderBy: VCardQueryOrderBy.Pertinance,
-                        escapeQuery: false
-                    })
+                    .search(searchVCardsHelper(searchedRecipient))
                     .then(results => {
                         if (results.values.length === 0) {
                             this.autocompleteResults = undefined;

@@ -13,8 +13,7 @@
 
 <script>
 import { BmContactInput } from "@bluemind/styleguide";
-import { VCardQueryOrderBy } from "@bluemind/addressbook.api";
-import { getQuery, VCardInfoAdaptor } from "@bluemind/contact";
+import { searchVCardsHelper, VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 
@@ -66,13 +65,7 @@ export default {
 };
 
 async function searchContacts(pattern) {
-    const searchResults = await inject("AddressBooksPersistence").search({
-        from: 0,
-        size: 5,
-        query: getQuery(pattern),
-        orderBy: VCardQueryOrderBy.Pertinance,
-        escapeQuery: false
-    });
+    const searchResults = await inject("AddressBooksPersistence").search(searchVCardsHelper(pattern));
     return searchResults.values.map(vcardInfo => VCardInfoAdaptor.toContact(vcardInfo));
 }
 </script>
