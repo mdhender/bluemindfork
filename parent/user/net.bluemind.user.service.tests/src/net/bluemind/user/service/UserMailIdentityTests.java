@@ -19,6 +19,7 @@
 package net.bluemind.user.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
@@ -32,23 +33,33 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import net.bluemind.config.InstallationId;
+import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.OrgUnit;
+import net.bluemind.group.api.Group;
+import net.bluemind.group.api.IGroup;
+import net.bluemind.group.api.Member;
+import net.bluemind.group.api.Member.Type;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.identity.api.IdentityDescription;
 import net.bluemind.mailbox.identity.api.SignatureFormat;
+import net.bluemind.mailshare.api.IMailshare;
+import net.bluemind.mailshare.api.Mailshare;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
@@ -70,6 +81,9 @@ public class UserMailIdentityTests {
 	private SecurityContext userWithoutSelfChangeMailIdentiesSecurityContext;
 	private String adminTlseUid;
 	private SecurityContext adminTlseSecuriyContext;
+	private String mailshareUid;
+	private String groupUid;
+	private SecurityContext userWithGroupSecurityContext;
 
 	@Before
 	public void before() throws Exception {
@@ -106,9 +120,37 @@ public class UserMailIdentityTests {
 		user2Uid = PopulateHelper.addUser(domainUid, user2);
 		adminTlseUid = PopulateHelper.addUser("test3", domainUid);
 
+		IGroup groupService = testContext.provider().instance(IGroup.class, domainUid);
+		Group group = new Group();
+		group.name = "my-test-group";
+		groupService.create("test-group", group);
+		groupUid = groupService.allUids().get(0);
+
+		Member member1 = new Member();
+		member1.type = Type.user;
+		member1.uid = userUid;
+		Member member2 = new Member();
+		member2.type = Type.user;
+		member2.uid = user2Uid;
+		groupService.add(groupUid, Arrays.asList(member1, member2));
+
+		IMailshare mailshareService = testContext.provider().instance(IMailshare.class, domainUid);
+		Mailshare mailshare = new Mailshare();
+		mailshare.name = "my-test-mailshare";
+		mailshare.emails = Arrays.asList(Email.create(mailshare.name + "@" + domainUid, true));
+		mailshare.routing = Routing.internal;
+		mailshareService.create("test-mailshare", mailshare);
+
+		List<ItemValue<Mailshare>> allComplete = mailshareService.allComplete();
+		mailshareUid = allComplete.get(0).uid;
+
 		userSecurityContext = BmTestContext
 				.contextWithSession("userSessionId", userUid, domainUid, BasicRoles.ROLE_SELF_CHANGE_MAIL_IDENTITIES)
 				.getSecurityContext();
+
+		userWithGroupSecurityContext = BmTestContext.contextWithSession("userWithGroupSessionId", userUid, domainUid)
+				.withGroup(groupUid).getSecurityContext();
+		Sessions.get().put("userWithGroupSessionId", userWithGroupSecurityContext);
 
 		userWithoutSelfChangeMailIdentiesSecurityContext = BmTestContext
 				.contextWithSession("userWithoutMailIdentitiesSessionId", userUid, domainUid).getSecurityContext();
@@ -221,6 +263,29 @@ public class UserMailIdentityTests {
 					e.getMessage());
 		}
 
+	}
+
+	@Test
+	public void testGetAvailableIdentiesGroup() throws Exception {
+		List<IdentityDescription> res = service(userWithGroupSecurityContext, userUid).getAvailableIdentities();
+		assertEquals(1, res.size());
+
+		// give ALL right on share mbox to group
+		testContext.provider().instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(mailshareUid))
+				.setAccessControlList(Arrays.asList(AccessControlEntry.create(groupUid, Verb.All)));
+
+		List<AccessControlEntry> accessControlList = testContext.provider()
+				.instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(mailshareUid))
+				.getAccessControlList();
+		assertEquals(1, accessControlList.size());
+
+		List<IdentityDescription> resWithUserContext = service(userWithGroupSecurityContext, userUid)
+				.getAvailableIdentities();
+		List<IdentityDescription> resWithAdminContext = service(adminSecurityContext, userUid).getAvailableIdentities();
+
+		assertEquals(resWithUserContext.size(), resWithAdminContext.size());
+		assertTrue(resWithUserContext.stream().anyMatch(r -> r.name.equalsIgnoreCase("my-test-mailshare")));
+		assertTrue(resWithAdminContext.stream().anyMatch(r -> r.name.equalsIgnoreCase("my-test-mailshare")));
 	}
 
 	@Test

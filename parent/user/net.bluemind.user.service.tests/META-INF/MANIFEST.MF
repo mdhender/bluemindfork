@@ -37,5 +37,7 @@ Require-Bundle: org.junit,
  net.bluemind.externaluser.service;bundle-version="4.1.0",
  net.bluemind.core.container.persistence,
  net.bluemind.role.api,
- net.bluemind.group.member;bundle-version="4.1.0"
+ net.bluemind.group.member;bundle-version="4.1.0",
+ net.bluemind.mailshare.api,
+ net.bluemind.mailshare.service
 Automatic-Module-Name: net.bluemind.user.service.tests

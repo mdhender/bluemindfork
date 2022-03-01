@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.bluemind.authentication.api.incore.IInCoreAuthentication;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainers;
@@ -32,7 +33,9 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.RBACManager;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.mailbox.api.IMailboxAclUids;
@@ -155,9 +158,10 @@ public class UserMailIdentities implements IUserMailIdentities, IInternalUserMai
 		if (context.getSecurityContext().getSubject().equals(userUid)) {
 			containers = context.provider().instance(IContainers.class);
 		} else {
-			containers = context.su(userUid, domainUid).provider().instance(IContainers.class);
+			IInCoreAuthentication coreAuth = context.su().provider().instance(IInCoreAuthentication.class);
+			SecurityContext fullUserCtx = coreAuth.buildContext(domainUid, userUid);
+			containers = ServerSideServiceProvider.getProvider(fullUserCtx).instance(IContainers.class);
 		}
-		// FIXME userUid != context subject
 
 		ContainerQuery query = ContainerQuery.type(IMailboxAclUids.TYPE);
 		query.verb = Arrays.asList(Verb.SendOnBehalf, Verb.Write, Verb.All);
