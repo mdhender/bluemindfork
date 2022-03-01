@@ -1,5 +1,5 @@
 import ServiceLocator from "@bluemind/inject";
-import { MockMailboxItemsClient } from "@bluemind/test-utils";
+import { MockI18NProvider, MockMailboxItemsClient } from "@bluemind/test-utils";
 
 import addAttachments from "../../actions/addAttachments";
 import { AttachmentStatus } from "~/model/attachment";
@@ -34,6 +34,7 @@ describe("addAttachments action", () => {
 
         mockedClient = new MockMailboxItemsClient();
         ServiceLocator.register({ provide: "MailboxItemsPersistence", factory: () => mockedClient });
+        ServiceLocator.register({ provide: "i18n", factory: () => MockI18NProvider });
     });
 
     test("Attach text file", async () => {
