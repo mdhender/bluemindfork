@@ -39,7 +39,4 @@ public interface VacationConstants extends Messages {
 	String message();
 
 	String emptySubject();
-
-	String emptyDtStart();
-
 }

@@ -80,12 +80,8 @@ public class MailVacationEditor extends CompositeGwtWidgetElement {
 				throw new ServerFault(VacationConstants.INST.emptySubject());
 			}
 
-			if (value.enabled && value.start == null) {
-				throw new ServerFault(VacationConstants.INST.emptyDtStart());
-			}
-
 			model.getJsMailFilter().setVacation(new MailFilterVacationGwtSerDer().serialize(value).isObject()
-					.getJavaScriptObject().<JsMailFilterVacation> cast());
+					.getJavaScriptObject().<JsMailFilterVacation>cast());
 
 		}
 	}

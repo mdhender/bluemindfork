@@ -21,6 +21,7 @@ package net.bluemind.ui.mailbox.vacation;
 import java.util.Date;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -45,6 +46,7 @@ public class VacationEdit extends Composite {
 
 	private RadioButton forbid;
 	private CheckBox allow;
+	private CheckBox cbFrom;
 	private CheckBox cbTo;
 	private DateBox from;
 	private TimePickerMs fromTime;
@@ -87,6 +89,8 @@ public class VacationEdit extends Composite {
 		fromTime = new TimePickerMs();
 		fromTime.getElement().setId("vacation-date-from-time");
 
+		cbFrom = initDateCheckbox(constants.vacationFrom(), "vacation-from", from, fromTime);
+
 		to = new DateBox();
 		to.getElement().setId("vacation-date-to");
 		to.setFormat(new DateBox.DefaultFormat(dateFormat));
@@ -94,31 +98,22 @@ public class VacationEdit extends Composite {
 		toTime = new TimePickerMs();
 		toTime.getElement().setId("vacation-date-to-time");
 
-		cbTo = new CheckBox(constants.vacationTo());
-		cbTo.getElement().setId("vacation-to");
-		cbTo.addClickHandler(new ClickHandler() {
+		cbTo = initDateCheckbox(constants.vacationTo(), "vacation-to", to, toTime);
 
-			@Override
-			public void onClick(ClickEvent event) {
-				if (cbTo.getValue()) {
-					to.setEnabled(true);
-					toTime.setEnabled(true);
-				} else {
-					to.setEnabled(false);
-					to.setValue(null);
-					toTime.setEnabled(false);
-					toTime.setValue(0);
-				}
+		HorizontalPanel dateFrom = new HorizontalPanel();
+		dateFrom.add(cbFrom);
+		dateFrom.add(from);
+		dateFrom.add(fromTime);
 
-			}
-		});
+		HorizontalPanel dateTo = new HorizontalPanel();
+		dateTo.getElement().getStyle().setMarginLeft(10, Unit.PX);
+		dateTo.add(cbTo);
+		dateTo.add(to);
+		dateTo.add(toTime);
 
 		HorizontalPanel dates = new HorizontalPanel();
-		dates.add(from);
-		dates.add(fromTime);
-		dates.add(cbTo);
-		dates.add(to);
-		dates.add(toTime);
+		dates.add(dateFrom);
+		dates.add(dateTo);
 
 		message = new TextArea();
 		message.getElement().setId("vacation-text");
@@ -129,7 +124,6 @@ public class VacationEdit extends Composite {
 		subject.getElement().setId("vacation-subject");
 
 		int i = 0;
-		content.setWidget(i, 0, new Label(constants.vacationFrom()));
 		content.setWidget(i, 1, dates);
 
 		i++;
@@ -148,32 +142,65 @@ public class VacationEdit extends Composite {
 		initWidget(container);
 	}
 
+	private CheckBox initDateCheckbox(String label, String id, DateBox db, TimePickerMs tpm) {
+		CheckBox newCb = new CheckBox(label);
+		newCb.getElement().setId(id);
+		newCb.getElement().getStyle().setMarginRight(3, Unit.PX);
+		newCb.getElement().getFirstChildElement().getStyle().setMarginTop(4, Unit.PX);
+		newCb.getElement().getFirstChildElement().getStyle().setMarginRight(3, Unit.PX);
+		newCb.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				switchDateField(newCb, db, tpm);
+			}
+		});
+
+		return newCb;
+	}
+
+	private void switchDateField(CheckBox cb, DateBox db, TimePickerMs tpm) {
+		if (cb.getValue()) {
+			db.setEnabled(true);
+			tpm.setEnabled(true);
+		} else {
+			db.setEnabled(false);
+			db.setValue(null);
+			tpm.setEnabled(false);
+			tpm.setValue(0);
+		}
+	}
+
 	public void setValue(Vacation vs) {
 		subject.setText(vs.subject);
 		message.setText(vs.text);
 		if (vs.enabled) {
 			allow();
-			from.setValue(vs.start);
-			fromTime.setValue(getTimeMs(vs.start));
 
-			if (vs.end != null) {
-				cbTo.setEnabled(true);
-				cbTo.setValue(true);
-				to.setEnabled(true);
-				toTime.setEnabled(true);
-
-				Date dateEnd = vs.end;
-				to.setValue(dateEnd);
-				toTime.setValue(getTimeMs(dateEnd));
-			} else {
-				cbTo.setEnabled(true);
-				cbTo.setValue(false);
-				to.setEnabled(false);
-				toTime.setEnabled(false);
-			}
+			setDate(vs.start, cbFrom, from, fromTime);
+			setDate(vs.end, cbTo, to, toTime);
 		} else {
 			forbid();
 		}
+	}
+
+	private void setDate(Date date, CheckBox cb, DateBox db, TimePickerMs tpm) {
+		if (date != null) {
+			cb.setEnabled(true);
+			cb.setValue(true);
+			db.setEnabled(true);
+			tpm.setEnabled(true);
+
+			Date dateEnd = date;
+			db.setValue(dateEnd);
+			tpm.setValue(getTimeMs(dateEnd));
+
+			return;
+		}
+
+		cb.setEnabled(true);
+		cb.setValue(false);
+		db.setEnabled(false);
+		tpm.setEnabled(false);
 	}
 
 	private int getTimeMs(Date date) {
@@ -185,42 +212,57 @@ public class VacationEdit extends Composite {
 		vs.enabled = allow.getValue();
 		vs.subject = subject.getText();
 		vs.text = message.getText();
-		if (vs.enabled) {
-			vs.start = new Date(from.getValue().getTime() + Integer.parseInt(fromTime.getSelectedValue()));
 
-			Date dateEnd = to.getValue();
-			if (dateEnd != null) {
-				vs.end = new Date(dateEnd.getTime() + Integer.parseInt(toTime.getSelectedValue()));
-			}
+		if (vs.enabled) {
+			vs.start = getDate(from, fromTime);
+			vs.end = getDate(to, toTime);
 		}
 		return vs;
 	}
 
+	private Date getDate(DateBox db, TimePickerMs tpm) {
+		Date dateEnd = db.getValue();
+		if (dateEnd != null) {
+			return new Date(dateEnd.getTime() + Integer.parseInt(tpm.getSelectedValue()));
+		}
+
+		return null;
+	}
+
 	private void forbid() {
 		forbid.setValue(true);
+
+		cbFrom.setEnabled(false);
+		cbFrom.setValue(false);
 		from.setEnabled(false);
 		from.setValue(null);
 		fromTime.setEnabled(false);
+
 		cbTo.setEnabled(false);
 		cbTo.setValue(false);
 		to.setEnabled(false);
 		to.setValue(null);
 		toTime.setEnabled(false);
+
 		subject.setEnabled(false);
 		message.setEnabled(false);
 	}
 
 	private void allow() {
 		allow.setValue(true);
-		from.setEnabled(true);
-		fromTime.setEnabled(true);
+
+		cbFrom.setEnabled(true);
+		cbFrom.setValue(false);
+		from.setEnabled(from.getValue() != null);
+		fromTime.setEnabled(from.getValue() != null);
+
 		cbTo.setEnabled(true);
 		cbTo.setValue(false);
 		to.setEnabled(false);
 		to.setValue(null);
 		toTime.setEnabled(false);
+
 		subject.setEnabled(true);
 		message.setEnabled(true);
 	}
-
 }
