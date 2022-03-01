@@ -3,14 +3,13 @@
         <bm-dropdown-item-button :disabled="!folder.allowSubfolder" icon="plus" @click.stop.prevent="$emit('create')">
             {{ $t("mail.folder.create_subfolder") }}
         </bm-dropdown-item-button>
-        <bm-dropdown-item-button
-            :disabled="isDefaultFolder || isMailshareRoot"
-            icon="rename"
-            @click.stop="$emit('edit')"
-        >
+        <bm-dropdown-item-button :disabled="isDefaultOrMailshareRoot" icon="rename" @click.stop="$emit('edit')">
             {{ $t("mail.folder.rename") }}
         </bm-dropdown-item-button>
-        <bm-dropdown-item-button :disabled="isDefaultFolder || isMailshareRoot" icon="trash" @click.stop="deleteFolder">
+        <bm-dropdown-item-button :disabled="isDefaultOrMailshareRoot" icon="folder">
+            {{ $t("mail.folder.move") }}
+        </bm-dropdown-item-button>
+        <bm-dropdown-item-button :disabled="isDefaultOrMailshareRoot" icon="trash" @click.stop="deleteFolder">
             {{ $t("common.delete") }}
         </bm-dropdown-item-button>
         <bm-dropdown-item-button
@@ -53,11 +52,12 @@ export default {
     computed: {
         ...mapGetters("mail", { IS_DESCENDANT, FOLDER_HAS_CHILDREN, MAILBOX_TRASH }),
         ...mapState("mail", ["mailboxes", "folders", "activeFolder"]),
-        isMailshareRoot() {
-            return isMailshareRoot(this.folder, this.mailbox);
-        },
-        isDefaultFolder() {
-            return isDefault(!this.folder.parent, this.folder.imapName, this.mailbox);
+
+        isDefaultOrMailshareRoot() {
+            return (
+                isDefault(!this.folder.parent, this.folder.imapName, this.mailbox) ||
+                isMailshareRoot(this.folder, this.mailbox)
+            );
         },
         isTrash() {
             return this.isDefaultFolder && this.folder.imapName === DEFAULT_FOLDERS.TRASH;

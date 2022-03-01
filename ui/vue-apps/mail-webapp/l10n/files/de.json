@@ -251,6 +251,7 @@
     "mail.folder.filter.remove": "Filter löschen",
     "mail.folder.filter.show_more": "Mehr anzeigen",
     "mail.folder.mark_as_read": "Alle als Gelesen markieren",
+    "mail.folder.move": "Ordner verschieben",
     "mail.folder.new.from_pattern": "{0} (Neuer Ordner)",
     "mail.folder.new.from_scratch": "Neuer Ordner",
     "mail.folder.rename": "Ordner umbenennen",

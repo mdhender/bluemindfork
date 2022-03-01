@@ -251,6 +251,7 @@
     "mail.folder.filter.remove": "Clear filter",
     "mail.folder.filter.show_more": "Show more",
     "mail.folder.mark_as_read": "Mark all as read",
+    "mail.folder.move": "Move folder",
     "mail.folder.new.from_pattern": "{0} (New folder)",
     "mail.folder.new.from_scratch": "New folder",
     "mail.folder.rename": "Rename folder",
