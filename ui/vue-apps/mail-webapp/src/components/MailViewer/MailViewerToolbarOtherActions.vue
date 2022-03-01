@@ -45,61 +45,22 @@
                 {{ $t("mail.actions.purge") }}
             </bm-dropdown-item>
         </bm-dropdown>
-
-        <bm-modal
+        <choose-folder-modal
             :ref="'move-modal-' + message.key"
-            centered
             :title="$t('mail.toolbar.move.tooltip')"
-            auto-focus-button="ok"
-            :scrollable="false"
-            @ok="moveOk"
-            @cancel="moveCancel"
-            @hide="moveCancel"
-        >
-            <template #default>
-                <div class="d-flex">
-                    <div class="flex-columns mr-4">
-                        <bm-icon icon="folder" size="5x" class="mr-2 text-secondary" />
-                    </div>
-                    <div class="flex-columns modal-form-autocomplete">
-                        <p>{{ $t("mail.actions.move.modal.combo.label") }}</p>
-                        <bm-form-autocomplete-input
-                            v-slot="{ item }"
-                            v-model.trim="pattern"
-                            variant="outline-secondary"
-                            :items="itemsOrDefaults()"
-                            icon="search"
-                            actionable-icon
-                            :max-results="maxFolders"
-                            @selected="folderSelection"
-                            @input="onInputUpdate"
-                        >
-                            <div class="d-flex align-items-center">
-                                <span class="flex-fill"> {{ translatePath(item.path) }}</span>
-                                <mail-mailbox-icon no-text :mailbox="mailboxes[item.mailboxRef.key]" />
-                            </div>
-                        </bm-form-autocomplete-input>
-                    </div>
-                </div>
-            </template>
-            <template #modal-footer="{ ok, cancel }">
-                <bm-button type="submit" variant="primary" :disabled="!folderSelected" @click.prevent="ok()">
-                    {{ $t("mail.actions.move") }}
-                </bm-button>
-                <bm-button variant="outline-secondary" class="ml-2" @click.prevent="cancel()">
-                    {{ $t("common.cancel") }}
-                </bm-button>
-            </template>
-        </bm-modal>
+            :ok-title="$t('mail.actions.move')"
+            :cancel-title="$t('common.cancel')"
+            :excluded-folders="[message.folderRef.key]"
+            @ok="moveOk($event)"
+        />
     </div>
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import { Flag } from "@bluemind/email";
-import { BmButton, BmDropdown, BmDropdownItem, BmFormAutocompleteInput, BmIcon, BmModal } from "@bluemind/styleguide";
-import { RemoveMixin, MoveMixin, FilterFolderMixin, PrintMixin } from "~/mixins";
-import { translatePath } from "~/model/folder";
+import { BmButton, BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
+import { RemoveMixin, MoveMixin, PrintMixin } from "~/mixins";
 import {
     MARK_MESSAGE_AS_FLAGGED,
     MARK_MESSAGE_AS_READ,
@@ -110,23 +71,15 @@ import { MY_DRAFTS } from "~/getters";
 import { MessageCreationModes } from "~/model/message";
 import { draftPath } from "~/model/draft";
 import MessagePathParam from "~/router/MessagePathParam";
-import MailMailboxIcon from "../MailMailboxIcon.vue";
+import ChooseFolderModal from "../ChooseFolderModal";
 import MailMessagePrint from "./MailMessagePrint.vue";
 
 export default {
     name: "MailViewerToolbarOtherActions",
-    components: {
-        BmButton,
-        BmDropdown,
-        BmDropdownItem,
-        BmFormAutocompleteInput,
-        BmIcon,
-        BmModal,
-        MailMailboxIcon,
+    components: { BmDropdown, BmDropdownItem, BmIcon, ChooseFolderModal },
+    mixins: [RemoveMixin, MoveMixin, PrintMixin],
         // eslint-disable-next-line vue/no-unused-components
         MailMessagePrint
-    },
-    mixins: [RemoveMixin, MoveMixin, FilterFolderMixin, PrintMixin],
     props: {
         message: {
             type: Object,
@@ -138,14 +91,10 @@ export default {
         }
     },
     data() {
-        return {
-            folderSelected: null,
-            Flag
-        };
+        return { Flag };
     },
     computed: {
-        ...mapGetters("mail", { MY_DRAFTS }),
-        ...mapState("mail", ["mailboxes"])
+        ...mapGetters("mail", { MY_DRAFTS })
     },
     methods: {
         ...mapActions("mail", {
@@ -157,32 +106,15 @@ export default {
         printContent() {
             this.print(this.$createElement("mail-message-print", { props: { message: this.message } }));
         },
-        folderSelection(folder) {
-            this.folderSelected = folder;
-            this.pattern = translatePath(folder.path);
-        },
-        itemsOrDefaults() {
-            return this.folderSelected ? [] : this.matchingFolders([this.message.folderRef.key]);
-        },
-        onInputUpdate() {
-            this.folderSelected = null;
-        },
         move() {
             this.$refs[`move-modal-${this.message.key}`].show();
         },
-        moveOk() {
+        moveOk(selectedFolder) {
             this.MOVE_CONVERSATION_MESSAGE({
                 conversation: this.conversation,
                 message: this.message,
-                folder: this.folderSelected
+                folder: selectedFolder
             });
-        },
-        moveCancel() {
-            this.pattern = "";
-            this.folderSelected = null;
-        },
-        translatePath(path) {
-            return translatePath(path);
         },
         editAsNew() {
             this.$router.navigate({
@@ -197,19 +129,10 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
-@import "~@bluemind/styleguide/css/_zIndex.scss";
 
 .other-viewer-actions .dropdown-menu {
     border: none !important;
     margin-top: $sp-1 !important;
     padding: 0 !important;
-}
-
-.modal-body {
-    overflow: visible;
-    padding-bottom: 1rem;
-    .flex-columns.modal-form-autocomplete {
-        width: 100%;
-    }
 }
 </style>
