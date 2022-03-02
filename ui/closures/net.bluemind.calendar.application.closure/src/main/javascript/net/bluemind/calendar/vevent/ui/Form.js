@@ -635,6 +635,12 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
     handler.listen(dom.getElement('bm-ui-form-delete-attachment-'+attachment.index), goog.events.EventType.CLICK, this.delAttachment(attachment));
   }, this);
   
+
+  var canUseFilehosting = goog.global['bmcSessionInfos']['roles'].split(',').indexOf('canUseFilehosting') >= 0;
+  if (!canUseFilehosting){
+    dom.getElement('bm-ui-form-add-attachment-server').style.visibility = 'hidden';
+  }
+
   var canRemoteAttach = goog.global['bmcSessionInfos']['roles'].split(',').indexOf('canRemoteAttach') >= 0;
   if (!canRemoteAttach){
     this.getDomHelper().removeNode(dom.getElement('bm-ui-form-no-attachment-block'));
