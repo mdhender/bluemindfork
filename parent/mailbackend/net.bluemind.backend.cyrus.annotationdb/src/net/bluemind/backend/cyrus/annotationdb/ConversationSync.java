@@ -124,6 +124,7 @@ public class ConversationSync {
 		ItemValue<Server> server = getImapServer(dataLocation);
 
 		try {
+			createContainers(domainUid, box);
 			initConversationDb(server, domainUid, box, userUid);
 		} catch (CyrusConversationDbInitException e1) {
 			logger.warn("cannot init db", e1);
@@ -140,6 +141,14 @@ public class ConversationSync {
 			monitor.log("Cannot create conversations: " + e.getMessage());
 			throw new CyrusConversationDbInitException(dataLocation, e);
 		}
+	}
+
+	private void createContainers(String domainUid, ItemValue<Mailbox> box) {
+		MailboxReplicaRootDescriptor descriptor = MailboxReplicaRootDescriptor.create(box.value);
+		CyrusPartition cyrusPartition = CyrusPartition.forServerAndDomain(box.value.dataLocation, domainUid);
+		IReplicatedMailboxesRootMgmt subtreeMgmt = context.provider().instance(IReplicatedMailboxesRootMgmt.class,
+				cyrusPartition.name);
+		subtreeMgmt.create(descriptor);
 	}
 
 	private void updateUserSettings(String domainUid, String userUid) {
@@ -266,11 +275,6 @@ public class ConversationSync {
 		logger.info("Migrating {} conversations of mailbox {} on server {}", conversationInfos.conversations.size(),
 				box.value.name, server.uid);
 		if (!conversationInfos.conversations.isEmpty()) {
-			MailboxReplicaRootDescriptor descriptor = MailboxReplicaRootDescriptor.create(box.value);
-			CyrusPartition cyrusPartition = CyrusPartition.forServerAndDomain(box.value.dataLocation, domainUid);
-			IReplicatedMailboxesRootMgmt subtreeMgmt = context.provider().instance(IReplicatedMailboxesRootMgmt.class,
-					cyrusPartition.name);
-			subtreeMgmt.create(descriptor);
 			migrateConversations(domainUid, server, box, conversationInfos);
 		}
 	}
