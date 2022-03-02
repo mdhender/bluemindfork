@@ -9,7 +9,7 @@ RPM_RHEL_VERSIONS="7 8"  # Use space separator
 
 
 PGVERSION=$1
-[ ! -z "${PGVERSION}" ] && shift || PGVERSION=12
+[ ! -z "${PGVERSION}" ] && shift || PGVERSION=14
 TEMPDIR=$(mktemp -d --suffix .pgdepcheck)
 
 trap "{ rm -fr \"$TEMPDIR\"; }" EXIT

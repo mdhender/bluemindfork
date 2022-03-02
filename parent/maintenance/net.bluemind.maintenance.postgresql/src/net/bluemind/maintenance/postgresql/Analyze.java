@@ -37,8 +37,10 @@ public class Analyze implements IMaintenanceScript {
 
 	public void run(IServerTaskMonitor monitor) {
 		logger.info("Launch analyze");
+
 		DataSource directoryPool = ServerSideServiceProvider.defaultDataSource;
 		execute(directoryPool, monitor.subWork("bm-master", 1), "VACUUM ANALYZE");
+
 		for (Entry<String, DataSource> dsEntry : ServerSideServiceProvider.mailboxDataSource.entrySet()) {
 			monitor.log("vacuum analyze on pool " + dsEntry.getKey());
 			execute(dsEntry.getValue(), monitor.subWork(dsEntry.getKey(), 1), "VACUUM ANALYZE");

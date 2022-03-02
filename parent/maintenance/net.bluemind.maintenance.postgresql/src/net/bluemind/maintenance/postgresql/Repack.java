@@ -111,6 +111,11 @@ public class Repack implements IMaintenanceScript {
 			if (server.tags.contains(TagDescriptor.bm_pgsql_data.getTag())) {
 				dbNames.add("bj-data");
 			}
+
+			if (!nodeClient.listFiles("/etc/bm/pg.need.postupgrade").isEmpty()) {
+				continue;
+			}
+
 			StringBuilder sb = new StringBuilder();
 			sb.append("#!/bin/sh\n\n");
 			sb.append("set -e\n");
