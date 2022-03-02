@@ -39,10 +39,10 @@
 
         <template #modal-footer="{ ok, cancel }">
             <bm-button type="submit" variant="primary" :disabled="!folderSelected" @click.prevent="ok()">
-                {{ $attrs["ok-title"] }}
+                {{ okTitle }}
             </bm-button>
             <bm-button variant="outline-secondary" class="ml-2" @click.prevent="cancel()">
-                {{ $attrs["cancel-title"] }}
+                {{ cancelTitle }}
             </bm-button>
         </template>
     </bm-modal>
@@ -69,7 +69,13 @@ export default {
         return { folderSelected: null };
     },
     computed: {
-        ...mapState("mail", ["mailboxes"])
+        ...mapState("mail", ["mailboxes"]),
+        okTitle() {
+            return this.$attrs["ok-title"] || this.$t("mail.actions.move");
+        },
+        cancelTitle() {
+            return this.$attrs["cancel-title"] || this.$t("common.cancel");
+        }
     },
     methods: {
         folderSelection(folder) {

@@ -1,31 +1,47 @@
 <template>
-    <bm-contextual-menu class="mail-folder-item-menu" boundary="viewport">
-        <bm-dropdown-item-button :disabled="!folder.allowSubfolder" icon="plus" @click.stop.prevent="$emit('create')">
-            {{ $t("mail.folder.create_subfolder") }}
-        </bm-dropdown-item-button>
-        <bm-dropdown-item-button :disabled="isDefaultOrMailshareRoot" icon="rename" @click.stop="$emit('edit')">
-            {{ $t("mail.folder.rename") }}
-        </bm-dropdown-item-button>
-        <bm-dropdown-item-button :disabled="isDefaultOrMailshareRoot" icon="folder">
-            {{ $t("mail.folder.move") }}
-        </bm-dropdown-item-button>
-        <bm-dropdown-item-button :disabled="isDefaultOrMailshareRoot" icon="trash" @click.stop="deleteFolder">
-            {{ $t("common.delete") }}
-        </bm-dropdown-item-button>
-        <bm-dropdown-item-button
-            :disabled="folder.unread === 0"
-            icon="read"
-            @click.stop="MARK_FOLDER_AS_READ({ folder, mailbox })"
-        >
-            {{ $t("mail.folder.mark_as_read") }}
-        </bm-dropdown-item-button>
-        <bm-dropdown-item-button v-if="isTrash" icon="broom" @click.stop="emptyTrash">
-            {{ $t("mail.actions.empty_trash.label") }}
-        </bm-dropdown-item-button>
-        <bm-dropdown-item-button v-else icon="broom" @click.stop="emptyFolder">
-            {{ $t("mail.actions.empty_folder.label") }}
-        </bm-dropdown-item-button>
-    </bm-contextual-menu>
+    <div class="mail-folder-item-menu">
+        <bm-contextual-menu boundary="viewport">
+            <bm-dropdown-item-button
+                :disabled="!folder.allowSubfolder"
+                icon="plus"
+                @click.stop.prevent="$emit('create')"
+            >
+                {{ $t("mail.folder.create_subfolder") }}
+            </bm-dropdown-item-button>
+            <bm-dropdown-item-button :disabled="isDefaultOrMailshareRoot" icon="rename" @click.stop="$emit('edit')">
+                {{ $t("mail.folder.rename") }}
+            </bm-dropdown-item-button>
+            <bm-dropdown-item-button
+                :disabled="isDefaultOrMailshareRoot"
+                icon="folder"
+                @click.stop="openMoveFolderModal"
+            >
+                {{ $t("mail.folder.move") }}
+            </bm-dropdown-item-button>
+            <bm-dropdown-item-button :disabled="isDefaultOrMailshareRoot" icon="trash" @click.stop="deleteFolder">
+                {{ $t("common.delete") }}
+            </bm-dropdown-item-button>
+            <bm-dropdown-item-button
+                :disabled="folder.unread === 0"
+                icon="read"
+                @click.stop="MARK_FOLDER_AS_READ({ folder, mailbox })"
+            >
+                {{ $t("mail.folder.mark_as_read") }}
+            </bm-dropdown-item-button>
+            <bm-dropdown-item-button v-if="isTrash" icon="broom" @click.stop="emptyTrash">
+                {{ $t("mail.actions.empty_trash.label") }}
+            </bm-dropdown-item-button>
+            <bm-dropdown-item-button v-else icon="broom" @click.stop="emptyFolder">
+                {{ $t("mail.actions.empty_folder.label") }}
+            </bm-dropdown-item-button>
+        </bm-contextual-menu>
+        <choose-folder-modal
+            ref="move-modal"
+            :title="$t('mail.folder.move')"
+            :excluded-folders="[folder.key]"
+            @ok="moveFolder"
+        />
+    </div>
 </template>
 
 <script>
@@ -35,12 +51,14 @@ import { isDefault, isMailshareRoot, DEFAULT_FOLDERS } from "~/model/folder";
 import { IS_DESCENDANT, FOLDER_HAS_CHILDREN, MAILBOX_TRASH } from "~/getters";
 import { EMPTY_FOLDER, MARK_FOLDER_AS_READ, MOVE_FOLDER, REMOVE_FOLDER } from "~/actions";
 import { MailRoutesMixin } from "~/mixins";
+import ChooseFolderModal from "../ChooseFolderModal";
 
 export default {
     name: "MailFolderItemMenu",
     components: {
         BmContextualMenu,
-        BmDropdownItemButton
+        BmDropdownItemButton,
+        ChooseFolderModal
     },
     mixins: [MailRoutesMixin],
     props: {
@@ -115,6 +133,16 @@ export default {
                 this.EMPTY_FOLDER({ folder: this.folder, mailbox: this.mailbox, deep: true });
                 this.$router.navigate(this.folderRoute(this.folder));
             }
+        },
+        async moveFolder(destinationFolder) {
+            this.MOVE_FOLDER({
+                folder: this.folder,
+                parent: destinationFolder,
+                mailbox: this.mailbox
+            });
+        },
+        openMoveFolderModal() {
+            this.$refs["move-modal"].show();
         },
         confirm(title, content) {
             return this.$bvModal.msgBoxConfirm(content, {

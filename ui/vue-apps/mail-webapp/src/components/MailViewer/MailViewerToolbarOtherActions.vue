@@ -46,12 +46,10 @@
             </bm-dropdown-item>
         </bm-dropdown>
         <choose-folder-modal
-            :ref="'move-modal-' + message.key"
+            ref="'move-modal"
             :title="$t('mail.toolbar.move.tooltip')"
-            :ok-title="$t('mail.actions.move')"
-            :cancel-title="$t('common.cancel')"
             :excluded-folders="[message.folderRef.key]"
-            @ok="moveOk($event)"
+            @ok="moveOk"
         />
     </div>
 </template>
@@ -107,7 +105,7 @@ export default {
             this.print(this.$createElement("mail-message-print", { props: { message: this.message } }));
         },
         move() {
-            this.$refs[`move-modal-${this.message.key}`].show();
+            this.$refs["move-modal"].show();
         },
         moveOk(selectedFolder) {
             this.MOVE_CONVERSATION_MESSAGE({

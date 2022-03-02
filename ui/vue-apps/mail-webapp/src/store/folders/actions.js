@@ -80,7 +80,6 @@ const updateFolder = async function ({ commit }, { initial, updated, mailbox }) 
 };
 
 const moveFolder = async function (store, { folder, parent, mailbox }) {
-    parent = store.state[parent.key];
     let updated = move(folder, parent, mailbox);
     let i = 1;
     while (store.getters[FOLDER_BY_PATH](updated.path, mailbox)) {

@@ -38,7 +38,7 @@ export function rename(folder, name) {
 }
 
 export function move(folder, parent, mailbox) {
-    return { ...folder, path: path(mailbox, folder.name, parent), parent: parent.key };
+    return { ...folder, path: path(mailbox, folder.name, parent), parent: parent?.key };
 }
 
 export const DEFAULT_FOLDERS = {
