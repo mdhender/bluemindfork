@@ -106,7 +106,7 @@ public class MailshareModelHandler implements IGwtModelHandler {
 		m.card.identification.formatedName.value = m.card.identification.name.givenNames + " "
 				+ m.card.identification.name.familyNames;
 
-		mailshares.update(s, new MailshareGwtSerDer().deserialize(new JSONObject(mailshare.<JavaScriptObject>cast())))
+		mailshares.update(s, m)
 				.thenCompose(v -> {
 					if (map.getString("vcardPhoto") != null) {
 						return mailshares.setPhoto(s, btoa(map.getString("vcardPhoto")).getBytes());
