@@ -46,6 +46,7 @@ public class DirectorySearchFactory {
 	}
 
 	public static void reset() {
+		DirectorySearchFactory.deserializers.values().forEach(deserializer -> deserializer.context.stopWatcher());
 		DirectorySearchFactory.deserializers = new ConcurrentHashMap<>();
 	}
 

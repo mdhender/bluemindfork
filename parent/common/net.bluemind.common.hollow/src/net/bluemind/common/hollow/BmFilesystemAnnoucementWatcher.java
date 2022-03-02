@@ -136,6 +136,12 @@ public class BmFilesystemAnnoucementWatcher implements IAnnouncementWatcher {
 		return watcherThread != null && watcherThread.isAlive() && !watcherThread.isInterrupted();
 	}
 
+	@Override
+	public void stop() {
+		this.stopped = true;
+		watcherThread.interrupt();
+	}
+
 	class FilesystemWatcherRunnable implements Runnable {
 
 		private WatchService watcher;

@@ -152,6 +152,11 @@ public class BmHollowContext {
 			return HollowVersion.isListening();
 		}
 
+		@Override
+		public void stop() {
+			HollowVersion.unregisterObservers();
+		}
+
 	}
 
 }

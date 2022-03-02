@@ -84,6 +84,10 @@ public class HollowVersion extends AbstractVerticle {
 		return getVersion(set, subset);
 	}
 
+	public static void unregisterObservers() {
+		observers.clear();
+	}
+
 	public static boolean isListening() {
 		return consumer != null && consumer.isRegistered();
 	}

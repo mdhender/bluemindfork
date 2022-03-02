@@ -48,6 +48,10 @@ public class HollowContext {
 		}
 	}
 
+	public void stopWatcher() {
+		announcementWatcher.stop();
+	}
+
 	public boolean isWatcherListening() {
 		return announcementWatcher.isListening();
 	}
