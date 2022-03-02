@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@bluemind/styleguide@0.1.1874":
-  version "0.1.1874"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1874.tgz#68ef7f824ed70e0b6d58cca58785082b2a166630"
-  integrity sha512-p1eVfsFUy5cswgg5vOqEkD87GoI3WXBxj0xOI7bPVjk1FGu4T+bayt80TdJMF0a0EHcpO//2EbUfI8l+jSmGow==
+"@bluemind/styleguide@0.1.1891":
+  version "0.1.1891"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1891.tgz#c635e03b1fe1a64eea3cff5f1d02058dd65fca0b"
+  integrity sha512-XcUkxJfLzkKx+CvmK0xJ57Fk2MR+UWc8PWg141+Vdou8oNf56ppRWxy6T+ZowZRmVuRV/b+RKQk27VAQuth7uQ==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
     "@fortawesome/vue-fontawesome" "^0.1.4"
