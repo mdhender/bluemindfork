@@ -78,3 +78,14 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+.pref-manage-my-calendars {
+    .name {
+        width: 60%;
+    }
+    .default {
+        width: 10%;
+    }
+}
+</style>

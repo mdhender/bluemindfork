@@ -113,7 +113,7 @@ export default {
         },
         fields() {
             const fields = [
-                { key: "name", sortable: true, label: this.$t("common.label") },
+                { key: "name", sortable: true, label: this.$t("common.label"), class: "name" },
                 { key: "offlineSync", label: this.$t("common.synchronization"), sortable: true },
                 { key: "action", headerTitle: this.$t("common.action"), label: "", class: "text-right" }
             ];
@@ -127,7 +127,8 @@ export default {
                 fields.splice(0, 0, {
                     key: "defaultContainer",
                     headerTitle: this.defaultColumnTitle,
-                    label: ""
+                    label: "",
+                    class: "default"
                 });
             }
             return fields;
