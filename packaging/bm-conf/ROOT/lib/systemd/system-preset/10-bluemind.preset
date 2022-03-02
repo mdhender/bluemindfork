@@ -19,6 +19,7 @@ enable bm-xmpp.service
 enable bm-ysnp.service
 enable bm-iptables.service
 enable bm-postgresql.service
+enable bm-postgresql-postupgrade.service
 enable postgresql.service
 enable bm-sds-proxy.service
 enable influxdb.service
