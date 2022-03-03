@@ -65,10 +65,9 @@ public abstract class AbstractConfFile {
 
 	public byte[] render(Template t, Map<String, Object> data) throws ServerFault {
 		StringWriter sw = processTemplate(t, data);
-		if (!sw.toString().endsWith("\r\n")) {
-			sw.append("\r\n");
+		if (!sw.toString().endsWith("\n")) {
+			sw.append("\n");
 		}
-
 		return sw.toString().getBytes();
 	}
 
