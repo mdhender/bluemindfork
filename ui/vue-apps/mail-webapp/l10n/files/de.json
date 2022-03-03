@@ -96,7 +96,8 @@
             "move_folder": {
                 "loading": "\"{folder}\" wird in den Ordner {destination} verschoben...",
                 "success": "\"{folder}\" wurde erfolgreich in den Ordner {destination} verschoben.",
-                "error": "Fehler beim Verschieben von \"{folder}\" in den Ordner {destination}."
+                "error": "Fehler beim Verschieben von \"{folder}\" in den Ordner {destination}.",
+                "to_mailbox_root": "zum Stamm von {mailbox}"
             },
             "read_only_folder": {
                 "info": "E-Mail im Lesemdodus. Einige Aktionen (z.B. Löschen/Verschieben) sind nicht auswählbar."
@@ -179,6 +180,7 @@
     "mail.actions.move.item.warning.self": "Die E-Mail befindet sich bereits in {path}",
     "mail.actions.move.item": "Verschiebe E-Mail nach {path} | Verschiebe ausgewählte E-Mails nach {path}",
     "mail.actions.move": "Verschieben",
+    "mail.actions.move_folder.title": "Verschieben des Ordners {name}",
     "mail.actions.purge.modal.content": "E-Mail \"{subject}\" permanent löschen? | Ausgewählte E-Mails permanent löschen?",
     "mail.actions.purge.draft.modal.content": "Entwurf \"{subject}\" am {date} gespeichert löschen?",
     "mail.actions.purge.draft.modal.content.time": "Entwurf \"{subject}\" um {time} gespeichert löschen?",

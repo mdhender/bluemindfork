@@ -2,9 +2,10 @@
     <i18n :path="path" tag="span">
         <template #folder> <mail-folder-icon :folder="folder" :shared="shared" /> </template>
         <template #destination>
-            <router-link :to="folderRoute(destination)">
+            <router-link v-if="destination" :to="folderRoute(destination)">
                 <strong><mail-folder-icon :folder="destination" :shared="shared" /></strong>
             </router-link>
+            <span v-else> {{ $t("alert.mail.move_folder.to_mailbox_root", { mailbox }) }}</span>
         </template>
     </i18n>
 </template>
@@ -27,6 +28,9 @@ export default {
         },
         destination() {
             return this.payload.parent;
+        },
+        mailbox() {
+            return this.$store.state.mail.mailboxes[this.folder.mailboxRef.key].name;
         }
     }
 };

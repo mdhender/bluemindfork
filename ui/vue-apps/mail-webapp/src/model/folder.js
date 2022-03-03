@@ -105,7 +105,6 @@ export function translatePath(path) {
     if (defaultFolder) {
         splitPath.splice(0, 1, translateDefaultName(defaultFolder));
     }
-
     return splitPath.join("/");
 }
 
@@ -232,4 +231,10 @@ export function match(folder, pattern) {
     } else {
         return folder.name.toLowerCase().includes(name) || folder.imapName.toLowerCase().includes(name);
     }
+}
+
+export function createRoot(mailbox) {
+    const root = create(null, "", null, mailbox);
+    root.name = mailbox.name;
+    return root;
 }

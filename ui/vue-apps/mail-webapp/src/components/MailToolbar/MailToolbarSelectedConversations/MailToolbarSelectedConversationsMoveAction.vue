@@ -19,7 +19,7 @@
             ref="moveAutocomplete"
             v-slot="{ item }"
             v-model.trim="pattern"
-            :items="matchingFolders(excludedFolderKeys())"
+            :items="matchingFolders(excludedFolderKeys()) || [MY_TRASH, MY_INBOX]"
             icon="search"
             :max-results="maxFolders"
             has-divider-under-input
@@ -91,7 +91,7 @@ import MailMailboxIcon from "../../MailMailboxIcon";
 import MailFolderInput from "../../MailFolderInput";
 import { isNameValid, translatePath } from "~/model/folder";
 import { MailboxType } from "~/model/mailbox";
-import { MY_MAILBOX, FOLDERS_BY_PATH } from "~/getters";
+import { MY_MAILBOX, FOLDERS_BY_PATH, MY_TRASH, MY_INBOX } from "~/getters";
 import { ActionTextMixin, FilterFolderMixin, MoveMixin, SelectionMixin } from "~/mixins";
 
 const LOOP_PERF_LIMIT = 100;
@@ -113,7 +113,7 @@ export default {
     mixins: [ActionTextMixin, FilterFolderMixin, MoveMixin, SelectionMixin],
     computed: {
         ...mapState("mail", ["folders", "mailboxes"]),
-        ...mapGetters("mail", { MY_MAILBOX, FOLDERS_BY_PATH }),
+        ...mapGetters("mail", { MY_MAILBOX, FOLDERS_BY_PATH, MY_TRASH, MY_INBOX }),
         displayCreateFolderBtnFromPattern() {
             let pattern = this.pattern;
             if (pattern !== "") {

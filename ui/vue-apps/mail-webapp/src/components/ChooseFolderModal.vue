@@ -29,35 +29,26 @@
                         @input="onInputUpdate"
                     >
                         <div class="d-flex align-items-center">
-                            <span class="flex-fill"> {{ translatePath(item.path) }}</span>
+                            <span class="flex-fill"> {{ translatePath(item) }}</span>
                             <mail-mailbox-icon no-text :mailbox="mailboxes[item.mailboxRef.key]" />
                         </div>
                     </bm-form-autocomplete-input>
                 </div>
             </div>
         </template>
-
-        <template #modal-footer="{ ok, cancel }">
-            <bm-button type="submit" variant="primary" :disabled="!folderSelected" @click.prevent="ok()">
-                {{ okTitle }}
-            </bm-button>
-            <bm-button variant="outline-secondary" class="ml-2" @click.prevent="cancel()">
-                {{ cancelTitle }}
-            </bm-button>
-        </template>
     </bm-modal>
 </template>
 
 <script>
 import { mapState } from "vuex";
-import { BmButton, BmFormAutocompleteInput, BmIcon, BmModal } from "@bluemind/styleguide";
+import { BmFormAutocompleteInput, BmIcon, BmModal } from "@bluemind/styleguide";
 import { FilterFolderMixin } from "~/mixins";
 import { translatePath } from "~/model/folder";
 import MailMailboxIcon from "./MailMailboxIcon";
 
 export default {
     name: "ChooseFolderModal",
-    components: { BmButton, BmFormAutocompleteInput, BmIcon, BmModal, MailMailboxIcon },
+    components: { BmFormAutocompleteInput, BmIcon, BmModal, MailMailboxIcon },
     mixins: [FilterFolderMixin],
     props: {
         excludedFolders: {
@@ -67,30 +58,27 @@ export default {
         includedMailboxes: {
             type: Array,
             default: () => []
+        },
+        defaultFolders: {
+            type: Array,
+            default: () => []
         }
     },
     data() {
         return { folderSelected: null };
     },
     computed: {
-        ...mapState("mail", ["mailboxes"]),
-        okTitle() {
-            return this.$attrs["ok-title"] || this.$t("mail.actions.move");
-        },
-        cancelTitle() {
-            return this.$attrs["cancel-title"] || this.$t("common.cancel");
-        }
+        ...mapState("mail", ["mailboxes"])
     },
     methods: {
         folderSelection(folder) {
             this.folderSelected = folder;
-            this.pattern = translatePath(folder.path);
+            this.pattern = this.translatePath(folder);
         },
         itemsOrDefaults() {
-            return this.folderSelected ? [] : this.matchingFolders(this.excludedFolders, this.includedMailboxes);
-        },
-        translatePath(path) {
-            return translatePath(path);
+            return this.folderSelected
+                ? []
+                : this.matchingFolders(this.excludedFolders, this.includedMailboxes) || this.defaultFolders;
         },
         doCancel() {
             this.pattern = "";
@@ -101,6 +89,12 @@ export default {
         },
         show() {
             this.$refs["choose-folder-modal"].show();
+        },
+        translatePath(folder) {
+            if (folder.path === "") {
+                return folder.name;
+            }
+            return translatePath(folder.path);
         }
     }
 };

@@ -34,7 +34,10 @@ const mailbox = {
     type: "users",
     owner: userId,
     name: "bluemind",
-    writable: true
+    writable: true,
+    remoteRef: {
+        uid: "uid"
+    }
 };
 
 const fakedSettingsStore = {

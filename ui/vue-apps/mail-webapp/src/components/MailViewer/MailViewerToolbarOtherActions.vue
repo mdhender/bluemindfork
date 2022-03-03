@@ -47,8 +47,11 @@
         </bm-dropdown>
         <choose-folder-modal
             ref="move-modal"
+            :cancel-title="$t('common.cancel')"
+            :ok-title="$t('mail.actions.move')"
             :title="$t('mail.toolbar.move.tooltip')"
-            :excluded-folders="[message.folderRef.key]"
+            :excluded-folders="[message.folderRef.key, null]"
+            :default-folders="[MY_TRASH, MY_INBOX]"
             @ok="moveOk"
         />
     </div>
@@ -65,7 +68,7 @@ import {
     MARK_MESSAGE_AS_UNFLAGGED,
     MARK_MESSAGE_AS_UNREAD
 } from "~/actions";
-import { MY_DRAFTS } from "~/getters";
+import { MY_DRAFTS, MY_TRASH, MY_INBOX } from "~/getters";
 import { MessageCreationModes } from "~/model/message";
 import { draftPath } from "~/model/draft";
 import MessagePathParam from "~/router/MessagePathParam";
@@ -92,7 +95,7 @@ export default {
         return { Flag };
     },
     computed: {
-        ...mapGetters("mail", { MY_DRAFTS })
+        ...mapGetters("mail", { MY_DRAFTS, MY_TRASH, MY_INBOX })
     },
     methods: {
         ...mapActions("mail", {
