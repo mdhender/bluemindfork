@@ -208,12 +208,12 @@ public class MigrateCommand implements ICmdLet, Runnable {
 		ISystemConfiguration configurationApi = ctx.adminApi().instance(ISystemConfiguration.class);
 		SystemConf sysConf = configurationApi.getValues();
 		String archiveKind = sysConf.stringValue(SysConfKeys.archive_kind.name());
-		int archiveSizeThreshold = sysConf.integerValue(SysConfKeys.archive_size_threshold.name());
-		int archiveDays = sysConf.integerValue(SysConfKeys.archive_days.name());
+		Integer archiveSizeThreshold = sysConf.integerValue(SysConfKeys.archive_size_threshold.name());
+		Integer archiveDays = sysConf.integerValue(SysConfKeys.archive_days.name());
 		boolean ret = true;
 
 		if ("cyrus".equals(archiveKind)) {
-			if (archiveDays < 30) {
+			if (archiveDays != null && archiveDays < 30) {
 				// In order to do an SDS migration, while still running in production
 				// with the cyrus archiveKind, we need to ensure we'll not try to push new
 				// object to the cyrus archive.
@@ -223,7 +223,7 @@ public class MigrateCommand implements ICmdLet, Runnable {
 						"WARNING: archiveDays is less than 30 days, use --force if you really want to force sds migration");
 				ret &= false;
 			}
-			if (archiveSizeThreshold != 0) {
+			if (archiveSizeThreshold == null || archiveSizeThreshold != 0) {
 				ctx.error(
 						"WARNING: archiveSizeTreshold should be 0 to avoid objects being pushed to the archive partition while we are uploading. Use --force to override");
 				ret &= false;
