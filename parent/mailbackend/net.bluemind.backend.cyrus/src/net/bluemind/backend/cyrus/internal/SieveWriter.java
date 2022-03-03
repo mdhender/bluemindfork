@@ -82,7 +82,7 @@ public class SieveWriter {
 
 	public SieveWriter() {
 		cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
-		BeansWrapper wrapper = new BeansWrapper();
+		BeansWrapper wrapper = new BeansWrapper(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		wrapper.setExposeFields(true);
 		cfg.setObjectWrapper(wrapper);
 		cfg.setClassForTemplateLoading(getClass(), "/templates/sieve");

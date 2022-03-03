@@ -48,7 +48,7 @@ public class Annotations extends AbstractConfFile {
 	@Override
 	public void write() throws ServerFault {
 		Template cyrusConf = openTemplate("backend.annotations.conf");
-		Map<String, Object> data = new HashMap<String, Object>();
+		Map<String, Object> data = new HashMap<>();
 		byte[] rendered = render(cyrusConf, data);
 		if (node != null) {
 			node.writeFile("/etc/cyrus-annotations", new ByteArrayInputStream(rendered));

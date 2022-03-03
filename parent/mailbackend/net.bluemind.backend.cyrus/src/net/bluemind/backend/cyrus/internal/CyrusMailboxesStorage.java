@@ -469,10 +469,6 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		return value.type.cyrAdmPrefix + value.name + "@" + domainUid;
 	}
 
-	private String intBoxName(Mailbox value, String domainUid) {
-		return domainUid + "!" + value.type.nsPrefix + value.name;
-	}
-
 	@Override
 	public void changeDomainFilter(BmContext context, String domainUid, MailFilter filter) throws ServerFault {
 

@@ -46,7 +46,7 @@ public class Cyrus extends AbstractConfFile {
 	@Override
 	public void write() throws ServerFault {
 		Template cyrusConf = openTemplate("backend.cyrus.conf");
-		Map<String, Object> data = new HashMap<String, Object>();
+		Map<String, Object> data = new HashMap<>();
 		data.put("imapMaxChild", Integer.toString(imapMaxChild));
 		data.put("retention", retention);
 

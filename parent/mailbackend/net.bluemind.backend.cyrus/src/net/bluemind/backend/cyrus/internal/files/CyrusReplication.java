@@ -57,7 +57,7 @@ public class CyrusReplication extends AbstractConfFile {
 				.filter(srv -> srv.value.tags.contains("bm/core")).findFirst();
 		data.put("adminToken", Token.admin0());
 		String coreAddr = System.getProperty("sync.core.address",
-coreServer.map(server -> server.value.address()).orElse("127.0.0.1"));
+				coreServer.map(server -> server.value.address()).orElse("127.0.0.1"));
 		data.put("coreAddress", coreAddr);
 		byte[] rendered = render(cyrusConf, data);
 		if (node != null) {

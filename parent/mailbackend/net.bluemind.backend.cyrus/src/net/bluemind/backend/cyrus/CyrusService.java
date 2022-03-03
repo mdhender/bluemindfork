@@ -192,14 +192,6 @@ public class CyrusService {
 		}
 	}
 
-	private String intBoxName(Mailbox value, String domainUid) {
-		return domainUid + "!" + value.type.nsPrefix + value.name;
-	}
-
-	private String cyradmBoxName(Mailbox value, String domainUid) {
-		return value.type.cyrAdmPrefix + value.name + "@" + domainUid;
-	}
-
 	/**
 	 * Delete Cyrus mailbox and subfolders<br>
 	 * 

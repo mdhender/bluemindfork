@@ -105,7 +105,7 @@ public class CyrusPartitions {
 			throw new ServerFault(e);
 		}
 
-		logger.debug("write /etc/cyrus-partitions, content: \n {}", parts.toString());
+		logger.debug("write /etc/cyrus-partitions, content: \n {}", parts);
 		nodeClient.writeFile(ETC_CYRUS_PARTITIONS, new ByteArrayInputStream(parts.toString().getBytes()));
 		NCUtils.exec(nodeClient, "chown cyrus:mail " + ETC_CYRUS_PARTITIONS);
 		NCUtils.exec(nodeClient, "chmod 640 " + ETC_CYRUS_PARTITIONS);
