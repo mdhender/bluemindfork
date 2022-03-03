@@ -25,6 +25,7 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.collect.Sets;
@@ -64,7 +65,8 @@ public class CyrusSdsWorker extends DefaultWorker {
 			return;
 		}
 		List<ItemValue<Domain>> domains = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDomains.class).all();
+				.instance(IDomains.class).all().stream().filter(d -> !"global.virt".equals(d.uid))
+				.collect(Collectors.toList());
 		try {
 			Path tempFolder = Files.createTempDirectory("sds-backup");
 			try {
