@@ -1,424 +1,1097 @@
 {
-	"id": 9,
-	"cells": [
-		{
-			"i": "1c59ab70-a219-4ae6-b93a-73617c50fe0e",
-			"x": 8,
-			"y": 0,
-			"w": 4,
-			"h": 4,
-			"name": "S3 Transfer rate",
-			"queries": [
-				{
-					"query": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"transfer_rate\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.transfer\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"direction\" FILL(null)",
-					"queryConfig": {
-						"database": "",
-						"measurement": "",
-						"retentionPolicy": "",
-						"fields": [],
-						"tags": {},
-						"groupBy": {
-							"time": "",
-							"tags": []
-						},
-						"areTagsAccepted": false,
-						"rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"transfer_rate\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.transfer\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"direction\" FILL(null)",
-						"range": null,
-						"shifts": null
-					},
-					"source": "",
-					"type": "influxql"
-				},
-				{
-					"query": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"transfer_rate\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.transfer\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"direction\" FILL(null)",
-					"queryConfig": {
-						"database": "",
-						"measurement": "",
-						"retentionPolicy": "",
-						"fields": [],
-						"tags": {},
-						"groupBy": {
-							"time": "",
-							"tags": []
-						},
-						"areTagsAccepted": false,
-						"rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"transfer_rate\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.transfer\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"direction\" FILL(null)",
-						"range": null,
-						"shifts": null
-					},
-					"source": "",
-					"type": "influxql"
-				}
-			],
-			"axes": {
-				"x": {
-					"bounds": [
-						"",
-						""
-					],
-					"label": "",
-					"prefix": "",
-					"suffix": "",
-					"base": "10",
-					"scale": "linear"
-				},
-				"y": {
-					"bounds": [
-						"",
-						""
-					],
-					"label": "",
-					"prefix": "",
-					"suffix": "Bytes/s",
-					"base": "2",
-					"scale": "linear"
-				},
-				"y2": {
-					"bounds": [
-						"",
-						""
-					],
-					"label": "",
-					"prefix": "",
-					"suffix": "",
-					"base": "10",
-					"scale": "linear"
-				}
-			},
-			"type": "line",
-			"colors": [
-				{
-					"id": "c6450d22-06fd-49e9-9cb7-ebcd6644473b",
-					"type": "scale",
-					"hex": "#31C0F6",
-					"name": "Nineteen Eighty Four",
-					"value": "0"
-				},
-				{
-					"id": "97c5b655-64b1-4a5c-ada2-faacc94d6ead",
-					"type": "scale",
-					"hex": "#A500A5",
-					"name": "Nineteen Eighty Four",
-					"value": "0"
-				},
-				{
-					"id": "9929f358-ee7a-4f78-9269-b9d9c753c89e",
-					"type": "scale",
-					"hex": "#FF7E27",
-					"name": "Nineteen Eighty Four",
-					"value": "0"
-				}
-			],
-			"legend": {},
-			"tableOptions": {
-				"verticalTimeAxis": true,
-				"sortBy": {
-					"internalName": "time",
-					"displayName": "",
-					"visible": true
-				},
-				"wrapping": "truncate",
-				"fixFirstColumn": true
-			},
-			"fieldOptions": [
-				{
-					"internalName": "time",
-					"displayName": "",
-					"visible": true
-				}
-			],
-			"timeFormat": "MM/DD/YYYY HH:mm:ss",
-			"decimalPlaces": {
-				"isEnforced": true,
-				"digits": 2
-			},
-			"note": "",
-			"noteVisibility": "default",
-			"links": {
-				"self": "/chronograf/v1/dashboards/9/cells/1c59ab70-a219-4ae6-b93a-73617c50fe0e"
-			}
-		},
-		{
-			"i": "c012bae1-3b87-4416-b070-60fe5f29185b",
-			"x": 4,
-			"y": 0,
-			"w": 4,
-			"h": 4,
-			"name": "S3 request latency",
-			"queries": [
-				{
-					"query": "SELECT (non_negative_derivative(last(\"totalTime\"), 1s) / non_negative_derivative(last(\"count\"), 1s)) / 1000000 AS \"latency\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.latency\" WHERE time > :dashboardTime: GROUP BY time(:interval:),  \"method\" FILL(null)",
-					"queryConfig": {
-						"database": "",
-						"measurement": "",
-						"retentionPolicy": "",
-						"fields": [],
-						"tags": {},
-						"groupBy": {
-							"time": "",
-							"tags": []
-						},
-						"areTagsAccepted": false,
-						"rawText": "SELECT (non_negative_derivative(last(\"totalTime\"), 1s) / non_negative_derivative(last(\"count\"), 1s)) / 1000000 AS \"latency\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.latency\" WHERE time > :dashboardTime: GROUP BY time(:interval:),  \"method\" FILL(null)",
-						"range": null,
-						"shifts": null
-					},
-					"source": "",
-					"type": "influxql"
-				},
-				{
-					"query": "SELECT (non_negative_derivative(last(\"totalTime\"), 1s) / non_negative_derivative(last(\"count\"), 1s)) / 1000000 AS \"latency\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.latency\" WHERE time > :dashboardTime: GROUP BY time(:interval:),  \"method\" FILL(null)",
-					"queryConfig": {
-						"database": "",
-						"measurement": "",
-						"retentionPolicy": "",
-						"fields": [],
-						"tags": {},
-						"groupBy": {
-							"time": "",
-							"tags": []
-						},
-						"areTagsAccepted": false,
-						"rawText": "SELECT (non_negative_derivative(last(\"totalTime\"), 1s) / non_negative_derivative(last(\"count\"), 1s)) / 1000000 AS \"latency\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.latency\" WHERE time > :dashboardTime: GROUP BY time(:interval:),  \"method\" FILL(null)",
-						"range": null,
-						"shifts": null
-					},
-					"source": "",
-					"type": "influxql"
-				}
-			],
-			"axes": {
-				"x": {
-					"bounds": [
-						"",
-						""
-					],
-					"label": "",
-					"prefix": "",
-					"suffix": "",
-					"base": "10",
-					"scale": "linear"
-				},
-				"y": {
-					"bounds": [
-						"",
-						""
-					],
-					"label": "Latency (ms)",
-					"prefix": "",
-					"suffix": "ms",
-					"base": "10",
-					"scale": "linear"
-				},
-				"y2": {
-					"bounds": [
-						"",
-						""
-					],
-					"label": "",
-					"prefix": "",
-					"suffix": "",
-					"base": "10",
-					"scale": "linear"
-				}
-			},
-			"type": "line",
-			"colors": [
-				{
-					"id": "c6450d22-06fd-49e9-9cb7-ebcd6644473b",
-					"type": "scale",
-					"hex": "#31C0F6",
-					"name": "Nineteen Eighty Four",
-					"value": "0"
-				},
-				{
-					"id": "97c5b655-64b1-4a5c-ada2-faacc94d6ead",
-					"type": "scale",
-					"hex": "#A500A5",
-					"name": "Nineteen Eighty Four",
-					"value": "0"
-				},
-				{
-					"id": "9929f358-ee7a-4f78-9269-b9d9c753c89e",
-					"type": "scale",
-					"hex": "#FF7E27",
-					"name": "Nineteen Eighty Four",
-					"value": "0"
-				}
-			],
-			"legend": {},
-			"tableOptions": {
-				"verticalTimeAxis": true,
-				"sortBy": {
-					"internalName": "time",
-					"displayName": "",
-					"visible": true
-				},
-				"wrapping": "truncate",
-				"fixFirstColumn": true
-			},
-			"fieldOptions": [
-				{
-					"internalName": "time",
-					"displayName": "",
-					"visible": true
-				}
-			],
-			"timeFormat": "MM/DD/YYYY HH:mm:ss",
-			"decimalPlaces": {
-				"isEnforced": true,
-				"digits": 2
-			},
-			"note": "",
-			"noteVisibility": "default",
-			"links": {
-				"self": "/chronograf/v1/dashboards/9/cells/c012bae1-3b87-4416-b070-60fe5f29185b"
-			}
-		},
-		{
-			"i": "57cde80d-6d16-465f-8857-d0f16bafa755",
-			"x": 0,
-			"y": 0,
-			"w": 4,
-			"h": 4,
-			"name": "S3 request rate",
-			"queries": [
-				{
-					"query": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"requests\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.request\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"method\", \"status\" FILL(null)",
-					"queryConfig": {
-						"database": "",
-						"measurement": "",
-						"retentionPolicy": "",
-						"fields": [],
-						"tags": {},
-						"groupBy": {
-							"time": "",
-							"tags": []
-						},
-						"areTagsAccepted": false,
-						"rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"requests\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.request\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"method\", \"status\" FILL(null)",
-						"range": null,
-						"shifts": null
-					},
-					"source": "",
-					"type": "influxql"
-				},
-				{
-					"query": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"requests\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.request\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"method\", \"status\" FILL(null)",
-					"queryConfig": {
-						"database": "",
-						"measurement": "",
-						"retentionPolicy": "",
-						"fields": [],
-						"tags": {},
-						"groupBy": {
-							"time": "",
-							"tags": []
-						},
-						"areTagsAccepted": false,
-						"rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"requests\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.request\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"method\", \"status\" FILL(null)",
-						"range": null,
-						"shifts": null
-					},
-					"source": "",
-					"type": "influxql"
-				}
-			],
-			"axes": {
-				"x": {
-					"bounds": [
-						"",
-						""
-					],
-					"label": "",
-					"prefix": "",
-					"suffix": "",
-					"base": "10",
-					"scale": "linear"
-				},
-				"y": {
-					"bounds": [
-						"",
-						""
-					],
-					"label": "Requests/s",
-					"prefix": "",
-					"suffix": "",
-					"base": "10",
-					"scale": "linear"
-				},
-				"y2": {
-					"bounds": [
-						"",
-						""
-					],
-					"label": "",
-					"prefix": "",
-					"suffix": "",
-					"base": "10",
-					"scale": "linear"
-				}
-			},
-			"type": "line",
-			"colors": [
-				{
-					"id": "c6450d22-06fd-49e9-9cb7-ebcd6644473b",
-					"type": "scale",
-					"hex": "#31C0F6",
-					"name": "Nineteen Eighty Four",
-					"value": "0"
-				},
-				{
-					"id": "97c5b655-64b1-4a5c-ada2-faacc94d6ead",
-					"type": "scale",
-					"hex": "#A500A5",
-					"name": "Nineteen Eighty Four",
-					"value": "0"
-				},
-				{
-					"id": "9929f358-ee7a-4f78-9269-b9d9c753c89e",
-					"type": "scale",
-					"hex": "#FF7E27",
-					"name": "Nineteen Eighty Four",
-					"value": "0"
-				}
-			],
-			"legend": {},
-			"tableOptions": {
-				"verticalTimeAxis": true,
-				"sortBy": {
-					"internalName": "time",
-					"displayName": "",
-					"visible": true
-				},
-				"wrapping": "truncate",
-				"fixFirstColumn": true
-			},
-			"fieldOptions": [
-				{
-					"internalName": "time",
-					"displayName": "",
-					"visible": true
-				}
-			],
-			"timeFormat": "MM/DD/YYYY HH:mm:ss",
-			"decimalPlaces": {
-				"isEnforced": true,
-				"digits": 2
-			},
-			"note": "",
-			"noteVisibility": "default",
-			"links": {
-				"self": "/chronograf/v1/dashboards/9/cells/57cde80d-6d16-465f-8857-d0f16bafa755"
-			}
-		}
-	],
-	"templates": [],
-	"name": "Software Defined Storage",
-	"organization": "default",
-	"links": {
-		"self": "/chronograf/v1/dashboards/9",
-		"cells": "/chronograf/v1/dashboards/9/cells",
-		"templates": "/chronograf/v1/dashboards/9/templates"
-	}
+    "id": "9",
+    "cells": [
+        {
+            "i": "9fd01fd8-f56a-4e1e-8ff7-2abf73aa9c43",
+            "x": 0,
+            "y": 10,
+            "w": 2,
+            "h": 3,
+            "name": "Compression ratio",
+            "queries": [
+                {
+                    "query": "SELECT max(\"totalAmount\") / max(\"count\") AS \"mean_totalAmount\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.compressionRatio\" WHERE time > :dashboardTime: AND time < :upperDashboardTime: GROUP BY time(:interval:) FILL(null)",
+                    "queryConfig": {
+                        "database": "",
+                        "measurement": "",
+                        "retentionPolicy": "",
+                        "fields": [],
+                        "tags": {},
+                        "groupBy": {
+                            "time": "",
+                            "tags": []
+                        },
+                        "areTagsAccepted": false,
+                        "rawText": "SELECT max(\"totalAmount\") / max(\"count\") AS \"mean_totalAmount\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.compressionRatio\" WHERE time > :dashboardTime: AND time < :upperDashboardTime: GROUP BY time(:interval:) FILL(null)",
+                        "range": null,
+                        "shifts": null
+                    },
+                    "source": "",
+                    "type": "influxql"
+                }
+            ],
+            "axes": {
+                "x": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                },
+                "y": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "Error count",
+                    "prefix": "",
+                    "suffix": "%",
+                    "base": "raw",
+                    "scale": "linear"
+                },
+                "y2": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                }
+            },
+            "type": "gauge",
+            "colors": [
+                {
+                    "id": "0",
+                    "type": "min",
+                    "hex": "#00C9FF",
+                    "name": "laser",
+                    "value": "0"
+                },
+                {
+                    "id": "1",
+                    "type": "max",
+                    "hex": "#9394FF",
+                    "name": "comet",
+                    "value": "100"
+                }
+            ],
+            "legend": {},
+            "tableOptions": {
+                "verticalTimeAxis": true,
+                "sortBy": {
+                    "internalName": "time",
+                    "displayName": "",
+                    "visible": true
+                },
+                "wrapping": "truncate",
+                "fixFirstColumn": true
+            },
+            "fieldOptions": [
+                {
+                    "internalName": "time",
+                    "displayName": "",
+                    "visible": true
+                },
+                {
+                    "internalName": "bm-sds-proxy.s3.compressionRatio.mean_totalAmount",
+                    "displayName": "",
+                    "visible": true
+                }
+            ],
+            "timeFormat": "MM/DD/YYYY HH:mm:ss",
+            "decimalPlaces": {
+                "isEnforced": true,
+                "digits": 2
+            },
+            "note": "",
+            "noteVisibility": "default",
+            "links": {
+                "self": "/chronograf/v1/dashboards/9/cells/9fd01fd8-f56a-4e1e-8ff7-2abf73aa9c43"
+            }
+        },
+        {
+            "i": "1dfa2228-e88e-4c90-a5a0-f11b985de5b7",
+            "x": 0,
+            "y": 8,
+            "w": 12,
+            "h": 2,
+            "name": "Error count",
+            "queries": [
+                {
+                    "query": "SELECT non_negative_derivative(sum(\"count\"), 60s) AS \"mean_count\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.request\" WHERE time > :dashboardTime: AND time < :upperDashboardTime: AND \"status\"='error' GROUP BY time(:interval:), \"method\" FILL(null)",
+                    "queryConfig": {
+                        "database": "",
+                        "measurement": "",
+                        "retentionPolicy": "",
+                        "fields": [],
+                        "tags": {},
+                        "groupBy": {
+                            "time": "",
+                            "tags": []
+                        },
+                        "areTagsAccepted": false,
+                        "rawText": "SELECT non_negative_derivative(sum(\"count\"), 60s) AS \"mean_count\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.request\" WHERE time > :dashboardTime: AND time < :upperDashboardTime: AND \"status\"='error' GROUP BY time(:interval:), \"method\" FILL(null)",
+                        "range": null,
+                        "shifts": null
+                    },
+                    "source": "",
+                    "type": "influxql"
+                },
+                {
+                    "query": "SELECT non_negative_derivative(sum(\"count\"), 60s) AS \"mean_count\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.request\" WHERE time > :dashboardTime: AND time < :upperDashboardTime: AND \"status\"='error' GROUP BY time(:interval:), \"method\" FILL(null)",
+                    "queryConfig": {
+                        "database": "",
+                        "measurement": "",
+                        "retentionPolicy": "",
+                        "fields": [],
+                        "tags": {},
+                        "groupBy": {
+                            "time": "",
+                            "tags": []
+                        },
+                        "areTagsAccepted": false,
+                        "rawText": "SELECT non_negative_derivative(sum(\"count\"), 60s) AS \"mean_count\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.request\" WHERE time > :dashboardTime: AND time < :upperDashboardTime: AND \"status\"='error' GROUP BY time(:interval:), \"method\" FILL(null)",
+                        "range": null,
+                        "shifts": null
+                    },
+                    "source": "",
+                    "type": "influxql"
+                }
+            ],
+            "axes": {
+                "x": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                },
+                "y": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "Error count",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "raw",
+                    "scale": "linear"
+                },
+                "y2": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                }
+            },
+            "type": "line-stepplot",
+            "colors": [
+                {
+                    "id": "3268066f-7015-4d42-851e-948fb2aafdbd",
+                    "type": "scale",
+                    "hex": "#31C0F6",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                },
+                {
+                    "id": "852e2adb-6075-42a0-8efb-56a1bc6072dd",
+                    "type": "scale",
+                    "hex": "#A500A5",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                },
+                {
+                    "id": "b0393fa2-876a-4c03-99d7-a6e5e4e2ebb6",
+                    "type": "scale",
+                    "hex": "#FF7E27",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                }
+            ],
+            "legend": {},
+            "tableOptions": {
+                "verticalTimeAxis": true,
+                "sortBy": {
+                    "internalName": "time",
+                    "displayName": "",
+                    "visible": true
+                },
+                "wrapping": "truncate",
+                "fixFirstColumn": true
+            },
+            "fieldOptions": [
+                {
+                    "internalName": "time",
+                    "displayName": "",
+                    "visible": true
+                },
+                {
+                    "internalName": "bm-core.s3.request.mean_count",
+                    "displayName": "",
+                    "visible": true
+                },
+                {
+                    "internalName": "method",
+                    "displayName": "",
+                    "visible": true
+                }
+            ],
+            "timeFormat": "MM/DD/YYYY HH:mm:ss",
+            "decimalPlaces": {
+                "isEnforced": true,
+                "digits": 2
+            },
+            "note": "",
+            "noteVisibility": "default",
+            "links": {
+                "self": "/chronograf/v1/dashboards/9/cells/1dfa2228-e88e-4c90-a5a0-f11b985de5b7"
+            }
+        },
+        {
+            "i": "bc170fa6-5d3f-4588-acc2-16fc7c505795",
+            "x": 4,
+            "y": 4,
+            "w": 4,
+            "h": 4,
+            "name": "S3 request latency (core)",
+            "queries": [
+                {
+                    "query": "SELECT (non_negative_derivative(last(\"totalTime\"), 1s) / non_negative_derivative(last(\"count\"), 1s)) / 1000000 AS \"latency\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.latency\" WHERE time > :dashboardTime: GROUP BY time(:interval:),  \"method\" FILL(null)",
+                    "queryConfig": {
+                        "database": "",
+                        "measurement": "",
+                        "retentionPolicy": "",
+                        "fields": [],
+                        "tags": {},
+                        "groupBy": {
+                            "time": "",
+                            "tags": []
+                        },
+                        "areTagsAccepted": false,
+                        "rawText": "SELECT (non_negative_derivative(last(\"totalTime\"), 1s) / non_negative_derivative(last(\"count\"), 1s)) / 1000000 AS \"latency\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.latency\" WHERE time > :dashboardTime: GROUP BY time(:interval:),  \"method\" FILL(null)",
+                        "range": null,
+                        "shifts": null
+                    },
+                    "source": "",
+                    "type": "influxql"
+                },
+                {
+                    "query": "SELECT (non_negative_derivative(last(\"totalTime\"), 1s) / non_negative_derivative(last(\"count\"), 1s)) / 1000000 AS \"latency\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.latency\" WHERE time > :dashboardTime: GROUP BY time(:interval:),  \"method\" FILL(null)",
+                    "queryConfig": {
+                        "database": "",
+                        "measurement": "",
+                        "retentionPolicy": "",
+                        "fields": [],
+                        "tags": {},
+                        "groupBy": {
+                            "time": "",
+                            "tags": []
+                        },
+                        "areTagsAccepted": false,
+                        "rawText": "SELECT (non_negative_derivative(last(\"totalTime\"), 1s) / non_negative_derivative(last(\"count\"), 1s)) / 1000000 AS \"latency\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.latency\" WHERE time > :dashboardTime: GROUP BY time(:interval:),  \"method\" FILL(null)",
+                        "range": null,
+                        "shifts": null
+                    },
+                    "source": "",
+                    "type": "influxql"
+                }
+            ],
+            "axes": {
+                "x": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                },
+                "y": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "Latency (ms)",
+                    "prefix": "",
+                    "suffix": "ms",
+                    "base": "10",
+                    "scale": "linear"
+                },
+                "y2": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                }
+            },
+            "type": "line",
+            "colors": [
+                {
+                    "id": "c6450d22-06fd-49e9-9cb7-ebcd6644473b",
+                    "type": "scale",
+                    "hex": "#31C0F6",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                },
+                {
+                    "id": "97c5b655-64b1-4a5c-ada2-faacc94d6ead",
+                    "type": "scale",
+                    "hex": "#A500A5",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                },
+                {
+                    "id": "9929f358-ee7a-4f78-9269-b9d9c753c89e",
+                    "type": "scale",
+                    "hex": "#FF7E27",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                }
+            ],
+            "legend": {},
+            "tableOptions": {
+                "verticalTimeAxis": true,
+                "sortBy": {
+                    "internalName": "time",
+                    "displayName": "",
+                    "visible": true
+                },
+                "wrapping": "truncate",
+                "fixFirstColumn": true
+            },
+            "fieldOptions": [
+                {
+                    "internalName": "time",
+                    "displayName": "",
+                    "visible": true
+                }
+            ],
+            "timeFormat": "MM/DD/YYYY HH:mm:ss",
+            "decimalPlaces": {
+                "isEnforced": true,
+                "digits": 2
+            },
+            "note": "",
+            "noteVisibility": "default",
+            "links": {
+                "self": "/chronograf/v1/dashboards/9/cells/bc170fa6-5d3f-4588-acc2-16fc7c505795"
+            }
+        },
+        {
+            "i": "9d2c5999-4409-47a5-b7af-f14e4a754728",
+            "x": 8,
+            "y": 4,
+            "w": 4,
+            "h": 4,
+            "name": "S3 Transfer rate (core)",
+            "queries": [
+                {
+                    "query": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"transfer_rate\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.transfer\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"direction\" FILL(null)",
+                    "queryConfig": {
+                        "database": "",
+                        "measurement": "",
+                        "retentionPolicy": "",
+                        "fields": [],
+                        "tags": {},
+                        "groupBy": {
+                            "time": "",
+                            "tags": []
+                        },
+                        "areTagsAccepted": false,
+                        "rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"transfer_rate\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.transfer\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"direction\" FILL(null)",
+                        "range": null,
+                        "shifts": null
+                    },
+                    "source": "",
+                    "type": "influxql"
+                },
+                {
+                    "query": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"transfer_rate\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.transfer\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"direction\" FILL(null)",
+                    "queryConfig": {
+                        "database": "",
+                        "measurement": "",
+                        "retentionPolicy": "",
+                        "fields": [],
+                        "tags": {},
+                        "groupBy": {
+                            "time": "",
+                            "tags": []
+                        },
+                        "areTagsAccepted": false,
+                        "rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"transfer_rate\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.transfer\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"direction\" FILL(null)",
+                        "range": null,
+                        "shifts": null
+                    },
+                    "source": "",
+                    "type": "influxql"
+                }
+            ],
+            "axes": {
+                "x": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                },
+                "y": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "Bytes/s",
+                    "base": "2",
+                    "scale": "linear"
+                },
+                "y2": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                }
+            },
+            "type": "line",
+            "colors": [
+                {
+                    "id": "c6450d22-06fd-49e9-9cb7-ebcd6644473b",
+                    "type": "scale",
+                    "hex": "#31C0F6",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                },
+                {
+                    "id": "97c5b655-64b1-4a5c-ada2-faacc94d6ead",
+                    "type": "scale",
+                    "hex": "#A500A5",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                },
+                {
+                    "id": "9929f358-ee7a-4f78-9269-b9d9c753c89e",
+                    "type": "scale",
+                    "hex": "#FF7E27",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                }
+            ],
+            "legend": {},
+            "tableOptions": {
+                "verticalTimeAxis": true,
+                "sortBy": {
+                    "internalName": "time",
+                    "displayName": "",
+                    "visible": true
+                },
+                "wrapping": "truncate",
+                "fixFirstColumn": true
+            },
+            "fieldOptions": [
+                {
+                    "internalName": "time",
+                    "displayName": "",
+                    "visible": true
+                }
+            ],
+            "timeFormat": "MM/DD/YYYY HH:mm:ss",
+            "decimalPlaces": {
+                "isEnforced": true,
+                "digits": 2
+            },
+            "note": "",
+            "noteVisibility": "default",
+            "links": {
+                "self": "/chronograf/v1/dashboards/9/cells/9d2c5999-4409-47a5-b7af-f14e4a754728"
+            }
+        },
+        {
+            "i": "a546dedc-0ac2-4f73-be22-5d5dc8028976",
+            "x": 0,
+            "y": 4,
+            "w": 4,
+            "h": 4,
+            "name": "S3 request rate (core)",
+            "queries": [
+                {
+                    "query": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"requests\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.request\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"method\", \"status\" FILL(null)",
+                    "queryConfig": {
+                        "database": "",
+                        "measurement": "",
+                        "retentionPolicy": "",
+                        "fields": [],
+                        "tags": {},
+                        "groupBy": {
+                            "time": "",
+                            "tags": []
+                        },
+                        "areTagsAccepted": false,
+                        "rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"requests\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.request\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"method\", \"status\" FILL(null)",
+                        "range": null,
+                        "shifts": null
+                    },
+                    "source": "",
+                    "type": "influxql"
+                },
+                {
+                    "query": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"requests\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.request\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"method\", \"status\" FILL(null)",
+                    "queryConfig": {
+                        "database": "",
+                        "measurement": "",
+                        "retentionPolicy": "",
+                        "fields": [],
+                        "tags": {},
+                        "groupBy": {
+                            "time": "",
+                            "tags": []
+                        },
+                        "areTagsAccepted": false,
+                        "rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"requests\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.request\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"method\", \"status\" FILL(null)",
+                        "range": null,
+                        "shifts": null
+                    },
+                    "source": "",
+                    "type": "influxql"
+                }
+            ],
+            "axes": {
+                "x": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                },
+                "y": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "Requests/s",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                },
+                "y2": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                }
+            },
+            "type": "line",
+            "colors": [
+                {
+                    "id": "c6450d22-06fd-49e9-9cb7-ebcd6644473b",
+                    "type": "scale",
+                    "hex": "#31C0F6",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                },
+                {
+                    "id": "97c5b655-64b1-4a5c-ada2-faacc94d6ead",
+                    "type": "scale",
+                    "hex": "#A500A5",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                },
+                {
+                    "id": "9929f358-ee7a-4f78-9269-b9d9c753c89e",
+                    "type": "scale",
+                    "hex": "#FF7E27",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                }
+            ],
+            "legend": {},
+            "tableOptions": {
+                "verticalTimeAxis": true,
+                "sortBy": {
+                    "internalName": "time",
+                    "displayName": "",
+                    "visible": true
+                },
+                "wrapping": "truncate",
+                "fixFirstColumn": true
+            },
+            "fieldOptions": [
+                {
+                    "internalName": "time",
+                    "displayName": "",
+                    "visible": true
+                }
+            ],
+            "timeFormat": "MM/DD/YYYY HH:mm:ss",
+            "decimalPlaces": {
+                "isEnforced": true,
+                "digits": 2
+            },
+            "note": "",
+            "noteVisibility": "default",
+            "links": {
+                "self": "/chronograf/v1/dashboards/9/cells/a546dedc-0ac2-4f73-be22-5d5dc8028976"
+            }
+        },
+        {
+            "i": "1c59ab70-a219-4ae6-b93a-73617c50fe0e",
+            "x": 8,
+            "y": 0,
+            "w": 4,
+            "h": 4,
+            "name": "S3 Transfer rate",
+            "queries": [
+                {
+                    "query": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"transfer_rate\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.transfer\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"direction\" FILL(null)",
+                    "queryConfig": {
+                        "database": "",
+                        "measurement": "",
+                        "retentionPolicy": "",
+                        "fields": [],
+                        "tags": {},
+                        "groupBy": {
+                            "time": "",
+                            "tags": []
+                        },
+                        "areTagsAccepted": false,
+                        "rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"transfer_rate\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.transfer\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"direction\" FILL(null)",
+                        "range": null,
+                        "shifts": null
+                    },
+                    "source": "",
+                    "type": "influxql"
+                },
+                {
+                    "query": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"transfer_rate\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.transfer\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"direction\" FILL(null)",
+                    "queryConfig": {
+                        "database": "",
+                        "measurement": "",
+                        "retentionPolicy": "",
+                        "fields": [],
+                        "tags": {},
+                        "groupBy": {
+                            "time": "",
+                            "tags": []
+                        },
+                        "areTagsAccepted": false,
+                        "rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"transfer_rate\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.transfer\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"direction\" FILL(null)",
+                        "range": null,
+                        "shifts": null
+                    },
+                    "source": "",
+                    "type": "influxql"
+                }
+            ],
+            "axes": {
+                "x": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                },
+                "y": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "Bytes/s",
+                    "base": "2",
+                    "scale": "linear"
+                },
+                "y2": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                }
+            },
+            "type": "line",
+            "colors": [
+                {
+                    "id": "c6450d22-06fd-49e9-9cb7-ebcd6644473b",
+                    "type": "scale",
+                    "hex": "#31C0F6",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                },
+                {
+                    "id": "97c5b655-64b1-4a5c-ada2-faacc94d6ead",
+                    "type": "scale",
+                    "hex": "#A500A5",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                },
+                {
+                    "id": "9929f358-ee7a-4f78-9269-b9d9c753c89e",
+                    "type": "scale",
+                    "hex": "#FF7E27",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                }
+            ],
+            "legend": {},
+            "tableOptions": {
+                "verticalTimeAxis": true,
+                "sortBy": {
+                    "internalName": "time",
+                    "displayName": "",
+                    "visible": true
+                },
+                "wrapping": "truncate",
+                "fixFirstColumn": true
+            },
+            "fieldOptions": [
+                {
+                    "internalName": "time",
+                    "displayName": "",
+                    "visible": true
+                }
+            ],
+            "timeFormat": "MM/DD/YYYY HH:mm:ss",
+            "decimalPlaces": {
+                "isEnforced": true,
+                "digits": 2
+            },
+            "note": "",
+            "noteVisibility": "default",
+            "links": {
+                "self": "/chronograf/v1/dashboards/9/cells/1c59ab70-a219-4ae6-b93a-73617c50fe0e"
+            }
+        },
+        {
+            "i": "c012bae1-3b87-4416-b070-60fe5f29185b",
+            "x": 4,
+            "y": 0,
+            "w": 4,
+            "h": 4,
+            "name": "S3 request latency",
+            "queries": [
+                {
+                    "query": "SELECT (non_negative_derivative(last(\"totalTime\"), 1s) / non_negative_derivative(last(\"count\"), 1s)) / 1000000 AS \"latency\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.latency\" WHERE time > :dashboardTime: GROUP BY time(:interval:),  \"method\" FILL(null)",
+                    "queryConfig": {
+                        "database": "",
+                        "measurement": "",
+                        "retentionPolicy": "",
+                        "fields": [],
+                        "tags": {},
+                        "groupBy": {
+                            "time": "",
+                            "tags": []
+                        },
+                        "areTagsAccepted": false,
+                        "rawText": "SELECT (non_negative_derivative(last(\"totalTime\"), 1s) / non_negative_derivative(last(\"count\"), 1s)) / 1000000 AS \"latency\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.latency\" WHERE time > :dashboardTime: GROUP BY time(:interval:),  \"method\" FILL(null)",
+                        "range": null,
+                        "shifts": null
+                    },
+                    "source": "",
+                    "type": "influxql"
+                },
+                {
+                    "query": "SELECT (non_negative_derivative(last(\"totalTime\"), 1s) / non_negative_derivative(last(\"count\"), 1s)) / 1000000 AS \"latency\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.latency\" WHERE time > :dashboardTime: GROUP BY time(:interval:),  \"method\" FILL(null)",
+                    "queryConfig": {
+                        "database": "",
+                        "measurement": "",
+                        "retentionPolicy": "",
+                        "fields": [],
+                        "tags": {},
+                        "groupBy": {
+                            "time": "",
+                            "tags": []
+                        },
+                        "areTagsAccepted": false,
+                        "rawText": "SELECT (non_negative_derivative(last(\"totalTime\"), 1s) / non_negative_derivative(last(\"count\"), 1s)) / 1000000 AS \"latency\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.latency\" WHERE time > :dashboardTime: GROUP BY time(:interval:),  \"method\" FILL(null)",
+                        "range": null,
+                        "shifts": null
+                    },
+                    "source": "",
+                    "type": "influxql"
+                }
+            ],
+            "axes": {
+                "x": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                },
+                "y": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "Latency (ms)",
+                    "prefix": "",
+                    "suffix": "ms",
+                    "base": "10",
+                    "scale": "linear"
+                },
+                "y2": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                }
+            },
+            "type": "line",
+            "colors": [
+                {
+                    "id": "c6450d22-06fd-49e9-9cb7-ebcd6644473b",
+                    "type": "scale",
+                    "hex": "#31C0F6",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                },
+                {
+                    "id": "97c5b655-64b1-4a5c-ada2-faacc94d6ead",
+                    "type": "scale",
+                    "hex": "#A500A5",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                },
+                {
+                    "id": "9929f358-ee7a-4f78-9269-b9d9c753c89e",
+                    "type": "scale",
+                    "hex": "#FF7E27",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                }
+            ],
+            "legend": {},
+            "tableOptions": {
+                "verticalTimeAxis": true,
+                "sortBy": {
+                    "internalName": "time",
+                    "displayName": "",
+                    "visible": true
+                },
+                "wrapping": "truncate",
+                "fixFirstColumn": true
+            },
+            "fieldOptions": [
+                {
+                    "internalName": "time",
+                    "displayName": "",
+                    "visible": true
+                }
+            ],
+            "timeFormat": "MM/DD/YYYY HH:mm:ss",
+            "decimalPlaces": {
+                "isEnforced": true,
+                "digits": 2
+            },
+            "note": "",
+            "noteVisibility": "default",
+            "links": {
+                "self": "/chronograf/v1/dashboards/9/cells/c012bae1-3b87-4416-b070-60fe5f29185b"
+            }
+        },
+        {
+            "i": "57cde80d-6d16-465f-8857-d0f16bafa755",
+            "x": 0,
+            "y": 0,
+            "w": 4,
+            "h": 4,
+            "name": "S3 request rate",
+            "queries": [
+                {
+                    "query": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"requests\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.request\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"method\", \"status\" FILL(null)",
+                    "queryConfig": {
+                        "database": "",
+                        "measurement": "",
+                        "retentionPolicy": "",
+                        "fields": [],
+                        "tags": {},
+                        "groupBy": {
+                            "time": "",
+                            "tags": []
+                        },
+                        "areTagsAccepted": false,
+                        "rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"requests\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.s3.request\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"method\", \"status\" FILL(null)",
+                        "range": null,
+                        "shifts": null
+                    },
+                    "source": "",
+                    "type": "influxql"
+                },
+                {
+                    "query": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"requests\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.request\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"method\", \"status\" FILL(null)",
+                    "queryConfig": {
+                        "database": "",
+                        "measurement": "",
+                        "retentionPolicy": "",
+                        "fields": [],
+                        "tags": {},
+                        "groupBy": {
+                            "time": "",
+                            "tags": []
+                        },
+                        "areTagsAccepted": false,
+                        "rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"requests\" FROM \"telegraf\".\"autogen\".\"bm-core.s3.request\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"method\", \"status\" FILL(null)",
+                        "range": null,
+                        "shifts": null
+                    },
+                    "source": "",
+                    "type": "influxql"
+                }
+            ],
+            "axes": {
+                "x": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                },
+                "y": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "Requests/s",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                },
+                "y2": {
+                    "bounds": [
+                        "",
+                        ""
+                    ],
+                    "label": "",
+                    "prefix": "",
+                    "suffix": "",
+                    "base": "10",
+                    "scale": "linear"
+                }
+            },
+            "type": "line",
+            "colors": [
+                {
+                    "id": "c6450d22-06fd-49e9-9cb7-ebcd6644473b",
+                    "type": "scale",
+                    "hex": "#31C0F6",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                },
+                {
+                    "id": "97c5b655-64b1-4a5c-ada2-faacc94d6ead",
+                    "type": "scale",
+                    "hex": "#A500A5",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                },
+                {
+                    "id": "9929f358-ee7a-4f78-9269-b9d9c753c89e",
+                    "type": "scale",
+                    "hex": "#FF7E27",
+                    "name": "Nineteen Eighty Four",
+                    "value": "0"
+                }
+            ],
+            "legend": {},
+            "tableOptions": {
+                "verticalTimeAxis": true,
+                "sortBy": {
+                    "internalName": "time",
+                    "displayName": "",
+                    "visible": true
+                },
+                "wrapping": "truncate",
+                "fixFirstColumn": true
+            },
+            "fieldOptions": [
+                {
+                    "internalName": "time",
+                    "displayName": "",
+                    "visible": true
+                }
+            ],
+            "timeFormat": "MM/DD/YYYY HH:mm:ss",
+            "decimalPlaces": {
+                "isEnforced": true,
+                "digits": 2
+            },
+            "note": "",
+            "noteVisibility": "default",
+            "links": {
+                "self": "/chronograf/v1/dashboards/9/cells/57cde80d-6d16-465f-8857-d0f16bafa755"
+            }
+        }
+    ],
+    "templates": [],
+    "name": "Software Defined Storage",
+    "organization": "default",
+    "links": {
+        "self": "/chronograf/v1/dashboards/9",
+        "cells": "/chronograf/v1/dashboards/9/cells",
+        "templates": "/chronograf/v1/dashboards/9/templates"
+    }
 }
