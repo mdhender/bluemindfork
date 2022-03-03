@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -89,9 +88,6 @@ import net.bluemind.role.api.DefaultRoles;
 import net.bluemind.role.api.IRoles;
 import net.bluemind.role.api.RoleDescriptor;
 import net.bluemind.role.service.IInternalRoles;
-import net.bluemind.system.api.IInstallation;
-import net.bluemind.system.api.SubscriptionInformations;
-import net.bluemind.system.api.SubscriptionInformations.InstallationIndicator;
 import net.bluemind.user.api.ChangePassword;
 import net.bluemind.user.api.IPasswordUpdater;
 import net.bluemind.user.api.IUser;
@@ -100,6 +96,7 @@ import net.bluemind.user.hook.IUserHook;
 import net.bluemind.user.persistence.security.HashAlgorithm;
 import net.bluemind.user.persistence.security.HashFactory;
 import net.bluemind.user.service.IInCoreUser;
+import net.bluemind.user.service.accounttype.UserAccountFactory;
 import net.bluemind.user.service.passwordvalidator.PasswordValidator;
 
 public class UserService implements IInCoreUser, IUser {
@@ -700,53 +697,18 @@ public class UserService implements IInCoreUser, IUser {
 
 	@Override
 	public Set<String> directResolvedRoles(String uid, List<String> groups) throws ServerFault {
-		User user = getFull(uid).value;
+		ItemValue<User> userItem = getFull(uid);
+		User user = userItem.value;
 		if (passwordUpdateNeeded(user.login)) {
 			return DefaultRoles.USER_PASSWORD_EXPIRED;
 		}
 
+		Set<String> roles = UserAccountFactory.get(user.accountType).sanitizeRoles(bmContext,
+				storeService.getRoles(uid), domainName, userItem, groups);
+
 		IInternalRoles roleService = bmContext.su().provider().instance(IInternalRoles.class);
-		if (user.accountType == AccountType.SIMPLE) {
-			return roleService.resolve(DefaultRoles.SIMPLE_USER_DEFAULT_ROLES);
-		}
-
-		Set<String> roles = storeService.getRoles(uid);
-		IGroup groupService = bmContext.su().provider().instance(IGroup.class, domainName);
-
-		for (String groupUid : groups) {
-			roles.addAll(groupService.getRoles(groupUid));
-		}
-
-		if (user.routing == Routing.none && roles.contains("hasMail")) {
-			logger.warn("user {}@{} has \"hasMail\" role but routing == none, remove \"hasMail\" role", uid,
-					domainName);
-			roles.remove("hasMail");
-		}
-
-		if (visioSubscriptionIsActive()) {
-			roles.add("hasSimpleVideoconferencing");
-			if (user.accountType == AccountType.FULL_AND_VISIO) {
-				roles.add("hasFullVideoconferencing");
-			}
-		} else {
-			if (roles.contains("hasSimpleVideoconferencing")) {
-				roles.remove("hasSimpleVideoconferencing");
-			}
-		}
-
 		roles = roleService.filter(roles);
 		return roleService.resolve(roles);
-	}
-
-	private boolean visioSubscriptionIsActive() {
-		IInstallation installationService = bmContext.su().getServiceProvider().instance(IInstallation.class);
-		SubscriptionInformations subInfos = installationService.getSubscriptionInformations();
-
-		Optional<InstallationIndicator> fullVisioIndicator = subInfos.indicator.stream()
-				.filter(indicator -> indicator.kind == InstallationIndicator.Kind.FullVisioAccount).findFirst();
-
-		return fullVisioIndicator.isPresent() && fullVisioIndicator.get().expiration != null
-				&& Calendar.getInstance().getTime().before(fullVisioIndicator.get().expiration);
 	}
 
 	@Override
@@ -920,10 +882,9 @@ public class UserService implements IInCoreUser, IUser {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER);
 
 		if (accountType != null) {
-			AccountType previousAccountType = getComplete(uid).value.accountType;
 			DirEntryHandlers.byKind(BaseDirEntry.Kind.USER).updateAccountType(bmContext, domainName, uid, accountType);
 			for (IUserHook uh : userHooks) {
-				uh.onAccountTypeUpdated(bmContext, domainName, uid, accountType, previousAccountType);
+				uh.onAccountTypeUpdated(bmContext, domainName, uid, accountType);
 			}
 			eventProducer.changed(uid, storeService.getVersion());
 		}

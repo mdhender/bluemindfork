@@ -92,6 +92,5 @@ public interface IUserHook {
 	 */
 	void onUserDeleted(BmContext context, String domainUid, ItemValue<User> deleted) throws ServerFault;
 
-	void onAccountTypeUpdated(BmContext context, String domainUid, String uid, AccountType update, AccountType previous)
-			throws ServerFault;
+	void onAccountTypeUpdated(BmContext context, String domainUid, String uid, AccountType update) throws ServerFault;
 }

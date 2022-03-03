@@ -34,11 +34,11 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.IDirectory;
-import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.user.api.User;
 import net.bluemind.user.hook.DefaultUserHook;
 import net.bluemind.user.hook.IUserHook;
+import net.bluemind.user.service.accounttype.UserAccountFactory;
 
 public class MaxUsersHook extends DefaultUserHook implements IUserHook {
 
@@ -47,7 +47,7 @@ public class MaxUsersHook extends DefaultUserHook implements IUserHook {
 	@Override
 	public void beforeCreate(BmContext context, String domainUid, String uid, User user) throws ServerFault {
 
-		String maxAccountSettingsKey = getMaxSettingsKeyByAccountType(user.accountType);
+		String maxAccountSettingsKey = UserAccountFactory.getMaxSettingsKeyByAccountType(user.accountType);
 
 		Map<String, String> settings = context.su().provider().instance(IDomainSettings.class, domainUid).get();
 
@@ -83,18 +83,6 @@ public class MaxUsersHook extends DefaultUserHook implements IUserHook {
 
 	private boolean hasLimit(String val) {
 		return null != val && !val.isEmpty();
-	}
-
-	private String getMaxSettingsKeyByAccountType(AccountType accountType) {
-		switch (accountType) {
-		case SIMPLE:
-			return DomainSettingsKeys.domain_max_basic_account.name();
-		case FULL_AND_VISIO:
-			return DomainSettingsKeys.domain_max_fullvisio_accounts.name();
-		case FULL:
-		default:
-			return DomainSettingsKeys.domain_max_users.name();
-		}
 	}
 
 	//

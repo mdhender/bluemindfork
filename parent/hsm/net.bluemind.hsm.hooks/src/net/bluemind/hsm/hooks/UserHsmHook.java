@@ -81,8 +81,8 @@ public class UserHsmHook implements IUserHook {
 	}
 
 	@Override
-	public void onAccountTypeUpdated(BmContext context, String domainUid, String uid, AccountType update,
-			AccountType previous) throws ServerFault {
+	public void onAccountTypeUpdated(BmContext context, String domainUid, String uid, AccountType update)
+			throws ServerFault {
 	}
 
 }

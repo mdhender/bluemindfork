@@ -18,61 +18,32 @@
  */
 package net.bluemind.user.service.internal;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.BaseDirEntry.AccountType;
-import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 import net.bluemind.user.hook.DefaultUserHook;
 import net.bluemind.user.hook.IUserHook;
+import net.bluemind.user.service.accounttype.UserAccountFactory;
 
 public class VisioAccountTypeHook extends DefaultUserHook implements IUserHook {
 
-	private static final String HAS_SIMPLE_VISIO_ROLE = "hasSimpleVideoconferencing";
-
 	@Override
 	public void onUserCreated(BmContext context, String domainUid, ItemValue<User> created) throws ServerFault {
-		if (created.value.accountType == AccountType.SIMPLE) {
-			return;
-		}
-
-		IUser user = context.getServiceProvider().instance(IUser.class, domainUid);
-		Set<String> roles = new HashSet<>(user.getRoles(created.uid));
-		if (created.value.accountType == AccountType.FULL && !roles.contains(HAS_SIMPLE_VISIO_ROLE)) {
-			roles.add(HAS_SIMPLE_VISIO_ROLE);
-			user.setRoles(created.uid, roles);
-		}
+		UserAccountFactory.get(created.value.accountType).updateRoles(context, domainUid, created.uid);
 	}
 
 	@Override
 	public void beforeUpdate(BmContext context, String domainUid, String uid, User update, User previous)
 			throws ServerFault {
-		updateRolesList(context, domainUid, uid, update.accountType, previous.accountType);
+		UserAccountFactory.get(update.accountType).updateRoles(context, domainUid, uid);
 	}
 
 	@Override
-	public void onAccountTypeUpdated(BmContext context, String domainUid, String uid, AccountType update,
-			AccountType previous) throws ServerFault {
-
-		updateRolesList(context, domainUid, uid, update, previous);
-	}
-
-	private void updateRolesList(BmContext context, String domainUid, String uid, AccountType update,
-			AccountType previous) {
-		if (update == AccountType.SIMPLE) {
-			return;
-		}
-
-		IUser userService = context.getServiceProvider().instance(IUser.class, domainUid);
-		Set<String> roles = new HashSet<>(userService.getRoles(uid));
-		if (!roles.contains(HAS_SIMPLE_VISIO_ROLE)) {
-			roles.add(HAS_SIMPLE_VISIO_ROLE);
-			userService.setRoles(uid, roles);
-		}
+	public void onAccountTypeUpdated(BmContext context, String domainUid, String uid, AccountType update)
+			throws ServerFault {
+		UserAccountFactory.get(update).updateRoles(context, domainUid, uid);
 	}
 
 }
