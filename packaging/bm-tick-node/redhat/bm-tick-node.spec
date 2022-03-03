@@ -6,7 +6,7 @@ Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
 Summary:            BlueMind TICK stack
-Requires:           bm-telegraf = 1.17.0-0, bm-metrics-agent
+Requires:           bm-telegraf = 1.17.0.bm2~c5f8e83d, bm-metrics-agent
 
 %description
 Installs TICK stack for BlueMind
