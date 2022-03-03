@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 
 import net.bluemind.backend.mail.api.IItemsTransfer;
 import net.bluemind.backend.mail.api.MailboxItem;
@@ -76,7 +77,7 @@ public class ItemsTransferService implements IItemsTransfer {
 	}
 
 	public interface ICopyStrategy {
-		List<ItemIdentifier> copy(List<Long> itemIds);
+		List<ItemIdentifier> copy(List<Long> itemIds, PostCopyOp op);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ItemsTransferService.class);
@@ -114,7 +115,7 @@ public class ItemsTransferService implements IItemsTransfer {
 	}
 
 	public class CrossBackendCopyStrategy implements ICopyStrategy {
-		public List<ItemIdentifier> copy(List<Long> itemIds) {
+		public List<ItemIdentifier> copy(List<Long> itemIds, PostCopyOp op) {
 			List<ImapBinding> srcItems = fromRecords.imapBindings(itemIds);
 			List<MailboxItem> toCreate = new ArrayList<>(itemIds.size());
 			List<String> parts = new ArrayList<>(itemIds.size());
@@ -140,7 +141,15 @@ public class ItemsTransferService implements IItemsTransfer {
 			this.context = context;
 		}
 
-		public List<ItemIdentifier> copy(List<Long> itemIds) {
+		public List<ItemIdentifier> copy(List<Long> itemIds, PostCopyOp op) {
+			List<ItemIdentifier> ret = new ArrayList<>(itemIds.size());
+			for (List<Long> someItemIds : Lists.partition(itemIds, 100)) {
+				ret.addAll(copySome(someItemIds, op));
+			}
+			return ret;
+		}
+
+		private List<ItemIdentifier> copySome(List<Long> itemIds, PostCopyOp op) {
 			List<ImapBinding> srcItems = fromRecords.imapBindings(itemIds);
 			if (srcItems.isEmpty()) {
 				return Collections.emptyList();
@@ -163,6 +172,7 @@ public class ItemsTransferService implements IItemsTransfer {
 							srcItems.stream().map(ib -> (int) ib.imapUid).collect(Collectors.toList()), destImap);
 					if (!mapping.isEmpty()) {
 						logger.info("IMAP copy returned {} item(s)", mapping.size());
+						op.operation(itemIds);
 					} else {
 						logger.warn("IMAP copy returned no items");
 						replicated.complete(null);
@@ -194,8 +204,7 @@ public class ItemsTransferService implements IItemsTransfer {
 	}
 
 	public List<ItemIdentifier> transferImpl(List<Long> itemIds, PostCopyOp op) {
-		List<ItemIdentifier> ret = copyStrat.copy(itemIds);
-		op.operation(itemIds);
+		List<ItemIdentifier> ret = copyStrat.copy(itemIds, op);
 		return ret;
 	}
 
