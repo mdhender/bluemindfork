@@ -12,10 +12,13 @@ export default {
         ...mapGetters("mail", { $_FilterFolderMixin_trash: MY_TRASH, $_FilterFolderMixin_inbox: MY_INBOX })
     },
     methods: {
-        matchingFolders(excludedFolderKeys) {
+        matchingFolders(excludedFolderKeys, includedMailboxes) {
             if (this.pattern !== "") {
                 const filtered = [];
-                this.$store.getters[`mail/${MAILBOXES}`].forEach(mailbox => {
+
+                const mailboxes =
+                    includedMailboxes.length > 0 ? includedMailboxes : this.$store.getters[`mail/${MAILBOXES}`];
+                mailboxes.forEach(mailbox => {
                     if (mailbox.writable) {
                         this.$store.getters[`mail/${MAILBOX_FOLDERS}`](mailbox).forEach(folder => {
                             if (

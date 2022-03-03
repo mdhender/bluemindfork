@@ -63,6 +63,10 @@ export default {
         excludedFolders: {
             type: Array,
             default: () => []
+        },
+        includedMailboxes: {
+            type: Array,
+            default: () => []
         }
     },
     data() {
@@ -83,7 +87,7 @@ export default {
             this.pattern = translatePath(folder.path);
         },
         itemsOrDefaults() {
-            return this.folderSelected ? [] : this.matchingFolders(this.excludedFolders);
+            return this.folderSelected ? [] : this.matchingFolders(this.excludedFolders, this.includedMailboxes);
         },
         translatePath(path) {
             return translatePath(path);

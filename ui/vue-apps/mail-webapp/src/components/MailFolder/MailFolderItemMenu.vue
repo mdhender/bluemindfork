@@ -38,7 +38,8 @@
         <choose-folder-modal
             ref="move-modal"
             :title="$t('mail.folder.move')"
-            :excluded-folders="[folder.key]"
+            :excluded-folders="excludedFolders"
+            :included-mailboxes="[mailbox]"
             @ok="moveFolder"
         />
     </div>
@@ -48,7 +49,7 @@
 import { mapActions, mapGetters, mapState } from "vuex";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
 import { isDefault, isMailshareRoot, DEFAULT_FOLDERS } from "~/model/folder";
-import { IS_DESCENDANT, FOLDER_HAS_CHILDREN, MAILBOX_TRASH } from "~/getters";
+import { IS_DESCENDANT, FOLDER_HAS_CHILDREN, MAILBOX_TRASH, FOLDER_GET_DESCENDANTS } from "~/getters";
 import { EMPTY_FOLDER, MARK_FOLDER_AS_READ, MOVE_FOLDER, REMOVE_FOLDER } from "~/actions";
 import { MailRoutesMixin } from "~/mixins";
 import ChooseFolderModal from "../ChooseFolderModal";
@@ -67,8 +68,13 @@ export default {
             required: true
         }
     },
+    data() {
+        return {
+            excludedFolders: []
+        };
+    },
     computed: {
-        ...mapGetters("mail", { IS_DESCENDANT, FOLDER_HAS_CHILDREN, MAILBOX_TRASH }),
+        ...mapGetters("mail", { IS_DESCENDANT, FOLDER_HAS_CHILDREN, MAILBOX_TRASH, FOLDER_GET_DESCENDANTS }),
         ...mapState("mail", ["mailboxes", "folders", "activeFolder"]),
 
         isDefaultOrMailshareRoot() {
@@ -142,6 +148,8 @@ export default {
             });
         },
         openMoveFolderModal() {
+            const descendantsKeys = this.FOLDER_GET_DESCENDANTS(this.folder).map(child => child.key);
+            this.excludedFolders = [this.folder.key, this.folder.parent, ...descendantsKeys];
             this.$refs["move-modal"].show();
         },
         confirm(title, content) {

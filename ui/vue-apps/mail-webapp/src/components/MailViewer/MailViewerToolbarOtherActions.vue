@@ -46,7 +46,7 @@
             </bm-dropdown-item>
         </bm-dropdown>
         <choose-folder-modal
-            ref="'move-modal"
+            ref="move-modal"
             :title="$t('mail.toolbar.move.tooltip')"
             :excluded-folders="[message.folderRef.key]"
             @ok="moveOk"
