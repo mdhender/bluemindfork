@@ -31,7 +31,7 @@ import net.bluemind.core.task.api.TaskRef;
  *
  */
 @BMApi(version = "3")
-@Path("/mgmt/notes")
+@Path("/mgmt/notes/{containerUid}")
 public interface INoteIndexMgmt {
 
 	/**
@@ -54,7 +54,7 @@ public interface INoteIndexMgmt {
 	 * @throws ServerFault
 	 */
 	@POST
-	@Path("{containerUid}/_reindex")
-	public TaskRef reindex(@PathParam("containerUid") String noteContainerUid) throws ServerFault;
+	@Path("{uid}/_reindex")
+	public TaskRef reindex(@PathParam("uid") String noteContainerUid) throws ServerFault;
 
 }

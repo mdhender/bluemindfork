@@ -24,7 +24,7 @@ import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.notes.api.INote;
 import net.bluemind.notes.api.INoteIndexMgmt;
 
-public class NoteIndexMgmtServiceHttpTests extends NoteServiceTests {
+public class NoteIndexMgmtServiceHttpTests extends NoteIndexMgmtServiceTests {
 
 	@Override
 	protected INoteIndexMgmt getServiceNoteMgmt(SecurityContext context) throws ServerFault {
