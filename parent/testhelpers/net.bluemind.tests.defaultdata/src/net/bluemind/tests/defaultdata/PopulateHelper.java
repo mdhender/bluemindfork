@@ -359,7 +359,12 @@ public class PopulateHelper {
 
 	public static String addUser(String login, String domain, Mailbox.Routing mailrouting, String... roles)
 			throws ServerFault {
-		User admin = getUser(login, domain, mailrouting);
+		return addUser(login, login, domain, mailrouting, roles);
+	}
+
+	public static String addUser(String login, String password, String domain, Mailbox.Routing mailrouting,
+			String... roles) throws ServerFault {
+		User admin = getUser(login, password, domain, mailrouting);
 		return addUser(domain, admin, roles);
 	}
 
@@ -388,6 +393,10 @@ public class PopulateHelper {
 	}
 
 	public static User getUser(String login, String domain, Mailbox.Routing mailrouting) {
+		return getUser(login, login, domain, mailrouting);
+	}
+
+	public static User getUser(String login, String password, String domain, Mailbox.Routing mailrouting) {
 		User admin = new User();
 		admin.login = login;
 		admin.password = login;
