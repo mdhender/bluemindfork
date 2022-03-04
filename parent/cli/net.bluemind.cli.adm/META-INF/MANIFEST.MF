@@ -24,7 +24,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.user.api,
  org.fusesource.jansi,
  org.iq80.snappy,
- slf4j.api
+ slf4j.api,
+ net.bluemind.backend.cyrus.index,
+ com.fasterxml.jackson.core.jackson-databind
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.adm
 Bundle-ActivationPolicy: lazy

@@ -23,5 +23,9 @@
             impl="net.bluemind.cli.adm.RepairOpsCommand$Reg"
             priority="600">
       </registration>
+      <registration
+            impl="net.bluemind.cli.adm.ReadCyrusIndex$Reg"
+            priority="601">
+      </registration>
    </extension>
 </plugin>
