@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.dataprotect.mailbox.internal;
+package net.bluemind.dataprotect.mailbox;
 
 import java.io.IOException;
 import java.nio.file.Path;

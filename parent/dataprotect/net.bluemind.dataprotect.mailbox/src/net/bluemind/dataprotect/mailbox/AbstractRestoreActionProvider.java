@@ -13,8 +13,7 @@ import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.api.RestorableKind;
 import net.bluemind.dataprotect.api.RestoreOperation;
-import net.bluemind.dataprotect.mailbox.internal.MboxRestoreService.Mode;
-import net.bluemind.dataprotect.mailbox.internal.RestoreBoxTask;
+import net.bluemind.dataprotect.mailbox.MboxRestoreService.Mode;
 import net.bluemind.dataprotect.service.IRestoreActionProvider;
 
 public abstract class AbstractRestoreActionProvider implements IRestoreActionProvider {

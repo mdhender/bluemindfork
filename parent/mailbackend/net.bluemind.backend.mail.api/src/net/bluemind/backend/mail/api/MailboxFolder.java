@@ -39,4 +39,15 @@ public class MailboxFolder {
 		return "MailboxFolder{n: " + name + ", fn: " + fullName + ", pUid: " + parentUid + "}";
 	}
 
+	public static MailboxFolder of(String fullName) {
+		MailboxFolder f = new MailboxFolder();
+		f.fullName = fullName;
+		if (fullName.contains("/")) {
+			f.name = fullName.substring(fullName.lastIndexOf('/') + 1);
+		} else {
+			f.name = fullName;
+		}
+		return f;
+	}
+
 }

@@ -1,4 +1,4 @@
-package net.bluemind.dataprotect.mailbox.internal;
+package net.bluemind.dataprotect.mailbox;
 
 import java.text.SimpleDateFormat;
 import java.util.HashSet;

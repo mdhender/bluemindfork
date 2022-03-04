@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.dataprotect.mailbox.internal;
+package net.bluemind.dataprotect.mailbox.tests;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -62,7 +62,8 @@ import net.bluemind.dataprotect.api.IDataProtect;
 import net.bluemind.dataprotect.api.PartGeneration;
 import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.api.RestorableKind;
-import net.bluemind.dataprotect.mailbox.internal.MboxRestoreService.Mode;
+import net.bluemind.dataprotect.mailbox.MboxRestoreService;
+import net.bluemind.dataprotect.mailbox.MboxRestoreService.Mode;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.hsm.api.Demote;
@@ -185,7 +186,7 @@ public class MboxRestoreHSMTests {
 		int toDemote = 0;
 		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, login)) {
 			assertTrue(sc.login());
-			try (InputStream mail = MboxRestoreService.class.getClassLoader().getResourceAsStream("data/junit.eml")) {
+			try (InputStream mail = this.getClass().getClassLoader().getResourceAsStream("data/junit.eml")) {
 				toDemote = sc.append("INBOX", mail, new FlagsList());
 				System.out.println("Added email uid to demote: " + toDemote);
 				assertTrue("Appending an email to the mailbox failed.", toDemote > 0);
@@ -330,9 +331,6 @@ public class MboxRestoreHSMTests {
 		MboxRestoreService mbr = new MboxRestoreService();
 		TestMonitor monitor = new TestMonitor();
 		mbr.restore(latestGen, mbox, testDomain, Mode.Replace, monitor);
-		for (String s : monitor.logs) {
-			System.out.println("restore: " + s);
-		}
 		assertTrue(monitor.finished);
 	}
 

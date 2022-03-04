@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.dataprotect.mailbox.internal;
+package net.bluemind.dataprotect.mailbox.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -32,6 +32,7 @@ import org.junit.Test;
 
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
+import net.bluemind.dataprotect.mailbox.BoxFsFolders;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Type;

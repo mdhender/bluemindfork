@@ -17,17 +17,17 @@
  * END LICENSE
  */
 
-package net.bluemind.dataprotect.mailbox.internal;
+package net.bluemind.dataprotect.mailbox.tests;
 
-import java.util.LinkedList;
-import java.util.List;
+import org.elasticsearch.common.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.task.service.IServerTaskMonitor;
 
 public class TestMonitor implements IServerTaskMonitor {
-
-	public boolean finished;
-	public List<String> logs = new LinkedList<>();
+	private static final Logger logger = LoggerFactory.getLogger(TestMonitor.class);
+	public boolean finished = false;
 
 	@Override
 	public IServerTaskMonitor subWork(double work) {
@@ -41,23 +41,30 @@ public class TestMonitor implements IServerTaskMonitor {
 
 	@Override
 	public void begin(double totalWork, String log) {
-		logs.add(log);
+		if (!Strings.isNullOrEmpty(log)) {
+			logger.info(log);
+		}
 	}
 
 	@Override
 	public void progress(double doneWork, String log) {
-		logs.add(log);
-
+		if (!Strings.isNullOrEmpty(log)) {
+			logger.info(log);
+		}
 	}
 
 	@Override
 	public void end(boolean success, String log, String result) {
-		logs.add(log);
+		if (!Strings.isNullOrEmpty(log)) {
+			logger.info(log);
+		}
 		finished = true;
 	}
 
 	@Override
 	public void log(String log) {
-		logs.add(log);
+		if (!Strings.isNullOrEmpty(log)) {
+			logger.info(log);
+		}
 	}
 }

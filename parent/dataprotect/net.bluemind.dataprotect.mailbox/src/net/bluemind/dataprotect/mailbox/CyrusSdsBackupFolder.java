@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.dataprotect.mailbox.internal;
+package net.bluemind.dataprotect.mailbox;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -64,7 +64,11 @@ public class CyrusSdsBackupFolder {
 	}
 
 	public String fullNameWithoutInbox() {
-		return fullName.replace("INBOX", "");
+		return fullNameWithoutInbox("INBOX");
+	}
+
+	public String fullNameWithoutInbox(String inboxname) {
+		return fullName.replace(inboxname, "");
 	}
 
 	public static CyrusSdsBackupFolder from(JsonParser parser) throws IOException, ParseException {

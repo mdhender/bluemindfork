@@ -16,26 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.dataprotect.mailbox.internal;
-
-/* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
- *
- * This file is part of BlueMind. BlueMind is a messaging and collaborative
- * solution.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of either the GNU Affero General Public License as
- * published by the Free Software Foundation (version 3 of the License).
- *
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *
- * See LICENSE.txt
- * END LICENSE
- */
+package net.bluemind.dataprotect.mailbox.tests;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -104,7 +85,7 @@ public class DemoteCommand extends AbstractHSMCommand {
 
 	public List<TierChangeResult> run(HSMRunStats stats) throws IOException {
 
-		List<TierChangeResult> ret = new ArrayList<TierChangeResult>(ids.size());
+		List<TierChangeResult> ret = new ArrayList<>(ids.size());
 
 		Iterator<InternalDate> it = ids.iterator();
 		while (it.hasNext()) {
@@ -212,7 +193,6 @@ public class DemoteCommand extends AbstractHSMCommand {
 	private int replace(Message msg, FlagsList fl, String hsmId, String dateTime, InternalDate id)
 			throws IOException, TemplateException {
 		InputStream stream = composer.render(msg, lang, hsmId, dateTime);
-		int delivered = sc.append(folderPath, stream, fl, id);
-		return delivered;
+		return sc.append(folderPath, stream, fl, id);
 	}
 }

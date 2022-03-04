@@ -1,12 +1,14 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.dataprotect.mailbox.tests
-Bundle-SymbolicName: net.bluemind.dataprotect.mailbox.tests
+Bundle-SymbolicName: net.bluemind.dataprotect.mailbox.tests;singleton:=true
+Bundle-Activator: net.bluemind.dataprotect.mailbox.tests.Activator
 Bundle-Version: 4.1.0.qualifier
-Bundle-Vendor: blue-mind.net
+Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.authentication.service,
  net.bluemind.backend.cyrus,
+ net.bluemind.backend.cyrus.replication.observers,
  net.bluemind.backend.cyrus.replication.testhelper,
  net.bluemind.backend.cyrus.replication.storage.core,
  net.bluemind.backend.cyrus.replication.server,
@@ -44,8 +46,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.service,
  net.bluemind.tests.defaultdata,
  net.bluemind.user.api,
- org.apache.james.apache-mime4j-core,
- org.apache.james.apache-mime4j-dom,
  org.freemarker.freemarker,
  org.junit,
  net.bluemind.locator,
@@ -55,8 +55,13 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.aws.s3.utils,
  net.bluemind.hornetq.client,
  net.bluemind.sds.proxy.testhelper,
- net.bluemind.dataprotect.mailbox
+ net.bluemind.sds.proxy.mgmt,
+ net.bluemind.sds.store,
+ net.bluemind.sds.store.s3,
+ net.bluemind.core.task.spi,
+ net.bluemind.config,
+ net.bluemind.dataprotect.mailbox,
+ slf4j.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.dataprotect.mailbox.tests
-Fragment-Host: net.bluemind.dataprotect.mailbox

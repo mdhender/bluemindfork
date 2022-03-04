@@ -17,7 +17,7 @@
  * END LICENSE
  */
 
-package net.bluemind.dataprotect.mailbox.internal;
+package net.bluemind.dataprotect.mailbox;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.Restorable;
-import net.bluemind.dataprotect.mailbox.internal.MboxRestoreService.Mode;
+import net.bluemind.dataprotect.mailbox.MboxRestoreService.Mode;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.mailbox.api.IMailboxes;

@@ -17,7 +17,7 @@
  * END LICENSE
  */
 
-package net.bluemind.dataprotect.mailbox.internal;
+package net.bluemind.dataprotect.mailbox.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -30,7 +30,8 @@ import java.util.Collection;
 import org.junit.Test;
 
 import net.bluemind.config.Token;
-import net.bluemind.dataprotect.mailbox.internal.MboxRestoreService.Mode;
+import net.bluemind.dataprotect.mailbox.MboxRestoreService;
+import net.bluemind.dataprotect.mailbox.MboxRestoreService.Mode;
 import net.bluemind.imap.Annotation;
 import net.bluemind.imap.Envelope;
 import net.bluemind.imap.Flag;
@@ -52,12 +53,9 @@ public class MboxRestoreServiceTests extends AbstractRestoreTests {
 
 		TestMonitor monitor = new TestMonitor();
 		mbr.restore(latestGen, mbox, testDomain, Mode.Subfolder, monitor);
-		for (String s : monitor.logs) {
-			System.out.println("restore: " + s);
-		}
 		assertTrue(monitor.finished);
 
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, login)) {
+		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
 			assertTrue(sc.login());
 			boolean found = false;
 			ListResult list = sc.listAll();
@@ -79,13 +77,10 @@ public class MboxRestoreServiceTests extends AbstractRestoreTests {
 
 		TestMonitor monitor = new TestMonitor();
 		mbr.restore(latestGen, sharedMbox, testDomain, Mode.Subfolder, monitor);
-		for (String s : monitor.logs) {
-			System.out.println("restore: " + s);
-		}
 		assertTrue(monitor.finished);
 
 		System.out.println("Login to IMAP as: " + latd);
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, login)) {
+		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
 			assertTrue(sc.login());
 			boolean found = false;
 			ListResult list = sc.listAll();
@@ -107,7 +102,7 @@ public class MboxRestoreServiceTests extends AbstractRestoreTests {
 		assertNotNull(mbr);
 
 		// empty the mailbox
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, login)) {
+		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
 			assertTrue(sc.login());
 			sc.select("INBOX");
 			Collection<Integer> all = sc.uidSearch(new SearchQuery());
@@ -124,12 +119,9 @@ public class MboxRestoreServiceTests extends AbstractRestoreTests {
 
 		TestMonitor monitor = new TestMonitor();
 		mbr.restore(latestGen, mbox, testDomain, Mode.Replace, monitor);
-		for (String s : monitor.logs) {
-			System.out.println("restore: " + s);
-		}
 		assertTrue(monitor.finished);
 
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, login)) {
+		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
 			assertTrue(sc.login());
 			sc.select("INBOX");
 			Collection<Integer> all = sc.uidSearch(new SearchQuery());
@@ -163,7 +155,7 @@ public class MboxRestoreServiceTests extends AbstractRestoreTests {
 		// empty the mailbox
 		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, "admin0", Token.admin0())) {
 			assertTrue(sc.login());
-			sc.select("chong/Sent@junit.lan");
+			assertTrue(sc.select(mailshareLogin + "/Sent@" + domain));
 			Collection<Integer> all = sc.uidSearch(new SearchQuery());
 			size = all.size();
 			assertTrue(size > 0);
@@ -172,22 +164,19 @@ public class MboxRestoreServiceTests extends AbstractRestoreTests {
 			sc.uidStore(all, fl, true);
 			sc.expunge();
 			all = sc.uidSearch(new SearchQuery());
-			assertTrue("chong/Sent@junit.lan should be empty after expunge", all.isEmpty());
+			assertTrue(mailshareLogin + "/Sent@" + domain + " should be empty after expunge", all.isEmpty());
 		}
 
 		TestMonitor monitor = new TestMonitor();
 		mbr.restore(latestGen, sharedMbox, testDomain, Mode.Replace, monitor);
-		for (String s : monitor.logs) {
-			System.out.println("restore: " + s);
-		}
 		assertTrue(monitor.finished);
 
 		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, "admin0", Token.admin0())) {
 			assertTrue(sc.login());
-			sc.select("chong/Sent@junit.lan");
+			sc.select(mailshareLogin + "/Sent@" + domain);
 			Collection<Integer> all = sc.uidSearch(new SearchQuery());
 			assertEquals(size, all.size());
-			assertFalse("chong/Sent@junit.lan should not be empty after restore", all.isEmpty());
+			assertFalse(mailshareLogin + "/Sent@" + domain + " should not be empty after restore", all.isEmpty());
 		}
 	}
 

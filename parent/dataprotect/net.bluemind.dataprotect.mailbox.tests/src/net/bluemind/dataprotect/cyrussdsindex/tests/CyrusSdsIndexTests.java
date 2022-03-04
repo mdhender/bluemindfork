@@ -30,9 +30,9 @@ import java.util.Optional;
 
 import org.junit.Test;
 
-import net.bluemind.dataprotect.mailbox.internal.CyrusSdsBackupFolder;
-import net.bluemind.dataprotect.mailbox.internal.CyrusSdsBackupMailbox;
-import net.bluemind.dataprotect.mailbox.internal.CyrusSdsIndexReader;
+import net.bluemind.dataprotect.mailbox.CyrusSdsBackupFolder;
+import net.bluemind.dataprotect.mailbox.CyrusSdsBackupMailbox;
+import net.bluemind.dataprotect.mailbox.CyrusSdsIndexReader;
 
 public class CyrusSdsIndexTests {
 
