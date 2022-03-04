@@ -185,8 +185,8 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 	}
 
 	private List<DirEntryWithDomain> getEntries(List<String> domainUids, Optional<String> email) {
-		return domainUids.stream().map(domainUid -> getDomainEntries(domainUid, email))
-				.flatMap(entries -> entries.stream()).collect(Collectors.toList());
+		return domainUids.stream().map(domainUid -> getDomainEntries(domainUid, email)).flatMap(List::stream)
+				.collect(Collectors.toList());
 	}
 
 	private List<DirEntryWithDomain> getDomainEntries(String domainUid, Optional<String> email) {
