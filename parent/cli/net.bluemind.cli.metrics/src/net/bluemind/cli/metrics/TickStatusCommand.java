@@ -49,6 +49,7 @@ public class TickStatusCommand implements ICmdLet, Runnable {
 	private CliContext ctx;
 
 	public TickStatusCommand() {
+		// OK
 	}
 
 	@Override
@@ -58,14 +59,13 @@ public class TickStatusCommand implements ICmdLet, Runnable {
 	}
 
 	public void run() {
-
 		IServer serversApi = ctx.adminApi().instance(IServer.class, InstallationId.getIdentifier());
 		Optional<ItemValue<Server>> tickServer = serversApi.allComplete().stream()
 				.filter(srvItem -> srvItem.value.tags.contains(TagDescriptor.bm_metrics_influx.getTag())).findAny();
 		if (tickServer.isPresent()) {
-			System.out.println(ctx.ansi().a("Tick deployement ").fgBrightGreen().a("OK").reset());
+			ctx.info(ctx.ansi().a("Tick deployement ").fgBrightGreen().a("OK").reset().toString());
 		} else {
-			System.out.println(ctx.ansi().a("Tick is not deployed ").fgBrightRed().a("FAILED").reset());
+			ctx.info(ctx.ansi().a("Tick is not deployed ").fgBrightRed().a("FAILED").reset().toString());
 		}
 
 	}

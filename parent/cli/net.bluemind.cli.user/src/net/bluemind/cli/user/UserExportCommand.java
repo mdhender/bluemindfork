@@ -167,12 +167,11 @@ public class UserExportCommand extends SingleOrDomainOperation {
 
 		String login = ctx.adminApi().instance(IUser.class, domainUid).getComplete(de.uid).value.login;
 
-		
 		char firstDomainLetter = (Character.isLetter(domainUid.charAt(0))) ? domainUid.charAt(0) : 'q';
-		
+
 		String cyrusPath = de.value.dataLocation + "__" + domainUid.replace('.', '_') + "/domain/" + firstDomainLetter
 				+ "/" + domainUid + "/" + firstLetterMailbox(login) + "/user/" + login.replace('.', '^');
-		
+
 		String cyrusData = "/var/spool/cyrus/data/" + cyrusPath;
 		String cyrusMeta = "/var/spool/cyrus/meta/" + cyrusPath;
 		String cyrusHsm = "/var/spool/bm-hsm/cyrus-archives/" + cyrusPath;

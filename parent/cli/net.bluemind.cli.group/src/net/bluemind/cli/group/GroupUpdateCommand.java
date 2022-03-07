@@ -85,7 +85,7 @@ public class GroupUpdateCommand implements ICmdLet, Runnable {
 	@Override
 	public void run() {
 		if (!target.contains("@")) {
-			ctx.info("Group not found.");
+			ctx.error("Group {} does not contains @", target);
 			return;
 		}
 

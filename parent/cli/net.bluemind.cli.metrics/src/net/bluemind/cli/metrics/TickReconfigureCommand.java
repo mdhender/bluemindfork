@@ -69,7 +69,7 @@ public class TickReconfigureCommand implements ICmdLet, Runnable {
 
 	public void run() {
 		if (dry) {
-			logger.warn("Dry mode does nothing");
+			ctx.warn("Dry mode does nothing");
 		} else {
 			ITickConfiguration tickApi = ctx.adminApi().instance(ITickConfiguration.class);
 			TaskRef ref = tickApi.reconfigure();

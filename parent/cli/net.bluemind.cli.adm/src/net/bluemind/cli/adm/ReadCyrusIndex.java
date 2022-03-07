@@ -63,25 +63,25 @@ public class ReadCyrusIndex implements ICmdLet, Runnable {
 	@Override
 	public void run() {
 		if (!indexPath.exists()) {
-			ctx.error("specified index '" + indexPath + "' does not exists");
+			ctx.error("specified index '{}' does not exists", indexPath);
 			return;
 		}
 		try {
 			try (InputStream in = Files.newInputStream(indexPath.toPath(), StandardOpenOption.READ)) {
 				CyrusIndex index = new CyrusIndex(in);
 
-				if (toJson) {
+				if (Boolean.TRUE.equals(toJson)) {
 					ObjectMapper mapper = new ObjectMapper();
 					mapper.enable(SerializationFeature.INDENT_OUTPUT);
 					mapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
 
 					try (JsonGenerator json = new JsonFactory().createGenerator(System.out, JsonEncoding.UTF8)) {
 						json.writeStartObject();
-						json.writeStringField("index", indexPath.getAbsolutePath().toString());
+						json.writeStringField("index", indexPath.getAbsolutePath());
 						json.writeArrayFieldStart("records");
-						index.readAll().stream().forEach(record -> {
+						index.readAll().stream().forEach(rec -> {
 							try {
-								mapper.writeValue(json, record);
+								mapper.writeValue(json, rec);
 							} catch (IOException e) {
 								e.printStackTrace();
 							}

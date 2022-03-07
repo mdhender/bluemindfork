@@ -64,11 +64,11 @@ public class StatusCommand extends AbstractNodeOperation {
 	}
 
 	private void reportFailure(ItemValue<Server> srv) {
-		System.out.println(ctx.ansi().a(buildResult(srv)).fgBrightRed().a("FAILED").reset());
+		ctx.info(ctx.ansi().a(buildResult(srv)).fgBrightRed().a("FAILED").reset().toString());
 	}
 
 	private void reportSuccess(ItemValue<Server> srv) {
-		System.out.println(ctx.ansi().a(buildResult(srv)).fgBrightGreen().a("OK").reset());
+		ctx.info(ctx.ansi().a(buildResult(srv)).fgBrightGreen().a("OK").reset().toString());
 	}
 
 	private String buildResult(ItemValue<Server> srv) {

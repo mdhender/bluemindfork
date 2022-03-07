@@ -157,7 +157,7 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 		}
 		if (noops > 0) {
 			int handled = entriesWithDomainUid.size() - noops;
-			ctx.info("Handled " + handled + " entries. " + noops + " entries have been ignored");
+			ctx.warn("Handled " + handled + " entries. " + noops + " entries have been ignored");
 		}
 	}
 

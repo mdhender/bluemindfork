@@ -274,11 +274,14 @@ public class AuditLogCommand implements ICmdLet, Runnable {
 		}
 
 		public String generalData() {
-			String toString = date + "\n" + actor + "\n" + action + "\n" + result + "\n" + itemUid + "\n";
-			for (String s : otherData) {
-				toString += (s + "\n");
-			}
-			return toString;
+			StringBuilder builder = new StringBuilder();
+			builder.append(date).append("\n");
+			builder.append(actor).append("\n");
+			builder.append(action).append("\n");
+			builder.append(result).append("\n");
+			builder.append(itemUid).append("\n");
+			otherData.stream().forEach(s -> builder.append(s).append("\n"));
+			return builder.toString();
 		}
 	}
 

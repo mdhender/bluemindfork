@@ -65,7 +65,7 @@ public class MigrateCommand implements ICmdLet, Runnable {
 	}
 
 	public MigrateCommand() {
-		// ok
+		// OK
 	}
 
 	@Override

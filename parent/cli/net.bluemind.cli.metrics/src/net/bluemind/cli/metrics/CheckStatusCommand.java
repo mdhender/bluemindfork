@@ -49,6 +49,7 @@ public class CheckStatusCommand implements ICmdLet, Runnable {
 	private CliContext ctx;
 
 	public CheckStatusCommand() {
+		// OK
 	}
 
 	@Override

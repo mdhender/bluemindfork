@@ -66,6 +66,5 @@ public class ExportCalendarCommand extends ExportCommand {
 	@Override
 	public void writeFile(File outputFile, String containerUid) {
 		GenericStream.streamToFile(ctx.adminApi().instance(IVEvent.class, containerUid).exportAll(), outputFile);
-
 	}
 }

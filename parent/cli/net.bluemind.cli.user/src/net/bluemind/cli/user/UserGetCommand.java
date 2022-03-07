@@ -77,15 +77,15 @@ public class UserGetCommand extends SingleOrDomainOperation {
 
 		IUser userApi = ctx.adminApi().instance(IUser.class, domainUid);
 		if (display == null) {
-			System.out.println(JsonUtils.asString(userApi.getComplete(de.uid)));
+			ctx.info(JsonUtils.asString(userApi.getComplete(de.uid)));
 		} else {
-			Set<String> displaySet = new HashSet<String>();
+			Set<String> displaySet = new HashSet<>();
 			if (!Strings.isNullOrEmpty(display)) {
 				displaySet.addAll(Arrays.asList(display.split(" ")));
 			}
 
 			List<String> itemValues = Arrays.asList("uid", "email", "extId");
-			boolean fast = displaySet.stream().allMatch(v -> itemValues.contains(v));
+			boolean fast = displaySet.stream().allMatch(itemValues::contains);
 
 			JsonObject userJson = new JsonObject();
 			if (displaySet.contains("uid")) {

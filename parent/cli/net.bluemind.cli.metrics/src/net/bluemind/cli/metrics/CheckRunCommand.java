@@ -54,6 +54,7 @@ public class CheckRunCommand implements ICmdLet, Runnable {
 	public String check;
 
 	public CheckRunCommand() {
+		// OK
 	}
 
 	@Override
