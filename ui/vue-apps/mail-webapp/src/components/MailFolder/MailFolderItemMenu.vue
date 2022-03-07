@@ -1,6 +1,6 @@
 <template>
-    <div class="mail-folder-item-menu">
-        <bm-contextual-menu boundary="viewport">
+    <div class="mail-folder-item-menu d-flex justify-content-center h-100">
+        <bm-contextual-menu boundary="viewport" class="flex-fill" v-on="$listeners">
             <bm-dropdown-item-button
                 :disabled="!folder.allowSubfolder"
                 icon="plus"
@@ -36,8 +36,7 @@
             :ok-title="$t('mail.folder.move')"
             :cancel-title="$t('common.cancel')"
             :title="$t('mail.actions.move_folder.title', { name: folder.name })"
-            :excluded-folders="excludedFolders"
-            :excluded-folder-message="$t('mail.actions.move_folder.excluded')"
+            :is-excluded="isExcluded"
             :mailboxes="[mailbox]"
             :default-folders="defaultFolders"
             @ok="moveFolder"
@@ -48,8 +47,16 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
-import { createRoot, DEFAULT_FOLDERS, folderExists, isDefault, isRoot } from "~/model/folder";
-import { IS_DESCENDANT, FOLDER_BY_PATH, FOLDER_HAS_CHILDREN, MAILBOX_TRASH, FOLDER_GET_DESCENDANTS } from "~/getters";
+import {
+    createRoot,
+    DEFAULT_FOLDERS,
+    folderExists,
+    getInvalidCharacter,
+    isDefault,
+    isDescendantPath,
+    isRoot
+} from "~/model/folder";
+import { IS_DESCENDANT, FOLDER_BY_PATH, FOLDER_HAS_CHILDREN, MAILBOX_TRASH } from "~/getters";
 import { CREATE_FOLDER, EMPTY_FOLDER, MARK_FOLDER_AS_READ, MOVE_FOLDER, REMOVE_FOLDER } from "~/actions";
 import { MailRoutesMixin } from "~/mixins";
 import ChooseFolderModal from "../ChooseFolderModal";
@@ -70,19 +77,12 @@ export default {
     },
     data() {
         return {
-            excludedFolders: [],
             folderParent: null,
             defaultFolders: []
         };
     },
     computed: {
-        ...mapGetters("mail", {
-            IS_DESCENDANT,
-            FOLDER_BY_PATH,
-            FOLDER_HAS_CHILDREN,
-            MAILBOX_TRASH,
-            FOLDER_GET_DESCENDANTS
-        }),
+        ...mapGetters("mail", { IS_DESCENDANT, FOLDER_BY_PATH, FOLDER_HAS_CHILDREN, MAILBOX_TRASH }),
         ...mapState("mail", ["mailboxes", "folders", "activeFolder"]),
         isDefault() {
             return isDefault(!this.folder.parent, this.folder.imapName, this.mailbox);
@@ -144,6 +144,7 @@ export default {
             }
         },
         async moveFolder(destinationFolder) {
+            const folder = { ...this.folder };
             let destination;
             if (isRoot(destinationFolder)) {
                 destination = null;
@@ -157,18 +158,12 @@ export default {
                     });
                 }
             }
-            this.MOVE_FOLDER({
-                folder: this.folder,
-                parent: destination,
-                mailbox: this.mailbox
-            });
+            this.MOVE_FOLDER({ folder, parent: destination, mailbox: this.mailbox });
         },
         openMoveFolderModal() {
-            const descendantsKeys = this.FOLDER_GET_DESCENDANTS(this.folder).map(child => child.key);
-            this.excludedFolders = [this.folder.key, this.folder.parent, ...descendantsKeys];
+            const root = createRoot(this.mailbox);
 
             const trash = this.$store.getters[`mail/${MAILBOX_TRASH}`](this.mailbox);
-            const root = createRoot(this.mailbox);
             this.defaultFolders = this.folder.parent ? [root, trash] : [trash];
 
             this.$refs["move-modal"].show();
@@ -183,6 +178,26 @@ export default {
                 hideHeaderClose: false,
                 autoFocusButton: "ok"
             });
+        },
+        isExcluded(folder) {
+            if (folder) {
+                if (folder.path === this.folder.path) {
+                    return this.$t("mail.actions.move_folder.excluded_folder.same");
+                }
+                if (isDescendantPath(folder.path, this.folder.path)) {
+                    return this.$t("mail.actions.move_folder.excluded_folder.descendant");
+                }
+                if (folder.path === this.folders[this.folder.parent]?.path) {
+                    return this.$t("mail.actions.move_folder.excluded_folder.parent");
+                }
+                const invalidCharacter = getInvalidCharacter(folder.path);
+                if (invalidCharacter) {
+                    return this.$t("common.invalid.character", {
+                        character: invalidCharacter
+                    });
+                }
+            }
+            return false;
         }
     }
 };

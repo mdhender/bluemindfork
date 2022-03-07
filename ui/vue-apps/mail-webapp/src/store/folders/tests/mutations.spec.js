@@ -7,7 +7,8 @@ import {
     REMOVE_FOLDER,
     SET_FOLDER_EXPANDED,
     SET_UNREAD_COUNT,
-    UPDATE_FOLDER
+    UPDATE_FOLDER,
+    UPDATE_PATHS
 } from "~/mutations";
 import { Flag } from "@bluemind/email";
 
@@ -224,6 +225,36 @@ describe("folder mutations", () => {
             const messages = [message];
             mutations[DELETE_FLAG](state, { messages, flag: Flag.FLAGGED });
             expect(state["123"].unread).toEqual(5);
+        });
+    });
+    describe("UPDATE_PATHS", () => {
+        const { [UPDATE_PATHS]: updatePaths } = mutations;
+        test("update paths", () => {
+            const state = {
+                "0": { path: "a" },
+                "1": { path: "a/b/" },
+                "2": { path: "a/b/c" },
+                "3": { path: "a/b/c/d" },
+                "4": { path: "a/b/c/d/e" },
+                "5": { path: "a/b/c/d/e/f" },
+                "6": { path: "z/y" },
+                "7": { path: "z/y/x" }
+            };
+            const folders = [{ key: "2" }, { key: "3" }, { key: "4" }, { key: "7" }];
+            const initial = { path: "a/b/c" };
+            const updated = { path: "new/parent/c" };
+
+            updatePaths(state, { folders, initial, updated });
+            expect(state).toEqual({
+                "0": { path: "a" },
+                "1": { path: "a/b/" },
+                "2": { path: "new/parent/c" },
+                "3": { path: "new/parent/c/d" },
+                "4": { path: "new/parent/c/d/e" },
+                "5": { path: "a/b/c/d/e/f" },
+                "6": { path: "z/y" },
+                "7": { path: "z/y/x" }
+            });
         });
     });
 });

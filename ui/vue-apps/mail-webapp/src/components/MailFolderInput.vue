@@ -42,17 +42,14 @@ export default {
     props: {
         folder: {
             type: Object,
-            required: false,
             default: null
         },
         shared: {
             type: Boolean,
-            required: false,
             default: false
         },
         submitOnFocusout: {
             type: Boolean,
-            required: false,
             default: true
         },
         mailboxes: {

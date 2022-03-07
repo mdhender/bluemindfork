@@ -6,7 +6,8 @@ import {
     SET_UNREAD_COUNT,
     //TODO: change mutation names
     REMOVE_FOLDER as MUTATION_REMOVE_FOLDER,
-    UPDATE_FOLDER
+    UPDATE_FOLDER,
+    UPDATE_PATHS
 } from "~/mutations";
 import { FOLDER_BY_PATH, FOLDER_GET_DESCENDANTS } from "~/getters";
 import { FolderAdaptor } from "./helpers/FolderAdaptor";
@@ -67,14 +68,18 @@ const removeFolder = async function ({ commit, getters }, { folder, mailbox }) {
     }
 };
 
-const updateFolder = async function ({ commit }, { initial, updated, mailbox }) {
+const updateFolder = async function ({ commit, getters }, { initial, updated, mailbox }) {
+    initial = { ...initial };
     commit(UPDATE_FOLDER, updated);
+    const descendants = getters[FOLDER_GET_DESCENDANTS](initial);
+    commit(UPDATE_PATHS, { folders: descendants, initial, updated });
     const item = FolderAdaptor.toMailboxFolder(updated, mailbox);
     try {
         await api.updateFolder(mailbox, item);
         return updated;
     } catch (e) {
-        commit(UPDATE_FOLDER, { ...initial });
+        commit(UPDATE_FOLDER, initial);
+        commit(UPDATE_PATHS, { folders: descendants, initial: updated, updated: initial });
         throw e;
     }
 };

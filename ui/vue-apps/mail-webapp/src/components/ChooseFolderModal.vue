@@ -46,7 +46,7 @@
                                 <mail-mailbox-icon no-text :mailbox="allMailboxes[item.mailboxRef.key]" />
                             </div>
                         </template>
-                        <template v-if="!folderNameExists" #extra="{close, focus, goUp, goDown}">
+                        <template v-if="!folderNameExists && !selectedExcluded" #extra="{close, focus, goUp, goDown}">
                             <div v-if="pattern" ref="extra" class="d-flex align-items-center" @click="close">
                                 <bm-icon icon="plus" />
                                 <span class="pl-2 flex-fill">
@@ -59,7 +59,6 @@
                                     ref="extra"
                                     class="flex-fill pl-0"
                                     :mailboxes="mailboxes"
-                                    :submit-on-focusout="false"
                                     @submit="
                                         name => {
                                             onSelected(createFolder(null, name, null, mailboxes[0]));
@@ -82,11 +81,7 @@
                             </div>
                         </template>
                     </bm-form-autocomplete-input>
-                    <bm-notice
-                        v-if="inputState === false && excludedFolderMessage"
-                        class="position-absolute w-100"
-                        :text="excludedFolderMessage"
-                    />
+                    <bm-notice v-if="inputState === false" class="position-absolute w-100" :text="selectedExcluded" />
                 </div>
             </div>
         </template>
@@ -117,13 +112,9 @@ export default {
     },
     mixins: [FilterFolderMixin],
     props: {
-        excludedFolders: {
-            type: Array,
-            default: () => []
-        },
-        excludedFolderMessage: {
-            type: String,
-            default: ""
+        isExcluded: {
+            type: Function,
+            default: () => false
         },
         defaultFolders: {
             type: Array,
@@ -144,7 +135,10 @@ export default {
             return folderExists(this.pattern, this.folderByPath);
         },
         inputState() {
-            return this.selectedFolder && this.excludedFolders.includes(this.selectedFolder.key) ? false : null;
+            return this.selectedFolder && this.selectedExcluded ? false : null;
+        },
+        selectedExcluded() {
+            return this.isExcluded(this.selectedFolder);
         }
     },
     methods: {
@@ -153,7 +147,7 @@ export default {
             this.pattern = this.translatePath(folder);
         },
         itemsOrDefaults() {
-            return this.pattern ? this.matchingFolders(this.excludedFolders, this.mailboxes) : this.defaultFolders;
+            return this.pattern ? this.matchingFolders(this.isExcluded, this.mailboxes) : this.defaultFolders;
         },
         doCancel() {
             this.pattern = "";
@@ -182,6 +176,9 @@ export default {
 <style lang="scss">
 .choose-folder-modal-body {
     overflow: visible;
+    .bm-form-autocomplete-input .suggestions {
+        overflow: unset !important;
+    }
 }
 .choose-folder-modal-header {
     .modal-title {

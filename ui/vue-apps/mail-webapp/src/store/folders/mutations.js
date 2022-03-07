@@ -9,7 +9,8 @@ import {
     SET_FOLDER_EXPANDED,
     SET_MAILBOX_FOLDERS,
     SET_UNREAD_COUNT,
-    UPDATE_FOLDER
+    UPDATE_FOLDER,
+    UPDATE_PATHS
 } from "~/mutations";
 
 export default {
@@ -26,6 +27,13 @@ export default {
         state[key].name = name;
         state[key].parent = parent;
         state[key].path = path;
+    },
+    [UPDATE_PATHS]: (state, { folders, initial, updated }) => {
+        folders.forEach(folder => {
+            if (state[folder.key].path.startsWith(initial.path)) {
+                state[folder.key].path = state[folder.key].path.replace(initial.path, updated.path);
+            }
+        });
     },
     [REMOVE_FOLDER]: (state, { key }) => {
         Vue.delete(state, key);

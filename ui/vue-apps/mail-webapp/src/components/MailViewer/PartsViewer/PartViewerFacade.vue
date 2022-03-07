@@ -20,7 +20,9 @@ const registry = new Map();
 
 Object.values(components).forEach(component => {
     component.$capabilities.forEach(capability => {
-        if (!registry.has(capability)) registry.set(capability, component.name);
+        if (!registry.has(capability)) {
+            registry.set(capability, component.name);
+        }
     });
 });
 

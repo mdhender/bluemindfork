@@ -152,10 +152,10 @@ export function isNameValid(name, path, getFolderByPath) {
         return vueI18n.t("mail.actions.folder.invalid.too_long");
     }
 
-    const checkValidity = isFolderNameValid(name.toLowerCase());
-    if (checkValidity !== true) {
+    const invalidCharacter = getInvalidCharacter(name.toLowerCase());
+    if (invalidCharacter) {
         return vueI18n.t("common.invalid.character", {
-            character: checkValidity
+            character: invalidCharacter
         });
     }
 
@@ -191,13 +191,12 @@ function ascendantsAllowSubfolder(normalizedPath, getFolderByPath) {
 const FORBIDDEN_FOLDER_CHARACTERS = '@%*"`;^<>{}|\\';
 
 /** @return invalid character if name is invalid */
-function isFolderNameValid(name) {
+export function getInvalidCharacter(name) {
     for (let i = 0; i < name.length; i++) {
         if (FORBIDDEN_FOLDER_CHARACTERS.includes(name.charAt(i))) {
             return name.charAt(i);
         }
     }
-    return true;
 }
 
 function translate(name) {
@@ -249,4 +248,20 @@ export function createRoot(mailbox) {
 
 export function isRoot(folder) {
     return !folder.parent && folder.key === null && folder.imapName === DEFAULT_FOLDER_NAMES.ROOT;
+}
+
+export function isDescendantPath(path, parentPath) {
+    if (path && parentPath) {
+        const pathArray = path.toUpperCase().split("/");
+        const parentPathArray = parentPath.toUpperCase().split("/");
+        if (pathArray.length > parentPathArray.length) {
+            for (let i = 0; i < parentPathArray.length; i++) {
+                if (pathArray[i] !== parentPathArray[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+    return false;
 }

@@ -50,7 +50,7 @@
             :cancel-title="$t('common.cancel')"
             :ok-title="$t('mail.actions.move')"
             :title="$t('mail.toolbar.move.tooltip')"
-            :excluded-folders="[message.folderRef.key, null]"
+            :is-excluded="isFolderExcluded"
             :default-folders="[MY_TRASH, MY_INBOX]"
             :mailboxes="MAILBOXES"
             @ok="moveOk"
@@ -73,6 +73,7 @@ import { MAILBOXES, MY_DRAFTS, MY_TRASH, MY_INBOX } from "~/getters";
 import { MessageCreationModes } from "~/model/message";
 import { draftPath } from "~/model/draft";
 import MessagePathParam from "~/router/MessagePathParam";
+import { isRoot, getInvalidCharacter } from "~/model/folder";
 import ChooseFolderModal from "../ChooseFolderModal";
 import MailMessagePrint from "./MailMessagePrint";
 
@@ -129,6 +130,23 @@ export default {
                 params: { messagepath: draftPath(this.MY_DRAFTS) },
                 query: { action: MessageCreationModes.EDIT_AS_NEW, message: MessagePathParam.build("", this.message) }
             });
+        },
+        isFolderExcluded(folder) {
+            if (folder) {
+                if (folder.key === this.message.folderRef.key) {
+                    return this.$t("mail.actions.move_message.excluded_folder.same");
+                }
+                if (isRoot(folder)) {
+                    return this.$t("mail.actions.move_message.excluded_folder.root");
+                }
+                const invalidCharacter = getInvalidCharacter(folder.path);
+                if (invalidCharacter) {
+                    return this.$t("common.invalid.character", {
+                        character: invalidCharacter
+                    });
+                }
+            }
+            return false;
         }
     }
 };

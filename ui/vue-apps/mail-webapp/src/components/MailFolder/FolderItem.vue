@@ -14,12 +14,13 @@
             v-if="folder.writable"
             :folder="folder"
             class="mx-1"
-            :class="{ 'd-none': isUnread }"
             @edit="$emit('edit')"
             @create="$emit('create')"
+            @shown="menuIsShown = true"
+            @hidden="menuIsShown = false"
         />
         <bm-counter-badge
-            v-if="isUnread"
+            v-if="isUnread && !menuIsShown"
             :value="folder.unread"
             :variant="isActive ? 'secondary' : 'primary'"
             class="mx-1 d-block"
@@ -47,6 +48,9 @@ export default {
             type: Object,
             required: true
         }
+    },
+    data() {
+        return { menuIsShown: false };
     },
     computed: {
         ...mapState("mail", ["activeFolder"]),
@@ -84,11 +88,8 @@ export default {
     .mail-folder-item-menu {
         visibility: hidden;
 
-        & > button {
+        .dropdown-toggle {
             padding: 0;
-        }
-        &.d-flex + .bm-counter-badge {
-            display: none !important;
         }
     }
 }

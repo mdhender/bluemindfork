@@ -15,7 +15,7 @@ export default {
         })
     },
     methods: {
-        matchingFolders(excludedFolderKeys, includedMailboxes = []) {
+        matchingFolders(isExcluded, includedMailboxes = []) {
             const filtered = [];
 
             const mailboxes =
@@ -26,7 +26,7 @@ export default {
                     const folders = [rootFolder, ...this.$store.getters[`mail/${MAILBOX_FOLDERS}`](mailbox)];
                     folders.forEach(folder => {
                         if (
-                            !excludedFolderKeys.includes(folder.key) &&
+                            !isExcluded(folder) &&
                             (folder.path.toLowerCase().includes(this.pattern.toLowerCase()) ||
                                 folder.name.toLowerCase().includes(this.pattern.toLowerCase()))
                         ) {

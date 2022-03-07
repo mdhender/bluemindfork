@@ -185,16 +185,24 @@ describe("actions", () => {
                 remoteRef: {},
                 name: "bar",
                 path: "foobaz/bar",
-                parent: "-1"
+                parent: "-1",
+                mailboxRef: { key: "mboxKey" }
             };
             const newFolder = {
                 key: "1",
                 remoteRef: {},
                 name: "bar",
                 path: "foo/bar",
-                parent: "2"
+                parent: "2",
+                mailboxRef: { key: "mboxKey" }
             };
-            const newParent = { key: "2", remoteRef: { uid: "uid-2" }, name: "foo", path: "foo" };
+            const newParent = {
+                key: "2",
+                remoteRef: { uid: "uid-2" },
+                name: "foo",
+                path: "foo",
+                mailboxRef: { key: "mboxKey" }
+            };
 
             store.commit(ADD_FOLDER, oldFolder);
             store.commit(ADD_FOLDER, newParent);
@@ -221,21 +229,24 @@ describe("actions", () => {
                 remoteRef: {},
                 name: "foo",
                 path: "toh/foo",
-                parent: "-1"
+                parent: "-1",
+                mailboxRef: { key: "mboxKey" }
             };
             const existingFolder = {
                 key: "3",
                 remoteRef: {},
                 name: "foo",
                 path: "kung/foo",
-                parent: "2"
+                parent: "2",
+                mailboxRef: { key: "mboxKey" }
             };
             const existingFolder2 = {
                 key: "4",
                 remoteRef: {},
                 name: "foo (1)",
                 path: "kung/foo (1)",
-                parent: "2"
+                parent: "2",
+                mailboxRef: { key: "mboxKey" }
             };
             const newFolder = {
                 key: "1",
@@ -243,9 +254,16 @@ describe("actions", () => {
                 name: "foo (2)",
                 imapName: "foo (2)",
                 path: "kung/foo (2)",
-                parent: "2"
+                parent: "2",
+                mailboxRef: { key: "mboxKey" }
             };
-            const newParent = { key: "2", remoteRef: { uid: "uid-2" }, name: "kung", path: "kung" };
+            const newParent = {
+                key: "2",
+                remoteRef: { uid: "uid-2" },
+                name: "kung",
+                path: "kung",
+                mailboxRef: { key: "mboxKey" }
+            };
 
             store.commit(ADD_FOLDER, oldFolder);
             store.commit(ADD_FOLDER, existingFolder);
@@ -274,10 +292,17 @@ describe("actions", () => {
                 remoteRef: {},
                 name: "bar",
                 path: "foobaz/bar",
-                parent: "-1"
+                parent: "-1",
+                mailboxRef: { key: "mboxKey" }
             };
 
-            const newParent = { key: "2", remoteRef: { uid: "uid-2" }, name: "foo", path: "foo" };
+            const newParent = {
+                key: "2",
+                remoteRef: { uid: "uid-2" },
+                name: "foo",
+                path: "foo",
+                mailboxRef: { key: "mboxKey" }
+            };
 
             store.commit(ADD_FOLDER, oldFolder);
             store.commit(ADD_FOLDER, newParent);

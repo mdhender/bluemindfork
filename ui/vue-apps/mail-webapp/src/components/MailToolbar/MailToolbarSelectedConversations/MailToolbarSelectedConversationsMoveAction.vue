@@ -19,7 +19,7 @@
             ref="moveAutocomplete"
             v-slot="{ item }"
             v-model.trim="pattern"
-            :items="pattern ? matchingFolders(excludedFolderKeys()) : [MY_TRASH, MY_INBOX]"
+            :items="pattern ? matchingFolders(isExcluded) : [MY_TRASH, MY_INBOX]"
             icon="search"
             :max-results="maxFolders"
             has-divider-under-input
@@ -39,6 +39,11 @@
                 </div>
             </bm-dropdown-item-button>
         </bm-dropdown-autocomplete>
+        <bm-notice
+            v-if="invalidCharacter"
+            class="position-absolute w-100"
+            :text="$t('common.invalid.character', { character: invalidCharacter })"
+        />
         <bm-dropdown-divider />
         <bm-dropdown-form
             v-if="pattern === ''"
@@ -62,7 +67,7 @@
             </div>
         </bm-dropdown-form>
         <bm-dropdown-item-button
-            v-else-if="displayCreateFolderBtnFromPattern"
+            v-else-if="newFolderValidity === true"
             :aria-label="$tc('mail.actions.move.item', 1, { path: pattern })"
             :title="$tc('mail.actions.move.item', 1, { path: pattern })"
             icon="plus"
@@ -83,14 +88,15 @@ import {
     BmDropdownDivider,
     BmDropdownForm,
     BmDropdownItemButton,
-    BmIcon
+    BmIcon,
+    BmNotice
 } from "@bluemind/styleguide";
 import { mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailMailboxIcon from "../../MailMailboxIcon";
 import MailFolderInput from "../../MailFolderInput";
-import { isNameValid, translatePath } from "~/model/folder";
+import { getInvalidCharacter, isNameValid, translatePath } from "~/model/folder";
 import { MailboxType } from "~/model/mailbox";
 import { MY_MAILBOX, FOLDERS_BY_PATH, MY_TRASH, MY_INBOX } from "~/getters";
 import { ActionTextMixin, FilterFolderMixin, MoveMixin, SelectionMixin } from "~/mixins";
@@ -105,6 +111,7 @@ export default {
         BmDropdownDivider,
         BmDropdownForm,
         BmDropdownItemButton,
+        BmNotice,
         BmIcon,
         GlobalEvents,
         MailFolderIcon,
@@ -115,13 +122,15 @@ export default {
     computed: {
         ...mapState("mail", ["folders", "mailboxes"]),
         ...mapGetters("mail", { MY_MAILBOX, FOLDERS_BY_PATH, MY_TRASH, MY_INBOX }),
-        displayCreateFolderBtnFromPattern() {
-            let pattern = this.pattern;
-            if (pattern !== "") {
-                pattern = pattern.replace(/\/+/, "/").replace(/^\/?(.*)\/?$/g, "$1");
-                return pattern && isNameValid(pattern, pattern, p => this.FOLDERS_BY_PATH(p)[0]) === true;
+        newFolderValidity() {
+            if (this.pattern) {
+                const pattern = this.pattern.replace(/\/+/, "/").replace(/^\/?(.*)\/?$/g, "$1");
+                return pattern && isNameValid(pattern, pattern, p => this.FOLDERS_BY_PATH(p)[0]);
             }
-            return false;
+            return null;
+        },
+        invalidCharacter() {
+            return getInvalidCharacter(this.pattern);
         }
     },
     methods: {
@@ -143,8 +152,11 @@ export default {
             return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         },
         translatePath,
+        isExcluded(folder) {
+            return folder && this.excludedFolderKeys().includes(folder.key);
+        },
         /**
-         * Given to FilterFolderMixin#matchingFolders: excludes a folder if it is the same for all conversations.
+         * Excludes a folder if it is the same for all conversations.
          * In search results, conversations from different folders may be selected. In that case we should allow
          * to move them anywhere, even if some conversations may not move.
          */
