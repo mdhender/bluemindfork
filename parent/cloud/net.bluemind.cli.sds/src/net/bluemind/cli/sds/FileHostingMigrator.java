@@ -97,11 +97,22 @@ public class FileHostingMigrator {
 		});
 	}
 
+	private static String removeBinExtension(Path filePath) {
+		String fname = filePath.toString();
+		if (fname.endsWith(".bin")) {
+			int pos = fname.lastIndexOf('.');
+			if (pos > -1) {
+				fname = fname.substring(0, pos);
+			}
+		}
+		return fname;
+	}
+
 	public void migrateDocuments(Path rootPath) throws IOException {
 		PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:*.bin");
 		migratePath(rootPath, filePath -> {
 			return Files.isRegularFile(filePath) && matcher.matches(filePath.getFileName());
-		}, filePath -> "doc-fs-" + filePath.toString().replace('/', '_'));
+		}, filePath -> "doc-fs-" + removeBinExtension(filePath).replace('/', '_'));
 	}
 
 	public void migratePath(Path rootPath, Predicate<Path> filter, Function<Path, String> getUid) throws IOException {
