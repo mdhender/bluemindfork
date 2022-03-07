@@ -1,6 +1,7 @@
 import { inject } from "@bluemind/inject";
-import { MailboxType } from "./mailbox";
 import injector from "@bluemind/inject";
+import { DEFAULT_FOLDER_NAMES } from "~/store/folders/helpers/DefaultFolders";
+import { MailboxType } from "./mailbox";
 
 export function create(key, name, parent, mailbox) {
     const defaultFolder = isDefault(!parent, name, mailbox);
@@ -114,13 +115,11 @@ function translateDefaultName(name) {
 }
 
 export function normalize(folderPath, getFolderByPath) {
-    let fixedPath = "";
-    folderPath.split("/").forEach(pathPart => {
-        fixedPath += pathPart;
-        fixedPath = fixExistingFolderName(fixedPath, getFolderByPath);
-        fixedPath += "/";
-    });
-    return removeTrailingSlashes(fixedPath);
+    return folderPath
+        .split("/")
+        .filter(part => part.trim())
+        .map(part => fixExistingFolderName(part.trim(), getFolderByPath))
+        .join("/");
 }
 
 function fixExistingFolderName(folderName, getFolderByPath) {
@@ -170,6 +169,14 @@ export function isNameValid(name, path, getFolderByPath) {
     }
 
     return true;
+}
+
+export function folderExists(path, getFolderByPath) {
+    return !!getFolder(path, getFolderByPath);
+}
+
+export function getFolder(path, getFolderByPath) {
+    return path && getFolderByPath(normalize(path, getFolderByPath));
 }
 
 function ascendantsAllowSubfolder(normalizedPath, getFolderByPath) {
@@ -236,5 +243,10 @@ export function match(folder, pattern) {
 export function createRoot(mailbox) {
     const root = create(null, "", null, mailbox);
     root.name = mailbox.name;
+    root.imapName = DEFAULT_FOLDER_NAMES.ROOT;
     return root;
+}
+
+export function isRoot(folder) {
+    return !folder.parent && folder.key === null && folder.imapName === DEFAULT_FOLDER_NAMES.ROOT;
 }

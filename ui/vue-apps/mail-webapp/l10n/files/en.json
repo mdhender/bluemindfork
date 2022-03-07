@@ -98,7 +98,6 @@
                 "success": "\"{folder}\" has been successfully moved to {destination}.",
                 "error": "Failed to move \"{folder}\" to {destination}.",
                 "to_mailbox_root": "the root of {mailbox}"
-
             },
             "read_only_folder": {
                 "info": "Read-only message. Some actions (like Move or Remove) may not be available."
@@ -181,7 +180,8 @@
     "mail.actions.move.item.warning.self": "This message is already in {path}",
     "mail.actions.move.item": "Move message to {path} | Move selected messages to {path}",
     "mail.actions.move": "Move",
-    "mail.actions.move_folder.title": "Move the {name} folder",
+    "mail.actions.move_folder.excluded": "Unable to move to this folder",
+    "mail.actions.move_folder.title": "Move folder {name}",
     "mail.actions.purge.modal.content": "Remove message \"{subject}\" permanently? | Remove selected messages permanently?",
     "mail.actions.purge.draft.modal.content": "Remove draft \"{subject}\" saved on {date} ?",
     "mail.actions.purge.draft.modal.content.time": "Remove draft \"{subject}\" saved at {time} ?",

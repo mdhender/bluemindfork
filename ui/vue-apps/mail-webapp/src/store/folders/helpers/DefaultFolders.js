@@ -5,7 +5,8 @@ export const DEFAULT_FOLDER_NAMES = {
     TRASH: "Trash",
     JUNK: "Junk",
     TEMPLATES: "Templates",
-    OUTBOX: "Outbox"
+    OUTBOX: "Outbox",
+    ROOT: null
 };
 
 export const DEFAULT_FOLDERS = Object.values(DEFAULT_FOLDER_NAMES);

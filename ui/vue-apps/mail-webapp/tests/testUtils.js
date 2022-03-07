@@ -56,6 +56,14 @@ export function createStore() {
         folders: [
             { key: folderUid, imapName: "fol", mailboxRef: { key: "MY_MAILBOX" }, writable: true, path: "my/folder" },
             {
+                key: "InboxKey",
+                imapName: "INBOX",
+                path: "INBOX",
+                default: true,
+                mailboxRef: { key: "MY_MAILBOX" },
+                writable: true
+            },
+            {
                 key: "TraskKey",
                 imapName: "Trash",
                 path: "Trash",

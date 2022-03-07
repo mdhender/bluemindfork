@@ -52,6 +52,7 @@
             :title="$t('mail.toolbar.move.tooltip')"
             :excluded-folders="[message.folderRef.key, null]"
             :default-folders="[MY_TRASH, MY_INBOX]"
+            :mailboxes="MAILBOXES"
             @ok="moveOk"
         />
     </div>
@@ -60,7 +61,7 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 import { Flag } from "@bluemind/email";
-import { BmButton, BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
+import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
 import { RemoveMixin, MoveMixin, PrintMixin } from "~/mixins";
 import {
     MARK_MESSAGE_AS_FLAGGED,
@@ -68,19 +69,24 @@ import {
     MARK_MESSAGE_AS_UNFLAGGED,
     MARK_MESSAGE_AS_UNREAD
 } from "~/actions";
-import { MY_DRAFTS, MY_TRASH, MY_INBOX } from "~/getters";
+import { MAILBOXES, MY_DRAFTS, MY_TRASH, MY_INBOX } from "~/getters";
 import { MessageCreationModes } from "~/model/message";
 import { draftPath } from "~/model/draft";
 import MessagePathParam from "~/router/MessagePathParam";
 import ChooseFolderModal from "../ChooseFolderModal";
-import MailMessagePrint from "./MailMessagePrint.vue";
+import MailMessagePrint from "./MailMessagePrint";
 
 export default {
     name: "MailViewerToolbarOtherActions",
-    components: { BmDropdown, BmDropdownItem, BmIcon, ChooseFolderModal },
-    mixins: [RemoveMixin, MoveMixin, PrintMixin],
+    components: {
+        BmDropdown,
+        BmDropdownItem,
+        BmIcon,
+        ChooseFolderModal,
         // eslint-disable-next-line vue/no-unused-components
         MailMessagePrint
+    },
+    mixins: [RemoveMixin, MoveMixin, PrintMixin],
     props: {
         message: {
             type: Object,
@@ -95,7 +101,7 @@ export default {
         return { Flag };
     },
     computed: {
-        ...mapGetters("mail", { MY_DRAFTS, MY_TRASH, MY_INBOX })
+        ...mapGetters("mail", { MAILBOXES, MY_DRAFTS, MY_TRASH, MY_INBOX })
     },
     methods: {
         ...mapActions("mail", {

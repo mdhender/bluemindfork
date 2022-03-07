@@ -60,6 +60,8 @@ export default {
                     return "paper-plane" + modifier;
                 case DEFAULT_FOLDER_NAMES.TEMPLATES:
                     return "documents";
+                case DEFAULT_FOLDER_NAMES.ROOT:
+                    return "user";
                 default:
                     return "folder" + modifier;
             }

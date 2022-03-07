@@ -10,7 +10,7 @@
             left-icon
             resettable
             :placeholder="folder ? '' : $t('mail.folder.new.from_scratch')"
-            :state="inputState"
+            :state="isFolderValid"
             aria-describedby="mail-folder-input-invalid"
             @focus="isActive = true"
             @focusout="onFocusOut"
@@ -19,9 +19,9 @@
             @reset="closeInput"
         />
         <bm-notice
-            v-if="isNewFolderNameValid !== true"
+            v-if="isFolderValid === false"
             id="mail-folder-input-invalid"
-            :text="isNewFolderNameValid"
+            :text="folderValidity"
             class="position-absolute z-index-110 mx-2"
         />
     </div>
@@ -31,7 +31,7 @@
 import { mapGetters } from "vuex";
 import { BmFormInput, BmNotice } from "@bluemind/styleguide";
 import { isNameValid, normalize } from "~/model/folder";
-import { FOLDER_BY_PATH, FOLDERS_BY_PATH, MY_MAILBOX } from "~/getters";
+import { FOLDER_BY_PATH } from "~/getters";
 
 export default {
     name: "MailFolderInput",
@@ -40,10 +40,6 @@ export default {
         BmNotice
     },
     props: {
-        mailboxKey: {
-            type: String,
-            default: null
-        },
         folder: {
             type: Object,
             required: false,
@@ -58,21 +54,28 @@ export default {
             type: Boolean,
             required: false,
             default: true
+        },
+        mailboxes: {
+            type: Array,
+            required: true
         }
     },
     data() {
-        return {
-            newFolderName: (this.folder && this.folder.name) || "",
-            isActive: false
-        };
+        return { isActive: false, newFolderName: (this.folder && this.folder.name) || "" };
     },
     computed: {
-        ...mapGetters("mail", { FOLDER_BY_PATH, FOLDERS_BY_PATH, MY_MAILBOX }),
-        isNewFolderNameValid() {
+        ...mapGetters("mail", { FOLDER_BY_PATH }),
+        folderValidity() {
             if ((this.folder && this.folder.name === this.newFolderName) || this.newFolderName === "") {
                 return true;
             }
-            return isNameValid(this.newFolderName, this.path, this.folderByPath());
+            return isNameValid(this.newFolderName, this.path, this.folderByPath);
+        },
+        /** @return true if valid, false if not valid or null if can not check validity */
+        isFolderValid() {
+            if (!this.newFolderName) return null;
+            if (this.folderValidity === true) return true;
+            return false;
         },
         path() {
             let path = "";
@@ -88,11 +91,6 @@ export default {
         },
         isRename() {
             return this.folder && this.folder.name !== "";
-        },
-        inputState() {
-            if (!this.newFolderName) return null;
-            if (this.isNewFolderNameValid === false) return false;
-            return null;
         }
     },
     watch: {
@@ -106,14 +104,8 @@ export default {
         }
     },
     methods: {
-        folderByPath() {
-            const mailboxKey = this.mailboxKey || this.folder?.mailboxRef.key;
-            return mailboxKey
-                ? path => this.FOLDER_BY_PATH(path, { key: mailboxKey })
-                : path =>
-                      this.FOLDERS_BY_PATH(path).find(
-                          ({ key }, index, arr) => key === this.MY_MAILBOX.key || index === arr.length - 1
-                      );
+        folderByPath: function (path) {
+            return this.FOLDER_BY_PATH(path, this.mailboxes[0]);
         },
         closeInput() {
             this.$emit("close");
@@ -121,11 +113,11 @@ export default {
             this.newFolderName = (this.folder && this.folder.name) || "";
         },
         submit() {
-            if (this.isNewFolderNameValid === true && this.newFolderName !== "") {
+            if (this.isFolderValid) {
                 if (this.folder && this.folder.name === this.newFolderName) {
                     return;
                 }
-                const normalizedName = normalize(this.newFolderName, this.folderByPath());
+                const normalizedName = normalize(this.newFolderName, this.folderByPath);
                 this.$emit("submit", normalizedName);
                 this.closeInput();
             }
@@ -136,7 +128,7 @@ export default {
                 !this.$el.contains(event.relatedTarget) &&
                 this.isActive
             ) {
-                if (this.isNewFolderNameValid !== true || this.newFolderName === "" || !this.submitOnFocusout) {
+                if (!this.isFolderValid || !this.submitOnFocusout) {
                     this.closeInput();
                 } else {
                     this.submit();

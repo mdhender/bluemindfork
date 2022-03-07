@@ -41,7 +41,8 @@
             :cancel-title="$t('common.cancel')"
             :title="$t('mail.actions.move_folder.title', { name: folder.name })"
             :excluded-folders="excludedFolders"
-            :included-mailboxes="[mailbox]"
+            :excluded-folder-message="$t('mail.actions.move_folder.excluded')"
+            :mailboxes="[mailbox]"
             :default-folders="defaultFolders"
             @ok="moveFolder"
         />
@@ -51,9 +52,9 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
-import { isDefault, isMailshareRoot, createRoot, DEFAULT_FOLDERS } from "~/model/folder";
-import { IS_DESCENDANT, FOLDER_HAS_CHILDREN, MAILBOX_TRASH, FOLDER_GET_DESCENDANTS } from "~/getters";
-import { EMPTY_FOLDER, MARK_FOLDER_AS_READ, MOVE_FOLDER, REMOVE_FOLDER } from "~/actions";
+import { createRoot, DEFAULT_FOLDERS, folderExists, isDefault, isMailshareRoot, isRoot } from "~/model/folder";
+import { IS_DESCENDANT, FOLDER_BY_PATH, FOLDER_HAS_CHILDREN, MAILBOX_TRASH, FOLDER_GET_DESCENDANTS } from "~/getters";
+import { CREATE_FOLDER, EMPTY_FOLDER, MARK_FOLDER_AS_READ, MOVE_FOLDER, REMOVE_FOLDER } from "~/actions";
 import { MailRoutesMixin } from "~/mixins";
 import ChooseFolderModal from "../ChooseFolderModal";
 
@@ -79,9 +80,14 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", { IS_DESCENDANT, FOLDER_HAS_CHILDREN, MAILBOX_TRASH, FOLDER_GET_DESCENDANTS }),
+        ...mapGetters("mail", {
+            IS_DESCENDANT,
+            FOLDER_BY_PATH,
+            FOLDER_HAS_CHILDREN,
+            MAILBOX_TRASH,
+            FOLDER_GET_DESCENDANTS
+        }),
         ...mapState("mail", ["mailboxes", "folders", "activeFolder"]),
-
         isDefaultOrMailshareRoot() {
             return (
                 isDefault(!this.folder.parent, this.folder.imapName, this.mailbox) ||
@@ -99,7 +105,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", { EMPTY_FOLDER, MOVE_FOLDER, MARK_FOLDER_AS_READ, REMOVE_FOLDER }),
+        ...mapActions("mail", { CREATE_FOLDER, EMPTY_FOLDER, MOVE_FOLDER, MARK_FOLDER_AS_READ, REMOVE_FOLDER }),
         async deleteFolder() {
             const trash = this.MAILBOX_TRASH(this.mailbox);
             const remove = this.IS_DESCENDANT(trash.key, this.folder.key);
@@ -124,7 +130,6 @@ export default {
                 }
             }
         },
-
         async emptyFolder() {
             const confirm = await this.confirm(
                 this.$t("mail.actions.empty_folder.modal.title"),
@@ -146,7 +151,19 @@ export default {
             }
         },
         async moveFolder(destinationFolder) {
-            const destination = destinationFolder.key === null ? null : destinationFolder;
+            let destination;
+            if (isRoot(destinationFolder)) {
+                destination = null;
+            } else {
+                destination = destinationFolder;
+                if (!folderExists(destination.path, path => this.FOLDER_BY_PATH(path, this.mailbox))) {
+                    destination = await this.CREATE_FOLDER({
+                        name: destinationFolder.path,
+                        parent: null,
+                        mailbox: this.mailbox
+                    });
+                }
+            }
             this.MOVE_FOLDER({
                 folder: this.folder,
                 parent: destination,

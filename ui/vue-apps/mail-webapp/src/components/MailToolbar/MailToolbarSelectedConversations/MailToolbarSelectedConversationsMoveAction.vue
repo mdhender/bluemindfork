@@ -19,7 +19,7 @@
             ref="moveAutocomplete"
             v-slot="{ item }"
             v-model.trim="pattern"
-            :items="matchingFolders(excludedFolderKeys()) || [MY_TRASH, MY_INBOX]"
+            :items="pattern ? matchingFolders(excludedFolderKeys()) : [MY_TRASH, MY_INBOX]"
             icon="search"
             :max-results="maxFolders"
             has-divider-under-input
@@ -52,6 +52,7 @@
                     ref="mail-folder-input"
                     class="pl-2 pr-1 flex-fill"
                     :submit-on-focusout="false"
+                    :mailboxes="[MY_MAILBOX]"
                     @submit="newFolderName => moveToFolder({ name: newFolderName, path: newFolderName })"
                     @keydown.left.native.stop
                     @keydown.right.native.stop
@@ -141,23 +142,25 @@ export default {
         isSharedMailbox(folder) {
             return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         },
-        translatePath(path) {
-            return translatePath(path);
-        },
+        translatePath,
         /**
          * Given to FilterFolderMixin#matchingFolders: excludes a folder if it is the same for all conversations.
          * In search results, conversations from different folders may be selected. In that case we should allow
          * to move them anywhere, even if some conversations may not move.
          */
         excludedFolderKeys() {
-            if (this.selected.length > LOOP_PERF_LIMIT) {
-                return [];
+            const rootKey = null;
+            let excludedFolderKeys = [rootKey];
+            if (this.selected.length <= LOOP_PERF_LIMIT) {
+                const differentKeys = this.selected.reduce((differentKeys, conversation) => {
+                    differentKeys.add(conversation.folderRef.key);
+                    return differentKeys;
+                }, new Set());
+                if (differentKeys.size === 1) {
+                    excludedFolderKeys = [...excludedFolderKeys, Array.from(differentKeys)];
+                }
             }
-            const differentKeys = this.selected.reduce((differentKeys, conversation) => {
-                differentKeys.add(conversation.folderRef.key);
-                return differentKeys;
-            }, new Set());
-            return differentKeys.size === 1 ? Array.from(differentKeys) : [];
+            return excludedFolderKeys;
         }
     }
 };

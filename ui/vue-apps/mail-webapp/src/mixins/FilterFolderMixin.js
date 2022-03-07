@@ -16,30 +16,28 @@ export default {
     },
     methods: {
         matchingFolders(excludedFolderKeys, includedMailboxes = []) {
-            if (this.pattern !== "") {
-                const filtered = [];
+            const filtered = [];
 
-                const mailboxes =
-                    includedMailboxes.length > 0 ? includedMailboxes : this.$store.getters[`mail/${MAILBOXES}`];
-                mailboxes.forEach(mailbox => {
-                    const rootFolder = createRoot(mailbox);
-                    if (mailbox.writable) {
-                        const folders = [...this.$store.getters[`mail/${MAILBOX_FOLDERS}`](mailbox), rootFolder];
-                        folders.forEach(folder => {
-                            if (
-                                !excludedFolderKeys.includes(folder.key) &&
-                                (folder.path.toLowerCase().includes(this.pattern.toLowerCase()) ||
-                                    folder.name.toLowerCase().includes(this.pattern.toLowerCase()))
-                            ) {
-                                filtered.push(folder);
-                            }
-                        });
-                    }
-                });
-
-                if (filtered) {
-                    return filtered.slice(0, this.maxFolders);
+            const mailboxes =
+                includedMailboxes.length > 0 ? includedMailboxes : this.$store.getters[`mail/${MAILBOXES}`];
+            mailboxes.forEach(mailbox => {
+                const rootFolder = createRoot(mailbox);
+                if (mailbox.writable) {
+                    const folders = [rootFolder, ...this.$store.getters[`mail/${MAILBOX_FOLDERS}`](mailbox)];
+                    folders.forEach(folder => {
+                        if (
+                            !excludedFolderKeys.includes(folder.key) &&
+                            (folder.path.toLowerCase().includes(this.pattern.toLowerCase()) ||
+                                folder.name.toLowerCase().includes(this.pattern.toLowerCase()))
+                        ) {
+                            filtered.push(folder);
+                        }
+                    });
                 }
+            });
+
+            if (filtered) {
+                return filtered.slice(0, this.maxFolders);
             }
         }
     }

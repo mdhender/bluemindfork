@@ -181,6 +181,7 @@
     "mail.actions.move.item.warning.self": "Ce message est déjà dans {path}",
     "mail.actions.move.item": "Déplacer le message vers {path} | Déplacer les messages sélectionnés vers {path}",
     "mail.actions.move": "Déplacer",
+    "mail.actions.move_folder.excluded": "Déplacement vers ce dossier impossible",
     "mail.actions.move_folder.title": "Déplacer le dossier {name}",
     "mail.actions.purge.modal.content": "Supprimer définitivement le message \"{subject}\" ? | Supprimer définitivement les messages sélectionnés ?",
     "mail.actions.purge.draft.modal.content": "Supprimer le brouillon \"{subject}\" enregistré le {date} ?",
