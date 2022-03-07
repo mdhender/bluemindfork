@@ -54,16 +54,16 @@ public class UserDeleteCommand extends SingleOrDomainOperation {
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
 		if (dry) {
-			System.out.println("DRY : delete " + de.displayName);
+			ctx.info("NOT (dry mode) deleted user {}", de.displayName);
 		} else {
 			IUser userApi = ctx.adminApi().instance(IUser.class, domainUid);
 			TaskRef tr = userApi.delete(de.uid);
 			TaskStatus status = Tasks.follow(ctx, tr, String.format("Fail to delete entry %s", de));
 
 			if (status == null || status.state != TaskStatus.State.Success) {
-				System.err.println("Failed to delete user " + de.displayName);
+				ctx.error("Failed to delete user {}", de.displayName);
 			} else {
-				System.out.println("user " + de.displayName + " deleted");
+				ctx.info("user {} deleted", de.displayName);
 			}
 		}
 	}

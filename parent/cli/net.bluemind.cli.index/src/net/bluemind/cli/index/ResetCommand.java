@@ -54,12 +54,12 @@ public class ResetCommand implements ICmdLet, Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("Resetting index " + index + "...");
+		ctx.info("Resetting index {}...", index);
 		long time = System.currentTimeMillis();
 		IInstallation instApi = ctx.adminApi().instance(IInstallation.class);
 		instApi.resetIndex(index);
 		time = System.currentTimeMillis() - time;
-		System.out.println("" + index + "reset in " + time + "ms.");
+		ctx.info("{} reseted in {}ms", index, time);
 	}
 
 	@Override

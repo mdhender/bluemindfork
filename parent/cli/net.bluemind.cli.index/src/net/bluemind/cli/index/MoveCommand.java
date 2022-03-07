@@ -94,17 +94,17 @@ public class MoveCommand implements ICmdLet, Runnable {
 
 			if (shard == null) {
 				// do nothing
-				System.out.println("Cannot find destination shard. Do nothing.");
+				ctx.error("Cannot find destination shard. Do nothing.");
 				return;
 			}
 
 			dest = shard.indexName;
 
-			System.out.println(String.format("Move index %s to %s", mailbox, dest));
+			ctx.info("Moved index from {} to {}", mailbox, dest);
 		}
 		IMailboxMgmt mboxMgmtApi = ctx.adminApi().instance(IMailboxMgmt.class, domain.uid);
 		TaskRef tr = mboxMgmtApi.moveIndex(mailbox, dest);
-		Tasks.follow(ctx, tr, String.format("Fail to move index %s to %s", mailbox, dest));
+		Tasks.follow(ctx, tr, String.format("Failed to move index from %s to %s", mailbox, dest));
 	}
 
 	@Override

@@ -58,7 +58,7 @@ public class ShardsCommand implements ICmdLet, Runnable {
 		IMailboxMgmt mgmtApi = ctx.adminApi().instance(IMailboxMgmt.class, "global.virt");
 		List<ShardStats> shardStats = mgmtApi.getShardsStats();
 		JsonArray js = new JsonArray(JsonUtils.asString(shardStats));
-		System.out.println(js.encodePrettily());
+		ctx.info(js.encodePrettily());
 	}
 
 	@Override

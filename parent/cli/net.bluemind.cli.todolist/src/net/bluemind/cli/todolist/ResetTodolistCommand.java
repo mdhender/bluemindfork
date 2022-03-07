@@ -88,9 +88,9 @@ public class ResetTodolistCommand implements ICmdLet, Runnable {
 		try {
 			if (!dry) {
 				ctx.adminApi().instance(ITodoList.class, todolistUid).reset();
-				System.out.println("todolist " + todolistUid + " of " + email + " was reset.");
+				ctx.info("todolist {} of {} successfully reset");
 			} else {
-				System.out.println("DRY : todolist " + todolistUid + " of " + email + " was reset.");
+				ctx.info("todolist {} of {} NOT (dry mode) reset");
 			}
 		} catch (ServerFault e) {
 			throw new CliException("ERROR resseting todolist for : " + email, e);

@@ -24,6 +24,7 @@ import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.SingleOrDomainOperation;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.JsonUtils;
+import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import picocli.CommandLine.Command;
@@ -56,7 +57,7 @@ public class ListCommand extends SingleOrDomainOperation {
 
 	@Override
 	public Kind[] getDirEntryKind() {
-		return DirEntry.Kind.values();
+		return BaseDirEntry.Kind.values();
 	}
 
 }

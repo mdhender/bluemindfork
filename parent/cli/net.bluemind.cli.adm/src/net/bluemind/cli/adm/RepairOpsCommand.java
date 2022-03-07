@@ -26,6 +26,7 @@ import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.SingleOrDomainOperation;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirEntryMaintenance;
@@ -66,6 +67,6 @@ public class RepairOpsCommand extends SingleOrDomainOperation {
 
 	@Override
 	public Kind[] getDirEntryKind() {
-		return DirEntry.Kind.values();
+		return BaseDirEntry.Kind.values();
 	}
 }

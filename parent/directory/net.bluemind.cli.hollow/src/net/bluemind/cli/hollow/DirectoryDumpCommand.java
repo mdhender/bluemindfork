@@ -31,7 +31,6 @@ import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord;
 import net.bluemind.directory.hollow.datamodel.consumer.DirectorySearchFactory;
-import net.bluemind.directory.hollow.datamodel.consumer.HString;
 import net.bluemind.directory.hollow.datamodel.consumer.ListOfEmail;
 import net.bluemind.directory.hollow.datamodel.consumer.SerializedDirectorySearch;
 import picocli.CommandLine.Command;
@@ -93,10 +92,6 @@ public class DirectoryDumpCommand implements ICmdLet, Runnable {
 	private String[] emails(ListOfEmail emails, String filterOut) {
 		return emails.stream().map(e -> hstring(e.getAddress())).filter(s -> !s.equals(filterOut))
 				.toArray(String[]::new);
-	}
-
-	private String hstring(HString s) {
-		return Optional.ofNullable(s).map(HString::getValue).orElse("");
 	}
 
 	private String hstring(String s) {

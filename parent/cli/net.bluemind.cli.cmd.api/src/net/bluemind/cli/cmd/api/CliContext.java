@@ -92,6 +92,10 @@ public class CliContext {
 		System.err.println(ansi().fgRed().a(msg).reset()); // NOSONAR
 	}
 
+	public void error(String msg, Object... args) {
+		error(MessageFormatter.arrayFormat(msg, args).getMessage());
+	}
+
 	/**
 	 * Prints a yellow message (and avoids sonar error)
 	 * 
@@ -101,13 +105,8 @@ public class CliContext {
 		System.err.println(ansi().fgYellow().a(msg).reset()); // NOSONAR
 	}
 
-	/**
-	 * Use this to avoid sonar errors about logger usage
-	 * 
-	 * @param msg
-	 */
 	public void info(String msg) {
-		System.err.println(msg); // NOSONAR
+		System.out.println(msg); // NOSONAR
 	}
 
 	public void info(String msg, Object... args) {
@@ -115,7 +114,7 @@ public class CliContext {
 	}
 
 	public void progress(int total, int current) {
-		System.err.println(ansi().fgGreen()
+		System.err.println(ansi().fgGreen() // NOSONAR
 				.a(String.format("Global progress %d/%d (%s%%)", current, total, current * 100 / total)).reset());
 	}
 

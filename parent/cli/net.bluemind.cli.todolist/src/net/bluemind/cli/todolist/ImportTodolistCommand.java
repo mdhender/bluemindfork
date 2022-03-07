@@ -95,9 +95,9 @@ public class ImportTodolistCommand implements ICmdLet, Runnable {
 			if (!dry) {
 				ctx.adminApi().instance(IVTodo.class, todolistUid)
 						.importIcs(new String(Files.readAllBytes(icsFilePath)));
-				System.out.println("todolist " + todolistUid + " of " + email + " was imported");
+				ctx.info("todolist {} of {} imported successfully", todolistUid, email);
 			} else {
-				System.out.println("DRY : todolist " + todolistUid + " of " + email + " was imported");
+				ctx.info("todolist {} of {} NOT (dry mode) imported", todolistUid, email);
 
 			}
 		} catch (IOException e) {

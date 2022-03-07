@@ -88,9 +88,9 @@ public class ResetCalendarCommand implements ICmdLet, Runnable {
 		try {
 			if (!dry) {
 				ctx.adminApi().instance(ICalendar.class, calendarUid).reset();
-				System.out.println("calendar " + calendarUid + " of " + email + " was reset.");
+				ctx.info("calendar {} of {} was reseted", calendarUid, email);
 			} else {
-				System.out.println("DRY : calendar " + calendarUid + " of " + email + " was reset.");
+				ctx.info("calendar {} of {} was (NOT: dry mode enable) reseted", calendarUid, email);
 			}
 		} catch (ServerFault e) {
 			throw new CliException("ERROR resseting calendar for : " + email, e);
