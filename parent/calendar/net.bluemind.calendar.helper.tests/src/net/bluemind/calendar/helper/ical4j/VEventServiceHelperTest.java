@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
@@ -570,7 +571,8 @@ public class VEventServiceHelperTest {
 	private List<ItemValue<VEventSeries>> toEvents(String ics) {
 		List<ItemValue<VEventSeries>> ret = new LinkedList<>();
 		Consumer<ItemValue<VEventSeries>> consumer = series -> ret.add(series);
-		VEventServiceHelper.convertToVEventList(ics, Optional.empty(), Collections.emptyList(), consumer);
+		VEventServiceHelper.parseCalendar(new ByteArrayInputStream(ics.getBytes()), Optional.empty(),
+				Collections.emptyList(), consumer);
 		return ret;
 	}
 }

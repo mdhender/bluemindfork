@@ -89,9 +89,8 @@ public class VEventService implements IVEvent {
 	}
 
 	@Override
-	public TaskRef importIcs(Stream stream) throws ServerFault {
+	public TaskRef importIcs(Stream ics) throws ServerFault {
 		rbacManager.check(Verb.Write.name());
-		String ics = GenericStream.streamToString(stream);
 
 		List<TagRef> allTags = new ArrayList<>();
 
@@ -112,10 +111,11 @@ public class VEventService implements IVEvent {
 				service.all().stream().map(tag -> TagRef.create(ITagUids.defaultUserTags(container.domainUid), tag))
 						.collect(Collectors.toList()));
 
-		return context.provider().instance(ITasksManager.class)
-				.run(new MultipleCalendarICSImport(calendarService, ics,
-						Optional.of(new CalendarOwner(container.domainUid, container.owner, calOwnerType)), allTags,
-						ICSImportTask.Mode.IMPORT));
+		MultipleCalendarICSImport multipleCalendarICSImport = new MultipleCalendarICSImport(calendarService, ics,
+				Optional.of(new CalendarOwner(container.domainUid, container.owner, calOwnerType)), allTags,
+				ICSImportTask.Mode.IMPORT);
+
+		return context.provider().instance(ITasksManager.class).run(multipleCalendarICSImport);
 	}
 
 	@Override

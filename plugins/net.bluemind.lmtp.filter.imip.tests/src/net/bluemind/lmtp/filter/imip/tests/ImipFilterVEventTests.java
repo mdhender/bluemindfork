@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.ZoneId;
@@ -31,11 +32,13 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.dom.Message;
@@ -1240,8 +1243,16 @@ public class ImipFilterVEventTests {
 		InputStream in = this.getClass().getClassLoader().getResourceAsStream("ics/" + filename);
 		String ics = FileUtils.streamString(in, true);
 		in.close();
-		List<ItemValue<VEventSeries>> vevents = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
+		List<ItemValue<VEventSeries>> vevents = convertToVEventList(ics, Optional.empty());
 		return vevents;
+	}
+
+	private List<ItemValue<VEventSeries>> convertToVEventList(String ics, Optional<String> owner) {
+		List<ItemValue<VEventSeries>> events = new LinkedList<>();
+		Consumer<ItemValue<VEventSeries>> consumer = series -> events.add(series);
+		VEventServiceHelper.parseCalendar(new ByteArrayInputStream(ics.getBytes()), Optional.empty(),
+				Collections.emptyList(), consumer);
+		return events;
 	}
 
 	@Test

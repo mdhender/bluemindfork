@@ -18,7 +18,6 @@
  */
 package net.bluemind.calendar.helper.ical4j;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -32,12 +31,10 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,8 +47,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.xml.bind.DatatypeConverter;
-
-import org.apache.commons.lang.StringUtils;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEvent.Transparency;
@@ -214,64 +209,6 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		calendar.getProperties().add(CalScale.GREGORIAN);
 		return calendar;
 
-	}
-
-	/**
-	 * Convert an ics to a list of event series
-	 * 
-	 * @param ics   ics string
-	 * @param owner calendar owner
-	 * @return list of parsed series
-	 * @deprecated use convertToVEventList using a consumer
-	 */
-	@Deprecated
-	public static List<ItemValue<VEventSeries>> convertToVEventList(String ics, Optional<CalendarOwner> owner) {
-		List<ItemValue<VEventSeries>> ret = new LinkedList<>();
-		VEventServiceHelper.convertToVEventList(ics, Optional.empty(), Collections.emptyList(),
-				series -> ret.add(series));
-		return ret;
-	}
-
-	public static void convertToVEventList(String ics, Optional<CalendarOwner> owner, List<TagRef> allTags,
-			Consumer<ItemValue<VEventSeries>> consumer) {
-
-		List<String> icsCalendarList = splitIcs(ics);
-
-		for (String cal : icsCalendarList) {
-			InputStream is = new ByteArrayInputStream(cal.getBytes());
-			parseCalendar(is, owner, allTags, consumer);
-
-		}
-	}
-
-	private static List<String> splitIcs(String ics) {
-		List<String> cals = new ArrayList<>();
-		ics = "\n" + ics;
-		String start = "\nBEGIN:VCALENDAR";
-		String end = "\nEND:VCALENDAR";
-
-		int firstCalendar = ics.indexOf(start);
-		int lastCalendar = ics.lastIndexOf(start);
-		if (firstCalendar == lastCalendar) {
-			cals.add(stripEmptyLines(ics));
-		} else {
-			String[] substringsBetween = StringUtils.substringsBetween(ics, start, end);
-			for (int i = 0; i < substringsBetween.length; i++) {
-				cals.add(String.format("%s%s%s", start, substringsBetween[i], end));
-			}
-		}
-		return cals.stream().map(VEventServiceHelper::stripEmptyLines).collect(Collectors.toList());
-	}
-
-	private static String stripEmptyLines(String ics) {
-		StringBuilder sb = new StringBuilder();
-		for (String line : ics.replace("\r\n", "\n").split("\n")) {
-			if (!line.trim().isEmpty()) {
-				sb.append(line + "\r\n");
-			}
-		}
-
-		return sb.toString();
 	}
 
 	public static void parseCalendar(InputStream ics, Optional<CalendarOwner> owner, List<TagRef> allTags,

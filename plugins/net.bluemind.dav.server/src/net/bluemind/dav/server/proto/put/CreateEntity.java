@@ -18,9 +18,13 @@
  */
 package net.bluemind.dav.server.proto.put;
 
+import java.io.ByteArrayInputStream;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,8 +131,10 @@ abstract class CreateEntity {
 		public void create(LoggedCore lc, PutQuery query, PutResponse pr, ContainerDescriptor cal) throws ServerFault {
 			String itemUid = query.getExtId();
 			logger.info("[{}] VEvent uid from query is {}", cal.uid, itemUid);
-			List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(query.getCalendar(),
-					Optional.empty());
+			List<ItemValue<VEventSeries>> events = new LinkedList<>();
+			Consumer<ItemValue<VEventSeries>> consumer = series -> events.add(series);
+			VEventServiceHelper.parseCalendar(new ByteArrayInputStream(query.getCalendar().getBytes()),
+					Optional.empty(), Collections.emptyList(), consumer);
 			ICalendar calApi = lc.getCore().instance(ICalendar.class, cal.uid);
 			if (events.size() != 1) {
 				throw new ServerFault("woop");
