@@ -4,7 +4,7 @@
         :states="{ active: false }"
         :accept="['conversation']"
         :value="folder"
-        class="mail-folder-item flex-fill d-inline-flex align-items-center"
+        class="mail-folder-item flex-fill d-flex align-items-center"
     >
         <mail-folder-icon
             :shared="shared"

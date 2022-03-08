@@ -22,7 +22,10 @@
                 @select="selectFolder"
             >
                 <template v-slot="{ value }">
-                    <mail-folder-item :folder-key="value.key" />
+                    <bm-draggable v-if="!value.default" class="flex-fill" name="folder">
+                        <mail-folder-item :folder-key="value.key" />
+                    </bm-draggable>
+                    <mail-folder-item v-else :folder-key="value.key" />
                 </template>
             </bm-tree>
             <slot name="footer" />
@@ -32,7 +35,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapState } from "vuex";
-import { BmButton, BmCollapse, BmIcon, BmTree } from "@bluemind/styleguide";
+import { BmButton, BmCollapse, BmIcon, BmTree, BmDraggable } from "@bluemind/styleguide";
 import MailFolderItem from "./MailFolderItem";
 import { SET_FOLDER_EXPANDED } from "~/mutations";
 import { FOLDER_GET_CHILDREN } from "~/getters";
@@ -45,6 +48,7 @@ export default {
         BmCollapse,
         BmIcon,
         BmTree,
+        BmDraggable,
         MailFolderItem
     },
     mixins: [MailRoutesMixin],
