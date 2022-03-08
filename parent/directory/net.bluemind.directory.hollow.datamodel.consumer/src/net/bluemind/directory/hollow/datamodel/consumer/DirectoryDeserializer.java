@@ -40,10 +40,8 @@ import org.slf4j.LoggerFactory;
 import com.netflix.hollow.api.consumer.HollowConsumer;
 import com.netflix.hollow.api.consumer.HollowConsumer.ObjectLongevityConfig;
 import com.netflix.hollow.api.consumer.HollowConsumer.ObjectLongevityDetector;
+import com.netflix.hollow.api.consumer.index.HashIndex;
 import com.netflix.hollow.api.consumer.index.UniqueKeyIndex;
-import com.netflix.hollow.core.index.HollowHashIndex;
-import com.netflix.hollow.core.index.HollowHashIndexResult;
-import com.netflix.hollow.core.read.iterator.HollowOrdinalIterator;
 import com.netflix.hollow.tools.query.HollowFieldMatchQuery;
 
 import net.bluemind.directory.hollow.datamodel.consumer.Query.QueryType;
@@ -59,14 +57,14 @@ public class DirectoryDeserializer {
 	public static final String BASE_DIR_PROP = "hollow.serdes.folder.directory";
 
 	private static final Logger logger = LoggerFactory.getLogger(DirectoryDeserializer.class);
-	protected UniqueKeyIndex<AddressBookRecord, String> uidIndex;
-	protected UniqueKeyIndex<AddressBookRecord, String> distinguishedNameIndex;
-	protected UniqueKeyIndex<AddressBookRecord, Long> minimalIndex;
-	protected HollowHashIndex kindIndex;
+	private final UniqueKeyIndex<AddressBookRecord, String> uidIndex;
+	private final UniqueKeyIndex<AddressBookRecord, String> distinguishedNameIndex;
+	private final UniqueKeyIndex<AddressBookRecord, Long> minimalIndex;
+	private final HashIndex<AddressBookRecord, String> kindIndex;
+	private final HashIndex<AddressBookRecord, String> anrIndex;
+	private final HashIndex<AddressBookRecord, String> emailIndex;
 	protected final HollowConsumer consumer;
 	public final HollowContext context;
-	private final HollowHashIndex anrIndex;
-	private final HollowHashIndex emailIndex;
 
 	private UniqueKeyIndex<OfflineAddressBook, String> rootByDomainUidIndex;
 
@@ -168,13 +166,13 @@ public class DirectoryDeserializer {
 		this.consumer.addRefreshListener(distinguishedNameIndex);
 		this.uidIndex = UniqueKeyIndex.from(consumer, AddressBookRecord.class).usingPath("uid", String.class);
 		this.consumer.addRefreshListener(uidIndex);
-		this.anrIndex = new HollowHashIndex(consumer.getStateEngine(), "AddressBookRecord", "", "anr.element.token");
-		anrIndex.listenForDeltaUpdates();
-		this.emailIndex = new HollowHashIndex(consumer.getStateEngine(), "AddressBookRecord", "",
-				"emails.element.ngrams.element.value");
-		emailIndex.listenForDeltaUpdates();
-		this.kindIndex = new HollowHashIndex(consumer.getStateEngine(), "AddressBookRecord", "", "kind.value");
-		kindIndex.listenForDeltaUpdates();
+		this.emailIndex = HashIndex.from(consumer, AddressBookRecord.class)
+				.usingPath("emails.element.ngrams.element.value", String.class);
+		this.consumer.addRefreshListener(emailIndex);
+		this.anrIndex = HashIndex.from(consumer, AddressBookRecord.class).usingPath("anr.element.token", String.class);
+		this.consumer.addRefreshListener(anrIndex);
+		this.kindIndex = HashIndex.from(consumer, AddressBookRecord.class).usingPath("kind.value", String.class);
+		this.consumer.addRefreshListener(kindIndex);
 	}
 
 	public boolean isWatcherListening() {
@@ -226,25 +224,17 @@ public class DirectoryDeserializer {
 		return byHash(kindIndex, kind);
 	}
 
-	private List<AddressBookRecord> byHash(HollowHashIndex hash, String kind) {
-		HollowHashIndexResult findMatches = hash.findMatches(kind);
-		if (findMatches == null) {
-			return Collections.emptyList();
-		}
-		OfflineDirectoryAPI api = (OfflineDirectoryAPI) consumer.getAPI();
-		List<AddressBookRecord> results = new ArrayList<>(findMatches.numResults());
-		HollowOrdinalIterator it = findMatches.iterator();
-		int ordinal = it.next();
-		while (ordinal != HollowOrdinalIterator.NO_MORE_ORDINALS) {
-			results.add(api.getAddressBookRecord(ordinal));
-			ordinal = it.next();
-		}
-		return results;
+	public Stream<AddressBookRecord> byKindStream(String kind) {
+		return kindIndex.findMatches(kind);
+	}
+
+	private List<AddressBookRecord> byHash(HashIndex<AddressBookRecord, String> index, String hash) {
+		return index.findMatches(hash).collect(Collectors.toList());
 	}
 
 	public SearchResults byKind(List<String> kinds, int offset, int limit, Predicate<AddressBookRecord> filter) {
 		List<AddressBookRecord> all = kinds.stream() //
-				.flatMap(kind -> byKind(kind).stream()) //
+				.flatMap(kind -> byKindStream(kind)) //
 				.filter(filter) //
 				.sorted((a, b) -> a.getName().compareTo(b.getName())) //
 				.collect(Collectors.toList());
