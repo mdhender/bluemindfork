@@ -19,6 +19,7 @@
 package net.bluemind.authentication.handler;
 
 import java.security.InvalidParameterException;
+import java.util.Base64;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -44,6 +45,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.http.vertx.NeedVertxExecutor;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
+import net.bluemind.lib.vertx.utils.PasswordDecoder;
 import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.network.topology.TopologyException;
@@ -91,12 +93,15 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 				throw new InvalidParameterException("null or empty login");
 			}
 
-			user = decode(user).toLowerCase();
+			user = new String(decode(user)).toLowerCase();
 			String latd = (!"admin0".equals(user) && defaultDomain.get() != null && !user.contains("@"))
 					? user + "@" + defaultDomain.get()
 					: user;
 
-			String password = decode(req.headers().get("Auth-Pass"));
+			String password = PasswordDecoder.getPassword(user, decode(req.headers().get("Auth-Pass")));
+			if (logger.isDebugEnabled()) {
+				logger.debug("Password b64: {}, decoded: {}", req.headers().get("Auth-Pass"), password);
+			}
 
 			return new QueryParameters(clientIp, protocol, user, latd, password, backendPort, time, attempt);
 		}
@@ -247,8 +252,8 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 	 * @param b64
 	 * @return
 	 */
-	public static String decode(String b64) {
-		return new String(java.util.Base64.getDecoder().decode((b64)));
+	public static byte[] decode(String b64) {
+		return Base64.getDecoder().decode(b64);
 	}
 
 	@Override

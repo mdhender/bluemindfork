@@ -36,6 +36,7 @@ import io.vertx.core.net.NetSocket;
 import io.vertx.core.net.SocketAddress;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
+import net.bluemind.lib.vertx.utils.PasswordDecoder;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.system.api.SysConfKeys;
@@ -132,7 +133,7 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 
 		v = new byte[buf.readShort()];
 		buf.readBytes(v);
-		String password = new String(v);
+		String password = PasswordDecoder.getPassword(login, v);
 
 		v = new byte[buf.readShort()];
 		buf.readBytes(v);

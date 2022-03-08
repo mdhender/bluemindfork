@@ -19,12 +19,6 @@
 
 package net.bluemind.vertx.common.http;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CodingErrorAction;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -39,7 +33,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.MoreObjects;
 
-import io.netty.util.concurrent.FastThreadLocal;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
@@ -58,6 +51,7 @@ import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxPromiseServiceProvider;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.lib.vertx.utils.PasswordDecoder;
 import net.bluemind.mailbox.api.IMailboxesPromise;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -278,9 +272,7 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 		System.arraycopy(chars, idx + 1, tgt, 0, pwdLen);
 
 		String login = new String(chars, 0, idx);
-		Charset guessedEncoding = guessEncoding(login, tgt);
-
-		String pass = new String(tgt, guessedEncoding);
+		String pass = PasswordDecoder.getPassword(login, tgt);
 
 		if (!azureAdMatcher.matchesAllOf(pass) && logger.isWarnEnabled()) {
 			logger.warn("[{}] Password contains error-prone characters ({})", login, azureAdMatcher.removeFrom(pass));
@@ -305,45 +297,6 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 
 		logger.info("creds: {}", login);
 		return new Creds(login, pass);
-	}
-
-	private static final FastThreadLocal<CharsetDecoder> localUtf8 = new FastThreadLocal<>();
-	private static final FastThreadLocal<CharsetDecoder> localIso = new FastThreadLocal<>();
-
-	private Charset guessEncoding(String login, byte[] tgt) {
-		CharsetDecoder dec;
-
-		dec = decoder(StandardCharsets.UTF_8, localUtf8);
-		if (checkDec(tgt, dec)) {
-			return StandardCharsets.UTF_8;
-		}
-
-		dec = decoder(StandardCharsets.ISO_8859_1, localIso);
-		if (checkDec(tgt, dec)) {
-			return StandardCharsets.ISO_8859_1;
-		}
-
-		logger.warn("[{}] password bytes are not compatible with utf-8 nor iso-8859-1", login);
-		return StandardCharsets.UTF_8;
-	}
-
-	private boolean checkDec(byte[] tgt, CharsetDecoder dec) {
-		try {
-			dec.decode(ByteBuffer.wrap(tgt));
-			return true;
-		} catch (CharacterCodingException e) {
-			return false;
-		}
-	}
-
-	private CharsetDecoder decoder(Charset cs, FastThreadLocal<CharsetDecoder> local) {
-		CharsetDecoder dec = local.get();
-		if (dec == null) {
-			dec = cs.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
-					.onUnmappableCharacter(CodingErrorAction.REPORT);
-			local.set(dec);
-		}
-		return dec;
 	}
 
 	public static void purgeSessions() {

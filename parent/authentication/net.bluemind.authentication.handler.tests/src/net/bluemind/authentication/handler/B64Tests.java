@@ -35,30 +35,33 @@ public class B64Tests {
 			assertNotNull(decoded2);
 
 		}
+
 		start = System.nanoTime();
 		for (int i = 0; i < COUNT; i++) {
 			String decoded2 = new String(java.util.Base64.getDecoder().decode(("dGVzdEBkb21haW4ubmV0")));
 			assertNotNull(decoded2);
 		}
+
 		// Assert.assertEquals("test@domain.net", decoded);
 		long elapsedTime = System.nanoTime() - start;
 		System.out.println("jdk b64: " + TimeUnit.NANOSECONDS.toMillis(elapsedTime) + "ms.");
 
 		start = System.nanoTime();
 		for (int i = 0; i < COUNT; i++) {
-			String decoded = Nginx.decode("dGVzdEBkb21haW4ubmV0");
+			String decoded = new String(Nginx.decode("dGVzdEBkb21haW4ubmV0"));
 			if (i == 0) {
 				System.out.println("decoded: " + decoded);
 			}
 			assertNotNull(decoded);
 		}
+
 		start = System.nanoTime();
 		for (int i = 0; i < COUNT; i++) {
-			String decoded = Nginx.decode("dGVzdEBkb21haW4ubmV0");
+			String decoded = new String(Nginx.decode("dGVzdEBkb21haW4ubmV0"));
 			assertNotNull(decoded);
 		}
+
 		elapsedTime = System.nanoTime() - start;
 		System.out.println("netty b64: " + TimeUnit.NANOSECONDS.toMillis(elapsedTime) + "ms.");
 	}
-
 }
