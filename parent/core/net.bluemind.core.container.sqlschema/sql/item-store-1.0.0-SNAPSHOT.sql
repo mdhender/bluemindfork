@@ -14,7 +14,7 @@ CREATE TABLE t_container (
   updated timestamp NOT NULL,
   defaultContainer boolean DEFAULT FALSE,
   domain_uid text NULL,
-  readonly boolean DEFAULT FALSE    
+  readonly boolean DEFAULT FALSE
 );
 
 CREATE INDEX idx_container_type  ON t_container USING gin(container_type);
@@ -101,7 +101,7 @@ ALTER TABLE t_container_changeset ALTER COLUMN item_id SET NOT NULL;
 
 CREATE INDEX idx_container_changeset_container_id ON t_container_changeset(container_id);
 
-DO LANGUAGE plpgsql 
+DO LANGUAGE plpgsql
 $$
 DECLARE
   partition TEXT;
@@ -114,7 +114,7 @@ BEGIN
   LOOP
     partition := 't_container_changeset_' || partition_key;
     idx := partition || '_item_id_version_idx';
-    RAISE NOTICE 'CREATING CHANGESET PARTITION %...', partition;    
+    RAISE NOTICE 'CREATING CHANGESET PARTITION %...', partition;
     EXECUTE 'CREATE TABLE ' || partition || ' PARTITION OF t_container_changeset FOR VALUES WITH (MODULUS '|| partition_count || ', REMAINDER ' || partition_key || ');';
     EXECUTE 'CREATE INDEX ' || idx || ' ON ' || partition || '(item_id, version);';
   END LOOP;
@@ -124,13 +124,13 @@ $$;
 /** Changeset: data trigger */
 
 CREATE OR REPLACE FUNCTION changeset_insert() RETURNS TRIGGER
-  LANGUAGE plpgsql                                    
+  LANGUAGE plpgsql
 AS $$
 BEGIN
     DELETE FROM t_container_changeset WHERE item_id = NEW.item_id AND container_id = NEW.container_id;
-    INSERT INTO t_container_changeset 
-    (SELECT * FROM t_container_changelog where item_id = NEW.item_id AND container_id = NEW.container_id ORDER BY version DESC limit 1) 
-    UNION 
+    INSERT INTO t_container_changeset
+    (SELECT * FROM t_container_changelog where item_id = NEW.item_id AND container_id = NEW.container_id ORDER BY version DESC limit 1)
+    UNION
     (SELECT * FROM t_container_changelog where item_id = NEW.item_id AND container_id = NEW.container_id ORDER BY version  limit 1);
     return NEW;
   end;
