@@ -26,7 +26,7 @@ CREATE TABLE t_container_sequence (
 );
 
 CREATE TABLE t_container_item (
-  id serial PRIMARY KEY,
+  id bigserial PRIMARY KEY,
   container_id int4 references t_container(id),
   uid TEXT NOT NULL,
   version int4 NOT NULL,
