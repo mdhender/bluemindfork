@@ -1135,7 +1135,7 @@ public class UserServiceTests {
 			getService(domainAdminSecurityContext).memberOf(invalidUserUid);
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
-			assertTrue(sf.getMessage().toLowerCase().contains("invalid user uid"));
+			assertTrue(ErrorCode.NOT_FOUND.equals(sf.getCode()));
 		}
 	}
 

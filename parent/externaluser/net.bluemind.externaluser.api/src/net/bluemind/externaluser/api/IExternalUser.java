@@ -22,8 +22,6 @@
  */
 package net.bluemind.externaluser.api;
 
-import java.util.List;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -35,7 +33,7 @@ import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IRestoreCrudSupport;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.group.api.Group;
+import net.bluemind.group.api.IGroupMember;
 
 /**
  * ExternalUser API. The main use case for this kind of
@@ -44,7 +42,7 @@ import net.bluemind.group.api.Group;
  */
 @BMApi(version = "3")
 @Path("/externaluser/{domainUid}")
-public interface IExternalUser extends IRestoreCrudSupport<ExternalUser> {
+public interface IExternalUser extends IRestoreCrudSupport<ExternalUser>, IGroupMember {
 
 	/**
 	 * Creates a new {@link ExternalUser}.
@@ -120,29 +118,4 @@ public interface IExternalUser extends IRestoreCrudSupport<ExternalUser> {
 	@Path("byExtId/{extid}")
 	public ItemValue<ExternalUser> byExtId(@PathParam(value = "extid") String extId) throws ServerFault;
 
-	/**
-	 * Returns the list of {@link net.bluemind.group.api.Group}
-	 * {@link net.bluemind.core.container.api.ItemValue} the external user is member
-	 * of.
-	 * 
-	 * @param uid the {@link ExternalUser}'s unique id
-	 * @return list of {@link net.bluemind.group.api.Group}
-	 *         {@link net.bluemind.core.container.api.ItemValue}
-	 * @throws ServerFault standard error object
-	 */
-	@GET
-	@Path("{uid}/groups")
-	public List<ItemValue<Group>> memberOf(@PathParam(value = "uid") String uid) throws ServerFault;
-
-	/**
-	 * Retrieves a list of all {@link net.bluemind.group.api.Group} uids the
-	 * external user is member of.
-	 * 
-	 * @param uid the {@link ExternalUser}'s unique id
-	 * @return list of {@link net.bluemind.group.api.Group} uids
-	 * @throws ServerFault standard error object
-	 */
-	@GET
-	@Path("{uid}/groupUids")
-	public List<String> memberOfGroups(@PathParam(value = "uid") String uid) throws ServerFault;
 }

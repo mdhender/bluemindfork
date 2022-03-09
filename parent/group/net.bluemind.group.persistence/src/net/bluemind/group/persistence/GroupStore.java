@@ -276,7 +276,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 		for (Long parent : parents) {
 			logger.debug("Updating t_group_flat_members for parent group id {} of group id {}", parent, item.id);
 
-			Set<Long> si = new HashSet<Long>();
+			Set<Long> si = new HashSet<>();
 			si.addAll(users);
 			si.addAll(updateUserGroup(parent));
 
@@ -307,15 +307,13 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 		List<Long> childs = getChildren(groupItemId);
 		childs.add(new Long(groupItemId));
 
-		Set<Long> members = new HashSet<Long>(
-				select("SELECT user_id FROM t_group_usermember WHERE group_id = ANY (?)", (rs) -> {
-					return rs.getLong(1);
-				}, Collections.emptyList(), new Object[] { childs.toArray(new Long[childs.size()]) }));
+		Set<Long> members = new HashSet<>(
+				select("SELECT user_id FROM t_group_usermember WHERE group_id = ANY (?)", rs -> rs.getLong(1),
+						Collections.emptyList(), new Object[] { childs.toArray(new Long[childs.size()]) }));
 
-		members.addAll(
-				select("SELECT external_user_id FROM t_group_externalusermember WHERE group_id = ANY (?)", (rs) -> {
-					return rs.getLong(1);
-				}, Collections.emptyList(), new Object[] { childs.toArray(new Long[childs.size()]) }));
+		members.addAll(select("SELECT external_user_id FROM t_group_externalusermember WHERE group_id = ANY (?)",
+				rs -> rs.getLong(1), Collections.emptyList(),
+				new Object[] { childs.toArray(new Long[childs.size()]) }));
 
 		return members;
 	}
@@ -377,7 +375,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 				new Object[] { item.id, item.id });
 	}
 
-	public final String SELECT_USER_GROUPS = //
+	private static final String SELECT_USER_GROUPS = //
 			"SELECT item.uid FROM t_group g" //
 					+ " INNER JOIN t_container_item item ON g.item_id = item.id"//
 					+ " INNER JOIN t_group_flat_members member ON g.item_id = member.group_id"//
@@ -389,7 +387,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 				new Object[] { item.id, userContainer.id });
 	}
 
-	public final String SELECT_GROUP_GROUPS = //
+	private static final String SELECT_GROUP_GROUPS = //
 			"SELECT item.uid FROM t_group g" //
 					+ " INNER JOIN t_container_item item ON g.item_id = item.id"//
 					+ " INNER JOIN t_group_groupmember member ON g.item_id = member.group_parent_id"//
@@ -433,11 +431,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 
 		Integer total = unique(query, TOTALFOUND_CREATOR, Collections.emptyList(), parameters);
 
-		if (total != 0) {
-			return true;
-		}
-
-		return false;
+		return (total != 0);
 	}
 
 	public static final String SELECT_BY_NAME = //
@@ -460,7 +454,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 	}
 
 	public List<String> search(GroupSearchQuery query) throws SQLException {
-		List<Object> params = new ArrayList<Object>();
+		List<Object> params = new ArrayList<>();
 		StringBuilder search = new StringBuilder(SELECT_ALL);
 		params.add(container.id);
 		if (!Strings.isNullOrEmpty(query.name)) {

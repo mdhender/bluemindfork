@@ -37,7 +37,7 @@ import net.bluemind.directory.api.IDirEntryExtIdSupport;
 
 @BMApi(version = "3")
 @Path("/groups/{domainUid}")
-public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailboxSupport<Group> {
+public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailboxSupport<Group>, IGroupMember {
 
 	/**
 	 * Create group
@@ -235,5 +235,4 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	@POST
 	@Path("{uid}/roles")
 	public void setRoles(@PathParam(value = "uid") String uid, Set<String> roles) throws ServerFault;
-
 }

@@ -20,7 +20,7 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.directory.api.BaseDirEntry.AccountType;
 import net.bluemind.directory.api.IDirEntryExtIdSupport;
 import net.bluemind.directory.api.IDirEntryPhotoSupport;
-import net.bluemind.group.api.Group;
+import net.bluemind.group.api.IGroupMember;
 
 /**
  * {@link User} API. {domainUid} corresponds to the fully qualified domain name
@@ -28,7 +28,8 @@ import net.bluemind.group.api.Group;
  */
 @BMApi(version = "3")
 @Path("/users/{domainUid}")
-public interface IUser extends IDirEntryPhotoSupport, IDirEntryExtIdSupport, IRestoreDirEntryWithMailboxSupport<User> {
+public interface IUser
+		extends IDirEntryPhotoSupport, IDirEntryExtIdSupport, IRestoreDirEntryWithMailboxSupport<User>, IGroupMember {
 
 	/**
 	 * Creates a new {@link User} with the given uid. Also creates default calendar,
@@ -122,30 +123,6 @@ public interface IUser extends IDirEntryPhotoSupport, IDirEntryExtIdSupport, IRe
 	@DELETE
 	@Path("{uid}")
 	public TaskRef delete(@PathParam(value = "uid") String uid) throws ServerFault;
-
-	/**
-	 * Retrieves a list of all {@link net.bluemind.group.api.Group}s the user is
-	 * member of.
-	 * 
-	 * @param uid the user's unique id
-	 * @return a list of groups
-	 * @throws ServerFault standard error object (unchecked exception)
-	 */
-	@GET
-	@Path("{uid}/groups")
-	public List<ItemValue<Group>> memberOf(@PathParam(value = "uid") String uid) throws ServerFault;
-
-	/**
-	 * Retrieves a list of all {@link net.bluemind.group.api.Group} uids the user is
-	 * member of.
-	 * 
-	 * @param uid the user's unique id
-	 * @return a list of {@link net.bluemind.group.api.Group} uids
-	 * @throws ServerFault standard error object (unchecked exception)
-	 */
-	@GET
-	@Path("{uid}/groupUids")
-	public List<String> memberOfGroups(@PathParam(value = "uid") String uid) throws ServerFault;
 
 	/**
 	 * Retrieve all existing {@link User} uids

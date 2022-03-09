@@ -250,7 +250,7 @@ public class UserService implements IInCoreUser, IUser {
 
 		ItemValue<User> previous = getFull(uid);
 		if (previous == null) {
-			throw new ServerFault("user " + uid + " not found in domain " + domainName, ErrorCode.NOT_FOUND);
+			throw notFoundServerFault(uid);
 		}
 
 		if (!StringUtils.equals(user.orgUnitUid, previous.value.orgUnitUid)) {
@@ -589,7 +589,7 @@ public class UserService implements IInCoreUser, IUser {
 		}
 
 		if (item == null) {
-			throw new ServerFault("Invalid user UID: " + uid);
+			throw notFoundServerFault(uid);
 		}
 
 		try {
@@ -598,7 +598,6 @@ public class UserService implements IInCoreUser, IUser {
 			logger.error("Unable to get groups for user {}", uid, e);
 			throw ServerFault.sqlFault(e);
 		}
-
 	}
 
 	@Override
@@ -632,7 +631,7 @@ public class UserService implements IInCoreUser, IUser {
 
 		ItemValue<User> userItem = storeService.get(uid);
 		if (userItem == null) {
-			throw new ServerFault("user " + uid + " not found", ErrorCode.NOT_FOUND);
+			throw notFoundServerFault(uid);
 		}
 
 		if (userItem.value.accountType == AccountType.SIMPLE) {
@@ -688,7 +687,7 @@ public class UserService implements IInCoreUser, IUser {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_SELF, BasicRoles.ROLE_MANAGER);
 
 		if (getFull(uid) == null) {
-			throw new ServerFault("user " + uid + " not found", ErrorCode.NOT_FOUND);
+			throw notFoundServerFault(uid);
 		}
 
 		List<String> groupList = memberOfGroupUid(uid);
@@ -726,7 +725,7 @@ public class UserService implements IInCoreUser, IUser {
 
 		ItemValue<User> userItem = storeService.get(uid);
 		if (userItem == null) {
-			throw new ServerFault("user uid:" + uid + " doesn't exist !", ErrorCode.NOT_FOUND);
+			throw notFoundServerFault(uid);
 		}
 
 		for (IPasswordUpdater ipu : userPasswordUpdaters) {
@@ -754,7 +753,7 @@ public class UserService implements IInCoreUser, IUser {
 
 		ItemValue<User> userItem = storeService.get(uid);
 		if (userItem == null) {
-			throw new ServerFault("user uid:" + uid + " doesn't exist !", ErrorCode.NOT_FOUND);
+			throw notFoundServerFault(uid);
 		}
 
 		if (!checkPassword(userItem.value.login, currentPassword)) {
@@ -775,7 +774,7 @@ public class UserService implements IInCoreUser, IUser {
 
 		ItemValue<User> userItem = storeService.get(uid);
 		if (userItem == null) {
-			throw new ServerFault("user uid:" + uid + " doesn't exist !", ErrorCode.NOT_FOUND);
+			throw notFoundServerFault(uid);
 		}
 		// we support setting the user password as a hash, directly
 		// this is used for external user importers
@@ -798,7 +797,7 @@ public class UserService implements IInCoreUser, IUser {
 		ItemValue<User> ret = storeService.get(uid);
 
 		if (ret == null) {
-			throw new ServerFault("user " + uid + " not found", ErrorCode.NOT_FOUND);
+			throw notFoundServerFault(uid);
 		}
 
 		byte[] asPng = ImageUtils.checkAndSanitize(photo);
@@ -833,7 +832,7 @@ public class UserService implements IInCoreUser, IUser {
 
 		ItemValue<User> previous = getFull(uid);
 		if (previous == null) {
-			throw new ServerFault("user " + uid + " not found in domain " + domainName, ErrorCode.NOT_FOUND);
+			throw notFoundServerFault(uid);
 		}
 
 		sanitizer.create(userVCard);
@@ -871,7 +870,7 @@ public class UserService implements IInCoreUser, IUser {
 
 		ItemValue<User> previous = getFull(uid);
 		if (previous == null) {
-			throw new ServerFault("user " + uid + " not found in domain " + domainName, ErrorCode.NOT_FOUND);
+			throw notFoundServerFault(uid);
 		}
 		storeService.setExtId(uid, extId);
 		eventProducer.changed(uid, storeService.getVersion());
@@ -934,4 +933,7 @@ public class UserService implements IInCoreUser, IUser {
 		}
 	}
 
+	private ServerFault notFoundServerFault(String uid) {
+		return new ServerFault("User " + uid + " not found in domain " + domainName, ErrorCode.NOT_FOUND);
+	}
 }

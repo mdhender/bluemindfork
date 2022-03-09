@@ -601,4 +601,19 @@ public class GroupService implements IGroup, IInCoreGroup {
 		}
 	}
 
+	@Override
+	public List<ItemValue<Group>> memberOf(String uid) throws ServerFault {
+		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGER, BasicRoles.ROLE_MANAGE_GROUP);
+
+		return memberOfGroups(uid).stream().map(this::getComplete).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<String> memberOfGroups(String uid) throws ServerFault {
+		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGER, BasicRoles.ROLE_MANAGE_GROUP);
+		ParametersValidator.notNullAndNotEmpty(uid);
+
+		return storeService.getMemberOfGroup(uid);
+	}
+
 }
