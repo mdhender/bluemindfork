@@ -47,7 +47,7 @@ public class RestoreReplicatedMailboxes extends RestoreReplicated implements Res
 
 	@Override
 	public void restore(RecordKey key, String payload) {
-		if (Operation.DELETE.equals(key.operation)) {
+		if (Operation.DELETE == Operation.valueOf(key.operation)) {
 			log.filter(type(), key);
 			return;
 		}
