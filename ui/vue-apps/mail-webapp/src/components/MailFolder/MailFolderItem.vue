@@ -2,7 +2,7 @@
     <bm-dropzone
         v-if="!editingFolder"
         :states="{ active: false }"
-        :accept="['conversation']"
+        :accept="['conversation', 'folder']"
         :value="folder"
         class="mail-folder-item flex-fill d-flex align-items-center"
     >

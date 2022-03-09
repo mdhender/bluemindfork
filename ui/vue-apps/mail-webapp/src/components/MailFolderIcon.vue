@@ -12,6 +12,7 @@
         :icon="icon"
         :aria-label="shared && $t('common.mailshares')"
         :tooltip="folder.path"
+        v-bind="$attrs"
         >{{ folder.name }}</bm-label-icon
     >
 </template>
