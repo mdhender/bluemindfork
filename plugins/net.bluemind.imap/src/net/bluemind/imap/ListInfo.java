@@ -46,4 +46,9 @@ public class ListInfo {
 		this.selectable = selectable;
 	}
 
+	@Override
+	public String toString() {
+		return name + (selectable ? " (s)" : "");
+	}
+
 }

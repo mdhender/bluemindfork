@@ -145,7 +145,7 @@ public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
 		public void folders(BiConsumer<StoreClient, List<ListInfo>> process) {
 			try (StoreClient sc = new StoreClient(srv.address(), 1143, "admin0", Token.admin0())) {
 				if (!sc.login()) {
-					logger.error("Fail to connect", mbox.value.name);
+					logger.error("Fail to connect as admin0 for {}", mbox.value.name);
 					return;
 				}
 				List<ListInfo> mboxFoldersWithRoot = new LinkedList<>();
