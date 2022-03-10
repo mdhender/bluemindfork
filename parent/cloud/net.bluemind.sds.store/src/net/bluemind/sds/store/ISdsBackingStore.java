@@ -54,4 +54,5 @@ public interface ISdsBackingStore {
 
 	CompletableFuture<SdsResponse> delete(DeleteRequest req);
 
+	public void close();
 }

@@ -80,4 +80,8 @@ public class SdsTestStore implements ISdsBackingStore {
 		return CompletableFuture.completedFuture(new SdsResponse());
 	}
 
+	@Override
+	public void close() {
+		// Nothing to do
+	}
 }

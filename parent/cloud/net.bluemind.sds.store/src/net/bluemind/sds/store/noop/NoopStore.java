@@ -47,4 +47,9 @@ public class NoopStore implements ISdsBackingStore {
 	public CompletableFuture<SdsResponse> delete(DeleteRequest del) {
 		return CompletableFuture.completedFuture(new SdsResponse());
 	}
+
+	@Override
+	public void close() {
+		// Nothing to do
+	}
 }

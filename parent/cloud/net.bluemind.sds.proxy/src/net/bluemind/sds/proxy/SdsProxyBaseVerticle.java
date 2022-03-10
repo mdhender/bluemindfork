@@ -330,7 +330,10 @@ public abstract class SdsProxyBaseVerticle extends AbstractVerticle {
 	private CompletableFuture<ConfigureResponse> reConfigure(JsonObject req) {
 		logger.info("Apply configuration {}", req);
 		storeConfig = req;
-		sdsStore.set(loadStore());
+		ISdsBackingStore oldStore = sdsStore.getAndSet(loadStore());
+		if (oldStore != null) {
+			oldStore.close();
+		}
 
 		try {
 			Files.write(config, req.encode().getBytes(), StandardOpenOption.CREATE,

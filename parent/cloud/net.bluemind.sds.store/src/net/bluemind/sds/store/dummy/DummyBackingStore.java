@@ -88,4 +88,9 @@ public class DummyBackingStore implements ISdsBackingStore {
 		return CompletableFuture.completedFuture(new SdsResponse());
 	}
 
+	@Override
+	public void close() {
+		// Nothing to do
+	}
+
 }

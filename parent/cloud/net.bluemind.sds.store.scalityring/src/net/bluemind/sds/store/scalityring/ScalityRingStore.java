@@ -304,4 +304,15 @@ public class ScalityRingStore implements ISdsBackingStore {
 		});
 	}
 
+	@Override
+	public void close() {
+		if (client != null && !client.isClosed()) {
+			try {
+				client.close();
+			} catch (IOException e) {
+				logger.error("Unable to close scality ring store", e);
+			}
+		}
+	}
+
 }

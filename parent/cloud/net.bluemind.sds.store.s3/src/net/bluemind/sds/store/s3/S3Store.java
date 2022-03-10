@@ -281,4 +281,11 @@ public class S3Store implements ISdsBackingStore {
 
 	}
 
+	@Override
+	public void close() {
+		if (client != null) {
+			client.close();
+		}
+	}
+
 }
