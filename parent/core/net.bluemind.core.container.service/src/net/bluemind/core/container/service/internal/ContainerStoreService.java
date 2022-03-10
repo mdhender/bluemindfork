@@ -331,10 +331,16 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			}
 
 			ItemValue<T> iv = ItemValue.create(created, value);
+			beforeCreationInBackupStore(iv);
 			backupStream.get().store(iv);
 
 			return ItemUpdate.of(created);
 		});
+	}
+
+	protected void beforeCreationInBackupStore(ItemValue<T> itemValue) {
+		// This methode can be override in child class to perform an operation before
+		// backuping a creation
 	}
 
 	@Override

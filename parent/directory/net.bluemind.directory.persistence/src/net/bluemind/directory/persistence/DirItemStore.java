@@ -42,6 +42,7 @@ public class DirItemStore extends ItemStore {
 		this.kind = kind;
 	}
 
+	@Override
 	public Item get(String uid) throws SQLException {
 		String selectQuery = "SELECT " + COLUMNS.names("item") + " FROM t_container_item item, t_directory_entry dir "
 				+ " WHERE item.uid = ? and item.container_id = ? AND dir.item_id = item.id AND dir.kind = ?";
@@ -74,6 +75,7 @@ public class DirItemStore extends ItemStore {
 				new Object[] { container.uid, email, leftPart, domain, domain, container.id, kind.name() });
 	}
 
+	@Override
 	public Item getByExtId(String extId) throws SQLException {
 		String selectQuery = "SELECT " + COLUMNS.names("item") + " FROM t_container_item item, t_directory_entry dir "
 				+ " WHERE item.external_id = ? and item.container_id = ? AND dir.item_id = item.id AND dir.kind = ?";
@@ -82,6 +84,7 @@ public class DirItemStore extends ItemStore {
 
 	}
 
+	@Override
 	public Item getById(long id) throws SQLException {
 		String selectQuery = "SELECT " + COLUMNS.names("item") + " FROM t_container_item item, t_directory_entry dir "
 				+ " WHERE id = ? and container_id = ? AND dir.item_id = item.id AND dir.kind = ?";
@@ -89,6 +92,7 @@ public class DirItemStore extends ItemStore {
 
 	}
 
+	@Override
 	public List<Item> getMultiple(List<String> uids) throws SQLException {
 		String selectQuery = "SELECT " + COLUMNS.names("item") + " FROM t_container_item item, t_directory_entry dir "
 				+ " WHERE item.container_id = ? and item.uid = ANY (?) AND dir.item_id = item.id AND dir.kind = ?";
@@ -99,6 +103,7 @@ public class DirItemStore extends ItemStore {
 
 	}
 
+	@Override
 	public List<Item> getMultipleById(List<Long> uids) throws SQLException {
 		StringBuilder selectQuery = new StringBuilder( //
 				"SELECT " + COLUMNS.names("item") + " FROM t_container_item item, t_directory_entry dir " //
@@ -112,6 +117,7 @@ public class DirItemStore extends ItemStore {
 				new Object[] { container.id, kind.name() });
 	}
 
+	@Override
 	public List<Item> all() throws SQLException {
 		String selectQuery = "SELECT " + COLUMNS.names("item") //
 				+ " FROM t_container_item item, t_directory_entry dir " //
@@ -121,6 +127,7 @@ public class DirItemStore extends ItemStore {
 
 	}
 
+	@Override
 	public List<String> allItemUids() throws SQLException {
 		String query = "SELECT item.uid FROM t_container_item item, t_directory_entry dir " //
 				+ " WHERE item.container_id = ? AND dir.item_id = item.id AND dir.kind = ?";

@@ -326,7 +326,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 		storeService.addMembers(uid, members);
 
 		for (IGroupHook gh : groupsHooks) {
-			gh.onAddMembers(new GroupMessage(iv(uid, group.value), securityContext, groupContainer, members));
+			gh.onAddMembers(new GroupMessage(group, securityContext, groupContainer, members));
 		}
 
 		dirEventProducer.changed(uid, storeService.getVersion());
@@ -467,7 +467,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 
 		storeService.removeMembers(uid, members);
 		for (IGroupHook uh : groupsHooks) {
-			uh.onRemoveMembers(new GroupMessage(iv(uid, group.value), securityContext, groupContainer, members));
+			uh.onRemoveMembers(new GroupMessage(group, securityContext, groupContainer, members));
 		}
 		dirEventProducer.changed(uid, storeService.getVersion());
 	}

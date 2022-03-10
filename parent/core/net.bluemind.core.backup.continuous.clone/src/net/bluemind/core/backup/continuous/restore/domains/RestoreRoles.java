@@ -34,7 +34,7 @@ public class RestoreRoles implements RestoreDomainType {
 
 	@Override
 	public String type() {
-		return "roles";
+		return "role";
 	}
 
 	@Override

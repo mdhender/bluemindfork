@@ -79,8 +79,9 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 	private MailboxAdapter<T> mailboxAdapter;
 	protected ItemValue<Domain> domain;
 	private DirEntriesCache cache;
+	private final OrgUnitHierarchyBackup<T> orgUnitHierarchyBackup;
 
-	public DirValueStoreService(BmContext context, DataSource pool, SecurityContext securityContext,
+	protected DirValueStoreService(BmContext context, DataSource pool, SecurityContext securityContext,
 			ItemValue<Domain> domain, Container container, Kind kind, IItemValueStore<T> itemValueStore,
 			DirEntryAdapter<T> adapter, VCardAdapter<T> vcardAdapter, MailboxAdapter<T> mailboxAdapter) {
 		super(context, pool, securityContext, container, new DirEntryAndValueStore<>(pool, container, itemValueStore));
@@ -95,8 +96,9 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 		this.mailboxAdapter = mailboxAdapter;
 		this.adapter = adapter;
 		this.vcardAdapter = vcardAdapter;
-		documentStore = DocumentStorage.store;
+		this.documentStore = DocumentStorage.store;
 		this.cache = DirEntriesCache.get(context, container.domainUid);
+		this.orgUnitHierarchyBackup = new OrgUnitHierarchyBackup<>(context, pool, securityContext, container);
 	}
 
 	@Override
@@ -119,7 +121,7 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 
 	@Override
 	protected void deleteValue(Item item) throws ServerFault, SQLException {
-		roleStore.set(item, new HashSet<String>());
+		roleStore.set(item, new HashSet<>());
 		vcardStore.delete(item);
 		super.deleteValue(item);
 		entryStore.delete(item);
@@ -141,14 +143,6 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 	@Override
 	protected void deleteValues() throws ServerFault {
 		throw new ServerFault("Should not be called !");
-		// try {
-		// roleStore.deleteAll();
-		// identityStore.deleteAll();
-		// userSettingsStore.deleteAll();
-		// } catch (SQLException e) {
-		// throw ServerFault.sqlFault(e);
-		// }
-		// super.deleteValues();
 	}
 
 	public Set<String> getRoles(String uid) throws ServerFault {
@@ -209,6 +203,12 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 						asMailbox(container.domainUid, itemValue.uid, value)));
 	}
 
+	@Override
+	protected void beforeCreationInBackupStore(ItemValue<DirEntryAndValue<T>> itemValue) {
+		super.beforeCreationInBackupStore(itemValue);
+		orgUnitHierarchyBackup.process(itemValue);
+	}
+
 	public void update(String uid, T value) throws ServerFault {
 		DirEntry dirEntry = adapter.asDirEntry(container.domainUid, uid, value);
 		cache.invalidate(uid);
@@ -264,9 +264,9 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 	}
 
 	public List<ItemValue<T>> getMultipleValues(List<String> uids) throws ServerFault {
-		return getMultiple(uids).stream().map(item -> {
-			return ItemValue.create(item, item.value.value);
-		}).collect(Collectors.toList());
+		return getMultiple(uids).stream() //
+				.map(item -> ItemValue.create(item, item.value.value)) //
+				.collect(Collectors.toList());
 	}
 
 	public void updateVCard(String uid, T dirEntry) throws ServerFault {

@@ -81,10 +81,15 @@ public class UserMailIdentities implements IUserMailIdentities, IInternalUserMai
 
 	@Override
 	public void create(String id, UserMailIdentity identity) {
-		rbacManager.forEntry(userUid).check(BasicRoles.ROLE_MANAGE_USER_MAIL_IDENTITIES);
-		validator.validate(identity);
+		create(id, identity, true);
+	}
 
-		checkMailboxAclContainer(identity);
+	private void create(String id, UserMailIdentity identity, boolean validate) {
+		rbacManager.forEntry(userUid).check(BasicRoles.ROLE_MANAGE_USER_MAIL_IDENTITIES);
+		if (validate) {
+			validator.validate(identity);
+			checkMailboxAclContainer(identity);
+		}
 
 		UserMailIdentity userMailIdentity = get(id);
 		if (userMailIdentity != null) {
@@ -98,10 +103,16 @@ public class UserMailIdentities implements IUserMailIdentities, IInternalUserMai
 
 	@Override
 	public void update(String id, UserMailIdentity identity) {
-		rbacManager.forEntry(userUid).check(BasicRoles.ROLE_MANAGE_USER_MAIL_IDENTITIES);
-		validator.validate(identity);
+		update(id, identity, true);
+	}
 
-		checkMailboxAclContainer(identity);
+	private void update(String id, UserMailIdentity identity, boolean validate) {
+		rbacManager.forEntry(userUid).check(BasicRoles.ROLE_MANAGE_USER_MAIL_IDENTITIES);
+		if (validate) {
+			validator.validate(identity);
+			checkMailboxAclContainer(identity);
+		}
+
 		UserMailIdentity previousIdentity = get(id);
 		hooks.forEach(hook -> hook.beforeUpdate(context, domainUid, id, identity, previousIdentity));
 		storeService.updateIdentity(userUid, id, identity);
@@ -211,9 +222,9 @@ public class UserMailIdentities implements IUserMailIdentities, IInternalUserMai
 	@Override
 	public void restore(ItemValue<UserMailIdentity> item, boolean isCreate) {
 		if (isCreate) {
-			create(item.uid, item.value);
+			create(item.uid, item.value, false);
 		} else {
-			update(item.uid, item.value);
+			update(item.uid, item.value, false);
 		}
 	}
 }
