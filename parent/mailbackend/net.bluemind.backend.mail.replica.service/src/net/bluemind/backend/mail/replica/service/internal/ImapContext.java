@@ -101,6 +101,7 @@ public class ImapContext {
 			this.lock = new ReentrantLock();
 		}
 
+		@Override
 		public void close() {
 
 		}
@@ -109,6 +110,7 @@ public class ImapContext {
 			super.close();
 		}
 
+		@Override
 		public boolean isClosed() {
 			return super.isClosed();
 		}

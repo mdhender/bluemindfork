@@ -43,16 +43,15 @@ public class SearchQuery {
 
 	/**
 	 * 
-	 * @param after
-	 *            Messages whose internal date (disregarding time and timezone)
-	 *            is within or later than the specified date.
+	 * @param after Messages whose internal date (disregarding time and timezone) is
+	 *              within or later than the specified date.
 	 */
 	public SearchQuery(Date after) {
 		this.after = after;
 		useOr = false;
 		rangeMin = null;
 		rangeMax = null;
-		this.headers = new HashMap<String, String>();
+		this.headers = new HashMap<>();
 	}
 
 	public Date getAfter() {
