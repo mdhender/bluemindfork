@@ -5,6 +5,7 @@
         body-class="choose-folder-modal-body"
         header-class="choose-folder-modal-header"
         v-bind="[$attrs, $props]"
+        :ok-disabled="!selectedFolder || inputState === false"
         centered
         auto-focus-button="ok"
         :scrollable="false"
@@ -89,26 +90,12 @@
                 </div>
             </div>
         </template>
-
-        <template #modal-footer="{ ok, cancel }">
-            <bm-button
-                type="submit"
-                variant="primary"
-                :disabled="!selectedFolder || inputState === false"
-                @click.prevent="ok()"
-            >
-                {{ okTitle }}
-            </bm-button>
-            <bm-button variant="outline-secondary" class="ml-2" @click.prevent="cancel()">
-                {{ cancelTitle }}
-            </bm-button>
-        </template>
     </bm-modal>
 </template>
 
 <script>
 import { mapGetters, mapState } from "vuex";
-import { BmButton, BmFormAutocompleteInput, BmIcon, BmModal, BmNotice } from "@bluemind/styleguide";
+import { BmFormAutocompleteInput, BmIcon, BmModal, BmNotice } from "@bluemind/styleguide";
 import { FOLDER_BY_PATH } from "~/getters";
 import { FilterFolderMixin } from "~/mixins";
 import { create as createFolder, folderExists, getFolder, translatePath } from "~/model/folder";
@@ -120,7 +107,6 @@ import MailMailboxIcon from "./MailMailboxIcon";
 export default {
     name: "ChooseFolderModal",
     components: {
-        BmButton,
         BmFormAutocompleteInput,
         BmIcon,
         BmModal,
@@ -154,12 +140,6 @@ export default {
     computed: {
         ...mapGetters("mail", { FOLDER_BY_PATH }),
         ...mapState("mail", { allMailboxes: state => state.mailboxes }),
-        okTitle() {
-            return this.$attrs["ok-title"] || this.$t("mail.actions.move");
-        },
-        cancelTitle() {
-            return this.$attrs["cancel-title"] || this.$t("common.cancel");
-        },
         folderNameExists() {
             return folderExists(this.pattern, this.folderByPath);
         },

@@ -6,9 +6,9 @@
         disable-touch
         name="folder"
         :data="folder"
-        @dragenter="({ relatedData }) => setTooltip(relatedData)"
+        @dragenter="({ relatedData: folder }) => setTooltip(folder)"
         @dragleave="resetTooltip"
-        @drop="drop()"
+        @drop="({ relatedData: folder }) => drop(folder)"
         @dragstart="$emit('dragstart', $event)"
         @dragend="$emit('dragend', $event)"
     >
@@ -20,10 +20,14 @@
     <mail-folder-item v-else :folder-key="folder.key" />
 </template>
 <script>
+import { mapActions, mapState, mapGetters } from "vuex";
 import { BmDraggable } from "@bluemind/styleguide";
-
+import { MOVE_FOLDER } from "~/actions";
+import { IS_DESCENDANT } from "~/getters";
+import { isRoot } from "~/model/folder";
 import MailFolderItem from "./MailFolderItem";
 import MailFolderItemShadow from "./MailFolderItemShadow";
+
 export default {
     name: "DraggableMailFolderItem",
     components: { BmDraggable, MailFolderItem, MailFolderItemShadow },
@@ -41,22 +45,50 @@ export default {
             }
         };
     },
+    computed: {
+        ...mapState("mail", ["mailboxes", "folders"]),
+        ...mapGetters("mail", { IS_DESCENDANT }),
+
+        mailbox() {
+            return this.mailboxes[this.folder.mailboxRef.key];
+        }
+    },
     methods: {
+        ...mapActions("mail", { MOVE_FOLDER }),
+
         setTooltip(folder) {
             if (folder) {
-                if (this.folder.key === folder.key) {
-                    this.tooltip.text = this.$t("mail.actions.move_folder.item.warning.self");
+                if (!this.isValidFolder(folder)) {
                     this.tooltip.cursor = "forbidden";
-                } else if (folder.mailboxRef.key !== this.folder.mailboxRef.key) {
-                    this.tooltip.text = this.$t("mail.actions.move_folder.item.warning.other_mailbox");
-                    this.tooltip.cursor = "forbidden";
-                } else if (!folder.writable) {
-                    this.tooltip.text = this.$t("mail.actions.move_folder.item.warning.readonly", {
-                        path: folder.path
-                    });
-                    this.tooltip.cursor = "forbidden";
+
+                    if (this.folder.key === folder.key) {
+                        this.tooltip.text = this.$t("mail.actions.move_folder.item.warning.self", {
+                            name: folder.name
+                        });
+                    } else if (!folder || folder.mailboxRef.key !== this.folder.mailboxRef.key) {
+                        this.tooltip.text = this.$t("mail.actions.move_folder.item.warning.other_mailbox");
+                    } else if (!folder.writable) {
+                        this.tooltip.text = this.$t("mail.actions.move_folder.item.warning.readonly", {
+                            path: folder.path
+                        });
+                    } else if (this.IS_DESCENDANT(this.folder.key, folder.key)) {
+                        this.tooltip.text = this.$t("mail.actions.move_folder.item.warning.child", {
+                            path: folder.path
+                        });
+                    } else if (this.folder.parent === folder.key) {
+                        this.tooltip.text = this.$t("mail.actions.move_folder.item.warning.parent", {
+                            name: folder.name
+                        });
+                    }
                 } else {
-                    this.tooltip.text = this.$t("mail.actions.move_folder.item", { path: folder.path });
+                    if (folder.path === "") {
+                        this.tooltip.text = this.$t("mail.actions.move_folder.item.to_root", {
+                            mailbox: this.mailbox.name
+                        });
+                    } else {
+                        this.tooltip.text = this.$t("mail.actions.move_folder.item", { name: folder.name });
+                    }
+
                     this.tooltip.cursor = "cursor";
                 }
             }
@@ -69,10 +101,24 @@ export default {
             return (
                 this.folder.key !== folder.key &&
                 folder.writable &&
-                folder.mailboxRef.key !== this.folder.mailboxRef.key
+                folder.mailboxRef.key === this.folder.mailboxRef.key &&
+                !this.IS_DESCENDANT(this.folder.key, folder.key) &&
+                this.folder.parent !== folder.key
             );
         },
-        drop() {}
+        drop(destination) {
+            if (this.isValidFolder(destination)) {
+                if (isRoot(destination)) {
+                    destination = null;
+                }
+
+                this.MOVE_FOLDER({
+                    folder: this.folder,
+                    parent: destination,
+                    mailbox: this.mailbox
+                });
+            }
+        }
     }
 };
 </script>

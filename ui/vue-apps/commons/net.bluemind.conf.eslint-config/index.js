@@ -11,6 +11,8 @@ module.exports = {
     },
     rules: {
         eqeqeq: "warn",
-        "no-console": ["warn"]
+        "no-console": ["warn"],
+        curly: "error"
+
     }
 };

@@ -3,15 +3,14 @@
         <bm-button
             variant="inline-info-dark"
             class="collapse-tree-btn d-flex align-items-center pb-2 pt-3 border-0 pl-2 w-100"
-            :aria-controls="'collapse-tree-' + name"
+            :aria-controls="id"
             :aria-expanded="isTreeExpanded"
             @click.stop="isTreeExpanded = !isTreeExpanded"
         >
             <bm-icon :icon="isTreeExpanded ? 'caret-down' : 'caret-right'" size="sm" class="bm-icon mr-2" />
-            <slot name="avatar" />
-            <span class="font-weight-bold text-left">{{ name }}</span>
+            <slot name="title" />
         </bm-button>
-        <bm-collapse :id="'collapse-tree-' + name" v-model="isTreeExpanded">
+        <bm-collapse :id="id" v-model="isTreeExpanded">
             <bm-tree
                 :tree="tree"
                 :selected="activeFolder"
@@ -49,10 +48,6 @@ export default {
     },
     mixins: [MailRoutesMixin],
     props: {
-        name: {
-            type: String,
-            default: ""
-        },
         tree: {
             type: Array,
             required: true
@@ -69,7 +64,12 @@ export default {
     },
     computed: {
         ...mapGetters("mail", { FOLDER_GET_CHILDREN }),
-        ...mapState("mail", ["folders", "activeFolder"])
+        ...mapState("mail", ["folders", "activeFolder", "mailboxes"]),
+
+        id() {
+            const randomId = Math.floor(Math.random() * 100);
+            return `collapse-tree-${randomId}`;
+        }
     },
     methods: {
         ...mapMutations("mail", { SET_FOLDER_EXPANDED }),

@@ -1,8 +1,9 @@
 <template>
     <folder-list-loading v-if="!isLoaded" />
-    <mail-folder-tree v-else-if="MAILSHARES.length > 0" :tree="MAILSHARE_ROOT_FOLDERS" :name="$t('common.mailshares')">
-        <template v-slot:avatar>
+    <mail-folder-tree v-else-if="MAILSHARES.length > 0" :tree="MAILSHARE_ROOT_FOLDERS">
+        <template v-slot:title>
             <mail-mailbox-icon :mailbox="MAILSHARES[0]" class="mr-1" />
+            <span class="font-weight-bold text-left">{{ $t("common.mailshares") }}</span>
         </template>
     </mail-folder-tree>
 </template>
