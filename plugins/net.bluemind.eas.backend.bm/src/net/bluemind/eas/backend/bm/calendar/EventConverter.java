@@ -115,6 +115,8 @@ public class EventConverter {
 				e.calendar.dtStamp = new Date();
 				e.calendar.subject = recurrence.summary;
 
+				e.location = recurrence.location;
+
 				// BM-9483
 				e.calendar.attendees = new ArrayList<CalendarResponse.Attendee>();
 				for (Attendee attendee : recurrence.attendees) {
@@ -636,6 +638,7 @@ public class EventConverter {
 						exception.dtend = BmDateTimeWrapper.fromTimestamp(excep.endTime.getTime(),
 								data.getTimeZone().getID(), p);
 						exception.summary = excep.subject;
+						exception.location = excep.location;
 
 						if (excep.attendees != null && !excep.attendees.isEmpty()) {
 							exception.attendees = new ArrayList<Attendee>(excep.attendees.size());

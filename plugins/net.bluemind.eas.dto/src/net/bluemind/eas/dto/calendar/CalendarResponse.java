@@ -244,6 +244,7 @@ public class CalendarResponse {
 		public String onlineMeetingConfLink;
 		public String onlineMeetingExternalLink;
 		public List<Attendee> attendees;
+		public String location;
 	}
 
 	public static enum ResponseType {

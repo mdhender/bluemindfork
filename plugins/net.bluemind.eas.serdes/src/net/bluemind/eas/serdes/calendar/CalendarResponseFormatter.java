@@ -161,8 +161,8 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 				}
 
 				// TODO Airsync:Body ?
-				if (notEmpty(e.calendar.location)) {
-					b.text("Location", e.calendar.location);
+				if (notEmpty(e.location)) {
+					b.text("Location", e.location);
 				}
 				if (e.calendar.categories != null) {
 					b.container("Categories");
