@@ -9,9 +9,7 @@
         disable-touch
         @dragenter="({ relatedData }) => setTooltip(relatedData)"
         @dragleave="resetTooltip"
-        @drop="
-            ({ relatedData: folder }) => isValidFolder(folder) && MOVE_CONVERSATIONS({ conversations: dragged, folder })
-        "
+        @drop="({ relatedData: folder }) => moveConversation(folder)"
         @dragstart="$emit('dragstart', $event)"
         @dragend="$emit('dragend', $event)"
     >
@@ -94,6 +92,9 @@ export default {
         }
     },
     methods: {
+        moveConversation(folder) {
+            this.isValidFolder(folder) && this.MOVE_CONVERSATIONS({ conversations: this.dragged, folder });
+        },
         setTooltip(folder) {
             if (folder) {
                 if (this.conversation.folderRef.key === folder.key) {

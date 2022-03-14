@@ -64,7 +64,7 @@ export default {
     },
     computed: {
         ...mapGetters("mail", { FOLDER_GET_CHILDREN }),
-        ...mapState("mail", ["folders", "activeFolder", "mailboxes"]),
+        ...mapState("mail", ["folders", "activeFolder"]),
 
         id() {
             const randomId = Math.floor(Math.random() * 100);

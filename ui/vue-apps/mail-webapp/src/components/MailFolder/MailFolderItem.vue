@@ -1,10 +1,12 @@
 <template>
     <bm-dropzone
         v-if="!editingFolder"
+        ref="dropzone"
         :states="{ active: false }"
         :accept="['conversation', 'folder']"
         :value="folder"
         class="mail-folder-item flex-fill d-flex align-items-center"
+        @holdover="expandFolder"
     >
         <mail-folder-icon
             :shared="shared"
@@ -52,7 +54,7 @@
 </template>
 
 <script>
-import { mapActions, mapMutations, mapState } from "vuex";
+import { mapActions, mapMutations, mapState, mapGetters } from "vuex";
 import { BmCounterBadge, BmDropzone, BmIcon } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
 import MailFolderIcon from "../MailFolderIcon";
@@ -60,6 +62,7 @@ import MailFolderInput from "../MailFolderInput";
 import MailFolderItemMenu from "./MailFolderItemMenu";
 import { ADD_FOLDER, REMOVE_FOLDER, SET_FOLDER_EXPANDED, TOGGLE_EDIT_FOLDER } from "~/mutations";
 import { RENAME_FOLDER, CREATE_FOLDER } from "~/actions";
+import { FOLDER_HAS_CHILDREN } from "~/getters";
 import { MailboxType } from "~/model/mailbox";
 import { create } from "~/model/folder";
 
@@ -81,6 +84,8 @@ export default {
     },
     computed: {
         ...mapState("mail", ["folderList", "folders", "activeFolder", "mailboxes"]),
+        ...mapGetters("mail", { FOLDER_HAS_CHILDREN }),
+
         folder() {
             return this.folders[this.folderKey];
         },
@@ -138,6 +143,12 @@ export default {
             // FIXME: FEATWEBML-1386
             this.TOGGLE_EDIT_FOLDER(key);
             this.SET_FOLDER_EXPANDED({ ...this.folder, expanded: true });
+        },
+        expandFolder() {
+            if (this.folder.writable && this.FOLDER_HAS_CHILDREN(this.folder)) {
+                this.SET_FOLDER_EXPANDED({ key: this.folder.key, expanded: true });
+                this.$refs.dropzone.refresh();
+            }
         }
     }
 };

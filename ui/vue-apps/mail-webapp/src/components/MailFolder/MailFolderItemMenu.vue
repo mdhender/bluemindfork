@@ -8,17 +8,13 @@
             >
                 {{ $t("mail.folder.create_subfolder") }}
             </bm-dropdown-item-button>
-            <bm-dropdown-item-button :disabled="isDefaultOrMailshareRoot" icon="rename" @click.stop="$emit('edit')">
+            <bm-dropdown-item-button :disabled="isDefault" icon="rename" @click.stop="$emit('edit')">
                 {{ $t("mail.folder.rename") }}
             </bm-dropdown-item-button>
-            <bm-dropdown-item-button
-                :disabled="isDefaultOrMailshareRoot"
-                icon="folder"
-                @click.stop="openMoveFolderModal"
-            >
+            <bm-dropdown-item-button :disabled="isDefault" icon="folder" @click.stop="openMoveFolderModal">
                 {{ $t("mail.folder.move") }}
             </bm-dropdown-item-button>
-            <bm-dropdown-item-button :disabled="isDefaultOrMailshareRoot" icon="trash" @click.stop="deleteFolder">
+            <bm-dropdown-item-button :disabled="isDefault" icon="trash" @click.stop="deleteFolder">
                 {{ $t("common.delete") }}
             </bm-dropdown-item-button>
             <bm-dropdown-item-button
@@ -52,7 +48,7 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
-import { createRoot, DEFAULT_FOLDERS, folderExists, isDefault, isMailshareRoot, isRoot } from "~/model/folder";
+import { createRoot, DEFAULT_FOLDERS, folderExists, isDefault, isRoot } from "~/model/folder";
 import { IS_DESCENDANT, FOLDER_BY_PATH, FOLDER_HAS_CHILDREN, MAILBOX_TRASH, FOLDER_GET_DESCENDANTS } from "~/getters";
 import { CREATE_FOLDER, EMPTY_FOLDER, MARK_FOLDER_AS_READ, MOVE_FOLDER, REMOVE_FOLDER } from "~/actions";
 import { MailRoutesMixin } from "~/mixins";
@@ -88,14 +84,11 @@ export default {
             FOLDER_GET_DESCENDANTS
         }),
         ...mapState("mail", ["mailboxes", "folders", "activeFolder"]),
-        isDefaultOrMailshareRoot() {
-            return (
-                isDefault(!this.folder.parent, this.folder.imapName, this.mailbox) ||
-                isMailshareRoot(this.folder, this.mailbox)
-            );
+        isDefault() {
+            return isDefault(!this.folder.parent, this.folder.imapName, this.mailbox);
         },
         isTrash() {
-            return this.isDefaultFolder && this.folder.imapName === DEFAULT_FOLDERS.TRASH;
+            return this.isDefault && this.folder.imapName === DEFAULT_FOLDERS.TRASH;
         },
         hasChildren() {
             return this.FOLDER_HAS_CHILDREN(this.folder);

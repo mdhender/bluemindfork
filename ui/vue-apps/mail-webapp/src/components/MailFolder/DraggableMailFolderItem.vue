@@ -8,9 +8,7 @@
         :data="folder"
         @dragenter="({ relatedData: folder }) => setTooltip(folder)"
         @dragleave="resetTooltip"
-        @drop="({ relatedData: folder }) => drop(folder)"
-        @dragstart="$emit('dragstart', $event)"
-        @dragend="$emit('dragend', $event)"
+        @drop="({ relatedData: folder }) => moveFolder(folder)"
     >
         <mail-folder-item :folder-key="folder.key" />
         <template v-slot:shadow>
@@ -20,10 +18,11 @@
     <mail-folder-item v-else :folder-key="folder.key" />
 </template>
 <script>
-import { mapActions, mapState, mapGetters } from "vuex";
+import { mapActions, mapState, mapGetters, mapMutations } from "vuex";
 import { BmDraggable } from "@bluemind/styleguide";
 import { MOVE_FOLDER } from "~/actions";
-import { IS_DESCENDANT } from "~/getters";
+import { SET_FOLDER_EXPANDED } from "~/mutations";
+import { IS_DESCENDANT, FOLDER_HAS_CHILDREN } from "~/getters";
 import { isRoot } from "~/model/folder";
 import MailFolderItem from "./MailFolderItem";
 import MailFolderItemShadow from "./MailFolderItemShadow";
@@ -47,7 +46,7 @@ export default {
     },
     computed: {
         ...mapState("mail", ["mailboxes", "folders"]),
-        ...mapGetters("mail", { IS_DESCENDANT }),
+        ...mapGetters("mail", { IS_DESCENDANT, FOLDER_HAS_CHILDREN }),
 
         mailbox() {
             return this.mailboxes[this.folder.mailboxRef.key];
@@ -55,6 +54,21 @@ export default {
     },
     methods: {
         ...mapActions("mail", { MOVE_FOLDER }),
+        ...mapMutations("mail", { SET_FOLDER_EXPANDED }),
+
+        moveFolder(destination) {
+            if (this.isValidFolder(destination)) {
+                if (isRoot(destination)) {
+                    destination = null;
+                }
+
+                this.MOVE_FOLDER({
+                    folder: this.folder,
+                    parent: destination,
+                    mailbox: this.mailbox
+                });
+            }
+        },
 
         setTooltip(folder) {
             if (folder) {
@@ -105,19 +119,6 @@ export default {
                 !this.IS_DESCENDANT(this.folder.key, folder.key) &&
                 this.folder.parent !== folder.key
             );
-        },
-        drop(destination) {
-            if (this.isValidFolder(destination)) {
-                if (isRoot(destination)) {
-                    destination = null;
-                }
-
-                this.MOVE_FOLDER({
-                    folder: this.folder,
-                    parent: destination,
-                    mailbox: this.mailbox
-                });
-            }
         }
     }
 };
