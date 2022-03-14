@@ -78,6 +78,8 @@ public class ReindexMailIndexesCommand implements ICmdLet, Runnable {
 	public String script;
 	@Option(names = "--slices", description = "number of elasticsearch worker slices", defaultValue = "5")
 	public Integer slices = 5;
+	@Option(names = "--batchSize", description = "document batch size", defaultValue = "100")
+	public Integer batchSize = 100;
 	private CliContext ctx;
 
 	@Override
@@ -165,6 +167,7 @@ public class ReindexMailIndexesCommand implements ICmdLet, Runnable {
 		ReindexRequestBuilder builder = new ReindexRequestBuilder(client, ReindexAction.INSTANCE).source(srcIndex)
 				.destination(targetIndex).setSlices(slices).abortOnVersionConflict(false).filter(ownerQuery);
 		builder.destination().setOpType(OpType.INDEX);
+		builder.source().setSize(batchSize);
 		script.ifPresent(builder::script);
 		BulkByScrollResponse ret = builder.get();
 		ctx.info("Reindexing {} from index {} to {}: {}", type, srcIndex, targetIndex,
