@@ -60,6 +60,7 @@ public class OldFormats {
 		cr.uid = event.getUID();
 		cr.subject = event.getSubject();
 		cr.location = event.getLocation();
+		cr.onlineMeetingExternalLink = event.getOnlineMeetingExternalLink();
 
 		TimeZone tz = event.getTimeZone();
 		if (tz == null) {

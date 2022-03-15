@@ -178,6 +178,8 @@ public class EventConverter {
 					e.calendar.attendees.add(a);
 				}
 
+				e.onlineMeetingExternalLink = recurrence.conference;
+
 				exceptions.add(e);
 			}
 			mse.setExceptions(exceptions);
@@ -205,6 +207,7 @@ public class EventConverter {
 		PlainBodyFormatter pf = new PlainBodyFormatter();
 		mse.setDescription(pf.convert(vevent.description));
 		mse.setLocation(vevent.location);
+		mse.setOnlineMeetingExternalLink(vevent.conference);
 
 		String timezone = vevent.timezone();
 		if (timezone == null) {

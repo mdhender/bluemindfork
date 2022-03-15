@@ -56,6 +56,7 @@ public class MSEvent implements IApplicationData {
 	private boolean deletedException;
 	private int bmUID;
 	private boolean disallowNewTimeProposal;
+	private String onlineMeetingExternalLink;
 
 	public MSEvent() {
 		this.attendees = new HashSet<MSAttendee>();
@@ -253,6 +254,14 @@ public class MSEvent implements IApplicationData {
 
 	public void setDisallowNewTimeProposal(boolean disallowNewTimeProposal) {
 		this.disallowNewTimeProposal = disallowNewTimeProposal;
+	}
+
+	public String getOnlineMeetingExternalLink() {
+		return onlineMeetingExternalLink;
+	}
+
+	public void setOnlineMeetingExternalLink(String onlineMeetingExternalLink) {
+		this.onlineMeetingExternalLink = onlineMeetingExternalLink;
 	}
 
 }
