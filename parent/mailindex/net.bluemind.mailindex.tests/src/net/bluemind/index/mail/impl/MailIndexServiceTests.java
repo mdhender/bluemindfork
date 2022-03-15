@@ -512,6 +512,31 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 	}
 
 	@Test
+	public void testPaginatedSearch() throws MimeIOException, IOException, InterruptedException, ExecutionException {
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		int batchSize = 1000;
+		int totalSize = batchSize + 10;
+		for (int i = 1; i <= totalSize; i++) {
+			storeMessage(mboxUid, userUid, bodyUid, 1, Collections.emptyList(), i);
+		}
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = Integer.MAX_VALUE + 1l;
+		query.offset = 0;
+		query.query = "SubjectTest";
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(totalSize, results.totalResults);
+		assertEquals(totalSize, results.results.size());
+	}
+
+	@Test
 	public void testSearchBody() throws MimeIOException, IOException, InterruptedException, ExecutionException {
 		long imapUid = 1;
 		byte[] eml = Files.toByteArray(new File("data/test.eml"));

@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import javax.mail.internet.AddressException;
@@ -39,7 +38,6 @@ import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.AliasMetadata;
-import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -56,6 +54,8 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.elasticsearch.search.aggregations.metrics.InternalSum;
 import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
+import org.elasticsearch.search.builder.PointInTimeBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.xcontent.XContentType;
 import org.slf4j.Logger;
@@ -82,6 +82,7 @@ import net.bluemind.backend.mail.replica.indexing.IndexedMessageBody;
 import net.bluemind.backend.mail.replica.indexing.MailSummary;
 import net.bluemind.backend.mail.replica.indexing.MessageFlagsHelper;
 import net.bluemind.core.api.Stream;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -89,6 +90,7 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.NullTaskMonitor;
 import net.bluemind.index.MailIndexActivator;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.Pit;
 import net.bluemind.lib.elasticsearch.Queries;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox;
@@ -432,33 +434,37 @@ public class MailIndexService implements IMailIndexService {
 				QueryBuilders.existsQuery("is"), //
 				QueryBuilders.existsQuery("parentId"), //
 				query);
-
 		String[] sourceIncludeFields = { "uid", "is", "parentId" };
-		SearchResponse r = client.prepareSearch(getIndexAliasName(entityId)).setQuery(withNeededFields)
-				.setFetchSource(sourceIncludeFields, null).setScroll(TimeValue.timeValueSeconds(20))
-				.setTypes(MAILSPOOL_TYPE).setSize(SIZE).execute().actionGet();
+		List<MailSummary> ret = new ArrayList<>();
+		String index = getIndexAliasName(entityId);
 
-		long current = 0;
+		try (Pit pit = Pit.allocate(client, index, 60)) {
+			do {
+				SearchRequestBuilder searchBuilder = client.prepareSearch(index) //
+						.setQuery(withNeededFields) //
+						.setFetchSource(sourceIncludeFields, null) //
+						.setPointInTime(new PointInTimeBuilder(pit.id)) //
+						.setTypes(MAILSPOOL_TYPE) //
+						.addSort(SortBuilders.fieldSort("_shard_doc").order(SortOrder.ASC)) //
+						.setTrackTotalHits(false) //
+						.setSize(SIZE);
+				pit.adaptSearch(searchBuilder);
+				SearchResponse r = searchBuilder.execute().actionGet();
 
-		List<MailSummary> ret = new ArrayList<>((int) r.getHits().getTotalHits().value);
-		while (current < r.getHits().getTotalHits().value) {
-
-			for (SearchHit h : r.getHits().getHits()) {
-				Map<String, Object> source = h.getSourceAsMap();
-
-				MailSummary sum = new MailSummary();
-				sum.uid = source.get("uid") != null ? (int) source.get("uid") : null;
-				sum.flags = new HashSet<>((List<String>) source.get("is"));
-				sum.parentId = (String) source.get("parentId");
-				ret.add(sum);
-				current++;
-			}
-
-			if (current < r.getHits().getTotalHits().value) {
-				r = client.prepareSearchScroll(r.getScrollId()).setScroll(TimeValue.timeValueSeconds(20)).execute()
-						.actionGet();
-			}
-
+				if (r.getHits() != null && r.getHits().getHits() != null) {
+					for (SearchHit h : r.getHits().getHits()) {
+						Map<String, Object> source = h.getSourceAsMap();
+						MailSummary sum = new MailSummary();
+						sum.uid = source.get("uid") != null ? (int) source.get("uid") : null;
+						sum.flags = new HashSet<>((List<String>) source.get("is"));
+						sum.parentId = (String) source.get("parentId");
+						pit.consumeHit(h);
+						ret.add(sum);
+					}
+				}
+			} while (pit.hasNext());
+		} catch (Exception e) {
+			throw new ServerFault(e);
 		}
 
 		return ret;
@@ -738,21 +744,13 @@ public class MailIndexService implements IMailIndexService {
 	public SearchResult searchItems(String dirEntryUid, MailboxFolderSearchQuery searchQuery) {
 		SearchQuery query = searchQuery.query;
 		Client client = ESearchActivator.getClient();
-		SearchRequestBuilder searchBuilder = client.prepareSearch(getIndexAliasName(dirEntryUid));
+		String index = getIndexAliasName(dirEntryUid);
+		SearchRequestBuilder searchBuilder = client.prepareSearch(index);
 		QueryBuilder bq = buildEsQuery(query);
 
 		searchBuilder.setQuery(bq);
 		searchBuilder.setFetchSource(true);
-
-		boolean scrolled = false;
-		if (query.offset == 0 && query.maxResults >= Integer.MAX_VALUE) {
-			searchBuilder.setScroll(TimeValue.timeValueSeconds(5));
-			searchBuilder.setSize(1000);
-			scrolled = true;
-		} else {
-			searchBuilder.setFrom((int) query.offset);
-			searchBuilder.setSize((int) query.maxResults);
-		}
+		searchBuilder.setTrackTotalHits(true);
 
 		if (searchQuery.sort != null && searchQuery.sort.hasCriterias()) {
 			searchQuery.sort.criteria
@@ -764,54 +762,90 @@ public class MailIndexService implements IMailIndexService {
 		if (logger.isDebugEnabled()) {
 			logger.debug("{}", searchBuilder);
 		}
-		long start = System.nanoTime();
+
 		try {
-			SearchResponse sr = searchBuilder.execute().actionGet();
-			SearchHits searchHits = sr.getHits();
-
-			Map<Integer, InternalMessageSearchResult> results = new LinkedHashMap<>();
-
-			AtomicInteger deduplicated = new AtomicInteger();
-			do {
-				for (SearchHit sh : searchHits.getHits()) {
-					safeResult(sh).ifPresent(result -> {
-						if (results.containsKey(result.itemId)) {
-							deduplicated.incrementAndGet();
-							if (results.get(result.itemId).imapUid < result.imapUid) {
-								results.put(result.itemId, result);
-							}
-						} else {
-							results.put(result.itemId, result);
-						}
-					});
-					if (System.nanoTime() - start > TIME_BUDGET) {
-						logger.warn("Stopped processing search results as timebudget ({} ns) is exhausted",
-								TIME_BUDGET);
-						scrolled = false;
-						break;
-					}
-				}
-				if (scrolled && sr.getScrollId() != null) {
-					sr = client.prepareSearchScroll(sr.getScrollId()).setScroll(TimeValue.timeValueSeconds(5)).execute()
-							.actionGet();
-					searchHits = sr.getHits();
-					if (searchHits.getHits().length == 0) {
-						break;
-					}
-				}
-			} while (scrolled);
-
-			SearchResult result = new SearchResult();
-			result.results = new ArrayList<>(results.values());
-			result.totalResults = (int) searchHits.getTotalHits().value - deduplicated.get();
-			result.hasMoreResults = (searchHits.getTotalHits().value > results.size());
-			logger.info("[{}] results: {} (tried {}) / {}, hasMore: {}", dirEntryUid, results.size(),
-					searchHits.getHits().length, result.totalResults, result.hasMoreResults);
-			return result;
+			if (query.offset == 0 && query.maxResults >= Integer.MAX_VALUE) {
+				return paginatedSearch(dirEntryUid, client, searchBuilder, index);
+			} else {
+				return simpleSearch(dirEntryUid, searchBuilder, query);
+			}
 		} catch (Exception e) {
 			logger.warn("Failed to search {} ({})", searchBuilder, e.getMessage());
 			return SearchResult.noResult();
 		}
+	}
+
+	private SearchResult paginatedSearch(String dirEntryUid, Client client, SearchRequestBuilder searchBuilder,
+			String index) throws Exception {
+		searchBuilder.setSize(1000);
+
+		int deduplicated = 0;
+		Map<Integer, InternalMessageSearchResult> results = new LinkedHashMap<>();
+		long totalHits = 0;
+		int handled = 0;
+
+		try (Pit pit = Pit.allocateUsingTimebudget(client, index, 60, TIME_BUDGET)) {
+			do {
+				searchBuilder.setPointInTime(new PointInTimeBuilder(pit.id));
+				pit.adaptSearch(searchBuilder);
+				SearchResponse sr = searchBuilder.execute().actionGet();
+				SearchHits searchHits = sr.getHits();
+				if (totalHits == 0) {
+					totalHits = searchHits.getTotalHits().value;
+					searchBuilder.setTrackTotalHits(false);
+				}
+				if (sr.getHits() != null && sr.getHits().getHits() != null) {
+					for (SearchHit h : sr.getHits().getHits()) {
+						handled++;
+						pit.consumeHit(h);
+						deduplicated += handleAndGetDeduplicatedHits(results, h);
+					}
+				}
+			} while (pit.hasNext());
+		}
+
+		return createResult(dirEntryUid, totalHits, handled, results, deduplicated);
+	}
+
+	private SearchResult simpleSearch(String dirEntryUid, SearchRequestBuilder searchBuilder, SearchQuery query) {
+		searchBuilder.setFrom((int) query.offset);
+		searchBuilder.setSize((int) query.maxResults);
+
+		SearchResponse sr = searchBuilder.execute().actionGet();
+		SearchHits searchHits = sr.getHits();
+
+		Map<Integer, InternalMessageSearchResult> results = new LinkedHashMap<>();
+		int deduplicated = 0;
+		for (SearchHit sh : searchHits.getHits()) {
+			deduplicated += handleAndGetDeduplicatedHits(results, sh);
+		}
+		return createResult(dirEntryUid, searchHits.getTotalHits().value, searchHits.getHits().length, results,
+				deduplicated);
+	}
+
+	private SearchResult createResult(String dirEntryUid, long totalHits, int handled,
+			Map<Integer, InternalMessageSearchResult> results, int deduplicated) {
+		SearchResult result = new SearchResult();
+		result.results = new ArrayList<>(results.values());
+		result.totalResults = (int) (totalHits - deduplicated);
+		result.hasMoreResults = totalHits > results.size();
+		logger.info("[{}] results: {} (tried {}) / {}, hasMore: {}", dirEntryUid, results.size(), handled,
+				result.totalResults, result.hasMoreResults);
+		return result;
+	}
+
+	private int handleAndGetDeduplicatedHits(Map<Integer, InternalMessageSearchResult> results, SearchHit sh) {
+		return safeResult(sh).map(result -> {
+			if (results.containsKey(result.itemId)) {
+				if (results.get(result.itemId).imapUid < result.imapUid) {
+					results.put(result.itemId, result);
+				}
+				return 1;
+			} else {
+				results.put(result.itemId, result);
+				return 0;
+			}
+		}).orElse(0);
 	}
 
 	private QueryBuilder buildEsQuery(SearchQuery query) {
