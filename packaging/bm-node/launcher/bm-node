@@ -24,7 +24,7 @@ product=`basename $0`
 curdir=`dirname $0`
 pidfile=$1
 
-export BM_JVM_CUSTOM_OPTS="-Xrs"
+export BM_JVM_CUSTOM_OPTS="-Xrs -Djava.security.egd=file:/dev/urandom"
 export DEFAULT_MEM=128
 source ${curdir}/equinox-systemd.lib ${product}
 
