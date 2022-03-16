@@ -1,7 +1,7 @@
 <template>
     <bm-col cols="10" lg="12" class="mail-folder-sidebar-wrapper bg-surface h-100 d-flex flex-column">
         <mail-folder-sidebar-header />
-        <nav class="mail-folder-sidebar scroller-y scroller-visible-on-hover flex-grow-1">
+        <nav id="folder-sidebar" class="mail-folder-sidebar scroller-y scroller-visible-on-hover flex-grow-1">
             <folder-list />
         </nav>
         <div v-if="mustDisplayQuota" class="my-1" :class="showQuotaWarning ? 'text-danger' : ''">

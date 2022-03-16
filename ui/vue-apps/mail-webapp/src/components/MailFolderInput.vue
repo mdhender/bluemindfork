@@ -73,8 +73,12 @@ export default {
         },
         /** @return true if valid, false if not valid or null if can not check validity */
         isFolderValid() {
-            if (!this.newFolderName) return null;
-            if (this.folderValidity === true) return true;
+            if (!this.newFolderName) {
+                return null;
+            }
+            if (this.folderValidity === true) {
+                return true;
+            }
             return false;
         },
         path() {

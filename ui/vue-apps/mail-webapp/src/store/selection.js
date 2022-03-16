@@ -27,7 +27,9 @@ const mutations = {
         }
     },
     [SELECT_CONVERSATION]: ({ _keys }, key) => {
-        if (!_keys.includes(key)) _keys.push(key);
+        if (!_keys.includes(key)) {
+            _keys.push(key);
+        }
     },
     [SET_SELECTION]: (state, keys) => {
         state._keys = [...keys];

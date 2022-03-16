@@ -7,6 +7,7 @@
         name="conversation"
         :data="conversation"
         disable-touch
+        :autoscroll="autoscroll"
         @dragenter="({ relatedData }) => setTooltip(relatedData)"
         @dragleave="resetTooltip"
         @drop="({ relatedData: folder }) => moveConversation(folder)"
@@ -90,6 +91,12 @@ export default {
         shadowCount() {
             return this.isSelected ? this.selectionLength : 1;
         }
+    },
+    created() {
+        this.autoscroll = {
+            container: document.getElementById("folder-sidebar"),
+            speed: 500
+        };
     },
     methods: {
         moveConversation(folder) {

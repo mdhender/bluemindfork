@@ -6,6 +6,7 @@
         disable-touch
         name="folder"
         :data="folder"
+        :autoscroll="autoscroll"
         @dragenter="({ relatedData: folder }) => setTooltip(folder)"
         @dragleave="resetTooltip"
         @drop="({ relatedData: folder }) => moveFolder(folder)"
@@ -51,6 +52,9 @@ export default {
         mailbox() {
             return this.mailboxes[this.folder.mailboxRef.key];
         }
+    },
+    created() {
+        this.autoscroll = { container: document.getElementById("folder-sidebar"), speed: 500 };
     },
     methods: {
         ...mapActions("mail", { MOVE_FOLDER }),

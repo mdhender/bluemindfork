@@ -2,7 +2,9 @@ import repeat from "lodash.repeat";
 import startsWith from "lodash.startswith";
 
 export function visit(node, context, options) {
-    if (!context) context = defaultContext();
+    if (!context) {
+        context = defaultContext();
+    }
     let result = "";
     if (node.nodeType === Node.ELEMENT_NODE) {
         const fn = mapping[node.name] || mapping[node.display] || visitChildren;
@@ -45,7 +47,9 @@ function nl(context) {
 }
 
 function spacer(context, force) {
-    if (!force && (!context.spacer || context.clear)) return "";
+    if (!force && (!context.spacer || context.clear)) {
+        return "";
+    }
     if (context.spacer === "\n") {
         context.clear = true;
     }
@@ -57,7 +61,9 @@ function spacer(context, force) {
 function text(txt, context) {
     let content = txt;
     if (!context.pre) {
-        if (/^\s/.test(txt)) sp(context);
+        if (/^\s/.test(txt)) {
+            sp(context);
+        }
         content = content.replace(/\s+/g, " ").trim();
     }
     if (content.length > 0) {
@@ -75,7 +81,9 @@ function ignore() {
 }
 
 function pushContext(context, key, value) {
-    if (!context._shadow[key]) context._shadow[key] = [];
+    if (!context._shadow[key]) {
+        context._shadow[key] = [];
+    }
     context._shadow[key].push(context[key]);
     context[key] = value;
 }
@@ -195,7 +203,9 @@ function ol(node, context, options) {
 }
 
 function formatAsTable(node, options) {
-    if (options.tables === true) return true;
+    if (options.tables === true) {
+        return true;
+    }
     var classes = options.tables.filter(t => startsWith(t, ".")).map(t => t.substr(1));
     var ids = options.tables.filter(t => startsWith(t, "#")).map(t => t.substr(1));
     return classes.indexOf(node.className) > -1 || ids.indexOf(node.id) > -1;

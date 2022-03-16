@@ -15,7 +15,9 @@ export default class EventTarget {
     removeEventListener(type, listener) {
         if (listener) {
             const i = this.listeners[type].findIndex(l => l.listener === listener);
-            if (-1 < i) this.listeners[type].splice(i, 1);
+            if (-1 < i) {
+                this.listeners[type].splice(i, 1);
+            }
         } else {
             delete this.listeners[type];
         }
