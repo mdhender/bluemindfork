@@ -45,30 +45,34 @@ public final class ExtractTextWorker extends AbstractVerticle {
 	@Override
 	public void start() {
 		Handler<Message<JsonObject>> handler = (Message<JsonObject> event) -> {
-			JsonObject pathAndHash = event.body();
-			String txt = "";
-			String hash = pathAndHash.getString("hash");
-			String path = pathAndHash.getString("path");
-			File f = HashCache.getIfPresent(hash);
-			// BM-9754 the cache seems to be able to return not-null
-			if (f != null && f.exists()) {
-				try {
-					txt = Files.asCharSource(f, StandardCharsets.UTF_8).read();
-					if (logger.isDebugEnabled()) {
-						logger.debug("Used hashed value for {}", path);
+			try {
+				JsonObject pathAndHash = event.body();
+				String txt = "";
+				String hash = pathAndHash.getString("hash");
+				String path = pathAndHash.getString("path");
+				File f = HashCache.getIfPresent(hash);
+				// BM-9754 the cache seems to be able to return not-null
+				if (f != null && f.exists()) {
+					try {
+						txt = Files.asCharSource(f, StandardCharsets.UTF_8).read();
+						if (logger.isDebugEnabled()) {
+							logger.debug("Used hashed value for {}", path);
+						}
+					} catch (IOException e) {
+						logger.warn("problem with cached file, re-indexing: {}", e.getMessage());
+						txt = extractToCacheFile(hash, path);
 					}
-				} catch (IOException e) {
-					logger.warn("problem with cached file, re-indexing: {}", e.getMessage());
+				} else {
 					txt = extractToCacheFile(hash, path);
 				}
-			} else {
-				txt = extractToCacheFile(hash, path);
+				long extracted = extractions.incrementAndGet();
+				if ((extracted % 100) == 0) {
+					logger.info("HASH cached stats: {}", HashCache.stats());
+				}
+				event.reply(txt);
+			} catch (Exception e) {
+				event.fail(500, e.getMessage());
 			}
-			long extracted = extractions.incrementAndGet();
-			if ((extracted % 100) == 0) {
-				logger.info("HASH cached stats: {}", HashCache.stats());
-			}
-			event.reply(txt);
 		};
 		vertx.eventBus().consumer("tika.extract", handler);
 	}
