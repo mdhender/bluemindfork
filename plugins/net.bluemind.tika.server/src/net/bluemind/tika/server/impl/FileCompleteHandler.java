@@ -32,25 +32,22 @@ public class FileCompleteHandler implements Handler<Void> {
 		final long start = System.currentTimeMillis();
 		JsonObject toExtract = new JsonObject().put("hash", hash).put("path", bfdh.getFilePath());
 		eb.request("tika.extract", toExtract, new DeliveryOptions().setSendTimeout(5000),
-				new Handler<AsyncResult<Message<String>>>() {
+				(AsyncResult<Message<String>> evt) -> {
+					bfdh.cleanup();
+					String theText = "";
+					MultiMap headers = r.headers();
+					headers.add("Content-Type", "text/plain; charset=utf-8");
+					headers.add("X-BM-TikaHash", hash);
 
-					@Override
-					public void handle(AsyncResult<Message<String>> event) {
-						bfdh.cleanup();
-						String theText = "";
-						MultiMap headers = r.headers();
-						headers.add("Content-Type", "text/plain; charset=utf-8");
-						headers.add("X-BM-TikaHash", hash);
-
-						if (event.failed()) {
-							logger.warn("tika.extract failed: {}", event.cause().getMessage());
-						} else {
-							theText = event.result().body();
-						}
-						r.end(theText);
-						logger.info("Extracted {} characters in {}ms.", theText.length(),
-								System.currentTimeMillis() - start);
+					if (evt.failed()) {
+						logger.warn("tika.extract failed: {}", evt.cause().getMessage());
+					} else {
+						theText = evt.result().body();
 					}
+					r.end(theText);
+					logger.info("Extracted {} characters in {}ms.", theText.length(),
+							System.currentTimeMillis() - start);
 				});
+
 	}
 }
