@@ -138,7 +138,8 @@ public class TaskManager implements Handler<Message<JsonObject>> {
 		boolean ended = status.state.ended || type == MessageType.end;
 		TaskStatus newStatus = TaskStatus.create(steps, currentStep, body.getString("message"),
 				TaskStatus.State.status(success, ended), body.getString("result"));
-		logger.info("update task {} status: {} {} on {}", taskId, newStatus.state, newStatus.progress, newStatus.steps);
+		logger.debug("update task {} status: {} {} on {}", taskId, newStatus.state, newStatus.progress,
+				newStatus.steps);
 		this.status = newStatus;
 	}
 
