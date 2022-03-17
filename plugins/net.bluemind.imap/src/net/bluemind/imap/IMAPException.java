@@ -21,10 +21,6 @@ package net.bluemind.imap;
 @SuppressWarnings("serial")
 public class IMAPException extends Exception {
 
-	/**
-	 * 
-	 */
-
 	public IMAPException(Throwable e) {
 		super(e);
 	}

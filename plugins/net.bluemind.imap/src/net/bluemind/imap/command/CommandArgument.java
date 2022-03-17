@@ -20,20 +20,20 @@ package net.bluemind.imap.command;
 
 public class CommandArgument {
 
-	private String CommandString;
+	private String commandString;
 	private byte[] literalData;
 
 	public CommandArgument(String s, byte[] literalData) {
-		this.CommandString = s;
+		this.commandString = s;
 		this.literalData = literalData;
 	}
 
 	public String getCommandString() {
-		return CommandString;
+		return commandString;
 	}
 
 	public void setCommandString(String s) {
-		this.CommandString = s;
+		this.commandString = s;
 	}
 
 	public byte[] getLiteralData() {

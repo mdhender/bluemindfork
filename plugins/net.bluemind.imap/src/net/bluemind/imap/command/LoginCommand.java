@@ -35,7 +35,7 @@ public class LoginCommand extends Command<Boolean> {
 	@Override
 	public void responseReceived(List<IMAPResponse> rs) {
 		data = rs.get(0).isOk();
-		if (!data) {
+		if (Boolean.FALSE.equals(data)) {
 			logger.warn(rs.get(0).getPayload());
 		}
 	}

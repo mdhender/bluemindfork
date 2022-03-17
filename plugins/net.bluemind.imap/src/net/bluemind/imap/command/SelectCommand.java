@@ -32,14 +32,14 @@ public class SelectCommand extends SimpleCommand<Boolean> {
 	public void responseReceived(List<IMAPResponse> rs) {
 		if (logger.isDebugEnabled()) {
 			for (IMAPResponse r : rs) {
-				logger.debug("selectResponse: " + r.getPayload());
+				logger.debug("selectResponse: {}", r.getPayload());
 			}
 		}
 		IMAPResponse ok = rs.get(rs.size() - 1);
 		data = ok.isOk();
-		if (!data) {
+		if (Boolean.FALSE.equals(data)) {
 			for (IMAPResponse r : rs) {
-				logger.error("S: " + r.getPayload());
+				logger.error("S: {}", r.getPayload());
 			}
 		}
 	}

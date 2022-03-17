@@ -40,6 +40,12 @@ public class CreateCommand extends SimpleCommand<Boolean> {
 	@Override
 	public void responseReceived(List<IMAPResponse> rs) {
 		data = rs.get(rs.size() - 1).isOk();
+		if (Boolean.FALSE.equals(data)) {
+			logger.error("C: {}", command);
+			for (IMAPResponse ir : rs) {
+				logger.error("S: {}", ir.getPayload());
+			}
+		}
 	}
 
 }

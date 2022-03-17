@@ -34,8 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.imap.impl.ClientHandler;
 import net.bluemind.imap.impl.ClientSupport;
-import net.bluemind.imap.impl.ICallbackFactory;
-import net.bluemind.imap.impl.IResponseCallback;
 import net.bluemind.imap.impl.MailThread;
 import net.bluemind.imap.impl.StoreClientCallback;
 import net.bluemind.imap.impl.TagProducer;
@@ -86,13 +84,7 @@ public class StoreClient implements AutoCloseable {
 		this.login = login;
 		this.password = password;
 
-		cs = new ClientSupport(tp, new ICallbackFactory() {
-
-			@Override
-			public IResponseCallback create() {
-				return new StoreClientCallback();
-			}
-		}, timeoutSecs);
+		cs = new ClientSupport(tp, StoreClientCallback::new, timeoutSecs);
 	}
 
 	/**
@@ -129,7 +121,7 @@ public class StoreClient implements AutoCloseable {
 	 */
 	public void logout() {
 		if (logger.isDebugEnabled()) {
-			logger.debug("logout attempt for " + login);
+			logger.debug("logout attempt for {}", login);
 		}
 		try {
 			cs.logout();
@@ -139,7 +131,7 @@ public class StoreClient implements AutoCloseable {
 	}
 
 	/**
-	 * Opens the given IMAP folder. Only one folder quand be active at a time.
+	 * Opens the given IMAP folder. Only one folder can be active at a time.
 	 * 
 	 * @param mailbox utf8 mailbox name.
 	 * @throws IMAPException

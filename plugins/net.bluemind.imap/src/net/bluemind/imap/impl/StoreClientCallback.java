@@ -37,7 +37,7 @@ public class StoreClientCallback implements IResponseCallback {
 
 	public StoreClientCallback() {
 		this.rParser = new IMAPResponseParser();
-		this.responses = new LinkedList<IMAPResponse>();
+		this.responses = new LinkedList<>();
 	}
 
 	@Override
@@ -58,14 +58,14 @@ public class StoreClientCallback implements IResponseCallback {
 		try {
 			rp = rParser.parse(session, imapResponse);
 		} catch (RuntimeException re) {
-			logger.warn("Runtime exception on: " + imapResponse);
+			logger.warn("Runtime exception on: {}", imapResponse);
 			throw re;
 		}
 
 		responses.add(rp);
 
 		if (rp.isClientDataExpected()) {
-			ArrayList<IMAPResponse> rs = new ArrayList<IMAPResponse>(responses.size());
+			ArrayList<IMAPResponse> rs = new ArrayList<>(responses.size());
 			rs.addAll(responses);
 			responses.clear();
 			client.setResponses(rs);
