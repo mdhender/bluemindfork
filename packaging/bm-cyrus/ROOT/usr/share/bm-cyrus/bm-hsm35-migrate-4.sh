@@ -202,7 +202,7 @@ worker() {
 
 echo "[START]: $(date -R) (force: $force)"
 
-if [ "$force" -ne "1" ]; then
+if [ "$force" -eq "1" ]; then
     echo "Removing hsm.promote.completed from all folders in /var/spool/bm-hsm/snappy/"
     find /var/spool/bm-hsm/snappy/ -type f -name hsm.promote.completed -delete
 fi
@@ -267,7 +267,7 @@ for domain in ${domains}; do
     allusers=""
     for userid in "${sorted_userids[@]}"; do
         userinfo=$(curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
-            -XGET ${API_URL}/users/${domain}/${userid}/complete | jq -c -r '{"email": .value.emails | .[] | select(.isDefault == true).address, "uid": .uid, "login": .value.login}')
+            -XGET ${API_URL}/users/${domain}/${userid}/complete | jq -c -r '{"email": .value.emails | .[] | select(.isDefault == true).address, "uid": .uid, "login": .value.login, "archived": .value.archived}')
         allusers="$allusers $userinfo"
     done
 
@@ -275,6 +275,12 @@ for domain in ${domains}; do
         user_email=$(echo $userinfo | jq -r -c '.email')
         user_uid=$(echo $userinfo | jq -r -c '.uid')
         user_login=$(echo $userinfo | jq -r -c '.login')
+        user_archived=$(echo $userinfo | jq -r -c '.archived')
+
+        if [ "$user_archived" = "true" ]; then
+            echo "[${domain}][${user_email}:${user_uid}] user archived: unable to migrate"
+            continue
+        fi
 
         if grep -q ${user_uid} ${MIGRATED_LOG} 2>/dev/null; then
             echo "[${domain}][${user_email}:${user_uid}] already migrated"
@@ -351,7 +357,7 @@ else
     for u in "${migration_list[@]}"; do
         count=$((count+1))
         echo "*** Starting for user "${count}"/"${#migration_list[@]}" ***"
-        migrate_user 1 $u
+        (migrate_user 1 $u) || echo "Migration of user $u failed"
     done
 fi
 
