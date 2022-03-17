@@ -1,6 +1,7 @@
 <template>
     <div class="main-app d-flex flex-column h-100 bg-light">
         <global-events target="self" @resize="appHeight" />
+        <system-alert-area v-if="systemAlerts.length > 0" :system-alerts="systemAlerts" @remove="systemAlerts = []" />
         <bm-banner v-if="showBanner" :applications="applications" :user="user" />
         <preferences v-if="showPreferences" :applications="applications" />
         <about v-if="showAbout" :version="software.version" />
@@ -12,7 +13,7 @@
             {{ $t("common.application.bootstrap.error.solution") }}
         </div>
         <router-view v-else :class="showPreferences ? 'd-none' : 'd-flex'" />
-        <bm-alert-area :alerts="alerts" :floating="true" @remove="REMOVE">
+        <bm-alert-area class="main-alert-area" :alerts="alerts" :floating="true" @remove="REMOVE">
             <template v-slot="context">
                 <component :is="context.alert.renderer" :alert="context.alert" />
             </template>
@@ -32,6 +33,7 @@ import { BmAlertArea } from "@bluemind/styleguide";
 import About from "./About";
 import BmBanner from "./banner/BmBanner";
 import Preferences from "./preferences/Preferences";
+import SystemAlertArea from "./SystemAlertArea";
 
 const BASE_URI = new RegExp("^" + new URL(document.baseURI).pathname.replace(/\/[^/]*$/, ""));
 
@@ -41,7 +43,8 @@ export default {
         BmBanner,
         Preferences,
         GlobalEvents,
-        BmAlertArea
+        BmAlertArea,
+        SystemAlertArea
     },
     componentI18N: { messages: CommonL10N },
 
@@ -71,7 +74,8 @@ export default {
                     technical: session["bmVersion"],
                     brand: session["bmBrandVersion"]
                 }
-            }
+            },
+            systemAlerts: []
         };
     },
     computed: {
@@ -86,7 +90,7 @@ export default {
             return !["Thunderbird", "Icedove"].some(agent => new RegExp(agent).test(window.navigator.userAgent));
         }
     },
-    created() {
+    async created() {
         this.appHeight();
         if (inject("UserSession").userId) {
             this.FETCH_MY_MAILBOX_QUOTA();
@@ -99,6 +103,7 @@ export default {
                 }
             });
         }
+        this.systemAlerts = await inject("UserAnnouncementsPersistence").get();
     },
     methods: {
         ...mapActions("root-app", ["FETCH_IDENTITIES", "FETCH_MY_MAILBOX_QUOTA"]),
@@ -129,13 +134,13 @@ body {
     overflow: hidden;
 }
 
-.main-app > .bm-alert-area {
+.main-app > .main-alert-area {
     bottom: $sp-5;
     left: $sp-2;
     right: $sp-2;
 }
 @include media-breakpoint-up(lg) {
-    .main-app > .bm-alert-area {
+    .main-app > .main-alert-area {
         bottom: $sp-4;
         padding-left: $sp-4;
         padding-right: $sp-4;

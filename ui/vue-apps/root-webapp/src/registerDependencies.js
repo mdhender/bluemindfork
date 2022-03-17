@@ -4,6 +4,7 @@ import {
     AddressBooksMgmtClient,
     VCardServiceClient
 } from "@bluemind/addressbook.api";
+import { UserAnnouncementsClient } from "@bluemind/announcement.api";
 import { APIKeysClient } from "@bluemind/authentication.api";
 import {
     CalendarClient,
@@ -156,6 +157,11 @@ export default function (userSession) {
     injector.register({
         provide: "TodoListsPersistence",
         factory: taskId => new TodoListsClient(userSession.sid, taskId)
+    });
+
+    injector.register({
+        provide: "UserAnnouncementsPersistence",
+        factory: () => new UserAnnouncementsClient(userSession.sid)
     });
 
     injector.register({
