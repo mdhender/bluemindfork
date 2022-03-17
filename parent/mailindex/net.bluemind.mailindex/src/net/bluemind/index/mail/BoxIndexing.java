@@ -31,8 +31,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.ConstantScoreQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,8 +160,9 @@ public class BoxIndexing {
 
 		List<List<Long>> partitioned = Lists.partition(created, 50);
 
-		Set<Integer> handledEsEntries = new HashSet<>();
-		Set<Integer> handledDbEntries = new HashSet<>();
+		Set<Integer> existingDbEntries = new HashSet<>();
+		int lowestGlobal = Integer.MAX_VALUE;
+		int highestGlobal = 0;
 
 		for (List<Long> partialList : partitioned) {
 			long lowestUid = Long.MAX_VALUE;
@@ -170,27 +173,44 @@ public class BoxIndexing {
 				long imapUid = completeById.value.imapUid;
 				lowestUid = Math.min(lowestUid, imapUid);
 				highestUid = Math.max(highestUid, imapUid);
+				lowestGlobal = (int) Math.min(lowestUid, lowestGlobal);
+				highestGlobal = (int) Math.max(highestUid, highestGlobal);
 				Collection<MailboxItemFlag> systemFlags = completeById.value.flags.stream()
 						.filter(item -> item.value != 0).collect(Collectors.toList());
 				flagMapping.put(new Record(imapUid, completeById.uid), systemFlags);
-				handledDbEntries.add((int) imapUid);
+				existingDbEntries.add((int) imapUid);
 			}
 			logger.info("Folder {}:{}, resyncing from {} to {}", f.uid, f.value.name, lowestUid, highestUid);
-			handledEsEntries
-					.addAll(resyncUidRange(mailbox, f, (int) lowestUid, (int) highestUid, flagMapping, monitor));
+			resyncUidRange(mailbox, f, (int) lowestUid, (int) highestUid, flagMapping, monitor);
 			monitor.progress(partialList.size(), null);
 		}
 
-		handledEsEntries.removeAll(handledDbEntries);
-		if (!handledEsEntries.isEmpty()) {
-			MailIndexActivator.getService().cleanupFolder(mailbox, f, handledEsEntries);
+		int[] arr = IntStream.range(lowestGlobal, highestGlobal + 1).filter(e -> !existingDbEntries.contains(e))
+				.toArray();
+		List<Integer> list = Arrays.stream(arr).boxed().collect(Collectors.toList());
+		List<List<Integer>> partition = Lists.partition(list, 25000);
+
+		for (List<Integer> part : partition) {
+			BoolQueryBuilder orBuilder = QueryBuilders.boolQuery();
+			orBuilder.should(QueryBuilders.termsQuery("uid", part));
+
+			BoolQueryBuilder filter = QueryBuilders.boolQuery().must(QueryBuilders.termQuery("in", f.uid));
+			filter.must(orBuilder);
+			ConstantScoreQueryBuilder constantScoreQuery = QueryBuilders.constantScoreQuery(filter);
+			ESearchActivator.deleteByQuery("mailspool_alias_" + mailbox.uid, constantScoreQuery);
 		}
 
-		// delete data in ES but not in DB
-		BoolQueryBuilder filter = QueryBuilders.boolQuery().must(QueryBuilders.termQuery("in", f.uid));
-		filter.mustNot(QueryBuilders.termsQuery("itemId", created));
-		ESearchActivator.deleteByQuery("mailspool_alias_" + mailbox.uid, QueryBuilders.constantScoreQuery(filter));
+		// delete unknown non-existing data in ES
+		if (lowestGlobal < highestGlobal) {
+			BoolQueryBuilder orBuilder = QueryBuilders.boolQuery();
+			orBuilder.should(QueryBuilders.rangeQuery("uid").from(0).to(lowestGlobal - 1));
+			orBuilder.should(QueryBuilders.rangeQuery("uid").from(highestGlobal + 1));
 
+			BoolQueryBuilder filter = QueryBuilders.boolQuery().must(QueryBuilders.termQuery("in", f.uid));
+			filter.must(orBuilder);
+			ConstantScoreQueryBuilder constantScoreQuery = QueryBuilders.constantScoreQuery(filter);
+			ESearchActivator.deleteByQuery("mailspool_alias_" + mailbox.uid, constantScoreQuery);
+		}
 	}
 
 	private Set<Integer> resyncUidRange(ItemValue<Mailbox> mailbox, ItemValue<MailboxFolder> f, int lowUid, int highUid,
