@@ -126,7 +126,7 @@ public class HsmToCyrus implements ICmdLet, Runnable {
 				}
 			}
 
-			ctx.info("%d orphan mail injected", orphanCount);
+			ctx.info("{} orphan mail injected", orphanCount);
 		} catch (Exception e) {
 			ctx.error("Unable to connect to IMAP server 127.0.0.1: " + e);
 		}
