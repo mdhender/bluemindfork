@@ -83,11 +83,11 @@ public class UserSessionUtility implements AutoCloseable {
 		INodeClient nc = NodeActivator.get(server.value.address());
 
 		// Don't allow new connections
-		NCUtils.exec(nc, "cyr_deny -m xfer-in-progress " + userLatd, 10, TimeUnit.SECONDS);
 		isLockedOut = true;
+		NCUtils.exec(nc, "cyr_deny -m xfer-in-progress " + userLatd, 1, TimeUnit.MINUTES);
 
 		// Retrieve existing imap sessions
-		ExitList exit = NCUtils.exec(nc, "cyr_info proc", 10, TimeUnit.SECONDS);
+		ExitList exit = NCUtils.exec(nc, "cyr_info proc", 1, TimeUnit.MINUTES);
 		List<String> killPids = new ArrayList<>();
 		for (String line : exit) {
 			// pid service servername [ip] latd@domainUid blue-mind.net!user.thomas^fricker
@@ -102,7 +102,7 @@ public class UserSessionUtility implements AutoCloseable {
 		// Kill sessions if any
 		if (!killPids.isEmpty()) {
 			logger.info("Sending SIGTERM signal to {} (kill sessions of {})", killPids, userLatd);
-			NCUtils.exec(nc, "kill -SIGTERM " + killPids.stream().collect(Collectors.joining(" ")), 10,
+			NCUtils.exec(nc, "kill -SIGTERM " + killPids.stream().collect(Collectors.joining(" ")), 30,
 					TimeUnit.SECONDS);
 		}
 	}
