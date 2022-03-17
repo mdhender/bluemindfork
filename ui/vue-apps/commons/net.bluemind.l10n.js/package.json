@@ -6,7 +6,6 @@
     "author": "Blue Mind SAS",
     "main": "index.js",
     "dependencies": {
-        "@bluemind/i18n": "^4.1.0",
-        "@bluemind/styleguide": "^0.1.0"
+        "@bluemind/i18n": "^4.1.0"
     }
 }

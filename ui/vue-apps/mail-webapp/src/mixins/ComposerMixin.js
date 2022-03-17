@@ -74,15 +74,7 @@ export default {
     methods: {
         ...mapMutations("mail", { $_ComposerMixin_SET_DRAFT_EDITOR_CONTENT: SET_DRAFT_EDITOR_CONTENT }),
         toggleSignature() {
-            if (!this.isSignatureInserted) {
-                this.$_ComposerMixin_SET_DRAFT_EDITOR_CONTENT(
-                    addSignature(this.messageCompose.editorContent, this.userPrefTextOnly, this.signature)
-                );
-            } else {
-                this.$_ComposerMixin_SET_DRAFT_EDITOR_CONTENT(
-                    removeSignature(this.messageCompose.editorContent, this.userPrefTextOnly, this.signature)
-                );
-            }
+            this.$refs.content.toggleSignature(this.signature);
         },
         async checkAndRepairFrom() {
             const matchingIdentity = this.identities.find(

@@ -4,6 +4,7 @@
         centered
         :title="isNewIdentity ? $t('preferences.mail.identities.create') : $t('preferences.mail.identities.update')"
         body-class="row manage-identity-modal-body"
+        modal-class="manage-identity-modal"
         @hidden="modalStatus = 'NOT-LOADED'"
     >
         <template v-if="modalStatus === 'LOADED'">
@@ -74,10 +75,11 @@
                     {{ $t("common.signature") }}
                     <bm-rich-editor
                         ref="rich-editor"
-                        v-model="identity.signature"
-                        is-menu-bar-opened
+                        :init-value="identity.signature"
+                        show-toolbar
                         has-border
                         class="mt-1"
+                        @input="onInput"
                     />
                 </div>
             </bm-col>
@@ -200,6 +202,9 @@ export default {
     },
     methods: {
         ...mapMutations("root-app", ["ADD_IDENTITY", "REMOVE_IDENTITY", "UPDATE_IDENTITY"]),
+        onInput(content) {
+            this.identity.signature = content;
+        },
         async open(identityDescription) {
             this.modalStatus = "NOT-LOADED";
             this.show = true;
@@ -300,8 +305,7 @@ export default {
             return false;
         },
         async updateSignatureEditorContent() {
-            await this.$nextTick();
-            this.$refs["rich-editor"].updateContent();
+            this.$refs["rich-editor"].setContent(this.identity.signature);
         }
     }
 };
@@ -350,5 +354,9 @@ function toIdentityDescription(id, identity) {
     .change-default {
         cursor: default;
     }
+}
+
+.manage-identity-modal .modal-dialog {
+    max-width: 55%;
 }
 </style>

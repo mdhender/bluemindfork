@@ -1,5 +1,4 @@
 import { createDocumentFragment } from "@bluemind/html-utils";
-// import { BmRichEditor } from "@bluemind/styleguide";
 
 export function addSignature(content, userPrefTextOnly, signature) {
     return userPrefTextOnly ? addTextSignature(content, signature) : addHtmlSignature(content, signature);
@@ -30,7 +29,7 @@ export function isTextHtmlSignatureEmpty(signature) {
     return true;
 }
 
-const HTML_SIGNATURE_ATTR = "data-bm-signature"; // must match same attr defined in RichEditor.Signature extension and in sanitizeHtml
+export const HTML_SIGNATURE_ATTR = "data-bm-signature"; // must match same attr defined in sanitizeHtml
 const HTML_SIGNATURE_TAG = "div";
 const HTML_SIGNATURE_SELECTOR = HTML_SIGNATURE_TAG + "[" + HTML_SIGNATURE_ATTR + "]";
 const TEXT_SIGNATURE_PREFIX = "--\n";

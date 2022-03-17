@@ -5,7 +5,7 @@
             <bm-form-input
                 v-if="!manageMine && !collapsed"
                 v-model="pattern"
-                class="mt-2 mb-3"
+                class="pref-filter mt-2 mb-3"
                 :placeholder="$t('common.filter')"
                 icon="filter"
                 resettable

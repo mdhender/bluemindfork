@@ -168,6 +168,7 @@
     "common.other_mailboxes": "Autres boîtes aux lettres",
     "common.manage_my_shares": "Gérer mes partages",
     "common.read_more": "En savoir plus",
+    "common.default": "Défaut",
     "common.container_type.mailboxacl": "boîte aux lettres | boîtes aux lettres",
     "common.container_type_with_definite_article.mailboxacl": "la boîte aux lettres",
     "common.container_type_with_indefinite_article.mailboxacl": "une boîte aux lettres",
@@ -192,5 +193,127 @@
     "common.got_it": "J'ai compris",
     "common.search.try_otherwise": "Essayez un terme plus générique.",
     "common.never": "Jamais",
-    "common.close_window": "Fermer la fenêtre"
+    "common.close_window": "Fermer la fenêtre",
+    "common.redo": "Rétablir",
+    "common.undo": "Annuler",
+    "styleguide": {
+        "alert": {
+            "alerts": "Vous avez {n} alertes",
+            "show": "voir les alertes",
+            "hide": "masquer les alertes",
+            "type": {
+                "loading": "Chargement...",
+                "success": "Succès!",
+                "warning": "Attention!",
+                "error": "Erreur!",
+                "info": "Info!"
+            }
+        },
+        "avatar": {
+            "title": "{alt} ({status})"
+        },
+        "chip": {
+            "close": "Supprimer"
+        },
+        "color-picker": {
+            "customize": "Personnaliser",
+            "toolbar": { "aria": "Choisir une couleur" }
+        },
+        "contact-input": {
+            "invalid": "Adresse invalide"
+        },
+        "input": {
+            "clear": "Effacer la saisie",
+            "number": {
+                "increment": "Incrémenter",
+                "decrement": "Décrémenter"
+            }
+        },
+        "table": {
+            "first_name": "Prénom",
+            "name": "Nom",
+            "is_active": "Actif"
+        },
+        "rich_editor": {
+            "link": {
+                "new": "Entrer un lien : ",
+                "open": "Ouvrir le lien",
+                "unlink": "Délier",
+                "text": "Texte à afficher",
+                "tooltip": "Insérer ou modifier un lien"
+            },
+            "table": {
+                "insert_table": "Insérer un tableau",
+                "delete_table": "Supprimer le tableau",
+                "insert_column": "Insérer une colonne",
+                "insert_left_column": "Insérer une colonne à gauche",
+                "insert_right_column": "Insérer une colonne à droite",
+                "delete_column": "Supprimer une colonne",
+                "insert_row": "Insérer une ligne",
+                "insert_below_row": "Insérer une ligne en dessous",
+                "insert_above_row": "Insérer une ligne au-dessus",
+                "delete_row": "Supprimer une ligne"
+            },
+            "bold": {
+                "tooltip": "Gras"
+            },
+            "italic": {
+                "tooltip": "Italique"
+            },
+            "image": {
+                "tooltip": "Insérer une image"
+            },
+            "list": {
+                "tooltip": "Liste à puces"
+            },
+            "numbered_list": {
+                "tooltip": "Liste numérotée"
+            },
+            "align_left": {
+                "tooltip": "Aligner à gauche"
+            },
+            "align_center": {
+                "tooltip": "Aligner au centre"
+            },
+            "align_right": {
+                "tooltip": "Aligner à droite"
+            },
+            "increase_font": {
+                "tooltip": "Augmenter la taille de la police"
+            },
+            "decrease_font": {
+                "tooltip": "Diminuer la taille de la police"
+            },
+            "block_quote": {
+                "tooltip": "Citation"
+            },
+            "close_menu": {
+                "tooltip": "Fermer le menu"
+            },
+            "strikethrough": {
+                "tooltip": "Barrer"
+            },
+            "text_color":{
+                "tooltip": "Couleur du texte"
+            },
+            "text_highlight": {
+                "tooltip": "Couleur d'arrière-plan"
+            },
+            "underline": {
+                "tooltip": "Souligner"
+            }
+        },
+        "badge": {
+            "more_items": "+ {count} autres"
+        },
+        "search": {
+            "default_placeholder": "Rechercher"
+        },
+        "all": "Tout",
+        "multi_select": {
+            "badge": {
+                "close_button": "Retirer {item} de la sélection"
+            }
+        }
+    }
 }

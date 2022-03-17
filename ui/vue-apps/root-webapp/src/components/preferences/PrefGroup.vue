@@ -128,16 +128,12 @@ export default {
 
     .pref-field-combobox,
     .bm-form-time-picker,
-    .bm-form-select,
-    .bm-form-multi-select,
-    .bm-form-input,
-    .bm-rich-editor,
+    .pref-field-select,
+    .pref-field-multi-select,
+    .pref-field-input,
+    .pref-filter,
     .pref-item-width {
         width: 24rem !important;
-    }
-
-    .b-calendar .bm-form-select {
-        width: unset !important;
     }
 }
 </style>

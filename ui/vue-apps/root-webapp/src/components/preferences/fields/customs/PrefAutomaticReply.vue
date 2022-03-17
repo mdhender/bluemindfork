@@ -21,10 +21,11 @@
             <bm-form-group :label="$t('common.message')" label-for="message" label-class="text-capitalize">
                 <bm-rich-editor
                     ref="message"
-                    v-model="textHtml"
-                    is-menu-bar-opened
+                    :init-value="textHtml"
+                    show-toolbar
                     has-border
                     :disabled="!value.enabled"
+                    @input="onInput"
                 />
             </bm-form-group>
 
@@ -193,8 +194,7 @@ export default {
         value: {
             async handler(value, old) {
                 if (value.textHtml !== old?.textHtml) {
-                    await this.$nextTick();
-                    this.$refs["message"]?.updateContent();
+                    this.$refs["message"]?.setContent(this.textHtml);
                 }
             },
             deep: true
@@ -207,6 +207,11 @@ export default {
         this.registerSaveAction(save);
 
         this.value = { ...this.$store.state.preferences.mailboxFilter.vacation };
+    },
+    methods: {
+        onInput(content) {
+            this.textHtml = content;
+        }
     }
 };
 </script>

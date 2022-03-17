@@ -168,6 +168,7 @@
     "common.other_mailboxes": "Other mailboxes",
     "common.manage_my_shares": "Manage my shares",
     "common.read_more": "Read more",
+    "common.default": "Default",
     "common.container_type.mailboxacl": "mailbox | mailboxes",
     "common.container_type_with_definite_article.mailboxacl": "the mailbox",
     "common.container_type_with_indefinite_article.mailboxacl": "a mailbox",
@@ -192,5 +193,127 @@
     "common.got_it": "I got it",
     "common.search.try_otherwise": "Please retry using a more generic search term.",
     "common.never": "Never",
-    "common.close_window": "Close the window"
+    "common.close_window": "Close the window",
+    "common.redo": "Redo",
+    "common.undo": "Undo",
+    "styleguide": {
+        "alert": {
+            "alerts": "You have {n} alerts",
+            "show": "see alerts",
+            "hide": "hide alerts",
+            "type": {
+                "loading": "Loading...",
+                "success": "Success!",
+                "warning": "Warning!",
+                "error": "Error!",
+                "info": "Info!"
+            }
+        },
+        "avatar": {
+            "title": "{alt} ({status})"
+        },
+        "chip": {
+            "close": "Remove"
+        },
+        "color-picker": {
+            "customize": "Customize",
+            "toolbar": { "aria": "Pick a color" }
+        },
+        "contact-input": {
+            "invalid": "Invalid address"
+        },
+        "input": {
+            "clear": "Clear input",
+            "number": {
+                "increment": "Increment",
+                "decrement": "Decrement"
+            }
+        },
+        "table": {
+            "first_name": "First name",
+            "name": "Name",
+            "is_active": "Active"
+        },
+        "rich_editor": {
+            "link": {
+                "new": "Enter link: ",
+                "open": "Open the link",
+                "unlink": "Unlink",
+                "text": "Text to display",
+                "tooltip": "Insert or modify link"
+            },
+            "table": {
+                "insert_table": "Insert a table",
+                "delete_table": "Delete table",
+                "insert_column": "Insert a column",
+                "insert_left_column": "Insert a column on the left",
+                "insert_right_column": "Insert a column on the right",
+                "delete_column": "Delete column",
+                "insert_row": "Insert a row",
+                "insert_below_row": "Insert a row below",
+                "insert_above_row": "Insert a row above",
+                "delete_row": "Delete row"
+            },
+            "bold": {
+                "tooltip": "Bold"
+            },
+            "italic": {
+                "tooltip": "Italic"
+            },
+            "image": {
+                "tooltip": "Insert an image"
+            },
+            "list": {
+                "tooltip": "Bullet list"
+            },
+            "numbered_list": {
+                "tooltip": "Numbered list"
+            },
+            "align_left": {
+                "tooltip": "Align left"
+            },
+            "align_center": {
+                "tooltip": "Align center"
+            },
+            "align_right": {
+                "tooltip": "Align right"
+            },
+            "increase_font": {
+                "tooltip": "Increase font size"
+            },
+            "decrease_font": {
+                "tooltip": "Decrease font size"
+            },
+            "block_quote": {
+                "tooltip": "Quote"
+            },
+            "close_menu": {
+                "tooltip": "Close menu"
+            },
+            "strikethrough": {
+                "tooltip": "Strikethrough"
+            },
+            "text_color":{
+                "tooltip": "Text color"
+            },
+            "text_highlight": {
+                "tooltip": "Text highlight"
+            },
+            "underline": {
+                "tooltip": "Underline"
+            }
+        },
+        "badge": {
+            "more_items": "+ {count} others"
+        },
+        "search": {
+            "default_placeholder": "Search"
+        },
+        "all": "All",
+        "multi_select": {
+            "badge": {
+                "close_button": "Remove {item} from selection"
+            }
+        }
+    }
 }

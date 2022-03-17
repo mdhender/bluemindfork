@@ -168,6 +168,7 @@
     "common.other_mailboxes": "Andere Mailkonten",
     "common.manage_my_shares": "Meine Freigaben verwalten",
     "common.read_more": "Mehr erfahren",
+    "common.default": "Standard",
     "common.container_type.mailboxacl": "Mailkonto | Mailkonten",
     "common.container_type_with_definite_article.mailboxacl": "das Mailkonto",
     "common.container_type_with_indefinite_article.mailboxacl": "ein Mailkonto",
@@ -189,8 +190,130 @@
     "common.my_todo_lists": "Meine Todolisten",
     "common.other_todo_lists": "Weitere Todolisten",
     "common.close": "Schliessen",
-    "common.got_it": "I got it",
+    "common.got_it": "OK",
     "common.search.try_otherwise": "Bitte versuchen Sie einen allgemeineren Suchbegriff.",
     "common.never": "Niemals",
-    "common.close_window": "Fenster schließen"
+    "common.close_window": "Fenster schließen",
+    "common.redo": "Wiederholen",
+    "common.undo": "Rückgängig",
+    "styleguide": {
+        "alert": {
+            "alerts": "Sie haben {n} Benachrichtigungen",
+            "show": "Warnungen anzeigen",
+            "hide": "Benachrichtigungen verbergen",
+            "type": {
+                "loading": "Lade...",
+                "success": "Erfolgreich!",
+                "warning": "Warnung!",
+                "error": "Fehler!",
+                "info": "Info!"
+            }
+        },
+        "avatar": {
+            "title": "{alt} ({status})"
+        },
+        "chip": {
+            "close": "Entfernen"
+        },
+        "color-picker": {
+            "customize": "Anpassen",
+            "toolbar": { "aria": "Wählen Sie eine Farbe" }
+        },
+        "contact-input": {
+            "invalid": "Ungültige Adresse"
+        },
+        "input": {
+            "clear": "Eingaben zurücksetzen",
+            "number": {
+                "increment": "Inkrementieren",
+                "decrement": "Verringern"
+            }
+        },
+        "table": {
+            "first_name": "Vorname",
+            "name": "Nachname",
+            "is_active": "Aktiv"
+        },
+        "rich_editor": {
+            "link": {
+                "new": "Link eingeben: ",
+                "open": "Den Link öffnen",
+                "unlink": "Unlink",
+                "text": "Text zum Anzeigen",
+                "tooltip": "Link einfügen oder bearbeiten"
+            },
+            "table": {
+                "insert_table": "Eine Tabelle einfügen",
+                "delete_table": "Tabelle löschen",
+                "insert_column": "Einfügen einer Spalte",
+                "insert_left_column": "Einfügen einer Spalte auf der linken Seite",
+                "insert_right_column": "Einfügen einer Spalte auf der rechten Seite",
+                "delete_column": "Eine Spalte löschen",
+                "insert_row": "Einfügen einer Zeilen",
+                "insert_below_row": "Eine Zeile darunter einfügen",
+                "insert_above_row": "Einfügen einer Zeile über",
+                "delete_row": "Eine Zeile löschen"
+            },
+            "bold": {
+                "tooltip": "Fett"
+            },
+            "italic": {
+                "tooltip": "Kursiv"
+            },
+            "image": {
+                "tooltip": "Bild einfügen"
+            },
+            "list": {
+                "tooltip": "Bullet-Liste"
+            },
+            "numbered_list": {
+                "tooltip": "Nummerierte Liste"
+            },
+            "align_left": {
+                "tooltip": "Linksbündig ausrichten"
+            },
+            "align_center": {
+                "tooltip": "Zentriert"
+            },
+            "align_right": {
+                "tooltip": "Rechtsbündig ausrichten"
+            },
+            "increase_font": {
+                "tooltip": "Schrift vergrößern"
+            },
+            "decrease_font": {
+                "tooltip": "Schrift verkleinern"
+            },
+            "block_quote": {
+                "tooltip": "Zitat"
+            },
+            "close_menu": {
+                "tooltip": "Menü schließen"
+            },
+            "strikethrough": {
+                "tooltip": "Durchgestrichen"
+            },
+            "text_color":{
+                "tooltip": "Textfarbe"
+            },
+            "text_highlight": {
+                "tooltip": "Texthintergrund"
+            },
+            "underline": {
+                "tooltip": "Unterstreichen"
+            }
+        }
+    },
+    "badge": {
+        "more_items": "+ {count} weitere"
+    },
+    "search": {
+        "default_placeholder": "Suche"
+    },
+    "all": "Alles",
+    "multi_select": {
+        "badge": {
+            "close_button": "{item} aus der Selektion entfernen"
+        }
+    }
 }

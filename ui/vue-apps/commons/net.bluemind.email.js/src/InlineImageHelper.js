@@ -1,6 +1,6 @@
 import { getPartPreviewUrl, WEBSERVER_HANDLER_BASE_URL } from "./index";
 
-const CID_DATA_ATTRIBUTE = "data-bm-cid";
+export const CID_DATA_ATTRIBUTE = "data-bm-cid";
 
 export default {
     insertAsUrl(contentsWithCids, imageParts, folderUid, imapUid) {

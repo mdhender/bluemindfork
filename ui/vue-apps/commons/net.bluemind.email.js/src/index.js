@@ -3,7 +3,7 @@ import UUIDGenerator from "@bluemind/uuid";
 import EmailExtractor from "./EmailExtractor";
 import EmailValidator from "./EmailValidator";
 import Flag from "./Flag";
-import InlineImageHelper from "./InlineImageHelper";
+import InlineImageHelper, { CID_DATA_ATTRIBUTE } from "./InlineImageHelper";
 import mailText2Html from "./mailText2Html";
 import MimeType from "./MimeType";
 import PartsBuilder from "./PartsBuilder";
@@ -40,6 +40,7 @@ function createCid() {
 }
 
 export {
+    CID_DATA_ATTRIBUTE,
     createCid,
     EmailExtractor,
     EmailValidator,

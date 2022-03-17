@@ -1,7 +1,7 @@
 // @see https://www.npmjs.com/package/xss
 import xss from "xss";
 
-import { WEBSERVER_HANDLER_BASE_URL } from "@bluemind/email";
+import { CID_DATA_ATTRIBUTE, WEBSERVER_HANDLER_BASE_URL } from "@bluemind/email";
 
 // since we are writing the email content in an iframe, we need to add some tags to the whitelist
 // some other tags like 'resourcetemplate' are very specific to BlueMind and need to be kept
@@ -29,7 +29,7 @@ const ADDITIONAL_ALLOWED_ATTRIBUTES_FOR_ANY_TAG = [
     "topmargin",
     "marginwidth",
     "marginheight",
-    "data-bm-cid",
+    CID_DATA_ATTRIBUTE,
     "data-bm-forward-separator",
     "data-bm-reply-separator",
     "data-bm-signature"

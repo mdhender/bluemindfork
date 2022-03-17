@@ -19,8 +19,9 @@
             </template>
             <bm-rich-editor
                 ref="message-content"
-                :value="messageCompose.editorContent"
-                :is-menu-bar-opened="userPrefIsMenuBarOpened"
+                :init-value="messageCompose.editorContent"
+                :show-toolbar="userPrefIsMenuBarOpened"
+                :adapt-output="setCidDataAttr"
                 class="flex-grow-1"
                 @input="updateEditorContent"
             >
@@ -48,10 +49,12 @@
 <script>
 import { mapMutations, mapState } from "vuex";
 
+import { createCid, CID_DATA_ATTRIBUTE } from "@bluemind/email";
 import { BmButton, BmFileDropZone, BmIcon, BmRichEditor } from "@bluemind/styleguide";
 
 import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
 import { isNewMessage } from "~/model/draft";
+import { HTML_SIGNATURE_ATTR } from "~/model/signature";
 import { ComposerActionsMixin, ComposerInitMixin } from "~/mixins";
 import MailViewerContentLoading from "../MailViewer/MailViewerContentLoading";
 
@@ -104,7 +107,7 @@ export default {
         },
         "messageCompose.editorContent"() {
             if (!this.lock) {
-                this.updateHtmlComposer();
+                this.$refs["message-content"]?.setContent(this.messageCompose.editorContent);
             }
         }
     },
@@ -127,11 +130,14 @@ export default {
         },
         async focus() {
             await this.$nextTick();
-            this.$refs["message-content"]?.focusBeforeSignature();
+            this.$refs["message-content"]?.focusBeforeCustomContent("[" + HTML_SIGNATURE_ATTR + "]");
         },
-        async updateHtmlComposer() {
-            await this.$nextTick();
-            this.$refs["message-content"]?.updateContent();
+        toggleSignature(signature) {
+            this.$refs["message-content"].toggleCustomContent(signature, HTML_SIGNATURE_ATTR);
+        },
+        setCidDataAttr(container) {
+            const images = container.querySelectorAll('img[src^="data:image"]:not([' + CID_DATA_ATTRIBUTE + "])");
+            images.forEach(imgNode => imgNode.setAttribute(CID_DATA_ATTRIBUTE, createCid()));
         }
     }
 };
@@ -141,12 +147,8 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-composer-content {
-    .bm-rich-editor-content .ProseMirror {
+    .bm-rich-editor .roosterjs-container {
         min-height: 12rem;
-    }
-
-    .mail-content {
-        overflow: auto !important;
     }
 }
 </style>
