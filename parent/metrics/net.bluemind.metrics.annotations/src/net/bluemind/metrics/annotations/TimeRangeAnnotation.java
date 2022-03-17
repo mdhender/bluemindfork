@@ -18,6 +18,7 @@
 package net.bluemind.metrics.annotations;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -26,11 +27,19 @@ import net.bluemind.lib.vertx.VertxPlatform;
 
 public class TimeRangeAnnotation {
 
-	public static void annotate(String name, Date start, Optional<Date> optEnd) {
+	private TimeRangeAnnotation() {
+
+	}
+
+	public static void annotate(String name, Date start, Optional<Date> optEnd, Map<String, String> tags) {
 		Objects.requireNonNull(name, "name is null");
 		Objects.requireNonNull(start, "date is null");
 		Date end = optEnd.orElse(start);
-		JsonObject js = new JsonObject().put("name", name).put("start", start.getTime()).put("end", end.getTime());
+
+		JsonObject tagsJs = new JsonObject();
+		tags.forEach(tagsJs::put);
+		JsonObject js = new JsonObject().put("name", name).put("start", start.getTime()).put("end", end.getTime())
+				.put("tags", tagsJs);
 		VertxPlatform.eventBus().publish("metrics.range.annotate", js);
 	}
 

@@ -17,8 +17,11 @@
   */
 package net.bluemind.maintenance.runner;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.File;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.maintenance.IMaintenanceScript;
 import net.bluemind.maintenance.MaintenanceScripts;
+import net.bluemind.metrics.annotations.TimeRangeAnnotation;
 
 public class MaintenanceRunner {
 	public static final Logger logger = LoggerFactory.getLogger(MaintenanceRunner.class);
@@ -50,7 +54,11 @@ public class MaintenanceRunner {
 		for (IMaintenanceScript maintenanceScript : scripts) {
 			logger.info("running maintenance script {}", maintenanceScript);
 			try {
+				Date start = new Date();
 				maintenanceScript.run(monitor);
+				Date end = new Date();
+				TimeRangeAnnotation.annotate(maintenanceScript.name(), start, Optional.of(end), ImmutableMap.of("kind",
+						"maintenance", "product", "bm-core", "script", maintenanceScript.name()));
 			} catch (Exception e) {
 				monitor.log("maintenance script " + maintenanceScript + " failed: " + e);
 				logger.error("Maintenance script {} failed", maintenanceScript, e);

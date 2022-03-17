@@ -1,7 +1,9 @@
 package net.bluemind.metrics.core.service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -57,11 +59,14 @@ public class DashboardsVerticle extends AbstractVerticle {
 			String name = js.getString("name");
 			Date startDT = new Date(js.getLong("start", System.currentTimeMillis()));
 			Date endDT = new Date(js.getLong("end", System.currentTimeMillis()));
-			annotateBoard(name, startDT, endDT);
+			JsonObject tagjs = js.getJsonObject("tags", new JsonObject());
+			Map<String, String> flat = new HashMap<>();
+			tagjs.forEach(e -> flat.put(e.getKey(), e.getValue().toString()));
+			annotateBoard(name, startDT, endDT, flat);
 		});
 	}
 
-	private void annotateBoard(String name, Date start, Date end) {
+	private void annotateBoard(String name, Date start, Date end, Map<String, String> tags) {
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IServer serverApi = prov.instance(IServer.class, InstallationId.getIdentifier());
 		Optional<ItemValue<Server>> chronograf = serverApi.allComplete().stream()
@@ -74,7 +79,7 @@ public class DashboardsVerticle extends AbstractVerticle {
 			}
 			logger.info("Publish annotation {}", name);
 			try (ChronografClient chronoClient = new ChronografClient(chronograf.get())) {
-				chronoClient.annotate(name, start, end);
+				chronoClient.annotate(name, start, end, tags);
 			}
 		}
 	}

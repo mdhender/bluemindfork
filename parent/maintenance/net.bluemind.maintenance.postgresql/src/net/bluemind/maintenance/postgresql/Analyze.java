@@ -62,4 +62,9 @@ public class Analyze implements IMaintenanceScript {
 			monitor.end(false, null, e.getMessage());
 		}
 	}
+
+	@Override
+	public String name() {
+		return "pgAnalyze";
+	}
 }

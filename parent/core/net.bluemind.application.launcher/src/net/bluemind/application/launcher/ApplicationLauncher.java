@@ -33,6 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import com.google.common.collect.ImmutableMap;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
@@ -121,7 +123,8 @@ public class ApplicationLauncher implements IApplication {
 			ProductChecks.asyncValidate().whenComplete((v, ex) -> {
 				Startup.notifyReady();
 				notifyCoreStatus("core.started");
-				TimeRangeAnnotation.annotate("CORE Start", new Date(), Optional.empty());
+				TimeRangeAnnotation.annotate("CORE Start", new Date(), Optional.empty(),
+						ImmutableMap.of("kind", "start", "product", "bm-core"));
 				if (new File(System.getProperty("user.home") + "/core.debug").exists()
 						&& BMVersion.getVersion().endsWith("qualifier")) {
 					StateContext.setState("core.upgrade.start");

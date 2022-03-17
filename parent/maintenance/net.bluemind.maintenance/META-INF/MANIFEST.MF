@@ -10,7 +10,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.task.spi,
  net.bluemind.server.api,
  net.bluemind.system.state,
- slf4j.api
+ slf4j.api,
+ net.bluemind.metrics.annotations,
+ com.google.guava
 Export-Package: net.bluemind.maintenance,
  net.bluemind.maintenance.runner
 Automatic-Module-Name: net.bluemind.maintenance

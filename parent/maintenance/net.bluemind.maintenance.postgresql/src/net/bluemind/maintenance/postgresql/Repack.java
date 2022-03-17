@@ -162,4 +162,9 @@ public class Repack implements IMaintenanceScript {
 			monitor.log("Failed to complete all pg_repacks: Timeout after " + TIMEOUT_HOURS + " hours");
 		}
 	}
+
+	@Override
+	public String name() {
+		return "pgRepack";
+	}
 }

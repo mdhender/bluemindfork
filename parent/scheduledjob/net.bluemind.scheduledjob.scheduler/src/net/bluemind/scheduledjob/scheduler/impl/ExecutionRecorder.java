@@ -30,6 +30,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -90,7 +92,8 @@ public class ExecutionRecorder implements Runnable {
 		rl.recordingComplete(rid);
 		long durationMs = je.endDate.getTime() - je.startDate.getTime();
 		if (TimeUnit.MILLISECONDS.toSeconds(durationMs) > 30) {
-			TimeRangeAnnotation.annotate(je.jobId, je.startDate, Optional.of(je.endDate));
+			TimeRangeAnnotation.annotate(je.jobId, je.startDate, Optional.of(je.endDate),
+					ImmutableMap.of("kind", "job", "product", "bm-core", "jobId", je.jobId));
 		}
 
 	}

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -49,13 +50,20 @@ public class ChronografClient implements AutoCloseable {
 		return existingDashboards;
 	}
 
-	public void annotate(String name, Date start, Date end) {
+	public void annotate(String name, Date start, Date end, Map<String, String> tags) {
 		JsonObject annot = new JsonObject();
 		annot.put("id", UUID.randomUUID().toString());
 		annot.put("text", name).put("type", "");
 		BmDateTime startDT = BmDateTimeWrapper.fromTimestamp(start.getTime());
 		BmDateTime endDT = end != null ? BmDateTimeWrapper.fromTimestamp(end.getTime()) : startDT;
 		annot.put("startTime", startDT.iso8601).put("endTime", endDT.iso8601);
+		if (!tags.isEmpty()) {
+			JsonObject tagJs = new JsonObject();
+			tags.entrySet().forEach(e -> {
+				tagJs.put(e.getKey(), e.getValue());
+			});
+			annot.put("tags", tagJs);
+		}
 		try {
 			jsonHelper.sendPost(apiEndpoint + "/sources/0/annotations", annot);
 		} catch (Exception e) {
