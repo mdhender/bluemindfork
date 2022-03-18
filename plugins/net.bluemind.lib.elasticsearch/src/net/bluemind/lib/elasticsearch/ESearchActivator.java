@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,6 +47,8 @@ import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest.AliasActions;
+import org.elasticsearch.action.admin.indices.alias.get.GetAliasesAction;
+import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequestBuilder;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -57,6 +60,8 @@ import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.cluster.metadata.AliasMetadata;
+import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.index.query.Operator;
@@ -388,10 +393,20 @@ public final class ESearchActivator implements BundleActivator {
 				int count = indexes.values().stream().filter(item -> item.supportsIndex(index)).findFirst().get()
 						.count();
 				if (count > 1) {
-					for (int i = 1; i <= count; i++) {
-						String indexName = index + "_" + i;
-						logger.info("reset index {}", indexName);
-						client.admin().indices().prepareDelete(indexName).execute().actionGet();
+					int realCount = 0;
+					ImmutableOpenMap<String, List<AliasMetadata>> getAliasesResponse = new GetAliasesRequestBuilder(
+							client, GetAliasesAction.INSTANCE, new String[0]).get().getAliases();
+					for (Iterator<String> keysIt = getAliasesResponse.keysIt(); keysIt.hasNext();) {
+						String indexName = keysIt.next();
+						if (indexName.startsWith(index + "_")) {
+							logger.info("reset index {}", indexName);
+							client.admin().indices().prepareDelete(indexName).execute().actionGet();
+							realCount++;
+						}
+					}
+					if (count != realCount) {
+						logger.warn("Found {} {} indexes which differs from the expected count of {}", realCount, index,
+								count);
 					}
 				}
 			}
