@@ -129,6 +129,7 @@ public class CyrusReplicationHelper {
 		// because our cyrus configuration in docker does not match what we package
 		replConf.append("annotation_definitions: /etc/cyrus-annotations").append('\n');
 		addConversationsSettings(replConf);
+		replConf.append("mailbox_default_options: 4\n");
 		String updatedConf = imapStr + replConf.toString();
 		nc.writeFile("/etc/imapd.conf", new ByteArrayInputStream(updatedConf.getBytes()));
 		CyrusService cs = new CyrusService(cyrusIp);
