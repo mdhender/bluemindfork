@@ -221,7 +221,12 @@ public class VCardService implements IVCardService {
 		if (tagsContainer.equals("tags_global.virt")) {
 			return false;
 		}
-		ITags tagService = context.su().provider().instance(ITags.class, tagsContainer);
+		ITags tagService;
+		try {
+			tagService = context.su().provider().instance(ITags.class, tagsContainer);
+		} catch (ServerFault e) {
+			return false;
+		}
 		Optional<ItemValue<Tag>> storedTag = tagService.all().stream().filter(t -> t.value.label.equals(label))
 				.findFirst();
 		if (storedTag.isPresent()) {
