@@ -281,6 +281,50 @@ public class MailshareTests {
 	}
 
 	@Test
+	public void testClearFormatedName() throws ServerFault {
+		Mailshare ms = defaultMailshare();
+		ms.name = "testupdated" + System.currentTimeMillis();
+		String uid = "ms" + System.currentTimeMillis();
+		service(domainAdminSecurityContext).create(uid, ms);
+		// check direntry created
+		List<DirEntry> res = testContext.provider().instance(IDirectory.class, domainUid)
+				.getEntries(domainUid + "/mailshares");
+		assertEquals(1, res.size());
+		assertEquals(ms.name, res.get(0).displayName);
+
+		// add formatted name
+		ms.card.organizational.title = "Master !";
+		ms.card.identification.formatedName.value = "John Doe";
+		service(domainAdminSecurityContext).update(uid, ms);
+
+		// check direntry updated
+		res = testContext.provider().instance(IDirectory.class, domainUid).getEntries(domainUid + "/mailshares");
+		assertEquals(1, res.size());
+		assertEquals("John Doe", res.get(0).displayName);
+		// check vcard
+		ItemValue<VCard> vcard = testContext.provider().instance(IDirectory.class, domainUid).getVCard(uid);
+		assertNotNull(vcard);
+		assertEquals("Master !", vcard.value.organizational.title);
+		assertEquals("John Doe", vcard.value.identification.formatedName.value);
+
+		// remove formatted name
+		ms.card.identification.formatedName.value = null;
+		service(domainAdminSecurityContext).update(uid, ms);
+		// check direntry updated
+		res = testContext.provider().instance(IDirectory.class, domainUid).getEntries(domainUid + "/mailshares");
+		assertEquals(1, res.size());
+		assertEquals(ms.name, res.get(0).displayName);
+
+		// empty formatted name
+		ms.card.identification.formatedName.value = "";
+		service(domainAdminSecurityContext).update(uid, ms);
+		// check direntry updated
+		res = testContext.provider().instance(IDirectory.class, domainUid).getEntries(domainUid + "/mailshares");
+		assertEquals(1, res.size());
+		assertEquals(ms.name, res.get(0).displayName);
+	}
+
+	@Test
 	public void testRestoreUpdate() throws ServerFault, ParseException {
 		Mailshare mailshare = defaultMailshare();
 		String uid = "ms" + System.currentTimeMillis();

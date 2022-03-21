@@ -18,12 +18,14 @@
  */
 package net.bluemind.ui.adminconsole.directory.mailshare;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.json.client.JSONObject;
 
+import net.bluemind.addressbook.api.VCard.Identification;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
 import net.bluemind.domain.api.DomainSettingsKeys;
@@ -103,8 +105,12 @@ public class MailshareModelHandler implements IGwtModelHandler {
 		JsMailshare mailshare = map.get("mailshare").cast();
 		mailshare.setCard(map.get("vcard").cast());
 		Mailshare m = new MailshareGwtSerDer().deserialize(new JSONObject(mailshare));
-		m.card.identification.formatedName.value = m.card.identification.name.givenNames + " "
-				+ m.card.identification.name.familyNames;
+		String formattedName = buildFormattedName(m.card.identification.name);
+		if (!formattedName.isEmpty()) {
+			m.card.identification.formatedName.value = formattedName;
+		} else {
+			m.card.identification.formatedName.value = null;
+		}
 
 		mailshares.update(s, m)
 				.thenCompose(v -> {
@@ -121,6 +127,17 @@ public class MailshareModelHandler implements IGwtModelHandler {
 					handler.failure(e);
 					return null;
 				});
+	}
+
+	private String buildFormattedName(Identification.Name idName) {
+		StringBuilder formattedName = new StringBuilder();
+		Optional.ofNullable(idName.givenNames).ifPresent(formattedName::append);
+		if (formattedName.length() == 0) {
+			Optional.ofNullable(idName.familyNames).ifPresent(formattedName::append);
+		} else {
+			Optional.ofNullable(idName.familyNames).ifPresent(n -> formattedName.append(" ").append(n));
+		}
+		return formattedName.toString();
 	}
 
 	native String btoa(String b64)

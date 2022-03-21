@@ -18,7 +18,10 @@
  */
 package net.bluemind.mailshare.service.internal;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.addressbook.api.VCard;
+import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
@@ -56,7 +59,7 @@ public class MailshareVCardSanitizer implements ISanitizer<DirDomainValue<Mailsh
 		if (!(obj.value instanceof Mailshare)) {
 			return;
 		}
-		sanitizeVCard(obj.domainUid, obj.entryUid, obj.value);
+		sanitizeVCard(obj.value);
 
 	}
 
@@ -70,13 +73,22 @@ public class MailshareVCardSanitizer implements ISanitizer<DirDomainValue<Mailsh
 			obj.value.card = current.value.card;
 		}
 
-		sanitizeVCard(obj.domainUid, obj.entryUid, obj.value);
+		sanitizeFormatedName(obj.value);
+		sanitizeVCard(obj.value);
 	}
 
-	private void sanitizeVCard(String domainUid, String entryUid, Mailshare value) {
+	private void sanitizeFormatedName(Mailshare value) {
+		if (value.card != null && (value.card.identification.formatedName == null
+				|| Strings.isNullOrEmpty(value.card.identification.formatedName.value))) {
+			value.card.identification.formatedName = FormatedName.create(value.name);
+		}
+	}
+
+	private void sanitizeVCard(Mailshare value) {
 		if (value.card == null) {
 			value.card = new VCard();
 		}
 		new Sanitizer(this.bmContext).create(value.card);
 	}
+
 }
