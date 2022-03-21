@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.sds.store.loader
+Bundle-SymbolicName: net.bluemind.sds.store.loader
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.sds.store,
+ net.bluemind.system.api,
+ net.bluemind.eclipse.common,
+ io.vertx.core,
+ net.bluemind.lib.vertx,
+ com.github.ben-manes.caffeine
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.sds.store.loader
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.sds.store.loader

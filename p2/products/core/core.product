@@ -187,13 +187,13 @@
       <plugin id="net.bluemind.dataprotect.elastic"/>
       <plugin id="net.bluemind.dataprotect.job"/>
       <plugin id="net.bluemind.dataprotect.mailbox"/>
+      <plugin id="net.bluemind.dataprotect.notes"/>
       <plugin id="net.bluemind.dataprotect.ou"/>
       <plugin id="net.bluemind.dataprotect.persistence"/>
       <plugin id="net.bluemind.dataprotect.postgresql"/>
       <plugin id="net.bluemind.dataprotect.service"/>
       <plugin id="net.bluemind.dataprotect.sqlschema"/>
       <plugin id="net.bluemind.dataprotect.todolist"/>
-      <plugin id="net.bluemind.dataprotect.notes"/>
       <plugin id="net.bluemind.dataprotect.user"/>
       <plugin id="net.bluemind.deferredaction.api"/>
       <plugin id="net.bluemind.deferredaction.persistence"/>
@@ -306,7 +306,7 @@
       <plugin id="net.bluemind.mailbox.sqlschema"/>
       <plugin id="net.bluemind.mailflow.api"/>
       <plugin id="net.bluemind.mailflow.common.api"/>
-      <plugin id="net.bluemind.mailflow.hook" />
+      <plugin id="net.bluemind.mailflow.hook"/>
       <plugin id="net.bluemind.mailflow.persistence"/>
       <plugin id="net.bluemind.mailflow.rbe"/>
       <plugin id="net.bluemind.mailflow.registration"/>
@@ -339,6 +339,12 @@
       <plugin id="net.bluemind.node.api"/>
       <plugin id="net.bluemind.node.client"/>
       <plugin id="net.bluemind.node.shared"/>
+      <plugin id="net.bluemind.notes.api"/>
+      <plugin id="net.bluemind.notes.hook"/>
+      <plugin id="net.bluemind.notes.persistence"/>
+      <plugin id="net.bluemind.notes.service"/>
+      <plugin id="net.bluemind.notes.sqlschema"/>
+      <plugin id="net.bluemind.notes.usernotes"/>
       <plugin id="net.bluemind.osgi.log"/>
       <plugin id="net.bluemind.outlook.clientcheck"/>
       <plugin id="net.bluemind.pool"/>
@@ -364,6 +370,7 @@
       <plugin id="net.bluemind.scheduledjob.sqlschema"/>
       <plugin id="net.bluemind.sds.proxy.mgmt"/>
       <plugin id="net.bluemind.sds.store"/>
+      <plugin id="net.bluemind.sds.store.loader"/>
       <plugin id="net.bluemind.sds.store.s3"/>
       <plugin id="net.bluemind.sds.store.scalityring"/>
       <plugin id="net.bluemind.sentry" fragment="true"/>
@@ -421,13 +428,7 @@
       <plugin id="net.bluemind.todolist.service"/>
       <plugin id="net.bluemind.todolist.sqlschema"/>
       <plugin id="net.bluemind.todolist.usertodolist"/>
-      <plugin id="net.bluemind.notes.api"/>
-      <plugin id="net.bluemind.notes.hook"/>
-      <plugin id="net.bluemind.notes.persistence"/>
-      <plugin id="net.bluemind.notes.service"/>
-      <plugin id="net.bluemind.notes.sqlschema"/>
-      <plugin id="net.bluemind.notes.usernotes"/>
-      <plugin id="net.bluemind.user.accounts.hook" />
+      <plugin id="net.bluemind.user.accounts.hook"/>
       <plugin id="net.bluemind.user.accounts.persistence"/>
       <plugin id="net.bluemind.user.accounts.service"/>
       <plugin id="net.bluemind.user.accounts.sqlschema"/>

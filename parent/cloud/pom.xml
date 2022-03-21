@@ -17,6 +17,7 @@
 	  <module>net.bluemind.sds.proxy.launcher</module>
 	  <module>net.bluemind.sds.proxy.mgmt</module>
 	  <module>net.bluemind.sds.store</module>
+	  <module>net.bluemind.sds.store.loader</module>
 	  <module>net.bluemind.sds.store.s3</module>
 	  <module>net.bluemind.sds.store.s3.tests</module>
 	  <module>net.bluemind.sds.store.scalityring.tests</module>

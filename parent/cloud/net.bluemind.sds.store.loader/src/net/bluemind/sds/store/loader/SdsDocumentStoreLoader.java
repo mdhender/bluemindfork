@@ -16,10 +16,14 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.document.persistence.fs;
+package net.bluemind.sds.store.loader;
 
 import java.util.List;
 import java.util.Optional;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.RemovalCause;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -31,10 +35,18 @@ import net.bluemind.system.api.ArchiveKind;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 
-public class DefaultSdsStoreLoader {
+public class SdsDocumentStoreLoader {
+
+	private static final Cache<String, ISdsSyncStore> currentStore = Caffeine.newBuilder()
+			.evictionListener((String k, ISdsSyncStore v, RemovalCause c) -> {
+				if (v != null) {
+					v.close();
+				}
+			}).build();
+
 	private final List<ISdsBackingStoreFactory> stores;
 
-	public DefaultSdsStoreLoader() {
+	public SdsDocumentStoreLoader() {
 		RunnableExtensionLoader<ISdsBackingStoreFactory> rel = new RunnableExtensionLoader<>();
 		this.stores = rel.loadExtensions("net.bluemind.sds", "store", "store", "factory");
 	}
@@ -47,7 +59,7 @@ public class DefaultSdsStoreLoader {
 				.put("secretKey", sysconf.stringValue(SysConfKeys.sds_filehosting_s3_secret_key.name()))//
 				.put("region", sysconf.stringValue(SysConfKeys.sds_filehosting_s3_region.name()))//
 				.put("bucket", sysconf.stringValue(SysConfKeys.sds_filehosting_s3_bucket.name()));
-		return factory.syncStore(factory.create(vertx, jsonconf));
+		return currentStore.get(jsonconf.encode(), k -> factory.syncStore(factory.create(vertx, jsonconf)));
 	}
 
 	public Optional<ISdsSyncStore> forSysconf(SystemConf sysconf) {

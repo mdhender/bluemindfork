@@ -118,6 +118,11 @@ public interface ISdsBackingStoreFactory {
 					throw new ServerFault("delete failed or timed out", ErrorCode.TIMEOUT);
 				}
 			}
+
+			@Override
+			public void close() {
+				asyncStore.close();
+			}
 		};
 	}
 

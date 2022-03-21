@@ -26,6 +26,7 @@ import net.bluemind.sds.dto.PutRequest;
 import net.bluemind.sds.dto.SdsResponse;
 
 public interface ISdsSyncStore {
+
 	ExistResponse exists(ExistRequest req);
 
 	SdsResponse upload(PutRequest req);
@@ -35,4 +36,7 @@ public interface ISdsSyncStore {
 	SdsResponse downloads(MgetRequest req);
 
 	SdsResponse delete(DeleteRequest req);
+
+	void close();
+
 }

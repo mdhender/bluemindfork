@@ -14,7 +14,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eclipse.common,
  net.bluemind.sds.store,
  net.bluemind.system.api,
- net.bluemind.lib.vertx
+ net.bluemind.lib.vertx,
+ net.bluemind.sds.store.loader
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: net.bluemind.document.persistence.fs
 Bundle-ActivationPolicy: lazy

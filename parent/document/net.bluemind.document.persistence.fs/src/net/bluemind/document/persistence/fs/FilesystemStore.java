@@ -30,6 +30,7 @@ import com.google.common.base.Suppliers;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.document.storage.IDocumentStore;
 import net.bluemind.sds.store.ISdsSyncStore;
+import net.bluemind.sds.store.loader.SdsDocumentStoreLoader;
 import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
 public class FilesystemStore implements IDocumentStore {
@@ -43,7 +44,7 @@ public class FilesystemStore implements IDocumentStore {
 	}
 
 	private IDocumentStore selectStoreStrategy() {
-		Optional<ISdsSyncStore> optSds = new DefaultSdsStoreLoader().forSysconf(LocalSysconfCache.get());
+		Optional<ISdsSyncStore> optSds = new SdsDocumentStoreLoader().forSysconf(LocalSysconfCache.get());
 		return optSds.map(SdsStoreImpl::create).orElseGet(FilesystemStoreImpl::new);
 	}
 

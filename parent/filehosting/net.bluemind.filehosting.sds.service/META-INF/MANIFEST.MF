@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.filehosting.sds.service
 Bundle-SymbolicName: net.bluemind.filehosting.sds.service;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-Activator: net.bluemind.filehosting.sds.service.SdsFhActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.filehosting.service,
@@ -18,7 +17,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.sysconf.helper,
  slf4j.api,
  net.bluemind.core.rest,
- com.google.guava
+ com.google.guava,
+ net.bluemind.sds.store.loader
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.filehosting.sds.service
 Bundle-ActivationPolicy: lazy

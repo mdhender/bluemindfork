@@ -55,6 +55,7 @@ import net.bluemind.sds.dto.GetRequest;
 import net.bluemind.sds.dto.PutRequest;
 import net.bluemind.sds.dto.SdsResponse;
 import net.bluemind.sds.store.ISdsSyncStore;
+import net.bluemind.sds.store.loader.SdsDocumentStoreLoader;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.sysconf.helper.LocalSysconfCache;
@@ -62,8 +63,9 @@ import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 public class SdsFileHostingService implements IFileHostingService {
 
 	private static final Logger logger = LoggerFactory.getLogger(SdsFileHostingService.class);
+
 	private static final Supplier<ISdsSyncStore> sds = Suppliers.memoizeWithExpiration(
-			() -> new DefaultSdsStoreLoader().forSysconf(LocalSysconfCache.get()).orElse(null), 5, TimeUnit.MINUTES);
+			() -> new SdsDocumentStoreLoader().forSysconf(LocalSysconfCache.get()).orElse(null), 5, TimeUnit.MINUTES);
 
 	public SdsFileHostingService() {
 		if (logger.isDebugEnabled()) {
