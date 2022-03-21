@@ -31,10 +31,6 @@
             impl="net.bluemind.cli.mail.UnexpungeCommand$Reg"
             priority="50">
       </registration>
-	  <registration
-            impl="net.bluemind.cli.mail.ReindexMailspoolPending$Reg"
-            priority="60">
-      </registration>
    </extension>
 
 </plugin>

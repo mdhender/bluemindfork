@@ -6,7 +6,6 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-core,
- com.fasterxml.jackson.core.jackson-databind,
  com.github.freva.ascii-table,
  com.google.guava,
  net.bluemind.authentication.api,

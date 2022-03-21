@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.cli.mail;
+package net.bluemind.cli.index;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -213,7 +213,7 @@ public class ReindexMailspoolPending implements ICmdLet, Runnable {
 
 		@Override
 		public Optional<String> group() {
-			return Optional.of("mail");
+			return Optional.of("index");
 		}
 
 		@Override

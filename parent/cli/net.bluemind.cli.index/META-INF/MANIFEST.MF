@@ -14,7 +14,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.elasticsearch,
  net.bluemind.cli.directory.common,
  net.bluemind.server.api,
- net.bluemind.config
+ net.bluemind.config,
+ com.fasterxml.jackson.core.jackson-databind
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.index
 Bundle-ActivationPolicy: lazy
