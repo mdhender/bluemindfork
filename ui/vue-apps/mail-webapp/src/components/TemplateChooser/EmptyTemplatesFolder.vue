@@ -10,7 +10,7 @@
 import { mapGetters } from "vuex";
 import emptyFolderIllustration from "~/../assets/empty-folder.png";
 import MailFolderIcon from "../MailFolderIcon";
-import MailConversationListEmpty from "../../MailConversationList/MailConversationListEmpty";
+import MailConversationListEmpty from "../MailConversationList/MailConversationListEmpty";
 import { MY_TEMPLATES } from "~/getters";
 
 export default {

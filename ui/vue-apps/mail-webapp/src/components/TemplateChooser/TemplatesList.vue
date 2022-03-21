@@ -17,12 +17,13 @@ import debounce from "lodash.debounce";
 import { mapGetters, mapState } from "vuex";
 import { MY_TEMPLATES } from "~/getters";
 import ConversationList from "~/components/ConversationList/ConversationList";
-import TemplatesListSpinner from "./TemplatesListSpinner.vue";
-import EmptySearchResult from "./EmptySearchResult.vue";
+import TemplatesListSpinner from "./TemplatesListSpinner";
+import EmptySearchResult from "./EmptySearchResult";
+import EmptyTemplatesFolder from "./EmptyTemplatesFolder";
 
 export default {
     name: "TemplateChooser",
-    components: { ConversationList, TemplatesListSpinner, EmptySearchResult },
+    components: { ConversationList, TemplatesListSpinner, EmptySearchResult, EmptyTemplatesFolder },
     props: {
         value: {
             type: Number,
