@@ -1089,6 +1089,13 @@
   dependencies:
     axios "^0.18.0"
 
+"@bluemind/announcement.api@^4.1.0":
+  version "4.1.61798"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/announcement.api/-/announcement.api-4.1.61798.tgz#e755288160457c1819c0226896056f61e5a643c2"
+  integrity sha512-PUyO/hTdYsWVPVLymbbBJCReCDrTGfnfmkCmvnVcOdBdwCuzZLU5H5VPGrnNLi3C4ZZb3hYcl3tS59M3wr32xg==
+  dependencies:
+    axios "^0.18.0"
+
 "@bluemind/authentication.api@^4.1.0":
   version "4.1.58652"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/authentication.api/-/authentication.api-4.1.58652.tgz#f1e7f51fb8e4b5d5421b9cb07897febb19da4b96"
