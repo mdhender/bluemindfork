@@ -4,7 +4,7 @@
         <mail-folder-icon
             :shared="CURRENT_MAILBOX.type == 'mailshares'"
             :folder="currentFolder"
-            class="font-weight-bold"
+            class="font-weight-bold px-1"
         />
         {{ $t("mail.empty") }}
     </mail-conversation-list-empty>
