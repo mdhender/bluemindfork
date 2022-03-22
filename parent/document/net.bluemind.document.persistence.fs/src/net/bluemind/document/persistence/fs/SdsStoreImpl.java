@@ -79,8 +79,8 @@ public class SdsStoreImpl implements IDocumentStore {
 
 	@Override
 	public byte[] get(String uid) throws ServerFault {
-		if (logger.isInfoEnabled()) {
-			logger.info("Try get '{}' aka {}", uid, keyFromUid(uid));
+		if (logger.isDebugEnabled()) {
+			logger.debug("Try get '{}' aka {}", uid, keyFromUid(uid));
 		}
 		if (!exists(uid)) {
 			return null;
