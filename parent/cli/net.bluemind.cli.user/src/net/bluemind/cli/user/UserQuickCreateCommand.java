@@ -77,6 +77,9 @@ public class UserQuickCreateCommand implements ICmdLet, Runnable {
 	@Option(names = "--random", description = "Generate random infos into the VCard")
 	public Boolean randomData = false;
 
+	@Option(names = "--random-datalocation", description = "Random datalocation attribution")
+	public Boolean randomDatalocation = false;
+
 	private CliContext ctx;
 
 	private static final com.github.javafaker.Name nameFaker = Faker.instance().name();
@@ -142,8 +145,11 @@ public class UserQuickCreateCommand implements ICmdLet, Runnable {
 			u.accountType = AccountType.FULL;
 			u.routing = Routing.internal;
 			u.emails = emails;
-			u.dataLocation = ctx.adminApi().instance(IServer.class, "default").allComplete().stream()
-					.filter(s -> s.value.tags.contains("mail/imap")).findAny().map(s -> s.uid).orElse(null);
+
+			if (randomDatalocation == null || !randomDatalocation) {
+				u.dataLocation = ctx.adminApi().instance(IServer.class, "default").allComplete().stream()
+						.filter(s -> s.value.tags.contains("mail/imap")).findAny().map(s -> s.uid).orElse(null);
+			}
 
 			IUser uApi = ctx.adminApi().instance(IUser.class, dom);
 			String uid = "cli-created-" + UUID.nameUUIDFromBytes(loginAtDomain.getBytes()).toString().toLowerCase();
