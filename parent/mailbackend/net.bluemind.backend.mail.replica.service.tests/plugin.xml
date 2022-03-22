@@ -13,6 +13,9 @@
       <verticle
             impl="net.bluemind.backend.mail.replica.service.tests.LocalSyncClientVerticle$ScReg">
       </verticle>
+      <verticle
+            impl="net.bluemind.backend.mail.replica.service.tests.CircuitBreaksCounter$Factory">
+      </verticle>
    </extension>
 
 </plugin>

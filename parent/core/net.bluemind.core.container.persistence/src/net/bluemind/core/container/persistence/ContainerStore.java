@@ -319,11 +319,15 @@ public class ContainerStore extends JdbcAbstractStore {
 		if (c == null) {
 			throw ServerFault.notFound(uid);
 		}
-		delete("DELETE FROM t_container_settings WHERE container_id = ?", new Object[] { c.id });
-		delete("DELETE FROM t_container_sequence WHERE container_id = ?", new Object[] { c.id });
-		delete("DELETE FROM t_container_item WHERE container_id = ?", new Object[] { c.id });
-		delete("DELETE FROM t_container where id = ?", new Object[] { c.id });
-		invalidateCache(uid, c.id);
+		deleteKnownIdUid(c.id, uid);
+	}
+
+	public void deleteKnownIdUid(long id, String uid) throws SQLException {
+		delete("DELETE FROM t_container_settings WHERE container_id = ?", new Object[] { id });
+		delete("DELETE FROM t_container_sequence WHERE container_id = ?", new Object[] { id });
+		delete("DELETE FROM t_container_item WHERE container_id = ?", new Object[] { id });
+		delete("DELETE FROM t_container where id = ?", new Object[] { id });
+		invalidateCache(uid, id);
 	}
 
 	public void invalidateCache(String uid, Long id) {

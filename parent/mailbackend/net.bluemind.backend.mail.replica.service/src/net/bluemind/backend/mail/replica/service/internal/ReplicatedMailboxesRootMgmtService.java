@@ -23,9 +23,11 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
@@ -230,12 +232,15 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 
 		List<Container> recordsContainers = lookup.apply(new Lookup(IMailReplicaUids.MAILBOX_RECORDS, contStore));
 		logger.info("Found {} mailbox_records containers", recordsContainers.size());
+		Set<String> cacheCleanups = new HashSet<>();
+
 		for (Container cont : recordsContainers) {
+			cacheCleanups.add(IMailReplicaUids.getUniqueId(cont.uid));
 			MailboxRecordStore store = new MailboxRecordStore(ds, cont);
 			ContainerStoreService<MailboxRecord> storeService = new ContainerStoreService<>(ds,
 					context.getSecurityContext(), cont, store);
 			logger.info("remove mailbox_records container {}", cont.uid);
-			storeService.deleteAll();
+			storeService.prepareContainerDelete();
 			containersApi.delete(cont.uid);
 		}
 
@@ -247,7 +252,7 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 			ContainerStoreService<MailboxReplica> storeService = new ContainerStoreService<>(ds,
 					context.getSecurityContext(), cont, store);
 			logger.info("remove mailbox_replica container {}", cont.uid);
-			storeService.deleteAll();
+			storeService.prepareContainerDelete();
 			containersApi.delete(cont.uid);
 		}
 
@@ -259,10 +264,10 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 			ContainerStoreService<InternalConversation> storeService = new ContainerStoreService<>(ds,
 					context.getSecurityContext(), container, store);
 			logger.info("remove replicated_conversations container {}", container.uid);
-			storeService.deleteAll();
+			storeService.prepareContainerDelete();
 			containersApi.delete(container.uid);
 		}
-
+		cacheCleanups.forEach(MboxReplicasCache::invalidate);
 		logger.info("Cleanup of {} complete.", partition);
 	}
 

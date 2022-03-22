@@ -230,13 +230,13 @@ public class Containers implements IContainers {
 		ContainerStore directoryDataStore = new ContainerStore(context, context.getDataSource(), securityContext);
 
 		JdbcAbstractStore.doOrFail(() -> {
-			new ChangelogStore(dataSource, containerStore.get(uid)).deleteLog();
+			new ChangelogStore(dataSource, container).deleteLog();
 			personalSettingsStore.deleteAll();
 			settingsStore.delete();
 			syncStore.suspendSync();
 			aclStore.deleteAll(container);
 			directoryDataStore.deleteContainerLocation(container);
-			containerStore.delete(uid);
+			containerStore.deleteKnownIdUid(container.id, uid);
 			return null;
 		});
 

@@ -30,6 +30,7 @@ import com.google.common.collect.Multiset;
 import com.netflix.spectator.api.Registry;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
@@ -51,7 +52,7 @@ public class CircuitBreaker<T> {
 	public void noticeError(T errorSource) {
 		String partKey = partition.apply(errorSource);
 		int newCount = errorCounts.add(partKey, 1);
-		logger.warn("[{}] noticed error, errorCount: {}", partKey, newCount);
+		logger.warn("[{} - {}] noticed error, errorCount: {}", name, partKey, newCount);
 	}
 
 	public void noticeSuccess(T errorSource) {
@@ -69,10 +70,12 @@ public class CircuitBreaker<T> {
 				future.completeExceptionally(e);
 			}
 		} else {
-			long delayMs = Math.min(5, count) * 500;
+			long delayMs = Math.min(5l, count) * 500;
 			registry.counter(idFactory.name(name + ".circuitBreakerDelays", "delay", Long.toString(delayMs)))
 					.increment();
-			logger.warn("[{}] Adding a {}ms delay to error-prone operation, errorCount: {}", partKey, delayMs, count);
+			logger.warn("[{} - {}] Adding a {}ms delay to error-prone operation, errorCount: {}", name, partKey,
+					delayMs, count);
+			vertx.eventBus().publish("circuit-breaker." + name, new JsonObject().put("count", count));
 			vertx.setTimer(delayMs, tid -> {
 				try {
 					future.complete(to.call());
@@ -91,10 +94,12 @@ public class CircuitBreaker<T> {
 			return to.get();
 		} else {
 			CompletableFuture<R> future = new CompletableFuture<>();
-			long delayMs = Math.min(5, count) * 500;
+			long delayMs = Math.min(5l, count) * 500;
 			registry.counter(idFactory.name(name + ".circuitBreakerDelays", "delay", Long.toString(delayMs)))
 					.increment();
-			logger.warn("[{}] Adding a {}ms delay to error-prone operation, errorCount: {}", partKey, delayMs, count);
+			logger.warn("[{} - {}] Adding a {}ms delay to error-prone operation, errorCount: {}", name, partKey,
+					delayMs, count);
+			vertx.eventBus().publish("circuit-breaker." + name, new JsonObject().put("count", count));
 			vertx.setTimer(delayMs, tid -> {
 				to.get().whenComplete((R res, Throwable ex) -> {
 					if (ex != null) {

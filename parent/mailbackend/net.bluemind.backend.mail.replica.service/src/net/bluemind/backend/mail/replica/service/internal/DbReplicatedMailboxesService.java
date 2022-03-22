@@ -179,7 +179,7 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 						container.owner);
 				IInternalMailConversation conversationService = context.provider()
 						.instance(IInternalMailConversation.class, conversationSubTreeUid);
-				conversationService.deleteAll(uid);
+				conversationService.deleteAllById(deleted.id);
 			}
 
 			context.provider().instance(IContainers.class).delete(toDelete);

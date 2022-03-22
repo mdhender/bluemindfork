@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -40,6 +41,7 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.mailbox.service.common.DefaultFolder;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -87,6 +89,8 @@ public class RecreateUserTests extends AbstractRollingReplicationTests {
 		ItemValue<User> theUser = userApi.getComplete(userUid);
 		assertNotNull(theUser);
 
+		long brokenCircuits = CircuitBreaksCounter.breaks();
+
 		TaskRef tr = userApi.delete(userUid);
 		TaskStatus status = TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), tr);
 		assertEquals(TaskStatus.State.Success, status.state);
@@ -97,16 +101,30 @@ public class RecreateUserTests extends AbstractRollingReplicationTests {
 		assertNotNull(newUser);
 		assertNotEquals(theUser.internalId, newUser.internalId);
 
-		Thread.sleep(400);
+		Thread.sleep(2000);
 		System.err.println("Connecting with syncClient");
 		SyncClient sc = new SyncClient("127.0.0.1", 2501);
+
+		AtomicInteger mailboxes = new AtomicInteger();
+
 		sc.connect().thenCompose(c -> {
 			return sc.getUser(userUid + "@" + domainUid);
 		}).thenCompose(userResp -> {
-			// we should assert that the box name is well composed regarding '.'
-			// and '^'
+			for (String s : userResp.dataLines) {
+				System.err.println("S: " + s);
+				if (s.startsWith("* MAILBOX")) {
+					mailboxes.incrementAndGet();
+				}
+			}
 			return sc.disconnect();
 		}).get(5, TimeUnit.SECONDS);
+
+		// +1 for the root (aka INBOX)
+		int expected = DefaultFolder.USER_FOLDERS.size() + 1;
+		assertEquals("we should have at least " + expected, expected, mailboxes.get());
+
+		long brokenInTest = CircuitBreaksCounter.breaks() - brokenCircuits;
+		assertEquals("circuit breaker should not trigger", 0, brokenInTest);
 
 	}
 

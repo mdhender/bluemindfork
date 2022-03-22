@@ -140,8 +140,13 @@ public class MailConversationService implements IInternalMailConversation {
 
 	@Override
 	public void deleteAll(String folderUid) {
+		deleteAllById(uidToId(folderUid));
+	}
+
+	@Override
+	public void deleteAllById(long folderId) {
 		try {
-			conversationStore.deleteMessagesInFolder(uidToId(folderUid));
+			conversationStore.deleteMessagesInFolder(folderId);
 		} catch (SQLException e) {
 			throw new ServerFault(e);
 		}

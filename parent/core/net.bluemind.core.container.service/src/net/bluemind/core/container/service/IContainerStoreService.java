@@ -125,7 +125,10 @@ public interface IContainerStoreService<T> {
 	public void detach(String uid);
 
 	/**
-	 * delete all values ( changelog is available for deleted values )
+	 * Delete all values (changelog is available for deleted values).
+	 * 
+	 * Consider {@link IContainerStoreService#prepareContainerDelete())} when
+	 * container deletion is your next step.
 	 * 
 	 * @throws ServerFault
 	 */
@@ -138,7 +141,8 @@ public interface IContainerStoreService<T> {
 	ListResult<Long> allIds(IdQuery query);
 
 	/**
-	 * delete all values. To use before deleting containers
+	 * Delete all values. Prefer it to {@link IContainerStoreService#deleteAll()}
+	 * when you want to drop the container after the call.
 	 * 
 	 * @throws ServerFault
 	 */

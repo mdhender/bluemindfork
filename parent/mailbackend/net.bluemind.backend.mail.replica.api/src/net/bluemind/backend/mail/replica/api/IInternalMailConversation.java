@@ -49,4 +49,8 @@ public interface IInternalMailConversation extends IMailConversation, IDataShard
 	@Path("{folderUid}")
 	public void deleteAll(@PathParam(value = "folderUid") String folderUid);
 
+	@DELETE
+	@Path("id/{folderId}")
+	public void deleteAllById(@PathParam(value = "folderId") long folderId);
+
 }
