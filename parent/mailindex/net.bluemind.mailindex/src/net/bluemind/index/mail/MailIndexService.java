@@ -301,7 +301,10 @@ public class MailIndexService implements IMailIndexService {
 	public void deleteBox(ItemValue<Mailbox> box, String folderUid) {
 
 		logger.debug("deleteBox {} {}", box.uid, folderUid);
-
+		boolean exist = ensureAliasExists(getIndexAliasName(box.uid), getIndexClient());
+		if (!exist) {
+			return;
+		}
 		QueryBuilder q = QueryBuilders.constantScoreQuery(asFilter(folderUid));
 
 		long count = bulkDelete(getIndexAliasName(box.uid), q);
@@ -413,6 +416,16 @@ public class MailIndexService implements IMailIndexService {
 		String index = getUserAliasIndex(alias, getIndexClient());
 		logger.info("Cleaning up parent-child hierarchy of alias/index {}/{}", alias, index);
 		VertxPlatform.eventBus().publish("index.mailspool.cleanup", new JsonObject().put("index", index));
+	}
+
+	private boolean ensureAliasExists(String alias, Client client) {
+		try {
+			GetAliasesResponse t = client.admin().indices().prepareGetAliases(alias).execute().actionGet();
+			return !t.getAliases().isEmpty();
+		} catch (Exception e) {
+			logger.error("ensureAliasExists({})", alias, e);
+			return false;
+		}
 	}
 
 	private String getUserAliasIndex(String alias, Client client) {
