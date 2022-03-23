@@ -174,6 +174,7 @@ public class MailboxIdentityService implements IMailboxIdentity {
 		}
 
 		List<IdentityDescription> ret = new ArrayList<>(ids);
+
 		for (Email email : mboxValue.emails) {
 			if (email.allAliases) {
 				String adr = email.address;
@@ -181,24 +182,25 @@ public class MailboxIdentityService implements IMailboxIdentity {
 					adr = adr.split("@")[0];
 				}
 				for (String alias : domain.value.aliases) {
-					addIfNotPresent(adr + "@" + alias, ret);
+					addIfNotPresentAndNotInternalDomain(adr + "@" + alias, ret);
 				}
-
-				addIfNotPresent(adr + "@" + domain.value.name, ret);
 			} else {
-				addIfNotPresent(email.address, ret);
+				addIfNotPresentAndNotInternalDomain(email.address, ret);
 			}
-
 		}
 
 		return ret;
 	}
 
-	private void addIfNotPresent(String address, List<IdentityDescription> ret) {
+	private void addIfNotPresentAndNotInternalDomain(String address, List<IdentityDescription> ret) {
 		for (IdentityDescription d : ret) {
 			if (d.email.equals(address)) {
 				return;
 			}
+		}
+
+		if (address.endsWith(".internal")) {
+			return;
 		}
 
 		// add only if not in ret list
