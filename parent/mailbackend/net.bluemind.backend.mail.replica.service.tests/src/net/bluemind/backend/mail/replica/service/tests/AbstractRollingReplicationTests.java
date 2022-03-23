@@ -212,6 +212,10 @@ public abstract class AbstractRollingReplicationTests {
 		return EmlTemplates.withRandomMessageId("with_inlines.ftl");
 	}
 
+	protected InputStream testEml(String file) {
+		return EmlTemplates.withRandomMessageId(file);
+	}
+
 	protected ItemValue<MailboxItem> addDraft(ItemValue<MailboxFolder> inbox) throws IOException, InterruptedException {
 		return addDraft(inbox, userUid);
 	}
@@ -356,6 +360,10 @@ public abstract class AbstractRollingReplicationTests {
 
 	protected void addMailToFolder(String folderUid) throws IOException {
 		addMailToFolder(testEml(), folderUid);
+	}
+
+	protected void addMailToFolder(String folderUid, String file) throws IOException {
+		addMailToFolder(testEml(file), folderUid);
 	}
 
 }

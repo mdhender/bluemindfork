@@ -3,14 +3,13 @@ package net.bluemind.backend.mail.replica.service.internal;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.MimeException;
@@ -34,6 +33,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Iterables;
 
 import io.netty.buffer.ByteBufInputStream;
+import net.bluemind.addressbook.api.IAddressBook;
+import net.bluemind.addressbook.api.IAddressBookUids;
+import net.bluemind.addressbook.api.IAddressBooks;
+import net.bluemind.addressbook.api.VCard;
+import net.bluemind.addressbook.api.VCard.Communications.Email;
+import net.bluemind.addressbook.api.VCardQuery;
 import net.bluemind.authentication.api.AuthUser;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.backend.mail.api.IItemsTransfer;
@@ -114,53 +119,105 @@ public class OutboxService implements IOutbox {
 
 			AuthUser user = serviceProvider.instance(IAuthentication.class).getCurrentUser();
 
-			List<CompletableFuture<Void>> promises = new ArrayList<>(mailCount);
-		 List<FlushResult> flushResults = new ArrayList<>(mailCount);
-			mails.forEach(item -> promises.add(flushOne(monitor, mailboxFoldersService, outboxFolder, sentFolder,
-					mailboxItemsService, user, flushResults, item)));
+			FlushContext ctx = new FlushContext(monitor, mailboxFoldersService, outboxFolder, sentFolder,
+					mailboxItemsService, user);
 
-			try {
-				CompletableFuture.allOf(Iterables.toArray(promises, CompletableFuture.class)).thenAccept(finished -> {
-					logger.info("[{}] flushed {}", context.getSecurityContext().getSubject(), mailCount);
-					monitor.end(true, "FLUSHING OUTBOX finished successfully",
-							String.format("{\"result\": %s}", JsonUtils.asString(flushResults)));
-				}).get(30, TimeUnit.SECONDS);
-			} catch (TimeoutException e) {
-				monitor.end(false, "FLUSHING OUTBOX - timeout reached", "{\"result\": \"" + e + "\"}");
-				logger.warn("FLUSHING OUTBOX - timeout reached", e);
-			} catch (Exception e) {
-				monitor.end(false, "FLUSHING OUTBOX - finished in error", "{\"result\": \"" + e + "\"}");
-				logger.error("FLUSHING OUTBOX - finished in error", e);
-			}
+			flushAll(monitor, mails, mailCount, user, ctx);
 		});
 	}
 
-	private CompletableFuture<Void> flushOne(IServerTaskMonitor monitor, IMailboxFolders mailboxFoldersService,
-			ItemValue<MailboxFolder> outboxFolder, ItemValue<MailboxFolder> sentFolder,
-			IMailboxItems mailboxItemsService, AuthUser user, List<FlushResult> flushResults,
-			ItemValue<MailboxItem> item) {
-		return SyncStreamDownload.read(mailboxItemsService.fetchComplete(item.value.imapUid)).thenAccept(buf -> {
+	private void flushAll(IServerTaskMonitor monitor, List<ItemValue<MailboxItem>> mails, int mailCount, AuthUser user,
+			FlushContext ctx) {
+		List<CompletableFuture<FlushInfo>> promises = mails.stream().map(item -> flushOne(ctx, item))
+				.collect(Collectors.toList());
+
+		CompletableFuture.allOf(Iterables.toArray(promises, CompletableFuture.class)).thenRun(() -> {
+			List<FlushResult> flushResults = promises.stream().map(this::safeGet) //
+					.filter(ret -> ret.flushResult.isPresent()) //
+					.map(ret -> ret.flushResult.get()) //
+					.collect(Collectors.toList());
+			Set<RecipientInfo> collectedRecipients = promises.stream().map(this::safeGet) //
+					.flatMap(ret -> ret.collectedRecipients.stream()).collect(Collectors.toSet());
+
+			addRecipientsToCollectedContacts(user.uid, collectedRecipients);
+			logger.info("[{}] flushed {}", context.getSecurityContext().getSubject(), mailCount);
+			monitor.end(true, "FLUSHING OUTBOX finished successfully",
+					String.format("{\"result\": %s}", JsonUtils.asString(flushResults)));
+		}).exceptionally(e -> {
+			monitor.end(false, "FLUSHING OUTBOX - finished in error", "{\"result\": \"" + e + "\"}");
+			logger.error("FLUSHING OUTBOX - finished in error", e);
+			return null;
+		});
+	}
+
+	private CompletableFuture<FlushInfo> flushOne(FlushContext ctx, ItemValue<MailboxItem> item) {
+		return SyncStreamDownload.read(ctx.mailboxItemsService.fetchComplete(item.value.imapUid)).thenApply(buf -> {
 			InputStream in = new ByteBufInputStream(buf.duplicate());
 			InputStream forSend = new ByteBufInputStream(buf);
+			FlushInfo ret = new FlushInfo();
 			try (Message msg = Mime4JHelper.parse(in)) {
 				if (msg.getFrom() == null) {
-					org.apache.james.mime4j.dom.address.Mailbox from = SendmailHelper.formatAddress(user.displayName,
-							user.value.defaultEmail().address);
+					org.apache.james.mime4j.dom.address.Mailbox from = SendmailHelper
+							.formatAddress(ctx.user.displayName, ctx.user.value.defaultEmail().address);
 					msg.setFrom(from);
 				}
 				String fromMail = msg.getFrom().iterator().next().getAddress();
 				MailboxList rcptTo = allRecipients(msg);
-				send(user.value.login, forSend, fromMail, rcptTo, msg);
-				moveToSent(item, sentFolder, outboxFolder, flushResults);
-				monitor.progress(1, "FLUSHING OUTBOX - mail " + msg.getMessageId() + " sent and moved in Sent folder.");
+				send(ctx.user.value.login, forSend, fromMail, rcptTo, msg);
+				ret.flushResult = moveToSent(item, ctx.sentFolder, ctx.outboxFolder);
+				ret.collectedRecipients = rcptTo.stream()
+						.map(rcpt -> new RecipientInfo(rcpt.getAddress(), rcpt.getName(), rcpt.getLocalPart()))
+						.collect(Collectors.toSet());
+				ctx.monitor.progress(1,
+						"FLUSHING OUTBOX - mail " + msg.getMessageId() + " sent and moved in Sent folder.");
 			} catch (Exception e) {
 				throw new ServerFault(e);
 			}
+			return ret;
 		});
 	}
 
-	private void send(String login, InputStream forSend, String fromMail, MailboxList rcptTo, Message relatedMsg)
-			throws Exception {
+	private void addRecipientsToCollectedContacts(String uid, Set<RecipientInfo> collectedRecipients) {
+		IAddressBooks allContactsService = serviceProvider.instance(IAddressBooks.class);
+		IAddressBook collectedContactsService = serviceProvider.instance(IAddressBook.class,
+				IAddressBookUids.collectedContactsUserAddressbook(uid));
+		String queryString = "value.kind: 'individual' AND value.communications.emails.value:";
+
+		collectedRecipients.forEach(recipient -> {
+			VCardQuery query = VCardQuery.create(queryString + recipient.email);
+			query.escapeQuery = true;
+			if (allContactsService.search(query).total == 0) {
+				addRecipientToCollectedContacts(collectedContactsService, recipient);
+			}
+		});
+
+	}
+
+	private void addRecipientToCollectedContacts(IAddressBook service, RecipientInfo recipient) {
+		VCard card = recipientToVCard(recipient);
+		service.create(UUID.randomUUID().toString(), card);
+	}
+
+	private VCard recipientToVCard(RecipientInfo recipient) {
+		VCard card = new VCard();
+
+		card.identification.name = VCard.Identification.Name.create(recipient.familyNames, recipient.givenNames, null,
+				null, null, null);
+
+		List<Email> emails = Arrays.asList(VCard.Communications.Email.create(recipient.email));
+		card.communications.emails = emails;
+		return card;
+	}
+
+	private FlushInfo safeGet(CompletableFuture<FlushInfo> info) {
+		try {
+			return info.get();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void send(String login, InputStream forSend, String fromMail, MailboxList rcptTo, Message relatedMsg) {
 		SendmailCredentials creds = SendmailCredentials.as(String.format("%s@%s", login, domainUid),
 				context.getSecurityContext().getSessionId());
 		SendmailResponse sendmailResponse = mailer.send(creds, fromMail, domainUid, rcptTo, forSend);
@@ -168,16 +225,16 @@ public class OutboxService implements IOutbox {
 		if (!sendmailResponse.getFailedRecipients().isEmpty()) {
 			sendNonDeliveryReport(sendmailResponse.getFailedRecipients(), creds, fromMail, relatedMsg);
 		} else if (!sendmailResponse.isOk()) {
-			throw new Exception(sendmailResponse.toString());
-		} 
+			throw new ServerFault(sendmailResponse.toString());
+		}
 	}
 
 	/**
 	 * Move to default Sent folder or the one given in the X-BM-SENT-FOLDER header.
 	 * Fall back to default Sent folder if an error occurs.
 	 */
-	private void moveToSent(ItemValue<MailboxItem> item, ItemValue<MailboxFolder> sentFolder,
-			ItemValue<MailboxFolder> outboxFolder, List<FlushResult> flushResults) {
+	private Optional<FlushResult> moveToSent(ItemValue<MailboxItem> item, ItemValue<MailboxFolder> sentFolder,
+			ItemValue<MailboxFolder> outboxFolder) {
 		Optional<String> xBmSentFolder = extractXBmSentFolder(item);
 		FlushResult flushResult;
 		if (xBmSentFolder.isPresent()) {
@@ -193,9 +250,7 @@ public class OutboxService implements IOutbox {
 			flushResult = moveTo(item, outboxFolder.uid, sentFolder.uid);
 		}
 
-		if (flushResult != null) {
-			flushResults.add(flushResult);
-		}
+		return Optional.ofNullable(flushResult);
 	}
 
 	private FlushResult moveTo(ItemValue<MailboxItem> item, String sourceUid, String targetUid) {
@@ -308,6 +363,80 @@ public class OutboxService implements IOutbox {
 				.filter(item -> item.value.body.headers.stream()
 						.anyMatch(header -> header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)))
 				.collect(Collectors.toList());
+	}
+
+	static class RecipientInfo {
+		final String email;
+		final String givenNames;
+		final String familyNames;
+
+		public RecipientInfo(String email, String fullName, String localPart) {
+			this.email = email;
+
+			String[] names;
+			if (fullName == null) {
+				names = Arrays.asList(localPart.split("\\.")).stream().map(this::captitalize).toArray(String[]::new);
+			} else {
+				names = fullName.split(" ");
+			}
+			this.givenNames = names[0];
+			this.familyNames = String.join(" ", Arrays.copyOfRange(names, 1, names.length));
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((email == null) ? 0 : email.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			RecipientInfo other = (RecipientInfo) obj;
+			if (email == null) {
+				if (other.email != null)
+					return false;
+			} else if (!email.equals(other.email))
+				return false;
+			return true;
+		}
+
+		private String captitalize(String str) {
+			return Character.toUpperCase(str.charAt(0)) + str.substring(1);
+		}
+
+	}
+
+	static class FlushContext {
+		final IServerTaskMonitor monitor;
+		final IMailboxFolders mailboxFoldersService;
+		final ItemValue<MailboxFolder> outboxFolder;
+		final ItemValue<MailboxFolder> sentFolder;
+		final IMailboxItems mailboxItemsService;
+		final AuthUser user;
+
+		public FlushContext(IServerTaskMonitor monitor, IMailboxFolders mailboxFoldersService,
+				ItemValue<MailboxFolder> outboxFolder, ItemValue<MailboxFolder> sentFolder,
+				IMailboxItems mailboxItemsService, AuthUser user) {
+			this.monitor = monitor;
+			this.mailboxFoldersService = mailboxFoldersService;
+			this.outboxFolder = outboxFolder;
+			this.sentFolder = sentFolder;
+			this.mailboxItemsService = mailboxItemsService;
+			this.user = user;
+		}
+	}
+
+	static class FlushInfo {
+		Optional<FlushResult> flushResult;
+		Set<RecipientInfo> collectedRecipients;
 	}
 
 	@SuppressWarnings("unused")

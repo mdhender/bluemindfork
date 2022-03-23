@@ -1,6 +1,7 @@
 package net.bluemind.backend.mail.replica.service.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -9,6 +10,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -19,6 +21,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import net.bluemind.addressbook.api.IAddressBook;
+import net.bluemind.addressbook.api.IAddressBookUids;
+import net.bluemind.addressbook.api.VCard;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.replication.testhelper.ExpectCommand;
 import net.bluemind.backend.mail.api.IMailboxFolders;
@@ -152,7 +157,7 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 		long time = System.currentTimeMillis();
 		CompletableFuture<Void> applyMailboxCompletetion = new ExpectCommand().onNextApplyMailbox(sentUid);
 
-		outboxService.flush();
+		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), outboxService.flush());
 
 		try {
 			applyMailboxCompletetion.get(5, TimeUnit.SECONDS);
@@ -166,6 +171,105 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 
 		Thread.sleep(500); // apply mailbox is async now
 		assertEquals(1L, sent_mailboxItemsService.count(ItemFlagFilter.all()).total);
+	}
+
+	@Test
+	public void testFlushOutboxShouldAddCollectedContacts() throws Exception {
+		addMailToFolder(outboxUid, "with_inlines2.ftl");
+
+		CompletableFuture<Void> applyMailboxCompletetion = new ExpectCommand().onNextApplyMailbox(sentUid);
+		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), outboxService.flush());
+		applyMailboxCompletetion.get(500, TimeUnit.SECONDS);
+
+		String abUid = IAddressBookUids.collectedContactsUserAddressbook(userUid);
+		IAddressBook service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IAddressBook.class, abUid);
+		List<String> allUids = service.allUids();
+
+		assertEquals(2, allUids.size());
+		ItemValue<VCard> tom = null;
+		ItemValue<VCard> david = null;
+		for (String vcardUid : allUids) {
+			ItemValue<VCard> vcard = service.getComplete(vcardUid);
+			String email = vcard.value.defaultMail();
+			if (email.equals("david.phan@bluemind.net")) {
+				david = vcard;
+			} else if (email.equals("thomas.cataldo@blue-mind.net")) {
+				tom = vcard;
+			}
+		}
+		assertNotNull(david);
+		assertNotNull(tom);
+		assertEquals(david.value.identification.name.familyNames, "Phan");
+		assertEquals(david.value.identification.name.givenNames, "David");
+		assertEquals(tom.value.identification.name.familyNames, "Cataldo");
+		assertEquals(tom.value.identification.name.givenNames, "Thomas");
+	}
+
+	@Test
+	public void testFlushOutboxShouldAddOnlyOnceCollectedContactsWhenDuplicate() throws Exception {
+		addMailToFolder(outboxUid);
+		addMailToFolder(outboxUid);
+
+		CompletableFuture<Void> applyMailboxCompletetion = new ExpectCommand().onNextApplyMailbox(sentUid);
+		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), outboxService.flush());
+		applyMailboxCompletetion.get(500, TimeUnit.SECONDS);
+
+		String abUid = IAddressBookUids.collectedContactsUserAddressbook(userUid);
+		IAddressBook service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IAddressBook.class, abUid);
+		List<String> allUids = service.allUids();
+
+		assertEquals(2, allUids.size());
+	}
+
+	@Test
+	public void testFlushOutboxShouldOnlyAddMissingCollectedContacts() throws Exception {
+		addMailToFolder(outboxUid);
+
+		CompletableFuture<Void> applyMailboxCompletetion = new ExpectCommand().onNextApplyMailbox(sentUid);
+		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), outboxService.flush());
+		applyMailboxCompletetion.get(500, TimeUnit.SECONDS);
+
+		String abUid = IAddressBookUids.collectedContactsUserAddressbook(userUid);
+		IAddressBook service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IAddressBook.class, abUid);
+		List<String> allUids = service.allUids();
+
+		assertEquals(2, allUids.size());
+
+		service.delete(allUids.get(0));
+
+		addMailToFolder(outboxUid);
+		assertEquals(2, allUids.size());
+
+	}
+
+	@Test
+	public void testFlushOutboxShouldAddOnlyOnceCollectedContactsWhenDuplicateBetweenMultipleFlushes()
+			throws Exception {
+		addMailToFolder(outboxUid);
+		addMailToFolder(outboxUid);
+
+		CompletableFuture<Void> applyMailboxCompletetion = new ExpectCommand().onNextApplyMailbox(sentUid);
+		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), outboxService.flush());
+		applyMailboxCompletetion.get(500, TimeUnit.SECONDS);
+
+		String abUid = IAddressBookUids.collectedContactsUserAddressbook(userUid);
+		IAddressBook service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IAddressBook.class, abUid);
+		List<String> allUids = service.allUids();
+
+		assertEquals(2, allUids.size());
+
+		addMailToFolder(outboxUid);
+
+		applyMailboxCompletetion = new ExpectCommand().onNextApplyMailbox(sentUid);
+		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), outboxService.flush());
+		applyMailboxCompletetion.get(500, TimeUnit.SECONDS);
+
+		allUids = service.allUids();
+		assertEquals(2, allUids.size());
 	}
 
 	@Test
