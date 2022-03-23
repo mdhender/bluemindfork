@@ -427,8 +427,12 @@ public class DirectoryXfer implements AutoCloseable {
 	private void xferContainers(IServerTaskMonitor monitor, String containerType,
 			Function<String, IDataShardSupport> fn, boolean transferData) throws SQLException {
 		List<Container> containers = containerStoreOrig.findByTypeAndOwner(containerType, dirEntry.uid);
+		if (containers.isEmpty()) {
+			return;
+		}
+
 		logger.info("[{}] xfer {} {} ({})", dirEntry.uid, containers.size(), containerType, containers);
-		monitor.begin(containers.size(), "processing " + containers.size() + " container(s)");
+		monitor.log("[{}] xfer {} {} ({})", dirEntry.uid, containers.size(), containerType, containers);
 
 		for (Container c : containers) {
 			logger.info("[{}] xfer container {}", dirEntry.uid, c.uid);
@@ -498,12 +502,15 @@ public class DirectoryXfer implements AutoCloseable {
 			});
 			monitor.progress(1, c.uid + " tranferred.");
 		}
-		monitor.end(true, "Containers " + containerType + " transferred", "");
+		if (!containers.isEmpty()) {
+			monitor.end(true, "Containers " + containerType + " transferred", "");
+		}
 	}
 
 	private void doXferMailbox(String entryUid, ItemValue<Mailbox> mailbox, IServerTaskMonitor monitor) {
 		if (mailbox != null) {
 			logger.info("[{}] xfer mailbox", entryUid);
+			monitor.log("moving mailbox {} (can take hours)...", entryUid);
 			context.provider().instance(IMailboxMgmt.class, domainUid).move(mailbox, targetServer);
 			monitor.progress(1, "mailbox moved.");
 		} else {
