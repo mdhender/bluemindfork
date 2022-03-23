@@ -97,7 +97,8 @@ public class RestHttpTests extends RestTestServiceTests {
 	}
 
 	public IRestTestService getRestTestService(SecurityContext context, int timeoutSec) {
-		return ClientSideServiceProvider.getProvider("http://localhost:8090", context.getSessionId(), timeoutSec)
+		return ClientSideServiceProvider
+				.getProvider("http://localhost:8090", context.getSessionId(), timeoutSec, timeoutSec, timeoutSec)
 				.instance(IRestTestService.class);
 	}
 

@@ -20,6 +20,7 @@ package net.bluemind.core.rest.http;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
@@ -44,32 +45,38 @@ public class ClientSideServiceProvider implements IServiceProvider {
 	private final AsyncHttpClient client;
 
 	static {
-		defaultClient = createClient(40);
+		defaultClient = createClient(40, 40, 40);
 	}
 
 	private static final boolean EPOLL_DISABLED = new File("/etc/bm/netty.epoll.disabled").exists();
 
-	private static AsyncHttpClient createClient(int timeoutInSeconds) {
+	private static AsyncHttpClient createClient(int connectTimeoutSeconds, int readTimeoutSeconds,
+			int requestTimeoutSeconds) {
 		DefaultAsyncHttpClientConfig.Builder builder = new DefaultAsyncHttpClientConfig.Builder();
 		builder.setUseNativeTransport((Epoll.isAvailable() || KQueue.isAvailable()) && !EPOLL_DISABLED);
-		int to = timeoutInSeconds * 1000;
-		builder.setConnectTimeout(to).setReadTimeout(to).setRequestTimeout(to).setFollowRedirect(false);
-		builder.setTcpNoDelay(true).setThreadPoolName("client-side-provider-ahc").setUseInsecureTrustManager(true);
+		builder.setConnectTimeout((int) TimeUnit.MILLISECONDS.convert(connectTimeoutSeconds, TimeUnit.SECONDS));
+		builder.setReadTimeout((int) TimeUnit.MILLISECONDS.convert(readTimeoutSeconds, TimeUnit.SECONDS));
+		builder.setRequestTimeout((int) TimeUnit.MILLISECONDS.convert(requestTimeoutSeconds, TimeUnit.SECONDS));
+		builder.setFollowRedirect(false);
+		builder.setTcpNoDelay(true);
+		builder.setThreadPoolName("client-side-provider-ahc");
+		builder.setUseInsecureTrustManager(true);
 		builder.setSoReuseAddress(true);
 		builder.setHttpAdditionalChannelInitializer(ch -> {
 			ch.config().setOption(ChannelOption.TCP_FASTOPEN_CONNECT, true);
 		});
 		builder.setMaxRequestRetry(0);
 		return new DefaultAsyncHttpClient(builder.build());
-
 	}
 
 	public static ClientSideServiceProvider getProvider(String base, String apiKey) {
 		return new ClientSideServiceProvider(base, apiKey, ClientSideServiceProvider.defaultClient);
 	}
 
-	public static ClientSideServiceProvider getProvider(String base, String apiKey, int timeoutSeconds) {
-		return new ClientSideServiceProvider(base, apiKey, createClient(timeoutSeconds));
+	public static ClientSideServiceProvider getProvider(String base, String apiKey, int connectTimeoutSeconds,
+			int readTimeoutSeconds, int requestTimeoutSeconds) {
+		return new ClientSideServiceProvider(base, apiKey,
+				createClient(connectTimeoutSeconds, readTimeoutSeconds, requestTimeoutSeconds));
 	}
 
 	private ClientSideServiceProvider(String base, String apiKey, AsyncHttpClient client) {
