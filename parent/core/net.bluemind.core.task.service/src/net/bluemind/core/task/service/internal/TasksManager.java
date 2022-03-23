@@ -143,7 +143,7 @@ public class TasksManager implements ITasksManager {
 			public void run() {
 				try {
 					serverTask.run(loggingMonitor);
-					loggingMonitor.end(true, "OK", null);
+					loggingMonitor.end(true, "", null);
 				} catch (Exception e) {
 					logger.error("error in task {}", taskId, e);
 					loggingMonitor.end(false, e.getMessage(), null);
