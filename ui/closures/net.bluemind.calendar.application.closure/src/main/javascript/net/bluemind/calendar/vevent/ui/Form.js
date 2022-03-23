@@ -1938,7 +1938,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.showConferenceData_ = function() 
   this.getDomHelper().getElement('bm-ui-form-videoconferencing-url-copy-value').value = this.getModel().conference;
 
   var roles = goog.global['bmcSessionInfos']['roles'].split(',');
-  if (goog.array.contains(roles, "hasSimpleVideoconferencing")) {
+  if (goog.array.contains(roles, "hasSimpleVideoconferencing") && !goog.array.contains(roles, "hasFullVideoconferencing")) {
     var selected = this.getChild('bm-ui-form-videoconferencing-select').getValue();
     var bmProvider = goog.array.filter(this.videoConferencingResources_, function(res) {
       return res.providerId == "videoconferencing-bluemind";
