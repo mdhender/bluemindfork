@@ -33,6 +33,7 @@ public class BufferedStream implements ReadStream<Buffer> {
 	private Handler<Void> endHandler;
 	private boolean pause;
 	private Handler<Buffer> dataHandler;
+	private Handler<Throwable> exceptionHandler;
 	private final Queue<Buffer> q = new LinkedList<>();
 	private boolean end;
 
@@ -61,21 +62,26 @@ public class BufferedStream implements ReadStream<Buffer> {
 	}
 
 	private void drain() {
-		if (dataHandler != null) {
-			synchronized (q) {
-				while (!pause && !q.isEmpty()) {
-					dataHandler.handle(q.poll());
+		try {
+			if (dataHandler != null) {
+				synchronized (q) {
+					while (!pause && !q.isEmpty()) {
+						dataHandler.handle(q.poll());
+					}
 				}
 			}
-		}
 
-		if (!pause && endHandler != null && end) {
-			endHandler.handle(null);
+			if (!pause && endHandler != null && end) {
+				endHandler.handle(null);
+			}
+		} catch (Exception e) {
+			exceptionHandler.handle(e);
 		}
 	}
 
 	@Override
 	public BufferedStream exceptionHandler(Handler<Throwable> handler) {
+		exceptionHandler = handler;
 		return this;
 	}
 
@@ -92,6 +98,10 @@ public class BufferedStream implements ReadStream<Buffer> {
 				drain();
 			}
 		}
+	}
+
+	public void failure(Throwable t) {
+		this.exceptionHandler.handle(t);
 	}
 
 	public void end() {

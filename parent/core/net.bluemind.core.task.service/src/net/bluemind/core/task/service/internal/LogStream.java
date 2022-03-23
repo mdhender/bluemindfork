@@ -36,6 +36,7 @@ public class LogStream implements ReadStream<Buffer>, Stream {
 
 	private boolean ended;
 	private Handler<Void> endHandler;
+	private Handler<Throwable> exceptionHandler = null;
 
 	@Override
 	public LogStream handler(Handler<Buffer> handler) {
@@ -46,20 +47,24 @@ public class LogStream implements ReadStream<Buffer>, Stream {
 	}
 
 	private LogStream read() {
-
 		if (paused) {
 			return null;
 		}
-		Buffer data = null;
-		while ((data = queue.poll()) != null) {
-			handler.handle(data);
-			if (paused) { // NOSONAR
-				break;
+		try {
+			Buffer data = null;
+			while ((data = queue.poll()) != null) {
+				handler.handle(data);
+				if (paused) { // NOSONAR: set from another thread
+					break;
+				}
 			}
-		}
-
-		if (ended) {
-			ended();
+			if (ended) {
+				ended();
+			}
+		} catch (Exception e) {
+			if (exceptionHandler != null) {
+				exceptionHandler.handle(e);
+			}
 		}
 		return this;
 	}
@@ -84,8 +89,8 @@ public class LogStream implements ReadStream<Buffer>, Stream {
 	}
 
 	@Override
-	public LogStream exceptionHandler(Handler<Throwable> handler) {
-		// we are so strong that we do not need exceptionHandler
+	public LogStream exceptionHandler(Handler<Throwable> excHandler) {
+		exceptionHandler = excHandler;
 		return this;
 	}
 

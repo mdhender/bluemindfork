@@ -75,6 +75,10 @@ public class VertxHttpCallHandler implements IRestCallHandler {
 				} else if (request.bodyStream != null) {
 					req.setChunked(true);
 					request.bodyStream.pipeTo(req, ar2 -> {
+						if (ar2.failed()) {
+							req.end();
+							response.failure(ar.cause());
+						}
 					});
 				} else {
 					req.end();
