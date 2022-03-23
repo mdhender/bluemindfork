@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import org.fusesource.jansi.Ansi;
@@ -76,6 +77,12 @@ public class CliContext {
 
 	public IServiceProvider adminApi() {
 		return adminServices.get();
+	}
+
+	public IServiceProvider longRequestTimeoutAdminApi() {
+		String core = Optional.ofNullable(BmIni.value("host")).orElse("127.0.0.1");
+		return ClientSideServiceProvider.getProvider("http://" + core + ":8090", Token.admin0(), 40,
+				(int) TimeUnit.HOURS.toSeconds(4), (int) TimeUnit.HOURS.toSeconds(4));
 	}
 
 	public IServiceProvider api(String authKey) {

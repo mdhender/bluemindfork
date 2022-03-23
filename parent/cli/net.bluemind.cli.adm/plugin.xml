@@ -27,5 +27,9 @@
             impl="net.bluemind.cli.adm.ReadCyrusIndex$Reg"
             priority="601">
       </registration>
+      <registration
+            impl="net.bluemind.cli.adm.XferBackend$Reg"
+            priority="602">
+      </registration>
    </extension>
 </plugin>
