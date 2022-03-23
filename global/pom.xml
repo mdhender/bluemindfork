@@ -35,8 +35,10 @@
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 		<sonar.jacoco.excludes>**/*Test*,**/generated/**/*,**/*.tests/**/*</sonar.jacoco.excludes>
 		<l10n.list>"en", "fr"</l10n.list>
-		<gwt-version>2.8.2</gwt-version>
 		<docker.devenv.tag>4.1.63005</docker.devenv.tag>
+		<gwt.version>2.8.2</gwt.version>
+		<gwt.draft>true</gwt.draft>
+		<gwt.memory>768</gwt.memory>
 		<bm.test.argline>-Dio.netty.noPreferDirect=true -XX:-OmitStackTraceInFastThrow</bm.test.argline>
 	</properties>
 
@@ -411,9 +413,9 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>gwt-maven-plugin</artifactId>
-					<version>${gwt-version}</version>
+					<version>${gwt.version}</version>
 					<configuration>
-						<extraJvmArgs>-Xmx768M</extraJvmArgs>
+						<extraJvmArgs>-Xmx${gwt.memory}M</extraJvmArgs>
 					</configuration>
 					<executions>
 						<execution>
@@ -421,10 +423,11 @@
 								<goal>compile</goal>
 							</goals>
 							<configuration>
-								<draftCompile>false</draftCompile>
+								<draftCompile>${gwt.draft}</draftCompile>
 								<inplace>true</inplace>
 								<generateJsInteropExports>true</generateJsInteropExports>
 								<warSourceDirectory>web-resources</warSourceDirectory>
+								<localWorkers>1</localWorkers>
 								<collapse-all-properties/>
 							</configuration>
 						</execution>
