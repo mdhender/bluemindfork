@@ -32,6 +32,7 @@ public class ICal4jTeamsHelper {
 		Property xSkypeMeetingUrl = cc.getProperty(TeamsHeaders.X_MICROSOFT_SKYPETEAMSMEETINGURL);
 		if (xSkypeMeetingUrl != null) {
 			iCalendarElement.conference = xSkypeMeetingUrl.getValue();
+			iCalendarElement.conferenceId = TeamsHeaders.MICROSOFT_TEAMS_CONFERENCE_ID;
 		}
 
 		Property xMSOnlineMeetingInformation = cc.getProperty(TeamsHeaders.X_MICROSOFT_ONLINEMEETINGINFORMATION);
@@ -60,8 +61,7 @@ public class ICal4jTeamsHelper {
 	}
 
 	public static void parseTeamsToICS(PropertyList<XProperty> properties, ICalendarElement iCalendarElement) {
-		if (StringUtils.isNotBlank(iCalendarElement.conferenceId)
-				&& iCalendarElement.conferenceId.equals("MICROSOFT_TEAMS")) {
+		if (TeamsHeaders.MICROSOFT_TEAMS_CONFERENCE_ID.equals(iCalendarElement.conferenceId)) {
 
 			if (StringUtils.isNotBlank(iCalendarElement.conference)) {
 				properties

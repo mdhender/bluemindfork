@@ -61,6 +61,7 @@ import net.bluemind.icalendar.parser.ICal4jHelper;
 import net.bluemind.icalendar.parser.ObservanceMapper;
 import net.bluemind.lib.ical4j.data.CalendarBuilder;
 import net.bluemind.tag.api.TagRef;
+import net.bluemind.videoconferencing.teams.TeamsHeaders;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.data.UnfoldingReader;
 import net.fortuna.ical4j.model.Calendar;
@@ -513,9 +514,10 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		}
 
 		if (vevent.conference != null && vevent.conference.startsWith("https://teams.microsoft.com")) {
-			XProperty teamsUrl = new XProperty("X-MICROSOFT-SKYPETEAMSMEETINGURL", vevent.conference);
+			XProperty teamsUrl = new XProperty(TeamsHeaders.X_MICROSOFT_SKYPETEAMSMEETINGURL, vevent.conference);
 			properties.add(teamsUrl);
 		}
+
 	}
 
 	public static String convertToIcs(ItemValue<VEventSeries> vevent) {
