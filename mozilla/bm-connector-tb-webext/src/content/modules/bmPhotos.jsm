@@ -73,7 +73,9 @@ let bmPhotos = {
         if (file) {
             this.photoManager.removePhoto(aCard.getProperty("PhotoName", null));
             aCard.setProperty("PhotoName", file.leafName);
+            aCard.setProperty("bm-PhotoName", file.leafName);
             aCard.setProperty("PhotoType", "file");
+            // TB < 91
             let photoUri = Components.classes["@mozilla.org/network/io-service;1"]
                                 .getService(Components.interfaces.nsIIOService)
                                 .newFileURI(file)

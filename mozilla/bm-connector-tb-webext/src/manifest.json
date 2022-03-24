@@ -4,7 +4,7 @@
     "gecko": {
       "id": "bm-connector-tb@blue-mind.net",
       "strict_min_version": "78.0",
-      "strict_max_version": "91.*",
+      "strict_max_version": "102.*",
       "update_url": "https://forge.blue-mind.net/mozilla/update.json"
     }
   },

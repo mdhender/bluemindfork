@@ -66,6 +66,10 @@ bmFileProvider.prototype = {
     get accountKey() { return this._accountKey; },
     get settingsURL() { return "chrome://bm/content/fileProvider/settings.xhtml"; },
     get managementURL() { return "chrome://bm/content/fileProvider/management.xhtml"; },
+    // TB 99+
+    get reuseUploads() { return true; },
+    get serviceName() { return "BlueMind"; },
+    get serviceUrl() { return "https://www.bluemind.net"; },
 
     _logger: Cc["@blue-mind.net/logger;1"].getService().wrappedJSObject.getLogger("bmFileProvider: "),
     _accountKey: null,
@@ -127,8 +131,17 @@ bmFileProvider.prototype = {
                         if (!Components.isSuccessCode(cr)) {
                             throw cr;
                         }
+                        let dlUrl =  self._urlsForFiles[aFile.path];
                         let upload = {
-                            url: self._urlsForFiles[aFile.path]
+                            url: dlUrl, //Next values are for TB 99+
+                            name: aFile.leafName,
+                            size: aFile.fileSize,
+                            serviceName: self.serviceName,
+                            serviceIcon: self.iconClass,
+                            serviceUrl: self.serviceURL,
+                            downloadExpiryDate: {
+                                timestamp: self._expireForUrls[dlUrl]
+                            },
                         }
                         resolve(upload);
                     }
@@ -394,6 +407,10 @@ bmFileProvider.prototype = {
         let can = this._canUseFilehosting;
         this._logger.info("canUseFilehosting: " + can);
         return can;
+    },
+
+    // TB 99+
+    markAsImmutable: function(id) {
     },
     
     /** Private methods **/

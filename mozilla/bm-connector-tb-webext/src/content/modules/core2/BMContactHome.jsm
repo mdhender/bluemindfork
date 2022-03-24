@@ -743,7 +743,7 @@ BMContact.prototype = {
         this._card.setProperty("X-BM-spouse", value);
     },
     hasPhoto: function() {
-        let photoType = this._card.getProperty("PhotoType", "generic");
-        return !(photoType == "generic");
+        let photoName = this._card.getProperty("PhotoName", null);
+        return photoName != null;
     },
 }

@@ -210,8 +210,8 @@ let BMFolderHome = {
             } else if (chg.type == "modify" && chg.change.value.kind == "individual") {
                 let mod = chg.change;
                 let card = directory.getCardFromProperty("bm-id", mod.uid, false);
-                let oldPhoto = card.getProperty("bm-PhotoURI", null);
-                let newPhoto = card.getProperty("PhotoURI", null);
+                let oldPhoto = card.getProperty("bm-PhotoName", null);
+                let newPhoto = card.getProperty("PhotoName", null);
                 if (oldPhoto != newPhoto) {
                     this._logger.debug("change photo for updated contact:" + mod.uid);
                     photos.push({

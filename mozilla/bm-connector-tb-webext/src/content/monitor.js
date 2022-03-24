@@ -39,33 +39,45 @@ var gBMMonitor = {
             switch (data.command) {
                 case "onContactCreated":
                     let dirAdd = self.getAbDirectoryFromUid(data.contact.parentId);
-                    let cardAdd = dirAdd.getCardFromProperty("bmNewId", data.contact.id, false);
-                    self.notifyCardAdded(dirAdd, cardAdd);
+                    if (self.isListenedDirectory(dirAdd)) {
+                        let cardAdd = dirAdd.getCardFromProperty("bmNewId", data.contact.id, false);
+                        self.notifyCardAdded(dirAdd, cardAdd);
+                    }
                     break;
                 case "onContactUpdated":
                     let dirUp = self.getAbDirectoryFromUid(data.contact.parentId);
-                    let cardUp = dirUp.getCardFromProperty("bm-id", data.contact.id, false);
-                    if (cardUp) {
-                        self.notifyCardModified(dirUp, cardUp);
+                    if (self.isListenedDirectory(dirUp)) {
+                        let cardUp = dirUp.getCardFromProperty("bm-id", data.contact.id, false);
+                        if (cardUp) {
+                            self.notifyCardModified(dirUp, cardUp);
+                        }
                     }
                     break;
                 case "onContactDeleted":
                     let dirDel = self.getAbDirectoryFromUid(data.contact.parentId);
-                    self.notifyCardRemoved(dirDel, data.contact.id);
+                    if (self.isListenedDirectory(dirDel)) {
+                        self.notifyCardRemoved(dirDel, data.contact.id);
+                    }
                     break;
                 case "onListCreated":
                     let lDirAdd = self.getAbDirectoryFromUid(data.list.parentId);
-                    let listAdd = self._getListById(lDirAdd, data.list.id);
-                    self.notifyListAdded(lDirAdd, listAdd);
+                    if (self.isListenedDirectory(lDirAdd)) {
+                        let listAdd = self._getListById(lDirAdd, data.list.id);
+                        self.notifyListAdded(lDirAdd, listAdd);
+                    }
                     break;
                 case "onListUpdated":
                     let lDirUp = self.getAbDirectoryFromUid(data.list.parentId);
-                    let listUp = self._getListById(lDirUp, data.list.id);
-                    self.notifyListModified(lDirUp, listUp);
+                    if (self.isListenedDirectory(lDirUp)) {
+                        let listUp = self._getListById(lDirUp, data.list.id);
+                        self.notifyListModified(lDirUp, listUp);
+                    }
                     break;
                 case "onListDeleted":
                     let lDirDel = self.getAbDirectoryFromUid(data.list.parentId);
-                    self.notifyListRemoved(lDirDel, data.list.id);
+                    if (self.isListenedDirectory(lDirDel)) {
+                        self.notifyListRemoved(lDirDel, data.list.id);
+                    }
                     break;
             }
         });
@@ -85,7 +97,6 @@ var gBMMonitor = {
                 }
             }
         }
-        //this._abManager.addAddressBookListener(this, Components.interfaces.nsIAbListener.all);
         this._isListening = true;
         notifyTools.notifyBackground({command: "startAbListening"});
     },
@@ -96,13 +107,20 @@ var gBMMonitor = {
     stopListening: function() {
         if (!this._isListening) return;
         try {
-            //this._abManager.removeAddressBookListener(this);
             this._isListening = false;
             this._logger.info("Stopped Listening");
             notifyTools.notifyBackground({command: "stopAbListening"});
         } catch(e) {
             //ok
         }
+    },
+    isListenedDirectory: function(directory) {
+        this._logger.debug("directory [" + directory.UID + "]");
+        if(directory.isMailList) {
+            this._logger.debug("directory [" + directory.UID + "] is a Mailing List");
+            return false;
+        }
+        return this._listenedAb.containsKey(directory.UID);
     },
     getAbDirectoryFromUri: function(aUri) {
         return this._abManager.getDirectory(aUri);
@@ -282,8 +300,18 @@ var gBMMonitor = {
         }
     },
     _saveChanges: function(directory, card) {
+        //save card without notif
         if (directory.wrappedJSObject.saveCardProperties) {
-            directory.wrappedJSObject.saveCardProperties(card);
+            if (directory.wrappedJSObject.prepareToSaveCard) {
+                let newProperties = directory.wrappedJSObject.prepareToSaveCard(card);
+                if (directory.wrappedJSObject.hasOwnProperty("cards")) {
+                    directory.wrappedJSObject.cards.set(card.UID, newProperties);
+                }
+                directory.wrappedJSObject.saveCardProperties(card.UID, newProperties);
+            } else {
+                // TB < 100
+                directory.wrappedJSObject.saveCardProperties(card);
+            }
         } else {
             //TB 78
             directory.wrappedJSObject._saveCardProperties(card);

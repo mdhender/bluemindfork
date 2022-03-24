@@ -62,28 +62,57 @@ function onRemoteFileChoosed(aFiles) {
         if (!file.exists())
             file.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
         
-        let attachment = FileToAttachment(file);
-        
-        attachment.name = choosed.name;
-        attachment.size = choosed.size;
-        attachment.sendViaCloud = true;
-        attachment.cloudFileAccountKey = provider.accountKey;
-        let listener = {
-            onStartRequest: function() {},
-            onStopRequest: function(p, ctx, cr) {
-                if (!Components.isSuccessCode(cr)) {
-                    return;
+        let listener;
+        if (typeof this.attachToCloudRepeat === "function") {
+            // TB 99+
+            listener = {
+                onStartRequest: function() {},
+                onStopRequest: function(p, ctx, cr) {
+                    if (!Components.isSuccessCode(cr)) {
+                        return;
+                    }
+                    let dlUrl = provider.urlForFile(file);
+                    let upload = {
+                        path: file.path,
+                        url: dlUrl,
+                        name: choosed.name,
+                        size: choosed.size,
+                        serviceName: provider.serviceName,
+                        serviceIcon: provider.iconClass,
+                        serviceUrl: provider.serviceUrl,
+                        downloadExpiryDate: {
+                            timestamp: provider._expireForUrls[dlUrl]
+                        },
+                    }
+                    attachToCloudRepeat(upload, provider);
                 }
-                attachment.contentLocation = provider.urlForFile(file);
-                AddAttachments([attachment], function(item) {
-                    item.account = provider;
-                    item.setAttribute("name", file.leafName);
-                    item.image = provider.iconURL;
-                    item.cloudFileUpload = {};
-                    item.dispatchEvent(
-                        new CustomEvent("attachment-uploaded", { bubbles: true, cancelable: true })
-                    );
-                });
+            };
+        } else {
+            let attachment = FileToAttachment(file);
+        
+            attachment.name = choosed.name;
+            attachment.size = choosed.size;
+            attachment.sendViaCloud = true;
+            attachment.cloudFileAccountKey = provider.accountKey;
+            let listener = {
+                onStartRequest: function() {},
+                onStopRequest: function(p, ctx, cr) {
+                    if (!Components.isSuccessCode(cr)) {
+                        return;
+                    }
+                    let url = provider.urlForFile(file);
+                    attachment.contentLocation = url;
+                    attachment.url = url;
+                    AddAttachments([attachment], function(item) {
+                        item.account = provider;
+                        item.setAttribute("name", file.leafName);
+                        item.image = provider.iconURL;
+                        item.cloudFileUpload = {};
+                        item.dispatchEvent(
+                            new CustomEvent("attachment-uploaded", { bubbles: true, cancelable: true })
+                        );
+                    });
+                }
             }
         }
         provider.shareFile(file, listener);
@@ -93,7 +122,8 @@ function onRemoteFileChoosed(aFiles) {
 bmUtils.overrideBM(gCloudAttachmentLinkManager, "_insertItem", function(original) {
   return function(aDocument, aAttachment, aProvider) {
     original.apply(this, arguments);
-    if (aProvider.type != "BlueMind") {
+    if (!aProvider || aProvider.type != "BlueMind") {
+        //not BlueMind or TB 99+
         return;
     }
     if (gMsgCompose.composeHTML) {
