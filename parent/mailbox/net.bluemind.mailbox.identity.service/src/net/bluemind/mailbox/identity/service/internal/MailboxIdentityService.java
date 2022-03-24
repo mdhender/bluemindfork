@@ -184,6 +184,8 @@ public class MailboxIdentityService implements IMailboxIdentity {
 				for (String alias : domain.value.aliases) {
 					addIfNotPresentAndNotInternalDomain(adr + "@" + alias, ret);
 				}
+				addIfNotPresentAndNotInternalDomain(adr + "@" + domain.value.name, ret);
+
 			} else {
 				addIfNotPresentAndNotInternalDomain(email.address, ret);
 			}
