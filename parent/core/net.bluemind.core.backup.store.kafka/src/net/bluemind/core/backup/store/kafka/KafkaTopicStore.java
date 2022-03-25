@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.netflix.spectator.api.Registry;
 
 import net.bluemind.config.DataLocation;
 import net.bluemind.config.InstallationId;
@@ -49,6 +50,8 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.store.ITopicStore;
 import net.bluemind.core.backup.continuous.store.TopicPublisher;
 import net.bluemind.core.backup.continuous.store.TopicSubscriber;
+import net.bluemind.metrics.registry.IdFactory;
+import net.bluemind.metrics.registry.MetricsRegistry;
 
 public class KafkaTopicStore implements ITopicStore {
 
@@ -65,6 +68,7 @@ public class KafkaTopicStore implements ITopicStore {
 	private String cid;
 
 	private final Map<TopicDescriptor, KafkaTopicPublisher> knownPublisher = new ConcurrentHashMap<>();
+	private final Registry reg;
 
 	public KafkaTopicStore() {
 		kafkaBootstrapServers();
@@ -79,6 +83,7 @@ public class KafkaTopicStore implements ITopicStore {
 
 			this.adminClient = AdminClient.create(properties);
 		}
+		this.reg = MetricsRegistry.get();
 	}
 
 	private String jvm() {
@@ -132,7 +137,8 @@ public class KafkaTopicStore implements ITopicStore {
 
 	@Override
 	public TopicSubscriber getSubscriber(String topicName) {
-		return new KafkaTopicSubscriber(bootstrap, cid, topicName);
+		return new KafkaTopicSubscriber(bootstrap, topicName, reg,
+				new IdFactory("kafka.consumer", reg, KafkaTopicSubscriber.class));
 	}
 
 	@Override

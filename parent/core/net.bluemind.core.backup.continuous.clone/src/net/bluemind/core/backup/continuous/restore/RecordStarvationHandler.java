@@ -28,6 +28,7 @@ import net.bluemind.authentication.api.LoginResponse.Status;
 import net.bluemind.core.backup.continuous.IRecordStarvationStrategy;
 import net.bluemind.core.backup.continuous.dto.Seppuku;
 import net.bluemind.core.backup.continuous.restore.InstallFromBackupTask.ClonedOrphans;
+import net.bluemind.core.backup.continuous.store.ITopicStore.IResumeToken;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
@@ -48,24 +49,25 @@ public class RecordStarvationHandler implements IRecordStarvationStrategy, ISepp
 	private ClonedOrphans orphans;
 	private boolean leaderSeppukuAcked;
 	private IServiceProvider target;
+	private final CloneState state;
 
 	public RecordStarvationHandler(IServerTaskMonitor forLogs, CloneConfiguration cloneConf, ClonedOrphans orphans,
-			IServiceProvider target) {
+			IServiceProvider target, CloneState cloneState) {
 		this.monitor = forLogs;
 		starvedTopics = ConcurrentHashMap.newKeySet();
 		this.cloneConf = cloneConf;
 		this.orphans = orphans;
 		this.goal = orphans.domains.size();
 		this.target = target;
+		this.state = cloneState;
 	}
 
 	@Override
 	public synchronized ExpectedBehaviour onStarvation(JsonObject json) {
-		monitor.log(json.encode() + " RECORD STARVATION");
+		monitor.log(json.encode() + " RECORD STARVATION (" + Thread.currentThread().getName() + ")");
 		starvedTopics.add(json.getString("topic"));
-		System.err.println(json.encode() + " has completed, starved: " + starvedTopics.size() + " out of " + goal);
 		if (starvedTopics.size() < goal) {
-			System.err.println("We have " + starvedTopics.size() + " starved topics, we expect " + goal);
+			monitor.log("We have " + starvedTopics.size() + " starved topics, we expect " + goal);
 			return ExpectedBehaviour.RETRY;
 		}
 
@@ -138,6 +140,12 @@ public class RecordStarvationHandler implements IRecordStarvationStrategy, ISepp
 		}
 		monitor.log("Got LEADER Seppuku " + bye + " after demote. Time to STEP-UP as new leader");
 		this.leaderSeppukuAcked = true;
+	}
+
+	@Override
+	public void checkpoint(String topicName, IResumeToken rt) {
+		monitor.log("Checkpoint for " + topicName);
+		state.track(topicName, rt).save();
 	}
 
 }

@@ -137,8 +137,8 @@ public class InstallFromBackupTask implements IServerTask {
 		monitor.begin(3, "Cloning orphans (cross-domain data) of installation " + installationId);
 		Map<String, List<DataElement>> orphansByType = new HashMap<>();
 		IResumeToken prevState = cloneState.forTopic(orphansStream);
-		System.err.println("prevState for " + orphansStream + " -> " + prevState);
-		IResumeToken orphansStreamIndex = orphansStream.subscribe(prevState,
+		monitor.log("IGNORE prevState for " + orphansStream + " -> " + prevState);
+		IResumeToken orphansStreamIndex = orphansStream.subscribe(null,
 				de -> orphansByType.computeIfAbsent(de.key.type, key -> new ArrayList<>()).add(de));
 
 		String coreTok = new RestoreToken().restore(monitor,
@@ -169,7 +169,8 @@ public class InstallFromBackupTask implements IServerTask {
 		int goal = domainStreams.size();
 		ExecutorService clonePool = Executors.newFixedThreadPool(goal);
 
-		RecordStarvationHandler starvation = new RecordStarvationHandler(monitor, cloneConf, orphans, target);
+		RecordStarvationHandler starvation = new RecordStarvationHandler(monitor, cloneConf, orphans, target,
+				cloneState);
 
 		CompletableFuture<?>[] toWait = new CompletableFuture<?>[goal];
 		int slot = 0;
@@ -186,7 +187,9 @@ public class InstallFromBackupTask implements IServerTask {
 				try (RestoreState state = new RestoreState(domain.uid, orphans.topology)) {
 					DomainRestorationHandler restoration = new DomainRestorationHandler(domainMonitor, domain, target,
 							observers, sdsStore, starvation, state);
-					domainStreamIndex = domainStream.subscribe(null, restoration::handle, starvation); // , false
+					IResumeToken prevState = cloneState.forTopic(domainStream);
+					monitor.log("prevState for " + domainStream + " => " + prevState);
+					domainStreamIndex = domainStream.subscribe(prevState, restoration::handle, starvation); // , false
 				} catch (IOException e) {
 					logger.error("unexpected error when closing", e);
 					domainMonitor.end(false, "Fail to restore " + domain.uid + ": " + e.getMessage(), null);
@@ -209,6 +212,6 @@ public class InstallFromBackupTask implements IServerTask {
 			IResumeToken index) {
 		monitor.log("Processed " + stream + " up to " + index);
 		processedStreams.put(stream.domainUid(), index);
-		cloneState.record(stream.fullName(), index).save();
+		cloneState.track(stream.fullName(), index).save();
 	}
 }

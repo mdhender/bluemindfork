@@ -1,27 +1,29 @@
 package net.bluemind.core.backup.store.kafka;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Stopwatch;
+import com.netflix.spectator.api.Gauge;
+import com.netflix.spectator.api.Registry;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.backup.continuous.IRecordStarvationStrategy;
@@ -29,20 +31,23 @@ import net.bluemind.core.backup.continuous.IRecordStarvationStrategy.ExpectedBeh
 import net.bluemind.core.backup.continuous.RecordStarvationStrategies;
 import net.bluemind.core.backup.continuous.store.ITopicStore.IResumeToken;
 import net.bluemind.core.backup.continuous.store.TopicSubscriber;
+import net.bluemind.metrics.registry.IdFactory;
 
 public class KafkaTopicSubscriber implements TopicSubscriber {
 
 	private static final Logger logger = LoggerFactory.getLogger(KafkaTopicSubscriber.class);
-	private static final AtomicInteger subAlloc = new AtomicInteger();
 
 	private final String bootstrapServer;
-	private final String clientId;
 	private final String topicName;
 
-	public KafkaTopicSubscriber(String bootstrapServer, String clientId, String topicName) {
+	private final Registry reg;
+	private final IdFactory idFactory;
+
+	public KafkaTopicSubscriber(String bootstrapServer, String topicName, Registry reg, IdFactory idFactory) {
 		this.bootstrapServer = bootstrapServer;
-		this.clientId = clientId;
 		this.topicName = topicName;
+		this.reg = reg;
+		this.idFactory = idFactory;
 	}
 
 	public String topicName() {
@@ -62,80 +67,120 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 	@Override
 	public IResumeToken subscribe(IResumeToken index, BiConsumer<byte[], byte[]> handler,
 			IRecordStarvationStrategy strat) {
-		Stopwatch timeToFirstRecord = Stopwatch.createStarted();
 
-		try (KafkaConsumer<byte[], byte[]> consumer = createKafkaConsumer()) {
-			List<PartitionInfo> parts = consumer.partitionsFor(topicName);
-			List<TopicPartition> selfAssign = parts.stream().map(pi -> new TopicPartition(topicName, pi.partition()))
-					.collect(Collectors.toList());
-			consumer.assign(selfAssign);
-			KafkaToken tok = (KafkaToken) index;
-			if (tok == null || tok.partitionToOffset.isEmpty()) {
-				consumer.seekToBeginning(selfAssign);
-			} else {
-				tok.partitionToOffset.entrySet().stream().forEach(entry -> {
-					TopicPartition tp = new TopicPartition(topicName, entry.getKey());
-					long newOffset = entry.getValue() + 1;
-					logger.warn("[{}] Seek {} to {}", topicName, entry.getKey(), newOffset);
-					consumer.seek(tp, newOffset);
-				});
-			}
+		KafkaToken tok = (KafkaToken) index;
+		if (tok == null) {
+			int split = Math.max(4, Runtime.getRuntime().availableProcessors() - 2);
+			tok = new KafkaToken("clone-" + UUID.randomUUID().toString().replace("-", "") + "-of-"
+					+ InstallationId.getIdentifier().replace("bluemind-", ""), split);
+		}
+		// ensure tail-mode knows our consumer group id if interrupted
+		strat.checkpoint(topicName, tok);
 
-			Map<Integer, Long> offsets = new HashMap<>();
-			AtomicLong processed = new AtomicLong();
+		ExecutorService pool = Executors.newFixedThreadPool(tok.workers, new DefaultThreadFactory("kafka-clone-pool"));
+		CompletableFuture<?>[] proms = new CompletableFuture[tok.workers];
+		String group = tok.groupId;
+
+		ParallelStarvationHandler parStrat = new ParallelStarvationHandler(strat, tok.workers);
+		for (int i = 0; i < tok.workers; i++) {
+			final int idx = i;
+			String client = "client-" + idx;
+			proms[i] = CompletableFuture.<Long>supplyAsync(() -> {
+				logger.info("Starting {} for topic {}", client, topicName);
+				return consumeLoop(handler, parStrat.forWorker(idx), group, client);
+			}, pool);
+		}
+		CompletableFuture.allOf(proms).join();
+		pool.shutdown();
+		return tok;
+	}
+
+	private long consumeLoop(BiConsumer<byte[], byte[]> handler, IRecordStarvationStrategy strat, String gid,
+			String cid) {
+		AtomicLong processed = new AtomicLong();
+		boolean assigned = false;
+
+		try (KafkaConsumer<byte[], byte[]> consumer = createKafkaConsumer(gid, cid)) {
+			consumer.subscribe(Collections.singletonList(topicName));
+
 			do {
 				ConsumerRecords<byte[], byte[]> someRecords = consumer.poll(Duration.ofMillis(500));
+
 				if (someRecords.isEmpty()) {
-					ExpectedBehaviour expected = strat.onStarvation(new JsonObject().put("topic", topicName));
+					if (consumer.assignment().isEmpty()) {
+						continue;
+					} else {
+						if (!assigned) {
+							logger.info("[{} / {}]  got {} partition(s) assignment(s).", gid, cid,
+									consumer.assignment().size());
+							assigned = true;
+							Map<TopicPartition, Long> endOffsets = consumer.endOffsets(consumer.assignment());
+							endOffsets.forEach((tp, end) -> {
+								// this is needed for lag evaluation to work
+								if (logger.isDebugEnabled()) {
+									logger.debug("part {} ends at offset {}", tp.partition(), end);
+								}
+							});
+							continue;
+						}
+					}
+
+					ExpectedBehaviour expected = strat.onStarvation(
+							new JsonObject().put("topic", topicName).put("cid", cid).put("records", processed.get()));
 					if (expected == ExpectedBehaviour.ABORT) {
 						break;
 					} else {
 						continue;
 					}
+				} else {
+					strat.onRecordsReceived(new JsonObject().put("topic", topicName));
 				}
 
-				if (timeToFirstRecord.isRunning()) {
-					long latency = timeToFirstRecord.elapsed(TimeUnit.MILLISECONDS);
-					if (latency > 300) {
-						logger.warn("time to first record latency was {}ms.", latency);
-					}
-					timeToFirstRecord.stop();
-				}
 				someRecords.forEach(rec -> {
 					try {
 						handler.accept(rec.key(), rec.value());
 						processed.incrementAndGet();
 					} catch (Exception e) {
 						logger.error("handler {} failed, SHOULD exit(1)...", handler, e);
+
 					}
-
-					offsets.put(rec.partition(), rec.offset());
 				});
+				reportLag(gid, cid, consumer);
+				consumer.commitAsync();
 			} while (true);
-
-			return processed.get() > 0 ? new KafkaToken(offsets) : index;
+			consumer.commitSync();
 		}
+		return processed.longValue();
+	}
+
+	private void reportLag(String gid, String cid, KafkaConsumer<byte[], byte[]> consumer) {
+		Gauge gauge = reg.gauge(idFactory.name("lag", "groupAndClient", gid + "-" + cid));
+		LongAdder sum = new LongAdder();
+		consumer.assignment().forEach(tp -> {
+			consumer.currentLag(tp).ifPresent(lag -> {
+				if (lag > 0) {
+					logger.info("**** LAG part {} => {}", tp.partition(), lag);
+				}
+				sum.add(lag);
+			});
+		});
+		gauge.set(sum.doubleValue());
+
 	}
 
 	@Override
 	public IResumeToken parseToken(JsonObject js) {
-		Map<Integer, Long> partOffsets = new HashMap<>();
-		for (String k : js.fieldNames()) {
-			Integer partition = Integer.parseInt(k);
-			Long offset = js.getLong(k);
-			partOffsets.put(partition, offset);
-		}
-		return new KafkaToken(partOffsets);
+		return new KafkaToken(js.getString("group"), js.getInteger("workers", 4).intValue());
 	}
 
-	private KafkaConsumer<byte[], byte[]> createKafkaConsumer() {
+	private KafkaConsumer<byte[], byte[]> createKafkaConsumer(String group, String clientId) {
 		logger.warn("bootstrap: {}, clientId: {}, inst: {}", bootstrapServer, clientId, InstallationId.getIdentifier());
 		Properties cp = new Properties();
 		cp.setProperty("bootstrap.servers", bootstrapServer);
-		cp.setProperty("client.id", clientId + "_" + subAlloc.incrementAndGet());
-		cp.setProperty("group.id", "clone-of-" + InstallationId.getIdentifier());
+		cp.setProperty("group.id", group);
+		cp.setProperty("client.id", clientId);
 		cp.setProperty(ConsumerConfig.METRIC_REPORTER_CLASSES_CONFIG, BluemindMetricsReporter.class.getCanonicalName());
-		cp.setProperty("enable.auto.commit", "true");
+		cp.setProperty("enable.auto.commit", "false");
 		cp.setProperty("fetch.max.wait.ms", "100");
 		cp.setProperty("auto.offset.reset", "earliest");
 		cp.setProperty("auto.commit.interval.ms", "1000");

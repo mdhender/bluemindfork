@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.restore.TopologyMapping;
 import net.bluemind.core.container.model.ItemValue;
@@ -91,9 +92,14 @@ public class RestoreTopology {
 			ItemValue<Server> exist = topoApi.getComplete(srv.uid);
 			if (exist != null) {
 				logger.info("UPDATE SRV {}", srv);
-				srvTask = topoApi.update(srv.uid, srv.value);
-				if (srv.value.tags.contains("bm/es") && exist != null && !exist.value.tags.contains("bm/es")) {
-					resetES.set(true);
+				try {
+					srvTask = topoApi.update(srv.uid, srv.value);
+					if (srv.value.tags.contains("bm/es") && !exist.value.tags.contains("bm/es")) {
+						resetES.set(true);
+					}
+				} catch (ServerFault sf) {
+					srvTask = null;
+					logger.warn("ServerUpdate is not possible: {}", sf.getMessage());
 				}
 			} else {
 				logger.info("CREATE SRV {}", srv);

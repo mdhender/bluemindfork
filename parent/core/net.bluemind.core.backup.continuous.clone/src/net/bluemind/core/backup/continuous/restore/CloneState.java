@@ -53,7 +53,6 @@ public class CloneState {
 				JsonObject js = new JsonObject(Buffer.buffer(content));
 				for (String top : js.fieldNames()) {
 					JsonObject jsTok = js.getJsonObject(top);
-					System.err.println("[" + top + "] RESUME from " + jsTok);
 					IResumeToken tok = any.parse(jsTok);
 
 					topicNameResume.put(top, tok);
@@ -95,7 +94,7 @@ public class CloneState {
 		return rt;
 	}
 
-	public CloneState record(String fullName, IResumeToken index) {
+	public CloneState track(String fullName, IResumeToken index) {
 		if (index == null) {
 			logger.warn("Saving empty state for {}", fullName);
 		}
@@ -115,7 +114,8 @@ public class CloneState {
 			}
 			newState.put(entry.getKey(), value.toJson());
 		}
-		byte[] toStore = newState.encodePrettily().getBytes();
+		String encState = newState.encodePrettily();
+		byte[] toStore = encState.getBytes();
 		try {
 			Files.write(path, toStore, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 		} catch (IOException e) {

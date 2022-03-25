@@ -154,7 +154,7 @@ public final class ServerService implements IServer {
 				untaggedError.add(ass);
 			}
 		}
-		;
+
 		if (!untaggedError.isEmpty()) {
 			StringBuilder w = new StringBuilder();
 			for (Assignment e : untaggedError) {

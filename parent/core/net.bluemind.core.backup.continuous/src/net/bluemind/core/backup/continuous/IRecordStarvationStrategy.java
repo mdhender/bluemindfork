@@ -19,6 +19,7 @@
 package net.bluemind.core.backup.continuous;
 
 import io.vertx.core.json.JsonObject;
+import net.bluemind.core.backup.continuous.store.ITopicStore.IResumeToken;
 
 public interface IRecordStarvationStrategy {
 
@@ -36,5 +37,19 @@ public interface IRecordStarvationStrategy {
 	}
 
 	ExpectedBehaviour onStarvation(JsonObject infos);
+
+	default void onRecordsReceived(@SuppressWarnings("unused") JsonObject metas) {
+
+	}
+
+	/**
+	 * Override this to save intermediate states while cloning
+	 * 
+	 * @param state
+	 */
+	default void checkpoint(@SuppressWarnings("unused") String topicName,
+			@SuppressWarnings("unused") IResumeToken state) {
+
+	}
 
 }

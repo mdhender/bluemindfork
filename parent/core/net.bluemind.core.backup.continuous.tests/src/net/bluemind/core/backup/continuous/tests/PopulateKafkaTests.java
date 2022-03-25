@@ -297,16 +297,9 @@ public class PopulateKafkaTests {
 
 	@Test
 	public void populateContainersFromKafkaContent() throws Exception {
-		TopologyMapping topo = new TopologyMapping();
-		topo.register("bm-master", cyrusIp);
-		DefaultSdsStoreLoader sds = new DefaultSdsStoreLoader();
 		IBackupReader store = DefaultBackupStore.reader();
-		Collection<String> installs = store.installations();
-		assertEquals(1, installs.size());
-		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
-		String iid = InstallationId.getIdentifier();
-		ILiveStream anyStream = store.forInstallation(iid).orphans();
+		ILiveStream anyStream = store.forInstallation(InstallationId.getIdentifier()).orphans();
 		Path p = Paths.get("/etc/bm", "clone.state.json");
 		new File("/etc/bm").mkdirs();
 		CloneState cs = new CloneState(p, anyStream);
@@ -328,20 +321,10 @@ public class PopulateKafkaTests {
 				}
 			}
 		};
+		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
-		try {
-			CloneConfiguration conf = new CloneConfiguration();
-			conf.sourceInstallationId = iid;
-			conf.mode = Mode.FORK;
-			InstallFromBackupTask tsk = new InstallFromBackupTask(conf, store,
-					new SysconfOverride(Collections.emptyMap()), topo, sds, prov);
-			tsk.registerObserver(obs);
-			TestTaskMonitor mon = new TestTaskMonitor();
-			tsk.run(mon);
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail(e.getMessage());
-		}
+		doClone(store, obs, prov);
+
 		checkContainersLocations(prov, IMailboxAclUids.TYPE, false, true);
 		checkContainersLocations(prov, IFlatHierarchyUids.TYPE, false, false);
 		checkContainersLocations(prov, IOwnerSubscriptionUids.TYPE, false, false);
@@ -362,6 +345,34 @@ public class PopulateKafkaTests {
 		assertNotNull(sudo.authUser.roles);
 		System.err.println("roles: " + sudo.authUser.roles);
 		assertTrue(sudo.authUser.roles.contains("hasMailWebapp"));
+
+		// re-run after clone
+		System.err.println("Run cloning process again.....");
+		doClone(store, obs, prov);
+	}
+
+	private void doClone(IBackupReader store, IClonePhaseObserver obs, ServerSideServiceProvider prov) {
+		CloneConfiguration conf = new CloneConfiguration();
+		conf.sourceInstallationId = InstallationId.getIdentifier();
+		conf.mode = Mode.FORK;
+
+		DefaultSdsStoreLoader sds = new DefaultSdsStoreLoader();
+		Collection<String> installs = store.installations();
+		assertEquals(1, installs.size());
+
+		TopologyMapping topo = new TopologyMapping();
+		topo.register("bm-master", cyrusIp);
+
+		try {
+			InstallFromBackupTask tsk = new InstallFromBackupTask(conf, store,
+					new SysconfOverride(Collections.emptyMap()), topo, sds, prov);
+			tsk.registerObserver(obs);
+			TestTaskMonitor mon = new TestTaskMonitor();
+			tsk.run(mon);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
 	}
 
 	private void checkContainersLocations(ServerSideServiceProvider prov, String type, boolean noneOnDirExcepted,
