@@ -40,6 +40,8 @@ import net.bluemind.scheduledjob.api.JobKind;
 import net.bluemind.scheduledjob.api.JobPlanification;
 import net.bluemind.scheduledjob.api.PlanKind;
 import net.bluemind.scheduledjob.scheduler.IScheduledJob;
+import net.bluemind.system.api.IInstallation;
+import net.bluemind.system.api.SystemState;
 
 public class JobRunner {
 
@@ -69,6 +71,12 @@ public class JobRunner {
 		try {
 			job = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IJob.class)
 					.getJobFromId(bjp.getJobId());
+			SystemState state = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IInstallation.class).getSystemState();
+			if (state != SystemState.CORE_STATE_RUNNING) {
+				logger.warn("Job {} cannot be executed if core state is not running", job.id);
+				return;
+			}
 		} catch (ServerFault e) {
 			// showing this one to the user would be in a 'server logs' story
 			logger.error("aborted: " + e.getMessage(), e);
