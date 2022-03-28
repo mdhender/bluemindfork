@@ -44,8 +44,7 @@ Require-Bundle: net.bluemind.addressbook.api;bundle-version="1.0.0",
  net.bluemind.server.api,
  net.bluemind.addressbook.domainbook
 Export-Package: net.bluemind.addressbook.service,
- net.bluemind.addressbook.service.internal,
- net.bluemind.addressbook.service.internal.repair
+ net.bluemind.addressbook.service.internal
 Bundle-Activator: net.bluemind.addressbook.service.Activator
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.addressbook.service
