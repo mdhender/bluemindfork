@@ -255,7 +255,7 @@
     "mail.content.reply.aria": "Einem Empfänger antworten",
     "mail.content.to": "an",
     "mail.conversation.icon.title": "Gespräch von {count} Nachrichten",
-    "mail.conversations.selected": "{count} Konversationen ausgewählten",
+    "mail.conversations.selected": "{count} Konversationen ausgewählt",
     "mail.conversation.show.middle.messages": "Zeige alle {count} Beiträge",
     "mail.draft.not.sent": "Diese Nachricht wurde nicht gesendet",
     "mail.empty": "hat keinen Inhalt",
