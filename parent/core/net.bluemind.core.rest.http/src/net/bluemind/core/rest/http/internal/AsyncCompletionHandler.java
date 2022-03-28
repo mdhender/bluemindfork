@@ -102,14 +102,18 @@ public class AsyncCompletionHandler extends AsyncCompletionHandlerBase {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			bufferedStream.failure(e);
+			if (bufferedStream != null) {
+				bufferedStream.failure(e);
+			}
 		}
 		return response;
 	}
 
 	@Override
 	public void onThrowable(Throwable t) {
-		bufferedStream.failure(t);
+		if (bufferedStream != null) {
+			bufferedStream.failure(t);
+		}
 		responseHandler.failure(t);
 	}
 
