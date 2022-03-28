@@ -60,8 +60,7 @@ public class SchemaUpgrade {
 
 	private static final Logger logger = LoggerFactory.getLogger(SchemaUpgrade.class);
 
-	public SchemaUpgrade(Database database, String server, DataSource pool, boolean onlySchema,
-			UpgraderStore upgraderStore) {
+	public SchemaUpgrade(Database database, String server, DataSource pool, UpgraderStore upgraderStore) {
 		this.database = database;
 		this.pool = pool;
 		this.server = server;

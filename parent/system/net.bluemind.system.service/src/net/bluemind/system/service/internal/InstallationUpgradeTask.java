@@ -19,7 +19,6 @@
 package net.bluemind.system.service.internal;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -111,11 +110,11 @@ public class InstallationUpgradeTask implements IServerTask {
 		List<DatedUpdater> phase2 = upgraders.stream().filter(Updater::afterSchemaUpgrade).collect(Collectors.toList());
 
 		for (Entry<String, DataSource> mbDS : ServerSideServiceProvider.mailboxDataSource.entrySet()) {
-			doUpgradeForDataSource(Database.SHARD, mbDS.getKey(), mbDS.getValue(), true,
-					monitor.subWork(mbDS.getKey(), 1), store, phase1, Collections.emptyList(), handledActions);
+			doUpgradeForDataSource(Database.SHARD, mbDS.getKey(), mbDS.getValue(), monitor.subWork(mbDS.getKey(), 1),
+					store, phase1, phase2, handledActions);
 		}
-		doUpgradeForDataSource(Database.DIRECTORY, "master", pool, false, monitor.subWork("master", 1), store, phase1,
-				phase2, handledActions);
+		doUpgradeForDataSource(Database.DIRECTORY, "master", pool, monitor.subWork("master", 1), store, phase1, phase2,
+				handledActions);
 	}
 
 	private void checkDatabaseStatus(UpgraderStore store) throws Exception {
@@ -128,13 +127,13 @@ public class InstallationUpgradeTask implements IServerTask {
 		}
 	}
 
-	private void doUpgradeForDataSource(Database database, String server, DataSource pool, boolean onlySchema,
-			IServerTaskMonitor monitor, UpgraderStore store, List<DatedUpdater> phase1, List<DatedUpdater> phase2,
+	private void doUpgradeForDataSource(Database database, String server, DataSource pool, IServerTaskMonitor monitor,
+			UpgraderStore store, List<DatedUpdater> phase1, List<DatedUpdater> phase2,
 			Set<UpdateAction> handledActions) {
 
 		UpgradeReport report = new UpgradeReport();
 		report.upgraders = new LinkedList<>();
-		SchemaUpgrade schemaUpgrader = new SchemaUpgrade(database, server, pool, onlySchema, store);
+		SchemaUpgrade schemaUpgrader = new SchemaUpgrade(database, server, pool, store);
 		UpdateResult schemaUpgrade = schemaUpgrader.schemaUpgrade(monitor, report, phase1, phase2, handledActions);
 		if (schemaUpgrade.equals(UpdateResult.failed())) {
 			throw new ServerFault("Upgrade failed");

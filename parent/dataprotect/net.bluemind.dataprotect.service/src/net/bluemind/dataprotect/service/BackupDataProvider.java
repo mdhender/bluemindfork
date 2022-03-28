@@ -22,7 +22,6 @@ package net.bluemind.dataprotect.service;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -123,7 +122,7 @@ public class BackupDataProvider implements AutoCloseable {
 
 		pgContext.add(PgContext.create(pool, pgWorker, pgPart, targetDatabase));
 
-		upgradeSchema(dpVersion, Database.DIRECTORY, pgPart.server, pool.getDataSource(), false,
+		upgradeSchema(dpVersion, Database.DIRECTORY, pgPart.server, pool.getDataSource(),
 				new UpgraderStore(pool.getDataSource()));
 
 		return new BackupContext(pool::getDataSource, () -> null, sc);
@@ -153,10 +152,8 @@ public class BackupDataProvider implements AutoCloseable {
 			throw new ServerFault(String.format("Could not migrate backup database from version %s", dpVersion));
 		}
 
-		upgradeSchema(dpVersion, Database.SHARD, bjDataDatalocation, restorePgDataContext.pool.getDataSource(), true,
-				store);
-		upgradeSchema(dpVersion, Database.DIRECTORY, bjDatalocation, restorePgContext.pool.getDataSource(), false,
-				store);
+		upgradeSchema(dpVersion, Database.SHARD, bjDataDatalocation, restorePgDataContext.pool.getDataSource(), store);
+		upgradeSchema(dpVersion, Database.DIRECTORY, bjDatalocation, restorePgContext.pool.getDataSource(), store);
 
 		pgContext.add(restorePgContext);
 		pgContext.add(restorePgDataContext);
@@ -166,7 +163,7 @@ public class BackupDataProvider implements AutoCloseable {
 	}
 
 	private void upgradeSchema(VersionInfo dpVersion, Database database, String datalocation, DataSource ds,
-			boolean onlySchema, UpgraderStore store) {
+			UpgraderStore store) {
 		VersionInfo to = VersionInfo.create(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IInstallation.class).getVersion().softwareVersion);
 
@@ -174,7 +171,7 @@ public class BackupDataProvider implements AutoCloseable {
 		List<DatedUpdater> upgraders = SchemaUpgrade.getUpgradePath();
 		Set<UpdateAction> handledActions = EnumSet.noneOf(UpdateAction.class);
 
-		executeUpgrades(upgraders, handledActions, store, onlySchema, database, datalocation, ds, report);
+		executeUpgrades(upgraders, handledActions, store, database, datalocation, ds, report);
 
 		if (report.status == Status.FAILED) {
 			logger.warn("Could not upgrade backup database from version {} to {}", dpVersion, to);
@@ -184,14 +181,13 @@ public class BackupDataProvider implements AutoCloseable {
 	}
 
 	private void executeUpgrades(List<DatedUpdater> upgraders, Set<UpdateAction> handledActions, UpgraderStore store,
-			boolean onlySchema, Database database, String datalocation, DataSource ds, UpgradeReport report) {
+			Database database, String datalocation, DataSource ds, UpgradeReport report) {
 
 		List<DatedUpdater> phase1 = upgraders.stream().filter(u -> !u.afterSchemaUpgrade())
 				.collect(Collectors.toList());
-		List<DatedUpdater> phase2 = onlySchema ? Collections.emptyList()
-				: upgraders.stream().filter(Updater::afterSchemaUpgrade).collect(Collectors.toList());
+		List<DatedUpdater> phase2 = upgraders.stream().filter(Updater::afterSchemaUpgrade).collect(Collectors.toList());
 
-		SchemaUpgrade schemaUpgrader = new SchemaUpgrade(database, datalocation, ds, onlySchema, store);
+		SchemaUpgrade schemaUpgrader = new SchemaUpgrade(database, datalocation, ds, store);
 		UpdateResult schemaUpgrade = schemaUpgrader.schemaUpgrade(monitor.subWork(1), report, phase1, phase2,
 				handledActions);
 		if (schemaUpgrade.equals(UpdateResult.failed())) {

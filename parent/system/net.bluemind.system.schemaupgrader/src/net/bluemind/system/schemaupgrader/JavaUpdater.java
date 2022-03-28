@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.system.api.Database;
 
 public class JavaUpdater implements DatedUpdater {
 
@@ -50,6 +51,11 @@ public class JavaUpdater implements DatedUpdater {
 	@Override
 	public Date date() {
 		return date;
+	}
+
+	@Override
+	public Database database() {
+		return updater.database();
 	}
 
 	@Override
