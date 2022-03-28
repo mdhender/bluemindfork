@@ -104,7 +104,7 @@ public class XferBackend implements ICmdLet, Runnable {
 					imapServers.stream().map(s -> s.value.ip).collect(Collectors.toList()));
 			return;
 		}
-		if (!sourceBackend.isPresent() && !sourceBackendId.isEmpty()) {
+		if (!sourceBackend.isPresent() && sourceBackendId != null && !sourceBackendId.isEmpty()) {
 			ctx.error("Source backend {} not found. Available servers: {}", sourceBackendId,
 					imapServers.stream().map(s -> s.value.ip).collect(Collectors.toList()));
 			return;
@@ -252,7 +252,7 @@ public class XferBackend implements ICmdLet, Runnable {
 	}
 
 	private Optional<ItemValue<Server>> getImapServer(String backendId) {
-		if (backendId.isEmpty()) {
+		if (backendId == null || backendId.isEmpty()) {
 			return Optional.empty();
 		}
 		return imapServers.stream().filter(s -> backendId.equalsIgnoreCase(s.uid)
