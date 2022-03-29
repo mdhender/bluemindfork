@@ -30,7 +30,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import io.vertx.core.buffer.Buffer;
@@ -189,25 +188,15 @@ public class XferBackend implements ICmdLet, Runnable {
 				ctx.info("[{}] task id {} ended: {}", logId, taskref.id, s);
 				return;
 			}
-			AtomicLong lastActivity = new AtomicLong(System.currentTimeMillis());
-			try {
 
+			try {
 				ReadStream<Buffer> reader = VertxStream.read(taskApi.log());
 				reader.endHandler(x -> {
 					ctx.info("[{}] task id {} ended...", logId, taskref.id);
-					TaskStatus taskStatus = taskApi.status();
-					if (taskStatus.state.ended) {
-						ctx.info("[{}] task id {} ended: {}", logId, taskref.id, taskStatus);
-						fut.complete(null);
-					}
+					fut.complete(null);
 				});
 				reader.handler(JsonParser.newParser().objectValueMode().handler(event -> {
 					JsonObject body = event.objectValue();
-					lastActivity.set(System.currentTimeMillis());
-					if (Boolean.TRUE.equals(body.getBoolean("keepalive"))) {
-						ctx.info("[{}] keepalive: task still running...", logId);
-						return;
-					}
 					String message = body.getString("message");
 					if (message != null && !message.equals("")) {
 						ctx.info("[{}]: {}", logId, message);
@@ -219,21 +208,19 @@ public class XferBackend implements ICmdLet, Runnable {
 				}));
 				reader.exceptionHandler(t -> {
 					ctx.error("[{}] xfer error: {}", logId, t.getMessage());
+					if (t.getMessage() == null) {
+						t.printStackTrace(System.err);
+					}
 					fut.completeExceptionally(t);
 				});
 				ctx.info("[{}] waiting for task to end...", logId);
-				do {
-					try {
-						fut.get(30, TimeUnit.SECONDS);
-						return;
-					} catch (TimeoutException te) {
-						if (lastActivity.get() + TimeUnit.SECONDS.toMillis(30) < System.currentTimeMillis()) {
-							ctx.error("[{}] xfer error: timeout waiting for task {}", logId, taskref.id);
-							Thread.sleep(10000);
-							throw te;
-						}
-					}
-				} while (true);
+				try {
+					fut.get(4, TimeUnit.HOURS);
+					return;
+				} catch (TimeoutException te) {
+					ctx.error("[{}] xfer error: timeout waiting for task {}", logId, taskref.id);
+					throw te;
+				}
 			} catch (Exception e) {
 				ctx.error("[{}] task id {} failed for unknown reason: {}", logId, taskref.id, e.getMessage());
 				e.printStackTrace(System.err);
