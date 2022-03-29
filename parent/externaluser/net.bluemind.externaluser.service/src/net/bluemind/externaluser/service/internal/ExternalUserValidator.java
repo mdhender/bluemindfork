@@ -18,15 +18,23 @@
 package net.bluemind.externaluser.service.internal;
 
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
 
+import net.bluemind.core.api.Email;
 import net.bluemind.core.api.ParametersValidator;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.email.EmailHelper;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomains;
 import net.bluemind.externaluser.api.ExternalUser;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
@@ -58,8 +66,15 @@ public class ExternalUserValidator {
 			throw new ServerFault("An external user should have a last name.", ErrorCode.EMPTY_LASTNAME);
 		}
 
+		Set<String> domainList = new HashSet<>();
+		ItemValue<Domain> domain = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomains.class).findByNameOrAliases(domainUid);
+		domainList.add(domain.uid);
+		domainList.addAll(domain.value.aliases);
+		Set<Email> emails = eu.emails.stream().filter(e -> domainList.contains(e.domainPart()))
+				.collect(Collectors.toSet());
 		try {
-			if (mailboxStore.emailAlreadyUsed(externalUserId, eu.emails)) {
+			if (mailboxStore.emailAlreadyUsed(externalUserId, emails)) {
 				throw new ServerFault(
 						"Email of external user is already in use: " + eu.emails.iterator().next().address,
 						ErrorCode.ALREADY_EXISTS);

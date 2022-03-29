@@ -34,6 +34,7 @@ import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Item;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.BmTestContext;
@@ -44,6 +45,8 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.mailbox.service.internal.MailboxValidator;
 import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.User;
 
 public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 
@@ -105,6 +108,25 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		mailshare.routing = Mailbox.Routing.internal;
 		mailshare.dataLocation = imapServer.address();
 		validator.validate(mailshare, uid);
+	}
+
+	@Test
+	public void internalEmailAllAliasShouldNotGetDetectedByExternalEmailHavingSameLeftPart() throws Exception {
+
+		String login = "myuser" + System.currentTimeMillis();
+		String uid = PopulateHelper.addUser(login, domainUid);
+
+		IUser service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class, domainUid);
+		ItemValue<User> user = service.getComplete(uid);
+		user.value.emails.iterator().next().allAliases = true;
+		service.update(uid, user.value);
+
+		Email userEmail = user.value.emails.iterator().next();
+		assertTrue(userEmail.allAliases);
+		assertEquals(login, userEmail.localPart());
+		assertEquals(domainUid, userEmail.domainPart());
+
+		PopulateHelper.addExternalUser(domainUid, login + "@ext.com", "ext");
 	}
 
 	@Test
