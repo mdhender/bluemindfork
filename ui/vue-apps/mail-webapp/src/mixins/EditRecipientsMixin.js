@@ -112,6 +112,7 @@ export default {
             this.CHECK_CORPORATE_SIGNATURE({ message: this.message });
             this.debouncedSave();
         },
-        validateAddress: EmailValidator.validateAddress
+        validateAddress: EmailValidator.validateAddress,
+        validateDnAndAddress: EmailValidator.validateDnAndAddress
     }
 };
