@@ -121,7 +121,7 @@ public class TasksManager implements ITasksManager {
 		}
 
 		try {
-			ExecutorService selectedExecutor = executesInRunningRootTask() ? this.directExecutor : this.executer;
+			ExecutorService selectedExecutor = inTaskThread() ? this.directExecutor : this.executer;
 			executeTask(taskId, serverTask, loggingMonitor, task, selectedExecutor);
 		} catch (RejectedExecutionException e) {
 			cleanupTask(task);
@@ -130,7 +130,8 @@ public class TasksManager implements ITasksManager {
 		return TaskRef.create(taskId);
 	}
 
-	private boolean executesInRunningRootTask() {
+	@Override
+	public boolean inTaskThread() {
 		return ROOT_TASK_MARKER == threadLocal.get();
 	}
 

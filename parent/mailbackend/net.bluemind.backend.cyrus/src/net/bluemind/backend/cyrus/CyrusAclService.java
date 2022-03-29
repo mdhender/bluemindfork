@@ -28,6 +28,9 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.imap.Acl;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.ListInfo;
@@ -47,7 +50,7 @@ public abstract class CyrusAclService {
 	public abstract void setAcl(String mailbox, Map<String, Acl> acl);
 
 	public static CyrusAclService get(String backendAddress) {
-		if (productionMode()) {
+		if (asyncMode()) {
 			return async(backendAddress);
 		} else {
 			return sync(backendAddress);
@@ -62,8 +65,11 @@ public abstract class CyrusAclService {
 		return new AsynchronousAclService(backendAddress);
 	}
 
-	private static boolean productionMode() {
-		return !testMode();
+	private static boolean asyncMode() {
+		ITasksManager tasksMgr = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ITasksManager.class);
+
+		return !tasksMgr.inTaskThread() && !testMode();
 	}
 
 	private static boolean testMode() {

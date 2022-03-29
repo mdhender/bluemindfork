@@ -84,4 +84,6 @@ public interface ITasksManager {
 	 * @param taskId taskRef {@link TaskRef#id}
 	 */
 	public void cancel(String taskId);
+
+	public boolean inTaskThread();
 }
