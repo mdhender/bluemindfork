@@ -17,8 +17,6 @@
   */
 package net.bluemind.backend.mail.api;
 
-import java.util.List;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -27,6 +25,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 
@@ -44,8 +43,8 @@ public interface IMailConversation {
 
 	/** Retrieve the conversations of the given folder. */
 	@POST
-	public List<ItemValue<Conversation>> byFolder(@QueryParam(value = "folder") String folderUid,
-			ItemFlagFilter filter);
+	public ListResult<ItemValue<Conversation>> byFolder(@QueryParam(value = "folder") String folderUid,
+			ItemFlagFilter filter, @QueryParam(value = "from") long from, @QueryParam(value = "size") int size);
 
 	@DELETE
 	@Path("{containerUid}/{itemId}/_message")

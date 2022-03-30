@@ -3425,15 +3425,15 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		long user1ItemId = createEml("data/user1_send_to_user2.eml", userUid, mboxRoot, "Sent");
 		String user2MboxRoot = "user." + user2Uid.replace('.', '^');
 		createEml("data/user1_send_to_user2.eml", user2Uid, user2MboxRoot, "INBOX");
-		List<ItemValue<Conversation>> user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid,
-				ItemFlagFilter.all());
+		net.bluemind.core.api.ListResult<ItemValue<Conversation>> user1InboxConversations = user1ConversationService
+				.byFolder(user1Inbox.uid, ItemFlagFilter.all(), 0, -1);
 		// a conversation already exists in INBOX due to #before method
-		assertEquals(1, user1InboxConversations.size());
-		List<ItemValue<Conversation>> user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid,
-				ItemFlagFilter.all());
-		assertEquals(1, user1SentConversations.size());
-		long conversationId = Long.parseUnsignedLong(user1SentConversations.get(0).uid, 16);
-		long numberOfMessagesInConversation = user1SentConversations.get(0).value.messageRefs.size();
+		assertEquals(1, user1InboxConversations.total);
+		net.bluemind.core.api.ListResult<ItemValue<Conversation>> user1SentConversations = user1ConversationService
+				.byFolder(user1SentBox.uid, ItemFlagFilter.all(), 0, -1);
+		assertEquals(1, user1SentConversations.total);
+		long conversationId = Long.parseUnsignedLong(user1SentConversations.values.get(0).uid, 16);
+		long numberOfMessagesInConversation = user1SentConversations.values.get(0).value.messageRefs.size();
 		assertEquals(1, numberOfMessagesInConversation);
 
 		//
@@ -3442,15 +3442,15 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		//
 		createEml("data/user2_reply_to_user1.eml", user2Uid, user2MboxRoot, "Sent");
 		long user1ItemId2 = createEml("data/user2_reply_to_user1.eml", userUid, mboxRoot, "INBOX");
-		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
-		assertEquals(2, user1InboxConversations.size());
-		assertEquals(2, user1InboxConversations.get(1).value.messageRefs.size());
-		assertEquals(user1ItemId, user1InboxConversations.get(1).value.messageRefs.get(0).itemId);
-		assertEquals(user1ItemId2, user1InboxConversations.get(1).value.messageRefs.get(1).itemId);
-		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
-		assertEquals(1, user1SentConversations.size());
-		assertEquals(conversationId, Long.parseUnsignedLong(user1InboxConversations.get(1).uid, 16));
-		numberOfMessagesInConversation = user1InboxConversations.get(1).value.messageRefs.size();
+		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all(), 0, -1);
+		assertEquals(2, user1InboxConversations.total);
+		assertEquals(2, user1InboxConversations.values.get(1).value.messageRefs.size());
+		assertEquals(user1ItemId, user1InboxConversations.values.get(1).value.messageRefs.get(0).itemId);
+		assertEquals(user1ItemId2, user1InboxConversations.values.get(1).value.messageRefs.get(1).itemId);
+		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all(), 0, -1);
+		assertEquals(1, user1SentConversations.total);
+		assertEquals(conversationId, Long.parseUnsignedLong(user1InboxConversations.values.get(1).uid, 16));
+		numberOfMessagesInConversation = user1InboxConversations.values.get(1).value.messageRefs.size();
 		assertEquals(2, numberOfMessagesInConversation);
 
 		//
@@ -3459,11 +3459,11 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		//
 		createEml("data/user1_send_another_to_user2.eml", userUid, mboxRoot, "Sent");
 		createEml("data/user1_send_another_to_user2.eml", user2Uid, user2MboxRoot, "INBOX");
-		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
-		assertEquals(2, user1InboxConversations.size());
-		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
-		assertEquals(2, user1SentConversations.size());
-		assertNotEquals(conversationId, Long.parseUnsignedLong(user1SentConversations.get(1).uid, 16));
+		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all(), 0, -1);
+		assertEquals(2, user1InboxConversations.total);
+		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all(), 0, -1);
+		assertEquals(2, user1SentConversations.total);
+		assertNotEquals(conversationId, Long.parseUnsignedLong(user1SentConversations.values.get(1).uid, 16));
 
 		//
 		// move sent message to trash
@@ -3473,9 +3473,9 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		IItemsTransfer transferApi = provider().instance(IItemsTransfer.class, user1SentBox.uid, trash.uid);
 		List<ItemIdentifier> moved = transferApi.move(Arrays.asList(user1ItemId));
 		assertNotNull(moved);
-		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
-		assertEquals(2, user1SentConversations.size());
-		numberOfMessagesInConversation = user1SentConversations.get(0).value.messageRefs.size();
+		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all(), 0, -1);
+		assertEquals(2, user1SentConversations.total);
+		numberOfMessagesInConversation = user1SentConversations.values.get(0).value.messageRefs.size();
 		assertEquals(1, numberOfMessagesInConversation);
 
 		//
@@ -3484,9 +3484,9 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		IItemsTransfer transferApi2 = provider().instance(IItemsTransfer.class, user1Inbox.uid, trash.uid);
 		List<ItemIdentifier> moved2 = transferApi2.move(Arrays.asList(user1ItemId2));
 		assertNotNull(moved2);
-		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
-		assertEquals(2, user1InboxConversations.size());
-		numberOfMessagesInConversation = user1InboxConversations.get(0).value.messageRefs.size();
+		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all(), 0, -1);
+		assertEquals(2, user1InboxConversations.total);
+		numberOfMessagesInConversation = user1InboxConversations.values.get(0).value.messageRefs.size();
 		assertEquals(1, numberOfMessagesInConversation);
 
 		//
@@ -3497,9 +3497,9 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		TaskRef deleteExpiredTaskRef = new ReplicatedDataExpirationService(new BmTestContext(SecurityContext.SYSTEM),
 				JdbcTestHelper.getInstance().getMailboxDataDataSource(), "bm/core").deleteExpired(0);
 		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), deleteExpiredTaskRef);
-		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
-		assertEquals(2, user1InboxConversations.size());
-		numberOfMessagesInConversation = user1InboxConversations.get(0).value.messageRefs.size();
+		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all(), 0, -1);
+		assertEquals(2, user1InboxConversations.total);
+		numberOfMessagesInConversation = user1InboxConversations.values.get(0).value.messageRefs.size();
 		assertEquals(1, numberOfMessagesInConversation);
 	}
 

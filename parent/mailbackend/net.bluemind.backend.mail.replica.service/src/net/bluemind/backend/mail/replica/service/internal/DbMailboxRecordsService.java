@@ -55,9 +55,9 @@ import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.api.flags.WellKnownFlags;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
-import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
+import net.bluemind.backend.mail.replica.api.IInternalRecordBasedMailConversations;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -72,9 +72,11 @@ import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
 import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.ExpectedId;
 import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.VanishedBody;
+import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
+import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -88,7 +90,8 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 
-public class DbMailboxRecordsService extends BaseMailboxRecordsService implements IDbMailboxRecords {
+public class DbMailboxRecordsService extends BaseMailboxRecordsService
+		implements IInternalRecordBasedMailConversations {
 
 	private static final Logger logger = LoggerFactory.getLogger(DbMailboxRecordsService.class);
 
@@ -701,6 +704,15 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 	public List<ImapBinding> havingBodyVersionLowerThan(final int version) {
 		try {
 			return this.recordStore.havingBodyVersionLowerThan(version);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+	}
+
+	@Override
+	public ListResult<Long> getConversationIds(ItemFlagFilter filter, long from, int size) {
+		try {
+			return this.recordStore.getConversationIds(filter, from, size);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}

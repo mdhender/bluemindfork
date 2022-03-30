@@ -18,7 +18,6 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -26,9 +25,7 @@ import javax.sql.DataSource;
 import net.bluemind.backend.mail.replica.persistence.ConversationStore;
 import net.bluemind.backend.mail.replica.persistence.InternalConversation;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistence.AbstractItemValueStore.ItemV;
 import net.bluemind.core.context.SecurityContext;
 
 public class ConversationStoreService extends ContainerWithoutChangelogService<InternalConversation> {
@@ -40,17 +37,7 @@ public class ConversationStoreService extends ContainerWithoutChangelogService<I
 		conversationStore = (ConversationStore) itemValueStore;
 	}
 
-	public List<ItemValue<InternalConversation>> byFolder(Long folderId) {
-		return doOrFail(() -> {
-			List<ItemV<InternalConversation>> conversations = conversationStore.byFolder(folderId);
-
-			List<Item> items = itemStore
-					.getMultipleById(conversations.stream().map(itemV -> itemV.itemId).collect(Collectors.toList()));
-			Map<Long, InternalConversation> indexedById = conversations.stream()
-					.collect(Collectors.toMap(iv -> iv.itemId, iv -> iv.value));
-			return items.stream().map(item -> ItemValue.create(item, indexedById.get(item.id)))
-					.collect(Collectors.toList());
-
-		});
+	public List<ItemValue<InternalConversation>> byConversationsId(List<Long> conversationIds) {
+		return super.getMultiple(conversationIds.stream().map(Long::toHexString).collect(Collectors.toList()));
 	}
 }

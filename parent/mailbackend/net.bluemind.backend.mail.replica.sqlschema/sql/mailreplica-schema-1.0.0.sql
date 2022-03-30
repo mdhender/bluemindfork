@@ -39,7 +39,7 @@ create index IF NOT EXISTS i_mailbox_replica_names on t_mailbox_replica (contain
 
 
 create table IF NOT EXISTS t_mailbox_record (
-	message_body_guid bytea not null, 
+	message_body_guid bytea not null,
 	imap_uid int8 not null,
 	mod_seq int8 not null,
 	last_updated timestamp not null,
@@ -157,23 +157,169 @@ CREATE TABLE t_conversation (
 	item_id int8 not null REFERENCES t_container_item(id) ON DELETE CASCADE,
 	unique(container_id, item_id)
 ) PARTITION BY HASH (container_id);
-CREATE INDEX i_conversation_messages ON t_conversation USING gin ((messages) jsonb_path_ops);
 CREATE INDEX i_conversation_item_id ON t_conversation (item_id);
 
-DO LANGUAGE plpgsql 
+DO LANGUAGE plpgsql
 $$
 DECLARE
   partition TEXT;
   partition_count INTEGER;
 BEGIN
   SELECT INTO partition_count COALESCE(current_setting('bm.conversation_partitions', true)::integer, 25);
-  
+
   FOR partition_key IN 0..(partition_count-1)
   LOOP
     partition := 't_conversation_' || partition_key;
-    RAISE NOTICE 'CREATING CHANGESET PARTITION %...', partition;    
+    RAISE NOTICE 'CREATING CHANGESET PARTITION %...', partition;
     EXECUTE 'CREATE TABLE ' || partition || ' PARTITION OF t_conversation FOR VALUES WITH (MODULUS '|| partition_count || ', REMAINDER ' || partition_key || ');';
   END LOOP;
 END;
 $$;
 
+
+CREATE INDEX IF NOT EXISTS i_t_mailbox_record_conversation_date
+  ON t_mailbox_record (conversation_id, internal_date)
+  WHERE (system_flags::bit(32) & 4::bit(32)) = 0::bit(32);
+
+CREATE INDEX IF NOT EXISTS i_t_mailbox_record_conversation_flags
+  ON t_mailbox_record (container_id, conversation_id, system_flags)
+  WHERE (system_flags::bit(32) & 4::bit(32)) = 0::bit(32);
+
+CREATE TABLE IF NOT EXISTS v_conversation_by_folder (
+    folder_id integer NOT NULL REFERENCES t_container ON DELETE CASCADE,
+    conversation_id bigint NOT NULL,
+    flags integer,
+    mask integer,
+    date timestamp without time zone,
+    UNIQUE(folder_id, conversation_id)
+) PARTITION BY HASH (folder_id);
+
+DO LANGUAGE plpgsql
+$$
+DECLARE
+  partition TEXT;
+  partition_count INTEGER;
+BEGIN
+  SELECT INTO partition_count COALESCE(current_setting('bm.conversation_partitions', true)::integer, 25);
+
+  FOR partition_key IN 0..(partition_count-1)
+  LOOP
+    partition := 'v_conversation_by_folder_' || partition_key;
+    RAISE NOTICE 'CREATING v_conversation_by_folder PARTITION %...', partition;
+    EXECUTE 'CREATE TABLE ' || partition || ' PARTITION OF v_conversation_by_folder FOR VALUES WITH (MODULUS '|| partition_count || ', REMAINDER ' || partition_key || ');';
+  END LOOP;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION update_conversation_by_folder() RETURNS TRIGGER
+  LANGUAGE plpgsql
+AS $$
+DECLARE
+  daterec record;
+BEGIN
+    -- Update flags and not set flags (mask) respectively in every folder
+    INSERT INTO
+      v_conversation_by_folder (folder_id, conversation_id, flags, mask)
+    VALUES
+      (NEW.container_id, NEW.conversation_id, NEW.system_flags, -(NEW.system_flags + 1))
+    ON CONFLICT (folder_id, conversation_id) DO UPDATE
+      SET
+        flags = EXCLUDED.flags | v_conversation_by_folder.flags,
+        mask = EXCLUDED.mask | (-(v_conversation_by_folder.flags + 1));
+
+    -- Update date of last activity, cross folder this time
+    SELECT
+      MAX(internal_date) AS date,
+      array_agg(distinct(container_id)) AS folder_ids
+    FROM t_mailbox_record INTO daterec
+    WHERE system_flags::bit(32) & 4::bit(32) = 0::bit(32)
+    AND conversation_id = NEW.conversation_id
+    GROUP BY conversation_id;
+
+    UPDATE v_conversation_by_folder
+    SET date = daterec.date
+    WHERE folder_id = ANY(daterec.folder_ids)
+    AND conversation_id = NEW.conversation_id
+    AND date != daterec.date;
+    return NULL;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION set_conversation_by_folder() RETURNS TRIGGER
+  LANGUAGE plpgsql
+AS $$
+DECLARE
+  c record;
+  daterec record;
+BEGIN
+    SELECT
+      bit_or(system_flags) as flags,
+      bit_or(-(system_flags + 1)) as mask
+    FROM
+      t_mailbox_record INTO c
+    WHERE
+      container_id = OLD.container_id
+    AND
+      system_flags::bit(32) & 4::bit(32) = 0::bit(32)
+    AND conversation_id = OLD.conversation_id
+    GROUP BY container_id, conversation_id;
+
+    IF (c IS NULL) THEN
+        DELETE FROM v_conversation_by_folder WHERE folder_id = OLD.container_id AND conversation_id = OLD.conversation_id;
+    ELSE
+        -- Update flags and not set flags (mask) respectively in every folder
+        UPDATE v_conversation_by_folder
+        SET flags = c.flags, mask = c.mask
+        WHERE folder_id = OLD.container_id
+        AND conversation_id = OLD.conversation_id;
+
+        -- Update date of last activity, cross folder this time
+        SELECT
+          MAX(internal_date) AS date,
+          array_agg(distinct(container_id)) AS folder_ids
+        FROM t_mailbox_record INTO daterec
+        WHERE system_flags::bit(32) & 4::bit(32) = 0::bit(32)
+        AND conversation_id = NEW.conversation_id
+        GROUP BY conversation_id;
+
+        UPDATE v_conversation_by_folder
+        SET date = daterec.date
+        WHERE folder_id = ANY(daterec.folder_ids)
+        AND conversation_id = NEW.conversation_id
+        AND date != daterec.date;
+    END IF;
+    RETURN NULL;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER v_conversation_by_folder_update
+  AFTER UPDATE
+  ON t_mailbox_record
+  FOR EACH ROW
+  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
+  WHEN (OLD.conversation_id IS NOT NULL AND OLD.system_flags & 4 = 0 AND NEW.system_flags & 4 = 0)
+  EXECUTE PROCEDURE update_conversation_by_folder();
+
+CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_insert
+  AFTER INSERT
+  ON t_mailbox_record
+  FOR EACH ROW
+  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
+  WHEN (NEW.conversation_id IS NOT NULL AND NEW.system_flags & 4 = 0)
+  EXECUTE PROCEDURE update_conversation_by_folder();
+
+CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_remove
+  AFTER UPDATE
+  ON t_mailbox_record
+  FOR EACH ROW
+  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
+  WHEN (OLD.conversation_id IS NOT NULL AND OLD.system_flags & 4 = 0 AND NEW.system_flags & 4 = 4)
+  EXECUTE PROCEDURE set_conversation_by_folder();
+
+CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_expunge
+  AFTER DELETE
+  ON t_mailbox_record
+  FOR EACH ROW
+  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
+  WHEN (OLD.conversation_id IS NOT NULL AND OLD.system_flags & 4 = 0)
+  EXECUTE PROCEDURE set_conversation_by_folder();

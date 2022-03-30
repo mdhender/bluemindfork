@@ -21,8 +21,6 @@ package net.bluemind.backend.mail.replica.service.internal;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -30,12 +28,13 @@ import javax.ws.rs.PathParam;
 
 import net.bluemind.backend.mail.api.Conversation;
 import net.bluemind.backend.mail.api.Conversation.MessageRef;
-import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
+import net.bluemind.backend.mail.replica.api.IInternalRecordBasedMailConversations;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.persistence.ConversationStore;
 import net.bluemind.backend.mail.replica.persistence.InternalConversation;
 import net.bluemind.backend.mail.replica.persistence.InternalConversation.InternalMessageRef;
+import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -43,9 +42,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.RBACManager;
-import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 
 public class MailConversationService implements IInternalMailConversation {
@@ -94,28 +91,15 @@ public class MailConversationService implements IInternalMailConversation {
 	}
 
 	@Override
-	public List<ItemValue<Conversation>> byFolder(String folderUid, ItemFlagFilter filter) {
+	public ListResult<ItemValue<Conversation>> byFolder(String folderUid, ItemFlagFilter filter, long from, int size) {
 		rbacManager.check(Verb.Read.name());
-		Predicate<InternalMessageRef> filterPredicate = null;
-		if (!filter.matchAll()) {
-			Set<Long> validIds = getValidIds(folderUid, filter);
-			filterPredicate = id -> validIds.contains(id.itemId);
-		} else {
-			filterPredicate = id -> true;
-		}
-		Predicate<InternalMessageRef> pred = filterPredicate;
 
-		return storeService.byFolder(uidToId(folderUid)).stream() //
-				.filter(conversation -> conversation.value.messageRefs.stream() //
-						.anyMatch(pred))
-				.map(this::conversationToPublic).collect(Collectors.toList());
+		IInternalRecordBasedMailConversations recordsService = context.provider()
+				.instance(IInternalRecordBasedMailConversations.class, folderUid);
+		ListResult<Long> conversations = recordsService.getConversationIds(filter, from, size);
 
-	}
-
-	private Set<Long> getValidIds(String folderUid, ItemFlagFilter filter) {
-		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDbMailboxRecords.class, folderUid).filteredChangesetById(0l, filter).created.stream()
-						.map(i -> i.id).collect(Collectors.toSet());
+		return ListResult.create(storeService.byConversationsId(conversations.values).stream() //
+				.map(this::conversationToPublic).collect(Collectors.toList()), conversations.total);
 	}
 
 	@Override

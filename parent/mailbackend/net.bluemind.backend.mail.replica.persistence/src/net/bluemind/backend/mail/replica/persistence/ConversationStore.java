@@ -109,4 +109,18 @@ public class ConversationStore extends AbstractItemValueStore<InternalConversati
 		update(update, new Object[] { container.id, folderId, container.id });
 	}
 
+	@Override
+	public List<InternalConversation> getMultiple(List<Item> items) throws SQLException {
+		String query = "select item_id, " + ConversationColumns.COLUMNS.names() + " FROM " + ConversationColumns.TABLE
+				+ " WHERE item_id = ANY(?::int4[]) and container_id = ?";
+		List<ItemV<InternalConversation>> values = select(query, con -> new ItemV<InternalConversation>(),
+				(rs, index, itemv) -> {
+					itemv.itemId = rs.getLong(index++);
+					itemv.value = new InternalConversation();
+					return ConversationColumns.populator().populate(rs, index, itemv.value);
+				}, new Object[] { items.stream().map(i -> i.id).toArray(Long[]::new), container.id });
+
+		return join(items, values);
+	}
+
 }

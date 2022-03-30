@@ -36,13 +36,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.backend.mail.api.MessageBody;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecordItemUri;
+import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlag;
+import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.persistence.AbstractItemValueStore;
 import net.bluemind.core.container.persistence.LongCreator;
@@ -284,5 +287,53 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 
 		return new HashSet<>(
 				select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id, uid, owner }));
+	}
+
+	public ListResult<Long> getConversationIds(ItemFlagFilter filter, long from, int size) throws SQLException {
+		StringBuilder query = new StringBuilder("FROM v_conversation_by_folder " //
+				+ "WHERE folder_id=?");
+
+		int mustNot = filter.mustNot.stream().filter(flag -> flag != ItemFlag.Deleted).map(this::adaptFlag).reduce(0,
+				(f, flag) -> f | flag);
+		if (mustNot != 0) {
+			query.append(" AND (mask::bit(32) & " + mustNot + "::bit(32)) = " + mustNot + "::bit(32)");
+		}
+		int must = filter.must.stream().map(this::adaptFlag).reduce(0, (f, flag) -> f | flag);
+		if (must != 0) {
+			query.append(" AND (flags::bit(32) & " + must + "::bit(32)) = " + must + "::bit(32)");
+		}
+
+		String sqlCount = "SELECT count(*) " + query.toString();
+		long count = select(sqlCount, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id }).get(0);
+
+		query.append(" order by date desc");
+		List<Object> parameters = new ArrayList<>();
+		parameters.add(container.id);
+		if (from > 0) {
+			query.append(" offset ?");
+			parameters.add(from);
+		}
+		if (size > 0) {
+			query.append(" limit ?");
+			parameters.add(size);
+		}
+		String sqlValues = "SELECT conversation_id " + query.toString();
+
+		List<Long> values = select(sqlValues, LongCreator.FIRST, Collections.emptyList(), parameters.toArray());
+
+		return ListResult.create(values, count);
+	}
+
+	private int adaptFlag(ItemFlag flag) {
+		switch (flag) {
+		case Seen:
+			return MailboxItemFlag.System.Seen.value().value;
+		case Deleted:
+			return MailboxItemFlag.System.Deleted.value().value;
+		case Important:
+			return MailboxItemFlag.System.Flagged.value().value;
+		default:
+			throw new IllegalArgumentException();
+		}
 	}
 }

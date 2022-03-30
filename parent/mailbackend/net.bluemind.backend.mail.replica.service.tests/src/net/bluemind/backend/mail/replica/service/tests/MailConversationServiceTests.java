@@ -29,7 +29,6 @@ import static org.junit.Assert.assertNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 import org.junit.Test;
 
@@ -42,6 +41,7 @@ import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
+import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
@@ -173,10 +173,63 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 		MessageRef4.date = new Date(4);
 		create(conversationId2, MessageRef3, MessageRef4);
 
-		List<ItemValue<Conversation>> conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId,
-				ItemFlagFilter.all());
+		ListResult<ItemValue<Conversation>> conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId,
+				ItemFlagFilter.all(), 0l, -1);
 		assertNotNull(conversations);
-		assertEquals(2, conversations.size());
+		assertEquals(2, conversations.values.size());
+		assertEquals(2, conversations.total);
+	}
+
+	@Test
+	public void byFolderLimited() {
+		String conversationId = Long.toHexString(123456789L);
+		MessageRef MessageRef = new MessageRef();
+		MessageRef.folderUid = mboxUniqueId;
+		MessageRef.itemId = 42L;
+		MessageRef.date = new Date(1);
+		MessageRef MessageRef2 = new MessageRef();
+		MessageRef2.folderUid = mboxUniqueId;
+		MessageRef2.itemId = 66L;
+		MessageRef2.date = new Date(2);
+		create(conversationId, MessageRef, MessageRef2);
+
+		String conversationId2 = Long.toHexString(88888888L);
+		MessageRef MessageRef3 = new MessageRef();
+		MessageRef3.folderUid = mboxUniqueId;
+		MessageRef3.itemId = 111L;
+		MessageRef3.date = new Date(3);
+		MessageRef MessageRef4 = new MessageRef();
+		MessageRef4.folderUid = mboxUniqueId;
+		MessageRef4.itemId = 51L;
+		MessageRef4.date = new Date(4);
+		create(conversationId2, MessageRef3, MessageRef4);
+
+		String conversationId3 = Long.toHexString(99999999L);
+		MessageRef MessageRef5 = new MessageRef();
+		MessageRef3.folderUid = mboxUniqueId;
+		MessageRef3.itemId = 1111L;
+		MessageRef3.date = new Date(5);
+		MessageRef MessageRef6 = new MessageRef();
+		MessageRef4.folderUid = mboxUniqueId;
+		MessageRef4.itemId = 511L;
+		MessageRef4.date = new Date(6);
+		create(conversationId3, MessageRef5, MessageRef6);
+
+		ListResult<ItemValue<Conversation>> conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId,
+				ItemFlagFilter.all(), 0l, -1);
+		assertNotNull(conversations);
+		assertEquals(3, conversations.values.size());
+		assertEquals(3, conversations.total);
+
+		conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId, ItemFlagFilter.all(), 1l, -1);
+		assertNotNull(conversations);
+		assertEquals(2, conversations.values.size());
+		assertEquals(2, conversations.total);
+
+		conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId, ItemFlagFilter.all(), 2l, 1);
+		assertNotNull(conversations);
+		assertEquals(1, conversations.values.size());
+		assertEquals(1, conversations.total);
 	}
 
 	@Test

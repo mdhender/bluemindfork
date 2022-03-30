@@ -75,6 +75,9 @@
             class="net.bluemind.backend.mail.replica.service.DbReplicatedMailboxesServiceFactory">
       </serviceFactory>
       <serviceFactory
+            class="net.bluemind.backend.mail.replica.service.InternalRecordBasedMailConversationsFactory">
+      </serviceFactory>
+      <serviceFactory
             class="net.bluemind.backend.mail.replica.service.InternalMailConversationServiceFactory">
       </serviceFactory>
       <serviceFactory
