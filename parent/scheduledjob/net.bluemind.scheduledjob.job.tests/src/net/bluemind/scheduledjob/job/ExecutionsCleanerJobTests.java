@@ -42,6 +42,7 @@ import net.bluemind.scheduledjob.DummyJob2;
 import net.bluemind.scheduledjob.api.IJob;
 import net.bluemind.scheduledjob.api.JobExecution;
 import net.bluemind.scheduledjob.api.JobExecutionQuery;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class ExecutionsCleanerJobTests {
@@ -77,6 +78,10 @@ public class ExecutionsCleanerJobTests {
 		future.get();
 
 		serviceAdmin0 = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IJob.class);
+
+		StateContext.setState("core.stopped");
+		StateContext.setState("core.started");
+		StateContext.setState("core.started");
 	}
 
 	@After

@@ -47,6 +47,7 @@ import net.bluemind.scheduledjob.api.JobExecutionQuery;
 import net.bluemind.scheduledjob.scheduler.IScheduledJob;
 import net.bluemind.scheduledjob.scheduler.impl.JobRegistry;
 import net.bluemind.scheduledjob.scheduler.impl.JobRunner;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class JobLockingTests {
@@ -82,6 +83,11 @@ public class JobLockingTests {
 		future.get();
 
 		serviceAdmin0 = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IJob.class);
+
+		StateContext.setState("core.stopped");
+		StateContext.setState("core.started");
+		StateContext.setState("core.started");
+
 	}
 
 	@After

@@ -62,6 +62,7 @@ import net.bluemind.scheduledjob.api.PlanKind;
 import net.bluemind.scheduledjob.scheduler.impl.JobRegistry;
 import net.bluemind.scheduledjob.scheduler.impl.Scheduler;
 import net.bluemind.scheduledjob.service.jobs.WaitingJob;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class ScheduledJobServiceTests {
@@ -103,6 +104,9 @@ public class ScheduledJobServiceTests {
 
 		serviceAdmin = ServerSideServiceProvider.getProvider(admin).instance(IInCoreJob.class);
 
+		StateContext.setState("core.stopped");
+		StateContext.setState("core.started");
+		StateContext.setState("core.started");
 	}
 
 	@After

@@ -20,6 +20,7 @@ Require-Bundle: org.junit,
  net.bluemind.scheduledjob.service;bundle-version="1.0.0",
  org.eclipse.core.runtime;bundle-version="3.7.0",
  org.quartz-scheduler.quartz;bundle-version="2.1.5",
- net.bluemind.scheduledjob.job
+ net.bluemind.scheduledjob.job,
+ net.bluemind.system.state
 Export-Package: net.bluemind.scheduledjob
 Automatic-Module-Name: net.bluemind.scheduledjob.job.tests
