@@ -98,7 +98,8 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		String ownerUid = sub.ownerUid;
 		IContainers contApi = context.provider().instance(IContainers.class);
 		String conversationSubtreeUid = IMailReplicaUids.conversationSubtreeUid(domainUid, ownerUid);
-		if (getContainers(containerUid, conversationSubtreeUid, contApi).isContainerMissing()) {
+		ReplicatedMailboxesContainers contStatus = getContainers(containerUid, conversationSubtreeUid, contApi);
+		if (contStatus.isContainerMissing()) {
 			logger.info("Create missing root {}", containerUid);
 			createContainers(root, domainUid, containerUid, conversationSubtreeUid, ownerUid, contApi);
 		} else {
@@ -158,9 +159,10 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 
 	private String owner(String namespace, String mailboxName, String domainUid, String defaultOwner) {
 		String owner = defaultOwner;
+		String toSearch = mailboxName.replace('^', '.');
 		if (Namespace.valueOf(namespace) == Namespace.users) {
 			IUser userApi = context.provider().instance(IUser.class, domainUid);
-			ItemValue<User> found = userApi.byLogin(mailboxName);
+			ItemValue<User> found = userApi.byLogin(toSearch);
 			if (found != null) {
 				owner = found.uid;
 			} else {
@@ -168,7 +170,6 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 			}
 		} else {
 			IMailshare shareApi = context.provider().instance(IMailshare.class, domainUid);
-			String toSearch = mailboxName.replace('^', '.');
 			Optional<ItemValue<Mailshare>> found = shareApi.allComplete().stream()
 					.filter(it -> it.value.name.equals(toSearch)).findFirst();
 			if (found.isPresent()) {

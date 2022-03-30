@@ -88,12 +88,7 @@ public class ContainersHierarchyHook extends ContainersHookAdapter {
 			String hierUid = uid(cd);
 			Long expected = HierarchyIdsHints.getHint(hierUid);
 			if (expected == null) {
-				ItemValue<ContainerHierarchyNode> existing = hier.getComplete(hierUid);
-				if (existing == null) {
-					hier.create(hierUid, ContainerHierarchyNode.of(cd));
-				} else {
-					hier.update(hierUid, ContainerHierarchyNode.of(cd));
-				}
+				storeNode(cd, hier, hierUid);
 			} else {
 				hier.createWithId(expected, hierUid, ContainerHierarchyNode.of(cd));
 			}
@@ -105,9 +100,19 @@ public class ContainersHierarchyHook extends ContainersHookAdapter {
 			throws ServerFault {
 		hierarchyOp(ctx, cur, (hier, owner) -> {
 			logger.info("Container updated from {} to {}, should update in hierarchy", prev, cur);
-			hier.update(uid(cur), ContainerHierarchyNode.of(cur));
+			String hierUid = uid(cur);
+			storeNode(cur, hier, hierUid);
 		});
 
+	}
+
+	private void storeNode(ContainerDescriptor cur, IInternalContainersFlatHierarchy hier, String hierUid) {
+		ItemValue<ContainerHierarchyNode> existing = hier.getComplete(hierUid);
+		if (existing == null) {
+			hier.create(hierUid, ContainerHierarchyNode.of(cur));
+		} else {
+			hier.update(hierUid, ContainerHierarchyNode.of(cur));
+		}
 	}
 
 	@Override
