@@ -13,6 +13,7 @@
     "common.from_date": "Vom",
     "common.cc": "Cc",
     "common.bcc": "Bcc",
+    "common.subject": "Betreff",
     "common.save": "Speichern",
     "common.print": "Drucken",
     "common.delete": "Löschen",

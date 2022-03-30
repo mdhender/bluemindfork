@@ -13,6 +13,7 @@
     "common.from_date": "From",
     "common.cc": "Cc",
     "common.bcc": "Bcc",
+    "common.subject": "Subject",
     "common.save": "Save",
     "common.print": "Print",
     "common.delete": "Delete",

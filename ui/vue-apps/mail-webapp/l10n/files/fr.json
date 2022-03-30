@@ -226,7 +226,7 @@
     "mail.compose.forward.body": "---- Message Original ----",
     "mail.compose.forward.prev.message.info.date": "Date",
     "mail.compose.forward.prev.message.info.from": "De",
-    "mail.compose.forward.prev.message.info.subject": "Sujet",
+    "mail.compose.forward.prev.message.info.subject": "Objet",
     "mail.compose.forward.prev.message.info.to": "\u00C0",
     "mail.compose.reply.body": "Le {date}, {name} a écrit :",
     "mail.content.alert.images.blocked": "Les images distantes sont bloquées pour protéger votre vie privée.",
@@ -345,7 +345,6 @@
     "mail.new.images.drop.zone": "Déposer votre image directement dans le message | Déposer vos images directement dans le message",
     "mail.new.subject.aria": "Sujet du message",
     "mail.new.subject.placeholder": "Objet",
-    "mail.new.subject": "Sujet",
     "mail.new.to.placeholder": "Ajouter un ou des destinataires",
     "mail.preview.message": "Message",
     "mail.preview.previous": "Afficher la pièce jointe précédente",
@@ -357,7 +356,7 @@
     "mail.toolbar.more.aria": "Autres actions possibles sur la sélection",
     "mail.toolbar.more": "Autres",
     "mail.toolbar.move.tooltip": "Déplacer le message",
-    "mail.viewer.no.subject": "(Pas de sujet)",
+    "mail.viewer.no.subject": "(Pas d'objet)",
     "mail.viewer.no.preview": "(Pas d'aperçu disponible)",
     "mail": {
         "actions": {

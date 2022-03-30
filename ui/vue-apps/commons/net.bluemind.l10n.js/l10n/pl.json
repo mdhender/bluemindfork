@@ -8,6 +8,7 @@
     "common.from_date": "Od",
     "common.cc": "DW",
     "common.bcc": "UDW",
+    "common.subject": "Temat",
     "common.save": "Zachowaj",
     "common.delete": "Usuń",
     "common.attachments": "1 załącznik | {count} załączników",

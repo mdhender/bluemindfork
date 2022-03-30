@@ -13,6 +13,7 @@
     "common.from_date": "Du",
     "common.cc": "Cc",
     "common.bcc": "Cci",
+    "common.subject": "Objet",
     "common.save": "Enregistrer",
     "common.print": "Imprimer",
     "common.delete": "Supprimer",

@@ -5,7 +5,7 @@
         </bm-form-checkbox>
         <div v-if="!collapsed" :class="{ disabled: !value.enabled }">
             <bm-form-group
-                :label="$t('mail.new.subject')"
+                :label="$t('common.subject')"
                 label-for="subject"
                 :invalid-feedback="$t('preferences.mail.automatic_reply.invalid_empty_subject')"
                 :state="subjectInputState"
