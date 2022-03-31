@@ -87,7 +87,7 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 			String client = "client-" + idx;
 			proms[i] = CompletableFuture.<Long>supplyAsync(() -> {
 				logger.info("Starting {} for topic {}", client, topicName);
-				return consumeLoop(handler, parStrat.forWorker(idx), group, client);
+				return consumeLoop(handler, parStrat, group, client);
 			}, pool);
 		}
 		CompletableFuture.allOf(proms).join();

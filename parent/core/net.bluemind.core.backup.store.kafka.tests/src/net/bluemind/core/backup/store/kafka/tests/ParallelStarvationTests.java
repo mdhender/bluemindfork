@@ -18,7 +18,6 @@
 package net.bluemind.core.backup.store.kafka.tests;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.CompletableFuture;
@@ -41,9 +40,8 @@ public class ParallelStarvationTests {
 			return ExpectedBehaviour.ABORT;
 		};
 		ParallelStarvationHandler psh = new ParallelStarvationHandler(delegate, 2);
-		IRecordStarvationStrategy worker0 = psh.forWorker(0);
-		IRecordStarvationStrategy worker1 = psh.forWorker(1);
-		assertNotEquals(worker0, worker1);
+		IRecordStarvationStrategy worker0 = psh;
+		IRecordStarvationStrategy worker1 = psh;
 
 		// only worker2 starves...
 		worker1.onStarvation(new JsonObject().put("records", 42L));
@@ -69,9 +67,8 @@ public class ParallelStarvationTests {
 			return ExpectedBehaviour.ABORT;
 		};
 		ParallelStarvationHandler psh = new ParallelStarvationHandler(delegate, 2);
-		IRecordStarvationStrategy worker0 = psh.forWorker(0);
-		IRecordStarvationStrategy worker1 = psh.forWorker(1);
-		assertNotEquals(worker0, worker1);
+		IRecordStarvationStrategy worker0 = psh;
+		IRecordStarvationStrategy worker1 = psh;
 
 		// only worker2 starves...
 		worker0.onStarvation(new JsonObject().put("records", 42L));

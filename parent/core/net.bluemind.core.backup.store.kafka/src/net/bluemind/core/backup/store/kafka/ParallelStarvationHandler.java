@@ -18,6 +18,7 @@
 package net.bluemind.core.backup.store.kafka;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
@@ -36,72 +37,66 @@ import net.bluemind.core.backup.continuous.IRecordStarvationStrategy;
  * workers starved in the last second.
  *
  */
-public class ParallelStarvationHandler {
+public class ParallelStarvationHandler implements IRecordStarvationStrategy {
+
+	private static final IRecordStarvationStrategy ABORT_STRAT = new IRecordStarvationStrategy() {
+
+		@Override
+		public ExpectedBehaviour onStarvation(JsonObject infos) {
+			return ExpectedBehaviour.ABORT;
+		}
+
+		@Override
+		public String toString() {
+			return "ABORT_START";
+		}
+
+	};
 
 	private static final Logger logger = LoggerFactory.getLogger(ParallelStarvationHandler.class);
-	private AtomicReference<IRecordStarvationStrategy> delegate;
-	private final long[] lastStarvations;
-	private final boolean[] oneStarvation;
-	private final IRecordStarvationStrategy[] workers;
-	private final RateLimiter rateLimitLog;
+	private final AtomicReference<IRecordStarvationStrategy> delegate;
+	private final AtomicLong lastRec;
+	private final AtomicLong lastStarv;
+	private RateLimiter logRateLimit;
 
 	public ParallelStarvationHandler(IRecordStarvationStrategy starved, int worker) {
 		this.delegate = new AtomicReference<>(starved);
-		this.rateLimitLog = RateLimiter.create(0.25);
-		this.oneStarvation = new boolean[worker];
-		this.lastStarvations = new long[worker];
-		this.workers = new IRecordStarvationStrategy[worker];
-		for (int i = 0; i < worker; i++) {
-			final int idx = i;
+		this.lastRec = new AtomicLong(System.nanoTime());
+		this.lastStarv = new AtomicLong();
+		this.logRateLimit = RateLimiter.create(0.25);
 
-			this.workers[idx] = new IRecordStarvationStrategy() {
-
-				@Override
-				public void onRecordsReceived(JsonObject metas) {
-					System.err.println("Records for " + idx);
-					synchronized (lastStarvations) {
-						oneStarvation[idx] = false;
-					}
-				}
-
-				@Override
-				public ExpectedBehaviour onStarvation(JsonObject infos) {
-					long now = System.nanoTime();
-					System.err.println("starved " + idx);
-					synchronized (lastStarvations) {
-						boolean wasStarved = oneStarvation[idx];
-						oneStarvation[idx] = true;
-						if (!wasStarved) {
-							lastStarvations[idx] = now;
-						}
-						for (int j = 0; j < worker; j++) {
-							if (!oneStarvation[j] || now - lastStarvations[j] < TimeUnit.SECONDS.toNanos(1)) {
-								logger.info("Worker {} still getting records ({}ms ago)", j,
-										TimeUnit.NANOSECONDS.toMillis(now - lastStarvations[j]));
-								return ExpectedBehaviour.RETRY;
-							} else {
-								if (rateLimitLog.tryAcquire()) {
-									logger.info("Worker {} starved.", j);
-								}
-							}
-						}
-					}
-					// when the delegate decides to abort, we always abort & stop calling it
-					synchronized (delegate) {
-						ExpectedBehaviour result = delegate.get().onStarvation(infos);
-						if (result == ExpectedBehaviour.ABORT) {
-							delegate.set((JsonObject noop) -> ExpectedBehaviour.ABORT);
-						}
-						return result;
-					}
-				}
-
-			};
-
-		}
 	}
 
-	public IRecordStarvationStrategy forWorker(int idx) {
-		return workers[idx];
+	@Override
+	public void onRecordsReceived(JsonObject metas) {
+		lastRec.set(System.nanoTime());
+	}
+
+	@Override
+	public ExpectedBehaviour onStarvation(JsonObject infos) {
+		lastStarv.set(System.nanoTime());
+		long deltaNanos = lastStarv.get() - lastRec.get();
+		if (logRateLimit.tryAcquire()) {
+			logger.info("Delta between lastStarvation & lastRecord is {}ms.",
+					TimeUnit.NANOSECONDS.toMillis(deltaNanos));
+		}
+		if (deltaNanos > TimeUnit.SECONDS.toNanos(1)) {
+			logger.info("Calling into parent delegate {} (delta {}ms)", delegate.get(),
+					TimeUnit.NANOSECONDS.toMillis(deltaNanos));
+			// when the delegate decides to abort, we always abort & stop calling it
+			synchronized (delegate) {
+				IRecordStarvationStrategy del = delegate.get();
+				ExpectedBehaviour result = del.onStarvation(infos);
+				if (result == ExpectedBehaviour.ABORT) {
+					if (del != ABORT_STRAT) {
+						logger.info("{} decided to abort.", delegate.get());
+					}
+					delegate.set(ABORT_STRAT);
+				}
+				return result;
+			}
+		} else {
+			return ExpectedBehaviour.RETRY;
+		}
 	}
 }
