@@ -116,9 +116,9 @@ public class VCardStream implements ReadStream<Buffer> {
 				currentCardIterator = cards.get(serviceContainer).iterator();
 			}
 
-			List<String> toRead = new ArrayList<>(1000);
+			List<String> toRead = new ArrayList<>(10);
 			int length = 0;
-			while (currentCardIterator.hasNext() && length < 1000) {
+			while (currentCardIterator.hasNext() && length < 10) {
 				toRead.add(currentCardIterator.next());
 				length++;
 			}
