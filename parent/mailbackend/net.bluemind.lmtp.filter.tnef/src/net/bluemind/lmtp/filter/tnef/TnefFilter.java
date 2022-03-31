@@ -107,6 +107,11 @@ public class TnefFilter implements IMessageFilter {
 
 	private Message rewriteWinmail(String endpoint, String email, SingleBody tnef) {
 
+		if (email.startsWith("+")) {
+			logger.warn("TNEF in mailshare is unsupported ({})", email);
+			return null;
+		}
+
 		logger.info("Use {} to process tnef sent to {}, body is {}", endpoint, email, tnef.getClass());
 		IAuthentication authApi = apiProv.get().instance(IAuthentication.class);
 		LoginResponse sudo = authApi.su(email);
