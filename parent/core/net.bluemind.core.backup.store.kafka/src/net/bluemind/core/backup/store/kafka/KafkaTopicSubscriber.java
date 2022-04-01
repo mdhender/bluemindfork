@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.BiConsumer;
@@ -36,6 +37,7 @@ import net.bluemind.metrics.registry.IdFactory;
 public class KafkaTopicSubscriber implements TopicSubscriber {
 
 	private static final Logger logger = LoggerFactory.getLogger(KafkaTopicSubscriber.class);
+	private static final AtomicInteger CONS_ID_ALLOCATOR = new AtomicInteger();
 
 	private final String bootstrapServer;
 	private final String topicName;
@@ -82,9 +84,10 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 		String group = tok.groupId;
 
 		ParallelStarvationHandler parStrat = new ParallelStarvationHandler(strat, tok.workers);
+		int consumerId = CONS_ID_ALLOCATOR.incrementAndGet();
 		for (int i = 0; i < tok.workers; i++) {
 			final int idx = i;
-			String client = "client-" + idx;
+			String client = "cons-" + consumerId + "-client-" + idx;
 			proms[i] = CompletableFuture.<Long>supplyAsync(() -> {
 				logger.info("Starting {} for topic {}", client, topicName);
 				return consumeLoop(handler, parStrat, group, client);
@@ -156,14 +159,12 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 	private void reportLag(String gid, String cid, KafkaConsumer<byte[], byte[]> consumer) {
 		Gauge gauge = reg.gauge(idFactory.name("lag", "groupAndClient", gid + "-" + cid));
 		LongAdder sum = new LongAdder();
-		consumer.assignment().forEach(tp -> {
-			consumer.currentLag(tp).ifPresent(lag -> {
-				if (lag > 0) {
-					logger.info("**** LAG part {} => {}", tp.partition(), lag);
-				}
-				sum.add(lag);
-			});
-		});
+		consumer.assignment().forEach(tp -> consumer.currentLag(tp).ifPresent(lag -> {
+			if (lag > 0) {
+				logger.info("**** LAG part {} => {}", tp.partition(), lag);
+			}
+			sum.add(lag);
+		}));
 		gauge.set(sum.doubleValue());
 
 	}

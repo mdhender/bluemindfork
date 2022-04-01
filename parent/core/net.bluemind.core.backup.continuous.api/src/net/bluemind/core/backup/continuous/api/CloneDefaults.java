@@ -23,5 +23,10 @@ public class CloneDefaults {
 	}
 
 	public static final String MARKER_FILE_PATH = "/etc/bm/continuous.clone"; // NOSONAR
+	public static final String FORK_MARKER_PATH = "/etc/bm/continuous.fork"; // NOSONAR
+
+	public static final String TARGET_MCAST_ID = "/etc/bm/mcast.id.clone"; // NOSONAR
+
+	public static final String CLONE_STATE_PATH = "/etc/bm/clone.state.json"; // NOSONAR
 
 }

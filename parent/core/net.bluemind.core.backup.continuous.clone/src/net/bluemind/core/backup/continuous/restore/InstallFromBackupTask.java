@@ -38,6 +38,7 @@ import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.IBackupReader;
 import net.bluemind.core.backup.continuous.ILiveBackupStreams;
 import net.bluemind.core.backup.continuous.ILiveStream;
+import net.bluemind.core.backup.continuous.api.CloneDefaults;
 import net.bluemind.core.backup.continuous.restore.domains.DomainRestorationHandler;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.backup.continuous.restore.mbox.DefaultSdsStoreLoader;
@@ -62,7 +63,7 @@ public class InstallFromBackupTask implements IServerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(InstallFromBackupTask.class);
 
-	private final String installationId;
+	private final String sourceMcastId;
 	private final IBackupReader backupStore;
 	private final TopologyMapping topologyMapping;
 	private final IServiceProvider target;
@@ -83,7 +84,7 @@ public class InstallFromBackupTask implements IServerTask {
 	@VisibleForTesting
 	public InstallFromBackupTask(CloneConfiguration conf, IBackupReader store, SysconfOverride over,
 			TopologyMapping map, ISdsStoreLoader sdsAccess, IServiceProvider target) {
-		this.installationId = conf.sourceInstallationId;
+		this.sourceMcastId = conf.sourceInstallationId;
 		this.cloneConf = conf;
 		this.target = target;
 		this.processedStreams = new HashMap<>();
@@ -103,9 +104,9 @@ public class InstallFromBackupTask implements IServerTask {
 
 		monitor.begin(2, "Topology, domains then directories...");
 
-		Path cloneStatePath = Paths.get("/etc/bm", "clone.state.json");
+		Path cloneStatePath = Paths.get(CloneDefaults.CLONE_STATE_PATH);
 
-		ILiveBackupStreams streams = backupStore.forInstallation(installationId);
+		ILiveBackupStreams streams = backupStore.forInstallation(sourceMcastId);
 		ILiveStream orphansStream = streams.orphans();
 		CloneState cloneState = new CloneState(cloneStatePath, orphansStream);
 
@@ -134,7 +135,7 @@ public class InstallFromBackupTask implements IServerTask {
 	}
 
 	public ClonedOrphans cloneOrphans(IServerTaskMonitor monitor, ILiveStream orphansStream, CloneState cloneState) {
-		monitor.begin(3, "Cloning orphans (cross-domain data) of installation " + installationId);
+		monitor.begin(3, "Cloning orphans (cross-domain data) of installation " + sourceMcastId);
 		Map<String, List<DataElement>> orphansByType = new HashMap<>();
 		IResumeToken prevState = cloneState.forTopic(orphansStream);
 		monitor.log("IGNORE prevState for " + orphansStream + " -> " + prevState);
@@ -143,15 +144,15 @@ public class InstallFromBackupTask implements IServerTask {
 
 		String coreTok = new RestoreToken().restore(monitor,
 				orphansByType.getOrDefault("installation", new ArrayList<>()));
-		Map<String, PromotingServer> topology = new RestoreTopology(installationId, target, topologyMapping, coreTok)
-				.restore(monitor, orphansByType.getOrDefault("installation", new ArrayList<>()));
+		Map<String, PromotingServer> topology = new RestoreTopology(target, topologyMapping).restore(monitor,
+				orphansByType.getOrDefault("installation", new ArrayList<>()));
 		System.err.println("topo is " + topology);
 
 		new RestoreContainerItemIdSeq(topology.values()).restore(monitor,
 				orphansByType.getOrDefault("container_item_id_seq", new ArrayList<>()));
 
-		Map<String, ItemValue<Domain>> domains = new RestoreDomains(installationId, target, topology.values())
-				.restore(monitor, orphansByType.getOrDefault("domains", new ArrayList<>()));
+		Map<String, ItemValue<Domain>> domains = new RestoreDomains(target, topology.values()).restore(monitor,
+				orphansByType.getOrDefault("domains", new ArrayList<>()));
 
 		SystemConf sysconf = new RestoreSysconf(target, confOver).restore(monitor,
 				orphansByType.getOrDefault("sysconf", new ArrayList<>()));

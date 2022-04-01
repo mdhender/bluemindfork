@@ -50,29 +50,22 @@ public class RestoreTopology {
 
 	private static final Logger logger = LoggerFactory.getLogger(RestoreTopology.class);
 
-	private final String installationId;
 	private final IServiceProvider target;
 	private final TopologyMapping topologyMapping;
-
-	private String coreTok;
 
 	public class PromotingServer {
 		public ItemValue<Server> leader;
 		public ItemValue<Server> clone;
 	}
 
-	public RestoreTopology(String installationId, IServiceProvider target, TopologyMapping topologyMapping,
-			String coreTok) {
-		this.installationId = installationId;
+	public RestoreTopology(IServiceProvider target, TopologyMapping topologyMapping) {
 		this.target = target;
 		this.topologyMapping = topologyMapping;
-		this.coreTok = coreTok;
 	}
 
 	public Map<String, PromotingServer> restore(IServerTaskMonitor monitor, List<DataElement> servers) {
 		ValueReader<ItemValue<Server>> topoReader = JsonUtils.reader(new TypeReference<ItemValue<Server>>() {
 		});
-		logger.info("Get IServer API for installation {}", installationId);
 		IServer topoApi = target.instance(IServer.class, "default");
 		AtomicBoolean resetES = new AtomicBoolean();
 		List<PromotingServer> touched = new LinkedList<>();

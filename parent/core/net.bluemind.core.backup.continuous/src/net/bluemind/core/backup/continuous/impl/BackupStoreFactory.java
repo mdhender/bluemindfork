@@ -30,6 +30,7 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 	private static final Logger logger = LoggerFactory.getLogger(BackupStoreFactory.class);
 
 	private static final File CLONE_MARKER = new File(CloneDefaults.MARKER_FILE_PATH);
+	private static final File FORK_MARKER = new File(CloneDefaults.FORK_MARKER_PATH);
 
 	private final TopicNames names;
 	private final ITopicStore topicStore;
@@ -61,12 +62,19 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 	}
 
 	private boolean isNoop(TopicDescriptor descriptor) {
-		boolean ret = !election.get().isLeader() || CLONE_MARKER.exists() || disabledFromSystemPropperty()
+		boolean ret = !election.get().isLeader() || disabledByMarker() || disabledFromSystemPropperty()
 				|| "global.virt".equals(descriptor.domainUid());
 		if (logger.isDebugEnabled() && ret) {
 			logger.debug("noop for {}", descriptor);
 		}
 		return ret;
+	}
+
+	private boolean disabledByMarker() {
+		if (FORK_MARKER.exists()) {
+			return false;
+		}
+		return CLONE_MARKER.exists();
 	}
 
 	@Override

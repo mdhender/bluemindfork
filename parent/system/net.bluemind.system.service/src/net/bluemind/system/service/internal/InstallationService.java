@@ -279,13 +279,13 @@ public class InstallationService implements IInstallation {
 		if (f.exists()) {
 			logger.warn("mcast.id is already present, we create a new installation on an existing one !");
 		}
-		File clone = new File("/etc/bm/mcast.id.clone");
+		File clone = new File(CloneDefaults.TARGET_MCAST_ID);
 		boolean cloning = clone.exists();
 		try {
 			if (cloning) {
 				StateContext.setState("core.cloning.start");
 				logger.info("Using mcast.id.clone for installation");
-				Files.move(clone.toPath(), f.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				Files.copy(clone.toPath(), f.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			} else {
 				StateContext.setState("core.upgrade.start");
 				Files.write(f.toPath(), UUID.randomUUID().toString().getBytes());

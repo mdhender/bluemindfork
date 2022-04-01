@@ -45,18 +45,16 @@ public class RestoreDomains {
 
 	private static final Logger logger = LoggerFactory.getLogger(RestoreDomains.class);
 
-	private final String installationId;
 	private final IServiceProvider target;
 	private final Collection<PromotingServer> servers;
 
-	public RestoreDomains(String installationId, IServiceProvider target, Collection<PromotingServer> servers) {
-		this.installationId = installationId;
+	public RestoreDomains(IServiceProvider target, Collection<PromotingServer> servers) {
 		this.target = target;
 		this.servers = servers;
 	}
 
 	public Map<String, ItemValue<Domain>> restore(IServerTaskMonitor monitor, List<DataElement> domains) {
-		IServer topoApi = target.instance(IServer.class, installationId);
+		IServer topoApi = target.instance(IServer.class, "default");
 		ValueReader<ItemValue<Domain>> domReader = JsonUtils.reader(new TypeReference<ItemValue<Domain>>() {
 		});
 		ValueReader<ItemValue<DomainSettings>> setReader = JsonUtils

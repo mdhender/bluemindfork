@@ -49,6 +49,8 @@ public class CloneConfiguration {
 
 	public String sourceInstallationId;
 
+	public String targetInstallationId;
+
 	public Map<String, String> uidToIpMapping = Collections.emptyMap();
 
 	public Map<String, String> sysconfOverride = Collections.emptyMap();
