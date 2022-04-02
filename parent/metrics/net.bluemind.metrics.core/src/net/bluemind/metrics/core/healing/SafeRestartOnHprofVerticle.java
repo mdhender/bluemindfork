@@ -3,6 +3,7 @@ package net.bluemind.metrics.core.healing;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,13 +58,16 @@ public class SafeRestartOnHprofVerticle extends AbstractVerticle {
 				if (id.alertSubId.contains("hprof")) {
 					for (Product prod : handledProds) {
 						if (prod.name.equals(id.product.name)) {
-							logger.info("Handling hprof for product {}", prod.name);
-							ServerSideServiceProvider prov = ServerSideServiceProvider
-									.getProvider(SecurityContext.SYSTEM);
-							IServer serverApi = prov.instance(IServer.class, InstallationId.getIdentifier());
-							CommandStatus status = serverApi.submitAndWait(id.datalocation,
-									"service " + prod.name + " restart");
-							logger.info("Handled hprof for {} on {}, {}", prod.name, id.datalocation, status.output);
+							vertx.setTimer(TimeUnit.SECONDS.toMillis(20), tid -> {
+								logger.info("Handling hprof for product {}", prod.name);
+								ServerSideServiceProvider prov = ServerSideServiceProvider
+										.getProvider(SecurityContext.SYSTEM);
+								IServer serverApi = prov.instance(IServer.class, InstallationId.getIdentifier());
+								CommandStatus status = serverApi.submitAndWait(id.datalocation,
+										"service " + prod.name + " restart");
+								logger.info("Handled hprof for {} on {}, {}", prod.name, id.datalocation,
+										status.output);
+							});
 						}
 					}
 				}

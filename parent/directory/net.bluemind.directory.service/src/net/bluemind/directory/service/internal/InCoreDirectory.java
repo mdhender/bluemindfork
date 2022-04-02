@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.ContainerChangeset;
+import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider.IServerSideServiceFactory;
@@ -72,6 +74,11 @@ public class InCoreDirectory implements IInCoreDirectory {
 		this.context = context;
 		this.domainUid = domainUid;
 		this.itemStore = new DirEntryStoreService(this.context, dirContainer, domainUid);
+	}
+
+	@Override
+	public ContainerChangeset<ItemIdentifier> fullChangeset() throws ServerFault {
+		return itemStore.fullChangesetById(0L, Long.MAX_VALUE);
 	}
 
 	@Override

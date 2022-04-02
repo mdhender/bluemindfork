@@ -11,7 +11,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.function.BiConsumer;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -30,7 +29,9 @@ import net.bluemind.config.InstallationId;
 import net.bluemind.core.backup.continuous.IRecordStarvationStrategy;
 import net.bluemind.core.backup.continuous.IRecordStarvationStrategy.ExpectedBehaviour;
 import net.bluemind.core.backup.continuous.RecordStarvationStrategies;
+import net.bluemind.core.backup.continuous.api.CloneDefaults;
 import net.bluemind.core.backup.continuous.store.ITopicStore.IResumeToken;
+import net.bluemind.core.backup.continuous.store.RecordHandler;
 import net.bluemind.core.backup.continuous.store.TopicSubscriber;
 import net.bluemind.metrics.registry.IdFactory;
 
@@ -57,22 +58,23 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 	}
 
 	@Override
-	public IResumeToken subscribe(BiConsumer<byte[], byte[]> de) {
+	public IResumeToken subscribe(RecordHandler de) {
 		return subscribe(null, de);
 	}
 
 	@Override
-	public IResumeToken subscribe(IResumeToken index, BiConsumer<byte[], byte[]> handler) {
+	public IResumeToken subscribe(IResumeToken index, RecordHandler handler) {
 		return subscribe(index, handler, RecordStarvationStrategies.EARLY_ABORT);
 	}
 
 	@Override
-	public IResumeToken subscribe(IResumeToken index, BiConsumer<byte[], byte[]> handler,
-			IRecordStarvationStrategy strat) {
+	public IResumeToken subscribe(IResumeToken index, RecordHandler handler, IRecordStarvationStrategy strat) {
 
 		KafkaToken tok = (KafkaToken) index;
 		if (tok == null) {
-			int split = Math.max(4, Runtime.getRuntime().availableProcessors() - 2);
+			String splitProp = System.getProperty(CloneDefaults.WORKERS_SYSPROP,
+					"" + Math.max(4, Runtime.getRuntime().availableProcessors() - 2));
+			int split = Integer.parseInt(splitProp);
 			tok = new KafkaToken("clone-" + UUID.randomUUID().toString().replace("-", "") + "-of-"
 					+ InstallationId.getIdentifier().replace("bluemind-", ""), split);
 		}
@@ -98,8 +100,7 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 		return tok;
 	}
 
-	private long consumeLoop(BiConsumer<byte[], byte[]> handler, IRecordStarvationStrategy strat, String gid,
-			String cid) {
+	private long consumeLoop(RecordHandler handler, IRecordStarvationStrategy strat, String gid, String cid) {
 		AtomicLong processed = new AtomicLong();
 		boolean assigned = false;
 
@@ -138,15 +139,16 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 				} else {
 					strat.onRecordsReceived(new JsonObject().put("topic", topicName));
 				}
-
-				someRecords.forEach(rec -> {
-					try {
-						handler.accept(rec.key(), rec.value());
-						processed.incrementAndGet();
-					} catch (Exception e) {
-						logger.error("handler {} failed, SHOULD exit(1)...", handler, e);
-
-					}
+				logger.info("Fresh batch of {} record(s)", someRecords.count());
+				someRecords.partitions().forEach(part -> {
+					someRecords.records(part).forEach(rec -> {
+						try {
+							handler.accept(rec.key(), rec.value(), rec.partition(), rec.offset());
+							processed.incrementAndGet();
+						} catch (Throwable e) {
+							logger.error("handler {} failed, SHOULD exit(1)...", handler, e);
+						}
+					});
 				});
 				reportLag(gid, cid, consumer);
 				consumer.commitAsync();
@@ -175,7 +177,10 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 	}
 
 	private KafkaConsumer<byte[], byte[]> createKafkaConsumer(String group, String clientId) {
-		logger.warn("bootstrap: {}, clientId: {}, inst: {}", bootstrapServer, clientId, InstallationId.getIdentifier());
+		if (logger.isDebugEnabled()) {
+			logger.debug("bootstrap: {}, clientId: {}, inst: {}", bootstrapServer, clientId,
+					InstallationId.getIdentifier());
+		}
 		Properties cp = new Properties();
 		cp.setProperty("bootstrap.servers", bootstrapServer);
 		cp.setProperty("group.id", group);

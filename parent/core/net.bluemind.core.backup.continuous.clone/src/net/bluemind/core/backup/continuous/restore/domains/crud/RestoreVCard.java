@@ -17,13 +17,19 @@
  */
 package net.bluemind.core.backup.continuous.restore.domains.crud;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import net.bluemind.addressbook.api.AddressBookDescriptor;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.IAddressBookUids;
+import net.bluemind.addressbook.api.IAddressBooksMgmt;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
+import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.utils.JsonUtils;
@@ -35,6 +41,8 @@ public class RestoreVCard extends CrudRestore<VCard> {
 	private static final ValueReader<ItemValue<VCard>> reader = JsonUtils.reader(new TypeReference<ItemValue<VCard>>() {
 	});
 	private final IServiceProvider target;
+
+	Set<String> validatedBooks = ConcurrentHashMap.newKeySet();
 
 	public RestoreVCard(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
 		super(log, domain);
@@ -53,6 +61,15 @@ public class RestoreVCard extends CrudRestore<VCard> {
 
 	@Override
 	protected IAddressBook api(ItemValue<Domain> domain, RecordKey key) {
+		if (!validatedBooks.contains(key.uid)) {
+			IContainers contApi = target.instance(IContainers.class);
+			if (contApi.getIfPresent(key.uid) == null) {
+				IAddressBooksMgmt mgmtApi = target.instance(IAddressBooksMgmt.class);
+				mgmtApi.create(key.uid, AddressBookDescriptor.create("book-" + key.uid, key.owner, domain.uid), false);
+				validatedBooks.add(key.uid);
+			}
+		}
+
 		return target.instance(IAddressBook.class, key.uid);
 	}
 

@@ -102,7 +102,8 @@ public class InstallFromBackupTask implements IServerTask {
 	@Override
 	public void run(IServerTaskMonitor monitor) throws Exception {
 
-		monitor.begin(2, "Topology, domains then directories...");
+		monitor.begin(100, "Topology, domains then directories...");
+		System.setProperty(CloneDefaults.WORKERS_SYSPROP, "" + cloneConf.cloneWorkers);
 
 		Path cloneStatePath = Paths.get(CloneDefaults.CLONE_STATE_PATH);
 
@@ -114,7 +115,7 @@ public class InstallFromBackupTask implements IServerTask {
 
 		List<ILiveStream> domainStreams = streams.domains();
 		ISdsSyncStore sdsStore = sdsAccess.forSysconf(orphans.sysconf);
-		cloneDomains(monitor.subWork(1), domainStreams, cloneState, orphans, sdsStore);
+		cloneDomains(monitor.subWork(99), domainStreams, cloneState, orphans, sdsStore);
 	}
 
 	public static class ClonedOrphans {
@@ -186,8 +187,8 @@ public class InstallFromBackupTask implements IServerTask {
 				IResumeToken domainStreamIndex = domainPrevIndex;
 
 				try (RestoreState state = new RestoreState(domain.uid, orphans.topology)) {
-					DomainRestorationHandler restoration = new DomainRestorationHandler(domainMonitor, domain, target,
-							observers, sdsStore, starvation, state);
+					DomainRestorationHandler restoration = new DomainRestorationHandler(domainMonitor,
+							cloneConf.skippedContainerTypes, domain, target, observers, sdsStore, starvation, state);
 					IResumeToken prevState = cloneState.forTopic(domainStream);
 					monitor.log("prevState for " + domainStream + " => " + prevState);
 					domainStreamIndex = domainStream.subscribe(prevState, restoration::handle, starvation); // , false

@@ -18,15 +18,49 @@
 package net.bluemind.cli.utils;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import com.google.common.base.Strings;
 
 import net.bluemind.cli.cmd.api.CliContext;
+import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 
 public class Tasks {
+
+	private Tasks() {
+
+	}
+
+	/**
+	 * 
+	 * Tracks the tasks stream using the json log chunks.
+	 * 
+	 * Tasks json chunk:
+	 * 
+	 * <pre>
+	 *  {
+	 *	  "done" : 1.3666667000000001,
+	 *	  "total" : 2.0,
+	 *	  "message" : "Domain devenv.blue : f8de2c4a.internal (f8de2c4a.internal) : skipped",
+	 *	  "end" : false
+	 *	}
+	 * </pre>
+	 * 
+	 * @param ctx
+	 * @param ref
+	 * @return a {@link CompletableFuture} to track the end.
+	 */
+	public static CompletableFuture<Void> followStream(CliContext ctx, String prefix, TaskRef ref) {
+		Objects.requireNonNull(ref, () -> prefix + ": null taskref is not possible");
+		ITask trackApi = ctx.longRequestTimeoutAdminApi().instance(ITask.class, ref.id);
+		return new JsonStreams(ctx).consume(VertxStream.read(trackApi.log()), js -> Optional
+				.ofNullable(js.getString("message")).map(s -> "[" + prefix + "]: " + s).ifPresent(ctx::info));
+	}
 
 	public static TaskStatus follow(CliContext ctx, TaskRef ref, String errorMessage) {
 		return follow(ctx, true, ref, errorMessage);

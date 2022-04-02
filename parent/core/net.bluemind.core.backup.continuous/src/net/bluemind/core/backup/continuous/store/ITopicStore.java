@@ -35,6 +35,8 @@ public interface ITopicStore {
 
 	TopicPublisher getPublisher(TopicDescriptor td);
 
+	TopicManager getManager();
+
 	default boolean isEnabled() {
 		return true;
 	}

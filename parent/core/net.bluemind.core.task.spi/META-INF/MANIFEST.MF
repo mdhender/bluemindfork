@@ -6,7 +6,8 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.core.task.service.internal.SpiActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
- slf4j.api
+ slf4j.api,
+ com.google.guava
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.task.spi
 Bundle-ActivationPolicy: lazy

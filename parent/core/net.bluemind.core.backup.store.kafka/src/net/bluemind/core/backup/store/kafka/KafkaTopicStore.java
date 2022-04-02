@@ -21,8 +21,13 @@ package net.bluemind.core.backup.store.kafka;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,6 +38,8 @@ import java.util.stream.Collectors;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.CreateTopicsOptions;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
+import org.apache.kafka.clients.admin.DeleteTopicsOptions;
+import org.apache.kafka.clients.admin.DeleteTopicsResult;
 import org.apache.kafka.clients.admin.ListTopicsOptions;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.admin.TopicListing;
@@ -48,12 +55,13 @@ import net.bluemind.config.DataLocation;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.store.ITopicStore;
+import net.bluemind.core.backup.continuous.store.TopicManager;
 import net.bluemind.core.backup.continuous.store.TopicPublisher;
 import net.bluemind.core.backup.continuous.store.TopicSubscriber;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
-public class KafkaTopicStore implements ITopicStore {
+public class KafkaTopicStore implements ITopicStore, TopicManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(KafkaTopicStore.class);
 	private static final AtomicInteger cidAlloc = new AtomicInteger();
@@ -180,6 +188,58 @@ public class KafkaTopicStore implements ITopicStore {
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
+	}
+
+	@Override
+	public void delete(String topic) {
+		Iterator<Entry<TopicDescriptor, KafkaTopicPublisher>> it = knownPublisher.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<TopicDescriptor, KafkaTopicPublisher> entry = it.next();
+			if (entry.getKey().physicalTopic().equals(topic)) {
+				it.remove();
+			}
+		}
+		Optional.ofNullable(KafkaTopicPublisher.perPhyTopicProd.remove(topic)).ifPresent(prod -> {
+			logger.info("Closing {}", prod);
+			prod.close(Duration.ofSeconds(20));
+		});
+		DeleteTopicsOptions opts = new DeleteTopicsOptions();
+		DeleteTopicsResult result = adminClient.deleteTopics(Collections.singleton(topic), opts);
+		result.all().toCompletionStage().thenAccept(v -> logger.info("Topic {} deleted.", topic)).exceptionally(ex -> {
+			logger.error("Deletion of {} failed ({})", topic, ex.getMessage(), ex);
+			return null;
+		}).toCompletableFuture().join();
+	}
+
+	@Override
+	public void flush(String topic) {
+		Iterator<Entry<TopicDescriptor, KafkaTopicPublisher>> it = knownPublisher.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<TopicDescriptor, KafkaTopicPublisher> entry = it.next();
+			if (entry.getKey().physicalTopic().equals(topic)) {
+				it.remove();
+			}
+		}
+		Optional.ofNullable(KafkaTopicPublisher.perPhyTopicProd.remove(topic)).ifPresent(prod -> {
+			logger.info("Closing {}", prod);
+			prod.close(Duration.ofSeconds(20));
+		});
+	}
+
+	@Override
+	public void reconfigure(String topic, Map<String, String> updatedProps) {
+		logger.info("reconfigure {} is not implemented.");
+
+//		Map<ConfigResource, Collection<AlterConfigOp>> matchTopic=new HashMap<>();
+//		ConfigResource cr=new ConfigResource(Type.TOPIC, topic);
+//		AlterConfigOp op=new AlterConfigOp(entry, OpType.SET);
+//		adminClient.incrementalAlterConfigs(matchTopic);
+
+	}
+
+	@Override
+	public TopicManager getManager() {
+		return this;
 	}
 
 }

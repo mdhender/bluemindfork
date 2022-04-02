@@ -34,6 +34,7 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
 import net.bluemind.core.container.api.IDataShardSupport;
+import net.bluemind.core.container.api.IReadByIdSupport;
 import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.ItemValue;
 
@@ -43,7 +44,8 @@ import net.bluemind.core.container.model.ItemValue;
  */
 @BMApi(version = "3", internal = true)
 @Path("/db_mailbox_records/{replicatedMailboxUid}")
-public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport, ICountingSupport, ISortingSupport {
+public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport, ICountingSupport, ISortingSupport,
+		IReadByIdSupport<MailboxRecord> {
 
 	@GET
 	@Path("{uid}/complete")

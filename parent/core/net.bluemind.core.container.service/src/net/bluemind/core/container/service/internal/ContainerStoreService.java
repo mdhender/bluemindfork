@@ -118,7 +118,13 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		this.weightProvider = wProv;
 		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
 				container.owner, container.type, container.domainUid, container.defaultContainer);
-		this.backupStream = Suppliers.memoize(() -> Providers.get().forContainer(descriptor));
+		this.backupStream = Suppliers.memoize(() -> {
+			IBackupStore<T> store = Providers.get().forContainer(descriptor);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Using {} for {} backup.", store, container);
+			}
+			return store;
+		});
 		this.containerChangeEventProducer = Suppliers
 				.memoize(() -> new ContainerChangeEventProducer(securityContext, VertxPlatform.eventBus(), container));
 	}

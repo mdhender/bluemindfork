@@ -21,9 +21,11 @@ package net.bluemind.calendar.api;
 import javax.ws.rs.Path;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.container.api.IChangelogSupport;
+import net.bluemind.core.container.api.IReadByIdSupport;
 
 @BMApi(version = "3")
 @Path("/users/{domainUid}/{userUid}/calendar-views")
-public interface IUserCalendarViews extends ICalendarView {
+public interface IUserCalendarViews extends ICalendarView, IReadByIdSupport<CalendarView>, IChangelogSupport {
 
 }

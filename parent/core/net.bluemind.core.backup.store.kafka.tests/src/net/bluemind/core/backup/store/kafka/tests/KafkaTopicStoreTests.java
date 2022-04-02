@@ -91,7 +91,7 @@ public class KafkaTopicStoreTests {
 		long fetch = System.currentTimeMillis();
 		AtomicInteger count = new AtomicInteger();
 		TopicSubscriber subscriber = store.getSubscriber("toto-dom.com");
-		IResumeToken token = subscriber.subscribe((key, value) -> {
+		IResumeToken token = subscriber.subscribe((key, value, p, o) -> {
 			count.incrementAndGet();
 			System.err.println("de.payload: " + value);
 		});
@@ -104,7 +104,7 @@ public class KafkaTopicStoreTests {
 		fetch = System.currentTimeMillis();
 		System.err.println("full refetch....");
 		AtomicInteger recount = new AtomicInteger();
-		subscriber.subscribe((key, value) -> {
+		subscriber.subscribe((key, value, p, o) -> {
 			recount.incrementAndGet();
 		});
 		fetch = System.currentTimeMillis() - fetch;
@@ -112,7 +112,7 @@ public class KafkaTopicStoreTests {
 
 		// resume
 		AtomicBoolean called = new AtomicBoolean();
-		subscriber.subscribe(token, (key, value) -> {
+		subscriber.subscribe(token, (key, value, p, o) -> {
 			System.err.println("got " + key);
 			called.set(true);
 		});
@@ -120,7 +120,7 @@ public class KafkaTopicStoreTests {
 
 		laFileDuBedouin.store("any-partition", "key2".getBytes(), "another".getBytes()).join();
 
-		subscriber.subscribe(token, (key, value) -> {
+		subscriber.subscribe(token, (key, value, p, o) -> {
 			System.err.println("got " + key);
 			assertEquals("key2", new String(key));
 			called.set(true);
@@ -161,7 +161,7 @@ public class KafkaTopicStoreTests {
 		assertNotNull(orphansTopicName);
 
 		AtomicBoolean called = new AtomicBoolean();
-		store.getSubscriber(domainTopicName).subscribe((key, value) -> {
+		store.getSubscriber(domainTopicName).subscribe((key, value, p, o) -> {
 			called.set(true);
 		});
 		assertTrue(called.get());

@@ -29,6 +29,7 @@ import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
+import net.bluemind.core.container.api.IReadByIdSupport;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 
@@ -57,7 +58,7 @@ import net.bluemind.core.container.model.ItemValue;
  */
 @BMApi(version = "3")
 @Path("/mail_folders/{partition}/{mailboxRoot}")
-public interface IMailboxFolders extends IBaseMailboxFolders {
+public interface IMailboxFolders extends IBaseMailboxFolders, IReadByIdSupport<MailboxFolder> {
 
 	@GET
 	@Path("{id}/completeById")
@@ -68,11 +69,9 @@ public interface IMailboxFolders extends IBaseMailboxFolders {
 	Ack updateById(@PathParam("id") long id, MailboxFolder value);
 
 	/**
-	 * @param hierId
-	 *                   the numerical id we want to end up with in
-	 *                   {@link IContainersFlatHierarchy}
-	 * @param value
-	 *                   the folder to create
+	 * @param hierId the numerical id we want to end up with in
+	 *               {@link IContainersFlatHierarchy}
+	 * @param value  the folder to create
 	 * @return the identifier allocated in the subtree container
 	 */
 	@PUT
@@ -80,8 +79,7 @@ public interface IMailboxFolders extends IBaseMailboxFolders {
 	ItemIdentifier createForHierarchy(@PathParam("hierarchyId") long hierId, MailboxFolder value);
 
 	/**
-	 * @param value
-	 *                  the folder to create
+	 * @param value the folder to create
 	 * @return the identifier allocated in the subtree container
 	 */
 	@PUT

@@ -8,7 +8,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.kafka.client,
  net.bluemind.config,
  slf4j.api,
- net.bluemind.core.backup.continuous.api,
+ net.bluemind.core.backup.continuous.api;visibility:=reexport,
  net.bluemind.lib.vertx
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.backup.continuous.leader

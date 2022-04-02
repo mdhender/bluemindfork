@@ -95,6 +95,13 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 	}
 
 	@Override
+	public List<ItemValue<MailboxFolder>> multipleGetById(List<Long> ids) {
+		rbac.check(Verb.Read.name());
+
+		return storeService.getMultipleById(ids).stream().map(this::adapt).collect(Collectors.toList());
+	}
+
+	@Override
 	public Ack updateById(long id, MailboxFolder v) {
 		rbac.check(Verb.Write.name());
 

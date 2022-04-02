@@ -150,7 +150,8 @@ public class CyrusService {
 		CyrusPartition part = CyrusPartition.forServerAndDomain(backend, domainUid);
 		String intName = InternalName.forMailbox(domainUid, mbox.value);
 
-		try (SyncClientOIO sync = new SyncClientOIO(backendAddress, 2502)) {
+		try (SyncClientOIO sync = new SyncClientOIO(s -> logger.info("createRoot({}): {}", mbox.value, s),
+				backendAddress, 2502)) {
 			sync.authenticate("admin0", Token.admin0());
 
 			GetMailboxResponse exist = sync.getMailbox(intName);

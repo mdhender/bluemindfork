@@ -18,9 +18,9 @@
 package net.bluemind.core.backup.continuous;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.backup.continuous.store.ITopicStore;
 import net.bluemind.core.backup.continuous.store.ITopicStore.IResumeToken;
+import net.bluemind.core.backup.continuous.store.RecordHandler;
+import net.bluemind.core.backup.continuous.store.TopicManager;
 import net.bluemind.core.backup.continuous.store.TopicPublisher;
 import net.bluemind.core.backup.continuous.store.TopicSubscriber;
 
@@ -64,24 +66,41 @@ public class NoopStore {
 		}
 
 		@Override
-		public IResumeToken subscribe(IResumeToken index, BiConsumer<byte[], byte[]> de,
-				IRecordStarvationStrategy start) {
+		public IResumeToken subscribe(IResumeToken index, RecordHandler de, IRecordStarvationStrategy start) {
 			return index;
 		}
 
 		@Override
-		public IResumeToken subscribe(IResumeToken index, BiConsumer<byte[], byte[]> de) {
+		public IResumeToken subscribe(IResumeToken index, RecordHandler de) {
 			return index;
 		}
 
 		@Override
-		public IResumeToken subscribe(BiConsumer<byte[], byte[]> de) {
+		public IResumeToken subscribe(RecordHandler de) {
 			return NoopToken.INST;
 		}
 
 		@Override
 		public IResumeToken parseToken(JsonObject js) {
 			return NoopToken.INST;
+		}
+	};
+
+	private static final TopicManager NOOP_MGT = new TopicManager() {
+
+		@Override
+		public void delete(String topic) {
+			logger.warn("Noop manager will not delete {}", topic);
+		}
+
+		@Override
+		public void reconfigure(String topic, Map<String, String> updatedProps) {
+			logger.warn("Noop manager will not reconfigure {}", topic);
+		}
+
+		@Override
+		public void flush(String topic) {
+			logger.warn("Noop manager flush()");
 		}
 	};
 
@@ -105,6 +124,11 @@ public class NoopStore {
 		@Override
 		public TopicSubscriber getSubscriber(String topicName) {
 			return NOOP_SUBSCRIBER;
+		}
+
+		@Override
+		public TopicManager getManager() {
+			return NOOP_MGT;
 		}
 	};
 

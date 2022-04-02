@@ -112,6 +112,10 @@ public class CliContext {
 		System.err.println(ansi().fgYellow().a(msg).reset()); // NOSONAR
 	}
 
+	public void warn(String msg, Object... args) {
+		warn(MessageFormatter.arrayFormat(msg, args).getMessage());
+	}
+
 	public void info(String msg) {
 		System.out.println(msg); // NOSONAR
 	}

@@ -43,16 +43,12 @@ public class ExpectCommand {
 		long start = System.currentTimeMillis();
 
 		MessageConsumer<JsonObject> cons = vertx.eventBus().consumer("replication.apply.message");
-		Handler<Message<JsonObject>> handler = new Handler<Message<JsonObject>>() {
+		Handler<Message<JsonObject>> handler = (Message<JsonObject> event) -> {
 
-			@Override
-			public void handle(Message<JsonObject> event) {
-
-				cons.unregister();
-				long elapsed = System.currentTimeMillis() - start;
-				logger.info("APPLY MESSAGE after {}ms", elapsed);
-				ret.complete(null);
-			}
+			cons.unregister();
+			long elapsed = System.currentTimeMillis() - start;
+			logger.info("APPLY MESSAGE after {}ms", elapsed);
+			ret.complete(null);
 		};
 		cons.handler(handler);
 		return ret;
@@ -63,15 +59,11 @@ public class ExpectCommand {
 		long start = System.currentTimeMillis();
 
 		MessageConsumer<JsonObject> cons = vertx.eventBus().consumer("replication.apply.mailbox." + mboxUniqueId);
-		Handler<Message<JsonObject>> handler = new Handler<Message<JsonObject>>() {
-
-			@Override
-			public void handle(Message<JsonObject> event) {
-				cons.unregister();
-				long elapsed = System.currentTimeMillis() - start;
-				logger.info("APPLY MAILBOX completion received for {} after {}ms", mboxUniqueId, elapsed);
-				ret.complete(null);
-			}
+		Handler<Message<JsonObject>> handler = (Message<JsonObject> event) -> {
+			cons.unregister();
+			long elapsed = System.currentTimeMillis() - start;
+			logger.info("APPLY MAILBOX completion received for {} after {}ms", mboxUniqueId, elapsed);
+			ret.complete(null);
 		};
 		cons.handler(handler);
 		logger.info("Handler registered for {}", mboxUniqueId);

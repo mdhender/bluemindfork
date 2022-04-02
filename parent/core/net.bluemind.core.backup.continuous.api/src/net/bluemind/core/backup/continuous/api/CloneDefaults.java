@@ -29,4 +29,8 @@ public class CloneDefaults {
 
 	public static final String CLONE_STATE_PATH = "/etc/bm/clone.state.json"; // NOSONAR
 
+	public static final String DISABLE_SYSPROP = "backup.continuous.store.disabled";
+
+	public static final String WORKERS_SYSPROP = "backup.continuous.clone.workers";
+
 }

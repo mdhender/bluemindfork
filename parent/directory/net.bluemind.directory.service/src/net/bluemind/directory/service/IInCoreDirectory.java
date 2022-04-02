@@ -19,6 +19,8 @@
 package net.bluemind.directory.service;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ContainerChangeset;
+import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.directory.api.BaseDirEntry.AccountType;
 import net.bluemind.directory.api.DirEntry;
 
@@ -27,10 +29,8 @@ public interface IInCoreDirectory {
 	/**
 	 * Creates a new {@link DirEntry} entry.
 	 * 
-	 * @param path
-	 *            path of the entry
-	 * @param entry
-	 *            value of the entry
+	 * @param path  path of the entry
+	 * @param entry value of the entry
 	 * 
 	 * @throws ServerFault
 	 */
@@ -40,10 +40,8 @@ public interface IInCoreDirectory {
 	/**
 	 * Modifies an existing {@link DirEntry} entry.
 	 * 
-	 * @param path
-	 *            path of the entry
-	 * @param entry
-	 *            value of the entry
+	 * @param path  path of the entry
+	 * @param entry value of the entry
 	 * @throws ServerFault
 	 */
 	public void update(String uid, DirEntry entry) throws ServerFault;
@@ -57,4 +55,6 @@ public interface IInCoreDirectory {
 	public void delete(String uid) throws ServerFault;
 
 	public void updateAccountType(String uid, AccountType accountType) throws ServerFault;
+
+	ContainerChangeset<ItemIdentifier> fullChangeset() throws ServerFault;
 }

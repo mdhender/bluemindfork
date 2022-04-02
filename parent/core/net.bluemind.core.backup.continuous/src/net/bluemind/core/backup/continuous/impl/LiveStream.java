@@ -1,7 +1,5 @@
 package net.bluemind.core.backup.continuous.impl;
 
-import java.util.function.BiConsumer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +14,7 @@ import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.TopicDeserializer;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.store.ITopicStore.IResumeToken;
+import net.bluemind.core.backup.continuous.store.RecordHandler;
 import net.bluemind.core.backup.continuous.store.TopicNames;
 import net.bluemind.core.backup.continuous.store.TopicSubscriber;
 
@@ -57,12 +56,14 @@ public class LiveStream implements ILiveStream {
 		return subscriber.subscribe(startOffset, deserialize(handler), onStarve);
 	}
 
-	private BiConsumer<byte[], byte[]> deserialize(Handler<DataElement> handler) {
-		return (keyBytes, valueBytes) -> {
+	private RecordHandler deserialize(Handler<DataElement> handler) {
+		return (keyBytes, valueBytes, part, offset) -> {
 			DataElement de = new DataElement();
 			RecordKey key = deserializer.key(keyBytes);
 			de.key = key;
 			de.payload = valueBytes;
+			de.part = part;
+			de.offset = offset;
 //			de.value = deserializer.value(key, valueBytes);
 			if (de.key.id == 0) {
 				// silent skip

@@ -48,6 +48,7 @@
       <plugin id="com.netflix.hollow"/>
       <plugin id="com.netflix.spectator.api"/>
       <plugin id="com.sun.mail.javax.mail"/>
+      <plugin id="com.typesafe.config"/>
       <plugin id="com.typesafe.netty.reactive-streams"/>
       <plugin id="com.zaxxer.HikariCP"/>
       <plugin id="io.netty"/>
@@ -140,6 +141,9 @@
       <plugin id="net.bluemind.core.backup.continuous.clone"/>
       <plugin id="net.bluemind.core.backup.continuous.dto"/>
       <plugin id="net.bluemind.core.backup.continuous.events"/>
+      <plugin id="net.bluemind.core.backup.continuous.leader"/>
+      <plugin id="net.bluemind.core.backup.continuous.mgmt.api"/>
+      <plugin id="net.bluemind.core.backup.continuous.mgmt.service"/>
       <plugin id="net.bluemind.core.backup.continuous.state"/>
       <plugin id="net.bluemind.core.backup.store.kafka"/>
       <plugin id="net.bluemind.core.bo.report.provider"/>

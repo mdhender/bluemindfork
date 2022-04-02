@@ -716,5 +716,9 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 			throw ServerFault.sqlFault(e);
 		}
 	}
+	
+	public List<ItemValue<MailboxRecord>> multipleGetById(List<Long> ids) {
+		return storeService.getMultipleById(ids);
+	}
 
 }

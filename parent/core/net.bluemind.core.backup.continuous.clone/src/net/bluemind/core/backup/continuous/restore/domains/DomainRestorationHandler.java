@@ -3,6 +3,7 @@ package net.bluemind.core.backup.continuous.restore.domains;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -35,11 +36,13 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 
 	private final RestoreLogger log;
 	private final Map<String, RestoreDomainType> restoresByType;
+	private final Set<String> skip;
 
-	public DomainRestorationHandler(IServerTaskMonitor monitor, ItemValue<Domain> domain, IServiceProvider target,
-			List<IClonePhaseObserver> observers, ISdsSyncStore sdsStore, ISeppukuAckListener byeAck,
-			RestoreState state) {
+	public DomainRestorationHandler(IServerTaskMonitor monitor, Set<String> skip, ItemValue<Domain> domain,
+			IServiceProvider target, List<IClonePhaseObserver> observers, ISdsSyncStore sdsStore,
+			ISeppukuAckListener byeAck, RestoreState state) {
 		this.log = new RestoreLogger(monitor);
+		this.skip = skip;
 		this.restoresByType = Arrays.asList(//
 				new RestoreMailboxRecords(log, sdsStore, state), //
 				new RestoreDirectories(log, domain, target, observers, byeAck, state), //
@@ -70,10 +73,11 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 	public void handle(DataElement event) {
 		RestoreDomainType restore = restoresByType.get(event.key.type);
 		String payload = new String(event.payload);
-		if (restore != null) {
+		if (restore != null && !skip.contains(event.key.type)) {
 			try {
+				log.debug("[{}:{}] Processing {}", event.part, event.offset, event.key);
 				restore.restore(event.key, payload);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.failure(restore.type(), event.key, payload, e);
 				throw e;
 			}

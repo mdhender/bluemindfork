@@ -37,16 +37,18 @@ public class BackupStoreFactory implements IBackupStoreFactory {
 
 	private final Supplier<InstallationWriteLeader> election;
 
-	public BackupStoreFactory(ITopicStore topicStore, Supplier<InstallationWriteLeader> election) {
-		String iid = InstallationId.getIdentifier();
+	public BackupStoreFactory(String iid, ITopicStore topicStore, Supplier<InstallationWriteLeader> election) {
 		this.election = election;
 		this.names = new TopicNames(iid);
 		this.topicStore = topicStore;
 	}
 
+	public BackupStoreFactory(ITopicStore topicStore, Supplier<InstallationWriteLeader> election) {
+		this(InstallationId.getIdentifier(), topicStore, election);
+	}
+
 	private boolean disabledFromSystemPropperty() {
-		return Optional.ofNullable(System.getProperty("backup.continuous.store.disabled")).map(s -> s.equals("true"))
-				.orElse(false);
+		return Optional.ofNullable(System.getProperty(CloneDefaults.DISABLE_SYSPROP)).map("true"::equals).orElse(false);
 	}
 
 	@Override

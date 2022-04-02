@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.api.InstallationWriteLeader;
+import net.bluemind.core.backup.continuous.impl.BackupManager;
 import net.bluemind.core.backup.continuous.impl.BackupReader;
 import net.bluemind.core.backup.continuous.impl.BackupStoreFactory;
 import net.bluemind.core.backup.continuous.leader.DefaultLeader;
@@ -81,8 +82,16 @@ public class DefaultBackupStore {
 		return new BackupStoreFactory(active.store, active.election);
 	}
 
+	public static IBackupStoreFactory store(String baseId) {
+		return new BackupStoreFactory(baseId, active.store, active.election);
+	}
+
 	public static IBackupReader reader() {
 		return new BackupReader(active.store);
+	}
+
+	public static IBackupManager manager() {
+		return new BackupManager(active.store);
 	}
 
 }

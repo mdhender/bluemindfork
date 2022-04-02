@@ -51,10 +51,6 @@ public interface IBaseMailboxFolders extends IChangelogSupport {
 	List<ItemValue<MailboxFolder>> all();
 
 	@POST
-	@Path("_mgetById")
-	List<ItemValue<MailboxFolder>> getMultipleById(List<Long> ids);
-
-	@POST
 	@Path("_search")
 	public SearchResult searchItems(MailboxFolderSearchQuery query);
 

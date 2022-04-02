@@ -19,13 +19,10 @@ package net.bluemind.core.backup.continuous.api;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import net.bluemind.core.container.model.ItemValue;
 
 public interface IBackupStore<T> {
 
-	@VisibleForTesting
 	CompletableFuture<Void> storeRaw(String partitionKey, byte[] key, byte[] raw);
 
 	CompletableFuture<Void> store(ItemValue<T> data);

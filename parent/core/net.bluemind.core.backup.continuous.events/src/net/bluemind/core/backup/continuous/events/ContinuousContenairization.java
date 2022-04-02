@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
+import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
@@ -16,6 +17,10 @@ public interface ContinuousContenairization<T> {
 
 	String type();
 
+	default IBackupStoreFactory targetStore() {
+		return DefaultBackupStore.store();
+	}
+
 	default void save(String domainUid, String ownerUid, String itemUid, T value, boolean created) {
 		ItemValue<T> iv = itemValue(itemUid, value, created);
 		save(domainUid, ownerUid, iv.item(), value);
@@ -24,15 +29,13 @@ public interface ContinuousContenairization<T> {
 	default void save(String domainUid, String ownerUid, Item item, T value) {
 		ContainerDescriptor metaDesc = descriptor(domainUid, ownerUid);
 		ItemValue<T> iv = ItemValue.create(item, value);
-		DefaultBackupStore.store().<T>forContainer(metaDesc).store(iv)
-				.whenComplete((v, ex) -> log("Save", metaDesc, iv, ex));
+		targetStore().<T>forContainer(metaDesc).store(iv).whenComplete((v, ex) -> log("Save", metaDesc, iv, ex));
 	}
 
 	default void delete(String domainUid, String ownerUid, String itemUid, T previous) {
 		ContainerDescriptor metaDesc = descriptor(domainUid, ownerUid);
 		ItemValue<T> iv = itemValue(itemUid, previous, false);
-		DefaultBackupStore.store().<T>forContainer(metaDesc).delete(iv)
-				.whenComplete((v, ex) -> log("Delete", metaDesc, iv, ex));
+		targetStore().<T>forContainer(metaDesc).delete(iv).whenComplete((v, ex) -> log("Delete", metaDesc, iv, ex));
 	}
 
 	default void log(String operation, ContainerDescriptor metaDesc, ItemValue<T> iv, Throwable ex) {

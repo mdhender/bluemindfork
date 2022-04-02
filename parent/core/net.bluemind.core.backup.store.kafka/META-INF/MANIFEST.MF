@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.config,
  com.google.guava,
- net.bluemind.metrics.registry
+ net.bluemind.metrics.registry,
+ com.typesafe.config;bundle-version="1.4.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.backup.store.kafka
 Bundle-ActivationPolicy: lazy

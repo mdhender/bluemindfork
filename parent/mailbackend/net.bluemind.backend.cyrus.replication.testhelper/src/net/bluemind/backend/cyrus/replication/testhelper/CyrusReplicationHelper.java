@@ -90,7 +90,11 @@ public class CyrusReplicationHelper {
 
 			@Override
 			public void log(String s) {
-				logger.info("REPLICATION: {}", s);
+				if (s.contains("bailing out!")) {
+					logger.error("REPLICATION: {}", s);
+				} else {
+					logger.info("REPLICATION: {}", s);
+				}
 			}
 		};
 

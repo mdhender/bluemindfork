@@ -183,8 +183,9 @@ public class ReplicationSession {
 				circuitBreaker.noticeSuccess(this);
 				return result;
 			}).exceptionally(error -> {
-				logger.error("NO {}", error.getMessage(), error);
+				logger.error("NO {} (exiting)", error.getMessage(), error);
 				circuitBreaker.noticeError(this);
+				System.exit(0);
 				return CommandResult.error(error);
 			});
 		} catch (Exception e) {

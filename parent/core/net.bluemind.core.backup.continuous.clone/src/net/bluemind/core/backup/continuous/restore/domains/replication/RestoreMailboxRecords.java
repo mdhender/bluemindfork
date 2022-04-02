@@ -55,7 +55,7 @@ public class RestoreMailboxRecords extends RestoreReplicated implements RestoreD
 
 		ItemValue<Server> server = state.getServer(repl.part.serverUid);
 		String ip = (server != null) ? server.value.ip : "127.0.0.1";
-		try (SyncClientOIO sync = new SyncClientOIO(ip, 2502)) {
+		try (SyncClientOIO sync = new SyncClientOIO(s -> log.debug("restore(" + key + "): " + s), ip, 2502)) {
 			log.applyMailbox(type(), key);
 			sync.authenticate("admin0", Token.admin0());
 			ItemValue<MailboxRecord> rec = recReader.read(payload);

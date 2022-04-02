@@ -20,6 +20,7 @@ package net.bluemind.system.api;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import net.bluemind.core.api.BMApi;
 
@@ -59,5 +60,9 @@ public class CloneConfiguration {
 	 * Defaults to {@link Mode#FORK}
 	 */
 	public Mode mode = Mode.FORK;
+
+	public int cloneWorkers = 4;
+
+	public Set<String> skippedContainerTypes = Collections.emptySet();
 
 }

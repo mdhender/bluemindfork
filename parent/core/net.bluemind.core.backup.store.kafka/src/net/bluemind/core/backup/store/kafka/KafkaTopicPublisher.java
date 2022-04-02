@@ -24,7 +24,7 @@ public class KafkaTopicPublisher implements TopicPublisher {
 	private final String physicalTopic;
 	private final KafkaProducer<byte[], byte[]> producer;
 
-	private static final Map<String, KafkaProducer<byte[], byte[]>> perPhyTopicProd = new ConcurrentHashMap<>();
+	static final Map<String, KafkaProducer<byte[], byte[]>> perPhyTopicProd = new ConcurrentHashMap<>();
 
 	public KafkaTopicPublisher(String bootstrapServer, String physicalTopic) {
 		this.bootstrapServer = bootstrapServer;
@@ -68,6 +68,6 @@ public class KafkaTopicPublisher implements TopicPublisher {
 
 	@Override
 	public String toString() {
-		return MoreObjects.toStringHelper("KafkaTopic").add("name", physicalTopic).toString();
+		return MoreObjects.toStringHelper("KafkaTopic").add("name", physicalTopic).add("prod", producer).toString();
 	}
 }

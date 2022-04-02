@@ -17,13 +17,19 @@
  */
 package net.bluemind.core.backup.continuous.restore.domains.crud;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import net.bluemind.calendar.api.CalendarDescriptor;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
+import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
+import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.utils.JsonUtils;
@@ -35,6 +41,8 @@ public class RestoreVEventSeries extends CrudRestore<VEventSeries> {
 			.reader(new TypeReference<ItemValue<VEventSeries>>() {
 			});
 	private final IServiceProvider target;
+
+	Set<String> validatedCalendars = ConcurrentHashMap.newKeySet();
 
 	public RestoreVEventSeries(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
 		super(log, domain);
@@ -53,6 +61,16 @@ public class RestoreVEventSeries extends CrudRestore<VEventSeries> {
 
 	@Override
 	protected ICalendar api(ItemValue<Domain> domain, RecordKey key) {
+		if (!validatedCalendars.contains(key.uid)) {
+			IContainers contApi = target.instance(IContainers.class);
+			if (contApi.getIfPresent(key.uid) == null) {
+				ICalendarsMgmt mgmtApi = target.instance(ICalendarsMgmt.class);
+				CalendarDescriptor cd = CalendarDescriptor.create("usercal-" + key.uid, key.owner, domain.uid);
+				mgmtApi.create(key.uid, cd);
+				validatedCalendars.add(key.uid);
+			}
+		}
+
 		return target.instance(ICalendar.class, key.uid);
 	}
 

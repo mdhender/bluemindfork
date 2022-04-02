@@ -74,6 +74,7 @@
 		<module>xivo</module>
 	    <module>mailapp</module>
 		<module>videoconferencing</module>
+		<module>kafka</module>
 	</modules>
 
 	<build>

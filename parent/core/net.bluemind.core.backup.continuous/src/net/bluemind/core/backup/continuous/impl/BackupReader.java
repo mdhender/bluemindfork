@@ -38,7 +38,11 @@ public class BackupReader implements IBackupReader {
 				.map(name -> instIdHexToIdentifier(name.substring(0, name.indexOf('-')))).collect(Collectors.toList());
 	}
 
-	private String instIdHexToIdentifier(String s) {
+	private String instIdHexToIdentifier(String iid) {
+		String s = iid;
+		if (s.startsWith("sync")) {
+			s = s.substring(4);
+		}
 		try {
 			ByteBuf uuidBuf = Unpooled.wrappedBuffer(dataFromHex(s));
 			UUID uuid = new UUID(uuidBuf.readLong(), uuidBuf.readLong());
@@ -118,9 +122,10 @@ public class BackupReader implements IBackupReader {
 			@Override
 			public List<ILiveStream> domains() {
 				return domainSubscribers.stream().map(subscriber -> {
-					logger.info("{}:{}", installationid, subscriber.topicName());
-					String[] tokens = subscriber.topicName().split("-");
-					return build(tokens[0], tokens[1], subscriber);
+					String tn = subscriber.topicName();
+					logger.info("{}:{}", installationid, tn);
+					int idx = tn.indexOf('-');
+					return build(tn.substring(0, idx), tn.substring(idx + 1), subscriber);
 				}).collect(Collectors.toList());
 			}
 		};

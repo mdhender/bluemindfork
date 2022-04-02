@@ -178,4 +178,10 @@ public class NoopMailboxRecordService implements IDbMailboxRecords {
 		return Collections.emptyList();
 	}
 
+	@Override
+	public List<ItemValue<MailboxRecord>> multipleGetById(List<Long> ids) {
+		logger.info("NOOP operation IDbMailboxRecords#multipleGetById");
+		return Collections.emptyList();
+	}
+
 }

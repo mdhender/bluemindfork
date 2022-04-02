@@ -18,8 +18,13 @@
  */
 package net.bluemind.core.task.service;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.slf4j.event.Level;
 import org.slf4j.helpers.MessageFormatter;
+
+import com.google.common.base.Splitter;
 
 public interface IServerTaskMonitor {
 
@@ -83,7 +88,13 @@ public interface IServerTaskMonitor {
 	}
 
 	default void log(String log, Throwable t) {
-		log(log);
+		log(log + " (" + t.getMessage() + ")");
+		StringWriter sw = new StringWriter();
+		t.printStackTrace(new PrintWriter(sw));
+		for (String s : Splitter.on('\n').splitToList(sw.toString())) {
+			log(s);
+		}
+
 	}
 
 	default void log(String format, Object... params) {

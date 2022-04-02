@@ -29,6 +29,10 @@ import net.bluemind.mailbox.api.Mailbox;
 
 public class CyrusUniqueIds {
 
+	private CyrusUniqueIds() {
+
+	}
+
 	/**
 	 * Compute the UNIQUEID internal cyrus identifier we want to enforce on default
 	 * folders

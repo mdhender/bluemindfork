@@ -65,7 +65,8 @@ public class RestoreReplicatedMailboxes extends RestoreReplicated implements Res
 		Replica repl = state.storeReplica(domain, mbox, replica, partition);
 		ReplMailbox replicatedMbox = buildReplicatedMailbox(repl);
 
-		try (SyncClientOIO syncClient = new SyncClientOIO(imap.value.address(), 2502)) {
+		try (SyncClientOIO syncClient = new SyncClientOIO(s -> log.debug("restore(" + key + "): " + s),
+				imap.value.address(), 2502)) {
 			log.applyMailbox(type(), key);
 			syncClient.authenticate("admin0", Token.admin0());
 			String syncResponse = syncClient.applyMailbox(replicatedMbox);

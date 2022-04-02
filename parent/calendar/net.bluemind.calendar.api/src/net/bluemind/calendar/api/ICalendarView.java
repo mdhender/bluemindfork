@@ -26,12 +26,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemValue;
 
 /**
@@ -99,15 +97,6 @@ public interface ICalendarView {
 	public ListResult<ItemValue<CalendarView>> list() throws ServerFault;
 
 	/**
-	 * @param since
-	 * @return if successful, return a {@link ContainerChangeset}
-	 * @throws ServerFault
-	 */
-	@GET
-	@Path("_changeset")
-	public ContainerChangeset<String> changeset(@QueryParam("since") Long since) throws ServerFault;
-
-	/**
 	 * Fetch multiple {@link CalendarView}s from theirs uniques uids
 	 * 
 	 * @param uids
@@ -130,12 +119,11 @@ public interface ICalendarView {
 	public void updates(CalendarViewChanges changes) throws ServerFault;
 
 	/**
-	 * Set user the default view. The default view is used when there is no data
-	 * to rely on to initialize calendar display.
+	 * Set user the default view. The default view is used when there is no data to
+	 * rely on to initialize calendar display.
 	 * 
 	 * 
-	 * @param id
-	 *            Default view item uid
+	 * @param id Default view item uid
 	 * @throws ServerFault
 	 */
 	@POST

@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.calendar.api.CalendarView;
 import net.bluemind.calendar.api.CalendarViewChanges;
-import net.bluemind.calendar.api.ICalendarView;
 import net.bluemind.calendar.api.IUserCalendarViews;
 import net.bluemind.calendar.api.internal.IInCoreCalendarView;
 import net.bluemind.calendar.persistence.CalendarViewStore;
@@ -36,14 +35,18 @@ import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
+import net.bluemind.core.container.model.ItemChangelog;
+import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 
-public class CalendarViewService implements ICalendarView, IInCoreCalendarView, IUserCalendarViews {
+public class CalendarViewService implements IInCoreCalendarView, IUserCalendarViews {
 
 	private static final Logger logger = LoggerFactory.getLogger(CalendarViewService.class);
 
@@ -220,5 +223,47 @@ public class CalendarViewService implements ICalendarView, IInCoreCalendarView, 
 	public void setDefault(String id) throws ServerFault {
 		rbacManager.check(Verb.Write.name());
 		storeService.setDefault(id);
+	}
+
+	@Override
+	public ItemValue<CalendarView> getCompleteById(long id) {
+		rbacManager.check(Verb.Read.name());
+		return storeService.get(id, null);
+	}
+
+	@Override
+	public List<ItemValue<CalendarView>> multipleGetById(List<Long> ids) {
+		rbacManager.check(Verb.Read.name());
+		return storeService.getMultipleById(ids);
+	}
+
+	@Override
+	public ItemChangelog itemChangelog(String itemUid, Long since) throws ServerFault {
+		rbacManager.check(Verb.Read.name());
+		return storeService.changelog(itemUid, since, Long.MAX_VALUE);
+	}
+
+	@Override
+	public ContainerChangelog containerChangelog(Long since) throws ServerFault {
+		rbacManager.check(Verb.Read.name());
+		return storeService.changelog(since, Long.MAX_VALUE);
+	}
+
+	@Override
+	public ContainerChangeset<Long> changesetById(Long since) throws ServerFault {
+		rbacManager.check(Verb.Read.name());
+		return storeService.changesetById(since, Long.MAX_VALUE);
+	}
+
+	@Override
+	public ContainerChangeset<ItemVersion> filteredChangesetById(Long since, ItemFlagFilter filter) throws ServerFault {
+		rbacManager.check(Verb.Read.name());
+		return storeService.changesetById(since, filter);
+	}
+
+	@Override
+	public long getVersion() throws ServerFault {
+		rbacManager.check(Verb.Read.name());
+		return storeService.getVersion();
 	}
 }

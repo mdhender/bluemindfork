@@ -1,6 +1,7 @@
 package net.bluemind.core.backup.continuous.restore.domains;
 
 import org.slf4j.event.Level;
+import org.slf4j.helpers.MessageFormatter;
 
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -92,6 +93,11 @@ public class RestoreLogger {
 
 	public void seppuku(String type, RecordKey key) {
 		log(Operation.SEPPUKU, type, null, key, Level.INFO);
+	}
+
+	public void debug(String s, Object... args) {
+		monitor.log(
+				"[" + Thread.currentThread().getName() + "] - " + MessageFormatter.arrayFormat(s, args).getMessage());
 	}
 
 	private void log(Operation op, String type, String kind, RecordKey key, Level level) {

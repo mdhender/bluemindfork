@@ -177,7 +177,8 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 	public List<String> createUserFolders(String domainUid, ItemValue<Server> srv, ItemValue<Mailbox> mbox,
 			Set<DefaultFolder> folders) {
 		List<String> created = new LinkedList<>();
-		try (SyncClientOIO sync = new SyncClientOIO(srv.value.address(), 2502)) {
+		try (SyncClientOIO sync = new SyncClientOIO(s -> logger.info("createUserFolders({}): {}", mbox.value, s),
+				srv.value.address(), 2502)) {
 			sync.authenticate("admin0", Token.admin0());
 			CyrusPartition partition = CyrusPartition.forServerAndDomain(srv, domainUid);
 			for (DefaultFolder defaultFolder : folders) {
@@ -206,7 +207,8 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		List<String> created = new LinkedList<>();
 		String mailshareName = boxname(mbox.value, domainUid);
 		CyrusPartition partition = CyrusPartition.forServerAndDomain(srv, domainUid);
-		try (SyncClientOIO sync = new SyncClientOIO(srv.value.address(), 2502)) {
+		try (SyncClientOIO sync = new SyncClientOIO(s -> logger.info("createMailshareFolders({}): {}", mbox.value, s),
+				srv.value.address(), 2502)) {
 			sync.authenticate("admin0", Token.admin0());
 			for (DefaultFolder f : folders) {
 				if (createWithSyncClient(sync, partition, domainUid, mbox, f)) {
