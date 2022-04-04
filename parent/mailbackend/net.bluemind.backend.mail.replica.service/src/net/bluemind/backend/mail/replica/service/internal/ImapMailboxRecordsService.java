@@ -770,33 +770,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			return;
 		}
 
-		List<ItemValue<MailboxItem>> records = multipleByIdWithoutBody(ids);
-
-		List<String> uids = records.stream().filter(r -> !r.flags.contains(ItemFlag.Deleted))
-				.map(r -> Long.toString(r.value.imapUid)).collect(Collectors.toList());
-
-		if (uids.isEmpty()) {
-			logger.debug("filtered ids list is empty, nothing to delete");
-			return;
-		}
-
-		logger.info("Delete {} records in {}", uids.size(), imapFolder);
-		CompletableFuture<ItemChange> repEvent = ReplicationEvents.onRecordUpdate(mailboxUniqueId,
-				Long.parseLong(uids.get(0)));
-
-		long time = System.currentTimeMillis();
-		addFlagsImapCommand(uids, Flag.DELETED.toString());
-		time = System.currentTimeMillis() - time;
-		try {
-			ItemChange change = repEvent.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-			logger.debug("Delete {} items with a latency of {}ms. (imap time: {}ms)", ids.size(), change.latencyMs,
-					time);
-		} catch (TimeoutException e) {
-			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
-		} catch (Exception e) {
-			throw new ServerFault(e);
-		}
-
+		addFlag(FlagUpdate.of(ids, MailboxItemFlag.System.Deleted.value()));
 	}
 
 	@Override
