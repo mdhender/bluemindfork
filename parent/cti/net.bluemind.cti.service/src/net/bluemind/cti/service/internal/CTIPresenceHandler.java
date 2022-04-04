@@ -18,6 +18,7 @@
 package net.bluemind.cti.service.internal;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
+import io.netty.util.internal.StringUtil;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.Verticle;
@@ -87,9 +89,9 @@ public class CTIPresenceHandler extends AbstractVerticle {
 	private void handle(Message<? extends JsonObject> msg) {
 		JsonObject js = msg.body();
 
-		ServerSideServiceProvider core = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		String user = js.getString("user");
 		String show = js.getString("show");
+		ServerSideServiceProvider core = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
 		boolean dnd = (show != null && !show.isEmpty() && !"online".equals(show));
 		try {
@@ -113,29 +115,48 @@ public class CTIPresenceHandler extends AbstractVerticle {
 			Map<String, String> settings = core.instance(IUserSettings.class, domainItem.uid).get(userUid);
 
 			String pres = settings.get("im_set_phone_presence");
-			IComputerTelephonyIntegration ctiApi = core.instance(IComputerTelephonyIntegration.class, domainItem.uid,
-					userUid);
-			if ("false".equals(pres)) {
-				logger.debug("Don't touch Phone presence for " + user);
-			} else if ("dnd".equals(pres)) {
-				logger.info("set user: " + userUid + ", show: " + show + ", dnd: " + dnd);
-				if (dnd) {
-					ctiApi.setStatus("IM", Status.create(Status.Type.DoNotDisturb, "Do not disturb"));
+
+			if (!StringUtil.isNullOrEmpty(pres) && !"false".equals(pres)) {
+				if ("dnd".equals(pres)) {
+					setDoNotDisturb(core, show, dnd, domainItem, userUid);
 				} else {
-					ctiApi.setStatus("IM", Status.create(Status.Type.Available, null));
-				}
-			} else if (!pres.isEmpty()) {
-				// FWD
-				logger.info("set user: " + userUid + ", forwad: " + pres);
-				if (dnd) {
-					ctiApi.forward("IM", pres);
-				} else {
-					ctiApi.forward("IM", "");
+					setAvailability(core, dnd, domainItem, userUid, pres);
 				}
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
+	}
+
+	private void setAvailability(ServerSideServiceProvider core, boolean dnd, ItemValue<Domain> domainItem,
+			String userUid, String pres) {
+		if (dnd) {
+			ctiApi(core, userUid, domainItem.uid).ifPresent(service -> service.forward("IM", pres));
+		} else {
+			ctiApi(core, userUid, domainItem.uid).ifPresent(service -> service.forward("IM", ""));
+		}
+	}
+
+	private void setDoNotDisturb(ServerSideServiceProvider core, String show, boolean dnd, ItemValue<Domain> domainItem,
+			String userUid) {
+		if (dnd) {
+			ctiApi(core, userUid, domainItem.uid).ifPresent(
+					service -> service.setStatus("IM", Status.create(Status.Type.DoNotDisturb, "Do not disturb")));
+		} else {
+			ctiApi(core, userUid, domainItem.uid)
+					.ifPresent(service -> service.setStatus("IM", Status.create(Status.Type.Available, null)));
+		}
+	}
+
+	private Optional<IComputerTelephonyIntegration> ctiApi(ServerSideServiceProvider core, String domain,
+			String userUid) {
+		try {
+			return Optional.of(core.instance(IComputerTelephonyIntegration.class, domain, userUid));
+		} catch (Exception e) {
+			logger.warn("Cannot retrieve cti implementation of user {}@{}", userUid, domain, e);
+			return Optional.empty();
+		}
+
 	}
 
 }
