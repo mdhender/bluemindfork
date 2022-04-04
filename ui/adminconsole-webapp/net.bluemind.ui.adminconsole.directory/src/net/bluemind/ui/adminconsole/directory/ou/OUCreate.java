@@ -25,51 +25,54 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.gwtconsoleapp.base.notification.Notification;
 import net.bluemind.ui.adminconsole.directory.ou.l10n.OrgUnitConstants;
-import net.bluemind.ui.adminconsole.directory.ou.model.OrgUnitItem;
 import net.bluemind.ui.common.client.forms.CommonForm;
 import net.bluemind.ui.common.client.forms.extensions.ICommonEditor;
 
-public class OUEdit extends CommonForm implements ICommonEditor {
+public class OUCreate extends CommonForm implements ICommonEditor {
 
-	interface OUEditUiBinder extends UiBinder<HTMLPanel, OUEdit> {
+	interface OUCreateUiBinder extends UiBinder<HTMLPanel, OUCreate> {
 
 	}
 
-	private static OUEditUiBinder binder = GWT.create(OUEditUiBinder.class);
+	private static OUCreateUiBinder binder = GWT.create(OUCreateUiBinder.class);
 
 	@UiField
 	TextBox name;
 
-	private ItemValue<OrgUnit> orgUnit;
+	@UiField
+	OUParent parent;
+
+	private OrgUnit orgUnit;
+
+	private String domainUid;
 
 	/**
-	 * Edit OU
+	 * Create OU
 	 * 
-	 * @param orgUnitItem
+	 * @param domainUid
 	 */
-	public OUEdit(OrgUnitItem orgUnitItem) {
-		OrgUnit orgUnitValue = new OrgUnit();
-		orgUnitValue.name = orgUnitItem.getName();
-		if (!orgUnitItem.isRoot() && orgUnitItem.getParentItem() != null) {
-			orgUnitValue.parentUid = orgUnitItem.getParentUid();
-		}
-		this.orgUnit = ItemValue.create(orgUnitItem.getUid(), orgUnitValue);
+	public OUCreate(String domainUid) {
+		this.domainUid = domainUid;
+		this.orgUnit = new OrgUnit();
 		loadUI();
 	}
 
 	private void loadUI() {
 		form = binder.createAndBindUi(this);
 		name.getElement().setId("ou-name");
+		parent.getElement().setId("ou-parent");
 		setFormData();
 	}
 
 	public boolean save() {
 		if (validate()) {
-			orgUnit.value.name = name.getText();
+			orgUnit.name = name.getText();
+			if (!parent.getValues().isEmpty()) {
+				orgUnit.parentUid = parent.getValues().iterator().next().uid;
+			}
 			return true;
 		}
 		return false;
@@ -85,7 +88,7 @@ public class OUEdit extends CommonForm implements ICommonEditor {
 	}
 
 	private void setFormData() {
-		name.setText(orgUnit.value.name);
+		parent.setDomain(domainUid);
 	}
 
 	@Override
@@ -93,7 +96,7 @@ public class OUEdit extends CommonForm implements ICommonEditor {
 		return form;
 	}
 
-	public ItemValue<OrgUnit> getOrgUnit() {
+	public OrgUnit getOrgUnit() {
 		return orgUnit;
 	}
 }

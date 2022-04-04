@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -708,6 +709,66 @@ public class DirEntryStoreTests {
 		query = new DirEntryQuery();
 		query.dataLocation = "nein-nein-nein";
 		res = dirEntryStore.search(query);
+		assertEquals(0, res.total);
+	}
+
+	@Test
+	public void testSearchFilterManageableByOrgUnit() throws SQLException {
+
+		OrgUnit ou = new OrgUnit();
+		ou.name = "ou1";
+		ou.parentUid = null;
+		Item itemOu = itemStore.create(Item.create("testou1", null));
+		ouStore.create(itemOu, ou);
+
+		OrgUnit ou2 = new OrgUnit();
+		ou2.name = "ou2";
+		ou2.parentUid = null;
+		Item itemOu2 = itemStore.create(Item.create("testou2", null));
+		ouStore.create(itemOu2, ou2);
+
+		creates(true,
+				DirEntry.create(itemOu.uid, "test1", DirEntry.Kind.USER, "jojo", "jojo", "jojo@test.com", false, false,
+						false),
+				DirEntry.create(itemOu2.uid, "test2", DirEntry.Kind.USER, "jaja", "jaja", "jaja@test.com", false, false,
+						false),
+				DirEntry.create(null, "test3", DirEntry.Kind.USER, "juju", "juju", "juju@test.com", false, false,
+						false));
+
+		DirEntryQuery query = new DirEntryQuery();
+		query.orgUnitIds = Arrays.asList(itemOu.id);
+		query.onlyManagable = true;
+		query.hiddenFilter = false;
+		query.systemFilter = false;
+		List<ManageableOrgUnit> manageable = Arrays.asList(new ManageableOrgUnit(null, ImmutableSet.of(Kind.USER)));
+		ListResult<Item> res = dirEntryStore.searchManageable(query, manageable);
+		assertEquals(1, res.total);
+
+		query = new DirEntryQuery();
+		query.orgUnitIds = null;
+		query.onlyManagable = true;
+		query.hiddenFilter = false;
+		query.systemFilter = false;
+		manageable = Arrays.asList(new ManageableOrgUnit(null, ImmutableSet.of(Kind.USER)));
+		res = dirEntryStore.searchManageable(query, manageable);
+		assertEquals(3, res.total);
+
+		query = new DirEntryQuery();
+		query.orgUnitIds = new ArrayList<>();
+		query.onlyManagable = true;
+		query.hiddenFilter = false;
+		query.systemFilter = false;
+		manageable = Arrays.asList(new ManageableOrgUnit(null, ImmutableSet.of(Kind.USER)));
+		res = dirEntryStore.searchManageable(query, manageable);
+		assertEquals(3, res.total);
+
+		query = new DirEntryQuery();
+		query.orgUnitIds = Arrays.asList(itemOu.id + 1234);
+		query.onlyManagable = true;
+		query.hiddenFilter = false;
+		query.systemFilter = false;
+		manageable = Arrays.asList(new ManageableOrgUnit(null, ImmutableSet.of(Kind.USER)));
+		res = dirEntryStore.searchManageable(query, manageable);
 		assertEquals(0, res.total);
 	}
 

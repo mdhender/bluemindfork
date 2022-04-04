@@ -19,9 +19,9 @@
 package net.bluemind.ui.adminconsole.directory.ou.l10n;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.i18n.client.ConstantsWithLookup;
+import com.google.gwt.i18n.client.Messages;
 
-public interface OrgUnitConstants extends ConstantsWithLookup {
+public interface OrgUnitConstants extends Messages {
 
 	public static final OrgUnitConstants INST = GWT.create(OrgUnitConstants.class);
 
@@ -29,7 +29,9 @@ public interface OrgUnitConstants extends ConstantsWithLookup {
 
 	public String parent();
 
-	public String qc();
+	public String qCreate();
+
+	public String qUpdate();
 
 	public String delete();
 
@@ -39,5 +41,47 @@ public interface OrgUnitConstants extends ConstantsWithLookup {
 
 	public String massDeleteConfirmation();
 
+	public String notDeletedConfirmation(String toNotDeleteUnits, String toDeleteUnits);
+
+	public String notMassDeletedConfirmation(String toNotDeleteUnits, String toDeleteUnits);
+
+	public String forbiddenDeletion();
+
 	public String browse();
+
+	public String resName();
+
+	public String resEmail();
+
+	public String resUnit();
+
+	public String resType();
+
+	public String ouResourceTab();
+
+	public String ouRoleTab();
+
+	public String emptyResourceTable();
+
+	public String notFoundResourceTable(String ouPathName);
+
+	public String massNotFoundResourceTable(String nbPaths);
+
+	public String emptyRoleTable();
+
+	public String emptyRoleAdminTable(String ouPathName);
+
+	public String resourceOuSelection(String ouPathName);
+
+	public String massResourceOuSelection(String nbPaths);
+
+	public String roleOuSelection(String ouPathName);
+
+	public String massRoleOuSelection();
+
+	public String forbiddenMultiEdition();
+
+	public String forbiddenRootEdition();
+
+	public String invalidOuName();
 }

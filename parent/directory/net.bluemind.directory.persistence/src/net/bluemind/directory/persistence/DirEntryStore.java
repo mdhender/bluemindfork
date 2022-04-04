@@ -381,7 +381,8 @@ public class DirEntryStore extends AbstractItemValueStore<DirEntry> {
 				+ " (?::text[]) as entryuid, " //
 				+ " (?::boolean) as archived," //
 				+ " (?::text[]) as root_kind, " //
-				+ " (?::text) as datalocation " //
+				+ " (?::text) as datalocation, " //
+				+ " (?::bigint[]) as orgunits " //
 				+ ") AS parameters";
 
 		String baseQuery = " FROM  t_container_item item " //
@@ -402,8 +403,9 @@ public class DirEntryStore extends AbstractItemValueStore<DirEntry> {
 				+ " AND ( parameters.system is null or dir.flag_system = false )"
 				+ " AND ( parameters.entryuid is null or item.uid = ANY ( parameters.entryuid ))" //
 				+ " AND ( parameters.archived is null or dir.flag_archived = parameters.archived )" //
-				+ " AND ( dir.kind = ANY(parameters.root_kind) OR ou.id IS NOT NULL ) "
-				+ " AND ( parameters.datalocation is null or dir.datalocation = parameters.datalocation)";
+				+ " AND ( dir.kind = ANY(parameters.root_kind) OR ou.id IS NOT NULL ) " //
+				+ " AND ( parameters.datalocation is null or dir.datalocation = parameters.datalocation)" //
+				+ " AND ( parameters.orgunits is null or dir.orgunit_item_id = ANY ( parameters.orgunits ))";
 
 		String countQuery = "WITH" + ou + " SELECT count(dir.item_id) " + baseQuery;
 
@@ -524,6 +526,20 @@ public class DirEntryStore extends AbstractItemValueStore<DirEntry> {
 
 		if (!Strings.isNullOrEmpty(q.dataLocation)) {
 			params.add(q.dataLocation);
+		} else {
+			params.add(null);
+		}
+
+		if (q.orgUnitIds != null && !q.orgUnitIds.isEmpty()) {
+			Long[] orgunits = new Long[q.orgUnitIds.size()];
+
+			int i = 0;
+			for (Long orgUnitId : q.orgUnitIds) {
+				orgunits[i] = orgUnitId;
+				i++;
+			}
+			params.add(orgunits);
+
 		} else {
 			params.add(null);
 		}

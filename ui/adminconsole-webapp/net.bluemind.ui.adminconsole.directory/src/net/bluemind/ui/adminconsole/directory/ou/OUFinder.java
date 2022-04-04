@@ -25,7 +25,6 @@ import java.util.HashSet;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
-import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IOrgUnitsPromise;
 import net.bluemind.directory.api.OrgUnitPath;
 import net.bluemind.directory.api.OrgUnitQuery;
@@ -94,7 +93,7 @@ public class OUFinder implements IEntityFinder<OrgUnitPath, OrgUnitQuery> {
 		this.domainUid = domain;
 	}
 
-	public void setKind(DirEntry.Kind kind) {
+	public void setKind(Kind kind) {
 		this.kind = kind;
 	}
 }

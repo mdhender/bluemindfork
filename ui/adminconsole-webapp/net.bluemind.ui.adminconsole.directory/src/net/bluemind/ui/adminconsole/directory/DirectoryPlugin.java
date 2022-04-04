@@ -67,10 +67,7 @@ import net.bluemind.ui.adminconsole.directory.mailshare.MailshareModelHandler;
 import net.bluemind.ui.adminconsole.directory.mailshare.NewMailshare;
 import net.bluemind.ui.adminconsole.directory.mailshare.QCreateMailshareModelHandler;
 import net.bluemind.ui.adminconsole.directory.mailshare.QCreateMailshareScreen;
-import net.bluemind.ui.adminconsole.directory.ou.NewOrgUnit;
 import net.bluemind.ui.adminconsole.directory.ou.OrgUnitsBrowser;
-import net.bluemind.ui.adminconsole.directory.ou.QCreateOrgUnitModelHandler;
-import net.bluemind.ui.adminconsole.directory.ou.QCreateOrgUnitScreen;
 import net.bluemind.ui.adminconsole.directory.resource.EditResource;
 import net.bluemind.ui.adminconsole.directory.resource.EditResourceScreen;
 import net.bluemind.ui.adminconsole.directory.resource.NewResource;
@@ -182,9 +179,6 @@ public class DirectoryPlugin {
 		GwtCalendarBundle.register();
 
 		// OU
-		QCreateOrgUnitScreen.registerType();
-		NewOrgUnit.registerType();
-		QCreateOrgUnitModelHandler.registerType();
 		OrgUnitsBrowser.registerType();
 
 		// External User

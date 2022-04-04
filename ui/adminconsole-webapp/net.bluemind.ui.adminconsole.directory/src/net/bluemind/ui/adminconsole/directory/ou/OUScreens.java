@@ -20,8 +20,8 @@ package net.bluemind.ui.adminconsole.directory.ou;
 
 import com.google.gwt.core.client.JsArray;
 
-import net.bluemind.gwtconsoleapp.base.editor.ScreenElement;
 import net.bluemind.gwtconsoleapp.base.editor.ScreenElementContribution;
+import net.bluemind.gwtconsoleapp.base.editor.ScreenRoot;
 import net.bluemind.gwtconsoleapp.base.menus.Contributed;
 import net.bluemind.gwtconsoleapp.base.menus.MenuContribution;
 import net.bluemind.gwtconsoleapp.base.menus.Screen;
@@ -33,9 +33,8 @@ public class OUScreens {
 
 	public static JsArray<ScreenElementContribution> getContributions() {
 		JsArray<ScreenElementContribution> contribs = JsArray.createArray().cast();
-		contribs.push(ScreenElementContribution.create(null, null, QCreateOrgUnitScreen.screenModel()));
 		contribs.push(
-				ScreenElementContribution.create(null, null, ScreenElement.create("ouBrowser", OrgUnitsBrowser.TYPE)));
+				ScreenElementContribution.create(null, null, ScreenRoot.create("ouBrowser", OrgUnitsBrowser.TYPE)));
 
 		return contribs;
 
@@ -45,9 +44,6 @@ public class OUScreens {
 		JsArray<Contributed<Section>> sections = JsArray.createArray().cast();
 		JsArray<Contributed<Screen>> screens = JsArray.createArray().cast();
 
-		screens.push(Contributed.create("dir1",
-				Screen.create("qcOrgUnit", OrgUnitConstants.INST.qc(), BasicRoles.ROLE_MANAGE_OU, false)
-						.withOURoles(BasicRoles.ROLE_MANAGE_OU)));
 		screens.push(Contributed.create("dir2",
 				Screen.create("ouBrowser", OrgUnitConstants.INST.browse(), BasicRoles.ROLE_MANAGE_OU, false)
 						.withOURoles(BasicRoles.ROLE_MANAGE_OU)));

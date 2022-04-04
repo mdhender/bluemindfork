@@ -1,6 +1,7 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
-	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:c="urn:import:com.google.gwt.user.cellview.client"
 	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
 	xmlns:ou="urn:import:net.bluemind.ui.adminconsole.directory.ou"
 	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
@@ -9,6 +10,30 @@
 	.filtersContainer {
 		float: right;
 	}
+	
+	.resourceDescription {
+		color: #24638F !important;
+		font-weight: bold;
+		padding-bottom: 5px;
+	}
+	
+	.roleDescription {
+		color: #24638F !important;
+		font-weight: bold;
+		padding-bottom: 5px;
+	}
+	
+	.tdRolesPanelContainer {
+		width: 50%;
+	}
+	
+	.tdRolesPanel {
+		width: 50%;
+	}
+	
+	.rolesPanelContainer {
+	}
+	
 	</ui:style>
 
 	<ui:with field="ou"
@@ -26,8 +51,11 @@
 
 				<g:FlowPanel>
 
-					<g:Button ui:field="newButton" enabled="true" styleName="button primary"
-						text="{ou.qc}" />
+					<g:Button ui:field="newButton" enabled="true"
+						styleName="button primary" text="{ou.qCreate}" />
+
+					<g:Button ui:field="editButton" enabled="false"
+						styleName="button middle" text="{ou.qUpdate}" />
 
 					<g:Button ui:field="deleteButton" enabled="false"
 						styleName="button dangerHighVoltage" text="{ou.delete}" />
@@ -39,8 +67,78 @@
 		</g:north>
 
 		<g:center>
-			<ou:OrgUnitGrid ui:field="grid" />
+			<g:FlowPanel>
+				<g:ScrollPanel>
+					<ou:OrgUnitTreeGrid ui:field="unitGrid" />
+				</g:ScrollPanel>
+
+				<g:TabLayoutPanel ui:field="tabContainer"
+					barUnit="PX" barHeight="25" width="100%" height="450px">
+					<g:tab>
+						<g:customHeader>
+							<g:Label text="{ou.ouResourceTab}" />
+						</g:customHeader>
+
+						<g:FlowPanel>
+							<g:SimplePanel>
+								<g:Label ui:field="resourceDesc"
+									styleName="{style.resourceDescription}" />
+							</g:SimplePanel>
+
+							<g:HTMLPanel width="100%">
+								<table width="100%">
+									<tr>
+										<td>
+											<g:SimplePanel>
+												<ou:OrgResourceGrid
+													ui:field="resourceGrid" />
+											</g:SimplePanel>
+										<c:SimplePager ui:field="pagerResource"
+											visible="false" />
+										</td>
+									</tr>
+								</table>
+							</g:HTMLPanel>
+						</g:FlowPanel>
+					</g:tab>
+
+					<g:tab>
+						<g:customHeader>
+							<g:Label text="{ou.ouRoleTab}" />
+						</g:customHeader>
+
+						<g:FlowPanel>
+							<g:SimplePanel>
+								<g:Label ui:field="adminResourceDesc"
+									styleName="{style.roleDescription}" />
+							</g:SimplePanel>
+
+							<g:HTMLPanel width="100%">
+								<table width="100%">
+									<tr>
+										<td class="{style.tdRolesPanel}">
+											<g:SimplePanel>
+												<ou:OrgAdminResourceGrid ui:field="adminResourceGrid" />
+											</g:SimplePanel>
+										<c:SimplePager ui:field="pagerAdminResource"
+											visible="false" />
+										</td>
+										<td class="{style.tdRolesPanelContainer}">
+											<ou:OrgUnitsAdminRolesTree
+												ui:field="ouRolesTree" styleName="{style.rolesPanelContainer}"/>
+										</td>
+									</tr>
+								</table>
+							</g:HTMLPanel>
+						</g:FlowPanel>
+					</g:tab>
+				</g:TabLayoutPanel>
+			</g:FlowPanel>
 		</g:center>
+
+		<!-- <g:south size="75"> -->
+		<!-- <c:SimplePager ui:field="pager" visible="false" /> -->
+		<!-- </g:south> -->
 
 	</g:DockLayoutPanel>
 

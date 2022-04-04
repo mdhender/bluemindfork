@@ -1,0 +1,18 @@
+.itemTree label {
+	margin: 3px;
+}
+
+.checkboxLabel label {
+   margin-left: 10px;
+}
+
+.checkboxTitle label {
+   margin-left: 10px;
+   margin-top: 10px;
+   color: #24638F !important;
+   font-weight: bold;
+}
+
+.checkboxTitle {
+   margin-left: 20px;
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:ou="urn:import:net.bluemind.ui.adminconsole.directory.ou"
+	xmlns:e="urn:import:net.bluemind.ui.editor.client">
+
+	<ui:style>
+	table.formContainer {
+		min-width: 490px;
+		border-collapse: collapse;
+		margin-bottom: 10px;
+	}
+	
+	.formContainer select {
+		width: 360px;
+	}
+	</ui:style>
+
+
+	<ui:with field="ou"
+		type="net.bluemind.ui.adminconsole.directory.ou.l10n.OrgUnitConstants" />
+
+
+	<g:HTMLPanel>
+
+		<g:HTMLPanel styleName="{style.formContainer}">
+			<table class="formContainer">
+				<tr>
+					<td class="label">
+						<g:Label text="{ou.name}" />
+					</td>
+					<td class="form">
+						<g:TextBox ui:field="name"></g:TextBox>
+					</td>
+				</tr>
+			</table>
+		</g:HTMLPanel>
+	</g:HTMLPanel>
+
+</ui:UiBinder>

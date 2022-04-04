@@ -69,6 +69,10 @@ public class DirEntryQuery {
 	 */
 	public List<String> entries;
 	/**
+	 * Filter by Org Unit Item ids
+	 */
+	public List<Long> orgUnitIds;
+	/**
 	 * Filter by Account Type
 	 */
 	public DirEntry.AccountType accountTypeFilter;
