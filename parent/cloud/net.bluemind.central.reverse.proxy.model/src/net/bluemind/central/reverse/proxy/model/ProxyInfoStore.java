@@ -141,7 +141,9 @@ public class ProxyInfoStore {
 	}
 
 	public void tearDown() {
-		consumer.unregister();
+		if (consumer != null) {
+			consumer.unregister();
+		}
 	}
 
 }

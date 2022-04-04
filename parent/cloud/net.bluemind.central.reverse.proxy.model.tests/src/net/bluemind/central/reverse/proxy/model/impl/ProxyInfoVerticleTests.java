@@ -16,6 +16,7 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -43,6 +44,7 @@ public class ProxyInfoVerticleTests {
 
 	private ZkKafkaContainer kafka;
 	private String bootstrapServers;
+	private ProxyInfoStore store;
 
 	@Before
 	public void setup() {
@@ -52,6 +54,14 @@ public class ProxyInfoVerticleTests {
 		this.bootstrapServers = ip + ":9093";
 		System.setProperty("bm.kafka.bootstrap.servers", bootstrapServers);
 		System.setProperty("bm.zk.servers", ip + ":2181");
+	}
+
+	@After
+	public void teardown() {
+		kafka.stop();
+		if (store != null) {
+			store.tearDown();
+		}
 	}
 
 	@Test
@@ -114,7 +124,7 @@ public class ProxyInfoVerticleTests {
 	}
 
 	private ProxyInfoVerticle createVerticle(Vertx vertx, ProxyInfoStorage storage) {
-		ProxyInfoStore store = ProxyInfoStore.create(vertx, storage);
+		store = ProxyInfoStore.create(vertx, storage);
 		ProxyInfoStoreClient storeClient = ProxyInfoStoreClient.create(vertx);
 		RecordHandler<byte[], byte[]> recordHandler = RecordHandler.createByteHandler(storeClient);
 
