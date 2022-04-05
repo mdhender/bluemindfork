@@ -21,6 +21,23 @@
 				<l10n.list>"de", "en", "es", "fr", "hu", "it", "nl", "pl", "ru", "sk","uk", "zh"</l10n.list>
 			</properties>
 		</profile>
+		<profile>
+			<id>localp2</id>
+			<!-- artifacts built from profile p2 -->
+			<repositories>
+				<repository>
+					<id>bluemind-local-tp</id>
+					<layout>p2</layout>
+					<url>file://${localp2repository}</url>
+				</repository>
+				<repository>
+					<id>bluemind-local-tp-closed</id>
+					<layout>p2</layout>
+					<url>file://${localp2repositoryclosed}</url>
+				</repository>
+			</repositories>
+		</profile>
+
 	</profiles>
 
 	<properties>
@@ -49,6 +66,14 @@
 			<url>https://forge.bluemind.net/staging/p2/dependencies/587/</url>
 		</repository>
 		<repository>
+			<id>nexus-central</id>
+			<url>https://forge.bluemind.net/nexus/content/groups/public</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+			</snapshots>
+		</repository>
+		<repository>
 			<id>tigase</id>
 			<url>https://build.tigase.org/maven</url>
 
@@ -57,16 +82,6 @@
 				<updatePolicy>daily</updatePolicy>
 			</snapshots>
 		</repository>
-
-		<repository>
-			<id>nexus-central</id>
-			<url>https://forge.bluemind.net/nexus/content/groups/public</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-			</snapshots>
-		</repository>
-
 	</repositories>
 
 	<pluginRepositories>
