@@ -18,18 +18,11 @@
  */
 package net.bluemind.notes.service;
 
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
-
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistence.ContainerStore;
-import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.notes.api.INoteIndexMgmt;
-import net.bluemind.notes.service.internal.NoteMgmtService;
+import net.bluemind.notes.service.internal.NoteIndexMgmtService;
 
 public class NoteMgmtIndexFactory implements ServerSideServiceProvider.IServerSideServiceFactory<INoteIndexMgmt> {
 
@@ -40,25 +33,7 @@ public class NoteMgmtIndexFactory implements ServerSideServiceProvider.IServerSi
 
 	@Override
 	public INoteIndexMgmt instance(BmContext context, String... params) throws ServerFault {
-		if (params == null || params.length < 1) {
-			throw new ServerFault("Wrong number of instance parameters");
-		}
-
-		DataSource dataSource = DataSourceRouter.get(context, params[0]);
-		ContainerStore containerStore = new ContainerStore(context, dataSource, context.getSecurityContext());
-
-		Container container = null;
-		try {
-			container = containerStore.get(params[0]);
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
-		}
-
-		if (container == null) {
-			throw new ServerFault("container " + params[0] + " not found");
-		}
-
-		return new NoteMgmtService(context, dataSource, container);
+		return new NoteIndexMgmtService(context);
 	}
 
 }
