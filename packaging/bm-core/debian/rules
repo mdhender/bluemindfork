@@ -1,7 +1,5 @@
 #!/usr/bin/make -f
 
-
-
 include /usr/share/cdbs/1/rules/debhelper.mk
 
 JAVA_HOME := /usr/lib/jvm/bm-jdk
@@ -11,8 +9,9 @@ DEB_DH_SHLIBDEPS_ARGS_bm-core := "-Xlib"
 
 DEB_UPDATE_RCD_PARAMS_bm-core := "defaults 62 01"
 
+DEB_DH_STRIP_NONDETERMINISM_ARGS := "--exclude=."
+
 build:
-	
 
 install/bm-core::
 	cp -rf ${CURDIR}/ROOT/* ${CURDIR}/debian/bm-core

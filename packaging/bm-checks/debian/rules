@@ -5,6 +5,8 @@ include /usr/share/cdbs/1/rules/debhelper.mk
 # Do not generate crappy dependencies for unused libs
 DEB_DH_SHLIBDEPS_ARGS_bm-core := "-Xlib"
 
+DEB_DH_STRIP_NONDETERMINISM_ARGS := "--exclude=."
+
 build:	
 
 install/bm-checks::

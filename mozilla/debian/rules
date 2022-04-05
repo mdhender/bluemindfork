@@ -20,6 +20,8 @@
 
 include /usr/share/cdbs/1/rules/debhelper.mk
 
+DEB_DH_STRIP_NONDETERMINISM_ARGS := "--exclude=."
+
 install/bm-connector-thunderbird::
 	(/bin/bash $(CURDIR)/debian/build_bm-connector-tbird.sh $(CURDIR))
 

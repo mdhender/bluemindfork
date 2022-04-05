@@ -8,6 +8,7 @@ DEB_DH_SHLIBDEPS_ARGS_bm-plugin-webserver-devfilter := "-Xlib"
 
 build:
 	echo "build dav"
+DEB_DH_STRIP_NONDETERMINISM_ARGS := "--exclude=."
 
 install/bm-plugin-webserver-devfilter::
 	cp -rf ${CURDIR}/ROOT/* ${CURDIR}/debian/bm-plugin-webserver-devfilter

@@ -6,6 +6,8 @@ JAVA_HOME := /usr/lib/jvm/bm-jdk
 # Do not generate crappy dependencies for unused libs
 DEB_DH_SHLIBDEPS_ARGS_bm-plugin-webserver-dav := "-Xlib"
 
+DEB_DH_STRIP_NONDETERMINISM_ARGS := "--exclude=."
+
 build:
 	echo "build dav"
 
