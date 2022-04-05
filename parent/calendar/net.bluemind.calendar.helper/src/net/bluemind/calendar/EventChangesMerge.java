@@ -115,6 +115,11 @@ public class EventChangesMerge {
 				evt.organizer = adjustEventValue(existingEvent.organizer, imipVEvent.organizer, evt.organizer);
 				evt.description = adjustEventValue(existingEvent.description, imipVEvent.description, evt.description);
 				evt.categories = adjustEventValue(existingEvent.categories, imipVEvent.categories, evt.categories);
+				evt.conference = adjustEventValue(existingEvent.conference, imipVEvent.conference, evt.conference);
+				evt.conferenceId = adjustEventValue(existingEvent.conferenceId, imipVEvent.conferenceId,
+						evt.conferenceId);
+				evt.conferenceConfiguration = adjustEventValue(existingEvent.conferenceConfiguration,
+						imipVEvent.conferenceConfiguration, evt.conferenceConfiguration);
 				adjustAttendees(existingEvent.attendees, imipVEvent.attendees, evt.attendees);
 				adjustAlarms(evt, imipVEvent);
 
