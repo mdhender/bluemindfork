@@ -32,6 +32,7 @@ import org.apache.curator.framework.recipes.leader.LeaderLatch;
 import org.apache.curator.framework.recipes.leader.LeaderLatch.CloseMode;
 import org.apache.curator.framework.recipes.leader.LeaderLatchListener;
 import org.apache.curator.retry.BoundedExponentialBackoffRetry;
+import org.apache.curator.shaded.com.google.common.base.MoreObjects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,6 +91,19 @@ public class ZkWriteLeader implements InstallationWriteLeader {
 			logger.warn("latch {} timed out, leader: {} ({})", latch, isLeader(), to.getMessage());
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
+		} catch (Exception e) {
+			throw new ZkRuntimeException(e);
+		}
+	}
+
+	@Override
+	public String toString() {
+		try {
+			return MoreObjects.toStringHelper(ZkWriteLeader.class)//
+					.add("leader", isLeader())//
+					.add("participants", latch.getParticipants())//
+					.add("curator", curator)//
+					.toString();
 		} catch (Exception e) {
 			throw new ZkRuntimeException(e);
 		}

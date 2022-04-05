@@ -60,7 +60,10 @@ public class DefaultBackupStoreTests {
 
 	@AfterClass
 	public static void after() {
+		DefaultLeader.leader().releaseLeadership();
+
 		kafka.stop();
+
 		System.clearProperty("bm.mcast.id");
 		InstallationId.reload();
 	}

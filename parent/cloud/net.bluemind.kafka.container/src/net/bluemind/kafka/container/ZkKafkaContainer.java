@@ -34,6 +34,7 @@ public class ZkKafkaContainer extends GenericContainer<ZkKafkaContainer> impleme
 	public ZkKafkaContainer() {
 		super("repository.blue-mind.loc:5001/bluemind/zk-kafka:4.1.63005");
 		withExposedPorts(2181, port());
+		withReuse(false);
 		waitingFor(new org.testcontainers.containers.wait.strategy.AbstractWaitStrategy() {
 
 			@Override

@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -40,9 +41,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.LongAdder;
 
 import javax.sql.DataSource;
 
@@ -142,10 +145,13 @@ public class PopulateKafkaTests {
 		System.err.println(s3conf.asJson().encodePrettily());
 		ISdsBackingStore sds = new S3StoreFactory().create(VertxPlatform.getVertx(), s3conf.asJson());
 
+		int electAttempts = 0;
 		do {
 			System.err.println("LEADER: " + DefaultLeader.leader().isLeader());
 			Thread.sleep(500);
-		} while (!DefaultLeader.leader().isLeader());
+		} while (!DefaultLeader.leader().isLeader() && electAttempts++ < 120);
+		System.err.println("leader: " + DefaultLeader.leader());
+		assertTrue("Not elected as leader", DefaultLeader.leader().isLeader());
 
 		System.err.println("sds: " + sds);
 		try (InputStream in = getClass().getClassLoader().getResourceAsStream("data/kafka/emls.tar.bz2");
@@ -232,7 +238,7 @@ public class PopulateKafkaTests {
 		System.err.println("=======================");
 	}
 
-	private Set<String> populateKafka() throws IOException {
+	private Set<String> populateKafka() throws IOException, InterruptedException, ExecutionException, TimeoutException {
 		Set<String> domains = new HashSet<>();
 
 		try (InputStream in = getClass().getClassLoader().getResourceAsStream("data/kafka/clone-dump.tar.bz2");
@@ -242,6 +248,8 @@ public class PopulateKafkaTests {
 			String iid = "bluemind-" + UUID.randomUUID().toString();
 			int iidLen = iid.length();
 
+			LongAdder storedRecords = new LongAdder();
+			List<CompletableFuture<Void>> futures = new ArrayList<>();
 			while ((ce = tar.getNextTarEntry()) != null) {
 				if (!ce.isDirectory()) {
 					iid = ce.getName().replace("./", "").substring(0, iidLen);
@@ -279,10 +287,21 @@ public class PopulateKafkaTests {
 						// value.encode());
 						String partitionKey = topicNames.forContainer(descriptor).partitionKey(value.getString("uid"));
 						IBackupStore<Object> topic = store.forContainer(descriptor);
-						topic.storeRaw(partitionKey, key.toBuffer().getBytes(), value.toBuffer().getBytes());
+						CompletableFuture<Void> prom = topic.storeRaw(partitionKey, key.toBuffer().getBytes(),
+								value.toBuffer().getBytes());
+						futures.add(prom.whenComplete((v, ex) -> {
+							if (ex != null) {
+								ex.printStackTrace();
+							}
+							storedRecords.increment();
+						}));
 					});
 				}
 			}
+			CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0])).get(10, TimeUnit.SECONDS);
+			long total = storedRecords.sum();
+			System.err.println("We stored " + total + " records in kafka");
+			assertTrue(total > 0);
 			InstallationId.getIdentifier();
 			System.err.println("installation: " + iid);
 			IBackupReader store = DefaultBackupStore.reader();
@@ -358,7 +377,8 @@ public class PopulateKafkaTests {
 
 		DefaultSdsStoreLoader sds = new DefaultSdsStoreLoader();
 		Collection<String> installs = store.installations();
-		assertEquals(1, installs.size());
+		System.err.println("installations: " + installs);
+		assertTrue(new HashSet<>(installs).contains(conf.sourceInstallationId));
 
 		TopologyMapping topo = new TopologyMapping();
 		topo.register("bm-master", cyrusIp);
@@ -406,14 +426,22 @@ public class PopulateKafkaTests {
 
 	@After
 	public void after() throws Exception {
-		StateContext.setState("core.cloning.end");
+		try {
+			StateContext.setState("core.cloning.end");
+			if (replicationHelper != null) {
+				replicationHelper.stopReplication().get(10, TimeUnit.SECONDS);
+			}
+			DefaultLeader.leader().releaseLeadership();
 
-		replicationHelper.stopReplication().get(10, TimeUnit.SECONDS);
-		Thread.sleep(2000);
-		Files.deleteIfExists(marker);
-		kafka.stop();
-		System.clearProperty("backup.continuous.store.disabled");
-		JdbcTestHelper.getInstance().afterTest();
+			Thread.sleep(2000);
+			Files.deleteIfExists(marker);
+			kafka.stop();
+			kafka.close();
+			System.clearProperty("backup.continuous.store.disabled");
+			JdbcTestHelper.getInstance().afterTest();
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
 	}
 
 }
