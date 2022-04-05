@@ -89,14 +89,10 @@ public class BodyStreamProcessor {
 	 * The version of the DB body this {@link BodyStreamProcessor} produces from an
 	 * IMAP message.
 	 */
-	public static final int BODY_VERSION;
+	public static int BODY_VERSION = 4;
 
 	static {
 		System.setProperty("mail.mime.decodetext.strict", "false");
-
-		// initialization in a separate static bloc enables tests to modify this final
-		// field using reflection
-		BODY_VERSION = 4;
 	}
 
 	public static CompletableFuture<MessageBodyData> processBody(Stream eml) {

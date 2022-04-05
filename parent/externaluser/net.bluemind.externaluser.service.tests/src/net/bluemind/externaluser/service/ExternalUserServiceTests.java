@@ -277,11 +277,11 @@ public class ExternalUserServiceTests {
 	@Test
 	public void testCantCreateExternalUserWithSameEmailThanExistingExternalUser() {
 		String itemUid = UUID.randomUUID().toString();
-		ExternalUser eu = createDefaultExternalUser();
+		ExternalUser eu = createDefaultExternalUser("user@bm.lan");
 		getExternalUserService().create(itemUid, eu);
 
 		String itemUid2 = UUID.randomUUID().toString();
-		ExternalUser eu2 = createDefaultExternalUser();
+		ExternalUser eu2 = createDefaultExternalUser("user@bm.lan");
 
 		try {
 			getExternalUserService().create(itemUid2, eu2);
@@ -289,6 +289,18 @@ public class ExternalUserServiceTests {
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.ALREADY_EXISTS, sf.getCode());
 		}
+	}
+
+	@Test
+	public void testCanCreateExternalUsersWithSameEmailIfDomainIsNotIntern() {
+		String itemUid = UUID.randomUUID().toString();
+		ExternalUser eu = createDefaultExternalUser();
+		getExternalUserService().create(itemUid, eu);
+
+		String itemUid2 = UUID.randomUUID().toString();
+		ExternalUser eu2 = createDefaultExternalUser();
+
+		getExternalUserService().create(itemUid2, eu2);
 	}
 
 	@Test

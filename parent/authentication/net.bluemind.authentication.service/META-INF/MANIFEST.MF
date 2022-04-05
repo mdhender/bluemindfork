@@ -41,6 +41,5 @@ Require-Bundle: net.bluemind.authentication.api;bundle-version="1.0.0";visibilit
  net.bluemind.common.hollow,
  com.github.ben-manes.caffeine
 Export-Package: net.bluemind.authentication.service
-Bundle-Activator: net.bluemind.authentication.service.Activator
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.authentication.service

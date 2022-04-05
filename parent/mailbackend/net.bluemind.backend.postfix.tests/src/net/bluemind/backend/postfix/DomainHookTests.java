@@ -178,7 +178,7 @@ public class DomainHookTests {
 		VertxEventChecker<JsonObject> dirtyMapChecker = new VertxEventChecker<>("postfix.map.dirty");
 
 		Domain domain = Domain.create("domain.tld", "domain.tld", "domain.tld",
-				new HashSet<>(Arrays.asList("domain-alias1.tld")));
+				new HashSet<>(Arrays.asList("domain-alias1.tld", "domain-alias2.tld")));
 
 		new DomainHook().onAliasesUpdated(new BmTestContext(SecurityContext.SYSTEM),
 				ItemValue.create(domain.name, domain), new HashSet<>(Arrays.asList("domain-alias2.tld")));

@@ -394,8 +394,10 @@ public class NodeTests {
 		assertEquals(5, activeTasks.size());
 
 		Iterator<String> it = activeTasks.iterator();
-		nc.asyncExecute(ExecRequest.anonymous("kill -9 " + it.next()), new ProcessHandler.NoOutBlockingHandler());
-		nc.asyncExecute(ExecRequest.anonymous("kill -15 " + it.next()), new ProcessHandler.NoOutBlockingHandler());
+		nc.asyncExecute(ExecRequest.anonymous("/bin/sh -c 'kill -9 " + it.next() + "'"),
+				new ProcessHandler.NoOutBlockingHandler());
+		nc.asyncExecute(ExecRequest.anonymous("/bin/sh -c 'kill -15 " + it.next() + "'"),
+				new ProcessHandler.NoOutBlockingHandler());
 
 		System.err.println("Started " + activeTasks);
 		assertTrue(cdl.await(10, TimeUnit.SECONDS));

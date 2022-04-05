@@ -36,7 +36,7 @@ public class RoleValidation {
 
 	}
 
-	private static Map<String, List<IRoleValidator>> validators;
+	private static Map<String, List<IRoleValidator>> validators = init();
 
 	public static boolean validate(String domain, String role) {
 		if (!validators.containsKey(role)) {
@@ -50,25 +50,25 @@ public class RoleValidation {
 		return valid;
 	}
 
-	public static void init() {
+	private static Map<String, List<IRoleValidator>> init() {
 		RunnableExtensionLoader<IRoleValidator> epLoader = new RunnableExtensionLoader<>();
 		List<IRoleValidator> extensions = epLoader.loadExtensions("net.bluemind.authentication.service",
 				"rolevalidation", "validator", "implementation");
-		validators = new HashMap<>();
+		Map<String, List<IRoleValidator>> roleValidators = new HashMap<>();
 
-		logger.info("Found {} role validators", extensions.size());
+		logger.debug("Found {} role validators", extensions.size());
 		for (IRoleValidator validator : extensions) {
 			List<String> supportedRoles = validator.supportedRoles();
-			supportedRoles.forEach(role -> addIfNecessary(validators, validator, role));
+			supportedRoles.forEach(role -> addIfNecessary(roleValidators, validator, role));
 		}
-
+		return roleValidators;
 	}
 
-	private static void addIfNecessary(Map<String, List<IRoleValidator>> validators, IRoleValidator validator,
+	private static void addIfNecessary(Map<String, List<IRoleValidator>> roleValidators, IRoleValidator validator,
 			String role) {
-		List<IRoleValidator> currentValidators = validators.getOrDefault(role, new ArrayList<>());
+		List<IRoleValidator> currentValidators = roleValidators.getOrDefault(role, new ArrayList<>());
 		currentValidators.add(validator);
-		validators.put(role, currentValidators);
+		roleValidators.put(role, currentValidators);
 	}
 
 }

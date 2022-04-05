@@ -20,8 +20,6 @@ package net.bluemind.backend.mail.replica.service.tests;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,8 +82,7 @@ public class MessageBodyRepairTests {
 	@After
 	public void after() throws Exception {
 		replicationStackTests.after();
-		modifyFinalStaticField(BodyStreamProcessor.class.getField("BODY_VERSION"),
-				originalBodyStreamProcessorBodyVersion);
+		BodyStreamProcessor.BODY_VERSION = originalBodyStreamProcessorBodyVersion;
 	}
 
 	@Test
@@ -95,7 +92,7 @@ public class MessageBodyRepairTests {
 		this.replicationStackTests.addDraft(this.mailboxFolder);
 		// changing BodyStreamProcessor#BODY_VERSION has impact on the "need update"
 		// detection
-		modifyFinalStaticField(BodyStreamProcessor.class.getField("BODY_VERSION"), Integer.MIN_VALUE);
+		BodyStreamProcessor.BODY_VERSION = Integer.MIN_VALUE;
 		final DiagnosticReport diagnosticReport = this.check();
 		LOGGER.info("DiagnosticReport={}", JsonUtils.asString(diagnosticReport));
 		assertEquals(State.OK, diagnosticReport.globalState());
@@ -108,7 +105,7 @@ public class MessageBodyRepairTests {
 		this.replicationStackTests.addDraft(this.mailboxFolder);
 		// changing BodyStreamProcessor#BODY_VERSION has impact on the "need update"
 		// detection
-		modifyFinalStaticField(BodyStreamProcessor.class.getField("BODY_VERSION"), Integer.MAX_VALUE);
+		BodyStreamProcessor.BODY_VERSION = Integer.MAX_VALUE;
 		final DiagnosticReport diagnosticReport = this.check();
 		LOGGER.info("DiagnosticReport={}", JsonUtils.asString(diagnosticReport));
 		assertEquals(State.KO, diagnosticReport.globalState());
@@ -121,7 +118,7 @@ public class MessageBodyRepairTests {
 		final ItemValue<MailboxItem> mailboxItem = this.replicationStackTests.addDraft(this.mailboxFolder);
 		// changing BodyStreamProcessor#BODY_VERSION has impact on the "need update"
 		// detection
-		modifyFinalStaticField(BodyStreamProcessor.class.getField("BODY_VERSION"), Integer.MIN_VALUE);
+		BodyStreamProcessor.BODY_VERSION = Integer.MIN_VALUE;
 		final DiagnosticReport diagnosticReport = this.repair();
 		LOGGER.info("DiagnosticReport={}", JsonUtils.asString(diagnosticReport));
 		assertEquals(State.OK, diagnosticReport.globalState());
@@ -138,7 +135,7 @@ public class MessageBodyRepairTests {
 		final ItemValue<MailboxItem> mailboxItem = this.replicationStackTests.addDraft(this.mailboxFolder);
 		// changing BodyStreamProcessor#BODY_VERSION has impact on the "need update"
 		// detection
-		modifyFinalStaticField(BodyStreamProcessor.class.getField("BODY_VERSION"), Integer.MAX_VALUE);
+		BodyStreamProcessor.BODY_VERSION = Integer.MAX_VALUE;
 		final DiagnosticReport diagnosticReport = this.repair();
 		LOGGER.info("DiagnosticReport={}", JsonUtils.asString(diagnosticReport));
 		assertEquals(State.OK, diagnosticReport.globalState());
@@ -158,7 +155,7 @@ public class MessageBodyRepairTests {
 		}
 		// changing BodyStreamProcessor#BODY_VERSION has impact on the "need update"
 		// detection
-		modifyFinalStaticField(BodyStreamProcessor.class.getField("BODY_VERSION"), Integer.MAX_VALUE);
+		BodyStreamProcessor.BODY_VERSION = Integer.MAX_VALUE;
 		final DiagnosticReport diagnosticReport = this.repair();
 		LOGGER.info("DiagnosticReport={}", JsonUtils.asString(diagnosticReport));
 		assertEquals(State.OK, diagnosticReport.globalState());
@@ -168,15 +165,6 @@ public class MessageBodyRepairTests {
 					.getCompleteById(mailboxItem.internalId);
 			Assert.assertTrue(mailboxItemAfterRepair.value.body.bodyVersion == BodyStreamProcessor.BODY_VERSION);
 		});
-	}
-
-	private static void modifyFinalStaticField(final Field field, final Object newValue)
-			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-		field.setAccessible(true);
-		Field modifiersField = Field.class.getDeclaredField("modifiers");
-		modifiersField.setAccessible(true);
-		modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-		field.set(null, newValue);
 	}
 
 	private DiagnosticReport checkOrRepair(boolean checkMode) {

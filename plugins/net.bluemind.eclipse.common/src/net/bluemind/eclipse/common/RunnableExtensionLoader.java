@@ -124,7 +124,6 @@ public class RunnableExtensionLoader<T> {
 						factories.add(factory);
 						logger.debug(factory.getClass().getName() + " loaded.");
 					} catch (CoreException ce) {
-						;
 						logger.error(ie.getNamespaceIdentifier() + ": " + ce.getMessage(), ce);
 					}
 
