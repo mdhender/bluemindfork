@@ -18,14 +18,16 @@
  */
 package net.bluemind.eas.backend.bm;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.ImmutableSet;
 
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
@@ -78,6 +80,10 @@ public class FolderBackend extends CoreConnect {
 
 	private final ISyncStorage storage;
 	private static final String OTHER_MAILBOXES = "OTHER_MAILBOXES";
+
+	public static final Set<String> ACCEPTED_CONTAINERS = ImmutableSet.<String>builder().add(ICalendarUids.TYPE, //
+			IAddressBookUids.TYPE, //
+			ITodoUids.TYPE).build();
 
 	protected FolderBackend(ISyncStorage storage) {
 		this.storage = storage;
@@ -190,11 +196,6 @@ public class FolderBackend extends CoreConnect {
 
 		FolderChanges ret = new FolderChanges();
 
-		List<String> acceptedContainers = new ArrayList<String>();
-		acceptedContainers.add(ICalendarUids.TYPE);
-		acceptedContainers.add(IAddressBookUids.TYPE);
-		acceptedContainers.add(ITodoUids.TYPE);
-
 		CyrusPartition part = CyrusPartition.forServerAndDomain(bs.getUser().getDataLocation(),
 				bs.getUser().getDomain());
 		IMailboxFolders mboxFolders = getService(bs, IMailboxFolders.class, part.name,
@@ -214,7 +215,7 @@ public class FolderBackend extends CoreConnect {
 			List<ItemValue<ContainerHierarchyNode>> created = flatH
 					.getMultipleById(changes.created.stream().map(f -> f.id).collect(Collectors.toList()));
 			created.forEach(h -> {
-				if (acceptedContainers.contains(h.value.containerType)) {
+				if (ACCEPTED_CONTAINERS.contains(h.value.containerType)) {
 					FolderChangeReference f = getHierarchyItemChange(bs, h, ChangeType.ADD, offlineContainers);
 					Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
 				} else if (IMailReplicaUids.MAILBOX_RECORDS.equals(h.value.containerType)) {
@@ -228,7 +229,7 @@ public class FolderBackend extends CoreConnect {
 			List<ItemValue<ContainerHierarchyNode>> updated = flatH
 					.getMultipleById(changes.updated.stream().map(f -> f.id).collect(Collectors.toList()));
 			updated.forEach(h -> {
-				if (acceptedContainers.contains(h.value.containerType)) {
+				if (ACCEPTED_CONTAINERS.contains(h.value.containerType)) {
 					FolderChangeReference f = getHierarchyItemChange(bs, h, ChangeType.CHANGE, offlineContainers);
 					Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
 				} else if (IMailReplicaUids.MAILBOX_RECORDS.equals(h.value.containerType)) {
@@ -286,14 +287,15 @@ public class FolderBackend extends CoreConnect {
 						.collect(Collectors.toList()));
 
 		// new mailbox subscription
-		newUserSubscriptions.stream().filter(c -> "mailboxacl".equals(c.value.containerType) && c.value.offlineSync
-				&& !userMboxSubscriptionUid.equals(c.uid)).forEach(container -> {
+		newUserSubscriptions.stream().filter(c -> IMailboxAclUids.TYPE.equals(c.value.containerType)
+				&& c.value.offlineSync && !userMboxSubscriptionUid.equals(c.uid)).forEach(container -> {
 					logger.info("[{}] new mailbox subscription {}", bs.getLoginAtDomain(),
 							container.value.containerUid);
 					mailboxSubscriptionChanges(bs, ret, subscribedMailboxVersions, container, 0L);
 				});
 
-		newUserSubscriptions.stream().filter(c -> !"mailboxacl".equals(c.value.containerType) && c.value.offlineSync)
+		newUserSubscriptions.stream()
+				.filter(c -> ACCEPTED_CONTAINERS.contains(c.value.containerType) && c.value.offlineSync)
 				.forEach(container -> {
 					String nodeUid = ContainerHierarchyNode.uidFor(container.value.containerUid,
 							container.value.containerType, bs.getUser().getDomain());
