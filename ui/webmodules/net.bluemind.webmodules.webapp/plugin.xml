@@ -4,6 +4,8 @@
     <extension-point id="webapp.banner" name="banner" schema="schema/webapp.banner.exsd"/>
     <extension-point id="webapp.preferences" name="webapp.preferences" schema="schema/webapp.preferences.exsd"/>
     <extension-point id="net.bluemind.webapp" name="webapp" schema="schema/net.bluemind.webapp.exsd"/>
+    <extension-point id="serviceworker.extension" name="serviceworker.extension" schema="schema/serviceworker.extension.exsd"/>
+    <extension-point id="serviceworker.resource" name="serviceworker.resource" schema="schema/serviceworker.resource.exsd"/>
     
    <extension
          point="net.bluemind.webmodule">
@@ -22,6 +24,10 @@
          <handler
                class="net.bluemind.webmodules.webapp.handlers.PartContentUrlHandler"
                path="part/url/">
+         </handler>               
+         <handler
+               class="net.bluemind.webmodules.webapp.handlers.ServiceWorkerModules"
+               path="service-worker-modules">              
          </handler>
       </web-module>
       
@@ -36,7 +42,7 @@
             class="net.bluemind.webmodules.webapp.webfilters.legacy.LegacyAppRedirectFilter">
       </web-filter>      
    </extension>
-
+	
     <extension
          point="net.bluemind.extensions">
       <export-extension-point
@@ -49,4 +55,11 @@
             id="webapp.preferences">
       </export-extension-point>            
     </extension>
+    <extension
+          point="serviceworker.extension">
+       <export-extension-point
+             id="serviceworker.resource">
+       </export-extension-point>
+    </extension>
+
 </plugin>
