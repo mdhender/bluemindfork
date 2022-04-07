@@ -87,5 +87,4 @@
             class="net.bluemind.core.container.service.OwnerSubscriptionEventBusAccessRule">
       </access-rule>
    </extension>
-
 </plugin>

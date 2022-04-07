@@ -49,5 +49,10 @@
             impl="net.bluemind.exchange.mapi.notifications.DelegationEventsConsumer">
       </acl_hook>
    </extension>
-
+   <extension
+         point="net.bluemind.core.container.hooks.aclhook">
+      <acl_hook
+            impl="net.bluemind.exchange.mapi.notifications.FlatHierarchyAclHook">
+      </acl_hook>
+   </extension>
 </plugin>

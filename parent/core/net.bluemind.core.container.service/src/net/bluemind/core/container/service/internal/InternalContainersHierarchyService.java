@@ -87,6 +87,11 @@ public class InternalContainersHierarchyService implements IInternalContainersFl
 	}
 
 	@Override
+	public void touch(String uid) {
+		storeService.touch(uid);
+	}
+
+	@Override
 	public void delete(String uid) throws ServerFault {
 		rbacManager.check(Verb.Write.name(), Verb.Manage.name());
 		ItemVersion delete = storeService.delete(uid);
