@@ -152,7 +152,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 			throw new ServerFault("mailbox " + uid + " not found", ErrorCode.NOT_FOUND);
 		}
 
-		storeService.update(uid, value.name, value);
+		storeService.update(uid, null, value);
 		updated(uid, previousItemValue.value, value);
 	}
 

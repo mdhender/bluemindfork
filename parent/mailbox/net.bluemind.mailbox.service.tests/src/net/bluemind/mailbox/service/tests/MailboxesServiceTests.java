@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import com.google.common.collect.ImmutableMap;
 
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.core.api.Email;
@@ -62,6 +64,8 @@ import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.core.tests.vertx.VertxEventChecker;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.DirEntryQuery;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.imap.sieve.SieveClient;
 import net.bluemind.imap.sieve.SieveClient.SieveConnectionData;
 import net.bluemind.imap.sieve.SieveScript;
@@ -85,6 +89,7 @@ import net.bluemind.scheduledjob.scheduler.IScheduledJobRunId;
 import net.bluemind.scheduledjob.scheduler.IScheduler;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
@@ -293,6 +298,27 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		assertTrue(created < item.version);
 		Message<JsonObject> message = updatedMessageChecker.shouldSuccess();
 		assertNotNull(message);
+	}
+
+	@Test
+	public void update_keepDisplayName() throws ServerFault, IOException, InterruptedException {
+		User user = PopulateHelper.getUser("testuser" + System.currentTimeMillis(), domainUid,
+				Mailbox.Routing.internal);
+		user.contactInfos.identification.formatedName = FormatedName.create("User formatedName");
+
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class, domainUid)
+				.create(user.login, user);
+
+		IDirectory directoryService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDirectory.class, domainUid);
+
+		ItemValue<Mailbox> mailbox = getService(defaultSecurityContext).getComplete(user.login);
+		getService(defaultSecurityContext).update(mailbox.uid, mailbox.value);
+
+		directoryService.search(DirEntryQuery.filterNameOrEmail(user.login)).values.forEach(dev -> {
+			assertEquals("User formatedName", dev.displayName);
+			assertEquals("User formatedName", dev.value.displayName);
+		});
 	}
 
 	@Test
