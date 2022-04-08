@@ -700,7 +700,7 @@ public class UserManagerImplTests {
 		userManager.update(importLogger, null, null);
 		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
 
-		assertEquals(Integer.valueOf(2), userManager.mailboxQuota);
+		assertEquals(Integer.valueOf(2), userManager.user.value.quota);
 
 		testUserEntry = getTestUserEntry(
 				"uid=user01," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
@@ -711,7 +711,7 @@ public class UserManagerImplTests {
 		userManager.update(importLogger, null, null);
 		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
 
-		assertEquals(Integer.valueOf(4), userManager.mailboxQuota);
+		assertEquals(Integer.valueOf(4), userManager.user.value.quota);
 
 		testUserEntry = getTestUserEntry(
 				"uid=user02," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
@@ -722,7 +722,7 @@ public class UserManagerImplTests {
 		userManager.update(importLogger, null, null);
 		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
 
-		assertEquals(Integer.valueOf(5242880), userManager.mailboxQuota);
+		assertEquals(Integer.valueOf(5242880), userManager.user.value.quota);
 
 		testUserEntry = getTestUserEntry(
 				"uid=user03," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
@@ -733,7 +733,7 @@ public class UserManagerImplTests {
 		userManager.update(importLogger, null, null);
 		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
 
-		assertNull(userManager.mailboxQuota);
+		assertNull(userManager.user.value.quota);
 	}
 
 	@Test

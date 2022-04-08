@@ -63,7 +63,6 @@ public class CoreServicesTest implements ICoreServices {
 	public Map<String, ItemValue<User>> createdUsers = new HashMap<>();
 	public Map<String, ItemValue<User>> updatedUsers = new HashMap<>();
 	public Map<String, MailFilter> mailfiltersSet = new HashMap<>();
-	public Map<String, Integer> quotaSet = new HashMap<>();
 
 	public Set<String> existingGroupsExtIds = new HashSet<>();
 	public ExtUidState existingUsersExtIds = new ExtUidState(
@@ -299,11 +298,6 @@ public class CoreServicesTest implements ICoreServices {
 		if (groupMembers.containsKey(groupUid)) {
 			groupMembers.get(groupUid).remove(Member.user(userUid));
 		}
-	}
-
-	@Override
-	public void setMailboxQuota(String uid, int mailboxQuota) {
-		quotaSet.put(uid, mailboxQuota);
 	}
 
 	@Override

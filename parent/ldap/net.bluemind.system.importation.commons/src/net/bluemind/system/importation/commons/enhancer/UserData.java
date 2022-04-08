@@ -24,5 +24,4 @@ public abstract class UserData implements EntityData {
 	public User user;
 	public byte[] photo;
 	public MailFilter mailFilter;
-	public Integer mailboxQuota;
 }

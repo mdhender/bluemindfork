@@ -182,12 +182,6 @@ public interface ICoreServices {
 	public void userDeletePhoto(String uid);
 
 	/**
-	 * @param uid
-	 * @param mailboxQuota
-	 */
-	public void setMailboxQuota(String uid, int mailboxQuota);
-
-	/**
 	 * @param internal
 	 * @param member
 	 * @return

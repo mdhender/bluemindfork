@@ -73,8 +73,6 @@ public abstract class UserManager extends EntityManager {
 	private boolean mailFilterUpdated = false;
 	private MailFilter mailFilter = new MailFilter();
 
-	public Integer mailboxQuota = null;
-
 	public UserManager(ItemValue<Domain> domain, Entry entry) {
 		super(domain);
 		this.entry = entry;
@@ -148,7 +146,6 @@ public abstract class UserManager extends EntityManager {
 
 			pluginUser.user = user.value;
 			pluginUser.photo = userPhoto;
-			pluginUser.mailboxQuota = mailboxQuota;
 			pluginUser.mailFilter = MailFilter.copy(getMailFilter());
 			for (IEntityEnhancer iee : getEntityEnhancerHooks()) {
 				pluginUser = iee.enhanceUser(importLogger.withoutStatus(), getDirectoryParameters(), domain, entry,
@@ -157,7 +154,6 @@ public abstract class UserManager extends EntityManager {
 
 			user.value = pluginUser.user;
 			userPhoto = pluginUser.photo;
-			mailboxQuota = pluginUser.mailboxQuota;
 			setMailFilter(pluginUser.mailFilter);
 		} catch (LdapInvalidAttributeValueException e) {
 			throw new ServerFault(e);

@@ -262,27 +262,6 @@ public abstract class ScannerCommon {
 
 		assertEquals(1, coreService.userSetPhoto);
 		assertEquals(2, coreService.userDeletePhoto);
-
-		assertEquals(2, coreService.quotaSet.size());
-		for (ItemValue<User> user : Iterables.concat(coreService.createdUsers.values(),
-				coreService.updatedUsers.values())) {
-			switch (user.value.login) {
-			case "user00":
-				assertNull(coreService.quotaSet.get(user.uid));
-				break;
-
-			case "user01":
-				assertEquals(4, ((int) coreService.quotaSet.get(user.uid)));
-				break;
-
-			case "user02":
-				assertEquals(2, ((int) coreService.quotaSet.get(user.uid)));
-				break;
-
-			default:
-				fail("Unknown user: " + user.value.login);
-			}
-		}
 	}
 
 	/**

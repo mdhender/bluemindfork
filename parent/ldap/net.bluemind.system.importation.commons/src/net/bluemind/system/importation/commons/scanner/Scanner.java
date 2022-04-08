@@ -610,10 +610,6 @@ public abstract class Scanner {
 			}
 
 			userManager.getUpdatedMailFilter().ifPresent(mf -> coreService.setMailboxFilter(userManager.user.uid, mf));
-
-			if (userManager.mailboxQuota != null) {
-				coreService.setMailboxQuota(userManager.user.uid, userManager.mailboxQuota);
-			}
 		} catch (Exception e) {
 			logger.error("Error on managing user DN: {}", userManager.entry.getDn().getName(), e);
 			importLogger.error(Messages.manageUserFailed(userManager.entry, e));

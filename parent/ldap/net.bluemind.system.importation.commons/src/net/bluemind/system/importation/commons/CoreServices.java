@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -35,7 +34,6 @@ import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
-import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -224,24 +222,6 @@ public class CoreServices implements ICoreServices {
 	@Override
 	public void userDeletePhoto(String uid) {
 		userService.deletePhoto(uid);
-	}
-
-	@Override
-	public void setMailboxQuota(String uid, int mailboxQuota) {
-		ItemValue<Mailbox> mailbox = mailboxService.getComplete(uid);
-
-		if (mailbox == null) {
-			throw new ServerFault("Unable to find mailbox uid: " + uid);
-		}
-
-		if (mailbox.value.quota == null) {
-			mailbox.value.quota = 0;
-		}
-
-		if (mailbox.value.quota != mailboxQuota) {
-			mailbox.value.quota = mailboxQuota;
-			mailboxService.update(uid, mailbox.value);
-		}
 	}
 
 	@Override

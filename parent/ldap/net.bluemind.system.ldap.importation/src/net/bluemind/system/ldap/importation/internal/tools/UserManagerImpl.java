@@ -259,7 +259,7 @@ public class UserManagerImpl extends UserManager {
 				try {
 					long userQuota = Long.parseLong(entry.get(quotaAttribute).getString().trim());
 					// Must be in octet in LDAP, convert in KiB
-					mailboxQuota = (int) (userQuota / 1024);
+					user.value.quota = (int) (userQuota / 1024);
 					break;
 				} catch (NumberFormatException nfe) {
 					logger.warn("Invalid user quota in LDAP: {}", nfe.getMessage());
