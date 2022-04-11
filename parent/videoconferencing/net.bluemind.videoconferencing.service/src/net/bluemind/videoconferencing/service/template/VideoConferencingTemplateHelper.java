@@ -169,10 +169,16 @@ public class VideoConferencingTemplateHelper {
 	}
 
 	public boolean containsTemplate(final String text, final String resourceId) {
+		if (Strings.isNullOrEmpty(text)) {
+			return false;
+		}
 		return matcherForTemplateRegex(text, resourceId).find();
 	}
 
 	public String removeTemplate(final String text, final String resourceId) {
+		if (Strings.isNullOrEmpty(text)) {
+			return "";
+		}
 		String ret = matcherForTemplateRegex(text, resourceId).replaceAll("");
 
 		// remove text/plain version too

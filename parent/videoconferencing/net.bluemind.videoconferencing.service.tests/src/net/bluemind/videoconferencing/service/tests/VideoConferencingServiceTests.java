@@ -35,6 +35,8 @@ import java.util.UUID;
 
 import org.junit.Test;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
@@ -290,6 +292,21 @@ public class VideoConferencingServiceTests extends AbstractVideoConferencingTest
 		domainSettings.set(settings);
 		globalSettings.put(SysConfKeys.external_url.name(), null);
 		systemConfiguration.updateMutableValues(globalSettings);
+	}
+
+	@Test
+	public void testVideoConferenring_noDescription() {
+		VEventSeries event = defaultVEvent();
+		VEvent.Attendee videoconf = VEvent.Attendee.create(VEvent.CUType.Resource, "", VEvent.Role.OptionalParticipant,
+				VEvent.ParticipationStatus.Accepted, true, "", "", "", "osef",
+				"bm://" + domainUid + "/resources/" + videoconfProviderId, null, null,
+				"videoconferencing@" + domainUid);
+		event.main.attendees.add(videoconf);
+		event.main.conference = "https://teams.yeah.yeah";
+		event.main.description = null;
+
+		VEvent main = getService(domainAdminCtx.getSecurityContext()).remove(event.main);
+		assertTrue(Strings.isNullOrEmpty(main.description));
 	}
 
 	public TaskStatus waitEnd(TaskRef ref) throws Exception {
