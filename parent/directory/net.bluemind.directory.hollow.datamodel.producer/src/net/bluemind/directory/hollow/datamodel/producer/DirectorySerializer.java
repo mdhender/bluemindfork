@@ -101,12 +101,22 @@ public class DirectorySerializer implements DataSerializer {
 	public DirectorySerializer(String domainUid) {
 		this.domainUid = domainUid;
 		this.produceLock = new Object();
-		init();
+		initOrReset();
 	}
 
 	public void start() {
 		if (!restoreIfAvailable(producer, blobRetriever, announcementWatcher)) {
 			produce();
+		}
+	}
+
+	private void initOrReset() {
+		try {
+			init();
+		} catch (HollowCorruptedException e) {
+			logger.warn("Trying to recreate from scratch, cause: {}", e.getMessage());
+			remove();
+			init();
 		}
 	}
 
@@ -117,7 +127,11 @@ public class DirectorySerializer implements DataSerializer {
 
 		HollowFilesystemPublisher publisher = new HollowFilesystemPublisher(localPublishDir.toPath());
 		HollowFilesystemAnnouncer announcer = new HzHollowAnnouncer("directory/" + domainUid, localPublishDir);
-		this.announcementWatcher = new HollowFilesystemAnnouncementWatcher(localPublishDir.toPath());
+		try {
+			this.announcementWatcher = new HollowFilesystemAnnouncementWatcher(localPublishDir.toPath());
+		} catch (NumberFormatException nfe) {
+			throw new HollowCorruptedException("Corrupted hollow directory, invalid announced.version format", nfe);
+		}
 
 		BlobStorageCleaner cleaner = new BmFilesystemBlobStorageCleaner(localPublishDir, 10);
 		this.producer = HollowProducer.withPublisher(publisher).withAnnouncer(announcer) //
@@ -405,4 +419,11 @@ public class DirectorySerializer implements DataSerializer {
 		return "/o=Mapi";
 	}
 
+	private class HollowCorruptedException extends RuntimeException {
+
+		public HollowCorruptedException(String message, Throwable cause) {
+			super(message, cause);
+		}
+
+	}
 }
