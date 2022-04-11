@@ -56,6 +56,10 @@ public class DirEntryTargetFilter {
 			this.domainUid = domainUid;
 			this.dirEntry = dirEntry;
 		}
+
+		public String sortKey() {
+			return this.domainUid + "-" + (dirEntry.value != null ? dirEntry.value.email : "null") + "-" + dirEntry.uid;
+		}
 	}
 
 	private final String target;
@@ -89,14 +93,7 @@ public class DirEntryTargetFilter {
 	private List<DirEntryWithDomain> getEntries(List<String> domainUids, Optional<String> email) {
 		List<DirEntryWithDomain> entries = domainUids.stream().map(domainUid -> getDomainEntries(domainUid, email))
 				.flatMap(List::stream).collect(Collectors.toList());
-		entries.sort((a, b) -> {
-			int r = a.domainUid.compareTo(b.domainUid);
-			if (r == 0 && a.dirEntry.value != null && a.dirEntry.value.email != null && b.dirEntry.value != null
-					&& b.dirEntry.value.email != null) {
-				r = a.dirEntry.value.email.compareTo(b.dirEntry.value.email);
-			}
-			return r;
-		});
+		entries.sort((a, b) -> a.sortKey().compareTo(b.sortKey()));
 		return entries;
 	}
 
