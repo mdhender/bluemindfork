@@ -66,7 +66,7 @@ public class AttachmentServiceTests {
 	private File tmpFolder;
 	private SecurityContext securityContext;
 
-	private static final String domainName = "testdomain.loc";
+	protected static final String domainName = "testdomain.loc";
 	private static final String GLOBAL_EXTERNAL_URL = "my.test.external.url";
 
 	@Before

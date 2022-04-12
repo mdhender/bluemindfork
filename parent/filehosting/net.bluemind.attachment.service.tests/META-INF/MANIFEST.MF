@@ -27,6 +27,8 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.eclipse.common,
  net.bluemind.dockerclient,
  net.bluemind.pool,
- net.bluemind.filehosting.filesystem.service;bundle-version="4.1.0"
+ net.bluemind.filehosting.filesystem.service;bundle-version="4.1.0",
+ net.bluemind.config,
+ org.reactivestreams.reactive-streams;bundle-version="1.0.3"
 Bundle-ClassPath: .
 Automatic-Module-Name: net.bluemind.attachment.service.tests

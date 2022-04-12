@@ -172,6 +172,7 @@ public class SdsFileHostingService implements IFileHostingService {
 		ReadStream<Buffer> stream = VertxStream.read(document);
 		try {
 			File tmp = File.createTempFile("sds", ".tmp");
+			logger.info("Uploading {} to {}...", stream, tmp.getAbsolutePath());
 			CompletableFuture<Void> comp = new CompletableFuture<>();
 			stream.pipeTo(VertxPlatform.getVertx().fileSystem().openBlocking(tmp.getAbsolutePath(),
 					new OpenOptions().setWrite(true).setTruncateExisting(true).setCreate(true)), finished -> {

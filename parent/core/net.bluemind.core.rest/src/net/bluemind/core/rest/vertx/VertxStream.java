@@ -22,6 +22,8 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import com.google.common.base.MoreObjects;
+
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -114,6 +116,11 @@ public class VertxStream {
 		@Override
 		public ReadStream<Buffer> fetch(long amount) {
 			return this;
+		}
+
+		@Override
+		public String toString() {
+			return MoreObjects.toStringHelper(ReadStreamStream.class).add("wrapped", stream).toString();
 		}
 
 	}

@@ -21,9 +21,12 @@ package net.bluemind.core.rest.base;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.MoreObjects;
+
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.lib.vertx.BMExecutor.BMTaskMonitor;
 
 public class MonitoredReadStream implements ReadStream<Buffer> {
@@ -41,8 +44,8 @@ public class MonitoredReadStream implements ReadStream<Buffer> {
 	public MonitoredReadStream handler(Handler<Buffer> handler) {
 		monitored.handler(buff -> {
 			if (!monitor.alive()) {
-				logger.warn("stream out during data transfer");
-				throw new RuntimeException("call timouted");
+				logger.warn("monitor {} is not alive", monitor);
+				throw new ServerFault("call timouted");
 			}
 			handler.handle(buff);
 		});
@@ -76,6 +79,12 @@ public class MonitoredReadStream implements ReadStream<Buffer> {
 	@Override
 	public ReadStream<Buffer> fetch(long amount) {
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(MonitoredReadStream.class).add("stream", monitored).add("mon", monitor)
+				.toString();
 	}
 
 }
