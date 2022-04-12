@@ -40,7 +40,7 @@ import net.bluemind.core.utils.JsonUtils;
 
 public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 	static final Logger logger = LoggerFactory.getLogger(RestHttpProxyHandler.class);
-	private static final int MAX = 1000 * 1000 * 10; // 10m
+	private static final long MAX = 1000 * 1000 * 10; // 10m
 	private Vertx vertx;
 	private IRestCallHandler proxy;
 
@@ -69,15 +69,16 @@ public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 				// Content-Length not defined");
 			}
 
-			int contentLength = 0;
+			long contentLength = 0;
 			try {
-				contentLength = Integer.parseInt(clAsString);
+				contentLength = Long.parseLong(clAsString);
 			} catch (NumberFormatException e) {
 				// throw new IllegalArgumentException("Content-Length not valid
 				// : " + clAsString);
 			}
 
 			if (contentLength > MAX) {
+				logger.warn("forced 'chunking' on on heavy body ({} byte(s))", contentLength);
 				chuncked = true;
 				// throw new IndexOutOfBoundsException(
 				// String.format("Content-Length is too big : %s (max : %s )",
