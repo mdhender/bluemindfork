@@ -52,7 +52,6 @@ import net.bluemind.addressbook.api.VCard;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.core.api.Stream;
-import net.bluemind.core.api.VersionInfo;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.api.CloneDefaults;
@@ -128,10 +127,7 @@ public class InstallationService implements IInstallation {
 	public TaskRef upgrade() throws ServerFault {
 		checkPermissions();
 
-		InstallationVersion version = getVersion();
-
-		VersionInfo from = VersionInfo.checkAndCreate(version.databaseVersion);
-		return context.provider().instance(ITasksManager.class).run(new InstallationUpgradeTask(context, from));
+		return context.provider().instance(ITasksManager.class).run(new InstallationUpgradeTask(context, getVersion()));
 	}
 
 	private void checkPermissions() {
@@ -249,17 +245,6 @@ public class InstallationService implements IInstallation {
 		String log = TaskUtils.logStreamWait(provider, ref);
 		logger.debug("Hollow repair task log for {}: {}", domainUid, log);
 		logger.info("Ending hollow repair task for {}", domainUid);
-	}
-
-	@Override
-	public TaskRef partialUpgrade(String fromVersion, String toVersion) throws ServerFault {
-
-		if (!context.getSecurityContext().isDomainGlobal()) {
-			throw new ServerFault("only admin0 can do upgrade", ErrorCode.NOT_GLOBAL_ADMIN);
-		}
-
-		VersionInfo from = VersionInfo.checkAndCreate(fromVersion);
-		return context.provider().instance(ITasksManager.class).run(new InstallationUpgradeTask(context, from));
 	}
 
 	@Override

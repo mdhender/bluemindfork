@@ -120,11 +120,6 @@ public interface IInstallation extends ICustomTheme {
 	public UpgradeStatus upgradeStatus() throws ServerFault;
 
 	@POST
-	@Path("_partialUpgrade")
-	public TaskRef partialUpgrade(@QueryParam("from") String fromVersion, @QueryParam("to") String toVersion)
-			throws ServerFault;
-
-	@POST
 	@Path("_resetIndexes")
 	public void resetIndexes();
 

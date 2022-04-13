@@ -161,7 +161,12 @@ public enum SysConfKeys {
 	/**
 	 * SSL certificate engine
 	 */
-	ssl_certif_engine;
+	ssl_certif_engine,
+
+	/**
+	 * upgrade history
+	 */
+	upgrade_history;
 
 	public static boolean isSysConfigKey(String key) {
 		for (SysConfKeys k : SysConfKeys.values()) {

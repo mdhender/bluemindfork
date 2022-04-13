@@ -19,6 +19,7 @@
 package net.bluemind.system.service.internal;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,11 +34,17 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.VersionInfo;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.system.api.Database;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.InstallationVersion;
+import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.api.UpdateHistory;
 import net.bluemind.system.api.UpgradeReport;
 import net.bluemind.system.persistence.UpgraderStore;
 import net.bluemind.system.schemaupgrader.DatedUpdater;
@@ -54,10 +61,12 @@ public class InstallationUpgradeTask implements IServerTask {
 	private static final Logger logger = LoggerFactory.getLogger(InstallationUpgradeTask.class);
 	private final DataSource pool;
 	private final VersionInfo from;
+	private final String to;
 
-	public InstallationUpgradeTask(BmContext context, VersionInfo from) {
+	public InstallationUpgradeTask(BmContext context, InstallationVersion version) {
 		this.pool = context.getDataSource();
-		this.from = from;
+		this.from = VersionInfo.checkAndCreate(version.databaseVersion);
+		this.to = version.softwareVersion + " (" + version.versionName + ")";
 	}
 
 	@Override
@@ -73,9 +82,21 @@ public class InstallationUpgradeTask implements IServerTask {
 
 		executeUpgrades(upgraders, handledActions, store, monitor);
 
+		updateUpgradeHistory();
+
 		monitor.end(true, "Core upgrade complete", "");
 		logger.info("Core upgrade ended");
 		notifyUpgradeStatus("core.upgrade.end");
+	}
+
+	private void updateUpgradeHistory() {
+		ISystemConfiguration config = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class);
+		UpdateHistory history = config.getValues().convertedValue(SysConfKeys.upgrade_history.name(),
+				(s -> JsonUtils.read(s, UpdateHistory.class)), new UpdateHistory());
+		history.add(from.toString(), to);
+		config.updateMutableValues(
+				Collections.singletonMap(SysConfKeys.upgrade_history.name(), JsonUtils.asString(history)));
 	}
 
 	/**
@@ -88,12 +109,10 @@ public class InstallationUpgradeTask implements IServerTask {
 	private List<DatedUpdater> adaptUpgraders(List<DatedUpdater> upgraders) {
 		if (from.major.equals("3")) {
 			return upgraders.stream().map(upgrader -> {
-				if (upgrader instanceof SqlUpdater) {
-					if (upgrader.database() == Database.SHARD) {
-						SqlUpdater sql = (SqlUpdater) upgrader;
-						return new SqlUpdater(sql.file(), sql.ignoreErrors(), sql.afterSchemaUpgrade(), Database.ALL,
-								sql.date(), sql.sequence());
-					}
+				if (upgrader instanceof SqlUpdater && upgrader.database() == Database.SHARD) {
+					SqlUpdater sql = (SqlUpdater) upgrader;
+					return new SqlUpdater(sql.file(), sql.ignoreErrors(), sql.afterSchemaUpgrade(), Database.ALL,
+							sql.date(), sql.sequence());
 				}
 				return upgrader;
 			}).collect(Collectors.toList());
