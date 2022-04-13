@@ -188,7 +188,7 @@ export default {
         onScroll() {
             const total = this.$el.scrollHeight;
             const current = this.$el.scrollTop + this.$el.offsetHeight;
-            if (total !== 0 && current >= total && this.conversationKeys.length < this.allConversationKeys.length) {
+            if (total !== 0 && current + 1 >= total && this.conversationKeys.length < this.allConversationKeys.length) {
                 this.$emit("next-page");
             }
         },
