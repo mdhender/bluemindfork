@@ -213,7 +213,7 @@ public abstract class Scanner {
 			throw new ServerFault(e);
 		}
 
-		ExtUidState bmExtUidState = coreService.getUsersExtIdByState();
+		ExtUidState bmExtUidState = coreService.getUsersExtIdByState(importLogger);
 
 		Set<UuidMapper> active = uuidMapperFromExtIds(bmExtUidState.active);
 		Sets.difference(active, directoryExtUids.keySet()).stream().map(UuidMapper::getExtId)
@@ -272,7 +272,7 @@ public abstract class Scanner {
 	 * @return Groups DN existing in directory and not found in BlueMind
 	 */
 	private Set<Dn> deletedGroups() {
-		Set<UuidMapper> bmExtUid = uuidMapperFromExtIds(coreService.getImportedGroupsExtId());
+		Set<UuidMapper> bmExtUid = uuidMapperFromExtIds(coreService.getImportedGroupsExtId(importLogger));
 
 		Map<UuidMapper, Dn> directoryDnByExtuid = new HashMap<>();
 		try (PagedSearchResult cursor = allGroupsFromDirectory()) {

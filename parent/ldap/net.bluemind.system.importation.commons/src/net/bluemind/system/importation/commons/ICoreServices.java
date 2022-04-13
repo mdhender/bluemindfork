@@ -28,6 +28,7 @@ import net.bluemind.group.api.Group;
 import net.bluemind.group.api.Member;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.user.api.User;
 
 /**
@@ -93,16 +94,17 @@ public interface ICoreServices {
 	public void updateUser(ItemValue<User> user);
 
 	/**
+	 * @param importLogger
 	 * @param extIdPrefix
 	 * @return
 	 * @throws ServerFault
 	 */
-	public Set<String> getImportedGroupsExtId();
+	public Set<String> getImportedGroupsExtId(ImportLogger importLogger);
 
 	/**
 	 * @return
 	 */
-	public ExtUidState getUsersExtIdByState();
+	public ExtUidState getUsersExtIdByState(ImportLogger importLogger);
 
 	/**
 	 * @param uuid

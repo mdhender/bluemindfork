@@ -18,6 +18,7 @@
  */
 package net.bluemind.system.importation.commons;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +36,7 @@ import net.bluemind.group.api.Member;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
@@ -49,6 +51,27 @@ public class CoreServices implements ICoreServices {
 		private int suspended = 0;
 		private int unsuspended = 0;
 		private int deleted = 0;
+	}
+
+	private class ExtIdMapper<T> {
+		public final String uid;
+		public final ItemValue<T> entity;
+
+		public ExtIdMapper(String uid, ItemValue<T> entity) {
+			this.uid = uid;
+			this.entity = entity;
+		}
+
+		public void logInvalid(ImportLogger importLogger) {
+			if (entity != null) {
+				return;
+			}
+
+			HashMap<String, String> messages = new HashMap<>(2);
+			messages.put("en", String.format("Unable to get entity UID: %s", uid));
+			messages.put("fr", String.format("Impossible d'obtenir l'entité d'UID: %s", uid));
+			importLogger.error(messages);
+		}
 	}
 
 	private final ImportStats userStats;
@@ -152,16 +175,20 @@ public class CoreServices implements ICoreServices {
 	}
 
 	@Override
-	public Set<String> getImportedGroupsExtId() {
-		return groupService.allUids().stream().map(groupService::getComplete).map(g -> g.externalId)
+	public Set<String> getImportedGroupsExtId(ImportLogger importLogger) {
+		return groupService.allUids().stream().map(uid -> new ExtIdMapper<Group>(uid, groupService.getComplete(uid)))
+				.peek(gE -> gE.logInvalid(importLogger)).filter(gE -> gE.entity != null).map(gE -> gE.entity.externalId)
 				.filter(extUid -> !Strings.isNullOrEmpty(extUid)).collect(Collectors.toSet());
 	}
 
 	@Override
-	public ExtUidState getUsersExtIdByState() {
-		return new ExtUidState(userService.allUids().stream().map(userService::getComplete)
-				.filter(u -> !Strings.isNullOrEmpty(u.externalId)).collect(Collectors.partitioningBy(
-						u -> u.value.archived, Collectors.mapping(u1 -> u1.externalId, Collectors.toSet()))));
+	public ExtUidState getUsersExtIdByState(ImportLogger importLogger) {
+		return new ExtUidState(
+				userService.allUids().stream().map(uid -> new ExtIdMapper<User>(uid, userService.getComplete(uid)))
+						.peek(uE -> uE.logInvalid(importLogger))
+						.filter(uE -> uE.entity != null && !Strings.isNullOrEmpty(uE.entity.externalId))
+						.map(uE -> uE.entity).collect(Collectors.partitioningBy(u -> u.value.archived,
+								Collectors.mapping(u1 -> u1.externalId, Collectors.toSet()))));
 	}
 
 	@Override

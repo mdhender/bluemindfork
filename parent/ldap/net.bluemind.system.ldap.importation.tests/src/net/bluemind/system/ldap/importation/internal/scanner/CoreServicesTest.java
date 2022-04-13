@@ -39,6 +39,7 @@ import net.bluemind.group.api.Member;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.system.importation.commons.ICoreServices;
+import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.user.api.User;
 
 public class CoreServicesTest implements ICoreServices {
@@ -88,23 +89,23 @@ public class CoreServicesTest implements ICoreServices {
 	}
 
 	@Override
-	public void deleteGroup(String deletedGroupUid) throws ServerFault {
+	public void deleteGroup(String deletedGroupUid) {
 		deletedGroupUids.add(deletedGroupUid);
 	}
 
 	@Override
-	public void createGroup(ItemValue<Group> group) throws ServerFault {
+	public void createGroup(ItemValue<Group> group) {
 		createdGroups.put(group.uid, group);
 		existingGroupsExtIds.add(group.externalId);
 	}
 
 	@Override
-	public void updateGroup(ItemValue<Group> group) throws ServerFault {
+	public void updateGroup(ItemValue<Group> group) {
 		updatedGroups.put(group.uid, group);
 	}
 
 	@Override
-	public void suspendUser(ItemValue<User> user) throws ServerFault {
+	public void suspendUser(ItemValue<User> user) {
 		suspendedUserUids.add(user.uid);
 	}
 
@@ -114,7 +115,7 @@ public class CoreServicesTest implements ICoreServices {
 	}
 
 	@Override
-	public void createUser(ItemValue<User> user) throws ServerFault {
+	public void createUser(ItemValue<User> user) {
 		createdUsers.put(user.uid, user);
 
 		if (user.value.archived) {
@@ -125,17 +126,17 @@ public class CoreServicesTest implements ICoreServices {
 	}
 
 	@Override
-	public void updateUser(ItemValue<User> user) throws ServerFault {
+	public void updateUser(ItemValue<User> user) {
 		updatedUsers.put(user.uid, user);
 	}
 
 	@Override
-	public Set<String> getImportedGroupsExtId() throws ServerFault {
+	public Set<String> getImportedGroupsExtId(ImportLogger importLogger) {
 		return existingGroupsExtIds;
 	}
 
 	@Override
-	public ExtUidState getUsersExtIdByState() {
+	public ExtUidState getUsersExtIdByState(ImportLogger importLogger) {
 		return existingUsersExtIds;
 	}
 
@@ -145,12 +146,12 @@ public class CoreServicesTest implements ICoreServices {
 	}
 
 	@Override
-	public void setMailboxFilter(String mailboxUid, MailFilter filter) throws ServerFault {
+	public void setMailboxFilter(String mailboxUid, MailFilter filter) {
 		mailfiltersSet.put(mailboxUid, filter);
 	}
 
 	@Override
-	public ItemValue<Group> getGroupByExtId(String extId) throws ServerFault {
+	public ItemValue<Group> getGroupByExtId(String extId) {
 		for (ItemValue<Group> g : groups.values()) {
 			if (g.externalId.equals(extId)) {
 				return g;
@@ -167,7 +168,7 @@ public class CoreServicesTest implements ICoreServices {
 	}
 
 	@Override
-	public List<Member> getGroupMembers(String uid) throws ServerFault {
+	public List<Member> getGroupMembers(String uid) {
 		if (!groupMembers.containsKey(uid) || groupMembers.get(uid) == null) {
 			return Collections.emptyList();
 		}
@@ -176,7 +177,7 @@ public class CoreServicesTest implements ICoreServices {
 	}
 
 	@Override
-	public void removeMembers(String uid, List<Member> membersToRemove) throws ServerFault {
+	public void removeMembers(String uid, List<Member> membersToRemove) {
 		if (groupMembersToRemove.containsKey(uid)) {
 			groupMembersToRemove.get(uid).addAll(membersToRemove);
 		} else {
@@ -190,7 +191,7 @@ public class CoreServicesTest implements ICoreServices {
 	}
 
 	@Override
-	public void addMembers(String uid, List<Member> membersToAdd) throws ServerFault {
+	public void addMembers(String uid, List<Member> membersToAdd) {
 		if (membersToAdd.size() == 0) {
 			return;
 		}
@@ -208,7 +209,7 @@ public class CoreServicesTest implements ICoreServices {
 	}
 
 	@Override
-	public ItemValue<User> getUserByExtId(String extId) throws ServerFault {
+	public ItemValue<User> getUserByExtId(String extId) {
 		for (ItemValue<User> u : users.values()) {
 			if (u.externalId.equals(extId)) {
 				return u;
@@ -225,7 +226,7 @@ public class CoreServicesTest implements ICoreServices {
 	}
 
 	@Override
-	public List<ItemValue<Group>> memberOf(String uid) throws ServerFault {
+	public List<ItemValue<Group>> memberOf(String uid) {
 		Set<ItemValue<Group>> groups = userMemberOf.get(uid);
 
 		if (groups == null) {
@@ -236,12 +237,12 @@ public class CoreServicesTest implements ICoreServices {
 	}
 
 	@Override
-	public void userSetPhoto(String uid, byte[] photo) throws ServerFault {
+	public void userSetPhoto(String uid, byte[] photo) {
 		userSetPhoto++;
 	}
 
 	@Override
-	public void userDeletePhoto(String uid) throws ServerFault {
+	public void userDeletePhoto(String uid) {
 		userDeletePhoto++;
 	}
 
