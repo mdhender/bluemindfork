@@ -38,8 +38,18 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+@import "~@bluemind/styleguide/css/mixins";
+
 .content-empty-folder {
-    word-break: break-all;
+    & > div {
+        white-space: nowrap;
+    }
+    .mail-folder-icon {
+        min-width: 0;
+        div {
+            @include text-overflow;
+        }
+    }
 }
 </style>
