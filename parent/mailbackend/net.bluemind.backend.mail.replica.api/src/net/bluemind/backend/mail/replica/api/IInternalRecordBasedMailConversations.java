@@ -18,11 +18,12 @@
  */
 package net.bluemind.backend.mail.replica.api;
 
-import net.bluemind.core.api.ListResult;
+import java.util.List;
+
 import net.bluemind.core.container.model.ItemFlagFilter;
 
 public interface IInternalRecordBasedMailConversations extends IDbMailboxRecords {
 
-	public ListResult<Long> getConversationIds(ItemFlagFilter filter, long from, int size);
+	public List<Long> getConversationIds(ItemFlagFilter filter);
 
 }

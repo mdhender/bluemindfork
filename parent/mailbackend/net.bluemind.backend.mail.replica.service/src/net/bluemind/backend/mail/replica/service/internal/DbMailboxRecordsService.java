@@ -72,7 +72,6 @@ import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
 import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.ExpectedId;
 import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.VanishedBody;
-import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
@@ -710,9 +709,9 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 	}
 
 	@Override
-	public ListResult<Long> getConversationIds(ItemFlagFilter filter, long from, int size) {
+	public List<Long> getConversationIds(ItemFlagFilter filter) {
 		try {
-			return this.recordStore.getConversationIds(filter, from, size);
+			return this.recordStore.getConversationIds(filter);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}

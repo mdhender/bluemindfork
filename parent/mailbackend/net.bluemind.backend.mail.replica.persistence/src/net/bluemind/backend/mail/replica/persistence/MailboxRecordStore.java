@@ -41,7 +41,6 @@ import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecordItemUri;
-import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlag;
@@ -289,7 +288,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 				select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id, uid, owner }));
 	}
 
-	public ListResult<Long> getConversationIds(ItemFlagFilter filter, long from, int size) throws SQLException {
+	public List<Long> getConversationIds(ItemFlagFilter filter) throws SQLException {
 		StringBuilder query = new StringBuilder("FROM v_conversation_by_folder " //
 				+ "WHERE folder_id=?");
 
@@ -302,26 +301,10 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		if (must != 0) {
 			query.append(" AND (flags::bit(32) & " + must + "::bit(32)) = " + must + "::bit(32)");
 		}
-
-		String sqlCount = "SELECT count(*) " + query.toString();
-		long count = select(sqlCount, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id }).get(0);
-
 		query.append(" order by date desc");
-		List<Object> parameters = new ArrayList<>();
-		parameters.add(container.id);
-		if (from > 0) {
-			query.append(" offset ?");
-			parameters.add(from);
-		}
-		if (size > 0) {
-			query.append(" limit ?");
-			parameters.add(size);
-		}
 		String sqlValues = "SELECT conversation_id " + query.toString();
 
-		List<Long> values = select(sqlValues, LongCreator.FIRST, Collections.emptyList(), parameters.toArray());
-
-		return ListResult.create(values, count);
+		return select(sqlValues, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
 	}
 
 	private int adaptFlag(ItemFlag flag) {

@@ -25,29 +25,36 @@ package net.bluemind.backend.mail.replica.service.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 import org.junit.Test;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
 import net.bluemind.backend.mail.api.Conversation;
 import net.bluemind.backend.mail.api.Conversation.MessageRef;
 import net.bluemind.backend.mail.api.IMailConversation;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
-import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.Stream;
+import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
+import net.bluemind.core.rest.vertx.VertxStream;
 
 public class MailConversationServiceTests extends AbstractMailboxRecordsServiceTests {
 
@@ -173,63 +180,171 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 		MessageRef4.date = new Date(4);
 		create(conversationId2, MessageRef3, MessageRef4);
 
-		ListResult<ItemValue<Conversation>> conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId,
-				ItemFlagFilter.all(), 0l, -1);
-		assertNotNull(conversations);
-		assertEquals(2, conversations.values.size());
-		assertEquals(2, conversations.total);
+		IDbMessageBodies mboxes = getBodies(SecurityContext.SYSTEM);
+		assertNotNull(mboxes);
+		ReadStream<Buffer> emlReadStream = openResource("data/with_inlines.eml");
+		Stream bmStream = VertxStream.stream(emlReadStream);
+		String bodyUid = CyrusGUID.randomGuid();
+		mboxes.create(bodyUid, bmStream);
+
+		IDbMailboxRecords recordService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDbMailboxRecords.class, mboxUniqueId);
+		MailboxRecord rec1 = new MailboxRecord();
+		rec1.conversationId = 123456789L;
+		rec1.imapUid = 1;
+		rec1.internalDate = new Date();
+		rec1.lastUpdated = new Date();
+		rec1.messageBody = bodyUid;
+		recordService.create(UUID.randomUUID().toString(), rec1);
+
+		MailboxRecord rec2 = new MailboxRecord();
+		rec2.conversationId = 88888888L;
+		rec2.imapUid = 2;
+		rec2.internalDate = new Date();
+		rec2.lastUpdated = new Date();
+		rec2.messageBody = bodyUid;
+		recordService.create(UUID.randomUUID().toString(), rec2);
+
+		List<String> conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId, ItemFlagFilter.all());
+		assertEquals(2, conversations.size());
 	}
 
 	@Test
-	public void byFolderLimited() {
+	public void byFolderByFilter() {
+		long conversation1 = 1234567891L;
+		long conversation2 = 888888881L;
+		String conversationId1 = Long.toHexString(conversation1);
+		String conversationId2 = Long.toHexString(conversation2);
+
+		// test body
+		IDbMessageBodies mboxes = getBodies(SecurityContext.SYSTEM);
+		assertNotNull(mboxes);
+		ReadStream<Buffer> emlReadStream = openResource("data/with_inlines.eml");
+		Stream bmStream = VertxStream.stream(emlReadStream);
+		String bodyUid = CyrusGUID.randomGuid();
+		mboxes.create(bodyUid, bmStream);
+
+		IDbMailboxRecords recordService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDbMailboxRecords.class, mboxUniqueId);
+
+		// conversation 1 having 2 messages
+		MailboxRecord rec1 = new MailboxRecord();
+		rec1.conversationId = conversation1;
+		rec1.imapUid = 1;
+		rec1.internalDate = new Date();
+		rec1.lastUpdated = new Date();
+		rec1.messageBody = bodyUid;
+		String rec1Uid = UUID.randomUUID().toString();
+		recordService.create(rec1Uid, rec1);
+		long rec1Id = recordService.getComplete(rec1Uid).internalId;
+
+		MailboxRecord rec2 = new MailboxRecord();
+		rec2.conversationId = conversation1;
+		rec2.imapUid = 2;
+		rec2.internalDate = new Date();
+		rec2.lastUpdated = new Date();
+		rec2.messageBody = bodyUid;
+		String rec2Uid = UUID.randomUUID().toString();
+		recordService.create(rec2Uid, rec2);
+		long rec2Id = recordService.getComplete(rec2Uid).internalId;
+
+		MessageRef messageRef1 = new MessageRef();
+		messageRef1.folderUid = mboxUniqueId;
+		messageRef1.itemId = rec1Id;
+		messageRef1.date = new Date(1);
+
+		MessageRef messageRef2 = new MessageRef();
+		messageRef2.folderUid = mboxUniqueId;
+		messageRef2.itemId = rec2Id;
+		messageRef2.date = new Date(2);
+
+		Conversation conversation1Obj = new Conversation();
+		conversation1Obj.messageRefs = Arrays.asList(messageRef1, messageRef2);
+		getService(SecurityContext.SYSTEM).create(conversationId1, conversation1Obj);
+
+		// conversation 2 having 1 message
+		MailboxRecord rec3 = new MailboxRecord();
+		rec3.conversationId = conversation2;
+		rec3.imapUid = 1;
+		rec3.internalDate = new Date();
+		rec3.lastUpdated = new Date();
+		rec3.messageBody = bodyUid;
+		String rec3Uid = UUID.randomUUID().toString();
+		recordService.create(rec3Uid, rec3);
+		long rec3Id = recordService.getComplete(rec3Uid).internalId;
+
+		MessageRef messageRef3 = new MessageRef();
+		messageRef3.folderUid = mboxUniqueId;
+		messageRef3.itemId = rec3Id;
+		messageRef3.date = new Date(3);
+
+		Conversation conversation2Obj = new Conversation();
+		conversation2Obj.messageRefs = Arrays.asList(messageRef3);
+		getService(SecurityContext.SYSTEM).create(conversationId2, conversation2Obj);
+
+		List<String> conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId, ItemFlagFilter.all());
+		assertEquals(2, conversations.size());
+
+		rec1 = recordService.getComplete(rec1Uid).value;
+		rec1.flags = Arrays.asList(MailboxItemFlag.System.Seen.value());
+		recordService.update(rec1Uid, rec1);
+
+		rec2 = recordService.getComplete(rec2Uid).value;
+		rec2.flags = Arrays.asList(MailboxItemFlag.System.Seen.value());
+		recordService.update(rec2Uid, rec2);
+
+		conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId,
+				ItemFlagFilter.create().must(ItemFlag.Seen));
+		assertEquals(1, conversations.size());
+		assertEquals(conversationId1, conversations.get(0));
+
+		conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId,
+				ItemFlagFilter.create().mustNot(ItemFlag.Seen));
+		assertEquals(1, conversations.size());
+		assertEquals(conversationId2, conversations.get(0));
+
+		conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId,
+				ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
+		assertEquals(2, conversations.size());
+
+		conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId,
+				ItemFlagFilter.create().must(ItemFlag.Deleted));
+		assertEquals(0, conversations.size());
+	}
+
+	@Test
+	public void getMultiple() {
 		String conversationId = Long.toHexString(123456789L);
-		MessageRef MessageRef = new MessageRef();
-		MessageRef.folderUid = mboxUniqueId;
-		MessageRef.itemId = 42L;
-		MessageRef.date = new Date(1);
-		MessageRef MessageRef2 = new MessageRef();
-		MessageRef2.folderUid = mboxUniqueId;
-		MessageRef2.itemId = 66L;
-		MessageRef2.date = new Date(2);
-		create(conversationId, MessageRef, MessageRef2);
+		create(conversationId);
 
-		String conversationId2 = Long.toHexString(88888888L);
-		MessageRef MessageRef3 = new MessageRef();
-		MessageRef3.folderUid = mboxUniqueId;
-		MessageRef3.itemId = 111L;
-		MessageRef3.date = new Date(3);
-		MessageRef MessageRef4 = new MessageRef();
-		MessageRef4.folderUid = mboxUniqueId;
-		MessageRef4.itemId = 51L;
-		MessageRef4.date = new Date(4);
-		create(conversationId2, MessageRef3, MessageRef4);
+		MessageRef messageId = new MessageRef();
+		messageId.folderUid = mboxUniqueId;
+		messageId.itemId = 42L;
+		messageId.date = new Date(1);
+		MessageRef messageId2 = new MessageRef();
+		messageId2.folderUid = mboxUniqueId;
+		messageId2.itemId = 66L;
+		messageId2.date = new Date(2);
+		String conversationId2 = Long.toHexString(999999L);
+		Conversation created = create(conversationId2, messageId, messageId2);
 
-		String conversationId3 = Long.toHexString(99999999L);
-		MessageRef MessageRef5 = new MessageRef();
-		MessageRef3.folderUid = mboxUniqueId;
-		MessageRef3.itemId = 1111L;
-		MessageRef3.date = new Date(5);
-		MessageRef MessageRef6 = new MessageRef();
-		MessageRef4.folderUid = mboxUniqueId;
-		MessageRef4.itemId = 511L;
-		MessageRef4.date = new Date(6);
-		create(conversationId3, MessageRef5, MessageRef6);
+		List<ItemValue<Conversation>> conversationItems = getService(SecurityContext.SYSTEM)
+				.multipleGet(Arrays.asList(conversationId, conversationId2));
+		assertEquals(2, conversationItems.size());
+		boolean ok1 = false;
+		boolean ok2 = false;
+		for (ItemValue<Conversation> conversation : conversationItems) {
+			if (conversation.uid.equals(conversationId)) {
+				ok1 = true;
+			} else if (conversation.uid.equals(conversationId2)) {
+				if (conversation.value.messageRefs.size() == 2) {
+					ok2 = true;
+				}
+			}
+		}
 
-		ListResult<ItemValue<Conversation>> conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId,
-				ItemFlagFilter.all(), 0l, -1);
-		assertNotNull(conversations);
-		assertEquals(3, conversations.values.size());
-		assertEquals(3, conversations.total);
-
-		conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId, ItemFlagFilter.all(), 1l, -1);
-		assertNotNull(conversations);
-		assertEquals(2, conversations.values.size());
-		assertEquals(2, conversations.total);
-
-		conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId, ItemFlagFilter.all(), 2l, 1);
-		assertNotNull(conversations);
-		assertEquals(1, conversations.values.size());
-		assertEquals(1, conversations.total);
+		assertTrue(ok1);
+		assertTrue(ok2);
 	}
 
 	@Test

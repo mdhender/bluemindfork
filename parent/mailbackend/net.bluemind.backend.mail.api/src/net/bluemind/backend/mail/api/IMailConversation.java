@@ -17,6 +17,8 @@
   */
 package net.bluemind.backend.mail.api;
 
+import java.util.List;
+
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -25,7 +27,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
 import net.bluemind.core.api.BMApi;
-import net.bluemind.core.api.ListResult;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 
@@ -41,10 +43,18 @@ public interface IMailConversation {
 	@Path("{uid}")
 	public ItemValue<Conversation> getComplete(@PathParam(value = "uid") String uid);
 
+	@POST
+	@Path("_mget")
+	public List<ItemValue<Conversation>> multipleGet(List<String> uids) throws ServerFault;
+
 	/** Retrieve the conversations of the given folder. */
 	@POST
-	public ListResult<ItemValue<Conversation>> byFolder(@QueryParam(value = "folder") String folderUid,
-			ItemFlagFilter filter, @QueryParam(value = "from") long from, @QueryParam(value = "size") int size);
+	public List<String> byFolder(@QueryParam(value = "folder") String folderUid, ItemFlagFilter filter);
+
+	/** Retrieve the conversations of the given folder. */
+	@POST
+	@Path("_long")
+	public List<Long> byFolderLong(@QueryParam(value = "folder") String folderUid, ItemFlagFilter filter);
 
 	@DELETE
 	@Path("{containerUid}/{itemId}/_message")

@@ -34,7 +34,6 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.persistence.ConversationStore;
 import net.bluemind.backend.mail.replica.persistence.InternalConversation;
 import net.bluemind.backend.mail.replica.persistence.InternalConversation.InternalMessageRef;
-import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -91,15 +90,28 @@ public class MailConversationService implements IInternalMailConversation {
 	}
 
 	@Override
-	public ListResult<ItemValue<Conversation>> byFolder(String folderUid, ItemFlagFilter filter, long from, int size) {
+	public List<String> byFolder(String folderUid, ItemFlagFilter filter) {
 		rbacManager.check(Verb.Read.name());
 
 		IInternalRecordBasedMailConversations recordsService = context.provider()
 				.instance(IInternalRecordBasedMailConversations.class, folderUid);
-		ListResult<Long> conversations = recordsService.getConversationIds(filter, from, size);
+		List<Long> conversations = recordsService.getConversationIds(filter);
 
-		return ListResult.create(storeService.byConversationsId(conversations.values).stream() //
-				.map(this::conversationToPublic).collect(Collectors.toList()), conversations.total);
+		return conversations.stream().map(Long::toHexString).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<ItemValue<Conversation>> multipleGet(List<String> uids) throws ServerFault {
+		return storeService.getMultiple(uids).stream().map(this::conversationToPublic).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<Long> byFolderLong(String folderUid, ItemFlagFilter filter) {
+		rbacManager.check(Verb.Read.name());
+
+		IInternalRecordBasedMailConversations recordsService = context.provider()
+				.instance(IInternalRecordBasedMailConversations.class, folderUid);
+		return recordsService.getConversationIds(filter);
 	}
 
 	@Override
