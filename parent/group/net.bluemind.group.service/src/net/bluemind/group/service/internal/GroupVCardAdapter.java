@@ -69,9 +69,9 @@ public class GroupVCardAdapter extends AbstractVCardAdapter<Group> {
 		vcard.explanatory.note = group.description;
 
 		IDirectory dir = context.provider().instance(IDirectory.class, domain.uid);
-		if (!group.hiddenMembers) {
+		List<Member> members = getMembers(uid);
+		if (!group.hiddenMembers && members.size() < 512) {
 
-			List<Member> members = getMembers(uid);
 			vcard.organizational.member = new ArrayList<>(members.size());
 			for (Member member : members) {
 				DirEntry entry = dir.findByEntryUid(member.uid);
