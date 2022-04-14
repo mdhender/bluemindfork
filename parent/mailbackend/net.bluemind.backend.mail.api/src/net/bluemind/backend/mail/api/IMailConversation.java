@@ -51,11 +51,6 @@ public interface IMailConversation {
 	@POST
 	public List<String> byFolder(@QueryParam(value = "folder") String folderUid, ItemFlagFilter filter);
 
-	/** Retrieve the conversations of the given folder. */
-	@POST
-	@Path("_long")
-	public List<Long> byFolderLong(@QueryParam(value = "folder") String folderUid, ItemFlagFilter filter);
-
 	@DELETE
 	@Path("{containerUid}/{itemId}/_message")
 	public void removeMessage(@PathParam(value = "containerUid") String containerUid,

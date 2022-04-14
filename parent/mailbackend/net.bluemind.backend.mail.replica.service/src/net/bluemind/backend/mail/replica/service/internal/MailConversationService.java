@@ -106,15 +106,6 @@ public class MailConversationService implements IInternalMailConversation {
 	}
 
 	@Override
-	public List<Long> byFolderLong(String folderUid, ItemFlagFilter filter) {
-		rbacManager.check(Verb.Read.name());
-
-		IInternalRecordBasedMailConversations recordsService = context.provider()
-				.instance(IInternalRecordBasedMailConversations.class, folderUid);
-		return recordsService.getConversationIds(filter);
-	}
-
-	@Override
 	public void removeMessage(String folderUid, Long itemId) {
 		rbacManager.check(Verb.Write.name());
 		try {
