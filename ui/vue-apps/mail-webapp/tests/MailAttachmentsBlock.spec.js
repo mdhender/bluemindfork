@@ -35,7 +35,7 @@ function mountAttachmentBlock(attachmentSize) {
     const store = createStore();
     const key = Object.keys(store.state.mail.conversations.conversationByKey).pop();
     message.conversationRef = { key };
-    store.commit("mail/ADD_MESSAGES", [message]);
+    store.commit("mail/ADD_MESSAGES", { messages: [message] });
 
     return createWrapper(
         MailAttachmentsBlock,

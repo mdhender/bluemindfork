@@ -1,6 +1,4 @@
-import sortedIndex from "lodash.sortedindex";
 import sortedIndexBy from "lodash.sortedindexby";
-import sortedIndexOf from "lodash.sortedindexof";
 
 import Vue from "vue";
 
@@ -12,19 +10,22 @@ import {
     ADD_MESSAGES,
     MOVE_MESSAGES,
     REMOVE_MESSAGES,
-    SET_CURRENT_CONVERSATION,
+    RESET_CONVERSATIONS,
     SET_CONVERSATION_LIST,
+    SET_CONVERSATIONS_LOADING_STATUS,
+    SET_CURRENT_CONVERSATION,
     SET_MESSAGES_LOADING_STATUS,
-    UNSET_CURRENT_CONVERSATION,
-    UNSELECT_ALL_CONVERSATIONS,
     SET_SELECTION,
-    SET_TEMPLATES_LIST
+    SET_TEMPLATES_LIST,
+    UNSELECT_ALL_CONVERSATIONS,
+    UNSET_CURRENT_CONVERSATION
 } from "~/mutations";
 import {
     ADD_FLAG,
     DELETE_FLAG,
     EMPTY_FOLDER,
     FETCH_CONVERSATION_IF_NOT_LOADED,
+    FETCH_CONVERSATIONS,
     MARK_CONVERSATIONS_AS_FLAGGED,
     MARK_CONVERSATIONS_AS_READ,
     MARK_CONVERSATIONS_AS_UNFLAGGED,
@@ -42,20 +43,22 @@ import {
     CURRENT_CONVERSATION_METADATA
 } from "~/getters";
 import {
-    createConversationStubsFromRawConversations,
-    createConversationStubsFromSortedIds,
+    createConversationStub,
     firstMessageInConversationFolder,
     messagesInConversationFolder,
     conversationMustBeRemoved
 } from "~/model/conversations";
+import { LoadingStatus } from "~/model/loading-status";
+import { FIXME_NEW_DRAFT_KEY } from "../model/draft";
 import apiMessages from "./api/apiMessages";
+import apiConversations from "./api/apiConversations";
+
 import messages from "./messages";
 
 import { withAlert } from "./helpers/withAlert";
-import { LoadingStatus } from "~/model/loading-status";
-import { isFlagged, isUnread, messageKey } from "~/model/message";
+import { createOnlyMetadata, isFlagged, isUnread, messageKey } from "~/model/message";
 import apiFolders from "./api/apiFolders";
-import { FIXME_NEW_DRAFT_KEY } from "../model/draft";
+import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
 
 const state = {
     conversationByKey: {},
@@ -65,6 +68,7 @@ const state = {
 const actions = {
     [EMPTY_FOLDER]: withAlert(emptyFolder, EMPTY_FOLDER, "EmptyFolder"),
     [FETCH_CONVERSATION_IF_NOT_LOADED]: fetchConversationIfNotLoaded,
+    [FETCH_CONVERSATIONS]: fetchConversations,
     [MARK_CONVERSATIONS_AS_READ]: withAlertOrNot(markConversationsAsRead, "MARK", "_AS_READ"),
     [MARK_CONVERSATIONS_AS_UNREAD]: withAlertOrNot(markConversationsAsUnread, "MARK", "_AS_UNREAD"),
     [MARK_CONVERSATIONS_AS_FLAGGED]: withAlertOrNot(markConversationsAsFlagged, "MARK", "_AS_FLAGGED"),
@@ -95,26 +99,23 @@ const mutations = {
     [UNSET_CURRENT_CONVERSATION]: state => {
         state.currentConversation = null;
     },
-    [SET_CONVERSATION_LIST]: ADD_CONVERSATIONS_STUBS,
-    [SET_TEMPLATES_LIST]: ADD_CONVERSATIONS_STUBS,
+    [SET_CONVERSATION_LIST]: setConversations,
+    [SET_TEMPLATES_LIST]: setConversations,
     [ADD_CONVERSATIONS]: (state, { conversations }) => {
         conversations.forEach(conversation => Vue.set(state.conversationByKey, conversation.key, conversation));
     },
     [REMOVE_CONVERSATIONS]: (state, conversations) => {
         conversations.forEach(conversation => Vue.delete(state.conversationByKey, conversation.key));
     },
-    [ADD_MESSAGES]: (state, messages) => {
-        const cache = {};
+    [SET_CONVERSATIONS_LOADING_STATUS]: (state, { conversations, loading }) => {
+        conversations.forEach(({ key }) => (state.conversationByKey[key].loading = loading));
+    },
+    //Hook
+    [ADD_MESSAGES]: (state, { messages }) => {
         messages.forEach(message => {
-            cache[message.key] = message;
-            const conversation = message.conversationRef
-                ? state.conversationByKey[message.conversationRef.key]
-                : undefined;
-            if (conversation) {
-                const bestIndexForInsertion = sortedIndex(conversation.messages, message.key);
-                if (conversation.messages[bestIndexForInsertion] !== message.key) {
-                    conversation.messages.splice(bestIndexForInsertion, 0, message.key);
-                }
+            const conversation = state.conversationByKey[message.conversationRef?.key];
+            if (conversation && !conversation.messages.includes(message.key)) {
+                conversation.messages.push(message.key);
             }
         });
     },
@@ -122,12 +123,15 @@ const mutations = {
         messages.forEach(message => {
             const conversation = state.conversationByKey[message.conversationRef.key];
             if (conversation) {
-                const index = sortedIndexOf(conversation.messages, message.key);
+                const index = conversation.messages.indexOf(message.key);
                 if (index >= 0) {
                     conversation.messages.splice(index, 1);
                 }
             }
         });
+    },
+    [RESET_CONVERSATIONS]: state => {
+        state.conversationByKey = {};
     },
     [SET_MESSAGES_LOADING_STATUS]: (state, messages) => {
         removeMessages(
@@ -152,15 +156,17 @@ const getters = {
             const conversationIsInTrash = conversation.folderRef.key === MY_TRASH.key;
             conversation.messages.forEach(key => {
                 const message = state.messages[key];
-                const messageIsInTrash = message && message.folderRef.key === MY_TRASH.key;
-                const sentDuplicateIndex = findSentDuplicateIndex(state, conversation, message, MY_SENT);
-                if (
-                    message &&
-                    message.loading !== LoadingStatus.ERROR &&
-                    sentDuplicateIndex === -1 &&
-                    (!messageIsInTrash || conversationIsInTrash)
-                ) {
-                    messages.splice(sortedIndexBy(messages, message, "date"), 0, message);
+                if (message) {
+                    const messageIsInTrash = message.folderRef.key === MY_TRASH.key;
+                    const sentDuplicateIndex = findSentDuplicateIndex(state, conversation, message, MY_SENT);
+                    if (
+                        message &&
+                        message.loading !== LoadingStatus.ERROR &&
+                        sentDuplicateIndex === -1 &&
+                        (!messageIsInTrash || conversationIsInTrash)
+                    ) {
+                        messages.splice(sortedIndexBy(messages, message, "date"), 0, message);
+                    }
                 }
             });
         }
@@ -169,6 +175,9 @@ const getters = {
     [CONVERSATION_METADATA]: (state, getters) => key => {
         if (!key) {
             return null;
+        }
+        if (state.conversationByKey[key].loading === LoadingStatus.NOT_LOADED) {
+            return state.conversationByKey[key];
         }
         const messages = getters.CONVERSATION_MESSAGE_BY_KEY(key);
         return {
@@ -186,20 +195,6 @@ const getters = {
     },
     [CURRENT_CONVERSATION_METADATA]: (state, getters) => getters.CONVERSATION_METADATA(state.currentConversation)
 };
-
-function ADD_CONVERSATIONS_STUBS({ conversationByKey }, { conversations }) {
-    conversations.forEach(conversation => {
-        if (conversationByKey[conversation.key]) {
-            // FIXME remove once we use 'real' message ids for new messages
-            if (!containsNewMessage(conversationByKey[conversation.key])) {
-                conversationByKey[conversation.key].messages = conversation.messages;
-                conversationByKey[conversation.key].date = conversation.date;
-            }
-        } else {
-            Vue.set(conversationByKey, conversation.key, conversation);
-        }
-    });
-}
 
 function reducedMetadata(folderKey, messages) {
     let unreadCount = 0,
@@ -223,7 +218,7 @@ function reducedMetadata(folderKey, messages) {
         m.flags?.forEach(flag => [Flag.ANSWERED, Flag.FORWARDED].includes(flag) && flags.add(flag));
 
         if (!m.composing && (m.loading === LoadingStatus.NOT_LOADED || m.loading === LoadingStatus.LOADING)) {
-            loading = m.loading;
+            loading = LoadingStatus.LOADING;
         }
         if (m.hasAttachment) {
             hasAttachment = true;
@@ -278,17 +273,59 @@ function info(payload) {
 async function fetchConversationIfNotLoaded({ commit, state }, { uid, folder, conversationsActivated }) {
     const key = messageKey(uid, folder.key);
     if (!state.conversationByKey[key]) {
-        let conversations, messages;
+        let refs;
         if (conversationsActivated) {
-            const rawConversation = await inject("MailConversationPersistence", folder.mailboxRef.uid).getComplete(uid);
-            ({ conversations, messages } = createConversationStubsFromRawConversations([rawConversation], folder));
+            const { value } = await inject("MailConversationPersistence", folder.mailboxRef.uid).getComplete(uid);
+            refs = value.messageRefs;
         } else {
-            let id = Number(uid);
-            ({ conversations, messages } = createConversationStubsFromSortedIds([id], folder));
+            uid = Number(uid);
+            refs = [{ itemId: uid, folderUid: folder.remoteRef.uid }];
         }
-        commit(ADD_CONVERSATIONS, { conversations, messages });
+        const conversation = createConversationStub(uid, FolderAdaptor.toRef(folder));
+        conversation.loading = LoadingStatus.LOADING;
+        const conversationRef = { key: conversation.key, uid };
+        const messages = refs.map(({ itemId: internalId, folderUid }) =>
+            createOnlyMetadata({ internalId, folder: FolderAdaptor.toRef(folderUid), conversationRef })
+        );
+        commit(ADD_CONVERSATIONS, { conversations: [conversation] });
+        commit(ADD_MESSAGES, { messages, preserve: true });
     }
     return state.conversationByKey[key];
+}
+
+async function fetchConversations({ commit, state }, { conversations, folder, conversationsActivated }) {
+    let messages = [];
+    if (conversationsActivated) {
+        (await apiConversations.multipleGet(conversations, folder.mailboxRef)).forEach(raw => {
+            const key = messageKey(raw.uid, folder.key);
+            const conversationRef = { key, uid: raw.uid };
+            messages = [
+                ...messages,
+                ...raw.value.messageRefs.map(({ itemId, folderUid }) =>
+                    createOnlyMetadata({ internalId: itemId, folder: FolderAdaptor.toRef(folderUid), conversationRef })
+                )
+            ];
+        });
+    } else {
+        conversations.forEach(conversation => {
+            const conversationRef = { key: conversation.key, uid: conversation.uid };
+            messages.push(
+                createOnlyMetadata({
+                    internalId: conversation.remoteRef.uid,
+                    folder: conversation.folderRef,
+                    conversationRef
+                })
+            );
+        });
+    }
+    if (state.messages[FIXME_NEW_DRAFT_KEY]) {
+        // will put an editing draft back in its conversation (avoid the composer to close due to an update)
+        messages.push(state.messages[FIXME_NEW_DRAFT_KEY]);
+    }
+    commit(ADD_MESSAGES, { messages, preserve: true });
+    // Should be set before multipleGet, but is set after to prevent batch reload of the reactive system.
+    // Will be fixed when CONVERSATION_METADATA will stored in state instead of a dynamic getter.
+    commit(SET_CONVERSATIONS_LOADING_STATUS, { conversations, status: LoadingStatus.LOADING });
 }
 
 function markConversationsAsRead({ getters, dispatch }, { conversations }) {
@@ -322,7 +359,8 @@ async function moveConversations({ getters, commit }, { conversations, folder })
     try {
         await apiMessages.move(messages, folder);
     } catch {
-        commit(ADD_CONVERSATIONS, { conversations, messages });
+        commit(ADD_CONVERSATIONS, { conversations });
+        commit(ADD_MESSAGES, { messages, preserve: true });
     }
 }
 
@@ -333,12 +371,13 @@ async function removeConversations({ getters, commit }, { conversations }) {
     try {
         await apiMessages.multipleDeleteById(messages);
     } catch {
-        commit(ADD_CONVERSATIONS, { conversations, messages });
+        commit(ADD_CONVERSATIONS, { conversations });
+        commit(ADD_MESSAGES, { messages, preserve: true });
     }
 }
 
 function replaceDraftMessage({ commit }, { draft, message }) {
-    commit(ADD_MESSAGES, [message]);
+    commit(ADD_MESSAGES, { messages: [message] });
     commit(REMOVE_MESSAGES, { messages: [draft] });
 }
 
@@ -372,13 +411,13 @@ async function emptyFolder({ commit, state }, { folder, mailbox, deep }) {
         await apiFolders.emptyFolder(mailbox, folder, deep);
     } catch (e) {
         if (messagesToRemove) {
-            commit(ADD_MESSAGES, messagesToRemove);
+            commit(ADD_MESSAGES, { messages: messagesToRemove });
         }
         if (conversationsToRemove) {
             commit(ADD_CONVERSATIONS, {
-                conversations: conversationsToRemove,
-                messages: conversationsToRemoveMessages
+                conversations: conversationsToRemove
             });
+            commit(ADD_MESSAGES, { messages: conversationsToRemoveMessages });
         }
         throw e;
     }
@@ -409,7 +448,10 @@ function findSentDuplicateIndex(state, conversation, message, sentFolder) {
     return -1;
 }
 
-// FIXME remove once we use 'real' message ids for new messages
-function containsNewMessage(conversation) {
-    return FIXME_NEW_DRAFT_KEY && sortedIndexOf(conversation.messages, FIXME_NEW_DRAFT_KEY) >= 0;
+function setConversations({ conversationByKey }, { conversations }) {
+    conversations.forEach(conversation => {
+        if (!conversationByKey[conversation.key]) {
+            Vue.set(conversationByKey, conversation.key, conversation);
+        }
+    });
 }

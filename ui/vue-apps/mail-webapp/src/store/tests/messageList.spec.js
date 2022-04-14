@@ -103,7 +103,7 @@ describe("conversationList", () => {
             }
         });
         test("CONVERSATION_LIST_NEXT_PAGE next page exist", async () => {
-            store.state._keys = Array(100)
+            store.state._keys = Array(150)
                 .fill(0)
                 .map((v, i) => i);
             await store.dispatch(CONVERSATION_LIST_NEXT_PAGE);

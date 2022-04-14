@@ -8,7 +8,7 @@ describe("mutations", () => {
             const message = { key: "key1", subject: "mySubject" };
             const message2 = { key: "key2", subject: "anotherSubject" };
             const state = {};
-            mutations.ADD_MESSAGES(state, [message, message2]);
+            mutations.ADD_MESSAGES(state, { messages: [message, message2] });
             expect(state).toEqual({ [message.key]: message, [message2.key]: message2 });
         });
 
@@ -16,7 +16,7 @@ describe("mutations", () => {
             const message = { key: "key1", subject: "mySubject" };
             const state = { [message.key]: message };
             message.subject = "modified";
-            mutations.ADD_MESSAGES(state, [message]);
+            mutations.ADD_MESSAGES(state, { messages: [message] });
             expect(state).toEqual({ [message.key]: message });
         });
 
@@ -24,7 +24,7 @@ describe("mutations", () => {
             const message = { key: "key1", subject: "mySubject" };
             const state = { [message.key]: message };
             const message2 = { key: "key2", subject: "anotherSubject" };
-            mutations.ADD_MESSAGES(state, [message2]);
+            mutations.ADD_MESSAGES(state, { messages: [message2] });
             expect(state).toEqual({ [message.key]: message, [message2.key]: message2 });
         });
     });

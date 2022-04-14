@@ -48,7 +48,9 @@ export async function fetchMessageIfNotLoaded({ state, commit, dispatch }, { int
         return state[pendingDraftKey];
     }
     if (!state[key]) {
-        commit(ADD_MESSAGES, [createOnlyMetadata({ internalId, folder: FolderAdaptor.toRef(folder) })]);
+        commit(ADD_MESSAGES, {
+            messages: [createOnlyMetadata({ internalId, folder: FolderAdaptor.toRef(folder) })]
+        });
     }
     if (state[key].loading === LoadingStatus.NOT_LOADED) {
         await dispatch(FETCH_MESSAGE_METADATA, { messages: key });
@@ -84,7 +86,7 @@ export async function fetchMessageMetadata({ state, commit }, { messages: messag
         messageKeys.delete(message.key);
         return results;
     }, []);
-    commit(ADD_MESSAGES, results);
+    commit(ADD_MESSAGES, { messages: results });
     commit(
         SET_MESSAGES_LOADING_STATUS,
         messages.reduce((errors, message) => {
@@ -102,7 +104,7 @@ export async function removeMessages({ commit }, { messages }) {
     try {
         await apiMessages.multipleDeleteById(messages);
     } catch (e) {
-        commit(ADD_MESSAGES, messages);
+        commit(ADD_MESSAGES, { messages });
         throw e;
     }
 }

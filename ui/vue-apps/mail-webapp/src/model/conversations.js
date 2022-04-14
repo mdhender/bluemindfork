@@ -1,79 +1,15 @@
-import sortedIndexBy from "lodash.sortedindexby";
-import sortedIndex from "lodash.sortedindex";
-
-import { MessageCreationModes, MessageStatus, createOnlyMetadata, messageKey } from "~/model/message";
-import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
+import { MessageCreationModes, messageKey } from "~/model/message";
 import { LoadingStatus } from "./loading-status";
 import { draftInfoHeader } from "~/model/draft";
 import { isDraftFolder } from "~/model/folder";
 
-export function createConversationStubsFromRawConversations(rawConversations, folder) {
-    const conversations = [],
-        messages = [];
-    rawConversations.forEach(({ value: { messageRefs }, uid }) => {
-        const conversation = createConversationMetadata(uid, FolderAdaptor.toRef(folder), messageRefs);
-        const index = sortedIndexBy(conversations, conversation, c => -c.date);
-        conversations.splice(index, 0, conversation);
-        messages.push(
-            ...messageRefs.map(({ itemId: internalId, folderUid, date }) => {
-                const folder = FolderAdaptor.toRef(folderUid);
-                return createOnlyMetadata({
-                    internalId,
-                    folder,
-                    conversationRef: { key: conversation.key, uid },
-                    date
-                });
-            })
-        );
-    });
-    return { conversations, messages };
-}
-
-export function createConversationStubsFromSortedIds(sortedIds, folder) {
-    const conversations = [],
-        messages = [];
-    sortedIds.forEach(id => {
-        const folderRef = FolderAdaptor.toRef(folder);
-        const messageRef = { itemId: id, folderUid: folder.remoteRef.uid };
-        const conversation = createConversationMetadata(id, folderRef, [messageRef]);
-        const conversationRef = { key: conversation.key, id };
-        const message = createOnlyMetadata({ internalId: id, folder: folderRef, conversationRef });
-        conversations.push(conversation);
-        messages.push(message);
-    });
-    return { conversations, messages };
-}
-
-export function createConversationStubsFromSearchResult(searchResult) {
-    const conversations = [],
-        messages = [];
-    searchResult.forEach(({ id, folderRef }) => {
-        const messageRef = { itemId: id, folderUid: folderRef.uid };
-        const conversation = createConversationMetadata(id, folderRef, [messageRef]);
-        const conversationRef = { key: conversation.key, id };
-        const message = createOnlyMetadata({ internalId: id, folder: folderRef, conversationRef });
-        conversations.push(conversation);
-        messages.push(message);
-    });
-    return { conversations, messages };
-}
-
-function createConversationMetadata(uid, { key, uid: folderUid }, messages) {
-    const sorted = [];
-    let lastMessageDate = -1;
-    messages.forEach(({ date, itemId, folderUid }) => {
-        lastMessageDate = date > lastMessageDate ? date : lastMessageDate;
-        const key = messageKey(itemId, folderUid);
-        sorted.splice(sortedIndex(sorted, key), 0, key);
-    });
+export function createConversationStub(id, folderRef) {
     return {
-        key: uid && key ? messageKey(uid, key) : null,
-        folderRef: { key, folderUid },
-        remoteRef: { uid },
-        status: MessageStatus.IDLE,
+        folderRef,
+        key: messageKey(id, folderRef.key),
         loading: LoadingStatus.NOT_LOADED,
-        messages: sorted,
-        date: lastMessageDate
+        messages: [],
+        remoteRef: { uid: id }
     };
 }
 

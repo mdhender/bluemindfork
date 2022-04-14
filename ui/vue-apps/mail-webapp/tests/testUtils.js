@@ -7,6 +7,7 @@ import inject from "@bluemind/inject";
 
 import MailAppStore from "../src/store";
 import { messageKey as generateKey } from "../src/model/message";
+import { LoadingStatus } from "../src/model/loading-status";
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -98,13 +99,16 @@ export function createStore() {
             folderRef: { key: folderUid, uid: folderUid },
             remoteRef: { uid: "a1b2c3d4e5f6" },
             messages: [messageKey],
-            date: new Date(123456)
+            date: new Date(123456),
+            loading: LoadingStatus.LOADED
         }
     ];
     const messages = [
         { key: messageKey, folderRef: { key: folderUid, uid: folderUid }, conversationRef: { key: conversationKey } }
     ];
-    store.commit("mail/SET_CONVERSATION_LIST", { conversations, messages });
+    store.commit("mail/ADD_CONVERSATIONS", { conversations });
+    store.commit("mail/ADD_MESSAGES", { messages });
+
     store.commit("mail/SET_CURRENT_CONVERSATION", conversations[0]);
     store.commit("mail/SET_ACTIVE_FOLDER", { key: folderUid });
 

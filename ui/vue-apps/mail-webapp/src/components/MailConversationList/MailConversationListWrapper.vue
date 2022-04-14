@@ -6,7 +6,7 @@
         :selected="SELECTION_IS_EMPTY ? currentConversationKey : SELECTION_KEYS"
         @keyup.native.delete.exact.prevent="moveToTrash()"
         @keyup.native.shift.delete.exact.prevent="remove()"
-        @next-page="goNextPage"
+        @next-page="CONVERSATION_LIST_NEXT_PAGE()"
         @set-selection="setSelection"
         @add-to-selection="addToSelection"
         @remove-from-selection="removeFromSelection"
@@ -18,13 +18,7 @@
 </template>
 <script>
 import { RemoveMixin } from "~/mixins";
-import {
-    CONVERSATION_LIST_KEYS,
-    CONVERSATION_LIST_ALL_KEYS,
-    CONVERSATION_LIST_HAS_NEXT,
-    SELECTION_IS_EMPTY,
-    SELECTION_KEYS
-} from "~/getters";
+import { CONVERSATION_LIST_KEYS, CONVERSATION_LIST_ALL_KEYS, SELECTION_IS_EMPTY, SELECTION_KEYS } from "~/getters";
 import { RESET_CONVERSATION_LIST_PAGE, SET_SELECTION, UNSELECT_CONVERSATION, SELECT_CONVERSATION } from "~/mutations";
 import { CONVERSATION_LIST_NEXT_PAGE } from "~/actions";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
@@ -39,7 +33,6 @@ export default {
         ...mapGetters("mail", {
             CONVERSATION_LIST_ALL_KEYS,
             CONVERSATION_LIST_KEYS,
-            CONVERSATION_LIST_HAS_NEXT,
             SELECTION_KEYS,
             SELECTION_IS_EMPTY
         }),
@@ -50,6 +43,7 @@ export default {
     },
     created() {
         this.RESET_CONVERSATION_LIST_PAGE();
+        this.CONVERSATION_LIST_NEXT_PAGE();
     },
     methods: {
         ...mapActions("mail", { CONVERSATION_LIST_NEXT_PAGE }),
@@ -59,11 +53,6 @@ export default {
             SELECT_CONVERSATION,
             UNSELECT_CONVERSATION
         }),
-        goNextPage() {
-            if (this.CONVERSATION_LIST_HAS_NEXT) {
-                this.CONVERSATION_LIST_NEXT_PAGE();
-            }
-        },
         select(selection) {
             if (!Array.isArray(selection)) {
                 const conversation = this.conversationByKey[selection];

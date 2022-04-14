@@ -139,7 +139,7 @@ export default {
         // case of a new message
         async initNewMessage() {
             const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS);
-            this.$_ComposerInitMixin_ADD_MESSAGES([message]);
+            this.$_ComposerInitMixin_ADD_MESSAGES({ messages: [message] });
             const identity = this.getIdentityForNewMessage();
             await this.setFrom(identity, message);
             const content = await this.handleSignature(message, BmRichEditor.constants.NEW_LINE);
@@ -164,7 +164,7 @@ export default {
                 message.conversationRef = { ...previousMessage.conversationRef };
             }
 
-            this.$_ComposerInitMixin_ADD_MESSAGES([message]);
+            this.$_ComposerInitMixin_ADD_MESSAGES({ messages: [message] });
 
             await this.setFrom(identity, message);
 
@@ -222,7 +222,7 @@ export default {
 
         async initEditAsNew(related) {
             const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS);
-            this.$_ComposerInitMixin_ADD_MESSAGES([message]);
+            this.$_ComposerInitMixin_ADD_MESSAGES({ messages: [message] });
             const identity = this.getIdentityForNewMessage();
             await this.setFrom(identity, message);
             this.mergeRecipients(message, related);

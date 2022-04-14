@@ -1,4 +1,4 @@
-import { createConversationStubsFromSortedIds, createConversationStubsFromSearchResult } from "~/model/conversations";
+import { createConversationStub } from "~/model/conversations";
 import { FETCH_TEMPLATES_KEYS } from "~/actions";
 import {
     SET_TEMPLATE_CHOOSER_VISIBLE,
@@ -52,11 +52,11 @@ export default {
 
 async function search(pattern, folder) {
     const ref = FolderAdaptor.toRef(folder);
-    let searchResult = (await apiMessages.search({ pattern, folder: ref }, undefined, folder)).slice(0, 100);
-    return createConversationStubsFromSearchResult(searchResult);
+    const searchResults = (await apiMessages.search({ pattern, folder: ref }, undefined, folder)).slice(0, 100);
+    return searchResults.map(({ id, folderRef }) => createConversationStub(id, folderRef));
 }
 
 async function list(folder) {
-    let sortedIds = (await apiMessages.sortedIds(undefined, folder)).slice(0, 100);
-    return createConversationStubsFromSortedIds(sortedIds, folder);
+    const sortedIds = (await apiMessages.sortedIds(undefined, folder)).slice(0, 100);
+    return sortedIds.map(id => createConversationStub(id, FolderAdaptor.toRef(folder)));
 }

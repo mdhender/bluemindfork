@@ -1,8 +1,4 @@
-import {
-    createConversationStubsFromRawConversations,
-    createConversationStubsFromSearchResult,
-    createConversationStubsFromSortedIds
-} from "~/model/conversations";
+import { createConversationStub } from "~/model/conversations";
 import apiMessages from "./api/apiMessages";
 import { inject } from "@bluemind/inject";
 import searchModule from "./search";
@@ -29,6 +25,7 @@ import {
     SET_CONVERSATION_LIST_PAGE
 } from "~/mutations";
 import { ItemFlag } from "@bluemind/core.container.api";
+import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
 
 const PAGE_SIZE = 50;
 
@@ -94,13 +91,10 @@ const actions = {
         }
     },
     async [REFRESH_CONVERSATION_LIST_KEYS]({ commit, state, getters }, { folder, conversationsActivated }) {
-        let conversations, messages;
-        if (getters.CONVERSATION_LIST_IS_SEARCH_MODE) {
-            ({ conversations, messages } = await search(state, folder));
-        } else {
-            ({ conversations, messages } = await list(state, folder, conversationsActivated));
-        }
-        commit(SET_CONVERSATION_LIST, { conversations, messages });
+        const conversations = getters.CONVERSATION_LIST_IS_SEARCH_MODE
+            ? await search(state, folder)
+            : await list(state, folder, conversationsActivated);
+        commit(SET_CONVERSATION_LIST, { conversations });
     },
     async [CONVERSATION_LIST_NEXT_PAGE]({ commit, state, getters }) {
         if (state.currentPage < getters.CONVERSATION_LIST_TOTAL_PAGES) {
@@ -112,11 +106,12 @@ const actions = {
 };
 
 async function search({ filter, search }, folder) {
-    let searchResult = await apiMessages.search(search, filter, folder);
-    return createConversationStubsFromSearchResult(searchResult);
+    let searchResults = await apiMessages.search(search, filter, folder);
+    return searchResults.map(({ id, folderRef }) => createConversationStub(id, folderRef));
 }
 
 async function list(state, folder, conversationsActivated) {
+    const folderRef = FolderAdaptor.toRef(folder);
     if (conversationsActivated) {
         const flagFilter = { mustNot: [ItemFlag.Deleted] };
         switch (state.filter) {
@@ -127,21 +122,15 @@ async function list(state, folder, conversationsActivated) {
                 flagFilter.must = [ItemFlag.Important];
                 break;
         }
-        const rawConversations = await inject("MailConversationPersistence", folder.mailboxRef.uid).byFolder(
+        const conversationIds = await inject("MailConversationPersistence", folder.mailboxRef.uid).byFolder(
             folder.remoteRef.uid,
             flagFilter
         );
-        return createConversationStubsFromRawConversations(rawConversations, folder);
+        return conversationIds.map(uid => createConversationStub(uid, folderRef));
     } else {
-        let sortedIds = await apiMessages.sortedIds(state.filter, folder);
-        return createConversationStubsFromSortedIds(sortedIds, folder);
+        const sortedIds = await apiMessages.sortedIds(state.filter, folder);
+        return sortedIds.map(id => createConversationStub(id, folderRef));
     }
-}
-
-function getPage(page, keys, opt_start) {
-    const end = Math.min(keys.length, page * PAGE_SIZE);
-    const start = opt_start === undefined ? Math.max(0, (page - 1) * PAGE_SIZE) : opt_start;
-    return keys.slice(start, end);
 }
 
 const getters = {
@@ -167,7 +156,7 @@ const getters = {
         return [];
     },
     [CONVERSATION_LIST_KEYS]: ({ currentPage }, { CONVERSATION_LIST_ALL_KEYS }) =>
-        getPage(currentPage, CONVERSATION_LIST_ALL_KEYS, 0),
+        CONVERSATION_LIST_ALL_KEYS.slice(0, Math.min(CONVERSATION_LIST_ALL_KEYS.length, currentPage * PAGE_SIZE)),
     [CONVERSATION_LIST_TOTAL_PAGES]: (s, { CONVERSATION_LIST_ALL_KEYS }) =>
         Math.ceil(CONVERSATION_LIST_ALL_KEYS.length / PAGE_SIZE),
     [CONVERSATION_LIST_UNREAD_FILTER_ENABLED]: ({ filter }) => filter === ConversationListFilter.UNREAD

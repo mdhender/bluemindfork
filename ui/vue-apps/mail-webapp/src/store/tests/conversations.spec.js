@@ -218,9 +218,9 @@ describe("conversations", () => {
             expect(store.state.conversationByKey["key2"].messages.includes("messageKey5")).toBeFalsy();
         });
         test("ADD_MESSAGES", () => {
-            storeOptions.mutations[ADD_MESSAGES](store.state, [
-                { key: "messageKey10", conversationRef: { key: "key2" } }
-            ]);
+            storeOptions.mutations[ADD_MESSAGES](store.state, {
+                messages: [{ key: "messageKey10", conversationRef: { key: "key2" } }]
+            });
             expect(store.state.conversationByKey["key2"].messages.length).toBe(4);
             expect(store.state.conversationByKey["key2"].messages.includes("messageKey10")).toBeTruthy();
         });

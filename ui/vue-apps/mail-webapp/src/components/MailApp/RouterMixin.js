@@ -10,6 +10,7 @@ import {
     MAILBOXES_ARE_LOADED
 } from "~/getters";
 import {
+    RESET_CONVERSATIONS,
     SET_ACTIVE_FOLDER,
     SET_CONVERSATION_LIST_FILTER,
     SET_ROUTE_FILTER,
@@ -85,6 +86,7 @@ export default {
                     if (!this.route.search.pattern || this.$_RouterMixin_query.folder || !this.activeFolder) {
                         this.SET_ACTIVE_FOLDER(folder);
                     }
+                    this.RESET_CONVERSATIONS();
                     await this.FETCH_CONVERSATION_LIST_KEYS({
                         folder: this.folders[this.activeFolder],
                         conversationsActivated: this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`]
@@ -103,6 +105,7 @@ export default {
     methods: {
         ...mapActions("mail", { FETCH_CONVERSATION_LIST_KEYS }),
         ...mapMutations("mail", {
+            RESET_CONVERSATIONS,
             SET_ACTIVE_FOLDER,
             SET_CONVERSATION_LIST_FILTER,
             SET_ROUTE_FILTER,

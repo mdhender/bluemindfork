@@ -710,7 +710,7 @@ function initConversations(store) {
             key: 2,
             folderRef,
             messages: [2],
-            loading: LoadingStatus.NOT_LOADED,
+            loading: LoadingStatus.LOADED,
             remoteRef: { uid: "a1b2c3d4e5f62" }
         },
         {
@@ -734,5 +734,6 @@ function initConversations(store) {
         { key: 3, folderRef, flags: [], loading: LoadingStatus.LOADED },
         { key: 4, folderRef, flags: [], loading: LoadingStatus.LOADED }
     ];
-    store.commit("SET_CONVERSATION_LIST", { conversations, messages });
+    store.commit("ADD_CONVERSATIONS", { conversations });
+    store.commit("ADD_MESSAGES", { messages });
 }

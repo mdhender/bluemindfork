@@ -31,10 +31,6 @@ export default {
         BmListGroupItem
     },
     props: {
-        conversation: {
-            type: Object,
-            required: true
-        },
         isSelected: {
             type: Boolean,
             required: false,

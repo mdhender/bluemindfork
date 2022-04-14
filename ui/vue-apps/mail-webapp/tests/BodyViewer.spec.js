@@ -49,7 +49,7 @@ describe("BodyViewer.spec", () => {
         clonedMessage.key = "new-one";
         clonedMessage.inlinePartsByCapabilities = [];
         clonedMessage.attachments = [];
-        mockedStore.commit("mail/ADD_MESSAGES", [clonedMessage]);
+        mockedStore.commit("mail/ADD_MESSAGES", { messages: [clonedMessage] });
         wrapper.setProps({ message: clonedMessage });
         await flushPromises();
 
@@ -74,6 +74,6 @@ function mountComponent(inlinePartsByCapabilities) {
     mockedStore = createStore();
     const key = Object.keys(mockedStore.state.mail.conversations.conversationByKey).pop();
     message.conversationRef = { key };
-    mockedStore.commit("mail/ADD_MESSAGES", [message]);
+    mockedStore.commit("mail/ADD_MESSAGES", { messages: [message] });
     return createWrapper(BodyViewer, { store: mockedStore }, { message });
 }

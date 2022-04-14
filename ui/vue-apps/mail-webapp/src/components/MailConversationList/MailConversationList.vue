@@ -17,7 +17,7 @@ import {
     CONVERSATION_LIST_IS_SEARCH_MODE,
     CONVERSATION_LIST_KEYS
 } from "~/getters";
-import { FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS } from "~/actions";
+import { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS } from "~/actions";
 import { PUSHED_FOLDER_CHANGES } from "../VueBusEventTypes";
 
 export default {
@@ -34,25 +34,24 @@ export default {
             CONVERSATION_LIST_KEYS
         }),
         ...mapState("mail", ["activeFolder", "folders"]),
+        ...mapState("mail", { conversationByKey: state => state.conversations.conversationByKey }),
         folder() {
             return this.folders[this.activeFolder];
         }
     },
     methods: {
-        ...mapActions("mail", { FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS }),
-        async refreshList() {
-            await this.REFRESH_CONVERSATION_LIST_KEYS({
-                folder: this.folder,
-                conversationsActivated: this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`]
-            });
-            const messagesToFetch = this.CONVERSATION_LIST_KEYS.flatMap(key => this.CONVERSATION_MESSAGE_BY_KEY(key));
-            this.FETCH_MESSAGE_METADATA({ messages: messagesToFetch.map(m => m.key) });
-        }
+        ...mapActions("mail", { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS })
     },
     bus: {
-        [PUSHED_FOLDER_CHANGES]: function (folderUid) {
+        [PUSHED_FOLDER_CHANGES]: async function (folderUid) {
             if (!this.CONVERSATION_LIST_IS_SEARCH_MODE && this.folders[this.activeFolder].remoteRef.uid === folderUid) {
-                this.refreshList();
+                const conversationsActivated = this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`];
+                await this.REFRESH_CONVERSATION_LIST_KEYS({ folder: this.folder, conversationsActivated });
+
+                const conversations = this.CONVERSATION_LIST_KEYS.map(key => this.conversationByKey[key]);
+                await this.FETCH_CONVERSATIONS({ conversations, folder: this.folder, conversationsActivated });
+
+                this.FETCH_MESSAGE_METADATA({ messages: conversations.flatMap(({ messages }) => messages) });
             }
         }
     }

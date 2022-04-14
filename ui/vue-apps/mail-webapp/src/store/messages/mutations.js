@@ -1,22 +1,19 @@
 import Vue from "vue";
 import {
     ADD_ATTACHMENT,
-    ADD_CONVERSATIONS,
     ADD_FLAG,
     ADD_MESSAGES,
     DELETE_FLAG,
-    REMOVE_ATTACHMENT,
-    REMOVE_MESSAGES,
-    REMOVE_CONVERSATIONS,
     MOVE_MESSAGES,
+    REMOVE_ATTACHMENT,
+    REMOVE_CONVERSATIONS,
+    REMOVE_MESSAGES,
+    RESET_CONVERSATIONS,
     SET_ATTACHMENT_ADDRESS,
     SET_ATTACHMENT_ENCODING,
     SET_ATTACHMENT_PROGRESS,
     SET_ATTACHMENT_STATUS,
     SET_ATTACHMENTS,
-    SET_CONVERSATION_LIST,
-    SET_MESSAGES_LOADING_STATUS,
-    SET_MESSAGES_STATUS,
     SET_MESSAGE_BCC,
     SET_MESSAGE_CC,
     SET_MESSAGE_COMPOSING,
@@ -24,19 +21,25 @@ import {
     SET_MESSAGE_FROM,
     SET_MESSAGE_HAS_ATTACHMENT,
     SET_MESSAGE_HEADERS,
-    SET_MESSAGE_INTERNAL_ID,
-    SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES,
     SET_MESSAGE_IMAP_UID,
+    SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES,
+    SET_MESSAGE_INTERNAL_ID,
     SET_MESSAGE_PREVIEW,
     SET_MESSAGE_SUBJECT,
     SET_MESSAGE_TMP_ADDRESSES,
     SET_MESSAGE_TO,
+    SET_MESSAGES_LOADING_STATUS,
+    SET_MESSAGES_STATUS,
     SET_TEMPLATES_LIST
 } from "~/mutations";
 
 export default {
-    [ADD_MESSAGES]: (state, messages) => {
-        messages.forEach(message => Vue.set(state, message.key, message));
+    [ADD_MESSAGES]: (state, { messages, preserve }) => {
+        messages.forEach(message => {
+            if (!preserve || !state[message.key]) {
+                Vue.set(state, message.key, message);
+            }
+        });
     },
     [ADD_FLAG]: (state, { messages, flag }) => {
         messages.forEach(({ key }) => state[key].flags.push(flag));
@@ -133,13 +136,12 @@ export default {
     },
 
     // Hooks
-    [ADD_CONVERSATIONS]: (state, { messages }) => {
-        messages.forEach(message => state[message.key] || Vue.set(state, message.key, message));
-    },
-    [SET_CONVERSATION_LIST]: ADD_MESSAGES_STUBS,
     [SET_TEMPLATES_LIST]: ADD_MESSAGES_STUBS,
     [REMOVE_CONVERSATIONS]: (state, conversations) => {
         conversations.forEach(({ messages }) => messages.forEach(key => Vue.delete(state, key)));
+    },
+    [RESET_CONVERSATIONS]: state => {
+        Object.assign(state, {});
     }
 };
 

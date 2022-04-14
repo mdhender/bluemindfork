@@ -46,11 +46,7 @@
                     </template>
                 </draggable-conversation>
             </template>
-            <conversation-list-item-loading
-                v-else-if="!CONVERSATION_IS_LOADED(conversation)"
-                :is-selected="isSelected(conversation.key)"
-                :conversation="conversation"
-            />
+            <conversation-list-item-loading v-else :is-selected="isSelected(conversation.key)" />
         </div>
     </bm-list-group>
 </template>
@@ -58,8 +54,8 @@
 <script>
 import { BmListGroup } from "@bluemind/styleguide";
 import { mapState, mapGetters, mapActions } from "vuex";
-import { CONVERSATION_IS_LOADED, CONVERSATION_METADATA } from "~/getters";
-import { FETCH_MESSAGE_METADATA } from "~/actions";
+import { CONVERSATIONS_ACTIVATED, CONVERSATION_IS_LOADED, CONVERSATION_METADATA } from "~/getters";
+import { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA } from "~/actions";
 import { LoadingStatus } from "~/model/loading-status";
 import ConversationListItemLoading from "./ConversationListItemLoading";
 import ConversationListSeparator from "./ConversationListSeparator";
@@ -121,9 +117,11 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", { CONVERSATION_IS_LOADED, CONVERSATION_METADATA }),
-        ...mapState("mail", ["activeFolder"]),
-        ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
+        ...mapGetters("mail", { CONVERSATIONS_ACTIVATED, CONVERSATION_IS_LOADED, CONVERSATION_METADATA }),
+        ...mapState("mail", ["folders", "activeFolder"]),
+        ...mapState("mail", {
+            messages: ({ conversations }) => conversations.messages
+        }),
         conversations() {
             return this.conversationKeys
                 .map(key => this.CONVERSATION_METADATA(key))
@@ -157,15 +155,24 @@ export default {
             }
         },
         conversationKeys: {
-            handler() {
-                const conversationsToLoad = this.conversations.filter(({ loading }) =>
-                    [LoadingStatus.NOT_LOADED, LoadingStatus.LOADING].includes(loading)
+            async handler() {
+                const conversationsToLoad = this.conversations.filter(
+                    ({ loading }) => loading === LoadingStatus.NOT_LOADED
                 );
-
                 if (conversationsToLoad.length > 0) {
-                    const messagesToLoad = this.conversations
-                        .flatMap(conversation => conversation.messages)
-                        .filter(key => this.messages[key].loading === LoadingStatus.NOT_LOADED);
+                    await this.FETCH_CONVERSATIONS({
+                        conversations: conversationsToLoad,
+                        folder: this.folders[this.activeFolder],
+                        conversationsActivated: this.CONVERSATIONS_ACTIVATED
+                    });
+                }
+                const messagesToLoad = this.conversations.flatMap(conversation => {
+                    if (conversation.loading === LoadingStatus.LOADING) {
+                        return conversation.messages.filter(key => this.messages[key].loading !== LoadingStatus.LOADED);
+                    }
+                    return [];
+                });
+                if (messagesToLoad.length > 0) {
                     this.FETCH_MESSAGE_METADATA({ messages: messagesToLoad });
                 }
             },
@@ -177,14 +184,8 @@ export default {
             this.focusByKey(this.selected?.key);
         }
     },
-    mounted() {
-        this.onScroll();
-    },
-    updated() {
-        this.onScroll();
-    },
     methods: {
-        ...mapActions("mail", { FETCH_MESSAGE_METADATA }),
+        ...mapActions("mail", { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA }),
         onScroll() {
             const total = this.$el.scrollHeight;
             const current = this.$el.scrollTop + this.$el.offsetHeight;
