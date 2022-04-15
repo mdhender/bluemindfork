@@ -25,6 +25,9 @@ curdir=`dirname $0`
 
 export DEFAULT_MEM=128
 
+export BM_JVM_CUSTOM_OPTS="-Dio.netty.allocator.maxOrder=8"
+
+
 source ${curdir}/equinox-systemd.lib ${product}
 
 case "$1" in

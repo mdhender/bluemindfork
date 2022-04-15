@@ -7,7 +7,7 @@ WORKSPACE=`dirname $0`
 source ${WORKSPACE}"/check.lib"
 
 function check_sds {
-    existrequest=$(curl --connect-timeout 30 --max-time 120 -X POST -o /dev/null -w "%{http_code}" --silent -d'{"mailbox":"check","partition":"check"}' http://localhost:8091/mailbox)
+    existrequest=$(curl --connect-timeout 30 --max-time 120 -X POST -o /dev/null -w "%{http_code}" --silent -d'{"size":123456}' http://localhost:8091/msg_size)
     existrequestret=$?
     if [ ${existrequestret} -ne 0 ]
         then
@@ -15,7 +15,7 @@ function check_sds {
             exit 2
     fi
 
-    if [ ${existrequest} -ne 403 ]; then
+    if [ ${existrequest} -ne 200 ]; then
             echo "[ERROR] HTTP error code "${existrequest}" on "${APP_NAME}
             exit 2
     fi

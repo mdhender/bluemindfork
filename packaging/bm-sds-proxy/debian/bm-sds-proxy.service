@@ -10,7 +10,7 @@ Restart=on-abnormal
 
 User=cyrus
 Group=mail
-WorkingDirectory=/var/log
+WorkingDirectory=/var/spool/cyrus
 TimeoutStartSec=90s
 GuessMainPID=no
 RemainAfterExit=no
