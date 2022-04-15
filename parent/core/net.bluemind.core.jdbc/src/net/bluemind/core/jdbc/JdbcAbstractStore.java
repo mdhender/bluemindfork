@@ -69,20 +69,7 @@ public class JdbcAbstractStore {
 		PreparedStatement st = null;
 		try {
 			st = conn.prepareStatement(query);
-			if (parameters != null) {
-				for (int i = 0; i < parameters.length; i++) {
-					Object param = parameters[i];
-					if (param instanceof Long[]) {
-						st.setArray(i + 1, conn.createArrayOf("int", (Long[]) param));
-					} else if (param instanceof String[]) {
-						st.setArray(i + 1, conn.createArrayOf("text", (String[]) param));
-					} else if (param instanceof Byte[]) {
-						st.setArray(i + 1, conn.createArrayOf(BYTEA, (Byte[]) param));
-					} else {
-						st.setObject(i + 1, param);
-					}
-				}
-			}
+			setStatementParameters(parameters, conn, st);
 			logger.debug("[{}] S: {}", datasource, st);
 			long time = System.currentTimeMillis();
 			rs = st.executeQuery();
@@ -119,15 +106,7 @@ public class JdbcAbstractStore {
 		PreparedStatement st = null;
 		try {
 			st = conn.prepareStatement(query);
-			if (param instanceof Long[]) {
-				st.setArray(1, conn.createArrayOf("int", (Long[]) param));
-			} else if (param instanceof String[]) {
-				st.setArray(1, conn.createArrayOf("text", (String[]) param));
-			} else if (param instanceof Byte[]) {
-				st.setArray(1, conn.createArrayOf(BYTEA, (Byte[]) param));
-			} else {
-				st.setObject(1, param);
-			}
+			setStatementParameters(new Object[] { param }, conn, st);
 			logger.debug("[{}] S: {}", datasource, st);
 			long time = System.currentTimeMillis();
 			rs = st.executeQuery();
@@ -223,20 +202,7 @@ public class JdbcAbstractStore {
 			for (StatementValues<T> stValue : stValues) {
 				index = stValue.setValues(conn, st, index, 0, value);
 			}
-			if (parameters != null) {
-				for (int i = 0; i < parameters.length; i++) {
-					Object param = parameters[i];
-					if (param instanceof String[]) {
-						st.setArray(index++, conn.createArrayOf("text", (String[]) param));
-					} else if (param instanceof Long[]) {
-						st.setArray(index++, conn.createArrayOf("int4", (Long[]) param));
-					} else if (param instanceof Byte[]) {
-						st.setArray(index++, conn.createArrayOf(BYTEA, (Byte[]) param));
-					} else {
-						st.setObject(index++, parameters[i]);
-					}
-				}
-			}
+			setStatementParameters(parameters, conn, st, index);
 			logger.debug("[{}] U: {}", datasource, st);
 			return st.executeUpdate();
 		} finally {
@@ -258,20 +224,7 @@ public class JdbcAbstractStore {
 		PreparedStatement st = null;
 		try {
 			st = conn.prepareStatement(query);
-			if (parameters != null) {
-				for (int i = 0; i < parameters.length; i++) {
-					Object param = parameters[i];
-					if (param instanceof String[]) {
-						st.setArray(i + 1, conn.createArrayOf("text", (String[]) param));
-					} else if (param instanceof Long[]) {
-						st.setArray(i + 1, conn.createArrayOf("int4", (Long[]) param));
-					} else if (param instanceof Byte[]) {
-						st.setArray(i + 1, conn.createArrayOf(BYTEA, (Byte[]) param));
-					} else {
-						st.setObject(i + 1, parameters[i]);
-					}
-				}
-			}
+			setStatementParameters(parameters, conn, st);
 			logger.debug("[{}] D: {}", datasource, st);
 			return st.executeUpdate();
 		} finally {
@@ -292,20 +245,7 @@ public class JdbcAbstractStore {
 		List<T> ret = new ArrayList<>();
 		try {
 			st = conn.prepareStatement(query);
-			if (parameters != null) {
-				for (int i = 0; i < parameters.length; i++) {
-					Object param = parameters[i];
-					if (param instanceof String[]) {
-						st.setArray(i + 1, conn.createArrayOf("text", (String[]) param));
-					} else if (param instanceof Long[]) {
-						st.setArray(i + 1, conn.createArrayOf("int4", (Long[]) param));
-					} else if (param instanceof Byte[]) {
-						st.setArray(i + 1, conn.createArrayOf(BYTEA, (Byte[]) param));
-					} else {
-						st.setObject(i + 1, parameters[i]);
-					}
-				}
-			}
+			setStatementParameters(parameters, conn, st);
 			rs = st.executeQuery();
 			while (rs.next()) {
 				int index = 1;
@@ -378,20 +318,7 @@ public class JdbcAbstractStore {
 			st = conn.prepareStatement(query);
 			int index = 1;
 			index = stValue.setValues(conn, st, index, 0, value);
-			if (parameters != null) {
-				for (int i = 0; i < parameters.length; i++) {
-					Object param = parameters[i];
-					if (param instanceof String[]) {
-						st.setArray(index++, conn.createArrayOf("text", (String[]) param));
-					} else if (param instanceof Long[]) {
-						st.setArray(index++, conn.createArrayOf("int4", (Long[]) param));
-					} else if (param instanceof Byte[]) {
-						st.setArray(index++, conn.createArrayOf(BYTEA, (Byte[]) param));
-					} else {
-						st.setObject(index++, parameters[i]);
-					}
-				}
-			}
+			setStatementParameters(parameters, conn, st, index);
 			logger.debug("[{}] I: {}", datasource, st);
 			st.executeUpdate();
 		} finally {
@@ -439,21 +366,7 @@ public class JdbcAbstractStore {
 
 	private int insertImpl(String query, Object[] parameters, Connection conn) throws SQLException {
 		try (PreparedStatement st = conn.prepareStatement(query)) {
-			int index = 1;
-			if (parameters != null) {
-				for (int i = 0; i < parameters.length; i++) {
-					Object param = parameters[i];
-					if (param instanceof String[]) {
-						st.setArray(index++, conn.createArrayOf("text", (String[]) param));
-					} else if (param instanceof Long[]) {
-						st.setArray(index++, conn.createArrayOf("int4", (Long[]) param));
-					} else if (param instanceof Byte[]) {
-						st.setArray(index++, conn.createArrayOf(BYTEA, (Byte[]) param));
-					} else {
-						st.setObject(index++, parameters[i]);
-					}
-				}
-			}
+			setStatementParameters(parameters, conn, st);
 			logger.debug("[{}] I: {}", datasource, st);
 			return st.executeUpdate();
 		}
@@ -506,6 +419,32 @@ public class JdbcAbstractStore {
 			logger.warn("error applying {} ", action, e);
 			return null;
 		}
+	}
+
+	private int setStatementParameters(Object[] parameters, Connection conn, PreparedStatement st) throws SQLException {
+		return setStatementParameters(parameters, conn, st, 1);
+	}
+
+	private int setStatementParameters(Object[] parameters, Connection conn, PreparedStatement st, int currentIndex)
+			throws SQLException {
+		if (parameters == null) {
+			return currentIndex;
+		}
+		for (int i = 0; i < parameters.length; i++) {
+			Object param = parameters[i];
+			if (param instanceof Integer[]) {
+				st.setArray(currentIndex++, conn.createArrayOf("int4", (Integer[]) param));
+			} else if (param instanceof Long[]) {
+				st.setArray(currentIndex++, conn.createArrayOf("int8", (Long[]) param));
+			} else if (param instanceof String[]) {
+				st.setArray(currentIndex++, conn.createArrayOf("text", (String[]) param));
+			} else if (param instanceof Byte[]) {
+				st.setArray(currentIndex++, conn.createArrayOf(BYTEA, (Byte[]) param));
+			} else {
+				st.setObject(currentIndex++, param);
+			}
+		}
+		return currentIndex;
 	}
 
 }
