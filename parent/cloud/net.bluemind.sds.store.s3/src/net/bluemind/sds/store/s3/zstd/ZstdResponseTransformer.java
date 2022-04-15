@@ -24,6 +24,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CompletableFuture;
@@ -48,13 +49,13 @@ public class ZstdResponseTransformer<T> implements AsyncResponseTransformer<T, T
 
 	private static final Logger logger = LoggerFactory.getLogger(ZstdResponseTransformer.class);
 
-	private final String path;
+	private final Path path;
 	private CompletableFuture<T> cf;
 	private T response;
 	long transferred;
 
 	public ZstdResponseTransformer(String path) {
-		this.path = path;
+		this.path = Paths.get(path);
 	}
 
 	@Override
@@ -98,7 +99,7 @@ public class ZstdResponseTransformer<T> implements AsyncResponseTransformer<T, T
 
 					Runnable decompProcess = () -> {
 
-						try (OutputStream os = Files.newOutputStream(Paths.get(path), StandardOpenOption.CREATE,
+						try (OutputStream os = Files.newOutputStream(path, StandardOpenOption.CREATE,
 								StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
 								ZstdInputStream decomp = new ZstdInputStream(toDecomp, RecyclingBufferPool.INSTANCE)) {
 							byte[] dec = new byte[8192];
@@ -168,7 +169,11 @@ public class ZstdResponseTransformer<T> implements AsyncResponseTransformer<T, T
 
 	@Override
 	public void exceptionOccurred(Throwable error) {
-		logger.error(error.getMessage(), error);
+		try {
+			Files.deleteIfExists(path);
+		} catch (IOException e) {
+			// don't care
+		}
 		cf.completeExceptionally(error);
 	}
 

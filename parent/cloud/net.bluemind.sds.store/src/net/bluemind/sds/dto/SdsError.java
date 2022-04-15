@@ -28,4 +28,8 @@ public class SdsError {
 		this.message = message;
 	}
 
+	@Override
+	public String toString() {
+		return message;
+	}
 }

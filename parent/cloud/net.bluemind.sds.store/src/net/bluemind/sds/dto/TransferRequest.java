@@ -17,9 +17,15 @@
   */
 package net.bluemind.sds.dto;
 
+import com.google.common.base.MoreObjects;
+
 public class TransferRequest extends SdsRequest {
 
 	public String guid;
 	public String filename;
 
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(getClass()).add("guid", guid).add("filename", filename).toString();
+	}
 }

@@ -170,6 +170,23 @@ public class S3StoreTests {
 	}
 
 	@Test
+	public void getObjectNotFound() throws IOException {
+		S3Configuration config = S3Configuration.withEndpointAndBucket("http://" + s3Ip + ":8000",
+				"junit-" + System.currentTimeMillis());
+		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson());
+		Path path = tempContent();
+		GetRequest get = new GetRequest();
+		get.mailbox = "titi";
+		get.guid = "nonexistingguid";
+		get.filename = path.toFile().getAbsolutePath();
+		SdsResponse dlResp = store.download(get).join();
+		assertNotNull(dlResp);
+		System.err.println("dlResp: " + dlResp);
+		assertNotNull("Error 404 not found should be present", dlResp.error);
+		assertFalse("Download file should not exists", new File(get.filename).exists());
+	}
+
+	@Test
 	public void getObjects() throws IOException {
 		S3Configuration config = S3Configuration.withEndpointAndBucket("http://" + s3Ip + ":8000",
 				"junit-" + System.currentTimeMillis());
@@ -226,13 +243,56 @@ public class S3StoreTests {
 		MgetRequest get = new MgetRequest();
 		get.mailbox = "titi";
 		get.transfers = puts.stream().map(p -> Transfer.of(p.guid, p.filename + ".dl")).collect(Collectors.toList());
-		for (int i = 0; i < cnt; i++) {
+		for (int i = 0; i < 10; i++) {
 			SdsResponse dlResp = store.downloads(get).join();
 			assertNotNull(dlResp);
 			assertNull(dlResp.error);
 			for (Transfer t : get.transfers) {
 				Files.deleteIfExists(Paths.get(t.filename));
 			}
+		}
+	}
+
+	@Test
+	public void getManyObjectsOneNotFound() throws IOException {
+		S3Configuration config = S3Configuration.withEndpointAndBucket("http://" + s3Ip + ":8000",
+				"junit-" + System.currentTimeMillis());
+		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson());
+
+		int cnt = 5;
+		List<PutRequest> puts = new ArrayList<>(cnt);
+		for (int i = 0; i < cnt; i++) {
+			PutRequest put = new PutRequest();
+			put.mailbox = "titi";
+			put.guid = UUID.randomUUID().toString();
+			Path path = tempContent(256 * 1024);
+			put.filename = path.toFile().getAbsolutePath();
+			if (i == 0) {
+				System.err.println("upload of " + put + " intentionally skipped");
+			} else {
+				assertNull(store.upload(put).join().error);
+			}
+			puts.add(put);
+			Files.delete(path);
+		}
+
+		MgetRequest get = new MgetRequest();
+		get.mailbox = "titi";
+		get.transfers = puts.stream().map(p -> Transfer.of(p.guid, p.filename + ".dl")).collect(Collectors.toList());
+		SdsResponse dlResp = store.downloads(get).join();
+
+		for (int i = 0; i < cnt; i++) {
+			String filename = get.transfers.get(i).filename;
+			assertNotNull("Response should not be null", dlResp);
+			assertNotNull("Error should be defined", dlResp.error);
+			if (i != 0) {
+				assertTrue("file should exist", Paths.get(filename).toFile().exists());
+			} else {
+				assertFalse("file should NOT exist", Paths.get(filename).toFile().exists());
+			}
+		}
+		for (Transfer t : get.transfers) {
+			Files.deleteIfExists(Paths.get(t.filename));
 		}
 	}
 

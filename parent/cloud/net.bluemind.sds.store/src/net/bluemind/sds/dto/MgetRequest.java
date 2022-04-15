@@ -19,6 +19,8 @@ package net.bluemind.sds.dto;
 
 import java.util.List;
 
+import com.google.common.base.MoreObjects;
+
 public class MgetRequest extends SdsRequest {
 
 	public static class Transfer {
@@ -31,8 +33,18 @@ public class MgetRequest extends SdsRequest {
 			t.filename = f;
 			return t;
 		}
+
+		@Override
+		public String toString() {
+			return MoreObjects.toStringHelper(getClass()).add("guid", guid).add("filename", filename).toString();
+		}
 	}
 
 	public List<Transfer> transfers;
+
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(getClass()).add("mailbox", mailbox).add("get", transfers).toString();
+	}
 
 }

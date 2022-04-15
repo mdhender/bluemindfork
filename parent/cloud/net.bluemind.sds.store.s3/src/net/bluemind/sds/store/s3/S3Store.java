@@ -152,7 +152,7 @@ public class S3Store implements ISdsBackingStore {
 		}
 	}
 
-	private static final HeadObjectResponse NOT_FOUND = (HeadObjectResponse) HeadObjectResponse.builder()
+	private static final HeadObjectResponse HEAD_NOT_FOUND = (HeadObjectResponse) HeadObjectResponse.builder()
 			.sdkHttpResponse(SdkHttpResponse.builder().statusCode(404).build()).build();
 
 	@Override
@@ -160,7 +160,7 @@ public class S3Store implements ISdsBackingStore {
 		final long start = clock.monotonicTime();
 		return client.headObject(HeadObjectRequest.builder().bucket(bucket).key(req.guid).build()).exceptionally(t -> {
 			if (t.getCause() instanceof NoSuchKeyException) {
-				return NOT_FOUND;
+				return HEAD_NOT_FOUND;
 			} else {
 				throw new S3StoreException(t.getCause());
 			}
@@ -187,10 +187,11 @@ public class S3Store implements ISdsBackingStore {
 						final long start = clock.monotonicTime();
 
 						Path toUpload = Paths.get(req.filename);
-						return client
-								.putObject(PutObjectRequest.builder().bucket(bucket).key(req.guid).build(),
-										new ZstdRequestBody(toUpload, compressionRatio))
-								.exceptionally(ex -> null).thenApply(putResp -> {
+						return client.putObject(PutObjectRequest.builder().bucket(bucket).key(req.guid).build(),
+								new ZstdRequestBody(toUpload, compressionRatio)).exceptionally(ex -> {
+									logger.error("put {} failed: {}", req, ex.getMessage());
+									return null;
+								}).thenApply(putResp -> {
 									Optional<PutObjectResponse> optPut = Optional.ofNullable(putResp);
 									SdsResponse sr = new SdsResponse();
 									putLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
@@ -213,22 +214,35 @@ public class S3Store implements ISdsBackingStore {
 
 	}
 
+	private static final GetObjectResponse GET_NOT_FOUND = (GetObjectResponse) GetObjectResponse.builder()
+			.sdkHttpResponse(SdkHttpResponse.builder().statusCode(404).build()).build();
+
 	@Override
 	public CompletableFuture<SdsResponse> download(GetRequest req) {
 		final long start = clock.monotonicTime();
 		ZstdResponseTransformer<GetObjectResponse> prt = new ZstdResponseTransformer<>(req.filename);
 		return client.getObject(GetObjectRequest.builder().bucket(bucket).key(req.guid).build(), prt)
-				.exceptionally(ex -> null).thenApply(gor -> {
+				.exceptionally(t -> {
+					if (t.getCause() instanceof NoSuchKeyException) {
+						logger.error("GET failed: {} not found", req.guid);
+						return GET_NOT_FOUND;
+					} else {
+						throw new S3StoreException(t.getCause());
+					}
+				}).thenApply(gor -> {
+					boolean notfound = gor != null && gor.sdkHttpResponse().statusCode() == 404;
 					getLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
-					if (gor != null) {
+					if (gor != null && !notfound) {
 						getSizeCounter.increment(prt.transferred());
 						getRequestCounter.increment();
+						return SdsResponse.UNTAGGED_OK;
 					} else {
 						getFailureRequestCounter.increment();
+						SdsResponse error = new SdsResponse();
+						error.error = new SdsError("get " + req.guid + " failed");
+						return error;
 					}
-					return SdsResponse.UNTAGGED_OK;
 				});
-
 	}
 
 	@Override
@@ -247,11 +261,15 @@ public class S3Store implements ISdsBackingStore {
 			int slot = i % parallelStreams;
 			Transfer t = it.next();
 			ZstdResponseTransformer<GetObjectResponse> pr = new ZstdResponseTransformer<>(t.filename);
-			roots[slot] = roots[slot].thenCompose(v -> client
-					.getObject(GetObjectRequest.builder().bucket(bucket).key(t.guid).build(), pr).exceptionally(x -> {
-						logger.warn(x.getMessage(), x);
-						return null;
-					}).thenAccept(respBytes -> totalSize.add(pr.transferred())));
+			roots[slot] = roots[slot].thenCompose(
+					v -> client.getObject(GetObjectRequest.builder().bucket(bucket).key(t.guid).build(), pr) //
+							.exceptionally(ex -> {
+								if (ex.getCause() instanceof NoSuchKeyException) {
+									logger.error("GET failed: {} not found", t.guid);
+								}
+								throw new S3StoreException(ex.getCause());
+							}) //
+							.thenAccept(x -> totalSize.add(pr.transferred())));
 		}
 
 		return CompletableFuture.allOf(roots).thenApply(v -> {
@@ -262,7 +280,7 @@ public class S3Store implements ISdsBackingStore {
 			logger.debug("{} byte(s) downloaded from S3.", sizeKb);
 			return new SdsResponse().withTags(ImmutableMap.of("batch", Integer.toString(len), "sizeKB", sizeKb));
 		}).exceptionally(ex -> {
-			logger.error(ex.getMessage() + " for " + req, ex);
+			logger.error(ex.getMessage() + " for " + req);
 			SdsResponse error = new SdsResponse();
 			error.error = new SdsError(ex.getMessage());
 			return error;
