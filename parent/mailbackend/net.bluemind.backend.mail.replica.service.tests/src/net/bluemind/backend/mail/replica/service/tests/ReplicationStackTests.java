@@ -3509,7 +3509,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	}
 
 	/** Create a message in a synchronous way. */
-	private long createEml(String emlPath, String userUid, String mboxRoot, String folderName) throws IOException {
+	protected long createEml(String emlPath, String userUid, String mboxRoot, String folderName) throws IOException {
 		try (InputStream in = getClass().getClassLoader().getResourceAsStream(emlPath)) {
 			IServiceProvider provider = ServerSideServiceProvider.getProvider(new SecurityContext(userUid, userUid,
 					Collections.<String>emptyList(), Collections.<String>emptyList(), domainUid));

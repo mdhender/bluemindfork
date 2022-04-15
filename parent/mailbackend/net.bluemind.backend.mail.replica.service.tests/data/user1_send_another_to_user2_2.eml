@@ -5,9 +5,9 @@ Content-Transfer-Encoding: 7bit
 Date: Tue, 16 Sep 2020 09:42:50 +0200
 From: user1 user1 <user1@dev-bm4.test>
 To: user2 user2 <user2@dev-bm4.test>
-Subject: dummy from user1 to user2
-Message-ID: <4865963cfwqwqwq11eaadc10242ac120002@dev-bm4.test>
+Subject: message 3 from user1 to user2
+Message-ID: <4865963cf75f11eaadc10242ac120002@dev-bm4.test>
 X-Sender: user1@dev-bm4.test
 
-dummy
+message 3 from user1 to user2
 

@@ -319,4 +319,13 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 			throw new IllegalArgumentException();
 		}
 	}
+
+	public List<Long> getItemsByConversations(List<String> conversationUids) throws SQLException {
+		Long[] conversationIds = conversationUids.stream().map(uid -> Long.parseUnsignedLong(uid, 16))
+				.toArray(Long[]::new);
+		String select = "SELECT ci.id FROM t_mailbox_record rec JOIN t_container_item ci on rec.item_id = ci.id WHERE rec.conversation_id = ANY(?) AND rec.container_id = ?";
+
+		return select(select, LongCreator.FIRST, Collections.emptyList(),
+				new Object[] { conversationIds, container.id });
+	}
 }

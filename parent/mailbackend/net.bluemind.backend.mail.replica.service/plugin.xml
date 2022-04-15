@@ -62,6 +62,9 @@
        <endpoint
             api="net.bluemind.backend.mail.api.IMailConversation">
       </endpoint>
+      <endpoint
+            api="net.bluemind.backend.mail.api.IMailConversationActions">
+      </endpoint>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">
@@ -79,6 +82,9 @@
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.backend.mail.replica.service.InternalMailConversationServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.backend.mail.replica.service.MailConversationActionsServiceFactory">
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.backend.mail.replica.service.MailConversationServiceFactory">
