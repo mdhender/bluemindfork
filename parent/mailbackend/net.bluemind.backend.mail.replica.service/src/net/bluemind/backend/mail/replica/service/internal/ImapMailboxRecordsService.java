@@ -535,8 +535,13 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public List<ItemValue<MailboxItem>> multipleById(List<Long> ids) {
+		return multipleGetById(ids);
+	}
+
+	@Override
+	public List<ItemValue<MailboxItem>> multipleGetById(List<Long> ids) {
 		if (ids.size() > 500) {
-			throw new ServerFault("multipleById is limited to 500 ids per-call, you asked for " + ids.size());
+			throw new ServerFault("multipleGetById is limited to 500 ids per-call, you asked for " + ids.size());
 		}
 		rbac.check(Verb.Read.name());
 		List<ItemValue<MailboxRecord>> records = storeService.getMultipleById(ids);

@@ -193,4 +193,10 @@ public class MapiFolderService implements IMapiFolder {
 		ids.forEach(id -> storeService.delete(id));
 	}
 
+	@Override
+	public List<ItemValue<MapiRawMessage>> multipleGetById(List<Long> ids) {
+		rbacManager.check(Verb.Read.name());
+		return storeService.getMultipleById(ids);
+	}
+
 }

@@ -30,6 +30,7 @@ import net.bluemind.backend.mail.api.IBaseMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.container.api.IDataShardSupport;
+import net.bluemind.core.container.api.IReadByIdSupport;
 import net.bluemind.core.container.model.ItemValue;
 
 /**
@@ -37,7 +38,8 @@ import net.bluemind.core.container.model.ItemValue;
  */
 @BMApi(version = "3", internal = true)
 @Path("/db_replicated_mailboxes/{partition}/{mailboxRoot}")
-public interface IDbReplicatedMailboxes extends IBaseMailboxFolders, IDataShardSupport {
+public interface IDbReplicatedMailboxes
+		extends IBaseMailboxFolders, IDataShardSupport, IReadByIdSupport<MailboxReplica> {
 
 	@PUT
 	@Path("{uid}")

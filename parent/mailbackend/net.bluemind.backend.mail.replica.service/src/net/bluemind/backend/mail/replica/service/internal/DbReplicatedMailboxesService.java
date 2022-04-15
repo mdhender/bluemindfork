@@ -215,4 +215,14 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		storeService.xfer(ds, c, new MailboxReplicaStore(ds, c, replicaStore.partition));
 	}
 
+	@Override
+	public ItemValue<MailboxReplica> getCompleteById(long id) {
+		return storeService.get(id, null);
+	}
+
+	@Override
+	public List<ItemValue<MailboxReplica>> multipleGetById(List<Long> ids) {
+		return storeService.getMultipleById(ids);
+	}
+
 }

@@ -19,30 +19,21 @@ package net.bluemind.core.container.api;
 
 import java.util.List;
 
-import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
 
-public interface ICrudByIdSupport<T> extends IReadByIdSupport<T> {
+public interface IReadByIdSupport<T> {
+
+	@GET
+	@Path("{id}/completeById")
+	ItemValue<T> getCompleteById(@PathParam("id") long id);
 
 	@POST
-	@Path("id/{id}")
-	Ack updateById(@PathParam("id") long id, T value);
-
-	@PUT
-	@Path("id/{id}")
-	Ack createById(@PathParam("id") long id, T value);
-
-	@DELETE
-	@Path("id/{id}")
-	void deleteById(@PathParam("id") long id);
-
-	@DELETE
-	@Path("_multipleDelete")
-	void multipleDeleteById(List<Long> ids) throws ServerFault;
+	@Path("_mgetById")
+	List<ItemValue<T>> multipleGetById(List<Long> ids);
 
 }
