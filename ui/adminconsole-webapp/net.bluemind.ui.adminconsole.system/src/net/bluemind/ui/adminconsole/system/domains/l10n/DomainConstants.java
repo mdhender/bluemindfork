@@ -293,6 +293,6 @@ public interface DomainConstants extends Messages {
 
 	String journalingAction();
 
-	String invalidEmail(String email);
+	String invalidJournalingEmail(String email);
 
 }

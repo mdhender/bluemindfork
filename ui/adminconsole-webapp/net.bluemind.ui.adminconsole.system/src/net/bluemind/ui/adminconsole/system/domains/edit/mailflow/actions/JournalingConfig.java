@@ -78,7 +78,7 @@ public class JournalingConfig extends Composite implements MailflowActionConfig 
 
 	private void checkEmail(String email) throws InvalidEmailException {
 		if (!MailAddress.isValid(email)) {
-			throw new InvalidEmailException(TEXTS.invalidEmail(email));
+			throw new InvalidEmailException(TEXTS.invalidJournalingEmail(email));
 		}
 	}
 
