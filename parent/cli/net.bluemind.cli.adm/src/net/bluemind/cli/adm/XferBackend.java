@@ -109,7 +109,8 @@ public class XferBackend implements ICmdLet, Runnable {
 			return;
 		}
 
-		DirEntryTargetFilter targetFilter = new DirEntryTargetFilter(ctx, target, new Kind[] { Kind.USER }, match);
+		DirEntryTargetFilter targetFilter = new DirEntryTargetFilter(ctx, target,
+				new Kind[] { Kind.USER, Kind.GROUP, Kind.MAILSHARE }, match);
 
 		ArrayBlockingQueue<ItemValue<DirEntry>> q = new ArrayBlockingQueue<>(workers);
 		ExecutorService pool = Executors.newFixedThreadPool(workers);
@@ -118,20 +119,21 @@ public class XferBackend implements ICmdLet, Runnable {
 			try {
 				ItemValue<DirEntry> dirEntry = dirEntryWithDomain.dirEntry;
 				ItemValue<Server> targetServer = targetBackend.get();
-				String logId = dirEntry.value.email;
+				final String logId = dirEntry.value.kind.name() + ": "
+						+ (Kind.GROUP.equals(dirEntry.value.kind) ? dirEntry.displayName : dirEntry.value.email);
 
 				if (dirEntry.value.dataLocation.isEmpty()) {
-					ctx.info("user {} has no dataLocation specified ?!: Can't migrate", logId);
+					ctx.info("{} has no dataLocation specified ?!: Can't migrate", logId);
 					continue;
 				}
 
 				if (dirEntry.value.dataLocation.equals(targetServer.uid)) {
-					ctx.info("user {} already on backend {}: no xfer required", logId, targetBackendId);
+					ctx.info("{} already on backend {}: no xfer required", logId, targetBackendId);
 					continue;
 				}
 
 				if (sourceBackend.isPresent() && !dirEntry.value.dataLocation.equals(sourceBackend.get().uid)) {
-					ctx.info("user {} is not currently located on backend {}: no xfer", logId, sourceBackendId);
+					ctx.info("{} is not currently located on backend {}: no xfer", logId, sourceBackendId);
 					continue;
 				}
 
@@ -144,20 +146,27 @@ public class XferBackend implements ICmdLet, Runnable {
 				} catch (InterruptedException ie) {
 					Thread.currentThread().interrupt();
 				}
-				ctx.info("xfer user {} to backend {}", logId, targetBackendId);
+				ctx.info("xfer {} to backend {}", logId, targetBackendId);
 				pool.submit(() -> {
 					TaskRef taskref = null;
+
+					CliRepair clirepair = new CliRepair(ctx, dirEntryWithDomain.domainUid, dirEntry, true, dry);
 					try {
+						if (dirEntry.value.archived) {
+							clirepair.repair();
+						}
+
 						try {
 							taskref = doXfer(logId, dirEntry, dirEntryWithDomain.domainUid, targetServer.uid);
 						} catch (Exception e) {
-							ctx.error("Unable to queue xfer for user {}: {}", logId, e.getMessage());
+							ctx.error("Unable to queue xfer for {}: {}", logId, e.getMessage());
 							e.printStackTrace(System.err);
 						}
 						if (taskref != null) {
 							trackTask(logId, taskref);
 						}
 					} finally {
+						clirepair.close();
 						q.remove(dirEntry); // NOSONAR
 					}
 				});

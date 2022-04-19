@@ -193,10 +193,11 @@ public class DirectoryXfer implements AutoCloseable {
 			return;
 		}
 
-		if (!Arrays.asList(BaseDirEntry.Kind.USER, BaseDirEntry.Kind.GROUP).contains(dirEntry.value.kind)) {
+		if (!Arrays.asList(BaseDirEntry.Kind.USER, BaseDirEntry.Kind.GROUP, BaseDirEntry.Kind.MAILSHARE)
+				.contains(dirEntry.value.kind)) {
 			logger.error("fail to transfert data. entryUid {}, serverUid {}. Unsupported kind {}", entryUid,
 					targetServerUid, dirEntry.value.kind);
-			monitor.end(false, "source is not a user", "{}");
+			monitor.end(false, "dirEntry kind " + dirEntry.value.kind.name() + " is not supported", "{}");
 			return;
 		}
 
@@ -205,22 +206,19 @@ public class DirectoryXfer implements AutoCloseable {
 
 		String imapLogin = "";
 		String originalDataLocation = "";
-		boolean isArchived = false;
 
 		if (dirEntry.value.kind == BaseDirEntry.Kind.USER) {
 			imapLogin = originalUser.value.login + "@" + domainUid;
 			originalDataLocation = originalUser.value.dataLocation;
-			isArchived = originalUser.value.archived;
+			if (originalUser.value.archived) {
+				monitor.end(false, "User {} is suspended, can't continue", "{}");
+				return;
+			}
 		}
 
 		try (ISessionUtility userSessionUtility = SessionUtilityFactory.of(dirEntry.value, context, imapLogin,
 				originalDataLocation)) {
 			monitor.begin(17, "moving containers");
-
-			if (isArchived) {
-				monitor.log("User {} is suspended, unsuspending and launching repairs", originalUser.displayName);
-				// TODO: doit
-			}
 
 			// Logout user
 			userSessionUtility.logoutUser(monitor);
@@ -294,9 +292,8 @@ public class DirectoryXfer implements AutoCloseable {
 				domainUid, entryUid);
 		dirEntryMaintenanceService.repair(Sets.newHashSet("replication.subtree", "replication.parentUid"));
 
-		// Groups don't have those containers
-		if (dirEntry.value.kind != BaseDirEntry.Kind.GROUP) {
-
+		// Groups and Mailshares don't have those containers
+		if (dirEntry.value.kind == BaseDirEntry.Kind.USER) {
 			// Reset elasticsearch indexes
 			doReindex(IAddressBookUids.TYPE, dirEntry.uid, monitor.subWork(1),
 					containerUid -> serviceProvider.instance(IAddressBooksMgmt.class).reindex(containerUid));
@@ -380,8 +377,8 @@ public class DirectoryXfer implements AutoCloseable {
 
 		IServiceProvider sp = ServerSideServiceProvider.getProvider(dataContext);
 
-		// Groups don't have those containers
-		if (dirEntry.value.kind != BaseDirEntry.Kind.GROUP) {
+		// Groups and mailshares don't have those containers
+		if (dirEntry.value.kind == BaseDirEntry.Kind.USER) {
 			xferContainers(monitor.subWork(1), IAddressBookUids.TYPE,
 					containerUid -> sp.instance(IAddressBook.class, containerUid));
 			xferContainers(monitor.subWork(1), ICalendarUids.TYPE,

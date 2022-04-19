@@ -89,7 +89,6 @@ public class MailshareGeneralEditor extends CompositeGwtWidgetElement {
 		initWidget(panel);
 
 		routing.addChangeHandler(evt -> routingChanged());
-		mailBackend.setActive(false);
 	}
 
 	private void routingChanged() {
