@@ -22,17 +22,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.api.TaskStatus;
-import net.bluemind.core.task.api.TaskStatus.State;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.notes.api.INote;
 import net.bluemind.notes.api.INoteUids;
@@ -41,12 +36,6 @@ import net.bluemind.notes.api.VNoteChanges;
 import net.bluemind.notes.api.VNoteChanges.ItemDelete;
 
 public class NotesXferTests extends AbstractMultibackendTests {
-
-	@BeforeClass
-	public static void setXferTestMode() {
-		System.setProperty("bluemind.testmode", "true");
-	}
-
 	@Test
 	public void testXferNotes() {
 		String container = INoteUids.defaultUserNotes(userUid);
@@ -105,21 +94,6 @@ public class NotesXferTests extends AbstractMultibackendTests {
 		assertEquals("new-one", changeset.created.get(0));
 		assertTrue(changeset.updated.isEmpty());
 		assertTrue(changeset.deleted.isEmpty());
-	}
-
-	private void waitTaskEnd(TaskRef taskRef) throws ServerFault {
-		ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class, taskRef.id);
-		while (!task.status().state.ended) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-		}
-
-		TaskStatus status = task.status();
-		if (status.state == State.InError) {
-			throw new ServerFault("xfer error");
-		}
 	}
 
 	protected VNote defaultVNote() {

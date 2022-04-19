@@ -29,18 +29,25 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 
 import com.google.common.collect.Lists;
 
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
 import net.bluemind.backend.cyrus.replication.testhelper.SyncServerHelper;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
+import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.api.TaskStatus;
+import net.bluemind.core.task.api.TaskStatus.State;
+import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -54,10 +61,18 @@ public class AbstractMultibackendTests {
 	protected CyrusReplicationHelper cyrusReplication1;
 	protected CyrusReplicationHelper cyrusReplication2;
 
+	protected ItemValue<Server> cyrusServer1;
+	protected ItemValue<Server> cyrusServer2;
+
 	protected String domainUid = "bm.lan";
 	protected String userUid = "test" + System.currentTimeMillis();
 	protected String shardIp;
 	protected SecurityContext context;
+
+	@BeforeClass
+	public static void setXferTestMode() {
+		System.setProperty("bluemind.testmode", "true");
+	}
 
 	@Before
 	public void before() throws Exception {
@@ -74,14 +89,14 @@ public class AbstractMultibackendTests {
 		Server imapServer = new Server();
 		imapServer.ip = new BmConfIni().get("imap-role");
 		imapServer.tags = Lists.newArrayList("mail/imap", "bm/pgsql-data");
-		ItemValue<Server> cyrusServer1 = ItemValue.create(imapServer.ip, imapServer);
+		cyrusServer1 = ItemValue.create(imapServer.ip, imapServer);
 		CyrusService cyrusService1 = new CyrusService(cyrusServer1);
 		cyrusService1.reset();
 
 		Server imapServer2 = new Server();
 		imapServer2.ip = new BmConfIni().get("imap2-role");
 		imapServer2.tags = Lists.newArrayList("mail/imap", "bm/pgsql-data");
-		ItemValue<Server> cyrusServer2 = ItemValue.create(imapServer2.ip, imapServer2);
+		cyrusServer2 = ItemValue.create(imapServer2.ip, imapServer2);
 		CyrusService cyrusService2 = new CyrusService(cyrusServer2);
 		cyrusService2.reset();
 
@@ -124,5 +139,13 @@ public class AbstractMultibackendTests {
 		cyrusReplication1.stopReplication().get(5, TimeUnit.SECONDS);
 		cyrusReplication2.stopReplication().get(5, TimeUnit.SECONDS);
 		JdbcTestHelper.getInstance().afterTest();
+	}
+
+	protected void waitTaskEnd(TaskRef taskRef) throws ServerFault {
+		TaskStatus status = TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), taskRef);
+		System.err.println("EndStatus: " + status);
+		if (status.state == State.InError) {
+			throw new ServerFault("xfer error");
+		}
 	}
 }

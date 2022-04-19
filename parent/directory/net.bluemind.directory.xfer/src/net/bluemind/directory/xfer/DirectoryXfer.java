@@ -25,6 +25,7 @@ package net.bluemind.directory.xfer;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -39,6 +40,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
 import io.vertx.core.json.JsonObject;
@@ -158,6 +160,7 @@ public class DirectoryXfer implements AutoCloseable {
 			transactionalContext = new TransactionalContext(context.getSecurityContext());
 			dataContext = transactionalContext;
 		} else {
+			logger.info("bluemind.testmode enabled");
 			transactionalContext = null;
 			dataContext = context;
 		}
@@ -165,6 +168,9 @@ public class DirectoryXfer implements AutoCloseable {
 		this.directoryDs = dataContext.getDataSource();
 		this.origDs = dataContext.getMailboxDataSource(dirEntry.value.dataLocation);
 		this.targetDs = dataContext.getMailboxDataSource(serverUid);
+		if (this.targetDs == null) {
+			throw ServerFault.notFound("datasource for serverUid:" + serverUid + " not found. Invalid serverUid?");
+		}
 		this.dirContainerStore = new ContainerStore(dataContext, dataContext.getDataSource(),
 				dataContext.getSecurityContext());
 		this.containerStoreOrig = new ContainerStore(null, origDs, dataContext.getSecurityContext());
@@ -187,7 +193,7 @@ public class DirectoryXfer implements AutoCloseable {
 			return;
 		}
 
-		if (dirEntry.value.kind != BaseDirEntry.Kind.USER) {
+		if (!Arrays.asList(BaseDirEntry.Kind.USER, BaseDirEntry.Kind.GROUP).contains(dirEntry.value.kind)) {
 			logger.error("fail to transfert data. entryUid {}, serverUid {}. Unsupported kind {}", entryUid,
 					targetServerUid, dirEntry.value.kind);
 			monitor.end(false, "source is not a user", "{}");
@@ -197,9 +203,24 @@ public class DirectoryXfer implements AutoCloseable {
 		IServiceProvider sp = ServerSideServiceProvider.getProvider(dataContext);
 		ItemValue<Mailbox> mailbox = sp.instance(IMailboxes.class, domainUid).getComplete(entryUid);
 
-		try (UserSessionUtility userSessionUtility = new UserSessionUtility(context,
-				originalUser.value.login + "@" + domainUid, originalUser.value.dataLocation)) {
+		String imapLogin = "";
+		String originalDataLocation = "";
+		boolean isArchived = false;
+
+		if (dirEntry.value.kind == BaseDirEntry.Kind.USER) {
+			imapLogin = originalUser.value.login + "@" + domainUid;
+			originalDataLocation = originalUser.value.dataLocation;
+			isArchived = originalUser.value.archived;
+		}
+
+		try (ISessionUtility userSessionUtility = SessionUtilityFactory.of(dirEntry.value, context, imapLogin,
+				originalDataLocation)) {
 			monitor.begin(17, "moving containers");
+
+			if (isArchived) {
+				monitor.log("User {} is suspended, unsuspending and launching repairs", originalUser.displayName);
+				// TODO: doit
+			}
 
 			// Logout user
 			userSessionUtility.logoutUser(monitor);
@@ -207,17 +228,20 @@ public class DirectoryXfer implements AutoCloseable {
 			// Wait for the replication to complete the queue
 			monitor.log("Waiting for the replication to complete...");
 
-			LoginResponse lr = sp.instance(IAuthentication.class).su(originalUser.value.login + "@" + domainUid);
-			CompletableFuture<Long> waitReplication = WaitReplicationFinished.doProbe(VertxPlatform.getVertx(),
-					new Probe(originalUser.value.dataLocation, lr.latd, lr.authKey));
-			try {
-				waitReplication.get(31, TimeUnit.MINUTES);
-			} catch (TimeoutException te) {
-				logger.error("Timeout waiting for the replication queue to complete. Please retry later.");
-				monitor.log("Timeout waiting for the replication queue to complete. Please retry later.");
-				throw te;
+			if (!Strings.isNullOrEmpty(imapLogin)) {
+				// This waiting is only available for user migration
+				LoginResponse lr = sp.instance(IAuthentication.class).su(imapLogin);
+				CompletableFuture<Long> waitReplication = WaitReplicationFinished.doProbe(VertxPlatform.getVertx(),
+						new Probe(originalDataLocation, lr.latd, lr.authKey));
+				try {
+					waitReplication.get(31, TimeUnit.MINUTES);
+				} catch (TimeoutException te) {
+					logger.error("Timeout waiting for the replication queue to complete. Please retry later.");
+					monitor.log("Timeout waiting for the replication queue to complete. Please retry later.");
+					throw te;
+				}
+				monitor.progress(1, "Replication is synced");
 			}
-			monitor.progress(1, "Replication is synced");
 
 			// Lock the user out of IMAP (cyr_deny)
 			userSessionUtility.lockoutUser(monitor);
@@ -270,34 +294,38 @@ public class DirectoryXfer implements AutoCloseable {
 				domainUid, entryUid);
 		dirEntryMaintenanceService.repair(Sets.newHashSet("replication.subtree", "replication.parentUid"));
 
-		// Reset elasticsearch indexes
-		doReindex(IAddressBookUids.TYPE, dirEntry.uid, monitor.subWork(1),
-				containerUid -> serviceProvider.instance(IAddressBooksMgmt.class).reindex(containerUid));
-		doReindex(ICalendarUids.TYPE, dirEntry.uid, monitor.subWork(1),
-				containerUid -> serviceProvider.instance(ICalendarsMgmt.class).reindex(containerUid));
-		doReindex(ITodoUids.TYPE, dirEntry.uid, monitor.subWork(1),
-				containerUid -> serviceProvider.instance(ITodoListsMgmt.class).reindex(containerUid));
+		// Groups don't have those containers
+		if (dirEntry.value.kind != BaseDirEntry.Kind.GROUP) {
 
-		// Reset EAS devices
-		IEas easService = serviceProvider.instance(IEas.class);
-		try {
-			IDevice deviceService = serviceProvider.instance(IDevice.class, entryUid);
-			for (ItemValue<Device> device : deviceService.list().values) {
-				logger.info("reset EAS synchronization for device {}", device);
-				monitor.log("reset EAS synchronization for device " + device.displayName);
-				easService.insertPendingReset(Account.create(entryUid, device.value.identifier));
+			// Reset elasticsearch indexes
+			doReindex(IAddressBookUids.TYPE, dirEntry.uid, monitor.subWork(1),
+					containerUid -> serviceProvider.instance(IAddressBooksMgmt.class).reindex(containerUid));
+			doReindex(ICalendarUids.TYPE, dirEntry.uid, monitor.subWork(1),
+					containerUid -> serviceProvider.instance(ICalendarsMgmt.class).reindex(containerUid));
+			doReindex(ITodoUids.TYPE, dirEntry.uid, monitor.subWork(1),
+					containerUid -> serviceProvider.instance(ITodoListsMgmt.class).reindex(containerUid));
+
+			// Reset EAS devices
+			IEas easService = serviceProvider.instance(IEas.class);
+			try {
+				IDevice deviceService = serviceProvider.instance(IDevice.class, entryUid);
+				for (ItemValue<Device> device : deviceService.list().values) {
+					logger.info("reset EAS synchronization for device {}", device);
+					monitor.log("reset EAS synchronization for device " + device.displayName);
+					easService.insertPendingReset(Account.create(entryUid, device.value.identifier));
+				}
+			} catch (ServerFault sf) {
+				if (ErrorCode.NOT_FOUND.equals(sf.getCode())) {
+					logger.warn("No device container found for user uid {} ({})", entryUid,
+							originalUser.value.login + "@" + domainUid);
+				} else {
+					throw sf;
+				}
 			}
-		} catch (ServerFault sf) {
-			if (ErrorCode.NOT_FOUND.equals(sf.getCode())) {
-				logger.warn("No device container found for user uid {} ({})", entryUid,
-						originalUser.value.login + "@" + domainUid);
-			} else {
-				throw sf;
-			}
+
+			// Reset mail-app, calendar, contacts
+			resetUserLocalData(monitor);
 		}
-
-		// Reset mail-app, calendar, contacts
-		resetUserLocalData(monitor);
 
 		logger.info("Post process done");
 	}
@@ -351,15 +379,21 @@ public class DirectoryXfer implements AutoCloseable {
 		cleanupTargetContainers(toRemoveContainers);
 
 		IServiceProvider sp = ServerSideServiceProvider.getProvider(dataContext);
-		xferContainers(monitor.subWork(1), IAddressBookUids.TYPE,
-				containerUid -> sp.instance(IAddressBook.class, containerUid));
-		xferContainers(monitor.subWork(1), ICalendarUids.TYPE,
-				containerUid -> sp.instance(ICalendar.class, containerUid));
-		xferContainers(monitor.subWork(1), IDeferredActionContainerUids.TYPE,
-				containerUid -> sp.instance(IDeferredAction.class, containerUid));
-		xferContainers(monitor.subWork(1), ITodoUids.TYPE, containerUid -> sp.instance(ITodoList.class, containerUid));
-		xferContainers(monitor.subWork(1), INoteUids.TYPE, containerUid -> sp.instance(INote.class, containerUid));
-		xferContainers(monitor.subWork(1), ITagUids.TYPE, containerUid -> sp.instance(ITags.class, containerUid));
+
+		// Groups don't have those containers
+		if (dirEntry.value.kind != BaseDirEntry.Kind.GROUP) {
+			xferContainers(monitor.subWork(1), IAddressBookUids.TYPE,
+					containerUid -> sp.instance(IAddressBook.class, containerUid));
+			xferContainers(monitor.subWork(1), ICalendarUids.TYPE,
+					containerUid -> sp.instance(ICalendar.class, containerUid));
+			xferContainers(monitor.subWork(1), IDeferredActionContainerUids.TYPE,
+					containerUid -> sp.instance(IDeferredAction.class, containerUid));
+			xferContainers(monitor.subWork(1), ITodoUids.TYPE,
+					containerUid -> sp.instance(ITodoList.class, containerUid));
+			xferContainers(monitor.subWork(1), INoteUids.TYPE, containerUid -> sp.instance(INote.class, containerUid));
+			xferContainers(monitor.subWork(1), ITagUids.TYPE, containerUid -> sp.instance(ITags.class, containerUid));
+		}
+
 		xferContainers(monitor.subWork(1), IFlatHierarchyUids.TYPE,
 				containerUid -> sp.instance(IContainersFlatHierarchy.class, domainUid, entryUid));
 		xferContainers(monitor.subWork(1), IOwnerSubscriptionUids.TYPE,
@@ -385,16 +419,22 @@ public class DirectoryXfer implements AutoCloseable {
 				containerUid -> context.provider().instance(IInternalMailConversation.class,
 						IMailReplicaUids.conversationSubtreeUid(domainUid, entryUid)),
 				false);
-		xferContainers(monitor.subWork(1), MapiFolderContainer.TYPE,
-				containerUid -> sp.instance(IMapiFolder.class, containerUid), false);
-		xferContainers(
-				monitor.subWork(1), MapiFAIContainer.TYPE, containerUid -> sp
-						.instance(IMapiFolderAssociatedInformation.class, MapiFAIContainer.getIdentifier(containerUid)),
-				false);
+
+		// Groups don't have mapi containers
+		if (dirEntry.value.kind != BaseDirEntry.Kind.GROUP) {
+			xferContainers(monitor.subWork(1), MapiFolderContainer.TYPE,
+					containerUid -> sp.instance(IMapiFolder.class, containerUid), false);
+			xferContainers(monitor.subWork(1), MapiFAIContainer.TYPE, containerUid -> sp
+					.instance(IMapiFolderAssociatedInformation.class, MapiFAIContainer.getIdentifier(containerUid)),
+					false);
+		}
+
 		if (mailbox != null) {
 			xferContainers(monitor.subWork(1), IMailReplicaUids.REPLICATED_MBOXES, containerUid -> {
 				CyrusPartition part = CyrusPartition.forServerAndDomain(targetServerUid, domainUid);
-				return sp.instance(IDbReplicatedMailboxes.class, part.name, "user." + mailbox.value.name);
+				final String replicatedMailboxIdentifier = mailbox.value.type.nsPrefix
+						+ mailbox.value.name.replace(".", "^");
+				return sp.instance(IDbReplicatedMailboxes.class, part.name, replicatedMailboxIdentifier);
 			});
 		} else {
 			logger.info("mailbox is empty, not moving replicated_mboxes");

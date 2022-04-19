@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -37,25 +36,15 @@ import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventChanges;
 import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.api.TaskStatus;
-import net.bluemind.core.task.api.TaskStatus.State;
-import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 
 @RunWith(Parameterized.class)
 public class CalendarXferTests extends AbstractMultibackendTests {
-
-	@BeforeClass
-	public static void setXferTestMode() {
-		System.setProperty("bluemind.testmode", "true");
-	}
-
 	@Parameterized.Parameters
 	public static Object[][] data() {
 		return new Object[10][0];
@@ -122,14 +111,6 @@ public class CalendarXferTests extends AbstractMultibackendTests {
 		assertTrue(changeset.updated.isEmpty());
 		assertTrue(changeset.deleted.isEmpty());
 
-	}
-
-	private void waitTaskEnd(TaskRef taskRef) throws ServerFault {
-		TaskStatus status = TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), taskRef);
-		System.err.println("EndStatus: " + status);
-		if (status.state == State.InError) {
-			throw new ServerFault("xfer error");
-		}
 	}
 
 	protected VEventSeries defaultVEvent() {

@@ -44,7 +44,7 @@ import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Server;
 
-public class UserSessionUtility implements AutoCloseable {
+public class UserSessionUtility implements ISessionUtility, AutoCloseable {
 	private static final Logger logger = LoggerFactory.getLogger(UserSessionUtility.class);
 
 	private final String dataLocation;

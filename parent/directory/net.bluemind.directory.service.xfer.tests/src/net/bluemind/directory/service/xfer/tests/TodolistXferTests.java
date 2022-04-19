@@ -27,19 +27,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.api.TaskStatus;
-import net.bluemind.core.task.api.TaskStatus.State;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.icalendar.api.ICalendarElement.Status;
 import net.bluemind.todolist.api.ITodoList;
@@ -49,12 +44,6 @@ import net.bluemind.todolist.api.VTodoChanges;
 import net.bluemind.todolist.api.VTodoChanges.ItemDelete;
 
 public class TodolistXferTests extends AbstractMultibackendTests {
-
-	@BeforeClass
-	public static void setXferTestMode() {
-		System.setProperty("bluemind.testmode", "true");
-	}
-
 	@Test
 	public void testXferTodolist() {
 		String container = ITodoUids.defaultUserTodoList(userUid);
@@ -113,21 +102,6 @@ public class TodolistXferTests extends AbstractMultibackendTests {
 		assertEquals("new-one", changeset.created.get(0));
 		assertTrue(changeset.updated.isEmpty());
 		assertTrue(changeset.deleted.isEmpty());
-	}
-
-	private void waitTaskEnd(TaskRef taskRef) throws ServerFault {
-		ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class, taskRef.id);
-		while (!task.status().state.ended) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-		}
-
-		TaskStatus status = task.status();
-		if (status.state == State.InError) {
-			throw new ServerFault("xfer error");
-		}
 	}
 
 	protected VTodo defaultVTodo() {

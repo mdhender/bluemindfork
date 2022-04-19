@@ -84,7 +84,6 @@ public class MailboxGroupEditor extends CompositeGwtWidgetElement {
 		archiveMail.addValueChangeHandler((event) -> {
 			getElement().dispatchEvent(Document.get().createHtmlEvent("refresh", true, true));
 		});
-		mailBackend.setActive(false);
 	}
 
 	@Override
