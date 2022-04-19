@@ -12,7 +12,6 @@ export const ADD_MAILBOXES = "ADD_MAILBOXES";
 
 // folders
 export const ADD_FOLDER = "ADD_FOLDER";
-export const SET_MAILBOX_FOLDERS = "SET_MAILBOX_FOLDERS";
 export const REMOVE_FOLDER = "REMOVE_FOLDER";
 export const SET_ACTIVE_FOLDER = "SET_ACTIVE_FOLDER";
 export const SET_UNREAD_COUNT = "SET_UNREAD_COUNT";

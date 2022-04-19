@@ -52,43 +52,44 @@ export function createStore() {
     store.registerModule("settings", fakedSettingsStore);
     store.commit("mail/SET_MAX_MESSAGE_SIZE", 10);
     store.commit("mail/ADD_MAILBOXES", [mailbox]);
-    store.commit("mail/SET_MAILBOX_FOLDERS", {
-        folders: [
-            { key: folderUid, imapName: "fol", mailboxRef: { key: "MY_MAILBOX" }, writable: true, path: "my/folder" },
-            {
-                key: "InboxKey",
-                imapName: "INBOX",
-                path: "INBOX",
-                default: true,
-                mailboxRef: { key: "MY_MAILBOX" },
-                writable: true
-            },
-            {
-                key: "TraskKey",
-                imapName: "Trash",
-                path: "Trash",
-                default: true,
-                mailboxRef: { key: "MY_MAILBOX" },
-                writable: true
-            },
-            {
-                key: "SentKey",
-                imapName: "Sent",
-                path: "Sent",
-                default: true,
-                mailboxRef: { key: "MY_MAILBOX" },
-                writable: true
-            },
-            {
-                key: "tpl",
-                imapName: "Templates",
-                path: "Templates",
-                default: true,
-                mailboxRef: { key: "MY_MAILBOX" },
-                writable: true
-            }
-        ],
-        mailbox
+    store.commit("mail/ADD_FOLDER", {
+        key: folderUid,
+        imapName: "fol",
+        mailboxRef: { key: "MY_MAILBOX" },
+        writable: true,
+        path: "my/folder"
+    });
+    store.commit("mail/ADD_FOLDER", {
+        key: "InboxKey",
+        imapName: "INBOX",
+        path: "INBOX",
+        default: true,
+        mailboxRef: { key: "MY_MAILBOX" },
+        writable: true
+    });
+    store.commit("mail/ADD_FOLDER", {
+        key: "TraskKey",
+        imapName: "Trash",
+        path: "Trash",
+        default: true,
+        mailboxRef: { key: "MY_MAILBOX" },
+        writable: true
+    });
+    store.commit("mail/ADD_FOLDER", {
+        key: "SentKey",
+        imapName: "Sent",
+        path: "Sent",
+        default: true,
+        mailboxRef: { key: "MY_MAILBOX" },
+        writable: true
+    });
+    store.commit("mail/ADD_FOLDER", {
+        key: "tpl",
+        imapName: "Templates",
+        path: "Templates",
+        default: true,
+        mailboxRef: { key: "MY_MAILBOX" },
+        writable: true
     });
     const conversations = [
         {

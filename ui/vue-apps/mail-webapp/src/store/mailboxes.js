@@ -12,12 +12,15 @@ import {
     MAILBOXES,
     USER_MAILBOXES
 } from "~/getters";
-import { ADD_MAILBOXES, SET_MAILBOX_FOLDERS } from "~/mutations";
+import { ADD_MAILBOXES, ADD_FOLDER } from "~/mutations";
 import { FETCH_MAILBOXES } from "~/actions";
 import { LoadingStatus } from "~/model/loading-status";
+import { DEFAULT_FOLDERS } from "./folders/helpers/DefaultFolders";
 
 export default {
-    state: {},
+    state: {
+        keys: []
+    },
     getters: {
         [MY_MAILBOX_KEY]: (state, getters) => getters[MY_MAILBOX].key,
         [MY_MAILBOX]: (state, getters) =>
@@ -31,7 +34,7 @@ export default {
             getters[MAILBOXES].find(mailbox => mailbox.name.toLowerCase() === name.toLowerCase()),
         [MAILBOXES_ARE_LOADED]: (state, getters) =>
             getters[MAILBOXES].length >= 1 && getters[MAILBOXES][getters[MAILBOXES].length - 1].remoteRef.id,
-        [MAILBOXES]: state => Object.values(state),
+        [MAILBOXES]: state => state.keys.map(key => state[key]),
         [USER_MAILBOXES]: (state, getters) =>
             getters[MAILBOXES].filter(mailbox => mailbox.type === MailboxType.USER).sort((a, b) =>
                 a.owner === inject("UserSession").userId
@@ -43,11 +46,16 @@ export default {
     },
 
     mutations: {
-        [ADD_MAILBOXES]: (state, mailboxes) => mailboxes.forEach(mailbox => Vue.set(state, mailbox.key, mailbox)),
-        [SET_MAILBOX_FOLDERS]: (state, { mailbox: { key } }) => {
-            if (state[key]) {
-                state[key].loading = LoadingStatus.LOADED;
-            }
+        [ADD_MAILBOXES]: (state, mailboxes) =>
+            mailboxes.forEach(mailbox => {
+                if (!state.keys.includes(mailbox.key)) {
+                    state.keys.push(mailbox.key);
+                }
+                Vue.set(state, mailbox.key, mailbox);
+            }),
+        //Hook
+        [ADD_FOLDER]: (state, folder) => {
+            state[folder.mailboxRef.key].loading = LoadingStatus.LOADED;
         }
     },
     actions: {
@@ -71,6 +79,27 @@ export default {
                     return mailbox;
                 });
             commit(ADD_MAILBOXES, mailboxes);
+        }
+    },
+    modules: {
+        folders: {
+            state: {
+                defaults: {}
+            },
+            mutations: {
+                ADD_MAILBOXES(state, mailboxes) {
+                    mailboxes.forEach(mailbox => {
+                        if (!state.defaults[mailbox.key]) {
+                            Vue.set(state.defaults, mailbox.key, {});
+                        }
+                    });
+                },
+                ADD_FOLDER(state, folder) {
+                    if (folder.default && DEFAULT_FOLDERS.includes(folder.imapName)) {
+                        Vue.set(state.defaults[folder.mailboxRef.key], folder.imapName, folder.key);
+                    }
+                }
+            }
         }
     }
 };

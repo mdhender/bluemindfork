@@ -1,7 +1,6 @@
 import mutations from "../mutations";
 import {
     ADD_FLAG,
-    SET_MAILBOX_FOLDERS,
     ADD_FOLDER,
     DELETE_FLAG,
     REMOVE_FOLDER,
@@ -40,57 +39,6 @@ describe("folder mutations", () => {
             expect(state).toEqual({
                 [folder.key]: folder
             });
-        });
-    });
-
-    describe("SET_MAILBOX_FOLDERS", () => {
-        const { [SET_MAILBOX_FOLDERS]: addFolders } = mutations;
-        test("add folders to empty state", () => {
-            const state = {};
-            const folders = [
-                {
-                    key: "123"
-                },
-                {
-                    key: "666"
-                }
-            ];
-            addFolders(state, { folders });
-            expect(state).toEqual(
-                folders.reduce((acc, folder) => {
-                    return {
-                        ...acc,
-                        [folder.key]: folder
-                    };
-                }, {})
-            );
-        });
-
-        test("add folders with some keys already existing", () => {
-            const state = {
-                "123": {
-                    key: "123",
-                    oldProp: "oldProp"
-                }
-            };
-            const folders = [
-                {
-                    key: "123",
-                    oldProp: "newValue"
-                },
-                {
-                    key: "666"
-                }
-            ];
-            addFolders(state, { folders });
-            expect(state).toEqual(
-                folders.reduce((acc, folder) => {
-                    return {
-                        ...acc,
-                        [folder.key]: folder
-                    };
-                }, {})
-            );
         });
     });
 

@@ -7,7 +7,6 @@ import {
     REMOVE_FOLDER,
     SET_ACTIVE_FOLDER,
     SET_FOLDER_EXPANDED,
-    SET_MAILBOX_FOLDERS,
     SET_UNREAD_COUNT,
     UPDATE_FOLDER,
     UPDATE_PATHS
@@ -16,11 +15,6 @@ import {
 export default {
     [ADD_FOLDER]: (state, { key, ...folder }) => {
         Vue.set(state, key, { ...folder, key });
-    },
-    [SET_MAILBOX_FOLDERS]: (state, { folders }) => {
-        folders.forEach(folder => {
-            Vue.set(state, folder.key, folder);
-        });
     },
     [UPDATE_FOLDER]: (state, { imapName, key, name, parent, path }) => {
         state[key].imapName = imapName;

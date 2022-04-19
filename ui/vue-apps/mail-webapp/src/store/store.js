@@ -184,10 +184,10 @@ export const getters = {
 };
 
 function mailboxGetterFor(name) {
-    return (state, getters) => ({ key }) => {
+    return state => ({ key }) => {
         const mailbox = state.mailboxes[key];
         if (mailbox.loading === LoadingStatus.LOADED) {
-            return getters[MAILBOX_FOLDERS]({ key }).find(folder => folder.default && folder.imapName === name);
+            return state.folders[state.mailboxes.folders.defaults[key][name]];
         } else {
             return create(undefined, name, null, mailbox);
         }

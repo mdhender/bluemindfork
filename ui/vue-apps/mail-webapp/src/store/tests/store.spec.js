@@ -32,7 +32,7 @@ import {
     NEXT_CONVERSATION,
     SELECTION
 } from "~/getters";
-import { DEFAULT_FOLDER_NAMES } from "../folders/helpers/DefaultFolders";
+import { DEFAULT_FOLDER_NAMES as NAMES } from "../folders/helpers/DefaultFolders";
 import { MailboxType } from "~/model/mailbox";
 import injector from "@bluemind/inject";
 import { SET_FOLDER_FILTER_LOADED, SET_FOLDER_FILTER_LOADING, SET_ACTIVE_FOLDER } from "~/mutations";
@@ -62,6 +62,7 @@ describe("Mail store", () => {
                 A: { key: "A" },
                 B: { key: "B" }
             };
+            store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
             store.state.folders = {
                 1: { key: "1", mailboxRef: { key: "B" } },
                 2: { key: "2", mailboxRef: { key: "A" } }
@@ -139,6 +140,7 @@ describe("Mail store", () => {
                 B: { key: "B", type: MailboxType.USER, owner: "B" }
             };
 
+            store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
             store.state.folderList.pattern = " ";
             store.commit(SET_FOLDER_FILTER_LOADED);
             expect(store.getters[FILTERED_MAILSHARE_RESULTS]).toEqual([]);
@@ -160,6 +162,7 @@ describe("Mail store", () => {
                 B: { key: "B", type: MailboxType.USER, owner: "B" },
                 C: { key: "C", type: MailboxType.USER, owner: "C" }
             };
+            store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
             store.state.folderList.pattern = "";
             store.commit(SET_FOLDER_FILTER_LOADED);
             expect(store.getters[FILTERED_USER_RESULTS]).toEqual({});
@@ -188,6 +191,8 @@ describe("Mail store", () => {
                 B: { key: "B", type: MailboxType.USER, owner: "B" },
                 C: { key: "C", type: MailboxType.USER, owner: "C" }
             };
+            store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
+
             /* Not in filtered state */
             store.state.folderList.pattern = "";
             store.commit(SET_FOLDER_FILTER_LOADED);
@@ -219,6 +224,8 @@ describe("Mail store", () => {
                 A: { key: "A", type: MailboxType.MAILSHARE, dn: "zzz" },
                 C: { key: "C", type: MailboxType.MAILSHARE, dn: "aaa" }
             };
+            store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
+
             expect(store.getters[MAILSHARE_FOLDERS]).toEqual([store.state.folders["4"], store.state.folders["1"]]);
         });
 
@@ -232,6 +239,7 @@ describe("Mail store", () => {
             store.state.mailboxes = {
                 B: { key: "B", owner: "B" }
             };
+            store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
             injector.register({
                 provide: "UserSession",
                 use: { userId: "B" }
@@ -252,55 +260,72 @@ describe("Mail store", () => {
                 "1bis": {
                     key: "1bis",
                     default: true,
-                    imapName: DEFAULT_FOLDER_NAMES.INBOX,
-                    path: DEFAULT_FOLDER_NAMES.INBOX,
+                    imapName: NAMES.INBOX,
+                    path: NAMES.INBOX,
                     mailboxRef: { key: "other" }
                 },
                 "2": {
                     key: "2",
                     default: true,
-                    imapName: DEFAULT_FOLDER_NAMES.INBOX,
-                    path: DEFAULT_FOLDER_NAMES.INBOX,
+                    imapName: NAMES.INBOX,
+                    path: NAMES.INBOX,
                     mailboxRef: { key: "myMailbox" }
                 },
                 "3": {
                     key: "3",
                     default: true,
-                    imapName: DEFAULT_FOLDER_NAMES.OUTBOX,
-                    path: DEFAULT_FOLDER_NAMES.OUTBOX,
+                    imapName: NAMES.OUTBOX,
+                    path: NAMES.OUTBOX,
                     mailboxRef: { key: "myMailbox" }
                 },
                 "4": {
                     key: "4",
                     default: true,
-                    imapName: DEFAULT_FOLDER_NAMES.SENT,
-                    path: DEFAULT_FOLDER_NAMES.SENT,
+                    imapName: NAMES.SENT,
+                    path: NAMES.SENT,
                     mailboxRef: { key: "myMailbox" }
                 },
                 "5": {
                     key: "5",
                     default: true,
-                    imapName: DEFAULT_FOLDER_NAMES.TRASH,
-                    path: DEFAULT_FOLDER_NAMES.TRASH,
+                    imapName: NAMES.TRASH,
+                    path: NAMES.TRASH,
                     mailboxRef: { key: "myMailbox" }
                 },
                 "6": {
                     key: "6",
                     default: true,
-                    imapName: DEFAULT_FOLDER_NAMES.DRAFTS,
-                    path: DEFAULT_FOLDER_NAMES.DRAFTS,
+                    imapName: NAMES.DRAFTS,
+                    path: NAMES.DRAFTS,
                     mailboxRef: { key: "myMailbox" }
                 },
                 "7": {
                     key: "7",
                     default: true,
-                    imapName: DEFAULT_FOLDER_NAMES.TEMPLATES,
-                    path: DEFAULT_FOLDER_NAMES.TEMPLATES,
+                    imapName: NAMES.TEMPLATES,
+                    path: NAMES.TEMPLATES,
                     mailboxRef: { key: "myMailbox" }
                 }
             };
             store.state.mailboxes = {
-                myMailbox: { key: "myMailbox", owner: "me", loading: LoadingStatus.LOADED }
+                myMailbox: {
+                    key: "myMailbox",
+                    owner: "me",
+                    loading: LoadingStatus.LOADED
+                }
+            };
+            store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
+            store.state.mailboxes.folders = {
+                defaults: {
+                    myMailbox: {
+                        [NAMES.INBOX]: "2",
+                        [NAMES.OUTBOX]: "3",
+                        [NAMES.DRAFTS]: "6",
+                        [NAMES.SENT]: "4",
+                        [NAMES.TRASH]: "5",
+                        [NAMES.TEMPLATES]: "7"
+                    }
+                }
             };
             injector.register({
                 provide: "UserSession",
@@ -323,6 +348,7 @@ describe("Mail store", () => {
             store.state.mailboxes = {
                 B: { key: "B", owner: "B" }
             };
+            store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
             injector.register({
                 provide: "UserSession",
                 use: { userId: "B" }
@@ -342,6 +368,7 @@ describe("Mail store", () => {
                 B: { key: "B", owner: "B" },
                 C: { key: "C", owner: "C" }
             };
+            store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
             expect(store.getters[MAILBOX_ROOT_FOLDERS]({ key: "B" })).toEqual([store.state.folders["3"]]);
             expect(store.getters[MAILBOX_ROOT_FOLDERS]({ key: "C" })).toEqual([
                 store.state.folders["2"],
@@ -366,24 +393,16 @@ describe("Mail store", () => {
             store.state.folders = {
                 "1": {
                     key: "1",
-                    default: false,
-                    imapName: "whatever",
-                    name: "whathever",
-                    path: "whathever",
-                    mailboxRef: { key: "other" }
-                },
-                "1bis": {
-                    key: "1bis",
                     default: true,
-                    imapName: DEFAULT_FOLDER_NAMES.TRASH,
-                    path: `other/${DEFAULT_FOLDER_NAMES.TRASH}`,
+                    imapName: NAMES.TRASH,
+                    path: `other/${NAMES.TRASH}`,
                     mailboxRef: { key: "other" }
                 },
                 "2": {
                     key: "2",
                     default: true,
-                    imapName: DEFAULT_FOLDER_NAMES.TRASH,
-                    path: DEFAULT_FOLDER_NAMES.TRASH,
+                    imapName: NAMES.TRASH,
+                    path: NAMES.TRASH,
                     mailboxRef: { key: "next" }
                 }
             };
@@ -391,7 +410,11 @@ describe("Mail store", () => {
                 other: { key: "other", owner: "me", loading: LoadingStatus.LOADED },
                 next: { key: "next", owner: "me", loading: LoadingStatus.LOADED }
             };
-            expect(store.getters[MAILBOX_TRASH]({ key: "other" }).key).toEqual("1bis");
+            store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
+            store.state.mailboxes.folders = {
+                defaults: { other: { [NAMES.TRASH]: "1" }, next: { [NAMES.TRASH]: "2" } }
+            };
+            expect(store.getters[MAILBOX_TRASH]({ key: "other" }).key).toEqual("1");
             expect(store.getters[MAILBOX_TRASH]({ key: "next" }).key).toEqual("2");
         });
         test("MAILBOX_SENT", () => {
@@ -407,15 +430,15 @@ describe("Mail store", () => {
                 "1bis": {
                     key: "1bis",
                     default: true,
-                    imapName: DEFAULT_FOLDER_NAMES.SENT,
-                    path: `other/${DEFAULT_FOLDER_NAMES.SENT}`,
+                    imapName: NAMES.SENT,
+                    path: `other/${NAMES.SENT}`,
                     mailboxRef: { key: "other" }
                 },
                 "2": {
                     key: "2",
                     default: true,
-                    imapName: DEFAULT_FOLDER_NAMES.SENT,
-                    path: `next/${DEFAULT_FOLDER_NAMES.SENT}`,
+                    imapName: NAMES.SENT,
+                    path: `next/${NAMES.SENT}`,
                     mailboxRef: { key: "next" }
                 }
             };
@@ -423,7 +446,9 @@ describe("Mail store", () => {
                 other: { key: "other", owner: "me", loading: LoadingStatus.LOADED },
                 next: { key: "next", owner: "me", loading: LoadingStatus.LOADED }
             };
-            expect(store.getters[MAILBOX_SENT]({ key: "other" }).key).toEqual("1bis");
+            store.state.mailboxes.keys = ["other", "next"];
+            store.state.mailboxes.folders = { defaults: { other: { [NAMES.SENT]: "1" }, next: { [NAMES.SENT]: "2" } } };
+            expect(store.getters[MAILBOX_SENT]({ key: "other" }).key).toEqual("1");
             expect(store.getters[MAILBOX_SENT]({ key: "next" }).key).toEqual("2");
         });
         test("MAILSHARE_ROOT_FOLDERS (sorted by mailshare dn)", () => {
@@ -438,6 +463,7 @@ describe("Mail store", () => {
                 A: { key: "A", type: MailboxType.MAILSHARE, dn: "zzz" },
                 D: { key: "D", type: MailboxType.MAILSHARE, dn: "aaa" }
             };
+            store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
             expect(store.getters[MAILSHARE_ROOT_FOLDERS]).toEqual([store.state.folders["5"], store.state.folders["1"]]);
         });
         describe("NEXT_CONVERSATION", () => {
@@ -458,6 +484,21 @@ describe("Mail store", () => {
                 store.state.mailboxes = {
                     myMailbox: { key: "myMailbox", owner: "me", loading: LoadingStatus.LOADED }
                 };
+                store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
+                store.state.mailboxes.folders = {
+                    defaults: {
+                        myMailbox: {
+                            [NAMES.INBOX]: "2",
+                            [NAMES.OUTBOX]: "3",
+                            [NAMES.SENT]: "4",
+                            [NAMES.TRASH]: "5",
+                            [NAMES.DRAFTS]: "6"
+                        },
+                        other: {
+                            [NAMES.INBOX]: "1bis"
+                        }
+                    }
+                };
                 injector.register({
                     provide: "UserSession",
                     use: { userId: "me" }
@@ -471,44 +512,44 @@ describe("Mail store", () => {
                     },
                     "1bis": {
                         key: "1bis",
-                        imapName: DEFAULT_FOLDER_NAMES.INBOX,
+                        imapName: NAMES.INBOX,
                         default: true,
-                        path: DEFAULT_FOLDER_NAMES.INBOX,
+                        path: NAMES.INBOX,
                         mailboxRef: { key: "other" }
                     },
                     "2": {
                         key: "2",
-                        imapName: DEFAULT_FOLDER_NAMES.INBOX,
+                        imapName: NAMES.INBOX,
                         default: true,
-                        path: DEFAULT_FOLDER_NAMES.INBOX,
+                        path: NAMES.INBOX,
                         mailboxRef: { key: "myMailbox" }
                     },
                     "3": {
                         key: "3",
-                        imapName: DEFAULT_FOLDER_NAMES.OUTBOX,
+                        imapName: NAMES.OUTBOX,
                         default: true,
-                        path: DEFAULT_FOLDER_NAMES.OUTBOX,
+                        path: NAMES.OUTBOX,
                         mailboxRef: { key: "myMailbox" }
                     },
                     "4": {
                         key: "4",
-                        imapName: DEFAULT_FOLDER_NAMES.SENT,
+                        imapName: NAMES.SENT,
                         default: true,
-                        path: DEFAULT_FOLDER_NAMES.SENT,
+                        path: NAMES.SENT,
                         mailboxRef: { key: "myMailbox" }
                     },
                     "5": {
                         key: "5",
-                        imapName: DEFAULT_FOLDER_NAMES.TRASH,
+                        imapName: NAMES.TRASH,
                         default: true,
-                        path: DEFAULT_FOLDER_NAMES.TRASH,
+                        path: NAMES.TRASH,
                         mailboxRef: { key: "myMailbox" }
                     },
                     "6": {
                         key: "6",
-                        imapName: DEFAULT_FOLDER_NAMES.DRAFTS,
+                        imapName: NAMES.DRAFTS,
                         default: true,
-                        path: DEFAULT_FOLDER_NAMES.DRAFTS,
+                        path: NAMES.DRAFTS,
                         mailboxRef: { key: "myMailbox" }
                     }
                 };
@@ -555,27 +596,37 @@ describe("Mail store", () => {
                 "2": {
                     key: "2",
                     default: true,
-                    imapName: DEFAULT_FOLDER_NAMES.INBOX,
-                    path: DEFAULT_FOLDER_NAMES.INBOX,
+                    imapName: NAMES.INBOX,
+                    path: NAMES.INBOX,
                     mailboxRef: { key: "myMailbox" }
                 },
                 "5": {
                     key: "5",
                     default: true,
-                    imapName: DEFAULT_FOLDER_NAMES.TRASH,
-                    path: DEFAULT_FOLDER_NAMES.TRASH,
+                    imapName: NAMES.TRASH,
+                    path: NAMES.TRASH,
                     mailboxRef: { key: "myMailbox" }
                 },
                 "6": {
                     key: "6",
                     default: true,
-                    imapName: DEFAULT_FOLDER_NAMES.SENT,
-                    path: DEFAULT_FOLDER_NAMES.SENT,
+                    imapName: NAMES.SENT,
+                    path: NAMES.SENT,
                     mailboxRef: { key: "myMailbox" }
                 }
             };
             store.state.mailboxes = {
                 myMailbox: { key: "myMailbox", owner: "me", loading: LoadingStatus.LOADED }
+            };
+            store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
+            store.state.mailboxes.folders = {
+                defaults: {
+                    myMailbox: {
+                        [NAMES.INBOX]: "2",
+                        [NAMES.TRASH]: "5",
+                        [NAMES.SENT]: "6"
+                    }
+                }
             };
             injector.register({ provide: "UserSession", use: { userId: "me" } });
             Array.from(Array(100)).forEach((v, key) => {
@@ -630,13 +681,14 @@ function initMailbox(store) {
     store.state.folders = {
         "1": {
             key: "1",
-            imapName: DEFAULT_FOLDER_NAMES.TRASH,
+            imapName: NAMES.TRASH,
             mailboxRef: { key: "myMailbox", remoteRef: { uid: "toto" } }
         }
     };
     store.state.mailboxes = {
         B: { key: "B", owner: "B", remoteRef: { uid: "toto" } }
     };
+    store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
     injector.register({
         provide: "UserSession",
         use: { userId: "B" }
