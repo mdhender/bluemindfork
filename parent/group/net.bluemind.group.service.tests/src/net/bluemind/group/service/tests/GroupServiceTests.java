@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -46,8 +46,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.addressbook.domainbook.verticle.DomainBookVerticle;
@@ -144,20 +142,12 @@ public class GroupServiceTests {
 		Container usersBook = containerHome.get("addressbook_" + domainUid);
 		assertNotNull(usersBook);
 
-		AclStore aclStore = new AclStore(JdbcTestHelper.getInstance().getDataSource());
+		AclStore aclStore = new AclStore(null, JdbcTestHelper.getInstance().getDataSource());
 		aclStore.store(domainContainer,
 				Arrays.asList(AccessControlEntry.create(adminSecurityContext.getSubject(), Verb.Write),
 						AccessControlEntry.create(user1SecurityContext.getSubject(), Verb.Read)));
 
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
-
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 	}
 
 	private ItemValue<Domain> initDomain(ContainerStore containerHome, String domainUid, Server... servers)
@@ -165,7 +155,7 @@ public class GroupServiceTests {
 
 		ItemValue<Domain> domain = PopulateHelper.createTestDomain(domainUid, servers);
 
-		userContainer = containerHome.get(UserHelper.getContainerUid(domainUid));
+		userContainer = containerHome.get(domainUid);
 		assertNotNull(userContainer);
 
 		UserStore userStore = new UserStore(JdbcTestHelper.getInstance().getDataSource(), userContainer);
@@ -1396,7 +1386,7 @@ public class GroupServiceTests {
 
 		ContainerGroupStoreService groupStoreService = new ContainerGroupStoreService(
 				new BmTestContext(SecurityContext.SYSTEM), domainContainer, domain);
-		groupStoreService.create(uid, group.name, group);
+		groupStoreService.create(uid, group);
 
 		ItemValue<Group> g = getGroupService(adminSecurityContext).getComplete(uid);
 		assertNotNull(g.value.emails);
