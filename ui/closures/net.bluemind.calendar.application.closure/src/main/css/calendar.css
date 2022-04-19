@@ -723,6 +723,18 @@ div.column-emul {
   opacity: 1;
 }
 
+.slash::before {
+  content: "/";
+  position: relative;
+  right: 8px;
+  top:  1px;
+  font-size: 130%;
+}
+
+.stack .fa {
+  font-size: 90%;
+}
+
 .event-dragged {
 	z-index: 1000;
 	left: 0;

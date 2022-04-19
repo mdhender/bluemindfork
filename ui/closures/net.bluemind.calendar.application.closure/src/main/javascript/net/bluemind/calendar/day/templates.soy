@@ -67,6 +67,12 @@
     {if $states.repeat}
       <span class="{css fa} {css fa-repeat}"></span>
     {/if}
+    {if $states.exception}
+      <span class="{css fa} {css stack}">
+          <span class="{css fa} {css fa-repeat}"></span>
+          <span class="{css slash}"></span>
+      </span>
+    {/if}
     {if $states.private_}
       <span class="{css fa} {css fa-lock}"></span>
     {/if}
@@ -130,6 +136,12 @@
   <div class="{css icon-container}">
   {if $states.repeat}
     <span class="{css fa} {css fa-repeat}"></span>
+  {/if}
+  {if $states.exception}
+    <span class="{css fa} {css stack}">
+        <span class="{css fa} {css fa-repeat}"></span>
+        <span class="{css slash}"></span>
+    </span>
   {/if}
   {if $states.private_}
     <span class="{css fa} {css fa-lock}"></span>
@@ -689,6 +701,12 @@
   <div class="{css icon-container}">
   {if $states.repeat}
     <span class="{css fa} {css fa-repeat}"></span>
+  {/if}
+  {if $states.exception}
+      <span class="{css fa} {css stack}">
+        <span class="{css fa} {css fa-repeat}"></span>
+        <span class="{css slash}"></span>
+    </span>
   {/if}
   {if $states.private_}
     <span class="{css fa} {css fa-lock}"></span>
