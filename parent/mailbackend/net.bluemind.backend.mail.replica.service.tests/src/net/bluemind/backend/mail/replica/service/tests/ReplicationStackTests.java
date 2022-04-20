@@ -3457,7 +3457,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
 		//
 		// simulate user1 sends another one to user2 (should not generate more
-		// conversation for user1 in Inbox, but one more in Sent)
+		// conversations for user1 in Inbox, but one more in Sent)
 		//
 		createEml("data/user1_send_another_to_user2.eml", userUid, mboxRoot, "Sent");
 		createEml("data/user1_send_another_to_user2.eml", user2Uid, user2MboxRoot, "INBOX");
@@ -3476,7 +3476,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		List<ItemIdentifier> moved = transferApi.move(Arrays.asList(user1ItemId));
 		assertNotNull(moved);
 		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
-		assertEquals(2, user1SentConversations.size());
+		assertEquals(1, user1SentConversations.size());
 		conversation = user1ConversationService.getComplete(user1SentConversations.get(0));
 		numberOfMessagesInConversation = conversation.value.messageRefs.size();
 		assertEquals(1, numberOfMessagesInConversation);
@@ -3488,7 +3488,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		List<ItemIdentifier> moved2 = transferApi2.move(Arrays.asList(user1ItemId2));
 		assertNotNull(moved2);
 		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
-		assertEquals(2, user1InboxConversations.size());
+		assertEquals(1, user1InboxConversations.size());
 		conversation = user1ConversationService.getComplete(user1InboxConversations.get(0));
 		numberOfMessagesInConversation = conversation.value.messageRefs.size();
 		assertEquals(1, numberOfMessagesInConversation);
@@ -3502,7 +3502,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 				JdbcTestHelper.getInstance().getMailboxDataDataSource(), "bm/core").deleteExpired(0);
 		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), deleteExpiredTaskRef);
 		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
-		assertEquals(2, user1InboxConversations.size());
+		assertEquals(1, user1InboxConversations.size());
 		conversation = user1ConversationService.getComplete(user1InboxConversations.get(0));
 		numberOfMessagesInConversation = conversation.value.messageRefs.size();
 		assertEquals(1, numberOfMessagesInConversation);

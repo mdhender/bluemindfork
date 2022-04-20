@@ -62,7 +62,7 @@ public class ImportMailboxItemSet {
 		return ImportMailboxItemSet.of(mailboxFolderId, ids, expectedIds, true);
 	}
 
-	private static ImportMailboxItemSet of(long mailboxFolderId, List<MailboxItemId> ids,
+	public static ImportMailboxItemSet of(long mailboxFolderId, List<MailboxItemId> ids,
 			List<MailboxItemId> expectedIds, boolean deleteFromSource) {
 		ImportMailboxItemSet ret = new ImportMailboxItemSet();
 		ret.mailboxFolderId = mailboxFolderId;
