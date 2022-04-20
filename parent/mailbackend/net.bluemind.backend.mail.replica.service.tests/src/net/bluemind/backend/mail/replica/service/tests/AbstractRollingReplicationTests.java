@@ -59,6 +59,7 @@ import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
+import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
@@ -154,12 +155,7 @@ public abstract class AbstractRollingReplicationTests {
 		JdbcActivator.getInstance().addMailboxDataSource(cyrusReplication.server().uid,
 				JdbcTestHelper.getInstance().getMailboxDataDataSource());
 
-		CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(ar -> {
-			cdl.countDown();
-		});
-		boolean beforeTimeout = cdl.await(30, TimeUnit.SECONDS);
-		assertTrue(beforeTimeout);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		MQ.init().get(30, TimeUnit.SECONDS);
 		Topology.get();
@@ -182,6 +178,17 @@ public abstract class AbstractRollingReplicationTests {
 		CyrusPartition part = CyrusPartition.forServerAndDomain(cyrusReplication.server(), domainUid);
 		this.partition = part.name;
 		this.mboxRoot = "user." + userUid.replace('.', '^');
+
+		// Wait for INBOX
+		for (int i = 0; i < 30; i++) {
+			ItemValue<MailboxFolder> inbox = provider().instance(IDbReplicatedMailboxes.class, partition, mboxRoot)
+					.byName("INBOX");
+			if (inbox != null) {
+				break;
+			} else {
+				Thread.sleep(100);
+			}
+		}
 	}
 
 	@FunctionalInterface
