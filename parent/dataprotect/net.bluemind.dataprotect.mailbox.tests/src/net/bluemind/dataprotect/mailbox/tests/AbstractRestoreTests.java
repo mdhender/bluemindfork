@@ -44,6 +44,7 @@ import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
 import net.bluemind.backend.cyrus.replication.testhelper.SyncServerHelper;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
+import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.config.InstallationId;
 import net.bluemind.config.Token;
@@ -134,6 +135,15 @@ public class AbstractRestoreTests {
 	}
 
 	@Before
+	public void restoreTestsSetup() throws Exception {
+		try {
+			setup();
+		} catch (Throwable t) {
+			t.printStackTrace(System.err);
+			throw t;
+		}
+	}
+
 	public void setup() throws Exception {
 		login = "chang" + System.currentTimeMillis();
 		mailshareLogin = "ms-" + login;
@@ -213,6 +223,14 @@ public class AbstractRestoreTests {
 		IMailboxFolders foldersService = sp.getContext().su("junit-" + UUID.randomUUID().toString(), loginUid, domain)
 				.getServiceProvider()
 				.instance(IMailboxFoldersByContainer.class, IMailReplicaUids.subtreeUid(domain, mbox));
+		for (int i = 0; i < 30; i++) {
+			ItemValue<MailboxFolder> inbox = foldersService.byName("INBOX");
+			if (inbox != null) {
+				break;
+			} else {
+				Thread.sleep(100);
+			}
+		}
 		String inboxUid = foldersService.byName("INBOX").uid;
 		Watcher w = ApplyMailboxReplicationObserver.addWatcher(inboxUid);
 		// Inject a good amount of emails in a folder
