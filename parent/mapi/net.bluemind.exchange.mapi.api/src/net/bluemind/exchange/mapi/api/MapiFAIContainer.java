@@ -19,8 +19,10 @@
 package net.bluemind.exchange.mapi.api;
 
 public class MapiFAIContainer {
-
 	public static final String TYPE = "mapi_fai";
+
+	private MapiFAIContainer() {
+	}
 
 	public static String getIdentifier(MapiReplica replica) {
 		return getIdentifier(replica.localReplicaGuid);
@@ -28,6 +30,10 @@ public class MapiFAIContainer {
 
 	public static String getIdentifier(String localReplicaGuid) {
 		return "mapi_fai_" + localReplicaGuid;
+	}
+
+	public static String localReplica(String containerUid) {
+		return containerUid.substring("mapi_fai_".length());
 	}
 
 }

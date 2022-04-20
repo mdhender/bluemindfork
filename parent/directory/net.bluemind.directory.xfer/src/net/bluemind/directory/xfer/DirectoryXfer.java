@@ -422,7 +422,7 @@ public class DirectoryXfer implements AutoCloseable {
 			xferContainers(monitor.subWork(1), MapiFolderContainer.TYPE,
 					containerUid -> sp.instance(IMapiFolder.class, containerUid), false);
 			xferContainers(monitor.subWork(1), MapiFAIContainer.TYPE, containerUid -> sp
-					.instance(IMapiFolderAssociatedInformation.class, MapiFAIContainer.getIdentifier(containerUid)),
+					.instance(IMapiFolderAssociatedInformation.class, MapiFAIContainer.localReplica(containerUid)),
 					false);
 		}
 
