@@ -33,6 +33,9 @@ import com.google.common.io.ByteStreams;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.system.api.ArchiveKind;
+import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.helper.distrib.list.Distribution;
 
 public class ArchiveHelper {
@@ -86,6 +89,11 @@ public class ArchiveHelper {
 
 		Files.write(file.toPath(), after);
 		return new ZipFile(file);
+	}
+
+	public static boolean isSdsArchiveKind(SystemConf config) {
+		ArchiveKind archiveKind = ArchiveKind.fromName(config.stringValue(SysConfKeys.archive_kind.name()));
+		return archiveKind != null && archiveKind.isSdsArchive();
 	}
 
 }

@@ -7,7 +7,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: slf4j.api,
  net.bluemind.core.commons,
  com.google.guava,
- net.bluemind.utils
+ net.bluemind.utils,
+ net.bluemind.system.api
 Export-Package: net.bluemind.system.helper,
  net.bluemind.system.helper.distrib,
  net.bluemind.system.helper.distrib.list

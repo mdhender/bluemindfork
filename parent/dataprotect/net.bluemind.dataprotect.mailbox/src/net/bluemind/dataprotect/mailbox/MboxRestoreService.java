@@ -96,6 +96,7 @@ import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.SystemConf;
+import net.bluemind.system.helper.ArchiveHelper;
 import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
 public class MboxRestoreService {
@@ -153,7 +154,7 @@ public class MboxRestoreService {
 		BoxFsFolders boxFsFolders = BoxFsFolders.build(domain, mbox, dpg);
 
 		SystemConf sysconf = LocalSysconfCache.get();
-		if (sysconf.isArchiveKindSds()) {
+		if (ArchiveHelper.isSdsArchiveKind(sysconf)) {
 			try {
 				restoreSds(domain, dpg, mbox, boxFsFolders, mode, monitor);
 			} catch (ServerFault sf) {

@@ -36,6 +36,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.server.api.IServer;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SystemConf;
+import net.bluemind.system.helper.ArchiveHelper;
 
 public abstract class AbstractConfFile {
 
@@ -126,7 +127,7 @@ public abstract class AbstractConfFile {
 		SystemConf sysconf = settingsService.getValues();
 		String kind = Optional.ofNullable(sysconf.stringValue("archive_kind")).orElse("none");
 
-		if (sysconf.isArchiveKindSds()) {
+		if (ArchiveHelper.isSdsArchiveKind(sysconf)) {
 			return new HsmConfig(ImmutableMap.of(//
 					"object_storage_enabled", "1", //
 					"archive_enabled", "1", //

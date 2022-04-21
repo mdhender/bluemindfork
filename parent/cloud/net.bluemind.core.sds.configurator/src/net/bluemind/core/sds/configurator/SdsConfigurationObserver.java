@@ -12,6 +12,7 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.sds.proxy.mgmt.SdsProxyManager;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
+import net.bluemind.system.helper.ArchiveHelper;
 import net.bluemind.system.hook.ISystemConfigurationObserver;
 
 public class SdsConfigurationObserver implements ISystemConfigurationObserver {
@@ -23,7 +24,7 @@ public class SdsConfigurationObserver implements ISystemConfigurationObserver {
 
 	@Override
 	public void onUpdated(BmContext context, SystemConf previous, SystemConf current) throws ServerFault {
-		if (!current.isArchiveKindSds()) {
+		if (!ArchiveHelper.isSdsArchiveKind(current)) {
 			return;
 		}
 

@@ -43,6 +43,7 @@ import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.SystemConf;
+import net.bluemind.system.helper.ArchiveHelper;
 import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
 public class CyrusSdsWorker extends DefaultWorker {
@@ -61,7 +62,7 @@ public class CyrusSdsWorker extends DefaultWorker {
 	@Override
 	public void prepareDataDirs(IDPContext ctx, String tag, ItemValue<Server> toBackup) throws ServerFault {
 		SystemConf sysconf = LocalSysconfCache.get();
-		if (!sysconf.isArchiveKindSds()) {
+		if (!ArchiveHelper.isSdsArchiveKind(sysconf)) {
 			return;
 		}
 		List<ItemValue<Domain>> domains = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)

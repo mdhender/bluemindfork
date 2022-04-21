@@ -24,6 +24,7 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.server.api.IServer;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
+import net.bluemind.system.helper.ArchiveHelper;
 import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
 public class CyrusWorker extends DefaultWorker {
@@ -37,7 +38,7 @@ public class CyrusWorker extends DefaultWorker {
 	@Override
 	public Set<String> getDataDirs() {
 		SystemConf sysconf = LocalSysconfCache.get();
-		if (sysconf.isArchiveKindSds()) {
+		if (ArchiveHelper.isSdsArchiveKind(sysconf)) {
 			return Collections.emptySet();
 		}
 

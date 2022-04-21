@@ -55,7 +55,8 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.backend.mail.replica.api,
  net.bluemind.mailshare.api,
  net.bluemind.system.sysconf.helper,
- net.bluemind.backend.cyrus.replication.client
+ net.bluemind.backend.cyrus.replication.client,
+ net.bluemind.system.helper
 Automatic-Module-Name: net.bluemind.backend.cyrus
 
 

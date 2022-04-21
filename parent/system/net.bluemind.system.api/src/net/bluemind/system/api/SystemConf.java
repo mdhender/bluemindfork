@@ -96,13 +96,4 @@ public class SystemConf {
 			return null;
 		}
 	}
-
-	public boolean isArchiveKindSds() {
-		return isSdsArchiveKind(stringValue(SysConfKeys.archive_kind.name()));
-	}
-
-	public static boolean isSdsArchiveKind(String archiveKindName) {
-		ArchiveKind archiveKind = ArchiveKind.fromName(archiveKindName);
-		return archiveKind != null ? archiveKind.isSdsArchive() : false;
-	}
 }
