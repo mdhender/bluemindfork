@@ -49,10 +49,9 @@ import net.bluemind.notes.api.INoteUids;
 import net.bluemind.notes.api.VNote;
 import net.bluemind.notes.persistence.VNoteIndexStore;
 import net.bluemind.notes.persistence.VNoteStore;
-import net.bluemind.notes.service.IInCoreNoteMgmt;
 import net.bluemind.notes.service.VNoteContainerStoreService;
 
-public class NoteIndexMgmtService implements INoteIndexMgmt, IInCoreNoteMgmt {
+public class NoteIndexMgmtService implements INoteIndexMgmt {
 
 	private final Logger logger = LoggerFactory.getLogger(NoteIndexMgmtService.class);
 	private final BmContext context;
@@ -71,12 +70,6 @@ public class NoteIndexMgmtService implements INoteIndexMgmt, IInCoreNoteMgmt {
 		return context.provider().instance(ITasksManager.class).run(reindexTask(containerUid));
 	}
 
-	@Override
-	public void reindexAll(IServerTaskMonitor monitor) throws Exception {
-		reindexAllTask().run(monitor);
-	}
-
-	@Override
 	public void reindex(String containerUid, IServerTaskMonitor monitor) throws Exception {
 		reindexTask(containerUid).run(monitor);
 	}
