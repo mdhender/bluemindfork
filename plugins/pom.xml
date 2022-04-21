@@ -97,8 +97,6 @@
 		<module>net.bluemind.slf4j.configuration</module>
 		<module>net.bluemind.system.nginx</module>
 		<module>net.bluemind.tika.server</module>
-		<module>net.bluemind.unixsocket.tests</module>
-		<module>net.bluemind.unixsocket</module>
 		<module>net.bluemind.utils</module>
 		<module>net.bluemind.vertx.common</module>
 		<module>net.bluemind.xivo.bridge</module>

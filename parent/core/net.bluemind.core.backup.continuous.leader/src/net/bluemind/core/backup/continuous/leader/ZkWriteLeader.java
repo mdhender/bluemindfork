@@ -66,7 +66,8 @@ public class ZkWriteLeader implements InstallationWriteLeader {
 			return;
 		}
 		String path = "/" + InstallationId.getIdentifier() + ".leader";
-		this.latch = new LeaderLatch(curator, path, DataLocation.current());
+		this.latch = new LeaderLatch(curator, path,
+				participantId());
 		try {
 			latch.addListener(new LeaderLatchListener() {
 
@@ -94,6 +95,10 @@ public class ZkWriteLeader implements InstallationWriteLeader {
 		} catch (Exception e) {
 			throw new ZkRuntimeException(e);
 		}
+	}
+
+	private String participantId() {
+		return DataLocation.current() + "-" + System.getProperty("net.bluemind.property.product", "unknown");
 	}
 
 	@Override
