@@ -78,7 +78,8 @@ public class SyncClientMgmt implements ISyncClientMgmt, ProcessHandler {
 	}
 
 	public void startRollingReplication() {
-		logger.info("Start/Replace rolling replication process.");
+		logger.info("Start/Replace rolling replication process for channel {} shard {}.", replicationChannel,
+				shardIndex);
 		if (timerId != null) {
 			vertx.cancelTimer(timerId);
 		}
@@ -111,7 +112,7 @@ public class SyncClientMgmt implements ISyncClientMgmt, ProcessHandler {
 	@Override
 	public void completed(int exitCode) {
 		if (!stopped) {
-			logger.warn("Respawn as the task ended on node.");
+			logger.warn("Respawn as the task ended on node, code: {}", exitCode);
 			startRollingReplication();
 		} else {
 			logger.info("SyncClient termined with exitCode {}", exitCode);

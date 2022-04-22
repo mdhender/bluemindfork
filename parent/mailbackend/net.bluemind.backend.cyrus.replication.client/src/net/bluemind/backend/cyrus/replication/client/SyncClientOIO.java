@@ -191,15 +191,16 @@ public class SyncClientOIO implements AutoCloseable {
 		return resp;
 	}
 
-	public String applyMessage(String name, String body, byte[] emlData) throws IOException {
+	public String applyMessage(String partition, String bodyGuid, byte[] emlData) throws IOException {
 		Buffer buf = Buffer.buffer();
 		buf.appendString("APPLY MESSAGE (%{");
-		buf.appendString(name).appendString(" ").appendString(body).appendString(" ")
+		buf.appendString(partition).appendString(" ").appendString(bodyGuid).appendString(" ")
 				.appendString(Integer.toString(emlData.length)).appendString("}\r\n");
 		buf.appendBytes(emlData);
 		buf.appendString(")\r\n");
-		return run(buf.getBytes(), "APPLY MESSAGE (%{" + name + " " + body + " " + emlData.length + "} ...)", s -> {
-		}, EXPECT);
+		return run(buf.getBytes(), "APPLY MESSAGE (%{" + partition + " " + bodyGuid + " " + emlData.length + "} ...)",
+				s -> {
+				}, EXPECT);
 	}
 
 }

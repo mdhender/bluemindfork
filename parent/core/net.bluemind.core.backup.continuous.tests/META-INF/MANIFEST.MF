@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.core.backup.continuous.tests
-Bundle-SymbolicName: net.bluemind.core.backup.continuous.tests
+Bundle-SymbolicName: net.bluemind.core.backup.continuous.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
@@ -47,7 +47,11 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.calendar.usercalendar;bundle-version="4.1.0",
  net.bluemind.addressbook.userbook;bundle-version="4.1.0",
  net.bluemind.todolist.usertodolist;bundle-version="4.1.0",
- net.bluemind.device.userdevice
+ net.bluemind.device.userdevice,
+ org.awaitility;bundle-version="4.2.0",
+ net.bluemind.backend.cyrus.replication.client,
+ net.bluemind.imap;bundle-version="4.1.0",
+ org.hamcrest;bundle-version="2.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.backup.continuous.tests
 Bundle-ActivationPolicy: lazy

@@ -50,7 +50,7 @@ import net.bluemind.imap.Acl;
  */
 public class ReplMailbox {
 
-	private UUID uniqueId;
+	private String uniqueId;
 	private boolean user = true;
 	private String domainUid;
 	private String mailboxUid;
@@ -66,7 +66,7 @@ public class ReplMailbox {
 	private Date lastAppendDate;
 	private long uidValidity;
 
-	private ReplMailbox(UUID uniqueId, boolean user, String domainUid, String mailboxUid, String mailboxName,
+	private ReplMailbox(String uniqueId, boolean user, String domainUid, String mailboxUid, String mailboxName,
 			boolean root, String folderName, CyrusPartition partition, String specialUse, String aclString,
 			long lastUid, long highestModSeq, Date lastAppendDate, long uidValidity) {
 		this.uniqueId = uniqueId;
@@ -94,7 +94,7 @@ public class ReplMailbox {
 		String cyrus = cyrusName();
 		StringBuilder sb = new StringBuilder();
 		sb.append("APPLY MAILBOX %(");
-		sb.append("UNIQUEID ").append(uniqueId.toString()).append(' ');
+		sb.append("UNIQUEID ").append(uniqueId).append(' ');
 		sb.append("MBOXNAME \"").append(cyrus).append("\" ");
 		sb.append("SYNC_CRC 0 SYNC_CRC_ANNOT 0 LAST_UID ").append(lastUid).append(' ');
 		sb.append("HIGHESTMODSEQ ").append(highestModSeq).append(' ');
@@ -140,7 +140,7 @@ public class ReplMailbox {
 		private String folderName;
 		private CyrusPartition partition;
 		private String specialUse;
-		private UUID uniqueId;
+		private String uniqueId;
 		private Map<String, Acl> acls = new LinkedHashMap<>();
 
 		private long lastUid = 0;
@@ -194,6 +194,11 @@ public class ReplMailbox {
 		}
 
 		public Builder uniqueId(UUID uuid) {
+			this.uniqueId = uuid.toString();
+			return this;
+		}
+
+		public Builder uniqueId(String uuid) {
 			this.uniqueId = uuid;
 			return this;
 		}

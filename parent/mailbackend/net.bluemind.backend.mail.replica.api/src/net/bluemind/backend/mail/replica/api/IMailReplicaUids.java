@@ -123,7 +123,11 @@ public interface IMailReplicaUids {
 	}
 
 	public static String subtreeUid(@PathParam("domainUid") String domainUid, ItemValue<Mailbox> mbox) {
-		return "subtree_" + domainUid.replace('.', '_') + "!" + mbox.value.type.nsPrefix + mbox.uid;
+		return subtreeUid(domainUid, mbox.value.type, mbox.uid);
+	}
+
+	public static String subtreeUid(String domainUid, Mailbox.Type type, String uid) {
+		return "subtree_" + domainUid.replace('.', '_') + "!" + type.nsPrefix + uid;
 	}
 
 	public static String conversationSubtreeUid(@PathParam("domainUid") String domainUid, String uid) {

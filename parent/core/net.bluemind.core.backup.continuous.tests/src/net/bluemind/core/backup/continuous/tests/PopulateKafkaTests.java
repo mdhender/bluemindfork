@@ -18,6 +18,7 @@
  */
 package net.bluemind.core.backup.continuous.tests;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -145,13 +146,7 @@ public class PopulateKafkaTests {
 		System.err.println(s3conf.asJson().encodePrettily());
 		ISdsBackingStore sds = new S3StoreFactory().create(VertxPlatform.getVertx(), s3conf.asJson());
 
-		int electAttempts = 0;
-		do {
-			System.err.println("LEADER: " + DefaultLeader.leader().isLeader());
-			Thread.sleep(500);
-		} while (!DefaultLeader.leader().isLeader() && electAttempts++ < 120);
-		System.err.println("leader: " + DefaultLeader.leader());
-		assertTrue("Not elected as leader", DefaultLeader.leader().isLeader());
+		await().atMost(20, TimeUnit.SECONDS).until(DefaultLeader.leader()::isLeader);
 
 		System.err.println("sds: " + sds);
 		try (InputStream in = getClass().getClassLoader().getResourceAsStream("data/kafka/emls.tar.bz2");
