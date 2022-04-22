@@ -1,5 +1,6 @@
 <template>
-    <bm-form-group :aria-label="label" :label="label" :disabled="disabled">
+    <bm-form-group :disabled="disabled">
+        <template #label><pref-field-label :label="label" /></template>
         <bm-form-select v-model="value" class="pref-field-select" :options="choices" />
     </bm-form-group>
 </template>
@@ -7,12 +8,14 @@
 <script>
 import { BmFormGroup, BmFormSelect } from "@bluemind/styleguide";
 import OneSettingField from "../mixins/OneSettingField";
+import PrefFieldLabel from "./PrefFieldLabel";
 
 export default {
     name: "PrefFieldSelect",
     components: {
         BmFormGroup,
-        BmFormSelect
+        BmFormSelect,
+        PrefFieldLabel
     },
     mixins: [OneSettingField],
     props: {
@@ -21,7 +24,7 @@ export default {
             required: true
         },
         label: {
-            type: String,
+            type: [Object, String],
             required: false,
             default: ""
         }

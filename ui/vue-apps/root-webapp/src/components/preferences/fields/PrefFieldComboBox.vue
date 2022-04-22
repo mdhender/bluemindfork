@@ -1,5 +1,6 @@
 <template>
-    <bm-form-group :aria-label="label" :label="label" :disabled="disabled">
+    <bm-form-group :disabled="disabled">
+        <template #label><pref-field-label :label="label" /></template>
         <bm-combo-box
             v-model="input"
             :items="filtered"
@@ -15,10 +16,11 @@
 <script>
 import { BmFormGroup, BmComboBox } from "@bluemind/styleguide";
 import OneSettingField from "../mixins/OneSettingField";
+import PrefFieldLabel from "./PrefFieldLabel";
 
 export default {
     name: "PrefFieldComboBox",
-    components: { BmFormGroup, BmComboBox },
+    components: { BmFormGroup, BmComboBox, PrefFieldLabel },
     mixins: [OneSettingField],
     props: {
         choices: {
@@ -40,6 +42,7 @@ export default {
             return this.choices.filter(choice => input.test(choice));
         }
     },
+
     watch: {
         value: {
             handler(value) {

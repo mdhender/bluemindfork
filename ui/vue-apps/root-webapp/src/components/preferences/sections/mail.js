@@ -265,7 +265,14 @@ export default function (i18n) {
                                     options: {
                                         setting: "auto_select_from",
                                         autosave: true,
-                                        label: i18n.t("preferences.mail.identities.auto_select.label"),
+                                        label: {
+                                            component: "PrefReadMoreLabel",
+                                            options: {
+                                                href:
+                                                    "https://forge.bluemind.net/confluence/pages/viewpage.action?pageId=86743359#id-.D%C3%A9finirl'exp%C3%A9diteurdumessagevBM4-S%C3%A9lectionnerl'exp%C3%A9diteur",
+                                                text: i18n.t("preferences.mail.identities.auto_select.label")
+                                            }
+                                        },
                                         choices: [
                                             { text: i18n.t("common.never"), value: "never" },
                                             {
