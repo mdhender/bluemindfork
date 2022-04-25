@@ -27,8 +27,9 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.system.helper.distrib.list.Distribution;
 import net.bluemind.system.helper.distrib.list.Ubuntu;
-import net.bluemind.system.helper.distrib.list.UbuntuFocal;
 import net.bluemind.system.helper.distrib.list.UbuntuBionic;
+import net.bluemind.system.helper.distrib.list.UbuntuFocal;
+import net.bluemind.system.helper.distrib.list.UbuntuJammy;
 import net.bluemind.system.helper.distrib.list.UbuntuXenial;
 
 public class UbuntuOSVersion implements IOsVersionDetection {
@@ -61,6 +62,8 @@ public class UbuntuOSVersion implements IOsVersionDetection {
 						distrib = new UbuntuBionic();
 					} else if (line.endsWith("20.04")) {
 						distrib = new UbuntuFocal();
+					} else if (line.endsWith("22.04")) {
+						distrib = new UbuntuJammy();
 					}
 				}
 			}

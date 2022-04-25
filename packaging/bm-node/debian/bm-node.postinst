@@ -24,11 +24,8 @@ if [ -d /etc/apt/preferences.d/bm ]; then
     rm -rf /etc/apt/preferences.d/bm
 fi
 
-if [ -e /usr/share/doc/bm-node/bm.gz ]; then
-    zcat /usr/share/doc/bm-node/bm.gz /etc/apt/preferences.d/bm
-else
-    cp -f /usr/share/doc/bm-node/bm /etc/apt/preferences.d/bm
-fi
+cp -f /usr/share/bm-node/conf/bm /etc/apt/preferences.d/bm
+[ -d /etc/needrestart/conf.d ] && cp /usr/share/bm-node/conf/needrestart.bm.conf /etc/needrestart/conf.d/bm.conf
 
 # Force startup link install
 update-rc.d -f bm-node remove > /dev/null 2>&1

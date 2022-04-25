@@ -32,9 +32,9 @@ if [ -L /usr/share/bm-webmail/logs ]; then
 fi
 
 if [ ! -e /etc/bm-webmail/bm-php5-fpm.conf ]; then
-    cp -f /usr/share/doc/bm-webmail/bm-php5-fpm.conf /etc/bm-webmail
+    cp -f /usr/share/bm-webmail/conf/bm-php5-fpm.conf /etc/bm-webmail
 fi
-cp -f /usr/share/doc/bm-webmail/bm-webmail /etc/nginx/sites-available/
+cp -f /usr/share/bm-webmail/conf/bm-webmail /etc/nginx/sites-available/
 
 pushd /etc/nginx/sites-enabled
 rm -f bm-webmail

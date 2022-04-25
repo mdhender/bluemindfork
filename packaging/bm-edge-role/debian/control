@@ -6,7 +6,7 @@ Standards-Version: 3.9.1
 
 Package: bm-edge-role
 Architecture: amd64
-Depends: bm-node (= ${binary:Version}), bm-conf (= ${binary:Version}), bm-postfix (= ${binary:Version}), bm-nginx (= 1.20.1-bluemind101), bm-ysnp (= ${binary:Version}), bm-tick-node (= ${binary:Version}), bm-client-access (= ${binary:Version})
+Depends: bm-node (= ${binary:Version}), bm-conf (= ${binary:Version}), bm-postfix (= ${binary:Version}), bm-nginx (= 1.20.1-bluemind104), bm-ysnp (= ${binary:Version}), bm-tick-node (= ${binary:Version}), bm-client-access (= ${binary:Version})
 Description: BlueMind edge role
  Install and configure BlueMind server edge role to proxy services to BlueMind core
 

@@ -46,7 +46,7 @@ createDefaultVhost() {
         /usr/share/bm-client-access/bin/createcert.sh configure.your.external.url ${externalurl} $(hostname -I)
     }
 
-    forceNginxConfiguration ${vhostFile} /usr/share/doc/bm-client-access/bluemind-vhosts.conf
+    forceNginxConfiguration ${vhostFile} /usr/share/bm-client-access/conf/bluemind-vhosts.conf
     setDefaultServer ${vhostFile}
     setUseProxyProtocol ${vhostFile}
     setExternalUrl ${vhostFile} ${externalUrl}
@@ -72,7 +72,7 @@ createDomainsVhosts() {
 
         externalUrls+=(${externalUrl})
 
-        forceNginxConfiguration ${vhostFile} /usr/share/doc/bm-client-access/bluemind-vhosts.conf
+        forceNginxConfiguration ${vhostFile} /usr/share/bm-client-access/conf/bluemind-vhosts.conf
         unsetDefaultServer ${vhostFile}
         setUseProxyProtocol ${vhostFile}
         setExternalUrl ${vhostFile} ${externalUrl}
@@ -191,35 +191,35 @@ echo "Install/Upgrade BlueMind nginx virtual host"
 [ -e /etc/nginx/bm-externalurl.conf ] && rm -f /etc/nginx/bm-externalurl.conf
 [ -e /etc/nginx/bluemind ] && rm -rf /etc/nginx/bluemind
 
-forceNginxConfiguration /etc/nginx/sites-available/bm-client-access /usr/share/doc/bm-client-access/bm-client-access
-forceNginxConfiguration /etc/nginx/sites-available/bm-client-access-without-password /usr/share/doc/bm-client-access/bm-client-access-without-password
+forceNginxConfiguration /etc/nginx/sites-available/bm-client-access /usr/share/bm-client-access/conf/bm-client-access
+forceNginxConfiguration /etc/nginx/sites-available/bm-client-access-without-password /usr/share/bm-client-access/conf/bm-client-access-without-password
 
-forceNginxConfiguration /etc/nginx/global.d/bm-mail-proxy.conf /usr/share/doc/bm-client-access/global.d/bm-mail-proxy.conf
+forceNginxConfiguration /etc/nginx/global.d/bm-mail-proxy.conf /usr/share/bm-client-access/conf/global.d/bm-mail-proxy.conf
 
-nginxConfiguration /etc/bm-webmail/nginx-webmail.conf /usr/share/doc/bm-client-access/bm-webmail/nginx-webmail.conf
-nginxConfiguration /etc/bm-webmail/bm-filehosting.conf /usr/share/doc/bm-client-access/bm-webmail/bm-filehosting.conf
+nginxConfiguration /etc/bm-webmail/nginx-webmail.conf /usr/share/bm-client-access/conf/bm-webmail/nginx-webmail.conf
+nginxConfiguration /etc/bm-webmail/bm-filehosting.conf /usr/share/bm-client-access/conf/bm-webmail/bm-filehosting.conf
 
-nginxConfiguration /etc/bm-eas/bm-eas-nginx.conf /usr/share/doc/bm-client-access/bm-eas/bm-eas-nginx.conf
-nginxConfiguration /etc/bm-eas/bm-upstream-eas.conf /usr/share/doc/bm-client-access/bm-eas/bm-upstream-eas.conf
+nginxConfiguration /etc/bm-eas/bm-eas-nginx.conf /usr/share/bm-client-access/conf/bm-eas/bm-eas-nginx.conf
+nginxConfiguration /etc/bm-eas/bm-upstream-eas.conf /usr/share/bm-client-access/conf/bm-eas/bm-upstream-eas.conf
 
-nginxConfiguration /etc/bm-mapi/bm-upstream-mapi.conf /usr/share/doc/bm-client-access/bm-mapi/bm-upstream-mapi.conf
+nginxConfiguration /etc/bm-mapi/bm-upstream-mapi.conf /usr/share/bm-client-access/conf/bm-mapi/bm-upstream-mapi.conf
 
-nginxConfiguration /etc/bm-hps/bm-upstream-hps.conf /usr/share/doc/bm-client-access/bm-hps/bm-upstream-hps.conf
+nginxConfiguration /etc/bm-hps/bm-upstream-hps.conf /usr/share/bm-client-access/conf/bm-hps/bm-upstream-hps.conf
 
-nginxConfiguration /etc/bm-webserver/bm-upstream-webserver.conf /usr/share/doc/bm-client-access/bm-webserver/bm-upstream-webserver.conf
+nginxConfiguration /etc/bm-webserver/bm-upstream-webserver.conf /usr/share/bm-client-access/conf/bm-webserver/bm-upstream-webserver.conf
 
-nginxConfiguration /etc/bm-core/bm-upstream-core.conf /usr/share/doc/bm-client-access/bm-core/bm-upstream-core.conf
+nginxConfiguration /etc/bm-core/bm-upstream-core.conf /usr/share/bm-client-access/conf/bm-core/bm-upstream-core.conf
 
-nginxConfiguration /etc/bm-tick/bm-upstream-tick.conf /usr/share/doc/bm-client-access/bm-tick/bm-upstream-tick.conf
+nginxConfiguration /etc/bm-tick/bm-upstream-tick.conf /usr/share/bm-client-access/conf/bm-tick/bm-upstream-tick.conf
 
-nginxConfiguration /etc/nginx/bm-nginx-role.conf /usr/share/doc/bm-client-access/bm-nginx/bm-nginx-role.conf
-nginxConfiguration /etc/nginx/bm-upstream-mainnginx.conf /usr/share/doc/bm-client-access/bm-nginx/bm-upstream-mainnginx.conf
-nginxConfiguration /etc/nginx/bm-http-auth.conf /usr/share/doc/bm-client-access/bm-nginx/bm-http-auth.conf
-nginxConfiguration /etc/nginx/bm-nginx-embed.conf /usr/share/doc/bm-client-access/bm-nginx/bm-nginx-embed.conf
+nginxConfiguration /etc/nginx/bm-nginx-role.conf /usr/share/bm-client-access/conf/bm-nginx/bm-nginx-role.conf
+nginxConfiguration /etc/nginx/bm-upstream-mainnginx.conf /usr/share/bm-client-access/conf/bm-nginx/bm-upstream-mainnginx.conf
+nginxConfiguration /etc/nginx/bm-http-auth.conf /usr/share/bm-client-access/conf/bm-nginx/bm-http-auth.conf
+nginxConfiguration /etc/nginx/bm-nginx-embed.conf /usr/share/bm-client-access/conf/bm-nginx/bm-nginx-embed.conf
 
 # Sentry upstream and host
-nginxConfiguration /etc/nginx/bm-sentry.conf /usr/share/doc/bm-client-access/bm-nginx/bm-sentry.conf
-nginxConfiguration /etc/nginx/bm-upstream-sentry.conf /usr/share/doc/bm-client-access/bm-nginx/bm-upstream-sentry.conf
+nginxConfiguration /etc/nginx/bm-sentry.conf /usr/share/bm-client-access/conf/bm-nginx/bm-sentry.conf
+nginxConfiguration /etc/nginx/bm-upstream-sentry.conf /usr/share/bm-client-access/conf/bm-nginx/bm-upstream-sentry.conf
 
 
 generateDhParam
