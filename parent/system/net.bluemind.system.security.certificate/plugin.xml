@@ -9,5 +9,8 @@
       <verticle
             impl="net.bluemind.system.security.certificate.CertificateUpdateVerticleFactory">
       </verticle>
+      <verticle
+            impl="net.bluemind.system.security.certificate.CertificateLetsEncryptRenewalFactory">
+      </verticle>
    </extension>
 </plugin>
