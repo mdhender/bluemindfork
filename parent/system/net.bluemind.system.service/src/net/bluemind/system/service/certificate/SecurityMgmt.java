@@ -71,8 +71,8 @@ public class SecurityMgmt implements ISecurityMgmt, IInCoreSecurityMgmt {
 	public void updateCertificate(CertData certData) {
 		rbac.check(BasicRoles.ROLE_MANAGE_CERTIFICATE);
 		ICertifEngine certifEngine = CertifEngineFactory.get(certData, context);
-		logger.info(
-				"update certificate with " + certifEngine.getClass().getName() + " - " + certData.sslCertificateEngine);
+		logger.info("update certificate with {} - {} ", certifEngine.getClass().getName(),
+				certData.sslCertificateEngine);
 		if (!certifEngine.authorizeUpdate()) {
 			return;
 		}
@@ -90,9 +90,8 @@ public class SecurityMgmt implements ISecurityMgmt, IInCoreSecurityMgmt {
 
 		LetsEncryptCertificate letsEncryptCertificate = new LetsEncryptCertificate(certifEngine, context);
 		String tuid = String.format("generateLetsEncrypt-%s", certData.domainUid);
-		TaskRef tr = context.provider().instance(ITasksManager.class).run(tuid,
+		return context.provider().instance(ITasksManager.class).run(tuid,
 				new GenerateLetsEncryptCertTask(letsEncryptCertificate, getServers(), hooks));
-		return tr;
 	}
 
 	@Override
@@ -108,21 +107,32 @@ public class SecurityMgmt implements ISecurityMgmt, IInCoreSecurityMgmt {
 
 	@Override
 	public Map<String, ItemValue<Domain>> getLetsEncryptDomainExternalUrls() {
+		return getDomainExternalUrlsMap(true);
+	}
+
+	@Override
+	public Map<String, ItemValue<Domain>> getDomainExternalUrls() {
+		return getDomainExternalUrlsMap(false);
+	}
+
+	private Map<String, ItemValue<Domain>> getDomainExternalUrlsMap(boolean letsEncryptOnly) {
 		Map<String, ItemValue<Domain>> mapOfDomainByUrl = new HashMap<>();
-		systemHelper.getDomainService().all().forEach(d -> {
-			CertifEngineFactory.get(d.uid).ifPresent(c -> {
-				if (c != null && LetsEncryptCertificate.isTosApproved(c.getDomain().value)) {
+		systemHelper.getDomainService().all().forEach(d -> CertifEngineFactory.get(d.uid).ifPresent(c -> {
+			if (c != null && (!letsEncryptOnly || LetsEncryptCertificate.isTosApproved(c.getDomain().value))) {
+				try {
 					Optional.ofNullable(systemHelper.getExternalUrl(d.uid)).ifPresent(e -> mapOfDomainByUrl.put(e, d));
+				} catch (ServerFault e) {
+					// continue
 				}
-			});
-		});
+			}
+		}));
 		return mapOfDomainByUrl;
 	}
 
 	private List<ItemValue<Server>> getServers() {
 		IServer serverService = context.provider().instance(IServer.class, InstallationId.getIdentifier());
 		List<ItemValue<Server>> servers = serverService.allComplete();
-		logger.info(servers.size() + " Servers found");
+		logger.info("{} Servers found", servers.size());
 		return servers;
 	}
 

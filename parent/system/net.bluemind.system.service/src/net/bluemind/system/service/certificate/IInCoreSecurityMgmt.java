@@ -32,4 +32,12 @@ public interface IInCoreSecurityMgmt extends ISecurityMgmt {
 	 * @return Map of domains with external URL as key, and domain as value
 	 */
 	public Map<String, ItemValue<Domain>> getLetsEncryptDomainExternalUrls();
+
+	/**
+	 * All domains
+	 * 
+	 * @return Map of domains with external URL as key, and domain as value
+	 */
+	public Map<String, ItemValue<Domain>> getDomainExternalUrls();
+
 }

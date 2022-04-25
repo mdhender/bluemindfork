@@ -56,6 +56,9 @@ import net.bluemind.system.api.CertData;
 import net.bluemind.system.api.CertData.CertificateDomainEngine;
 import net.bluemind.system.api.ICertificateSecurityMgmt;
 import net.bluemind.system.api.ISecurityMgmt;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.service.certificate.IInCoreSecurityMgmt;
 import net.bluemind.system.service.certificate.lets.encrypt.LetsEncryptCertificate;
 import net.bluemind.system.service.internal.CertificateMgmtUpdateCertificateTests;
 import net.bluemind.system.service.internal.ValidatorHook;
@@ -195,4 +198,76 @@ public class SecurityTests {
 		}
 	}
 
+	@Test
+	public void getDomainExternalUrl() {
+
+		// add domain external url
+		IDomainSettings settingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid);
+		Map<String, String> settingsMap = new HashMap<>();
+		settingsMap.put(DomainSettingsKeys.external_url.name(), "test.bluemind.net");
+		settingsMap.put(DomainSettingsKeys.default_domain.name(), domainUid);
+		settingsMap.put(DomainSettingsKeys.ssl_certif_engine.name(), CertificateDomainEngine.FILE.name());
+		settingsApi.set(settingsMap);
+
+		// add global external url
+		ISystemConfiguration sysconf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class);
+		Map<String, String> sysSettings = sysconf.getValues().values;
+		sysSettings.put(SysConfKeys.external_url.name(), "ext.bluemind.net");
+		sysSettings.put(SysConfKeys.ssl_certif_engine.name(), CertificateDomainEngine.FILE.name());
+		sysconf.updateMutableValues(sysSettings);
+
+		VertxPlatform.spawnBlocking(10, TimeUnit.SECONDS);
+
+		Map<String, ItemValue<Domain>> domainExternalUrls = ServerSideServiceProvider
+				.getProvider(SecurityContext.SYSTEM).instance(IInCoreSecurityMgmt.class).getDomainExternalUrls();
+
+		assertEquals(2, domainExternalUrls.size());
+		assertTrue(domainExternalUrls.keySet().stream().anyMatch(k -> k.equals("test.bluemind.net")));
+		assertTrue(domainExternalUrls.keySet().stream().anyMatch(k -> k.equals("ext.bluemind.net")));
+	}
+
+	@Test
+	public void getDomainExternalUrl_noglobal() {
+
+		// add domain external url
+		IDomainSettings settingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid);
+		Map<String, String> settingsMap = new HashMap<>();
+		settingsMap.put(DomainSettingsKeys.external_url.name(), "test.bluemind.net");
+		settingsMap.put(DomainSettingsKeys.default_domain.name(), domainUid);
+		settingsMap.put(DomainSettingsKeys.ssl_certif_engine.name(), CertificateDomainEngine.FILE.name());
+		settingsApi.set(settingsMap);
+
+		VertxPlatform.spawnBlocking(10, TimeUnit.SECONDS);
+
+		Map<String, ItemValue<Domain>> domainExternalUrls = ServerSideServiceProvider
+				.getProvider(SecurityContext.SYSTEM).instance(IInCoreSecurityMgmt.class).getDomainExternalUrls();
+
+		assertEquals(1, domainExternalUrls.size());
+		assertEquals("test.bluemind.net", domainExternalUrls.keySet().iterator().next());
+
+	}
+
+	@Test
+	public void getDomainExternalUrl_nodomain() {
+
+		// add global external url
+		ISystemConfiguration sysconf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class);
+		Map<String, String> sysSettings = sysconf.getValues().values;
+		sysSettings.put(SysConfKeys.external_url.name(), "ext.bluemind.net");
+		sysSettings.put(SysConfKeys.ssl_certif_engine.name(), CertificateDomainEngine.FILE.name());
+		sysconf.updateMutableValues(sysSettings);
+
+		VertxPlatform.spawnBlocking(10, TimeUnit.SECONDS);
+
+		Map<String, ItemValue<Domain>> domainExternalUrls = ServerSideServiceProvider
+				.getProvider(SecurityContext.SYSTEM).instance(IInCoreSecurityMgmt.class).getDomainExternalUrls();
+
+		assertEquals(1, domainExternalUrls.size());
+		assertEquals("ext.bluemind.net", domainExternalUrls.keySet().iterator().next());
+
+	}
 }

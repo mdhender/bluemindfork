@@ -111,7 +111,7 @@ public class CertificateLetsEncryptRenewal extends AbstractVerticle {
 			}
 			return null;
 		} catch (Exception e) {
-			logger.error("Let's Encrypt auto renewal certificate failed for " + externalUrl);
+			logger.error("Let's Encrypt auto renewal certificate failed for {}", externalUrl);
 			return e;
 		}
 	}

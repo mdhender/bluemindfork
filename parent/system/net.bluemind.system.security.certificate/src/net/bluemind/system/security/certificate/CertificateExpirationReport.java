@@ -33,6 +33,7 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -53,10 +54,10 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.security.certificate.CertificateTaskHelper.Mail;
+import net.bluemind.system.service.certificate.IInCoreSecurityMgmt;
 import net.bluemind.utils.Trust;
 
 public class CertificateExpirationReport extends AbstractVerticle {
@@ -83,12 +84,15 @@ public class CertificateExpirationReport extends AbstractVerticle {
 
 	private void checkExpiration() {
 		try {
-			Optional<String> externalUrl = Optional.ofNullable(
-					ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ISystemConfiguration.class)
-							.getValues().values.get(SysConfKeys.external_url.name()));
+			Set<String> urls = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IInCoreSecurityMgmt.class).getDomainExternalUrls().keySet();
 
-			if (externalUrl.isPresent()) {
-				URL url = new URL("https://" + externalUrl.get());
+			Optional.ofNullable(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(ISystemConfiguration.class).getValues().values.get(SysConfKeys.external_url.name()))
+					.ifPresent(urls::add);
+
+			for (String urlStr : urls) {
+				URL url = new URL("https://" + urlStr);
 				logger.info("Connecting to {}", url);
 
 				HttpsURLConnection con = null;
@@ -123,7 +127,9 @@ public class CertificateExpirationReport extends AbstractVerticle {
 						}
 					}
 				} finally {
-					con.disconnect();
+					if (con != null) {
+						con.disconnect();
+					}
 					HttpsURLConnection.setDefaultSSLSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault());
 				}
 			}
