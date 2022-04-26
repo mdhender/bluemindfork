@@ -118,6 +118,9 @@ public class IMIPParserImpl implements IIMIPParser {
 					if (nameHeader != null) {
 						name = nameHeader.getParameter("name");
 					}
+					if (name == null) {
+						name = cid;
+					}
 					Cid cidValue = new Cid(name, tmpFile.getAbsolutePath());
 					cidParts.put(cid, cidValue);
 				}
