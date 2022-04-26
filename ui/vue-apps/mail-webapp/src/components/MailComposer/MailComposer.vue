@@ -49,8 +49,6 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
-
 import { BmFormInput, BmForm } from "@bluemind/styleguide";
 
 import { ComposerActionsMixin, ComposerMixin } from "~/mixins";
@@ -60,7 +58,6 @@ import MailComposerRecipients from "./MailComposerRecipients";
 import MailComposerFooter from "./MailComposerFooter";
 import MailComposerSender from "./MailComposerSender";
 import TemplateChooser from "~/components/TemplateChooser";
-import { SET_MESSAGE_COMPOSING } from "~/mutations";
 
 export default {
     name: "MailComposer",
@@ -78,20 +75,6 @@ export default {
     computed: {
         panelTitle() {
             return this.message.subject.trim() ? this.message.subject : this.$t("mail.main.new");
-        }
-    },
-    mounted() {
-        this.focus();
-    },
-    methods: {
-        ...mapMutations("mail", { SET_MESSAGE_COMPOSING }),
-        async focus() {
-            await this.$nextTick();
-            if (this.message.to.length > 0) {
-                this.$refs.content.focus();
-            } else {
-                this.$refs.recipients.focus();
-            }
         }
     }
 };

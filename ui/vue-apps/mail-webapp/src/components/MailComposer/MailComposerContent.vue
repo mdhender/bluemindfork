@@ -35,7 +35,7 @@
                 </bm-button>
                 <!-- eslint-disable vue/no-v-html -->
                 <div
-                    v-if="corporateSignature"
+                    v-if="corporateSignature && !corporateSignature.usePlaceholder"
                     class="cursor-not-allowed"
                     :title="contentIsReadOnly"
                     v-html="corporateSignature.html"
@@ -55,13 +55,13 @@ import { BmButton, BmFileDropZone, BmIcon, BmRichEditor } from "@bluemind/styleg
 import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
 import { isNewMessage } from "~/model/draft";
 import { HTML_SIGNATURE_ATTR } from "~/model/signature";
-import { ComposerActionsMixin, ComposerInitMixin } from "~/mixins";
+import { ComposerActionsMixin, ComposerInitMixin, SignatureMixin } from "~/mixins";
 import MailViewerContentLoading from "../MailViewer/MailViewerContentLoading";
 
 export default {
     name: "MailComposerContent",
     components: { BmButton, BmFileDropZone, BmIcon, BmRichEditor, MailViewerContentLoading },
-    mixins: [ComposerActionsMixin, ComposerInitMixin],
+    mixins: [ComposerActionsMixin, ComposerInitMixin, SignatureMixin],
     props: {
         userPrefIsMenuBarOpened: {
             type: Boolean,
@@ -90,9 +90,7 @@ export default {
     watch: {
         "message.key": {
             async handler() {
-                const newMessage = isNewMessage(this.message);
-
-                if (!newMessage) {
+                if (!isNewMessage(this.message)) {
                     this.loading = true;
                     await this.initFromRemoteMessage(this.message);
                     this.loading = false;
@@ -100,7 +98,8 @@ export default {
 
                 // focus on content when a recipient is already set
                 if (this.message.to.length > 0) {
-                    this.focus();
+                    await this.$nextTick();
+                    this.$refs["message-content"].focusBeforeCustomContent("[" + HTML_SIGNATURE_ATTR + "]");
                 }
             },
             immediate: true
@@ -113,24 +112,18 @@ export default {
     },
     methods: {
         ...mapMutations("mail", [SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT]),
-        async updateEditorContent(newContent) {
+        updateEditorContent(newContent) {
             try {
                 this.lock = true;
                 this.SET_DRAFT_EDITOR_CONTENT(newContent);
                 this.debouncedSave();
-                await this.$nextTick();
             } finally {
                 this.lock = false;
             }
         },
-        async expandContent() {
+        expandContent() {
             this.SET_DRAFT_EDITOR_CONTENT(this.messageCompose.editorContent + this.messageCompose.collapsedContent);
             this.SET_DRAFT_COLLAPSED_CONTENT(null);
-            this.focus();
-        },
-        async focus() {
-            await this.$nextTick();
-            this.$refs["message-content"]?.focusBeforeCustomContent("[" + HTML_SIGNATURE_ATTR + "]");
         },
         toggleSignature(signature) {
             this.$refs["message-content"].toggleCustomContent(signature, HTML_SIGNATURE_ATTR);

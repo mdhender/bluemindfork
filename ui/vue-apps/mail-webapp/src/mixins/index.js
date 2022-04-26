@@ -13,5 +13,6 @@ export { default as MoveMixin } from "./MoveMixin";
 export { default as PrintMixin } from "./PrintMixin";
 export { default as RemoveMixin } from "./RemoveMixin";
 export { default as ReplyAndForwardRoutesMixin } from "./ReplyAndForwardRoutesMixin";
+export { default as SignatureMixin } from "./SignatureMixin";
 export { default as SelectionMixin } from "./SelectionMixin";
 export { default as WaitForMixin } from "./WaitForMixin";

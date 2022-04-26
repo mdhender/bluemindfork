@@ -57,17 +57,18 @@ export default {
             this.autocompleteResultsBcc = this.getAutocompleteResults("bcc");
         }
     },
-    mounted() {
+    async mounted() {
         this._data.$_EditRecipientsMixin_mode = this.isReplyOrForward
             ? recipientModes.TO
             : recipientModes.TO | recipientModes.CC;
+        if (this.message.to.length === 0) {
+            await this.$nextTick();
+            this.$refs.to.focus();
+        }
     },
     methods: {
         ...mapActions("mail", { CHECK_CORPORATE_SIGNATURE }),
         ...mapMutations("mail", { SET_MESSAGE_TO, SET_MESSAGE_CC, SET_MESSAGE_BCC }),
-        focus() {
-            this.$refs.to.focus();
-        },
         onSearch(fieldFocused, searchedPattern) {
             this.fieldFocused = fieldFocused;
             this.search(searchedPattern);
