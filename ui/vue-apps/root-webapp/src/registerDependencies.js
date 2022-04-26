@@ -161,7 +161,7 @@ export default function (userSession) {
 
     injector.register({
         provide: "UserAnnouncementsPersistence",
-        factory: () => new UserAnnouncementsClient(userSession.sid)
+        factory: () => new UserAnnouncementsClient(userSession.sid, userSession.userId)
     });
 
     injector.register({

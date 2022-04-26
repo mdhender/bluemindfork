@@ -120,7 +120,7 @@ export default {
 };
 
 function parseNodeAndHighlight(node, search) {
-    if (node.nodeType === 3) {
+    if (node.nodeType === Node.TEXT_NODE) {
         const matchRegex = new RegExp(search, "gi");
         const patternsToMark = [...node.textContent.matchAll(matchRegex)];
         if (patternsToMark.length > 0) {

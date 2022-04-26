@@ -444,7 +444,10 @@
                 "insert_signature": "Meine Signatur einfügen",
                 "use_template": "Vorlage verwenden"
             },
-            "read_only": "Der Inhalt ist von Ihrem Unternehmen vorgegeben und kann nicht editiert werden"
+            "corporate_signature": {
+                "read_only": "Der Inhalt ist von Ihrem Unternehmen vorgegeben und kann nicht editiert werden",
+                "use_placeholder": "Der Inhalt ist von Ihrem Unternehmen vorgegeben. Er kann nicht editiert werden, lässt sich jedoch beliebig platzieren."
+            }
         },
         "create_subfolder": {
             "modal": {

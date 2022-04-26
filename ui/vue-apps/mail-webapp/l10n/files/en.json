@@ -444,7 +444,10 @@
                 "insert_signature": "Insert my signature",
                 "use_template": "Use a template"
             },
-            "read_only": "This content is set by your organization and can't be edited"
+            "corporate_signature": {
+                "read_only": "This content is set by your organization and can't be edited",
+                "use_placeholder": "This content is set by your organization. It can't be edited but you can position it anywhere you like."
+            }
         },
         "create_subfolder": {
             "modal": {

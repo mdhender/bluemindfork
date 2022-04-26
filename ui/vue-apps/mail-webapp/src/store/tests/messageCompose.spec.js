@@ -25,12 +25,29 @@ describe("messageCompose", () => {
 
     describe("mutations", () => {
         test("SET_CORPORATE_SIGNATURE", () => {
-            store.commit(SET_CORPORATE_SIGNATURE, "html sign");
-            expect(store.state.corporateSignature).toEqual("html sign");
+            const corpSign = { uid: "my-uid", html: "html sign" };
+            store.commit(SET_CORPORATE_SIGNATURE, corpSign);
+            expect(store.state.corporateSignature).toStrictEqual(corpSign);
         });
         test("SET_DISCLAIMER", () => {
-            store.commit(SET_DISCLAIMER, "disclaimer");
-            expect(store.state.disclaimer).toEqual("disclaimer");
+            const disclaimer = { uid: "my-disc-uid", html: "disc-html sign" };
+            store.commit(SET_DISCLAIMER, disclaimer);
+            expect(store.state.disclaimer).toStrictEqual(disclaimer);
+        });
+        test("dont change corporate signature or disclaimer if it's same uid", () => {
+            const corpSign = { uid: "my-uid", html: "html sign" };
+            store.commit(SET_CORPORATE_SIGNATURE, corpSign);
+
+            const corpSignWithSameUid = { uid: "my-uid", html: "just to check result" };
+            store.commit(SET_CORPORATE_SIGNATURE, corpSignWithSameUid);
+            expect(store.state.corporateSignature.html).toEqual("html sign");
+
+            const disclaimer = { uid: "my-uid", html: "html sign" };
+            store.commit(SET_DISCLAIMER, disclaimer);
+
+            const disclaimerWithSameUid = { uid: "my-uid", html: "just to check result" };
+            store.commit(SET_DISCLAIMER, disclaimerWithSameUid);
+            expect(store.state.disclaimer.html).toEqual("html sign");
         });
         test("SET_DRAFT_EDITOR_CONTENT", () => {
             store.commit(SET_DRAFT_EDITOR_CONTENT, "Content");

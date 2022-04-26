@@ -54,7 +54,7 @@ import { BmButton, BmFileDropZone, BmIcon, BmRichEditor } from "@bluemind/styleg
 
 import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
 import { isNewMessage } from "~/model/draft";
-import { HTML_SIGNATURE_ATTR } from "~/model/signature";
+import { PERSONAL_SIGNATURE_SELECTOR } from "~/model/signature";
 import { ComposerActionsMixin, ComposerInitMixin, SignatureMixin } from "~/mixins";
 import MailViewerContentLoading from "../MailViewer/MailViewerContentLoading";
 
@@ -84,7 +84,7 @@ export default {
             return this.messageCompose.disclaimer;
         },
         contentIsReadOnly() {
-            return this.$t("mail.compose.read_only");
+            return this.$t("mail.compose.corporate_signature.read_only");
         }
     },
     watch: {
@@ -99,24 +99,25 @@ export default {
                 // focus on content when a recipient is already set
                 if (this.message.to.length > 0) {
                     await this.$nextTick();
-                    this.$refs["message-content"].focusBeforeCustomContent("[" + HTML_SIGNATURE_ATTR + "]");
+                    this.$refs["message-content"].focusBefore(PERSONAL_SIGNATURE_SELECTOR(this.personalSignature.id));
                 }
             },
             immediate: true
         },
         "messageCompose.editorContent"() {
-            if (!this.lock) {
-                this.$refs["message-content"]?.setContent(this.messageCompose.editorContent);
+            if (!this.lock && !this.loading) {
+                this.$refs["message-content"].setContent(this.messageCompose.editorContent);
             }
         }
     },
     methods: {
         ...mapMutations("mail", [SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT]),
-        updateEditorContent(newContent) {
+        async updateEditorContent(newContent) {
             try {
                 this.lock = true;
                 this.SET_DRAFT_EDITOR_CONTENT(newContent);
                 this.debouncedSave();
+                await this.$nextTick();
             } finally {
                 this.lock = false;
             }
@@ -124,9 +125,6 @@ export default {
         expandContent() {
             this.SET_DRAFT_EDITOR_CONTENT(this.messageCompose.editorContent + this.messageCompose.collapsedContent);
             this.SET_DRAFT_COLLAPSED_CONTENT(null);
-        },
-        toggleSignature(signature) {
-            this.$refs["message-content"].toggleCustomContent(signature, HTML_SIGNATURE_ATTR);
         },
         setCidDataAttr(container) {
             const images = container.querySelectorAll('img[src^="data:image"]:not([' + CID_DATA_ATTRIBUTE + "])");

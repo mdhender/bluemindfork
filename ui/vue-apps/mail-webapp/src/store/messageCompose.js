@@ -1,8 +1,10 @@
 import { inject } from "@bluemind/inject";
+import { isCorporateSignature, isDisclaimer } from "~/model/signature";
 import { CHECK_CORPORATE_SIGNATURE, LOAD_MAX_MESSAGE_SIZE } from "~/actions";
 import {
     RESET_COMPOSER,
     SET_CORPORATE_SIGNATURE,
+    SET_PERSONAL_SIGNATURE,
     SET_DISCLAIMER,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
@@ -18,16 +20,24 @@ export default {
         [RESET_COMPOSER]: state => {
             state.disclaimer = null;
             state.corporateSignature = null;
+            state.personalSignature = { html: "", id: null };
             state.editorContent = "";
             state.collapsedContent = null;
             state.inlineImagesSaved = [];
             state.isSenderShown = false;
         },
         [SET_CORPORATE_SIGNATURE]: (state, mailTip) => {
-            state.corporateSignature = mailTip;
+            if (!state.corporateSignature || state.corporateSignature.uid !== mailTip.uid) {
+                state.corporateSignature = mailTip;
+            }
+        },
+        [SET_PERSONAL_SIGNATURE]: (state, signature) => {
+            state.personalSignature = signature;
         },
         [SET_DISCLAIMER]: (state, mailTip) => {
-            state.disclaimer = mailTip;
+            if (!state.disclaimer || state.disclaimer.uid !== mailTip.uid) {
+                state.disclaimer = mailTip;
+            }
         },
         [SET_DRAFT_EDITOR_CONTENT]: (state, content) => {
             state.editorContent = content;
@@ -41,7 +51,9 @@ export default {
         [SET_MAX_MESSAGE_SIZE](state, size) {
             state.maxMessageSize = size;
         },
-        [SHOW_SENDER]: (state, value) => (state.isSenderShown = value)
+        [SHOW_SENDER]: (state, value) => {
+            state.isSenderShown = value;
+        }
     },
 
     actions: {
@@ -51,30 +63,19 @@ export default {
             commit(SET_MAX_MESSAGE_SIZE, messageMaxSize / 1.33);
         },
         async [CHECK_CORPORATE_SIGNATURE]({ commit }, { message }) {
-            let anyDisclaimerApplied = false;
-            let anyCorporateSignatureApplied = false;
-
             const context = getMailTipContext(message);
             const mailTips = await inject("MailTipPersistence").getMailTips(context);
-            if (mailTips.length > 0) {
-                mailTips[0].matchingTips.forEach(tip => {
-                    const desc = JSON.parse(tip.value);
-                    if (tip.mailtipType === "Signature") {
-                        if (desc.isDisclaimer) {
-                            anyDisclaimerApplied = true;
-                            commit(SET_DISCLAIMER, desc);
-                        } else {
-                            anyCorporateSignatureApplied = true;
-                            commit(SET_CORPORATE_SIGNATURE, desc);
-                        }
-                    }
-                });
-            }
 
-            if (!anyDisclaimerApplied) {
+            if (mailTips.length > 0) {
+                const matchingTips = mailTips[0].matchingTips;
+
+                const disclaimer = matchingTips.find(isDisclaimer);
+                commit(SET_DISCLAIMER, disclaimer ? JSON.parse(disclaimer.value) : null);
+
+                const corporateSignature = matchingTips.find(isCorporateSignature);
+                commit(SET_CORPORATE_SIGNATURE, corporateSignature ? JSON.parse(corporateSignature.value) : null);
+            } else {
                 commit(SET_DISCLAIMER, null);
-            }
-            if (!anyCorporateSignatureApplied) {
                 commit(SET_CORPORATE_SIGNATURE, null);
             }
         }
@@ -87,6 +88,7 @@ export default {
     state: {
         disclaimer: null,
         corporateSignature: null,
+        personalSignature: null,
         editorContent: "",
         collapsedContent: null,
         inlineImagesSaved: [],

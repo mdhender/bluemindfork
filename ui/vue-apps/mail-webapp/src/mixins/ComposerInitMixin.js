@@ -102,7 +102,6 @@ export default {
             }
 
             const editorData = handleSeparator(content);
-            editorData.content = await this.handleSignature(message, editorData.content, true);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(editorData.collapsed);
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(editorData.content);
         },
@@ -142,8 +141,7 @@ export default {
             this.$_ComposerInitMixin_ADD_MESSAGES({ messages: [message] });
             const identity = this.getIdentityForNewMessage();
             await this.setFrom(identity, message);
-            const content = await this.handleSignature(message, BmRichEditor.constants.NEW_LINE);
-            this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
+            this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(BmRichEditor.constants.NEW_LINE);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(null);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
             return message;
@@ -204,8 +202,7 @@ export default {
                 inject("i18n")
             );
 
-            const content = await this.handleSignature(message, BmRichEditor.constants.NEW_LINE);
-            this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
+            this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(BmRichEditor.constants.NEW_LINE);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(collapsed);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
 
@@ -261,7 +258,6 @@ export default {
                 );
                 content = sanitizeHtml(result.contentsWithImageInserted[0]);
             }
-            content = await this.handleSignature(message, content);
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
         },

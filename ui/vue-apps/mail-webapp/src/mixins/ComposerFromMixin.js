@@ -2,9 +2,7 @@ import { mapState } from "vuex";
 import { inject } from "@bluemind/inject";
 import { computeIdentityForReplyOrForward, findIdentityFromMailbox } from "~/model/draft";
 import { MessageHeader } from "~/model/message";
-import { replaceSignature } from "~/model/signature";
-import { CHECK_CORPORATE_SIGNATURE } from "~/actions";
-import { SET_DRAFT_EDITOR_CONTENT, SET_MESSAGE_FROM, SET_MESSAGE_HEADERS } from "~/mutations";
+import { SET_MESSAGE_FROM, SET_MESSAGE_HEADERS, SET_PERSONAL_SIGNATURE } from "~/mutations";
 import { CURRENT_MAILBOX, MAILBOX_SENT } from "~/getters";
 import { DEFAULT_FOLDER_NAMES } from "~/store/folders/helpers/DefaultFolders";
 import { MailboxAdaptor } from "../store/helpers/MailboxAdaptor";
@@ -24,9 +22,7 @@ export default {
                 messageKey: message.key,
                 from: { address: identity.email, dn: identity.displayname }
             });
-            const fullIdentity = this.$_ComposerFromMixin_identities.find(
-                i => i.email === identity.email && i.displayname === identity.displayname
-            );
+            const fullIdentity = this.setIdentity(identity);
             const rawIdentity = await inject("UserMailIdentitiesPersistence").get(fullIdentity.id);
             if (rawIdentity.sentFolder !== DEFAULT_FOLDER_NAMES.SENT) {
                 const mailboxes = this.$store.state.mail.mailboxes;
@@ -74,25 +70,12 @@ export default {
             }
             return this.getIdentityForNewMessage();
         },
-        async changeFrom(identity, message) {
-            await this.setFrom(identity, message);
-            const content = await this.handleSignature(message, this.$store.state.mail.messageCompose.editorContent);
-            this.$store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, content);
-        },
-        async handleSignature(message, content, preservePersonalSignature = false) {
-            await this.$store.dispatch("mail/" + CHECK_CORPORATE_SIGNATURE, { message });
-            const signature = this.$store.state["root-app"].identities.find(
-                i => i.email === message.from.address && i.displayname === message.from.dn
-            ).signature;
-            if (
-                !this.$store.state.mail.messageCompose.corporateSignature &&
-                signature &&
-                this.$store.state.settings.insert_signature === "true" &&
-                !preservePersonalSignature
-            ) {
-                return replaceSignature(content, this.userPrefTextOnly, signature);
-            }
-            return content;
+        setIdentity(identity) {
+            const fullIdentity = this.$_ComposerFromMixin_identities.find(
+                i => i.email === identity.email && i.displayname === identity.displayname
+            );
+            this.$store.commit("mail/" + SET_PERSONAL_SIGNATURE, { html: fullIdentity.signature, id: fullIdentity.id });
+            return fullIdentity;
         }
     }
 };

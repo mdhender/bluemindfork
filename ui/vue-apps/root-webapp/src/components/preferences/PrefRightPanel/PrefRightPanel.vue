@@ -157,7 +157,7 @@ function getGroupsFromKeywords(pattern, sections) {
 }
 
 function doesNodeMatch(node, pattern) {
-    if (node.nodeType === 3 && node.textContent.toLowerCase().includes(pattern)) {
+    if (node.nodeType === Node.TEXT_NODE && node.textContent.toLowerCase().includes(pattern)) {
         return true;
     }
     let i = 0;

@@ -6,6 +6,7 @@ import random from "lodash.random";
 import { isNewMessage } from "~/model/draft";
 import { AttachmentStatus } from "~/model/attachment";
 import { MessageHeader, MessageStatus } from "~/model/message";
+import { CORPORATE_SIGNATURE_PLACEHOLDER, CORPORATE_SIGNATURE_SELECTOR } from "~/model/signature";
 import {
     SET_MESSAGE_DATE,
     SET_MESSAGE_HEADERS,
@@ -46,6 +47,7 @@ async function prepareDraft(context, service, draft, messageCompose) {
     let wholeContent = messageCompose.collapsedContent
         ? messageCompose.editorContent + messageCompose.collapsedContent
         : messageCompose.editorContent;
+    wholeContent = insertCorporateSignaturePlaceholder(wholeContent, messageCompose.corporateSignature);
     wholeContent = sanitizeHtml(wholeContent);
 
     const insertionResult = InlineImageHelper.insertCid(wholeContent, messageCompose.inlineImagesSaved);
@@ -104,6 +106,18 @@ function generateMessageIDHeader(draft) {
         name: MessageHeader.MESSAGE_ID,
         values: [value]
     };
+}
+
+function insertCorporateSignaturePlaceholder(content, corpSign) {
+    if (corpSign?.usePlaceholder) {
+        const htlmDoc = new DOMParser().parseFromString(content, "text/html");
+        const element = htlmDoc.querySelector(CORPORATE_SIGNATURE_SELECTOR);
+        if (element) {
+            element.replaceWith(CORPORATE_SIGNATURE_PLACEHOLDER);
+            return htlmDoc.body.innerHTML;
+        }
+    }
+    return content;
 }
 
 function uploadParts(service, textPlain, textHtml, newContentByCid) {

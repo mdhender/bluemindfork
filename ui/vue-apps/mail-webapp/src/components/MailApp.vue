@@ -210,7 +210,7 @@ export default {
             top: calc($custom-control-indicator-size / 2) !important;
         }
         &::after {
-            top: #{calc($custom-switch-indicator-size + $custom-control-indicator-size) / 2} !important;
+            top: calc(($custom-switch-indicator-size + $custom-control-indicator-size) / 2) !important;
         }
     }
 

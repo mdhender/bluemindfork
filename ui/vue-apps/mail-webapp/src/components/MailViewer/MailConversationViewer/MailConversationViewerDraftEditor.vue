@@ -11,7 +11,7 @@
                     v-if="isSenderShown"
                     label-class="font-weight-bold text-secondary"
                     :message="message"
-                    @update="identity => changeFrom(identity, message)"
+                    @update="identity => setFrom(identity, message)"
                     @check-and-repair="checkAndRepairFrom"
                 />
                 <bm-contact-input
@@ -119,10 +119,7 @@
                     <mail-composer-footer
                         class="col"
                         :message="message"
-                        :message-key="message.key"
-                        :signature="signature"
                         :is-signature-inserted="isSignatureInserted"
-                        :is-sender-shown="isSenderShown"
                         @toggle-text-format="userPrefIsMenuBarOpened = !userPrefIsMenuBarOpened"
                         @toggle-signature="toggleSignature"
                     />

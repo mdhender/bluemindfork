@@ -8,7 +8,7 @@
             class="ml-3"
             label-class="ml-2"
             :message="message"
-            @update="identity => changeFrom(identity, message)"
+            @update="identity => setFrom(identity, message)"
             @check-and-repair="checkAndRepairFrom"
         />
         <mail-composer-recipients
@@ -36,6 +36,7 @@
             ref="content"
             :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened"
             :message="message"
+            :is-signature-inserted.sync="isSignatureInserted"
         />
         <mail-composer-footer
             :message="message"

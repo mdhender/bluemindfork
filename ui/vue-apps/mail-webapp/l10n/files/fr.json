@@ -99,7 +99,6 @@
                 "error": "\"{folder}\" n'a pas pu être déplacé vers {destination}.",
                 "to_mailbox_root": "la racine de {mailbox}"
             },
-
             "read_only_folder": {
                 "info": "Message en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles."
             },
@@ -445,7 +444,10 @@
                 "insert_signature": "Insérer ma signature",
                 "use_template": "Utiliser un modèle"
             },
-            "read_only": "Ce contenu est défini par votre organisation et ne peut pas être modifié"
+            "corporate_signature": {
+                "read_only": "Ce contenu est défini par votre organisation et ne peut pas être modifié",
+                "use_placeholder": "Ce contenu est défini par votre organisation. Il ne peut pas être modifié mais vous pouvez le placer où vous le souhaitez."
+            }
         },
         "create_subfolder": {
             "modal": {
