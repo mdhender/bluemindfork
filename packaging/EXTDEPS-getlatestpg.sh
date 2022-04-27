@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Allow to retrieve latest packaged version of a selected PostgreSQL version.
 
@@ -10,7 +10,7 @@ RPM_RHEL_VERSIONS="7 8"  # Use space separator
 
 PGVERSION=$1
 [ ! -z "${PGVERSION}" ] && shift || PGVERSION=14
-TEMPDIR=$(mktemp -d --suffix .pgdepcheck)
+TEMPDIR=$(mktemp -d)
 
 trap "{ rm -fr \"$TEMPDIR\"; }" EXIT
 
