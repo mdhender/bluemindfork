@@ -22,9 +22,18 @@ JAVA_HOME=/usr/lib/jvm/bm-jdk
 jps=$JAVA_HOME/bin/jps
 jmap=$JAVA_HOME/bin/jmap
 
-servicesInBluemindTarget=$(systemctl list-dependencies --plain bluemind.target | grep -v bluemind.target | sort | uniq)
-servicesNotInBluemindTarget="bm-nginx"
-servicesAll=${servicesNotInBluemindTarget}" "${servicesInBluemindTarget}
+servicesInBluemindTarget=$(systemctl list-dependencies --plain bluemind.target | grep -Fv bluemind.target | sort | uniq)
+servicesStatus=${servicesInBluemindTarget}
+
+function fillServiceStatus() {
+  local servicesNotInBluemindTarget="bm-nginx unknown"
+
+  for service in ${servicesNotInBluemindTarget}; do
+    if systemctl list-units --full --all 2>/dev/null | awk '$1 ~ /\.service$/ { sub("\\.service$", "", $1); print $1 }' | grep -Fq ${service}; then
+      servicesStatus=${service}" "${servicesStatus}
+    fi
+  done
+}
 
 function product() {
   srv=$1
@@ -80,7 +89,12 @@ function status_bm() {
 
 function status_bm_stopped() {
   ret=0
-  for service in ${servicesAll}; do
+  for service in ${servicesStatus}; do
+    if isServiceDisabled ${service}; then
+      echo ${service}" is disabled on this node"
+      continue
+    fi
+
     if systemctl status ${service} > /dev/null 2>&1; then
       ret=1
       echo ${service}" started while BlueMind is stopped - please restart bluemind: systemctl restart bluemind.target"
@@ -94,9 +108,13 @@ function status_bm_stopped() {
 
 function status_bm_started() {
   ret=0
-  for service in ${servicesAll}; do
-    if ! [ -e "/etc/bm/"$(echo ${service} | sed -e 's/\.service$/.disabled/') ] \
-        && ! systemctl status ${service} > /dev/null 2>&1; then
+  for service in ${servicesStatus}; do
+    if isServiceDisabled ${service}; then
+      echo ${service}" is disabled on this node"
+      continue
+    fi
+
+    if ! systemctl status ${service} > /dev/null 2>&1; then
       ret=1
       echo ${service}" fail - check systemctl status "${service}" and journalctl -xe -u "${service}
     else
@@ -105,6 +123,14 @@ function status_bm_started() {
   done
   
   return ${ret}
+}
+
+function isServiceDisabled() {
+  local service=$1
+
+  [ -e "/etc/bm/"$(echo ${service} | sed -e 's/\.service$/.disabled/') ] && return 0
+
+  return 1
 }
 
 help() {
@@ -116,6 +142,8 @@ help() {
   echo -e "\trestart-exceptnode: restart Blue Mind services except bm-node service"
   echo -e "\tmemory: display Blue Mind memory usage"
 }
+
+fillServiceStatus
 
 case "$1" in
   start)
