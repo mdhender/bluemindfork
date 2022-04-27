@@ -6,9 +6,11 @@ import { inject } from "@bluemind/inject";
 import { Flag } from "@bluemind/email";
 
 import {
+    ADD_FLAG,
     ADD_CONVERSATIONS,
     ADD_MESSAGES,
     MOVE_MESSAGES,
+    DELETE_FLAG,
     REMOVE_MESSAGES,
     RESET_CONVERSATIONS,
     SET_CONVERSATION_LIST,
@@ -21,8 +23,6 @@ import {
     UNSET_CURRENT_CONVERSATION
 } from "~/mutations";
 import {
-    ADD_FLAG,
-    DELETE_FLAG,
     EMPTY_FOLDER,
     FETCH_CONVERSATION_IF_NOT_LOADED,
     FETCH_CONVERSATIONS,
@@ -328,51 +328,52 @@ async function fetchConversations({ commit, state }, { conversations, folder, co
     commit(SET_CONVERSATIONS_LOADING_STATUS, { conversations, status: LoadingStatus.LOADING });
 }
 
-function markConversationsAsRead({ getters, dispatch }, { conversations }) {
-    conversations = ensureArray(conversations);
-    const messages = messagesInConversationFolder(getters, conversations);
-    dispatch(ADD_FLAG, { messages, flag: Flag.SEEN });
+function markConversationsAsRead(store, { conversations, conversationsActivated, mailbox }) {
+    return addFlag(store, conversations, conversationsActivated, mailbox, Flag.SEEN);
 }
 
-function markConversationsAsUnread({ getters, dispatch }, { conversations }) {
-    conversations = ensureArray(conversations);
-    const messages = messagesInConversationFolder(getters, conversations);
-    dispatch(DELETE_FLAG, { messages, flag: Flag.SEEN });
+function markConversationsAsUnread(store, { conversations, conversationsActivated, mailbox }) {
+    return deleteFlag(store, conversations, conversationsActivated, mailbox, Flag.SEEN);
 }
 
-function markConversationsAsFlagged({ getters, dispatch }, { conversations }) {
-    conversations = ensureArray(conversations);
-    const messages = firstMessageInConversationFolder(getters, conversations);
-    dispatch(ADD_FLAG, { messages, flag: Flag.FLAGGED });
+function markConversationsAsFlagged(store, { conversations, conversationsActivated, mailbox }) {
+    return addFlag(store, conversations, conversationsActivated, mailbox, Flag.FLAGGED);
 }
 
-function markConversationsAsUnflagged({ getters, dispatch }, { conversations }) {
-    conversations = ensureArray(conversations);
-    const messages = messagesInConversationFolder(getters, conversations);
-    dispatch(DELETE_FLAG, { messages, flag: Flag.FLAGGED });
+function markConversationsAsUnflagged(store, { conversations, conversationsActivated, mailbox }) {
+    return deleteFlag(store, conversations, conversationsActivated, mailbox, Flag.FLAGGED);
 }
 
-async function moveConversations({ getters, commit }, { conversations, folder }) {
+async function moveConversations(
+    { getters, commit },
+    { conversations, mailbox, destinationFolder, conversationsActivated }
+) {
     conversations = ensureArray(conversations);
     const messages = messagesInConversationFolder(getters, conversations);
     commit(REMOVE_CONVERSATIONS, conversations);
     try {
-        await apiMessages.move(messages, folder);
-    } catch {
+        conversationsActivated
+            ? await apiConversations.move(conversations, destinationFolder, mailbox)
+            : await apiMessages.move(messages, destinationFolder);
+    } catch (e) {
         commit(ADD_CONVERSATIONS, { conversations });
         commit(ADD_MESSAGES, { messages, preserve: true });
+        throw e;
     }
 }
 
-async function removeConversations({ getters, commit }, { conversations }) {
+async function removeConversations({ getters, commit }, { conversations, conversationsActivated, mailbox }) {
     conversations = ensureArray(conversations);
     const messages = messagesInConversationFolder(getters, conversations);
     commit(REMOVE_CONVERSATIONS, conversations);
     try {
-        await apiMessages.multipleDeleteById(messages);
-    } catch {
+        conversationsActivated
+            ? await apiConversations.addFlag(conversations, Flag.DELETED, mailbox)
+            : await apiMessages.addFlag(messages, Flag.DELETED);
+    } catch (e) {
         commit(ADD_CONVERSATIONS, { conversations });
         commit(ADD_MESSAGES, { messages, preserve: true });
+        throw e;
     }
 }
 
@@ -454,4 +455,44 @@ function setConversations({ conversationByKey }, { conversations }) {
             Vue.set(conversationByKey, conversation.key, conversation);
         }
     });
+}
+
+async function addFlag({ commit, getters }, conversations, conversationsActivated, mailbox, flag) {
+    conversations = ensureArray(conversations);
+
+    let messages;
+    if (flag === Flag.FLAGGED) {
+        messages = firstMessageInConversationFolder(getters, conversations);
+    } else {
+        messages = messagesInConversationFolder(getters, conversations);
+    }
+    messages = messages.filter(m => m && m.loading === LoadingStatus.LOADED && !m.flags.includes(flag));
+
+    commit(ADD_FLAG, { messages, flag });
+    try {
+        conversationsActivated
+            ? await apiConversations.addFlag(conversations, flag, mailbox)
+            : await apiMessages.addFlag(messages, flag);
+    } catch (e) {
+        commit(DELETE_FLAG, { messages, flag });
+        throw e;
+    }
+}
+
+async function deleteFlag({ commit, getters }, conversations, conversationsActivated, mailbox, flag) {
+    conversations = ensureArray(conversations);
+
+    const messages = messagesInConversationFolder(getters, conversations).filter(
+        m => m && m.loading === LoadingStatus.LOADED && m.flags.includes(flag)
+    );
+
+    commit(DELETE_FLAG, { messages, flag });
+    try {
+        conversationsActivated
+            ? await apiConversations.deleteFlag(conversations, flag, mailbox)
+            : await apiMessages.deleteFlag(messages, flag);
+    } catch (e) {
+        commit(ADD_FLAG, { messages, flag });
+        throw e;
+    }
 }

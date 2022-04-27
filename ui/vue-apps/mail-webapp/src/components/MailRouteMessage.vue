@@ -15,7 +15,7 @@ import {
     RESET_ACTIVE_MESSAGE,
     UNSET_CURRENT_CONVERSATION
 } from "~/mutations";
-import { FETCH_MESSAGE_IF_NOT_LOADED, MARK_CONVERSATIONS_AS_READ } from "~/actions";
+import { FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { WaitForMixin, ComposerInitMixin } from "~/mixins";
 import MailMessagePanel from "./MailThread/MailMessagePanel";
@@ -83,7 +83,7 @@ export default {
             UNSELECT_ALL_CONVERSATIONS,
             UNSET_CURRENT_CONVERSATION
         }),
-        ...mapActions("mail", { FETCH_MESSAGE_IF_NOT_LOADED, MARK_CONVERSATIONS_AS_READ })
+        ...mapActions("mail", { FETCH_MESSAGE_IF_NOT_LOADED })
     }
 };
 </script>

@@ -20,7 +20,6 @@ export default {
         const requests = map(byFolder, ({ itemsId }, folder) => api(folder).addFlag({ itemsId, mailboxItemFlag }));
         return Promise.all(requests);
     },
-
     async multipleById(messages) {
         const byFolder = groupByFolder(messages);
         const requests = map(byFolder, async ({ itemsId, folderRef }, folderUid) => {
@@ -35,16 +34,9 @@ export default {
         });
         return flatmap(await Promise.all(requests));
     },
-
     async getForUpdate(message) {
         const remoteMessage = await api(message.folderRef.uid).getForUpdate(message.remoteRef.internalId);
         return MessageAdaptor.fromMailboxItem(remoteMessage, message.folderRef);
-    },
-
-    multipleDeleteById(messages) {
-        const byFolder = groupByFolder(messages);
-        const requests = map(byFolder, ({ itemsId }, folder) => api(folder).multipleDeleteById(itemsId));
-        return Promise.all(requests);
     },
     move(messages, destination) {
         const destinationUid = destination.remoteRef.uid;

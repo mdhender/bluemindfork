@@ -333,9 +333,10 @@ describe("Messages actions", () => {
             const adapted = messages.slice(0, 5).map(m => MessageAdaptor.fromMailboxItem(m, folder));
             store.commit(ADD_MESSAGES, { messages: adapted });
             store.dispatch(REMOVE_MESSAGES, { messages: adapted });
-            expect(inject("MailboxItemsPersistence").multipleDeleteById).toHaveBeenCalledWith(
-                adapted.map(message => message.remoteRef.internalId)
-            );
+            expect(inject("MailboxItemsPersistence").addFlag).toHaveBeenCalledWith({
+                itemsId: adapted.map(message => message.remoteRef.internalId),
+                mailboxItemFlag: Flag.DELETED
+            });
         });
 
         test("To synchronously mark messages as removed in state", () => {
@@ -356,7 +357,7 @@ describe("Messages actions", () => {
         test("To restore old status if api call fail", async () => {
             let adapted = MessageAdaptor.fromMailboxItem(messages[0], folder);
             store.commit(ADD_MESSAGES, { messages: [adapted] });
-            inject("MailboxItemsPersistence").multipleDeleteById.mockRejectedValueOnce("Failure");
+            inject("MailboxItemsPersistence").addFlag.mockRejectedValueOnce("Failure");
             try {
                 await store.dispatch(REMOVE_MESSAGES, { messages: adapted });
             } catch {
@@ -366,7 +367,7 @@ describe("Messages actions", () => {
             }
             adapted = createOnlyMetadata({ internalId: 1, folder });
             store.commit(ADD_MESSAGES, { messages: [adapted] });
-            inject("MailboxItemsPersistence").multipleDeleteById.mockRejectedValueOnce("Failure");
+            inject("MailboxItemsPersistence").addFlag.mockRejectedValueOnce("Failure");
             try {
                 await store.dispatch(REMOVE_MESSAGES, { messages: adapted });
             } catch {

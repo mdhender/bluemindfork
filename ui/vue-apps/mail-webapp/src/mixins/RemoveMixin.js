@@ -1,5 +1,11 @@
 import { mapGetters } from "vuex";
-import { CONVERSATIONS_ACTIVATED, IS_CURRENT_CONVERSATION, MAILBOX_TRASH, NEXT_CONVERSATION } from "~/getters";
+import {
+    CONVERSATIONS_ACTIVATED,
+    CURRENT_MAILBOX,
+    IS_CURRENT_CONVERSATION,
+    MAILBOX_TRASH,
+    NEXT_CONVERSATION
+} from "~/getters";
 import {
     MOVE_CONVERSATIONS,
     MOVE_CONVERSATION_MESSAGES,
@@ -9,6 +15,7 @@ import {
 import FormattedDateMixin from "./FormattedDateMixin";
 import SelectionMixin from "./SelectionMixin";
 import { conversationMustBeRemoved } from "~/model/conversations";
+
 import { MailRoutesMixin } from "~/mixins";
 
 export default {
@@ -19,13 +26,18 @@ export default {
         })
     },
     methods: {
-        MOVE_CONVERSATIONS_TO_TRASH: navigateConversations(async function (conversations) {
+        MOVE_CONVERSATIONS_TO_TRASH: navigateConversations(function (conversations) {
             const trash = getConversationsTrash(this.$store, conversations);
             if (conversations.some(conversation => conversation.folderRef.key !== trash.key)) {
-                this.$store.dispatch(`mail/${MOVE_CONVERSATIONS}`, { conversations, folder: trash });
+                this.$store.dispatch(`mail/${MOVE_CONVERSATIONS}`, {
+                    conversations,
+                    conversationsActivated: this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`],
+                    destinationFolder: trash,
+                    mailbox: this.$store.getters[`mail/${CURRENT_MAILBOX}`]
+                });
                 return true;
             } else {
-                return await this.REMOVE_CONVERSATIONS(conversations);
+                return this.REMOVE_CONVERSATIONS(conversations);
             }
         }),
         REMOVE_CONVERSATIONS: navigateConversations(async function (conversations) {
@@ -48,18 +60,23 @@ export default {
                 }
             );
             if (confirm) {
-                this.$store.dispatch(`mail/${REMOVE_CONVERSATIONS}`, { conversations });
+                const conversationsActivated = this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`];
+                this.$store.dispatch(`mail/${REMOVE_CONVERSATIONS}`, {
+                    conversations,
+                    conversationsActivated,
+                    mailbox: this.$store.getters[`mail/${CURRENT_MAILBOX}`]
+                });
             }
             return confirm;
         }),
-        MOVE_MESSAGES_TO_TRASH: navigate(async function (conversation, messages) {
+        MOVE_MESSAGES_TO_TRASH: navigate(function (conversation, messages) {
             const trash = getConversationsTrash(this.$store, messages);
 
             if (messages.some(message => message.folderRef.key !== trash.key)) {
                 this.$store.dispatch(`mail/${MOVE_CONVERSATION_MESSAGES}`, { conversation, messages, folder: trash });
                 return true;
             } else {
-                return await this.REMOVE_MESSAGES(conversation, messages);
+                return this.REMOVE_MESSAGES(conversation, messages);
             }
         }),
         REMOVE_MESSAGES: navigate(async function (conversation, messages) {
@@ -76,7 +93,7 @@ export default {
                 }
             );
             if (confirm) {
-                await this.$store.dispatch(`mail/${REMOVE_CONVERSATION_MESSAGES}`, { conversation, messages });
+                return this.$store.dispatch(`mail/${REMOVE_CONVERSATION_MESSAGES}`, { conversation, messages });
             }
             return confirm;
         }),
@@ -95,7 +112,7 @@ export default {
                 autoFocusButton: "ok"
             });
             if (confirm) {
-                await this.$store.dispatch(`mail/${REMOVE_CONVERSATION_MESSAGES}`, { conversation, messages: [draft] });
+                this.$store.dispatch(`mail/${REMOVE_CONVERSATION_MESSAGES}`, { conversation, messages: [draft] });
             }
             return confirm;
         },

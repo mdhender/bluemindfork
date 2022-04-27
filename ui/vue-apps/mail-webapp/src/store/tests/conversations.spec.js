@@ -17,7 +17,7 @@ import { Flag } from "@bluemind/email";
 import { LoadingStatus } from "~/model/loading-status";
 import ServiceLocator from "@bluemind/inject";
 import { inject } from "@bluemind/inject";
-import { MockMailboxFoldersClient } from "@bluemind/test-utils";
+import { MockMailboxFoldersClient, MockMailboxItemsClient } from "@bluemind/test-utils";
 
 jest.mock("../api/apiMessages");
 
@@ -73,6 +73,7 @@ describe("conversations", () => {
                 ])
             }
         });
+        ServiceLocator.register({ provide: "MailboxItemsPersistence", use: new MockMailboxItemsClient(messagesData) });
         ServiceLocator.register({ provide: "MailboxFoldersPersistence", use: new MockMailboxFoldersClient() });
         storeOptions.actions["alert/LOADING"] = jest.fn();
         storeOptions.actions["alert/SUCCESS"] = jest.fn();
@@ -161,8 +162,7 @@ describe("conversations", () => {
                 { getters: store.getters, dispatch: spy, commit: spy, state: store.state },
                 { conversations }
             );
-            // keys = conversations
-            expect(apiMessages.multipleDeleteById).toHaveBeenCalled();
+            expect(apiMessages.addFlag).toHaveBeenCalled();
         });
 
         describe("EMPTY_FOLDER", () => {

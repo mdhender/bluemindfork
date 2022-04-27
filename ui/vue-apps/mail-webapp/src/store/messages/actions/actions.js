@@ -14,6 +14,7 @@ import { createOnlyMetadata, messageKey } from "~/model/message";
 import { FolderAdaptor } from "../../folders/helpers/FolderAdaptor";
 import { FETCH_MESSAGE_METADATA } from "~/actions";
 import { draftKey } from "~/model/draft";
+import { Flag } from "@bluemind/email";
 
 export async function addFlag({ commit, getters }, { messages, flag }) {
     messages = Array.isArray(messages) ? messages : [messages];
@@ -102,7 +103,7 @@ export async function removeMessages({ commit }, { messages }) {
     messages = Array.isArray(messages) ? messages : [messages];
     commit(REMOVE_MESSAGES, { messages });
     try {
-        await apiMessages.multipleDeleteById(messages);
+        await apiMessages.addFlag(messages, Flag.DELETED);
     } catch (e) {
         commit(ADD_MESSAGES, { messages });
         throw e;

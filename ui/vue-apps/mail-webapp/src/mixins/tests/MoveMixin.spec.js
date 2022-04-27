@@ -12,7 +12,10 @@ describe("MoveMixin", () => {
         MoveMixin.$_MoveMixin_moveConversations = jest.fn();
         MoveMixin.$_MoveMixin_create = jest.fn();
         MoveMixin.$router = { navigate: jest.fn() };
-        MoveMixin.$_MoveMixin_folders = { key: { key: "key", name: "foldername" } };
+        MoveMixin.$_MoveMixin_folders = {
+            key: { key: "key", name: "foldername" },
+            key2: { key: "key2", name: "foldername2" }
+        };
         MoveMixin.$_MoveMixin_mailbox = {};
         MoveMixin.$store = {
             getters: {
@@ -23,41 +26,44 @@ describe("MoveMixin", () => {
         MoveMixin.MOVE_CONVERSATIONS = MoveMixin.methods.MOVE_CONVERSATIONS;
         MoveMixin.navigateTo = jest.fn();
     });
+    let conversations;
+    let destinationFolder;
     beforeEach(() => {
         MoveMixin.$_MoveMixin_move.mockClear();
         MoveMixin.$_MoveMixin_create.mockClear();
         MoveMixin.$router.navigate.mockClear();
         MoveMixin.$store.getters["mail/IS_CURRENT_CONVERSATION"].mockClear();
+        conversations = [{ key: "conversation", folderRef: { key: "key" } }];
+        destinationFolder = MoveMixin.$_MoveMixin_folders["key2"];
     });
 
     test("MOVE_CONVERSATIONS to call moveConversations action", async () => {
-        const conversations = [{ key: "message" }];
-        const folder = MoveMixin.$_MoveMixin_folders["key"];
-        MoveMixin.MOVE_CONVERSATIONS({ conversations, folder });
-        expect(MoveMixin.$_MoveMixin_moveConversations).toHaveBeenCalledWith({ conversations, folder });
+        MoveMixin.$store.getters["mail/CONVERSATIONS_ACTIVATED"] = true;
+        await MoveMixin.MOVE_CONVERSATIONS({ conversations, folder: destinationFolder });
+        expect(MoveMixin.$_MoveMixin_moveConversations).toHaveBeenCalledWith({
+            conversations,
+            conversationsActivated: true,
+            destinationFolder,
+            mailbox: {}
+        });
     });
 
-    test("MOVE_CONVERSATIONS not to call create action if folder exist", () => {
-        const conversations = [{ key: "message" }];
-        const folder = MoveMixin.$_MoveMixin_folders["key"];
-        MoveMixin.MOVE_CONVERSATIONS({ conversations, folder });
+    test("MOVE_CONVERSATIONS not to call create action if folder exist", async () => {
+        await MoveMixin.MOVE_CONVERSATIONS({ conversations, folder: destinationFolder });
         expect(MoveMixin.$_MoveMixin_create).not.toHaveBeenCalled();
     });
-    test("MOVE_CONVERSATIONS to call create action if folder does not exist", () => {
-        const conversations = [{ key: "message" }];
-        const folder = { name: "toto" };
-        MoveMixin.MOVE_CONVERSATIONS({ conversations, folder });
+    test("MOVE_CONVERSATIONS to call create action if folder does not exist", async () => {
+        const destinationFolder = { name: "toto" };
+        await MoveMixin.MOVE_CONVERSATIONS({ conversations, folder: destinationFolder });
         expect(MoveMixin.$_MoveMixin_create).toHaveBeenCalledWith({
             mailbox: MoveMixin.$_MoveMixin_mailbox,
-            ...folder
+            ...destinationFolder
         });
     });
     test("MOVE_CONVERSATIONS to call navigate if current conversation is moved", async () => {
-        const conversations = { key: "key", messages: ["k1", "k2"] };
-        const folder = {};
         MoveMixin.$store.getters["mail/IS_CURRENT_CONVERSATION"].mockReturnValue(true);
-        MoveMixin.MOVE_CONVERSATIONS({ conversations, folder });
+        await MoveMixin.MOVE_CONVERSATIONS({ conversations, folder: {} });
         const next = { key: "nextKey", messages: ["m1", "m2"] };
-        expect(MoveMixin.navigateTo).toHaveBeenCalledWith(next, conversations.folderRef);
+        expect(MoveMixin.navigateTo).toHaveBeenCalledWith(next, conversations[0].folderRef);
     });
 });

@@ -53,7 +53,12 @@ import MailConversationViewerFooter from "./MailConversationViewer/MailConversat
 import MailConversationViewerHeader from "./MailConversationViewer/MailConversationViewerHeader";
 import MailConversationViewerHiddenItems from "./MailConversationViewer/MailConversationViewerHiddenItems";
 import apiAddressbooks from "~/store/api/apiAddressbooks";
-import { CONVERSATION_LIST_UNREAD_FILTER_ENABLED, CONVERSATION_MESSAGE_BY_KEY, MY_DRAFTS } from "~/getters";
+import {
+    CONVERSATION_LIST_UNREAD_FILTER_ENABLED,
+    CONVERSATION_MESSAGE_BY_KEY,
+    CURRENT_MAILBOX,
+    MY_DRAFTS
+} from "~/getters";
 import { SET_BLOCK_REMOTE_IMAGES, SET_MESSAGE_COMPOSING } from "~/mutations";
 import { MARK_CONVERSATIONS_AS_READ } from "~/actions";
 import { sortConversationMessages } from "~/model/conversations";
@@ -158,7 +163,12 @@ export default {
                 !this.CONVERSATION_LIST_UNREAD_FILTER_ENABLED &&
                 this.folders[this.conversation.folderRef.key].writable
             ) {
-                this.MARK_CONVERSATIONS_AS_READ({ conversations: [this.conversation], noAlert: true });
+                this.MARK_CONVERSATIONS_AS_READ({
+                    conversations: [this.conversation],
+                    noAlert: true,
+                    conversationsActivated: true,
+                    mailbox: this.$store.getters[`mail/${CURRENT_MAILBOX}`]
+                });
             }
         },
         resetComposingStatuses() {

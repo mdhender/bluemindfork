@@ -1,6 +1,7 @@
 export default {
-    SEEN: "\\Seen",
     ANSWERED: "\\Answered",
+    DELETED: "\\Deleted",
     FLAGGED: "\\Flagged",
-    FORWARDED: "$Forwarded"
+    FORWARDED: "$Forwarded",
+    SEEN: "\\Seen"
 };

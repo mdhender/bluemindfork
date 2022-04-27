@@ -19,11 +19,12 @@ describe("RemoveMixin", () => {
         RemoveMixin.$_RemoveMixin_mailbox = {};
 
         RemoveMixin.$store = {
-            dispatch: jest.fn(),
+            dispatch: jest.fn(() => Promise.resolve()),
             getters: {
                 "mail/NEXT_CONVERSATION": jest.fn(() => ({ key: "nextKey", messages: ["m1", "m2"] })),
                 "mail/IS_CURRENT_CONVERSATION": jest.fn().mockReturnValue(false),
-                "mail/MAILBOX_TRASH": () => ({ key: "trash" })
+                "mail/MAILBOX_TRASH": () => ({ key: "trash" }),
+                "mail/CURRENT_MAILBOX": { key: "currentMailbox" }
             },
             state: {
                 mail: {
@@ -74,10 +75,13 @@ describe("RemoveMixin", () => {
 
     test("MOVE_CONVERSATIONS_TO_TRASH to call move action if one of the messages is not in trash", async () => {
         const conversations = [{ folderRef: { key: "trash" } }, { folderRef: { key: "not-trash" } }];
+        RemoveMixin.$store.getters["mail/CONVERSATIONS_ACTIVATED"] = true;
         await RemoveMixin.MOVE_CONVERSATIONS_TO_TRASH(conversations);
         expect(RemoveMixin.$store.dispatch).toHaveBeenCalledWith(`mail/${MOVE_CONVERSATIONS}`, {
-            folder: RemoveMixin.$_RemoveMixin_trash,
-            conversations
+            destinationFolder: RemoveMixin.$_RemoveMixin_trash,
+            conversations: conversations,
+            conversationsActivated: true,
+            mailbox: { key: "currentMailbox" }
         });
     });
     test("MOVE_CONVERSATIONS_TO_TRASH to call remove action if all messages are in trash", async () => {
@@ -86,13 +90,21 @@ describe("RemoveMixin", () => {
             { messages: [], folderRef: { key: "trash" } }
         ];
         RemoveMixin.$bvModal.msgBoxConfirm.mockResolvedValueOnce(true);
+        RemoveMixin.$store.getters["mail/CONVERSATIONS_ACTIVATED"] = true;
+
         await RemoveMixin.MOVE_CONVERSATIONS_TO_TRASH(conversations);
-        expect(RemoveMixin.$store.dispatch).toHaveBeenCalledWith(`mail/${REMOVE_CONVERSATIONS}`, { conversations });
+        expect(RemoveMixin.$store.dispatch).toHaveBeenCalledWith(`mail/${REMOVE_CONVERSATIONS}`, {
+            conversations,
+            conversationsActivated: true,
+            mailbox: { key: "currentMailbox" }
+        });
     });
 
     test("MOVE_CONVERSATIONS_TO_TRASH or REMOVE_CONVERSATIONS to call navigate if current message is removed", async () => {
         const conversations = [{ key: "key", messages: ["k1", "k2"], folderRef: { key: "no-trash" } }];
         RemoveMixin.$store.getters["mail/IS_CURRENT_CONVERSATION"].mockReturnValue(true);
+        RemoveMixin.$store.getters["mail/CONVERSATIONS_ACTIVATED"] = true;
+
         await RemoveMixin.MOVE_CONVERSATIONS_TO_TRASH(conversations);
         const next = { key: "nextKey", messages: ["m1", "m2"] };
         expect(RemoveMixin.navigateTo).toHaveBeenCalledWith(next, conversations[0].folderRef);

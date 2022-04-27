@@ -14,6 +14,7 @@ import {
     ALL_SELECTED_CONVERSATIONS_ARE_READ,
     ALL_SELECTED_CONVERSATIONS_ARE_UNREAD,
     ALL_CONVERSATIONS_ARE_SELECTED,
+    CONVERSATIONS_ACTIVATED,
     CONVERSATION_LIST_FILTERED,
     CONVERSATION_LIST_IS_SEARCH_MODE,
     CURRENT_CONVERSATION_METADATA,
@@ -35,16 +36,17 @@ export default {
             $_FlagMixin_activeFolder: state => state.activeFolder
         }),
         ...mapGetters("mail", {
-            $_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED: SEVERAL_CONVERSATIONS_SELECTED,
-            $_FlagMixin_CURRENT_CONVERSATION_METADATA: CURRENT_CONVERSATION_METADATA,
+            $_FlagMixin_ALL_CONVERSATIONS_ARE_SELECTED: ALL_CONVERSATIONS_ARE_SELECTED,
+            $_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED: ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED,
+            $_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_READ: ALL_SELECTED_CONVERSATIONS_ARE_READ,
+            $_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED: ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED,
+            $_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNREAD: ALL_SELECTED_CONVERSATIONS_ARE_UNREAD,
             $_FlagMixin_CONVERSATION_LIST_FILTERED: CONVERSATION_LIST_FILTERED,
             $_FlagMixin_CONVERSATION_LIST_IS_SEARCH_MODE: CONVERSATION_LIST_IS_SEARCH_MODE,
-            $_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED: ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED,
-            $_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED: ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED,
-            $_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_READ: ALL_SELECTED_CONVERSATIONS_ARE_READ,
-            $_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNREAD: ALL_SELECTED_CONVERSATIONS_ARE_UNREAD,
-            $_FlagMixin_ALL_CONVERSATIONS_ARE_SELECTED: ALL_CONVERSATIONS_ARE_SELECTED,
-            $_FlagMixin_CURRENT_MAILBOX: CURRENT_MAILBOX
+            $_FlagMixin_CONVERSATIONS_ACTIVATED: CONVERSATIONS_ACTIVATED,
+            $_FlagMixin_CURRENT_CONVERSATION_METADATA: CURRENT_CONVERSATION_METADATA,
+            $_FlagMixin_CURRENT_MAILBOX: CURRENT_MAILBOX,
+            $_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED: SEVERAL_CONVERSATIONS_SELECTED
         }),
         showMarkAsRead() {
             if (this.conversation) {
@@ -103,21 +105,39 @@ export default {
                 !this.$_FlagMixin_CONVERSATION_LIST_FILTERED &&
                 !this.$_FlagMixin_CONVERSATION_LIST_IS_SEARCH_MODE
             ) {
-                const folder = this.$_FlagMixin_folders[this.$_FlagMixin_activeFolder];
-                return this.$_FlagMixin_markFolderAsRead({ folder, mailbox: this.$_FlagMixin_CURRENT_MAILBOX });
+                return this.$_FlagMixin_markFolderAsRead({
+                    folder: this.$_FlagMixin_folders[this.$_FlagMixin_activeFolder],
+                    mailbox: this.$_FlagMixin_CURRENT_MAILBOX
+                });
             } else {
                 conversations = conversations || this.selected;
-                return this.$_FlagMixin_markAsRead({ conversations });
+                return this.$_FlagMixin_markAsRead({
+                    conversations,
+                    conversationsActivated: this.$_FlagMixin_CONVERSATIONS_ACTIVATED,
+                    mailbox: this.$_FlagMixin_CURRENT_MAILBOX
+                });
             }
         },
         markAsUnread(conversations = this.selected) {
-            return this.$_FlagMixin_markAsUnread({ conversations });
+            return this.$_FlagMixin_markAsUnread({
+                conversations,
+                conversationsActivated: this.$_FlagMixin_CONVERSATIONS_ACTIVATED,
+                mailbox: this.$_FlagMixin_CURRENT_MAILBOX
+            });
         },
         markAsFlagged(conversations = this.selected) {
-            return this.$_FlagMixin_markAsFlagged({ conversations });
+            return this.$_FlagMixin_markAsFlagged({
+                conversations,
+                conversationsActivated: this.$_FlagMixin_CONVERSATIONS_ACTIVATED,
+                mailbox: this.$_FlagMixin_CURRENT_MAILBOX
+            });
         },
         markAsUnflagged(conversations = this.selected) {
-            return this.$_FlagMixin_markAsUnflagged({ conversations });
+            return this.$_FlagMixin_markAsUnflagged({
+                conversations,
+                conversationsActivated: this.$_FlagMixin_CONVERSATIONS_ACTIVATED,
+                mailbox: this.$_FlagMixin_CURRENT_MAILBOX
+            });
         }
     }
 };
