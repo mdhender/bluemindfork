@@ -29,7 +29,8 @@ Require-Bundle: net.bluemind.hsm.api;bundle-version="1.0.0",
  net.bluemind.server.api,
  net.bluemind.role.api,
  net.bluemind.config,
- net.bluemind.backend.mail.replica.indexing;bundle-version="4.1.0"
+ net.bluemind.backend.mail.replica.indexing;bundle-version="4.1.0",
+ net.bluemind.system.api
 Bundle-Activator: net.bluemind.hsm.service.Activator
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.hsm.service

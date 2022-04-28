@@ -54,7 +54,7 @@ public class SnappyStoreTests {
 		String hsmId = store.store("test.lan", mboxUid, mailContent);
 		assertNotNull(hsmId);
 
-		InputStream stored = store.peek("test.lan", mboxUid, hsmId);
+		InputStream stored = store.peek("test.lan", mboxUid, hsmId, Integer.MAX_VALUE);
 		assertNotNull(stored);
 
 		String storedContent = FileUtils.streamString(stored, true);

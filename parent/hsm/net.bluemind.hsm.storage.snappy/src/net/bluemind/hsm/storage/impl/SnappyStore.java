@@ -74,36 +74,34 @@ public class SnappyStore implements IHSMStorage {
 	}
 
 	@Override
-	public InputStream peek(String domainUid, String mailboxUid, String hsmId) throws IOException {
+	public InputStream peek(String domainUid, String mailboxUid, String hsmId, Integer maxMessageSize)
+			throws IOException {
 		String path = hashDir(domainUid, mailboxUid, hsmId);
 		String filePath = path + "/" + hsmId;
 		FileBackedOutputStream copy = new FileBackedOutputStream(32768, "snappy-store");
+		SnappyInputStream sis = null;
+
 		try {
 			InputStream compressed = nc.openStream(filePath);
-			SnappyInputStream sis = new SnappyInputStream(compressed);
-			ByteStreams.copy(sis, copy);
-			sis.close();
+			sis = new SnappyInputStream(compressed);
+			long bytesRead = ByteStreams.copy(sis, copy);
+
+			if (maxMessageSize != null && bytesRead > maxMessageSize) {
+				logger.error("Message {} too big {}/{}", filePath, bytesRead, maxMessageSize);
+				throw new IOException("Message too big " + bytesRead);
+			}
+
 			return FBOSInput.from(copy);
 		} catch (Exception e) {
 			logger.error("Fail to fetch {}", filePath);
 			throw new IOException(e);
 		} finally {
+			if (sis != null) {
+				sis.close();
+			}
 			copy.close();
 		}
 
-	}
-
-	@Override
-	public InputStream take(String domainUid, String mailboxUid, String hsmId) throws IOException {
-		String path = hashDir(domainUid, mailboxUid, hsmId);
-		String filePath = path + "/" + hsmId;
-		InputStream ret = peek(domainUid, mailboxUid, hsmId);
-		try {
-			NCUtils.execNoOut(nc, "rm -f " + filePath);
-		} catch (ServerFault e) {
-			throw new IOException(e);
-		}
-		return ret;
 	}
 
 	@Override

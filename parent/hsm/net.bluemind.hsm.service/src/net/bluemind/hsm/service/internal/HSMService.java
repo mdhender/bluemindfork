@@ -20,8 +20,8 @@ package net.bluemind.hsm.service.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,6 +59,8 @@ import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
@@ -85,7 +87,8 @@ public class HSMService implements IHSM {
 		RBACManager.forContext(bmContext).forContainer(IMailboxAclUids.uidForMailbox(mailboxUid))
 				.check(Verb.Read.name());
 
-		try (InputStream is = storage.peek(context.getSecurityContext().getContainerUid(), mailboxUid, hsmId);) {
+		try (InputStream is = storage.peek(context.getSecurityContext().getContainerUid(), mailboxUid, hsmId,
+				Integer.MAX_VALUE);) {
 			return ByteStreams.toByteArray(is);
 		} catch (IOException e) {
 			throw new ServerFault(e);
@@ -133,6 +136,8 @@ public class HSMService implements IHSM {
 
 	@Override
 	public List<TierChangeResult> promoteMultiple(List<Promote> promote) throws ServerFault {
+		Integer maxMessageSize = bmContext.su().provider().instance(ISystemConfiguration.class).getValues()
+				.integerValue(SysConfKeys.message_size_limit.name());
 
 		HSMContext context = getHSMContext();
 
@@ -145,19 +150,23 @@ public class HSMService implements IHSM {
 		});
 
 		toPromote.asMap().forEach((folder, items) -> {
-			try {
-				ret.addAll(promote(context, folder, items));
-			} catch (ServerFault e) {
-				logger.error(e.getMessage(), e);
+			ArrayDeque<Promote> asQueue = new ArrayDeque<>(items);
+			while (!asQueue.isEmpty()) {
+				try {
+					ret.addAll(promote(context, folder, asQueue, maxMessageSize));
+				} catch (ServerFault e) {
+					logger.error(e.getMessage(), e);
+				}
 			}
 		});
 
 		return ret;
 	}
 
-	private List<TierChangeResult> promote(HSMContext context, String folderPath, Collection<Promote> promote) {
+	private List<TierChangeResult> promote(HSMContext context, String folderPath, ArrayDeque<Promote> promote,
+			Integer maxMessageSize) {
 		try (StoreClient sc = context.connect(folderPath)) {
-			PromoteCommand pc = new PromoteCommand(folderPath, sc, context, promote);
+			PromoteCommand pc = new PromoteCommand(folderPath, sc, context, promote, maxMessageSize);
 			HSMRunStats stats = new HSMRunStats();
 			return pc.run(stats);
 		} catch (IMAPException e) {

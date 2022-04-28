@@ -27,8 +27,8 @@ import net.bluemind.node.api.INodeClient;
 public interface IHSMStorage extends Closeable {
 
 	/**
-	 * Store a mime stream for the given mailbox and returns the HSM id that can
-	 * be used to retrieved the stored stream.
+	 * Store a mime stream for the given mailbox and returns the HSM id that can be
+	 * used to retrieved the stored stream.
 	 * 
 	 * @param mailContent
 	 * @return an HSM id
@@ -37,26 +37,15 @@ public interface IHSMStorage extends Closeable {
 	String store(String domainUid, String mailboxUid, InputStream mailContent) throws IOException;
 
 	/**
-	 * Retrieve a store mime stream for a mailbox with the given HSM id. The
-	 * stream in the store is kept as-is for later re-use.
+	 * Retrieve a store mime stream for a mailbox with the given HSM id. The stream
+	 * in the store is kept as-is for later re-use.
 	 * 
 	 * @param hsmId
+	 * @param maxMessageSize
 	 * @return
 	 * @throws IOException
 	 */
-	InputStream peek(String domainUid, String mailboxUid, String hsmId) throws IOException;
-
-	/**
-	 * Same as {@link IArchiveStore#peek(IMailbox, String)} except the mime data
-	 * is deleted.
-	 * 
-	 * If you close the stream before copying it elsewhere, you lost data.
-	 * 
-	 * @param hsmId
-	 * @return
-	 * @throws IOException
-	 */
-	InputStream take(String domainUid, String mailboxUid, String hsmId) throws IOException;
+	InputStream peek(String domainUid, String mailboxUid, String hsmId, Integer maxMessageSize) throws IOException;
 
 	/**
 	 * Delete a stored mime stream with the given HSM.

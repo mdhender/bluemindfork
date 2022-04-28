@@ -20,11 +20,9 @@ package net.bluemind.hsm.processor.commands;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +30,15 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Joiner;
 import com.google.common.io.CountingInputStream;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.hsm.api.Promote;
 import net.bluemind.hsm.api.TierChangeResult;
 import net.bluemind.hsm.processor.HSMContext;
 import net.bluemind.hsm.processor.HSMRunStats;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
+import net.bluemind.imap.IMAPException;
+import net.bluemind.imap.IMAPRuntimeException;
 import net.bluemind.imap.StoreClient;
 
 public class PromoteCommand extends AbstractHSMCommand {
@@ -45,48 +46,56 @@ public class PromoteCommand extends AbstractHSMCommand {
 	private static final Logger logger = LoggerFactory.getLogger(PromoteCommand.class);
 
 	private HSMContext context;
-	private Collection<Promote> promote;
+	private ArrayDeque<Promote> promote;
+	private Integer maxMessageSize;
 
-	public PromoteCommand(String folderPath, StoreClient storeClient, HSMContext context, Collection<Promote> promote) {
+	public PromoteCommand(String folderPath, StoreClient storeClient, HSMContext context, ArrayDeque<Promote> promote,
+			Integer maxMessageSize) {
 		super(folderPath, storeClient, context.getHSMStorage());
 		this.context = context;
 		this.promote = promote;
+		this.maxMessageSize = maxMessageSize;
 	}
 
-	public List<TierChangeResult> run(HSMRunStats stats) {
+	public List<TierChangeResult> run(HSMRunStats stats) throws IMAPException {
+		List<TierChangeResult> ret = new ArrayList<>(promote.size());
+		List<Integer> mailUids = new ArrayList<>();
 
-		List<TierChangeResult> ret = new ArrayList<TierChangeResult>(promote.size());
-
-		Iterator<Promote> it = promote.iterator();
-		while (it.hasNext()) {
-			Promote p = it.next();
+		while (!promote.isEmpty()) {
+			Promote p = promote.poll();
 			try {
 				ret.add(promote(stats, p));
-			} catch (IOException io) {
-				logger.error("Fail to promote {}", p.hsmId, io);
+				mailUids.add(p.imapUid);
+			} catch (IOException ie) {
+				logger.error("Fail to promote {}", p.hsmId, ie);
+			} catch (IMAPRuntimeException ie) {
+				throw new ServerFault("Fail to promote " + p.hsmId, ie);
+			} finally {
+				if (!mailUids.isEmpty()) {
+					FlagsList fl = new FlagsList();
+					fl.add(Flag.DELETED);
+					sc.uidStore(mailUids, fl, true);
+					sc.uidExpunge(mailUids);
+				}
 			}
 		}
 
-		List<Integer> mailUids = promote.stream().map(p -> p.imapUid).collect(Collectors.toList());
-
-		if (!mailUids.isEmpty()) {
-			FlagsList fl = new FlagsList();
-			fl.add(Flag.DELETED);
-			sc.uidStore(mailUids, fl, true);
-			sc.uidExpunge(mailUids);
-		}
 		return ret;
-
 	}
 
-	private TierChangeResult promote(HSMRunStats stats, Promote p) throws IOException {
+	private TierChangeResult promote(HSMRunStats stats, Promote p) throws IOException, IMAPException {
 		p.flags.remove("bmarchived");
+
+		if (sc.isClosed()) {
+			sc = context.connect(folderPath);
+		}
 
 		FlagsList flags = FlagsList.fromString(Joiner.on(" ").join(p.flags));
 		try (InputStream toRestore = storage.peek(context.getSecurityContext().getContainerUid(),
-				context.getLoginContext().uid, p.hsmId); CountingInputStream cis = new CountingInputStream(toRestore)) {
+				context.getLoginContext().uid, p.hsmId, maxMessageSize);
+				CountingInputStream cis = new CountingInputStream(toRestore)) {
 			int restored = sc.append(folderPath, cis, flags, p.internalDate);
-			if (restored <= 0) {
+			if (sc.isClosed() || restored <= 0) {
 				throw new IOException("Failed to append " + p.hsmId);
 			}
 			storage.delete(context.getSecurityContext().getContainerUid(), context.getLoginContext().uid, p.hsmId);
