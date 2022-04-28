@@ -48,7 +48,7 @@ public class MailConversationActionsServiceFactory
 
 	@Override
 	public IMailConversationActions instance(BmContext context, String... params) throws ServerFault {
-		if (params == null || params.length != 2) {
+		if (params == null || params.length < 2) {
 			throw new ServerFault("wrong number of instance parameters");
 		}
 
