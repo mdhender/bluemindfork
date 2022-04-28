@@ -239,8 +239,8 @@ BEGIN
     UPDATE v_conversation_by_folder
     SET date = daterec.date
     WHERE folder_id = ANY(daterec.folder_ids)
-    AND conversation_id = NEW.conversation_id
-    AND date != daterec.date;
+    AND conversation_id = NEW.conversation_id;
+
     return NULL;
 END;
 $$;
