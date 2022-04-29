@@ -45,7 +45,7 @@ public interface IHSMStorage extends Closeable {
 	 * @return
 	 * @throws IOException
 	 */
-	InputStream peek(String domainUid, String mailboxUid, String hsmId, long maxMessageSize) throws IOException;
+	InputStream peek(String domainUid, String mailboxUid, String hsmId, Integer maxMessageSize) throws IOException;
 
 	/**
 	 * Delete a stored mime stream with the given HSM.

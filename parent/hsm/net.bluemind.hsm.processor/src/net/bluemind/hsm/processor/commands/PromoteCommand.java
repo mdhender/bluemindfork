@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,9 +33,6 @@ import com.google.common.base.Joiner;
 import com.google.common.io.CountingInputStream;
 
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.hornetq.client.MQ;
-import net.bluemind.hornetq.client.MQ.SharedMap;
-import net.bluemind.hornetq.client.Shared;
 import net.bluemind.hsm.api.Promote;
 import net.bluemind.hsm.api.TierChangeResult;
 import net.bluemind.hsm.processor.HSMContext;
@@ -47,44 +43,31 @@ import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.IMAPRuntimeException;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
 public class PromoteCommand extends AbstractHSMCommand {
-
 	private static final Logger logger = LoggerFactory.getLogger(PromoteCommand.class);
 
 	private HSMContext context;
 	private ArrayDeque<Promote> promote;
-	private long maxMessageSize = 20 * 1024 * 1024L;
 
 	public PromoteCommand(String folderPath, StoreClient storeClient, HSMContext context, ArrayDeque<Promote> promote) {
 		super(folderPath, storeClient, context.getHSMStorage());
 		this.context = context;
 		this.promote = promote;
-
-		getMaxMessageSize();
-	}
-
-	private void getMaxMessageSize() {
-		AtomicReference<SharedMap<String, String>> sysConf = new AtomicReference<>();
-		MQ.init().thenAccept(v -> sysConf.set(MQ.sharedMap(Shared.MAP_SYSCONF)));
-
-		SharedMap<String, String> map = sysConf.get();
-		if (map != null) {
-			String sizeLimit = map.get(SysConfKeys.message_size_limit.name());
-			Optional.ofNullable(sizeLimit).map(Long::parseLong).ifPresent(newSize -> maxMessageSize = newSize);
-		}
 	}
 
 	public List<TierChangeResult> run(HSMRunStats stats) throws IMAPException {
 		List<TierChangeResult> ret = new ArrayList<>(promote.size());
+
+		FlagsList fl = new FlagsList();
+		fl.add(Flag.DELETED);
 
 		while (!promote.isEmpty()) {
 			Promote p = promote.poll();
 			try {
 				ret.add(promote(stats, p));
 
-				FlagsList fl = new FlagsList();
-				fl.add(Flag.DELETED);
 				sc.uidStore(Arrays.asList(p.imapUid), fl, true);
 				sc.uidExpunge(Arrays.asList(p.imapUid));
 			} catch (IOException ie) {
@@ -105,8 +88,10 @@ public class PromoteCommand extends AbstractHSMCommand {
 		}
 
 		FlagsList flags = FlagsList.fromString(Joiner.on(" ").join(p.flags));
-		try (InputStream toRestore = storage.peek(context.getSecurityContext().getContainerUid(),
-				context.getLoginContext().uid, p.hsmId, maxMessageSize);
+		try (InputStream toRestore = storage
+				.peek(context.getSecurityContext().getContainerUid(), context.getLoginContext().uid, p.hsmId,
+						Optional.ofNullable(LocalSysconfCache.get().integerValue(SysConfKeys.message_size_limit.name()))
+								.orElse(20 * 1024 * 1024));
 				CountingInputStream cis = new CountingInputStream(toRestore)) {
 			int restored = sc.append(folderPath, cis, flags, p.internalDate);
 			if (sc.isClosed() || restored <= 0) {
