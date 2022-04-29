@@ -211,7 +211,7 @@ public class DirectoryXfer implements AutoCloseable {
 			imapLogin = originalUser.value.login + "@" + domainUid;
 			originalDataLocation = originalUser.value.dataLocation;
 			if (originalUser.value.archived) {
-				monitor.end(false, "User {} is suspended, can't continue", "{}");
+				monitor.end(false, "User " + imapLogin + " is suspended, can't continue", "{}");
 				return;
 			}
 		}
