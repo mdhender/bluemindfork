@@ -35,7 +35,6 @@ import net.bluemind.backend.mail.api.ImportMailboxItemsStatus;
 import net.bluemind.backend.mail.api.flags.ConversationFlagUpdate;
 import net.bluemind.backend.mail.api.flags.FlagUpdate;
 import net.bluemind.backend.mail.api.flags.ImportMailboxConversationSet;
-import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
@@ -91,10 +90,9 @@ public class MailConversationActionsService implements IMailConversationActions 
 
 	private List<ItemIdentifier> transferAction(String targetMailboxUid, List<String> conversationUids,
 			BiFunction<IItemsTransfer, List<Long>, List<ItemIdentifier>> op) {
-		String sourceMailboxUid = IMailReplicaUids.mboxRecords(replicatedMailboxUid);
 		List<Long> itemsByConversations = getItemidsByConversationUids(conversationUids);
-		IItemsTransfer transferService = context.getServiceProvider().instance(IItemsTransfer.class, sourceMailboxUid,
-				targetMailboxUid);
+		IItemsTransfer transferService = context.getServiceProvider().instance(IItemsTransfer.class,
+				replicatedMailboxUid, targetMailboxUid);
 		return op.apply(transferService, itemsByConversations);
 	}
 
