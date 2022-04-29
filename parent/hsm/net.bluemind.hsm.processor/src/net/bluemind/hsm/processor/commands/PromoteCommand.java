@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -76,24 +77,20 @@ public class PromoteCommand extends AbstractHSMCommand {
 
 	public List<TierChangeResult> run(HSMRunStats stats) throws IMAPException {
 		List<TierChangeResult> ret = new ArrayList<>(promote.size());
-		List<Integer> mailUids = new ArrayList<>();
 
 		while (!promote.isEmpty()) {
 			Promote p = promote.poll();
 			try {
 				ret.add(promote(stats, p));
-				mailUids.add(p.imapUid);
+
+				FlagsList fl = new FlagsList();
+				fl.add(Flag.DELETED);
+				sc.uidStore(Arrays.asList(p.imapUid), fl, true);
+				sc.uidExpunge(Arrays.asList(p.imapUid));
 			} catch (IOException ie) {
 				logger.error("Fail to promote {}", p.hsmId, ie);
 			} catch (IMAPRuntimeException ie) {
 				throw new ServerFault("Fail to promote " + p.hsmId, ie);
-			} finally {
-				if (!mailUids.isEmpty()) {
-					FlagsList fl = new FlagsList();
-					fl.add(Flag.DELETED);
-					sc.uidStore(mailUids, fl, true);
-					sc.uidExpunge(mailUids);
-				}
 			}
 		}
 
