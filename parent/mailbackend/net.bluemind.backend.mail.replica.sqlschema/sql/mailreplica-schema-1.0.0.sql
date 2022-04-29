@@ -211,11 +211,9 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION update_conversation_by_folder() RETURNS TRIGGER
+CREATE OR REPLACE FUNCTION v_conversation_by_folder_add() RETURNS TRIGGER
   LANGUAGE plpgsql
 AS $$
-DECLARE
-  daterec record;
 BEGIN
     -- Update flags and not set flags (mask) respectively in every folder
     INSERT INTO
@@ -228,85 +226,118 @@ BEGIN
         mask = EXCLUDED.mask | (-(v_conversation_by_folder.flags + 1));
 
     -- Update date of last activity, cross folder this time
-    SELECT
-      MAX(internal_date) AS date,
-      array_agg(distinct(container_id)) AS folder_ids
-    FROM t_mailbox_record INTO daterec
-    WHERE system_flags::bit(32) & 4::bit(32) = 0::bit(32)
-    AND conversation_id = NEW.conversation_id
-    GROUP BY conversation_id;
-
-    UPDATE v_conversation_by_folder
-    SET date = daterec.date
-    WHERE folder_id = ANY(daterec.folder_ids)
-    AND conversation_id = NEW.conversation_id;
-
-    return NULL;
+    perform v_conversation_by_folder_update_date(NEW.conversation_id);
+    return NEW;
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION set_conversation_by_folder() RETURNS TRIGGER
+
+CREATE OR REPLACE FUNCTION v_conversation_by_folder_update() RETURNS TRIGGER
   LANGUAGE plpgsql
 AS $$
 DECLARE
-  c record;
-  daterec record;
+BEGIN
+  IF (OLD.system_flags != NEW.system_flags) THEN
+    PERFORM v_conversation_by_folder_set_flags(NEW.conversation_id, NEW.container_id);
+  END IF;
+  IF (OLD.internal_date != NEW.internal_date) THEN
+    PERFORM v_conversation_by_folder_update_date(NEW.conversation_id);
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+CREATE OR REPLACE FUNCTION v_conversation_by_folder_remove() RETURNS TRIGGER
+  LANGUAGE plpgsql
+AS $$
+DECLARE
+BEGIN
+    PERFORM v_conversation_by_folder_set_flags(OLD.conversation_id, OLD.container_id);
+    PERFORM v_conversation_by_folder_update_date(OLD.conversation_id);
+    RETURN NULL;
+END;
+$$;
+
+
+CREATE OR REPLACE FUNCTION v_conversation_by_folder_set_flags(bigint, integer) RETURNS VOID
+  LANGUAGE plpgsql
+AS $$
+DECLARE
+  existing record;
 BEGIN
     SELECT
       bit_or(system_flags) as flags,
       bit_or(-(system_flags + 1)) as mask
     FROM
-      t_mailbox_record INTO c
+      t_mailbox_record INTO existing
     WHERE
-      container_id = OLD.container_id
+      container_id = $2
     AND
       system_flags::bit(32) & 4::bit(32) = 0::bit(32)
-    AND conversation_id = OLD.conversation_id
+    AND conversation_id = $1
     GROUP BY container_id, conversation_id;
 
-    IF (c IS NULL) THEN
-        DELETE FROM v_conversation_by_folder WHERE folder_id = OLD.container_id AND conversation_id = OLD.conversation_id;
+    IF (existing IS NULL) THEN
+        DELETE FROM v_conversation_by_folder WHERE folder_id = $2 AND conversation_id = $1;
     ELSE
         -- Update flags and not set flags (mask) respectively in every folder
         UPDATE v_conversation_by_folder
-        SET flags = c.flags, mask = c.mask
-        WHERE folder_id = OLD.container_id
-        AND conversation_id = OLD.conversation_id;
-
-        -- Update date of last activity, cross folder this time
-        SELECT
-          MAX(internal_date) AS date,
-          array_agg(distinct(container_id)) AS folder_ids
-        FROM t_mailbox_record INTO daterec
-        WHERE system_flags::bit(32) & 4::bit(32) = 0::bit(32)
-        AND conversation_id = NEW.conversation_id
-        GROUP BY conversation_id;
-
-        UPDATE v_conversation_by_folder
-        SET date = daterec.date
-        WHERE folder_id = ANY(daterec.folder_ids)
-        AND conversation_id = NEW.conversation_id
-        AND date != daterec.date;
+        SET flags = existing.flags, mask = existing.mask
+        WHERE folder_id = $2
+        AND conversation_id = $1;
     END IF;
-    RETURN NULL;
 END;
 $$;
 
-CREATE OR REPLACE TRIGGER v_conversation_by_folder_update
-  AFTER UPDATE
-  ON t_mailbox_record
-  FOR EACH ROW
-  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (OLD.conversation_id IS NOT NULL AND OLD.system_flags & 4 = 0 AND NEW.system_flags & 4 = 0)
-  EXECUTE PROCEDURE update_conversation_by_folder();
+CREATE OR REPLACE FUNCTION v_conversation_by_folder_update_date(bigint) RETURNS VOID AS $$
+DECLARE
+  daterec record;
+BEGIN
+  SELECT MAX(internal_date) AS date, array_agg(distinct(container_id)) AS folder_ids
+  FROM t_mailbox_record INTO daterec
+  WHERE system_flags::bit(32) & 4::bit(32) = 0::bit(32)
+  AND conversation_id = $1
+  GROUP BY conversation_id;
 
+  UPDATE v_conversation_by_folder
+  SET date = daterec.date
+  WHERE folder_id = ANY(daterec.folder_ids)
+  AND conversation_id = $1;
+END;
+$$ LANGUAGE plpgsql;
+
+-------------------------------------------------
 CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_insert
   AFTER INSERT
   ON t_mailbox_record
   FOR EACH ROW
   -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
   WHEN (NEW.conversation_id IS NOT NULL AND NEW.system_flags & 4 = 0)
-  EXECUTE PROCEDURE update_conversation_by_folder();
+  EXECUTE PROCEDURE v_conversation_by_folder_add();
+
+
+CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_undelete
+  AFTER UPDATE
+  ON t_mailbox_record
+  FOR EACH ROW
+  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
+  WHEN (NEW.conversation_id IS NOT NULL  AND OLD.system_flags & 4 = 4 AND NEW.system_flags & 4 = 0)
+  EXECUTE PROCEDURE v_conversation_by_folder_add();
+
+
+
+CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_update
+  AFTER UPDATE
+  ON t_mailbox_record
+  FOR EACH ROW
+  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
+  WHEN (
+    OLD.conversation_id IS NOT NULL AND OLD.system_flags & 4 = 0 AND NEW.system_flags & 4 = 0 
+    AND (NEW.internal_date != OLD.internal_date OR NEW.system_flags != OLD.system_flags)
+  )
+  EXECUTE PROCEDURE v_conversation_by_folder_update();
+
 
 CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_remove
   AFTER UPDATE
@@ -314,7 +345,7 @@ CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_remove
   FOR EACH ROW
   -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
   WHEN (OLD.conversation_id IS NOT NULL AND OLD.system_flags & 4 = 0 AND NEW.system_flags & 4 = 4)
-  EXECUTE PROCEDURE set_conversation_by_folder();
+  EXECUTE PROCEDURE v_conversation_by_folder_remove();
 
 CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_expunge
   AFTER DELETE
@@ -322,4 +353,8 @@ CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_expunge
   FOR EACH ROW
   -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
   WHEN (OLD.conversation_id IS NOT NULL AND OLD.system_flags & 4 = 0)
-  EXECUTE PROCEDURE set_conversation_by_folder();
+  EXECUTE PROCEDURE v_conversation_by_folder_remove();
+
+
+---------------------------------------
+

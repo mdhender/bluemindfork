@@ -46,6 +46,7 @@ import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.core.container.api.Ack;
+import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -138,6 +139,46 @@ public class MailConversationActionServiceTests extends ReplicationStackTests {
 			}
 		}
 		assertEquals(1, seen);
+	}
+
+	@Test
+	public void testRemoveFlag() throws Exception {
+		IMailConversation user1ConversationService = provider().instance(IMailConversation.class,
+				IMailReplicaUids.conversationSubtreeUid(domainUid, userUid));
+		IMailboxFolders user1MboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		//
+		// simulate user1 sends to user2 (should generate a conversation for
+		// user1 in Sent)
+		//
+		String userMboxRoot = "user." + userUid.replace('.', '^');
+		createEml("data/user1_send_to_user2.eml", userUid, userMboxRoot, "Sent");
+
+		ItemValue<MailboxFolder> user1Sent = user1MboxesApi.byName("Sent");
+		ItemFlagFilter mustSeen = ItemFlagFilter.create().must(ItemFlag.Seen);
+
+		List<String> user1SentConversations = user1ConversationService.byFolder(user1Sent.uid, ItemFlagFilter.all());
+		List<String> user1SentConversationsSeen = user1ConversationService.byFolder(user1Sent.uid, mustSeen);
+		assertEquals(1, user1SentConversations.size());
+		assertEquals(0, user1SentConversationsSeen.size());
+
+		ConversationFlagUpdate flagUpdate = new ConversationFlagUpdate();
+		flagUpdate.conversationUids = Arrays.asList(user1SentConversations.get(0));
+		flagUpdate.mailboxItemFlag = MailboxItemFlag.System.Seen.value();
+		Ack addFlag = getActionService(user1Sent.uid).addFlag(flagUpdate);
+		assertTrue(addFlag.version > 0);
+
+		user1SentConversations = user1ConversationService.byFolder(user1Sent.uid, ItemFlagFilter.all());
+		user1SentConversationsSeen = user1ConversationService.byFolder(user1Sent.uid, mustSeen);
+		assertEquals(1, user1SentConversations.size());
+		assertEquals(1, user1SentConversationsSeen.size());
+
+		Ack removeFlag = getActionService(user1Sent.uid).deleteFlag(flagUpdate);
+		assertTrue(removeFlag.version > 0);
+
+		user1SentConversations = user1ConversationService.byFolder(user1Sent.uid, ItemFlagFilter.all());
+		user1SentConversationsSeen = user1ConversationService.byFolder(user1Sent.uid, mustSeen);
+		assertEquals(1, user1SentConversations.size());
+		assertEquals(0, user1SentConversationsSeen.size());
 	}
 
 }
