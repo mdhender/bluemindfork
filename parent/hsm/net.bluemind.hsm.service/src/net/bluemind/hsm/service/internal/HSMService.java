@@ -59,8 +59,6 @@ import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
-import net.bluemind.system.api.ISystemConfiguration;
-import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
@@ -123,7 +121,6 @@ public class HSMService implements IHSM {
 	}
 
 	private HSMContext getHSMContext() throws ServerFault {
-
 		ItemValue<User> user = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUser.class, bmContext.getSecurityContext().getContainerUid())
 				.getComplete(bmContext.getSecurityContext().getSubject());
@@ -136,9 +133,6 @@ public class HSMService implements IHSM {
 
 	@Override
 	public List<TierChangeResult> promoteMultiple(List<Promote> promote) throws ServerFault {
-		Integer maxMessageSize = bmContext.su().provider().instance(ISystemConfiguration.class).getValues()
-				.integerValue(SysConfKeys.message_size_limit.name());
-
 		HSMContext context = getHSMContext();
 
 		List<TierChangeResult> ret = new ArrayList<TierChangeResult>(promote.size());
@@ -153,7 +147,7 @@ public class HSMService implements IHSM {
 			ArrayDeque<Promote> asQueue = new ArrayDeque<>(items);
 			while (!asQueue.isEmpty()) {
 				try {
-					ret.addAll(promote(context, folder, asQueue, maxMessageSize));
+					ret.addAll(promote(context, folder, asQueue));
 				} catch (ServerFault e) {
 					logger.error(e.getMessage(), e);
 				}
@@ -163,10 +157,9 @@ public class HSMService implements IHSM {
 		return ret;
 	}
 
-	private List<TierChangeResult> promote(HSMContext context, String folderPath, ArrayDeque<Promote> promote,
-			Integer maxMessageSize) {
+	private List<TierChangeResult> promote(HSMContext context, String folderPath, ArrayDeque<Promote> promote) {
 		try (StoreClient sc = context.connect(folderPath)) {
-			PromoteCommand pc = new PromoteCommand(folderPath, sc, context, promote, maxMessageSize);
+			PromoteCommand pc = new PromoteCommand(folderPath, sc, context, promote);
 			HSMRunStats stats = new HSMRunStats();
 			return pc.run(stats);
 		} catch (IMAPException e) {

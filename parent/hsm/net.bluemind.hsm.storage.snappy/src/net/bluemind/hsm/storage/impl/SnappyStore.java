@@ -74,19 +74,16 @@ public class SnappyStore implements IHSMStorage {
 	}
 
 	@Override
-	public InputStream peek(String domainUid, String mailboxUid, String hsmId, Integer maxMessageSize)
-			throws IOException {
+	public InputStream peek(String domainUid, String mailboxUid, String hsmId, long maxMessageSize) throws IOException {
 		String path = hashDir(domainUid, mailboxUid, hsmId);
 		String filePath = path + "/" + hsmId;
-		FileBackedOutputStream copy = new FileBackedOutputStream(32768, "snappy-store");
-		SnappyInputStream sis = null;
 
-		try {
-			InputStream compressed = nc.openStream(filePath);
-			sis = new SnappyInputStream(compressed);
+		try (InputStream compressed = nc.openStream(filePath);
+				FileBackedOutputStream copy = new FileBackedOutputStream(32768, "snappy-store");
+				SnappyInputStream sis = new SnappyInputStream(compressed);) {
 			long bytesRead = ByteStreams.copy(sis, copy);
 
-			if (maxMessageSize != null && bytesRead > maxMessageSize) {
+			if (bytesRead > maxMessageSize) {
 				logger.error("Message {} too big {}/{}", filePath, bytesRead, maxMessageSize);
 				throw new IOException("Message too big " + bytesRead);
 			}
@@ -95,13 +92,7 @@ public class SnappyStore implements IHSMStorage {
 		} catch (Exception e) {
 			logger.error("Fail to fetch {}", filePath);
 			throw new IOException(e);
-		} finally {
-			if (sis != null) {
-				sis.close();
-			}
-			copy.close();
 		}
-
 	}
 
 	@Override

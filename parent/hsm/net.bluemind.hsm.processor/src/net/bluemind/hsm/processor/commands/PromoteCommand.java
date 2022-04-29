@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,9 @@ import com.google.common.base.Joiner;
 import com.google.common.io.CountingInputStream;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.MQ.SharedMap;
+import net.bluemind.hornetq.client.Shared;
 import net.bluemind.hsm.api.Promote;
 import net.bluemind.hsm.api.TierChangeResult;
 import net.bluemind.hsm.processor.HSMContext;
@@ -40,6 +45,7 @@ import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.IMAPRuntimeException;
 import net.bluemind.imap.StoreClient;
+import net.bluemind.system.api.SysConfKeys;
 
 public class PromoteCommand extends AbstractHSMCommand {
 
@@ -47,14 +53,25 @@ public class PromoteCommand extends AbstractHSMCommand {
 
 	private HSMContext context;
 	private ArrayDeque<Promote> promote;
-	private Integer maxMessageSize;
+	private long maxMessageSize = 20 * 1024 * 1024L;
 
-	public PromoteCommand(String folderPath, StoreClient storeClient, HSMContext context, ArrayDeque<Promote> promote,
-			Integer maxMessageSize) {
+	public PromoteCommand(String folderPath, StoreClient storeClient, HSMContext context, ArrayDeque<Promote> promote) {
 		super(folderPath, storeClient, context.getHSMStorage());
 		this.context = context;
 		this.promote = promote;
-		this.maxMessageSize = maxMessageSize;
+
+		getMaxMessageSize();
+	}
+
+	private void getMaxMessageSize() {
+		AtomicReference<SharedMap<String, String>> sysConf = new AtomicReference<>();
+		MQ.init().thenAccept(v -> sysConf.set(MQ.sharedMap(Shared.MAP_SYSCONF)));
+
+		SharedMap<String, String> map = sysConf.get();
+		if (map != null) {
+			String sizeLimit = map.get(SysConfKeys.message_size_limit.name());
+			Optional.ofNullable(sizeLimit).map(Long::parseLong).ifPresent(newSize -> maxMessageSize = newSize);
+		}
 	}
 
 	public List<TierChangeResult> run(HSMRunStats stats) throws IMAPException {
@@ -104,7 +121,5 @@ public class PromoteCommand extends AbstractHSMCommand {
 
 			return TierChangeResult.create(restored, p.hsmId);
 		}
-
 	}
-
 }

@@ -29,7 +29,8 @@ Require-Bundle: net.bluemind.hsm.storage,
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.backend.mail.api,
  net.bluemind.system.api,
- com.github.ben-manes.caffeine
+ com.github.ben-manes.caffeine,
+ net.bluemind.hornetq.client
 Export-Package: net.bluemind.hsm.processor,
  net.bluemind.hsm.processor.commands
 Automatic-Module-Name: net.bluemind.hsm.processor
