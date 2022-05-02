@@ -1,4 +1,5 @@
 import Vue from "vue";
+import { Verb } from "@bluemind/core.container.api";
 import { inject } from "@bluemind/inject";
 import { MailboxAdaptor } from "./helpers/MailboxAdaptor";
 import { MailboxType } from "~/model/mailbox";
@@ -64,7 +65,9 @@ export default {
             const mailboxUids = subscriptions
                 .filter(subscription => subscription.value.containerType === "mailboxacl")
                 .map(subscription => subscription.value.containerUid);
-            const remoteMailboxes = await inject("ContainersPersistence").getContainers(mailboxUids);
+            const remoteMailboxes = (
+                await inject("ContainersPersistence").getContainers(mailboxUids)
+            ).filter(({ verbs }) => verbs.some(verb => [Verb.Read, Verb.Write, Verb.All].includes(verb)));
             const dirEntries = await inject("DirectoryPersistence").getMultiple(
                 remoteMailboxes.map(({ owner }) => owner)
             );
