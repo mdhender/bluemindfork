@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
-  * Copyright © Blue Mind SAS, 2012-2018
+  * Copyright © Blue Mind SAS, 2012-2022
   *
   * This file is part of BlueMind. BlueMind is a messaging and collaborative
   * solution.
