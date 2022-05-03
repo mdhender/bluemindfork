@@ -327,13 +327,8 @@ public class MilterHandler implements JilterHandler {
 
 	private net.bluemind.mailflow.common.api.Message toBmMessage() {
 		net.bluemind.mailflow.common.api.Message msg = new net.bluemind.mailflow.common.api.Message();
-		msg.sendingAs = new SendingAs();
-		msg.sendingAs.from = accumulator.getMessage().getFrom().get(0).getAddress();
-		if (null != accumulator.getMessage().getSender()) {
-			msg.sendingAs.sender = accumulator.getMessage().getSender().getAddress();
-		} else {
-			msg.sendingAs.sender = msg.sendingAs.from;
-		}
+		msg.sendingAs = getSendingAs();
+
 		AddressList to = accumulator.getMessage().getTo();
 		if (null != to) {
 			msg.to = addressListToEmail(to);
@@ -347,6 +342,27 @@ public class MilterHandler implements JilterHandler {
 				.collect(Collectors.toList());
 		msg.subject = accumulator.getMessage().getSubject();
 		return msg;
+	}
+
+	private SendingAs getSendingAs() {
+		SendingAs sendingAs = new SendingAs();
+		if (accumulator.getMessage().getFrom() != null && !accumulator.getMessage().getFrom().isEmpty()) {
+			sendingAs.from = accumulator.getMessage().getFrom().get(0).getAddress();
+		}
+		if (null != accumulator.getMessage().getSender()) {
+			sendingAs.sender = accumulator.getMessage().getSender().getAddress();
+		}
+		if (sendingAs.from == null) {
+			if (sendingAs.sender != null) {
+				sendingAs.from = sendingAs.sender;
+			} else {
+				sendingAs.from = "";
+			}
+		}
+		if (sendingAs.sender == null) {
+			sendingAs.sender = sendingAs.from;
+		}
+		return sendingAs;
 	}
 
 	private List<String> addressListToEmail(AddressList addressList) {
