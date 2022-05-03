@@ -16,6 +16,10 @@
             priority="100">
       </registration>
       <registration
+            impl="net.bluemind.cli.index.AddShardsCommand$Reg"
+            priority="200">
+      </registration>
+      <registration
             impl="net.bluemind.cli.index.MoveCommand$Reg"
             priority="200">
       </registration>
