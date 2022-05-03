@@ -46,7 +46,6 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtScreenRoot;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.system.api.InstallationVersion;
-import net.bluemind.system.api.SubscriptionInformations;
 import net.bluemind.system.api.gwt.endpoint.InstallationGwtEndpoint;
 import net.bluemind.ui.adminconsole.base.ui.ScreenShowRequest;
 import net.bluemind.ui.adminconsole.dataprotect.l10n.DPTexts;
@@ -78,6 +77,7 @@ public class DPNavigator extends Composite implements IGwtScreenRoot {
 	@UiField
 	Label syncLabel;
 
+	@SuppressWarnings("unused")
 	private ScreenRoot instance;
 
 	public DPNavigator(ScreenRoot instance) {
@@ -106,11 +106,10 @@ public class DPNavigator extends Composite implements IGwtScreenRoot {
 
 		final InstallationGwtEndpoint installationApi = new InstallationGwtEndpoint(Ajax.TOKEN.getSessionId());
 
-		installationApi.getSubscriptionInformations(new AsyncHandler<SubscriptionInformations>() {
-
+		installationApi.isValidProductionSubscription(new AsyncHandler<Boolean>() {
 			@Override
-			public void success(SubscriptionInformations value) {
-				detectVersion(installationApi, value.validProductiveLicense());
+			public void success(Boolean value) {
+				detectVersion(installationApi, value);
 			}
 
 			@Override
@@ -120,7 +119,6 @@ public class DPNavigator extends Composite implements IGwtScreenRoot {
 
 			private void detectVersion(final InstallationGwtEndpoint installationApi, final boolean licensePresent) {
 				installationApi.getVersion(new DefaultAsyncHandler<InstallationVersion>() {
-
 					@Override
 					public void success(InstallationVersion version) {
 
@@ -133,15 +131,11 @@ public class DPNavigator extends Composite implements IGwtScreenRoot {
 							public void success(List<DataProtectGeneration> value) {
 								showGens(value, currentVersion, licensePresent);
 							}
-
 						});
-
 					}
 				});
 			}
-
 		});
-
 	}
 
 	private void showGens(List<DataProtectGeneration> gens, VersionInfo currentVersion, boolean licensePresent) {

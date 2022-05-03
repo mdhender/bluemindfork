@@ -458,6 +458,15 @@ public class InstallationService implements IInstallation {
 	}
 
 	@Override
+	public Boolean isValidProductionSubscription() throws ServerFault {
+		if (context.getSecurityContext().isAnonymous()) {
+			throw new ServerFault("Invalid security context", ErrorCode.PERMISSION_DENIED);
+		}
+
+		return SubscriptionProviders.getSubscriptionProvider().loadSubscriptionInformations().validProductiveLicense();
+	}
+
+	@Override
 	public void updateSubscription(String licence) throws ServerFault {
 		RBACManager.forContext(context).check(BasicRoles.ROLE_MANAGE_SUBSCRIPTION);
 		try {

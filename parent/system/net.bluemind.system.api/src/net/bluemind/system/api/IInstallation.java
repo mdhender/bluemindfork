@@ -47,6 +47,10 @@ public interface IInstallation extends ICustomTheme {
 	@Path("subscriptionKind")
 	public Kind getSubscriptionKind() throws ServerFault;
 
+	@GET
+	@Path("subscriptionProductiveValid")
+	public Boolean isValidProductionSubscription() throws ServerFault;
+
 	@POST
 	@Path("subscription")
 	public void updateSubscription(String licence) throws ServerFault;
