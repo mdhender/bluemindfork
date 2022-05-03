@@ -7,6 +7,8 @@ import {
     OutboxClient
 } from "@bluemind/backend.mail.api";
 import { MailTipClient } from "@bluemind/mailmessage.api";
+import { AttachmentClient } from "@bluemind/attachment.api";
+
 import injector from "@bluemind/inject";
 import router from "@bluemind/router";
 import store from "@bluemind/store";
@@ -84,6 +86,14 @@ function registerAPIClients() {
         factory: () => {
             const userSession = injector.getProvider("UserSession").get();
             return new MailTipClient(userSession.sid, userSession.domain);
+        }
+    });
+
+    injector.register({
+        provide: "AttachmentPersistence",
+        factory: () => {
+            const userSession = injector.getProvider("UserSession").get();
+            return new AttachmentClient(userSession.sid, userSession.domain);
         }
     });
 }

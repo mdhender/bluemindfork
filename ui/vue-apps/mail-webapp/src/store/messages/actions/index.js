@@ -8,12 +8,12 @@ import {
     moveMessages,
     removeMessages
 } from "./actions";
-import addAttachments from "./addAttachments";
+import addAttachment from "./addAttachment";
 import removeAttachment from "./removeAttachment";
 import { debouncedSave, saveAsap } from "./save";
 import send from "./send";
 import {
-    ADD_ATTACHMENTS,
+    ADD_ATTACHMENT,
     ADD_FLAG,
     DEBOUNCED_SAVE_MESSAGE,
     DELETE_FLAG,
@@ -44,7 +44,7 @@ const markAsFlagged = ({ dispatch }, messages) => dispatch(ADD_FLAG, { messages,
 const markAsUnflagged = ({ dispatch }, messages) => dispatch(DELETE_FLAG, { messages, flag: Flag.FLAGGED });
 const saveAs = (context, { message, messageCompose }) => saveAsap(context, { draft: message, messageCompose });
 export default {
-    [ADD_ATTACHMENTS]: addAttachments,
+    [ADD_ATTACHMENT]: addAttachment,
     [ADD_FLAG]: addFlag,
     [DEBOUNCED_SAVE_MESSAGE]: debouncedSave,
     [DELETE_FLAG]: deleteFlag,

@@ -4,7 +4,6 @@ import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { inject } from "@bluemind/inject";
 
 import {
-    ADD_ATTACHMENTS,
     DEBOUNCED_SAVE_MESSAGE,
     REMOVE_ATTACHMENT,
     REMOVE_CONVERSATION_MESSAGES,
@@ -34,6 +33,8 @@ import {
 import { isNewMessage } from "~/model/draft";
 import { createFromDraft } from "../model/draft";
 import { AttachmentStatus } from "~/model/attachment";
+import DefaultHandler from "./AttachmentHandler/DefaultHandler";
+import FileHostingHandler from "./AttachmentHandler/FileHostingHandler";
 
 /**
  * Provide composition Vuex actions to components
@@ -47,7 +48,8 @@ export default {
     },
     data() {
         return {
-            userPrefTextOnly: false // FIXME: https://forge.bluemind.net/jira/browse/FEATWEBML-88
+            userPrefTextOnly: false, // FIXME: https://forge.bluemind.net/jira/browse/FEATWEBML-88
+            userSession: inject("UserSession")
         };
     },
     computed: {
@@ -74,9 +76,13 @@ export default {
             return this.message.attachments.some(a => a.status === AttachmentStatus.ERROR);
         }
     },
+    created() {
+        // const attachmentHandlers = [DefaultHandler, ...this.extensions];
+        const attachmentHandlers = [new FileHostingHandler(this), new DefaultHandler(this)];
+        this.attachmentHandler = attachmentHandlers.reduce((previous, handler) => previous.chain(handler));
+    },
     methods: {
         ...mapActions("mail", {
-            $_ComposerActionsMixin_ADD_ATTACHMENTS: ADD_ATTACHMENTS,
             $_ComposerActionsMixin_SAVE_MESSAGE: SAVE_MESSAGE,
             $_ComposerActionsMixin_SEND_MESSAGE: SEND_MESSAGE,
             $_ComposerActionsMixin_DEBOUNCED_SAVE: DEBOUNCED_SAVE_MESSAGE,
@@ -140,9 +146,10 @@ export default {
         },
         async addAttachments(files) {
             const isNew = isNewMessage(this.message);
-            await this.$_ComposerActionsMixin_ADD_ATTACHMENTS({
+            await this.attachmentHandler.addAttachments([...files], this.message, this);
+
+            this.$store.dispatch(DEBOUNCED_SAVE_MESSAGE, {
                 draft: this.message,
-                files,
                 messageCompose: this.$_ComposerActionsMixin_messageCompose
             });
             this.updateRoute(isNew);
