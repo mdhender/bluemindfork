@@ -12,7 +12,7 @@ export default class extends ChainOfResponsability {
     }
 
     async addAttachments(files, message) {
-        const service = inject("AttachmentPersistence");
+        const service = inject("AttachmentClientPersistence");
         const config = await service.getConfiguration();
         const promises = [];
 
