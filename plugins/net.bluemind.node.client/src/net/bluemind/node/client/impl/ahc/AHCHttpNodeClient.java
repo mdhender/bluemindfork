@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.escape.Escaper;
-import com.google.common.net.UrlEscapers;
 
 import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.core.api.fault.ServerFault;
@@ -43,6 +42,7 @@ import net.bluemind.node.api.FileDescription;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.ProcessHandler;
 import net.bluemind.node.client.DoesNotExist;
+import net.bluemind.node.client.NodePathEscaper;
 import net.bluemind.node.client.impl.FBOSInput;
 import net.bluemind.node.client.impl.HostPortClient;
 import net.bluemind.node.client.impl.NodeRuntimeException;
@@ -63,7 +63,7 @@ public final class AHCHttpNodeClient implements INodeClient {
 	public AHCHttpNodeClient(HostPortClient cli) {
 		this.cli = cli;
 		this.baseUri = Uri.create(cli.path().toString());
-		this.escaper = UrlEscapers.urlFragmentEscaper();
+		this.escaper = new NodePathEscaper();
 	}
 
 	private Uri withPath(String p) {
