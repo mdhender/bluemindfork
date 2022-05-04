@@ -74,6 +74,8 @@ import net.bluemind.i18n.labels.I18nLabels;
 import net.bluemind.imap.translate.Translate;
 import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.mailbox.api.IMailboxAclUids;
+import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.todolist.api.ITodoUids;
 
 public class FolderBackend extends CoreConnect {
@@ -470,7 +472,9 @@ public class FolderBackend extends CoreConnect {
 			rootFolderName = "INBOX";
 		} else {
 			mailboxRoot = dirEntry.entryUid.replace('.', '^');
-			rootFolderName = dirEntry.displayName;
+			IMailboxes mboxApi = getAdmin0Service(bs, IMailboxes.class, bs.getUser().getDomain());
+			ItemValue<Mailbox> mbox = mboxApi.getComplete(dirEntry.entryUid);
+			rootFolderName = mbox.value.name;
 		}
 		IContainerManagement cmApi = getService(bs, IContainerManagement.class, container.value.containerUid);
 		if (!cmApi.canAccess(Arrays.asList(Verb.Read.name()))) {
