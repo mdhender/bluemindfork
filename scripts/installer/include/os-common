@@ -3,6 +3,7 @@ REDHAT7="redhat-7"
 REDHAT8="redhat-8"
 UBUNTU_BIONIC="ubuntu-bionic"
 UBUNTU_FOCAL="ubuntu-focal"
+UBUNTU_JAMMY="ubuntu-jammy"
 DEBIAN_STRETCH="debian-stretch"
 DEBIAN_BUSTER="debian-buster"
 DEBIAN_BULLSEYE="debian-bullseye"
@@ -116,6 +117,14 @@ detect_os() {
     if [ -e "./focal" ]; then
         INSTALLER_VERSION=${UBUNTU_FOCAL}
         if check_ubuntu "20.04"; then
+            OS_VERSION=${INSTALLER_VERSION}
+            source "./include/os-debian-squeeze-base"
+        fi
+    fi
+
+    if [ -e "./jammy" ]; then
+        INSTALLER_VERSION=${UBUNTU_JAMMY}
+        if check_ubuntu "22.04"; then
             OS_VERSION=${INSTALLER_VERSION}
             source "./include/os-debian-squeeze-base"
         fi
