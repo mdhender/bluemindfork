@@ -137,7 +137,8 @@ public class ReindexMailIndexesCommand implements ICmdLet, Runnable {
 			TermQueryBuilder ownerQuery = QueryBuilders.termQuery("owner", entityId);
 			moveAndReindex(client, code, index, targetIndex, ownerQuery, "records");
 			ctx.info("Adding alias of {}", entityId);
-			client.admin().indices().prepareAliases().addAlias(targetIndex, alias.alias(), ownerQuery).get();
+			client.admin().indices().prepareAliases().addAlias(targetIndex, alias.alias(), ownerQuery)
+					.removeAlias(index, alias.alias()).get();
 		}
 		ctx.info("Deleting index {}", index);
 		client.admin().indices().prepareDelete(index).get();
