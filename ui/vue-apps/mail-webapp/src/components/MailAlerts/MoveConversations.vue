@@ -1,7 +1,7 @@
 <template>
     <i18n :path="path" tag="span">
-        <template #count>{{ payload.messages.length }}</template>
-        <template #subject>{{ payload.messages[0].subject.trim() || $t("mail.viewer.no.subject") }}</template>
+        <template #count>{{ payload.conversations.length }}</template>
+        <template #subject>{{ payload.conversations[0].subject.trim() || $t("mail.viewer.no.subject") }}</template>
         <template #folder>
             <router-link :to="folderRoute(payload.folder)">
                 <strong><mail-folder-icon :folder="payload.folder" :shared="shared" /></strong>
@@ -17,7 +17,7 @@ import { MailboxType } from "~/model/mailbox";
 import { MailRoutesMixin } from "~/mixins";
 
 export default {
-    name: "MoveMessages",
+    name: "MoveConversations",
     components: { MailFolderIcon },
     mixins: [AlertMixin, MailRoutesMixin],
     computed: {
@@ -26,8 +26,8 @@ export default {
             return this.mailboxes[this.payload.folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         },
         path() {
-            const plurality = this.payload.messages.length > 1 ? "plural" : "single";
-            return `alert.mail.move_messages.${this.alert.type}.${plurality}`;
+            const plurality = this.payload.conversations.length > 1 ? "plural" : "single";
+            return `alert.${this.alert.name.toLowerCase()}.${this.alert.type}.${plurality}`;
         }
     }
 };

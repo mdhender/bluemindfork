@@ -1,15 +1,15 @@
 <template>
     <default-alert
         :alert="alert"
-        :options="{ subject: alert.payload.messages[0].subject || $t('mail.viewer.no.subject') }"
-        :count="alert.payload.messages.length"
+        :options="{ subject: alert.payload.conversations[0].subject || $t('mail.viewer.no.subject') }"
+        :count="alert.payload.conversations.length"
     />
 </template>
 <script>
 import { DefaultAlert } from "@bluemind/alert.store";
 
 export default {
-    name: "RemoveMessages",
+    name: "RemoveConversations",
     components: { DefaultAlert },
     props: {
         alert: {

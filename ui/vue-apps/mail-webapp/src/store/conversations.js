@@ -76,7 +76,7 @@ const actions = {
             await dispatch(MOVE_MESSAGES, { messages, folder });
         }
     },
-    [MOVE_CONVERSATIONS]: withAlertOrNot(moveConversations, "MOVE", "", "MoveMessages", 1),
+    [MOVE_CONVERSATIONS]: withAlertOrNot(moveConversations, "MOVE", "", "MoveConversations", 1),
     [REMOVE_CONVERSATION_MESSAGES]: async ({ state, dispatch }, { conversation, messages }) => {
         if (conversationMustBeRemoved(state, conversation, messages)) {
             await dispatch(REMOVE_CONVERSATIONS, { conversations: [conversation], messages });
@@ -84,7 +84,7 @@ const actions = {
             await dispatch(REMOVE_MESSAGES, { messages });
         }
     },
-    [REMOVE_CONVERSATIONS]: withAlertOrNot(removeConversations, "REMOVE", "", "RemoveMessages", 1),
+    [REMOVE_CONVERSATIONS]: withAlertOrNot(removeConversations, "REMOVE", "", "RemoveConversations", 1),
     [REPLACE_DRAFT_MESSAGE]: replaceDraftMessage
 };
 
