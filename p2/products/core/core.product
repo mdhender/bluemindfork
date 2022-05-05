@@ -446,7 +446,6 @@
       <plugin id="net.bluemind.videoconferencing.saas.room.sqlschema"/>
       <plugin id="net.bluemind.videoconferencing.saas.service"/>
       <plugin id="net.bluemind.videoconferencing.service"/>
-      <plugin id="net.bluemind.videoconferencing.teams"/>
       <plugin id="net.bluemind.webmail.sqlschema"/>
       <plugin id="net.bluemind.xivo.client"/>
       <plugin id="net.bluemind.xivo.common"/>

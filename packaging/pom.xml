@@ -77,6 +77,7 @@
 	  <module>bm-plugin-core-videoconferencing-jitsi</module>
 	  <module>bm-plugin-core-videoconferencing-starleaf</module>
 	  <module>bm-plugin-core-videoconferencing-bluemind</module>
+	  <module>bm-plugin-core-videoconferencing-teams</module>
 	</modules>
 
 	<profiles>

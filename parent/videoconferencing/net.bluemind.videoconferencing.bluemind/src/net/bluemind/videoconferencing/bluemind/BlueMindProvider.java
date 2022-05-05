@@ -29,6 +29,7 @@ import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -66,7 +67,7 @@ public class BlueMindProvider extends TemplateBasedVideoConferencingProvider imp
 
 	@Override
 	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
-			ItemValue<ResourceDescriptor> resource, VEvent vevent) {
+			ItemValue<ResourceDescriptor> resource, VEvent vevent) throws ServerFault {
 		ServerSideServiceProvider serviceProvider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
 		setExternalUrl(context, context.getSecurityContext().getContainerUid(), resourceSettings);

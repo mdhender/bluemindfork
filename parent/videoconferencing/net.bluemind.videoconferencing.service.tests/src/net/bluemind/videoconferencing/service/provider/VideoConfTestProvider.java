@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.resource.api.ResourceDescriptor;
@@ -48,7 +49,7 @@ public class VideoConfTestProvider extends TemplateBasedVideoConferencingProvide
 
 	@Override
 	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
-			ItemValue<ResourceDescriptor> resource, VEvent vevent) {
+			ItemValue<ResourceDescriptor> resource, VEvent vevent) throws ServerFault {
 
 		setExternalUrl(context, context.getSecurityContext().getContainerUid(), resourceSettings);
 		return super.getConferenceInfo(context, resourceSettings, resource, vevent);

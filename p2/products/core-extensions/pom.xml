@@ -24,5 +24,6 @@
 		<module>videoconferencing-jitsi</module>
 		<module>videoconferencing-starleaf</module>
 		<module>videoconferencing-bluemind</module>
+		<module>videoconferencing-teams</module>
 	</modules>
 </project>

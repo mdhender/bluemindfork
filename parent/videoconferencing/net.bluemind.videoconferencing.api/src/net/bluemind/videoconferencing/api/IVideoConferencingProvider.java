@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.resource.api.ResourceDescriptor;
@@ -34,7 +35,7 @@ public interface IVideoConferencingProvider {
 	public String name();
 
 	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
-			ItemValue<ResourceDescriptor> resource, VEvent vevent);
+			ItemValue<ResourceDescriptor> resource, VEvent vevent) throws ServerFault;
 
 	public void deleteConference(BmContext context, Map<String, String> resourceSettings, String conferenceId);
 

@@ -70,7 +70,7 @@ public class StarLeafProvider implements IVideoConferencingProvider {
 
 	@Override
 	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
-			ItemValue<ResourceDescriptor> resource, VEvent vevent) {
+			ItemValue<ResourceDescriptor> resource, VEvent vevent) throws ServerFault {
 
 		String token = resourceSettings.get("token");
 		String conferenceOwner = getStarLeafUserUid(context, vevent, token);
@@ -135,7 +135,7 @@ public class StarLeafProvider implements IVideoConferencingProvider {
 		String organizer = resolveOrganizer(context, vevent);
 
 		if (organizer == null) {
-			throw new ServerFault("Null organizer");
+			throw ServerFault.notFound("Failed to fetch organizer " + vevent.organizer);
 		}
 
 		SLUserClient slUserClient = new SLUserClient(token);
@@ -143,7 +143,7 @@ public class StarLeafProvider implements IVideoConferencingProvider {
 
 		Optional<SLUser> slUser = users.stream().filter(user -> organizer.equals(user.email)).findFirst();
 		if (!slUser.isPresent()) {
-			throw new ServerFault("Null StarLeaf user");
+			throw ServerFault.notFound("Starleaf user not found: " + organizer);
 		}
 
 		return slUser.get().uid;
