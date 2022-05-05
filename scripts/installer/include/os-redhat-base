@@ -1,14 +1,21 @@
 OS_VERSION_CN=${OS_VERSION}
-CENTOS=0
-if [ -e /etc/centos-release ]; then
-  CENTOS=1
+RHCLONE=0
+
+[ -e /etc/centos-release ] && {
+  RHCLONE=1
 
   OS_VERSION_CN="centos-8"
 
-  if [ ${OS_VERSION} == ${REDHAT7} ]; then
-    OS_VERSION_CN="centos-7"
-  fi
-fi
+  [ ${OS_VERSION} == ${REDHAT7} ] && OS_VERSION_CN="centos-7"
+}
+
+[ -e /etc/rocky-release ] && {
+  RHCLONE=1
+
+  OS_VERSION_CN="rockylinux-8"
+
+  [ ${OS_VERSION} == ${REDHAT7} ] && OS_VERSION_CN="rockylinux-7"
+}
 
 YUM_SOURCE_FILE="/etc/yum.repos.d/bm.repo"
 
@@ -104,7 +111,7 @@ configureRepo() {
   rpm -Uvh ${RH_EPEL_RPM}
   yum-config-manager --setopt "epel.exclude=nginx" --save 2>&1 > /dev/null
 
-  if [ ${CENTOS} -eq 1 ]; then
+  if [ ${RHCLONE} -eq 1 ]; then
     return;
   fi
 

@@ -20,9 +20,6 @@ Need EPEL repository (http://fedoraproject.org/wiki/EPEL)
 %build
 
 %install
-mkdir -p %{buildroot}/usr/share/doc
-cp -r %{_rootdir}/usr/share/doc/bm-client-access %{buildroot}/usr/share/doc
-
 mkdir -p %{buildroot}/etc/nginx/sites-available
 mkdir -p %{buildroot}/etc/nginx/sites-enabled
 mkdir -p %{buildroot}/etc/nginx/global.d
