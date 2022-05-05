@@ -48,6 +48,7 @@ import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namesp
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
+import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -179,6 +180,25 @@ public class MailConversationActionServiceTests extends ReplicationStackTests {
 		user1SentConversationsSeen = user1ConversationService.byFolder(user1Sent.uid, mustSeen);
 		assertEquals(1, user1SentConversations.size());
 		assertEquals(0, user1SentConversationsSeen.size());
+	}
+
+	@Test
+	public void testMove() throws Exception {
+		IMailConversation user1ConversationService = provider().instance(IMailConversation.class,
+				IMailReplicaUids.conversationSubtreeUid(domainUid, userUid));
+		IMailboxFolders user1MboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+
+		createEml("data/user1_send_to_user2.eml", userUid, mboxRoot, "INBOX");
+		createEml("data/user1_send_another_to_user2.eml", userUid, mboxRoot, "INBOX");
+
+		ItemValue<MailboxFolder> user1Inbox = user1MboxesApi.byName("INBOX");
+		ItemValue<MailboxFolder> user1Sent = user1MboxesApi.byName("Sent");
+
+		List<ItemIdentifier> moved = getActionService(user1Inbox.uid).move(user1Sent.uid,
+				user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all()));
+
+		// 3 cause we send 1 mail during setup
+		assertEquals(3, moved.size());
 	}
 
 }
