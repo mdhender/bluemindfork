@@ -40,7 +40,7 @@ public class ReplicationFeebackObserver implements IReplicationObserverProvider 
 			int timeoutValue, TimeUnit timeoutUnit) {
 		Watch w = new Watch(mailboxUniqueId, imapUid);
 		vertx.setTimer(timeoutUnit.toMillis(timeoutValue), tid -> w.watcher.completeExceptionally(new TimeoutException(
-				"Replication latency is > " + timeoutUnit.convert(timeoutValue, TimeUnit.SECONDS) + " seconds")));
+				"Replication latency is > " + timeoutUnit.toSeconds(timeoutValue) + " seconds")));
 		toWatch.put(mailboxUniqueId, w);
 		return w.watcher;
 	}
