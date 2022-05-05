@@ -207,10 +207,10 @@ export default {
         max-width: $custom-switch-width * 3;
         color: $primary;
         &::before {
-            top: $custom-control-indicator-size / 2 !important;
+            top: calc($custom-control-indicator-size / 2) !important;
         }
         &::after {
-            top: #{($custom-switch-indicator-size + $custom-control-indicator-size) / 2} !important;
+            top: #{calc($custom-switch-indicator-size + $custom-control-indicator-size) / 2} !important;
         }
     }
 

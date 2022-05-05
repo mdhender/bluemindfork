@@ -188,7 +188,7 @@ export default {
 @import "@bluemind/styleguide/css/_variables.scss";
 
 $arrow-width: 3rem;
-$arrow-height: $arrow-width / 2;
+$arrow-height: calc($arrow-width / 2);
 
 .mail-multiple-selection-actions {
     h1 {
@@ -216,7 +216,7 @@ $arrow-height: $arrow-width / 2;
                 border-color: transparent;
                 border-style: solid;
                 bottom: 0;
-                border-width: 0 ($arrow-width / 2) $arrow-height;
+                border-width: 0 calc($arrow-width / 2) $arrow-height;
                 border-bottom-color: $white;
             }
         }
