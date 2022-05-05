@@ -194,11 +194,26 @@ public class MailConversationActionServiceTests extends ReplicationStackTests {
 		ItemValue<MailboxFolder> user1Inbox = user1MboxesApi.byName("INBOX");
 		ItemValue<MailboxFolder> user1Sent = user1MboxesApi.byName("Sent");
 
+		IDbMailboxRecords records = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDbMailboxRecords.class, user1Inbox.uid);
+		IDbMailboxRecords recordsSent = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDbMailboxRecords.class, user1Sent.uid);
+
+		assertEquals(3, records.all().size());
+		assertEquals(0, recordsSent.all().size());
+
 		List<ItemIdentifier> moved = getActionService(user1Inbox.uid).move(user1Sent.uid,
 				user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all()));
 
 		// 3 cause we send 1 mail during setup
 		assertEquals(3, moved.size());
+
+		List<ItemValue<MailboxRecord>> allInInbox = records.all();
+		assertEquals(3, allInInbox.size());
+		for (ItemValue<MailboxRecord> rec : allInInbox) {
+			assertTrue(rec.value.flags.contains(MailboxItemFlag.System.Deleted.value()));
+		}
+		assertEquals(3, recordsSent.all().size());
 	}
 
 }
