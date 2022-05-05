@@ -629,6 +629,7 @@
     <bundle id="net.bluemind.ui.adminconsole.videoconferencing.bluemind" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.ui.adminconsole.videoconferencing.jitsi" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.ui.adminconsole.videoconferencing.starleaf" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.videoconferencing.teams" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.ui.banner" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.ui.banner.cti" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.ui.banner.logout" version="4.1.0.qualifier" />

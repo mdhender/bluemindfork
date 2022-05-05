@@ -31,6 +31,7 @@
 		<module>adminconsole-videoconferencing-jitsi</module>
 		<module>adminconsole-videoconferencing-starleaf</module>
 		<module>adminconsole-videoconferencing-bluemind</module>
+		<module>adminconsole-videoconferencing-teams</module>
 	</modules>
 	<profiles>
 		<profile>
