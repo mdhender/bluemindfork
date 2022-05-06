@@ -96,17 +96,20 @@ public class AddShardsCommand implements ICmdLet, Runnable {
 		mboxMgmt = ctx.longRequestTimeoutAdminApi().instance(IMailboxMgmt.class, domUid);
 
 		int cnt = 0;
-		for (ArrayDeque<String> src : moveQueues) {
-			if (src.isEmpty()) {
-				continue;
-			}
-			String tgt = targets[++cnt % targets.length];
-			String mbox = src.poll();
-			ctx.info("Move mailbox " + mbox + " to " + tgt);
+		for (int i = 0; i < loops; i++) {
+			for (ArrayDeque<String> src : moveQueues) {
+				if (src.isEmpty()) {
+					continue;
+				}
+				String tgt = targets[++cnt % targets.length];
+				String mbox = src.poll();
+				ctx.info("[" + (i + 1) + "/" + loops + "] Move mailbox " + mbox + " to " + tgt + " (" + src.size()
+						+ " remaining)");
 
-			if (rebalance) {
-				TaskRef ref = mboxMgmt.moveIndex(mbox, tgt);
-				Tasks.follow(ctx, ref, String.format("Failed to move index from %s to %s", mbox, tgt));
+				if (rebalance) {
+					TaskRef ref = mboxMgmt.moveIndex(mbox, tgt);
+					Tasks.follow(ctx, ref, String.format("Failed to move index from %s to %s", mbox, tgt));
+				}
 			}
 		}
 
