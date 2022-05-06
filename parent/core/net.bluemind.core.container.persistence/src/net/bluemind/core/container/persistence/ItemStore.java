@@ -58,6 +58,7 @@ public class ItemStore extends JdbcAbstractStore {
 			.col("created") //
 			.col("updated")//
 			.col("flags");
+	private static final String COLUMN_NAMES = COLUMNS.names();
 
 	static final Logger logger = LoggerFactory.getLogger(ItemStore.class);
 	private SecurityContext securityContext;
@@ -84,9 +85,9 @@ public class ItemStore extends JdbcAbstractStore {
 	};
 	public static final List<EntityPopulator<Item>> ITEM_POPULATORS = Arrays.asList(ITEM_POPULATOR);
 
-	private static final String BY_ID_QUERY = "SELECT " + COLUMNS.names() + " FROM t_container_item "
+	private static final String BY_ID_QUERY = "SELECT " + COLUMN_NAMES + " FROM t_container_item "
 			+ " WHERE id = ? and container_id = ? ";
-	private static final String BY_UID_QUERY = "SELECT " + COLUMNS.names() + " FROM t_container_item "
+	private static final String BY_UID_QUERY = "SELECT " + COLUMN_NAMES + " FROM t_container_item "
 			+ " WHERE uid = ? and container_id = ? ";
 
 	public ItemStore(DataSource pool, Container container, SecurityContext contextHolder) {
@@ -120,7 +121,7 @@ public class ItemStore extends JdbcAbstractStore {
 				+ " (id, container_id, uid, version, external_id, displayname, createdby, updatedby, created, updated, flags) "
 				+ "  " //
 				+ "( SELECT " + itemIdSeq + ", ?, ?, nv.seq, ?, ?, ?, ?, ?, ?, ? FROM nv )  " //
-				+ " RETURNING " + COLUMNS.names();
+				+ " RETURNING " + COLUMN_NAMES;
 		return insertAndReturn(insertQuery, item,
 				Collections.singletonList((con, statement, index, rowIndex, value) -> {
 					String principal = getPrincipal();
@@ -165,7 +166,7 @@ public class ItemStore extends JdbcAbstractStore {
 				+ " ( id, container_id, uid, version, external_id, displayname, createdby, updatedby, created, updated, flags) "
 				+ " ( SELECT " //
 				+ " nv.zid, " + container.id + ", nv.zid, nv.seq, ?, ?, ?, ?, now(), now(), ? FROM nv) " //
-				+ " RETURNING " + COLUMNS.names();
+				+ " RETURNING " + COLUMN_NAMES;
 
 		return insertAndReturn(iQ, item, Collections.singletonList((con, statement, index, rowIndex, value) -> {
 			String principal = getPrincipal();
@@ -184,7 +185,7 @@ public class ItemStore extends JdbcAbstractStore {
 			+ "UPDATE t_container_item SET " //
 			+ " (version, updatedby, updated, displayname) " + " = " //
 			+ "(nv.seq, ?, now(), ?) FROM nv WHERE container_id = ? AND uid = ? " //
-			+ " RETURNING " + COLUMNS.names();
+			+ " RETURNING " + COLUMN_NAMES;
 
 	public Item update(String uid, final String displayName) throws SQLException {
 		return insertAndReturn(UPDATE_QUERY, uid, Collections.singletonList((con, statement, index, rowIndex, uid1) -> {
@@ -204,7 +205,7 @@ public class ItemStore extends JdbcAbstractStore {
 				+ "UPDATE t_container_item SET " //
 				+ " (version, updatedby, updated, external_id) " + " = " //
 				+ "(nv.seq, ?, now(), ?) FROM nv WHERE container_id = ? AND uid = ? " //
-				+ " RETURNING " + COLUMNS.names();
+				+ " RETURNING " + COLUMN_NAMES;
 
 		return insertAndReturn(updateQuery, uid, Collections.singletonList((con, statement, index, rowIndex, uid1) -> {
 			String principal = getPrincipal();
@@ -229,7 +230,7 @@ public class ItemStore extends JdbcAbstractStore {
 				+ versionQuery //
 				+ "UPDATE t_container_item SET " //
 				+ " (version, updatedby, updated, displayname, flags) " + " = " //
-				+ "(nv.seq, ?, ?, ?, ?) FROM nv WHERE container_id = ? AND uid = ? RETURNING " + COLUMNS.names();
+				+ "(nv.seq, ?, ?, ?, ?) FROM nv WHERE container_id = ? AND uid = ? RETURNING " + COLUMN_NAMES;
 
 		return insertAndReturn(updateQuery, item.uid,
 				Collections.singletonList((con, statement, index, rowIndex, uid1) -> {
@@ -254,7 +255,7 @@ public class ItemStore extends JdbcAbstractStore {
 				+ NEXT_VERSION_QUERY //
 				+ "UPDATE t_container_item SET " //
 				+ " (version, updatedby, updated, displayname, flags) " + " = " //
-				+ " (nv.seq, ?, now(), ?, ?) FROM nv WHERE container_id = ? AND id = ? RETURNING " + COLUMNS.names();
+				+ " (nv.seq, ?, now(), ?, ?) FROM nv WHERE container_id = ? AND id = ? RETURNING " + COLUMN_NAMES;
 
 		return insertAndReturn(updateQuery, id, Collections.singletonList((con, statement, index, rowIndex, id1) -> {
 			String principal = getPrincipal();
@@ -275,7 +276,7 @@ public class ItemStore extends JdbcAbstractStore {
 				+ "UPDATE t_container_item SET " //
 				+ " (version, updatedby, updated) " + " = " //
 				+ "(nv.seq, ?, now()) FROM nv WHERE container_id = ? AND uid = ? " //
-				+ " RETURNING " + COLUMNS.names();
+				+ " RETURNING " + COLUMN_NAMES;
 		return insertAndReturn(updateQuery, uid, Collections.singletonList((con, statement, index, rowIndex, uid1) -> {
 			String principal = getPrincipal();
 			statement.setLong(index++, container.id);
@@ -291,7 +292,7 @@ public class ItemStore extends JdbcAbstractStore {
 	}
 
 	public Item getByExtId(String extId) throws SQLException {
-		String selectQuery = "SELECT " + COLUMNS.names() + " FROM t_container_item "
+		String selectQuery = "SELECT " + COLUMN_NAMES + " FROM t_container_item "
 				+ " WHERE external_id = ? AND container_id = ?";
 		return unique(selectQuery, ItemCreator.INSTANCE, ITEM_POPULATORS, new Object[] { extId, container.id });
 	}
@@ -301,7 +302,7 @@ public class ItemStore extends JdbcAbstractStore {
 	}
 
 	public List<Item> getMultiple(List<String> uids) throws SQLException {
-		String selectQuery = "SELECT " + COLUMNS.names()
+		String selectQuery = "SELECT " + COLUMN_NAMES
 				+ " FROM t_container_item WHERE container_id = ? AND uid = ANY (?)";
 
 		String[] array = uids.toArray(new String[0]);
@@ -314,7 +315,7 @@ public class ItemStore extends JdbcAbstractStore {
 			return Collections.emptyList();
 		}
 		StringBuilder selectQuery = new StringBuilder(
-				"SELECT " + COLUMNS.names() + " FROM t_container_item WHERE container_id = ?");
+				"SELECT " + COLUMN_NAMES + " FROM t_container_item WHERE container_id = ?");
 		if (!uids.isEmpty()) {
 			selectQuery.append(" AND id IN (");
 			selectQuery.append(uids.stream().map(uid -> uid.toString()).collect(Collectors.joining(",")));
@@ -327,7 +328,7 @@ public class ItemStore extends JdbcAbstractStore {
 	}
 
 	public List<Item> all() throws SQLException {
-		String selectQuery = "SELECT " + COLUMNS.names() + " FROM t_container_item WHERE container_id = ?";
+		String selectQuery = "SELECT " + COLUMN_NAMES + " FROM t_container_item WHERE container_id = ?";
 		return select(selectQuery, ItemCreator.INSTANCE, ITEM_POPULATORS, new Object[] { container.id });
 	}
 
@@ -336,7 +337,7 @@ public class ItemStore extends JdbcAbstractStore {
 	}
 
 	public List<Item> filtered(ItemFlagFilter filter, Integer offset, Integer limit) throws SQLException {
-		String selectQuery = "SELECT " + COLUMNS.names() + " FROM t_container_item ci WHERE container_id = ? ";
+		String selectQuery = "SELECT " + COLUMN_NAMES + " FROM t_container_item ci WHERE container_id = ? ";
 		selectQuery += FlagsSqlFilter.filterSql("ci", filter);
 		if (offset != null && limit != null) {
 			selectQuery += " ORDER BY ci.id DESC LIMIT " + limit + " OFFSET " + offset;
@@ -373,7 +374,7 @@ public class ItemStore extends JdbcAbstractStore {
 				Collections.emptyList(), new Object[] { container.id });
 	}
 
-	private static final String GET_FOR_UPDATE = "SELECT " + COLUMNS.names() + " FROM t_container_item "
+	private static final String GET_FOR_UPDATE = "SELECT " + COLUMN_NAMES + " FROM t_container_item "
 			+ " WHERE uid = ? AND container_id = ? FOR NO KEY UPDATE";
 
 	public Item getForUpdate(String uid) throws SQLException {
@@ -381,7 +382,7 @@ public class ItemStore extends JdbcAbstractStore {
 	}
 
 	public Item getForUpdate(long id) throws SQLException {
-		String selectQuery = "SELECT " + COLUMNS.names() + " FROM t_container_item "
+		String selectQuery = "SELECT " + COLUMN_NAMES + " FROM t_container_item "
 				+ " WHERE id = ? and container_id = ? FOR NO KEY UPDATE";
 		return unique(selectQuery, ItemCreator.INSTANCE, ITEM_POPULATORS, new Object[] { id, container.id });
 	}

@@ -65,10 +65,12 @@ public class VCardStore extends AbstractItemValueStore<VCard> {
 		update(query, value, VCardColumns.values(item));
 	}
 
+	private static final String GET_QUERY = "SELECT " + VCardColumns.COLUMNS_MAIN.names()
+			+ " FROM t_addressbook_vcard WHERE item_id = ?";
+
 	@Override
 	public VCard get(Item item) throws SQLException {
-		String query = "SELECT " + VCardColumns.COLUMNS_MAIN.names() + " FROM t_addressbook_vcard WHERE item_id = ?";
-		return unique(query, CARD_CREATOR, VCardColumns.populator(), new Object[] { item.id });
+		return unique(GET_QUERY, CARD_CREATOR, VCardColumns.populator(), new Object[] { item.id });
 	}
 
 	@Override
