@@ -148,7 +148,7 @@ export default {
             const isNew = isNewMessage(this.message);
             await this.attachmentHandler.addAttachments([...files], this.message, this);
 
-            this.$store.dispatch(DEBOUNCED_SAVE_MESSAGE, {
+            await this.$store.dispatch(DEBOUNCED_SAVE_MESSAGE, {
                 draft: this.message,
                 messageCompose: this.$_ComposerActionsMixin_messageCompose
             });

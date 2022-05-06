@@ -11,6 +11,7 @@ import {
     RESET_CONVERSATIONS,
     SET_ATTACHMENT_ADDRESS,
     SET_ATTACHMENT_ENCODING,
+    SET_ATTACHMENT_HEADERS,
     SET_ATTACHMENT_PROGRESS,
     SET_ATTACHMENT_STATUS,
     SET_ATTACHMENTS,
@@ -132,6 +133,10 @@ export default {
     [SET_ATTACHMENT_PROGRESS]: (state, { messageKey, address, loaded, total }) => {
         const attachment = state[messageKey].attachments.find(a => a.address === address);
         attachment.progress = { loaded, total };
+    },
+    [SET_ATTACHMENT_HEADERS]: (state, { messageKey, address, headers }) => {
+        const attachment = state[messageKey].attachments.find(a => a.address === address);
+        attachment.headers = headers;
     },
 
     // Hooks

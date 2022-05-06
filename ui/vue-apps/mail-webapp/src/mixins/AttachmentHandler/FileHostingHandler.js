@@ -12,7 +12,7 @@ export default class extends ChainOfResponsability {
     }
 
     async addAttachments(files, message) {
-        const service = inject("AttachmentClientPersistence");
+        const service = inject("AttachmentPersistence");
         const config = await service.getConfiguration();
         const promises = [];
 
@@ -28,8 +28,7 @@ export default class extends ChainOfResponsability {
     }
 
     async share(file, message) {
-        const service = inject("AttachmentClientPersistence");
-        // TODO handle expiration date
+        const service = inject("AttachmentPersistence");
         const attachmentFromFile = createPartFromFile(UUIDGenerator.generate(), {
             name: file.name,
             type: "application/octet-stream",
@@ -38,6 +37,7 @@ export default class extends ChainOfResponsability {
         const attachment = create(
             {
                 ...attachmentFromFile,
+                type: "filehosting",
                 extra: {
                     size: file.size,
                     mime: file.type,
@@ -65,6 +65,7 @@ export default class extends ChainOfResponsability {
             null,
             createOnUploadProgress(this.vm.$store.commit, message.key, attachment)
         );
+        // TODO handle expiration date
 
         this.vm.$store.commit(`mail/${SET_ATTACHMENT_HEADERS}`, {
             messageKey: message.key,

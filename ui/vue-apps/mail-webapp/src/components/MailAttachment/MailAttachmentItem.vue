@@ -5,42 +5,14 @@
             :class="isRemovable ? '' : 'cursor-pointer'"
             @click="isViewable(attachment) ? openPreview() : download()"
         >
-            <div
-                v-if="!compact"
-                ref="preview-div"
-                class="text-center preview overflow-hidden d-flex justify-content-center align-items-center"
-                :class="fileTypeIcon"
+            <component
+                :is="component"
+                :attachment="attachment"
+                :message="message"
+                :compact="compact"
+                :class="{ muted: !isUploaded }"
             >
-                <img
-                    v-if="hasPreview"
-                    ref="preview-image"
-                    :src="previewUrl"
-                    class="flex-grow-1"
-                    :class="fitPreviewImage ? 'w-100' : ''"
-                    :alt="$tc('common.attachmentPreview')"
-                    @load="previewImageLoaded"
-                />
-                <div v-else class="preview w-100 text-center mb-1 p-1">
-                    <bm-icon :icon="fileTypeIcon" size="6x" class="m-auto preview-file-type" />
-                </div>
-            </div>
-            <bm-row class="no-gutters align-items-center">
-                <bm-col
-                    class="col-auto"
-                    :class="{ muted: !isUploaded }"
-                    :title="$t('mail.content.file-type', { fileType: $t('mail.content.' + fileTypeIcon) })"
-                >
-                    <bm-icon :icon="fileTypeIcon" size="2x" class="align-bottom" />
-                </bm-col>
-                <bm-col
-                    class="text-nowrap text-truncate flex-grow-1 px-2 attachment-text"
-                    :class="{ muted: !isUploaded }"
-                >
-                    <span :title="attachment.fileName" class="font-weight-bold">{{ fileName }} </span>
-                    <br />
-                    {{ fileSize }}
-                </bm-col>
-                <bm-col class="col-auto py-1">
+                <template #actions>
                     <bm-button
                         v-if="isViewable(attachment)"
                         variant="inline-neutral"
@@ -55,7 +27,7 @@
                     <bm-button
                         v-if="!isRemovable"
                         variant="inline-neutral"
-                        class="p-0"
+                        class="p-0 remove-attachment"
                         size="md"
                         :title="$t('common.downloadAttachment')"
                         :aria-label="
@@ -71,16 +43,23 @@
                         <bm-icon icon="download" size="2x" class="p-1" />
                     </bm-button>
                     <bm-button-close
-                        v-if="isRemovable"
+                        v-else-if="isCancellable(context.attachment)"
+                        variant="light"
+                        class="p-0 remove-attachment"
+                        size="md"
+                        :title="$tc('common.cancel')"
+                        @click.stop="cancel(context.attachment, message)"
+                    />
+                    <bm-button-close
+                        v-else
                         variant="inline-neutral"
                         class="p-0 remove-attachment"
                         size="md"
-                        :title="isCancellable ? $tc('common.cancel') : $tc('common.removeAttachment')"
-                        :aria-label="isCancellable ? $tc('common.cancel') : $tc('common.removeAttachment')"
-                        @click.stop="isCancellable ? cancel() : removeAttachment(attachment.address)"
+                        :title="$tc('common.removeAttachment')"
+                        @click.stop="$execute('remove-attachment', { attachment: context.attachment, message })"
                     />
-                </bm-col>
-            </bm-row>
+                </template>
+            </component>
             <bm-progress
                 v-if="!isUploaded"
                 :value="attachment.progress.loaded"
@@ -94,28 +73,33 @@
 </template>
 
 <script>
-import { MimeType, getPartDownloadUrl } from "@bluemind/email";
-import { inject } from "@bluemind/inject";
-import { computeUnit } from "@bluemind/file-utils";
+import { mapMutations } from "vuex";
+import { getPartDownloadUrl, MimeType } from "@bluemind/email";
+import { BmContainer, BmProgress, BmNotice, BmButtonClose, BmIcon, BmButton } from "@bluemind/styleguide";
 import global from "@bluemind/global";
-import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmProgress, BmButtonClose, BmNotice } from "@bluemind/styleguide";
+
 import { AttachmentStatus } from "~/model/attachment";
 import { ComposerActionsMixin } from "~/mixins";
-import { mapMutations } from "vuex";
-import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_PART_ADDRESS } from "~/mutations";
 import { isViewable } from "~/model/part";
+
+import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_PART_ADDRESS } from "~/mutations";
+import DefaultAttachment from "./MailAttachmentItem/DefaultAttachment";
+import FileHostingAttachment from "./MailAttachmentItem/FileHostingAttachment";
+
+const strategies = new Map([
+    ["filehosting", FileHostingAttachment],
+    ["default", DefaultAttachment]
+]);
 
 export default {
     name: "MailAttachmentItem",
     components: {
-        BmButton,
-        BmCol,
         BmContainer,
-        BmIcon,
-        BmRow,
         BmProgress,
+        BmNotice,
         BmButtonClose,
-        BmNotice
+        BmIcon,
+        BmButton
     },
     mixins: [ComposerActionsMixin],
     props: {
@@ -129,46 +113,35 @@ export default {
         },
         compact: {
             type: Boolean,
-            required: false,
             default: false
         }
     },
-    data() {
-        return {
-            fitPreviewImage: false
-        };
-    },
+
     computed: {
         isRemovable() {
             return this.message.composing;
-        },
-        fileTypeIcon() {
-            return MimeType.matchingIcon(this.attachment.mime);
-        },
-        fileName() {
-            return this.attachment.fileName;
-        },
-        fileSize() {
-            return computeUnit(this.attachment.size, inject("i18n"));
-        },
-        hasPreview() {
-            return (
-                MimeType.previewAvailable(this.attachment.mime) && this.attachment.status === AttachmentStatus.UPLOADED
-            );
         },
         errorMessage() {
             return this.attachment.status === AttachmentStatus.ERROR
                 ? this.$t("alert.mail.message.draft.attach.error")
                 : undefined;
         },
-        isCancellable() {
-            return !this.isUploaded && this.attachment.status !== AttachmentStatus.ERROR;
-        },
         isUploaded() {
             return this.attachment.progress.loaded === this.attachment.progress.total;
         },
         previewUrl() {
             return getPartDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.attachment);
+        },
+        isCancellable() {
+            return !this.isUploaded && this.attachment.status !== AttachmentStatus.ERROR;
+        },
+        fileTypeIcon() {
+            return MimeType.matchingIcon(this.attachment.extra.mime || this.attachment.mime);
+        },
+        component() {
+            return strategies.has(this.attachment.type)
+                ? strategies.get(this.attachment.type)
+                : strategies.get("default");
         }
     },
     methods: {
@@ -176,26 +149,19 @@ export default {
             SET_PREVIEW_MESSAGE_KEY,
             SET_PREVIEW_PART_ADDRESS
         }),
-        cancel() {
-            global.cancellers[this.attachment.address + this.message.key].cancel();
-        },
+
         download() {
             location.assign(this.previewUrl);
         },
-        previewImageLoaded() {
-            const width = this.$refs["preview-image"].width;
-            const height = this.$refs["preview-image"].height;
-            const divWidth = this.$refs["preview-div"].clientWidth;
-            const divHeight = this.$refs["preview-div"].clientHeight;
-            const scaleRatio = divWidth / width;
-            this.fitPreviewImage = width > height && height * scaleRatio > divHeight;
-        },
-        isViewable,
         openPreview() {
             this.SET_PREVIEW_MESSAGE_KEY(this.message.key);
             this.SET_PREVIEW_PART_ADDRESS(this.attachment.address);
             this.$bvModal.show("mail-attachment-preview");
-        }
+        },
+        cancel() {
+            global.cancellers[this.attachment.address + this.message.key].cancel();
+        },
+        isViewable
     }
 };
 </script>
@@ -258,6 +224,7 @@ export default {
         line-height: 1.085em;
     }
     .remove-attachment {
+        padding: 0;
         margin-left: $sp-2;
     }
 }
