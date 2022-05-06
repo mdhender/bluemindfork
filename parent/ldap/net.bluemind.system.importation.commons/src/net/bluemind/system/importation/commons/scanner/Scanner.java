@@ -72,6 +72,16 @@ import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchExcept
 import net.bluemind.user.api.User;
 
 public abstract class Scanner {
+	private class EntryInfos {
+		public final Dn dn;
+		public final boolean suspended;
+
+		public EntryInfos(Dn dn, boolean suspended) {
+			this.dn = dn;
+			this.suspended = suspended;
+		}
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(Scanner.class);
 
 	protected final ImportLogger importLogger;
@@ -116,7 +126,7 @@ public abstract class Scanner {
 			setupSplitGroup();
 
 			logger.info("Manage BM users suspend state from {}", getKind());
-			Set<Dn> directoryExistingUsersDn = managerUsersState();
+			Set<Dn> directoryExistingUsersDn = managerUsersStatus();
 
 			logger.info("Deleting groups from BM which are removed in {}", getKind());
 			Set<Dn> directoryExistingGroupsDn = deletedGroups();
@@ -193,12 +203,14 @@ public abstract class Scanner {
 
 	protected abstract List<IScannerEnhancer> getScannerEnhancerHooks();
 
+	protected abstract boolean isSuspended(Entry entry);
+
 	/**
 	 * 
 	 * @return Users DN existing in directory and not found in BlueMind
 	 */
-	private Set<Dn> managerUsersState() {
-		Map<UuidMapper, Dn> directoryExtUids = new HashMap<>();
+	private Set<Dn> managerUsersStatus() {
+		Map<UuidMapper, EntryInfos> directoryEntryInfosByUuid = new HashMap<>();
 		try (PagedSearchResult cursor = allUsersFromDirectory()) {
 			while (cursor.next()) {
 				Response response = cursor.get();
@@ -207,7 +219,8 @@ public abstract class Scanner {
 				}
 
 				Entry entry = ((SearchResultEntryDecorator) response).getEntry();
-				getUuidMapperFromEntry(entry).ifPresent(extUid -> directoryExtUids.put(extUid, entry.getDn()));
+				getUuidMapperFromEntry(entry).ifPresent(extUid -> directoryEntryInfosByUuid.put(extUid,
+						new EntryInfos(entry.getDn(), isSuspended(entry))));
 			}
 		} catch (LdapException | CursorException | LdapSearchException e) {
 			throw new ServerFault(e);
@@ -216,17 +229,23 @@ public abstract class Scanner {
 		ExtUidState bmExtUidState = coreService.getUsersExtIdByState(importLogger);
 
 		Set<UuidMapper> active = uuidMapperFromExtIds(bmExtUidState.active);
-		Sets.difference(active, directoryExtUids.keySet()).stream().map(UuidMapper::getExtId)
-				.forEach(this::suspendUser);
+		// Suspends BlueMind user who are active in BlueMind and not in directory
+		Sets.difference(active,
+				directoryEntryInfosByUuid.entrySet().stream().filter(es -> !es.getValue().suspended)
+						.map(es -> es.getKey()).collect(Collectors.toSet()))
+				.stream().map(UuidMapper::getExtId).forEach(this::suspendUser);
 
 		Set<UuidMapper> suspended = uuidMapperFromExtIds(bmExtUidState.suspended);
-		Sets.intersection(suspended, directoryExtUids.keySet()).stream().map(UuidMapper::getExtId)
-				.forEach(this::unsuspendUser);
+		// Unsuspends BlueMind user who are suspended in BlueMind and not in directory
+		Sets.difference(suspended,
+				directoryEntryInfosByUuid.entrySet().stream().filter(es -> es.getValue().suspended)
+						.map(es -> es.getKey()).collect(Collectors.toSet()))
+				.stream().map(UuidMapper::getExtId).forEach(this::unsuspendUser);
 
 		return Sets
-				.difference(directoryExtUids.keySet(),
+				.difference(directoryEntryInfosByUuid.keySet(),
 						Stream.concat(active.stream(), suspended.stream()).collect(Collectors.toSet()))
-				.stream().map(directoryExtUids::get).collect(Collectors.toSet());
+				.stream().map(directoryEntryInfosByUuid::get).map(ei -> ei.dn).collect(Collectors.toSet());
 	}
 
 	private void unsuspendUser(String extId) {

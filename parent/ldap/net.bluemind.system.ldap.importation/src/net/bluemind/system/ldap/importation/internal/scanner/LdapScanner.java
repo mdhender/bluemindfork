@@ -119,8 +119,8 @@ public abstract class LdapScanner extends Scanner {
 		splitGroupMembers = Optional
 				.of(new NestedGroupHelper(ldapCon, ldapParameters.ldapDirectory.baseDn, getGroupMembersAttributeName(),
 						ldapParameters.ldapDirectory.groupFilter, ldapParameters.ldapDirectory.extIdAttribute)
-								.getNestedMembers(groupEntry).stream().map(LdapUuidMapper::new).collect(Collectors
-										.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet)));
+						.getNestedMembers(groupEntry).stream().map(LdapUuidMapper::new)
+						.collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet)));
 	}
 
 	@Override
@@ -220,5 +220,10 @@ public abstract class LdapScanner extends Scanner {
 	@Override
 	protected List<IScannerEnhancer> getScannerEnhancerHooks() {
 		return Activator.getScannerEnhancerHooks();
+	}
+
+	@Override
+	protected boolean isSuspended(Entry entry) {
+		return false;
 	}
 }

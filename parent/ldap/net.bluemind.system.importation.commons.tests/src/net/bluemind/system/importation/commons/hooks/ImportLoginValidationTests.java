@@ -200,7 +200,7 @@ public class ImportLoginValidationTests {
 			}
 
 			@Override
-			protected void manageArchived() throws LdapInvalidAttributeValueException {
+			protected void manageArchived() {
 			}
 
 			@Override

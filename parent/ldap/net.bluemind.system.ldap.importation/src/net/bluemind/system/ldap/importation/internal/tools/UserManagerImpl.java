@@ -142,7 +142,7 @@ public class UserManagerImpl extends UserManager {
 	}
 
 	@Override
-	protected void manageArchived() throws LdapInvalidAttributeValueException {
+	protected void manageArchived() {
 		user.value.archived = false;
 	}
 

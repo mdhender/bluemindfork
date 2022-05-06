@@ -73,7 +73,7 @@ public class UserManagerTest {
 		}
 
 		@Override
-		protected void manageArchived() throws LdapInvalidAttributeValueException {
+		protected void manageArchived() {
 		}
 
 		@Override

@@ -83,7 +83,7 @@ public abstract class UserManager extends EntityManager {
 	protected abstract void setLoginFromDefaultAttribute(IImportLogger importLogger)
 			throws LdapInvalidAttributeValueException;
 
-	protected abstract void manageArchived() throws LdapInvalidAttributeValueException;
+	protected abstract void manageArchived();
 
 	protected abstract void setMailRouting();
 
