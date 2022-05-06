@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.videoconferencing.teams;
+package net.bluemind.videoconferencing.utils;
 
 public class TeamsHeaders {
 

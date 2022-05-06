@@ -699,6 +699,7 @@
     <bundle id="net.bluemind.videoconferencing.service" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.videoconferencing.starleaf" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.videoconferencing.teams" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.utils" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webapp.mail.js" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webapp.root.js" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webmail.banner.closure" version="4.1.0.qualifier" />

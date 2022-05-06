@@ -21,7 +21,7 @@ Require-Bundle: net.bluemind.calendar.api,
  com.google.guava,
  net.bluemind.linkify,
  org.jsoup,
- net.bluemind.videoconferencing.teams,
- net.bluemind.utils
+ net.bluemind.utils,
+ net.bluemind.videoconferencing.utils
 Export-Package: net.bluemind.icalendar.parser
 Automatic-Module-Name: net.bluemind.icalendar.parser

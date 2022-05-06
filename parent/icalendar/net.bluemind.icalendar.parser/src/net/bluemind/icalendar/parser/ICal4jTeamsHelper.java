@@ -20,7 +20,7 @@ package net.bluemind.icalendar.parser;
 import org.apache.commons.lang.StringUtils;
 
 import net.bluemind.icalendar.api.ICalendarElement;
-import net.bluemind.videoconferencing.teams.TeamsHeaders;
+import net.bluemind.videoconferencing.utils.TeamsHeaders;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.component.CalendarComponent;

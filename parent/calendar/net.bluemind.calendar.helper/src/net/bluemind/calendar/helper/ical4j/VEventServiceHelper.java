@@ -61,7 +61,7 @@ import net.bluemind.icalendar.parser.ICal4jHelper;
 import net.bluemind.icalendar.parser.ObservanceMapper;
 import net.bluemind.lib.ical4j.data.CalendarBuilder;
 import net.bluemind.tag.api.TagRef;
-import net.bluemind.videoconferencing.teams.TeamsHeaders;
+import net.bluemind.videoconferencing.utils.TeamsHeaders;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.data.UnfoldingReader;
 import net.fortuna.ical4j.model.Calendar;

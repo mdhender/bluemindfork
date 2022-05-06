@@ -23,7 +23,7 @@ import org.apache.james.mime4j.dom.Message;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.imip.parser.IMIPParserFactory;
 import net.bluemind.imip.parser.tests.IMIPTestCase;
-import net.bluemind.videoconferencing.teams.TeamsHeaders;
+import net.bluemind.videoconferencing.utils.TeamsHeaders;
 
 public class TeamsUrlTest extends IMIPTestCase {
 
