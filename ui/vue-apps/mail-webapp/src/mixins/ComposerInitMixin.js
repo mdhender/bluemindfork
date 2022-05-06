@@ -10,6 +10,7 @@ import { MY_DRAFTS } from "~/getters";
 import {
     ADD_ATTACHMENT,
     ADD_MESSAGES,
+    SET_ATTACHMENTS,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
     SET_MESSAGE_BCC,
@@ -18,7 +19,6 @@ import {
     SET_MESSAGE_SUBJECT,
     SET_MESSAGE_TMP_ADDRESSES,
     SET_MESSAGE_TO,
-    SET_PENDING_ATTACHMENTS,
     SET_SAVED_INLINE_IMAGES
 } from "~/mutations";
 import { getPartsFromCapabilities } from "~/model/part";
@@ -210,8 +210,7 @@ export default {
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
 
             if (creationMode === MessageCreationModes.FORWARD) {
-                const attachments = await uploadAttachments(previousMessage);
-                this.$store.commit(`mail/${SET_PENDING_ATTACHMENTS}`, attachments);
+                this.copyAttachments(previousMessage, message);
             }
 
             this.$store.commit("mail/" + SET_MESSAGES_LOADING_STATUS, [
@@ -274,6 +273,11 @@ export default {
             );
         },
 
+        async copyAttachments(sourceMessage, destinationMessage) {
+            const attachments = (await apiMessages.getForUpdate(sourceMessage)).attachments;
+            this.$store.commit(`mail/${SET_ATTACHMENTS}`, { messageKey: destinationMessage.key, attachments });
+        },
+
         async mergeSubject({ key }, related) {
             this.$store.commit(`mail/${SET_MESSAGE_SUBJECT}`, { messageKey: key, subject: related.subject });
         },
@@ -291,18 +295,3 @@ export default {
         }
     }
 };
-
-function uploadAttachments(previousMessage) {
-    const service = inject("MailboxItemsPersistence", previousMessage.folderRef.uid);
-    return Promise.all(
-        previousMessage.attachments.map(attachment =>
-            service.fetch(
-                previousMessage.remoteRef.imapUid,
-                attachment.address,
-                attachment.encoding,
-                attachment.mime,
-                attachment.charset
-            )
-        )
-    );
-}

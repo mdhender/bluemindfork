@@ -2,13 +2,11 @@ import { inject } from "@bluemind/inject";
 import { CHECK_CORPORATE_SIGNATURE, LOAD_MAX_MESSAGE_SIZE } from "~/actions";
 import {
     RESET_COMPOSER,
-    RESET_PENDING_ATTACHMENTS,
     SET_CORPORATE_SIGNATURE,
     SET_DISCLAIMER,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
     SET_MAX_MESSAGE_SIZE,
-    SET_PENDING_ATTACHMENTS,
     SET_SAVED_INLINE_IMAGES,
     SHOW_SENDER
 } from "~/mutations";
@@ -23,11 +21,7 @@ export default {
             state.editorContent = "";
             state.collapsedContent = null;
             state.inlineImagesSaved = [];
-            state.pendingAttachments = [];
             state.isSenderShown = false;
-        },
-        [RESET_PENDING_ATTACHMENTS]: state => {
-            state.pendingAttachments = [];
         },
         [SET_CORPORATE_SIGNATURE]: (state, mailTip) => {
             state.corporateSignature = mailTip;
@@ -43,9 +37,6 @@ export default {
         },
         [SET_SAVED_INLINE_IMAGES]: (state, inlineImages) => {
             state.inlineImagesSaved = inlineImages;
-        },
-        [SET_PENDING_ATTACHMENTS]: (state, attachments) => {
-            state.pendingAttachments = attachments;
         },
         [SET_MAX_MESSAGE_SIZE](state, size) {
             state.maxMessageSize = size;
@@ -100,7 +91,6 @@ export default {
         collapsedContent: null,
         inlineImagesSaved: [],
         maxMessageSize: 0, // FIXME: it's a cross-composer data, it must be moved in another store
-        pendingAttachments: [], // used only to store forwarded attachments when they are not uploaded
         isSenderShown: false
     },
     modules: {

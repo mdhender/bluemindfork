@@ -14,7 +14,7 @@ export async function debouncedSave(context, { draft, messageCompose }) {
 }
 
 export async function saveAsap(context, { draft, messageCompose }) {
-    await waitUntilReady(draft, messageCompose);
+    await waitUntilReady(draft);
     return save(context, draft, messageCompose);
 }
 
@@ -25,15 +25,15 @@ function cancelDebounce() {
 }
 
 function saveOrDebounce(context, draft, messageCompose) {
-    if (!isReadyToBeSaved(draft, messageCompose)) {
+    if (!isReadyToBeSaved(draft)) {
         return debouncedSave(context, { draft, messageCompose });
     }
     return save(context, draft, messageCompose);
 }
 
-async function waitUntilReady(draft, messageCompose) {
+async function waitUntilReady(draft) {
     cancelDebounce();
-    if (!isReadyToBeSaved(draft, messageCompose)) {
+    if (!isReadyToBeSaved(draft)) {
         await new Promise(resolve => {
             setTimeout(resolve, 500);
         });

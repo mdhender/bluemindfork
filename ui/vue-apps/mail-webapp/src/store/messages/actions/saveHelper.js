@@ -7,7 +7,6 @@ import { isNewMessage } from "~/model/draft";
 import { AttachmentStatus } from "~/model/attachment";
 import { MessageHeader, MessageStatus } from "~/model/message";
 import {
-    RESET_PENDING_ATTACHMENTS,
     SET_MESSAGE_DATE,
     SET_MESSAGE_HEADERS,
     SET_MESSAGE_INTERNAL_ID,
@@ -15,18 +14,14 @@ import {
     SET_MESSAGES_STATUS,
     SET_SAVED_INLINE_IMAGES,
     SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES,
-    SET_ATTACHMENT_ADDRESS,
-    SET_ATTACHMENT_STATUS,
     SET_MESSAGE_PREVIEW
 } from "~/mutations";
 import MessageAdaptor from "../helpers/MessageAdaptor";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 
-export function isReadyToBeSaved(draft, messageCompose) {
-    const checkAttachments =
-        draft.attachments.every(a => a.status === AttachmentStatus.UPLOADED) ||
-        (isNewMessage(draft) && messageCompose.pendingAttachments.length > 0); // due to attachments forward cases
-    return (draft.status === MessageStatus.IDLE || draft.status === MessageStatus.NEW) && checkAttachments;
+export function isReadyToBeSaved(draft) {
+    const attachmentsAreUploaded = draft.attachments.every(a => a.status === AttachmentStatus.UPLOADED);
+    return (draft.status === MessageStatus.IDLE || draft.status === MessageStatus.NEW) && attachmentsAreUploaded;
 }
 
 export async function save(context, draft, messageCompose) {
@@ -66,8 +61,6 @@ async function prepareDraft(context, service, draft, messageCompose) {
     }));
     const inlineImages = insertionResult.alreadySaved.concat(newInlineImages);
     context.commit(SET_SAVED_INLINE_IMAGES, inlineImages);
-
-    await handleAttachmentsForForward(draft, service, messageCompose, context.commit);
 
     return { addresses, inlineImages };
 }
@@ -111,35 +104,6 @@ function generateMessageIDHeader(draft) {
         name: MessageHeader.MESSAGE_ID,
         values: [value]
     };
-}
-
-// when attachments are forwarded, we have to upload them at first save
-async function handleAttachmentsForForward(draft, service, messageCompose, commit) {
-    if (
-        isNewMessage(draft) &&
-        messageCompose.pendingAttachments.length > 0 &&
-        draft.attachments.length >= messageCompose.pendingAttachments.length
-    ) {
-        const addresses = await Promise.all(
-            messageCompose.pendingAttachments.map(content => service.uploadPart(content))
-        );
-
-        addresses.forEach((newAddress, index) => {
-            const attachment = draft.attachments[index];
-            commit(SET_ATTACHMENT_ADDRESS, {
-                messageKey: draft.key,
-                oldAddress: attachment.address,
-                address: newAddress
-            });
-            commit(SET_ATTACHMENT_STATUS, {
-                messageKey: draft.key,
-                address: newAddress,
-                status: AttachmentStatus.UPLOADED
-            });
-        });
-
-        commit(RESET_PENDING_ATTACHMENTS);
-    }
 }
 
 function uploadParts(service, textPlain, textHtml, newContentByCid) {

@@ -2,12 +2,10 @@ import { EmailExtractor, Flag, MimeType } from "@bluemind/email";
 import { createDocumentFragment } from "@bluemind/html-utils";
 
 import MessagePathParam from "~/router/MessagePathParam";
-import { AttachmentStatus } from "./attachment";
 import { LoadingStatus } from "./loading-status";
 import {
     extractHeaderValues,
     MessageHeader,
-    // fetch,
     createWithMetadata as createMessage,
     MessageCreationModes,
     MessageForwardAttributeSeparator,
@@ -72,12 +70,6 @@ export function createReplyOrForward(previousMessage, myDraftsFolder, creationMo
     if (creationMode === MessageCreationModes.REPLY_ALL || creationMode === MessageCreationModes.REPLY) {
         message.to = computeToRecipients(creationMode, previousMessage, identity);
         message.cc = computeCcRecipients(creationMode, previousMessage);
-    }
-    if (creationMode === MessageCreationModes.FORWARD) {
-        message.attachments = previousMessage.attachments.map(attachment => ({
-            ...attachment,
-            status: AttachmentStatus.NOT_LOADED
-        }));
     }
 
     message.loading = LoadingStatus.LOADING; // will be loaded once content has been computed

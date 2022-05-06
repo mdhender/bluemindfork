@@ -13,6 +13,7 @@ import {
     SET_ATTACHMENT_ENCODING,
     SET_ATTACHMENT_PROGRESS,
     SET_ATTACHMENT_STATUS,
+    SET_ATTACHMENTS,
     SET_CONVERSATION_LIST,
     SET_MESSAGES_LOADING_STATUS,
     SET_MESSAGES_STATUS,
@@ -102,6 +103,9 @@ export default {
     },
     [ADD_ATTACHMENT]: (state, { messageKey, attachment }) => {
         state[messageKey].attachments.push(attachment);
+    },
+    [SET_ATTACHMENTS]: (state, { messageKey, attachments }) => {
+        state[messageKey].attachments = attachments;
     },
     [REMOVE_ATTACHMENT]: (state, { messageKey, address }) => {
         const attachments = state[messageKey].attachments;
