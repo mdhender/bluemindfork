@@ -275,7 +275,7 @@ public class ClientProxyGenerator<S, T> {
 					}
 				});
 				try {
-					return f.get(50, TimeUnit.SECONDS);
+					return f.get(5, TimeUnit.MINUTES);
 				} catch (ExecutionException e) {
 					Throwable t = e.getCause();
 					if (t instanceof ServerFault) {

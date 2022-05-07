@@ -55,7 +55,7 @@ public class ShardsCommand implements ICmdLet, Runnable {
 
 	@Override
 	public void run() {
-		IMailboxMgmt mgmtApi = ctx.adminApi().instance(IMailboxMgmt.class, "global.virt");
+		IMailboxMgmt mgmtApi = ctx.longRequestTimeoutAdminApi().instance(IMailboxMgmt.class, "global.virt");
 		List<ShardStats> shardStats = mgmtApi.getShardsStats();
 		JsonArray js = new JsonArray(JsonUtils.asString(shardStats));
 		ctx.info(js.encodePrettily());

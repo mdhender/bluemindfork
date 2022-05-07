@@ -81,7 +81,8 @@ public class MoveCommand implements ICmdLet, Runnable {
 		}
 
 		if (dest == null || dest.isEmpty()) {
-			IMailboxMgmt mboxMgmtApi = ctx.adminApi().instance(IMailboxMgmt.class, "global.virt");
+			ctx.info("looking up stats to figure out most suitable target for {}", mailbox);
+			IMailboxMgmt mboxMgmtApi = ctx.longRequestTimeoutAdminApi().instance(IMailboxMgmt.class, "global.virt");
 			List<ShardStats> shards = mboxMgmtApi.getShardsStats();
 			ShardStats shard = null;
 			Iterator<ShardStats> it = shards.iterator();
