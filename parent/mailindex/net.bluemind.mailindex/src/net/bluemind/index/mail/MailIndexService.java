@@ -666,6 +666,8 @@ public class MailIndexService implements IMailIndexService {
 		logger.info("bulk copy of msg response {}", copyResp);
 
 		bulkDelete(fromIndex, QueryBuilders.termQuery("owner", mailboxUid));
+
+		VertxPlatform.eventBus().publish("index.mailspool.cleanup", new JsonObject().put("index", fromIndex));
 	}
 
 	public List<ShardStats> getStats() {

@@ -20,6 +20,10 @@
             priority="200">
       </registration>
       <registration
+            impl="net.bluemind.cli.index.RebalanceCommand$Reg"
+            priority="200">
+      </registration>
+      <registration
             impl="net.bluemind.cli.index.MoveCommand$Reg"
             priority="200">
       </registration>
