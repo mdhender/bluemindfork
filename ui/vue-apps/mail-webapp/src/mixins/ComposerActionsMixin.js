@@ -129,6 +129,7 @@ export default {
                 this.$_ComposerActionsMixin_CONVERSATIONS_ACTIVATED &&
                 this.$_ComposerActionsMixin_currentConversation &&
                 this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA.messages.length > 1;
+
             if (
                 wasMessageOnlyLocal &&
                 this.$store.getters["mail/" + ACTIVE_MESSAGE]?.key === this.message.key &&
@@ -137,12 +138,14 @@ export default {
                 this.$router.navigate({ name: "v:mail:message", params: { message: this.message } });
             }
         },
-        addAttachments(files) {
-            this.$_ComposerActionsMixin_ADD_ATTACHMENTS({
+        async addAttachments(files) {
+            const isNew = isNewMessage(this.message);
+            await this.$_ComposerActionsMixin_ADD_ATTACHMENTS({
                 draft: this.message,
                 files,
                 messageCompose: this.$_ComposerActionsMixin_messageCompose
             });
+            this.updateRoute(isNew);
         },
         removeAttachment(address) {
             this.$_ComposerActionsMixin_REMOVE_ATTACHMENT({

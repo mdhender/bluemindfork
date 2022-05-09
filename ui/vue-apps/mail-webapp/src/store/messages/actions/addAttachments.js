@@ -22,7 +22,7 @@ export default async function ({ commit, dispatch }, { draft, files, messageComp
         }
         await Promise.all(promises);
 
-        dispatch(DEBOUNCED_SAVE_MESSAGE, { draft, messageCompose });
+        return dispatch(DEBOUNCED_SAVE_MESSAGE, { draft, messageCompose });
     }
 }
 
