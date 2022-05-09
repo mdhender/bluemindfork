@@ -65,13 +65,33 @@ public class HotUpgradeTask {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		HotUpgradeTask other = (HotUpgradeTask) obj;
+		return id == other.id;
+	}
+
+	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("HotUpgradeTask [id=").append(id).append(", operation=").append(operation)
 				.append(", parameters=").append(parameters).append(", status=").append(status).append(", failure=")
-				.append(failure).append(", retryCount=").append(retryCount).append(", retryDelay=").append(retryDelaySeconds)
-				.append(", reportFailure=").append(reportFailure).append("s, createdAt=").append(createdAt)
-				.append(", updatedAt=").append(updatedAt).append("]");
+				.append(failure).append(", retryCount=").append(retryCount).append(", retryDelay=")
+				.append(retryDelaySeconds).append(", reportFailure=").append(reportFailure).append("s, createdAt=")
+				.append(createdAt).append(", updatedAt=").append(updatedAt).append("]");
 		return builder.toString();
 	}
 
