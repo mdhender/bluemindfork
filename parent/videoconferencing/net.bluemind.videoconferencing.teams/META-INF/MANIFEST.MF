@@ -13,4 +13,8 @@ Require-Bundle: net.bluemind.calendar.api,
  net.bluemind.core.container.persistence,
  net.bluemind.videoconferencing.api,
  net.bluemind.videoconferencing.service;bundle-version="4.1.0",
- net.bluemind.directory.api
+ net.bluemind.directory.api,
+ net.bluemind.system.service,
+ net.bluemind.system.api,
+ net.bluemind.user.api
+Export-Package: net.bluemind.videoconferencing.teams

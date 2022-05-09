@@ -42,18 +42,18 @@
 			</tr>
 			<tr class="setting">
 				<td>
-					<g:Label text="{c.secret}" />
-				</td>
-				<td>
-					<g:TextBox width="560px" ui:field="secret" />
-				</td>
-			</tr>
-			<tr class="setting">
-				<td>
 					<g:Label text="{c.tenant}" />
 				</td>
 				<td>
 					<g:TextBox width="560px" ui:field="tenant" />
+				</td>
+			</tr>
+			<tr class="setting">
+				<td>
+					<g:Label text="{c.secret}" />
+				</td>
+				<td>
+					<g:TextBox width="560px" ui:field="secret" />
 				</td>
 			</tr>
 			<tr>

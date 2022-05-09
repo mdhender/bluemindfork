@@ -35,16 +35,18 @@ import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.OnlineMeeting;
 import com.microsoft.graph.models.User;
 import com.microsoft.graph.requests.GraphServiceClient;
-import com.microsoft.graph.requests.UserRequestBuilder;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirEntryPath;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.resource.api.ResourceDescriptor;
+import net.bluemind.user.api.IInternalUserExternalAccount;
+import net.bluemind.user.api.UserAccount;
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
 import net.bluemind.videoconferencing.api.VideoConference;
 import okhttp3.Request;
@@ -56,6 +58,8 @@ public class TeamsProvider implements IVideoConferencingProvider {
 	 */
 	private static Pattern DATA_URI = Pattern.compile("(?s)data:([^,]*?),(.*)$");
 
+	public static final String PROVIDER_NAME = "Teams";
+
 	@Override
 	public String id() {
 		return "videoconferencing-teams";
@@ -63,7 +67,7 @@ public class TeamsProvider implements IVideoConferencingProvider {
 
 	@Override
 	public String name() {
-		return "Teams";
+		return PROVIDER_NAME;
 	}
 
 	@Override
@@ -84,22 +88,30 @@ public class TeamsProvider implements IVideoConferencingProvider {
 		String secret = resourceSettings.get("secret");
 		String tenant = resourceSettings.get("tenant");
 
-		String organizer = resolveOrganizer(context, vevent);
+		Optional<String> organizer = resolveOrganizer(context, vevent);
+		if (!organizer.isPresent()) {
+			throw new ServerFault("Failed to fetch organizer " + vevent.organizer);
+		}
+
+		IInternalUserExternalAccount externalAccountService = context.getServiceProvider().instance(
+				IInternalUserExternalAccount.class, context.getSecurityContext().getContainerUid(), organizer.get());
+
+		UserAccount externalAccount = externalAccountService.get(PROVIDER_NAME);
+		if (externalAccount == null) {
+			throw ServerFault.notFound("No external account found for organizer: " + organizer.get());
+		}
 
 		ClientSecretCredential clientSecretCredential = new ClientSecretCredentialBuilder().clientId(clientId)
 				.clientSecret(secret).tenantId(tenant).build();
 		TokenCredentialAuthProvider tokenCredAuthProvider = new TokenCredentialAuthProvider(clientSecretCredential);
-
 		GraphServiceClient<Request> graphClient = GraphServiceClient.builder()
 				.authenticationProvider(tokenCredAuthProvider).buildClient();
 
-		UserRequestBuilder teamsContext = graphClient.users(organizer);
-
 		User me = null;
 		try {
-			me = teamsContext.buildRequest().get();
+			me = graphClient.users(externalAccount.login).buildRequest().get();
 		} catch (GraphServiceException e) {
-			throw ServerFault.notFound("Teams user not found: " + organizer);
+			throw ServerFault.notFound("Teams user not found: " + externalAccount.login);
 		}
 
 		OnlineMeeting onlineMeeting = new OnlineMeeting();
@@ -125,16 +137,22 @@ public class TeamsProvider implements IVideoConferencingProvider {
 	public void deleteConference(BmContext context, Map<String, String> resourceSettings, String conferenceId) {
 	}
 
-	private String resolveOrganizer(BmContext context, ICalendarElement vevent) {
-		String organizer = vevent.organizer.mailto;
-		if (Strings.isNullOrEmpty(organizer)) {
-			IDirectory directory = context.provider().instance(IDirectory.class,
-					context.getSecurityContext().getContainerUid());
-			DirEntry dirEntry = directory.getEntry(vevent.organizer.dir.substring("bm://".length()));
-			organizer = dirEntry.email;
+	private Optional<String> resolveOrganizer(BmContext context, ICalendarElement vevent) {
+
+		if (!Strings.isNullOrEmpty(vevent.organizer.dir)) {
+			return Optional.of(IDirEntryPath.getEntryUid(vevent.organizer.dir.substring("bm://".length())));
 		}
 
-		return organizer;
+		if (!Strings.isNullOrEmpty(vevent.organizer.mailto)) {
+			IDirectory directory = context.provider().instance(IDirectory.class,
+					context.getSecurityContext().getContainerUid());
+			DirEntry dirEntry = directory.getByEmail(vevent.organizer.mailto);
+			if (dirEntry != null) {
+				return Optional.of(dirEntry.entryUid);
+			}
+		}
+
+		return Optional.empty();
 	}
 
 }

@@ -6,5 +6,12 @@
       <provider
             impl="net.bluemind.videoconferencing.teams.TeamsProvider"></provider>
    </extension>
+   <extension
+         point="net.bluemind.system.external_systems">
+      <system
+            impl="net.bluemind.videoconferencing.teams.TeamsExternalSystem"
+            priority="1">
+      </system>
+   </extension>
 
 </plugin>
