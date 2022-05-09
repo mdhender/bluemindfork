@@ -96,7 +96,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     <!---->
     <button
       aria-expanded="false"
-      aria-haspopup="true"
+      aria-haspopup="menu"
       class="btn dropdown-toggle btn-inline-light btn-lg-simple-dark dropdown-toggle-no-caret"
       type="button"
     >
@@ -564,7 +564,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     <!---->
     <button
       aria-expanded="false"
-      aria-haspopup="true"
+      aria-haspopup="menu"
       class="btn dropdown-toggle btn-inline-light btn-lg-simple-dark dropdown-toggle-no-caret"
       type="button"
     >
