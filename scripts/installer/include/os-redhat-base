@@ -3,7 +3,6 @@ RHCLONE=0
 
 [ -e /etc/centos-release ] && {
   RHCLONE=1
-
   OS_VERSION_CN="centos-8"
 
   [ ${OS_VERSION} == ${REDHAT7} ] && OS_VERSION_CN="centos-7"
@@ -11,10 +10,16 @@ RHCLONE=0
 
 [ -e /etc/rocky-release ] && {
   RHCLONE=1
-
   OS_VERSION_CN="rockylinux-8"
 
   [ ${OS_VERSION} == ${REDHAT7} ] && OS_VERSION_CN="rockylinux-7"
+}
+
+[ -e /etc/almalinux-release ] && {
+  RHCLONE=1
+  OS_VERSION_CN="almalinux-8"
+
+  [ ${OS_VERSION} == ${REDHAT7} ] && OS_VERSION_CN="almalinux-7"
 }
 
 YUM_SOURCE_FILE="/etc/yum.repos.d/bm.repo"
