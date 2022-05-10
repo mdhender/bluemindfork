@@ -133,7 +133,7 @@ class EnvironmentDB {
     }
 
     async setMailboxCopyGuid(uid) {
-        logger.log(`[SW][DB] Initialize environment mailboxCopyGuid to ` + uid `.`);
+        logger.log(`[SW][DB] Initialize environment mailboxCopyGuid to ` + uid + `.`);
         await putInDb(await this.db, "system", { key: "mailboxCopyGuid", value: uid });
     }
 
