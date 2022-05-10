@@ -12,7 +12,7 @@ export default class extends ChainOfResponsability {
     }
 
     async addAttachments(files, message) {
-        const service = inject("AttachmentClientPersistence");
+        const service = inject("AttachmentPersistence");
         const config = await service.getConfiguration();
         const promises = [];
 
@@ -31,18 +31,17 @@ export default class extends ChainOfResponsability {
         const service = inject("AttachmentPersistence");
         const attachmentFromFile = createPartFromFile(UUIDGenerator.generate(), {
             name: file.name,
-            type: "application/octet-stream",
             size: 0
         });
         const attachment = create(
             {
                 ...attachmentFromFile,
-                type: "filehosting",
-                extra: {
-                    size: file.size,
-                    mime: file.type,
-                    dispositionType: "CLOUD"
-                }
+                headers: [
+                    {
+                        name: "X-BM-Disposition",
+                        values: [`filehosting;name=${file.name};size=${file.size};mime=${file.type}`]
+                    }
+                ]
             },
             AttachmentStatus.NOT_LOADED
         );
@@ -76,8 +75,8 @@ export default class extends ChainOfResponsability {
                     values: [`cloudFile;url=${publicUrl};name=${name}`]
                 },
                 {
-                    name: "X-BlueMind-Disposition",
-                    values: [`filehosting;url=${publicUrl};name=${name};`]
+                    name: "X-BM-Disposition",
+                    values: [`filehosting;url=${publicUrl};name=${name};size=${file.size};mime=${file.type}`]
                 }
             ]
         });

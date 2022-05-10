@@ -13,5 +13,11 @@
             class="net.bluemind.attachment.service.AttachmentServiceFactory">
       </serviceFactory>
    </extension>
+   <extension
+         point="net.bluemind.backend.mail.parsing">
+      <whitelist
+            list="net.bluemind.attachment.service.AttachmentHeaders">
+      </whitelist>
+   </extension>
 
 </plugin>

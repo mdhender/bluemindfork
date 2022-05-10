@@ -136,6 +136,7 @@ export default {
             return !this.isUploaded && this.attachment.status !== AttachmentStatus.ERROR;
         },
         fileTypeIcon() {
+            //FIXME: ne pas utiliser ça pour l'aria label
             return MimeType.matchingIcon(this.attachment.extra.mime || this.attachment.mime);
         },
         component() {

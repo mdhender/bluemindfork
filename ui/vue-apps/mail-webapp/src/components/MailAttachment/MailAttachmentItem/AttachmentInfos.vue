@@ -42,10 +42,10 @@ export default {
     },
     computed: {
         fileTypeIcon() {
-            return MimeType.matchingIcon(this.attachment.extra?.mime || this.attachment.mime);
+            return MimeType.matchingIcon(this.attachment.mime);
         },
         fileSize() {
-            return computeUnit(this.attachment.size || this.attachment.extra.size, this.$i18n);
+            return computeUnit(this.attachment.size, this.$i18n);
         },
         previewUrl() {
             return getPartDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.attachment);

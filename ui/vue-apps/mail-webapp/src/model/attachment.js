@@ -1,19 +1,25 @@
 import injector from "@bluemind/inject";
+import FileHostingDecorator from "./attachment/FileHostingDecorator";
+
+const decorators = [FileHostingDecorator];
 
 export function create(part, status) {
     const progress = status === AttachmentStatus.NOT_LOADED ? { loaded: 0, total: 100 } : { loaded: 100, total: 100 };
     if (!part.fileName) {
         part.fileName = injector.getProvider("i18n").get().t("mail.attachment.untitled", { mimeType: part.mime });
     }
-    return {
+    const headers = part.headers ? [...getAttachmentHeaders(part), ...part.headers] : getAttachmentHeaders(part);
+
+    let attachment = {
         dispositionType: "ATTACHMENT",
-        headers: getAttachmentHeaders(part),
         progress,
         status,
         type: "default",
         extra: {},
-        ...part
+        ...part,
+        headers
     };
+    return decorators.reduce((attachment, decorator) => decorator.decorate(attachment), attachment);
 }
 
 export const AttachmentStatus = {
