@@ -40,4 +40,8 @@ public class IdRange {
 		return "IdRange[" + globalCounter + " - " + (globalCounter + count) + "]";
 	}
 
+	public boolean contains(Long value) {
+		return value >= globalCounter && value < globalCounter + count;
+	}
+
 }

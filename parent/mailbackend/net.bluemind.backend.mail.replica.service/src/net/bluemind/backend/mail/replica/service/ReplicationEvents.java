@@ -28,9 +28,11 @@ import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.core.container.api.IdRange;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.utils.ThreadContextHelper;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -108,6 +110,27 @@ public class ReplicationEvents {
 		cons.handler(handler);
 		return ThreadContextHelper.inWorkerThread(done);
 
+	}
+
+	public static CompletableFuture<Void> onAnyRecordIdChanged(String mboxUniqueId, IdRange idRange) {
+		CompletableFuture<Void> done = new CompletableFuture<>();
+		MessageConsumer<JsonObject> consumer = eb.consumer(ReplicationEvents.MBOX_UPD_ADDR + "." + mboxUniqueId);
+		Handler<Message<JsonObject>> handler = (Message<JsonObject> msg) -> {
+			JsonObject change = msg.body();
+			JsonArray changed = change.getJsonArray("itemIds");
+			changed.addAll(change.getJsonArray("createdIds"));
+			for (int i = 0; i < changed.size(); i++) {
+				if (idRange.contains(changed.getLong(i))) {
+					consumer.unregister();
+					done.complete(null);
+					return;
+				}
+			}
+		};
+
+		consumer.handler(handler);
+
+		return ThreadContextHelper.inWorkerThread(done);
 	}
 
 	public static CompletableFuture<ItemChange> onRecordCreate(String mboxUniqueId, long expectedId) {

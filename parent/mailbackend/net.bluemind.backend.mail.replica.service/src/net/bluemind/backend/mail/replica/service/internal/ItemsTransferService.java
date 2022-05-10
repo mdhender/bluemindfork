@@ -160,11 +160,12 @@ public class ItemsTransferService implements IItemsTransfer {
 					context.getSecurityContext().getContainerUid(), context.getSecurityContext().getSubject());
 			IdRange idRange = idAllocator.allocateOfflineIds(srcItems.size());
 			long startId = idRange.globalCounter;
+			long expec = startId;
 			for (ImapBinding ib : srcItems) {
-				long expec = idRange.globalCounter++;
-				GuidExpectedIdCache.store(toUid + ":" + ib.bodyGuid, expec);
+				GuidExpectedIdCache.store(toUid + ":" + ib.bodyGuid, expec++);
 			}
-			CompletableFuture<?> replicated = ReplicationEvents.onRecordIdChanged(toUid, startId);
+
+			CompletableFuture<?> replicated = ReplicationEvents.onAnyRecordIdChanged(toUid, idRange);
 			CompletableFuture<Map<Integer, Integer>> freshImapUids = new CompletableFuture<>();
 			toRecords.imapExecutor().withClient(sc -> {
 				if (sc.select(srcImap)) {
