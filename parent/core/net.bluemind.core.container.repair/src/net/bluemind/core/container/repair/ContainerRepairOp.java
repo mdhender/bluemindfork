@@ -40,6 +40,7 @@ public interface ContainerRepairOp {
 		ContainerDescriptor container = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IContainers.class).getIfPresent(containerUid);
 
+		monitor.log("Verify {} presence: {}", containerUid, container == null ? "MISSING" : "OK");
 		if (container == null) {
 			maintenance.run();
 		}
