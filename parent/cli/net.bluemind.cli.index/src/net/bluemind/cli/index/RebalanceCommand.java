@@ -86,7 +86,7 @@ public class RebalanceCommand implements ICmdLet, Runnable {
 				continue;
 			}
 			long srcGb = source.size / 1024 / 1024 / 1024;
-			long targetGb = target.size / 1024 / 1024;
+			long targetGb = target.size / 1024 / 1024 / 1024;
 			if (Math.abs(srcGb - targetGb) < 1) {
 				ctx.warn(source.indexName + " and " + target.indexName + " have similar size (" + srcGb + " vs "
 						+ targetGb + ")");
