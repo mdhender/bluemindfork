@@ -173,7 +173,7 @@ const getters = {
         return messages;
     },
     [CONVERSATION_METADATA]: (state, getters) => key => {
-        if (!key) {
+        if (!key || !state.conversationByKey[key]) {
             return null;
         }
         if (state.conversationByKey[key].loading === LoadingStatus.NOT_LOADED) {
