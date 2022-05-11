@@ -454,6 +454,24 @@
                 "title": "Einen Unterordner von \"{name}\" erstellen"
             }
         },
+        "filehosting": {
+            "share": {
+                "start": "Einen freigegebenen Link senden | Gemeinsame Links senden",
+                "stop": "Anhalten der Sendung",
+                "pending": "Einen geteilten Link senden | Senden von geteilten Links"
+
+            },
+            "threshold": {
+                "hit": "{hit} {size}",
+                "size": "Ihre Datei überschreitet {size}. | Ihre Dateien überschreiten {size}.",
+                "almost_hit": "Ihre Datei ist ziemlich groß. | Ihre Dateien sind ziemlich groß."
+            },
+            "add_large_file": "Hinzufügen einer großen Datei",
+            "import": {
+                "successful": "erfolgreiche Einfuhr"
+            },
+            "change_selection": "Versuchen Sie, eine kleinere Dateigröße zu wählen. | Versuchen Sie, weniger Dateien auszuwählen."
+        },
         "rename_folder": {
             "modal": {
                 "title": "Den Ordner \"{name}\" umbenennen"

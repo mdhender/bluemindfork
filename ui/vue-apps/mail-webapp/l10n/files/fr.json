@@ -454,6 +454,24 @@
                 "title": "Créer un sous-dossier de \"{name}\""
             }
         },
+        "filehosting": {
+            "share": {
+                "start": "Envoyer un lien partagé | Envoyer des liens partagés",
+                "stop": "Arrêter l'envoi",
+                "pending": "Envoi d'un lien partagé | Envoi des liens partagés"
+
+            },
+            "threshold": {
+                "hit": "{hit} {size}",
+                "size": "Votre fichier dépasse {size} | Vos fichiers dépassent {size}",
+                "almost_hit": "Votre fichier est relativement volumineux. | Vos fichiers sont relativement volumineux."
+            },
+            "add_large_file": "Ajout d'un fichier volumineux",
+            "import": {
+                "successful": "import réussi"
+            },
+            "change_selection": "Essayez de sélectionner un fichier moins volumineux. | Essayez de sélectionner moins de fichiers."
+        },
         "rename_folder": {
             "modal": {
                 "title": "Renommer le dossier \"{name}\""

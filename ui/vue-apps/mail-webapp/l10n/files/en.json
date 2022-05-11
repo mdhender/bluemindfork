@@ -454,6 +454,23 @@
                 "title": "Create a subfolder of \"{name}\""
             }
         },
+        "filehosting": {
+            "share": {
+                "start": "Send a shared link | Send shared links",
+                "stop": "Stop the sending",
+                "pending": "Sending a shared link | Sending shared links"
+            },
+            "threshold": {
+                "hit": "{hit} {size}",
+                "size": "Your file exceeds  {size}. | Your files exceed {size}.",
+                "almost_hit": "Your file is quite large. | Your files are quite large."
+            },
+            "add_large_file": "Add a large file",
+            "import": {
+                "successful": "successful import"
+            },
+            "change_selection": "Try selecting a smaller file size. | Try selecting fewer files."
+        },
         "rename_folder": {
             "modal": {
                 "title": "Rename folder \"{name}\""

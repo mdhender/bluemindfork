@@ -40,6 +40,7 @@
     "common.check.connection": "Check your internet connection and retry in a few moments.",
     "common.or": "or",
     "common.cancel": "Cancel",
+    "common.hide": "Hide",
     "common.mailshares": "Shared folders",
     "common.folder.draft": "draft",
     "common.reload": "reload",
