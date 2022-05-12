@@ -35,6 +35,10 @@
             impl="net.bluemind.cli.user.UserQuickCreateCommand$Reg"
             priority="76">
       </registration>
+      <registration
+            impl="net.bluemind.cli.user.externalaccount.ExternalAccountImportCommand$Reg"
+            priority="130">
+      </registration>
    </extension>
 
 </plugin>

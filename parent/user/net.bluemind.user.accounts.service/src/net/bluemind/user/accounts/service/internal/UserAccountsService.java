@@ -68,8 +68,9 @@ public class UserAccountsService implements IInternalUserExternalAccount {
 	public void create(String systemIdentifier, UserAccount account) throws ServerFault {
 		rbacManager.forEntry(item.uid).check(BasicRoles.ROLE_MANAGE_EXTERNAL_ACCOUNTS);
 		validator.create(context);
-
-		b64Credentials(account);
+		if (null != account.credentials) {
+			b64Credentials(account);
+		}
 		JdbcAbstractStore.doOrFail(() -> {
 			store.create(item, systemIdentifier, account);
 			return null;

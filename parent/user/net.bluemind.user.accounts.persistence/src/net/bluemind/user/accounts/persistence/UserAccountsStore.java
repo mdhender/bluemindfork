@@ -24,17 +24,12 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.user.api.UserAccount;
 import net.bluemind.user.api.UserAccountInfo;
 
 public class UserAccountsStore extends JdbcAbstractStore {
-
-	private static final Logger logger = LoggerFactory.getLogger(UserAccountsStore.class);
 
 	private static final String CREATE_QUERY = "INSERT INTO t_user_account (" + UserAccountColumns.cols.names()
 			+ ", item_id, system) VALUES (" + UserAccountColumns.cols.values() + ", ?, ?)";

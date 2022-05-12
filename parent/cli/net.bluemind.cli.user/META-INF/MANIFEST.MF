@@ -30,7 +30,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.group.api,
  net.bluemind.hornetq.client,
  net.bluemind.network.topology,
- com.github.javafaker
+ com.github.javafaker,
+ net.bluemind.domain.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.user
 Bundle-ActivationPolicy: lazy
