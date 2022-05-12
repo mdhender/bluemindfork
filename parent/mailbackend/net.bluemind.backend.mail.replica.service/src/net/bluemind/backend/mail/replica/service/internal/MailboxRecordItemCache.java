@@ -94,7 +94,7 @@ public class MailboxRecordItemCache {
 	}
 
 	private static final Cache<RecordRef, ItemValue<MailboxRecord>> uidToItem = Caffeine.newBuilder().recordStats()
-			.maximumSize(512).build();
+			.build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override
