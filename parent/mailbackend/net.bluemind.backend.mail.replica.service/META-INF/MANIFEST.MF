@@ -50,7 +50,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.sessions,
  net.bluemind.sds.store,
  com.sun.mail.javax.mail,
- net.bluemind.system.helper
+ net.bluemind.system.helper,
+ net.bluemind.system.state
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.mail.replica.service,

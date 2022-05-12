@@ -9,7 +9,6 @@ import net.bluemind.backend.cyrus.replication.client.ReplMailbox;
 import net.bluemind.backend.cyrus.replication.client.SyncClientOIO;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
-import net.bluemind.config.Token;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.RecordKey.Operation;
 import net.bluemind.core.backup.continuous.restore.CloneException;
@@ -65,10 +64,8 @@ public class RestoreReplicatedMailboxes extends RestoreReplicated implements Res
 		Replica repl = state.storeReplica(domain, mbox, replica, partition);
 		ReplMailbox replicatedMbox = buildReplicatedMailbox(repl);
 
-		try (SyncClientOIO syncClient = new SyncClientOIO(s -> log.debug("restore(" + key + "): " + s),
-				imap.value.address(), 2502)) {
+		try (SyncClientOIO syncClient = SyncClientPools.getClient(imap.value.address(), 2502)) {
 			log.applyMailbox(type(), key);
-			syncClient.authenticate("admin0", Token.admin0());
 			String syncResponse = syncClient.applyMailbox(replicatedMbox);
 			if (!syncResponse.startsWith("OK")) {
 				String message = String.format("Failed to apply mailbox. syncResponse:%s, command:%s", syncResponse,

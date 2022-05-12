@@ -48,13 +48,11 @@ public class SyncClientOIO implements AutoCloseable {
 	private final LinkedBlockingDeque<String> linesQueue;
 	private OutputStream output;
 	private volatile boolean stopped;
-	private final ISyncLogger syncLog;
 
-	public SyncClientOIO(ISyncLogger syncLog, String host, int port) throws IOException {
+	public SyncClientOIO(String host, int port) throws IOException {
 		this.sock = new Socket();
 		sock.setTcpNoDelay(true);
 		sock.connect(new InetSocketAddress(host, port));
-		this.syncLog = syncLog;
 		this.linesQueue = new LinkedBlockingDeque<>();
 		RecordParser rpi = RecordParser.newDelimited(Buffer.buffer("\r\n".getBytes()));
 		rpi.handler(buf -> linesQueue.add(buf.toString(StandardCharsets.US_ASCII)));
@@ -119,7 +117,6 @@ public class SyncClientOIO implements AutoCloseable {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("C: {}", (forLog != null ? forLog : new String(cmd)));
-			syncLog.log(forLog != null ? forLog : new String(cmd));
 		}
 
 		output.write(cmd);

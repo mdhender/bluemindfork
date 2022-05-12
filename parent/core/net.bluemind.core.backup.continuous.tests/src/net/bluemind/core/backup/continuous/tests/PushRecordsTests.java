@@ -144,7 +144,7 @@ public class PushRecordsTests {
 
 	@Test
 	public void pushRecords() throws Exception {
-		try (SyncClientOIO client = new SyncClientOIO(System.err::println, cyrusIp, 2502)) {
+		try (SyncClientOIO client = new SyncClientOIO(cyrusIp, 2502)) {
 			client.authenticate("admin0", "admin");
 			ItemValue<MailboxReplica> inbox = userInbox()
 					.orElseThrow(() -> new NullPointerException("inbox must not be null"));
