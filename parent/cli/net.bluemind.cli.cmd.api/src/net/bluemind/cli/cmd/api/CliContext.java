@@ -85,6 +85,11 @@ public class CliContext {
 				(int) TimeUnit.HOURS.toSeconds(4), (int) TimeUnit.HOURS.toSeconds(4));
 	}
 
+	public IServiceProvider infiniteRequestTimeoutAdminApi() {
+		String core = Optional.ofNullable(BmIni.value("host")).orElse("127.0.0.1");
+		return ClientSideServiceProvider.getProvider("http://" + core + ":8090", Token.admin0(), 40, -1, -1);
+	}
+
 	public IServiceProvider api(String authKey) {
 		String core = Optional.ofNullable(BmIni.value("host")).orElse("127.0.0.1");
 		return ClientSideServiceProvider.getProvider("http://" + core + ":8090", authKey);

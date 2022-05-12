@@ -56,8 +56,8 @@ public class Tasks {
 	 * @return a {@link CompletableFuture} to track the end.
 	 */
 	public static CompletableFuture<Void> followStream(CliContext ctx, String prefix, TaskRef ref) {
-		Objects.requireNonNull(ref, () -> prefix + ": null taskref is not possible");
-		ITask trackApi = ctx.longRequestTimeoutAdminApi().instance(ITask.class, ref.id);
+		Objects.requireNonNull(ref, () -> prefix + ": null taskref is not allowed");
+		ITask trackApi = ctx.infiniteRequestTimeoutAdminApi().instance(ITask.class, ref.id);
 		return new JsonStreams(ctx).consume(VertxStream.read(trackApi.log()), js -> Optional
 				.ofNullable(js.getString("message")).map(s -> "[" + prefix + "]: " + s).ifPresent(ctx::info));
 	}

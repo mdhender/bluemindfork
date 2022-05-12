@@ -54,9 +54,10 @@ public class ClientSideServiceProvider implements IServiceProvider {
 			int requestTimeoutSeconds) {
 		DefaultAsyncHttpClientConfig.Builder builder = new DefaultAsyncHttpClientConfig.Builder();
 		builder.setUseNativeTransport((Epoll.isAvailable() || KQueue.isAvailable()) && !EPOLL_DISABLED);
-		builder.setConnectTimeout((int) TimeUnit.MILLISECONDS.convert(connectTimeoutSeconds, TimeUnit.SECONDS));
-		builder.setReadTimeout((int) TimeUnit.MILLISECONDS.convert(readTimeoutSeconds, TimeUnit.SECONDS));
-		builder.setRequestTimeout((int) TimeUnit.MILLISECONDS.convert(requestTimeoutSeconds, TimeUnit.SECONDS));
+		builder.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(connectTimeoutSeconds));
+		builder.setReadTimeout((int) (readTimeoutSeconds == -1 ? -1 : TimeUnit.SECONDS.toMillis(readTimeoutSeconds)));
+		builder.setRequestTimeout(
+				(int) (requestTimeoutSeconds == -1 ? -1 : TimeUnit.SECONDS.toMillis(requestTimeoutSeconds)));
 		builder.setFollowRedirect(false);
 		builder.setTcpNoDelay(true);
 		builder.setThreadPoolName("client-side-provider-ahc");
