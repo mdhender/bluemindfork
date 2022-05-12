@@ -58,7 +58,8 @@ public class SdsDocumentStoreLoader {
 				.put("accessKey", sysconf.stringValue(SysConfKeys.sds_filehosting_s3_access_key.name()))//
 				.put("secretKey", sysconf.stringValue(SysConfKeys.sds_filehosting_s3_secret_key.name()))//
 				.put("region", sysconf.stringValue(SysConfKeys.sds_filehosting_s3_region.name()))//
-				.put("bucket", sysconf.stringValue(SysConfKeys.sds_filehosting_s3_bucket.name()));
+				.put("bucket", sysconf.stringValue(SysConfKeys.sds_filehosting_s3_bucket.name()))//
+				.put("insecure", sysconf.booleanValue(SysConfKeys.sds_filehosting_s3_insecure.name(), false));
 		return currentStore.get(jsonconf.encode(), k -> factory.syncStore(factory.create(vertx, jsonconf)));
 	}
 

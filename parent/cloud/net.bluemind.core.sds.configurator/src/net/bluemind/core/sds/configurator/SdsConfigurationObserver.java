@@ -34,7 +34,8 @@ public class SdsConfigurationObserver implements ISystemConfigurationObserver {
 				.put("accessKey", current.stringValue(SysConfKeys.sds_s3_access_key.name()))//
 				.put("secretKey", current.stringValue(SysConfKeys.sds_s3_secret_key.name()))//
 				.put("region", current.stringValue(SysConfKeys.sds_s3_region.name()))//
-				.put("bucket", current.stringValue(SysConfKeys.sds_s3_bucket.name()));
+				.put("bucket", current.stringValue(SysConfKeys.sds_s3_bucket.name()))//
+				.put("insecure", current.booleanValue(SysConfKeys.sds_s3_insecure.name(), false));
 
 		Topology.get().nodes().stream().filter(iv -> iv.value.tags.contains("mail/imap")).forEach(iv -> {
 			JsonObject configBackend = new JsonObject().put("backend", iv.value.address()).put("config", json);

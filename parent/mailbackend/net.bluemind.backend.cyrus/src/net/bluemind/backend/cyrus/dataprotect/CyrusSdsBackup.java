@@ -188,6 +188,7 @@ public class CyrusSdsBackup {
 			generator.writeStringField("bucket", sysconf.stringValue(SysConfKeys.sds_s3_bucket.name()));
 			generator.writeStringField("region", sysconf.stringValue(SysConfKeys.sds_s3_region.name()));
 			generator.writeStringField("endpoint", sysconf.stringValue(SysConfKeys.sds_s3_endpoint.name()));
+			generator.writeStringField("insecure", sysconf.stringValue(SysConfKeys.sds_s3_insecure.name()));
 //			generator.writeStringField("accesskey", sysconf.stringValue(SysConfKeys.sds_s3_access_key.name()));
 //			generator.writeStringField("secretkey", sysconf.stringValue(SysConfKeys.sds_s3_secret_key.name()));
 			generator.writeEndObject();

@@ -302,7 +302,8 @@ public class MigrateCommand implements ICmdLet, Runnable {
 				.put("accessKey", sdsConf.get(SysConfKeys.sds_s3_access_key.name()))//
 				.put("secretKey", sdsConf.get(SysConfKeys.sds_s3_secret_key.name()))//
 				.put("region", sdsConf.getOrDefault(SysConfKeys.sds_s3_region.name(), ""))//
-				.put("bucket", sdsConf.getOrDefault(SysConfKeys.sds_s3_bucket.name(), ""));
+				.put("bucket", sdsConf.getOrDefault(SysConfKeys.sds_s3_bucket.name(), ""))//
+				.put("insecure", sdsConf.getOrDefault(SysConfKeys.sds_s3_insecure.name(), "false"));
 		ListenableFuture<Response> resp = ahc.preparePost(SDS_ENDPOINT_CONFIGURATION).setBody(json.encode().getBytes())
 				.setHeader("Content-Type", "application/json").execute();
 		try {

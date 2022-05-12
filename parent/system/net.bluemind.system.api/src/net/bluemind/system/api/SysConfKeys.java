@@ -74,6 +74,8 @@ public enum SysConfKeys {
 	 */
 	sds_s3_region,
 
+	sds_s3_insecure,
+
 	/**
 	 * SDS remove delay (backup retention), expressed in days
 	 */
@@ -95,6 +97,8 @@ public enum SysConfKeys {
 	sds_filehosting_s3_secret_key, //
 
 	sds_filehosting_s3_region, //
+
+	sds_filehosting_s3_insecure, //
 
 	/**
 	 * 

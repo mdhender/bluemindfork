@@ -41,9 +41,13 @@ public class SystemConf {
 	}
 
 	public Boolean booleanValue(String prop) {
+		return booleanValue(prop, null);
+	}
+
+	public Boolean booleanValue(String prop, Boolean defaultValue) {
 		String value = values.get(prop);
 		if (value == null) {
-			return null;
+			return defaultValue;
 		} else {
 			return Boolean.valueOf(value);
 		}

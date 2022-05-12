@@ -31,22 +31,16 @@ import io.netty.channel.kqueue.KQueue;
 import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.http.SdkHttpConfigurationOption;
 import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient;
 import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient.Builder;
 import software.amazon.awssdk.http.nio.netty.SdkEventLoopGroup;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3AsyncClientBuilder;
+import software.amazon.awssdk.utils.AttributeMap;
 
 public class S3ClientFactory {
-
-	static {
-//		System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "");
-//		System.setProperty(SkipMd5CheckStrategy.DISABLE_GET_OBJECT_MD5_VALIDATION_PROPERTY, "");
-//		System.setProperty(SkipMd5CheckStrategy.DISABLE_PUT_OBJECT_MD5_VALIDATION_PROPERTY, "");
-
-	}
-
 	@SuppressWarnings("serial")
 	private static class S3ConfigException extends RuntimeException {
 
@@ -70,8 +64,10 @@ public class S3ClientFactory {
 			} else if (KQueue.isAvailable()) {
 				nettySetup.eventLoopGroup(SdkEventLoopGroup.create(new KQueueEventLoopGroup()));
 			}
+
 			S3AsyncClientBuilder builder = S3AsyncClient.builder();
-			builder.httpClientBuilder(nettySetup);
+			builder.httpClient(nettySetup.buildWithDefaults(AttributeMap.builder()
+					.put(SdkHttpConfigurationOption.TRUST_ALL_CERTIFICATES, s3Configuration.isInsecure()).build()));
 			builder.credentialsProvider(StaticCredentialsProvider.create(
 					AwsBasicCredentials.create(s3Configuration.getAccessKey(), s3Configuration.getSecretKey())));
 			if (!Strings.isNullOrEmpty(s3Configuration.getRegion())) {

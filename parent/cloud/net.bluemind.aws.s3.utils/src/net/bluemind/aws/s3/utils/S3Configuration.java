@@ -26,9 +26,11 @@ public class S3Configuration {
 	public String accessKey;
 	public String secretKey;
 	public String bucket;
+	// Trust all tls certificates
+	public Boolean insecure;
 
 	public S3Configuration() {
-		// ok
+		insecure = false;
 	}
 
 	public static S3Configuration withEndpointAndBucket(String endpoint, String bucket) {
@@ -36,17 +38,18 @@ public class S3Configuration {
 	}
 
 	public static S3Configuration withEndpointBucketKeys(String endpoint, String bucket, String ak, String sk) {
-		return withEndpointBucketKeys(endpoint, bucket, ak, sk, "");
+		return withEndpointBucketKeys(endpoint, bucket, ak, sk, "", false);
 	}
 
 	public static S3Configuration withEndpointBucketKeys(String endpoint, String bucket, String ak, String sk,
-			String region) {
+			String region, Boolean insecure) {
 		S3Configuration sc = new S3Configuration();
 		sc.endpoint = endpoint;
 		sc.bucket = bucket;
 		sc.accessKey = ak;
 		sc.secretKey = sk;
 		sc.region = region;
+		sc.insecure = insecure;
 		return sc;
 	}
 
@@ -59,6 +62,7 @@ public class S3Configuration {
 				.put("accessKey", accessKey)//
 				.put("secretKey", secretKey)//
 				.put("bucket", bucket)//
+				.put("insecure", insecure)//
 		;
 	}
 
@@ -69,6 +73,7 @@ public class S3Configuration {
 		conf.accessKey = configuration.getString("accessKey");
 		conf.secretKey = configuration.getString("secretKey");
 		conf.bucket = configuration.getString("bucket");
+		conf.insecure = configuration.getBoolean("insecure", false);
 		return conf;
 	}
 
@@ -90,6 +95,10 @@ public class S3Configuration {
 
 	public String getBucket() {
 		return bucket;
+	}
+
+	public Boolean isInsecure() {
+		return insecure;
 	}
 
 }

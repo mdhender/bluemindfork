@@ -49,7 +49,8 @@ public interface ISdsBackingStoreFactory {
 				.put("accessKey", sysconf.stringValue(SysConfKeys.sds_s3_access_key.name()))//
 				.put("secretKey", sysconf.stringValue(SysConfKeys.sds_s3_secret_key.name()))//
 				.put("region", sysconf.stringValue(SysConfKeys.sds_s3_region.name()))//
-				.put("bucket", sysconf.stringValue(SysConfKeys.sds_s3_bucket.name()));
+				.put("bucket", sysconf.stringValue(SysConfKeys.sds_s3_bucket.name()))//
+				.put("insecure", sysconf.booleanValue(SysConfKeys.sds_s3_insecure.name(), false));
 		return this.create(vertx, jsonconf);
 	}
 
