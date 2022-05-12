@@ -113,7 +113,8 @@ async function fetchAndConsolidateExternalAccounts(externalSystems) {
                 ? {
                       logo: externalSystem.logo,
                       identifier,
-                      login: rawExternalAccount.login
+                      login: rawExternalAccount.login,
+                      auth: externalSystem.authKind
                   }
                 : undefined;
         })

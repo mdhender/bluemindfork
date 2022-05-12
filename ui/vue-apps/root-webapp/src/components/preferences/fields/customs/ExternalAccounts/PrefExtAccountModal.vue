@@ -32,6 +32,7 @@
                 <bm-form-input id="login" ref="login-input" v-model="externalAccount_.login" required />
             </bm-form-group>
             <bm-form-group
+                v-if="needsCredentials"
                 id="password-group"
                 :label="$t('common.password')"
                 label-for="password"
@@ -44,6 +45,7 @@
                     :type="showPassword ? 'text' : 'password'"
                     required
                     actionable-icon
+                    autocomplete="new-password"
                     icon="eye"
                     :placeholder="
                         externalAccount_.isNew
@@ -61,11 +63,7 @@
                 <bm-button
                     id="authentication-test"
                     variant="outline-secondary"
-                    :disabled="
-                        testStatus === TestStatus.IN_PROGRESS ||
-                        !externalAccount_.login ||
-                        !externalAccount_.credentials
-                    "
+                    :disabled="testStatus === TestStatus.IN_PROGRESS || !externalAccount_.login || !hasCredentials"
                     @click="testAccount(externalAccount_)"
                 >
                     {{ $t("common.test") }}
@@ -115,7 +113,7 @@ export default {
     },
     computed: {
         okDisabled() {
-            return !this.externalAccount_.login || (this.externalAccount_.isNew && !this.externalAccount_.credentials);
+            return !this.externalAccount_.login || (this.externalAccount_.isNew && !this.hasCredentials);
         },
         testAccountResultIcon() {
             return this.testStatus === TestStatus.VERIFIED
@@ -137,6 +135,12 @@ export default {
                 : this.testStatus === TestStatus.REJECTED
                 ? this.$t("preferences.account.external_accounts.modal.authentication.failed")
                 : this.$t("preferences.account.external_accounts.modal.authentication.not_supported");
+        },
+        needsCredentials() {
+            return this.externalAccount.authKind !== "NONE";
+        },
+        hasCredentials() {
+            return !this.needsCredentials || this.externalAccount_.credentials;
         }
     },
     methods: {
