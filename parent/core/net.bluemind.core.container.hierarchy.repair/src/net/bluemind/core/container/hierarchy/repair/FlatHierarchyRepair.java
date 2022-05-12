@@ -100,14 +100,10 @@ public class FlatHierarchyRepair implements IDirEntryRepairSupport {
 			IInternalContainersFlatHierarchy hierApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(IInternalContainersFlatHierarchy.class, domainUid, entry.entryUid);
 			IContainers contApi = context.provider().instance(IContainers.class);
+
 			List<BaseContainerDescriptor> ownedContainers = contApi
 					.allLight(ContainerQuery.ownerAndType(entry.entryUid, null)).stream()
-					// as we did not clear the directory db, all databases have
-					// a copy of the
-					// containers...
 					.filter(distinctByKey(c -> c.uid)) //
-					.filter(c -> entry.dataLocation == null
-							|| entry.dataLocation.equals(DataSourceRouter.location(context, c.uid)))
 					.collect(Collectors.toList());
 
 			IInternalContainersFlatHierarchy adminHierApi = ServerSideServiceProvider
