@@ -13,6 +13,9 @@ package net.bluemind.central.reverse.proxy.vertx.impl;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -42,6 +45,7 @@ public class HttpProxyImpl implements HttpProxy {
 	private Function<HttpServerRequestContext, Future<SocketAddress>> selector = req -> Future
 			.failedFuture("No origin available");
 	private BiConsumer<HttpServerRequestContext, ProxyResponse> responseHook;
+	private Logger logger = LoggerFactory.getLogger(HttpProxyImpl.class);
 
 	public HttpProxyImpl(ProxyOptions options, HttpClient client) {
 		this.client = client;
@@ -81,6 +85,9 @@ public class HttpProxyImpl implements HttpProxy {
 
 		ProxyContext bh = new Proxy();
 		bh.handleProxyRequest(proxyRequest, ar -> {
+			if (ar.failed()) {
+				logger.error("handle request error: {}", ar.cause().getMessage());
+			}
 		});
 	}
 
@@ -105,20 +112,15 @@ public class HttpProxyImpl implements HttpProxy {
 							outboundResponse.setStatusCode(101);
 							outboundResponse.headers().addAll(inboundResponse.headers());
 							Future<NetSocket> otherso = outboundRequest.toNetSocket();
-							otherso.onComplete(ar3 -> {
-								if (ar3.succeeded()) {
-									NetSocket outboundSocket = ar3.result();
-									NetSocket inboundSocket = inboundResponse.netSocket();
-									outboundSocket.handler(inboundSocket::write);
-									inboundSocket.handler(outboundSocket::write);
-									outboundSocket.closeHandler(v -> inboundSocket.close());
-									inboundSocket.closeHandler(v -> outboundSocket.close());
-								} else {
-									// Find reproducer
-									System.err.println("Handle this case");
-									ar3.cause().printStackTrace();
-								}
-							});
+							otherso.onSuccess(outboundSocket -> {
+								NetSocket inboundSocket = inboundResponse.netSocket();
+								outboundSocket.handler(inboundSocket::write);
+								inboundSocket.handler(outboundSocket::write);
+								outboundSocket.closeHandler(v -> inboundSocket.close());
+								inboundSocket.closeHandler(v -> outboundSocket.close());
+							}).onFailure(t -> logger.error(
+									"unknown error while trying to convert outboundRequest toNetSocket(): {}",
+									t.getMessage(), t));
 						} else {
 							// Rejection
 							outboundRequest.resume();
