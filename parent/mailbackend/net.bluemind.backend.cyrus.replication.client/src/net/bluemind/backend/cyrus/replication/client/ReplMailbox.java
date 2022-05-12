@@ -26,6 +26,7 @@ import java.util.UUID;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.imap.Acl;
+import net.bluemind.lib.jutf7.UTF7Converter;
 
 /**
  * 
@@ -120,10 +121,10 @@ public class ReplMailbox {
 				return domainUid + "!user." + mailboxName.replace('.', '^');
 			} else {
 				return domainUid + "!user." + mailboxName.replace('.', '^') + "."
-						+ folderName.replace('.', '^').replace('/', '.');
+						+ UTF7Converter.encode(folderName).replace('.', '^').replace('/', '.');
 			}
 		} else {
-			return domainUid + "!" + folderName.replace('.', '^').replace('/', '.');
+			return domainUid + "!" + UTF7Converter.encode(folderName).replace('.', '^').replace('/', '.');
 		}
 	}
 
