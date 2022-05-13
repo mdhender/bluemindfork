@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
 
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.core.caches.registry.CacheRegistry;
@@ -101,6 +102,10 @@ public class MailboxRecordItemCache {
 		public void registerCaches(CacheRegistry cr) {
 			cr.registerReadOnly("mail-replica-uid-to-item", uidToItem);
 		}
+	}
+
+	public static CacheStats stats() {
+		return uidToItem.stats();
 	}
 
 	public static Optional<ItemValue<MailboxRecord>> getAndInvalidate(RecordRef ref) {

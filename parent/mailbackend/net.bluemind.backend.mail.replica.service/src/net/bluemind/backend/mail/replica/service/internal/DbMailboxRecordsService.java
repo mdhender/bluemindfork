@@ -88,6 +88,8 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		implements IInternalRecordBasedMailConversations {
@@ -326,12 +328,20 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 
 	@Override
 	public void updates(List<MailboxRecord> recs) {
-		BlockingQueue<List<MailboxRecord>> queue = updateQueue.computeIfAbsent(mailboxUniqueId,
-				k -> new ArrayBlockingQueue<List<MailboxRecord>>(50));
+		if (recs.isEmpty()) {
+			return;
+		}
 
 		if (processClonedRefs(recs)) {
 			return;
+		} else if (StateContext.getState() == SystemState.CORE_STATE_CLONING) {
+			logger.warn("[{}] unknown ids in MailboxRecordItemCache {}", mailboxUniqueId,
+					MailboxRecordItemCache.stats());
+			return;
 		}
+
+		BlockingQueue<List<MailboxRecord>> queue = updateQueue.computeIfAbsent(mailboxUniqueId,
+				k -> new ArrayBlockingQueue<List<MailboxRecord>>(50));
 
 		try {
 			int retry = 0;
@@ -361,9 +371,6 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 	}
 
 	private boolean processClonedRefs(List<MailboxRecord> recs) {
-		if (recs.isEmpty()) {
-			return false;
-		}
 		List<ItemValue<MailboxRecord>> knownRecs = recs.stream()
 				.map(r -> new MailboxRecordItemCache.RecordRef(mailboxUniqueId, r.imapUid, r.messageBody))
 				.map(MailboxRecordItemCache::getAndInvalidate).filter(Optional::isPresent).map(Optional::get)
