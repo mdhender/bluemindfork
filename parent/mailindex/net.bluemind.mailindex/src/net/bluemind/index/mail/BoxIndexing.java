@@ -272,8 +272,15 @@ public class BoxIndexing {
 		return new HashSet<>(MessageFlagsHelper.asFlags(imapFlags)).equals(flags);
 	}
 
-	private static Map<Integer, MailSummary> asMap(List<MailSummary> list) {
-		return list.stream().collect(Collectors.toMap(sum -> sum.uid, Function.identity()));
+	private Map<Integer, MailSummary> asMap(List<MailSummary> list) {
+		return list.stream().collect(Collectors.toMap(sum -> sum.uid, Function.identity(), (sum1, sum2) -> {
+			String summary1Flags = sum1.flags != null ? String.join(",", sum1.flags) : "";
+			String summary2Flags = sum2.flags != null ? String.join(",", sum2.flags) : "";
+			logger.info(
+					"Found duplicate imap uid {}, summary 1 (parent:{}, flags: {}) vs. summary 2 (parent {}, flags: {}). Keeping summary 2",
+					sum1.uid, sum1.parentId, summary1Flags, sum2.parentId, summary2Flags);
+			return sum2;
+		}, HashMap::new));
 	}
 
 	protected interface IndexAction {
