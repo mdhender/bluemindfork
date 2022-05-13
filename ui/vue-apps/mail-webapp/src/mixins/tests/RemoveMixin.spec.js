@@ -78,7 +78,7 @@ describe("RemoveMixin", () => {
         RemoveMixin.$store.getters["mail/CONVERSATIONS_ACTIVATED"] = true;
         await RemoveMixin.MOVE_CONVERSATIONS_TO_TRASH(conversations);
         expect(RemoveMixin.$store.dispatch).toHaveBeenCalledWith(`mail/${MOVE_CONVERSATIONS}`, {
-            destinationFolder: RemoveMixin.$_RemoveMixin_trash,
+            folder: RemoveMixin.$_RemoveMixin_trash,
             conversations: conversations,
             conversationsActivated: true,
             mailbox: { key: "currentMailbox" }

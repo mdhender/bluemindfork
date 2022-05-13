@@ -45,7 +45,7 @@ async function moveConversations({ conversations, folder }) {
         {
             conversations,
             mailbox: this.$_MoveMixin_mailbox,
-            destinationFolder: folder,
+            folder,
             conversationsActivated: this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`]
         },
         this.$_MoveMixin_mailbox,
@@ -55,11 +55,11 @@ async function moveConversations({ conversations, folder }) {
 }
 
 async function move(payload, mailbox, createAction, moveAction) {
-    let { destinationFolder } = payload;
-    if (!destinationFolder.key) {
-        destinationFolder = await createAction({ ...destinationFolder, mailbox });
+    let { folder } = payload;
+    if (!folder.key) {
+        folder = await createAction({ ...folder, mailbox });
     }
-    moveAction({ ...payload, destinationFolder });
+    moveAction({ ...payload, folder });
 }
 
 function navigateConversations(action) {

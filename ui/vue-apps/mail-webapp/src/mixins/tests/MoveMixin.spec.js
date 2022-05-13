@@ -27,37 +27,37 @@ describe("MoveMixin", () => {
         MoveMixin.navigateTo = jest.fn();
     });
     let conversations;
-    let destinationFolder;
+    let folder;
     beforeEach(() => {
         MoveMixin.$_MoveMixin_move.mockClear();
         MoveMixin.$_MoveMixin_create.mockClear();
         MoveMixin.$router.navigate.mockClear();
         MoveMixin.$store.getters["mail/IS_CURRENT_CONVERSATION"].mockClear();
         conversations = [{ key: "conversation", folderRef: { key: "key" } }];
-        destinationFolder = MoveMixin.$_MoveMixin_folders["key2"];
+        folder = MoveMixin.$_MoveMixin_folders["key2"];
     });
 
     test("MOVE_CONVERSATIONS to call moveConversations action", async () => {
         MoveMixin.$store.getters["mail/CONVERSATIONS_ACTIVATED"] = true;
-        await MoveMixin.MOVE_CONVERSATIONS({ conversations, folder: destinationFolder });
+        await MoveMixin.MOVE_CONVERSATIONS({ conversations, folder: folder });
         expect(MoveMixin.$_MoveMixin_moveConversations).toHaveBeenCalledWith({
             conversations,
             conversationsActivated: true,
-            destinationFolder,
+            folder,
             mailbox: {}
         });
     });
 
     test("MOVE_CONVERSATIONS not to call create action if folder exist", async () => {
-        await MoveMixin.MOVE_CONVERSATIONS({ conversations, folder: destinationFolder });
+        await MoveMixin.MOVE_CONVERSATIONS({ conversations, folder: folder });
         expect(MoveMixin.$_MoveMixin_create).not.toHaveBeenCalled();
     });
     test("MOVE_CONVERSATIONS to call create action if folder does not exist", async () => {
-        const destinationFolder = { name: "toto" };
-        await MoveMixin.MOVE_CONVERSATIONS({ conversations, folder: destinationFolder });
+        const folder = { name: "toto" };
+        await MoveMixin.MOVE_CONVERSATIONS({ conversations, folder: folder });
         expect(MoveMixin.$_MoveMixin_create).toHaveBeenCalledWith({
             mailbox: MoveMixin.$_MoveMixin_mailbox,
-            ...destinationFolder
+            ...folder
         });
     });
     test("MOVE_CONVERSATIONS to call navigate if current conversation is moved", async () => {

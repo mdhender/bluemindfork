@@ -344,17 +344,14 @@ function markConversationsAsUnflagged(store, { conversations, conversationsActiv
     return deleteFlag(store, conversations, conversationsActivated, mailbox, Flag.FLAGGED);
 }
 
-async function moveConversations(
-    { getters, commit },
-    { conversations, mailbox, destinationFolder, conversationsActivated }
-) {
+async function moveConversations({ getters, commit }, { conversations, mailbox, folder, conversationsActivated }) {
     conversations = ensureArray(conversations);
     const messages = messagesInConversationFolder(getters, conversations);
     commit(REMOVE_CONVERSATIONS, conversations);
     try {
         conversationsActivated
-            ? await apiConversations.move(conversations, destinationFolder, mailbox)
-            : await apiMessages.move(messages, destinationFolder);
+            ? await apiConversations.move(conversations, folder, mailbox)
+            : await apiMessages.move(messages, folder);
     } catch (e) {
         commit(ADD_CONVERSATIONS, { conversations });
         commit(ADD_MESSAGES, { messages, preserve: true });
@@ -426,12 +423,10 @@ async function emptyFolder({ commit, state }, { folder, mailbox, deep }) {
 
 function removeMessages({ conversationByKey }, messages) {
     messages.forEach(message => {
-        if (message.loading === LoadingStatus.ERROR) {
-            const conversation = conversationByKey[message.conversationRef.key];
-            const index = conversation.messages.indexOf(message.key);
-            if (index >= 0) {
-                conversation.messages.splice(index, 1);
-            }
+        const conversation = conversationByKey[message.conversationRef.key];
+        const index = conversation?.messages.indexOf(message.key);
+        if (index >= 0) {
+            conversation.messages.splice(index, 1);
         }
     });
 }

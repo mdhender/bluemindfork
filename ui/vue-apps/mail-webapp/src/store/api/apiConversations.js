@@ -10,10 +10,10 @@ export default {
     deleteFlag(conversations, flag, mailbox) {
         return manageFlag(conversations, flag, mailbox, "deleteFlag");
     },
-    move(conversations, destinationFolder, mailbox) {
+    move(conversations, folder, mailbox) {
         return groupByFolderAndExecute(conversations, mailbox, ({ mailbox, folderUid, conversations }) =>
             conversationActionsApi(mailbox.remoteRef.uid, folderUid).move(
-                destinationFolder.remoteRef.uid,
+                folder.remoteRef.uid,
                 conversations.map(({ remoteRef: { uid } }) => uid)
             )
         );

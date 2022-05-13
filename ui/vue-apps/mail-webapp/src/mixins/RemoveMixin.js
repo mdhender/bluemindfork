@@ -32,7 +32,7 @@ export default {
                 this.$store.dispatch(`mail/${MOVE_CONVERSATIONS}`, {
                     conversations,
                     conversationsActivated: this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`],
-                    destinationFolder: trash,
+                    folder: trash,
                     mailbox: this.$store.getters[`mail/${CURRENT_MAILBOX}`]
                 });
                 return true;
