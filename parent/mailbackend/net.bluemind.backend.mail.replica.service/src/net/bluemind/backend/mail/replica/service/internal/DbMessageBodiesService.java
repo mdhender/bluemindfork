@@ -51,6 +51,8 @@ import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.vertx.VertxStream;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class DbMessageBodiesService implements IDbMessageBodies {
 
@@ -89,7 +91,7 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 						.filter(h -> MailApiHeaders.X_BM_INTERNAL_ID.equals(h.name)).findAny();
 				Optional<Header> prevHeader = body.headers.stream()
 						.filter(h -> MailApiHeaders.X_BM_PREVIOUS_BODY.equals(h.name)).findAny();
-				if (idHeader.isPresent()) {
+				if (idHeader.isPresent() && StateContext.getState() != SystemState.CORE_STATE_CLONING) {
 					String idStr = idHeader.get().firstValue();
 					int instIdx = idStr.lastIndexOf(':');
 					int ownerIdx = idStr.lastIndexOf('#');
