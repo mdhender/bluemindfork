@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Promise;
 import net.bluemind.central.reverse.proxy.kafka.KafkaAdminClient;
 import net.bluemind.central.reverse.proxy.kafka.KafkaConsumerClient;
@@ -46,29 +48,37 @@ public class ProxyInfoVerticle extends AbstractVerticle {
 		KafkaAdminClient adminClient = KafkaAdminClient.create(bootstrapServers);
 		adminClient.listTopics().map(InstallationTopics::new).onSuccess(installationTopics -> {
 			logger.info("Subscribing to {}", installationTopics.domainTopics);
-			setupConsumer(bootstrapServers, installationTopics);
+
+			DeploymentOptions dep = new DeploymentOptions().setInstances(8);
+			List<String> topicNames = topicNamesToConsume(installationTopics);
+			AtomicInteger cidAlloc = new AtomicInteger();
+			vertx.deployVerticle(() -> new AbstractVerticle() {
+				@Override
+				public void start() throws Exception {
+					KafkaConsumerClient<byte[], byte[]> consumer = createConsumer(bootstrapServers, CONSUMER_GROUP_NAME,
+							"cons-slice-" + cidAlloc.incrementAndGet());
+					consumers.add(consumer);
+					consumer.handler(recordHandler).subscribe(topicNames);
+				}
+			}, dep);
+
 			p.complete();
 		}).onFailure(t -> logger.error("Unable to list installation topic names", t));
+
 	}
 
 	private void setupStore() {
 		store.setup();
 	}
 
-	private void setupConsumer(String bootstrapServers, InstallationTopics topics) {
-		List<String> topicNames = topicNamesToConsume(topics);
-		KafkaConsumerClient<byte[], byte[]> consumer = createConsumer(bootstrapServers, CONSUMER_GROUP_NAME);
-		consumers.add(consumer);
-		consumer.handler(recordHandler).subscribe(topicNames);
-		logger.info("consumer {} subscibed to {}", CONSUMER_GROUP_NAME, topicNames);
-	}
-
-	private KafkaConsumerClient<byte[], byte[]> createConsumer(String bootstrapServers, String groupInstanceId) {
+	private KafkaConsumerClient<byte[], byte[]> createConsumer(String bootstrapServers, String groupInstanceId,
+			String cid) {
 		Properties props = new Properties();
 		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
 		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, groupInstanceId);
+		props.put(ConsumerConfig.CLIENT_ID_CONFIG, cid);
 		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 		props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
 
