@@ -141,7 +141,9 @@ export default {
         conversations.forEach(({ messages }) => messages.forEach(key => Vue.delete(state, key)));
     },
     [RESET_CONVERSATIONS]: state => {
-        Object.assign(state, {});
+        for (const key in state) {
+            delete state[key];
+        }
     }
 };
 
