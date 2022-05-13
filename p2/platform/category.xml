@@ -115,6 +115,7 @@
     <bundle id="net.bluemind.cli.inject.imap" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.cli.inject.node" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.cli.job" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.journaling" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.cli.launcher" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.cli.mail" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.cli.mapi" version="4.1.0.qualifier" />
@@ -127,7 +128,6 @@
     <bundle id="net.bluemind.cli.user" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.cli.utils" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.cli.wazo" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.cli.journaling" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.common.cache.persistence" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.common.freemarker" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.common.hollow" version="4.1.0.qualifier" />
@@ -263,15 +263,15 @@
     <bundle id="net.bluemind.dockerclient" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.document.api" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.document.api.php" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.documentfolder.api" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.documentfolder.api.php" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.documentfolder.domainfolder" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.documentfolder.service" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.document.persistence" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.document.persistence.fs" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.document.service" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.document.sqlschema" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.document.storage" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.documentfolder.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.documentfolder.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.documentfolder.domainfolder" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.documentfolder.service" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.domain.api" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.domain.api.gwt" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.domain.api.php" version="4.1.0.qualifier" />
@@ -371,16 +371,16 @@
     <bundle id="net.bluemind.icalendar.parser" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.icalendar.persistence" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.icalendar.sqlschema" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.imap" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.im.api" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.im.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.im.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.im.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.im.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.imap" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.imap.tagproducers" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.imap.translate" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.imap.vertx" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.imip.parser" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.im.persistence" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.im.service" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.im.sqlschema" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.jdbc.driver.pgsql" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.jdbc.pgsql.provider" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.jilter" version="4.1.0.qualifier" />
@@ -456,9 +456,9 @@
     <bundle id="net.bluemind.metrics.transport" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.metrics.ui.role" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.milter" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.milter.action.journaling" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.milter.action.misc" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.milter.action.signature" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.milter.action.journaling" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.milter.metrics" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.milter.srs" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.mime4j.bodies" version="4.1.0.qualifier" />
@@ -555,7 +555,6 @@
     <bundle id="net.bluemind.system.api.php" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.auth" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.config" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.systemd.notify" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.domaintemplate" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.helper" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.hook" version="4.1.0.qualifier" />
@@ -584,6 +583,7 @@
     <bundle id="net.bluemind.system.upgraders.sqlschema" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.validation" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.webmail" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.systemd.notify" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.tag.api" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.tag.api.closure" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.tag.api.gwt" version="4.1.0.qualifier" />
@@ -710,10 +710,11 @@
     <bundle id="net.bluemind.webmodule.filehostinghandler" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webmodule.gwtserver" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webmodule.inputfilter" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodule.server" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodule.uploadhandler" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webmodules.calendar" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webmodules.chooser" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webmodules.contact" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.webmodule.server" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webmodules.fonts" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webmodules.launcher" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webmodules.loginapp" version="4.1.0.qualifier" />
@@ -725,7 +726,6 @@
     <bundle id="net.bluemind.webmodules.webapp" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webmodules.webapp.wrapper" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webmodules.webmail" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.webmodule.uploadhandler" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.xivo.bridge" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.xivo.calendar.hook" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.xivo.client" version="4.1.0.qualifier" />

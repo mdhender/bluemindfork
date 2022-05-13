@@ -333,6 +333,7 @@
       <plugin id="net.bluemind.metrics.ui.role"/>
       <plugin id="net.bluemind.mime4j.bodies"/>
       <plugin id="net.bluemind.mime4j.common"/>
+      <plugin id="net.bluemind.ms-graph"/>
       <plugin id="net.bluemind.network.topology"/>
       <plugin id="net.bluemind.network.topology.producer"/>
       <plugin id="net.bluemind.network.utils"/>
@@ -446,6 +447,7 @@
       <plugin id="net.bluemind.videoconferencing.saas.room.sqlschema"/>
       <plugin id="net.bluemind.videoconferencing.saas.service"/>
       <plugin id="net.bluemind.videoconferencing.service"/>
+      <plugin id="net.bluemind.videoconferencing.utils"/>
       <plugin id="net.bluemind.webmail.sqlschema"/>
       <plugin id="net.bluemind.xivo.client"/>
       <plugin id="net.bluemind.xivo.common"/>
