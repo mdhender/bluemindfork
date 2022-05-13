@@ -17,11 +17,11 @@
   */
 package net.bluemind.calendar.service.internal.repair;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -34,10 +34,17 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 
 import net.bluemind.calendar.api.CalendarView;
+import net.bluemind.calendar.api.CalendarView.CalendarViewType;
+import net.bluemind.calendar.api.ICalendarUids;
+import net.bluemind.calendar.api.ICalendarViewUids;
 import net.bluemind.calendar.api.IUserCalendarViews;
 import net.bluemind.core.api.report.DiagnosticReport;
+import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -76,48 +83,96 @@ public class CalendarViewRepairSupport implements IDirEntryRepairSupport {
 		@SuppressWarnings("deprecation")
 		@Override
 		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			IUserCalendarViews view = context.provider().instance(IUserCalendarViews.class, domainUid, entry.entryUid);
+			Optional<ContainerDescriptor> viewContainer = checkForViewContainer(monitor, entry, () -> {
+			});
 
-			processCalendarViews(view.list().values, viewData -> {
-				logger.info("Calendarview {}:{} contains inaccessible calendars {}", viewData.view.uid,
-						viewData.view.displayName, Arrays.toString(viewData.missingCalendars.toArray()));
-				monitor.log("Calendarview " + viewData.view.uid + ":" + viewData.view.displayName
-						+ " contains inaccessible calendars " + Arrays.toString(viewData.missingCalendars.toArray()));
+			if (!viewContainer.isPresent()) {
+				logger.info("Skipping other calendarview checks");
+				monitor.log("Skipping other calendarview checks");
+				return;
+			}
+
+			IUserCalendarViews view = context.provider().instance(IUserCalendarViews.class, domainUid, entry.entryUid);
+			List<ItemValue<CalendarView>> views = view.list().values;
+
+			checkForDefaultView(monitor, entry, views, () -> {
+			});
+
+			processCalendarViews(monitor, views, viewData -> {
 			});
 		}
 
 		@SuppressWarnings("deprecation")
 		@Override
 		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			IUserCalendarViews view = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(IUserCalendarViews.class, domainUid, entry.entryUid);
-			IContainers containerService = context.provider().instance(IContainers.class);
+			IContainers containerService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IContainers.class);
 
-			ArrayList<ItemValue<CalendarView>> views = new ArrayList<>(view.list().values);
-			for (ItemValue<CalendarView> calendarview : views.stream().collect(Collectors.toList())) {
-				if (calendarview.value == null) {
-					// t_container exists, t_container_item exists, but value does not exists
-					logger.info("calendarview {}:{} has no corresponding t_calendarview entry", calendarview.uid,
-							calendarview.displayName);
-					monitor.log("calendarview " + calendarview.uid + ":" + calendarview.displayName
-							+ " has no corresponding t_calendarview entry");
-					views.remove(calendarview);
-					containerService.delete(calendarview.uid);
+			checkForViewContainer(monitor, entry, () -> {
+				String containerUid = ICalendarViewUids.userCalendarView(entry.entryUid);
+				ContainerDescriptor containerDescriptor = ContainerDescriptor.create(containerUid, entry.displayName,
+						entry.entryUid, "calendarview", domainUid, true);
+				containerService.create(containerUid, containerDescriptor);
+				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+						.instance(IContainerManagement.class, containerUid)
+						.setAccessControlList(Arrays.asList(AccessControlEntry.create(entry.entryUid, Verb.All)));
+			});
+
+			IUserCalendarViews view = context.provider().instance(IUserCalendarViews.class, domainUid, entry.entryUid);
+			List<ItemValue<CalendarView>> views = view.list().values;
+
+			checkForDefaultView(monitor, entry, views, () -> {
+				Optional<ItemValue<CalendarView>> existingDefaultView = view.list().values.stream()
+						.filter(v -> v.uid.equals("default")).findFirst();
+				if (!existingDefaultView.isPresent()) {
+					CalendarView defaultView = new CalendarView();
+					defaultView.label = "$$calendarhome$$";
+					defaultView.type = CalendarViewType.WEEK;
+					defaultView.calendars = Arrays.asList(ICalendarUids.defaultUserCalendar(entry.entryUid));
+					view.create("default", defaultView);
 				}
-			}
+				view.setDefault("default");
+			});
 
-			processCalendarViews(views, viewData -> {
-				logger.info("Calendarview {}:{} contains inaccessible calendar {}", viewData.view.uid,
-						viewData.view.displayName, viewData.existingCalendars);
-				monitor.log("Calendarview " + viewData.view.uid + ":" + viewData.view.displayName
-						+ " contains inaccessible calendar " + viewData.view.uid);
+			views = view.list().values;
 
+			processCalendarViews(monitor, views, viewData -> {
 				viewData.view.value.calendars = viewData.existingCalendars;
 				view.update(viewData.view.uid, viewData.view.value);
 			});
 		}
 
-		private void processCalendarViews(List<ItemValue<CalendarView>> views, Consumer<ViewCalendarData> op) {
+		private Optional<ContainerDescriptor> checkForViewContainer(IServerTaskMonitor monitor, DirEntry dirEntry,
+				Runnable op) {
+			String containerUid = ICalendarViewUids.userCalendarView(dirEntry.entryUid);
+
+			IContainers containerService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IContainers.class);
+
+			ContainerDescriptor container = containerService.getIfPresent(containerUid);
+			if (container == null) {
+				logger.info("Calendarview container {} is missing", containerUid);
+				monitor.log("Calendarview container " + containerUid + " is missing");
+				op.run();
+				return Optional.ofNullable(containerService.getIfPresent(containerUid));
+			} else {
+				return Optional.of(container);
+			}
+		}
+
+		private void checkForDefaultView(IServerTaskMonitor monitor, DirEntry dirEntry,
+				List<ItemValue<CalendarView>> views, Runnable op) {
+			String userCalendarView = ICalendarViewUids.userCalendarView(dirEntry.entryUid);
+			if (views.stream().noneMatch(view -> view.value != null && view.value.isDefault)) {
+				logger.info("Default calendarview {} is missing", userCalendarView);
+				monitor.log("Default calendarview " + userCalendarView + " is missing");
+				op.run();
+			}
+
+		}
+
+		private void processCalendarViews(IServerTaskMonitor monitor, List<ItemValue<CalendarView>> views,
+				Consumer<ViewCalendarData> op) {
 			IContainers containerService = context.provider().instance(IContainers.class);
 
 			for (ItemValue<CalendarView> view : views) {
@@ -126,6 +181,10 @@ public class CalendarViewRepairSupport implements IDirEntryRepairSupport {
 				Collection<String> missing = Collections2.filter(view.value.calendars,
 						Predicates.not(Predicates.in(existing)));
 				if (!missing.isEmpty()) {
+					logger.info("Calendarview {}:{} contains inaccessible calendars {}", view.uid, view.displayName,
+							Arrays.toString(missing.toArray()));
+					monitor.log("Calendarview " + view.uid + ":" + view.displayName
+							+ " contains inaccessible calendars " + Arrays.toString(missing.toArray()));
 					op.accept(new ViewCalendarData(view, existing, missing));
 				}
 			}

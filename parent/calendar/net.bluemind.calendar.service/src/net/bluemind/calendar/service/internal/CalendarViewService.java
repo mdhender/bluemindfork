@@ -117,10 +117,13 @@ public class CalendarViewService implements ICalendarView, IInCoreCalendarView, 
 
 		ListResult<ItemValue<CalendarView>> ret = new ListResult<>();
 		List<String> allUids = storeService.allUids();
-		List<ItemValue<CalendarView>> values = new ArrayList<ItemValue<CalendarView>>(allUids.size());
+		List<ItemValue<CalendarView>> values = new ArrayList<>();
 
 		for (String uid : allUids) {
-			values.add(storeService.get(uid, null));
+			ItemValue<CalendarView> val = storeService.get(uid, null);
+			if (val.value != null) {
+				values.add(val);
+			}
 		}
 		ret.total = values.size();
 		ret.values = values;
