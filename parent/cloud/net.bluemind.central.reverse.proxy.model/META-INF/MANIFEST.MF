@@ -18,7 +18,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eclipse.common;bundle-version="1.0.0",
  net.bluemind.system.api,
  slf4j.api,
- com.fasterxml.jackson.core.jackson-annotations
+ com.fasterxml.jackson.core.jackson-annotations,
+ com.fasterxml.jackson.module.jackson-module-afterburner
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.central.reverse.proxy.model,
