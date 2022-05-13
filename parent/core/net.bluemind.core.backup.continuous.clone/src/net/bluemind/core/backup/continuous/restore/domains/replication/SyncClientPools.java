@@ -30,6 +30,8 @@ import stormpot.Pool;
 import stormpot.Poolable;
 import stormpot.QueuePool;
 import stormpot.Slot;
+import stormpot.SlotInfo;
+import stormpot.TimeSpreadExpiration;
 import stormpot.Timeout;
 
 public class SyncClientPools {
@@ -60,7 +62,14 @@ public class SyncClientPools {
 
 	private static Pool<PooledSyncClient> createPool(String serverIp, int port) {
 		SyncClientAllocator alloc = new SyncClientAllocator(serverIp, port);
-		Config<PooledSyncClient> conf = new Config<>().setSize(4).setAllocator(alloc);
+		Config<PooledSyncClient> conf = new Config<>().setSize(4).setAllocator(alloc)
+				.setExpiration(new TimeSpreadExpiration<PooledSyncClient>(2, 4, TimeUnit.MINUTES) {
+					@Override
+					public boolean hasExpired(SlotInfo<? extends PooledSyncClient> info) {
+						return super.hasExpired(info) || info.getPoolable().isExpired();
+					}
+				});
+
 		return new QueuePool<>(conf);
 	}
 
@@ -101,7 +110,6 @@ public class SyncClientPools {
 
 		@Override
 		public PooledSyncClient allocate(Slot slot) throws Exception {
-			System.err.println("ALLOCATE " + slot);
 			PooledSyncClient client = new PooledSyncClient(slot, serverIp, port);
 			client.authenticate("admin0", Token.admin0());
 			return client;

@@ -48,6 +48,7 @@ public class SyncClientOIO implements AutoCloseable {
 	private final LinkedBlockingDeque<String> linesQueue;
 	private OutputStream output;
 	private volatile boolean stopped;
+	private volatile boolean writeError;
 
 	public SyncClientOIO(String host, int port) throws IOException {
 		this.sock = new Socket();
@@ -100,6 +101,10 @@ public class SyncClientOIO implements AutoCloseable {
 		}
 	}
 
+	public boolean isExpired() {
+		return sock.isClosed() || !sock.isConnected() || writeError;
+	}
+
 	private static final Set<String> EXPECT = Sets.newHashSet("OK", "NO", "BAD");
 
 	public String run(String cmd, String... expec) throws IOException {
@@ -119,7 +124,12 @@ public class SyncClientOIO implements AutoCloseable {
 			logger.debug("C: {}", (forLog != null ? forLog : new String(cmd)));
 		}
 
-		output.write(cmd);
+		try {
+			output.write(cmd);
+		} catch (IOException e) {
+			this.writeError = true;
+			throw e;
+		}
 		int attempts = 0;
 		while (true) {
 			try {
