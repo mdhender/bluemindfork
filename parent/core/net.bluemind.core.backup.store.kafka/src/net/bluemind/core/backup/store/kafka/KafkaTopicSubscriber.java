@@ -129,6 +129,10 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 						}
 					}
 
+					// avoid false positive on starvations ?
+					if (lagValue(consumer) > 0) {
+						continue;
+					}
 					ExpectedBehaviour expected = strat.onStarvation(
 							new JsonObject().put("topic", topicName).put("cid", cid).put("records", processed.get()));
 					if (expected == ExpectedBehaviour.ABORT) {
@@ -163,12 +167,21 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 		LongAdder sum = new LongAdder();
 		consumer.assignment().forEach(tp -> consumer.currentLag(tp).ifPresent(lag -> {
 			if (lag > 0) {
-				logger.info("**** LAG part {} => {}", tp.partition(), lag);
+				if (logger.isDebugEnabled()) {
+					logger.debug("**** LAG part {} => {}", tp.partition(), lag);
+				}
 			}
 			sum.add(lag);
 		}));
+		logger.info("**** GLOBAL LAG {}", sum.sum());
 		gauge.set(sum.doubleValue());
 
+	}
+
+	private long lagValue(KafkaConsumer<byte[], byte[]> consumer) {
+		LongAdder sum = new LongAdder();
+		consumer.assignment().forEach(tp -> consumer.currentLag(tp).ifPresent(sum::add));
+		return sum.sum();
 	}
 
 	@Override
