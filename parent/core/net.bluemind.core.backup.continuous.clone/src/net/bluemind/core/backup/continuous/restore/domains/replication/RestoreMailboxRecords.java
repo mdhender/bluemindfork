@@ -9,6 +9,7 @@ import net.bluemind.backend.cyrus.replication.client.SyncClientOIO;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.service.internal.MailboxRecordItemCache;
+import net.bluemind.config.Token;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.restore.CloneException;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreDomainType;
@@ -54,7 +55,8 @@ public class RestoreMailboxRecords extends RestoreReplicated implements RestoreD
 
 		ItemValue<Server> server = state.getServer(repl.part.serverUid);
 		String ip = (server != null) ? server.value.ip : "127.0.0.1";
-		try (SyncClientOIO sync = SyncClientPools.getClient(ip, 2502)) {
+		try (SyncClientOIO sync = new SyncClientOIO(ip, 2502)) {
+			sync.authenticate("admin0", Token.admin0());
 			log.applyMailbox(type(), key);
 			ItemValue<MailboxRecord> rec = recReader.read(payload);
 			MailboxRecordItemCache.store(uniqueId, rec);
