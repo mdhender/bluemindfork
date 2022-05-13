@@ -59,7 +59,10 @@ public class AddDisclaimer {
 	private BasicBodyFactory bodyFactory;
 	private DisclaimerVariables variables;
 	private static final String CRLF = "\r\n";
-	private static final String PLACEHOLDER = "--X-BM-SIGNATURE--";
+
+	static final String LEGACY_PLACEHOLDER = "--X-BM-SIGNATURE--";
+	static final String PLACEHOLDER_PREFIX = "-=+=-=+=-";
+	static final String PLACEHOLDER_SUFFIX = "+=-=+=-=+";
 
 	public AddDisclaimer(Supplier<Optional<VCard>> vCardSupplier) {
 		bodyFactory = new BasicBodyFactory();
@@ -84,25 +87,27 @@ public class AddDisclaimer {
 	}
 
 	public void addToTextPart(Entity e, Map<String, String> configuration) {
-		String disclaimer = CRLF + CRLF + variables.replace(configuration.get("plain"));
-		String content = getBodyContent(e);
-
 		e.getHeader().setField(Fields.contentTransferEncoding("quoted-printable"));
-		if (Boolean.TRUE.equals(Boolean.valueOf(configuration.get("usePlaceholder")))) {
-			int index = content.indexOf(PLACEHOLDER);
-			if (index >= 0 && content.lastIndexOf(PLACEHOLDER) == index) {
-				content = content.replaceFirst(PLACEHOLDER, disclaimer);
-			} else {
-				content = content.replace(PLACEHOLDER, "");
-				content += disclaimer;
-			}
-		} else {
-			content += disclaimer;
-		}
-
+		String content = insertSignatureIntoTextPart(getBodyContent(e), configuration);
 		TextBody tb = toBodyPart(e, content);
-
 		replaceBody(e, tb);
+	}
+
+	private String insertSignatureIntoTextPart(String content, Map<String, String> configuration) {
+		String disclaimer = CRLF + CRLF + variables.replace(configuration.get("plain"));
+		String contentWithSignature = InsertSignatureStrategyFactory
+				.create(content, configuration.get("usePlaceholder")).insertSignature(content, disclaimer);
+		contentWithSignature = cleanLegacyPlaceholder(contentWithSignature);
+		return contentWithSignature;
+	}
+
+	private String cleanLegacyPlaceholder(String contentWithSignature) {
+		return contentWithSignature.replace(LEGACY_PLACEHOLDER, "");
+	}
+
+	private void cleanLegacyPlaceholder(Element bodyContent) {
+		bodyContent.getElementsContainingOwnText(LEGACY_PLACEHOLDER)
+				.forEach(container -> container.html(container.html().replace(LEGACY_PLACEHOLDER, "")));
 	}
 
 	public void addToHtmlPart(Entity e, Map<String, String> configuration) {
@@ -125,7 +130,7 @@ public class AddDisclaimer {
 
 	private Body updateBodyWithDisclaimer(Entity e, Document disclaimerContent, Map<String, String> configuration) {
 		Document bodyContent = extractBody(e);
-		addDisclaimerToContent(disclaimerContent, bodyContent, configuration);
+		insertSignatureIntoHtmlPart(disclaimerContent, bodyContent, configuration);
 		return toBodyPart(e, bodyContent.html());
 	}
 
@@ -137,7 +142,7 @@ public class AddDisclaimer {
 			removeDisclaimerImageFromMessage(parent, bodyContent);
 		}
 		addDisclaimerImagesToMessage(images, parent);
-		addDisclaimerToContent(disclaimerContent, bodyContent, configuration);
+		insertSignatureIntoHtmlPart(disclaimerContent, bodyContent, configuration);
 		return toBodyPart(e, bodyContent.html());
 	}
 
@@ -161,25 +166,18 @@ public class AddDisclaimer {
 		return body;
 	}
 
-	private void addDisclaimerToContent(Document disclaimerContent, Document bodyContent,
+	private void insertSignatureIntoHtmlPart(Document disclaimerContent, Document bodyContent,
 			Map<String, String> configuration) {
 		String hash = variables.uid();
 		if (Boolean.TRUE.equals(Boolean.valueOf(configuration.get("removePrevious")))) {
 			bodyContent.body().getElementsByClass(hash).remove();
 		}
-		String disclaimer = "<div class='" + hash + "'>" + disclaimerContent.html() + "</div>";
-		if (Boolean.TRUE.equals(Boolean.valueOf(configuration.get("usePlaceholder")))) {
-			Elements placeholderContainers = bodyContent.body().getElementsContainingOwnText(PLACEHOLDER);
-			if (placeholderContainers.size() == 1) {
-				String html = placeholderContainers.html().replaceFirst(PLACEHOLDER, disclaimer);
-				html = html.replace(PLACEHOLDER, "");
-				placeholderContainers.html(html);
-				return;
-			} else if (placeholderContainers.size() > 1) {
-				placeholderContainers.forEach(container -> container.html(container.html().replace(PLACEHOLDER, "")));
-			}
-		}
-		bodyContent.body().append(disclaimer);
+
+		String signature = "<div class='" + hash + "'>" + disclaimerContent.body().html() + "</div>";
+		Element body = bodyContent.body();
+		InsertSignatureStrategyFactory.create(body.html(), configuration.get("usePlaceholder")).insertSignature(body,
+				signature);
+		cleanLegacyPlaceholder(body);
 	}
 
 	private Document extractBody(Entity e) {

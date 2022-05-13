@@ -419,11 +419,13 @@ public class AddSignatureActionTests {
 		assertTrue("Text Disclaimer is not present ", eml.indexOf("plain-signature") >= 0);
 		assertTrue("HTML Disclaimer is not present ", eml.indexOf("html-signature") >= 0);
 
-		assertTrue("Text disclaimer was not placed at the end of mail",
-				eml.indexOf("TextAfter") < eml.indexOf("plain-signature"));
-		assertTrue("HTML disclaimer was not placed at the end of mail",
-				eml.indexOf("HTMLAfter") < eml.indexOf("html-signature"));
+		assertTrue("Text disclaimer was not placed where the first legacy placeholder has been found",
+				eml.indexOf("TextBefore") < eml.indexOf("plain-signature")
+						&& eml.indexOf("plain-signature") < eml.indexOf("TextMiddle"));
 
+		assertTrue("HTML disclaimer was not placed at first legacy placeholder found",
+				eml.indexOf("HTMLBefore") < eml.indexOf("html-signature")
+						&& eml.indexOf("html-signature") < eml.indexOf("HTMLMiddle"));
 	}
 
 }
