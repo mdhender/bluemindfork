@@ -108,7 +108,11 @@ const mutations = {
         conversations.forEach(conversation => Vue.delete(state.conversationByKey, conversation.key));
     },
     [SET_CONVERSATIONS_LOADING_STATUS]: (state, { conversations, loading }) => {
-        conversations.forEach(({ key }) => (state.conversationByKey[key].loading = loading));
+        conversations.forEach(({ key }) => {
+            if (state.conversationByKey[key]) {
+                state.conversationByKey[key].loading = loading;
+            }
+        });
     },
     //Hook
     [ADD_MESSAGES]: (state, { messages }) => {
