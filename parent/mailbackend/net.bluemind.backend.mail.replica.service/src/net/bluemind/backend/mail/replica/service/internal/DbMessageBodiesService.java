@@ -162,7 +162,7 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 			List<String> notNull = Optional.ofNullable(toCheck).orElse(Collections.emptyList());
 			List<String> exists = bodyStore.existing(notNull);
 			Set<String> checkCopy = new HashSet<>(notNull);
-			checkCopy.removeAll(exists);
+			exists.forEach(checkCopy::remove);
 
 			// check if the unknown bodies are not in our object store
 			// and process them from here if they are
