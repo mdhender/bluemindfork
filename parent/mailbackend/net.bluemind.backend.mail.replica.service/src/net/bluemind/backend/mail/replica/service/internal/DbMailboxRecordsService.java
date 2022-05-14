@@ -37,6 +37,7 @@ import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -376,18 +377,24 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 				.map(MailboxRecordItemCache::getAndInvalidate).filter(Optional::isPresent).map(Optional::get)
 				.collect(Collectors.toList());
 		if (knownRecs.isEmpty()) {
+			logger.warn("Db CRUD (refs) skipped: no cached RecordRef for {} records", recs.size());
 			return false;
 		}
 		return storeService.doOrFail(() -> {
 			ItemStore it = new ItemStore(savedDs, container, SecurityContext.SYSTEM);
+			LongAdder upd = new LongAdder();
+			LongAdder create = new LongAdder();
 			for (ItemValue<MailboxRecord> toClone : knownRecs) {
 				Item inDb = it.getById(toClone.internalId);
 				if (inDb != null) {
 					storeService.update(toClone.item(), toClone.displayName, toClone.value);
+					upd.increment();
 				} else {
 					storeService.create(toClone.item(), toClone.value);
+					create.increment();
 				}
 			}
+			logger.info("Db CRUD (refs) cr: {}, up: {}", create.sum(), upd.sum());
 			return true;
 		});
 

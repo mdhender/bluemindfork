@@ -1,6 +1,7 @@
 package net.bluemind.core.backup.continuous.restore.domains.replication;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -79,7 +80,7 @@ public class RestoreMailboxRecords extends RestoreReplicated implements RestoreD
 			recordsBuffer.append("UID ").append(rec.value.imapUid);
 			recordsBuffer.append(" MODSEQ ").append(rec.value.modSeq);
 			recordsBuffer.append(" LAST_UPDATED ").append(rec.value.lastUpdated.getTime() / 1000);
-			recordsBuffer.append(" FLAGS ()");
+			recordsBuffer.append(" FLAGS (").append(flags(rec)).append(")");
 			recordsBuffer.append(" INTERNALDATE ").append(rec.value.internalDate.getTime() / 1000);
 			recordsBuffer.append(" SIZE ").append(state.getBodySize(rec.value.messageBody));
 			recordsBuffer.append(" GUID " + rec.value.messageBody).append(")");
@@ -95,6 +96,10 @@ public class RestoreMailboxRecords extends RestoreReplicated implements RestoreD
 			throw new CloneException(e);
 		}
 
+	}
+
+	private String flags(ItemValue<MailboxRecord> rec) {
+		return rec.value.flags.stream().map(itf -> itf.flag).collect(Collectors.joining(" "));
 	}
 
 }
