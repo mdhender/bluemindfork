@@ -51,7 +51,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.awaitility;bundle-version="4.2.0",
  net.bluemind.backend.cyrus.replication.client,
  net.bluemind.imap;bundle-version="4.1.0",
- org.hamcrest;bundle-version="2.1.0"
+ org.hamcrest;bundle-version="2.1.0",
+ net.bluemind.node.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.backup.continuous.tests
 Bundle-ActivationPolicy: lazy

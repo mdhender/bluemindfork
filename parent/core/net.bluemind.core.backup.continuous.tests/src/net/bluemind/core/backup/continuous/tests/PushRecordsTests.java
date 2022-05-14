@@ -47,6 +47,8 @@ import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
+import net.bluemind.core.backup.continuous.DefaultBackupStore;
+import net.bluemind.core.backup.continuous.leader.DefaultLeader;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
@@ -56,8 +58,11 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.state.RunningState;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class PushRecordsTests {
@@ -95,11 +100,26 @@ public class PushRecordsTests {
 
 	@Before
 	public void before() throws Exception {
+		try {
+			beforeImpl();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	public void beforeImpl() throws Exception {
+		DefaultLeader.reset();
+		DefaultBackupStore.reset();
+
 		JdbcTestHelper.getInstance().beforeTest();
 
 		this.cyrusIp = new BmConfIni().get("imap-role");
 
 		Server imapServer = Server.tagged(cyrusIp, "mail/imap");
+		NodeActivator.get(cyrusIp).executeCommand("rm -f /etc/cyrus-replication");
+		NodeActivator.get(cyrusIp).executeCommand("touch /etc/cyrus-replication");
+		new CyrusService(ItemValue.create("yeah", imapServer)).reset();
 
 		Server esServer = Server.tagged(ElasticsearchTestHelper.getInstance().getHost(), "bm/es");
 		assertNotNull(esServer.ip);
@@ -110,6 +130,7 @@ public class PushRecordsTests {
 		System.err.println("coreIp for replication set to " + coreIp);
 
 		System.err.println("populate global virt...");
+		StateContext.setInternalState(new RunningState());
 		PopulateHelper.initGlobalVirt(imapServer, esServer);
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);
@@ -149,23 +170,26 @@ public class PushRecordsTests {
 			ItemValue<MailboxReplica> inbox = userInbox()
 					.orElseThrow(() -> new NullPointerException("inbox must not be null"));
 
+			AtomicLong count = new AtomicLong(ApplyWatch.count(inbox.uid));
+			String apply = client.applyMailbox(prepareApplyMailbox(inbox, 100L, 32L).build());
+			System.err.println("apply lastuid 42 modseq 200 no recs: " + apply);
+			await().atMost(10, TimeUnit.SECONDS).until(() -> ApplyWatch.count(inbox.uid) > count.get());
+
+			System.err.println("restarting...");
+			apply = client.run("RESTART\r\n");
+			System.err.println("R: " + apply);
+
 			byte[] emlData = "From: john@bm.lan\r\n".getBytes();
 			@SuppressWarnings("deprecation")
 			String bodyGuid = Hashing.sha1().hashBytes(emlData).toString();// NOSONAR
-
 			String result = client.applyMessage(part().name, bodyGuid, emlData);
 			assertEquals("OK success", result);
 
-			AtomicLong count = new AtomicLong(ApplyWatch.count(inbox.uid));
-			String apply = client.applyMailbox(prepareApplyMailbox(inbox, 200L, 42L).build());
-			System.err.println("apply lastuid 42 modseq 200 no recs: " + apply);
-			await().atMost(5, TimeUnit.SECONDS).until(() -> ApplyWatch.count(inbox.uid) > count.get());
-
 			count.set(ApplyWatch.count(inbox.uid));
-			apply = client.applyMailbox(prepareApplyMailbox(inbox, 200L, 32L).build(),
-					preparereRecord(32L, 100, bodyGuid, emlData.length));
-			System.err.println("apply uid 32 modseq 100 " + apply);
-			await().atMost(5, TimeUnit.SECONDS).until(() -> ApplyWatch.count(inbox.uid) > count.get());
+			apply = client.applyMailbox(prepareApplyMailbox(inbox, 200L, 42L).build(),
+					preparereRecord(42L, 200, inbox.value.uidValidity, bodyGuid, emlData.length));
+			System.err.println("apply rec 32 modseq 100: " + apply);
+			await().atMost(10, TimeUnit.SECONDS).until(() -> ApplyWatch.count(inbox.uid) > count.get());
 		}
 	}
 
@@ -190,17 +214,16 @@ public class PushRecordsTests {
 		return builder;
 	}
 
-	private String preparereRecord(long imapUid, int modSeq, String bodyGuid, int size) {
+	private String preparereRecord(long imapUid, int modSeq, long uidVal, String bodyGuid, int size) {
 		// %(UID 1 MODSEQ 305 LAST_UPDATED 1619172582 FLAGS () INTERNALDATE 1619169573
 		// SIZE 54 GUID 3a6785fe8081d403c6721ae8637c0016db7963f8)
-		long date = System.currentTimeMillis() / 1000L;
 		StringBuilder recordsBuffer = new StringBuilder();
 		recordsBuffer.append("%(");
 		recordsBuffer.append("UID ").append(imapUid);
 		recordsBuffer.append(" MODSEQ ").append(modSeq);
-		recordsBuffer.append(" LAST_UPDATED ").append(date);
+		recordsBuffer.append(" LAST_UPDATED ").append(uidVal);
 		recordsBuffer.append(" FLAGS ()");
-		recordsBuffer.append(" INTERNALDATE ").append(date);
+		recordsBuffer.append(" INTERNALDATE ").append(uidVal);
 		recordsBuffer.append(" SIZE ").append(size);
 		recordsBuffer.append(" GUID " + bodyGuid).append(")");
 

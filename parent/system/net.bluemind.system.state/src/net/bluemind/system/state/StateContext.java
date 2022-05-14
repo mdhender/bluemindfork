@@ -24,6 +24,8 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.system.api.SystemState;
@@ -72,6 +74,11 @@ public class StateContext {
 
 	public static SystemState getState() {
 		return currentState.getSystemState();
+	}
+
+	@VisibleForTesting
+	public static void setInternalState(State forTesting) {
+		currentState = forTesting;
 	}
 
 	public static void setState(String operation) {

@@ -427,7 +427,9 @@ public class PopulateKafkaTests {
 				replicationHelper.stopReplication().get(10, TimeUnit.SECONDS);
 			}
 			DefaultLeader.leader().releaseLeadership();
-
+			System.clearProperty("bm.kafka.bootstrap.servers");
+			System.clearProperty("bm.zk.servers");
+			DefaultLeader.reset();
 			Thread.sleep(2000);
 			Files.deleteIfExists(marker);
 			kafka.stop();

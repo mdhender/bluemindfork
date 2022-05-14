@@ -18,6 +18,7 @@
 package net.bluemind.core.backup.continuous;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -46,7 +47,15 @@ public class DefaultBackupStore {
 		final Supplier<InstallationWriteLeader> election;
 	}
 
-	private static final StoreAndElection active = load();
+	private static final ConcurrentHashMap<String, StoreAndElection> cached = new ConcurrentHashMap<>();
+
+	private static StoreAndElection loadCached() {
+		return cached.computeIfAbsent("storeCachedEntry", k -> load());
+	}
+
+	public static void reset() {
+		cached.clear();
+	}
 
 	private static final StoreAndElection load() {
 		RunnableExtensionLoader<ITopicStore> rel = new RunnableExtensionLoader<>();
@@ -79,18 +88,22 @@ public class DefaultBackupStore {
 	}
 
 	public static IBackupStoreFactory store() {
+		StoreAndElection active = loadCached();
 		return new BackupStoreFactory(active.store, active.election);
 	}
 
 	public static IBackupStoreFactory store(String baseId) {
+		StoreAndElection active = loadCached();
 		return new BackupStoreFactory(baseId, active.store, active.election);
 	}
 
 	public static IBackupReader reader() {
+		StoreAndElection active = loadCached();
 		return new BackupReader(active.store);
 	}
 
 	public static IBackupManager manager() {
+		StoreAndElection active = loadCached();
 		return new BackupManager(active.store);
 	}
 

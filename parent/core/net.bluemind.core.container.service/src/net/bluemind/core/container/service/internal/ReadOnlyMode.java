@@ -27,9 +27,11 @@ public class ReadOnlyMode {
 	}
 
 	public static void checkWritable() {
+
 		if (StateContext.getState() == SystemState.CORE_STATE_DEMOTED || (!Providers.get().leadership().isLeader()
 				&& StateContext.getState() != SystemState.CORE_STATE_CLONING)) {
-			throw new ServerFault("instance is not writable as state is " + SystemState.CORE_STATE_DEMOTED);
+			throw new ServerFault("instance is not writable. State " + StateContext.getState() + ", Leader: "
+					+ Providers.get().leadership());
 		}
 	}
 }
