@@ -52,7 +52,7 @@
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 		<sonar.jacoco.excludes>**/*Test*,**/generated/**/*,**/*.tests/**/*</sonar.jacoco.excludes>
 		<l10n.list>"en", "fr"</l10n.list>
-		<docker.devenv.tag>4.1.63005</docker.devenv.tag>
+		<docker.devenv.tag>4.1.63853</docker.devenv.tag>
 		<gwt.version>2.8.2</gwt.version>
 		<gwt.draft>true</gwt.draft>
 		<gwt.memory>768</gwt.memory>
