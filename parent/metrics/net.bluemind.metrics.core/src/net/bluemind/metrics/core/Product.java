@@ -42,7 +42,7 @@ public enum Product {
 	// SYSTEM
 	POSTFIX("postfix", Family.SYSTEM, new String[] { "/var/spool/postfix/" }, false, "mail/smtp", "mail/smtp-edge"),
 
-	NGINX("bm-nginx", Family.SYSTEM, new String[0], false, "mail/smtp-edge", "bm/nginx"),
+	NGINX("bm-nginx", Family.SYSTEM, new String[0], false, "bm/nginx", "bm/nginx-edge"),
 
 	MEMCACHED("memcached", Family.SYSTEM, new String[0], false, "bm/webmail"),
 

@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
-  * Copyright © Blue Mind SAS, 2012-2018
+  * Copyright © Blue Mind SAS, 2012-2022
   *
   * This file is part of BlueMind. BlueMind is a messaging and collaborative
   * solution.
@@ -36,18 +36,20 @@ import net.bluemind.server.api.Server;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 
-public class ImapConnectionsLimit extends BasicTickTemplateProvider {
-	private static final Logger logger = LoggerFactory.getLogger(ImapConnectionsLimit.class);
+public class NginxConnectionsLimit extends BasicTickTemplateProvider {
+	private static final Logger logger = LoggerFactory.getLogger(NginxConnectionsLimit.class);
+	private static final String NAME = "nginx-connections";
+	private static final int WORKER_PROCESSES = 8; // hard configured in bm-nginx (ci/conf/static/nginx.conf)
 
 	@Override
 	public String templateId() {
-		return "imap-connections";
+		return NAME;
 	}
 
 	@Override
 	public InputStream content() {
-		return ImapConnectionsLimit.class.getClassLoader()
-				.getResourceAsStream("tickconfig/imap-connections-limit.tick");
+		return NginxConnectionsLimit.class.getClassLoader()
+				.getResourceAsStream("tickconfig/nginx-connections-limit.tick");
 	}
 
 	@Override
@@ -56,18 +58,16 @@ public class ImapConnectionsLimit extends BasicTickTemplateProvider {
 		server.value.tags.forEach(tag -> srvProducts.addAll(Product.byTag(tag)));
 
 		List<TemplateDefinition> defs = new ArrayList<>();
-
-		ISystemConfiguration sysConfApi = ctx.provider().instance(ISystemConfiguration.class);
-		Integer maxChild = sysConfApi.getValues().integerValue(SysConfKeys.imap_max_child.name());
-		maxChild = maxChild == null ? 200 : maxChild;
-		if (srvProducts.contains(Product.CYRUS)) {
-			String alertId = TickTemplateHelper.newId(Product.CYRUS, "imap-connections", server);
-			int maxValue = maxChild * 90 / 100;
+		if (srvProducts.contains(Product.NGINX)) {
+			ISystemConfiguration sysConfApi = ctx.provider().instance(ISystemConfiguration.class);
+			Integer nginxConnection = Integer.valueOf(
+					sysConfApi.getValues().values.getOrDefault(SysConfKeys.nginx_worker_connections.name(), "1024"));
+			String alertId = TickTemplateHelper.newId(Product.NGINX, NAME, server);
+			int maxValue = nginxConnection * WORKER_PROCESSES * 80 / 100;
 			TemplateDefinition def = new TickTemplateDefBuilder(alertId).withDatalocation(server.uid)
-					.withEndPoint(endPointUrl).withProduct(Product.CYRUS).withVariable("maxVar", maxValue)
-					.build();
+					.withEndPoint(endPointUrl).withProduct(Product.NGINX).withVariable("maxVar", maxValue).build();
 			defs.add(def);
-			logger.info("Alerting when maxChild > {}", maxValue);
+			logger.info("Alerting when NGINX max workers connections > {}", maxValue);
 		}
 		return defs;
 	}

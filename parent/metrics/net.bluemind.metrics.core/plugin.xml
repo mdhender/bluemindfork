@@ -148,6 +148,8 @@
          </tick_template_provider>
          <tick_template_provider impl="net.bluemind.metrics.core.tick.scripts.ImapConnectionsLimit">
          </tick_template_provider>
+         <tick_template_provider impl="net.bluemind.metrics.core.tick.scripts.NginxConnectionsLimit">
+         </tick_template_provider>
          <tick_template_provider impl="net.bluemind.metrics.core.tick.scripts.PostfixQueueSize">
          </tick_template_provider>
          <tick_template_provider impl="net.bluemind.metrics.core.tick.scripts.DiskSpace">
