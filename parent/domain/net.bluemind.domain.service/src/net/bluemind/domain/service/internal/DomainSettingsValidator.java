@@ -34,9 +34,12 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 
 public class DomainSettingsValidator {
 	private final Logger logger = LoggerFactory.getLogger(DomainSettingsValidator.class);
@@ -123,8 +126,9 @@ public class DomainSettingsValidator {
 
 	private void checkDomainUrl(BmContext context, Optional<String> oldDomainUrl, Optional<String> domainUrl,
 			String domainUid) {
-		if (!context.getSecurityContext().isDomainGlobal() && oldDomainUrl
-				.map(odu -> isDomainUrlUpdated(odu, domainUrl)).orElseGet(() -> isDomainUrlUpdated(null, domainUrl))) {
+		Boolean isUpdatedUrl = oldDomainUrl.map(odu -> isDomainUrlUpdated(odu, domainUrl))
+				.orElseGet(() -> isDomainUrlUpdated(null, domainUrl));
+		if (!context.getSecurityContext().isDomainGlobal() && isUpdatedUrl) {
 			throw new ServerFault("Only global admin can update domain external URL", ErrorCode.FORBIDDEN);
 		}
 
@@ -132,9 +136,30 @@ public class DomainSettingsValidator {
 			return;
 		}
 
-		if (!domainUrl.map(du -> Regex.DOMAIN.validate(du)).orElse(false)) {
+		if (!domainUrl.map(Regex.DOMAIN::validate).orElse(false)) {
 			throw new ServerFault(String.format("Invalid external URL '%s' for domain '%s'", domainUrl, domainUid),
 					ErrorCode.INVALID_PARAMETER);
+		}
+
+		if (isUpdatedUrl) {
+			ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+
+			String globalExternalUrl = provider.instance(ISystemConfiguration.class).getValues().values
+					.get(SysConfKeys.external_url.name());
+			if (domainUrl.get().equals(globalExternalUrl)) {
+				throw new ServerFault(
+						String.format("External URL '%s' already used as global external URL", domainUrl.get()),
+						ErrorCode.INVALID_PARAMETER);
+			}
+
+			provider.instance(IDomains.class).all().stream().filter(d -> !d.uid.equals(domainUid)).forEach(d -> {
+				String domainExternalUrl = provider.instance(IDomainSettings.class, d.uid).get()
+						.getOrDefault(DomainSettingsKeys.external_url.name(), null);
+				if (domainExternalUrl != null && domainExternalUrl.equals(domainUrl.get())) {
+					throw new ServerFault(String.format("External URL '%s' already used as external URL of domain '%s'",
+							domainUrl.get(), d.value.defaultAlias), ErrorCode.INVALID_PARAMETER);
+				}
+			});
 		}
 	}
 
