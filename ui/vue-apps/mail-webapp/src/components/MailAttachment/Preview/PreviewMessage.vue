@@ -91,9 +91,6 @@ export default {
     & > hr {
         margin: $sp-3 0 0 0;
     }
-    .bm-contact .address {
-        display: none;
-    }
     .mail-viewer-recipient {
         flex-wrap: nowrap;
         white-space: nowrap;

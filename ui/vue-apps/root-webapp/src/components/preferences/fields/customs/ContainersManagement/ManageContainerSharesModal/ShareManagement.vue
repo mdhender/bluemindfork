@@ -13,7 +13,7 @@
             @selected="onSelect"
         >
             <template v-slot="{ item }">
-                <bm-contact :contact="item" variant="transparent" />
+                <bm-contact :contact="{ entries: [item] }" transparent show-address bold-dn />
                 <span v-if="!item.urn"> ({{ $t("common.external") }}) </span>
             </template>
         </bm-form-autocomplete-input>

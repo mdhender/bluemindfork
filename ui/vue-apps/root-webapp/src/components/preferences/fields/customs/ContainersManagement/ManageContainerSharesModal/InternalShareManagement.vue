@@ -16,7 +16,9 @@
             <template v-for="dirEntry in dirEntriesAcl">
                 <bm-row :key="dirEntry.uid" class="align-items-center mt-2">
                     <!-- FIXME: group may not be displayed as user -->
-                    <div class="col-6"><bm-contact :contact="dirEntryToContact(dirEntry)" variant="transparent" /></div>
+                    <div class="col-6">
+                        <bm-contact :contact="dirEntryToContact(dirEntry)" transparent show-address bold-dn />
+                    </div>
                     <div class="col-6">
                         <bm-form-select
                             :value="dirEntry.acl"
@@ -69,7 +71,7 @@ export default {
     },
     methods: {
         dirEntryToContact(entry) {
-            return { address: entry.value.email, dn: entry.value.displayName };
+            return { entries: [{ address: entry.value.email, dn: entry.value.displayName }] };
         },
         onDirEntryAclChange(dirEntryUid, value) {
             this.$emit("dir-entry-acl-changed", { dirEntryUid, value });

@@ -13,7 +13,9 @@
                     <bm-contact
                         v-if="external.vcard"
                         :contact="VCardInfoAdaptor.toContact(external.vcard)"
-                        variant="transparent"
+                        transparent
+                        bold-dn
+                        show-address
                     />
                     <span v-else class="font-size-lg">{{ displayedLabel(external) }}</span>
                     <div class="row mr-3 align-items-center">

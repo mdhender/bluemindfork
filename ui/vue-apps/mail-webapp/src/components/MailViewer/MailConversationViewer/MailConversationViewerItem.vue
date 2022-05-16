@@ -16,7 +16,7 @@
                     class="col-1 d-flex align-items-center vertical-line"
                     :class="{ first: index === 0, last: index === maxIndex }"
                 >
-                    <bm-contact :contact="message.from" variant="no-text" />
+                    <bm-contact :contact="{ entries: [message.from] }" no-text />
                 </div>
                 <slot name="head" />
             </div>

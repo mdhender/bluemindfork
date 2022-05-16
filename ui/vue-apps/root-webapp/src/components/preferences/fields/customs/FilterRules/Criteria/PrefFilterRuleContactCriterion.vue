@@ -1,6 +1,6 @@
 <template>
     <pref-filter-rule-criterion class="pref-filter-rule-contact-criterion" :criterion="criterion" :negates="negates">
-        <bm-contact :email="criterion.value" />
+        <bm-contact :contact="{ entries: [{ address: criterion.value }] }" />
     </pref-filter-rule-criterion>
 </template>
 

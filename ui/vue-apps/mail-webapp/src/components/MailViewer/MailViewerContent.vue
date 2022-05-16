@@ -4,7 +4,7 @@
 
         <bm-row class="sender">
             <bm-col class="from" cols="8">
-                <mail-viewer-from :contact="message.from" />
+                <mail-viewer-from :contact="{ entries: [message.from] }" />
             </bm-col>
             <bm-col cols="4" class="date">
                 {{ $d(message.date, "full_date_time_short") }}

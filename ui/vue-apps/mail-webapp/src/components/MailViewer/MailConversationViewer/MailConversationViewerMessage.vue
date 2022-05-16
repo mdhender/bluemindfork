@@ -3,7 +3,7 @@
         <bm-extension id="webapp.mail" path="viewer.header" :message="message" />
         <template slot="head">
             <div class="col pl-3 align-self-center">
-                <bm-contact :contact="message.from" variant="no-avatar" />
+                <bm-contact :contact="{ entries: [message.from] }" no-avatar transparent show-address bold-dn />
                 <mail-folder-icon
                     v-if="folder.key !== conversation.folderRef.key"
                     :shared="shared"

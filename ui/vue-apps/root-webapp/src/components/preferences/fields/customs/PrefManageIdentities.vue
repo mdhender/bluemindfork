@@ -14,7 +14,7 @@
                 </div>
             </template>
             <template #cell(displayname)="row">
-                <bm-contact :contact="getContact(row.item)" display-full variant="transparent" />
+                <bm-contact :contact="getContact(row.item)" show-address transparent bold-dn />
             </template>
             <template #cell(name)="row">{{ row.value }}</template>
             <template #cell(action)="row">
@@ -94,8 +94,12 @@ export default {
     methods: {
         getContact(identity) {
             return {
-                address: identity.email,
-                dn: identity.displayname
+                entries: [
+                    {
+                        address: identity.email,
+                        dn: identity.displayname
+                    }
+                ]
             };
         },
         async openModal(identity) {
