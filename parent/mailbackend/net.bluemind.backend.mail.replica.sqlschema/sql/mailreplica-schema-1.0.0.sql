@@ -217,16 +217,15 @@ AS $$
 BEGIN
     -- Update flags and not set flags (mask) respectively in every folder
     INSERT INTO
-      v_conversation_by_folder (folder_id, conversation_id, flags, mask)
+      v_conversation_by_folder (folder_id, conversation_id, flags, mask, date)
     VALUES
-      (NEW.container_id, NEW.conversation_id, NEW.system_flags, -(NEW.system_flags + 1))
+      (NEW.container_id, NEW.conversation_id, NEW.system_flags, -(NEW.system_flags + 1), NEW.internal_date)
     ON CONFLICT (folder_id, conversation_id) DO UPDATE
       SET
         flags = EXCLUDED.flags | v_conversation_by_folder.flags,
-        mask = EXCLUDED.mask | (-(v_conversation_by_folder.flags + 1));
+        mask = EXCLUDED.mask | (-(v_conversation_by_folder.flags + 1)),
+        date = (select greatest(NEW.internal_date, EXCLUDED.date));
 
-    -- Update date of last activity, cross folder this time
-    perform v_conversation_by_folder_update_date(NEW.conversation_id);
     return NEW;
 END;
 $$;
@@ -237,12 +236,7 @@ CREATE OR REPLACE FUNCTION v_conversation_by_folder_update() RETURNS TRIGGER
 AS $$
 DECLARE
 BEGIN
-  IF (OLD.system_flags != NEW.system_flags) THEN
-    PERFORM v_conversation_by_folder_set_flags(NEW.conversation_id, NEW.container_id);
-  END IF;
-  IF (OLD.internal_date != NEW.internal_date) THEN
-    PERFORM v_conversation_by_folder_update_date(NEW.conversation_id);
-  END IF;
+  PERFORM v_conversation_by_folder_update_row(NEW.conversation_id, NEW.container_id);
   RETURN NEW;
 END;
 $$;
@@ -253,14 +247,13 @@ CREATE OR REPLACE FUNCTION v_conversation_by_folder_remove() RETURNS TRIGGER
 AS $$
 DECLARE
 BEGIN
-    PERFORM v_conversation_by_folder_set_flags(OLD.conversation_id, OLD.container_id);
-    PERFORM v_conversation_by_folder_update_date(OLD.conversation_id);
+    PERFORM v_conversation_by_folder_update_row(OLD.conversation_id, OLD.container_id);
     RETURN NULL;
 END;
 $$;
 
 
-CREATE OR REPLACE FUNCTION v_conversation_by_folder_set_flags(bigint, integer) RETURNS VOID
+CREATE OR REPLACE FUNCTION v_conversation_by_folder_update_row(bigint, integer) RETURNS VOID
   LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -268,7 +261,8 @@ DECLARE
 BEGIN
     SELECT
       bit_or(system_flags) as flags,
-      bit_or(-(system_flags + 1)) as mask
+      bit_or(-(system_flags + 1)) as mask,
+      max(internal_date) as date
     FROM
       t_mailbox_record INTO existing
     WHERE
@@ -283,29 +277,12 @@ BEGIN
     ELSE
         -- Update flags and not set flags (mask) respectively in every folder
         UPDATE v_conversation_by_folder
-        SET flags = existing.flags, mask = existing.mask
+        SET flags = existing.flags, mask = existing.mask, date = existing.date
         WHERE folder_id = $2
         AND conversation_id = $1;
     END IF;
 END;
 $$;
-
-CREATE OR REPLACE FUNCTION v_conversation_by_folder_update_date(bigint) RETURNS VOID AS $$
-DECLARE
-  daterec record;
-BEGIN
-  SELECT MAX(internal_date) AS date, array_agg(distinct(container_id)) AS folder_ids
-  FROM t_mailbox_record INTO daterec
-  WHERE system_flags::bit(32) & 4::bit(32) = 0::bit(32)
-  AND conversation_id = $1
-  GROUP BY conversation_id;
-
-  UPDATE v_conversation_by_folder
-  SET date = daterec.date
-  WHERE folder_id = ANY(daterec.folder_ids)
-  AND conversation_id = $1;
-END;
-$$ LANGUAGE plpgsql;
 
 -------------------------------------------------
 CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_insert
