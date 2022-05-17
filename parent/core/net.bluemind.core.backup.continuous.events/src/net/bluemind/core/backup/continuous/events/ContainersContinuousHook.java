@@ -69,7 +69,7 @@ public class ContainersContinuousHook implements IContainersHook, IAclHook {
 
 	@Override
 	public void onContainerSettingsChanged(BmContext ctx, ContainerDescriptor cd) throws ServerFault {
-		Map<String, String> settings = ctx.provider().instance(IContainerManagement.class, cd.uid).getSettings();
+		Map<String, String> settings = ctx.su().provider().instance(IContainerManagement.class, cd.uid).getSettings();
 		ContainerMetadata cm = ContainerMetadata.forSettings(cd.uid, settings);
 		metadataBackup.save(cd.domainUid, cd.owner, cd.uid, cm, true);
 	}
