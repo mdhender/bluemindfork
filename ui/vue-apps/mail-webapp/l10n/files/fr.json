@@ -462,11 +462,15 @@
 
             },
             "threshold": {
-                "hit": "{hit} {size}",
+                "hit": "{hit} {size}.",
+                "some_hit": "Certains fichiers dépassent {size}",
                 "size": "Votre fichier dépasse {size} | Vos fichiers dépassent {size}",
                 "almost_hit": "Votre fichier est relativement volumineux. | Vos fichiers sont relativement volumineux."
             },
-            "add_large_file": "Ajout d'un fichier volumineux",
+            "add": {
+                "large":"Ajout d'un fichier volumineux | Ajout de fichiers volumineux",
+                "too_large": "Fichier trop volumineux | Fichiers trop volumineux"
+            },
             "import": {
                 "successful": "import réussi"
             },

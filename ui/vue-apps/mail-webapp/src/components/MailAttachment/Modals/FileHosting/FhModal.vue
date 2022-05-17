@@ -1,5 +1,5 @@
 <template>
-    <bm-modal id="fh-modal" :title="$t('mail.filehosting.add_large_file')" title-class="ml-2" no-fade>
+    <bm-modal id="fh-modal" :title="$t('mail.filehosting.add.large')" title-class="ml-2" no-fade>
         <div class="mr-4 ml-2">
             <div class="d-flex align-items-center mb-3">
                 <bm-icon icon="file" size="2x" class="mr-2 text-primary" />
@@ -10,7 +10,7 @@
             <div class="mb-4">
                 <i18n path="mail.filehosting.threshold.hit">
                     <template v-slot:hit>
-                        {{ $tc("mail.filehosting.threshold.size", attachments.length, sizeLimit) }}
+                        {{ $tc("mail.filehosting.threshold.size", attachments.length) }}
                     </template>
                     <template v-slot:size>
                         <strong class="font-weight-bold">{{ displaySize(sizeLimit) }}</strong>

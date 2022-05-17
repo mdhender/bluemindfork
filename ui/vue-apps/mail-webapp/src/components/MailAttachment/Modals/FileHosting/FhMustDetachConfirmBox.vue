@@ -3,7 +3,7 @@
         <template #text>
             <i18n path="mail.filehosting.threshold.hit">
                 <template v-slot:hit>
-                    {{ $tc("mail.filehosting.threshold.size", attachments.length, sizeLimit) }}
+                    {{ $tc("mail.filehosting.threshold.size", allAttachmentsCount) }}
                 </template>
                 <template v-slot:size>
                     <strong class="font-weight-bold">{{ displaySize(sizeLimit) }}</strong>
@@ -28,6 +28,10 @@ export default {
             required: true
         },
         sizeLimit: {
+            type: Number,
+            required: true
+        },
+        allAttachmentsCount: {
             type: Number,
             required: true
         }

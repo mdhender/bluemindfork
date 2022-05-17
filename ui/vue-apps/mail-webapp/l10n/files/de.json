@@ -462,11 +462,15 @@
 
             },
             "threshold": {
-                "hit": "{hit} {size}",
-                "size": "Ihre Datei überschreitet {size}. | Ihre Dateien überschreiten {size}.",
+                "hit": "{hit} {size}.",
+                "some_hit": "Einige Dateien übersteigen {size}",
+                "size": "Ihre Datei überschreitet {size} | Ihre Dateien überschreiten {size}",
                 "almost_hit": "Ihre Datei ist ziemlich groß. | Ihre Dateien sind ziemlich groß."
             },
-            "add_large_file": "Hinzufügen einer großen Datei",
+            "add": {
+                "large":"Hinzufügen einer großen Datei | Hinzufügen von großen Dateien",
+                "too_large": "Datei zu groß | Zu große Dateien"
+            },
             "import": {
                 "successful": "erfolgreiche Einfuhr"
             },

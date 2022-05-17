@@ -461,11 +461,15 @@
                 "pending": "Sending a shared link | Sending shared links"
             },
             "threshold": {
-                "hit": "{hit} {size}",
-                "size": "Your file exceeds  {size}. | Your files exceed {size}.",
+                "hit": "{hit} {size}.",
+                "some_hit": "Some files exceed {size}",
+                "size": "Your file exceeds {size} | Your files exceed {size}",
                 "almost_hit": "Your file is quite large. | Your files are quite large."
             },
-            "add_large_file": "Add a large file",
+            "add": {
+                "large":"Add a large file | Add large files",
+                "too_large": "File too large | Files too large"
+            },
             "import": {
                 "successful": "successful import"
             },

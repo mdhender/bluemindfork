@@ -13,6 +13,7 @@ import { createFromFile as createPartFromFile } from "~/model/part";
 import ChainOfResponsability from "./ChainOfResponsability";
 import FhConfirmBox from "../../components/MailAttachment/Modals/FileHosting/FhConfirmBox";
 import FhMustDetachConfirmBox from "../../components/MailAttachment/Modals/FileHosting/FhMustDetachConfirmBox";
+import TooLargeBox from "../../components/MailAttachment/Modals/TooLargeBox";
 
 export default class extends ChainOfResponsability {
     constructor(vm) {
@@ -21,13 +22,14 @@ export default class extends ChainOfResponsability {
 
     async addAttachments(files, message) {
         const service = inject("AttachmentPersistence");
-        const { autoDetachmentLimit } = await service.getConfiguration();
+        const { autoDetachmentLimit, maxFilesize } = await service.getConfiguration();
         const maxMessageSize = this.vm.$store.state.mail.messageCompose.maxMessageSize;
 
         const messageSize = getFilesSize(message.attachments);
         const newAttachmentsSize = getFilesSize(files);
-
-        if (messageSize + newAttachmentsSize > maxMessageSize) {
+        if (files.some(file => file.size > maxFilesize)) {
+            return this.cannotHandleFiles(files, maxFilesize);
+        } else if (messageSize + newAttachmentsSize > maxMessageSize) {
             return this.mustDetachFiles(files, message, maxMessageSize);
         } else if (newAttachmentsSize > autoDetachmentLimit) {
             return this.shouldDetachFiles(files, message, maxMessageSize);
@@ -36,7 +38,7 @@ export default class extends ChainOfResponsability {
     }
 
     async mustDetachFiles(files, message, maxMessageSize) {
-        const { content, props } = renderMustDetachConfirmBox(this.vm, files, maxMessageSize);
+        const { content, props } = renderMustDetachConfirmBox(this.vm, files, maxMessageSize, message);
         const res = await this.vm.$bvModal.msgBoxConfirm([content], props);
         if (res) {
             const promises = Promise.all(files.map(file => this.addFhAttachment(file, message)));
@@ -54,6 +56,12 @@ export default class extends ChainOfResponsability {
         } else {
             return this.next?.addAttachments(files, message);
         }
+    }
+
+    async cannotHandleFiles(files, maxFilesize) {
+        const { content, props } = renderTooLargeOKBox(this.vm, files, maxFilesize);
+        await this.vm.$bvModal.msgBoxOk([content], props);
+        return null;
     }
 
     async addFhAttachment(file, message) {
@@ -149,7 +157,7 @@ function getFilesSize(files) {
     return files.reduce((totalSize, next) => totalSize + next.size, 0);
 }
 
-function renderMustDetachConfirmBox(vm, files, sizeLimit) {
+function renderMustDetachConfirmBox(vm, files, sizeLimit, message) {
     const content = vm.$createElement(FhMustDetachConfirmBox, {
         props: {
             attachments: files.map(file => {
@@ -158,11 +166,12 @@ function renderMustDetachConfirmBox(vm, files, sizeLimit) {
                     progress: { total: file.size, loaded: 0 }
                 };
             }),
-            sizeLimit
+            sizeLimit,
+            allAttachmentsCount: message.attachments?.length + files.length
         }
     });
     const props = {
-        title: vm.$tc("mail.filehosting.add_large_file", files.length),
+        title: vm.$tc("mail.filehosting.add.large", files.length),
         okTitle: vm.$tc("mail.filehosting.share.start", files.length),
         cancelTitle: vm.$t("common.cancel"),
         bodyClass: "pb-4",
@@ -192,11 +201,24 @@ function renderShouldDetachConfirmBox(vm, files) {
         }
     });
     const props = {
-        title: vm.$tc("mail.filehosting.add_large_file", files.length),
+        title: vm.$tc("mail.filehosting.add.large", files.length),
         okTitle: vm.$tc("mail.filehosting.share.start", files.length),
         cancelTitle: vm.$t("mail.actions.attach"), //TODO: use a better wording
         bodyClass: "pb-4",
         cancelVariant: "simple-dark"
+    };
+
+    return { content, props };
+}
+
+function renderTooLargeOKBox(vm, files, sizeLimit) {
+    const content = vm.$createElement(TooLargeBox, { props: { sizeLimit, attachmentsCount: files.length } });
+
+    const props = {
+        title: vm.$tc("mail.filehosting.add.too_large", files.length),
+        okTitle: vm.$tc("common.got_it"),
+        bodyClass: "pb-4",
+        okVariant: "outline-primary"
     };
 
     return { content, props };
