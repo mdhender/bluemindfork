@@ -258,24 +258,19 @@ let BMFolderHome = {
                     continue;
                 }
                 let card = directory.getCardFromProperty("bm-id", entry.id, false);
-                let toCreate = false;
-                if (!card) {
-                    card = Components.classes["@mozilla.org/addressbook/cardproperty;1"]
-                                .createInstance(Components.interfaces.nsIAbCard);
-                    toCreate = true;
+                if (card) {
+                    directory.deleteCards([card]);
                 }
+                card = Components.classes["@mozilla.org/addressbook/cardproperty;1"]
+                                .createInstance(Components.interfaces.nsIAbCard);
                 card.setProperty("bm-ab-uri", directory.URI);
                 card.setProperty("bm-added", "false");
                 card.setProperty("bm-updated", "false");
                 card.setProperty("bm-folder", aFolder.id);
                 this._entryToCard(entry, card);
                 this._setPhoto(entry, aFolder.id, card);
-                if (toCreate) {
-                    card.UID = entry.id;
-                    directory.addCard(card);
-                } else {
-                    directory.modifyCard(card);
-                }
+                card.UID = entry.id;
+                directory.addCard(card);
             }
             
             for (let entry of upDlists) {

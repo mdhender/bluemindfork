@@ -21,6 +21,7 @@
 /* Utils module */
 var { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 var { Downloads } = ChromeUtils.import("resource://gre/modules/Downloads.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 this.EXPORTED_SYMBOLS = ["bmPhotos"];
 
@@ -36,6 +37,26 @@ let bmPhotos = {
                 loader.loadSubScript("chrome://messenger/content/addressbook/abCardOverlay.js", this._photoManager);
             } catch(e) {
                 //TB >= 60 abCard.js with photos functions cannot be loaded without window
+                this._photoManager.getPhotosDir = function() {
+                    var file = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
+                    // Get the Photos directory
+                    file.append("Photos");
+                    if (!file.exists() || !file.isDirectory())
+                      file.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, parseInt("0777", 8));
+                    return file;
+                };
+
+                this._photoManager.makePhotoFile = function(aDir, aExtension) {
+                    var filename, newFile;
+                    // Find a random filename for the photo that doesn't exist yet
+                    do {
+                      filename = new String(Math.random()).replace("0.", "") + "." + aExtension;
+                      newFile = aDir.clone();
+                      newFile.append(filename);
+                    } while (newFile.exists());
+                    return newFile;
+                }
+
                 this._photoManager.removePhoto = function(aName) {
                     if (!aName) return false;
                     // Get the directory with all the photos

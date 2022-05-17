@@ -83,6 +83,7 @@ BMContainerService.prototype.sync = function() {
         
             });
         } catch(err) {
+            console.error(err);
             reject(err);
         }
     });
@@ -252,6 +253,7 @@ BMContainerService.prototype.syncFolder = function(folder) {
                     value: res
                 });
             }, function(rej) {
+                console.error(rej);
                 self._logger.error(rej);
                 resolve({
                     fname: folder.name,
@@ -260,6 +262,7 @@ BMContainerService.prototype.syncFolder = function(folder) {
                 });
             });
         } catch(err) {
+            console.error(err);
             self._logger.error(err);
             resolve({
                 fname: folder.name,
