@@ -263,11 +263,7 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 
 		VEvent event = series.main != null ? series.main : series.occurrences.get(0);
 		Attendee a = new VEvent.Attendee();
-		if (recipient.getEmailAddress().startsWith("+")) {
-			a.mailto = mailbox.value.defaultEmail().address;
-		} else {
-			a.mailto = recipient.getEmailAddress();
-		}
+		a.mailto = mailbox.value.defaultEmail().address;
 		a.partStatus = ParticipationStatus.Declined;
 		event.attendees = Arrays.asList(a);
 
