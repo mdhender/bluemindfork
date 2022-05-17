@@ -177,11 +177,12 @@ const getters = {
         return messages;
     },
     [CONVERSATION_METADATA]: (state, getters) => key => {
-        if (!key || !state.conversationByKey[key]) {
+        const conversation = state.conversationByKey[key];
+        if (!conversation) {
             return null;
         }
-        if (state.conversationByKey[key].loading === LoadingStatus.NOT_LOADED) {
-            return state.conversationByKey[key];
+        if (conversation.loading === LoadingStatus.NOT_LOADED) {
+            return conversation;
         }
         const messages = getters.CONVERSATION_MESSAGE_BY_KEY(key);
         return {
@@ -190,10 +191,9 @@ const getters = {
             to: messages[0]?.to,
             key,
             size: messages.length,
-            date: messages[messages.length - 1]?.date,
-            remoteRef: state.conversationByKey[key]?.remoteRef,
-            folderRef: state.conversationByKey[key]?.folderRef,
-            ...reducedMetadata(state.conversationByKey[key]?.folderRef.key, messages),
+            remoteRef: conversation.remoteRef,
+            folderRef: conversation.folderRef,
+            ...reducedMetadata(conversation.folderRef.key, messages),
             messages: messages.map(m => m.key)
         };
     },
@@ -207,7 +207,7 @@ function reducedMetadata(folderKey, messages) {
         hasAttachment = false,
         hasICS = false,
         preview,
-        lastDate = -1;
+        date = -1;
     messages.forEach(m => {
         if (m.folderRef.key === folderKey) {
             if (isUnread(m)) {
@@ -230,12 +230,13 @@ function reducedMetadata(folderKey, messages) {
         if (m.hasICS) {
             hasICS = true;
         }
-        if (m.date > lastDate) {
+        if (m.folderRef.key === folderKey && m.date > date) {
             preview = m.preview;
+            date = m.date;
         }
     });
 
-    return { unreadCount, flags: Array.from(flags), loading, hasAttachment, hasICS, preview };
+    return { unreadCount, flags: Array.from(flags), loading, hasAttachment, hasICS, preview, date };
 }
 
 export default {
