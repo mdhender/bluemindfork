@@ -459,7 +459,6 @@
                 "start": "Envoyer un lien partagé | Envoyer des liens partagés",
                 "stop": "Arrêter l'envoi",
                 "pending": "Envoi d'un lien partagé | Envoi des liens partagés"
-
             },
             "threshold": {
                 "hit": "{hit} {size}.",
@@ -474,7 +473,7 @@
             "import": {
                 "successful": "import réussi"
             },
-            "change_selection": "Essayez de sélectionner un fichier moins volumineux. | Essayez de sélectionner moins de fichiers."
+            "change_selection": "Essayez de sélectionner un fichier moins volumineux. | Essayez de sélectionner des fichiers moins volumineux."
         },
         "rename_folder": {
             "modal": {

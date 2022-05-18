@@ -9,6 +9,13 @@
         <span class="text-secondary ml-4 text-right">
             {{ displaySize(attachment.progress.loaded) }} / {{ displaySize(attachment.progress.total) }}
         </span>
+        <bm-label-icon
+            v-if="attachment.progress.total > VERY_LARGE_FILE_SIZE"
+            icon="exclamation-circle-fill"
+            class="text-warning"
+        >
+            {{ $t("mail.filehosting.very_large_file") }}
+        </bm-label-icon>
         <bm-progress :value="attachment.progress.loaded" :max="attachment.progress.total" />
     </div>
 </template>
@@ -17,6 +24,8 @@
 import { BmLabelIcon, BmProgress } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
 
+const VERY_LARGE_FILE_SIZE = 500 * 1024 * 1024;
+
 export default {
     name: "FhAttachmentItem",
     components: { BmLabelIcon, BmProgress },
@@ -24,6 +33,11 @@ export default {
         attachment: {
             type: Object,
             required: true
+        }
+    },
+    computed: {
+        isLarge() {
+            return this.attachment.progress.total > VERY_LARGE_FILE_SIZE;
         }
     },
     methods: {

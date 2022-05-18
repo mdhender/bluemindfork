@@ -459,7 +459,6 @@
                 "start": "Einen freigegebenen Link senden | Gemeinsame Links senden",
                 "stop": "Anhalten der Sendung",
                 "pending": "Einen geteilten Link senden | Senden von geteilten Links"
-
             },
             "threshold": {
                 "hit": "{hit} {size}.",
@@ -474,7 +473,7 @@
             "import": {
                 "successful": "erfolgreiche Einfuhr"
             },
-            "change_selection": "Versuchen Sie, eine kleinere Dateigröße zu wählen. | Versuchen Sie, weniger Dateien auszuwählen."
+            "change_selection": "Versuchen Sie, eine kleinere Dateigröße zu wählen. | Versuchen Sie, weniger große Dateien auszuwählen."
         },
         "rename_folder": {
             "modal": {

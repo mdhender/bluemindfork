@@ -473,7 +473,7 @@
             "import": {
                 "successful": "successful import"
             },
-            "change_selection": "Try selecting a smaller file size. | Try selecting fewer files."
+            "change_selection": "Try selecting a smaller file size. | Try to select smaller files."
         },
         "rename_folder": {
             "modal": {

@@ -27,11 +27,11 @@ export default class extends ChainOfResponsability {
 
         const messageSize = getFilesSize(message.attachments);
         const newAttachmentsSize = getFilesSize(files);
-        if (files.some(file => file.size > maxFilesize)) {
+        if (maxFilesize && files.some(file => file.size > maxFilesize)) {
             return this.cannotHandleFiles(files, maxFilesize);
         } else if (messageSize + newAttachmentsSize > maxMessageSize) {
             return this.mustDetachFiles(files, message, maxMessageSize);
-        } else if (newAttachmentsSize > autoDetachmentLimit) {
+        } else if (autoDetachmentLimit && newAttachmentsSize > autoDetachmentLimit) {
             return this.shouldDetachFiles(files, message, maxMessageSize);
         }
         return this.next?.addAttachments(files, message);
