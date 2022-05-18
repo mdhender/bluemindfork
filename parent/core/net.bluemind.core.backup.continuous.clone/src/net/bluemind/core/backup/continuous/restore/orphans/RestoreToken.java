@@ -45,9 +45,10 @@ public class RestoreToken {
 		ValueReader<ItemValue<CoreTok>> scReader = JsonUtils.reader(new TypeReference<ItemValue<CoreTok>>() {
 		});
 
-		Optional<CoreTok> lastTok = maybeTok.stream()
+		Optional<DataElement> lastDe = maybeTok.stream()
 				.filter(de -> de.key.valueClass.equals(CoreTok.class.getCanonicalName()))
-				.map(de -> scReader.read(new String(de.payload)).value).collect(Collectors.maxBy((tok1, tok2) -> 1));
+				.collect(Collectors.maxBy((de1, de2) -> Long.compare(de1.offset, de2.offset)));
+		Optional<CoreTok> lastTok = lastDe.map(de -> scReader.read(new String(de.payload)).value);
 		monitor.log("Got core.tok " + lastTok);
 		return lastTok.map(c -> c.key).orElse(null);
 	}
