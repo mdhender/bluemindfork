@@ -23,7 +23,11 @@
             <div v-for="(attachment, idx) in fhAttachments" :key="idx" class="position-relative mt-2">
                 <fh-attachment-item :attachment="attachment">
                     <template #item-actions>
-                        <bm-button-close v-if="attachment.progress.loaded < attachment.progress.total" class="mt-2" />
+                        <bm-button-close
+                            v-if="attachment.progress.loaded < attachment.progress.total"
+                            class="mt-2"
+                            @click="cancel(attachment.address)"
+                        />
                         <span v-else class="text-secondary mt-2 float-right">
                             {{ $t("mail.filehosting.import.successful") }}
                         </span>
@@ -32,7 +36,7 @@
             </div>
         </div>
         <template #modal-footer>
-            <bm-button variant="simple-dark" :disabled="totalLoaded === totalSize">
+            <bm-button variant="simple-dark" :disabled="totalLoaded === totalSize" @click="cancelAll">
                 {{ $t("mail.filehosting.share.stop") }}
             </bm-button>
             <bm-button variant="outline-primary" @click="$bvModal.hide('fh-modal')">
@@ -42,6 +46,7 @@
     </bm-modal>
 </template>
 <script>
+import global from "@bluemind/global";
 import { BmModal, BmButtonClose, BmButton, BmIcon } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
 import { AttachmentStatus } from "~/model/attachment";
@@ -85,6 +90,12 @@ export default {
     methods: {
         displaySize(size) {
             return computeUnit(size, this.$i18n);
+        },
+        cancel(address) {
+            global.cancellers[address + this.message.key].cancel();
+        },
+        cancelAll() {
+            this.fhAttachments.map(attachment => this.cancel(attachment.address));
         }
     }
 };

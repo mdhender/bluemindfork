@@ -1,12 +1,14 @@
 import { inject } from "@bluemind/inject";
 import UUIDGenerator from "@bluemind/uuid";
+import global from "@bluemind/global";
 import {
     SET_ATTACHMENT_HEADERS,
     SET_ATTACHMENT_PROGRESS,
     SET_ATTACHMENT_STATUS,
     SET_MESSAGE_HAS_ATTACHMENT,
     SET_ATTACHMENT_ADDRESS,
-    ADD_ATTACHMENT
+    ADD_ATTACHMENT,
+    REMOVE_ATTACHMENT
 } from "~/mutations";
 import { create, AttachmentStatus } from "~/model/attachment";
 import { createFromFile as createPartFromFile } from "~/model/part";
@@ -78,29 +80,33 @@ export default class extends ChainOfResponsability {
         global.cancellers[attachment.address + message.key] = { cancel: undefined };
 
         const service = inject("MailboxItemsPersistence", message.folderRef.uid);
-        const address = await service.uploadPart("", global.cancellers[attachment.address + message.key]);
+        try {
+            const address = await service.uploadPart("");
+            await this.share(file, message, attachment.address, global.cancellers[attachment.address + message.key]);
 
-        await this.vm.$store.commit(`mail/${SET_ATTACHMENT_ADDRESS}`, {
-            messageKey: message.key,
-            oldAddress: attachment.address,
-            address
-        });
-        await this.share(file, message, address);
-
-        this.vm.$store.commit(`mail/${SET_ATTACHMENT_STATUS}`, {
-            messageKey: message.key,
-            address,
-            status: AttachmentStatus.UPLOADED
-        });
+            await this.vm.$store.commit(`mail/${SET_ATTACHMENT_ADDRESS}`, {
+                messageKey: message.key,
+                oldAddress: attachment.address,
+                address
+            });
+            this.vm.$store.commit(`mail/${SET_ATTACHMENT_STATUS}`, {
+                messageKey: message.key,
+                address,
+                status: AttachmentStatus.UPLOADED
+            });
+        } catch (event) {
+            const error = event.target && event.target.error ? event.target.error : event;
+            handleError(this.vm.$store.commit, message, error, attachment);
+        }
     }
 
-    async share(file, message, address) {
+    async share(file, message, address, cancellers) {
         const service = inject("AttachmentPersistence");
 
         const { publicUrl, name } = await service.share(
             file.name,
             file,
-            null,
+            cancellers,
             createOnUploadProgress(this.vm.$store.commit, message.key, address)
         );
         // TODO handle expiration date
@@ -222,4 +228,26 @@ function renderTooLargeOKBox(vm, files, sizeLimit) {
     };
 
     return { content, props };
+}
+
+function handleError(commit, message, error, attachment) {
+    if (error.message === "CANCELLED_BY_CLIENT") {
+        commit(`mail/${REMOVE_ATTACHMENT}`, { messageKey: message.key, address: attachment.address });
+        commit(`mail/${SET_MESSAGE_HAS_ATTACHMENT}`, {
+            key: message.key,
+            hasAttachment: message.attachments.length > 0
+        });
+    } else {
+        commit(`mail/${SET_ATTACHMENT_PROGRESS}`, {
+            messageKey: message.key,
+            address: attachment.address,
+            loaded: 100,
+            total: 100
+        });
+        commit(`mail/${SET_ATTACHMENT_STATUS}`, {
+            messageKey: message.key,
+            address: attachment.address,
+            status: AttachmentStatus.ERROR
+        });
+    }
 }

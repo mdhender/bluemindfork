@@ -9,11 +9,7 @@
         <span class="text-secondary ml-4 text-right">
             {{ displaySize(attachment.progress.loaded) }} / {{ displaySize(attachment.progress.total) }}
         </span>
-        <bm-label-icon
-            v-if="attachment.progress.total > VERY_LARGE_FILE_SIZE"
-            icon="exclamation-circle-fill"
-            class="text-warning"
-        >
+        <bm-label-icon v-if="isLarge" icon="exclamation-circle-fill" class="text-warning">
             {{ $t("mail.filehosting.very_large_file") }}
         </bm-label-icon>
         <bm-progress :value="attachment.progress.loaded" :max="attachment.progress.total" />
