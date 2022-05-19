@@ -11,7 +11,6 @@
         @update="UPDATE_OTHER_MAILBOX_CONTAINER"
     >
         <template v-slot:item="{ container }">
-            <!-- FIXME: group may not be displayed as user -->
             <bm-contact :contact="{ entries: [{ dn: container.ownerDisplayname }] }" transparent bold />
         </template>
         <template v-slot:badge-item="{ container, closeFn }">

@@ -2,15 +2,15 @@ import { create } from "./model";
 
 export default {
     toContact(vCardInfo) {
-        const uid = vCardInfo.uid;
         return create(
-            uid,
+            vCardInfo.uid,
             vCardInfo.value.mail,
             vCardInfo.value.formatedName,
             vCardInfo.value.kind,
             vCardInfo.value.photo,
             vCardInfo.containerUid,
-            !!vCardInfo.value.source
+            !!vCardInfo.value.source,
+            vCardInfo.value.memberCount
         );
     },
     toVCardInfo(contact) {

@@ -220,7 +220,8 @@
             "toolbar": { "aria": "Choisir une couleur" }
         },
         "contact-input": {
-            "invalid": "Adresse invalide"
+            "invalid": "Adresse invalide",
+            "members": "{count} membre|{count} membres"
         },
         "input": {
             "clear": "Effacer la saisie",
@@ -293,7 +294,7 @@
             "strikethrough": {
                 "tooltip": "Barrer"
             },
-            "text_color":{
+            "text_color": {
                 "tooltip": "Couleur du texte"
             },
             "text_highlight": {

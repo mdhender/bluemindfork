@@ -42,7 +42,7 @@ export default {
     watch: {
         criterion: {
             async handler(criterion) {
-                if (criterion) {
+                if (criterion?.value) {
                     // FIXME BmContactInput.watch:contacts should use isEqual instead of length comparison
                     this.dn = (await searchContacts(criterion.value))[0]?.dn || "";
                 }
@@ -65,7 +65,7 @@ export default {
 };
 
 async function searchContacts(pattern) {
-    const searchResults = await inject("AddressBooksPersistence").search(searchVCardsHelper(pattern));
+    const searchResults = await inject("AddressBooksPersistence").search(searchVCardsHelper(pattern, 5, true));
     return searchResults.values.map(vcardInfo => VCardInfoAdaptor.toContact(vcardInfo));
 }
 </script>

@@ -220,7 +220,8 @@
             "toolbar": { "aria": "Pick a color" }
         },
         "contact-input": {
-            "invalid": "Invalid address"
+            "invalid": "Invalid address",
+            "members": "{count} member|{count} members"
         },
         "input": {
             "clear": "Clear input",
@@ -293,7 +294,7 @@
             "strikethrough": {
                 "tooltip": "Strikethrough"
             },
-            "text_color":{
+            "text_color": {
                 "tooltip": "Text color"
             },
             "text_highlight": {

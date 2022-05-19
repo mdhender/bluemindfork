@@ -220,7 +220,8 @@
             "toolbar": { "aria": "Wählen Sie eine Farbe" }
         },
         "contact-input": {
-            "invalid": "Ungültige Adresse"
+            "invalid": "Ungültige Adresse",
+            "members": "{count} Mitglied|{count} Mitglieder"
         },
         "input": {
             "clear": "Eingaben zurücksetzen",
@@ -293,7 +294,7 @@
             "strikethrough": {
                 "tooltip": "Durchgestrichen"
             },
-            "text_color":{
+            "text_color": {
                 "tooltip": "Textfarbe"
             },
             "text_highlight": {

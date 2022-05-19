@@ -175,7 +175,9 @@ export default {
             return this.message.to
                 .concat(this.message.cc)
                 .concat(this.message.bcc)
-                .some(contact => !EmailValidator.validateAddress(contact.address));
+                .some(contact =>
+                    contact.kind === "group" ? !contact.dn : !EmailValidator.validateAddress(contact.address)
+                );
         },
 
         disableSend() {

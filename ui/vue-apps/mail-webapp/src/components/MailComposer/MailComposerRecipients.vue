@@ -9,6 +9,7 @@
                     :validate-address-fn="validateDnAndAddress"
                     @search="searchedPattern => onSearch('to', searchedPattern)"
                     @update:contacts="updateTo"
+                    @expand="expandContact(message.to, $event)"
                 >
                     {{ $t("common.to") }}
                 </bm-contact-input>
@@ -34,6 +35,7 @@
                     class="w-100"
                     @search="searchedPattern => onSearch('cc', searchedPattern)"
                     @update:contacts="updateCc"
+                    @expand="expandContact(message.cc, $event)"
                 >
                     {{ $t("common.cc") }}
                 </bm-contact-input>
@@ -56,6 +58,7 @@
             :validate-address-fn="validateDnAndAddress"
             @search="searchedPattern => onSearch('bcc', searchedPattern)"
             @update:contacts="updateBcc"
+            @expand="expandContact(message.bcc, $event)"
         >
             {{ $t("common.bcc") }}
         </bm-contact-input>
@@ -82,12 +85,3 @@ export default {
     mixins: [ComposerActionsMixin, EditRecipientsMixin]
 };
 </script>
-
-<style lang="scss">
-.mail-composer-recipients {
-    .bm-contact-input .btn {
-        min-width: 3rem;
-        text-align: left;
-    }
-}
-</style>

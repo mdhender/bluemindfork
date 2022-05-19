@@ -15,7 +15,6 @@
             </bm-row>
             <template v-for="dirEntry in dirEntriesAcl">
                 <bm-row :key="dirEntry.uid" class="align-items-center mt-2">
-                    <!-- FIXME: group may not be displayed as user -->
                     <div class="col-6">
                         <bm-contact :contact="dirEntryToContact(dirEntry)" transparent show-address bold-dn />
                     </div>
@@ -33,9 +32,10 @@
 </template>
 
 <script>
-import { ContainerHelper, ContainerType } from "../container";
+import { DirEntryAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
 import { BmContact, BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/styleguide";
+import { ContainerHelper, ContainerType } from "../container";
 
 export default {
     name: "InternalShareManagement",
@@ -70,9 +70,7 @@ export default {
         }
     },
     methods: {
-        dirEntryToContact(entry) {
-            return { entries: [{ address: entry.value.email, dn: entry.value.displayName }] };
-        },
+        dirEntryToContact: DirEntryAdaptor.toContact,
         onDirEntryAclChange(dirEntryUid, value) {
             this.$emit("dir-entry-acl-changed", { dirEntryUid, value });
         },

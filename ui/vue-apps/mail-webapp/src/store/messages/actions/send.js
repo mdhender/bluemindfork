@@ -103,7 +103,9 @@ function manageFlagOnPreviousMessage({ dispatch, state }, draft) {
 
 function validateDraft(draft, vueI18n) {
     let recipients = draft.to.concat(draft.cc).concat(draft.bcc);
-    const allRecipientsAreValid = recipients.some(recipient => EmailValidator.validateAddress(recipient.address));
+    const allRecipientsAreValid = recipients.every(recipient =>
+        recipient.kind === "group" ? recipient.dn : EmailValidator.validateAddress(recipient.address)
+    );
     if (!allRecipientsAreValid) {
         throw vueI18n.t("mail.error.email.address.invalid");
     }

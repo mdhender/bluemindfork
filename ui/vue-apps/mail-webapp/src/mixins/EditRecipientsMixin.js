@@ -1,9 +1,10 @@
 import debounce from "lodash/debounce";
-import { searchVCardsHelper, VCardInfoAdaptor } from "@bluemind/contact";
+import { VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { mapActions, mapMutations } from "vuex";
 import { CHECK_CORPORATE_SIGNATURE } from "~/actions";
+import apiAddressbooks from "~/store/api/apiAddressbooks";
 import { SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~/mutations";
 import ComposerActionsMixin from "./ComposerActionsMixin";
 
@@ -69,6 +70,21 @@ export default {
     methods: {
         ...mapActions("mail", { CHECK_CORPORATE_SIGNATURE }),
         ...mapMutations("mail", { SET_MESSAGE_TO, SET_MESSAGE_CC, SET_MESSAGE_BCC }),
+        async expandContact(contacts, index) {
+            const contact = contacts[index];
+            const containerUid = contact.urn?.split("@")[1];
+            const vCard = await inject("AddressBookPersistence", containerUid).getComplete(contact.uid);
+            contact.entries =
+                vCard && vCard.value.kind === "group" && vCard.value.organizational?.member?.length
+                    ? vCard.value.organizational.member.map(m => ({
+                          dn: m.commonName,
+                          address: m.mailto,
+                          urn: `${m.itemUid}@${m.containerUid}`,
+                          uid: m.itemUid
+                      }))
+                    : [];
+            contacts.splice(index, 1, ...contact.entries.map(e => ({ entries: [e] })));
+        },
         onSearch(fieldFocused, searchedPattern) {
             this.fieldFocused = fieldFocused;
             this.search(searchedPattern);
@@ -77,17 +93,15 @@ export default {
             if (searchedRecipient === "") {
                 this.autocompleteResults = [];
             } else {
-                return inject("AddressBooksPersistence")
-                    .search(searchVCardsHelper(searchedRecipient))
-                    .then(results => {
-                        if (results.values.length === 0) {
-                            this.autocompleteResults = undefined;
-                        } else {
-                            this.autocompleteResults = results.values.map(vcardInfo =>
-                                VCardInfoAdaptor.toContact(vcardInfo)
-                            );
-                        }
-                    });
+                return apiAddressbooks.search(searchedRecipient).then(results => {
+                    if (results.values.length === 0) {
+                        this.autocompleteResults = undefined;
+                    } else {
+                        this.autocompleteResults = results.values.map(vcardInfo =>
+                            VCardInfoAdaptor.toContact(vcardInfo)
+                        );
+                    }
+                });
             }
         }, 200),
         getAutocompleteResults(fromField) {
@@ -113,7 +127,11 @@ export default {
             this.CHECK_CORPORATE_SIGNATURE({ message: this.message });
             this.debouncedSave();
         },
-        validateAddress: EmailValidator.validateAddress,
-        validateDnAndAddress: EmailValidator.validateDnAndAddress
+        validateAddress(input, contact) {
+            return contact.kind === "group" ? !!contact.dn : EmailValidator.validateAddress(input);
+        },
+        validateDnAndAddress(input, contact) {
+            return contact.kind === "group" ? !!contact.dn : EmailValidator.validateDnAndAddress(input);
+        }
     }
 };

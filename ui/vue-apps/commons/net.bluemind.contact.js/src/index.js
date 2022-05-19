@@ -4,14 +4,17 @@ import VCardAdaptor from "./VCardAdaptor";
 import VCardInfoAdaptor from "./VCardInfoAdaptor";
 import { VCardQueryOrderBy } from "@bluemind/addressbook.api";
 
-function searchVCardsHelper(pattern, size = 5) {
+function searchVCardsHelper(pattern, size = 5, noGroup = false) {
     const escaped = escape(pattern);
+    const groupPart = noGroup ? "" : "value.kind:group OR ";
     const esQuery =
         "(value.identification.formatedName.value:" +
         escaped +
         " OR value.communications.emails.value:" +
         escaped +
-        ") AND _exists_:value.communications.emails.value";
+        ") AND (" +
+        groupPart +
+        "_exists_:value.communications.emails.value)";
     return { from: 0, size, query: esQuery, orderBy: VCardQueryOrderBy.Pertinance, escapeQuery: false };
 }
 
