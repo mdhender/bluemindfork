@@ -46,13 +46,15 @@ export default {
 
                     const conversationsActivated = this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`];
 
-                    const isMessageId = /^\d{1,15}$/.test(internalId);
+                    const isMessageId = /^\d+$/.test(internalId);
                     if (isMessageId && conversationsActivated) {
                         const message = await this.FETCH_MESSAGE_IF_NOT_LOADED({
                             internalId: parseInt(internalId),
                             folder: this.folders[folderKey]
                         });
-                        internalId = conversationIdToUid(message.conversationId);
+                        if (message?.conversationId) {
+                            internalId = conversationIdToUid(message.conversationId);
+                        }
                     }
 
                     const folder = this.folders[folderKey];
