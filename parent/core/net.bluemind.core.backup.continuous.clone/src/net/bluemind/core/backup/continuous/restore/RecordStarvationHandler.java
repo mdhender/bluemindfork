@@ -33,6 +33,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.CloneConfiguration;
 import net.bluemind.system.api.IInstallation;
@@ -123,12 +124,15 @@ public class RecordStarvationHandler implements IRecordStarvationStrategy, ISepp
 		IAuthentication authApi = prov.instance(IAuthentication.class);
 		LoginResponse auth = authApi.login("admin0@global.virt", orphans.token, "clone-demote");
 		if (auth.status != Status.Ok) {
-			System.err.println("Failed auth on " + url + " -> " + auth);
+			monitor.log("Failed auth on " + url + " -> " + auth);
 			System.exit(1);
 		}
 		prov = ClientSideServiceProvider.getProvider(url, auth.authKey);
 		IInstallation masterInstApi = prov.instance(IInstallation.class, cloneConf.sourceInstallationId);
 		monitor.log("Calling demote....");
+		IServer masterSrvApi = prov.instance(IServer.class, cloneConf.sourceInstallationId);
+        // Force reset of websocket connections to the demoted server
+		masterSrvApi.allComplete().forEach(srv -> masterSrvApi.submitAndWait(srv.uid, "service bm-nginx restart"));
 		masterInstApi.demoteLeader();
 	}
 
