@@ -24,5 +24,18 @@
             document="filehosting-filesystem-tag.xml">
       </domain-template-extension>
    </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory 
+      class="net.bluemind.filehosting.filesystem.service.internal.BmFileHostingServiceFactory"> 
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.filehosting.api.IInternalBMFileSystem"
+            inline="false">
+      </endpoint>
+   </extension>
 
 </plugin>

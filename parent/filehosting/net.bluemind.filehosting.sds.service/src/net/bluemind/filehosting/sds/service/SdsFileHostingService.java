@@ -47,6 +47,7 @@ import net.bluemind.filehosting.api.FileHostingInfo.Type;
 import net.bluemind.filehosting.api.FileHostingItem;
 import net.bluemind.filehosting.api.FileHostingPublicLink;
 import net.bluemind.filehosting.api.FileType;
+import net.bluemind.filehosting.filesystem.service.internal.FileSystemFileHostingService;
 import net.bluemind.filehosting.service.export.IFileHostingService;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.sds.dto.ExistRequest;
@@ -202,6 +203,9 @@ public class SdsFileHostingService implements IFileHostingService {
 
 	@Override
 	public FileHostingItem getComplete(SecurityContext context, String uid) throws ServerFault {
+		if (!uid.startsWith("sds-")) {
+			return new FileSystemFileHostingService().getComplete(context, uid);
+		}
 		FileHostingItem fh = new FileHostingItem();
 		fh.path = uidToPath(uid);
 		fh.name = new File(fh.path).getName();

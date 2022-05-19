@@ -20,6 +20,7 @@ package net.bluemind.filehosting.filesystem.service.internal.persistence;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.persistence.StringCreator;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 
 public class FileHostingStore extends JdbcAbstractStore {
@@ -194,6 +196,11 @@ public class FileHostingStore extends JdbcAbstractStore {
 		}
 
 		return null;
+	}
+
+	public List<String> getShareUidsByPath(String path) throws SQLException {
+		String query = "SELECT uid FROM t_filehosting_file WHERE path = ?";
+		return select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { path });
 	}
 
 }

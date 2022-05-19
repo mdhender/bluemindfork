@@ -55,6 +55,7 @@ import net.bluemind.filehosting.api.FileHostingItem;
 import net.bluemind.filehosting.api.FileHostingPublicLink;
 import net.bluemind.filehosting.api.ID;
 import net.bluemind.filehosting.api.IFileHosting;
+import net.bluemind.filehosting.api.IInternalBMFileSystem;
 import net.bluemind.filehosting.filesystem.service.internal.persistence.FileHostingEntity;
 import net.bluemind.filehosting.filesystem.service.internal.persistence.FileHostingEntityInfo;
 import net.bluemind.filehosting.filesystem.service.internal.persistence.FileHostingStore;
@@ -69,7 +70,7 @@ import net.bluemind.node.api.NodeActivator;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 
-public class FileSystemFileHostingService implements IFileHostingService {
+public class FileSystemFileHostingService implements IFileHostingService, IInternalBMFileSystem {
 	private static final Logger logger = LoggerFactory.getLogger(FileSystemFileHostingService.class);
 	private final File rootFolder;
 	private final FileHostingStore store;
@@ -369,6 +370,15 @@ public class FileSystemFileHostingService implements IFileHostingService {
 	@Override
 	public boolean isDefaultImplementation() {
 		return true;
+	}
+
+	@Override
+	public List<String> getShareUidsByPath(String path) throws ServerFault {
+		try {
+			return store.getShareUidsByPath(path);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
 	}
 
 }

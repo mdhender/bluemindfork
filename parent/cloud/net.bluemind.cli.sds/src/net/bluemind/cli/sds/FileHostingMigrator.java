@@ -28,6 +28,7 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
+import net.bluemind.filehosting.api.IInternalBMFileSystem;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.sds.dto.PutRequest;
 import net.bluemind.sds.store.ISdsBackingStoreFactory;
@@ -90,10 +92,16 @@ public class FileHostingMigrator {
 	}
 
 	public void migrateFileHosting(Path rootPath) throws IOException {
+		IInternalBMFileSystem service = ctx.adminApi().instance(IInternalBMFileSystem.class);
 		migratePath(rootPath, Files::isRegularFile, filePath -> {
 			JsonObject js = new JsonObject();
 			js.put("path", filePath.toString());
-			return "sds-" + Base64.getUrlEncoder().encodeToString(js.encode().getBytes());
+			List<String> shareUidsByPath = service.getShareUidsByPath(filePath.toString());
+			if (shareUidsByPath.isEmpty()) {
+				return Arrays.asList("sds-" + Base64.getUrlEncoder().encodeToString(js.encode().getBytes()));
+			} else {
+				return shareUidsByPath;
+			}
 		});
 	}
 
@@ -112,10 +120,11 @@ public class FileHostingMigrator {
 		PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:*.bin");
 		migratePath(rootPath, filePath -> {
 			return Files.isRegularFile(filePath) && matcher.matches(filePath.getFileName());
-		}, filePath -> "doc-fs-" + removeBinExtension(filePath).replace('/', '_'));
+		}, filePath -> Arrays.asList("doc-fs-" + removeBinExtension(filePath).replace('/', '_')));
 	}
 
-	public void migratePath(Path rootPath, Predicate<Path> filter, Function<Path, String> getUid) throws IOException {
+	public void migratePath(Path rootPath, Predicate<Path> filter, Function<Path, List<String>> getUid)
+			throws IOException {
 		ArrayBlockingQueue<Path> q = new ArrayBlockingQueue<>(workers);
 		ExecutorService pool = Executors.newFixedThreadPool(workers);
 
@@ -123,19 +132,21 @@ public class FileHostingMigrator {
 				.filter(filter::test) //
 				.forEach(p -> {
 					Path relativePath = rootPath.relativize(p);
-					String uid = getUid.apply(relativePath);
-					try {
-						q.put(p); // block until a slot is free
-					} catch (InterruptedException ie) {
-					}
-					pool.submit(() -> {
+					List<String> uids = getUid.apply(relativePath);
+					for (String uid : uids) {
 						try {
-							ctx.info("{} -> {}", relativePath, uid);
-							store.upload(PutRequest.of(uid, p.toAbsolutePath().toString()));
-						} finally {
-							q.remove(); // NOSONAR: We don't care what path we remove
+							q.put(p); // block until a slot is free
+						} catch (InterruptedException ie) {
 						}
-					});
+						pool.submit(() -> {
+							try {
+								ctx.info("{} -> {}", relativePath, uid);
+								store.upload(PutRequest.of(uid, p.toAbsolutePath().toString()));
+							} finally {
+								q.remove(); // NOSONAR: We don't care what path we remove
+							}
+						});
+					}
 				});
 
 		pool.shutdown();
