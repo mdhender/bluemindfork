@@ -1,6 +1,6 @@
 <template>
     <div class="main-app d-flex flex-column h-100 bg-light">
-        <global-events target="self" @resize="appHeight" />
+        <global-events target="self" @resize="appHeight" @dragover.prevent />
         <system-alert-area v-if="systemAlerts.length > 0" :system-alerts="systemAlerts" @remove="systemAlerts = []" />
         <bm-banner v-if="showBanner" :applications="applications" :user="user" />
         <preferences v-if="showPreferences" :applications="applications" />
