@@ -26,12 +26,15 @@ import com.google.common.collect.ImmutableSet;
 
 import net.bluemind.backend.cyrus.annotationdb.ConversationSync.CyrusConversationDbInitException;
 import net.bluemind.core.api.report.DiagnosticReport;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.user.api.IUserSettings;
 
 public class ConversationRepair implements IDirEntryRepairSupport {
 
@@ -62,39 +65,66 @@ public class ConversationRepair implements IDirEntryRepairSupport {
 
 		@Override
 		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			AtomicInteger updatedConversations = new AtomicInteger(0);
+			execute(domainUid, entry.entryUid, () -> {
+				AtomicInteger updatedConversations = new AtomicInteger(0);
 
-			try {
-				new ConversationSync(this.context, "ConversationRepair",
-						(uid, service, conversation) -> updatedConversations.incrementAndGet(),
-						(service, conversation) -> updatedConversations.incrementAndGet()).execute(domainUid,
-								entry.entryUid, monitor, report);
-				String msg = "Resync conversations of " + entry.entryUid + "@" + domainUid + " would touch "
-						+ updatedConversations.get() + " conversations";
-				report.ok(entry.entryUid, msg);
-				monitor.end(true, msg, "");
-			} catch (CyrusConversationDbInitException e) {
-				String msg = "[DRY] Cannot resync conversations of " + entry.entryUid + "@" + domainUid + ": "
-						+ e.getMessage();
-				report.ko(entry.entryUid, msg);
-				monitor.end(false, msg, "");
-			}
+				try {
+					new ConversationSync(this.context, "ConversationRepair",
+							(uid, service, conversation) -> updatedConversations.incrementAndGet(),
+							(service, conversation) -> updatedConversations.incrementAndGet())
+							.execute(domainUid, entry.entryUid, monitor, report);
+					String msg = "Resync conversations of " + entry.entryUid + "@" + domainUid + " would touch "
+							+ updatedConversations.get() + " conversations";
+					report.ok(entry.entryUid, msg);
+					monitor.end(true, msg, "");
+				} catch (CyrusConversationDbInitException e) {
+					String msg = "[DRY] Cannot resync conversations of " + entry.entryUid + "@" + domainUid + ": "
+							+ e.getMessage();
+					report.ko(entry.entryUid, msg);
+					monitor.end(false, msg, "");
+				}
+
+			});
 		}
 
 		@Override
 		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+			execute(domainUid, entry.entryUid, () -> {
+				try {
+					new ConversationSync(this.context, "ConversationRepair").execute(domainUid, entry.entryUid, monitor,
+							report);
+					String msg = "Resync conversations of " + entry.entryUid + "@" + domainUid;
+					report.ok(entry.entryUid, msg);
+					monitor.end(true, msg, "");
+				} catch (CyrusConversationDbInitException e) {
+					String msg = "Cannot resync conversations of " + entry.entryUid + "@" + domainUid + ": "
+							+ e.getMessage();
+					report.ko(entry.entryUid, msg);
+					monitor.end(false, msg, "");
+				}
+			});
+		}
+
+		private void execute(String domainUid, String userUid, Runnable op) {
+			IUserSettings settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IUserSettings.class, domainUid);
+			boolean activated = isConversationsActivated(settings, userUid);
 			try {
-				new ConversationSync(this.context, "ConversationRepair").execute(domainUid, entry.entryUid, monitor,
-						report);
-				String msg = "Resync conversations of " + entry.entryUid + "@" + domainUid;
-				report.ok(entry.entryUid, msg);
-				monitor.end(true, msg, "");
-			} catch (CyrusConversationDbInitException e) {
-				String msg = "Cannot resync conversations of " + entry.entryUid + "@" + domainUid + ": "
-						+ e.getMessage();
-				report.ko(entry.entryUid, msg);
-				monitor.end(false, msg, "");
+				op.run();
+			} finally {
+				if (activated) {
+					activateUserConversations(settings, domainUid);
+				}
 			}
+		}
+
+		private boolean isConversationsActivated(IUserSettings settings, String userUid) {
+			String conv = settings.getOne(userUid, "mail_thread");
+			return conv != null && Boolean.parseBoolean(conv);
+		}
+
+		private void activateUserConversations(IUserSettings settings, String userUid) {
+			settings.setOne(userUid, "mail_thread", "true");
 		}
 
 	}
