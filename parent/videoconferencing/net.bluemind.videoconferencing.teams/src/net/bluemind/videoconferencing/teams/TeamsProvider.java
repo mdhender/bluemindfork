@@ -32,9 +32,13 @@ import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
 import com.microsoft.graph.http.GraphServiceException;
+import com.microsoft.graph.models.LobbyBypassScope;
+import com.microsoft.graph.models.LobbyBypassSettings;
 import com.microsoft.graph.models.OnlineMeeting;
 import com.microsoft.graph.models.User;
 import com.microsoft.graph.requests.GraphServiceClient;
+import com.microsoft.graph.requests.OnlineMeetingCollectionRequest;
+import com.microsoft.graph.requests.OnlineMeetingRequest;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.api.fault.ServerFault;
@@ -114,10 +118,24 @@ public class TeamsProvider implements IVideoConferencingProvider {
 			throw ServerFault.notFound("Teams user not found: " + externalAccount.login);
 		}
 
-		OnlineMeeting onlineMeeting = new OnlineMeeting();
-		onlineMeeting.subject = vevent.summary;
+		String confId = vevent.conferenceId;
+		OnlineMeeting meeting;
+		if (Strings.isNullOrEmpty(confId)) {
+			OnlineMeeting onlineMeeting = new OnlineMeeting();
+			onlineMeeting.subject = vevent.summary;
+			LobbyBypassSettings lobbyBypass = new LobbyBypassSettings();
+			lobbyBypass.scope = LobbyBypassScope.ORGANIZATION;
+			lobbyBypass.isDialInBypassEnabled = false;
+			onlineMeeting.lobbyBypassSettings = lobbyBypass;
 
-		OnlineMeeting meeting = graphClient.users(me.id).onlineMeetings().buildRequest().post(onlineMeeting);
+			OnlineMeetingCollectionRequest req = graphClient.users(me.id).onlineMeetings().buildRequest();
+			req.addHeader("Accept-Language", context.getSecurityContext().getLang());
+			meeting = req.post(onlineMeeting);
+		} else {
+			OnlineMeetingRequest req = graphClient.users(me.id).onlineMeetings(confId).buildRequest();
+			req.addHeader("Accept-Language", context.getSecurityContext().getLang());
+			meeting = req.get();
+		}
 
 		String desc = meeting.joinInformation.content;
 		Matcher dataUriMatcher = DATA_URI.matcher(desc);
