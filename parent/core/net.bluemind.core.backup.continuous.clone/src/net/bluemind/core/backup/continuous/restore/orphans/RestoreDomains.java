@@ -74,6 +74,7 @@ public class RestoreDomains {
 				ItemValue<Domain> known = domApi.get(dom.uid);
 				if (known != null) {
 					logger.info("UPDATE DOMAIN {}", dom);
+					domApi.setAliases(dom.uid, dom.value.aliases);
 					domApi.update(dom.uid, dom.value);
 				} else {
 					logger.info("CREATE DOMAIN {}", dom);
