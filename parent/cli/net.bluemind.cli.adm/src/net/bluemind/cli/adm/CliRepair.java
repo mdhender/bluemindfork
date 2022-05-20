@@ -94,10 +94,10 @@ public class CliRepair {
 
 		TaskRef ref = dry ? demService.check(filteredOps) : demService.repair(filteredOps);
 		TaskStatus status = Tasks.follow(ctx, ref, String.format("Failed to repair entry %s", de));
-		if (!status.state.succeed) {
-			DiagnosticReport report = JsonUtils.read(status.result, DiagnosticReport.class);
-			report.entries.stream().filter(e -> e.state == State.KO).forEach(e -> ctx.error(e.toString()));
-		}
+		DiagnosticReport report = JsonUtils.read(status.result, DiagnosticReport.class);
+		report.entries.stream().filter(e -> e.state == State.KO || e.state == State.WARN)
+				.forEach(e -> ctx.error(e.toString()));
+		report.entries.stream().filter(e -> e.state == State.OK).forEach(e -> ctx.info(e.toString()));
 	}
 
 	private void unarchive(IUser userService, Optional<ItemValue<User>> ouserItem) {
