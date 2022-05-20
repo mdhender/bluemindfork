@@ -3418,6 +3418,9 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		ItemValue<MailboxFolder> user1Inbox = user1MboxesApi.byName("INBOX");
 		ItemValue<MailboxFolder> user1SentBox = user1MboxesApi.byName("Sent");
 
+		List<String> excludedConversations = getAlreadyExistingConversations(user1ConversationService, user1Inbox.uid,
+				user1SentBox.uid);
+
 		//
 		// simulate user1 sends to user2 (should generate a conversation for
 		// user1 in Sent)
@@ -3425,10 +3428,12 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		long user1ItemId = createEml("data/user1_send_to_user2.eml", userUid, mboxRoot, "Sent");
 		String user2MboxRoot = "user." + user2Uid.replace('.', '^');
 		createEml("data/user1_send_to_user2.eml", user2Uid, user2MboxRoot, "INBOX");
+
 		List<String> user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
-		// a conversation already exists in INBOX due to #before method
-		assertEquals(1, user1InboxConversations.size());
+		user1InboxConversations.removeIf(excludedConversations::contains);
+		assertEquals(0, user1InboxConversations.size());
 		List<String> user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
+		user1SentConversations.removeIf(excludedConversations::contains);
 		assertEquals(1, user1SentConversations.size());
 		String conversationUid = user1SentConversations.get(0);
 
@@ -3442,16 +3447,20 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		//
 		createEml("data/user2_reply_to_user1.eml", user2Uid, user2MboxRoot, "Sent");
 		long user1ItemId2 = createEml("data/user2_reply_to_user1.eml", userUid, mboxRoot, "INBOX");
+
 		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
-		assertEquals(2, user1InboxConversations.size());
-		conversation = user1ConversationService.getComplete(user1InboxConversations.get(1));
+		user1InboxConversations.removeIf(excludedConversations::contains);
+
+		assertEquals(1, user1InboxConversations.size());
+		conversation = user1ConversationService.getComplete(user1InboxConversations.get(0));
 		assertEquals(2, conversation.value.messageRefs.size());
 		assertEquals(user1ItemId, conversation.value.messageRefs.get(0).itemId);
 		assertEquals(user1ItemId2, conversation.value.messageRefs.get(1).itemId);
 		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
+		user1SentConversations.removeIf(excludedConversations::contains);
 		assertEquals(1, user1SentConversations.size());
-		assertEquals(conversationUid, user1InboxConversations.get(1));
-		conversation = user1ConversationService.getComplete(user1InboxConversations.get(1));
+		assertEquals(conversationUid, user1InboxConversations.get(0));
+		conversation = user1ConversationService.getComplete(user1InboxConversations.get(0));
 		numberOfMessagesInConversation = conversation.value.messageRefs.size();
 		assertEquals(2, numberOfMessagesInConversation);
 
@@ -3461,11 +3470,13 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		//
 		createEml("data/user1_send_another_to_user2.eml", userUid, mboxRoot, "Sent");
 		createEml("data/user1_send_another_to_user2.eml", user2Uid, user2MboxRoot, "INBOX");
+
 		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
-		assertEquals(2, user1InboxConversations.size());
+		user1InboxConversations.removeIf(excludedConversations::contains);
+		assertEquals(1, user1InboxConversations.size());
 		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
+		user1SentConversations.removeIf(excludedConversations::contains);
 		assertEquals(2, user1SentConversations.size());
-		assertNotEquals(conversationUid, user1SentConversations.get(1));
 
 		//
 		// move sent message to trash
@@ -3476,6 +3487,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		List<ItemIdentifier> moved = transferApi.move(Arrays.asList(user1ItemId));
 		assertNotNull(moved);
 		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
+		user1SentConversations.removeIf(excludedConversations::contains);
 		assertEquals(1, user1SentConversations.size());
 		conversation = user1ConversationService.getComplete(user1SentConversations.get(0));
 		numberOfMessagesInConversation = conversation.value.messageRefs.size();
@@ -3506,6 +3518,14 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		conversation = user1ConversationService.getComplete(user1InboxConversations.get(0));
 		numberOfMessagesInConversation = conversation.value.messageRefs.size();
 		assertEquals(1, numberOfMessagesInConversation);
+	}
+
+	private List<String> getAlreadyExistingConversations(IMailConversation user1ConversationService, String inbox,
+			String sent) {
+		List<String> uids = new ArrayList<>();
+		uids.addAll(user1ConversationService.byFolder(inbox, ItemFlagFilter.all()));
+		uids.addAll(user1ConversationService.byFolder(sent, ItemFlagFilter.all()));
+		return uids;
 	}
 
 	/** Create a message in a synchronous way. */
