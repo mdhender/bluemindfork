@@ -20,12 +20,16 @@ package net.bluemind.central.reverse.proxy.vertx.impl;
 
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.ServerWebSocket;
+import io.vertx.core.net.OpenSSLEngineOptions;
 import net.bluemind.central.reverse.proxy.model.ProxyInfoStoreClient;
 import net.bluemind.central.reverse.proxy.vertx.AuthMatcher;
 import net.bluemind.central.reverse.proxy.vertx.HttpProxy;
@@ -34,13 +38,18 @@ import net.bluemind.central.reverse.proxy.vertx.WebSocketProxy;
 
 public class ProxyVerticle extends AbstractVerticle {
 
+	private static final Logger logger = LoggerFactory.getLogger(ProxyVerticle.class);
+
 	@Override
 	public void start(Promise<Void> p) {
 		HttpClient proxyClient = vertx.createHttpClient(new HttpClientOptions() //
 				.setKeepAlive(true).setTcpKeepAlive(true).setTcpNoDelay(true).setMaxPoolSize(200) //
 				.setMaxWebSockets(200) //
+				.setSslEngineOptions(new OpenSSLEngineOptions())//
 				// le certificat ssl n'est pas valide pour l'ip
 				.setSsl(true).setVerifyHost(false));
+
+		logger.info("Client created {}", proxyClient);
 
 		HttpProxy httpProxy = HttpProxy.reverseProxy(proxyClient);
 		AuthMatcher<HttpServerRequestContext> requestInfoMatcher = AuthMatcher.requestMatcher();
