@@ -7,7 +7,6 @@ import {
     OutboxClient
 } from "@bluemind/backend.mail.api";
 import { MailTipClient } from "@bluemind/mailmessage.api";
-import { AttachmentClient } from "@bluemind/attachment.api";
 
 import injector from "@bluemind/inject";
 import router from "@bluemind/router";
@@ -19,11 +18,9 @@ import MailApp from "./components/MailApp";
 import { MailboxItemsClientProxy } from "./api/APIClientsProxy";
 import mailRoutes from "./router";
 import MailStore from "./store/";
-import FileHostingStore from "./store/filehosting/";
 
 registerAPIClients();
 store.registerModule("mail", MailStore);
-store.registerModule(["mail", "filehosting"], FileHostingStore);
 
 router.addRoutes(mailRoutes);
 
@@ -88,14 +85,6 @@ function registerAPIClients() {
         factory: () => {
             const userSession = injector.getProvider("UserSession").get();
             return new MailTipClient(userSession.sid, userSession.domain);
-        }
-    });
-
-    injector.register({
-        provide: "AttachmentPersistence",
-        factory: () => {
-            const userSession = injector.getProvider("UserSession").get();
-            return new AttachmentClient(userSession.sid, userSession.domain);
         }
     });
 }

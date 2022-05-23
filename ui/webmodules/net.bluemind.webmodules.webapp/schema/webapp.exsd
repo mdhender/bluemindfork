@@ -21,6 +21,7 @@
       <complexType>
          <choice minOccurs="1" maxOccurs="1">
             <element ref="component"/>
+            <element ref="command"/>
          </choice>
          <attribute name="point" type="string" use="required">
             <annotation>

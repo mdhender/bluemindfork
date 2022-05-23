@@ -50,7 +50,7 @@ import { mapGetters } from "vuex";
 import global from "@bluemind/global";
 import { BmModal, BmButtonClose, BmButton, BmIcon } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
-import FhAttachmentItem from "./FhAttachmentItem";
+import FhAttachmentItem from "./AttachmentItem";
 
 export default {
     name: "FhModal",

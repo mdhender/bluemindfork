@@ -22,7 +22,7 @@
 </template>
 <script>
 import { BmIcon } from "@bluemind/styleguide";
-import FhAttachmentItem from "./FhAttachmentItem";
+import FhAttachmentItem from "./AttachmentItem";
 
 export default {
     name: "FhConfirmBox",

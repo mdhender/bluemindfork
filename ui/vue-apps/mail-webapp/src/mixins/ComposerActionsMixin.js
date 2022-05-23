@@ -33,8 +33,6 @@ import {
 import { isNewMessage } from "~/model/draft";
 import { createFromDraft } from "../model/draft";
 import { AttachmentStatus } from "~/model/attachment";
-import DefaultHandler from "./AttachmentHandler/DefaultHandler";
-import FileHostingHandler from "./AttachmentHandler/FileHostingHandler";
 
 /**
  * Provide composition Vuex actions to components
@@ -76,11 +74,7 @@ export default {
             return this.message.attachments.some(a => a.status === AttachmentStatus.ERROR);
         }
     },
-    created() {
-        // const attachmentHandlers = [DefaultHandler, ...this.extensions];
-        const attachmentHandlers = [new FileHostingHandler(this), new DefaultHandler(this)];
-        this.attachmentHandler = attachmentHandlers.reduce((previous, handler) => previous.chain(handler));
-    },
+
     methods: {
         ...mapActions("mail", {
             $_ComposerActionsMixin_SAVE_MESSAGE: SAVE_MESSAGE,
@@ -143,16 +137,6 @@ export default {
             ) {
                 this.$router.navigate({ name: "v:mail:message", params: { message: this.message } });
             }
-        },
-        async addAttachments(files) {
-            const isNew = isNewMessage(this.message);
-            await this.attachmentHandler.addAttachments([...files], this.message, this);
-
-            await this.$store.dispatch(`mail/${DEBOUNCED_SAVE_MESSAGE}`, {
-                draft: this.message,
-                messageCompose: this.$_ComposerActionsMixin_messageCompose
-            });
-            this.updateRoute(isNew);
         },
         removeAttachment(address) {
             this.$_ComposerActionsMixin_REMOVE_ATTACHMENT({

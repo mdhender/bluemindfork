@@ -37,6 +37,8 @@
         "lodash.iteratee": "^4.7.0",
         "lodash.sortedindexby": "^4.6.0",
         "lodash.throttle": "^4.1.1",
+        "lodash.camelcase": "^4.3.0",
+        "lodash.isplainobject": "^4.0.6",
         "mime": "^2.5.2",
         "vue-global-events": "^1.1.2",
         "vue-i18n": "^8.21.0",

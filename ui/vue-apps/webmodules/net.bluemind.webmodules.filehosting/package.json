@@ -1,0 +1,25 @@
+{
+    "name": "@bluemind/filehosting",
+    "version": "4.1.0",
+    "description": "BlueMind filehosting plugin",
+    "author": "Blue Mind SAS",
+    "main": "src/index.js",
+    "license": "AGPL-3.0-only",
+    "scripts": {
+        "build": "webpack --env production --progress --profile --color"
+    },
+    "dependencies": {
+        "@bluemind/store": "^4.1.0",
+        "@bluemind/attachment.api": "^4.1.0",
+        "@bluemind/inject": "^4.1.0",
+        "@bluemind/uuid": "^4.1.0",
+        "@bluemind/global": "^4.1.0",
+        "@bluemind/file-utils": "^4.1.0"
+    },
+    "devDependencies": {
+        "@bluemind/conf": "^4.1.0"
+    },
+    "peerDependencies": {
+        "@bluemind/styleguide": "^0.1.0"
+    }
+}

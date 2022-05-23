@@ -95,7 +95,7 @@
                         :dragged-files-count="draggedFilesCount"
                         :message="message"
                         @files-count="draggedFilesCount = $event"
-                        @drop-files="addAttachments($event)"
+                        @drop-files="$execute('add-attachments', { files: $event, message, maxSize })"
                     />
                 </div>
             </div>
@@ -131,7 +131,13 @@
 <script>
 import { mapMutations, mapState } from "vuex";
 import { BmButton, BmContactInput, BmIcon } from "@bluemind/styleguide";
-import { ComposerActionsMixin, ComposerInitMixin, ComposerMixin, EditRecipientsMixin } from "~/mixins";
+import {
+    AddAttachmentsCommand,
+    ComposerActionsMixin,
+    ComposerInitMixin,
+    ComposerMixin,
+    EditRecipientsMixin
+} from "~/mixins";
 import MailComposerAttachments from "../../MailComposer/MailComposerAttachments";
 import MailComposerContent from "../../MailComposer/MailComposerContent";
 import MailComposerFooter from "../../MailComposer/MailComposerFooter";
@@ -158,6 +164,7 @@ export default {
         MailConversationViewerVerticalLine
     },
     mixins: [
+        AddAttachmentsCommand,
         ComposerActionsMixin,
         ComposerInitMixin,
         ComposerMixin,

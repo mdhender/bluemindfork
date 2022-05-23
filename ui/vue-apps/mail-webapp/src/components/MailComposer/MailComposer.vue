@@ -30,7 +30,7 @@
             :dragged-files-count="draggedFilesCount"
             :message="message"
             @files-count="draggedFilesCount = $event"
-            @drop-files="addAttachments($event)"
+            @drop-files="$execute('add-attachments', { files: $event, message, maxSize })"
         />
         <mail-composer-content ref="content" :message="message" :is-signature-inserted.sync="isSignatureInserted" />
         <mail-composer-footer
@@ -45,7 +45,7 @@
 <script>
 import { BmFormInput, BmForm } from "@bluemind/styleguide";
 
-import { ComposerActionsMixin, ComposerMixin } from "~/mixins";
+import { AddAttachmentsCommand, ComposerActionsMixin, ComposerMixin } from "~/mixins";
 import MailComposerAttachments from "./MailComposerAttachments";
 import MailComposerContent from "./MailComposerContent";
 import MailComposerRecipients from "./MailComposerRecipients";
@@ -65,7 +65,7 @@ export default {
         MailComposerRecipients,
         TemplateChooser
     },
-    mixins: [ComposerActionsMixin, ComposerMixin],
+    mixins: [AddAttachmentsCommand, ComposerActionsMixin, ComposerMixin],
     computed: {
         panelTitle() {
             return this.message.subject.trim() ? this.message.subject : this.$t("mail.main.new");

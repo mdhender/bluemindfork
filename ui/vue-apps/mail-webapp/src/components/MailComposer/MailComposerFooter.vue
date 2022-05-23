@@ -47,7 +47,7 @@
                 type="file"
                 multiple
                 hidden
-                @change="addAttachments($event.target.files)"
+                @change="$execute('add-attachments', { files: $event.target.files, message, maxSize })"
                 @click.stop
             />
             <bm-button
@@ -94,7 +94,7 @@ import {
 } from "@bluemind/styleguide";
 import { AppDataKeys } from "@bluemind/webappdata";
 
-import { ComposerActionsMixin, FormattedDateMixin } from "~/mixins";
+import { AddAttachmentsCommand, ComposerActionsMixin, FormattedDateMixin } from "~/mixins";
 import { MessageStatus } from "~/model/message";
 import { isNewMessage } from "~/model/draft";
 import { SET_TEMPLATE_CHOOSER_TARGET, SET_TEMPLATE_CHOOSER_VISIBLE, SHOW_SENDER } from "~/mutations";
@@ -112,7 +112,7 @@ export default {
         BmExtension,
         BmIcon
     },
-    mixins: [ComposerActionsMixin, FormattedDateMixin],
+    mixins: [AddAttachmentsCommand, ComposerActionsMixin, FormattedDateMixin],
     props: {
         message: {
             type: Object,

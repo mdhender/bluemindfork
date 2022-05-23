@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/webapp">
+         <web-resource
+               bundle="net.bluemind.webmodules.filehosting"
+               preload="false">
+         </web-resource>
+         <js
+               async-loading="false"
+               path="js/net.bluemind.filehosting.js"
+               translation="false">
+         </js>
+      </web-module-provider>
+   </extension>
+
+</plugin>

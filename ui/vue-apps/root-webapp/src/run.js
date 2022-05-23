@@ -20,6 +20,7 @@ import RootAppStore from "./rootAppStore";
 import SettingsStore from "./settingsStore";
 import MainApp from "./components/MainApp";
 import NotificationManager from "./NotificationManager";
+import Command from "../plugins/Command";
 
 initWebApp();
 initSentry(Vue);
@@ -79,6 +80,7 @@ function setVuePlugins(userSession) {
     }
     Vue.use(Vue2TouchEvents, { disableClick: true });
     Vue.use(BmModalPlugin);
+    Vue.use(Command);
 }
 
 function registerUserSession() {

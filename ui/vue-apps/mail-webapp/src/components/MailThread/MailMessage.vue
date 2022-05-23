@@ -9,7 +9,6 @@
         </template>
         <mail-viewer v-else :message="ACTIVE_MESSAGE" />
         <mail-attachment-preview />
-        <fh-modal :message="ACTIVE_MESSAGE" />
     </div>
 </template>
 
@@ -28,7 +27,6 @@ import MailComposerLoading from "../MailComposer/MailComposerLoading";
 import MailViewer from "../MailViewer";
 import MailViewerLoading from "../MailViewer/MailViewerLoading";
 import MailAttachmentPreview from "../MailAttachment/MailAttachmentPreview";
-import FhModal from "../MailAttachment/Modals/FileHosting/FhModal";
 
 export default {
     name: "MailMessage",
@@ -40,8 +38,7 @@ export default {
         MailViewer,
         MailViewerLoading,
         VideoConferencing,
-        MailAttachmentPreview,
-        FhModal
+        MailAttachmentPreview
     },
     provide() {
         return { $messageViewerRoot: this };

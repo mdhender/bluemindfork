@@ -6,7 +6,7 @@
         file-type-regex="^(?!.*image/(jpeg|jpg|png|gif)).*$"
         at-least-one-match
         @files-count="draggedFilesCount = $event"
-        @drop-files="addAttachments($event)"
+        @drop-files="$execute('add-attachments', { files: $event, message, maxSize })"
     >
         <template #dropZone>
             <h2 class="text-center p-2">{{ $tc("mail.new.attachments.drop.zone", draggedFilesCount) }}</h2>
@@ -56,13 +56,14 @@ import { AppDataKeys } from "@bluemind/webappdata";
 import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
 import { isNewMessage } from "~/model/draft";
 import { PERSONAL_SIGNATURE_SELECTOR } from "~/model/signature";
-import { ComposerActionsMixin, ComposerInitMixin, SignatureMixin, WaitForMixin } from "~/mixins";
+
+import { AddAttachmentsCommand, ComposerActionsMixin, ComposerInitMixin, SignatureMixin, WaitForMixin } from "~/mixins";
 import MailViewerContentLoading from "../MailViewer/MailViewerContentLoading";
 
 export default {
     name: "MailComposerContent",
     components: { BmButton, BmFileDropZone, BmIcon, BmRichEditor, MailViewerContentLoading },
-    mixins: [ComposerActionsMixin, ComposerInitMixin, SignatureMixin, WaitForMixin],
+    mixins: [AddAttachmentsCommand, ComposerActionsMixin, ComposerInitMixin, SignatureMixin, WaitForMixin],
     props: {
         message: {
             type: Object,

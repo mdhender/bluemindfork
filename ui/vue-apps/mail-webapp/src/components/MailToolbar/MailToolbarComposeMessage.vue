@@ -34,7 +34,13 @@
             <bm-icon icon="paper-clip" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.attach") }}</span>
         </bm-button>
-        <input ref="attachInputRef" type="file" multiple hidden @change="addAttachments($event.target.files)" />
+        <input
+            ref="attachInputRef"
+            type="file"
+            multiple
+            hidden
+            @change="$execute('add-attachments', { files: $event.target.files, message, maxSize })"
+        />
         <bm-dropdown
             split
             variant="simple-neutral"
@@ -90,7 +96,7 @@ import { mapGetters, mapMutations } from "vuex";
 
 import { BmButton, BmButtonGroup, BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
 
-import { ComposerActionsMixin } from "~/mixins";
+import { AddAttachmentsCommand, ComposerActionsMixin } from "~/mixins";
 import { MessageStatus } from "~/model/message";
 import { IS_SENDER_SHOWN, MY_DRAFTS } from "~/getters";
 import { SHOW_SENDER } from "~/mutations";
@@ -104,7 +110,7 @@ export default {
         BmDropdownItem,
         BmIcon
     },
-    mixins: [ComposerActionsMixin],
+    mixins: [AddAttachmentsCommand, ComposerActionsMixin],
     props: {
         message: {
             type: Object,

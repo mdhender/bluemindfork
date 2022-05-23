@@ -17,7 +17,7 @@
 
 <script>
 import { computeUnit } from "@bluemind/file-utils";
-import FhConfirmBox from "../FileHosting/FhConfirmBox";
+import FhConfirmBox from "./ConfirmBox";
 
 export default {
     name: "FhMustDetachConfirmBox",

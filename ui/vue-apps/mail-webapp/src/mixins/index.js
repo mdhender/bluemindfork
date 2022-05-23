@@ -1,4 +1,5 @@
 export { default as ActionTextMixin } from "./ActionTextMixin";
+export { default as AddAttachmentsCommand } from "./AddAttachmentsCommand";
 export { default as ComposerActionsMixin } from "./ComposerActionsMixin";
 export { default as ComposerFromMixin } from "./ComposerFromMixin";
 export { default as ComposerMixin } from "./ComposerMixin";
