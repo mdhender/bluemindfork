@@ -18,7 +18,6 @@
 package net.bluemind.backend.mail.replica.persistence;
 
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -29,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.persistence.AbstractItemValueStore;
-import net.bluemind.core.container.persistence.LongCreator;
 
 public class ConversationStore extends AbstractItemValueStore<InternalConversation> {
 
@@ -88,12 +86,16 @@ public class ConversationStore extends AbstractItemValueStore<InternalConversati
 
 	}
 
-	public List<Long> byMessage(long folderId, long itemId) throws SQLException {
-		String query = "SELECT item_id FROM " + ConversationColumns.TABLE
+	public ItemV<InternalConversation> byMessage(long folderId, long itemId) throws SQLException {
+		String query = "SELECT item_id, " + ConversationColumns.COLUMNS.names() + " FROM " + ConversationColumns.TABLE
 				+ " WHERE container_id = ? AND '[{\"folderId\": " + folderId + ", \"itemId\": " + itemId
 				+ "}]'::jsonb <@ messages";
 
-		return select(query, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
+		return unique(query, con -> new ItemV<InternalConversation>(), (rs, index, itemv) -> {
+			itemv.itemId = rs.getLong(index++);
+			itemv.value = new InternalConversation();
+			return ConversationColumns.populator().populate(rs, index, itemv.value);
+		}, new Object[] { container.id });
 	}
 
 	public void deleteMessagesInFolder(long folderId) throws SQLException {

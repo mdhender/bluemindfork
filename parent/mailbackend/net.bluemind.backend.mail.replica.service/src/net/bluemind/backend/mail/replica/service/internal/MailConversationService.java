@@ -39,6 +39,7 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
+import net.bluemind.core.container.persistence.AbstractItemValueStore.ItemV;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
@@ -109,15 +110,15 @@ public class MailConversationService implements IInternalMailConversation {
 	public void removeMessage(String folderUid, Long itemId) {
 		rbacManager.check(Verb.Write.name());
 		try {
-			List<ItemValue<Conversation>> conversations = storeService
-					.getMultipleById(conversationStore.byMessage(uidToId(folderUid), itemId)).stream()
-					.map(this::conversationToPublic).collect(Collectors.toList());
-			for (ItemValue<Conversation> conversation : conversations) {
-				conversation.value.removeMessage(folderUid, itemId);
+			long folderId = uidToId(folderUid);
+			ItemV<InternalConversation> conversation = conversationStore.byMessage(folderId, itemId);
+			if (conversation != null) {
+				conversation.value.removeMessage(folderId, itemId);
 				if (conversation.value.messageRefs.isEmpty()) {
-					storeService.delete(conversation.uid);
+					storeService.delete(conversation.itemId);
 				} else {
-					update(conversation.uid, conversation.value);
+					storeService.update(conversation.itemId, createDisplayName("" + conversation.itemId),
+							conversation.value);
 				}
 			}
 		} catch (SQLException e) {

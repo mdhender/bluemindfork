@@ -23,6 +23,7 @@
 package net.bluemind.backend.mail.replica.service.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -410,6 +411,10 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 
 		byConversationId = service.getComplete(conversationId);
 		assertEquals(3, byConversationId.value.messageRefs.size());
+
+		for (MessageRef msg : byConversationId.value.messageRefs) {
+			assertFalse(msg.itemId == messageId2.itemId);
+		}
 
 	}
 

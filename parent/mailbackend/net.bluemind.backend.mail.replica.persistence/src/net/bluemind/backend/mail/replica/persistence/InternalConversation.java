@@ -21,6 +21,7 @@ package net.bluemind.backend.mail.replica.persistence;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class InternalConversation {
 
@@ -30,5 +31,11 @@ public class InternalConversation {
 		public long folderId;
 		public long itemId;
 		public Date date;
+	}
+
+	public void removeMessage(long folderId, Long itemId) {
+		this.messageRefs = this.messageRefs.stream()
+				.filter(message -> message.folderId != folderId || message.itemId != itemId)
+				.collect(Collectors.toList());
 	}
 }

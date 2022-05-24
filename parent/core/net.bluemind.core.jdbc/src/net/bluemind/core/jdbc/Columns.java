@@ -2,6 +2,9 @@ package net.bluemind.core.jdbc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
+
+import com.google.common.base.Suppliers;
 
 /* BEGIN LICENSE
  * Copyright © Blue Mind SAS, 2012-2016
@@ -24,6 +27,8 @@ import java.util.List;
 public final class Columns {
 
 	public List<Column> cols;
+
+	private final Supplier<String> caching = Suppliers.memoize(this::namesImpl);
 
 	public static final class Column {
 		public String name;
@@ -75,16 +80,14 @@ public final class Columns {
 
 	}
 
-	public String names() {
+	private String namesImpl() {
 		StringBuilder sb = new StringBuilder();
 		appendNames(null, sb);
 		return sb.toString();
 	}
 
 	public String names(String prefix) {
-		StringBuilder sb = new StringBuilder();
-		appendNames(prefix, sb);
-		return sb.toString();
+		return caching.get();
 	}
 
 	public void appendValues(StringBuilder query) {
