@@ -9,7 +9,7 @@
                     :validate-address-fn="validateDnAndAddress"
                     @search="searchedPattern => onSearch('to', searchedPattern)"
                     @update:contacts="updateTo"
-                    @expand="expandContact(to, $event)"
+                    @expand="expandContact(to, $event, updateTo)"
                 >
                     {{ $t("common.to") }}
                 </bm-contact-input>
@@ -35,7 +35,7 @@
                     class="w-100"
                     @search="searchedPattern => onSearch('cc', searchedPattern)"
                     @update:contacts="updateCc"
-                    @expand="expandContact(cc, $event)"
+                    @expand="expandContact(cc, $event, updateCc)"
                 >
                     {{ $t("common.cc") }}
                 </bm-contact-input>
@@ -58,7 +58,7 @@
             :validate-address-fn="validateDnAndAddress"
             @search="searchedPattern => onSearch('bcc', searchedPattern)"
             @update:contacts="updateBcc"
-            @expand="expandContact(bcc, $event)"
+            @expand="expandContact(bcc, $event, updateBcc)"
         >
             {{ $t("common.bcc") }}
         </bm-contact-input>

@@ -2,7 +2,7 @@
     <div class="mail-viewer-recipient d-flex mb-1">
         <span class="text-neutral"><slot />&nbsp;</span>
         <div v-for="(recipient, index) in recipients" :key="recipient.address">
-            <bm-contact :contact="{ entries: [recipient] }" no-avatar show-address transparent bold />
+            <bm-contact :contact="recipient" no-avatar show-address transparent bold />
             <template v-if="index != recipients.length - 1">,&nbsp;</template>
         </div>
     </div>

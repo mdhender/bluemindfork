@@ -1,3 +1,4 @@
+import ContactValidator from "./ContactValidator";
 import DirEntryAdaptor from "./DirEntryAdaptor";
 import RecipientAdaptor from "./RecipientAdaptor";
 import VCardAdaptor from "./VCardAdaptor";
@@ -18,7 +19,7 @@ function searchVCardsHelper(pattern, size = 5, noGroup = false) {
     return { from: 0, size, query: esQuery, orderBy: VCardQueryOrderBy.Pertinance, escapeQuery: false };
 }
 
-export { DirEntryAdaptor, searchVCardsHelper, RecipientAdaptor, VCardAdaptor, VCardInfoAdaptor };
+export { ContactValidator, DirEntryAdaptor, searchVCardsHelper, RecipientAdaptor, VCardAdaptor, VCardInfoAdaptor };
 
 function escape(term) {
     const charsToEscape = ["\\", "+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", '"', "~", "*", "?", ":"];

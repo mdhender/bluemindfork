@@ -1,4 +1,5 @@
-import { EmailValidator, Flag } from "@bluemind/email";
+import { ContactValidator } from "@bluemind/contact";
+import { Flag } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { retrieveTaskResult } from "@bluemind/task";
 
@@ -103,9 +104,7 @@ function manageFlagOnPreviousMessage({ dispatch, state }, draft) {
 
 function validateDraft(draft, vueI18n) {
     let recipients = draft.to.concat(draft.cc).concat(draft.bcc);
-    const allRecipientsAreValid = recipients.every(recipient =>
-        recipient.kind === "group" ? recipient.dn : EmailValidator.validateAddress(recipient.address)
-    );
+    const allRecipientsAreValid = recipients.every(ContactValidator.validateContact);
     if (!allRecipientsAreValid) {
         throw vueI18n.t("mail.error.email.address.invalid");
     }

@@ -93,14 +93,7 @@ export default {
     },
     methods: {
         getContact(identity) {
-            return {
-                entries: [
-                    {
-                        address: identity.email,
-                        dn: identity.displayname
-                    }
-                ]
-            };
+            return { address: identity.email, dn: identity.displayname };
         },
         async openModal(identity) {
             this.$refs["manage-identity"].open(identity);

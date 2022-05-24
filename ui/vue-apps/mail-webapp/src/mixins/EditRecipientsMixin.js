@@ -1,5 +1,5 @@
 import debounce from "lodash/debounce";
-import { RecipientAdaptor, VCardInfoAdaptor } from "@bluemind/contact";
+import { RecipientAdaptor, VCardAdaptor, VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { mapActions, mapMutations } from "vuex";
@@ -78,10 +78,11 @@ export default {
     methods: {
         ...mapActions("mail", { CHECK_CORPORATE_SIGNATURE }),
         ...mapMutations("mail", { SET_MESSAGE_TO, SET_MESSAGE_CC, SET_MESSAGE_BCC }),
-        async expandContact(contacts, index) {
+        async expandContact(contacts, index, updateFn) {
             const contact = contacts[index];
-            contact.entries = await fetchContactMembers(contact);
-            contacts.splice(index, 1, ...contact.entries.map(e => ({ entries: [e] })));
+            contact.members = await fetchContactMembers(contactContainerUid(contact), contact.uid);
+            contacts.splice(index, 1, ...contact.members);
+            updateFn(contacts);
         },
         onSearch(fieldFocused, searchedPattern) {
             this.fieldFocused = fieldFocused;
@@ -134,23 +135,61 @@ export default {
     }
 };
 
+/**
+ * Obtain a list of recipients based on the address:
+ * - if the address has a value, return the recipient representing this contact
+ * - if not, return the recipients of the members having an address value (recursively)
+ */
 async function contactToRecipients(contact) {
-    return contact.kind === "group" ? await fetchContactMembers(contact) : contact.entries;
+    if (contact.address) {
+        return [contact];
+    } else if (contact.members?.length) {
+        return await fetchMembersWithAddress(contactContainerUid(contact), contact.uid);
+    }
+    return [];
+}
+
+function contactContainerUid(contact) {
+    return contact.urn?.split("@")[1];
 }
 
 async function contactsToRecipients(contacts) {
     return (await Promise.all(contacts.map(contactToRecipients))).flatMap(r => r);
 }
 
-async function fetchContactMembers(contact) {
-    const containerUid = contact.urn?.split("@")[1];
-    const vCard = await inject("AddressBookPersistence", containerUid).getComplete(contact.uid);
-    return vCard && vCard.value.kind === "group" && vCard.value.organizational?.member?.length
-        ? vCard.value.organizational.member.map(m => ({
-              dn: m.commonName,
-              address: m.mailto,
-              urn: `${m.itemUid}@${m.containerUid}`,
-              uid: m.itemUid
-          }))
+/** Recursively fetch members having an address. */
+async function fetchMembersWithAddress(containerUid, contactUid) {
+    const vCard = await fetchContact(containerUid, contactUid);
+    const members = vCard?.value.organizational?.member;
+    return members?.length
+        ? Promise.all(
+              members.map(async m =>
+                  m.mailto
+                      ? { address: m.mailto, dn: m.commonName }
+                      : await fetchMembersWithAddress(m.containerUid, m.itemUid)
+              )
+          )
         : [];
+}
+
+/** Fetch first level members, with extended info. */
+async function fetchContactMembers(containerUid, contactUid) {
+    const vCard = await fetchContact(containerUid, contactUid);
+    const members = vCard?.value.organizational?.member;
+    return members?.length
+        ? Promise.all(
+              members.map(async m => {
+                  const memberVCard = await fetchContact(m.containerUid, m.itemUid);
+                  return {
+                      ...VCardAdaptor.toContact(memberVCard),
+                      uid: m.itemUid,
+                      urn: `${m.itemUid}@${m.containerUid}`
+                  };
+              })
+          )
+        : [];
+}
+
+function fetchContact(containerUid, uid) {
+    return inject("AddressBookPersistence", containerUid).getComplete(uid);
 }
