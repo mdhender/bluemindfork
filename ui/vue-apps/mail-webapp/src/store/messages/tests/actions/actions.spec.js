@@ -8,7 +8,7 @@ import { MockMailboxItemsClient, MockMailboxFoldersClient, MockItemsTransferClie
 
 import messageStore from "../../index";
 import MessageAdaptor from "../../helpers/MessageAdaptor";
-import { MessageStatus, createOnlyMetadata } from "~/model/message";
+import { MessageStatus, createOnlyMetadata, createWithMetadata } from "~/model/message";
 import { ADD_MESSAGES } from "~/mutations";
 import {
     ADD_FLAG,
@@ -102,7 +102,7 @@ describe("Messages actions", () => {
             const adapted = createOnlyMetadata({ internalId: 1, folder });
             store.commit(ADD_MESSAGES, { messages: [adapted] });
             store.dispatch(ADD_FLAG, {
-                message: adapted,
+                messages: adapted,
                 flag: Flag.SEEN
             });
             expect(store.state[adapted.key].flags).not.toEqual(expect.arrayContaining([Flag.SEEN]));
@@ -137,21 +137,15 @@ describe("Messages actions", () => {
                 expect(store.state[adapted.key].flags).not.toEqual(expect.arrayContaining([Flag.SEEN]));
             }
         });
-        test("On failure do not remove flag for message already flagged ", async () => {
+        test("if message has already the flag, dont call API", async () => {
             const adapted = MessageAdaptor.fromMailboxItem(
                 messages.find(({ value: { flags } }) => flags.includes(Flag.SEEN)),
                 folder
             );
             store.commit(ADD_MESSAGES, { messages: [adapted] });
-            inject("MailboxItemsPersistence").addFlag.mockRejectedValueOnce("Failure");
-            try {
-                await store.dispatch(ADD_FLAG, {
-                    messages: adapted,
-                    flag: Flag.SEEN
-                });
-            } finally {
-                expect(store.state[adapted.key].flags).toEqual(expect.arrayContaining([Flag.SEEN]));
-            }
+            await store.dispatch(ADD_FLAG, { messages: adapted, flag: Flag.SEEN });
+            expect(inject("MailboxItemsPersistence").addFlag).not.toHaveBeenCalled();
+            expect(store.state[adapted.key].flags).toEqual(expect.arrayContaining([Flag.SEEN]));
         });
     });
     describe("REMOVE_FLAG", () => {
@@ -228,21 +222,15 @@ describe("Messages actions", () => {
                 expect(store.state[adapted.key].flags).toEqual(expect.arrayContaining([Flag.SEEN]));
             }
         });
-        test("On failure do not re-add flag for unflagged messages ", async () => {
+        test("if message do not have the flag, dont call deleteFlag API", async () => {
             const adapted = MessageAdaptor.fromMailboxItem(
                 messages.find(({ value: { flags } }) => !flags.includes(Flag.SEEN)),
                 folder
             );
             store.commit(ADD_MESSAGES, { messages: [adapted] });
-            inject("MailboxItemsPersistence").deleteFlag.mockRejectedValueOnce("Failure");
-            try {
-                await store.dispatch(DELETE_FLAG, {
-                    messages: adapted,
-                    flag: Flag.SEEN
-                });
-            } finally {
-                expect(store.state[adapted.key].flags).not.toEqual(expect.arrayContaining([Flag.SEEN]));
-            }
+            await store.dispatch(DELETE_FLAG, { messages: adapted, flag: Flag.SEEN });
+            expect(inject("MailboxItemsPersistence").deleteFlag).not.toHaveBeenCalled();
+            expect(store.state[adapted.key].flags).not.toEqual(expect.arrayContaining([Flag.SEEN]));
         });
     });
     describe("FETCH_MESSAGE_METADATA", () => {
@@ -255,7 +243,7 @@ describe("Messages actions", () => {
         test("Call fetch message API is chunked", () => {
             const maxMultipleById = 500;
             const adapted = Array.from(Array(maxMultipleById * 4 + 2).keys()).map(id =>
-                createOnlyMetadata({ internalId: id, folder })
+                createWithMetadata({ internalId: id, folder })
             );
             store.commit(ADD_MESSAGES, { messages: adapted });
             store.dispatch(FETCH_MESSAGE_METADATA, { messages: adapted.map(m => m.key) });
@@ -300,10 +288,10 @@ describe("Messages actions", () => {
         test("Keep message in state if already present", async () => {
             const message = messages.pop();
             const adapted = createOnlyMetadata({ internalId: message.internalId, folder });
-            adapted.alreadStored = true;
+            adapted.alreadyStored = true;
             store.commit(ADD_MESSAGES, { messages: [adapted] });
-            store.dispatch(FETCH_MESSAGE_METADATA, adapted);
-            expect(store.state[adapted.key].alreadStored).toBeTruthy();
+            store.dispatch(FETCH_MESSAGE_IF_NOT_LOADED, { internalId: message.internalId, folder });
+            expect(store.state[adapted.key].alreadyStored).toBe(true);
         });
         test("Fetch message from remote if not already loaded", async () => {
             const message = messages.pop();

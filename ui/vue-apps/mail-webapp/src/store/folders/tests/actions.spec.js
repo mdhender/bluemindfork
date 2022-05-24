@@ -434,16 +434,14 @@ describe("actions", () => {
                 name: "bar",
                 remoteRef: {}
             };
-            const folder = { key: "1", name: "foo", path: "baz", remoteRef: {}, unread: 10 };
+            const folder = { key: "1", name: "foo", path: "baz", remoteRef: { uid: "uid" }, unread: 10 };
             store.commit(ADD_FOLDER, folder);
             api.markAsRead.mockRejectedValue(new Error("Mocked rejection"));
-            let failed = false;
             try {
-                await store.dispatch(MARK_FOLDER_AS_READ, { folder: { remoteRef: { uid: "uid" } }, mailbox });
-            } catch (e) {
-                failed = true;
+                await store.dispatch(MARK_FOLDER_AS_READ, { folder, mailbox });
+            } catch (error) {
+                expect(error.message).toEqual("Mocked rejection");
             } finally {
-                expect(failed).toBeTruthy();
                 expect(store.state["1"].unread).toEqual(10);
             }
         });
@@ -465,6 +463,7 @@ describe("actions", () => {
         test("Api is called", () => {
             const folder = { key: "1", name: "foo", path: "baz", remoteRef: { uid: "uid" }, unread: 10 };
             store.commit(ADD_FOLDER, folder);
+            api.unreadCount.mockReturnValue({ total: 12 });
             store.dispatch(UNREAD_FOLDER_COUNT, folder);
             expect(api.unreadCount).toHaveBeenCalledWith(folder);
         });
@@ -479,13 +478,11 @@ describe("actions", () => {
             const folder = { key: "1", name: "foo", path: "baz", remoteRef: {}, unread: 10 };
             store.commit(ADD_FOLDER, folder);
             api.unreadCount.mockRejectedValue(new Error("Mocked rejection"));
-            let failed = false;
             try {
                 await store.dispatch(UNREAD_FOLDER_COUNT, folder);
-            } catch (e) {
-                failed = true;
+            } catch (error) {
+                expect(error.message).toEqual("Mocked rejection");
             } finally {
-                expect(failed).toBeTruthy();
                 expect(store.state["1"].unread).toEqual(10);
             }
         });

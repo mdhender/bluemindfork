@@ -65,6 +65,7 @@ else
     mvn -Dbm-runtime.url=https://forge.bluemind.net/staging/p2/bluemind/$BM_VERSION/ clean install
 fi
 
+node --version
 yarn install
 rm -f jest.json jest.xml
 yarn test-ci || true
