@@ -39,6 +39,7 @@ import com.google.common.collect.ImmutableMap;
 
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
+import net.bluemind.addressbook.api.VCard.Organizational.Member;
 import net.bluemind.addressbook.api.VCardChanges;
 import net.bluemind.addressbook.api.VCardChanges.ItemAdd;
 import net.bluemind.addressbook.api.VCardInfo;
@@ -230,20 +231,33 @@ public class AddressBookService implements IInCoreAddressBook {
 		List<ItemValue<VCard>> groups = storeService
 				.getMultiple(storeService.findGroupsContaining(cards.stream().map(c -> c.uid).toArray(String[]::new)));
 
-		for (ItemValue<VCard> gv : groups) {
-			gv.value.organizational.member.stream().forEach(m -> cards.forEach(card -> {
-				if ((m.containerUid == null || container.uid.equals(m.containerUid)) && card.uid.equals(m.itemUid)) {
-					if (card.value == null) {
-						m.containerUid = null;
-					} else {
-						m.commonName = getDisplayName(card.value);
-						m.mailto = card.value.defaultMail();
-					}
-				}
-			}));
-			storeService.update(gv.uid, getDisplayName(gv.value), gv.value);
-		}
+		groups.forEach(groupItem -> refreshGroupFor(groupItem, cards));
+	}
 
+	private void refreshGroupFor(ItemValue<VCard> groupItem, Collection<ItemValue<VCard>> vcardItems) {
+		groupItem.value.organizational.member //
+				.forEach(member -> vcardItems.stream() //
+						.filter(vcardItem -> vCardMatchingDListMember(vcardItem, member)) //
+						.forEach(vcardItem -> {
+							if (vcardItem.value == null) {
+								// cardItem has been deleted
+								member.containerUid = null;
+							} else {
+								// cardItem has been updated
+								member.commonName = getDisplayName(vcardItem.value);
+								if (!VCardGroupSanitizer.isVCardMemberEmailValid(member, vcardItem.value)) {
+									member.mailto = vcardItem.value.defaultMail();
+								}
+							}
+						}));
+
+		storeService.update(groupItem.uid, getDisplayName(groupItem.value), groupItem.value);
+		eventProducer.vcardUpdated(groupItem.uid);
+	}
+
+	private boolean vCardMatchingDListMember(ItemValue<VCard> vcardItem, Member member) {
+		return (member.containerUid == null || container.uid.equals(member.containerUid))
+				&& vcardItem.uid.equals(member.itemUid);
 	}
 
 	/**

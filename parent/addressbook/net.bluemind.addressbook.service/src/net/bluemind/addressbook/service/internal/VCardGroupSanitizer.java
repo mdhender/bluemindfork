@@ -91,22 +91,31 @@ public class VCardGroupSanitizer {
 				.collect(Collectors.toMap(m -> m.itemUid, m -> m, (member1, member2) -> member1));
 
 		List<ItemValue<VCard>> cards = ab.multipleGet(ImmutableList.copyOf(localCards.keySet()));
-		boolean modifiedFlag = cards.stream().map(card -> {
-			boolean modified = false;
-			Member member = localCards.get(card.uid);
-			modified |= !card.displayName.equals(member.commonName);
-			member.commonName = card.displayName;
+		boolean modifiedFlag = cards.stream() //
+				.filter(card -> !isVCardMemberValid(localCards.get(card.uid), card.value)) //
+				.map(card -> {
+					boolean modified = false;
+					Member member = localCards.get(card.uid);
+					modified |= !card.displayName.equals(member.commonName);
+					member.commonName = card.displayName;
 
-			modified |= !StringUtils.equals(card.value.defaultMail(), member.mailto);
-			member.mailto = card.value.defaultMail();
-			localCards.remove(card.uid);
-			return modified;
-		}).filter(m -> m).count() > 0;
+					modified |= !StringUtils.equals(card.value.defaultMail(), member.mailto);
+					member.mailto = card.value.defaultMail();
+					localCards.remove(card.uid);
+					return modified;
+				}).filter(m -> m).count() > 0;
 
 		modifiedFlag |= !localCards.values().isEmpty();
-		localCards.values().forEach(m -> {
-			m.containerUid = null;
-		});
+		localCards.values().forEach(m -> m.containerUid = null);
 		return modifiedFlag;
+	}
+
+	private static boolean isVCardMemberValid(Member member, VCard card) {
+		return member.commonName != null && isVCardMemberEmailValid(member, card);
+	}
+
+	public static boolean isVCardMemberEmailValid(Member member, VCard card) {
+		return card.communications.emails.stream() //
+				.anyMatch(email -> email.value != null && email.value.equals(member.mailto));
 	}
 }
