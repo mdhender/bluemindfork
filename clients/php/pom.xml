@@ -161,6 +161,11 @@
 			<artifactId>net.bluemind.notes.api.php</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+        <dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.webappdata.api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

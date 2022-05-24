@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <!-- <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.device.service.DeviceServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.device.service.DevicesServiceFactory">
+      </serviceFactory>
+   </extension> -->
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.webappdata.api.IWebbAppData">
+      </endpoint>
+      <endpoint
+            api="net.bluemind.webappdata.api.IWebbAppDataUids" 
+            inline="true">
+      </endpoint>
+   </extension>
+
+</plugin>

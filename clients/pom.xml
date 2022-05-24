@@ -18,6 +18,6 @@
 		<module>mozjs-libs</module>
 		<module>python</module>
 		<module>php-libs</module>
-    <module>php</module>
+        <module>php</module>
 	</modules>
 </project>

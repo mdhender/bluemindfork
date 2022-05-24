@@ -10,7 +10,8 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>net.bluemind.webappdata.api</module>
-        <module>net.bluemind.webappdata.service</module>
+    	<module>net.bluemind.webappdata.service</module>
+    	<module>net.bluemind.webappdata.sqlschema</module>
 	</modules>
 
 </project>

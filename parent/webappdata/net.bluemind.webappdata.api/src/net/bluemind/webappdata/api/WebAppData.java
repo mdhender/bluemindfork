@@ -22,11 +22,6 @@ import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public class WebAppData {
-
 	String key;
 	String value;
-
-	public static final String getContainerUid(String userUid) {
-		return "webappdata:" + userUid;
-	}
 }
