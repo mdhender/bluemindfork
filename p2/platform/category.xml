@@ -114,6 +114,7 @@
     <bundle id="net.bluemind.cli.inject.common" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.cli.inject.imap" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.cli.inject.node" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.inject.ou" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.cli.job" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.cli.journaling" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.cli.launcher" version="4.1.0.qualifier" />

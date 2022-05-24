@@ -38,6 +38,7 @@
 		<module>net.bluemind.cli.wazo</module>
 		<module>net.bluemind.cli.certificate</module>
 		<module>net.bluemind.cli.journaling</module>
+		<module>net.bluemind.cli.inject.ou</module>
 	</modules>
 
 </project>

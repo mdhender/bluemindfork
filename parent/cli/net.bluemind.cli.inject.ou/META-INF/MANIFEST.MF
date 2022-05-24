@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.cli.inject.ou
+Bundle-SymbolicName: net.bluemind.cli.inject.ou;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.cli.cmd.api,
+ net.bluemind.user.api,
+ net.bluemind.cli.utils,
+ net.bluemind.utils,
+ net.bluemind.domain.api,
+ com.github.javafaker
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.cli.inject.ou
+Bundle-ActivationPolicy: lazy

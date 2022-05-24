@@ -81,6 +81,7 @@
       <plugin id="net.bluemind.cli.inject.common"/>
       <plugin id="net.bluemind.cli.inject.imap"/>
       <plugin id="net.bluemind.cli.inject.node"/>
+      <plugin id="net.bluemind.cli.inject.ou"/>
       <plugin id="net.bluemind.cli.job"/>
       <plugin id="net.bluemind.cli.launcher"/>
       <plugin id="net.bluemind.cli.mail"/>
