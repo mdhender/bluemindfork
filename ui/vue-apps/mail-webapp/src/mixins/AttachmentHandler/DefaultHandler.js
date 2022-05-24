@@ -3,14 +3,15 @@ import { ADD_ATTACHMENT } from "~/actions";
 import { createFromFile as createPartFromFile } from "~/model/part";
 import { create, AttachmentStatus } from "~/model/attachment";
 import ChainOfResponsability from "./ChainOfResponsability";
+import TooLargeBox from "../../components/MailAttachment/Modals/TooLargeBox";
 
 export default class extends ChainOfResponsability {
     async addAttachments(files, message) {
         const filesSize = files.reduce((totalSize, file) => totalSize + file.size, 0);
-
-        if (filesSize > this.vm.$store.state.mail.messageCompose.maxMessageSize) {
-            this.vm.$bvModal.msgBoxOk("Taille max dépassée");
-            return Promise.resolve();
+        const maxFilesize = this.vm.$store.state.mail.messageCompose.maxMessageSize;
+        if (filesSize > maxFilesize) {
+            const { content, props } = renderTooLargeOKBox(this.vm, files, maxFilesize);
+            await this.vm.$bvModal.msgBoxOk([content], props);
         }
 
         const promises = files.map(file => {
@@ -25,4 +26,17 @@ export default class extends ChainOfResponsability {
         });
         return Promise.all(promises);
     }
+}
+
+function renderTooLargeOKBox(vm, files, sizeLimit) {
+    const content = vm.$createElement(TooLargeBox, { props: { sizeLimit, attachmentsCount: files.length } });
+
+    const props = {
+        title: vm.$tc("mail.filehosting.add.too_large", files.length),
+        okTitle: vm.$tc("common.got_it"),
+        bodyClass: "pb-4",
+        okVariant: "outline-primary"
+    };
+
+    return { content, props };
 }

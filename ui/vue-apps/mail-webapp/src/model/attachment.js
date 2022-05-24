@@ -1,7 +1,4 @@
 import injector from "@bluemind/inject";
-import FileHostingDecorator from "./attachment/FileHostingDecorator";
-
-const decorators = [FileHostingDecorator];
 
 export function create(part, status) {
     const progress = status === AttachmentStatus.NOT_LOADED ? { loaded: 0, total: 100 } : { loaded: 100, total: 100 };
@@ -19,7 +16,7 @@ export function create(part, status) {
         ...part,
         headers
     };
-    return decorators.reduce((attachment, decorator) => decorator.decorate(attachment), attachment);
+    return attachment;
 }
 
 export const AttachmentStatus = {

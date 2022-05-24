@@ -1,5 +1,5 @@
 <template>
-    <bm-modal id="fh-modal" :title="$t('mail.filehosting.add.large')" title-class="ml-2" no-fade>
+    <bm-modal id="fh-modal" :title="$tc('mail.filehosting.add.large', fhAttachments.length)" title-class="ml-2" no-fade>
         <div class="mr-4 ml-2">
             <div class="d-flex align-items-center mb-3">
                 <bm-icon icon="file" size="2x" class="mr-2 text-primary" />
@@ -46,10 +46,10 @@
     </bm-modal>
 </template>
 <script>
+import { mapGetters } from "vuex";
 import global from "@bluemind/global";
 import { BmModal, BmButtonClose, BmButton, BmIcon } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
-import { AttachmentStatus } from "~/model/attachment";
 import FhAttachmentItem from "./FhAttachmentItem";
 
 export default {
@@ -62,6 +62,7 @@ export default {
         }
     },
     computed: {
+        ...mapGetters("mail", ["GET_FH_ATTACHMENT"]),
         totalLoaded() {
             return this.fhAttachments.reduce((totalLoaded, attachment) => totalLoaded + attachment.progress.loaded, 0);
         },
@@ -69,9 +70,7 @@ export default {
             return this.fhAttachments.reduce((totalSize, attachment) => totalSize + attachment.progress.total, 0);
         },
         fhAttachments() {
-            return this.attachments.filter(
-                attachment => attachment.type === "filehosting" && attachment.status === AttachmentStatus.NOT_UPLOADED
-            );
+            return this.attachments.filter(attachment => this.GET_FH_ATTACHMENT(this.message, attachment));
         },
         sizeLimit() {
             return this.$store.state.mail.messageCompose.maxMessageSize;

@@ -12,7 +12,7 @@
                 :compact="compact"
                 :class="{ muted: !isUploaded }"
             >
-                <template #actions>
+                <template #actions="context">
                     <bm-button
                         v-if="isViewable(attachment)"
                         variant="inline-neutral"
@@ -33,11 +33,11 @@
                         :aria-label="
                             $t('mail.content.download', {
                                 fileType: $t('mail.content.' + fileTypeIcon),
-                                name: attachment.fileName
+                                name: context.attachment.fileName
                             })
                         "
                         :href="previewUrl"
-                        :download="attachment.fileName"
+                        :download="context.attachment.fileName"
                         @click.stop
                     >
                         <bm-icon icon="download" size="2x" class="p-1" />
@@ -86,10 +86,7 @@ import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_PART_ADDRESS } from "~/mutations";
 import DefaultAttachment from "./MailAttachmentItem/DefaultAttachment";
 import FileHostingAttachment from "./MailAttachmentItem/FileHostingAttachment";
 
-const strategies = new Map([
-    ["filehosting", FileHostingAttachment],
-    ["default", DefaultAttachment]
-]);
+const strategies = [FileHostingAttachment, DefaultAttachment];
 
 export default {
     name: "MailAttachmentItem",
@@ -135,14 +132,8 @@ export default {
         isCancellable() {
             return !this.isUploaded && this.attachment.status !== AttachmentStatus.ERROR;
         },
-        fileTypeIcon() {
-            //FIXME: ne pas utiliser ça pour l'aria label
-            return MimeType.matchingIcon(this.attachment.extra.mime || this.attachment.mime);
-        },
         component() {
-            return strategies.has(this.attachment.type)
-                ? strategies.get(this.attachment.type)
-                : strategies.get("default");
+            return strategies.find(strategy => strategy.handle(this.attachment));
         }
     },
     methods: {
@@ -162,7 +153,10 @@ export default {
         cancel() {
             global.cancellers[this.attachment.address + this.message.key].cancel();
         },
-        isViewable
+        isViewable,
+        fileTypeIcon({ mime }) {
+            return MimeType.matchingIcon(mime);
+        }
     }
 };
 </script>

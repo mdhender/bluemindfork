@@ -2,8 +2,8 @@
     <div class="default-attachment">
         <attachment-preview v-if="!compact" :attachment="attachment" :message="message" />
         <attachment-infos :attachment="attachment" :message="message">
-            <template v-slot:actions="scope">
-                <slot name="actions" v-bind="scope" />
+            <template #actions>
+                <slot name="actions" v-bind="{ attachment }" />
             </template>
         </attachment-infos>
     </div>
@@ -32,6 +32,7 @@ export default {
             type: Boolean,
             default: false
         }
-    }
+    },
+    handle: () => true
 };
 </script>

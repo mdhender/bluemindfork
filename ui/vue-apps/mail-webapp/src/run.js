@@ -19,9 +19,11 @@ import MailApp from "./components/MailApp";
 import { MailboxItemsClientProxy } from "./api/APIClientsProxy";
 import mailRoutes from "./router";
 import MailStore from "./store/";
+import FileHostingStore from "./store/filehosting/";
 
 registerAPIClients();
 store.registerModule("mail", MailStore);
+store.registerModule(["mail", "filehosting"], FileHostingStore);
 
 router.addRoutes(mailRoutes);
 
