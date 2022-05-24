@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Api
+Bundle-SymbolicName: net.bluemind.webappdata.api
+Bundle-Version: 4.1.0.qualifier
+Export-Package: net.bluemind.webappdata.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Eclipse-RegisterBuddy: net.bluemind.core.rest
+Automatic-Module-Name: net.bluemind.webappdata.api
+Require-Bundle: net.bluemind.core.commons,
+ io.vertx.core,
+ net.bluemind.core.container.api;visibility:=reexport,
+ javax.ws.rs
