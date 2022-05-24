@@ -92,11 +92,7 @@ function buildRecipients(local) {
 }
 
 function buildRecipientsForKind(kind, recipients) {
-    return (recipients || []).map(recipient => ({
-        kind: kind,
-        address: recipient.address,
-        dn: recipient.dn
-    }));
+    return (recipients || []).map(recipient => ({ kind, dn: recipient.dn, address: recipient.address }));
 }
 
 export function getEventInfo(headers) {

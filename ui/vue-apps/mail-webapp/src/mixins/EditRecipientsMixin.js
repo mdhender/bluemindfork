@@ -1,5 +1,5 @@
 import debounce from "lodash/debounce";
-import { VCardInfoAdaptor } from "@bluemind/contact";
+import { RecipientAdaptor, VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { mapActions, mapMutations } from "vuex";
@@ -33,7 +33,10 @@ export default {
             autocompleteResults: [],
             autocompleteResultsTo: [],
             autocompleteResultsCc: [],
-            autocompleteResultsBcc: []
+            autocompleteResultsBcc: [],
+            to: [],
+            cc: [],
+            bcc: []
         };
     },
     computed: {
@@ -58,6 +61,11 @@ export default {
             this.autocompleteResultsBcc = this.getAutocompleteResults("bcc");
         }
     },
+    created() {
+        this.to = RecipientAdaptor.toContacts(this.message.to);
+        this.cc = RecipientAdaptor.toContacts(this.message.cc);
+        this.bcc = RecipientAdaptor.toContacts(this.message.bcc);
+    },
     async mounted() {
         this._data.$_EditRecipientsMixin_mode = this.isReplyOrForward
             ? recipientModes.TO
@@ -72,17 +80,7 @@ export default {
         ...mapMutations("mail", { SET_MESSAGE_TO, SET_MESSAGE_CC, SET_MESSAGE_BCC }),
         async expandContact(contacts, index) {
             const contact = contacts[index];
-            const containerUid = contact.urn?.split("@")[1];
-            const vCard = await inject("AddressBookPersistence", containerUid).getComplete(contact.uid);
-            contact.entries =
-                vCard && vCard.value.kind === "group" && vCard.value.organizational?.member?.length
-                    ? vCard.value.organizational.member.map(m => ({
-                          dn: m.commonName,
-                          address: m.mailto,
-                          urn: `${m.itemUid}@${m.containerUid}`,
-                          uid: m.itemUid
-                      }))
-                    : [];
+            contact.entries = await fetchContactMembers(contact);
             contacts.splice(index, 1, ...contact.entries.map(e => ({ entries: [e] })));
         },
         onSearch(fieldFocused, searchedPattern) {
@@ -112,18 +110,18 @@ export default {
                 return this.autocompleteResults;
             }
         },
-        updateTo(contacts) {
-            this.SET_MESSAGE_TO({ messageKey: this.message.key, to: contacts });
+        async updateTo(contacts) {
+            this.SET_MESSAGE_TO({ messageKey: this.message.key, to: await contactsToRecipients(contacts) });
             this.CHECK_CORPORATE_SIGNATURE({ message: this.message });
             this.debouncedSave();
         },
-        updateCc(contacts) {
-            this.SET_MESSAGE_CC({ messageKey: this.message.key, cc: contacts });
+        async updateCc(contacts) {
+            this.SET_MESSAGE_CC({ messageKey: this.message.key, cc: await contactsToRecipients(contacts) });
             this.CHECK_CORPORATE_SIGNATURE({ message: this.message });
             this.debouncedSave();
         },
-        updateBcc(contacts) {
-            this.SET_MESSAGE_BCC({ messageKey: this.message.key, bcc: contacts });
+        async updateBcc(contacts) {
+            this.SET_MESSAGE_BCC({ messageKey: this.message.key, bcc: await contactsToRecipients(contacts) });
             this.CHECK_CORPORATE_SIGNATURE({ message: this.message });
             this.debouncedSave();
         },
@@ -135,3 +133,24 @@ export default {
         }
     }
 };
+
+async function contactToRecipients(contact) {
+    return contact.kind === "group" ? await fetchContactMembers(contact) : contact.entries;
+}
+
+async function contactsToRecipients(contacts) {
+    return (await Promise.all(contacts.map(contactToRecipients))).flatMap(r => r);
+}
+
+async function fetchContactMembers(contact) {
+    const containerUid = contact.urn?.split("@")[1];
+    const vCard = await inject("AddressBookPersistence", containerUid).getComplete(contact.uid);
+    return vCard && vCard.value.kind === "group" && vCard.value.organizational?.member?.length
+        ? vCard.value.organizational.member.map(m => ({
+              dn: m.commonName,
+              address: m.mailto,
+              urn: `${m.itemUid}@${m.containerUid}`,
+              uid: m.itemUid
+          }))
+        : [];
+}

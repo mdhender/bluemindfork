@@ -4,12 +4,12 @@
             <bm-col cols="11">
                 <bm-contact-input
                     ref="to"
-                    :contacts="message.to"
+                    :contacts.sync="to"
                     :autocomplete-results="autocompleteResultsTo"
                     :validate-address-fn="validateDnAndAddress"
                     @search="searchedPattern => onSearch('to', searchedPattern)"
                     @update:contacts="updateTo"
-                    @expand="expandContact(message.to, $event)"
+                    @expand="expandContact(to, $event)"
                 >
                     {{ $t("common.to") }}
                 </bm-contact-input>
@@ -29,13 +29,13 @@
         <div v-if="displayedRecipientFields > recipientModes.TO" class="d-flex">
             <div class="d-flex flex-grow-1">
                 <bm-contact-input
-                    :contacts="message.cc"
+                    :contacts.sync="cc"
                     :autocomplete-results="autocompleteResultsCc"
                     :validate-address-fn="validateDnAndAddress"
                     class="w-100"
                     @search="searchedPattern => onSearch('cc', searchedPattern)"
                     @update:contacts="updateCc"
-                    @expand="expandContact(message.cc, $event)"
+                    @expand="expandContact(cc, $event)"
                 >
                     {{ $t("common.cc") }}
                 </bm-contact-input>
@@ -53,12 +53,12 @@
 
         <bm-contact-input
             v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC | recipientModes.BCC)"
-            :contacts="message.bcc"
+            :contacts.sync="bcc"
             :autocomplete-results="autocompleteResultsBcc"
             :validate-address-fn="validateDnAndAddress"
             @search="searchedPattern => onSearch('bcc', searchedPattern)"
             @update:contacts="updateBcc"
-            @expand="expandContact(message.bcc, $event)"
+            @expand="expandContact(bcc, $event)"
         >
             {{ $t("common.bcc") }}
         </bm-contact-input>
