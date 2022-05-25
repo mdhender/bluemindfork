@@ -116,13 +116,27 @@ public class MapiFoldersMgmt implements IMapiFoldersMgmt {
 		}
 		if (existingContainer == null) {
 			setupContainer(contApi, f);
-		} else if (existingContainer.defaultContainer || !existingContainer.name.equals(f.displayName)) {
-			logger.info("Container {} exists but needs adjustments", f.containerUid);
+		} else {
+			IContainerManagement aclApi = context.provider().instance(IContainerManagement.class, containerUid);
+			repairName(contApi, existingContainer, f);
+			repairAcls(aclApi);
+		}
+	}
+
+	private void repairName(IContainers contApi, ContainerDescriptor existingContainer, MapiFolder folder) {
+		if (existingContainer.defaultContainer || !existingContainer.name.equals(folder.displayName)) {
+			logger.info("Container {} exists but needs adjustments", folder.containerUid);
 			ContainerModifiableDescriptor cmd = new ContainerModifiableDescriptor();
 			cmd.defaultContainer = false;
-			cmd.name = f.displayName;
-			contApi.update(f.containerUid, cmd);
+			cmd.name = folder.displayName;
+			contApi.update(folder.containerUid, cmd);
+		}
+	}
 
+	private void repairAcls(IContainerManagement aclApi) {
+		List<AccessControlEntry> acls = aclApi.getAccessControlList();
+		if (acls.size() != 1 || !acls.get(0).subject.equals(domain) || acls.get(0).verb != Verb.Write) {
+			aclApi.setAccessControlList(Arrays.asList(AccessControlEntry.create(domain, Verb.Write)));
 		}
 	}
 
