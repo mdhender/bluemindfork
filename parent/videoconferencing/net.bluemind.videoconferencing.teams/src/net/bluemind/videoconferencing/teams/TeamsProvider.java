@@ -43,7 +43,9 @@ import com.microsoft.graph.requests.OnlineMeetingRequest;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirEntryPath;
 import net.bluemind.directory.api.IDirectory;
@@ -97,8 +99,9 @@ public class TeamsProvider implements IVideoConferencingProvider {
 			throw new ServerFault("Failed to fetch organizer " + vevent.organizer);
 		}
 
-		IInternalUserExternalAccount externalAccountService = context.getServiceProvider().instance(
-				IInternalUserExternalAccount.class, context.getSecurityContext().getContainerUid(), organizer.get());
+		IInternalUserExternalAccount externalAccountService = ServerSideServiceProvider
+				.getProvider(SecurityContext.SYSTEM).instance(IInternalUserExternalAccount.class,
+						context.getSecurityContext().getContainerUid(), organizer.get());
 
 		UserAccount externalAccount = externalAccountService.get(PROVIDER_NAME);
 		if (externalAccount == null) {
