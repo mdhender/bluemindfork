@@ -15,6 +15,7 @@
         "@bluemind/core.task.api": "^4.1.0",
         "@bluemind/directory.api": "^4.1.0",
         "@bluemind/extensions": "^4.1.0",
+	"@bluemind/extensions.vue": "^4.1.0",
         "@bluemind/inject": "^4.1.0",
         "@bluemind/mailbox.api": "^4.1.0",
         "@bluemind/roles": "^4.1.0",

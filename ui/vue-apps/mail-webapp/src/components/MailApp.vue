@@ -90,7 +90,7 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
-import { BmExtension } from "@bluemind/extensions";
+import { BmExtension } from "@bluemind/extensions.vue";
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
 import { BmFormCheckbox, BmButton, BmCol, BmIcon, BmRow, MakeUniq } from "@bluemind/styleguide";

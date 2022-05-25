@@ -1,8 +1,10 @@
 import { mount } from "@vue/test-utils";
-import BmExtension from "../src/BmExtension";
-import { mapExtensions } from "../src/mapExtensions";
+import { default as BmExtension, Cache } from "../src/BmExtension";
+import { mapExtensions } from "@bluemind/extensions";
 
-jest.mock("../src/mapExtensions");
+jest.mock("@bluemind/extension");
+
+self.bundleResolve = jest.fn().mockImplementation((id, callback) => callback());
 
 describe("BmExtension", () => {
     const DummyComponent = { render: h => h("div", { class: ["dummy"] }) };
@@ -15,30 +17,31 @@ describe("BmExtension", () => {
     beforeEach(() => {
         mapExtensions.mockReset();
         mapExtensions.mockReturnValue({ extensions: [] });
+        Cache.clear();
     }),
         test("set classes depending on extension point", () => {
             const wrapper = mount(BmExtension, {
                 propsData: {
                     id: "test.dummy.id",
-                    property: "dummy-element"
+                    path: "dummy-element"
                 }
             });
-            expect(wrapper.find(".bm-extension-test-dummy-id").exists()).toBeTruthy();
+            expect(wrapper.find(".bm-extension-dummy-element").exists()).toBeTruthy();
         });
     test("to call mapExtensions", () => {
         mount(BmExtension, {
             propsData: {
                 id: "test.dummy.id",
-                property: "dummy-element"
+                path: "dummy-element"
             }
         });
-        expect(mapExtensions).toHaveBeenCalledWith("test.dummy.id", { extensions: "dummy-element" });
+        expect(mapExtensions).toHaveBeenCalledWith("test.dummy.id", ["component"]);
     });
     test("To be empty if there is no extensions", () => {
         let wrapper = mount(BmExtension, {
             propsData: {
                 id: "test.dummy.id",
-                property: "dummy-element"
+                path: "dummy-element"
             }
         });
         expect(wrapper.element).toBeEmptyDOMElement();
@@ -46,7 +49,7 @@ describe("BmExtension", () => {
             stubs: { DummyComponent },
             propsData: {
                 id: "test.dummy.id",
-                property: "dummy-element",
+                path: "dummy-element",
                 decorator: "DummyComponent"
             }
         });
@@ -54,7 +57,7 @@ describe("BmExtension", () => {
         wrapper = mount(BmExtension, {
             propsData: {
                 id: "test.dummy.id",
-                property: "dummy-element",
+                path: "dummy-element",
                 decorator: "DummyComponent"
             },
             slots: {
@@ -66,17 +69,17 @@ describe("BmExtension", () => {
 
     test("To insert component defined within extension", () => {
         mapExtensions.mockReturnValue({
-            extensions: [
-                { component: "DummyComponent" },
-                { component: "DummyComponent" },
-                { component: "AnotherComponent" }
+            component: [
+                { name: "DummyComponent", path: "dummy-element", $loaded: { status: true } },
+                { name: "DummyComponent", path: "dummy-element", $loaded: { status: true } },
+                { name: "AnotherComponent", path: "dummy-element", $loaded: { status: true } }
             ]
         });
         let wrapper = mount(BmExtension, {
             stubs: { DummyComponent, AnotherComponent },
             propsData: {
                 id: "test.dummy.id",
-                property: "dummy-element"
+                path: "dummy-element"
             }
         });
         expect(wrapper.findAllComponents(AnotherComponent).length).toBe(1);
@@ -84,13 +87,16 @@ describe("BmExtension", () => {
     });
     test("To wrap component inside Decorator if a decorator is used", () => {
         mapExtensions.mockReturnValue({
-            extensions: [{ component: "DummyComponent" }, { component: "DummyComponent" }]
+            component: [
+                { name: "DummyComponent", path: "dummy-element", $loaded: { status: true } },
+                { name: "DummyComponent", path: "dummy-element", $loaded: { status: true } }
+            ]
         });
         let wrapper = mount(BmExtension, {
             stubs: { DummyComponent, DecoratorComponent },
             propsData: {
                 id: "test.dummy.id",
-                property: "dummy-element",
+                path: "dummy-element",
                 decorator: "DecoratorComponent"
             }
         });
@@ -99,17 +105,20 @@ describe("BmExtension", () => {
     });
     test("To use default slot to decorate component", () => {
         mapExtensions.mockReturnValue({
-            extensions: [{ component: "DummyComponent" }, { component: "DummyComponent" }]
+            component: [
+                { name: "DummyComponent", path: "dummy-element", $loaded: { status: true } },
+                { name: "DummyComponent", path: "dummy-element", $loaded: { status: true } }
+            ]
         });
         let wrapper = mount(BmExtension, {
             stubs: { DummyComponent },
             propsData: {
                 id: "test.dummy.id",
-                property: "dummy-element",
+                path: "dummy-element",
                 decorator: "DecoratorComponent"
             },
             scopedSlots: {
-                default: '<div class="slot"><component :is="props.component" /></div>'
+                default: '<div class="slot"><component :is="props.name" /></div>'
             }
         });
         expect(wrapper.findAll(".slot").length).toBe(2);

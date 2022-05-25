@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import { BmExtension } from "@bluemind/extensions";
+import { BmExtension } from "@bluemind/extensions.vue";
 import { BmIcon } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
 import { Flag } from "@bluemind/email";

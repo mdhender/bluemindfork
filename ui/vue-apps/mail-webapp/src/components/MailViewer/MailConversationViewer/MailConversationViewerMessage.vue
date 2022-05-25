@@ -54,7 +54,7 @@
 </template>
 <script>
 import { mapGetters, mapState } from "vuex";
-import { BmExtension } from "@bluemind/extensions";
+import { BmExtension } from "@bluemind/extensions.vue";
 import { BmContact } from "@bluemind/styleguide";
 import MailConversationViewerItem from "./MailConversationViewerItem";
 import MailViewerContentLoading from "../../MailViewer/MailViewerContentLoading";

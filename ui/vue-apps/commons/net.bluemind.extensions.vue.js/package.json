@@ -1,0 +1,11 @@
+{
+    "name": "@bluemind/extensions.vue",
+    "description": "Vue plugin and component to use BM Extenions Points",
+    "version": "4.1.0",
+    "license": "AGPL-3.0-only",
+    "author": "Blue Mind SAS",
+    "main": "src/index.js",
+    "dependencies": {
+        "@bluemind/extensions": "^4.1.0"
+    }
+}

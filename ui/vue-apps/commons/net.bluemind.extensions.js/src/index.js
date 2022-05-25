@@ -1,2 +1,2 @@
-export { default as BmExtension } from "./BmExtension";
+export { default as extensions } from "./ExtensionsRegistry";
 export { mapExtensions } from "./mapExtensions";

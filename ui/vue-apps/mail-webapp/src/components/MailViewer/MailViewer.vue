@@ -19,7 +19,7 @@
 
 <script>
 import { mapState, mapActions, mapGetters, mapMutations } from "vuex";
-import { BmExtension } from "@bluemind/extensions";
+import { BmExtension } from "@bluemind/extensions.vue";
 import { REMOVE, WARNING } from "@bluemind/alert.store";
 
 import { MARK_MESSAGE_AS_READ } from "~/actions";

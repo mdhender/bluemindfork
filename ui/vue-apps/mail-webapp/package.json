@@ -15,6 +15,7 @@
         "@bluemind/core.container.api": "^4.1.0",
         "@bluemind/date": "^4.1.0",
         "@bluemind/email": "^4.1.0",
+	"@bluemind/extensions.vue": "^4.1.0",
         "@bluemind/file-utils": "^4.1.0",
         "@bluemind/html-utils": "^4.1.0",
         "@bluemind/i18n": "^4.1.0",

@@ -29,7 +29,7 @@
 
 <script>
 import { BmButton, BmIcon, BmNavbar, BmNavbarBrand } from "@bluemind/styleguide";
-import { BmExtension } from "@bluemind/extensions";
+import { BmExtension } from "@bluemind/extensions.vue";
 import BannerL10N from "../../../l10n/banner/";
 import BmBannerApplications from "./BmBannerApplications";
 import BmBannerMenu from "./BmBannerMenu";

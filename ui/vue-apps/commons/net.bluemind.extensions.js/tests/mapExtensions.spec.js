@@ -1,8 +1,9 @@
 import { mapExtensions } from "../src/mapExtensions";
+import ExtensionsRegistry from "../src/ExtensionsRegistry";
 
 describe("mapExtensions function", () => {
     beforeAll(() => {
-        window.bmExtensions_ = {
+        ExtensionsRegistry.load({
             "dummy.extension": [
                 {
                     bundle: "one",
@@ -10,7 +11,7 @@ describe("mapExtensions function", () => {
                         attribute: "AttributeValue-1",
                         children: {
                             child: {
-                                body: "BodyValue-1"
+                                attribute2: "AttributeValue-2"
                             }
                         }
                     }
@@ -47,20 +48,31 @@ describe("mapExtensions function", () => {
                 }
             ],
             "dummy.extension2": []
-        };
-    }),
-        test("Extract property data from extension point", () => {
-            let data = mapExtensions("dummy.extension", ["my-key"]);
-            expect(typeof data).toEqual("object");
-            expect(data["my-key"]).toBeDefined();
-            expect(Array.isArray(data["my-key"])).toBeTruthy();
-            expect(data["my-key"].length).toBe(3);
-            expect(data["my-key"][0]).toEqual({
-                attribute: "AttributeValue-1",
-                child: new String("BodyValue-1"),
-                $id: "one"
-            });
         });
+    });
+    test("Extract property data from extension point", () => {
+        let data = mapExtensions("dummy.extension", ["my-key"]);
+        expect(typeof data).toEqual("object");
+        expect(data["my-key"]).toBeDefined();
+        expect(Array.isArray(data["my-key"])).toBeTruthy();
+        expect(data["my-key"].length).toBe(3);
+        expect(data["my-key"][0]).toMatchInlineSnapshot(`
+            Object {
+              "$id": "one",
+              "$loaded": Object {
+                "status": true,
+              },
+              "attribute": "AttributeValue-1",
+              "child": Object {
+                "$id": "one",
+                "$loaded": Object {
+                  "status": true,
+                },
+                "attribute2": "AttributeValue-2",
+              },
+            }
+        `);
+    });
     test("Map property to another name", () => {
         let data = mapExtensions("dummy.extension", { key: "my-key" });
         expect(typeof data).toEqual("object");
@@ -74,15 +86,22 @@ describe("mapExtensions function", () => {
         expect(data["my-key"]).toBeUndefined();
         expect(data.key).toBeDefined();
         expect(data.key.length).toBe(3);
-        expect(data.key[0]).toEqual({
-            attribute: "AttributeValue-1",
-            children: {
-                child: {
-                    body: "BodyValue-1"
-                }
-            },
-            $id: "one"
-        });
+        expect(data.key[0]).toMatchInlineSnapshot(`
+            Object {
+              "$id": "one",
+              "$loaded": Object {
+                "status": true,
+              },
+              "attribute": "AttributeValue-1",
+              "child": Object {
+                "$id": "one",
+                "$loaded": Object {
+                  "status": true,
+                },
+                "attribute2": "AttributeValue-2",
+              },
+            }
+        `);
     });
     test("Filter undefined extension", () => {
         let data = mapExtensions("dummy.extension", ["my-other-key"]);
