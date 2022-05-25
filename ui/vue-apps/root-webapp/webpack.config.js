@@ -4,10 +4,17 @@ const prod = require("./node_modules/@bluemind/conf/webpack.prod.js");
 const dev = require("./node_modules/@bluemind/conf/webpack.dev.js");
 
 const conf = {
+<<<<<<< HEAD
     entry: ["./src/run.js"],
+=======
+    entry: {
+        "service-worker": "./src/service-worker/service-worker.js",
+        "js/net.bluemind.webapp.root": "./src/run.js"
+    },
+>>>>>>> 19aa258bc84 (FEATWEBML-2078 Imp: Move service-worker bootstrap in root-webapp.)
     output: {
         path: path.resolve(__dirname, "./web-resources"),
-        filename: "js/net.bluemind.webapp.root.js"
+        filename: "[name].js"
     },
     resolve: {
         alias: {

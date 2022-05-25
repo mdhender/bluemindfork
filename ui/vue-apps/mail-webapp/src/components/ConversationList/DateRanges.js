@@ -1,31 +1,29 @@
 import { DateRange } from "@bluemind/date";
 
 export default class DateRanges {
-    future = DateRange.future();
-    today = DateRange.today();
-    yesterday = DateRange.yesterday();
-    thisWeek = DateRange.thisWeek();
-    lastWeek = DateRange.lastWeek();
-    thisMonth = DateRange.thisMonth();
-    lastMonth = DateRange.lastMonth();
-    monthsBeforeLastMonth = DateRange.pastMonths()
-        .slice(1)
-        .map(range => {
+    constructor() {
+        this.future = DateRange.future();
+        this.today = DateRange.today();
+        this.yesterday = DateRange.yesterday();
+        this.thisWeek = DateRange.thisWeek();
+        this.lastWeek = DateRange.lastWeek();
+        this.thisMonth = DateRange.thisMonth();
+        this.lastMonth = DateRange.lastMonth();
+        this.monthsBeforeLastMonth = DateRange.pastMonths()
+            .slice(1)
+            .map(range => {
+                range.date = range.start;
+                range.dateFormat = "month";
+                range.i18n = "mail.list.range.past_month";
+                return range;
+            });
+        this.pastYears = DateRange.pastYears().map(range => {
             range.date = range.start;
-            range.dateFormat = "month";
-            range.i18n = "mail.list.range.past_month";
+            range.dateFormat = "year";
+            range.i18n = "mail.list.range.past_year";
             return range;
         });
-    pastYears = DateRange.pastYears().map(range => {
-        range.date = range.start;
-        range.dateFormat = "year";
-        range.i18n = "mail.list.range.past_year";
-        return range;
-    });
-    older;
-    sortedArray;
 
-    constructor() {
         this.future.i18n = "mail.list.range.future";
         this.today.i18n = "mail.list.range.today";
         this.yesterday.i18n = "mail.list.range.yesterday";

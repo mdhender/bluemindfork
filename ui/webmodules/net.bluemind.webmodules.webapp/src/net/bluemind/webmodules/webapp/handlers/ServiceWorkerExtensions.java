@@ -36,7 +36,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.webmodule.server.PreEncodedObject;
 
-public class ServiceWorkerModules implements Handler<HttpServerRequest> {
+public class ServiceWorkerExtensions implements Handler<HttpServerRequest> {
 	private static final PreEncodedObject extensions;
 
 	static {
@@ -50,7 +50,7 @@ public class ServiceWorkerModules implements Handler<HttpServerRequest> {
 	@Override
 	public void handle(final HttpServerRequest request) {
 		StringBuffer output = new StringBuffer();
-		output.append("self.WebApp.BmExtension.remote(");
+		output.append("self.WebApp.$extensions.load(");
 		output.append(extensions.json());
 		output.append(");");
 		request.response().putHeader(HttpHeaders.CONTENT_TYPE, TEXT_JAVASCRIPT).setStatusCode(200)
@@ -73,7 +73,7 @@ public class ServiceWorkerModules implements Handler<HttpServerRequest> {
 	}
 
 	private static JsonArray toJson(IExtensionPoint point) {
-		return Arrays.asList(point.getExtensions()).stream().map(ServiceWorkerModules::toJson).reduce(new JsonArray(),
+		return Arrays.asList(point.getExtensions()).stream().map(ServiceWorkerExtensions::toJson).reduce(new JsonArray(),
 				(array, extension) -> array.add(extension), (a, b) -> new JsonArray());
 	}
 

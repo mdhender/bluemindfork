@@ -3,7 +3,7 @@
 <schema targetNamespace="net.bluemind.webmodules.webapp" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="net.bluemind.webmodules.webapp" id="serviceworker.resource" name="serviceworker.resource"/>
+         <meta.schema plugin="net.bluemind.webmodules.webapp" id="serviceworker.scripts" name="serviceworker.scripts"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -17,10 +17,9 @@
          </appinfo>
       </annotation>
       <complexType>
-         <choice minOccurs="1" maxOccurs="unbounded">
+         <sequence minOccurs="1" maxOccurs="unbounded">
             <element ref="script"/>
-            <element ref="route"/>
-         </choice>
+         </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
                <documentation>
@@ -51,25 +50,6 @@
    <element name="script">
       <complexType>
          <attribute name="path" type="string">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
-      </complexType>
-   </element>
-
-   <element name="route">
-      <complexType>
-         <attribute name="url" type="string">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="strategy" type="string">
             <annotation>
                <documentation>
                   

@@ -28,8 +28,14 @@ module.exports = {
             {
                 test: /\.js$/,
                 loader: "babel-loader",
-                include: [path.resolve(__dirname, "./src")]
+                exclude: /node_modules/
             },
+            {
+                test: /\.ts$/,
+                use: ["babel-loader", "ts-loader"],
+                exclude: /node_modules/
+            },
+
             {
                 enforce: "pre",
                 test: /\.(js|vue)$/,
@@ -44,7 +50,7 @@ module.exports = {
         vuex: "Vuex"
     },
     resolve: {
-        extensions: ["*", ".js", ".vue", ".json", ".css", ".scss"]
+        extensions: ["*", ".js", ".ts", ".vue", ".json", ".css", ".scss"]
     },
     devtool: "source-map"
 };

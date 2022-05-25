@@ -1,1 +1,1 @@
-export default window.WebApp || (window.WebApp = {});
+export default self.WebApp || (self.WebApp = {});

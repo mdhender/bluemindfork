@@ -99,3 +99,46 @@ function initI18N() {
 
     return i18n;
 }
+
+async function showNotification(message) {
+    const result = await Notification.requestPermission();
+    if (result === "granted") {
+        navigator.serviceWorker.ready.then(function (registration) {
+            registration.showNotification("Periodic Sync", {
+                body: message
+            });
+        });
+    }
+}
+
+(async () => {
+    if ("serviceWorker" in navigator) {
+        try {
+            const registration = await navigator.serviceWorker.register("service-worker.js");
+            // eslint-disable-next-line no-console
+            console.log("Registration succeeded. Scope is " + registration.scope);
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.log("Registration failed with " + error);
+        }
+
+        navigator.serviceWorker.addEventListener("message", event => {
+            if (event.data.type === "ERROR") {
+                showNotification(event.data.payload.message);
+            }
+        });
+
+        navigator.serviceWorker.addEventListener("waiting", () => {
+            // eslint-disable-next-line no-console
+            console.warn(
+                "A new service worker is installed but cannot be activated until all tabs running the current version have been fully unloaded."
+            );
+        });
+
+        navigator.serviceWorker.addEventListener("installed", event => {
+            if (event.isUpdate) {
+                showNotification("A new version of the site is available, please refresh the page.");
+            }
+        });
+    }
+})();
