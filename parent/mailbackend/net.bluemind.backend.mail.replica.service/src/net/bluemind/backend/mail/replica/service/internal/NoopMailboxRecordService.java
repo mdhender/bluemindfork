@@ -81,7 +81,6 @@ public class NoopMailboxRecordService implements IDbMailboxRecords {
 	@Override
 	public void xfer(String serverUid) throws ServerFault {
 		logger.info("NOOP operation IDbMailboxRecords#xfer");
-
 	}
 
 	@Override

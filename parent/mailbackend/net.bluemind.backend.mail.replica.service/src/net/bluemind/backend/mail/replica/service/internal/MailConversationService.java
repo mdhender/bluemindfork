@@ -203,5 +203,4 @@ public class MailConversationService implements IInternalMailConversation {
 		}
 		storeService.xfer(ds, c, new ConversationStore(ds, c));
 	}
-
 }

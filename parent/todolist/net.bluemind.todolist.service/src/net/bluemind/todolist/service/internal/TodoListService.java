@@ -453,7 +453,6 @@ public class TodoListService implements ITodoList {
 
 	@Override
 	public void xfer(String serverUid) throws ServerFault {
-
 		DataSource ds = bmContext.getMailboxDataSource(serverUid);
 		ContainerStore cs = new ContainerStore(null, ds, bmContext.getSecurityContext());
 		Container c;
@@ -462,9 +461,7 @@ public class TodoListService implements ITodoList {
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
-
 		storeService.xfer(ds, c, new VTodoStore(ds, c));
-
 	}
 
 	@Override

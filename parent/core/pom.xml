@@ -30,6 +30,7 @@
 		<module>net.bluemind.core.container.service.tests</module>
 		<module>net.bluemind.core.container.service</module>
 		<module>net.bluemind.core.container.sharding</module>
+		<module>net.bluemind.core.container.sharding.repair</module>
 		<module>net.bluemind.core.container.sqlschema</module>
 		<module>net.bluemind.core.container.subscriptions.hook.tests</module>
 		<module>net.bluemind.core.container.subscriptions.hook</module>

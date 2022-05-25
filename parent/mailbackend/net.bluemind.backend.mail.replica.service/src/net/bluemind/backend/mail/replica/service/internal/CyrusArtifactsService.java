@@ -204,5 +204,4 @@ public class CyrusArtifactsService implements ICyrusReplicationArtifacts {
 			}
 		}
 	}
-
 }

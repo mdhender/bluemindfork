@@ -23,11 +23,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 public class HierarchyIdsHints {
-	private static final Cache<String, Long> idHints = CacheBuilder.newBuilder()
-			.recordStats()
-			.maximumSize(256)
-			.expireAfterAccess(5, TimeUnit.MINUTES)
-			.build();
+	private static final Cache<String, Long> idHints = CacheBuilder.newBuilder().recordStats().maximumSize(256)
+			.expireAfterAccess(5, TimeUnit.MINUTES).build();
 
 	public static void putHint(String uid, long id) {
 		idHints.put(uid, id);
@@ -39,7 +36,10 @@ public class HierarchyIdsHints {
 			idHints.invalidate(uid);
 		}
 		return ret;
+	}
 
+	public static void invalidateAll() {
+		idHints.invalidateAll();
 	}
 
 }

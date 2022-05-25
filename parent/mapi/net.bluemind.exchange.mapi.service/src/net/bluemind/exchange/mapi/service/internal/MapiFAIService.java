@@ -160,5 +160,4 @@ public class MapiFAIService implements IMapiFolderAssociatedInformation {
 		}
 		storeService.xfer(ds, c, new MapiFAIStore(ds, c));
 	}
-
 }

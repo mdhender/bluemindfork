@@ -213,6 +213,9 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 			throw ServerFault.sqlFault(e);
 		}
 		storeService.xfer(ds, c, new MailboxReplicaStore(ds, c, replicaStore.partition));
+		MboxReplicasCache.invalidate(container.uid);
+		SubtreeLocations.locations.invalidateAll();
+		HierarchyIdsHints.invalidateAll();
 	}
 
 	@Override

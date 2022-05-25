@@ -104,5 +104,4 @@ public class NoopCyrusArtifacts implements ICyrusReplicationArtifacts {
 	public void xfer(String serverUid) throws ServerFault {
 		// noop
 	}
-
 }

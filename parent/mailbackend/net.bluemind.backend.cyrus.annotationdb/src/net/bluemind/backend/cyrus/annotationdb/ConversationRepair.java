@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.google.common.collect.ImmutableSet;
 
 import net.bluemind.backend.cyrus.annotationdb.ConversationSync.CyrusConversationDbInitException;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -59,7 +60,7 @@ public class ConversationRepair implements IDirEntryRepairSupport {
 		private final BmContext context;
 
 		public ConversationMaintenance(BmContext ctx) {
-			super(conversationOp.identifier, null, null, 1);
+			super(conversationOp.identifier, null, IMailReplicaUids.REPAIR_SUBTREE_OP, 1);
 			this.context = ctx;
 		}
 

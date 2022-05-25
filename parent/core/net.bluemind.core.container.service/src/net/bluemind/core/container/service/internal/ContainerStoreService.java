@@ -817,7 +817,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			prepareContainerDelete();
 			return null;
 		});
-
 	}
 
 }

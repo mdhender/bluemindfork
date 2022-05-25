@@ -26,25 +26,31 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+
 public class CleanupOpsAccumulator {
 	@FunctionalInterface
-	public static interface SQLCallable<T> {
-		public T call() throws SQLException;
+	public static interface SQLRunnable {
+		public abstract void run() throws SQLException;
 	}
 
-	private List<SQLCallable<Void>> ops;
+	private List<SQLRunnable> ops;
 
 	public CleanupOpsAccumulator() {
 		ops = new ArrayList<>();
 	}
 
-	public void accept(SQLCallable<Void> op) {
+	public void accept(SQLRunnable op) {
 		ops.add(op);
 	}
 
-	public void executeAll() throws SQLException {
-		for (SQLCallable<Void> op : ops) {
-			op.call();
+	public void executeAll(Logger logger) {
+		for (SQLRunnable op : ops) {
+			try {
+				op.run();
+			} catch (Throwable t) {
+				logger.warn("cleanup operation failed: {}", t.getMessage());
+			}
 		}
 	}
 }

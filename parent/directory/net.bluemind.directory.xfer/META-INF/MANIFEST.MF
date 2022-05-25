@@ -5,7 +5,8 @@ Bundle-SymbolicName: net.bluemind.directory.xfer;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: com.google.guava,
+Require-Bundle: com.github.ben-manes.caffeine,
+ com.google.guava,
  net.bluemind.addressbook.api,
  net.bluemind.authentication.mgmt.api,
  net.bluemind.backend.cyrus.partitions,
@@ -38,6 +39,7 @@ Require-Bundle: com.google.guava,
  org.postgresql.jdbc42,
  slf4j.api,
  net.bluemind.authentication.api,
+ net.bluemind.system.api,
  net.bluemind.webappdata.api
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.directory.xfer

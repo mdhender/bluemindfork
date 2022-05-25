@@ -1,751 +1,759 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='us-ascii'?>
 <site>
-   <feature url="features/net.bluemind.tests.feature_4.1.0.qualifier.jar" id="net.bluemind.tests.feature" version="4.1.0.qualifier"/>
-   <bundle id="bm-js-client" version="4.1.0.qualifier"/>
-   <bundle id="calendar" version="4.1.0.qualifier"/>
-   <bundle id="contact" version="4.1.0.qualifier"/>
-   <bundle id="font-awesome" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.adapter" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.domainbook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.hook.acl" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.ldap.adapter" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.ldap.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.ldap.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.ldap.job" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.ldap.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.ldap.sync" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.ui.contacteditor" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.userbook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.announcement.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.announcement.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.announcement.provider" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.announcement.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.application.launcher" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.attachment.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.attachment.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.attachment.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.attachment.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.authentication.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.authentication.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.authentication.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.authentication.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.authentication.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.authentication.handler" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.authentication.mgmt.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.authentication.mgmt.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.authentication.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.authentication.provider" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.authentication.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.authentication.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.aws.s3.patch" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.aws.s3.utils" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.annotationdb" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.bmgroups" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.index" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.integrity.check" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.mailboxesdb" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.partitions" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.replication.client" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.replication.link" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.replication.observers" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.replication.protocol" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.replication.server" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.replication.storage.core" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.replication.storage.mock" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.replication.testhelper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.syncclient.mgmt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.mail.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.mail.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.mail.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.mail.parsing" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.mail.replica.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.mail.replica.indexing" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.mail.replica.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.mail.replica.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.mail.replica.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.mail.replica.utils" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.postfix" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.systemconf" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.application.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.auditlog" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.banner.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.helper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.history.renderer" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.hook.acl" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.hook.ics" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.occurrence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.pdf" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.sync" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.usercalendar" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.central.reverse.proxy" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.central.reverse.proxy.common" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.central.reverse.proxy.launcher" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.central.reverse.proxy.model" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.central.reverse.proxy.model.client" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.central.reverse.proxy.model.common" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.central.reverse.proxy.stream" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.chooser.application.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.adm" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.calendar" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.certificate" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.cmd.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.contact" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.directory.common" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.filehosting" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.group" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.hollow" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.hz" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.index" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.inject.common" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.inject.imap" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.inject.node" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.inject.ou" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.job" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.journaling" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.launcher" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.mail" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.mapi" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.metrics" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.node" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.sds" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.server" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.sysconf" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.todolist" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.user" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.utils" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cli.wazo" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.common.cache.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.common.freemarker" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.common.hollow" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.common.io" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.common.reflect" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.commons.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.commons.ui.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.config" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.config.testfragment" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.contact.application.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.container.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.content.analysis" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.annotationvalidator" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.api.csharp" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.api.mozjs" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.api.py" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.auditlog" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.backup.continuous" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.backup.continuous.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.backup.continuous.clone" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.backup.continuous.dto" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.backup.continuous.events" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.backup.continuous.leader" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.backup.continuous.state" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.backup.store.kafka" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.bo.report.provider" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.caches.registry" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.caches.testhelper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.commons" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.commons.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.commons.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.hierarchy.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.hierarchy.repair" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.hooks" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.repair" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.sharding" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.subscriptions.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.subscriptions.repair" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.sync" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.context" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.elasticsearch.testshelper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.jdbc" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.jdbc.testshelper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.node.testshelper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.rest" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.rest.common" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.rest.http" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.rest.http.vertx" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.rest.tests.services" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.sanitizer" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.sds.configurator" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.sendmail" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.sendmail.testhelper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.serialization" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.sessions" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.sessions.deletion.hz" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.task.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.task.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.task.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.task.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.task.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.task.spi" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.tests.testshelper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.validator" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cti.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cti.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cti.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cti.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cti.backend" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cti.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cti.wazo.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.cti.wazo.system" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.custom.password.bruteforce" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.custom.password.sizestrength" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.custom.password.sizestrength.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.custom.password.sizestrength.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.customproperties.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.customproperties.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.databases.utils" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.addressbook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.calendar" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.config" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.directory" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.elastic" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.job" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.mailbox" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.notes" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.ou" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.postgresql" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.todolist" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.user" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dav.server" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.deferredaction.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.deferredaction.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.deferredaction.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.deferredaction.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.deferredaction.registry" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.deferredaction.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.deferredaction.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.device.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.device.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.device.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.device.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.device.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.device.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.device.userdevice" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.directory.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.directory.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.directory.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.directory.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.directory.external" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.directory.hollow.datamodel" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.directory.hollow.datamodel.consumer" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.directory.hollow.datamodel.producer" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.directory.hollow.datamodel.utils" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.directory.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.directory.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.directory.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.directory.xfer" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dockerclient" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.document.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.document.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.document.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.document.persistence.fs" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.document.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.document.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.document.storage" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.documentfolder.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.documentfolder.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.documentfolder.domainfolder" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.documentfolder.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.domain.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.domain.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.domain.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.domain.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.domain.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.domain.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.domain.settings.config" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.domain.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.backend.bm" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.busmods" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.client" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.config" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.config.global" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.dto" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.http" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.http.wbxml" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.partnership" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.search.ldap" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.serdes" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.sift" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.storage.jdbc" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.testhelper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.timezone" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.utils" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.validation" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.verticle" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.wbxml" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.wbxml.builder" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eclipse.common" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.elasticsearch.initializer" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.exchange.mapi.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.exchange.mapi.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.exchange.mapi.lmtp.filter" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.exchange.mapi.notifications" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.exchange.mapi.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.exchange.mapi.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.exchange.mapi.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.exchange.publicfolders.common" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.exchange.publicfolders.hierarchy" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.extensions.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.externaluser.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.externaluser.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.externaluser.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.filehosting.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.filehosting.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.filehosting.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.filehosting.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.filehosting.filesystem.job" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.filehosting.filesystem.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.filehosting.filesystem.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.filehosting.sds.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.filehosting.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.filehosting.ui.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.filehosting.webdav.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.folder.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.forest.cloud.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.forest.cloud.hazelcast" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.forest.cloud.launcher" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.forest.cloud.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.forest.instance.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.forest.instance.cli" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.forest.instance.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.globalsettings.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.globalsettings.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.group.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.group.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.group.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.group.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.group.member" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.group.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.group.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.group.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.gwtconsoleapp.base" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.history.ui.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hornetq.client" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hps.auth.cas" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hps.auth.core2" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hps.auth.krb" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.hooks" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.processor" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.storage" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.storage.snappy" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.i18n.labels" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.icalendar.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.icalendar.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.icalendar.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.icalendar.parser" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.icalendar.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.icalendar.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.im.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.im.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.im.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.im.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.im.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.imap" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.imap.tagproducers" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.imap.translate" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.imap.vertx" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.imip.parser" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.jdbc.driver.pgsql" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.jdbc.pgsql.provider" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.jilter" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.kafka.configuration" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.kafka.configuration.fs" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.kafka.container" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.lib.elasticsearch" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.lib.globalid" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.lib.ical4j" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.lib.jackson" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.lib.jta" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.lib.jutf7" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.lib.ldap" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.lib.ristretto" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.lib.vertx" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.linkify" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.lmtp" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.lmtp.filter.imip" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.lmtp.filter.tnef" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.lmtp.testhelper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.locator" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailapp.role" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.hook.acl" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.identity.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.identity.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.identity.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.identity.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.identity.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.identity.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.identity.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.job" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailflow.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailflow.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailflow.common.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailflow.common.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailflow.common.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailflow.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailflow.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailflow.rbe" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailflow.registration" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailflow.rules" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailflow.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailflow.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailindex" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailindex.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailindex.schema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailmessage.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailmessage.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailmessage.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailmessage.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailshare.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailshare.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailshare.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailshare.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailshare.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.maintenance" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.maintenance.job" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.maintenance.postgresql" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.metrics.alerts.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.metrics.alerts.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.metrics.annotations" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.metrics.core" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.metrics.registry" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.metrics.testhelper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.metrics.transport" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.metrics.ui.role" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.milter" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.milter.action.journaling" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.milter.action.misc" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.milter.action.signature" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.milter.metrics" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.milter.srs" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mime4j.bodies" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mime4j.common" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mvp.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.network.topology" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.network.topology.consumer" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.network.topology.producer" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.network.utils" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.node.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.node.client" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.node.client.build" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.node.metrics.aggregator" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.node.server" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.node.shared" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.notes.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.notes.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.notes.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.notes.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.notes.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.notes.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.notes.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.notes.usernotes" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.osgi.log" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.outlook.clientcheck" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.persistence.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.pimp" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.pool" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.pool.dockerconfig" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.proxy.http" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.proxy.http.launcher" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.proxy.support" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.resource.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.resource.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.resource.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.resource.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.resource.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.resource.helper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.resource.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.resource.hook.ics" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.resource.lmtp.filter" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.resource.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.resource.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.resource.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.restbus.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.restclient.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.restclient.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.role.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.role.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.role.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.role.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.role.provider" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.role.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.role.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.rrule.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.samba.customproperties" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.scheduledjob.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.scheduledjob.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.scheduledjob.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.scheduledjob.job" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.scheduledjob.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.scheduledjob.scheduler" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.scheduledjob.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.scheduledjob.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.sds.proxy" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.sds.proxy.launcher" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.sds.proxy.mgmt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.sds.proxy.testhelper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.sds.store" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.sds.store.loader" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.sds.store.s3" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.sds.store.scalityring" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.sentry" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.sentry.settings" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.sentry.settings.core" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.sentry.settings.upgrade" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.serialization.client" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.server.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.server.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.server.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.server.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.server.mcast.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.server.node.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.server.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.server.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.server.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.signature.commons" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.signature.commons.core" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.slf4j" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.slf4j.configuration" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ssl.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.auth" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.config" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.domaintemplate" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.helper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.importation.commons" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.iptables" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.iptables.mq" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.ldap.export" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.ldap.importation" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.ldap.importation.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.ldap.importation.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.ldap.importation.tests.enhancer" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.ldap.tests.helpers" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.nginx" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.pg" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.schemaupgrader" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.schemaupgrader.runner" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.security.certificate" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.state" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.stateobserver" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.stateobserver.testhelper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.subscriptionprovider" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.sysconf.helper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.upgraders.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.validation" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.webmail" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.systemd.notify" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.tag.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.tag.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.tag.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.tag.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.tag.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.tag.hooks" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.tag.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.tag.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.tag.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.task.application.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.tests.defaultdata" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.tika.client" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.tika.server" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.adapter" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.hook.acl" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.ui.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.usertodolist" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.tracing" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.base" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.cti" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.dataprotect" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.directory" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.filehosting.settings" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.jobs" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.ldap.export" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.ldap.importation" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.main" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.monitoring" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.password.sizestrength" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.progress" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.security" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.system" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.videoconferencing" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.videoconferencing.bluemind" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.videoconferencing.jitsi" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.videoconferencing.starleaf" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.adminconsole.videoconferencing.teams" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.banner" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.banner.cti" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.banner.logout" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.banner.standalone.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.defaultapp" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.domain" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.dynresources" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.editor.standalone.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.eventdeferredaction" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.extensions.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.gwtaddressbook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.gwtcalendar" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.gwtcommon.editor" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.gwtcommon.forms" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.gwtcommon.icons" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.gwtrole" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.gwtsharing" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.gwttag" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.gwttask" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.gwtuser" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.imageupload" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.imageupload.standalone" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.instantmessaging" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.mailbox" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.metrics.application" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.push" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.resources" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.settings" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.settings.addressbook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.settings.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.settings.calendar" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.settings.cti" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.settings.downloads" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.settings.downloads.tbird" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.settings.general" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.settings.mail" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.settings.task" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.webmail.application" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.user.accounts.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.user.accounts.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.user.accounts.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.user.accounts.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.user.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.user.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.user.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.user.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.user.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.user.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.user.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.utils" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.vertx.common" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.vertx.core.patch" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.vertx.testhelper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.api.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.bluemind" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.hosting" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.jitsi" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.saas.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.saas.js" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.saas.persistence" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.saas.room.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.saas.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.starleaf" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.teams" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.videoconferencing.utils" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webapp.mail.js" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webapp.root.js" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmail.banner.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmail.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodule" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodule.dav" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodule.epfilter" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodule.filehostinghandler" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodule.gwtserver" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodule.inputfilter" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodule.server" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodule.uploadhandler" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodules.calendar" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodules.chooser" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodules.contact" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodules.fonts" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodules.launcher" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodules.loginapp" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodules.sample" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodules.styleguide" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodules.todolist" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodules.videoconferencing.saas" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodules.vue" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodules.webapp" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodules.webapp.wrapper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodules.webmail" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.xivo.bridge" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.xivo.calendar.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.xivo.client" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.xivo.common" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.xivo.core" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.xivo.system" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.xmpp.coresession" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.xmpp.server" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.xmpp.server.launcher" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ysnp" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ysnp.bmcore" version="4.1.0.qualifier"/>
-   <bundle id="net.freeutils.tnef" version="4.1.0.qualifier"/>
-   <bundle id="relief" version="4.1.0.qualifier"/>
-   <bundle id="ydn-base" version="4.1.0.qualifier"/>
-   <bundle id="ydn-db" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.backup.continuous.mgmt.api"/>
-   <bundle id="net.bluemind.core.backup.continuous.mgmt.service"/>
-   <bundle id="net.bluemind.maintenance.elastic"/>
+    <feature url="features/net.bluemind.tests.feature_4.1.0.qualifier.jar" id="net.bluemind.tests.feature" version="4.1.0.qualifier" />
+    <bundle id="bm-js-client" version="4.1.0.qualifier" />
+    <bundle id="calendar" version="4.1.0.qualifier" />
+    <bundle id="contact" version="4.1.0.qualifier" />
+    <bundle id="font-awesome" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.adapter" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.api.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.domainbook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.hook.acl" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.ldap.adapter" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.ldap.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.ldap.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.ldap.job" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.ldap.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.ldap.sync" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.ui.contacteditor" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.addressbook.userbook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.announcement.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.announcement.api.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.announcement.provider" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.announcement.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.application.launcher" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.attachment.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.attachment.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.attachment.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.attachment.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.authentication.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.authentication.api.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.authentication.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.authentication.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.authentication.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.authentication.handler" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.authentication.mgmt.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.authentication.mgmt.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.authentication.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.authentication.provider" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.authentication.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.authentication.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.aws.s3.patch" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.aws.s3.utils" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.cyrus" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.cyrus.annotationdb" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.cyrus.bmgroups" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.cyrus.index" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.cyrus.integrity.check" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.cyrus.mailboxesdb" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.cyrus.partitions" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.cyrus.replication.client" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.cyrus.replication.link" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.cyrus.replication.observers" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.cyrus.replication.protocol" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.cyrus.replication.server" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.cyrus.replication.storage.core" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.cyrus.replication.storage.mock" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.cyrus.replication.testhelper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.cyrus.syncclient.mgmt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.mail.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.mail.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.mail.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.mail.parsing" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.mail.replica.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.mail.replica.indexing" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.mail.replica.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.mail.replica.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.mail.replica.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.mail.replica.utils" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.postfix" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.backend.systemconf" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.api.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.application.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.auditlog" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.banner.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.helper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.history.renderer" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.hook.acl" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.hook.ics" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.occurrence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.pdf" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.sync" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.calendar.usercalendar" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.central.reverse.proxy" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.central.reverse.proxy.common" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.central.reverse.proxy.launcher" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.central.reverse.proxy.model" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.central.reverse.proxy.model.client" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.central.reverse.proxy.model.common" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.central.reverse.proxy.stream" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.chooser.application.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.adm" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.calendar" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.certificate" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.cmd.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.contact" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.directory.common" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.filehosting" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.group" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.hollow" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.hz" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.index" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.inject.common" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.inject.imap" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.inject.node" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.inject.ou" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.job" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.journaling" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.launcher" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.mail" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.mapi" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.metrics" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.node" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.sds" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.server" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.sysconf" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.todolist" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.user" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.utils" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cli.wazo" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.common.cache.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.common.freemarker" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.common.hollow" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.common.io" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.common.reflect" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.commons.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.commons.ui.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.config" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.config.testfragment" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.contact.application.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.container.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.content.analysis" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.annotationvalidator" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.api.csharp" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.api.mozjs" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.api.py" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.auditlog" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.backup.continuous" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.backup.continuous.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.backup.continuous.clone" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.backup.continuous.dto" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.backup.continuous.events" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.backup.continuous.leader" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.backup.continuous.mgmt.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.backup.continuous.mgmt.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.backup.continuous.state" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.backup.store.kafka" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.bo.report.provider" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.caches.registry" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.caches.testhelper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.commons" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.commons.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.commons.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.container.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.container.api.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.container.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.container.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.container.hierarchy.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.container.hierarchy.repair" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.container.hooks" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.container.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.container.repair" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.container.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.container.sharding" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.container.sharding.repair" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.container.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.container.subscriptions.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.container.subscriptions.repair" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.container.sync" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.context" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.elasticsearch.testshelper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.jdbc" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.jdbc.testshelper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.node.testshelper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.rest" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.rest.common" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.rest.http" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.rest.http.vertx" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.rest.tests.services" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.sanitizer" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.sds.configurator" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.sendmail" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.sendmail.testhelper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.serialization" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.sessions" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.sessions.deletion.hz" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.task.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.task.api.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.task.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.task.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.task.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.task.spi" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.tests.testshelper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.core.validator" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cti.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cti.api.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cti.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cti.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cti.backend" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cti.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cti.wazo.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.cti.wazo.system" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.custom.password.bruteforce" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.custom.password.sizestrength" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.custom.password.sizestrength.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.custom.password.sizestrength.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.customproperties.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.customproperties.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.databases.utils" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.addressbook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.calendar" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.config" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.directory" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.elastic" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.job" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.mailbox" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.notes" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.ou" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.postgresql" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.todolist" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.user" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dataprotect.webappdata" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dav.server" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.deferredaction.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.deferredaction.api.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.deferredaction.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.deferredaction.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.deferredaction.registry" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.deferredaction.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.deferredaction.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.device.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.device.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.device.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.device.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.device.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.device.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.device.userdevice" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.directory.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.directory.api.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.directory.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.directory.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.directory.external" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.directory.hollow.datamodel" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.directory.hollow.datamodel.consumer" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.directory.hollow.datamodel.producer" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.directory.hollow.datamodel.utils" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.directory.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.directory.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.directory.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.directory.xfer" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.dockerclient" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.document.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.document.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.documentfolder.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.documentfolder.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.documentfolder.domainfolder" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.documentfolder.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.document.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.document.persistence.fs" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.document.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.document.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.document.storage" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.domain.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.domain.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.domain.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.domain.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.domain.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.domain.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.domain.settings.config" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.domain.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.backend.bm" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.busmods" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.client" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.config" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.config.global" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.dto" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.http" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.http.wbxml" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.partnership" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.search.ldap" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.serdes" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.sift" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.storage.jdbc" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.testhelper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.timezone" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.utils" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.validation" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.verticle" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.wbxml" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eas.wbxml.builder" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.eclipse.common" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.elasticsearch.initializer" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.exchange.mapi.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.exchange.mapi.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.exchange.mapi.lmtp.filter" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.exchange.mapi.notifications" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.exchange.mapi.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.exchange.mapi.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.exchange.mapi.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.exchange.publicfolders.common" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.exchange.publicfolders.hierarchy" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.extensions.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.externaluser.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.externaluser.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.externaluser.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.filehosting.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.filehosting.api.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.filehosting.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.filehosting.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.filehosting.filesystem.job" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.filehosting.filesystem.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.filehosting.filesystem.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.filehosting.sds.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.filehosting.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.filehosting.ui.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.filehosting.webdav.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.folder.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.forest.cloud.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.forest.cloud.hazelcast" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.forest.cloud.launcher" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.forest.cloud.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.forest.instance.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.forest.instance.cli" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.forest.instance.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.globalsettings.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.globalsettings.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.group.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.group.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.group.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.group.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.group.member" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.group.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.group.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.group.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.gwtconsoleapp.base" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.history.ui.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.hornetq.client" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.hps.auth.cas" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.hps.auth.core2" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.hps.auth.krb" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.hsm.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.hsm.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.hsm.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.hsm.hooks" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.hsm.processor" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.hsm.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.hsm.storage" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.hsm.storage.snappy" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.i18n.labels" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.icalendar.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.icalendar.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.icalendar.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.icalendar.parser" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.icalendar.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.icalendar.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.imap" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.im.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.im.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.imap.tagproducers" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.imap.translate" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.imap.vertx" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.imip.parser" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.im.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.im.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.im.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.jdbc.driver.pgsql" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.jdbc.pgsql.provider" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.jilter" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.kafka.configuration" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.kafka.configuration.fs" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.kafka.container" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.lib.elasticsearch" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.lib.globalid" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.lib.ical4j" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.lib.jackson" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.lib.jta" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.lib.jutf7" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.lib.ldap" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.lib.ristretto" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.lib.vertx" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.linkify" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.lmtp" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.lmtp.filter.imip" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.lmtp.filter.tnef" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.lmtp.testhelper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.locator" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailapp.role" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.api.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.hook.acl" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.identity.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.identity.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.identity.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.identity.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.identity.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.identity.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.identity.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.job" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailbox.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailflow.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailflow.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailflow.common.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailflow.common.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailflow.common.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailflow.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailflow.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailflow.rbe" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailflow.registration" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailflow.rules" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailflow.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailflow.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailindex" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailindex.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailindex.schema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailmessage.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailmessage.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailmessage.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailmessage.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailshare.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailshare.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailshare.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailshare.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mailshare.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.maintenance" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.maintenance.elastic" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.maintenance.job" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.maintenance.postgresql" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.metrics.alerts.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.metrics.alerts.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.metrics.annotations" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.metrics.core" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.metrics.registry" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.metrics.testhelper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.metrics.transport" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.metrics.ui.role" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.milter" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.milter.action.journaling" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.milter.action.misc" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.milter.action.signature" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.milter.metrics" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.milter.srs" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mime4j.bodies" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mime4j.common" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.mvp.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.network.topology" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.network.topology.consumer" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.network.topology.producer" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.network.utils" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.node.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.node.client" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.node.client.build" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.node.metrics.aggregator" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.node.server" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.node.shared" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.notes.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.notes.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.notes.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.notes.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.notes.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.notes.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.notes.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.notes.usernotes" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.osgi.log" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.outlook.clientcheck" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.persistence.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.pimp" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.pool" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.pool.dockerconfig" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.proxy.http" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.proxy.http.launcher" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.proxy.support" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.resource.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.resource.api.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.resource.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.resource.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.resource.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.resource.helper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.resource.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.resource.hook.ics" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.resource.lmtp.filter" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.resource.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.resource.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.resource.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.restbus.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.restclient.api.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.restclient.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.role.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.role.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.role.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.role.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.role.provider" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.role.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.role.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.rrule.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.samba.customproperties" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.scheduledjob.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.scheduledjob.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.scheduledjob.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.scheduledjob.job" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.scheduledjob.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.scheduledjob.scheduler" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.scheduledjob.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.scheduledjob.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.sds.proxy" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.sds.proxy.launcher" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.sds.proxy.mgmt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.sds.proxy.testhelper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.sds.store" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.sds.store.loader" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.sds.store.s3" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.sds.store.scalityring" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.sentry" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.sentry.settings" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.sentry.settings.core" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.sentry.settings.upgrade" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.serialization.client" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.server.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.server.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.server.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.server.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.server.mcast.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.server.node.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.server.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.server.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.server.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.signature.commons" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.signature.commons.core" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.slf4j" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.slf4j.configuration" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ssl.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.auth" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.config" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.systemd.notify" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.domaintemplate" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.helper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.importation.commons" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.iptables" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.iptables.mq" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.ldap.export" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.ldap.importation" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.ldap.importation.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.ldap.importation.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.ldap.importation.tests.enhancer" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.ldap.tests.helpers" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.nginx" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.pg" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.schemaupgrader" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.schemaupgrader.runner" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.security.certificate" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.state" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.stateobserver" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.stateobserver.testhelper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.subscriptionprovider" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.sysconf.helper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.upgraders.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.validation" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.system.webmail" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.tag.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.tag.api.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.tag.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.tag.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.tag.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.tag.hooks" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.tag.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.tag.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.tag.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.task.application.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.tests.defaultdata" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.tika.client" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.tika.server" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.todolist.adapter" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.todolist.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.todolist.api.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.todolist.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.todolist.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.todolist.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.todolist.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.todolist.hook.acl" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.todolist.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.todolist.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.todolist.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.todolist.ui.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.todolist.usertodolist" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.tracing" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.base" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.cti" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.dataprotect" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.directory" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.filehosting.settings" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.jobs" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.ldap.export" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.ldap.importation" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.main" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.monitoring" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.password.sizestrength" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.progress" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.security" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.system" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.videoconferencing" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.videoconferencing.bluemind" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.videoconferencing.jitsi" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.videoconferencing.starleaf" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.adminconsole.videoconferencing.teams" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.banner" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.banner.cti" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.banner.logout" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.banner.standalone.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.defaultapp" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.domain" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.dynresources" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.editor.standalone.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.eventdeferredaction" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.extensions.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.gwtaddressbook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.gwtcalendar" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.gwtcommon.editor" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.gwtcommon.forms" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.gwtcommon.icons" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.gwtrole" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.gwtsharing" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.gwttag" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.gwttask" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.gwtuser" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.imageupload" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.imageupload.standalone" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.instantmessaging" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.mailbox" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.metrics.application" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.push" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.resources" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.settings" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.settings.addressbook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.settings.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.settings.calendar" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.settings.cti" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.settings.downloads" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.settings.downloads.tbird" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.settings.general" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.settings.mail" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.settings.task" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ui.webmail.application" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.user.accounts.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.user.accounts.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.user.accounts.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.user.accounts.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.user.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.user.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.user.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.user.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.user.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.user.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.user.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.utils" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.vertx.common" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.vertx.core.patch" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.vertx.testhelper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.api.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.bluemind" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.hosting" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.jitsi" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.saas.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.saas.js" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.saas.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.saas.room.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.saas.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.starleaf" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.teams" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.videoconferencing.utils" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webappdata.api" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webappdata.api.gwt" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webappdata.api.php" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webappdata.persistence" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webappdata.service" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webappdata.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webapp.mail.js" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webapp.root.js" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmail.banner.closure" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmail.sqlschema" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodule" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodule.dav" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodule.epfilter" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodule.filehostinghandler" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodule.gwtserver" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodule.inputfilter" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodules.calendar" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodules.chooser" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodules.contact" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodule.server" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodules.fonts" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodules.launcher" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodules.loginapp" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodules.sample" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodules.styleguide" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodules.todolist" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodules.videoconferencing.saas" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodules.vue" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodules.webapp" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodules.webapp.wrapper" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodules.webmail" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodule.uploadhandler" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.xivo.bridge" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.xivo.calendar.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.xivo.client" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.xivo.common" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.xivo.core" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.xivo.system" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.xmpp.coresession" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.xmpp.server" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.xmpp.server.launcher" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ysnp" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.ysnp.bmcore" version="4.1.0.qualifier" />
+    <bundle id="net.freeutils.tnef" version="4.1.0.qualifier" />
+    <bundle id="relief" version="4.1.0.qualifier" />
+    <bundle id="ydn-base" version="4.1.0.qualifier" />
+    <bundle id="ydn-db" version="4.1.0.qualifier" />
 </site>

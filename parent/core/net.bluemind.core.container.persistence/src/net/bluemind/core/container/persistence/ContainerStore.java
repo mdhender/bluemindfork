@@ -359,10 +359,16 @@ public class ContainerStore extends JdbcAbstractStore {
 
 					return index;
 				});
+		DataSourceRouter.invalidateContainer(container.uid);
 	}
 
 	public void deleteContainerLocation(Container container) throws SQLException {
-		delete("DELETE FROM t_container_location WHERE container_uid = ?", new Object[] { container.uid });
+		deleteContainerLocation(container.uid);
+	}
+
+	public void deleteContainerLocation(String containerUid) throws SQLException {
+		delete("DELETE FROM t_container_location WHERE container_uid = ?", new Object[] { containerUid });
+		DataSourceRouter.invalidateContainer(containerUid);
 	}
 
 	/**

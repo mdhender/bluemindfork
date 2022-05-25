@@ -20,6 +20,7 @@ package net.bluemind.system.service.cache;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +62,8 @@ public class CacheMgmt implements ICacheMgmt {
 	@Override
 	public Stream dumpContent() {
 		CacheRegistry reg = context.provider().instance(CacheRegistry.class);
-		Map<String, Cache<?, ?>> content = reg.getAll();
+		// Using a treemap to have key sorting
+		Map<String, Cache<?, ?>> content = new TreeMap<>(reg.getAll());
 
 		JsonObject root = new JsonObject();
 		for (Entry<String, Cache<?, ?>> e : content.entrySet()) {

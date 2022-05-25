@@ -48,7 +48,6 @@ import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.ChangeLogUtil;
 import net.bluemind.core.container.service.internal.RBACManager;
-import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.validator.Validator;
@@ -69,7 +68,6 @@ public class NoteService implements INote {
 	private VNoteSanitizer sanitizer;
 	private VNoteValidator validator;
 	private NoteEventProducer eventProducer;
-	private SecurityContext context;
 	private Sanitizer extSanitizer;
 	private Validator extValidator;
 	private BmContext bmContext;
@@ -92,7 +90,6 @@ public class NoteService implements INote {
 		sanitizer = new VNoteSanitizer();
 
 		validator = new VNoteValidator();
-		context = bmContext.getSecurityContext();
 
 		extSanitizer = new Sanitizer(bmContext);
 		extValidator = new Validator(bmContext);
@@ -319,7 +316,6 @@ public class NoteService implements INote {
 
 	@Override
 	public void xfer(String serverUid) throws ServerFault {
-
 		DataSource ds = bmContext.getMailboxDataSource(serverUid);
 		ContainerStore cs = new ContainerStore(null, ds, bmContext.getSecurityContext());
 		Container c;
@@ -328,9 +324,7 @@ public class NoteService implements INote {
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
-
 		storeService.xfer(ds, c, new VNoteStore(ds, c));
-
 	}
 
 	@Override

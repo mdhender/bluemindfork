@@ -64,10 +64,10 @@ public final class ContainerCache {
 		if (context == null || context.provider().instance(CacheRegistry.class) == null) {
 			return new ContainerCache(null, null);
 		} else {
-			CacheRegistry instance = context.provider().instance(CacheRegistry.class);
+			CacheRegistry cacheRegistry = context.provider().instance(CacheRegistry.class);
 			String lookupKey = "ContainerIdCache-" + context.dataSourceLocation(dataSource);
-			Cache<Long, Container> lookup = instance.get(lookupKey);
-			return new ContainerCache(instance.get("ContainerUidCache"), lookup);
+			Cache<Long, Container> lookup = cacheRegistry.get(lookupKey);
+			return new ContainerCache(cacheRegistry.get("ContainerUidCache"), lookup);
 		}
 	}
 

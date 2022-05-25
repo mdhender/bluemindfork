@@ -159,6 +159,7 @@
       <plugin id="net.bluemind.core.container.repair"/>
       <plugin id="net.bluemind.core.container.service"/>
       <plugin id="net.bluemind.core.container.sharding"/>
+      <plugin id="net.bluemind.core.container.sharding.repair"/>
       <plugin id="net.bluemind.core.container.sqlschema"/>
       <plugin id="net.bluemind.core.container.subscriptions.hook"/>
       <plugin id="net.bluemind.core.container.subscriptions.repair"/>

@@ -178,5 +178,4 @@ public class InternalContainersHierarchyService implements IInternalContainersFl
 		}
 		storeService.xfer(ds, c, new ContainersHierarchyNodeStore(ds, c));
 	}
-
 }

@@ -31,8 +31,8 @@ public class XferCommand extends SimpleCommand<Boolean> {
 	@Override
 	public void responseReceived(List<IMAPResponse> rs) {
 		data = rs.get(rs.size() - 1).isOk();
-		if (!data) {
-			logger.error("Failed XFER: '" + command + "'");
+		if (Boolean.FALSE.equals(data)) {
+			logger.error("Failed XFER: '{}'", command);
 			for (IMAPResponse ir : rs) {
 				logger.error(ir.getPayload());
 			}

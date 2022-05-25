@@ -86,12 +86,14 @@ public class WaitReplicationFinished {
 			long now = System.currentTimeMillis();
 			applyMailboxPromise.whenComplete((v, ex) -> {
 				if (ex != null) {
+					logger.error("applyMailbox failed {}@{}: {}", probe.latd, backendAddress, ex);
 					replFeeback.completeExceptionally(ex);
 				} else {
 					replFeeback.complete(System.currentTimeMillis() - now);
 				}
 			});
 		} catch (Exception ex) {
+			logger.error("check replication failed {}@{}: {}", probe.latd, backendAddress, ex);
 			replFeeback.completeExceptionally(ex);
 		}
 		return replFeeback;

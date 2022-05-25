@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.directory.repairSupport">
+      <repairSupport
+            factory="net.bluemind.core.container.sharding.repair.ContainerShardingRepair$Factory">
+      </repairSupport>
+   </extension>
+   <extension
+         point="net.bluemind.directory.repairSupport">
+      <repairSupport
+            factory="net.bluemind.core.container.sharding.repair.OrphanContainerLocationRepair$Factory">
+      </repairSupport>
+   </extension>
+</plugin>

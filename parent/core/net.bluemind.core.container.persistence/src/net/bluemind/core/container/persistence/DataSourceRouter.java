@@ -19,6 +19,7 @@ package net.bluemind.core.container.persistence;
 
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
@@ -35,26 +36,38 @@ import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.rest.BmContext;
 
 public class DataSourceRouter {
-
 	private DataSourceRouter() {
-
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(DataSourceRouter.class);
-	private static final Cache<String, Optional<String>> cache = Caffeine.newBuilder().recordStats()
+	private static final Cache<String, Optional<String>> globalCache = Caffeine.newBuilder().recordStats()
 			.expireAfterAccess(2, TimeUnit.HOURS).build();
 
 	public static class CacheReg implements ICacheRegistration {
-
 		@Override
 		public void registerCaches(CacheRegistry cr) {
-			cr.register("datasource-router-locations", cache);
+			cr.register(DataSourceRouter.class, globalCache);
 		}
+	}
 
+	/*
+	 * This is used by ContainerShardingRepair in order to "trick" bluemind to
+	 * select the desired dataSource when containerLocation is not referrencing the
+	 * correct backend
+	 */
+	private static final ConcurrentHashMap<BmContext, Cache<String, Optional<String>>> cacheByContext = new ConcurrentHashMap<>();
+
+	public static Cache<String, Optional<String>> initContextCache(BmContext context) {
+		cacheByContext.put(context, Caffeine.newBuilder().build());
+		return cacheByContext.get(context);
+	}
+
+	public static void removeContextCaches(BmContext context) {
+		cacheByContext.clear();
 	}
 
 	public static DataSource get(BmContext context, String containerUid) {
-
+		Cache<String, Optional<String>> cache = cacheByContext.getOrDefault(context, globalCache);
 		Optional<String> loc = cache.getIfPresent(containerUid);
 		if (loc == null) {
 			ContainerStore directoryContainerStore = new ContainerStore(context, context.getDataSource(),
@@ -76,7 +89,7 @@ public class DataSourceRouter {
 	}
 
 	public static String location(BmContext context, String containerUid) {
-
+		Cache<String, Optional<String>> cache = cacheByContext.getOrDefault(context, globalCache);
 		Optional<String> loc = cache.getIfPresent(containerUid);
 		if (loc == null) {
 			ContainerStore directoryContainerStore = new ContainerStore(context, context.getDataSource(),
@@ -94,7 +107,7 @@ public class DataSourceRouter {
 	}
 
 	public static void invalidateContainer(String containerUid) {
-		cache.invalidate(containerUid);
+		globalCache.invalidate(containerUid);
 	}
 
 }

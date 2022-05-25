@@ -27,7 +27,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -58,25 +57,17 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.ICalendarsMgmt;
+import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
-import net.bluemind.core.container.api.IDataShardSupport;
 import net.bluemind.core.container.api.IFlatHierarchyUids;
 import net.bluemind.core.container.api.IOwnerSubscriptionUids;
 import net.bluemind.core.container.api.IOwnerSubscriptions;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerSyncStatus;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.model.acl.AccessControlEntry;
-import net.bluemind.core.container.persistence.AclStore;
-import net.bluemind.core.container.persistence.ChangelogStore;
-import net.bluemind.core.container.persistence.ContainerPersonalSettingsStore;
-import net.bluemind.core.container.persistence.ContainerSettingsStore;
 import net.bluemind.core.container.persistence.ContainerStore;
-import net.bluemind.core.container.persistence.ContainerSyncStore;
-import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.IContainerStoreService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
@@ -100,6 +91,8 @@ import net.bluemind.exchange.mapi.api.IMapiFolder;
 import net.bluemind.exchange.mapi.api.IMapiFolderAssociatedInformation;
 import net.bluemind.exchange.mapi.api.MapiFAIContainer;
 import net.bluemind.exchange.mapi.api.MapiFolderContainer;
+import net.bluemind.imap.CreateMailboxResult;
+import net.bluemind.imap.StoreClient;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxMgmt;
 import net.bluemind.mailbox.api.IMailboxes;
@@ -131,18 +124,16 @@ public class DirectoryXfer implements AutoCloseable {
 	private final ItemValue<Server> targetServer;
 	private final ItemValue<DirEntry> dirEntry;
 
-	private final ContainerStore dirContainerStore;
-	private final ContainerStore containerStoreOrig;
 	private final ContainerStore containerStoreTarget;
 
 	private final DataSource directoryDs;
-	private final DataSource origDs;
-	private final DataSource targetDs;
+	private final DataSource dataSourceOrigin;
+	private final DataSource dataSourceTarget;
+
+	private final ContainerXfer containerXfer;
 
 	private final IUser userApi;
 	private final ItemValue<User> originalUser;
-
-	private final CleanupOpsAccumulator cleanupOps;
 
 	private static final List<IMailboxHook> hooks = getMailboxHooks();
 
@@ -167,26 +158,29 @@ public class DirectoryXfer implements AutoCloseable {
 			dataContext = context;
 		}
 
-		this.directoryDs = dataContext.getDataSource();
-		this.origDs = dataContext.getMailboxDataSource(dirEntry.value.dataLocation);
-		this.targetDs = dataContext.getMailboxDataSource(serverUid);
-		if (this.targetDs == null) {
+		directoryDs = dataContext.getDataSource();
+		dataSourceOrigin = dataContext.getMailboxDataSource(dirEntry.value.dataLocation);
+		dataSourceTarget = dataContext.getMailboxDataSource(serverUid);
+		if (dataSourceTarget == null) {
 			throw ServerFault.notFound("datasource for serverUid:" + serverUid + " not found. Invalid serverUid?");
 		}
-		this.dirContainerStore = new ContainerStore(dataContext, dataContext.getDataSource(),
-				dataContext.getSecurityContext());
-		this.containerStoreOrig = new ContainerStore(null, origDs, dataContext.getSecurityContext());
-		this.containerStoreTarget = new ContainerStore(null, targetDs, dataContext.getSecurityContext());
 
 		userApi = ServerSideServiceProvider.getProvider(context).instance(IUser.class, domainUid);
 		originalUser = userApi.getComplete(dirEntry.uid);
 
-		this.cleanupOps = new CleanupOpsAccumulator();
+		containerStoreTarget = new ContainerStore(null, dataSourceTarget, dataContext.getSecurityContext());
+
+		containerXfer = new ContainerXfer(//
+				dataSourceOrigin, //
+				dataSourceTarget, //
+				dataContext, //
+				dirEntry.value);
+		System.setProperty("core.repair.sync", "true");
 	}
 
 	public void doXfer(String entryUid, IServerTaskMonitor monitor, Consumer<ItemValue<DirEntry>> updateDirEntry) {
-		logger.warn("transfer {} from datasource {} ({}) to datasource {} ({}", dirEntry.displayName, origDs,
-				dirEntry.value.dataLocation, targetDs, targetServerUid);
+		logger.warn("transfer {} from datasource {} ({}) to datasource {} ({}", dirEntry.displayName, dataSourceOrigin,
+				dirEntry.value.dataLocation, dataSourceTarget, targetServerUid);
 
 		if (targetServer == null) {
 			logger.error("fail to transfert data. entryUid {}, serverUid {}. Server not found", entryUid,
@@ -207,7 +201,7 @@ public class DirectoryXfer implements AutoCloseable {
 		ItemValue<Mailbox> mailbox = sp.instance(IMailboxes.class, domainUid).getComplete(entryUid);
 
 		String imapLogin = "";
-		String originalDataLocation = "";
+		String originalDataLocation = dirEntry.value.dataLocation;
 
 		if (dirEntry.value.kind == BaseDirEntry.Kind.USER) {
 			imapLogin = originalUser.value.login + "@" + domainUid;
@@ -227,6 +221,7 @@ public class DirectoryXfer implements AutoCloseable {
 
 			// Wait for the replication to complete the queue
 			monitor.log("Waiting for the replication to complete...");
+			CacheRegistry.get().invalidateAll();
 
 			if (!Strings.isNullOrEmpty(imapLogin)) {
 				// This waiting is only available for user migration
@@ -246,11 +241,9 @@ public class DirectoryXfer implements AutoCloseable {
 			// Lock the user out of IMAP (cyr_deny)
 			userSessionUtility.lockoutUser(monitor);
 
-			// Wait the replication do to stuff...
-			Thread.sleep(5000);
-
 			doPreMove(mailbox);
-			doXferContainers(entryUid, mailbox, monitor);
+			doRemoveTargetMailbox(mailbox);
+			doXferContainers(entryUid, mailbox, containerXfer, monitor);
 
 			doXferCyrusArtifacts(entryUid, domainUid, mailbox, monitor);
 
@@ -260,32 +253,52 @@ public class DirectoryXfer implements AutoCloseable {
 			dirEntry.value.dataLocation = targetServerUid;
 			updateDirEntry.accept(dirEntry);
 
-			cleanupOps.executeAll();
+			containerXfer.executeCleanups(logger);
 
+			/* Now, the database will be broken if the imap xfer fails */
 			commitAll();
+			CacheRegistry.get().invalidateAll();
+
+			/*
+			 * This cache can be problematic if the subtree already existed previously on
+			 * this server
+			 */
+//			Optional.ofNullable(CacheRegistry.get().get("KnownRoots.validatedRoots")).ifPresent(Cache::invalidateAll);
 
 			/* The transactional context is not used anymore here */
 			doXferMailbox(entryUid, mailbox, monitor);
+			CacheRegistry.get().invalidateAll();
+
 			doPostMove(mailbox);
+
 			if (mailbox != null) {
 				VertxPlatform.eventBus().publish("postfix.map.dirty", new JsonObject());
 			}
-			postProcess(entryUid, mailbox, monitor);
+
+			postProcess(entryUid, monitor);
 
 			// Logout user again (force SessionData to be updated)
 			userSessionUtility.logoutUser(monitor);
 
 			logger.info("Ending xfer of {} ({}) to {}", entryUid, dirEntry.displayName, targetServerUid);
 			monitor.end(true, "Transfer finished: all tasks completed", "");
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("transfer failed: {}", e.getMessage(), e);
 			rollbackAll();
+			CacheRegistry.get().invalidateAll();
+
+			/*
+			 * Move the user back to the original position. The user is broken, but can be
+			 * repaired by bm-cli maintenance repair --ops container.sharding.location
+			 */
+//			dirEntry.value.dataLocation = originalDataLocation;
+//			updateDirEntry.accept(dirEntry);
 			monitor.end(false, "transfer failed: " + e, null);
 			throw new ServerFault(e);
 		}
 	}
 
-	private void postProcess(String entryUid, ItemValue<Mailbox> mailbox, IServerTaskMonitor monitor) {
+	private void postProcess(String entryUid, IServerTaskMonitor monitor) {
 		// At this step, the mailbox is transfered between cyrus backends, but the
 		// replication must be re-synced
 		IServiceProvider serviceProvider = ServerSideServiceProvider.getProvider(context);
@@ -370,34 +383,36 @@ public class DirectoryXfer implements AutoCloseable {
 		cyrusArtifcatsService.xfer(targetServerUid);
 	}
 
-	private void doXferContainers(String entryUid, ItemValue<Mailbox> mailbox, IServerTaskMonitor monitor)
-			throws SQLException {
+	private void doXferContainers(String entryUid, ItemValue<Mailbox> mailbox, ContainerXfer containerXfer,
+			IServerTaskMonitor monitor) throws SQLException {
 		logger.info("[{}] xfer cleanup containers on target", dirEntry.uid);
 		monitor.progress(0, "removing stale containers on target");
 		List<Container> toRemoveContainers = containerStoreTarget.findByTypeOwnerReadOnly(null, dirEntry.uid, null);
-		cleanupTargetContainers(toRemoveContainers);
+		containerXfer.removeTargetContainers(toRemoveContainers);
 
 		IServiceProvider sp = ServerSideServiceProvider.getProvider(dataContext);
 
 		// Groups and mailshares don't have those containers
 		if (dirEntry.value.kind == BaseDirEntry.Kind.USER) {
-			xferContainers(monitor.subWork(1), IAddressBookUids.TYPE,
+			containerXfer.xfer(monitor.subWork(1), IAddressBookUids.TYPE,
 					containerUid -> sp.instance(IAddressBook.class, containerUid));
-			xferContainers(monitor.subWork(1), ICalendarUids.TYPE,
+			containerXfer.xfer(monitor.subWork(1), ICalendarUids.TYPE,
 					containerUid -> sp.instance(ICalendar.class, containerUid));
-			xferContainers(monitor.subWork(1), IDeferredActionContainerUids.TYPE,
+			containerXfer.xfer(monitor.subWork(1), IDeferredActionContainerUids.TYPE,
 					containerUid -> sp.instance(IDeferredAction.class, containerUid));
-			xferContainers(monitor.subWork(1), ITodoUids.TYPE,
+			containerXfer.xfer(monitor.subWork(1), ITodoUids.TYPE,
 					containerUid -> sp.instance(ITodoList.class, containerUid));
-			xferContainers(monitor.subWork(1), INoteUids.TYPE, containerUid -> sp.instance(INote.class, containerUid));
-			xferContainers(monitor.subWork(1), ITagUids.TYPE, containerUid -> sp.instance(ITags.class, containerUid));
-			xferContainers(monitor.subWork(1), IWebAppDataUids.TYPE,
+			containerXfer.xfer(monitor.subWork(1), INoteUids.TYPE,
+					containerUid -> sp.instance(INote.class, containerUid));
+			containerXfer.xfer(monitor.subWork(1), ITagUids.TYPE,
+					containerUid -> sp.instance(ITags.class, containerUid));
+			containerXfer.xfer(monitor.subWork(1), IWebAppDataUids.TYPE,
 					containerUid -> sp.instance(IWebAppData.class, containerUid));
 		}
 
-		xferContainers(monitor.subWork(1), IFlatHierarchyUids.TYPE,
+		containerXfer.xfer(monitor.subWork(1), IFlatHierarchyUids.TYPE,
 				containerUid -> sp.instance(IContainersFlatHierarchy.class, domainUid, entryUid));
-		xferContainers(monitor.subWork(1), IOwnerSubscriptionUids.TYPE,
+		containerXfer.xfer(monitor.subWork(1), IOwnerSubscriptionUids.TYPE,
 				containerUid -> sp.instance(IOwnerSubscriptions.class, domainUid, entryUid));
 
 		// Avoid removing future xfer mailbox records from object storage
@@ -414,24 +429,22 @@ public class DirectoryXfer implements AutoCloseable {
 
 		// Theses containers can't be migrated: item_id are changed, so all the data is
 		// useless and lost
-		xferContainers(monitor.subWork(1), IMailReplicaUids.MAILBOX_RECORDS,
-				containerUid -> sp.instance(IDbMailboxRecords.class, IMailReplicaUids.uniqueId(containerUid)), false);
-		xferContainers(monitor.subWork(1), IMailReplicaUids.REPLICATED_CONVERSATIONS,
+		containerXfer.xfer(monitor.subWork(1), IMailReplicaUids.MAILBOX_RECORDS,
+				containerUid -> sp.instance(IDbMailboxRecords.class, IMailReplicaUids.uniqueId(containerUid)));
+		containerXfer.xfer(monitor.subWork(1), IMailReplicaUids.REPLICATED_CONVERSATIONS,
 				containerUid -> context.provider().instance(IInternalMailConversation.class,
-						IMailReplicaUids.conversationSubtreeUid(domainUid, entryUid)),
-				false);
+						IMailReplicaUids.conversationSubtreeUid(domainUid, entryUid)));
 
 		// Groups don't have mapi containers
 		if (dirEntry.value.kind != BaseDirEntry.Kind.GROUP) {
-			xferContainers(monitor.subWork(1), MapiFolderContainer.TYPE,
-					containerUid -> sp.instance(IMapiFolder.class, containerUid), false);
-			xferContainers(monitor.subWork(1), MapiFAIContainer.TYPE, containerUid -> sp
-					.instance(IMapiFolderAssociatedInformation.class, MapiFAIContainer.localReplica(containerUid)),
-					false);
+			containerXfer.xfer(monitor.subWork(1), MapiFolderContainer.TYPE,
+					containerUid -> sp.instance(IMapiFolder.class, containerUid));
+			containerXfer.xfer(monitor.subWork(1), MapiFAIContainer.TYPE, containerUid -> sp
+					.instance(IMapiFolderAssociatedInformation.class, MapiFAIContainer.localReplica(containerUid)));
 		}
 
 		if (mailbox != null) {
-			xferContainers(monitor.subWork(1), IMailReplicaUids.REPLICATED_MBOXES, containerUid -> {
+			containerXfer.xfer(monitor.subWork(1), IMailReplicaUids.REPLICATED_MBOXES, containerUid -> {
 				CyrusPartition part = CyrusPartition.forServerAndDomain(targetServerUid, domainUid);
 				final String replicatedMailboxIdentifier = mailbox.value.type.nsPrefix
 						+ mailbox.value.name.replace(".", "^");
@@ -439,112 +452,6 @@ public class DirectoryXfer implements AutoCloseable {
 			});
 		} else {
 			logger.info("mailbox is empty, not moving replicated_mboxes");
-		}
-	}
-
-	private void cleanupTargetContainers(List<Container> containers) {
-		for (Container c : containers) {
-			logger.info("Try to clean container {}", c);
-			try {
-				new AclStore(dataContext, targetDs).deleteAll(c);
-				new ContainerSyncStore(targetDs, c).delete();
-				new ContainerPersonalSettingsStore(targetDs, dataContext.getSecurityContext(), c).deleteAll();
-				new ContainerSettingsStore(targetDs, c).delete();
-				new ChangelogStore(targetDs, c).deleteLog();
-				if (containerStoreTarget.get(c.uid) != null) {
-					containerStoreTarget.delete(c.uid);
-				}
-			} catch (Exception e) {
-				logger.warn("containerStore {} cleanup failed: {}", c, e.getMessage(), e);
-			}
-		}
-	}
-
-	private void xferContainers(IServerTaskMonitor monitor, String containerType,
-			Function<String, IDataShardSupport> fn) throws SQLException {
-		xferContainers(monitor, containerType, fn, true);
-	}
-
-	private void xferContainers(IServerTaskMonitor monitor, String containerType,
-			Function<String, IDataShardSupport> fn, boolean transferData) throws SQLException {
-		List<Container> containers = containerStoreOrig.findByTypeAndOwner(containerType, dirEntry.uid);
-		if (containers.isEmpty()) {
-			return;
-		}
-
-		logger.info("[{}] xfer {} {} ({})", dirEntry.uid, containers.size(), containerType, containers);
-		monitor.log("[{}] xfer {} {} ({})", dirEntry.uid, containers.size(), containerType, containers);
-
-		for (Container c : containers) {
-			logger.info("[{}] xfer container {}", dirEntry.uid, c.uid);
-
-			IDataShardSupport service = fn.apply(c.uid);
-
-			Container oldContainer = containerStoreOrig.get(c.uid);
-			Container newContainer = null;
-			dirContainerStore.deleteContainerLocation(oldContainer);
-			DataSourceRouter.invalidateContainer(oldContainer.uid);
-
-			if (transferData) {
-				newContainer = containerStoreTarget.create(c);
-				dirContainerStore.createContainerLocation(newContainer, targetServerUid);
-				service.xfer(targetServerUid);
-			}
-
-			dirContainerStore.invalidateCache(c.uid, c.id);
-			DataSourceRouter.invalidateContainer(c.uid);
-
-			AclStore aclStoreOrig = new AclStore(dataContext, origDs);
-			ContainerSyncStore containerSyncStoreOrig = new ContainerSyncStore(origDs, oldContainer);
-			ContainerPersonalSettingsStore containerPersonalSettingStoreOrig = new ContainerPersonalSettingsStore(
-					origDs, dataContext.getSecurityContext(), oldContainer);
-			ContainerSettingsStore containerSettingStoreOrig = new ContainerSettingsStore(origDs, oldContainer);
-
-			if (newContainer != null) {
-				List<AccessControlEntry> acls = aclStoreOrig.get(oldContainer);
-				if (acls != null && !acls.isEmpty()) {
-					AclStore aclStoreTarget = new AclStore(dataContext, targetDs);
-					if (newContainer != null) {
-						aclStoreTarget.store(newContainer, acls);
-					}
-				}
-
-				ContainerSyncStatus ss = containerSyncStoreOrig.getSyncStatus();
-				if (ss != null) {
-					ContainerSyncStore containerSyncStoreTarget = new ContainerSyncStore(targetDs, newContainer);
-					containerSyncStoreTarget.setSyncStatus(ss);
-				}
-
-				Map<String, String> personnelsettings = containerPersonalSettingStoreOrig.get();
-				if (personnelsettings != null && !personnelsettings.isEmpty()) {
-					ContainerPersonalSettingsStore containerPersonalSettingStoreTarget = new ContainerPersonalSettingsStore(
-							targetDs, dataContext.getSecurityContext(), newContainer);
-					containerPersonalSettingStoreTarget.set(personnelsettings);
-				}
-
-				Map<String, String> settings = containerSettingStoreOrig.getSettings();
-				if (settings != null && !settings.isEmpty()) {
-					ContainerSettingsStore containerSettingStoreTarget = new ContainerSettingsStore(targetDs,
-							newContainer);
-					containerSettingStoreTarget.setSettings(settings);
-				}
-			}
-
-			cleanupOps.accept(() -> {
-				containerSyncStoreOrig.delete();
-				aclStoreOrig.deleteAll(oldContainer);
-				containerPersonalSettingStoreOrig.deleteAll();
-				containerSettingStoreOrig.delete();
-				new ChangelogStore(origDs, oldContainer).deleteLog();
-				containerStoreOrig.delete(c.uid);
-				dirContainerStore.invalidateCache(c.uid, c.id);
-				DataSourceRouter.invalidateContainer(c.uid);
-				return null;
-			});
-			monitor.progress(1, c.uid + " tranferred.");
-		}
-		if (!containers.isEmpty()) {
-			monitor.end(true, "Containers " + containerType + " transferred", "");
 		}
 	}
 
@@ -569,6 +476,43 @@ public class DirectoryXfer implements AutoCloseable {
 		}
 	}
 
+	private void doRemoveTargetMailbox(ItemValue<Mailbox> mailbox) {
+		// Remove unwanted target mailbox
+		try {
+			String boxName = mailbox.value.type.cyrAdmPrefix + mailbox.value.name + "@" + domainUid;
+
+//			// CYCLIC dependency: I can't use cyrusService, to just do it using imap.
+//			CyrusService targetCyrusService = new CyrusService(targetServer);
+//			if (targetCyrusService.boxExist(boxName)) {
+//				targetCyrusService.deleteBox(boxName, domainUid);
+//				logger.info("Successfully removed mailbox {} on {}", boxName, targetServerUid);
+//			}
+
+			try (StoreClient sc = new StoreClient(targetServer.value.address(), 1143, "admin0", Token.admin0())) {
+				if (!sc.login()) {
+					throw new ServerFault("error during boxExist on [" + boxName + "]: " + "Login as admin0 failed");
+				}
+				if (sc.isExist(boxName)) {
+					CreateMailboxResult result = sc.deleteMailboxHierarchy(boxName);
+					logger.info("MAILBOX delete: {} for '{}'", result.isOk() ? "OK" : result.getMessage(), boxName);
+					if (!result.isOk()) {
+						if (!sc.select(boxName)) {
+							return;
+						}
+						logger.error("deleteMailbox failed for mbox '{}', server said: {}", boxName,
+								result.getMessage());
+						throw new ServerFault(
+								"deleteMailbox failed for '" + boxName + "'. server msg: " + result.getMessage());
+					} else {
+						logger.info("Successfully removed mailbox {} on {}", boxName, targetServerUid);
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error("Unable to enumerate / remove mailbox {} on {}: {}", mailbox, targetServerUid, e);
+		}
+	}
+
 	private void doPostMove(ItemValue<Mailbox> mailbox) {
 		for (IMailboxHook hook : hooks) {
 			try {
@@ -590,12 +534,12 @@ public class DirectoryXfer implements AutoCloseable {
 			return;
 		}
 		logger.info("commit connections: directory:{} origin datasource: {} target datasource: {}",
-				directoryDs.getConnection(), origDs.getConnection(), targetDs.getConnection());
+				directoryDs.getConnection(), dataSourceOrigin.getConnection(), dataSourceTarget.getConnection());
 		// Warning: the order is important, some constraints can fail to commit, so
 		// directoryDs
 		// MUST be commited last
-		origDs.getConnection().commit();
-		targetDs.getConnection().commit();
+		dataSourceOrigin.getConnection().commit();
+		dataSourceTarget.getConnection().commit();
 		directoryDs.getConnection().commit();
 	}
 
@@ -608,7 +552,7 @@ public class DirectoryXfer implements AutoCloseable {
 		}
 		try {
 			logger.info("rollback connections: directory:{} origin datasource: {} target datasource: {}",
-					directoryDs.getConnection(), origDs.getConnection(), targetDs.getConnection());
+					directoryDs.getConnection(), dataSourceOrigin.getConnection(), dataSourceTarget.getConnection());
 		} catch (SQLException e) {
 		}
 		try {
@@ -616,17 +560,18 @@ public class DirectoryXfer implements AutoCloseable {
 		} catch (SQLException e) {
 		}
 		try {
-			origDs.getConnection().rollback();
+			dataSourceOrigin.getConnection().rollback();
 		} catch (SQLException e) {
 		}
 		try {
-			targetDs.getConnection().rollback();
+			dataSourceTarget.getConnection().rollback();
 		} catch (SQLException e) {
 		}
 	}
 
 	@Override
 	public void close() throws Exception {
+		System.setProperty("core.repair.sync", "false");
 		if (transactionalContext != null) {
 			transactionalContext.stop();
 		}
