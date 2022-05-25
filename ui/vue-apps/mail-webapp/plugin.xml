@@ -33,4 +33,10 @@
     <extension point="net.bluemind.extensions">
       <export-extension-point id="webapp.mail"></export-extension-point>
     </extension>
+    <extension
+          point="serviceworker.scripts">
+       <script
+             path="mail.service-worker.js">
+       </script>
+    </extension>
 </plugin>

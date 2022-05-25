@@ -13,22 +13,18 @@ export const apiRoutes = [
         capture: /\/api\/containers\/_subscriptions\/(.+)\/(.+)\/_list/,
         handler: listSubscriptions
     },
-    {
-        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_mgetById/,
-        handler: multipleGetById
-    },
-    {
-        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_filteredChangesetById\?since=0/,
-        handler: filteredChangesetById
-    },
-    {
-        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_sorted/,
-        handler: sortedIds
-    },
-    {
-        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_count/,
-        handler: count
-    },
+    // {
+    //     capture: /\/api\/mail_items\/([a-f0-9-]+)\/_mgetById/,
+    //     handler: multipleGetById
+    // },
+    // {
+    //     capture: /\/api\/mail_items\/([a-f0-9-]+)\/_filteredChangesetById\?since=0/,
+    //     handler: filteredChangesetById
+    // },
+    // {
+    //     capture: /\/api\/mail_items\/([a-f0-9-]+)\/_count/,
+    //     handler: count
+    // },
     {
         capture: /\/api\/mail_folders\/(.+)\/(.+)\/_all/,
         handler: allMailFolders
@@ -168,7 +164,11 @@ export async function count({ request, params }: RouteHandlerCallbackOptions) {
         const expectedFlags = (await request.clone().json()) as Flags;
         const db = await Session.db();
         if (await db.isSubscribed(folderUid)) {
+<<<<<<< HEAD
             const allMailItems: Array<MailItemLight> = await db.getAllMailItemLight(folderUid);
+=======
+            const allMailItems = await db.getAllMailItemLight(folderUid);
+>>>>>>> f1841895028 (FEATWEBML-2106 Feat: Add a client proxy plugin mechanism)
             const total = allMailItems.filter(item => filterByFlags(expectedFlags, item.flags)).length;
             return responseFromCache({ total });
         }

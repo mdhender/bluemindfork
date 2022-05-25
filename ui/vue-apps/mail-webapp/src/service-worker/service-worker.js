@@ -1,26 +1,19 @@
-import { skipWaiting, clientsClaim } from "workbox-core";
-
 import registerApiRoute, { apiRoutes } from "./workbox/registerApiRoute";
-import registerCSSRoute from "./workbox/registerCSSRoute";
 import registerSessionInfoRoute from "./workbox/registerSessionInfoRoute";
-import registerScriptRoute from "./workbox/registerScriptRoute";
 import registerPartRoute from "./workbox/registerPartRoute";
-import registerBlankRoute from "./workbox/registerBlankRoute";
 
 import { syncMailbox, syncMailFolders, syncMailFolder } from "./sync";
 import Session from "./session";
 import { logger } from "./logger";
 import BrowserData from "./BrowserData";
+import { extensions } from "@bluemind/extensions";
+import { MailItemDB } from "./workbox/MailItemDB";
 
-clientsClaim();
-skipWaiting();
+extensions.register("serviceworker.handlers", "mail-webapp", { "api-handler": { class: MailItemDB, priority: 1 } });
 
 registerSessionInfoRoute();
 registerPartRoute();
 registerApiRoute(apiRoutes);
-registerCSSRoute();
-registerScriptRoute();
-registerBlankRoute();
 
 self.addEventListener("message", async ({ data }) => {
     switch (data.type) {
