@@ -222,6 +222,10 @@ public class MappingController extends AbstractVerticle {
 			IDbReplicatedMailboxesPromise foldersApi = serviceProvider.instance(IDbReplicatedMailboxesPromise.class,
 					asBox.partition, asBox.ns.prefix() + asBox.local);
 			return foldersApi.byName(asBox.fullName()).thenApply(f -> {
+				if (f == null) {
+					logger.warn("[{}] byName({}) -> null, is replication lagging ?", mailbox, asBox.fullName());
+					return null;
+				}
 				BoxAndFolder ret = new BoxAndFolder(asBox, f);
 				cyrusToFolder.put(mailbox, ret);
 				return ret;
