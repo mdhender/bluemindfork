@@ -26,12 +26,10 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import com.google.common.collect.ImmutableSet;
 
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainers;
@@ -41,15 +39,14 @@ import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 
 public class FlatHierarchyRepair implements IDirEntryRepairSupport {
 
@@ -60,7 +57,6 @@ public class FlatHierarchyRepair implements IDirEntryRepairSupport {
 		}
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(FlatHierarchyRepair.class);
 	public static final MaintenanceOperation flatHierOp = MaintenanceOperation.create(IFlatHierarchyUids.REPAIR_OP_ID,
 			"Check the hierarchy of owned containers");
 
@@ -73,13 +69,12 @@ public class FlatHierarchyRepair implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 			if (entry.kind != Kind.DOMAIN && entry.system) {
-				logger.info("SKIP Checking flat hier for {} as {}", entry, context);
 				return;
 			}
-			logger.info("Checking flat hier for {} as {}", entry, context);
-
+			// FIXME do something
+			monitor.end();
 		}
 
 		private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
@@ -88,12 +83,13 @@ public class FlatHierarchyRepair implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 			if (entry.kind != Kind.DOMAIN && entry.system) {
-				logger.info("SKIP Repairing flat hier for {} as {}", entry, context);
+				monitor.log("SKIP Repairing flat hier for {} as {}", entry, context);
+				monitor.end();
 				return;
 			}
-			logger.info("Repairing flat hier for {} as {}", entry, context);
+			monitor.log("Repairing flat hier for {} as {}", entry, context);
 			IInternalContainersFlatHierarchyMgmt mgmtApi = context.provider()
 					.instance(IInternalContainersFlatHierarchyMgmt.class, domainUid, entry.entryUid);
 			mgmtApi.init();
@@ -135,7 +131,8 @@ public class FlatHierarchyRepair implements IDirEntryRepairSupport {
 				monitor.progress(1, c.uid + " (" + c.type + ") repaired (action: " + op + ").");
 			}
 			knownNodes.stream().filter(n -> toRemoveNodes.contains(n.value.containerUid)).forEach(n -> {
-				monitor.log("Removing " + n.uid + " from hierarchy.");
+				monitor.log("Removing " + n.uid + " from hierarchy.", Level.WARN);
+				monitor.notify("Removing node {} from hierarchy", n.uid);
 				hierApi.delete(n.uid);
 			});
 

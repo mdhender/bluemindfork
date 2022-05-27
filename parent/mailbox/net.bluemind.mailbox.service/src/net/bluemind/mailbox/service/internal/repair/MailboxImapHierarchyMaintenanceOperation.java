@@ -19,19 +19,14 @@ package net.bluemind.mailbox.service.internal.repair;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.mailbox.service.IMailboxesStorage.MailFolder;
 import net.bluemind.mailbox.service.MailboxesStorageFactory;
 import net.bluemind.mailbox.service.internal.repair.MailboxRepairSupport.MailboxMaintenanceOperation;
 
 public class MailboxImapHierarchyMaintenanceOperation extends MailboxMaintenanceOperation {
-	private static final Logger logger = LoggerFactory.getLogger(MailboxImapHierarchyMaintenanceOperation.class);
 
 	private static final String MAINTENANCE_OPERATION_ID = DiagnosticReportCheckId.mailboxImapHierarchy.name();
 
@@ -40,47 +35,39 @@ public class MailboxImapHierarchyMaintenanceOperation extends MailboxMaintenance
 	}
 
 	@Override
-	protected void checkMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
-		checkAndRepair(false, domainUid, report, monitor);
+	protected void checkMailbox(String domainUid, RepairTaskMonitor monitor) {
+		checkAndRepair(false, domainUid, monitor);
 	}
 
 	@Override
-	protected void repairMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
-		checkAndRepair(true, domainUid, report, monitor);
+	protected void repairMailbox(String domainUid, RepairTaskMonitor monitor) {
+		checkAndRepair(true, domainUid, monitor);
 	}
 
-	private void checkAndRepair(boolean repair, String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
+	private void checkAndRepair(boolean repair, String domainUid, RepairTaskMonitor monitor) {
 		monitor.begin(1, String.format("Check imap hierarchy for mailbox %s", mailboxToString(domainUid)));
 
-		boolean success = true;
 		try {
 			List<MailFolder> gaps = MailboxesStorageFactory.getMailStorage().checkAndRepairHierarchy(context, domainUid,
 					mailbox, repair);
 
 			monitor.progress(1, String.format("Mailbox %s imap hierarchy checked", mailboxToString(domainUid)));
-			if (gaps.size() == 0) {
-				report.ok(MAINTENANCE_OPERATION_ID,
-						String.format("Mailbox %s imap hierarchy ok", mailboxToString(domainUid)));
+			if (gaps.isEmpty()) {
+				monitor.log(String.format("Mailbox %s imap hierarchy ok", mailboxToString(domainUid)));
 			} else {
 				for (MailFolder gap : gaps) {
 					if (repair) {
-						report.ok(MAINTENANCE_OPERATION_ID, String.format("Imap folder %s was fixed", gap.name));
+						monitor.log(String.format("Imap folder %s was fixed", gap.name));
 					} else {
-						report.ko(MAINTENANCE_OPERATION_ID, String.format("Imap folder %s was missing", gap.name));
-						success = false;
+						monitor.log(String.format("Imap folder %s was missing", gap.name));
 					}
 				}
 			}
 		} catch (ServerFault sf) {
-			logger.error(String.format("Error on checking imap hierarchy for mailbox %s: %s",
-					mailboxToString(domainUid), sf.getMessage()), sf);
-
-			report.ko(MAINTENANCE_OPERATION_ID, String.format("Error on checking imap hierarchy for mailbox %s: %s",
-					mailboxToString(domainUid), sf.getMessage()));
-			monitor.end(false, null, null);
-			throw sf;
+			monitor.notify("Error on checking imap hierarchy for mailbox {}: {}", mailboxToString(domainUid),
+					sf.getMessage());
 		}
 
-		monitor.end(success, null, null);
+		monitor.end();
 	}
 }

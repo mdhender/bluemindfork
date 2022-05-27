@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.ContainerSubscriptionModel;
 import net.bluemind.core.container.api.IOwnerSubscriptionUids;
 import net.bluemind.core.container.api.IOwnerSubscriptions;
@@ -57,6 +56,7 @@ import net.bluemind.core.task.service.NullTaskMonitor;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.directory.api.IDirEntryMaintenance;
 import net.bluemind.directory.api.MaintenanceOperation;
+import net.bluemind.directory.api.RepairConfig;
 import net.bluemind.directory.service.IInternalDirEntryMaintenance;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.locator.LocatorVerticle;
@@ -185,9 +185,10 @@ public class UserShardedSubscriptionsTests {
 
 		IInternalDirEntryMaintenance maintInternal = prov.instance(IInternalDirEntryMaintenance.class, domainUid,
 				userUid);
-		DiagnosticReport report = new DiagnosticReport();
 		IServerTaskMonitor mon = new LoggingTaskMonitor(logger, new NullTaskMonitor(), 0);
-		maintInternal.repair(Sets.newHashSet(IOwnerSubscriptionUids.REPAIR_OP_ID), report, mon);
+		RepairConfig config = new RepairConfig();
+		config.opIdentifiers = Sets.newHashSet(IOwnerSubscriptionUids.REPAIR_OP_ID);
+		maintInternal.repair(config, mon);
 
 		ContainerChangeset<String> newChangeSet = hierarchyService.changeset(toSync);
 		newChangeSet.created.stream().forEach(iv -> System.out.println("Cv " + iv));

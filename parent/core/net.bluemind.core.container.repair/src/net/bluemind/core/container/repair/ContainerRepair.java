@@ -24,13 +24,12 @@ import java.util.function.Consumer;
 
 import com.google.common.collect.ImmutableSet;
 
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 
 public class ContainerRepair implements IDirEntryRepairSupport {
 
@@ -58,16 +57,18 @@ public class ContainerRepair implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			verify(domainUid, entry, report, monitor, op -> op.check(domainUid, entry, report, monitor));
+		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			verify(domainUid, entry, monitor, op -> op.check(domainUid, entry, monitor));
+			monitor.end();
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			verify(domainUid, entry, report, monitor, op -> op.repair(domainUid, entry, report, monitor));
+		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			verify(domainUid, entry, monitor, op -> op.repair(domainUid, entry, monitor));
+			monitor.end();
 		}
 
-		private void verify(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor,
+		private void verify(String domainUid, DirEntry entry, RepairTaskMonitor monitor,
 				Consumer<ContainerRepairOp> maintenance) {
 			Activator.ops.stream().filter(op -> op.supportedKind() == entry.kind).forEach(op -> {
 				maintenance.accept(op);

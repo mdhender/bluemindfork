@@ -2,10 +2,6 @@ package net.bluemind.todolist.usertodolist;
 
 import java.util.Arrays;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
@@ -15,32 +11,26 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.repair.ContainerRepairOp;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.user.api.IUserSubscription;
 
 public class UserTodoRepair implements ContainerRepairOp {
 
-	private static final Logger logger = LoggerFactory.getLogger(UserTodoRepair.class);
-
 	@Override
-	public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+	public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 
-		verifyDeviceContainer(domainUid, entry.entryUid, report, monitor, () -> {
-			monitor.log("Todo container of user " + entry.entryUid + " is missing");
-			logger.info("Todo container  of user {} is missing", entry.entryUid);
+		verifyDeviceContainer(domainUid, entry.entryUid, monitor, () -> {
 		});
 
 	}
 
 	@Override
-	public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+	public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 
-		verifyDeviceContainer(domainUid, entry.entryUid, report, monitor, () -> {
-			monitor.log("Repairing todo container of user " + entry.entryUid);
-			logger.info("Repairing todo container of user {}", entry.entryUid);
+		verifyDeviceContainer(domainUid, entry.entryUid, monitor, () -> {
 
 			String uid = getUserTodoListId(entry.entryUid);
 			ContainerDescriptor todoList = ContainerDescriptor.create(uid, "$$mytasks$$", entry.entryUid,
@@ -63,11 +53,11 @@ public class UserTodoRepair implements ContainerRepairOp {
 
 	}
 
-	private void verifyDeviceContainer(String domainUid, String entryUid, DiagnosticReport report,
-			IServerTaskMonitor monitor, Runnable maintenance) {
+	private void verifyDeviceContainer(String domainUid, String entryUid, RepairTaskMonitor monitor,
+			Runnable maintenance) {
 
 		String containerUid = getUserTodoListId(entryUid);
-		verifyContainer(domainUid, report, monitor, maintenance, containerUid);
+		verifyContainer(domainUid, monitor, maintenance, containerUid);
 	}
 
 	public static String getUserTodoListId(String userUid) {

@@ -14,6 +14,7 @@ Require-Bundle: net.bluemind.notes.api;visibility:=reexport,
  net.bluemind.user.hook;visibility:=reexport,
  net.bluemind.core.container.repair,
  net.bluemind.core.task.spi,
- net.bluemind.notes.service
+ net.bluemind.notes.service,
+ net.bluemind.directory.service
 Export-Package: net.bluemind.notes.usernotes
 Automatic-Module-Name: net.bluemind.notes.usernotes

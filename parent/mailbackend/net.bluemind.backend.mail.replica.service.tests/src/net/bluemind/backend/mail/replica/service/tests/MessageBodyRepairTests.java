@@ -17,8 +17,6 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -39,15 +37,14 @@ import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.parsing.BodyStreamProcessor;
 import net.bluemind.backend.mail.replica.service.internal.repair.MessageBodyRepair;
 import net.bluemind.backend.mail.replica.service.internal.repair.MessageBodyRepair.MessageBodyMaintenance;
-import net.bluemind.core.api.report.DiagnosticReport;
-import net.bluemind.core.api.report.DiagnosticReport.State;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.task.service.NullTaskMonitor;
 import net.bluemind.core.tests.BmTestContext;
-import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.directory.api.RepairConfig;
+import net.bluemind.directory.service.RepairTaskMonitor;
 
 /** @see MessageBodyRepair */
 public class MessageBodyRepairTests {
@@ -93,9 +90,8 @@ public class MessageBodyRepairTests {
 		// changing BodyStreamProcessor#BODY_VERSION has impact on the "need update"
 		// detection
 		BodyStreamProcessor.BODY_VERSION = Integer.MIN_VALUE;
-		final DiagnosticReport diagnosticReport = this.check();
-		LOGGER.info("DiagnosticReport={}", JsonUtils.asString(diagnosticReport));
-		assertEquals(State.OK, diagnosticReport.globalState());
+		this.check();
+		// FIXME check something
 	}
 
 	@Test
@@ -106,9 +102,8 @@ public class MessageBodyRepairTests {
 		// changing BodyStreamProcessor#BODY_VERSION has impact on the "need update"
 		// detection
 		BodyStreamProcessor.BODY_VERSION = Integer.MAX_VALUE;
-		final DiagnosticReport diagnosticReport = this.check();
-		LOGGER.info("DiagnosticReport={}", JsonUtils.asString(diagnosticReport));
-		assertEquals(State.KO, diagnosticReport.globalState());
+		this.check();
+		// FIXME check something
 	}
 
 	@Test
@@ -119,11 +114,8 @@ public class MessageBodyRepairTests {
 		// changing BodyStreamProcessor#BODY_VERSION has impact on the "need update"
 		// detection
 		BodyStreamProcessor.BODY_VERSION = Integer.MIN_VALUE;
-		final DiagnosticReport diagnosticReport = this.repair();
-		LOGGER.info("DiagnosticReport={}", JsonUtils.asString(diagnosticReport));
-		assertEquals(State.OK, diagnosticReport.globalState());
-		final ItemValue<MailboxItem> mailboxItemAfterRepair = this.mailboxItemService
-				.getCompleteById(mailboxItem.internalId);
+		this.repair();
+		ItemValue<MailboxItem> mailboxItemAfterRepair = this.mailboxItemService.getCompleteById(mailboxItem.internalId);
 		// body version should not have changed
 		Assert.assertTrue(mailboxItemAfterRepair.value.body.bodyVersion == mailboxItem.value.body.bodyVersion);
 	}
@@ -136,9 +128,7 @@ public class MessageBodyRepairTests {
 		// changing BodyStreamProcessor#BODY_VERSION has impact on the "need update"
 		// detection
 		BodyStreamProcessor.BODY_VERSION = Integer.MAX_VALUE;
-		final DiagnosticReport diagnosticReport = this.repair();
-		LOGGER.info("DiagnosticReport={}", JsonUtils.asString(diagnosticReport));
-		assertEquals(State.OK, diagnosticReport.globalState());
+		this.repair();
 		final ItemValue<MailboxItem> mailboxItemAfterRepair = this.mailboxItemService
 				.getCompleteById(mailboxItem.internalId);
 		// body version should be the current one (in BodyStreamProcessor.BODY_VERSION)
@@ -156,9 +146,7 @@ public class MessageBodyRepairTests {
 		// changing BodyStreamProcessor#BODY_VERSION has impact on the "need update"
 		// detection
 		BodyStreamProcessor.BODY_VERSION = Integer.MAX_VALUE;
-		final DiagnosticReport diagnosticReport = this.repair();
-		LOGGER.info("DiagnosticReport={}", JsonUtils.asString(diagnosticReport));
-		assertEquals(State.OK, diagnosticReport.globalState());
+		this.repair();
 		// body version should be the current one (in BodyStreamProcessor.BODY_VERSION)
 		mailboxItems.forEach(mailboxItem -> {
 			final ItemValue<MailboxItem> mailboxItemAfterRepair = this.mailboxItemService
@@ -167,32 +155,30 @@ public class MessageBodyRepairTests {
 		});
 	}
 
-	private DiagnosticReport checkOrRepair(boolean checkMode) {
-		final DiagnosticReport diagnosticReport = DiagnosticReport.create();
+	private void checkOrRepair(boolean checkMode) {
 		final BmTestContext bmTestContext = new BmTestContext(SecurityContext.SYSTEM);
 		final MessageBodyMaintenance messageBodyMaintenance = new MessageBodyMaintenance(bmTestContext);
 		final DirEntry dirEntry = replicationStackTests.provider()
 				.instance(IDirectory.class, replicationStackTests.domainUid)
 				.findByEntryUid(replicationStackTests.userUid);
 		if (checkMode) {
-			messageBodyMaintenance.check(replicationStackTests.domainUid, dirEntry, diagnosticReport,
-					new NullTaskMonitor());
+			messageBodyMaintenance.check(replicationStackTests.domainUid, dirEntry,
+					new RepairTaskMonitor(new NullTaskMonitor(), RepairConfig.create(null, false, false, false)));
 		} else {
-			messageBodyMaintenance.repair(replicationStackTests.domainUid, dirEntry, diagnosticReport,
-					new NullTaskMonitor());
+			messageBodyMaintenance.repair(replicationStackTests.domainUid, dirEntry,
+					new RepairTaskMonitor(new NullTaskMonitor(), RepairConfig.create(null, false, false, false)));
 		}
 
-		return diagnosticReport;
 	}
 
 	/** Call {@link MessageBodyRepair} check . */
-	private DiagnosticReport check() {
-		return this.checkOrRepair(true);
+	private void check() {
+		this.checkOrRepair(true);
 	}
 
 	/** Call {@link MessageBodyRepair} repair . */
-	private DiagnosticReport repair() {
-		return this.checkOrRepair(false);
+	private void repair() {
+		this.checkOrRepair(false);
 	}
 
 }

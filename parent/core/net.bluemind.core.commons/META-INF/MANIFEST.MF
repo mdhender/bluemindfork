@@ -6,7 +6,6 @@ Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.core.api,
  net.bluemind.core.api.date,
  net.bluemind.core.api.fault,
- net.bluemind.core.api.report,
  net.bluemind.core.email,
  net.bluemind.core.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

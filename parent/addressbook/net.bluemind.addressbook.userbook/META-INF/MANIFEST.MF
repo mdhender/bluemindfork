@@ -16,6 +16,7 @@ Require-Bundle: net.bluemind.addressbook.api;bundle-version="1.0.0",
  net.bluemind.user.hook;bundle-version="1.0.0",
  net.bluemind.user.api;bundle-version="1.0.0",
  net.bluemind.core.context,
- net.bluemind.core.container.repair
+ net.bluemind.core.container.repair,
+ net.bluemind.directory.service
 Export-Package: net.bluemind.addressbook.userbook
 Automatic-Module-Name: net.bluemind.addressbook.userbook

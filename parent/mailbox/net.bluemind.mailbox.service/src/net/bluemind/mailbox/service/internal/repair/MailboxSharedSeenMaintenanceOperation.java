@@ -17,10 +17,8 @@
   */
 package net.bluemind.mailbox.service.internal.repair;
 
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
-import net.bluemind.mailbox.api.Mailbox.Type;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.mailbox.service.IMailboxesStorage.CheckAndRepairStatus;
 import net.bluemind.mailbox.service.MailboxesStorageFactory;
 import net.bluemind.mailbox.service.internal.repair.MailboxRepairSupport.MailboxMaintenanceOperation;
@@ -33,23 +31,23 @@ public class MailboxSharedSeenMaintenanceOperation extends MailboxMaintenanceOpe
 	}
 
 	@Override
-	protected void checkMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
-		checkAndRepair(false, domainUid, report, monitor);
+	protected void checkMailbox(String domainUid, RepairTaskMonitor monitor) {
+		checkAndRepair(false, domainUid, monitor);
 	}
 
 	@Override
-	protected void repairMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
-		checkAndRepair(true, domainUid, report, monitor);
+	protected void repairMailbox(String domainUid, RepairTaskMonitor monitor) {
+		checkAndRepair(true, domainUid, monitor);
 	}
 
-	private void checkAndRepair(boolean repair, String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
+	private void checkAndRepair(boolean repair, String domainUid, RepairTaskMonitor monitor) {
 		monitor.begin(1, String.format("%s mailbox %s sharedseen status", repair ? "Repair" : "Check",
 				mailboxToString(domainUid)));
 
 		CheckAndRepairStatus status = MailboxesStorageFactory.getMailStorage().checkAndRepairSharedSeen(context,
 				domainUid, mailbox, repair);
 
-		monitor.end(status.broken == status.fixed, "sharedseen " + mailbox.value.name + "@" + domainUid
-				+ " checked: " + status.checked + ", broken: " + status.broken + ", fixed: " + status.fixed, null);
+		monitor.end(status.broken == status.fixed, "sharedseen " + mailbox.value.name + "@" + domainUid + " checked: "
+				+ status.checked + ", broken: " + status.broken + ", fixed: " + status.fixed, null);
 	}
 }

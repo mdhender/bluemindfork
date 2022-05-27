@@ -35,24 +35,19 @@ import java.util.function.Consumer;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 
 public class OrphanContainerLocationRepair implements IDirEntryRepairSupport {
 	public static final String REPAIR_OP_ID = "containers.sharding.orphan.location";
-	private static final Logger logger = LoggerFactory.getLogger(OrphanContainerLocationRepair.class);
 
 	private final BmContext context;
 
@@ -81,7 +76,7 @@ public class OrphanContainerLocationRepair implements IDirEntryRepairSupport {
 					context.getSecurityContext());
 		}
 
-		public List<Consumer<Boolean>> getRepairActions(DirEntry dirEntry, IServerTaskMonitor monitor) {
+		public List<Consumer<Boolean>> getRepairActions(DirEntry dirEntry, RepairTaskMonitor monitor) {
 			List<Consumer<Boolean>> ops = new ArrayList<>();
 			HashSet<String> containerUids = new HashSet<>();
 			for (DataSource ds : Iterables.concat(context.getAllMailboxDataSource(),
@@ -98,7 +93,7 @@ public class OrphanContainerLocationRepair implements IDirEntryRepairSupport {
 						}
 					}
 				} catch (SQLException e) {
-					logger.error("Unable to execute request on {}: {}", ds, e.getMessage());
+					monitor.notify("Unable to execute request on {}: {}", ds, e.getMessage());
 				}
 			}
 			try (Connection conn = context.getDataSource().getConnection()) {
@@ -108,14 +103,14 @@ public class OrphanContainerLocationRepair implements IDirEntryRepairSupport {
 							String containerUid = res.getString(1);
 							if (!containerUids.contains(containerUid)) {
 								ops.add(dry -> {
-									monitor.log(
+									monitor.notify(
 											"Container uid {} does not exists on any database. Removing from t_container_location",
 											containerUid);
 									if (Boolean.FALSE.equals(dry)) {
 										try {
 											directoryContainerStore.deleteContainerLocation(containerUid);
 										} catch (SQLException e) {
-											monitor.log("Unable to remove {} from t_container_location: {}",
+											monitor.notify("Unable to remove {} from t_container_location: {}",
 													containerUid, e.getMessage());
 										}
 									}
@@ -125,19 +120,21 @@ public class OrphanContainerLocationRepair implements IDirEntryRepairSupport {
 					}
 				}
 			} catch (SQLException e) {
-				logger.error("Unable to execute request on {}: {}", context.getDataSource(), e.getMessage());
+				monitor.notify("Unable to execute request on {}: {}", context.getDataSource(), e.getMessage());
 			}
 			return ops;
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry dirEntry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void check(String domainUid, DirEntry dirEntry, RepairTaskMonitor monitor) {
 			getRepairActions(dirEntry, monitor).forEach(op -> op.accept(true));
+			monitor.end();
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry dirEntry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void repair(String domainUid, DirEntry dirEntry, RepairTaskMonitor monitor) {
 			getRepairActions(dirEntry, monitor).forEach(op -> op.accept(false));
+			monitor.end();
 		}
 	}
 

@@ -28,15 +28,14 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.container.api.IDataShardSupport;
 import net.bluemind.core.container.api.IFlatHierarchyUids;
@@ -49,12 +48,12 @@ import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
 import net.bluemind.directory.service.IInCoreDirectory;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.directory.xfer.ContainerToIDataShardSupport;
 import net.bluemind.directory.xfer.ContainerXfer;
 import net.bluemind.mailbox.api.IMailboxes;
@@ -64,7 +63,6 @@ import net.bluemind.network.topology.Topology;
 public class ContainerShardingRepair implements IDirEntryRepairSupport {
 
 	public static final String REPAIR_OP_ID = "containers.sharding.location";
-	private static final Logger logger = LoggerFactory.getLogger(ContainerShardingRepair.class);
 
 	private final BmContext context;
 
@@ -167,8 +165,8 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 			return !nonTransferableData.contains(c.type);
 		}
 
-		public List<Consumer<Boolean>> getRepairActions(String domainUid, DirEntry dirEntry, DiagnosticReport report,
-				IServerTaskMonitor monitor) {
+		public List<Consumer<Boolean>> getRepairActions(String domainUid, DirEntry dirEntry,
+				RepairTaskMonitor monitor) {
 			List<Consumer<Boolean>> ops = new ArrayList<>();
 			boolean needFlushCacheGlobal = false;
 
@@ -177,7 +175,8 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 			}
 			dirEntryLocation = dirEntry.dataLocation;
 			ItemValue<Mailbox> mailbox = sp.instance(IMailboxes.class, domainUid).getComplete(dirEntry.entryUid);
-			List<ContainerWithDataSource> shardedContainers = allShardedContainers(dirEntry, domainUid, mailbox);
+			List<ContainerWithDataSource> shardedContainers = allShardedContainers(dirEntry, domainUid, mailbox,
+					monitor);
 			final Cache<String, Optional<String>> dsCache = DataSourceRouter.initContextCache(context);
 
 			// Is the dirEntry on the wrong location ?
@@ -188,7 +187,7 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 				if (!Boolean.TRUE.equals(dry)) {
 					Cache<Object, Object> rootCache = CacheRegistry.get().get("KnownRoots.validatedRoots");
 					if (rootCache == null) {
-						logger.error("Unable to get rootsFakeCache, replication will probably fail...");
+						monitor.log("Unable to get rootsFakeCache, replication will probably fail...");
 					} else {
 						rootCache.invalidateAll();
 					}
@@ -198,8 +197,10 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 			if (mailbox != null && !dirEntry.dataLocation.equals(mailbox.value.dataLocation)) {
 				ops.add(dry -> {
 					monitor.log("{}mailbox is on {} but dirEntry on {}: moving dirEntry to mailbox location",
-							dry ? "(dry mode) " : "", humanDataLocation(mailbox.value.dataLocation),
+							Level.WARN, dry ? "(dry mode) " : "", humanDataLocation(mailbox.value.dataLocation),
 							humanDataLocation(dirEntry.dataLocation));
+					monitor.notify("{} mailbox is on {} but dirEntry on {}",
+							humanDataLocation(mailbox.value.dataLocation), humanDataLocation(dirEntry.dataLocation));
 					dirEntry.dataLocation = mailbox.value.dataLocation;
 					if (Boolean.FALSE.equals(dry)) {
 						sp.instance(IInCoreDirectory.class, domainUid).update(dirEntry.entryUid, dirEntry);
@@ -233,14 +234,16 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 						needFlushCacheGlobal = true;
 						ops.add(dry -> {
 							monitor.log("{} router has the wrong location {} should be {}. Fixing the location",
-									containerLogId, routerLocation, containerLocation);
+									Level.WARN, containerLogId, routerLocation, containerLocation);
+							monitor.notify("{} router has the wrong location {} should be {}. Fixing the location",
+									Level.WARN, containerLogId, routerLocation, containerLocation);
 							if (Boolean.FALSE.equals(dry)) {
 								try {
 									directoryContainerStore.createOrUpdateContainerLocation(container,
 											containerLocation);
 								} catch (SQLException e) {
-									monitor.log("Unable to set {} location={}: {}", containerLogId, containerLocation,
-											e.getMessage());
+									monitor.log("Unable to set {} location={}: {}", Level.WARN, containerLogId,
+											containerLocation, e.getMessage());
 								}
 							}
 						});
@@ -251,7 +254,7 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 							.filter(cwds -> !cwds.equals(cwdsCorrect)).collect(Collectors.toList());
 					if (!toRemoveCwds.isEmpty()) {
 						monitor.log("correct container {} found: need to remove {} containers on the wrong dataSource",
-								cwdsCorrect, toRemoveCwds.size());
+								Level.WARN, cwdsCorrect, toRemoveCwds.size());
 						needFlushCacheGlobal = true;
 						for (ContainerWithDataSource toRemove : toRemoveCwds) {
 							ops.add(dry -> {
@@ -269,6 +272,7 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 						}
 					}
 				} else {
+					monitor.log("{} is not on the correct dataSource: xfer required", Level.WARN, containerLogId);
 					monitor.log("{} is not on the correct dataSource: xfer required", containerLogId);
 					// we don't know what container to xfer, so,
 					// choose wisely, for while the true Container will bring you life, the false
@@ -280,7 +284,8 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 							// Tell the dataSourceRouter where the container really is
 							dsCache.put(container.uid, Optional.ofNullable(cwds.getLocation()));
 							if (!isXferable(container)) {
-								monitor.log("cannot xfer {} (container is not xferable: removing)", cwds);
+								monitor.log("cannot xfer {} (container is not xferable: removing)", Level.WARN, cwds);
+								monitor.notify("cannot xfer {} (container is not xferable: removing)", cwds);
 								if (Boolean.FALSE.equals(dry)) {
 									ContainerXfer.removeTargetContainers(context, cwds.dataSource,
 											Lists.newArrayList(cwds.getContainer()));
@@ -288,7 +293,7 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 								return;
 							}
 
-							monitor.log("{}{} will be moved to {}", dry ? "(dry mode) " : "", cwds,
+							monitor.log("{}{} will be moved to {}", Level.WARN, dry ? "(dry mode) " : "", cwds,
 									humanDataLocation(dirEntryLocation));
 							if (Boolean.FALSE.equals(dry)) {
 								ContainerXfer containerXfer = new ContainerXfer(//
@@ -303,12 +308,14 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 										// caches everywhere
 
 									} else {
-										monitor.log("unable to xfer container {}: xferService not available", cwds);
+										monitor.log("unable to xfer container {}: xferService not available",
+												Level.WARN, cwds);
+										monitor.notify("unable to xfer container {}: xferService not available", cwds);
 									}
 								} catch (SQLException e) {
-									monitor.log("{} xferContainer failed: {}", cwds, e.getMessage());
+									monitor.log("{} xferContainer failed: {}", Level.WARN, cwds, e.getMessage());
 								}
-								containerXfer.executeCleanups(logger);
+								containerXfer.executeCleanups(LoggerFactory.getLogger(getClass()));
 							}
 						});
 					});
@@ -338,17 +345,19 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry dirEntry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			getRepairActions(domainUid, dirEntry, report, monitor).forEach(op -> op.accept(true));
+		public void check(String domainUid, DirEntry dirEntry, RepairTaskMonitor monitor) {
+			getRepairActions(domainUid, dirEntry, monitor).forEach(op -> op.accept(true));
+			monitor.end();
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry dirEntry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			getRepairActions(domainUid, dirEntry, report, monitor).forEach(op -> op.accept(false));
+		public void repair(String domainUid, DirEntry dirEntry, RepairTaskMonitor monitor) {
+			getRepairActions(domainUid, dirEntry, monitor).forEach(op -> op.accept(false));
+			monitor.end();
 		}
 
 		private List<ContainerWithDataSource> allShardedContainers(DirEntry dirEntry, String domainUid,
-				ItemValue<Mailbox> mailbox) {
+				ItemValue<Mailbox> mailbox, RepairTaskMonitor monitor) {
 			List<ContainerWithDataSource> containers = new ArrayList<>();
 			Set<String> shardedContainerTypes = Sharding.containerTypes();
 			for (DataSource ds : context.getAllMailboxDataSource()) {
@@ -359,7 +368,10 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 							.map(c -> new ContainerWithDataSource(context, ds, c, domainUid, dirEntry, mailbox))
 							.collect(Collectors.toList()));
 				} catch (SQLException e) {
-					logger.error("Unable to retrieve containers by owner {}: {}", dirEntry.entryUid, e.getMessage(), e);
+					monitor.log("Unable to retrieve containers by owner " + dirEntry.entryUid + ": " + e.getMessage(),
+							Level.WARN);
+					monitor.notify(
+							"Unable to retrieve containers by owner " + dirEntry.entryUid + ": " + e.getMessage());
 				}
 			}
 			return containers;

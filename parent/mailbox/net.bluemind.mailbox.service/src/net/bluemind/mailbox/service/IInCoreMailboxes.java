@@ -19,7 +19,6 @@
 package net.bluemind.mailbox.service;
 
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
@@ -31,8 +30,7 @@ public interface IInCoreMailboxes extends IMailboxes {
 
 	public void checkAndRepairTask(String mailboxUid, IServerTaskMonitor monitor) throws ServerFault;
 
-	public void checkAndRepairTask(String mailboxUid, DiagnosticReport report, IServerTaskMonitor monitor,
-			boolean repair) throws ServerFault;
+	public void checkAndRepairTask(String mailboxUid, IServerTaskMonitor monitor, boolean repair) throws ServerFault;
 
 	public void checkAndRepairAllTask(IServerTaskMonitor monitor) throws ServerFault;
 

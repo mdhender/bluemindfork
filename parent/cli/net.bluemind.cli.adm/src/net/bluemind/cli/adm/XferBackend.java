@@ -150,7 +150,7 @@ public class XferBackend implements ICmdLet, Runnable {
 				pool.submit(() -> {
 					TaskRef taskref = null;
 
-					CliRepair clirepair = new CliRepair(ctx, dirEntryWithDomain.domainUid, dirEntry, true, dry);
+					CliRepair clirepair = new CliRepair(ctx, dirEntryWithDomain.domainUid, dirEntry, true, dry, true);
 					try {
 						if (dirEntry.value.archived) {
 							clirepair.repair();

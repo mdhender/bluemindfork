@@ -27,14 +27,13 @@ import com.google.common.collect.ImmutableSet;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.mailbox.api.Mailbox;
 
 public class RecordsInDirectoryRepair implements IDirEntryRepairSupport {
@@ -56,8 +55,8 @@ public class RecordsInDirectoryRepair implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void runOnFolders(boolean repair, IServerTaskMonitor monitor, DiagnosticReport report, String subTree,
-				String domainUid, ItemValue<Mailbox> mbox, List<ItemValue<MailboxReplica>> fullList) {
+		public void runOnFolders(boolean repair, RepairTaskMonitor monitor, String subTree, String domainUid,
+				ItemValue<Mailbox> mbox, List<ItemValue<MailboxReplica>> fullList) {
 			String subLoc = DataSourceRouter.location(context, subTree);
 			IDbByContainerReplicatedMailboxes foldersApi = context.provider()
 					.instance(IDbByContainerReplicatedMailboxes.class, subTree);
@@ -72,10 +71,10 @@ public class RecordsInDirectoryRepair implements IDirEntryRepairSupport {
 			}
 
 			for (ItemValue<MailboxReplica> itemValue : toPurge) {
+				monitor.log("Obsolete replica item {}", itemValue.uid);
 				if (repair) {
 					try {
 						foldersApi.delete(itemValue.uid);
-						monitor.log("Purged " + itemValue);
 					} catch (Exception e) {
 						monitor.log("Error deleting " + itemValue.uid + ": " + e.getMessage());
 					}
@@ -84,7 +83,6 @@ public class RecordsInDirectoryRepair implements IDirEntryRepairSupport {
 				}
 			}
 			monitor.end(true, toPurge.size() + " purged.", "{}");
-			report.ok(wrongDbOp.identifier, toPurge.size() + " record container(s) in wrong db purged.");
 		}
 
 	}

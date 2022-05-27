@@ -17,14 +17,13 @@
   */
 package net.bluemind.mailbox.service.internal.repair;
 
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.TaskUtils;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.mailbox.service.internal.repair.MailboxRepairSupport.MailboxMaintenanceOperation;
 import net.bluemind.system.api.IMailDeliveryMgmt;
 
@@ -36,11 +35,12 @@ public class MailboxPostfixMapsMaintenanceOperation extends MailboxMaintenanceOp
 	}
 
 	@Override
-	protected void checkMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
+	protected void checkMailbox(String domainUid, RepairTaskMonitor monitor) {
+		monitor.end();
 	}
 
 	@Override
-	protected void repairMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
+	protected void repairMailbox(String domainUid, RepairTaskMonitor monitor) {
 		monitor.begin(1, String.format("Check mailbox %s postfix maps", mailboxToString(domainUid)));
 
 		TaskRef taskRef = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
@@ -49,9 +49,6 @@ public class MailboxPostfixMapsMaintenanceOperation extends MailboxMaintenanceOp
 		ITask taskApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class, taskRef.id);
 		TaskUtils.forwardProgress(taskApi, monitor.subWork(1));
 
-		report.ok(MAINTENANCE_OPERATION_ID,
-				String.format("Postfix maps repaired for mailbox %s", mailboxToString(domainUid)));
-
-		monitor.end(true, null, null);
+		monitor.end();
 	}
 }

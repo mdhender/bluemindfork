@@ -33,7 +33,6 @@ import net.bluemind.backend.mail.api.IUserInbox;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.Container;
@@ -51,9 +50,9 @@ import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.task.service.TaskUtils;
-import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.directory.api.IDirEntryMaintenance;
+import net.bluemind.directory.api.RepairConfig;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
@@ -409,13 +408,12 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
-				DiagnosticReport report = DiagnosticReport.create();
 
 				try {
-					checkAllTask(monitor, report);
-					monitor.end(true, null, JsonUtils.asString(report));
+					checkAllTask(monitor);
+					monitor.end(true, null, null);
 				} catch (Exception e) {
-					monitor.end(false, e.getMessage(), JsonUtils.asString(report));
+					monitor.end(false, e.getMessage(), null);
 				}
 			}
 
@@ -431,14 +429,13 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
-				DiagnosticReport report = DiagnosticReport.create();
 				try {
 
-					checkAndRepairTask(uid, report, monitor, true);
-					monitor.end(true, null, JsonUtils.asString(report));
+					checkAndRepairTask(uid, monitor, true);
+					monitor.end(true, null, null);
 				} catch (Exception e) {
 					logger.error("error during check and repair of {}", uid, e);
-					monitor.end(false, e.getMessage(), JsonUtils.asString(report));
+					monitor.end(false, e.getMessage(), null);
 				}
 			}
 
@@ -453,9 +450,8 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
-				DiagnosticReport report = DiagnosticReport.create();
-				checkAndRepairTask(uid, report, monitor, false);
-				monitor.end(true, null, JsonUtils.asString(report));
+				checkAndRepairTask(uid, monitor, false);
+				monitor.end(true, null, null);
 			}
 
 		});
@@ -485,10 +481,9 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		List<String> uids = storeService.allUids();
 
 		monitor.begin(uids.size(), "checking and repair mailboxes of " + domainUid);
-		DiagnosticReport report = DiagnosticReport.create();
 
 		for (String uid : storeService.allUids()) {
-			checkAndRepairTask(uid, report, monitor.subWork(1), true);
+			checkAndRepairTask(uid, monitor.subWork(1), true);
 		}
 	}
 
@@ -512,12 +507,12 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	 * </pre>
 	 */
 	@Deprecated
-	private void checkAllTask(IServerTaskMonitor monitor, DiagnosticReport report) throws ServerFault {
+	private void checkAllTask(IServerTaskMonitor monitor) throws ServerFault {
 		List<String> uids = storeService.allUids();
 		monitor.begin(uids.size(), "checking and repair mailboxes of " + domainUid);
 
 		for (String uid : storeService.allUids()) {
-			checkAndRepairTask(uid, report, monitor, false);
+			checkAndRepairTask(uid, monitor, false);
 		}
 	}
 
@@ -536,7 +531,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	 */
 	@Deprecated
 	public void checkAndRepairTask(String uid, IServerTaskMonitor monitor) throws ServerFault {
-		checkAndRepairTask(uid, DiagnosticReport.create(), monitor, true);
+		checkAndRepairTask(uid, monitor, true);
 	}
 
 	/**
@@ -558,8 +553,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	 * </pre>
 	 */
 	@Deprecated
-	public void checkAndRepairTask(String uid, DiagnosticReport report, IServerTaskMonitor monitor, boolean repair)
-			throws ServerFault {
+	public void checkAndRepairTask(String uid, IServerTaskMonitor monitor, boolean repair) throws ServerFault {
 		monitor.begin(1, String.format("Check and repair mailbox %s@%s", uid, domainUid));
 		Set<String> opsIds = new HashSet<>(Arrays.asList(DiagnosticReportCheckId.mailboxExists.name(),
 				DiagnosticReportCheckId.mailboxIndexExists.name(), DiagnosticReportCheckId.mailboxAclsContainer.name(),
@@ -569,13 +563,8 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 				DiagnosticReportCheckId.mailboxFilters.name(), DiagnosticReportCheckId.mailboxPostfixMaps.name(),
 				DiagnosticReportCheckId.mailboxSubscription.name()));
 
-		TaskRef tr = null;
-		if (repair) {
-			tr = context.su().provider().instance(IDirEntryMaintenance.class, domainUid, uid).repair(opsIds);
-		} else {
-			tr = context.su().provider().instance(IDirEntryMaintenance.class, domainUid, uid).check(opsIds);
-		}
-
+		TaskRef tr = context.su().provider().instance(IDirEntryMaintenance.class, domainUid, uid)
+				.repair(RepairConfig.create(opsIds, !repair, true, true));
 		ITask itask = context.su().provider().instance(ITask.class, tr.id);
 		TaskUtils.forwardProgress(itask, monitor);
 	}

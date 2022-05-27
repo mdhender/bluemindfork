@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.IContainerSync;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerSyncResult;
@@ -73,7 +72,6 @@ public class ContainerSyncService implements IContainerSync {
 
 	protected void doSync(IServerTaskMonitor monitor) {
 		monitor.begin(20, "Start synchronization...");
-		DiagnosticReport report = DiagnosticReport.create();
 		try {
 			ContainerSyncStatus ss = containerSyncStore.getSyncStatus();
 			monitor.progress(1, "syncing");
@@ -81,18 +79,18 @@ public class ContainerSyncService implements IContainerSync {
 				SyncableContainer syncableContainer = new SyncableContainer(context.su());
 				ContainerSyncResult res = syncableContainer.sync(container, ss.syncTokens, monitor.subWork(18));
 				if (res != null) {
-					report.ok(getClass().getName(), String.format("%s sync done. created: %d, updated: %d, deleted: %d",
-							container.name, res.added, res.updated, res.removed));
+					monitor.log(String.format("%s sync done. created: %d, updated: %d, deleted: %d", container.name,
+							res.added, res.updated, res.removed));
 					containerSyncStore.setSyncStatus(res.status);
 					monitor.progress(1, "save state");
 				}
 				monitor.end(true, null, JsonUtils.asString(res));
 			} else {
-				report.ko(getClass().getName(), String.format("%s is not syncable", container.name));
+				monitor.log(getClass().getName(), String.format("%s is not syncable", container.name));
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			monitor.end(false, e.getMessage(), JsonUtils.asString(report));
+			monitor.end(false, e.getMessage(), null);
 		}
 	}
 

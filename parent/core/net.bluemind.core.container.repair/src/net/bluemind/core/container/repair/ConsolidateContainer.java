@@ -23,25 +23,22 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import com.google.common.collect.ImmutableSet;
 
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 
 public class ConsolidateContainer implements IDirEntryRepairSupport {
 
-	private static final Logger logger = LoggerFactory.getLogger(ConsolidateContainer.class);
 	public static final String REPAIR_OP_ID = "consolidateContainer";
 
 	public static final MaintenanceOperation containerOp = MaintenanceOperation
@@ -61,51 +58,55 @@ public class ConsolidateContainer implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			checkMissingData(ServerSideServiceProvider.defaultDataSource);
+		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			checkMissingData(ServerSideServiceProvider.defaultDataSource, monitor);
 			ServerSideServiceProvider.mailboxDataSource.entrySet().forEach(pool -> {
-				checkMissingData(pool.getValue());
+				checkMissingData(pool.getValue(), monitor);
 			});
+			monitor.end();
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			repairMissingData(ServerSideServiceProvider.defaultDataSource);
+		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			repairMissingData(ServerSideServiceProvider.defaultDataSource, monitor);
 			ServerSideServiceProvider.mailboxDataSource.entrySet().forEach(pool -> {
-				repairMissingData(pool.getValue());
+				repairMissingData(pool.getValue(), monitor);
 			});
+			monitor.end();
 		}
 
-		private void checkMissingData(DataSource pool) {
+		private void checkMissingData(DataSource pool, RepairTaskMonitor monitor) {
 			ContainerStore cs = new ContainerStore(null, pool, SecurityContext.SYSTEM);
 			try {
 				Set<String> missingSeq = cs.getMissingContainerSequence();
-				logger.info("Missing container sequence for containers {}", missingSeq);
+				monitor.log("Missing container sequence for containers {}", Level.WARN, missingSeq);
+				monitor.notify("Missing container sequence for containers {}", Level.WARN, missingSeq);
 			} catch (SQLException e) {
-				logger.error(e.getMessage(), e);
+				monitor.log(e.getMessage(), e);
 			}
 
 			try {
 				Set<String> missingSettings = cs.getMissingContainerSettings();
-				logger.info("Missing container settings for containers {}", missingSettings);
+				monitor.log("Missing container settings for containers {}", Level.WARN, missingSettings);
+				monitor.notify("Missing container settings for containers {}", Level.WARN, missingSettings);
 			} catch (SQLException e) {
-				logger.error(e.getMessage(), e);
+				monitor.log(e.getMessage(), e);
 			}
 		}
 
-		private void repairMissingData(DataSource pool) {
+		private void repairMissingData(DataSource pool, RepairTaskMonitor monitor) {
 			ContainerStore cs = new ContainerStore(null, pool, SecurityContext.SYSTEM);
 			try {
-				logger.info("Create missing container sequence");
+				monitor.log("Create missing container sequence");
 				cs.createMissingContainerSequence();
 			} catch (SQLException e) {
-				logger.error(e.getMessage(), e);
+				monitor.log(e.getMessage(), e);
 			}
 			try {
-				logger.info("Create missing container settings");
+				monitor.log("Create missing container settings");
 				cs.createMissingContainerSettings();
 			} catch (SQLException e) {
-				logger.error(e.getMessage(), e);
+				monitor.log(e.getMessage(), e);
 			}
 		}
 

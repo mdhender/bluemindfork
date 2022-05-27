@@ -28,11 +28,12 @@ import java.util.UUID;
 
 import org.junit.Test;
 
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.directory.api.RepairConfig;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.imap.IMAPException;
@@ -65,7 +66,7 @@ public class MailboxExistsMaintenanceOperationTests extends AbstractRepairTests 
 		assertNotNull(dirEntry);
 
 		new MailboxExistsMaintenanceOperation(new BmTestContext(SecurityContext.SYSTEM)).repair(domainUid, dirEntry,
-				DiagnosticReport.create(), new TestMonitor());
+				new RepairTaskMonitor(new TestMonitor(), RepairConfig.create(null, false, false, false)));
 		try (StoreClient sc = new StoreClient(imapServer.address(), 1143, "admin0", "password")) {
 			assertTrue(sc.login());
 			assertTrue(sc.isExist("user/" + user.login + "@" + domainUid));
@@ -93,7 +94,7 @@ public class MailboxExistsMaintenanceOperationTests extends AbstractRepairTests 
 		assertNotNull(dirEntry);
 
 		new MailboxExistsMaintenanceOperation(new BmTestContext(SecurityContext.SYSTEM)).repair(domainUid, dirEntry,
-				DiagnosticReport.create(), new TestMonitor());
+				new RepairTaskMonitor(new TestMonitor(), RepairConfig.create(null, false, false, false)));
 		try (StoreClient sc = new StoreClient(imapServer.address(), 1143, "admin0", "password")) {
 			assertTrue(sc.login());
 			assertTrue(sc.isExist("user/" + user.login + "@" + domainUid));
@@ -126,7 +127,7 @@ public class MailboxExistsMaintenanceOperationTests extends AbstractRepairTests 
 		assertNotNull(dirEntry);
 
 		new MailboxExistsMaintenanceOperation(new BmTestContext(SecurityContext.SYSTEM)).repair(domainUid, dirEntry,
-				DiagnosticReport.create(), new TestMonitor());
+				new RepairTaskMonitor(new TestMonitor(), RepairConfig.create(null, false, false, false)));
 		try (StoreClient sc = new StoreClient(imapServer.address(), 1143, "admin0", "password")) {
 			assertTrue(sc.login());
 			assertTrue(sc.isExist("user/" + user.login + "@" + domainUid));
@@ -154,7 +155,7 @@ public class MailboxExistsMaintenanceOperationTests extends AbstractRepairTests 
 		assertNotNull(dirEntry);
 
 		new MailboxExistsMaintenanceOperation(new BmTestContext(SecurityContext.SYSTEM)).repair(domainUid, dirEntry,
-				DiagnosticReport.create(), new TestMonitor());
+				new RepairTaskMonitor(new TestMonitor(), RepairConfig.create(null, false, false, false)));
 		try (StoreClient sc = new StoreClient(imapServer.address(), 1143, "admin0", "password")) {
 			assertTrue(sc.login());
 			assertTrue(sc.isExist(mailshare.name + "@" + domainUid));
@@ -182,7 +183,7 @@ public class MailboxExistsMaintenanceOperationTests extends AbstractRepairTests 
 		assertNotNull(dirEntry);
 
 		new MailboxExistsMaintenanceOperation(new BmTestContext(SecurityContext.SYSTEM)).repair(domainUid, dirEntry,
-				DiagnosticReport.create(), new TestMonitor());
+				new RepairTaskMonitor(new TestMonitor(), RepairConfig.create(null, false, false, false)));
 		try (StoreClient sc = new StoreClient(imapServer.address(), 1143, "admin0", "password")) {
 			assertTrue(sc.login());
 			assertTrue(sc.isExist(mailshare.name + "@" + domainUid));
@@ -215,7 +216,7 @@ public class MailboxExistsMaintenanceOperationTests extends AbstractRepairTests 
 		assertNotNull(dirEntry);
 
 		new MailboxExistsMaintenanceOperation(new BmTestContext(SecurityContext.SYSTEM)).repair(domainUid, dirEntry,
-				DiagnosticReport.create(), new TestMonitor());
+				new RepairTaskMonitor(new TestMonitor(), RepairConfig.create(null, false, false, false)));
 		try (StoreClient sc = new StoreClient(imapServer.address(), 1143, "admin0", "password")) {
 			assertTrue(sc.login());
 			assertTrue(sc.isExist(mailshare.name + "@" + domainUid));

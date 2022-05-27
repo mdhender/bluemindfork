@@ -34,15 +34,14 @@ import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.mailbox.api.Mailbox;
 
 public class MultiInboxRepair implements IDirEntryRepairSupport {
@@ -64,8 +63,8 @@ public class MultiInboxRepair implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void runOnFolders(boolean repair, IServerTaskMonitor monitor, DiagnosticReport report, String subTree,
-				String domainUid, ItemValue<Mailbox> mbox, List<ItemValue<MailboxReplica>> fullList) {
+		public void runOnFolders(boolean repair, RepairTaskMonitor monitor, String subTree, String domainUid,
+				ItemValue<Mailbox> mbox, List<ItemValue<MailboxReplica>> fullList) {
 			IDbByContainerReplicatedMailboxes foldersApi = context.provider()
 					.instance(IDbByContainerReplicatedMailboxes.class, subTree);
 
@@ -84,7 +83,6 @@ public class MultiInboxRepair implements IDirEntryRepairSupport {
 							recsApi.prepareContainerDelete();
 							contApi.delete(IMailReplicaUids.mboxRecords(uniqueId));
 						} catch (ServerFault sf) {
-							logger.warn("Cannot get rid of {}: {}. Wrong DS ?", uniqueId, sf.getMessage());
 							monitor.log("Skipped " + uniqueId + ", wrong datasource ?");
 						}
 					});
@@ -105,11 +103,11 @@ public class MultiInboxRepair implements IDirEntryRepairSupport {
 			}
 			for (ItemValue<MailboxReplica> itemValue : toPurge) {
 				monitor.log("Purge " + itemValue);
+				monitor.notify("Obsolete replica item {}", itemValue.uid);
 				if (repair) {
 					foldersApi.delete(itemValue.uid);
 				}
 			}
-			report.ok(minboxOp.identifier, "Subtree duplicates fixed.");
 		}
 
 	}

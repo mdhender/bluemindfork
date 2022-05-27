@@ -27,15 +27,14 @@ import com.google.common.collect.ImmutableSet;
 
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 
 public class DomainBookRepairSupport implements IDirEntryRepairSupport {
 
@@ -91,17 +90,18 @@ public class DomainBookRepairSupport implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			checkAndRepair(false, domainUid, entry, report, monitor);
+		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			checkAndRepair(false, domainUid, entry, monitor);
+			monitor.end();
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			checkAndRepair(true, domainUid, entry, report, monitor);
+		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			checkAndRepair(true, domainUid, entry, monitor);
+			monitor.end();
 		}
 
-		private void checkAndRepair(boolean repair, String domainUid, DirEntry entry, DiagnosticReport report,
-				IServerTaskMonitor monitor) {
+		private void checkAndRepair(boolean repair, String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 			monitor.begin(2, String.format("Check container validity %s", entry.entryUid));
 			ContainerStore cs = new ContainerStore(context, context.getMailboxDataSource(entry.dataLocation),
 					context.getSecurityContext());
@@ -109,21 +109,17 @@ public class DomainBookRepairSupport implements IDirEntryRepairSupport {
 			try {
 				container = cs.get(entry.entryUid);
 			} catch (SQLException e) {
-				throw ServerFault.sqlFault(e);
+				monitor.notify("SQL error: {}", e.getMessage());
 			}
 
 			monitor.progress(1, "lookup container " + entry.entryUid);
 
 			if (container != null) {
-				report.ok(REPAIR_AB_CONTAINER, "container is ok");
 				return;
 			}
 
-			if (!repair) {
-				report.ko(REPAIR_AB_CONTAINER, "container " + entry.entryUid + " not found");
-				return;
-			} else {
-				report.warn(REPAIR_AB_CONTAINER, "container " + entry.entryUid + " not found, going to recreate it");
+			monitor.notify("Container " + entry.entryUid + " not found");
+			if (repair) {
 				container = Container.create(entry.entryUid, IAddressBookUids.TYPE, entry.displayName, entry.entryUid,
 						domainUid, true);
 				try {
@@ -132,7 +128,6 @@ public class DomainBookRepairSupport implements IDirEntryRepairSupport {
 					throw ServerFault.sqlFault(e);
 				}
 				monitor.progress(1, "container " + entry.entryUid + " repair finished!");
-				report.ok(REPAIR_AB_CONTAINER, "container repair is a success !!");
 			}
 		}
 	}

@@ -19,11 +19,10 @@ package net.bluemind.mailbox.service.internal.repair;
 
 import java.util.List;
 
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.service.IMailboxesStorage.MailFolder;
 import net.bluemind.mailbox.service.MailboxesStorageFactory;
@@ -37,16 +36,16 @@ public class MailboxAclsMaintenanceOperation extends MailboxMaintenanceOperation
 	}
 
 	@Override
-	protected void checkMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
-		checkAndRepair(false, domainUid, report, monitor);
+	protected void checkMailbox(String domainUid, RepairTaskMonitor monitor) {
+		checkAndRepair(false, domainUid, monitor);
 	}
 
 	@Override
-	protected void repairMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
-		checkAndRepair(true, domainUid, report, monitor);
+	protected void repairMailbox(String domainUid, RepairTaskMonitor monitor) {
+		checkAndRepair(true, domainUid, monitor);
 	}
 
-	private void checkAndRepair(boolean repair, String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
+	private void checkAndRepair(boolean repair, String domainUid, RepairTaskMonitor monitor) {
 		monitor.begin(1, String.format("Check mailbox %s acls", mailboxToString(domainUid)));
 
 		List<AccessControlEntry> acls = ServerSideServiceProvider.getProvider(context)
@@ -55,27 +54,14 @@ public class MailboxAclsMaintenanceOperation extends MailboxMaintenanceOperation
 		List<MailFolder> folders = MailboxesStorageFactory.getMailStorage().checkAndRepairAcl(context, domainUid,
 				mailbox, acls, repair);
 
-		boolean success = true;
-
 		monitor.progress(1, String.format("Mailbox %s acls checked", mailboxToString(domainUid)));
-		if (folders.size() == 0) {
-			report.ok(MAINTENANCE_OPERATION_ID, String.format("Mailbox %s acls ok", mailboxToString(domainUid)));
-		} else {
-			for (MailFolder f : folders) {
-				if (repair) {
-					report.ok(MAINTENANCE_OPERATION_ID,
-							String.format("Mailbox %s: %s imap acl fixed", mailboxToString(domainUid), f.name));
-					monitor.log(String.format("%s imap acl fixed", f.name));
-				} else {
-					success = false;
 
-					report.ko(MAINTENANCE_OPERATION_ID,
-							String.format("Mailbox %s: %s imap acl must be fixed", mailboxToString(domainUid), f.name));
-					monitor.log(String.format("%s imap acl must be fixed", f.name));
-				}
+		for (MailFolder f : folders) {
+			if (repair) {
+				monitor.log(String.format("%s imap acl fixed", f.name));
 			}
 		}
 
-		monitor.end(success, null, null);
+		monitor.end();
 	}
 }

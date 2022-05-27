@@ -26,15 +26,14 @@ import com.google.common.collect.ImmutableSet;
 
 import net.bluemind.backend.cyrus.annotationdb.ConversationSync.CyrusConversationDbInitException;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.user.api.IUserSettings;
 
 public class ConversationRepair implements IDirEntryRepairSupport {
@@ -65,7 +64,7 @@ public class ConversationRepair implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 			execute(domainUid, entry.entryUid, () -> {
 				AtomicInteger updatedConversations = new AtomicInteger(0);
 
@@ -73,15 +72,13 @@ public class ConversationRepair implements IDirEntryRepairSupport {
 					new ConversationSync(this.context, "ConversationRepair",
 							(uid, service, conversation) -> updatedConversations.incrementAndGet(),
 							(service, conversation) -> updatedConversations.incrementAndGet())
-							.execute(domainUid, entry.entryUid, monitor, report);
+							.execute(domainUid, entry.entryUid, monitor);
 					String msg = "Resync conversations of " + entry.entryUid + "@" + domainUid + " would touch "
 							+ updatedConversations.get() + " conversations";
-					report.ok(entry.entryUid, msg);
 					monitor.end(true, msg, "");
 				} catch (CyrusConversationDbInitException e) {
 					String msg = "[DRY] Cannot resync conversations of " + entry.entryUid + "@" + domainUid + ": "
 							+ e.getMessage();
-					report.ko(entry.entryUid, msg);
 					monitor.end(false, msg, "");
 				}
 
@@ -89,18 +86,16 @@ public class ConversationRepair implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 			execute(domainUid, entry.entryUid, () -> {
 				try {
-					new ConversationSync(this.context, "ConversationRepair").execute(domainUid, entry.entryUid, monitor,
-							report);
+					new ConversationSync(this.context, "ConversationRepair").execute(domainUid, entry.entryUid,
+							monitor);
 					String msg = "Resync conversations of " + entry.entryUid + "@" + domainUid;
-					report.ok(entry.entryUid, msg);
 					monitor.end(true, msg, "");
 				} catch (CyrusConversationDbInitException e) {
 					String msg = "Cannot resync conversations of " + entry.entryUid + "@" + domainUid + ": "
 							+ e.getMessage();
-					report.ko(entry.entryUid, msg);
 					monitor.end(false, msg, "");
 				}
 			});

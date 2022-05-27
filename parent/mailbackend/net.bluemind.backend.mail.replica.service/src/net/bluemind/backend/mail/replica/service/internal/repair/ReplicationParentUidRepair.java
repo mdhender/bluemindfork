@@ -36,8 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
@@ -48,7 +47,6 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailApiAnnotations;
 import net.bluemind.config.Token;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -56,6 +54,7 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
@@ -70,8 +69,6 @@ import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 
 public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
-
-	private static final Logger logger = LoggerFactory.getLogger(ReplicationParentUidRepair.class);
 
 	public static final MaintenanceOperation op = MaintenanceOperation.create("replication.parentUid",
 			"Triggers cyrus replication on every IMAP folder");
@@ -127,7 +124,7 @@ public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
 			}
 		}
 
-		public abstract void folders(BiConsumer<StoreClient, List<ListInfo>> process);
+		public abstract void folders(BiConsumer<StoreClient, List<ListInfo>> process, IServerTaskMonitor monitor);
 	}
 
 	public static final class UserMailboxWalk extends MailboxWalk {
@@ -136,13 +133,13 @@ public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
 			super(context, mbox, domainUid, srv);
 		}
 
-		public void folders(BiConsumer<StoreClient, List<ListInfo>> process) {
+		public void folders(BiConsumer<StoreClient, List<ListInfo>> process, IServerTaskMonitor monitor) {
 			String login = mbox.value.name + "@" + domainUid;
 
 			try (Sudo sudo = new Sudo(mbox.value.name, domainUid);
 					StoreClient sc = new StoreClient(srv.address(), 1143, login, sudo.context.getSessionId())) {
 				if (!sc.login()) {
-					logger.error("[{}] Fail to connect", mbox.value.name);
+					monitor.log("[{}] Fail to connect", mbox.value.name);
 					return;
 				}
 				ListResult allFolders = sc.listAll();
@@ -157,10 +154,10 @@ public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
 			super(context, mbox, domainUid, srv);
 		}
 
-		public void folders(BiConsumer<StoreClient, List<ListInfo>> process) {
+		public void folders(BiConsumer<StoreClient, List<ListInfo>> process, IServerTaskMonitor monitor) {
 			try (StoreClient sc = new StoreClient(srv.address(), 1143, "admin0", Token.admin0())) {
 				if (!sc.login()) {
-					logger.error("Fail to connect as admin0 for {}", mbox.value.name);
+					monitor.log("Fail to connect as admin0 for {}", mbox.value.name);
 					return;
 				}
 				List<ListInfo> mboxFoldersWithRoot = new LinkedList<>();
@@ -183,23 +180,23 @@ public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 			if (entry.archived) {
+				monitor.end(true, "DirEntry is archived, skip it", null);
 				return;
 			}
 
-			logger.info("Check replication parentUid {} {}", domainUid, entry);
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 
 			if (entry.archived) {
-				logger.info("DirEntry is archived, skip it");
+				monitor.end(true, "DirEntry is archived, skip it", null);
 				return;
 			}
 
-			logger.info("Repair replication parentUid {} {}", domainUid, entry);
+			monitor.log("Repair replication parentUid {} {}", domainUid, entry);
 
 			IMailboxes iMailboxes = context.getServiceProvider().instance(IMailboxes.class, domainUid);
 			ItemValue<Mailbox> mbox = iMailboxes.getComplete(entry.entryUid);
@@ -232,7 +229,7 @@ public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
 					try {
 						sc.select(fn);
 					} catch (IMAPException e) {
-						logger.info("Fail to select {} on mailbox {}", fn, mbox.value.name);
+						monitor.log("Fail to select {} on mailbox {}", Level.WARN, fn, mbox.value.name);
 					}
 					int addedUid = sc.append(fn, new ByteArrayInputStream(eml), fl,
 							new GregorianCalendar(1970, Calendar.JANUARY, 1).getTime());
@@ -270,12 +267,12 @@ public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
 
 				cons.unregister();
 
-				if (repaired.get()) {
-					monitor.end(true, "replication.parentUid", "200");
-				} else {
-					monitor.end(false, "replication.parentUid", "500");
+				if (!repaired.get()) {
+					monitor.notify("Repair replication.parentUid failed...");
 				}
-			});
+			}, monitor);
+
+			monitor.end();
 
 		}
 	}

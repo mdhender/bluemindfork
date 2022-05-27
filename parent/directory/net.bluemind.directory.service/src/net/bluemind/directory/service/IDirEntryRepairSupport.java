@@ -20,9 +20,7 @@ package net.bluemind.directory.service;
 
 import java.util.Set;
 
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 
@@ -80,10 +78,8 @@ public interface IDirEntryRepairSupport {
 			return true;
 		}
 
-		public abstract void check(String domainUid, DirEntry entry, DiagnosticReport report,
-				IServerTaskMonitor monitor);
+		public abstract void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor);
 
-		public abstract void repair(String domainUid, DirEntry entry, DiagnosticReport report,
-				IServerTaskMonitor monitor);
+		public abstract void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor);
 	}
 }

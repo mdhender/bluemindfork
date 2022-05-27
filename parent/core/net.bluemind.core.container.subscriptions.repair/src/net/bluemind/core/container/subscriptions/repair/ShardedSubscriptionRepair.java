@@ -28,13 +28,8 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableSet;
 
-import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.api.ContainerSubscriptionModel;
 import net.bluemind.core.container.api.IContainers;
@@ -46,11 +41,11 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.user.persistence.OneUserSubscriptionStore;
 
 public class ShardedSubscriptionRepair implements IDirEntryRepairSupport {
@@ -61,7 +56,6 @@ public class ShardedSubscriptionRepair implements IDirEntryRepairSupport {
 		}
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(ShardedSubscriptionRepair.class);
 	public static final MaintenanceOperation ownerSubs = MaintenanceOperation
 			.create(IOwnerSubscriptionUids.REPAIR_OP_ID, "Sharded Subscriptions");
 
@@ -75,14 +69,14 @@ public class ShardedSubscriptionRepair implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			logger.info("Check subs for {} as {}", entry, context);
+		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			monitor.end();
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			logger.info("Repair subs for {} as {}", entry, context);
+		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 			if (entry.system) {
+				monitor.end();
 				return;
 			}
 			IInternalOwnerSubscriptionsMgmt mgmtApi = context.provider().instance(IInternalOwnerSubscriptionsMgmt.class,
@@ -121,13 +115,14 @@ public class ShardedSubscriptionRepair implements IDirEntryRepairSupport {
 				Set<String> toClean = new HashSet<>(allKnownUids);
 				toClean.removeAll(refreshed);
 				for (String sub : toClean) {
+					monitor.notify("Found obsolete subscription {}", sub);
 					subsApi.delete(sub);
 				}
 
 			} catch (SQLException e) {
-				throw ServerFault.sqlFault(e);
+				monitor.notify("SQL error: {}", e.getMessage());
 			}
-
+			monitor.end();
 		}
 
 	}

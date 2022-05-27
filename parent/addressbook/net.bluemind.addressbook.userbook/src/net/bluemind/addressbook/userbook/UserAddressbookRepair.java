@@ -20,13 +20,9 @@ package net.bluemind.addressbook.userbook;
 
 import java.util.Arrays;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.addressbook.api.AddressBookDescriptor;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.IAddressBooksMgmt;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.ItemValue;
@@ -35,50 +31,42 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.repair.ContainerRepairOp;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSubscription;
 import net.bluemind.user.api.User;
 
 public class UserAddressbookRepair implements ContainerRepairOp {
 
-	private static final Logger logger = LoggerFactory.getLogger(UserAddressbookRepair.class);
-
 	@Override
-	public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+	public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 		ItemValue<User> user = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUser.class, domainUid).getComplete(entry.entryUid);
 
-		verifyDefaultContainer(domainUid, user, report, monitor, () -> {
-			monitor.log("Default addressbook of user " + user.uid + " is missing");
-			logger.info("Default addressbook of user {} is missing", user.uid);
+		verifyDefaultContainer(domainUid, user, monitor, () -> {
+
 		});
 
-		verifyCollectedContactsContainer(domainUid, user, report, monitor, () -> {
-			monitor.log("Collected contacts container of user " + user.uid + " is missing");
-			logger.info("Collected contacts container of user {} is missing", user.uid);
+		verifyCollectedContactsContainer(domainUid, user, monitor, () -> {
+
 		});
 
 	}
 
 	@Override
-	public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+	public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 		ItemValue<User> user = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUser.class, domainUid).getComplete(entry.entryUid);
 
-		verifyDefaultContainer(domainUid, user, report, monitor, () -> {
-			monitor.log("Repairing addressbook of user " + user.uid);
-			logger.info("Repairing addressbook of user {}", user.uid);
+		verifyDefaultContainer(domainUid, user, monitor, () -> {
 
 			createAddressbook(domainUid, entry, user, "$$mycontacts$$", getDefaultContainerUid(entry.entryUid));
 
 		});
 
-		verifyCollectedContactsContainer(domainUid, user, report, monitor, () -> {
-			monitor.log("Repairing collected contacts of user " + user.uid);
-			logger.info("Repairing collected contacts of user {}", user.uid);
+		verifyCollectedContactsContainer(domainUid, user, monitor, () -> {
 
 			createAddressbook(domainUid, entry, user, "$$collected_contacts$$",
 					getCollectedContactsContainerUid(entry.entryUid));
@@ -105,18 +93,18 @@ public class UserAddressbookRepair implements ContainerRepairOp {
 		userSubService.subscribe(user.uid, Arrays.asList(ContainerSubscription.create(container, true)));
 	}
 
-	private void verifyDefaultContainer(String domainUid, ItemValue<User> user, DiagnosticReport report,
-			IServerTaskMonitor monitor, Runnable maintenance) {
+	private void verifyDefaultContainer(String domainUid, ItemValue<User> user, RepairTaskMonitor monitor,
+			Runnable maintenance) {
 
 		String containerUid = getDefaultContainerUid(user.uid);
-		verifyContainer(domainUid, report, monitor, maintenance, containerUid);
+		verifyContainer(domainUid, monitor, maintenance, containerUid);
 	}
 
-	private void verifyCollectedContactsContainer(String domainUid, ItemValue<User> user, DiagnosticReport report,
-			IServerTaskMonitor monitor, Runnable maintenance) {
+	private void verifyCollectedContactsContainer(String domainUid, ItemValue<User> user, RepairTaskMonitor monitor,
+			Runnable maintenance) {
 
 		String containerUid = getCollectedContactsContainerUid(user.uid);
-		verifyContainer(domainUid, report, monitor, maintenance, containerUid);
+		verifyContainer(domainUid, monitor, maintenance, containerUid);
 	}
 
 	private String getDefaultContainerUid(String userUid) {

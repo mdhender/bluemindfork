@@ -21,21 +21,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import com.google.common.collect.ImmutableSet;
 
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.identity.api.IdentityDescription;
@@ -45,10 +43,8 @@ import net.bluemind.user.api.IUserMailIdentities;
 public class DefaultIdentityRepair implements IDirEntryRepairSupport {
 	public static final MaintenanceOperation identityRepair = MaintenanceOperation.create(IUserMailIdentities.REPAIR_OP,
 			"Create missing default identity for domain users");
-	private static final Logger logger = LoggerFactory.getLogger(DefaultIdentityRepair.class);
 
 	public DefaultIdentityRepair(BmContext context) {
-		logger.debug("Repair default identity with ctx {}", context);
 	}
 
 	public static class RepairFactory implements IDirEntryRepairSupport.Factory {
@@ -83,34 +79,31 @@ public class DefaultIdentityRepair implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			verifyUserDefaultIdentity(domainUid, entry, report, monitor, () -> {
-				monitor.log("Repairing " + domainUid + " default user identity");
-				logger.info("Repairing {} default user identity", domainUid);
+		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			verifyUserDefaultIdentity(domainUid, entry, monitor, () -> {
 			});
+			monitor.end();
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			verifyUserDefaultIdentity(domainUid, entry, report, monitor, () -> {
-				monitor.log("Verifying " + domainUid + " default user identity");
-				logger.info("Verifying {} default user identity", domainUid);
-
+		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			verifyUserDefaultIdentity(domainUid, entry, monitor, () -> {
 				createUserDefaultIdentity(domainUid, entry, monitor);
 			});
+			monitor.end();
 		}
 
-		private void verifyUserDefaultIdentity(String domainUid, DirEntry entry, DiagnosticReport report,
-				IServerTaskMonitor monitor, Runnable maintenance) {
+		private void verifyUserDefaultIdentity(String domainUid, DirEntry entry, RepairTaskMonitor monitor,
+				Runnable maintenance) {
 			List<IdentityDescription> identities = getIdentities(domainUid, entry.entryUid);
 			if (identities.isEmpty() || identities.stream().noneMatch(i -> i.isDefault.booleanValue())) {
-				monitor.log("Default identity missing for " + entry.displayName);
-				logger.info("Default identity missing for {}", entry.displayName);
+				monitor.log("Default identity missing for " + entry.displayName, Level.WARN);
+				monitor.notify("Default identity missing for {}", entry.displayName);
 				maintenance.run();
 			}
 		}
 
-		private void createUserDefaultIdentity(String domainUid, DirEntry entry, IServerTaskMonitor monitor) {
+		private void createUserDefaultIdentity(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 			IInternalUserMailIdentities userMailIdentities = ServerSideServiceProvider
 					.getProvider(SecurityContext.SYSTEM)
 					.instance(IInternalUserMailIdentities.class, domainUid, entry.entryUid);
@@ -122,11 +115,9 @@ public class DefaultIdentityRepair implements IDirEntryRepairSupport {
 
 				userMailIdentities.createDefaultIdentity(mailboxItem, entry);
 				monitor.log("Default identity created for " + entry.displayName);
-				logger.info("Default identity created for {}", entry.displayName);
 			} else {
 				userMailIdentities.setDefault(identities.get(0).id);
 				monitor.log("Default identity updated for " + entry.displayName);
-				logger.info("Default identity updated for {}", entry.displayName);
 			}
 		}
 

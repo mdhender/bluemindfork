@@ -38,6 +38,7 @@ import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.api.TaskStatus.State;
 import net.bluemind.core.task.api.gwt.endpoint.TaskGwtEndpoint;
 import net.bluemind.directory.api.MaintenanceOperation;
+import net.bluemind.directory.api.RepairConfig;
 import net.bluemind.directory.api.gwt.endpoint.DirEntryMaintenanceGwtEndpoint;
 import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
@@ -102,7 +103,8 @@ public class UserCheckAndRepair extends CompositeGwtWidgetElement implements IGw
 										Set<String> opId = value.stream().map(mo -> mo.identifier)
 												.collect(Collectors.toSet());
 
-										dirEntryMaintenance.repair(opId, new DefaultAsyncHandler<TaskRef>() {
+										RepairConfig config = RepairConfig.create(opId, false, true, true);
+										dirEntryMaintenance.repair(config, new DefaultAsyncHandler<TaskRef>() {
 											@Override
 											public void success(TaskRef value) {
 												repairSuccess(value);

@@ -76,6 +76,7 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirEntryMaintenance;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.directory.api.RepairConfig;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
@@ -188,7 +189,8 @@ public class MboxRestoreService {
 			session.restore(mailPart.id, boxFsFolders.allFolders());
 
 			IDirEntryMaintenance demApi = sp.instance(IDirEntryMaintenance.class, domain.uid, mbox.uid);
-			TaskRef tr = demApi.repair(new HashSet<>(Arrays.asList("mailboxAcls", "mailboxDefaultFolders")));
+			TaskRef tr = demApi.repair(RepairConfig
+					.create(new HashSet<>(Arrays.asList("mailboxAcls", "mailboxDefaultFolders")), false, true, true));
 
 			ExtendedTaskStatus extStatus = TaskUtils.wait(sp, tr);
 			extStatus.logs.stream().forEach(monitor::log);
@@ -236,7 +238,7 @@ public class MboxRestoreService {
 		IDirEntryMaintenance repairSupport = sp.instance(IDirEntryMaintenance.class, domain.uid, mbox.uid);
 		Set<String> ops = repairSupport.getAvailableOperations().stream().map(mo -> mo.identifier)
 				.collect(Collectors.toSet());
-		TaskRef repairTask = repairSupport.repair(ops);
+		TaskRef repairTask = repairSupport.repair(RepairConfig.create(ops, false, true, true));
 		TaskUtils.wait(sp, repairTask);
 
 		monitor.end(true, "finished", "{ \"status\": \"not_implemented\" }");

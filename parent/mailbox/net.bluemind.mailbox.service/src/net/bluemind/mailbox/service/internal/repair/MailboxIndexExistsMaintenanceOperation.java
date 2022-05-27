@@ -21,9 +21,8 @@ import java.util.Optional;
 
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
 import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.mailbox.service.internal.repair.MailboxRepairSupport.MailboxMaintenanceOperation;
 
 public class MailboxIndexExistsMaintenanceOperation extends MailboxMaintenanceOperation {
@@ -34,47 +33,32 @@ public class MailboxIndexExistsMaintenanceOperation extends MailboxMaintenanceOp
 	}
 
 	@Override
-	protected void checkMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
-		checkAndRepair(false, domainUid, report, monitor);
+	protected void checkMailbox(String domainUid, RepairTaskMonitor monitor) {
+		checkAndRepair(false, domainUid, monitor);
 	}
 
 	@Override
-	protected void repairMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
-		checkAndRepair(true, domainUid, report, monitor);
+	protected void repairMailbox(String domainUid, RepairTaskMonitor monitor) {
+		checkAndRepair(true, domainUid, monitor);
 	}
 
-	private void checkAndRepair(boolean repair, String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
+	private void checkAndRepair(boolean repair, String domainUid, RepairTaskMonitor monitor) {
 		monitor.begin(1, String.format("Check mailbox %s index exists in ES", mailboxToString(domainUid)));
 		Optional<IMailIndexService> optIndexer = RecordIndexActivator.getIndexer();
 		if (!optIndexer.isPresent()) {
 			monitor.progress(1, "record indexer missing");
-			monitor.end(false, null, null);
-			report.ko(MAINTENANCE_OPERATION_ID, "record indexer missing");
+			monitor.end(false, "record indexer missing", null);
 			return;
 		}
 		IMailIndexService recIdx = optIndexer.get();
 
 		if (!recIdx.checkMailbox(mailbox.uid)) {
+			monitor.notify("Mailbox {} index not found", mailboxToString(domainUid));
 			if (repair) {
-				monitor.log(String.format("Mailbox %s index not found, creating it", mailboxToString(domainUid)));
-
 				recIdx.repairMailbox(mailbox.uid, monitor.subWork(1));
-
-				report.ok(MAINTENANCE_OPERATION_ID,
-						String.format("Mailbox %s index repair finished", mailboxToString(domainUid)));
-			} else {
-				monitor.progress(1, String.format("Mailbox %s index does not exists", mailboxToString(domainUid)));
-				monitor.end(false, null, null);
-
-				report.ko(MAINTENANCE_OPERATION_ID,
-						String.format("Mailbox %s index does not exists", mailboxToString(domainUid)));
-				return;
 			}
-		} else {
-			monitor.progress(1, String.format("Mailbox index %s exists", mailboxToString(domainUid)));
-			report.ok(MAINTENANCE_OPERATION_ID, String.format("Mailbox index %s exists", mailboxToString(domainUid)));
 		}
 
-		monitor.end(true, null, null);
+		monitor.end();
 	}
 }

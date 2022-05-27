@@ -29,10 +29,8 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
 
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
@@ -83,14 +81,12 @@ public class DirEntryRepairSupportsTests {
 				InternalMaintenanceOperation op = new InternalMaintenanceOperation(TEST_USER_OP, null, null, 1) {
 
 					@Override
-					public void check(String domainUid, DirEntry entry, DiagnosticReport report,
-							IServerTaskMonitor monitor) {
+					public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 
 					}
 
 					@Override
-					public void repair(String domainUid, DirEntry entry, DiagnosticReport report,
-							IServerTaskMonitor monitor) {
+					public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 
 					}
 

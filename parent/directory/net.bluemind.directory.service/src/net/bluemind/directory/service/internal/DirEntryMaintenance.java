@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.api.report.DiagnosticReport;
-import net.bluemind.core.api.report.DiagnosticReport.State;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -37,13 +35,14 @@ import net.bluemind.core.rest.ServerSideServiceProvider.IServerSideServiceFactor
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
-import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirEntryMaintenance;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.api.MaintenanceOperation;
+import net.bluemind.directory.api.RepairConfig;
 import net.bluemind.directory.service.IDirEntryRepairSupport.InternalMaintenanceOperation;
 import net.bluemind.directory.service.IInternalDirEntryMaintenance;
+import net.bluemind.directory.service.RepairTaskMonitor;
 
 public class DirEntryMaintenance implements IDirEntryMaintenance, IInternalDirEntryMaintenance {
 	private static final Logger logger = LoggerFactory.getLogger(DirEntryMaintenance.class);
@@ -131,66 +130,42 @@ public class DirEntryMaintenance implements IDirEntryMaintenance, IInternalDirEn
 	}
 
 	@Override
-	public TaskRef check(Set<String> opIdentifiers) {
-		return context.provider().instance(ITasksManager.class).run("check-" + entry.entryUid + "@" + domainUid,
-				(monitor) -> {
-					DiagnosticReport report = new DiagnosticReport();
-					check(opIdentifiers, report, monitor);
+	public TaskRef repair(RepairConfig config) {
+		return context.provider().instance(ITasksManager.class).run("repair-" + entry.entryUid + "@" + domainUid, m -> {
+			RepairTaskMonitor monitor = new RepairTaskMonitor(m, config);
+			try {
+				repair(config, monitor);
+			} catch (Exception e) {
+				monitor.log("Unknown error: " + e.getMessage());
+				monitor.end(false, "", "");
 
-					if (report.globalState() == State.OK) {
-						monitor.end(true, "", JsonUtils.asString(report));
-					} else {
-						monitor.end(false, "", JsonUtils.asString(report));
-					}
-				});
-	}
+				logger.error("Unknown error: " + e.getMessage(), e);
+				return;
+			}
 
-	@Override
-	public TaskRef repair(Set<String> opIdentifiers) {
-		return context.provider().instance(ITasksManager.class).run("repair-" + entry.entryUid + "@" + domainUid,
-				(monitor) -> {
-					DiagnosticReport report = new DiagnosticReport();
-					try {
-						repair(opIdentifiers, report, monitor);
-					} catch (Exception e) {
-						monitor.log("Unknown error: " + e.getMessage());
-						monitor.end(false, "", JsonUtils.asString(report));
-
-						logger.error("Unknown error: " + e.getMessage(), e);
-						return;
-					}
-
-					if (report.globalState() == State.OK) {
-						monitor.end(true, "", JsonUtils.asString(report));
-					} else {
-						monitor.end(false, "", JsonUtils.asString(report));
-					}
-				});
-	}
-
-	@Override
-	public void check(Set<String> opIdentifiers, DiagnosticReport report, IServerTaskMonitor monitor) {
-		List<InternalMaintenanceOperation> ops = supports.ops(opIdentifiers, entry.kind);
-		Integer full = ops.stream().map(op -> op.cost).reduce(0, (u, i) -> u + i);
-		monitor.begin(full, String.format("Check %s@%s in %d steps", entry.entryUid, domainUid, ops.size()));
-
-		AtomicInteger ai = new AtomicInteger(0);
-		ops.forEach(op -> {
-			monitor.log(String.format("[%d/%d] %s step", ai.incrementAndGet(), ops.size(), op.identifier));
-			op.check(domainUid, entry, report, monitor.subWork(op.cost));
+			monitor.end(true, "", "");
 		});
 	}
 
 	@Override
-	public void repair(Set<String> opIdentifiers, DiagnosticReport report, IServerTaskMonitor monitor) {
-		List<InternalMaintenanceOperation> ops = supports.ops(opIdentifiers, entry.kind);
+	public void repair(RepairConfig config, IServerTaskMonitor monitor) {
+
+		RepairTaskMonitor taskMon = monitor instanceof RepairTaskMonitor ? (RepairTaskMonitor) monitor
+				: new RepairTaskMonitor(monitor, config);
+
+		List<InternalMaintenanceOperation> ops = supports.ops(config.opIdentifiers, entry.kind);
 		Integer full = ops.stream().map(op -> op.cost).reduce(0, (u, i) -> u + i);
 		monitor.begin(full, String.format("Repair %s@%s in %d steps", entry.entryUid, domainUid, ops.size()));
 
 		AtomicInteger ai = new AtomicInteger(0);
 		ops.forEach(op -> {
-			monitor.log(String.format("[%d/%d] %s step", ai.incrementAndGet(), ops.size(), op.identifier));
-			op.repair(domainUid, entry, report, monitor.subWork(op.cost));
+			monitor.log(
+					String.format("[%d/%d] Starting operation %s", ai.incrementAndGet(), ops.size(), op.identifier));
+			if (config.dry) {
+				op.check(domainUid, entry, (RepairTaskMonitor) taskMon.subWork("[" + op.identifier + "]:", op.cost));
+			} else {
+				op.repair(domainUid, entry, (RepairTaskMonitor) taskMon.subWork("[" + op.identifier + "]:", op.cost));
+			}
 		});
 	}
 

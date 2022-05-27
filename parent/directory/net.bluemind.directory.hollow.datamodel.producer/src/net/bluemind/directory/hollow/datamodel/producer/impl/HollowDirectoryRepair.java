@@ -20,28 +20,22 @@ package net.bluemind.directory.hollow.datamodel.producer.impl;
 import java.util.Collections;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableSet;
 
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.hollow.datamodel.producer.DirectorySerializer;
 import net.bluemind.directory.hollow.datamodel.producer.Serializers;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 
 public class HollowDirectoryRepair implements IDirEntryRepairSupport {
 	public static final MaintenanceOperation hollowRepair = MaintenanceOperation.create("hollow.directory",
 			"Ensure Hollow copy of the directory is in sync");
-	private static final Logger logger = LoggerFactory.getLogger(HollowDirectoryRepair.class);
 
 	public HollowDirectoryRepair(BmContext context) {
-		logger.debug("Repair with ctx {}", context);
 	}
 
 	public static class RepairFactory implements IDirEntryRepairSupport.Factory {
@@ -76,14 +70,12 @@ public class HollowDirectoryRepair implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			monitor.begin(1, "check is a noop");
-			monitor.end(true, "hollow check does nothing", null);
-
+		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			monitor.end();
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 			DirectorySerializer serializer = Serializers.forDomain(domainUid);
 			monitor.begin(1, "Repairing " + domainUid + " hollow directory");
 			// this will force production from a changeset(0L)

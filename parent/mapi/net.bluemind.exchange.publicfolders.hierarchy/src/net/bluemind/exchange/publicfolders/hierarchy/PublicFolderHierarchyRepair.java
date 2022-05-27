@@ -27,13 +27,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableSet;
 
 import net.bluemind.addressbook.api.IAddressBookUids;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainers;
@@ -43,11 +39,11 @@ import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.exchange.publicfolders.common.PublicFolders;
 
 public class PublicFolderHierarchyRepair implements IDirEntryRepairSupport {
@@ -59,7 +55,6 @@ public class PublicFolderHierarchyRepair implements IDirEntryRepairSupport {
 		}
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(PublicFolderHierarchyRepair.class);
 	public static final MaintenanceOperation pfFlatHierOp = MaintenanceOperation
 			.create(IFlatHierarchyUids.REPAIR_PF_OP_ID, "Check public folders hierarchy");
 
@@ -72,12 +67,12 @@ public class PublicFolderHierarchyRepair implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 			if (entry.system) {
+				monitor.end();
 				return;
 			}
-			logger.info("Check flat hier for {} as {}", entry, context);
-
+			monitor.end();
 		}
 
 		private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
@@ -86,13 +81,13 @@ public class PublicFolderHierarchyRepair implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 			// domain dirEntry is system=true
 			if (entry.system && entry.kind != Kind.DOMAIN) {
 				return;
 			}
 
-			logger.info("Repair PF flat hier for {} as {}", entry, context);
+			monitor.log("Repair PF flat hier for {} as {}", entry, context);
 			String domainPublicFoldersUid = PublicFolders.mailboxGuid(domainUid);
 			IInternalContainersFlatHierarchyMgmt mgmtApi = context.provider()
 					.instance(IInternalContainersFlatHierarchyMgmt.class, domainUid, domainPublicFoldersUid);
@@ -148,6 +143,7 @@ public class PublicFolderHierarchyRepair implements IDirEntryRepairSupport {
 				monitor.progress(1, c.uid + " (" + c.type + ") repaired.");
 			}
 
+			monitor.end();
 		}
 	}
 

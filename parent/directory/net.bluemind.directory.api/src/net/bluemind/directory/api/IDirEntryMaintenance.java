@@ -43,16 +43,6 @@ public interface IDirEntryMaintenance {
 	List<MaintenanceOperation> getAvailableOperations();
 
 	/**
-	 * Execute {@link MaintenanceOperation} in "Check only" mode
-	 * 
-	 * @param opIdentifiers Set of {@link MaintenanceOperation} identifiers
-	 * @return Reference to the net.bluemind.core.task.api.TaskRef
-	 */
-	@POST
-	@Path("_maintenance/check")
-	TaskRef check(Set<String> opIdentifiers);
-
-	/**
 	 * Execute {@link MaintenanceOperation} in "Repair" mode
 	 * 
 	 * @param opIdentifiers Set of {@link MaintenanceOperation} identifiers
@@ -60,6 +50,6 @@ public interface IDirEntryMaintenance {
 	 */
 	@POST
 	@Path("_maintenance/repair")
-	TaskRef repair(Set<String> opIdentifiers);
+	TaskRef repair(RepairConfig config);
 
 }

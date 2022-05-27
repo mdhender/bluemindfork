@@ -83,6 +83,7 @@ import net.bluemind.device.api.IDevice;
 import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirEntryMaintenance;
+import net.bluemind.directory.api.RepairConfig;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.eas.api.Account;
 import net.bluemind.eas.api.IEas;
@@ -305,7 +306,8 @@ public class DirectoryXfer implements AutoCloseable {
 		monitor.log("re-syncing replication");
 		IDirEntryMaintenance dirEntryMaintenanceService = context.provider().instance(IDirEntryMaintenance.class,
 				domainUid, entryUid);
-		dirEntryMaintenanceService.repair(Sets.newHashSet("replication.subtree", "replication.parentUid"));
+		dirEntryMaintenanceService.repair(RepairConfig
+				.create(Sets.newHashSet("replication.subtree", "replication.parentUid"), false, true, true));
 
 		// Groups and Mailshares don't have those containers
 		if (dirEntry.value.kind == BaseDirEntry.Kind.USER) {

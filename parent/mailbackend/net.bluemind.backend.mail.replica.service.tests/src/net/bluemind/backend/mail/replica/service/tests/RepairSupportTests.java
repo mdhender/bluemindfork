@@ -49,6 +49,7 @@ import net.bluemind.core.task.api.TaskStatus.State;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.directory.api.IDirEntryMaintenance;
 import net.bluemind.directory.api.MaintenanceOperation;
+import net.bluemind.directory.api.RepairConfig;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.mime.MimeTree;
@@ -113,7 +114,9 @@ public class RepairSupportTests extends AbstractRollingReplicationTests {
 			System.err.println("* " + mo);
 		}
 		System.err.println("Repair starts...");
-		TaskRef taskRef = maintenanceApi.repair(ops.stream().map(o -> o.identifier).collect(Collectors.toSet()));
+		RepairConfig config = RepairConfig.create(ops.stream().map(o -> o.identifier).collect(Collectors.toSet()),
+				false, true, true);
+		TaskRef taskRef = maintenanceApi.repair(config);
 		TaskStatus status = TaskUtils.wait(adminProv, taskRef);
 		System.err.println("status " + status);
 		assertTrue(status.state == State.Success);

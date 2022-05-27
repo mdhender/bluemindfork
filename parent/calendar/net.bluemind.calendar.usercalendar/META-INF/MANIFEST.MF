@@ -19,5 +19,6 @@ Require-Bundle: net.bluemind.calendar.api;bundle-version="1.0.0",
  net.bluemind.addressbook.api;bundle-version="1.0.0",
  net.bluemind.core.container.repair,
  net.bluemind.core.task.spi,
- net.bluemind.deferredaction.service;bundle-version="4.1.0"
+ net.bluemind.deferredaction.service;bundle-version="4.1.0",
+ net.bluemind.directory.service
 Automatic-Module-Name: net.bluemind.calendar.usercalendar

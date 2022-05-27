@@ -59,7 +59,6 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmt;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -113,7 +112,7 @@ public class ConversationSync {
 		}
 	}
 
-	public void execute(String domainUid, String userUid, IServerTaskMonitor monitor, DiagnosticReport report)
+	public void execute(String domainUid, String userUid, IServerTaskMonitor monitor)
 			throws CyrusConversationDbInitException {
 		logger.info("migrating conversations of {}@{}", userUid, domainUid);
 		monitor.log("migrating conversations of " + userUid + "@" + domainUid);

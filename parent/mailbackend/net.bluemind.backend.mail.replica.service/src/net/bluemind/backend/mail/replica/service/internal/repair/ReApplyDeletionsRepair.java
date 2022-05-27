@@ -26,9 +26,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Sets;
 
 import net.bluemind.authentication.api.IAuthentication;
@@ -41,7 +38,6 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.config.Token;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
@@ -53,13 +49,13 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
 import net.bluemind.directory.service.IDirEntryRepairSupport.InternalMaintenanceOperation;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
 import net.bluemind.imap.IMAPException;
@@ -74,8 +70,6 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
 
 public class ReApplyDeletionsRepair extends InternalMaintenanceOperation {
-
-	private static final Logger logger = LoggerFactory.getLogger(ReApplyDeletionsRepair.class);
 
 	private static final String ID = "missed.deletions";
 	private static final MaintenanceOperation op = MaintenanceOperation.create(ID,
@@ -116,7 +110,7 @@ public class ReApplyDeletionsRepair extends InternalMaintenanceOperation {
 	}
 
 	@Override
-	public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+	public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 		ReApplyDeletion op = new ReApplyDeletion() {
 
 			@Override
@@ -126,20 +120,19 @@ public class ReApplyDeletionsRepair extends InternalMaintenanceOperation {
 
 			@Override
 			public void applyDeletion(Collection<Integer> uids, String flag, StoreClient sc, ListInfo listInfo) {
-				monitor.log("Should re-flag " + uids.size() + " message(s)");
 			}
 
 			@Override
 			public void markContainerAsDeleted(IContainers service, String containerUid,
 					ContainerDescriptor containerDescriptor) {
-				monitor.log("Should mark container " + containerUid + " as deleted");
 			}
 		};
 		run(op, domainUid, entry, monitor);
+		monitor.end();
 	}
 
 	@Override
-	public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+	public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 		ReApplyDeletion op = new ReApplyDeletion() {
 
 			@Override
@@ -152,8 +145,10 @@ public class ReApplyDeletionsRepair extends InternalMaintenanceOperation {
 				String set = uids.stream().map(Object::toString).collect(Collectors.joining(","));
 				String cmd = "UID STORE " + set + " +FLAGS.SILENT (" + flag + ")";
 				TaggedResult ok = sc.tagged(cmd);
+				if (!uids.isEmpty()) {
+					monitor.notify("Found {} deleted items", uids.size());
+				}
 				monitor.log("Updated " + uids.size() + " message(s) => " + ok.isOk());
-				report.ok(ID, "Folder " + listInfo.getName() + " fixed");
 			}
 
 			@Override
@@ -197,6 +192,7 @@ public class ReApplyDeletionsRepair extends InternalMaintenanceOperation {
 		};
 
 		run(op, domainUid, entry, monitor);
+		monitor.end();
 	}
 
 	private static class MboxContext {
@@ -210,7 +206,7 @@ public class ReApplyDeletionsRepair extends InternalMaintenanceOperation {
 
 	}
 
-	private void run(ReApplyDeletion op, String domainUid, DirEntry entry, IServerTaskMonitor monitor) {
+	private void run(ReApplyDeletion op, String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 		ItemValue<Mailbox> mbox = context.provider().instance(IMailboxes.class, domainUid).getComplete(entry.entryUid);
 		if (mbox == null) {
 			return;
@@ -227,7 +223,7 @@ public class ReApplyDeletionsRepair extends InternalMaintenanceOperation {
 
 	}
 
-	private void runOnSharedMailbox(ReApplyDeletion op, String domainUid, IServerTaskMonitor monitor,
+	private void runOnSharedMailbox(ReApplyDeletion op, String domainUid, RepairTaskMonitor monitor,
 			ItemValue<Mailbox> mbox) {
 		ItemValue<Server> backend = Topology.get().datalocation(mbox.value.dataLocation);
 
@@ -242,8 +238,7 @@ public class ReApplyDeletionsRepair extends InternalMaintenanceOperation {
 
 		try (StoreClient sc = new StoreClient(backend.value.address(), 1143, "admin0", Token.admin0())) {
 			if (!sc.login()) {
-				logger.error("Failed to connect {}", mbox.value.name);
-				monitor.log("Failed to connect " + mbox.value.name);
+				monitor.notify("Failed to connect " + mbox.value.name);
 				return;
 			}
 
@@ -259,7 +254,6 @@ public class ReApplyDeletionsRepair extends InternalMaintenanceOperation {
 			processFolders(op, mailApi, monitor, flag, sc, folders);
 
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
 			monitor.log("Failed to repair mailshare " + mbox.uid + ": " + e.getMessage());
 
 		}
@@ -310,7 +304,7 @@ public class ReApplyDeletionsRepair extends InternalMaintenanceOperation {
 		return entryUid;
 	}
 
-	private void runOnUserMailbox(ReApplyDeletion op, String domainUid, IServerTaskMonitor monitor,
+	private void runOnUserMailbox(ReApplyDeletion op, String domainUid, RepairTaskMonitor monitor,
 			ItemValue<Mailbox> mbox) {
 		String latd = mbox.value.name + "@" + domainUid;
 		LoginResponse resp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
@@ -340,7 +334,7 @@ public class ReApplyDeletionsRepair extends InternalMaintenanceOperation {
 				MboxContext mailApi = new MboxContext(subtree, userCtx);
 				processFolders(op, mailApi, monitor, flag, sc, folders);
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				monitor.log(e.getMessage(), e);
 			}
 		} else {
 			monitor.log("Sudo failed for " + latd);
@@ -373,7 +367,7 @@ public class ReApplyDeletionsRepair extends InternalMaintenanceOperation {
 		return domainUid.replace(".", "_");
 	}
 
-	private void processFolders(ReApplyDeletion op, MboxContext mailApi, IServerTaskMonitor monitor, String flag,
+	private void processFolders(ReApplyDeletion op, MboxContext mailApi, RepairTaskMonitor monitor, String flag,
 			StoreClient sc, List<ListInfo> folders) throws IMAPException {
 		monitor.begin(2d * folders.size(), "Processing " + folders.size() + " folder(s)");
 		for (ListInfo li : folders) {

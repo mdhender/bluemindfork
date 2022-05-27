@@ -17,18 +17,13 @@
   */
 package net.bluemind.mailbox.service.internal.repair;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.mailbox.service.MailboxesStorageFactory;
 import net.bluemind.mailbox.service.internal.repair.MailboxRepairSupport.MailboxMaintenanceOperation;
 
 public class MailboxQuotaMaintenanceOperation extends MailboxMaintenanceOperation {
-	private static final Logger logger = LoggerFactory.getLogger(MailboxQuotaMaintenanceOperation.class);
 
 	private static final String MAINTENANCE_OPERATION_ID = DiagnosticReportCheckId.mailboxQuota.name();
 
@@ -37,34 +32,24 @@ public class MailboxQuotaMaintenanceOperation extends MailboxMaintenanceOperatio
 	}
 
 	@Override
-	protected void checkMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
-		checkAndRepair(domainUid, report, monitor);
+	protected void checkMailbox(String domainUid, RepairTaskMonitor monitor) {
+		checkAndRepair(domainUid, monitor);
 	}
 
 	@Override
-	protected void repairMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
-		checkAndRepair(domainUid, report, monitor);
+	protected void repairMailbox(String domainUid, RepairTaskMonitor monitor) {
+		checkAndRepair(domainUid, monitor);
 	}
 
-	private void checkAndRepair(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
+	private void checkAndRepair(String domainUid, RepairTaskMonitor monitor) {
 		monitor.begin(1, String.format("Check mailbox quota for %s", mailboxToString(domainUid)));
 
-		boolean success = true;
 		try {
 			MailboxesStorageFactory.getMailStorage().checkAndRepairQuota(context, domainUid, mailbox);
-
-			monitor.progress(1, String.format("Mailbox %s quota checked", mailboxToString(domainUid)));
-			report.ok(MAINTENANCE_OPERATION_ID, String.format("Mailbox %s quota ok", mailboxToString(domainUid)));
 		} catch (ServerFault sf) {
-			logger.error(String.format("Error on checking mailbox quota for %s: %s", mailboxToString(domainUid),
-					sf.getMessage()), sf);
-
-			report.ko(MAINTENANCE_OPERATION_ID, String.format("Error on checking mailbox quota for %s: %s",
-					mailboxToString(domainUid), sf.getMessage()));
-			monitor.end(false, null, null);
-			throw sf;
+			monitor.notify("Error on checking mailbox quota for {}: {}", mailboxToString(domainUid), sf.getMessage());
 		}
 
-		monitor.end(success, null, null);
+		monitor.end();
 	}
 }

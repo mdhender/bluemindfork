@@ -18,30 +18,29 @@
  */
 package net.bluemind.core.container.repair;
 
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.service.RepairTaskMonitor;
 
 public interface ContainerRepairOp {
 
-	public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor);
+	public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor);
 
-	public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor);
+	public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor);
 
 	public DirEntry.Kind supportedKind();
 
-	public default void verifyContainer(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor,
-			Runnable maintenance, String containerUid) {
+	public default void verifyContainer(String domainUid, RepairTaskMonitor monitor, Runnable maintenance,
+			String containerUid) {
 
 		ContainerDescriptor container = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IContainers.class).getIfPresent(containerUid);
 
-		monitor.log("Verify {} presence: {}", containerUid, container == null ? "MISSING" : "OK");
 		if (container == null) {
+			monitor.notify("Container {} is missing", containerUid);
 			maintenance.run();
 		}
 	}

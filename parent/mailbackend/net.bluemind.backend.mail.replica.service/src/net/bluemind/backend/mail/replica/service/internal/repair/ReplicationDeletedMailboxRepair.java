@@ -31,7 +31,6 @@ import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy;
 import net.bluemind.core.container.model.ItemValue;
@@ -39,12 +38,12 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
 import net.bluemind.directory.service.IDirEntryRepairSupport.InternalMaintenanceOperation;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.imap.ListResult;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.mailbox.api.IMailboxes;
@@ -93,25 +92,21 @@ public class ReplicationDeletedMailboxRepair extends InternalMaintenanceOperatio
 	}
 
 	@Override
-	public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-		run(false, domainUid, entry, report, monitor);
+	public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+		run(false, domainUid, entry, monitor);
+		monitor.end();
 	}
 
 	@Override
-	public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-		run(true, domainUid, entry, report, monitor);
+	public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+		run(true, domainUid, entry, monitor);
+		monitor.end();
 	}
 
-	private void run(boolean repair, String domainUid, DirEntry entry, DiagnosticReport report,
-			IServerTaskMonitor monitor) {
+	private void run(boolean repair, String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 		ItemValue<Mailbox> mbox = context.provider().instance(IMailboxes.class, domainUid).getComplete(entry.entryUid);
 		if (mbox == null) {
 			return;
-		}
-		if (repair) {
-			monitor.log("Repairing " + entry);
-		} else {
-			monitor.log("Checking " + entry);
 		}
 
 		IServiceProvider provider = context.getServiceProvider();
@@ -134,7 +129,7 @@ public class ReplicationDeletedMailboxRepair extends InternalMaintenanceOperatio
 
 			boolean loginOk = sc.login();
 			if (!loginOk) {
-				monitor.log("IMAP Login failed for " + latd);
+				monitor.notify("IMAP Login failed for " + latd);
 				return;
 			}
 
@@ -154,6 +149,7 @@ public class ReplicationDeletedMailboxRepair extends InternalMaintenanceOperatio
 					domainUid, mbox.uid);
 
 			toRepair.values().forEach(node -> {
+				monitor.notify("Deleted mailbox '" + node.value.fullName + "' found");
 				if (repair) {
 					String uid = ContainerHierarchyNode.uidFor(IMailReplicaUids.mboxRecords(node.uid),
 							IMailReplicaUids.MAILBOX_RECORDS, domainUid);
@@ -168,9 +164,6 @@ public class ReplicationDeletedMailboxRepair extends InternalMaintenanceOperatio
 						contFlatH.update(uid, hierarchyNode.value);
 					}
 
-					monitor.log("Mark as deleted mailbox '" + node.value.fullName + "'");
-				} else {
-					monitor.log("Should mark as deleted mailbox '" + node.value.fullName + "'");
 				}
 			});
 		}

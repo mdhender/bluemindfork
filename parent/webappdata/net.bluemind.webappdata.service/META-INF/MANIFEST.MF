@@ -19,4 +19,5 @@ Require-Bundle: net.bluemind.webappdata.api,
  net.bluemind.core.validator,
  net.bluemind.core.container.repair,
  net.bluemind.core.task.spi,
- net.bluemind.core.container.sharding;bundle-version="4.1.0"
+ net.bluemind.core.container.sharding;bundle-version="4.1.0",
+ net.bluemind.directory.service

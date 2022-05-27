@@ -28,15 +28,12 @@ import com.google.common.collect.Sets;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.directory.common.NoopException;
 import net.bluemind.cli.utils.Tasks;
-import net.bluemind.core.api.report.DiagnosticReport;
-import net.bluemind.core.api.report.DiagnosticReport.State;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.api.TaskStatus;
-import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirEntryMaintenance;
+import net.bluemind.directory.api.RepairConfig;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
@@ -44,6 +41,7 @@ public class CliRepair {
 	protected final CliContext ctx;
 	protected final boolean unarchive;
 	protected final boolean dry;
+	private final boolean verbose;
 	protected Collection<String> askedRepairOps;
 
 	protected Optional<ItemValue<User>> archiveUserOnClose = Optional.empty();
@@ -52,12 +50,14 @@ public class CliRepair {
 
 	private IUser userService;
 
-	public CliRepair(CliContext ctx, String domainUid, ItemValue<DirEntry> dirEntry, boolean unarchive, boolean dry) {
+	public CliRepair(CliContext ctx, String domainUid, ItemValue<DirEntry> dirEntry, boolean unarchive, boolean dry,
+			boolean verbose) {
 		this.ctx = ctx;
 		this.unarchive = unarchive;
 		this.dirEntry = dirEntry;
 		this.domainUid = domainUid;
 		this.dry = dry;
+		this.verbose = verbose;
 
 		userService = ctx.adminApi().instance(IUser.class, domainUid);
 	}
@@ -95,14 +95,13 @@ public class CliRepair {
 		String logId = (de.value.email != null && !de.value.email.isEmpty()) ? (de.value.email + " (" + de.uid + ")")
 				: de.uid;
 
-		TaskRef ref = dry ? demService.check(filteredOps) : demService.repair(filteredOps);
-		TaskStatus status = Tasks.follow(ctx, ref, logId, String.format("Failed to repair entry %s", de));
-
-		DiagnosticReport report = JsonUtils.read(status.result, DiagnosticReport.class);
-		report.entries.stream().filter(e -> e.state == State.KO || e.state == State.WARN)
-				.forEach(e -> ctx.error(e.toString()));
-		report.entries.stream().filter(e -> e.state == State.OK).forEach(e -> ctx.info(e.toString()));
-
+		RepairConfig config = new RepairConfig();
+		config.dry = dry;
+		config.logToCoreLog = !dry;
+		config.verbose = verbose;
+		config.opIdentifiers = filteredOps;
+		TaskRef ref = demService.repair(config);
+		Tasks.follow(ctx, ref, logId, String.format("Failed to repair entry %s", de));
 	}
 
 	private void unarchive(IUser userService, Optional<ItemValue<User>> ouserItem) {

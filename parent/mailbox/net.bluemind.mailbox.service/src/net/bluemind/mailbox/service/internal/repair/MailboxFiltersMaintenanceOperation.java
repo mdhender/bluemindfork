@@ -17,11 +17,10 @@
   */
 package net.bluemind.mailbox.service.internal.repair;
 
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.mailbox.api.IMailboxes;
@@ -37,11 +36,12 @@ public class MailboxFiltersMaintenanceOperation extends MailboxMaintenanceOperat
 	}
 
 	@Override
-	protected void checkMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
+	protected void checkMailbox(String domainUid, RepairTaskMonitor monitor) {
+		monitor.end();
 	}
 
 	@Override
-	protected void repairMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
+	protected void repairMailbox(String domainUid, RepairTaskMonitor monitor) {
 		monitor.begin(1, String.format("Repair filters for mailbox %s", mailboxToString(domainUid)));
 
 		try {
@@ -54,19 +54,12 @@ public class MailboxFiltersMaintenanceOperation extends MailboxMaintenanceOperat
 			MailboxesStorageFactory.getMailStorage().changeFilter(context, domain, mailbox, filters);
 
 			monitor.progress(1, String.format("Mailbox %s filters repaired successfully", mailboxToString(domainUid)));
-			report.ok(MAINTENANCE_OPERATION_ID,
-					String.format("Mailbox %s filters repaired successfully", mailboxToString(domainUid)));
 		} catch (Exception e) {
-			report.ko(MAINTENANCE_OPERATION_ID,
-					String.format("Fail to repair mailbox %s filters: %s", mailboxToString(domainUid), e.getMessage()));
-
-			monitor.log(
-					String.format("Fail to repair mailbox %s filters: %s", mailboxToString(domainUid), e.getMessage()));
-			monitor.end(false, null, null);
-
-			return;
+			String msg = String.format("Fail to repair mailbox %s filters: %s", mailboxToString(domainUid),
+					e.getMessage());
+			monitor.notify(msg);
 		}
 
-		monitor.end(true, null, null);
+		monitor.end();
 	}
 }

@@ -23,13 +23,9 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableSet;
 
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -37,6 +33,7 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.ListInfo;
 import net.bluemind.imap.ListResult;
@@ -50,8 +47,6 @@ import net.bluemind.server.api.Server;
 public class RenamedInboxRepair implements IDirEntryRepairSupport {
 
 	public static final String BROKEN_NAME = "Messages reçus";
-
-	private static final Logger logger = LoggerFactory.getLogger(RenamedInboxRepair.class);
 
 	public static final MaintenanceOperation op = MaintenanceOperation.create(IMailReplicaUids.REPAIR_RENAMED_INBOX_OP,
 			"Fixes mailboxes with a '" + BROKEN_NAME + "' folder");
@@ -103,7 +98,7 @@ public class RenamedInboxRepair implements IDirEntryRepairSupport {
 			return new UserMailboxWalk(context, mbox, domainUid, srv);
 		}
 
-		public abstract void folders(BiConsumer<StoreClient, ListResult> process);
+		public abstract void folders(BiConsumer<StoreClient, ListResult> process, IServerTaskMonitor monitor);
 	}
 
 	public static final class UserMailboxWalk extends MailboxWalk {
@@ -112,13 +107,13 @@ public class RenamedInboxRepair implements IDirEntryRepairSupport {
 			super(context, mbox, domainUid, srv);
 		}
 
-		public void folders(BiConsumer<StoreClient, ListResult> process) {
+		public void folders(BiConsumer<StoreClient, ListResult> process, IServerTaskMonitor monitor) {
 			String login = mbox.value.name + "@" + domainUid;
 
 			try (Sudo sudo = new Sudo(mbox.value.name, domainUid);
 					StoreClient sc = new StoreClient(srv.address(), 1143, login, sudo.context.getSessionId())) {
 				if (!sc.login()) {
-					logger.error("Fail to connect", mbox.value.name);
+					monitor.log("Fail to connect", mbox.value.name);
 					return;
 				}
 				ListResult allFolders = sc.listAll();
@@ -139,21 +134,21 @@ public class RenamedInboxRepair implements IDirEntryRepairSupport {
 		@FunctionalInterface
 		private interface FolderAction {
 
-			void process(ItemValue<Mailbox> mbox, ListInfo folder, StoreClient sc, IServerTaskMonitor monitor);
+			void process(ItemValue<Mailbox> mbox, ListInfo folder, StoreClient sc, RepairTaskMonitor monitor);
 
 		}
 
-		public void runOperation(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor,
-				FolderAction action) {
+		public void runOperation(String domainUid, DirEntry entry, RepairTaskMonitor monitor, FolderAction action) {
 
 			if (entry.archived) {
-				logger.debug("DirEntry is archived, skip it");
+				monitor.log("DirEntry is archived, skipping it");
+				monitor.end();
 				return;
 			}
 
 			IMailboxes iMailboxes = context.getServiceProvider().instance(IMailboxes.class, domainUid);
 			ItemValue<Mailbox> mbox = iMailboxes.getComplete(entry.entryUid);
-			logger.info("Checking {} {}", domainUid, mbox.value.name);
+			monitor.log("Checking {} {}", domainUid, mbox.value.name);
 
 			ItemValue<Server> server = Topology.get().datalocation(entry.dataLocation);
 
@@ -165,45 +160,41 @@ public class RenamedInboxRepair implements IDirEntryRepairSupport {
 						action.process(mbox, f, sc, monitor);
 						completed.set(true);
 					} catch (Exception e) {
-						logger.error(e.getMessage(), e);
 						monitor.log(e.getMessage());
 					}
 				});
-			});
-			report.ok(op.identifier, "repair op completed (work done: " + completed.get() + ")");
-
+			}, monitor);
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			runOperation(domainUid, entry, report, monitor, (mbox, folder, sc, mon) -> {
+		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			runOperation(domainUid, entry, monitor, (mbox, folder, sc, mon) -> {
 				try {
 					if (sc.select(folder.getName())) {
 						monitor.log(mbox.value.name + "@" + domainUid + " has an extra 'Message reçus' folder");
 					}
 				} catch (IMAPException e) {
 					monitor.log("ERROR " + e.getMessage());
-					logger.warn("Fail to select {} on mailbox {}", folder.getName(), mbox.value.name);
 				}
 			});
+			monitor.end();
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			runOperation(domainUid, entry, report, monitor, (mbox, folder, sc, mon) -> {
+		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			runOperation(domainUid, entry, monitor, (mbox, folder, sc, mon) -> {
 				try {
 					sc.select(folder.getName());
 					sc.expunge();
 					Map<Integer, Integer> copied = sc.uidCopy("1:*", "INBOX");
 					sc.select("INBOX");
 					sc.deleteMailbox(folder.getName());
-					monitor.log(copied.size() + " email(s) moved from '" + BROKEN_NAME + "' to INBOX");
+					monitor.notify(copied.size() + " email(s) in BOX " + BROKEN_NAME + " instead of INBOX");
 				} catch (IMAPException e) {
-					monitor.log("ERROR " + e.getMessage());
-					logger.warn("Fail to select {} on mailbox {}", folder.getName(), mbox.value.name);
+					monitor.notify("IMAP ERROR " + e.getMessage());
 				}
 			});
-
+			monitor.end();
 		}
 
 	}

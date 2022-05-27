@@ -31,8 +31,6 @@ import org.junit.Test;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.api.report.DiagnosticReport;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.service.IDirEntryRepairSupport.InternalMaintenanceOperation;
 import net.bluemind.directory.service.internal.DirEntryRepairSupports;
@@ -45,11 +43,13 @@ public class DirEntryRepairSupportsTest {
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			monitor.end();
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			monitor.end();
 		}
 	}
 

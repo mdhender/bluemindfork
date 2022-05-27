@@ -26,8 +26,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
@@ -38,7 +37,6 @@ import net.bluemind.calendar.api.CalendarView.CalendarViewType;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.ICalendarViewUids;
 import net.bluemind.calendar.api.IUserCalendarViews;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
@@ -48,16 +46,15 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 
 public class CalendarViewRepairSupport implements IDirEntryRepairSupport {
 
 	private final BmContext context;
-	private static final Logger logger = LoggerFactory.getLogger(CalendarViewRepairSupport.class);
 	private static final MaintenanceOperation MAINTENANCE_OPERATION = MaintenanceOperation.create("calendarview",
 			"Calendarview reparation");
 
@@ -82,12 +79,11 @@ public class CalendarViewRepairSupport implements IDirEntryRepairSupport {
 
 		@SuppressWarnings("deprecation")
 		@Override
-		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 			Optional<ContainerDescriptor> viewContainer = checkForViewContainer(monitor, entry, () -> {
 			});
 
 			if (!viewContainer.isPresent()) {
-				logger.info("Skipping other calendarview checks");
 				monitor.log("Skipping other calendarview checks");
 				return;
 			}
@@ -100,11 +96,13 @@ public class CalendarViewRepairSupport implements IDirEntryRepairSupport {
 
 			processCalendarViews(monitor, views, viewData -> {
 			});
+
+			monitor.end();
 		}
 
 		@SuppressWarnings("deprecation")
 		@Override
-		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 			IContainers containerService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(IContainers.class);
 
@@ -125,6 +123,8 @@ public class CalendarViewRepairSupport implements IDirEntryRepairSupport {
 				Optional<ItemValue<CalendarView>> existingDefaultView = view.list().values.stream()
 						.filter(v -> v.uid.equals("default")).findFirst();
 				if (!existingDefaultView.isPresent()) {
+					monitor.log("Creating missing default calendar view", Level.WARN);
+					monitor.notify("Missing default calendar view");
 					CalendarView defaultView = new CalendarView();
 					defaultView.label = "$$calendarhome$$";
 					defaultView.type = CalendarViewType.WEEK;
@@ -142,7 +142,7 @@ public class CalendarViewRepairSupport implements IDirEntryRepairSupport {
 			});
 		}
 
-		private Optional<ContainerDescriptor> checkForViewContainer(IServerTaskMonitor monitor, DirEntry dirEntry,
+		private Optional<ContainerDescriptor> checkForViewContainer(RepairTaskMonitor monitor, DirEntry dirEntry,
 				Runnable op) {
 			String containerUid = ICalendarViewUids.userCalendarView(dirEntry.entryUid);
 
@@ -151,8 +151,7 @@ public class CalendarViewRepairSupport implements IDirEntryRepairSupport {
 
 			ContainerDescriptor container = containerService.getIfPresent(containerUid);
 			if (container == null) {
-				logger.info("Calendarview container {} is missing", containerUid);
-				monitor.log("Calendarview container " + containerUid + " is missing");
+				monitor.log("Calendarview container " + containerUid + " is missing", Level.WARN);
 				op.run();
 				return Optional.ofNullable(containerService.getIfPresent(containerUid));
 			} else {
@@ -160,18 +159,17 @@ public class CalendarViewRepairSupport implements IDirEntryRepairSupport {
 			}
 		}
 
-		private void checkForDefaultView(IServerTaskMonitor monitor, DirEntry dirEntry,
+		private void checkForDefaultView(RepairTaskMonitor monitor, DirEntry dirEntry,
 				List<ItemValue<CalendarView>> views, Runnable op) {
 			String userCalendarView = ICalendarViewUids.userCalendarView(dirEntry.entryUid);
 			if (views.stream().noneMatch(view -> view.value != null && view.value.isDefault)) {
-				logger.info("Default calendarview {} is missing", userCalendarView);
 				monitor.log("Default calendarview " + userCalendarView + " is missing");
 				op.run();
 			}
 
 		}
 
-		private void processCalendarViews(IServerTaskMonitor monitor, List<ItemValue<CalendarView>> views,
+		private void processCalendarViews(RepairTaskMonitor monitor, List<ItemValue<CalendarView>> views,
 				Consumer<ViewCalendarData> op) {
 			IContainers containerService = context.provider().instance(IContainers.class);
 
@@ -181,9 +179,9 @@ public class CalendarViewRepairSupport implements IDirEntryRepairSupport {
 				Collection<String> missing = Collections2.filter(view.value.calendars,
 						Predicates.not(Predicates.in(existing)));
 				if (!missing.isEmpty()) {
-					logger.info("Calendarview {}:{} contains inaccessible calendars {}", view.uid, view.displayName,
-							Arrays.toString(missing.toArray()));
 					monitor.log("Calendarview " + view.uid + ":" + view.displayName
+							+ " contains inaccessible calendars " + Arrays.toString(missing.toArray()));
+					monitor.notify("Calendarview " + view.uid + ":" + view.displayName
 							+ " contains inaccessible calendars " + Arrays.toString(missing.toArray()));
 					op.accept(new ViewCalendarData(view, existing, missing));
 				}

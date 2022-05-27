@@ -48,6 +48,9 @@ public class RepairCommand extends SingleOrDomainOperation {
 	@Option(names = "--dry", description = "Dry-run (run check instead of repair)")
 	public boolean dry = false;
 
+	@Option(names = "--verbose", description = "Print all logs")
+	public boolean verbose = false;
+
 	@Option(names = "--ops", description = "Just include the (comma separated) ops, (eg. mailboxPostfixMaps,)", completionCandidates = MaintenanceOpsCompletions.class)
 	public String ops;
 
@@ -59,7 +62,7 @@ public class RepairCommand extends SingleOrDomainOperation {
 
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
-		CliRepair clirepair = new CliRepair(ctx, domainUid, de, unarchive, dry);
+		CliRepair clirepair = new CliRepair(ctx, domainUid, de, unarchive, dry, verbose);
 		try {
 			clirepair.repair(ops);
 		} finally {

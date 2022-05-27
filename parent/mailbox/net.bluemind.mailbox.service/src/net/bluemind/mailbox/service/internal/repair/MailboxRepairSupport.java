@@ -26,23 +26,21 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.service.internal.MailboxStoreService;
 
@@ -98,7 +96,6 @@ public class MailboxRepairSupport implements IDirEntryRepairSupport {
 	}
 
 	public abstract static class MailboxMaintenanceOperation extends InternalMaintenanceOperation {
-		private static final Logger logger = LoggerFactory.getLogger(MailboxMaintenanceOperation.class);
 
 		public enum DiagnosticReportCheckId {
 			mailboxExists(true), mailboxIndexExists(true), mailboxAclsContainer(true), mailboxAcls(true),
@@ -153,35 +150,34 @@ public class MailboxRepairSupport implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 			monitor.begin(2, String.format("Check entry %s, kind %s", entry.entryUid, entry.kind.name()));
 
-			if (!isEntrySupported(domainUid, entry, report, monitor.subWork(1))) {
-				monitor.end(true, "", "");
+			if (!isEntrySupported(domainUid, entry, new RepairTaskMonitor(monitor.subWork(1), monitor.config))) {
+				monitor.end();
 				return;
 			}
 
-			checkMailbox(domainUid, report, monitor.subWork(1));
+			checkMailbox(domainUid, new RepairTaskMonitor(monitor.subWork(1), monitor.config));
 
-			monitor.end(true, null, null);
+			monitor.end();
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 			monitor.begin(2, String.format("Repair entry %s, kind %s", entry.entryUid, entry.kind.name()));
 
-			if (!isEntrySupported(domainUid, entry, report, monitor.subWork(1))) {
-				monitor.end(true, null, null);
+			if (!isEntrySupported(domainUid, entry, new RepairTaskMonitor(monitor.subWork(1), monitor.config))) {
+				monitor.end();
 				return;
 			}
 
-			repairMailbox(domainUid, report, monitor.subWork(1));
+			repairMailbox(domainUid, new RepairTaskMonitor(monitor.subWork(1), monitor.config));
 
-			monitor.end(true, null, null);
+			monitor.end();
 		}
 
-		protected boolean isEntrySupported(String domainUid, DirEntry entry, DiagnosticReport report,
-				IServerTaskMonitor monitor) {
+		protected boolean isEntrySupported(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 			monitor.begin(1, String.format("Check entry %s, kind %s exists and is supported", entry.entryUid,
 					entry.kind.name()));
 
@@ -207,17 +203,14 @@ public class MailboxRepairSupport implements IDirEntryRepairSupport {
 			monitor.progress(1, String.format("Lookup mailbox %s", entry.entryUid));
 
 			mailbox = storeService.get(entry.entryUid, null);
-			if (mailbox == null || mailbox.value == null) {
-				logger.error("Mailbox {} not found in database", entry.entryUid);
-				monitor.log(String.format("Mailbox %s not found in database", entry.entryUid));
-				monitor.end(false, null, null);
-
-				report.ko(identifier, String.format("Mailbox %s not found in database", entry.entryUid));
-				return false;
+			boolean mailboxExists = mailbox != null && mailbox.value != null;
+			if (mailboxExists) {
+				monitor.log(String.format("Mailbox %s not found in database", entry.entryUid), Level.WARN);
+				monitor.notify("Mailbox {} not found in database", entry.entryUid);
 			}
 
-			monitor.end(true, null, null);
-			return true;
+			monitor.end();
+			return mailboxExists;
 		}
 
 		protected String mailboxToString(String domainUid) {
@@ -225,8 +218,8 @@ public class MailboxRepairSupport implements IDirEntryRepairSupport {
 					domainUid, mailbox.uid);
 		}
 
-		protected abstract void checkMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor);
+		protected abstract void checkMailbox(String domainUid, RepairTaskMonitor monitor);
 
-		protected abstract void repairMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor);
+		protected abstract void repairMailbox(String domainUid, RepairTaskMonitor monitor);
 	}
 }

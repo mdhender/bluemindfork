@@ -75,6 +75,7 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.directory.api.IDirEntryMaintenance;
+import net.bluemind.directory.api.RepairConfig;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.service.DomainsContainerIdentifier;
@@ -240,7 +241,7 @@ public class InstallationService implements IInstallation {
 		IDirEntryMaintenance demService = provider.instance(IDirEntryMaintenance.class, domainUid, domainUid);
 		Set<String> filteredOps = Collections.singleton("hollow.directory");
 		logger.info("Starting hollow repair task for {}", domainUid);
-		TaskRef ref = demService.repair(filteredOps);
+		TaskRef ref = demService.repair(RepairConfig.create(filteredOps, false, true, true));
 
 		String log = TaskUtils.logStreamWait(provider, ref);
 		logger.debug("Hollow repair task log for {}: {}", domainUid, log);

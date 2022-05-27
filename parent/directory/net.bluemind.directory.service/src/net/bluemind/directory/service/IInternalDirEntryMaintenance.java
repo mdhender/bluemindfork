@@ -18,21 +18,10 @@
  */
 package net.bluemind.directory.service;
 
-import java.util.Set;
-
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.directory.api.RepairConfig;
 
 public interface IInternalDirEntryMaintenance {
-
-	/**
-	 * launch maintenance operations in check mode
-	 * 
-	 * @param opIdentifiers
-	 * @param report        report to fill (must be not null)
-	 * @param monitor       progress handler
-	 */
-	void check(Set<String> opIdentifiers, DiagnosticReport report, IServerTaskMonitor monitor);
 
 	/**
 	 * launch maintenance operation in repair mode
@@ -41,6 +30,5 @@ public interface IInternalDirEntryMaintenance {
 	 * @param report        report to fill (must be not null)
 	 * @param monitor       progress handler
 	 */
-	void repair(Set<String> opIdentifiers, DiagnosticReport report, IServerTaskMonitor monitor);
-
+	void repair(RepairConfig config, IServerTaskMonitor monitor);
 }

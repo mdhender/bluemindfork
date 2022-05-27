@@ -17,9 +17,8 @@
   */
 package net.bluemind.mailbox.service.internal.repair;
 
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.mailbox.service.MailboxesStorageFactory;
 import net.bluemind.mailbox.service.internal.repair.MailboxRepairSupport.MailboxMaintenanceOperation;
 
@@ -31,43 +30,26 @@ public class MailboxExistsMaintenanceOperation extends MailboxMaintenanceOperati
 	}
 
 	@Override
-	protected void checkMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
-		checkAndRepair(false, domainUid, report, monitor);
+	protected void checkMailbox(String domainUid, RepairTaskMonitor monitor) {
+		checkAndRepair(false, domainUid, monitor);
 	}
 
 	@Override
-	protected void repairMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
-		checkAndRepair(true, domainUid, report, monitor);
+	protected void repairMailbox(String domainUid, RepairTaskMonitor monitor) {
+		checkAndRepair(true, domainUid, monitor);
 	}
 
-	private void checkAndRepair(boolean repair, String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
+	private void checkAndRepair(boolean repair, String domainUid, RepairTaskMonitor monitor) {
 		monitor.begin(1, String.format("Check mailbox %s exists in mail store", mailboxToString(domainUid)));
 
 		if (!MailboxesStorageFactory.getMailStorage().mailboxExist(context, domainUid, mailbox.value)) {
+			monitor.notify(String.format("Mailbox {} not found in mail store", mailboxToString(domainUid)));
 			if (repair) {
-				monitor.log(String.format("Mailbox %s not found in mail store, going to recreate it",
-						mailboxToString(domainUid)));
-
 				MailboxesStorageFactory.getMailStorage().create(context, domainUid, mailbox);
 
 				monitor.progress(1, String.format("Mailbox %s repair finished", mailboxToString(domainUid)));
-				report.ok(MAINTENANCE_OPERATION_ID,
-						String.format("Mailbox %s repair finished", mailboxToString(domainUid)));
-			} else {
-				monitor.progress(1,
-						String.format("Mailbox %s does not exists in mail store", mailboxToString(domainUid)));
-				monitor.end(false, null, null);
-
-				report.ko(MAINTENANCE_OPERATION_ID,
-						String.format("Mailbox %s does not exists", mailboxToString(domainUid)));
-				return;
 			}
-		} else {
-			monitor.progress(1, String.format("Mailbox %s exists in mail store", mailboxToString(domainUid)));
-			report.ok(MAINTENANCE_OPERATION_ID,
-					String.format("Mailbox %s exists in mail store", mailboxToString(domainUid)));
 		}
-
-		monitor.end(true, null, null);
+		monitor.end();
 	}
 }

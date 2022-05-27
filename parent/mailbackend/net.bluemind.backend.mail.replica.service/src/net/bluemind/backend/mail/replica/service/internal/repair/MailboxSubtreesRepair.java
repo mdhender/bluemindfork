@@ -20,23 +20,19 @@ package net.bluemind.backend.mail.replica.service.internal.repair;
 import java.util.Collections;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableSet;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmt;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 
@@ -49,9 +45,8 @@ public class MailboxSubtreesRepair implements IDirEntryRepairSupport {
 		}
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(MailboxSubtreesRepair.class);
-	public static final MaintenanceOperation repairSubtree = MaintenanceOperation.create(IMailReplicaUids.REPAIR_SUBTREE_OP,
-			"Check replication subtree container presence");
+	public static final MaintenanceOperation repairSubtree = MaintenanceOperation
+			.create(IMailReplicaUids.REPAIR_SUBTREE_OP, "Check replication subtree container presence");
 
 	private static class MailboxSubtreesMaintenance extends InternalMaintenanceOperation {
 
@@ -63,23 +58,23 @@ public class MailboxSubtreesRepair implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			logger.info("Check subtree {} {}", domainUid, entry);
-
+		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			monitor.log("Check subtree {} {}", domainUid, entry);
+			monitor.end();
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			logger.info("Repair subtree {} {}", domainUid, entry);
+		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			monitor.log("Repair subtree {} {}", domainUid, entry);
 
 			IMailboxes mboxApi = context.provider().instance(IMailboxes.class, domainUid);
 			ItemValue<Mailbox> mbox = mboxApi.getComplete(entry.entryUid);
 			if (mbox == null) {
-				logger.warn("{} does not have a mailbox, nothing to repair", entry);
+				monitor.log("{} does not have a mailbox, nothing to repair", entry);
 				return;
 			}
 			if (mbox.value.dataLocation == null) {
-				logger.error("{} lacks a dataLocation, can't repair", mbox);
+				monitor.notify("{} lacks a dataLocation, can't repair", mbox);
 				return;
 			}
 			monitor.begin(1, "Repairing subtree for mailbox " + mbox.value.name + "@" + domainUid);
@@ -89,6 +84,7 @@ public class MailboxSubtreesRepair implements IDirEntryRepairSupport {
 			MailboxReplicaRootDescriptor descriptor = MailboxReplicaRootDescriptor.create(mbox.value);
 			subtreeMgmt.create(descriptor);
 			monitor.progress(1, "Subtree " + cyrusPartition + " / " + descriptor + " repaired.");
+			monitor.end();
 		}
 
 	}

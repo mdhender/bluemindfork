@@ -30,6 +30,7 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.directory.api.IDirEntryMaintenance;
+import net.bluemind.directory.api.RepairConfig;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
@@ -108,7 +109,8 @@ public class SharedMailboxProbe {
 						backendAssignment.domainUid, uid);
 				Set<String> ops = repairSupport.getAvailableOperations().stream().map(mo -> mo.identifier)
 						.collect(Collectors.toSet());
-				TaskRef repairTask = repairSupport.repair(ops);
+				RepairConfig config = RepairConfig.create(ops, false, true, true);
+				TaskRef repairTask = repairSupport.repair(config);
 				TaskStatus status = TaskUtils.wait(prov, repairTask);
 				logger.info("Probe mailbox repairs finished, status {}", status);
 			} else {

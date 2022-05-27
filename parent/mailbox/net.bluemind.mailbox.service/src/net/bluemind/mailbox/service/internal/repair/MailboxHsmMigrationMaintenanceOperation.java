@@ -24,17 +24,14 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.backend.mail.replica.indexing.IDSet;
 import net.bluemind.config.InstallationId;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.hsm.api.IHSM;
 import net.bluemind.hsm.api.Promote;
 import net.bluemind.imap.IMAPException;
@@ -51,7 +48,6 @@ import net.bluemind.server.api.Server;
 
 public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceOperation {
 
-	private static final Logger logger = LoggerFactory.getLogger(MailboxHsmMigrationMaintenanceOperation.class);
 	private static final String MAINTENANCE_OPERATION_ID = DiagnosticReportCheckId.mailboxHsm.name();
 
 	public MailboxHsmMigrationMaintenanceOperation(BmContext context) {
@@ -88,11 +84,13 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 		protected final ItemValue<Mailbox> mailbox;
 		protected final String domainUid;
 		protected final Server srv;
+		private final RepairTaskMonitor monitor;
 
-		private MailboxWalk(ItemValue<Mailbox> mailbox, String domainUid, Server srv) {
+		private MailboxWalk(ItemValue<Mailbox> mailbox, String domainUid, Server srv, RepairTaskMonitor monitor) {
 			this.srv = srv;
 			this.mailbox = mailbox;
 			this.domainUid = domainUid;
+			this.monitor = monitor;
 		}
 
 		public WalkResult folders() {
@@ -102,7 +100,7 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 				WalkResult wr = new WalkResult(sc, () -> new Sudo(mailbox.value.name, domainUid));
 
 				if (!sc.login()) {
-					logger.error("Unable to login as {} on {}", login, mailbox.value.name);
+					monitor.log("Unable to login as " + login + " on " + mailbox.value.name);
 				} else {
 					sc.listAll().stream().forEach(wr::add);
 				}
@@ -113,39 +111,37 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 	}
 
 	@Override
-	protected void checkMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
-		checkAndRepair(false, domainUid, report, monitor);
+	protected void checkMailbox(String domainUid, RepairTaskMonitor monitor) {
+		checkAndRepair(false, domainUid, monitor);
 	}
 
 	@Override
-	protected void repairMailbox(String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
-		checkAndRepair(true, domainUid, report, monitor);
+	protected void repairMailbox(String domainUid, RepairTaskMonitor monitor) {
+		checkAndRepair(true, domainUid, monitor);
 	}
 
-	private void checkAndRepair(boolean repair, String domainUid, DiagnosticReport report, IServerTaskMonitor monitor) {
+	private void checkAndRepair(boolean repair, String domainUid, RepairTaskMonitor monitor) {
 		monitor.begin(1, String.format("Check mailbox %s HSM migration", mailboxToString(domainUid)));
 
 		if (!hsmCompleted(domainUid)) {
 			traverseFolders(mailbox, domainUid, monitor);
 			if (repair) {
-				markAsFinished(domainUid);
+				markAsFinished(domainUid, monitor);
 			}
 		}
 
 		monitor.progress(1, String.format("Mailbox %s HSM migration finished", mailboxToString(domainUid)));
-		report.ok(MAINTENANCE_OPERATION_ID,
-				String.format("Mailbox %s HSM migration finished", mailboxToString(domainUid)));
-		monitor.end(true, null, null);
+		monitor.end();
 	}
 
-	private void markAsFinished(String domainUid) {
+	private void markAsFinished(String domainUid, RepairTaskMonitor monitor) {
 		String dir = String.format("/var/spool/bm-hsm/snappy/user/%s/%s", domainUid, mailbox.uid);
 		new File(dir).mkdirs();
 
 		try {
 			getMarkerFile(domainUid).createNewFile();
 		} catch (Exception e) {
-			logger.warn("Cannot create hsm marker file {}", getMarkerFile(domainUid).getAbsolutePath(), e);
+			monitor.notify("Cannot create hsm marker file {}", getMarkerFile(domainUid).getAbsolutePath());
 		}
 	}
 
@@ -158,20 +154,20 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 				String.format("/var/spool/bm-hsm/snappy/user/%s/%s/hsm.promote.completed", domain, mailbox.uid));
 	}
 
-	private void traverseFolders(ItemValue<Mailbox> mailbox, String domainUid, IServerTaskMonitor monitor) {
-		logger.info("Traversing folders of mailbox {} type {}, routing: {}", mailbox.displayName, mailbox.value.type,
+	private void traverseFolders(ItemValue<Mailbox> mailbox, String domainUid, RepairTaskMonitor monitor) {
+		monitor.log("Traversing folders of mailbox {} type {}, routing: {}", mailbox.displayName, mailbox.value.type,
 				mailbox.value.routing);
 		ItemValue<Server> server = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IServer.class, InstallationId.getIdentifier()).getComplete(mailbox.value.dataLocation);
 		if (mailbox.value.routing == Routing.internal && !mailbox.value.archived && !mailbox.value.type.sharedNs) {
-			MailboxWalk mailboxwalk = new MailboxWalk(mailbox, domainUid, server.value);
+			MailboxWalk mailboxwalk = new MailboxWalk(mailbox, domainUid, server.value, monitor);
 			try (WalkResult wr = mailboxwalk.folders()) {
-				IServerTaskMonitor foldersMonitor = monitor.subWork("folders", wr.folders.size());
+				RepairTaskMonitor foldersMonitor = (RepairTaskMonitor) monitor.subWork("folders", wr.folders.size());
 				foldersMonitor.begin(wr.folders.size(),
 						"Mailbox " + mailbox.displayName + ": found " + wr.folders.size() + " folders");
 				for (ListInfo f : wr.folders) {
 					foldersMonitor.progress(1, "Promote folder " + f.getName());
-					logger.info("Promote folder {}", f.getName());
+					monitor.log("Promoting folder {}", f.getName());
 					promoteFolder(domainUid, monitor, wr, f, foldersMonitor);
 				}
 				foldersMonitor.end(true, null, null);
@@ -180,13 +176,13 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 	}
 
 	private void promoteFolder(String domainUid, IServerTaskMonitor monitor, WalkResult wr, ListInfo folder,
-			IServerTaskMonitor foldersMonitor) {
+			RepairTaskMonitor foldersMonitor) {
 		String folderName = folder.getName();
 		StoreClient sc = wr.sc;
 		try {
 			sc.select(folderName);
 		} catch (IMAPException e) {
-			logger.warn("Cannot select folder {}", folderName, e);
+			foldersMonitor.notify("Cannot select folder {}:{}", folderName, e.getMessage());
 			return;
 		}
 		SearchQuery sq = new SearchQuery();
@@ -194,19 +190,19 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 		Collection<Integer> archived = sc.uidSearch(sq);
 		IDSet idset = IDSet.create(archived.iterator(), 100);
 
-		logger.info("Found {} archived entries in folder {} ", archived.size(), folderName);
+		foldersMonitor.log("Found {} archived entries in folder {} ", archived.size(), folderName);
 		monitor.log(archived.size() + " archived messages in folder " + folderName);
 
 		if (!archived.isEmpty()) {
 			IServerTaskMonitor messagesMonitor = foldersMonitor.subWork("messages", archived.size());
 			messagesMonitor.begin(archived.size(), "promoting HSM messages in folder " + folderName);
 			idset.forEach(idRange -> {
-				logger.info("Promoting from {} to {}", idRange.from(), idRange.to());
+				monitor.log("Promoting from {} to {}", idRange.from(), idRange.to());
 
 				if (idRange.from() > 0) {
 					String smallerRange = idRange.toString();
 					Collection<Summary> imapSummaries = sc.uidFetchSummary(smallerRange);
-					logger.info("Promoting {} summaries", imapSummaries.size());
+					messagesMonitor.log("Promoting {} summaries", imapSummaries.size());
 					promoteSummaries(domainUid, mailbox, folder, wr, imapSummaries);
 					messagesMonitor.progress(imapSummaries.size(), "Promoted " + imapSummaries.size() + " messages");
 				}

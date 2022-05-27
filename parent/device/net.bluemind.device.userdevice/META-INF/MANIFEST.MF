@@ -15,5 +15,6 @@ Require-Bundle: slf4j.api,
  net.bluemind.core.container.api,
  net.bluemind.device.api,
  net.bluemind.core.container.repair,
- net.bluemind.core.task.spi
+ net.bluemind.core.task.spi,
+ net.bluemind.directory.service
 Automatic-Module-Name: net.bluemind.device.userdevice

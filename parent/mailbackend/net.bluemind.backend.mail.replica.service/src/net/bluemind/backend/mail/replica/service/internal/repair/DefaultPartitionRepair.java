@@ -20,13 +20,11 @@ package net.bluemind.backend.mail.replica.service.internal.repair;
 import java.util.Collections;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import com.google.common.collect.Sets;
 
 import net.bluemind.config.Token;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
@@ -34,6 +32,7 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
 import net.bluemind.directory.service.IDirEntryRepairSupport.InternalMaintenanceOperation;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.imap.Annotation;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.ListInfo;
@@ -42,8 +41,6 @@ import net.bluemind.imap.StoreClient;
 import net.bluemind.network.topology.Topology;
 
 public class DefaultPartitionRepair extends InternalMaintenanceOperation {
-
-	private static final Logger logger = LoggerFactory.getLogger(DefaultPartitionRepair.class);
 
 	private static final String ID = "default.partition";
 	private static final MaintenanceOperation op = MaintenanceOperation.create(ID,
@@ -84,23 +81,24 @@ public class DefaultPartitionRepair extends InternalMaintenanceOperation {
 	}
 
 	@Override
-	public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-		run(false, domainUid, entry, report, monitor);
+	public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+		run(false, domainUid, entry, monitor);
+		monitor.end();
 	}
 
 	@Override
-	public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-		run(true, domainUid, entry, report, monitor);
+	public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+		run(true, domainUid, entry, monitor);
+		monitor.end();
 	}
 
-	private void run(boolean repair, String domainUid, DirEntry entry, DiagnosticReport report,
-			IServerTaskMonitor monitor) {
+	private void run(boolean repair, String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 		monitor.log("Repairing " + entry + " as " + context.getSecurityContext().getSubject());
 		Topology.get().nodes().stream().filter(srv -> srv.value.tags.contains("mail/imap")).forEach(backend -> {
 			try (StoreClient sc = new StoreClient(backend.value.address(), 1143, "admin0", Token.admin0())) {
 				boolean login = sc.login();
 				if (login) {
-					repairBackend(repair, domainUid, report, monitor, sc);
+					repairBackend(repair, domainUid, monitor, sc);
 				}
 
 			}
@@ -109,8 +107,7 @@ public class DefaultPartitionRepair extends InternalMaintenanceOperation {
 
 	}
 
-	private void repairBackend(boolean repair, String domainUid, DiagnosticReport report, IServerTaskMonitor monitor,
-			StoreClient sc) {
+	private void repairBackend(boolean repair, String domainUid, RepairTaskMonitor monitor, StoreClient sc) {
 		ListResult allMailboxes = sc.listAllDomain(domainUid);
 		monitor.begin(allMailboxes.size(), "Working on " + allMailboxes.size() + " mailbox(es)");
 		for (ListInfo li : allMailboxes) {
@@ -122,11 +119,11 @@ public class DefaultPartitionRepair extends InternalMaintenanceOperation {
 			}
 			String part = annots.valueShared;
 			if ("default".equals(part)) {
+				monitor.notify("Folder {} is on default partition", li.getName());
 				if (repair) {
-					repairFolder(report, monitor, sc, li);
+					repairFolder(monitor, sc, li);
 				} else {
 					monitor.log(li.getName() + " should be repaired.");
-					report.warn(ID, li.getName() + " should be repaired.");
 				}
 
 			}
@@ -134,17 +131,13 @@ public class DefaultPartitionRepair extends InternalMaintenanceOperation {
 		}
 	}
 
-	private void repairFolder(DiagnosticReport report, IServerTaskMonitor monitor, StoreClient sc, ListInfo li) {
+	private void repairFolder(IServerTaskMonitor monitor, StoreClient sc, ListInfo li) {
 		try {
 			monitor.log("Repairing " + li.getName() + "...");
 			boolean result = sc.rename(li.getName(), li.getName());
-			monitor.log(li.getName() + " repaired => " + result);
-			if (result) {
-				report.ok(ID, li.getName() + " repaired.");
-			}
+			monitor.log(li.getName() + " repaired => " + result, Level.WARN);
 		} catch (IMAPException ie) {
 			monitor.log("Failed to repair " + li.getName() + ": " + ie.getMessage());
-			logger.error(ie.getMessage(), ie);
 		}
 	}
 

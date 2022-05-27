@@ -26,6 +26,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.event.Level;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
@@ -35,7 +37,6 @@ import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
@@ -48,6 +49,7 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.directory.service.RepairTaskMonitor;
 
 public class CalendarRecurrenceRepair implements IDirEntryRepairSupport {
 
@@ -76,17 +78,16 @@ public class CalendarRecurrenceRepair implements IDirEntryRepairSupport {
 		}
 
 		@Override
-		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			checkAndRepair(false, entry, report, monitor);
+		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			checkAndRepair(false, entry, monitor);
 		}
 
 		@Override
-		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			checkAndRepair(true, entry, report, monitor);
+		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+			checkAndRepair(true, entry, monitor);
 		}
 
-		private void checkAndRepair(boolean repair, DirEntry entry, DiagnosticReport report,
-				IServerTaskMonitor monitor) {
+		private void checkAndRepair(boolean repair, DirEntry entry, RepairTaskMonitor monitor) {
 
 			IContainers containersService = context.provider().instance(IContainers.class);
 			ContainerQuery q = ContainerQuery.ownerAndType(entry.entryUid, ICalendarUids.TYPE);
@@ -96,21 +97,22 @@ public class CalendarRecurrenceRepair implements IDirEntryRepairSupport {
 			int workLoad = (repair) ? 2 * containers.size() : containers.size();
 			monitor.begin(workLoad, String.format("%s %d calendar(s) of user %s", repair ? "Repair" : "Check",
 					containers.size(), entry.entryUid));
-			containers.forEach(container -> checkAndRepairCalendar(repair, container, report, monitor));
+			containers.forEach(container -> checkAndRepairCalendar(repair, container, monitor));
+			monitor.end();
 		}
 
-		private void checkAndRepairCalendar(boolean repair, BaseContainerDescriptor container, DiagnosticReport report,
-				IServerTaskMonitor monitor) {
+		private void checkAndRepairCalendar(boolean repair, BaseContainerDescriptor container,
+				RepairTaskMonitor monitor) {
 			ICalendar service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 					container.uid);
 			List<ItemValue<VEventSeries>> repairedItems = findAndRepairItems(service, container, monitor);
 			if (repair) {
-				saveRepairedItems(service, container, repairedItems, report, monitor);
+				saveRepairedItems(service, container, repairedItems, monitor);
 			}
 		}
 
 		private List<ItemValue<VEventSeries>> findAndRepairItems(ICalendar service, BaseContainerDescriptor container,
-				IServerTaskMonitor monitor) {
+				RepairTaskMonitor monitor) {
 			List<ItemValue<VEventSeries>> repairedItems = Lists.partition(service.all(), 50).stream() //
 					.flatMap(List::stream) //
 					.map(service::getComplete) //
@@ -120,7 +122,10 @@ public class CalendarRecurrenceRepair implements IDirEntryRepairSupport {
 					.collect(Collectors.toList());
 			monitor.progress(1, String.format("Checked calendar %s, %d events with duplicates", container.uid,
 					repairedItems.size()));
-			repairedItems.forEach(item -> monitor.log(" - Event {} has duplicated recurid", item.uid));
+			repairedItems.forEach(item -> monitor.log(" - Event {} of calendar {} has a duplicated recurid", Level.WARN,
+					item.uid, container.uid));
+			repairedItems.forEach(item -> monitor.notify("Event {} of calendar {} has a duplicated recurid", item.uid,
+					container.uid));
 			return repairedItems;
 		}
 
@@ -139,21 +144,19 @@ public class CalendarRecurrenceRepair implements IDirEntryRepairSupport {
 			}
 		}
 
-		private void saveRepairedItems(ICalendar service, BaseContainerDescriptor container,
-				List<ItemValue<VEventSeries>> repairedItems, DiagnosticReport report, IServerTaskMonitor monitor) {
+		private int saveRepairedItems(ICalendar service, BaseContainerDescriptor container,
+				List<ItemValue<VEventSeries>> repairedItems, IServerTaskMonitor monitor) {
 			if (repairedItems.isEmpty()) {
-				report.ok(IDENTIFIER, "calendar recurrences are ok");
-				return;
+				return 0;
 			}
 
 			int errors = repairedItems.stream().mapToInt(item -> repairEvent(service, item) ? 0 : 1).sum();
 			if (errors == 0) {
 				monitor.progress(1, String.format("Repaired calendar %s", container.uid));
-				report.ok(IDENTIFIER, "calendar recurrences have been repaired");
 			} else {
 				monitor.progress(1, String.format("Failed to repaired calendar %s", container.uid));
-				report.ko(IDENTIFIER, "Not all calendar recurrences have been repaired");
 			}
+			return errors;
 		}
 
 		private boolean repairEvent(ICalendar service, ItemValue<VEventSeries> item) {
