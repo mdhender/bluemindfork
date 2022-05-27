@@ -72,7 +72,7 @@ public class AttachmentService implements IAttachment {
 		String path = findName(service, name);
 		service.store(path, document);
 
-		return finishSharing(path);
+		return finishSharing(path, name);
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class AttachmentService implements IAttachment {
 				service.store(path, asStream);
 			}
 
-			return finishSharing(path);
+			return finishSharing(path, hash + "." + ext);
 		} catch (IOException e) {
 			throw new ServerFault(e);
 		} finally {
@@ -104,14 +104,14 @@ public class AttachmentService implements IAttachment {
 		}
 	}
 
-	private AttachedFile finishSharing(String path) {
+	private AttachedFile finishSharing(String path, String name) {
 		Calendar expiration = getDefaultExpiration();
 
 		FileHostingPublicLink publicLink = service.share(path, -1,
 				BmDateTimeWrapper.toIso8601(expiration.getTimeInMillis(), "UTC"));
 
 		AttachedFile attachedFile = new AttachedFile();
-		attachedFile.name = path.replace(FOLDER, "");
+		attachedFile.name = name;
 		attachedFile.publicUrl = publicLink.url;
 		attachedFile.expirationDate = publicLink.expirationDate;
 

@@ -1,7 +1,7 @@
 create table t_filehosting_file (
   uid varchar(39) NOT NULL primary key,
   owner text,
-  path varchar(255) NOT NULL,
+  path text NOT NULL,
   metadata hstore,
   download_limit integer default 0,
   expiration_date timestamp without time zone,
@@ -14,7 +14,7 @@ create index i_t_filehosting_file_path on t_filehosting_file (path);
 
 create table t_filehosting_file_info (
   id  SERIAL PRIMARY KEY,
-  path varchar(255) NOT NULL,
+  path text NOT NULL,
   created timestamp without time zone,
   owner text
 );
