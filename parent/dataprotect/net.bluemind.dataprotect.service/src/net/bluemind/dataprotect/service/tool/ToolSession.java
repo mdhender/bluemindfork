@@ -104,10 +104,22 @@ public class ToolSession implements IToolSession {
 
 		int nbProcs = Runtime.getRuntime().availableProcessors() - 1;
 		Semaphore sem = new Semaphore(Math.max(3, nbProcs));
-		CompletableFuture<?>[] toJoin = toRun.stream().map(cmd -> runBackupCommand(nc, next, cmd, sem))
+		@SuppressWarnings("unchecked")
+		CompletableFuture<Integer>[] backupExecutions = toRun.stream().map(cmd -> runBackupCommand(nc, next, cmd, sem))
 				.toArray(CompletableFuture[]::new);
 		ctx.info("en", "Waiting for rsync completions...");
-		CompletableFuture.allOf(toJoin).join();
+		CompletableFuture.allOf(backupExecutions).join();
+
+		for (CompletableFuture<Integer> backupExitCode : backupExecutions) {
+			try {
+				Integer exitCode = backupExitCode.get();
+				if (exitCode != 0 && exitCode != 24) { // 24 Partial transfer due to vanished source files
+					throw new ServerFault("Backup command returned non-zero exit code: " + exitCode);
+				}
+			} catch (Exception e) {
+				// CompletableFuture.allOf already covered this
+			}
+		}
 
 		long size = 0;
 		for (String dir : cfg.getDirs()) {
