@@ -20,6 +20,7 @@ package net.bluemind.addressbook.service.internal;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -91,6 +92,7 @@ public class VCardGroupSanitizer {
 				.collect(Collectors.toMap(m -> m.itemUid, m -> m, (member1, member2) -> member1));
 
 		List<ItemValue<VCard>> cards = ab.multipleGet(ImmutableList.copyOf(localCards.keySet()));
+
 		boolean modifiedFlag = cards.stream() //
 				.filter(card -> !isVCardMemberValid(localCards.get(card.uid), card.value)) //
 				.map(card -> {
@@ -101,12 +103,17 @@ public class VCardGroupSanitizer {
 
 					modified |= !StringUtils.equals(card.value.defaultMail(), member.mailto);
 					member.mailto = card.value.defaultMail();
-					localCards.remove(card.uid);
 					return modified;
 				}).filter(m -> m).count() > 0;
 
-		modifiedFlag |= !localCards.values().isEmpty();
-		localCards.values().forEach(m -> m.containerUid = null);
+		Set<String> foundMemberCardUid = cards.stream().map(card -> card.uid).collect(Collectors.toSet());
+		List<Member> notFoundMembers = localCards.entrySet().stream() //
+				.filter(entry -> !foundMemberCardUid.contains(entry.getKey())) //
+				.map(entry -> entry.getValue()) //
+				.collect(Collectors.toList());
+		modifiedFlag |= !notFoundMembers.isEmpty();
+		notFoundMembers.forEach(notFoundMember -> notFoundMember.containerUid = null);
+
 		return modifiedFlag;
 	}
 
