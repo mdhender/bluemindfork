@@ -120,7 +120,7 @@ public class AttachmentServiceTests {
 		FileUtils.deleteQuietly(rootFolder);
 	}
 
-	protected IFileHosting getFileHostingService() throws ServerFault {
+	protected IFileHosting getFileHostingService(SecurityContext context) throws ServerFault {
 		return ServerSideServiceProvider.getProvider(securityContext).instance(IFileHosting.class, domainName);
 	}
 
@@ -217,7 +217,7 @@ public class AttachmentServiceTests {
 
 		AttachedFile file = service.share(name, bytesToStream(testString.getBytes()));
 
-		FileHostingItem fileInfo = getFileHostingService().getComplete(ID.extract(file.publicUrl));
+		FileHostingItem fileInfo = getFileHostingService(securityContext).getComplete(ID.extract(file.publicUrl));
 
 		Assert.assertNotNull(fileInfo);
 		Assert.assertEquals("test.txt", fileInfo.name);
@@ -225,7 +225,7 @@ public class AttachmentServiceTests {
 		service.unShare(file.publicUrl);
 
 		try {
-			fileInfo = getFileHostingService().getComplete(ID.extract(file.publicUrl));
+			fileInfo = getFileHostingService(securityContext).getComplete(ID.extract(file.publicUrl));
 			Assert.fail();
 		} catch (Exception e) {
 		}
@@ -239,7 +239,7 @@ public class AttachmentServiceTests {
 
 		AttachedFile file = service.share(name, bytesToStream(testString.getBytes()));
 
-		FileHostingItem fileInfo = getFileHostingService().getComplete(ID.extract(file.publicUrl));
+		FileHostingItem fileInfo = getFileHostingService(securityContext).getComplete(ID.extract(file.publicUrl));
 
 		Assert.assertNotNull(fileInfo);
 		Assert.assertEquals("test.txt", fileInfo.name);
@@ -251,7 +251,7 @@ public class AttachmentServiceTests {
 	}
 
 	private boolean fileExists(String path) throws ServerFault {
-		return (getFileHostingService() //
+		return (getFileHostingService(securityContext) //
 				.list(AttachmentService.FOLDER) //
 				.stream() //
 				.filter(item -> item.name.equals("")) //
