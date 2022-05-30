@@ -1,27 +1,21 @@
-<template>
-    <div class="bm-extension" :class="className">
-        <template v-if="$scopedSlots.default">
-            <template v-for="extension in loaded">
-                <slot v-bind="extension" />
-            </template>
-        </template>
-        <template v-else-if="decorator">
-            <component :is="decorator" v-for="extension in loaded" :key="extension.$id">
-                <component :is="extension.name" :key="extension.$id" v-bind="$attrs" />
-            </component>
-        </template>
-        <template v-else>
-            <component :is="extension.name" v-for="extension in loaded" :key="extension.$id" v-bind="$attrs" />
-        </template>
-    </div>
-</template>
-
 <script>
+import BmExtensionDecorator from "./BmExtensionDecorator";
+import BmExtensionList from "./BmExtensionList";
+import BmExtensionRenderless from "./BmExtensionRenderless";
 import { mapExtensions } from "@bluemind/extensions";
+const BmExtensionType = {
+    LIST: "list",
+    DECORATOR: "decorator",
+    RENDERLESS: "renderless"
+};
 
 export default {
     name: "BmExtension",
     props: {
+        type: {
+            type: String,
+            default: BmExtensionType.LIST
+        },
         id: {
             type: String,
             required: true
@@ -29,22 +23,31 @@ export default {
         path: {
             type: String,
             required: true
-        },
-        decorator: {
-            type: String,
-            required: false,
-            default: undefined
         }
     },
-    data() {
-        return { extensions: Cache.get(this.id, this.path) };
-    },
     computed: {
-        className() {
-            return "bm-extension-" + this.path.replace(/\./g, "-");
-        },
         loaded() {
-            return this.extensions.filter(({ $loaded }) => $loaded.status);
+            return Cache.get(this.id, this.path).filter(({ $loaded }) => $loaded.status);
+        }
+    },
+    render(h) {
+        const extensions = this.loaded;
+        const options = {
+            class: ["bm-extension", "bm-extension-" + this.path.replace(/\./g, "-")],
+            props: {
+                extensions
+            },
+            attrs: this.$attrs,
+            on: this.$listeners,
+            scopedSlots: this.$scopedSlots
+        };
+        switch (this.type) {
+            case BmExtensionType.DECORATOR:
+                return h(BmExtensionDecorator, options);
+            case BmExtensionType.RENDERLESS:
+                return h(BmExtensionRenderless, options);
+            default:
+                return h(BmExtensionList, options);
         }
     }
 };
@@ -74,7 +77,7 @@ export const Cache = {
 </script>
 
 <style>
-.bm-extensions:empty {
+.bm-extension:empty {
     display: none;
 }
 </style>

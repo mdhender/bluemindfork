@@ -26,7 +26,7 @@ export default {
             const { publicUrl, name } = await serviceAttachment.share(
                 file.name,
                 file,
-                global.cancellers,
+                global.cancellers[attachment.address + message.key],
                 createOnUploadProgress(commit, message.key, attachment.address)
             );
             // TODO handle expiration date

@@ -14,7 +14,8 @@
         "@bluemind/inject": "^4.1.0",
         "@bluemind/uuid": "^4.1.0",
         "@bluemind/global": "^4.1.0",
-        "@bluemind/file-utils": "^4.1.0"
+        "@bluemind/file-utils": "^4.1.0",
+        "@bluemind/extensions": "^4.1.0"
     },
     "devDependencies": {
         "@bluemind/conf": "^4.1.0"

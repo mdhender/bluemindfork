@@ -1,25 +1,38 @@
 <template>
-    <div>
+    <bm-extension
+        id="webapp.mail"
+        v-slot="context"
+        type="renderless"
+        path="message.attachment"
+        :attachment="attachment"
+        :message="message"
+    >
         <bm-container
             class="mail-attachment-item text-condensed py-2 px-2 mt-2"
             :class="isRemovable ? '' : 'cursor-pointer'"
-            @click="isViewable(attachment) ? openPreview() : download()"
+            @click="
+                isViewable(context.attachment) ? openPreview(context.attachment, message) : download(context.attachment)
+            "
         >
-            <component
-                :is="component"
-                :attachment="attachment"
+            <attachment-preview
+                v-if="!compact"
+                :attachment="context.attachment"
                 :message="message"
-                :compact="compact"
-                :class="{ muted: !isUploaded }"
+                :class="{ muted: !isUploaded(context.attachment) }"
+            />
+            <attachment-infos
+                :attachment="context.attachment"
+                :message="message"
+                :class="{ muted: !isUploaded(context.attachment) }"
             >
-                <template #actions="context">
+                <template #actions>
                     <bm-button
-                        v-if="isViewable(attachment)"
+                        v-if="isViewable(context.attachment)"
                         variant="inline-neutral"
                         class="p-0"
                         size="md"
                         :title="$t('mail.preview.open')"
-                        @click.stop="openPreview"
+                        @click.stop="openPreview(context.attachment, message)"
                     >
                         <bm-icon icon="eye" size="2x" class="p-1" />
                     </bm-button>
@@ -36,7 +49,7 @@
                                 name: context.attachment.fileName
                             })
                         "
-                        :href="previewUrl"
+                        :href="previewUrl(context.attachment)"
                         :download="context.attachment.fileName"
                         @click.stop
                     >
@@ -59,34 +72,35 @@
                         @click.stop="$execute('remove-attachment', { attachment: context.attachment, message })"
                     />
                 </template>
-            </component>
+            </attachment-infos>
             <bm-progress
-                v-if="!isUploaded"
-                :value="attachment.progress.loaded"
-                :max="attachment.progress.total"
-                :animated="attachment.progress.animated"
+                v-if="!isUploaded(context.attachment)"
+                :value="context.attachment.progress.loaded"
+                :max="context.attachment.progress.total"
+                :animated="context.attachment.progress.animated"
                 :variant="errorMessage ? 'danger' : 'secondary'"
             />
         </bm-container>
-        <div v-if="errorMessage" class="row px-1"><bm-notice class="w-100" :text="errorMessage" /></div>
-    </div>
+        <div v-if="errorMessage(context.attachment)" class="row px-1">
+            <bm-notice class="w-100" :text="errorMessage(context.attachment)" />
+        </div>
+    </bm-extension>
 </template>
 
 <script>
 import { mapMutations } from "vuex";
+import global from "@bluemind/global";
 import { getPartDownloadUrl, MimeType } from "@bluemind/email";
 import { BmContainer, BmProgress, BmNotice, BmButtonClose, BmIcon, BmButton } from "@bluemind/styleguide";
-import global from "@bluemind/global";
+import { BmExtension } from "@bluemind/extensions.vue";
 
 import { AttachmentStatus } from "~/model/attachment";
 import { ComposerActionsMixin } from "~/mixins";
 import { isViewable } from "~/model/part";
 
 import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_PART_ADDRESS } from "~/mutations";
-import DefaultAttachment from "./MailAttachmentItem/DefaultAttachment";
-import FileHostingAttachment from "./MailAttachmentItem/FileHostingAttachment";
-
-const strategies = [FileHostingAttachment, DefaultAttachment];
+import AttachmentPreview from "./MailAttachmentItem/AttachmentPreview";
+import AttachmentInfos from "./MailAttachmentItem/AttachmentInfos";
 
 export default {
     name: "MailAttachmentItem",
@@ -96,7 +110,10 @@ export default {
         BmNotice,
         BmButtonClose,
         BmIcon,
-        BmButton
+        BmButton,
+        BmExtension,
+        AttachmentPreview,
+        AttachmentInfos
     },
     mixins: [ComposerActionsMixin],
     props: {
@@ -117,23 +134,6 @@ export default {
     computed: {
         isRemovable() {
             return this.message.composing;
-        },
-        errorMessage() {
-            return this.attachment.status === AttachmentStatus.ERROR
-                ? this.$t("alert.mail.message.draft.attach.error")
-                : undefined;
-        },
-        isUploaded() {
-            return this.attachment.progress.loaded === this.attachment.progress.total;
-        },
-        previewUrl() {
-            return getPartDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.attachment);
-        },
-        isCancellable() {
-            return !this.isUploaded && this.attachment.status !== AttachmentStatus.ERROR;
-        },
-        component() {
-            return strategies.find(strategy => strategy.handle(this.attachment));
         }
     },
     methods: {
@@ -141,22 +141,35 @@ export default {
             SET_PREVIEW_MESSAGE_KEY,
             SET_PREVIEW_PART_ADDRESS
         }),
-
-        download() {
-            location.assign(this.previewUrl);
+        isCancellable(attachment) {
+            return !this.isUploaded(attachment) && attachment.status !== AttachmentStatus.ERROR;
         },
-        openPreview() {
-            this.SET_PREVIEW_MESSAGE_KEY(this.message.key);
-            this.SET_PREVIEW_PART_ADDRESS(this.attachment.address);
+        isUploaded(attachment) {
+            return attachment.progress.loaded === attachment.progress.total;
+        },
+        download(attachment) {
+            location.assign(this.previewUrl(attachment));
+        },
+        openPreview(attachment, message) {
+            this.SET_PREVIEW_MESSAGE_KEY(message.key);
+            this.SET_PREVIEW_PART_ADDRESS(attachment.address);
             this.$bvModal.show("mail-attachment-preview");
         },
-        cancel() {
-            global.cancellers[this.attachment.address + this.message.key].cancel();
+        cancel(attachment, message) {
+            global.cancellers[attachment.address + message.key].cancel();
         },
-        isViewable,
+        errorMessage(attachment) {
+            return attachment.status === AttachmentStatus.ERROR
+                ? this.$t("alert.mail.message.draft.attach.error")
+                : undefined;
+        },
+        previewUrl(attachment) {
+            return getPartDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, attachment);
+        },
         fileTypeIcon({ mime }) {
             return MimeType.matchingIcon(mime);
-        }
+        },
+        isViewable
     }
 };
 </script>

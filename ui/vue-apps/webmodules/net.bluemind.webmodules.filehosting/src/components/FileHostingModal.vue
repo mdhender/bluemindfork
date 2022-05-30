@@ -1,5 +1,10 @@
 <template>
-    <bm-modal id="fh-modal" :title="$tc('mail.filehosting.add.large', fhAttachments.length)" title-class="ml-2" no-fade>
+    <bm-modal
+        id="file-hosting-modal"
+        :title="$tc('mail.filehosting.add.large', fhAttachments.length)"
+        title-class="ml-2"
+        no-fade
+    >
         <div class="mr-4 ml-2">
             <div class="d-flex align-items-center mb-3">
                 <bm-icon icon="file" size="2x" class="mr-2 text-primary" />
@@ -39,7 +44,7 @@
             <bm-button variant="simple-dark" :disabled="totalLoaded === totalSize" @click="cancelAll">
                 {{ $t("mail.filehosting.share.stop") }}
             </bm-button>
-            <bm-button variant="outline-primary" @click="$bvModal.hide('fh-modal')">
+            <bm-button variant="outline-primary" @click="$bvModal.hide('file-hosting-modal')">
                 {{ $t("common.hide") }}
             </bm-button>
         </template>
@@ -53,14 +58,9 @@ import { computeUnit } from "@bluemind/file-utils";
 import FhAttachmentItem from "./AttachmentItem";
 
 export default {
-    name: "FhModal",
+    name: "FileHostingModal",
     components: { BmModal, BmButtonClose, BmButton, BmIcon, FhAttachmentItem },
-    props: {
-        message: {
-            type: Object,
-            required: true
-        }
-    },
+
     computed: {
         ...mapGetters("mail", ["GET_FH_ATTACHMENT"]),
         totalLoaded() {
@@ -70,19 +70,24 @@ export default {
             return this.fhAttachments.reduce((totalSize, attachment) => totalSize + attachment.progress.total, 0);
         },
         fhAttachments() {
-            return this.attachments.filter(attachment => this.GET_FH_ATTACHMENT(this.message, attachment));
+            return this.attachments.filter(attachment =>
+                this.GET_FH_ATTACHMENT(this.$store.state.mail.activeMessage, attachment)
+            );
         },
         sizeLimit() {
             return this.$store.state.mail.messageCompose.maxMessageSize;
         },
         attachments() {
-            return this.$store.state.mail.conversations.messages[this.message.key].attachments;
+            return (
+                this.$store.state.mail.conversations.messages[this.$store.state.mail.activeMessage.key]?.attachments ||
+                []
+            );
         }
     },
     watch: {
         totalLoaded(val) {
             if (val === this.totalSize) {
-                this.$bvModal.hide("fh-modal");
+                this.$bvModal.hide("file-hosting-modal");
             }
         }
     },
@@ -91,7 +96,7 @@ export default {
             return computeUnit(size, this.$i18n);
         },
         cancel(address) {
-            global.cancellers[address + this.message.key].cancel();
+            global.cancellers[address + this.$store.state.mail.activeMessage.key].cancel();
         },
         cancelAll() {
             this.fhAttachments.map(attachment => this.cancel(attachment.address));
@@ -102,7 +107,7 @@ export default {
 <style lang="scss" scoped>
 @import "@bluemind/styleguide/css/_variables.scss";
 
-#fh-modal {
+#file-hosting-modal {
     .text-light {
         color: $alternate-light;
     }

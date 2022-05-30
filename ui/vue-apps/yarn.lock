@@ -1159,6 +1159,31 @@
   dependencies:
     axios "^0.18.0"
 
+"@bluemind/styleguide@0.1.2289":
+  version "0.1.2289"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.2289.tgz#73c952794e1e9363b16b43931faf4d0b7d7e4fb4"
+  integrity sha512-iFKtiwrgKI7EbPsAS4M057aG73bpkoOUjQA6yvfClYfFmaDqd74AYwkO5Ym+ktRlNtqczp0yipfQB28XkjeioQ==
+  dependencies:
+    "@bluemind/email" "^4.1.0"
+    "@fortawesome/fontawesome-svg-core" "^1.2.12"
+    "@fortawesome/vue-fontawesome" "^0.1.4"
+    bootstrap "^4.6.0"
+    bootstrap-vue "^2.22.0"
+    interactjs "^1.10.11"
+    lodash.clonedeep "^4.5.0"
+    lodash.debounce "^4.0.8"
+    lodash.isequal "^4.5.0"
+    lodash.iteratee "^4.7.0"
+    lodash.sortedindexby "^4.6.0"
+    lodash.throttle "^4.1.1"
+    roosterjs-editor-api "^8.22.0"
+    roosterjs-editor-core "^8.22.0"
+    roosterjs-editor-dom "^8.22.0"
+    roosterjs-editor-plugins "^8.22.0"
+    roosterjs-editor-types "^8.22.0"
+    vue-global-events "^1.1.2"
+    vue-i18n "^8.14.0"
+
 "@bluemind/styleguide@^0.1.0":
   version "0.1.2390"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.2390.tgz#8bd9f80950b578e7f30e5380053f1e47cf667139"

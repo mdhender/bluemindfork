@@ -35,7 +35,7 @@ async function shouldDetachFiles(files, message, maxMessageSize) {
 }
 
 async function doDetach(files, message) {
-    this.$bvModal.show("fh-modal");
+    this.$bvModal.show("file-hosting-modal");
     await Promise.all(files.map(file => this.$store.dispatch(`mail/ADD_FH_ATTACHMENT`, { file, message })));
     return { files: [], message };
 }
