@@ -39,7 +39,7 @@ test ${service_pid} -gt 0 || {
 
 date_for_file=$(date +"%Y%m%dT%H%M")
 # we use a world-writable directory, bmprofile bm-sds-proxy works out of the box with that
-output=/tmp/profile-${product}.${service_pid}.${date_for_file}.svg
+output=/tmp/profile-${product}.${service_pid}.${date_for_file}.html
 
 echo "Will profile service ${product} with PID ${service_pid}, output will be in ${output}..."
 

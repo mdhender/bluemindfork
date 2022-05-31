@@ -7,7 +7,7 @@ Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
 Requires(post):     systemd systemd-sysv
-Requires:           bm-jdk = 8u322-bluemind48, bm-conf = %{version}-%{release}, openssl, ca-certificates, bm-tika = %{version}-%{release}, bm-plugin-core-subscription = %{version}-%{release}, bm-upgraders-list = %{version}-%{release}
+Requires:           bm-jdk = 8u332-bluemind51, bm-conf = %{version}-%{release}, openssl, ca-certificates, bm-tika = %{version}-%{release}, bm-plugin-core-subscription = %{version}-%{release}, bm-upgraders-list = %{version}-%{release}
 Requires(post):     /bin/bash, initscripts
 Conflicts:          bm-soap, bm-plugin-core-dataprotect-upgrade, bm-plugin-core-hoster-report, bm-plugin-core-mapi-support, bm-plugin-core-monitoring, bm-locator
 Obsoletes:          bm-soap, bm-plugin-core-dataprotect-upgrade, bm-plugin-core-hoster-report, bm-plugin-core-mapi-support, bm-plugin-core-monitoring, bm-locator
