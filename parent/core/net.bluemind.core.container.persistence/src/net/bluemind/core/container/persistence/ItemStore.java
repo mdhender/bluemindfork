@@ -370,7 +370,7 @@ public class ItemStore extends JdbcAbstractStore {
 	}
 
 	public List<Long> allItemIds() throws SQLException {
-		return select("SELECT id FROM t_container_item where container_id = ?", LongCreator.FIRST,
+		return select("SELECT id FROM t_container_item WHERE container_id = ?", LongCreator.FIRST,
 				Collections.emptyList(), new Object[] { container.id });
 	}
 

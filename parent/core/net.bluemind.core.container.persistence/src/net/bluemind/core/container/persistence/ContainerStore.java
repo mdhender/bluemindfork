@@ -118,15 +118,15 @@ public class ContainerStore extends JdbcAbstractStore {
 
 	public List<Container> findByTypeOwnerReadOnly(String containerType, String owner, Boolean readOnly)
 			throws SQLException {
-		String selectQuery = "SELECT id, uid, container_type, name, owner, createdby, updatedby, created, updated, defaultContainer, domain_uid, readonly from t_container as c "
-				+ " where c.owner = ? ";
+		String selectQuery = "SELECT id, uid, container_type, name, owner, createdby, updatedby, created, updated, defaultContainer, domain_uid, readonly FROM t_container AS c "
+				+ " WHERE c.owner = ?";
 
 		Object[] args = null;
 		if (containerType != null && readOnly != null) {
-			selectQuery += "and c.container_type = ? and c.readonly = ?";
+			selectQuery += " AND c.container_type = ? AND c.readonly = ?";
 			args = new Object[] { owner, containerType, readOnly };
 		} else if (containerType != null) {
-			selectQuery += "and c.container_type = ? ";
+			selectQuery += " AND c.container_type = ? ";
 			args = new Object[] { owner, containerType };
 		} else {
 			args = new Object[] { owner };
@@ -138,8 +138,8 @@ public class ContainerStore extends JdbcAbstractStore {
 	}
 
 	public List<Container> findByType(String containerType) throws SQLException {
-		String selectQuery = "SELECT id, uid, container_type, name, owner, createdby, updatedby, created, updated, defaultContainer, domain_uid, readonly from t_container as c "
-				+ " where c.container_type = ?";
+		String selectQuery = "SELECT id, uid, container_type, name, owner, createdby, updatedby, created, updated, defaultContainer, domain_uid, readonly FROM t_container AS c "
+				+ " WHERE c.container_type = ?";
 
 		return select(selectQuery, (rs) -> new Container(),
 				Arrays.<EntityPopulator<Container>>asList(CONTAINER_POPULATOR), new Object[] { containerType });
@@ -168,11 +168,11 @@ public class ContainerStore extends JdbcAbstractStore {
 		// FIXME we need to restrict to domain_uid
 		StringBuilder q = new StringBuilder();
 		q.append(
-				" SELECT id, uid, container_type, name, owner, createdby, updatedby, created, updated, defaultContainer, domain_uid, readonly ");
-		q.append(" FROM t_container as c");
-		q.append(" WHERE  ( c.owner = ? ");
+				"SELECT id, uid, container_type, name, owner, createdby, updatedby, created, updated, defaultContainer, domain_uid, readonly ");
+		q.append(" FROM t_container AS c");
+		q.append(" WHERE (c.owner = ? ");
 		q.append(
-				"OR c.id in ( select  acl.container_id  from t_container_acl as acl where ( acl.subject = ANY(?) OR acl.subject = 'public' ) ");
+				"OR c.id IN (SELECT acl.container_id FROM t_container_acl AS acl WHERE (acl.subject = ANY(?) OR acl.subject = 'public') ");
 		if (query.verb != null && !query.verb.isEmpty()) {
 			q.append(" AND acl.verb = ANY(?)");
 		}
@@ -215,7 +215,7 @@ public class ContainerStore extends JdbcAbstractStore {
 				q.append(" AND name = ?");
 				parameters.add(query.name);
 			} else {
-				q.append(" AND (upper(name) like upper(?) AND name not like '$$%')");
+				q.append(" AND (upper(name) like upper(?) AND name NOT LIKE '$$%')");
 				parameters.add("%" + query.name + "%");
 			}
 		}
@@ -234,9 +234,9 @@ public class ContainerStore extends JdbcAbstractStore {
 
 	public Container create(Container container) throws SQLException {
 
-		String insertQuery = "INSERT INTO t_container (uid,container_type, "
-				+ "name, owner,createdby , updatedby , created ,updated, defaultContainer, domain_uid, readonly) "
-				+ " values (?, ?, ?, ?, ?, ?, now(), now(), ?, ?, ?)";
+		String insertQuery = "INSERT INTO t_container (uid, container_type, "
+				+ "name, owner, createdby, updatedby, created, updated, defaultContainer, domain_uid, readonly) "
+				+ " VALUES (?, ?, ?, ?, ?, ?, now(), now(), ?, ?, ?)";
 		insert(insertQuery, container,
 				Arrays.<StatementValues<Container>>asList((con, statement, index, rowIndex, value) -> {
 
@@ -256,14 +256,14 @@ public class ContainerStore extends JdbcAbstractStore {
 		Container c = get(container.uid);
 
 		// container settings
-		insert("INSERT INTO t_container_settings (container_id, settings) values (?, '')", new Object[] { c.id });
+		insert("INSERT INTO t_container_settings (container_id, settings) VALUES (?, '')", new Object[] { c.id });
 		// insert seq
-		insert("INSERT INTO t_container_sequence (container_id) values (?)", new Object[] { c.id });
+		insert("INSERT INTO t_container_sequence (container_id) VALUES (?)", new Object[] { c.id });
 		return c;
 	}
 
 	public void updateName(final String uid, final String name) throws SQLException {
-		String updateQuery = "UPDATE t_container set (name, updatedby, updated) = (?, ?, now()) where uid = ? ";
+		String updateQuery = "UPDATE t_container SET (name, updatedby, updated) = (?, ?, now()) WHERE uid = ?";
 		update(updateQuery, null, (con, statement, index, currentRow, value) -> {
 			statement.setString(index++, name);
 			statement.setString(index++, securityContext.getSubject());
@@ -276,7 +276,7 @@ public class ContainerStore extends JdbcAbstractStore {
 	public Container get(String uid) throws SQLException {
 		Container c = cache.getIfPresent(uid);
 		if (c == null) {
-			String selectQuery = "SELECT id, uid, container_type, name, owner, createdby, updatedby, created, updated, defaultContainer, domain_uid, readonly from t_container where uid = ?";
+			String selectQuery = "SELECT id, uid, container_type, name, owner, createdby, updatedby, created, updated, defaultContainer, domain_uid, readonly FROM t_container WHERE uid = ?";
 
 			c = unique(selectQuery, rs -> new Container(),
 					Arrays.<EntityPopulator<Container>>asList(CONTAINER_POPULATOR), new Object[] { uid });
@@ -294,7 +294,7 @@ public class ContainerStore extends JdbcAbstractStore {
 	public Container get(long id) throws SQLException {
 		Container c = cache.getIfPresent(id);
 		if (c == null) {
-			String selectQuery = "SELECT id, uid, container_type, name, owner, createdby, updatedby, created, updated, defaultContainer, domain_uid, readonly from t_container where id = ?";
+			String selectQuery = "SELECT id, uid, container_type, name, owner, createdby, updatedby, created, updated, defaultContainer, domain_uid, readonly FROM t_container WHERE id = ?";
 
 			c = unique(selectQuery, rs -> new Container(),
 					Arrays.<EntityPopulator<Container>>asList(CONTAINER_POPULATOR), new Object[] { id });
@@ -311,7 +311,7 @@ public class ContainerStore extends JdbcAbstractStore {
 	}
 
 	public void deleteAllSubscriptions(Container container) throws SQLException {
-		delete("delete from t_container_sub where container_uid = ? ", new Object[] { container.uid });
+		delete("DELETE FROM t_container_sub WHERE container_uid = ? ", new Object[] { container.uid });
 	}
 
 	public void delete(String uid) throws SQLException {
@@ -326,7 +326,7 @@ public class ContainerStore extends JdbcAbstractStore {
 		delete("DELETE FROM t_container_settings WHERE container_id = ?", new Object[] { id });
 		delete("DELETE FROM t_container_sequence WHERE container_id = ?", new Object[] { id });
 		delete("DELETE FROM t_container_item WHERE container_id = ?", new Object[] { id });
-		delete("DELETE FROM t_container where id = ?", new Object[] { id });
+		delete("DELETE FROM t_container WHERE id = ?", new Object[] { id });
 		invalidateCache(uid, id);
 	}
 
@@ -336,7 +336,7 @@ public class ContainerStore extends JdbcAbstractStore {
 
 	public List<String> listSubscriptions(Container container) throws SQLException {
 		return select(
-				"select uid from t_container_sub inner join t_container_item on id=user_id where t_container_sub.container_uid = ?",
+				"SELECT uid FROM t_container_sub INNER JOIN t_container_item ON id=user_id WHERE t_container_sub.container_uid = ?",
 				StringCreator.FIRST, Collections.emptyList(), new Object[] { container.uid });
 
 	}
@@ -349,7 +349,7 @@ public class ContainerStore extends JdbcAbstractStore {
 	 * @throws SQLException
 	 */
 	public void createContainerLocation(Container container, String location) throws SQLException {
-		insert("insert into t_container_location values (?, ?) on conflict (container_uid) do update set location = ? where t_container_location.container_uid = ?",
+		insert("INSERT INTO t_container_location VALUES (?, ?) ON CONFLICT (container_uid) DO UPDATE SET location = ? WHERE t_container_location.container_uid = ?",
 				container, (con, statement, index, currentRow, value) -> {
 
 					statement.setString(index++, value.uid);
@@ -362,7 +362,7 @@ public class ContainerStore extends JdbcAbstractStore {
 	}
 
 	public void deleteContainerLocation(Container container) throws SQLException {
-		delete("delete from t_container_location where container_uid = ? ", new Object[] { container.uid });
+		delete("DELETE FROM t_container_location WHERE container_uid = ?", new Object[] { container.uid });
 	}
 
 	/**
@@ -374,7 +374,7 @@ public class ContainerStore extends JdbcAbstractStore {
 	 * @throws SQLException
 	 */
 	public Optional<String> getContainerLocation(String containerUid) throws SQLException {
-		String ret = unique("select coalesce(location, 'DIR') from t_container_location where container_uid = ?",
+		String ret = unique("SELECT coalesce(location, 'DIR') FROM t_container_location WHERE container_uid = ?",
 				StringCreator.FIRST, Collections.emptyList(), new Object[] { containerUid });
 		if (ret == null) {
 			return null;
@@ -395,17 +395,17 @@ public class ContainerStore extends JdbcAbstractStore {
 	private List<String> getForeignContainers(String location) throws SQLException {
 		if (location == null) {
 			return select(
-					"select container_uid from t_container_location where not location is null and location <> ''",
+					"SELECT container_uid FROM t_container_location WHERE location IS NOT NULL AND location <> ''",
 					StringCreator.FIRST, Collections.emptyList(), new Object[0]);
 		} else {
 			return select(
-					"select c.uid from t_container c left join t_container_location cl on c.uid = cl.container_uid where cl.location is null or cl.location = '' or cl.location <> ?",
+					"SELECT c.uid FROM t_container c LEFT JOIN t_container_location cl ON c.uid = cl.container_uid WHERE cl.location IS NULL OR cl.location = '' OR cl.location <> ?",
 					StringCreator.FIRST, Collections.emptyList(), new Object[] { location });
 		}
 	}
 
 	public Set<String> getObsoleteContainers(String location) throws SQLException {
-		List<String> containers = select("select c.uid from t_container c where c.container_type = ?",
+		List<String> containers = select("SELECT c.uid FROM t_container c WHERE c.container_type = ?",
 				StringCreator.FIRST, Collections.emptyList(), new Object[] { "t_folder" });
 		containers.addAll(getForeignContainers(location));
 		return new HashSet<>(containers);
