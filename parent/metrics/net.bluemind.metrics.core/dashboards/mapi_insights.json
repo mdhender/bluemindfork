@@ -1,6 +1,123 @@
 {
-	"id": "18",
+	"id": "7",
 	"cells": [
+		{
+			"i": "7e8ba955-195f-4411-ab23-51c5e079fdd4",
+			"x": 8,
+			"y": 6,
+			"w": 4,
+			"h": 3,
+			"name": "Outlook addons usage",
+			"queries": [
+				{
+					"query": "SELECT non_negative_difference(last(\"count\")) AS \"usage\" FROM \"telegraf\".\"autogen\".\"bm-mapi.outlook.addons.usage\" WHERE time > :dashboardTime: AND time < :upperDashboardTime: GROUP BY time(:interval:), \"addon\", \"user\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_difference(last(\"count\")) AS \"usage\" FROM \"telegraf\".\"autogen\".\"bm-mapi.outlook.addons.usage\" WHERE time > :dashboardTime: AND time < :upperDashboardTime: GROUP BY time(:interval:), \"addon\", \"user\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "bb312ee7-db52-440a-a160-2cfeea547445",
+					"type": "scale",
+					"hex": "#31C0F6",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "d18e1975-8068-47b3-8048-1e88f9187751",
+					"type": "scale",
+					"hex": "#A500A5",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "f1432d9c-edc2-4016-903d-3d8bf86f98e3",
+					"type": "scale",
+					"hex": "#FF7E27",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/7/cells/7e8ba955-195f-4411-ab23-51c5e079fdd4"
+			}
+		},
 		{
 			"i": "bf50b21d-6aa1-4b89-8c88-bb152d03f044",
 			"x": 4,
@@ -115,7 +232,7 @@
 			"note": "",
 			"noteVisibility": "default",
 			"links": {
-				"self": "/chronograf/v1/dashboards/18/cells/bf50b21d-6aa1-4b89-8c88-bb152d03f044"
+				"self": "/chronograf/v1/dashboards/7/cells/bf50b21d-6aa1-4b89-8c88-bb152d03f044"
 			}
 		},
 		{
@@ -232,7 +349,7 @@
 			"note": "",
 			"noteVisibility": "default",
 			"links": {
-				"self": "/chronograf/v1/dashboards/18/cells/ccb07226-01b9-484e-b437-52db71047e0d"
+				"self": "/chronograf/v1/dashboards/7/cells/ccb07226-01b9-484e-b437-52db71047e0d"
 			}
 		},
 		{
@@ -363,7 +480,7 @@
 			"note": "",
 			"noteVisibility": "default",
 			"links": {
-				"self": "/chronograf/v1/dashboards/18/cells/23d97364-433c-4af0-93cd-de76e814c6cd"
+				"self": "/chronograf/v1/dashboards/7/cells/23d97364-433c-4af0-93cd-de76e814c6cd"
 			}
 		},
 		{
@@ -494,7 +611,7 @@
 			"note": "",
 			"noteVisibility": "default",
 			"links": {
-				"self": "/chronograf/v1/dashboards/18/cells/2a028eb5-373d-4ffa-880d-643130969d2b"
+				"self": "/chronograf/v1/dashboards/7/cells/2a028eb5-373d-4ffa-880d-643130969d2b"
 			}
 		},
 		{
@@ -611,7 +728,7 @@
 			"note": "",
 			"noteVisibility": "default",
 			"links": {
-				"self": "/chronograf/v1/dashboards/18/cells/b5401718-03a0-4b3e-b066-6fba5f7d3bf3"
+				"self": "/chronograf/v1/dashboards/7/cells/b5401718-03a0-4b3e-b066-6fba5f7d3bf3"
 			}
 		},
 		{
@@ -728,7 +845,7 @@
 			"note": "",
 			"noteVisibility": "default",
 			"links": {
-				"self": "/chronograf/v1/dashboards/18/cells/22dd6898-3cde-42b3-82a4-3caf6b6c79b2"
+				"self": "/chronograf/v1/dashboards/7/cells/22dd6898-3cde-42b3-82a4-3caf6b6c79b2"
 			}
 		},
 		{
@@ -845,7 +962,7 @@
 			"note": "",
 			"noteVisibility": "default",
 			"links": {
-				"self": "/chronograf/v1/dashboards/18/cells/c25394ec-c090-41d5-ae19-3253c4736069"
+				"self": "/chronograf/v1/dashboards/7/cells/c25394ec-c090-41d5-ae19-3253c4736069"
 			}
 		},
 		{
@@ -962,162 +1079,7 @@
 			"note": "",
 			"noteVisibility": "default",
 			"links": {
-				"self": "/chronograf/v1/dashboards/18/cells/052bebf4-a7a2-4c8c-bb98-74a6fad971d7"
-			}
-		},
-		{
-			"i": "9165fd14-fa11-4ca0-91f7-42bdee80af60",
-			"x": 8,
-			"y": 6,
-			"w": 4,
-			"h": 3,
-			"name": "htop",
-			"queries": [
-				{
-					"query": "SELECT mean(\"usage_iowait\") AS \"mean_usage_iowait\", mean(\"usage_system\") AS \"mean_usage_system\", mean(\"usage_user\") AS \"mean_usage_user\" FROM \"telegraf\".\"autogen\".\"cpu\" WHERE time > :dashboardTime: AND time < :upperDashboardTime: GROUP BY time(:interval:) FILL(null)",
-					"queryConfig": {
-						"database": "telegraf",
-						"measurement": "cpu",
-						"retentionPolicy": "autogen",
-						"fields": [
-							{
-								"value": "mean",
-								"type": "func",
-								"alias": "mean_usage_iowait",
-								"args": [
-									{
-										"value": "usage_iowait",
-										"type": "field",
-										"alias": ""
-									}
-								]
-							},
-							{
-								"value": "mean",
-								"type": "func",
-								"alias": "mean_usage_system",
-								"args": [
-									{
-										"value": "usage_system",
-										"type": "field",
-										"alias": ""
-									}
-								]
-							},
-							{
-								"value": "mean",
-								"type": "func",
-								"alias": "mean_usage_user",
-								"args": [
-									{
-										"value": "usage_user",
-										"type": "field",
-										"alias": ""
-									}
-								]
-							}
-						],
-						"tags": {},
-						"groupBy": {
-							"time": "auto",
-							"tags": []
-						},
-						"areTagsAccepted": false,
-						"fill": "null",
-						"rawText": null,
-						"range": null,
-						"shifts": null
-					},
-					"source": "",
-					"type": "influxql"
-				}
-			],
-			"axes": {
-				"x": {
-					"bounds": [
-						"",
-						""
-					],
-					"label": "",
-					"prefix": "",
-					"suffix": "",
-					"base": "10",
-					"scale": "linear"
-				},
-				"y": {
-					"bounds": [
-						"",
-						""
-					],
-					"label": "user,sys,iowait",
-					"prefix": "",
-					"suffix": "",
-					"base": "10",
-					"scale": "linear"
-				},
-				"y2": {
-					"bounds": [
-						"",
-						""
-					],
-					"label": "",
-					"prefix": "",
-					"suffix": "",
-					"base": "",
-					"scale": ""
-				}
-			},
-			"type": "line-stacked",
-			"colors": [
-				{
-					"id": "c267b537-78e3-465c-9646-2d00ffd9ee61",
-					"type": "scale",
-					"hex": "#31C0F6",
-					"name": "Nineteen Eighty Four",
-					"value": "0"
-				},
-				{
-					"id": "42530f3c-599d-40bd-88f4-c2b4d4d5d2ce",
-					"type": "scale",
-					"hex": "#A500A5",
-					"name": "Nineteen Eighty Four",
-					"value": "0"
-				},
-				{
-					"id": "41cd80e8-a2bb-4249-9dfc-8390c70160d9",
-					"type": "scale",
-					"hex": "#FF7E27",
-					"name": "Nineteen Eighty Four",
-					"value": "0"
-				}
-			],
-			"legend": {},
-			"tableOptions": {
-				"verticalTimeAxis": true,
-				"sortBy": {
-					"internalName": "time",
-					"displayName": "",
-					"visible": true
-				},
-				"wrapping": "truncate",
-				"fixFirstColumn": true
-			},
-			"fieldOptions": [
-				{
-					"internalName": "time",
-					"displayName": "",
-					"visible": true
-				}
-			],
-			"timeFormat": "MM/DD/YYYY HH:mm:ss",
-			"decimalPlaces": {
-				"isEnforced": true,
-				"digits": 2
-			},
-			"note": "",
-			"noteVisibility": "default",
-			"links": {
-				"self": "/chronograf/v1/dashboards/18/cells/9165fd14-fa11-4ca0-91f7-42bdee80af60"
+				"self": "/chronograf/v1/dashboards/7/cells/052bebf4-a7a2-4c8c-bb98-74a6fad971d7"
 			}
 		}
 	],
@@ -1125,8 +1087,8 @@
 	"name": "MAPI Insights",
 	"organization": "default",
 	"links": {
-		"self": "/chronograf/v1/dashboards/18",
-		"cells": "/chronograf/v1/dashboards/18/cells",
-		"templates": "/chronograf/v1/dashboards/18/templates"
+		"self": "/chronograf/v1/dashboards/7",
+		"cells": "/chronograf/v1/dashboards/7/cells",
+		"templates": "/chronograf/v1/dashboards/7/templates"
 	}
 }
