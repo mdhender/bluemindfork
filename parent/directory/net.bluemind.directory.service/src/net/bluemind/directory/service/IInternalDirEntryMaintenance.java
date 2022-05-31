@@ -29,10 +29,8 @@ public interface IInternalDirEntryMaintenance {
 	 * launch maintenance operations in check mode
 	 * 
 	 * @param opIdentifiers
-	 * @param report
-	 *            report to fill (must be not null)
-	 * @param monitor
-	 *            progress handler
+	 * @param report        report to fill (must be not null)
+	 * @param monitor       progress handler
 	 */
 	void check(Set<String> opIdentifiers, DiagnosticReport report, IServerTaskMonitor monitor);
 
@@ -40,10 +38,9 @@ public interface IInternalDirEntryMaintenance {
 	 * launch maintenance operation in repair mode
 	 * 
 	 * @param opIdentifiers
-	 * @param report
-	 *            report to fill (must be not null)
-	 * @param monitor
-	 *            progress handler
+	 * @param report        report to fill (must be not null)
+	 * @param monitor       progress handler
 	 */
 	void repair(Set<String> opIdentifiers, DiagnosticReport report, IServerTaskMonitor monitor);
+
 }
