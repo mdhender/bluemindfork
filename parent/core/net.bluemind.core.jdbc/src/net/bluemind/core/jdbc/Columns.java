@@ -86,8 +86,14 @@ public final class Columns {
 		return sb.toString();
 	}
 
-	public String names(String prefix) {
+	public String names() {
 		return caching.get();
+	}
+
+	public String names(String prefix) {
+		StringBuilder sb = new StringBuilder();
+		appendNames(prefix, sb);
+		return sb.toString();
 	}
 
 	public void appendValues(StringBuilder query) {
