@@ -1,8 +1,10 @@
 <script>
-import BmExtensionDecorator from "./BmExtensionDecorator";
-import BmExtensionList from "./BmExtensionList";
-import BmExtensionRenderless from "./BmExtensionRenderless";
+import { inject } from "@bluemind/inject";
 import { mapExtensions } from "@bluemind/extensions";
+import BmExtensionList from "./BmExtensionList";
+import BmExtensionDecorator from "./BmExtensionDecorator";
+import BmExtensionRenderless from "./BmExtensionRenderless";
+
 const BmExtensionType = {
     LIST: "list",
     DECORATOR: "decorator",
@@ -63,11 +65,14 @@ export const Cache = {
     },
     load(id) {
         const extensions = new Map();
+        const roles = inject("UserSession").roles.split(",");
         this.map.set(id, extensions);
         mapExtensions(id, ["component"])?.component?.forEach(component => {
-            const value = extensions.get(component.path) || [];
-            value.push(component);
-            extensions.set(component.path, value);
+            if (!component.role || roles.includes(component.role)) {
+                const value = extensions.get(component.path) || [];
+                value.push(component);
+                extensions.set(component.path, value);
+            }
         });
     },
     clear() {

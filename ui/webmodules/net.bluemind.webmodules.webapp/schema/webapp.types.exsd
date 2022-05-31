@@ -40,6 +40,13 @@
                </documentation>
             </annotation>
          </attribute>
+         <attribute name="role" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 
@@ -60,6 +67,13 @@
             </annotation>
          </attribute>
          <attribute name="priority" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="role" type="string">
             <annotation>
                <documentation>
                   
