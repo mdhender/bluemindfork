@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.collect.ImmutableMap;
 
 import net.bluemind.cli.cmd.api.CliContext;
+import net.bluemind.cli.cmd.api.DomainNames;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.fault.ServerFault;
@@ -39,7 +40,7 @@ public abstract class AbstractMailInjectCommand implements ICmdLet, Runnable {
 			"attach", new Mime4jMessageProducer(), //
 			"small", new SmallRandomMessageProducer());
 
-	@Parameters(paramLabel = "<domain_name>", description = "the domain (uid or alias)")
+	@Parameters(paramLabel = "<domain_name>", description = "the domain (uid or alias)", completionCandidates = DomainNames.class)
 	public String domain;
 
 	@Option(names = "--msg", description = "The number of messages to add (defaults to 100)")

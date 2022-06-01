@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.cli.adm
 Bundle-SymbolicName: net.bluemind.cli.adm;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-Activator: net.bluemind.cli.adm.Activator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  com.github.freva.ascii-table,
@@ -27,7 +26,8 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.backend.cyrus.index,
  com.fasterxml.jackson.core.jackson-databind,
- net.bluemind.core.task.spi
+ net.bluemind.core.task.spi,
+ net.bluemind.domain.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.adm
 Bundle-ActivationPolicy: lazy

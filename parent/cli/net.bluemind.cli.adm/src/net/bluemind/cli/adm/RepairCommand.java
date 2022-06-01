@@ -48,7 +48,7 @@ public class RepairCommand extends SingleOrDomainOperation {
 	@Option(names = "--dry", description = "Dry-run (run check instead of repair)")
 	public boolean dry = false;
 
-	@Option(names = "--ops", description = "Just include the (comma separated) ops, (eg. mailboxPostfixMaps,)")
+	@Option(names = "--ops", description = "Just include the (comma separated) ops, (eg. mailboxPostfixMaps,)", completionCandidates = MaintenanceOpsCompletions.class)
 	public String ops;
 
 	@Option(names = "--unarchive", description = "\"true\" to temporarely unarchive/archive users and apply the repair op")

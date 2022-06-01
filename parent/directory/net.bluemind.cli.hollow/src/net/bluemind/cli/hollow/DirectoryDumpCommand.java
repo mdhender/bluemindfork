@@ -26,6 +26,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 
 import net.bluemind.cli.cmd.api.CliContext;
+import net.bluemind.cli.cmd.api.DomainNames;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
@@ -54,7 +55,7 @@ public class DirectoryDumpCommand implements ICmdLet, Runnable {
 
 	private CliContext ctx;
 
-	@Parameters(paramLabel = "<domain>", description = "the domain (uid or alias)")
+	@Parameters(paramLabel = "<domain>", description = "the domain (uid or alias)", completionCandidates = DomainNames.class)
 	public String domain;
 
 	@Override
