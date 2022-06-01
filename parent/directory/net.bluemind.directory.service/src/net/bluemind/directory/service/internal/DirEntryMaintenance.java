@@ -21,6 +21,7 @@ package net.bluemind.directory.service.internal;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,8 +122,12 @@ public class DirEntryMaintenance implements IDirEntryMaintenance, IInternalDirEn
 	}
 
 	@Override
-	public Set<MaintenanceOperation> getAvailableOperations() {
-		return supports.availableOperations(entry.kind);
+	public List<MaintenanceOperation> getAvailableOperations() {
+		Set<MaintenanceOperation> availableOperations = supports.availableOperations(entry.kind);
+		return supports
+				.ops(null, entry.kind).stream().sequential().map(op -> availableOperations.stream()
+						.filter(o -> o.identifier.equals(op.identifier)).findAny().orElse(null))
+				.collect(Collectors.toList());
 	}
 
 	@Override

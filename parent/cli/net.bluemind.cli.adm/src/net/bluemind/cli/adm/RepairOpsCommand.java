@@ -18,9 +18,9 @@
 package net.bluemind.cli.adm;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import com.github.freva.asciitable.AsciiTable;
 
@@ -52,12 +52,12 @@ public class RepairOpsCommand extends SingleOrDomainOperation {
 
 	}
 
-	Map<Kind, Set<MaintenanceOperation>> opsByKind = new EnumMap<>(Kind.class);
+	Map<Kind, List<MaintenanceOperation>> opsByKind = new EnumMap<>(Kind.class);
 
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
 		IDirEntryMaintenance demService = ctx.adminApi().instance(IDirEntryMaintenance.class, domainUid, de.uid);
-		Set<MaintenanceOperation> ops = demService.getAvailableOperations();
+		List<MaintenanceOperation> ops = demService.getAvailableOperations();
 		opsByKind.put(de.value.kind, ops);
 	}
 

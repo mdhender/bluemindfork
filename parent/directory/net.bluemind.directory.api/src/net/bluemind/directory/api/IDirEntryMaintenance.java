@@ -18,6 +18,7 @@
  */
 package net.bluemind.directory.api;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.GET;
@@ -39,13 +40,12 @@ public interface IDirEntryMaintenance {
 	 */
 	@GET
 	@Path("_maintenance")
-	Set<MaintenanceOperation> getAvailableOperations();
+	List<MaintenanceOperation> getAvailableOperations();
 
 	/**
 	 * Execute {@link MaintenanceOperation} in "Check only" mode
 	 * 
-	 * @param opIdentifiers
-	 *                          Set of {@link MaintenanceOperation} identifiers
+	 * @param opIdentifiers Set of {@link MaintenanceOperation} identifiers
 	 * @return Reference to the net.bluemind.core.task.api.TaskRef
 	 */
 	@POST
@@ -55,8 +55,7 @@ public interface IDirEntryMaintenance {
 	/**
 	 * Execute {@link MaintenanceOperation} in "Repair" mode
 	 * 
-	 * @param opIdentifiers
-	 *                          Set of {@link MaintenanceOperation} identifiers
+	 * @param opIdentifiers Set of {@link MaintenanceOperation} identifiers
 	 * @return Reference to the net.bluemind.core.task.api.TaskRef
 	 */
 	@POST
