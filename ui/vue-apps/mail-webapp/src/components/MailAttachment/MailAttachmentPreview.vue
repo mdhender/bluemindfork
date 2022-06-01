@@ -14,7 +14,7 @@
             @open="open"
         />
         <div class="content">
-            <bm-collapse v-model="expanded" class="d-none d-lg-block">
+            <bm-collapse v-model="expanded" :class="{ 'd-none': true, 'd-lg-block': expanded }">
                 <preview-message :message="message" :active-part="part" />
             </bm-collapse>
             <preview-attachment :message="message" :part="part" />
