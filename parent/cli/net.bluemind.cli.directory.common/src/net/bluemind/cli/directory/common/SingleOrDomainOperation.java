@@ -70,6 +70,10 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 
 	public abstract Kind[] getDirEntryKind();
 
+	public void done() {
+
+	}
+
 	@Override
 	public Runnable forContext(CliContext ctx) {
 		this.ctx = ctx;
@@ -138,6 +142,7 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 			int handled = entriesWithDomainUid.size() - noops;
 			ctx.warn("Handled " + handled + " entries. " + noops + " entries have been ignored");
 		}
+		done();
 	}
 
 	/**

@@ -17,6 +17,8 @@
  */
 package net.bluemind.cli.adm;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -50,19 +52,29 @@ public class RepairOpsCommand extends SingleOrDomainOperation {
 
 	}
 
+	Map<Kind, Set<MaintenanceOperation>> opsByKind = new EnumMap<>(Kind.class);
+
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
 		IDirEntryMaintenance demService = ctx.adminApi().instance(IDirEntryMaintenance.class, domainUid, de.uid);
 		Set<MaintenanceOperation> ops = demService.getAvailableOperations();
-		String[][] asTable = new String[ops.size()][2];
-		int i = 0;
-		for (MaintenanceOperation mo : ops) {
-			asTable[i][0] = mo.identifier;
-			asTable[i][1] = mo.description;
-			i++;
-		}
-		ctx.info("Operation(s) available on " + de.value + ":");
-		ctx.info(AsciiTable.getTable(asTable));
+		opsByKind.put(de.value.kind, ops);
+	}
+
+	@Override
+	public void done() {
+		opsByKind.forEach((kind, ops) -> {
+			String[][] asTable = new String[ops.size()][2];
+			int i = 0;
+			for (MaintenanceOperation mo : ops) {
+				asTable[i][0] = mo.identifier;
+				asTable[i][1] = mo.description;
+				i++;
+			}
+			ctx.info("Operation(s) available on type " + kind.name() + ":");
+			ctx.info(AsciiTable.getTable(asTable));
+		});
+
 	}
 
 	@Override
