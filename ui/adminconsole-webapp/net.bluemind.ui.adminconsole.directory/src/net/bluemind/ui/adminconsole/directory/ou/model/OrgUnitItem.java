@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.TreeItem;
@@ -50,9 +52,8 @@ public class OrgUnitItem extends TreeItem {
 		addStyleName(s.itemTree());
 	}
 
-	public void loadChildren() {
+	public void loadChildrenPath() {
 		loadPathChildrens();
-		addChildrenTreeItems();
 	}
 
 	public int getPathNbChildren() {
@@ -104,17 +105,6 @@ public class OrgUnitItem extends TreeItem {
 
 	public String getRootUid() {
 		return path.path().get(path.path().size() - 1);
-	}
-
-	private void addChildrenTreeItems() {
-		OrgUnitItem itemParent = this;
-		for (OrgUnitPath child : pathChildrens) {
-			if (child != null && !child.uid.equals(getRootUid())) {
-				OrgUnitItem item = new OrgUnitItem(child);
-				itemParent.addItem(item);
-				itemParent = item;
-			}
-		}
 	}
 
 	public void updateRoot() {
@@ -219,4 +209,26 @@ public class OrgUnitItem extends TreeItem {
 	public boolean isRoot() {
 		return root;
 	}
+
+	public void loadChildrenItem(List<OrgUnitPath> childrenPathList) {
+		List<OrgUnitItem> detachUnits = childrenPathList.stream().map(OrgUnitItem::new).collect(Collectors.toList());
+		detachUnits.sort(Comparator.comparingInt(OrgUnitItem::getPathDepth));
+		detachUnits.forEach(u -> {
+			u.loadChildrenPath();
+			parseChildrenItem(u).ifPresent(p -> p.addItem(u));
+		});
+	}
+
+	private Optional<OrgUnitItem> parseChildrenItem(OrgUnitItem item) {
+		List<OrgUnitItem> childrenList = new ArrayList<>();
+		getItemChildren(childrenList);
+		if (childrenList.isEmpty()) {
+			return Optional.of(this);
+		}
+
+		childrenList.add(this);
+		return childrenList.stream().filter(c -> item.path.parent != null && c.uid.equals(item.path.parent.uid))
+				.findFirst();
+	}
+
 }

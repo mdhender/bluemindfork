@@ -20,7 +20,6 @@ package net.bluemind.ui.adminconsole.directory.ou;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -176,65 +175,23 @@ public class OrgUnitTreeGrid extends Grid implements IGwtWidgetElement {
 	}
 
 	private static List<OrgUnitItem> createOrgUnitTreeList(Map<String, List<OrgUnitPath>> paths) {
-		Map<String, List<OrgUnitItem>> units = new HashMap<>();
-		paths.entrySet().stream()
-				.forEach(pvalue -> units.put(pvalue.getKey(),
-						pvalue.getValue().stream().map(OrgUnitItem::new)
-								.sorted(Comparator.comparingInt(OrgUnitItem::getPathNbChildren).reversed())
-								.collect(Collectors.toList())));
-
 		List<OrgUnitItem> finalList = new ArrayList<>();
-		units.entrySet().stream().forEach(unitmap -> unitmap.getValue().forEach(u -> {
-			u.loadChildren();
-			if (finalList.stream().noneMatch(n -> n.getRootUid().equals(u.getRootUid()))) {
-				finalList.add(u);
-			} else {
-				finalList.stream().filter(e -> e.getRootUid().equals(u.getRootUid())).forEach(element -> {
-					if (u.getChildCount() <= element.getChildCount() && u.getChildCount() > 0) {
-						updateChildHierarchy(u, element, u.getChildCount());
-					}
-				});
+
+		paths.entrySet().forEach(p -> {
+			List<OrgUnitPath> pathsList = p.getValue();
+			Optional<OrgUnitPath> rootNode = pathsList.stream().filter(r -> r.path().size() == 1).findFirst();
+			if (rootNode.isPresent()) {
+				OrgUnitItem rootItem = new OrgUnitItem(rootNode.get());
+				rootItem.loadChildrenPath();
+				rootItem.loadChildrenItem(
+						pathsList.stream().filter(r -> r.path().size() > 1).collect(Collectors.toList()));
+				finalList.add(rootItem);
 			}
-		}));
+		});
 
 		finalList.forEach(OrgUnitItem::orderingItemChildren);
 		finalList.forEach(OrgUnitItem::updateRoot);
 		return finalList;
-	}
-
-	private static void updateChildHierarchy(OrgUnitItem unit, OrgUnitItem element, int childCount) {
-		for (int i = 0; i < childCount; i++) {
-			OrgUnitItem childUnit = (OrgUnitItem) unit.getChild(i);
-			if (childUnit == null) {
-				continue;
-			}
-			OrgUnitItem childElement = (OrgUnitItem) element.getChild(i);
-			if (!childUnit.getUid().equals(childElement.getUid())) {
-				OrgUnitItem elementParent = element;
-				OrgUnitItem unitParent = unit;
-				if (i > 0) {
-					elementParent = ((OrgUnitItem) element.getChild(i - 1));
-					unitParent = ((OrgUnitItem) unit.getChild(i - 1));
-				}
-				if (unitParent.getText().equals(elementParent.getText())
-						&& !hierarchyAlreadyExists(elementParent, unitParent)) {
-					elementParent.addItem(childUnit);
-				}
-			} else {
-				updateChildHierarchy(childUnit, childElement, childUnit.getChildCount());
-			}
-		}
-	}
-
-	private static boolean hierarchyAlreadyExists(OrgUnitItem element, OrgUnitItem unit) {
-		List<OrgUnitItem> pathUnitList = new ArrayList<>();
-		unit.getItemChildren(pathUnitList);
-
-		List<OrgUnitItem> pathElementList = new ArrayList<>();
-		element.getItemChildren(pathElementList);
-
-		return pathUnitList.stream().map(OrgUnitItem::getUid).anyMatch(
-				p -> pathElementList.stream().map(OrgUnitItem::getUid).collect(Collectors.toList()).contains(p));
 	}
 
 	private void updateOuTree(List<OrgUnitPath> pathListToUpdate, TreeAction action) {
@@ -318,18 +275,20 @@ public class OrgUnitTreeGrid extends Grid implements IGwtWidgetElement {
 
 	private static Map<String, List<OrgUnitPath>> orderResultList(List<OrgUnitPath> result) {
 		Map<String, List<OrgUnitPath>> pathMap = new HashMap<>();
+
+		result.stream().filter(r -> r.path().size() == 1).forEach(e -> pathMap.put(e.uid, new ArrayList<>()));
+
 		for (OrgUnitPath orgUnitPath : result) {
 			String key = orgUnitPath.path().get(orgUnitPath.path().size() - 1);
-			if (pathMap.get(key) == null) {
-				pathMap.put(key, new ArrayList<>());
+			if (pathMap.get(key) != null) {
+				pathMap.get(key).add(orgUnitPath);
 			}
-			pathMap.get(key).add(orgUnitPath);
 		}
 
 		pathMap.entrySet().stream().forEach(p -> {
 			List<OrgUnitPath> sortedList = p.getValue().stream()
-					.sorted(Comparator.comparingInt(path -> path.path().size())).collect(Collectors.toList());
-			Collections.reverse(sortedList);
+					.sorted(Comparator.comparing(path -> path.path().stream().collect(Collectors.joining("/"))))
+					.collect(Collectors.toList());
 			p.setValue(sortedList);
 		});
 

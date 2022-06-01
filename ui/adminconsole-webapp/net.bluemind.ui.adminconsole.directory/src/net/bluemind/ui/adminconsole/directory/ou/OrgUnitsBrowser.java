@@ -256,15 +256,16 @@ public class OrgUnitsBrowser extends Composite
 			// if delete list contains item with children present in cannot delete
 			// => move item to cannot delete list
 			selection.forEach(s -> {
-				List<OrgUnitItem> childrenList = new ArrayList<>();
-				s.getItemChildren(childrenList);
-				if (childrenList.stream()
-						.anyMatch(c -> cannotBeDeleted.stream().anyMatch(i -> c.getUid().equals(i.getUid())))) {
-					cannotBeDeleted.add(s);
-					selection.remove(s);
+				if (s != null) {
+					List<OrgUnitItem> childrenList = new ArrayList<>();
+					s.getItemChildren(childrenList);
+					if (childrenList.stream()
+							.anyMatch(c -> cannotBeDeleted.stream().anyMatch(i -> c.getUid().equals(i.getUid())))) {
+						cannotBeDeleted.add(s);
+						selection.remove(s);
+					}
 				}
 			});
-
 			if (selection.isEmpty()) {
 				Notification.get().reportError(getTexts().forbiddenDeletion());
 				return;
