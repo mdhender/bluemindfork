@@ -153,7 +153,7 @@ public class UserShardedSubscriptionsTests {
 		}
 
 		IDirEntryMaintenance maintenance = prov.instance(IDirEntryMaintenance.class, domainUid, userUid);
-		Set<MaintenanceOperation> ops = maintenance.getAvailableOperations();
+		List<MaintenanceOperation> ops = maintenance.getAvailableOperations();
 		Set<String> opIds = ops.stream().map(mo -> mo.identifier).collect(Collectors.toSet());
 		System.err.println("ops: " + opIds);
 		assertTrue(opIds.contains(IOwnerSubscriptionUids.REPAIR_OP_ID));
@@ -178,7 +178,7 @@ public class UserShardedSubscriptionsTests {
 		long toSync = intOwnAPi.getVersion();
 
 		IDirEntryMaintenance maintenance = prov.instance(IDirEntryMaintenance.class, domainUid, userUid);
-		Set<MaintenanceOperation> ops = maintenance.getAvailableOperations();
+		List<MaintenanceOperation> ops = maintenance.getAvailableOperations();
 		Set<String> opIds = ops.stream().map(mo -> mo.identifier).collect(Collectors.toSet());
 		System.err.println("ops: " + opIds);
 		assertTrue(opIds.contains(IOwnerSubscriptionUids.REPAIR_OP_ID));

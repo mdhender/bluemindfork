@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -107,7 +107,7 @@ public class RepairSupportTests extends AbstractRollingReplicationTests {
 
 		IServiceProvider adminProv = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IDirEntryMaintenance maintenanceApi = adminProv.instance(IDirEntryMaintenance.class, dom, entry);
-		Set<MaintenanceOperation> ops = maintenanceApi.getAvailableOperations();
+		List<MaintenanceOperation> ops = maintenanceApi.getAvailableOperations();
 		System.err.println("Found " + ops.size() + " repair op(s)");
 		for (MaintenanceOperation mo : ops) {
 			System.err.println("* " + mo);
