@@ -36,7 +36,8 @@ export default {
             autocompleteResultsBcc: [],
             to: [],
             cc: [],
-            bcc: []
+            bcc: [],
+            debouncedSearch: debounce(this.search, 200)
         };
     },
     computed: {
@@ -86,9 +87,9 @@ export default {
         },
         onSearch(fieldFocused, searchedPattern) {
             this.fieldFocused = fieldFocused;
-            this.search(searchedPattern);
+            this.debouncedSearch(searchedPattern);
         },
-        search: debounce(function (searchedRecipient) {
+        search(searchedRecipient) {
             if (searchedRecipient === "") {
                 this.autocompleteResults = [];
             } else {
@@ -102,7 +103,7 @@ export default {
                     }
                 });
             }
-        }, 200),
+        },
         getAutocompleteResults(fromField) {
             if (fromField !== this.fieldFocused || this.autocompleteResults === undefined) {
                 return [];

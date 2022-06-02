@@ -1,7 +1,7 @@
 <template>
-    <div class="mail-composer-recipients">
+    <div class="mail-composer-recipients pr-1">
         <bm-row class="align-items-center">
-            <bm-col cols="11">
+            <bm-col :cols="displayedRecipientFields == recipientModes.TO ? 11 : 12">
                 <bm-contact-input
                     ref="to"
                     :contacts.sync="to"
@@ -11,12 +11,11 @@
                     @update:contacts="updateTo"
                     @expand="expandContact(to, $event, updateTo)"
                 >
-                    {{ $t("common.to") }}
+                    <span class="text-nowrap">{{ $t("common.to") }}</span>
                 </bm-contact-input>
             </bm-col>
-            <bm-col cols="1" class="text-center">
+            <bm-col v-if="displayedRecipientFields == recipientModes.TO" cols="1" class="text-center">
                 <bm-button
-                    v-if="displayedRecipientFields == recipientModes.TO"
                     variant="simple-neutral"
                     @click="displayedRecipientFields = recipientModes.TO | recipientModes.CC | recipientModes.BCC"
                 >
@@ -25,9 +24,8 @@
             </bm-col>
         </bm-row>
         <hr class="m-0" />
-
-        <div v-if="displayedRecipientFields > recipientModes.TO" class="d-flex">
-            <div class="d-flex flex-grow-1">
+        <bm-row v-if="displayedRecipientFields > recipientModes.TO" class="align-items-center">
+            <bm-col :cols="displayedRecipientFields == (recipientModes.TO | recipientModes.CC) ? 11 : 12">
                 <bm-contact-input
                     :contacts.sync="cc"
                     :autocomplete-results="autocompleteResultsCc"
@@ -37,31 +35,41 @@
                     @update:contacts="updateCc"
                     @expand="expandContact(cc, $event, updateCc)"
                 >
-                    {{ $t("common.cc") }}
+                    <span class="text-nowrap">{{ $t("common.cc") }}</span>
                 </bm-contact-input>
-            </div>
-            <bm-button
+            </bm-col>
+            <bm-col
                 v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC)"
-                variant="simple-neutral"
-                class="my-2 mr-1"
-                @click="displayedRecipientFields = recipientModes.TO | recipientModes.CC | recipientModes.BCC"
+                cols="1"
+                class="text-center"
             >
-                {{ $t("common.bcc") }}
-            </bm-button>
-        </div>
+                <bm-button
+                    variant="simple-neutral"
+                    class="my-2 mr-1"
+                    @click="displayedRecipientFields = recipientModes.TO | recipientModes.CC | recipientModes.BCC"
+                >
+                    <span class="text-nowrap">{{ $t("common.bcc") }}</span>
+                </bm-button>
+            </bm-col>
+        </bm-row>
         <hr v-if="displayedRecipientFields > recipientModes.TO" class="m-0" />
-
-        <bm-contact-input
+        <bm-row
             v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC | recipientModes.BCC)"
-            :contacts.sync="bcc"
-            :autocomplete-results="autocompleteResultsBcc"
-            :validate-address-fn="validateDnAndAddress"
-            @search="searchedPattern => onSearch('bcc', searchedPattern)"
-            @update:contacts="updateBcc"
-            @expand="expandContact(bcc, $event, updateBcc)"
+            class="align-items-center"
         >
-            {{ $t("common.bcc") }}
-        </bm-contact-input>
+            <bm-col>
+                <bm-contact-input
+                    :contacts.sync="bcc"
+                    :autocomplete-results="autocompleteResultsBcc"
+                    :validate-address-fn="validateDnAndAddress"
+                    @search="searchedPattern => onSearch('bcc', searchedPattern)"
+                    @update:contacts="updateBcc"
+                    @expand="expandContact(bcc, $event, updateBcc)"
+                >
+                    <span class="text-nowrap">{{ $t("common.bcc") }}</span>
+                </bm-contact-input>
+            </bm-col>
+        </bm-row>
         <hr
             v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC | recipientModes.BCC)"
             class="m-0"
@@ -85,3 +93,11 @@ export default {
     mixins: [ComposerActionsMixin, EditRecipientsMixin]
 };
 </script>
+
+<style lang="scss">
+.mail-composer-recipients {
+    .bm-contact-input-label {
+        min-width: 2rem;
+    }
+}
+</style>

@@ -116,5 +116,7 @@ export default {
             height: auto !important;
         }
     }
+
+    min-width: 0;
 }
 </style>

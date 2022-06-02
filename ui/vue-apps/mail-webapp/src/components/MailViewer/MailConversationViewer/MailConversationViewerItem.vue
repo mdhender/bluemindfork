@@ -11,7 +11,7 @@
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" />
                 <div class="col spacer" />
             </div>
-            <div class="row min-height pl-5 click-to-collapse-zone" @click="collapse">
+            <div class="row min-height pl-5 click-to-collapse-zone flex-nowrap" @click="collapse">
                 <div
                     class="col-1 d-flex align-items-center vertical-line"
                     :class="{ first: index === 0, last: index === maxIndex }"
@@ -27,7 +27,7 @@
                 @click="collapse"
             >
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
-                <mail-viewer-recipients :message="message" class="px-3" @click.native.stop />
+                <mail-viewer-recipients :message="message" class="col-11 px-3" @click.native.stop />
             </div>
             <div class="row pl-5">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />

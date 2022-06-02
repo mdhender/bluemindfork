@@ -6,7 +6,7 @@
         v-on="$listeners"
     >
         <template slot="head">
-            <div class="col pl-3 align-self-center">
+            <div class="col pl-3 align-self-center flex-fill">
                 <mail-composer-sender
                     v-if="isSenderShown"
                     label-class="font-weight-bold text-neutral"
@@ -25,7 +25,7 @@
                     <span class="font-weight-bold text-neutral">{{ $t("common.to") }}</span>
                 </bm-contact-input>
             </div>
-            <div>
+            <div class="align-self-center">
                 <template v-if="!(displayedRecipientFields & recipientModes.CC)">
                     <bm-button variant="simple-neutral" @click="displayedRecipientFields |= recipientModes.CC">
                         {{ $t("common.cc") }}
