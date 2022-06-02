@@ -723,6 +723,11 @@ public class AddressBookService implements IInCoreAddressBook {
 		} else {
 			updateAndNotify(cardItem.item(), cardItem.value);
 		}
+	}
 
+	@Override
+	public void touch(String uid) {
+		rbacManager.check(Verb.Write.name());
+		storeService.touch(uid);
 	}
 }

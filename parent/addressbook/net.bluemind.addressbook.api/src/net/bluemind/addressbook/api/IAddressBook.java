@@ -249,4 +249,12 @@ public interface IAddressBook extends IChangelogSupport, ICrudByIdSupport<VCard>
 	@Path("_sorted")
 	public List<Long> sortedIds(SortDescriptor sorted);
 
+	/**
+	 * Touch a {@link VCard}.
+	 * 
+	 * @param uid the unique identifier of the vcard
+	 */
+	@POST
+	@Path("{uid}/_touch")
+	void touch(String uid);
 }
