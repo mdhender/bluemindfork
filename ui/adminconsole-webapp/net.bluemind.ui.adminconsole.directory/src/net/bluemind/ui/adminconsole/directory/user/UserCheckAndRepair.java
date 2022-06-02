@@ -18,6 +18,7 @@
  */
 package net.bluemind.ui.adminconsole.directory.user;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -95,9 +96,9 @@ public class UserCheckAndRepair extends CompositeGwtWidgetElement implements IGw
 						DirEntryMaintenanceGwtEndpoint dirEntryMaintenance = new DirEntryMaintenanceGwtEndpoint(
 								Ajax.TOKEN.getSessionId(), domainUid, userUid);
 						dirEntryMaintenance
-								.getAvailableOperations(new DefaultAsyncHandler<Set<MaintenanceOperation>>() {
+								.getAvailableOperations(new DefaultAsyncHandler<List<MaintenanceOperation>>() {
 									@Override
-									public void success(Set<MaintenanceOperation> value) {
+									public void success(List<MaintenanceOperation> value) {
 										Set<String> opId = value.stream().map(mo -> mo.identifier)
 												.collect(Collectors.toSet());
 
