@@ -72,6 +72,10 @@ import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchExcept
 import net.bluemind.user.api.User;
 
 public abstract class Scanner {
+	private enum SuspendExcuse {
+		NOT_FOUND, SUSPEND_IN_DIRECTORY;
+	}
+
 	private class EntryInfos {
 		public final Dn dn;
 		public final boolean suspended;
@@ -126,7 +130,7 @@ public abstract class Scanner {
 			setupSplitGroup();
 
 			logger.info("Manage BM users suspend state from {}", getKind());
-			Set<Dn> directoryExistingUsersDn = managerUsersStatus();
+			Set<Dn> directoryExistingUsersDn = manageUsersArchiveStatus();
 
 			logger.info("Deleting groups from BM which are removed in {}", getKind());
 			Set<Dn> directoryExistingGroupsDn = deletedGroups();
@@ -206,10 +210,15 @@ public abstract class Scanner {
 	protected abstract boolean isSuspended(Entry entry);
 
 	/**
+	 * Manage directory deleted users (suspended - AD only, removed - deleted or
+	 * moved out of filter scope) or in incremental mode, added directory users in
+	 * filter scope without update since last successful incremental import
 	 * 
-	 * @return Users DN existing in directory and not found in BlueMind
+	 * @return Users DN existing in directory and <b>not found</b> in BlueMind. They
+	 *         must be created in incremental mode even if not updated in directory
+	 *         since last incremental update
 	 */
-	private Set<Dn> managerUsersStatus() {
+	private Set<Dn> manageUsersArchiveStatus() {
 		Map<UuidMapper, EntryInfos> directoryEntryInfosByUuid = new HashMap<>();
 		try (PagedSearchResult cursor = allUsersFromDirectory()) {
 			while (cursor.next()) {
@@ -227,25 +236,50 @@ public abstract class Scanner {
 		}
 
 		ExtUidState bmExtUidState = coreService.getUsersExtIdByState(importLogger);
-
 		Set<UuidMapper> active = uuidMapperFromExtIds(bmExtUidState.active);
-		// Suspends BlueMind user who are active in BlueMind and not in directory
-		Sets.difference(active,
-				directoryEntryInfosByUuid.entrySet().stream().filter(es -> !es.getValue().suspended)
-						.map(es -> es.getKey()).collect(Collectors.toSet()))
-				.stream().map(UuidMapper::getExtId).forEach(this::suspendUser);
-
 		Set<UuidMapper> suspended = uuidMapperFromExtIds(bmExtUidState.suspended);
-		// Unsuspends BlueMind user who are suspended in BlueMind and not in directory
-		Sets.difference(suspended,
-				directoryEntryInfosByUuid.entrySet().stream().filter(es -> es.getValue().suspended)
-						.map(es -> es.getKey()).collect(Collectors.toSet()))
-				.stream().map(UuidMapper::getExtId).forEach(this::unsuspendUser);
+
+		updateUsersArchiveStatus(directoryEntryInfosByUuid, active, suspended);
 
 		return Sets
 				.difference(directoryEntryInfosByUuid.keySet(),
 						Stream.concat(active.stream(), suspended.stream()).collect(Collectors.toSet()))
 				.stream().map(directoryEntryInfosByUuid::get).map(ei -> ei.dn).collect(Collectors.toSet());
+	}
+
+	/**
+	 * Manage user archive flag.
+	 * 
+	 * Needed to manage archive status for users matching one of this rules:
+	 * <ul>
+	 * <li>removed in directory (global or incremental)</li>
+	 * <li>moved out of filter scope (global or incremental)</li>
+	 * <li>moved in filter scope without update since last successful incremental
+	 * import</li>
+	 * </ul>
+	 * 
+	 * @param directoryEntryInfosByUuid
+	 * @param active
+	 * @param suspended
+	 */
+	private void updateUsersArchiveStatus(Map<UuidMapper, EntryInfos> directoryEntryInfosByUuid, Set<UuidMapper> active,
+			Set<UuidMapper> suspended) {
+		// Suspend BlueMind users who are active in BlueMind and suspend in directory
+		Sets.intersection(active,
+				directoryEntryInfosByUuid.entrySet().stream().filter(es -> es.getValue().suspended)
+						.map(es -> es.getKey()).collect(Collectors.toSet()))
+				.stream().map(UuidMapper::getExtId)
+				.forEach(extId -> suspendUser(SuspendExcuse.SUSPEND_IN_DIRECTORY, extId));
+		// Suspend BlueMind users who are active in BlueMind and not found in directory
+		Sets.difference(active, directoryEntryInfosByUuid.keySet()).stream().map(UuidMapper::getExtId)
+				.forEach(extId -> suspendUser(SuspendExcuse.NOT_FOUND, extId));
+
+		// Unsuspend BlueMind users who are suspended in BlueMind and active in
+		// directory
+		Sets.intersection(suspended,
+				directoryEntryInfosByUuid.entrySet().stream().filter(es -> !es.getValue().suspended)
+						.map(es -> es.getKey()).collect(Collectors.toSet()))
+				.stream().map(UuidMapper::getExtId).forEach(this::unsuspendUser);
 	}
 
 	private void unsuspendUser(String extId) {
@@ -267,7 +301,7 @@ public abstract class Scanner {
 		}
 	}
 
-	private void suspendUser(String extId) {
+	private void suspendUser(SuspendExcuse excuse, String extId) {
 		try {
 			ItemValue<User> user = coreService.getUserByExtId(extId);
 
@@ -276,7 +310,16 @@ public abstract class Scanner {
 					return;
 				}
 
-				importLogger.info(Messages.suspendUser(user));
+				switch (excuse) {
+				case NOT_FOUND:
+					importLogger.info(Messages.suspenUserNotFound(user));
+					break;
+				case SUSPEND_IN_DIRECTORY:
+					importLogger.info(Messages.suspenUserSuspendInDirectory(user));
+					break;
+				default:
+					break;
+				}
 				coreService.suspendUser(user);
 			} else {
 				importLogger.warning(Messages.userNotFound(extId));
@@ -288,7 +331,9 @@ public abstract class Scanner {
 
 	/**
 	 * 
-	 * @return Groups DN existing in directory and not found in BlueMind
+	 * @return Groups DN existing in directory and <b>not found</b> in BlueMind.
+	 *         They must be created in incremental mode even if not updated in
+	 *         directory since last incremental update
 	 */
 	private Set<Dn> deletedGroups() {
 		Set<UuidMapper> bmExtUid = uuidMapperFromExtIds(coreService.getImportedGroupsExtId(importLogger));

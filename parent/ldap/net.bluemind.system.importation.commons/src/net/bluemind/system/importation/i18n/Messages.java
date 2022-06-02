@@ -239,11 +239,21 @@ public class Messages {
 		return messages;
 	}
 
-	public static Map<String, String> suspendUser(ItemValue<User> user) {
+	public static Map<String, String> suspenUserNotFound(ItemValue<User> user) {
 		Map<String, String> messages = new HashMap<String, String>(2);
-		messages.put("en", String.format("Suspend user: %s, externalID: %s", user.value.login, user.externalId));
-		messages.put("fr",
-				String.format("Suspension de l'utilisateur: %s, ID externe: %s", user.value.login, user.externalId));
+		messages.put("en", String.format("Suspend user: %s, externalID: %s - not found in directory", user.value.login,
+				user.externalId));
+		messages.put("fr", String.format("Suspension de l'utilisateur: %s, ID externe: %s - absent dans l'annuaire",
+				user.value.login, user.externalId));
+		return messages;
+	}
+
+	public static Map<String, String> suspenUserSuspendInDirectory(ItemValue<User> user) {
+		Map<String, String> messages = new HashMap<String, String>(2);
+		messages.put("en", String.format("Suspend user: %s, externalID: %s - suspend in directory", user.value.login,
+				user.externalId));
+		messages.put("fr", String.format("Suspension de l'utilisateur: %s, ID externe: %s - suspendu dans l'annuaire",
+				user.value.login, user.externalId));
 		return messages;
 	}
 
