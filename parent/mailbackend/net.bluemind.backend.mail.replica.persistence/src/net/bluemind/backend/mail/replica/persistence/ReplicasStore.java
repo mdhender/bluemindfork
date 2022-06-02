@@ -58,7 +58,7 @@ public class ReplicasStore extends JdbcAbstractStore {
 			Namespace ns = namespace();
 			if (ns == Namespace.users) {
 
-				if (!context.getSecurityContext().isDomainGlobal()
+				if (!context.getSecurityContext().fromGlobalVirt()
 						&& !subtreeContainer.contains("!user." + context.getSecurityContext().getSubject())) {
 					String root = contName.substring(6);
 					if (boxName.equals("INBOX")) {

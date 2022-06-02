@@ -143,6 +143,10 @@ public class SecurityContext {
 		return roles.contains(ROLE_SYSTEM);
 	}
 
+	public boolean fromGlobalVirt() {
+		return "global.virt".equals(domainUid);
+	}
+
 	public boolean isDomainAdmin(String domainUid) {
 		return isDomainGlobal()
 				|| (this.domainUid != null && this.domainUid.equals(domainUid) && roles.contains(ROLE_ADMIN));

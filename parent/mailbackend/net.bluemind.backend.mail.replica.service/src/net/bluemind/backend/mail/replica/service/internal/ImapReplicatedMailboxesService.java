@@ -506,7 +506,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 	private String imapPath(String fullName) {
 		Namespace ns = root.ns;
 		SecurityContext security = context.getSecurityContext();
-		if (ns == Namespace.users && !security.isDomainGlobal() && !container.owner.equals(security.getSubject())) {
+		if (ns == Namespace.users && !security.fromGlobalVirt() && !container.owner.equals(security.getSubject())) {
 			String root = container.name.substring(6);
 			if (fullName.equals("INBOX")) {
 				return "Autres utilisateurs/" + root;
