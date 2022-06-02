@@ -473,7 +473,8 @@
             "import": {
                 "successful": "import réussi"
             },
-            "change_selection": "Essayez de sélectionner un fichier moins volumineux. | Essayez de sélectionner des fichiers moins volumineux."
+            "change_selection": "Essayez de sélectionner un fichier moins volumineux. | Essayez de sélectionner des fichiers moins volumineux.",
+            "link": "J'ai lié un fichier à cet email | J'ai lié des fichiers à cet email"
         },
         "rename_folder": {
             "modal": {

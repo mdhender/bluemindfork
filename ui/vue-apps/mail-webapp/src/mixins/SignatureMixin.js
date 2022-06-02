@@ -2,6 +2,7 @@ import { mapState } from "vuex";
 import { INFO, REMOVE } from "@bluemind/alert.store";
 import { CHECK_CORPORATE_SIGNATURE } from "~/actions";
 import { isNewMessage } from "~/model/draft";
+import { SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
 import {
     CORPORATE_SIGNATURE_PLACEHOLDER,
     CORPORATE_SIGNATURE_SELECTOR,
@@ -87,6 +88,7 @@ export default {
                 ) {
                     const content = wrapPersonalSignature(personalSignature);
                     editorRef.insertContent(content, { triggerOnChange: !isNewMessage(this.message) });
+                    this.$store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, editorRef.getContent());
                 }
                 this.$_SignatureMixin_onPersonalSignatureChange();
             },
@@ -105,6 +107,7 @@ export default {
                         tooltip: this.$t("mail.compose.corporate_signature.use_placeholder")
                     };
                     editorRef.insertContent(wrapCorporateSignature(corpSign.html), options);
+                    this.$store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, editorRef.getContent());
                 }
 
                 if (corpSign && editorRef.hasContent(PERSONAL_SIGNATURE_SELECTOR(this.personalSignature.id))) {
@@ -120,6 +123,7 @@ export default {
                         this.$_SignatureMixin_insertSignaturePref === "true"
                     ) {
                         editorRef.insertContent(wrapPersonalSignature(this.personalSignature));
+                        this.$store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, editorRef.getContent());
                     }
                 }
                 this.$_SignatureMixin_onPersonalSignatureChange();

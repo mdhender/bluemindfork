@@ -3,13 +3,14 @@ import { ADD_ATTACHMENT, DEBOUNCED_SAVE_MESSAGE } from "~/actions";
 import { createFromFile as createPartFromFile } from "~/model/part";
 import { create, AttachmentStatus } from "~/model/attachment";
 import TooLargeBox from "~/components/MailAttachment/Modals/TooLargeBox";
-// import { isNewMessage } from "~/model/draft";
+import { isNewMessage } from "~/model/draft";
 
 export default {
     commands: {
         async addAttachments({ files, message, maxSize }) {
-            // const isNew = isNewMessage(this.message);
             files = [...files];
+            const isNew = isNewMessage(this.message);
+
             const filesSize = files.reduce((totalSize, file) => totalSize + file.size, 0);
             if (filesSize > maxSize) {
                 const { content, props } = renderTooLargeOKBox(this, files, maxSize);
@@ -31,8 +32,7 @@ export default {
                 draft: message,
                 messageCompose: this.$store.state.mail.messageCompose
             });
-            // FIXME
-            // this.updateRoute(isNew);
+            this.updateRoute(isNew);
         }
     },
     computed: {

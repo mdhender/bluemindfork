@@ -473,7 +473,9 @@
             "import": {
                 "successful": "erfolgreiche Einfuhr"
             },
-            "change_selection": "Versuchen Sie, eine kleinere Dateigröße zu wählen. | Versuchen Sie, weniger große Dateien auszuwählen."
+            "change_selection": "Versuchen Sie, eine kleinere Dateigröße zu wählen. | Versuchen Sie, weniger große Dateien auszuwählen.",
+            "link": "Ich habe eine Datei mit dieser E-Mail verknüpft | Ich habe Dateien mit dieser E-Mail verknüpf"
+
         },
         "rename_folder": {
             "modal": {
