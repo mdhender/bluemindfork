@@ -22,6 +22,6 @@ import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public class WebAppData {
-	String key;
-	String value;
+	public String key;
+	public String value;
 }

@@ -43,7 +43,7 @@
 		<module>net.bluemind.scheduledjob.api.php</module>
 		<module>net.bluemind.backend.mail.api.php</module>
 		<module>net.bluemind.notes.api.php</module>
-        <module>net.bluemind.webappdata.api</module>
+		<module>net.bluemind.webappdata.api.php</module>
 	</modules>
 
 	<build>

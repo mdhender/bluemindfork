@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.webappdata.persistence.tests
+Bundle-SymbolicName: net.bluemind.webappdata.persistence.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.container.persistence,
+ net.bluemind.core.jdbc.testshelper,
+ net.bluemind.webappdata.persistence,
+ org.junit,
+ net.bluemind.webappdata.api,
+ net.bluemind.core.context
+Automatic-Module-Name: net.bluemind.webappdata.persistence.tests

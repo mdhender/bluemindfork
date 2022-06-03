@@ -72,9 +72,10 @@
 		<module>webmail</module>
 		<module>webmodules</module>
 		<module>xivo</module>
-	    <module>mailapp</module>
+		<module>mailapp</module>
 		<module>videoconferencing</module>
 		<module>kafka</module>
+		<module>webappdata</module>
 	</modules>
 
 	<build>
