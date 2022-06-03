@@ -370,3 +370,191 @@ CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_expunge
 
 ---------------------------------------
 
+CREATE TABLE IF NOT EXISTS s_mailbox_record (
+	   item_id bigint NOT NULL,  
+     container_id integer NOT NULL,
+     unseen boolean NOT NULL default false, 
+     flagged boolean NOT NULL default false, 
+     date timestamp without time zone NOT NULL,
+     subject text NULL, 
+     size integer NULL, 
+     sender text NULL, 
+     PRIMARY KEY(item_id, container_id)
+) PARTITION BY HASH (container_id);
+
+CREATE INDEX IF NOT EXISTS s_mailbox_record_subject 
+ON s_mailbox_record (container_id, subject DESC) INCLUDE (item_id);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_date 
+ON s_mailbox_record (container_id, date DESC) INCLUDE (item_id);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_size 
+ON s_mailbox_record (container_id, size DESC) INCLUDE (item_id);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_sender 
+ON s_mailbox_record (container_id, sender DESC) INCLUDE (item_id);
+
+CREATE INDEX IF NOT EXISTS s_mailbox_record_subject_seen 
+ON s_mailbox_record (container_id, subject DESC) INCLUDE (item_id) 
+WHERE (unseen is true);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_date_seen 
+ON s_mailbox_record (container_id, date DESC) INCLUDE (item_id)
+WHERE (unseen is true);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_size_seen 
+ON s_mailbox_record (container_id, size DESC) INCLUDE (item_id) 
+WHERE (unseen is true);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_sender_seen 
+ON s_mailbox_record (container_id, sender DESC) INCLUDE (item_id)
+WHERE (unseen is true);
+
+CREATE INDEX IF NOT EXISTS s_mailbox_record_subject_flagged 
+ON s_mailbox_record (container_id, subject DESC) INCLUDE (item_id) 
+WHERE (flagged is true);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_date_flagged 
+ON s_mailbox_record (container_id, date DESC) INCLUDE (item_id)
+WHERE (flagged is true);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_size_flagged 
+ON s_mailbox_record (container_id, size DESC) INCLUDE (item_id) 
+WHERE (flagged is true);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_sender_flagged 
+ON s_mailbox_record (container_id, sender DESC) INCLUDE (item_id)
+WHERE (flagged is true);
+
+DO LANGUAGE plpgsql                                                                                          
+$$
+DECLARE
+  partition TEXT;
+  partition_count INTEGER;                                                                                                                     
+  BEGIN                                  
+  SELECT INTO partition_count COALESCE(current_setting('bm.s_mailbox_record_partitions', true)::integer, 256);
+    
+  FOR partition_key IN 0..(partition_count-1)
+  LOOP
+    partition := 's_mailbox_record_' || partition_key;
+    EXECUTE 'CREATE TABLE ' || partition || ' PARTITION OF s_mailbox_record  FOR VALUES WITH (MODULUS '|| partition_count || ', REMAINDER ' || partition_key || ');';
+  END LOOP;
+  END;
+$$;
+
+CREATE OR REPLACE FUNCTION s_mailbox_record_add() RETURNS TRIGGER
+  LANGUAGE plpgsql
+AS $$
+DECLARE
+  body record;
+BEGIN
+    SELECT subject, size, address  
+    FROM t_message_body, jsonb_to_recordset(recipients) AS rec(kind TEXT, address TEXT) INTO body
+    WHERE guid = NEW.message_body_guid
+    AND kind = 'Originator';
+
+    INSERT INTO s_mailbox_record (item_id, container_id, date, subject, size, sender, unseen, flagged) 
+    VALUES (NEW.item_id, NEW.container_id, NEW.internal_date, body.subject, body.size, body.address, NEW.system_flags & 16 != 16,  NEW.system_flags & 2 = 2);
+        
+    return NEW;
+  end;
+$$;
+
+CREATE OR REPLACE FUNCTION s_mailbox_record_update() RETURNS TRIGGER
+  LANGUAGE plpgsql
+AS $$
+DECLARE
+  body record;
+BEGIN
+    if (OLD.message_body_guid != NEW.message_body_guid and OLD.internal_date != NEW.internal_date) then
+      SELECT subject, size, address FROM t_message_body, jsonb_to_recordset(recipients) AS rec(kind TEXT, address TEXT) INTO body WHERE guid = NEW.message_body_guid AND kind = 'Originator';
+
+      UPDATE s_mailbox_record 
+      SET unseen = NEW.system_flags & 16 != 16, 
+          flagged = NEW.system_flags & 2 = 2,  
+          date = NEW.internal_date,  
+          subject = body.subject, 
+          size = body.size, 
+          sender = body.address
+      WHERE container_id = NEW.container_id 
+      AND item_id = NEW.item_id;
+     
+    elsif OLD.internal_date != NEW.internal_date then  
+      UPDATE s_mailbox_record 
+      SET unseen = NEW.system_flags & 16 != 16, 
+          flagged = NEW.system_flags & 2 = 2,  
+          date = NEW.internal_date  
+      WHERE container_id = NEW.container_id 
+      AND item_id = NEW.item_id;
+    
+    else 
+      UPDATE s_mailbox_record 
+      SET unseen = NEW.system_flags & 16 != 16, 
+          flagged = NEW.system_flags & 2 = 2  
+      WHERE container_id = NEW.container_id 
+      AND item_id = NEW.item_id;
+
+    end if;
+
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION s_mailbox_record_remove() RETURNS TRIGGER
+  LANGUAGE plpgsql
+AS $$
+DECLARE
+BEGIN
+    DELETE FROM s_mailbox_record WHERE container_id = OLD.container_id AND item_id = OLD.item_id;
+    RETURN NULL;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION s_mailbox_record_truncate() RETURNS TRIGGER
+  LANGUAGE plpgsql
+AS $$
+DECLARE
+BEGIN
+    TRUNCATE s_mailbox_record;
+    RETURN NULL;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER virtual_message_record_insert
+  AFTER INSERT
+  ON t_mailbox_record
+  FOR EACH ROW
+  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
+  WHEN (NEW.system_flags & 4 = 0)
+  EXECUTE PROCEDURE s_mailbox_record_add();
+
+CREATE OR REPLACE TRIGGER virtual_message_record_undelete
+  AFTER UPDATE
+  ON t_mailbox_record
+  FOR EACH ROW
+  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
+  WHEN (OLD.system_flags & 4 = 4 AND NEW.system_flags & 4 = 0)
+  EXECUTE PROCEDURE s_mailbox_record_add();
+
+CREATE OR REPLACE TRIGGER virtual_message_record_update
+  AFTER UPDATE
+  ON t_mailbox_record
+  FOR EACH ROW
+  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
+  WHEN (OLD.system_flags & 4 = 0 AND NEW.system_flags & 4 = 0)
+  EXECUTE PROCEDURE s_mailbox_record_update();
+
+CREATE OR REPLACE TRIGGER virtual_message_record_remove
+  AFTER UPDATE
+  ON t_mailbox_record
+  FOR EACH ROW
+  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
+  WHEN (OLD.system_flags & 4 = 0 AND NEW.system_flags & 4 = 4)
+  EXECUTE PROCEDURE s_mailbox_record_remove();
+
+CREATE OR REPLACE TRIGGER virtual_message_record_expunge
+  AFTER DELETE
+  ON t_mailbox_record
+  FOR EACH ROW
+  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
+  WHEN (OLD.system_flags & 4 = 0)
+  EXECUTE PROCEDURE s_mailbox_record_remove();
+
+CREATE OR REPLACE TRIGGER virtual_message_record_truncate
+  AFTER TRUNCATE
+  ON t_mailbox_record
+  FOR EACH STATEMENT
+  EXECUTE PROCEDURE s_mailbox_record_truncate();
+
+---------------------------------------

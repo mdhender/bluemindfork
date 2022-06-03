@@ -180,11 +180,31 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 
 	public List<Long> sortedIds(SortDescriptor sorted) throws SQLException {
 		logger.debug("sorted by {}", sorted);
+
+		String query = null;
+		if (isOptim(sorted)) {
+			sorted.fields.stream().filter(f -> "internal_date".equals(f.column)).forEach(f -> f.column = "date");
+			query = optimizedSortedQuery(sorted);
+		} else {
+			logger.warn("non optimized sortedIds is still used");
+			query = sortedQuery(sorted);
+		}
+
+		return select(query, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
+	}
+
+	private boolean isOptim(SortDescriptor sorted) {
+		final List<String> sortedColumns = Arrays.asList("internal_date", "subject", "size", "sender");
+		return sorted != null && sorted.fields != null && sorted.fields.size() == 1
+				&& sortedColumns.contains(sorted.fields.get(0).column);
+	}
+
+	private String sortedQuery(SortDescriptor sorted) {
 		String query = "SELECT item.id FROM t_mailbox_record rec "
 				+ "INNER JOIN t_container_item item ON rec.item_id = item.id " //
 				+ "WHERE item.container_id = ? " //
-				+ "AND (item.flags::bit(32) & 2::bit(32)) = 0::bit(32)"; // not
-																			// deleted
+				+ "AND (item.flags::bit(32) & 2::bit(32)) = 0::bit(32)"; // not deleted
+
 		StringBuilder sort = new StringBuilder();
 		if (sorted == null || sorted.fields.isEmpty()) {
 			sort.append("rec.internal_date desc");
@@ -196,8 +216,24 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 			sort.deleteCharAt(sort.length() - 1);
 		}
 		query += " ORDER BY " + sort.toString();
+		return query;
+	}
 
-		return select(query, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
+	private String optimizedSortedQuery(SortDescriptor sorted) {
+		String query = "SELECT rec.item_id FROM s_mailbox_record rec WHERE rec.container_id = ? ";
+
+		StringBuilder sort = new StringBuilder();
+		if (sorted == null || sorted.fields.isEmpty()) {
+			sort.append("rec.date desc");
+		} else {
+			sorted.fields.forEach(field -> {
+				String dir = field.dir == SortDescriptor.Direction.Asc ? "ASC" : "DESC";
+				sort.append(field.column + " " + dir + ",");
+			});
+			sort.deleteCharAt(sort.length() - 1);
+		}
+		query += " ORDER BY " + sort.toString();
+		return query;
 	}
 
 	/**
