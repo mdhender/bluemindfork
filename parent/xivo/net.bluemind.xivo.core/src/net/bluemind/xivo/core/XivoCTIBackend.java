@@ -126,11 +126,17 @@ public class XivoCTIBackend implements ICTIBackend {
 					+ caller.value.login + "/";
 			try (InputStream in = new URL(url).openStream()) {
 				JsonObject status = new JsonObject(new String(ByteStreams.toByteArray(in), "utf-8"));
-				Integer ret = status.getInteger("status");
-				if (ret != null) {
-					PhoneStatus xivoStatus = PhoneStatus.fromCode(ret);
-					return adapt(xivoStatus);
-				} else {
+				try {
+					Integer ret = status.getInteger("status");
+					if (ret != null) {
+						PhoneStatus xivoStatus = PhoneStatus.fromCode(ret);
+						return adapt(xivoStatus);
+					} else {
+						return Status.PhoneState.Unknown;
+					}
+				} catch (Exception e) {
+					logger.error("status.getInteger('status') failed: {}. json: {}", e.getMessage(),
+							status.encodePrettily());
 					return Status.PhoneState.Unknown;
 				}
 			}
