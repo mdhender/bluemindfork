@@ -29,8 +29,7 @@ import {
     SET_MESSAGE_TMP_ADDRESSES,
     SET_MESSAGE_TO,
     SET_MESSAGES_LOADING_STATUS,
-    SET_MESSAGES_STATUS,
-    SET_TEMPLATES_LIST
+    SET_MESSAGES_STATUS
 } from "~/mutations";
 
 export default {
@@ -136,7 +135,6 @@ export default {
     },
 
     // Hooks
-    [SET_TEMPLATES_LIST]: ADD_MESSAGES_STUBS,
     [REMOVE_CONVERSATIONS]: (state, conversations) => {
         conversations.forEach(({ messages }) => messages.forEach(key => Vue.delete(state, key)));
     },
@@ -146,7 +144,3 @@ export default {
         }
     }
 };
-
-function ADD_MESSAGES_STUBS(state, { messages }) {
-    messages.forEach(message => state[message.key] || Vue.set(state, message.key, message));
-}

@@ -31,13 +31,13 @@ export default {
     actions: {
         async [FETCH_TEMPLATES_KEYS]({ commit, state }, folder) {
             commit(SET_TEMPLATE_LIST_LOADING, true);
-            let conversations, messages;
+            let conversations;
             if (state.pattern) {
-                ({ conversations, messages } = await search(state.pattern, folder));
+                conversations = await search(state.pattern, folder);
             } else {
-                ({ conversations, messages } = await list(folder));
+                conversations = await list(folder);
             }
-            commit(SET_TEMPLATES_LIST, { conversations, messages });
+            commit(SET_TEMPLATES_LIST, { conversations });
             commit(SET_TEMPLATE_LIST_LOADING, false);
         }
     },
