@@ -304,7 +304,7 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 		private static final String MAGIC = "/_";
 
 		public TreePathLeaf leaf(String path) {
-			if (path.length() > 0 && path.charAt(0) == '/') {
+			if (path.length() > 0 && path.charAt(1) == '/') {
 				return leaf(path.substring(1));
 			}
 
