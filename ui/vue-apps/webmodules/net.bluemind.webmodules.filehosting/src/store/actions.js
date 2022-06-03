@@ -12,7 +12,7 @@ export default {
         commit("SET_ATTACHMENT_STATUS", {
             messageKey: message.key,
             address: attachment.address,
-            status: AttachmentStatus.NOT_UPLOADED
+            status: AttachmentStatus.NOT_LOADED
         });
         commit("SET_MESSAGE_HAS_ATTACHMENT", { key: message.key, hasAttachment: true });
         global.cancellers = global.cancellers || {};

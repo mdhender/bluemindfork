@@ -1,24 +1,34 @@
-import Vue from "vue";
 import { inject } from "@bluemind/inject";
 import { CORPORATE_SIGNATURE_SELECTOR, PERSONAL_SIGNATURE_SELECTOR } from "./model/signature";
-import { renderMustDetachConfirmBox, renderShouldDetachConfirmBox } from "./modals";
-import ComposerLinks from "~/components/ComposerLinks";
-var ComposerLinksClass = Vue.extend(ComposerLinks);
+import { AttachmentStatus } from "./model/attachment";
+import {
+    renderMustDetachConfirmBox,
+    renderShouldDetachConfirmBox,
+    renderFileHostingModal,
+    renderLinksComponent
+} from "./renderers";
 
+let autoDetachmentLimit, maxFilesize;
 const LINKS_CLASSNAME = "filehosting-links";
 
 export default async function ({ files, message, maxSize }) {
-    const service = inject("AttachmentPersistence");
-    const { autoDetachmentLimit, maxFilesize } = await service.getConfiguration();
+    try {
+        const service = inject("AttachmentPersistence");
+        if (!autoDetachmentLimit || !maxFilesize) {
+            ({ autoDetachmentLimit, maxFilesize } = await service.getConfiguration());
+        }
 
-    const messageSize = getFilesSize(message.attachments);
-    const newAttachmentsSize = getFilesSize(files);
-    if (maxFilesize && files.some(file => file.size > maxFilesize)) {
-        return { files, message, maxSize: maxFilesize };
-    } else if (messageSize + newAttachmentsSize > maxSize) {
-        return mustDetachFiles.call(this, files, message, maxSize);
-    } else if (autoDetachmentLimit && newAttachmentsSize > autoDetachmentLimit) {
-        return shouldDetachFiles.call(this, files, message, maxSize);
+        const messageSize = getFilesSize(message.attachments);
+        const newAttachmentsSize = getFilesSize(files);
+        if (maxFilesize && files.some(file => file.size > maxFilesize)) {
+            return { files, message, maxSize: maxFilesize };
+        } else if (messageSize + newAttachmentsSize > maxSize) {
+            return mustDetachFiles.call(this, files, message, maxSize);
+        } else if (autoDetachmentLimit && newAttachmentsSize > autoDetachmentLimit) {
+            return shouldDetachFiles.call(this, files, message, maxSize);
+        }
+    } catch {
+        return { files: [], message, maxSize };
     }
 }
 
@@ -40,7 +50,8 @@ async function shouldDetachFiles(files, message, maxMessageSize) {
 }
 
 async function doDetach(files, message) {
-    this.$bvModal.show("file-hosting-modal");
+    const { content, props } = renderFileHostingModal(this, message);
+    this.$bvModal.open(content, props);
     await Promise.all(files.map(file => this.$store.dispatch(`mail/ADD_FH_ATTACHMENT`, { file, message })));
     updateEditorContent.call(this, message);
     return { files: [], message };
@@ -54,13 +65,11 @@ function updateEditorContent(message) {
     if (previousLinks) {
         previousLinks.remove();
     }
-    const composerLinks = new ComposerLinksClass({
-        propsData: {
-            attachments: Object.values(this.$store.state.mail.filehosting.values[message.key]),
-            className: LINKS_CLASSNAME + message.key,
-            i18n: this.$i18n
-        }
-    });
+    const attachments = getUploadedAttachments(this, message);
+    if (attachments.length < 1) {
+        return;
+    }
+    const composerLinks = renderLinksComponent(this, message, attachments, LINKS_CLASSNAME);
     composerLinks.$mount();
     const signatureNode = getSignatureNode.call(this, fragment);
     if (signatureNode) {
@@ -83,6 +92,14 @@ function getSignatureNode(fragment) {
 
 function getFilesSize(files) {
     return files.reduce((totalSize, next) => totalSize + next.size, 0);
+}
+
+function getUploadedAttachments(vm, message) {
+    return vm.$store.state.mail.conversations.messages[message.key].attachments.flatMap(
+        attachment =>
+            attachment.status === AttachmentStatus.UPLOADED &&
+            vm.$store.getters["mail/GET_FH_ATTACHMENT"](message, attachment)
+    );
 }
 
 class StopExecutionError extends Error {

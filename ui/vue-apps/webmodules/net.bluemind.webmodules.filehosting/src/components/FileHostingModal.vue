@@ -55,12 +55,25 @@ import { mapGetters } from "vuex";
 import global from "@bluemind/global";
 import { BmModal, BmButtonClose, BmButton, BmIcon } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
+import { AttachmentStatus } from "~/model/attachment";
 import FhAttachmentItem from "./AttachmentItem";
 
 export default {
     name: "FileHostingModal",
     components: { BmModal, BmButtonClose, BmButton, BmIcon, FhAttachmentItem },
-
+    props: {
+        sizeLimit: {
+            type: Number,
+            required: true
+        },
+        message: {
+            type: Object,
+            required: true
+        }
+    },
+    data() {
+        return { fhAttachments: [] };
+    },
     computed: {
         ...mapGetters("mail", ["GET_FH_ATTACHMENT"]),
         totalLoaded() {
@@ -69,26 +82,21 @@ export default {
         totalSize() {
             return this.fhAttachments.reduce((totalSize, attachment) => totalSize + attachment.progress.total, 0);
         },
-        fhAttachments() {
-            return this.attachments.filter(attachment =>
-                this.GET_FH_ATTACHMENT(this.$store.state.mail.activeMessage, attachment)
-            );
-        },
-        sizeLimit() {
-            return this.$store.state.mail.messageCompose.maxMessageSize;
-        },
         attachments() {
-            return (
-                this.$store.state.mail.conversations.messages[this.$store.state.mail.activeMessage.key]?.attachments ||
-                []
-            );
+            return this.$store.state.mail.conversations.messages[this.message.key]?.attachments || [];
         }
     },
     watch: {
-        totalLoaded(val) {
-            if (val === this.totalSize) {
-                this.$bvModal.hide("file-hosting-modal");
-            }
+        attachments(value) {
+            value.forEach(attachment => {
+                if (
+                    this.GET_FH_ATTACHMENT(this.message, attachment) &&
+                    !this.fhAttachments.includes(attachment) &&
+                    attachment.status === AttachmentStatus.NOT_LOADED
+                ) {
+                    this.fhAttachments.push(attachment);
+                }
+            });
         }
     },
     methods: {

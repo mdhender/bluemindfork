@@ -5,10 +5,8 @@ import injector from "@bluemind/inject";
 import { AttachmentClient } from "@bluemind/attachment.api";
 import FileHostingStore from "./store/";
 import FileHostingCommand from "./FileHostingHandler";
-import FileHostingModal from "~/components/FileHostingModal";
 import FileHostingAttachment from "~/components/FileHostingAttachment";
 
-Vue.component("file-hosting-modal", FileHostingModal);
 Vue.component("filehosting-attachment", FileHostingAttachment);
 
 extensions.register("webapp", "net.bluemind.webmodules.filehosting", {
@@ -24,13 +22,6 @@ extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
         name: "filehosting-attachment",
         path: "message.attachment",
         role: "canRemoteAttach"
-    }
-});
-
-extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
-    component: {
-        name: "file-hosting-modal",
-        path: "app.header"
     }
 });
 

@@ -1,5 +1,10 @@
+import Vue from "vue";
 import FhConfirmBox from "~/components/ConfirmBox";
 import FhMustDetachConfirmBox from "~/components/MustDetachConfirmBox";
+import FileHostingModal from "~/components/FileHostingModal";
+import ComposerLinks from "~/components/ComposerLinks";
+const ComposerLinksClass = Vue.extend(ComposerLinks);
+
 export function renderMustDetachConfirmBox(vm, files, sizeLimit, message) {
     const content = vm.$createElement(FhMustDetachConfirmBox, {
         props: {
@@ -52,4 +57,27 @@ export function renderShouldDetachConfirmBox(vm, files) {
     };
 
     return { content, props };
+}
+
+export function renderFileHostingModal(vm, message) {
+    return {
+        content: FileHostingModal,
+        props: {
+            sizeLimit: vm.$store.state.mail.messageCompose.maxMessageSize,
+            message
+        }
+    };
+}
+
+export function renderLinksComponent(vm, { key }, attachments, className) {
+    return (
+        attachments.length > 0 &&
+        new ComposerLinksClass({
+            propsData: {
+                attachments,
+                className: className + key,
+                i18n: vm.$i18n
+            }
+        })
+    );
 }
