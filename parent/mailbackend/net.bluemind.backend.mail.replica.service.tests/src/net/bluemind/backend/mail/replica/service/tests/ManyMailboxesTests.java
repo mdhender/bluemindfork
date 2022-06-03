@@ -52,7 +52,9 @@ import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesMgmt;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
+import net.bluemind.backend.mail.replica.api.ResolvedMailbox;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
@@ -254,6 +256,16 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 				ret.contains("ANNOTATIONS (%(ENTRY /vendor/cmu/cyrus-imapd/thrid USERID NIL VALUE 338368f6842cced9))"));
 		assertTrue(
 				ret.contains("ANNOTATIONS (%(ENTRY /vendor/cmu/cyrus-imapd/thrid USERID NIL VALUE 128368f6842cced9))"));
+	}
+
+	@Test
+	public void testResolveMany() {
+		IReplicatedMailboxesMgmt api = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IReplicatedMailboxesMgmt.class);
+		List<ResolvedMailbox> resolved = api.resolve(mailboxes);
+		assertNotNull(resolved);
+		System.err.println("Resolved " + mailboxes.size() + " returns " + resolved.size());
+		assertEquals(mailboxes.size(), resolved.size());
 	}
 
 	@Test
