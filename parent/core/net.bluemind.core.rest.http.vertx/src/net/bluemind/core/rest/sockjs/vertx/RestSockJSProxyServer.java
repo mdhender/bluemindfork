@@ -29,7 +29,7 @@ public class RestSockJSProxyServer implements Handler<SockJSSocket> {
 		RestSockJsProxyHandler client = new RestSockJsProxyHandler(vertx, sock, proxy, restbus);
 
 		sock.exceptionHandler((Throwable e) -> {
-			logger.error("error in sock {}: {}", sock, e);
+			logger.error("error in sock {}: {}", sock, e.getMessage());
 			sock.close();
 		});
 		sock.endHandler(v -> handleSocketClosed(client));
