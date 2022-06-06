@@ -36,6 +36,7 @@
       <plugin id="com.github.ben-manes.caffeine"/>
       <plugin id="com.github.freva.ascii-table"/>
       <plugin id="com.github.javafaker"/>
+      <plugin id="com.github.luben.zstd"/>
       <plugin id="com.github.mifmif.generex"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.google.guava.failureaccess"/>
@@ -63,6 +64,7 @@
       <plugin id="net.bluemind.authentication.mgmt.api"/>
       <plugin id="net.bluemind.aws.s3"/>
       <plugin id="net.bluemind.aws.s3.utils"/>
+      <plugin id="net.bluemind.backend.cyrus.index"/>
       <plugin id="net.bluemind.backend.cyrus.partitions"/>
       <plugin id="net.bluemind.backend.cyrus.replication.client"/>
       <plugin id="net.bluemind.backend.mail.api"/>
@@ -111,6 +113,7 @@
       <plugin id="net.bluemind.core.sessions"/>
       <plugin id="net.bluemind.core.task.api"/>
       <plugin id="net.bluemind.core.task.spi"/>
+      <plugin id="net.bluemind.cti.api"/>
       <plugin id="net.bluemind.dataprotect.api"/>
       <plugin id="net.bluemind.deferredaction.api"/>
       <plugin id="net.bluemind.directory.api"/>
@@ -142,6 +145,7 @@
       <plugin id="net.bluemind.mailbox.api"/>
       <plugin id="net.bluemind.mailbox.identity.api"/>
       <plugin id="net.bluemind.mailflow.api"/>
+      <plugin id="net.bluemind.mailflow.common.api"/>
       <plugin id="net.bluemind.mailindex.schema"/>
       <plugin id="net.bluemind.mailshare.api"/>
       <plugin id="net.bluemind.mapdb"/>
@@ -156,6 +160,7 @@
       <plugin id="net.bluemind.node.api"/>
       <plugin id="net.bluemind.node.client"/>
       <plugin id="net.bluemind.node.shared"/>
+      <plugin id="net.bluemind.notes.api"/>
       <plugin id="net.bluemind.resource.api"/>
       <plugin id="net.bluemind.role.api"/>
       <plugin id="net.bluemind.scheduledjob.api"/>
