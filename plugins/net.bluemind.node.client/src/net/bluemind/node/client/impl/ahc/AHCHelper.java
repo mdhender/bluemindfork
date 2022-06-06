@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 
 public final class AHCHelper {
@@ -82,8 +83,11 @@ public final class AHCHelper {
 		try {
 			if (ts.exists() && ks.exists()) {
 
-				SslContext ctx = SslContextBuilder.forClient().keyManager(getKeyMgrs(ks.getAbsolutePath(), "password"))
-						.trustManager(InsecureTrustManagerFactory.INSTANCE).build();
+				SslContext ctx = SslContextBuilder.forClient()//
+						.keyManager(getKeyMgrs(ks.getAbsolutePath(), "password"))//
+						.sslProvider(SslProvider.OPENSSL)//
+						.trustManager(InsecureTrustManagerFactory.INSTANCE)//
+						.build();
 				logger.info("secure context created.");
 
 				ssl = true;

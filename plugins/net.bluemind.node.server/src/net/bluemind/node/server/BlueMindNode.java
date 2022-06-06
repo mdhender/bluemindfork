@@ -32,6 +32,7 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.net.JksOptions;
+import io.vertx.core.net.OpenSSLEngineOptions;
 import net.bluemind.lib.vertx.RouteMatcher;
 import net.bluemind.node.server.handlers.DeleteFile;
 import net.bluemind.node.server.handlers.Executions;
@@ -72,7 +73,12 @@ public class BlueMindNode extends AbstractVerticle {
 		});
 		srv.webSocketHandler(new WebSocketProcessHandler(vertx));
 		logger.info("NODE is SSL: {}", options.isSsl());
-		srv.listen(options.isSsl() ? Activator.NODE_PORT : 8021);
+		srv.exceptionHandler(t -> logger.error("exceptionHandler {}", t.getMessage(), t));
+		srv.listen(options.isSsl() ? Activator.NODE_PORT : 8021, ar -> {
+			if (ar.failed()) {
+				logger.error("Node failed to listen", ar.cause());
+			}
+		});
 	}
 
 	private HttpServerOptions prepareOptions() {
@@ -86,6 +92,7 @@ public class BlueMindNode extends AbstractVerticle {
 			options.setTrustStoreOptions(
 					new JksOptions().setPath("/etc/bm/nodeclient_truststore.jks").setPassword("password"));
 			options.setClientAuth(ClientAuth.REQUIRED);
+			options.setOpenSslEngineOptions(new OpenSSLEngineOptions());
 			logger.info("Configured in secure mode");
 		} else {
 			logger.info("Unsecure mode on 8021, node can be claimed");
