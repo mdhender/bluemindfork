@@ -33,5 +33,10 @@
             impl="net.bluemind.mailflow.service.validators.MailflowJournalingConfigValidator">
       </hook>
    </extension>
-   
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.mailflow.api.IMailflowRules">
+      </endpoint>
+   </extension>   
 </plugin>
