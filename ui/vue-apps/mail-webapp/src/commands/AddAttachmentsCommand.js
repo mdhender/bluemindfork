@@ -1,5 +1,6 @@
 import UUIDGenerator from "@bluemind/uuid";
-import { ADD_ATTACHMENT, DEBOUNCED_SAVE_MESSAGE } from "~/actions";
+
+import { ADD_ATTACHMENT, REMOVE_ATTACHMENT, DEBOUNCED_SAVE_MESSAGE } from "~/actions";
 import { createFromFile as createPartFromFile } from "~/model/part";
 import { create, AttachmentStatus } from "~/model/attachment";
 import TooLargeBox from "~/components/MailAttachment/Modals/TooLargeBox";
@@ -15,6 +16,7 @@ export default {
             if (filesSize > maxSize) {
                 const { content, props } = renderTooLargeOKBox(this, files, maxSize);
                 await this.$bvModal.msgBoxOk([content], props);
+                return;
             }
 
             const promises = files.map(file => {
@@ -33,6 +35,13 @@ export default {
                 messageCompose: this.$store.state.mail.messageCompose
             });
             this.updateRoute(isNew);
+        },
+        async removeAttachment({ attachment, message }) {
+            await this.$store.dispatch(`mail/${REMOVE_ATTACHMENT}`, {
+                messageKey: message.key,
+                attachmentAddress: attachment.address,
+                messageCompose: this.$store.state.mail.messageCompose
+            });
         }
     },
     computed: {

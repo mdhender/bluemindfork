@@ -1,5 +1,6 @@
 <template>
     <div
+        v-if="attachments.length > 0"
         :class="`composer-links ${className}`"
         style="padding: 15px; background-color: #d9edff;"
         contenteditable="false"
@@ -45,7 +46,6 @@
 
 <script>
 import { computeUnit } from "@bluemind/file-utils";
-
 export default {
     name: "ComposerLinks",
     props: {

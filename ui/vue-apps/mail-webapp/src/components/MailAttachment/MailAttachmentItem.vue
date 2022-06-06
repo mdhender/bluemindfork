@@ -96,6 +96,7 @@ import { BmExtension } from "@bluemind/extensions.vue";
 
 import { AttachmentStatus } from "~/model/attachment";
 import { ComposerActionsMixin } from "~/mixins";
+import { RemoveAttachmentCommand } from "~/commands";
 import { isViewable } from "~/model/part";
 
 import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_PART_ADDRESS } from "~/mutations";
@@ -115,7 +116,7 @@ export default {
         AttachmentPreview,
         AttachmentInfos
     },
-    mixins: [ComposerActionsMixin],
+    mixins: [ComposerActionsMixin, RemoveAttachmentCommand],
     props: {
         attachment: {
             type: Object,
@@ -145,7 +146,7 @@ export default {
             return !this.isUploaded(attachment) && attachment.status !== AttachmentStatus.ERROR;
         },
         isUploaded(attachment) {
-            return attachment.progress.loaded === attachment.progress.total;
+            return [AttachmentStatus.UPLOADED, AttachmentStatus.ERROR].includes(attachment.status);
         },
         download(attachment) {
             location.assign(this.previewUrl(attachment));

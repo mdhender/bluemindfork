@@ -45,7 +45,8 @@
 <script>
 import { BmFormInput, BmForm } from "@bluemind/styleguide";
 
-import { AddAttachmentsCommand, ComposerActionsMixin, ComposerMixin } from "~/mixins";
+import { ComposerActionsMixin, ComposerMixin } from "~/mixins";
+import { AddAttachmentsCommand } from "~/commands";
 import MailComposerAttachments from "./MailComposerAttachments";
 import MailComposerContent from "./MailComposerContent";
 import MailComposerRecipients from "./MailComposerRecipients";

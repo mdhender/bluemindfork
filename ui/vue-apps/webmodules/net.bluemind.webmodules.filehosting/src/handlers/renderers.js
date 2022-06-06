@@ -5,6 +5,8 @@ import FileHostingModal from "~/components/FileHostingModal";
 import ComposerLinks from "~/components/ComposerLinks";
 const ComposerLinksClass = Vue.extend(ComposerLinks);
 
+export const LINKS_CLASSNAME = "filehosting-links";
+
 export function renderMustDetachConfirmBox(vm, files, sizeLimit, message) {
     const content = vm.$createElement(FhMustDetachConfirmBox, {
         props: {
@@ -68,16 +70,12 @@ export function renderFileHostingModal(vm, message) {
         }
     };
 }
-
-export function renderLinksComponent(vm, { key }, attachments, className) {
-    return (
-        attachments.length > 0 &&
-        new ComposerLinksClass({
-            propsData: {
-                attachments,
-                className: className + key,
-                i18n: vm.$i18n
-            }
-        })
-    );
+export function renderLinksComponent(vm, message, attachments) {
+    return new ComposerLinksClass({
+        propsData: {
+            attachments,
+            className: LINKS_CLASSNAME,
+            i18n: vm.$i18n
+        }
+    });
 }

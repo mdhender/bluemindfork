@@ -138,13 +138,6 @@ export default {
                 this.$router.navigate({ name: "v:mail:message", params: { message: this.message } });
             }
         },
-        removeAttachment(address) {
-            this.$_ComposerActionsMixin_REMOVE_ATTACHMENT({
-                messageKey: this.message.key,
-                attachmentAddress: address,
-                messageCompose: this.$_ComposerActionsMixin_messageCompose
-            });
-        },
         updateSubject(subject) {
             this.$store.commit("mail/" + SET_MESSAGE_SUBJECT, { messageKey: this.message.key, subject });
             this.debouncedSave();

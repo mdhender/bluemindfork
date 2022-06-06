@@ -44,7 +44,7 @@
             <bm-button variant="simple-dark" :disabled="totalLoaded === totalSize" @click="cancelAll">
                 {{ $t("mail.filehosting.share.stop") }}
             </bm-button>
-            <bm-button variant="outline-primary" @click="$bvModal.hide('file-hosting-modal')">
+            <bm-button variant="outline-primary" @click="hideModal">
                 {{ $t("common.hide") }}
             </bm-button>
         </template>
@@ -97,6 +97,11 @@ export default {
                     this.fhAttachments.push(attachment);
                 }
             });
+        },
+        fhAttachments(value) {
+            if (value.length === 0) {
+                this.hideModal();
+            }
         }
     },
     methods: {
@@ -105,9 +110,19 @@ export default {
         },
         cancel(address) {
             global.cancellers[address + this.$store.state.mail.activeMessage.key].cancel();
+            const index = this.fhAttachments.findIndex(attachment => {
+                return attachment.address === address;
+            });
+            this.fhAttachments.splice(index);
         },
         cancelAll() {
-            this.fhAttachments.map(attachment => this.cancel(attachment.address));
+            this.fhAttachments.slice().forEach(
+                attachment => attachment.status === AttachmentStatus.NOT_LOADED && this.cancel(attachment.address)
+            );
+            this.hideModal();
+        },
+        hideModal() {
+            this.$bvModal.hide("file-hosting-modal");
         }
     }
 };

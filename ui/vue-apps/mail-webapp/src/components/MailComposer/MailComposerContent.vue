@@ -57,7 +57,8 @@ import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutatio
 import { isNewMessage } from "~/model/draft";
 import { PERSONAL_SIGNATURE_SELECTOR } from "~/model/signature";
 
-import { AddAttachmentsCommand, ComposerActionsMixin, ComposerInitMixin, SignatureMixin, WaitForMixin } from "~/mixins";
+import { ComposerActionsMixin, ComposerInitMixin, SignatureMixin, WaitForMixin } from "~/mixins";
+import { AddAttachmentsCommand } from "~/commands";
 import MailViewerContentLoading from "../MailViewer/MailViewerContentLoading";
 
 export default {

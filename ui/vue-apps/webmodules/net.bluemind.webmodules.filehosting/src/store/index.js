@@ -2,6 +2,13 @@ import Vue from "vue";
 import actions from "./actions";
 
 const mutations = {
+    // Listeners
+    REMOVE_ATTACHMENT(state, { messageKey, address }) {
+        if (state.values[messageKey] && state.values[messageKey][address]) {
+            const attachments = state.values[messageKey];
+            delete attachments[address];
+        }
+    },
     ADD_MESSAGES(state, { messages }) {
         messages.forEach(({ key, attachments }) => {
             attachments?.forEach(attachment => addAttachment(state, { messageKey: key, attachment }));

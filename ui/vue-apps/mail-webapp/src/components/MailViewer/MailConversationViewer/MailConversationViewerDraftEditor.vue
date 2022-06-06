@@ -131,13 +131,8 @@
 <script>
 import { mapMutations, mapState } from "vuex";
 import { BmButton, BmContactInput, BmIcon } from "@bluemind/styleguide";
-import {
-    AddAttachmentsCommand,
-    ComposerActionsMixin,
-    ComposerInitMixin,
-    ComposerMixin,
-    EditRecipientsMixin
-} from "~/mixins";
+import { ComposerActionsMixin, ComposerInitMixin, ComposerMixin, EditRecipientsMixin } from "~/mixins";
+import { AddAttachmentsCommand } from "~/commands";
 import MailComposerAttachments from "../../MailComposer/MailComposerAttachments";
 import MailComposerContent from "../../MailComposer/MailComposerContent";
 import MailComposerFooter from "../../MailComposer/MailComposerFooter";

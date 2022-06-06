@@ -94,7 +94,8 @@ import {
 } from "@bluemind/styleguide";
 import { AppDataKeys } from "@bluemind/webappdata";
 
-import { AddAttachmentsCommand, ComposerActionsMixin, FormattedDateMixin } from "~/mixins";
+import { ComposerActionsMixin, FormattedDateMixin } from "~/mixins";
+import { AddAttachmentsCommand } from "~/commands";
 import { MessageStatus } from "~/model/message";
 import { isNewMessage } from "~/model/draft";
 import { SET_TEMPLATE_CHOOSER_TARGET, SET_TEMPLATE_CHOOSER_VISIBLE, SHOW_SENDER } from "~/mutations";
