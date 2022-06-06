@@ -9,9 +9,10 @@
         <bm-col class="text-nowrap text-truncate flex-grow-1 px-2 attachment-text">
             <span :title="attachment.fileName" class="font-weight-bold">{{ attachment.fileName }} </span>
             <br />
-            <slot name="subtitle" :size="fileSize">
+            <div class="d-inline-flex">
+                <mail-attachment-tags :attachment="attachment" :message="message" />
                 {{ fileSize }}
-            </slot>
+            </div>
         </bm-col>
         <bm-col class="col-auto py-1">
             <slot name="actions" />
@@ -22,13 +23,15 @@
 import { BmCol, BmIcon, BmRow } from "@bluemind/styleguide";
 import { MimeType, getPartDownloadUrl } from "@bluemind/email";
 import { computeUnit } from "@bluemind/file-utils";
+import MailAttachmentTags from "./MailAttachmentTags";
 
 export default {
     name: "AttachmentInfos",
     components: {
         BmCol,
         BmIcon,
-        BmRow
+        BmRow,
+        MailAttachmentTags
     },
     props: {
         attachment: {
