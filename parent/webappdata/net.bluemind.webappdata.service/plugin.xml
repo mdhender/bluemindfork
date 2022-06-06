@@ -20,5 +20,11 @@
             inline="true">
       </endpoint>
    </extension>
+   <extension
+         point="net.bluemind.user.hook.userhook">
+      <hook
+            impl="net.bluemind.webappdata.service.internal.WebAppDataUserHook">
+      </hook>
+   </extension>
 
 </plugin>

@@ -13,6 +13,7 @@
 		<module>net.bluemind.webappdata.persistence</module>
 		<module>net.bluemind.webappdata.persistence.tests</module>
 		<module>net.bluemind.webappdata.service</module>
+		<module>net.bluemind.webappdata.service.tests</module>
 		<module>net.bluemind.webappdata.sqlschema</module>
 	</modules>
 
