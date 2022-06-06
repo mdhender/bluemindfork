@@ -717,28 +717,38 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	private Ack doImapCommand(String imapCommand) {
 		CompletableFuture<Long> repEvent = ReplicationEvents.onMailboxChanged(mailboxUniqueId);
-		imapContext.withImapClient(sc -> {
+		boolean imapCommandOk = imapContext.withImapClient(sc -> {
 			boolean select = sc.select(imapFolder);
 			if (!select) {
-				logger.error("Failed to select '{}'", imapFolder);
-				return null;
+				logger.error("Failed to select '{}'? IMAP command {}", imapFolder, imapCommand);
+				return false;
 			}
 			TaggedResult result = sc.tagged(imapCommand);
 			logger.debug("{}, Unseen updates ok ? {}", imapCommand, result.isOk());
 			if (!result.isOk()) {
+				logger.error("'{}' failed", imapCommand);
 				for (int i = 0; i < result.getOutput().length; i++) {
-					logger.error(result.getOutput()[i]);
+					logger.error("  * {}", result.getOutput()[i]);
 				}
+				return false;
 			}
-			return null;
+			return true;
 		});
 		try {
 			Long v = repEvent.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			return Ack.create(v);
 		} catch (TimeoutException e) {
-			throw new ServerFault(
-					"TimeOut running '" + imapCommand + "' in folder " + imapFolder + " for " + imapContext.latd,
-					ErrorCode.TIMEOUT);
+			if (!imapCommandOk) {
+				throw new ServerFault(
+						"TimeOut running '" + imapCommand + "' in folder " + imapFolder + " for " + imapContext.latd,
+						ErrorCode.TIMEOUT);
+			}
+
+			logger.warn(
+					"No event received from replication for imap command '{}' on mailbox {}. Should resync mail items on DB",
+					imapCommand, mailboxUniqueId);
+
+			return Ack.create(getVersion());
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
