@@ -377,7 +377,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 				.map(MailboxRecordItemCache::getAndInvalidate).filter(Optional::isPresent).map(Optional::get)
 				.collect(Collectors.toList());
 		if (knownRecs.isEmpty()) {
-			logger.warn("Db CRUD (refs) skipped: no cached RecordRef for {} records", recs.size());
+			logger.debug("Db CRUD (refs) skipped: no cached RecordRef for {} records", recs.size());
 			return false;
 		}
 		return storeService.doOrFail(() -> {
@@ -730,7 +730,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 			throw ServerFault.sqlFault(e);
 		}
 	}
-	
+
 	public List<ItemValue<MailboxRecord>> multipleGetById(List<Long> ids) {
 		return storeService.getMultipleById(ids);
 	}
