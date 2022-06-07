@@ -445,6 +445,12 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			return (ImapItemIdentifier) createAsync(id, value).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 		} catch (TimeoutException to) {
 			throw new ServerFault("Create timed out", ErrorCode.TIMEOUT);
+		} catch (ExecutionException ee) {
+			if (ee.getCause() instanceof ServerFault) {
+				throw (ServerFault) ee.getCause();
+			} else {
+				throw new ServerFault(ee.getCause());
+			}
 		} catch (ServerFault sf) {
 			throw sf;
 		} catch (Exception e) {
