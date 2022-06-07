@@ -6,34 +6,45 @@
         no-fade
     >
         <div class="mr-4 ml-2">
-            <div class="d-flex align-items-center mb-3">
+            <div v-if="hasSomeErrorStatus" class="d-flex align-items-center mb-3">
+                <bm-icon icon="file" size="2x" class="mr-2 text-danger" />
+                <span class="mr-1 font-size-h1">&#8226;</span>
+                <span class="mr-1 font-size-h1">&#8226;</span>
+                <bm-icon icon="exclamation" size="2x" class="text-danger" />
+                <span class="mr-1 font-size-h1">&#8226;</span>
+                <span class="mr-1 font-size-h1">&#8226;</span>
+                <bm-icon icon="chevron-right" size="lg" />
+                <bm-icon icon="cloud" class="ml-2 text-danger" size="2x" />
+            </div>
+            <div v-else class="d-flex align-items-center mb-3">
                 <bm-icon icon="file" size="2x" class="mr-2 text-primary" />
                 <span class="dots font-size-h1">&#8226; &#8226; &#8226; &#8226; &#8226; &#8226;</span>
                 <bm-icon icon="chevron-right" size="lg" class="text-secondary" />
                 <bm-icon icon="cloud" class="ml-2 text-primary" size="2x" />
             </div>
-            <div class="mb-4">
-                <i18n path="mail.filehosting.threshold.hit">
-                    <template v-slot:hit>
-                        {{ $tc("mail.filehosting.threshold.size", attachments.length) }}
-                    </template>
-                    <template v-slot:size>
-                        <strong class="font-weight-bold">{{ displaySize(sizeLimit) }}</strong>
-                    </template>
-                </i18n>
-                <br />
+            <div v-if="hasSomeErrorStatus" class="mb-4 text-danger">
+                {{ $tc("mail.filehosting.share.failure", fhAttachments.length) }}
+            </div>
+            <div v-else class="mb-4">
                 {{ $tc("mail.filehosting.share.pending", fhAttachments.length) }}
             </div>
 
             <div v-for="(attachment, idx) in fhAttachments" :key="idx" class="position-relative mt-2">
                 <fh-attachment-item :attachment="attachment">
                     <template #item-actions>
+                        <bm-label-icon
+                            v-if="hasErrorStatus(attachment)"
+                            class="text-danger mt-2 ml-2 text-nowrap"
+                            icon="exclamation-circle-fill"
+                        >
+                            {{ $t("mail.filehosting.import.failed") }}
+                        </bm-label-icon>
                         <bm-button-close
-                            v-if="attachment.progress.loaded < attachment.progress.total"
-                            class="mt-2"
+                            v-else-if="hasNotLoadedStatus(attachment)"
+                            class="mt-2 ml-2"
                             @click="cancel(attachment.address)"
                         />
-                        <span v-else class="text-secondary mt-2 float-right">
+                        <span v-else class="text-secondary ml-2 mt-2 text-nowrap">
                             {{ $t("mail.filehosting.import.successful") }}
                         </span>
                     </template>
@@ -41,7 +52,7 @@
             </div>
         </div>
         <template #modal-footer>
-            <bm-button variant="simple-dark" :disabled="totalLoaded === totalSize" @click="cancelAll">
+            <bm-button variant="simple-dark" :disabled="isFinished" @click="cancelAll">
                 {{ $t("mail.filehosting.share.stop") }}
             </bm-button>
             <bm-button variant="outline-primary" @click="hideModal">
@@ -53,14 +64,14 @@
 <script>
 import { mapGetters } from "vuex";
 import global from "@bluemind/global";
-import { BmModal, BmButtonClose, BmButton, BmIcon } from "@bluemind/styleguide";
+import { BmModal, BmButtonClose, BmButton, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
 import { AttachmentStatus } from "~/model/attachment";
 import FhAttachmentItem from "./AttachmentItem";
 
 export default {
     name: "FileHostingModal",
-    components: { BmModal, BmButtonClose, BmButton, BmIcon, FhAttachmentItem },
+    components: { BmModal, BmButtonClose, BmButton, BmIcon, FhAttachmentItem, BmLabelIcon },
     props: {
         sizeLimit: {
             type: Number,
@@ -76,14 +87,18 @@ export default {
     },
     computed: {
         ...mapGetters("mail", ["GET_FH_ATTACHMENT"]),
-        totalLoaded() {
-            return this.fhAttachments.reduce((totalLoaded, attachment) => totalLoaded + attachment.progress.loaded, 0);
-        },
-        totalSize() {
-            return this.fhAttachments.reduce((totalSize, attachment) => totalSize + attachment.progress.total, 0);
+        isFinished() {
+            return (
+                this.fhAttachments.filter(({ status }) =>
+                    [AttachmentStatus.UPLOADED, AttachmentStatus.ERROR].includes(status)
+                ).length === this.fhAttachments.length
+            );
         },
         attachments() {
             return this.$store.state.mail.conversations.messages[this.message.key]?.attachments || [];
+        },
+        hasSomeErrorStatus() {
+            return this.fhAttachments.some(this.hasErrorStatus);
         }
     },
     watch: {
@@ -116,13 +131,21 @@ export default {
             this.fhAttachments.splice(index);
         },
         cancelAll() {
-            this.fhAttachments.slice().forEach(
-                attachment => attachment.status === AttachmentStatus.NOT_LOADED && this.cancel(attachment.address)
-            );
+            this.fhAttachments
+                .slice()
+                .forEach(
+                    attachment => attachment.status === AttachmentStatus.NOT_LOADED && this.cancel(attachment.address)
+                );
             this.hideModal();
         },
         hideModal() {
             this.$bvModal.hide("file-hosting-modal");
+        },
+        hasErrorStatus({ status }) {
+            return status === AttachmentStatus.ERROR;
+        },
+        hasNotLoadedStatus({ status }) {
+            return status === AttachmentStatus.NOT_LOADED;
         }
     }
 };

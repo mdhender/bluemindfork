@@ -1,24 +1,32 @@
 <template>
     <div class="fh-attachment-item">
-        <div>
-            <bm-label-icon icon="file" icon-size="2x" class="mt-2">
-                <h2 class="text-secondary">{{ attachment.fileName }}</h2>
+        <div class="d-flex justify-content-between align-items-center">
+            <bm-label-icon icon="file" icon-size="2x" class="mt-2 label">
+                <h2 class="text-secondary text-truncate">{{ attachment.fileName }}</h2>
             </bm-label-icon>
             <slot name="item-actions" />
         </div>
         <span class="text-secondary ml-4 text-right">
-            {{ displaySize(attachment.progress.loaded) }} / {{ displaySize(attachment.progress.total) }}
+            <span v-if="!hasErrorStatus">
+                {{ displaySize(attachment.progress.loaded) }} / {{ displaySize(attachment.progress.total) }}
+            </span>
         </span>
         <bm-label-icon v-if="isLarge" icon="exclamation-circle-fill" class="text-warning">
             {{ $t("mail.filehosting.very_large_file") }}
         </bm-label-icon>
-        <bm-progress :value="attachment.progress.loaded" :max="attachment.progress.total" />
+        <bm-progress
+            :value="attachment.progress.loaded"
+            :max="attachment.progress.total"
+            :variant="hasErrorStatus ? 'danger' : 'primary'"
+        />
     </div>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import { BmLabelIcon, BmProgress } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
+import { AttachmentStatus } from "~/model/attachment";
 
 const VERY_LARGE_FILE_SIZE = 500 * 1024 * 1024;
 
@@ -32,8 +40,12 @@ export default {
         }
     },
     computed: {
+        ...mapGetters("mail", ["GET_FH_ATTACHMENT"]),
         isLarge() {
             return this.attachment.progress.total > VERY_LARGE_FILE_SIZE;
+        },
+        hasErrorStatus() {
+            return this.attachment.status === AttachmentStatus.ERROR;
         }
     },
     methods: {
@@ -54,6 +66,9 @@ export default {
         top: 0;
         height: 0.125rem;
         width: 100%;
+    }
+    .label {
+        min-width: 0;
     }
 }
 </style>

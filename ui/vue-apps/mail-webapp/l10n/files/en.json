@@ -458,7 +458,9 @@
             "share": {
                 "start": "Send a shared link | Send shared links",
                 "stop": "Stop the sending",
-                "pending": "Sending a shared link | Sending shared links"
+                "pending": "Sending a shared link | Sending shared links",
+                "failure": "Your file could not be uploaded | Some files could not be uploaded"
+
             },
             "threshold": {
                 "hit": "{hit} {size}.",
@@ -471,10 +473,14 @@
                 "too_large": "File too large | Files too large"
             },
             "import": {
-                "successful": "successful import"
+                "successful": "successful import",
+                "failed": "import failure"
+
             },
             "change_selection": "Try selecting a smaller file size. | Try to select smaller files.",
-            "link": "I have linked a file to this email | I have linked files to this email"
+            "link": "I have linked a file to this message | I have linked files to this message",
+            "expiration_date": "Expires on {date}",
+            "very_large_file": "very large file"
         },
         "rename_folder": {
             "modal": {

@@ -458,7 +458,8 @@
             "share": {
                 "start": "Envoyer un lien partagé | Envoyer des liens partagés",
                 "stop": "Arrêter l'envoi",
-                "pending": "Envoi d'un lien partagé | Envoi des liens partagés"
+                "pending": "Envoi d'un lien partagé | Envoi des liens partagés",
+                "failure": "Votre fichier n'a pas pu être téléchargé | Certains fichiers n'ont pas pu être téléchargés"
             },
             "threshold": {
                 "hit": "{hit} {size}.",
@@ -471,10 +472,13 @@
                 "too_large": "Fichier trop volumineux | Fichiers trop volumineux"
             },
             "import": {
-                "successful": "import réussi"
+                "successful": "import réussi",
+                "failed": "échec de l'import"
             },
             "change_selection": "Essayez de sélectionner un fichier moins volumineux. | Essayez de sélectionner des fichiers moins volumineux.",
-            "link": "J'ai lié un fichier à cet email | J'ai lié des fichiers à cet email"
+            "expiration_date": "Expire le {date}",
+            "link": "J'ai lié un fichier à ce message | J'ai lié des fichiers à ce message",
+            "very_large_file": "fichier très volumineux"
         },
         "rename_folder": {
             "modal": {

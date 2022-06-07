@@ -5,26 +5,24 @@ import { inject } from "@bluemind/inject";
 
 export default {
     install(Vue) {
-        const beforeHooks = new Map();
-        const afterHooks = new Map();
         const roles = inject("UserSession").roles.split(",");
-        mapExtensions("webapp", ["command"])?.command?.forEach(({ fn, name, role, after }) => {
-            if (!role || roles.includes(role)) {
-                let hooks = after ? afterHooks : beforeHooks;
-                name = camelize(name);
-                const value = hooks.get(name) || [];
-                value.push(fn);
-                hooks.set(name, value);
-            }
-        });
 
-        Vue.prototype.$execute = async function (name, payload = {}) {
-            name = camelize(name);
-            if (this.$options.commands[name]) {
+        Vue.prototype.$execute = async function (command, payload = {}) {
+            command = camelize(command);
+            if (this.$options.commands[command]) {
+                const beforeHooks = [];
+                const afterHooks = [];
+                mapExtensions("webapp", ["command"])?.command?.forEach(({ fn, name, role, after }) => {
+                    name = camelize(name);
+                    if (command === name && (!role || roles.includes(role))) {
+                        let hooks = after ? afterHooks : beforeHooks;
+                        hooks.push(fn);
+                    }
+                });
                 try {
-                    await executeHooks.call(this, beforeHooks.get(name), payload);
-                    this.$options.commands[name].call(this, payload);
-                    await executeHooks.call(this, afterHooks.get(name), payload);
+                    await executeHooks.call(this, beforeHooks, payload);
+                    this.$options.commands[command].call(this, payload);
+                    await executeHooks.call(this, afterHooks, payload);
                 } catch (error) {
                     if (error.name === "StopExecution") {
                         return;

@@ -3,6 +3,9 @@ jest.mock("@bluemind/styleguide/css/_variables.scss", () => ({ iconsColors: "" }
 
 import MailAttachmentsBlock from "../src/components/MailAttachment/MailAttachmentsBlock";
 import { createStore, createWrapper } from "./testUtils";
+import inject from "@bluemind/inject";
+
+inject.register({ provide: "UserSession", factory: () => ({ roles: "" }) });
 
 describe("MailAttachmentsBlock", () => {
     test("is a Vue instance", () => {

@@ -8,7 +8,7 @@
             "root-webapp",
             "videoconferencing-saas-webapp",
             "webapp-wrapper", 
-            "webmodules/*"
+            "webmodules/net.bluemind.webmodules.filehosting"
         ],
         "nohoist": [
             "**/bootstrap-vue",

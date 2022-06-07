@@ -1,4 +1,7 @@
 import flushPromises from "flush-promises";
+import inject from "@bluemind/inject";
+
+inject.register({ provide: "UserSession", factory: () => ({ roles: "" }) });
 
 import { createStore, createWrapper } from "./testUtils";
 import BodyViewer from "../src/components/MailViewer/BodyViewer";
