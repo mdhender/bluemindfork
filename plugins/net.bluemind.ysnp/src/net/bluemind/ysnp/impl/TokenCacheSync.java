@@ -50,7 +50,11 @@ public class TokenCacheSync {
 			} else if ("pwchange".equals(operation)) {
 				String latd = cm.getStringProperty("latd");
 				pwCache.invalidate(latd);
+			} else if ("archived".equals(operation)) {
+				String latd = cm.getStringProperty("latd");
+				pwCache.invalidate(latd);
 			}
+
 		}));
 	}
 

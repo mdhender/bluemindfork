@@ -300,6 +300,12 @@ public class UserService implements IInCoreUser, IUser {
 			}
 		}
 
+		if (!previous.value.archived && user.archived) {
+			// ysnp cache invalidation
+			MQ.getProducer(Topic.CORE_SESSIONS)
+					.send(new JsonObject().put("latd", user.login + "@" + domainName).put("operation", "archived"));
+		}
+
 		eventProducer.changed(uid, user);
 	}
 
