@@ -30,6 +30,10 @@ import net.bluemind.core.container.model.ItemValue;
 
 public interface ICrudSupport<T> {
 
+	@GET
+	@Path("_alluids")
+	public List<String> allUids();
+
 	@POST
 	@Path("uid/{uid}")
 	Ack update(@PathParam("uid") String uid, T value);
@@ -41,6 +45,10 @@ public interface ICrudSupport<T> {
 	@DELETE
 	@Path("uid/{uid}")
 	void delete(@PathParam("uid") String uid);
+
+	@DELETE
+	@Path("_deleteAll")
+	void deleteAll();
 
 	@GET
 	@Path("uid/{uid}")

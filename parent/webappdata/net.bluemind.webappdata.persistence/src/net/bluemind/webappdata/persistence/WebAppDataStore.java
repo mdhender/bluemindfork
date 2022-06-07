@@ -69,4 +69,10 @@ public class WebAppDataStore extends AbstractItemValueStore<WebAppData> {
 				new Object[] { container.id });
 	}
 
+	public WebAppData getByKey(String key) throws SQLException {
+		String query = "SELECT " + WebAppDataColumns.cols.names()
+				+ " FROM t_webappdata JOIN t_container_item ON item_id = id WHERE key = ? AND container_id = ?";
+		return unique(query, WEBAPPDATA_CREATOR, WebAppDataColumns.populator(), new Object[] { key, container.id });
+	}
+
 }

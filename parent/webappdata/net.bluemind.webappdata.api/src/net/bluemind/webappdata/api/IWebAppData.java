@@ -18,7 +18,9 @@
  */
 package net.bluemind.webappdata.api;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.container.api.IChangelogSupport;
@@ -40,5 +42,9 @@ import net.bluemind.core.container.api.IRestoreCrudSupport;
 @Path("/webappdata/{containerUid}")
 public interface IWebAppData extends IChangelogSupport, IDataShardSupport, ICrudSupport<WebAppData>,
 		IRestoreCrudSupport<WebAppData>, IReadByIdSupport<WebAppData> {
+
+	@GET
+	@Path("key/{key}")
+	WebAppData getByKey(@PathParam("key") String key);
 
 }

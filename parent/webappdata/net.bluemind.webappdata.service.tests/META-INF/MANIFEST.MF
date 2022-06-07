@@ -17,5 +17,6 @@ Require-Bundle: org.junit,
  net.bluemind.user.persistence,
  net.bluemind.webappdata.api,
  net.bluemind.core.task.spi,
- net.bluemind.core.task.service;bundle-version="4.1.0"
+ net.bluemind.core.task.service;bundle-version="4.1.0",
+ net.bluemind.webappdata.service;bundle-version="4.1.0"
 Automatic-Module-Name: net.bluemind.webappdata.service.tests

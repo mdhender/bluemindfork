@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerSubscription;
-import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
@@ -49,7 +48,6 @@ public class WebAppDataUserHook extends DefaultUserHook {
 		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IContainers.class).create(containerUid,
 				descriptor);
 
-		// CHECKME: does user really need to subscribe its webappdata container ?
 		IUserSubscription userSubService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUserSubscription.class, domainUid);
 		userSubService.subscribe(owner, Arrays.asList(ContainerSubscription.create(containerUid, true)));
@@ -62,14 +60,10 @@ public class WebAppDataUserHook extends DefaultUserHook {
 				.instance(IContainers.class);
 
 		if (containerService.getIfPresent(containerUid) != null) {
-			IContainerManagement containerManagementService = ServerSideServiceProvider
-					.getProvider(SecurityContext.SYSTEM).instance(IContainerManagement.class);
 			IWebAppData webAppDataService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(IWebAppData.class);
+					.instance(IWebAppData.class, containerUid);
 			try {
-				containerManagementService.getAllItems().forEach(item -> {
-					webAppDataService.delete(item.uid);
-				});
+				webAppDataService.deleteAll();
 				containerService.delete(containerUid);
 			} catch (Exception e) {
 				LoggerFactory.getLogger(WebAppDataUserHook.class).warn("Cannot delete container {}", containerUid, e);

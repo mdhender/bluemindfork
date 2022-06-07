@@ -127,7 +127,18 @@ public class WebAppDataStoreTests {
 		} catch (Exception e) {
 
 		}
+	}
 
+	@Test
+	public void testGetByKey() throws SQLException {
+		WebAppData created = exampleWebAppData();
+		Item item = createItem();
+
+		webAppDataStore.create(item, created);
+		WebAppData retrieved = webAppDataStore.getByKey(created.key);
+
+		assertEquals(retrieved.value, created.value);
+		assertEquals(retrieved.key, created.key);
 	}
 
 	private WebAppData exampleWebAppData() {

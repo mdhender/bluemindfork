@@ -1,22 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <!-- <extension
-         point="net.bluemind.core.rest.serviceFactory">
-      <serviceFactory
-            class="net.bluemind.device.service.DeviceServiceFactory">
-      </serviceFactory>
-      <serviceFactory
-            class="net.bluemind.device.service.DevicesServiceFactory">
-      </serviceFactory>
-   </extension> -->
    <extension
          point="net.bluemind.core.rest.apiEndpoint">
       <endpoint
-            api="net.bluemind.webappdata.api.IWebbAppData">
+            api="net.bluemind.webappdata.api.IWebAppData">
       </endpoint>
       <endpoint
-            api="net.bluemind.webappdata.api.IWebbAppDataUids" 
+            api="net.bluemind.webappdata.api.IWebAppDataUids" 
             inline="true">
       </endpoint>
    </extension>
@@ -26,5 +17,10 @@
             impl="net.bluemind.webappdata.service.internal.WebAppDataUserHook">
       </hook>
    </extension>
-
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.webappdata.service.WebAppDataServiceFactory">
+      </serviceFactory>
+   </extension>
 </plugin>

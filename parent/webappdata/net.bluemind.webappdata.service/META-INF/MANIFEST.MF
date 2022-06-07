@@ -12,4 +12,8 @@ Require-Bundle: net.bluemind.webappdata.api,
  net.bluemind.user.hook,
  net.bluemind.core.rest,
  net.bluemind.user.api;bundle-version="1.0.0",
- slf4j.api
+ net.bluemind.core.container.persistence,
+ net.bluemind.core.container.service;bundle-version="1.0.0",
+ net.bluemind.webappdata.persistence,
+ slf4j.api,
+ net.bluemind.core.validator

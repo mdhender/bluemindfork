@@ -47,6 +47,7 @@ public class WebAppDataUserHookTests {
 	@Before
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
+
 		final CountDownLatch launched = new CountDownLatch(1);
 		VertxPlatform.spawnVerticles(event -> launched.countDown());
 		launched.await();
@@ -86,9 +87,9 @@ public class WebAppDataUserHookTests {
 		assertNull(containerService.getIfPresent(webAppDataContainerUid));
 	}
 
-	private WebAppData exampleWebAppData() {
+	static WebAppData exampleWebAppData() {
 		WebAppData data = new WebAppData();
-		data.key = "mailapp:expanded_folders";
+		data.key = "mail-app:folders:expanded";
 		data.value = "['1fa7ea8a59bbec5c', '3db4e71c5b519fad']";
 		return data;
 	}
