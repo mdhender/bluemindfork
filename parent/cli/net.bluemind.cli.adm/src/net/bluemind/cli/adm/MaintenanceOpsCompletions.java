@@ -40,7 +40,8 @@ public class MaintenanceOpsCompletions implements Iterable<String> {
 					"admin0_global.virt");
 			demService.getAvailableOperations().stream().map(mo -> mo.identifier).forEach(ops::add);
 		} catch (Exception e) {
-			CliContext.get().error(e.getMessage());
+			// some upgraded installations are missing entries for global.virt in
+			// t_directory
 		}
 	}
 
