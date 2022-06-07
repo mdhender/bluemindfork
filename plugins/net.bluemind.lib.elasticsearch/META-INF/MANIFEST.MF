@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  net.bluemind.elastic.client;bundle-version="6.4.1";visibility:=reexport,
  net.bluemind.network.utils,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ io.vertx.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Export-Package: net.bluemind.lib.elasticsearch

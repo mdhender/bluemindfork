@@ -143,6 +143,18 @@ public class MailIndexShardingITTests {
 	}
 
 	@Test
+	public void testIndexMetadata() throws Exception {
+		TestIndexSelectionPolicy.distribute = true;
+		populate(1);
+		String index = getUserAliasIndex("user00");
+		System.err.println("index is " + index);
+		String val = "tron" + System.currentTimeMillis();
+		ESearchActivator.putMeta(index, "pipo", val);
+		String fetched = ESearchActivator.getMeta(index, "pipo");
+		assertEquals(val, fetched);
+	}
+
+	@Test
 	public void testRunWhileNotFullState() throws Exception {
 		TestIndexSelectionPolicy.distribute = false;
 		populate(1);

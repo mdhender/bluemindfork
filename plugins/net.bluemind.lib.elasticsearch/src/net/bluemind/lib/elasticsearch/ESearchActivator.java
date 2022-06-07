@@ -50,17 +50,20 @@ import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest.AliasA
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesAction;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequestBuilder;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.metadata.AliasMetadata;
+import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
@@ -84,6 +87,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.network.utils.NetworkHelper;
 
@@ -94,6 +98,12 @@ public final class ESearchActivator implements BundleActivator {
 	private static final Map<String, Lock> refreshLocks = new ConcurrentHashMap<>();
 	private static final Map<String, IndexDefinition> indexes = new HashMap<>();
 	private static Logger logger = LoggerFactory.getLogger(ESearchActivator.class);
+
+	/**
+	 * key for {@link #putMeta(String, String, String)}. Indices with this prop will
+	 * be ignored when allocating new aliases
+	 */
+	public static final String BM_MAINTENANCE_STATE_META_KEY = "bmMaintenanceState";
 
 	static {
 		System.setProperty("es.set.netty.runtime.available.processors", "false");
@@ -259,6 +269,22 @@ public final class ESearchActivator implements BundleActivator {
 
 	public static Client getClient() {
 		return getClient("bm/es");
+	}
+
+	public static void putMeta(String index, String k, String v) {
+		JsonObject js = new JsonObject();
+		js.put("_meta", new JsonObject().put(k, v));
+		BytesReference br = BytesReference.fromByteBuffer(js.toBuffer().getByteBuf().nioBuffer());
+		AcknowledgedResponse resp = getClient().admin().indices()
+				.putMapping(Requests.putMappingRequest(index).type("_doc").source(br, XContentType.JSON)).actionGet();
+		logger.info("putMeta({}, {}, {}) => {}", index, k, v, resp.isAcknowledged());
+	}
+
+	public static String getMeta(String index, String key) {
+		GetMappingsResponse res = getClient().admin().indices().prepareGetMappings(index).get();
+		JsonObject mappings = new JsonObject(res.toString());
+		JsonObject meta = mappings.getJsonObject(index).getJsonObject("mappings").getJsonObject("_meta");
+		return Optional.ofNullable(meta).map(js -> js.getString(key)).orElse(null);
 	}
 
 	public static Client createClient(Collection<String> hosts) {

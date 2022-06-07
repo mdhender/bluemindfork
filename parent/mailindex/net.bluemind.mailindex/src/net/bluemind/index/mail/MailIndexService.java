@@ -146,7 +146,14 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	private List<String> filterMailspoolIndexNames(GetIndexResponse indexResponse) {
-		return Arrays.asList(indexResponse.indices()).stream().filter(i -> !i.startsWith(INDEX_PENDING))
+		return Arrays.asList(indexResponse.indices()).stream()//
+				.filter(i -> !i.startsWith(INDEX_PENDING))
+				.filter(idx -> !Optional
+						.ofNullable(ESearchActivator.getMeta(idx, ESearchActivator.BM_MAINTENANCE_STATE_META_KEY))
+						.map(meta -> {
+							logger.warn("{} is not usable for new aliases as its maintenance state is {}", idx, meta);
+							return meta;
+						}).isPresent())
 				.collect(Collectors.toList());
 	}
 
@@ -616,7 +623,7 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	@Override
-	public void moveMailbox(String mailboxUid, String indexName) {
+	public void moveMailbox(String mailboxUid, String indexName, boolean deleteSource) {
 
 		Client client = ESearchActivator.getClient();
 
@@ -666,9 +673,10 @@ public class MailIndexService implements IMailIndexService {
 
 		logger.info("bulk copy of msg response {}", copyResp);
 
-		bulkDelete(fromIndex, QueryBuilders.termQuery("owner", mailboxUid));
-
-		VertxPlatform.eventBus().publish("index.mailspool.cleanup", new JsonObject().put("index", fromIndex));
+		if (deleteSource) {
+			bulkDelete(fromIndex, QueryBuilders.termQuery("owner", mailboxUid));
+			VertxPlatform.eventBus().publish("index.mailspool.cleanup", new JsonObject().put("index", fromIndex));
+		}
 	}
 
 	public List<ShardStats> getStats() {

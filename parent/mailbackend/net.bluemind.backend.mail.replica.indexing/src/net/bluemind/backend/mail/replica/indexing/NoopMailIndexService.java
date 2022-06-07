@@ -93,7 +93,7 @@ public class NoopMailIndexService implements IMailIndexService {
 	}
 
 	@Override
-	public void moveMailbox(String mailboxUid, String indexName) {
+	public void moveMailbox(String mailboxUid, String indexName, boolean del) {
 		logger.debug("NOOP");
 
 	}

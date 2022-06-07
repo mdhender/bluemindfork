@@ -61,14 +61,15 @@ public interface IMailboxMgmt {
 	 * move ES index
 	 * 
 	 * @param mailboxUid
-	 * @param indexName  indexName must start with mailspool. ex mailspool_2
+	 * @param indexName    indexName must start with mailspool. ex mailspool_2
+	 * @param deleteSource
 	 * @return
 	 * @throws ServerFault
 	 */
 	@POST
 	@Path("{mailboxUid}/_move_index")
-	public TaskRef moveIndex(@PathParam("mailboxUid") String mailboxUid, @QueryParam("index") String indexName)
-			throws ServerFault;
+	public TaskRef moveIndex(@PathParam("mailboxUid") String mailboxUid, @QueryParam("index") String indexName,
+			@QueryParam("deleteSource") boolean deleteSource) throws ServerFault;
 
 	public void move(ItemValue<Mailbox> mailbox, ItemValue<Server> server) throws ServerFault;
 

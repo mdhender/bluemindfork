@@ -104,7 +104,7 @@ public class MoveCommand implements ICmdLet, Runnable {
 			ctx.info("Moved index from {} to {}", mailbox, dest);
 		}
 		IMailboxMgmt mboxMgmtApi = ctx.adminApi().instance(IMailboxMgmt.class, domain.uid);
-		TaskRef tr = mboxMgmtApi.moveIndex(mailbox, dest);
+		TaskRef tr = mboxMgmtApi.moveIndex(mailbox, dest, true);
 		Tasks.follow(ctx, tr, String.format("Failed to move index from %s to %s", mailbox, dest));
 	}
 

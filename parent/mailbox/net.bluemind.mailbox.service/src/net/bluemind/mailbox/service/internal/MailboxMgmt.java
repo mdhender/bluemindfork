@@ -113,7 +113,7 @@ public class MailboxMgmt implements IMailboxMgmt {
 	}
 
 	@Override
-	public TaskRef moveIndex(String mailboxUid, String indexName) throws ServerFault {
+	public TaskRef moveIndex(String mailboxUid, String indexName, boolean deleteSource) throws ServerFault {
 		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX);
 
 		if (Strings.isNullOrEmpty(indexName) || !indexName.startsWith("mailspool")) {
@@ -129,7 +129,7 @@ public class MailboxMgmt implements IMailboxMgmt {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
-				RecordIndexActivator.getIndexer().get().moveMailbox(mailboxUid, indexName);
+				RecordIndexActivator.getIndexer().get().moveMailbox(mailboxUid, indexName, deleteSource);
 			}
 		});
 	}

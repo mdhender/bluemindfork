@@ -67,7 +67,11 @@ public interface IMailIndexService {
 
 	public void deleteMailbox(String mailboxUid);
 
-	public void moveMailbox(String mailboxUid, String indexName);
+	default void moveMailbox(String mailboxUid, String indexName) {
+		moveMailbox(mailboxUid, indexName, true);
+	}
+
+	public void moveMailbox(String mailboxUid, String indexName, boolean deleteSource);
 
 	Set<String> getFolders(String entityId);
 
