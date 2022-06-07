@@ -7,7 +7,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-consoleLog inject imap --msg 5000 --prod attach devenv.blue
+      <programArgs>-consoleLog node status
       </programArgs>
       <vmArgs>-Duser.timezone=GMT -Djava.awt.headless=true -Dnet.bluemind.property.product=bm-cli
       </vmArgs>
@@ -70,6 +70,7 @@
       <plugin id="net.bluemind.calendar.api"/>
       <plugin id="net.bluemind.cli.adm"/>
       <plugin id="net.bluemind.cli.calendar"/>
+      <plugin id="net.bluemind.cli.certificate"/>
       <plugin id="net.bluemind.cli.cmd.api"/>
       <plugin id="net.bluemind.cli.contact"/>
       <plugin id="net.bluemind.cli.directory.common"/>
@@ -83,10 +84,10 @@
       <plugin id="net.bluemind.cli.inject.node"/>
       <plugin id="net.bluemind.cli.inject.ou"/>
       <plugin id="net.bluemind.cli.job"/>
+      <plugin id="net.bluemind.cli.journaling"/>
       <plugin id="net.bluemind.cli.launcher"/>
       <plugin id="net.bluemind.cli.mail"/>
       <plugin id="net.bluemind.cli.mapi"/>
-      <plugin id="net.bluemind.cli.certificate"/>
       <plugin id="net.bluemind.cli.metrics"/>
       <plugin id="net.bluemind.cli.node"/>
       <plugin id="net.bluemind.cli.sds"/>
@@ -96,7 +97,6 @@
       <plugin id="net.bluemind.cli.user"/>
       <plugin id="net.bluemind.cli.utils"/>
       <plugin id="net.bluemind.cli.wazo"/>
-      <plugin id="net.bluemind.cli.journaling"/>
       <plugin id="net.bluemind.common.cache.persistence"/>
       <plugin id="net.bluemind.common.hollow"/>
       <plugin id="net.bluemind.common.io"/>
@@ -214,4 +214,6 @@
       <plugin id="picocli"/>
       <plugin id="slf4j.api"/>
    </plugins>
+
+
 </product>

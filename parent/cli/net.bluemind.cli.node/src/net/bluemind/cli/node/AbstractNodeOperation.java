@@ -57,6 +57,9 @@ public abstract class AbstractNodeOperation implements ICmdLet, Runnable {
 
 	@Override
 	public final void run() {
+
+		globalStatus();
+
 		IServer serversApi = ctx.adminApi().instance(IServer.class, InstallationId.getIdentifier());
 		List<ItemValue<Server>> allServers = serversApi.allComplete();
 		Stream<ItemValue<Server>> stream = allServers.stream();
@@ -88,6 +91,8 @@ public abstract class AbstractNodeOperation implements ICmdLet, Runnable {
 			}
 		});
 	}
+
+	protected abstract void globalStatus();
 
 	protected abstract void synchronousServerOperation(IServer serversApi, ItemValue<Server> srv);
 
