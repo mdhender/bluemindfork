@@ -6,7 +6,7 @@
         contenteditable="false"
     >
         <div style="margin-bottom: 15px;">
-            {{ i18n.tc("mail.filehosting.link", attachments.length) }}
+            {{ $tc("mail.filehosting.link", attachments.length) }}
         </div>
         <div style="background-color: #ffffff; padding: 15px;">
             <div
@@ -37,8 +37,9 @@
                 <span style="margin-left: 5px; font-size: small; color: grey;">
                     ({{ displaySize(attachment.size) }})
                 </span>
-                <!-- FIXME: handle the expirationdate -->
-                <!-- <span style="display: block; font-size: small; color: grey;">Expire le 2023-06-01</span> -->
+                <span style="display: block; font-size: small; color: grey;">
+                    {{ $t("mail.filehosting.expiration_date", { date: dateToString(attachment.expirationDate) }) }}
+                </span>
             </div>
         </div>
     </div>
@@ -56,10 +57,6 @@ export default {
         attachments: {
             type: Array,
             required: true
-        },
-        i18n: {
-            type: Object,
-            required: true
         }
     },
     data() {
@@ -75,7 +72,10 @@ export default {
     },
     methods: {
         displaySize(size) {
-            return computeUnit(size, this.i18n);
+            return computeUnit(size, this.$i18n);
+        },
+        dateToString(timestamp) {
+            return this.$d(timestamp, "short_date");
         }
     }
 };

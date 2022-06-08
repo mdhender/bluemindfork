@@ -70,12 +70,14 @@ export function renderFileHostingModal(vm, message) {
         }
     };
 }
-export function renderLinksComponent(vm, message, attachments) {
+export function renderLinksComponent(vm, attachments) {
+    // This Class is a subclass of the Vue component. The parent property establishes a parent-child
+    // relationship to current vm. This way this component can use its parent plugins like i18n.
     return new ComposerLinksClass({
+        parent: vm,
         propsData: {
             attachments,
-            className: LINKS_CLASSNAME,
-            i18n: vm.$i18n
+            className: LINKS_CLASSNAME
         }
     });
 }

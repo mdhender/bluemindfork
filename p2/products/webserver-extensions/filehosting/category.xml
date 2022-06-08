@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
+   <bundle id="net.bluemind.webmodules.filehosting" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.webmodule.filehostinghandler" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.filehosting.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.filehosting.api.gwt" version="4.1.0.qualifier"/>

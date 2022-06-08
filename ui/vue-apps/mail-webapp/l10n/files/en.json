@@ -475,7 +475,6 @@
             "import": {
                 "successful": "successful import",
                 "failed": "import failure"
-
             },
             "change_selection": "Try selecting a smaller file size. | Try to select smaller files.",
             "link": "I have linked a file to this message | I have linked files to this message",

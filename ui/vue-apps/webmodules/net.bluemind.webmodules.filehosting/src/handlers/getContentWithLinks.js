@@ -14,7 +14,7 @@ export default function (vm, message) {
     }
 
     const attachments = getUploadedAttachments(vm, message);
-    const composerLinks = renderLinksComponent(vm, message, attachments);
+    const composerLinks = renderLinksComponent(vm, attachments);
     composerLinks.$mount();
     const signatureNode = getSignatureNode.call(this, fragment, messageCompose);
     if (signatureNode) {

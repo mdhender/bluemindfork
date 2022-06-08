@@ -23,13 +23,12 @@ export default {
             const address = await serviceMbItems.uploadPart("");
 
             const serviceAttachment = inject("AttachmentPersistence");
-            const { publicUrl, name } = await serviceAttachment.share(
+            const { publicUrl, name, expirationDate } = await serviceAttachment.share(
                 file.name,
                 file,
                 global.cancellers[attachment.address + message.key],
                 createOnUploadProgress(commit, message.key, attachment.address)
             );
-            // TODO handle expiration date
 
             commit("SET_ATTACHMENT_HEADERS", {
                 messageKey: message.key,
@@ -41,7 +40,9 @@ export default {
                     },
                     {
                         name: "X-BM-Disposition",
-                        values: [`filehosting;url=${publicUrl};name=${name};size=${file.size};mime=${file.type}`]
+                        values: [
+                            `filehosting;url=${publicUrl};name=${name};size=${file.size};mime=${file.type};expirationDate=${expirationDate}`
+                        ]
                     }
                 ]
             });
