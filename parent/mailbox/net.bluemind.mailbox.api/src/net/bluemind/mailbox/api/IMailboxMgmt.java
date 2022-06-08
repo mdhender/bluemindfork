@@ -78,4 +78,12 @@ public interface IMailboxMgmt {
 	@GET
 	@Path("shardsStats")
 	public List<ShardStats> getShardsStats();
+
+	/**
+	 * @return list of {@link ShardStats} ordered by {@link ShardStats#docCount}
+	 */
+	@GET
+	@Path("liteStats")
+	public List<SimpleShardStats> getLiteStats();
+
 }

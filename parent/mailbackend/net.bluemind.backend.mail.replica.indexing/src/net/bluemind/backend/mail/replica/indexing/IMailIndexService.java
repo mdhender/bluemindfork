@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
@@ -30,6 +31,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.ShardStats;
+import net.bluemind.mailbox.api.SimpleShardStats;
 
 public interface IMailIndexService {
 
@@ -70,6 +72,10 @@ public interface IMailIndexService {
 	Set<String> getFolders(String entityId);
 
 	public List<ShardStats> getStats();
+
+	default List<SimpleShardStats> getLiteStats() {
+		return getStats().stream().map(s -> s).collect(Collectors.toList());
+	}
 
 	BulkOperation startBulk();
 

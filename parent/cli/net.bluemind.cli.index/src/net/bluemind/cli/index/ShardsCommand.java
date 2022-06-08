@@ -27,7 +27,9 @@ import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.mailbox.api.IMailboxMgmt;
 import net.bluemind.mailbox.api.ShardStats;
+import net.bluemind.mailbox.api.SimpleShardStats;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 /**
  * This is the defaut command on index related stuff to ensure we don't run a
@@ -51,13 +53,22 @@ public class ShardsCommand implements ICmdLet, Runnable {
 
 	}
 
+	@Option(names = "--lite", description = "Skip top mailboxes calculation")
+	public boolean lite = false;
+
 	private CliContext ctx;
 
 	@Override
 	public void run() {
 		IMailboxMgmt mgmtApi = ctx.longRequestTimeoutAdminApi().instance(IMailboxMgmt.class, "global.virt");
-		List<ShardStats> shardStats = mgmtApi.getShardsStats();
-		JsonArray js = new JsonArray(JsonUtils.asString(shardStats));
+		JsonArray js;
+		if (lite) {
+			List<SimpleShardStats> shardStats = mgmtApi.getLiteStats();
+			js = new JsonArray(JsonUtils.asString(shardStats));
+		} else {
+			List<ShardStats> shardStats = mgmtApi.getShardsStats();
+			js = new JsonArray(JsonUtils.asString(shardStats));
+		}
 		ctx.info(js.encodePrettily());
 	}
 

@@ -32,7 +32,7 @@ import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.cli.utils.Tasks;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.mailbox.api.IMailboxMgmt;
-import net.bluemind.mailbox.api.ShardStats;
+import net.bluemind.mailbox.api.SimpleShardStats;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -64,10 +64,10 @@ public class AddShardsCommand implements ICmdLet, Runnable {
 		}
 
 		IMailboxMgmt mboxMgmt = ctx.longRequestTimeoutAdminApi().instance(IMailboxMgmt.class, "global.virt");
-		List<ShardStats> existing = mboxMgmt.getShardsStats();
+		List<SimpleShardStats> existing = mboxMgmt.getLiteStats();
 		int startCount = 1;
 		int totalBoxes = 0;
-		for (ShardStats ss : existing) {
+		for (SimpleShardStats ss : existing) {
 			int idxId = Integer.parseInt(ss.indexName.substring("mailspool_".length()));
 			startCount = Math.max(startCount, idxId);
 			totalBoxes += ss.mailboxes.size();

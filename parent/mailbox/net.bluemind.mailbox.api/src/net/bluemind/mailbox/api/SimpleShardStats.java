@@ -18,30 +18,25 @@
  */
 package net.bluemind.mailbox.api;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
 import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
-public class ShardStats extends SimpleShardStats {
-
-	@BMApi(version = "3")
-	public enum State {
-		OK, HALF_FULL, FULL, SPLIT_NEEDED
-	}
-
-	@BMApi(version = "3")
-	public static class MailboxStats {
-		public String mailboxUid;
-		public long docCount;
-	}
+public class SimpleShardStats {
+	@NotNull
+	public String indexName;
 
 	@NotNull
-	public List<MailboxStats> topMailbox;
+	public Set<String> mailboxes;
 
-	@NotNull
-	public State state;
+	public long docCount;
+
+	/**
+	 * index size in byte
+	 */
+	public long size;
 
 }

@@ -96,6 +96,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.ShardStats;
 import net.bluemind.mailbox.api.ShardStats.MailboxStats;
+import net.bluemind.mailbox.api.SimpleShardStats;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.utils.EmailAddress;
@@ -708,9 +709,7 @@ public class MailIndexService implements IMailIndexService {
 						.collect(Collectors.toSet());
 			}
 
-			SearchResponse msgCountResp = client.prepareSearch(indexName).setQuery(QueryBuilders.matchAllQuery())
-					.setSize(0).get();
-			is.docCount = msgCountResp.getHits().getTotalHits().value;
+			is.docCount = stat.getTotal().docs.getCount();
 			is.indexName = indexName;
 
 			is.state = ShardStats.State.OK;
@@ -748,6 +747,42 @@ public class MailIndexService implements IMailIndexService {
 		}
 
 		metricRegistry.gauge(idFactory.name("worst-response-time")).set(worstResponseTime);
+
+		Collections.sort(ret, (a, b) -> (int) (b.docCount - a.docCount));
+		return ret;
+	}
+
+	@Override
+	public List<SimpleShardStats> getLiteStats() {
+		Client client = ESearchActivator.getClient();
+		GetIndexResponse resp = client.admin().indices().prepareGetIndex().addIndices("mailspool*").get();
+
+		List<SimpleShardStats> ret = new ArrayList<>(resp.indices().length);
+		logger.debug("indices {} ", (Object) resp.indices());
+
+		for (String indexName : filterMailspoolIndexNames(resp)) {
+			SimpleShardStats is = new SimpleShardStats();
+
+			IndexStats stat = client.admin().indices().prepareStats(indexName).get().getIndex(indexName);
+			is.size = stat.getTotal().store.getSizeInBytes();
+
+			GetAliasesResponse aliasesRsp = client.admin().indices().prepareGetAliases().addIndices(indexName).get();
+
+			List<AliasMetadata> indexAliases = aliasesRsp.getAliases().get(indexName);
+			if (indexAliases == null) {
+				is.mailboxes = Collections.emptySet();
+			} else {
+				is.mailboxes = indexAliases.stream() //
+						.filter(a -> a.getAlias().startsWith("mailspool_alias_"))
+						.map(am -> am.getAlias().substring("mailspool_alias_".length()))//
+						.collect(Collectors.toSet());
+			}
+
+			is.docCount = stat.getTotal().docs.getCount();
+			is.indexName = indexName;
+
+			ret.add(is);
+		}
 
 		Collections.sort(ret, (a, b) -> (int) (b.docCount - a.docCount));
 		return ret;

@@ -44,6 +44,7 @@ import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.ShardStats;
+import net.bluemind.mailbox.api.SimpleShardStats;
 import net.bluemind.mailbox.service.IMailboxesStorage;
 import net.bluemind.mailbox.service.MailboxesStorageFactory;
 import net.bluemind.mailbox.service.SplittedShardsMapping;
@@ -142,6 +143,18 @@ public class MailboxMgmt implements IMailboxMgmt {
 		}
 
 		return RecordIndexActivator.getIndexer().map(IMailIndexService::getStats)
+				.orElseThrow(() -> new ServerFault("RecordIndexActivator is missing, consider restarting core"));
+	}
+
+	@Override
+	public List<SimpleShardStats> getLiteStats() {
+		rbacManager.check(BasicRoles.ROLE_SYSTEM_MANAGER);
+
+		if (!domainUid.equals("global.virt")) {
+			throw new ServerFault("only available on global.virt domain");
+		}
+
+		return RecordIndexActivator.getIndexer().map(IMailIndexService::getLiteStats)
 				.orElseThrow(() -> new ServerFault("RecordIndexActivator is missing, consider restarting core"));
 	}
 
