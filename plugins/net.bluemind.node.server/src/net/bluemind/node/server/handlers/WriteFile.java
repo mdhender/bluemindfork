@@ -46,7 +46,7 @@ public class WriteFile implements Handler<HttpServerRequest> {
 
 	@Override
 	public void handle(final HttpServerRequest req) {
-		final String path = UrlPath.dec(req.params().get("param0"));
+		final String path = req.params().get("param0");
 		logger.debug("PUT {}...", path);
 		writeFile(req, path);
 	}

@@ -564,7 +564,7 @@ public class NodeClientTests extends TestCase {
 		try {
 			INodeClient nc = client();
 
-			File dir = new File("/etc/bm/a^b c/");
+			File dir = new File("/etc/bm/a^b + c/");
 			dir.mkdirs();
 			System.out.println("d: " + dir.getAbsolutePath());
 			File file = new File(dir, String.valueOf(System.currentTimeMillis()));

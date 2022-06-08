@@ -32,8 +32,8 @@ public class ListMatches extends AbstractListFiles {
 
 	@Override
 	public void handle(final HttpServerRequest req) {
-		String extension = UrlPath.dec(req.params().get("param0"));
-		String path = UrlPath.dec(req.params().get("param1"));
+		String extension = req.params().get("param0");
+		String path = req.params().get("param1");
 		logger.info("MATCH extension {} in {}", extension, path);
 		super.handle(path, extension, req);
 	}

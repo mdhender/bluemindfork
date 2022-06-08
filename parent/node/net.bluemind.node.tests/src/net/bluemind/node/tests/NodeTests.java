@@ -76,12 +76,8 @@ public class NodeTests {
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
-
-		int procs = Runtime.getRuntime().availableProcessors();
-		int instances = Math.max(10, procs);
 		Deploy.verticles(false, BlueMindNode::new).get(5, TimeUnit.SECONDS);
 		Deploy.verticles(true, SysCommand::new).get(5, TimeUnit.SECONDS);
-
 		factory = new AHCNodeClientFactory();
 	}
 
@@ -559,6 +555,13 @@ public class NodeTests {
 		ExitList values = NCUtils.waitFor(nc, ref);
 
 		assertEquals(0, values.size());
+	}
+
+	@Test
+	public void testListWithPlusSign() throws IOException {
+		new File("/tmp/a + b").mkdirs();
+		List<FileDescription> found = nc.listFiles("/tmp/a + b");
+		assertNotNull(found);
 	}
 
 	private void track(TaskRef ref) {

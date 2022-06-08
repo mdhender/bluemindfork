@@ -36,7 +36,7 @@ public class SendFile implements Handler<HttpServerRequest> {
 
 	@Override
 	public void handle(final HttpServerRequest event) {
-		String path = UrlPath.dec(event.params().get("param0"));
+		String path = event.params().get("param0");
 		HttpServerResponse r = event.response();
 		File f = new File(path);
 		if (f.exists()) {
