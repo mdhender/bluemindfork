@@ -1,6 +1,7 @@
 import { inject } from "@bluemind/inject";
 import { AppDataKeys } from "@bluemind/webappdata";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+import { loadingStatus, mailbox } from "@bluemind/mail";
 import {
     MAILBOXES_ARE_LOADED,
     MAILSHARES,
@@ -12,8 +13,9 @@ import {
 } from "~/getters";
 import { FETCH_FOLDERS, FETCH_MAILBOXES, LOAD_MAX_MESSAGE_SIZE, UNREAD_FOLDER_COUNT } from "~/actions";
 import { ADD_MAILBOXES } from "~/mutations";
-import { LoadingStatus } from "~/model/loading-status";
-import { create, MailboxType } from "~/model/mailbox";
+
+const { LoadingStatus } = loadingStatus;
+const { create, MailboxType } = mailbox;
 
 export default {
     computed: {

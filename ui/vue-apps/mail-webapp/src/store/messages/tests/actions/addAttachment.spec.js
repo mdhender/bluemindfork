@@ -1,7 +1,7 @@
 import ServiceLocator from "@bluemind/inject";
 import { MockMailboxItemsClient } from "@bluemind/test-utils";
+import { attachment } from "@bluemind/mail";
 import addAttachment from "../../actions/addAttachment";
-import { AttachmentStatus } from "~/model/attachment";
 import {
     ADD_ATTACHMENT,
     REMOVE_ATTACHMENT,
@@ -10,6 +10,8 @@ import {
     SET_ATTACHMENT_STATUS,
     SET_MESSAGE_HAS_ATTACHMENT
 } from "~/mutations";
+
+const { AttachmentStatus } = attachment;
 
 describe("addAttachment action", () => {
     global.URL.createObjectURL = jest.fn();

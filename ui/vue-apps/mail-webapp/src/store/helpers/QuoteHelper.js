@@ -1,9 +1,11 @@
-import {
+import { message } from "@bluemind/mail";
+
+const {
     MessageForwardAttributeSeparator,
     MessageReplyAttributeSeparator,
     MessageQuoteClasses,
     MessageQuoteOutlookId
-} from "~/model/message";
+} = message;
 
 export default {
     findQuoteNodesUsingSeparator(messageParts) {

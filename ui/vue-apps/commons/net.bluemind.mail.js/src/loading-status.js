@@ -4,3 +4,5 @@ export const LoadingStatus = {
     LOADED: "LOADED",
     ERROR: "ERROR"
 };
+
+export default { LoadingStatus };

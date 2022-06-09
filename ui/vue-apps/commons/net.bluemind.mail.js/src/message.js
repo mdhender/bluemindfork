@@ -185,3 +185,26 @@ export function isForward(message) {
 
     return shouldBeForward;
 }
+
+export default {
+    create,
+    createOnlyMetadata,
+    createWithMetadata,
+    extractHeaderValues,
+    isFlagged,
+    isForward,
+    isUnread,
+    MessageCreationModes,
+    MessageForwardAttributeSeparator,
+    MessageHeader,
+    messageKey,
+    MessageQuoteClasses,
+    MessageQuoteGmailClass,
+    MessageQuoteMozillaClass,
+    MessageQuoteOutlookId,
+    MessageQuoteProtonClass,
+    MessageQuoteYahooClass,
+    MessageReplyAttributeSeparator,
+    MessageStatus,
+    partialCopy
+};

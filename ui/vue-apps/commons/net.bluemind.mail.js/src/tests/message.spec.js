@@ -1,5 +1,5 @@
 import shuffle from "lodash.shuffle";
-import { create, createOnlyMetadata, isForward, MessageHeader } from "../message";
+import { create, createOnlyMetadata, isForward, MessageHeader } from "~/src/message";
 import MessageAdaptor from "~/store/messages/helpers/MessageAdaptor";
 
 describe("Message model", () => {

@@ -1,12 +1,13 @@
 import { mapGetters } from "vuex";
+import { message } from "@bluemind/mail";
 import { CONVERSATIONS_ACTIVATED, MY_DRAFTS } from "~/getters";
-import { MessageCreationModes } from "~/model/message";
-import { draftPath } from "~/model/draft";
 import MessagePathParam from "~/router/MessagePathParam";
-import { DraftMixin, ComposerInitMixin } from "~/mixins";
+import { DraftMixin, ComposerInitMixin, MailRoutesMixin } from "~/mixins";
+
+const { MessageCreationModes } = message;
 
 export default {
-    mixins: [DraftMixin, ComposerInitMixin],
+    mixins: [DraftMixin, ComposerInitMixin, MailRoutesMixin],
     computed: {
         ...mapGetters("mail", {
             $_ReplyAndForwardRoutesMixin_CONVERSATIONS_ACTIVATED: CONVERSATIONS_ACTIVATED,
@@ -36,7 +37,7 @@ export default {
                     folderKey: related.folderRef.key
                 });
             } else {
-                const messagepath = draftPath(this.MY_DRAFTS);
+                const messagepath = this.draftPath(this.MY_DRAFTS);
                 const query = { action, message: MessagePathParam.build("", related) };
                 this.$router.navigate({ name: "mail:message", params: { messagepath }, query });
             }

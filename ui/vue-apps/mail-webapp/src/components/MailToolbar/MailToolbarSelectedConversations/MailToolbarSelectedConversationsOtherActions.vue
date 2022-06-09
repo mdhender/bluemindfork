@@ -46,19 +46,20 @@
 <script>
 import { mapGetters, mapMutations, mapState } from "vuex";
 import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
-import { ActionTextMixin, RemoveMixin, SelectionMixin, FlagMixin, PrintMixin } from "~/mixins";
+import { message } from "@bluemind/mail";
+import { ActionTextMixin, RemoveMixin, SelectionMixin, FlagMixin, PrintMixin, MailRoutesMixin } from "~/mixins";
 import { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES } from "~/getters";
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
-import { draftPath } from "~/model/draft";
-import { MessageCreationModes } from "~/model/message";
 import MessagePathParam from "~/router/MessagePathParam";
 import MailMessagePrint from "~/components/MailViewer/MailMessagePrint";
+
+const { MessageCreationModes } = message;
 
 export default {
     name: "MailToolbarSelectedConversationsOtherActions",
     // eslint-disable-next-line vue/no-unused-components
     components: { BmDropdown, BmDropdownItem, BmIcon, MailMessagePrint },
-    mixins: [ActionTextMixin, RemoveMixin, FlagMixin, PrintMixin, SelectionMixin],
+    mixins: [ActionTextMixin, RemoveMixin, FlagMixin, PrintMixin, SelectionMixin, MailRoutesMixin],
     computed: {
         ...mapGetters("mail", { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES }),
         ...mapState("mail", { messages: state => state.conversations.messages }),
@@ -92,7 +93,7 @@ export default {
             const template = this.messages[this.CURRENT_CONVERSATION_METADATA.messages[0]];
             this.$router.navigate({
                 name: "mail:message",
-                params: { messagepath: draftPath(this.MY_DRAFTS) },
+                params: { messagepath: this.draftPath(this.MY_DRAFTS) },
                 query: { action: MessageCreationModes.EDIT_AS_NEW, message: MessagePathParam.build("", template) }
             });
         },

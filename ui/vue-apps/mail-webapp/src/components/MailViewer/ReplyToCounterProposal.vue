@@ -53,9 +53,11 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 import { BmButton, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
+import { loadingStatus } from "@bluemind/mail";
 import { ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~/actions";
 import { ACTIVE_MESSAGE } from "~/getters";
-import { LoadingStatus } from "~/model/loading-status";
+
+const { LoadingStatus } = loadingStatus;
 
 export default {
     name: "ReplyToCounterProposal",

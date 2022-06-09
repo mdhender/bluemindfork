@@ -1,7 +1,6 @@
 import { EmailExtractor, Flag, MimeType } from "@bluemind/email";
 import { createDocumentFragment } from "@bluemind/html-utils";
 
-import MessagePathParam from "~/router/MessagePathParam";
 import { LoadingStatus } from "./loading-status";
 import {
     extractHeaderValues,
@@ -16,7 +15,7 @@ import {
 import { mergePartsForRichEditor, mergePartsForTextarea } from "./part";
 import { removeSignature, removeSignatureAttr } from "./signature";
 
-const TEMPORARY_MESSAGE_ID = 0;
+export const TEMPORARY_MESSAGE_ID = 0;
 let DRAFT_HASH = 0;
 
 export function isNewMessage({ remoteRef: { internalId } }) {
@@ -25,13 +24,6 @@ export function isNewMessage({ remoteRef: { internalId } }) {
 
 export function draftKey(myDrafts) {
     return messageKey(DRAFT_HASH, myDrafts.key);
-}
-
-export function draftPath(myDrafts) {
-    return MessagePathParam.build(undefined, {
-        remoteRef: { internalId: TEMPORARY_MESSAGE_ID },
-        folderRef: { key: myDrafts.key }
-    });
 }
 
 // FIXME remove once we use 'real' message ids for new message
@@ -397,3 +389,26 @@ export function isEditorContentEmpty(content, userPrefTextOnly, signature) {
     const fragment = createDocumentFragment(sanitized);
     return !fragment.firstElementChild.innerText.trim();
 }
+
+export default {
+    addSeparator,
+    COMPOSER_CAPABILITIES,
+    computeCcRecipients, // INTERNAL METHOD (exported only for testing purpose)
+    computeIdentityForReplyOrForward,
+    computeSubject, // INTERNAL METHOD (exported only for testing purpose)
+    computeToRecipients, // INTERNAL METHOD (exported only for testing purpose)
+    createEmpty,
+    createFromDraft,
+    createReplyOrForward,
+    draftInfoHeader,
+    draftKey,
+    findIdentityFromMailbox,
+    findReplyOrForwardContentNode,
+    FIXME_NEW_DRAFT_KEY,
+    getEditorContent,
+    handleSeparator,
+    isEditorContentEmpty,
+    isNewMessage,
+    preserveFromOrDefault,
+    TEMPORARY_MESSAGE_ID
+};

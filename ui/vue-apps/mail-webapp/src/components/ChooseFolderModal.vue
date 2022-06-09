@@ -91,13 +91,15 @@
 <script>
 import { mapGetters, mapState } from "vuex";
 import { BmFormAutocompleteInput, BmIcon, BmModal, BmNotice } from "@bluemind/styleguide";
+import { folder, mailbox } from "@bluemind/mail";
 import { FOLDER_BY_PATH } from "~/getters";
 import { FilterFolderMixin } from "~/mixins";
-import { create as createFolder, folderExists, getFolder, translatePath } from "~/model/folder";
-import { MailboxType } from "~/model/mailbox";
 import MailFolderIcon from "./MailFolderIcon";
 import MailFolderInput from "./MailFolderInput";
 import MailMailboxIcon from "./MailMailboxIcon";
+
+const { create: createFolder, folderExists, getFolder, translatePath } = folder;
+const { MailboxType } = mailbox;
 
 export default {
     name: "ChooseFolderModal",

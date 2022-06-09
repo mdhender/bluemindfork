@@ -57,3 +57,15 @@ function removeTextSignature(raw, content) {
     const regexp = new RegExp("^" + TEXT_SIGNATURE_PREFIX + content, "mi");
     return raw.replace(regexp, "");
 }
+
+export default {
+    CORPORATE_SIGNATURE_PLACEHOLDER,
+    CORPORATE_SIGNATURE_SELECTOR,
+    isCorporateSignature,
+    isDisclaimer,
+    PERSONAL_SIGNATURE_SELECTOR,
+    removeSignature,
+    removeSignatureAttr,
+    wrapCorporateSignature,
+    wrapPersonalSignature
+};

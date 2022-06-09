@@ -1,12 +1,14 @@
 import merge from "lodash.merge";
 
 import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mail.api";
+import { message, loadingStatus } from "@bluemind/mail";
 
 import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
-import { createWithMetadata, MessageHeader, MessageStatus } from "~/model/message";
 import TreeWalker from "./TreeWalker";
-import { LoadingStatus } from "~/model/loading-status";
+
+const { createWithMetadata, MessageHeader, MessageStatus } = message;
+const { LoadingStatus } = loadingStatus;
 
 export default {
     fromMailboxItem(remote, { key, uid }) {

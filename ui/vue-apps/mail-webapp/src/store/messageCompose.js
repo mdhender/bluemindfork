@@ -1,5 +1,5 @@
 import { inject } from "@bluemind/inject";
-import { isCorporateSignature, isDisclaimer } from "~/model/signature";
+import { signature } from "@bluemind/mail";
 import { CHECK_CORPORATE_SIGNATURE, LOAD_MAX_MESSAGE_SIZE } from "~/actions";
 import {
     RESET_COMPOSER,
@@ -14,6 +14,8 @@ import {
 } from "~/mutations";
 import { IS_SENDER_SHOWN } from "~/getters";
 import templateChooser from "./templateChooser";
+
+const { isCorporateSignature, isDisclaimer } = signature;
 
 export default {
     mutations: {

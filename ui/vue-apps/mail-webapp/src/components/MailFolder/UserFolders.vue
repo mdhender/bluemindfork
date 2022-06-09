@@ -16,14 +16,16 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 import { BmDropzone } from "@bluemind/styleguide";
+import { folder, loadingStatus } from "@bluemind/mail";
 import { MAILBOX_ROOT_FOLDERS } from "~/getters";
 import { CREATE_FOLDER } from "~/actions";
-import { createRoot } from "~/model/folder";
 import MailFolderTree from "./MailFolderTree";
 import FolderListLoading from "./FolderListLoading";
 import MailFolderInput from "../MailFolderInput";
-import { LoadingStatus } from "~/model/loading-status";
 import MailMailboxIcon from "../MailMailboxIcon";
+
+const { createRoot } = folder;
+const { LoadingStatus } = loadingStatus;
 
 export default {
     name: "UserFolders",

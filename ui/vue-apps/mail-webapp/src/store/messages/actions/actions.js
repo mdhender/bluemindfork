@@ -1,5 +1,5 @@
+import { draft, loadingStatus, message } from "@bluemind/mail";
 import { MESSAGE_IS_LOADED } from "~/getters";
-import { partialCopy } from "~/model/message";
 import apiMessages from "../../api/apiMessages";
 import {
     ADD_FLAG,
@@ -9,12 +9,13 @@ import {
     REMOVE_MESSAGES,
     SET_MESSAGES_LOADING_STATUS
 } from "~/mutations";
-import { LoadingStatus } from "~/model/loading-status";
-import { createOnlyMetadata, messageKey } from "~/model/message";
 import { FolderAdaptor } from "../../folders/helpers/FolderAdaptor";
 import { FETCH_MESSAGE_METADATA } from "~/actions";
-import { draftKey } from "~/model/draft";
 import { Flag } from "@bluemind/email";
+
+const { draftKey } = draft;
+const { LoadingStatus } = loadingStatus;
+const { createOnlyMetadata, messageKey, partialCopy } = message;
 
 export async function addFlag({ commit, getters }, { messages, flag }) {
     messages = Array.isArray(messages) ? messages : [messages];

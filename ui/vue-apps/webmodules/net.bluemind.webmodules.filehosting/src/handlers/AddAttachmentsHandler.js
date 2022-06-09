@@ -7,7 +7,6 @@ let autoDetachmentLimit, maxFilesize;
 
 export default async function ({ files, message, maxSize }) {
     files = [...files];
-
     const service = inject("AttachmentPersistence");
     if (!autoDetachmentLimit || !maxFilesize) {
         ({ autoDetachmentLimit, maxFilesize } = await service.getConfiguration());

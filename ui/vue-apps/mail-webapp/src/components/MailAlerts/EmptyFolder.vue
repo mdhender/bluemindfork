@@ -10,9 +10,11 @@
 <script>
 import { mapState } from "vuex";
 import { AlertMixin } from "@bluemind/alert.store";
+import { mailbox } from "@bluemind/mail";
 import MailFolderIcon from "../MailFolderIcon";
-import { MailboxType } from "~/model/mailbox";
 import { MailRoutesMixin } from "~/mixins";
+
+const { MailboxType } = mailbox;
 
 export default {
     name: "EmptyFolder",

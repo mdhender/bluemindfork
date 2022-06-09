@@ -1,13 +1,15 @@
 import { MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
+import { message, part } from "@bluemind/mail";
 import Vue from "vue";
 
 import { COMPUTE_QUOTE_NODES, FETCH_PART_DATA } from "~/actions";
 import { RESET_PARTS_DATA, SET_PART_DATA, SET_QUOTE_NODES } from "~/mutations";
 import { QUOTE_NODES } from "~/getters";
 import QuoteHelper from "./helpers/QuoteHelper";
-import { MessageHeader, extractHeaderValues } from "~/model/message";
-import { VIEWER_CAPABILITIES, getPartsFromCapabilities } from "~/model/part";
+
+const { MessageHeader, extractHeaderValues } = message;
+const { VIEWER_CAPABILITIES, getPartsFromCapabilities } = part;
 
 export default {
     mutations: {

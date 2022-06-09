@@ -26,13 +26,15 @@
 import { mapActions, mapGetters, mapState } from "vuex";
 import { INFO, WARNING, REMOVE } from "@bluemind/alert.store";
 import { BmChoiceGroup } from "@bluemind/styleguide";
+import { loadingStatus } from "@bluemind/mail";
 import MailInlinesBlock from "./MailInlinesBlock";
 import ReplyToCounterProposal from "./ReplyToCounterProposal";
 import ReplyToInvitation from "./ReplyToInvitation";
 import { FETCH_EVENT } from "~/actions";
 import { CURRENT_MAILBOX } from "~/getters";
 import EventViewerInvitation from "./EventViewerInvitation";
-import { LoadingStatus } from "~/model/loading-status";
+
+const { LoadingStatus } = loadingStatus;
 
 export default {
     name: "EventViewer",

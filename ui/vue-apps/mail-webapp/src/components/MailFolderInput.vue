@@ -30,8 +30,10 @@
 <script>
 import { mapGetters } from "vuex";
 import { BmFormInput, BmNotice } from "@bluemind/styleguide";
-import { isNameValid, normalize } from "~/model/folder";
+import { folder } from "@bluemind/mail";
 import { FOLDER_BY_PATH } from "~/getters";
+
+const { isNameValid, normalize } = folder;
 
 export default {
     name: "MailFolderInput",

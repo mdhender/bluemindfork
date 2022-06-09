@@ -1,7 +1,7 @@
-import { MessageCreationModes, messageKey } from "~/model/message";
+import { MessageCreationModes, messageKey } from "./message";
 import { LoadingStatus } from "./loading-status";
-import { draftInfoHeader } from "~/model/draft";
-import { isDraftFolder } from "~/model/folder";
+import { draftInfoHeader } from "./draft";
+import { isDraftFolder } from "./folder";
 
 export function createConversationStub(id, folderRef) {
     return {
@@ -83,9 +83,20 @@ export function conversationMustBeRemoved(state, conversation, messages) {
 
 export function idToUid(value) {
     const bytes = 64n;
+    // eslint-disable-next-line no-undef
     const bigIntValue = BigInt(value);
     if (bigIntValue < 0n) {
         return (bigIntValue + (1n << bytes)).toString(16);
     }
     return bigIntValue.toString(16);
 }
+
+export default {
+    conversationMustBeRemoved,
+    createConversationStub,
+    firstMessageFolderKey,
+    firstMessageInConversationFolder,
+    idToUid,
+    messagesInConversationFolder,
+    sortConversationMessages
+};

@@ -4,10 +4,11 @@ import { createLocalVue, mount } from "@vue/test-utils";
 
 import AlertStore from "@bluemind/alert.store";
 import inject from "@bluemind/inject";
+import { loadingStatus, message } from "@bluemind/mail";
 
 import MailAppStore from "../src/store";
-import { messageKey as generateKey } from "../src/model/message";
-import { LoadingStatus } from "../src/model/loading-status";
+const { messageKey: generateKey } = message;
+const { LoadingStatus } = loadingStatus;
 
 const localVue = createLocalVue();
 localVue.use(Vuex);

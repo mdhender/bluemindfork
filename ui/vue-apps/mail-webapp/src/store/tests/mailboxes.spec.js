@@ -2,6 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
+import { loadingStatus, mailbox } from "@bluemind/mail";
 import { MockContainersClient, MockOwnerSubscriptionsClient } from "@bluemind/test-utils";
 import { Verb } from "@bluemind/core.container.api";
 import initialStore from "../mailboxes";
@@ -9,8 +10,9 @@ import aliceContainers from "./data/users/alice/containers";
 import { ADD_MAILBOXES, ADD_FOLDER } from "~/mutations";
 import { FETCH_MAILBOXES } from "~/actions";
 import { MAILBOXES, MAILSHARES, MAILSHARE_KEYS, MY_MAILBOX, MY_MAILBOX_KEY, USER_MAILBOXES } from "~/getters";
-import { MailboxType } from "../../model/mailbox";
-import { LoadingStatus } from "../../model/loading-status";
+
+const { MailboxType } = mailbox;
+const { LoadingStatus } = loadingStatus;
 
 const aliceUid = "6793466E-F5D4-490F-97BF-DF09D3327BF4";
 const bobUid = "AB6A2A90-04DA-4BD8-8E56-C4A11666E6CC";

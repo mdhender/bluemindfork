@@ -93,14 +93,16 @@ import {
     BmDropdownItemToggle
 } from "@bluemind/styleguide";
 import { AppDataKeys } from "@bluemind/webappdata";
+import { draft, message } from "@bluemind/mail";
 
 import { ComposerActionsMixin, FormattedDateMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
-import { MessageStatus } from "~/model/message";
-import { isNewMessage } from "~/model/draft";
 import { SET_TEMPLATE_CHOOSER_TARGET, SET_TEMPLATE_CHOOSER_VISIBLE, SHOW_SENDER } from "~/mutations";
 import { IS_SENDER_SHOWN } from "~/getters";
 import { mapGetters, mapMutations } from "vuex";
+
+const { MessageStatus } = message;
+const { isNewMessage } = draft;
 
 export default {
     name: "MailComposerFooter",

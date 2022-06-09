@@ -58,15 +58,22 @@
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { BmCounterBadge, BmDropzone, BmIcon } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
+import { folder, mailbox } from "@bluemind/mail";
 import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItemMenu from "./MailFolderItemMenu";
 import { RENAME_FOLDER, CREATE_FOLDER } from "~/actions";
 import { FOLDER_HAS_CHILDREN } from "~/getters";
+<<<<<<< HEAD
 import { ADD_FOLDER, REMOVE_FOLDER, SET_FOLDER_EXPANDED, TOGGLE_EDIT_FOLDER } from "~/mutations";
 import { MailboxType } from "~/model/mailbox";
 import { create } from "~/model/folder";
 import { FolderMixin } from "~/mixins";
+=======
+
+const { MailboxType } = mailbox;
+const { create } = folder;
+>>>>>>> 22521510415 (FEATWEBML-2153: Extract all models files in a separate package)
 
 export default {
     name: "MailFolderItem",

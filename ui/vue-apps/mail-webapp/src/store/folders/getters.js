@@ -7,8 +7,10 @@ import {
     IS_DESCENDANT,
     FOLDER_GET_CHILDREN
 } from "~/getters";
-import { compare } from "~/model/folder";
+import { folder } from "@bluemind/mail";
 import { Cache } from "~/utils/cache";
+
+const { compare } = folder;
 
 export default {
     [FOLDERS]: state => Object.values(state).sort(compare),

@@ -1,5 +1,5 @@
-const { create, rename, compare, match } = require("../folder");
-const { MailboxType } = require("../mailbox");
+const { create, rename, compare, match } = require("~/src/folder");
+const { MailboxType } = require("~/src/mailbox");
 import injector from "@bluemind/inject";
 
 injector.register({ provide: "i18n", use: { t: n => n } });

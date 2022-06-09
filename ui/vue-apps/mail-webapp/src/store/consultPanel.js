@@ -1,4 +1,5 @@
 import { inject } from "@bluemind/inject";
+import { loadingStatus } from "@bluemind/mail";
 import EventHelper from "./helpers/EventHelper";
 import { FETCH_EVENT, SET_EVENT_STATUS, ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~/actions";
 import {
@@ -7,7 +8,8 @@ import {
     SET_CURRENT_EVENT,
     SET_CURRENT_EVENT_STATUS
 } from "~/mutations";
-import { LoadingStatus } from "~/model/loading-status";
+
+const { LoadingStatus } = loadingStatus;
 
 export default {
     state: {

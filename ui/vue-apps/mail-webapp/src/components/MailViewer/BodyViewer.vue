@@ -20,15 +20,17 @@
 import { mapActions, mapGetters, mapState } from "vuex";
 import { MimeType, InlineImageHelper } from "@bluemind/email";
 import { hasRemoteImages } from "@bluemind/html-utils";
+import { attachment, part } from "@bluemind/mail";
 
-import { create as createAttachment, AttachmentStatus } from "~/model/attachment";
-import { VIEWER_CAPABILITIES, getPartsFromCapabilities, isViewable } from "~/model/part";
 import { COMPUTE_QUOTE_NODES, FETCH_PART_DATA } from "~/actions";
 import { CONVERSATION_MESSAGE_BY_KEY } from "~/getters";
 
 import MailInlinesBlock from "./MailInlinesBlock";
 import EventViewer from "./EventViewer";
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
+
+const { create: createAttachment, AttachmentStatus } = attachment;
+const { VIEWER_CAPABILITIES, getPartsFromCapabilities, isViewable } = part;
 
 export default {
     name: "BodyViewer",

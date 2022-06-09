@@ -55,13 +55,15 @@
 <script>
 import { BmListGroup } from "@bluemind/styleguide";
 import { mapState, mapGetters, mapActions } from "vuex";
+import { loadingStatus } from "@bluemind/mail";
 import { CONVERSATIONS_ACTIVATED, CONVERSATION_IS_LOADED, CONVERSATION_METADATA } from "~/getters";
 import { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA } from "~/actions";
-import { LoadingStatus } from "~/model/loading-status";
 import ConversationListItemLoading from "./ConversationListItemLoading";
 import ConversationListSeparator from "./ConversationListSeparator";
 import DateRanges from "./DateRanges";
 import DraggableConversation from "./DraggableConversation";
+
+const { LoadingStatus } = loadingStatus;
 
 const PAGE = 9;
 export const SELECTION_MODE = {

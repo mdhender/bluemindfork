@@ -60,3 +60,12 @@ export const VIEWER_CAPABILITIES = [
     MimeType.VIDEO,
     MimeType.PDF
 ];
+
+export default {
+    createFromFile,
+    getPartsFromCapabilities,
+    isViewable,
+    mergePartsForRichEditor,
+    mergePartsForTextarea,
+    VIEWER_CAPABILITIES
+};

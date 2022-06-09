@@ -68,11 +68,12 @@
 <script>
 import { BmButtonGroup, BmButton, BmIcon } from "@bluemind/styleguide";
 import { mapState, mapGetters } from "vuex";
-import { ActionTextMixin, FlagMixin, RemoveMixin } from "~/mixins";
+import { message } from "@bluemind/mail";
+import { ActionTextMixin, FlagMixin, RemoveMixin, MailRoutesMixin } from "~/mixins";
 import { MY_DRAFTS, MY_TEMPLATES } from "~/getters";
-import { draftPath } from "~/model/draft";
 import MessagePathParam from "~/router/MessagePathParam";
-import { MessageCreationModes } from "../../model/message";
+
+const { MessageCreationModes } = message;
 
 export default {
     name: "ConversationListItemQuickActionButtons",
@@ -81,7 +82,7 @@ export default {
         BmButton,
         BmIcon
     },
-    mixins: [ActionTextMixin, FlagMixin, RemoveMixin],
+    mixins: [ActionTextMixin, FlagMixin, RemoveMixin, MailRoutesMixin],
     props: {
         conversation: {
             type: Object,
@@ -109,7 +110,7 @@ export default {
             const template = this.messages[this.conversation.messages[0]];
             this.$router.navigate({
                 name: "mail:message",
-                params: { messagepath: draftPath(this.MY_DRAFTS) },
+                params: { messagepath: this.draftPath(this.MY_DRAFTS) },
                 query: { action: MessageCreationModes.EDIT_AS_NEW, message: MessagePathParam.build("", template) }
             });
         }

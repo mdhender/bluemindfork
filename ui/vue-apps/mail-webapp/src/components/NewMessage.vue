@@ -18,7 +18,7 @@
 import { BmButton, BmClipping, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
 import { mapGetters } from "vuex";
 import { MY_DRAFTS } from "~/getters";
-import { draftPath } from "~/model/draft";
+import { MailRoutesMixin } from "~/mixins";
 
 export default {
     name: "NewMessage",
@@ -28,6 +28,7 @@ export default {
         BmLabelIcon
     },
     directives: { BmClipping },
+    mixins: [MailRoutesMixin],
     props: {
         mobile: {
             type: Boolean,
@@ -38,7 +39,7 @@ export default {
     computed: {
         ...mapGetters("mail", { MY_DRAFTS }),
         messagepath() {
-            return draftPath(this.MY_DRAFTS);
+            return this.draftPath(this.MY_DRAFTS);
         }
     }
 };

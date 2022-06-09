@@ -95,12 +95,13 @@
 import { mapGetters, mapMutations } from "vuex";
 
 import { BmButton, BmButtonGroup, BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
-
+import { message } from "@bluemind/mail";
 import { ComposerActionsMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
-import { MessageStatus } from "~/model/message";
 import { IS_SENDER_SHOWN, MY_DRAFTS } from "~/getters";
 import { SHOW_SENDER } from "~/mutations";
+
+const { MessageStatus } = message;
 
 export default {
     name: "MailToolbarComposeMessage",

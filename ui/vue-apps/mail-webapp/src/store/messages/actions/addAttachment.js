@@ -1,6 +1,8 @@
 import { inject } from "@bluemind/inject";
+import { attachment } from "@bluemind/mail";
 import global from "@bluemind/global";
-import { AttachmentStatus } from "~/model/attachment";
+
+const { AttachmentStatus } = attachment;
 
 import {
     ADD_ATTACHMENT,

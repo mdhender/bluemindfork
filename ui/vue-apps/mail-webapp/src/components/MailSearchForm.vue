@@ -84,6 +84,7 @@
 </template>
 
 <script>
+import { mapGetters, mapMutations, mapState } from "vuex";
 import {
     BmButton,
     BmCollapse,
@@ -94,17 +95,17 @@ import {
     BmIcon,
     BmToggle
 } from "@bluemind/styleguide";
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { folder, loadingStatus } from "@bluemind/mail";
+
 import debounce from "lodash.debounce";
 import GlobalEvents from "vue-global-events";
 import { SearchHelper } from "./SearchHelper";
 import { MY_SENT, MY_MAILBOX, MY_INBOX, MY_TRASH, FOLDERS } from "~/getters";
-import { isMailshareRoot } from "~/model/folder";
+const { isMailshareRoot, translatePath } = folder;
 import { ConversationListStatus } from "~/store/conversationList";
 import { SET_CONVERSATION_LIST_STATUS } from "~/mutations";
-import { translatePath } from "~/model/folder";
 import { MailRoutesMixin } from "~/mixins";
-import { LoadingStatus } from "~/model/loading-status";
+const { LoadingStatus } = loadingStatus;
 import MailMailboxIcon from "./MailMailboxIcon.vue";
 
 const SPINNER_TIMEOUT = 250;

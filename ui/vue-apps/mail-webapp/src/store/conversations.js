@@ -4,6 +4,7 @@ import Vue from "vue";
 
 import { inject } from "@bluemind/inject";
 import { Flag } from "@bluemind/email";
+import { conversations, loadingStatus, message, draft } from "@bluemind/mail";
 
 import {
     ADD_FLAG,
@@ -42,23 +43,24 @@ import {
     CONVERSATION_IS_LOADED,
     CURRENT_CONVERSATION_METADATA
 } from "~/getters";
-import {
-    createConversationStub,
-    firstMessageInConversationFolder,
-    messagesInConversationFolder,
-    conversationMustBeRemoved
-} from "~/model/conversations";
-import { LoadingStatus } from "~/model/loading-status";
-import { FIXME_NEW_DRAFT_KEY } from "../model/draft";
 import apiMessages from "./api/apiMessages";
 import apiConversations from "./api/apiConversations";
 
 import messages from "./messages";
 
 import { withAlert } from "./helpers/withAlert";
-import { createOnlyMetadata, isFlagged, isUnread, messageKey } from "~/model/message";
 import apiFolders from "./api/apiFolders";
 import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
+
+const { FIXME_NEW_DRAFT_KEY } = draft;
+const { createOnlyMetadata, isFlagged, isUnread, messageKey } = message;
+const {
+    createConversationStub,
+    firstMessageInConversationFolder,
+    messagesInConversationFolder,
+    conversationMustBeRemoved
+} = conversations;
+const { LoadingStatus } = loadingStatus;
 
 const state = {
     conversationByKey: {},

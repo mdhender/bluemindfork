@@ -1,6 +1,8 @@
 import { mapGetters, mapState } from "vuex";
 
 import { MY_MAILBOX } from "~/getters";
+import MessagePathParam from "~/router/MessagePathParam";
+import { draft } from "@bluemind/mail";
 
 export default {
     computed: {
@@ -19,6 +21,12 @@ export default {
                 }
             }
             return { name: "v:mail:home", params: { folder: null, mailbox: null } };
+        },
+        draftPath(myDrafts) {
+            return MessagePathParam.build(undefined, {
+                remoteRef: { internalId: draft.TEMPORARY_MESSAGE_ID },
+                folderRef: { key: myDrafts.key }
+            });
         },
 
         /**

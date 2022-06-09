@@ -111,7 +111,9 @@ import {
     SELECTION_KEYS
 } from "~/getters";
 import { SET_SELECTION, UNSELECT_ALL_CONVERSATIONS } from "~/mutations";
-import { MailboxType } from "~/model/mailbox";
+import { mailbox } from "@bluemind/mail";
+
+const { MailboxType } = mailbox;
 
 export default {
     name: "MailMultipleSelectionActions",

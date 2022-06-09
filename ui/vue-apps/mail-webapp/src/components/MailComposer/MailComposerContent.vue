@@ -52,14 +52,15 @@ import { mapMutations, mapState } from "vuex";
 import { createCid, CID_DATA_ATTRIBUTE } from "@bluemind/email";
 import { BmButton, BmFileDropZone, BmIcon, BmRichEditor } from "@bluemind/styleguide";
 import { AppDataKeys } from "@bluemind/webappdata";
+import { draft, signature } from "@bluemind/mail";
 
 import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
-import { isNewMessage } from "~/model/draft";
-import { PERSONAL_SIGNATURE_SELECTOR } from "~/model/signature";
-
 import { ComposerActionsMixin, ComposerInitMixin, SignatureMixin, WaitForMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
 import MailViewerContentLoading from "../MailViewer/MailViewerContentLoading";
+
+const { isNewMessage } = draft;
+const { PERSONAL_SIGNATURE_SELECTOR } = signature;
 
 export default {
     name: "MailComposerContent",

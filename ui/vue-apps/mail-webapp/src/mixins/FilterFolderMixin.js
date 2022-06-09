@@ -1,6 +1,9 @@
 import { mapGetters } from "vuex";
+import { folder } from "@bluemind/mail";
 import { MAILBOXES, MAILBOX_FOLDERS, MY_INBOX, MY_TRASH } from "~/getters";
-import { createRoot } from "~/model/folder";
+
+const { createRoot } = folder;
+
 export default {
     data() {
         return {

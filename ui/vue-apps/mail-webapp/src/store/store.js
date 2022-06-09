@@ -1,4 +1,5 @@
 import { Flag } from "@bluemind/email";
+import { loadingStatus, folder } from "@bluemind/mail";
 
 import { Cache } from "~/utils/cache";
 
@@ -47,8 +48,9 @@ import {
     USER_MAILBOXES
 } from "~/getters";
 import { SET_ACTIVE_FOLDER, SET_MAIL_THREAD_SETTING } from "~/mutations";
-import { create, match } from "~/model/folder";
-import { LoadingStatus } from "~/model/loading-status";
+
+const { create, match } = folder;
+const { LoadingStatus } = loadingStatus;
 
 export const state = {
     activeFolder: undefined,

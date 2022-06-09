@@ -93,15 +93,16 @@ import global from "@bluemind/global";
 import { getPartDownloadUrl, MimeType } from "@bluemind/email";
 import { BmContainer, BmProgress, BmNotice, BmButtonClose, BmIcon, BmButton } from "@bluemind/styleguide";
 import { BmExtension } from "@bluemind/extensions.vue";
+import { attachment, part } from "@bluemind/mail";
 
-import { AttachmentStatus } from "~/model/attachment";
 import { ComposerActionsMixin } from "~/mixins";
 import { RemoveAttachmentCommand } from "~/commands";
-import { isViewable } from "~/model/part";
-
 import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_PART_ADDRESS } from "~/mutations";
 import AttachmentPreview from "./MailAttachmentItem/AttachmentPreview";
 import AttachmentInfos from "./MailAttachmentItem/AttachmentInfos";
+
+const { AttachmentStatus } = attachment;
+const { isViewable } = part;
 
 export default {
     name: "MailAttachmentItem",

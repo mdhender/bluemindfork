@@ -68,8 +68,10 @@ import {
     MARK_MESSAGE_AS_UNFLAGGED,
     MARK_MESSAGE_AS_UNREAD
 } from "~/actions";
-import { MessageCreationModes } from "~/model/message";
+import { conversations } from "@bluemind/mail";
 import { RemoveMixin, ComposerInitMixin } from "~/mixins";
+
+const { MessageCreationModes } = conversations;
 
 export default {
     name: "MailViewerToolbarForMobile",

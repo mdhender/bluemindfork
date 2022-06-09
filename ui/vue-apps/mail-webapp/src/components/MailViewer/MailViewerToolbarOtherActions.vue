@@ -62,7 +62,8 @@
 import { mapActions, mapGetters } from "vuex";
 import { Flag } from "@bluemind/email";
 import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
-import { RemoveMixin, MoveMixin, PrintMixin } from "~/mixins";
+import { message, folder } from "@bluemind/mail";
+import { RemoveMixin, MoveMixin, PrintMixin, MailRoutesMixin } from "~/mixins";
 import {
     MARK_MESSAGE_AS_FLAGGED,
     MARK_MESSAGE_AS_READ,
@@ -70,12 +71,12 @@ import {
     MARK_MESSAGE_AS_UNREAD
 } from "~/actions";
 import { MAILBOXES, MY_DRAFTS, MY_TRASH, MY_INBOX } from "~/getters";
-import { MessageCreationModes } from "~/model/message";
-import { draftPath } from "~/model/draft";
 import MessagePathParam from "~/router/MessagePathParam";
-import { isRoot, getInvalidCharacter } from "~/model/folder";
 import ChooseFolderModal from "../ChooseFolderModal";
 import MailMessagePrint from "./MailMessagePrint";
+
+const { MessageCreationModes } = message;
+const { isRoot, getInvalidCharacter } = folder;
 
 export default {
     name: "MailViewerToolbarOtherActions",
@@ -87,7 +88,7 @@ export default {
         // eslint-disable-next-line vue/no-unused-components
         MailMessagePrint
     },
-    mixins: [RemoveMixin, MoveMixin, PrintMixin],
+    mixins: [RemoveMixin, MoveMixin, PrintMixin, MailRoutesMixin],
     props: {
         message: {
             type: Object,
@@ -127,7 +128,7 @@ export default {
         editAsNew() {
             this.$router.navigate({
                 name: "mail:message",
-                params: { messagepath: draftPath(this.MY_DRAFTS) },
+                params: { messagepath: this.draftPath(this.MY_DRAFTS) },
                 query: { action: MessageCreationModes.EDIT_AS_NEW, message: MessagePathParam.build("", this.message) }
             });
         },

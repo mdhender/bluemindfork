@@ -27,13 +27,16 @@
 import { mapMutations } from "vuex";
 import { BmCollapse, BmModal } from "@bluemind/styleguide";
 import { getPartDownloadUrl, getPartPreviewUrl } from "@bluemind/email";
+import { part } from "@bluemind/mail";
+
 import { SET_PREVIEW_PART_ADDRESS } from "~/mutations";
 import PreviewAttachment from "./Preview/PreviewAttachment";
 import PreviewMessage from "./Preview/PreviewMessage";
 import PreviewHeader from "./Preview/PreviewHeader";
 import GlobalEvents from "vue-global-events";
-import { isViewable } from "~/model/part";
 import PreviewAttachmentHeader from "./Preview/PreviewAttachmentHeader";
+
+const { isViewable } = part;
 
 export default {
     name: "MailAttachmentPreview",

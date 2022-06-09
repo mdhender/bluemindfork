@@ -1,17 +1,19 @@
 import { mapState } from "vuex";
 import { INFO, REMOVE } from "@bluemind/alert.store";
+import { draft, signature } from "@bluemind/mail";
 import { CHECK_CORPORATE_SIGNATURE } from "~/actions";
-import { isNewMessage } from "~/model/draft";
 import { SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
-import {
+
+import WaitForMixin from "./WaitForMixin";
+
+const { isNewMessage } = draft;
+const {
     CORPORATE_SIGNATURE_PLACEHOLDER,
     CORPORATE_SIGNATURE_SELECTOR,
     PERSONAL_SIGNATURE_SELECTOR,
     wrapCorporateSignature,
     wrapPersonalSignature
-} from "~/model/signature";
-import WaitForMixin from "./WaitForMixin";
-
+} = signature;
 const corporateSignatureGotInserted = {
     alert: { name: "mail.CORPORATE_SIGNATURE_INSERTED", uid: "CORPORATE_SIGNATURE" },
     options: { area: "right-panel", renderer: "CorporateSignatureAlert" }

@@ -1,7 +1,9 @@
+import { loadingStatus } from "@bluemind/mail";
 import actions from "./actions";
 import mutations from "./mutations";
 import { MESSAGE_IS_LOADED, MESSAGE_IS_LOADING } from "~/getters";
-import { LoadingStatus } from "~/model/loading-status";
+
+const { LoadingStatus } = loadingStatus;
 
 export default {
     actions,

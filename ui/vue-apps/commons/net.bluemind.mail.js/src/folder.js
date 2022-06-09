@@ -1,6 +1,5 @@
 import { inject } from "@bluemind/inject";
 import injector from "@bluemind/inject";
-import { DEFAULT_FOLDER_NAMES } from "~/store/folders/helpers/DefaultFolders";
 import { MailboxType } from "./mailbox";
 
 export function create(key, name, parent, mailbox) {
@@ -41,7 +40,6 @@ export function rename(folder, name) {
 export function move(folder, parent, mailbox) {
     return { ...folder, path: path(mailbox, folder.name, parent), parent: parent?.key };
 }
-
 export const DEFAULT_FOLDERS = {
     INBOX: "INBOX",
     SENT: "Sent",
@@ -50,6 +48,16 @@ export const DEFAULT_FOLDERS = {
     JUNK: "Junk",
     TEMPLATES: "Templates",
     OUTBOX: "Outbox"
+};
+const DEFAULT_FOLDER_NAMES = {
+    INBOX: "INBOX",
+    SENT: "Sent",
+    DRAFTS: "Drafts",
+    TRASH: "Trash",
+    JUNK: "Junk",
+    TEMPLATES: "Templates",
+    OUTBOX: "Outbox",
+    ROOT: null
 };
 
 const DEFAULT_FOLDER_AS_ARRAY = Object.values(DEFAULT_FOLDERS);
@@ -265,3 +273,27 @@ export function isDescendantPath(path, parentPath) {
     }
     return false;
 }
+
+export default {
+    allowConversations,
+    allowSubfolder,
+    compare,
+    create,
+    createRoot,
+    DEFAULT_FOLDERS,
+    folderExists,
+    generateKey,
+    getFolder,
+    getInvalidCharacter,
+    isDefault,
+    isDescendantPath,
+    isDraftFolder,
+    isMailshareRoot,
+    isNameValid,
+    isRoot,
+    match,
+    move,
+    normalize,
+    rename,
+    translatePath
+};

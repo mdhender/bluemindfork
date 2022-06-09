@@ -1,8 +1,9 @@
 import { inject } from "@bluemind/inject";
 import global from "@bluemind/global";
 import UUIDGenerator from "@bluemind/uuid";
-import { create, AttachmentStatus } from "~/model/attachment";
-import { createFromFile as createPartFromFile } from "~/model/part";
+import { part, attachment } from "@bluemind/mail";
+const { create, AttachmentStatus } = attachment;
+const { createFromFile: createPartFromFile } = part;
 
 export default {
     async ADD_FH_ATTACHMENT({ commit }, { file, message }) {

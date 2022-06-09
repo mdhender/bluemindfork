@@ -63,8 +63,11 @@
 <script>
 import { mapState } from "vuex";
 import { BmButton, BmLabelIcon, BmIcon } from "@bluemind/styleguide";
-import { LoadingStatus } from "~/model/loading-status";
+import { loadingStatus } from "@bluemind/mail";
 import MailViewerContentLoading from "./MailViewerContentLoading";
+
+const { LoadingStatus } = loadingStatus;
+
 export default {
     name: "EventViewerInvitation",
     components: {

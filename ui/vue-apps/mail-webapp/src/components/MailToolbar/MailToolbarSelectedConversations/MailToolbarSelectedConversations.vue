@@ -70,18 +70,19 @@
 <script>
 import { mapGetters, mapState } from "vuex";
 import { BmButton, BmIcon } from "@bluemind/styleguide";
+import { message } from "@bluemind/mail";
 import MailToolbarSelectedConversationsMoveAction from "./MailToolbarSelectedConversationsMoveAction";
 import MailToolbarSelectedConversationsOtherActions from "./MailToolbarSelectedConversationsOtherActions";
-import { ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin } from "~/mixins";
+import { ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin, MailRoutesMixin } from "~/mixins";
 import {
     ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
     CURRENT_CONVERSATION_METADATA,
     MY_DRAFTS,
     MY_TEMPLATES
 } from "~/getters";
-import { draftPath } from "~/model/draft";
 import MessagePathParam from "~/router/MessagePathParam";
-import { MessageCreationModes } from "~/model/message";
+
+const { MessageCreationModes } = message;
 
 export default {
     name: "MailToolbarSelectedConversations",
@@ -91,7 +92,7 @@ export default {
         MailToolbarSelectedConversationsMoveAction,
         MailToolbarSelectedConversationsOtherActions
     },
-    mixins: [ActionTextMixin, FlagMixin, SelectionMixin, RemoveMixin],
+    mixins: [ActionTextMixin, FlagMixin, SelectionMixin, RemoveMixin, MailRoutesMixin],
     computed: {
         ...mapState("mail", { messages: state => state.conversations.messages }),
         ...mapGetters("mail", {
@@ -118,7 +119,7 @@ export default {
             const template = this.messages[this.CURRENT_CONVERSATION_METADATA.messages[0]];
             this.$router.navigate({
                 name: "mail:message",
-                params: { messagepath: draftPath(this.MY_DRAFTS) },
+                params: { messagepath: this.draftPath(this.MY_DRAFTS) },
                 query: { action: MessageCreationModes.EDIT_AS_NEW, message: MessagePathParam.build("", template) }
             });
         }

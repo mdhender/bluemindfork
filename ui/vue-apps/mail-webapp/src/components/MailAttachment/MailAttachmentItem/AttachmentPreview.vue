@@ -12,7 +12,9 @@
 <script>
 import { MimeType, getPartDownloadUrl } from "@bluemind/email";
 import { BmIcon } from "@bluemind/styleguide";
-import { AttachmentStatus } from "~/model/attachment";
+import { attachment } from "@bluemind/mail";
+
+const { AttachmentStatus } = attachment;
 
 export default {
     name: "AttachmentPreview",

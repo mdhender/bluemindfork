@@ -1,10 +1,12 @@
 import { inject } from "@bluemind/inject";
-import { computeIdentityForReplyOrForward, findIdentityFromMailbox } from "~/model/draft";
-import { MessageHeader } from "~/model/message";
+import { draft, message } from "@bluemind/mail";
 import { SET_MESSAGE_FROM, SET_MESSAGE_HEADERS, SET_PERSONAL_SIGNATURE } from "~/mutations";
 import { CURRENT_MAILBOX, MAILBOX_SENT } from "~/getters";
 import { DEFAULT_FOLDER_NAMES } from "~/store/folders/helpers/DefaultFolders";
 import { MailboxAdaptor } from "../store/helpers/MailboxAdaptor";
+
+const { computeIdentityForReplyOrForward, findIdentityFromMailbox } = draft;
+const { MessageHeader } = message;
 
 export default {
     data() {

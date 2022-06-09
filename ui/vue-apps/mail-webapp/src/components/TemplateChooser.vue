@@ -34,13 +34,14 @@
 <script>
 import debounce from "lodash.debounce";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+import { draft } from "@bluemind/mail";
 import { BmModal, BmFormInput } from "@bluemind/styleguide";
 import { SET_TEMPLATE_CHOOSER_VISIBLE, SET_TEMPLATE_LIST_SEARCH_PATTERN } from "~/mutations";
 import { DEBOUNCED_SAVE_MESSAGE, FETCH_TEMPLATES_KEYS } from "~/actions";
 import { MY_TEMPLATES } from "~/getters";
 import TemplatesList from "./TemplateChooser/TemplatesList";
 import { ComposerInitMixin } from "~/mixins";
-import { isEditorContentEmpty, preserveFromOrDefault } from "~/model/draft";
+const { isEditorContentEmpty, preserveFromOrDefault } = draft;
 
 export default {
     name: "TemplateChooser",

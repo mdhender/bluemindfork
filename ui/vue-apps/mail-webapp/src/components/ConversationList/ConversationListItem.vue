@@ -35,11 +35,13 @@
 <script>
 import { BmListGroupItem } from "@bluemind/styleguide";
 import { mapState } from "vuex";
+import { message } from "@bluemind/mail";
 import ConversationListItemLeft from "./ConversationListItemLeft";
 import ConversationListItemMiddle from "./ConversationListItemMiddle";
 import ConversationListItemActions from "./ConversationListItemActions";
 import ScreenReaderOnlyConversationInformation from "./ScreenReaderOnlyConversationInformation";
-import { isFlagged, isUnread } from "~/model/message";
+
+const { isFlagged, isUnread } = message;
 
 export default {
     name: "ConversationListItem",

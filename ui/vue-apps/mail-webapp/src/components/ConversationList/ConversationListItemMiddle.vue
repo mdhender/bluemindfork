@@ -49,13 +49,13 @@
 </template>
 
 <script>
+import { mapGetters, mapState } from "vuex";
 import { BmExtension } from "@bluemind/extensions.vue";
 import { BmIcon } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
 import { Flag } from "@bluemind/email";
-import { mapGetters, mapState } from "vuex";
+import { mailbox, folder } from "@bluemind/mail";
 import MailFolderIcon from "../MailFolderIcon";
-import { MailboxType } from "~/model/mailbox";
 import {
     CONVERSATIONS_ACTIVATED,
     MY_DRAFTS,
@@ -63,7 +63,9 @@ import {
     CONVERSATION_LIST_IS_SEARCH_MODE,
     CONVERSATION_IS_SELECTED
 } from "~/getters";
-import { isDraftFolder } from "~/model/folder";
+
+const { isDraftFolder } = folder;
+const { MailboxType } = mailbox;
 
 const FLAG_COMPONENT = {
     [Flag.FLAGGED]: {

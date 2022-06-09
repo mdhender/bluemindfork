@@ -23,10 +23,8 @@ export default {
                     await executeHooks.call(this, beforeHooks, payload);
                     this.$options.commands[command].call(this, payload);
                     await executeHooks.call(this, afterHooks, payload);
-                } catch (error) {
-                    if (error.name === "StopExecution") {
-                        return;
-                    }
+                } catch {
+                    return;
                 }
             }
         };
@@ -36,11 +34,17 @@ export default {
 async function executeHooks(hooks, payload) {
     const isPlain = isPlainObject(payload);
     for (const fn of hooks || []) {
-        const values = await fn.call(this, payload);
-        if (isPlain) {
-            Object.assign(payload, values);
-        } else if (values !== undefined) {
-            payload = values;
+        try {
+            const values = await fn.call(this, payload);
+            if (isPlain) {
+                Object.assign(payload, values);
+            } else if (values !== undefined) {
+                payload = values;
+            }
+        } catch (error) {
+            if (error.name === "StopExecution") {
+                throw error;
+            }
         }
     }
 }

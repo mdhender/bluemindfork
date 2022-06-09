@@ -2,6 +2,7 @@ import cloneDeep from "lodash.clonedeep";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { inject } from "@bluemind/inject";
+import { draft, attachment } from "@bluemind/mail";
 
 import {
     DEBOUNCED_SAVE_MESSAGE,
@@ -30,9 +31,9 @@ import {
     SET_MESSAGE_COMPOSING,
     SET_MESSAGE_SUBJECT
 } from "~/mutations";
-import { isNewMessage } from "~/model/draft";
-import { createFromDraft } from "../model/draft";
-import { AttachmentStatus } from "~/model/attachment";
+
+const { isNewMessage, createFromDraft } = draft;
+const { AttachmentStatus } = attachment;
 
 /**
  * Provide composition Vuex actions to components

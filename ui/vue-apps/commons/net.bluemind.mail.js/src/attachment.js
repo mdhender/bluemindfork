@@ -46,3 +46,10 @@ export function getAttachmentHeaders({ fileName, size }) {
 export function isAttachment(part) {
     return part.dispositionType && part.dispositionType !== "INLINE";
 }
+
+export default {
+    create,
+    AttachmentStatus,
+    getAttachmentHeaders,
+    isAttachment
+};

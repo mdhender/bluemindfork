@@ -11,9 +11,11 @@
 </template>
 <script>
 import { AlertMixin, DefaultAlert } from "@bluemind/alert.store";
-import MailFolderIcon from "../MailFolderIcon";
-import { MailboxType } from "~/model/mailbox";
+import { mailbox } from "@bluemind/mail";
 import { MailRoutesMixin } from "~/mixins";
+import MailFolderIcon from "../MailFolderIcon";
+
+const { MailboxType } = mailbox;
 
 export default {
     name: "CreateFolder",

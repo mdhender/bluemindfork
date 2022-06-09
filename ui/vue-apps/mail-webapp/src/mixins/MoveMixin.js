@@ -1,9 +1,11 @@
 import { mapActions, mapGetters, mapState } from "vuex";
+import { loadingStatus } from "@bluemind/mail";
 
 import { MOVE_CONVERSATIONS, MOVE_MESSAGES, CREATE_FOLDER_HIERARCHY } from "~/actions";
 import { CONVERSATIONS_ACTIVATED, CURRENT_MAILBOX, IS_CURRENT_CONVERSATION, NEXT_CONVERSATION } from "~/getters";
 import { MailRoutesMixin } from "~/mixins";
-import { LoadingStatus } from "../model/loading-status";
+
+const { LoadingStatus } = loadingStatus;
 
 export default {
     mixins: [MailRoutesMixin],

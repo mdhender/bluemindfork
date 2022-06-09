@@ -1,6 +1,6 @@
-import { createConversationStub } from "~/model/conversations";
-import apiMessages from "./api/apiMessages";
+import { conversations } from "@bluemind/mail";
 import { inject } from "@bluemind/inject";
+import apiMessages from "./api/apiMessages";
 import searchModule from "./search";
 import { FETCH_CONVERSATION_LIST_KEYS, CONVERSATION_LIST_NEXT_PAGE, REFRESH_CONVERSATION_LIST_KEYS } from "~/actions";
 import {
@@ -27,6 +27,7 @@ import {
 import { ItemFlag } from "@bluemind/core.container.api";
 import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
 
+const { createConversationStub } = conversations;
 const PAGE_SIZE = 50;
 
 export const ConversationListStatus = {

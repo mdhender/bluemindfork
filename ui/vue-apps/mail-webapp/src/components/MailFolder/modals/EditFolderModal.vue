@@ -31,9 +31,11 @@
 import { mapActions, mapGetters, mapState } from "vuex";
 import { BmModal } from "@bluemind/styleguide";
 import { BmFormInput, BmNotice } from "@bluemind/styleguide";
-import { isNameValid } from "~/model/folder";
+import { folder } from "@bluemind/mail";
 import { FOLDER_BY_PATH } from "~/getters";
 import { CREATE_FOLDER, RENAME_FOLDER } from "~/actions";
+
+const { isNameValid } = folder;
 
 export default {
     name: "EditFolderModal",

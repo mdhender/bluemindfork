@@ -4,6 +4,7 @@ import { InlineImageHelper, MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { sanitizeHtml } from "@bluemind/html-utils";
 import { BmRichEditor } from "@bluemind/styleguide";
+import { draft, message, loadingStatus, part } from "@bluemind/mail";
 
 import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import { MY_DRAFTS } from "~/getters";
@@ -21,20 +22,21 @@ import {
     SET_MESSAGE_TO,
     SET_SAVED_INLINE_IMAGES
 } from "~/mutations";
-import { getPartsFromCapabilities } from "~/model/part";
-// FIXME: all those methods are helper of mixin, not model..
-import {
+import apiMessages from "~/store/api/apiMessages";
+import { ComposerFromMixin } from "~/mixins";
+
+const { LoadingStatus } = loadingStatus;
+const {
     addSeparator,
     COMPOSER_CAPABILITIES,
     createEmpty,
     createReplyOrForward,
     getEditorContent,
     handleSeparator
-} from "~/model/draft";
-import { MessageCreationModes } from "~/model/message";
-import apiMessages from "~/store/api/apiMessages";
-import { ComposerFromMixin } from "~/mixins";
-import { LoadingStatus } from "../model/loading-status";
+} = draft;
+const { getPartsFromCapabilities } = part;
+
+const { MessageCreationModes } = message;
 
 /**
  * Manage different cases of composer initialization

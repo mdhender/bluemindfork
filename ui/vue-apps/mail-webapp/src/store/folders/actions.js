@@ -1,4 +1,5 @@
 import { ItemFlag } from "@bluemind/core.container.api";
+import { folder } from "@bluemind/mail";
 import api from "../api/apiFolders";
 import {
     ADD_FOLDER,
@@ -10,7 +11,6 @@ import {
 } from "~/mutations";
 import { FOLDER_BY_PATH, FOLDER_GET_DESCENDANTS } from "~/getters";
 import { FolderAdaptor } from "./helpers/FolderAdaptor";
-import { create, rename, move } from "~/model/folder";
 import { withAlert } from "../helpers/withAlert";
 import {
     CREATE_FOLDER_HIERARCHY,
@@ -24,6 +24,8 @@ import {
     RENAME_FOLDER,
     UNREAD_FOLDER_COUNT
 } from "~/actions";
+
+const { create, rename, move } = folder;
 
 const fetchFolders = async function ({ commit }, { mailbox, expandedFolders }) {
     const items = await api.getAllFolders(mailbox);

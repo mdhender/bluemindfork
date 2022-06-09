@@ -48,3 +48,8 @@ function createBaseMailbox({ owner, name, dn, address }) {
         writable: true
     };
 }
+
+export default {
+    create,
+    MailboxType
+};

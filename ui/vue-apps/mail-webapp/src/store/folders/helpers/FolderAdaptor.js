@@ -1,4 +1,5 @@
-import { allowConversations, allowSubfolder, isDefault, translatePath } from "~/model/folder";
+import { folder } from "@bluemind/mail";
+const { allowConversations, allowSubfolder, isDefault, translatePath } = folder;
 
 function fromMailboxFolder(remotefolder, mailbox) {
     const parent = remotefolder.value.parentUid;
