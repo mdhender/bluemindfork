@@ -130,7 +130,7 @@ function toStoredTags(tags) {
 
 .pref-tags {
     hr {
-        background-color: $alternate-light;
+        background-color: $neutral-bg-lo1;
         position: relative;
     }
 }

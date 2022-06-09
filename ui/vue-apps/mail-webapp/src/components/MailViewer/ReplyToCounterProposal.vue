@@ -1,6 +1,6 @@
 <template>
     <div class="reply-to-counter-proposal">
-        <div v-if="currentEvent.loading === LoadingStatus.LOADED" class="header px-3 pt-2 pb-3 bg-extra-light">
+        <div v-if="currentEvent.loading === LoadingStatus.LOADED" class="header px-3 pt-2 pb-3">
             <div class="font-weight-bold mb-2 d-block top">
                 <bm-icon :stacked="agendaStackedIcons" class="mr-2" size="lg" />
                 {{ counterEventInfo }}
@@ -12,22 +12,22 @@
                 <h2 v-else class="ml-4">{{ $t("mail.ics.counter.schedule.proposal") }}</h2>
                 <hr class="mt-0 mb-2 ml-4" />
                 <div class="mb-2 d-block">
-                    <bm-icon icon="clock" class="mr-2 text-primary" size="lg" />
+                    <bm-icon icon="clock" class="mr-2 text-secondary" size="lg" />
                     <del>{{ currentEvent.counter.initialDate }}</del>
                     &nbsp;
                     <strong>{{ currentEvent.counter.proposedDate }}</strong>
                 </div>
                 <div v-if="currentEvent.counter.occurrence" class="mb-2 d-block">
-                    <bm-icon icon="loop" class="mr-2 text-primary" size="lg" />
+                    <bm-icon icon="loop" class="mr-2 text-secondary" size="lg" />
                     {{ currentEvent.date }}
                 </div>
                 <div class="mt-3 ml-4">
-                    <bm-button variant="outline-primary" class="mr-2 px-1" @click="ACCEPT_COUNTER_EVENT">
+                    <bm-button variant="outline-secondary" class="mr-2 px-1" @click="ACCEPT_COUNTER_EVENT">
                         <bm-label-icon icon="check" icon-size="lg">{{
                             $t("mail.ics.counter.schedule.proposal.accept")
                         }}</bm-label-icon>
                     </bm-button>
-                    <bm-button variant="outline-primary" class="mr-2 px-1" @click="DECLINE_COUNTER_EVENT">
+                    <bm-button variant="outline-secondary" class="mr-2 px-1" @click="DECLINE_COUNTER_EVENT">
                         <bm-label-icon icon="cross" icon-size="lg">{{
                             $t("mail.ics.counter.schedule.proposal.decline")
                         }}</bm-label-icon>
@@ -35,10 +35,10 @@
                 </div>
             </template>
             <template v-else>
-                <h2 class="text-primary ml-4">{{ $t("mail.ics.counter.schedule.proposal.handled") }}</h2>
+                <h2 class="text-secondary ml-4">{{ $t("mail.ics.counter.schedule.proposal.handled") }}</h2>
             </template>
         </div>
-        <div v-else-if="currentEvent.loading === LoadingStatus.LOADING" class="header px-3 pt-2 pb-3 bg-extra-light">
+        <div v-else-if="currentEvent.loading === LoadingStatus.LOADING" class="header px-3 pt-2 pb-3">
             <div class="font-weight-bold mb-1 d-block top">
                 <bm-skeleton width="30%" />
             </div>
@@ -100,20 +100,22 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .reply-to-counter-proposal {
+    background-color: $neutral-bg-lo1;
+
     .header .top {
         .fa-check {
-            color: $green;
+            color: $success-fg;
         }
         .fa-cross {
-            color: $red;
+            color: $danger-fg;
         }
         .fa-interrogation {
-            color: $purple;
+            color: $info-fg;
         }
     }
 
     hr {
-        border-color: $calendar-color;
+        border-color: $neutral-fg;
         margin-bottom: $sp-1;
         max-width: 66%;
         margin-left: 0;

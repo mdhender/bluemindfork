@@ -1,20 +1,28 @@
 <template>
     <bm-dropdown
         no-caret
-        variant="inline-light"
+        variant="inline-on-fill-primary"
         class="messages-options-for-mobile d-flex justify-content-end"
         v-on="$listeners"
     >
         <template v-slot:button-content><bm-icon icon="3dots" size="2x" /></template>
-        <bm-dropdown-item-button v-if="!CONVERSATION_LIST_UNREAD_FILTER_ENABLED" variant="dark" @click="filterUnread">
+        <bm-dropdown-item-button
+            v-if="!CONVERSATION_LIST_UNREAD_FILTER_ENABLED"
+            variant="neutral"
+            @click="filterUnread"
+        >
             {{ this.$t("mail.list.menu.filter") + " " + this.$t("mail.list.menu.filter.unread") }}
         </bm-dropdown-item-button>
         <bm-dropdown-divider v-if="!CONVERSATION_LIST_UNREAD_FILTER_ENABLED" />
-        <bm-dropdown-item-button v-if="!CONVERSATION_LIST_FLAGGED_FILTER_ENABLED" variant="dark" @click="filterFlagged">
+        <bm-dropdown-item-button
+            v-if="!CONVERSATION_LIST_FLAGGED_FILTER_ENABLED"
+            variant="neutral"
+            @click="filterFlagged"
+        >
             {{ this.$t("mail.list.menu.filter") + " " + this.$t("mail.list.menu.filter.flagged") }}
         </bm-dropdown-item-button>
         <bm-dropdown-divider v-if="!CONVERSATION_LIST_UNREAD_FILTER_ENABLED" />
-        <bm-dropdown-item-button v-if="CONVERSATION_LIST_FILTERED" variant="dark" @click="filterAll">
+        <bm-dropdown-item-button v-if="CONVERSATION_LIST_FILTERED" variant="neutral" @click="filterAll">
             {{ this.$t("mail.list.filter.remove") + " '" + this.$t("mail.list.menu.filter." + filter) + "'" }}
         </bm-dropdown-item-button>
     </bm-dropdown>

@@ -1,8 +1,8 @@
 <template>
-    <div v-if="attachments.length > 0" class="mail-attachments-block p-2 bg-extra-light">
+    <div v-if="attachments.length > 0" class="mail-attachments-block p-2">
         <div class="d-flex align-items-center">
             <bm-button
-                variant="inline-dark"
+                variant="inline-neutral"
                 :aria-label="$t('common.toggleAttachments')"
                 :title="$t('common.toggleAttachments')"
                 @click.prevent="toggleExpand"
@@ -20,7 +20,7 @@
             </bm-col>
             <bm-col lg="4" cols="12" class="pt-2 border-transparent">
                 <bm-button
-                    variant="outline-secondary"
+                    variant="outline-neutral"
                     class="w-100 h-100 py-2"
                     :title="$t('common.toggleAttachments')"
                     :aria-label="$t('common.toggleAttachments')"
@@ -42,7 +42,7 @@
         </bm-row>
         <!-- Save all button with i18n, please dont delete it 
             <bm-button
-            variant="outline-secondary"
+            variant="outline-neutral"
             class="mr-2 align-self-center"
             size="sm"
             @click="$emit('saveAllAttachments')"
@@ -109,6 +109,9 @@ export default {
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
 
+.mail-attachments-block {
+    background-color: $neutral-bg-lo1;
+}
 .mail-attachments-block .col-4,
 .mail-attachments-block .col-lg-4 {
     padding-right: $sp-1 !important;

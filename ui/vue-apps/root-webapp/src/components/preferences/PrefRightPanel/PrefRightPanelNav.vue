@@ -3,7 +3,7 @@
         <bm-list-group v-bm-scrollspy:scroll-area class="pref-right-panel-nav" horizontal>
             <pref-section-navbar v-for="section in sections" :ref="section.id" :key="section.id" :section="section" />
         </bm-list-group>
-        <div class="border-bottom border-secondary" />
+        <div class="border-bottom border-neutral" />
     </div>
 </template>
 

@@ -9,17 +9,14 @@
                 <h1 id="mail-message-starter-or">{{ $t("common.or") }}</h1>
             </div>
             <div class="flex-grow-1 flex-shrink-0 overflow-hidden d-flex flex-column align-items-center">
-                <div class="bg-white py-3 d-table">
+                <div class="bg-surface py-3 d-table">
                     <div class="d-table-cell px-4">
                         <div class="pb-2">{{ $t("mail.message.starter.write") }}</div>
                         <new-message />
                     </div>
                     <div class="d-table-cell px-4">
                         <div class="pb-2">{{ $t("mail.message.starter.display") }}</div>
-                        <bm-button
-                            :to="{ name: 'v:mail:home', params: { folder: MY_DRAFTS.path } }"
-                            variant="secondary"
-                        >
+                        <bm-button :to="{ name: 'v:mail:home', params: { folder: MY_DRAFTS.path } }" variant="neutral">
                             <bm-label-icon icon="pencil">{{ $t("mail.message.starter.display.drafts") }}</bm-label-icon>
                         </bm-button>
                     </div>
@@ -72,7 +69,7 @@ export default {
 }
 
 .mail-message-starter h1 {
-    color: $info-dark;
+    color: $primary-fg-hi1;
     font-size: 2rem;
 }
 

@@ -104,6 +104,8 @@ export default {
                     title: this.$tc("mail.compose.template_chooser.confirm_overwrite.title"),
                     okTitle: this.$t("mail.compose.template_chooser.confirm_overwrite.action"),
                     cancelTitle: this.$t("common.cancel"),
+                    okVariant: "secondary",
+                    cancelVariant: "simple-neutral",
                     centered: true,
                     hideHeaderClose: false,
                     autoFocusButton: "cancel"
@@ -128,8 +130,8 @@ export default {
         }
     }
     .templates-list {
-        background-color: $extra-light;
-        border-color: $secondary;
+        background-color: $neutral-bg-lo1;
+        border-color: $neutral-fg;
         border-width: 0 1px 1px 1px;
         border-style: solid;
     }

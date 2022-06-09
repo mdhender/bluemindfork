@@ -2,8 +2,8 @@
     <bm-button-group>
         <bm-button
             v-if="isDraft"
-            variant="inline-light"
-            class="btn-lg-simple-dark"
+            variant="inline-on-fill-primary"
+            class="btn-lg-simple-neutral"
             :aria-label="$t('mail.actions.send.aria')"
             :title="$t('mail.actions.send.aria')"
             :disabled="errorOccuredOnSave || isSending || !hasRecipient || anyAttachmentInError"
@@ -14,8 +14,8 @@
         </bm-button>
         <bm-button
             v-else
-            variant="inline-light"
-            class="d-none d-lg-block btn-lg-simple-dark"
+            variant="inline-on-fill-primary"
+            class="d-none d-lg-block btn-lg-simple-neutral"
             :title="$t('mail.actions.end_template_edition.aria')"
             :aria-label="$t('mail.actions.end_template_edition.aria')"
             @click="endEdition"
@@ -24,8 +24,8 @@
             <span>{{ $tc("mail.actions.end_template_edition.label") }}</span>
         </bm-button>
         <bm-button
-            variant="inline-light"
-            class="btn-lg-simple-dark"
+            variant="inline-on-fill-primary"
+            class="btn-lg-simple-neutral"
             :aria-label="$t('mail.actions.attach.aria')"
             :title="$t('mail.actions.attach.aria')"
             :disabled="isSending"
@@ -37,9 +37,9 @@
         <input ref="attachInputRef" type="file" multiple hidden @change="addAttachments($event.target.files)" />
         <bm-dropdown
             split
-            variant="simple-dark"
-            split-class="btn-lg-simple-dark"
-            toggle-class="btn-lg-simple-dark"
+            variant="simple-neutral"
+            split-class="btn-lg-simple-neutral"
+            toggle-class="btn-lg-simple-neutral"
             :disabled="isSaving || isSending || anyAttachmentInError"
             right
             @click="saveAsap"
@@ -56,8 +56,8 @@
             }}</bm-dropdown-item>
         </bm-dropdown>
         <bm-button
-            variant="inline-light"
-            class="btn-lg-simple-dark"
+            variant="inline-on-fill-primary"
+            class="btn-lg-simple-neutral"
             :aria-label="$tc('mail.actions.remove.compose.aria')"
             :title="$tc('mail.actions.remove.compose.aria')"
             :disabled="isSaving || isSending"
@@ -69,7 +69,7 @@
         <bm-dropdown
             ref="other-dropdown"
             :no-caret="true"
-            variant="simple-dark"
+            variant="simple-neutral"
             :aria-label="$tc('mail.toolbar.more.aria')"
             :title="$tc('mail.toolbar.more.aria')"
             class="other-viewer-actions"

@@ -36,7 +36,7 @@
             <bm-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage" class="d-inline-flex" />
         </template>
         <div v-else>{{ $t("preferences.display_containers." + containerType + ".empty_list") }}</div>
-        <bm-button variant="outline-secondary" class="float-right" @click="openBottomActionModal">
+        <bm-button variant="outline-neutral" class="float-right" @click="openBottomActionModal">
             <template v-if="manageMine"><bm-icon icon="plus" /> {{ createContainerLabel }} </template>
             <template v-else>{{ subscribeToContainerLabel }}</template>
         </bm-button>
@@ -181,7 +181,7 @@ export default {
         text-align: right;
     }
     .b-table .fa-star-fill {
-        color: $primary;
+        color: $secondary-fg;
     }
 }
 </style>

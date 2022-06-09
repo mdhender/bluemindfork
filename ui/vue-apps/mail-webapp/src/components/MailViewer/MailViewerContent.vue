@@ -78,7 +78,7 @@ export default {
     }
     & > hr {
         &:last-of-type {
-            border-top-color: $alternate-light;
+            border-top-color: $neutral-fg-lo2;
         }
         @include media-breakpoint-up(lg) {
             margin-left: $sp-5;
@@ -115,7 +115,7 @@ export default {
         margin: $sp-2 0;
     }
     .mail-viewer-splitter > hr {
-        border-color: $secondary;
+        border-color: $neutral-fg;
         margin: $sp-1 0 0 0;
     }
 
@@ -126,7 +126,7 @@ export default {
     .date {
         align-self: center;
         text-align: right;
-        color: $secondary;
+        color: $neutral-fg;
     }
 }
 </style>

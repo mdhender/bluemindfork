@@ -9,7 +9,7 @@
             <div class="col pl-3 align-self-center">
                 <mail-composer-sender
                     v-if="isSenderShown"
-                    label-class="font-weight-bold text-secondary"
+                    label-class="font-weight-bold text-neutral"
                     :message="message"
                     @update="identity => setFrom(identity, message)"
                     @check-and-repair="checkAndRepairFrom"
@@ -22,20 +22,20 @@
                     @search="searchedPattern => onSearch('to', searchedPattern)"
                     @update:contacts="updateTo"
                 >
-                    <span class="font-weight-bold text-secondary">{{ $t("common.to") }}</span>
+                    <span class="font-weight-bold text-neutral">{{ $t("common.to") }}</span>
                 </bm-contact-input>
             </div>
             <div>
                 <template v-if="!(displayedRecipientFields & recipientModes.CC)">
-                    <bm-button variant="simple-secondary" @click="displayedRecipientFields |= recipientModes.CC">
+                    <bm-button variant="simple-neutral" @click="displayedRecipientFields |= recipientModes.CC">
                         {{ $t("common.cc") }}
                     </bm-button>
-                    <bm-button variant="simple-secondary" @click="displayedRecipientFields |= recipientModes.BCC">
+                    <bm-button variant="simple-neutral" @click="displayedRecipientFields |= recipientModes.BCC">
                         {{ $t("common.bcc") }}
                     </bm-button>
                 </template>
                 <bm-button
-                    variant="simple-secondary"
+                    variant="simple-neutral"
                     :aria-label="$t('mail.actions.extend')"
                     :title="$t('mail.actions.extend')"
                     :disabled="anyAttachmentInError"
@@ -60,11 +60,11 @@
                         @search="searchedPattern => onSearch('cc', searchedPattern)"
                         @update:contacts="updateCc"
                     >
-                        <span class="font-weight-bold text-secondary">{{ $t("common.cc") }}</span>
+                        <span class="font-weight-bold text-neutral">{{ $t("common.cc") }}</span>
                     </bm-contact-input>
                     <bm-button
                         v-if="!(displayedRecipientFields & recipientModes.BCC)"
-                        variant="simple-dark"
+                        variant="simple-neutral"
                         @click="displayedRecipientFields |= recipientModes.BCC"
                     >
                         {{ $t("common.bcc") }}
@@ -83,7 +83,7 @@
                         @search="searchedPattern => onSearch('bcc', searchedPattern)"
                         @update:contacts="updateBcc"
                     >
-                        <span class="font-weight-bold text-secondary">{{ $t("common.bcc") }}</span>
+                        <span class="font-weight-bold text-neutral">{{ $t("common.bcc") }}</span>
                     </bm-contact-input>
                 </div>
                 <mail-conversation-viewer-field-sep :index="index" :max-index="maxIndex" />
@@ -202,6 +202,9 @@ export default {
     }
     .bm-rich-editor .ProseMirror {
         padding: $sp-2 0 $sp-2 $sp-3;
+    }
+    .toolbar-menu.full-toolbar {
+        border-top-color: $neutral-fg-lo3;
     }
 }
 </style>

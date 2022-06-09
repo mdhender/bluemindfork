@@ -45,7 +45,7 @@
                         <slot name="item" :container="row.item" />
                     </template>
                     <template #cell(ownerDisplayname)="row">
-                        <span class="font-italic text-secondary">
+                        <span class="font-italic text-neutral">
                             {{ $t("common.shared_by", { name: row.value }) }}
                         </span>
                     </template>

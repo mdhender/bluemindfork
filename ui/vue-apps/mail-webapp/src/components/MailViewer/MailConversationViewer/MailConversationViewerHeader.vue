@@ -4,7 +4,7 @@
         <bm-button
             v-if="!expanded"
             class="px-3"
-            variant="inline-secondary"
+            variant="inline-neutral"
             :title="$t('common.expand')"
             @click="
                 $emit('do-show-hidden-messages');
@@ -16,7 +16,7 @@
         <bm-button
             v-else
             class="px-3"
-            variant="inline-secondary"
+            variant="inline-neutral"
             :title="$t('common.collapse')"
             @click="$emit('collapse')"
         >

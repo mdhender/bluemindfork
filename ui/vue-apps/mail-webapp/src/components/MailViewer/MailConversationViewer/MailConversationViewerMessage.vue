@@ -8,7 +8,7 @@
                     v-if="folder.key !== conversation.folderRef.key"
                     :shared="shared"
                     :folder="folder"
-                    class="text-secondary font-italic pl-2"
+                    class="text-neutral font-italic pl-2"
                 />
             </div>
             <div class="d-lg-none d-flex align-items-center">
@@ -27,7 +27,7 @@
                 />
             </div>
             <div
-                class="col d-none d-lg-flex justify-content-end align-items-center text-secondary"
+                class="col d-none d-lg-flex justify-content-end align-items-center text-neutral"
                 :class="{ 'pr-3': !isMessageExpanded }"
             >
                 <mail-conversation-viewer-flags class="pr-2" :message="message" />

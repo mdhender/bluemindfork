@@ -102,7 +102,7 @@ blockquote {
     flex: 0 0 66.66667%;
     max-width: 66.66667%;
 }
-.text-secondary {
+.text-neutral {
     color: #595959 !important;
 }
 .text-right {

@@ -16,12 +16,11 @@ export default {
 </script>
 <style lang="scss">
 @import "~@bluemind/styleguide/css/variables";
-$custom-warning-color: theme-color-level("warning", $alert-bg-level);
 
 .conversation-list-item {
     .conversation-list-item-actions {
         display: none;
-        background-color: inherit !important;
+        background-color: $surface;
         position: absolute;
         height: calc(100% - #{$sp-2});
         top: $sp-1;
@@ -29,6 +28,16 @@ $custom-warning-color: theme-color-level("warning", $alert-bg-level);
         &:empty {
             display: none !important;
         }
+    }
+
+    &.warning-custom:not(.active) .conversation-list-item-actions > * {
+        background-color: $warning-bg-lo1;
+    }
+    &:hover .conversation-list-item-actions > * {
+        background-color: $neutral-bg-lo1;
+    }
+    &:hover.active .conversation-list-item-actions > * {
+        background-color: $secondary-bg;
     }
 
     @media only screen and (min-width: map-get($grid-breakpoints, "lg")) {

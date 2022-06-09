@@ -15,13 +15,13 @@
                 <div class="row align-items-center">
                     <div class="col-2 text-center mr-1"><pref-section-icon :section="section" /></div>
                     <div class="col">
-                        <div v-if="section.id === 'my_account'" class="text-white display-name">
+                        <div v-if="section.id === 'my_account'" class="display-name">
                             {{ userDisplayName }}
                         </div>
-                        <div v-else class="text-primary-or-white font-size-lg">{{ section.name }}</div>
+                        <div v-else class="section-name font-size-lg">{{ section.name }}</div>
                     </div>
                 </div>
-                <div v-if="section.id === 'my_account'" class="text-primary-or-white row">
+                <div v-if="section.id === 'my_account'" class="section-name row">
                     <div class="col-2" />
                     <div class="col">{{ $t("preferences.general.manage_account") }}</div>
                 </div>
@@ -79,13 +79,13 @@ export default {
 
 .pref-left-panel-nav .app-item {
     border-bottom: 0 !important;
-    background-color: $info-dark;
+    background-color: $fill-primary-bg;
     list-style: none;
     outline: none;
 
     &:hover,
     &.active {
-        background-color: darken($info-dark, 10%);
+        background-color: $fill-primary-bg-hi1;
     }
 
     &.active .arrow {
@@ -93,25 +93,25 @@ export default {
         height: 0;
         border-top: $sp-2 solid transparent;
         border-bottom: $sp-2 solid transparent;
-        border-right: $sp-2 solid $white;
+        border-right: $sp-2 solid $surface;
         top: calc(50% - #{$sp-2});
         right: 0;
-    }
-
-    .text-primary-or-white {
-        color: $white;
     }
 
     .font-size-lg {
         font-size: $font-size-lg;
     }
 
-    &.active .text-primary-or-white {
-        color: $primary;
-    }
-
     .display-name {
         font-size: 18px;
+        color: $fill-primary-fg;
+    }
+
+    .section-name {
+        color: $fill-primary-fg;
+    }
+    &.active .section-name {
+        color: $fill-primary-fg-hi1;
     }
 }
 </style>

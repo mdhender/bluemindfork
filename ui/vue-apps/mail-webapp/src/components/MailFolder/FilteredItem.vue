@@ -84,7 +84,7 @@ export default {
         display: flex;
         font-size: $font-size-sm;
         font-weight: $font-weight-bold;
-        color: $secondary;
+        color: $neutral-fg;
         *:first-child {
             @include text-overflow;
         }

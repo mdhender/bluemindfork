@@ -11,9 +11,9 @@
                     [<span class="font-italic">{{ $t("common.folder.draft") }}</span
                     >]
                 </span>
-                <span class="text-alternate-light d-none d-lg-inline-block">{{ formattedDraftSaveDate }}</span>
+                <span class="draft-save-date d-none d-lg-inline-block">{{ formattedDraftSaveDate }}</span>
             </div>
-            <div class="col d-flex justify-content-end align-items-center text-secondary">
+            <div class="col d-flex justify-content-end align-items-center text-neutral">
                 <mail-viewer-draft-toolbar-for-mobile
                     class="d-lg-none"
                     :conversation="conversation"
@@ -31,7 +31,7 @@
                     class="col-1 vertical-line vertical-line-after-avatar"
                     :class="{ 'vertical-line-transparent': index === conversation.messages.length - 1 }"
                 />
-                <span class="pl-3 text-alternate-light">{{ formattedDraftSaveDate }}</span>
+                <span class="draft-save-date pl-3">{{ formattedDraftSaveDate }}</span>
             </div>
         </template>
         <template slot="to">
@@ -75,8 +75,16 @@ export default {
 };
 </script>
 
-<style>
-.mail-conversation-viewer-draft .click-to-collapse-zone {
-    cursor: pointer;
+<style lang="scss">
+@import "@bluemind/styleguide/css/_variables.scss";
+
+.mail-conversation-viewer-draft {
+    .draft-save-date {
+        color: $neutral-fg-lo1;
+    }
+
+    .click-to-collapse-zone {
+        cursor: pointer;
+    }
 }
 </style>

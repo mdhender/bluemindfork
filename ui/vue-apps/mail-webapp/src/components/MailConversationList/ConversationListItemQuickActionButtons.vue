@@ -4,8 +4,8 @@
             <bm-button
                 :aria-label="removeAriaText(1, subject)"
                 :title="removeAriaText(1, subject)"
-                class="p-1 mr-2"
-                variant="inline-secondary"
+                class="p-1 mr-2 btn-no-hover-bg"
+                variant="inline-neutral"
                 @click.shift.exact.prevent.stop="REMOVE_CONVERSATIONS([conversation])"
                 @click.exact.prevent.stop="MOVE_CONVERSATIONS_TO_TRASH([conversation])"
             >
@@ -13,50 +13,50 @@
             </bm-button>
             <bm-button
                 v-if="isTemplate"
-                class="p-1"
+                class="p-1 btn-no-hover-bg"
                 :aria-label="$tc('mail.actions.edit_from_template.aria')"
                 :title="$tc('mail.actions.edit_from_template.aria')"
-                variant="inline-secondary"
+                variant="inline-neutral"
                 @click.prevent.stop="editFromTemplate(conversation)"
             >
                 <bm-icon icon="plus-enveloppe" size="lg" />
             </bm-button>
             <bm-button
                 v-else-if="showMarkAsRead"
-                class="p-1"
+                class="p-1 btn-no-hover-bg"
                 :aria-label="markAsReadAriaText(1, subject)"
                 :title="markAsReadAriaText(1, subject)"
-                variant="inline-secondary"
+                variant="inline-neutral"
                 @click.prevent.stop="markAsRead(conversation)"
             >
                 <bm-icon icon="read" size="lg" />
             </bm-button>
             <bm-button
                 v-else
-                class="p-1"
+                class="p-1 btn-no-hover-bg"
                 :aria-label="markAsUnreadAriaText(1, subject)"
                 :title="markAsUnreadAriaText(1, subject)"
-                variant="inline-secondary"
+                variant="inline-neutral"
                 @click.prevent.stop="markAsUnread(conversation)"
             >
                 <bm-icon icon="unread" size="lg" />
             </bm-button>
             <bm-button
                 v-if="showMarkAsFlagged"
-                class="p-1 ml-2"
+                class="p-1 ml-2 btn-no-hover-bg"
                 :aria-label="markAsFlaggedAriaText(1, subject)"
                 :title="markAsFlaggedAriaText(1, subject)"
-                variant="inline-secondary"
+                variant="inline-neutral"
                 @click.prevent.stop="markAsFlagged(conversation)"
             >
                 <bm-icon icon="flag-outline" size="lg" />
             </bm-button>
             <bm-button
                 v-else
-                class="p-1 ml-2"
+                class="p-1 ml-2 btn-no-hover-bg"
                 :aria-label="markAsUnflaggedAriaText(1, subject)"
                 :title="markAsUnflaggedAriaText(1, subject)"
-                variant="inline-secondary"
+                variant="inline-neutral"
                 @click.prevent.stop="markAsUnflagged(conversation)"
             >
                 <bm-icon class="text-warning" icon="flag-fill" size="lg" />

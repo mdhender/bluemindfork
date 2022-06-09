@@ -44,7 +44,7 @@ export default {
     }
 
     .search-pattern {
-        color: $info-dark;
+        color: $primary-fg-hi1;
         font-weight: $font-weight-bold;
         word-break: break-all;
     }

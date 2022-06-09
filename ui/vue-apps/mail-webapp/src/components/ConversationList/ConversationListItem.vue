@@ -98,7 +98,7 @@ export default {
     border-left: transparent solid 4px !important;
 
     &.not-seen {
-        border-left: theme-color("primary") 4px solid !important;
+        border-left: $secondary-fg 4px solid !important;
     }
 
     &.not-seen .mail-conversation-list-item-sender,
@@ -135,22 +135,19 @@ export default {
         display: none;
     }
 
-    // obtain the same enlightment that BAlert applies on $warning TODO move to variables.scss in SG
-    $custom-warning-color: theme-color-level("warning", $alert-bg-level);
-
     &.warning-custom:not(.active) {
-        background-color: $custom-warning-color;
+        background-color: $warning-bg-lo1;
     }
 
     &:hover {
-        background-color: $extra-light;
-        color: $dark;
+        background-color: $neutral-bg-lo1;
+        color: $neutral-fg-hi1;
         &.active {
-            background-color: $component-active-bg-darken;
+            background-color: $secondary-bg;
         }
     }
     &.active:focus {
-        background-color: $component-active-bg-darken;
+        background-color: $secondary-bg;
     }
 
     &[tabindex="-1"]:focus {

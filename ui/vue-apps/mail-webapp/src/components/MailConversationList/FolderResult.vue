@@ -1,5 +1,5 @@
 <template>
-    <div class="h-100 bg-extra-light">
+    <div class="folder-result h-100">
         <folder-result-content v-if="CONVERSATION_LIST_IS_RESOLVED" />
         <folder-result-spinner v-if="CONVERSATION_LIST_IS_LOADING" />
     </div>

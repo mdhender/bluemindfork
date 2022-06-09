@@ -1,5 +1,5 @@
 <template>
-    <bm-form class="mail-composer m-lg-3 flex-grow-1 d-flex flex-column bg-white">
+    <bm-form class="mail-composer m-lg-3 flex-grow-1 d-flex flex-column bg-surface">
         <h3 class="d-none d-lg-flex text-nowrap text-truncate card-header px-2 py-1">
             {{ panelTitle }}
         </h3>
@@ -88,7 +88,11 @@ export default {
     word-break: break-word !important;
 
     .mail-composer-splitter {
-        border-top-color: $alternate-light;
+        border-top-color: $neutral-fg-lo2;
+    }
+
+    .toolbar-menu.full-toolbar {
+        border-top-color: $neutral-fg-lo3;
     }
 
     .mail-composer-subject input,

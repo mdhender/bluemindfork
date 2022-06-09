@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="mb-2">{{ label }}</div>
-        <bm-button v-if="status === 'IDLE'" variant="outline-warning" @click="resetLocalData">
+        <bm-button v-if="status === 'IDLE'" variant="outline-danger" @click="resetLocalData">
             {{ text }}
         </bm-button>
         <template v-else-if="status === 'LOADING'">
@@ -60,8 +60,9 @@ export default {
             const confirm = await this.$bvModal.msgBoxConfirm(this.label, {
                 title: this.$t("preferences.advanced.reinit_local_data"),
                 okTitle: this.text,
-                cancelVariant: "outline-secondary",
                 cancelTitle: this.$t("common.cancel"),
+                okVariant: "secondary",
+                cancelVariant: "simple-neutral",
                 centered: true,
                 hideHeaderClose: false,
                 autoFocusButton: "ok"

@@ -1,5 +1,5 @@
 <template>
-    <div class="preview-attachment-header bg-light px-3 align-items-center">
+    <div class="preview-attachment-header px-3 align-items-center">
         <bm-icon :icon="fileTypeIcon" size="2x" class="align-bottom" />
         <span :title="part.fileName" class="font-weight-bold ml-2">{{ part.fileName }} </span>
     </div>
@@ -26,7 +26,10 @@ export default {
 };
 </script>
 <style lang="scss">
+@import "@bluemind/styleguide/css/_variables.scss";
+
 .preview-attachement-header {
     display: flex;
+    background-color: $neutral-bg;
 }
 </style>

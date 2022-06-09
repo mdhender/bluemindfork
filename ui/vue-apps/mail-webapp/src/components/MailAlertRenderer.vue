@@ -74,7 +74,7 @@ export default {
     a,
     a:visited {
         font-style: italic !important;
-        color: theme-color("dark") !important;
+        color: $neutral-fg !important;
 
         .mail-folder-icon {
             text-decoration: underline;

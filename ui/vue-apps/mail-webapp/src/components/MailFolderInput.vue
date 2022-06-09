@@ -150,7 +150,7 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 .mail-folder-input {
     .bm-form-input input:not(:focus) {
-        border-bottom-color: $light;
+        border-bottom-color: $neutral-fg-lo3;
     }
     .bm-notice {
         top: 30px;

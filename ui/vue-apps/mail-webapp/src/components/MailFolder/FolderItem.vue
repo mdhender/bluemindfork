@@ -4,7 +4,7 @@
         :accept="['conversation']"
         :value="folder"
         :class="{ active: isActive }"
-        class="folder-item align-items-center d-inline-flex border-bottom border-ligth pl-2"
+        class="folder-item align-items-center d-inline-flex pl-2"
     >
         <slot />
         <div v-if="!folder.writable" :title="$t('mail.folder.access.limited')" :class="isUnread ? 'pr-1' : 'pr-2'">
@@ -22,7 +22,7 @@
         <bm-counter-badge
             v-if="isUnread && !menuIsShown"
             :value="folder.unread"
-            :variant="isActive ? 'secondary' : 'primary'"
+            :variant="isActive ? 'neutral' : 'secondary'"
             class="mx-1 d-block"
             :class="{ 'read-only': !folder.writable }"
             :aria-label="$t('mail.folder.unread', { count: folder.unread })"
@@ -68,16 +68,17 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .folder-item {
+    border-bottom: 1px solid $neutral-fg-lo3;
     cursor: pointer;
     &:hover {
-        background-color: $extra-light;
-        color: $dark;
+        background-color: $neutral-bg-lo1;
+        color: $neutral-fg-hi1;
     }
     &.active {
-        background-color: $component-active-bg;
-        color: $dark;
+        background-color: $secondary-bg-lo1;
+        color: $neutral-fg-hi1;
         &:hover {
-            background-color: $component-active-bg-darken;
+            background-color: $secondary-bg;
         }
     }
     .mail-folder-item-menu,

@@ -31,7 +31,7 @@
                     <bm-icon :icon="fileTypeIcon" size="lg" />
                     <h2 class="mt-2 mb-4">{{ $t("preferences.display_containers.import_file." + container.type) }}</h2>
                     <div class="mb-2">{{ $t("common.or") }}</div>
-                    <bm-button variant="primary" @click="openFilePicker">{{ $t("common.browse") }}</bm-button>
+                    <bm-button variant="secondary" @click="openFilePicker">{{ $t("common.browse") }}</bm-button>
                 </div>
             </template>
         </bm-file-drop-zone>

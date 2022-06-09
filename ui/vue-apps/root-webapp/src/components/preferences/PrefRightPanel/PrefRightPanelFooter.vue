@@ -1,14 +1,14 @@
 <template>
-    <div v-if="HAS_CHANGED" class="d-flex mt-auto pl-5 py-3 border-top border-secondary">
+    <div v-if="HAS_CHANGED" class="d-flex mt-auto pl-5 py-3 border-top border-neutral">
         <bm-button
             type="submit"
-            variant="primary"
+            variant="secondary"
             :disabled="!HAS_CHANGED || HAS_ERROR || HAS_NOT_VALID"
             @click.prevent="SAVE"
         >
             {{ $t("common.save") }}
         </bm-button>
-        <bm-button type="reset" variant="simple-dark" class="ml-3" :disabled="!HAS_CHANGED" @click.prevent="CANCEL">
+        <bm-button type="reset" variant="simple-neutral" class="ml-3" :disabled="!HAS_CHANGED" @click.prevent="CANCEL">
             {{ $t("common.cancel") }}
         </bm-button>
     </div>

@@ -3,7 +3,7 @@
         <div class="h-50">
             <img class="" :src="folderFilterNoResults" :alt="$t('mail.folder.filter.no_results')" />
         </div>
-        <bm-button variant="inline-secondary" @click="$emit('clearFilter')">
+        <bm-button variant="inline-neutral" @click="$emit('clearFilter')">
             {{ $t("mail.folder.filter.remove") }}
         </bm-button>
     </div>

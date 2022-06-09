@@ -1,5 +1,5 @@
 <template>
-    <bm-button class="preview-message-header px-3 d-none d-lg-flex align-items-center" variant="simple-dark">
+    <bm-button class="preview-message-header px-3 d-none d-lg-flex align-items-center" variant="simple-neutral">
         <bm-icon :icon="icon" />
         <span class="font-weight-bold ml-2"> Message </span>
     </bm-button>
@@ -26,7 +26,7 @@ export default {
 
 .preview-message-header {
     &:hover {
-        background-color: $light;
+        background-color: $neutral-bg-lo1;
     }
 }
 </style>

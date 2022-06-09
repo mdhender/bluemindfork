@@ -2,7 +2,7 @@
     <div>
         <bm-dropdown
             :no-caret="true"
-            variant="simple-primary"
+            variant="simple-secondary"
             :aria-label="$tc('mail.toolbar.more.aria')"
             :title="$tc('mail.toolbar.more.aria')"
             class="other-viewer-actions"

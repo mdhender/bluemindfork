@@ -2,11 +2,11 @@
     <div class="folder-list-loading">
         <p class="sr-only"><slot /></p>
         <div aria-hidden="true">
-            <div v-if="hasName" class="pl-2 pt-3 pb-2 text-info-dark">
+            <div v-if="hasName" class="pl-2 pt-3 pb-2 title">
                 <bm-icon icon="caret-down" size="sm" class="bm-icon mr-2" />
                 <span class="font-weight-bold">{{ name }}</span>
             </div>
-            <div v-else class="pl-2 pt-3 pb-1 text-info-dark">
+            <div v-else class="pl-2 pt-3 pb-1 title">
                 <bm-skeleton width="80%" />
             </div>
             <bm-tree :tree="tree" :has-children-property="() => false">
@@ -46,6 +46,9 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .folder-list-loading {
+    .title {
+        color: $primary-fg;
+    }
     .bm-tree .b-skeleton {
         line-height: $line-height-sm;
         margin: 5px 0;

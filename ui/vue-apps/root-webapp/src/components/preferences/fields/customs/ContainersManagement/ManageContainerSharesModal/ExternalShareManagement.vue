@@ -17,14 +17,14 @@
                     />
                     <span v-else class="font-size-lg">{{ displayedLabel(external) }}</span>
                     <div class="row mr-3 align-items-center">
-                        <div class="text-secondary text-truncate col-8">{{ external.url }}</div>
+                        <div class="text-neutral text-truncate col-8">{{ external.url }}</div>
                         <div class="col-4 pl-2">
                             <bm-button v-if="activeCopyBtn === index" variant="success">
                                 <bm-label-icon icon="check">{{ $t("common.copied") }}</bm-label-icon>
                             </bm-button>
                             <bm-button
                                 v-else
-                                variant="outline-secondary"
+                                variant="outline-neutral"
                                 @click="copyLinkInClipboard(external.url, index)"
                             >
                                 <bm-label-icon icon="copy">{{ $t("common.copy") }}</bm-label-icon>
@@ -38,10 +38,10 @@
                         :options="publishModeOptions"
                         @input="editPublishMode(external)"
                     />
-                    <bm-button v-if="canRemoveLink(external)" variant="inline-secondary" @click="removeLink(external)">
+                    <bm-button v-if="canRemoveLink(external)" variant="inline-neutral" @click="removeLink(external)">
                         <bm-icon icon="trash" size="lg" />
                     </bm-button>
-                    <bm-button v-else variant="inline-secondary" @click="regenerateLink">
+                    <bm-button v-else variant="inline-neutral" @click="regenerateLink">
                         <bm-icon icon="loop" size="lg" />
                     </bm-button>
                 </div>

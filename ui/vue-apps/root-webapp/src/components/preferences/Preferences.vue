@@ -122,9 +122,10 @@ export default {
             if (this.$store.getters["preferences/fields/HAS_CHANGED"]) {
                 return await this.$bvModal.msgBoxConfirm(this.$t("preferences.leave_app.confirm"), {
                     title: this.$t("preferences.leave_app.confirm.title"),
-                    cancelVariant: "outline-secondary",
                     cancelTitle: this.$t("common.cancel"),
                     okTitle: this.$t("preferences.leave_app.confirm.button"),
+                    okVariant: "secondary",
+                    cancelVariant: "simple-neutral",
                     centered: true,
                     hideHeaderClose: false,
                     autoFocusButton: "cancel"

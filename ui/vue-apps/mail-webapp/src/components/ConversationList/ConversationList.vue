@@ -1,6 +1,6 @@
 <template>
     <bm-list-group
-        class="conversation-list bg-extra-light"
+        class="conversation-list"
         tabindex="0"
         @scroll="onScroll"
         @keyup.up.prevent="selectKey(byPosition(-1), $event)"
@@ -22,6 +22,7 @@
             v-for="conversation in conversations"
             :key="conversation.key"
             :set="(conversationIsSelected = isSelected(conversation.key))"
+            class="bg-surface"
         >
             <template v-if="CONVERSATION_IS_LOADED(conversation)">
                 <conversation-list-separator
@@ -284,6 +285,8 @@ function getDateRange(conversation, allDateRanges, currentDateRanges) {
 </script>
 
 <style lang="scss">
+@import "@bluemind/styleguide/css/_variables.scss";
+
 .conversation-list {
     overflow-x: hidden;
     overflow-y: auto;

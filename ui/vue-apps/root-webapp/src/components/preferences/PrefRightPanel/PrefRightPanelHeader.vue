@@ -1,18 +1,18 @@
 <template>
-    <div>
-        <div class="d-flex d-lg-none py-2 px-3 bg-info-dark align-items-center">
-            <bm-button variant="inline-light" @click="SET_SELECTED_SECTION(null)">
+    <div class="pref-right-panel-header">
+        <div class="d-flex d-lg-none py-2 px-3 align-items-center small-panel-header">
+            <bm-button variant="inline-on-fill-primary" @click="SET_SELECTED_SECTION(null)">
                 <bm-icon icon="arrow-back" size="2x" />
             </bm-button>
             <template v-if="!openedInMobile">
-                <h2 class="text-white">{{ selectedSection.name }}</h2>
-                <bm-button class="ml-auto" variant="inline-light" @click="openedInMobile = true">
+                <h2>{{ selectedSection.name }}</h2>
+                <bm-button class="ml-auto" variant="inline-on-fill-primary" @click="openedInMobile = true">
                     <bm-icon icon="search" size="2x" />
                 </bm-button>
             </template>
             <pref-search-input v-else class="flex-fill mx-3" />
         </div>
-        <div class="d-none d-lg-flex align-items-center">
+        <div class="d-none d-lg-flex align-items-center large-panel-header">
             <pref-search-input class="my-3 w-25" style="margin-left: 4rem;" />
             <bm-button-close size="lg" class="ml-auto mr-3" @click="$emit('close')" />
         </div>
@@ -49,3 +49,17 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.pref-right-panel-header {
+    .small-panel-header {
+        background-color: $fill-primary-bg;
+
+        h2 {
+            color: $fill-primary-fg;
+        }
+    }
+}
+</style>

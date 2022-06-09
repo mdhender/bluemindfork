@@ -176,8 +176,9 @@ export default {
                     {
                         title: this.$t(`mail.compose.confirm_delete.${kind}.title`),
                         okTitle: this.$t("common.delete"),
-                        cancelVariant: "outline-secondary",
                         cancelTitle: this.$t("common.cancel"),
+                        okVariant: "secondary",
+                        cancelVariant: "simple-neutral",
                         centered: true,
                         hideHeaderClose: false,
                         autoFocusButton: "ok"

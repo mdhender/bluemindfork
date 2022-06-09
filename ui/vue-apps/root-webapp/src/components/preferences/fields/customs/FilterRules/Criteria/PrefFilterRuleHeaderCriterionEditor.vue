@@ -1,9 +1,9 @@
 <template>
     <div class="pref-filter-rule-header-criterion-editor d-flex flex-fill">
         <div class="d-flex col-6">
-            <bm-button variant="outline-secondary" class="px-2 border font-weight-normal" @click="$emit('reset')">
+            <bm-button variant="outline-neutral" class="px-2 border font-weight-normal" @click="$emit('reset')">
                 {{ $t("preferences.mail.filters.target.HEADER", { name: "" }) }}
-                <bm-icon class="ml-1 text-dark" icon="caret-down" size="sm" />
+                <bm-icon class="ml-1 text-neutral" icon="caret-down" size="sm" />
             </bm-button>
             <bm-form-input
                 v-model="criterion.target.name"

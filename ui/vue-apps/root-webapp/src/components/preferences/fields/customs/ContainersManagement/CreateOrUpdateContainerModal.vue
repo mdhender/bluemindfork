@@ -163,6 +163,6 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .create-or-update-container-modal .fa-calendar {
-    color: $calendar-color;
+    color: $neutral-fg;
 }
 </style>

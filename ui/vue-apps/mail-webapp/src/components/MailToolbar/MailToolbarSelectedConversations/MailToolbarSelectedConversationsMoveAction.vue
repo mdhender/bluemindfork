@@ -3,8 +3,8 @@
         ref="move-dropdown"
         no-caret
         class="mail-toolbar-selected-conversations-move-action h-100"
-        variant="inline-light"
-        toggle-class="btn-lg-simple-dark"
+        variant="inline-on-fill-primary"
+        toggle-class="btn-lg-simple-neutral"
         :title="moveAriaText()"
         :aria-label="moveAriaText()"
         @shown="openMoveAutocomplete"
@@ -210,7 +210,7 @@ export default {
     .dropdown-item,
     .b-dropdown-form {
         &:hover {
-            background-color: $extra-light !important;
+            background-color: $neutral-bg-lo1 !important;
         }
 
         &:focus,

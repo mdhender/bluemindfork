@@ -1,5 +1,5 @@
 <template>
-    <div class="preview-attachment bg-dark">
+    <div class="preview-attachment">
         <part-viewer-facade :message="message" :part="part" />
     </div>
 </template>
@@ -27,6 +27,8 @@ export default {
 @import "@bluemind/styleguide/css/_variables.scss";
 
 .preview-attachment {
+    background-color: $highest;
+
     .part-viewer-facade {
         width: 100%;
         height: 100%;

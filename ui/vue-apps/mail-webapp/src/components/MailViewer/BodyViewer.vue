@@ -95,8 +95,14 @@ class CidSet extends Set {
 </script>
 
 <style lang="scss">
+@import "@bluemind/styleguide/css/_variables.scss";
+
 .body-viewer {
     display: flex;
     flex-direction: column;
+
+    .mail-attachments-block {
+        margin-bottom: $sp-2;
+    }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <div class="main-app d-flex flex-column h-100 bg-light">
+    <div class="main-app d-flex flex-column h-100">
         <global-events target="self" @resize="appHeight" @dragover.prevent />
         <system-alert-area v-if="systemAlerts.length > 0" :system-alerts="systemAlerts" @remove="systemAlerts = []" />
         <bm-banner v-if="showBanner" :applications="applications" :user="user" />
@@ -132,6 +132,10 @@ body {
     height: 100vh; // fallback for the following line (if not supported by browser)
     height: var(--app-height);
     overflow: hidden;
+}
+
+.main-app {
+    background-color: $backdrop;
 }
 
 .main-app > .main-alert-area {

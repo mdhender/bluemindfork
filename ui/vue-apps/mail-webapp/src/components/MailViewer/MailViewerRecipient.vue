@@ -1,6 +1,6 @@
 <template>
     <div class="mail-viewer-recipient d-flex mb-1">
-        <span class="text-secondary"><slot />&nbsp;</span>
+        <span class="text-neutral"><slot />&nbsp;</span>
         <div v-for="(recipient, index) in recipients" :key="recipient.address">
             <bm-contact :contact="recipient" variant="simple" /><template v-if="index != recipients.length - 1"
                 >,&nbsp;</template

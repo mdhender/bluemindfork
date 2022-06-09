@@ -1,10 +1,10 @@
 <template>
     <bm-dropdown
         :no-caret="true"
-        variant="inline-light"
+        variant="inline-on-fill-primary"
         :aria-label="$tc('mail.toolbar.more.aria')"
         :title="$tc('mail.toolbar.more.aria')"
-        toggle-class="btn-lg-simple-dark"
+        toggle-class="btn-lg-simple-neutral"
         class="mail-toolbar-consult-message-other-actions h-100"
         right
     >

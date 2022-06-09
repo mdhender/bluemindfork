@@ -9,10 +9,10 @@
             </template>
             <template #cell(editable)="cell">
                 <div v-if="cell.value" class="d-flex justify-content-end">
-                    <bm-button variant="inline-secondary" @click="$emit('edit', cell.item)">
+                    <bm-button variant="inline-neutral" @click="$emit('edit', cell.item)">
                         <bm-icon icon="pencil" size="lg" />
                     </bm-button>
-                    <bm-button variant="inline-secondary" @click="remove(cell.item)">
+                    <bm-button variant="inline-neutral" @click="remove(cell.item)">
                         <bm-icon icon="trash" size="lg" />
                     </bm-button>
                 </div>
@@ -54,8 +54,9 @@ export default {
                 {
                     title: this.$t("preferences.general.tags.remove", { name: item.label }),
                     okTitle: this.$t("common.delete"),
-                    cancelVariant: "outline-secondary",
                     cancelTitle: this.$t("common.cancel"),
+                    okVariant: "secondary",
+                    cancelVariant: "simple-neutral",
                     centered: true,
                     hideHeaderClose: false,
                     autoFocusButton: "ok"

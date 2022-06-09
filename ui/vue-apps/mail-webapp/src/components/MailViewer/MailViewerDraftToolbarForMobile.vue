@@ -1,14 +1,14 @@
 <template>
     <bm-dropdown
         :no-caret="true"
-        variant="simple-dark"
+        variant="simple-neutral"
         class="mail-viewer-draft-toolbar-for-mobile d-flex justify-content-end"
         :aria-label="$tc('mail.toolbar.more.aria')"
         :title="$tc('mail.toolbar.more.aria')"
         v-on="$listeners"
     >
         <template slot="button-content">
-            <bm-icon class="text-primary" icon="3dots" size="2x" />
+            <bm-icon class="text-secondary" icon="3dots" size="2x" />
         </template>
         <bm-dropdown-item-button @click="$emit('edit')">
             <bm-icon icon="pencil" size="1x" />
@@ -53,7 +53,7 @@ export default {
 
 .mail-viewer-draft-toolbar-for-mobile {
     .dropdown-divider {
-        border-top: 1px solid $alternate-light !important;
+        border-top: 1px solid $neutral-fg-lo2 !important;
         margin: 0.05rem 0;
     }
     .dropdown-menu {

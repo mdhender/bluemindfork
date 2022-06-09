@@ -1,7 +1,7 @@
 <template>
     <div>
         <bm-container
-            class="mail-attachment-item bg-white border border-light text-condensed py-2 px-2 mt-2"
+            class="mail-attachment-item text-condensed py-2 px-2 mt-2"
             :class="isRemovable ? '' : 'cursor-pointer'"
             @click="isViewable(attachment) ? openPreview() : download()"
         >
@@ -9,6 +9,7 @@
                 v-if="!compact"
                 ref="preview-div"
                 class="text-center preview overflow-hidden d-flex justify-content-center align-items-center"
+                :class="fileTypeIcon"
             >
                 <img
                     v-if="hasPreview"
@@ -19,8 +20,8 @@
                     :alt="$tc('common.attachmentPreview')"
                     @load="previewImageLoaded"
                 />
-                <div v-else class="preview w-100 text-center mb-1 bg-light p-1">
-                    <bm-icon :icon="fileTypeIcon" size="6x" class="m-auto bg-white preview-file-type" />
+                <div v-else class="preview w-100 text-center mb-1 p-1">
+                    <bm-icon :icon="fileTypeIcon" size="6x" class="m-auto preview-file-type" />
                 </div>
             </div>
             <bm-row class="no-gutters align-items-center">
@@ -42,7 +43,7 @@
                 <bm-col class="col-auto py-1">
                     <bm-button
                         v-if="isViewable(attachment)"
-                        variant="light"
+                        variant="inline-neutral"
                         class="p-0"
                         size="md"
                         :title="$t('mail.preview.open')"
@@ -53,7 +54,7 @@
 
                     <bm-button
                         v-if="!isRemovable"
-                        variant="light"
+                        variant="inline-neutral"
                         class="p-0"
                         size="md"
                         :title="$t('common.downloadAttachment')"
@@ -71,7 +72,7 @@
                     </bm-button>
                     <bm-button-close
                         v-if="isRemovable"
-                        variant="light"
+                        variant="inline-neutral"
                         class="p-0 remove-attachment"
                         size="md"
                         :title="isCancellable ? $tc('common.cancel') : $tc('common.removeAttachment')"
@@ -85,7 +86,7 @@
                 :value="attachment.progress.loaded"
                 :max="attachment.progress.total"
                 :animated="attachment.progress.animated"
-                :variant="errorMessage ? 'danger' : 'primary'"
+                :variant="errorMessage ? 'danger' : 'secondary'"
             />
         </bm-container>
         <div v-if="errorMessage" class="row px-1"><bm-notice class="w-100" :text="errorMessage" /></div>
@@ -201,9 +202,18 @@ export default {
 
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
+@import "@bluemind/styleguide/css/_fileTypeIconsColors.scss";
 
 .mail-attachment-item {
     position: relative;
+
+    background-color: $surface;
+    border: 1px solid $neutral-fg-lo3;
+
+    &:hover {
+        background-color: $neutral-bg;
+        border-color: $neutral-fg-lo3;
+    }
 
     &.cursor-pointer {
         cursor: pointer;
@@ -220,15 +230,28 @@ export default {
     }
 
     .preview {
+        background-color: $neutral-bg;
         height: 7em;
+    }
+    .preview-file-type {
+        color: $neutral-bg;
+        background-color: $lowest;
+    }
+    &:hover {
+        @each $file-type, $color in $file-type-icons-colors {
+            .#{$file-type} {
+                .preview {
+                    background-color: $color;
+                }
+                .preview-file-type {
+                    color: $color;
+                }
+            }
+        }
     }
 
     .muted {
         opacity: 0.5;
-    }
-
-    .preview-file-type {
-        color: $light !important;
     }
 
     .attachment-text {

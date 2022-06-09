@@ -1,7 +1,7 @@
 <template>
     <div class="pref-downloads">
         <h1 v-if="downloads.length === 0">
-            <em class="text-secondary">{{ $t("preferences.downloads.none") }}</em>
+            <em class="text-neutral">{{ $t("preferences.downloads.none") }}</em>
         </h1>
         <div v-else class="row">
             <pref-download v-for="(download, index) in downloads" :key="index" class="col-5 m-3" :download="download" />

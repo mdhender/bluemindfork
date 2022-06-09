@@ -5,7 +5,7 @@
             :value="quota.used"
             :max="quota.total"
             class="d-inline-block mr-3"
-            :variant="usedQuotaPercentage > USED_QUOTA_PERCENTAGE_WARNING ? 'danger' : 'primary'"
+            :variant="usedQuotaPercentage > USED_QUOTA_PERCENTAGE_WARNING ? 'danger' : 'secondary'"
             show-progress
         >
             <template v-if="hasNoQuota">{{ $t("preferences.mail.quota.unlimited") }}</template>

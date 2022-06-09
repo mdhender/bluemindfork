@@ -17,7 +17,7 @@
         <template #modal-footer>
             <bm-button
                 v-if="!showAvailabilitiesManagement"
-                variant="simple-secondary"
+                variant="simple-neutral"
                 @click="showAvailabilitiesManagement = true"
             >
                 {{ $t("preferences.calendar.my_calendars.availabilities_advanced_management") }}

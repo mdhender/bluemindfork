@@ -1,13 +1,12 @@
 <template>
     <bm-navbar
         :aria-label="$t('banner.label')"
-        type="dark"
-        variant="info-dark"
+        variant="primary"
         class="bm-banner p-0 align-items-center d-none d-lg-flex"
     >
         <bm-button
             id="all-apps-popover"
-            variant="inline-light"
+            variant="inline-on-fill-primary"
             class="px-3"
             :title="$t('banner.reach.all_apps')"
             :aria-label="$t('banner.reach.all_apps')"
@@ -77,13 +76,14 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/styleguide/css/mixins/_buttons";
 
 .bm-banner {
     min-height: fit-content;
 }
 
 .bm-banner .app-title {
-    color: $primary;
+    color: $secondary-fg;
 }
 
 .bm-banner .fa-9dots {

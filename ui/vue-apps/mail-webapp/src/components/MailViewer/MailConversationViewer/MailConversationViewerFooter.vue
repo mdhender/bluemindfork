@@ -1,7 +1,7 @@
 <template>
     <bm-button-toolbar key-nav class="mail-conversation-viewer-footer py-3">
         <bm-button
-            variant="primary"
+            variant="secondary"
             :aria-label="$t('mail.content.reply.aria')"
             @click="reply(conversation, lastNonDraft)"
         >
@@ -12,7 +12,7 @@
         </bm-button>
         <span class="pl-3" />
         <bm-button
-            variant="primary"
+            variant="secondary"
             :aria-label="$t('mail.content.reply_all.aria')"
             @click="replyAll(conversation, lastNonDraft)"
         >

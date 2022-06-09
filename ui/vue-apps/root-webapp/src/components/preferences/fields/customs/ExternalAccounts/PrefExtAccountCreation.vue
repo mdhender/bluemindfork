@@ -25,7 +25,7 @@
                             :title="externalSystem.description"
                         />
                     </div>
-                    <h2 class="text-dark mt-3">
+                    <h2 class="mt-3">
                         {{ externalSystem.identifier }}
                     </h2>
                 </bm-button>
@@ -129,8 +129,12 @@ async function fetchAndConsolidateExternalAccounts(externalSystems) {
     .pref-ext-account-creation-button {
         background-color: $blue-100;
         &:focus {
-            outline: 1px $secondary dashed;
+            outline: 1px $neutral-fg dashed;
         }
+    }
+
+    h2 {
+        color: $neutral-fg-hi1;
     }
 }
 </style>

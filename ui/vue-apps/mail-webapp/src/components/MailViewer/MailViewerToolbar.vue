@@ -1,7 +1,7 @@
 <template>
     <bm-button-toolbar key-nav class="mail-viewer-toolbar bg-surface">
         <bm-button
-            variant="simple-primary"
+            variant="simple-secondary"
             :aria-label="$t('mail.content.reply.aria')"
             :title="$t('mail.content.reply.aria')"
             @click="reply(conversation, message)"
@@ -10,7 +10,7 @@
             <span class="d-lg-none">{{ $t("mail.content.reply.aria") }}</span>
         </bm-button>
         <bm-button
-            variant="simple-primary"
+            variant="simple-secondary"
             :aria-label="$t('mail.content.reply_all.aria')"
             :title="$t('mail.content.reply_all.aria')"
             @click="replyAll(conversation, message)"
@@ -19,7 +19,7 @@
             <span class="d-lg-none">{{ $t("mail.content.reply_all.aria") }}</span>
         </bm-button>
         <bm-button
-            variant="simple-primary"
+            variant="simple-secondary"
             :aria-label="$t('common.forward')"
             :title="$t('common.forward')"
             @click="forward(message)"
@@ -70,7 +70,7 @@ export default {
 @media (max-width: map-get($grid-breakpoints, "lg")) {
     .mail-viewer-toolbar {
         bottom: 0;
-        box-shadow: 0 -0.125rem 0.125rem rgba($dark, 0.25);
+        box-shadow: 0 -0.125rem 0.125rem rgba($highest, 0.25);
     }
 }
 </style>

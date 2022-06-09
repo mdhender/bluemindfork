@@ -123,11 +123,11 @@ $field-left-margin: calc(#{$circled-number-size} + #{$circled-number-right-margi
                 margin-right: $circled-number-right-margin;
 
                 border-radius: 50%;
-                border: solid 1px $primary;
+                border: solid 1px $secondary-fg;
 
                 font-size: $h1-font-size;
                 font-weight: $font-weight-light;
-                color: $primary;
+                color: $secondary-fg;
                 margin-bottom: 0;
                 line-height: 1.375;
             }
@@ -164,13 +164,13 @@ $field-left-margin: calc(#{$circled-number-size} + #{$circled-number-right-margi
     }
 
     footer {
-        border-top: 1px solid $light;
+        border-top: 1px solid $neutral-fg-lo3;
     }
 
     .border,
     .bm-form-select .btn,
     .bm-form-input input {
-        border-color: $alternate-light !important;
+        border-color: $neutral-fg-lo2 !important;
     }
 }
 </style>

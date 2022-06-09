@@ -1,6 +1,6 @@
 <template>
     <div class="reply-to-invitation">
-        <div v-if="currentEvent.loading === LoadingStatus.LOADED" class="header px-3 pt-2 pb-3 bg-extra-light">
+        <div v-if="currentEvent.loading === LoadingStatus.LOADED" class="header px-3 pt-2 pb-3">
             <div class="font-weight-bold mb-1 d-block top">
                 <template v-if="!currentEvent.status || currentEvent.status === 'NeedsAction'">
                     <bm-icon icon="calendar" class="mr-2" size="lg" />
@@ -39,7 +39,7 @@
             </div>
             <div v-if="message.eventInfo.needsReply && currentEvent.status" class="mt-3">
                 <bm-button
-                    variant="outline-primary"
+                    variant="outline-secondary"
                     class="mr-2 px-1"
                     :class="currentEvent.status === 'Accepted' ? 'active' : ''"
                     @click="answer('Accepted')"
@@ -47,7 +47,7 @@
                     <bm-label-icon icon="check" icon-size="lg">{{ $t("common.accept") }}</bm-label-icon>
                 </bm-button>
                 <bm-button
-                    variant="outline-primary"
+                    variant="outline-secondary"
                     class="mr-2 px-1"
                     :class="currentEvent.status === 'Tentative' ? 'active' : ''"
                     @click="answer('Tentative')"
@@ -57,7 +57,7 @@
                     </bm-label-icon>
                 </bm-button>
                 <bm-button
-                    variant="outline-primary"
+                    variant="outline-secondary"
                     class="px-1"
                     :class="currentEvent.status === 'Declined' ? 'active' : ''"
                     @click="answer('Declined')"
@@ -66,7 +66,7 @@
                 </bm-button>
             </div>
         </div>
-        <div v-else-if="currentEvent.loading === LoadingStatus.LOADING" class="header px-3 pt-2 pb-3 bg-extra-light">
+        <div v-else-if="currentEvent.loading === LoadingStatus.LOADING" class="header px-3 pt-2 pb-3">
             <div class="font-weight-bold mb-1 d-block top">
                 <bm-skeleton width="30%" />
             </div>
@@ -138,15 +138,17 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .reply-to-invitation {
+    background-color: $neutral-bg-lo1;
+
     .header .top {
         .fa-check {
-            color: $green;
+            color: $success-fg;
         }
         .fa-cross {
-            color: $red;
+            color: $danger-fg;
         }
         .fa-interrogation {
-            color: $purple;
+            color: $info-fg;
         }
     }
 }

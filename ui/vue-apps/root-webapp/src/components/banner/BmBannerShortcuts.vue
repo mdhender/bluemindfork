@@ -41,17 +41,17 @@ export default {
 
 .bm-banner-shortcuts .router-link-active,
 .bm-banner-shortcuts .nav-link:hover {
-    color: $primary !important;
-    border-color: $primary !important;
+    color: $fill-primary-fg-hi1 !important;
+    border-color: $fill-primary-fg-hi1 !important;
 }
 
 .bm-banner-shortcuts .nav-link.router-link-active {
-    color: $primary !important;
+    color: $fill-primary-fg-hi1 !important;
     font-weight: $font-weight-bold;
 }
 
 .bm-banner-shortcuts .nav-link {
     border-bottom: transparent solid 3px;
-    color: color-yiq(theme-color("info-dark")) !important;
+    color: $fill-primary-fg !important;
 }
 </style>

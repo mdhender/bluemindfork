@@ -1,12 +1,12 @@
 <template>
     <div class="pref-tags-subset">
         <span :class="{ disabled: tags.length === 0 }">{{ title }}</span>
-        <bm-button variant="inline-secondary" size="lg" :disabled="tags.length === 0" @click="showTable_ = !showTable_">
+        <bm-button variant="inline-neutral" size="lg" :disabled="tags.length === 0" @click="showTable_ = !showTable_">
             <bm-icon :icon="showTable ? 'chevron' : 'chevron-right'" />
         </bm-button>
         <pref-tags-table v-if="showTable" class="pref-item-width" :tags="tags" v-on="$listeners" />
         <div v-if="editable" class="d-flex justify-content-end pref-item-width">
-            <bm-button variant="outline-secondary" @click="$emit('edit', {})">
+            <bm-button variant="outline-neutral" @click="$emit('edit', {})">
                 <bm-icon icon="plus" class="mr-1" />
                 {{ $t("preferences.general.tags.create") }}
             </bm-button>
@@ -51,7 +51,7 @@ export default {
 
 .pref-tags-subset {
     .disabled {
-        color: $alternate-light;
+        color: $neutral-fg-disabled;
     }
 }
 </style>

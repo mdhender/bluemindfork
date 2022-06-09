@@ -42,23 +42,25 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
 .text-plain-part-viewer {
     .reply {
         margin-left: 1rem;
         padding-left: 1rem;
-        border-left: 2px solid black;
+        border-left: 2px solid $highest;
     }
     .forwarded {
         margin-left: 1rem;
         padding-left: 1rem;
-        color: purple;
+        color: $purple;
     }
     pre {
         white-space: pre-line;
         font-family: "Montserrat", sans-serif;
         font-size: 0.75rem;
         font-weight: 400;
-        color: #2f2f2f;
+        color: $neutral-fg-hi1;
     }
 
     margin: 0;

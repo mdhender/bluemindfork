@@ -7,7 +7,7 @@
             <!-- FIXME when doing "The Wire" MVP: need to write a doc page here to explain mailbox offlineSync -->
             <!-- <a href="">{{ $t("common.read_more") }}</a> -->
         </bm-form-checkbox>
-        <bm-button variant="outline-secondary" class="mt-3" @click="openShareModal">
+        <bm-button variant="outline-neutral" class="mt-3" @click="openShareModal">
             {{ $t("common.manage_my_shares") }}
         </bm-button>
         <manage-container-shares-modal ref="manage-shares" />

@@ -62,6 +62,6 @@ export default {
 @import "~@bluemind/styleguide/css/variables";
 .mail-conversation-list {
     outline: none;
-    border-right: 1px solid $alternate-light;
+    border-right: 1px solid $neutral-fg-lo2;
 }
 </style>

@@ -15,7 +15,7 @@
         </template>
         <template #cell(name)="row"><slot name="item" :container="row.item" /></template>
         <template #cell(ownerDisplayname)="row">
-            <span class="font-italic text-secondary">{{ $t("common.shared_by", { name: row.value }) }}</span>
+            <span class="font-italic text-neutral">{{ $t("common.shared_by", { name: row.value }) }}</span>
         </template>
         <template #cell(share)="row">
             <bm-button v-if="isManaged(row.item)" variant="inline" @click="openShareModal(row.item)">
@@ -45,7 +45,7 @@
                     <bm-icon icon="trash" size="lg" />
                 </bm-button>
             </template>
-            <bm-button v-else variant="outline-secondary" @click="toggleSubscription(row.item)">
+            <bm-button v-else variant="outline-neutral" @click="toggleSubscription(row.item)">
                 <template v-if="isSubscribed(row.item)">{{ $t("common.unsubscribe") }}</template>
                 <template v-else>{{ $t("common.subscribe") }}</template>
             </bm-button>
@@ -150,8 +150,9 @@ export default {
             const confirm = await this.$bvModal.msgBoxConfirm(modalContent, {
                 title: this.$t("common.delete"),
                 okTitle: this.$t("common.delete"),
-                cancelVariant: "outline-secondary",
                 cancelTitle: this.$t("common.cancel"),
+                okVariant: "secondary",
+                cancelVariant: "simple-neutral",
                 centered: true,
                 hideHeaderClose: false,
                 autoFocusButton: "ok"
@@ -167,8 +168,9 @@ export default {
                 {
                     title: this.$t("common.action.empty"),
                     okTitle: this.$t("common.action.empty"),
-                    cancelVariant: "outline-secondary",
                     cancelTitle: this.$t("common.cancel"),
+                    okVariant: "secondary",
+                    cancelVariant: "simple-neutral",
                     centered: true,
                     hideHeaderClose: false,
                     autoFocusButton: "ok"

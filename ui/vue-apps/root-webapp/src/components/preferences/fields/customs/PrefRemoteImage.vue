@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!collapsed" class="ml-4 text-secondary">
+    <div v-if="!collapsed" class="ml-4 text-neutral">
         <bm-icon icon="info-circle" class="mr-1 mt-1" />
         <pref-read-more-label :href="readMore" :text="$t('preferences.mail.remote.images.explanations')" />
     </div>

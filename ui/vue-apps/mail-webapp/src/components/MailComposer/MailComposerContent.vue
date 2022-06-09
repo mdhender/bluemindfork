@@ -14,7 +14,7 @@
         </template>
         <bm-file-drop-zone class="z-index-110 flex-grow-1" inline file-type-regex="image/(jpeg|jpg|png|gif)">
             <template #dropZone>
-                <bm-icon class="text-dark" icon="file-type-image" size="2x" />
+                <bm-icon class="text-neutral" icon="file-type-image" size="2x" />
                 <h2 class="text-center p-2">{{ $tc("mail.new.images.drop.zone", draggedFilesCount) }}</h2>
             </template>
             <bm-rich-editor
@@ -27,7 +27,7 @@
             >
                 <bm-button
                     v-if="messageCompose.collapsedContent"
-                    variant="outline-dark"
+                    variant="outline-neutral"
                     class="align-self-start mb-1"
                     @click="expandContent"
                 >

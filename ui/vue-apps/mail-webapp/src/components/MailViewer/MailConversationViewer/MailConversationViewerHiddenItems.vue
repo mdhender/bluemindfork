@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-conversation-viewer-hidden-items bg-light">
+    <div class="mail-conversation-viewer-hidden-items">
         <div class="pl-5 row">
             <div class="col-1 vertical-line" />
             <div class="col spacer" />
@@ -10,7 +10,7 @@
             </div>
             <div class="col pl-3 align-self-center">
                 <bm-button
-                    class="font-weight-bold text-secondary pl-0"
+                    class="font-weight-bold text-neutral pl-0"
                     variant="link"
                     @click="$emit('do-show-hidden-messages')"
                 >
@@ -52,3 +52,11 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.mail-conversation-viewer-hidden-items {
+    background-color: $neutral-bg;
+}
+</style>

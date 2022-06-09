@@ -100,13 +100,13 @@ export default {
     }
     .mail-attachments {
         padding: $sp-2 $sp-4;
-        background-color: $light;
+        background-color: $neutral-bg-lo1;
         .mail-attachment-item {
             border-width: 2px !important;
         }
 
         .active .mail-attachment-item {
-            border-color: $primary !important;
+            border-color: $secondary-fg !important;
         }
     }
 }

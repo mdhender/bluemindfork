@@ -33,7 +33,7 @@
         <bm-counter-badge
             v-if="folder.unread > 0 && !menuIsShown"
             :value="folder.unread"
-            :variant="folder.key != activeFolder ? 'secondary' : 'primary'"
+            :variant="folder.key != activeFolder ? 'neutral' : 'secondary'"
             class="mx-1 d-block"
             :class="{ 'read-only': !folder.writable }"
             :aria-label="$t('mail.folder.unread', { count: folder.unread })"

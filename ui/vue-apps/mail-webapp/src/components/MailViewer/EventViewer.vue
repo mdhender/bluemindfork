@@ -125,7 +125,7 @@ export default {
 .event-viewer {
     .invitation {
         .bm-label-icon {
-            color: $calendar-color;
+            color: $neutral-fg;
             margin-left: #{-1rem - $sp-3};
 
             svg {

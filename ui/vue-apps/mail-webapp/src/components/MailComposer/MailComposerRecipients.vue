@@ -16,7 +16,7 @@
             <bm-col cols="1" class="text-center">
                 <bm-button
                     v-if="displayedRecipientFields == recipientModes.TO"
-                    variant="simple-dark"
+                    variant="simple-neutral"
                     @click="displayedRecipientFields = recipientModes.TO | recipientModes.CC | recipientModes.BCC"
                 >
                     <bm-icon icon="chevron" />
@@ -40,7 +40,7 @@
             </div>
             <bm-button
                 v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC)"
-                variant="simple-dark"
+                variant="simple-neutral"
                 class="my-2 mr-1"
                 @click="displayedRecipientFields = recipientModes.TO | recipientModes.CC | recipientModes.BCC"
             >

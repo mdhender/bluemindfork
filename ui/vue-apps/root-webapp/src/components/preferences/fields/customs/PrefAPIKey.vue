@@ -1,7 +1,7 @@
 <template>
     <div class="pref-api-key">
         <div class="mb-2">{{ $t("preferences.security.api_key.desc") }}</div>
-        <bm-button variant="outline-secondary" @click="openModal">
+        <bm-button variant="outline-neutral" @click="openModal">
             <bm-icon icon="plus" />
             {{ $t("preferences.security.api_key.generate") }}
         </bm-button>
@@ -27,13 +27,13 @@
 
         <bm-table :items="keys" :fields="fields" :per-page="perPage" :current-page="currentPage" sort-by="displayName">
             <template #cell(displayName)="row">
-                <bm-icon class="text-primary mr-2" icon="key" size="lg" /> {{ row.value }}
+                <bm-icon class="text-secondary mr-2" icon="key" size="lg" /> {{ row.value }}
             </template>
             <template #cell(sid)="row">
                 <div class="d-flex justify-content-between align-items-center">
                     {{ row.value }}
                     <bm-button
-                        :variant="lastCopiedSid === row.value ? 'success' : 'outline-secondary'"
+                        :variant="lastCopiedSid === row.value ? 'success' : 'outline-neutral'"
                         class="ml-4"
                         @click="copySid(row.value)"
                     >
@@ -45,7 +45,7 @@
                 </div>
             </template>
             <template #cell(action)="row">
-                <bm-button variant="inline-secondary" @click="remove(row.item)">
+                <bm-button variant="inline-neutral" @click="remove(row.item)">
                     <bm-icon icon="trash" size="lg" />
                 </bm-button>
             </template>
@@ -128,7 +128,8 @@ export default {
             const confirm = await this.$bvModal.msgBoxConfirm(modalContent, {
                 title: this.$t("common.delete"),
                 okTitle: this.$t("common.delete"),
-                cancelVariant: "outline-secondary",
+                okVariant: "secondary",
+                cancelVariant: "outline-neutral",
                 cancelTitle: this.$t("common.cancel"),
                 centered: true,
                 hideHeaderClose: false,

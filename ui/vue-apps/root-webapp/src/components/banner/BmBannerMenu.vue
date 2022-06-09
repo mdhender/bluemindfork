@@ -41,7 +41,6 @@
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
 import { BmAvatar, BmDropdownItem, BmNavbarNav, BmNavItem, BmNavItemDropdown } from "@bluemind/styleguide";
-import { green, white } from "@bluemind/styleguide/css/exports/colors.scss";
 
 import { mapMutations, mapState } from "vuex";
 
@@ -71,9 +70,9 @@ export default {
         ...mapState("root-app", ["isOnline"]),
         status() {
             if (this.isOnline) {
-                return { color: green, label: this.$t("common.status.online") };
+                return { color: "var(--fill-success-bg)", label: this.$t("common.status.online") };
             } else {
-                return { color: white, label: this.$t("common.status.offline") };
+                return { color: "var(--neutral-bg)", label: this.$t("common.status.offline") };
             }
         },
         loginUrl() {
@@ -88,7 +87,6 @@ export default {
 
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
-$contrasted-color: color-yiq(theme-color("info-dark")) !important;
 
 .bm-banner-user {
     min-width: 10rem;
@@ -100,44 +98,44 @@ $contrasted-color: color-yiq(theme-color("info-dark")) !important;
     .dropdown-menu,
     .nav-link,
     .dropdown {
-        background-color: theme-color-level("info-dark", 4) !important;
-        color: $contrasted-color;
+        background-color: $fill-primary-bg-hi1 !important;
+        color: $fill-primary-fg !important;
         text-decoration: none;
         &:active,
         &:hover,
         &:focus,
         &:hover::before {
             text-decoration: none;
-            color: $primary !important;
-            background-color: theme-color-level("info-dark", 4) !important;
+            color: $fill-primary-fg-hi1 !important;
+            background-color: $fill-primary-bg-hi1 !important;
         }
         &:visited {
             text-decoration: none;
-            background-color: theme-color-level("info-dark", 4) !important;
+            background-color: $fill-primary-bg-hi1 !important;
         }
     }
 
     &.offline .dropdown,
     &.offline .nav-link {
-        background-color: $gray-900 !important;
+        background-color: $fill-neutral-bg-hi1 !important;
         &:active,
         &:visited,
         &:hover,
         &:focus,
         &:hover::before {
-            color: $contrasted-color !important;
-            background-color: $gray-900 !important;
+            color: $fill-neutral-fg-hi1 !important;
+            background-color: $fill-neutral-bg-hi1 !important;
         }
     }
 
     .dropdown-item {
-        color: $contrasted-color;
+        color: $fill-primary-fg;
         &:focus,
         &:hover,
         &:active,
         &:active:focus {
             background-color: unset;
-            color: $primary !important;
+            color: $fill-primary-fg-hi1 !important;
         }
     }
 

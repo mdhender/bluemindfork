@@ -16,14 +16,14 @@
         <template #default>
             <div class="d-flex">
                 <div class="mr-4">
-                    <bm-icon icon="folder" size="5x" class="mr-2 text-secondary" />
+                    <bm-icon icon="folder" size="5x" class="mr-2 text-neutral" />
                 </div>
                 <div class="modal-form-autocomplete flex-fill position-relative">
                     <p>{{ $t("mail.actions.choose_folder.modal.combo.label") }}</p>
                     <bm-form-autocomplete-input
                         ref="autocomplete-input"
                         v-model.trim="pattern"
-                        variant="outline-secondary"
+                        variant="outline-neutral"
                         :items="itemsOrDefaults()"
                         :state="inputState"
                         icon="search"

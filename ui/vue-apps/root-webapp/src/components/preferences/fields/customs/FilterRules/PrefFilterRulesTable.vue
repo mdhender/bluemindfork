@@ -20,17 +20,17 @@
             </template>
             <template #cell(name)="cell">
                 <div class="d-flex align-items-center" @click="cell.toggleDetails">
-                    <bm-button class="pl-0" variant="inline-secondary">
+                    <bm-button class="pl-0" variant="inline-neutral">
                         <bm-icon :icon="cell.detailsShowing ? 'chevron' : 'chevron-right'" size="lg" />
                     </bm-button>
                     <h2>
-                        <span class="mr-2 text-nowrap" :class="{ 'text-alternate-light': !cell.item.active }">
+                        <span class="filter-name mr-2 text-nowrap" :class="{ 'filter-inactive': !cell.item.active }">
                             {{ cell.value || $t("preferences.mail.filters.unnamed") }}
                         </span>
                     </h2>
                     <span class="text-truncate flex-fill">{{ buildDesc(cell.item) }}</span>
                     <h2 v-if="cell.item.terminal">
-                        <bm-badge class="ml-3" variant="secondary" pill>
+                        <bm-badge class="ml-3" variant="neutral" pill>
                             {{ $t("preferences.mail.filters.terminal") }}
                         </bm-badge>
                     </h2>
@@ -38,16 +38,16 @@
             </template>
             <template #cell(editable)="cell">
                 <div v-if="cell.value" class="d-flex justify-content-end">
-                    <bm-button variant="inline-secondary" @click="$emit('up', cell.item)">
+                    <bm-button variant="inline-neutral" @click="$emit('up', cell.item)">
                         <bm-icon icon="arrow-up" size="lg" />
                     </bm-button>
-                    <bm-button variant="inline-secondary" @click="$emit('down', cell.item)">
+                    <bm-button variant="inline-neutral" @click="$emit('down', cell.item)">
                         <bm-icon icon="arrow-down" size="lg" />
                     </bm-button>
-                    <bm-button variant="inline-secondary" @click="$emit('edit', cell.item)">
+                    <bm-button variant="inline-neutral" @click="$emit('edit', cell.item)">
                         <bm-icon icon="pencil" size="lg" />
                     </bm-button>
-                    <bm-button variant="inline-secondary" @click="remove(cell.item)">
+                    <bm-button variant="inline-neutral" @click="remove(cell.item)">
                         <bm-icon icon="trash" size="lg" />
                     </bm-button>
                 </div>
@@ -99,8 +99,9 @@ export default {
                 {
                     title: this.$t("preferences.mail.filters.remove", { name: item.label }),
                     okTitle: this.$t("common.delete"),
-                    cancelVariant: "outline-secondary",
                     cancelTitle: this.$t("common.cancel"),
+                    okVariant: "secondary",
+                    cancelVariant: "simple-neutral",
                     centered: true,
                     hideHeaderClose: false,
                     autoFocusButton: "ok"
@@ -119,11 +120,16 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
 .pref-filter-rules-table {
     .filter-info {
         width: 100%;
         max-width: 0; // needed by sub elements with text-truncate class
         cursor: pointer;
+    }
+    .filter-name.filter-inactive {
+        color: $neutral-fg-disabled;
     }
 }
 </style>

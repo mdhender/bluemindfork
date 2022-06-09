@@ -78,7 +78,7 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/variables";
 .mail-conversation-list-header {
-    border-bottom: 1px solid $alternate-light;
+    border-bottom: 1px solid $neutral-fg-lo2;
     padding: 0.5rem;
 }
 
@@ -87,7 +87,7 @@ export default {
 }
 
 .fake-select {
-    color: $info-dark;
+    color: $primary-fg;
     font-weight: $font-weight-bold;
     cursor: pointer;
 }

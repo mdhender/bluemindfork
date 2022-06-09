@@ -1,5 +1,5 @@
 <template>
-    <bm-button v-if="show" variant="inline-light" :href="url" target="_blank" @mouseup="createRoom">
+    <bm-button v-if="show" variant="inline-on-fill-primary" :href="url" target="_blank" @mouseup="createRoom">
         <bm-icon icon="video" size="lg" />
     </bm-button>
 </template>

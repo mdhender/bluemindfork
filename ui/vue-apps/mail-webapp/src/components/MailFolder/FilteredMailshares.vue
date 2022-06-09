@@ -7,7 +7,7 @@
             <filtered-item v-for="folder in folders" :key="folder.key" :folder="folder" class="flex-fill" />
         </div>
         <div v-if="showMoreResultsButton" class="text-center">
-            <bm-button variant="inline-primary" @click="SHOW_MORE_FOR_MAILSHARES">
+            <bm-button variant="inline-secondary" @click="SHOW_MORE_FOR_MAILSHARES">
                 {{ $t("mail.folder.filter.show_more") }}
             </bm-button>
         </div>

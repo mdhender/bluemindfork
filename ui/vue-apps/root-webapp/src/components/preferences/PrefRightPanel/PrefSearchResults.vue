@@ -16,20 +16,20 @@
     </div>
     <div v-else class="pref-search-results overflow-auto">
         <div class="d-flex justify-content-end">
-            <bm-button variant="simple-dark" @click="toggleAll">
+            <bm-button variant="simple-neutral" @click="toggleAll">
                 {{ areAllExpanded ? $t("common.collapse_all") : $t("common.expand_all") }}
             </bm-button>
         </div>
         <bm-alert-area
             v-if="alerts.length > 0"
-            class="border-top border-secondary"
+            class="border-top border-neutral"
             :alerts="alerts"
             stackable
             @remove="REMOVE"
         >
             <template v-slot="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
         </bm-alert-area>
-        <div class="border-bottom border-secondary" />
+        <div class="border-bottom border-neutral" />
         <template v-for="(group, index) in results">
             <div :key="group.id" class="d-flex">
                 <pref-section-icon
@@ -38,11 +38,11 @@
                     :set="(isCollapsed = isGroupCollapsed(group.id))"
                 />
                 <pref-group ref="group" :group="group" :collapsed="isCollapsed" class="flex-fill" />
-                <bm-button variant="inline-dark" class="align-self-start mt-4 mr-3" @click="toggleGroup(group.id)">
+                <bm-button variant="inline-neutral" class="align-self-start mt-4 mr-3" @click="toggleGroup(group.id)">
                     <bm-icon :icon="isCollapsed ? 'chevron' : 'chevron-up'" size="2x" />
                 </bm-button>
             </div>
-            <div v-if="index !== results.length - 1" :key="index" class="border-bottom border-secondary" />
+            <div v-if="index !== results.length - 1" :key="index" class="border-bottom border-neutral" />
         </template>
     </div>
 </template>
@@ -146,7 +146,7 @@ function parseNodeAndHighlight(node, search) {
 
 .pref-search-results {
     .search-pattern {
-        color: $info-dark;
+        color: $primary-fg-hi1;
         font-weight: $font-weight-bold;
         word-break: break-all;
     }

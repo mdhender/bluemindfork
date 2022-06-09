@@ -1,5 +1,5 @@
 <template functional>
-    <main class="bg-white flex-fill">
+    <main class="bg-surface flex-fill">
         <link type="text/css" rel="stylesheet" href="css/styleguide.css" />
         <div id="header" data-banner="false"></div>
         <div id="content-menu"></div>
@@ -38,7 +38,7 @@ body {
     .preferences {
         box-sizing: border-box;
         line-height: $line-height-base;
-        .bm-circular-progress.primary {
+        .bm-circular-progress.secondary {
             background-image: none;
             background-color: transparent;
         }

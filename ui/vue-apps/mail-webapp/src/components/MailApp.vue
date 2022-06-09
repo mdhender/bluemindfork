@@ -14,7 +14,7 @@
                 :class="hideListInResponsiveMode || composerOrMessageIsDisplayed || !SELECTION_IS_EMPTY ? 'd-none' : ''"
             >
                 <bm-button
-                    variant="inline-light"
+                    variant="inline-on-fill-primary"
                     class="d-inline-block d-lg-none w-100"
                     @click.stop="showFolders = !showFolders"
                 >
@@ -53,7 +53,7 @@
                     switch
                     left-label
                     checked="true"
-                    class="switch-webmail text-condensed text-right text-primary"
+                    class="switch-webmail text-condensed text-right text-secondary"
                     @change="switchWebmail()"
                 >
                     {{ $t("mail.main.switch.webmail") }}
@@ -194,18 +194,18 @@ export default {
     .topbar {
         flex: 0 0 4em;
         @media (max-width: map-get($grid-breakpoints, "lg")) {
-            background-color: $info-dark;
+            background-color: $fill-primary-bg;
 
-            .btn-simple-dark {
+            .btn-simple-neutral {
                 background-color: none;
-                color: $light;
+                color: $fill-primary-fg;
             }
         }
     }
     .switch-webmail label {
         font-weight: $font-weight-bold;
         max-width: $custom-switch-width * 3;
-        color: $primary;
+        color: $secondary-fg;
         &::before {
             top: calc($custom-control-indicator-size / 2) !important;
         }
@@ -228,7 +228,7 @@ export default {
     .darkened::before {
         position: fixed;
         content: "";
-        background: black;
+        background: $highest;
         top: 0;
         bottom: 0;
         width: 100%;
@@ -272,7 +272,7 @@ export default {
 
             &:active {
                 margin-left: -$sp-1;
-                border-right: ($sp-1 * 0.25) $dark solid;
+                border-right: ($sp-1 * 0.25) $neutral-fg solid;
                 width: $sp-1 * 1.25;
                 min-width: $sp-1 * 1.25;
             }

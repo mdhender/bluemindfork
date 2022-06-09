@@ -39,7 +39,7 @@
             </div>
         </div>
 
-        <div v-if="nextIsDraft || (isDraft && index !== maxIndex)" class="row bg-light">
+        <div v-if="nextIsDraft || (isDraft && index !== maxIndex)" class="row contrast">
             <div class="col spacer" />
         </div>
         <div v-else-if="(!nextIsHidden || index === maxIndex || maxIndex <= 2)" class="row pl-5">
@@ -98,15 +98,15 @@ export default {
             border-style: dashed;
         }
     }
+    .contrast {
+        background-color: $neutral-bg;
+    }
     .mail-viewer-toolbar .btn {
         padding-top: 0;
         padding-bottom: 0;
     }
     .row.min-height {
         min-height: 2.5em;
-    }
-    .text-alternate-light {
-        color: $alternate-light;
     }
     .mail-conversation-viewer-item-body:focus {
         outline-offset: -0.375em;

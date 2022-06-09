@@ -2,14 +2,14 @@
     <bm-button-toolbar key-nav class="mail-viewer-toolbar bg-surface">
         <bm-dropdown
             :no-caret="true"
-            variant="simple-dark"
+            variant="simple-neutral"
             class="mail-viewer-toolbar-for-mobile d-flex justify-content-end"
             :aria-label="$tc('mail.toolbar.more.aria')"
             :title="$tc('mail.toolbar.more.aria')"
             v-on="$listeners"
         >
             <template slot="button-content">
-                <bm-icon class="text-primary" icon="3dots" size="2x" />
+                <bm-icon class="text-secondary" icon="3dots" size="2x" />
             </template>
             <bm-dropdown-item-button @click="initReplyOrForward(MessageCreationModes.REPLY, message)">
                 <bm-icon icon="reply" size="1x" />
@@ -113,7 +113,7 @@ export default {
 
 .mail-viewer-toolbar-for-mobile {
     .dropdown-divider {
-        border-top: 1px solid $alternate-light !important;
+        border-top: 1px solid $neutral-fg-lo2 !important;
         margin: 0.05rem 0;
     }
     .dropdown-menu {

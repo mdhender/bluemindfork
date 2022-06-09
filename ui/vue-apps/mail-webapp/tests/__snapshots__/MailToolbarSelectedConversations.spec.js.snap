@@ -5,7 +5,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
   class="mail-toolbar-selected-conversations"
 >
   <button
-    class="btn unread btn-lg-simple-dark btn-inline-light"
+    class="btn unread btn-lg-simple-neutral btn-inline-on-fill-primary"
     style="display: none;"
     type="button"
   >
@@ -34,7 +34,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
   </button>
    
   <button
-    class="btn unread btn-lg-simple-dark btn-inline-light"
+    class="btn unread btn-lg-simple-neutral btn-inline-on-fill-primary"
     style="display: none;"
     type="button"
   >
@@ -63,7 +63,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
   </button>
    
   <button
-    class="btn read btn-lg-simple-dark btn-inline-light"
+    class="btn read btn-lg-simple-neutral btn-inline-on-fill-primary"
     type="button"
   >
     <svg
@@ -97,7 +97,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     <button
       aria-expanded="false"
       aria-haspopup="menu"
-      class="btn dropdown-toggle btn-inline-light btn-lg-simple-dark dropdown-toggle-no-caret"
+      class="btn dropdown-toggle btn-inline-on-fill-primary btn-lg-simple-neutral dropdown-toggle-no-caret"
       type="button"
     >
       <svg
@@ -474,7 +474,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
   </div>
    
   <button
-    class="btn btn-lg-simple-dark btn-inline-light"
+    class="btn btn-lg-simple-neutral btn-inline-on-fill-primary"
     type="button"
   >
     <svg
@@ -502,7 +502,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
   </button>
    
   <button
-    class="btn flagged btn-lg-simple-dark btn-inline-light"
+    class="btn flagged btn-lg-simple-neutral btn-inline-on-fill-primary"
     type="button"
   >
     <svg
@@ -530,7 +530,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
   </button>
    
   <button
-    class="btn unflagged btn-lg-simple-dark btn-inline-light"
+    class="btn unflagged btn-lg-simple-neutral btn-inline-on-fill-primary"
     style="display: none;"
     type="button"
   >
@@ -565,7 +565,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     <button
       aria-expanded="false"
       aria-haspopup="menu"
-      class="btn dropdown-toggle btn-inline-light btn-lg-simple-dark dropdown-toggle-no-caret"
+      class="btn dropdown-toggle btn-inline-on-fill-primary btn-lg-simple-neutral dropdown-toggle-no-caret"
       type="button"
     >
       <svg

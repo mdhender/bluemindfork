@@ -15,7 +15,7 @@
                 <bm-skeleton width="30%" />
             </bm-col>
             <bm-col cols="1" class="text-right">
-                <bm-button variant="simple-dark" class="text-blue">
+                <bm-button variant="simple-neutral" class="text-blue">
                     {{ $t("common.bcc") }}
                 </bm-button>
             </bm-col>

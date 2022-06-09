@@ -5,7 +5,7 @@
     >
         <global-events @keydown.esc="close" />
         <div
-            class="bg-info-dark d-flex align-items-center flex-column flex-fill flex-lg-grow-0 flex-lg-shrink-0 m-4 p-4"
+            class="d-flex align-items-center flex-column flex-fill flex-lg-grow-0 flex-lg-shrink-0 m-4 p-4"
             :style="{ background: 'url(' + aboutBackgroundImg + ')  center/cover' }"
         >
             <div class="flex-fill"></div>
@@ -73,8 +73,8 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 .about {
     > div {
-        background-color: $blue-500;
-        color: color-yiq($blue-500) !important;
+        background-color: $blue-800;
+        color: $white !important;
         flex-basis: 717px !important;
         min-height: 500px;
         min-width: 320px;

@@ -6,7 +6,12 @@
                 {{ displayname }}
             </div>
         </div>
-        <bm-contextual-menu boundary="viewport" variant="inline-light" size="lg" class="bm-dropdown-info-dark">
+        <bm-contextual-menu
+            boundary="viewport"
+            variant="inline-on-fill-primary"
+            size="lg"
+            class="bm-dropdown-fill-primary-hi1"
+        >
             <bm-dropdown-item-button icon="preferences" @click="TOGGLE_PREFERENCES()">
                 {{ $t("common.preference") }}
             </bm-dropdown-item-button>
@@ -46,8 +51,8 @@ export default {
 @import "@bluemind/styleguide/css/_variables.scss";
 
 .folder-sidebar-mobile-header {
-    background-color: theme-color-level("info-dark", 4) !important;
-    color: $white;
+    background-color: $fill-primary-bg-hi1 !important;
+    color: $fill-primary-fg;
 
     .bm-avatar {
         width: 3.5em !important;

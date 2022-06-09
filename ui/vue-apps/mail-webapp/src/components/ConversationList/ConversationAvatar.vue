@@ -41,18 +41,16 @@ export default {
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
 
-$color: $secondary;
-
 .conversation-avatar {
     width: 2em;
     .hexagon {
-        fill: $color;
+        fill: $fill-neutral-bg;
     }
     .border {
-        stroke: $color;
+        stroke: $neutral-fg;
     }
     .text {
-        fill: color-yiq($color);
+        fill: $fill-neutral-fg;
     }
 }
 </style>

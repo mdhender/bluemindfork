@@ -1,7 +1,7 @@
 <template>
     <div class="mail-folder-tree">
         <bm-button
-            variant="inline-info-dark"
+            variant="inline-neutral"
             class="collapse-tree-btn d-flex align-items-center pb-2 pt-3 border-0 pl-2 w-100"
             :aria-controls="id"
             :aria-expanded="isTreeExpanded"
@@ -84,7 +84,15 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
-.mail-folder-tree .mail-folder-input svg {
-    margin-left: $sp-1;
+.mail-folder-tree {
+    .collapse-tree-btn {
+        color: $primary-fg;
+        &hover {
+            color: $primary-fg-hi1;
+        }
+    }
+    .mail-folder-input svg {
+        margin-left: $sp-1;
+    }
 }
 </style>

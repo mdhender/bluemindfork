@@ -12,17 +12,17 @@
                     <img :src="cell.value.src" :alt="cell.value.identifier" :title="cell.value.description" />
                 </template>
                 <template #cell(identifier)="cell">
-                    <span class="text-secondary">{{ cell.value }}</span>
+                    <span class="text-neutral">{{ cell.value }}</span>
                 </template>
                 <template #cell(login)="cell">
                     <strong>{{ cell.value }}</strong>
                 </template>
                 <template #cell(actions)="cell">
                     <div class="d-flex justify-content-end">
-                        <bm-button variant="inline-secondary" @click="editExternalAccount(cell.item)">
+                        <bm-button variant="inline-neutral" @click="editExternalAccount(cell.item)">
                             <bm-icon icon="pencil" size="lg" />
                         </bm-button>
-                        <bm-button variant="inline-secondary" @click="confirmRemove(cell.item)">
+                        <bm-button variant="inline-neutral" @click="confirmRemove(cell.item)">
                             <bm-icon icon="trash" size="lg" />
                         </bm-button>
                     </div>
@@ -114,8 +114,9 @@ export default {
                 {
                     title: this.$t("preferences.account.external_accounts.list.remove.modal.title"),
                     okTitle: this.$t("common.delete"),
-                    cancelVariant: "outline-secondary",
                     cancelTitle: this.$t("common.cancel"),
+                    okVariant: "secondary",
+                    cancelVariant: "simple-neutral",
                     centered: true,
                     hideHeaderClose: false,
                     autoFocusButton: "ok"

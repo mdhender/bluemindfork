@@ -5,12 +5,12 @@
         placement="bottomright"
         custom-class="bm-banner-applications"
         triggers="click blur"
-        variant="info-dark"
+        variant="primary"
         @shown="setFocus"
     >
-        <div class="text-white mb-2 mx-3">{{ $t("banner.main.apps") }}</div>
+        <div class="banner-apps-title mb-2 mx-3">{{ $t("banner.main.apps") }}</div>
         <bm-row class="bm-apps">
-            <bm-col v-for="app in applications" :key="app.$id" cols="6" class="text-white">
+            <bm-col v-for="app in applications" :key="app.$id" cols="6">
                 <a v-if="app.external" :href="app.path">
                     <div class="pl-3 my-2 bm-app">
                         <bm-app-icon :icon-app="app.icon" />
@@ -60,12 +60,17 @@ export default {
 .bm-banner-applications {
     max-width: unset !important;
     left: -23px !important;
+
+    .banner-apps-title {
+        color: $fill-primary-fg;
+    }
+
     .bm-app {
         cursor: pointer;
 
         &:hover,
         &.router-link-active {
-            color: $primary;
+            color: $fill-primary-fg-hi1;
             font-weight: $font-weight-bold;
         }
     }
@@ -76,9 +81,12 @@ export default {
 
     .bm-apps {
         width: 22rem;
-        a:focus {
-            outline: 1px dotted $light;
-            color: $primary;
+        a {
+            color: $fill-primary-fg;
+            &:focus {
+                outline: 1px dotted $fill-primary-fg-hi1;
+                color: $fill-primary-fg-hi1;
+            }
         }
     }
 
@@ -88,7 +96,7 @@ export default {
             all: unset;
         }
         &:visited {
-            color: $white;
+            color: $fill-primary-fg;
         }
     }
 

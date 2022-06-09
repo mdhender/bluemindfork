@@ -7,7 +7,7 @@
                 :value="{ email: message.from.address, displayname: message.from.dn }"
                 :options="options"
                 class="ml-2 flex-fill"
-                variant="inline-secondary"
+                variant="inline-neutral"
                 @input="changeIdentity"
             />
         </div>

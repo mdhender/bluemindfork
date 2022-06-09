@@ -1,7 +1,7 @@
 <template>
     <div class="folder-list-collapse">
         <bm-button
-            variant="inline-info-dark"
+            variant="inline-neutral"
             class="collapse-tree-btn d-flex align-items-center pb-2 pt-3 border-0 pl-2 w-100"
             :aria-controls="`collapse-${name}`"
             :aria-expanded="isExpanded"
@@ -39,3 +39,16 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "@bluemind/styleguide/css/_variables.scss";
+
+.folder-list-collapse {
+    .collapse-tree-btn {
+        color: $primary-fg;
+        &:hover {
+            color: $primary-fg-hi1;
+        }
+    }
+}
+</style>

@@ -1,5 +1,11 @@
 <template>
-    <bm-button :href="url" target="_blank" :title="$t('banner.help')" class="align-self-center" variant="inline-light">
+    <bm-button
+        :href="url"
+        target="_blank"
+        :title="$t('banner.help')"
+        class="align-self-center"
+        variant="inline-on-fill-primary"
+    >
         <bm-icon icon="interrogation" size="lg" />
     </bm-button>
 </template>

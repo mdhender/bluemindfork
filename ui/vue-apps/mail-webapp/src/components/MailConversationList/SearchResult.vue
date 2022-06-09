@@ -1,5 +1,5 @@
 <template>
-    <div class="h-100 bg-extra-light">
+    <div class="search-result h-100">
         <search-result-content v-if="CONVERSATION_LIST_IS_RESOLVED" />
         <search-result-spinner v-if="CONVERSATION_LIST_IS_LOADING" />
         <search-result-error v-if="CONVERSATION_LIST_IS_REJECTED" />
@@ -30,4 +30,10 @@ export default {
 };
 </script>
 
-<style></style>
+<style lang="scss">
+@import "@bluemind/styleguide/css/_variables.scss";
+
+.search-result {
+    background-color: $neutral-bg-lo1;
+}
+</style>

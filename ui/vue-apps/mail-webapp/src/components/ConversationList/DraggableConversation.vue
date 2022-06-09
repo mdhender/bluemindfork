@@ -152,9 +152,15 @@ export default {
         }
     }
 
-    &:focus .list-group-item {
-        outline: $outline;
-        outline-offset: -1px;
+    &:focus-visible {
+        outline: none !important;
+    }
+    &:focus,
+    &:focus-visible {
+        .list-group-item {
+            outline: $outline;
+            outline-offset: -1px;
+        }
     }
 }
 </style>

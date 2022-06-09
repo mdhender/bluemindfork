@@ -19,7 +19,7 @@
                 ref="toggleButton"
                 :title="$t('common.searchAdvanced')"
                 class="toggle-button no-border-left no-box-shadow text-truncate"
-                variant="outline-secondary"
+                variant="outline-neutral"
                 @click="showForm = !showForm"
             >
                 {{ compressFolderFullName(selectedFolder) }}<bm-icon class="ml-2" icon="caret-down" size="sm" />
@@ -38,7 +38,7 @@
                 @drag.stop
             >
                 <div class="d-lg-none">
-                    <bm-button variant="inline-dark" size="lg" @click="close">
+                    <bm-button variant="inline-neutral" size="lg" @click="close">
                         <bm-icon icon="arrow-back" size="lg" />
                     </bm-button>
                 </div>
@@ -71,10 +71,10 @@
                     </bm-combo-box>
                 </bm-form-group>
                 <div class="d-flex flex-grow-1 align-items-end justify-content-end">
-                    <bm-button type="submit" variant="primary" :disabled="!pattern">{{
+                    <bm-button type="submit" variant="secondary" :disabled="!pattern">{{
                         $t("common.action.search")
                     }}</bm-button>
-                    <bm-button type="reset" variant="inline-secondary" class="ml-2">
+                    <bm-button type="reset" variant="inline-neutral" class="ml-2">
                         {{ $t("common.action.reset") }}
                     </bm-button>
                 </div>
@@ -296,7 +296,7 @@ export default {
     }
 
     .bm-form-input:focus-within + .btn {
-        border-color: $primary;
+        border-color: $secondary-fg;
     }
 
     .dropdown-menu {
@@ -338,10 +338,10 @@ export default {
             .toggle-button::before,
             .close,
             .icon-wrapper {
-                color: $white !important;
+                color: $fill-primary-fg !important;
                 background: transparent !important;
                 border-color: transparent !important;
-                border-bottom-color: $white !important;
+                border-bottom-color: $fill-primary-fg !important;
                 opacity: 1;
             }
         }

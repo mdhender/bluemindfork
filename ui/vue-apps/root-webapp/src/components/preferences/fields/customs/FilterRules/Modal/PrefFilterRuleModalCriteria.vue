@@ -38,7 +38,7 @@
                 <bm-button-close class="col-1" @click="removeCriterion(index)" />
             </div>
         </template>
-        <bm-button v-if="!criteria.some(c => c.isNew)" class="pl-0" variant="inline-primary" @click="addNewCriterion">
+        <bm-button v-if="!criteria.some(c => c.isNew)" class="pl-0" variant="inline-secondary" @click="addNewCriterion">
             {{
                 negative
                     ? $t("preferences.mail.filters.modal.exceptions.add")

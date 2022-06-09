@@ -1,20 +1,20 @@
 <template>
-    <div class="mail-composer-footer p-2 border-top justify-content-between align-items-center">
+    <div class="mail-composer-footer p-2 justify-content-between align-items-center">
         <div>
-            <bm-button v-if="isDraft" type="submit" variant="primary" :disabled="disableSend" @click.prevent="send">
+            <bm-button v-if="isDraft" type="submit" variant="secondary" :disabled="disableSend" @click.prevent="send">
                 {{ $t("common.send") }}
             </bm-button>
             <bm-button
                 v-else
                 type="submit"
-                variant="primary"
+                variant="secondary"
                 :title="$t('mail.actions.end_template_edition.aria')"
                 @click.prevent="endEdition"
             >
                 {{ $t("mail.actions.end_template_edition.label") }}
             </bm-button>
             <bm-button
-                variant="simple-dark"
+                variant="simple-neutral"
                 class="ml-2"
                 :disabled="isSaving || isSending"
                 @click.prevent="deleteDraft"
@@ -32,7 +32,7 @@
             <bm-extension id="webapp.mail" path="composer.footer.toolbar" :message="message" />
             <bm-button
                 v-if="!userPrefTextOnly"
-                variant="simple-dark"
+                variant="simple-neutral"
                 :aria-label="textFormatterLabel"
                 :title="textFormatterLabel"
                 :disabled="isSending"
@@ -51,7 +51,7 @@
                 @click.stop
             />
             <bm-button
-                variant="simple-dark"
+                variant="simple-neutral"
                 :aria-label="$tc('mail.actions.attach.aria')"
                 :title="$tc('mail.actions.attach.aria')"
                 :disabled="isSending"
@@ -59,7 +59,7 @@
             >
                 <bm-icon icon="paper-clip" size="lg" />
             </bm-button>
-            <bm-dropdown ref="3dots-dropdown" dropup right no-caret variant="simple-dark">
+            <bm-dropdown ref="3dots-dropdown" dropup right no-caret variant="simple-neutral">
                 <template #button-content>
                     <bm-icon icon="3dots-v" size="lg" />
                 </template>
@@ -211,6 +211,8 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-composer-footer {
+    border-top: 1px solid $neutral-fg-lo3;
+
     .toolbar .btn {
         padding: $sp-2;
     }

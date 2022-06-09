@@ -1,6 +1,6 @@
 <template>
     <div class="pref-domain-filter-rules">
-        <hr class="bg-alternate-light" />
+        <hr />
         <pref-filter-rules-subset
             :filters="domainFilters"
             :title="$t('preferences.mail.filters.subset.domain', { count: domainFilters.length })"
@@ -36,7 +36,7 @@ export default {
 
 .pref-domain-filter-rules {
     hr {
-        background-color: $alternate-light;
+        background-color: $neutral-bg-lo1;
     }
 }
 </style>

@@ -18,13 +18,13 @@
             </template>
             <template #cell(name)="row">{{ row.value }}</template>
             <template #cell(action)="row">
-                <bm-button variant="outline-secondary" @click="openModal(row.item)">
+                <bm-button variant="outline-neutral" @click="openModal(row.item)">
                     {{ $t("common.manage") }}
                 </bm-button>
             </template>
         </bm-table>
         <bm-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage" class="d-inline-flex" />
-        <bm-button variant="outline-secondary" class="float-right" @click="openModal()">
+        <bm-button variant="outline-neutral" class="float-right" @click="openModal()">
             {{ $t("preferences.mail.identities.create") }}
         </bm-button>
         <manage-identity-modal
@@ -119,7 +119,7 @@ export default {
 
 .pref-manage-identities {
     .fa-star-fill {
-        color: $primary;
+        color: $secondary-fg;
     }
 }
 </style>

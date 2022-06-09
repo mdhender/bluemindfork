@@ -141,7 +141,7 @@ export default {
 
 .pref-my-filter-rules {
     hr {
-        background-color: $alternate-light;
+        background-color: $neutral-bg-lo1;
     }
 }
 </style>

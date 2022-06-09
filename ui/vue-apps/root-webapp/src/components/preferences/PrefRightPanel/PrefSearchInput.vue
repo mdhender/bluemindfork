@@ -28,3 +28,11 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/variables";
+
+.search-input {
+    background-color: $surface;
+}
+</style>

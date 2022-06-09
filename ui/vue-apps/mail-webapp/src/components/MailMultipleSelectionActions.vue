@@ -13,11 +13,11 @@
                 <h1>{{ mainText }}</h1>
             </div>
 
-            <div v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE" class="bg-white py-2 px-3 actions-button w-75 mt-4">
+            <div v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE" class="bg-surface py-2 px-3 actions-button w-75 mt-4">
                 <div class="arrow-up" />
                 <bm-button
                     v-if="showMarkAsRead"
-                    variant="outline-secondary"
+                    variant="outline-neutral"
                     :title="markAsReadAriaText()"
                     :aria-label="markAsReadAriaText()"
                     @click="markAsRead()"
@@ -26,7 +26,7 @@
                 </bm-button>
                 <bm-button
                     v-if="showMarkAsUnread"
-                    variant="outline-secondary"
+                    variant="outline-neutral"
                     :title="markAsUnreadAriaText()"
                     :aria-label="markAsUnreadAriaText()"
                     @click="markAsUnread()"
@@ -35,7 +35,7 @@
                 </bm-button>
                 <bm-button
                     v-if="showMarkAsFlagged"
-                    variant="outline-secondary"
+                    variant="outline-neutral"
                     :title="markAsFlaggedAriaText()"
                     :aria-label="markAsFlaggedAriaText()"
                     @click="markAsFlagged()"
@@ -44,7 +44,7 @@
                 </bm-button>
                 <bm-button
                     v-if="showMarkAsUnflagged"
-                    variant="outline-secondary"
+                    variant="outline-neutral"
                     :title="markAsUnflaggedAriaText()"
                     :aria-label="markAsUnflaggedAriaText()"
                     @click="markAsUnflagged()"
@@ -52,7 +52,7 @@
                     <bm-label-icon icon="flag-fill"> {{ markAsUnflaggedText }} </bm-label-icon>
                 </bm-button>
                 <bm-button
-                    variant="outline-secondary"
+                    variant="outline-neutral"
                     :title="removeAriaText()"
                     :aria-label="removeAriaText()"
                     @click.exact="moveToTrash"
@@ -62,11 +62,11 @@
                 </bm-button>
             </div>
 
-            <bm-button variant="inline-secondary" class="my-4" @click="removeSelection">
+            <bm-button variant="inline-neutral" class="my-4" @click="removeSelection">
                 {{ $t("common.cancel.selection") }}
             </bm-button>
 
-            <hr v-if="!ALL_CONVERSATIONS_ARE_SELECTED" class="w-75 border-dark" />
+            <hr v-if="!ALL_CONVERSATIONS_ARE_SELECTED" class="w-75 border-neutral" />
 
             <div v-if="!ALL_CONVERSATIONS_ARE_SELECTED" class="mt-3">
                 <h3 v-if="!CONVERSATION_LIST_IS_SEARCH_MODE" class="d-inline px-3 align-middle">
@@ -192,7 +192,7 @@ $arrow-height: calc($arrow-width / 2);
 
 .mail-multiple-selection-actions {
     h1 {
-        color: $info-dark;
+        color: $primary-fg-hi1;
         font-size: 2rem;
     }
     hr {
@@ -217,7 +217,7 @@ $arrow-height: calc($arrow-width / 2);
                 border-style: solid;
                 bottom: 0;
                 border-width: 0 calc($arrow-width / 2) $arrow-height;
-                border-bottom-color: $white;
+                border-bottom-color: $surface;
             }
         }
     }

@@ -283,7 +283,7 @@ export default {
 .mail-conversation-viewer {
     .vertical-line {
         width: 2em !important;
-        background-image: linear-gradient($secondary, $secondary);
+        background-image: linear-gradient($neutral-fg, $neutral-fg);
         background-size: 1px 100%;
         background-repeat: no-repeat;
         background-position: center center;
@@ -298,10 +298,10 @@ export default {
     }
     .draft .vertical-line,
     .last-before-draft .vertical-line.vertical-line-after-avatar {
-        background-image: repeating-linear-gradient($secondary, $secondary 2px, $white 2px, $white 6px);
+        background-image: repeating-linear-gradient($neutral-fg, $neutral-fg 2px, $neutral-bg 2px, $neutral-bg 6px);
     }
     .vertical-line-transparent {
-        background-image: linear-gradient($surface-bg, $surface-bg) !important;
+        background-image: linear-gradient($neutral-bg, $neutral-bg) !important;
     }
     .col-1 {
         flex: unset;
@@ -320,7 +320,7 @@ export default {
             left: 0;
             bottom: 0;
             right: 0;
-            background-color: $extra-light;
+            background-color: $neutral-bg-lo1;
             margin: 0.375em 0.5625em 0.375em 0.5625em;
         }
     }

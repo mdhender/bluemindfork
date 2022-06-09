@@ -8,7 +8,7 @@
         </slot>
         <bm-button
             v-if="isCollapseActive"
-            variant="outline-dark"
+            variant="outline-neutral"
             class="align-self-start ml-3 mb-2"
             @click="collapse_ = false"
         >

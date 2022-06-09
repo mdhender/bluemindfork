@@ -1,7 +1,7 @@
 <template>
     <bm-button
         v-bm-clipping="mobile ? 'hexagon' : undefined"
-        variant="primary"
+        variant="secondary"
         class="new-message"
         :class="
             mobile

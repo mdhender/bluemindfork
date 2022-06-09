@@ -49,7 +49,7 @@ export default {
     background-color: $surface-bg;
     z-index: 1;
     .pref-section-navbar {
-        border-bottom: 1px solid $secondary;
+        border-bottom: 1px solid $neutral-fg;
     }
     .pref-group {
         padding-left: 4rem;

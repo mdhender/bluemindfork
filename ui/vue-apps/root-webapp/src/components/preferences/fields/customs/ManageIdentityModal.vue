@@ -91,14 +91,19 @@
         </div>
         <template #modal-footer>
             <template v-if="modalStatus === 'LOADED'">
-                <bm-button v-if="isNewIdentity" variant="primary" :disabled="!isFormValid" @click="add">
+                <bm-button v-if="isNewIdentity" variant="secondary" :disabled="!isFormValid" @click="add">
                     {{ $t("common.add") }}
                 </bm-button>
-                <bm-button v-else variant="primary" :disabled="!hasAnyChange || !isFormValid" @click="save">
+                <bm-button v-else variant="secondary" :disabled="!hasAnyChange || !isFormValid" @click="save">
                     {{ $t("common.save") }}
                 </bm-button>
-                <bm-button variant="outline-secondary" @click="cancel">{{ $t("common.cancel") }}</bm-button>
-                <bm-button v-if="!isNewIdentity" variant="simple-dark" :disabled="identity.isDefault" @click="remove">
+                <bm-button variant="outline-neutral" @click="cancel">{{ $t("common.cancel") }}</bm-button>
+                <bm-button
+                    v-if="!isNewIdentity"
+                    variant="simple-neutral"
+                    :disabled="identity.isDefault"
+                    @click="remove"
+                >
                     {{ $t("preferences.mail.identities.delete") }}
                 </bm-button>
             </template>
@@ -341,7 +346,7 @@ function toIdentityDescription(id, identity) {
 
 .manage-identity-modal-body {
     .fa-star-fill {
-        color: $primary;
+        color: $secondary-fg;
     }
     .word-break {
         word-break: break-word;

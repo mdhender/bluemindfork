@@ -33,7 +33,7 @@
         <bm-button
             v-if="!filter.actions || !filter.actions.some(c => c.isNew)"
             class="pl-0"
-            variant="inline-primary"
+            variant="inline-secondary"
             @click="addNewAction"
         >
             {{ $t("preferences.mail.filters.modal.actions.add") }}

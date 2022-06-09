@@ -3,8 +3,8 @@
         <template v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE">
             <bm-button
                 v-show="isTemplate"
-                variant="inline-light"
-                class="unread btn-lg-simple-dark"
+                variant="inline-on-fill-primary"
+                class="unread btn-lg-simple-neutral"
                 :title="$t('mail.actions.edit_from_template.aria', { subject })"
                 @click="editFromTemplate"
             >
@@ -13,8 +13,8 @@
             </bm-button>
             <bm-button
                 v-show="showMarkAsRead && !isTemplate"
-                variant="inline-light"
-                class="unread btn-lg-simple-dark"
+                variant="inline-on-fill-primary"
+                class="unread btn-lg-simple-neutral"
                 :title="markAsReadAriaText()"
                 @click="markAsRead()"
             >
@@ -23,8 +23,8 @@
             </bm-button>
             <bm-button
                 v-show="showMarkAsUnread && !isTemplate"
-                variant="inline-light"
-                class="read btn-lg-simple-dark"
+                variant="inline-on-fill-primary"
+                class="read btn-lg-simple-neutral"
                 :title="markAsUnreadAriaText()"
                 @click="markAsUnread()"
             >
@@ -33,8 +33,8 @@
             </bm-button>
             <mail-toolbar-selected-conversations-move-action />
             <bm-button
-                variant="inline-light"
-                class="btn-lg-simple-dark"
+                variant="inline-on-fill-primary"
+                class="btn-lg-simple-neutral"
                 :title="removeAriaText()"
                 @click.exact="moveToTrash()"
                 @click.shift.exact="remove()"
@@ -44,8 +44,8 @@
             </bm-button>
             <bm-button
                 v-show="showMarkAsFlagged"
-                variant="inline-light"
-                class="flagged btn-lg-simple-dark"
+                variant="inline-on-fill-primary"
+                class="flagged btn-lg-simple-neutral"
                 :title="markAsFlaggedAriaText()"
                 @click="markAsFlagged()"
             >
@@ -54,8 +54,8 @@
             </bm-button>
             <bm-button
                 v-show="showMarkAsUnflagged"
-                variant="inline-light"
-                class="unflagged btn-lg-simple-dark"
+                variant="inline-on-fill-primary"
+                class="unflagged btn-lg-simple-neutral"
                 :title="markAsUnflaggedAriaText()"
                 @click="markAsUnflagged()"
             >

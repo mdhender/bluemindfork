@@ -1,6 +1,6 @@
 <template>
     <bm-avatar v-if="section.id === 'my_account'" :alt="userDisplayName" :urn="urn" class="pref-section-icon" />
-    <bm-app-icon v-else :icon-app="section.icon" class="pref-section-icon text-primary" />
+    <bm-app-icon v-else :icon-app="section.icon" class="pref-section-icon text-secondary" />
 </template>
 
 <script>

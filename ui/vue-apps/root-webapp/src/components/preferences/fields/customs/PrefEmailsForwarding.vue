@@ -5,7 +5,7 @@
         </bm-form-checkbox>
         <div class="d-flex">
             <bm-contact-input
-                class="mr-2 border border-dark pref-field-input"
+                class="mr-2 border border-neutral pref-field-input"
                 :disabled="!value.enabled"
                 :contacts="contacts"
                 :autocomplete-results="autocompleteResults"

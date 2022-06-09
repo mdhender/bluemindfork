@@ -1,7 +1,7 @@
 <template>
     <div class="conversation-list-item-middle d-flex flex-column text-truncate">
         <div class="d-flex flex-row">
-            <div :title="fromOrTo" class="mail-conversation-list-item-sender h3 text-dark text-truncate flex-fill">
+            <div :title="fromOrTo" class="mail-conversation-list-item-sender h3 text-truncate flex-fill">
                 <bm-extension id="webapp.mail" path="list.conversation.prefix" :conversation="conversation" />
                 <span v-if="isDraft" class="text-danger font-weight-normal">
                     [<span class="font-italic">{{ $t("common.folder.draft") }}</span
@@ -11,7 +11,7 @@
             </div>
             <div v-if="CONVERSATION_LIST_IS_SEARCH_MODE" class="d-flex slide">
                 <mail-folder-icon
-                    class="text-secondary text-truncate"
+                    class="text-neutral text-truncate"
                     :shared="isFolderOfMailshare(folder)"
                     :folder="folder"
                 >
@@ -25,21 +25,18 @@
         <div class="d-flex flex-row">
             <div class="d-flex flex-column flex-fill overflow-hidden">
                 <div class="d-flex mail-conversation-list-item-subject">
-                    <div :title="displayedSubject" class="text-secondary text-truncate">
+                    <div :title="displayedSubject" class="text-neutral text-truncate">
                         {{ displayedSubject }}
                     </div>
                     <span v-if="conversation && conversationSize > 1 && conversation.unreadCount > 0" class="px-1">
                         ({{ conversation.unreadCount }})
                     </span>
                 </div>
-                <div
-                    :title="displayedPreview"
-                    class="mail-conversation-list-item-preview text-dark text-condensed text-truncate"
-                >
+                <div :title="displayedPreview" class="mail-conversation-list-item-preview text-condensed text-truncate">
                     {{ displayedPreview }}
                 </div>
             </div>
-            <div class="mail-conversation-list-item-date text-secondary align-self-end">
+            <div class="mail-conversation-list-item-date text-neutral align-self-end">
                 <span class="d-none d-lg-block">
                     {{ displayedDate }}
                 </span>
@@ -193,6 +190,11 @@ export default {
 @import "~@bluemind/styleguide/css/variables";
 
 .conversation-list-item-middle {
+    .mail-conversation-list-item-sender,
+    .mail-conversation-list-item-preview {
+        color: $neutral-fg-hi1;
+    }
+
     .custom-control-label::after,
     .custom-control-label::before {
         top: 0.2rem !important;

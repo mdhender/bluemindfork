@@ -51,7 +51,7 @@
                         :disabled="!(value.enabled && value.start)"
                     />
                 </bm-form-group>
-                <bm-button v-if="value.start !== null" variant="inline-secondary" @click="value.start = null">
+                <bm-button v-if="value.start !== null" variant="inline-neutral" @click="value.start = null">
                     <bm-icon icon="trash" />
                 </bm-button>
 
@@ -70,7 +70,7 @@
                 <bm-form-group :label="$t('common.hour')" label-for="to_hour" class="mr-2">
                     <bm-form-time-picker id="to_hour" v-model="endTime" :disabled="!(value.enabled && value.end)" />
                 </bm-form-group>
-                <bm-button v-if="value.end !== null" variant="inline-secondary" @click="value.end = null">
+                <bm-button v-if="value.end !== null" variant="inline-neutral" @click="value.end = null">
                     <bm-icon icon="trash" />
                 </bm-button>
             </div>
@@ -223,7 +223,7 @@ export default {
     .disabled {
         label,
         .date-range-label {
-            color: $alternate-light;
+            color: $neutral-fg-disabled;
         }
     }
     .date-range {

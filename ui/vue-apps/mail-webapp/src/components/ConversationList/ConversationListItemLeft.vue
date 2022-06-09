@@ -21,8 +21,8 @@
         />
 
         <template v-if="!isConversation && isMessageListStyleFull">
-            <bm-icon v-if="conversation.hasAttachment" icon="paper-clip" />
-            <bm-icon v-if="conversation.hasICS" icon="calendar" />
+            <bm-icon v-if="conversation.hasAttachment" class="mail-attachment-icon" icon="paper-clip" />
+            <bm-icon v-if="conversation.hasICS" class="mail-attachment-icon" icon="calendar" />
         </template>
         <template v-else-if="!isConversation || isMessageListStyleFull">
             <mail-attachment-icon :message="conversation" />
@@ -122,8 +122,8 @@ export default {
         transform: translateX(4px);
     }
 
-    .fa-calendar {
-        color: $calendar-color;
+    .mail-attachment-icon {
+        color: $neutral-fg;
     }
 
     .custom-control-label::after,

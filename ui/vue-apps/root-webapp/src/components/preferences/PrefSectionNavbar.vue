@@ -56,8 +56,8 @@ export default {
         &.router-link-active {
             background-color: unset;
             & > h2 {
-                border-color: $primary !important;
-                color: $primary;
+                border-color: $secondary-fg !important;
+                color: $secondary-fg;
             }
         }
 
@@ -66,7 +66,7 @@ export default {
         }
 
         &:focus {
-            background-color: $white;
+            background-color: $neutral-bg;
         }
     }
 }
