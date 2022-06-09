@@ -116,6 +116,8 @@ import net.bluemind.todolist.api.ITodoListsMgmt;
 import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
+import net.bluemind.webappdata.api.IWebAppData;
+import net.bluemind.webappdata.api.IWebAppDataUids;
 
 public class DirectoryXfer implements AutoCloseable {
 	private static final Logger logger = LoggerFactory.getLogger(DirectoryXfer.class);
@@ -389,6 +391,8 @@ public class DirectoryXfer implements AutoCloseable {
 					containerUid -> sp.instance(ITodoList.class, containerUid));
 			xferContainers(monitor.subWork(1), INoteUids.TYPE, containerUid -> sp.instance(INote.class, containerUid));
 			xferContainers(monitor.subWork(1), ITagUids.TYPE, containerUid -> sp.instance(ITags.class, containerUid));
+			xferContainers(monitor.subWork(1), IWebAppDataUids.TYPE,
+					containerUid -> sp.instance(IWebAppData.class, containerUid));
 		}
 
 		xferContainers(monitor.subWork(1), IFlatHierarchyUids.TYPE,

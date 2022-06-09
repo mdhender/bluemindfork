@@ -40,5 +40,6 @@ Require-Bundle: net.bluemind.core.context;bundle-version="1.0.0",
  net.bluemind.todolist.api;bundle-version="1.0.0",
  net.bluemind.user.api;bundle-version="1.0.0",
  net.bluemind.externaluser.api;bundle-version="1.0.0",
- net.bluemind.notes.api;bundle-version="1.0.0"
+ net.bluemind.notes.api;bundle-version="1.0.0",
+ net.bluemind.webappdata.api;bundle-version="1.0.0"
 Automatic-Module-Name: net.bluemind.core.api.py

@@ -37,7 +37,8 @@ Require-Bundle: com.google.guava,
  net.bluemind.user.api,
  org.postgresql.jdbc42,
  slf4j.api,
- net.bluemind.authentication.api
+ net.bluemind.authentication.api,
+ net.bluemind.webappdata.api
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.directory.xfer
 Export-Package: net.bluemind.directory.xfer

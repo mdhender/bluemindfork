@@ -18,6 +18,7 @@
  */
 package net.bluemind.webappdata.service.internal;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -25,6 +26,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.model.Container;
@@ -36,11 +38,13 @@ import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.acl.Verb;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.ChangeLogUtil;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.webappdata.api.IWebAppData;
 import net.bluemind.webappdata.api.WebAppData;
+import net.bluemind.webappdata.persistence.WebAppDataStore;
 
 /**
  * 
@@ -102,8 +106,15 @@ public class WebAppDataService implements IWebAppData {
 	@Override
 	public void xfer(String serverUid) throws ServerFault {
 		rbacManager.check(Verb.Write.name());
-		// TODO Auto-generated method stub
-
+		DataSource ds = bmContext.getMailboxDataSource(serverUid);
+		ContainerStore cs = new ContainerStore(null, ds, bmContext.getSecurityContext());
+		Container c;
+		try {
+			c = cs.get(container.uid);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+		storeService.xfer(ds, c, new WebAppDataStore(ds, c));
 	}
 
 	@Override
