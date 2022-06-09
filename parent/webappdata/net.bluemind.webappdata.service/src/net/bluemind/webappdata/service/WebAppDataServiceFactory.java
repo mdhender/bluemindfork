@@ -22,7 +22,9 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import net.bluemind.core.api.fault.ErrorCode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -30,9 +32,12 @@ import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.webappdata.api.IWebAppData;
+import net.bluemind.webappdata.service.internal.NoOpWebAppDataService;
 import net.bluemind.webappdata.service.internal.WebAppDataService;
 
 public class WebAppDataServiceFactory implements ServerSideServiceProvider.IServerSideServiceFactory<IWebAppData> {
+
+	private static final Logger logger = LoggerFactory.getLogger(WebAppDataServiceFactory.class);
 
 	public WebAppDataServiceFactory() {
 
@@ -49,7 +54,8 @@ public class WebAppDataServiceFactory implements ServerSideServiceProvider.IServ
 			throw ServerFault.sqlFault(e);
 		}
 		if (container == null) {
-			throw new ServerFault("container " + containerUid + " not found", ErrorCode.NOT_FOUND);
+			logger.warn("container {} not found: using noop service", containerUid);
+			return new NoOpWebAppDataService();
 		}
 
 		return new WebAppDataService(ds, container, context);

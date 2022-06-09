@@ -23,4 +23,16 @@
             class="net.bluemind.webappdata.service.WebAppDataServiceFactory">
       </serviceFactory>
    </extension>
+   <extension
+         point="net.bluemind.core.container.repair">
+      <repair
+            impl="net.bluemind.webappdata.service.internal.WebAppDataRepair">
+      </repair>
+   </extension>
+   <extension
+         point="net.bluemind.core.container.sharding.sharded">
+      <container
+            type="webappdata">
+      </container>
+   </extension>
 </plugin>

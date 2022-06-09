@@ -206,10 +206,28 @@ public class WebAppDataServiceTests {
 
 		try {
 			getService().delete("not-existing-uid");
-		} catch (ServerFault e) {
-			// deleting an unknown uid dont fail
 			fail();
+		} catch (ServerFault e) {
+			// deleting an unknown uid fails
 		}
+	}
+
+	@Test
+	public void testDeleteAll() throws ServerFault {
+		WebAppData webAppData = WebAppDataUserHookTests.exampleWebAppData();
+		getService().create("test_" + System.nanoTime(), webAppData);
+		webAppData.key = "mail:zone:feat";
+		getService().create("test_" + System.nanoTime(), webAppData);
+
+		try {
+			getAnonymousService().deleteAll();
+			fail();
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+
+		getService().deleteAll();
+		assertEquals(getService().allUids().size(), 0);
 	}
 
 	@Test
