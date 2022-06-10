@@ -163,7 +163,7 @@ public abstract class AbstractServiceTests {
 
 		containerHome = new ContainerStore(defaultContext, JdbcActivator.getInstance().getDataSource(),
 				defaultSecurityContext);
-		containerHome.createContainerLocation(tagContainer, datalocation);
+		containerHome.createOrUpdateContainerLocation(tagContainer, datalocation);
 
 		AclStore aclStore = new AclStore(defaultContext, dataDataSource);
 		aclStore.store(tagContainer,
@@ -200,7 +200,7 @@ public abstract class AbstractServiceTests {
 
 		containerHome = new ContainerStore(new BmTestContext(defaultSecurityContext),
 				JdbcActivator.getInstance().getDataSource(), defaultSecurityContext);
-		containerHome.createContainerLocation(container, datalocation);
+		containerHome.createOrUpdateContainerLocation(container, datalocation);
 
 		return container;
 	}

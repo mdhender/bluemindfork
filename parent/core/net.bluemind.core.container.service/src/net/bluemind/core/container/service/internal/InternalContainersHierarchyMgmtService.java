@@ -87,7 +87,7 @@ public class InternalContainersHierarchyMgmtService implements IInternalContaine
 		});
 		if (resolvedLoc != null) {
 			JdbcAbstractStore.doOrFail(() -> {
-				dirStore.createContainerLocation(hierCont, resolvedLoc);
+				dirStore.createOrUpdateContainerLocation(hierCont, resolvedLoc);
 				return null;
 			});
 		}

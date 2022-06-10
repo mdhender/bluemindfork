@@ -49,7 +49,7 @@ public class CalendarDataSourceTests extends AbstractCalendarTests {
 
 		ContainerStore directoryStore = new ContainerStore(testContext, JdbcActivator.getInstance().getDataSource(),
 				userSecurityContext);
-		directoryStore.createContainerLocation(wrongDsCalendar, null);
+		directoryStore.createOrUpdateContainerLocation(wrongDsCalendar, null);
 
 		UserSubscriptionStore userSubcriptionStore = new UserSubscriptionStore(userSecurityContext,
 				JdbcActivator.getInstance().getDataSource(), domainContainer);

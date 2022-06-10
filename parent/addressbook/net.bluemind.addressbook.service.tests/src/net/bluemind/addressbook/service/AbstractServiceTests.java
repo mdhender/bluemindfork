@@ -179,7 +179,7 @@ public abstract class AbstractServiceTests {
 		}
 
 		ContainerStore directoryStore = new ContainerStore(context, context.getDataSource(), defaultSecurityContext);
-		directoryStore.createContainerLocation(tagContainer, datalocation);
+		directoryStore.createOrUpdateContainerLocation(tagContainer, datalocation);
 
 		AclStore aclStore = new AclStore(new BmTestContext(SecurityContext.SYSTEM), dataDataSource);
 		aclStore.store(tagContainer,
@@ -215,7 +215,7 @@ public abstract class AbstractServiceTests {
 		assertNotNull(container);
 
 		ContainerStore directoryStore = new ContainerStore(context, context.getDataSource(), defaultSecurityContext);
-		directoryStore.createContainerLocation(container, datalocation);
+		directoryStore.createOrUpdateContainerLocation(container, datalocation);
 
 		return container;
 	}

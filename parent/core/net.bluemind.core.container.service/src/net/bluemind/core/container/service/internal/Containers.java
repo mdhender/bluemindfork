@@ -157,7 +157,7 @@ public class Containers implements IContainers {
 		final ContainerStore cs = new ContainerStore(null, ds, securityContext);
 		JdbcAbstractStore.doOrFail(() -> cs.create(container));
 		JdbcAbstractStore.doOrFail(() -> {
-			directoryDataStore.createContainerLocation(container, location);
+			directoryDataStore.createOrUpdateContainerLocation(container, location);
 			return null;
 		});
 

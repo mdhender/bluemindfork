@@ -348,7 +348,7 @@ public class ContainerStore extends JdbcAbstractStore {
 	 * @param location
 	 * @throws SQLException
 	 */
-	public void createContainerLocation(Container container, String location) throws SQLException {
+	public void createOrUpdateContainerLocation(Container container, String location) throws SQLException {
 		insert("INSERT INTO t_container_location VALUES (?, ?) ON CONFLICT (container_uid) DO UPDATE SET location = ? WHERE t_container_location.container_uid = ?",
 				container, (con, statement, index, currentRow, value) -> {
 

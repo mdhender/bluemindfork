@@ -115,7 +115,7 @@ public class TagsTests {
 
 		containerHome = new ContainerStore(context, JdbcActivator.getInstance().getDataSource(),
 				defaultSecurityContext);
-		containerHome.createContainerLocation(tagContainer, datalocation);
+		containerHome.createOrUpdateContainerLocation(tagContainer, datalocation);
 
 		tagContainerItemStore = new ItemStore(dataDataSource, tagContainer, defaultSecurityContext);
 

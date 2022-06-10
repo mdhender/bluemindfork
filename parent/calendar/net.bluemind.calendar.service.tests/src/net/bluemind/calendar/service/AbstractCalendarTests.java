@@ -536,7 +536,7 @@ public abstract class AbstractCalendarTests {
 		container = containerHome.create(container);
 		if (datasource != systemDataSource) {
 			ContainerStore directoryStore = new ContainerStore(ctx, ctx.getDataSource(), context);
-			directoryStore.createContainerLocation(container, datalocation);
+			directoryStore.createOrUpdateContainerLocation(container, datalocation);
 		}
 		IUserSubscription subApi = ctx.provider().instance(IUserSubscription.class, domainUid);
 		subApi.subscribe(context.getSubject(), Arrays.asList(ContainerSubscription.create(container.uid, true)));

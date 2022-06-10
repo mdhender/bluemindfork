@@ -92,7 +92,7 @@ public class InternalOwnerSubscriptionsMgmtService implements IInternalOwnerSubs
 			} else {
 				logger.warn("container {} already exist", subsUid);
 			}
-			dirStore.createContainerLocation(subsCont, entry.dataLocation);
+			dirStore.createOrUpdateContainerLocation(subsCont, entry.dataLocation);
 		} catch (SQLException e) {
 			throw new ServerFault(e);
 		}
