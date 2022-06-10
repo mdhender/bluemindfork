@@ -1,9 +1,15 @@
 <template>
     <div
-        ref="preview-div"
         class="text-center attachment-preview overflow-hidden d-flex justify-content-center align-items-center"
+        :class="fileTypeIcon"
     >
-        <img v-if="hasPreview" ref="preview-image" :src="previewUrl" :alt="$tc('common.attachmentPreview')" />
+        <img
+            v-if="hasPreview"
+            ref="preview-image"
+            class="preview"
+            :src="previewUrl"
+            :alt="$tc('common.attachmentPreview')"
+        />
         <div v-else class="preview w-100 text-center mb-1 p-1">
             <bm-icon :icon="fileTypeIcon" size="6x" class="m-auto preview-file-type" />
         </div>
@@ -52,9 +58,19 @@ export default {
 };
 </script>
 <style lang="scss">
+@import "@bluemind/styleguide/css/_variables.scss";
+
 .attachment-preview {
     & > img {
         max-width: 100%;
+    }
+    .preview {
+        background-color: $neutral-bg;
+        height: 7em;
+    }
+    .preview-file-type {
+        color: $neutral-bg;
+        background-color: $lowest;
     }
 }
 </style>

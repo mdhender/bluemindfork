@@ -17,12 +17,12 @@
                 <bm-icon icon="cloud" class="ml-2 text-danger" size="2x" />
             </div>
             <div v-else class="d-flex align-items-center mb-3">
-                <bm-icon icon="file" size="2x" class="mr-2 text-primary" />
+                <bm-icon icon="file" size="2x" class="mr-2 text-secondary" />
                 <span :class="arrowClass">
                     <span class="font-size-h1">&#8226; &#8226; &#8226; &#8226; &#8226; &#8226;</span>
                 </span>
-                <bm-icon icon="chevron-right" size="lg" :class="isFinished ? 'text-primary' : 'text-secondary'" />
-                <bm-icon icon="cloud" class="ml-2 text-primary" size="2x" />
+                <bm-icon icon="chevron-right" size="lg" :class="isFinished ? 'text-secondary' : 'text-neutral'" />
+                <bm-icon icon="cloud" class="ml-2 text-secondary" size="2x" />
             </div>
             <div v-if="hasSomeErrorStatus" class="mb-4 text-danger">
                 {{ $tc("mail.filehosting.share.failure", fhAttachments.length) }}
@@ -46,7 +46,7 @@
                             class="mt-2 ml-2"
                             @click="cancel(attachment.address)"
                         />
-                        <span v-else class="text-secondary ml-2 mt-2 text-nowrap">
+                        <span v-else class="text-neutral ml-2 mt-2 text-nowrap">
                             {{ $t("mail.filehosting.import.successful") }}
                         </span>
                     </template>
@@ -54,10 +54,10 @@
             </div>
         </div>
         <template #modal-footer>
-            <bm-button variant="simple-dark" :disabled="isFinished" @click="cancelAll">
+            <bm-button variant="simple-inline" :disabled="isFinished" @click="cancelAll">
                 {{ $t("mail.filehosting.share.stop") }}
             </bm-button>
-            <bm-button variant="outline-primary" @click="hideModal">
+            <bm-button variant="outline-secondary" @click="hideModal">
                 {{ $t("common.hide") }}
             </bm-button>
         </template>
@@ -105,7 +105,7 @@ export default {
             return this.fhAttachments.some(this.hasErrorStatus);
         },
         arrowClass() {
-            return this.isFinished ? "text-primary" : "arrow";
+            return this.isFinished ? "text-secondary" : "arrow";
         }
     },
     watch: {
@@ -135,7 +135,7 @@ export default {
             const index = this.fhAttachments.findIndex(attachment => {
                 return attachment.address === address;
             });
-            this.fhAttachments.splice(index);
+            index > 1 ? this.fhAttachments.splice(index) : this.fhAttachments.shift();
         },
         cancelAll() {
             this.fhAttachments
@@ -162,22 +162,22 @@ export default {
 
 #file-hosting-modal {
     .text-light {
-        color: $alternate-light;
+        color: $neutral-fg-lo2;
     }
     .font-size-h1 {
         font-size: $h1-font-size;
     }
     .arrow {
-        background-image: linear-gradient(90deg, $primary 0%, $primary 100%);
+        background-image: linear-gradient(90deg, $neutral-bg 0%, $neutral-bg 100%);
         background-clip: text;
         -webkit-background-clip: text;
         color: transparent;
         animation-name: arrow;
-        animation-duration: 3s;
+        animation-duration: 1s;
         animation-iteration-count: infinite;
         animation-timing-function: linear;
         background-size: 0%;
-        background-color: $secondary;
+        background-color: $secondary-bg;
         background-repeat: no-repeat;
     }
     @keyframes arrow {

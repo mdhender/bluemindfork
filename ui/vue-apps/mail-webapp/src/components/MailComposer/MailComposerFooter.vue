@@ -48,7 +48,7 @@
                 multiple
                 hidden
                 @change="$execute('add-attachments', { files: $event.target.files, message, maxSize })"
-                @click.stop
+                @click.stop="closeFilePicker()"
             />
             <bm-button
                 variant="simple-neutral"
@@ -196,6 +196,9 @@ export default {
     },
     methods: {
         ...mapMutations("mail", { SET_TEMPLATE_CHOOSER_TARGET, SET_TEMPLATE_CHOOSER_VISIBLE, SHOW_SENDER }),
+        closeFilePicker() {
+            this.$refs.attachInputRef.value = "";
+        },
         openFilePicker() {
             this.$refs.attachInputRef.click();
         },

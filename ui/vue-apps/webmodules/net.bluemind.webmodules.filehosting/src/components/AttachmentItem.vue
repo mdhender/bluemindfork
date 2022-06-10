@@ -2,11 +2,11 @@
     <div class="fh-attachment-item">
         <div class="d-flex justify-content-between align-items-center">
             <bm-label-icon icon="file" icon-size="2x" class="mt-2 label">
-                <h2 class="text-secondary text-truncate">{{ attachment.fileName }}</h2>
+                <h2 class="text-neutral text-truncate">{{ attachment.fileName }}</h2>
             </bm-label-icon>
             <slot name="item-actions" />
         </div>
-        <span class="text-secondary ml-4 text-right">
+        <span class="text-neutral ml-4 text-right">
             <span v-if="!hasErrorStatus">
                 {{ displaySize(attachment.progress.loaded) }} / {{ displaySize(attachment.progress.total) }}
             </span>
@@ -17,7 +17,7 @@
         <bm-progress
             :value="attachment.progress.loaded"
             :max="attachment.progress.total"
-            :variant="hasErrorStatus ? 'danger' : 'primary'"
+            :variant="hasErrorStatus ? 'danger' : 'secondary'"
         />
     </div>
 </template>

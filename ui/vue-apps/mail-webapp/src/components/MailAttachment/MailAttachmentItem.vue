@@ -205,14 +205,18 @@ export default {
         background-color: transparent;
     }
 
-    .preview {
-        background-color: $neutral-bg;
-        height: 7em;
+    .muted {
+        opacity: 0.5;
     }
-    .preview-file-type {
-        color: $neutral-bg;
-        background-color: $lowest;
+
+    .attachment-text {
+        line-height: 1.085em;
     }
+    .remove-attachment {
+        padding: 0;
+        margin-left: $sp-2;
+    }
+
     &:hover {
         @each $file-type, $color in $file-type-icons-colors {
             .#{$file-type} {
@@ -224,18 +228,6 @@ export default {
                 }
             }
         }
-    }
-
-    .muted {
-        opacity: 0.5;
-    }
-
-    .attachment-text {
-        line-height: 1.085em;
-    }
-    .remove-attachment {
-        padding: 0;
-        margin-left: $sp-2;
     }
 }
 </style>

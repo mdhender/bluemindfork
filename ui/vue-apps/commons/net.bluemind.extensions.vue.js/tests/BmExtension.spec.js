@@ -1,19 +1,17 @@
+import inject from "@bluemind/inject";
 import { mount } from "@vue/test-utils";
-import { default as BmExtension, Cache } from "../src/BmExtension";
 import { mapExtensions } from "@bluemind/extensions";
+import { default as BmExtension, Cache } from "../src/BmExtension";
+import BmExtensionList from "../src/BmExtensionList";
+import BmExtensionDecorator from "../src/BmExtensionDecorator";
+import BmExtensionRenderless from "../src/BmExtensionRenderless";
 
-jest.mock("@bluemind/extension");
+jest.mock("@bluemind/extensions");
+inject.register({ provide: "UserSession", factory: () => ({ roles: "" }) });
 
 self.bundleResolve = jest.fn().mockImplementation((id, callback) => callback());
 
 describe("BmExtension", () => {
-    const DummyComponent = { render: h => h("div", { class: ["dummy"] }) };
-    const AnotherComponent = { render: h => h("div", { class: ["another"] }) };
-    const DecoratorComponent = {
-        render(h) {
-            return h("div", this.$slots.default);
-        }
-    };
     beforeEach(() => {
         mapExtensions.mockReset();
         mapExtensions.mockReturnValue({ extensions: [] });
@@ -37,91 +35,55 @@ describe("BmExtension", () => {
         });
         expect(mapExtensions).toHaveBeenCalledWith("test.dummy.id", ["component"]);
     });
-    test("To be empty if there is no extensions", () => {
-        let wrapper = mount(BmExtension, {
-            propsData: {
-                id: "test.dummy.id",
-                path: "dummy-element"
-            }
-        });
-        expect(wrapper.element).toBeEmptyDOMElement();
-        wrapper = mount(BmExtension, {
-            stubs: { DummyComponent },
-            propsData: {
-                id: "test.dummy.id",
-                path: "dummy-element",
-                decorator: "DummyComponent"
-            }
-        });
-        expect(wrapper.element).toBeEmptyDOMElement();
-        wrapper = mount(BmExtension, {
-            propsData: {
-                id: "test.dummy.id",
-                path: "dummy-element",
-                decorator: "DummyComponent"
-            },
-            slots: {
-                default: "Default"
-            }
-        });
-        expect(wrapper.element).toBeEmptyDOMElement();
-    });
+});
 
-    test("To insert component defined within extension", () => {
-        mapExtensions.mockReturnValue({
-            component: [
-                { name: "DummyComponent", path: "dummy-element", $loaded: { status: true } },
-                { name: "DummyComponent", path: "dummy-element", $loaded: { status: true } },
-                { name: "AnotherComponent", path: "dummy-element", $loaded: { status: true } }
-            ]
+describe("BmExtension switch to right extension type", () => {
+    beforeEach(() => {
+        mapExtensions.mockReset();
+
+        mapExtensions.mockReturnValue({ extensions: [{ name: "extension-one", path: "dummy-path" }] });
+        Cache.clear();
+    }),
+        test("to create a BmExtensionDecorator", () => {
+            const wrapper = mount(BmExtension, {
+                propsData: {
+                    id: "test.dummy.id",
+                    path: "dummy-element",
+                    type: "decorator"
+                }
+            });
+            expect(wrapper.findAllComponents(BmExtensionDecorator).length).toBe(1);
         });
-        let wrapper = mount(BmExtension, {
-            stubs: { DummyComponent, AnotherComponent },
+    test("to create a BmExtensionList", () => {
+        const wrapper = mount(BmExtension, {
+            propsData: {
+                id: "test.dummy.id",
+                path: "dummy-element",
+                type: "list"
+            }
+        });
+        expect(wrapper.findAllComponents(BmExtensionList).length).toBe(1);
+    });
+    test("to create a BmExtensionList by default", () => {
+        const wrapper = mount(BmExtension, {
             propsData: {
                 id: "test.dummy.id",
                 path: "dummy-element"
             }
         });
-        expect(wrapper.findAllComponents(AnotherComponent).length).toBe(1);
-        expect(wrapper.findAllComponents(DummyComponent).length).toBe(2);
+        expect(wrapper.findAllComponents(BmExtensionList).length).toBe(1);
     });
-    test("To wrap component inside Decorator if a decorator is used", () => {
-        mapExtensions.mockReturnValue({
-            component: [
-                { name: "DummyComponent", path: "dummy-element", $loaded: { status: true } },
-                { name: "DummyComponent", path: "dummy-element", $loaded: { status: true } }
-            ]
-        });
-        let wrapper = mount(BmExtension, {
-            stubs: { DummyComponent, DecoratorComponent },
+    test("to create a BmExtensionRenderless", () => {
+        const wrapper = mount(BmExtension, {
             propsData: {
                 id: "test.dummy.id",
                 path: "dummy-element",
-                decorator: "DecoratorComponent"
-            }
-        });
-        expect(wrapper.findAllComponents(DecoratorComponent).length).toBe(2);
-        expect(wrapper.findComponent(DecoratorComponent).find(".dummy").exists).toBeTruthy();
-    });
-    test("To use default slot to decorate component", () => {
-        mapExtensions.mockReturnValue({
-            component: [
-                { name: "DummyComponent", path: "dummy-element", $loaded: { status: true } },
-                { name: "DummyComponent", path: "dummy-element", $loaded: { status: true } }
-            ]
-        });
-        let wrapper = mount(BmExtension, {
-            stubs: { DummyComponent },
-            propsData: {
-                id: "test.dummy.id",
-                path: "dummy-element",
-                decorator: "DecoratorComponent"
+                type: "renderless"
             },
             scopedSlots: {
-                default: '<div class="slot"><component :is="props.name" /></div>'
+                default: `<span> Hello </span>`
             }
         });
-        expect(wrapper.findAll(".slot").length).toBe(2);
-        expect(wrapper.find(".slot").find(".dummy").exists()).toBeTruthy();
+        expect(wrapper.findAllComponents(BmExtensionRenderless).length).toBe(1);
     });
 });
