@@ -312,7 +312,7 @@ net.bluemind.calendar.CalendarApplication.prototype.registerClients = function(c
   ctx.client('calendar-autocomplete', net.bluemind.calendar.api.CalendarAutocompleteClient);
   ctx.client('calendar', net.bluemind.calendar.api.CalendarClient);
   ctx.client('print', net.bluemind.calendar.api.PrintClient);
-  ctx.client('calendar-view', net.bluemind.calendar.api.CalendarViewClient);
+  ctx.client('calendar-view', net.bluemind.calendar.api.UserCalendarViewsClient);
 };
 
 /** @override */

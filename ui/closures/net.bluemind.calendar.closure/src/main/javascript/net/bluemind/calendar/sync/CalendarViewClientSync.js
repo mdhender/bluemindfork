@@ -22,11 +22,11 @@
  */
 goog.provide('net.bluemind.calendar.sync.CalendarViewSyncClient');
 
-goog.require("net.bluemind.calendar.api.CalendarViewClient");
+goog.require("net.bluemind.calendar.api.UserCalendarViewsClient");
 goog.require("net.bluemind.container.sync.ContainerSyncClient");
 
 net.bluemind.calendar.sync.CalendarViewSyncClient = function(ctx, mailboxUid) {
-  this.calClient = new net.bluemind.calendar.api.CalendarViewClient(ctx.rpc, '', mailboxUid);
+  this.calClient = new net.bluemind.calendar.api.UserCalendarViewsClient(ctx.rpc, '', ctx.user['domainUid'], ctx.user['uid']);
 };
 goog.inherits(net.bluemind.calendar.sync.CalendarViewSyncClient, net.bluemind.container.sync.ContainerSyncClient);
 

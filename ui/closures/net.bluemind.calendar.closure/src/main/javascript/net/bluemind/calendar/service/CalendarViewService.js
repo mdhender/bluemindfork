@@ -23,7 +23,7 @@
 
 goog.provide("net.bluemind.calendar.service.CalendarViewService");
 
-goog.require("net.bluemind.calendar.api.CalendarViewClient");
+goog.require("net.bluemind.calendar.api.UserCalendarViewsClient");
 goog.require("net.bluemind.container.service.ContainerService");
 goog.require("goog.events.EventTarget");
 goog.require("net.bluemind.mvp.helper.ServiceHelper");
@@ -73,8 +73,7 @@ net.bluemind.calendar.service.CalendarViewService.prototype.getViewsLocal = func
   return this.cs_.getItems("calendarview:" + this.ctx.user['uid']);
 }
 net.bluemind.calendar.service.CalendarViewService.prototype.getViewsRemote = function() {
-  var client = new net.bluemind.calendar.api.CalendarViewClient(this.ctx.rpc, '', "calendarview:"
-      + this.ctx.user['uid']);
+  var client = new net.bluemind.calendar.api.UserCalendarViewsClient(this.ctx.rpc, '', this.ctx.user['domainUid'], this.ctx.user['uid']);
   return client.list().then(function(r) {
     return r['values'];
   });
@@ -92,8 +91,7 @@ net.bluemind.calendar.service.CalendarViewService.prototype.getViewLocal = funct
   return this.cs_.getItem("calendarview:" + this.ctx.user['uid'], id);
 }
 net.bluemind.calendar.service.CalendarViewService.prototype.getViewRemote = function(id) {
-  var client = new net.bluemind.calendar.api.CalendarViewClient(this.ctx.rpc, '', "calendarview:"
-      + this.ctx.user['uid']);
+  var client = new net.bluemind.calendar.api.UserCalendarViewsClient(this.ctx.rpc, '', this.ctx.user['domainUid'], this.ctx.user['uid']);
   return client.getComplete(id);
 }
 
@@ -106,8 +104,7 @@ net.bluemind.calendar.service.CalendarViewService.prototype.createView = functio
 }
 
 net.bluemind.calendar.service.CalendarViewService.prototype.createViewLocalRemote = function(uid, value) {
-  var client = new net.bluemind.calendar.api.CalendarViewClient(this.ctx.rpc, '', "calendarview:"
-      + this.ctx.user['uid']);
+  var client = new net.bluemind.calendar.api.UserCalendarViewsClient(this.ctx.rpc, '', this.ctx.user['domainUid'], this.ctx.user['uid']);
   return client.create(uid, value).then(function() {
     return this.cs_.storeItemWithoutChangeLog({
       'uid' : uid,
@@ -129,8 +126,8 @@ net.bluemind.calendar.service.CalendarViewService.prototype.createViewLocal = fu
 }
 
 net.bluemind.calendar.service.CalendarViewService.prototype.createViewRemote = function(uid, value) {
-  var client = new net.bluemind.calendar.api.CalendarViewClient(this.ctx.rpc, '', "calendarview:"
-      + this.ctx.user['uid']);
+  var client = new net.bluemind.calendar.api.UserCalendarViewsClient(this.ctx.rpc, '', this.ctx.user['domainUid'], this.ctx.user['uid']);
+
   return client.create(uid, value);
 }
 
@@ -143,8 +140,8 @@ net.bluemind.calendar.service.CalendarViewService.prototype.updateView = functio
 }
 
 net.bluemind.calendar.service.CalendarViewService.prototype.updateViewLocalRemote = function(uid, value) {
-  var client = new net.bluemind.calendar.api.CalendarViewClient(this.ctx.rpc, '', "calendarview:"
-      + this.ctx.user['uid']);
+  var client = new net.bluemind.calendar.api.UserCalendarViewsClient(this.ctx.rpc, '', this.ctx.user['domainUid'], this.ctx.user['uid']);
+
   return client.update(uid, value).then(function() {
     return this.cs_.storeItemWithoutChangeLog({
       'uid' : uid,
@@ -165,8 +162,8 @@ net.bluemind.calendar.service.CalendarViewService.prototype.updateViewLocal = fu
 }
 
 net.bluemind.calendar.service.CalendarViewService.prototype.updateViewRemote = function(uid, value) {
-  var client = new net.bluemind.calendar.api.CalendarViewClient(this.ctx.rpc, '', "calendarview:"
-      + this.ctx.user['uid']);
+  var client = new net.bluemind.calendar.api.UserCalendarViewsClient(this.ctx.rpc, '', this.ctx.user['domainUid'], this.ctx.user['uid']);
+
   return client.update(uid, value);
 }
 
@@ -179,8 +176,8 @@ net.bluemind.calendar.service.CalendarViewService.prototype.deleteView = functio
 }
 
 net.bluemind.calendar.service.CalendarViewService.prototype.deleteViewLocalRemote = function(uid, value) {
-  var client = new net.bluemind.calendar.api.CalendarViewClient(this.ctx.rpc, '', "calendarview:"
-      + this.ctx.user['uid']);
+  var client = new net.bluemind.calendar.api.UserCalendarViewsClient(this.ctx.rpc, '', this.ctx.user['domainUid'], this.ctx.user['uid']);
+
   return client.delete_(uid).then(function() {
     return this.cs_.deleteItemWithoutChangeLog("calendarview:" + this.ctx.user['uid'], uid);
   }, null, this);
@@ -192,8 +189,8 @@ net.bluemind.calendar.service.CalendarViewService.prototype.deleteViewLocal = fu
 }
 
 net.bluemind.calendar.service.CalendarViewService.prototype.deleteViewRemote = function(uid, value) {
-  var client = new net.bluemind.calendar.api.CalendarViewClient(this.ctx.rpc, '', "calendarview:"
-      + this.ctx.user['uid']);
+  var client = new net.bluemind.calendar.api.UserCalendarViewsClient(this.ctx.rpc, '', this.ctx.user['domainUid'], this.ctx.user['uid']);
+
   return client.delete_(uid);
 }
 
