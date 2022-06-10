@@ -83,11 +83,14 @@ public class InternalContainersHierarchyMgmtService implements IInternalContaine
 			} else {
 				store.updateName(hierCont.uid, hierCont.name);
 			}
-			if (resolvedLoc != null) {
-				dirStore.createContainerLocation(hierCont, resolvedLoc);
-			}
 			return null;
 		});
+		if (resolvedLoc != null) {
+			JdbcAbstractStore.doOrFail(() -> {
+				dirStore.createContainerLocation(hierCont, resolvedLoc);
+				return null;
+			});
+		}
 		logger.info("***** Containers hierarchy init for owner: {} domainUid: {}, loc: {}", ownerUid, domainUid,
 				resolvedLoc);
 	}
