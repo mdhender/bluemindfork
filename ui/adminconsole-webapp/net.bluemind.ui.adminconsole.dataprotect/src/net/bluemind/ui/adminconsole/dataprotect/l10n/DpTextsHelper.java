@@ -42,6 +42,8 @@ public class DpTextsHelper {
 			return DPTexts.INST.replacetodolists();
 		case "replace.notes":
 			return DPTexts.INST.replacenotes();
+		case "replace.webappdata":
+			return DPTexts.INST.replacewebappdata();
 		case "send.books.vcf":
 			return DPTexts.INST.sendbooksvcf();
 		case "send.calendars.ics":

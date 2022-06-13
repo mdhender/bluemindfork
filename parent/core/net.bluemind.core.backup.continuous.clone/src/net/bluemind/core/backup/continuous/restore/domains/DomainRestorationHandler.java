@@ -23,6 +23,7 @@ import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreVCard;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreVEventSeries;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreVNote;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreVTodo;
+import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreWebAppData;
 import net.bluemind.core.backup.continuous.restore.domains.crud.directories.RestoreDirectories;
 import net.bluemind.core.backup.continuous.restore.domains.replication.RestoreMailboxRecords;
 import net.bluemind.core.backup.continuous.restore.domains.replication.RestoreReplicatedMailboxes;
@@ -65,7 +66,8 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 				new RestoreMailflow(log, domain, target), //
 				new RestoreUserAccounts(log, domain, target), //
 				new RestoreMailboxIdentity(log, domain, target), //
-				new RestoreUserMailIdentities(log, domain, target)) //
+				new RestoreUserMailIdentities(log, domain, target), //
+				new RestoreWebAppData(log, domain, target)) //
 				.stream().collect(Collectors.toMap(RestoreDomainType::type, Function.identity()));
 	}
 

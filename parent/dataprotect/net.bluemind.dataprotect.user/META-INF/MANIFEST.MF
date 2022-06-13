@@ -25,7 +25,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.group.api,
  net.bluemind.core.caches.registry;bundle-version="4.1.0",
  net.bluemind.user.persistence,
- net.bluemind.core.container.persistence
+ net.bluemind.core.container.persistence,
+ net.bluemind.dataprotect.webappdata
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.dataprotect.user

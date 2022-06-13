@@ -162,7 +162,11 @@ public class WebAppDataService implements IWebAppData {
 	@Override
 	public void restore(ItemValue<WebAppData> item, boolean isCreate) {
 		rbacManager.check(Verb.Write.name());
-		// TODO Auto-generated method stub
+		if (isCreate) {
+			create(item.uid, item.value);
+		} else {
+			update(item.uid, item.value);
+		}
 	}
 
 	@Override

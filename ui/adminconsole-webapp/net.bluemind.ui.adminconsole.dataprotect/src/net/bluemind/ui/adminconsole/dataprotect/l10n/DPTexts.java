@@ -99,4 +99,6 @@ public interface DPTexts extends Messages {
 
 	String replacenotes();
 
+	String replacewebappdata();
+
 }

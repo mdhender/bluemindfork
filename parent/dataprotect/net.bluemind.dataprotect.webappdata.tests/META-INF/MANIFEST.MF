@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: net.bluemind.dataprotect.user.tests
-Bundle-SymbolicName: net.bluemind.dataprotect.user.tests
+Bundle-Name: net.bluemind.dataprotect.webappdata.tests
+Bundle-SymbolicName: net.bluemind.dataprotect.webappdata.tests
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
@@ -13,34 +13,21 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.imap,
  net.bluemind.user.api,
  net.bluemind.core.rest.http,
- net.bluemind.mailbox.api,
- net.bluemind.mailshare.api,
  net.bluemind.system.service;bundle-version="4.1.0",
  net.bluemind.core.tests.testshelper,
  net.bluemind.server.api,
  net.bluemind.server.hook,
  net.bluemind.dataprotect.api,
- net.bluemind.dataprotect.calendar;bundle-version="4.1.0",
  net.bluemind.node.api;bundle-version="4.1.0",
  net.bluemind.config,
  net.bluemind.core.task.service,
- net.bluemind.calendar.api,
- net.bluemind.calendar.service,
- net.bluemind.calendar.usercalendar,
  net.bluemind.node.server,
  net.bluemind.dataprotect.postgresql;bundle-version="4.1.0",
  net.bluemind.system.api,
- net.bluemind.dataprotect.user,
- net.bluemind.addressbook.api;bundle-version="4.1.0",
- net.bluemind.tag.hooks;bundle-version="4.1.0",
- net.bluemind.dataprotect.addressbook;bundle-version="4.1.0",
- net.bluemind.dataprotect.todolist;bundle-version="4.1.0",
- net.bluemind.dataprotect.notes;bundle-version="4.1.0",
- net.bluemind.dataprotect.mailbox;bundle-version="4.1.0",
- net.bluemind.backend.cyrus;bundle-version="4.1.0",
- net.bluemind.user.service,
+ net.bluemind.dataprotect.webappdata,
  net.bluemind.system.schemaupgrader.tests;bundle-version="4.1.0",
+ net.bluemind.webappdata.api,
  net.bluemind.webappdata.service;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Automatic-Module-Name: net.bluemind.dataprotect.user.tests
+Automatic-Module-Name: net.bluemind.dataprotect.webappdata.tests

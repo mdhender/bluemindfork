@@ -51,6 +51,7 @@ import net.bluemind.dataprotect.api.IDataProtect;
 import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.api.RestoreDefinition;
 import net.bluemind.dataprotect.service.BackupDataProvider;
+import net.bluemind.dataprotect.webappdata.RestoreUserWebAppData;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
@@ -130,6 +131,9 @@ public class RestoreUserTask implements IServerTask {
 
 		RestoreDefinition restoreNotes = new RestoreDefinition("replace.notes", backup.id, item);
 		executeTask(dp, restoreNotes);
+
+		RestoreDefinition restoreWebAppData = new RestoreDefinition(RestoreUserWebAppData.identifier, backup.id, item);
+		executeTask(dp, restoreWebAppData);
 
 		monitor.end(true, "user " + item.entryUid + ":" + item.displayName + " restored", "");
 	}
