@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -86,13 +87,14 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 		String group = tok.groupId;
 
 		ParallelStarvationHandler parStrat = new ParallelStarvationHandler(strat, tok.workers);
+		ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 		int consumerId = CONS_ID_ALLOCATOR.incrementAndGet();
 		for (int i = 0; i < tok.workers; i++) {
 			final int idx = i;
 			String client = "cons-" + consumerId + "-client-" + idx;
 			proms[i] = CompletableFuture.<Long>supplyAsync(() -> {
 				logger.info("Starting {} for topic {}", client, topicName);
-				return consumeLoop(handler, parStrat, group, client);
+				return consumeLoop(handler, lock, parStrat, group, client);
 			}, pool);
 		}
 		CompletableFuture.allOf(proms).join();
@@ -100,66 +102,86 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 		return tok;
 	}
 
-	private long consumeLoop(RecordHandler handler, IRecordStarvationStrategy strat, String gid, String cid) {
+	private long consumeLoop(RecordHandler handler, ReentrantReadWriteLock lock, IRecordStarvationStrategy strat,
+			String gid, String cid) {
 		AtomicLong processed = new AtomicLong();
 		boolean assigned = false;
 
 		try (KafkaConsumer<byte[], byte[]> consumer = createKafkaConsumer(gid, cid)) {
 			consumer.subscribe(Collections.singletonList(topicName));
-
+			JsonObject recJs = new JsonObject().put("topic", topicName);
 			do {
 				ConsumerRecords<byte[], byte[]> someRecords = consumer.poll(Duration.ofMillis(500));
 
 				if (someRecords.isEmpty()) {
 					if (consumer.assignment().isEmpty()) {
+						strat.onRecordsReceived(recJs);
 						continue;
 					} else {
 						if (!assigned) {
 							logger.info("[{} / {}]  got {} partition(s) assignment(s).", gid, cid,
 									consumer.assignment().size());
 							assigned = true;
+							// this is needed for lag evaluation to work
 							Map<TopicPartition, Long> endOffsets = consumer.endOffsets(consumer.assignment());
 							endOffsets.forEach((tp, end) -> {
-								// this is needed for lag evaluation to work
 								if (logger.isDebugEnabled()) {
 									logger.debug("part {} ends at offset {}", tp.partition(), end);
 								}
 							});
+							strat.onRecordsReceived(recJs);
 							continue;
 						}
 					}
 
-					// avoid false positive on starvations ?
 					if (lagValue(consumer) > 0) {
+						strat.onRecordsReceived(recJs);
 						continue;
 					}
-					ExpectedBehaviour expected = strat.onStarvation(
-							new JsonObject().put("topic", topicName).put("cid", cid).put("records", processed.get()));
+					ExpectedBehaviour expected = ExpectedBehaviour.RETRY;
+
+					try {
+						lock.writeLock().lock();
+						expected = strat.onStarvation(new JsonObject().put("topic", topicName).put("cid", cid)
+								.put("records", processed.get()));
+					} finally {
+						lock.writeLock().unlock();
+					}
 					if (expected == ExpectedBehaviour.ABORT) {
 						break;
 					} else {
 						continue;
 					}
-				} else {
-					strat.onRecordsReceived(new JsonObject().put("topic", topicName));
 				}
+				strat.onRecordsReceived(recJs);
 				logger.info("Fresh batch of {} record(s)", someRecords.count());
-				someRecords.partitions().forEach(part -> {
-					someRecords.records(part).forEach(rec -> {
-						try {
-							handler.accept(rec.key(), rec.value(), rec.partition(), rec.offset());
-							processed.incrementAndGet();
-						} catch (Throwable e) {
-							logger.error("handler {} failed, SHOULD exit(1)...", handler, e);
-						}
-					});
-				});
+
+				try {
+					lock.readLock().lock();
+					processRecords(handler, processed, someRecords);
+				} finally {
+					strat.onRecordsReceived(recJs);
+					lock.readLock().unlock();
+				}
 				reportLag(gid, cid, consumer);
 				consumer.commitAsync();
 			} while (true);
 			consumer.commitSync();
 		}
 		return processed.longValue();
+	}
+
+	private void processRecords(RecordHandler handler, AtomicLong processed,
+			ConsumerRecords<byte[], byte[]> someRecords) {
+		someRecords.partitions().forEach(part -> someRecords.records(part).forEach(rec -> {
+			try {
+				handler.accept(rec.key(), rec.value(), rec.partition(), rec.offset());
+				processed.incrementAndGet();
+			} catch (Exception e) {
+				logger.error("[part {} - offset {}] handler {} failed, SHOULD exit(1)...", rec.partition(),
+						rec.offset(), handler, e);
+			}
+		}));
 	}
 
 	private void reportLag(String gid, String cid, KafkaConsumer<byte[], byte[]> consumer) {

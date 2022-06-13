@@ -57,13 +57,14 @@ public class ParallelStarvationHandler implements IRecordStarvationStrategy {
 	private final AtomicReference<IRecordStarvationStrategy> delegate;
 	private final AtomicLong lastRec;
 	private final AtomicLong lastStarv;
-	private RateLimiter logRateLimit;
+	private final RateLimiter logRateLimit;
 
 	public ParallelStarvationHandler(IRecordStarvationStrategy starved, int worker) {
 		this.delegate = new AtomicReference<>(starved);
 		this.lastRec = new AtomicLong(System.nanoTime());
 		this.lastStarv = new AtomicLong();
 		this.logRateLimit = RateLimiter.create(0.25);
+		logger.info("Preparing sub with {} worker(s) and starving to {}", worker, starved);
 
 	}
 
@@ -80,7 +81,7 @@ public class ParallelStarvationHandler implements IRecordStarvationStrategy {
 			logger.info("Delta between lastStarvation & lastRecord is {}ms.",
 					TimeUnit.NANOSECONDS.toMillis(deltaNanos));
 		}
-		if (deltaNanos > TimeUnit.SECONDS.toNanos(1)) {
+		if (deltaNanos > TimeUnit.SECONDS.toNanos(2)) {
 			logger.info("Calling into parent delegate {} (delta {}ms)", delegate.get(),
 					TimeUnit.NANOSECONDS.toMillis(deltaNanos));
 			// when the delegate decides to abort, we always abort & stop calling it
