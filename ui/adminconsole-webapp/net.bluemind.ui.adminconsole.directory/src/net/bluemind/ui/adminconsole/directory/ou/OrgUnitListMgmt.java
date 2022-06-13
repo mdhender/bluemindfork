@@ -18,6 +18,7 @@
 package net.bluemind.ui.adminconsole.directory.ou;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -29,6 +30,7 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Tree;
 
+import net.bluemind.directory.api.OrgUnitPath;
 import net.bluemind.ui.adminconsole.directory.ou.model.OrgUnitCheckBox;
 import net.bluemind.ui.adminconsole.directory.ou.model.OrgUnitItem;
 import net.bluemind.ui.common.client.SizeHint;
@@ -98,6 +100,21 @@ public class OrgUnitListMgmt {
 		Tree newTree = new Tree();
 		tree.treeItemIterator().forEachRemaining(newTree::addItem);
 		return newTree;
+	}
+
+	static List<OrgUnitPath> getParents(OrgUnitPath p) {
+		OrgUnitPath parent = p.parent;
+		if (parent == null) {
+			return Arrays.asList(p);
+		}
+
+		List<OrgUnitPath> parents = new ArrayList<>();
+		while (parent != null) {
+			parents.add(parent);
+			parent = parent.parent;
+		}
+
+		return parents;
 	}
 
 }

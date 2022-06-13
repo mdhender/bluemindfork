@@ -304,7 +304,7 @@ public class OrgUnitsBrowser extends Composite
 	}
 
 	private void reloadAfterAction(List<OrgUnitPath> list, TreeAction action) {
-		unitGrid.reload(list, action);
+		unitGrid.reload(list, action, search.getValue());
 		unitGrid.allOrgUnits.setValue(false);
 		deleteButton.setEnabled(unitListMngt.hasSelectedItems());
 		editButton.setEnabled(unitListMngt.hasSelectedItems() && getItemToEdit().isPresent());
