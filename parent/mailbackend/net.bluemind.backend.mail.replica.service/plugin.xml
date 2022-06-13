@@ -136,6 +136,12 @@
       </serviceFactory>
    </extension>
    <extension
+         point="net.bluemind.core.sanitizerfactory">
+      <sanitizerfactory
+            implementation="net.bluemind.backend.mail.replica.service.internal.sort.SortDescriptorSanitizerFactory">
+      </sanitizerfactory>
+   </extension>
+   <extension
          point="net.bluemind.core.container.sharding.sharded">
       <container
             type="mailbox_records">

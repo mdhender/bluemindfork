@@ -40,6 +40,7 @@ import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
+import net.bluemind.backend.mail.replica.service.internal.sort.MailRecordSortStrategyFactory;
 import net.bluemind.backend.mail.replica.service.sds.MessageBodyObjectStore;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.Stream;
@@ -66,6 +67,7 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.utils.InputReadStream;
 import net.bluemind.core.rest.vertx.VertxStream;
+import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.Mailbox.Type;
@@ -87,6 +89,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 	protected final ReplicasStore replicaStore;
 	protected final Optional<SubtreeLocation> optRecordsLocation;
 	protected final RBACManager rbac;
+	private final Sanitizer sortDescSanitizer;
 
 	public BaseMailboxRecordsService(Container cont, BmContext context, String mailboxUniqueId,
 			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService, ReplicasStore store) {
@@ -97,6 +100,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 		this.storeService = storeService;
 		this.replicaStore = store;
 		this.optRecordsLocation = SubtreeLocations.getById(store, mailboxUniqueId);
+		this.sortDescSanitizer = new Sanitizer(context);
 
 		this.rbac = RBACManager.forContext(context).forContainer(IMailboxAclUids.uidForMailbox(container.owner));
 	}
@@ -154,10 +158,12 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 	public List<Long> sortedIds(SortDescriptor sorted) {
 		rbac.check(Verb.Read.name());
 		try {
-			return recordStore.sortedIds(sorted);
+			sortDescSanitizer.create(sorted);
+			return recordStore.sortedIds(MailRecordSortStrategyFactory.get(sorted).queryToSort());
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+
 	}
 
 	@Override

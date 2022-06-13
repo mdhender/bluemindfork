@@ -55,12 +55,11 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.SortDescriptor;
-import net.bluemind.core.container.model.SortDescriptor.Direction;
-import net.bluemind.core.container.model.SortDescriptor.Field;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.sendmail.FailedRecipient;
 import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.SendmailCredentials;
@@ -84,6 +83,7 @@ public class OutboxService implements IOutbox {
 	private final ItemValue<Mailbox> mailboxItem;
 	private final IServiceProvider serviceProvider;
 	private final RBACManager rbac;
+	private final Sanitizer sortDescSanitizer;
 
 	private ISendmail mailer;
 
@@ -93,6 +93,7 @@ public class OutboxService implements IOutbox {
 		this.mailboxItem = mailboxItem;
 		this.serviceProvider = context.getServiceProvider();
 		this.rbac = RBACManager.forContext(context).forContainer(IMailboxAclUids.uidForMailbox(mailboxItem.uid));
+		this.sortDescSanitizer = new Sanitizer(context);
 
 		this.mailer = mailer;
 	}
@@ -354,10 +355,7 @@ public class OutboxService implements IOutbox {
 
 	private List<ItemValue<MailboxItem>> retrieveOutboxItems(IMailboxItems mailboxItemsService) {
 		SortDescriptor sortDescriptor = new SortDescriptor();
-		Field mailDate = new Field();
-		mailDate.column = "internal_date";
-		mailDate.dir = Direction.Desc;
-		sortDescriptor.fields = Arrays.asList(mailDate);
+		sortDescSanitizer.create(sortDescriptor);
 
 		List<Long> mailsIds = mailboxItemsService.sortedIds(sortDescriptor);
 		return mailboxItemsService.multipleGetById(mailsIds).stream()

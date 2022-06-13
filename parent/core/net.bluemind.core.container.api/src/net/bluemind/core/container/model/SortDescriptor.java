@@ -24,6 +24,7 @@ package net.bluemind.core.container.model;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import net.bluemind.core.api.BMApi;
 
@@ -43,4 +44,23 @@ public class SortDescriptor {
 
 	public List<Field> fields = Collections.emptyList();
 
+	public ItemFlagFilter filter = null;
+
+	@Override
+	public String toString() {
+		String sortedString = fields.isEmpty() ? null
+				: "Sort on " + fields.stream().map(f -> "" + f.column + " " + f.dir).collect(Collectors.joining(", "));
+
+		String filterString = filter == null ? null : "Filter on " + ItemFlagFilter.toQueryString(filter);
+
+		if (sortedString != null && filterString != null) {
+			return sortedString + " and " + filterString;
+		}
+
+		if (sortedString != null) {
+			return sortedString;
+		}
+
+		return filterString;
+	}
 }

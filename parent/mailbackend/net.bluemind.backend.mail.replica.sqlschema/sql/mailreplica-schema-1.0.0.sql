@@ -391,16 +391,16 @@ ON s_mailbox_record (container_id, size DESC) INCLUDE (item_id);
 CREATE INDEX IF NOT EXISTS s_mailbox_record_sender 
 ON s_mailbox_record (container_id, sender DESC) INCLUDE (item_id);
 
-CREATE INDEX IF NOT EXISTS s_mailbox_record_subject_seen 
+CREATE INDEX IF NOT EXISTS s_mailbox_record_subject_unseen 
 ON s_mailbox_record (container_id, subject DESC) INCLUDE (item_id) 
 WHERE (unseen is true);
-CREATE INDEX IF NOT EXISTS s_mailbox_record_date_seen 
+CREATE INDEX IF NOT EXISTS s_mailbox_record_date_unseen 
 ON s_mailbox_record (container_id, date DESC) INCLUDE (item_id)
 WHERE (unseen is true);
-CREATE INDEX IF NOT EXISTS s_mailbox_record_size_seen 
+CREATE INDEX IF NOT EXISTS s_mailbox_record_size_unseen 
 ON s_mailbox_record (container_id, size DESC) INCLUDE (item_id) 
 WHERE (unseen is true);
-CREATE INDEX IF NOT EXISTS s_mailbox_record_sender_seen 
+CREATE INDEX IF NOT EXISTS s_mailbox_record_sender_unseen 
 ON s_mailbox_record (container_id, sender DESC) INCLUDE (item_id)
 WHERE (unseen is true);
 
