@@ -44,7 +44,7 @@ export function getAttachmentHeaders({ fileName, size }) {
  *         i.e.: not shown in the message body, false otherwise
  */
 export function isAttachment(part) {
-    return part.dispositionType && part.dispositionType !== "INLINE";
+    return (part.dispositionType && part.dispositionType !== "INLINE") || part.mime === "application/octet-stream";
 }
 
 export default {

@@ -61,13 +61,13 @@ export default {
 @import "@bluemind/styleguide/css/_variables.scss";
 
 .attachment-preview {
+    height: 7em;
+    background-color: $neutral-bg;
+
     & > img {
         max-width: 100%;
     }
-    .preview {
-        background-color: $neutral-bg;
-        height: 7em;
-    }
+
     .preview-file-type {
         color: $neutral-bg;
         background-color: $lowest;

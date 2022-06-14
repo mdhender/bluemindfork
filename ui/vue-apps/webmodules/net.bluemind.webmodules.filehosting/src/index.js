@@ -32,16 +32,14 @@ extensions.register("webapp", "net.bluemind.webmodules.filehosting", {
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
     component: {
         name: "filehosting-attachment",
-        path: "message.attachment",
-        role: "canRemoteAttach"
+        path: "message.attachment"
     }
 });
 
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
     component: {
         name: "cloud-icon",
-        path: "attachment.infos.tags",
-        role: "canRemoteAttach"
+        path: "attachment.infos.tags"
     }
 });
 

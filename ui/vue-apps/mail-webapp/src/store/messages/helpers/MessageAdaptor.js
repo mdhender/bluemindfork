@@ -14,6 +14,7 @@ export default {
     fromMailboxItem(remote, { key, uid }) {
         const message = createWithMetadata({ internalId: remote.internalId, folder: { key, uid } });
         const eventInfo = getEventInfo(remote.value.body.headers);
+        const parts = this.computeParts(remote.value.body.structure);
         const adapted = {
             remoteRef: { imapUid: remote.value.imapUid },
             flags: remote.value.flags,
@@ -23,13 +24,11 @@ export default {
             version: remote.version,
             conversationId: remote.value.conversationId,
             headers: remote.value.body.headers,
-            ...this.computeParts(remote.value.body.structure),
-            subject: remote.value.body.subject,
-            composing: false,
+            ...parts,
             status: MessageStatus.IDLE,
             loading: LoadingStatus.LOADED,
             preview: remote.value.body.preview,
-            hasAttachment: remote.value.body.smartAttach,
+            hasAttachment: parts.attachments.length > 0 || remote.value.body.smartAttach,
             hasICS: eventInfo.hasICS,
             eventInfo
         };

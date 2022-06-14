@@ -48,7 +48,7 @@ export default {
             return MimeType.matchingIcon(this.attachment.mime);
         },
         fileSize() {
-            return computeUnit(this.attachment.size, this.$i18n);
+            return this.attachment.size > 0 ? computeUnit(this.attachment.size, this.$i18n) : "--";
         },
         previewUrl() {
             return getPartDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.attachment);
