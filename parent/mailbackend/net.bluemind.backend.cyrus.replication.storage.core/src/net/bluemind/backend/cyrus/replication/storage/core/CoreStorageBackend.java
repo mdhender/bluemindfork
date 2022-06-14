@@ -151,11 +151,11 @@ public class CoreStorageBackend implements StorageApiLink {
 	}
 
 	public CompletableFuture<IDbMessageBodiesPromise> bodies(String partition) {
-		if (!KnownRoots.validatedPartitions.contains(partition)) {
+		if (!KnownRoots.isKnownPartition(partition)) {
 			return CompletableFuture.completedFuture(asyncProv.instance(IDbMessageBodiesPromise.class, partition))
 					.thenApply(v -> {
 						logger.info("Partition {} bodies setup complete.", partition);
-						KnownRoots.validatedPartitions.add(partition);
+						KnownRoots.putKnownParitition(partition);
 						return v;
 					});
 		} else {
@@ -167,12 +167,12 @@ public class CoreStorageBackend implements StorageApiLink {
 			MailboxReplicaRootDescriptor root) {
 		String rootString = partition + "!" + root.fullName();
 		logger.debug("Checking {}...", rootString);
-		if (!KnownRoots.validatedRoots.contains(rootString)) {
+		if (!KnownRoots.isKnownRoot(rootString)) {
 			IReplicatedMailboxesRootMgmtPromise mgmtApi = asyncProv.instance(IReplicatedMailboxesRootMgmtPromise.class,
 					partition);
 			return mgmtApi.create(root).thenApply(v -> {
 				logger.info("Root {} setup complete.", rootString);
-				KnownRoots.validatedRoots.add(rootString);
+				KnownRoots.putKnownRoot(rootString);
 				return mboxesApi(partition, root.fullName());
 			});
 		} else {
