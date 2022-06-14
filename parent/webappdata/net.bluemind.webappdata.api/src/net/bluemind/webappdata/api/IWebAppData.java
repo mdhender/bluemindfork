@@ -18,16 +18,23 @@
  */
 package net.bluemind.webappdata.api;
 
+import java.util.List;
+
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICrudSupport;
 import net.bluemind.core.container.api.IDataShardSupport;
 import net.bluemind.core.container.api.IReadByIdSupport;
 import net.bluemind.core.container.api.IRestoreCrudSupport;
+import net.bluemind.core.container.model.ItemValue;
 
 /**
  * 
@@ -46,5 +53,33 @@ public interface IWebAppData extends IChangelogSupport, IDataShardSupport, ICrud
 	@GET
 	@Path("key/{key}")
 	WebAppData getByKey(@PathParam("key") String key);
+
+	@GET
+	@Path("_alluids")
+	public List<String> allUids();
+
+	@POST
+	@Path("uid/{uid}")
+	Ack update(@PathParam("uid") String uid, WebAppData value);
+
+	@PUT
+	@Path("uid/{uid}")
+	Ack create(@PathParam("uid") String uid, WebAppData value);
+
+	@DELETE
+	@Path("uid/{uid}")
+	void delete(@PathParam("uid") String uid);
+
+	@DELETE
+	@Path("_deleteAll")
+	void deleteAll();
+
+	@GET
+	@Path("uid/{uid}")
+	ItemValue<WebAppData> getComplete(@PathParam("uid") String uid);
+
+	@POST
+	@Path("uid/_mget")
+	List<ItemValue<WebAppData>> multipleGet(List<String> uids);
 
 }

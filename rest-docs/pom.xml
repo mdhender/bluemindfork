@@ -83,6 +83,7 @@
 						<apiName>net.bluemind.todolist.api</apiName>
 						<apiName>net.bluemind.notes.api</apiName>
 						<apiName>net.bluemind.user.api</apiName>
+						<apiName>net.bluemind.webappdata.api</apiName>
 					</apiNames>
 				</configuration>
 				<executions>

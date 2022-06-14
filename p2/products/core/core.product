@@ -199,6 +199,7 @@
       <plugin id="net.bluemind.dataprotect.sqlschema"/>
       <plugin id="net.bluemind.dataprotect.todolist"/>
       <plugin id="net.bluemind.dataprotect.user"/>
+      <plugin id="net.bluemind.dataprotect.webappdata"/>
       <plugin id="net.bluemind.deferredaction.api"/>
       <plugin id="net.bluemind.deferredaction.persistence"/>
       <plugin id="net.bluemind.deferredaction.registry"/>
@@ -453,6 +454,10 @@
       <plugin id="net.bluemind.videoconferencing.saas.service"/>
       <plugin id="net.bluemind.videoconferencing.service"/>
       <plugin id="net.bluemind.videoconferencing.utils"/>
+      <plugin id="net.bluemind.webappdata.api"/>
+      <plugin id="net.bluemind.webappdata.persistence"/>
+      <plugin id="net.bluemind.webappdata.service"/>
+      <plugin id="net.bluemind.webappdata.sqlschema"/>
       <plugin id="net.bluemind.webmail.sqlschema"/>
       <plugin id="net.bluemind.xivo.client"/>
       <plugin id="net.bluemind.xivo.common"/>

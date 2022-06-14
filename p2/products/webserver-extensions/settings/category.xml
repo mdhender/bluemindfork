@@ -56,4 +56,6 @@
    <bundle id="net.bluemind.ui.gwtaddressbook" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.ldap.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.ldap.api.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.webappdata.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.webappdata.api.gwt" version="4.1.0.qualifier"/>
 </site>

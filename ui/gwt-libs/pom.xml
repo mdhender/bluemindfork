@@ -53,6 +53,7 @@
 		<module>net.bluemind.metrics.alerts.api.gwt</module>
 		<module>net.bluemind.videoconferencing.api.gwt</module>
 		<module>net.bluemind.notes.api.gwt</module>
+		<module>net.bluemind.webappdata.api.gwt</module>
 	</modules>
 
 	<build>

@@ -50,6 +50,7 @@ Require-Bundle: net.bluemind.core.context;bundle-version="1.0.0";resolution:=opt
  net.bluemind.user.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.backend.mail.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.backend.mail.replica.api;bundle-version="1.0.0";resolution:=optional,
+ net.bluemind.webappdata.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.webmodule;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.webmodule.server,
  io.vertx.core,
