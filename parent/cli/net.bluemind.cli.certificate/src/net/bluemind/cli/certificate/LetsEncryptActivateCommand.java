@@ -24,8 +24,11 @@ import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
+import net.bluemind.cli.utils.Tasks;
 import net.bluemind.core.api.Regex;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.system.api.CertData;
 import net.bluemind.system.api.ISecurityMgmt;
@@ -33,7 +36,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.IExitCodeGenerator;
 import picocli.CommandLine.Option;
 
-@Command(name = "enable-lets-encrypt", description = "Enable Let's Encrypt for a domain")
+@Command(name = "enable-lets-encrypt", description = "Setup letsencrypt for the specified domain.\nTo enable globally: specify global.virt domain, or don't specify the domain.\nIf enabled globally, a certificate can ALSO be used per domain (specify --domain=).")
 public class LetsEncryptActivateCommand implements ICmdLet, Runnable, IExitCodeGenerator {
 
 	private int exitCode = 0;
@@ -56,9 +59,6 @@ public class LetsEncryptActivateCommand implements ICmdLet, Runnable, IExitCodeG
 
 	@Option(required = false, names = { "--domain", "-d" }, description = "The domain, default 'global.virt'")
 	public String domain;
-
-	@Option(required = false, names = { "--externalUrl", "-u" }, description = "The domain External URL.")
-	public String externalUrl;
 
 	@Option(required = false, names = { "--contact",
 			"-c" }, description = "The contact email to use for the certificate (default: no-reply@<default-domain>).")
@@ -94,8 +94,12 @@ public class LetsEncryptActivateCommand implements ICmdLet, Runnable, IExitCodeG
 			ctx.info(String.format("Let's Encrypt conditions accepted for domain '%s'.", domain));
 
 			CertData certData = CertData.createForLetsEncrypt(domainItem.uid, contactEmail);
-			service.generateLetsEncrypt(certData);
-			ctx.info(String.format("Let's Encrypt Certificate generated for domain '%s'.", domain));
+			TaskRef tr = service.generateLetsEncrypt(certData);
+			TaskStatus status = Tasks.follow(ctx, tr, String.format("Failed to get certificate for domain %s", domain));
+
+			if (status != null && status.state == TaskStatus.State.Success) {
+				ctx.info(String.format("Let's Encrypt Certificate generated for domain '%s'.", domain));
+			}
 		} catch (Exception e) {
 			throw new CliException(e);
 		}
@@ -112,5 +116,4 @@ public class LetsEncryptActivateCommand implements ICmdLet, Runnable, IExitCodeG
 		this.cliUtils = new CliUtils(ctx);
 		return this;
 	}
-
 }
