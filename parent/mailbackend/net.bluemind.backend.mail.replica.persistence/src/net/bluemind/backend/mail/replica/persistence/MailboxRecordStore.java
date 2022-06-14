@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Splitter;
 
 import net.bluemind.backend.mail.api.MessageBody;
-import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
@@ -51,6 +50,7 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
+import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.persistence.AbstractItemValueStore;
 import net.bluemind.core.container.persistence.LongCreator;
 import net.bluemind.core.container.persistence.StringCreator;
@@ -290,36 +290,40 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		return unique(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id, uid, owner });
 	}
 
-	public List<Long> getConversationIds(ItemFlagFilter filter) throws SQLException {
+	public List<Long> getConversationIds(SortDescriptor sorted) throws SQLException {
 		StringBuilder query = new StringBuilder("FROM v_conversation_by_folder " //
 				+ "WHERE folder_id=?");
 
-		int mustNot = filter.mustNot.stream().filter(flag -> flag != ItemFlag.Deleted).map(this::adaptFlag).reduce(0,
-				(f, flag) -> f | flag);
-		if (mustNot != 0) {
-			query.append(" AND (mask::bit(32) & " + mustNot + "::bit(32)) = " + mustNot + "::bit(32)");
+		if (isFilteredOnNotDeletedAndImportant(sorted)) {
+			query.append(" AND flagged is TRUE ");
+		} else if (isFilteredOnNotDeletedAndNotSeen(sorted)) {
+			query.append(" AND unseen is TRUE ");
 		}
-		int must = filter.must.stream().map(this::adaptFlag).reduce(0, (f, flag) -> f | flag);
-		if (must != 0) {
-			query.append(" AND (flags::bit(32) & " + must + "::bit(32)) = " + must + "::bit(32)");
+
+		if (!sorted.fields.isEmpty()) {
+			sorted.fields.stream().filter(f -> "internal_date".equals(f.column)).forEach(f -> f.column = "date");
+
+			String sort = sorted.fields.stream()
+					.map(f -> f.column + " " + (f.dir == SortDescriptor.Direction.Asc ? "ASC" : "DESC"))
+					.collect(Collectors.joining(","));
+			query.append(" ORDER BY ").append(sort);
 		}
-		query.append(" order by date desc");
+
 		String sqlValues = "SELECT conversation_id " + query.toString();
 
 		return select(sqlValues, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
 	}
 
-	private int adaptFlag(ItemFlag flag) {
-		switch (flag) {
-		case Seen:
-			return MailboxItemFlag.System.Seen.value().value;
-		case Deleted:
-			return MailboxItemFlag.System.Deleted.value().value;
-		case Important:
-			return MailboxItemFlag.System.Flagged.value().value;
-		default:
-			throw new IllegalArgumentException();
-		}
+	private static boolean isFilteredOnNotDeletedAndNotSeen(SortDescriptor sortDesc) {
+		return sortDesc.filter != null && sortDesc.filter.mustNot.size() == 2
+				&& sortDesc.filter.mustNot.stream().anyMatch(f -> f == ItemFlag.Seen)
+				&& sortDesc.filter.mustNot.stream().anyMatch(f -> f == ItemFlag.Deleted);
+	}
+
+	private static boolean isFilteredOnNotDeletedAndImportant(SortDescriptor sortDesc) {
+		return sortDesc.filter != null && sortDesc.filter.must.size() == 1 && sortDesc.filter.mustNot.size() == 1
+				&& sortDesc.filter.must.stream().anyMatch(f -> f == ItemFlag.Important)
+				&& sortDesc.filter.mustNot.stream().anyMatch(f -> f == ItemFlag.Deleted);
 	}
 
 	public List<Long> getItemsByConversations(List<String> conversationUids) throws SQLException {

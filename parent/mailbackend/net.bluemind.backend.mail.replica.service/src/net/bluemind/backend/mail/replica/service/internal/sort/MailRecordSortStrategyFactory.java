@@ -29,7 +29,7 @@ public abstract class MailRecordSortStrategyFactory {
 
 	public static IMailRecordSortStrategy get(SortDescriptor sortDesc) {
 
-		MailboxRecordsSort mailSortEngine = getMailSortStrategy(sortDesc);
+		MailboxRecordsSort mailSortEngine = getRecordsSortStrategy(sortDesc);
 
 		switch (mailSortEngine) {
 		case OPTIMIZED:
@@ -42,7 +42,7 @@ public abstract class MailRecordSortStrategyFactory {
 
 	}
 
-	private static MailboxRecordsSort getMailSortStrategy(SortDescriptor sortDesc) {
+	private static MailboxRecordsSort getRecordsSortStrategy(SortDescriptor sortDesc) {
 		if (sortDesc != null && (MailRecordSortOptimStrategy.isOptimizedSort(sortDesc)
 				|| MailRecordSortOptimStrategy.isOptimizedFilter(sortDesc))) {
 			return MailboxRecordsSort.OPTIMIZED;
@@ -52,7 +52,7 @@ public abstract class MailRecordSortStrategyFactory {
 	}
 
 	private enum MailboxRecordsSort {
-		OPTIMIZED("s_mailbox_records"), DEFAULT("t_mailbox_records"), CONVERSATION("v_conversation_by_folder");
+		OPTIMIZED("s_mailbox_records"), DEFAULT("t_mailbox_records");
 
 		private final String description;
 

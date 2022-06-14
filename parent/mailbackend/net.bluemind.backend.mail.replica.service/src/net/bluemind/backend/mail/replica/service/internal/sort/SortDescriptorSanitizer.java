@@ -40,7 +40,7 @@ public class SortDescriptorSanitizer implements ISanitizer<SortDescriptor> {
 
 	private void sanitize(SortDescriptor sortDesc) {
 		if (sortDesc == null) {
-			sortDesc = new SortDescriptor();
+			return;
 		}
 
 		if (sortDesc.fields.isEmpty()) {

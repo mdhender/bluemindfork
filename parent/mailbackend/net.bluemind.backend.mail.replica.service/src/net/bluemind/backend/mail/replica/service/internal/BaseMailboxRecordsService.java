@@ -89,7 +89,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 	protected final ReplicasStore replicaStore;
 	protected final Optional<SubtreeLocation> optRecordsLocation;
 	protected final RBACManager rbac;
-	private final Sanitizer sortDescSanitizer;
+	protected final Sanitizer sortDescSanitizer;
 
 	public BaseMailboxRecordsService(Container cont, BmContext context, String mailboxUniqueId,
 			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService, ReplicasStore store) {
@@ -158,8 +158,12 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 	public List<Long> sortedIds(SortDescriptor sorted) {
 		rbac.check(Verb.Read.name());
 		try {
-			sortDescSanitizer.create(sorted);
-			return recordStore.sortedIds(MailRecordSortStrategyFactory.get(sorted).queryToSort());
+			SortDescriptor sortDesc = sorted;
+			if (sortDesc == null) {
+				sortDesc = new SortDescriptor();
+			}
+			sortDescSanitizer.create(sortDesc);
+			return recordStore.sortedIds(MailRecordSortStrategyFactory.get(sortDesc).queryToSort());
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}

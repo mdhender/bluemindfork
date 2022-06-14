@@ -42,6 +42,8 @@ import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
 import net.bluemind.backend.mail.api.Conversation;
 import net.bluemind.backend.mail.api.Conversation.MessageRef;
 import net.bluemind.backend.mail.api.IMailConversation;
+import net.bluemind.backend.mail.api.IMailConversationActions;
+import net.bluemind.backend.mail.api.flags.ConversationFlagUpdate;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
@@ -49,9 +51,13 @@ import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.core.api.Stream;
+import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.SortDescriptor;
+import net.bluemind.core.container.model.SortDescriptor.Direction;
+import net.bluemind.core.container.model.SortDescriptor.Field;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
@@ -64,6 +70,11 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 	protected IInternalMailConversation getService(SecurityContext ctx) {
 		return ServerSideServiceProvider.getProvider(ctx).instance(IInternalMailConversation.class,
 				IMailReplicaUids.conversationSubtreeUid(super.dom, "me"));
+	}
+
+	protected IMailConversationActions getActionService(SecurityContext ctx, String replicatedMailBoxUid) {
+		return ServerSideServiceProvider.getProvider(ctx).instance(IMailConversationActions.class,
+				IMailReplicaUids.conversationSubtreeUid(super.dom, "me"), replicatedMailBoxUid);
 	}
 
 	@Test
@@ -157,6 +168,12 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 		assertEquals(new Date(1), conversationItem.value.messageRefs.get(0).date);
 	}
 
+	private SortDescriptor createSortDescriptor(ItemFlagFilter flagFilter) {
+		SortDescriptor sortDesc = new SortDescriptor();
+		sortDesc.filter = flagFilter;
+		return sortDesc;
+	}
+
 	@Test
 	public void byFolder() {
 		String conversationId = Long.toHexString(123456789L);
@@ -206,24 +223,35 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 		rec2.messageBody = bodyUid;
 		recordService.create(UUID.randomUUID().toString(), rec2);
 
-		List<String> conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId, ItemFlagFilter.all());
+		List<String> conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId,
+				createSortDescriptor(ItemFlagFilter.all()));
 		assertEquals(2, conversations.size());
 	}
 
 	@Test
-	public void byFolderByFilter() {
+	public void byFolderBySort() {
 		long conversation1 = 1234567891L;
 		long conversation2 = 888888881L;
 		String conversationId1 = Long.toHexString(conversation1);
 		String conversationId2 = Long.toHexString(conversation2);
 
-		// test body
+		// test bodies
 		IDbMessageBodies mboxes = getBodies(SecurityContext.SYSTEM);
 		assertNotNull(mboxes);
-		ReadStream<Buffer> emlReadStream = openResource("data/with_inlines.eml");
+		ReadStream<Buffer> emlReadStream = openResource("data/sort_1.eml");
 		Stream bmStream = VertxStream.stream(emlReadStream);
-		String bodyUid = CyrusGUID.randomGuid();
-		mboxes.create(bodyUid, bmStream);
+		String bodySortUid1 = CyrusGUID.randomGuid();
+		mboxes.create(bodySortUid1, bmStream);
+
+		emlReadStream = openResource("data/sort_2.eml");
+		bmStream = VertxStream.stream(emlReadStream);
+		String bodySortUid2 = CyrusGUID.randomGuid();
+		mboxes.create(bodySortUid2, bmStream);
+
+		emlReadStream = openResource("data/sort_3.eml");
+		bmStream = VertxStream.stream(emlReadStream);
+		String bodySortUid3 = CyrusGUID.randomGuid();
+		mboxes.create(bodySortUid3, bmStream);
 
 		IDbMailboxRecords recordService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDbMailboxRecords.class, mboxUniqueId);
@@ -232,9 +260,9 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 		MailboxRecord rec1 = new MailboxRecord();
 		rec1.conversationId = conversation1;
 		rec1.imapUid = 1;
-		rec1.internalDate = new Date();
-		rec1.lastUpdated = new Date();
-		rec1.messageBody = bodyUid;
+		rec1.internalDate = adaptDate(2);
+		rec1.lastUpdated = rec1.internalDate;
+		rec1.messageBody = bodySortUid1;
 		String rec1Uid = UUID.randomUUID().toString();
 		recordService.create(rec1Uid, rec1);
 		long rec1Id = recordService.getComplete(rec1Uid).internalId;
@@ -242,9 +270,9 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 		MailboxRecord rec2 = new MailboxRecord();
 		rec2.conversationId = conversation1;
 		rec2.imapUid = 2;
-		rec2.internalDate = new Date();
-		rec2.lastUpdated = new Date();
-		rec2.messageBody = bodyUid;
+		rec2.internalDate = adaptDate(3);
+		rec2.lastUpdated = rec2.internalDate;
+		rec2.messageBody = bodySortUid2;
 		String rec2Uid = UUID.randomUUID().toString();
 		recordService.create(rec2Uid, rec2);
 		long rec2Id = recordService.getComplete(rec2Uid).internalId;
@@ -267,9 +295,9 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 		MailboxRecord rec3 = new MailboxRecord();
 		rec3.conversationId = conversation2;
 		rec3.imapUid = 1;
-		rec3.internalDate = new Date();
-		rec3.lastUpdated = new Date();
-		rec3.messageBody = bodyUid;
+		rec3.internalDate = adaptDate(4);
+		rec3.lastUpdated = rec3.internalDate;
+		rec3.messageBody = bodySortUid3;
 		String rec3Uid = UUID.randomUUID().toString();
 		recordService.create(rec3Uid, rec3);
 		long rec3Id = recordService.getComplete(rec3Uid).internalId;
@@ -283,34 +311,34 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 		conversation2Obj.messageRefs = Arrays.asList(messageRef3);
 		getService(SecurityContext.SYSTEM).create(conversationId2, conversation2Obj);
 
-		List<String> conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId, ItemFlagFilter.all());
+		SortDescriptor sortDesc = createSortDescriptor(null);
+		Field sortField = new Field();
+		sortField.column = "internal_date";
+		sortField.dir = Direction.Desc;
+		sortDesc.fields = Arrays.asList(sortField);
+		List<String> conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId, sortDesc);
 		assertEquals(2, conversations.size());
-
-		rec1 = recordService.getComplete(rec1Uid).value;
-		rec1.flags = Arrays.asList(MailboxItemFlag.System.Seen.value());
-		recordService.update(rec1Uid, rec1);
-
-		rec2 = recordService.getComplete(rec2Uid).value;
-		rec2.flags = Arrays.asList(MailboxItemFlag.System.Seen.value());
-		recordService.update(rec2Uid, rec2);
-
-		conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId,
-				ItemFlagFilter.create().must(ItemFlag.Seen));
-		assertEquals(1, conversations.size());
 		assertEquals(conversationId1, conversations.get(0));
+		assertEquals(conversationId2, conversations.get(1));
 
-		conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId,
-				ItemFlagFilter.create().mustNot(ItemFlag.Seen));
-		assertEquals(1, conversations.size());
-		assertEquals(conversationId2, conversations.get(0));
-
-		conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId,
-				ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
+		sortField = new Field();
+		sortField.column = "size";
+		sortField.dir = Direction.Asc;
+		sortDesc.fields = Arrays.asList(sortField);
+		conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId, sortDesc);
 		assertEquals(2, conversations.size());
+		assertEquals(conversationId1, conversations.get(0));
+		assertEquals(conversationId2, conversations.get(1));
 
-		conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId,
-				ItemFlagFilter.create().must(ItemFlag.Deleted));
-		assertEquals(0, conversations.size());
+		sortField = new Field();
+		sortField.column = "subject";
+		sortField.dir = Direction.Desc;
+		sortDesc.fields = Arrays.asList(sortField);
+		conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId, sortDesc);
+		assertEquals(2, conversations.size());
+		assertEquals(conversationId2, conversations.get(0));
+		assertEquals(conversationId1, conversations.get(1));
+
 	}
 
 	@Test
@@ -459,5 +487,4 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 	protected IDbMessageBodies getBodies(SecurityContext ctx) {
 		return ServerSideServiceProvider.getProvider(ctx).instance(IDbMessageBodies.class, partition);
 	}
-
 }

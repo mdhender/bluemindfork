@@ -8,5 +8,11 @@
             resource="sql/mailreplica-schema-1.0.0.sql">
       </schema>
    </extension>
- 
+   <extension
+         point="net.bluemind.core.jdbc.schema">
+      <schema
+            name="conversation-trigger-schema"
+            resource="sql/conversation-trigger-schema-1.0.0.sql">
+      </schema>
+   </extension> 
 </plugin>

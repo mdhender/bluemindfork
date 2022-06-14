@@ -53,6 +53,7 @@ import org.junit.Test;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.ByteStreams;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -118,6 +119,7 @@ import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
+import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
@@ -3456,10 +3458,12 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		String user2MboxRoot = "user." + user2Uid.replace('.', '^');
 		createEml("data/user1_send_to_user2.eml", user2Uid, user2MboxRoot, "INBOX");
 
-		List<String> user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
+		List<String> user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid,
+				createSortDescriptor(ItemFlagFilter.all()));
 		user1InboxConversations.removeIf(excludedConversations::contains);
 		assertEquals(0, user1InboxConversations.size());
-		List<String> user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
+		List<String> user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid,
+				createSortDescriptor(ItemFlagFilter.all()));
 		user1SentConversations.removeIf(excludedConversations::contains);
 		assertEquals(1, user1SentConversations.size());
 		String conversationUid = user1SentConversations.get(0);
@@ -3475,7 +3479,8 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		createEml("data/user2_reply_to_user1.eml", user2Uid, user2MboxRoot, "Sent");
 		long user1ItemId2 = createEml("data/user2_reply_to_user1.eml", userUid, mboxRoot, "INBOX");
 
-		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
+		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid,
+				createSortDescriptor(ItemFlagFilter.all()));
 		user1InboxConversations.removeIf(excludedConversations::contains);
 
 		assertEquals(1, user1InboxConversations.size());
@@ -3483,7 +3488,8 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		assertEquals(2, conversation.value.messageRefs.size());
 		assertEquals(user1ItemId, conversation.value.messageRefs.get(0).itemId);
 		assertEquals(user1ItemId2, conversation.value.messageRefs.get(1).itemId);
-		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
+		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid,
+				createSortDescriptor(ItemFlagFilter.all()));
 		user1SentConversations.removeIf(excludedConversations::contains);
 		assertEquals(1, user1SentConversations.size());
 		assertEquals(conversationUid, user1InboxConversations.get(0));
@@ -3498,10 +3504,12 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		createEml("data/user1_send_another_to_user2.eml", userUid, mboxRoot, "Sent");
 		createEml("data/user1_send_another_to_user2.eml", user2Uid, user2MboxRoot, "INBOX");
 
-		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
+		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid,
+				createSortDescriptor(ItemFlagFilter.all()));
 		user1InboxConversations.removeIf(excludedConversations::contains);
 		assertEquals(1, user1InboxConversations.size());
-		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
+		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid,
+				createSortDescriptor(ItemFlagFilter.all()));
 		user1SentConversations.removeIf(excludedConversations::contains);
 		assertEquals(2, user1SentConversations.size());
 
@@ -3513,7 +3521,8 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		IItemsTransfer transferApi = provider().instance(IItemsTransfer.class, user1SentBox.uid, trash.uid);
 		List<ItemIdentifier> moved = transferApi.move(Arrays.asList(user1ItemId));
 		assertNotNull(moved);
-		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
+		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid,
+				createSortDescriptor(ItemFlagFilter.all()));
 		user1SentConversations.removeIf(excludedConversations::contains);
 		assertEquals(2, user1SentConversations.size());
 		conversation = user1ConversationService.getComplete(user1SentConversations.get(0));
@@ -3526,7 +3535,8 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		IItemsTransfer transferApi2 = provider().instance(IItemsTransfer.class, user1Inbox.uid, trash.uid);
 		List<ItemIdentifier> moved2 = transferApi2.move(Arrays.asList(user1ItemId2));
 		assertNotNull(moved2);
-		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
+		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid,
+				createSortDescriptor(ItemFlagFilter.all()));
 		assertEquals(1, user1InboxConversations.size());
 		conversation = user1ConversationService.getComplete(user1InboxConversations.get(0));
 		numberOfMessagesInConversation = conversation.value.messageRefs.size();
@@ -3540,7 +3550,8 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		TaskRef deleteExpiredTaskRef = new ReplicatedDataExpirationService(new BmTestContext(SecurityContext.SYSTEM),
 				JdbcTestHelper.getInstance().getMailboxDataDataSource(), "bm/core").deleteExpired(0);
 		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), deleteExpiredTaskRef);
-		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all());
+		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid,
+				createSortDescriptor(ItemFlagFilter.all()));
 		assertEquals(1, user1InboxConversations.size());
 		conversation = user1ConversationService.getComplete(user1InboxConversations.get(0));
 		numberOfMessagesInConversation = conversation.value.messageRefs.size();
@@ -3550,9 +3561,39 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 	private List<String> getAlreadyExistingConversations(IMailConversation user1ConversationService, String inbox,
 			String sent) {
 		List<String> uids = new ArrayList<>();
-		uids.addAll(user1ConversationService.byFolder(inbox, ItemFlagFilter.all()));
-		uids.addAll(user1ConversationService.byFolder(sent, ItemFlagFilter.all()));
+		uids.addAll(user1ConversationService.byFolder(inbox, createSortDescriptor(ItemFlagFilter.all())));
+		uids.addAll(user1ConversationService.byFolder(sent, createSortDescriptor(ItemFlagFilter.all())));
 		return uids;
+	}
+
+	/** Create a message in a synchronous way. */
+	protected long createEml(String emlPath, String userUid, String mboxRoot, String folderName) throws IOException {
+		try (InputStream in = getClass().getClassLoader().getResourceAsStream(emlPath)) {
+			IServiceProvider provider = ServerSideServiceProvider.getProvider(new SecurityContext(userUid, userUid,
+					Collections.<String>emptyList(), Collections.<String>emptyList(), domainUid));
+			Stream stream = VertxStream.stream(Buffer.buffer(ByteStreams.toByteArray(in)));
+			IMailboxFolders mailboxFolderService = provider.instance(IMailboxFolders.class, partition, mboxRoot);
+			ItemValue<MailboxFolder> folder = mailboxFolderService.byName(folderName);
+			IMailboxItems mailboxItemService = provider.instance(IMailboxItems.class, folder.uid);
+			String partId = mailboxItemService.uploadPart(stream);
+			Part fullEml = Part.create(null, "message/rfc822", partId);
+			MessageBody messageBody = new MessageBody();
+			messageBody.subject = "Subject_" + System.currentTimeMillis();
+			messageBody.structure = fullEml;
+			MailboxItem item = new MailboxItem();
+			item.body = messageBody;
+			IOfflineMgmt offlineMgmt = provider.instance(IOfflineMgmt.class, domainUid, userUid);
+			IdRange oneId = offlineMgmt.allocateOfflineIds(1);
+			long expectedId = oneId.globalCounter;
+			mailboxItemService.createById(expectedId, item);
+			return expectedId;
+		}
+	}
+
+	protected SortDescriptor createSortDescriptor(ItemFlagFilter flagFilter) {
+		SortDescriptor sortDesc = new SortDescriptor();
+		sortDesc.filter = flagFilter;
+		return sortDesc;
 	}
 
 }

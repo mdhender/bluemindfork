@@ -28,8 +28,8 @@ import jakarta.ws.rs.QueryParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.SortDescriptor;
 
 /**
  * Handle message conversations for a given container (per user or mail-share).
@@ -49,7 +49,7 @@ public interface IMailConversation {
 
 	/** Retrieve the conversations of the given folder. */
 	@POST
-	public List<String> byFolder(@QueryParam(value = "folder") String folderUid, ItemFlagFilter filter);
+	public List<String> byFolder(@QueryParam(value = "folder") String folderUid, SortDescriptor sorted);
 
 	@DELETE
 	@Path("{containerUid}/{itemId}/_message")

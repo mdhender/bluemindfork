@@ -20,10 +20,10 @@ package net.bluemind.backend.mail.replica.api;
 
 import java.util.List;
 
-import net.bluemind.core.container.model.ItemFlagFilter;
+import net.bluemind.core.container.model.SortDescriptor;
 
 public interface IInternalRecordBasedMailConversations extends IDbMailboxRecords {
 
-	public List<Long> getConversationIds(ItemFlagFilter filter);
+	public List<Long> getConversationIds(SortDescriptor sorted);
 
 }

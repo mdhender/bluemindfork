@@ -36,8 +36,8 @@ import net.bluemind.backend.mail.replica.persistence.InternalConversation;
 import net.bluemind.backend.mail.replica.persistence.InternalConversation.InternalMessageRef;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.AbstractItemValueStore.ItemV;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -91,12 +91,12 @@ public class MailConversationService implements IInternalMailConversation {
 	}
 
 	@Override
-	public List<String> byFolder(String folderUid, ItemFlagFilter filter) {
+	public List<String> byFolder(String folderUid, SortDescriptor sorted) {
 		rbacManager.check(Verb.Read.name());
 
 		IInternalRecordBasedMailConversations recordsService = context.provider()
 				.instance(IInternalRecordBasedMailConversations.class, folderUid);
-		List<Long> conversations = recordsService.getConversationIds(filter);
+		List<Long> conversations = recordsService.getConversationIds(sorted);
 
 		return conversations.stream().map(Long::toHexString).collect(Collectors.toList());
 	}

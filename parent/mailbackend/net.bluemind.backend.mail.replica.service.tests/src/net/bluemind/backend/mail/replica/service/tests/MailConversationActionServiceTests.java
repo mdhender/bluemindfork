@@ -38,6 +38,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.mail.api.IMailConversation;
 import net.bluemind.backend.mail.api.IMailConversationActions;
 import net.bluemind.backend.mail.api.IMailboxFolders;
@@ -45,6 +47,8 @@ import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.flags.ConversationFlagUpdate;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
+import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
+import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmt;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -59,6 +63,7 @@ import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.rest.utils.InputReadStream;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -85,6 +90,19 @@ public class MailConversationActionServiceTests extends AbstractRollingReplicati
 		BmTestContext testCtx = BmTestContext.contextWithSession("test-sid", userUid, domainUid);
 		return ServerSideServiceProvider.getProvider(testCtx).instance(IMailConversationActions.class,
 				IMailReplicaUids.conversationSubtreeUid(domainUid, userUid), replicatedMailBoxUid);
+	}
+
+	protected IInternalMailConversation getService(String replicatedMailBoxUid) {
+		BmTestContext testCtx = BmTestContext.contextWithSession("test-sid", userUid, domainUid);
+		return ServerSideServiceProvider.getProvider(testCtx).instance(IInternalMailConversation.class,
+				IMailReplicaUids.conversationSubtreeUid(domainUid, userUid), replicatedMailBoxUid);
+	}
+
+	public static void main(String[] agrs) {
+		long d = 54543534534l;
+		String s = Long.toHexString(d);
+		long rev = Long.parseUnsignedLong(s, 16);
+		System.err.println(rev);
 	}
 
 	@Test
@@ -115,7 +133,8 @@ public class MailConversationActionServiceTests extends AbstractRollingReplicati
 		createEml("data/user1_send_another_to_user2_2.eml", userUid, mboxRoot, "Sent");
 
 		ItemValue<MailboxFolder> user1Sent = user1MboxesApi.byName("Sent");
-		List<String> user1SentConversations = user1ConversationService.byFolder(user1Sent.uid, ItemFlagFilter.all());
+		List<String> user1SentConversations = user1ConversationService.byFolder(user1Sent.uid,
+				createSortDescriptor(ItemFlagFilter.all()));
 
 		IDbMailboxRecords records = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDbMailboxRecords.class, user1Sent.uid);
@@ -131,6 +150,10 @@ public class MailConversationActionServiceTests extends AbstractRollingReplicati
 		Ack addFlag = getActionService(user1Sent.uid).addFlag(flagUpdate);
 		assertTrue(addFlag.version > 0);
 
+		List<String> unseenConversations = user1ConversationService.byFolder(user1Sent.uid,
+				createSortDescriptor(ItemFlagFilter.create().mustNot(ItemFlag.Deleted, ItemFlag.Seen)));
+		assertEquals(1, unseenConversations.size());
+
 		all = records.all();
 		assertEquals(2, all.size());
 		int seen = 0;
@@ -140,6 +163,16 @@ public class MailConversationActionServiceTests extends AbstractRollingReplicati
 			}
 		}
 		assertEquals(1, seen);
+
+		flagUpdate = new ConversationFlagUpdate();
+		flagUpdate.conversationUids = Arrays.asList(user1SentConversations.get(0));
+		flagUpdate.mailboxItemFlag = MailboxItemFlag.System.Flagged.value();
+		addFlag = getActionService(user1Sent.uid).addFlag(flagUpdate);
+		assertTrue(addFlag.version > 0);
+
+		List<String> importantConversations = user1ConversationService.byFolder(user1Sent.uid,
+				createSortDescriptor(ItemFlagFilter.create().mustNot(ItemFlag.Deleted).must(ItemFlag.Important)));
+		assertEquals(1, importantConversations.size());
 	}
 
 	@Test
@@ -155,12 +188,14 @@ public class MailConversationActionServiceTests extends AbstractRollingReplicati
 		createEml("data/user1_send_to_user2.eml", userUid, userMboxRoot, "Sent");
 
 		ItemValue<MailboxFolder> user1Sent = user1MboxesApi.byName("Sent");
-		ItemFlagFilter mustSeen = ItemFlagFilter.create().must(ItemFlag.Seen);
+		ItemFlagFilter mustNotSeen = ItemFlagFilter.create().mustNot(ItemFlag.Deleted, ItemFlag.Seen);
 
-		List<String> user1SentConversations = user1ConversationService.byFolder(user1Sent.uid, ItemFlagFilter.all());
-		List<String> user1SentConversationsSeen = user1ConversationService.byFolder(user1Sent.uid, mustSeen);
+		List<String> user1SentConversations = user1ConversationService.byFolder(user1Sent.uid,
+				createSortDescriptor(ItemFlagFilter.all()));
+		List<String> user1SentConversationsSeen = user1ConversationService.byFolder(user1Sent.uid,
+				createSortDescriptor(mustNotSeen));
 		assertEquals(1, user1SentConversations.size());
-		assertEquals(0, user1SentConversationsSeen.size());
+		assertEquals(1, user1SentConversationsSeen.size());
 
 		ConversationFlagUpdate flagUpdate = new ConversationFlagUpdate();
 		flagUpdate.conversationUids = Arrays.asList(user1SentConversations.get(0));
@@ -168,18 +203,22 @@ public class MailConversationActionServiceTests extends AbstractRollingReplicati
 		Ack addFlag = getActionService(user1Sent.uid).addFlag(flagUpdate);
 		assertTrue(addFlag.version > 0);
 
-		user1SentConversations = user1ConversationService.byFolder(user1Sent.uid, ItemFlagFilter.all());
-		user1SentConversationsSeen = user1ConversationService.byFolder(user1Sent.uid, mustSeen);
+		user1SentConversations = user1ConversationService.byFolder(user1Sent.uid,
+				createSortDescriptor(ItemFlagFilter.all()));
+		user1SentConversationsSeen = user1ConversationService.byFolder(user1Sent.uid,
+				createSortDescriptor(mustNotSeen));
 		assertEquals(1, user1SentConversations.size());
-		assertEquals(1, user1SentConversationsSeen.size());
+		assertEquals(0, user1SentConversationsSeen.size());
 
 		Ack removeFlag = getActionService(user1Sent.uid).deleteFlag(flagUpdate);
 		assertTrue(removeFlag.version > 0);
 
-		user1SentConversations = user1ConversationService.byFolder(user1Sent.uid, ItemFlagFilter.all());
-		user1SentConversationsSeen = user1ConversationService.byFolder(user1Sent.uid, mustSeen);
+		user1SentConversations = user1ConversationService.byFolder(user1Sent.uid,
+				createSortDescriptor(ItemFlagFilter.all()));
+		user1SentConversationsSeen = user1ConversationService.byFolder(user1Sent.uid,
+				createSortDescriptor(mustNotSeen));
 		assertEquals(1, user1SentConversations.size());
-		assertEquals(0, user1SentConversationsSeen.size());
+		assertEquals(1, user1SentConversationsSeen.size());
 	}
 
 	@Test
@@ -203,7 +242,7 @@ public class MailConversationActionServiceTests extends AbstractRollingReplicati
 		assertEquals(0, recordsSent.all().size());
 
 		List<ItemIdentifier> moved = getActionService(user1Inbox.uid).move(user1Sent.uid,
-				user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all()));
+				user1ConversationService.byFolder(user1Inbox.uid, createSortDescriptor(ItemFlagFilter.all())));
 
 
 		assertEquals(2, moved.size());

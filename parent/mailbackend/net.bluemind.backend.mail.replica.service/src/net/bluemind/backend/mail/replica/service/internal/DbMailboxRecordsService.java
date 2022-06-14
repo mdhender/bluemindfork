@@ -82,6 +82,7 @@ import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
+import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.persistence.ItemStore;
@@ -708,9 +709,14 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 	}
 
 	@Override
-	public List<Long> getConversationIds(ItemFlagFilter filter) {
+	public List<Long> getConversationIds(SortDescriptor sorted) {
 		try {
-			return this.recordStore.getConversationIds(filter);
+			SortDescriptor sortDesc = sorted;
+			if (sortDesc == null) {
+				sortDesc = new SortDescriptor();
+			}
+			sortDescSanitizer.create(sortDesc);
+			return this.recordStore.getConversationIds(sortDesc);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}

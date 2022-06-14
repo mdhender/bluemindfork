@@ -26,8 +26,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -413,12 +411,6 @@ public class DbMailboxRecordsServiceTests extends AbstractMailboxRecordsServiceT
 
 	protected IDbMessageBodies getBodies(SecurityContext ctx) {
 		return ServerSideServiceProvider.getProvider(ctx).instance(IDbMessageBodies.class, partition);
-	}
-
-	private Date adaptDate(int daysBeforeNow) {
-		LocalDate localDate = LocalDate.now();
-		LocalDate adapted = localDate.minusDays(daysBeforeNow);
-		return Date.from(adapted.atStartOfDay(ZoneId.systemDefault()).toInstant());
 	}
 
 }

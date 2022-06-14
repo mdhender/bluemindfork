@@ -67,7 +67,9 @@ import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.api.IOfflineMgmt;
 import net.bluemind.core.container.api.IdRange;
+import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
@@ -396,6 +398,12 @@ public abstract class AbstractRollingReplicationTests {
 			mailboxItemService.createById(expectedId, item);
 			return expectedId;
 		}
+	}
+
+	protected SortDescriptor createSortDescriptor(ItemFlagFilter flagFilter) {
+		SortDescriptor sortDesc = new SortDescriptor();
+		sortDesc.filter = flagFilter;
+		return sortDesc;
 	}
 
 }

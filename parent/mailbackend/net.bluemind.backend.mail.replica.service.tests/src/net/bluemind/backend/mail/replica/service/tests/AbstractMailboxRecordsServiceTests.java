@@ -25,6 +25,8 @@ package net.bluemind.backend.mail.replica.service.tests;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Objects;
@@ -165,5 +167,11 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 	protected abstract T getService(SecurityContext ctx);
 
 	protected abstract IDbMessageBodies getBodies(SecurityContext ctx);
+
+	protected Date adaptDate(int daysBeforeNow) {
+		LocalDate localDate = LocalDate.now();
+		LocalDate adapted = localDate.minusDays(daysBeforeNow);
+		return Date.from(adapted.atStartOfDay(ZoneId.systemDefault()).toInstant());
+	}
 
 }

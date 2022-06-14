@@ -190,11 +190,50 @@ CREATE INDEX IF NOT EXISTS i_t_mailbox_record_conversation_flags
 CREATE TABLE IF NOT EXISTS v_conversation_by_folder (
     folder_id integer NOT NULL REFERENCES t_container ON DELETE CASCADE,
     conversation_id bigint NOT NULL,
-    flags integer,
-    mask integer,
     date timestamp without time zone,
+    first timestamp without time zone,
+    subject text NULL, 
+    size integer NULL, 
+    sender text NULL,
+    unseen boolean NOT NULL default false, 
+    flagged boolean NOT NULL default false,
     UNIQUE(folder_id, conversation_id)
 ) PARTITION BY HASH (folder_id);
+
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_subject 
+ON v_conversation_by_folder (folder_id, subject DESC) INCLUDE (conversation_id);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_date 
+ON v_conversation_by_folder (folder_id, date DESC) INCLUDE (conversation_id);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_size 
+ON v_conversation_by_folder (folder_id, size DESC) INCLUDE (conversation_id);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_sender 
+ON v_conversation_by_folder (folder_id, sender DESC) INCLUDE (conversation_id);
+
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_subject_unseen 
+ON v_conversation_by_folder (folder_id, subject DESC) INCLUDE (conversation_id) 
+WHERE (unseen is true);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_date_unseen 
+ON v_conversation_by_folder (folder_id, date DESC) INCLUDE (conversation_id)
+WHERE (unseen is true);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_size_unseen 
+ON v_conversation_by_folder (folder_id, size DESC) INCLUDE (conversation_id) 
+WHERE (unseen is true);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_sender_unseen 
+ON v_conversation_by_folder (folder_id, sender DESC) INCLUDE (conversation_id)
+WHERE (unseen is true);
+
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_subject_flagged 
+ON v_conversation_by_folder (folder_id, subject DESC) INCLUDE (conversation_id) 
+WHERE (flagged is true);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_date_flagged 
+ON v_conversation_by_folder (folder_id, date DESC) INCLUDE (conversation_id)
+WHERE (flagged is true);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_size_flagged 
+ON v_conversation_by_folder (folder_id, size DESC) INCLUDE (conversation_id) 
+WHERE (flagged is true);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_sender_flagged 
+ON v_conversation_by_folder (folder_id, sender DESC) INCLUDE (conversation_id)
+WHERE (flagged is true);
 
 DO LANGUAGE plpgsql
 $$
