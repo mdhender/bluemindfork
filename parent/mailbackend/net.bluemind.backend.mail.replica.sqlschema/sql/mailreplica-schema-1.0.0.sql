@@ -439,7 +439,7 @@ AS $$
 DECLARE
   body record;
 BEGIN
-    SELECT subject, size, address  
+    SELECT REGEXP_REPLACE(subject, '^([\W_]*|re\s*:)+', '', 'i') as subject, size, address  
     FROM t_message_body, jsonb_to_recordset(recipients) AS rec(kind TEXT, address TEXT) INTO body
     WHERE guid = NEW.message_body_guid
     AND kind = 'Originator';
@@ -458,7 +458,7 @@ DECLARE
   body record;
 BEGIN
     if (OLD.message_body_guid != NEW.message_body_guid and OLD.internal_date != NEW.internal_date) then
-      SELECT subject, size, address FROM t_message_body, jsonb_to_recordset(recipients) AS rec(kind TEXT, address TEXT) INTO body WHERE guid = NEW.message_body_guid AND kind = 'Originator';
+      SELECT REGEXP_REPLACE(subject, '^([\W_]*|re\s*:)+', '', 'i') as subject, size, address FROM t_message_body, jsonb_to_recordset(recipients) AS rec(kind TEXT, address TEXT) INTO body WHERE guid = NEW.message_body_guid AND kind = 'Originator';
 
       UPDATE s_mailbox_record 
       SET unseen = NEW.system_flags & 16 != 16, 
