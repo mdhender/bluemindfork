@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.LongAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.netflix.spectator.api.Clock;
 import com.netflix.spectator.api.Counter;
@@ -103,7 +104,7 @@ public class S3Store implements ISdsBackingStore {
 						} else {
 							return client.createBucket(CreateBucketRequest.builder()//
 									.createBucketConfiguration(CreateBucketConfiguration.builder()
-											.locationConstraint(BucketLocationConstraint.EU).build())//
+											.locationConstraint(constraint(s3Configuration)).build())//
 									.bucket(s3Configuration.getBucket()).build()).thenApply(cbr -> {
 										if (cbr.sdkHttpResponse().isSuccessful()) {
 											return s3Configuration.getBucket();
@@ -143,6 +144,11 @@ public class S3Store implements ISdsBackingStore {
 		putLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "put"));
 		compressionRatio = registry.distributionSummary(idFactory.name("compressionRatio"));
 		deleteLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "delete"));
+	}
+
+	private static BucketLocationConstraint constraint(S3Configuration conf) {
+		return Optional.ofNullable(Strings.emptyToNull(conf.region)).map(BucketLocationConstraint::fromValue)
+				.orElse(BucketLocationConstraint.EU);
 	}
 
 	@SuppressWarnings("serial")
