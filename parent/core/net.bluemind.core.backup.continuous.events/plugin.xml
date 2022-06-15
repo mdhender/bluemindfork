@@ -86,4 +86,10 @@
       		impl="net.bluemind.core.backup.continuous.events.UserMailIdentitiesContinuousHook">
       </hook>
    </extension>
+   <extension
+         point="net.bluemind.scheduledjob.service.hook">
+      <job_hook
+            impl="net.bluemind.core.backup.continuous.events.JobPlanContinuousHook">
+      </job_hook>
+   </extension>
 </plugin>

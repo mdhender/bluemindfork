@@ -31,7 +31,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.mailflow.hook,
  net.bluemind.mailflow.api,
  net.bluemind.user.accounts.hook,
- net.bluemind.mailbox.identity.hook
+ net.bluemind.mailbox.identity.hook,
+ net.bluemind.scheduledjob.api,
+ net.bluemind.scheduledjob.service;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.backup.continuous.events
 Import-Package: net.bluemind.mailbox.api

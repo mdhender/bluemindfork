@@ -14,6 +14,7 @@ Require-Bundle: slf4j.api,
  net.bluemind.core.context,
  net.bluemind.core.rest;bundle-version="1.0.0",
  net.bluemind.domain.api,
- net.bluemind.core.container.persistence
+ net.bluemind.core.container.persistence,
+ net.bluemind.eclipse.common
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.scheduledjob.service

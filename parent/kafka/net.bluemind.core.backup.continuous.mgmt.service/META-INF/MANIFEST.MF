@@ -35,7 +35,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.notes.api,
  net.bluemind.deferredaction.api,
  net.bluemind.mailbox.service,
- net.bluemind.backend.cyrus
+ net.bluemind.backend.cyrus,
+ net.bluemind.scheduledjob.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.backup.continuous.mgmt.service
 Bundle-ActivationPolicy: lazy

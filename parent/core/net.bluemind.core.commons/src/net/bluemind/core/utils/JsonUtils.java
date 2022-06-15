@@ -70,6 +70,14 @@ public class JsonUtils {
 			this.impl = r;
 		}
 
+		public T read(byte[] content) {
+			try {
+				return impl.readValue(content);
+			} catch (Exception e) {
+				throw new ServerFault(e);
+			}
+		}
+
 		public T read(String v) {
 			try {
 				return impl.readValue(v);

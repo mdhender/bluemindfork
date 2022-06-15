@@ -45,6 +45,7 @@ import net.bluemind.core.backup.continuous.restore.mbox.DefaultSdsStoreLoader;
 import net.bluemind.core.backup.continuous.restore.mbox.ISdsStoreLoader;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreContainerItemIdSeq;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreDomains;
+import net.bluemind.core.backup.continuous.restore.orphans.RestoreJobPlans;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreSysconf;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreToken;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreTopology;
@@ -147,7 +148,6 @@ public class InstallFromBackupTask implements IServerTask {
 				orphansByType.getOrDefault("installation", new ArrayList<>()));
 		Map<String, PromotingServer> topology = new RestoreTopology(target, topologyMapping).restore(monitor,
 				orphansByType.getOrDefault("installation", new ArrayList<>()));
-		System.err.println("topo is " + topology);
 
 		new RestoreContainerItemIdSeq(topology.values()).restore(monitor,
 				orphansByType.getOrDefault("container_item_id_seq", new ArrayList<>()));
@@ -157,6 +157,8 @@ public class InstallFromBackupTask implements IServerTask {
 
 		SystemConf sysconf = new RestoreSysconf(target, confOver).restore(monitor,
 				orphansByType.getOrDefault("sysconf", new ArrayList<>()));
+
+		new RestoreJobPlans(target).restore(monitor, orphansByType.getOrDefault("job_plans", new ArrayList<>()));
 
 		recordProcessed(monitor, cloneState, orphansStream, orphansStreamIndex);
 		orphansByType.clear();
@@ -178,10 +180,9 @@ public class InstallFromBackupTask implements IServerTask {
 		int slot = 0;
 		for (ILiveStream domainStream : domainStreams) {
 			ItemValue<Domain> domain = orphans.domains.get(domainStream.domainUid());
-			IServerTaskMonitor domainMonitor = monitor.subWork("Cloning domain " + domain, 1);
+			IServerTaskMonitor domainMonitor = monitor.subWork(domain.value.defaultAlias, 1);
 			toWait[slot++] = CompletableFuture.supplyAsync(() -> {
-				System.err.println("==== " + domain + " ====");
-				domainMonitor.begin(orphans.domains.size(), "Working on domain " + domain.uid);
+				domainMonitor.begin(1, "Working on domain " + domain.uid);
 
 				IResumeToken domainPrevIndex = cloneState.forTopic(domainStream);
 				IResumeToken domainStreamIndex = domainPrevIndex;

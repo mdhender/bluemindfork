@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2022
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -8,7 +8,6 @@
  * it under the terms of either the GNU Affero General Public License as
  * published by the Free Software Foundation (version 3 of the License).
  *
- *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -16,15 +15,10 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.scheduledjob.service;
+package net.bluemind.scheduledjob.api;
 
-import net.bluemind.scheduledjob.api.IJob;
+public interface IJobHook {
 
-public class ScheduledJobServiceFactory extends JobHooksBaseFactory<IJob> {
-
-	@Override
-	public Class<IJob> factoryClass() {
-		return IJob.class;
-	}
+	void onJobUpdated(Job newVersion);
 
 }

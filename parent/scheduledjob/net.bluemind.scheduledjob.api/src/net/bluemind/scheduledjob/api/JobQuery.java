@@ -31,4 +31,9 @@ public class JobQuery {
 	public JobQuery() {
 	}
 
+	public static JobQuery forDomainUid(String domUid) {
+		JobQuery jq = new JobQuery();
+		jq.domain = domUid;
+		return jq;
+	}
 }

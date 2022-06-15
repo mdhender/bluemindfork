@@ -41,6 +41,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.scheduledjob.api.IInCoreJob;
+import net.bluemind.scheduledjob.api.IJobHook;
 import net.bluemind.scheduledjob.api.Job;
 import net.bluemind.scheduledjob.api.JobExecution;
 import net.bluemind.scheduledjob.api.JobExecutionQuery;
@@ -63,9 +64,12 @@ public class ScheduledJobService implements IInCoreJob {
 	private ScheduledJobStore store;
 	private SecurityContext context;
 
-	public ScheduledJobService(BmContext context) {
+	private List<IJobHook> hooks;
+
+	public ScheduledJobService(BmContext context, List<IJobHook> hooks) {
 		store = new ScheduledJobStore(context.getDataSource());
 		this.context = context.getSecurityContext();
+		this.hooks = hooks;
 	}
 
 	@Override
@@ -194,6 +198,9 @@ public class ScheduledJobService implements IInCoreJob {
 		logger.debug("Update job {}", job.id);
 		sanitize(job);
 		store.updateJob(job);
+		for (IJobHook h : hooks) {
+			h.onJobUpdated(job);
+		}
 	}
 
 	@Override

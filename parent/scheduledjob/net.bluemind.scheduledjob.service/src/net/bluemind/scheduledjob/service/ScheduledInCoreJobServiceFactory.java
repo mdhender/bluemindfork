@@ -18,24 +18,13 @@
  */
 package net.bluemind.scheduledjob.service;
 
-import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.scheduledjob.api.IInCoreJob;
-import net.bluemind.scheduledjob.service.internal.ScheduledJobService;
 
-public class ScheduledInCoreJobServiceFactory
-		implements ServerSideServiceProvider.IServerSideServiceFactory<IInCoreJob> {
+public class ScheduledInCoreJobServiceFactory extends JobHooksBaseFactory<IInCoreJob> {
 
 	@Override
 	public Class<IInCoreJob> factoryClass() {
 		return IInCoreJob.class;
-	}
-
-	@Override
-	public IInCoreJob instance(BmContext context, String... params) throws ServerFault {
-
-		return new ScheduledJobService(context);
 	}
 
 }

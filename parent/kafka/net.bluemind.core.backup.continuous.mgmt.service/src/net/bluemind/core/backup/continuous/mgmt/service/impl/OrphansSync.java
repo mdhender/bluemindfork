@@ -18,11 +18,15 @@
 package net.bluemind.core.backup.continuous.mgmt.service.impl;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
+import net.bluemind.core.backup.continuous.events.JobPlanContinuousHook;
+import net.bluemind.core.backup.continuous.events.JobPlanContinuousHook.JobContainerAdapter;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ContainerDescriptor;
@@ -34,6 +38,9 @@ import net.bluemind.domain.api.DomainSettings;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.service.DomainsContainerIdentifier;
+import net.bluemind.scheduledjob.api.IJob;
+import net.bluemind.scheduledjob.api.Job;
+import net.bluemind.scheduledjob.api.JobQuery;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.ISystemConfiguration;
@@ -75,6 +82,14 @@ public class OrphansSync {
 			mon.log("Stored " + dom.value.defaultAlias + " and its settings.");
 		});
 
+		saveSysconf(store);
+
+		saveJobPlans(store, domains);
+
+		return domains;
+	}
+
+	private void saveSysconf(IBackupStoreFactory store) {
 		ISystemConfiguration sysconf = context.provider().instance(ISystemConfiguration.class);
 		BaseContainerDescriptor confCont = BaseContainerDescriptor.create("sysconf", "sysconf", "system", "sysconf",
 				null, true);
@@ -82,8 +97,19 @@ public class OrphansSync {
 		ItemValue<SystemConf> scItem = ItemValue.create("sysconf", sysconf.getValues());
 		scItem.internalId = scItem.uid.hashCode();
 		confBackup.store(scItem);
+	}
 
-		return domains;
+	private void saveJobPlans(IBackupStoreFactory store, List<ItemValue<Domain>> domains) {
+		IJob jobApi = context.provider().instance(IJob.class);
+		Set<String> jids = new HashSet<>();
+		domains.stream().flatMap(d -> jobApi.searchJob(JobQuery.forDomainUid(d.uid)).values.stream()).map(j -> j.id)
+				.forEach(jids::add);
+		jobApi.searchJob(JobQuery.forDomainUid(null)).values.stream().map(j -> j.id).forEach(jids::add);
+		JobPlanContinuousHook.JobContainerAdapter jca = new JobContainerAdapter(store);
+		for (String jobId : jids) {
+			Job job = jobApi.getJobFromId(jobId);
+			jca.save(null, "system", job.id, job, true);
+		}
 	}
 
 }
