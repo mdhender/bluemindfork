@@ -18,8 +18,10 @@
             </div>
             <div v-else class="d-flex align-items-center mb-3">
                 <bm-icon icon="file" size="2x" class="mr-2 text-primary" />
-                <span class="dots font-size-h1">&#8226; &#8226; &#8226; &#8226; &#8226; &#8226;</span>
-                <bm-icon icon="chevron-right" size="lg" class="text-secondary" />
+                <span :class="arrowClass">
+                    <span class="font-size-h1">&#8226; &#8226; &#8226; &#8226; &#8226; &#8226;</span>
+                </span>
+                <bm-icon icon="chevron-right" size="lg" :class="isFinished ? 'text-primary' : 'text-secondary'" />
                 <bm-icon icon="cloud" class="ml-2 text-primary" size="2x" />
             </div>
             <div v-if="hasSomeErrorStatus" class="mb-4 text-danger">
@@ -101,6 +103,9 @@ export default {
         },
         hasSomeErrorStatus() {
             return this.fhAttachments.some(this.hasErrorStatus);
+        },
+        arrowClass() {
+            return this.isFinished ? "text-primary" : "arrow";
         }
     },
     watch: {
@@ -162,26 +167,26 @@ export default {
     .font-size-h1 {
         font-size: $h1-font-size;
     }
-    .dots {
-        background-image: linear-gradient(90deg, transparent 0%, $primary 15%, $primary 85%, transparent 100%);
+    .arrow {
+        background-image: linear-gradient(90deg, $primary 0%, $primary 100%);
         background-clip: text;
         -webkit-background-clip: text;
         color: transparent;
-        animation-name: dots;
+        animation-name: arrow;
         animation-duration: 3s;
         animation-iteration-count: infinite;
         animation-timing-function: linear;
-        background-size: 20%;
+        background-size: 0%;
         background-color: $secondary;
         background-repeat: no-repeat;
     }
-    @keyframes dots {
+    @keyframes arrow {
         0% {
-            background-position: -10px;
+            background-size: 0px;
         }
 
         to {
-            background-position: 110%;
+            background-size: 100%;
         }
     }
 }

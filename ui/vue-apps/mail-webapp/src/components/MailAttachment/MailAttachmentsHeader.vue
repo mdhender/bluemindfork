@@ -81,7 +81,7 @@ export default {
     },
     methods: {
         displaySize(size) {
-            size = size < 100000 ? 100000 : size;
+            size = Math.ceil(size / 100000) * 100000;
             return displayWithUnit(size, 6, this.$i18n);
         }
     }
