@@ -36,7 +36,7 @@
                 :aria-label="textFormatterLabel"
                 :title="textFormatterLabel"
                 :disabled="isSending"
-                @click="$emit('toggle-text-format')"
+                @click="toggleTextFormattingToolbar"
             >
                 <bm-icon icon="text-format" size="lg" />
             </bm-button>
@@ -92,6 +92,7 @@ import {
     BmDropdownItemButton,
     BmDropdownItemToggle
 } from "@bluemind/styleguide";
+import { AppDataKeys } from "@bluemind/webappdata";
 
 import { ComposerActionsMixin, FormattedDateMixin } from "~/mixins";
 import { MessageStatus } from "~/model/message";
@@ -113,10 +114,6 @@ export default {
     },
     mixins: [ComposerActionsMixin, FormattedDateMixin],
     props: {
-        userPrefIsMenuBarOpened: {
-            type: Boolean,
-            default: false
-        },
         message: {
             type: Object,
             required: true
@@ -128,6 +125,10 @@ export default {
     },
     computed: {
         ...mapGetters("mail", { IS_SENDER_SHOWN }),
+        showTextFormattingToolbar() {
+            const appData = this.$store.state["root-app"].appData[AppDataKeys.MAIL_COMPOSITION_SHOW_FORMATTING_TOOLBAR];
+            return appData ? appData.value : false;
+        },
         userSettings() {
             return this.$store.state.settings;
         },
@@ -166,7 +167,7 @@ export default {
                 : this.$t(`mail.compose.save.${kind}.date`, formatted);
         },
         textFormatterLabel() {
-            return this.userPrefIsMenuBarOpened
+            return this.showTextFormattingToolbar
                 ? this.$tc("mail.actions.textformat.hide.aria")
                 : this.$tc("mail.actions.textformat.show.aria");
         },
@@ -202,6 +203,12 @@ export default {
         showSender() {
             this.SHOW_SENDER(true);
             this.$refs["3dots-dropdown"].hide(false);
+        },
+        toggleTextFormattingToolbar() {
+            const key = AppDataKeys.MAIL_COMPOSITION_SHOW_FORMATTING_TOOLBAR;
+            const appData = this.$store.state["root-app"].appData[key];
+            const value = appData ? !appData.value : true;
+            this.$store.dispatch("root-app/SET_APP_DATA", { key, value });
         }
     }
 };

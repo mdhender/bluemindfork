@@ -8,8 +8,8 @@
     "dependencies": {
         "@bluemind/addressbook.api": "^4.1.0",
         "@bluemind/alert.store": "^4.1.0",
-        "@bluemind/authentication.api": "^4.1.0",
         "@bluemind/announcement.api": "^4.1.0",
+        "@bluemind/authentication.api": "^4.1.0",
         "@bluemind/calendar.api": "^4.1.0",
         "@bluemind/core.container.api": "^4.1.0",
         "@bluemind/core.task.api": "^4.1.0",
@@ -29,6 +29,7 @@
         "@bluemind/vue-bus": "^4.1.0",
         "@bluemind/vue-sockjs": "^4.1.0",
         "@bluemind/vuex-router": "^4.1.0",
+        "@bluemind/webappdata.api": "^4.1.0",
         "libphonenumber-js": "^1.7.8",
         "lodash.clonedeep": "^4.5.0",
         "lodash.debounce": "^4.0.8",
@@ -37,9 +38,9 @@
         "lodash.sortedindexby": "^4.6.0",
         "lodash.throttle": "^4.1.1",
         "mime": "^2.5.2",
+        "vue-global-events": "^1.1.2",
         "vue-i18n": "^8.21.0",
-        "vue2-touch-events": "^2.2.1",
-        "vue-global-events": "^1.1.2"
+        "vue2-touch-events": "^2.2.1"
     },
     "devDependencies": {
         "@bluemind/conf": "^4.1.0",

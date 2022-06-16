@@ -1,4 +1,5 @@
 import { inject } from "@bluemind/inject";
+import { AppDataKeys } from "@bluemind/webappdata";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import {
     MAILBOXES_ARE_LOADED,
@@ -25,7 +26,11 @@ export default {
             MY_MAILBOX_FOLDERS,
             MY_MAILBOX
         }),
-        ...mapState("mail", ["folders", "conversationList"])
+        ...mapState("mail", ["folders", "conversationList"]),
+        expandedFolders() {
+            const appData = this.$store.state["root-app"].appData[AppDataKeys.MAIL_FOLDERS_EXPANDED];
+            return appData ? appData.value : [];
+        }
     },
     methods: {
         ...mapActions("mail", { LOAD_MAX_MESSAGE_SIZE, FETCH_FOLDERS, FETCH_MAILBOXES, UNREAD_FOLDER_COUNT }),
@@ -39,7 +44,7 @@ export default {
         async $_BootstrapMixin_loadMailbox() {
             await this.FETCH_MAILBOXES();
             const mailbox = this.MAILBOX_BY_NAME(this.route.mailbox);
-            await this.FETCH_FOLDERS(mailbox);
+            await this.FETCH_FOLDERS({ mailbox, expandedFolders: this.expandedFolders });
         },
         async $_BootstrapMixin_loadAllMailboxes() {
             if (!this.MAILBOXES_ARE_LOADED) {
@@ -47,7 +52,7 @@ export default {
             }
             await Promise.all(
                 this.MAILBOXES.filter(({ loading }) => loading === LoadingStatus.NOT_LOADED).map(mailbox =>
-                    this.FETCH_FOLDERS(mailbox)
+                    this.FETCH_FOLDERS({ mailbox, expandedFolders: this.expandedFolders })
                 )
             );
         }
@@ -59,7 +64,7 @@ export default {
             if (this.route.mailbox) {
                 await this.$_BootstrapMixin_loadMailbox();
             }
-            await this.FETCH_FOLDERS(this.MY_MAILBOX);
+            await this.FETCH_FOLDERS({ mailbox: this.MY_MAILBOX, expandedFolders: this.expandedFolders });
             await this.$_BootstrapMixin_loadAllMailboxes();
             if (this.MY_INBOX?.unread === undefined) {
                 await this.UNREAD_FOLDER_COUNT(this.MY_INBOX);

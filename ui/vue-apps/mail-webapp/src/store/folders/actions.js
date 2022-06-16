@@ -25,11 +25,12 @@ import {
     UNREAD_FOLDER_COUNT
 } from "~/actions";
 
-const fetchFolders = async function ({ commit }, mailbox) {
+const fetchFolders = async function ({ commit }, { mailbox, expandedFolders }) {
     const items = await api.getAllFolders(mailbox);
     items.forEach(item => {
         if (!item.flags.includes(ItemFlag.Deleted)) {
             const folder = FolderAdaptor.fromMailboxFolder(item, mailbox);
+            folder.expanded = expandedFolders.indexOf(folder.key) > -1;
             commit(ADD_FOLDER, folder);
         }
     });

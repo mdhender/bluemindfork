@@ -103,11 +103,7 @@
 
         <template slot="content">
             <div class="col-11 flex-grow-1">
-                <mail-composer-content
-                    ref="content"
-                    :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened"
-                    :message="message"
-                />
+                <mail-composer-content ref="content" :message="message" />
             </div>
         </template>
         <template slot="bottom">
@@ -120,7 +116,6 @@
                         class="col"
                         :message="message"
                         :is-signature-inserted="isSignatureInserted"
-                        @toggle-text-format="userPrefIsMenuBarOpened = !userPrefIsMenuBarOpened"
                         @toggle-signature="toggleSignature"
                     />
                 </div>

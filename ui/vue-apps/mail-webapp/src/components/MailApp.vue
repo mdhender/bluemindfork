@@ -69,10 +69,11 @@
             >
                 <mail-folder-sidebar />
             </section>
-            <multipane class="w-100" layout="vertical">
+            <multipane class="w-100" layout="vertical" @paneResizeStop="onPanelResize">
                 <div
-                    class="pl-lg-2 px-0 d-lg-block mail-conversation-list-div"
-                    :class="hideListInResponsiveMode ? 'd-none' : ''"
+                    class="pl-lg-2 px-0 d-lg-block mail-conversation-list-wrapper"
+                    :class="{ 'd-none': hideListInResponsiveMode }"
+                    :style="mailConversationListWidth"
                 >
                     <mail-conversation-list class="h-100" />
                 </div>
@@ -87,12 +88,13 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import { BmExtension } from "@bluemind/extensions";
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
 import { BmFormCheckbox, BmButton, BmCol, BmIcon, BmRow, MakeUniq } from "@bluemind/styleguide";
+import { AppDataKeys } from "@bluemind/webappdata";
 
 import FaviconHelper from "../FaviconHelper";
 import BoostrapMixin from "./MailApp/BootstrapMixin";
@@ -152,6 +154,12 @@ export default {
             SELECTION_IS_EMPTY
         }),
         ...mapState("mail", { currentConversation: ({ conversations }) => conversations.currentConversation }),
+        ...mapState("root-app", {
+            messageListWidth: ({ appData }) => appData[AppDataKeys.MAIL_MESSAGE_LIST_WIDTH]?.value
+        }),
+        mailConversationListWidth() {
+            return this.messageListWidth ? "width: " + this.messageListWidth : "";
+        },
         hideListInResponsiveMode() {
             const item = this.ACTIVE_MESSAGE || this.CURRENT_CONVERSATION_METADATA;
             return item && (item.composing || this.SELECTION_IS_EMPTY);
@@ -178,6 +186,10 @@ export default {
         this.$store.commit(`mail/${SET_MAIL_THREAD_SETTING}`, this.$store.state.settings.mail_thread);
     },
     methods: {
+        ...mapActions("root-app", ["SET_APP_DATA"]),
+        onPanelResize(pane, container, size) {
+            this.SET_APP_DATA({ key: AppDataKeys.MAIL_MESSAGE_LIST_WIDTH, value: size });
+        },
         async switchWebmail() {
             await inject("UserSettingsPersistence").setOne(this.userSession.userId, "mail-application", '"webmail"');
             location.replace("/webmail/");
@@ -243,7 +255,7 @@ export default {
         width: 4em;
     }
 
-    .mail-conversation-list-div {
+    .mail-conversation-list-wrapper {
         min-width: 100%;
         width: 100%;
     }
@@ -258,7 +270,7 @@ export default {
     }
 
     @media only screen and (min-width: map-get($grid-breakpoints, "lg")) {
-        .mail-conversation-list-div {
+        .mail-conversation-list-wrapper {
             min-width: 20%;
             max-width: 70%;
             width: 30%;

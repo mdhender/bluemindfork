@@ -32,17 +32,10 @@
             @files-count="draggedFilesCount = $event"
             @drop-files="addAttachments($event)"
         />
-        <mail-composer-content
-            ref="content"
-            :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened"
-            :message="message"
-            :is-signature-inserted.sync="isSignatureInserted"
-        />
+        <mail-composer-content ref="content" :message="message" :is-signature-inserted.sync="isSignatureInserted" />
         <mail-composer-footer
             :message="message"
-            :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened"
             :is-signature-inserted="isSignatureInserted"
-            @toggle-text-format="userPrefIsMenuBarOpened = !userPrefIsMenuBarOpened"
             @toggle-signature="toggleSignature"
         />
         <template-chooser />

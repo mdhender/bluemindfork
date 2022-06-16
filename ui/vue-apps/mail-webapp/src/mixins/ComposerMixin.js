@@ -12,11 +12,7 @@ export default {
     },
     mixins: [ComposerFromMixin],
     data() {
-        return {
-            userPrefIsMenuBarOpened: false, // TODO: initialize this with user setting
-            isSignatureInserted: false,
-            draggedFilesCount: -1
-        };
+        return { isSignatureInserted: false, draggedFilesCount: -1 };
     },
     computed: {
         ...mapState("mail", ["messageCompose"]),

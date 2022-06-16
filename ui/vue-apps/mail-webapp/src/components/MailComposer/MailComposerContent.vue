@@ -20,7 +20,7 @@
             <bm-rich-editor
                 ref="message-content"
                 :init-value="messageCompose.editorContent"
-                :show-toolbar="userPrefIsMenuBarOpened"
+                :show-toolbar="showTextFormattingToolbar"
                 :adapt-output="setCidDataAttr"
                 class="flex-grow-1"
                 @input="updateEditorContent"
@@ -51,6 +51,7 @@ import { mapMutations, mapState } from "vuex";
 
 import { createCid, CID_DATA_ATTRIBUTE } from "@bluemind/email";
 import { BmButton, BmFileDropZone, BmIcon, BmRichEditor } from "@bluemind/styleguide";
+import { AppDataKeys } from "@bluemind/webappdata";
 
 import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
 import { isNewMessage } from "~/model/draft";
@@ -63,10 +64,6 @@ export default {
     components: { BmButton, BmFileDropZone, BmIcon, BmRichEditor, MailViewerContentLoading },
     mixins: [ComposerActionsMixin, ComposerInitMixin, SignatureMixin, WaitForMixin],
     props: {
-        userPrefIsMenuBarOpened: {
-            type: Boolean,
-            default: false
-        },
         message: {
             type: Object,
             required: true
@@ -77,6 +74,10 @@ export default {
     },
     computed: {
         ...mapState("mail", ["messageCompose"]),
+        showTextFormattingToolbar() {
+            const appData = this.$store.state["root-app"].appData[AppDataKeys.MAIL_COMPOSITION_SHOW_FORMATTING_TOOLBAR];
+            return appData ? appData.value : false;
+        },
         corporateSignature() {
             return this.messageCompose.corporateSignature;
         },

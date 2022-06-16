@@ -1,8 +1,12 @@
 import { containsHtml, text2html } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
+import UUIDGenerator from "@bluemind/uuid";
+import { adapt, toRemote } from "@bluemind/webappdata";
+import Vue from "vue";
 
 const state = {
     appState: "loading",
+    appData: {},
     isOnline: true,
     quota: {
         used: null,
@@ -14,6 +18,17 @@ const state = {
 const mutations = {
     SET_APP_STATE: (state, appState) => {
         state.appState = appState;
+    },
+    SET_ALL_APP_DATA: (state, allAppData) => {
+        allAppData.forEach(data => {
+            Vue.set(state.appData, data.key, data);
+        });
+    },
+    SET_APP_DATA: (state, appData) => {
+        Vue.set(state.appData, appData.key, appData);
+    },
+    REMOVE_APP_DATA: (state, key) => {
+        Vue.delete(state, key);
     },
     SET_QUOTA: (state, { used, total }) => {
         state.quota.used = used;
@@ -39,6 +54,25 @@ const mutations = {
 };
 
 const actions = {
+    async FETCH_ALL_APP_DATA({ commit }) {
+        const service = await inject("WebAppDataPersistence");
+        const appData = await service.multipleGet(await service.allUids());
+        if (appData) {
+            const adapted = appData.map(adapt);
+            commit("SET_ALL_APP_DATA", adapted);
+        }
+    },
+    async SET_APP_DATA({ commit, state }, { key, value }) {
+        const stored = state.appData[key];
+        const uid = stored ? stored.uid : UUIDGenerator.generate();
+        commit("SET_APP_DATA", { uid, key, value });
+        const remote = toRemote({ key, value });
+        if (stored) {
+            await inject("WebAppDataPersistence").update(uid, remote);
+        } else {
+            await inject("WebAppDataPersistence").create(uid, remote);
+        }
+    },
     async FETCH_MY_MAILBOX_QUOTA({ commit }) {
         const userId = inject("UserSession").userId;
         const mailboxQuota = await inject("MailboxesPersistence").getMailboxQuota(userId);

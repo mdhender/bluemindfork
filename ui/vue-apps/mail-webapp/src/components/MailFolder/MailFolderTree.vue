@@ -17,7 +17,7 @@
                 class="text-nowrap"
                 :children-property="FOLDER_GET_CHILDREN"
                 breakpoint="xl"
-                @toggle="key => SET_FOLDER_EXPANDED({ ...folders[key], expanded: !folders[key].expanded })"
+                @toggle="toggle"
                 @select="selectFolder"
             >
                 <template v-slot="{ value }">
@@ -30,11 +30,10 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import { BmButton, BmCollapse, BmIcon, BmTree } from "@bluemind/styleguide";
-import { SET_FOLDER_EXPANDED } from "~/mutations";
 import { FOLDER_GET_CHILDREN } from "~/getters";
-import { MailRoutesMixin } from "~/mixins";
+import { FolderMixin, MailRoutesMixin } from "~/mixins";
 import DraggableMailFolderItem from "./DraggableMailFolderItem";
 
 export default {
@@ -46,7 +45,7 @@ export default {
         BmTree,
         DraggableMailFolderItem
     },
-    mixins: [MailRoutesMixin],
+    mixins: [FolderMixin, MailRoutesMixin],
     props: {
         tree: {
             type: Array,
@@ -72,8 +71,6 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("mail", { SET_FOLDER_EXPANDED }),
-
         selectFolder(key) {
             this.$router.push(this.folderRoute(this.folders[key]));
         }

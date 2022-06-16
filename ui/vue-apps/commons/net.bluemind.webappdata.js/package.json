@@ -1,0 +1,8 @@
+{
+    "name": "@bluemind/webappdata",
+    "version": "4.1.0",
+    "description": "BlueMind package for webappdata helper",
+    "license": "AGPL-3.0-only",
+    "author": "Blue Mind SAS",
+    "main": "src/index.js"
+}
