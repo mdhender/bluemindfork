@@ -151,7 +151,7 @@ public class OrgUnitTreeGrid extends Grid implements IGwtWidgetElement {
 		units.search(q) //
 				.thenApply(result -> {
 					unitPathList = new ArrayList<>(result);
-					return createOrgUnitTreeList(orderResultList(result, searchString));
+					return createOrgUnitTreeList(orderResultList(result));
 				}) //
 				.thenAccept(result -> {
 					allOrgUnits.setVisible(!result.isEmpty());
@@ -221,8 +221,7 @@ public class OrgUnitTreeGrid extends Grid implements IGwtWidgetElement {
 			return;
 		}
 
-		List<OrgUnitItem> createOrgUnitTreeList = createOrgUnitTreeList(
-				orderResultList(new ArrayList<>(unitPathList), search));
+		List<OrgUnitItem> createOrgUnitTreeList = createOrgUnitTreeList(orderResultList(new ArrayList<>(unitPathList)));
 		allOrgUnits.setVisible(!createOrgUnitTreeList.isEmpty());
 		Tree copy = unitListMngt.copyTree();
 		ouTree.removeItems();
@@ -275,10 +274,8 @@ public class OrgUnitTreeGrid extends Grid implements IGwtWidgetElement {
 		});
 	}
 
-	private static Map<String, List<OrgUnitPath>> orderResultList(List<OrgUnitPath> result, String search) {
-		if (search != null && !search.isEmpty()) {
-			result.addAll(getMissingParentNodes(result));
-		}
+	private static Map<String, List<OrgUnitPath>> orderResultList(List<OrgUnitPath> result) {
+		result.addAll(getMissingParentNodes(result));
 
 		Map<String, List<OrgUnitPath>> pathMap = new HashMap<>();
 		result.stream().filter(r -> r.path().size() == 1).forEach(e -> pathMap.put(e.uid, new ArrayList<>()));
