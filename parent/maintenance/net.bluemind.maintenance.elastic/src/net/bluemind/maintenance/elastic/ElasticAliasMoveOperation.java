@@ -21,7 +21,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.slf4j.event.Level;
 
+import net.bluemind.core.api.fault.ErrorCode;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.ITask;
@@ -45,15 +48,35 @@ public class ElasticAliasMoveOperation implements HotUpgradeOperation {
 	@Override
 	public void execute(HotUpgradeTask task, IServerTaskMonitor monitor, DiagnosticReport report) throws Exception {
 
-		monitor.begin(1, "start " + task.parameters);
+		monitor.begin(2, "start " + task.parameters);
 
-		IMailboxMgmt mboxMgmt = context.provider().instance(IMailboxMgmt.class, task.getParameterAsString("domainUid"));
-		TaskRef moveTask = mboxMgmt.moveIndex(task.getParameterAsString("mailboxUid"),
-				task.getParameterAsString("targetIndex"), false);
-		monitor.log("Forwarding progress of alias move " + moveTask.id);
-		ITask tsk = context.provider().instance(ITask.class, moveTask.id);
-		TaskUtils.forwardProgress(tsk, monitor.subWork(1));
+		moveIfExists(task, monitor.subWork("move", 1));
 
+		removeIfNeeded(task, monitor.subWork("delete", 1));
+
+		monitor.end(true, "finished.", "OK");
+
+	}
+
+	private void moveIfExists(HotUpgradeTask task, IServerTaskMonitor monitor) {
+		try {
+			IMailboxMgmt mboxMgmt = context.provider().instance(IMailboxMgmt.class,
+					task.getParameterAsString("domainUid"));
+			TaskRef moveTask = mboxMgmt.moveIndex(task.getParameterAsString("mailboxUid"),
+					task.getParameterAsString("targetIndex"), false);
+			monitor.log("Forwarding progress of alias move " + moveTask.id);
+			ITask tsk = context.provider().instance(ITask.class, moveTask.id);
+			TaskUtils.forwardProgress(tsk, monitor);
+		} catch (ServerFault sf) {
+			if (sf.getCode() == ErrorCode.NOT_FOUND) {
+				monitor.log(sf.getMessage(), Level.WARN);
+			} else {
+				throw sf;
+			}
+		}
+	}
+
+	private void removeIfNeeded(HotUpgradeTask task, IServerTaskMonitor monitor) {
 		boolean remove = "true".equals(task.getParameterAsString("tryRemove"));
 		if (remove) {
 			String source = task.getParameterAsString("sourceIndex");
@@ -72,9 +95,6 @@ public class ElasticAliasMoveOperation implements HotUpgradeOperation {
 				monitor.log("We can't remove " + source + " as it has active " + activeAliases + " aliases");
 			}
 		}
-
-		monitor.end(true, "finished.", "OK");
-
 	}
 
 	@Override
