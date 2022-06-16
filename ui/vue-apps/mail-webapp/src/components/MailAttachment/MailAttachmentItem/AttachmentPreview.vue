@@ -3,13 +3,7 @@
         class="text-center attachment-preview overflow-hidden d-flex justify-content-center align-items-center"
         :class="fileTypeIcon"
     >
-        <img
-            v-if="hasPreview"
-            ref="preview-image"
-            class="preview"
-            :src="previewUrl"
-            :alt="$tc('common.attachmentPreview')"
-        />
+        <img v-if="hasPreview" ref="preview-image" :src="previewUrl" :alt="$tc('common.attachmentPreview')" />
         <div v-else class="preview w-100 text-center mb-1 p-1">
             <bm-icon :icon="fileTypeIcon" size="6x" class="m-auto preview-file-type" />
         </div>

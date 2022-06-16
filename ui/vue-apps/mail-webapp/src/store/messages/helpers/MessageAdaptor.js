@@ -25,6 +25,7 @@ export default {
             conversationId: remote.value.conversationId,
             headers: remote.value.body.headers,
             ...parts,
+            subject: remote.value.body.subject,
             status: MessageStatus.IDLE,
             loading: LoadingStatus.LOADED,
             preview: remote.value.body.preview,

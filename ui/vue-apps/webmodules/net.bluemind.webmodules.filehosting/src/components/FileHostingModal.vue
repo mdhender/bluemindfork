@@ -3,25 +3,30 @@
         id="file-hosting-modal"
         :title="$tc('mail.filehosting.add.large', fhAttachments.length)"
         title-class="ml-2"
+        dialog-class="modal-dialog-centered"
         no-fade
     >
         <div class="mr-4 ml-2">
             <div v-if="hasSomeErrorStatus" class="d-flex align-items-center mb-3">
                 <bm-icon icon="file" size="2x" class="mr-2 text-danger" />
-                <span class="mr-1 font-size-h1">&#8226;</span>
-                <span class="mr-1 font-size-h1">&#8226;</span>
+                <span class="mr-1 font-size-h1 text-neutral-fg-lo2">&#8226;</span>
+                <span class="mr-1 font-size-h1 text-neutral-fg-lo2">&#8226;</span>
                 <bm-icon icon="exclamation" size="2x" class="text-danger" />
-                <span class="mr-1 font-size-h1">&#8226;</span>
-                <span class="mr-1 font-size-h1">&#8226;</span>
-                <bm-icon icon="chevron-right" size="lg" />
+                <span class="mr-1 font-size-h1 text-neutral-fg-lo2">&#8226;</span>
+                <span class="mr-1 font-size-h1 text-neutral-fg-lo2">&#8226;</span>
+                <bm-icon icon="chevron-right" class="text-neutral-fg-lo2" size="lg" />
                 <bm-icon icon="cloud" class="ml-2 text-danger" size="2x" />
             </div>
             <div v-else class="d-flex align-items-center mb-3">
                 <bm-icon icon="file" size="2x" class="mr-2 text-secondary" />
-                <span :class="arrowClass">
+                <span :class="dotsClass">
                     <span class="font-size-h1">&#8226; &#8226; &#8226; &#8226; &#8226; &#8226;</span>
                 </span>
-                <bm-icon icon="chevron-right" size="lg" :class="isFinished ? 'text-secondary' : 'text-neutral'" />
+                <bm-icon
+                    icon="chevron-right"
+                    size="lg"
+                    :class="isFinished ? 'text-secondary' : 'text-neutral-fg-lo2'"
+                />
                 <bm-icon icon="cloud" class="ml-2 text-secondary" size="2x" />
             </div>
             <div v-if="hasSomeErrorStatus" class="mb-4 text-danger">
@@ -31,22 +36,22 @@
                 {{ $tc("mail.filehosting.share.pending", fhAttachments.length) }}
             </div>
 
-            <div v-for="(attachment, idx) in fhAttachments" :key="idx" class="position-relative mt-2">
+            <div v-for="(attachment, idx) in fhAttachments" :key="idx" class="position-relative mb-3">
                 <fh-attachment-item :attachment="attachment">
                     <template #item-actions>
                         <bm-label-icon
                             v-if="hasErrorStatus(attachment)"
-                            class="text-danger mt-2 ml-2 text-nowrap"
+                            class="text-danger ml-2 text-nowrap"
                             icon="exclamation-circle-fill"
                         >
                             {{ $t("mail.filehosting.import.failed") }}
                         </bm-label-icon>
                         <bm-button-close
                             v-else-if="hasNotLoadedStatus(attachment)"
-                            class="mt-2 ml-2"
+                            class="ml-2"
                             @click="cancel(attachment.address)"
                         />
-                        <span v-else class="text-neutral ml-2 mt-2 text-nowrap">
+                        <span v-else class="text-neutral ml-2 text-nowrap">
                             {{ $t("mail.filehosting.import.successful") }}
                         </span>
                     </template>
@@ -104,8 +109,8 @@ export default {
         hasSomeErrorStatus() {
             return this.fhAttachments.some(this.hasErrorStatus);
         },
-        arrowClass() {
-            return this.isFinished ? "text-secondary" : "arrow";
+        dotsClass() {
+            return this.isFinished ? "text-secondary" : "dots";
         }
     },
     watch: {
@@ -161,32 +166,32 @@ export default {
 @import "@bluemind/styleguide/css/_variables.scss";
 
 #file-hosting-modal {
-    .text-light {
+    .text-neutral-fg-lo2 {
         color: $neutral-fg-lo2;
     }
     .font-size-h1 {
         font-size: $h1-font-size;
     }
-    .arrow {
-        background-image: linear-gradient(90deg, $neutral-bg 0%, $neutral-bg 100%);
+    .dots {
+        background-image: linear-gradient(90deg, $fill-secondary-bg 0%, $fill-secondary-bg 100%);
         background-clip: text;
         -webkit-background-clip: text;
         color: transparent;
-        animation-name: arrow;
+        animation-name: dots;
         animation-duration: 1s;
         animation-iteration-count: infinite;
         animation-timing-function: linear;
         background-size: 0%;
-        background-color: $secondary-bg;
+        background-color: $neutral-fg-lo2;
         background-repeat: no-repeat;
     }
-    @keyframes arrow {
+    @keyframes dots {
         0% {
             background-size: 0px;
         }
 
         to {
-            background-size: 100%;
+            background-size: 110%;
         }
     }
 }

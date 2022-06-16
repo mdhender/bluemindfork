@@ -40,6 +40,7 @@
             multiple
             hidden
             @change="$execute('add-attachments', { files: $event.target.files, message, maxSize })"
+            @click="closeFilePicker()"
         />
         <bm-dropdown
             split
@@ -151,6 +152,9 @@ export default {
         ...mapMutations("mail", { SHOW_SENDER }),
         openFilePicker() {
             this.$refs.attachInputRef.click();
+        },
+        closeFilePicker() {
+            this.$refs.attachInputRef.value = "";
         },
         showSender() {
             this.SHOW_SENDER(true);

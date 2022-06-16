@@ -26,7 +26,9 @@ export function renderMustDetachConfirmBox(vm, files, sizeLimit, message) {
         cancelTitle: vm.$t("common.cancel"),
         bodyClass: "pb-4",
         okVariant: "secondary",
-        cancelVariant: "simple-neutral"
+        cancelVariant: "simple-neutral",
+        centered: true,
+        hideHeaderClose: false
     };
 
     return { content, props };
@@ -57,7 +59,9 @@ export function renderShouldDetachConfirmBox(vm, files) {
         cancelTitle: vm.$t("mail.actions.attach"), //TODO: use a better wording
         bodyClass: "pb-4",
         okVariant: "secondary",
-        cancelVariant: "simple-neutral"
+        cancelVariant: "simple-neutral",
+        centered: true,
+        hideHeaderClose: false
     };
 
     return { content, props };
@@ -68,7 +72,8 @@ export function renderFileHostingModal(vm, message) {
         content: FileHostingModal,
         props: {
             sizeLimit: vm.$store.state.mail.messageCompose.maxMessageSize,
-            message
+            message,
+            centered: true
         }
     };
 }

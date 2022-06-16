@@ -1,6 +1,6 @@
 import UUIDGenerator from "@bluemind/uuid";
 import { part, attachment, draft } from "@bluemind/mail";
-import { ADD_ATTACHMENT, REMOVE_ATTACHMENT, DEBOUNCED_SAVE_MESSAGE } from "~/actions";
+import { ADD_ATTACHMENT, DEBOUNCED_SAVE_MESSAGE } from "~/actions";
 import TooLargeBox from "~/components/MailAttachment/Modals/TooLargeBox";
 
 const { createFromFile: createPartFromFile } = part;
@@ -36,13 +36,6 @@ export default {
                 messageCompose: this.$store.state.mail.messageCompose
             });
             this.updateRoute(isNew);
-        },
-        async removeAttachment({ attachment, message }) {
-            await this.$store.dispatch(`mail/${REMOVE_ATTACHMENT}`, {
-                messageKey: message.key,
-                attachmentAddress: attachment.address,
-                messageCompose: this.$store.state.mail.messageCompose
-            });
         }
     },
     computed: {
@@ -59,7 +52,7 @@ function renderTooLargeOKBox(vm, files, sizeLimit) {
         title: vm.$tc("mail.filehosting.add.too_large", files.length),
         okTitle: vm.$tc("common.got_it"),
         bodyClass: "pb-4",
-        okVariant: "outline-primary"
+        okVariant: "outline-secondary"
     };
 
     return { content, props };
