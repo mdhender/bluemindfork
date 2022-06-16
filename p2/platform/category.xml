@@ -97,8 +97,12 @@
    <bundle id="net.bluemind.calendar.sync" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.calendar.usercalendar" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.central.reverse.proxy" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.central.reverse.proxy.common" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.central.reverse.proxy.launcher" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.central.reverse.proxy.model" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.central.reverse.proxy.model.client" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.central.reverse.proxy.model.common" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.central.reverse.proxy.stream" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.chooser.application.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cli.adm" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cli.calendar" version="4.1.0.qualifier"/>

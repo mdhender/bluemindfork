@@ -1,10 +1,10 @@
 package net.bluemind.central.reverse.proxy.model;
 
-import static net.bluemind.central.reverse.proxy.model.ProxyInfoStoreAddress.ADDRESS;
-import static net.bluemind.central.reverse.proxy.model.ProxyInfoStoreAddress.ADD_DIR;
-import static net.bluemind.central.reverse.proxy.model.ProxyInfoStoreAddress.ADD_INSTALLATION;
-import static net.bluemind.central.reverse.proxy.model.ProxyInfoStoreAddress.ANY_IP;
-import static net.bluemind.central.reverse.proxy.model.ProxyInfoStoreAddress.IP;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ADDRESS;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ADD_DIR;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ADD_INSTALLATION;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ANY_IP;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.IP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -40,7 +40,7 @@ public class ProxyInfoStoreTests {
 		vertx = VertxPlatform.getVertx();
 		storage = Mockito.spy(ProxyInfoStorage.class);
 		store = ProxyInfoStore.create(vertx, storage);
-		store.setup();
+		store.setupService();
 	}
 
 	@After

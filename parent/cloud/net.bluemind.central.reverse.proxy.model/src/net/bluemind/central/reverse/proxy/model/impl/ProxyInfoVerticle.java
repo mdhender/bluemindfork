@@ -1,78 +1,115 @@
 package net.bluemind.central.reverse.proxy.model.impl;
 
-import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Files;
+import static net.bluemind.central.reverse.proxy.common.ProxyEventBusAddress.ADDRESS;
+import static net.bluemind.central.reverse.proxy.common.ProxyEventBusAddress.STREAM_READY_NAME;
+import static net.bluemind.central.reverse.proxy.common.config.CrpConfig.Kafka.BOOTSTRAP_SERVERS;
+import static net.bluemind.central.reverse.proxy.common.config.CrpConfig.Model.CLIENT_ID_PREFIX;
+import static net.bluemind.central.reverse.proxy.common.config.CrpConfig.Model.CONSUMER_GROUP_PREFIX;
+import static net.bluemind.central.reverse.proxy.common.config.CrpConfig.Model.NUMBER_OF_CONSUMER;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.typesafe.config.Config;
+
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.CompositeFuture;
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Future;
 import io.vertx.core.Promise;
-import net.bluemind.central.reverse.proxy.kafka.KafkaAdminClient;
-import net.bluemind.central.reverse.proxy.kafka.KafkaConsumerClient;
-import net.bluemind.central.reverse.proxy.model.InstallationTopics;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
+import net.bluemind.central.reverse.proxy.common.ProxyEventBusAddress;
 import net.bluemind.central.reverse.proxy.model.ProxyInfoStore;
 import net.bluemind.central.reverse.proxy.model.RecordHandler;
+import net.bluemind.central.reverse.proxy.model.common.kafka.InstallationTopics;
+import net.bluemind.central.reverse.proxy.model.common.kafka.KafkaConsumerClient;
 
 public class ProxyInfoVerticle extends AbstractVerticle {
 
 	private final Logger logger = LoggerFactory.getLogger(ProxyInfoVerticle.class);
 
-	private static final String CONSUMER_GROUP_NAME = "crp-consumer-group-" + UUID.randomUUID();
-
+	private final Config config;
+	private final String bootstrapServers;
 	private final ProxyInfoStore store;
 	private final RecordHandler<byte[], byte[]> recordHandler;
 
-	private List<KafkaConsumerClient<byte[], byte[]>> consumers = new ArrayList<>();
+	private MessageConsumer<JsonObject> vertxConsumer;
+	private List<KafkaConsumerClient<byte[], byte[]>> kafkaConsumers = new ArrayList<>();
 
-	public ProxyInfoVerticle(ProxyInfoStore store, RecordHandler<byte[], byte[]> recordHandler) {
+	ProxyInfoVerticle(Config config, ProxyInfoStore store, RecordHandler<byte[], byte[]> recordHandler) {
+		this.config = config;
+		this.bootstrapServers = config.getString(BOOTSTRAP_SERVERS);
 		this.store = store;
 		this.recordHandler = recordHandler;
 	}
 
 	@Override
 	public void start(Promise<Void> p) {
-		setupStore();
-		String bootstrapServers = kafkaBootstrapServers()
-				.orElseThrow(() -> new RuntimeException("No configuration available for kafka bootstrap server"));
-		KafkaAdminClient adminClient = KafkaAdminClient.create(bootstrapServers);
-		adminClient.listTopics().map(InstallationTopics::new).onSuccess(installationTopics -> {
-			logger.info("Subscribing to {}", installationTopics.domainTopics);
+		logger.info("[model] Starting");
+		vertx.eventBus().<JsonObject>consumer(ADDRESS).handler(event -> {
+			if (STREAM_READY_NAME.equals(event.headers().get("action"))) {
+				logger.info("[model] Dir entries stream ready, starting model");
+				store.setupService();
+				InstallationTopics topics = event.body().mapTo(InstallationTopics.class);
+				startKafkaConsumption(topics) //
+						.onSuccess(v -> logger.info("[model] Started")) //
+						.onFailure(t -> logger.error("[model] Failed to start model", t));
+			}
+		});
+		p.complete();
+	}
 
-			DeploymentOptions dep = new DeploymentOptions().setInstances(8);
-			List<String> topicNames = topicNamesToConsume(installationTopics);
-			AtomicInteger cidAlloc = new AtomicInteger();
-			vertx.deployVerticle(() -> new AbstractVerticle() {
-				@Override
-				public void start() throws Exception {
-					KafkaConsumerClient<byte[], byte[]> consumer = createConsumer(bootstrapServers, CONSUMER_GROUP_NAME,
-							"cons-slice-" + cidAlloc.incrementAndGet());
-					consumers.add(consumer);
-					consumer.handler(recordHandler).subscribe(topicNames);
-				}
-			}, dep);
-
-			p.complete();
-		}).onFailure(t -> logger.error("Unable to list installation topic names", t));
+	private Future<Void> startKafkaConsumption(InstallationTopics topics) {
+		return deployKafkaConsumer(topics).map(this::publishTopics).mapEmpty();
 
 	}
 
-	private void setupStore() {
-		store.setup();
+	private Future<InstallationTopics> deployKafkaConsumer(InstallationTopics installationTopics) {
+		List<String> topicNames = topicNamesToConsume(installationTopics);
+		AtomicInteger cidAlloc = new AtomicInteger();
+		Map<String, Promise<Void>> clientCompletionPromises = new HashMap<>();
+
+		String consumerGroupName = config.getString(CONSUMER_GROUP_PREFIX) + "-" + UUID.randomUUID();
+		vertx.deployVerticle(() -> new AbstractVerticle() {
+			@Override
+			public void start() throws Exception {
+				String clientId = config.getString(CLIENT_ID_PREFIX) + "-" + cidAlloc.incrementAndGet();
+				Promise<Void> clientCompletionPromise = Promise.promise();
+				clientCompletionPromises.put(clientId, clientCompletionPromise);
+				KafkaConsumerClient<byte[], byte[]> consumer = createConsumer(consumerGroupName, clientId);
+				kafkaConsumers.add(consumer);
+				consumer.handler(recordHandler) //
+						.subscribe(topicNames) //
+						.onSuccess(v -> clientCompletionPromises.get(clientId).complete());
+			}
+		}, new DeploymentOptions().setInstances(config.getInt(NUMBER_OF_CONSUMER)));
+
+		List<Future> clientCompletionFutures = clientCompletionPromises.values().stream() //
+				.map(Promise::future) //
+				.collect(Collectors.toList());
+		return CompositeFuture.all(clientCompletionFutures).map(v -> installationTopics);
 	}
 
-	private KafkaConsumerClient<byte[], byte[]> createConsumer(String bootstrapServers, String groupInstanceId,
-			String cid) {
+	private InstallationTopics publishTopics(InstallationTopics installationTopics) {
+		logger.info("[model] Announcing model ready");
+		vertx.eventBus().publish(ProxyEventBusAddress.ADDRESS, JsonObject.mapFrom(installationTopics),
+				ProxyEventBusAddress.MODEL_READY);
+		return installationTopics;
+	}
+
+	private KafkaConsumerClient<byte[], byte[]> createConsumer(String groupInstanceId, String cid) {
 		Properties props = new Properties();
 		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
@@ -86,30 +123,15 @@ public class ProxyInfoVerticle extends AbstractVerticle {
 	}
 
 	private List<String> topicNamesToConsume(InstallationTopics topics) {
-		List<String> topicNames = new ArrayList<>(topics.domainTopics.values());
+		List<String> topicNames = new ArrayList<>();
+		topicNames.add(topics.crpTopicName);
 		topicNames.add(topics.orphans);
 		return topicNames;
 	}
 
-	private Optional<String> kafkaBootstrapServers() {
-		String bootstrapServer = System.getProperty("bm.kafka.bootstrap.servers");
-		if (bootstrapServer != null) {
-			return Optional.of(bootstrapServer);
+	public void tearDown() {
+		if (vertxConsumer != null) {
+			vertxConsumer.unregister();
 		}
-
-		File local = new File("/etc/bm/kafka.properties");
-		if (!local.exists()) {
-			local = new File(System.getProperty("user.home") + "/kafka.properties");
-		}
-		if (local.exists()) {
-			Properties tmp = new Properties();
-			try (InputStream in = Files.newInputStream(local.toPath())) {
-				tmp.load(in);
-				bootstrapServer = tmp.getProperty("bootstrap.servers");
-			} catch (Exception e) {
-				logger.warn(e.getMessage());
-			}
-		}
-		return Optional.ofNullable(bootstrapServer);
 	}
 }

@@ -176,4 +176,9 @@ public interface ProxyRequest {
 	 */
 	ProxyResponse response();
 
+	/**
+	 * Cancel both outbound response by closing its connection
+	 */
+	void cancel();
+
 }

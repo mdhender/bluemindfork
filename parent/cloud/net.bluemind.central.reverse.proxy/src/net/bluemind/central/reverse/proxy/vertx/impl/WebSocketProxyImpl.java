@@ -19,17 +19,19 @@ public class WebSocketProxyImpl implements WebSocketProxy {
 
 	private final Logger logger = LoggerFactory.getLogger(WebSocketProxyImpl.class);
 
+	private final String deploymentID;
 	private final HttpClient httpClient;
-	private Function<ServerWebSocket, Future<SocketAddress>> targetSelector = context -> Future
+	private Function<ServerWebSocket, Future<CloseableSession>> targetSelector = context -> Future
 			.failedFuture("No target available");
 
-	public WebSocketProxyImpl(HttpClient httpClient) {
+	public WebSocketProxyImpl(String deploymentID, HttpClient httpClient) {
+		this.deploymentID = deploymentID;
 		this.httpClient = httpClient;
 	}
 
 	@Override
 	public WebSocketProxy target(SocketAddress address) {
-		targetSelector = context -> Future.succeededFuture(address);
+		targetSelector = context -> Future.succeededFuture(new CloseableSession(address));
 		return this;
 	}
 
@@ -39,7 +41,7 @@ public class WebSocketProxyImpl implements WebSocketProxy {
 	}
 
 	@Override
-	public WebSocketProxy originSelector(Function<ServerWebSocket, Future<SocketAddress>> selector) {
+	public WebSocketProxy originSelector(Function<ServerWebSocket, Future<CloseableSession>> selector) {
 		targetSelector = selector;
 		return this;
 	}
@@ -49,9 +51,9 @@ public class WebSocketProxyImpl implements WebSocketProxy {
 
 		targetSelector.apply(upstreamWebSocket).onComplete(ar -> {
 			if (ar.succeeded()) {
-				SocketAddress address = ar.result();
+				CloseableSession session = ar.result();
 				WebSocketConnectOptions options = new WebSocketConnectOptions() //
-						.setHost(address.host()).setPort(address.port()) //
+						.setHost(session.address().host()).setPort(session.address().port()) //
 						.setURI(upstreamWebSocket.path()) //
 						.addHeader(HttpHeaders.SET_COOKIE.toString(),
 								upstreamWebSocket.headers().get(HttpHeaders.COOKIE));
@@ -65,8 +67,14 @@ public class WebSocketProxyImpl implements WebSocketProxy {
 						upstreamWebSocket.endHandler(v -> {
 							upstreamWebSocket.close();
 							downstreamWebSocket.close();
+							session.end();
 						});
 						downstreamWebSocket.endHandler(v -> {
+							upstreamWebSocket.close();
+							downstreamWebSocket.close();
+							session.end();
+						});
+						session.onClose(() -> {
 							upstreamWebSocket.close();
 							downstreamWebSocket.close();
 						});

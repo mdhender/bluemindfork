@@ -15,7 +15,10 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eclipse.common,
  com.fasterxml.jackson.core.jackson-core,
  com.fasterxml.jackson.core.jackson-databind,
- net.bluemind.kafka.client
+ net.bluemind.kafka.client,
+ net.bluemind.central.reverse.proxy.model.common,
+ net.bluemind.central.reverse.proxy.model.client,
+ net.bluemind.central.reverse.proxy.stream
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.central.reverse.proxy.model.tests

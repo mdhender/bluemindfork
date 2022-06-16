@@ -23,6 +23,7 @@ import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.http.HttpVersion;
 import io.vertx.core.http.impl.HttpServerRequestInternal;
 import io.vertx.core.impl.ContextInternal;
@@ -197,5 +198,13 @@ public class ProxyRequestImpl implements ProxyRequest {
 	void send(HttpClientRequest inboundRequest, Handler<AsyncResult<ProxyResponse>> completionHandler) {
 		this.inboundRequest = inboundRequest;
 		sendRequest(completionHandler);
+	}
+
+	@Override
+	public void cancel() {
+		HttpServerResponse response = outboundRequest.response();
+		if (!response.ended() && !response.closed()) {
+			response.close();
+		}
 	}
 }

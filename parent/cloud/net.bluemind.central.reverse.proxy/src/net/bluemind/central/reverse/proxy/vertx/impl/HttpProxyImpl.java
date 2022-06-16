@@ -30,7 +30,6 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.http.HttpVersion;
 import io.vertx.core.http.RequestOptions;
 import io.vertx.core.net.NetSocket;
-import io.vertx.core.net.SocketAddress;
 import net.bluemind.central.reverse.proxy.vertx.Body;
 import net.bluemind.central.reverse.proxy.vertx.HttpProxy;
 import net.bluemind.central.reverse.proxy.vertx.HttpServerRequestContext;
@@ -40,20 +39,22 @@ import net.bluemind.central.reverse.proxy.vertx.ProxyResponse;
 
 public class HttpProxyImpl implements HttpProxy {
 
+	private final String deploymentID;
 	private final HttpClient client;
 	private final boolean supportWebSocket;
-	private Function<HttpServerRequestContext, Future<SocketAddress>> selector = req -> Future
+	private Function<HttpServerRequestContext, Future<CloseableSession>> selector = req -> Future
 			.failedFuture("No origin available");
 	private BiConsumer<HttpServerRequestContext, ProxyResponse> responseHook;
 	private Logger logger = LoggerFactory.getLogger(HttpProxyImpl.class);
 
-	public HttpProxyImpl(ProxyOptions options, HttpClient client) {
+	public HttpProxyImpl(String deploymentID, ProxyOptions options, HttpClient client) {
+		this.deploymentID = deploymentID;
 		this.client = client;
 		this.supportWebSocket = options.getSupportWebSocket();
 	}
 
 	@Override
-	public HttpProxy originSelector(Function<HttpServerRequestContext, Future<SocketAddress>> selector) {
+	public HttpProxy originSelector(Function<HttpServerRequestContext, Future<CloseableSession>> selector) {
 		this.selector = selector;
 		return this;
 	}
@@ -84,17 +85,14 @@ public class HttpProxyImpl implements HttpProxy {
 		}
 
 		ProxyContext bh = new Proxy();
-		bh.handleProxyRequest(proxyRequest, ar -> {
-			if (ar.failed()) {
-				logger.error("handle request error: {}", ar.cause().getMessage());
-			}
-		});
+		bh.handleProxyRequest(proxyRequest) //
+				.onFailure(t -> logger.error("[proxy:{}] handle request error: {}", deploymentID, t.getMessage()));
 	}
 
 	private void handleWebSocketUpgrade(ProxyRequest proxyRequest) {
 		HttpServerRequest outboundRequest = proxyRequest.outboundRequest();
 		HttpServerRequestContext context = new HttpServerRequestContextImpl(outboundRequest);
-		resolveOrigin(context).onComplete(ar -> {
+		contextToRequest(proxyRequest, context).onComplete(ar -> {
 			if (ar.succeeded()) {
 				HttpClientRequest inboundRequest = ar.result();
 				inboundRequest.setMethod(HttpMethod.GET);
@@ -119,7 +117,7 @@ public class HttpProxyImpl implements HttpProxy {
 								outboundSocket.closeHandler(v -> inboundSocket.close());
 								inboundSocket.closeHandler(v -> outboundSocket.close());
 							}).onFailure(t -> logger.error(
-									"unknown error while trying to convert outboundRequest toNetSocket(): {}",
+									"[proxy:{}] unknown error while trying to convert outboundRequest toNetSocket(): {}",
 									t.getMessage(), t));
 						} else {
 							// Rejection
@@ -138,12 +136,18 @@ public class HttpProxyImpl implements HttpProxy {
 		});
 	}
 
-	private Future<HttpClientRequest> resolveOrigin(HttpServerRequestContext context) {
-		return selector.apply(context).flatMap(server -> {
-			RequestOptions requestOptions = new RequestOptions();
-			requestOptions.setServer(server);
-			return client.request(requestOptions);
-		});
+	private Future<HttpClientRequest> contextToRequest(ProxyRequest proxyRequest, HttpServerRequestContext context) {
+		return contextToSession(proxyRequest, context).flatMap(this::sessionToRequest);
+	}
+
+	private Future<CloseableSession> contextToSession(ProxyRequest proxyRequest, HttpServerRequestContext context) {
+		return selector.apply(context).onSuccess(session -> session.onClose(() -> proxyRequest.cancel()));
+	}
+
+	private Future<HttpClientRequest> sessionToRequest(CloseableSession session) {
+		RequestOptions requestOptions = new RequestOptions();
+		requestOptions.setServer(session.address());
+		return client.request(requestOptions);
 	}
 
 	private void end(ProxyRequest proxyRequest, int sc) {
@@ -154,7 +158,7 @@ public class HttpProxyImpl implements HttpProxy {
 
 	private interface ProxyContext {
 
-		void handleProxyRequest(ProxyRequest request, Handler<AsyncResult<Void>> handler);
+		Future<Void> handleProxyRequest(ProxyRequest request);
 
 		void handleProxyResponse(ProxyResponse response, Handler<AsyncResult<Void>> handler);
 
@@ -165,65 +169,50 @@ public class HttpProxyImpl implements HttpProxy {
 		private ProxyContext context = this;
 
 		@Override
-		public void handleProxyRequest(ProxyRequest request, Handler<AsyncResult<Void>> handler) {
-			HttpServerRequestContext context = new HttpServerRequestContextImpl(request.outboundRequest());
-			sendProxyRequest(context, request, ar -> {
-				if (ar.succeeded()) {
-					responseHook.accept(context, ar.result());
-					sendProxyResponse(ar.result(), ar2 -> {
-					});
-					handler.handle(Future.succeededFuture());
-				} else {
-					handler.handle(Future.failedFuture(ar.cause()));
-				}
-			});
+		public Future<Void> handleProxyRequest(ProxyRequest proxyRequest) {
+			HttpServerRequestContext requestContext = new HttpServerRequestContextImpl(proxyRequest.outboundRequest());
+			return contextToSession(proxyRequest, requestContext) //
+					.flatMap(session -> sessionToRequest(session) //
+							.flatMap(request -> sendProxyRequest(proxyRequest, requestContext, request) //
+									.flatMap(response -> sendProxyResponse(requestContext, response))
+									.onComplete(v -> session.end()))
+							.onFailure(t -> failUnsendProxyRequest(proxyRequest)))
+					.onFailure(t -> failUnsendProxyRequest(proxyRequest));
 		}
 
-		private void sendProxyRequest(HttpServerRequestContext context, ProxyRequest proxyRequest,
-				Handler<AsyncResult<ProxyResponse>> handler) {
-			Future<HttpClientRequest> f = resolveOrigin(context);
-			f.onComplete(ar -> {
-				if (ar.succeeded()) {
-					proxyRequest.setBody(Body.body(context.bodyStream()));
-					sendProxyRequest(proxyRequest, ar.result(), handler);
-				} else {
-					HttpServerRequest outboundRequest = proxyRequest.outboundRequest();
-					outboundRequest.resume();
-					Promise<Void> promise = Promise.promise();
-					outboundRequest.exceptionHandler(promise::tryFail);
-					outboundRequest.endHandler(promise::tryComplete);
-					promise.future().onComplete(ar2 -> {
-						end(proxyRequest, 502);
-					});
-					handler.handle(Future.failedFuture(ar.cause()));
-				}
-			});
+		private Future<ProxyResponse> sendProxyRequest(ProxyRequest proxyRequest, HttpServerRequestContext context,
+				HttpClientRequest inboundRequest) {
+			proxyRequest.setBody(Body.body(context.bodyStream()));
+			Promise<ProxyResponse> promiseOfResponse = Promise.promise();
+			promiseOfResponse.future()
+					.onFailure(t -> proxyRequest.outboundRequest().response().setStatusCode(502).end());
+			((ProxyRequestImpl) proxyRequest).send(inboundRequest, promiseOfResponse);
+			return promiseOfResponse.future();
 		}
 
-		private void sendProxyRequest(ProxyRequest proxyRequest, HttpClientRequest inboundRequest,
-				Handler<AsyncResult<ProxyResponse>> handler) {
-			((ProxyRequestImpl) proxyRequest).send(inboundRequest, ar2 -> {
-				if (ar2.succeeded()) {
-					handler.handle(ar2);
-				} else {
-					proxyRequest.outboundRequest().response().setStatusCode(502).end();
-					handler.handle(Future.failedFuture(ar2.cause()));
-				}
-			});
-		}
-
-		private void sendProxyResponse(ProxyResponse response, Handler<AsyncResult<Void>> handler) {
-
+		private Future<Void> sendProxyResponse(HttpServerRequestContext requestContext, ProxyResponse response) {
+			responseHook.accept(requestContext, response);
+			Promise<Void> promiseOfResponse = Promise.promise();
 			// Check validity
 			Boolean chunked = HttpUtils.isChunked(response.headers());
 			if (chunked == null) {
 				// response.request().release(); // Is it needed ???
 				end(response.request(), 501);
-				handler.handle(Future.succeededFuture()); // should use END future here
-				return;
+				promiseOfResponse.complete();
+				return promiseOfResponse.future();
 			}
 
-			context.handleProxyResponse(response, handler);
+			context.handleProxyResponse(response, promiseOfResponse);
+			return promiseOfResponse.future();
+		}
+
+		private void failUnsendProxyRequest(ProxyRequest proxyRequest) {
+			HttpServerRequest outboundRequest = proxyRequest.outboundRequest();
+			outboundRequest.resume();
+			Promise<Void> promise = Promise.promise();
+			outboundRequest.exceptionHandler(promise::tryFail);
+			outboundRequest.endHandler(promise::tryComplete);
+			promise.future().onComplete(ar2 -> end(proxyRequest, 502));
 		}
 
 		@Override

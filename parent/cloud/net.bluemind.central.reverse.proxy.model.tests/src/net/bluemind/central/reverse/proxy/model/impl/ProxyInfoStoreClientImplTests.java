@@ -15,10 +15,10 @@ import org.junit.Test;
 import io.vertx.core.Vertx;
 import net.bluemind.central.reverse.proxy.model.ProxyInfoStorage;
 import net.bluemind.central.reverse.proxy.model.ProxyInfoStore;
-import net.bluemind.central.reverse.proxy.model.ProxyInfoStoreClient;
-import net.bluemind.central.reverse.proxy.model.mapper.DirInfo;
-import net.bluemind.central.reverse.proxy.model.mapper.DirInfo.DirEmail;
-import net.bluemind.central.reverse.proxy.model.mapper.InstallationInfo;
+import net.bluemind.central.reverse.proxy.model.client.ProxyInfoStoreClient;
+import net.bluemind.central.reverse.proxy.model.common.DirInfo;
+import net.bluemind.central.reverse.proxy.model.common.DirInfo.DirEmail;
+import net.bluemind.central.reverse.proxy.model.common.InstallationInfo;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class ProxyInfoStoreClientImplTests {
@@ -39,7 +39,7 @@ public class ProxyInfoStoreClientImplTests {
 		storage.addDataLocation("here1", "ip1");
 		storage.addDataLocation("here2", "ip2");
 		store = ProxyInfoStore.create(vertx, storage);
-		store.setup();
+		store.setupService();
 	}
 
 	@After
@@ -50,7 +50,7 @@ public class ProxyInfoStoreClientImplTests {
 	@Test
 	public void noStore() {
 		store.tearDown();
-		ProxyInfoStoreClient client = new ProxyInfoStoreClientImpl(vertx);
+		ProxyInfoStoreClient client = ProxyInfoStoreClient.create(vertx);
 		AsyncTestContext.asyncTest(context -> {
 			client.ip("one@alias1").onComplete(ar -> {
 				context.assertions(() -> {
@@ -62,7 +62,7 @@ public class ProxyInfoStoreClientImplTests {
 
 	@Test
 	public void ip() {
-		ProxyInfoStoreClient client = new ProxyInfoStoreClientImpl(vertx);
+		ProxyInfoStoreClient client = ProxyInfoStoreClient.create(vertx);
 		AsyncTestContext.asyncTest(context -> {
 			client.ip("one@alias1").onComplete(ar -> {
 				context.assertions(() -> {
@@ -75,7 +75,7 @@ public class ProxyInfoStoreClientImplTests {
 
 	@Test
 	public void ipWithInexistantLogin() {
-		ProxyInfoStoreClient client = new ProxyInfoStoreClientImpl(vertx);
+		ProxyInfoStoreClient client = ProxyInfoStoreClient.create(vertx);
 		AsyncTestContext.asyncTest(context -> {
 			client.ip("dontexists").onComplete(ar -> {
 				context.assertions(() -> {
@@ -87,7 +87,7 @@ public class ProxyInfoStoreClientImplTests {
 
 	@Test
 	public void anyIps() {
-		ProxyInfoStoreClient client = new ProxyInfoStoreClientImpl(vertx);
+		ProxyInfoStoreClient client = ProxyInfoStoreClient.create(vertx);
 		AsyncTestContext.asyncTest(context -> {
 			client.anyIp().onComplete(ar -> {
 				context.assertions(() -> {
@@ -100,7 +100,7 @@ public class ProxyInfoStoreClientImplTests {
 
 	@Test
 	public void addLogin() {
-		ProxyInfoStoreClient client = new ProxyInfoStoreClientImpl(vertx);
+		ProxyInfoStoreClient client = ProxyInfoStoreClient.create(vertx);
 		AsyncTestContext.asyncTest(context -> {
 			List<DirEmail> emails = Arrays.asList(new DirEmail("three@alias1", false));
 			DirInfo dir = new DirInfo(".internal", emails, "here1");
@@ -115,7 +115,7 @@ public class ProxyInfoStoreClientImplTests {
 
 	@Test
 	public void addDataLocation() {
-		ProxyInfoStoreClient client = new ProxyInfoStoreClientImpl(vertx);
+		ProxyInfoStoreClient client = ProxyInfoStoreClient.create(vertx);
 		AsyncTestContext.asyncTest(context -> {
 			client.addInstallation(new InstallationInfo("here1", "elsewere")).compose(v -> client.ip("one@alias1"))
 					.onComplete(ar -> {

@@ -1,12 +1,12 @@
 package net.bluemind.central.reverse.proxy.model;
 
-import static net.bluemind.central.reverse.proxy.model.ProxyInfoStoreAddress.ADDRESS;
-import static net.bluemind.central.reverse.proxy.model.ProxyInfoStoreAddress.ADD_DIR_NAME;
-import static net.bluemind.central.reverse.proxy.model.ProxyInfoStoreAddress.ADD_DOMAIN_NAME;
-import static net.bluemind.central.reverse.proxy.model.ProxyInfoStoreAddress.ADD_INSTALLATION_NAME;
-import static net.bluemind.central.reverse.proxy.model.ProxyInfoStoreAddress.ALL_IPS_NAME;
-import static net.bluemind.central.reverse.proxy.model.ProxyInfoStoreAddress.ANY_IP_NAME;
-import static net.bluemind.central.reverse.proxy.model.ProxyInfoStoreAddress.IP_NAME;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ADDRESS;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ADD_DIR_NAME;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ADD_DOMAIN_NAME;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ADD_INSTALLATION_NAME;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ALL_IPS_NAME;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.ANY_IP_NAME;
+import static net.bluemind.central.reverse.proxy.model.common.ProxyInfoStoreEventBusAddress.IP_NAME;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,10 +18,10 @@ import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
-import net.bluemind.central.reverse.proxy.model.mapper.DirInfo;
-import net.bluemind.central.reverse.proxy.model.mapper.DirInfo.DirEmail;
-import net.bluemind.central.reverse.proxy.model.mapper.DomainInfo;
-import net.bluemind.central.reverse.proxy.model.mapper.InstallationInfo;
+import net.bluemind.central.reverse.proxy.model.common.DirInfo;
+import net.bluemind.central.reverse.proxy.model.common.DirInfo.DirEmail;
+import net.bluemind.central.reverse.proxy.model.common.DomainInfo;
+import net.bluemind.central.reverse.proxy.model.common.InstallationInfo;
 
 public class ProxyInfoStore {
 
@@ -43,7 +43,7 @@ public class ProxyInfoStore {
 		return new ProxyInfoStore(vertx, storage);
 	}
 
-	public void setup() {
+	public void setupService() {
 		consumer = vertx.eventBus().<JsonObject>consumer(ADDRESS).handler(event -> {
 			String action = event.headers().get("action");
 			switch (action) {
@@ -74,7 +74,8 @@ public class ProxyInfoStore {
 	private void addDir(Message<JsonObject> event) {
 		try {
 			DirInfo dir = event.body().mapTo(DirInfo.class);
-			dir.emails.stream().flatMap(email -> expand(email, dir.domainUid).stream())
+			dir.emails.stream() //
+					.flatMap(email -> expand(email, dir.domainUid).stream()) //
 					.forEach(email -> storage.addLogin(email, dir.dataLocation));
 			event.reply(null);
 		} catch (IllegalArgumentException e) {
@@ -106,8 +107,8 @@ public class ProxyInfoStore {
 	private void addInstallation(Message<JsonObject> event) {
 		try {
 			InstallationInfo installation = event.body().mapTo(InstallationInfo.class);
-			storage.addDataLocation(installation.dataLocation, installation.ip);
-			event.reply(null);
+			String oldIp = storage.addDataLocation(installation.dataLocation, installation.ip);
+			event.reply(oldIp);
 		} catch (IllegalArgumentException e) {
 			event.fail(500, "unable to decode parameters '" + event.body().encode() + "'");
 		}
@@ -122,7 +123,7 @@ public class ProxyInfoStore {
 			if (!Objects.isNull(ip)) {
 				event.reply(new JsonObject().put("ip", ip));
 			} else {
-				event.fail(404, "No IP found for'" + login + "'");
+				event.fail(404, "No IP found for '" + login + "'");
 			}
 		}
 	}

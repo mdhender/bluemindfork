@@ -18,6 +18,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.net.SocketAddress;
+import net.bluemind.central.reverse.proxy.vertx.impl.CloseableSession;
 import net.bluemind.central.reverse.proxy.vertx.impl.HttpProxyImpl;
 
 /**
@@ -36,8 +37,8 @@ public interface HttpProxy extends Handler<HttpServerRequest> {
 	 *               requests to the <i><b>origin</b></i>.
 	 * @return a reference to this, so the API can be used fluently.
 	 */
-	static HttpProxy reverseProxy(HttpClient client) {
-		return new HttpProxyImpl(new ProxyOptions(), client);
+	static HttpProxy reverseProxy(String deploymentID, HttpClient client) {
+		return new HttpProxyImpl(deploymentID, new ProxyOptions(), client);
 	}
 
 	/**
@@ -47,8 +48,8 @@ public interface HttpProxy extends Handler<HttpServerRequest> {
 	 *               requests to the <i><b>origin</b></i>.
 	 * @return a reference to this, so the API can be used fluently.
 	 */
-	static HttpProxy reverseProxy(ProxyOptions options, HttpClient client) {
-		return new HttpProxyImpl(options, client);
+	static HttpProxy reverseProxy(String deploymentID, ProxyOptions options, HttpClient client) {
+		return new HttpProxyImpl(deploymentID, options, client);
 	}
 
 	/**
@@ -58,7 +59,7 @@ public interface HttpProxy extends Handler<HttpServerRequest> {
 	 * @return a reference to this, so the API can be used fluently
 	 */
 	default HttpProxy origin(SocketAddress address) {
-		return originSelector(req -> Future.succeededFuture(address));
+		return originSelector(req -> Future.succeededFuture(new CloseableSession(address)));
 	}
 
 	/**
@@ -79,7 +80,7 @@ public interface HttpProxy extends Handler<HttpServerRequest> {
 	 * @param selector the selector
 	 * @return a reference to this, so the API can be used fluently
 	 */
-	HttpProxy originSelector(Function<HttpServerRequestContext, Future<SocketAddress>> selector);
+	HttpProxy originSelector(Function<HttpServerRequestContext, Future<CloseableSession>> selector);
 
 	HttpProxy responseHook(BiConsumer<HttpServerRequestContext, ProxyResponse> responseHook);
 

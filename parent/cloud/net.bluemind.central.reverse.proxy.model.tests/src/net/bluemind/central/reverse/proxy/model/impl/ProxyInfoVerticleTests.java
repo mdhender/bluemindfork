@@ -23,16 +23,21 @@ import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.typesafe.config.Config;
+
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.central.reverse.proxy.common.config.CrpConfig;
 import net.bluemind.central.reverse.proxy.model.ProxyInfoStorage;
 import net.bluemind.central.reverse.proxy.model.ProxyInfoStore;
-import net.bluemind.central.reverse.proxy.model.ProxyInfoStoreClient;
 import net.bluemind.central.reverse.proxy.model.RecordHandler;
+import net.bluemind.central.reverse.proxy.model.client.ProxyInfoStoreClient;
+import net.bluemind.central.reverse.proxy.model.common.mapper.RecordKeyMapper;
+import net.bluemind.central.reverse.proxy.stream.DirEntriesStreamVerticle;
 import net.bluemind.kafka.container.ZkKafkaContainer;
 import net.bluemind.lib.vertx.VertxPlatform;
 
@@ -75,30 +80,34 @@ public class ProxyInfoVerticleTests {
 		AsyncTestContext.asyncTest(context -> {
 			createTopics(orphansTopic, domainTopic).onSuccess(v -> {
 				ProxyInfoStorage storage = spy(ProxyInfoStorage.create());
-				ProxyInfoVerticle verticle = createVerticle(vertx, storage);
-				vertx.deployVerticle(verticle, new DeploymentOptions().setWorker(true), ar -> {
-					Producer<byte[], byte[]> producer = createProducer(vertx, bootstrapServers);
-					producer.send(createDomain());
-					sendToKafka(producer, numberOfRecords);
-					context.sleep(1, TimeUnit.SECONDS);
-					sendToKafka(producer, numberOfRecords);
+				ProxyInfoVerticle modelVerticle = createModelVerticle(vertx, storage);
+				DirEntriesStreamVerticle streamVerticle = createStreamVerticle();
+				vertx.deployVerticle(streamVerticle, new DeploymentOptions().setWorker(true), ar -> {
+					vertx.deployVerticle(modelVerticle, new DeploymentOptions().setWorker(true), ar2 -> {
+						Producer<byte[], byte[]> producer = createProducer(vertx, bootstrapServers);
+						producer.send(createDomain());
+						sendToKafka(producer, numberOfRecords);
+						context.sleep(1, TimeUnit.SECONDS);
+						sendToKafka(producer, numberOfRecords);
 
-					context.assertions(() -> {
-						ArgumentCaptor<String> dataLocation = ArgumentCaptor.forClass(String.class);
-						ArgumentCaptor<String> ip = ArgumentCaptor.forClass(String.class);
-						verify(storage, timeout(15000).times(numberOfRecords)).addDataLocation(dataLocation.capture(),
-								ip.capture());
-						assertTrue(dataLocation.getAllValues().containsAll(Arrays.asList("0", "1", "2", "3", "4")));
-						assertTrue(ip.getAllValues().containsAll(Arrays.asList("0", "1", "2", "3", "4")));
-						assertArrayEquals(dataLocation.getAllValues().toArray(), ip.getAllValues().toArray());
+						context.assertions(() -> {
+							ArgumentCaptor<String> dataLocation = ArgumentCaptor.forClass(String.class);
+							ArgumentCaptor<String> ip = ArgumentCaptor.forClass(String.class);
+							verify(storage, timeout(25000).times(numberOfRecords))
+									.addDataLocation(dataLocation.capture(), ip.capture());
+							assertTrue(dataLocation.getAllValues().containsAll(Arrays.asList("0", "1", "2", "3", "4")));
+							assertTrue(ip.getAllValues().containsAll(Arrays.asList("0", "1", "2", "3", "4")));
+							assertArrayEquals(dataLocation.getAllValues().toArray(), ip.getAllValues().toArray());
 
-						ArgumentCaptor<String> login = ArgumentCaptor.forClass(String.class);
-						ArgumentCaptor<String> dataLocation2 = ArgumentCaptor.forClass(String.class);
-						verify(storage, timeout(15000).times(numberOfRecords)).addLogin(login.capture(),
-								dataLocation2.capture());
-						assertTrue(login.getAllValues().containsAll(Arrays.asList("5", "6", "7", "8", "9")));
-						assertTrue(dataLocation2.getAllValues().containsAll(Arrays.asList("5", "6", "7", "8", "9")));
-						assertArrayEquals(dataLocation2.getAllValues().toArray(), login.getAllValues().toArray());
+							ArgumentCaptor<String> login = ArgumentCaptor.forClass(String.class);
+							ArgumentCaptor<String> dataLocation2 = ArgumentCaptor.forClass(String.class);
+							verify(storage, timeout(25000).times(numberOfRecords)).addLogin(login.capture(),
+									dataLocation2.capture());
+							assertTrue(login.getAllValues().containsAll(Arrays.asList("5", "6", "7", "8", "9")));
+							assertTrue(
+									dataLocation2.getAllValues().containsAll(Arrays.asList("5", "6", "7", "8", "9")));
+							assertArrayEquals(dataLocation2.getAllValues().toArray(), login.getAllValues().toArray());
+						});
 					});
 				});
 			});
@@ -123,12 +132,18 @@ public class ProxyInfoVerticleTests {
 		return new KafkaProducer<>(props);
 	}
 
-	private ProxyInfoVerticle createVerticle(Vertx vertx, ProxyInfoStorage storage) {
+	private ProxyInfoVerticle createModelVerticle(Vertx vertx, ProxyInfoStorage storage) {
 		store = ProxyInfoStore.create(vertx, storage);
 		ProxyInfoStoreClient storeClient = ProxyInfoStoreClient.create(vertx);
-		RecordHandler<byte[], byte[]> recordHandler = RecordHandler.createByteHandler(storeClient);
+		RecordHandler<byte[], byte[]> recordHandler = RecordHandler.createByteHandler(storeClient, vertx);
 
-		return new ProxyInfoVerticle(store, recordHandler);
+		Config config = CrpConfig.get("model", ProxyInfoVerticle.class.getClassLoader());
+		return new ProxyInfoVerticle(config, store, recordHandler);
+	}
+
+	private DirEntriesStreamVerticle createStreamVerticle() {
+		Config config = CrpConfig.get("stream", DirEntriesStreamVerticle.class.getClassLoader());
+		return new DirEntriesStreamVerticle(config, RecordKeyMapper.byteArray());
 	}
 
 	private void sendToKafka(Producer<byte[], byte[]> producer, int numberOfRecords) {

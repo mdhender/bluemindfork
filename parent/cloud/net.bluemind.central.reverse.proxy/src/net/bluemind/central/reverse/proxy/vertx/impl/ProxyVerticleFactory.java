@@ -18,10 +18,16 @@
  */
 package net.bluemind.central.reverse.proxy.vertx.impl;
 
+import com.typesafe.config.Config;
+
 import io.vertx.core.Verticle;
+import net.bluemind.central.reverse.proxy.common.config.CrpConfig;
+import net.bluemind.central.reverse.proxy.vertx.SessionManager;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class ProxyVerticleFactory implements IVerticleFactory {
+
+	private static final Config config = CrpConfig.get("Proxy", ProxyVerticleFactory.class.getClassLoader());
 
 	@Override
 	public boolean isWorker() {
@@ -30,7 +36,8 @@ public class ProxyVerticleFactory implements IVerticleFactory {
 
 	@Override
 	public Verticle newInstance() {
-		return new ProxyVerticle();
+		SessionManager sessions = SessionManager.create(config);
+		return new ProxyVerticle(config, sessions);
 	}
 
 }

@@ -11,11 +11,11 @@ public interface ProxyInfoStorage {
 		return new HashMapProxyInfoStorage();
 	}
 
-	void addLogin(String login, String dataLocation);
+	String addLogin(String login, String dataLocation);
 
-	void addDataLocation(String dataLocation, String ip);
+	String addDataLocation(String dataLocation, String ip);
 
-	void addDomain(String domainUid, Set<String> aliases);
+	Set<String> addDomain(String domainUid, Set<String> aliases);
 
 	String ip(String login);
 

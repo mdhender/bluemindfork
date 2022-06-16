@@ -13,8 +13,9 @@ import io.vertx.core.Future;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
-import net.bluemind.central.reverse.proxy.model.ProxyInfoStoreClient;
+import net.bluemind.central.reverse.proxy.model.client.ProxyInfoStoreClient;
 import net.bluemind.central.reverse.proxy.vertx.HttpServerRequestContext;
+import net.bluemind.central.reverse.proxy.vertx.SessionManager;
 
 public class DownstreamSelectorTests {
 
@@ -26,23 +27,23 @@ public class DownstreamSelectorTests {
 		when(storeClient.ip("two")).thenReturn(Future.succeededFuture("2.2.2.2"));
 
 		DownstreamSelector<HttpServerRequestContext> selector = new DownstreamSelector<>(new RequestInfoMatcher(),
-				storeClient);
+				storeClient, noopSessions());
 
 		final CountDownLatch cdl = new CountDownLatch(2);
 
 		MultiMap formAttributes = MultiMap.caseInsensitiveMultiMap().add("login", "one");
 		HttpServerRequest request = TestRequestHelper.createRequest(HttpMethod.POST, "/login", formAttributes);
 
-		selector.apply(new HttpServerRequestContextImpl(request)).onSuccess(socketAddress -> {
-			assertEquals("1.1.1.1", socketAddress.host());
+		selector.apply(new HttpServerRequestContextImpl(request)).onSuccess(session -> {
+			assertEquals("1.1.1.1", session.address().host());
 			cdl.countDown();
 		});
 
 		formAttributes = MultiMap.caseInsensitiveMultiMap().add("login", "two");
 		request = TestRequestHelper.createRequest(HttpMethod.POST, "/login", formAttributes);
 
-		selector.apply(new HttpServerRequestContextImpl(request)).onSuccess(socketAddress -> {
-			assertEquals(socketAddress.host(), "2.2.2.2");
+		selector.apply(new HttpServerRequestContextImpl(request)).onSuccess(session -> {
+			assertEquals(session.address().host(), "2.2.2.2");
 			cdl.countDown();
 		});
 
@@ -57,19 +58,34 @@ public class DownstreamSelectorTests {
 		when(storeClient.anyIp()).thenReturn(Future.succeededFuture("1.1.1.1"), Future.succeededFuture("2.2.2.2"));
 
 		DownstreamSelector<HttpServerRequestContext> selector = new DownstreamSelector<>(new RequestInfoMatcher(),
-				storeClient);
+				storeClient, noopSessions());
 
 		final CountDownLatch cdl = new CountDownLatch(2);
 		HttpServerRequest request = TestRequestHelper.createRequest(HttpMethod.GET, "/", null);
-		selector.apply(new HttpServerRequestContextImpl(request)).onSuccess(socketAddress -> {
-			assertEquals("1.1.1.1", socketAddress.host());
+		selector.apply(new HttpServerRequestContextImpl(request)).onSuccess(session -> {
+			assertEquals("1.1.1.1", session.address().host());
 			cdl.countDown();
 		});
-		selector.apply(new HttpServerRequestContextImpl(request)).onSuccess(socketAddress -> {
-			assertEquals(socketAddress.host(), "2.2.2.2");
+		selector.apply(new HttpServerRequestContextImpl(request)).onSuccess(session -> {
+			assertEquals(session.address().host(), "2.2.2.2");
 			cdl.countDown();
 		});
 		cdl.await();
+	}
+
+	private SessionManager noopSessions() {
+		return new SessionManager() {
+
+			@Override
+			public void close(String host) {
+
+			}
+
+			@Override
+			public void add(String host, CloseableSession session) {
+
+			}
+		};
 	}
 
 }

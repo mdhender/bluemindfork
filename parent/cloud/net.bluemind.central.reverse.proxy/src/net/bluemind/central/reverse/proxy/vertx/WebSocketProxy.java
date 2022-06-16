@@ -7,12 +7,13 @@ import io.vertx.core.Handler;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.net.SocketAddress;
+import net.bluemind.central.reverse.proxy.vertx.impl.CloseableSession;
 import net.bluemind.central.reverse.proxy.vertx.impl.WebSocketProxyImpl;
 
 public interface WebSocketProxy extends Handler<ServerWebSocket> {
 
-	static WebSocketProxy reverseProxy(HttpClient client) {
-		return new WebSocketProxyImpl(client);
+	static WebSocketProxy reverseProxy(String deploymentID, HttpClient client) {
+		return new WebSocketProxyImpl(deploymentID, client);
 	}
 
 	void handle(ServerWebSocket event);
@@ -21,6 +22,6 @@ public interface WebSocketProxy extends Handler<ServerWebSocket> {
 
 	WebSocketProxy target(int port, String host);
 
-	WebSocketProxy originSelector(Function<ServerWebSocket, Future<SocketAddress>> selector);
+	WebSocketProxy originSelector(Function<ServerWebSocket, Future<CloseableSession>> selector);
 
 }

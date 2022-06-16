@@ -24,22 +24,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.central.reverse.proxy.ReverseProxyServer;
-import net.bluemind.systemd.notify.SystemD;
+import net.bluemind.systemd.notify.Startup;
 
 public class CRPLauncher implements IApplication {
 
 	private static final Logger logger = LoggerFactory.getLogger(CRPLauncher.class);
 
-	private ReverseProxyServer crp;
-
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
-		crp = new ReverseProxyServer();
+		ReverseProxyServer crp = new ReverseProxyServer();
 		crp.run();
-		logger.info("CRP started on port 8080");
-		if (SystemD.isAvailable()) {
-			SystemD.get().notifyReady();
-		}
+		logger.info("CRP started");
+		Startup.notifyReady();
 		return IApplication.EXIT_OK;
 	}
 

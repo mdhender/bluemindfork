@@ -69,9 +69,13 @@ docker exec -it e84ab7c413e3 kafka-console-producer.sh --bootstrap-server kafka:
 --topic installationId-__orphans__ --property "parse.key=true" \
 --property "key.separator=|" --property "value.serializer=org.apache.kafka.common.serialization.ByteArrayDeserializer"
 
->{"type":"installation","owner":"","uid":"abc","id":1,"valueClass":"any"}|{"uid":"bm-master","value":{"ip":"192.168.xxx.xxx","tags":["bm/nginx"]}
+> {"type":"installation","owner":"","uid":"abc","id":1,"valueClass":"any"}|{"uid":"bm-master","value":{"ip":"192.168.xxx.xxx","tags":["bm/nginx"]}
 ```
 
+Add a domain:
+```
+> {"type":"dir","owner":"","uid":"abc","id":3,"valueClass":"any"}|{"value":{"entry":{"dataLocation":""}}}
+```
 #### User information
 User information are stored in a different topic, suffixed by the internal domain name 
 (like in `installationId-a085866e_internal`)
@@ -88,7 +92,7 @@ docker exec -it e84ab7c413e3 kafka-console-producer.sh --bootstrap-server kafka:
 --topic installationId-a085866e_internal --property "parse.key=true" \
 --property "key.separator=|" --property "value.serializer=org.apache.kafka.common.serialization.ByteArrayDeserializer"
 
->{"type":"dir","owner":"","uid":"abc","id":1,"valueClass":"any"}|{"value":{"value":{"emails":[{"address":"jdoe@devenv.blue","allAliases":false}]},"entry":{"dataLocation":"bm-matser"}}}
+> {"type":"dir","owner":"","uid":"abc","id":1,"valueClass":"any"}|{"value":{"value":{"emails":[{"address":"jdoe@devenv.blue","allAliases":false}]},"entry":{"dataLocation":"bm-matser"}}}
 ```
 
 #### Other usefull kafka commands:

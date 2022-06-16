@@ -18,16 +18,21 @@
  */
 package net.bluemind.central.reverse.proxy.model.impl;
 
+import com.typesafe.config.Config;
+
 import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
+import net.bluemind.central.reverse.proxy.common.config.CrpConfig;
 import net.bluemind.central.reverse.proxy.model.ProxyInfoStore;
-import net.bluemind.central.reverse.proxy.model.ProxyInfoStoreClient;
 import net.bluemind.central.reverse.proxy.model.RecordHandler;
+import net.bluemind.central.reverse.proxy.model.client.ProxyInfoStoreClient;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class ProxyInfoVerticleFactory implements IVerticleFactory, IUniqueVerticleFactory {
+
+	private static final Config config = CrpConfig.get("Model", ProxyInfoVerticleFactory.class.getClassLoader());
 
 	@Override
 	public boolean isWorker() {
@@ -39,8 +44,8 @@ public class ProxyInfoVerticleFactory implements IVerticleFactory, IUniqueVertic
 		Vertx vertx = VertxPlatform.getVertx();
 		ProxyInfoStore store = ProxyInfoStore.create(vertx);
 		ProxyInfoStoreClient storeClient = ProxyInfoStoreClient.create(vertx);
-		RecordHandler<byte[], byte[]> recordHandler = RecordHandler.createByteHandler(storeClient);
-		return new ProxyInfoVerticle(store, recordHandler);
+		RecordHandler<byte[], byte[]> recordHandler = RecordHandler.createByteHandler(storeClient, vertx);
+		return new ProxyInfoVerticle(config, store, recordHandler);
 	}
 
 }
