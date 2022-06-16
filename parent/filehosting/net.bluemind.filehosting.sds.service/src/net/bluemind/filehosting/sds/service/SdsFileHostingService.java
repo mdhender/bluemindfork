@@ -31,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Suppliers;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -38,6 +40,7 @@ import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
+import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -65,6 +68,9 @@ public class SdsFileHostingService implements IFileHostingService {
 
 	private static final Logger logger = LoggerFactory.getLogger(SdsFileHostingService.class);
 
+	private static final HashFunction PATH_SIGN = Hashing
+			.hmacSha256(InstallationId.getIdentifier().replace("bluemind-", "").getBytes());
+
 	private static final Supplier<ISdsSyncStore> sds = Suppliers.memoizeWithExpiration(
 			() -> new SdsDocumentStoreLoader().forSysconf(LocalSysconfCache.get()).orElse(null), 5, TimeUnit.MINUTES);
 
@@ -87,6 +93,7 @@ public class SdsFileHostingService implements IFileHostingService {
 	private String pathToUid(String path) {
 		JsonObject js = new JsonObject();
 		js.put("path", path);
+		js.put("sig", PATH_SIGN.hashBytes(path.getBytes()).toString());
 		return "sds-" + Base64.getUrlEncoder().encodeToString(js.encode().getBytes());
 	}
 
