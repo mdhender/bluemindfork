@@ -81,13 +81,10 @@ export default {
     computed: {
         ...mapState({ applicationAlerts: state => state.alert.applicationAlerts }),
         ...mapState({ alerts: state => state.alert.filter(({ area }) => !area) }),
-        ...mapState("root-app", ["appState"]),
+        ...mapState("root-app", ["appState", "showBanner"]),
         ...mapState("preferences", ["showPreferences"]),
         showAbout() {
             return this.$route.hash && this.$route.hash === "#about";
-        },
-        showBanner() {
-            return !["Thunderbird", "Icedove"].some(agent => new RegExp(agent).test(window.navigator.userAgent));
         }
     },
     async created() {
@@ -104,6 +101,9 @@ export default {
             });
         }
         this.systemAlerts = await inject("UserAnnouncementsPersistence").get();
+        if (["Thunderbird", "Icedove"].some(agent => new RegExp(agent).test(window.navigator.userAgent))) {
+            this.$store.commit("HIDE_BANNER");
+        }
     },
     methods: {
         ...mapActions("root-app", ["FETCH_IDENTITIES", "FETCH_MY_MAILBOX_QUOTA"]),

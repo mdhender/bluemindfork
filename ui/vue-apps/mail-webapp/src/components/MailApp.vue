@@ -93,15 +93,11 @@ import GlobalEvents from "vue-global-events";
 import { BmExtension } from "@bluemind/extensions.vue";
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
-import { BmFormCheckbox, BmButton, BmCol, BmIcon, BmRow, MakeUniq } from "@bluemind/styleguide";
+import { BmFormCheckbox, BmButton, BmCol, BmIcon, BmRow } from "@bluemind/styleguide";
 import { AppDataKeys } from "@bluemind/webappdata";
 
 import FaviconHelper from "../FaviconHelper";
-import BoostrapMixin from "./MailApp/BootstrapMixin";
 import UnreadCountScheduler from "./MailApp/UnreadCountScheduler";
-import RouterMixin from "./MailApp/RouterMixin";
-import ServerPush from "./MailApp/ServerPush";
-import MailAppL10N from "../../l10n/";
 import MailFolderSidebar from "./MailFolder/MailFolderSidebar";
 import MailConversationList from "./MailConversationList/MailConversationList";
 import MailToolbar from "./MailToolbar/";
@@ -114,8 +110,8 @@ import {
     SEVERAL_CONVERSATIONS_SELECTED,
     SELECTION_IS_EMPTY
 } from "~/getters";
-import { SET_MAIL_THREAD_SETTING } from "~/mutations";
 import { Multipane, MultipaneResizer } from "@bluemind/vue-multipane";
+import MailAppMixin from "./MailApp/MailAppMixin";
 
 export default {
     name: "MailApp",
@@ -136,8 +132,7 @@ export default {
         MultipaneResizer,
         NewMessage
     },
-    mixins: [MakeUniq, BoostrapMixin, RouterMixin, ServerPush, UnreadCountScheduler],
-    componentI18N: { messages: MailAppL10N },
+    mixins: [MailAppMixin, UnreadCountScheduler],
     data() {
         return {
             userSession: inject("UserSession"),
@@ -183,7 +178,6 @@ export default {
         const documentTitle = this.$t("mail.application.title") + this.$t("common.product");
         document.title = documentTitle;
         FaviconHelper.handleUnreadNotifInFavicon(this.userSession, documentTitle);
-        this.$store.commit(`mail/${SET_MAIL_THREAD_SETTING}`, this.$store.state.settings.mail_thread);
     },
     methods: {
         ...mapActions("root-app", ["SET_APP_DATA"]),

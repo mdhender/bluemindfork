@@ -18,6 +18,7 @@ function isSilentNavigationFailure(error, vueRouter) {
     const { isNavigationFailure, NavigationFailureType } = vueRouter;
     return (
         isNavigationFailure(error, NavigationFailureType.cancelled) ||
-        isNavigationFailure(error, NavigationFailureType.duplicated)
+        isNavigationFailure(error, NavigationFailureType.duplicated) ||
+        isNavigationFailure(error, NavigationFailureType.redirected)
     );
 }

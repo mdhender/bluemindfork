@@ -7,6 +7,7 @@ import Vue from "vue";
 const state = {
     appState: "loading",
     appData: {},
+    showBanner: true,
     isOnline: true,
     quota: {
         used: null,
@@ -16,6 +17,9 @@ const state = {
 };
 
 const mutations = {
+    HIDE_BANNER: state => {
+        state.showBanner = false;
+    },
     SET_APP_STATE: (state, appState) => {
         state.appState = appState;
     },

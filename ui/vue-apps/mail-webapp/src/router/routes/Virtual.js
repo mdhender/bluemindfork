@@ -1,6 +1,6 @@
-import MessagePathParam from "./MessagePathParam";
-import MessageQueryParam from "./MessageQueryParam";
-import ConversationPathParam from "./ConversationPathParam";
+import MessagePathParam from "../MessagePathParam";
+import MessageQueryParam from "../MessageQueryParam";
+import ConversationPathParam from "../ConversationPathParam";
 
 export default [
     {
@@ -47,4 +47,4 @@ export default [
             };
         }
     }
-];
+].map(route => Object.assign(route, { path: "" }));
