@@ -99,7 +99,8 @@ public class MapiFAIService implements IMapiFolderAssociatedInformation {
 			uid = extId;
 			update = true;
 		}
-		logger.info("[{}] fai {}.", context.getSecurityContext().getSubject(), update ? "UPDATED" : "CREATED");
+		logger.info("[{}] fai uid {}, {}.", context.getSecurityContext().getSubject(), uid,
+				update ? "UPDATED" : "CREATED");
 		return storeService.getByExtId(uid);
 	}
 

@@ -90,6 +90,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	private final IWeightProvider weightProvider;
 	private final Supplier<ContainerChangeEventProducer> containerChangeEventProducer;
 	private final Supplier<IBackupStore<T>> backupStream;
+	private final DataSource pool;
 
 	public static interface IItemFlagsProvider<W> {
 		Collection<ItemFlag> flags(W value);
@@ -127,6 +128,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 		this.containerChangeEventProducer = Suppliers
 				.memoize(() -> new ContainerChangeEventProducer(securityContext, VertxPlatform.eventBus(), container));
+
+		this.pool = pool;
 	}
 
 	public ContainerStoreService<T> withoutChangelog() {
@@ -399,7 +402,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				// try to preserve the existing display name
 				Item existing = itemStore.getForUpdate(item.uid);
 				if (existing == null) {
-					throw ServerFault.notFound("entry[" + item.uid + "]@" + container.uid + " not found");
+					throw ServerFault
+							.notFound("entry[" + item.uid + "]@" + container.uid + " not found in pool " + pool);
 				}
 
 				dnToApply = existing.displayName;
@@ -407,8 +411,9 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			Item created = itemStore.update(item, dnToApply, flagsProvider.flags(value));
 			if (created == null) {
 				throw ServerFault.notFound("entry[uid: " + item.uid + " / id:" + item.id + "]@" + container.uid
-						+ " not found, dn: " + dnToApply);
+						+ " not found, dn: " + dnToApply + ", in pool " + pool);
 			}
+
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(created.version, created.uid, created.externalId,
 						securityContext.getSubject(), origin, created.id, weightSeedProvider.weightSeed(value)));
@@ -436,7 +441,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				// try to preserve the existing display name
 				Item existing = itemStore.getForUpdate(itemId);
 				if (existing == null) {
-					throw ServerFault.notFound("entry[id: " + itemId + "]@" + container.uid + " not found");
+					throw ServerFault
+							.notFound("entry[id: " + itemId + "]@" + container.uid + " not found in pool " + pool);
 				}
 
 				dnToApply = existing.displayName;
@@ -444,7 +450,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 			Item item = itemStore.update(itemId, dnToApply, flagsProvider.flags(value));
 			if (item == null) {
-				throw ServerFault.notFound("entry[id: " + itemId + "]@" + container.uid + " not found");
+				throw ServerFault.notFound("entry[id: " + itemId + "]@" + container.uid + " not found in pool " + pool);
 			}
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
@@ -706,7 +712,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			Item item = itemStore.touch(uid);
 
 			if (item == null) {
-				throw ServerFault.notFound("entry[" + uid + "]@" + container.uid + " not found");
+				throw ServerFault.notFound("entry[" + uid + "]@" + container.uid + " not found in pool " + pool);
 			}
 
 			if (hasChangeLog) {
@@ -776,7 +782,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			Item item = itemStore.setExtId(uid, extId);
 
 			if (item == null) {
-				throw ServerFault.notFound("entry[" + uid + "]@" + container.uid + " not found");
+				throw ServerFault.notFound("entry[" + uid + "]@" + container.uid + " not found in pool " + pool);
 			}
 			changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 					securityContext.getSubject(), origin, item.id, 0L));
