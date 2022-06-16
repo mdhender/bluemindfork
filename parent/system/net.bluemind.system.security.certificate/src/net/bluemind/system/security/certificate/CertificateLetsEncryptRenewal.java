@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -43,12 +44,15 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.api.TaskStatus.State;
+import net.bluemind.core.task.api.TaskStatus;
+import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.system.api.ICertificateSecurityMgmt;
+import net.bluemind.system.api.ISecurityMgmt;
 import net.bluemind.system.security.certificate.CertificateTaskHelper.Mail;
 import net.bluemind.system.service.certificate.IInCoreSecurityMgmt;
+import net.bluemind.system.service.certificate.engine.CertifEngineFactory;
+import net.bluemind.system.service.certificate.engine.ICertifEngine;
 import net.bluemind.system.service.certificate.lets.encrypt.LetsEncryptCertificate;
 
 public class CertificateLetsEncryptRenewal extends AbstractVerticle {
@@ -85,13 +89,19 @@ public class CertificateLetsEncryptRenewal extends AbstractVerticle {
 				String externalUrl = urlWithDomain.getKey();
 				int validityInDays = CertificateTaskHelper.getDifferenceDays(new Date(), certificateEndDate);
 				if (validityInDays > 5 && validityInDays < 30) {
-					renewCertificate(domainItem, externalUrl);
+					if (!renewCertificate(domainItem, externalUrl)) {
+						logger.error("Let's Encrypt auto renewal certificate failed for domain {} ({})", domainItem.uid,
+								domainItem.value.defaultAlias);
+					}
 				} else if (validityInDays <= 5) {
-					Exception renewError = renewCertificate(domainItem, externalUrl);
-					if (renewError != null) {
+					if (!renewCertificate(domainItem, externalUrl)) {
+						logger.error(
+								"Let's Encrypt auto renewal certificate failed for domain {} ({}) - sending mail alert to {}",
+								domainItem.uid, domainItem.value.defaultAlias,
+								LetsEncryptCertificate.getContactProperty(domainItem.value));
 						sendAlert(validityInDays, externalUrl,
 								LetsEncryptCertificate.getContactProperty(domainItem.value), domainItem.value.name,
-								renewError.getMessage());
+								"Renewal failed, please contact your support !");
 					}
 				} else {
 					logger.info("Certificate {} is valid for {} days", externalUrl, validityInDays);
@@ -102,27 +112,37 @@ public class CertificateLetsEncryptRenewal extends AbstractVerticle {
 		}
 	}
 
-	private Exception renewCertificate(ItemValue<Domain> d, String externalUrl) {
-		try {
-			State state = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(ICertificateSecurityMgmt.class).renewLetsEncryptCertificate(d.uid, externalUrl, null);
-			if (state == State.InError) {
-				throw new Exception();
+	private boolean renewCertificate(ItemValue<Domain> d, String externalUrl) {
+		return CertifEngineFactory.get(d.uid).filter(c -> {
+			try {
+				c.authorizeLetsEncrypt();
+				return true;
+			} catch (ServerFault sf) {
+				logger.warn("Let's Encrypt is not enabled for domain {} ({})", d.uid, d.value.defaultAlias);
+				return false;
 			}
-			return null;
-		} catch (Exception e) {
-			logger.error("Let's Encrypt auto renewal certificate failed for {}", externalUrl);
-			return e;
-		}
+		}).map(ICertifEngine::getCertData).map(certData -> {
+			certData.email = Optional.ofNullable(LetsEncryptCertificate.getContactProperty(d.value))
+					.filter(e -> !e.isEmpty()).orElseGet(() -> "no-reply@" + d.value.defaultAlias);
+
+			ServerSideServiceProvider service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+			if (TaskUtils.wait(service, service.instance(ISecurityMgmt.class).generateLetsEncrypt(certData),
+					log -> logger.info(log)).state.equals(TaskStatus.State.InError)) {
+				return false;
+			}
+
+			return true;
+		}).orElseGet(() -> {
+			logger.error("No CertifEngineFactory for domain {} ({})", d.uid, d.value.defaultAlias);
+			return false;
+		});
 	}
 
 	private void sendAlert(int validityInDays, String externalUrl, String contactEmail, String domainName,
 			String errorMsg) {
-		logger.warn("Certificate {} is valid for {} days", externalUrl, validityInDays);
-
 		Template template;
 		try {
-			Configuration cfg = new Configuration();
+			Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 			cfg.setClassForTemplateLoading(this.getClass(), "/template");
 			template = cfg.getTemplate("CertificateRenewalError.ftl");
 		} catch (IOException e) {

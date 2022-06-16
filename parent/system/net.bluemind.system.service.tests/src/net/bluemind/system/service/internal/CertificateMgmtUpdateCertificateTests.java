@@ -52,7 +52,6 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
-import net.bluemind.core.task.api.TaskStatus.State;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.task.service.TaskUtils.ExtendedTaskStatus;
 import net.bluemind.core.tests.BmTestContext;
@@ -69,7 +68,6 @@ import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.CertData;
 import net.bluemind.system.api.CertData.CertificateDomainEngine;
-import net.bluemind.system.api.ICertificateSecurityMgmt;
 import net.bluemind.system.api.ISecurityMgmt;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
@@ -81,7 +79,6 @@ public class CertificateMgmtUpdateCertificateTests {
 
 	ISecurityMgmt service;
 	IDomains domainService;
-	ICertificateSecurityMgmt certService;
 	String domainUid;
 	ItemValue<Domain> domain;
 
@@ -153,9 +150,6 @@ public class CertificateMgmtUpdateCertificateTests {
 
 		testContext = new BmTestContext(admin0);
 		service = testContext.provider().instance(ISecurityMgmt.class);
-		certService = testContext.provider().instance(ICertificateSecurityMgmt.class);
-		assertNotNull(certService);
-
 	}
 
 	@After
@@ -464,45 +458,6 @@ public class CertificateMgmtUpdateCertificateTests {
 
 		domain.value.properties.clear();
 		domainService.update(domainUid, domain.value);
-	}
-
-	@Test
-	public void testUpdateCertificate_renew() throws IOException {
-
-		// add domain settings
-		IDomainSettings settingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDomainSettings.class, domainUid);
-		Map<String, String> settingsMap = new HashMap<String, String>();
-		settingsMap.put(DomainSettingsKeys.external_url.name(), "test.bluemind.net");
-		settingsMap.put(DomainSettingsKeys.default_domain.name(), domainUid);
-		settingsMap.put(DomainSettingsKeys.ssl_certif_engine.name(), CertificateDomainEngine.FILE.name());
-		settingsApi.set(settingsMap);
-		assertEquals(CertificateDomainEngine.FILE.name(),
-				settingsApi.get().get(DomainSettingsKeys.ssl_certif_engine.name()));
-
-		CertData certificateDate = CertificateMgmtUpdateCertificateTests.createCertData(CertificateDomainEngine.FILE,
-				domainUid, null);
-		service.updateCertificate(certificateDate);
-
-		// check files created
-		checkFiles(1, false, domainUid);
-
-		service.approveLetsEncryptTos(domainUid);
-		assertTrue(LetsEncryptCertificate.isTosApproved(domainService.get(domainUid).value));
-		settingsMap.put(DomainSettingsKeys.ssl_certif_engine.name(), CertificateDomainEngine.LETS_ENCRYPT.name());
-		settingsMap.put(DomainSettingsKeys.external_url.name(), "test.renew.bluemind.net");
-		settingsApi.set(settingsMap);
-		assertEquals(CertificateDomainEngine.LETS_ENCRYPT.name(),
-				settingsApi.get().get(DomainSettingsKeys.ssl_certif_engine.name()));
-
-		State state = certService.renewLetsEncryptCertificate(domainUid, "test.renew.bluemind.net",
-				"test.renew@bluemind.net");
-		assertEquals(State.InError, state);
-
-		// check files not removed
-		checkFiles(1, false, domainUid);
-
-		assertTrue(LetsEncryptCertificate.isTosApproved(domainService.get(domainUid).value));
 	}
 
 	private void checkFiles(int nb, boolean withCacert, String domainUid) {

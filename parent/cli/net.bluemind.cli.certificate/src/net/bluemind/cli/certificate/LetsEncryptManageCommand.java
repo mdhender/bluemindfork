@@ -36,8 +36,8 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.IExitCodeGenerator;
 import picocli.CommandLine.Option;
 
-@Command(name = "enable-lets-encrypt", description = "Setup letsencrypt for the specified domain.\nTo enable globally: specify global.virt domain, or don't specify the domain.\nIf enabled globally, a certificate can ALSO be used per domain (specify --domain=).")
-public class LetsEncryptActivateCommand implements ICmdLet, Runnable, IExitCodeGenerator {
+@Command(name = "manage-lets-encrypt", description = "Setup or renew Let's Encrypt for the specified domain.\nTo enable globally: specify global.virt domain, or don't specify the domain.\nIf enabled globally, a certificate can ALSO be used per domain (specify --domain=).")
+public class LetsEncryptManageCommand implements ICmdLet, Runnable, IExitCodeGenerator {
 
 	private int exitCode = 0;
 
@@ -50,7 +50,7 @@ public class LetsEncryptActivateCommand implements ICmdLet, Runnable, IExitCodeG
 
 		@Override
 		public Class<? extends ICmdLet> commandClass() {
-			return LetsEncryptActivateCommand.class;
+			return LetsEncryptManageCommand.class;
 		}
 	}
 

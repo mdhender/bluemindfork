@@ -30,9 +30,6 @@
       <endpoint
             api="net.bluemind.system.api.ICacheMgmt">
       </endpoint>
-      <endpoint
-            api="net.bluemind.system.api.ICertificateSecurityMgmt">
-      </endpoint>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">

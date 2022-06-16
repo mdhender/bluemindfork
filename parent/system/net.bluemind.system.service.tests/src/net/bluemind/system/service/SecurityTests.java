@@ -54,7 +54,6 @@ import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.CertData;
 import net.bluemind.system.api.CertData.CertificateDomainEngine;
-import net.bluemind.system.api.ICertificateSecurityMgmt;
 import net.bluemind.system.api.ISecurityMgmt;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
@@ -137,28 +136,7 @@ public class SecurityTests {
 		}
 	}
 
-	@Test
-	public void renewCertificateAsAnonymous() throws IOException {
-
-		// add domain settings
-		IDomainSettings settingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDomainSettings.class, domainUid);
-		Map<String, String> settingsMap = new HashMap<String, String>();
-		settingsMap.put(DomainSettingsKeys.external_url.name(), "test.bluemind.net");
-		settingsMap.put(DomainSettingsKeys.default_domain.name(), domainUid);
-		settingsMap.put(DomainSettingsKeys.ssl_certif_engine.name(), CertificateDomainEngine.LETS_ENCRYPT.name());
-		settingsApi.set(settingsMap);
-
-		VertxPlatform.spawnBlocking(10, TimeUnit.SECONDS);
-
-		try {
-			ServerSideServiceProvider.getProvider(SecurityContext.ANONYMOUS).instance(ICertificateSecurityMgmt.class)
-					.renewLetsEncryptCertificate(domainUid, "test.bluemind.net", "test@bluemind.net");
-		} catch (ServerFault e) {
-			System.out.println(e.getMessage());
-			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
-		}
-	}
+	
 
 	@Test
 	public void getAndApproveLetsEncryptTerms() {

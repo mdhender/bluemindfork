@@ -118,14 +118,20 @@ public class SecurityMgmt implements ISecurityMgmt, IInCoreSecurityMgmt {
 	private Map<String, ItemValue<Domain>> getDomainExternalUrlsMap(boolean letsEncryptOnly) {
 		Map<String, ItemValue<Domain>> mapOfDomainByUrl = new HashMap<>();
 		systemHelper.getDomainService().all().forEach(d -> CertifEngineFactory.get(d.uid).ifPresent(c -> {
-			if (c != null && (!letsEncryptOnly || LetsEncryptCertificate.isTosApproved(c.getDomain().value))) {
-				try {
-					Optional.ofNullable(systemHelper.getExternalUrl(d.uid)).ifPresent(e -> mapOfDomainByUrl.put(e, d));
-				} catch (ServerFault e) {
-					// continue
+			if (c == null) {
+				return;
+			}
+
+			try {
+				if (letsEncryptOnly) {
+					c.authorizeLetsEncrypt();
 				}
+				Optional.ofNullable(systemHelper.getExternalUrl(d.uid)).ifPresent(e -> mapOfDomainByUrl.put(e, d));
+			} catch (ServerFault e) {
+				// continue
 			}
 		}));
+
 		return mapOfDomainByUrl;
 	}
 

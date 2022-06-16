@@ -8,11 +8,7 @@
             priority="90">
       </registration>
       <registration
-            impl="net.bluemind.cli.certificate.LetsEncryptRenewCommand$Reg"
-            priority="85">
-      </registration>
-      <registration
-            impl="net.bluemind.cli.certificate.LetsEncryptActivateCommand$Reg"
+            impl="net.bluemind.cli.certificate.LetsEncryptManageCommand$Reg"
             priority="105">
       </registration>
    </extension>
