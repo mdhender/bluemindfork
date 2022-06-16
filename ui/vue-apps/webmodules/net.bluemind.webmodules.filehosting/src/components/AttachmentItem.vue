@@ -65,7 +65,6 @@ export default {
 @import "@bluemind/styleguide/css/_variables.scss";
 
 .fh-attachment-item {
-    // line-height: 1;
     .progress {
         position: absolute;
         margin-bottom: $sp-2;

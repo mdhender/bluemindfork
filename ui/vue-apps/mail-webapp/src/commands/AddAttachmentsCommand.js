@@ -52,7 +52,8 @@ function renderTooLargeOKBox(vm, files, sizeLimit) {
         title: vm.$tc("mail.filehosting.add.too_large", files.length),
         okTitle: vm.$tc("common.got_it"),
         bodyClass: "pb-4",
-        okVariant: "outline-secondary"
+        okVariant: "outline-secondary",
+        centered: true
     };
 
     return { content, props };

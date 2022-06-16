@@ -6,10 +6,20 @@ import { inject } from "@bluemind/inject";
 export default {
     install(Vue) {
         const roles = inject("UserSession").roles.split(",");
-
-        Vue.prototype.$execute = async function (command, payload = {}) {
+        Vue.mixin({
+            beforeCreate() {
+                this._commands = {};
+                for (let name in this.$parent?._commands) {
+                    this._commands[name] = this.$parent._commands[name];
+                }
+                for (let name in this.$options.commands) {
+                    this._commands[name] = this.$options.commands[name].bind(this);
+                }
+            }
+        });
+        Vue.prototype.$execute = async function (command, payload = {}, options = {}) {
             command = camelize(command);
-            if (this.$options.commands[command]) {
+            if (this._commands[command]) {
                 const beforeHooks = [];
                 const afterHooks = [];
                 mapExtensions("webapp", ["command"])?.command?.forEach(({ fn, name, role, after }) => {
@@ -20,9 +30,9 @@ export default {
                     }
                 });
                 try {
-                    await executeHooks.call(this, beforeHooks, payload);
-                    this.$options.commands[command].call(this, payload);
-                    await executeHooks.call(this, afterHooks, payload);
+                    await executeHooks.call(this, beforeHooks, payload, options);
+                    this._commands[command].call(this, payload), options;
+                    await executeHooks.call(this, afterHooks, payload, options);
                 } catch {
                     return;
                 }
@@ -31,11 +41,11 @@ export default {
     }
 };
 
-async function executeHooks(hooks, payload) {
+async function executeHooks(hooks, payload, options) {
     const isPlain = isPlainObject(payload);
     for (const fn of hooks || []) {
         try {
-            const values = await fn.call(this, payload);
+            const values = await fn.call(this, payload, options);
             if (isPlain) {
                 Object.assign(payload, values);
             } else if (values !== undefined) {

@@ -5,7 +5,7 @@ import { StopExecutionError } from "./errors";
 
 let autoDetachmentLimit, maxFilesize;
 
-export default async function ({ files, message, maxSize }) {
+export default async function ({ files, message, maxSize }, { forceFilehosting }) {
     files = [...files];
     const service = inject("AttachmentPersistence");
     if (!autoDetachmentLimit || !maxFilesize) {
@@ -16,6 +16,8 @@ export default async function ({ files, message, maxSize }) {
     const newAttachmentsSize = getFilesSize(files);
     if (maxFilesize && files.some(file => file.size > maxFilesize)) {
         return { files, message, maxSize: maxFilesize };
+    } else if (forceFilehosting) {
+        return doDetach.call(this, files, message);
     } else if (messageSize + newAttachmentsSize > maxSize) {
         return mustDetachFiles.call(this, files, message, maxSize);
     } else if (autoDetachmentLimit && newAttachmentsSize > autoDetachmentLimit) {

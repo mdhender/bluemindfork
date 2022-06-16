@@ -8,9 +8,11 @@ import AddAttachmentsHandler from "~/handlers/AddAttachmentsHandler";
 import RemoveAttachmentHandler from "~/handlers/RemoveAttachmentHandler";
 import FileHostingAttachment from "~/components/FileHostingAttachment";
 import CloudIcon from "~/components/CloudIcon";
+import DetachButton from "~/components/DetachButton";
 
 Vue.component("filehosting-attachment", FileHostingAttachment);
 Vue.component("cloud-icon", CloudIcon);
+Vue.component("detach-button", DetachButton);
 
 extensions.register("webapp", "net.bluemind.webmodules.filehosting", {
     command: {
@@ -40,6 +42,14 @@ extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
     component: {
         name: "cloud-icon",
         path: "attachment.infos.tags"
+    }
+});
+
+extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
+    component: {
+        name: "detach-button",
+        path: "composer.footer.toolbar",
+        role: "canRemoteAttach"
     }
 });
 
