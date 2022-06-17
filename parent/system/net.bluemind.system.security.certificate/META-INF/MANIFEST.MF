@@ -18,8 +18,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.freemarker.freemarker,
  net.bluemind.common.freemarker,
  net.bluemind.hornetq.client,
- net.bluemind.system.service
+ net.bluemind.system.service,
+ net.bluemind.core.task.service
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.system.security.certificate
 Bundle-ActivationPolicy: lazy
-Import-Package: net.bluemind.core.task.service
