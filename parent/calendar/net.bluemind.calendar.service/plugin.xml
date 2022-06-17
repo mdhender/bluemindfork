@@ -158,6 +158,9 @@
       <repairSupport
             factory="net.bluemind.calendar.service.internal.repair.CalendarViewRepairSupport$Factory">
       </repairSupport>
+      <repairSupport
+            factory="net.bluemind.calendar.service.internal.repair.CalendarRecurrenceRepair$Factory">
+      </repairSupport>
    </extension>
    <extension
          point="net.bluemind.core.sanitizerfactory">
