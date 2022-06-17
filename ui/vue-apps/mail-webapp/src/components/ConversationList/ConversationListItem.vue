@@ -137,6 +137,9 @@ export default {
 
     &.warning-custom:not(.active) {
         background-color: $warning-bg-lo1;
+        &:hover {
+            background-color: $warning-bg;
+        }
     }
 
     &:hover {

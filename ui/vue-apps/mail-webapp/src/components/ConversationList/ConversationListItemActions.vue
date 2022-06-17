@@ -31,7 +31,7 @@ export default {
     }
 
     &.warning-custom:not(.active) .conversation-list-item-actions > * {
-        background-color: $warning-bg-lo1;
+        background-color: $warning-bg;
     }
     &:hover .conversation-list-item-actions > * {
         background-color: $neutral-bg-lo1;
