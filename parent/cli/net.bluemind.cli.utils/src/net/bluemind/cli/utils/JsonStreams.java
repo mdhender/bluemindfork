@@ -55,7 +55,6 @@ public class JsonStreams {
 			pushed.fail(t);
 		});
 		parser.endHandler(v -> {
-			ctx.info("parsing ends.");
 			pushed.complete();
 		});
 		parser.handler(js -> {

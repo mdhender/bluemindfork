@@ -17,12 +17,10 @@
   */
 package net.bluemind.cli.utils;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-
-import com.google.common.base.Strings;
+import java.util.concurrent.ExecutionException;
 
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.core.rest.vertx.VertxStream;
@@ -55,43 +53,41 @@ public class Tasks {
 	 * @param ref
 	 * @return a {@link CompletableFuture} to track the end.
 	 */
-	public static CompletableFuture<Void> followStream(CliContext ctx, String prefix, TaskRef ref) {
+	public static CompletableFuture<TaskStatus> followStream(CliContext ctx, String prefix, TaskRef ref) {
+		return followStream(ctx, prefix, ref, true);
+	}
+
+	public static CompletableFuture<TaskStatus> followStream(CliContext ctx, String prefix, TaskRef ref,
+			boolean enableLog) {
 		Objects.requireNonNull(ref, () -> prefix + ": null taskref is not allowed");
 		ITask trackApi = ctx.infiniteRequestTimeoutAdminApi().instance(ITask.class, ref.id);
-		return new JsonStreams(ctx).consume(VertxStream.read(trackApi.log()), js -> Optional
-				.ofNullable(js.getString("message")).map(s -> "[" + prefix + "]: " + s).ifPresent(ctx::info));
+		String logPrefix = (prefix != null && !prefix.isEmpty()) ? "[" + prefix + "]" : "";
+		return new JsonStreams(ctx)
+				.consume(VertxStream.read(trackApi.log()),
+						js -> Optional.ofNullable(js.getString("message")).map(s -> logPrefix + s).ifPresent(ctx::info))
+				.thenApply(v -> trackApi.status());
 	}
 
 	public static TaskStatus follow(CliContext ctx, TaskRef ref, String errorMessage) {
 		return follow(ctx, true, ref, errorMessage);
 	}
 
-	public static TaskStatus follow(CliContext ctx, boolean shouldLog, TaskRef ref, String errorMessage) {
-		ITask trackApi = ctx.adminApi().instance(ITask.class, ref.id);
-		TaskStatus ts = null;
-		int logIdx = 0;
+	public static TaskStatus follow(CliContext ctx, boolean enableLog, TaskRef ref, String errorMessage) {
+		TaskStatus ts;
 		do {
-			ts = trackApi.status();
-			if (shouldLog) {
-				List<String> logs = trackApi.getCurrentLogs();
-				for (; logIdx < logs.size(); logIdx++) {
-					String log = logs.get(logIdx);
-					if (!Strings.isNullOrEmpty(log)) {
-						ctx.info(log);
-					}
+			ts = null;
+			try {
+				ts = followStream(ctx, "", ref, enableLog).get();
+			} catch (InterruptedException ie) {
+				Thread.currentThread().interrupt();
+			} catch (ExecutionException e) {
+				if (errorMessage == null || errorMessage.isEmpty()) {
+					ctx.error("task execution exception: {}", e.getMessage());
 				}
 			}
-			if (!ts.state.ended) {
-				try {
-					Thread.sleep(200);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-					break;
-				}
-			}
-		} while (!ts.state.ended);
+		} while (ts != null && !ts.state.ended);
 
-		if (!ts.state.succeed) {
+		if ((ts == null || !ts.state.succeed) && (errorMessage != null && !errorMessage.isEmpty())) {
 			ctx.error(errorMessage);
 		}
 
