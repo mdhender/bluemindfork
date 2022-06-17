@@ -106,8 +106,15 @@ public class BoxIndexing {
 				mailbox.value.routing);
 		if (mailbox.value.routing == Routing.internal && !mailbox.value.archived) {
 			String ns = mailbox.value.type.nsPrefix;
-			IDbReplicatedMailboxes mbService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(IDbReplicatedMailboxes.class, domainUid, ns + mailbox.value.name.replace(".", "^"));
+
+			IDbReplicatedMailboxes mbService;
+			try {
+				mbService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+						.instance(IDbReplicatedMailboxes.class, domainUid, ns + mailbox.value.name.replace(".", "^"));
+			} catch (ServerFault sf) {
+				logger.error("Need repair ? {}", sf.getMessage(), sf);
+				return;
+			}
 			List<ItemValue<MailboxFolder>> folders = mbService.all();
 
 			if (folders.isEmpty()) {
