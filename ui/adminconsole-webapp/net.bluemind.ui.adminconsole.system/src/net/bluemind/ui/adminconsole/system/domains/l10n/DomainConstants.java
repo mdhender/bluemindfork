@@ -295,4 +295,7 @@ public interface DomainConstants extends Messages {
 
 	String invalidJournalingEmail(String email);
 
+	String otherUrls();
+
+	String otherUrlsHelp();
 }

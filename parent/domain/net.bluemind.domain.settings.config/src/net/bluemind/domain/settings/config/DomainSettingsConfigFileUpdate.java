@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -92,15 +93,17 @@ public class DomainSettingsConfigFileUpdate extends AbstractVerticle {
 
 			Map<String, String> settings = domainSettings.get();
 			String externalUrl = settings.get(DomainSettingsKeys.external_url.name());
+			String otherUrl = settings.get(DomainSettingsKeys.other_urls.name());
 			String defaultDomain = settings.get(DomainSettingsKeys.default_domain.name());
 
-			if (Strings.isNullOrEmpty(externalUrl) && Strings.isNullOrEmpty(defaultDomain)) {
+			if (Strings.isNullOrEmpty(externalUrl) && Strings.isNullOrEmpty(otherUrl)
+					&& Strings.isNullOrEmpty(defaultDomain)) {
 				continue;
 			}
 
 			infoByDomain.append(domainUid).append(NEW_DATA_SEPARATOR).append(externalUrl == null ? "" : externalUrl)
 					.append(NEW_DATA_SEPARATOR).append(defaultDomain == null ? "" : defaultDomain)
-					.append(NEW_LINE_SEPARATOR);
+					.append(NEW_DATA_SEPARATOR).append(otherUrl == null ? "" : otherUrl).append(NEW_LINE_SEPARATOR);
 		}
 
 		try {
@@ -116,8 +119,8 @@ public class DomainSettingsConfigFileUpdate extends AbstractVerticle {
 
 		serverList.entrySet().forEach(s -> writeDomainSettingsFile(infoByDomain, s));
 
-		Boolean externalUrlUpdated = payload.getBoolean("externalUrlUpdated");
-		if (externalUrlUpdated != null && externalUrlUpdated) {
+		if (Optional.ofNullable(payload.getBoolean("externalUrlUpdated")).orElse(false)
+				|| Optional.ofNullable(payload.getBoolean("otherUrlsUpdated")).orElse(false)) {
 			new NginxService().restart();
 			VertxPlatform.eventBus().publish("end.domain.settings.file.updated", payload);
 		}

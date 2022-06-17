@@ -25,6 +25,11 @@ public enum SysConfKeys {
 	external_url,
 
 	/**
+	 * other URLs
+	 */
+	other_urls,
+
+	/**
 	 * external protocol
 	 */
 	external_protocol,

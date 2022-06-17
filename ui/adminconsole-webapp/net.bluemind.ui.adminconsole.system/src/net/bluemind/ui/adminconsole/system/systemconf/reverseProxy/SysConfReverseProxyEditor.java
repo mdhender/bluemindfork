@@ -59,6 +59,8 @@ public class SysConfReverseProxyEditor extends CompositeGwtWidgetElement {
 	TextBox httpProxyExceptions;
 	@UiField
 	TextBox externalUrl;
+	@UiField
+	TextBox otherUrls;
 
 	private static SysConfReverseProxyUiBinder uiBinder = GWT.create(SysConfReverseProxyUiBinder.class);
 
@@ -123,6 +125,11 @@ public class SysConfReverseProxyEditor extends CompositeGwtWidgetElement {
 		if (null != map.get(SysConfKeys.external_url.name())) {
 			externalUrl.setText(map.get(SysConfKeys.external_url.name()));
 		}
+
+		// Other URLs
+		if (null != map.get(SysConfKeys.other_urls.name())) {
+			otherUrls.setText(map.get(SysConfKeys.other_urls.name()));
+		}
 	}
 
 	@Override
@@ -143,6 +150,8 @@ public class SysConfReverseProxyEditor extends CompositeGwtWidgetElement {
 
 		// External URL
 		map.putString(SysConfKeys.external_url.name(), externalUrl.getText());
+		// Other URLs
+		map.putString(SysConfKeys.other_urls.name(), otherUrls.getText());
 	}
 
 	@UiHandler("httpProxyEnabled")

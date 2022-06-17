@@ -71,6 +71,17 @@
 			</tr>
 			<tr>
 				<td style='width:200px'>
+					<div style="display:flex" title="{c.otherUrlsHelp}">
+						<g:Label text="{c.otherUrls}:"></g:Label>
+						<sup><i class="fa fa-exclamation-circle" /></sup>
+					</div>
+				</td>
+				<td style='width:400px'>
+					<g:TextBox width="400px" ui:field="otherUrls" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
 					<g:Label text="{c.defaultDomain}:"></g:Label>
 				</td>
 				<td style='width:400px'>

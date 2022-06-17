@@ -16,8 +16,14 @@
             class="net.bluemind.system.config.ExternalUrlHook">
       </validator>
       <observer
-            class="net.bluemind.system.config.ExternalUrlHook">
+            class="net.bluemind.system.config.UpdateBmIniHook">
       </observer>
+      <sanitizor
+            class="net.bluemind.system.config.OtherUrlHook">
+      </sanitizor>
+      <validator
+            class="net.bluemind.system.config.OtherUrlHook">
+      </validator>
       <sanitizor
             class="net.bluemind.system.config.DefaultDomainHook">
       </sanitizor>

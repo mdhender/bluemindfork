@@ -18,6 +18,8 @@
  */
 package net.bluemind.system.security.certificate;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,11 +47,11 @@ public class CertificateUpdateVerticle extends AbstractVerticle {
 		}
 
 		JsonObject jsonBody = event.body();
-		Boolean externalUpdated = jsonBody.getBoolean("externalUrlUpdated");
-		if (externalUpdated != null && externalUpdated) {
+		if (Optional.ofNullable(jsonBody.getBoolean("externalUrlUpdated")).orElse(false)
+				|| Optional.ofNullable(jsonBody.getBoolean("otherUrlsUpdated")).orElse(false)) {
 			CertifEngineFactory.get(jsonBody.getString("domainUid"))
-					.ifPresent(c -> c.externalUrlUpdated(Strings.isNullOrEmpty(jsonBody.getString("externalUrlNew"))));
-
+					.ifPresent(c -> c.externalUrlUpdated(Strings.isNullOrEmpty(jsonBody.getString("externalUrlNew"))
+							&& Strings.isNullOrEmpty(jsonBody.getString("otherUrlsNew"))));
 		}
 	}
 }

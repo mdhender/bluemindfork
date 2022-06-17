@@ -37,9 +37,18 @@ setDefaultExternalUrl() {
     echo ${externalUrl}
 }
 
+setDefaultOtherUrls() {
+    local otherUrls=""
+
+    [ -f /etc/bm/bm.ini ] && otherUrls=$(grep '^[^#]*other-urls' /etc/bm/bm.ini | cut -d'=' -f2 | sed -e 's/^ *//g' -e 's/ *$//g')
+
+    echo ${otherUrls}
+}
+
 createDefaultVhost() {
     local vhostFile="/etc/nginx/bluemind/bluemind-vhosts.conf"
     local externalUrl=$(setDefaultExternalUrl)
+    local otherUrls=$(setDefaultOtherUrls)
 
     [ ! -e /etc/ssl/certs/bm_cert.pem ] && {
         # Installation
@@ -50,6 +59,7 @@ createDefaultVhost() {
     setDefaultServer ${vhostFile}
     setUseProxyProtocol ${vhostFile}
     setExternalUrl ${vhostFile} ${externalUrl}
+    setOtherUrls ${vhostFile} ${otherUrls}
     setSslCertFile ${vhostFile}
     setVhostExtensionDir ${vhostFile}
 }
@@ -69,13 +79,23 @@ createDomainsVhosts() {
 
         local externalUrl=${parts[1]}
         ([ -z "${externalUrl}" ] || [[ " ${externalUrls[*]} " =~ " ${externalUrl} " ]]) && continue
+        
+        local otherUrls=${parts[3]}
+        local cleanOtherUrls=""
+        for otherUrl in ${otherUrls}; do
+            ([ -z "${otherUrl}" ] || [[ " ${externalUrls[*]} " =~ " ${otherUrl} " ]]) && continue
+            cleanOtherUrls+=" "${otherUrl}
+        done
+        # Remove spaces from beginning
+        cleanOtherUrls=${cleanOtherUrls##*( )}
 
-        externalUrls+=(${externalUrl})
+        externalUrls+=(${externalUrl} ${otherUrls})
 
         forceNginxConfiguration ${vhostFile} /usr/share/bm-client-access/conf/bluemind-vhosts.conf
         unsetDefaultServer ${vhostFile}
         setUseProxyProtocol ${vhostFile}
         setExternalUrl ${vhostFile} ${externalUrl}
+        setOtherUrls ${vhostFile} ${cleanOtherUrls}
         setSslCertFile ${vhostFile} ${domainUid}
         setVhostExtensionDir ${vhostFile} ${domainUid}
     done < ${domainSettings}
@@ -110,6 +130,17 @@ setVhostExtensionDir() {
 
 setExternalUrl() {
     sed -i -e "s/###external-url###/${2}/g" ${1}
+}
+
+setOtherUrls() {
+    [ -z ${2} ] && {
+        sed -i -e "s/ ###other-urls###//g" ${1}
+        return
+    }
+    
+    local file=${1}
+    shift
+    sed -i -e "s/ ###other-urls###/ ${*}/g" ${file}
 }
 
 setSslCertFile() {

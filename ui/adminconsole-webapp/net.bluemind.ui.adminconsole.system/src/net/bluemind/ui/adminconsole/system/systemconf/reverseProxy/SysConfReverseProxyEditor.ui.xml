@@ -40,6 +40,17 @@
 						<g:TextBox width="300px" ui:field="externalUrl" />
 					</td>
 				</tr>
+				<tr>
+					<td class="label" style='width:300px'>
+						<div style="display:flex" title="{c.otherUrlsHelp}">
+							<g:Label text="{c.otherUrls}"></g:Label>
+							<sup><i class="fa fa-exclamation-circle" /></sup>
+						</div>
+					</td>
+					<td>
+						<g:TextBox width="300px" ui:field="otherUrls" />
+					</td>
+				</tr>
 			</table>
 		
 		<f:FieldSetPanel name="{c.nginx}" />

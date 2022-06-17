@@ -33,7 +33,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -187,7 +189,6 @@ public class LetsEncryptCertificate {
 	 * @param proxy       proxy to use to contact lets's encrypt
 	 */
 	private void fetchCertificate(CertData certData, String externalUrl, Proxy proxy, IServerTaskMonitor monitor) {
-
 		Session session = createSession(letsEncryptServer);
 		if (proxy != null) {
 			session.networkSettings().setProxy(proxy);
@@ -201,7 +202,10 @@ public class LetsEncryptCertificate {
 		KeyPair domainKeyPair = KeyPairUtils.createKeyPair(RSA_KEY_SIZE);
 
 		monitor.progress(1, "Certificate ordered");
-		Collection<String> domains = Arrays.asList(externalUrl);
+		Collection<String> domains = new HashSet<>();
+		domains.add(externalUrl);
+		domains.addAll(systemHelper.getOtherUrls(certifEngine.getDomain().uid).map(ou -> Arrays.asList(ou.split(" ")))
+				.orElseGet(Collections::emptyList));
 		Order order = creatingOrder(acct, domains);
 
 		for (Authorization auth : order.getAuthorizations()) {

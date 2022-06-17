@@ -55,5 +55,9 @@ public interface SysConfReverseProxyConstants extends Messages {
 
 	String externalUrlHelp();
 
+	String otherUrls();
+
+	String otherUrlsHelp();
+
 	String general();
 }

@@ -85,6 +85,9 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 	TextBox externalUrl;
 
 	@UiField
+	TextBox otherUrls;
+
+	@UiField
 	ListBox domainList;
 
 	private HashMap<String, Integer> languageMapping;
@@ -192,6 +195,13 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		externalUrl.setReadOnly(!Ajax.TOKEN.isDomainGlobal());
 		externalUrl.setEnabled(!externalUrl.isReadOnly());
 
+		String otherUrlsSetting = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.other_urls.name());
+		if (null != otherUrlsSetting) {
+			otherUrls.setText(otherUrlsSetting);
+		}
+		otherUrls.setReadOnly(!Ajax.TOKEN.isDomainGlobal());
+		otherUrls.setEnabled(!otherUrls.isReadOnly());
+
 		String defaultDomainSetting = SettingsModel.domainSettingsFrom(model)
 				.get(DomainSettingsKeys.default_domain.name());
 		if (null == defaultDomainSetting) {
@@ -219,12 +229,14 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 				LocaleIdTranslation.getIdByLanguage(language.getSelectedItemText()));
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.timezone.name(), tz.getSelectedItemText());
 
+		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.other_urls.name(), otherUrls.getText());
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.external_url.name(),
 				externalUrl.getText());
 		if (externalUrl.getText().isEmpty()) {
 			SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.ssl_certif_engine.name(),
 					CertificateDomainEngine.DISABLED.name());
 		}
+
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.default_domain.name(),
 				domainList.getSelectedValue());
 

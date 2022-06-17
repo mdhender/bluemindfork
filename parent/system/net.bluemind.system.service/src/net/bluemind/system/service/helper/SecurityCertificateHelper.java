@@ -32,6 +32,7 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.service.DomainNotFoundException;
 import net.bluemind.domain.service.internal.IInCoreDomainSettings;
@@ -92,6 +93,18 @@ public class SecurityCertificateHelper {
 		} else {
 			return getDomainSettingsService(domainUid).getExternalUrl().orElseThrow(
 					() -> new ServerFault(String.format("External URL missing for domain '%s'", domainUid)));
+		}
+	}
+
+	public Optional<String> getOtherUrls(String domainUid) {
+		if (isGlobalVirtDomain(domainUid)) {
+			return Optional.of(getSuProvider().instance(ISystemConfiguration.class).getValues().values
+					.get(SysConfKeys.other_urls.name()));
+		} else {
+			return Optional
+					.ofNullable(context.su().getServiceProvider().instance(IDomainSettings.class, domainUid).get()
+							.get(DomainSettingsKeys.other_urls.name()))
+					.map(url -> url == null || url.isEmpty() ? null : url);
 		}
 	}
 

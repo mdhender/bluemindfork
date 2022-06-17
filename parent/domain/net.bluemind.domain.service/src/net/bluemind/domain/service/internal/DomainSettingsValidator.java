@@ -18,9 +18,14 @@
  */
 package net.bluemind.domain.service.internal;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +52,17 @@ public class DomainSettingsValidator {
 	public void create(BmContext context, Map<String, String> settings, String domainUid) throws ServerFault {
 		checkSplitDomain(settings);
 		checkDomainMaxUsers(settings);
-		checkDomainUrl(context, Optional.empty(), Optional
-				.ofNullable(settings.get(DomainSettingsKeys.external_url.name())).map(eu -> eu.isEmpty() ? null : eu),
+		checkDomainUrl(context, Optional.empty(),
+				Optional.ofNullable(settings.get(DomainSettingsKeys.other_urls.name()))
+						.map(eu -> eu.isEmpty() ? null : eu),
+				Optional.ofNullable(settings.get(DomainSettingsKeys.external_url.name()))
+						.map(eu -> eu.isEmpty() ? null : eu),
+				domainUid);
+		checkOtherDomainUrls(context,
+				Optional.ofNullable(settings.get(DomainSettingsKeys.external_url.name()))
+						.map(eu -> eu.isEmpty() ? null : eu),
+				Optional.empty(), Optional.ofNullable(settings.get(DomainSettingsKeys.other_urls.name()))
+						.map(eu -> eu.isEmpty() ? null : eu),
 				domainUid);
 		checkDefaultDomain(context, domainUid,
 				Optional.ofNullable(settings.get(DomainSettingsKeys.default_domain.name()))
@@ -72,9 +86,19 @@ public class DomainSettingsValidator {
 
 		checkDomainMaxUsers(newSettings);
 		checkDomainUrl(context,
+				Optional.ofNullable(newSettings.get(DomainSettingsKeys.other_urls.name()))
+						.map(eu -> eu.isEmpty() ? null : eu),
 				Optional.ofNullable(oldSettings.get(DomainSettingsKeys.external_url.name()))
 						.map(eu -> eu.isEmpty() ? null : eu),
 				Optional.ofNullable(newSettings.get(DomainSettingsKeys.external_url.name()))
+						.map(eu -> eu.isEmpty() ? null : eu),
+				domainUid);
+		checkOtherDomainUrls(context,
+				Optional.ofNullable(newSettings.get(DomainSettingsKeys.external_url.name()))
+						.map(eu -> eu.isEmpty() ? null : eu),
+				Optional.ofNullable(oldSettings.get(DomainSettingsKeys.other_urls.name()))
+						.map(eu -> eu.isEmpty() ? null : eu),
+				Optional.ofNullable(newSettings.get(DomainSettingsKeys.other_urls.name()))
 						.map(eu -> eu.isEmpty() ? null : eu),
 				domainUid);
 		checkDefaultDomain(context, domainUid,
@@ -124,15 +148,24 @@ public class DomainSettingsValidator {
 		}
 	}
 
-	private void checkDomainUrl(BmContext context, Optional<String> oldDomainUrl, Optional<String> domainUrl,
-			String domainUid) {
-		Boolean isUpdatedUrl = oldDomainUrl.map(odu -> isDomainUrlUpdated(odu, domainUrl))
-				.orElseGet(() -> isDomainUrlUpdated(null, domainUrl));
-		if (!context.getSecurityContext().isDomainGlobal() && isUpdatedUrl) {
+	private void checkDomainUrl(BmContext context, Optional<String> otherUrls, Optional<String> oldDomainUrl,
+			Optional<String> domainUrl, String domainUid) {
+		if (!oldDomainUrl.map(odu -> isDomainUrlUpdated(odu, domainUrl))
+				.orElseGet(() -> isDomainUrlUpdated(null, domainUrl))) {
+			return;
+		}
+
+		if (!context.getSecurityContext().isDomainGlobal()) {
 			throw new ServerFault("Only global admin can update domain external URL", ErrorCode.FORBIDDEN);
 		}
 
 		if (!domainUrl.isPresent()) {
+			if (otherUrls.isPresent()) {
+				throw new ServerFault(
+						String.format("Domain %s other URLs must be empty to be able to unset external URL", domainUid),
+						ErrorCode.INVALID_PARAMETER);
+			}
+
 			return;
 		}
 
@@ -141,26 +174,97 @@ public class DomainSettingsValidator {
 					ErrorCode.INVALID_PARAMETER);
 		}
 
-		if (isUpdatedUrl) {
-			ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
-			String globalExternalUrl = provider.instance(ISystemConfiguration.class).getValues().values
-					.get(SysConfKeys.external_url.name());
-			if (domainUrl.get().equals(globalExternalUrl)) {
+		if (domainUrl.map(getGlobalUrls(provider)::contains).orElse(false)) {
+			throw new ServerFault(
+					String.format("External URL '%s' already used as global external URL", domainUrl.orElse(null)),
+					ErrorCode.INVALID_PARAMETER);
+		}
+
+		Map<String, String> otherDomainsUrls = getOtherDomainsUrls(provider, domainUid);
+		if (domainUrl.map(otherDomainsUrls::containsKey).orElse(false)) {
+			throw new ServerFault(
+					String.format("External URL '%s' already used as external URL of domain '%s'",
+							domainUrl.orElse(null), otherDomainsUrls.get(domainUrl.orElse(null))),
+					ErrorCode.INVALID_PARAMETER);
+		}
+	}
+
+	private void checkOtherDomainUrls(BmContext context, Optional<String> externalUrl, Optional<String> oldOtherUrls,
+			Optional<String> otherUrls, String domainUid) {
+		if (!oldOtherUrls.map(odu -> isDomainUrlUpdated(odu, otherUrls))
+				.orElseGet(() -> isDomainUrlUpdated(null, otherUrls))) {
+			return;
+		}
+
+		if (!context.getSecurityContext().isDomainGlobal()) {
+			throw new ServerFault("Only global admin can update domain other URL", ErrorCode.FORBIDDEN);
+		}
+
+		if (!otherUrls.isPresent()) {
+			return;
+		}
+
+		if (otherUrls.isPresent() && !externalUrl.isPresent()) {
+			throw new ServerFault(
+					String.format("Domain %s other URLs must not be set if external URL is not set", domainUid),
+					ErrorCode.INVALID_PARAMETER);
+		}
+
+		Set<String> domainUrlsSet = new HashSet<>(
+				otherUrls.map(u -> Arrays.asList(u.split(" "))).orElseGet(Collections::emptyList));
+
+		domainUrlsSet.stream().filter(url -> !Regex.DOMAIN.validate(url)).findFirst().ifPresent(iu -> {
+			throw new ServerFault(String.format("Invalid external URL '%s' for domain '%s'", iu, domainUid),
+					ErrorCode.INVALID_PARAMETER);
+		});
+
+		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		Set<String> globalUrls = getGlobalUrls(provider);
+		Map<String, String> otherDomainsUrls = getOtherDomainsUrls(provider, domainUid);
+
+		domainUrlsSet.forEach(domainUrl -> {
+			if (globalUrls.contains(domainUrl)) {
 				throw new ServerFault(
-						String.format("External URL '%s' already used as global external URL", domainUrl.get()),
+						String.format("External URL '%s' already used as global external URL", otherUrls.orElse(null)),
 						ErrorCode.INVALID_PARAMETER);
 			}
 
-			provider.instance(IDomains.class).all().stream().filter(d -> !d.uid.equals(domainUid)).forEach(d -> {
-				String domainExternalUrl = provider.instance(IDomainSettings.class, d.uid).get()
-						.getOrDefault(DomainSettingsKeys.external_url.name(), null);
-				if (domainExternalUrl != null && domainExternalUrl.equals(domainUrl.get())) {
-					throw new ServerFault(String.format("External URL '%s' already used as external URL of domain '%s'",
-							domainUrl.get(), d.value.defaultAlias), ErrorCode.INVALID_PARAMETER);
-				}
-			});
-		}
+			if (otherDomainsUrls.containsKey(domainUrl)) {
+				throw new ServerFault(String.format("External URL '%s' already used as external URL of domain '%s'",
+						domainUrl, otherDomainsUrls.get(domainUrl)), ErrorCode.INVALID_PARAMETER);
+			}
+		});
+	}
+
+	private Set<String> getGlobalUrls(ServerSideServiceProvider provider) {
+		Set<String> urls = new HashSet<>();
+
+		Optional.ofNullable(
+				provider.instance(ISystemConfiguration.class).getValues().values.get(SysConfKeys.external_url.name()))
+				.map(urls::add);
+
+		Optional.ofNullable(
+				provider.instance(ISystemConfiguration.class).getValues().values.get(SysConfKeys.other_urls.name()))
+				.map(u -> Arrays.asList(u.split(" "))).orElseGet(Collections::emptyList).forEach(urls::add);
+
+		return urls;
+	}
+
+	private Map<String, String> getOtherDomainsUrls(ServerSideServiceProvider provider, String domainUid) {
+		Map<String, String> urls = new HashMap<>();
+
+		provider.instance(IDomains.class).all().stream().filter(d -> !d.uid.equals(domainUid)).forEach(d -> {
+			Optional.ofNullable(provider.instance(IDomainSettings.class, d.uid).get()
+					.getOrDefault(DomainSettingsKeys.external_url.name(), null))
+					.map(u -> urls.put(u, d.value.defaultAlias));
+			Optional.ofNullable(provider.instance(IDomainSettings.class, d.uid).get()
+					.getOrDefault(DomainSettingsKeys.other_urls.name(), null)).map(u -> Arrays.asList(u.split(" ")))
+					.orElseGet(Collections::emptyList).forEach(u -> urls.put(u, d.value.defaultAlias));
+		});
+
+		return urls;
 	}
 
 	private boolean isDomainUrlUpdated(String oldDomainUrl, Optional<String> domainUrl) {
@@ -188,7 +292,7 @@ public class DomainSettingsValidator {
 
 		if (!domainUid.equals(domain.uid)) {
 			throw new ServerFault(
-					String.format("default domain '%s' is not an alias of domain uid '%s'", defaultDomain, domainUid),
+					String.format("Default domain '%s' is not an alias of domain uid '%s'", defaultDomain, domainUid),
 					ErrorCode.INVALID_PARAMETER);
 		}
 	}

@@ -18,9 +18,10 @@
  */
 package net.bluemind.system.config;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
-
-import com.google.common.base.Strings;
+import java.util.Optional;
 
 import net.bluemind.core.api.Regex;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -30,38 +31,29 @@ import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.hook.ISystemConfigurationSanitizor;
 import net.bluemind.system.hook.ISystemConfigurationValidator;
 
-public class ExternalUrlHook implements ISystemConfigurationSanitizor, ISystemConfigurationValidator {
+public class OtherUrlHook implements ISystemConfigurationSanitizor, ISystemConfigurationValidator {
 	@Override
 	public void sanitize(SystemConf previous, Map<String, String> modifications) throws ServerFault {
-		if (!modifications.containsKey(SysConfKeys.external_url.name()) && previous != null
-				&& previous.values.containsKey("external-url")) {
-			modifications.put(SysConfKeys.external_url.name(), previous.stringValue("external-url"));
-		}
-		// external-url key is forbidden in database
-		modifications.put("external-url", null);
-
-		if (!modifications.containsKey(SysConfKeys.external_url.name())
-				|| modifications.get(SysConfKeys.external_url.name()) == null) {
+		if (!modifications.containsKey(SysConfKeys.other_urls.name())
+				|| modifications.get(SysConfKeys.other_urls.name()) == null) {
 			return;
 		}
 
-		modifications.put(SysConfKeys.external_url.name(), modifications.get(SysConfKeys.external_url.name()).trim());
+		String sanitizedUrl = modifications.get(SysConfKeys.other_urls.name()).replaceAll("\\s+", " ").trim();
+		modifications.put(SysConfKeys.other_urls.name(), sanitizedUrl.isEmpty() ? null : sanitizedUrl);
 	}
 
 	@Override
 	public void validate(SystemConf previous, Map<String, String> modifications) throws ServerFault {
-		if (!modifications.containsKey(SysConfKeys.external_url.name())) {
+		if (!modifications.containsKey(SysConfKeys.other_urls.name())) {
 			return;
 		}
 
-		if (Strings.isNullOrEmpty(modifications.get(SysConfKeys.external_url.name()))) {
-			throw new ServerFault("External URL must not be null or empty!", ErrorCode.INVALID_PARAMETER);
-		}
-
-		if (!Regex.DOMAIN.validate(modifications.get(SysConfKeys.external_url.name()))) {
-			throw new ServerFault(
-					String.format("Invalid external URL '%s'", modifications.get(SysConfKeys.external_url.name())),
-					ErrorCode.INVALID_PARAMETER);
-		}
+		Optional.ofNullable(modifications.get(SysConfKeys.other_urls.name())).map(ou -> Arrays.asList(ou.split(" ")))
+				.orElseGet(Collections::emptyList).stream().filter(ou -> !Regex.DOMAIN.validate(ou)).findFirst()
+				.ifPresent(ou -> {
+					throw new ServerFault(String.format("Invalid URL '%s' in other URLs", ou),
+							ErrorCode.INVALID_PARAMETER);
+				});
 	}
 }

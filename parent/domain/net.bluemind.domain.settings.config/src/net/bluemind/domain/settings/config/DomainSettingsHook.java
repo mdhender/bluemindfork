@@ -37,10 +37,13 @@ public class DomainSettingsHook extends DomainHookAdapter {
 			Map<String, String> currentSettings) throws ServerFault {
 
 		boolean externalUrlSettingsChange = true;
+		boolean otherUrlSettingsChange = true;
 		boolean defaultDomainSettingsChange = true;
 
 		Optional<String> previousExternal = Optional.empty();
 		Optional<String> currentExternal = Optional.empty();
+		Optional<String> previousOther = Optional.empty();
+		Optional<String> currentOther = Optional.empty();
 		Optional<String> previousDefaultDomain = Optional.empty();
 		Optional<String> currentDefaultDomain = Optional.empty();
 
@@ -49,19 +52,26 @@ public class DomainSettingsHook extends DomainHookAdapter {
 			currentExternal = getExternalUrlSetting(currentSettings);
 			externalUrlSettingsChange = !(previousExternal.equals(currentExternal));
 
+			previousOther = getOtherUrlSetting(previousSettings);
+			currentOther = getOtherUrlSetting(currentSettings);
+			otherUrlSettingsChange = !(previousOther.equals(currentOther));
+
 			previousDefaultDomain = getDefaultDomainSetting(previousSettings);
 			currentDefaultDomain = getDefaultDomainSetting(currentSettings);
 			defaultDomainSettingsChange = !(previousDefaultDomain.equals(currentDefaultDomain));
 		}
 
-		if (externalUrlSettingsChange || defaultDomainSettingsChange) {
+		if (externalUrlSettingsChange || otherUrlSettingsChange || defaultDomainSettingsChange) {
 			JsonObject payload = new JsonObject();
 			payload.put("domainUid", domain.uid);
 
-			if (externalUrlSettingsChange) {
+			if (externalUrlSettingsChange || otherUrlSettingsChange) {
 				payload.put("externalUrlUpdated", externalUrlSettingsChange)
 						.put("externalUrlOld", previousExternal.orElse(null))
 						.put("externalUrlNew", currentExternal.orElse(null));
+
+				payload.put("otherUrlsUpdated", otherUrlSettingsChange).put("otherUrlsOld", previousOther.orElse(null))
+						.put("otherUrlsNew", currentOther.orElse(null));
 			}
 
 			if (defaultDomainSettingsChange) {
@@ -83,4 +93,7 @@ public class DomainSettingsHook extends DomainHookAdapter {
 		return Optional.ofNullable(settings.get(DomainSettingsKeys.external_url.name()));
 	}
 
+	private static Optional<String> getOtherUrlSetting(Map<String, String> settings) {
+		return Optional.ofNullable(settings.get(DomainSettingsKeys.other_urls.name()));
+	}
 }

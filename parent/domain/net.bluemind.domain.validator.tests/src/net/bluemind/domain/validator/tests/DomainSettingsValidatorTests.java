@@ -18,6 +18,7 @@
   */
 package net.bluemind.domain.validator.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.Collections;
@@ -35,6 +36,7 @@ import com.google.common.collect.Lists;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -43,8 +45,10 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.service.internal.DomainSettingsValidator;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox;
@@ -52,12 +56,15 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.mailbox.persistence.MailboxStore;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class DomainSettingsValidatorTests {
 
 	private DomainSettingsValidator validator;
 	private String domainUid;
+	private String otherDomainUid;
 	private ContainerStoreService<Mailbox> mailboxStoreService;
 	private BmTestContext admin0 = new BmTestContext(SecurityContext.SYSTEM);
 
@@ -69,6 +76,7 @@ public class DomainSettingsValidatorTests {
 	@Before
 	public void before() throws Exception {
 		domainUid = "bm.lan";
+		otherDomainUid = "otherdomain.lan";
 
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
@@ -80,6 +88,7 @@ public class DomainSettingsValidatorTests {
 		PopulateHelper.initGlobalVirt(esServer);
 
 		PopulateHelper.createTestDomain(domainUid, esServer);
+		PopulateHelper.createTestDomain(otherDomainUid, esServer);
 
 		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				SecurityContext.SYSTEM);
@@ -148,7 +157,6 @@ public class DomainSettingsValidatorTests {
 
 	@Test
 	public void splitDomainExternalMailboxValidator() throws ServerFault {
-
 		Map<String, String> settings = new HashMap<>();
 		settings.put(DomainSettingsKeys.mail_forward_unknown_to_relay.name(), "false");
 
@@ -171,6 +179,273 @@ public class DomainSettingsValidatorTests {
 		}
 	}
 
+	@Test
+	public void externalUrl_create() {
+		initDomainsUrls();
+
+		Map<String, String> settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "valid.domain.tld");
+		validator.create(admin0, settings, domainUid);
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "invalid-fqdn");
+		try {
+			validator.create(admin0, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "url.global.tld");
+		try {
+			validator.create(admin0, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "other2.url.global.tld");
+		try {
+			validator.create(admin0, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "url.otherdomain.tld");
+		try {
+			validator.create(admin0, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "other2.url.otherdomain.tld");
+		try {
+			validator.create(admin0, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+	}
+
+	@Test
+	public void externalUrl_update() {
+		initDomainsUrls();
+
+		Map<String, String> oldSettings = Collections.emptyMap();
+
+		Map<String, String> settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "valid.domain.tld");
+		validator.update(admin0, oldSettings, settings, domainUid);
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "invalid-fqdn");
+		try {
+			validator.update(admin0, oldSettings, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "url.global.tld");
+		try {
+			validator.update(admin0, oldSettings, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "other2.url.global.tld");
+		try {
+			validator.update(admin0, oldSettings, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "url.otherdomain.tld");
+		try {
+			validator.update(admin0, oldSettings, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "other2.url.otherdomain.tld");
+		try {
+			validator.update(admin0, oldSettings, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+	}
+
+	@Test
+	public void otherUrl_create() {
+		initDomainsUrls();
+
+		Map<String, String> settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "valid.domain.tld");
+		settings.put(DomainSettingsKeys.other_urls.name(), "other1.domain.tld other2.domain.tld");
+		validator.create(admin0, settings, domainUid);
+
+		// external-url not set
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.other_urls.name(), "other1.domain.tld other2.domain.tld");
+		try {
+			validator.create(admin0, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "valid.domain.tld");
+		settings.put(DomainSettingsKeys.other_urls.name(), "other1.domain.tld invalid-url");
+		try {
+			validator.create(admin0, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "valid.domain.tld");
+		settings.put(DomainSettingsKeys.other_urls.name(), "other1.domain.tld url.global.tld");
+		try {
+			validator.create(admin0, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "valid.domain.tld");
+		settings.put(DomainSettingsKeys.other_urls.name(), "other1.domain.tld other1.url.global.tld");
+		try {
+			validator.create(admin0, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "valid.domain.tld");
+		settings.put(DomainSettingsKeys.other_urls.name(), "other1.domain.tld url.otherdomain.tld");
+		try {
+			validator.create(admin0, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "valid.domain.tld");
+		settings.put(DomainSettingsKeys.other_urls.name(), "other1.domain.tld other2.url.otherdomain.tld");
+		try {
+			validator.create(admin0, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+	}
+
+	@Test
+	public void otherUrl_update() {
+		initDomainsUrls();
+
+		Map<String, String> oldSettings = Collections.emptyMap();
+
+		Map<String, String> settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "valid.domain.tld");
+		settings.put(DomainSettingsKeys.other_urls.name(), "other1.domain.tld other2.domain.tld");
+		validator.update(admin0, oldSettings, settings, domainUid);
+
+		// external-url not set
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.other_urls.name(), "other1.domain.tld other2.domain.tld");
+		try {
+			validator.update(admin0, oldSettings, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "valid.domain.tld");
+		settings.put(DomainSettingsKeys.other_urls.name(), "other1.domain.tld invalid-url");
+		try {
+			validator.update(admin0, oldSettings, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "valid.domain.tld");
+		settings.put(DomainSettingsKeys.other_urls.name(), "other1.domain.tld url.global.tld");
+		try {
+			validator.update(admin0, oldSettings, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "valid.domain.tld");
+		settings.put(DomainSettingsKeys.other_urls.name(), "other1.domain.tld other1.url.global.tld");
+		try {
+			validator.update(admin0, oldSettings, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "valid.domain.tld");
+		settings.put(DomainSettingsKeys.other_urls.name(), "other1.domain.tld url.otherdomain.tld");
+		try {
+			validator.update(admin0, oldSettings, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		settings = new HashMap<>();
+		settings.put(DomainSettingsKeys.external_url.name(), "valid.domain.tld");
+		settings.put(DomainSettingsKeys.other_urls.name(), "other1.domain.tld other2.url.otherdomain.tld");
+		try {
+			validator.update(admin0, oldSettings, settings, domainUid);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+	}
+
+	private void initDomainsUrls() {
+		HashMap<String, String> globalSettings = new HashMap<>();
+		globalSettings.put(SysConfKeys.external_url.name(), "url.global.tld");
+		globalSettings.put(SysConfKeys.other_urls.name(), "other1.url.global.tld other2.url.global.tld");
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ISystemConfiguration.class)
+				.updateMutableValues(globalSettings);
+
+		Map<String, String> settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, otherDomainUid).get();
+		settings.put(DomainSettingsKeys.external_url.name(), "url.otherdomain.tld");
+		settings.put(DomainSettingsKeys.other_urls.name(), "other1.url.otherdomain.tld other2.url.otherdomain.tld");
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomainSettings.class, otherDomainUid)
+				.set(settings);
+	}
+
 	private Mailbox defaultMailbox(String name) {
 		Mailbox mailbox = new Mailbox();
 		mailbox.type = Type.user;
@@ -182,5 +457,4 @@ public class DomainSettingsValidatorTests {
 
 		return mailbox;
 	}
-
 }
