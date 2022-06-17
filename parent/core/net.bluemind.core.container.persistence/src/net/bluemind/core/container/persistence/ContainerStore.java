@@ -411,4 +411,28 @@ public class ContainerStore extends JdbcAbstractStore {
 		return new HashSet<>(containers);
 	}
 
+	public Set<String> getMissingContainerSequence() throws SQLException {
+		String query = "select uid from t_container where id not in (select container_id from t_container_sequence)";
+		List<String> containers = select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] {});
+		return new HashSet<>(containers);
+	}
+
+	public Set<String> getMissingContainerSettings() throws SQLException {
+		String query = "select uid from t_container where id not in (select container_id from t_container_sequence)";
+		List<String> containers = select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] {});
+		return new HashSet<>(containers);
+	}
+
+	public void createMissingContainerSequence() throws SQLException {
+		insert("insert into t_container_sequence select container_id, max(version) from t_container_item where container_id not in (select container_id from t_container_sequence) GROUP BY container_id",
+				new Object[] {});
+		insert("insert into t_container_sequence select id, 0 from t_container where id not in (select container_id from t_container_sequence)",
+				new Object[] {});
+	}
+
+	public void createMissingContainerSettings() throws SQLException {
+		insert("insert into t_container_settings select id, '' from t_container where id not in(select container_id from t_container_settings)",
+				new Object[] {});
+	}
+
 }

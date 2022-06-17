@@ -8,5 +8,11 @@
             factory="net.bluemind.core.container.repair.ContainerRepair$Factory">
       </repairSupport>
    </extension>
+   <extension
+         point="net.bluemind.directory.repairSupport">
+      <repairSupport
+            factory="net.bluemind.core.container.repair.ConsolidateContainer$ConsolidateContainerFactory">
+      </repairSupport>
+   </extension>
 
 </plugin>
