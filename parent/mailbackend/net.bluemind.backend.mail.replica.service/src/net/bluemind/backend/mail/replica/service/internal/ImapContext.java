@@ -41,6 +41,8 @@ import net.bluemind.imap.StoreClient;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
 public class ImapContext {
 	private static final Logger logger = LoggerFactory.getLogger(ImapContext.class);
@@ -63,10 +65,11 @@ public class ImapContext {
 	}
 
 	private static final Cache<String, ImapContext> createCache() {
-
+		int maxChild = Optional.ofNullable(LocalSysconfCache.get().integerValue(SysConfKeys.imap_max_child.name()))
+				.orElse(200);
 		Cache<String, ImapContext> ret = Caffeine.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
 				.removalListener((String key, ImapContext value, RemovalCause cause) -> {
-					if (cause == RemovalCause.EXPIRED) {
+					if (cause.wasEvicted()) {
 						value.imapClient.ifPresent(psc -> {
 							logger.info("Closing underlying imap connection for {}", key);
 							psc.closeImpl();
@@ -74,7 +77,7 @@ public class ImapContext {
 						});
 					}
 				}) //
-				.maximumSize(100)//
+				.maximumSize(maxChild / 4)//
 				.recordStats()//
 				.build();
 		VertxPlatform.getVertx().setPeriodic(TimeUnit.SECONDS.toMillis(30), tid -> ret.cleanUp());

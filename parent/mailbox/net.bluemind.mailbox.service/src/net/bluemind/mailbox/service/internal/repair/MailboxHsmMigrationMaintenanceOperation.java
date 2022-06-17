@@ -37,7 +37,6 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.hsm.api.IHSM;
 import net.bluemind.hsm.api.Promote;
-import net.bluemind.imap.Flag;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.ListInfo;
 import net.bluemind.imap.SearchQuery;
@@ -90,6 +89,7 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 		}
 
 		public void close() {
+			sc.close();
 			if (upgradedToken) {
 				securityToken.destroy();
 			}
