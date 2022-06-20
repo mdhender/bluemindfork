@@ -21,6 +21,7 @@ package net.bluemind.core.rest.http;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
@@ -28,6 +29,8 @@ import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.asynchttpclient.uri.Uri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Suppliers;
 
 import io.netty.channel.ChannelOption;
 import io.netty.channel.epoll.Epoll;
@@ -41,11 +44,18 @@ public class ClientSideServiceProvider implements IServiceProvider {
 	private String apiKey;
 	private List<String> remoteIps;
 	private String origin;
-	static final AsyncHttpClient defaultClient;
+	static final Supplier<AsyncHttpClient> defaultClient;
+	static final Supplier<AsyncHttpClient> longRequestClient;
+	static final Supplier<AsyncHttpClient> infiniteClient;
 	private final AsyncHttpClient client;
 
+	public static final int TIMEOUT_LONG_REQUEST = (int) TimeUnit.HOURS.toSeconds(4);
+	public static final int TIMEOUT_INFINITE_REQUEST = -1;
+
 	static {
-		defaultClient = createClient(40, 40, 40);
+		defaultClient = Suppliers.memoize(() -> createClient(40, 40, 40));
+		longRequestClient = Suppliers.memoize(() -> createClient(40, TIMEOUT_LONG_REQUEST, TIMEOUT_LONG_REQUEST));
+		infiniteClient = Suppliers.memoize(() -> createClient(40, TIMEOUT_INFINITE_REQUEST, TIMEOUT_INFINITE_REQUEST));
 	}
 
 	private static final boolean EPOLL_DISABLED = new File("/etc/bm/netty.epoll.disabled").exists();
@@ -55,9 +65,10 @@ public class ClientSideServiceProvider implements IServiceProvider {
 		DefaultAsyncHttpClientConfig.Builder builder = new DefaultAsyncHttpClientConfig.Builder();
 		builder.setUseNativeTransport((Epoll.isAvailable() || KQueue.isAvailable()) && !EPOLL_DISABLED);
 		builder.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(connectTimeoutSeconds));
-		builder.setReadTimeout((int) (readTimeoutSeconds == -1 ? -1 : TimeUnit.SECONDS.toMillis(readTimeoutSeconds)));
-		builder.setRequestTimeout(
-				(int) (requestTimeoutSeconds == -1 ? -1 : TimeUnit.SECONDS.toMillis(requestTimeoutSeconds)));
+		builder.setReadTimeout((int) (readTimeoutSeconds == -1 ? TIMEOUT_INFINITE_REQUEST
+				: TimeUnit.SECONDS.toMillis(readTimeoutSeconds)));
+		builder.setRequestTimeout((int) (requestTimeoutSeconds == -1 ? TIMEOUT_INFINITE_REQUEST
+				: TimeUnit.SECONDS.toMillis(requestTimeoutSeconds)));
 		builder.setFollowRedirect(false);
 		builder.setTcpNoDelay(true);
 		builder.setThreadPoolName("client-side-provider-ahc");
@@ -71,13 +82,23 @@ public class ClientSideServiceProvider implements IServiceProvider {
 	}
 
 	public static ClientSideServiceProvider getProvider(String base, String apiKey) {
-		return new ClientSideServiceProvider(base, apiKey, ClientSideServiceProvider.defaultClient);
+		return new ClientSideServiceProvider(base, apiKey, ClientSideServiceProvider.defaultClient.get());
 	}
 
 	public static ClientSideServiceProvider getProvider(String base, String apiKey, int connectTimeoutSeconds,
 			int readTimeoutSeconds, int requestTimeoutSeconds) {
-		return new ClientSideServiceProvider(base, apiKey,
-				createClient(connectTimeoutSeconds, readTimeoutSeconds, requestTimeoutSeconds));
+		AsyncHttpClient client;
+		if (readTimeoutSeconds == TIMEOUT_INFINITE_REQUEST && requestTimeoutSeconds == TIMEOUT_INFINITE_REQUEST) {
+			client = infiniteClient.get();
+		} else if (readTimeoutSeconds == requestTimeoutSeconds && readTimeoutSeconds == TIMEOUT_LONG_REQUEST) {
+			client = longRequestClient.get();
+		} else {
+			logger.warn(
+					"Using a non standard read timeout {}s (request timeout: {}s): AHC client will not be closed and will LEAK!",
+					readTimeoutSeconds, requestTimeoutSeconds, new Throwable());
+			client = createClient(connectTimeoutSeconds, readTimeoutSeconds, requestTimeoutSeconds);
+		}
+		return new ClientSideServiceProvider(base, apiKey, client);
 	}
 
 	private ClientSideServiceProvider(String base, String apiKey, AsyncHttpClient client) {

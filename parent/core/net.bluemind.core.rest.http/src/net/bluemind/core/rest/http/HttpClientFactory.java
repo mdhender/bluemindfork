@@ -31,7 +31,7 @@ public class HttpClientFactory<S, T> extends BasicClientProxy<S, T> {
 	}
 
 	private static AsyncHttpClient ahc() {
-		return ClientSideServiceProvider.defaultClient;
+		return ClientSideServiceProvider.defaultClient.get();
 	}
 
 	HttpClientFactory(Class<S> api, Class<T> asyncApi, Uri baseUrl, AsyncHttpClient client) {
