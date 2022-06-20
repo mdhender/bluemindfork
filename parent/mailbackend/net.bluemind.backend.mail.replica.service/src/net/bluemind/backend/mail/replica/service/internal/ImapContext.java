@@ -65,8 +65,7 @@ public class ImapContext {
 	}
 
 	private static final Cache<String, ImapContext> createCache() {
-		int maxChild = Optional.ofNullable(LocalSysconfCache.get().integerValue(SysConfKeys.imap_max_child.name()))
-				.orElse(200);
+		int maxChild = cyrusMaxChild();
 		Cache<String, ImapContext> ret = Caffeine.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
 				.removalListener((String key, ImapContext value, RemovalCause cause) -> {
 					if (cause.wasEvicted()) {
@@ -85,6 +84,16 @@ public class ImapContext {
 			logger.info("ImapContext CACHE: {}", ret.stats());
 		});
 		return ret;
+	}
+
+	private static int cyrusMaxChild() {
+		try {
+			return Optional.ofNullable(LocalSysconfCache.get().integerValue(SysConfKeys.imap_max_child.name()))
+					.orElse(200);
+		} catch (Exception e) {
+			logger.warn("error loading cached sysconf {}", e.getMessage());
+			return 200;
+		}
 	}
 
 	private ImapContext(String latd, String partition, String imapSrv, String sid, AuthUser user) {
