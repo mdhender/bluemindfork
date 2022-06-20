@@ -100,11 +100,11 @@ public class CliContext {
 	 * 
 	 * @param msg
 	 */
-	public void error(String msg) {
+	public synchronized void error(String msg) {
 		System.err.println(ansi().fgRed().a(msg).reset()); // NOSONAR
 	}
 
-	public void error(String msg, Object... args) {
+	public synchronized void error(String msg, Object... args) {
 		error(MessageFormatter.arrayFormat(msg, args).getMessage());
 	}
 
@@ -113,23 +113,23 @@ public class CliContext {
 	 * 
 	 * @param msg
 	 */
-	public void warn(String msg) {
+	public synchronized void warn(String msg) {
 		System.err.println(ansi().fgYellow().a(msg).reset()); // NOSONAR
 	}
 
-	public void warn(String msg, Object... args) {
+	public synchronized void warn(String msg, Object... args) {
 		warn(MessageFormatter.arrayFormat(msg, args).getMessage());
 	}
 
-	public void info(String msg) {
+	public synchronized void info(String msg) {
 		System.out.println(msg); // NOSONAR
 	}
 
-	public void info(String msg, Object... args) {
+	public synchronized void info(String msg, Object... args) {
 		info(MessageFormatter.arrayFormat(msg, args).getMessage());
 	}
 
-	public void progress(int total, int current) {
+	public synchronized void progress(int total, int current) {
 		System.err.println(ansi().fgGreen() // NOSONAR
 				.a(String.format("Global progress %d/%d (%s%%)", current, total,
 						total > 0 ? current * 100 / total : "-"))
