@@ -90,6 +90,23 @@ export default function (i18n) {
                         ]
                     },
                     {
+                        id: "compose_new_window",
+                        name: i18n.t("preferences.mail.compose.title"),
+                        fields: [
+                            {
+                                id: "field",
+                                component: {
+                                    name: "PrefFieldCheck",
+                                    options: {
+                                        setting: "mail_compose_in_new_window",
+                                        autosave: true,
+                                        label: i18n.t("preferences.mail.compose.in_new_window")
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
                         id: "signature",
                         name: i18n.t("common.signature"),
                         fields: [

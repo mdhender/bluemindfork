@@ -3,7 +3,7 @@
 </template>
 <script>
 import { mapGetters } from "vuex";
-import { ACTIVE_MESSAGE } from "~/getters";
+import { ACTIVE_MESSAGE, MY_TEMPLATES } from "~/getters";
 import { IS_POPUP } from "~/mutations";
 import MailAppMixin from "./MailApp/MailAppMixin";
 
@@ -11,14 +11,18 @@ export default {
     name: "MailPopupApp",
     mixins: [MailAppMixin],
     computed: {
-        ...mapGetters("mail", { message: ACTIVE_MESSAGE })
+        ...mapGetters("mail", { message: ACTIVE_MESSAGE, MY_TEMPLATES })
     },
     watch: {
         "message.subject": {
             handler() {
                 if (this.message) {
-                    const subject = this.message.subject.trim() ? this.message.subject : this.$t("mail.main.new");
-                    document.title = subject + this.$t("common.product");
+                    const subject = this.message.subject.trim()
+                        ? this.message.subject
+                        : this.message.folderRef.key === this.MY_TEMPLATES.key
+                        ? this.$t("mail.actions.new_template")
+                        : this.$t("mail.main.new");
+                    document.title = subject;
                 }
             }
         }

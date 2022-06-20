@@ -64,7 +64,9 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import { BmIconButton, BmFormInput, BmForm } from "@bluemind/styleguide";
+import { MY_TEMPLATES } from "~/getters";
 import { ComposerActionsMixin, ComposerMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
 import MessagePathParam from "~/router/MessagePathParam";
@@ -92,8 +94,13 @@ export default {
     },
     mixins: [AddAttachmentsCommand, ComposerActionsMixin, ComposerMixin],
     computed: {
+        ...mapGetters("mail", { MY_TEMPLATES }),
         panelTitle() {
-            return this.message.subject.trim() ? this.message.subject : this.$t("mail.main.new");
+            return this.message.subject.trim()
+                ? this.message.subject
+                : this.message.folderRef.key === this.MY_TEMPLATES.key
+                ? this.$t("mail.actions.new_template")
+                : this.$t("mail.main.new");
         },
         messagepath() {
             return MessagePathParam.build("", this.message);

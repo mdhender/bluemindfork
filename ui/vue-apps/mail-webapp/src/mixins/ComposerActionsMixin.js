@@ -215,7 +215,10 @@ export default {
         },
         async endEdition() {
             await this.saveAsap();
-            if (this.$_ComposerActionsMixin_currentConversation === this.message.conversationRef.key) {
+            if (
+                this.$_ComposerActionsMixin_currentConversation &&
+                this.$_ComposerActionsMixin_currentConversation === this.message.conversationRef?.key
+            ) {
                 this.$store.commit(`mail/${RESET_PARTS_DATA}`);
             } else {
                 this.$router.navigate("v:mail:home");

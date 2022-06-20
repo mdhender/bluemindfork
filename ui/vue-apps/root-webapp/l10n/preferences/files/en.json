@@ -10,11 +10,9 @@
     "alert.preferences.sync_calendar.success": "Synchronization successful",
     "alert.preferences.sync_calendar.error": "Error during synchronization",
     "alert.preferences.containers.create_and_import_data.warning": "Creation was successful but some data could not be imported.",
-
     "preferences.leave_app.confirm": "You have unsaved changes. You will lose them upon exiting preferences.",
     "preferences.leave_app.confirm.title": "Unsaved settings",
     "preferences.leave_app.confirm.button": "Exit preferences",
-
     "preferences.account.external_accounts": "External accounts",
     "preferences.account.external_accounts.creation": "External account creation",
     "preferences.account.external_accounts.creation.desc": "Manage the connection to your third-party services.",
@@ -34,7 +32,6 @@
     "preferences.account.external_accounts.list.none": "No external account",
     "preferences.account.external_accounts.list.remove.modal.title": "Remove an external account",
     "preferences.account.external_accounts.list.remove.modal.desc": "{name}/{login} will no longer be usable with BlueMind applications, do you confirm its removal?",
-
     "preferences.advanced.notifications": "Desktop notifications",
     "preferences.advanced.notifications.explanations": "Desktop notifications display directly on your screen when new messages or event reminders arrive.",
     "preferences.advanced.notifications.enable_checkbox": "Enable notifications",
@@ -47,15 +44,12 @@
     "preferences.advanced.reinit_local_data.in_progress": "Reset in progress...",
     "preferences.advanced.reinit_local_data.success": "Local data successfully reset",
     "preferences.advanced.reinit_local_data.error": "Error while resetting local data, please try again in a moment.",
-
     "preferences.calendar.main.working_days": "Working days as displayed in the agenda",
-
     "preferences.general.date_format": "Date format",
     "preferences.general.default_application": "Default application",
     "preferences.general.lang": "Language",
     "preferences.general.manage_account": "manage account",
     "preferences.general.password": "Password",
-
     "preferences.general.tags": "Tags",
     "preferences.general.tags.create": "Create a tag",
     "preferences.general.tags.desc": "Categorise your data (contacts, events...) with tags.",
@@ -66,17 +60,14 @@
     "preferences.general.tags.remove.desc": "Are you sure you want to delete the tag {name}?",
     "preferences.general.tags.subset.domain": "Domain tags ({count})",
     "preferences.general.tags.subset.user": "My tags ({count})",
-
     "preferences.general.time_format": "Time format",
     "preferences.general.timezone": "Time zone",
-
     "preferences.security.api_key": "API keys",
     "preferences.security.api_key.desc": "Use API Key to identify your project",
     "preferences.security.api_key.generate": "Generate API key",
     "preferences.security.api_key.generate.modal.ok_button": "Create",
     "preferences.security.api_key.generate.modal.project_label": "Label",
     "preferences.security.api_key.remove": "Remove \"{name}\" API key definitely ?",
-
     "preferences.security.change_password": "Password change",
     "preferences.security.change_password.old": "Old password",
     "preferences.security.change_password.old.invalid": "Wrong password",
@@ -84,13 +75,11 @@
     "preferences.security.change_password.confirm_new": "Confirm new password",
     "preferences.security.change_password.confirm_new.invalid": "Passwords don't match",
     "preferences.security.change_password.same_password": "Current and new password must be different",
-
     "preferences.telephony.status": "Phone status",
     "preferences.telephony.update_phone_status": "Update my phone status when I am not available on instant messaging",
     "preferences.telephony.answering_machine": "Answering machine",
     "preferences.telephony.forward_calls": "Forward received calls to",
     "preferences.telephony.invalid_phone_number": "Please enter a valid phone number",
-
     "preferences.manage_shares.title": "Manage shares for {type} \"{name}\"",
     "preferences.manage_shares.no_acl_set": "No share is set for {type} \"{name}\"",
     "preferences.manage_shares.no_external_share_set": "No share outside my organization is set for {type} \"{name}\"",
@@ -98,7 +87,6 @@
     "preferences.manage_shares.inside_my_organization": "Inside my organization",
     "preferences.manage_shares.outside_my_organization": "Outside my organization",
     "preferences.manage_shares.all_users_in_my_organization": "All users in my organization",
-
     "preferences.add_containers.subscribe": "Subscribe to other {type}",
     "preferences.add_containers.add_n_containers": "Add | Add 1 {type} | Add {count} {type}",
     "preferences.add_containers.search": "Search {type} or a user",
@@ -106,24 +94,19 @@
     "preferences.add_containers.mailboxacl.nothing_to_add": "You don't have read permissions on other mailboxes. Contact your administrator for more informations.",
     "preferences.add_containers.addressbook.nothing_to_add": "You don't have read permissions on other address books. Contact your administrator for more informations.",
     "preferences.add_containers.todolist.nothing_to_add": "You don't have read permissions on other to-do list. Contact your administrator for more informations.",
-
     "preferences.display_containers.calendar.empty_list": "You have not subscribed yet, and you don't manage any other calendar.",
     "preferences.display_containers.mailboxacl.empty_list": "You have not subscribed yet, and you don't manage any other mailbox.",
     "preferences.display_containers.addressbook.empty_list": "You have not subscribed yet, and you don't manage any other address books.",
     "preferences.display_containers.todolist.empty_list": "You have not subscribed yet, and you don't manage any other to-do lists.",
     "preferences.display_containers.default": "Default {type}",
     "preferences.display_containers.other_calendars.read_more": "Read more about other calendars subscriptions.",
-
     "preferences.display_containers.import_file.calendar": "Drop your ICS file",
     "preferences.display_containers.import_file.addressbook": "Drop your vCard file",
     "preferences.display_containers.import_file.todolist": "Drop your ICS file",
-
     "preferences.reset_containers_data.calendar": "All events of this calendar will be removed.",
     "preferences.reset_containers_data.addressbook": "All addresses of this addressbook will be removed.",
     "preferences.reset_containers_data.todolist": "All tasks of this list will be removed.",
-
     "preferences.delete_containers": "Remove {type} definitely ?",
-
     "preferences.create_container.label.description": "Label, as it'll be displayed in your {type}",
     "preferences.create_container.name_already_exists": "This label is already used",
     "preferences.create_container.calendar.button": "Create @:common.container_type_with_indefinite_article.calendar",
@@ -132,21 +115,18 @@
     "preferences.update_container.calendar.button": "Update @:common.container_type_with_definite_article.calendar \"{name}\"",
     "preferences.update_container.addressbook.button": "Update @:common.container_type_with_definite_article.addressbook \"{name}\"",
     "preferences.update_container.todolist.button": "Update @:common.container_type_with_definite_article.todolist \"{name}\"",
-
     "preferences.mail.my_mailbox.switch_offline_sync": "Activate offline messaging on my mailbox.",
     "preferences.mail.my_mailbox.modal_title": "Manage shares for my mailbox",
     "preferences.mail.my_mailbox.can_send_on_my_behalf": "Can send on my behalf",
     "preferences.mail.my_mailbox.can_read_my_mailbox": "Can read my mailbox",
     "preferences.mail.my_mailbox.can_edit_my_mailbox": "Can edit my mailbox",
     "preferences.mail.my_mailbox.can_edit_my_mailbox_and_manage_shares": "Can edit my mailbox and manage my shares",
-
     "preferences.mail.advanced.switch.title": "Mail application version",
     "preferences.mail.advanced.switch.label": "Try the new webmail version",
     "preferences.mail.advanced.switch.modern.missing_features": "You are using the new version of the mail application, please note, some features might not be present yet:",
     "preferences.mail.advanced.switch.classic.missing_features": "Please note, some features might not be present in the new version of the mail application :",
     "preferences.mail.advanced.switch.features.filehosting": "Send large files as link",
     "preferences.mail.advanced.switch.features.move_folder": "Move folder",
-
     "preferences.mail.filters": "Message filters",
     "preferences.mail.filters.action.delete": "Delete",
     "preferences.mail.filters.action.deliver": "Move to {value}",
@@ -195,7 +175,6 @@
     "preferences.mail.filters.target.TO": "The recipient",
     "preferences.mail.filters.terminal": "Terminal",
     "preferences.mail.filters.unnamed": "(Unnamed filter)",
-
     "preferences.mail.identities.manage": "Manage identities",
     "preferences.mail.identities.always_show_from": "Always show field \"From\" (sender)",
     "preferences.mail.identities.create": "Add an identity",
@@ -213,7 +192,6 @@
     "preferences.mail.identities.auto_select.label": "Automatically select \"From\" field (sender)",
     "preferences.mail.identities.auto_select.only_for_replies": "Only for replies",
     "preferences.mail.identities.auto_select.replies_and_new": "For replies and new messages",
-
     "preferences.calendar.main.week_starts_on": "Week starts on",
     "preferences.calendar.main.default_view": "Default view",
     "preferences.calendar.main.show_weekends": "Show weekends",
@@ -226,7 +204,6 @@
     "preferences.calendar.main.default_reminder_kind": "Default reminder notification type",
     "preferences.calendar.main.configure_view": "Calendar display",
     "preferences.calendar.main.reminders": "Reminders",
-
     "preferences.calendar.my_calendars.type": "Calendar type",
     "preferences.calendar.my_calendars.availabilities_advanced_management": "Availabilities advanced management",
     "preferences.calendar.my_calendars.add_calendar_to_my_availability": "Add a calendar to my availabilities",
@@ -239,10 +216,8 @@
     "preferences.calendar.my_calendars.can_edit_my_events_and_manage_shares": "Can edit my appointments and manage my shares",
     "preferences.calendar.my_calendars.publish_link_private_mode": "Can see my private appointments",
     "preferences.calendar.my_calendars.publish_link_public_mode": "Can only see my public appointments",
-
     "preferences.downloads": "Downloads",
     "preferences.downloads.none": "No available downloads",
-
     "preferences.mail.thread": "Messages display",
     "preferences.mail.thread.disable": "Show messages individually",
     "preferences.mail.thread.enable": "Show messages grouped by conversation",
@@ -270,16 +245,21 @@
     "preferences.mail.emails_forwarding": "Email forwardings",
     "preferences.mail.emails_forwarding.to": "Forward received messages to",
     "preferences.mail.emails_forwarding.local_copy": "keep a local copy in your inbox",
-
     "preferences.role.missing.warning": "You do not have the rights to modify this preference",
     "preferences.search.no_result": "No preference containing \"{pattern}\" has been found.",
     "preferences.menu.apps": "Applications preferences menu",
-
     "preferences.contacts.can_read_my_addressbook": "Can see this address book",
     "preferences.contacts.can_edit_my_addressbook": "Can edit my contacts",
     "preferences.contacts.can_edit_my_addressbook_and_manage_shares": "Can edit my contacts and manage my shares",
-
     "preferences.tasks.can_read_my_todolist": "Can read my to-do list | Can read my to-do list",
     "preferences.tasks.can_edit_my_todolist": "Can edit my to-do list | Can edit my to-do list",
-    "preferences.tasks.can_edit_my_todolist_and_manage_shares": "Can edit my to-do list and manage my shares | Can edit my to-do list and manage my shares"
+    "preferences.tasks.can_edit_my_todolist_and_manage_shares": "Can edit my to-do list and manage my shares | Can edit my to-do list and manage my shares",
+    "preferences": {
+        "mail": {
+            "compose": {
+                "title": "Composing messages",
+                "in_new_window": "Compose in new window"
+            }
+        }
+    }
 }

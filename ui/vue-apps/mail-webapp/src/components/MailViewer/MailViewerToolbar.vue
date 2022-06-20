@@ -6,7 +6,7 @@
                 :size="size"
                 :title="action.label($t('mail.content.reply.aria'))"
                 icon="reply"
-                @click="action.execute(() => reply(message, conversation))"
+                @click.stop="action.execute(() => reply(message, conversation))"
             />
         </mail-open-in-popup-with-shift>
         <mail-open-in-popup-with-shift v-slot="action" :href="replyAllRoute(message)">
@@ -15,7 +15,7 @@
                 :size="size"
                 :title="action.label($t('mail.content.reply_all.aria'))"
                 icon="reply-all"
-                @click="action.execute(() => replyAll(message, conversation))"
+                @click.stop="action.execute(() => replyAll(message, conversation))"
             />
         </mail-open-in-popup-with-shift>
         <mail-open-in-popup-with-shift v-slot="action" :href="forwardRoute(message)">
@@ -24,7 +24,7 @@
                 :size="size"
                 :title="action.label($t('common.forward'))"
                 icon="forward"
-                @click="action.execute(() => forward(message))"
+                @click.stop="action.execute(() => forward(message))"
             />
         </mail-open-in-popup-with-shift>
         <mail-viewer-toolbar-other-actions

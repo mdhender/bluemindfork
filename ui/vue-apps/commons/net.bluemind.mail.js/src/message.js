@@ -92,7 +92,8 @@ export const MessageCreationModes = {
     REPLY: "REPLY",
     REPLY_ALL: "REPLY-ALL",
     FORWARD: "FORWARD",
-    EDIT_AS_NEW: "EDIT_AS_NEW"
+    EDIT_AS_NEW: "EDIT_AS_NEW",
+    EDIT: "EDIT"
 };
 
 export const MessageHeader = {

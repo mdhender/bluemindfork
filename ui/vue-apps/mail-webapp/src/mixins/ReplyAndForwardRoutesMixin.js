@@ -36,7 +36,7 @@ export default {
         async $_ReplyAndForwardRoutesMixin_goTo(action, related, conversation) {
             if (conversation && this.$_ReplyAndForwardRoutesMixin_CONVERSATIONS_ACTIVATED) {
                 await this.saveAndCloseOpenDrafts(conversation);
-                this.initRelatedMessage(action, {
+                this.initRelatedMessage(this.MY_DRAFTS, action, {
                     internalId: related.remoteRef.internalId,
                     folderKey: related.folderRef.key
                 });

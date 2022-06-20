@@ -411,6 +411,7 @@
                     }
                 }
             },
+            "new_template": "New template",
             "print": {
                 "title": "Print the last message of the conversation \"{subject}\""
             }

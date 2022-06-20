@@ -1,4 +1,4 @@
-import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+import { mapActions, mapMutations, mapState } from "vuex";
 
 import { InlineImageHelper, MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
@@ -7,7 +7,6 @@ import { BmRichEditor } from "@bluemind/styleguide";
 import { draftUtils, messageUtils, loadingStatusUtils, partUtils, attachmentUtils } from "@bluemind/mail";
 
 import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
-import { MY_DRAFTS } from "~/getters";
 import {
     ADD_ATTACHMENT,
     ADD_FILES,
@@ -50,7 +49,6 @@ export default {
     },
     mixins: [ComposerFromMixin],
     computed: {
-        ...mapGetters("mail", { $_ComposerInitMixin_MY_DRAFTS: MY_DRAFTS }),
         ...mapState("mail", { $_ComposerInitMixin_partsByMessageKey: ({ partsData }) => partsData.partsByMessageKey }),
         $_ComposerInitMixin_lang() {
             return this.$store.state.settings.lang;
@@ -111,7 +109,7 @@ export default {
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(editorData.content);
         },
 
-        async initRelatedMessage(action, related) {
+        async initRelatedMessage(folder, action, related) {
             switch (action) {
                 case MessageCreationModes.REPLY:
                 case MessageCreationModes.REPLY_ALL:
@@ -121,9 +119,9 @@ export default {
                             internalId: related.internalId,
                             folder: this.$store.state.mail.folders[related.folderKey]
                         });
-                        return this.initReplyOrForward(action, previous);
+                        return this.initReplyOrForward(folder, action, previous);
                     } catch {
-                        return this.initNewMessage();
+                        return this.initNewMessage(folder);
                     }
                 case MessageCreationModes.EDIT_AS_NEW:
                     try {
@@ -131,18 +129,18 @@ export default {
                             internalId: related.internalId,
                             folder: this.$store.state.mail.folders[related.folderKey]
                         });
-                        return this.initEditAsNew(previous);
+                        return this.initEditAsNew(folder, previous);
                     } catch {
-                        return this.initNewMessage();
+                        return this.initNewMessage(folder);
                     }
                 default:
-                    return this.initNewMessage();
+                    return this.initNewMessage(folder);
             }
         },
 
         // case of a new message
-        async initNewMessage() {
-            const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS);
+        async initNewMessage(folder) {
+            const message = createEmpty(folder);
             this.$_ComposerInitMixin_ADD_MESSAGES({ messages: [message] });
             const identity = this.getIdentityForNewMessage();
             await this.setFrom(identity, message);
@@ -153,15 +151,10 @@ export default {
         },
 
         // case of a reply or forward message
-        async initReplyOrForward(creationMode, previousMessage) {
+        async initReplyOrForward(folder, creationMode, previousMessage) {
             const identity = this.getIdentityForReplyOrForward(previousMessage);
 
-            const message = createReplyOrForward(
-                previousMessage,
-                this.$_ComposerInitMixin_MY_DRAFTS,
-                creationMode,
-                identity
-            );
+            const message = createReplyOrForward(previousMessage, folder, creationMode, identity);
 
             if (creationMode !== MessageCreationModes.FORWARD && this.$store.state.mail.mailThreadSetting === "true") {
                 message.conversationRef = { ...previousMessage.conversationRef };
@@ -222,8 +215,8 @@ export default {
             return message;
         },
 
-        async initEditAsNew(related) {
-            const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS);
+        async initEditAsNew(folder, related) {
+            const message = createEmpty(folder);
             this.$_ComposerInitMixin_ADD_MESSAGES({ messages: [message] });
             const identity = this.getIdentityForNewMessage();
             await this.setFrom(identity, message);

@@ -30,19 +30,32 @@
                 {{ $t("mail.actions.move") }}
             </bm-dropdown-item>
             <bm-dropdown-item
-                @click.exact="MOVE_MESSAGES_TO_TRASH(message, conversation)"
-                @click.shift.exact="REMOVE_MESSAGES(message, conversation)"
+                @click.exact.stop="MOVE_MESSAGES_TO_TRASH(message, conversation)"
+                @click.shift.exact.stop="REMOVE_MESSAGES(message, conversation)"
             >
                 {{ $t("mail.actions.remove") }}
             </bm-dropdown-item>
             <bm-dropdown-item @click.stop.exact="REMOVE_MESSAGES(message, conversation)">
                 {{ $t("mail.actions.purge") }}
             </bm-dropdown-item>
-            <mail-open-in-popup-with-shift v-slot="action" :href="editAsNew">
-                <bm-dropdown-item :icon="action.icon('pencil')" @click="action.execute(() => $router.push(editAsNew))">
+            <mail-open-in-popup-with-shift v-if="isTemplate" v-slot="action" :href="modifyTemplateRoute">
+                <bm-dropdown-item
+                    :icon="action.icon('plus-document')"
+                    :title="action.label($t('mail.actions.modify_template'))"
+                    @click="action.execute(modifyTemplate)"
+                >
+                    {{ $t("mail.actions.modify_template") }}
+                </bm-dropdown-item>
+            </mail-open-in-popup-with-shift>
+            <mail-open-in-popup-with-shift v-else v-slot="action" :href="editAsNew">
+                <bm-dropdown-item
+                    :icon="action.icon('pencil')"
+                    @click.stop="action.execute(() => $router.push(editAsNew))"
+                >
                     {{ $t("mail.actions.edit_as_new") }}
                 </bm-dropdown-item>
             </mail-open-in-popup-with-shift>
+
             <bm-dropdown-item icon="printer" @click.stop="printContent()">
                 {{ $t("common.print") }}
             </bm-dropdown-item>
@@ -69,7 +82,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapGetters, mapMutations } from "vuex";
 import { Flag } from "@bluemind/email";
 import { BmIconDropdown, BmDropdownItem } from "@bluemind/styleguide";
 import { messageUtils, folderUtils } from "@bluemind/mail";
@@ -80,7 +93,8 @@ import {
     MARK_MESSAGE_AS_UNFLAGGED,
     MARK_MESSAGE_AS_UNREAD
 } from "~/actions";
-import { MAILBOXES, MY_DRAFTS, MY_TRASH, MY_INBOX } from "~/getters";
+import { MAILBOXES, MY_DRAFTS, MY_TRASH, MY_INBOX, MY_TEMPLATES } from "~/getters";
+import { SET_MESSAGE_COMPOSING } from "~/mutations";
 import MessagePathParam from "~/router/MessagePathParam";
 import ChooseFolderModal from "../ChooseFolderModal";
 import MailMessagePrint from "./MailMessagePrint";
@@ -120,7 +134,7 @@ export default {
         return { Flag };
     },
     computed: {
-        ...mapGetters("mail", { MAILBOXES, MY_DRAFTS, MY_TRASH, MY_INBOX }),
+        ...mapGetters("mail", { MAILBOXES, MY_DRAFTS, MY_TEMPLATES, MY_TRASH, MY_INBOX }),
         messagepath() {
             return MessagePathParam.build("", this.message);
         },
@@ -130,6 +144,16 @@ export default {
                 params: { messagepath: this.draftPath(this.MY_DRAFTS) },
                 query: { action: MessageCreationModes.EDIT_AS_NEW, message: this.messagepath }
             });
+        },
+        modifyTemplateRoute() {
+            return this.$router.relative({
+                name: "mail:message",
+                params: { messagepath: this.messagepath },
+                query: { action: MessageCreationModes.EDIT }
+            });
+        },
+        isTemplate() {
+            return this.message.folderRef.key === this.MY_TEMPLATES.key;
         }
     },
     methods: {
@@ -139,6 +163,7 @@ export default {
             MARK_MESSAGE_AS_UNFLAGGED,
             MARK_MESSAGE_AS_UNREAD
         }),
+        ...mapMutations("mail", { SET_MESSAGE_COMPOSING }),
         printContent() {
             this.print(this.$createElement("mail-message-print", { props: { message: this.message } }));
         },
@@ -168,6 +193,9 @@ export default {
                 }
             }
             return false;
+        },
+        modifyTemplate() {
+            this.SET_MESSAGE_COMPOSING({ messageKey: this.message.key, composing: true });
         }
     }
 };

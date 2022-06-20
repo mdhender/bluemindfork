@@ -14,9 +14,15 @@
                 {{ $t("mail.actions.edit_as_new") }}
             </bm-dropdown-item>
         </mail-open-in-popup-with-shift>
-        <bm-dropdown-item v-if="isTemplate" icon="plus-document" @click="modifyTemplate()">
-            {{ $t("mail.actions.modify_template") }}
-        </bm-dropdown-item>
+        <mail-open-in-popup-with-shift v-if="isTemplate" v-slot="action" :href="modifyTemplateRoute">
+            <bm-dropdown-item
+                :icon="action.icon('plus-document')"
+                :title="action.label($t('mail.actions.modify_template'))"
+                @click="action.execute(modifyTemplate)"
+            >
+                {{ $t("mail.actions.modify_template") }}
+            </bm-dropdown-item>
+        </mail-open-in-popup-with-shift>
         <bm-dropdown-item
             v-if="isTemplate && showMarkAsRead"
             icon="read"
@@ -92,6 +98,17 @@ export default {
                 return this.CURRENT_CONVERSATION_METADATA.subject;
             }
             return "";
+        },
+        modifyTemplateRoute() {
+            if (this.isTemplate) {
+                const message = this.messages[this.CURRENT_CONVERSATION_METADATA.messages[0]];
+                return this.$router.relative({
+                    name: "mail:message",
+                    params: { messagepath: MessagePathParam.build("", message) },
+                    query: { action: MessageCreationModes.EDIT }
+                });
+            }
+            return {};
         }
     },
     methods: {

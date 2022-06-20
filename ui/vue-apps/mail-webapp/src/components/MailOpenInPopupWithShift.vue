@@ -8,8 +8,11 @@ export default {
         return { shift: false, hover: false, listeners: [] };
     },
     computed: {
+        withShiftOnly() {
+            return this.$store.state.settings.mail_compose_in_new_window !== "true";
+        },
         active() {
-            return this.enabled && (this.$store.state.settings.openInPopup || (this.shift && this.hover));
+            return this.enabled && (this.preference || (this.shift && this.hover));
         }
     },
     mounted() {
@@ -37,11 +40,12 @@ export default {
     render() {
         return this.$scopedSlots.default({
             execute: (fallback, event) => {
-                this.enabled && (event ? event.shiftKey : this.active) ? this.open() : fallback();
+                const active = !this.withShiftOnly || (event ? event.shiftKey : this.shift);
+                this.enabled && active ? this.open() : fallback();
             },
-            icon: fallback => (this.active ? "popup" : fallback),
+            icon: fallback => (this.enabled && this.withShiftOnly && this.shift && this.hover ? "popup" : fallback),
             label: label => {
-                if (!this.enabled) {
+                if (!this.enabled || !this.withShiftOnly) {
                     return label;
                 }
                 if (label?.trim()) {

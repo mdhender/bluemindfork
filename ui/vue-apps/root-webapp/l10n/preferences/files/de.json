@@ -10,11 +10,9 @@
     "alert.preferences.sync_calendar.success": "Synchronisation erfolgreich beendet",
     "alert.preferences.sync_calendar.error": "Fehler bei der Synchronisation",
     "alert.preferences.containers.create_and_import_data.warning": " Das Anlegen wurde erfolgreich abgeschlossen, es konnten jedoch nicht alle Daten importiert werden.",
-
     "preferences.leave_app.confirm": "Sie haben ungespeicherte Einstellungen, die beim Verlassen der Anwendung verloren gehen.",
     "preferences.leave_app.confirm.title": "Ungespeicherte Einstellungen",
     "preferences.leave_app.confirm.button": "Einstellungen verlassen",
-
     "preferences.account.external_accounts": "Externe Benutzerkonten",
     "preferences.account.external_accounts.creation": "Externes Benutzerkonto erstellen",
     "preferences.account.external_accounts.creation.desc": "Verbindung zu externen Diensten verwalten.",
@@ -34,7 +32,6 @@
     "preferences.account.external_accounts.list.none": "Kein externes Benutzerkonto",
     "preferences.account.external_accounts.list.remove.modal.title": "Externes Benutzerkonto entfernen",
     "preferences.account.external_accounts.list.remove.modal.desc": "{name}/{login} kann nicht mehr innerhalb BlueMind verwendet werden, Löschen bestätigen?",
-
     "preferences.advanced.notifications": "Desktop-Benachrichtigungen",
     "preferences.advanced.notifications.explanations": "Desktop-Benachrichtigungen erscheinen direkt auf Ihrem Bildschirm wenn neue E-Mails oder Termin-Erinnerungen eingehen.",
     "preferences.advanced.notifications.enable_checkbox": "Benachrichtigungen aktivieren",
@@ -47,15 +44,12 @@
     "preferences.advanced.reinit_local_data.in_progress": "Zurücksetzen in Bearbeitung...",
     "preferences.advanced.reinit_local_data.success": "Lokale Daten zurücksetzen",
     "preferences.advanced.reinit_local_data.error": "Fehler beim Zurücksetzen der lokalen Daten. bitte versuchen Sie es in einigen Minuten nochmals.",
-
     "preferences.calendar.main.working_days": "Tage, die als Arbeitstage im Kalender angezeigt werden",
-
     "preferences.general.date_format": "Datumsformat",
     "preferences.general.default_application": "Standard Anwendung",
     "preferences.general.lang": "Sprache",
     "preferences.general.manage_account": "Konto verwalten",
     "preferences.general.password": "Passwort",
-
     "preferences.general.tags": "Schilder",
     "preferences.general.tags.create": "Kennzeichung erstellen",
     "preferences.general.tags.desc": "Daten (Kontakte, Termine...) anhand von Kennzeichungen kategorisieren.",
@@ -66,17 +60,14 @@
     "preferences.general.tags.remove.desc": "Möchten Sie die Kategorie {name} wirklich löschen?",
     "preferences.general.tags.subset.domain": "Domänenweite Kennzeichungen ({count})",
     "preferences.general.tags.subset.user": "Meine Kennzeichungen ({count})",
-
     "preferences.general.time_format": "Zeitformat",
     "preferences.general.timezone": "Zeitzone",
-
     "preferences.security.api_key": "API-Schlüssel",
     "preferences.security.api_key.desc": "Verwenden Sie einen API-Schlüssel um Ihr Projekt zu identifizieren",
     "preferences.security.api_key.generate": "API-Schlüssel erstellen",
     "preferences.security.api_key.generate.modal.ok_button": "Erstellen",
     "preferences.security.api_key.generate.modal.project_label": "Kennzeichnung",
     "preferences.security.api_key.remove": "Remove \"{name}\" API key definitely ?",
-
     "preferences.security.change_password": "Passwort ändern",
     "preferences.security.change_password.old": "Aktuelles Passwort",
     "preferences.security.change_password.old.invalid": "Falsches Passwort",
@@ -84,13 +75,11 @@
     "preferences.security.change_password.confirm_new": "Neues Passwort bestätigen",
     "preferences.security.change_password.confirm_new.invalid": "Passwörter stimmen nicht überein",
     "preferences.security.change_password.same_password": "Aktuelles und neues Passwort müssen unterschiedlich sein",
-
     "preferences.telephony.status": "Telefon-Status",
     "preferences.telephony.update_phone_status": "Meinen Telefonstatus im Instant Messaging aktualisieren, wenn ich in einer Besprechung bin",
     "preferences.telephony.answering_machine": "Anrufbeantworter",
     "preferences.telephony.forward_calls": "Eingehende Anrufe an folgende Nummer weiterleiten",
     "preferences.telephony.invalid_phone_number": "Bitte gültige Telefonnummer eingeben",
-
     "preferences.manage_shares.title": "Freigaben von {type} \"{name}\" verwalten",
     "preferences.manage_shares.no_acl_set": "Es existiert keine Freigabe von {type} \"{name}\"",
     "preferences.manage_shares.no_external_share_set": "Es existiert keine externe Freigabe von {type} \"{name}\"",
@@ -98,7 +87,6 @@
     "preferences.manage_shares.inside_my_organization": "In meinem Unternehmen",
     "preferences.manage_shares.outside_my_organization": "Außerhalb meines Unternehmens",
     "preferences.manage_shares.all_users_in_my_organization": "Alle Benutzer meines Unternehmens",
-
     "preferences.add_containers.subscribe": "Weiteren {type} abonnieren",
     "preferences.add_containers.add_n_containers": "Hinzufügen | 1 {type} hinzufügen | {count} {type} hinzufügen",
     "preferences.add_containers.search": "Suche nach {type} oder Benutzer",
@@ -106,24 +94,19 @@
     "preferences.add_containers.mailboxacl.nothing_to_add": "Sie haben keine Leseberechtigungen für andere Mailkonten. Bitte wenden Sie sich bei Fragen an Ihren Administrator.",
     "preferences.add_containers.addressbook.nothing_to_add": "Sie haben keine Leseberechtigungen für andere Addressbücher. Bitte wenden Sie sich bei Fragen an Ihren Administrator.",
     "preferences.add_containers.todolist.nothing_to_add": "Sie haben keine Leseberechtigungen für andere Todolisten. Bitte wenden Sie sich bei Fragen an Ihren Administrator.",
-
     "preferences.display_containers.calendar.empty_list": "Sie haben noch keinen Kalender abonniert und verwalten keinen weiteren Kalender.",
     "preferences.display_containers.mailboxacl.empty_list": "Sie haben noch kein Mailkonto abonniert und verwalten kein weiteres Mailkonto.",
     "preferences.display_containers.addressbook.empty_list": "Sie haben noch kein Adressbuch abonniert und verwalten kein weiteres Adressbuch.",
     "preferences.display_containers.todolist.empty_list": "Sie haben noch keine Todoliste abonniert und verwalten keine weitere Todoliste.",
     "preferences.display_containers.default": "Standard-{type}",
     "preferences.display_containers.other_calendars.read_more": "Mehr über das Freigeben von zusätzlichen Kalendern erfahren.",
-
     "preferences.display_containers.import_file.calendar": "ICS Datei ablegen",
     "preferences.display_containers.import_file.addressbook": "vCard Datei ablegen",
     "preferences.display_containers.import_file.todolist": "ICS Datei ablegen",
-
     "preferences.reset_containers_data.calendar": "Alle Termine dieses Kalenders werden gelöscht.",
     "preferences.reset_containers_data.addressbook": "Alle Adressen dieses Adressbuchs werden gelöscht",
     "preferences.reset_containers_data.todolist": "Alle Aufgaben dieser Todoliste werden gelöscht.",
-
     "preferences.delete_containers": "{type} endgültig löschen?",
-
     "preferences.create_container.label.description": "Bezeichnung, die im {type} verwendet wird",
     "preferences.create_container.name_already_exists": "Dieser Beschriftung wird bereits verwendet",
     "preferences.create_container.calendar.button": "@:common.container_type_with_indefinite_article.calendar erstellen",
@@ -132,21 +115,18 @@
     "preferences.update_container.calendar.button": "@:common.container_type_with_definite_article.calendar aktualisieren \"{name}\"",
     "preferences.update_container.addressbook.button": "@:common.container_type_with_definite_article.addressbook aktualisieren \"{name}\"",
     "preferences.update_container.todolist.button": "@:common.container_type_with_definite_article.todolist aktualisieren \"{name}\"",
-
     "preferences.mail.my_mailbox.switch_offline_sync": "Offline-Fähigkeit des Webmailers",
     "preferences.mail.my_mailbox.modal_title": "Freigaben des Mailkontos verwalten",
     "preferences.mail.my_mailbox.can_send_on_my_behalf": "Kann in meinem Namen senden",
     "preferences.mail.my_mailbox.can_read_my_mailbox": "Kann lesend auf mein Mailkonto zugreifen",
     "preferences.mail.my_mailbox.can_edit_my_mailbox": "Kann mein Mailkonto bearbeiten",
     "preferences.mail.my_mailbox.can_edit_my_mailbox_and_manage_shares": "Kann lesend auf mein Mailkonto zugreifen und meine Freigaben verwalten",
-
     "preferences.mail.advanced.switch.title": "Webmailer-Version",
     "preferences.mail.advanced.switch.label": "den neuen Webmailer testen",
     "preferences.mail.advanced.switch.modern.missing_features": "Sie verwenden die neue Version des Webmailers, beachten Sie dass manche Funktionen noch nicht enthalten sind:",
     "preferences.mail.advanced.switch.classic.missing_features": "Beachten Sie dass manche Funktionen noch nicht in der neuen Version enthalten sind:",
     "preferences.mail.advanced.switch.features.filehosting": "Größe Dateianhänge als Link versenden",
     "preferences.mail.advanced.switch.features.move_folder": "Ordner verschieben",
-
     "preferences.mail.filters": "E-Mail Filter",
     "preferences.mail.filters.action.delete": "Löschen",
     "preferences.mail.filters.action.deliver": "Verschieben nach {value}",
@@ -195,7 +175,6 @@
     "preferences.mail.filters.target.TO": "Der Empfänger",
     "preferences.mail.filters.terminal": "Terminal",
     "preferences.mail.filters.unnamed": "(Unbenannter Filter)",
-
     "preferences.mail.identities.manage": "E-Mail Identitäten verwalten",
     "preferences.mail.identities.always_show_from": "Feld \"Absender\" immer anzeigen",
     "preferences.mail.identities.create": "E-Mail Identität hinzufügen",
@@ -213,7 +192,6 @@
     "preferences.mail.identities.auto_select.label": "Feld \"Absender\" automatisch auswählen",
     "preferences.mail.identities.auto_select.only_for_replies": "Nur für Antworten",
     "preferences.mail.identities.auto_select.replies_and_new": "Für Antworten und neue E-Mails",
-
     "preferences.calendar.main.week_starts_on": "Woche startet am",
     "preferences.calendar.main.default_view": "Standardansicht",
     "preferences.calendar.main.show_weekends": "Wochenenden anzeigen",
@@ -226,7 +204,6 @@
     "preferences.calendar.main.default_reminder_kind": "Standard Erinnerungstyp",
     "preferences.calendar.main.configure_view": "Kalendarsicht",
     "preferences.calendar.main.reminders": "Terminerinnerungen",
-
     "preferences.calendar.my_calendars.type": "Kalendertyp",
     "preferences.calendar.my_calendars.availabilities_advanced_management": "Erweiterte Konfiguration der Verfügbarkeiten",
     "preferences.calendar.my_calendars.add_calendar_to_my_availability": "Kalender zu den Verfügbarkeiten hinzufügen",
@@ -239,10 +216,8 @@
     "preferences.calendar.my_calendars.can_edit_my_events_and_manage_shares": "Kann meine Termine und Freigaben bearbeiten | Können meine Termine und Freigaben bearbeiten",
     "preferences.calendar.my_calendars.publish_link_private_mode": "Kann meine privaten Termine einsehen",
     "preferences.calendar.my_calendars.publish_link_public_mode": "Kann nur meine öffentlichen Termine einsehen",
-
     "preferences.downloads": "Downloads",
     "preferences.downloads.none": "Keine verfügbaren Downloads",
-
     "preferences.mail.thread": "E-Mails anzeigen",
     "preferences.mail.thread.disable": "E-Mails einzeln anzeigen",
     "preferences.mail.thread.enable": "E-Mails gruppiert anzeigen",
@@ -270,16 +245,21 @@
     "preferences.mail.emails_forwarding": "Weiterleitungen",
     "preferences.mail.emails_forwarding.to": "Eingehende E-Mails weiterleiten an",
     "preferences.mail.emails_forwarding.local_copy": "Lokale Kopie im Posteingang speichern",
-
     "preferences.role.missing.warning": "Sie haben keine Berechtigung diese Einstellung zu verändern",
     "preferences.search.no_result": "No preference with the term \"{pattern}\" has been found.",
     "preferences.menu.apps": "Anwendungseinstellungen",
-
     "preferences.contacts.can_read_my_addressbook": "Kann lesend auf das Adressbuch zugreifen | Können lesend auf das Adressbuch zugreifen",
     "preferences.contacts.can_edit_my_addressbook": "Kann meine Kontakte bearbeiten | Können meine Kontakte bearbeiten",
     "preferences.contacts.can_edit_my_addressbook_and_manage_shares": "Kann meine Kontakte und Freigaben bearbeiten | Können meine Kontakte und Freigaben bearbeiten",
-
     "preferences.tasks.can_read_my_todolist": "Kann meine Todoliste einsehen | Können meine Todolisten einsehen",
     "preferences.tasks.can_edit_my_todolist": "Kann meine Todoliste editieren | Können meine Todolisten editieren",
-    "preferences.tasks.can_edit_my_todolist_and_manage_shares": "Kann meine Todolisten editieren und meine Freigaben verwalten | Können meine Todolisten editieren und meine Freigaben verwalten"
+    "preferences.tasks.can_edit_my_todolist_and_manage_shares": "Kann meine Todolisten editieren und meine Freigaben verwalten | Können meine Todolisten editieren und meine Freigaben verwalten",
+    "preferences": {
+        "mail": {
+            "compose": {
+                "title": "Verfassen von Nachrichten",
+                "in_new_window": "In neuem Fenster zusammenstellen"
+            }
+        }
+    }
 }

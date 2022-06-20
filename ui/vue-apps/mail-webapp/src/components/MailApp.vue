@@ -20,7 +20,8 @@
                     icon="burger-menu"
                     @click.stop="showFolders = !showFolders"
                 />
-                <new-message />
+                <new-message v-if="activeFolder !== MY_TEMPLATES.key" />
+                <new-template v-else />
             </bm-col>
             <bm-col
                 cols="8"
@@ -88,6 +89,16 @@ import { BmExtension } from "@bluemind/extensions.vue";
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
 import { BmFormCheckbox, BmIconButton, BmCol, BmRow } from "@bluemind/styleguide";
+import { Multipane, MultipaneResizer } from "@bluemind/vue-multipane";
+
+import {
+    ACTIVE_MESSAGE,
+    CURRENT_CONVERSATION_METADATA,
+    MY_TEMPLATES,
+    SEVERAL_CONVERSATIONS_SELECTED,
+    SELECTION_IS_EMPTY
+} from "~/getters";
+import { SET_WIDTH } from "~/mutations";
 
 import FaviconHelper from "../FaviconHelper";
 import UnreadCountScheduler from "./MailApp/UnreadCountScheduler";
@@ -97,14 +108,8 @@ import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
 import MessagesOptionsForMobile from "./MessagesOptionsForMobile";
 import NewMessage from "./NewMessage";
-import {
-    ACTIVE_MESSAGE,
-    CURRENT_CONVERSATION_METADATA,
-    SEVERAL_CONVERSATIONS_SELECTED,
-    SELECTION_IS_EMPTY
-} from "~/getters";
-import { SET_WIDTH } from "~/mutations";
-import { Multipane, MultipaneResizer } from "@bluemind/vue-multipane";
+import NewTemplate from "./NewTemplate";
+
 import MailAppMixin from "./MailApp/MailAppMixin";
 
 export default {
@@ -123,7 +128,8 @@ export default {
         MessagesOptionsForMobile,
         Multipane,
         MultipaneResizer,
-        NewMessage
+        NewMessage,
+        NewTemplate
     },
     mixins: [MailAppMixin, UnreadCountScheduler],
     data() {
@@ -137,11 +143,13 @@ export default {
     computed: {
         ...mapGetters("mail", {
             ACTIVE_MESSAGE,
+            MY_TEMPLATES,
             CURRENT_CONVERSATION_METADATA,
             SEVERAL_CONVERSATIONS_SELECTED,
             SELECTION_IS_EMPTY
         }),
         ...mapState("mail", { currentConversation: ({ conversations }) => conversations.currentConversation }),
+        ...mapState("mail", ["activeFolder"]),
         hideListInResponsiveMode() {
             const item = this.ACTIVE_MESSAGE || this.CURRENT_CONVERSATION_METADATA;
             return item && (item.composing || this.SELECTION_IS_EMPTY);

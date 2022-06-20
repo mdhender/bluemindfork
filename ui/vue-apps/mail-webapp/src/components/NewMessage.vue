@@ -5,7 +5,7 @@
             class="new-message d-lg-none"
             icon="plus"
             :title="action.label()"
-            @click="action.execute(openComposer)"
+            @click="openComposer"
         />
         <bm-button
             v-else

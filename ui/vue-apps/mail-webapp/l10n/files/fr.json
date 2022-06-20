@@ -411,6 +411,7 @@
                     }
                 }
             },
+            "new_template": "Nouveau modèle",
             "print": {
                 "title": "Imprimer le dernier message de la conversation \"{subject}\""
             }

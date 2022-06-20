@@ -411,6 +411,7 @@
                     }
                 }
             },
+            "new_template": "Neue Vorlage",
             "print": {
                 "title": "Die letzte Nachricht der Konversation ausdrucken \"{subject}\""
             }
