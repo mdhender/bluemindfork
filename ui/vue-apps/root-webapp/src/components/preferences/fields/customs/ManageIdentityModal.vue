@@ -224,6 +224,9 @@ export default {
                 this.id = identityDescription.id;
                 try {
                     this.identity = await inject("UserMailIdentitiesPersistence").get(identityDescription.id);
+                    if (this.identity.format === "PLAIN") {
+                        this.identity.signature = "<pre>" + this.identity.signature + "</pre>";
+                    }
                     this.modalStatus = "LOADED";
                 } catch {
                     this.modalStatus = "ERROR";
