@@ -874,4 +874,52 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		assertEquals("osef@gmail.com", messageSearchResult.from.address);
 	}
 
+	@Test
+	public void testSearch_EsQuery_FieldAlias_From()
+			throws MimeIOException, IOException, InterruptedException, ExecutionException {
+		long imapUid = 1;
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList(), 1);
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		List<MailSummary> mails = new ArrayList<>();
+		MailSummary summary1 = new MailSummary();
+		summary1.uid = 1;
+		summary1.parentId = bodyUid;
+		summary1.flags = new HashSet<>(Arrays.asList("unread", "yeah"));
+
+		mails.add(summary1);
+
+		MailIndexActivator.getService().syncFlags(ItemValue.create(userUid, null), ItemValue.create(folderUid, null),
+				mails);
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.recordQuery = null;
+		query.query = "from:roger.water@pinkfloyd.net";
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+		assertEquals(1, results.totalResults);
+
+		query.query = "de:roger.water@pinkfloyd.net";
+		q = new MailboxFolderSearchQuery();
+		q.query = query;
+		results = MailIndexActivator.getService().searchItems(userUid, q);
+		assertEquals(1, results.totalResults);
+
+		query.query = "von:roger.water@pinkfloyd.net";
+		q = new MailboxFolderSearchQuery();
+		q.query = query;
+		results = MailIndexActivator.getService().searchItems(userUid, q);
+		assertEquals(1, results.totalResults);
+
+	}
+
 }

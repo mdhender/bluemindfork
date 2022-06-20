@@ -118,6 +118,14 @@
 				"id": {
 					"type": "keyword"
 				},
+				 "de": {
+		          "type": "alias",
+		          "path": "from" 
+		        },
+				"von": {
+		          "type": "alias",
+		          "path": "from" 
+		        },
 				"headers": {
 					"properties": {
 						"from": {
