@@ -1,7 +1,21 @@
 <template>
     <bm-form class="mail-composer m-lg-3 flex-grow-1 d-flex flex-column bg-surface">
-        <h3 class="d-none d-lg-flex text-nowrap text-truncate card-header px-2 py-1">
-            {{ panelTitle }}
+        <h3 class="d-none d-lg-flex card-header px-2 py-1 align-items-center">
+            <span class="text-nowrap text-truncate">{{ panelTitle }}</span>
+            <mail-open-in-popup-action
+                v-slot="action"
+                :href="{ name: 'mail:popup:message', params: { messagepath } }"
+                :next="$router.relative('mail:home')"
+            >
+                <bm-button
+                    :title="action.label"
+                    variant="inline-on-fill-primary"
+                    class="ml-auto"
+                    @click="action.execute()"
+                >
+                    <bm-icon :icon="action.icon" />
+                </bm-button>
+            </mail-open-in-popup-action>
         </h3>
         <mail-composer-sender
             v-if="isSenderShown"
@@ -43,20 +57,24 @@
 </template>
 
 <script>
-import { BmFormInput, BmForm } from "@bluemind/styleguide";
+import { BmButton, BmIcon, BmFormInput, BmForm } from "@bluemind/styleguide";
 
 import { ComposerActionsMixin, ComposerMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
+import MessagePathParam from "~/router/MessagePathParam";
 import MailComposerAttachments from "./MailComposerAttachments";
 import MailComposerContent from "./MailComposerContent";
 import MailComposerRecipients from "./MailComposerRecipients";
 import MailComposerFooter from "./MailComposerFooter";
 import MailComposerSender from "./MailComposerSender";
 import TemplateChooser from "~/components/TemplateChooser";
+import MailOpenInPopupAction from "../MailOpenInPopupAction";
 
 export default {
     name: "MailComposer",
     components: {
+        BmButton,
+        BmIcon,
         BmFormInput,
         BmForm,
         MailComposerAttachments,
@@ -64,12 +82,16 @@ export default {
         MailComposerContent,
         MailComposerSender,
         MailComposerRecipients,
+        MailOpenInPopupAction,
         TemplateChooser
     },
     mixins: [AddAttachmentsCommand, ComposerActionsMixin, ComposerMixin],
     computed: {
         panelTitle() {
             return this.message.subject.trim() ? this.message.subject : this.$t("mail.main.new");
+        },
+        messagepath() {
+            return MessagePathParam.build("", this.message);
         }
     }
 };

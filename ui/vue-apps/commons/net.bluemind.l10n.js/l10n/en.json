@@ -197,6 +197,9 @@
     "common.close_window": "Close the window",
     "common.redo": "Redo",
     "common.undo": "Undo",
+    "common": {
+        "open_in_window": "Open in new window"
+    },
     "styleguide": {
         "alert": {
             "alerts": "You have {n} alerts",
@@ -218,7 +221,9 @@
         },
         "color-picker": {
             "customize": "Customize",
-            "toolbar": { "aria": "Pick a color" }
+            "toolbar": {
+                "aria": "Pick a color"
+            }
         },
         "contact-input": {
             "invalid": "Invalid address",

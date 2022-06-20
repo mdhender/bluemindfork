@@ -4,6 +4,7 @@
 <script>
 import { mapGetters } from "vuex";
 import { ACTIVE_MESSAGE } from "~/getters";
+import { IS_POPUP } from "~/mutations"
 import MailAppMixin from "./MailApp/MailAppMixin";
 export default {
     name: "MailPopupApp",
@@ -23,6 +24,7 @@ export default {
     },
     beforeCreate() {
         this.$store.commit("root-app/HIDE_BANNER");
+        this.$store.commit(`mail/${IS_POPUP}`);
     },
     created() {
         const documentTitle = this.$t("mail.application.title") + this.$t("common.product");

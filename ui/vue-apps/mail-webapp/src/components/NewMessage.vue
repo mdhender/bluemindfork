@@ -44,7 +44,7 @@ export default {
     },
     methods: {
         openComposer() {
-            const openInPopup = this.$store.state.settings.openInPopup || true;
+            const openInPopup = this.$store.state.settings.openInPopup;
             const params = { messagepath: this.messagepath };
             if (!openInPopup) {
                 this.$router.navigate({ name: "mail:message", params });
@@ -59,8 +59,8 @@ export default {
 function getWindowFeature() {
     const height = 800;
     const width = 1100;
-    const left = screen.availWidth / 2 - width / 2 + window.screenLeft;
-    const top = screen.availHeight / 2 - height / 2 + window.screenTop;
+    const left = (screen.availWidth - width) / 2 + window.screenLeft;
+    const top = (screen.availHeight - height) / 2 + window.screenTop;
     return `popup=true,width=${width},height=${height},top=${top},left=${left}`;
 }
 </script>

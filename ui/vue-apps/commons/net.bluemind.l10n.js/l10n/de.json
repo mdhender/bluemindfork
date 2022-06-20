@@ -197,6 +197,9 @@
     "common.close_window": "Fenster schließen",
     "common.redo": "Wiederholen",
     "common.undo": "Rückgängig",
+    "common": {
+        "open_in_window": "In einem neuen Fenster öffnen"
+    },
     "styleguide": {
         "alert": {
             "alerts": "Sie haben {n} Benachrichtigungen",
@@ -218,7 +221,9 @@
         },
         "color-picker": {
             "customize": "Anpassen",
-            "toolbar": { "aria": "Wählen Sie eine Farbe" }
+            "toolbar": {
+                "aria": "Wählen Sie eine Farbe"
+            }
         },
         "contact-input": {
             "invalid": "Ungültige Adresse",

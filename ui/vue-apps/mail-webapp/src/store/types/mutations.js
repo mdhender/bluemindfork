@@ -1,3 +1,6 @@
+// popup
+export const IS_POPUP = "IS_POPUP";
+
 // activeMessage
 export const RESET_ACTIVE_MESSAGE = "RESET_ACTIVE_MESSAGE";
 export const SET_ACTIVE_MESSAGE = "SET_ACTIVE_MESSAGE";

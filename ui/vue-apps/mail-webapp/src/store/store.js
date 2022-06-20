@@ -47,17 +47,21 @@ import {
     SELECTION_FLAGS,
     USER_MAILBOXES
 } from "~/getters";
-import { SET_ACTIVE_FOLDER, SET_MAIL_THREAD_SETTING } from "~/mutations";
+import { IS_POPUP, SET_ACTIVE_FOLDER, SET_MAIL_THREAD_SETTING } from "~/mutations";
 
 const { create, match } = folder;
 const { LoadingStatus } = loadingStatus;
 
 export const state = {
     activeFolder: undefined,
-    mailThreadSetting: false
+    mailThreadSetting: false,
+    isPopup: false
 };
 
 export const mutations = {
+    [IS_POPUP]: state => {
+        state.isPopup = true;
+    },
     [SET_ACTIVE_FOLDER]: (state, { key }) => {
         state.activeFolder = key;
     },
