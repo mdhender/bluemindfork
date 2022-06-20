@@ -79,4 +79,15 @@ public class OrgUnitPath {
 		return String.join("/", ret.toArray(new String[0]));
 	}
 
+	@Override
+    public boolean equals(Object obj) {
+    	OrgUnitPath orgUnitPath = (OrgUnitPath) obj;
+    	return orgUnitPath != null && uid.equals(orgUnitPath.uid);
+    }
+
+	@Override
+    public int hashCode() {
+        return uid.hashCode();
+    }
+
 }

@@ -275,10 +275,12 @@ public class OrgUnitTreeGrid extends Grid implements IGwtWidgetElement {
 	}
 
 	private static Map<String, List<OrgUnitPath>> orderResultList(List<OrgUnitPath> result) {
-		result.addAll(getMissingParentNodes(result));
+		List<OrgUnitPath> pathsList = new ArrayList<>(result);
+		pathsList.addAll(getMissingParentNodes(result));
+		pathsList = pathsList.stream().distinct().collect(Collectors.toList());
 
 		Map<String, List<OrgUnitPath>> pathMap = new HashMap<>();
-		result.stream().filter(r -> r.path().size() == 1).forEach(e -> pathMap.put(e.uid, new ArrayList<>()));
+		pathsList.stream().filter(r -> r.path().size() == 1).forEach(e -> pathMap.put(e.uid, new ArrayList<>()));
 
 		for (OrgUnitPath orgUnitPath : result) {
 			String key = orgUnitPath.path().get(orgUnitPath.path().size() - 1);
