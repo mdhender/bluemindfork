@@ -50,9 +50,6 @@
       		class="net.bluemind.system.service.InCoreSecurityMgmtFactory">
       </serviceFactory>
       <serviceFactory
-      		class="net.bluemind.system.service.CertificateSecurityMgmtFactory">
-      </serviceFactory>
-      <serviceFactory
             class="net.bluemind.system.service.GlobalSettingsFactory">
       </serviceFactory>
       <serviceFactory
