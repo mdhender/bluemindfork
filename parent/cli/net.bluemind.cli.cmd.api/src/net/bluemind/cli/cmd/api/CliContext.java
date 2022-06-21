@@ -131,7 +131,9 @@ public class CliContext {
 
 	public void progress(int total, int current) {
 		System.err.println(ansi().fgGreen() // NOSONAR
-				.a(String.format("Global progress %d/%d (%s%%)", current, total, current * 100 / total)).reset());
+				.a(String.format("Global progress %d/%d (%s%%)", current, total,
+						total > 0 ? current * 100 / total : "-"))
+				.reset());
 	}
 
 	/**
