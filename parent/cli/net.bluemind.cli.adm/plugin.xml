@@ -19,6 +19,17 @@
             impl="net.bluemind.cli.adm.ListCommand$Reg"
             priority="500">
       </registration>
+
+      <registration
+            impl="net.bluemind.cli.adm.FlushCache$Reg"
+            priority="500">
+      </registration>
+      <registration
+            impl="net.bluemind.cli.adm.DumpCache$Reg"
+            priority="500">
+      </registration>
+
+
       <registration
             impl="net.bluemind.cli.adm.RepairOpsCommand$Reg"
             priority="600">

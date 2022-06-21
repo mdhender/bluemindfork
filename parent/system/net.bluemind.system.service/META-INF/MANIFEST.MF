@@ -55,7 +55,9 @@ Require-Bundle: net.bluemind.core.commons,
  bcpkix,
  org.bitbucket.b_c.jose4j,
  net.bluemind.system.nginx,
- net.bluemind.domain.hook
+ net.bluemind.domain.hook,
+ net.bluemind.core.caches.registry,
+ com.github.ben-manes.caffeine
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.system.service,

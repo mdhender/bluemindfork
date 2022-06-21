@@ -18,10 +18,13 @@
   */
 package net.bluemind.system.api;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 
 @BMApi(version = "3", internal = true)
@@ -33,4 +36,27 @@ public interface ICacheMgmt {
 	@POST
 	@Path("_flush")
 	public void flushCaches() throws ServerFault;
+
+	/**
+	 * Serializes the content of all caches
+	 * 
+	 * <code>
+	 * {
+	 *    "cache1": {
+	 *        key0: value,
+	 *        key1: value,
+	 *    },
+	 *    "cacheN": {
+	 *        keyX: valueY
+	 *    }
+	 * }
+	 * </code>
+	 * 
+	 * @return
+	 */
+	@GET
+	@Path("_dump")
+	@Produces("application/json")
+	public Stream dumpContent();
+
 }
