@@ -115,9 +115,10 @@ public class MailboxRecordItemCache {
 	}
 
 	public static void store(String mailboxUniqueId, ItemValue<MailboxRecord> item) {
-		RecordRef ref = new RecordRef(mailboxUniqueId, item.value.imapUid, item.value.messageBody);
-
-		uidToItem.put(ref, item);
+		if (item != null && item.value != null) {
+			RecordRef ref = new RecordRef(mailboxUniqueId, item.value.imapUid, item.value.messageBody);
+			uidToItem.put(ref, item);
+		}
 	}
 
 }
