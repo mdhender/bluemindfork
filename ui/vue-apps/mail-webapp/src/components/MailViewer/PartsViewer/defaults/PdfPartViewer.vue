@@ -4,18 +4,12 @@
     </div>
 </template>
 <script>
-import { getPartPreviewUrl } from "@bluemind/email";
 import PartViewerMixin from "../PartViewerMixin";
 
 export default {
     name: "PdfPartViewer",
     mixins: [PartViewerMixin],
-    $capabilities: ["application/pdf"],
-    computed: {
-        src() {
-            return getPartPreviewUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.part);
-        }
-    }
+    $capabilities: ["application/pdf"]
 };
 </script>
 <style lang="scss">

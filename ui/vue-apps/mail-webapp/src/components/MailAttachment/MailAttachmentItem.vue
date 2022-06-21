@@ -166,7 +166,10 @@ export default {
                 : undefined;
         },
         previewUrl(attachment) {
-            return getPartDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, attachment);
+            return (
+                attachment.url ||
+                getPartDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, attachment)
+            );
         },
         fileTypeIcon({ mime }) {
             return MimeType.matchingIcon(mime);

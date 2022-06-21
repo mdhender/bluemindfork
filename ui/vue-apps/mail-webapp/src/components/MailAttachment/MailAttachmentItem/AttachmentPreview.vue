@@ -46,7 +46,10 @@ export default {
             return MimeType.matchingIcon(this.attachment.mime);
         },
         previewUrl() {
-            return getPartDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.attachment);
+            return (
+                this.attachment.url ||
+                getPartDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.attachment)
+            );
         }
     }
 };

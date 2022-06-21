@@ -1,3 +1,5 @@
+import { getPartDownloadUrl } from "@bluemind/email";
+
 export default {
     props: {
         message: {
@@ -7,6 +9,14 @@ export default {
         part: {
             type: Object,
             required: true
+        }
+    },
+    computed: {
+        src() {
+            return (
+                this.part.url ||
+                getPartDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.part)
+            );
         }
     }
 };

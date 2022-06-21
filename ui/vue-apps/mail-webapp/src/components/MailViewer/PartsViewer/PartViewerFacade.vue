@@ -1,7 +1,13 @@
 <template>
     <div class="part-viewer-facade">
         <slot :name="slotName(part)" :message="message" :part="part">
-            <component :is="componentName" :message="message" :part="part"></component>
+            <component :is="componentName" v-if="componentName" :message="message" :part="part"></component>
+            <div v-else class="no-preview d-flex flex-fill align-items-center text-center p-2 justify-content-around">
+                <div>
+                    <div>{{ part.fileName }}</div>
+                    <div class="font-weight-bold">{{ $t("mail.viewer.no.preview") }}</div>
+                </div>
+            </div>
         </slot>
     </div>
 </template>
@@ -44,3 +50,13 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/variables";
+.part-viewer-facade {
+    .no-preview {
+        color: $neutral-fg;
+        height: 100%;
+    }
+}
+</style>

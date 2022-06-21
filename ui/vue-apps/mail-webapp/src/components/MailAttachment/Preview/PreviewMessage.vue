@@ -8,7 +8,6 @@
                     :key="attachment.address"
                     :attachment="attachment"
                     :message="scope.message"
-                    :compact="!isViewable(attachment)"
                     :class="attachment.address === activePart.address ? 'active' : ''"
                 />
             </div>

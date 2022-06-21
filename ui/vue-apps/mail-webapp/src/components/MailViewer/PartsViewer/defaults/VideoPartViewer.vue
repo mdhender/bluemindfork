@@ -2,18 +2,12 @@
     <div class="video-part-viewer"><video controls :src="src" /></div>
 </template>
 <script>
-import { getPartPreviewUrl } from "@bluemind/email";
 import PartViewerMixin from "../PartViewerMixin";
 
 export default {
     name: "VideoPartViewer",
     mixins: [PartViewerMixin],
-    $capabilities: ["video/*"],
-    computed: {
-        src() {
-            return getPartPreviewUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.part);
-        }
-    }
+    $capabilities: ["video/*"]
 };
 </script>
 <style lang="scss">
@@ -26,6 +20,7 @@ export default {
     video {
         max-height: 100%;
         max-width: 100%;
+        margin: 0 auto;
     }
 }
 </style>

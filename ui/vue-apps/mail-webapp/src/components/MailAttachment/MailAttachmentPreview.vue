@@ -1,25 +1,33 @@
 <template>
     <bm-modal id="mail-attachment-preview" ref="modal" centered size="fluid" hide-footer hide-header>
         <global-events @keydown.left="previous" @keydown.up="previous" @keydown.down="next" @keydown.right="next" />
-
-        <preview-header
-            :part="part"
+        <bm-extension
+            id="webapp.mail"
+            v-slot="context"
+            type="renderless"
+            path="message.attachment"
+            :attachment="part"
             :message="message"
-            :expanded.sync="expanded"
-            @close="$refs.modal.hide()"
-            @previous="previous"
-            @next="next"
-            @print="print"
-            @download="download"
-            @open="open"
-        />
-        <div class="content">
-            <bm-collapse v-model="expanded" :class="{ 'd-none': true, 'd-lg-block': expanded }">
-                <preview-message :message="message" :active-part="part" />
-            </bm-collapse>
-            <preview-attachment :message="message" :part="part" />
-        </div>
-        <preview-attachment-header :part="part" class="d-lg-none d-flex" />
+        >
+            <preview-header
+                :part="context.attachment"
+                :message="context.message"
+                :expanded.sync="expanded"
+                @close="$refs.modal.hide()"
+                @previous="previous"
+                @next="next"
+                @print="print(context.attachment)"
+                @download="download(context.attachment)"
+                @open="open(context.attachment)"
+            />
+            <div class="content">
+                <bm-collapse v-model="expanded" :class="{ 'd-none': true, 'd-lg-block': expanded }">
+                    <preview-message :message="context.message" :active-part="context.attachment" />
+                </bm-collapse>
+                <preview-attachment :message="context.message" :part="context.attachment" />
+            </div>
+            <preview-attachment-header :part="context.attachment" class="d-lg-none d-flex" />
+        </bm-extension>
     </bm-modal>
 </template>
 
@@ -27,7 +35,6 @@
 import { mapMutations } from "vuex";
 import { BmCollapse, BmModal } from "@bluemind/styleguide";
 import { getPartDownloadUrl, getPartPreviewUrl } from "@bluemind/email";
-import { part } from "@bluemind/mail";
 
 import { SET_PREVIEW_PART_ADDRESS } from "~/mutations";
 import PreviewAttachment from "./Preview/PreviewAttachment";
@@ -35,8 +42,7 @@ import PreviewMessage from "./Preview/PreviewMessage";
 import PreviewHeader from "./Preview/PreviewHeader";
 import GlobalEvents from "vue-global-events";
 import PreviewAttachmentHeader from "./Preview/PreviewAttachmentHeader";
-
-const { isViewable } = part;
+import BmExtension from "@bluemind/extensions.vue/src/BmExtension";
 
 export default {
     name: "MailAttachmentPreview",
@@ -47,7 +53,8 @@ export default {
         PreviewMessage,
         PreviewHeader,
         GlobalEvents,
-        PreviewAttachmentHeader
+        PreviewAttachmentHeader,
+        BmExtension
     },
     data() {
         return { expanded: true };
@@ -75,12 +82,6 @@ export default {
         },
         attachmentsCount() {
             return this.message?.attachments.length;
-        },
-        downloadUrl() {
-            return getPartDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.part);
-        },
-        previewUrl() {
-            return getPartPreviewUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.part);
         }
     },
     methods: {
@@ -95,21 +96,31 @@ export default {
             const index = iterator(current) % this.attachmentsCount;
             if (index !== this.partIndex) {
                 const attachment = this.message.attachments[index];
-                isViewable(attachment)
-                    ? this.SET_PREVIEW_PART_ADDRESS(attachment.address)
-                    : this.selectAttachmentHelper(index, iterator);
+                this.SET_PREVIEW_PART_ADDRESS(attachment.address);
             }
         },
-        print() {
-            const win = window.open(this.previewUrl);
+        print(attachment) {
+            const win = window.open(this.getDownloadUrl(attachment));
             win.addEventListener("afterprint", () => win.close());
             win.addEventListener("load", () => win.print());
         },
-        download() {
-            window.open(this.downloadUrl);
+        download(attachment) {
+            window.open(this.getDownloadUrl(attachment));
         },
-        open() {
-            window.open(this.previewUrl);
+        open(attachment) {
+            window.open(this.getPreviewUrl(attachment));
+        },
+        getDownloadUrl(attachment) {
+            return (
+                attachment.url ||
+                getPartDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, attachment)
+            );
+        },
+        getPreviewUrl(attachment) {
+            return (
+                attachment.url ||
+                getPartPreviewUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, attachment)
+            );
         }
     }
 };
@@ -123,9 +134,11 @@ export default {
         flex: 1 1 auto;
         min-height: 0;
     }
-    height: 80vh;
-    flex-direction: column;
-    display: flex;
+    & > .bm-extension-message-attachment {
+        height: 80vh;
+        flex-direction: column;
+        display: flex;
+    }
     padding: 0;
     .preview-message-header,
     .collapse {

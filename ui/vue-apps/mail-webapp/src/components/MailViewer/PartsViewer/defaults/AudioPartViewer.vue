@@ -2,18 +2,12 @@
     <div class="audio-part-viewer"><audio controls :src="src" /></div>
 </template>
 <script>
-import { getPartPreviewUrl } from "@bluemind/email";
 import PartViewerMixin from "../PartViewerMixin";
 
 export default {
     name: "AudioPartViewer",
     mixins: [PartViewerMixin],
-    $capabilities: ["audio/*"],
-    computed: {
-        src() {
-            return getPartPreviewUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.part);
-        }
-    }
+    $capabilities: ["audio/*"]
 };
 </script>
 <style lang="scss">

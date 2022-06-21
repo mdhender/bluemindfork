@@ -1,6 +1,6 @@
 <template>
     <div class="preview-header flex-column flex-lg-row">
-        <preview-attachment-header :part="part" class="d-none d-lg-flex" />
+        <preview-attachment-header :part="part" :message="message" class="d-none d-lg-flex" />
         <bm-button-toolbar class="order-0 order-lg-2 justify-content-around justify-content-lg-start">
             <bm-button
                 variant="simple-neutral"
