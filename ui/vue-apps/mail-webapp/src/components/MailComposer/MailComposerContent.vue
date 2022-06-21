@@ -55,13 +55,13 @@ import { BmButton, BmFileDropZone, BmIcon, BmRichEditor } from "@bluemind/styleg
 import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
 import { isNewMessage } from "~/model/draft";
 import { PERSONAL_SIGNATURE_SELECTOR } from "~/model/signature";
-import { ComposerActionsMixin, ComposerInitMixin, SignatureMixin } from "~/mixins";
+import { ComposerActionsMixin, ComposerInitMixin, SignatureMixin, WaitForMixin } from "~/mixins";
 import MailViewerContentLoading from "../MailViewer/MailViewerContentLoading";
 
 export default {
     name: "MailComposerContent",
     components: { BmButton, BmFileDropZone, BmIcon, BmRichEditor, MailViewerContentLoading },
-    mixins: [ComposerActionsMixin, ComposerInitMixin, SignatureMixin],
+    mixins: [ComposerActionsMixin, ComposerInitMixin, SignatureMixin, WaitForMixin],
     props: {
         userPrefIsMenuBarOpened: {
             type: Boolean,
@@ -98,14 +98,21 @@ export default {
 
                 // focus on content when a recipient is already set
                 if (this.message.to.length > 0) {
-                    await this.$nextTick();
+                    await this.$waitFor(
+                        () => this.$refs["message-content"],
+                        value => value?._isMounted
+                    );
                     this.$refs["message-content"].focusBefore(PERSONAL_SIGNATURE_SELECTOR(this.personalSignature.id));
                 }
             },
             immediate: true
         },
-        "messageCompose.editorContent"() {
+        async "messageCompose.editorContent"() {
             if (!this.lock && !this.loading) {
+                await this.$waitFor(
+                    () => this.$refs["message-content"],
+                    value => value?._isMounted
+                );
                 this.$refs["message-content"].setContent(this.messageCompose.editorContent);
             }
         }

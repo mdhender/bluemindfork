@@ -101,7 +101,7 @@ export default {
         },
         async saveMessageAs(saveAction, folder) {
             const message = createFromDraft(this.message, folder);
-            this.$store.commit(`mail/${ADD_MESSAGES}`, [message]);
+            this.$store.commit(`mail/${ADD_MESSAGES}`, { messages: [message] });
 
             await this.$store.dispatch(`mail/${saveAction}`, {
                 message,
