@@ -33,6 +33,7 @@ import org.junit.Test;
 
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.container.api.IContainerManagement;
@@ -46,6 +47,8 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.IDirEntryPath;
+import net.bluemind.icalendar.api.ICalendarElement.RRule;
+import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
@@ -60,6 +63,7 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 
 	private String videoconfProviderId = "test-provider";
 	private VEventVideoConferencingSanitizer sanitizer;
+	private ZoneId tz = ZoneId.of("Asia/Ho_Chi_Minh");
 
 	@Override
 	public void before() throws Exception {
@@ -233,10 +237,89 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 
 	}
 
+	@Test
+	public void testAdd_EventOccurrence() {
+		VEventSeries event = defaultVEvent();
+		event.main.rrule = new RRule();
+		event.main.rrule.frequency = Frequency.DAILY;
+		event.main.rrule.interval = 1;
+		sanitizer.create(event);
+
+		assertNull(event.main.conference);
+		assertEquals(defaultVEvent().main.description, event.main.description);
+
+		VEventSeries updated = event.copy();
+		VEventOccurrence occurence = VEventOccurrence.fromEvent(event.main,
+				BmDateTimeHelper.time(ZonedDateTime.of(2042, 2, 13, 1, 0, 0, 0, tz)));
+		occurence.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2042, 2, 13, 12, 0, 0, 0, tz));
+		occurence.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2042, 2, 13, 13, 0, 0, 0, tz));
+		VEvent.Attendee videoconf = VEvent.Attendee.create(VEvent.CUType.Resource, "", VEvent.Role.OptionalParticipant,
+				VEvent.ParticipationStatus.Accepted, true, "", "", "", "osef",
+				"bm://" + domainUid + "/resources/" + videoconfProviderId, null, null,
+				"videoconferencing@" + domainUid);
+		occurence.attendees.add(videoconf);
+		updated.occurrences = new ArrayList<VEventOccurrence>();
+		updated.occurrences.add(occurence);
+
+		sanitizer.update(event, updated);
+		assertNull(updated.main.conference);
+		assertNull(updated.main.conferenceId);
+		assertEquals(event.main.description, updated.main.description);
+
+		// occurrence
+		assertEquals(1, updated.occurrences.size());
+		VEventOccurrence occ = updated.occurrences.get(0);
+		assertNotNull(occ.conference);
+		assertNotNull(occ.conferenceId);
+		assertEquals(
+				"Lorem ipsum blah blah<videoconferencingtemplate id=\"" + videoconfProviderId
+						+ "\"><br><div>~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~</div>voilà <a href=\"" + occ.conference
+						+ "\" target=\"_blank\">" + occ.conference
+						+ "</a> yay<div>~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~</div><br></videoconferencingtemplate>",
+				occ.description);
+	}
+
+	@Test
+	public void testUpdateVideoConfRemoveResource_EventOccurrence() {
+		VEventSeries event = defaultVEvent();
+		event.main.rrule = new RRule();
+		event.main.rrule.frequency = Frequency.DAILY;
+		event.main.rrule.interval = 1;
+		sanitizer.create(event);
+
+		assertNull(event.main.conference);
+		assertEquals(defaultVEvent().main.description, event.main.description);
+
+		VEventSeries updated = event.copy();
+		VEventOccurrence occurence = VEventOccurrence.fromEvent(event.main,
+				BmDateTimeHelper.time(ZonedDateTime.of(2042, 2, 13, 1, 0, 0, 0, tz)));
+		occurence.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2042, 2, 13, 12, 0, 0, 0, tz));
+		occurence.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2042, 2, 13, 13, 0, 0, 0, tz));
+		VEvent.Attendee videoconf = VEvent.Attendee.create(VEvent.CUType.Resource, "", VEvent.Role.OptionalParticipant,
+				VEvent.ParticipationStatus.Accepted, true, "", "", "", "osef",
+				"bm://" + domainUid + "/resources/" + videoconfProviderId, null, null,
+				"videoconferencing@" + domainUid);
+		occurence.attendees.add(videoconf);
+		updated.occurrences = new ArrayList<VEventOccurrence>();
+		updated.occurrences.add(occurence);
+
+		sanitizer.update(event, updated);
+
+		VEventSeries updatedNoVideoconference = updated.copy();
+
+		VEventOccurrence occ = updatedNoVideoconference.occurrences.get(0);
+		occ.attendees = defaultVEvent().main.attendees;
+
+		sanitizer.update(updated, updatedNoVideoconference);
+
+		assertNull(updatedNoVideoconference.main.conference);
+		assertNull(updatedNoVideoconference.main.conferenceId);
+		assertEquals(defaultVEvent().main.description, updatedNoVideoconference.main.description);
+	}
+
 	protected VEventSeries defaultVEvent() {
 		VEventSeries series = new VEventSeries();
 		VEvent event = new VEvent();
-		ZoneId tz = ZoneId.of("Asia/Ho_Chi_Minh");
 		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2032, 2, 13, 1, 0, 0, 0, tz));
 		event.summary = "VideoConferencingServiceTests " + System.currentTimeMillis();
 		event.description = "Lorem ipsum blah blah";

@@ -1863,7 +1863,17 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencing_ = f
     this.getModel().attendees.push(attendee);
     this.getModel().states.meeting = this.getModel().attendees.length > 1;
     var vseries = adaptor.fromVEventModelView(this.getModel());
-    this.ctx.service('videoConferencing').add(vseries.value['main']).then(function(res) {
+    var occ = null;
+    if (vseries.value['main']) {
+      occ = vseries.value['main'];
+    } else {
+      occ = vseries.value['occurrences'][0];
+    }    
+    this.ctx.service('videoConferencing').add(occ).then(function(res) {
+      if (res['conferenceId'] == null) {
+        this.showConferenceError_();
+        return;
+      }
       this.getModel().conference = res['conference'];
       this.getModel().conferenceId = res['conferenceId'];
       var desc = res.description.trim();
@@ -1874,16 +1884,18 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencing_ = f
       this.editor_.setValue(this.getModel().description);
       this.showConferenceData_();
     }, function(e) {
-    console.error(e);
-    /** @meaning calendar.form.error.videoconferencing */
-    var MSG_VIDEOCONF_ERR = goog.getMsg('Failed to fetch video conference infos');
-    this.addError_('details', this.getDomHelper().getElement('bm-ui-form-videoconferencing-input-label'),
-      MSG_VIDEOCONF_ERR);
-    this.showConferenceForm_();
+      console.error(e);
+      this.showConferenceError_();
     }, this);
   } else if (mode == "remove") {
     var vseries = adaptor.fromVEventModelView(this.getModel());
-    this.ctx.service('videoConferencing').remove(vseries.value['main']).then(function(res) {
+    var occ = null;
+    if (vseries.value['main']) {
+      occ = vseries.value['main'];
+    } else {
+      occ = vseries.value['occurrences'][0];
+    }
+    this.ctx.service('videoConferencing').remove(occ).then(function(res) {
       this.getModel().conference = null;
       this.getModel().conferenceId = null;
       this.getModel().conferenceDescription = '';
@@ -1909,6 +1921,14 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencing_ = f
       this.showConferenceForm_();
     }, null, this);
   }
+};
+
+net.bluemind.calendar.vevent.ui.Form.prototype.showConferenceError_ = function() {
+  /** @meaning calendar.form.error.videoconferencing */
+  var MSG_VIDEOCONF_ERR = goog.getMsg('Failed to fetch video conference infos');
+  this.addError_('details', this.getDomHelper().getElement('bm-ui-form-videoconferencing-input-label'),
+    MSG_VIDEOCONF_ERR);
+  this.showConferenceForm_();
 };
 
 net.bluemind.calendar.vevent.ui.Form.prototype.showConferenceForm_ = function() {
