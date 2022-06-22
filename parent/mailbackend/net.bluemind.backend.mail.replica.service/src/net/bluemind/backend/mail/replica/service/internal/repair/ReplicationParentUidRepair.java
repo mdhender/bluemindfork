@@ -19,20 +19,34 @@ package net.bluemind.backend.mail.replica.service.internal.repair;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
 
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.backend.mail.replica.api.MailApiAnnotations;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.ItemValue;
@@ -49,6 +63,7 @@ import net.bluemind.imap.ListInfo;
 import net.bluemind.imap.ListResult;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.index.mail.Sudo;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.server.api.IServer;
@@ -91,7 +106,7 @@ public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
 		}
 	}
 
-	private static abstract class MailboxWalk {
+	private abstract static class MailboxWalk {
 		protected final ItemValue<Mailbox> mbox;
 		protected final String domainUid;
 		protected final BmContext context;
@@ -127,7 +142,7 @@ public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
 			try (Sudo sudo = new Sudo(mbox.value.name, domainUid);
 					StoreClient sc = new StoreClient(srv.address(), 1143, login, sudo.context.getSessionId())) {
 				if (!sc.login()) {
-					logger.error("Fail to connect", mbox.value.name);
+					logger.error("[{}] Fail to connect", mbox.value.name);
 					return;
 				}
 				ListResult allFolders = sc.listAll();
@@ -199,10 +214,17 @@ public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
 			fl.add(Flag.DELETED);
 			fl.add(Flag.SEEN);
 
+			AtomicBoolean repaired = new AtomicBoolean(false);
+			Stopwatch chrono = Stopwatch.createStarted();
 			moonWalk.folders((sc, allFolders) -> {
+				Map<String, CompletableFuture<Void>> replAck = new ConcurrentHashMap<>();
+				monitor.begin(allFolders.size(),
+						"[" + entry.email + "] Dealing with " + allFolders.size() + " folders");
+				MessageConsumer<String> cons = VertxPlatform.eventBus()
+						.consumer(MailApiAnnotations.MSG_ANNOTATION_BUS_TOPIC);
 				for (ListInfo f : allFolders) {
 					String fn = f.getName();
-
+					monitor.progress(1, "");
 					if (!f.isSelectable() || fn.startsWith("Dossiers partagés/")
 							|| fn.startsWith("Autres utilisateurs/")) {
 						continue;
@@ -212,9 +234,46 @@ public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
 					} catch (IMAPException e) {
 						logger.info("Fail to select {} on mailbox {}", fn, mbox.value.name);
 					}
-					sc.append(fn, new ByteArrayInputStream(eml), fl,
+					int addedUid = sc.append(fn, new ByteArrayInputStream(eml), fl,
 							new GregorianCalendar(1970, Calendar.JANUARY, 1).getTime());
+					String metaValue = new JsonObject().put("repl", UUID.randomUUID().toString()).encode();
+					String tokenEnc = Base64.getUrlEncoder().encodeToString(metaValue.getBytes());
+					replAck.put(tokenEnc, new CompletableFuture<>());
+					cons.handler((Message<String> event) -> {
+						String token = event.body();
+						Optional.ofNullable(replAck.get(token)).ifPresent(p -> p.complete(null));
+					});
+					sc.setMessageAnnotation(addedUid, MailApiAnnotations.MSG_META, metaValue);
 					sc.expunge();
+				}
+
+				CompletableFuture<?>[] allRepairs = replAck.values().stream().toArray(CompletableFuture[]::new);
+				if (Boolean.getBoolean("core.repair.sync")) {
+					try {
+						CompletableFuture.allOf(allRepairs)
+								.thenRun(() -> monitor.log(
+										"[{}] repair completed at {} in {}ms & cyrus replication went well.",
+										entry.email, new Date(), chrono.elapsed(TimeUnit.MILLISECONDS)))
+								.get(5L * allFolders.size(), TimeUnit.SECONDS);
+						repaired.set(true);
+					} catch (InterruptedException e) {
+						monitor.log("replication.parentUid repair failed to get all replication feedback", e);
+						repaired.set(false);
+						Thread.currentThread().interrupt();
+					} catch (Exception e) {
+						monitor.log("replication.parentUid repair failed to get all replication feedback", e);
+						repaired.set(false);
+					}
+				} else {
+					repaired.set(true);
+				}
+
+				cons.unregister();
+
+				if (repaired.get()) {
+					monitor.end(true, "replication.parentUid", "200");
+				} else {
+					monitor.end(false, "replication.parentUid", "500");
 				}
 			});
 

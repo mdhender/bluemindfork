@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -87,6 +88,7 @@ import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifacts;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.backend.mail.replica.api.MailApiAnnotations;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.backend.mail.replica.api.MailboxAnnotation;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
@@ -1012,13 +1014,17 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		assertFalse(sub.isPresent());
 	}
 
+	private String encodeJson(JsonObject js) {
+		return Base64.getUrlEncoder().encodeToString(js.encode().getBytes());
+	}
+
 	@Test
 	public void annotateFolder() throws IMAPException, InterruptedException {
 		IServiceProvider clientProv = provider();
 
 		imapAsUser(sc -> {
-			sc.setMailboxAnnotation("INBOX", "/vendor/blue-mind/replication/id",
-					ImmutableMap.of("value.priv", Long.toString(42)));
+			sc.setMailboxAnnotation("INBOX", MailApiAnnotations.FOLDER_META,
+					ImmutableMap.of("value.priv", encodeJson(new JsonObject().put("john", "wick"))));
 			return null;
 		});
 
@@ -1026,11 +1032,16 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
 		ICyrusReplicationAnnotations cyrusAnnotationsApi = clientProv.instance(ICyrusReplicationAnnotations.class);
 		List<MailboxAnnotation> annotated = cyrusAnnotationsApi.annotations(domainUid + "!" + mboxRoot);
+		System.err.println("annots: " + annotated);
 		assertFalse(annotated.isEmpty());
+		JsonObject fetchedJs = annotated.stream().filter(ma -> ma.entry.equals(MailApiAnnotations.FOLDER_META))
+				.findFirst().map(ma -> new JsonObject(Buffer.buffer(Base64.getUrlDecoder().decode(ma.value))))
+				.orElseThrow(() -> new IMAPException("missing folder/meta"));
+		assertEquals("wick", fetchedJs.getString("john"));
 
 		imapAsUser(sc -> {
-			sc.setMailboxAnnotation("INBOX", "/vendor/blue-mind/replication/id",
-					ImmutableMap.of("value.priv", Long.toString(43)));
+			sc.setMailboxAnnotation("INBOX", MailApiAnnotations.FOLDER_META,
+					ImmutableMap.of("value.priv", encodeJson(new JsonObject().put("john", "doe"))));
 			return null;
 		});
 
@@ -1040,11 +1051,10 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
 	@Test
 	public void annotateMessage() throws IMAPException, InterruptedException {
-		IServiceProvider clientProv = provider();
 
 		boolean res = imapAsUser(sc -> {
 			sc.select("INBOX");
-			return sc.setMessageAnnotation(knownInboxUid, "/vendor/blue-mind/mapi/json",
+			return sc.setMessageAnnotation(knownInboxUid, MailApiAnnotations.MSG_META,
 					new JsonObject().put("fille", "bédouin").encode());
 		});
 		assertTrue(res);

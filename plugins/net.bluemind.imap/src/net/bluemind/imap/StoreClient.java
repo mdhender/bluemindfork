@@ -392,6 +392,12 @@ public class StoreClient implements AutoCloseable {
 		return cs.setAnnotation(mailbox, annotationId, keyValues);
 	}
 
+	/**
+	 * @param uid
+	 * @param annotationId
+	 * @param value        the value will encoded to base64
+	 * @return
+	 */
 	public boolean setMessageAnnotation(int uid, String annotationId, String value) {
 		return cs.setMessageAnnotation(uid, annotationId, value);
 	}

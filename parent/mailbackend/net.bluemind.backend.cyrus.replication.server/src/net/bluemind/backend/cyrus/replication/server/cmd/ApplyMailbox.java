@@ -37,8 +37,10 @@ import net.bluemind.backend.cyrus.replication.server.state.MailboxFolder;
 import net.bluemind.backend.cyrus.replication.server.state.MboxRecord;
 import net.bluemind.backend.cyrus.replication.server.state.MboxRecord.MessageRecordBuilder;
 import net.bluemind.backend.cyrus.replication.server.state.ReplicationState;
+import net.bluemind.backend.mail.replica.api.MailApiAnnotations;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecordAnnotation;
+import net.bluemind.lib.vertx.VertxPlatform;
 
 /**
  * APPLY MAILBOX %(UNIQUEID 002647c6582c5f46 MBOXNAME ex2016.vmw!user.nico
@@ -108,6 +110,9 @@ public class ApplyMailbox implements IAsyncReplicationCommand {
 					builder.annotations(JsUtils.asList(mailRecord.getJsonArray("ANNOTATIONS"), (JsonObject obj) -> {
 						MailboxRecordAnnotation mra = MailboxRecordAnnotation.of(obj);
 						mra.value = Token.atomOrValue(mra.value);
+						if (MailApiAnnotations.MSG_META.equals(mra.entry)) {
+							VertxPlatform.eventBus().publish(MailApiAnnotations.MSG_ANNOTATION_BUS_TOPIC, mra.value);
+						}
 						return mra;
 					}));
 				}
