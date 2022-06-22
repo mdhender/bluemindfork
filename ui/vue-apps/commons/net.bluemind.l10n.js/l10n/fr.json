@@ -198,7 +198,9 @@
     "common.redo": "Rétablir",
     "common.undo": "Annuler",
     "common": {
-        "open_in_window": "Ouvrir dans une nouvelle fenêtre"
+        "open_in_window": "Ouvrir dans une nouvelle fenêtre",
+        "open_in_window_with_shift": "Appuyez sur Maj pour ouvrir dans une nouvelle fenêtre",
+        "open_action_in_window_with_shift": "{action} (@:common.open_in_window_with_shift)"
     },
     "styleguide": {
         "alert": {

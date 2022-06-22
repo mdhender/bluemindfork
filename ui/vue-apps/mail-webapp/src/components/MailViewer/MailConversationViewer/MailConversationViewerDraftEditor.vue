@@ -34,16 +34,17 @@
                         {{ $t("common.bcc") }}
                     </bm-button>
                 </template>
-                <bm-button
-                    variant="simple-neutral"
-                    :aria-label="$t('mail.actions.extend')"
-                    :title="$t('mail.actions.extend')"
-                    :disabled="anyAttachmentInError"
-                    @click="openExtendedEditing"
-                >
-                    <bm-icon icon="extend" size="lg" />
-                    <span class="d-lg-none">{{ $t("mail.actions.extend") }}</span>
-                </bm-button>
+                <mail-open-in-popup-with-shift v-slot="action" :href="route">
+                    <bm-button
+                        variant="simple-neutral"
+                        :title="action.label($t('mail.actions.extend'))"
+                        :disabled="anyAttachmentInError"
+                        @click="action.execute(openExtendedEditing)"
+                    >
+                        <bm-icon :icon="action.icon('extend')" size="lg" />
+                        <span class="d-lg-none">{{ $t("mail.actions.extend") }}</span>
+                    </bm-button>
+                </mail-open-in-popup-with-shift>
             </div>
         </template>
 
@@ -143,6 +144,8 @@ import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import MailConversationViewerFieldSep from "./MailConversationViewerFieldSep";
 import MailConversationViewerVerticalLine from "./MailConversationViewerVerticalLine";
 import { REMOVE_MESSAGES } from "~/mutations";
+import MessagePathParam from "~/router/MessagePathParam";
+import MailOpenInPopupWithShift from "../../MailOpenInPopupWithShift";
 
 const { MessageStatus } = message;
 
@@ -158,7 +161,8 @@ export default {
         MailComposerSender,
         MailConversationViewerItem,
         MailConversationViewerFieldSep,
-        MailConversationViewerVerticalLine
+        MailConversationViewerVerticalLine,
+        MailOpenInPopupWithShift
     },
     mixins: [
         AddAttachmentsCommand,
@@ -169,7 +173,13 @@ export default {
         MailConversationViewerItemMixin
     ],
     computed: {
-        ...mapState("mail", ["folders"])
+        ...mapState("mail", ["folders"]),
+        route() {
+            return this.$router.relative({
+                name: "mail:message",
+                params: { messagepath: MessagePathParam.build("", this.message) }
+            });
+        }
     },
     mounted() {
         this.$nextTick(() => this.$el.scrollIntoView());
@@ -184,10 +194,7 @@ export default {
         ...mapMutations("mail", { REMOVE_MESSAGES }),
         async openExtendedEditing() {
             await this.saveAsap();
-            this.$router.navigate({
-                name: "v:mail:message",
-                params: { message: this.message, folder: this.folders[this.conversation.folderRef.key].path }
-            });
+            this.$router.navigate(this.route);
         }
     }
 };

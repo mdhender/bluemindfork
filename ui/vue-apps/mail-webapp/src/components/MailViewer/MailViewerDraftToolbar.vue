@@ -3,18 +3,18 @@
         key-nav
         class="mail-viewer-draft-toolbar float-right mail-viewer-mobile-actions bg-surface position-sticky"
     >
+        <mail-open-in-popup-with-shift v-slot="action" :href="route">
+            <bm-button
+                variant="simple-secondary"
+                :title="action.label($t('mail.actions.edit'))"
+                @click="action.execute(openEditor)"
+            >
+                <bm-icon :icon="action.icon('pencil')" size="lg" />
+                <span class="d-lg-none">{{ $t("mail.actions.edit") }}</span>
+            </bm-button>
+        </mail-open-in-popup-with-shift>
         <bm-button
             variant="simple-secondary"
-            :aria-label="$t('mail.actions.edit')"
-            :title="$t('mail.actions.edit')"
-            @click="openEditor()"
-        >
-            <bm-icon icon="pencil" size="lg" />
-            <span class="d-lg-none">{{ $t("mail.actions.edit") }}</span>
-        </bm-button>
-        <bm-button
-            variant="simple-secondary"
-            :aria-label="$t('mail.actions.remove')"
             :title="$t('mail.actions.remove')"
             @click="REMOVE_DRAFT(conversation, message)"
         >
@@ -28,10 +28,12 @@
 import { BmButton, BmButtonToolbar, BmIcon } from "@bluemind/styleguide";
 import { DraftMixin, ComposerInitMixin, RemoveMixin } from "~/mixins";
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
+import MessagePathParam from "~/router/MessagePathParam";
+import MailOpenInPopupWithShift from "../MailOpenInPopupWithShift";
 
 export default {
     name: "MailViewerDraftToolbar",
-    components: { BmButton, BmButtonToolbar, BmIcon },
+    components: { BmButton, BmButtonToolbar, BmIcon, MailOpenInPopupWithShift },
     mixins: [DraftMixin, ComposerInitMixin, RemoveMixin],
     props: {
         conversation: {
@@ -41,6 +43,14 @@ export default {
         message: {
             type: Object,
             required: true
+        }
+    },
+    computed: {
+        route() {
+            return this.$router.relative({
+                name: "mail:message",
+                params: { messagepath: MessagePathParam.build("", this.message) }
+            });
         }
     },
     methods: {

@@ -1,6 +1,6 @@
 <script>
 export default {
-    name: "MailOpenInPopupAction",
+    name: "MailOpenInPopup",
     props: {
         width: {
             type: Number,
@@ -23,9 +23,15 @@ export default {
             default: undefined
         }
     },
+    computed: {
+        enabled() {
+            return !this.$store.state.mail.isPopup;
+        }
+    },
     methods: {
         open() {
-            const route = this.$router.resolve(this.href);
+            let route = { ...this.href, name: this.href.name.replace(/^mail(:popup)?/, "mail:popup") };
+            route = this.$router.resolve(route);
             const popup = window.open(route.href, this.name, getWindowFeature(this.height, this.width));
             popup.focus();
             if (this.next) {
@@ -34,11 +40,12 @@ export default {
         }
     },
     render() {
-        if (!this.$store.state.mail.isPopup) {
+        if (this.enabled) {
             return this.$scopedSlots.default({
                 execute: this.open,
                 icon: "popup",
-                label: this.$t("common.open_in_window")
+                label: this.$t("common.open_in_window"),
+                enabled: this.enabled
             });
         }
         return null;

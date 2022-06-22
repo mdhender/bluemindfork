@@ -198,7 +198,9 @@
     "common.redo": "Wiederholen",
     "common.undo": "Rückgängig",
     "common": {
-        "open_in_window": "In einem neuen Fenster öffnen"
+        "open_in_window": "In einem neuen Fenster öffnen",
+        "open_in_window_with_shift": "Shift drücken, um in einem neuen Fenster zu öffnen",
+        "open_action_in_window_with_shift": "{action} (@:common.open_in_window_with_shift)"
     },
     "styleguide": {
         "alert": {

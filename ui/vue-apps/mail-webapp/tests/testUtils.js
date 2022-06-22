@@ -1,5 +1,6 @@
 import merge from "lodash.merge";
 import Vuex from "vuex";
+import VueRouter from "vue-router";
 import { createLocalVue, mount } from "@vue/test-utils";
 
 import AlertStore from "@bluemind/alert.store";
@@ -12,6 +13,9 @@ const { LoadingStatus } = loadingStatus;
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
+VueRouter.prototype.relative = function () {};
+VueRouter.prototype.navigate = function () {};
+localVue.use(VueRouter);
 
 const folderUid = "folder:uid";
 export const conversationKey = generateKey(1, folderUid);
@@ -93,6 +97,14 @@ export function createStore() {
         mailboxRef: { key: "MY_MAILBOX" },
         writable: true
     });
+    store.commit("mail/ADD_FOLDER", {
+        key: "drf",
+        imapName: "Drafts",
+        path: "Drafts",
+        default: true,
+        mailboxRef: { key: "MY_MAILBOX" },
+        writable: true
+    });
     const conversations = [
         {
             key: conversationKey,
@@ -105,7 +117,12 @@ export function createStore() {
         }
     ];
     const messages = [
-        { key: messageKey, folderRef: { key: folderUid, uid: folderUid }, conversationRef: { key: conversationKey } }
+        {
+            key: messageKey,
+            folderRef: { key: folderUid, uid: folderUid },
+            conversationRef: { key: conversationKey },
+            remoteRef: { internalId: 17 }
+        }
     ];
     store.commit("mail/ADD_CONVERSATIONS", { conversations });
     store.commit("mail/ADD_MESSAGES", { messages });
@@ -120,6 +137,7 @@ export function createWrapper(component, overrides, propsData = {}) {
     const defaultMountingOptions = {
         localVue,
         store: createStore(),
+        router: new VueRouter(),
         propsData: propsData,
         mocks: {
             $t: () => {},

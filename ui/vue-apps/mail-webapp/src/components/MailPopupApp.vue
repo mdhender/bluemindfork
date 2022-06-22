@@ -1,11 +1,12 @@
 <template>
-    <main class="flex-fill mail-popup-app"><router-view class="flex-fill" /></main>
+    <main class="flex-fill mail-popup-app overflow-auto"><router-view class="flex-fill" /></main>
 </template>
 <script>
 import { mapGetters } from "vuex";
 import { ACTIVE_MESSAGE } from "~/getters";
-import { IS_POPUP } from "~/mutations"
+import { IS_POPUP } from "~/mutations";
 import MailAppMixin from "./MailApp/MailAppMixin";
+
 export default {
     name: "MailPopupApp",
     mixins: [MailAppMixin],

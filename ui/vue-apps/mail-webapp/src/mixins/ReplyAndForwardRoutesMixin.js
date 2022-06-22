@@ -15,32 +15,39 @@ export default {
         })
     },
     methods: {
-        async reply(conversation, message) {
-            if (this.$_ReplyAndForwardRoutesMixin_CONVERSATIONS_ACTIVATED) {
-                await this.saveAndCloseOpenDrafts(conversation);
-            }
-            this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.REPLY, message);
+        reply(conversation, message) {
+            this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.REPLY, conversation, message);
         },
-        async replyAll(conversation, message) {
-            if (this.$_ReplyAndForwardRoutesMixin_CONVERSATIONS_ACTIVATED) {
-                await this.saveAndCloseOpenDrafts(conversation);
-            }
-            this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.REPLY_ALL, message);
+        replyAll(conversation, message) {
+            this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.REPLY_ALL, conversation, message);
         },
         forward(message) {
-            this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.FORWARD, message);
+            this.$router.push(this.$_ReplyAndForwardRoutesMixin_route(MessageCreationModes.FORWARD, message));
         },
-        $_ReplyAndForwardRoutesMixin_goTo(action, related) {
-            if (this.$_ReplyAndForwardRoutesMixin_CONVERSATIONS_ACTIVATED && action !== MessageCreationModes.FORWARD) {
+        replyRoute(message) {
+            return this.$_ReplyAndForwardRoutesMixin_route(MessageCreationModes.REPLY, message);
+        },
+        replyAllRoute(message) {
+            return this.$_ReplyAndForwardRoutesMixin_route(MessageCreationModes.REPLY_ALL, message);
+        },
+        forwardRoute(message) {
+            return this.$_ReplyAndForwardRoutesMixin_route(MessageCreationModes.FORWARD, message);
+        },
+        async $_ReplyAndForwardRoutesMixin_goTo(action, conversation, related) {
+            if (this.$_ReplyAndForwardRoutesMixin_CONVERSATIONS_ACTIVATED) {
+                await this.saveAndCloseOpenDrafts(conversation);
                 this.initRelatedMessage(action, {
                     internalId: related.remoteRef.internalId,
                     folderKey: related.folderRef.key
                 });
             } else {
-                const messagepath = this.draftPath(this.MY_DRAFTS);
-                const query = { action, message: MessagePathParam.build("", related) };
-                this.$router.navigate({ name: "mail:message", params: { messagepath }, query });
+                this.$router.push(this.$_ReplyAndForwardRoutesMixin_route(action, related));
             }
+        },
+        $_ReplyAndForwardRoutesMixin_route(action, message) {
+            const messagepath = this.draftPath(this.MY_DRAFTS);
+            const query = { action, message: MessagePathParam.build("", message) };
+            return this.$router.relative({ name: "mail:message", params: { messagepath }, query });
         }
     }
 };

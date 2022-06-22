@@ -2,7 +2,7 @@
     <bm-form class="mail-composer m-lg-3 flex-grow-1 d-flex flex-column bg-surface">
         <h3 class="d-none d-lg-flex card-header px-2 py-1 align-items-center">
             <span class="text-nowrap text-truncate">{{ panelTitle }}</span>
-            <mail-open-in-popup-action
+            <mail-open-in-popup
                 v-slot="action"
                 :href="{ name: 'mail:popup:message', params: { messagepath } }"
                 :next="$router.relative('mail:home')"
@@ -15,7 +15,7 @@
                 >
                     <bm-icon :icon="action.icon" />
                 </bm-button>
-            </mail-open-in-popup-action>
+            </mail-open-in-popup>
         </h3>
         <mail-composer-sender
             v-if="isSenderShown"
@@ -68,7 +68,7 @@ import MailComposerRecipients from "./MailComposerRecipients";
 import MailComposerFooter from "./MailComposerFooter";
 import MailComposerSender from "./MailComposerSender";
 import TemplateChooser from "~/components/TemplateChooser";
-import MailOpenInPopupAction from "../MailOpenInPopupAction";
+import MailOpenInPopup from "../MailOpenInPopup";
 
 export default {
     name: "MailComposer",
@@ -82,7 +82,7 @@ export default {
         MailComposerContent,
         MailComposerSender,
         MailComposerRecipients,
-        MailOpenInPopupAction,
+        MailOpenInPopup,
         TemplateChooser
     },
     mixins: [AddAttachmentsCommand, ComposerActionsMixin, ComposerMixin],

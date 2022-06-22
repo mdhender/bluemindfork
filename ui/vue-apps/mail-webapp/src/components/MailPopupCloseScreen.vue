@@ -19,17 +19,19 @@ export default {
                 } else {
                     this.cancelClose();
                 }
-            },
-            immediate: true
+            }
         }
+    },
+    created() {
+        this.close(2500);
     },
     destroyed() {
         this.cancelClose();
     },
     methods: {
-        close() {
+        close(timer = 1000) {
             if (!this.closer) {
-                setTimeout(() => window.close(), 1000);
+                setTimeout(() => window.close(), timer);
             }
         },
         cancelClose() {

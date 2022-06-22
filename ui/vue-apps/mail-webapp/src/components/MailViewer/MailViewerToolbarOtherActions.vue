@@ -39,20 +39,22 @@
             <bm-dropdown-item @click.stop.exact="REMOVE_MESSAGES(conversation, message)">
                 {{ $t("mail.actions.purge") }}
             </bm-dropdown-item>
-            <bm-dropdown-item icon="pencil" @click="editAsNew()">
-                {{ $t("mail.actions.edit_as_new") }}
-            </bm-dropdown-item>
+            <mail-open-in-popup-with-shift v-slot="action" :href="editAsNew">
+                <bm-dropdown-item :icon="action.icon('pencil')" @click="action.execute(() => $router.push(editAsNew))">
+                    {{ $t("mail.actions.edit_as_new") }}
+                </bm-dropdown-item>
+            </mail-open-in-popup-with-shift>
             <bm-dropdown-item icon="printer" @click.stop="printContent()">
                 {{ $t("common.print") }}
             </bm-dropdown-item>
-            <mail-open-in-popup-action
+            <mail-open-in-popup
                 v-slot="action"
                 :href="$router.relative({ name: 'mail:popup:message', params: { messagepath } })"
             >
                 <bm-dropdown-item :icon="action.icon" @click.stop="action.execute()">
                     {{ action.label }}
                 </bm-dropdown-item>
-            </mail-open-in-popup-action>
+            </mail-open-in-popup>
         </bm-dropdown>
         <choose-folder-modal
             ref="move-modal"
@@ -83,7 +85,8 @@ import { MAILBOXES, MY_DRAFTS, MY_TRASH, MY_INBOX } from "~/getters";
 import MessagePathParam from "~/router/MessagePathParam";
 import ChooseFolderModal from "../ChooseFolderModal";
 import MailMessagePrint from "./MailMessagePrint";
-import MailOpenInPopupAction from "../MailOpenInPopupAction";
+import MailOpenInPopup from "../MailOpenInPopup";
+import MailOpenInPopupWithShift from "../MailOpenInPopupWithShift";
 
 const { MessageCreationModes } = message;
 const { isRoot, getInvalidCharacter } = folder;
@@ -95,8 +98,8 @@ export default {
         BmDropdownItem,
         BmIcon,
         ChooseFolderModal,
-
-        MailOpenInPopupAction,
+        MailOpenInPopup,
+        MailOpenInPopupWithShift,
         // eslint-disable-next-line vue/no-unused-components
         MailMessagePrint
     },
@@ -118,6 +121,13 @@ export default {
         ...mapGetters("mail", { MAILBOXES, MY_DRAFTS, MY_TRASH, MY_INBOX }),
         messagepath() {
             return MessagePathParam.build("", this.message);
+        },
+        editAsNew() {
+            return this.$router.relative({
+                name: "mail:message",
+                params: { messagepath: this.draftPath(this.MY_DRAFTS) },
+                query: { action: MessageCreationModes.EDIT_AS_NEW, message: this.messagepath }
+            });
         }
     },
     methods: {
@@ -138,13 +148,6 @@ export default {
                 conversation: this.conversation,
                 message: this.message,
                 folder: selectedFolder
-            });
-        },
-        editAsNew() {
-            this.$router.navigate({
-                name: "mail:message",
-                params: { messagepath: this.draftPath(this.MY_DRAFTS) },
-                query: { action: MessageCreationModes.EDIT_AS_NEW, message: this.messagepath }
             });
         },
         isFolderExcluded(folder) {

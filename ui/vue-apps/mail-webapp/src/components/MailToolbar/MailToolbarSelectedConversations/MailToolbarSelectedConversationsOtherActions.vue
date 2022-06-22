@@ -12,9 +12,11 @@
             <bm-icon icon="3dots" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.toolbar.more") }}</span>
         </template>
-        <bm-dropdown-item v-if="!isTemplate && isSingleMessage" icon="pencil" @click="editAsNew()">
-            {{ $t("mail.actions.edit_as_new") }}
-        </bm-dropdown-item>
+        <mail-open-in-popup-with-shift v-if="!isTemplate && isSingleMessage" v-slot="action" :href="editAsNew">
+            <bm-dropdown-item :icon="action.icon('pencil')" @click="action.execute(() => $router.push(editAsNew))">
+                {{ $t("mail.actions.edit_as_new") }}
+            </bm-dropdown-item>
+        </mail-open-in-popup-with-shift>
         <bm-dropdown-item v-if="isTemplate" icon="plus-document" @click="modifyTemplate()">
             {{ $t("mail.actions.modify_template") }}
         </bm-dropdown-item>
@@ -32,7 +34,7 @@
         <bm-dropdown-item
             icon="printer"
             :title="$t('mail.actions.print.title', { subject })"
-            :disabled="selectionLength > 1"
+            :disabled="!isSingleMessage"
             @click="printContent()"
         >
             {{ $t("common.print") }}
@@ -52,13 +54,14 @@ import { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES } from "~/getter
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
 import MessagePathParam from "~/router/MessagePathParam";
 import MailMessagePrint from "~/components/MailViewer/MailMessagePrint";
+import MailOpenInPopupWithShift from "~/components/MailOpenInPopupWithShift";
 
 const { MessageCreationModes } = message;
 
 export default {
     name: "MailToolbarSelectedConversationsOtherActions",
     // eslint-disable-next-line vue/no-unused-components
-    components: { BmDropdown, BmDropdownItem, BmIcon, MailMessagePrint },
+    components: { BmDropdown, BmDropdownItem, BmIcon, MailMessagePrint, MailOpenInPopupWithShift },
     mixins: [ActionTextMixin, RemoveMixin, FlagMixin, PrintMixin, SelectionMixin, MailRoutesMixin],
     computed: {
         ...mapGetters("mail", { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES }),
@@ -75,6 +78,17 @@ export default {
             }
             return false;
         },
+        editAsNew() {
+            if (this.isSingleMessage) {
+                const template = this.messages[this.CURRENT_CONVERSATION_METADATA.messages[0]];
+                return this.$router.relative({
+                    name: "mail:message",
+                    params: { messagepath: this.draftPath(this.MY_DRAFTS) },
+                    query: { action: MessageCreationModes.EDIT_AS_NEW, message: MessagePathParam.build("", template) }
+                });
+            }
+            return {};
+        },
         subject() {
             if (this.selectionLength === 1) {
                 return this.CURRENT_CONVERSATION_METADATA.subject;
@@ -88,14 +102,6 @@ export default {
             const index = this.CURRENT_CONVERSATION_METADATA.messages.length - 1;
             const message = this.messages[this.CURRENT_CONVERSATION_METADATA.messages[index]];
             this.print(this.$createElement("mail-message-print", { props: { message } }));
-        },
-        editAsNew() {
-            const template = this.messages[this.CURRENT_CONVERSATION_METADATA.messages[0]];
-            this.$router.navigate({
-                name: "mail:message",
-                params: { messagepath: this.draftPath(this.MY_DRAFTS) },
-                query: { action: MessageCreationModes.EDIT_AS_NEW, message: MessagePathParam.build("", template) }
-            });
         },
         modifyTemplate() {
             const messageKey = this.selected[0].messages[0];
