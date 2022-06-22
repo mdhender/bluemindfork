@@ -68,13 +68,6 @@ class bm_detachment extends filesystem_attachments {
     $url = get_input_value('_url', RCUBE_INPUT_GPC);
     $uploadid = get_input_value('_uploadid', RCUBE_INPUT_GPC);
     $expiration = intval(get_input_value('_expiration', RCUBE_INPUT_GPC));
-    if ($compose_id && $_SESSION['compose_data_'.$compose_id]) {
-      $compose =& $_SESSION['compose_data_'.$compose_id];
-    }
-    if (!$compose) {
-      exit;
-    }
-
     $id = $this->file_id();
     $attachment = array(
       'size' => $size,
@@ -85,7 +78,7 @@ class bm_detachment extends filesystem_attachments {
       'path' => $url,
       'headers' => array(
         'X-Mozilla-Cloud-Part' => "cloudFile; url=$url; name=$path",
-        'X-BlueMind-Disposition' => "filehosting; url=$url; name=$path; size=$size"
+        'X-BM-Disposition' => "filehosting; url=$url; name=$path; size=$size; mime=$mime"
       ),
       'options' => array(
         'disposition' => 'filehosting',
@@ -103,7 +96,6 @@ class bm_detachment extends filesystem_attachments {
       $attachment['options']['expiration'] = $d->format($dateformat); 
     }
 
-    $compose['attachments'][$attachment['id']] = $attachment;
     bm_filehosting::add_to_attachment($attachment);    
   }
 

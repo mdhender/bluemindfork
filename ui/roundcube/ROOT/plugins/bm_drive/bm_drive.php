@@ -57,13 +57,6 @@ class bm_drive extends filesystem_attachments {
     $path = get_input_value('_path', RCUBE_INPUT_GPC);
     $name = get_input_value('_name', RCUBE_INPUT_GPC);
     $uploadid = get_input_value('_uploadid', RCUBE_INPUT_GPC);
-    
-    if ($compose_id && $_SESSION['compose_data_'.$compose_id]) {
-      $compose =& $_SESSION['compose_data_'.$compose_id];
-    }
-    if (!$compose) {
-      exit;
-    }
 
     $data = $this->fileHostingClient->get($path);
      
@@ -77,7 +70,6 @@ class bm_drive extends filesystem_attachments {
     $attachment = parent::save($attachment);
     $attachment['mime'] = rc_mime_content_type($attachment['path'], $name);
 
-    $compose['attachments'][$attachment['id']] = $attachment;
     bm_filehosting::add_to_attachment($attachment);
     
   }
@@ -88,18 +80,11 @@ class bm_drive extends filesystem_attachments {
     $path = get_input_value('_path', RCUBE_INPUT_GPC);
     $name = get_input_value('_name', RCUBE_INPUT_GPC);
     $uploadid = get_input_value('_uploadid', RCUBE_INPUT_GPC);
-    
-    if ($compose_id && $_SESSION['compose_data_'.$compose_id]) {
-      $compose =& $_SESSION['compose_data_'.$compose_id];
-    }
-    if (!$compose) {
-      exit;
-    }
-
     $share = $this->fileHostingClient->share($path, 0, null);
     $expiration = intval($share->expirationDate); 
     $url = $share->url;
     $id = $this->file_id();
+    $mime = rc_mime_content_type(null, $name);
     $attachment = array(
       'size' => $size,
       'name' => $name,
@@ -109,7 +94,7 @@ class bm_drive extends filesystem_attachments {
       'path' => $url,
       'headers' => array(
         'X-Mozilla-Cloud-Part' => "cloudFile; url=$url; name=$name",
-        'X-BlueMind-Disposition' => "filehosting; url=$url; name=$name; size=$size"
+        'X-BM-Disposition' => "filehosting; url=$url; name=$name; size=$size; mime=$mime"
       ),
       'options' => array(
         'disposition' => 'filehosting',
@@ -126,9 +111,6 @@ class bm_drive extends filesystem_attachments {
       $d->setTimestamp($expiration/1000);
       $attachment['options']['expiration'] = $d->format($dateformat); 
     }
-
-
-    $compose['attachments'][$attachment['id']] = $attachment;
     bm_filehosting::add_to_attachment($attachment);
     
   }

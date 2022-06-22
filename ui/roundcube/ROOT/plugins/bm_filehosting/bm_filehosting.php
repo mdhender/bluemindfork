@@ -109,12 +109,12 @@ class bm_filehosting extends filesystem_attachments {
       if (!isset($args['headers']['X-Mozilla-Cloud-Part'])) {
         $args['headers']['X-Mozilla-Cloud-Part'] = "cloudFile; url=$url'; name=$$args[name]";
       }
-      if (!isset($args['headers']['X-BlueMind-Disposition'])) {
-        $args['headers']['X-BlueMind-Disposition'] = "filehosting; url=$url; name=$args[name]";
+      if (!isset($args['headers']['X-BM-Disposition']) || !isset($args['headers']['X-BlueMind-Disposition'])) {
+        $args['headers']['X-BM-Disposition'] = "filehosting; url=$url; name=$args[name]";
         if (isset($args['size']) && $args['size'] > 0) {
-          $args['headers']['X-BlueMind-Disposition'] .= "; size=$args[size]";
+          $args['headers']['X-BM-Disposition'] .= "; size=$args[size]";
         } elseif ($size = @filesize($args['url'])) {
-          $args['headers']['X-BlueMind-Disposition'] .= "; size=$size";
+          $args['headers']['X-BM-Disposition'] .= "; size=$size";
         }
       }
       $args['options']['disposition'] = 'filehosting';
@@ -234,7 +234,7 @@ class bm_filehosting extends filesystem_attachments {
     $h = $attachment['headers'];
     $data = array('headers' => $h);
     foreach($attachment['headers'] as $key => $value) {
-      if (strtolower($key) == 'x-bluemind-disposition' || strtolower($key) == 'x-mozilla-cloud-part') {
+      if (strtolower($key) == 'x-bm-disposition' || strtolower($key) == 'x-bluemind-disposition' || strtolower($key) == 'x-mozilla-cloud-part') {
         unset($data['headers'][$key]);
         $pairs = explode(';', $value);
         array_shift($pairs);
@@ -256,8 +256,8 @@ class bm_filehosting extends filesystem_attachments {
 
         }
       }
-      if (strtolower($key) == 'x-bluemind-disposition') {
-        $data['headers']['X-BlueMind-Disposition'] = $value;
+      if (strtolower($key) == 'x-bm-disposition' || strtolower($key) == 'x-bluemind-disposition') {
+        $data['headers']['X-BM-Disposition'] = $value;
       } elseif (strtolower($key) == 'x-mozilla-cloud-part') {
         $data['headers']['X-Mozilla-Cloud-Part'] = $value;
       }
@@ -271,7 +271,7 @@ class bm_filehosting extends filesystem_attachments {
   private function isDetached($attachment) {
     if (is_string($attachment)) {
       $mime = strtolower($attachment);
-      return (strpos($mime, 'x-bluemind-disposition') !== FALSE || strpos($mime, 'x-mozilla-cloud-part') !== FALSE);
+      return (strpos($mime, 'x-bm-disposition') !== FALSE || strpos($mime, 'x-bluemind-disposition') !== FALSE || strpos($mime, 'x-mozilla-cloud-part') !== FALSE);
     } else if (!is_array($attachment)) {
       return false;
     } else if ($attachment['options']['disposition'] == 'filehosting'){
@@ -280,7 +280,7 @@ class bm_filehosting extends filesystem_attachments {
       return true;
     } else if (is_array($attachment['headers'])) {
       foreach($attachment['headers'] as $key => $value) {
-        if (strtolower($key) == 'x-bluemind-disposition' && strtolower(array_shift(explode(';', $value))) == 'filehosting') {
+        if ((strtolower($key) == 'x-bm-disposition' || strtolower($key) == 'x-bluemind-disposition') && strtolower(array_shift(explode(';', $value))) == 'filehosting') {
           return true;
         }
         if (strtolower($key) == 'x-mozilla-cloud-part' && strtolower(array_shift(explode(';', $value))) == 'cloudfile') {
@@ -294,9 +294,21 @@ class bm_filehosting extends filesystem_attachments {
 
 
   /**
-   * Send command to UI to add an attachment
+   * Add an attachment to message composition data,
+   * synchronize session data to prevent concurrency overwrite and
+   * send command to UI to add an attachment
    */ 
   public static function add_to_attachment($attachment) {
+    $compose_id = get_input_value('_id', RCUBE_INPUT_GPC);
+    if ($compose_id && $_SESSION['compose_data_'.$compose_id]) {
+      $compose =& $_SESSION['compose_data_'.$compose_id];
+    }
+    if (!$compose) {
+      exit;
+    }
+    $attachment = rcmail::get_instance()->plugins->exec_hook('attachment_upload', $attachment);
+
+    $compose['attachments'][$attachment['id']] = $attachment;
 
     $id = $attachment['id'];
     $uploadid = 'rcmfile'. $attachment['id'];
@@ -309,7 +321,7 @@ class bm_filehosting extends filesystem_attachments {
     ), '');
 
     $content .= Q($attachment['name']);
-    $output = rcmail::get_instance()->output;;
+    $output = rcmail::get_instance()->output;
     $output->command('add2attachment_list', "rcmfile$id", array(
       'html' => $content,
       'name' => $attachment['name'],
