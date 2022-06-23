@@ -1,6 +1,7 @@
 const AppDataKeys = {
     MAIL_MESSAGE_LIST_WIDTH: "mail:message_list:width",
     MAIL_FOLDERS_EXPANDED: "mail:folders:expanded",
+    MAIL_FOLDER_TREES_COLLAPSED: "mail:folder_trees:collapsed",
     MAIL_COMPOSITION_SHOW_FORMATTING_TOOLBAR: "mail:composition:show_formatting_toolbar"
 };
 

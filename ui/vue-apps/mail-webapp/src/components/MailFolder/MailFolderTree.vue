@@ -4,13 +4,13 @@
             variant="inline-neutral"
             class="collapse-tree-btn d-flex align-items-center pb-2 pt-3 border-0 pl-2 w-100"
             :aria-controls="id"
-            :aria-expanded="isTreeExpanded"
-            @click.stop="isTreeExpanded = !isTreeExpanded"
+            :aria-expanded="expanded"
+            @click.stop="$emit('toggle-tree')"
         >
-            <bm-icon :icon="isTreeExpanded ? 'caret-down' : 'caret-right'" size="sm" class="bm-icon mr-2" />
+            <bm-icon :icon="expanded ? 'caret-down' : 'caret-right'" size="sm" class="bm-icon mr-2" />
             <slot name="title" />
         </bm-button>
-        <bm-collapse :id="id" v-model="isTreeExpanded">
+        <bm-collapse :id="id" :visible="expanded">
             <bm-tree
                 :tree="tree"
                 :selected="activeFolder"
@@ -51,20 +51,18 @@ export default {
             type: Array,
             required: true
         },
+        expanded: {
+            type: Boolean,
+            required: true
+        },
         showInput: {
             type: Boolean,
             default: false
         }
     },
-    data() {
-        return {
-            isTreeExpanded: true
-        };
-    },
     computed: {
         ...mapGetters("mail", { FOLDER_GET_CHILDREN }),
         ...mapState("mail", ["folders", "activeFolder"]),
-
         id() {
             const randomId = Math.floor(Math.random() * 100);
             return `collapse-tree-${randomId}`;

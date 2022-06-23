@@ -8,6 +8,7 @@ export { default as EditRecipientsMixin } from "./EditRecipientsMixin";
 export { default as FilterFolderMixin } from "./FilterFolderMixin";
 export { default as FlagMixin } from "./FlagMixin";
 export { default as FolderMixin } from "./FolderMixin";
+export { default as FolderTreeMixin } from "./FolderTreeMixin";
 export { default as FormattedDateMixin } from "./FormattedDateMixin";
 export { default as MailRoutesMixin } from "./MailRoutesMixin";
 export { default as MoveMixin } from "./MoveMixin";

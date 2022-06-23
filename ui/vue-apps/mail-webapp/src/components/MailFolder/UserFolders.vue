@@ -1,5 +1,10 @@
 <template>
-    <mail-folder-tree v-if="isLoaded" :tree="MAILBOX_ROOT_FOLDERS(mailbox)">
+    <mail-folder-tree
+        v-if="isLoaded"
+        :tree="MAILBOX_ROOT_FOLDERS(mailbox)"
+        :expanded="expanded"
+        @toggle-tree="toggleTree"
+    >
         <template v-slot:title>
             <bm-dropzone :accept="['folder']" :states="{ active: false }" :value="root">
                 <mail-mailbox-icon :mailbox="mailbox" class="mr-1" />
@@ -15,10 +20,11 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
-import { BmDropzone } from "@bluemind/styleguide";
 import { folder, loadingStatus } from "@bluemind/mail";
-import { MAILBOX_ROOT_FOLDERS } from "~/getters";
+import { BmDropzone } from "@bluemind/styleguide";
 import { CREATE_FOLDER } from "~/actions";
+import { MAILBOX_ROOT_FOLDERS } from "~/getters";
+import { FolderTreeMixin } from "~/mixins";
 import MailFolderTree from "./MailFolderTree";
 import FolderListLoading from "./FolderListLoading";
 import MailFolderInput from "../MailFolderInput";
@@ -30,6 +36,7 @@ const { LoadingStatus } = loadingStatus;
 export default {
     name: "UserFolders",
     components: { MailMailboxIcon, MailFolderInput, MailFolderTree, FolderListLoading, BmDropzone },
+    mixins: [FolderTreeMixin],
     props: {
         mailbox: {
             type: Object,
@@ -43,6 +50,9 @@ export default {
         },
         root() {
             return createRoot(this.mailbox);
+        },
+        treeKey() {
+            return this.mailbox.key;
         }
     },
     methods: {
