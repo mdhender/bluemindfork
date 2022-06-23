@@ -1,5 +1,7 @@
 package net.bluemind.index.mail;
 
+import static com.google.common.collect.Maps.immutableEntry;
+
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +13,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -104,6 +107,10 @@ import net.bluemind.utils.EmailAddress;
 public class MailIndexService implements IMailIndexService {
 	public static final int SIZE = 200;
 
+	private static final Map<String, Float> DEFAULT_QUERY_STRING_FIELDS = java.util.stream.Stream
+			.of(immutableEntry("subject", 1.0F), immutableEntry("content", 1.0F), immutableEntry("filename", 1.0F),
+					immutableEntry("from", 1.0F), immutableEntry("to", 1.0F), immutableEntry("cc", 1.0F))
+			.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	private static final Logger logger = LoggerFactory.getLogger(MailIndexService.class);
 	private static final String PENDING_TYPE = "eml";
 	static final String MAILSPOOL_TYPE = "recordOrBody";
@@ -263,19 +270,28 @@ public class MailIndexService implements IMailIndexService {
 		mutableContent.put(JOIN_FIELD, ImmutableMap.of("name", CHILD_TYPE, "parent", parentUid));
 
 		// deduplicate fields
-		mutableContent.remove("content");
 		mutableContent.remove("messageId");
 		mutableContent.remove("references");
+		// Those fields are used for search on the parent and not retrieved on the child
+		mutableContent.remove("content");
+		mutableContent.remove("filename");
+		// headers recipients are retrieved and sortby, those are not used
+		mutableContent.remove("from");
+		mutableContent.remove("to");
+		mutableContent.remove("cc");
 
 		String route = "partition_xxx";
 		GetResponse hasParent = client.prepareGet(userAlias, MAILSPOOL_TYPE, parentUid).setFetchSource(false).get();
 		if (!hasParent.isExists()) {
 			parentDoc.remove("with");
+			// this field are not used for search
 			parentDoc.remove("headers");
 			parentDoc.remove("size");
-			parentDoc.remove("filename");
+			// these fields are updated on the child
 			parentDoc.remove("has");
 			parentDoc.remove("is");
+			// this field is used for sorting on the child
+			parentDoc.remove("subject_kw");
 
 			parentDoc.put(JOIN_FIELD, PARENT_TYPE);
 			IndexRequestBuilder parentIdxReq = client.prepareIndex(userAlias, MAILSPOOL_TYPE).setSource(parentDoc)//
@@ -945,9 +961,8 @@ public class MailIndexService implements IMailIndexService {
 
 	private BoolQueryBuilder addSearchQuery(BoolQueryBuilder bq, String query) {
 		if (!Strings.isNullOrEmpty(query)) {
-			return bq.must(JoinQueryBuilders.hasParentQuery(PARENT_TYPE,
-					QueryBuilders.queryStringQuery(query).defaultField("content").defaultOperator(Operator.AND),
-					false));
+			return bq.must(JoinQueryBuilders.hasParentQuery(PARENT_TYPE, QueryBuilders.queryStringQuery(query)
+					.fields(DEFAULT_QUERY_STRING_FIELDS).defaultOperator(Operator.AND), false));
 		} else {
 			return bq;
 		}

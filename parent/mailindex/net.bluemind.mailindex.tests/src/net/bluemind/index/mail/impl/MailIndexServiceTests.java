@@ -504,11 +504,47 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		q.query = query;
 		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
 
+		assertOnlyResultIsTestEml(results);
+	}
+
+	private void assertOnlyResultIsTestEml(SearchResult results) {
 		assertEquals(1, results.totalResults);
 		MessageSearchResult messageSearchResult = results.results.get(0);
 		assertEquals("mbox_records_" + mboxUid, messageSearchResult.containerUid);
 		assertEquals(44l, messageSearchResult.itemId);
 		assertEquals("IPM.Note", messageSearchResult.messageClass);
+	}
+
+	@Test
+	public void testSearchDefaultField() throws MimeIOException, IOException, InterruptedException, ExecutionException {
+		long imapUid = 1;
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList());
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.query = "SubjectTest"; // Subject
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+		assertOnlyResultIsTestEml(results);
+
+		query.query = "Water"; // From
+		results = MailIndexActivator.getService().searchItems(userUid, q);
+		assertOnlyResultIsTestEml(results);
+
+		query.query = "Barrett"; // To
+		results = MailIndexActivator.getService().searchItems(userUid, q);
+		assertOnlyResultIsTestEml(results);
+
+		query.query = "Lost"; // Content
+		results = MailIndexActivator.getService().searchItems(userUid, q);
+		assertOnlyResultIsTestEml(results);
 	}
 
 	@Test
@@ -554,11 +590,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		q.query = query;
 		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
 
-		assertEquals(1, results.totalResults);
-		MessageSearchResult messageSearchResult = results.results.get(0);
-		assertEquals("mbox_records_" + mboxUid, messageSearchResult.containerUid);
-		assertEquals(44l, messageSearchResult.itemId);
-		assertEquals("IPM.Note", messageSearchResult.messageClass);
+		assertOnlyResultIsTestEml(results);
 	}
 
 	@Test

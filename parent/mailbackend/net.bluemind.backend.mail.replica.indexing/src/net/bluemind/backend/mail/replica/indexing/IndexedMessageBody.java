@@ -18,7 +18,6 @@
  */
 package net.bluemind.backend.mail.replica.indexing;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,7 +47,7 @@ import net.bluemind.core.api.Stream;
 
 public class IndexedMessageBody {
 
-	public final List<String> content;
+	public final String content;
 	public final Map<String, Object> data;
 	private final Map<String, Keyword> headers;
 	public final Keyword subject;
@@ -59,7 +58,7 @@ public class IndexedMessageBody {
 
 	private static final Logger logger = LoggerFactory.getLogger(IndexedMessageBody.class);
 
-	private IndexedMessageBody(String uid, List<String> content, Map<String, Object> data, Map<String, Keyword> headers,
+	private IndexedMessageBody(String uid, String content, Map<String, Object> data, Map<String, Keyword> headers,
 			Keyword subject, String preview, Keyword messageId, List<Keyword> references) {
 		this.uid = uid;
 		this.content = content;
@@ -83,7 +82,7 @@ public class IndexedMessageBody {
 	}
 
 	public static class IndexedMessageBodyBuilder {
-		public List<String> content = new ArrayList<>();
+		public String content = "";
 		public Map<String, Object> data = new HashMap<>();
 		public Map<String, Keyword> headers = new HashMap<>();
 		public Keyword subject = new Keyword(null);
@@ -101,7 +100,7 @@ public class IndexedMessageBody {
 			return this;
 		}
 
-		public IndexedMessageBodyBuilder content(List<String> content) {
+		public IndexedMessageBodyBuilder content(String content) {
 			this.content = content;
 			return this;
 		}
@@ -148,12 +147,6 @@ public class IndexedMessageBody {
 		Objects.requireNonNull(bodyData, "Can't create IndexMessageBody from null MessageBodyData");
 		logger.debug("Extracted body data {}", bodyData);
 		MessageBody body = bodyData.body;
-
-		List<String> content = new ArrayList<>();
-		content.add(body.subject);
-		content.add(bodyData.text);
-		content.addAll(bodyData.filenames);
-		content.addAll(bodyData.with);
 
 		String preview = bodyData.body.preview;
 
@@ -203,7 +196,7 @@ public class IndexedMessageBody {
 		data.put("has", hasProps);
 
 		return new IndexedMessageBody.IndexedMessageBodyBuilder(uid) //
-				.content(content) //
+				.content(bodyData.text) //
 				.data(data) //
 				.headers(headers).subject(new Keyword(body.subject))//
 				.preview(preview)//

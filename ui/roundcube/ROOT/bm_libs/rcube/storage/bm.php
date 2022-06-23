@@ -1070,10 +1070,14 @@ class rcube_storage_bm extends rcube_imap {
           break;
         case 'subject':
         case 'content':
+        case 'from':
+        case 'to':
+        case 'cc':
+        case 'filename':
           $parentPattern[] = $term.':'.$val;
           break;
         case '_all':
-          $parentPattern[] = 'content:'.$val;
+          $parentPattern[] = $val;
           break;
 	default:
           $pattern[] = $term.':'.$val;
@@ -1091,8 +1095,8 @@ class rcube_storage_bm extends rcube_imap {
     }
     if (count($parentPattern) > 0) {
       $q  = new Elastica\Query\QueryString();
-      $q->setDefaultOperator('AND'); 
-      $q->setDefaultField('content');
+      $q->setDefaultOperator('AND');
+      $q->setFields(["subject", "content", "filename", "from", "to", "cc"]);
       $q->setQuery(implode(' ', $parentPattern));
       $queries[] = new Elastica\Query\HasParent($q, 'body');
     }

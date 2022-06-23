@@ -106,7 +106,7 @@ public class BmSearchMailbox implements ISearchSource {
 		mfq.query = new SearchQuery();
 		mfq.sort = SearchSort.byField("date", SearchSort.Order.Desc);
 		mfq.query.recordQuery = "-is:deleted";
-		mfq.query.query = "content:\"" + request.store.query.and.freeText + "\"";
+		mfq.query.query = "\"" + request.store.query.and.freeText + "\"";
 		mfq.query.scope = new net.bluemind.backend.mail.api.SearchQuery.SearchScope();
 		mfq.query.scope.folderScope = new net.bluemind.backend.mail.api.SearchQuery.FolderScope();
 		mfq.query.scope.folderScope.folderUid = folder.uid;
