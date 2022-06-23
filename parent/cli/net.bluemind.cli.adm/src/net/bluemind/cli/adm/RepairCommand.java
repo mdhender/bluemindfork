@@ -54,6 +54,9 @@ public class RepairCommand extends SingleOrDomainOperation {
 	@Option(names = "--unarchive", description = "\"true\" to temporarely unarchive/archive users and apply the repair op")
 	public boolean unarchive = false;
 
+	@Option(names = "--domain-only", description = "Only repair the domain entity")
+	public boolean domainOnly = false;
+
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
 		CliRepair clirepair = new CliRepair(ctx, domainUid, de, unarchive, dry);
@@ -66,6 +69,10 @@ public class RepairCommand extends SingleOrDomainOperation {
 
 	@Override
 	public Kind[] getDirEntryKind() {
-		return DirEntry.Kind.values();
+		if (domainOnly) {
+			return new DirEntry.Kind[] { DirEntry.Kind.DOMAIN };
+		} else {
+			return DirEntry.Kind.values();
+		}
 	}
 }
