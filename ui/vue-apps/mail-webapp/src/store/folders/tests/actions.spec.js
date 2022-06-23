@@ -50,7 +50,7 @@ describe("actions", () => {
                 remoteRef: {}
             };
             api.getAllFolders.mockReturnValue(require("../../tests/data/users/alice/folders.json"));
-            await store.dispatch(FETCH_FOLDERS, mailbox);
+            await store.dispatch(FETCH_FOLDERS, { mailbox, expandedFolders: [] });
             expect(store.state).toMatchSnapshot();
         });
     });
