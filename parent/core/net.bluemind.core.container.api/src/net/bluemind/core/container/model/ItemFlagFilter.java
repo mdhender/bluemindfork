@@ -20,8 +20,10 @@ package net.bluemind.core.container.model;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import net.bluemind.core.api.BMApi;
@@ -31,6 +33,7 @@ public class ItemFlagFilter {
 
 	public Collection<ItemFlag> must = EnumSet.noneOf(ItemFlag.class);
 	public Collection<ItemFlag> mustNot = EnumSet.noneOf(ItemFlag.class);
+	public Set<Long> skipVersions = new HashSet<>();
 
 	public static ItemFlagFilter create() {
 		return new ItemFlagFilter();
@@ -55,6 +58,11 @@ public class ItemFlagFilter {
 		for (ItemFlag f : flags) {
 			mustNot.add(f);
 		}
+		return this;
+	}
+
+	public ItemFlagFilter skipVersions(Set<Long> versions) {
+		this.skipVersions = versions;
 		return this;
 	}
 

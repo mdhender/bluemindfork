@@ -71,6 +71,10 @@ public final class ChangelogUtils {
 		E last = null;
 		long version = -1;
 		for (E entry : entries) {
+			if (filter.skipVersions.contains(entry.version)) {
+				continue;
+			}
+
 			entry.weightSeed = wp.weight(entry.weightSeed);
 
 			if (version < entry.version) {
