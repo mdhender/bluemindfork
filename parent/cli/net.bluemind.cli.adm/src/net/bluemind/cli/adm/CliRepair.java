@@ -113,8 +113,11 @@ public class CliRepair {
 	}
 
 	private void archive(IUser userService, ItemValue<User> userItem) {
-		userItem.value.archived = true;
-		updateUser(userService, userItem);
+		// We absolutely need to retrieve the dirEntry again, because repair will modify
+		// the direntry. We don't want to overwrite the old value!
+		ItemValue<User> refreshedUser = userService.getComplete(userItem.uid);
+		refreshedUser.value.archived = true;
+		updateUser(userService, refreshedUser);
 	}
 
 	private void updateUser(IUser userService, ItemValue<User> userItem) {
