@@ -73,7 +73,7 @@ public class TickReconfigureCommand implements ICmdLet, Runnable {
 		} else {
 			ITickConfiguration tickApi = ctx.adminApi().instance(ITickConfiguration.class);
 			TaskRef ref = tickApi.reconfigure();
-			Tasks.follow(ctx, ref, "Fail to update tick configuration");
+			Tasks.follow(ctx, ref, "", "Fail to update tick configuration");
 			IServer srvApi = ctx.adminApi().instance(IServer.class, InstallationId.getIdentifier());
 
 			reload(srvApi, TagDescriptor.bm_nginx);

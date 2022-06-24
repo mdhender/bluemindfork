@@ -102,6 +102,7 @@ public class CliContext {
 	 */
 	public synchronized void error(String msg) {
 		System.err.println(ansi().fgRed().a(msg).reset()); // NOSONAR
+		System.err.flush(); // NOSONAR
 	}
 
 	public synchronized void error(String msg, Object... args) {
@@ -115,6 +116,7 @@ public class CliContext {
 	 */
 	public synchronized void warn(String msg) {
 		System.err.println(ansi().fgYellow().a(msg).reset()); // NOSONAR
+		System.err.flush(); // NOSONAR
 	}
 
 	public synchronized void warn(String msg, Object... args) {
@@ -123,6 +125,7 @@ public class CliContext {
 
 	public synchronized void info(String msg) {
 		System.out.println(msg); // NOSONAR
+		System.out.flush(); // NOSONAR
 	}
 
 	public synchronized void info(String msg, Object... args) {
@@ -134,6 +137,7 @@ public class CliContext {
 				.a(String.format("Global progress %d/%d (%s%%)", current, total,
 						total > 0 ? current * 100 / total : "-"))
 				.reset());
+		System.err.flush(); // NOSONAR
 	}
 
 	/**

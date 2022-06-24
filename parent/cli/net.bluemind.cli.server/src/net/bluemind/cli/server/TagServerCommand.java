@@ -84,7 +84,7 @@ public class TagServerCommand implements ICmdLet, Runnable {
 		}
 
 		TaskRef taskRef = serverService.setTags(h.uid, h.value.tags);
-		TaskStatus ts = Tasks.follow(ctx, taskRef, "Could not tag server.");
+		TaskStatus ts = Tasks.follow(ctx, taskRef, "", "Could not tag server.");
 
 		if (ts.state == TaskStatus.State.Success) {
 			ctx.info(String.format("Server %s is tagged as %s", serverName, String.join(",", Arrays.asList(tags))));

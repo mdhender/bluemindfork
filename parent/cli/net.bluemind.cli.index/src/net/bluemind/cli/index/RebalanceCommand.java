@@ -100,7 +100,8 @@ public class RebalanceCommand implements ICmdLet, Runnable {
 			if (rebalance) {
 				try {
 					TaskRef ref = mboxMgmt.moveIndex(topSrc.mailboxUid, target.indexName, true);
-					Tasks.follow(ctx, ref, String.format("Failed to move index from %s to %s", topSrc.mailboxUid, tgt));
+					Tasks.follow(ctx, ref, "",
+							String.format("Failed to move index from %s to %s", topSrc.mailboxUid, tgt));
 				} catch (Exception e) {
 					ctx.warn("WARN " + e.getMessage());
 				}

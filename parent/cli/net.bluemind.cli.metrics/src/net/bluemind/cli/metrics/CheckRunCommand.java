@@ -66,7 +66,7 @@ public class CheckRunCommand implements ICmdLet, Runnable {
 	public void run() {
 		IProductChecks checks = ctx.adminApi().instance(IProductChecks.class);
 		TaskRef ref = checks.check(check);
-		TaskStatus ckeckTaskStatus = Tasks.follow(ctx, ref, "Ckeck request failed.");
+		TaskStatus ckeckTaskStatus = Tasks.follow(ctx, ref, "", "Ckeck request failed.");
 		if (!ckeckTaskStatus.state.succeed) {
 			return;
 		}

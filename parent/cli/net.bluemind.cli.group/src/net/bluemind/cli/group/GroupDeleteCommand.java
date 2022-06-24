@@ -90,7 +90,8 @@ public class GroupDeleteCommand implements ICmdLet, Runnable {
 			ctx.info("DRY : delete " + uid);
 		} else {
 			TaskRef tr = groupApi.delete(uid);
-			TaskStatus status = Tasks.follow(ctx, tr, String.format("Failed to delete entry %s", uid));
+			TaskStatus status = Tasks.follow(ctx, tr, "[group " + uid + "]",
+					String.format("Failed to delete entry %s", uid));
 
 			if (status == null || status.state != TaskStatus.State.Success) {
 				ctx.error("Failed to delete group " + uid);

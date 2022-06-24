@@ -25,13 +25,12 @@ import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.cli.utils.Tasks;
-import net.bluemind.server.api.IServer;
-import net.bluemind.server.api.Server;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
+import net.bluemind.server.api.IServer;
+import net.bluemind.server.api.Server;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-
 
 @Command(name = "add", description = "add new Bluemind server")
 public class AddServerCommand implements ICmdLet, Runnable {
@@ -71,25 +70,26 @@ public class AddServerCommand implements ICmdLet, Runnable {
 	@Option(names = { "--tag", "-t" }, description = "Tag value.")
 	public String[] tags = null;
 
-	
 	@Override
 	public void run() {
 		IServer serverService = ctx.adminApi().instance(IServer.class, "default");
-		 
+
 		Server h = new Server();
 		h.ip = serverIp;
 		h.name = serverName;
 		h.fqdn = serverFqdn;
 		h.tags = Arrays.asList(tags);
-		
+
 		TaskRef taskRef = serverService.create(serverName, h);
-		TaskStatus ts = Tasks.follow(ctx, taskRef, "Could not create server.");
-		
+		TaskStatus ts = Tasks.follow(ctx, taskRef, "", "Could not create server.");
+
 		if (ts.state == TaskStatus.State.Success) {
-			ctx.info(String.format("Server %s created and tagged as %s", h.name, String.join(",", Arrays.asList(tags))));
+			ctx.info(
+					String.format("Server %s created and tagged as %s", h.name, String.join(",", Arrays.asList(tags))));
 		} else if (ts.state == TaskStatus.State.InError) {
-			ctx.error(String.format("Can't create Server %s and tagged as %s", h.name, String.join(",", Arrays.asList(tags))));
+			ctx.error(String.format("Can't create Server %s and tagged as %s", h.name,
+					String.join(",", Arrays.asList(tags))));
 		}
 	}
- 
+
 }

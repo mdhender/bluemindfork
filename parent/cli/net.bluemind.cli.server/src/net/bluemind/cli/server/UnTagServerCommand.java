@@ -26,11 +26,11 @@ import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.Tasks;
-import net.bluemind.server.api.IServer;
-import net.bluemind.server.api.Server;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
+import net.bluemind.server.api.IServer;
+import net.bluemind.server.api.Server;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -58,7 +58,6 @@ public class UnTagServerCommand implements ICmdLet, Runnable {
 		return this;
 	}
 
-
 	@Option(names = { "--server", "-s" }, required = true, description = "Server name")
 	public String serverName = null;
 
@@ -69,16 +68,18 @@ public class UnTagServerCommand implements ICmdLet, Runnable {
 	public void run() {
 		IServer serverService = ctx.adminApi().instance(IServer.class, "default");
 		ItemValue<Server> h = serverService.getComplete(serverName);
-		
-		List<String> newTags = h.value.tags.stream().filter(v->!Arrays.asList(tags).contains(v)).collect(Collectors.toList());
-		
+
+		List<String> newTags = h.value.tags.stream().filter(v -> !Arrays.asList(tags).contains(v))
+				.collect(Collectors.toList());
+
 		TaskRef taskRef = serverService.setTags(serverName, newTags);
-		TaskStatus ts = Tasks.follow(ctx, taskRef, "Could not untag server.");
-		
+		TaskStatus ts = Tasks.follow(ctx, taskRef, "", "Could not untag server.");
+
 		if (ts.state == TaskStatus.State.Success) {
-			ctx.info(String.format("Server %s is untagged as %s", serverName,  String.join(",", Arrays.asList(tags))));
+			ctx.info(String.format("Server %s is untagged as %s", serverName, String.join(",", Arrays.asList(tags))));
 		} else if (ts.state == TaskStatus.State.InError) {
-			ctx.error(String.format("Server %s cannot be untagged as %s", serverName, String.join(",", Arrays.asList(tags))));
+			ctx.error(String.format("Server %s cannot be untagged as %s", serverName,
+					String.join(",", Arrays.asList(tags))));
 		}
 	}
 }

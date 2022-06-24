@@ -208,7 +208,9 @@ public class UserImportCommand extends SingleOrDomainOperation {
 
 		TaskRef ref = ctx.adminApi().instance(IVEvent.class, calUid)
 				.importIcs(cliUtils.getStreamFromFile(icsFile.toString()));
-		Tasks.follow(ctx, false, ref, String.format("Fail to import calendar for entry %s", de));
+		Tasks.follow(ctx, false, ref,
+				(de.value.email != null && !de.value.email.isEmpty()) ? (de.value.email + " (" + de.uid + ")") : de.uid,
+				String.format("Fail to import calendar for entry %s", de));
 	}
 
 	private void importContacts(ItemValue<DirEntry> de, Path dir) throws IOException {
@@ -239,7 +241,10 @@ public class UserImportCommand extends SingleOrDomainOperation {
 		try {
 			TaskRef ref = ctx.adminApi().instance(IVCardService.class, abUid)
 					.importCards(new String(Files.readAllBytes(vcfFile)));
-			Tasks.follow(ctx, false, ref, String.format("Fail to import addressbook for entry %s", de));
+			Tasks.follow(ctx, false, ref,
+					(de.value.email != null && !de.value.email.isEmpty()) ? (de.value.email + " (" + de.uid + ")")
+							: de.uid,
+					String.format("Fail to import addressbook for entry %s", de));
 		} catch (Exception e) {
 			throw new CliException("Error importing addressbook " + vcfFile.toString(), e);
 		}
@@ -270,7 +275,10 @@ public class UserImportCommand extends SingleOrDomainOperation {
 
 		try {
 			TaskRef ref = ctx.adminApi().instance(IVTodo.class, uid).importIcs(new String(Files.readAllBytes(vcfFile)));
-			Tasks.follow(ctx, false, ref, String.format("Fail to import todo for entry %s", de));
+			Tasks.follow(ctx, false, ref,
+					(de.value.email != null && !de.value.email.isEmpty()) ? (de.value.email + " (" + de.uid + ")")
+							: de.uid,
+					String.format("Fail to import todo for entry %s", de));
 		} catch (Exception e) {
 			throw new CliException("Error importing todolist " + vcfFile.toString(), e);
 		}

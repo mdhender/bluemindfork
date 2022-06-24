@@ -50,7 +50,9 @@ public class ConsolidateIndexCommand extends SingleOrDomainOperation {
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
 		IMailboxMgmt imboxesMgmt = ctx.adminApi().instance(IMailboxMgmt.class, domainUid);
 		TaskRef ref = imboxesMgmt.consolidateMailbox(de.uid);
-		Tasks.follow(ctx, ref, String.format("Fail to consolidate mailbox index for entry %s", de));
+		Tasks.follow(ctx, ref,
+				(de.value.email != null && !de.value.email.isEmpty()) ? (de.value.email + " (" + de.uid + ")") : de.uid,
+				String.format("Fail to consolidate mailbox index for entry %s", de));
 	}
 
 	@Override

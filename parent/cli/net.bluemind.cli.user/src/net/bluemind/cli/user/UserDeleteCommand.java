@@ -58,7 +58,10 @@ public class UserDeleteCommand extends SingleOrDomainOperation {
 		} else {
 			IUser userApi = ctx.adminApi().instance(IUser.class, domainUid);
 			TaskRef tr = userApi.delete(de.uid);
-			TaskStatus status = Tasks.follow(ctx, tr, String.format("Fail to delete entry %s", de));
+			TaskStatus status = Tasks.follow(ctx, tr,
+					(de.value.email != null && !de.value.email.isEmpty()) ? (de.value.email + " (" + de.uid + ")")
+							: de.uid,
+					String.format("Fail to delete entry %s", de));
 
 			if (status == null || status.state != TaskStatus.State.Success) {
 				ctx.error("Failed to delete user {}", de.displayName);

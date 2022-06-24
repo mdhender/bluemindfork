@@ -224,7 +224,7 @@ public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
 						.consumer(MailApiAnnotations.MSG_ANNOTATION_BUS_TOPIC);
 				for (ListInfo f : allFolders) {
 					String fn = f.getName();
-					monitor.progress(1, "");
+					monitor.progress(1, "sync " + fn);
 					if (!f.isSelectable() || fn.startsWith("Dossiers partagés/")
 							|| fn.startsWith("Autres utilisateurs/")) {
 						continue;

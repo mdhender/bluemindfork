@@ -63,23 +63,28 @@ public class Tasks {
 			boolean enableLog) {
 		Objects.requireNonNull(ref, () -> prefix + ": null taskref is not allowed");
 		ITask trackApi = ctx.infiniteRequestTimeoutAdminApi().instance(ITask.class, ref.id);
-		String logPrefix = (prefix != null && !prefix.isEmpty()) ? "[" + prefix + "]" : "";
-		return new JsonStreams(ctx)
-				.consume(VertxStream.read(trackApi.log()), js -> Optional.ofNullable(js.getString("message"))
-						.map(s -> enableLog && !Strings.isNullOrEmpty(s) ? logPrefix + s : null).ifPresent(ctx::info))
-				.thenApply(v -> trackApi.status()).exceptionally(t -> trackApi.status());
+		String logPrefix = (prefix != null && !prefix.isEmpty()) ? "[" + prefix + "] " : "";
+		return new JsonStreams(ctx) //
+				.consume(VertxStream.read(trackApi.log()), js -> {
+					if (enableLog) {
+						Optional.ofNullable(js.getString("message")).map(s -> logPrefix + s).ifPresent(ctx::info);
+					}
+				}) //
+				.thenApply(v -> trackApi.status()) //
+				.exceptionally(t -> trackApi.status());
 	}
 
-	public static TaskStatus follow(CliContext ctx, TaskRef ref, String errorMessage) {
-		return follow(ctx, true, ref, errorMessage);
+	public static TaskStatus follow(CliContext ctx, TaskRef ref, String prefix, String errorMessage) {
+		return follow(ctx, true, ref, prefix, errorMessage);
 	}
 
-	public static TaskStatus follow(CliContext ctx, boolean enableLog, TaskRef ref, String errorMessage) {
+	public static TaskStatus follow(CliContext ctx, boolean enableLog, TaskRef ref, String prefix,
+			String errorMessage) {
 		TaskStatus ts;
 		do {
 			ts = null;
 			try {
-				ts = followStream(ctx, null, ref, enableLog).get();
+				ts = followStream(ctx, prefix, ref, enableLog).get();
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			} catch (ExecutionException e) {

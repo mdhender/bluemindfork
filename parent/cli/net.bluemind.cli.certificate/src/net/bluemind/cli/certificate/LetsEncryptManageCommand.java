@@ -95,7 +95,8 @@ public class LetsEncryptManageCommand implements ICmdLet, Runnable, IExitCodeGen
 
 			CertData certData = CertData.createForLetsEncrypt(domainItem.uid, contactEmail);
 			TaskRef tr = service.generateLetsEncrypt(certData);
-			TaskStatus status = Tasks.follow(ctx, tr, String.format("Failed to get certificate for domain %s", domain));
+			TaskStatus status = Tasks.follow(ctx, tr, domain,
+					String.format("Failed to get certificate for domain %s", domain));
 
 			if (status != null && status.state == TaskStatus.State.Success) {
 				ctx.info(String.format("Let's Encrypt Certificate generated for domain '%s'.", domain));

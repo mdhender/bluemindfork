@@ -109,7 +109,7 @@ public class AddShardsCommand implements ICmdLet, Runnable {
 				if (rebalance) {
 					try {
 						TaskRef ref = mboxMgmt.moveIndex(mbox, tgt, true);
-						Tasks.follow(ctx, ref, String.format("Failed to move index from %s to %s", mbox, tgt));
+						Tasks.follow(ctx, ref, "", String.format("Failed to move index from %s to %s", mbox, tgt));
 					} catch (Exception e) {
 						ctx.warn("WARN rebalancing failed for " + mbox + ": " + e.getMessage());
 					}
