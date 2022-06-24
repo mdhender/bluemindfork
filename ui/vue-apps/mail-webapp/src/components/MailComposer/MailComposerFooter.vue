@@ -83,7 +83,7 @@
 
 <script>
 import { ContactValidator } from "@bluemind/contact";
-import { BmExtension } from "@bluemind/extensions";
+import { BmExtension } from "@bluemind/extensions.vue";
 import {
     BmButton,
     BmIcon,

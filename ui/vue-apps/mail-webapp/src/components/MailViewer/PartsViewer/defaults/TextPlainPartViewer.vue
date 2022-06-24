@@ -1,6 +1,6 @@
 <template>
     <!-- eslint-disable-next-line vue/no-v-html -->
-    <div v-if="content !== undefined" class="text-plain-part-viewer" v-html="toHtml" />
+    <div v-if="content" class="text-plain-part-viewer" v-html="toHtml" />
     <mail-viewer-content-loading v-else />
 </template>
 
@@ -16,24 +16,41 @@ export default {
     components: { MailViewerContentLoading },
     mixins: [PartViewerMixin],
     $capabilities: ["text/plain", "text/*"],
+    data() {
+        return {
+            content: ""
+        };
+    },
     computed: {
         lang() {
             return this.$store.state.settings.lang;
-        },
-        content() {
-            return this.$store.state.mail.partsData.partsByMessageKey[this.message.key]?.[this.part.address];
         },
         toHtml() {
             return mailText2Html(this.content, this.lang);
         }
     },
-    async created() {
-        await this.FETCH_PART_DATA({
-            messageKey: this.message.key,
-            folderUid: this.message.folderRef.uid,
-            imapUid: this.message.remoteRef.imapUid,
-            parts: [this.part]
-        });
+    watch: {
+        part: {
+            async handler() {
+                this.content = "";
+                if (this.part.url) {
+                    const res = await fetch(this.part.url);
+                    const text = await res.text();
+                    this.content = text;
+                } else {
+                    await this.FETCH_PART_DATA({
+                        messageKey: this.message.key,
+                        folderUid: this.message.folderRef.uid,
+                        imapUid: this.message.remoteRef.imapUid,
+                        parts: [this.part]
+                    });
+                    this.content = this.$store.state.mail.partsData.partsByMessageKey[this.message.key]?.[
+                        this.part.address
+                    ];
+                }
+            },
+            immediate: true
+        }
     },
     methods: {
         ...mapActions("mail", { FETCH_PART_DATA })
