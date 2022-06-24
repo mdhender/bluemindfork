@@ -63,9 +63,10 @@ public class Tasks {
 		ITask trackApi = ctx.infiniteRequestTimeoutAdminApi().instance(ITask.class, ref.id);
 		String logPrefix = (prefix != null && !prefix.isEmpty()) ? "[" + prefix + "]" : "";
 		return new JsonStreams(ctx)
-				.consume(VertxStream.read(trackApi.log()), js -> Optional.ofNullable(js.getString("message"))
-						.map(s -> enableLog ? logPrefix + s : null).ifPresent(ctx::info))
-				.thenApply(v -> trackApi.status());
+				.consume(VertxStream.read(trackApi.log()),
+						js -> Optional.ofNullable(js.getString("message")).map(s -> enableLog ? logPrefix + s : null)
+								.ifPresent(ctx::info))
+				.thenApply(v -> trackApi.status()).exceptionally(t -> trackApi.status());
 	}
 
 	public static TaskStatus follow(CliContext ctx, TaskRef ref, String errorMessage) {
