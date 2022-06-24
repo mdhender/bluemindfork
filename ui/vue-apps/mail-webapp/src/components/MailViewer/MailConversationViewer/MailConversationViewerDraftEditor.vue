@@ -103,7 +103,11 @@
 
         <template slot="content">
             <div class="col-11 flex-grow-1">
-                <mail-composer-content ref="content" :message="message" />
+                <mail-composer-content
+                    ref="content"
+                    :message="message"
+                    :is-signature-inserted.sync="isSignatureInserted"
+                />
             </div>
         </template>
         <template slot="bottom">
