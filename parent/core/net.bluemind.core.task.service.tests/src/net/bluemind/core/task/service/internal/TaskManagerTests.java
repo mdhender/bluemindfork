@@ -50,6 +50,63 @@ public class TaskManagerTests {
 	}
 
 	@Test
+	public void repeatFailures() throws Exception {
+		for (int i = 0; i < 64; i++) {
+			System.err.println("start task " + i);
+			testFailingTaskLog();
+		}
+	}
+
+	@Test
+	public void testFailingTaskLog() throws Exception {
+
+		final CountDownLatch cdl = new CountDownLatch(1);
+		IServerTask serverTask = new IServerTask() {
+
+			@Override
+			public void run(IServerTaskMonitor monitor) {
+				monitor.begin(5, "begin");
+				throw new NullPointerException("null me dude");
+			}
+		};
+		TaskRef taskRef = taskManager.run(serverTask);
+
+		TaskManager task = taskManager.getTaskManager(taskRef.id);
+		assertNotNull(task);
+
+		ReadStream<Buffer> reader = task.log();
+		final List<JsonObject> result = new ArrayList<>();
+
+		reader.handler((Buffer event) -> {
+			result.add(new JsonObject(event.toString()));
+		});
+
+		reader.endHandler(new Handler<Void>() {
+
+			@Override
+			public void handle(Void event) {
+				cdl.countDown();
+			}
+		});
+
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+
+		}
+
+		assertEquals(2, result.size());
+
+		assertEquals("begin", result.get(0).getString("message"));
+
+		assertTrue(result.get(1).getBoolean("end"));
+
+		assertNotNull(task.status());
+		assertEquals(TaskStatus.State.InError, task.status().state);
+		task.cleanUp();
+	}
+
+	@Test
 	public void testRegisterAndReadLog() throws Exception {
 
 		final CountDownLatch cdl = new CountDownLatch(1);
@@ -78,12 +135,9 @@ public class TaskManagerTests {
 		ReadStream<Buffer> reader = task.log();
 		final List<JsonObject> result = new ArrayList<>();
 
-		reader.handler(new Handler<Buffer>() {
-
-			@Override
-			public void handle(Buffer event) {
-				result.add(new JsonObject(event.toString()));
-			}
+		reader.handler((Buffer event) -> {
+			System.err.println("got buf " + event);
+			result.add(new JsonObject(event.toString()));
 		});
 
 		reader.endHandler(new Handler<Void>() {
@@ -108,6 +162,7 @@ public class TaskManagerTests {
 
 		assertNotNull(task.status());
 		assertEquals(TaskStatus.State.Success, task.status().state);
+		task.cleanUp();
 	}
 
 	@Test

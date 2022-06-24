@@ -63,13 +63,11 @@ public class TaskManager implements Handler<Message<JsonObject>> {
 		return reader;
 	}
 
-	public List<String> getCurrentLogs() {
+	public List<String> getCurrentLogs(int offset) {
 
 		synchronized (logs) {
-			List<String> ret = new ArrayList<>(logs.size());
-			for (JsonObject o : logs) {
-				ret.add(o.getString("message"));
-			}
+			List<String> ret = new ArrayList<>(logs.size() - offset);
+			logs.stream().skip(offset).forEach(o -> ret.add(o.getString("message")));
 			return ret;
 		}
 	}

@@ -203,7 +203,7 @@ public class RestoreUserTests {
 			status = tracker.status();
 			Thread.sleep(500);
 		}
-		for (String s : tracker.getCurrentLogs()) {
+		for (String s : tracker.getCurrentLogs(0)) {
 			System.out.println(s);
 		}
 

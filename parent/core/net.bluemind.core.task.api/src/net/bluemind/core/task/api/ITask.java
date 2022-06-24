@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.Stream;
@@ -52,6 +53,6 @@ public interface ITask {
 
 	@GET
 	@Path("_currentLogs")
-	public List<String> getCurrentLogs();
+	List<String> getCurrentLogs(@QueryParam("offset") Integer offset);
 
 }

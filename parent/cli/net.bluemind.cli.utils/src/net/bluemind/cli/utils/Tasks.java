@@ -22,6 +22,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.task.api.ITask;
@@ -63,9 +65,8 @@ public class Tasks {
 		ITask trackApi = ctx.infiniteRequestTimeoutAdminApi().instance(ITask.class, ref.id);
 		String logPrefix = (prefix != null && !prefix.isEmpty()) ? "[" + prefix + "]" : "";
 		return new JsonStreams(ctx)
-				.consume(VertxStream.read(trackApi.log()),
-						js -> Optional.ofNullable(js.getString("message")).map(s -> enableLog ? logPrefix + s : null)
-								.ifPresent(ctx::info))
+				.consume(VertxStream.read(trackApi.log()), js -> Optional.ofNullable(js.getString("message"))
+						.map(s -> enableLog && !Strings.isNullOrEmpty(s) ? logPrefix + s : null).ifPresent(ctx::info))
 				.thenApply(v -> trackApi.status()).exceptionally(t -> trackApi.status());
 	}
 
@@ -78,7 +79,7 @@ public class Tasks {
 		do {
 			ts = null;
 			try {
-				ts = followStream(ctx, "", ref, enableLog).get();
+				ts = followStream(ctx, null, ref, enableLog).get();
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			} catch (ExecutionException e) {

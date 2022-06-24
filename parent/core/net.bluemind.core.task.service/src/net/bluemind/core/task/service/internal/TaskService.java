@@ -44,8 +44,8 @@ public class TaskService implements ITask {
 	}
 
 	@Override
-	public List<String> getCurrentLogs() {
-		return manager.getCurrentLogs();
+	public List<String> getCurrentLogs(Integer offset) {
+		return manager.getCurrentLogs(offset == null ? 0 : offset.intValue());
 	}
 
 }

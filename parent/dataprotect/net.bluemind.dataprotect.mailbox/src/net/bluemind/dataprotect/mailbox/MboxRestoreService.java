@@ -60,10 +60,10 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
-import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.TaskUtils;
+import net.bluemind.core.task.service.TaskUtils.ExtendedTaskStatus;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.PartGeneration;
 import net.bluemind.dataprotect.service.BackupPath;
@@ -190,9 +190,8 @@ public class MboxRestoreService {
 			IDirEntryMaintenance demApi = sp.instance(IDirEntryMaintenance.class, domain.uid, mbox.uid);
 			TaskRef tr = demApi.repair(new HashSet<>(Arrays.asList("mailboxAcls", "mailboxDefaultFolders")));
 
-			ITask taskApi = sp.instance(ITask.class, tr.id);
-			TaskUtils.wait(sp, tr);
-			taskApi.getCurrentLogs().stream().forEach(monitor::log);
+			ExtendedTaskStatus extStatus = TaskUtils.wait(sp, tr);
+			extStatus.logs.stream().forEach(monitor::log);
 			break;
 		case Subfolder:
 			if (mbox.value.type == Type.mailshare) {

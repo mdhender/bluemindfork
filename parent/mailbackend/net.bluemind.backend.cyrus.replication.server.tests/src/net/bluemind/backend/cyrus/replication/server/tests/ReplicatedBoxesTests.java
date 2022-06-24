@@ -62,6 +62,15 @@ public class ReplicatedBoxesTests {
 	}
 
 	@Test
+	public void testDeletedRootMbox() {
+		String box = "d7acb642.internal!DELETED.user.rozenberga";
+		ReplicatedBox rBox = ReplicatedBoxes.forCyrusMailbox(box);
+		assertEquals("rozenberga", rBox.local);
+		assertEquals("d7acb642.internal", rBox.partition);
+		assertEquals("INBOX", rBox.folderName);
+	}
+
+	@Test
 	public void testSharedDeletedMbox() {
 		String box = "bm.lan!DELETED.mailshare.yeahyeah.5C614D43";
 		ReplicatedBox rBox = ReplicatedBoxes.forCyrusMailbox(box);

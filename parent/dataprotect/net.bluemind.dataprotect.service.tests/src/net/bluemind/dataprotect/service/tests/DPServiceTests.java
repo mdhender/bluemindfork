@@ -388,7 +388,7 @@ public class DPServiceTests {
 			Thread.sleep(200);
 			status = taskTracker.status();
 		} while (!status.state.ended);
-		List<String> logs = taskTracker.getCurrentLogs();
+		List<String> logs = taskTracker.getCurrentLogs(0);
 		for (String l : logs) {
 			System.out.println("log: " + l);
 		}

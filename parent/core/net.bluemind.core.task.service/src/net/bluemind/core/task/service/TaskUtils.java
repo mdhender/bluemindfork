@@ -37,56 +37,24 @@ import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
-import net.bluemind.core.task.api.TaskStatus.State;
 import net.bluemind.core.utils.JsonUtils;
 
 public class TaskUtils {
 
-	private static Logger logger = LoggerFactory.getLogger(TaskUtils.class);
+	private static final Logger logger = LoggerFactory.getLogger(TaskUtils.class);
 
-	public static void forwardProgress(ITask task, IServerTaskMonitor monitor) {
-		TaskStatus status = task.status();
-		double steps = -1;
-		List<String> lastLogs = new ArrayList<>();
-		double current = 0;
-		logger.info("begin monitor task steps {} progress {} ", status.steps, status.progress);
+	private TaskUtils() {
 
-		do {
-			status = task.status();
-			List<String> logs = task.getCurrentLogs();
-			for (int i = lastLogs.size(); i < logs.size(); i++) {
-				monitor.log(logs.get(i));
-			}
-			lastLogs = logs;
-
-			if (steps == -1 && status.steps > 0) {
-				logger.info("notify begin monitor task steps {} progress {} ", status.steps, status.progress);
-				steps = status.steps;
-				monitor.begin(status.steps, "");
-			}
-
-			if (status.progress - current > 0) {
-				logger.info("progress task {}/{} mark progres {}", status.progress, status.steps,
-						status.progress - current);
-				monitor.progress(status.progress - current, "");
-			}
-			current = status.progress;
-			if (!status.state.ended) {
-				try {
-					Thread.sleep(200);
-				} catch (InterruptedException e) {
-					logger.warn("error during sleep", e);
-					Thread.currentThread().interrupt();
-				}
-			}
-		} while (!status.state.ended);
-
-		monitor.end(true, null, status.result);
-		logger.info("task finished");
 	}
 
-	public static ExtendedTaskStatus waitForInterruptible(IServiceProvider provider, TaskRef ref)
-			throws InterruptedException {
+	public static void forwardProgress(ITask task, IServerTaskMonitor monitor) {
+		monitor.begin(1, "");
+		TaskStatus status = wait(task, monitor::log);
+		monitor.end(true, null, status.result);
+		logger.info("task finished {}", status);
+	}
+
+	public static TaskStatus waitForInterruptible(IServiceProvider provider, TaskRef ref) throws InterruptedException {
 		ITask taskApi = provider.instance(ITask.class, ref.id + "");
 		TaskStatus ts = null;
 		long count = 1;
@@ -94,7 +62,7 @@ public class TaskUtils {
 			Thread.sleep(Math.min(1000, 10 * count++));
 			ts = taskApi.status();
 		} while (!ts.state.ended);
-		return new ExtendedTaskStatus(ts, taskApi.getCurrentLogs());
+		return ts;
 	}
 
 	public static String logStreamWait(IServiceProvider provider, TaskRef ref) {
@@ -104,7 +72,11 @@ public class TaskUtils {
 
 	public static TaskStatus wait(IServiceProvider provider, TaskRef ref, Consumer<String> log) {
 		ITask taskApi = provider.instance(ITask.class, ref.id + "");
-		ReadStream<Buffer> read = VertxStream.<Buffer>read(taskApi.log());
+		return wait(taskApi, log);
+	}
+
+	public static TaskStatus wait(ITask taskApi, Consumer<String> log) {
+		ReadStream<Buffer> read = VertxStream.read(taskApi.log());
 		CompletableFuture<TaskStatus> status = new CompletableFuture<>();
 		read.handler(JsonParser.newParser().objectValueMode().handler(event -> {
 			JsonObject data = event.objectValue();
@@ -123,23 +95,9 @@ public class TaskUtils {
 	}
 
 	public static ExtendedTaskStatus wait(IServiceProvider provider, TaskRef ref) {
-		ITask taskApi = provider.instance(ITask.class, ref.id + "");
-		TaskStatus ts = null;
-		long count = 1;
-		do {
-			try {
-				Thread.sleep(Math.min(1000, 10 * count++));
-			} catch (InterruptedException e) {
-				logger.warn("Task has been interrupted");
-				Thread.currentThread().interrupt();
-				if (ts != null) {
-					ts.state = State.InError;
-					break;
-				}
-			}
-			ts = taskApi.status();
-		} while (!ts.state.ended);
-		return new ExtendedTaskStatus(ts, taskApi.getCurrentLogs());
+		List<String> logs = new ArrayList<>();
+		TaskStatus ts = wait(provider, ref, logs::add);
+		return new ExtendedTaskStatus(ts, logs);
 	}
 
 	public static class ExtendedTaskStatus extends TaskStatus {

@@ -61,7 +61,7 @@ public class ProgressHandler implements RepeatingCommand, AsyncHandler<TaskStatu
 					ps.setTaskFinished(false, result.result);
 				}
 			};
-			taskApi.getCurrentLogs(handler);
+			taskApi.getCurrentLogs(0, handler);
 		} else {
 			scheduleRefresh();
 		}
