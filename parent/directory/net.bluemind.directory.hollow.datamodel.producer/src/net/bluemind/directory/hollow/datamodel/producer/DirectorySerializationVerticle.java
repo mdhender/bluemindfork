@@ -54,7 +54,6 @@ public class DirectorySerializationVerticle extends AbstractVerticle {
 				DirectorySerializer ser = createSerializer(dom.uid);
 				Serializers.put(dom.uid, ser);
 				logger.info("{} registered for {}", ser, dom.uid);
-
 			});
 		} catch (Exception e) {
 			logger.warn("Cannot activate domain serializers", e);
@@ -76,37 +75,33 @@ public class DirectorySerializationVerticle extends AbstractVerticle {
 
 	private void registerDomainChangeHandler() {
 		vertx.eventBus().consumer(DirectorySerializationDomainHook.DOMAIN_CHANGE_EVENT, msg -> {
-			vertx.executeBlocking(prom -> {
-				JsonObject data = (JsonObject) msg.body();
-				String domain = data.getString(DOMAIN_FIELD);
-				String action = data.getString("action");
-				switch (action) {
-				case "create":
-					Serializers.put(domain, createSerializer(domain)).produce();
-					break;
-				case "delete":
-					Serializers.forDomain(domain).remove();
-					Serializers.remove(domain);
-					break;
-				default:
-					// only 2 possible actions
-					break;
-				}
-			}, false);
+			JsonObject data = (JsonObject) msg.body();
+			String domain = data.getString(DOMAIN_FIELD);
+			String action = data.getString("action");
+			switch (action) {
+			case "create":
+				Serializers.put(domain, createSerializer(domain)).produce();
+				break;
+			case "delete":
+				Serializers.forDomain(domain).remove();
+				Serializers.remove(domain);
+				break;
+			default:
+				// only 2 possible actions
+				break;
+			}
 		});
 	}
 
 	private void registerDirectoryChangeHandler() {
 		Handler<Message<JsonObject>> dirChangeHandler = (Message<JsonObject> msg) -> {
-			vertx.executeBlocking(prom -> {
-				String dom = msg.body().getString(DOMAIN_FIELD);
-				DirectorySerializer ser = Serializers.forDomain(dom);
-				if (ser != null) {
-					ser.produce();
-				} else {
-					logger.warn("Missing serializer for domain {}", dom);
-				}
-			}, false);
+			String dom = msg.body().getString(DOMAIN_FIELD);
+			DirectorySerializer ser = Serializers.forDomain(dom);
+			if (ser != null) {
+				ser.produce();
+			} else {
+				logger.warn("Missing serializer for domain {}", dom);
+			}
 		};
 		ThrottleMessages<JsonObject> tm = new ThrottleMessages<>(msg -> msg.body().getString(DOMAIN_FIELD),
 				dirChangeHandler, vertx, 5000);
@@ -114,17 +109,14 @@ public class DirectorySerializationVerticle extends AbstractVerticle {
 	}
 
 	public static class DirectorySerializationVerticleFactory implements IVerticleFactory, IUniqueVerticleFactory {
-
 		@Override
 		public boolean isWorker() {
-			return false;
+			return true;
 		}
 
 		@Override
 		public Verticle newInstance() {
 			return new DirectorySerializationVerticle();
 		}
-
 	}
-
 }
