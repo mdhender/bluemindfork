@@ -99,10 +99,7 @@ export default {
 
                 // focus on content when a recipient is already set
                 if (this.message.to.length > 0) {
-                    await this.$waitFor(
-                        () => this.$refs["message-content"],
-                        value => value?._isMounted
-                    );
+                    await this.editorGotMounted();
                     this.$refs["message-content"].focusBefore(PERSONAL_SIGNATURE_SELECTOR(this.personalSignature.id));
                 }
             },
@@ -110,10 +107,7 @@ export default {
         },
         async "messageCompose.editorContent"() {
             if (!this.lock && !this.loading) {
-                await this.$waitFor(
-                    () => this.$refs["message-content"],
-                    value => value?._isMounted
-                );
+                await this.editorGotMounted();
                 this.$refs["message-content"].setContent(this.messageCompose.editorContent);
             }
         }
@@ -137,6 +131,13 @@ export default {
         setCidDataAttr(container) {
             const images = container.querySelectorAll('img[src^="data:image"]:not([' + CID_DATA_ATTRIBUTE + "])");
             images.forEach(imgNode => imgNode.setAttribute(CID_DATA_ATTRIBUTE, createCid()));
+        },
+        editorGotMounted() {
+            return this.$waitFor(
+                () => this.$refs["message-content"],
+                value => value?._isMounted,
+                { immediate: true }
+            );
         }
     }
 };
