@@ -33,7 +33,9 @@
                     />
                     <a style="color: #0f7edb !important;" :href="bmUrl">BlueMind</a>
                 </span>
-                <a style="color: #0f7edb !important;" :href="attachment.url">{{ attachment.fileName }} </a>
+                <a style="color: #0f7edb !important;" :href="attachment.url" :download="attachment.fileName">
+                    {{ attachment.fileName }}
+                </a>
                 <span style="margin-left: 5px; font-size: small; color: grey;">
                     ({{ displaySize(attachment.size) }})
                 </span>

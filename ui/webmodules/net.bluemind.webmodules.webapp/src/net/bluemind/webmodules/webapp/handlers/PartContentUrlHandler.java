@@ -124,7 +124,7 @@ public class PartContentUrlHandler implements Handler<HttpServerRequest>, NeedVe
 					resp.setChunked(true);
 
 					resp.headers().set("Content-Type", mime + ";charset=" + charset);
-					resp.headers().set("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+					resp.headers().set("Content-Disposition", "inline; filename=\"" + filename + "\"");
 					resp.headers().set("Cache-Control", "max-age=15768000, private"); // 6 months
 
 					ReadStream<Buffer> read = VertxStream.read(partContent);

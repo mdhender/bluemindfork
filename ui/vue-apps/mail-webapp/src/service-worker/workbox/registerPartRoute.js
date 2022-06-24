@@ -25,7 +25,7 @@ async function fetchPartUsingCoreAPI({ request, url }) {
 
         const headers = new Headers(response.headers);
         headers.set("Content-Type", params.mime + ";charset=" + params.charset);
-        headers.set("Content-Disposition", params.filename ? 'attachment; filename="' + params.filename + '"' : "");
+        headers.set("Content-Disposition", `inline; filename="${params.filename}"`);
 
         return new Response(await response.blob(), { headers });
     } catch (e) {
