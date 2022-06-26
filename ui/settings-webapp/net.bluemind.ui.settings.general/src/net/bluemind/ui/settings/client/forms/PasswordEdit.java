@@ -167,16 +167,16 @@ public class PasswordEdit extends CompositeGwtWidgetElement {
 
 					@Override
 					public void failure(Throwable e) {
-
 						if (e instanceof ServerFault && ((ServerFault) e).getCode() == ErrorCode.AUTHENTICATION_FAIL) {
 							setCurrentPasswordError(PasswordEditConstants.INST.wrongCurrentPassword());
 						} else if (e instanceof ServerFault
 								&& ((ServerFault) e).getCode() == ErrorCode.INVALID_PASSWORD) {
 							setNewPasswordError(e.getMessage());
+						} else if (e instanceof ServerFault && ((ServerFault) e).getCode() == ErrorCode.FORBIDDEN) {
+							Notification.get().reportError(new ServerFault(e.getMessage()));
 						} else {
 							Notification.get().reportError(e);
 						}
-
 					}
 				});
 	}

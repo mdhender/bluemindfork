@@ -34,6 +34,8 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 
 import net.bluemind.core.api.AsyncHandler;
+import net.bluemind.core.api.fault.ErrorCode;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
 import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
@@ -100,6 +102,11 @@ public class UserPassword extends CompositeGwtWidgetElement implements IGwtWidge
 
 				@Override
 				public void failure(Throwable e) {
+					if (e instanceof ServerFault && ((ServerFault) e).getCode() == ErrorCode.FORBIDDEN) {
+						Notification.get().reportError(new ServerFault(e.getMessage()));
+						return;
+					}
+
 					Notification.get().reportError(e);
 				}
 			});
