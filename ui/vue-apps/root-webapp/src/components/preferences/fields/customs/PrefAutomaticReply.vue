@@ -210,7 +210,9 @@ export default {
     },
     methods: {
         onInput(content) {
-            this.textHtml = content;
+            if (content !== this.textHtml) {
+                this.textHtml = content;
+            }
         }
     }
 };

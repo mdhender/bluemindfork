@@ -12,7 +12,7 @@
     "alert.preferences.containers.create_and_import_data.warning": "La création a bien été effectuée mais certaines données n'ont pas pu être importées.",
 
     "preferences.leave_app.confirm": "Vous avez des changements non sauvegardés. En quittant les préférences, ces changements seront perdus.",
-    "preferences.leave_app.confirm.title": "Préferences non sauvegardées",
+    "preferences.leave_app.confirm.title": "Préférences non sauvegardées",
     "preferences.leave_app.confirm.button": "Quitter les préférences",
 
     "preferences.account.external_accounts": "Comptes externes",
