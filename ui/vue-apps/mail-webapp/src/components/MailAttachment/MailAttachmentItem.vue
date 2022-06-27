@@ -10,20 +10,18 @@
         <bm-container
             class="mail-attachment-item text-condensed py-2 px-2 mt-2"
             :class="isRemovable ? '' : 'cursor-pointer'"
-            @click="
-                isViewable(context.attachment) ? openPreview(context.attachment, message) : download(context.attachment)
-            "
+            @click="onAttachmentClick(context.attachment, context.message)"
         >
             <attachment-preview
                 v-if="!compact"
                 :attachment="context.attachment"
                 :message="message"
-                :class="{ muted: !isUploaded(context.attachment) }"
+                :class="{ muted: !isFinished(context.attachment) }"
             />
             <attachment-infos
                 :attachment="context.attachment"
                 :message="message"
-                :class="{ muted: !isUploaded(context.attachment) }"
+                :class="{ muted: !isFinished(context.attachment) }"
             >
                 <template #actions>
                     <bm-button
@@ -32,7 +30,8 @@
                         class="p-0"
                         size="md"
                         :title="$t('mail.preview.open')"
-                        @click.stop="openPreview(context.attachment, message)"
+                        :disabled="!isFinished(context.attachment)"
+                        @click.stop="isFinished(attachment) ? openPreview(context.attachment, message) : ''"
                     >
                         <bm-icon icon="eye" size="2x" class="p-1" />
                     </bm-button>
@@ -51,12 +50,13 @@
                         "
                         :href="previewUrl(context.attachment)"
                         :download="context.attachment.fileName"
+                        :disabled="!isFinished(context.attachment)"
                         @click.stop
                     >
                         <bm-icon icon="download" size="2x" class="p-1" />
                     </bm-button>
                     <bm-button-close
-                        v-else-if="isCancellable(context.attachment)"
+                        v-else-if="!isFinished(context.attachment)"
                         variant="light"
                         class="p-0 remove-attachment"
                         size="md"
@@ -74,7 +74,7 @@
                 </template>
             </attachment-infos>
             <bm-progress
-                v-if="!isUploaded(context.attachment)"
+                v-if="!isFinished(context.attachment)"
                 :value="context.attachment.progress.loaded"
                 :max="context.attachment.progress.total"
                 :animated="context.attachment.progress.animated"
@@ -143,10 +143,10 @@ export default {
             SET_PREVIEW_MESSAGE_KEY,
             SET_PREVIEW_PART_ADDRESS
         }),
-        isCancellable(attachment) {
-            return !this.isUploaded(attachment) && attachment.status !== AttachmentStatus.ERROR;
-        },
         isUploaded(attachment) {
+            return attachment.status === AttachmentStatus.UPLOADED;
+        },
+        isFinished(attachment) {
             return [AttachmentStatus.UPLOADED, AttachmentStatus.ERROR].includes(attachment.status);
         },
         download(attachment) {
@@ -173,6 +173,15 @@ export default {
         },
         fileTypeIcon({ mime }) {
             return MimeType.matchingIcon(mime);
+        },
+        onAttachmentClick(attachment, message) {
+            if (this.isUploaded(attachment)) {
+                if (this.isViewable(attachment)) {
+                    this.openPreview(attachment, message);
+                } else {
+                    this.download(attachment);
+                }
+            }
         },
         isViewable
     }
