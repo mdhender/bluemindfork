@@ -22,10 +22,10 @@
     lodash.startswith "^4.2.1"
     xss "^1.0.6"
 
-"@bluemind/styleguide@0.1.2289":
-  version "0.1.2289"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.2289.tgz#73c952794e1e9363b16b43931faf4d0b7d7e4fb4"
-  integrity sha512-iFKtiwrgKI7EbPsAS4M057aG73bpkoOUjQA6yvfClYfFmaDqd74AYwkO5Ym+ktRlNtqczp0yipfQB28XkjeioQ==
+"@bluemind/styleguide@0.1.2417":
+  version "0.1.2417"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.2417.tgz#555fa2b5043244e74b57d2e64db9713119444e19"
+  integrity sha512-4oNqjiEtIFi6FgIPGMHjeDAchXGJu8uuVid2NVIm3WoZjJJnUA96BOu2xccYU4XUAPvlu5dSZ/juYDs8NYPWBA==
   dependencies:
     "@bluemind/email" "^4.1.0"
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
