@@ -26,6 +26,7 @@ export default {
     mixins: [ComposerInitMixin, WaitForMixin],
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
+        ...mapState("root-app", ["identities"]),
         ...mapGetters("mail", { ACTIVE_MESSAGE, MY_MAILBOX, SELECTION_IS_EMPTY })
     },
     watch: {
@@ -50,6 +51,8 @@ export default {
 
                     let assert = mailbox => mailbox && mailbox.loading === LoadingStatus.LOADED;
                     await this.$waitFor(MY_MAILBOX, assert);
+                    let assertIdentities = identitiesCount => identitiesCount > 0;
+                    await this.$waitFor(() => this.identities.length, assertIdentities);
                     let message;
 
                     if (isNewMessage({ remoteRef: { internalId } })) {

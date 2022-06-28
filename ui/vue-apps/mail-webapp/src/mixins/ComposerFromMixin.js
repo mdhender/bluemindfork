@@ -1,4 +1,3 @@
-import { mapState } from "vuex";
 import { inject } from "@bluemind/inject";
 import { computeIdentityForReplyOrForward, findIdentityFromMailbox } from "~/model/draft";
 import { MessageHeader } from "~/model/message";
@@ -12,9 +11,6 @@ export default {
         return {
             userPrefTextOnly: false // FIXME: https://forge.bluemind.net/jira/browse/FEATWEBML-88
         };
-    },
-    computed: {
-        ...mapState("root-app", { $_ComposerFromMixin_identities: "identities" })
     },
     methods: {
         async setFrom(identity, message) {
@@ -71,7 +67,7 @@ export default {
             return this.getIdentityForNewMessage();
         },
         setIdentity(identity) {
-            const fullIdentity = this.$_ComposerFromMixin_identities.find(
+            const fullIdentity = this.$store.state["root-app"].identities.find(
                 i => i.email === identity.email && i.displayname === identity.displayname
             );
             this.$store.commit("mail/" + SET_PERSONAL_SIGNATURE, { html: fullIdentity.signature, id: fullIdentity.id });
