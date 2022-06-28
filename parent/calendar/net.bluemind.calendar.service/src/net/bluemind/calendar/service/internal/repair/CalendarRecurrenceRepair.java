@@ -177,7 +177,7 @@ public class CalendarRecurrenceRepair implements IDirEntryRepairSupport {
 
 	@Override
 	public Set<InternalMaintenanceOperation> ops(Kind kind) {
-		if (kind == Kind.USER) {
+		if (kind == Kind.USER || kind == Kind.CALENDAR || kind == Kind.RESOURCE) {
 			return ImmutableSet.of(new CalendarRecurrenceMaintenance(context));
 		} else {
 			return Collections.emptySet();
