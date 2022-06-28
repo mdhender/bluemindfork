@@ -5,22 +5,22 @@ let lock = Promise.resolve();
 
 export class MailboxItemsClientProxy extends MailboxItemsClient {
     addFlag() {
-        lock = lock.catch(Function).then(() => super.addFlag(...arguments));
+        lock = lock.catch(() => {}).then(() => super.addFlag(...arguments));
         return lock;
     }
 
     deleteFlag() {
-        lock = lock.catch(Function).then(() => super.deleteFlag(...arguments));
+        lock = lock.catch(() => {}).then(() => super.deleteFlag(...arguments));
         return lock;
     }
 
     fetch() {
-        lock = lock.catch(Function).then(() => super.fetch(...arguments));
+        lock = lock.catch(() => {}).then(() => super.fetch(...arguments));
         return lock;
     }
 
     getForUpdate() {
-        lock = lock.catch(Function).then(() => super.getForUpdate(...arguments));
+        lock = lock.catch(() => {}).then(() => super.getForUpdate(...arguments));
         return lock;
     }
 
