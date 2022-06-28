@@ -85,7 +85,7 @@ public class OtherUrlHookTest {
 			new OtherUrlHook().validate(null, modifications);
 			fail("Test must thrown an exception!");
 		} catch (ServerFault sf) {
-			assertEquals("Invalid URL ''", sf.getMessage());
+			assertEquals("Invalid URL '' in other URLs", sf.getMessage());
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
 		}
 	}
@@ -98,7 +98,7 @@ public class OtherUrlHookTest {
 			new OtherUrlHook().validate(null, modifications);
 			fail("Test must thrown an exception!");
 		} catch (ServerFault sf) {
-			assertEquals("Invalid URL 'not-a-FQDN'", sf.getMessage());
+			assertEquals("Invalid URL 'not-a-FQDN' in other URLs", sf.getMessage());
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
 		}
 	}
