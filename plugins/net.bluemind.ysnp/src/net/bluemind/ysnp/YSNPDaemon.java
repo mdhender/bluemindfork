@@ -27,6 +27,7 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.config.Token;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.systemd.notify.Startup;
 
@@ -46,6 +47,11 @@ public class YSNPDaemon implements IApplication {
 		Files.deleteIfExists(Paths.get(conf.getSocketPath()));
 		Files.deleteIfExists(Paths.get(conf.getExpireOkSocketPath()));
 		logger.info("UNIX socket will be created on {}", conf.getSocketPath());
+
+		if (!Token.exists()) {
+			logger.error("/etc/bm/bm-core.tok does not exists. Can't launch");
+			System.exit(1);
+		}
 
 		VertxPlatform.spawnBlocking(1, TimeUnit.MINUTES);
 
