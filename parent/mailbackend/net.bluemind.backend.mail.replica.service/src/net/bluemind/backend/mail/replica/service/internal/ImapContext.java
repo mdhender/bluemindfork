@@ -68,15 +68,14 @@ public class ImapContext {
 		int maxChild = cyrusMaxChild();
 		Cache<String, ImapContext> ret = Caffeine.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
 				.removalListener((String key, ImapContext value, RemovalCause cause) -> {
-					if (cause.wasEvicted()) {
-						value.imapClient.ifPresent(psc -> {
-							logger.info("Closing underlying imap connection for {}", key);
+					value.imapClient.ifPresent(psc -> {
+						logger.info("[removalListener] Closing underlying imap connection for {} ({})", key, cause);
+						if (!psc.isClosed()) {
 							psc.closeImpl();
-							value.imapClient = Optional.empty();
-						});
-					}
-				}) //
-				.maximumSize(maxChild / 4)//
+						}
+						value.imapClient = Optional.empty();
+					});
+				}).maximumSize(maxChild / 4)//
 				.recordStats()//
 				.build();
 		VertxPlatform.getVertx().setPeriodic(TimeUnit.SECONDS.toMillis(30), tid -> ret.cleanUp());
@@ -134,8 +133,8 @@ public class ImapContext {
 			return imapClient.get();
 		} else {
 			PoolableStoreClient sc = new PoolableStoreClient(server, 1143, latd, sid);
-			boolean minaClientOk = sc.login();
 			try {
+				boolean minaClientOk = sc.login();
 				if (!minaClientOk) {
 					sc.closeImpl();
 					throw new ServerFault("Failed to establish both imap connections for " + latd);

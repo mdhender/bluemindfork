@@ -37,9 +37,7 @@ public class HashCache {
 	private static final Cache<String, File> hashes = Caffeine.newBuilder().recordStats()
 			.expireAfterAccess(10, TimeUnit.MINUTES).maximumSize(1024)
 			.removalListener((String k, File v, RemovalCause cause) -> {
-				if (cause.wasEvicted()) {
-					v.delete(); // NOSONAR
-				}
+				v.delete(); // NOSONAR
 			}).build();
 
 	public static class CacheRegistration implements ICacheRegistration {
