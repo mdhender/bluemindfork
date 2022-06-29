@@ -36,10 +36,10 @@
                 <a style="color: #0f7edb !important;" :href="attachment.url" :download="attachment.fileName">
                     {{ attachment.fileName }}
                 </a>
-                <span style="margin-left: 5px; font-size: small; color: grey;">
+                <span v-if="attachment.size" style="margin-left: 5px; font-size: small; color: grey;">
                     ({{ displaySize(attachment.size) }})
                 </span>
-                <span style="display: block; font-size: small; color: grey;">
+                <span v-if="attachment.expirationDate" style="display: block; font-size: small; color: grey;">
                     {{ $t("mail.filehosting.expiration_date", { date: dateToString(attachment.expirationDate) }) }}
                 </span>
             </div>

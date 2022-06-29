@@ -355,6 +355,7 @@
     "mail.toolbar.more.aria": "Other actions for selected messages",
     "mail.toolbar.more": "Others",
     "mail.toolbar.move.tooltip": "Move message",
+    "mail.viewer.no.name": "(Untitled)",
     "mail.viewer.no.preview": "(No preview available)",
     "mail.viewer.no.subject": "(No subject)",
     "mail": {

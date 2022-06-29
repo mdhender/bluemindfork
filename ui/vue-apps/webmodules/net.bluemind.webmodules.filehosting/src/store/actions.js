@@ -24,27 +24,21 @@ export default {
             const address = await serviceMbItems.uploadPart("");
 
             const serviceAttachment = inject("AttachmentPersistence");
-            const { publicUrl, name, expirationDate } = await serviceAttachment.share(
+            const shareInfos = await serviceAttachment.share(
                 file.name,
                 file,
                 global.cancellers[attachment.address + message.key],
                 createOnUploadProgress(commit, message.key, attachment.address)
             );
 
+            const mozillaHeader = getMozillaHeader(shareInfos);
+            const bmHeader = getBmHeader(shareInfos, file);
             commit("SET_ATTACHMENT_HEADERS", {
                 messageKey: message.key,
                 address: attachment.address,
                 headers: [
-                    {
-                        name: "X-Mozilla-Cloud-Part",
-                        values: [`cloudFile;url=${publicUrl};name=${name}`]
-                    },
-                    {
-                        name: "X-BM-Disposition",
-                        values: [
-                            `filehosting;url=${publicUrl};name=${name};size=${file.size};mime=${file.type};expirationDate=${expirationDate}`
-                        ]
-                    }
+                    { name: "X-Mozilla-Cloud-Part", values: [mozillaHeader] },
+                    { name: "X-BM-Disposition", values: [bmHeader] }
                 ]
             });
 
@@ -116,4 +110,19 @@ function handleError(commit, message, error, attachment) {
             status: AttachmentStatus.ERROR
         });
     }
+}
+
+function getBmHeader({ publicUrl, name, expirationDate }, file) {
+    let bmHeader = `filehosting;url=${publicUrl}`;
+    bmHeader += name ? `;name=${name}` : `;name=${inject("i18n").t("mail.viewer.no.name")}`;
+    bmHeader += file.size ? `;size=${file.size}` : ";size=0";
+    bmHeader += file.type ? `;mime=${file.type}` : ";mime=application/octet-stream";
+    bmHeader += expirationDate ? `;expirationDate=${expirationDate}` : "";
+    return bmHeader;
+}
+
+function getMozillaHeader({ publicUrl, name }) {
+    let mozillaHeader = `cloudFile;url=${publicUrl}`;
+    mozillaHeader += name ? `;name=${name}` : `;name=${inject("i18n").t("mail.viewer.no.name")}`;
+    return mozillaHeader;
 }

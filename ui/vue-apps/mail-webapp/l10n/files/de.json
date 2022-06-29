@@ -355,6 +355,7 @@
     "mail.toolbar.more.aria": "Weitere Aktionen für die ausgewählten E-Mails",
     "mail.toolbar.more": "Andere",
     "mail.toolbar.move.tooltip": "E-Mail verschieben",
+    "mail.viewer.no.name": "(unbetitelt)",
     "mail.viewer.no.preview": "(Keine Voransicht verfügbar)",
     "mail.viewer.no.subject": "(Kein Betreff)",
     "mail": {
