@@ -18,7 +18,6 @@
  */
 package net.bluemind.core.task.service.internal;
 
-import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import net.bluemind.core.task.service.AbstractTaskMonitor;
 import net.bluemind.core.task.service.LoggingTaskMonitor;
@@ -26,7 +25,6 @@ import net.bluemind.core.task.service.LoggingTaskMonitor;
 public class TaskMonitor extends AbstractTaskMonitor {
 	private EventBus eventBus;
 	private String taskId;
-	private Handler<Void> endHandler;
 	private boolean ended;
 
 	public TaskMonitor(EventBus eventBus, String taskId) {
@@ -59,15 +57,9 @@ public class TaskMonitor extends AbstractTaskMonitor {
 			return;
 		}
 		ended = true;
-		LoggingTaskMonitor.logger.info("send end {} result {}", log, result);
+		LoggingTaskMonitor.logger.info("[{}] send end {} result {}", taskId, log, result);
 		eventBus.publish(TasksManager.TASKS_MANAGER_EVENT, MonitorMessage.end(taskId, success, log, result));
-		if (endHandler != null)
-			endHandler.handle(null);
 
-	}
-
-	public void endHandler(Handler<Void> endHandler) {
-		this.endHandler = endHandler;
 	}
 
 	public boolean ended() {

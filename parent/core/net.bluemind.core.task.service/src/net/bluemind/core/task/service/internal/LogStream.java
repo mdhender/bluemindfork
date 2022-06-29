@@ -18,7 +18,8 @@
  */
 package net.bluemind.core.task.service.internal;
 
-import java.util.concurrent.ConcurrentLinkedDeque;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
@@ -28,15 +29,20 @@ import net.bluemind.core.api.Stream;
 
 public class LogStream implements ReadStream<Buffer>, Stream {
 
+	private static final Logger logger = LoggerFactory.getLogger(LogStream.class);
 	private Handler<Buffer> handler;
 
-	private ConcurrentLinkedDeque<Buffer> queue = new ConcurrentLinkedDeque<>();
-
-	private boolean paused;
+	private volatile boolean paused;
 
 	private boolean ended;
 	private Handler<Void> endHandler;
-	private Handler<Throwable> exceptionHandler = null;
+	private Handler<Throwable> exceptionHandler;
+
+	private final ISubscriber sub;
+
+	public LogStream(ISubscriber subscriber) {
+		this.sub = subscriber;
+	}
 
 	@Override
 	public LogStream handler(Handler<Buffer> handler) {
@@ -46,27 +52,46 @@ public class LogStream implements ReadStream<Buffer>, Stream {
 		return this;
 	}
 
-	private LogStream read() {
+	private synchronized void read() {
 		if (paused) {
-			return null;
+			return;
 		}
+		fetchPending();
+
+		maybeEnd();
+	}
+
+	private void maybeEnd() {
 		try {
-			Buffer data = null;
-			while ((data = queue.poll()) != null) {
-				handler.handle(data);
+			if (ended) {
+				ended();
+			}
+		} catch (Throwable e) {// NOSONAR
+			if (exceptionHandler != null) {
+				exceptionHandler.handle(e);
+			} else {
+				logger.error(e.getMessage(), e);
+			}
+		}
+	}
+
+	private void fetchPending() {
+		try {
+			JsonObject data = null;
+			while ((data = sub.fetchOne()) != null) {
+				Buffer buf = Buffer.buffer(data.encode());
+				handler.handle(buf);
 				if (paused) { // NOSONAR: set from another thread
 					break;
 				}
 			}
-			if (ended) {
-				ended();
-			}
-		} catch (Exception e) {
+		} catch (Throwable e) {// NOSONAR
 			if (exceptionHandler != null) {
 				exceptionHandler.handle(e);
+			} else {
+				logger.error(e.getMessage(), e);
 			}
 		}
-		return this;
 	}
 
 	private void ended() {
@@ -100,8 +125,7 @@ public class LogStream implements ReadStream<Buffer>, Stream {
 		return null;
 	}
 
-	public void pushData(JsonObject logMessage) {
-		queue.add(Buffer.buffer(logMessage.encode()));
+	public void wakeUp() {
 		if (!paused && handler != null) {
 			read();
 		}

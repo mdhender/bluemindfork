@@ -42,6 +42,7 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.task.service.LoggingTaskMonitor;
+import net.bluemind.core.task.service.internal.cq.CQTaskManager;
 import net.bluemind.core.utils.CancellableRunnable;
 import net.bluemind.core.utils.FutureThreadInfo;
 import net.bluemind.lib.vertx.WorkerExecutorService;
@@ -108,7 +109,7 @@ public class TasksManager implements ITasksManager {
 
 	@Override
 	public TaskRef run(final String taskId, Logger logger, final IServerTask serverTask) {
-		final TaskManager task = new TaskManager(taskId);
+		final TaskManager task = new CQTaskManager(taskId);
 		final TaskMonitor monitor = new TaskMonitor(vertx.eventBus(), taskId);
 		final LoggingTaskMonitor loggingMonitor = new LoggingTaskMonitor(logger, monitor, 0);
 		TaskManager oldTask = tasks.putIfAbsent(taskId, task);
@@ -149,7 +150,7 @@ public class TasksManager implements ITasksManager {
 					logger.error("error in task {}", taskId, e);
 					loggingMonitor.end(false, e.getMessage(), null);
 				} finally {
-					vertx.setTimer(1000 * 60 * 10l, event -> cleanupTask(task));
+					vertx.setTimer(TimeUnit.MINUTES.toMillis(10), event -> cleanupTask(task));
 				}
 			}
 
@@ -163,10 +164,10 @@ public class TasksManager implements ITasksManager {
 	}
 
 	private void cleanupTask(TaskManager task) {
-		TaskManager tsk = tasks.remove(task.getId());
-		futures.remove(task.getId());
-		if (tsk != null) {
-			tsk.cleanUp();
+		boolean removed = tasks.remove(task.getId(), task);
+		if (removed) {
+			futures.remove(task.getId());
+			task.cleanUp();
 		}
 	}
 

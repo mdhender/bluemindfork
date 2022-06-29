@@ -51,7 +51,7 @@ public class TaskUtils {
 		monitor.begin(1, "");
 		TaskStatus status = wait(task, monitor::log);
 		monitor.end(true, null, status.result);
-		logger.info("task finished {}", status);
+		logger.info("[{}] task finished {}", task, status);
 	}
 
 	public static TaskStatus waitForInterruptible(IServiceProvider provider, TaskRef ref) throws InterruptedException {

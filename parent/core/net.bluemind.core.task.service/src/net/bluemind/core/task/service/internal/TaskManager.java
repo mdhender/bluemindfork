@@ -18,15 +18,10 @@
  */
 package net.bluemind.core.task.service.internal;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.EvictingQueue;
-import com.google.common.collect.Queues;
 
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
@@ -37,94 +32,66 @@ import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.internal.MonitorMessage.MessageType;
 import net.bluemind.core.utils.JsonUtils;
 
-public class TaskManager implements Handler<Message<JsonObject>> {
+public abstract class TaskManager implements Handler<Message<JsonObject>> {
 
 	private static final Logger logger = LoggerFactory.getLogger(TaskManager.class);
-	private Queue<JsonObject> logs = Queues.synchronizedQueue(EvictingQueue.create(10000));
 
-	private List<LogStream> readers = new ArrayList<>();
+	protected final String taskId;
 
-	private TaskStatus status = new TaskStatus();
+	protected TaskStatus status = new TaskStatus();
 	private double steps;
 	private double currentStep;
-	private String taskId;
 
-	public TaskManager(String taskId) {
+	protected TaskManager(String taskId) {
 		this.taskId = taskId;
+
 	}
 
 	public void cleanUp() {
 	}
 
-	public ReadStream<Buffer> log() {
-		LogStream reader = new LogStream();
+	public abstract ReadStream<Buffer> log();
 
-		registerReader(reader);
-		return reader;
-	}
-
-	public List<String> getCurrentLogs(int offset) {
-
-		synchronized (logs) {
-			List<String> ret = new ArrayList<>(logs.size() - offset);
-			logs.stream().skip(offset).forEach(o -> ret.add(o.getString("message")));
-			return ret;
-		}
-	}
-
-	private void registerReader(LogStream reader) {
-		synchronized (logs) {
-			this.readers.add(reader);
-			for (JsonObject l : logs) {
-				reader.pushData(l);
-				if (Boolean.TRUE.equals(l.getBoolean("end"))) {
-					reader.end();
-				}
-			}
-		}
-	}
+	public abstract List<String> getCurrentLogs(int offset);
 
 	@Override
-	public void handle(final Message<JsonObject> event) {
-		logger.debug("log message {} for task {}", event.body().getString("message"), taskId);
-
-		updateStatus(event.body());
-		MessageType type = MessageType.valueOf(event.body().getString("type"));
-		synchronized (logs) {
-
-			if (type == MessageType.begin) {
-				steps = event.body().getDouble("work");
-				currentStep = 0;
-			} else if (type == MessageType.progress) {
-				currentStep += event.body().getDouble("step");
-			}
-
-			boolean end = type == MessageType.end;
-			if (end) {
-				currentStep = steps;
-			}
-			pushLog(currentStep, steps, event.body().getString("message"), end);
-
+	public final void handle(final Message<JsonObject> event) {
+		JsonObject evBody = event.body();
+		if (logger.isDebugEnabled()) {
+			logger.debug("log message {} for task {}", evBody.getString("message"), taskId);
 		}
+		updateStatus(evBody);
+		MessageType type = MessageType.valueOf(evBody.getString("type"));
+
+		if (type == MessageType.begin) {
+			steps = evBody.getDouble("work");
+			currentStep = 0;
+		} else if (type == MessageType.progress) {
+			currentStep += evBody.getDouble("step");
+		}
+
+		boolean end = type == MessageType.end;
+		if (end) {
+			currentStep = steps;
+		}
+
+		JsonObject log = prepareLog(evBody, end);
+		pushLog(log, end);
+
 	}
 
-	private void pushLog(double currentStep2, double steps2, String message, boolean end) {
+	private JsonObject prepareLog(JsonObject evBody, boolean end) {
 		JsonObject log = new JsonObject();
-		log.put("done", currentStep2);
-		log.put("total", steps2);
-		log.put("message", message);
+		log.put("done", currentStep).put("total", steps);
+		log.put("message", evBody.getString("message"));
 		log.put("end", end);
-		logs.add(log);
-		for (LogStream reader : readers) {
-			if (end) {
-				log.put("status", JsonUtils.asString(this.status));
-			}
-			reader.pushData(log);
-			if (end) {
-				reader.end();
-			}
+		if (end) {
+			log.put("status", JsonUtils.asString(this.status));
 		}
+		return log;
 	}
+
+	protected abstract void pushLog(JsonObject log, boolean end);
 
 	private void updateStatus(JsonObject body) {
 		MessageType type = MessageType.valueOf(body.getString("type"));
@@ -141,18 +108,14 @@ public class TaskManager implements Handler<Message<JsonObject>> {
 		this.status = newStatus;
 	}
 
-	public TaskStatus status() {
+	public final TaskStatus status() {
 		TaskStatus s = status;
-		logger.info("retrieve task status : {} {} on {}", status.state, status.progress, status.steps);
+		logger.info("[{}] task status : {} {} on {}", taskId, status.state, status.progress, status.steps);
 		return s;
 	}
 
-	public String getId() {
+	public final String getId() {
 		return taskId;
 	}
 
-	@Override
-	public String toString() {
-		return "TaskManager{id=" + taskId + ", status=" + status + "}";
-	}
 }

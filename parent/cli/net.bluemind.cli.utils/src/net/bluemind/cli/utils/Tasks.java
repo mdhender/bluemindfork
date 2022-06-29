@@ -84,7 +84,7 @@ public class Tasks {
 				Thread.currentThread().interrupt();
 			} catch (ExecutionException e) {
 				if (errorMessage == null || errorMessage.isEmpty()) {
-					ctx.error("task execution exception: {}", e.getMessage());
+					ctx.error("task {} execution exception: {}", ref, e.getMessage());
 				}
 			}
 		} while (ts != null && !ts.state.ended);
