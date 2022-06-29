@@ -118,8 +118,15 @@ public class DirEntryTargetFilter {
 
 		if (dirEntryMatch != null && !dirEntryMatch.isEmpty()) {
 			Pattern p = Pattern.compile(dirEntryMatch, Pattern.CASE_INSENSITIVE);
-			entries.values = entries.values.stream().filter(de -> p.matcher(unaccent(de.displayName)).matches())
-					.collect(Collectors.toList());
+			entries.values = entries.values.stream().filter(de -> {
+				boolean match = false;
+				if (de.value != null && de.value.email != null) {
+					match = p.matcher(de.value.email).matches();
+				} else {
+					match = p.matcher(unaccent(de.displayName)).matches();
+				}
+				return match;
+			}).collect(Collectors.toList());
 		}
 
 		return Stream.of(rootEntry, entries.values).flatMap(List::stream)
