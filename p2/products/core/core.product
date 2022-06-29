@@ -39,6 +39,7 @@
       <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
       <plugin id="com.fasterxml.jackson.module.jackson-module-afterburner"/>
       <plugin id="com.github.ben-manes.caffeine"/>
+      <plugin id="com.github.chrisvest.stormpot"/>
       <plugin id="com.github.lookfirst.sardine"/>
       <plugin id="com.github.luben.zstd"/>
       <plugin id="com.google.guava"/>
@@ -127,6 +128,7 @@
       <plugin id="net.bluemind.calendar.sqlschema"/>
       <plugin id="net.bluemind.calendar.sync"/>
       <plugin id="net.bluemind.calendar.usercalendar"/>
+      <plugin id="net.bluemind.chronicle.queue"/>
       <plugin id="net.bluemind.common.cache.persistence"/>
       <plugin id="net.bluemind.common.freemarker"/>
       <plugin id="net.bluemind.common.hollow"/>
@@ -327,7 +329,6 @@
       <plugin id="net.bluemind.mailshare.hook"/>
       <plugin id="net.bluemind.mailshare.service"/>
       <plugin id="net.bluemind.maintenance"/>
-      <plugin id="net.bluemind.maintenance.elastic"/>
       <plugin id="net.bluemind.maintenance.job"/>
       <plugin id="net.bluemind.maintenance.postgresql"/>
       <plugin id="net.bluemind.mapdb"/>
@@ -496,6 +497,7 @@
       <plugin id="org.apache.xml.serializer"/>
       <plugin id="org.asynchttpclient.async-http-client"/>
       <plugin id="org.asynchttpclient.async-http-client-netty-utils"/>
+      <plugin id="org.bitbucket.b_c.jose4j"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.runtime"/>
@@ -515,6 +517,7 @@
       <plugin id="org.ini4j"/>
       <plugin id="org.iq80.snappy"/>
       <plugin id="org.jboss.logging.jboss-logging"/>
+      <plugin id="org.jetbrains.kotlin.stdlib"/>
       <plugin id="org.jsoup"/>
       <plugin id="org.mnode.ical4j"/>
       <plugin id="org.mnode.ical4j.vcard"/>
@@ -522,6 +525,8 @@
       <plugin id="org.postgresql.jdbc42"/>
       <plugin id="org.quartz-scheduler.quartz"/>
       <plugin id="org.reactivestreams.reactive-streams"/>
+      <plugin id="org.shredzone.acme4j.client"/>
+      <plugin id="org.shredzone.acme4j.utils"/>
       <plugin id="org.w3c.css.sac"/>
       <plugin id="org.w3c.dom.events"/>
       <plugin id="org.w3c.dom.smil"/>
