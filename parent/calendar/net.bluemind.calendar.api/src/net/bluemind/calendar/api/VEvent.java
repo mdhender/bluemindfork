@@ -123,6 +123,7 @@ public class VEvent extends ICalendarElement {
 		f.conference = null;
 		f.conferenceId = null;
 		f.conferenceConfiguration = Collections.emptyMap();
+		f.categories = Collections.emptyList();
 		return f;
 	}
 
