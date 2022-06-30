@@ -48,8 +48,16 @@ function addAttachment(state, { messageKey, attachment: { address, headers } }) 
     let header =
         headers.find(header => header.name.toLowerCase() === "x-bm-disposition") ||
         headers.find(header => header.name.toLowerCase() === "x-mozilla-cloud-part");
+
     if (header) {
         const data = extractFileHostingInfos(header);
+
+        if (!data.fileName) {
+            let contentDispoHeader = headers.find(header => header.name.toLowerCase() === "content-disposition");
+            const contentDispoData = extractHeaderInfos(contentDispoHeader);
+            data.fileName = contentDispoData.filename;
+        }
+
         if (!state.values[messageKey]) {
             Vue.set(state.values, messageKey, { [address]: data });
         } else {
@@ -59,15 +67,21 @@ function addAttachment(state, { messageKey, attachment: { address, headers } }) 
 }
 
 function extractFileHostingInfos(header) {
-    let { name, ...headers } = Object.fromEntries(
+    let { name, ...headers } = extractHeaderInfos(header);
+    return {
+        fileName: name,
+        ...headers
+    };
+}
+
+function extractHeaderInfos(header) {
+    if (!header) {
+        return {};
+    }
+    return Object.fromEntries(
         header.values[0]
             .split(";")
             .slice(1)
             .map(s => s.match(/ *([^=]*)=(.*)/).slice(1, 3))
     );
-
-    return {
-        fileName: name,
-        ...headers
-    };
 }
