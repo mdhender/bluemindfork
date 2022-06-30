@@ -240,7 +240,7 @@
     "preferences.calendar.my_calendars.can_edit_my_events": "Peut modifier mes rendez-vous | Peuvent modifier mes rendez-vous",
     "preferences.calendar.my_calendars.can_edit_my_events_and_manage_shares": "Peut modifier mes rendez-vous et gérer mes partages | Peuvent modifier mes rendez-vous et gérer mes partages",
     "preferences.calendar.my_calendars.publish_link_private_mode": "Peut voir les rendez-vous privés",
-    "preferences.calendar.my_calendars.publish_link_public_mode": "Peut voir uniquement les rendez-vous publiques",
+    "preferences.calendar.my_calendars.publish_link_public_mode": "Peut voir uniquement les rendez-vous publics",
 
     "preferences.downloads": "Téléchargements",
     "preferences.downloads.none": "Aucun téléchargement disponible",
