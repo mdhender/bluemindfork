@@ -145,7 +145,7 @@ function security(i18n) {
     return {
         id: "my_account.security",
         name: i18n.t("common.security"),
-        icon: "server",
+        icon: "key",
         groups: [
             {
                 id: "password",
@@ -180,7 +180,7 @@ function cti(i18n) {
     return {
         id: "my_account.cti",
         name: i18n.t("common.telephony"),
-        icon: "cables",
+        icon: "phone",
         visible: { name: "RoleCondition.every", args: [Roles.HAS_CTI, Roles.HAS_IM] },
         groups: [
             {
