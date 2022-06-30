@@ -93,6 +93,7 @@ export default {
     div.bm-form-time-picker {
         display: inline-block !important;
         width: 10em !important;
+        height: 2.25rem;
         &.bm-form-autocomplete-input {
             min-width: unset;
         }

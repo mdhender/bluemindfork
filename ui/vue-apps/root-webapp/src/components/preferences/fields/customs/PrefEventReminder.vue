@@ -88,6 +88,7 @@ function findBestTimeUnit(seconds) {
     .bm-form-input-number {
         display: inline-flex !important;
         width: 10em;
+        height: 2.25rem;
     }
 }
 </style>
