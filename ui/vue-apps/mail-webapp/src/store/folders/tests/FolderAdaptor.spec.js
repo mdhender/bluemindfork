@@ -1,10 +1,10 @@
-import { folder, mailbox } from "@bluemind/mail";
+import { folderUtils, mailboxUtils } from "@bluemind/mail";
 
 import remotefolder from "../../tests/data/remotefolder.json";
 import { FolderAdaptor } from "../helpers/FolderAdaptor";
 
-const { MailboxType } = mailbox;
-const { isDefault } = folder;
+const { MailboxType } = mailboxUtils;
+const { isDefault } = folderUtils;
 
 //TODO: rework on folder adaptors
 // - test coverage is low

@@ -48,7 +48,7 @@
 import Vue from "vue";
 import { REMOVE, WARNING } from "@bluemind/alert.store";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import { conversations } from "@bluemind/mail";
+import { conversationUtils } from "@bluemind/mail";
 
 import MailConversationViewerCompoSwitcher from "./MailConversationViewerCompoSwitcher";
 import MailConversationViewerFooter from "./MailConversationViewer/MailConversationViewerFooter";
@@ -66,7 +66,7 @@ import { MARK_CONVERSATIONS_AS_READ } from "~/actions";
 import { Flag } from "@bluemind/email";
 import TemplateChooser from "~/components/TemplateChooser";
 
-const { sortConversationMessages } = conversations;
+const { sortConversationMessages } = conversationUtils;
 
 export default {
     name: "MailConversationViewer",

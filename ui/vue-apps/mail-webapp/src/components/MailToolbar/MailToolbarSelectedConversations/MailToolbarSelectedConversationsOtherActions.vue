@@ -48,7 +48,7 @@
 <script>
 import { mapGetters, mapMutations, mapState } from "vuex";
 import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
-import { message } from "@bluemind/mail";
+import { messageUtils } from "@bluemind/mail";
 import { ActionTextMixin, RemoveMixin, SelectionMixin, FlagMixin, PrintMixin, MailRoutesMixin } from "~/mixins";
 import { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES } from "~/getters";
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
@@ -56,7 +56,7 @@ import MessagePathParam from "~/router/MessagePathParam";
 import MailMessagePrint from "~/components/MailViewer/MailMessagePrint";
 import MailOpenInPopupWithShift from "~/components/MailOpenInPopupWithShift";
 
-const { MessageCreationModes } = message;
+const { MessageCreationModes } = messageUtils;
 
 export default {
     name: "MailToolbarSelectedConversationsOtherActions",

@@ -29,9 +29,9 @@
 import { mapGetters } from "vuex";
 import { BmLabelIcon, BmProgress, BmIcon } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
-import { attachment } from "@bluemind/mail";
+import { attachmentUtils } from "@bluemind/mail";
 
-const { AttachmentStatus } = attachment;
+const { AttachmentStatus } = attachmentUtils;
 
 const VERY_LARGE_FILE_SIZE = 500 * 1024 * 1024;
 

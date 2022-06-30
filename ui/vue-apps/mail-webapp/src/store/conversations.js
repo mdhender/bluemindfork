@@ -4,7 +4,7 @@ import Vue from "vue";
 
 import { inject } from "@bluemind/inject";
 import { Flag } from "@bluemind/email";
-import { conversations, loadingStatus, message, draft } from "@bluemind/mail";
+import { conversationUtils, loadingStatusUtils, messageUtils, draftUtils } from "@bluemind/mail";
 
 import {
     ADD_FLAG,
@@ -52,15 +52,15 @@ import { withAlert } from "./helpers/withAlert";
 import apiFolders from "./api/apiFolders";
 import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
 
-const { FIXME_NEW_DRAFT_KEY } = draft;
-const { createOnlyMetadata, isFlagged, isUnread, messageKey } = message;
+const { FIXME_NEW_DRAFT_KEY } = draftUtils;
+const { createOnlyMetadata, isFlagged, isUnread, messageKey } = messageUtils;
 const {
     createConversationStub,
     firstMessageInConversationFolder,
     messagesInConversationFolder,
     conversationMustBeRemoved
-} = conversations;
-const { LoadingStatus } = loadingStatus;
+} = conversationUtils;
+const { LoadingStatus } = loadingStatusUtils;
 
 const state = {
     conversationByKey: {},

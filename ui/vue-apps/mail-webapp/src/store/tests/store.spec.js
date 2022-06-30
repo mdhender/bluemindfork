@@ -2,7 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
 import { Flag } from "@bluemind/email";
-import { loadingStatus, mailbox } from "@bluemind/mail";
+import { loadingStatusUtils, mailboxUtils } from "@bluemind/mail";
 import storeData from "..";
 
 import {
@@ -37,8 +37,8 @@ import { DEFAULT_FOLDER_NAMES as NAMES } from "../folders/helpers/DefaultFolders
 import injector from "@bluemind/inject";
 import { SET_FOLDER_FILTER_LOADED, SET_FOLDER_FILTER_LOADING, SET_ACTIVE_FOLDER } from "~/mutations";
 
-const { MailboxType } = mailbox;
-const { LoadingStatus } = loadingStatus;
+const { MailboxType } = mailboxUtils;
+const { LoadingStatus } = loadingStatusUtils;
 
 Vue.use(Vuex);
 injector.register({ provide: "UserSession", use: { userId: "B" } });

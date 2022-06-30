@@ -1,11 +1,11 @@
 import UUIDGenerator from "@bluemind/uuid";
-import { part, attachment, draft } from "@bluemind/mail";
+import { partUtils, attachmentUtils, draftUtils } from "@bluemind/mail";
 import { ADD_ATTACHMENT, DEBOUNCED_SAVE_MESSAGE } from "~/actions";
 import TooLargeBox from "~/components/MailAttachment/Modals/TooLargeBox";
 
-const { createFromFile: createPartFromFile } = part;
-const { create, AttachmentStatus } = attachment;
-const { isNewMessage } = draft;
+const { createFromFile: createPartFromFile } = partUtils;
+const { create, AttachmentStatus } = attachmentUtils;
+const { isNewMessage } = draftUtils;
 
 export default {
     commands: {

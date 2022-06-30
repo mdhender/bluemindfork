@@ -58,7 +58,7 @@
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { BmCounterBadge, BmDropzone, BmIcon } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
-import { folder, mailbox } from "@bluemind/mail";
+import { folderUtils, mailboxUtils } from "@bluemind/mail";
 import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItemMenu from "./MailFolderItemMenu";
@@ -67,8 +67,8 @@ import { FOLDER_HAS_CHILDREN } from "~/getters";
 import { ADD_FOLDER, REMOVE_FOLDER, SET_FOLDER_EXPANDED, TOGGLE_EDIT_FOLDER } from "~/mutations";
 import { FolderMixin } from "~/mixins";
 
-const { MailboxType } = mailbox;
-const { create } = folder;
+const { MailboxType } = mailboxUtils;
+const { create } = folderUtils;
 
 export default {
     name: "MailFolderItem",

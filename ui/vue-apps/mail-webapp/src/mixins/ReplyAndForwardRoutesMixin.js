@@ -1,10 +1,10 @@
 import { mapGetters } from "vuex";
-import { message } from "@bluemind/mail";
+import { messageUtils } from "@bluemind/mail";
 import { CONVERSATIONS_ACTIVATED, MY_DRAFTS } from "~/getters";
 import MessagePathParam from "~/router/MessagePathParam";
 import { DraftMixin, ComposerInitMixin, MailRoutesMixin } from "~/mixins";
 
-const { MessageCreationModes } = message;
+const { MessageCreationModes } = messageUtils;
 
 export default {
     mixins: [DraftMixin, ComposerInitMixin, MailRoutesMixin],

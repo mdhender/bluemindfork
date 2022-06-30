@@ -93,15 +93,15 @@ import {
 } from "@bluemind/styleguide";
 import { mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
-import { folder, mailbox } from "@bluemind/mail";
+import { folderUtils, mailboxUtils } from "@bluemind/mail";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailMailboxIcon from "../../MailMailboxIcon";
 import MailFolderInput from "../../MailFolderInput";
 import { MY_MAILBOX, FOLDERS_BY_PATH, MY_TRASH, MY_INBOX } from "~/getters";
 import { ActionTextMixin, FilterFolderMixin, MoveMixin, SelectionMixin } from "~/mixins";
 
-const { getInvalidCharacter, isNameValid, translatePath } = folder;
-const { MailboxType } = mailbox;
+const { getInvalidCharacter, isNameValid, translatePath } = folderUtils;
+const { MailboxType } = mailboxUtils;
 const LOOP_PERF_LIMIT = 100;
 
 export default {

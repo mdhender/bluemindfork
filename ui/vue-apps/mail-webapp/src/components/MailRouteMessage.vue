@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { draft, loadingStatus } from "@bluemind/mail";
+import { draftUtils, loadingStatusUtils } from "@bluemind/mail";
 import MessagePathParam from "~/router/MessagePathParam";
 
 import { ACTIVE_MESSAGE, MY_MAILBOX, SELECTION_IS_EMPTY } from "~/getters";
@@ -20,8 +20,8 @@ import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { WaitForMixin, ComposerInitMixin } from "~/mixins";
 import MailMessagePanel from "./MailThread/MailMessagePanel";
 
-const { isNewMessage } = draft;
-const { LoadingStatus } = loadingStatus;
+const { isNewMessage } = draftUtils;
+const { LoadingStatus } = loadingStatusUtils;
 
 export default {
     name: "MailRouteMessage",

@@ -1,5 +1,5 @@
 import { Flag } from "@bluemind/email";
-import { loadingStatus, folder } from "@bluemind/mail";
+import { loadingStatusUtils, folderUtils } from "@bluemind/mail";
 
 import { Cache } from "~/utils/cache";
 
@@ -49,8 +49,8 @@ import {
 } from "~/getters";
 import { IS_POPUP, SET_ACTIVE_FOLDER, SET_MAIL_THREAD_SETTING } from "~/mutations";
 
-const { create, match } = folder;
-const { LoadingStatus } = loadingStatus;
+const { create, match } = folderUtils;
+const { LoadingStatus } = loadingStatusUtils;
 
 export const state = {
     activeFolder: undefined,

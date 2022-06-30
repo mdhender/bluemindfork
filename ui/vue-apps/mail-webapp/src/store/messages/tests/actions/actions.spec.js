@@ -5,7 +5,7 @@ import cloneDeep from "lodash.clonedeep";
 import { Flag } from "@bluemind/email";
 import ServiceLocator, { inject } from "@bluemind/inject";
 import { MockMailboxItemsClient, MockMailboxFoldersClient, MockItemsTransferClient } from "@bluemind/test-utils";
-import { message, loadingStatus } from "@bluemind/mail";
+import { messageUtils, loadingStatusUtils } from "@bluemind/mail";
 
 import messageStore from "../../index";
 import MessageAdaptor from "../../helpers/MessageAdaptor";
@@ -24,8 +24,8 @@ import {
 import { FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 
-const { LoadingStatus } = loadingStatus;
-const { MessageStatus, createOnlyMetadata, createWithMetadata } = message;
+const { LoadingStatus } = loadingStatusUtils;
+const { MessageStatus, createOnlyMetadata, createWithMetadata } = messageUtils;
 Vue.use(Vuex);
 
 describe("Messages actions", () => {

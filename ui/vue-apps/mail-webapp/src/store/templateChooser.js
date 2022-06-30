@@ -1,4 +1,4 @@
-import { conversations } from "@bluemind/mail";
+import { conversationUtils } from "@bluemind/mail";
 import { FETCH_TEMPLATES_KEYS } from "~/actions";
 import {
     SET_TEMPLATE_CHOOSER_VISIBLE,
@@ -10,7 +10,7 @@ import {
 import apiMessages from "./api/apiMessages";
 import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
 
-const { createConversationStub } = conversations;
+const { createConversationStub } = conversationUtils;
 
 export default {
     mutations: {

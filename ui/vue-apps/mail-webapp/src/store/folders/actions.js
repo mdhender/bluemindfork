@@ -1,5 +1,5 @@
 import { ItemFlag } from "@bluemind/core.container.api";
-import { folder } from "@bluemind/mail";
+import { folderUtils } from "@bluemind/mail";
 import api from "../api/apiFolders";
 import {
     ADD_FOLDER,
@@ -25,7 +25,7 @@ import {
     UNREAD_FOLDER_COUNT
 } from "~/actions";
 
-const { create, rename, move } = folder;
+const { create, rename, move } = folderUtils;
 
 const fetchFolders = async function ({ commit }, { mailbox, expandedFolders }) {
     const items = await api.getAllFolders(mailbox);

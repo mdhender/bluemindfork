@@ -70,7 +70,7 @@
 <script>
 import { mapGetters, mapState } from "vuex";
 import { BmButton, BmIcon } from "@bluemind/styleguide";
-import { message } from "@bluemind/mail";
+import { messageUtils } from "@bluemind/mail";
 import MailToolbarSelectedConversationsMoveAction from "./MailToolbarSelectedConversationsMoveAction";
 import MailToolbarSelectedConversationsOtherActions from "./MailToolbarSelectedConversationsOtherActions";
 import { ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin, MailRoutesMixin } from "~/mixins";
@@ -82,7 +82,7 @@ import {
 } from "~/getters";
 import MessagePathParam from "~/router/MessagePathParam";
 
-const { MessageCreationModes } = message;
+const { MessageCreationModes } = messageUtils;
 
 export default {
     name: "MailToolbarSelectedConversations",

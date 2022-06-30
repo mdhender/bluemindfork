@@ -4,7 +4,7 @@ import { InlineImageHelper, MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { sanitizeHtml } from "@bluemind/html-utils";
 import { BmRichEditor } from "@bluemind/styleguide";
-import { draft, message, loadingStatus, part } from "@bluemind/mail";
+import { draftUtils, messageUtils, loadingStatusUtils, partUtils } from "@bluemind/mail";
 
 import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import { MY_DRAFTS } from "~/getters";
@@ -25,7 +25,7 @@ import {
 import apiMessages from "~/store/api/apiMessages";
 import { ComposerFromMixin } from "~/mixins";
 
-const { LoadingStatus } = loadingStatus;
+const { LoadingStatus } = loadingStatusUtils;
 const {
     addSeparator,
     COMPOSER_CAPABILITIES,
@@ -33,10 +33,10 @@ const {
     createReplyOrForward,
     getEditorContent,
     handleSeparator
-} = draft;
-const { getPartsFromCapabilities } = part;
+} = draftUtils;
+const { getPartsFromCapabilities } = partUtils;
 
-const { MessageCreationModes } = message;
+const { MessageCreationModes } = messageUtils;
 
 /**
  * Manage different cases of composer initialization

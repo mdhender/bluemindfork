@@ -95,17 +95,17 @@ import {
     BmIcon,
     BmToggle
 } from "@bluemind/styleguide";
-import { folder, loadingStatus } from "@bluemind/mail";
+import { folderUtils, loadingStatusUtils } from "@bluemind/mail";
 
 import debounce from "lodash.debounce";
 import GlobalEvents from "vue-global-events";
 import { SearchHelper } from "./SearchHelper";
 import { MY_SENT, MY_MAILBOX, MY_INBOX, MY_TRASH, FOLDERS } from "~/getters";
-const { isMailshareRoot, translatePath } = folder;
+const { isMailshareRoot, translatePath } = folderUtils;
 import { ConversationListStatus } from "~/store/conversationList";
 import { SET_CONVERSATION_LIST_STATUS } from "~/mutations";
 import { MailRoutesMixin } from "~/mixins";
-const { LoadingStatus } = loadingStatus;
+const { LoadingStatus } = loadingStatusUtils;
 import MailMailboxIcon from "./MailMailboxIcon.vue";
 
 const SPINNER_TIMEOUT = 250;

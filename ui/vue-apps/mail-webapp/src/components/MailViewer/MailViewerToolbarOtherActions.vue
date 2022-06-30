@@ -73,7 +73,7 @@
 import { mapActions, mapGetters } from "vuex";
 import { Flag } from "@bluemind/email";
 import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
-import { message, folder } from "@bluemind/mail";
+import { messageUtils, folderUtils } from "@bluemind/mail";
 import { RemoveMixin, MoveMixin, PrintMixin, MailRoutesMixin } from "~/mixins";
 import {
     MARK_MESSAGE_AS_FLAGGED,
@@ -88,8 +88,8 @@ import MailMessagePrint from "./MailMessagePrint";
 import MailOpenInPopup from "../MailOpenInPopup";
 import MailOpenInPopupWithShift from "../MailOpenInPopupWithShift";
 
-const { MessageCreationModes } = message;
-const { isRoot, getInvalidCharacter } = folder;
+const { MessageCreationModes } = messageUtils;
+const { isRoot, getInvalidCharacter } = folderUtils;
 
 export default {
     name: "MailViewerToolbarOtherActions",

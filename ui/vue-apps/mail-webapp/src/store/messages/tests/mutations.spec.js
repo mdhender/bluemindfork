@@ -1,8 +1,8 @@
 import mutations from "../mutations";
-import { message, loadingStatus } from "@bluemind/mail";
+import { messageUtils, loadingStatusUtils } from "@bluemind/mail";
 
-const { MessageStatus } = message;
-const { LoadingStatus } = loadingStatus;
+const { MessageStatus } = messageUtils;
+const { LoadingStatus } = loadingStatusUtils;
 
 describe("mutations", () => {
     describe("ADD_MESSAGES", () => {

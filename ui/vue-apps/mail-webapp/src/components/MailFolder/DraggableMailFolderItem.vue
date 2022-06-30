@@ -21,14 +21,14 @@
 <script>
 import { mapActions, mapState, mapGetters, mapMutations } from "vuex";
 import { BmDraggable } from "@bluemind/styleguide";
-import { folder } from "@bluemind/mail";
+import { folderUtils } from "@bluemind/mail";
 import { MOVE_FOLDER } from "~/actions";
 import { SET_FOLDER_EXPANDED } from "~/mutations";
 import { IS_DESCENDANT, FOLDER_HAS_CHILDREN } from "~/getters";
 import MailFolderItem from "./MailFolderItem";
 import MailFolderItemShadow from "./MailFolderItemShadow";
 
-const { isRoot } = folder;
+const { isRoot } = folderUtils;
 
 export default {
     name: "DraggableMailFolderItem",

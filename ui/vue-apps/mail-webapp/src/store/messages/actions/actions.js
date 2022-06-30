@@ -1,4 +1,4 @@
-import { draft, loadingStatus, message } from "@bluemind/mail";
+import { draftUtils, loadingStatusUtils, messageUtils } from "@bluemind/mail";
 import { MESSAGE_IS_LOADED } from "~/getters";
 import apiMessages from "../../api/apiMessages";
 import {
@@ -13,9 +13,9 @@ import { FolderAdaptor } from "../../folders/helpers/FolderAdaptor";
 import { FETCH_MESSAGE_METADATA } from "~/actions";
 import { Flag } from "@bluemind/email";
 
-const { draftKey } = draft;
-const { LoadingStatus } = loadingStatus;
-const { createOnlyMetadata, messageKey, partialCopy } = message;
+const { draftKey } = draftUtils;
+const { LoadingStatus } = loadingStatusUtils;
+const { createOnlyMetadata, messageKey, partialCopy } = messageUtils;
 
 export async function addFlag({ commit, getters }, { messages, flag }) {
     messages = Array.isArray(messages) ? messages : [messages];

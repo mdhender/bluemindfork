@@ -1,7 +1,7 @@
 import { MimeType } from "@bluemind/email";
 import { MockMailboxItemsClient } from "@bluemind/test-utils";
 import ServiceLocator from "@bluemind/inject";
-import { message, attachment } from "@bluemind/mail";
+import { messageUtils, attachmentUtils } from "@bluemind/mail";
 
 import { saveAsap } from "../../actions/save";
 import htmlWithBase64Images from "../data/htmlWithBase64Images";
@@ -9,8 +9,8 @@ import { MY_DRAFTS } from "~/getters";
 import { SET_MESSAGES_STATUS } from "~/mutations";
 import MessageAdaptor from "~/store/messages/helpers/MessageAdaptor";
 
-const { MessageStatus, createWithMetadata } = message;
-const { AttachmentStatus } = attachment;
+const { MessageStatus, createWithMetadata } = messageUtils;
+const { AttachmentStatus } = attachmentUtils;
 
 jest.mock("../../../api/apiMessages");
 let itemsService, draft, context, saveParams;

@@ -3,7 +3,7 @@ import { InlineImageHelper, PartsBuilder } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import random from "lodash.random";
 
-import { attachment, draft, message, signature } from "@bluemind/mail";
+import { attachmentUtils, draftUtils, messageUtils, signatureUtils } from "@bluemind/mail";
 import {
     SET_MESSAGE_DATE,
     SET_MESSAGE_HEADERS,
@@ -17,10 +17,10 @@ import {
 import MessageAdaptor from "../helpers/MessageAdaptor";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 
-const { isNewMessage } = draft;
-const { AttachmentStatus } = attachment;
-const { MessageHeader, MessageStatus } = message;
-const { CORPORATE_SIGNATURE_PLACEHOLDER, CORPORATE_SIGNATURE_SELECTOR } = signature;
+const { isNewMessage } = draftUtils;
+const { AttachmentStatus } = attachmentUtils;
+const { MessageHeader, MessageStatus } = messageUtils;
+const { CORPORATE_SIGNATURE_PLACEHOLDER, CORPORATE_SIGNATURE_SELECTOR } = signatureUtils;
 
 export function isReadyToBeSaved(draft) {
     const attachmentsAreUploaded = draft.attachments.every(a => a.status === AttachmentStatus.UPLOADED);

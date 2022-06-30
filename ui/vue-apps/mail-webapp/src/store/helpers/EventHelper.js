@@ -1,10 +1,10 @@
-import { loadingStatus } from "@bluemind/mail";
+import { loadingStatusUtils } from "@bluemind/mail";
 import { DateComparator, WeekDayCodes } from "@bluemind/date";
 import { WeekDay } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
 import { sanitizeHtml } from "@bluemind/html-utils";
 
-const { LoadingStatus } = loadingStatus;
+const { LoadingStatus } = loadingStatusUtils;
 
 export default {
     adapt(event, mailboxOwner, originator, recuridIsoDate) {

@@ -20,7 +20,7 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
-import { folder, loadingStatus } from "@bluemind/mail";
+import { folderUtils, loadingStatusUtils } from "@bluemind/mail";
 import { BmDropzone } from "@bluemind/styleguide";
 import { CREATE_FOLDER } from "~/actions";
 import { MAILBOX_ROOT_FOLDERS } from "~/getters";
@@ -30,8 +30,8 @@ import FolderListLoading from "./FolderListLoading";
 import MailFolderInput from "../MailFolderInput";
 import MailMailboxIcon from "../MailMailboxIcon";
 
-const { createRoot } = folder;
-const { LoadingStatus } = loadingStatus;
+const { createRoot } = folderUtils;
+const { LoadingStatus } = loadingStatusUtils;
 
 export default {
     name: "UserFolders",

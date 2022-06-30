@@ -73,10 +73,10 @@ import { mapGetters } from "vuex";
 import global from "@bluemind/global";
 import { BmModal, BmButtonClose, BmButton, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
-import { attachment } from "@bluemind/mail";
+import { attachmentUtils } from "@bluemind/mail";
 import FhAttachmentItem from "./AttachmentItem";
 
-const { AttachmentStatus } = attachment;
+const { AttachmentStatus } = attachmentUtils;
 
 export default {
     name: "FileHostingModal",

@@ -1,5 +1,5 @@
 import { mapGetters } from "vuex";
-import { conversations } from "@bluemind/mail";
+import { conversationUtils } from "@bluemind/mail";
 import {
     CONVERSATIONS_ACTIVATED,
     CURRENT_MAILBOX,
@@ -17,7 +17,7 @@ import FormattedDateMixin from "./FormattedDateMixin";
 import SelectionMixin from "./SelectionMixin";
 import MailRoutesMixin from "./MailRoutesMixin";
 
-const { conversationMustBeRemoved } = conversations;
+const { conversationMustBeRemoved } = conversationUtils;
 
 export default {
     mixins: [FormattedDateMixin, MailRoutesMixin, SelectionMixin],

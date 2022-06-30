@@ -9,11 +9,11 @@
 </template>
 <script>
 import { AlertMixin } from "@bluemind/alert.store";
-import { mailbox } from "@bluemind/mail";
+import { mailboxUtils } from "@bluemind/mail";
 import MailFolderIcon from "../MailFolderIcon";
 import { MailRoutesMixin } from "~/mixins";
 
-const { MailboxType } = mailbox;
+const { MailboxType } = mailboxUtils;
 
 export default {
     name: "MarkFolderAsRead",

@@ -1,6 +1,6 @@
 import { MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
-import { message, part } from "@bluemind/mail";
+import { messageUtils, partUtils } from "@bluemind/mail";
 import Vue from "vue";
 
 import { COMPUTE_QUOTE_NODES, FETCH_PART_DATA } from "~/actions";
@@ -13,8 +13,8 @@ import {
 import { QUOTE_NODES } from "~/getters";
 import QuoteHelper from "./helpers/QuoteHelper";
 
-const { MessageHeader, extractHeaderValues } = message;
-const { VIEWER_CAPABILITIES, getPartsFromCapabilities } = part;
+const { MessageHeader, extractHeaderValues } = messageUtils;
+const { VIEWER_CAPABILITIES, getPartsFromCapabilities } = partUtils;
 
 export default {
     mutations: {

@@ -20,14 +20,14 @@
 
 <script>
 import UUIDGenerator from "@bluemind/uuid";
-import { folder, mailbox } from "@bluemind/mail";
+import { folderUtils, mailboxUtils } from "@bluemind/mail";
 import MailFolderIcon from "../MailFolderIcon";
 import { MailRoutesMixin } from "~/mixins";
 import FolderItem from "./FolderItem";
 import EditFolderModal from "./modals/EditFolderModal";
 
-const { MailboxType } = mailbox;
-const { create } = folder;
+const { MailboxType } = mailboxUtils;
+const { create } = folderUtils;
 
 export default {
     name: "FilteredItem",

@@ -68,12 +68,12 @@
 <script>
 import { BmButtonGroup, BmButton, BmIcon } from "@bluemind/styleguide";
 import { mapState, mapGetters } from "vuex";
-import { message } from "@bluemind/mail";
+import { messageUtils } from "@bluemind/mail";
 import { ActionTextMixin, FlagMixin, RemoveMixin, MailRoutesMixin } from "~/mixins";
 import { MY_DRAFTS, MY_TEMPLATES } from "~/getters";
 import MessagePathParam from "~/router/MessagePathParam";
 
-const { MessageCreationModes } = message;
+const { MessageCreationModes } = messageUtils;
 
 export default {
     name: "ConversationListItemQuickActionButtons",

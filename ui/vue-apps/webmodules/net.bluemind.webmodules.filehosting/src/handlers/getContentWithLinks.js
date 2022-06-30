@@ -1,8 +1,8 @@
 import { LINKS_CLASSNAME, renderLinksComponent } from "./renderers";
-import { attachment, message, signature } from "@bluemind/mail";
-const { CORPORATE_SIGNATURE_SELECTOR, PERSONAL_SIGNATURE_SELECTOR } = signature;
-const { AttachmentStatus } = attachment;
-const { MessageReplyAttributeSeparator, MessageForwardAttributeSeparator } = message;
+import { attachmentUtils, messageUtils, signatureUtils } from "@bluemind/mail";
+const { CORPORATE_SIGNATURE_SELECTOR, PERSONAL_SIGNATURE_SELECTOR } = signatureUtils;
+const { AttachmentStatus } = attachmentUtils;
+const { MessageReplyAttributeSeparator, MessageForwardAttributeSeparator } = messageUtils;
 
 export default function (vm, message) {
     const messageCompose = vm.$store.state.mail.messageCompose;

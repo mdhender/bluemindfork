@@ -1,6 +1,6 @@
 import isEqual from "lodash.isequal";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import { loadingStatus } from "@bluemind/mail";
+import { loadingStatusUtils } from "@bluemind/mail";
 import { FETCH_CONVERSATION_LIST_KEYS, UNREAD_FOLDER_COUNT } from "~/actions";
 import {
     CONVERSATIONS_ACTIVATED,
@@ -27,7 +27,7 @@ import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 import { ConversationListFilter } from "~/store/conversationList";
 import { WaitForMixin } from "~/mixins";
 
-const { LoadingStatus } = loadingStatus;
+const { LoadingStatus } = loadingStatusUtils;
 
 export default {
     mixins: [WaitForMixin],

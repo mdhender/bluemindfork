@@ -65,9 +65,9 @@ import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import BodyViewer from "../BodyViewer";
 import { MESSAGE_IS_LOADED } from "~/getters";
 import MailFolderIcon from "../../MailFolderIcon";
-import { mailbox } from "@bluemind/mail";
+import { mailboxUtils } from "@bluemind/mail";
 
-const { MailboxType } = mailbox;
+const { MailboxType } = mailboxUtils;
 
 export default {
     name: "MailConversationViewerMessage",

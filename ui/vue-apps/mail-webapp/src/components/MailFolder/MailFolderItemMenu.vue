@@ -47,13 +47,21 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
-import { folder } from "@bluemind/mail";
+import { folderUtils } from "@bluemind/mail";
 import { IS_DESCENDANT, FOLDER_BY_PATH, FOLDER_HAS_CHILDREN, MAILBOX_TRASH } from "~/getters";
 import { CREATE_FOLDER, EMPTY_FOLDER, MARK_FOLDER_AS_READ, MOVE_FOLDER, REMOVE_FOLDER } from "~/actions";
 import { MailRoutesMixin } from "~/mixins";
 import ChooseFolderModal from "../ChooseFolderModal";
 
-const { createRoot, DEFAULT_FOLDERS, folderExists, getInvalidCharacter, isDefault, isDescendantPath, isRoot } = folder;
+const {
+    createRoot,
+    DEFAULT_FOLDERS,
+    folderExists,
+    getInvalidCharacter,
+    isDefault,
+    isDescendantPath,
+    isRoot
+} = folderUtils;
 
 export default {
     name: "MailFolderItemMenu",

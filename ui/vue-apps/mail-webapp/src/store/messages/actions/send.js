@@ -2,7 +2,7 @@ import { ContactValidator } from "@bluemind/contact";
 import { Flag } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { retrieveTaskResult } from "@bluemind/task";
-import { folder, message as messageUtils } from "@bluemind/mail";
+import { folderUtils, messageUtils } from "@bluemind/mail";
 
 import { ADD_FLAG, REPLACE_DRAFT_MESSAGE, SAVE_MESSAGE } from "~/actions";
 import { SET_MESSAGES_STATUS } from "~/mutations";
@@ -88,7 +88,7 @@ function manageFlagOnPreviousMessage({ dispatch, state }, draft) {
 
         const messageInternalId = draftInfoHeader.messageInternalId;
         const folderUid = draftInfoHeader.folderUid;
-        const folderKey = folder.generateKey(folderUid);
+        const folderKey = folderUtils.generateKey(folderUid);
         const messageKey = messageUtils.messageKey(messageInternalId, folderKey);
         const message = state[messageKey];
         if (message) {

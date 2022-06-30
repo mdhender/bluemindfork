@@ -1,11 +1,11 @@
-import { message } from "@bluemind/mail";
+import { messageUtils } from "@bluemind/mail";
 
 const {
     MessageForwardAttributeSeparator,
     MessageReplyAttributeSeparator,
     MessageQuoteClasses,
     MessageQuoteOutlookId
-} = message;
+} = messageUtils;
 
 export default {
     findQuoteNodesUsingSeparator(messageParts) {

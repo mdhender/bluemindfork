@@ -1,4 +1,4 @@
-import { conversations } from "@bluemind/mail";
+import { conversationUtils } from "@bluemind/mail";
 import { inject } from "@bluemind/inject";
 import apiMessages from "./api/apiMessages";
 import searchModule from "./search";
@@ -27,7 +27,7 @@ import {
 import { ItemFlag } from "@bluemind/core.container.api";
 import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
 
-const { createConversationStub } = conversations;
+const { createConversationStub } = conversationUtils;
 const PAGE_SIZE = 50;
 
 export const ConversationListStatus = {

@@ -5,8 +5,8 @@
 
 <script>
 import { BmAvatar } from "@bluemind/styleguide";
-import { mailbox } from "@bluemind/mail";
-const { MailboxType } = mailbox;
+import { mailboxUtils } from "@bluemind/mail";
+const { MailboxType } = mailboxUtils;
 
 export default {
     name: "MailMailboxIcon",

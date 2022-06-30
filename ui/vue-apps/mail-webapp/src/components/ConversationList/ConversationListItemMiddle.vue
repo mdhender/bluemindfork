@@ -54,7 +54,7 @@ import { BmExtension } from "@bluemind/extensions.vue";
 import { BmIcon } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
 import { Flag } from "@bluemind/email";
-import { mailbox, folder } from "@bluemind/mail";
+import { mailboxUtils, folderUtils } from "@bluemind/mail";
 import MailFolderIcon from "../MailFolderIcon";
 import {
     CONVERSATIONS_ACTIVATED,
@@ -64,8 +64,8 @@ import {
     CONVERSATION_IS_SELECTED
 } from "~/getters";
 
-const { isDraftFolder } = folder;
-const { MailboxType } = mailbox;
+const { isDraftFolder } = folderUtils;
+const { MailboxType } = mailboxUtils;
 
 const FLAG_COMPONENT = {
     [Flag.FLAGGED]: {

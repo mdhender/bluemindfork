@@ -23,7 +23,7 @@ import linkifyHtml from "linkifyjs/html";
 import { MimeType, InlineImageHelper } from "@bluemind/email";
 import { sanitizeHtml, blockRemoteImages } from "@bluemind/html-utils";
 import { BmButton, BmIcon } from "@bluemind/styleguide";
-import { message, part } from "@bluemind/mail";
+import { messageUtils, partUtils } from "@bluemind/mail";
 
 import brokenImageIcon from "~/../assets/brokenImageIcon.png";
 import { QUOTE_NODES } from "~/getters";
@@ -34,8 +34,8 @@ import InlineStyle from "~/components/InlineStyle";
 import MailViewerContentLoading from "../MailViewerContentLoading";
 import PartViewerMixin from "./PartViewerMixin";
 
-const { isForward } = message;
-const { getPartsFromCapabilities, VIEWER_CAPABILITIES } = part;
+const { isForward } = messageUtils;
+const { getPartsFromCapabilities, VIEWER_CAPABILITIES } = partUtils;
 
 export default {
     name: "TextHtmlPartViewer",

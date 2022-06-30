@@ -14,13 +14,13 @@ import {
 import { REMOVE_CONVERSATIONS, REMOVE_MESSAGES, ADD_MESSAGES, SET_CURRENT_CONVERSATION } from "~/mutations";
 import { default as storeOptions } from "../conversations";
 import { Flag } from "@bluemind/email";
-import { loadingStatus } from "@bluemind/mail";
+import { loadingStatusUtils } from "@bluemind/mail";
 
 import ServiceLocator from "@bluemind/inject";
 import { inject } from "@bluemind/inject";
 import { MockMailboxFoldersClient, MockMailboxItemsClient } from "@bluemind/test-utils";
 
-const { LoadingStatus } = loadingStatus;
+const { LoadingStatus } = loadingStatusUtils;
 
 jest.mock("../api/apiMessages");
 

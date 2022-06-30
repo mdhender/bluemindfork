@@ -16,12 +16,12 @@
 </template>
 
 <script>
-import { part } from "@bluemind/mail";
+import { partUtils } from "@bluemind/mail";
 import MailViewerContent from "../../MailViewer/MailViewerContent";
 import MailAttachmentItem from "../MailAttachmentItem";
 import MailAttachmentsHeader from "../MailAttachmentsHeader";
 
-const { isViewable } = part;
+const { isViewable } = partUtils;
 
 export default {
     name: "PreviewMessage",

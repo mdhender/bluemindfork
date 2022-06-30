@@ -1,7 +1,7 @@
 import Vue from "vue";
 import { Verb } from "@bluemind/core.container.api";
 import { inject } from "@bluemind/inject";
-import { mailbox, loadingStatus } from "@bluemind/mail";
+import { mailboxUtils, loadingStatusUtils } from "@bluemind/mail";
 import { MailboxAdaptor } from "./helpers/MailboxAdaptor";
 import {
     MAILBOX_BY_NAME,
@@ -17,8 +17,8 @@ import { ADD_MAILBOXES, ADD_FOLDER } from "~/mutations";
 import { FETCH_MAILBOXES } from "~/actions";
 import { DEFAULT_FOLDERS } from "./folders/helpers/DefaultFolders";
 
-const { LoadingStatus } = loadingStatus;
-const { MailboxType } = mailbox;
+const { LoadingStatus } = loadingStatusUtils;
+const { MailboxType } = mailboxUtils;
 
 export default {
     state: {

@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { conversations, loadingStatus } from "@bluemind/mail";
+import { conversationUtils, loadingStatusUtils } from "@bluemind/mail";
 import ConversationPathParam from "~/router/ConversationPathParam";
 import {
     RESET_ACTIVE_MESSAGE,
@@ -19,8 +19,8 @@ import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import MailConversationPanel from "./MailThread/MailConversationPanel";
 import { WaitForMixin, ComposerInitMixin } from "~/mixins";
 
-const { idToUid: conversationIdToUid } = conversations;
-const { LoadingStatus } = loadingStatus;
+const { idToUid: conversationIdToUid } = conversationUtils;
+const { LoadingStatus } = loadingStatusUtils;
 
 export default {
     name: "MailRouteConversation",

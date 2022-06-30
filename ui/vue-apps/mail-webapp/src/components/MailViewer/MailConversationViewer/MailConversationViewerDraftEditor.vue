@@ -132,7 +132,7 @@
 <script>
 import { mapMutations, mapState } from "vuex";
 import { BmButton, BmContactInput, BmIcon } from "@bluemind/styleguide";
-import { message } from "@bluemind/mail";
+import { messageUtils } from "@bluemind/mail";
 import { ComposerActionsMixin, ComposerInitMixin, ComposerMixin, EditRecipientsMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
 import MailComposerAttachments from "../../MailComposer/MailComposerAttachments";
@@ -147,7 +147,7 @@ import { REMOVE_MESSAGES } from "~/mutations";
 import MessagePathParam from "~/router/MessagePathParam";
 import MailOpenInPopupWithShift from "../../MailOpenInPopupWithShift";
 
-const { MessageStatus } = message;
+const { MessageStatus } = messageUtils;
 
 export default {
     name: "MailConversationViewerDraftEditor",

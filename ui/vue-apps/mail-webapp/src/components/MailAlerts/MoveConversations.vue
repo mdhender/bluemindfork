@@ -12,11 +12,11 @@
 <script>
 import { mapState } from "vuex";
 import { AlertMixin } from "@bluemind/alert.store";
-import { mailbox } from "@bluemind/mail";
+import { mailboxUtils } from "@bluemind/mail";
 import { MailRoutesMixin } from "~/mixins";
 import MailFolderIcon from "../MailFolderIcon";
 
-const { MailboxType } = mailbox;
+const { MailboxType } = mailboxUtils;
 
 export default {
     name: "MoveConversations",
