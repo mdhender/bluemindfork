@@ -4,8 +4,8 @@ import { inject } from "@bluemind/inject";
 import { retrieveTaskResult } from "@bluemind/task";
 import { folderUtils, messageUtils } from "@bluemind/mail";
 
-import { ADD_FLAG, REPLACE_DRAFT_MESSAGE, SAVE_MESSAGE } from "~/actions";
-import { SET_MESSAGES_STATUS } from "~/mutations";
+import { ADD_FLAG, SAVE_MESSAGE } from "~/actions";
+import { REMOVE_MESSAGES, SET_MESSAGES_STATUS } from "~/mutations";
 import MessageAdaptor from "../helpers/MessageAdaptor";
 
 const { MessageStatus, MessageHeader, MessageCreationModes } = messageUtils;
@@ -30,10 +30,8 @@ export default async function (context, { draftKey, myMailboxKey, outbox, myDraf
     manageFlagOnPreviousMessage(context, draft);
     removeAttachmentAndInlineTmpParts(draft, messageCompose);
 
-    const message = await getSentMessage(taskResult, messageInOutboxId, outbox);
-    message.conversationRef = draft.conversationRef;
-    await context.dispatch(REPLACE_DRAFT_MESSAGE, { draft, message });
-    return message;
+    context.commit(REMOVE_MESSAGES, { messages: [draft] });
+    return await getSentMessage(taskResult, messageInOutboxId, outbox);
 }
 
 function removeAttachmentAndInlineTmpParts(draft, messageCompose) {

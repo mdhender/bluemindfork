@@ -9,7 +9,10 @@
 </template>
 <script>
 import { AlertMixin, DefaultAlert } from "@bluemind/alert.store";
+import { conversations } from "@bluemind/mail";
 import { mapState } from "vuex";
+
+const { createConversationStub } = conversations;
 
 export default {
     name: "SendMessage",
@@ -20,13 +23,10 @@ export default {
         ...mapState("mail", ["folders", "mailboxes"]),
         link() {
             const folder = this.folders[this.result.folderRef.key];
+            const conversation = createConversationStub(this.result.remoteRef.internalId, this.result.folderRef);
             return {
-                name: "v:mail:message",
-                params: {
-                    message: this.result,
-                    folder: folder?.path,
-                    mailbox: this.mailboxes[folder?.mailboxRef.key]?.name
-                }
+                name: "v:mail:conversation",
+                params: { conversation, folder: folder?.path, mailbox: this.mailboxes[folder?.mailboxRef.key]?.name }
             };
         },
         subject() {

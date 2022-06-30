@@ -34,8 +34,7 @@ import {
     MOVE_CONVERSATION_MESSAGES,
     MOVE_CONVERSATIONS,
     REMOVE_CONVERSATION_MESSAGES,
-    REMOVE_CONVERSATIONS,
-    REPLACE_DRAFT_MESSAGE
+    REMOVE_CONVERSATIONS
 } from "~/actions";
 import {
     CONVERSATION_MESSAGE_BY_KEY,
@@ -90,8 +89,7 @@ const actions = {
             await dispatch(REMOVE_MESSAGES, { messages });
         }
     },
-    [REMOVE_CONVERSATIONS]: withAlertOrNot(removeConversations, "REMOVE", "", "RemoveConversations", 1),
-    [REPLACE_DRAFT_MESSAGE]: replaceDraftMessage
+    [REMOVE_CONVERSATIONS]: withAlertOrNot(removeConversations, "REMOVE", "", "RemoveConversations", 1)
 };
 
 const mutations = {
@@ -379,11 +377,6 @@ async function removeConversations({ getters, commit }, { conversations, convers
         commit(ADD_MESSAGES, { messages, preserve: true });
         throw e;
     }
-}
-
-function replaceDraftMessage({ commit }, { draft, message }) {
-    commit(ADD_MESSAGES, { messages: [message] });
-    commit(REMOVE_MESSAGES, { messages: [draft] });
 }
 
 async function emptyFolder({ commit, state }, { folder, mailbox, deep }) {
