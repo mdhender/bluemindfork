@@ -67,8 +67,9 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.FileDescription;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
-import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.api.SystemConf;
+import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
 public class FileSystemFileHostingService implements IFileHostingService, IInternalBMFileSystem {
 	private static final Logger logger = LoggerFactory.getLogger(FileSystemFileHostingService.class);
@@ -215,15 +216,14 @@ public class FileSystemFileHostingService implements IFileHostingService, IInter
 	}
 
 	private String getServerAddress(String domainUid) {
+		SystemConf sysconf = LocalSysconfCache.get();
 		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		String url = Optional
 				.ofNullable(provider.instance(IInCoreDomainSettings.class, domainUid).getExternalUrl()
-						.orElseGet(() -> provider.instance(ISystemConfiguration.class).getValues().values
-								.get(SysConfKeys.external_url.name())))
+						.orElseGet(() -> sysconf.values.get(SysConfKeys.external_url.name())))
 				.orElseThrow(() -> new ServerFault("External URL missing"));
 
-		String protocol = provider.instance(ISystemConfiguration.class).getValues().values
-				.getOrDefault(SysConfKeys.external_protocol.name(), "https");
+		String protocol = sysconf.values.getOrDefault(SysConfKeys.external_protocol.name(), "https");
 
 		return String.format("%s://%s", protocol, url);
 	}

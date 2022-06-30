@@ -28,7 +28,8 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.system.api,
  net.bluemind.network.topology,
  net.bluemind.domain.api,
- net.bluemind.domain.service
+ net.bluemind.domain.service,
+ net.bluemind.system.sysconf.helper
 Export-Package: net.bluemind.filehosting.filesystem.service.internal,
  net.bluemind.filehosting.filesystem.service.internal.persistence
 Bundle-ActivationPolicy: lazy

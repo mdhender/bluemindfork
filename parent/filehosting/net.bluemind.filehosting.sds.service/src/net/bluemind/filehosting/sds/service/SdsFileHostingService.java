@@ -44,7 +44,9 @@ import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
+import net.bluemind.domain.service.internal.IInCoreDomainSettings;
 import net.bluemind.filehosting.api.FileHostingInfo;
 import net.bluemind.filehosting.api.FileHostingInfo.Type;
 import net.bluemind.filehosting.api.FileHostingItem;
@@ -157,15 +159,21 @@ public class SdsFileHostingService implements IFileHostingService {
 			String expirationDate) throws ServerFault {
 		String uid = pathToUid(path);
 		FileHostingPublicLink link = new FileHostingPublicLink();
-		link.url = String.format("%s/fh/bm-fh/%s", getServerAddress(), uid);
+		link.url = String.format("%s/fh/bm-fh/%s", getServerAddress(context.getContainerUid()), uid);
 		return link;
 	}
 
-	private String getServerAddress() {
+	private String getServerAddress(String domainUid) {
 		SystemConf sysconf = LocalSysconfCache.get();
-		return String.format("%s://%s", sysconf.values.getOrDefault(SysConfKeys.external_protocol.name(), "https"),
-				Optional.ofNullable(sysconf.values.get(SysConfKeys.external_url.name()))
-						.orElseThrow(() -> new ServerFault("External URL missing")));
+		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		String url = Optional
+				.ofNullable(provider.instance(IInCoreDomainSettings.class, domainUid).getExternalUrl()
+						.orElseGet(() -> sysconf.values.get(SysConfKeys.external_url.name())))
+				.orElseThrow(() -> new ServerFault("External URL missing"));
+
+		String protocol = sysconf.values.getOrDefault(SysConfKeys.external_protocol.name(), "https");
+
+		return String.format("%s://%s", protocol, url);
 	}
 
 	@Override

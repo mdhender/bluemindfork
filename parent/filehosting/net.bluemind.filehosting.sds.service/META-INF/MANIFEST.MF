@@ -20,7 +20,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  net.bluemind.sds.store.loader,
  net.bluemind.filehosting.filesystem.service,
- net.bluemind.config
+ net.bluemind.config,
+ net.bluemind.domain.service
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.filehosting.sds.service
 Bundle-ActivationPolicy: lazy
