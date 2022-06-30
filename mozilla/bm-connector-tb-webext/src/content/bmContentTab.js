@@ -62,11 +62,13 @@ specialTabs.bmTabType = {
         onLocationChange: function bm_onLocationChange(aWebProgress, aRequest,
           aLocationURI, aFlags) {
             gBMOverlay._logger.debug("onLocationChange:" + aLocationURI.spec + ", " + aFlags);
+            let loginPath = "/login/index.html";
             try {
               // nsIURI.path deprecated in tb >= 57
               let path = aLocationURI.pathQueryRef ? aLocationURI.pathQueryRef : aLocationURI.path;
               gBMOverlay._logger.debug("path:" + path);
-              if ((path && (path.indexOf("/login/index.html") == 0))) {
+              if (path && (path.startsWith(loginPath)
+               || path.endsWith(encodeURIComponent(loginPath)))) {
                 let tabmail = document.getElementById("tabmail");
                 tabmail.closeTab(aTab);
                 delayOpener.open({
