@@ -60,7 +60,7 @@
 
     "preferences.general.tags": "Catégories",
     "preferences.general.tags.create": "Créer une catégorie",
-    "preferences.general.tags.desc": "Organisez vos messages en y associant une ou plusieurs catégories.",
+    "preferences.general.tags.desc": "Organisez vos données (contacts, événements...) en y associant une ou plusieurs catégories.",
     "preferences.general.tags.edit": "Editer une catégorie",
     "preferences.general.tags.modal.label": "Libellé",
     "preferences.general.tags.modal.color": "Couleur",

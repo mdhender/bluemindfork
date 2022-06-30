@@ -60,7 +60,7 @@
 
     "preferences.general.tags": "Tags",
     "preferences.general.tags.create": "Create a tag",
-    "preferences.general.tags.desc": "Categorise your messages with tags.",
+    "preferences.general.tags.desc": "Categorise your data (contacts, events...) with tags.",
     "preferences.general.tags.edit": "Edit tag",
     "preferences.general.tags.modal.label": "Label",
     "preferences.general.tags.modal.color": "Color",

@@ -60,7 +60,7 @@
 
     "preferences.general.tags": "Schilder",
     "preferences.general.tags.create": "Kennzeichung erstellen",
-    "preferences.general.tags.desc": "Nachrichten anhand von Kennzeichungen kategorisieren.",
+    "preferences.general.tags.desc": "Daten (Kontakte, Termine...) anhand von Kennzeichungen kategorisieren.",
     "preferences.general.tags.edit": "Kennzeichung editieren",
     "preferences.general.tags.modal.label": "Titel",
     "preferences.general.tags.modal.color": "Farbe",
