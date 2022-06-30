@@ -4,7 +4,12 @@ import { message, part } from "@bluemind/mail";
 import Vue from "vue";
 
 import { COMPUTE_QUOTE_NODES, FETCH_PART_DATA } from "~/actions";
-import { RESET_PARTS_DATA, SET_PART_DATA, SET_QUOTE_NODES } from "~/mutations";
+import {
+    SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES,
+    RESET_PARTS_DATA,
+    SET_PART_DATA,
+    SET_QUOTE_NODES
+} from "~/mutations";
 import { QUOTE_NODES } from "~/getters";
 import QuoteHelper from "./helpers/QuoteHelper";
 
@@ -36,6 +41,11 @@ export default {
                     );
                 });
             }
+        },
+        // Listeners
+        [SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES]: (state, { key }) => {
+            Vue.set(state.partsByMessageKey, key, {});
+            Vue.set(state.quoteNodesByMessageKey, key, {});
         }
     },
 
