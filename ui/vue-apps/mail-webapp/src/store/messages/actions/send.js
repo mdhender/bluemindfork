@@ -2,13 +2,13 @@ import { ContactValidator } from "@bluemind/contact";
 import { Flag } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { retrieveTaskResult } from "@bluemind/task";
-import { folder, message } from "@bluemind/mail";
+import { folder, message as messageUtils } from "@bluemind/mail";
 
 import { ADD_FLAG, REPLACE_DRAFT_MESSAGE, SAVE_MESSAGE } from "~/actions";
 import { SET_MESSAGES_STATUS } from "~/mutations";
 import MessageAdaptor from "../helpers/MessageAdaptor";
 
-const { MessageStatus, MessageHeader, MessageCreationModes } = message;
+const { MessageStatus, MessageHeader, MessageCreationModes } = messageUtils;
 
 /** Send the last draft: move it to the Outbox then flush. */
 export default async function (context, { draftKey, myMailboxKey, outbox, myDraftsFolder, messageCompose }) {
@@ -89,7 +89,7 @@ function manageFlagOnPreviousMessage({ dispatch, state }, draft) {
         const messageInternalId = draftInfoHeader.messageInternalId;
         const folderUid = draftInfoHeader.folderUid;
         const folderKey = folder.generateKey(folderUid);
-        const messageKey = message.messageKey(messageInternalId, folderKey);
+        const messageKey = messageUtils.messageKey(messageInternalId, folderKey);
         const message = state[messageKey];
         if (message) {
             dispatch(ADD_FLAG, {
