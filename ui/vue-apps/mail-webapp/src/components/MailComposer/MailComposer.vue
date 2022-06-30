@@ -1,5 +1,5 @@
 <template>
-    <bm-form class="mail-composer m-lg-3 flex-grow-1 d-flex flex-column bg-surface">
+    <bm-form class="mail-composer m-lg-3 flex-grow-1 d-flex flex-column bg-surface" @keypress.ctrl.enter="send">
         <h3 class="d-none d-lg-flex card-header px-2 py-1 align-items-center">
             <span class="text-nowrap text-truncate">{{ panelTitle }}</span>
             <mail-open-in-popup
@@ -38,6 +38,7 @@
             :aria-label="$t('mail.new.subject.aria')"
             type="text"
             @input="updateSubject"
+            @keypress.enter.prevent
         />
         <hr class="mail-composer-splitter m-0" />
         <mail-composer-attachments
