@@ -407,7 +407,7 @@
 			"name": "ElasticSearch",
 			"queries": [
 				{
-					"query": "SELECT mean(\"mem_heap_used_in_bytes\") AS \"mean_mem_heap_used_in_bytes\" FROM \"telegraf\".\"autogen\".\"elasticsearch_jvm\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
+					"query": "SELECT mean(\"mem_heap_used_in_bytes\") AS \"mean_mem_heap_used_in_bytes\" FROM \"telegraf\".\"autogen\".\"elasticsearch_jvm\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"host\" FILL(null)",
 					"queryConfig": {
 						"database": "telegraf",
 						"measurement": "elasticsearch_jvm",
@@ -429,7 +429,9 @@
 						"tags": {},
 						"groupBy": {
 							"time": "auto",
-							"tags": []
+							"tags": [
+								"host"
+							]
 						},
 						"areTagsAccepted": false,
 						"fill": "null",
@@ -671,7 +673,7 @@
 			"name": "Lmtpd",
 			"queries": [
 				{
-					"query": "SELECT mean(\"value\") AS \"mean_value\" FROM \"telegraf\".\"autogen\".\"bm-lmtpd.jvm.usedMemory\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
+					"query": "SELECT mean(\"value\") AS \"mean_value\" FROM \"telegraf\".\"autogen\".\"bm-lmtpd.jvm.usedMemory\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"host\" FILL(null)",
 					"queryConfig": {
 						"database": "telegraf",
 						"measurement": "bm-lmtpd.jvm.usedMemory",
@@ -693,7 +695,9 @@
 						"tags": {},
 						"groupBy": {
 							"time": "auto",
-							"tags": []
+							"tags": [
+								"host"
+							]
 						},
 						"areTagsAccepted": false,
 						"fill": "null",
