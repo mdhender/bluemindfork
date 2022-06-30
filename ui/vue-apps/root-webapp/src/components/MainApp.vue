@@ -102,7 +102,7 @@ export default {
         }
         this.systemAlerts = await inject("UserAnnouncementsPersistence").get();
         if (["Thunderbird", "Icedove"].some(agent => new RegExp(agent).test(window.navigator.userAgent))) {
-            this.$store.commit("HIDE_BANNER");
+            this.$store.commit("root-app/HIDE_BANNER");
         }
     },
     methods: {
