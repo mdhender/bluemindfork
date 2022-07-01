@@ -108,19 +108,6 @@ public class SecurityCertificateHelper {
 		}
 	}
 
-	public String getDefaultDomain(String domainUid) {
-		if (isGlobalVirtDomain(domainUid)) {
-			return Optional
-					.ofNullable(getSuProvider().instance(ISystemConfiguration.class).getValues().values
-							.get(SysConfKeys.default_domain.name()))
-					.orElseThrow(() -> new ServerFault("Unknown default domain for global.virt domain"));
-
-		} else {
-			return getDomainSettingsService(domainUid).getDefaultDomain().orElseThrow(
-					() -> new ServerFault(String.format("Unknown default domain for domain '%s'", domainUid)));
-		}
-	}
-
 	public String getSslCertifEngine(String domainUid) {
 		if (isGlobalVirtDomain(domainUid)) {
 			return getSuProvider().instance(ISystemConfiguration.class).getValues().values

@@ -58,6 +58,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
@@ -136,7 +137,7 @@ public class LetsEncryptCertificate {
 		String domainExternalUrl = systemHelper.getExternalUrl(domainUid);
 
 		if (Strings.isNullOrEmpty(certifEngine.getCertData().email)) {
-			certifEngine.getCertData().email = "no-reply@" + systemHelper.getDefaultDomain(domainUid);
+			throw new ServerFault("Let's Encrypt contact email must be set", ErrorCode.INVALID_PARAMETER);
 		}
 		monitor.progress(1, "Verifications done continue...");
 

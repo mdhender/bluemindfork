@@ -18,6 +18,7 @@
 package net.bluemind.system.service.certificate.engine;
 
 import java.util.List;
+import java.util.Optional;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -49,7 +50,9 @@ public class LetsEncryptCertifEngine extends CertifEngine {
 						.updateCertificate(CertData.createForDisable(domainUid));
 			} else {
 				systemHelper.getSuProvider().instance(ISecurityMgmt.class)
-						.generateLetsEncrypt(CertData.createForLetsEncrypt(domainUid, null));
+						.generateLetsEncrypt(CertData.createForLetsEncrypt(domainUid,
+								Optional.ofNullable(systemHelper.checkDomain(domainUid))
+										.map(d -> LetsEncryptCertificate.getContactProperty(d.value)).orElse(null)));
 			}
 		}
 	}

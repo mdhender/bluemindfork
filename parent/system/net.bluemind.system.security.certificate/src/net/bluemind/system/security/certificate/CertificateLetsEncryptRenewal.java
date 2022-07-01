@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import io.vertx.core.AbstractVerticle;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -123,7 +124,9 @@ public class CertificateLetsEncryptRenewal extends AbstractVerticle {
 			}
 		}).map(ICertifEngine::getCertData).map(certData -> {
 			certData.email = Optional.ofNullable(LetsEncryptCertificate.getContactProperty(d.value))
-					.filter(e -> !e.isEmpty()).orElseGet(() -> "no-reply@" + d.value.defaultAlias);
+					.filter(e -> !e.isEmpty())
+					.orElseThrow(() -> new ServerFault("Let's Encrypt contact email must be set",
+							ErrorCode.INVALID_PARAMETER));
 
 			ServerSideServiceProvider service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 			if (TaskUtils.wait(service, service.instance(ISecurityMgmt.class).generateLetsEncrypt(certData),

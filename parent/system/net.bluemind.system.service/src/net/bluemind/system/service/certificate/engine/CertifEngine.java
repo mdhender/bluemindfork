@@ -44,6 +44,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
@@ -68,6 +69,7 @@ import net.bluemind.system.api.CertData;
 import net.bluemind.system.api.CertData.CertificateDomainEngine;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.hook.ISystemHook;
+import net.bluemind.system.service.certificate.lets.encrypt.LetsEncryptCertificate;
 import net.bluemind.system.service.helper.SecurityCertificateHelper;
 
 public abstract class CertifEngine implements ICertifEngine {
@@ -133,7 +135,9 @@ public abstract class CertifEngine implements ICertifEngine {
 	 * @return created CertData
 	 */
 	protected CertData createDomainCertData(CertificateDomainEngine sslCertifEngine) {
-		return CertData.create(sslCertifEngine, null, null, null, domainUid, null);
+		return CertData.create(sslCertifEngine, null, null, null, domainUid,
+				Optional.ofNullable(systemHelper.checkDomain(domainUid))
+						.map(d -> LetsEncryptCertificate.getContactProperty(d.value)).orElse(null));
 	}
 
 	protected void checkCertificateAndWriteFile(List<ItemValue<Server>> servers, List<ISystemHook> hooks) {
