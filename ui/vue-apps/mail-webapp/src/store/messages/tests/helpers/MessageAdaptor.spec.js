@@ -1,4 +1,5 @@
-import { getEventInfo } from "../../helpers/MessageAdaptor";
+import { messageUtils } from "@bluemind/mail";
+import MessageAdaptor, { getEventInfo } from "../../helpers/MessageAdaptor";
 
 describe("MessageAdaptor", () => {
     describe("getEventInfo", () => {
@@ -113,6 +114,20 @@ describe("MessageAdaptor", () => {
             expect(eventInfo.isResourceBooking).toBeTruthy();
             expect(eventInfo.resourceUid).toBeTruthy();
             expect(eventInfo.resourceUid).toEqual("resourceId");
+        });
+        test("message model and message adaptor share same properties", () => {
+            const emptyRemote = { value: { body: { headers: [], recipients: [], structure: { mime: "" } } } };
+
+            const message = messageUtils.create();
+            const adapted = MessageAdaptor.fromMailboxItem(emptyRemote, {});
+
+            const messageProperties = Object.keys(message).sort();
+            const adaptedProperties = Object.keys(adapted).sort();
+
+            expect(messageProperties.length).toBe(adaptedProperties.length);
+            messageProperties.forEach((prop, index) => {
+                expect(prop).toBe(adaptedProperties[index]);
+            });
         });
     });
 });

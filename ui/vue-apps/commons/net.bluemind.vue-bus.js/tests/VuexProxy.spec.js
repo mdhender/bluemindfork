@@ -53,7 +53,7 @@ describe("VuexProxy", () => {
         bus.$emit("*", "buspublishthis", payload);
         expect(spy).toHaveBeenNthCalledWith(1, expect.anything(), payload);
         bus.$emit("*", "busAlsoPublishThis", payload);
-        expect(spy).toHaveBeenNthCalledWith(2, expect.anything(), payload, undefined);
+        expect(spy).toHaveBeenNthCalledWith(2, expect.anything(), payload);
     });
 
     test("Mutations/Actions without prefix or not matching event id will not be called", () => {

@@ -1,7 +1,7 @@
 import { MockI18NProvider } from "@bluemind/test-utils";
 import ServiceLocator from "@bluemind/inject";
 
-import { create, MessageCreationModes, MessageHeader } from "~/src/message";
+import { create, MessageCreationModes, MessageHeader } from "../message";
 import {
     computeCcRecipients,
     computeToRecipients,
@@ -9,7 +9,7 @@ import {
     findIdentityFromMailbox,
     addSeparator,
     computeIdentityForReplyOrForward
-} from "~/src/draft";
+} from "../draft";
 
 ServiceLocator.register({ provide: "i18n", factory: () => MockI18NProvider });
 const vueI18n = ServiceLocator.getProvider("i18n").get();
