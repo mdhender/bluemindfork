@@ -8,8 +8,9 @@
         "build": "npm-run-all -s clean copy:*",
         "clean": "rm -fr ./web-resources/* && mkdir -p ./web-resources/js/ && mkdir -p ./web-resources/css/",
         "copy:js": "cp ./node_modules/@bluemind/styleguide/dist/styleguide.js ./web-resources/js/styleguide.js",
+        "copy:js-map": "cp ./node_modules/@bluemind/styleguide/dist/styleguide.js.map ./web-resources/js/styleguide.js.map",
         "copy:css": "cp ./node_modules/@bluemind/styleguide/dist/styleguide.css ./web-resources/css/styleguide.css",
-        "copy:map": "cp ./node_modules/@bluemind/styleguide/dist/styleguide.js.map ./web-resources/js/styleguide.js.map"
+        "copy:css-map": "cp ./node_modules/@bluemind/styleguide/dist/styleguide.css.map ./web-resources/css/styleguide.css.map"
     },
     "devDependencies": {
         "npm-run-all": "^4.1.5"
