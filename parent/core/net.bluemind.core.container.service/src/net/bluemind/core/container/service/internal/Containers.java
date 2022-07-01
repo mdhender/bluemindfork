@@ -66,7 +66,6 @@ import net.bluemind.core.container.sharding.Sharding;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
@@ -562,8 +561,7 @@ public class Containers implements IContainers {
 	}
 
 	private String getDatalocation(DataSource dataSource) {
-		return ServerSideServiceProvider.mailboxDataSource.entrySet().stream()
-				.filter(entry -> dataSource == entry.getValue()).map(Map.Entry::getKey).findFirst().orElse(null);
+		return context.dataSourceLocation(dataSource);
 	}
 
 	public ContainerDescriptor asDescriptorForUser(Container c, SecurityContext sc, String userUid) throws ServerFault {
