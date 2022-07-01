@@ -67,17 +67,19 @@ export default {
                 : undefined;
         },
         part() {
-            return this.message?.attachments.find(
-                ({ address }) => this.$store.state.mail.preview.partAddress === address
-            );
+            return this.attachments.find(({ address }) => this.$store.state.mail.preview.partAddress === address);
         },
         partIndex() {
-            return this.message?.attachments.findIndex(
-                ({ address }) => this.$store.state.mail.preview.partAddress === address
-            );
+            return this.attachments.findIndex(({ address }) => this.$store.state.mail.preview.partAddress === address);
         },
         attachmentsCount() {
-            return this.message?.attachments.length;
+            return this.attachments.length;
+        },
+        attachments() {
+            if (this.message && this.message.attachments) {
+                return this.message.attachments;
+            }
+            return [];
         }
     },
     methods: {
@@ -91,7 +93,7 @@ export default {
         selectAttachmentHelper(current, iterator) {
             const index = iterator(current) % this.attachmentsCount;
             if (index !== this.partIndex) {
-                const attachment = this.message.attachments[index];
+                const attachment = this.attachments[index];
                 this.SET_PREVIEW_PART_ADDRESS(attachment.address);
             }
         }
