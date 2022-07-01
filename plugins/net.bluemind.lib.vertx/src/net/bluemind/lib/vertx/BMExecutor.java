@@ -81,19 +81,29 @@ public class BMExecutor {
 
 	public void execute(BMTask command) {
 		long start = reg.clock().monotonicTime();
-		smallTimeout.execute(() -> {
-			command.run(DIRECT_MON);
-			long end = reg.clock().monotonicTime();
-			long elapsed = end - start;
-			timer.record(elapsed, TimeUnit.NANOSECONDS);
-			if (elapsed > TimeUnit.SECONDS.toNanos(1)) {
-				logger.warn("{} took more than 1sec ({}ms).", command, TimeUnit.NANOSECONDS.toMillis(elapsed));
-			}
-		});
+		try {
+			smallTimeout.execute(() -> {
+				command.run(DIRECT_MON);
+				long end = reg.clock().monotonicTime();
+				long elapsed = end - start;
+				timer.record(elapsed, TimeUnit.NANOSECONDS);
+				if (elapsed > TimeUnit.SECONDS.toNanos(1)) {
+					logger.warn("{} took more than 1sec ({}ms).", command, TimeUnit.NANOSECONDS.toMillis(elapsed));
+				}
+			});
+		} catch (IllegalStateException ise) {
+			// BlueMind shuttind down
+			logger.info("execute rejected: bluemind is shutting down");
+		}
 	}
 
 	public void executeDirect(BMTask command) {
-		noTimeout.execute(() -> command.run(DIRECT_MON));
+		try {
+			noTimeout.execute(() -> command.run(DIRECT_MON));
+		} catch (IllegalStateException ise) {
+			// BlueMind shuttind down
+			logger.info("executeDirect rejected: bluemind is shutting down");
+		}
 	}
 
 }
