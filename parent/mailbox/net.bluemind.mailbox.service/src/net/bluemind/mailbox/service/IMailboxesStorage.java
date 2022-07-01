@@ -38,34 +38,35 @@ public interface IMailboxesStorage {
 		public Type type;
 		public String rootUri;
 
-		public static enum Type {
+		public enum Type {
 			normal, mailshare, user
 		}
 	}
 
-	public void delete(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault;
+	void delete(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault;
 
-	public void update(BmContext context, String domainUid, ItemValue<Mailbox> previousValue, ItemValue<Mailbox> value)
+	void update(BmContext context, String domainUid, ItemValue<Mailbox> previousValue, ItemValue<Mailbox> value)
 			throws ServerFault;
 
-	public void create(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault;
+	boolean mailboxRequiresCreationInCyrus(BmContext context, String domainUid, Mailbox previous,
+			Mailbox current);
 
-	public MailboxQuota getQuota(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault;
+	void create(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault;
 
-	public void changeFilter(BmContext context, ItemValue<Domain> domain, ItemValue<Mailbox> value, MailFilter filter)
+	MailboxQuota getQuota(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault;
+
+	void changeFilter(BmContext context, ItemValue<Domain> domain, ItemValue<Mailbox> value, MailFilter filter)
 			throws ServerFault;
 
-	public void changeDomainFilter(BmContext context, String domainUid, MailFilter filter) throws ServerFault;
+	void changeDomainFilter(BmContext context, String domainUid, MailFilter filter) throws ServerFault;
 
-	public void createDomainPartition(BmContext context, ItemValue<Domain> value, ItemValue<Server> server)
-			throws ServerFault;
+	void createDomainPartition(BmContext context, ItemValue<Domain> value, ItemValue<Server> server) throws ServerFault;
 
-	public void deleteDomainPartition(BmContext context, ItemValue<Domain> value, ItemValue<Server> server)
-			throws ServerFault;
+	void deleteDomainPartition(BmContext context, ItemValue<Domain> value, ItemValue<Server> server) throws ServerFault;
 
-	public void initialize(BmContext context, ItemValue<Server> server) throws ServerFault;
+	void initialize(BmContext context, ItemValue<Server> server) throws ServerFault;
 
-	public boolean mailboxExist(BmContext context, String domainUid, ItemValue<Mailbox> mailbox) throws ServerFault;
+	boolean mailboxExist(BmContext context, String domainUid, ItemValue<Mailbox> mailbox) throws ServerFault;
 
 	// One method per repair feels horribly wrong here as most repair are only
 	// relevant for cyrus
@@ -81,7 +82,7 @@ public interface IMailboxesStorage {
 	 * @param repair
 	 * @throws ServerFault
 	 */
-	public List<MailFolder> checkAndRepairHierarchy(BmContext context, String domainUid, ItemValue<Mailbox> mailbox,
+	List<MailFolder> checkAndRepairHierarchy(BmContext context, String domainUid, ItemValue<Mailbox> mailbox,
 			boolean repair) throws ServerFault;
 
 	/**
@@ -91,7 +92,7 @@ public interface IMailboxesStorage {
 	 * @param domainUid
 	 * @param mailbox
 	 */
-	public void checkAndRepairQuota(BmContext context, String domainUid, ItemValue<Mailbox> mailbox);
+	void checkAndRepairQuota(BmContext context, String domainUid, ItemValue<Mailbox> mailbox);
 
 	/**
 	 * Fix mailbox filesystem
@@ -100,7 +101,7 @@ public interface IMailboxesStorage {
 	 * @param domainUid
 	 * @param mailbox
 	 */
-	public void checkAndRepairFilesystem(BmContext context, String domainUid, ItemValue<Mailbox> mailbox);
+	void checkAndRepairFilesystem(BmContext context, String domainUid, ItemValue<Mailbox> mailbox);
 
 	/**
 	 * Fix mailbox default folders
@@ -112,7 +113,7 @@ public interface IMailboxesStorage {
 	 * @return
 	 * @throws ServerFault
 	 */
-	public Status checkAndRepairDefaultFolders(BmContext context, String domainUid, ItemValue<Mailbox> mailbox,
+	Status checkAndRepairDefaultFolders(BmContext context, String domainUid, ItemValue<Mailbox> mailbox,
 			boolean repair);
 
 	/**
@@ -126,7 +127,7 @@ public interface IMailboxesStorage {
 	 * @return
 	 * @throws ServerFault
 	 */
-	public List<MailFolder> checkAndRepairAcl(BmContext context, String domainUid, ItemValue<Mailbox> mailbox,
+	List<MailFolder> checkAndRepairAcl(BmContext context, String domainUid, ItemValue<Mailbox> mailbox,
 			List<AccessControlEntry> acls, boolean repair) throws ServerFault;
 
 	public static class CheckAndRepairStatus {
@@ -151,9 +152,9 @@ public interface IMailboxesStorage {
 	CheckAndRepairStatus checkAndRepairSharedSeen(BmContext context, String domainUid, ItemValue<Mailbox> mailbox,
 			boolean repair);
 
-	public void move(String domainUid, ItemValue<Mailbox> mailbox, ItemValue<Server> sourceServer,
+	void move(String domainUid, ItemValue<Mailbox> mailbox, ItemValue<Server> sourceServer,
 			ItemValue<Server> dstServer);
 
-	public void rewriteCyrusConfiguration(String serverUid);
+	void rewriteCyrusConfiguration(String serverUid);
 
 }

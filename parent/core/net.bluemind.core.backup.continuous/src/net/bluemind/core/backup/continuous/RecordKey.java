@@ -5,6 +5,7 @@ import com.google.common.base.MoreObjects;
 import net.bluemind.core.backup.continuous.store.ITopicStore.TopicDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.JsonUtils;
+import net.bluemind.directory.api.ReservedIds;
 
 public class RecordKey {
 
@@ -28,9 +29,10 @@ public class RecordKey {
 		this.operation = operation;
 	}
 
-	public static <T> RecordKey forItemValue(TopicDescriptor descriptor, ItemValue<T> item, boolean isDelete) {
+	public static <T> RecordKey forItemValue(TopicDescriptor descriptor, ItemValue<T> item, ReservedIds reservedIds,
+			boolean isDelete) {
 		String valueClass = item.value == null ? null : item.value.getClass().getCanonicalName();
-		String operation = Operation.of(item, isDelete).name();
+		String operation = Operation.of(item, reservedIds, isDelete).name();
 		return new RecordKey(descriptor.type(), descriptor.owner(), descriptor.uid(), item.internalId, valueClass,
 				operation);
 	}
@@ -62,11 +64,15 @@ public class RecordKey {
 	public enum Operation {
 		CREATE, UPDATE, DELETE;
 
-		public static <T> Operation of(ItemValue<T> item, boolean isDelete) {
+		public static <T> Operation of(ItemValue<T> item, ReservedIds reservedIds, boolean isDelete) {
 			if (isDelete) {
 				return DELETE;
 			} else {
-				return (item.updated != null && !item.updated.equals(item.created)) ? UPDATE : CREATE;
+				// If we have some reservedIds, we force CREATE to prevent compaction on
+				// future update
+				return (item.updated != null && !item.updated.equals(item.created) && reservedIds == null) //
+						? UPDATE
+						: CREATE;
 			}
 		}
 

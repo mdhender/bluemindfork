@@ -2,11 +2,4 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="net.bluemind.calendar.hook" name="hooks" schema="schema/net.bluemind.calendar.hook.exsd"/>
-   <extension
-         point="net.bluemind.lib.vertx.verticles">
-      <verticle
-            impl="net.bluemind.calendar.hook.internal.CalendarHookVerticleFactory">
-      </verticle>
-   </extension>
-
 </plugin>

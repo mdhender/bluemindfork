@@ -403,6 +403,13 @@ public class AddressBooksMgmt
 
 	@Override
 	public void create(String uid, AddressBookDescriptor descriptor, boolean isDefault) throws ServerFault {
+		ItemValue<AddressBookDescriptor> item = ItemValue.create(uid, descriptor);
+		create(item, isDefault);
+	}
+
+	private void create(ItemValue<AddressBookDescriptor> item, boolean isDefault) throws ServerFault {
+		AddressBookDescriptor descriptor = item.value;
+		String uid = item.uid;
 		sanitizer.create(descriptor);
 		validator.create(descriptor);
 
@@ -413,12 +420,11 @@ public class AddressBooksMgmt
 		}
 
 		if (entry.kind == DirEntry.Kind.DOMAIN) {
-
 			checkCanManageBook(descriptor, DirEntry.Kind.ADDRESSBOOK);
 			checkDomainAbDoesNotExist(descriptor, dir);
 
-			DirEntryHandlers.byKind(DirEntry.Kind.ADDRESSBOOK).create(context, descriptor.domainUid,
-					asDirEntry(uid, descriptor));
+			ItemValue<DirEntry> dirEntryItem = ItemValue.create(item.item(), asDirEntry(uid, descriptor));
+			DirEntryHandlers.byKind(DirEntry.Kind.ADDRESSBOOK).create(context, descriptor.domainUid, dirEntryItem);
 			descriptor.owner = uid;
 			// transmute owner
 		} else {
@@ -468,6 +474,13 @@ public class AddressBooksMgmt
 
 	@Override
 	public void update(String uid, AddressBookDescriptor descriptor) throws ServerFault {
+		ItemValue<AddressBookDescriptor> item = ItemValue.create(uid, descriptor);
+		update(item);
+	}
+
+	private void update(ItemValue<AddressBookDescriptor> item) throws ServerFault {
+		String uid = item.uid;
+		AddressBookDescriptor descriptor = item.value;
 		AddressBookDescriptor old = getComplete(uid);
 
 		if (old == null) {
@@ -488,9 +501,9 @@ public class AddressBooksMgmt
 		}
 
 		checkCanManageBook(old, entry.kind);
-		if (entry != null && entry.kind == DirEntry.Kind.ADDRESSBOOK) {
-			DirEntryHandlers.byKind(DirEntry.Kind.ADDRESSBOOK).update(context, descriptor.domainUid,
-					asDirEntry(uid, descriptor));
+		if (entry.kind == DirEntry.Kind.ADDRESSBOOK) {
+			ItemValue<DirEntry> dirEntryItem = ItemValue.create(item.item(), asDirEntry(uid, descriptor));
+			DirEntryHandlers.byKind(DirEntry.Kind.ADDRESSBOOK).update(context, descriptor.domainUid, dirEntryItem);
 		}
 
 		ContainerModifiableDescriptor cmd = new ContainerModifiableDescriptor();
@@ -504,8 +517,8 @@ public class AddressBooksMgmt
 		switch (ownerKind) {
 		case USER:
 			if (!rbacManager.forDomain(descriptor.domainUid).forEntry(descriptor.owner).can("Manage")
-					&& !((context.getSecurityContext().getSubject().equals(descriptor.owner)
-							&& context.getSecurityContext().getContainerUid().equals(descriptor.domainUid)))) {
+					&& !(context.getSecurityContext().getSubject().equals(descriptor.owner)
+							&& context.getSecurityContext().getContainerUid().equals(descriptor.domainUid))) {
 				throw new ServerFault("cannot manage this addressbook", ErrorCode.PERMISSION_DENIED);
 			}
 			break;
@@ -555,9 +568,9 @@ public class AddressBooksMgmt
 	@Override
 	public void restore(ItemValue<AddressBookDescriptor> item, boolean isCreate) {
 		if (isCreate) {
-			create(item.uid, item.value, false);
+			create(item, false);
 		} else {
-			update(item.uid, item.value);
+			update(item);
 		}
 	}
 

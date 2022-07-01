@@ -39,6 +39,7 @@ import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namesp
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
+import net.bluemind.backend.mail.replica.utils.SubtreeContainerItemIdsCache;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainers;
@@ -86,7 +87,14 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		if (root.ns == Namespace.deleted || root.ns == Namespace.deletedShared) {
 			replica.deleted = true;
 		}
-		created = storeService.create(uid, replica.name, replica);
+//		created = storeService.create(uid, replica.name, replica);
+		Long subtreeItemId = SubtreeContainerItemIdsCache.getFolderId(container.uid, replica.fullName);
+		if (subtreeItemId == null) {
+			created = storeService.create(uid, replica.name, replica);
+		} else {
+			SubtreeContainerItemIdsCache.removeFolderId(container.uid, replica.fullName);
+			created = storeService.createWithId(uid, subtreeItemId, null, replica.name, replica);
+		}
 
 		// create the records container
 		IContainers containerService = context.provider().instance(IContainers.class);

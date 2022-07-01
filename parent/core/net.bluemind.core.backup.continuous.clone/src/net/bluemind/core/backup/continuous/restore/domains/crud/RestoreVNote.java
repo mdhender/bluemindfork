@@ -20,6 +20,7 @@ package net.bluemind.core.backup.continuous.restore.domains.crud;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.core.backup.continuous.RecordKey;
+import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
@@ -30,10 +31,11 @@ import net.bluemind.notes.api.INote;
 import net.bluemind.notes.api.INoteUids;
 import net.bluemind.notes.api.VNote;
 
-public class RestoreVNote extends CrudRestore<VNote> {
+public class RestoreVNote extends CrudItemRestore<VNote> {
 
-	private static final ValueReader<ItemValue<VNote>> reader = JsonUtils.reader(new TypeReference<ItemValue<VNote>>() {
-	});
+	private static final ValueReader<VersionnedItem<VNote>> reader = JsonUtils
+			.reader(new TypeReference<VersionnedItem<VNote>>() {
+			});
 	private final IServiceProvider target;
 
 	public RestoreVNote(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
@@ -47,7 +49,7 @@ public class RestoreVNote extends CrudRestore<VNote> {
 	}
 
 	@Override
-	protected ValueReader<ItemValue<VNote>> reader() {
+	protected ValueReader<VersionnedItem<VNote>> reader() {
 		return reader;
 	}
 

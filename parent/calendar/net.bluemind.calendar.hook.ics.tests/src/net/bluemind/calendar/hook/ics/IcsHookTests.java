@@ -73,7 +73,7 @@ import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.calendar.hook.IcsHook;
-import net.bluemind.calendar.hook.internal.VEventMessage;
+import net.bluemind.calendar.hook.VEventMessage;
 import net.bluemind.calendar.service.internal.VEventSanitizer;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;

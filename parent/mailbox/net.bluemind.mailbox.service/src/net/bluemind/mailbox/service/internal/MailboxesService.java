@@ -18,23 +18,32 @@
  */
 package net.bluemind.mailbox.service.internal;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import net.bluemind.backend.mail.api.IUserInbox;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.backend.mail.replica.utils.SubtreeContainerItemIdsCache;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.api.IOfflineMgmt;
+import net.bluemind.core.container.api.IdRange;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
@@ -53,6 +62,7 @@ import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.directory.api.IDirEntryMaintenance;
 import net.bluemind.directory.api.RepairConfig;
+import net.bluemind.directory.api.ReservedIds;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
@@ -70,6 +80,7 @@ import net.bluemind.mailbox.persistence.MailboxStore;
 import net.bluemind.mailbox.service.IInCoreMailboxes;
 import net.bluemind.mailbox.service.IMailboxesStorage;
 import net.bluemind.mailbox.service.MailboxesStorageFactory;
+import net.bluemind.mailbox.service.common.DefaultFolder;
 import net.bluemind.mailbox.service.internal.repair.MailboxRepairSupport.MailboxMaintenanceOperation.DiagnosticReportCheckId;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.scheduledjob.api.JobExitStatus;
@@ -126,6 +137,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	}
 
 	@Override
+	@VisibleForTesting
 	public void create(String uid, Mailbox value) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_MAILBOX);
 
@@ -134,7 +146,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		validator.validate(value, uid);
 		// FIXME juste attach
 		storeService.attach(uid, null, value);
-		created(uid, value);
+		created(uid, value, null);
 	}
 
 	@Override
@@ -152,7 +164,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		}
 
 		storeService.update(uid, null, value);
-		updated(uid, previousItemValue.value, value);
+		updated(uid, previousItemValue.value, value, null);
 	}
 
 	@Override
@@ -706,7 +718,11 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	}
 
 	@Override
-	public void created(String uid, Mailbox mailbox) throws ServerFault {
+	public void created(String uid, Mailbox mailbox, Consumer<ReservedIds> reservedIdsConsumer) throws ServerFault {
+		if (reservedIdsConsumer != null) {
+			reservedIdsConsumer.accept(reserveDefaultFolderIds(uid, null, mailbox));
+		}
+
 		Helper.createMailboxesAclsContainer(context, domainUid, uid, mailbox);
 		ItemValue<Mailbox> itemValue = storeService.get(uid, null);
 
@@ -732,10 +748,64 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		eventProducer.created(uid);
 	}
 
+	private ReservedIds reserveDefaultFolderIds(String uid, Mailbox previous, Mailbox current) {
+		if (current.dataLocation == null
+				|| !mailboxStorage().mailboxRequiresCreationInCyrus(context, domainUid, previous, current)) {
+			return null;
+		}
+
+		IOfflineMgmt offlineMgmtApi = context.provider().instance(IOfflineMgmt.class, domainUid, uid);
+		String subtreeUid = IMailReplicaUids.subtreeUid(domainUid, current.type, uid);
+		ReservedIds reservedIds;
+		Set<String> defaultFolderNames;
+		switch (current.type) {
+		case user:
+			defaultFolderNames = defaultFolderNames(current, DefaultFolder.USER_FOLDERS);
+			reservedIds = doReserveDefaultFolderIds(offlineMgmtApi, uid, subtreeUid, defaultFolderNames);
+			break;
+		case group:
+		case resource:
+		case mailshare:
+			defaultFolderNames = defaultFolderNames(current, DefaultFolder.MAILSHARE_FOLDERS);
+			reservedIds = doReserveDefaultFolderIds(offlineMgmtApi, uid, subtreeUid, defaultFolderNames);
+			break;
+		default:
+			reservedIds = null;
+		}
+		return reservedIds;
+	}
+
+	private ReservedIds doReserveDefaultFolderIds(IOfflineMgmt offlineMgmtApi, String uid, String subtreeUid,
+			Set<String> defaultFolderNames) {
+		IdRange idRange = offlineMgmtApi.allocateOfflineIds(defaultFolderNames.size());
+		ReservedIds reservedIds = new ReservedIds();
+		long id = idRange.globalCounter;
+		for (String folderName : defaultFolderNames) {
+			String folderKey = SubtreeContainerItemIdsCache.key(subtreeUid, folderName);
+			long cachedId = SubtreeContainerItemIdsCache.putFolderIdIfMissing(folderKey, id);
+			reservedIds.add(folderKey, cachedId);
+			id++;
+		}
+		return reservedIds;
+	}
+
+	private Set<String> defaultFolderNames(Mailbox mailbox, Set<DefaultFolder> folders) {
+		Set<String> defaultFolderNames = folders.stream()
+				.map(folder -> (mailbox.type.sharedNs) ? mailbox.name + "/" + folder.name : folder.name)
+				.collect(toSet());
+		String receiveFolderName = (mailbox.type.sharedNs) ? mailbox.name : "INBOX";
+		defaultFolderNames.add(receiveFolderName);
+		return defaultFolderNames;
+	}
+
 	@Override
-	public void updated(String uid, Mailbox previous, Mailbox value) throws ServerFault {
+	public void updated(String uid, Mailbox previous, Mailbox value, Consumer<ReservedIds> reservedIdsConsumer)
+			throws ServerFault {
 		ItemValue<Mailbox> previousItemValue = ItemValue.create(uid, previous);
 		ItemValue<Mailbox> itemValue = storeService.get(uid, null);
+		if (reservedIdsConsumer != null) {
+			reservedIdsConsumer.accept(reserveDefaultFolderIds(uid, previousItemValue.value, itemValue.value));
+		}
 
 		for (IMailboxHook hook : hooks) {
 			try {
@@ -747,6 +817,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		}
 
 		mailboxStorage().update(context, domainUid, previousItemValue, itemValue);
+
 		for (IMailboxHook hook : hooks) {
 			try {
 				hook.onMailboxUpdated(context, domainUid, previousItemValue, itemValue);

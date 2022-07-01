@@ -65,6 +65,7 @@ import net.bluemind.group.hook.IGroupHook;
 import net.bluemind.group.service.GroupHelper;
 import net.bluemind.group.service.IInCoreGroup;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.service.IInCoreMailboxes;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.role.api.IRoles;
@@ -122,14 +123,17 @@ public class GroupService implements IGroup, IInCoreGroup {
 	public void createWithExtId(String uid, String extId, Group group) throws ServerFault {
 		ItemValue<Group> groupItem = ItemValue.create(uid, group);
 		groupItem.externalId = extId;
-		createWithItem(groupItem);
+		createWithItem(groupItem, false);
 	}
 
-	private void createWithItem(ItemValue<Group> groupItem) throws ServerFault {
+	private void createWithItem(ItemValue<Group> groupItem, boolean restore) throws ServerFault {
 		String uid = groupItem.uid;
 		Group group = groupItem.value;
 		sanitizer.create(group);
-		sanitizer.create(new DirDomainValue<>(domainUid, uid, group));
+		if (!restore) {
+			// restore skip the sanitizer because we don't want to force a datalocation
+			sanitizer.create(new DirDomainValue<>(domainUid, uid, group));
+		}
 		groupValidator.validate(uid, groupItem.externalId, group);
 		validator.create(group);
 
@@ -141,10 +145,11 @@ public class GroupService implements IGroup, IInCoreGroup {
 
 		group.emails = EmailHelper.sanitizeAndValidate(group.emails);
 
-		mailboxes.validate(uid, GroupHelper.groupToMailbox(group));
+		Mailbox mailbox = GroupHelper.groupToMailbox(group);
+		mailboxes.validate(uid, mailbox);
 
-		storeService.create(groupItem);
-		mailboxes.created(uid, GroupHelper.groupToMailbox(group));
+		storeService.create(groupItem, reservedIdsConsumer -> mailboxes.created(uid, mailbox, reservedIdsConsumer));
+
 		logger.debug("Created {}", uid);
 		for (IGroupHook gh : groupsHooks) {
 			gh.onGroupCreated(new GroupMessage(iv(uid, group), securityContext, groupContainer));
@@ -161,10 +166,10 @@ public class GroupService implements IGroup, IInCoreGroup {
 	@Override
 	public void update(String uid, Group group) throws ServerFault {
 		ItemValue<Group> groupItem = ItemValue.create(uid, group);
-		updateWithItem(groupItem);
+		updateWithItem(groupItem, false);
 	}
 
-	private void updateWithItem(ItemValue<Group> groupItem) throws ServerFault {
+	private void updateWithItem(ItemValue<Group> groupItem, boolean restore) throws ServerFault {
 		String uid = groupItem.uid;
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_GROUP);
 		Group group = groupItem.value;
@@ -179,17 +184,23 @@ public class GroupService implements IGroup, IInCoreGroup {
 		}
 		// ext point sanitizer
 		sanitizer.update(previous, group);
-		sanitizer.update(new DirDomainValue<>(domainUid, uid, previous), new DirDomainValue<>(domainUid, uid, group));
+		if (!restore) {
+			// restore skip the sanitizer because we don't want to force a datalocation
+			sanitizer.update(new DirDomainValue<>(domainUid, uid, previous),
+					new DirDomainValue<>(domainUid, uid, group));
+		}
 
 		groupValidator.validate(uid, group);
 		validator.update(previous, group);
 
 		group.emails = EmailHelper.sanitizeAndValidate(group.emails);
-		mailboxes.validate(uid, GroupHelper.groupToMailbox(group));
 
-		storeService.update(groupItem);
+		Mailbox previousMailbox = GroupHelper.groupToMailbox(previous);
+		Mailbox currentMailbox = GroupHelper.groupToMailbox(group);
+		mailboxes.validate(uid, currentMailbox);
 
-		mailboxes.updated(uid, GroupHelper.groupToMailbox(previous), GroupHelper.groupToMailbox(group));
+		storeService.update(groupItem,
+				reservedIdsConsumer -> mailboxes.updated(uid, previousMailbox, currentMailbox, reservedIdsConsumer));
 
 		for (IGroupHook gh : groupsHooks) {
 			gh.onGroupUpdated(new GroupMessage(iv(uid, previous), securityContext, groupContainer),
@@ -596,9 +607,9 @@ public class GroupService implements IGroup, IInCoreGroup {
 	@Override
 	public void restore(ItemValue<Group> item, boolean isCreate) {
 		if (isCreate) {
-			createWithItem(item);
+			createWithItem(item, true);
 		} else {
-			updateWithItem(item);
+			updateWithItem(item, true);
 		}
 	}
 

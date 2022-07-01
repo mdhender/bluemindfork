@@ -80,6 +80,7 @@ import net.bluemind.group.api.GroupSearchQuery;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
 import net.bluemind.group.persistence.GroupStore;
+import net.bluemind.group.service.IInCoreGroup;
 import net.bluemind.group.service.internal.ContainerGroupStoreService;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -586,7 +587,10 @@ public class GroupServiceTests {
 		groupItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
 		groupItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		groupItem.version = 17;
-		getGroupService(adminSecurityContext).restore(groupItem, true);
+
+		IInCoreGroup groupApi = ServerSideServiceProvider.getProvider(adminSecurityContext).instance(IInCoreGroup.class,
+				domainUid);
+		groupApi.restore(groupItem, true);
 
 		ItemValue<Group> createdGroup = getGroupService(adminSecurityContext).getComplete(uid);
 		assertIGroupValueEquals(uid, groupItem.externalId, group, createdGroup);
@@ -640,7 +644,9 @@ public class GroupServiceTests {
 		groupItem.externalId = "external-" + group.name;
 		groupItem.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:45:32");
 		groupItem.version = 17;
-		getGroupService(adminSecurityContext).restore(groupItem, true);
+		IInCoreGroup groupApi = ServerSideServiceProvider.getProvider(adminSecurityContext).instance(IInCoreGroup.class,
+				domainUid);
+		groupApi.restore(groupItem, true);
 
 		group.hidden = !group.hidden;
 		group.hiddenMembers = !group.hiddenMembers;
@@ -651,7 +657,7 @@ public class GroupServiceTests {
 		group.emails = Arrays.asList(group.emails.iterator().next(), e);
 		groupItem.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		groupItem.version = 18;
-		getGroupService(adminSecurityContext).restore(groupItem, false);
+		groupApi.restore(groupItem, false);
 
 		ItemValue<Group> updatedGroup = getGroupService(adminSecurityContext).getComplete(uid);
 		assertIGroupValueEquals(groupItem, updatedGroup);

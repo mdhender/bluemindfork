@@ -30,14 +30,13 @@ import jakarta.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.api.IRestoreDirEntryWithMailboxSupport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.directory.api.IDirEntryExtIdSupport;
 
 @BMApi(version = "3")
 @Path("/groups/{domainUid}")
-public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailboxSupport<Group>, IGroupMember {
+public interface IGroup extends IDirEntryExtIdSupport, IGroupMember {
 
 	/**
 	 * Create group
@@ -48,7 +47,7 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	 */
 	@PUT
 	@Path("{uid}")
-	public void create(@PathParam(value = "uid") String uid, Group group) throws ServerFault;
+	void create(@PathParam(value = "uid") String uid, Group group) throws ServerFault;
 
 	/**
 	 * Create group with external ID
@@ -60,8 +59,8 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	 */
 	@PUT
 	@Path("{uid}/{extid}/createwithextid")
-	public void createWithExtId(@PathParam(value = "uid") String uid, @PathParam(value = "extid") String extId,
-			Group group) throws ServerFault;
+	void createWithExtId(@PathParam(value = "uid") String uid, @PathParam(value = "extid") String extId, Group group)
+			throws ServerFault;
 
 	/**
 	 * Update group
@@ -72,7 +71,7 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	 */
 	@POST
 	@Path("{uid}")
-	public void update(@PathParam(value = "uid") String uid, Group group) throws ServerFault;
+	void update(@PathParam(value = "uid") String uid, Group group) throws ServerFault;
 
 	/**
 	 * Touch group (update direntry, vcard etc..)
@@ -83,7 +82,18 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	 */
 	@POST
 	@Path("{uid}/_touch")
-	public void touch(@PathParam(value = "uid") String uid) throws ServerFault;
+	void touch(@PathParam(value = "uid") String uid) throws ServerFault;
+
+	/**
+	 * Get group from UID
+	 * 
+	 * @param uid
+	 * @return
+	 * @throws ServerFault
+	 */
+	@GET
+	@Path("{uid}")
+	Group get(String uid);
 
 	/**
 	 * Get group from UID
@@ -94,7 +104,7 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	 */
 	@GET
 	@Path("{uid}/complete")
-	public ItemValue<Group> getComplete(@PathParam(value = "uid") String uid) throws ServerFault;
+	ItemValue<Group> getComplete(@PathParam(value = "uid") String uid) throws ServerFault;
 
 	/**
 	 * Get group from its email
@@ -105,7 +115,7 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	 */
 	@GET
 	@Path("byEmail/{email}")
-	public ItemValue<Group> byEmail(@PathParam(value = "email") String email) throws ServerFault;
+	ItemValue<Group> byEmail(@PathParam(value = "email") String email) throws ServerFault;
 
 	/**
 	 * Get group from its name
@@ -116,7 +126,7 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	 */
 	@GET
 	@Path("byName/{name}")
-	public ItemValue<Group> byName(@PathParam(value = "name") String name) throws ServerFault;
+	ItemValue<Group> byName(@PathParam(value = "name") String name) throws ServerFault;
 
 	/**
 	 * Delete group
@@ -126,7 +136,7 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	 */
 	@DELETE
 	@Path("{uid}")
-	public TaskRef delete(@PathParam(value = "uid") String uid) throws ServerFault;
+	TaskRef delete(@PathParam(value = "uid") String uid) throws ServerFault;
 
 	/**
 	 * Get group from external ID
@@ -137,7 +147,7 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	 */
 	@GET
 	@Path("_extid/{extid}")
-	public ItemValue<Group> getByExtId(@PathParam(value = "extid") String extId) throws ServerFault;
+	ItemValue<Group> getByExtId(@PathParam(value = "extid") String extId) throws ServerFault;
 
 	// FIXME only one method
 	// @POST
@@ -145,11 +155,11 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	// add and remove should be "unitary" (one member)
 	@PUT
 	@Path("{uid}/members")
-	public void add(@PathParam(value = "uid") String uid, List<Member> members) throws ServerFault;
+	void add(@PathParam(value = "uid") String uid, List<Member> members) throws ServerFault;
 
 	@DELETE
 	@Path("{uid}/members")
-	public void remove(@PathParam(value = "uid") String uid, List<Member> members) throws ServerFault;
+	void remove(@PathParam(value = "uid") String uid, List<Member> members) throws ServerFault;
 
 	/**
 	 * Get all group members
@@ -160,7 +170,7 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	 */
 	@GET
 	@Path("{uid}/members")
-	public List<Member> getMembers(@PathParam(value = "uid") String uid) throws ServerFault;
+	List<Member> getMembers(@PathParam(value = "uid") String uid) throws ServerFault;
 
 	/**
 	 * Get all expanded group members
@@ -171,7 +181,7 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	 */
 	@GET
 	@Path("{uid}/expandedmembers")
-	public List<Member> getExpandedMembers(@PathParam(value = "uid") String uid) throws ServerFault;
+	List<Member> getExpandedMembers(@PathParam(value = "uid") String uid) throws ServerFault;
 
 	// FIXME add a QueryParam to getMembers :
 	// public List<Member> getMembers(@PathParam(value = "uid") String uid,
@@ -185,7 +195,7 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	 */
 	@GET
 	@Path("{uid}/expandedusersmembers")
-	public List<Member> getExpandedUserMembers(@PathParam(value = "uid") String uid) throws ServerFault;
+	List<Member> getExpandedUserMembers(@PathParam(value = "uid") String uid) throws ServerFault;
 
 	/**
 	 * Get all group parents UID
@@ -196,11 +206,11 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	 */
 	@GET
 	@Path("{uid}/parents")
-	public List<ItemValue<Group>> getParents(@PathParam(value = "uid") String uid) throws ServerFault;
+	List<ItemValue<Group>> getParents(@PathParam(value = "uid") String uid) throws ServerFault;
 
 	@GET
 	@Path("_alluids")
-	public List<String> allUids() throws ServerFault;
+	List<String> allUids() throws ServerFault;
 
 	// FIXME: not used, to remove ?
 	@POST
@@ -225,7 +235,7 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	 */
 	@GET
 	@Path("{uid}/roles")
-	public Set<String> getRoles(@PathParam(value = "uid") String uid) throws ServerFault;
+	Set<String> getRoles(@PathParam(value = "uid") String uid) throws ServerFault;
 
 	/**
 	 * @param uid   {@link Group} uid
@@ -234,5 +244,5 @@ public interface IGroup extends IDirEntryExtIdSupport, IRestoreDirEntryWithMailb
 	 */
 	@POST
 	@Path("{uid}/roles")
-	public void setRoles(@PathParam(value = "uid") String uid, Set<String> roles) throws ServerFault;
+	void setRoles(@PathParam(value = "uid") String uid, Set<String> roles) throws ServerFault;
 }

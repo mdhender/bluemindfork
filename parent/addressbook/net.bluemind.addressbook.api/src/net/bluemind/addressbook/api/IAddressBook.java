@@ -36,7 +36,7 @@ import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
 import net.bluemind.core.container.api.ICrudByIdSupport;
 import net.bluemind.core.container.api.IDataShardSupport;
-import net.bluemind.core.container.api.IRestoreCrudSupport;
+import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
@@ -51,7 +51,7 @@ import net.bluemind.core.container.model.ItemValue;
 @BMApi(version = "3", genericType = VCard.class)
 @Path("/addressbooks/{containerUid}")
 public interface IAddressBook extends IChangelogSupport, ICrudByIdSupport<VCard>, ICountingSupport, ISortingSupport,
-		IDataShardSupport, IRestoreCrudSupport<VCard> {
+		IDataShardSupport, IRestoreItemCrudSupport<VCard> {
 
 	/**
 	 * List all items from container

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.IBackupReader;
 import net.bluemind.core.backup.continuous.ILiveBackupStreams;
 import net.bluemind.core.backup.continuous.ILiveStream;
+import net.bluemind.core.backup.continuous.IRecordStarvationStrategy.ExpectedBehaviour;
 import net.bluemind.core.backup.continuous.api.CloneDefaults;
 import net.bluemind.core.backup.continuous.restore.domains.DomainRestorationHandler;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
@@ -114,6 +116,8 @@ public class InstallFromBackupTask implements IServerTask {
 
 		ClonedOrphans orphans = cloneOrphans(monitor.subWork(1), orphansStream, cloneState);
 
+		cloneContainerItemIdSeq(monitor, orphansStream, orphans, cloneState);
+
 		List<ILiveStream> domainStreams = streams.domains();
 		ISdsSyncStore sdsStore = sdsAccess.forSysconf(orphans.sysconf);
 		cloneDomains(monitor.subWork(99), domainStreams, cloneState, orphans, sdsStore);
@@ -136,7 +140,7 @@ public class InstallFromBackupTask implements IServerTask {
 
 	}
 
-	public ClonedOrphans cloneOrphans(IServerTaskMonitor monitor, ILiveStream orphansStream, CloneState cloneState) {
+	private ClonedOrphans cloneOrphans(IServerTaskMonitor monitor, ILiveStream orphansStream, CloneState cloneState) {
 		monitor.begin(3, "Cloning orphans (cross-domain data) of installation " + sourceMcastId);
 		Map<String, List<DataElement>> orphansByType = new HashMap<>();
 		IResumeToken prevState = cloneState.forTopic(orphansStream);
@@ -166,12 +170,25 @@ public class InstallFromBackupTask implements IServerTask {
 		return new ClonedOrphans(topology, domains, sysconf, coreTok);
 	}
 
-	public void cloneDomains(IServerTaskMonitor monitor, List<ILiveStream> domainStreams, CloneState cloneState,
+	private void cloneContainerItemIdSeq(IServerTaskMonitor monitor, ILiveStream orphansStream, ClonedOrphans orphans,
+			CloneState cloneState) {
+		RestoreContainerItemIdSeq idSeq = new RestoreContainerItemIdSeq(orphans.topology.values());
+		CompletableFuture.supplyAsync(() -> {
+			return orphansStream.subscribe(cloneState.forTopic(orphansStream), de -> {
+				if (!de.key.type.equals("container_item_id_seq")) {
+					return;
+				}
+				idSeq.restore(monitor, Arrays.asList(de));
+			}, infos -> (cloneState.isTerminated()) ? ExpectedBehaviour.ABORT : ExpectedBehaviour.RETRY);
+		}, Executors.newSingleThreadExecutor());
+	}
+
+	private void cloneDomains(IServerTaskMonitor monitor, List<ILiveStream> domainStreams, CloneState cloneState,
 			ClonedOrphans orphans, ISdsSyncStore sdsStore) {
 		monitor.begin(domainStreams.size(), "Cloning domains");
 
 		int goal = domainStreams.size();
-		ExecutorService clonePool = Executors.newFixedThreadPool(goal);
+		ExecutorService clonePool = Executors.newFixedThreadPool(goal + 1);
 
 		RecordStarvationHandler starvation = new RecordStarvationHandler(monitor, cloneConf, orphans, target,
 				cloneState);
@@ -209,6 +226,7 @@ public class InstallFromBackupTask implements IServerTask {
 		CompletableFuture<Void> globalProm = CompletableFuture.allOf(toWait);
 		monitor.log("Waiting for domains cloning global promise...");
 		globalProm.join();
+		cloneState.terminate();
 	}
 
 	private void recordProcessed(IServerTaskMonitor monitor, CloneState cloneState, ILiveStream stream,

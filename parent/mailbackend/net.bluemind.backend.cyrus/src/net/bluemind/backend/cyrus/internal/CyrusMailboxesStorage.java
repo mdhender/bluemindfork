@@ -172,7 +172,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 	 * @param boxContainer
 	 * @return
 	 */
-	public List<String> createUserFolders(String domainUid, ItemValue<Server> srv, ItemValue<Mailbox> mbox,
+	private List<String> createUserFolders(String domainUid, ItemValue<Server> srv, ItemValue<Mailbox> mbox,
 			Set<DefaultFolder> folders) {
 		List<String> created = new LinkedList<>();
 		try (SyncClientOIO sync = new SyncClientOIO(srv.value.address(), 2502)) {
@@ -199,7 +199,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 	 * @param boxContainer
 	 * @return
 	 */
-	public List<String> createMailshareFolders(String domainUid, ItemValue<Server> srv, ItemValue<Mailbox> mbox,
+	private List<String> createMailshareFolders(String domainUid, ItemValue<Server> srv, ItemValue<Mailbox> mbox,
 			Set<DefaultFolder> folders) {
 		List<String> created = new LinkedList<>();
 		String mailshareName = boxname(mbox.value, domainUid);
@@ -264,6 +264,27 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		return ret;
 	}
 
+	@Override
+	public boolean mailboxRequiresCreationInCyrus(BmContext context, String domainUid, Mailbox previous,
+			Mailbox current) {
+		return previous == null //
+				// switch from not managed by Blue Mind to something managed: it is a
+				// create from cyrus pov
+				|| newlyManaged(previous, current) //
+				// Ensure managed mailbox exist in cyrus
+				|| managedButNotCreated(context, domainUid, previous, current);
+	}
+
+	private boolean newlyManaged(Mailbox previous, Mailbox current) {
+		return !previous.routing.managed() && current.routing.managed();
+	}
+
+	private boolean managedButNotCreated(BmContext context, String domainUid, Mailbox previous, Mailbox current) {
+		return !previous.equals(current) && previous.name.equals(current.name) && current.routing.managed()
+				&& !mailboxExist(context, domainUid, ItemValue.create("", current));
+	}
+
+	@Override
 	public void update(BmContext context, String domainUid, ItemValue<Mailbox> previousValue, ItemValue<Mailbox> value)
 			throws ServerFault {
 
@@ -271,6 +292,12 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 
 		Mailbox prev = previousValue.value;
 		Mailbox cur = value.value;
+
+		if (mailboxRequiresCreationInCyrus(context, domainUid, prev, cur)) {
+			logger.debug("mailbox updated but not yet created in cyrus: {} ", value.uid);
+			create(context, domainUid, value);
+			return;
+		}
 
 		if (previousValue.value.equals(value.value)) {
 			logger.debug("no changes for mailbox {} ", value.uid);
@@ -288,13 +315,6 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 			return;
 		}
 
-		// switch from not managed by Blue Mind to something managed: it is a
-		// create from cyrus pov
-		if (!prev.routing.managed() && cur.routing.managed()) {
-			create(context, domainUid, value);
-			return;
-		}
-
 		final String mailboxDatalocation = previousValue.value.dataLocation != null ? previousValue.value.dataLocation
 				: value.value.dataLocation;
 		final CyrusService cyrus = new CyrusService(getServer(context, mailboxDatalocation).value.address());
@@ -302,7 +322,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		// cur.routing.managed == true
 		// mailbox was renamed
 		if (!prev.name.equals(cur.name)) {
-			logger.info("mailbox {} was renamed {} => {}", value.uid, prev.name, cur.name);
+			logger.info("mailbox {} was renamed {} => {}", value.uid, prev.name, cur.name);
 
 			switch (value.value.type) {
 			case group:
@@ -331,12 +351,6 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 				cyrus.setQuota(boxName, 0);
 			}
 
-			return;
-		}
-
-		// Ensure managed mailbox exist in cyrus
-		if (cur.routing.managed() && !mailboxExist(context, domainUid, value)) {
-			create(context, domainUid, value);
 			return;
 		}
 
@@ -560,7 +574,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 	 * @param createdFolders
 	 * @throws ServerFault
 	 */
-	public void foldersCreated(BmContext context, String domainUid, ItemValue<Mailbox> mbox,
+	private void foldersCreated(BmContext context, String domainUid, ItemValue<Mailbox> mbox,
 			List<String> createdFolders) throws ServerFault {
 		for (String folder : createdFolders) {
 			for (IMailboxEventConsumer consumer : consumers) {

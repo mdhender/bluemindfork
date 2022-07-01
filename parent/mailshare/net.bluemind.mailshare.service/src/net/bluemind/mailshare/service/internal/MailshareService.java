@@ -98,8 +98,7 @@ public class MailshareService implements IMailshare {
 		mailboxes.validate(uid, mbox);
 		mailshare.quota = mbox.quota;
 
-		storeService.create(mailshareItem);
-		mailboxes.created(uid, mbox);
+		storeService.create(mailshareItem, reservedIdsConsumer -> mailboxes.created(uid, mbox, reservedIdsConsumer));
 
 		for (IMailshareHook h : hooks) {
 			h.onCreate(context, uid, mailshare, domainUid);
@@ -131,13 +130,14 @@ public class MailshareService implements IMailshare {
 				new DirDomainValue<>(domainUid, uid, mailshare));
 		validator.update(previous.value, mailshare);
 
-		Mailbox mbox = mailboxAdapter.asMailbox(domainUid, uid, mailshare);
-		mailboxes.sanitize(mbox);
-		mailboxes.validate(uid, mbox);
-		mailshare.quota = mbox.quota;
+		Mailbox previousMailbox = mailboxAdapter.asMailbox(domainUid, uid, previous.value);
+		Mailbox currentMailbox = mailboxAdapter.asMailbox(domainUid, uid, mailshare);
+		mailboxes.sanitize(currentMailbox);
+		mailboxes.validate(uid, currentMailbox);
+		mailshare.quota = currentMailbox.quota;
 
-		storeService.update(mailshareItem);
-		mailboxes.updated(uid, mailboxAdapter.asMailbox(domainUid, uid, previous.value), mbox);
+		storeService.update(mailshareItem,
+				reservedIdsConsumer -> mailboxes.updated(uid, previousMailbox, currentMailbox, reservedIdsConsumer));
 
 		for (IMailshareHook h : hooks) {
 			h.onUpdate(context, uid, mailshare, domainUid);

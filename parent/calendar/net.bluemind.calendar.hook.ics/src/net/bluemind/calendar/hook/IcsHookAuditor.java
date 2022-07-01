@@ -18,7 +18,6 @@
  */
 package net.bluemind.calendar.hook;
 
-import net.bluemind.calendar.hook.internal.VEventMessage;
 import net.bluemind.core.auditlog.ContainerAuditor;
 import net.bluemind.core.auditlog.IAuditManager;
 

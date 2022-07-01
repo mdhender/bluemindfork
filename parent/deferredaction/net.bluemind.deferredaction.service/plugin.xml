@@ -17,6 +17,9 @@
             class="net.bluemind.deferredaction.service.DeferredActionFactory">
       </serviceFactory>
       <serviceFactory
+            class="net.bluemind.deferredaction.service.InternalDeferredActionFactory">
+      </serviceFactory>
+      <serviceFactory
             class="net.bluemind.deferredaction.service.internal.DeferredActionMgmtFactory">
       </serviceFactory>
    </extension>

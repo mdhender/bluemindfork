@@ -31,22 +31,24 @@ import jakarta.ws.rs.QueryParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
 import net.bluemind.core.container.api.ICrudByIdSupport;
 import net.bluemind.core.container.api.IDataShardSupport;
-import net.bluemind.core.container.api.IRestoreCrudSupport;
+import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.task.api.TaskRef;
 
 /** Calendar operations. */
 @BMApi(version = "3", genericType = VEventSeries.class)
 @Path("/calendars/{containerUid}")
 public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSeries>, ICountingSupport, ISortingSupport,
-		IDataShardSupport, IRestoreCrudSupport<VEventSeries> {
+		IDataShardSupport, IRestoreItemCrudSupport<VEventSeries> {
 
 	/**
 	 * Creates a {@link VEvent}.
@@ -58,7 +60,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 */
 	@PUT
 	@Path("{uid}")
-	public void create(@PathParam(value = "uid") String uid, VEventSeries event,
+	void create(@PathParam(value = "uid") String uid, VEventSeries event,
 			@QueryParam(value = "sendNotifications") Boolean sendNotifications) throws ServerFault;
 
 	/**
@@ -71,7 +73,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 */
 	@POST
 	@Path("{uid}")
-	public void update(@PathParam(value = "uid") String uid, VEventSeries event,
+	void update(@PathParam(value = "uid") String uid, VEventSeries event,
 			@QueryParam(value = "sendNotifications") Boolean sendNotifications) throws ServerFault;
 
 	/**
@@ -82,7 +84,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 */
 	@GET
 	@Path("{uid}/complete")
-	public ItemValue<VEventSeries> getComplete(@PathParam(value = "uid") String uid) throws ServerFault;
+	ItemValue<VEventSeries> getComplete(@PathParam(value = "uid") String uid) throws ServerFault;
 
 	/**
 	 * Returns all {@link VEventSeries} matching the given ICS unique identifier.
@@ -92,7 +94,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 */
 	@GET
 	@Path("_icsuid/{uid}")
-	public List<ItemValue<VEventSeries>> getByIcsUid(@PathParam(value = "uid") String uid) throws ServerFault;
+	List<ItemValue<VEventSeries>> getByIcsUid(@PathParam(value = "uid") String uid) throws ServerFault;
 
 	/**
 	 * Fetch multiple {@link VEventSeries} identified by the given unique
@@ -103,7 +105,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 */
 	@POST
 	@Path("_mget")
-	public List<ItemValue<VEventSeries>> multipleGet(List<String> uids) throws ServerFault;
+	List<ItemValue<VEventSeries>> multipleGet(List<String> uids) throws ServerFault;
 
 	/**
 	 * Deletes the {@link VEventSeries} identified by the given unique identifier.
@@ -115,7 +117,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 */
 	@DELETE
 	@Path("{uid}")
-	public void delete(@PathParam(value = "uid") String uid,
+	void delete(@PathParam(value = "uid") String uid,
 			@QueryParam(value = "sendNotifications") Boolean sendNotifications) throws ServerFault;
 
 	/**
@@ -125,7 +127,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 */
 	@POST
 	@Path("{uid}/_touch")
-	public void touch(@PathParam("uid") String uid) throws ServerFault;
+	void touch(@PathParam("uid") String uid) throws ServerFault;
 
 	/**
 	 * Applies changes (create, update, delete) to a calendar specified by its
@@ -135,7 +137,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 */
 	@PUT
 	@Path("_mupdates")
-	public ContainerUpdatesResult updates(VEventChanges changes) throws ServerFault;
+	ContainerUpdatesResult updates(VEventChanges changes) throws ServerFault;
 
 	/**
 	 * Search for events matching the given query.
@@ -145,7 +147,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 */
 	@POST
 	@Path("_search")
-	public ListResult<ItemValue<VEventSeries>> search(VEventQuery query) throws ServerFault;
+	ListResult<ItemValue<VEventSeries>> search(VEventQuery query) throws ServerFault;
 
 	/**
 	 * Apply the given changes and return the differences since the given time.
@@ -157,7 +159,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 */
 	@PUT
 	@Path("_sync")
-	public ContainerChangeset<String> sync(@QueryParam("since") Long since, VEventChanges changes) throws ServerFault;
+	ContainerChangeset<String> sync(@QueryParam("since") Long since, VEventChanges changes) throws ServerFault;
 
 	/**
 	 * List all the events of this calendar.
@@ -166,7 +168,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 */
 	@GET
 	@Path("_list")
-	public ListResult<ItemValue<VEventSeries>> list() throws ServerFault;
+	ListResult<ItemValue<VEventSeries>> list() throws ServerFault;
 
 	/**
 	 * Remove all events from this calendar.
@@ -175,7 +177,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 */
 	@POST
 	@Path("_reset")
-	public TaskRef reset() throws ServerFault;
+	TaskRef reset() throws ServerFault;
 
 	/**
 	 * Returns all the items uid from the container.
@@ -194,7 +196,7 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 */
 	@GET
 	@Path("_isAutoSyncActivated")
-	public boolean isAutoSyncActivated() throws ServerFault;
+	boolean isAutoSyncActivated() throws ServerFault;
 
 	/**
 	 * Search pending counters of the current user
@@ -203,5 +205,5 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 */
 	@GET
 	@Path("_search_counters")
-	public ListResult<ItemValue<VEventSeries>> searchPendingCounters();
+	ListResult<ItemValue<VEventSeries>> searchPendingCounters();
 }

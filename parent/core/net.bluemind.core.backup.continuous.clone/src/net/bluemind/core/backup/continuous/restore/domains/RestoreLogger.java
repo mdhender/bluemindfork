@@ -9,7 +9,8 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 public class RestoreLogger {
 
 	public enum Operation {
-		CREATE, UPDATE, SET, DELETE, CREATE_PARENT, DELETE_CHILD, APPLY_MAILBOX, FILTER, SKIP, SEPPUKU
+		CREATE, UPDATE, SET, DELETE, DELETE_BY_PRODUCT, CREATE_PARENT, DELETE_PARENT, DELETE_CHILD, APPLY_MAILBOX,
+		FILTER, SKIP, SEPPUKU
 	}
 
 	private final IServerTaskMonitor monitor;
@@ -58,6 +59,10 @@ public class RestoreLogger {
 		log(Operation.DELETE, type, kind, key, Level.INFO);
 	}
 
+	public void deleteByProduct(String type, RecordKey key) {
+		log(Operation.DELETE_BY_PRODUCT, type, null, key, Level.INFO);
+	}
+
 	public void createParent(String type, RecordKey key, String uid) {
 		monitor.log("op:" + Operation.CREATE_PARENT + ", type:" + type + ",  key:" + key + ", uid: " + uid);
 	}
@@ -66,12 +71,16 @@ public class RestoreLogger {
 		monitor.log("op:" + Operation.DELETE_CHILD + ", type:" + type + ",  key:" + key + ", uid: " + uid);
 	}
 
+	public void deleteParent(String type, RecordKey key, String uid) {
+		monitor.log("op:" + Operation.DELETE_PARENT + ", type:" + type + ",  key:" + key + ", uid: " + uid);
+	}
+
 	public void applyMailbox(String type, RecordKey key) {
 		log(Operation.APPLY_MAILBOX, type, null, key, Level.INFO);
 	}
 
 	public void filter(String type, RecordKey key) {
-		delete(type, null, key);
+		filter(type, null, key);
 	}
 
 	public void filter(String type, String kind, RecordKey key) {
@@ -89,6 +98,10 @@ public class RestoreLogger {
 
 	public void failure(String type, RecordKey key, String payload, Throwable t) {
 		monitor.log("op:failure, type:" + type + ",  key:" + key + ", payload:" + payload, t);
+	}
+
+	public void failureIgnored(String type, RecordKey key, String cause) {
+		monitor.log("op:failure, type:" + type + ",  key:" + key + ", cause:" + cause);
 	}
 
 	public void seppuku(String type, RecordKey key) {

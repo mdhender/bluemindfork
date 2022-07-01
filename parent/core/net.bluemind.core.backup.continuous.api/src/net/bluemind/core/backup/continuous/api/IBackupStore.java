@@ -20,12 +20,15 @@ package net.bluemind.core.backup.continuous.api;
 import java.util.concurrent.CompletableFuture;
 
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.directory.api.ReservedIds;
 
 public interface IBackupStore<T> {
 
 	CompletableFuture<Void> storeRaw(String partitionKey, byte[] key, byte[] raw);
 
 	CompletableFuture<Void> store(ItemValue<T> data);
+
+	CompletableFuture<Void> store(ItemValue<T> data, ReservedIds reservedIds);
 
 	CompletableFuture<Void> delete(ItemValue<T> data);
 

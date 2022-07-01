@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.directory.api.ReservedIds;
 
 public class VersionnedItem<T> extends ItemValue<T> {
 
@@ -30,6 +31,7 @@ public class VersionnedItem<T> extends ItemValue<T> {
 
 	public String producedBy;
 	public String valueClass;
+	public ReservedIds ids = null;
 
 	public VersionnedItem() {
 
@@ -49,6 +51,11 @@ public class VersionnedItem<T> extends ItemValue<T> {
 		flags = item.flags.isEmpty() ? EnumSet.noneOf(ItemFlag.class) : EnumSet.copyOf(item.flags);
 		producedBy = BM_VERSION;
 		valueClass = item.value == null ? null : value.getClass().getCanonicalName();
+	}
+
+	public VersionnedItem(ItemValue<T> item, ReservedIds ids) {
+		this(item);
+		this.ids = ids;
 	}
 
 }

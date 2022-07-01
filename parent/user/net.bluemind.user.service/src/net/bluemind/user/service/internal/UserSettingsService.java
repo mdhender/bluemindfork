@@ -19,12 +19,12 @@
 package net.bluemind.user.service.internal;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
@@ -32,14 +32,16 @@ import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.IDomainSettings;
-import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.UserSettings;
+import net.bluemind.user.hook.settings.IUserSettingsHook;
 import net.bluemind.user.persistence.UserSettingsStore;
 
 public class UserSettingsService implements IUserSettings {
 	private static final Logger logger = LoggerFactory.getLogger(UserSettingsService.class);
+	private static final List<IUserSettingsHook> hooks = getHooks();
 
 	private final ContainerStoreService<UserSettings> userSettingsStoreService;
 	private final Container userSettings;
@@ -59,6 +61,11 @@ public class UserSettingsService implements IUserSettings {
 		this.rbacManager = new RBACManager(context).forDomain(domainUid);
 	}
 
+	private static List<IUserSettingsHook> getHooks() {
+		RunnableExtensionLoader<IUserSettingsHook> loader = new RunnableExtensionLoader<>();
+		return loader.loadExtensionsWithPriority("net.bluemind.user.hook", "usersettings", "hook", "impl");
+	}
+
 	@Override
 	public void set(String uid, Map<String, String> settings) throws ServerFault {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER_SETTINGS);
@@ -67,7 +74,7 @@ public class UserSettingsService implements IUserSettings {
 		sanitizer.sanitize(settings, domainSettingsService);
 		userSettingsStoreService.update(uid, null, UserSettings.of(settings));
 
-		VertxPlatform.eventBus().publish("usersettings.updated", getVertXEvent(uid));
+		hooks.forEach(hook -> hook.onSettingsUpdate(userSettings.uid, uid));
 	}
 
 	@Override
@@ -101,7 +108,7 @@ public class UserSettingsService implements IUserSettings {
 		settings.put(name, value);
 
 		this.set(uid, settings);
-		VertxPlatform.eventBus().publish("usersettings.updated", getVertXEvent(uid));
+		hooks.forEach(hook -> hook.onSettingsUpdate(userSettings.uid, uid));
 	}
 
 	@Override
@@ -109,9 +116,5 @@ public class UserSettingsService implements IUserSettings {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_SELF, BasicRoles.ROLE_MANAGER);
 		logger.debug("Get setting {} for user {}", name, uid);
 		return this.get(uid).get(name);
-	}
-
-	private JsonObject getVertXEvent(String uid) {
-		return new JsonObject().put("containerUid", userSettings.uid).put("itemUid", uid);
 	}
 }

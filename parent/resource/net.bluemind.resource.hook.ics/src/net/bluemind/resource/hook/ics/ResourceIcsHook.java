@@ -52,7 +52,7 @@ import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.helper.mail.CalendarMailHelper;
 import net.bluemind.calendar.helper.mail.Messages;
 import net.bluemind.calendar.hook.ICalendarHook;
-import net.bluemind.calendar.hook.internal.VEventMessage;
+import net.bluemind.calendar.hook.VEventMessage;
 import net.bluemind.calendar.occurrence.OccurrenceHelper;
 import net.bluemind.common.freemarker.MessagesResolver;
 import net.bluemind.core.api.date.BmDateTimeWrapper;

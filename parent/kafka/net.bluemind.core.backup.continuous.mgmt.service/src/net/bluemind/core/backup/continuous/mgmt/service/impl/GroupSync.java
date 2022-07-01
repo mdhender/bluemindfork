@@ -31,6 +31,7 @@ import net.bluemind.domain.api.IDomainUids;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
+import net.bluemind.group.service.IInCoreGroup;
 
 public class GroupSync extends DirEntryWithMailboxSync<Group> {
 
@@ -62,7 +63,7 @@ public class GroupSync extends DirEntryWithMailboxSync<Group> {
 
 	}
 
-	public GroupSync(BmContext ctx, BackupSyncOptions opts, IGroup getApi, DomainApis domainApis) {
+	public GroupSync(BmContext ctx, BackupSyncOptions opts, IInCoreGroup getApi, DomainApis domainApis) {
 		super(ctx, opts, getApi, domainApis);
 	}
 

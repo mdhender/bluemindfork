@@ -18,9 +18,11 @@
 
 package net.bluemind.group.service;
 
+import net.bluemind.core.container.api.IRestoreDirEntryWithMailboxSupport;
+import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.member.IInCoreGroupMember;
 
-public interface IInCoreGroup extends IInCoreGroupMember, IGroup {
-	
+public interface IInCoreGroup extends IInCoreGroupMember, IGroup, IRestoreDirEntryWithMailboxSupport<Group> {
+
 }

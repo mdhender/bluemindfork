@@ -5,6 +5,7 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.RecordKey.Operation;
+import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreDomainType;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.container.api.IRestoreSupport;
@@ -22,7 +23,7 @@ public abstract class AbstractCrudRestore<T, U, V extends IRestoreSupport<U>> im
 		this.domain = domain;
 	}
 
-	protected abstract ValueReader<ItemValue<T>> reader();
+	protected abstract ValueReader<VersionnedItem<T>> reader();
 
 	protected abstract V api(ItemValue<Domain> domain, RecordKey key);
 
@@ -32,17 +33,21 @@ public abstract class AbstractCrudRestore<T, U, V extends IRestoreSupport<U>> im
 		if (Operation.isDelete(key)) {
 			delete(key, payload, api);
 		} else {
-			createOrUpdate(key, payload, api);
+			filterCreateOrUpdate(key, payload, api);
 		}
 	}
 
-	private void createOrUpdate(RecordKey key, String payload, V api) {
-		ItemValue<T> item = reader().read(payload);
+	protected void filterCreateOrUpdate(RecordKey key, String payload, V api) {
+		VersionnedItem<T> item = reader().read(payload);
 		if (filter(key, item)) {
 			log.filter(type(), key);
 			return;
 		}
-		boolean exists = api.get(item.uid) != null;
+		createOrUpdate(api, key, item);
+	}
+
+	protected void createOrUpdate(V api, RecordKey key, VersionnedItem<T> item) {
+		boolean exists = exists(api, key, item);
 		if (exists) {
 			log.update(type(), key);
 			update(api, key, item);
@@ -52,11 +57,15 @@ public abstract class AbstractCrudRestore<T, U, V extends IRestoreSupport<U>> im
 		}
 	}
 
-	protected boolean filter(RecordKey key, ItemValue<T> item) {
+	protected boolean filter(RecordKey key, VersionnedItem<T> item) {
 		return false;
 	}
 
-	protected abstract ItemValue<U> map(ItemValue<T> item, boolean isCreate);
+	protected boolean exists(V api, RecordKey key, VersionnedItem<T> item) {
+		return api.get(item.uid) != null;
+	}
+
+	protected abstract ItemValue<U> map(VersionnedItem<T> item, boolean isCreate);
 
 	private void delete(RecordKey key, String payload, V api) {
 		try {
@@ -70,12 +79,12 @@ public abstract class AbstractCrudRestore<T, U, V extends IRestoreSupport<U>> im
 		}
 	}
 
-	protected void create(V api, RecordKey key, ItemValue<T> item) {
+	protected void create(V api, RecordKey key, VersionnedItem<T> item) {
 		ItemValue<U> toRestore = map(item, true);
 		api.restore(toRestore, true);
 	}
 
-	protected void update(V api, RecordKey key, ItemValue<T> item) {
+	protected void update(V api, RecordKey key, VersionnedItem<T> item) {
 		ItemValue<U> toRestore = map(item, false);
 		api.restore(toRestore, false);
 	}

@@ -21,5 +21,8 @@
             priority="1">
       </sub-provider>
    </extension>
-
+   <extension point="net.bluemind.user.hook.usersettings">
+      <hook impl="net.bluemind.user.service.internal.UserSettingsTestHook">
+      </hook>
+   </extension>
 </plugin>

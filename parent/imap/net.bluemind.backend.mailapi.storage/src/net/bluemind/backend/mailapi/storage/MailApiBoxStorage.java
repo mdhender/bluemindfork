@@ -269,4 +269,10 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 
 	}
 
+	@Override
+	public boolean mailboxRequiresCreationInCyrus(BmContext context, String domainUid, Mailbox previous,
+			Mailbox current) {
+		return false;
+	}
+
 }

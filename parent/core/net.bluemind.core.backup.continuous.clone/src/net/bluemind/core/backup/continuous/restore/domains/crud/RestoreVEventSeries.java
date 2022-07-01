@@ -28,6 +28,7 @@ import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.backup.continuous.RecordKey;
+import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ItemValue;
@@ -36,9 +37,9 @@ import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.domain.api.Domain;
 
-public class RestoreVEventSeries extends CrudRestore<VEventSeries> {
-	private static final ValueReader<ItemValue<VEventSeries>> reader = JsonUtils
-			.reader(new TypeReference<ItemValue<VEventSeries>>() {
+public class RestoreVEventSeries extends CrudItemRestore<VEventSeries> {
+	private static final ValueReader<VersionnedItem<VEventSeries>> reader = JsonUtils
+			.reader(new TypeReference<VersionnedItem<VEventSeries>>() {
 			});
 	private final IServiceProvider target;
 
@@ -55,7 +56,7 @@ public class RestoreVEventSeries extends CrudRestore<VEventSeries> {
 	}
 
 	@Override
-	protected ValueReader<ItemValue<VEventSeries>> reader() {
+	protected ValueReader<VersionnedItem<VEventSeries>> reader() {
 		return reader;
 	}
 

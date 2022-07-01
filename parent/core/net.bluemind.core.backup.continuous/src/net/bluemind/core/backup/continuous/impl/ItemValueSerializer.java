@@ -8,6 +8,7 @@ import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueWriter;
+import net.bluemind.directory.api.ReservedIds;
 
 public class ItemValueSerializer<T> implements TopicSerializer<RecordKey, ItemValue<T>> {
 
@@ -27,8 +28,8 @@ public class ItemValueSerializer<T> implements TopicSerializer<RecordKey, ItemVa
 	}
 
 	@Override
-	public byte[] value(ItemValue<T> item) {
-		VersionnedItem<T> reworked = new VersionnedItem<>(item);
+	public byte[] value(ItemValue<T> item, ReservedIds reservedIds) {
+		VersionnedItem<T> reworked = new VersionnedItem<>(item, reservedIds);
 		return valueWriter.write(reworked);
 	}
 

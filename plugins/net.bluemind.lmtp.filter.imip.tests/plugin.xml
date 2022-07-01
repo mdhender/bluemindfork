@@ -4,7 +4,7 @@
    <extension
          point="net.bluemind.calendar.hook">
       <hook
-            impl="net.bluemind.calendar.hook.XivoHook">
+            impl="net.bluemind.lmtp.filter.imip.tests.CalendarTestAsyncHook">
       </hook>
    </extension>
 

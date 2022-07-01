@@ -26,7 +26,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -47,8 +46,8 @@ import net.bluemind.core.rest.base.ExecutorHolder;
 import net.bluemind.deferredaction.api.DeferredAction;
 import net.bluemind.deferredaction.api.IDeferredAction;
 import net.bluemind.deferredaction.api.IDeferredActionContainerUids;
+import net.bluemind.deferredaction.api.IInternalDeferredAction;
 import net.bluemind.deferredaction.registry.IDeferredActionExecutor;
-import net.bluemind.directory.api.IDirectory;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
@@ -79,10 +78,10 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 
 	private void executeForDomain(ItemValue<Domain> domain, ZonedDateTime executionDate) {
 		String deferredActionUid = IDeferredActionContainerUids.uidForDomain(domain.uid);
-		IDeferredAction deferredActionService = provider.instance(IDeferredAction.class, deferredActionUid);
+		IInternalDeferredAction deferredActionService = provider.instance(IInternalDeferredAction.class,
+				deferredActionUid);
 		IMailboxes mailboxesService = provider.instance(IMailboxes.class, domain.uid);
 		IUserSettings userSettingsService = provider.instance(IUserSettings.class, domain.uid);
-		IDirectory directoryService = provider.instance(IDirectory.class, domain.uid);
 
 		List<ItemValue<DeferredAction>> deferredActions = deferredActionService
 				.getByActionId(EventDeferredAction.ACTION_ID, executionDate.toInstant().toEpochMilli());
@@ -92,13 +91,13 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 		List<ItemValue<Optional<EventDeferredAction>>> actions = deferredActions.stream()
 				.map(EventDeferredActionExecutor::from).collect(Collectors.toList());
 		deleteObsoleteActions(deferredActionService, actions);
-		actions.stream().filter(action -> action.value.isPresent())
-				.map(action -> ItemValue.create(action.uid, action.value.get())).forEach(action -> {
-					VertxPlatform.getVertx().setTimer(
-							Math.max(1, action.value.executionDate.getTime() - new Date().getTime()),
-							timerId -> ExecutorHolder.getAsService().execute(() -> executeAction(deferredActionService,
-									action, mailboxesService, userSettingsService, directoryService)));
-				});
+		actions.stream() //
+				.filter(action -> action.value.isPresent()) //
+				.map(action -> ItemValue.create(action.uid, action.value.get())) //
+				.forEach(action -> VertxPlatform.getVertx().setTimer(
+						Math.max(1, action.value.executionDate.getTime() - new Date().getTime()),
+						timerId -> ExecutorHolder.getAsService().execute(() -> executeAction(deferredActionService,
+								action, mailboxesService, userSettingsService))));
 	}
 
 	private void deleteObsoleteActions(IDeferredAction deferredActionService,
@@ -109,8 +108,9 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 		});
 	}
 
-	private void executeAction(IDeferredAction deferredActionService, ItemValue<EventDeferredAction> deferredAction,
-			IMailboxes mailboxesService, IUserSettings userSettingsService, IDirectory directoryService) {
+	private void executeAction(IInternalDeferredAction deferredActionService,
+			ItemValue<EventDeferredAction> deferredAction, IMailboxes mailboxesService,
+			IUserSettings userSettingsService) {
 		try {
 			ItemValue<net.bluemind.mailbox.api.Mailbox> userMailbox = mailboxesService
 					.getComplete(deferredAction.value.ownerUid);
@@ -146,10 +146,10 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 		}
 	}
 
-	private void storeTrigger(EventDeferredAction deferredAction, IDeferredAction service) {
+	private void storeTrigger(EventDeferredAction deferredAction, IInternalDeferredAction service) {
 		deferredAction.nextExecutionDate()
 				.map(executionDate -> deferredAction.copy(Date.from(executionDate.toInstant())))
-				.ifPresent(nextDeferredAction -> service.create(UUID.randomUUID().toString(), nextDeferredAction));
+				.ifPresent(service::create);
 	}
 
 	private void sendNotificationEmail(Map<String, Object> data, ItemValue<Mailbox> userMailbox,

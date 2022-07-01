@@ -18,6 +18,7 @@
   */
 package net.bluemind.calendar.service.tests;
 
+import static net.bluemind.calendar.service.tests.CalendarTestHook.Action.DELETE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -39,8 +40,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.CyrusAdmins;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.ICalendar;
@@ -48,7 +47,6 @@ import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.auditlog.CalendarAuditor;
-import net.bluemind.calendar.hook.CalendarHookAddress;
 import net.bluemind.calendar.service.internal.CalendarService;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -189,9 +187,6 @@ public class CalendarHookServiceTests {
 
 	@Test
 	public void testDeleteVideoConfEvent() throws ServerFault, InterruptedException {
-		VertxEventChecker<JsonObject> deletedMessageChecker = new VertxEventChecker<>(
-				CalendarHookAddress.EVENT_DELETED);
-
 		ResourceDescriptor res = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IResources.class, DOMAIN).get(resUid);
 		assertNotNull(res);
@@ -228,8 +223,9 @@ public class CalendarHookServiceTests {
 
 		getCalendarService(defaultSecurityContext, container).delete(uid, true);
 
-		Message<JsonObject> message = deletedMessageChecker.shouldSuccess();
-		assertNotNull(message);
+		assertEquals(DELETE, CalendarTestSyncHook.action());
+		assertEquals(DELETE, CalendarTestAsyncHook.action());
+		assertNotNull(CalendarTestSyncHook.message());
 
 		vevent = getCalendarService(defaultSecurityContext, container).getComplete(uid);
 		assertNull(vevent);

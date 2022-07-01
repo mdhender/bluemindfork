@@ -52,7 +52,7 @@ public interface IDomains {
 	 */
 	@PUT
 	@Path("{uid}")
-	public void create(@PathParam("uid") String uid, Domain domain) throws ServerFault;
+	void create(@PathParam("uid") String uid, Domain domain) throws ServerFault;
 
 	/**
 	 * Modify an existing {@link Domain}.
@@ -63,7 +63,7 @@ public interface IDomains {
 	 */
 	@POST
 	@Path("{uid}")
-	public void update(@PathParam("uid") String uid, Domain domain) throws ServerFault;
+	void update(@PathParam("uid") String uid, Domain domain) throws ServerFault;
 
 	/**
 	 * Delete the {@link Domain} item itself. You must call first deleteDomainItems
@@ -75,7 +75,7 @@ public interface IDomains {
 	 */
 	@DELETE
 	@Path("{uid}")
-	public void delete(@PathParam("uid") String uid) throws ServerFault;
+	void delete(@PathParam("uid") String uid) throws ServerFault;
 
 	/**
 	 * 
@@ -91,7 +91,7 @@ public interface IDomains {
 	 */
 	@DELETE
 	@Path("{uid}/_items")
-	public TaskRef deleteDomainItems(@PathParam("uid") String uid) throws ServerFault;
+	TaskRef deleteDomainItems(@PathParam("uid") String uid) throws ServerFault;
 
 	/**
 	 * Fetch a {@link Domain} by its uid.
@@ -103,7 +103,7 @@ public interface IDomains {
 	 */
 	@GET
 	@Path("{uid}")
-	public ItemValue<Domain> get(@PathParam("uid") String uid) throws ServerFault;
+	ItemValue<Domain> get(@PathParam("uid") String uid) throws ServerFault;
 
 	/**
 	 * Fetch all domains.
@@ -114,7 +114,7 @@ public interface IDomains {
 	 * @throws ServerFault standard error object
 	 */
 	@GET
-	public List<ItemValue<Domain>> all() throws ServerFault;
+	List<ItemValue<Domain>> all() throws ServerFault;
 
 	// FIXME: add a setAlias operation to avoid overwrite existing aliases
 	/**
@@ -130,7 +130,7 @@ public interface IDomains {
 	 */
 	@POST
 	@Path("{uid}/_aliases")
-	public TaskRef setAliases(@PathParam("uid") String uid, Set<String> aliases) throws ServerFault;
+	TaskRef setAliases(@PathParam("uid") String uid, Set<String> aliases) throws ServerFault;
 
 	/**
 	 * Define the domain default alias. The default alias is the name which appears
@@ -145,7 +145,7 @@ public interface IDomains {
 	 */
 	@POST
 	@Path("{uid}/_default_alias")
-	public void setDefaultAlias(@PathParam("uid") String uid, String defaultAlias) throws ServerFault;
+	void setDefaultAlias(@PathParam("uid") String uid, String defaultAlias) throws ServerFault;
 
 	/**
 	 * Fetch a {@link Domain} by its name or one of its alias.
@@ -157,14 +157,14 @@ public interface IDomains {
 	 */
 	@GET
 	@Path("_lookup")
-	public ItemValue<Domain> findByNameOrAliases(@QueryParam("name") String name) throws ServerFault;
+	ItemValue<Domain> findByNameOrAliases(@QueryParam("name") String name) throws ServerFault;
 
 	@POST
 	@Path("{uid}/roles")
-	public void setRoles(@PathParam(value = "uid") String uid, Set<String> roles) throws ServerFault;
+	void setRoles(@PathParam(value = "uid") String uid, Set<String> roles) throws ServerFault;
 
 	@GET
 	@Path("{uid}/roles")
-	public Set<String> getRoles(@PathParam(value = "uid") String uid) throws ServerFault;
+	Set<String> getRoles(@PathParam(value = "uid") String uid) throws ServerFault;
 
 }

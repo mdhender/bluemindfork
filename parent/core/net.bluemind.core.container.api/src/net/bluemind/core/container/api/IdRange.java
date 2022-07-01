@@ -36,6 +36,13 @@ public class IdRange {
 	public int count;
 	public long globalCounter;
 
+	public static IdRange create(int count, long globalCounter) {
+		IdRange idRange = new IdRange();
+		idRange.count = count;
+		idRange.globalCounter = globalCounter;
+		return idRange;
+	}
+
 	public String toString() {
 		return "IdRange[" + globalCounter + " - " + (globalCounter + count) + "]";
 	}

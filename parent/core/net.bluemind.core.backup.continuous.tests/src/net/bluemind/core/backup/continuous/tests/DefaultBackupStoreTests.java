@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -56,6 +57,12 @@ public class DefaultBackupStoreTests {
 		System.setProperty("bm.kafka.bootstrap.servers", ip + ":9093");
 		System.setProperty("bm.zk.servers", ip + ":2181");
 		DefaultLeader.reset();
+	}
+
+	@Before
+	public void setUp() {
+		DefaultLeader.reset();
+		DefaultBackupStore.reset();
 	}
 
 	@AfterClass

@@ -19,9 +19,10 @@ package net.bluemind.core.container.api.internal;
 
 import net.bluemind.core.container.api.ContainerSubscriptionModel;
 import net.bluemind.core.container.api.IOwnerSubscriptions;
-import net.bluemind.core.container.api.IRestoreCrudSupport;
+import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 
-public interface IInternalOwnerSubscriptions extends IOwnerSubscriptions, IRestoreCrudSupport<ContainerSubscriptionModel> {
+public interface IInternalOwnerSubscriptions
+		extends IOwnerSubscriptions, IRestoreItemCrudSupport<ContainerSubscriptionModel> {
 
 	void create(String uid, ContainerSubscriptionModel node);
 

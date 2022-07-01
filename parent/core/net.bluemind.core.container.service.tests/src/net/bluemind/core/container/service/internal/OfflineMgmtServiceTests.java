@@ -31,6 +31,7 @@ import org.junit.Test;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IOfflineMgmt;
 import net.bluemind.core.container.api.IdRange;
+import net.bluemind.core.container.service.OfflineMgmtFactory;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.sessions.Sessions;
@@ -65,8 +66,8 @@ public class OfflineMgmtServiceTests {
 	}
 
 	protected IOfflineMgmt getService(SecurityContext securityContext) throws ServerFault {
-		return new OfflineMgmtService(new BmTestContext(securityContext), securityContext.getSubject(),
-				securityContext.getContainerUid());
+		return new OfflineMgmtFactory().instance(new BmTestContext(securityContext), securityContext.getContainerUid(),
+				securityContext.getSubject());
 	}
 
 	@Test

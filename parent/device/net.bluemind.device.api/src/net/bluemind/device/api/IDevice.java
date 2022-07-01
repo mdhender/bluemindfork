@@ -28,12 +28,12 @@ import jakarta.ws.rs.PathParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.api.IRestoreCrudSupport;
+import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 import net.bluemind.core.container.model.ItemValue;
 
 @BMApi(version = "3")
 @Path("/devices/{userUid}")
-public interface IDevice extends IRestoreCrudSupport<Device> {
+public interface IDevice extends IRestoreItemCrudSupport<Device> {
 
 	@PUT
 	@Path("{uid}")

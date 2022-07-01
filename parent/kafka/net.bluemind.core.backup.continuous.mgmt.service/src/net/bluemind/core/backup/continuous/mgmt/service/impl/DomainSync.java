@@ -54,7 +54,7 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.externaluser.api.ExternalUser;
 import net.bluemind.externaluser.api.IExternalUser;
 import net.bluemind.group.api.Group;
-import net.bluemind.group.api.IGroup;
+import net.bluemind.group.service.IInCoreGroup;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
@@ -127,7 +127,7 @@ public class DomainSync {
 		IMailshare msApi = ctx.provider().instance(IMailshare.class, domain.uid);
 		IExternalUser euApi = ctx.provider().instance(IExternalUser.class, domain.uid);
 		IResources rsApi = ctx.provider().instance(IResources.class, domain.uid);
-		IGroup grpApi = ctx.provider().instance(IGroup.class, domain.uid);
+		IInCoreGroup grpApi = ctx.provider().instance(IInCoreGroup.class, domain.uid);
 		IMailboxes mboxApi = ctx.provider().instance(IMailboxes.class, domain.uid);
 
 		DomainApis domApi = new DomainApis(domain, mboxApi, dirApi);

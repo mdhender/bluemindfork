@@ -28,6 +28,7 @@ import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.IAddressBooksMgmt;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.backup.continuous.RecordKey;
+import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ItemValue;
@@ -36,10 +37,11 @@ import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.domain.api.Domain;
 
-public class RestoreVCard extends CrudRestore<VCard> {
+public class RestoreVCard extends CrudItemRestore<VCard> {
 
-	private static final ValueReader<ItemValue<VCard>> reader = JsonUtils.reader(new TypeReference<ItemValue<VCard>>() {
-	});
+	private static final ValueReader<VersionnedItem<VCard>> reader = JsonUtils
+			.reader(new TypeReference<VersionnedItem<VCard>>() {
+			});
 	private final IServiceProvider target;
 
 	Set<String> validatedBooks = ConcurrentHashMap.newKeySet();
@@ -55,7 +57,7 @@ public class RestoreVCard extends CrudRestore<VCard> {
 	}
 
 	@Override
-	protected ValueReader<ItemValue<VCard>> reader() {
+	protected ValueReader<VersionnedItem<VCard>> reader() {
 		return reader;
 	}
 

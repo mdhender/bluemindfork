@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
+import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventChanges;
@@ -42,6 +44,8 @@ import net.bluemind.calendar.api.VEventQuery;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.api.internal.IInternalCalendar;
 import net.bluemind.calendar.auditlog.CalendarAuditor;
+import net.bluemind.calendar.hook.ICalendarHook;
+import net.bluemind.calendar.hook.VEventMessage;
 import net.bluemind.calendar.persistence.VEventIndexStore;
 import net.bluemind.calendar.persistence.VEventSeriesStore;
 import net.bluemind.calendar.service.cache.PendingEventsCache;
@@ -79,6 +83,7 @@ import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -90,6 +95,9 @@ public class CalendarService implements IInternalCalendar {
 	/** When this limit is reached, sync on demand stops. */
 	public static final int SYNC_ERRORS_LIMIT = 4;
 
+	private static final List<ICalendarHook> syncHooks = loadHooks(true);
+	private static final List<ICalendarHook> asyncHooks = loadHooks(false);
+
 	private VEventContainerStoreService storeService;
 	private VEventIndexStore indexStore;
 	private VEventSanitizer sanitizer;
@@ -100,6 +108,7 @@ public class CalendarService implements IInternalCalendar {
 	private Validator extValidator;
 
 	private BmContext context;
+	private final Vertx vertx;
 
 	private VEventValidator validator;
 
@@ -121,7 +130,7 @@ public class CalendarService implements IInternalCalendar {
 		indexStore = new VEventIndexStore(esearchClient, container, DataSourceRouter.location(context, container.uid));
 
 		EventBus eventBus = VertxPlatform.eventBus();
-		calendarEventProducer = new CalendarEventProducer(auditor, container, context.getSecurityContext(), eventBus);
+		calendarEventProducer = new CalendarEventProducer(container, eventBus);
 
 		final String origin = context.getSecurityContext().getOrigin();
 		final boolean isRemote = this.isRemoteCalendar(context, container);
@@ -132,6 +141,14 @@ public class CalendarService implements IInternalCalendar {
 		extValidator = new Validator(context);
 		validator = new VEventValidator();
 		rbacManager = RBACManager.forContext(context).forContainer(container);
+		vertx = VertxPlatform.getVertx();
+	}
+
+	private static List<ICalendarHook> loadHooks(boolean synchronous) {
+		return new RunnableExtensionLoader<ICalendarHook>() //
+				.loadExtensionsWithPriority("net.bluemind.calendar", "hook", "hook", "impl") //
+				.stream().filter(hook -> hook.isSynchronous() == synchronous).collect(Collectors.toList());
+
 	}
 
 	private boolean isRemoteCalendar(final BmContext context, final Container container) {
@@ -199,7 +216,8 @@ public class CalendarService implements IInternalCalendar {
 		ItemVersion version = storeService.create(item, event);
 		indexStore.create(Item.create(item.uid, version.id), event);
 
-		calendarEventProducer.veventCreated(event, item.uid, sendNotifications);
+		VEventMessage hookEventMsg = asHookEventMessage(item.uid, event, sendNotifications);
+		callHooks(hook -> hook.onEventCreated(hookEventMsg));
 
 		return version.version;
 	}
@@ -298,7 +316,9 @@ public class CalendarService implements IInternalCalendar {
 
 		ItemVersion upd = storeService.update(item, event.displayName(), event);
 		indexStore.update(Item.create(item.uid, upd.id), event);
-		calendarEventProducer.veventUpdated(old.value, event, item.uid, sendNotifications);
+
+		VEventMessage hookEventMsg = asHookEventMessage(item.uid, event, old.value, sendNotifications);
+		callHooks(hook -> hook.onEventUpdated(hookEventMsg));
 		return upd;
 	}
 
@@ -396,8 +416,8 @@ public class CalendarService implements IInternalCalendar {
 		storeService.delete(item.uid);
 		indexStore.delete(item.internalId);
 
-		calendarEventProducer.veventDeleted(item.value, item.uid, sendNotifications);
-
+		VEventMessage hookEventMsg = asHookEventMessage(item.uid, item.value, sendNotifications);
+		callHooks(hook -> hook.onEventDeleted(hookEventMsg));
 	}
 
 	@Override
@@ -747,5 +767,25 @@ public class CalendarService implements IInternalCalendar {
 	@Override
 	public void delete(String uid) {
 		delete(uid, false);
+	}
+
+	private void callHooks(Consumer<ICalendarHook> hookCallback) {
+		syncHooks.forEach(hookCallback::accept);
+		vertx.executeBlocking(promise -> {
+			asyncHooks.stream().forEach(hookCallback::accept);
+			promise.complete();
+		}, false);
+	}
+
+	private VEventMessage asHookEventMessage(String uid, VEventSeries event, boolean notifications) {
+		return asHookEventMessage(uid, event, null, notifications);
+	}
+
+	private VEventMessage asHookEventMessage(String uid, VEventSeries event, VEventSeries previous,
+			boolean notifications) {
+		VEventMessage message = new VEventMessage(event, uid, notifications, context.getSecurityContext(),
+				auditor.eventId(), container);
+		message.oldEvent = previous;
+		return message;
 	}
 }

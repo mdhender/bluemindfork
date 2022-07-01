@@ -7,6 +7,10 @@
             impl="net.bluemind.calendar.service.internal.WaitForCalendarHook"
             priority="-99999">
       </hook>
+      <hook impl="net.bluemind.calendar.service.tests.CalendarTestSyncHook">
+      </hook>
+      <hook impl="net.bluemind.calendar.service.tests.CalendarTestAsyncHook">
+      </hook>
    </extension>
 
 </fragment>

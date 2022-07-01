@@ -59,6 +59,7 @@ import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.MailFilter.Rule;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.service.IInCoreMailboxes;
 import net.bluemind.resource.api.EventInfo;
 import net.bluemind.resource.api.IResources;
@@ -139,11 +140,11 @@ public class ResourcesService implements IResources {
 
 		validator.validatePropertiesValue(rd, typeDesc);
 
-		mailboxes.validate(uid, mailboxAdapter.asMailbox(domainUid, uid, rd));
+		Mailbox mailbox = mailboxAdapter.asMailbox(domainUid, uid, rd);
+		mailboxes.validate(uid, mailbox);
 
-		storeService.create(resourceDescriptorItem);
-
-		mailboxes.created(uid, mailboxAdapter.asMailbox(domainUid, uid, rd));
+		storeService.create(resourceDescriptorItem,
+				reservedIdsConsumer -> mailboxes.created(uid, mailbox, reservedIdsConsumer));
 		mailboxes.setMailboxFilter(uid, discardRule());
 
 		// create calendar
@@ -215,9 +216,10 @@ public class ResourcesService implements IResources {
 
 		mailboxes.validate(uid, mailboxAdapter.asMailbox(domainUid, uid, rd));
 
-		storeService.update(resourceDescriptorItem);
-
-		mailboxes.updated(uid, previousItemValue.value.mailbox, mailboxAdapter.asMailbox(domainUid, uid, rd));
+		Mailbox mailbox = mailboxAdapter.asMailbox(domainUid, uid, rd);
+		Mailbox previousMailbox = previousItemValue.value.mailbox;
+		storeService.update(resourceDescriptorItem,
+				reservedIdsConsumer -> mailboxes.updated(uid, previousMailbox, mailbox, reservedIdsConsumer));
 		mailboxes.setMailboxFilter(uid, discardRule());
 
 		ContainerModifiableDescriptor descriptor = new ContainerModifiableDescriptor();
@@ -352,7 +354,8 @@ public class ResourcesService implements IResources {
 		return storeService.findByEmail(email);
 	}
 
-	private ItemValue<ResourceDescriptor> getComplete(String uid) throws ServerFault {
+	@Override
+	public ItemValue<ResourceDescriptor> getComplete(String uid) throws ServerFault {
 		// FIXME read will be fixed once every direntry will be in the same
 		// container
 		rbacManager.check(Verb.Read.name(), BasicRoles.ROLE_MANAGER);

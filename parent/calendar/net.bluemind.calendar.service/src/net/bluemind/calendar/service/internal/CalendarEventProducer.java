@@ -20,26 +20,16 @@ package net.bluemind.calendar.service.internal;
 
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
-import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.calendar.auditlog.CalendarAuditor;
 import net.bluemind.calendar.hook.CalendarHookAddress;
-import net.bluemind.calendar.hook.internal.VEventMessage;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.rest.LocalJsonObject;
 
 public class CalendarEventProducer {
 	private EventBus eventBus;
 	private Container container;
-	private SecurityContext securityContext;
-	private CalendarAuditor auditor;
 
-	public CalendarEventProducer(CalendarAuditor auditor, Container container, SecurityContext securityContext,
-			EventBus ev) {
-		this.auditor = auditor;
+	public CalendarEventProducer(Container container, EventBus ev) {
 		this.container = container;
 		this.eventBus = ev;
-		this.securityContext = securityContext;
 	}
 
 	public void changed() {
@@ -50,25 +40,6 @@ public class CalendarEventProducer {
 		eventBus.publish(CalendarHookAddress.CHANGED,
 				new JsonObject().put("container", container.uid).put("type", container.type)
 						.put("loginAtDomain", container.owner).put("domainUid", container.domainUid));
-	}
-
-	public void veventCreated(VEventSeries event, String uid, boolean sendNotifications) {
-		VEventMessage msg = new VEventMessage(event, uid, sendNotifications, securityContext, auditor.eventId(),
-				container);
-		eventBus.publish(CalendarHookAddress.EVENT_CREATED, new LocalJsonObject<>(msg));
-	}
-
-	public void veventUpdated(VEventSeries old, VEventSeries vevent, String uid, boolean sendNotifications) {
-		VEventMessage msg = new VEventMessage(vevent, uid, sendNotifications, securityContext, auditor.eventId(),
-				container);
-		msg.oldEvent = old;
-		eventBus.publish(CalendarHookAddress.EVENT_UPDATED, new LocalJsonObject<>(msg));
-	}
-
-	public void veventDeleted(VEventSeries vevent, String uid, boolean sendNotifications) {
-		VEventMessage msg = new VEventMessage(vevent, uid, sendNotifications, securityContext, auditor.eventId(),
-				container);
-		eventBus.publish(CalendarHookAddress.EVENT_DELETED, new LocalJsonObject<>(msg));
 	}
 
 	public void serviceAccessed(String calendarUid, String origin, boolean isInteractive, boolean isRemote) {

@@ -26,6 +26,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.directory.api.BaseDirEntry.AccountType;
@@ -55,12 +56,24 @@ public abstract class DirEntryHandler {
 		return EMPTY_PNG;
 	}
 
+	public ItemValue<DirEntry> get(BmContext context, String domainUid, String uid) throws ServerFault {
+		return directory(context, domainUid).get(uid);
+	}
+
 	public void create(BmContext context, String domainUid, DirEntry entry) throws ServerFault {
 		directory(context, domainUid).create(entry.entryUid, entry);
 	}
 
+	public void create(BmContext context, String domainUid, ItemValue<DirEntry> item) throws ServerFault {
+		directory(context, domainUid).create(item);
+	}
+
 	public void update(BmContext context, String domainUid, DirEntry entry) throws ServerFault {
 		directory(context, domainUid).update(entry.entryUid, entry);
+	}
+
+	public void update(BmContext context, String domainUid, ItemValue<DirEntry> item) throws ServerFault {
+		directory(context, domainUid).update(item);
 	}
 
 	public void delete(BmContext context, String domainUid, String uid) throws ServerFault {

@@ -77,7 +77,7 @@ public class DirEntriesCache {
 		ItemValue<DirEntry> ret = dirCache.getIfPresent(key);
 		if (ret == null) {
 			ret = de.get();
-			if (ret != null) {
+			if (ret != null && ret.value != null) {
 				dirCache.put(key, ret);
 			}
 		}

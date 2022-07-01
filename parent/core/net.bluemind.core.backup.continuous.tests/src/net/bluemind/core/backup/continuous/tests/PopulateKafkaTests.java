@@ -139,6 +139,8 @@ public class PopulateKafkaTests {
 		System.setProperty("bm.zk.servers", ip + ":2181");
 
 		DefaultLeader.reset();
+		DefaultBackupStore.reset();
+		StateContext.setState("reset");
 
 		this.s3 = "http://" + DockerEnv.getIp("bluemind/s3") + ":8000";
 		this.bucket = "junit-clone-kafka-" + System.currentTimeMillis();
@@ -349,7 +351,7 @@ public class PopulateKafkaTests {
 		ItemValue<Domain> domFound = domApi.findByNameOrAliases("devenv.blue");
 		assertNotNull(domFound);
 		IDirectory dirApi = prov.instance(IDirectory.class, domFound.uid);
-		DirEntry found = dirApi.getByEmail("tom@devenv.blue");
+		DirEntry found = dirApi.getByEmail("nico@devenv.blue");
 		assertNotNull(found);
 		System.err.println("Got " + found);
 		IUser user = prov.instance(IUser.class, domFound.uid);

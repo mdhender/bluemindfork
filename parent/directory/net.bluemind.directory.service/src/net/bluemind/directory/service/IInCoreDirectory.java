@@ -21,10 +21,21 @@ package net.bluemind.directory.service;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemIdentifier;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.directory.api.BaseDirEntry.AccountType;
 import net.bluemind.directory.api.DirEntry;
 
 public interface IInCoreDirectory {
+
+	/**
+	 * Get a {@link DirEntry} {@link ItemValue}
+	 * 
+	 * @param uid uid of the entry
+	 * @return the {@link DirEntry} {@link ItemValue} corresponding to this uid
+	 * 
+	 * @throws ServerFault
+	 */
+	ItemValue<DirEntry> get(String path);
 
 	/**
 	 * Creates a new {@link DirEntry} entry.
@@ -34,8 +45,17 @@ public interface IInCoreDirectory {
 	 * 
 	 * @throws ServerFault
 	 */
+	void create(String uid, DirEntry entry) throws ServerFault;
 
-	public void create(String uid, DirEntry entry) throws ServerFault;
+	/**
+	 * Creates a new {@link DirEntry} entry with a given item.
+	 * 
+	 * @param item  container item of the entry
+	 * @param entry value of the entry
+	 * 
+	 * @throws ServerFault
+	 */
+	void create(ItemValue<DirEntry> item);
 
 	/**
 	 * Modifies an existing {@link DirEntry} entry.
@@ -44,7 +64,16 @@ public interface IInCoreDirectory {
 	 * @param entry value of the entry
 	 * @throws ServerFault
 	 */
-	public void update(String uid, DirEntry entry) throws ServerFault;
+	void update(String uid, DirEntry entry) throws ServerFault;
+
+	/**
+	 * Updates an existing {@link DirEntry} entry and it's corresponding item.
+	 * 
+	 * @param item  container item of the entry
+	 * @param entry value of the entry
+	 * @throws ServerFault
+	 */
+	void update(ItemValue<DirEntry> item) throws ServerFault;
 
 	/**
 	 * Delete entry
@@ -52,9 +81,9 @@ public interface IInCoreDirectory {
 	 * @param path
 	 * @throws ServerFault
 	 */
-	public void delete(String uid, String kind) throws ServerFault;
+	void delete(String uid, String kind) throws ServerFault;
 
-	public void updateAccountType(String uid, AccountType accountType) throws ServerFault;
+	void updateAccountType(String uid, AccountType accountType) throws ServerFault;
 
 	ContainerChangeset<ItemIdentifier> fullChangeset() throws ServerFault;
 }

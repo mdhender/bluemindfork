@@ -63,7 +63,6 @@ import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
-import net.bluemind.calendar.hook.CalendarHookAddress;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.date.BmDateTime;
@@ -81,7 +80,6 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.sendmail.testhelper.FakeSendmail;
 import net.bluemind.core.tests.BmTestContext;
-import net.bluemind.core.tests.vertx.VertxEventChecker;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.delivery.lmtp.filter.testhelper.EnvelopeBuilder;
 import net.bluemind.delivery.lmtp.filters.PermissionDeniedException.MailboxInvitationDeniedException;
@@ -1224,9 +1222,8 @@ public class ImipFilterVEventTests {
 		imip.method = ITIPMethod.REPLY;
 		IIMIPHandler replyHandler = new EventReplyHandler(recipient, null);
 
-		VertxEventChecker<?> msg = new VertxEventChecker<>(CalendarHookAddress.EVENT_UPDATED);
 		replyHandler.handle(imip, recipient, domain, resourceMailbox);
-		msg.shouldSuccess();
+		assertEquals(CalendarTestAsyncHook.Action.UPDATE, CalendarTestAsyncHook.action());
 		Thread.sleep(500);
 
 		evt = resourceCalendar.getComplete(event.uid);

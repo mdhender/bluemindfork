@@ -53,6 +53,13 @@ public class VoidMailboxesStorage implements IMailboxesStorage {
 	}
 
 	@Override
+	public boolean mailboxRequiresCreationInCyrus(BmContext context, String domainUid, Mailbox previous,
+			Mailbox current) {
+		logger.warn("VOID MAILSTORAGE mailboxUpdateRequiresCreationInCyrus {}:{}", domainUid, current);
+		return false;
+	}
+
+	@Override
 	public void create(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault {
 		logger.warn("VOID MAILSTORAGE create {}:{}", domainUid, value.uid);
 	}

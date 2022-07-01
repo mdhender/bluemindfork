@@ -48,7 +48,7 @@ import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.calendar.hook.internal.VEventMessage;
+import net.bluemind.calendar.hook.VEventMessage;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.date.BmDateTime;

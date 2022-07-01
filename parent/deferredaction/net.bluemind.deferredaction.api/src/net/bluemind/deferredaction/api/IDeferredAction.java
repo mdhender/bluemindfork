@@ -94,6 +94,16 @@ public interface IDeferredAction extends IChangelogSupport, IDataShardSupport {
 	 */
 	@GET
 	@Path("{uid}")
+	public DeferredAction get(@PathParam(value = "uid") String uid) throws ServerFault;
+
+	/**
+	 * Fetches a {@link DeferredAction} item
+	 * 
+	 * @param uid the deferred action's unique id
+	 * @throws ServerFault standard error object (unchecked exception)
+	 */
+	@GET
+	@Path("{uid}/complete")
 	public ItemValue<DeferredAction> getComplete(@PathParam(value = "uid") String uid) throws ServerFault;
 
 	/**

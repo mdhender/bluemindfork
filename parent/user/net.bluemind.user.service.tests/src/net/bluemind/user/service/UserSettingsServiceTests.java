@@ -56,6 +56,7 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.UserSettings;
 import net.bluemind.user.persistence.UserSettingsStore;
+import net.bluemind.user.service.internal.UserSettingsTestHook;
 
 public class UserSettingsServiceTests {
 
@@ -161,6 +162,7 @@ public class UserSettingsServiceTests {
 		userSettings.put("lang", "en");
 
 		getSettingsService(user1SecurityContext).set(user1, userSettings);
+		assertTrue(UserSettingsTestHook.called());
 
 		Map<String, String> us = getSettingsService(user1SecurityContext).get(user1);
 		assertNotNull(us);
@@ -180,6 +182,7 @@ public class UserSettingsServiceTests {
 		userSettings.put("lang", "en");
 
 		getSettingsService(user1SecurityContext).set(user1, userSettings);
+		assertTrue(UserSettingsTestHook.called());
 
 		Map<String, String> us = getSettingsService(user1SecurityContext).get(user1);
 		assertNotNull(us);
@@ -226,6 +229,7 @@ public class UserSettingsServiceTests {
 		userSettings.put("lang", "en");
 
 		getSettingsService(adminSecurityContext).set(user1, userSettings);
+		assertTrue(UserSettingsTestHook.called());
 
 		Map<String, String> us = getSettingsService(user1SecurityContext).get(user1);
 		assertNotNull(us);
@@ -273,6 +277,7 @@ public class UserSettingsServiceTests {
 		String name = "myName";
 		String value = "myValue";
 		getSettingsService(adminSecurityContext).setOne(user1, name, value);
+		assertTrue(UserSettingsTestHook.called());
 		assertEquals(value, getSettingsService(adminSecurityContext).getOne(user1, name));
 
 		String secondName = "secondName";
@@ -280,5 +285,10 @@ public class UserSettingsServiceTests {
 		getSettingsService(adminSecurityContext).setOne(user1, secondName, secondValue);
 		assertEquals(secondValue, getSettingsService(adminSecurityContext).getOne(user1, secondName));
 		assertEquals(value, getSettingsService(adminSecurityContext).getOne(user1, name));
+	}
+
+	@After
+	public void tearDown() {
+		UserSettingsTestHook.reset();
 	}
 }

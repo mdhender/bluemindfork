@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import net.bluemind.calendar.hook.ICalendarHook;
-import net.bluemind.calendar.hook.internal.VEventMessage;
+import net.bluemind.calendar.hook.VEventMessage;
 
 public class WaitForCalendarHook implements ICalendarHook {
 

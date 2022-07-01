@@ -21,6 +21,7 @@ package net.bluemind.deferredaction.service.internal;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.sql.DataSource;
 
@@ -40,10 +41,10 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.deferredaction.api.DeferredAction;
-import net.bluemind.deferredaction.api.IDeferredAction;
+import net.bluemind.deferredaction.api.IInternalDeferredAction;
 import net.bluemind.deferredaction.persistence.DeferredActionStore;
 
-public class DeferredActionService implements IDeferredAction {
+public class DeferredActionService implements IInternalDeferredAction {
 	private final Container container;
 	private final BmContext context;
 	private final ContainerDeferredActionStoreService storeService;
@@ -62,22 +63,44 @@ public class DeferredActionService implements IDeferredAction {
 	}
 
 	@Override
+	public void create(DeferredAction deferredAction) throws ServerFault {
+		byte[] u = (deferredAction.reference + deferredAction.executionDate.toString()).getBytes();
+		String uid = UUID.nameUUIDFromBytes(u).toString();
+		create(uid, deferredAction);
+	}
+
+	@Override
 	public void create(String uid, DeferredAction deferredAction) throws ServerFault {
+		ItemValue<DeferredAction> deferredActionItem = ItemValue.create(uid, deferredAction);
+		deferredActionItem.displayName = displayName(deferredAction);
+		create(deferredActionItem);
+	}
+
+	private void create(ItemValue<DeferredAction> deferredActionItem) throws ServerFault {
 		RBACManager.forContext(context).forContainer(container).check(Verb.Write.name());
+		DeferredAction deferredAction = deferredActionItem.value;
 		sanitizer.create(deferredAction);
 		validator.create(deferredAction);
 
-		storeService.create(uid, displayName(deferredAction), deferredAction);
+		storeService.create(deferredActionItem.item(), deferredAction);
 	}
 
 	@Override
 	public void update(String uid, DeferredAction deferredAction) throws ServerFault {
+		ItemValue<DeferredAction> deferredActionItem = ItemValue.create(uid, deferredAction);
+		deferredActionItem.displayName = displayName(deferredAction);
+		update(deferredActionItem);
+	}
+
+	private void update(ItemValue<DeferredAction> deferredActionItem) throws ServerFault {
 		RBACManager.forContext(context).forContainer(container).check(Verb.Write.name());
+		String uid = deferredActionItem.uid;
+		DeferredAction deferredAction = deferredActionItem.value;
 		ItemValue<DeferredAction> current = storeService.get(uid, null);
 		sanitizer.update(current, deferredAction);
 		validator.update(current, deferredAction);
 
-		storeService.update(uid, displayName(deferredAction), deferredAction);
+		storeService.update(deferredActionItem.item(), deferredActionItem.displayName, deferredAction);
 	}
 
 	@Override
@@ -92,6 +115,12 @@ public class DeferredActionService implements IDeferredAction {
 		RBACManager.forContext(context).forContainer(container).check(Verb.Write.name());
 
 		storeService.deleteAll();
+	}
+
+	@Override
+	public DeferredAction get(String uid) throws ServerFault {
+		ItemValue<DeferredAction> item = getComplete(uid);
+		return (item != null) ? item.value : null;
 	}
 
 	@Override
@@ -179,6 +208,15 @@ public class DeferredActionService implements IDeferredAction {
 			throw ServerFault.sqlFault(e);
 		}
 		storeService.xfer(ds, c, new DeferredActionStore(ds, c));
+	}
+
+	@Override
+	public void restore(ItemValue<DeferredAction> deferredActionItem, boolean isCreate) {
+		if (isCreate) {
+			create(deferredActionItem);
+		} else {
+			update(deferredActionItem);
+		}
 	}
 
 }

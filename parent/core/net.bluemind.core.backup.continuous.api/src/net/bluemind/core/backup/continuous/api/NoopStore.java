@@ -21,6 +21,7 @@ import java.util.concurrent.CompletableFuture;
 
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.directory.api.ReservedIds;
 
 public final class NoopStore implements IBackupStoreFactory {
 
@@ -37,6 +38,11 @@ public final class NoopStore implements IBackupStoreFactory {
 
 			@Override
 			public CompletableFuture<Void> store(ItemValue<T> data) {
+				return CompletableFuture.completedFuture(null);
+			}
+
+			@Override
+			public CompletableFuture<Void> store(ItemValue<T> data, ReservedIds reservedIds) {
 				return CompletableFuture.completedFuture(null);
 			}
 

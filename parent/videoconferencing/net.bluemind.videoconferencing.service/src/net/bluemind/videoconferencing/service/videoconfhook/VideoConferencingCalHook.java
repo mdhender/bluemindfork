@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.hook.ICalendarHook;
-import net.bluemind.calendar.hook.internal.VEventMessage;
+import net.bluemind.calendar.hook.VEventMessage;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.videoconferencing.api.IVideoConferencing;

@@ -74,25 +74,39 @@ public class CalendarViewService implements IInCoreCalendarView, IUserCalendarVi
 
 	@Override
 	public void create(String uid, CalendarView view) throws ServerFault {
+		ItemValue<CalendarView> item = ItemValue.create(uid, view);
+		item.displayName = getSummary(view);
+		create(item);
+	}
+
+	private void create(ItemValue<CalendarView> item) throws ServerFault {
 		rbacManager.check(Verb.Write.name());
+		CalendarView view = item.value;
 		sanitizer.sanitize(view);
 
 		logger.info("Create view {}", view.label);
-		storeService.create(uid, getSummary(view), view);
+		storeService.create(item.item(), item.value);
 	}
 
 	@Override
 	public void update(String uid, CalendarView view) throws ServerFault {
+		ItemValue<CalendarView> item = ItemValue.create(uid, view);
+		update(item);
+	}
+
+	private void update(ItemValue<CalendarView> item) throws ServerFault {
 		rbacManager.check(Verb.Write.name());
+		String uid = item.uid;
+		CalendarView view = item.value;
 		sanitizer.sanitize(view);
 
-		ItemValue<CalendarView> old = get(uid);
+		ItemValue<CalendarView> old = getComplete(uid);
 		if (old == null) {
 			throw ServerFault.notFound("entry[" + uid + "]@" + container.uid + " not found");
 		}
 
 		logger.info("Update view {}", view.label);
-		storeService.update(uid, getSummary(view), view);
+		storeService.update(item.item(), getSummary(view), item.value);
 	}
 
 	@Override
@@ -103,7 +117,7 @@ public class CalendarViewService implements IInCoreCalendarView, IUserCalendarVi
 	@Override
 	public void delete(String uid, boolean force) throws ServerFault {
 		rbacManager.check(Verb.Write.name());
-		ItemValue<CalendarView> old = get(uid);
+		ItemValue<CalendarView> old = getComplete(uid);
 		if (old == null) {
 			throw ServerFault.notFound("entry[" + uid + "]@" + container.uid + " not found");
 		}
@@ -142,16 +156,6 @@ public class CalendarViewService implements IInCoreCalendarView, IUserCalendarVi
 		return view.label;
 	}
 
-	/**
-	 * @param uid
-	 * @return
-	 * @throws ServerFault
-	 */
-	private ItemValue<CalendarView> get(String uid) throws ServerFault {
-		rbacManager.check(Verb.Read.name());
-		return storeService.get(uid, null);
-	}
-
 	@Override
 	public ContainerChangeset<String> changeset(Long since) throws ServerFault {
 		rbacManager.check(Verb.Read.name());
@@ -179,7 +183,7 @@ public class CalendarViewService implements IInCoreCalendarView, IUserCalendarVi
 						create(item.uid, item.value);
 					} catch (ServerFault sf) {
 						if (sf.getCode() == ErrorCode.ALREADY_EXISTS) {
-							logger.warn("CalendarView uid {} was sent as created but already exists. We update it",
+							logger.warn("CalendarView uid {} was sent as created but already exists. We update it",
 									item.uid);
 							update(item.uid, item.value);
 						}
@@ -194,7 +198,7 @@ public class CalendarViewService implements IInCoreCalendarView, IUserCalendarVi
 						update(item.uid, item.value);
 					} catch (ServerFault sf) {
 						if (sf.getCode() == ErrorCode.NOT_FOUND) {
-							logger.warn("CalendarView uid {} was sent as updated but does not exist. We create it",
+							logger.warn("CalendarView uid {} was sent as updated but does not exist. We create it",
 									item.uid);
 							create(item.uid, item.value);
 						}
@@ -208,7 +212,7 @@ public class CalendarViewService implements IInCoreCalendarView, IUserCalendarVi
 						delete(item.uid);
 					} catch (ServerFault sf) {
 						if (sf.getCode() == ErrorCode.NOT_FOUND) {
-							logger.warn("CalendarView uid {} was sent as deleted but does not exist.", item.uid);
+							logger.warn("CalendarView uid {} was sent as deleted but does not exist.", item.uid);
 						}
 					}
 
@@ -265,5 +269,21 @@ public class CalendarViewService implements IInCoreCalendarView, IUserCalendarVi
 	public long getVersion() throws ServerFault {
 		rbacManager.check(Verb.Read.name());
 		return storeService.getVersion();
+	}
+
+	@Override
+	public CalendarView get(String uid) throws ServerFault {
+		ItemValue<CalendarView> item = getComplete(uid);
+		return item != null ? item.value : null;
+	}
+
+	@Override
+	public void restore(ItemValue<CalendarView> item, boolean isCreate) {
+		if (isCreate) {
+			create(item);
+		} else {
+			update(item);
+		}
+
 	}
 }

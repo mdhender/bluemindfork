@@ -740,7 +740,6 @@
    <bundle id="net.bluemind.webmodules.webmail" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.webmodule.uploadhandler" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.xivo.bridge" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.xivo.calendar.hook" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.xivo.client" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.xivo.common" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.xivo.core" version="4.1.0.qualifier"/>

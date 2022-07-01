@@ -35,6 +35,7 @@ import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.directory.api.ReservedIds;
 
 public abstract class BaseDirStoreService<T> extends ContainerStoreService<T> {
 
@@ -70,7 +71,12 @@ public abstract class BaseDirStoreService<T> extends ContainerStoreService<T> {
 
 	@Override
 	public final ItemVersion create(Item item, T value) throws ServerFault {
-		ItemVersion ret = super.create(item, value);
+		return create(item, value, doNothingOnIdsReservation);
+	}
+
+	@Override
+	public final ItemVersion create(Item item, T value, ReservedIds.ConsumerHandler handler) throws ServerFault {
+		ItemVersion ret = super.create(item, value, handler);
 		initHierarchy(item.uid);
 		return ret;
 	}

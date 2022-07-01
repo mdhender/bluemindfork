@@ -46,9 +46,6 @@ import net.bluemind.tag.service.ITagEventConsumer;
 public class TagEventConsumer implements ITagEventConsumer {
 	private static final Logger logger = LoggerFactory.getLogger(TagEventConsumer.class);
 
-	public TagEventConsumer() {
-	}
-
 	@Override
 	public void tagChanged(String tagContainerUid, String tagUid) {
 		BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
@@ -118,6 +115,6 @@ public class TagEventConsumer implements ITagEventConsumer {
 	}
 
 	private void notifyContainerChanged(Container currentContainer) {
-		new CalendarEventProducer(null, currentContainer, SecurityContext.SYSTEM, VertxPlatform.eventBus()).changed();
+		new CalendarEventProducer(currentContainer, VertxPlatform.eventBus()).changed();
 	}
 }

@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -41,12 +42,14 @@ public class CloneState {
 	private static final Logger logger = LoggerFactory.getLogger(CloneState.class);
 	private Map<String, IResumeToken> topicNameResume;
 	private Map<String, IResumeToken> freshTopicNameResume;
+	private CompletableFuture<Void> cloning;
 	private Path path;
 
 	public CloneState(Path p, ILiveStream any) throws IOException {
 		this.topicNameResume = new HashMap<>();
 		this.freshTopicNameResume = new ConcurrentHashMap<>();
 		this.path = p;
+		this.cloning = new CompletableFuture<>();
 		if (p.toFile().exists()) {
 			try {
 				byte[] content = Files.readAllBytes(p);
@@ -66,9 +69,18 @@ public class CloneState {
 
 	}
 
+	public boolean isTerminated() {
+		return cloning.isDone();
+	}
+
+	public void terminate() {
+		cloning.complete(null);
+	}
+
 	public CloneState clear() {
 		topicNameResume.clear();
 		freshTopicNameResume.clear();
+		cloning = new CompletableFuture<>();
 		return this;
 	}
 

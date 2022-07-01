@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.core.backup.continuous.RecordKey;
+import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.CloneException;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.container.api.IRestoreCrudSupport;
@@ -21,8 +22,8 @@ import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
 
 public class RestoreResourceType extends CrudRestore<ResourceTypeDescriptor> {
-	private final ValueReader<ItemValue<ResourceTypeDescriptor>> reader = JsonUtils
-			.reader(new TypeReference<ItemValue<ResourceTypeDescriptor>>() {
+	private final ValueReader<VersionnedItem<ResourceTypeDescriptor>> reader = JsonUtils
+			.reader(new TypeReference<VersionnedItem<ResourceTypeDescriptor>>() {
 			});
 
 	private final IServiceProvider target;
@@ -38,7 +39,7 @@ public class RestoreResourceType extends CrudRestore<ResourceTypeDescriptor> {
 	}
 
 	@Override
-	protected ValueReader<ItemValue<ResourceTypeDescriptor>> reader() {
+	protected ValueReader<VersionnedItem<ResourceTypeDescriptor>> reader() {
 		return reader;
 	}
 

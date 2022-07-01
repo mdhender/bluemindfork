@@ -1,5 +1,15 @@
 package net.bluemind.core.backup.continuous.restore.domains.crud.directories;
 
+import static net.bluemind.directory.api.BaseDirEntry.Kind.ADDRESSBOOK;
+import static net.bluemind.directory.api.BaseDirEntry.Kind.CALENDAR;
+import static net.bluemind.directory.api.BaseDirEntry.Kind.DOMAIN;
+import static net.bluemind.directory.api.BaseDirEntry.Kind.EXTERNALUSER;
+import static net.bluemind.directory.api.BaseDirEntry.Kind.GROUP;
+import static net.bluemind.directory.api.BaseDirEntry.Kind.MAILSHARE;
+import static net.bluemind.directory.api.BaseDirEntry.Kind.ORG_UNIT;
+import static net.bluemind.directory.api.BaseDirEntry.Kind.RESOURCE;
+import static net.bluemind.directory.api.BaseDirEntry.Kind.USER;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -12,6 +22,7 @@ import net.bluemind.calendar.api.CalendarDescriptor;
 import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.Seppuku;
+import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.IClonePhaseObserver;
 import net.bluemind.core.backup.continuous.restore.ISeppukuAckListener;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreDomainType;
@@ -20,18 +31,22 @@ import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.backup.continuous.restore.domains.crud.AbstractCrudRestore;
 import net.bluemind.core.container.api.IRestoreDirEntryWithMailboxSupport;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.OrgUnit;
+import net.bluemind.directory.service.DirEntryHandler;
+import net.bluemind.directory.service.DirEntryHandlers;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.externaluser.api.ExternalUser;
 import net.bluemind.externaluser.api.IExternalUser;
 import net.bluemind.group.api.Group;
-import net.bluemind.group.api.IGroup;
+import net.bluemind.group.service.IInCoreGroup;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
@@ -64,6 +79,7 @@ public class RestoreDirectories implements RestoreDomainType {
 
 	private final ISeppukuAckListener byeAck;
 
+	private final DomainDirEntryRestore domainDirEntryRestore;
 	private final DomainCalendarCrudRestore domainCalendarRestore;
 	private final DomainAddressBookCrudRestore domainAddressBookRestore;
 
@@ -81,13 +97,14 @@ public class RestoreDirectories implements RestoreDomainType {
 		this.observers = observers;
 		this.byeAck = byeAck;
 		this.state = state;
+		this.domainDirEntryRestore = new DomainDirEntryRestore(log, domain);
 		this.domainCalendarRestore = new DomainCalendarCrudRestore(log, domain);
 		this.domainAddressBookRestore = new DomainAddressBookCrudRestore(log, domain);
 		this.externalUserRestore = new ExternalUserCrudRestore(log, domain);
-		this.resourceRestore = new ResourceCrudRestore(log, domain);
-		this.mailshareRestore = new MailshareCrudRestore(log, domain);
-		this.groupRestore = new GroupCrudRestore(log, domain);
-		this.userRestore = new UserCrudRestore(log, domain);
+		this.resourceRestore = new ResourceCrudRestore(log, domain, target);
+		this.mailshareRestore = new MailshareCrudRestore(log, domain, target);
+		this.groupRestore = new GroupCrudRestore(log, domain, target);
+		this.userRestore = new UserCrudRestore(log, domain, target);
 		this.orgUnitRestore = new OrgUnitCrudRestore(log, domain);
 	}
 
@@ -135,7 +152,7 @@ public class RestoreDirectories implements RestoreDomainType {
 
 		switch (kind) {
 		case DOMAIN:
-			log.filter(type(), kind.name(), key);
+			domainDirEntryRestore.restore(key, payload);
 			break;
 		case ADDRESSBOOK:
 			domainAddressBookRestore.restore(key, payload);
@@ -166,10 +183,50 @@ public class RestoreDirectories implements RestoreDomainType {
 		}
 	}
 
-	private class DomainAddressBookCrudRestore extends AbstractCrudRestore<DirEntry, AddressBookDescriptor, IAddressBooksMgmt> {
+	private class DomainDirEntryRestore implements RestoreDomainType {
 
-		private final ValueReader<ItemValue<DirEntry>> reader = JsonUtils
-				.reader(new TypeReference<ItemValue<DirEntry>>() {
+		private final ValueReader<VersionnedItem<DirEntry>> reader = JsonUtils
+				.reader(new TypeReference<VersionnedItem<DirEntry>>() {
+				});
+
+		private RestoreLogger log;
+		private ItemValue<Domain> domain;
+
+		private DomainDirEntryRestore(RestoreLogger log, ItemValue<Domain> domain) {
+			this.log = log;
+			this.domain = domain;
+		}
+
+		@Override
+		public String type() {
+			return DOMAIN.name();
+		}
+
+		@Override
+		public void restore(RecordKey key, String payload) {
+			VersionnedItem<DirEntry> item = reader.read(payload);
+
+			DirEntryHandler dirEntryApi = DirEntryHandlers.byKind(DOMAIN);
+			BmContext context = ((ServerSideServiceProvider) target).getContext();
+			ItemValue<DirEntry> previous = dirEntryApi.get(context, domain.uid, item.uid);
+			if (previous != null && previous.internalId != item.internalId) {
+				log.deleteByProduct(type(), key);
+				dirEntryApi.delete(context, domain.uid, item.uid);
+				log.create(type(), key);
+				dirEntryApi.create(context, domain.uid, item);
+			} else if (previous != null) {
+				log.update(type(), key);
+				dirEntryApi.update(context, domain.uid, item);
+			}
+		}
+
+	}
+
+	private class DomainAddressBookCrudRestore
+			extends AbstractCrudRestore<DirEntry, AddressBookDescriptor, IAddressBooksMgmt> {
+
+		private final ValueReader<VersionnedItem<DirEntry>> reader = JsonUtils
+				.reader(new TypeReference<VersionnedItem<DirEntry>>() {
 				});
 
 		private DomainAddressBookCrudRestore(RestoreLogger log, ItemValue<Domain> domain) {
@@ -178,11 +235,11 @@ public class RestoreDirectories implements RestoreDomainType {
 
 		@Override
 		public String type() {
-			return Kind.ADDRESSBOOK.name();
+			return ADDRESSBOOK.name();
 		}
 
 		@Override
-		protected ValueReader<ItemValue<DirEntry>> reader() {
+		protected ValueReader<VersionnedItem<DirEntry>> reader() {
 			return reader;
 		}
 
@@ -196,12 +253,24 @@ public class RestoreDirectories implements RestoreDomainType {
 		}
 
 		@Override
-		protected boolean filter(RecordKey key, ItemValue<DirEntry> item) {
-			return item.uid.equals("addressbook_" + domain.uid);
+		protected boolean exists(IAddressBooksMgmt api, RecordKey key, VersionnedItem<DirEntry> item) {
+			// In case of a Domain AddressBook container, the owner is a dir entry of type
+			// addressbook.
+			DirEntryHandler dirEntryApi = DirEntryHandlers.byKind(ADDRESSBOOK);
+			BmContext context = ((ServerSideServiceProvider) target).getContext();
+			ItemValue<DirEntry> previous = dirEntryApi.get(context, domain.uid, item.uid);
+			if (previous != null && previous.internalId != item.internalId) {
+				log.deleteByProduct(type(), key);
+				dirEntryApi.delete(context, domain.uid, item.uid);
+				log.create(type(), key);
+				dirEntryApi.create(context, domain.uid, item);
+				return true;
+			}
+			return previous != null;
 		}
 
 		@Override
-		protected ItemValue<AddressBookDescriptor> map(ItemValue<DirEntry> item, boolean isCreate) {
+		protected ItemValue<AddressBookDescriptor> map(VersionnedItem<DirEntry> item, boolean isCreate) {
 			AddressBookDescriptor bookDesc = new AddressBookDescriptor();
 			bookDesc.owner = domain.uid;
 			if (!isCreate) {
@@ -209,8 +278,9 @@ public class RestoreDirectories implements RestoreDomainType {
 				bookDesc.owner = existing.owner;
 			}
 			bookDesc.domainUid = domain.uid;
-			bookDesc.name = item.displayName;
+			bookDesc.name = item.value.displayName;
 			bookDesc.orgUnitUid = item.value.orgUnitUid;
+			bookDesc.settings = Collections.emptyMap();
 			return ItemValue.create(item.item(), bookDesc);
 		}
 
@@ -222,8 +292,8 @@ public class RestoreDirectories implements RestoreDomainType {
 
 	private class DomainCalendarCrudRestore extends AbstractCrudRestore<DirEntry, CalendarDescriptor, ICalendarsMgmt> {
 
-		private final ValueReader<ItemValue<DirEntry>> reader = JsonUtils
-				.reader(new TypeReference<ItemValue<DirEntry>>() {
+		private final ValueReader<VersionnedItem<DirEntry>> reader = JsonUtils
+				.reader(new TypeReference<VersionnedItem<DirEntry>>() {
 				});
 
 		private DomainCalendarCrudRestore(RestoreLogger log, ItemValue<Domain> domain) {
@@ -232,11 +302,11 @@ public class RestoreDirectories implements RestoreDomainType {
 
 		@Override
 		public String type() {
-			return Kind.CALENDAR.name();
+			return CALENDAR.name();
 		}
 
 		@Override
-		protected ValueReader<ItemValue<DirEntry>> reader() {
+		protected ValueReader<VersionnedItem<DirEntry>> reader() {
 			return reader;
 		}
 
@@ -250,7 +320,21 @@ public class RestoreDirectories implements RestoreDomainType {
 		}
 
 		@Override
-		protected ItemValue<CalendarDescriptor> map(ItemValue<DirEntry> item, boolean isCreate) {
+		protected boolean exists(ICalendarsMgmt api, RecordKey key, VersionnedItem<DirEntry> item) {
+			DirEntryHandler dirEntryApi = DirEntryHandlers.byKind(CALENDAR);
+			BmContext context = ((ServerSideServiceProvider) target).getContext();
+			ItemValue<DirEntry> previous = dirEntryApi.get(context, domain.uid, item.uid);
+			if (previous != null && previous.internalId != item.internalId) {
+				log.deleteByProduct(type(), key);
+				DirEntryHandlers.byKind(CALENDAR).delete(context, domain.uid, item.uid);
+				log.create(type(), key);
+				DirEntryHandlers.byKind(CALENDAR).create(context, domain.uid, item);
+			}
+			return previous != null;
+		}
+
+		@Override
+		protected ItemValue<CalendarDescriptor> map(VersionnedItem<DirEntry> item, boolean isCreate) {
 			CalendarDescriptor calDesc = new CalendarDescriptor();
 			calDesc.owner = domain.uid;
 			if (!isCreate) {
@@ -258,8 +342,9 @@ public class RestoreDirectories implements RestoreDomainType {
 				calDesc.owner = existing.owner;
 			}
 			calDesc.domainUid = domain.uid;
-			calDesc.name = item.displayName;
+			calDesc.name = item.value.displayName;
 			calDesc.orgUnitUid = item.value.orgUnitUid;
+			calDesc.settings = Collections.emptyMap();
 			return ItemValue.create(item.item(), calDesc);
 		}
 
@@ -271,8 +356,8 @@ public class RestoreDirectories implements RestoreDomainType {
 
 	private class ExternalUserCrudRestore extends CrudDirEntryRestore.WithoutMailbox<ExternalUser> {
 
-		private final ValueReader<ItemValue<FullDirEntry<ExternalUser>>> reader = JsonUtils
-				.reader(new TypeReference<ItemValue<FullDirEntry<ExternalUser>>>() {
+		private final ValueReader<VersionnedItem<FullDirEntry<ExternalUser>>> reader = JsonUtils
+				.reader(new TypeReference<VersionnedItem<FullDirEntry<ExternalUser>>>() {
 				});
 
 		private ExternalUserCrudRestore(RestoreLogger log, ItemValue<Domain> domain) {
@@ -281,11 +366,11 @@ public class RestoreDirectories implements RestoreDomainType {
 
 		@Override
 		public String type() {
-			return Kind.EXTERNALUSER.name();
+			return EXTERNALUSER.name();
 		}
 
 		@Override
-		protected ValueReader<ItemValue<FullDirEntry<ExternalUser>>> reader() {
+		protected ValueReader<VersionnedItem<FullDirEntry<ExternalUser>>> reader() {
 			return reader;
 		}
 
@@ -297,21 +382,21 @@ public class RestoreDirectories implements RestoreDomainType {
 
 	private class ResourceCrudRestore extends CrudDirEntryRestore.WithMailbox<ResourceDescriptor> {
 
-		private final ValueReader<ItemValue<FullDirEntry<ResourceDescriptor>>> reader = JsonUtils
-				.reader(new TypeReference<ItemValue<FullDirEntry<ResourceDescriptor>>>() {
+		private final ValueReader<VersionnedItem<FullDirEntry<ResourceDescriptor>>> reader = JsonUtils
+				.reader(new TypeReference<VersionnedItem<FullDirEntry<ResourceDescriptor>>>() {
 				});
 
-		private ResourceCrudRestore(RestoreLogger log, ItemValue<Domain> domain) {
-			super(log, domain);
+		private ResourceCrudRestore(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
+			super(log, domain, target);
 		}
 
 		@Override
 		public String type() {
-			return Kind.RESOURCE.name();
+			return RESOURCE.name();
 		}
 
 		@Override
-		protected ValueReader<ItemValue<FullDirEntry<ResourceDescriptor>>> reader() {
+		protected ValueReader<VersionnedItem<FullDirEntry<ResourceDescriptor>>> reader() {
 			return reader;
 		}
 
@@ -322,14 +407,14 @@ public class RestoreDirectories implements RestoreDomainType {
 
 		@Override
 		protected void create(IRestoreDirEntryWithMailboxSupport<ResourceDescriptor> api, RecordKey key,
-				ItemValue<FullDirEntry<ResourceDescriptor>> item) {
+				VersionnedItem<FullDirEntry<ResourceDescriptor>> item) {
 			createFakeResourceTypesIfNotExists(domain.uid, key, item);
 			super.create(api, key, item);
 		}
 
 		@Override
 		protected void update(IRestoreDirEntryWithMailboxSupport<ResourceDescriptor> api, RecordKey key,
-				ItemValue<FullDirEntry<ResourceDescriptor>> item) {
+				VersionnedItem<FullDirEntry<ResourceDescriptor>> item) {
 			createFakeResourceTypesIfNotExists(domain.uid, key, item);
 			super.update(api, key, item);
 		}
@@ -352,21 +437,21 @@ public class RestoreDirectories implements RestoreDomainType {
 
 	private class MailshareCrudRestore extends CrudDirEntryRestore.WithMailbox<Mailshare> {
 
-		private final ValueReader<ItemValue<FullDirEntry<Mailshare>>> reader = JsonUtils
-				.reader(new TypeReference<ItemValue<FullDirEntry<Mailshare>>>() {
+		private final ValueReader<VersionnedItem<FullDirEntry<Mailshare>>> reader = JsonUtils
+				.reader(new TypeReference<VersionnedItem<FullDirEntry<Mailshare>>>() {
 				});
 
-		private MailshareCrudRestore(RestoreLogger log, ItemValue<Domain> domain) {
-			super(log, domain);
+		private MailshareCrudRestore(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
+			super(log, domain, target);
 		}
 
 		@Override
 		public String type() {
-			return Kind.MAILSHARE.name();
+			return MAILSHARE.name();
 		}
 
 		@Override
-		protected ValueReader<ItemValue<FullDirEntry<Mailshare>>> reader() {
+		protected ValueReader<VersionnedItem<FullDirEntry<Mailshare>>> reader() {
 			return reader;
 		}
 
@@ -376,13 +461,13 @@ public class RestoreDirectories implements RestoreDomainType {
 		}
 
 		@Override
-		protected boolean filter(RecordKey key, ItemValue<FullDirEntry<Mailshare>> item) {
+		protected boolean filter(RecordKey key, VersionnedItem<FullDirEntry<Mailshare>> item) {
 			return item.value.value.system;
 		}
 
 		@Override
 		protected void create(IRestoreDirEntryWithMailboxSupport<Mailshare> api, RecordKey key,
-				ItemValue<FullDirEntry<Mailshare>> item) {
+				VersionnedItem<FullDirEntry<Mailshare>> item) {
 			ItemValue<Mailbox> mbox = ItemValue.create(item.uid, item.value.mailbox);
 			state.storeMailbox(item.uid, mbox);
 			super.create(api, key, item);
@@ -391,47 +476,47 @@ public class RestoreDirectories implements RestoreDomainType {
 
 	private class GroupCrudRestore extends CrudDirEntryRestore.WithMailbox<Group> {
 
-		private final ValueReader<ItemValue<FullDirEntry<Group>>> reader = JsonUtils
-				.reader(new TypeReference<ItemValue<FullDirEntry<Group>>>() {
+		private final ValueReader<VersionnedItem<FullDirEntry<Group>>> reader = JsonUtils
+				.reader(new TypeReference<VersionnedItem<FullDirEntry<Group>>>() {
 				});
 
-		private GroupCrudRestore(RestoreLogger log, ItemValue<Domain> domain) {
-			super(log, domain);
+		private GroupCrudRestore(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
+			super(log, domain, target);
 		}
 
 		@Override
 		public String type() {
-			return Kind.GROUP.name();
+			return GROUP.name();
 		}
 
 		@Override
-		protected ValueReader<ItemValue<FullDirEntry<Group>>> reader() {
+		protected ValueReader<VersionnedItem<FullDirEntry<Group>>> reader() {
 			return reader;
 		}
 
 		@Override
-		protected IGroup api(ItemValue<Domain> domain, RecordKey key) {
-			return target.instance(IGroup.class, domain.uid);
+		protected IInCoreGroup api(ItemValue<Domain> domain, RecordKey key) {
+			return target.instance(IInCoreGroup.class, domain.uid);
 		}
 	}
 
 	private class UserCrudRestore extends CrudDirEntryRestore.WithMailbox<User> {
 
-		private final ValueReader<ItemValue<FullDirEntry<User>>> reader = JsonUtils
-				.reader(new TypeReference<ItemValue<FullDirEntry<User>>>() {
+		private final ValueReader<VersionnedItem<FullDirEntry<User>>> reader = JsonUtils
+				.reader(new TypeReference<VersionnedItem<FullDirEntry<User>>>() {
 				});
 
-		private UserCrudRestore(RestoreLogger log, ItemValue<Domain> domain) {
-			super(log, domain);
+		private UserCrudRestore(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
+			super(log, domain, target);
 		}
 
 		@Override
 		public String type() {
-			return Kind.USER.name();
+			return USER.name();
 		}
 
 		@Override
-		protected ValueReader<ItemValue<FullDirEntry<User>>> reader() {
+		protected ValueReader<VersionnedItem<FullDirEntry<User>>> reader() {
 			return reader;
 		}
 
@@ -442,7 +527,7 @@ public class RestoreDirectories implements RestoreDomainType {
 
 		@Override
 		protected void create(IRestoreDirEntryWithMailboxSupport<User> api, RecordKey key,
-				ItemValue<FullDirEntry<User>> item) {
+				VersionnedItem<FullDirEntry<User>> item) {
 			ItemValue<Mailbox> mbox = ItemValue.create(item.uid, item.value.mailbox);
 			state.storeMailbox(item.uid, mbox);
 			super.create(api, key, item);
@@ -451,8 +536,8 @@ public class RestoreDirectories implements RestoreDomainType {
 
 	private class OrgUnitCrudRestore extends CrudDirEntryRestore.WithoutMailbox<OrgUnit> {
 
-		private final ValueReader<ItemValue<FullDirEntry<OrgUnit>>> reader = JsonUtils
-				.reader(new TypeReference<ItemValue<FullDirEntry<OrgUnit>>>() {
+		private final ValueReader<VersionnedItem<FullDirEntry<OrgUnit>>> reader = JsonUtils
+				.reader(new TypeReference<VersionnedItem<FullDirEntry<OrgUnit>>>() {
 				});
 
 		private OrgUnitCrudRestore(RestoreLogger log, ItemValue<Domain> domain) {
@@ -461,11 +546,11 @@ public class RestoreDirectories implements RestoreDomainType {
 
 		@Override
 		public String type() {
-			return Kind.ORG_UNIT.name();
+			return ORG_UNIT.name();
 		}
 
 		@Override
-		protected ValueReader<ItemValue<FullDirEntry<OrgUnit>>> reader() {
+		protected ValueReader<VersionnedItem<FullDirEntry<OrgUnit>>> reader() {
 			return reader;
 		}
 

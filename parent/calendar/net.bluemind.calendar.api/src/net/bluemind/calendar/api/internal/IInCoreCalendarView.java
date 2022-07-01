@@ -18,11 +18,13 @@
  */
 package net.bluemind.calendar.api.internal;
 
+import net.bluemind.calendar.api.CalendarView;
 import net.bluemind.calendar.api.ICalendarView;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 
-public interface IInCoreCalendarView extends ICalendarView {
+public interface IInCoreCalendarView extends ICalendarView, IRestoreItemCrudSupport<CalendarView> {
 
-	public void delete(String uid, boolean force) throws ServerFault;
+	void delete(String uid, boolean force) throws ServerFault;
 
 }

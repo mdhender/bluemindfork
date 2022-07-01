@@ -8,6 +8,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.backup.continuous,
  slf4j.api,
  net.bluemind.core.task.spi,
+ net.bluemind.deferredaction.api,
  net.bluemind.directory.api,
  net.bluemind.addressbook.api,
  net.bluemind.user.api,
@@ -55,7 +56,10 @@ Require-Bundle: org.eclipse.core.runtime,
  com.github.ben-manes.caffeine,
  com.github.chrisvest.stormpot,
  net.bluemind.scheduledjob.api,
- net.bluemind.webappdata.api
+ net.bluemind.webappdata.api,
+ net.bluemind.backend.mail.replica.utils,
+ net.bluemind.group.service,
+ net.bluemind.group.member
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.backup.continuous.clone
 Bundle-ActivationPolicy: lazy

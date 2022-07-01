@@ -20,12 +20,6 @@
       </verticle>
    </extension>
    <extension
-         point="net.bluemind.lib.vertx.verticles">
-      <verticle
-            impl="net.bluemind.cti.service.internal.CTIUserSettingsVerticle$CTIUserSettingsVerticleFactory">
-      </verticle>
-   </extension>
-   <extension
          point="net.bluemind.deferredaction.registry.executor">
       <executor
             implementation="net.bluemind.cti.service.internal.DeferredActionCTIExecutorFactory">
@@ -36,5 +30,9 @@
       <reg
             impl="net.bluemind.cti.service.internal.CTIPresenceHandler$CacheRegistration">
       </reg>
+   </extension>
+   <extension point="net.bluemind.user.hook.usersettings">
+      <hook impl="net.bluemind.cti.service.internal.CTIUserSettingsHook">
+      </hook>
    </extension>
 </plugin>

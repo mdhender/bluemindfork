@@ -58,7 +58,6 @@ import net.bluemind.calendar.helper.mail.CalendarMailHelper;
 import net.bluemind.calendar.helper.mail.EventAttachment;
 import net.bluemind.calendar.helper.mail.EventAttachmentHelper;
 import net.bluemind.calendar.helper.mail.Messages;
-import net.bluemind.calendar.hook.internal.VEventMessage;
 import net.bluemind.common.freemarker.FreeMarkerMsg;
 import net.bluemind.common.freemarker.MessagesResolver;
 import net.bluemind.common.freemarker.MessagesResolverProvider;

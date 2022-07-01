@@ -64,6 +64,7 @@ import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomainUids;
 import net.bluemind.domain.api.IDomains;
+import net.bluemind.domain.api.IInCoreDomains;
 import net.bluemind.domain.hook.IDomainHook;
 import net.bluemind.domain.service.DefaultGroups;
 import net.bluemind.domain.service.DomainNotFoundException;
@@ -82,7 +83,7 @@ import net.bluemind.system.api.CertData.CertificateDomainEngine;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
-public class DomainsService implements IDomains {
+public class DomainsService implements IInCoreDomains, IDomains {
 	private static final Logger logger = LoggerFactory.getLogger(DomainsService.class);
 	private static final String DOMAIN_UPDATED = "domain.updated";
 
@@ -111,7 +112,14 @@ public class DomainsService implements IDomains {
 
 	@Override
 	public void create(String uid, Domain domain) {
+		ItemValue<Domain> item = ItemValue.create(uid, domain);
+		create(item);
+	}
+
+	private void create(ItemValue<Domain> item) {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
+		String uid = item.uid;
+		Domain domain = item.value;
 		ParametersValidator.notNullAndNotEmpty(uid);
 
 		sanitizer.create(domain);
@@ -123,7 +131,7 @@ public class DomainsService implements IDomains {
 		extValidator.create(domain);
 
 		ItemValue<Domain> value = store.doOrFail(() -> {
-			store.create(uid, domain.label, domain);
+			store.create(item.item(), item.value);
 
 			// create domain container
 			IContainers containers = context.provider().instance(IContainers.class);
@@ -183,6 +191,13 @@ public class DomainsService implements IDomains {
 
 	@Override
 	public void update(String uid, Domain domain) {
+		ItemValue<Domain> item = ItemValue.create(uid, domain);
+		update(item);
+	}
+
+	private void update(ItemValue<Domain> item) {
+		String uid = item.uid;
+		Domain domain = item.value;
 		rbacManager.forDomain(uid).check(BasicRoles.ROLE_ADMIN);
 
 		ItemValue<Domain> currentDomain = store.get(uid, null);
@@ -216,7 +231,7 @@ public class DomainsService implements IDomains {
 		}
 
 		ItemValue<Domain> value = store.doOrFail(() -> {
-			store.update(uid, domain.label, domain);
+			store.update(item.item(), domain.label, domain);
 			DirEntryHandlers.byKind(BaseDirEntry.Kind.DOMAIN).update(context, uid,
 					DirEntry.create(null, uid, BaseDirEntry.Kind.DOMAIN, uid, domain.label, null, true, true, false));
 
@@ -529,5 +544,14 @@ public class DomainsService implements IDomains {
 	public Set<String> getRoles(String uid) {
 		rbacManager.forDomain(uid).check(BasicRoles.ROLE_ADMIN);
 		return store.getRoles(uid);
+	}
+
+	@Override
+	public void restore(ItemValue<Domain> item, boolean isCreate) {
+		if (isCreate) {
+			create(item);
+		} else {
+			update(item);
+		}
 	}
 }

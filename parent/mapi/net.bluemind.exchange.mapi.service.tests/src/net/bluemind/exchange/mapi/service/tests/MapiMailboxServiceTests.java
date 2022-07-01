@@ -104,27 +104,22 @@ public class MapiMailboxServiceTests {
 	}
 
 	protected IMapiFolderAssociatedInformation faisApi(String replicaUid) {
-		IMapiFolderAssociatedInformation service = ServerSideServiceProvider.getProvider(userSecurityContext)
+		return ServerSideServiceProvider.getProvider(userSecurityContext)
 				.instance(IMapiFolderAssociatedInformation.class, replicaUid);
-		return service;
 	}
 
 	protected IOfflineMgmt offlineApi() {
-		IOfflineMgmt service = ServerSideServiceProvider.getProvider(userSecurityContext).instance(IOfflineMgmt.class,
-				domainUid, mailbox.uid);
-		return service;
+		return ServerSideServiceProvider.getProvider(userSecurityContext).instance(IOfflineMgmt.class, domainUid,
+				mailbox.uid);
 	}
 
 	protected IMapiMailbox mapiMboxApi() {
-		IMapiMailbox service = ServerSideServiceProvider.getProvider(userSecurityContext).instance(IMapiMailbox.class,
-				domainUid, mailbox.uid);
-		return service;
+		return ServerSideServiceProvider.getProvider(userSecurityContext).instance(IMapiMailbox.class, domainUid,
+				mailbox.uid);
 	}
 
 	protected IMapiMailboxes mapiMboxesApi() {
-		IMapiMailboxes service = ServerSideServiceProvider.getProvider(userSecurityContext)
-				.instance(IMapiMailboxes.class, domainUid);
-		return service;
+		return ServerSideServiceProvider.getProvider(userSecurityContext).instance(IMapiMailboxes.class, domainUid);
 	}
 
 	protected IContainersFlatHierarchy hierarchyApi() {

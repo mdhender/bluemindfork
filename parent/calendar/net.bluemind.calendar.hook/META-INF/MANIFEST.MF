@@ -11,7 +11,6 @@ Require-Bundle: net.bluemind.lib.vertx;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",
  net.bluemind.core.container.persistence;bundle-version="1.0.0",
  net.bluemind.core.rest;bundle-version="1.0.0"
-Export-Package: net.bluemind.calendar.hook,
- net.bluemind.calendar.hook.internal
+Export-Package: net.bluemind.calendar.hook
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Automatic-Module-Name: net.bluemind.calendar.hook

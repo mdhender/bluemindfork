@@ -198,6 +198,7 @@ public class UserDefaultAliasTests {
 		IdRange fresh = alloc.allocateOfflineIds(1);
 		ItemValue<User> asItem = ItemValue.create("dingo_uid", user);
 		asItem.internalId = fresh.globalCounter;
+		asItem.version = 1;
 		System.err.println("Id should be " + asItem.internalId);
 
 		userApi.restore(asItem, true);

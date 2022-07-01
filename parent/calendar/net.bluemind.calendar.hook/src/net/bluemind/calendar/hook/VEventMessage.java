@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.calendar.hook.internal;
+package net.bluemind.calendar.hook;
 
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.container.model.Container;

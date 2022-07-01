@@ -1,6 +1,7 @@
 package net.bluemind.core.backup.continuous.restore.domains.crud;
 
 import net.bluemind.core.backup.continuous.RecordKey;
+import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.container.api.IRestoreCrudSupport;
 import net.bluemind.core.container.model.ItemValue;
@@ -13,7 +14,7 @@ public abstract class CrudRestore<T> extends AbstractCrudRestore<T, T, IRestoreC
 	}
 
 	@Override
-	protected ItemValue<T> map(ItemValue<T> item, boolean isCreate) {
+	protected ItemValue<T> map(VersionnedItem<T> item, boolean isCreate) {
 		return item;
 	}
 

@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.elasticsearch.common.Strings;
@@ -41,7 +40,7 @@ import net.bluemind.calendar.api.VEvent.Transparency;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.hook.ICalendarHook;
-import net.bluemind.calendar.hook.internal.VEventMessage;
+import net.bluemind.calendar.hook.VEventMessage;
 import net.bluemind.calendar.occurrence.OccurrenceHelper;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;
@@ -55,6 +54,7 @@ import net.bluemind.cti.service.CTIDeferredAction;
 import net.bluemind.deferredaction.api.DeferredAction;
 import net.bluemind.deferredaction.api.IDeferredAction;
 import net.bluemind.deferredaction.api.IDeferredActionContainerUids;
+import net.bluemind.deferredaction.api.IInternalDeferredAction;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
@@ -64,6 +64,12 @@ import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
 import net.bluemind.user.api.IUserSettings;
 
 public class EventDeferredActionHook implements ICalendarHook {
+
+	@Override
+	public boolean isSynchronous() {
+		// for kafka based restoration
+		return true;
+	}
 
 	@Override
 	public void onEventCreated(VEventMessage message) {
@@ -98,37 +104,33 @@ public class EventDeferredActionHook implements ICalendarHook {
 		Optional<String> userTimezone = Optional
 				.ofNullable(userSettingsService.get(message.container.owner).get("timezone"));
 
-		Optional<VEvent> currentOccurrence = getFirstOccurence(occurrence);
-		while (currentOccurrence.isPresent()) {
-			currentOccurrence = storeTrigger(valarm, currentOccurrence.get(), message, userTimezone);
-		}
+		getFirstOccurence(occurrence)
+				.ifPresent(firstOccurrence -> storeTrigger(valarm, firstOccurrence, message, userTimezone));
 	}
 
 	private Optional<VEvent> getFirstOccurence(VEvent occurrence) {
 		if (occurrence.rrule == null || !occurrence.exdate.contains(occurrence.dtstart)) {
 			return Optional.of(occurrence);
 		} else {
-			return OccurrenceHelper.getNextOccurrence(occurrence.dtstart, occurrence).map(occ -> (VEvent) occ);
+			return OccurrenceHelper.getNextOccurrence(occurrence.dtstart, occurrence).map(VEvent.class::cast);
 		}
 	}
 
-	private Optional<VEvent> storeTrigger(VAlarm valarm, VEvent occurrence, VEventMessage message,
-			Optional<String> userTimezone) {
-		if (notInPast(occurrence.dtend)) {
-			Date trigger = calculateAlarmDate(valarm, occurrence.dtstart, userTimezone);
-			if (!trigger.before(new Date())) {
-				IDeferredAction service = getService(valarm, message);
-				String reference = EventDeferredAction.getReference(message.container.uid, message.itemUid);
-				Map<String, String> config = getConfig(message, occurrence, valarm.trigger);
-				storeTrigger(reference, config, service, trigger);
-				return Optional.empty();
-			}
+	private void storeTrigger(VAlarm valarm, VEvent occurrence, VEventMessage message, Optional<String> userTimezone) {
+		Date trigger = (notInPast(occurrence.dtend)) //
+				? calculateAlarmDate(valarm, occurrence.dtstart, userTimezone)
+				: null;
+		if (trigger != null && !trigger.before(new Date())) {
+			IInternalDeferredAction service = getService(valarm, message);
+			String reference = EventDeferredAction.getReference(message.container.uid, message.itemUid);
+			Map<String, String> config = getConfig(message, occurrence, valarm.trigger);
+			storeTrigger(reference, config, service, trigger);
+		} else {
+			getNextOccurrence(valarm, occurrence).ifPresent(nextOccurrence -> {
+				nextOccurrence.recurid = null;
+				storeTrigger(valarm, nextOccurrence, message, userTimezone);
+			});
 		}
-
-		return getNextOccurrence(valarm, occurrence).map(vEventOccurrence -> {
-			vEventOccurrence.recurid = null;
-			return vEventOccurrence;
-		});
 	}
 
 	private Optional<VEventOccurrence> getNextOccurrence(VAlarm valarm, VEvent occurrence) {
@@ -253,24 +255,24 @@ public class EventDeferredActionHook implements ICalendarHook {
 		return Date.from(alarm.toInstant());
 	}
 
-	private void storeTrigger(String reference, Map<String, String> config, IDeferredAction service,
+	private void storeTrigger(String reference, Map<String, String> config, IInternalDeferredAction service,
 			Date triggerValue) {
 		DeferredAction action = new DeferredAction();
 		action.reference = reference;
 		action.configuration = config;
 		action.executionDate = triggerValue;
 		action.actionId = EventDeferredAction.ACTION_ID;
-		service.create(UUID.randomUUID().toString(), action);
+		service.create(action);
 	}
 
-	private IDeferredAction getService(VAlarm valarm, VEventMessage message) {
+	private IInternalDeferredAction getService(VAlarm valarm, VEventMessage message) {
 		String containerUid = null;
 		if (valarm.action != null && valarm.action == Action.Email) {
 			containerUid = IDeferredActionContainerUids.uidForDomain(message.container.domainUid);
 		} else {
 			containerUid = IDeferredActionContainerUids.uidForUser(message.container.owner);
 		}
-		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDeferredAction.class,
+		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInternalDeferredAction.class,
 				containerUid);
 	}
 

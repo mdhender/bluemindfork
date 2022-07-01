@@ -34,7 +34,7 @@ import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
 import net.bluemind.core.container.api.ICrudByIdSupport;
 import net.bluemind.core.container.api.IDataShardSupport;
-import net.bluemind.core.container.api.IRestoreCrudSupport;
+import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.ItemValue;
@@ -49,7 +49,7 @@ import net.bluemind.core.container.model.ItemValue;
 @BMApi(version = "3", genericType = VNote.class)
 @Path("/notes/{containerUid}")
 public interface INote extends IChangelogSupport, ICountingSupport, ICrudByIdSupport<VNote>, ISortingSupport,
-		IDataShardSupport, IRestoreCrudSupport<VNote> {
+		IDataShardSupport, IRestoreItemCrudSupport<VNote> {
 
 	/**
 	 * List all Notes of a container

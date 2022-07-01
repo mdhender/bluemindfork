@@ -24,34 +24,26 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.container.api.IOfflineMgmt;
 import net.bluemind.core.container.api.IdRange;
-import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.persistence.OfflineMgmtStore;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
-import net.bluemind.core.rest.BmContext;
 
 public class OfflineMgmtService implements IOfflineMgmt {
 
 	private static final Logger logger = LoggerFactory.getLogger(OfflineMgmtService.class);
-	private final BmContext context;
 
-	public OfflineMgmtService(BmContext context, String ownerUid, String domainUid) {
-		this.context = context;
-		logger.info("Created for {} {}", ownerUid, domainUid);
+	private final DataSource dataSource;
+
+	public OfflineMgmtService(DataSource dataSource) {
+		this.dataSource = dataSource;
+		logger.info("Created with ds={}", dataSource);
 	}
 
 	@Override
 	public IdRange allocateOfflineIds(int idCount) {
-		String uidOnDataDS = "calendar:Default:" + context.getSecurityContext().getSubject();
-		DataSource ds = DataSourceRouter.get(context, uidOnDataDS);
-		DataSource defaultDs = context.getDataSource();
-		logger.info("Allocating IDs using ds {}, default is {} (same {})", ds, defaultDs, ds == defaultDs);
-		OfflineMgmtStore store = new OfflineMgmtStore(ds);
+		OfflineMgmtStore store = new OfflineMgmtStore(dataSource);
 		long startValue = JdbcAbstractStore.doOrFail(() -> store.reserveItemIds(idCount));
-		IdRange ir = new IdRange();
-		ir.count = idCount;
-		ir.globalCounter = startValue;
 		logger.info("Allocated {} local replica ids, starting at {}", idCount, startValue);
-		return ir;
+		return IdRange.create(idCount, startValue);
 	}
 
 }

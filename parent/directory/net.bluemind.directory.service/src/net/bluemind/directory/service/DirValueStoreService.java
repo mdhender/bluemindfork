@@ -41,6 +41,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.ReservedIds;
 import net.bluemind.directory.persistence.DirEntryStore;
 import net.bluemind.directory.persistence.DirItemStore;
 import net.bluemind.directory.service.internal.DirEntriesCache;
@@ -197,12 +198,17 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 	}
 
 	public void create(ItemValue<T> itemValue) throws ServerFault {
+		create(itemValue, doNothingOnIdsReservation);
+	}
+
+	public void create(ItemValue<T> itemValue, ReservedIds.ConsumerHandler handler) throws ServerFault {
 		T value = itemValue.value;
 		DirEntry dirEntry = adapter.asDirEntry(container.domainUid, itemValue.uid, value);
 		itemValue.displayName = (itemValue.displayName == null) ? dirEntry.displayName : itemValue.displayName;
-		super.create(itemValue.item(),
-				new DirEntryAndValue<>(dirEntry, value, vcardAdapter.asVCard(domain, itemValue.uid, value),
-						asMailbox(container.domainUid, itemValue.uid, value)));
+		DirEntryAndValue<T> dirEntryValue = new DirEntryAndValue<>(dirEntry, value,
+				vcardAdapter.asVCard(domain, itemValue.uid, value),
+				asMailbox(container.domainUid, itemValue.uid, value));
+		super.create(itemValue.item(), dirEntryValue, handler);
 	}
 
 	@Override
@@ -219,12 +225,19 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 	}
 
 	public void update(ItemValue<T> itemValue) throws ServerFault {
+		update(itemValue, doNothingOnIdsReservation);
+	}
+
+	public void update(ItemValue<T> itemValue, ReservedIds.ConsumerHandler handler) throws ServerFault {
 		T value = itemValue.value;
 		DirEntry dirEntry = adapter.asDirEntry(container.domainUid, itemValue.uid, value);
-		update(itemValue.item(), dirEntry.displayName,
-				new DirEntryAndValue<>(dirEntry, value, vcardAdapter.asVCard(domain, itemValue.uid, value),
-						asMailbox(container.domainUid, itemValue.uid, value)));
-		cache.invalidate(itemValue.uid);
+		DirEntryAndValue<T> dirEntryValue = new DirEntryAndValue<>(dirEntry, value,
+				vcardAdapter.asVCard(domain, itemValue.uid, value),
+				asMailbox(container.domainUid, itemValue.uid, value));
+		update(itemValue.item(), dirEntry.displayName, dirEntryValue, reservedIdsConsumer -> {
+			cache.invalidate(itemValue.uid);
+			handler.acceptConsumer(reservedIdsConsumer);
+		});
 	}
 
 	public ItemValue<T> get(String uid) throws ServerFault {

@@ -21,11 +21,11 @@ package net.bluemind.calendar.hook;
 public final class CalendarHookAddress {
 
 	public static final String BASE_ADDRESS = "bm.calendar.hook";
-
-	public static final String EVENT_CREATED = BASE_ADDRESS + ".created";
-	public static final String EVENT_UPDATED = BASE_ADDRESS + ".updated";
-	public static final String EVENT_DELETED = BASE_ADDRESS + ".deleted";
 	public static final String CHANGED = BASE_ADDRESS + ".changed";
+
+	private CalendarHookAddress() {
+
+	}
 
 	public static String getChangedEventAddress(String containerUid) {
 		return BASE_ADDRESS + "." + containerUid + ".changed";

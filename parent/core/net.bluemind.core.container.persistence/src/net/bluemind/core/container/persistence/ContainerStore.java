@@ -226,7 +226,6 @@ public class ContainerStore extends JdbcAbstractStore {
 				+ " VALUES (?, ?, ?, ?, ?, ?, now(), now(), ?, ?, ?)";
 		insert(insertQuery, container,
 				Arrays.<StatementValues<Container>>asList((con, statement, index, rowIndex, value) -> {
-
 					statement.setString(index++, value.uid);
 					statement.setString(index++, value.type);
 					statement.setString(index++, value.name);

@@ -3,6 +3,7 @@ package net.bluemind.core.backup.continuous.restore.domains.crud;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.core.backup.continuous.RecordKey;
+import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
@@ -13,8 +14,8 @@ import net.bluemind.mailflow.api.IMailflowRules;
 import net.bluemind.mailflow.api.MailRuleActionAssignmentDescriptor;
 
 public class RestoreMailflow extends CrudRestore<MailRuleActionAssignmentDescriptor> {
-	private static final ValueReader<ItemValue<MailRuleActionAssignmentDescriptor>> reader = JsonUtils
-			.reader(new TypeReference<ItemValue<MailRuleActionAssignmentDescriptor>>() {
+	private static final ValueReader<VersionnedItem<MailRuleActionAssignmentDescriptor>> reader = JsonUtils
+			.reader(new TypeReference<VersionnedItem<MailRuleActionAssignmentDescriptor>>() {
 			});
 
 	private final IServiceProvider target;
@@ -30,7 +31,7 @@ public class RestoreMailflow extends CrudRestore<MailRuleActionAssignmentDescrip
 	}
 
 	@Override
-	protected ValueReader<ItemValue<MailRuleActionAssignmentDescriptor>> reader() {
+	protected ValueReader<VersionnedItem<MailRuleActionAssignmentDescriptor>> reader() {
 		return reader;
 	}
 

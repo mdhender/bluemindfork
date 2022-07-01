@@ -18,8 +18,11 @@
  */
 package net.bluemind.mailbox.service;
 
+import java.util.function.Consumer;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.directory.api.ReservedIds;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.scheduledjob.api.JobExitStatus;
@@ -28,13 +31,13 @@ import net.bluemind.scheduledjob.scheduler.IScheduler;
 
 public interface IInCoreMailboxes extends IMailboxes {
 
-	public void checkAndRepairTask(String mailboxUid, IServerTaskMonitor monitor) throws ServerFault;
+	void checkAndRepairTask(String mailboxUid, IServerTaskMonitor monitor) throws ServerFault;
 
-	public void checkAndRepairTask(String mailboxUid, IServerTaskMonitor monitor, boolean repair) throws ServerFault;
+	void checkAndRepairTask(String mailboxUid, IServerTaskMonitor monitor, boolean repair) throws ServerFault;
 
-	public void checkAndRepairAllTask(IServerTaskMonitor monitor) throws ServerFault;
+	void checkAndRepairAllTask(IServerTaskMonitor monitor) throws ServerFault;
 
-	public void checkAvailabilty(Mailbox mailbox) throws ServerFault;
+	void checkAvailabilty(Mailbox mailbox) throws ServerFault;
 
 	/**
 	 * Enable/disable out of office sieve script
@@ -50,17 +53,18 @@ public interface IInCoreMailboxes extends IMailboxes {
 	 *         some errors</li>
 	 * @throws ServerFault
 	 */
-	public JobExitStatus refreshOutOfOffice(IScheduler sched, IScheduledJobRunId rid) throws ServerFault;
+	JobExitStatus refreshOutOfOffice(IScheduler sched, IScheduledJobRunId rid) throws ServerFault;
 
-	public void sanitize(Mailbox mailbox) throws ServerFault;
+	void sanitize(Mailbox mailbox) throws ServerFault;
 
-	public void validate(String uid, Mailbox mailbox) throws ServerFault;
+	void validate(String uid, Mailbox mailbox) throws ServerFault;
 
-	public void created(String uid, Mailbox mailbox) throws ServerFault;
+	void created(String uid, Mailbox mailbox, Consumer<ReservedIds> reservedIdsConsumer) throws ServerFault;
 
-	public void updated(String uid, Mailbox previous, Mailbox mailbox) throws ServerFault;
+	void updated(String uid, Mailbox previous, Mailbox mailbox, Consumer<ReservedIds> reservedIdsConsumer)
+			throws ServerFault;
 
-	public void deleted(String uid, Mailbox mailbox) throws ServerFault;
+	void deleted(String uid, Mailbox mailbox) throws ServerFault;
 
-	public void deleteEmailByAlias(String alias) throws ServerFault;
+	void deleteEmailByAlias(String alias) throws ServerFault;
 }

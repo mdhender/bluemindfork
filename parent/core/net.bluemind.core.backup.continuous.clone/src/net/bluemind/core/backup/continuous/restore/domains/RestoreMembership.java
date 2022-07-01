@@ -11,11 +11,13 @@ import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.GroupMembership;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.group.api.Group;
-import net.bluemind.group.api.IGroup;
+import net.bluemind.group.service.IInCoreGroup;
 
 public class RestoreMembership implements RestoreDomainType {
 	private static final Logger logger = LoggerFactory.getLogger(RestoreMembership.class);
@@ -43,13 +45,25 @@ public class RestoreMembership implements RestoreDomainType {
 	public void restore(RecordKey key, String payload) {
 		ItemValue<GroupMembership> ms = membersReader.read(payload);
 
-		IGroup groupApi = target.instance(IGroup.class, domain.uid);
+		IInCoreGroup groupApi = target.instance(IInCoreGroup.class, domain.uid);
 		ItemValue<Group> existingGroup = groupApi.getComplete(ms.uid);
-		if (existingGroup == null) {
+		if (existingGroup == null || existingGroup.internalId != ms.internalId) {
+			// If the existing group has been created during domain creation, it will not
+			// have the right id: we delete it here.
+			if (existingGroup != null) {
+				log.deleteParent(type(), key, ms.uid);
+				TaskRef ref = groupApi.delete(ms.uid);
+				TaskUtils.logStreamWait(target, ref);
+			}
+			// We remove any existing datalocation to prevent default mailbboxes to be
+			// created as we don't have their ids here. They will be created with
+			// the full group restoration
+			ms.value.group.dataLocation = null;
 			ItemValue<Group> clonedGroup = ItemValue.create(ms.item(), ms.value.group);
 			log.createParent(type(), key, clonedGroup.uid);
 			groupApi.restore(clonedGroup, true);
 		}
+
 		if (ms.value.added) {
 			log.create(type(), key);
 			groupApi.add(ms.uid, Arrays.asList(ms.value.member));

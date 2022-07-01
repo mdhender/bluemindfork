@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -54,6 +53,7 @@ import net.bluemind.cti.service.CTIDeferredAction;
 import net.bluemind.deferredaction.api.DeferredAction;
 import net.bluemind.deferredaction.api.IDeferredAction;
 import net.bluemind.deferredaction.api.IDeferredActionContainerUids;
+import net.bluemind.deferredaction.api.IInternalDeferredAction;
 import net.bluemind.deferredaction.registry.IDeferredActionExecutor;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
@@ -79,7 +79,7 @@ public class DeferredActionCTIExecutor implements IDeferredActionExecutor {
 	private Consumer<? super ItemValue<Domain>> executeForDomain(ZonedDateTime executionDate) {
 		return domain -> {
 			logger.info("Handling CTI deferred actions of domain {}", domain.uid);
-			IDeferredAction deferredActionService = provider.instance(IDeferredAction.class,
+			IInternalDeferredAction deferredActionService = provider.instance(IInternalDeferredAction.class,
 					IDeferredActionContainerUids.uidForDomain(domain.uid));
 
 			Map<String, List<ItemValue<DeferredAction>>> groupedByUser = deferredActionService
@@ -97,7 +97,7 @@ public class DeferredActionCTIExecutor implements IDeferredActionExecutor {
 		};
 	}
 
-	private void executeUserActions(IDeferredAction deferredActionService, User user) {
+	private void executeUserActions(IInternalDeferredAction deferredActionService, User user) {
 		logger.info("Handling CTI deferred actions of {}@{}", user.userUid, user.domainUid);
 		IVFreebusy freebusy = provider.instance(IVFreebusy.class, IFreebusyUids.getFreebusyContainerUid(user.userUid));
 
@@ -190,12 +190,13 @@ public class DeferredActionCTIExecutor implements IDeferredActionExecutor {
 		deferredActionService.delete(action.uid);
 	}
 
-	private void storeNextDeferredAction(IDeferredAction deferredActionService, String userUid, BmDateTime nextDate) {
+	private void storeNextDeferredAction(IInternalDeferredAction deferredActionService, String userUid,
+			BmDateTime nextDate) {
 		DeferredAction deferredAction = new DeferredAction();
 		deferredAction.executionDate = new Date(BmDateTimeWrapper.toTimestamp(nextDate.iso8601, nextDate.timezone));
 		deferredAction.actionId = CTIDeferredAction.ACTION_ID;
 		deferredAction.reference = CTIDeferredAction.reference(userUid);
-		deferredActionService.create(UUID.randomUUID().toString(), deferredAction);
+		deferredActionService.create(deferredAction);
 	}
 
 	private int dateCompare(ItemValue<DeferredAction> action1, ItemValue<DeferredAction> action2) {
@@ -216,9 +217,7 @@ public class DeferredActionCTIExecutor implements IDeferredActionExecutor {
 
 	private List<Slot> orderSlots(List<Slot> slots) {
 		List<Slot> ordered = new ArrayList<>(slots);
-		Collections.sort(ordered, (a, b) -> {
-			return toZonedDate(a.dtstart).compareTo(toZonedDate(b.dtstart));
-		});
+		Collections.sort(ordered, (a, b) -> toZonedDate(a.dtstart).compareTo(toZonedDate(b.dtstart)));
 		return ordered;
 	}
 

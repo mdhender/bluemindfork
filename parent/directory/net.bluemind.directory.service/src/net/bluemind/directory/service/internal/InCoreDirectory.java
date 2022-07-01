@@ -27,6 +27,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemIdentifier;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider.IServerSideServiceFactory;
@@ -82,6 +83,11 @@ public class InCoreDirectory implements IInCoreDirectory {
 	}
 
 	@Override
+	public ItemValue<DirEntry> get(String path) {
+		return itemStore.get(path, null);
+	}
+
+	@Override
 	public void create(String path, DirEntry entry) throws ServerFault {
 		itemStore.create(path, entry.displayName, entry);
 		logger.debug("direntry {}:{} created", domainUid, path);
@@ -90,11 +96,26 @@ public class InCoreDirectory implements IInCoreDirectory {
 	}
 
 	@Override
+	public void create(ItemValue<DirEntry> item) throws ServerFault {
+		item.displayName = item.value.displayName;
+		itemStore.create(item.item(), item.value);
+		logger.debug("direntry {}:{} created", domainUid, item.uid);
+		new DirEventProducer(domainUid, item.value.kind.name(), VertxPlatform.eventBus()).changed(item.value.entryUid, itemStore.getVersion());
+	}
+
+	@Override
 	public void update(String path, DirEntry entry) throws ServerFault {
 		itemStore.update(path, entry.displayName, entry);
 		logger.debug("direntry {}:{} updated", domainUid, path);
 		new DirEventProducer(domainUid, entry.kind.name(), VertxPlatform.eventBus()).changed(entry.entryUid,
 				itemStore.getVersion());
+	}
+
+	@Override
+	public void update(ItemValue<DirEntry> item) throws ServerFault {
+		itemStore.update(item.item(), item.value.displayName, item.value);
+		logger.debug("direntry {}:{} updated", domainUid, item.uid);
+		new DirEventProducer(domainUid, item.value.kind.name(), VertxPlatform.eventBus()).changed(item.value.entryUid, itemStore.getVersion());
 	}
 
 	@Override

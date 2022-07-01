@@ -18,19 +18,15 @@
  */
 package net.bluemind.domain.service;
 
-import java.sql.SQLException;
-
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.IDomains;
-import net.bluemind.domain.service.internal.DomainsService;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
 
-public class DomainsServiceFactory implements ServerSideServiceProvider.IServerSideServiceFactory<IDomains> {
+public class DomainsServiceFactory extends DomainsServiceCommonFactory
+		implements ServerSideServiceProvider.IServerSideServiceFactory<IDomains> {
 
 	public DomainsServiceFactory() {
 		MQ.init(() -> MQ.registerProducer(Topic.SYSTEM_NOTIFICATIONS));
@@ -43,18 +39,6 @@ public class DomainsServiceFactory implements ServerSideServiceProvider.IServerS
 
 	@Override
 	public IDomains instance(BmContext context, String... params) throws ServerFault {
-
-		ContainerStore containerStore = new ContainerStore(context, context.getDataSource(),
-				context.getSecurityContext());
-		Container container = null;
-		try {
-			container = containerStore.get(DomainsContainerIdentifier.getIdentifier());
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
-		}
-		if (container == null) {
-			throw new ServerFault("container " + DomainsContainerIdentifier.getIdentifier() + " not found");
-		}
-		return new DomainsService(context, container);
+		return instanceImpl(context);
 	}
 }

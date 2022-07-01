@@ -68,6 +68,7 @@ import net.bluemind.core.container.service.ItemUpdate;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.jdbc.JdbcAbstractStore.SqlOperation;
+import net.bluemind.directory.api.ReservedIds;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class ContainerStoreService<T> implements IContainerStoreService<T> {
@@ -91,6 +92,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	private final Supplier<ContainerChangeEventProducer> containerChangeEventProducer;
 	private final Supplier<IBackupStore<T>> backupStream;
 	private final DataSource pool;
+
+	public final ReservedIds.ConsumerHandler doNothingOnIdsReservation = callback -> callback.accept(null);
 
 	public static interface IItemFlagsProvider<W> {
 		Collection<ItemFlag> flags(W value);
@@ -225,8 +228,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (version != null && item != null && item.version != version) {
 				logger.warn("call get with version and version are different : expected {} actual {}", version,
 						item.version);
-				// FIXME throw exception WrongVersion
-				// FIXME throw ServerFault
 			}
 
 			return getItemValue(item);
@@ -241,8 +242,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (version != null && item != null && item.version != version) {
 				logger.warn("call get with version and version are different : expected {} actual {}", version,
 						item.version);
-				// FIXME throw exception WrongVersion
-				// FIXME throw ServerFault
 			}
 
 			return getItemValue(item);
@@ -303,7 +302,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		}
 		item.displayName = displayName;
 		item.flags = flagsProvider.flags(value);
-		return create(item, value, changelogStore, itemStore, itemValueStore);
+		return create(item, value, changelogStore, itemStore, itemValueStore, doNothingOnIdsReservation);
 	}
 
 	@Override
@@ -313,11 +312,15 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public ItemVersion create(Item item, T value) {
-		return create(item, value, changelogStore, itemStore, itemValueStore);
+		return create(item, value, changelogStore, itemStore, itemValueStore, doNothingOnIdsReservation);
+	}
+
+	protected ItemVersion create(Item item, T value, ReservedIds.ConsumerHandler handler) {
+		return create(item, value, changelogStore, itemStore, itemValueStore, handler);
 	}
 
 	private ItemVersion create(Item item, T value, ChangelogStore changelogStore, ItemStore itemStore,
-			IItemValueStore<T> itemValueStore) {
+			IItemValueStore<T> itemValueStore, ReservedIds.ConsumerHandler handler) {
 		checkWritable();
 
 		String uid = item.uid;
@@ -341,7 +344,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 			ItemValue<T> iv = ItemValue.create(created, value);
 			beforeCreationInBackupStore(iv);
-			backupStream.get().store(iv);
+			handler.acceptConsumer(reservedIds -> backupStream.get().store(iv, reservedIds));
 
 			return ItemUpdate.of(created);
 		});
@@ -393,6 +396,10 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	@Override
 	public ItemVersion update(Item item, String displayName, T value) {
+		return update(item, displayName, value, doNothingOnIdsReservation);
+	}
+
+	protected ItemVersion update(Item item, String displayName, T value, ReservedIds.ConsumerHandler handler) {
 		checkWritable();
 
 		return doOrFail(() -> {
@@ -408,25 +415,25 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 				dnToApply = existing.displayName;
 			}
-			Item created = itemStore.update(item, dnToApply, flagsProvider.flags(value));
-			if (created == null) {
+			Item updated = itemStore.update(item, dnToApply, flagsProvider.flags(value));
+			if (updated == null) {
 				throw ServerFault.notFound("entry[uid: " + item.uid + " / id:" + item.id + "]@" + container.uid
 						+ " not found, dn: " + dnToApply + ", in pool " + pool);
 			}
 
 			if (hasChangeLog) {
-				changelogStore.itemUpdated(LogEntry.create(created.version, created.uid, created.externalId,
-						securityContext.getSubject(), origin, created.id, weightSeedProvider.weightSeed(value)));
+				changelogStore.itemUpdated(LogEntry.create(updated.version, updated.uid, updated.externalId,
+						securityContext.getSubject(), origin, updated.id, weightSeedProvider.weightSeed(value)));
 			}
-			updateValue(created, value);
+			updateValue(updated, value);
 			if (hasChangeLog) {
 				containerChangeEventProducer.get().produceEvent();
 			}
 
-			ItemValue<T> iv = ItemValue.create(created, value);
-			backupStream.get().store(iv);
+			handler.acceptConsumer(
+					reservedIds -> backupStream.get().store(ItemValue.create(updated, value), reservedIds));
 
-			return ItemUpdate.of(created);
+			return ItemUpdate.of(updated);
 		});
 	}
 
@@ -524,8 +531,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			Item item = itemStore.getForUpdate(uid);
 			if (item == null) {
 				return null;
-				// throw ServerFault.notFound("entry[" + uid + "]@"
-				// + container.uid + " not found");
 			}
 			item = itemStore.touch(uid);
 			deleteValue(item);

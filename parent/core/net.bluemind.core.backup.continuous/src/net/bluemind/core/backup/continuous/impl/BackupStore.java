@@ -13,6 +13,7 @@ import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.store.ITopicStore.TopicDescriptor;
 import net.bluemind.core.backup.continuous.store.TopicPublisher;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.directory.api.ReservedIds;
 
 public class BackupStore<T> implements IBackupStore<T> {
 
@@ -36,9 +37,14 @@ public class BackupStore<T> implements IBackupStore<T> {
 
 	@Override
 	public CompletableFuture<Void> store(ItemValue<T> data) {
-		RecordKey key = RecordKey.forItemValue(descriptor, data, false);
+		return store(data, null);
+	}
+
+	@Override
+	public CompletableFuture<Void> store(ItemValue<T> data, ReservedIds reservedIds) {
+		RecordKey key = RecordKey.forItemValue(descriptor, data, reservedIds, false);
 		byte[] serializedKey = serializer.key(key);
-		byte[] serializedItem = serializer.value(data);
+		byte[] serializedItem = serializer.value(data, reservedIds);
 		String partitionKey = descriptor.partitionKey(data.uid);
 		return storeRaw(partitionKey, serializedKey, serializedItem).whenComplete((v, ex) -> {
 			if (ex != null) {
@@ -51,7 +57,7 @@ public class BackupStore<T> implements IBackupStore<T> {
 
 	@Override
 	public CompletableFuture<Void> delete(ItemValue<T> data) {
-		RecordKey key = RecordKey.forItemValue(descriptor, data, true);
+		RecordKey key = RecordKey.forItemValue(descriptor, data, null, true);
 		byte[] serializedKey = serializer.key(key);
 		byte[] serializedItem = ("{\"uid\":\"" + data.uid + "\"}").getBytes();
 		String partitionKey = descriptor.partitionKey(data.uid);

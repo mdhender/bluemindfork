@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.core.backup.continuous.RecordKey;
+import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
@@ -36,9 +37,10 @@ import net.bluemind.todolist.api.ITodoLists;
 import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.todolist.api.VTodo;
 
-public class RestoreVTodo extends CrudRestore<VTodo> {
-	private static final ValueReader<ItemValue<VTodo>> reader = JsonUtils.reader(new TypeReference<ItemValue<VTodo>>() {
-	});
+public class RestoreVTodo extends CrudItemRestore<VTodo> {
+	private static final ValueReader<VersionnedItem<VTodo>> reader = JsonUtils
+			.reader(new TypeReference<VersionnedItem<VTodo>>() {
+			});
 	private final IServiceProvider target;
 
 	Set<String> validatedLists = ConcurrentHashMap.newKeySet();
@@ -54,7 +56,7 @@ public class RestoreVTodo extends CrudRestore<VTodo> {
 	}
 
 	@Override
-	protected ValueReader<ItemValue<VTodo>> reader() {
+	protected ValueReader<VersionnedItem<VTodo>> reader() {
 		return reader;
 	}
 

@@ -9,5 +9,6 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.container.api;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.addressbook.api,
  javax.validation.api,
- net.bluemind.server.api;bundle-version="4.1.0"
+ net.bluemind.server.api;bundle-version="4.1.0",
+ com.fasterxml.jackson.core.jackson-annotations
 Automatic-Module-Name: net.bluemind.directory.api

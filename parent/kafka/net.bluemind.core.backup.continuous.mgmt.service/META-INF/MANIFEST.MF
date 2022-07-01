@@ -37,7 +37,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.mailbox.service,
  net.bluemind.backend.cyrus,
  net.bluemind.scheduledjob.api,
- net.bluemind.backend.cyrus.partitions
+ net.bluemind.backend.cyrus.partitions,
+ net.bluemind.group.service
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.backup.continuous.mgmt.service
 Bundle-ActivationPolicy: lazy

@@ -80,6 +80,7 @@ import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.MailFilter;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.service.IInCoreMailboxes;
 import net.bluemind.mailbox.service.internal.MailboxQuotaHelper;
@@ -116,7 +117,7 @@ public class UserService implements IInCoreUser, IUser {
 	private final APIKeyStore apikeyStore;
 	private final Validator validator;
 	private final PasswordValidator passwordValidator;
-	private IInCoreMailboxes mailboxes;
+	private final IInCoreMailboxes mailboxes;
 	private RBACManager rbacManager;
 	private UserEventProducer eventProducer;
 	private MailboxAdapter<User> mailboxAdapter;
@@ -198,19 +199,22 @@ public class UserService implements IInCoreUser, IUser {
 			user.passwordLastChange = new Date();
 		}
 
-		MailFilter filter = null;
-		if (!globalVirt && !user.system) {
-			filter = transformExternalEmailsToForwards(user, new MailFilter());
-		}
-		storeService.create(userItemValue);
-		ItemValue<User> item = createItemValue(uid, user);
-		if (!globalVirt && !user.system) {
-			mailboxes.created(uid, mailboxAdapter.asMailbox(domainName, uid, user));
-			if (user.routing == Routing.internal) {
-				mailboxes.setMailboxFilter(uid, filter);
+		Mailbox mailbox = mailboxAdapter.asMailbox(domainName, uid, user);
+		MailFilter filter = (!globalVirt && !user.system) //
+				? transformExternalEmailsToForwards(user, new MailFilter()) //
+				: null;
+		storeService.create(userItemValue, reservedIdsConsumer -> {
+			if (!globalVirt && !user.system) {
+				mailboxes.created(uid, mailbox, reservedIdsConsumer);
+				if (user.routing == Routing.internal) {
+					mailboxes.setMailboxFilter(uid, filter);
+				}
+			} else {
+				reservedIdsConsumer.accept(null);
 			}
-		}
+		});
 
+		ItemValue<User> item = createItemValue(uid, user);
 		user.password = prevPass;
 
 		for (IUserHook uh : userHooks) {
@@ -270,18 +274,22 @@ public class UserService implements IInCoreUser, IUser {
 		user.password = previous.value.password;
 		user.passwordLastChange = previous.value.passwordLastChange;
 
-		MailFilter filter = null;
+		MailFilter filter = (!globalVirt && !user.system) //
+				? transformExternalEmailsToForwards(user, mailboxes.getMailboxFilter(uid)) //
+				: null;
+		Mailbox previousMailbox = mailboxAdapter.asMailbox(domainName, uid, previous.value);
+		Mailbox currentMailbox = mailboxAdapter.asMailbox(domainName, uid, user);
 		if (!globalVirt && !user.system) {
-			filter = transformExternalEmailsToForwards(user, mailboxes.getMailboxFilter(uid));
-			mailboxes.validate(uid, mailboxAdapter.asMailbox(domainName, uid, user));
+			mailboxes.validate(uid, currentMailbox);
 		}
-		storeService.update(userItem);
-
-		if (!globalVirt && !user.system) {
-			mailboxes.updated(uid, mailboxAdapter.asMailbox(domainName, uid, previous.value),
-					mailboxAdapter.asMailbox(domainName, uid, user));
-			mailboxes.setMailboxFilter(uid, filter);
-		}
+		storeService.update(userItem, reservedIdsConsumer -> {
+			if (!globalVirt && !user.system) {
+				mailboxes.updated(uid, previousMailbox, currentMailbox, reservedIdsConsumer);
+				mailboxes.setMailboxFilter(uid, filter);
+			} else {
+				reservedIdsConsumer.accept(null);
+			}
+		});
 
 		for (IUserHook uh : userHooks) {
 			try {

@@ -31,7 +31,7 @@ import jakarta.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.api.IRestoreCrudSupport;
+import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.group.api.IGroupMember;
 
@@ -42,7 +42,7 @@ import net.bluemind.group.api.IGroupMember;
  */
 @BMApi(version = "3")
 @Path("/externaluser/{domainUid}")
-public interface IExternalUser extends IRestoreCrudSupport<ExternalUser>, IGroupMember {
+public interface IExternalUser extends IRestoreItemCrudSupport<ExternalUser>, IGroupMember {
 
 	/**
 	 * Creates a new {@link ExternalUser}.

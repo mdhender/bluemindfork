@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
-import net.bluemind.calendar.hook.internal.VEventMessage;
+import net.bluemind.calendar.hook.VEventMessage;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.ItemDescriptor;

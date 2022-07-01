@@ -35,7 +35,7 @@ import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
 import net.bluemind.core.container.api.ICrudByIdSupport;
 import net.bluemind.core.container.api.IDataShardSupport;
-import net.bluemind.core.container.api.IRestoreCrudSupport;
+import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
@@ -52,7 +52,7 @@ import net.bluemind.core.container.model.ItemValue;
 @BMApi(version = "3", genericType = VTodo.class)
 @Path("/todolist/{containerUid}")
 public interface ITodoList extends IChangelogSupport, ICountingSupport, ICrudByIdSupport<VTodo>, ISortingSupport,
-		IDataShardSupport, IRestoreCrudSupport<VTodo> {
+		IDataShardSupport, IRestoreItemCrudSupport<VTodo> {
 
 	/**
 	 * List all Tasks of a Todolist container

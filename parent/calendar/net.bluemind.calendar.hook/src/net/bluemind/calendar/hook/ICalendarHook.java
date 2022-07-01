@@ -18,14 +18,16 @@
  */
 package net.bluemind.calendar.hook;
 
-import net.bluemind.calendar.hook.internal.VEventMessage;
-
 public interface ICalendarHook {
 
-	public void onEventCreated(VEventMessage message);
+	default boolean isSynchronous() {
+		return false;
+	}
 
-	public void onEventUpdated(VEventMessage message);
+	void onEventCreated(VEventMessage message);
 
-	public void onEventDeleted(VEventMessage message);
+	void onEventUpdated(VEventMessage message);
+
+	void onEventDeleted(VEventMessage message);
 
 }

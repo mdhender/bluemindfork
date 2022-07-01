@@ -30,7 +30,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
 
 import net.bluemind.core.api.BMApi;
-import net.bluemind.core.container.api.IRestoreCrudSupport;
+import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 import net.bluemind.core.container.model.ItemValue;
 
 /**
@@ -45,7 +45,7 @@ import net.bluemind.core.container.model.ItemValue;
  */
 @BMApi(version = "3")
 @Path("/directory/_ou/{domain}")
-public interface IOrgUnits extends IRestoreCrudSupport<OrgUnit> {
+public interface IOrgUnits extends IRestoreItemCrudSupport<OrgUnit> {
 
 	/**
 	 * Get {@link OrgUnit} by UID

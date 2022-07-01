@@ -3,10 +3,11 @@ package net.bluemind.core.backup.continuous.restore.domains.crud;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.core.backup.continuous.RecordKey;
+import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.container.api.ContainerSubscriptionModel;
 import net.bluemind.core.container.api.IOwnerSubscriptionUids;
-import net.bluemind.core.container.api.IRestoreCrudSupport;
+import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 import net.bluemind.core.container.api.internal.IInternalOwnerSubscriptions;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
@@ -16,10 +17,10 @@ import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.user.api.IInternalUserSubscription;
 
-public class RestoreOwnerSubscriptions extends CrudRestore<ContainerSubscriptionModel> {
+public class RestoreOwnerSubscriptions extends CrudItemRestore<ContainerSubscriptionModel> {
 
-	private static final ValueReader<ItemValue<ContainerSubscriptionModel>> reader = JsonUtils
-			.reader(new TypeReference<ItemValue<ContainerSubscriptionModel>>() {
+	private static final ValueReader<VersionnedItem<ContainerSubscriptionModel>> reader = JsonUtils
+			.reader(new TypeReference<VersionnedItem<ContainerSubscriptionModel>>() {
 			});
 	private final IServiceProvider target;
 	private final IInternalUserSubscription subscriptionApi;
@@ -36,7 +37,7 @@ public class RestoreOwnerSubscriptions extends CrudRestore<ContainerSubscription
 	}
 
 	@Override
-	protected ValueReader<ItemValue<ContainerSubscriptionModel>> reader() {
+	protected ValueReader<VersionnedItem<ContainerSubscriptionModel>> reader() {
 		return reader;
 	}
 
@@ -46,29 +47,26 @@ public class RestoreOwnerSubscriptions extends CrudRestore<ContainerSubscription
 	}
 
 	@Override
-	protected boolean filter(RecordKey key, ItemValue<ContainerSubscriptionModel> item) {
-		return key.owner.equals(item.value.owner);
-	}
-
-	@Override
-	protected void create(IRestoreCrudSupport<ContainerSubscriptionModel> api, RecordKey key,
-			ItemValue<ContainerSubscriptionModel> item) {
+	protected void create(IRestoreItemCrudSupport<ContainerSubscriptionModel> api, RecordKey key,
+			VersionnedItem<ContainerSubscriptionModel> item) {
 		super.create(api, key, item);
 		subscriptionApi.subscribe(key.owner, subscribedContainer(item.value));
 	}
 
 	@Override
-	protected void update(IRestoreCrudSupport<ContainerSubscriptionModel> api, RecordKey key,
-			ItemValue<ContainerSubscriptionModel> item) {
+	protected void update(IRestoreItemCrudSupport<ContainerSubscriptionModel> api, RecordKey key,
+			VersionnedItem<ContainerSubscriptionModel> item) {
 		super.update(api, key, item);
 		subscriptionApi.subscribe(key.owner, subscribedContainer(item.value));
 	}
 
 	@Override
-	protected void delete(IRestoreCrudSupport<ContainerSubscriptionModel> api, RecordKey key, String uid) {
+	protected void delete(IRestoreItemCrudSupport<ContainerSubscriptionModel> api, RecordKey key, String uid) {
 		super.delete(api, key, uid);
 		ContainerSubscriptionModel existing = api.get(uid);
-		subscriptionApi.unsubscribe(key.owner, subscribedContainer(existing));
+		if (existing != null) {
+			subscriptionApi.unsubscribe(key.owner, subscribedContainer(existing));
+		}
 	}
 
 	private ContainerDescriptor subscribedContainer(ContainerSubscriptionModel ownerSubscription) {

@@ -18,6 +18,9 @@
  */
 package net.bluemind.calendar.service.tests;
 
+import static net.bluemind.calendar.service.tests.CalendarTestHook.Action.CREATE;
+import static net.bluemind.calendar.service.tests.CalendarTestHook.Action.DELETE;
+import static net.bluemind.calendar.service.tests.CalendarTestHook.Action.UPDATE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -45,6 +48,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import org.junit.After;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -98,9 +102,7 @@ import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 public class CalendarServiceTests extends AbstractCalendarTests {
 
 	@Test
-	public void testCreate() throws ServerFault {
-		VertxEventChecker<JsonObject> createdMessageChecker = new VertxEventChecker<>(
-				CalendarHookAddress.EVENT_CREATED);
+	public void testCreate() throws ServerFault, InterruptedException {
 
 		VEventSeries event = defaultVEvent();
 		String uid = "test_" + System.nanoTime();
@@ -114,15 +116,13 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
-		Message<JsonObject> message = createdMessageChecker.shouldSuccess();
-		assertNotNull(message);
+		assertEquals(CREATE, CalendarTestSyncHook.action());
+		assertEquals(CREATE, CalendarTestAsyncHook.action());
+		assertNotNull(CalendarTestSyncHook.message());
 	}
 
 	@Test
 	public void testRestoreCreate() throws Exception {
-		VertxEventChecker<JsonObject> createdMessageChecker = new VertxEventChecker<>(
-				CalendarHookAddress.EVENT_CREATED);
-
 		ItemValue<VEventSeries> eventItem = defaultVEventItem(42);
 
 		// test anonymous
@@ -138,15 +138,13 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		ItemValue<VEventSeries> createdItem = api.getComplete(eventItem.uid);
 		assertItemEquals(eventItem, createdItem);
 
-		Message<JsonObject> message = createdMessageChecker.shouldSuccess();
-		assertNotNull(message);
+		assertEquals(CREATE, CalendarTestSyncHook.action());
+		assertEquals(CREATE, CalendarTestAsyncHook.action());
+		assertNotNull(CalendarTestSyncHook.message());
 	}
 
 	@Test
 	public void testCreateWithBrokenRRuleShouldNotPass() throws ServerFault {
-		VertxEventChecker<JsonObject> createdMessageChecker = new VertxEventChecker<>(
-				CalendarHookAddress.EVENT_CREATED);
-
 		VEventSeries event = defaultVEvent();
 		RRule rule = new RRule();
 		rule.frequency = Frequency.SECONDLY;
@@ -174,9 +172,6 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 	@Test
 	public void testCreateIsolatedException() throws ServerFault {
-		VertxEventChecker<JsonObject> createdMessageChecker = new VertxEventChecker<>(
-				CalendarHookAddress.EVENT_CREATED);
-
 		VEventSeries event = new VEventSeries();
 		event.occurrences = Arrays.asList((VEventOccurrence.fromEvent(defaultVEvent().main,
 				BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis()))));
@@ -184,8 +179,9 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
-		Message<JsonObject> message = createdMessageChecker.shouldSuccess();
-		assertNotNull(message);
+		assertEquals(CREATE, CalendarTestSyncHook.action());
+		assertEquals(CREATE, CalendarTestAsyncHook.action());
+		assertNotNull(CalendarTestSyncHook.message());
 	}
 
 	@Test
@@ -337,9 +333,6 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testUpdate() throws ServerFault {
 
-		VertxEventChecker<JsonObject> updatedMessageChecker = new VertxEventChecker<>(
-				CalendarHookAddress.EVENT_UPDATED);
-
 		VEventSeries event = defaultVEvent();
 		String uid = "test_" + System.nanoTime();
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
@@ -354,8 +347,12 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
 
-		Message<JsonObject> message = updatedMessageChecker.shouldSuccess();
-		assertNotNull(message);
+		assertEquals(UPDATE, CalendarTestSyncHook.action());
+		assertEquals(UPDATE, CalendarTestAsyncHook.action());
+		assertNotNull(CalendarTestSyncHook.message());
+
+		CalendarTestSyncHook.reset();
+		CalendarTestAsyncHook.reset();
 
 		List<AccessControlEntry> ace = Arrays.asList(
 				AccessControlEntry.create(userSecurityContext.getSubject(), Verb.All),
@@ -378,16 +375,13 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		getCalendarService(attendee1SecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
 
-		message = updatedMessageChecker.shouldSuccess();
-		assertNotNull(message);
+		assertEquals(UPDATE, CalendarTestSyncHook.action());
+		assertEquals(UPDATE, CalendarTestAsyncHook.action());
+		assertNotNull(CalendarTestSyncHook.message());
 	}
 
 	@Test
 	public void testRestoreUpdate() throws Exception {
-
-		VertxEventChecker<JsonObject> updatedMessageChecker = new VertxEventChecker<>(
-				CalendarHookAddress.EVENT_UPDATED);
-
 		VEventSeries event = defaultVEvent();
 		String uid = "test_" + System.nanoTime();
 		ICalendar userCalApi = getCalendarService(userSecurityContext, userCalendarContainer);
@@ -406,8 +400,13 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		ItemValue<VEventSeries> updatedItem = userCalApi.getComplete(eventItem.uid);
 		assertItemEquals(eventItem, updatedItem);
-		Message<JsonObject> message = updatedMessageChecker.shouldSuccess();
-		assertNotNull(message);
+
+		assertEquals(UPDATE, CalendarTestSyncHook.action());
+		assertEquals(UPDATE, CalendarTestAsyncHook.action());
+		assertNotNull(CalendarTestSyncHook.message());
+
+		CalendarTestSyncHook.reset();
+		CalendarTestAsyncHook.reset();
 
 		List<AccessControlEntry> ace = Arrays.asList(
 				AccessControlEntry.create(userSecurityContext.getSubject(), Verb.All),
@@ -435,8 +434,10 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		ItemValue<VEventSeries> attendee1UpdatedItem = attendee1CalApi.getComplete(eventItem.uid);
 		assertItemEquals(eventItem, attendee1UpdatedItem);
-		message = updatedMessageChecker.shouldSuccess();
-		assertNotNull(message);
+
+		assertEquals(UPDATE, CalendarTestSyncHook.action());
+		assertEquals(UPDATE, CalendarTestAsyncHook.action());
+		assertNotNull(CalendarTestSyncHook.message());
 	}
 
 	private static <T> void assertItemEquals(ItemValue<T> expected, ItemValue<T> actual) {
@@ -450,10 +451,6 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 	@Test
 	public void testDelete() throws ServerFault {
-
-		VertxEventChecker<JsonObject> deletedMessageChecker = new VertxEventChecker<>(
-				CalendarHookAddress.EVENT_DELETED);
-
 		VEventSeries event = defaultVEvent();
 		// add attendee1
 		Attendee attendee = Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
@@ -482,8 +479,9 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		vevent = getCalendarService(attendee1SecurityContext, attendee1CalendarContainer).getComplete(uid);
 		assertNull(vevent);
 
-		Message<JsonObject> message = deletedMessageChecker.shouldSuccess();
-		assertNotNull(message);
+		assertEquals(DELETE, CalendarTestSyncHook.action());
+		assertEquals(DELETE, CalendarTestAsyncHook.action());
+		assertNotNull(CalendarTestSyncHook.message());
 	}
 
 	@Test
@@ -1976,5 +1974,11 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		item.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		item.version = 17;
 		return ItemValue.create(item, defaultVEvent());
+	}
+
+	@After
+	public void tearDown() {
+		CalendarTestSyncHook.reset();
+		CalendarTestAsyncHook.reset();
 	}
 }

@@ -18,20 +18,13 @@
  */
 package net.bluemind.deferredaction.service;
 
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
-
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistence.ContainerStore;
-import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.deferredaction.api.IDeferredAction;
-import net.bluemind.deferredaction.service.internal.DeferredActionService;
 
-public class DeferredActionFactory implements ServerSideServiceProvider.IServerSideServiceFactory<IDeferredAction> {
+public class DeferredActionFactory extends DeferredActionBaseFactory
+		implements ServerSideServiceProvider.IServerSideServiceFactory<IDeferredAction> {
 
 	@Override
 	public Class<IDeferredAction> factoryClass() {
@@ -44,19 +37,7 @@ public class DeferredActionFactory implements ServerSideServiceProvider.IServerS
 			throw new ServerFault("wrong number of instance parameters");
 		}
 
-		DataSource dataSource = DataSourceRouter.get(context, params[0]);
-		ContainerStore containerStore = new ContainerStore(context, dataSource, context.getSecurityContext());
-		Container container = null;
-		try {
-			container = containerStore.get(params[0]);
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
-		}
-		if (container == null) {
-			throw new ServerFault("container " + params[0] + " not found");
-		}
-
-		return new DeferredActionService(container, dataSource, context);
+		return getService(context, params[0]);
 	}
 
 }

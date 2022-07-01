@@ -11,6 +11,8 @@ import io.vertx.core.Handler;
 import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.restore.IClonePhaseObserver;
 import net.bluemind.core.backup.continuous.restore.ISeppukuAckListener;
+import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreCalendarView;
+import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreDeferredAction;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreDevice;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreMailboxIdentity;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreMailflow;
@@ -52,6 +54,7 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 				new RestoreFlatHierarchy(log, domain, target), //
 				new RestoreVCard(log, domain, target), //
 				new RestoreVEventSeries(log, domain, target), //
+				new RestoreDeferredAction(log, domain, target), //
 				new RestoreVTodo(log, domain, target), //
 				new RestoreVNote(log, domain, target), //
 				new RestoreMembership(log, domain, target), //
@@ -67,7 +70,8 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 				new RestoreUserAccounts(log, domain, target), //
 				new RestoreMailboxIdentity(log, domain, target), //
 				new RestoreUserMailIdentities(log, domain, target), //
-				new RestoreWebAppData(log, domain, target)) //
+				new RestoreWebAppData(log, domain, target), //
+				new RestoreCalendarView(log, domain, target)) // //
 				.stream().collect(Collectors.toMap(RestoreDomainType::type, Function.identity()));
 	}
 
@@ -77,7 +81,7 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 		String payload = new String(event.payload);
 		if (restore != null && !skip.contains(event.key.type)) {
 			try {
-				log.debug("[{}:{}] Processing {}", event.part, event.offset, event.key);
+				log.debug("[{}:{}] Processing {}\n {}", event.part, event.offset, event.key, payload);
 				restore.restore(event.key, payload);
 			} catch (Throwable e) {
 				log.failure(restore.type(), event.key, payload, e);

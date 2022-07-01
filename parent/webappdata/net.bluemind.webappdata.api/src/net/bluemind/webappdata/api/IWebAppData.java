@@ -33,7 +33,7 @@ import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICrudSupport;
 import net.bluemind.core.container.api.IDataShardSupport;
 import net.bluemind.core.container.api.IReadByIdSupport;
-import net.bluemind.core.container.api.IRestoreCrudSupport;
+import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 import net.bluemind.core.container.model.ItemValue;
 
 /**
@@ -48,7 +48,7 @@ import net.bluemind.core.container.model.ItemValue;
 @BMApi(version = "3", genericType = WebAppData.class)
 @Path("/webappdata/{containerUid}")
 public interface IWebAppData extends IChangelogSupport, IDataShardSupport, ICrudSupport<WebAppData>,
-		IRestoreCrudSupport<WebAppData>, IReadByIdSupport<WebAppData> {
+		IRestoreItemCrudSupport<WebAppData>, IReadByIdSupport<WebAppData> {
 
 	@GET
 	@Path("key/{key}")

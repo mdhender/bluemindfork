@@ -186,6 +186,13 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 
 	@Override
 	public void create(String uid, CalendarDescriptor descriptor) throws ServerFault {
+		ItemValue<CalendarDescriptor> item = ItemValue.create(uid, descriptor);
+		create(item);
+	}
+
+	private void create(ItemValue<CalendarDescriptor> item) throws ServerFault {
+		String uid = item.uid;
+		CalendarDescriptor descriptor = item.value;
 		sanitizer.create(descriptor);
 		validator.create(descriptor);
 		IDirectory dir = context.provider().instance(IDirectory.class, descriptor.domainUid);
@@ -196,8 +203,8 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 
 		if (entry.kind == DirEntry.Kind.DOMAIN) {
 			checkCanManageCalendar(descriptor, DirEntry.Kind.CALENDAR);
-			DirEntryHandlers.byKind(DirEntry.Kind.CALENDAR).create(context, descriptor.domainUid,
-					asDirEntry(uid, descriptor));
+			ItemValue<DirEntry> dirEntryItem = ItemValue.create(item.item(), asDirEntry(uid, descriptor));
+			DirEntryHandlers.byKind(DirEntry.Kind.CALENDAR).create(context, descriptor.domainUid, dirEntryItem);
 			// transmute owner
 			descriptor.owner = uid;
 		} else {
@@ -261,6 +268,13 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 
 	@Override
 	public void update(String uid, CalendarDescriptor descriptor) throws ServerFault {
+		ItemValue<CalendarDescriptor> item = ItemValue.create(uid, descriptor);
+		update(item);
+	}
+
+	private void update(ItemValue<CalendarDescriptor> item) throws ServerFault {
+		String uid = item.uid;
+		CalendarDescriptor descriptor = item.value;
 		CalendarDescriptor old = getComplete(uid);
 
 		if (old == null) {
@@ -281,9 +295,9 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 		}
 
 		checkCanManageCalendar(old, entry.kind);
-		if (entry != null && entry.kind == DirEntry.Kind.CALENDAR) {
-			DirEntryHandlers.byKind(DirEntry.Kind.CALENDAR).update(context, descriptor.domainUid,
-					asDirEntry(uid, descriptor));
+		if (entry.kind == DirEntry.Kind.CALENDAR) {
+			ItemValue<DirEntry> dirEntryItem = ItemValue.create(item.item(), asDirEntry(uid, descriptor));
+			DirEntryHandlers.byKind(DirEntry.Kind.CALENDAR).update(context, descriptor.domainUid, dirEntryItem);
 		}
 
 		ContainerModifiableDescriptor cmd = new ContainerModifiableDescriptor();
@@ -336,8 +350,8 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 		switch (ownerKind) {
 		case USER:
 			if (!rbacManager.forDomain(descriptor.domainUid).forEntry(descriptor.owner).can("Manage")
-					&& (!((context.getSecurityContext().getSubject().equals(descriptor.owner)
-							&& context.getSecurityContext().getContainerUid().equals(descriptor.domainUid))))) {
+					&& (!(context.getSecurityContext().getSubject().equals(descriptor.owner)
+							&& context.getSecurityContext().getContainerUid().equals(descriptor.domainUid)))) {
 				throw new ServerFault("cannot manage this calendar", ErrorCode.PERMISSION_DENIED);
 			}
 			break;
@@ -387,9 +401,9 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 	@Override
 	public void restore(ItemValue<CalendarDescriptor> item, boolean isCreate) {
 		if (isCreate) {
-			create(item.uid, item.value);
+			create(item);
 		} else {
-			update(item.uid, item.value);
+			update(item);
 		}
 	}
 

@@ -3,6 +3,7 @@ package net.bluemind.core.backup.continuous.restore.domains.crud;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.core.backup.continuous.RecordKey;
+import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
@@ -14,8 +15,8 @@ import net.bluemind.user.api.UserMailIdentity;
 
 public class RestoreUserMailIdentities extends CrudRestore<UserMailIdentity> {
 
-	private final ValueReader<ItemValue<UserMailIdentity>> reader = JsonUtils
-			.reader(new TypeReference<ItemValue<UserMailIdentity>>() {
+	private final ValueReader<VersionnedItem<UserMailIdentity>> reader = JsonUtils
+			.reader(new TypeReference<VersionnedItem<UserMailIdentity>>() {
 			});
 
 	private final IServiceProvider target;
@@ -31,7 +32,7 @@ public class RestoreUserMailIdentities extends CrudRestore<UserMailIdentity> {
 	}
 
 	@Override
-	protected ValueReader<ItemValue<UserMailIdentity>> reader() {
+	protected ValueReader<VersionnedItem<UserMailIdentity>> reader() {
 		return reader;
 	}
 
