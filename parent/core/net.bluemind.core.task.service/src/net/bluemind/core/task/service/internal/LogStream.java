@@ -76,6 +76,9 @@ public class LogStream implements ReadStream<Buffer>, Stream {
 	}
 
 	private void fetchPending() {
+		if (handler == null) {
+			return;
+		}
 		try {
 			JsonObject data = null;
 			while ((data = sub.fetchOne()) != null) {
