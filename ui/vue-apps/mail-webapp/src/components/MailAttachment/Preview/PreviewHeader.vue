@@ -10,26 +10,28 @@
                         name: part.fileName
                     })
                 "
-                @click="$emit('print')"
+                @click="print"
             >
                 <bm-icon icon="printer" size="lg" />
             </bm-button>
             <bm-button
+                :href="downloadUrl"
                 variant="simple-neutral"
+                :download="part.fileName"
+                class="d-flex align-items-center"
                 :title="
                     $t('mail.content.download', {
                         fileType: $t('mail.content.' + fileTypeIcon),
                         name: part.fileName
                     })
                 "
-                @click="$emit('download')"
             >
                 <bm-icon icon="download" size="lg" />
             </bm-button>
             <bm-button
                 variant="simple-neutral"
                 :title="$t('mail.content.open-new-tab', { name: part.fileName })"
-                @click="$emit('open')"
+                @click="open"
             >
                 <bm-icon icon="popup" size="lg" />
             </bm-button>
@@ -56,7 +58,7 @@
 
 <script>
 import { BmButtonClose, BmIcon, BmButton, BmButtonToolbar } from "@bluemind/styleguide";
-import { MimeType } from "@bluemind/email";
+import { MimeType, getPartDownloadUrl } from "@bluemind/email";
 import PreviewAttachmentHeader from "./PreviewAttachmentHeader";
 import PreviewMessageHeader from "./PreviewMessageHeader";
 
@@ -77,6 +79,23 @@ export default {
     computed: {
         fileTypeIcon() {
             return MimeType.matchingIcon(this.part.mime);
+        },
+        downloadUrl() {
+            return (
+                this.part.url ||
+                getPartDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.part)
+            );
+        }
+    },
+    methods: {
+        open() {
+            window.open(this.downloadUrl);
+        },
+
+        print() {
+            const win = window.open(this.downloadUrl);
+            win.addEventListener("afterprint", () => win.close());
+            win.addEventListener("load", () => win.print());
         }
     }
 };

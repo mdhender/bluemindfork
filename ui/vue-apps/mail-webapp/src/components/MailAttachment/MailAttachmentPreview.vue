@@ -16,9 +16,6 @@
                 @close="$refs.modal.hide()"
                 @previous="previous"
                 @next="next"
-                @print="print(context.attachment)"
-                @download="download(context.attachment)"
-                @open="open(context.attachment)"
             />
             <div class="content">
                 <bm-collapse v-model="expanded" :class="{ 'd-none': true, 'd-lg-block': expanded }">
@@ -34,7 +31,6 @@
 <script>
 import { mapMutations } from "vuex";
 import { BmCollapse, BmModal } from "@bluemind/styleguide";
-import { getPartDownloadUrl, getPartPreviewUrl } from "@bluemind/email";
 
 import { SET_PREVIEW_PART_ADDRESS } from "~/mutations";
 import PreviewAttachment from "./Preview/PreviewAttachment";
@@ -98,29 +94,6 @@ export default {
                 const attachment = this.message.attachments[index];
                 this.SET_PREVIEW_PART_ADDRESS(attachment.address);
             }
-        },
-        print(attachment) {
-            const win = window.open(this.getDownloadUrl(attachment));
-            win.addEventListener("afterprint", () => win.close());
-            win.addEventListener("load", () => win.print());
-        },
-        download(attachment) {
-            window.open(this.getDownloadUrl(attachment));
-        },
-        open(attachment) {
-            window.open(this.getPreviewUrl(attachment));
-        },
-        getDownloadUrl(attachment) {
-            return (
-                attachment.url ||
-                getPartDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, attachment)
-            );
-        },
-        getPreviewUrl(attachment) {
-            return (
-                attachment.url ||
-                getPartPreviewUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, attachment)
-            );
         }
     }
 };
