@@ -37,13 +37,19 @@
             </bm-button>
             <bm-button
                 variant="simple-neutral"
+                :disabled="message.attachments.length <= 1"
                 tab-index="0"
                 :title="$t('mail.preview.previous')"
                 @click="$emit('previous')"
             >
                 <bm-icon icon="chevron-left" size="lg" />
             </bm-button>
-            <bm-button variant="simple-neutral" :title="$t('mail.preview.next')" @click="$emit('next')">
+            <bm-button
+                variant="simple-neutral"
+                :title="$t('mail.preview.next')"
+                :disabled="message.attachments.length <= 1"
+                @click="$emit('next')"
+            >
                 <bm-icon icon="chevron-right" size="lg" />
             </bm-button>
             <bm-button-close class="mx-2" size="lg" :title="$t('common.close_window')" @click="$emit('close')" />
