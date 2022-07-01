@@ -127,12 +127,12 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 
 	@Override
 	public void delete(String uid) {
-		BodiesCache.bodies.invalidate(uid);
 		try {
 			bodyStore.delete(uid);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+		BodiesCache.bodies.invalidate(uid);
 	}
 
 	public MessageBody getComplete(String uid) {

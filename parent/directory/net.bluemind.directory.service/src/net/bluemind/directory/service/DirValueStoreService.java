@@ -127,6 +127,7 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 		entryStore.delete(item);
 		documentStore.delete(getPhotoUid(item.uid));
 		documentStore.delete(getIconUid(item.uid));
+		cache.invalidate(item.uid);
 	}
 
 	public void setRoles(String uid, Set<String> roles) throws ServerFault {
@@ -211,18 +212,18 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 
 	public void update(String uid, T value) throws ServerFault {
 		DirEntry dirEntry = adapter.asDirEntry(container.domainUid, uid, value);
-		cache.invalidate(uid);
 		update(uid, dirEntry.displayName, new DirEntryAndValue<>(dirEntry, value,
 				vcardAdapter.asVCard(domain, uid, value), asMailbox(container.domainUid, uid, value)));
+		cache.invalidate(uid);
 	}
 
 	public void update(ItemValue<T> itemValue) throws ServerFault {
 		T value = itemValue.value;
 		DirEntry dirEntry = adapter.asDirEntry(container.domainUid, itemValue.uid, value);
-		cache.invalidate(itemValue.uid);
 		update(itemValue.item(), dirEntry.displayName,
 				new DirEntryAndValue<>(dirEntry, value, vcardAdapter.asVCard(domain, itemValue.uid, value),
 						asMailbox(container.domainUid, itemValue.uid, value)));
+		cache.invalidate(itemValue.uid);
 	}
 
 	public ItemValue<T> get(String uid) throws ServerFault {
@@ -349,14 +350,15 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 
 	@Override
 	public ItemVersion delete(String uid) throws ServerFault {
+		ItemVersion deleted = super.delete(uid);
 		cache.invalidate(uid);
-		return super.delete(uid);
+		return deleted;
 	}
 
 	@Override
 	public void deleteAll() throws ServerFault {
-		cache.invalidateAll();
 		super.deleteAll();
+		cache.invalidateAll();
 	}
 
 }

@@ -100,6 +100,7 @@ public class DomainSettingsService implements IDomainSettings, IInCoreDomainSett
 		}
 
 		domainSettingsStoreService.update(domainUid, null, newDomainSettings);
+		cache.invalidate(domainUid);
 
 		IDomains domainService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
 		ItemValue<Domain> domain = domainService.get(domainUid);

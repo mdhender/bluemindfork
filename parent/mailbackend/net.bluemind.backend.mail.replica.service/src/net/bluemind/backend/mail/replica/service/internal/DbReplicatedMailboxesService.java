@@ -170,7 +170,6 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		// is it root ??? should we drop the subtree ?
 		ItemVersion deleted = storeService.delete(uid);
 		if (deleted != null) {
-			MboxReplicasCache.invalidate(uid);
 			String toDelete = IMailReplicaUids.mboxRecords(uid);
 			if (recordsApi != null) {
 				logger.info("Purge records in {} {}...", uid, toDelete);
@@ -183,6 +182,7 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 			}
 
 			context.provider().instance(IContainers.class).delete(toDelete);
+			MboxReplicasCache.invalidate(uid);
 
 			EmitReplicationEvents.subtreeUpdated(container.uid, container.owner,
 					ItemIdentifier.of(uid, deleted.id, deleted.version));

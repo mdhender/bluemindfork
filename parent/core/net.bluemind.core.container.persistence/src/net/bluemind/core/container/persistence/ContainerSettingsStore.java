@@ -89,21 +89,20 @@ public class ContainerSettingsStore extends JdbcAbstractStore {
 	}
 
 	public void setSettings(Map<String, String> settings) throws SQLException {
-		cachedSettings.invalidate(cacheKey);
 		String query = "UPDATE t_container_settings set settings = ? where container_id = ?";
 		update(query, settings, statementValues, new Object[] { container.id });
+		cachedSettings.invalidate(cacheKey);
 	}
 
 	public void mutateSettings(Map<String, String> mutatedValues) throws SQLException {
-		cachedSettings.invalidate(cacheKey);
 		String query = "UPDATE t_container_settings set settings = settings || ? where container_id = ?";
-
 		update(query, mutatedValues, statementValues, new Object[] { container.id });
+		cachedSettings.invalidate(cacheKey);
 	}
 
 	public void delete() throws SQLException {
-		cachedSettings.invalidate(cacheKey);
 		delete("DELETE FROM t_container_settings WHERE container_id = ?", new Object[] { container.id });
+		cachedSettings.invalidate(cacheKey);
 	}
 
 }

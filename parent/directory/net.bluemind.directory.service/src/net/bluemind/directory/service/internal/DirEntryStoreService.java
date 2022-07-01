@@ -170,14 +170,16 @@ public class DirEntryStoreService extends BaseDirStoreService<DirEntry> {
 
 	@Override
 	public ItemVersion update(String uid, String displayName, DirEntry value) throws ServerFault {
+		ItemVersion updated = super.update(uid, displayName, value);
 		cache.invalidate(uid);
-		return super.update(uid, displayName, value);
+		return updated;
 	}
 
 	@Override
 	public ItemVersion delete(String uid) throws ServerFault {
+		ItemVersion deleted = super.delete(uid);
 		cache.invalidate(uid);
-		return super.delete(uid);
+		return deleted;
 	}
 
 	@Override
