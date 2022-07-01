@@ -48,9 +48,7 @@
     "preferences.advanced.reinit_local_data.success": "Données réinitialisées localement",
     "preferences.advanced.reinit_local_data.error": "Erreur lors de la réinitialisation des données locales, veuillez réessayer dans quelques instants.",
 
-    "preferences.calendar.main.working_days": "Jours ouvrés affichés dans le calendrier :",
-    "preferences.calendar.main.working_days.none": "Pas de jour sélectionné",
-    "preferences.calendar.main.working_days.all": "Tous les jours",
+    "preferences.calendar.main.working_days": "Jours ouvrés affichés dans le calendrier",
 
     "preferences.general.date_format": "Format de date",
     "preferences.general.default_application": "Application par défaut",

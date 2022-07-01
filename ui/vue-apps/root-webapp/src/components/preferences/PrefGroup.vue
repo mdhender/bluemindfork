@@ -24,7 +24,6 @@ import PrefFieldCheck from "./fields/PrefFieldCheck";
 import PrefFieldChoice from "./fields/PrefFieldChoice";
 import PrefFieldComboBox from "./fields/PrefFieldComboBox";
 import PrefFieldInput from "./fields/PrefFieldInput";
-import PrefFieldMultiSelect from "./fields/PrefFieldMultiSelect";
 import PrefFieldSelect from "./fields/PrefFieldSelect";
 import PrefFieldSwitch from "./fields/PrefFieldSwitch";
 
@@ -55,6 +54,7 @@ import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
 import PrefResetLocalData from "./fields/customs/PrefResetLocalData";
 import PrefTags from "./fields/customs/Tags/PrefTags";
 import PrefWorkHours from "./fields/customs/PrefWorkHours";
+import PrefWorkingDays from "./fields/customs/PrefWorkingDays";
 import PrefSwitchWebmail from "./fields/customs/PrefSwitchWebmail";
 import PrefEntryName from "./PrefEntryName";
 
@@ -70,7 +70,6 @@ export default {
         PrefFieldChoice,
         PrefFieldComboBox,
         PrefFieldInput,
-        PrefFieldMultiSelect,
         PrefFieldSelect,
         PrefFieldSwitch,
         PrefAllDayEventReminder,
@@ -100,7 +99,8 @@ export default {
         PrefResetLocalData,
         PrefSwitchWebmail,
         PrefTags,
-        PrefWorkHours
+        PrefWorkHours,
+        PrefWorkingDays
     },
     mixins: [Navigation],
     props: {

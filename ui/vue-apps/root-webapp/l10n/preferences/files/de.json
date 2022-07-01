@@ -49,8 +49,6 @@
     "preferences.advanced.reinit_local_data.error": "Fehler beim Zurücksetzen der lokalen Daten. bitte versuchen Sie es in einigen Minuten nochmals.",
 
     "preferences.calendar.main.working_days": "Tage, die als Arbeitstage im Kalender angezeigt werden",
-    "preferences.calendar.main.working_days.none": "Keine Tage ausgewählt",
-    "preferences.calendar.main.working_days.all": "Alle Tage",
 
     "preferences.general.date_format": "Datumsformat",
     "preferences.general.default_application": "Standard Anwendung",

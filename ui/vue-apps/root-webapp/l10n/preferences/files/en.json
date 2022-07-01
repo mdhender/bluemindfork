@@ -48,9 +48,7 @@
     "preferences.advanced.reinit_local_data.success": "Local data successfully reset",
     "preferences.advanced.reinit_local_data.error": "Error while resetting local data, please try again in a moment.",
 
-    "preferences.calendar.main.working_days": "Working days as displayed in the agenda:",
-    "preferences.calendar.main.working_days.none": "No days selected",
-    "preferences.calendar.main.working_days.all": "All days",
+    "preferences.calendar.main.working_days": "Working days as displayed in the agenda",
 
     "preferences.general.date_format": "Date format",
     "preferences.general.default_application": "Default application",

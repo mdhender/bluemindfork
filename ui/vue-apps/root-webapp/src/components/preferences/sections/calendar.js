@@ -86,22 +86,19 @@ function mainCategory(i18n) {
                     {
                         id: "working_days",
                         component: {
-                            name: "PrefFieldMultiSelect",
+                            name: "PrefWorkingDays",
                             options: {
                                 setting: "working_days",
                                 needReload: true,
-                                label: i18n.t("preferences.calendar.main.working_days"),
                                 choices: [
-                                    { value: "mon", text: i18n.t("common.monday") },
-                                    { value: "tue", text: i18n.t("common.tuesday") },
-                                    { value: "wed", text: i18n.t("common.wednesday") },
-                                    { value: "thu", text: i18n.t("common.thursday") },
-                                    { value: "fri", text: i18n.t("common.friday") },
-                                    { value: "sat", text: i18n.t("common.saturday") },
-                                    { value: "sun", text: i18n.t("common.sunday") }
-                                ],
-                                selectAllLabel: i18n.t("preferences.calendar.main.working_days.all"),
-                                placeholder: i18n.t("preferences.calendar.main.working_days.none")
+                                    { value: "mon", text: i18n.t("common.monday_short") },
+                                    { value: "tue", text: i18n.t("common.tuesday_short") },
+                                    { value: "wed", text: i18n.t("common.wednesday_short") },
+                                    { value: "thu", text: i18n.t("common.thursday_short") },
+                                    { value: "fri", text: i18n.t("common.friday_short") },
+                                    { value: "sat", text: i18n.t("common.saturday_short") },
+                                    { value: "sun", text: i18n.t("common.sunday_short") }
+                                ]
                             }
                         }
                     }
