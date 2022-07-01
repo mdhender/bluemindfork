@@ -87,6 +87,7 @@ public class LogStream implements ReadStream<Buffer>, Stream {
 				if (paused) { // NOSONAR: set from another thread
 					break;
 				}
+				checkStreamEnd(data);
 			}
 		} catch (Throwable e) {// NOSONAR
 			if (exceptionHandler != null) {
@@ -97,9 +98,16 @@ public class LogStream implements ReadStream<Buffer>, Stream {
 		}
 	}
 
+	private void checkStreamEnd(JsonObject data) {
+		if (!ended && Boolean.TRUE.equals(data.getBoolean("end", false))) {
+			ended = true;
+		}
+	}
+
 	private void ended() {
 		if (endHandler != null) {
 			endHandler.handle(null);
+			endHandler = null;
 		}
 	}
 
@@ -125,7 +133,8 @@ public class LogStream implements ReadStream<Buffer>, Stream {
 	@Override
 	public LogStream endHandler(Handler<Void> endHandler) {
 		this.endHandler = endHandler;
-		return null;
+		read();
+		return this;
 	}
 
 	public void wakeUp() {

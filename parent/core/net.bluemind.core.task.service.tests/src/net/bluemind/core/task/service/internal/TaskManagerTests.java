@@ -22,11 +22,19 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -45,16 +53,94 @@ public class TaskManagerTests {
 	private TasksManager taskManager;
 
 	@Before
-	public void before() {
+	public void before() throws IOException {
 		taskManager = new TasksManager(VertxPlatform.getVertx());
+
+		Path directory = Paths.get("/var/cache/bm-core/tasks-queues");
+		Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				Files.delete(file);
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+				Files.delete(dir);
+				return FileVisitResult.CONTINUE;
+			}
+		});
+	}
+
+	@After
+	public void after() {
+		System.err.println("After test.");
 	}
 
 	@Test
 	public void repeatFailures() throws Exception {
-		for (int i = 0; i < 64; i++) {
+		for (int i = 0; i < 1024; i++) {
 			System.err.println("start task " + i);
-			testFailingTaskLog();
+			try {
+				testFailingTaskLog();
+				System.err.println("task " + i + " ends.");
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw e;
+			}
 		}
+
+	}
+
+	@Test
+	public void testLogStreamOnFinishedTask() throws Exception {
+
+		final CountDownLatch cdl = new CountDownLatch(1);
+		IServerTask serverTask = new IServerTask() {
+
+			@Override
+			public void run(IServerTaskMonitor monitor) {
+				monitor.begin(5, "begin");
+				throw new NullPointerException("null me dude");
+			}
+		};
+		TaskRef taskRef = taskManager.run(serverTask);
+
+		TaskManager task = taskManager.getTaskManager(taskRef.id);
+		assertNotNull(task);
+
+		Thread.sleep(500);
+
+		ReadStream<Buffer> reader = task.log();
+		final List<JsonObject> result = new ArrayList<>();
+
+		reader.handler((Buffer event) -> {
+			result.add(new JsonObject(event.toString()));
+		});
+
+		reader.endHandler(new Handler<Void>() {
+
+			@Override
+			public void handle(Void event) {
+				cdl.countDown();
+			}
+		});
+
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+
+		}
+
+		assertEquals(2, result.size());
+
+		assertEquals("begin", result.get(0).getString("message"));
+
+		assertTrue(result.get(1).getBoolean("end"));
+
+		assertNotNull(task.status());
+		assertEquals(TaskStatus.State.InError, task.status().state);
+		task.cleanUp();
 	}
 
 	@Test
