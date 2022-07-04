@@ -17,6 +17,7 @@ import { removeSignature, removeSignatureAttr } from "./signature";
 
 export const TEMPORARY_MESSAGE_ID = 0;
 let DRAFT_HASH = 0;
+let LAST_GENERATED_NEW_MESSAGE_KEY;
 
 export function isNewMessage({ remoteRef: { internalId } }) {
     return internalId === TEMPORARY_MESSAGE_ID;
@@ -27,7 +28,9 @@ export function draftKey(myDrafts) {
 }
 
 // FIXME remove once we use 'real' message ids for new message
-export let FIXME_NEW_DRAFT_KEY;
+export function getLastGeneratedNewMessageKey() {
+    return LAST_GENERATED_NEW_MESSAGE_KEY;
+}
 
 export function createEmpty(folder) {
     const metadata = {
@@ -35,8 +38,8 @@ export function createEmpty(folder) {
         folder: { key: folder.key, uid: folder.remoteRef.uid }
     };
     const message = createMessage(metadata);
-    FIXME_NEW_DRAFT_KEY = messageKey(--DRAFT_HASH, folder.key);
-    message.key = FIXME_NEW_DRAFT_KEY;
+    LAST_GENERATED_NEW_MESSAGE_KEY = messageKey(--DRAFT_HASH, folder.key);
+    message.key = LAST_GENERATED_NEW_MESSAGE_KEY;
 
     message.date = new Date();
     message.flags = [Flag.SEEN];
@@ -404,8 +407,8 @@ export default {
     draftKey,
     findIdentityFromMailbox,
     findReplyOrForwardContentNode,
-    FIXME_NEW_DRAFT_KEY,
     getEditorContent,
+    getLastGeneratedNewMessageKey,
     handleSeparator,
     isEditorContentEmpty,
     isNewMessage,

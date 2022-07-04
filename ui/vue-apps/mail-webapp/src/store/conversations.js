@@ -51,7 +51,7 @@ import { withAlert } from "./helpers/withAlert";
 import apiFolders from "./api/apiFolders";
 import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
 
-const { FIXME_NEW_DRAFT_KEY } = draftUtils;
+const { getLastGeneratedNewMessageKey } = draftUtils;
 const { createOnlyMetadata, isFlagged, isUnread, messageKey } = messageUtils;
 const {
     createConversationStub,
@@ -203,7 +203,7 @@ const getters = {
 function reducedMetadata(folderKey, messages) {
     let unreadCount = 0,
         flags = messages.length > 0 ? new Set([Flag.SEEN]) : new Set(),
-        loading = messages.length > 0 ? LoadingStatus.LOADED : LoadingStatus.ERROR,
+        loading = messages.length > 0 ? LoadingStatus.LOADING : LoadingStatus.ERROR,
         hasAttachment = false,
         hasICS = false,
         preview,
@@ -221,8 +221,8 @@ function reducedMetadata(folderKey, messages) {
 
         m.flags?.forEach(flag => [Flag.ANSWERED, Flag.FORWARDED].includes(flag) && flags.add(flag));
 
-        if (!m.composing && (m.loading === LoadingStatus.NOT_LOADED || m.loading === LoadingStatus.LOADING)) {
-            loading = LoadingStatus.LOADING;
+        if (m.composing || (m.loading === LoadingStatus.LOADED && m.folderRef.key === folderKey)) {
+            loading = LoadingStatus.LOADED;
         }
         if (m.hasAttachment) {
             hasAttachment = true;
@@ -301,15 +301,24 @@ async function fetchConversationIfNotLoaded({ commit, state }, { uid, folder, co
 async function fetchConversations({ commit, state }, { conversations, folder, conversationsActivated }) {
     let messages = [];
     if (conversationsActivated) {
+        let newMessage = state.messages[getLastGeneratedNewMessageKey()];
+        newMessage = newMessage && newMessage.composing;
         (await apiConversations.multipleGet(conversations, folder.mailboxRef)).forEach(raw => {
             const key = messageKey(raw.uid, folder.key);
             const conversationRef = { key, uid: raw.uid };
-            messages = [
-                ...messages,
-                ...raw.value.messageRefs.map(({ itemId, folderUid }) =>
-                    createOnlyMetadata({ internalId: itemId, folder: FolderAdaptor.toRef(folderUid), conversationRef })
-                )
-            ];
+            raw.value.messageRefs.forEach(({ itemId, folderUid }) => {
+                if (newMessage?.folderRef.uid === folderUid && newMessage?.remoteRef.internalId === itemId) {
+                    messages.push(newMessage);
+                } else {
+                    messages.push(
+                        createOnlyMetadata({
+                            internalId: itemId,
+                            folder: FolderAdaptor.toRef(folderUid),
+                            conversationRef
+                        })
+                    );
+                }
+            });
         });
     } else {
         conversations.forEach(conversation => {
@@ -322,10 +331,6 @@ async function fetchConversations({ commit, state }, { conversations, folder, co
                 })
             );
         });
-    }
-    if (state.messages[FIXME_NEW_DRAFT_KEY]) {
-        // will put an editing draft back in its conversation (avoid the composer to close due to an update)
-        messages.push(state.messages[FIXME_NEW_DRAFT_KEY]);
     }
     commit(ADD_MESSAGES, { messages, preserve: true });
     // Should be set before multipleGet, but is set after to prevent batch reload of the reactive system.
