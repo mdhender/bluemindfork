@@ -12,7 +12,6 @@
 		<module>net.bluemind.maintenance</module>
 		<module>net.bluemind.maintenance.job</module>
 		<module>net.bluemind.maintenance.postgresql</module>
-		<module>net.bluemind.maintenance.elastic</module>
 		<module>net.bluemind.maintenance.tests</module>
 	</modules>
 </project>
