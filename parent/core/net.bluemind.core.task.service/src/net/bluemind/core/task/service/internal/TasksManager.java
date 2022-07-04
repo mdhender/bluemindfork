@@ -78,7 +78,9 @@ public class TasksManager implements ITasksManager {
 				if (manager != null) {
 					manager.handle(msg);
 				} else {
-					logger.error("[{}] task manager not found", taskId);
+					if (logger.isDebugEnabled()) {
+						logger.debug("[{}] task manager not found", taskId);
+					}
 				}
 			});
 		}

@@ -32,11 +32,13 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.service.internal.ISubscriber;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.openhft.chronicle.core.io.AbstractReferenceCounted;
 import net.openhft.chronicle.queue.ExcerptAppender;
 import net.openhft.chronicle.queue.ExcerptTailer;
 import net.openhft.chronicle.queue.impl.single.SingleChronicleQueue;
@@ -48,9 +50,14 @@ public class PersistentQueue implements AutoCloseable {
 
 	private static final Logger logger = LoggerFactory.getLogger(PersistentQueue.class);
 
-	private static final ExecutorService TAIL_LOOP = Executors.newSingleThreadExecutor();
+	private static final ExecutorService TAIL_LOOP = Executors
+			.newSingleThreadExecutor(new DefaultThreadFactory("cq-tail-loop"));
 
 	private static final AtomicLong uid = new AtomicLong();
+
+	static {
+		AbstractReferenceCounted.disableReferenceTracing();
+	}
 
 	public static PersistentQueue createFor(String taskId) {
 		File root = new File(QUEUES_ROOT);
@@ -65,10 +72,13 @@ public class PersistentQueue implements AutoCloseable {
 	private final String tid;
 	private final long subId;
 
+	private final ExcerptAppender appender;
+
 	private PersistentQueue(String tid, long id, SingleChronicleQueue queue) {
 		this.tid = tid;
 		this.subId = id;
 		this.queue = queue;
+		this.appender = onCqThread(queue::acquireAppender).join();
 	}
 
 	@Override
@@ -83,8 +93,13 @@ public class PersistentQueue implements AutoCloseable {
 			}
 			return;
 		}
-		try (ExcerptAppender appender = queue.acquireAppender()) {
-			appender.writeText(js.encode());
+		try {
+			onCqThread(() -> {
+				appender.writeText(js.encode());
+				return null;
+			}).get(10, TimeUnit.SECONDS);
+		} catch (Exception e) { // NOSONAR
+			throw ServerFault.create(ErrorCode.TIMEOUT, e);
 		}
 	}
 
@@ -180,6 +195,7 @@ public class PersistentQueue implements AutoCloseable {
 	@Override
 	public void close() {
 		File toDelete = queue.file();
+		appender.close();
 		queue.close();
 		VertxPlatform.getVertx().executeBlocking(prom -> {
 			try {

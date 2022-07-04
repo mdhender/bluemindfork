@@ -32,13 +32,16 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
@@ -57,6 +60,7 @@ public class TaskManagerTests {
 		taskManager = new TasksManager(VertxPlatform.getVertx());
 
 		Path directory = Paths.get("/var/cache/bm-core/tasks-queues");
+		directory.toFile().mkdirs();
 		Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -141,6 +145,62 @@ public class TaskManagerTests {
 		assertNotNull(task.status());
 		assertEquals(TaskStatus.State.InError, task.status().state);
 		task.cleanUp();
+	}
+
+	@Test
+	public void testManyActiveTasks() {
+		int cnt = 2048;
+		final CountDownLatch cdl = new CountDownLatch(cnt);
+		CompletableFuture<Void> endTask = new CompletableFuture<>();
+		AtomicLong msgs = new AtomicLong();
+
+		for (int i = 0; i < cnt; i++) {
+			String taskId = "tsk_" + i;
+			IServerTask serverTask = new IServerTask() {
+
+				private void logLoop(Vertx vx, IServerTaskMonitor monitor) {
+					vx.setTimer(10, tid -> {
+						monitor.log(taskId + " is alive: Lorem ipsum dolor sit amet, "
+								+ "consectetur adipiscing elit. Donec ut porttitor neque. "
+								+ "In mattis sagittis lobortis.");
+						if (!endTask.isDone()) {
+							logLoop(vx, monitor);
+						} else {
+							monitor.progress(5, null);
+							monitor.end(true, "gg " + tid, "yeah");
+						}
+					});
+				}
+
+				@Override
+				public void run(IServerTaskMonitor monitor) {
+					monitor.begin(5, "begin");
+					logLoop(VertxPlatform.getVertx(), monitor);
+				}
+			};
+			TaskRef taskRef = taskManager.run(serverTask);
+
+			TaskManager task = taskManager.getTaskManager(taskRef.id);
+			assertNotNull(task);
+
+			ReadStream<Buffer> reader = task.log();
+			reader.handler(b -> msgs.incrementAndGet());
+			reader.endHandler(v -> cdl.countDown());
+
+		}
+		while (msgs.get() < 500_000) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+			}
+			System.err.println("Tasks logs have fetched " + msgs.get() + " message(s)");
+		}
+		endTask.complete(null);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+
+		}
 	}
 
 	@Test
