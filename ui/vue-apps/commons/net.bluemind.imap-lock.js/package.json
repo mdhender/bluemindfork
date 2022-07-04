@@ -1,0 +1,8 @@
+{
+    "name": "@bluemind/imap-lock",
+    "version": "4.1.0",
+    "description": "BlueMind package to share an imap lock between JS files",
+    "license": "AGPL-3.0-only",
+    "author": "Blue Mind SAS",
+    "main": "src/index.js"
+}

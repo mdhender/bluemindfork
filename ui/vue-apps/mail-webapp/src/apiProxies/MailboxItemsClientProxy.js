@@ -1,9 +1,10 @@
 import { MailboxItemsClient } from "@bluemind/backend.mail.api";
 import { ItemFlag } from "@bluemind/core.container.api";
+import imapLock from "@bluemind/imap-lock";
 
-let lock = Promise.resolve();
+let lock = imapLock;
 
-export class MailboxItemsClientProxy extends MailboxItemsClient {
+export default class extends MailboxItemsClient {
     addFlag() {
         lock = lock.catch(() => {}).then(() => super.addFlag(...arguments));
         return lock;

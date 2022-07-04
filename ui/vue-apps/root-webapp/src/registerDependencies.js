@@ -33,9 +33,7 @@ import {
 } from "@bluemind/user.api";
 import { ExternalSystemClient } from "@bluemind/system.api";
 import VueBus from "@bluemind/vue-bus";
-import { MailboxesClientProxy } from "./api/MailboxesClientProxy";
-import { MailboxFoldersClientProxy } from "./api/MailboxFoldersClientProxy";
-import { UserSettingsClientProxy } from "./api/UserSettingsClientProxy";
+import { MailboxesClientProxy, MailboxFoldersClientProxy, UserSettingsClientProxy } from "./apiProxies";
 import { WebAppDataClient } from "@bluemind/webappdata.api";
 
 export default function (userSession) {
