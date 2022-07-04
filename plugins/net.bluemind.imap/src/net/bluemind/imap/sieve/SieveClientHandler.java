@@ -38,15 +38,20 @@ public class SieveClientHandler extends IoHandlerAdapter {
 	}
 
 	public SieveClientHandler() {
+		// ok
 	}
 
+	@Override
 	public void sessionCreated(IoSession session) throws Exception {
 		session.getFilterChain().addLast("codec", getSieveFilter());
 	}
 
+	@Override
 	public void sessionOpened(IoSession session) throws Exception {
+		// ok
 	}
 
+	@Override
 	public void messageReceived(IoSession session, Object message) throws Exception {
 		SieveMessage msg = (SieveMessage) message;
 		SieveResponse response = srp.parse(msg);
@@ -57,6 +62,7 @@ public class SieveClientHandler extends IoHandlerAdapter {
 		return (SieveClientSupport) session.getAttribute("scs");
 	}
 
+	@Override
 	public void sessionClosed(IoSession session) throws Exception {
 		scs(session).sessionClosed();
 		session.removeAttribute("scs");

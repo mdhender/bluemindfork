@@ -96,7 +96,7 @@ public class SieveClient implements AutoCloseable {
 		public final String password;
 		public final String host;
 		public final int port;
-		private final static int DEFAULT_PORT = 2000;
+		private static final int DEFAULT_PORT = 2000;
 
 		public SieveConnectionData(String login, String authname, String password, String host, int port) {
 			this.login = login;

@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.core.session.IoSessionInitializer;
 import org.apache.mina.transport.socket.SocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,12 +64,9 @@ public class SieveClientSupport {
 			// "STARTTLS"
 			// OK
 			synchronized (this) {
-				ConnectFuture cf = connector.connect(sa, new IoSessionInitializer<ConnectFuture>() {
-					@Override
-					public void initializeSession(IoSession session, ConnectFuture future) {
-						logger.debug("init sieve client session");
-						session.setAttribute("scs", SieveClientSupport.this);
-					}
+				ConnectFuture cf = connector.connect(sa, (IoSession session, ConnectFuture future) -> {
+					logger.debug("init sieve client session");
+					session.setAttribute("scs", SieveClientSupport.this);
 				});
 
 				this.wait(WAIT_SYNC);
@@ -86,7 +82,7 @@ public class SieveClientSupport {
 
 			return run(authenticate);
 		} catch (Exception e) {
-			logger.error("login error", e);
+			logger.error("login error: {}", e.getMessage());
 			return false;
 		}
 	}
@@ -95,10 +91,11 @@ public class SieveClientSupport {
 		logger.debug("logout from sieve\n");
 		synchronized (this) {
 			if (session != null) {
-				session.close(true);
+				session.closeNow();
 				try {
 					this.wait(WAIT_SYNC);
 				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
 				}
 			} else {
 				logger.warn("logout session was null");
@@ -109,7 +106,7 @@ public class SieveClientSupport {
 
 	private <T> T run(SieveCommand<T> cmd) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("running command " + cmd);
+			logger.debug("running command {} ", cmd);
 		}
 		// grab lock, this one should be ok, except on first call
 		// where we might wait for sieve welcome text.
@@ -120,6 +117,7 @@ public class SieveClientSupport {
 				cmd.responseReceived(response());
 
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 			}
 		}
 
@@ -136,7 +134,7 @@ public class SieveClientSupport {
 
 	public void setResponses(SieveResponse copy) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("in setResponses on " + Integer.toHexString(hashCode()));
+			logger.debug("in setResponses on {}", Integer.toHexString(hashCode()));
 		}
 		if (session != null) {
 			session.setAttribute("response", copy);
