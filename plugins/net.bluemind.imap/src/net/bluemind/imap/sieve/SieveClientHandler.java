@@ -71,7 +71,7 @@ public class SieveClientHandler extends IoHandlerAdapter {
 	@Override
 	public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
 		logger.error(cause.getMessage(), cause);
-		throw new SieveException(cause.getMessage(), cause);
+		sessionClosed(session);
 	}
 
 }
