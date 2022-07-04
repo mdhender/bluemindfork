@@ -1,41 +1,38 @@
 <template>
-    <div>
+    <div class="external-share-management">
         <hr />
         <bm-label-icon icon="world" icon-size="lg" class="font-weight-bold mb-2" :inline="false">
             {{ $t("preferences.manage_shares.outside_my_organization") }}
         </bm-label-icon>
         <div v-if="externalShares.length === 0" class="ml-4 mt-3 font-italic">{{ noExternalShareSet }}</div>
-        <template v-for="(external, index) in externalShares" v-else>
-            <bm-row :key="external.token" class="align-items-center mt-2">
-                <div class="col-6">
-                    <bm-contact
-                        v-if="external.vcard"
-                        :contact="VCardInfoAdaptor.toContact(external.vcard)"
-                        transparent
-                        bold-dn
-                        show-address
-                    />
-                    <span v-else class="font-size-lg">{{ displayedLabel(external) }}</span>
-                    <div class="row mr-3 align-items-center">
-                        <div class="text-neutral text-truncate col-8">{{ external.url }}</div>
-                        <div class="col-4 pl-2">
-                            <bm-button v-if="activeCopyBtn === index" variant="success">
-                                <bm-label-icon icon="check">{{ $t("common.copied") }}</bm-label-icon>
-                            </bm-button>
-                            <bm-button
-                                v-else
-                                variant="outline-neutral"
-                                @click="copyLinkInClipboard(external.url, index)"
-                            >
-                                <bm-label-icon icon="copy">{{ $t("common.copy") }}</bm-label-icon>
-                            </bm-button>
-                        </div>
-                    </div>
+        <div v-for="(external, index) in externalShares" v-else :key="external.token" class="share-entry">
+            <div class="share-entry-title">
+                <bm-contact
+                    v-if="external.vcard"
+                    :contact="VCardInfoAdaptor.toContact(external.vcard)"
+                    transparent
+                    bold-dn
+                    show-address
+                />
+                <span v-else class="font-size-lg">{{ displayedLabel(external) }}</span>
+            </div>
+            <bm-row class="share-entry-body">
+                <div class="share-entry-col url-and-copy-button">
+                    <div class="share-url text-truncate">{{ external.url }}</div>
+                    <template>
+                        <bm-button v-if="activeCopyBtn === index" variant="success">
+                            <bm-label-icon icon="check">{{ $t("common.copied") }}</bm-label-icon>
+                        </bm-button>
+                        <bm-button v-else variant="outline-neutral" @click="copyLinkInClipboard(external.url, index)">
+                            <bm-label-icon icon="copy">{{ $t("common.copy") }}</bm-label-icon>
+                        </bm-button>
+                    </template>
                 </div>
-                <div class="col-6 d-flex">
+                <div class="share-entry-col select-and-button">
                     <bm-form-select
                         :value="external.publishMode"
                         :options="publishModeOptions"
+                        :auto-min-width="false"
                         @input="editPublishMode(external)"
                     />
                     <bm-button v-if="canRemoveLink(external)" variant="inline-neutral" @click="removeLink(external)">
@@ -46,7 +43,7 @@
                     </bm-button>
                 </div>
             </bm-row>
-        </template>
+        </div>
     </div>
 </template>
 
@@ -107,3 +104,53 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.external-share-management {
+    .share-entry {
+        margin-bottom: $sp-3;
+
+        .share-entry-title {
+            height: 1.5rem;
+            display: flex;
+            align-items: flex-end;
+
+            .bm-contact {
+                max-width: 100%;
+            }
+        }
+
+        .share-entry-body {
+            .url-and-copy-button {
+                margin: $sp-1 0;
+                display: flex;
+                align-items: center;
+
+                .share-url {
+                    color: $neutral-fg;
+                    flex: 1;
+                    margin-right: $sp-1;
+                }
+                .btn {
+                    flex: none;
+                }
+            }
+
+            .select-and-button {
+                display: flex;
+
+                .bm-form-select {
+                    min-width: 0;
+                    flex: 1;
+                    margin-right: $sp-1;
+                }
+                .btn {
+                    flex: none;
+                }
+            }
+        }
+    }
+}
+</style>

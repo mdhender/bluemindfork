@@ -114,13 +114,8 @@ export default {
     .modal-dialog {
         max-width: 50%;
     }
-    .bm-form-select {
-        width: 100%;
-    }
     .bm-alert-area {
         min-width: 100%;
-    }
-    .bm-alert-area {
         position: absolute;
         bottom: 0;
         left: 0;

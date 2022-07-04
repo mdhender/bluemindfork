@@ -1,6 +1,6 @@
 <template>
     <bm-spinner v-if="isLoading" :size="2" class="d-flex justify-content-center" />
-    <div v-else>
+    <div v-else class="share-management">
         <div class="mb-1">{{ $t("common.share_with") }}</div>
         <bm-form-autocomplete-input
             v-model="searchedInput"
@@ -307,3 +307,24 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.share-management {
+    .share-entry-body {
+        display: flex;
+        align-items: center;
+        gap: 0 $sp-3;
+
+        .share-entry-col {
+            flex: none;
+            width: 100%;
+            min-width: 0;
+            @media (min-width: map-get($grid-breakpoints, "lg")) {
+                flex: 1;
+            }
+        }
+    }
+}
+</style>

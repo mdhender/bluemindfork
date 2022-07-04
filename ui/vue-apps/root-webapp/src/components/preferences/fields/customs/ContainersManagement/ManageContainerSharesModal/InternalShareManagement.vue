@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="internal-share-management">
         <bm-label-icon icon="organization" icon-size="lg" class="font-weight-bold mb-1" :inline="false">
             {{ $t("preferences.manage_shares.inside_my_organization") }}
         </bm-label-icon>
@@ -7,24 +7,34 @@
             <div class="ml-4 mt-3 font-italic">{{ noAclSet }}</div>
         </template>
         <template v-else>
-            <bm-row v-if="!isMailboxType" class="align-items-center">
-                <div class="col-6">{{ $t("preferences.manage_shares.all_users_in_my_organization") }}</div>
-                <div class="col-6">
-                    <bm-form-select :value="domainAcl" :options="shareOptions(true)" @input="onDomainAclChange" />
+            <bm-row v-if="!isMailboxType" class="share-entry-body">
+                <div class="share-entry-col share-user">
+                    {{ $t("preferences.manage_shares.all_users_in_my_organization") }}
                 </div>
+                <bm-form-select
+                    :value="domainAcl"
+                    :options="shareOptions(true)"
+                    :auto-min-width="false"
+                    class="share-entry-col"
+                    @input="onDomainAclChange"
+                />
             </bm-row>
             <template v-for="dirEntry in dirEntriesAcl">
-                <bm-row :key="dirEntry.uid" class="align-items-center mt-2">
-                    <div class="col-6">
-                        <bm-contact :contact="dirEntryToContact(dirEntry)" transparent show-address bold-dn />
-                    </div>
-                    <div class="col-6">
-                        <bm-form-select
-                            :value="dirEntry.acl"
-                            :options="shareOptions()"
-                            @input="value => onDirEntryAclChange(dirEntry.uid, value)"
-                        />
-                    </div>
+                <bm-row :key="dirEntry.uid" class="share-entry-body">
+                    <bm-contact
+                        :contact="dirEntryToContact(dirEntry)"
+                        class="share-entry-col share-user"
+                        transparent
+                        show-address
+                        bold-dn
+                    />
+                    <bm-form-select
+                        :value="dirEntry.acl"
+                        :options="shareOptions()"
+                        :auto-min-width="false"
+                        class="share-entry-col"
+                        @input="value => onDirEntryAclChange(dirEntry.uid, value)"
+                    />
                 </bm-row>
             </template>
         </template>
@@ -84,3 +94,17 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.internal-share-management {
+    .share-entry-body {
+        margin-bottom: $sp-2;
+
+        .share-user {
+            margin: $sp-1 0;
+        }
+    }
+}
+</style>
