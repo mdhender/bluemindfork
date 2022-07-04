@@ -9,10 +9,10 @@
 </template>
 <script>
 import { AlertMixin, DefaultAlert } from "@bluemind/alert.store";
-import { conversations } from "@bluemind/mail";
+import { conversationUtils } from "@bluemind/mail";
 import { mapState } from "vuex";
 
-const { createConversationStub } = conversations;
+const { createConversationStub } = conversationUtils;
 
 export default {
     name: "SendMessage",
