@@ -12,5 +12,11 @@ export default {
             return res[0];
         }
         return null;
+    },
+    extractDN(str) {
+        const end = str?.indexOf("<");
+        if (end > 0) {
+            return str.substring(0, end).trim();
+        }
     }
 };

@@ -189,6 +189,8 @@ export function computeCcRecipients(creationMode, previousMessage) {
 
 // INTERNAL METHOD (exported only for testing purpose)
 export function computeToRecipients(creationMode, previousMessage, identity) {
+    let recipients;
+
     const from = identityToFrom(identity);
     const isReplyAll = creationMode === MessageCreationModes.REPLY_ALL;
     const mailFollowUpTo = previousMessage.headers.find(header => header.name === MessageHeader.MAIL_FOLLOWUP_TO);
@@ -196,14 +198,20 @@ export function computeToRecipients(creationMode, previousMessage, identity) {
     const replyToHeader = previousMessage.headers.find(header => header.name === MessageHeader.REPLY_TO);
 
     if (isReplyAll && mailFollowUpTo) {
-        return extractAddressesFromHeader(mailFollowUpTo, true);
+        recipients = extractRecipientsFromHeader(mailFollowUpTo, true);
     } else if (mailReplyToHeader) {
-        return extractAddressesFromHeader(mailReplyToHeader, isReplyAll);
+        recipients = extractRecipientsFromHeader(mailReplyToHeader, isReplyAll);
+        if (isReplyAll) {
+            recipients = [...recipients, ...previousMessage.to];
+        }
     } else if (replyToHeader) {
-        return extractAddressesFromHeader(replyToHeader, isReplyAll);
+        recipients = extractRecipientsFromHeader(replyToHeader, isReplyAll);
+        if (isReplyAll) {
+            recipients = [...recipients, ...previousMessage.to];
+        }
     } else {
         // compute recipients from "From" or "To"
-        let recipients = [previousMessage.from];
+        recipients = [previousMessage.from];
         if (isReplyAll) {
             // respond to sender and all recipients except myself
             recipients.push(...previousMessage.to);
@@ -224,15 +232,20 @@ export function computeToRecipients(creationMode, previousMessage, identity) {
                 recipients = [recipients[0]];
             }
         }
-        return recipients;
     }
+    return recipients.filter(Boolean);
 }
 
-function extractAddressesFromHeader(header, isReplyAll) {
+function extractRecipientsFromHeader(header, isReplyAll) {
     if (isReplyAll) {
-        return header.values.map(value => ({ address: EmailExtractor.extractEmail(value), dn: "" }));
+        return header.values.map(value => ({
+            address: EmailExtractor.extractEmail(value),
+            dn: EmailExtractor.extractDN(value)
+        }));
     } else {
-        return [{ address: EmailExtractor.extractEmail(header.values[0]), dn: "" }];
+        return [
+            { address: EmailExtractor.extractEmail(header.values[0]), dn: EmailExtractor.extractDN(header.values[0]) }
+        ];
     }
 }
 
