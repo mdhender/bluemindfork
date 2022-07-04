@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.imap.endpoint.drivers" name="drivers" schema="schema/net.bluemind.imap.endpoint.drivers.exsd"/>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.imap.endpoint.ImapVerticle$EndpointFactory">
+      </verticle>
+   </extension>
+   <extension
+         id="standalone"
+         name="Imap Endpoint Standalone"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.bluemind.imap.endpoint.app.ImapEndpointStandalone">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="imap_endpoint"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.imap.endpoint.standalone"
+            name="imap_endpoint">
+         <property
+               name="appName"
+               value="imap_endpoint">
+         </property>
+      </product>
+   </extension>
+
+</plugin>

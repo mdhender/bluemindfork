@@ -45,6 +45,8 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.CharMatcher;
+
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
@@ -73,6 +75,7 @@ import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
 import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.ExpectedId;
 import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.VanishedBody;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
@@ -733,6 +736,21 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 
 	public List<ItemValue<MailboxRecord>> multipleGetById(List<Long> ids) {
 		return storeService.getMultipleById(ids);
+	}
+
+	@Override
+	public List<Long> imapIdSet(String set, String filter) {
+		boolean validSet = CharMatcher.inRange('0', '9').or(CharMatcher.anyOf(":,*")).matchesAllOf(set);
+		if (!validSet) {
+			throw new ServerFault("invalide idset '" + set + "'", ErrorCode.INVALID_PARAMETER);
+		}
+
+		ItemFlagFilter itemFilter = ItemFlagFilter.fromQueryString(Optional.ofNullable(filter).orElse(""));
+		try {
+			return recordStore.imapIdset(set, itemFilter);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
 	}
 
 }

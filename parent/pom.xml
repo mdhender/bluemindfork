@@ -76,6 +76,7 @@
 		<module>videoconferencing</module>
 		<module>kafka</module>
 		<module>webappdata</module>
+		<module>imap</module>
 	</modules>
 
 	<build>

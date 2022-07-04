@@ -183,4 +183,9 @@ public class NoopMailboxRecordService implements IDbMailboxRecords {
 		return Collections.emptyList();
 	}
 
+	@Override
+	public List<Long> imapIdSet(String set, String filter) {
+		return Collections.emptyList();
+	}
+
 }

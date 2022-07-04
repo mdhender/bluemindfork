@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="imap_endpoint" uid="imap-endpoint" id="net.bluemind.imap.endpoint.imap_endpoint" application="net.bluemind.imap.endpoint.standalone" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-consoleLog -debug
+      </programArgs>
+      <vmArgs>-Dosgi.noShutdown=true -Djava.awt.headless=true -Dnet.bluemind.property.product=imap -Xmx256m
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <launcher>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+      <plugin id="ch.qos.logback.classic"/>
+      <plugin id="ch.qos.logback.core"/>
+      <plugin id="com.beetstra.jutf7"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-annotations"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-core"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
+      <plugin id="com.fasterxml.jackson.module.jackson-module-afterburner"/>
+      <plugin id="com.github.ben-manes.caffeine"/>
+      <plugin id="com.google.guava"/>
+      <plugin id="com.google.guava.failureaccess"/>
+      <plugin id="com.hazelcast"/>
+      <plugin id="com.hazelcast.client" fragment="true"/>
+      <plugin id="com.netflix.spectator.api"/>
+      <plugin id="com.sun.mail.javax.mail"/>
+      <plugin id="com.typesafe.config"/>
+      <plugin id="com.typesafe.netty.reactive-streams"/>
+      <plugin id="io.netty"/>
+      <plugin id="io.vertx.core"/>
+      <plugin id="io.vertx.web"/>
+      <plugin id="javax.mail-api"/>
+      <plugin id="javax.validation.api"/>
+      <plugin id="javax.ws.rs"/>
+      <plugin id="javax.xml"/>
+      <plugin id="net.bluemind.addressbook.api"/>
+      <plugin id="net.bluemind.authentication.api"/>
+      <plugin id="net.bluemind.backend.cyrus.partitions"/>
+      <plugin id="net.bluemind.backend.mail.api"/>
+      <plugin id="net.bluemind.backend.mail.replica.api"/>
+      <plugin id="net.bluemind.common.cache.persistence"/>
+      <plugin id="net.bluemind.common.io"/>
+      <plugin id="net.bluemind.common.reflect"/>
+      <plugin id="net.bluemind.config"/>
+      <plugin id="net.bluemind.core.commons"/>
+      <plugin id="net.bluemind.core.container.api"/>
+      <plugin id="net.bluemind.core.context"/>
+      <plugin id="net.bluemind.core.rest"/>
+      <plugin id="net.bluemind.core.rest.common"/>
+      <plugin id="net.bluemind.core.rest.http"/>
+      <plugin id="net.bluemind.core.sessions"/>
+      <plugin id="net.bluemind.core.task.api"/>
+      <plugin id="net.bluemind.directory.api"/>
+      <plugin id="net.bluemind.eclipse.common"/>
+      <plugin id="net.bluemind.group.api"/>
+      <plugin id="net.bluemind.hornetq.client"/>
+      <plugin id="net.bluemind.imap.driver.mailapi"/>
+      <plugin id="net.bluemind.imap.endpoint"/>
+      <plugin id="net.bluemind.lib.jackson"/>
+      <plugin id="net.bluemind.lib.jutf7"/>
+      <plugin id="net.bluemind.lib.vertx"/>
+      <plugin id="net.bluemind.mailbox.api"/>
+      <plugin id="net.bluemind.mailbox.identity.api"/>
+      <plugin id="net.bluemind.metrics.agent-api"/>
+      <plugin id="net.bluemind.metrics.registry"/>
+      <plugin id="net.bluemind.mime4j.bodies"/>
+      <plugin id="net.bluemind.sentry" fragment="true"/>
+      <plugin id="net.bluemind.server.api"/>
+      <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
+      <plugin id="net.bluemind.system.api"/>
+      <plugin id="net.bluemind.tag.api"/>
+      <plugin id="net.bluemind.user.api"/>
+      <plugin id="net.bluemind.utils"/>
+      <plugin id="org.apache.james.apache-mime4j-core"/>
+      <plugin id="org.apache.james.apache-mime4j-dom"/>
+      <plugin id="org.apache.james.apache-mime4j-storage"/>
+      <plugin id="org.asynchttpclient.async-http-client"/>
+      <plugin id="org.asynchttpclient.async-http-client-netty-utils"/>
+      <plugin id="org.eclipse.core.contenttype"/>
+      <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.equinox.app"/>
+      <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.preferences"/>
+      <plugin id="org.eclipse.equinox.region" fragment="true"/>
+      <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="org.eclipse.osgi.compatibility.state" fragment="true"/>
+      <plugin id="org.jsoup"/>
+      <plugin id="org.reactivestreams.reactive-streams"/>
+      <plugin id="sentry"/>
+      <plugin id="slf4j.api"/>
+   </plugins>
+
+
+</product>

@@ -26,6 +26,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MessageBody;
@@ -66,6 +67,10 @@ public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport,
 	@GET
 	@Path("_all")
 	List<ItemValue<MailboxRecord>> all();
+
+	@GET
+	@Path("_imapUidSet")
+	List<Long> imapIdSet(@QueryParam("set") String set, @QueryParam("filter") String filter);
 
 	@PUT
 	@Path("{uid}")
@@ -108,5 +113,10 @@ public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport,
 	@GET
 	@Path("body/version/lowerthan/{version}")
 	List<ImapBinding> havingBodyVersionLowerThan(@PathParam("version") int version);
+
+	@POST
+	@Path("_mgetById")
+	@Override
+	List<ItemValue<MailboxRecord>> multipleGetById(List<Long> ids);
 
 }

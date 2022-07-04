@@ -52,6 +52,7 @@ import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlag;
+import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
@@ -146,6 +147,14 @@ public class MailboxRecordStoreTests {
 		asBindings = boxRecordStore.havingBodyVersionLowerThan(0);
 		assertNotNull(asBindings);
 		assertTrue(asBindings.isEmpty());
+
+		List<Long> set = boxRecordStore.imapIdset("1:*", ItemFlagFilter.all());
+		assertEquals(1, set.size());
+		System.err.println("set: " + set);
+		set = boxRecordStore.imapIdset("42,43", ItemFlagFilter.all());
+		assertEquals(1, set.size());
+		set = boxRecordStore.imapIdset("42", ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
+		assertEquals(1, set.size());
 
 		boxRecordStore.delete(it);
 		reloaded = boxRecordStore.get(it);
