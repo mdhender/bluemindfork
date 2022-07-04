@@ -26,14 +26,13 @@
             @dir-entry-acl-changed="onDirEntryAclChange"
             @domain-acl-changed="onDomainAclChange"
         />
-        <template v-if="isCalendarType">
-            <external-share-management
-                :container="container"
-                :external-shares="externalShares"
-                @remove="removeExternal"
-                @publish-mode-change="editPublishMode"
-            />
-        </template>
+        <external-share-management
+            v-if="isCalendarType"
+            :container="container"
+            :external-shares="externalShares"
+            @remove="removeExternal"
+            @publish-mode-change="editPublishMode"
+        />
         <hr />
     </div>
 </template>

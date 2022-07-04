@@ -4,9 +4,7 @@
         <bm-label-icon icon="world" icon-size="lg" class="font-weight-bold mb-2" :inline="false">
             {{ $t("preferences.manage_shares.outside_my_organization") }}
         </bm-label-icon>
-        <template v-if="externalShares.length === 0">
-            <div class="ml-4 mt-3 font-italic">{{ noExternalShareSet }}</div>
-        </template>
+        <div v-if="externalShares.length === 0" class="ml-4 mt-3 font-italic">{{ noExternalShareSet }}</div>
         <template v-for="(external, index) in externalShares" v-else>
             <bm-row :key="external.token" class="align-items-center mt-2">
                 <div class="col-6">

@@ -16,6 +16,7 @@ export default {
     toVCardInfo(contact) {
         return {
             containerUid: contact.urn ? contact.urn.split("@")[1] : "",
+            uid: contact.uid,
             value: {
                 kind: contact.kind,
                 mail: contact.address,
