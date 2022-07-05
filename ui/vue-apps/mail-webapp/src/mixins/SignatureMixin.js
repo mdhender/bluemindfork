@@ -4,8 +4,6 @@ import { draftUtils, signatureUtils } from "@bluemind/mail";
 import { CHECK_CORPORATE_SIGNATURE } from "~/actions";
 import { SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
 
-import WaitForMixin from "./WaitForMixin";
-
 const { isNewMessage } = draftUtils;
 const {
     CORPORATE_SIGNATURE_PLACEHOLDER,
@@ -30,7 +28,6 @@ const corporateSignatureGotRemoved = {
  *
  */
 export default {
-    mixins: [WaitForMixin],
     props: {
         isSignatureInserted: {
             type: Boolean,
@@ -53,16 +50,10 @@ export default {
         }
     },
     data() {
-        return {
-            componentGotMounted: false,
-            $_SignatureMixin_checkCorporateSignatureDone: false
-        };
+        return { $_SignatureMixin_checkCorporateSignatureDone: false };
     },
     created() {
         this.$_SignatureMixin_refreshSignature();
-    },
-    mounted() {
-        this.componentGotMounted = true;
     },
     watch: {
         "message.from"() {
@@ -70,7 +61,7 @@ export default {
         },
         personalSignature: {
             async handler(personalSignature, old) {
-                const editorRef = await this.$_SignatureMixin_getEditorRef();
+                const editorRef = await this.getEditorRef();
                 if (
                     this.$_SignatureMixin_corporateSignature &&
                     this.$_SignatureMixin_containsPersonalSignature(personalSignature, old, editorRef)
@@ -98,7 +89,7 @@ export default {
         },
         $_SignatureMixin_corporateSignature: {
             async handler(corpSign, old) {
-                const editorRef = await this.$_SignatureMixin_getEditorRef();
+                const editorRef = await this.getEditorRef();
                 if (old?.usePlaceholder) {
                     editorRef.removeContent(CORPORATE_SIGNATURE_SELECTOR, { editable: true });
                 }
@@ -136,7 +127,7 @@ export default {
     },
     methods: {
         async toggleSignature() {
-            const editorRef = await this.$_SignatureMixin_getEditorRef();
+            const editorRef = await this.getEditorRef();
             const selector = PERSONAL_SIGNATURE_SELECTOR(this.personalSignature.id);
             if (editorRef.hasContent(selector)) {
                 editorRef.removeContent(selector);
@@ -146,7 +137,7 @@ export default {
             this.$_SignatureMixin_onPersonalSignatureChange();
         },
         async $_SignatureMixin_onPersonalSignatureChange() {
-            const editorRef = await this.$_SignatureMixin_getEditorRef();
+            const editorRef = await this.getEditorRef();
             const isSignatureInserted = editorRef.hasContent(PERSONAL_SIGNATURE_SELECTOR(this.personalSignature.id));
             this.$emit("update:is-signature-inserted", isSignatureInserted);
         },
@@ -160,18 +151,13 @@ export default {
                 (old && editorRef.hasContent(PERSONAL_SIGNATURE_SELECTOR(old.id)))
             );
         },
-        async $_SignatureMixin_getEditorRef() {
-            await this.$waitFor("componentGotMounted");
-            await this.$waitFor("loading", loading => loading === false); // component must be loaded to be able to use ref
-            return this.$refs["message-content"];
-        },
         async $_SignatureMixin_refreshSignature() {
             await this.$store.dispatch("mail/" + CHECK_CORPORATE_SIGNATURE, { message: this.message });
             this.$_SignatureMixin_checkCorporateSignatureDone = true;
         },
         async $_SignatureMixin_removePlaceholder() {
             if (this.$_SignatureMixin_checkCorporateSignatureDone) {
-                const editorRef = await this.$_SignatureMixin_getEditorRef();
+                const editorRef = await this.getEditorRef();
                 // remove placeholder when it has not been replaced by a signature
                 // case where signature has changed and doesnt match draft anymore
                 editorRef.removeText(CORPORATE_SIGNATURE_PLACEHOLDER);

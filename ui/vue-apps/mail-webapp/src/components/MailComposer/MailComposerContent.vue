@@ -73,7 +73,7 @@ export default {
         }
     },
     data() {
-        return { draggedFilesCount: -1, loading: false };
+        return { componentGotMounted: false, draggedFilesCount: -1, loading: false };
     },
     computed: {
         ...mapState("mail", ["messageCompose"]),
@@ -102,7 +102,7 @@ export default {
 
                 // focus on content when a recipient is already set
                 if (this.message.to.length > 0) {
-                    await this.editorGotMounted();
+                    await this.getEditorRef();
                     this.$refs["message-content"].focusBefore(PERSONAL_SIGNATURE_SELECTOR(this.personalSignature.id));
                 }
             },
@@ -110,10 +110,13 @@ export default {
         },
         async "messageCompose.editorContent"() {
             if (!this.lock && !this.loading) {
-                await this.editorGotMounted();
+                await this.getEditorRef();
                 this.$refs["message-content"].setContent(this.messageCompose.editorContent);
             }
         }
+    },
+    mounted() {
+        this.componentGotMounted = true;
     },
     methods: {
         ...mapMutations("mail", [SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT]),
@@ -135,12 +138,10 @@ export default {
             const images = container.querySelectorAll('img[src^="data:image"]:not([' + CID_DATA_ATTRIBUTE + "])");
             images.forEach(imgNode => imgNode.setAttribute(CID_DATA_ATTRIBUTE, createCid()));
         },
-        editorGotMounted() {
-            return this.$waitFor(
-                () => this.$refs["message-content"],
-                value => value?._isMounted,
-                { immediate: true }
-            );
+        async getEditorRef() {
+            await this.$waitFor("componentGotMounted");
+            await this.$waitFor("loading", loading => loading === false); // component must be loaded to be able to use ref
+            return this.$refs["message-content"];
         }
     }
 };
