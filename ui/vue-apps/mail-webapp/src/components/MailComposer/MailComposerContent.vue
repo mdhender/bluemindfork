@@ -3,8 +3,7 @@
     <bm-file-drop-zone
         v-else
         class="mail-composer-content z-index-110 as-attachments flex-grow-1"
-        file-type-regex="^(?!.*image/(jpeg|jpg|png|gif)).*$"
-        at-least-one-match
+        :should-activate-fn="shouldActivate"
         @files-count="draggedFilesCount = $event"
         @drop-files="$execute('add-attachments', { files: $event, message, maxSize })"
     >
@@ -12,7 +11,8 @@
             <h2 class="text-center p-2">{{ $tc("mail.new.attachments.drop.zone", draggedFilesCount) }}</h2>
             <bm-icon icon="arrow-up" size="2x" />
         </template>
-        <bm-file-drop-zone class="z-index-110 flex-grow-1" inline file-type-regex="image/(jpeg|jpg|png|gif)">
+
+        <bm-file-drop-zone class="z-index-110 flex-grow-1" inline :should-activate-fn="shouldActivateForImages">
             <template #dropZone>
                 <bm-icon class="text-neutral" icon="file-type-image" size="2x" />
                 <h2 class="text-center p-2">{{ $tc("mail.new.images.drop.zone", draggedFilesCount) }}</h2>
@@ -142,9 +142,31 @@ export default {
             await this.$waitFor("componentGotMounted");
             await this.$waitFor("loading", loading => loading === false); // component must be loaded to be able to use ref
             return this.$refs["message-content"];
+        },
+        shouldActivate(event) {
+            // Fallback for Safari: its event.dataTransfer.items is an empty FilesList
+            if (event.dataTransfer.items.length === 0) {
+                return true;
+            }
+            const files = getFilesFromEvent(event);
+            const regex = "^(?!.*image/(jpeg|jpg|png|gif)).*$";
+            const matchFunction = f => f.type.match(new RegExp(regex, "i"));
+            return files.some(matchFunction);
+        },
+        shouldActivateForImages(event) {
+            const regex = "image/(jpeg|jpg|png|gif)";
+            const files = getFilesFromEvent(event);
+            const matchFunction = f => f.type.match(new RegExp(regex, "i"));
+            return files.length > 0 && files.every(matchFunction);
         }
     }
 };
+
+function getFilesFromEvent(event) {
+    return event.dataTransfer.items.length
+        ? Object.keys(event.dataTransfer.items).map(key => event.dataTransfer.items[key])
+        : [];
+}
 </script>
 
 <style lang="scss">

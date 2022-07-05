@@ -1,7 +1,7 @@
 <template>
     <bm-file-drop-zone
         class="mail-composer-attachments z-index-110 attachments mb-2"
-        file-type-regex="image/(jpeg|jpg|png|gif)"
+        :should-activate-fn="shouldActivateForImages"
         v-on="$listeners"
     >
         <template #dropZone>
@@ -33,6 +33,16 @@ export default {
         message: {
             type: Object,
             required: true
+        }
+    },
+    methods: {
+        shouldActivateForImages(event) {
+            const regex = "image/(jpeg|jpg|png|gif)";
+            const files = event.dataTransfer.items.length
+                ? Object.keys(event.dataTransfer.items).map(key => event.dataTransfer.items[key])
+                : [];
+            const matchFunction = f => f.type.match(new RegExp(regex, "i"));
+            return files.length > 0 && files.every(matchFunction);
         }
     }
 };

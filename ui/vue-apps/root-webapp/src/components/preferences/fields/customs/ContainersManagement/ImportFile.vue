@@ -25,7 +25,7 @@
         </template>
     </div>
     <div v-else>
-        <bm-file-drop-zone :file-type-regex="allowedFileTypes" always-show-dropzone @drop-files="dropFile($event)">
+        <bm-file-drop-zone :should-activate-fn="shouldActivate" always-show-dropzone @drop-files="dropFile($event)">
             <template #dropZone>
                 <div class="text-center my-4">
                     <bm-icon :icon="fileTypeIcon" size="lg" />
@@ -129,6 +129,13 @@ export default {
         },
         resetFile() {
             this.file = null;
+        },
+        shouldActivate(event) {
+            const files = event.dataTransfer.items.length
+                ? Object.keys(event.dataTransfer.items).map(key => event.dataTransfer.items[key])
+                : [];
+            const matchFunction = f => f.type.match(new RegExp(this.allowedFileTypes, "i"));
+            return files.some(matchFunction);
         }
     }
 };
