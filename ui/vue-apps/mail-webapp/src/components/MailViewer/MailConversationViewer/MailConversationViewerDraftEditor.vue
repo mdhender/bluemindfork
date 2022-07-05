@@ -51,10 +51,10 @@
         <template slot="subhead">
             <mail-conversation-viewer-field-sep :index="index" :max-index="maxIndex" />
             <template v-if="displayedRecipientFields & recipientModes.CC">
-                <div class="row pl-5">
+                <div class="row pl-5 flex-nowrap">
                     <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                     <bm-contact-input
-                        class="col pl-3"
+                        class="col-11 pl-3 flex-fill"
                         :contacts="message.cc"
                         :autocomplete-results="autocompleteResultsCc"
                         :validate-address-fn="validateAddress"
@@ -77,7 +77,7 @@
                 <div class="row pl-5">
                     <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                     <bm-contact-input
-                        class="col-11"
+                        class="col-11 pl-3 flex-fill"
                         :contacts="message.bcc"
                         :autocomplete-results="autocompleteResultsBcc"
                         :validate-address-fn="validateAddress"
