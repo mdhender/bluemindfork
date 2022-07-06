@@ -6,6 +6,7 @@ PartOf=bluemind.target firewalld.service
 [Service]
 Type=oneshot
 ExecStart=/etc/init.d/bm-iptables start
+ExecStop=/etc/init.d/bm-iptables stop
 RemainAfterExit=yes
 TimeoutStartSec=1h
 
