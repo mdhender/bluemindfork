@@ -163,13 +163,15 @@ async function fetchMembersWithAddress(containerUid, contactUid) {
     const vCard = await fetchContact(containerUid, contactUid);
     const members = vCard?.value.organizational?.member;
     return members?.length
-        ? Promise.all(
-              members.map(async m =>
-                  m.mailto
-                      ? { address: m.mailto, dn: m.commonName }
-                      : await fetchMembersWithAddress(m.containerUid, m.itemUid)
+        ? (
+              await Promise.all(
+                  members.map(async m =>
+                      m.mailto
+                          ? { address: m.mailto, dn: m.commonName }
+                          : await fetchMembersWithAddress(m.containerUid, m.itemUid)
+                  )
               )
-          )
+          ).flatMap(r => r)
         : [];
 }
 
