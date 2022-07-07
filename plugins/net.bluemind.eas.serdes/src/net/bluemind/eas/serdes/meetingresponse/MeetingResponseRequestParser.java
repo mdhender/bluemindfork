@@ -91,7 +91,7 @@ public class MeetingResponseRequestParser implements IEasRequestParser<MeetingRe
 				req.collectionId = child.getTextContent();
 				break;
 			case "RequestId":
-				req.requestId = child.getTextContent();
+				req.requestId = sanitizeRequestId(child.getTextContent());
 				break;
 			case "LongId":
 				req.LongId = Integer.parseInt(child.getTextContent());
@@ -106,6 +106,17 @@ public class MeetingResponseRequestParser implements IEasRequestParser<MeetingRe
 		}
 
 		return req;
+	}
+
+	private String sanitizeRequestId(String requestId) {
+		// iOS sometimes sends
+		// collectionId:itemId&lt;!ExceptionDate!&gt;20010101T000000Z as requestId
+		// collectionId:itemId is expected
+		if (requestId.contains("&lt;!ExceptionDate!&gt;")) {
+			requestId = requestId.substring(0, requestId.indexOf("&lt;!ExceptionDate!&gt;"));
+		}
+		return requestId;
+
 	}
 
 	private Date parseDate(String str) {
