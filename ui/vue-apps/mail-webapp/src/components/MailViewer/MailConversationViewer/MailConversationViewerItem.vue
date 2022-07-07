@@ -33,7 +33,7 @@
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                 <slot name="content" />
             </div>
-            <div class="row pl-5">
+            <div class="row pl-5" :class="{ 'sticky-bottom': stickyBottom }">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                 <slot name="bottom" />
             </div>
@@ -61,7 +61,10 @@ export default {
     props: {
         isDraft: {
             type: Boolean,
-            required: false,
+            default: false
+        },
+        stickyBottom: {
+            type: Boolean,
             default: false
         }
     },
@@ -110,6 +113,11 @@ export default {
     }
     .mail-conversation-viewer-item-body:focus {
         outline-offset: -0.375em;
+    }
+    .sticky-bottom {
+        position: sticky;
+        z-index: $zindex-sticky;
+        bottom: 0;
     }
 }
 </style>

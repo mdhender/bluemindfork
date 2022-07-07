@@ -108,10 +108,6 @@ export default {
         border-top-color: $neutral-fg-lo2;
     }
 
-    .toolbar-menu.full-toolbar {
-        border-top-color: $neutral-fg-lo3;
-    }
-
     .mail-composer-subject input,
     .bm-contact-input input,
     textarea {
@@ -144,6 +140,12 @@ export default {
             display: flex;
             flex: 1 1 auto;
         }
+    }
+
+    .mail-composer-footer {
+        position: sticky;
+        bottom: 0;
+        z-index: $zindex-sticky;
     }
 }
 </style>

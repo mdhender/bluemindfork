@@ -25,6 +25,7 @@
                     show-toolbar
                     has-border
                     :disabled="!value.enabled"
+                    name="auto-reply"
                     @input="onInput"
                 />
             </bm-form-group>

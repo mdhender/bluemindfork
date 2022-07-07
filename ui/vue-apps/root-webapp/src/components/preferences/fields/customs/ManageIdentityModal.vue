@@ -79,6 +79,7 @@
                         show-toolbar
                         has-border
                         class="mt-1"
+                        name="personal-signature"
                         @input="onInput"
                     />
                 </div>

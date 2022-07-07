@@ -3,6 +3,7 @@
         class="mail-conversation-viewer-draft-editor draft"
         v-bind="$props"
         :is-draft="true"
+        :sticky-bottom="true"
         v-on="$listeners"
     >
         <template slot="head">
@@ -212,9 +213,6 @@ export default {
     }
     .bm-rich-editor .ProseMirror {
         padding: $sp-2 0 $sp-2 $sp-3;
-    }
-    .toolbar-menu.full-toolbar {
-        border-top-color: $neutral-fg-lo3;
     }
 }
 </style>
