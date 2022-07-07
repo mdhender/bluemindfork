@@ -42,6 +42,7 @@
 		<module>net.bluemind.core.jdbc.tests</module>
 		<module>net.bluemind.core.jdbc.testshelper</module>
 		<module>net.bluemind.core.jdbc</module>
+		<module>net.bluemind.core.nginx.config</module>
 		<module>net.bluemind.core.node.testshelper</module>
 		<module>net.bluemind.core.rest.common</module>
 		<module>net.bluemind.core.rest.http.tests</module>
