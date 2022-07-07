@@ -115,7 +115,7 @@
 
 <script>
 import cloneDeep from "lodash.clonedeep";
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { EmailValidator } from "@bluemind/email";
 import { sanitizeHtml } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
@@ -134,6 +134,8 @@ import {
     BmSpinner
 } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
+import { SUCCESS } from "@bluemind/alert.store";
+import { SAVE_ALERT } from "../../Alerts/defaultAlerts";
 
 export default {
     name: "ManageIdentityModal",
@@ -208,6 +210,8 @@ export default {
     },
     methods: {
         ...mapMutations("root-app", ["ADD_IDENTITY", "REMOVE_IDENTITY", "UPDATE_IDENTITY"]),
+        ...mapActions("alert", { SUCCESS }),
+
         onInput(content) {
             this.identity.signature = content;
         },
@@ -242,6 +246,7 @@ export default {
             await inject("UserMailIdentitiesPersistence").remove(this.id);
             this.show = false;
             this.REMOVE_IDENTITY(this.id);
+            this.SUCCESS(SAVE_ALERT);
         },
         cancel() {
             this.show = false;
@@ -261,6 +266,7 @@ export default {
             this.ADD_IDENTITY(toIdentityDescription(id, this.identity));
 
             this.show = false;
+            this.SUCCESS(SAVE_ALERT);
         },
         async save() {
             this.identity.signature = sanitizeHtml(this.identity.signature);
@@ -275,6 +281,7 @@ export default {
             this.UPDATE_IDENTITY(toIdentityDescription(this.id, this.identity));
 
             this.show = false;
+            this.SUCCESS(SAVE_ALERT);
         },
         checkComboSelection(email) {
             if (this.isExternalIdentity(this.emailInput)) {

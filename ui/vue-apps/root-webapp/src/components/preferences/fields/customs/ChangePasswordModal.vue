@@ -69,8 +69,11 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
 import { inject } from "@bluemind/inject";
 import { BmForm, BmFormGroup, BmFormInput, BmModal } from "@bluemind/styleguide";
+import { SUCCESS } from "@bluemind/alert.store";
+import { SAVE_ALERT } from "../../Alerts/defaultAlerts";
 
 export default {
     name: "ChangePasswordModal",
@@ -124,6 +127,7 @@ export default {
         }
     },
     methods: {
+        ...mapActions("alert", { SUCCESS }),
         async open() {
             this.show = true;
         },
@@ -136,6 +140,8 @@ export default {
                     newPassword: this.newPassword
                 });
                 this.show = false;
+                this.SUCCESS(SAVE_ALERT);
+
                 this.cancel();
             } catch (error) {
                 if (error.message.includes("password is not valid")) {

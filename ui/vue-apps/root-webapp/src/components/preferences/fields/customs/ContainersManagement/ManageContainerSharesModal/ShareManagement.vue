@@ -38,6 +38,8 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
+import throttle from "lodash.throttle";
 import ExternalShareManagement from "./ExternalShareManagement";
 import InternalShareManagement from "./InternalShareManagement";
 import { loadAcl } from "./ContainerShareHelper";
@@ -51,12 +53,18 @@ import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { BmContact, BmFormAutocompleteInput, BmSpinner } from "@bluemind/styleguide";
 import UUIDHelper from "@bluemind/uuid";
-
-import throttle from "lodash.throttle";
+import { SUCCESS } from "@bluemind/alert.store";
+import { SAVE_ALERT_MODAL } from "../../../../Alerts/defaultAlerts";
 
 export default {
     name: "ShareManagement",
-    components: { BmContact, BmFormAutocompleteInput, BmSpinner, ExternalShareManagement, InternalShareManagement },
+    components: {
+        BmContact,
+        BmFormAutocompleteInput,
+        BmSpinner,
+        ExternalShareManagement,
+        InternalShareManagement
+    },
     props: {
         container: {
             type: Object,
@@ -154,6 +162,7 @@ export default {
         this.isLoading = false;
     },
     methods: {
+        ...mapActions("alert", { SUCCESS }),
         filterNoRightsAcl(entry) {
             return entry.acl !== this.helper.noRightAcl;
         },
@@ -250,6 +259,7 @@ export default {
                     this.freebusyAclReadyForServer
                 );
             }
+            this.SUCCESS(SAVE_ALERT_MODAL);
         },
 
         // external share
@@ -261,6 +271,7 @@ export default {
                     '"' + this.externalShares[index].url + '"'
                 );
                 this.externalShares.splice(index, 1);
+                this.SUCCESS(SAVE_ALERT_MODAL);
             }
         },
         async editPublishMode(externalShare) {
@@ -275,6 +286,7 @@ export default {
                 updatedShare.url = newUrl;
                 // FIXME: problem with axios, need header Content-Type: text/plain for this method
                 inject("PublishCalendarPersistence", this.container.uid).disableUrl('"' + oldUrl + '"');
+                this.SUCCESS(SAVE_ALERT_MODAL);
             }
         },
         async addExternal(contact) {
@@ -282,6 +294,7 @@ export default {
             const publishMode = PublishMode.PUBLIC;
             const newUrl = await sendExternalToServer(publishMode, vCardInfo.uid, this.container.uid);
             this.externalShares.push({ publishMode, url: newUrl, vcard: vCardInfo, token: vCardInfo.uid });
+            this.SUCCESS(SAVE_ALERT_MODAL);
         },
         async createContactAndAddExternal(contact) {
             const vcardUid = UUIDHelper.generate();

@@ -46,11 +46,12 @@
 import { ContainerHelper, ContainerType, isDefault } from "./container";
 import CreateOrUpdateCalendar from "./Calendars/MyCalendars/CreateOrUpdateCalendar";
 import ImportFile from "./ImportFile";
-import { WARNING } from "@bluemind/alert.store";
+import { WARNING, SUCCESS } from "@bluemind/alert.store";
 import { BmForm, BmFormGroup, BmFormInput, BmIcon, BmModal } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
 import cloneDeep from "lodash.clonedeep";
 import { mapActions } from "vuex";
+import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
 
 export default {
     name: "CreateOrUpdateContainerModal",
@@ -109,7 +110,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("alert", { WARNING }),
+        ...mapActions("alert", { WARNING, SUCCESS }),
         async open(container) {
             this.originalContainer = container;
             this.container = cloneDeep(container);
@@ -124,6 +125,7 @@ export default {
                 this.$emit("update", this.container);
             }
             this.show = false;
+            this.SUCCESS(SAVE_ALERT);
             this.actionsInProgress = false;
         },
         async create() {
@@ -131,6 +133,7 @@ export default {
             await this.createFn({ ...this.container, uid });
             try {
                 await this.$refs["import-file"].uploadFile(uid);
+                this.SUCCESS(SAVE_ALERT);
             } catch (e) {
                 this.WARNING({
                     alert: { name: "preferences.containers.create_and_import_data", uid: "IMPORT_DATA_UID" },

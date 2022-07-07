@@ -20,12 +20,14 @@
 import { mapActions, mapMutations, mapState } from "vuex";
 
 import { inject } from "@bluemind/inject";
+import { SUCCESS } from "@bluemind/alert.store";
 
 import { containerToCalendarDescriptor, ContainerHelper, ContainerType } from "../../container";
 import CalendarHelper from "../helper";
 import BaseField from "../../../../../mixins/BaseField";
 import BmCalendarItem from "../BmCalendarItem";
 import ContainersManagement from "../../ContainersManagement";
+import { SAVE_ALERT } from "../../../../../Alerts/defaultAlerts";
 
 ContainerHelper.register(ContainerType.CALENDAR, CalendarHelper);
 
@@ -41,6 +43,7 @@ export default {
     },
     methods: {
         ...mapActions("preferences", ["SUBSCRIBE_TO_CONTAINERS"]),
+        ...mapActions("alert", { SUCCESS }),
         ...mapMutations("preferences", [
             "ADD_PERSONAL_CALENDAR",
             "REMOVE_PERSONAL_CALENDAR",
@@ -52,6 +55,7 @@ export default {
         async remove(container) {
             await inject("CalendarsMgmtPersistence").remove(container.uid);
             this.REMOVE_PERSONAL_CALENDAR(container.uid);
+            this.SUCCESS(SAVE_ALERT);
         },
         async create(container) {
             const calendarDescriptor = containerToCalendarDescriptor(container);
@@ -64,6 +68,7 @@ export default {
             }
             this.ADD_PERSONAL_CALENDAR(container);
             this.SUBSCRIBE_TO_CONTAINERS([container]);
+            this.SUCCESS(SAVE_ALERT);
         },
         async update(container) {
             const calendarDescriptor = containerToCalendarDescriptor(container);
@@ -74,6 +79,7 @@ export default {
                 });
             }
             this.UPDATE_PERSONAL_CALENDAR(container);
+            this.SUCCESS(SAVE_ALERT);
         }
     }
 };

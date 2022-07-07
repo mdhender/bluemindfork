@@ -28,12 +28,14 @@
 </template>
 
 <script>
+import { mapActions, mapState } from "vuex";
+import { inject } from "@bluemind/inject";
+import { SUCCESS } from "@bluemind/alert.store";
+import { BmFormAutocompleteInput, BmSpinner } from "@bluemind/styleguide";
 import BmCalendarBadge from "../Calendars/BmCalendarBadge";
 import BmCalendarItem from "../Calendars/BmCalendarItem";
 import { isDefault } from "../container";
-import { inject } from "@bluemind/inject";
-import { BmFormAutocompleteInput, BmSpinner } from "@bluemind/styleguide";
-import { mapState } from "vuex";
+import { SAVE_ALERT_MODAL } from "../../../../Alerts/defaultAlerts";
 
 export default {
     name: "AvailabilitiesManagement",
@@ -61,6 +63,7 @@ export default {
         this.isLoading = false;
     },
     methods: {
+        ...mapActions("alert", { SUCCESS }),
         findSuggestions() {
             if (this.searchedInput) {
                 this.suggestions = this.myCalendars.filter(
@@ -81,6 +84,7 @@ export default {
 
         saveMyAvailabilities() {
             inject("FreebusyMgmtPersistence", this.myDefaultCalContainerUid).set(this.calendarsForMyAvailabilities);
+            this.SUCCESS(SAVE_ALERT_MODAL);
         },
 
         removeCalFromMyAvailabilities(uidToRemove) {

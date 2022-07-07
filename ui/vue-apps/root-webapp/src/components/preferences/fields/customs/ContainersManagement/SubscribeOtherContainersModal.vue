@@ -62,7 +62,9 @@
 import { inject } from "@bluemind/inject";
 import { BmFormCheckbox, BmFormInput, BmModal, BmPagination, BmSpinner, BmTable } from "@bluemind/styleguide";
 import { mapActions } from "vuex";
+import { SUCCESS } from "@bluemind/alert.store";
 import { ContainerType } from "./container";
+import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
 
 export default {
     name: "SubscribeOtherContainersModal",
@@ -109,7 +111,7 @@ export default {
             });
         },
         okTitle() {
-            if (this.allReadableContainers.length === 0) {
+            if (!this.hasReadableContainers) {
                 return this.$t("common.got_it");
             } else {
                 return this.$tc("preferences.add_containers.add_n_containers", this.selected.length, {
@@ -117,6 +119,9 @@ export default {
                     type: this.$tc("common.container_type." + this.containerType, this.selected.length)
                 });
             }
+        },
+        hasReadableContainers() {
+            return this.allReadableContainers.length > 0;
         },
         suggested() {
             const realPattern = this.pattern.toLowerCase();
@@ -132,6 +137,7 @@ export default {
     },
     methods: {
         ...mapActions("preferences", ["SUBSCRIBE_TO_CONTAINERS"]),
+        ...mapActions("alert", { SUCCESS }),
         async open() {
             this.loadingStatus = "LOADING";
             this.show = true;
@@ -169,12 +175,15 @@ export default {
         },
 
         async subscribe() {
-            const containers = this.selected.map(container => ({ ...container, offlineSync: true }));
-            await this.SUBSCRIBE_TO_CONTAINERS(containers);
-            if (this.containerType === ContainerType.MAILBOX && this.$route.path.startsWith("/mail/")) {
-                this.$store.commit("preferences/fields/NEED_RELOAD", { id: this.fieldId });
+            if (this.hasReadableContainers) {
+                const containers = this.selected.map(container => ({ ...container, offlineSync: true }));
+                await this.SUBSCRIBE_TO_CONTAINERS(containers);
+                if (this.containerType === ContainerType.MAILBOX && this.$route.path.startsWith("/mail/")) {
+                    this.$store.commit("preferences/fields/NEED_RELOAD", { id: this.fieldId });
+                }
+                this.$emit("subscribe", containers);
+                this.SUCCESS(SAVE_ALERT);
             }
-            this.$emit("subscribe", containers);
         }
     }
 };

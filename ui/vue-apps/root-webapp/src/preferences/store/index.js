@@ -1,8 +1,8 @@
+import { inject } from "@bluemind/inject";
 import containers from "./containers";
 import fields from "./fields";
 import mailboxFilter from "./mailboxFilter";
 import withAlert from "./helpers/withAlert";
-import { inject } from "@bluemind/inject";
 
 const state = {
     offset: 0,

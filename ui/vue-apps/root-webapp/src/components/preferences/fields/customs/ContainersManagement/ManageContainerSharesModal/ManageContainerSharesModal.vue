@@ -1,5 +1,5 @@
 <template>
-    <bm-modal v-model="show" centered modal-class="manage-shares-modal" :hide-footer="!displayFooter">
+    <bm-modal v-model="show" centered modal-class="manage-shares-modal">
         <template #modal-title>
             <h1 v-if="showAvailabilitiesManagement" class="modal-title">
                 <bm-button variant="inline" @click="back()"><bm-icon icon="arrow-back" size="2x" /></bm-button>
@@ -7,6 +7,7 @@
             </h1>
             <h1 v-else class="modal-title">{{ initialModalTitle }}</h1>
         </template>
+
         <availabilities-management v-if="showAvailabilitiesManagement" />
         <share-management
             v-else
@@ -16,30 +17,51 @@
         />
         <template #modal-footer>
             <bm-button
-                v-if="!showAvailabilitiesManagement"
+                v-if="!showAvailabilitiesManagement && displayAvailabilitiesManagement"
                 variant="simple-neutral"
                 @click="showAvailabilitiesManagement = true"
             >
                 {{ $t("preferences.calendar.my_calendars.availabilities_advanced_management") }}
             </bm-button>
+            <bm-alert-area v-show="alerts.length > 0" :alerts="alerts" stackable @remove="REMOVE">
+                <template v-slot="context">
+                    <component :is="context.alert.renderer" :alert="context.alert" />
+                </template>
+            </bm-alert-area>
         </template>
     </bm-modal>
 </template>
 
 <script>
+import { mapActions, mapState } from "vuex";
 import { inject } from "@bluemind/inject";
-import { BmButton, BmIcon, BmModal } from "@bluemind/styleguide";
+import { REMOVE } from "@bluemind/alert.store";
+import { BmAlertArea, BmButton, BmButtonClose, BmIcon, BmModal, BmRow } from "@bluemind/styleguide";
 import { ContainerType, isDefault } from "../container";
 import AvailabilitiesManagement from "./AvailabilitiesManagement";
 import ShareManagement from "./ShareManagement";
 
 export default {
     name: "ManageContainerSharesModal",
-    components: { AvailabilitiesManagement, BmButton, BmIcon, BmModal, ShareManagement },
+    components: {
+        AvailabilitiesManagement,
+        BmAlertArea,
+        BmButton,
+        BmButtonClose,
+        BmIcon,
+        BmModal,
+        BmRow,
+        ShareManagement
+    },
     data() {
-        return { show: false, showAvailabilitiesManagement: false, container: {} };
+        return {
+            show: false,
+            showAvailabilitiesManagement: false,
+            container: {}
+        };
     },
     computed: {
+        ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "pref-modal") }),
         initialModalTitle() {
             if (this.isMyMailbox) {
                 return this.$t("preferences.mail.my_mailbox.modal_title");
@@ -53,7 +75,7 @@ export default {
                 share
             });
         },
-        displayFooter() {
+        displayAvailabilitiesManagement() {
             return !this.showAvailabilitiesManagement && this.isMyDefaultCalendar;
         },
         isOwnerMyself() {
@@ -70,6 +92,7 @@ export default {
         }
     },
     methods: {
+        ...mapActions("alert", { REMOVE }),
         async open(container) {
             this.show = true;
             this.showAvailabilitiesManagement = false;
@@ -93,6 +116,14 @@ export default {
     }
     .bm-form-select {
         width: 100%;
+    }
+    .bm-alert-area {
+        min-width: 100%;
+    }
+    .bm-alert-area {
+        position: absolute;
+        bottom: 0;
+        left: 0;
     }
 }
 </style>

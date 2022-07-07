@@ -61,6 +61,7 @@ import { inject } from "@bluemind/inject";
 import { BmButton, BmFormCheckbox, BmIcon, BmTable } from "@bluemind/styleguide";
 import { retrieveTaskResult } from "@bluemind/task";
 import { mapActions, mapState } from "vuex";
+import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
 
 export default {
     name: "ContainersManagementTable",
@@ -160,6 +161,7 @@ export default {
             if (confirm) {
                 await this.REMOVE_SUBSCRIPTIONS([container.uid]);
                 this.$emit("remove", container);
+                this.SUCCESS(SAVE_ALERT);
             }
         },
         async resetData(container) {
@@ -178,6 +180,7 @@ export default {
             );
             if (confirm) {
                 this.$emit("reset-data", container);
+                this.SUCCESS(SAVE_ALERT);
             }
         },
         async sync(container) {
@@ -205,6 +208,7 @@ export default {
                 this.$store.commit("preferences/fields/NEED_RELOAD", { id: this.fieldId });
             }
             this.$emit("offline-sync-changed", updatedContainer);
+            this.SUCCESS(SAVE_ALERT);
         },
         async toggleSubscription(container) {
             if (this.isSubscribed(container)) {
@@ -226,6 +230,7 @@ export default {
                 }
                 this.$emit("offline-sync-changed", updatedContainer);
             }
+            this.SUCCESS(SAVE_ALERT);
         }
     }
 };

@@ -97,7 +97,15 @@ function main(i18n) {
             {
                 id: "tags",
                 name: i18n.t("preferences.general.tags"),
-                fields: [{ id: "field", component: { name: "PrefTags" } }]
+                fields: [
+                    {
+                        id: "field",
+                        component: {
+                            name: "PrefTags",
+                            options: { autosave: true }
+                        }
+                    }
+                ]
             }
         ]
     };

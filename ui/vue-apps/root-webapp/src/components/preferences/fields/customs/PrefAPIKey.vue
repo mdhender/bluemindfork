@@ -55,6 +55,7 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
 import {
     BmButton,
     BmForm,
@@ -66,6 +67,8 @@ import {
     BmTable
 } from "@bluemind/styleguide";
 import { inject } from "@bluemind/inject";
+import { SUCCESS } from "@bluemind/alert.store";
+import { SAVE_ALERT } from "../../Alerts/defaultAlerts";
 
 export default {
     name: "PrefAPIKey",
@@ -113,9 +116,11 @@ export default {
         this.keys = await inject("APIKeysPersistence").list();
     },
     methods: {
+        ...mapActions("alert", { SUCCESS }),
         async generateAPIKey() {
             const key = await inject("APIKeysPersistence").create(this.projectLabel);
             this.keys.push(key);
+            this.SUCCESS(SAVE_ALERT);
         },
         generateAndClose() {
             if (this.projectLabelValid) {
@@ -139,6 +144,7 @@ export default {
                 await inject("APIKeysPersistence").remove(key.sid);
                 const index = this.keys.findIndex(k => k.sid === key.sid);
                 this.keys.splice(index, 1);
+                this.SUCCESS(SAVE_ALERT);
             }
         },
         copySid(sid) {
