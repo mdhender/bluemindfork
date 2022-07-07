@@ -18,6 +18,9 @@ export default {
     name: "SendMessage",
     components: { DefaultAlert },
     mixins: [AlertMixin],
+    data() {
+        return { subject: "" };
+    },
     computed: {
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
         ...mapState("mail", ["folders", "mailboxes"]),
@@ -28,16 +31,15 @@ export default {
                 name: "v:mail:conversation",
                 params: { conversation, folder: folder?.path, mailbox: this.mailboxes[folder?.mailboxRef.key]?.name }
             };
-        },
-        subject() {
-            let subject = "";
-            if (this.messages[this.payload.draftKey]) {
-                subject = this.messages[this.alert.payload.draftKey].subject;
-            } else if (this.result) {
-                subject = this.result.subject;
-            }
-            return subject.trim() || this.$t("mail.viewer.no.subject");
         }
+    },
+    created() {
+        if (this.messages[this.payload.draftKey]) {
+            this.subject = this.messages[this.alert.payload.draftKey].subject;
+        } else if (this.result?.subject) {
+            this.subject = this.result.subject;
+        }
+        this.subject = this.subject.trim() || this.$t("mail.viewer.no.subject");
     }
 };
 </script>
