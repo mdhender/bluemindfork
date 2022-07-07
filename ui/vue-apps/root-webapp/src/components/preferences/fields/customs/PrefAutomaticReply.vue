@@ -30,79 +30,46 @@
                 />
             </bm-form-group>
 
-            <div class="my-3 date-range-label">{{ $t("preferences.mail.automatic_reply.period") }}</div>
-
             <div class="d-flex date-range">
-                <bm-form-group :label="$t('common.from_date')" label-for="from_date" class="mr-2">
-                    <bm-form-date-picker
-                        id="from_date"
-                        v-model="startDate"
-                        :disabled="!value.enabled"
-                        :locale="userLang"
-                        value-as-date
-                        show-range
-                        :max="endDate"
-                        :initial-date="endDate"
-                    />
-                </bm-form-group>
-                <bm-form-group :label="$t('common.hour')" label-for="from_hour" class="mr-2">
-                    <bm-form-time-picker
-                        id="from_hour"
-                        v-model="startTime"
-                        :disabled="!(value.enabled && value.start)"
-                    />
-                </bm-form-group>
-                <bm-button v-if="value.start !== null" variant="inline-neutral" @click="value.start = null">
-                    <bm-icon icon="trash" />
-                </bm-button>
-
-                <bm-form-group :label="$t('common.until')" label-for="to_date" class="ml-5 mr-2">
-                    <bm-form-date-picker
-                        id="to_date"
-                        v-model="endDate"
-                        :disabled="!value.enabled"
-                        :locale="userLang"
-                        value-as-date
-                        show-range
-                        :min="startDate"
-                        :initial-date="startDate"
-                    />
-                </bm-form-group>
-                <bm-form-group :label="$t('common.hour')" label-for="to_hour" class="mr-2">
-                    <bm-form-time-picker id="to_hour" v-model="endTime" :disabled="!(value.enabled && value.end)" />
-                </bm-form-group>
-                <bm-button v-if="value.end !== null" variant="inline-neutral" @click="value.end = null">
-                    <bm-icon icon="trash" />
-                </bm-button>
+                <pref-automatic-reply-optional-date
+                    v-model="value.start"
+                    :disabled="!value.enabled"
+                    :labels="{
+                        main: $t('common.from_date'),
+                        nullDate: $t('common.now'),
+                        day: $t('preferences.mail.automatic_reply.start_date'),
+                        time: $t('preferences.mail.automatic_reply.start_time')
+                    }"
+                />
+                <pref-automatic-reply-optional-date
+                    v-model="value.end"
+                    :disabled="!value.enabled"
+                    :min="value.start"
+                    :labels="{
+                        main: $t('common.until'),
+                        nullDate: $t('common.indefinitely'),
+                        day: $t('preferences.mail.automatic_reply.end_date'),
+                        time: $t('preferences.mail.automatic_reply.end_time')
+                    }"
+                />
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import {
-    BmButton,
-    BmFormCheckbox,
-    BmFormDatePicker,
-    BmFormGroup,
-    BmFormInput,
-    BmFormTimePicker,
-    BmIcon,
-    BmRichEditor
-} from "@bluemind/styleguide";
+import { BmFormCheckbox, BmFormGroup, BmFormInput, BmRichEditor } from "@bluemind/styleguide";
+import PrefAutomaticReplyOptionalDate from "./PrefAutomaticReplyOptionalDate.vue";
 import CentralizedSaving from "../../mixins/CentralizedSaving";
 
 export default {
     name: "PrefAutomaticReply",
     components: {
-        BmButton,
         BmFormCheckbox,
-        BmFormDatePicker,
         BmFormGroup,
         BmFormInput,
-        BmFormTimePicker,
-        BmIcon,
-        BmRichEditor
+        BmRichEditor,
+        PrefAutomaticReplyOptionalDate
     },
     mixins: [CentralizedSaving],
     computed: {
@@ -117,62 +84,6 @@ export default {
                 return null;
             }
             return this.value.subject !== "";
-        },
-        startDate: {
-            get() {
-                return this.value.start ? new Date(this.value.start) : null;
-            },
-            set(value) {
-                const date = new Date(value);
-                if (this.value.start) {
-                    const old = new Date(this.value.start);
-                    date.setHours(old.getHours());
-                    date.setMinutes(old.getMinutes());
-                }
-                this.value.start = date.getTime();
-            }
-        },
-        startTime: {
-            get() {
-                return this.value.start ? this.$d(new Date(this.value.start), "short_time") : "";
-            },
-            set(value) {
-                if (this.value.start) {
-                    const date = new Date(this.value.start);
-                    const [hours, minutes] = value.split(":"); // i18n problem ?
-                    date.setHours(hours);
-                    date.setMinutes(minutes);
-                    this.value.start = date.getTime();
-                }
-            }
-        },
-        endDate: {
-            get() {
-                return this.value.end ? new Date(this.value.end) : null;
-            },
-            set(value) {
-                const date = new Date(value);
-                if (this.value.end) {
-                    const old = new Date(this.value.end);
-                    date.setHours(old.getHours());
-                    date.setMinutes(old.getMinutes());
-                }
-                this.value.end = date.getTime();
-            }
-        },
-        endTime: {
-            get() {
-                return this.value.end ? this.$d(new Date(this.value.end), "short_time") : "";
-            },
-            set(value) {
-                if (this.value.end) {
-                    const date = new Date(this.value.end);
-                    const [hours, minutes] = value.split(":"); // i18n problem ?
-                    date.setHours(hours);
-                    date.setMinutes(minutes);
-                    this.value.end = date.getTime();
-                }
-            }
         },
         textHtml: {
             get() {
@@ -229,15 +140,11 @@ export default {
             color: $neutral-fg-disabled;
         }
     }
+
     .date-range {
-        .bm-form-date-picker,
-        .bm-form-time-picker {
-            width: 7rem !important;
-            min-width: unset;
-        }
-        .bm-form-input {
-            width: unset !important;
-        }
+        display: flex;
+        flex-direction: column;
+        gap: $sp-2;
     }
 }
 </style>
