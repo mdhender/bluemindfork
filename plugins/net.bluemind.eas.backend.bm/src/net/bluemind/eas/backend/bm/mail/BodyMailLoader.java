@@ -80,6 +80,8 @@ public class BodyMailLoader extends CoreConnect {
 		IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 		ItemValue<MailboxItem> item = service.getCompleteById(id);
 		if (item == null) {
+			logger.error("[{}] no MailboxItem id {}, found in folder {} ({})", bs.getUniqueIdentifier(), id, folder.uid,
+					folder.name);
 			return null;
 		}
 
@@ -109,6 +111,8 @@ public class BodyMailLoader extends CoreConnect {
 		IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 		ItemValue<MailboxItem> item = service.getCompleteById(id);
 		if (item == null) {
+			logger.error("[{}] no MailboxItem id {}, found in folder {} ({})", bs.getUniqueIdentifier(), id, folder.uid,
+					folder.name);
 			return null;
 		}
 

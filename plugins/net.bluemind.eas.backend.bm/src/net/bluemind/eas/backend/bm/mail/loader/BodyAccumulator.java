@@ -47,16 +47,16 @@ public class BodyAccumulator {
 
 	private static final Logger logger = LoggerFactory.getLogger(BodyAccumulator.class);
 	private final BodyType needed;
-	private final int keepChars;
-	private final TextAccumulator plain;
-	private final TextAccumulator html;
+	private final int truncationSize;
+	private final TextAccumulator textAccumulator;
+
 	private FileBackedOutputStream fbos;
 
 	private static class TextAccumulator {
 		public final StringBuilder bodyContent = new StringBuilder();
 		public boolean truncated = false;
-		public int totalChars;
-		public boolean foundSomething;
+		public int contentLength;
+		public BodyType bodyType;
 	}
 
 	public BodyAccumulator(BodyOptions options) {
@@ -64,17 +64,15 @@ public class BodyAccumulator {
 			BodyPreference bp = options.bodyPrefs.get(0);
 			needed = bp.type;
 			if (bp.truncationSize != null) {
-				keepChars = bp.truncationSize;
+				truncationSize = bp.truncationSize;
 			} else {
-				keepChars = Integer.MAX_VALUE;
+				truncationSize = Integer.MAX_VALUE;
 			}
 		} else {
-			logger.debug("Defaulting to HTML");
 			needed = BodyType.HTML;
-			keepChars = Integer.MAX_VALUE;
+			truncationSize = Integer.MAX_VALUE;
 		}
-		plain = new TextAccumulator();
-		html = new TextAccumulator();
+		textAccumulator = new TextAccumulator();
 	}
 
 	public ByteBuf toByteBuf(Stream stream) throws InterruptedException, ExecutionException, TimeoutException {
@@ -94,11 +92,10 @@ public class BodyAccumulator {
 	}
 
 	public void consumeBodyPart(Part bodyPart, Stream stream) {
-		TextAccumulator ta = null;
 		if (Mime4JHelper.TEXT_HTML.equals(bodyPart.mime)) {
-			ta = html;
+			textAccumulator.bodyType = BodyType.HTML;
 		} else if (Mime4JHelper.TEXT_PLAIN.equals(bodyPart.mime)) {
-			ta = plain;
+			textAccumulator.bodyType = BodyType.PlainText;
 		} else {
 			logger.error("Unsupported mime {}", bodyPart.mime);
 			return;
@@ -108,80 +105,52 @@ public class BodyAccumulator {
 
 		try {
 			ByteBuf out = toByteBuf(stream);
-			bodyAccumulate(ta, out.toString(charset));
+			bodyAccumulate(out.toString(charset));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 	}
 
-	private void bodyAccumulate(TextAccumulator ta, String content) {
-		ta.foundSomething = true;
-		int storedChars = ta.bodyContent.length();
-		int toAdd = content.length();
-		ta.totalChars += toAdd;
-		if (keepChars > 0) {
-			if (storedChars < keepChars) {
-				if (toAdd + storedChars > keepChars) {
-					String toAppend = content.substring(0, keepChars - storedChars);
-					ta.bodyContent.append(toAppend);
-					ta.truncated = true;
-				} else {
-					ta.bodyContent.append(content);
-				}
-			}
+	private void bodyAccumulate(String content) {
+		textAccumulator.contentLength = content.length();
+		if (textAccumulator.contentLength > truncationSize) {
+			String toAppend = content.substring(0, truncationSize);
+			textAccumulator.bodyContent.append(toAppend);
+			textAccumulator.truncated = true;
 		} else {
-			ta.truncated = true;
-			ta.bodyContent.delete(0, storedChars);
+			textAccumulator.bodyContent.append(content);
 		}
 	}
 
 	public net.bluemind.eas.dto.base.AirSyncBaseResponse.Body body() {
 		Body ret = new Body();
 		ret.type = needed;
+
+		if (needed == BodyType.RTF) {
+			logger.error("Unsupported mime {}", needed);
+			return ret;
+		}
+
 		if (needed == BodyType.MIME) {
 			ret.data = DisposableByteSource.wrap(fbos);
-		} else {
-			switch (needed) {
-			case HTML:
-				if (html.foundSomething) {
-					ret.data = DisposableByteSource.wrap(html.bodyContent.toString());
-					ret.estimatedDataSize = html.totalChars;
-					ret.truncated = html.truncated;
-				} else if (plain.foundSomething) {
-					if (plain.totalChars > 0) {
-						ret.data = DisposableByteSource
-								.wrap(new HTMLBodyFormatter().convert(plain.bodyContent.toString()));
-					} else {
-						ret.data = DisposableByteSource.wrap("");
-					}
-					ret.estimatedDataSize = plain.totalChars;
-					ret.truncated = plain.truncated;
-				} else {
-					ret.data = DisposableByteSource.wrap("");
-				}
-				break;
-			case PlainText:
-				if (plain.foundSomething) {
-					ret.data = DisposableByteSource.wrap(plain.bodyContent.toString());
-					ret.estimatedDataSize = plain.totalChars;
-					ret.truncated = plain.truncated;
-				} else if (html.foundSomething) {
-					String converted = new PlainBodyFormatter().convert(html.bodyContent.toString());
-					ret.data = DisposableByteSource.wrap(converted);
-					ret.estimatedDataSize = html.totalChars;
-					ret.truncated = html.truncated;
-				} else {
-					ret.data = DisposableByteSource.wrap("...");
-				}
-				break;
-			case RTF:
-			case MIME:
-			default:
-				logger.error("Unreachable code path ?");
-				break;
-
-			}
+			return ret;
 		}
+
+		if (textAccumulator.bodyType == needed) {
+			ret.data = DisposableByteSource.wrap(textAccumulator.bodyContent.toString());
+		} else if (needed == BodyType.HTML) {
+			// device asks for HTML but we only have TEXT part
+			ret.data = DisposableByteSource
+					.wrap(new HTMLBodyFormatter().convert(textAccumulator.bodyContent.toString()));
+		} else {
+			// device asks for TEXT but we only have HTML part
+			ret.data = DisposableByteSource
+					.wrap(new PlainBodyFormatter().convert(textAccumulator.bodyContent.toString()));
+		}
+
+		ret.estimatedDataSize = textAccumulator.contentLength;
+		ret.truncated = textAccumulator.truncated;
+
 		return ret;
 	}
 
