@@ -78,7 +78,8 @@ public class ReadDomainsSettingService {
 				domainSettings.add(Stream
 						.of(new AbstractMap.SimpleEntry<>("domainUid", elements[0]),
 								new AbstractMap.SimpleEntry<>("externalUrl", elements[1]),
-								new AbstractMap.SimpleEntry<>("defaultDomain", elements[2]))
+								new AbstractMap.SimpleEntry<>("defaultDomain", elements[2]),
+								new AbstractMap.SimpleEntry<>("otherUrls", elements[3]))
 						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 			});
 		} catch (Exception e) {
@@ -95,7 +96,7 @@ public class ReadDomainsSettingService {
 		Optional<String> defaultDomainFromFile = Optional.ofNullable(domainSettings.stream()
 				.filter(map -> map.entrySet().stream()
 						.anyMatch(e -> e.getKey().equals("externalUrl") && e.getValue().equals(requestHostUrl)))
-				.map(map -> map.get("defaultDomain")).findFirst().orElse(null));
+				.map(map -> map.get("defaultDomain")).findFirst().map(Strings::emptyToNull).orElse(null));
 
 		return defaultDomainFromFile;
 	}
