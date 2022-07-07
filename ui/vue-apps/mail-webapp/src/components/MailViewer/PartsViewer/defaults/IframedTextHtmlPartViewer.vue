@@ -43,7 +43,6 @@ const IFRAME_STYLE = `
 
         main * {
             max-width: 100%;
-            overflow-y: hidden;
         }
         pre {
             font-family: monospace;

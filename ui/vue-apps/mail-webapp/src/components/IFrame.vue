@@ -48,6 +48,7 @@ export default {
                     this.$emit("resized", contentRect);
                 });
                 this.resize.observe(doc.documentElement);
+                doc.documentElement.style.overflowY = "hidden";
             }
 
             this.body.content = Object.freeze(this.$slots.default);
