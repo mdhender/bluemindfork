@@ -125,7 +125,7 @@ const mutations = {
     },
     [REMOVE_MESSAGES]: (state, { messages }) => {
         messages.forEach(message => {
-            const conversation = state.conversationByKey[message.conversationRef.key];
+            const conversation = message.conversationRef && state.conversationByKey[message.conversationRef.key];
             if (conversation) {
                 const index = conversation.messages.indexOf(message.key);
                 if (index >= 0) {
