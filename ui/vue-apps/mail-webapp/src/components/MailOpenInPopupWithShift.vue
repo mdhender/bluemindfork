@@ -36,7 +36,11 @@ export default {
     },
     render() {
         return this.$scopedSlots.default({
-            execute: fallback => (this.active ? this.open() : fallback()),
+            execute: (fallback, event) => {
+                if (this.enabled) {
+                    (event ? event.shiftKey : this.active) ? this.open() : fallback();
+                }
+            },
             icon: fallback => (this.active ? "popup" : fallback),
             label: label => {
                 if (!this.enabled) {

@@ -19,7 +19,7 @@ export default {
             required: true
         },
         next: {
-            type: [String, Object],
+            type: [String, Object, Function],
             default: undefined
         }
     },
@@ -34,8 +34,13 @@ export default {
             route = this.$router.resolve(route);
             const popup = window.open(route.href, this.name, getWindowFeature(this.height, this.width));
             popup.focus();
-            if (this.next) {
+            this.tearDown();
+        },
+        tearDown() {
+            if (this.next && typeof this.next !== "function") {
                 this.$router.push(this.next);
+            } else if (this.next) {
+                return this.next();
             }
         }
     },

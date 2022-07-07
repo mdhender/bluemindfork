@@ -35,12 +35,12 @@
                         {{ $t("common.bcc") }}
                     </bm-button>
                 </template>
-                <mail-open-in-popup-with-shift v-slot="action" :href="route">
+                <mail-open-in-popup-with-shift v-slot="action" :href="route" :next="consult">
                     <bm-button
                         variant="simple-neutral"
                         :title="action.label($t('mail.actions.extend'))"
                         :disabled="anyAttachmentInError"
-                        @click="action.execute(openExtendedEditing)"
+                        @click="saveAsap().then(() => action.execute(() => $router.navigate(route), $event))"
                     >
                         <bm-icon :icon="action.icon('extend')" size="lg" />
                         <span class="d-lg-none">{{ $t("mail.actions.extend") }}</span>
@@ -144,7 +144,7 @@ import MailConversationViewerItem from "./MailConversationViewerItem";
 import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import MailConversationViewerFieldSep from "./MailConversationViewerFieldSep";
 import MailConversationViewerVerticalLine from "./MailConversationViewerVerticalLine";
-import { REMOVE_MESSAGES } from "~/mutations";
+import { REMOVE_MESSAGES, SET_MESSAGE_COMPOSING } from "~/mutations";
 import MessagePathParam from "~/router/MessagePathParam";
 import MailOpenInPopupWithShift from "../../MailOpenInPopupWithShift";
 
@@ -193,9 +193,8 @@ export default {
     },
     methods: {
         ...mapMutations("mail", { REMOVE_MESSAGES }),
-        async openExtendedEditing() {
-            await this.saveAsap();
-            this.$router.navigate(this.route);
+        consult() {
+            this.$store.commit(`mail/${SET_MESSAGE_COMPOSING}`, { messageKey: this.message.key, composing: false });
         }
     }
 };

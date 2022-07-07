@@ -11,7 +11,7 @@
                     :title="action.label"
                     variant="inline-on-fill-primary"
                     class="ml-auto"
-                    @click="action.execute()"
+                    @click="saveAsap().then(action.execute)"
                 >
                     <bm-icon :icon="action.icon" />
                 </bm-button>
@@ -59,7 +59,6 @@
 
 <script>
 import { BmButton, BmIcon, BmFormInput, BmForm } from "@bluemind/styleguide";
-
 import { ComposerActionsMixin, ComposerMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
 import MessagePathParam from "~/router/MessagePathParam";
