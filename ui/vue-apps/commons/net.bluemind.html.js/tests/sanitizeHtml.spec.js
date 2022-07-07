@@ -44,6 +44,11 @@ describe("Sanitize HTML using the 'xss' library", () => {
         const url = '<a href="https://ta/ta/yoyo">linkDisplay</a>';
         expect(sanitizeHtml(url, true)).toEqual(url);
     });
+    test("Link having an allowed protocol but a wrong case is fixed", () => {
+        const url = '<a href="hTtpS://ta/ta/yoyo">linkDisplay</a>';
+        const fixedUrl = '<a href="https://ta/ta/yoyo">linkDisplay</a>';
+        expect(sanitizeHtml(url, true)).toEqual(fixedUrl);
+    });
     test("Image with blob source should be allowed", () => {
         const url = '<img src="blob:https://webmail-test.loc/8aa75f30-e3e2-4d70-89ba-a8062b762b3e" />';
         expect(sanitizeHtml(url, true)).toEqual(url);

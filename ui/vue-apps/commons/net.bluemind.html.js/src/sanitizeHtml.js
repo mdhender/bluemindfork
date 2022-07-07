@@ -36,6 +36,7 @@ const ADDITIONAL_ALLOWED_ATTRIBUTES_FOR_ANY_TAG = [
 ];
 
 const ALLOWED_LINK_PROTOCOLS = ["http", "https"];
+const LINK_REGEX = new RegExp(`^(${ALLOWED_LINK_PROTOCOLS.join("|")})://(.*)`, "i");
 
 export default function (html, useInIframe = false) {
     if (!useInIframe) {
@@ -93,6 +94,15 @@ function customSafeAttrValue(tag, name, value) {
     if (/^img$/i.test(tag) && /^src$/i.test(name) && /^data:image\//i.test(value)) {
         return value;
     }
+
+    // rectify link protocol case
+    if (/^a$/i.test(tag) && /^href$/i.test(name) && hasAllowedProtocol(value)) {
+        const linkInfo = value.match(LINK_REGEX);
+        const protocol = linkInfo[1];
+        const path = linkInfo[2];
+        value = `${protocol.toLowerCase()}://${path}`;
+    }
+
     return xss.safeAttrValue(tag, name, value);
 }
 
