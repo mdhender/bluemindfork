@@ -301,8 +301,13 @@ async function fetchConversationIfNotLoaded({ commit, state }, { uid, folder, co
 async function fetchConversations({ commit, state }, { conversations, folder, conversationsActivated }) {
     let messages = [];
     if (conversationsActivated) {
-        let newMessage = state.messages[getLastGeneratedNewMessageKey()];
-        newMessage = newMessage && newMessage.composing;
+        let newMessage;
+        if (
+            state.messages[getLastGeneratedNewMessageKey()] &&
+            state.messages[getLastGeneratedNewMessageKey()].composing
+        ) {
+            newMessage = state.messages[getLastGeneratedNewMessageKey()];
+        }
         (await apiConversations.multipleGet(conversations, folder.mailboxRef)).forEach(raw => {
             const key = messageKey(raw.uid, folder.key);
             const conversationRef = { key, uid: raw.uid };
