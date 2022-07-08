@@ -55,31 +55,32 @@ export default {
         content() {
             return this.$store.state.mail.partsData.partsByMessageKey[this.message.key]?.[this.part.address];
         },
-        parsedContent() {
+        contentAsNode() {
+            const node = new DOMParser().parseFromString(this.content, "text/html");
+            return this.isCollapseActive ? QuoteHelper.removeQuotes(node, this.quoteNodes) : node;
+        },
+        htmlWithImages() {
             const images = getPartsFromCapabilities(this.message, VIEWER_CAPABILITIES).filter(
                 part => MimeType.isImage(part) && part.contentId
             );
             const insertionResult = InlineImageHelper.insertAsUrl(
-                [this.content],
+                [this.contentAsNode.body.innerHTML],
                 images,
                 this.message.folderRef.uid,
                 this.message.remoteRef.imapUid
             );
             let html = insertionResult.contentsWithImageInserted[0];
-            return new DOMParser().parseFromString(html, "text/html");
+            return html;
         },
         html() {
-            let html = this.isCollapseActive
-                ? QuoteHelper.removeQuotes(this.parsedContent.cloneNode(true), this.quoteNodes).body.innerHTML
-                : this.parsedContent.body.innerHTML;
-            html = linkifyHtml(sanitizeHtml(html, true));
+            let html = linkifyHtml(sanitizeHtml(this.htmlWithImages, true));
             if (this.blockImages) {
                 html = blockRemoteImages(html);
             }
             return html;
         },
         styles() {
-            return extractStyleNotInBody(this.parsedContent) + BM_STYLE;
+            return extractStyleNotInBody(this.contentAsNode) + BM_STYLE;
         },
         isCollapseActive() {
             return this.collapse_ && this.quoteNodes;
