@@ -30,7 +30,10 @@ export default {
     }
 };
 const IFRAME_STYLE = `
-
+		html {
+            height: auto !important;
+        }
+        
         body {
             font-family: "Montserrat", sans-serif;
             font-size: 0.75rem;
