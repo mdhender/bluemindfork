@@ -65,12 +65,11 @@ export function createReplyOrForward(previousMessage, myDraftsFolder, creationMo
     if (creationMode === MessageCreationModes.REPLY_ALL || creationMode === MessageCreationModes.REPLY) {
         message.to = computeToRecipients(creationMode, previousMessage, identity);
         message.cc = computeCcRecipients(creationMode, previousMessage);
+        handleIdentificationFields(message, previousMessage);
     }
 
     message.loading = LoadingStatus.LOADING; // will be loaded once content has been computed
     message.subject = computeSubject(creationMode, previousMessage);
-
-    handleIdentificationFields(message, previousMessage);
 
     return message;
 }
