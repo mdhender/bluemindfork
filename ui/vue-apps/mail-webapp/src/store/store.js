@@ -26,6 +26,8 @@ import {
     IS_ACTIVE_MESSAGE,
     IS_CURRENT_CONVERSATION,
     MAILBOX_FOLDERS,
+    MAILBOX_INBOX,
+    MAILBOX_JUNK,
     MAILBOX_ROOT_FOLDERS,
     MAILBOX_SENT,
     MAILBOX_TRASH,
@@ -43,8 +45,8 @@ import {
     MY_TEMPLATES,
     MY_TRASH,
     NEXT_CONVERSATION,
-    SELECTION,
     SELECTION_FLAGS,
+    SELECTION,
     USER_MAILBOXES
 } from "~/getters";
 import { IS_POPUP, SET_ACTIVE_FOLDER, SET_MAIL_THREAD_SETTING } from "~/mutations";
@@ -70,7 +72,7 @@ export const mutations = {
     }
 };
 
-const { INBOX, OUTBOX, DRAFTS, SENT, TRASH, TEMPLATES } = DEFAULT_FOLDER_NAMES;
+const { INBOX, OUTBOX, DRAFTS, JUNK, SENT, TRASH, TEMPLATES } = DEFAULT_FOLDER_NAMES;
 
 const UNKNOWN = 0;
 const ALL = 2;
@@ -142,6 +144,8 @@ export const getters = {
     [MY_TRASH]: (state, getters) => mailboxGetterFor(TRASH)(state, getters)(getters[MY_MAILBOX]),
     [MAILBOX_TRASH]: mailboxGetterFor(TRASH),
     [MAILBOX_SENT]: mailboxGetterFor(SENT),
+    [MAILBOX_JUNK]: mailboxGetterFor(JUNK),
+    [MAILBOX_INBOX]: mailboxGetterFor(INBOX),
     [ACTIVE_MESSAGE]: ({ conversations: { messages }, activeMessage }) => messages[activeMessage.key],
     [IS_ACTIVE_MESSAGE]: ({ activeMessage, conversations: { conversationByKey } }) => ({ key }) =>
         key === activeMessage.key || conversationByKey[key].messages?.includes(activeMessage.key),

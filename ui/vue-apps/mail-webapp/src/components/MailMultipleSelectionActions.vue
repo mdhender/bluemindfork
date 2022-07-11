@@ -60,6 +60,9 @@
                 >
                     <bm-label-icon icon="trash"> {{ removeText }} </bm-label-icon>
                 </bm-button>
+                <bm-button variant="outline-neutral" :title="moveAriaText()" @click.exact="openMoveFolderModal">
+                    <bm-label-icon icon="folder"> {{ moveText }} </bm-label-icon>
+                </bm-button>
             </div>
 
             <bm-button variant="inline-neutral" class="my-4" @click="removeSelection">
@@ -90,6 +93,16 @@
                 </bm-button>
             </div>
         </div>
+        <choose-folder-modal
+            ref="move-modal"
+            :ok-title="moveText"
+            :cancel-title="$t('common.cancel')"
+            :title="moveModalTitle"
+            :mailboxes="[mailbox]"
+            :default-folders="defaultFolders"
+            :is-excluded="isExcluded"
+            @ok="move"
+        />
     </div>
 </template>
 
@@ -97,10 +110,11 @@
 import { CLEAR, INFO, REMOVE } from "@bluemind/alert.store";
 import { BmAlertArea, BmButton, BmLabelIcon, BmIcon } from "@bluemind/styleguide";
 import { mapActions, mapState, mapGetters, mapMutations } from "vuex";
+import { folderUtils } from "@bluemind/mail";
 import MailFolderIcon from "./MailFolderIcon";
 import multipleSelectionIllustration from "../../assets/multiple-selection.png";
 
-import { ActionTextMixin, FlagMixin, RemoveMixin } from "~/mixins";
+import { ActionTextMixin, FlagMixin, MoveMixin, RemoveMixin, SelectionMixin } from "~/mixins";
 
 import {
     ALL_CONVERSATIONS_ARE_SELECTED,
@@ -108,12 +122,17 @@ import {
     CONVERSATIONS_ACTIVATED,
     CONVERSATION_LIST_ALL_KEYS,
     CONVERSATION_LIST_IS_SEARCH_MODE,
+    MAILBOX_INBOX,
+    MAILBOX_JUNK,
     SELECTION_KEYS
 } from "~/getters";
+
 import { SET_SELECTION, UNSELECT_ALL_CONVERSATIONS } from "~/mutations";
 import { mailboxUtils } from "@bluemind/mail";
+import ChooseFolderModal from "./ChooseFolderModal";
 
 const { MailboxType } = mailboxUtils;
+const { DEFAULT_FOLDERS } = folderUtils;
 
 export default {
     name: "MailMultipleSelectionActions",
@@ -122,13 +141,15 @@ export default {
         BmButton,
         BmIcon,
         BmLabelIcon,
-        MailFolderIcon
+        MailFolderIcon,
+        ChooseFolderModal
     },
-    mixins: [ActionTextMixin, FlagMixin, RemoveMixin],
+    mixins: [ActionTextMixin, FlagMixin, MoveMixin, RemoveMixin, SelectionMixin],
     data() {
         return {
             isReadOnlyAlertDismissed: false,
-            multipleSelectionIllustration
+            multipleSelectionIllustration,
+            defaultFolders: []
         };
     },
     computed: {
@@ -137,6 +158,7 @@ export default {
         ...mapGetters("mail", {
             ALL_CONVERSATIONS_ARE_SELECTED,
             ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE,
+            CONVERSATIONS_ACTIVATED,
             CONVERSATION_LIST_ALL_KEYS,
             CONVERSATION_LIST_IS_SEARCH_MODE,
             SELECTION_KEYS
@@ -147,7 +169,7 @@ export default {
         },
         mainText() {
             const count = this.SELECTION_KEYS.length;
-            return this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`]
+            return this.CONVERSATIONS_ACTIVATED
                 ? this.$t("mail.conversations.selected", { count })
                 : this.$t("mail.message.selected", { count });
         },
@@ -156,6 +178,14 @@ export default {
                 alert: { name: "mail.READ_ONLY_FOLDER", uid: "READ_ONLY_FOLDER" },
                 options: { area: "right-panel", renderer: "DefaultAlert" }
             };
+        },
+        mailbox() {
+            return this.mailboxes[this.currentFolder.mailboxRef.key];
+        },
+        moveModalTitle() {
+            return this.CONVERSATIONS_ACTIVATED
+                ? this.$tc("mail.actions.move.conversations.aria", 2)
+                : this.$tc("mail.actions.move.aria", 2);
         }
     },
     watch: {
@@ -179,8 +209,21 @@ export default {
         removeSelection() {
             this.UNSELECT_ALL_CONVERSATIONS();
         },
+        isExcluded(folder) {
+            return folder && folder.path === this.currentFolder.path;
+        },
         isFolderOfMailshare(folder) {
             return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;
+        },
+        openMoveFolderModal() {
+            const junk = this.$store.getters[`mail/${MAILBOX_JUNK}`](this.mailbox);
+            const inbox = this.$store.getters[`mail/${MAILBOX_INBOX}`](this.mailbox);
+            this.defaultFolders =
+                this.currentFolder.imapName.toLowerCase() === DEFAULT_FOLDERS.INBOX.toLowerCase() ? [junk] : [inbox, junk];
+            this.$refs["move-modal"].show();
+        },
+        move(folder) {
+            this.MOVE_CONVERSATIONS({ conversations: this.selected, folder });
         }
     }
 };
