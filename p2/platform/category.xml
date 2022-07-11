@@ -454,7 +454,6 @@
     <bundle id="net.bluemind.mailshare.hook" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.mailshare.service" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.maintenance" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.maintenance.elastic" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.maintenance.job" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.maintenance.postgresql" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.metrics.alerts.api" version="4.1.0.qualifier" />
