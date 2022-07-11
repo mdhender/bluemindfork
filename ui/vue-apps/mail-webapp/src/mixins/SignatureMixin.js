@@ -42,12 +42,7 @@ export default {
             $_SignatureMixin_insertSignaturePref() {
                 return this.$store.state.settings.insert_signature;
             }
-        }),
-        $_SignatureMixin_signature() {
-            return this.$store.state["root-app"].identities.find(
-                i => i.email === this.message.from.address && i.displayname === this.message.from.dn
-            ).signature;
-        }
+        })
     },
     data() {
         return { $_SignatureMixin_checkCorporateSignatureDone: false };

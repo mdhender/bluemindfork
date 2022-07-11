@@ -33,7 +33,7 @@ export default {
             this.$refs.content.toggleSignature();
         },
         async checkAndRepairFrom() {
-            const matchingIdentity = this.$store["root-app"].identities.find(
+            const matchingIdentity = this.$store.state["root-app"].identities.find(
                 i => i.email === this.message.from.address && i.displayname === this.message.from.dn
             );
             if (!matchingIdentity) {
