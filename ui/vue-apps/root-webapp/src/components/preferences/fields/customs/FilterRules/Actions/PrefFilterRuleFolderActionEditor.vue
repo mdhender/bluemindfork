@@ -3,6 +3,7 @@
         v-if="userFolders.length > 0"
         v-model="action.value"
         :options="userFolders"
+        :auto-min-width="false"
         class="pref-filter-rule-folder-action-editor"
         scrollbar
     >
@@ -16,7 +17,7 @@
                 >
                 </bm-icon>
                 <span class="d-inline-block text-truncate">{{ start(slotProps.selected.text) }}</span>
-                <span class="text-nowrap">{{ end(slotProps.selected.text) }}</span>
+                <span class="flex-fill text-nowrap text-truncate">{{ end(slotProps.selected.text) }}</span>
             </div>
             <div v-else class="folder-path font-weight-normal">
                 {{ $t("preferences.mail.filters.modal.action.deliver.placeholder") }}
@@ -32,7 +33,7 @@
                 >
                 </bm-icon>
                 <span class="d-inline-block text-truncate">{{ start(slotProps.item.text) }}</span>
-                <span class="text-nowrap"> {{ end(slotProps.item.text) }}</span>
+                <span class="text-nowrap text-truncate"> {{ end(slotProps.item.text) }}</span>
             </div>
         </template>
     </bm-form-select>

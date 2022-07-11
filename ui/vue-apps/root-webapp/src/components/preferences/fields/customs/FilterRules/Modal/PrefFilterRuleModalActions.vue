@@ -11,12 +11,13 @@
                 :key="index"
                 class="d-flex align-items-start justify-content-between row mb-1"
             >
-                <div class="d-flex col align-items-start">
+                <div class="d-flex col-11 align-items-start">
                     <bm-form-select
                         ref="actionCombo"
                         :value="actionComboValue(action)"
                         :options="actionChoices"
                         :placeholder="$t('preferences.mail.filters.modal.actions.add.placeholder')"
+                        :auto-min-width="false"
                         class="col-6 pr-4"
                         @input="modifyActionType(index, $event)"
                     />

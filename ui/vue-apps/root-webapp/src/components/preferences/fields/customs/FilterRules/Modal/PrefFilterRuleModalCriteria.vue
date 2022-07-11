@@ -13,7 +13,7 @@
                 :key="index"
                 class="d-flex align-items-center justify-content-between row mb-1"
             >
-                <div class="d-flex col">
+                <div class="d-flex col-11">
                     <bm-form-select
                         v-show="!resolvedCriteria[index] || !resolvedCriteria[index].fullEditor"
                         ref="criterionCombo"
@@ -25,6 +25,7 @@
                                 ? $t('preferences.mail.filters.modal.exceptions.add.placeholder')
                                 : $t('preferences.mail.filters.modal.criteria.add.placeholder')
                         "
+                        :auto-min-width="false"
                         @input="modifyCriterionType(index, $event)"
                     />
                     <component
