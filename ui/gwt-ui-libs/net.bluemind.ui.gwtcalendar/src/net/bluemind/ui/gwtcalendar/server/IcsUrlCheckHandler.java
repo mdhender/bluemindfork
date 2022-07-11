@@ -53,8 +53,8 @@ public class IcsUrlCheckHandler implements Handler<HttpServerRequest>, NeedVertx
 	private final AtomicReference<SharedMap<String, String>> sysconf = new AtomicReference<>();
 
 	private final Builder ahcDefaultConfig = AHCWithProxy.defaultConfig()
-			.setRequestTimeout((int) TimeUnit.MILLISECONDS.convert(3, TimeUnit.SECONDS))
-			.setPooledConnectionIdleTimeout((int) TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS));
+			.setRequestTimeout((int) TimeUnit.MILLISECONDS.convert(10, TimeUnit.SECONDS))
+			.setPooledConnectionIdleTimeout((int) TimeUnit.MILLISECONDS.convert(10, TimeUnit.SECONDS));
 
 	private Vertx vertx;
 
