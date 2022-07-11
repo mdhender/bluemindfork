@@ -269,7 +269,7 @@ export default function (i18n) {
                                             component: "PrefReadMoreLabel",
                                             options: {
                                                 href:
-                                                    "https://forge.bluemind.net/confluence/pages/viewpage.action?pageId=86743359#id-.D%C3%A9finirl'exp%C3%A9diteurdumessagevBM4-S%C3%A9lectionnerl'exp%C3%A9diteur",
+                                                    "https://doc.bluemind.net/master/Guide_de_l_utilisateur/La_messagerie/Gerer_les_identites_du_compte#param%C3%A9trer-le-champ-exp%C3%A9diteur",
                                                 text: i18n.t("preferences.mail.identities.auto_select.label")
                                             }
                                         },

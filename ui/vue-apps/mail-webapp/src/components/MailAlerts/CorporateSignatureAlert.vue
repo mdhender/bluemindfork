@@ -4,7 +4,7 @@
         <a
             class="text-nowrap"
             target="_blank"
-            href="https://forge.bluemind.net/confluence/display/BM4/Signatures+d%27entreprise"
+            href="https://doc.bluemind.net/master/Guide_de_l_administrateur/Configurer_les_domaines/Signatures_d_entreprise"
         >
             {{ $t("common.read_more") }}
         </a>

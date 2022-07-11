@@ -10,7 +10,7 @@
       </web-module-provider>
    </extension>
    <extension point="webapp.banner">
-      <application description="%banner-entry.description" href="/webapp/mail/" name="%banner-entry.name" priority="512" role="hasMail" shortcut="true" help="https://forge.bluemind.net/confluence/display/BM4/Messagerie+BlueMind">
+      <application description="%banner-entry.description" href="/webapp/mail/" name="%banner-entry.name" priority="512" role="hasMail" shortcut="true" help="https://doc.bluemind.net/master/category/la-messagerie">
          <icon>
             <svg>
                <![CDATA[ 

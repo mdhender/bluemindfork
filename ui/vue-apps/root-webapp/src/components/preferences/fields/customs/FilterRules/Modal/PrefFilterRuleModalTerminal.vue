@@ -23,7 +23,7 @@ export default {
     data() {
         return {
             readMore:
-                "https://forge.bluemind.net/confluence/pages/viewpage.action?pageId=86743389#id-.Appliquerdesr%C3%A8glesdetrietd'actionsvBM4-Cr%C3%A9erunfiltreautomatique"
+                "https://doc.bluemind.net/master/Guide_de_l_utilisateur/La_messagerie/Appliquer_des_regles_de_tri_et_d_actions#ordonner-les-filtres-automatiques"
         };
     }
 };

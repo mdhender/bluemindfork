@@ -106,7 +106,7 @@
             name="%banner-entry.name"
             priority="16"
             role="hasAdminConsole"
-            help="https://forge.bluemind.net/confluence/display/BM4/Guide+de+l%27administrateur">
+            help="https://doc.bluemind.net/master/category/guide-de-ladministrateur">
          <icon>
             <svg>
                <![CDATA[

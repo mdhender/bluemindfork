@@ -36,8 +36,7 @@ export default {
         return {
             containerType: ContainerType.CALENDAR,
             readMore: {
-                href:
-                    "https://forge.bluemind.net/confluence/display/BM4/Preferences+de+l+agenda#Preferencesdelagenda-abonnementsAbonnements",
+                href: "https://doc.bluemind.net/master/Guide_de_l_utilisateur/L_agenda/Utiliser_un_calendrier_partage",
                 text: this.$t("preferences.display_containers.other_calendars.read_more")
             }
         };

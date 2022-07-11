@@ -8,7 +8,7 @@
                     <em>{{ feature }}</em>
                 </li>
             </ul>
-            <a target="_blank" href="https://forge.bluemind.net/confluence/display/BM4/Messagerie+BlueMind">
+            <a target="_blank" href="https://doc.bluemind.net/master/category/la-messagerie">
                 {{ $t("common.read_more") }}
             </a>
         </div>

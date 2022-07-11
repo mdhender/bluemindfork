@@ -18,7 +18,7 @@ export default {
     data() {
         return {
             readMore:
-                "https://forge.bluemind.net/confluence/display/DA/.Consulter+les+messages+vBM-4#id-.ConsulterlesmessagesvBM4-Gestiondesimagesdistantes"
+                "https://doc.bluemind.net/master/Guide_de_l_utilisateur/La_messagerie/Consulter_les_messages#g%C3%A9rer-les-images-distantes"
         };
     }
 };
