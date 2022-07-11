@@ -195,8 +195,14 @@ public class HttpProxyHook
 
 		if (!Boolean.valueOf(conf.booleanValue(SysConfKeys.http_proxy_enabled.name()))) {
 			context.getServiceProvider().instance(IServer.class, InstallationId.getIdentifier()).allComplete().stream()
-					.forEach(server -> NodeActivator.get(server.value.address()).writeFile(PROXYVARS,
-							new ByteArrayInputStream("".getBytes())));
+					.forEach(server -> {
+						try {
+							NodeActivator.get(server.value.address()).writeFile(PROXYVARS,
+									new ByteArrayInputStream("".getBytes()));
+						} catch (ServerFault e) {
+							logger.warn("Cannot deactivate proxy on server {}", server.uid, e);
+						}
+					});
 			return;
 		}
 

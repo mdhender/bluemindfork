@@ -166,6 +166,7 @@
       <plugin id="net.bluemind.core.container.sync"/>
       <plugin id="net.bluemind.core.context"/>
       <plugin id="net.bluemind.core.jdbc"/>
+      <plugin id="net.bluemind.core.nginx.config"/>
       <plugin id="net.bluemind.core.rest"/>
       <plugin id="net.bluemind.core.rest.common"/>
       <plugin id="net.bluemind.core.rest.http"/>

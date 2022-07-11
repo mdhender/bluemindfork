@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -71,6 +73,7 @@ import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.sessions.Sessions;
@@ -84,6 +87,8 @@ import net.bluemind.mime4j.common.OffloadedBodyFactory;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.vertx.testhelper.Deploy;
 
@@ -139,6 +144,11 @@ public abstract class AbstractRollingReplicationTests {
 		PopulateHelper.initGlobalVirt(esServer, imapServer);
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);
+
+		Map<String, String> sysConf = new HashMap<>();
+		sysConf.put(SysConfKeys.message_size_limit.name(), "6000000");
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ISystemConfiguration.class)
+				.updateMutableValues(sysConf);
 
 		String unique = uniqueUidPart();
 		domainUid = "test" + unique + ".lab";
