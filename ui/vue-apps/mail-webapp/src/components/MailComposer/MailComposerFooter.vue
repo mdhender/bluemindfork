@@ -49,6 +49,7 @@ export default {
     background-color: $surface;
     .bm-rich-editor-toolbar.full-toolbar {
         border-top-color: $neutral-fg-lo3;
+        border-width: 1px 0 0 0;
     }
     .slide-fade-enter-active,
     .slide-fade-leave-active {
