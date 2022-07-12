@@ -31,11 +31,11 @@ export default {
 
         /**
          * Navigate to the URL of the given conversation. Fall back to message-like URL if the conversation is a single
-         * message. Fallback to the URL of the given folder if conversaiton is false.
+         * message. Fallback to the URL of the given folder if conversation is false.
          */
         navigateTo(conversation, folder) {
             if (!conversation) {
-                this.$router.push(this.folderRoute(folder));
+                this.$router.navigate(this.folderRoute(folder));
             } else {
                 this.$router.navigate({ name: "v:mail:conversation", params: { conversation } });
             }
