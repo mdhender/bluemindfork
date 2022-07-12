@@ -40,7 +40,10 @@
             </div>
         </template>
         <template slot="content">
-            <div v-if="!isMessageExpanded" class="col pl-3 pb-2 pr-3 text-truncate">{{ message.preview }}...</div>
+            <div v-if="!isMessageExpanded" class="col pl-3 pb-2 pr-3 text-truncate">
+                <mail-attachment-icon class="mr-1" :message="message" />
+                {{ message.preview }}...
+            </div>
             <div v-else class="col pl-3 pb-2 pr-3">
                 <body-viewer
                     v-if="MESSAGE_IS_LOADED(message.key)"
@@ -66,6 +69,7 @@ import BodyViewer from "../BodyViewer";
 import { MESSAGE_IS_LOADED } from "~/getters";
 import MailFolderIcon from "../../MailFolderIcon";
 import { mailboxUtils } from "@bluemind/mail";
+import MailAttachmentIcon from "../../MailAttachmentIcon";
 
 const { MailboxType } = mailboxUtils;
 
@@ -80,7 +84,8 @@ export default {
         MailConversationViewerItem,
         MailViewerContentLoading,
         MailViewerToolbar,
-        MailViewerToolbarForMobile
+        MailViewerToolbarForMobile,
+        MailAttachmentIcon
     },
     mixins: [MailConversationViewerItemMixin],
     computed: {
