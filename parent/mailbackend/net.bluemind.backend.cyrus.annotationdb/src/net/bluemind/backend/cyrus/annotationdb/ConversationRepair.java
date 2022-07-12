@@ -114,7 +114,7 @@ public class ConversationRepair implements IDirEntryRepairSupport {
 				op.run();
 			} finally {
 				if (activated) {
-					activateUserConversations(settings, domainUid);
+					activateUserConversations(settings, userUid);
 				}
 			}
 		}
