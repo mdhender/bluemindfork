@@ -17,14 +17,12 @@ import { INFO, REMOVE } from "@bluemind/alert.store";
 import { BmAlertArea } from "@bluemind/styleguide";
 
 import { CURRENT_CONVERSATION_METADATA } from "~/getters";
-import BlockedRemoteContent from "./Alerts/BlockedRemoteContent";
-import VideoConferencing from "./Alerts/VideoConferencing";
 import MailConversationViewer from "../MailViewer/MailConversationViewer";
 import MailAttachmentPreview from "../MailAttachment/MailAttachmentPreview";
 
 export default {
     name: "MailThread",
-    components: { BlockedRemoteContent, BmAlertArea, MailConversationViewer, VideoConferencing, MailAttachmentPreview },
+    components: { BmAlertArea, MailConversationViewer, MailAttachmentPreview },
     computed: {
         ...mapState("mail", ["folders"]),
         ...mapGetters("mail", { CURRENT_CONVERSATION_METADATA }),

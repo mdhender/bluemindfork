@@ -219,7 +219,9 @@ export default {
             const junk = this.$store.getters[`mail/${MAILBOX_JUNK}`](this.mailbox);
             const inbox = this.$store.getters[`mail/${MAILBOX_INBOX}`](this.mailbox);
             this.defaultFolders =
-                this.currentFolder.imapName.toLowerCase() === DEFAULT_FOLDERS.INBOX.toLowerCase() ? [junk] : [inbox, junk];
+                this.currentFolder.imapName.toLowerCase() === DEFAULT_FOLDERS.INBOX.toLowerCase()
+                    ? [junk]
+                    : [inbox, junk];
             this.$refs["move-modal"].show();
         },
         move(folder) {

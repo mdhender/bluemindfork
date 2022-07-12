@@ -4,7 +4,8 @@ import router from "@bluemind/router";
 import store from "@bluemind/store";
 
 import MailAlertRenderer from "./components/MailAlertRenderer";
-import * as AlertComponents from "./components/MailAlerts";
+import * as MailAlertComponents from "./components/MailAlerts";
+import * as ThreadAlertComponents from "./components/MailThread/Alerts";
 import MailApp from "./components/MailApp";
 import mailRoutes from "./router";
 import MailStore from "./store/";
@@ -12,11 +13,11 @@ import registerAPIClients from "./registerApiClients";
 
 registerAPIClients();
 store.registerModule("mail", MailStore);
-
 router.addRoutes(mailRoutes);
 
 Vue.component("mail-webapp", MailApp);
 Vue.component("MailAlertRenderer", MailAlertRenderer);
+const AlertComponents = { ...MailAlertComponents, ...ThreadAlertComponents };
 for (let component in AlertComponents) {
     Vue.component(component, AlertComponents[component]);
 }

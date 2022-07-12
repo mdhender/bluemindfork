@@ -20,8 +20,6 @@ import { BmAlertArea } from "@bluemind/styleguide";
 
 import { SET_ACTIVE_FOLDER, SET_BLOCK_REMOTE_IMAGES, SET_MESSAGE_COMPOSING } from "~/mutations";
 import { ACTIVE_MESSAGE, CONVERSATION_LIST_IS_SEARCH_MODE, MY_DRAFTS } from "~/getters";
-import BlockedRemoteContent from "./Alerts/BlockedRemoteContent";
-import VideoConferencing from "./Alerts/VideoConferencing";
 import MailComposer from "../MailComposer";
 import MailComposerLoading from "../MailComposer/MailComposerLoading";
 import MailViewer from "../MailViewer";
@@ -31,13 +29,11 @@ import MailAttachmentPreview from "../MailAttachment/MailAttachmentPreview";
 export default {
     name: "MailMessage",
     components: {
-        BlockedRemoteContent,
         BmAlertArea,
         MailComposer,
         MailComposerLoading,
         MailViewer,
         MailViewerLoading,
-        VideoConferencing,
         MailAttachmentPreview
     },
     provide() {
