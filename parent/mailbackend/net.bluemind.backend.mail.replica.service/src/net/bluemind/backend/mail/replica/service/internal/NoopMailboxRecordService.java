@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
+import net.bluemind.backend.mail.replica.api.Weight;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Count;
@@ -186,6 +187,10 @@ public class NoopMailboxRecordService implements IDbMailboxRecords {
 	@Override
 	public List<Long> imapIdSet(String set, String filter) {
 		return Collections.emptyList();
+	}
+
+	public Weight weight() {
+		return new Weight();
 	}
 
 }

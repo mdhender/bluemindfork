@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.pop3.endpoint.driver" name="driver" schema="schema/net.bluemind.pop3.endpoint.driver.exsd"/>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.pop3.endpoint.Pop3Verticle$Pop3Factory">
+      </verticle>
+   </extension>
+   <extension
+         id="standalone"
+         name="Pop3Standalone"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.bluemind.pop3.endpoint.Pop3Standalone">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="pop3"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.pop3.endpoint.standalone"
+            name="pop3">
+         <property
+               name="appName"
+               value="pop3">
+         </property>
+      </product>
+   </extension>
+
+</plugin>

@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -243,6 +244,21 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 			value.bodyGuid = null;
 			return index;
 		}, new Object[] { container.id });
+	}
+
+	public long weight() throws SQLException {
+		String query = "SELECT SUM(b.size) FROM t_mailbox_record rec "
+				+ "INNER JOIN t_container_item item ON rec.item_id=item.id " //
+				+ "INNER JOIN t_message_body b ON rec.message_body_guid=b.guid " //
+				+ "WHERE item.container_id = ? " //
+				+ "AND (item.flags::bit(32) & (" + ItemFlag.Deleted.value + ")::bit(32)) = 0::bit(32) ";
+
+		AtomicLong weight = unique(query, con -> new AtomicLong(), (rs, index, value) -> {
+			value.set(rs.getLong(1));
+			return index;
+		}, container.id);
+		return weight.get();
+
 	}
 
 	public static class MailboxRecordItemV {

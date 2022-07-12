@@ -54,6 +54,7 @@
 		<module>milter</module>
 		<module>node</module>
 		<module>outlook</module>
+		<module>pop</module>
 		<module>proxy</module>
 		<module>resource</module>
 		<module>role</module>

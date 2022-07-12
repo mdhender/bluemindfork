@@ -66,6 +66,7 @@ import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.api.Weight;
 import net.bluemind.backend.mail.replica.indexing.IDSet;
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService.BulkOperation;
@@ -136,6 +137,18 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 	@Override
 	public ItemValue<MailboxRecord> getCompleteById(long id) {
 		return storeService.get(id, null);
+	}
+
+	@Override
+	public Weight weight() {
+		try {
+			long val = recordStore.weight();
+			Weight weight = new Weight();
+			weight.total = val;
+			return weight;
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
 	}
 
 	@Override

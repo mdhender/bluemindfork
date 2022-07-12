@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.pop3.driver
+Bundle-SymbolicName: net.bluemind.pop3.driver;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.pop3.endpoint,
+ net.bluemind.config,
+ net.bluemind.core.rest.http,
+ net.bluemind.authentication.api,
+ slf4j.api,
+ net.bluemind.user.api;bundle-version="4.1.0",
+ net.bluemind.backend.mail.replica.api,
+ com.google.guava
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.pop3.driver
