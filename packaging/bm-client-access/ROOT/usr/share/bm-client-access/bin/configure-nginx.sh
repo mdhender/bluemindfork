@@ -239,7 +239,6 @@ nginxConfiguration /etc/bm-hps/bm-upstream-hps.conf /usr/share/bm-client-access/
 
 nginxConfiguration /etc/bm-webserver/bm-upstream-webserver.conf /usr/share/bm-client-access/conf/bm-webserver/bm-upstream-webserver.conf
 
-nginxConfiguration /etc/bm-core/bm-core-nginx.conf /usr/share/bm-client-access/conf/bm-core/bm-core-nginx.conf
 nginxConfiguration /etc/bm-core/bm-upstream-core.conf /usr/share/bm-client-access/conf/bm-core/bm-upstream-core.conf
 
 nginxConfiguration /etc/bm-tick/bm-upstream-tick.conf /usr/share/bm-client-access/conf/bm-tick/bm-upstream-tick.conf
