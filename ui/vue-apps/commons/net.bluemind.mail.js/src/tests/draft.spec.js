@@ -198,7 +198,7 @@ describe("compute To and Cc recipients when replying", () => {
         const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
         expect(to).toEqual([previousMessageFrom].concat(previousToWithoutMe));
 
-        const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage);
+        const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
         expect(cc).toEqual(previousMessageCc);
     });
 
@@ -208,7 +208,7 @@ describe("compute To and Cc recipients when replying", () => {
         const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
         expect(to).toEqual(otherRecipientsWithDn);
 
-        const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage);
+        const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
         expect(cc).toEqual([]);
     });
 
@@ -218,7 +218,7 @@ describe("compute To and Cc recipients when replying", () => {
         const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
         expect(to).toEqual([...otherRecipientsWithDn, ...previousMessage.to]);
 
-        const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage);
+        const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
         expect(cc).toEqual(previousMessageCc);
     });
 
@@ -228,14 +228,20 @@ describe("compute To and Cc recipients when replying", () => {
         const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
         expect(to).toEqual([otherRecipientsWithDn[0], ...previousMessage.to]);
 
-        const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage);
+        const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
         expect(cc).toEqual(previousMessageCc);
     });
 
-    test("Remove 'From' from recipients", () => {
+    test("Remove sender from TO recipients", () => {
         previousMessage.to.push(currentIdentity);
         const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
         expect(to.findIndex(recipient => recipient.address === currentIdentity.email)).toBe(-1);
+    });
+
+    test("Remove sender from CC recipients", () => {
+        previousMessage.to.push(currentIdentity);
+        const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
+        expect(cc.findIndex(recipient => recipient.address === currentIdentity.email)).toBe(-1);
     });
 });
 
