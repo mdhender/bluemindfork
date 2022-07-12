@@ -614,7 +614,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		if (mailbox.value != null) {
 			return mailboxStorage.getQuota(context, domainUid, mailbox);
 		} else {
-			return null;
+			return new MailboxQuota();
 		}
 
 	}
