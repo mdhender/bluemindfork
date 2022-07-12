@@ -189,6 +189,8 @@ const getters = {
             subject: messages[0]?.subject,
             from: messages[0]?.from,
             to: messages[0]?.to,
+            cc: messages[0]?.cc,
+            bcc: messages[0]?.bcc,
             key,
             size: messages.length,
             remoteRef: conversation.remoteRef,

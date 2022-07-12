@@ -16,7 +16,37 @@
                 <div class="custom-col-left text-secondary text-right pr-2">{{ $t("common.to") }}</div>
                 <div class="custom-col-right d-flex flex-column">
                     <bm-contact
-                        v-for="(contact, index) in message.to.concat(message.cc)"
+                        v-for="(contact, index) in message.to"
+                        :key="`${contact.address}#${index}`"
+                        :contact="contact"
+                        no-avatar
+                        transparent
+                        bold
+                        show-address
+                        :text-truncate="false"
+                    />
+                </div>
+            </div>
+            <div v-if="message.cc && message.cc.length" class="d-flex">
+                <div class="custom-col-left text-secondary text-right pr-2">{{ $t("common.cc") }}</div>
+                <div class="custom-col-right d-flex flex-column">
+                    <bm-contact
+                        v-for="(contact, index) in message.cc"
+                        :key="`${contact.address}#${index}`"
+                        :contact="contact"
+                        no-avatar
+                        transparent
+                        bold
+                        show-address
+                        :text-truncate="false"
+                    />
+                </div>
+            </div>
+            <div v-if="message.bcc && message.bcc.length" class="d-flex">
+                <div class="custom-col-left text-secondary text-right pr-2">{{ $t("common.bcc") }}</div>
+                <div class="custom-col-right d-flex flex-column">
+                    <bm-contact
+                        v-for="(contact, index) in message.bcc"
                         :key="`${contact.address}#${index}`"
                         :contact="contact"
                         no-avatar

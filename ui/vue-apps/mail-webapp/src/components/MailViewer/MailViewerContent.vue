@@ -10,10 +10,10 @@
                 {{ $d(message.date, "full_date_time_short") }}
             </bm-col>
         </bm-row>
-        <div class="mail-sender-splitter"><hr /></div>
+        <div v-if="hasRecipients" class="mail-sender-splitter"><hr /></div>
 
-        <mail-viewer-recipients :message="message" />
-        <div class="mail-viewer-splitter"><hr /></div>
+        <mail-viewer-recipients v-if="hasRecipients" :message="message" />
+        <div class="mail-viewer-splitter pt-2"><hr /></div>
         <body-viewer :message="message" @remote-content="from => $emit('remote-content', from)">
             <template v-slot:attachments-block="scope">
                 <slot name="attachments-block" v-bind="scope" />
@@ -53,6 +53,9 @@ export default {
     computed: {
         subject() {
             return this.message.subject || this.$t("mail.viewer.no.subject");
+        },
+        hasRecipients() {
+            return this.message.to.length || this.message.cc.length || this.message.bcc.length;
         }
     }
 };

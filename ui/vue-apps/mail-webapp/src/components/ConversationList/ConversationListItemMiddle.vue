@@ -138,7 +138,14 @@ export default {
             const folder = this.conversation.folderRef.key;
             const isSentOrDraftBox = [this.MY_DRAFTS.key, this.MY_SENT.key].includes(folder);
             if (isSentOrDraftBox) {
-                return this.conversation.to.map(to => (to.dn ? to.dn : to.address)).join(", ");
+                const recipients = this.conversation.to?.length
+                    ? this.conversation.to
+                    : this.conversation.cc?.length
+                    ? this.conversation.cc
+                    : this.conversation.bcc?.length
+                    ? this.conversation.bcc
+                    : [];
+                return recipients.map(to => (to.dn ? to.dn : to.address)).join(", ");
             } else {
                 return this.conversation.from.dn ? this.conversation.from.dn : this.conversation.from.address;
             }

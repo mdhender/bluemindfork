@@ -82,7 +82,7 @@ export default {
             const conversationFolder = this.conversation.folderRef.key;
             const isSentOrDraftBox = [this.MY_DRAFTS.key, this.MY_SENT.key].includes(conversationFolder);
             if (isSentOrDraftBox) {
-                const firstRecipient = this.conversation.to[0];
+                const firstRecipient = this.conversation.to[0] || this.conversation.cc[0] || this.conversation.bcc[0];
                 return firstRecipient ? (firstRecipient.dn ? firstRecipient.dn : firstRecipient.address) : "";
             } else {
                 return this.conversation.from.dn ? this.conversation.from.dn : this.conversation.from.address;
