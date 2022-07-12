@@ -151,7 +151,6 @@ public class Containers implements IContainers {
 		if (ds == null) {
 			throw new ServerFault("Failed to create container " + container + " : Null datasource");
 		}
-
 		final String location = loc;
 		final ContainerStore cs = new ContainerStore(null, ds, securityContext);
 		JdbcAbstractStore.doOrFail(() -> cs.create(container));
@@ -502,7 +501,7 @@ public class Containers implements IContainers {
 		return descriptor;
 	}
 
-	ContainerDescriptor asDescriptor(Container c, SecurityContext sc) throws ServerFault {
+	private ContainerDescriptor asDescriptor(Container c, SecurityContext sc) throws ServerFault {
 		DataSource dataSource = DataSourceRouter.get(context, c.uid);
 		String label = c.name;
 		if (sc != null) {
@@ -512,7 +511,6 @@ public class Containers implements IContainers {
 				c.defaultContainer);
 		descriptor.internalId = c.id;
 		descriptor.datalocation = getDatalocation(dataSource);
-
 		if (sc != null) {
 			RBACManager aclForContainer = RBACManager.forSecurityContext(sc).forContainer(c);
 			descriptor.verbs = aclForContainer.resolve().stream().filter(p -> p instanceof ContainerPermission)

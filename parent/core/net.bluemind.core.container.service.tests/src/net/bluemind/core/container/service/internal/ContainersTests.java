@@ -90,9 +90,9 @@ public class ContainersTests {
 		Sessions.get().put(user.getSessionId(), user);
 		Sessions.get().put(domainAdminSecurityContext.getSessionId(), domainAdminSecurityContext);
 
-		containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), admin0SecurityContext);
+		containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), admin0SecurityContext);
 
-		aclStore = new AclStore(JdbcTestHelper.getInstance().getDataSource());
+		aclStore = new AclStore(null, JdbcTestHelper.getInstance().getDataSource());
 		final SettableFuture<Void> future = SettableFuture.<Void>create();
 		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
 
@@ -102,6 +102,9 @@ public class ContainersTests {
 			}
 		};
 		VertxPlatform.spawnVerticles(done);
+
+		ServerSideServiceProvider.mailboxDataSource.put("dir", JdbcTestHelper.getInstance().getDataSource());
+
 		future.get();
 	}
 
@@ -207,7 +210,7 @@ public class ContainersTests {
 		ContainerDescriptor container = containers.get(uid);
 		assertNotNull(container);
 		assertTrue(container.defaultContainer);
-		assertNull(container.datalocation);
+		assertEquals("dir", container.datalocation);
 	}
 
 	@Test

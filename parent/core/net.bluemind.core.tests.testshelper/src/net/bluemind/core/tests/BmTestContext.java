@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -55,18 +56,12 @@ public class BmTestContext implements BmContext {
 		this.provider = provider;
 	}
 
-	public BmTestContext(SecurityContext sc, IServiceProvider provider, DataSource datasource) {
-		this.securityContext = sc;
-		this.provider = provider;
-		this.dataSource = datasource;
-	}
-
 	public String dataSourceLocation(DataSource ds) {
 		if (ds == dataSource) {
 			return "dir";
-		} else {
-			return null;
 		}
+		return ServerSideServiceProvider.mailboxDataSource.entrySet().stream().filter(e -> e.getValue() == ds)
+				.map(Entry::getKey).findAny().orElse(null);
 	}
 
 	@Override
@@ -171,12 +166,6 @@ public class BmTestContext implements BmContext {
 		return new BmTestContext(sc);
 	}
 
-	public static BmTestContext withDataSource(SecurityContext sc, DataSource ds) {
-		BmTestContext ret = new BmTestContext(sc, null, ds);
-		ret.provider = ServerSideServiceProvider.getProvider(ret);
-		return ret;
-	}
-
 	public BmTestContext withGroup(String... groups) {
 		return new BmTestContext(new SecurityContext(securityContext.getSessionId(), securityContext.getSubject(),
 				Arrays.asList(groups), securityContext.getRoles(), securityContext.getRolesByOrgUnits(),
@@ -187,16 +176,12 @@ public class BmTestContext implements BmContext {
 
 	@Override
 	public DataSource getMailboxDataSource(String datalocation) {
-		DataSource ret = JdbcActivator.getInstance().getMailboxDataSource(datalocation);
-		if (ret == null) {
-			ret = ServerSideServiceProvider.mailboxDataSource.values().iterator().next();
-		}
-		return ret;
+		return ServerSideServiceProvider.mailboxDataSource.get(datalocation);
 	}
 
 	@Override
 	public List<DataSource> getAllMailboxDataSource() {
-		List<DataSource> ret = new ArrayList<DataSource>();
+		List<DataSource> ret = new ArrayList<>();
 		ret.addAll(ServerSideServiceProvider.mailboxDataSource.values());
 		return ret;
 	}
