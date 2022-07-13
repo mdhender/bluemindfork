@@ -1,0 +1,28 @@
+Return-Path: <no-reply@devenv.blue>
+Received: from focal (localhost [127.0.0.1])
+	 by focal with LMTPA;
+	 Wed, 13 Jul 2022 12:33:24 +0000
+X-Cyrus-Session-Id: cyrus-376482-1657715604-2-7812748457346615831
+X-Sieve: CMU Sieve 3.0
+Received: from 192.168.17.139 (LHLO focal) by unknown with LMTP; Wed, 13 Jul
+ 2022 12:33:24 GMT
+Received: from [127.0.1.1] (unknown [192.168.17.139])
+	(Authenticated sender: admin0@global.virt)
+	by focal (Postfix) with ESMTPSA id EA68B2C1FFB
+	for <nico@devenv.blue>; Wed, 13 Jul 2022 12:33:23 +0000 (UTC)
+Date: Wed, 13 Jul 2022 12:33:23 +0000
+Subject: =?ISO-8859-1?Q?david_DEVENV.BLUE_vous_a_partag=E9_un_calendrier?=
+Sender: "no-reply@devenv.blue" <no-reply@devenv.blue>
+From: "no-reply@devenv.blue" <no-reply@devenv.blue>
+To: "nico DEVENV.BLUE" <nico@devenv.blue>
+Content-Type: text/html; charset=UTF-8;
+Content-Transfer-Encoding: quoted-printable
+X-BM-FolderUid:
+ calendar:Default:cli-created-d095c2ea-2d5f-31c0-9224-30b8143818c1
+X-BM-FolderType: calendar
+Message-Id: <20220713123323.EA68B2C1FFB@focal>
+X-Bm-Milter-Handled: 50f3bc92-057e-44bd-9e28-af7a310ff19c
+X-Bm-Transport-Timestamp: 1657715604016
+
+david DEVENV=2EBLUE vous a partag=C3=A9 le calendrier "david DEVENV=2EBLUE"=
+=2E

@@ -614,7 +614,8 @@ public class BodyStreamProcessor {
 		for (String h : mmapHeaders.keySet()) {
 			String lowerCase = h.toLowerCase();
 			if (lowerCase.startsWith("x-bm") || whitelist.contains(lowerCase)) {
-				headers.add(MessageBody.Header.create(h, mmapHeaders.get(h)));
+				headers.add(MessageBody.Header.create(h, mmapHeaders.get(h).stream()
+						.map(val -> CharMatcher.whitespace().trimLeadingFrom(val)).collect(Collectors.toList())));
 			}
 		}
 		return headers;

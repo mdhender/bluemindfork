@@ -103,6 +103,15 @@ public class BodyStreamProcessorTests {
 	}
 
 	@Test
+	public void testBM18750() throws IOException, InterruptedException, ExecutionException, TimeoutException {
+		Stream stream = openResource("data/BM-18750.eml");
+		MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);
+
+		assertEquals("calendar:Default:cli-created-d095c2ea-2d5f-31c0-9224-30b8143818c1",
+				result.headers.get("x-bm-folderuid").value);
+	}
+
+	@Test
 	public void testProcessRescomEML() throws IOException, InterruptedException, ExecutionException, TimeoutException {
 		Stream stream = openResource("data/msg_from_rescom.eml");
 		MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);
