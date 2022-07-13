@@ -324,4 +324,15 @@ public class WrappedRequest implements HttpServerRequestInternal {
 	public Context context() {
 		return impl.context();
 	}
+
+	@Override
+	public HttpServerRequest setParamsCharset(String charset) {
+		impl.setParamsCharset(charset);
+		return this;
+	}
+
+	@Override
+	public String getParamsCharset() {
+		return impl.getParamsCharset();
+	}
 }

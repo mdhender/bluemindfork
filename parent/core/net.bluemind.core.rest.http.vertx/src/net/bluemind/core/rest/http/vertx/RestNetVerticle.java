@@ -26,7 +26,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import net.bluemind.core.rest.base.RestRootHandler;
 import net.bluemind.core.rest.sockjs.vertx.RestSockJSProxyServer;
@@ -49,11 +48,13 @@ public class RestNetVerticle extends AbstractVerticle {
 		HttpRoutes.bindRoutes(vertx, rootHandler.executor(), routeMatcher);
 
 		httpServer.requestHandler(routeMatcher);
-		SockJSHandler wsHandler = routeMatcher.websocket("/eventbus",
+
+		RestSockJSProxyServer sockProxy = new RestSockJSProxyServer(vertx, rootHandler, rootHandler);
+		routeMatcher.websocket("/eventbus",
 				new SockJSHandlerOptions().setInsertJSESSIONID(false)
 						.setLibraryURL("https://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js")
-						.setRegisterWriteHandler(true).setHeartbeatInterval(50000));
-		wsHandler.socketHandler(new RestSockJSProxyServer(vertx, rootHandler, rootHandler));
+						.setRegisterWriteHandler(true).setHeartbeatInterval(50000),
+				sockProxy);
 
 		httpServer.listen(PORT, (AsyncResult<HttpServer> event) -> {
 			if (event.succeeded()) {

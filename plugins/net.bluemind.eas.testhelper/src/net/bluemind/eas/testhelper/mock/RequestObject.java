@@ -322,4 +322,14 @@ public class RequestObject implements HttpServerRequest {
 		return null;
 	}
 
+	@Override
+	public HttpServerRequest setParamsCharset(String charset) {
+		return this;
+	}
+
+	@Override
+	public String getParamsCharset() {
+		return null;
+	}
+
 }

@@ -264,6 +264,17 @@ public class TestRequestHelper {
 			public Set<Cookie> cookies() {
 				return null;
 			}
+
+			@Override
+			public HttpServerRequest setParamsCharset(String charset) {
+				return this;
+			}
+
+			@Override
+			public String getParamsCharset() {
+				// TODO Auto-generated method stub
+				return null;
+			}
 		};
 	}
 }

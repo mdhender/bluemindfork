@@ -24,6 +24,7 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
+import io.vertx.ext.web.handler.sockjs.SockJSSocket;
 
 public class RouteMatcher implements Handler<HttpServerRequest> {
 
@@ -64,9 +65,9 @@ public class RouteMatcher implements Handler<HttpServerRequest> {
 		router.route().order(Integer.MAX_VALUE).handler(rc -> h.handle(rc.request()));
 	}
 
-	public SockJSHandler websocket(String prefix, SockJSHandlerOptions opts) {
-		SockJSHandler handler = SockJSHandler.create(vertx, opts);
-		router.route(prefix + "/*").handler(handler);
+	public SockJSHandler websocket(String prefix, SockJSHandlerOptions hOpts, Handler<SockJSSocket> sock) {
+		SockJSHandler handler = SockJSHandler.create(vertx, hOpts);
+		router.route(prefix + "/*").subRouter(handler.socketHandler(sock));
 		return handler;
 	}
 

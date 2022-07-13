@@ -58,9 +58,7 @@ public class SockJsProvider {
 						logger.info("Connected to sockjs server {} {}, waiters: {}", uri, retSock, waiters.size());
 						ws = retSock;
 
-						ws.handler(buffer -> {
-							handleData(buffer);
-						});
+						ws.handler(this::handleData);
 
 						waiters.forEach(w -> {
 							w.handle(retSock);
@@ -113,6 +111,7 @@ public class SockJsProvider {
 	private void handleData(Buffer data) {
 		JsonObject r = new JsonObject(data.toString());
 		String reqId = r.getString("requestId");
+
 		Handler<JsonObject> handler = responseHandlers.get(reqId);
 		if (handler != null) {
 			handler.handle(r);
