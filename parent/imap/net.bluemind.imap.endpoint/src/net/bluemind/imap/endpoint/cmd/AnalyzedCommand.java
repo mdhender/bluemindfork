@@ -42,6 +42,10 @@ public abstract class AnalyzedCommand {
 	}
 
 	protected FlatCommand flattenAtoms(boolean expandSmallAttoms) {
+		return flattenAtoms(expandSmallAttoms, 0);
+	}
+
+	protected FlatCommand flattenAtoms(boolean expandSmallAttoms, int keepAsLiteral) {
 		AtomicInteger litIdx = new AtomicInteger();
 		String justCmd = raw.parts().stream().filter(p -> p.type() == Type.COMMAND).map(p -> {
 			String cmdStr = p.buffer().toString(StandardCharsets.US_ASCII);
@@ -59,7 +63,7 @@ public abstract class AnalyzedCommand {
 				.toArray(ByteBuf[]::new);
 
 		if (expandSmallAttoms) {
-			for (int i = 0; i < flat.literals.length; i++) {
+			for (int i = 0; i < flat.literals.length - keepAsLiteral; i++) {
 				ByteBuf b = flat.literals[i];
 				if (b.readableBytes() < 256) {
 					flat.fullCmd = flat.fullCmd.replace("{ATOM_" + i + "}", b.toString(StandardCharsets.UTF_8));

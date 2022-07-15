@@ -18,9 +18,11 @@
  */
 package net.bluemind.imap.endpoint.driver;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import io.netty.buffer.ByteBuf;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.mailbox.api.MailboxQuota;
 
@@ -38,5 +40,7 @@ public interface MailboxConnection {
 	void idleMonitor(SelectedFolder selected, WriteStream<IdleToken> ctx);
 
 	void notIdle();
+
+	long append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer);
 
 }

@@ -21,6 +21,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,6 +29,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -38,6 +40,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.imap.Flag;
+import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.IMAPHeaders;
 import net.bluemind.imap.ListResult;
@@ -86,6 +90,27 @@ public class ClientBasedTests {
 			} catch (IMAPException e) {
 				fail(e.getMessage());
 			}
+		}
+	}
+
+	private InputStream eml() {
+		return new ByteArrayInputStream("From: gg@gmail.com\r\n".getBytes());
+	}
+
+	@Test
+	public void testAppendCommands() {
+		try (StoreClient sc = new StoreClient("127.0.0.1", port, "tom@devenv.blue", "tom")) {
+			assertTrue(sc.login());
+			int uid = sc.append("INBOX", eml(), new FlagsList());
+			System.err.println("uid: " + uid);
+
+			FlagsList seen = new FlagsList();
+			seen.add(Flag.SEEN);
+			uid = sc.append("Sent", eml(), seen);
+			System.err.println("uid: " + uid);
+
+			uid = sc.append("Trash", eml(), seen, new Date());
+			System.err.println("uid: " + uid);
 		}
 	}
 

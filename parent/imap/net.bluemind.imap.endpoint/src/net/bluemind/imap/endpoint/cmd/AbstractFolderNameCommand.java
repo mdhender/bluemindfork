@@ -21,22 +21,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.bluemind.imap.endpoint.EndpointRuntimeException;
+import net.bluemind.lib.jutf7.UTF7Converter;
 
 public abstract class AbstractFolderNameCommand extends AnalyzedCommand {
 
 	private final String folder;
 
 	protected AbstractFolderNameCommand(RawImapCommand raw, Pattern extractionRe) {
+		this(raw, extractionRe, 0);
+	}
+
+	protected AbstractFolderNameCommand(RawImapCommand raw, Pattern extractionRe, int keepAsLiteral) {
 		super(raw);
-		FlatCommand flat = flattenAtoms(true);
+		FlatCommand flat = flattenAtoms(true, keepAsLiteral);
 		Matcher matcher = extractionRe.matcher(flat.fullCmd);
 		if (matcher.find()) {
 			String tmpFolder = matcher.group(1);
 			if ("inbox".equalsIgnoreCase(tmpFolder)) {
 				tmpFolder = "INBOX";
 			}
-			this.folder = tmpFolder;
-			folderExtracted(matcher);
+			this.folder = UTF7Converter.decode(tmpFolder);
+			folderExtracted(matcher, flat);
 		} else {
 			throw new EndpointRuntimeException("Failed to extract folder name out of '" + flat.fullCmd + "'");
 		}
@@ -46,8 +51,10 @@ public abstract class AbstractFolderNameCommand extends AnalyzedCommand {
 	 * This is called with matcher.find() returning true and folder being group 1.
 	 * 
 	 * @param matcher
+	 * @param flat
 	 */
-	protected void folderExtracted(@SuppressWarnings("unused") Matcher matcher) {
+	protected void folderExtracted(@SuppressWarnings("unused") Matcher matcher,
+			@SuppressWarnings("unused") FlatCommand flat) {
 
 	}
 

@@ -45,6 +45,7 @@ public class Processors {
 		register(new UidFetchProcessor());
 		register(new IdleProcessor());
 		register(new DoneProcessor());
+		register(new AppendProcessor());
 		register(new LogoutProcessor());
 	}
 

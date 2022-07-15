@@ -19,6 +19,7 @@
 package net.bluemind.imap.driver.mailapi;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -35,11 +36,19 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 
+import io.netty.buffer.ByteBuf;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.authentication.api.AuthUser;
 import net.bluemind.authentication.api.IAuthentication;
+import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
+import net.bluemind.backend.mail.replica.api.AppendTx;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
+import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -51,6 +60,7 @@ import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
+import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.hornetq.client.Consumer;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
@@ -230,6 +240,52 @@ public class MailApiConnection implements MailboxConnection {
 
 	public void close() {
 		prov.instance(IAuthentication.class).logout();
+	}
+
+	@Override
+	public long append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer) {
+		SelectedFolder selected = select(folder);
+		if (selected == null) {
+			return 0L;
+		}
+		AppendTx appendTx = foldersApi.prepareAppend(selected.folder.internalId);
+
+		@SuppressWarnings("deprecation")
+		HashFunction hash = Hashing.sha1();
+		String bodyGuid = hash.hashBytes(buffer.duplicate().nioBuffer()).toString();
+		String partition = CyrusPartition.forServerAndDomain(me.value.dataLocation, me.domainUid).name;
+		System.err.println("Deliver " + bodyGuid + " to " + partition);
+		IDbMessageBodies bodiesApi = prov.instance(IDbMessageBodies.class, partition);
+		bodiesApi.create(bodyGuid, VertxStream.stream(Buffer.buffer(buffer)));
+
+		MailboxRecord rec = new MailboxRecord();
+		rec.imapUid = appendTx.imapUid;
+		rec.internalDate = new Date(appendTx.internalStamp);
+		rec.messageBody = bodyGuid;
+		rec.modSeq = appendTx.modSeq;
+		rec.conversationId = System.nanoTime();
+		rec.flags = flags(flags);
+		rec.lastUpdated = rec.internalDate;
+		rec.internalFlags = Collections.emptyList();
+
+		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
+		recApi.create(appendTx.imapUid + ".", rec);
+		return appendTx.imapUid;
+	}
+
+	private List<MailboxItemFlag> flags(List<String> flags) {
+		return flags.stream().map(f -> {
+			switch (f) {
+			case "\\Seen":
+				return MailboxItemFlag.System.Seen.value();
+			case "\\Draft":
+				return MailboxItemFlag.System.Draft.value();
+			case "\\Deleted":
+				return MailboxItemFlag.System.Deleted.value();
+			default:
+				return null;
+			}
+		}).filter(Objects::nonNull).collect(Collectors.toList());
 	}
 
 }

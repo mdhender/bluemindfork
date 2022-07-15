@@ -18,6 +18,7 @@
 package net.bluemind.imap.endpoint.tests.driver;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.buffer.ByteBuf;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.imap.endpoint.driver.FetchedItem;
 import net.bluemind.imap.endpoint.driver.IdleToken;
@@ -97,6 +99,11 @@ public class MockConnection implements MailboxConnection {
 	public void notIdle() {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public long append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer) {
+		return 42L;
 	}
 
 }

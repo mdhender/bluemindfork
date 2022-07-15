@@ -29,6 +29,9 @@ public final class UTF7Converter {
 
 	private static final Charset utf7Cs = new CharsetProvider().charsetForName("X-IMAP4-MODIFIED-UTF-7");
 
+	private UTF7Converter() {
+	}
+
 	public static final String encode(String mbName) {
 		ByteBuffer bb = utf7Cs.encode(mbName);
 		byte[] ascii = bb.array();

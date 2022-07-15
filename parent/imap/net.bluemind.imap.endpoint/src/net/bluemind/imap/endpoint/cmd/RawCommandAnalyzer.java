@@ -23,6 +23,11 @@ public class RawCommandAnalyzer {
 		String cmd = raw.cmd().toLowerCase();
 		char base = cmd.charAt(0);
 		switch (base) {
+		case 'a':
+			if (cmd.startsWith("append ")) {
+				return new AppendCommand(raw);
+			}
+			return null;
 		case 'c':
 			if (cmd.equals("capability")) {
 				return new CapabilityCommand(raw);

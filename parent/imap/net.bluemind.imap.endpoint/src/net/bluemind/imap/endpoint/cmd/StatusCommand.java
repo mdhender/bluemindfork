@@ -34,7 +34,7 @@ public class StatusCommand extends AbstractFolderNameCommand {
 	}
 
 	@Override
-	protected void folderExtracted(Matcher matcher) {
+	protected void folderExtracted(Matcher matcher, FlatCommand flat) {
 		String props = matcher.group(2);
 		this.properties = Splitter.on(' ').omitEmptyStrings().splitToList(props);
 	}

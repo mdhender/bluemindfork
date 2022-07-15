@@ -17,6 +17,7 @@
   */
 package net.bluemind.backend.mail.replica.service.internal;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,6 +38,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.file.AsyncFile;
+import io.vertx.core.file.OpenOptions;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.parsing.BodyStreamProcessor;
@@ -51,6 +56,7 @@ import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.vertx.VertxStream;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.state.StateContext;
 
@@ -66,12 +72,16 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 		this.bodyObjectStore = bodyObjectStore;
 	}
 
+	private static final File TMP = new File(System.getProperty("java.io.tmpdir"));
+	private static final OpenOptions TMP_OPTS = new OpenOptions().setCreate(true).setTruncateExisting(true)
+			.setWrite(true);
+
 	@Override
-	public void create(String uid, Stream eml) {
+	public void create(String uid, Stream pristine) {
 		if (exists(uid)) {
 			try {
 				logger.warn("Skipping existing body {}", uid);
-				VertxStream.sink(eml).get(10, TimeUnit.SECONDS);
+				VertxStream.sink(pristine).get(10, TimeUnit.SECONDS);
 				return;
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
@@ -79,6 +89,24 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 			}
 		}
 
+		File tmpFile = new File(TMP, uid + "." + System.nanoTime());
+		ReadStream<Buffer> classic = VertxStream.read(pristine);
+		AsyncFile tmpStream = VertxPlatform.getVertx().fileSystem().openBlocking(tmpFile.getAbsolutePath(), TMP_OPTS);
+		classic.pipeTo(tmpStream).toCompletionStage().toCompletableFuture().join();
+		logger.info("File copy of {} stream created.", uid);
+
+		Stream eml = VertxStream.localPath(tmpFile.toPath());
+		MessageBodyObjectStore objectStore = bodyObjectStore.get();
+		try {
+			objectStore.store(uid, tmpFile);
+			parseAndIndex(uid, eml);
+		} finally {
+			tmpFile.delete(); // NOSONAR
+		}
+
+	}
+
+	private void parseAndIndex(String uid, Stream eml) {
 		CompletableFuture<Void> promise = BodyStreamProcessor.processBody(eml).exceptionally(t -> {
 			logger.error(t.getMessage(), t);
 			return null;
