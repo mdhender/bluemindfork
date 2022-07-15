@@ -216,8 +216,12 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 	}
 
 	private void ensureUserAttendance(ItemValue<Domain> domain, ItemValue<Mailbox> recipientMailbox, VEvent vevent) {
-		if (vevent == null || vevent.attendees == null || vevent.attendees.isEmpty()) {
+		if (vevent == null || ((vevent.attendees == null || vevent.attendees.isEmpty()) && vevent.organizer == null)) {
 			return;
+		}
+
+		if (vevent.attendees == null) {
+			vevent.attendees = new ArrayList<>();
 		}
 
 		// do not add organiser to participants

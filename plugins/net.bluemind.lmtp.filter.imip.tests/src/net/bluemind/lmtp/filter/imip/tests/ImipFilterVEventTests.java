@@ -410,6 +410,24 @@ public class ImipFilterVEventTests {
 	}
 
 	@Test
+	public void testRequestHandlerMeetingWithoutAttendeesShoudAddRecipientAsAttendee() throws Exception {
+		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
+
+		ItemValue<VEvent> master = defaultVEvent();
+		master.value.attendees = new ArrayList<>();
+
+		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), master.uid);
+		imip.iCalendarElements = Arrays.asList(master.value);
+		IMIPResponse response = handler.handle(imip, recipient, domain, user1Mailbox);
+
+		ItemValue<VEventSeries> evt = user1Calendar.getComplete(master.uid);
+
+		assertEquals("external@ext-domain.lan", evt.value.main.organizer.mailto);
+		assertEquals("user1@domain.lan", evt.value.main.attendees.get(0).mailto);
+	}
+
+	@Test
 	public void testRequestHandlerRecEventHeader() throws Exception {
 		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
 		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
@@ -740,7 +758,8 @@ public class ImipFilterVEventTests {
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
 		series = user1Calendar.getComplete(series.uid);
-		assertEquals(0, series.value.main.attendees.size());
+		assertEquals(1, series.value.main.attendees.size()); // main has no attendees but an organizer, recipient has
+																// been auto-added
 		for (VEventOccurrence occurrence : series.value.occurrences) {
 			assertEquals(0, occurrence.attendees.size());
 		}
@@ -768,7 +787,8 @@ public class ImipFilterVEventTests {
 
 		series = user1Calendar.getComplete(series.uid);
 
-		assertEquals(0, series.value.main.attendees.size());
+		assertEquals(1, series.value.main.attendees.size()); // main has no attendees but an organizer, recipient has
+																// been auto-added
 		for (VEventOccurrence occurrence : series.value.occurrences) {
 			assertEquals(3, occurrence.attendees.size());
 		}
