@@ -348,6 +348,7 @@ public class MailBackend extends CoreConnect {
 
 								ItemValue<VEventSeries> event = cs.getComplete(infos.uid);
 								if (event != null) {
+									element = checkForRecurrenceException(element, event);
 									if (element instanceof VEventOccurrence) {
 										VEventOccurrence uOccurr = (VEventOccurrence) element;
 										VEventOccurrence occu = event.value.occurrence(uOccurr.recurid);
@@ -381,6 +382,13 @@ public class MailBackend extends CoreConnect {
 		} catch (Exception e) {
 			throw new ServerErrorException(e);
 		}
+	}
+
+	private ICalendarElement checkForRecurrenceException(ICalendarElement element, ItemValue<VEventSeries> event) {
+		if (event.value.main == null && event.value.occurrences.size() == 1) {
+			return VEventOccurrence.fromEvent((VEvent) element, event.value.occurrences.get(0).recurid);
+		}
+		return element;
 	}
 
 	private void updateCounter(IMIPInfos infos, Attendee attendee, ItemValue<VEventSeries> event,
