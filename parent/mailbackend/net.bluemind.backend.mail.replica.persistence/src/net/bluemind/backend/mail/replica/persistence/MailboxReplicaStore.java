@@ -25,6 +25,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.backend.mail.replica.api.AppendTx;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
@@ -86,6 +87,21 @@ public class MailboxReplicaStore extends AbstractItemValueStore<MailboxReplica> 
 			logger.debug("byName({}) in container {} => {}", name, container.id, ret);
 		}
 		return ret;
+	}
+
+	private static final String APPEND_QUERY = "update t_mailbox_replica set "
+			+ "last_uid=last_uid+1, highest_mod_seq=highest_mod_seq+1, "
+			+ "xconv_mod_seq=xconv_mod_seq+1,last_append_date=now() where item_id=? "
+			+ "returning last_uid, highest_mod_seq, xconv_mod_seq, last_append_date";
+
+	public AppendTx prepareAppend(long mboxReplicaId) throws SQLException {
+		return unique(APPEND_QUERY, con -> new AppendTx(), (rs, idx, tx) -> {
+			tx.imapUid = rs.getLong(idx++);
+			tx.modSeq = rs.getInt(idx++);
+			tx.xconvModSeq = rs.getInt(idx++);
+			tx.internalStamp = rs.getTimestamp(idx++).getTime();
+			return idx;
+		}, mboxReplicaId);
 	}
 
 }

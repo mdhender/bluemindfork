@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.bluemind.backend.cyrus.replication.testhelper.MailboxUniqueId;
+import net.bluemind.backend.mail.replica.api.AppendTx;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
@@ -92,6 +93,10 @@ public class MailboxReplicaStoreTests {
 		boxReplicaStore.update(it, reloaded);
 		MailboxReplica reloaded2 = boxReplicaStore.get(it);
 		assertEquals("updated", reloaded2.name);
+
+		AppendTx append = boxReplicaStore.prepareAppend(it.id);
+		assertNotNull(append);
+		System.err.println("append: " + append);
 
 		boxReplicaStore.delete(it);
 		reloaded = boxReplicaStore.get(it);

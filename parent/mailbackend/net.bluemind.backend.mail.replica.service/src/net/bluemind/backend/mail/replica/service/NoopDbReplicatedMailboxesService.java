@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.SearchResult;
+import net.bluemind.backend.mail.replica.api.AppendTx;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
@@ -156,6 +157,11 @@ public class NoopDbReplicatedMailboxesService implements IDbReplicatedMailboxes,
 	public List<ItemValue<MailboxReplica>> multipleGetById(List<Long> ids) {
 		logger.info("NOOP multipleGetByid {}@{}", mailboxRoot.name, domainUid);
 		return Collections.emptyList();
+	}
+
+	@Override
+	public AppendTx prepareAppend(long mboxReplicaId) {
+		throw new UnsupportedOperationException("prepareAppend is not possible.");
 	}
 
 }

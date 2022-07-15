@@ -61,4 +61,8 @@ public interface IDbReplicatedMailboxes
 	@Path("_allReplicas")
 	List<ItemValue<MailboxReplica>> allReplicas();
 
+	@PUT
+	@Path("{replicaId}/_prepareAppend")
+	AppendTx prepareAppend(@PathParam("replicaId") long mboxReplicaId);
+
 }

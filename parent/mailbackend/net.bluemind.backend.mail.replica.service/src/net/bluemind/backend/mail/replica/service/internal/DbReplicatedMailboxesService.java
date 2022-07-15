@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.backend.mail.api.IReadOnlyMailboxFolders;
+import net.bluemind.backend.mail.replica.api.AppendTx;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
@@ -226,6 +227,22 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 	@Override
 	public List<ItemValue<MailboxReplica>> multipleGetById(List<Long> ids) {
 		return storeService.getMultipleById(ids);
+	}
+
+	@Override
+	public AppendTx prepareAppend(long mboxReplicaId) {
+		ItemValue<MailboxReplica> item = storeService.get(mboxReplicaId, null);
+		if (item == null) {
+			throw ServerFault.notFound("Missing replicated mailbox with id " + mboxReplicaId);
+		}
+		try {
+			AppendTx ret = replicaStore.prepareAppend(mboxReplicaId);
+			storeService.touch(item.uid);
+			MboxReplicasCache.invalidate(item.uid);
+			return ret;
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
 	}
 
 }
