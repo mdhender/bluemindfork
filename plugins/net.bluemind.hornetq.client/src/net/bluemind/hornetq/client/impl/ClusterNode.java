@@ -315,7 +315,7 @@ public abstract class ClusterNode {
 				String regId = hzTopic.addMessageListener(new TopicListener(basicListener));
 				consumerRegistrations.put(regId, rc);
 				cons.complete(new Consumer(() -> {
-					hz.removeDistributedObjectListener(regId);
+					hzTopic.removeMessageListener(regId);
 					consumerRegistrations.remove(regId);
 				}));
 			} catch (Exception e) {

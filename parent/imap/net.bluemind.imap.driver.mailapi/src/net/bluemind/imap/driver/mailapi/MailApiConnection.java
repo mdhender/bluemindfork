@@ -70,6 +70,7 @@ import net.bluemind.imap.endpoint.driver.ListNode;
 import net.bluemind.imap.endpoint.driver.MailPart;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
+import net.bluemind.imap.endpoint.driver.UpdateMode;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailboxQuota;
 
@@ -230,7 +231,7 @@ public class MailApiConnection implements MailboxConnection {
 			String contUid = msg.getStringProperty("containerUid");
 
 			if (watchedUid.equals(contUid)) {
-				logger.info("Stuff happenned on watched folder {}", msg.toJson());
+				logger.info("Stuff happenned on watched folder for {} -> {}", out, msg.toJson());
 				Count exist = recApi.count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
 				out.write(new IdleToken("EXISTS", (int) exist.total));
 
@@ -266,7 +267,6 @@ public class MailApiConnection implements MailboxConnection {
 		rec.conversationId = System.nanoTime();
 		rec.flags = flags(flags);
 		rec.lastUpdated = rec.internalDate;
-		rec.internalFlags = Collections.emptyList();
 
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 		recApi.create(appendTx.imapUid + ".", rec);
@@ -282,10 +282,41 @@ public class MailApiConnection implements MailboxConnection {
 				return MailboxItemFlag.System.Draft.value();
 			case "\\Deleted":
 				return MailboxItemFlag.System.Deleted.value();
+			case "\\Flagged":
+				return MailboxItemFlag.System.Flagged.value();
+			case "\\Answered":
+				return MailboxItemFlag.System.Answered.value();
 			default:
-				return null;
+				return MailboxItemFlag.of(f, 0);
 			}
 		}).filter(Objects::nonNull).collect(Collectors.toList());
+	}
+
+	@Override
+	public void updateFlags(SelectedFolder selected, String idset, UpdateMode mode, List<String> flags) {
+		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
+		List<Long> toUpdate = recApi.imapIdSet(idset, "");
+		for (List<Long> slice : Lists.partition(toUpdate, 500)) {
+			List<MailboxRecord> recs = recApi.multipleGetById(slice).stream().map(iv -> iv.value)
+					.collect(Collectors.toList());
+			for (MailboxRecord item : recs) {
+				updateRecFlags(item, mode, flags(flags));
+			}
+			logger.info("[{} / {}] Update slice of {} record(s)", this, selected, recs.size());
+			recApi.updates(recs);
+		}
+
+	}
+
+	private void updateRecFlags(MailboxRecord rec, UpdateMode mode, List<MailboxItemFlag> list) {
+		if (mode == UpdateMode.Replace) {
+			rec.flags = list;
+		} else if (mode == UpdateMode.Add) {
+			rec.flags.addAll(list);
+		} else if (mode == UpdateMode.Remove) {
+			rec.flags.removeAll(list);
+		}
+
 	}
 
 }

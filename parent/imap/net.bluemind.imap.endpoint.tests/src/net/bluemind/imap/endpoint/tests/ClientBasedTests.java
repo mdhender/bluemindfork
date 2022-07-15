@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -111,6 +112,21 @@ public class ClientBasedTests {
 
 			uid = sc.append("Trash", eml(), seen, new Date());
 			System.err.println("uid: " + uid);
+		}
+	}
+
+	@Test
+	public void testUidStore() throws IMAPException {
+		try (StoreClient sc = new StoreClient("127.0.0.1", port, "tom@devenv.blue", "tom")) {
+			assertTrue(sc.login());
+
+			sc.select("INBOX");
+
+			FlagsList seen = new FlagsList();
+			seen.add(Flag.SEEN);
+			sc.uidStore(Arrays.asList(1, 2, 3), seen, true);
+
+			sc.uidStore(Arrays.asList(1, 2, 3), seen, false);
 		}
 	}
 

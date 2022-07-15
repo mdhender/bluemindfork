@@ -43,4 +43,6 @@ public interface MailboxConnection {
 
 	long append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer);
 
+	void updateFlags(SelectedFolder sf, String idset, UpdateMode mode, List<String> flags);
+
 }

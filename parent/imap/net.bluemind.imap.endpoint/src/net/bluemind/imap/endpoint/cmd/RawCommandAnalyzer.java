@@ -88,6 +88,8 @@ public class RawCommandAnalyzer {
 		case 'u':
 			if (cmd.startsWith("uid fetch ")) {
 				return new UidFetchCommand(raw);
+			} else if (cmd.startsWith("uid store ")) {
+				return new UidStoreCommand(raw);
 			}
 			return null;
 		case 'x':

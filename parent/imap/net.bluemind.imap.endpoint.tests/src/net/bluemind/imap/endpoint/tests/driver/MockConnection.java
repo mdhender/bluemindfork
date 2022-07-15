@@ -34,6 +34,7 @@ import net.bluemind.imap.endpoint.driver.ListNode;
 import net.bluemind.imap.endpoint.driver.MailPart;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
+import net.bluemind.imap.endpoint.driver.UpdateMode;
 import net.bluemind.mailbox.api.MailboxQuota;
 
 public class MockConnection implements MailboxConnection {
@@ -104,6 +105,11 @@ public class MockConnection implements MailboxConnection {
 	@Override
 	public long append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer) {
 		return 42L;
+	}
+
+	@Override
+	public void updateFlags(SelectedFolder sf, String idset, UpdateMode mode, List<String> flags) {
+		logger.info("[{}] Should update flags of {}", sf.folder.displayName, idset);
 	}
 
 }

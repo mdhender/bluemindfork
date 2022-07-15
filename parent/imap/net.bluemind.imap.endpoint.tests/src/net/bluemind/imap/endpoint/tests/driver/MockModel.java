@@ -44,6 +44,7 @@ public class MockModel {
 		repl.fullName = fullName;
 		repl.highestModSeq = 42;
 		ItemValue<MailboxReplica> item = ItemValue.create(uid.toString(), repl);
+		item.displayName = repl.name;
 		SelectedFolder sf = new SelectedFolder(item, 3, 1);
 		folders.put(uid.toString(), sf);
 

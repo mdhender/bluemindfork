@@ -84,7 +84,8 @@ public class FetchedItemRenderer {
 			String upField = f.name.toUpperCase();
 			switch (upField) {
 			case "FLAGS":
-				String flags = rec.value.flags.stream().map(mif -> mif.flag).collect(Collectors.joining(" ", "(", ")"));
+				String flags = rec.value.flags.stream().map(mif -> mif.flag).collect(Collectors.toSet()).stream()
+						.collect(Collectors.joining(" ", "(", ")"));
 				ret.put(f.toString(), Unpooled.wrappedBuffer(flags.getBytes()));
 				break;
 			case "UID":
