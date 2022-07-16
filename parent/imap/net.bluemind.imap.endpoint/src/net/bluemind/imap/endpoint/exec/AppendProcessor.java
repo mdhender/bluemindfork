@@ -23,6 +23,10 @@ import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.AppendCommand;
 import net.bluemind.lib.vertx.Result;
 
+/**
+ * <code>A003 OK [APPENDUID 38505 3955] APPEND completed</code>
+ *
+ */
 public class AppendProcessor extends AuthenticatedCommandProcessor<AppendCommand> {
 
 	@Override
@@ -32,8 +36,6 @@ public class AppendProcessor extends AuthenticatedCommandProcessor<AppendCommand
 
 	@Override
 	protected void checkedOperation(AppendCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
-
-		// A003 OK [APPENDUID 38505 3955] APPEND completed
 		long uid = ctx.mailbox().append(command.folder(), command.flags(), command.deliveryDate(), command.buffer());
 		if (uid > 0) {
 			ctx.write(command.raw().tag() + " OK [APPENDUID " + uid + "] APPEND completed\r\n");

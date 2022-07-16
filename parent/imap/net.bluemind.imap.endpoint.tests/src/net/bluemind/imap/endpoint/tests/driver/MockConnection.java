@@ -112,4 +112,9 @@ public class MockConnection implements MailboxConnection {
 		logger.info("[{}] Should update flags of {}", sf.folder.displayName, idset);
 	}
 
+	@Override
+	public int maxLiteralSize() {
+		return 1024 * 1024;
+	}
+
 }

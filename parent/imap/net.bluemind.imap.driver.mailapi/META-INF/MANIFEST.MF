@@ -17,6 +17,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.james.apache-mime4j-core,
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.hornetq.client,
- net.bluemind.config
+ net.bluemind.config,
+ net.bluemind.system.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.imap.driver

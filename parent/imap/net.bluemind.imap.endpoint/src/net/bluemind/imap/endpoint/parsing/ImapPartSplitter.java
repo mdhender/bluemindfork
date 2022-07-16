@@ -18,6 +18,9 @@
  */
 package net.bluemind.imap.endpoint.parsing;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
@@ -28,6 +31,8 @@ import net.bluemind.imap.endpoint.parsing.LiteralSize.LiteralLength;
 
 public class ImapPartSplitter implements Handler<Buffer> {
 
+	private static final Logger logger = LoggerFactory.getLogger(ImapPartSplitter.class);
+
 	private static final int IMAP_LITERAL_CHUNK_SIZE = (int) EndpointConfig.get().getMemorySize("imap.chunk-size")
 			.toBytes();
 
@@ -37,6 +42,7 @@ public class ImapPartSplitter implements Handler<Buffer> {
 
 	private int literalBytes;
 	private State state;
+	private boolean stopped;
 
 	private enum State {
 		COMMAND, LITERAL;
@@ -52,10 +58,16 @@ public class ImapPartSplitter implements Handler<Buffer> {
 
 	@Override
 	public void handle(Buffer event) {
+		if (stopped) {
+			return;
+		}
 		split.handle(event);
 	}
 
 	private void splittedChunk(Buffer chunk) {
+		if (stopped) {
+			return;
+		}
 		ByteBuf buf = chunk.getByteBuf();
 		if (state == State.LITERAL) {
 			processLiteral(buf);
@@ -67,6 +79,15 @@ public class ImapPartSplitter implements Handler<Buffer> {
 	private void processCommandText(ByteBuf buf) {
 		LiteralLength lit = LiteralSize.of(buf);
 		if (lit.total() > 0) {
+			if (ctx.mailbox() != null && lit.total() > ctx.mailbox().maxLiteralSize()) {
+				logger.error("[{}] Literal size is too big ({})", ctx.mailbox(), lit.total());
+				ctx.writePromise(
+						"* ALERT too much data (" + lit.total() + " > " + ctx.mailbox().maxLiteralSize() + ")\r\n")
+						.thenAccept(v -> ctx.socket().close());
+				stopped = true;
+				return;
+			}
+
 			if (!lit.inline()) {
 				ctx.sendContinuation();
 			}

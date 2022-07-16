@@ -45,4 +45,6 @@ public interface MailboxConnection {
 
 	void updateFlags(SelectedFolder sf, String idset, UpdateMode mode, List<String> flags);
 
+	int maxLiteralSize();
+
 }

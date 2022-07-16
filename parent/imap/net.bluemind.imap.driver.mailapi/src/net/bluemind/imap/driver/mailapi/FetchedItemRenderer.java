@@ -49,6 +49,7 @@ import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.core.api.Stream;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
@@ -161,9 +162,14 @@ public class FetchedItemRenderer {
 			return Unpooled.wrappedBuffer(sb.toString().getBytes());
 		} else if (f.section.isEmpty()) {
 			// full eml
-			Stream fullMsg = recApi.fetchComplete(rec.value.imapUid);
-			int len = body.get().size;
-			return readMmap(fullMsg, len).join();
+			try {
+				Stream fullMsg = recApi.fetchComplete(rec.value.imapUid);
+				int len = body.get().size;
+				return readMmap(fullMsg, len).join();
+			} catch (ServerFault sf) {
+				logger.error("could not fetch {}: {}", rec.value.imapUid, sf.getMessage());
+				return null;
+			}
 		} else {
 			logger.warn("unknown section '{}'", f.section);
 		}

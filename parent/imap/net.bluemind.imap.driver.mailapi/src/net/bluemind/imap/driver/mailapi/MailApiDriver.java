@@ -28,6 +28,8 @@ import net.bluemind.authentication.api.LoginResponse.Status;
 import net.bluemind.config.BmIni;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.Shared;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.MailboxDriver;
 
@@ -59,7 +61,7 @@ public class MailApiDriver implements MailboxDriver {
 		ClientSideServiceProvider userProv = ClientSideServiceProvider.getProvider(coreUrl, login.authKey);
 		AuthUser current = userProv.instance(IAuthentication.class).getCurrentUser();
 		logger.info("[{}] logged-in.", current.value.defaultEmail());
-		return new MailApiConnection(userProv, current);
+		return new MailApiConnection(userProv, current, MQ.sharedMap(Shared.MAP_SYSCONF));
 	}
 
 }

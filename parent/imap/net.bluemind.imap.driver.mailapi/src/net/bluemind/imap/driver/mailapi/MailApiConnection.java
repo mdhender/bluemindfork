@@ -63,6 +63,7 @@ import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.hornetq.client.Consumer;
 import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.imap.endpoint.driver.FetchedItem;
 import net.bluemind.imap.endpoint.driver.IdleToken;
@@ -73,6 +74,7 @@ import net.bluemind.imap.endpoint.driver.SelectedFolder;
 import net.bluemind.imap.endpoint.driver.UpdateMode;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailboxQuota;
+import net.bluemind.system.api.SysConfKeys;
 
 public class MailApiConnection implements MailboxConnection {
 
@@ -80,15 +82,16 @@ public class MailApiConnection implements MailboxConnection {
 
 	private final ClientSideServiceProvider prov;
 	private final AuthUser me;
-
 	private final IDbReplicatedMailboxes foldersApi;
+	private final int sizeLimit;
 
 	private Consumer activeCons;
 
-	public MailApiConnection(ClientSideServiceProvider userProv, AuthUser me) {
+	public MailApiConnection(ClientSideServiceProvider userProv, AuthUser me, SharedMap<String, String> config) {
 		this.prov = userProv;
 		this.me = me;
 		this.foldersApi = prov.instance(IDbReplicatedMailboxes.class, me.domainUid, "user." + me.value.login);
+		this.sizeLimit = Integer.parseInt(config.get(SysConfKeys.message_size_limit.name()));
 	}
 
 	@Override
@@ -316,6 +319,12 @@ public class MailApiConnection implements MailboxConnection {
 		} else if (mode == UpdateMode.Remove) {
 			rec.flags.removeAll(list);
 		}
+
+	}
+
+	@Override
+	public int maxLiteralSize() {
+		return sizeLimit;
 
 	}
 
