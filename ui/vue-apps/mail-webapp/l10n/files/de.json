@@ -275,7 +275,7 @@
     "mail.folder.unread": "Ungelesen Nachrichten: {count}",
     "mail.folder": "Ordner",
     "mail.ics.accepted.tentatively": "Einladung unter Vorbehalt annenhmen",
-    "mail.ics.accepted": "Einladung annehmen",
+    "mail.ics.accepted": "Einladung angenommen",
     "mail.ics.declined": "Einladung ablehnen",
     "mail.ics.got_invited": "{organizer} hat Sie zu {summary} eingeladen",
     "mail.ics.resource_got_invited": "{organizer} möchte diese Ressource für {summary} reservieren",
