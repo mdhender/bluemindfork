@@ -176,14 +176,10 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 					logger.debug("Received chunk ({}byte(s))", c.buf.length);
 				}
 				total += c.buf.length;
-				output.write(c.buf, new WbxmlOutput.QueueDrained() {
-
-					@Override
-					public void drained() {
-						MDC.put("user", loginForSifting);
-						next();
-						MDC.put("user", "anonymous");
-					}
+				output.write(c.buf, () -> {
+					MDC.put("user", loginForSifting);
+					next();
+					MDC.put("user", "anonymous");
 				});
 			}
 			MDC.put("user", "anonymous");
@@ -202,18 +198,14 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		LocalJsonObject<DisposableByteSource> source = new LocalJsonObject<>(streamable);
 		final EventBus eb = VertxPlatform.eventBus();
 		final IResponseBuilder self = this;
-		eb.request(ByteSourceEventProducer.REGISTER, source, new Handler<AsyncResult<Message<String>>>() {
-
-			@Override
-			public void handle(AsyncResult<Message<String>> streamIdMsg) {
-				MDC.put("user", loginForSifting);
-				String stream = streamIdMsg.result().body();
-				logger.debug("Stream {} ready to go", stream);
-				containerNamesStack.peek().setTextContent("[binary " + stream + "]");
-				NextChunk nc = new NextChunk(eb, stream, output, self, completion);
-				nc.next();
-				MDC.put("user", "anonymous");
-			}
+		eb.request(ByteSourceEventProducer.REGISTER, source, (AsyncResult<Message<String>> streamIdMsg) -> {
+			MDC.put("user", loginForSifting);
+			String stream = streamIdMsg.result().body();
+			logger.debug("Stream {} ready to go", stream);
+			containerNamesStack.peek().setTextContent("[binary " + stream + "]");
+			NextChunk nc = new NextChunk(eb, stream, output, self, completion);
+			nc.next();
+			MDC.put("user", "anonymous");
 		});
 	}
 
@@ -233,18 +225,14 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 			}
 
 		};
-		eb.request(ByteSourceEventProducer.REGISTER, source, new Handler<AsyncResult<Message<String>>>() {
-
-			@Override
-			public void handle(AsyncResult<Message<String>> streamIdMsg) {
-				MDC.put("user", loginForSifting);
-				String stream = streamIdMsg.result().body();
-				logger.info("Stream {} ready to go as base64", stream);
-				containerNamesStack.peek().setTextContent("[base64 " + stream + "]");
-				NextChunk nc = new NextChunk(eb, stream, b64, self, preComplete);
-				nc.next();
-				MDC.put("user", "anonymous");
-			}
+		eb.request(ByteSourceEventProducer.REGISTER, source, (AsyncResult<Message<String>> streamIdMsg) -> {
+			MDC.put("user", loginForSifting);
+			String stream = streamIdMsg.result().body();
+			logger.info("Stream {} ready to go as base64", stream);
+			containerNamesStack.peek().setTextContent("[base64 " + stream + "]");
+			NextChunk nc = new NextChunk(eb, stream, b64, self, preComplete);
+			nc.next();
+			MDC.put("user", "anonymous");
 		});
 	}
 
@@ -254,20 +242,16 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		container(ns, name);
 		try {
 			encoder.startString();
-			streamToOutput(streamable, new Callback<IResponseBuilder>() {
-
-				@Override
-				public void onResult(IResponseBuilder data) {
-					MDC.put("user", loginForSifting);
-					try {
-						encoder.endString();
-						data.endContainer();
-					} catch (IOException e) {
-						logger.error(e.getMessage(), e);
-					}
-					completion.onResult(data);
-					MDC.put("user", "anonymous");
+			streamToOutput(streamable, (IResponseBuilder data) -> {
+				MDC.put("user", loginForSifting);
+				try {
+					encoder.endString();
+					data.endContainer();
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
 				}
+				completion.onResult(data);
+				MDC.put("user", "anonymous");
 			});
 		} catch (IOException e1) {
 			logger.error(e1.getMessage(), e1);
@@ -280,20 +264,16 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		container(ns, name);
 		try {
 			encoder.startString();
-			base64ToOutput(streamable, new Callback<IResponseBuilder>() {
-
-				@Override
-				public void onResult(IResponseBuilder data) {
-					MDC.put("user", loginForSifting);
-					try {
-						encoder.endString();
-						data.endContainer();
-					} catch (IOException e) {
-						logger.error(e.getMessage(), e);
-					}
-					completion.onResult(data);
-					MDC.put("user", "anonymous");
+			base64ToOutput(streamable, (IResponseBuilder data) -> {
+				MDC.put("user", loginForSifting);
+				try {
+					encoder.endString();
+					data.endContainer();
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
 				}
+				completion.onResult(data);
+				MDC.put("user", "anonymous");
 			});
 		} catch (IOException e1) {
 			logger.error(e1.getMessage(), e1);
@@ -325,16 +305,12 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		container(ns, name);
 		try {
 			encoder.startByteArray((int) streamable.size());
-			streamToOutput(streamable, new Callback<IResponseBuilder>() {
-
-				@Override
-				public void onResult(IResponseBuilder data) {
-					MDC.put("user", loginForSifting);
-					encoder.endByteArray();
-					data.endContainer();
-					completion.onResult(data);
-					MDC.put("user", "anonymous");
-				}
+			streamToOutput(streamable, (IResponseBuilder data) -> {
+				MDC.put("user", loginForSifting);
+				encoder.endByteArray();
+				data.endContainer();
+				completion.onResult(data);
+				MDC.put("user", "anonymous");
 			});
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
