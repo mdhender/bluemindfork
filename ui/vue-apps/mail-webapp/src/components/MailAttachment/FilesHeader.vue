@@ -1,63 +1,58 @@
 <template>
-    <div v-if="message.composing" class="mail-attachments-header">
+    <div v-if="maxSize" class="files-header">
         <bm-icon icon="paper-clip" class="mr-1 ml-2" :class="paperClipColor" size="lg" />
         <span :class="isTooHeavy ? 'text-danger font-weight-bold' : ''">
             {{
-                $tc("common.attachments", attachments.length, {
-                    count: attachments.length
+                $tc("common.attachments", files.length, {
+                    count: files.length
                 })
             }}
-            <span class="attachements-weigth">
-                ({{ displaySize(attachmentsWeight) }} / {{ displaySize(attachmentsMaxWeight) }})</span
-            >
-            <bm-icon v-if="isTooHeavy" icon="exclamation-circle" size="lg" />
+            <span class="attachements-weigth"> ({{ displaySize(filesWeight) }} / {{ displaySize(maxSize) }})</span>
+            <bm-icon v-if="isTooHeavy" icon="exclamation-circle" />
         </span>
         <bm-progress
-            :value="attachmentsWeight"
-            :max="attachmentsMaxWeight"
+            :value="filesWeight"
+            :max="maxSize"
             height="2px"
             class="pl-1 align-self-center"
-            :variant="attachmentsWeightColor"
+            :variant="filesWeightColor"
         />
     </div>
     <div v-else>
         <bm-icon icon="paper-clip" class="mr-1 ml-2" size="lg" />
         <span class="font-weight-bold pr-2">
-            {{ $tc("common.attachments", attachments.length, { count: attachments.length }) }}
+            {{ $tc("common.attachments", files.length, { count: files.length }) }}
         </span>
     </div>
 </template>
 
 <script>
-import { mapState } from "vuex";
 import { BmIcon, BmProgress } from "@bluemind/styleguide";
 import { displayWithUnit } from "@bluemind/file-utils";
 
 export default {
-    name: "MailAttachmentsHeader",
+    name: "FilesHeader",
     components: { BmProgress, BmIcon },
     props: {
-        attachments: {
+        files: {
             type: Array,
             required: true
         },
-        message: {
-            type: Object,
-            required: true
+        maxSize: {
+            type: Number,
+            default: null
         }
     },
     computed: {
-        ...mapState("mail", { attachmentsMaxWeight: ({ messageCompose }) => messageCompose.maxMessageSize }),
-
-        attachmentsWeight() {
-            return this.attachments.map(attachment => attachment.size).reduce((total, size) => total + size, 0);
+        filesWeight() {
+            return this.files.map(attachment => attachment.size).reduce((total, size) => total + size, 0);
         },
-        attachmentsWeightInPercent() {
-            return (this.attachmentsWeight * 100) / this.attachmentsMaxWeight;
+        filesWeightInPercent() {
+            return (this.filesWeight * 100) / this.maxSize;
         },
-        attachmentsWeightColor() {
+        filesWeightColor() {
             let color = "success";
-            if (this.attachmentsWeightInPercent > 100) {
+            if (this.filesWeightInPercent > 100) {
                 color = "danger";
             } else if (this.isHeavy) {
                 color = "warning";
@@ -73,10 +68,10 @@ export default {
             return "";
         },
         isTooHeavy() {
-            return this.attachmentsWeight > this.attachmentsMaxWeight;
+            return this.filesWeight > this.maxSize;
         },
         isHeavy() {
-            return this.attachmentsWeightInPercent > 50 && this.attachmentsWeightInPercent <= 100;
+            return this.filesWeightInPercent > 50 && this.filesWeightInPercent <= 100;
         }
     },
     methods: {

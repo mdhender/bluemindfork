@@ -132,7 +132,7 @@ export default {
         background: url("~@bluemind/styleguide/assets/attachment.png") no-repeat center center;
     }
 
-    .mail-attachments-header {
+    .files-header {
         display: flex;
         flex: 1 1 auto;
         .progress {

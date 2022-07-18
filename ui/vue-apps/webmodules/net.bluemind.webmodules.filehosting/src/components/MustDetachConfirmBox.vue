@@ -1,16 +1,16 @@
 <template>
-    <fh-confirm-box :attachments="attachments" class="fh-must-detach-confirm-box">
+    <fh-confirm-box :files="files" class="fh-must-detach-confirm-box">
         <template #text>
             <i18n path="common.threshold.hit">
                 <template v-slot:hit>
-                    {{ $tc("mail.filehosting.threshold.size", allAttachmentsCount) }}
+                    {{ $tc("mail.filehosting.threshold.size", allFilesCount) }}
                 </template>
                 <template v-slot:size>
                     <strong class="font-weight-bold">{{ displaySize(sizeLimit) }}</strong>
                 </template>
             </i18n>
             <br />
-            {{ $tc("mail.filehosting.share.start", attachments.length) }} ?
+            {{ $tc("mail.filehosting.share.start", files.length) }} ?
         </template>
     </fh-confirm-box>
 </template>
@@ -23,7 +23,7 @@ export default {
     name: "FhMustDetachConfirmBox",
     components: { FhConfirmBox },
     props: {
-        attachments: {
+        files: {
             type: Array,
             required: true
         },
@@ -31,7 +31,7 @@ export default {
             type: Number,
             required: true
         },
-        allAttachmentsCount: {
+        allFilesCount: {
             type: Number,
             required: true
         }

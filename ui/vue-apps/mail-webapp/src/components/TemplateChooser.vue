@@ -96,7 +96,11 @@ export default {
                 target.from = preserveFromOrDefault(template.from, this.identities, this.identity);
                 await this.mergeAttachments(target, template);
                 await this.mergeBody(target, template);
-                this.DEBOUNCED_SAVE_MESSAGE({ draft: target, messageCompose: this.$store.state.mail.messageCompose });
+                this.DEBOUNCED_SAVE_MESSAGE({
+                    draft: target,
+                    messageCompose: this.$store.state.mail.messageCompose,
+                    files: target.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
+                });
             }
         },
         async canOverwriteContent() {

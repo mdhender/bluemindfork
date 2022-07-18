@@ -1,17 +1,17 @@
 <template>
-    <div class="video-part-viewer"><video controls :src="src" /></div>
+    <div class="video-file-viewer"><video controls :src="src" /></div>
 </template>
 <script>
-import PartViewerMixin from "../PartViewerMixin";
+import FileViewerMixin from "../FileViewerMixin";
 
 export default {
-    name: "VideoPartViewer",
-    mixins: [PartViewerMixin],
+    name: "VideoFileViewer",
+    mixins: [FileViewerMixin],
     $capabilities: ["video/*"]
 };
 </script>
 <style lang="scss">
-.video-part-viewer {
+.video-file-viewer {
     display: flex;
     align-items: center;
     justify-content: center;

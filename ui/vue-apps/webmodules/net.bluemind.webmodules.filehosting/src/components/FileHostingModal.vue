@@ -1,7 +1,7 @@
 <template>
     <bm-modal
         id="file-hosting-modal"
-        :title="$tc('mail.filehosting.add.large', fhAttachments.length)"
+        :title="$tc('mail.filehosting.add.large', fhFiles.length)"
         title-class="ml-2"
         dialog-class="modal-dialog-centered"
         no-fade
@@ -25,45 +25,41 @@
                 <bm-icon
                     icon="chevron-right"
                     size="lg"
-                    :class="isFinished ? 'text-secondary' : 'text-neutral-fg-lo2'"
+                    :class="!isUploading ? 'text-secondary' : 'text-neutral-fg-lo2'"
                 />
                 <bm-icon icon="cloud" class="ml-2 text-secondary" size="2x" />
             </div>
             <div v-if="hasSomeErrorStatus" class="mb-4 text-danger">
-                {{ $tc("mail.filehosting.share.failure", fhAttachments.length) }}
+                {{ $tc("mail.filehosting.share.failure", fhFiles.length) }}
             </div>
             <div v-else class="mb-4">
-                {{ $tc("mail.filehosting.share.pending", fhAttachments.length) }}
+                {{ $tc("mail.filehosting.share.pending", fhFiles.length) }}
             </div>
 
-            <div v-for="(attachment, idx) in fhAttachments" :key="idx" class="position-relative mb-3">
-                <fh-attachment-item :attachment="attachment">
+            <div v-for="(file, idx) in fhFiles" :key="idx" class="position-relative mb-3">
+                <detachment-item :file="file">
                     <template #item-actions>
                         <bm-label-icon
-                            v-if="hasErrorStatus(attachment)"
+                            v-if="hasErrorStatus(file)"
                             class="text-danger ml-2 text-nowrap"
                             icon="exclamation-circle-fill"
                         >
                             {{ $t("mail.filehosting.import.failed") }}
                         </bm-label-icon>
-                        <bm-button-close
-                            v-else-if="hasNotLoadedStatus(attachment)"
-                            class="ml-2"
-                            @click="cancel(attachment.address)"
-                        />
+                        <bm-button-close v-else-if="hasNotLoadedStatus(file)" class="ml-2" @click="cancel(file.key)" />
                         <span v-else class="text-neutral ml-2 text-nowrap">
                             {{ $t("mail.filehosting.import.successful") }}
                         </span>
                     </template>
-                </fh-attachment-item>
+                </detachment-item>
             </div>
         </div>
         <template #modal-footer>
-            <bm-button variant="simple-inline" :disabled="isFinished" @click="cancelAll">
+            <bm-button variant="simple-inline" :disabled="!isUploading" @click="cancelAll">
                 {{ $t("mail.filehosting.share.stop") }}
             </bm-button>
             <bm-button variant="outline-secondary" @click="hideModal">
-                {{ isFinished ? $t("common.done") : $t("common.hide") }}
+                {{ isUploading ? $t("common.hide") : $t("common.done") }}
             </bm-button>
         </template>
     </bm-modal>
@@ -73,14 +69,14 @@ import { mapGetters } from "vuex";
 import global from "@bluemind/global";
 import { BmModal, BmButtonClose, BmButton, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
-import { attachmentUtils } from "@bluemind/mail";
-import FhAttachmentItem from "./AttachmentItem";
+import { fileUtils } from "@bluemind/mail";
+import DetachmentItem from "./DetachmentItem";
 
-const { AttachmentStatus } = attachmentUtils;
+const { FileStatus, isUploading } = fileUtils;
 
 export default {
     name: "FileHostingModal",
-    components: { BmModal, BmButtonClose, BmButton, BmIcon, FhAttachmentItem, BmLabelIcon },
+    components: { BmModal, BmButtonClose, BmButton, BmIcon, DetachmentItem, BmLabelIcon },
     props: {
         sizeLimit: {
             type: Number,
@@ -92,40 +88,41 @@ export default {
         }
     },
     data() {
-        return { fhAttachments: [] };
+        return { fhFileKeys: [] };
     },
     computed: {
-        ...mapGetters("mail", ["GET_FH_ATTACHMENT"]),
-        isFinished() {
-            return (
-                this.fhAttachments.filter(({ status }) =>
-                    [AttachmentStatus.UPLOADED, AttachmentStatus.ERROR].includes(status)
-                ).length === this.fhAttachments.length
-            );
+        ...mapGetters("mail", ["GET_FH_FILE"]),
+        isUploading() {
+            return this.fhFiles.filter(({ status }) => isUploading({ status })).length === this.fhFiles.length;
         },
         attachments() {
             return this.$store.state.mail.conversations.messages[this.message.key]?.attachments || [];
         },
         hasSomeErrorStatus() {
-            return this.fhAttachments.some(this.hasErrorStatus);
+            return this.fhFiles.some(this.hasErrorStatus);
         },
         dotsClass() {
-            return this.isFinished ? "text-secondary" : "dots";
+            return this.isUploading ? "dots" : "text-secondary";
+        },
+        fhFiles() {
+            return this.fhFileKeys.map(key => {
+                return { ...this.$store.state.mail.files[key], ...this.GET_FH_FILE({ key }) };
+            });
         }
     },
     watch: {
         attachments(value) {
             value.forEach(attachment => {
-                if (
-                    this.GET_FH_ATTACHMENT(this.message, attachment) &&
-                    !this.fhAttachments.includes(attachment) &&
-                    attachment.status === AttachmentStatus.NOT_LOADED
-                ) {
-                    this.fhAttachments.push(attachment);
+                const fhFile = this.GET_FH_FILE({ key: attachment.fileKey });
+                if (fhFile && !this.fhFiles.includes(fhFile)) {
+                    const file = this.$store.state.mail.files[attachment.fileKey];
+                    if (file.status === FileStatus.NOT_LOADED) {
+                        this.fhFileKeys.push(file.key);
+                    }
                 }
             });
         },
-        fhAttachments(value) {
+        fhFiles(value) {
             if (value.length === 0) {
                 this.hideModal();
             }
@@ -135,29 +132,25 @@ export default {
         displaySize(size) {
             return computeUnit(size, this.$i18n);
         },
-        cancel(address) {
-            global.cancellers[address + this.$store.state.mail.activeMessage.key].cancel();
-            const index = this.fhAttachments.findIndex(attachment => {
-                return attachment.address === address;
+        cancel(key) {
+            global.cancellers[key].cancel();
+            const index = this.fhFileKeys.findIndex(fileKey => {
+                return fileKey === key;
             });
-            index > 1 ? this.fhAttachments.splice(index) : this.fhAttachments.shift();
+            index > 1 ? this.fhFileKeys.splice(index) : this.fhFileKeys.shift();
         },
         cancelAll() {
-            this.fhAttachments
-                .slice()
-                .forEach(
-                    attachment => attachment.status === AttachmentStatus.NOT_LOADED && this.cancel(attachment.address)
-                );
+            this.fhFiles.slice().forEach(file => file.status === FileStatus.NOT_LOADED && this.cancel(file.key));
             this.hideModal();
         },
         hideModal() {
             this.$bvModal.hide("file-hosting-modal");
         },
         hasErrorStatus({ status }) {
-            return status === AttachmentStatus.ERROR;
+            return status === FileStatus.ERROR;
         },
         hasNotLoadedStatus({ status }) {
-            return status === AttachmentStatus.NOT_LOADED;
+            return status === FileStatus.NOT_LOADED;
         }
     }
 };

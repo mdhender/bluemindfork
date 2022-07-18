@@ -27,10 +27,10 @@
     lodash.startswith "^4.2.1"
     xss "^1.0.6"
 
-"@bluemind/styleguide@0.1.2480":
-  version "0.1.2480"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.2480.tgz#a1db235033391b1e67c9ac88efa97ca8367408b8"
-  integrity sha512-jFiBtBNDmfEycq6Y2vtAJl7f1v+f2CWxhbSQuiOpzxPi1EBuVDPiKT4KQM2tAJPpFICvcZjyZ4C2s7RpB3f9ZA==
+"@bluemind/styleguide@0.1.2556":
+  version "0.1.2556"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.2556.tgz#53cccdfeba8898727854d9301a3d0ef863f4ce42"
+  integrity sha512-KayfzVU46jT7vjWuA+zfInlg7diOggxur/HA1kx7KClM0xhAYW1dr//Sg27AkQdx4a9czz8s+bEZ+0tS5ctUgA==
   dependencies:
     "@bluemind/email" "^4.1.0"
     "@bluemind/file-utils" "^4.1.0"

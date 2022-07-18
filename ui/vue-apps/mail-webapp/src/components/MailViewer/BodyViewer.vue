@@ -1,7 +1,25 @@
 <template>
     <div class="body-viewer">
-        <slot name="attachments-block" :attachments="attachments" :message="message">
-            <mail-attachments-block :attachments="attachments" :message="message" />
+        <slot name="attachments-block" :files="files" :message="message">
+            <files-block
+                :files="files"
+                :message="message"
+                @click-item="previewOrDownload"
+                @remote-content="triggerRemoteContent"
+            >
+                <template v-slot:actions="{ file }">
+                    <preview-button
+                        v-if="isViewable(file)"
+                        :disabled="!isAllowedToPreview"
+                        @preview="openPreview(file)"
+                    />
+                    <download-button :ref="`download-button-${file.key}`" :file="file" />
+                </template>
+                <template #overlay="slotProps">
+                    <preview-overlay v-if="slotProps.hasPreview" />
+                    <filetype-overlay v-else :file="slotProps.file" />
+                </template>
+            </files-block>
         </slot>
         <event-viewer v-if="message.hasICS && currentEvent" :parts="inlines" :message="message">
             <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
@@ -17,24 +35,38 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { MimeType, InlineImageHelper } from "@bluemind/email";
 import { hasRemoteImages } from "@bluemind/html-utils";
-import { attachmentUtils, partUtils } from "@bluemind/mail";
+import { attachmentUtils, fileUtils, partUtils } from "@bluemind/mail";
 
 import { COMPUTE_QUOTE_NODES, FETCH_PART_DATA } from "~/actions";
 import { CONVERSATION_MESSAGE_BY_KEY } from "~/getters";
+import { SET_PREVIEW_FILE_KEY, SET_PREVIEW_MESSAGE_KEY } from "~/mutations";
 
 import MailInlinesBlock from "./MailInlinesBlock";
 import EventViewer from "./EventViewer";
-import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
+import FilesBlock from "../MailAttachment/FilesBlock";
+import PreviewButton from "../MailAttachment/ActionButtons/PreviewButton";
+import DownloadButton from "../MailAttachment/ActionButtons/DownloadButton";
+import PreviewOverlay from "../MailAttachment/Overlays/PreviewOverlay";
+import FiletypeOverlay from "../MailAttachment/Overlays/FiletypeOverlay";
 
-const { create: createAttachment, AttachmentStatus } = attachmentUtils;
+const { create: createAttachment } = attachmentUtils;
+const { FileStatus, isUploading, isAllowedToPreview } = fileUtils;
 const { VIEWER_CAPABILITIES, getPartsFromCapabilities, isViewable } = partUtils;
 
 export default {
     name: "BodyViewer",
-    components: { EventViewer, MailAttachmentsBlock, MailInlinesBlock },
+    components: {
+        EventViewer,
+        FilesBlock,
+        MailInlinesBlock,
+        PreviewButton,
+        DownloadButton,
+        PreviewOverlay,
+        FiletypeOverlay
+    },
     props: {
         message: {
             type: Object,
@@ -62,8 +94,11 @@ export default {
         attachments() {
             const fallback = this.parts
                 .filter(part => !isViewable(part))
-                .map(part => createAttachment(part, AttachmentStatus.ONLY_LOCAL));
+                .map(part => createAttachment(part, FileStatus.ONLY_LOCAL));
             return [...this.message.attachments, ...fallback];
+        },
+        files() {
+            return this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey]);
         }
     },
     async created() {
@@ -76,7 +111,7 @@ export default {
         });
         const hasImages = texts.some(part => MimeType.isHtml(part) && hasRemoteImages(this.contents[part.address]));
         if (hasImages) {
-            this.$emit("remote-content", this.message);
+            this.triggerRemoteContent();
         }
         const conversationMessages = this.message.conversationRef
             ? this.CONVERSATION_MESSAGE_BY_KEY(this.message.conversationRef.key)
@@ -84,7 +119,30 @@ export default {
         this.COMPUTE_QUOTE_NODES({ message: this.message, conversationMessages });
     },
     methods: {
-        ...mapActions("mail", { FETCH_PART_DATA, COMPUTE_QUOTE_NODES })
+        ...mapActions("mail", { FETCH_PART_DATA, COMPUTE_QUOTE_NODES }),
+        ...mapMutations("mail", { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY }),
+        openPreview(file) {
+            this.SET_PREVIEW_MESSAGE_KEY(this.message.key);
+            this.SET_PREVIEW_FILE_KEY(file.key);
+            this.$bvModal.show("preview-modal");
+        },
+        download(file) {
+            this.$refs[`download-button-${file.key}`].clickButton();
+        },
+        triggerRemoteContent() {
+            this.$emit("remote-content", this.message);
+        },
+        previewOrDownload(file) {
+            if (!isUploading(file)) {
+                if (isAllowedToPreview(file)) {
+                    this.openPreview(file, this.message);
+                } else {
+                    this.download(file);
+                }
+            }
+        },
+        isViewable,
+        isAllowedToPreview
     }
 };
 
@@ -103,7 +161,7 @@ class CidSet extends Set {
     display: flex;
     flex-direction: column;
 
-    .mail-attachments-block {
+    .files-block {
         margin-bottom: $sp-2;
     }
 }

@@ -6,7 +6,7 @@
             </template>
         </bm-alert-area>
         <mail-conversation-viewer :conversation="CURRENT_CONVERSATION_METADATA" />
-        <mail-attachment-preview />
+        <preview-modal />
     </div>
 </template>
 
@@ -18,11 +18,11 @@ import { BmAlertArea } from "@bluemind/styleguide";
 
 import { CURRENT_CONVERSATION_METADATA } from "~/getters";
 import MailConversationViewer from "../MailViewer/MailConversationViewer";
-import MailAttachmentPreview from "../MailAttachment/MailAttachmentPreview";
+import PreviewModal from "../MailAttachment/PreviewModal";
 
 export default {
     name: "MailThread",
-    components: { BmAlertArea, MailConversationViewer, MailAttachmentPreview },
+    components: { BmAlertArea, MailConversationViewer, PreviewModal },
     computed: {
         ...mapState("mail", ["folders"]),
         ...mapGetters("mail", { CURRENT_CONVERSATION_METADATA }),

@@ -1,5 +1,5 @@
 <template>
-    <text-html-part-viewer v-slot="content" v-bind="$props">
+    <text-html-file-viewer v-slot="content" v-bind="$props">
         <i-frame class="border-0">
             <template v-slot:head>
                 <base target="_blank" />
@@ -12,17 +12,17 @@
             <!-- eslint-disable-next-line vue/no-v-html -->
             <main v-html="content.html"></main>
         </i-frame>
-    </text-html-part-viewer>
+    </text-html-file-viewer>
 </template>
 <script>
 import IFrame from "../../../IFrame";
-import PartViewerMixin from "./../PartViewerMixin";
-import TextHtmlPartViewer from "./../TextHtmlPartViewer";
+import FileViewerMixin from "../FileViewerMixin";
+import TextHtmlFileViewer from "./../TextHtmlFileViewer";
 
 export default {
-    name: "IframedTextHtmlPartViewer",
-    components: { TextHtmlPartViewer, IFrame },
-    mixins: [PartViewerMixin],
+    name: "IframedTextHtmlFileViewer",
+    components: { TextHtmlFileViewer, IFrame },
+    mixins: [FileViewerMixin],
     $capabilities: ["text/html"],
     props: { collapse: { type: Boolean, default: true } },
     data() {
@@ -54,7 +54,7 @@ const IFRAME_STYLE = `
         `;
 </script>
 <style lang="scss">
-.text-html-part-viewer {
+.text-html-file-viewer {
     .i-frame {
         min-width: 100%;
         max-width: 100%;

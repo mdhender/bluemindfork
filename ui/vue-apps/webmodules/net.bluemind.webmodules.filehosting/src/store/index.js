@@ -3,36 +3,27 @@ import actions from "./actions";
 
 const mutations = {
     // Listeners
-    REMOVE_ATTACHMENT(state, { messageKey, address }) {
-        if (state.values[messageKey] && state.values[messageKey][address]) {
-            const attachments = state.values[messageKey];
-            delete attachments[address];
+    REMOVE_file(state, { key }) {
+        if (state.values[key]) {
+            delete state.values[key];
         }
     },
-    ADD_MESSAGES(state, { messages }) {
-        messages.forEach(({ key, attachments }) => {
-            attachments?.forEach(attachment => addAttachment(state, { messageKey: key, attachment }));
-        });
+    ADD_FILES(state, { files }) {
+        files.forEach(file => addFile(state, { file }));
     },
-    ADD_ATTACHMENT: addAttachment,
-    SET_ATTACHMENT_ADDRESS(state, { messageKey, oldAddress, address }) {
-        if (state.values[messageKey] && state.values[messageKey][oldAddress]) {
-            let infos = state.values[messageKey][oldAddress];
-            Vue.delete(state.values[messageKey], oldAddress);
-            Vue.set(state.values[messageKey], address, infos);
+    ADD_FILE: addFile,
+    SET_FILE_ADDRESS(state, { key, address }) {
+        if (state.values[key]) {
+            Vue.set(state.values[key], address, address);
         }
     },
-    SET_ATTACHMENT_HEADERS(state, { messageKey, address, headers }) {
-        addAttachment(state, { messageKey, attachment: { address, headers } });
-    },
-    SET_MESSAGE_TMP_ADDRESSES(state, { key, attachments }) {
-        Vue.delete(state.values, key);
-        attachments.forEach(attachment => addAttachment(state, { messageKey: key, attachment }));
+    SET_FILE_HEADERS(state, { key, headers }) {
+        addFile(state, { file: { key, headers } });
     }
 };
 const getters = {
-    GET_FH_ATTACHMENT(state) {
-        return ({ key }, { address }) => state.values[key]?.[address];
+    GET_FH_FILE(state) {
+        return ({ key }) => state.values[key];
     }
 };
 
@@ -44,7 +35,7 @@ export default {
     getters
 };
 
-function addAttachment(state, { messageKey, attachment: { address, headers } }) {
+function addFile(state, { file: { key, headers } }) {
     let header =
         headers.find(header => header.name.toLowerCase() === "x-bm-disposition") ||
         headers.find(header => header.name.toLowerCase() === "x-mozilla-cloud-part");
@@ -52,29 +43,16 @@ function addAttachment(state, { messageKey, attachment: { address, headers } }) 
     if (header) {
         const data = extractFileHostingInfos(header);
 
-        if (!data.fileName) {
+        if (!data.name) {
             let contentDispoHeader = headers.find(header => header.name.toLowerCase() === "content-disposition");
-            const contentDispoData = extractHeaderInfos(contentDispoHeader);
-            data.fileName = contentDispoData.filename;
+            const contentDispoData = extractFileHostingInfos(contentDispoHeader);
+            data.name = contentDispoData.filename;
         }
-
-        if (!state.values[messageKey]) {
-            Vue.set(state.values, messageKey, { [address]: data });
-        } else {
-            Vue.set(state.values[messageKey], address, data);
-        }
+        Vue.set(state.values, key, data);
     }
 }
 
 function extractFileHostingInfos(header) {
-    let { name, ...headers } = extractHeaderInfos(header);
-    return {
-        fileName: name,
-        ...headers
-    };
-}
-
-function extractHeaderInfos(header) {
     if (!header) {
         return {};
     }

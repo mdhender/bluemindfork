@@ -1,19 +1,19 @@
 <template>
-    <div class="pdf-part-viewer">
+    <div class="pdf-file-viewer">
         <iframe :src="src" frameBorder="0" toolbar="0" />
     </div>
 </template>
 <script>
-import PartViewerMixin from "../PartViewerMixin";
+import FileViewerMixin from "../FileViewerMixin";
 
 export default {
-    name: "PdfPartViewer",
-    mixins: [PartViewerMixin],
+    name: "PdfFileViewer",
+    mixins: [FileViewerMixin],
     $capabilities: ["application/pdf"]
 };
 </script>
 <style lang="scss">
-.pdf-part-viewer {
+.pdf-file-viewer {
     display: flex;
     align-items: center;
     justify-content: center;

@@ -1,43 +1,92 @@
 <template>
     <mail-viewer-content class="preview-message" :message="message">
         <template v-slot:attachments-block="scope">
-            <div class="mail-attachments">
-                <mail-attachments-header :attachments="scope.attachments" :message="scope.message" />
-                <mail-attachment-item
-                    v-for="attachment in scope.attachments"
-                    :key="attachment.address"
-                    :attachment="attachment"
+            <div class="mail-files">
+                <files-header :files="scope.files" :message="scope.message" />
+                <file-item
+                    v-for="file in scope.files"
+                    :key="file.key"
+                    :file="file"
                     :message="scope.message"
-                    :class="attachment.address === activePart.address ? 'active' : ''"
-                />
+                    :class="file.key === activeFile.key ? 'active' : ''"
+                    @click-item="previewOrDownload"
+                >
+                    <template v-slot:actions="{ file: slotFile }">
+                        <preview-button
+                            v-if="!isLarge(slotFile) && isViewable(slotFile)"
+                            @preview="openPreview(slotFile)"
+                        />
+                        <download-button :ref="`download-button-${slotFile.key}`" :file="slotFile" />
+                    </template>
+                    <template #overlay="{ file: slotFile, hasPreview }">
+                        <preview-overlay v-if="hasPreview" />
+                        <filetype-overlay v-else :file="slotFile" />
+                    </template>
+                </file-item>
             </div>
         </template>
     </mail-viewer-content>
 </template>
 
 <script>
-import { partUtils } from "@bluemind/mail";
+import { mapMutations } from "vuex";
+import { partUtils, fileUtils } from "@bluemind/mail";
+import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY } from "~/mutations";
 import MailViewerContent from "../../MailViewer/MailViewerContent";
-import MailAttachmentItem from "../MailAttachmentItem";
-import MailAttachmentsHeader from "../MailAttachmentsHeader";
-
+import FileItem from "../FileItem";
+import FilesHeader from "../FilesHeader";
+import PreviewButton from "../ActionButtons/PreviewButton";
+import DownloadButton from "../ActionButtons/DownloadButton";
+import PreviewOverlay from "../Overlays/PreviewOverlay";
+import FiletypeOverlay from "../Overlays/FiletypeOverlay";
 const { isViewable } = partUtils;
+const { isUploading, isAllowedToPreview, isLarge } = fileUtils;
 
 export default {
     name: "PreviewMessage",
-    components: { MailViewerContent, MailAttachmentItem, MailAttachmentsHeader },
+    components: {
+        MailViewerContent,
+        FileItem,
+        FilesHeader,
+        PreviewButton,
+        DownloadButton,
+        PreviewOverlay,
+        FiletypeOverlay
+    },
     props: {
         message: {
             type: Object,
             required: true
         },
-        activePart: {
+        activeFile: {
             type: Object,
             required: true
         }
     },
     methods: {
-        isViewable
+        ...mapMutations("mail", {
+            SET_PREVIEW_MESSAGE_KEY,
+            SET_PREVIEW_FILE_KEY
+        }),
+        openPreview(file) {
+            this.SET_PREVIEW_MESSAGE_KEY(this.message.key);
+            this.SET_PREVIEW_FILE_KEY(file.key);
+            this.$bvModal.show("preview-modal");
+        },
+        download(file) {
+            this.$refs[`download-button-${file.key}`][0].clickButton();
+        },
+        previewOrDownload(file) {
+            if (!isUploading(file)) {
+                if (isAllowedToPreview(file)) {
+                    this.openPreview(file, this.message);
+                } else {
+                    this.download(file);
+                }
+            }
+        },
+        isViewable,
+        isLarge
     }
 };
 </script>
@@ -96,14 +145,14 @@ export default {
         flex-wrap: nowrap;
         white-space: nowrap;
     }
-    .mail-attachments {
+    .mail-files {
         padding: $sp-2 $sp-4;
         background-color: $neutral-bg-lo1;
-        .mail-attachment-item {
+        .file-item {
             border-width: 2px !important;
         }
 
-        .active .mail-attachment-item {
+        .active.file-item .container {
             border-color: $secondary-fg !important;
         }
     }

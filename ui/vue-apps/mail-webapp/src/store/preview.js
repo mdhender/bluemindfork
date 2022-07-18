@@ -1,13 +1,13 @@
-import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_PART_ADDRESS } from "~/mutations";
+import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY } from "~/mutations";
 
 const state = {
-    partAddress: null,
+    fileKey: null,
     messageKey: null
 };
 
 const mutations = {
-    [SET_PREVIEW_PART_ADDRESS](state, partAddress) {
-        state.partAddress = partAddress;
+    [SET_PREVIEW_FILE_KEY](state, fileKey) {
+        state.fileKey = fileKey;
     },
     [SET_PREVIEW_MESSAGE_KEY](state, messageKey) {
         state.messageKey = messageKey;

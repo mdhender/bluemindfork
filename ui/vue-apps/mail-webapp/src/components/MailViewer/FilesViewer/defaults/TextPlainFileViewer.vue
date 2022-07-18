@@ -1,6 +1,6 @@
 <template>
     <!-- eslint-disable-next-line vue/no-v-html -->
-    <div v-if="content" class="text-plain-part-viewer" v-html="toHtml" />
+    <div v-if="content" class="text-plain-file-viewer" v-html="toHtml" />
     <mail-viewer-content-loading v-else />
 </template>
 
@@ -8,13 +8,13 @@
 import { mapActions } from "vuex";
 import { mailText2Html } from "@bluemind/email";
 import MailViewerContentLoading from "../../MailViewerContentLoading";
-import PartViewerMixin from "../PartViewerMixin";
+import FileViewerMixin from "../FileViewerMixin";
 import { FETCH_PART_DATA } from "~/actions";
 
 export default {
-    name: "TextPlainPartViewer",
+    name: "TextPlainFileViewer",
     components: { MailViewerContentLoading },
-    mixins: [PartViewerMixin],
+    mixins: [FileViewerMixin],
     $capabilities: ["text/plain", "text/*"],
     data() {
         return {
@@ -30,11 +30,11 @@ export default {
         }
     },
     watch: {
-        part: {
+        file: {
             async handler() {
                 this.content = "";
-                if (this.part.url) {
-                    const res = await fetch(this.part.url);
+                if (this.src) {
+                    const res = await fetch(this.src);
                     const text = await res.text();
                     this.content = text;
                 } else {
@@ -42,10 +42,10 @@ export default {
                         messageKey: this.message.key,
                         folderUid: this.message.folderRef.uid,
                         imapUid: this.message.remoteRef.imapUid,
-                        parts: [this.part]
+                        parts: [this.file]
                     });
                     this.content = this.$store.state.mail.partsData.partsByMessageKey[this.message.key]?.[
-                        this.part.address
+                        this.file.address
                     ];
                 }
             },
@@ -61,7 +61,7 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
-.text-plain-part-viewer {
+.text-plain-file-viewer {
     .reply {
         margin-left: 1rem;
         padding-left: 1rem;

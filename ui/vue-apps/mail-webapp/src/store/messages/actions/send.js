@@ -11,10 +11,10 @@ import MessageAdaptor from "../helpers/MessageAdaptor";
 const { MessageStatus, MessageHeader, MessageCreationModes } = messageUtils;
 
 /** Send the last draft: move it to the Outbox then flush. */
-export default async function (context, { draftKey, myMailboxKey, outbox, myDraftsFolder, messageCompose }) {
+export default async function (context, { draftKey, myMailboxKey, outbox, myDraftsFolder, messageCompose, files }) {
     const draft = context.state[draftKey];
 
-    await context.dispatch(SAVE_MESSAGE, { draft, messageCompose });
+    await context.dispatch(SAVE_MESSAGE, { draft, messageCompose, files });
 
     context.commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENDING }]);
 

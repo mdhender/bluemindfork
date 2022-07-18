@@ -8,7 +8,7 @@
             <mail-composer-loading v-else />
         </template>
         <mail-viewer v-else :message="ACTIVE_MESSAGE" />
-        <mail-attachment-preview />
+        <preview-modal />
     </div>
 </template>
 
@@ -24,7 +24,7 @@ import MailComposer from "../MailComposer";
 import MailComposerLoading from "../MailComposer/MailComposerLoading";
 import MailViewer from "../MailViewer";
 import MailViewerLoading from "../MailViewer/MailViewerLoading";
-import MailAttachmentPreview from "../MailAttachment/MailAttachmentPreview";
+import PreviewModal from "../MailAttachment/PreviewModal";
 
 export default {
     name: "MailMessage",
@@ -34,7 +34,7 @@ export default {
         MailComposerLoading,
         MailViewer,
         MailViewerLoading,
-        MailAttachmentPreview
+        PreviewModal
     },
     provide() {
         return { $messageViewerRoot: this };

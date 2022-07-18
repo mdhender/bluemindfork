@@ -6,11 +6,11 @@ import { AttachmentClient } from "@bluemind/attachment.api";
 import FileHostingStore from "./store/";
 import AddAttachmentsHandler from "~/handlers/AddAttachmentsHandler";
 import RemoveAttachmentHandler from "~/handlers/RemoveAttachmentHandler";
-import FileHostingAttachment from "~/components/FileHostingAttachment";
+import RenderlessFileItem from "~/components/RenderlessFileItem";
 import CloudIcon from "~/components/CloudIcon";
 import DetachButton from "~/components/DetachButton";
 
-Vue.component("filehosting-attachment", FileHostingAttachment);
+Vue.component("fh-renderless-file-item", RenderlessFileItem);
 Vue.component("cloud-icon", CloudIcon);
 Vue.component("detach-button", DetachButton);
 
@@ -33,8 +33,9 @@ extensions.register("webapp", "net.bluemind.webmodules.filehosting", {
 
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
     component: {
-        name: "filehosting-attachment",
-        path: "message.attachment"
+        name: "fh-renderless-file-item",
+        path: "message.file",
+        priority: 10
     }
 });
 

@@ -2,6 +2,7 @@ import Vue from "vue";
 
 import router from "@bluemind/router";
 import store from "@bluemind/store";
+import { extensions } from "@bluemind/extensions";
 
 import MailAlertRenderer from "./components/MailAlertRenderer";
 import * as MailAlertComponents from "./components/MailAlerts";
@@ -10,7 +11,16 @@ import MailApp from "./components/MailApp";
 import mailRoutes from "./router";
 import MailStore from "./store/";
 import registerAPIClients from "./registerApiClients";
+import DecoratedFileItem from "./components/MailAttachment/DecoratedFileItem.vue";
 
+Vue.component("decorated-file-item", DecoratedFileItem);
+extensions.register("webapp.mail", "file-item", {
+    component: {
+        name: "decorated-file-item",
+        path: "message.file",
+        priority: 0
+    }
+});
 registerAPIClients();
 store.registerModule("mail", MailStore);
 router.addRoutes(mailRoutes);

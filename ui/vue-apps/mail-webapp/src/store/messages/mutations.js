@@ -11,9 +11,6 @@ import {
     RESET_CONVERSATIONS,
     SET_ATTACHMENT_ADDRESS,
     SET_ATTACHMENT_ENCODING,
-    SET_ATTACHMENT_HEADERS,
-    SET_ATTACHMENT_PROGRESS,
-    SET_ATTACHMENT_STATUS,
     SET_ATTACHMENTS,
     SET_MESSAGE_BCC,
     SET_MESSAGE_CC,
@@ -125,22 +122,10 @@ export default {
             attachment.address = address;
         }
     },
-    [SET_ATTACHMENT_STATUS]: (state, { messageKey, address, status }) => {
-        const attachment = state[messageKey].attachments.find(a => a.address === address);
-        attachment.status = status;
-    },
     [SET_ATTACHMENT_ENCODING]: (state, { messageKey, address, charset, encoding }) => {
         const attachment = state[messageKey].attachments.find(a => a.address === address);
         attachment.charset = charset;
         attachment.encoding = encoding;
-    },
-    [SET_ATTACHMENT_PROGRESS]: (state, { messageKey, address, loaded, total }) => {
-        const attachment = state[messageKey].attachments.find(a => a.address === address);
-        attachment.progress = { loaded, total };
-    },
-    [SET_ATTACHMENT_HEADERS]: (state, { messageKey, address, headers }) => {
-        const attachment = state[messageKey].attachments.find(a => a.address === address);
-        attachment.headers = headers;
     },
 
     // Hooks

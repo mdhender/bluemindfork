@@ -1,5 +1,6 @@
 import injector from "@bluemind/inject";
-import { AttachmentStatus, create } from "../attachment";
+import { create } from "../attachment";
+import { FileStatus } from "../file";
 
 injector.register({
     provide: "i18n",
@@ -9,7 +10,7 @@ injector.register({
 });
 describe("attachment model", () => {
     test("adapt attachment mime type according to filename if it's an application/octet-stream", () => {
-        const status = AttachmentStatus.UPLOADED;
+        const status = FileStatus.UPLOADED;
         let part = { mime: "application/octet-stream", fileName: "file.pdf" };
         let attachment = create(part, status);
         expect(attachment.mime).toBe("application/pdf");

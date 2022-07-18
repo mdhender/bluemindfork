@@ -3,7 +3,7 @@ import { InlineImageHelper, PartsBuilder } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import random from "lodash.random";
 
-import { attachmentUtils, draftUtils, messageUtils, signatureUtils } from "@bluemind/mail";
+import { draftUtils, fileUtils, messageUtils, signatureUtils } from "@bluemind/mail";
 import {
     MAX_MESSAGE_SIZE_EXCEEDED,
     SET_MESSAGE_DATE,
@@ -20,12 +20,12 @@ import MessageAdaptor from "../helpers/MessageAdaptor";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 
 const { isNewMessage } = draftUtils;
-const { AttachmentStatus } = attachmentUtils;
+const { FileStatus } = fileUtils;
 const { MessageHeader, MessageStatus } = messageUtils;
 const { CORPORATE_SIGNATURE_PLACEHOLDER, CORPORATE_SIGNATURE_SELECTOR } = signatureUtils;
 
-export function isReadyToBeSaved(draft) {
-    const attachmentsAreUploaded = draft.attachments.every(a => a.status === AttachmentStatus.UPLOADED);
+export function isReadyToBeSaved(draft, files) {
+    const attachmentsAreUploaded = files.every(f => f.status === FileStatus.UPLOADED);
     return (
         (draft.status === MessageStatus.IDLE ||
             draft.status === MessageStatus.NEW ||
@@ -34,16 +34,16 @@ export function isReadyToBeSaved(draft) {
     );
 }
 
-export async function save(context, draft, messageCompose) {
+export async function save(context, draft, messageCompose, files) {
     const service = inject("MailboxItemsPersistence", draft.folderRef.uid);
     let tmpAddresses = [],
         inlineImages = [];
-
     try {
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVING }]);
 
+        const service = inject("MailboxItemsPersistence", draft.folderRef.uid);
         ({ tmpAddresses, inlineImages } = await prepareDraft(context, service, draft, messageCompose));
-        const structure = createDraftStructure(tmpAddresses[0], tmpAddresses[1], draft.attachments, inlineImages);
+        const structure = createDraftStructure(tmpAddresses[0], tmpAddresses[1], files, inlineImages);
         await createEmlOnServer(context, draft, service, structure);
 
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.IDLE }]);

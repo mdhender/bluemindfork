@@ -1,7 +1,7 @@
 <template>
-    <div class="preview-attachment-header px-3 align-items-center">
-        <bm-icon :icon="fileTypeIcon" size="2x" class="align-bottom" />
-        <span :title="part.fileName" class="font-weight-bold ml-2">{{ part.fileName }} </span>
+    <div class="preview-file-header px-3 align-items-center">
+        <bm-icon :icon="getMatchingIcon(file.mime)" size="2x" class="align-bottom" />
+        <span :title="file.name" class="font-weight-bold ml-2">{{ file.name }} </span>
     </div>
 </template>
 <script>
@@ -9,18 +9,17 @@ import { BmIcon } from "@bluemind/styleguide";
 import { MimeType } from "@bluemind/email";
 
 export default {
-    name: "PreviewAttachementHeader",
+    name: "PreviewFileHeader",
     components: { BmIcon },
     props: {
-        part: {
+        file: {
             type: Object,
             required: true
         }
     },
-
-    computed: {
-        fileTypeIcon() {
-            return MimeType.matchingIcon(this.part.mime);
+    methods: {
+        getMatchingIcon(mime) {
+            return MimeType.matchingIcon(mime);
         }
     }
 };
@@ -28,7 +27,7 @@ export default {
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
 
-.preview-attachement-header {
+.preview-file-header {
     display: flex;
     background-color: $neutral-bg;
 }

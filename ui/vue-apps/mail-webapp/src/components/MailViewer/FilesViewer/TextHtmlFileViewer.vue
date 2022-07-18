@@ -1,6 +1,6 @@
 <template>
     <mail-viewer-content-loading v-if="content === undefined" />
-    <div v-else class="text-html-part-viewer">
+    <div v-else class="text-html-file-viewer">
         <slot :html="html" :styles="styles">
             <inline-style>{{ styles }}</inline-style>
             <!-- eslint-disable-next-line vue/no-v-html -->
@@ -32,28 +32,28 @@ import QuoteHelper from "~/store/helpers/QuoteHelper";
 import InlineStyle from "~/components/InlineStyle";
 
 import MailViewerContentLoading from "../MailViewerContentLoading";
-import PartViewerMixin from "./PartViewerMixin";
+import FileViewerMixin from "./FileViewerMixin";
 
 const { isForward } = messageUtils;
 const { getPartsFromCapabilities, VIEWER_CAPABILITIES } = partUtils;
 
 export default {
-    name: "TextHtmlPartViewer",
+    name: "TextHtmlFileViewer",
     components: { BmButton, BmIcon, MailViewerContentLoading, InlineStyle },
-    mixins: [PartViewerMixin],
+    mixins: [FileViewerMixin],
     props: { collapse: { type: Boolean, default: true } },
     data() {
         return { collapse_: this.collapse && !isForward(this.message) };
     },
     computed: {
         quoteNodes() {
-            return this.$store.getters[`mail/${QUOTE_NODES}`](this.message.key, this.part.address);
+            return this.$store.getters[`mail/${QUOTE_NODES}`](this.message.key, this.file.address);
         },
         blockImages() {
             return this.$store.state.mail.consultPanel.remoteImages.mustBeBlocked;
         },
         content() {
-            return this.$store.state.mail.partsData.partsByMessageKey[this.message.key]?.[this.part.address];
+            return this.$store.state.mail.partsData.partsByMessageKey[this.message.key]?.[this.file.address];
         },
         contentAsNode() {
             const node = new DOMParser().parseFromString(this.content, "text/html");
@@ -91,7 +91,7 @@ export default {
             messageKey: this.message.key,
             folderUid: this.message.folderRef.uid,
             imapUid: this.message.remoteRef.imapUid,
-            parts: [this.part]
+            parts: [this.file]
         });
     },
     methods: {

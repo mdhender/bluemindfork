@@ -1,5 +1,5 @@
 <template>
-    <div v-if="attachments.length > 0" class="mail-attachments-block p-2">
+    <div v-if="files.length > 0" class="files-block p-2">
         <div class="d-flex align-items-center">
             <bm-button
                 variant="inline-neutral"
@@ -9,14 +9,20 @@
             >
                 <bm-icon :icon="isExpanded ? 'caret-down' : 'caret-right'" />
             </bm-button>
-            <mail-attachments-header :attachments="attachments" :message="message" />
+            <files-header :files="files" :max-size="maxSize" />
         </div>
-        <bm-row v-if="seeMoreAttachments" class="ml-3 mr-1">
-            <bm-col lg="4" cols="12">
-                <mail-attachment-item :attachment="attachments[0]" :message="message" :compact="true" />
-            </bm-col>
-            <bm-col lg="4" cols="12">
-                <mail-attachment-item :attachment="attachments[1]" :message="message" :compact="true" />
+        <bm-row v-if="seeMoreFiles" class="ml-3 mr-1">
+            <bm-col v-for="file in files.slice(0, 2)" :key="file.key" lg="4" cols="12">
+                <file-item
+                    :file="file"
+                    :compact="true"
+                    @click-item="$emit('click-item', $event)"
+                    @remote-content="$emit('remote-content')"
+                >
+                    <template #actions="slotProps">
+                        <slot name="actions" :file="slotProps.file" />
+                    </template>
+                </file-item>
             </bm-col>
             <bm-col lg="4" cols="12" class="pt-2 border-transparent">
                 <bm-button
@@ -26,13 +32,25 @@
                     :aria-label="$t('common.toggleAttachments')"
                     @click="toggleExpand"
                 >
-                    + {{ $tc("common.attachments", attachments.length - 2, { count: attachments.length - 2 }) }}
+                    + {{ $tc("common.attachments", files.length - 2, { count: files.length - 2 }) }}
                 </bm-button>
             </bm-col>
         </bm-row>
         <bm-row v-else class="ml-3 mr-1">
-            <bm-col v-for="attachment in attachments" :key="attachment.address" lg="4" cols="12" :compact="!isExpanded">
-                <mail-attachment-item :attachment="attachment" :message="message" :compact="!isExpanded" />
+            <bm-col v-for="(file, index) in files" :key="index" lg="4" cols="12" :compact="!isExpanded">
+                <file-item
+                    :file="file"
+                    :compact="!isExpanded"
+                    @click-item="$emit('click-item', $event)"
+                    @remote-content="$emit('remote-content')"
+                >
+                    <template #actions="slotProps">
+                        <slot name="actions" :file="slotProps.file" />
+                    </template>
+                    <template #overlay="slotProps">
+                        <slot name="overlay" :hasPreview="slotProps.hasPreview" :file="slotProps.file" />
+                    </template>
+                </file-item>
             </bm-col>
         </bm-row>
         <!-- Save all button with i18n, please dont delete it 
@@ -50,49 +68,52 @@
 <script>
 import { BmButton, BmCol, BmIcon, BmRow } from "@bluemind/styleguide";
 
-import MailAttachmentItem from "./MailAttachmentItem";
-import MailAttachmentsHeader from "./MailAttachmentsHeader";
+import FileItem from "./FileItem";
+import FilesHeader from "./FilesHeader";
 
 export default {
-    name: "MailAttachmentsBlock",
+    name: "FilesBlock",
     components: {
         BmButton,
         BmCol,
         BmIcon,
         BmRow,
-        MailAttachmentItem,
-        MailAttachmentsHeader
+        FileItem,
+        FilesHeader
     },
     props: {
-        message: {
-            type: Object,
-            required: true
-        },
         expanded: {
             type: Boolean,
             default: false
         },
-        attachments: {
+        files: {
             type: Array,
             required: true
+        },
+        maxSize: {
+            type: Number,
+            default: null
         }
     },
     data() {
-        return { isExpanded: this.expanded };
+        return {
+            isExpanded: this.expanded
+        };
     },
     computed: {
-        hasMoreThan3Attachments() {
-            return this.attachments.length > 3;
+        hasMoreThan3Files() {
+            return this.files.length > 3;
         },
-        seeMoreAttachments() {
-            return !this.isExpanded && this.hasMoreThan3Attachments;
+        seeMoreFiles() {
+            return !this.isExpanded && this.hasMoreThan3Files;
         }
     },
     watch: {
-        "message.key"() {
+        files() {
             this.isExpanded = this.expanded;
         }
     },
+
     methods: {
         async toggleExpand() {
             this.isExpanded = !this.isExpanded;
@@ -104,11 +125,11 @@ export default {
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
 
-.mail-attachments-block {
+.files-block {
     background-color: $neutral-bg-lo1;
 }
-.mail-attachments-block .col-4,
-.mail-attachments-block .col-lg-4 {
+.files-block .col-4,
+.files-block .col-lg-4 {
     padding-right: $sp-1 !important;
     padding-left: $sp-1 !important;
 }

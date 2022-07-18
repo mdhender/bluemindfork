@@ -1,5 +1,5 @@
 <template>
-    <bm-icon v-if="isFhAttachment" class="cloud-icon mr-1" icon="cloud" />
+    <bm-icon v-if="isFhFile" class="cloud-icon mr-1" icon="cloud" />
 </template>
 
 <script>
@@ -10,19 +10,15 @@ export default {
     name: "CloudIcon",
     components: { BmIcon },
     props: {
-        attachment: {
-            type: Object,
-            required: true
-        },
-        message: {
+        file: {
             type: Object,
             required: true
         }
     },
     computed: {
-        ...mapGetters("mail", ["GET_FH_ATTACHMENT"]),
-        isFhAttachment() {
-            return this.GET_FH_ATTACHMENT(this.message, this.attachment);
+        ...mapGetters("mail", ["GET_FH_FILE"]),
+        isFhFile() {
+            return this.GET_FH_FILE(this.file);
         }
     }
 };

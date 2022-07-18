@@ -1,20 +1,20 @@
 <template>
-    <div v-if="src" class="image-part-viewer"><img :src="src" /></div>
+    <div v-if="src" class="image-file-viewer"><img :src="src" /></div>
     <bm-skeleton-img v-else />
 </template>
 <script>
 import { BmSkeletonImg } from "@bluemind/styleguide";
 
-import PartViewerMixin from "./../PartViewerMixin";
+import FileViewerMixin from "../FileViewerMixin";
 export default {
-    name: "ImagePartViewer",
+    name: "ImageFileViewer",
     components: { BmSkeletonImg },
-    mixins: [PartViewerMixin],
+    mixins: [FileViewerMixin],
     $capabilities: ["image/*"]
 };
 </script>
 <style lang="scss">
-.image-part-viewer {
+.image-file-viewer {
     display: flex;
     align-items: center;
     img {

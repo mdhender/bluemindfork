@@ -1,4 +1,6 @@
 <script>
+import camelize from "lodash.camelcase";
+
 export default {
     name: "BmExtensionRenderless",
     props: {
@@ -27,7 +29,8 @@ export default {
                 }
             });
         } else {
-            const content = this.$scopedSlots.default(this.$attrs);
+            const attrsCamelCase = Object.fromEntries(Object.entries(this.$attrs).map(([k, v]) => [camelize(k), v]));
+            const content = this.$scopedSlots.default(attrsCamelCase);
             if (Array.isArray(content) && content.length > 1) {
                 return h("div", content);
             }

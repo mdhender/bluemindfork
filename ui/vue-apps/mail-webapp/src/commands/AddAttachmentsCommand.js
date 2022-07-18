@@ -1,10 +1,11 @@
-import { partUtils, attachmentUtils, draftUtils } from "@bluemind/mail";
+import { partUtils, attachmentUtils, draftUtils, fileUtils } from "@bluemind/mail";
 import { BmTooLargeBox } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
 import { ADD_ATTACHMENT, DEBOUNCED_SAVE_MESSAGE } from "~/actions";
 
 const { createFromFile: createPartFromFile } = partUtils;
-const { create, AttachmentStatus } = attachmentUtils;
+const { create } = attachmentUtils;
+const { FileStatus } = fileUtils;
 const { isNewMessage } = draftUtils;
 
 export default {
@@ -21,7 +22,7 @@ export default {
 
             const promises = files.map(file => {
                 const part = createPartFromFile(UUIDGenerator.generate(), file);
-                const attachment = create(part, AttachmentStatus.NOT_LOADED);
+                const attachment = create(part, FileStatus.NOT_LOADED);
 
                 return this.$store.dispatch(`mail/${ADD_ATTACHMENT}`, {
                     message,
@@ -32,7 +33,8 @@ export default {
             await Promise.all(promises);
             await this.$store.dispatch(`mail/${DEBOUNCED_SAVE_MESSAGE}`, {
                 draft: message,
-                messageCompose: this.$store.state.mail.messageCompose
+                messageCompose: this.$store.state.mail.messageCompose,
+                files: message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
             });
             this.updateRoute(isNew);
         }

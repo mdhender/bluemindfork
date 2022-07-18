@@ -11,14 +11,14 @@ export const LINKS_CLASSNAME = "filehosting-links";
 export function renderMustDetachConfirmBox(vm, files, sizeLimit, message) {
     const content = vm.$createElement(FhMustDetachConfirmBox, {
         props: {
-            attachments: files.map(file => {
+            files: files.map(file => {
                 return {
-                    fileName: file.name,
+                    name: file.name,
                     progress: { total: file.size, loaded: 0 }
                 };
             }),
             sizeLimit,
-            allAttachmentsCount: message.attachments?.length + files.length
+            allFilesCount: message.attachments?.length + files.length
         }
     });
     const props = {
@@ -37,9 +37,9 @@ export function renderMustDetachConfirmBox(vm, files, sizeLimit, message) {
 export function renderShouldDetachConfirmBox(vm, files) {
     const content = vm.$createElement(FhConfirmBox, {
         props: {
-            attachments: files.map(file => {
+            files: files.map(file => {
                 return {
-                    fileName: file.name,
+                    name: file.name,
                     progress: { total: file.size, loaded: 0 }
                 };
             })
@@ -78,13 +78,13 @@ export function renderFileHostingModal(vm, message) {
         }
     };
 }
-export function renderLinksComponent(vm, attachments) {
+export function renderLinksComponent(vm, files) {
     // This Class is a subclass of the Vue component. The parent property establishes a parent-child
     // relationship to current vm. This way this component can use its parent plugins like i18n.
     return new ComposerLinksClass({
         parent: vm,
         propsData: {
-            attachments,
+            files,
             className: LINKS_CLASSNAME
         }
     });

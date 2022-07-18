@@ -2,21 +2,21 @@
     <div class="mail-inlines-block py-2">
         <div v-for="(part, index) in parts" :key="part.address">
             <hr v-if="index !== 0" class="part-separator" />
-            <part-viewer-facade :message="message" :part="part">
+            <file-viewer-facade :message="message" :file="part">
                 <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
                     <slot :name="slot" v-bind="scope" />
                 </template>
-            </part-viewer-facade>
+            </file-viewer-facade>
         </div>
     </div>
 </template>
 
 <script>
-import PartViewerFacade from "./PartsViewer/PartViewerFacade";
+import FileViewerFacade from "./FilesViewer/FileViewerFacade";
 
 export default {
     name: "MailInlinesBlock",
-    components: { PartViewerFacade },
+    components: { FileViewerFacade },
     props: {
         message: {
             type: Object,

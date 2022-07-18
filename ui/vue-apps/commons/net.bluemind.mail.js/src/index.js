@@ -1,6 +1,7 @@
 export { default as attachmentUtils } from "./attachment";
 export { default as conversationUtils } from "./conversations";
 export { default as draftUtils } from "./draft";
+export { default as fileUtils } from "./file";
 export { default as folderUtils } from "./folder";
 export { default as loadingStatusUtils } from "./loading-status";
 export { default as mailboxUtils } from "./mailbox";

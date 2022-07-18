@@ -2,11 +2,10 @@ import cloneDeep from "lodash.clonedeep";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { inject } from "@bluemind/inject";
-import { draftUtils, attachmentUtils } from "@bluemind/mail";
+import { draftUtils, fileUtils } from "@bluemind/mail";
 
 import {
     DEBOUNCED_SAVE_MESSAGE,
-    REMOVE_ATTACHMENT,
     REMOVE_CONVERSATION_MESSAGES,
     SAVE_MESSAGE,
     SAVE_AS_DRAFT,
@@ -33,7 +32,7 @@ import {
 } from "~/mutations";
 
 const { isNewMessage, createFromDraft } = draftUtils;
-const { AttachmentStatus } = attachmentUtils;
+const { FileStatus } = fileUtils;
 
 /**
  * Provide composition Vuex actions to components
@@ -72,7 +71,7 @@ export default {
             return this.message.folderRef.key === this.$store.getters[`mail/${MY_TEMPLATES}`].key;
         },
         anyAttachmentInError() {
-            return this.message.attachments.some(a => a.status === AttachmentStatus.ERROR);
+            return this.message.attachments.some(a => a.status === FileStatus.ERROR);
         }
     },
 
@@ -80,15 +79,15 @@ export default {
         ...mapActions("mail", {
             $_ComposerActionsMixin_SAVE_MESSAGE: SAVE_MESSAGE,
             $_ComposerActionsMixin_SEND_MESSAGE: SEND_MESSAGE,
-            $_ComposerActionsMixin_DEBOUNCED_SAVE: DEBOUNCED_SAVE_MESSAGE,
-            $_ComposerActionsMixin_REMOVE_ATTACHMENT: REMOVE_ATTACHMENT
+            $_ComposerActionsMixin_DEBOUNCED_SAVE: DEBOUNCED_SAVE_MESSAGE
         }),
         ...mapMutations("mail", { $_ComposerActionsMixin_ADD_MESSAGES: ADD_MESSAGES }),
         async debouncedSave() {
             const wasMessageOnlyLocal = isNewMessage(this.message);
             await this.$_ComposerActionsMixin_DEBOUNCED_SAVE({
                 draft: this.message,
-                messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose)
+                messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose),
+                files: this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
             });
             this.updateRoute(wasMessageOnlyLocal);
         },
@@ -96,7 +95,8 @@ export default {
             const wasMessageOnlyLocal = isNewMessage(this.message);
             await this.$_ComposerActionsMixin_SAVE_MESSAGE({
                 draft: this.message,
-                messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose)
+                messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose),
+                files: this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
             });
             this.updateRoute(wasMessageOnlyLocal);
         },
@@ -194,7 +194,8 @@ export default {
                 myMailboxKey: this.$_ComposerActionsMixin_MY_MAILBOX_KEY,
                 outbox: this.$_ComposerActionsMixin_MY_OUTBOX,
                 myDraftsFolder: this.$_ComposerActionsMixin_MY_DRAFTS,
-                messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose)
+                messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose),
+                files: this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
             });
             if (
                 !this.$_ComposerActionsMixin_CONVERSATIONS_ACTIVATED ||

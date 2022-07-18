@@ -1,7 +1,8 @@
-import { draftUtils, loadingStatusUtils, messageUtils } from "@bluemind/mail";
+import { draftUtils, loadingStatusUtils, messageUtils, attachmentUtils } from "@bluemind/mail";
 import { MESSAGE_IS_LOADED } from "~/getters";
 import apiMessages from "../../api/apiMessages";
 import {
+    ADD_FILES,
     ADD_FLAG,
     ADD_MESSAGES,
     DELETE_FLAG,
@@ -12,6 +13,7 @@ import {
 import { FolderAdaptor } from "../../folders/helpers/FolderAdaptor";
 import { FETCH_MESSAGE_METADATA } from "~/actions";
 import { Flag } from "@bluemind/email";
+const { AttachmentAdaptor } = attachmentUtils;
 
 const { draftKey } = draftUtils;
 const { LoadingStatus } = loadingStatusUtils;
@@ -81,14 +83,20 @@ export async function fetchMessageMetadata({ state, commit }, { messages: messag
             return loadings;
         }, [])
     );
-    const results = (await apiMessages.multipleGetById(messages)).reduce((results, message) => {
+    const allFiles = [];
+    const results = [];
+    (await apiMessages.multipleGetById(messages)).forEach(message => {
         if (!state[message.key].version || state[message.key].version < message.version) {
-            results.push({ ...message, conversationRef: state[message.key].conversationRef });
+            const { attachments, files } = AttachmentAdaptor.extractFiles(message.attachments, message);
+            results.push({ ...message, attachments, conversationRef: state[message.key].conversationRef });
+            allFiles.push(...files);
         }
         messageKeys.delete(message.key);
         return results;
     }, []);
+
     commit(ADD_MESSAGES, { messages: results });
+    commit(ADD_FILES, { files: allFiles });
     commit(
         SET_MESSAGES_LOADING_STATUS,
         messages.reduce((errors, message) => {

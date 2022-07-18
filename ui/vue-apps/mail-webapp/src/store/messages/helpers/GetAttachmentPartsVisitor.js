@@ -1,6 +1,7 @@
-import { attachmentUtils } from "@bluemind/mail";
+import { attachmentUtils, fileUtils } from "@bluemind/mail";
 
-const { AttachmentStatus, create, isAttachment } = attachmentUtils;
+const { create, isAttachment } = attachmentUtils;
+const { FileStatus } = fileUtils;
 
 export default class GetAttachmentPartsVisitor {
     constructor() {
@@ -9,7 +10,7 @@ export default class GetAttachmentPartsVisitor {
 
     visit(part) {
         if (isAttachment(part)) {
-            const attachment = create(part, AttachmentStatus.UPLOADED);
+            const attachment = create(part, FileStatus.UPLOADED);
             this.results.push(attachment);
         }
     }

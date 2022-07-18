@@ -3,10 +3,10 @@
         <inline-style>{{ STYLES }}</inline-style>
         <mail-viewer-content :message="message">
             <template v-slot:attachments-block="scope">
-                <mail-attachments-block v-bind="scope" :expanded="true" />
+                <files-block v-bind="scope" :expanded="true" />
             </template>
             <template v-slot:text-html="scope">
-                <text-html-part-viewer v-bind="scope" :collapse="false" />
+                <text-html-file-viewer v-bind="scope" :collapse="false" />
             </template>
         </mail-viewer-content>
     </main>
@@ -14,12 +14,12 @@
 <script>
 import brokenImageIcon from "~/../assets/brokenImageIcon.png";
 import InlineStyle from "../InlineStyle.vue";
-import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock.vue";
+import FilesBlock from "../MailAttachment/FilesBlock.vue";
 import MailViewerContent from "./MailViewerContent.vue";
-import TextHtmlPartViewer from "./PartsViewer/TextHtmlPartViewer.vue";
+import TextHtmlFileViewer from "./FilesViewer/TextHtmlFileViewer";
 export default {
     name: "MailMessagePrint",
-    components: { MailViewerContent, InlineStyle, TextHtmlPartViewer, MailAttachmentsBlock },
+    components: { MailViewerContent, InlineStyle, FilesBlock, TextHtmlFileViewer },
     props: {
         message: {
             type: Object,
@@ -141,14 +141,14 @@ h1.subject {
 .bm-avatar {
     display: none;
 }
-.mail-attachments-block {
+.files-block {
     margin-top: 4rem;
     order: 1;
 }
-.mail-attachments-block button {
+.files-block button {
     display: none;
 }
-.mail-attachments-block > div:first-child {
+.files-block > div:first-child {
     border-bottom: 1px solid black;
     margin-bottom: 1rem;
     padding-bottom: 0.25rem;
@@ -159,14 +159,14 @@ h1.subject {
 .attachment-text span {
     padding-right: 1rem;
 }
-.mail-attachment-item a {
+.file-item a {
     display: none;
 }
-.mail-attachment-item .row {
+.file-item .row {
     display: flex;
     margin: 0.75rem 0;
 }
-.mail-attachment-item svg.preview-file-type {
+.file-item svg.preview-file-type {
     display: none;
 }
 .event-viewer > .reply-to-invitation, .event-viewer > .btn-toolbar {

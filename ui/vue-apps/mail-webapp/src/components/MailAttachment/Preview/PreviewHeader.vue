@@ -1,28 +1,36 @@
 <template>
-    <div class="preview-header flex-column flex-lg-row">
-        <preview-attachment-header :part="part" :message="message" class="d-none d-lg-flex" />
+    <bm-extension
+        id="webapp.mail"
+        v-slot="context"
+        class="preview-header flex-column flex-lg-row"
+        path="message.file"
+        type="renderless"
+        :file="file"
+    >
+        <preview-file-header :file="context.file" class="d-none d-lg-flex" />
         <bm-button-toolbar class="order-0 order-lg-2 justify-content-around justify-content-lg-start">
             <bm-button
                 variant="simple-neutral"
+                :disabled="!isPreviewable(context.file)"
                 :title="
                     $t('mail.content.print', {
-                        fileType: $t('mail.content.' + fileTypeIcon),
-                        name: part.fileName
+                        fileType: $t('mail.content.' + matchingIcon),
+                        name: file.name
                     })
                 "
-                @click="print"
+                @click="print(file)"
             >
                 <bm-icon icon="printer" size="lg" />
             </bm-button>
             <bm-button
-                :href="downloadUrl"
+                :href="file.url"
                 variant="simple-neutral"
-                :download="part.fileName"
+                :download="file.name"
                 class="d-flex align-items-center"
                 :title="
                     $t('mail.content.download', {
-                        fileType: $t('mail.content.' + fileTypeIcon),
-                        name: part.fileName
+                        fileType: $t('mail.content.' + matchingIcon),
+                        name: file.name
                     })
                 "
             >
@@ -30,14 +38,15 @@
             </bm-button>
             <bm-button
                 variant="simple-neutral"
-                :title="$t('mail.content.open-new-tab', { name: part.fileName })"
-                @click="open"
+                :title="$t('mail.content.open-new-tab', { name: file.name })"
+                :disabled="!isPreviewable(context.file)"
+                @click="open(context.file)"
             >
                 <bm-icon icon="popup" size="lg" />
             </bm-button>
             <bm-button
                 variant="simple-neutral"
-                :disabled="message.attachments.length <= 1"
+                :disabled="filesCount <= 1"
                 tab-index="0"
                 :title="$t('mail.preview.previous')"
                 @click="$emit('previous')"
@@ -47,7 +56,7 @@
             <bm-button
                 variant="simple-neutral"
                 :title="$t('mail.preview.next')"
-                :disabled="message.attachments.length <= 1"
+                :disabled="filesCount <= 1"
                 @click="$emit('next')"
             >
                 <bm-icon icon="chevron-right" size="lg" />
@@ -59,49 +68,59 @@
             :expanded="expanded"
             @click.native="$emit('update:expanded', !expanded)"
         />
-    </div>
+    </bm-extension>
 </template>
 
 <script>
 import { BmButtonClose, BmIcon, BmButton, BmButtonToolbar } from "@bluemind/styleguide";
-import { MimeType, getPartDownloadUrl } from "@bluemind/email";
-import PreviewAttachmentHeader from "./PreviewAttachmentHeader";
+import { MimeType } from "@bluemind/email";
+import { BmExtension } from "@bluemind/extensions.vue";
+import PreviewFileHeader from "./PreviewFileHeader";
 import PreviewMessageHeader from "./PreviewMessageHeader";
+import { fileUtils } from "@bluemind/mail";
+const { isAllowedToPreview, hasRemoteContent } = fileUtils;
 
 export default {
     name: "PreviewHeader",
-    components: { PreviewMessageHeader, PreviewAttachmentHeader, BmButtonClose, BmIcon, BmButton, BmButtonToolbar },
+    components: {
+        BmExtension,
+        PreviewMessageHeader,
+        PreviewFileHeader,
+        BmButtonClose,
+        BmIcon,
+        BmButton,
+        BmButtonToolbar
+    },
     props: {
-        part: {
+        file: {
             type: Object,
             required: true
         },
-        message: {
-            type: Object,
+        filesCount: {
+            type: Number,
             required: true
         },
         expanded: { type: Boolean, required: true }
     },
     computed: {
-        fileTypeIcon() {
-            return MimeType.matchingIcon(this.part.mime);
+        matchingIcon() {
+            return MimeType.matchingIcon(this.file.mime);
         },
-        downloadUrl() {
-            return (
-                this.part.url ||
-                getPartDownloadUrl(this.message.folderRef.uid, this.message.remoteRef.imapUid, this.part)
-            );
+        blockedRemoteContent() {
+            return this.$store.state.mail.consultPanel.remoteImages.mustBeBlocked;
         }
     },
     methods: {
-        open() {
-            window.open(this.downloadUrl);
+        open(file) {
+            window.open(file.url);
         },
-
-        print() {
-            const win = window.open(this.downloadUrl);
+        print(file) {
+            const win = window.open(file.url);
             win.addEventListener("afterprint", () => win.close());
             win.addEventListener("load", () => win.print());
+        },
+        isPreviewable(file) {
+            return isAllowedToPreview(file) && !(hasRemoteContent(file) && this.blockedRemoteContent);
         }
     }
 };
@@ -113,10 +132,10 @@ export default {
 .preview-header {
     display: flex;
     background-color: $neutral-bg;
-    & > .preview-attachment-header {
+    & > .preview-file-header {
         order: 1;
     }
-    .preview-attachment-header {
+    .preview-file-header {
         flex: 1 1 auto;
         min-height: 0;
     }

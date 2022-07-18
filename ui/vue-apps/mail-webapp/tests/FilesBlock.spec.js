@@ -1,13 +1,13 @@
 import { BmProgress } from "@bluemind/styleguide";
 jest.mock("@bluemind/styleguide/css/_variables.scss", () => ({ iconsColors: "" }));
 
-import MailAttachmentsBlock from "../src/components/MailAttachment/MailAttachmentsBlock";
+import FilesBlock from "../src/components/MailAttachment/FilesBlock";
 import { createStore, createWrapper } from "./testUtils";
 import inject from "@bluemind/inject";
 
-inject.register({ provide: "UserSession", factory: () => ({ roles: "" }) });
+inject.register({ provide: "UserSession", factory: () => ({ roles: "", defaultEmail: "jane.doe@domain.com" }) });
 
-describe("MailAttachmentsBlock", () => {
+describe("FilesBlock", () => {
     test("is a Vue instance", () => {
         const wrapper = mountAttachmentBlock(1);
         expect(wrapper.vm).toBeTruthy();
@@ -41,8 +41,8 @@ function mountAttachmentBlock(attachmentSize) {
     store.commit("mail/ADD_MESSAGES", { messages: [message] });
 
     return createWrapper(
-        MailAttachmentsBlock,
+        FilesBlock,
         { store },
-        { message, attachments: message.attachments, expanded: false }
+        { expanded: false, files: [{ mime: "image/jpeg", size: attachmentSize, progress: {} }], maxSize: 10 }
     );
 }

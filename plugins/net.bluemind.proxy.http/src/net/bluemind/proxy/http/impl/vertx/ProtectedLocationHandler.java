@@ -142,7 +142,7 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 			return;
 		}
 		event.response().putHeader("Content-Security-Policy",
-				"connect-src 'self' ws: wss:; default-src 'self' ws: wss: 'unsafe-inline' 'unsafe-eval'; img-src * data: blob: ");
+				"connect-src 'self' ws: wss: https: blob:; default-src 'self' ws: wss: blob: 'unsafe-inline' 'unsafe-eval'; img-src * data: blob: ");
 
 		event.response().putHeader("Feature-Policy",
 				"accelerometer 'none'; ambient-light-sensor 'none'; autoplay 'self'; battery 'none';"

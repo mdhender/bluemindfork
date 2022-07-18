@@ -66,7 +66,9 @@ export default {
     isText,
     isHtml,
     isCalendar,
+    isAudio,
     isImage,
+    isVideo,
     isMultipart,
     matchingIcon,
     previewAvailable,
@@ -110,8 +112,14 @@ function isCalendar(part) {
     return equals(part.mime, TEXT_CALENDAR);
 }
 
+function isAudio(part) {
+    return part.mime.startsWith(AUDIO);
+}
 function isImage(part) {
     return part.mime.startsWith(IMAGE);
+}
+function isVideo(part) {
+    return part.mime.startsWith(VIDEO);
 }
 
 function isMultipart(part) {

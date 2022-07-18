@@ -5,7 +5,7 @@ export default {
         async removeAttachment({ attachment, message }) {
             await this.$store.dispatch(`mail/${REMOVE_ATTACHMENT}`, {
                 messageKey: message.key,
-                attachmentAddress: attachment.address,
+                attachment,
                 messageCompose: this.$store.state.mail.messageCompose
             });
         }

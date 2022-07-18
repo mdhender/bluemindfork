@@ -1,17 +1,17 @@
 <template>
-    <div class="audio-part-viewer"><audio controls :src="src" /></div>
+    <div class="audio-file-viewer"><audio controls :src="src" /></div>
 </template>
 <script>
-import PartViewerMixin from "../PartViewerMixin";
+import FileViewerMixin from "../FileViewerMixin";
 
 export default {
-    name: "AudioPartViewer",
-    mixins: [PartViewerMixin],
+    name: "AudioFileViewer",
+    mixins: [FileViewerMixin],
     $capabilities: ["audio/*"]
 };
 </script>
 <style lang="scss">
-.audio-part-viewer {
+.audio-file-viewer {
     display: flex;
     align-items: center;
     justify-content: center;

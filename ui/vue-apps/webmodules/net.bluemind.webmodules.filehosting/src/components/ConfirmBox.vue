@@ -14,21 +14,21 @@
             <div class="mb-4">
                 <slot name="text"> </slot>
             </div>
-            <div v-for="(attachment, idx) in attachments" :key="idx" class="position-relative mb-3">
-                <fh-attachment-item :attachment="attachment" />
+            <div v-for="(file, idx) in files" :key="idx" class="position-relative mb-3">
+                <detachment-item :file="file" />
             </div>
         </div>
     </div>
 </template>
 <script>
 import { BmIcon } from "@bluemind/styleguide";
-import FhAttachmentItem from "./AttachmentItem";
+import DetachmentItem from "./DetachmentItem";
 
 export default {
     name: "FhConfirmBox",
-    components: { BmIcon, FhAttachmentItem },
+    components: { BmIcon, DetachmentItem },
     props: {
-        attachments: {
+        files: {
             type: Array,
             required: true
         }

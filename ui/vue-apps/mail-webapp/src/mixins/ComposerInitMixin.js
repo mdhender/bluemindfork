@@ -4,12 +4,13 @@ import { InlineImageHelper, MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { sanitizeHtml } from "@bluemind/html-utils";
 import { BmRichEditor } from "@bluemind/styleguide";
-import { draftUtils, messageUtils, loadingStatusUtils, partUtils } from "@bluemind/mail";
+import { draftUtils, messageUtils, loadingStatusUtils, partUtils, attachmentUtils } from "@bluemind/mail";
 
 import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import { MY_DRAFTS } from "~/getters";
 import {
     ADD_ATTACHMENT,
+    ADD_FILES,
     ADD_MESSAGES,
     SET_ATTACHMENTS,
     SET_DRAFT_COLLAPSED_CONTENT,
@@ -35,7 +36,7 @@ const {
     handleSeparator
 } = draftUtils;
 const { getPartsFromCapabilities } = partUtils;
-
+const { AttachmentAdaptor } = attachmentUtils;
 const { MessageCreationModes } = messageUtils;
 
 /**
@@ -58,6 +59,7 @@ export default {
     methods: {
         ...mapActions("mail", { $_ComposerInitMixin_FETCH_PART_DATA: FETCH_PART_DATA }),
         ...mapMutations("mail", {
+            $_ComposerInitMixin_ADD_FILES: ADD_FILES,
             $_ComposerInitMixin_ADD_MESSAGES: ADD_MESSAGES,
             $_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT: SET_DRAFT_COLLAPSED_CONTENT,
             $_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT: SET_DRAFT_EDITOR_CONTENT,
@@ -68,12 +70,13 @@ export default {
         // case when user clicks on a message in MY_DRAFTS folder
         async initFromRemoteMessage(message) {
             const messageWithTmpAddresses = await apiMessages.getForUpdate(message);
+            const { files, attachments } = AttachmentAdaptor.extractFiles(messageWithTmpAddresses.attachments, message);
+            this.$_ComposerInitMixin_ADD_FILES({ files });
             this.$_ComposerInitMixin_SET_MESSAGE_TMP_ADDRESSES({
                 key: message.key,
-                attachments: messageWithTmpAddresses.attachments,
+                attachments: attachments,
                 inlinePartsByCapabilities: messageWithTmpAddresses.inlinePartsByCapabilities
             });
-
             const parts = getPartsFromCapabilities(messageWithTmpAddresses, COMPOSER_CAPABILITIES);
 
             await this.$_ComposerInitMixin_FETCH_PART_DATA({
@@ -264,20 +267,18 @@ export default {
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
         },
 
-        async mergeAttachments({ key }, related) {
+        async mergeAttachments(message, related) {
             const attachments = (await apiMessages.getForUpdate(related)).attachments;
-            attachments.forEach(attachment =>
-                this.$store.commit(`mail/${ADD_ATTACHMENT}`, { messageKey: key, attachment })
-            );
+            attachments.forEach(attachment => this.$store.commit(`mail/${ADD_ATTACHMENT}`, { message, attachment }));
         },
 
         async copyAttachments(sourceMessage, destinationMessage) {
             const attachments = (await apiMessages.getForUpdate(sourceMessage)).attachments;
-            this.$store.commit(`mail/${SET_ATTACHMENTS}`, { messageKey: destinationMessage.key, attachments });
+            this.$store.commit(`mail/${SET_ATTACHMENTS}`, { destinationMessage, attachments });
         },
 
-        async mergeSubject({ key }, related) {
-            this.$store.commit(`mail/${SET_MESSAGE_SUBJECT}`, { messageKey: key, subject: related.subject });
+        async mergeSubject(message, related) {
+            this.$store.commit(`mail/${SET_MESSAGE_SUBJECT}`, { message, subject: related.subject });
         },
 
         async mergeRecipients(message, { to, cc, bcc }) {

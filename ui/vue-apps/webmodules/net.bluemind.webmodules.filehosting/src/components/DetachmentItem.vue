@@ -1,13 +1,13 @@
 <template>
-    <div class="fh-attachment-item">
+    <div class="fh-file-item">
         <div class="d-flex text-neutral">
             <div><bm-icon icon="file" size="2x" class="mt-2" /></div>
             <div class="d-flex ml-2 mt-2 justify-content-between flex-fill">
                 <div class="label">
-                    <h2 class="text-truncate">{{ attachment.fileName }}</h2>
+                    <h2 class="text-truncate">{{ file.name }}</h2>
                     <span class="text-neutral text-right">
                         <span v-if="!hasErrorStatus">
-                            {{ displaySize(attachment.progress.loaded) }} / {{ displaySize(attachment.progress.total) }}
+                            {{ displaySize(file.progress.loaded) }} / {{ displaySize(file.progress.total) }}
                         </span>
                     </span>
                     <bm-label-icon v-if="isLarge" icon="exclamation-circle-fill" class="text-warning">
@@ -18,8 +18,8 @@
             </div>
         </div>
         <bm-progress
-            :value="attachment.progress.loaded"
-            :max="attachment.progress.total"
+            :value="file.progress.loaded"
+            :max="file.progress.total"
             :variant="hasErrorStatus ? 'danger' : 'secondary'"
         />
     </div>
@@ -29,28 +29,26 @@
 import { mapGetters } from "vuex";
 import { BmLabelIcon, BmProgress, BmIcon } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
-import { attachmentUtils } from "@bluemind/mail";
+import { fileUtils } from "@bluemind/mail";
 
-const { AttachmentStatus } = attachmentUtils;
-
-const VERY_LARGE_FILE_SIZE = 500 * 1024 * 1024;
+const { FileStatus, VERY_LARGE_FILE_SIZE } = fileUtils;
 
 export default {
-    name: "FhAttachmentItem",
+    name: "DetachmentItem",
     components: { BmLabelIcon, BmProgress, BmIcon },
     props: {
-        attachment: {
+        file: {
             type: Object,
             required: true
         }
     },
     computed: {
-        ...mapGetters("mail", ["GET_FH_ATTACHMENT"]),
+        ...mapGetters("mail", ["GET_FH_FILE"]),
         isLarge() {
-            return this.attachment.progress.total > VERY_LARGE_FILE_SIZE;
+            return this.file.progress.total > VERY_LARGE_FILE_SIZE;
         },
         hasErrorStatus() {
-            return this.attachment.status === AttachmentStatus.ERROR;
+            return this.file.status === FileStatus.ERROR;
         }
     },
     methods: {
@@ -64,7 +62,7 @@ export default {
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
 
-.fh-attachment-item {
+.fh-file-item {
     .progress {
         position: absolute;
         margin-bottom: $sp-2;

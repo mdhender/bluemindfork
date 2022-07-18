@@ -1,31 +1,27 @@
 <script>
 import { mapGetters } from "vuex";
 export default {
-    name: "FileHostingAttachment",
+    name: "RenderlessFileItem",
     props: {
-        attachment: {
-            type: Object,
-            required: true
-        },
-        message: {
+        file: {
             type: Object,
             required: true
         }
     },
     computed: {
-        ...mapGetters("mail", ["GET_FH_ATTACHMENT"]),
+        ...mapGetters("mail", ["GET_FH_FILE"]),
         decorated() {
-            if (isDetached(this.attachment)) {
+            if (isDetached(this.file)) {
                 return {
-                    ...this.attachment,
-                    ...this.GET_FH_ATTACHMENT(this.message, this.attachment)
+                    ...this.file,
+                    ...this.GET_FH_FILE(this.file, this.file)
                 };
             }
-            return this.attachment;
+            return this.file;
         }
     },
     render() {
-        return this.$scopedSlots.default({ attachment: this.decorated, message: this.message });
+        return this.$scopedSlots.default({ file: this.decorated });
     }
 };
 function isDetached({ headers }) {

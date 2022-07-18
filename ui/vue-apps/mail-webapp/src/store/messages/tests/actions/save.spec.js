@@ -1,7 +1,7 @@
 import { MimeType } from "@bluemind/email";
 import { MockMailboxItemsClient } from "@bluemind/test-utils";
 import ServiceLocator from "@bluemind/inject";
-import { messageUtils, attachmentUtils } from "@bluemind/mail";
+import { messageUtils, fileUtils } from "@bluemind/mail";
 
 import { saveAsap } from "../../actions/save";
 import htmlWithBase64Images from "../data/htmlWithBase64Images";
@@ -10,7 +10,7 @@ import { SET_MESSAGES_STATUS } from "~/mutations";
 import MessageAdaptor from "~/store/messages/helpers/MessageAdaptor";
 
 const { MessageStatus, createWithMetadata } = messageUtils;
-const { AttachmentStatus } = attachmentUtils;
+const { FileStatus } = fileUtils;
 
 jest.mock("../../../api/apiMessages");
 let itemsService, draft, context, saveParams;
@@ -32,7 +32,7 @@ describe("[Mail-WebappStore][actions] :  save", () => {
         draft.date = new Date();
         draft.status = MessageStatus.IDLE;
 
-        saveParams = { draft, messageCompose };
+        saveParams = { draft, messageCompose, files: [] };
         MessageAdaptor.fromMailboxItem = jest.fn();
         MessageAdaptor.fromMailboxItem.mockReturnValue({ inlinePartsByCapabilities: null });
         context = {
@@ -74,10 +74,12 @@ describe("[Mail-WebappStore][actions] :  save", () => {
     });
 
     test("With attachments, expect a mixed structure", async () => {
-        draft.attachments = [
-            { address: "2", status: AttachmentStatus.UPLOADED, mime: "anything" },
-            { address: "3", status: AttachmentStatus.UPLOADED, mime: "anything" }
+        draft.attachments = [{ address: "2" }, { address: "3" }];
+        const files = [
+            { address: "2", status: FileStatus.UPLOADED, mime: "anything" },
+            { address: "3", status: FileStatus.UPLOADED, mime: "anything" }
         ];
+        saveParams = { ...saveParams, files };
         await saveAsap(context, saveParams);
 
         expect(itemsService.updateById).toHaveBeenCalledWith(draftInternalId, expect.anything());

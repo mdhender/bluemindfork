@@ -1,15 +1,16 @@
 import activeMessage from "./activeMessage";
 import consultPanel from "./consultPanel";
+import conversationList from "./conversationList";
 import conversations from "./conversations";
+import files from "./files";
 import folderList from "./folderList";
 import folders from "./folders";
 import mailboxes from "./mailboxes";
 import messageCompose from "./messageCompose";
-import conversationList from "./conversationList";
 import partsData from "./partsData";
+import preview from "./preview";
 import route from "./route";
 import selection from "./selection";
-import preview from "./preview";
 import { state, getters, mutations } from "./store";
 
 export default {
@@ -19,16 +20,17 @@ export default {
     mutations,
     modules: {
         activeMessage,
-        partsData,
         consultPanel,
+        conversationList,
         conversations,
+        files,
         folderList,
         folders,
         mailboxes,
         messageCompose,
-        conversationList,
+        partsData,
+        preview,
         route,
-        selection,
-        preview
+        selection
     }
 };
