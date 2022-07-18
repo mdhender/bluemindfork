@@ -70,6 +70,7 @@ public class ByteSourceEventProducer extends AbstractVerticle {
 	private final class NextStreamChunkRequestHandler implements Handler<Message<String>> {
 
 		private final LocalJsonObject<Chunk> LAST = new LocalJsonObject<>(Chunk.LAST);
+		private final LocalJsonObject<Chunk> UNKNOWN = new LocalJsonObject<>(Chunk.UNKNOWN);
 
 		@Override
 		public void handle(Message<String> event) {
@@ -78,7 +79,7 @@ public class ByteSourceEventProducer extends AbstractVerticle {
 			InputStream in = liveStreams.get(streamId);
 			if (in == null) {
 				logger.error("{} ************ Stream {} is unknown", this, streamId);
-				event.reply(LAST);
+				event.reply(UNKNOWN);
 				return;
 			}
 			byte[] output = new byte[65536];

@@ -21,6 +21,7 @@ package net.bluemind.eas.wbxml.builder.vertx;
 public class Chunk {
 
 	public static final Chunk LAST = new Chunk();
+	public static final Chunk UNKNOWN = new Chunk();
 
 	public byte[] buf;
 

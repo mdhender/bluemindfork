@@ -169,6 +169,8 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 			if (c == Chunk.LAST) {
 				logger.debug("Last chunk after receiving {}bytes.", total);
 				end.onResult(self);
+			} else if (c == Chunk.UNKNOWN) {
+				logger.debug("Ignore unknown stream");
 			} else {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Received chunk ({}byte(s))", c.buf.length);
