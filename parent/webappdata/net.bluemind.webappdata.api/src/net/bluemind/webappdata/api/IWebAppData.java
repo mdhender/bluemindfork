@@ -82,4 +82,11 @@ public interface IWebAppData extends IChangelogSupport, IDataShardSupport, ICrud
 	@Path("uid/_mget")
 	List<ItemValue<WebAppData>> multipleGet(List<String> uids);
 
+	@GET
+	@Path("{id}/completeById")
+	ItemValue<WebAppData> getCompleteById(@PathParam("id") long id);
+
+	@POST
+	@Path("_mgetById")
+	List<ItemValue<WebAppData>> multipleGetById(List<Long> ids);
 }
