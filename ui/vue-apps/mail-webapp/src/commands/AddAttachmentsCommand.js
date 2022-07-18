@@ -1,7 +1,7 @@
-import UUIDGenerator from "@bluemind/uuid";
 import { partUtils, attachmentUtils, draftUtils } from "@bluemind/mail";
+import { BmTooLargeBox } from "@bluemind/styleguide";
+import UUIDGenerator from "@bluemind/uuid";
 import { ADD_ATTACHMENT, DEBOUNCED_SAVE_MESSAGE } from "~/actions";
-import TooLargeBox from "~/components/MailAttachment/Modals/TooLargeBox";
 
 const { createFromFile: createPartFromFile } = partUtils;
 const { create, AttachmentStatus } = attachmentUtils;
@@ -13,10 +13,9 @@ export default {
             files = [...files];
             const isNew = isNewMessage(this.message);
 
-            const filesSize = files.reduce((totalSize, file) => totalSize + file.size, 0);
-            if (filesSize > maxSize) {
-                const { content, props } = renderTooLargeOKBox(this, files, maxSize);
-                await this.$bvModal.msgBoxOk([content], props);
+            const totalSize = files.reduce((total, attachment) => total + attachment.size, message.size);
+            if (totalSize > maxSize) {
+                renderTooLargeFilesModal(this, files, maxSize);
                 return;
             }
 
@@ -45,8 +44,11 @@ export default {
     }
 };
 
-function renderTooLargeOKBox(vm, files, sizeLimit) {
-    const content = vm.$createElement(TooLargeBox, { props: { sizeLimit, attachmentsCount: files.length } });
+async function renderTooLargeFilesModal(vm, files, sizeLimit) {
+    const content = vm.$createElement(BmTooLargeBox, {
+        props: { sizeLimit, attachmentsCount: files.length },
+        scopedSlots: { default: () => vm.$tc("mail.filehosting.threshold.max_message_size") }
+    });
 
     const props = {
         title: vm.$tc("mail.filehosting.add.too_large", files.length),
@@ -56,5 +58,5 @@ function renderTooLargeOKBox(vm, files, sizeLimit) {
         centered: true
     };
 
-    return { content, props };
+    await vm.$bvModal.msgBoxOk([content], props);
 }

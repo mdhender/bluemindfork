@@ -10,7 +10,7 @@
             <span class="attachements-weigth">
                 ({{ displaySize(attachmentsWeight) }} / {{ displaySize(attachmentsMaxWeight) }})</span
             >
-            <bm-icon v-if="isTooHeavy" icon="exclamation-circle" />
+            <bm-icon v-if="isTooHeavy" icon="exclamation-circle" size="lg" />
         </span>
         <bm-progress
             :value="attachmentsWeight"

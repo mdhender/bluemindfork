@@ -41,6 +41,7 @@ export function create() {
         headers: [],
         subject: "",
         preview: "",
+        size: 0,
         composing: false,
         version: null,
 

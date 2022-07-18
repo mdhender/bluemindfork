@@ -25,6 +25,7 @@ export default {
             conversationId: remote.value.conversationId,
             headers: remote.value.body.headers,
             ...parts,
+            size: remote.value.body.size / 1.33, // take into account the email base64 encoding : 33% more space
             subject: remote.value.body.subject,
             status: MessageStatus.IDLE,
             loading: LoadingStatus.LOADED,

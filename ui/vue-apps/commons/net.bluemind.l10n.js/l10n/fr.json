@@ -208,6 +208,7 @@
     "common.close_window": "Fermer la fenêtre",
     "common.redo": "Rétablir",
     "common.undo": "Annuler",
+    "common.threshold.hit": "{hit} {size}.",
     "common": {
         "open_in_window": "Ouvrir dans une nouvelle fenêtre",
         "open_in_window_with_shift": "Appuyez sur Maj pour ouvrir dans une nouvelle fenêtre",
@@ -247,6 +248,13 @@
             "number": {
                 "increment": "Incrémenter",
                 "decrement": "Décrémenter"
+            }
+        },
+        "modal": {
+            "too_large_box": {
+                "threshold": {
+                    "change_selection": "Essayez de sélectionner un fichier moins volumineux. | Essayez de sélectionner des fichiers moins volumineux."
+                }
             }
         },
         "table": {

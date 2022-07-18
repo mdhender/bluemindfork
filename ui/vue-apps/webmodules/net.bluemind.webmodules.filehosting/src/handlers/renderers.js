@@ -1,4 +1,5 @@
 import Vue from "vue";
+import { BmTooLargeBox } from "@bluemind/styleguide";
 import FhConfirmBox from "~/components/ConfirmBox";
 import FhMustDetachConfirmBox from "~/components/MustDetachConfirmBox";
 import FileHostingModal from "~/components/FileHostingModal";
@@ -87,4 +88,21 @@ export function renderLinksComponent(vm, attachments) {
             className: LINKS_CLASSNAME
         }
     });
+}
+
+export async function renderTooLargeFilesModal(vm, files, sizeLimit) {
+    const content = vm.$createElement(BmTooLargeBox, {
+        props: { sizeLimit, attachmentsCount: files.length },
+        scopedSlots: { default: () => vm.$tc("mail.filehosting.threshold.some_hit") }
+    });
+
+    const props = {
+        title: vm.$tc("mail.filehosting.add.too_large", files.length),
+        okTitle: vm.$tc("common.got_it"),
+        bodyClass: "pb-4",
+        okVariant: "outline-secondary",
+        centered: true
+    };
+
+    await vm.$bvModal.msgBoxOk([content], props);
 }

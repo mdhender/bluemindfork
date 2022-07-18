@@ -1,6 +1,7 @@
 export { default as CorporateSignatureAlert } from "./CorporateSignatureAlert";
 export { default as CreateFolder } from "./CreateFolder";
 export { default as DefaultConversationAlert } from "./DefaultConversationAlert";
+export { default as DraftExceedsMaxMessageSizeAlert } from "./DraftExceedsMaxMessageSizeAlert";
 export { default as EmptyFolder } from "./EmptyFolder";
 export { default as MarkFolderAsRead } from "./MarkFolderAsRead";
 export { default as MoveConversations } from "./MoveConversations";

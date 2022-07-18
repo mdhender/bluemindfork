@@ -12,6 +12,10 @@
                 "success": "Le dossier {name} a bien été créé !",
                 "error": "Erreur lors de la création du dossier \"{name}\" !"
             },
+            "draft_exceeds_max_message_size": {
+                "reason": "Votre message ne peut pas être enregistré car il dépasse {size}.",
+                "advice": "Essayez de réduire le contenu du message ou d'enlever des pièces jointes."
+            },
             "empty_folder": {
                 "loading": "Le dossier \"{name}\" est en train d'être vidé...",
                 "success": "Le dossier \"{name}\" a été vidé.",
@@ -463,9 +467,9 @@
                 "failure": "Votre fichier n'a pas pu être téléchargé | Certains fichiers n'ont pas pu être téléchargés"
             },
             "threshold": {
-                "hit": "{hit} {size}.",
                 "some_hit": "Certains fichiers dépassent {size}",
                 "size": "Votre fichier dépasse {size} | Vos fichiers dépassent {size}",
+                "max_message_size": "La taille d'un message est limitée à {size}",
                 "almost_hit": "Votre fichier est relativement volumineux. | Vos fichiers sont relativement volumineux."
             },
             "add": {
@@ -476,7 +480,6 @@
                 "successful": "import réussi",
                 "failed": "échec de l'import"
             },
-            "change_selection": "Essayez de sélectionner un fichier moins volumineux. | Essayez de sélectionner des fichiers moins volumineux.",
             "expiration_date": "Expire le {date}",
             "link": "J'ai lié un fichier à ce message | J'ai lié des fichiers à ce message",
             "very_large_file": "fichier très volumineux"

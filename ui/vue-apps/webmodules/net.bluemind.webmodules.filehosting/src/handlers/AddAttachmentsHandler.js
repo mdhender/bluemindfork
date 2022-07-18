@@ -1,5 +1,10 @@
 import { inject } from "@bluemind/inject";
-import { renderMustDetachConfirmBox, renderShouldDetachConfirmBox, renderFileHostingModal } from "./renderers";
+import {
+    renderMustDetachConfirmBox,
+    renderShouldDetachConfirmBox,
+    renderFileHostingModal,
+    renderTooLargeFilesModal
+} from "./renderers";
 import getContentWithLinks from "./getContentWithLinks";
 import { StopExecutionError } from "./errors";
 
@@ -12,13 +17,13 @@ export default async function ({ files, message, maxSize }, { forceFilehosting }
         ({ autoDetachmentLimit, maxFilesize } = await service.getConfiguration());
     }
 
-    const messageSize = getFilesSize(message.attachments);
     const newAttachmentsSize = getFilesSize(files);
     if (maxFilesize && files.some(file => file.size > maxFilesize)) {
-        return { files, message, maxSize: maxFilesize };
+        renderTooLargeFilesModal(this, files, maxFilesize);
+        throw new StopExecutionError();
     } else if (forceFilehosting) {
         return doDetach.call(this, files, message);
-    } else if (messageSize + newAttachmentsSize > maxSize) {
+    } else if (message.size + newAttachmentsSize > maxSize) {
         return mustDetachFiles.call(this, files, message, maxSize);
     } else if (autoDetachmentLimit && newAttachmentsSize > autoDetachmentLimit) {
         return shouldDetachFiles.call(this, files, message, maxSize);

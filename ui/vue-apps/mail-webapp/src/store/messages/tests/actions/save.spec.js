@@ -55,7 +55,7 @@ describe("[Mail-WebappStore][actions] :  save", () => {
                 status: MessageStatus.SAVING
             }
         ]);
-        expect(context.commit).toHaveBeenNthCalledWith(10, SET_MESSAGES_STATUS, [
+        expect(context.commit).toHaveBeenNthCalledWith(11, SET_MESSAGES_STATUS, [
             {
                 key: draft.key,
                 status: MessageStatus.IDLE
@@ -174,7 +174,7 @@ describe("[Mail-WebappStore][actions] :  save", () => {
                 status: MessageStatus.SAVING
             }
         ]);
-        expect(context.commit).toHaveBeenNthCalledWith(10, SET_MESSAGES_STATUS, [
+        expect(context.commit).toHaveBeenNthCalledWith(11, SET_MESSAGES_STATUS, [
             {
                 key: draft.key,
                 status: MessageStatus.IDLE

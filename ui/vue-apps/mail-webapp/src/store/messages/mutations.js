@@ -30,6 +30,7 @@ import {
     SET_MESSAGE_TMP_ADDRESSES,
     SET_MESSAGE_TO,
     SET_MESSAGES_LOADING_STATUS,
+    SET_MESSAGE_SIZE,
     SET_MESSAGES_STATUS
 } from "~/mutations";
 
@@ -55,6 +56,9 @@ export default {
     [MOVE_MESSAGES]: (state, { messages }) => messages.forEach(m => (state[m.key].folderRef = m.folderRef)),
     [SET_MESSAGE_PREVIEW]: (state, { key, preview }) => {
         state[key].preview = preview;
+    },
+    [SET_MESSAGE_SIZE]: (state, { key, size }) => {
+        state[key].size = size;
     },
     [SET_MESSAGES_STATUS]: (state, messages) => {
         messages.forEach(m => (state[m.key].status = m.status));

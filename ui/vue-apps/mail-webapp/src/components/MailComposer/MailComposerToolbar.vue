@@ -23,10 +23,13 @@
             </bm-button>
         </div>
         <div class="d-flex align-items-center toolbar">
-            <span v-if="errorOccuredOnSave" class="pr-2 text-danger" :title="$t('mail.compose.save.error_reason')">
-                <!-- trick: modify the viewBox attribute to have a correct vertical alignment -->
-                <!-- eslint-disable-next-line vue/attribute-hyphenation -->
-                <bm-icon icon="exclamation-circle" class="mr-1" viewBox="0 -1 12 12" />{{ saveMessage }}
+            <span
+                v-if="errorOccuredOnSave"
+                class="pr-2 text-danger font-weight-bold"
+                :title="$t('mail.compose.save.error_reason')"
+            >
+                <bm-icon icon="exclamation-circle" size="lg" class="mr-1" />
+                {{ saveMessage }}
             </span>
             <span v-else class="text-muted pr-2">{{ saveMessage }}</span>
             <bm-extension id="webapp.mail" path="composer.footer.toolbar" :message="message" />
@@ -105,7 +108,7 @@ const { MessageStatus } = messageUtils;
 const { isNewMessage } = draftUtils;
 
 export default {
-    name: "MailComposerFooter",
+    name: "MailComposerToolbar",
     components: {
         BmButton,
         BmDropdown,

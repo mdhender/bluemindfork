@@ -38,14 +38,15 @@ export default {
                             const extractDataRegex = /data:image(.*)base64,/g;
                             const metadatas = img.src.match(extractDataRegex)[0];
                             const data = img.src.replace(metadatas, "");
+                            result.newContentByCid[cid] = convertData(data);
                             result.newParts.push({
                                 address: null,
                                 mime: getMimeType(metadatas),
                                 dispositionType: "INLINE",
                                 encoding: "base64",
-                                contentId: cid
+                                contentId: cid,
+                                size: result.newContentByCid[cid].byteLength
                             });
-                            result.newContentByCid[cid] = convertData(data);
                         } else {
                             result.alreadySaved.push(inlineImagesSaved.find(part => part.contentId === cid));
                         }

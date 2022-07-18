@@ -6,7 +6,8 @@
     "main": "src/index.js",
     "license": "AGPL-3.0-only",
     "scripts": {
-        "build": "webpack --env production --progress --profile --color"
+        "build": "webpack --env production --progress --profile --color",
+	"dev": "webpack serve --env development --progress --color --port 9183"
     },
     "dependencies": {
         "@bluemind/store": "^4.1.0",

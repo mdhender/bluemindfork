@@ -1,7 +1,7 @@
 <template>
     <fh-confirm-box :attachments="attachments" class="fh-must-detach-confirm-box">
         <template #text>
-            <i18n path="mail.filehosting.threshold.hit">
+            <i18n path="common.threshold.hit">
                 <template v-slot:hit>
                     {{ $tc("mail.filehosting.threshold.size", allAttachmentsCount) }}
                 </template>

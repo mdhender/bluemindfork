@@ -12,6 +12,10 @@
                 "success": "Der Ordner \"{name}\" wurde erstellt.",
                 "error": "Fehler beim Erstellen des Ordners \"{name}\"."
             },
+            "draft_exceeds_max_message_size": {
+                "reason": "Die E-Mail kann nicht versendet werden, da Sie die Größe von {size} übersteigt.",
+                "advice": "Versuchen Sie den Nachrichteninhalt zu verkleinern oder Anhänge zu entfernen."
+            },
             "empty_folder": {
                 "loading": "Der Ordner \"{name}\" wird geleert...",
                 "success": "Der Ordner \"{name}\" wurde geleert.",
@@ -463,9 +467,9 @@
                 "failure": "Ihre Datei konnte nicht hochgeladen werden | Einige Dateien konnten nicht heruntergeladen werden"
             },
             "threshold": {
-                "hit": "{hit} {size}.",
                 "some_hit": "Einige Dateien übersteigen {size}",
                 "size": "Ihre Datei überschreitet {size} | Ihre Dateien überschreiten {size}",
+                "max_message_size": "E-Mail Größe ist beschränkt auf {size}",
                 "almost_hit": "Ihre Datei ist ziemlich groß. | Ihre Dateien sind ziemlich groß."
             },
             "add": {
@@ -476,7 +480,6 @@
                 "successful": "erfolgreiche Einfuhr",
                 "failed": "fehlgeschlagener Import"
             },
-            "change_selection": "Versuchen Sie, eine kleinere Dateigröße zu wählen. | Versuchen Sie, weniger große Dateien auszuwählen.",
             "link": "Ich habe eine Datei zu dieser Nachricht verlinkt | Ich habe Dateien mit dieser Nachricht verlinkt",
             "expiration_date": "Läuft am {date} ab",
             "very_large_file": "sehr große Datei"

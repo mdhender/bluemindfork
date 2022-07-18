@@ -12,6 +12,10 @@
                 "success": "Folder {name} created!",
                 "error": "Failed to create folder \"{name}\" !"
             },
+            "draft_exceeds_max_message_size": {
+                "reason": "Your message can't be saved because it exceeds {size}.",
+                "advice": "Try reducing message content or removing attachments."
+            },
             "empty_folder": {
                 "loading": "Folder \"{name}\" is being emptied...",
                 "success": "Folder \"{name}\" has been emptied.",
@@ -463,9 +467,9 @@
                 "failure": "Your file could not be uploaded | Some files could not be uploaded"
             },
             "threshold": {
-                "hit": "{hit} {size}.",
                 "some_hit": "Some files exceed {size}",
                 "size": "Your file exceeds {size} | Your files exceed {size}",
+                "max_message_size": "Message size is limited to {size}",
                 "almost_hit": "Your file is quite large. | Your files are quite large."
             },
             "add": {
@@ -476,7 +480,6 @@
                 "successful": "successful import",
                 "failed": "import failure"
             },
-            "change_selection": "Try selecting a smaller file size. | Try to select smaller files.",
             "link": "I have linked a file to this message | I have linked files to this message",
             "expiration_date": "Expires on {date}",
             "very_large_file": "very large file"

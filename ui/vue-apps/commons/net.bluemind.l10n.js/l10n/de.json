@@ -208,6 +208,7 @@
     "common.close_window": "Fenster schließen",
     "common.redo": "Wiederholen",
     "common.undo": "Rückgängig",
+    "common.threshold.hit": "{hit} {size}.",
     "common": {
         "open_in_window": "In einem neuen Fenster öffnen",
         "open_in_window_with_shift": "Shift drücken, um in einem neuen Fenster zu öffnen",
@@ -247,6 +248,13 @@
             "number": {
                 "increment": "Inkrementieren",
                 "decrement": "Verringern"
+            }
+        },
+        "modal": {
+            "too_large_box": {
+                "threshold": {
+                    "change_selection": "Versuchen Sie, eine kleinere Dateigröße zu wählen. | Versuchen Sie, weniger große Dateien auszuwählen."
+                }
             }
         },
         "table": {

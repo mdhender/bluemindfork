@@ -5,6 +5,7 @@ import random from "lodash.random";
 
 import { attachmentUtils, draftUtils, messageUtils, signatureUtils } from "@bluemind/mail";
 import {
+    MAX_MESSAGE_SIZE_EXCEEDED,
     SET_MESSAGE_DATE,
     SET_MESSAGE_HEADERS,
     SET_MESSAGE_INTERNAL_ID,
@@ -12,7 +13,8 @@ import {
     SET_MESSAGES_STATUS,
     SET_SAVED_INLINE_IMAGES,
     SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES,
-    SET_MESSAGE_PREVIEW
+    SET_MESSAGE_PREVIEW,
+    SET_MESSAGE_SIZE
 } from "~/mutations";
 import MessageAdaptor from "../helpers/MessageAdaptor";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
@@ -24,24 +26,37 @@ const { CORPORATE_SIGNATURE_PLACEHOLDER, CORPORATE_SIGNATURE_SELECTOR } = signat
 
 export function isReadyToBeSaved(draft) {
     const attachmentsAreUploaded = draft.attachments.every(a => a.status === AttachmentStatus.UPLOADED);
-    return (draft.status === MessageStatus.IDLE || draft.status === MessageStatus.NEW) && attachmentsAreUploaded;
+    return (
+        (draft.status === MessageStatus.IDLE ||
+            draft.status === MessageStatus.NEW ||
+            draft.status === MessageStatus.SAVE_ERROR) &&
+        attachmentsAreUploaded
+    );
 }
 
 export async function save(context, draft, messageCompose) {
+    const service = inject("MailboxItemsPersistence", draft.folderRef.uid);
+    let tmpAddresses = [],
+        inlineImages = [];
+
     try {
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVING }]);
 
-        const service = inject("MailboxItemsPersistence", draft.folderRef.uid);
-        const { addresses, inlineImages } = await prepareDraft(context, service, draft, messageCompose);
-        const structure = createDraftStructure(addresses[0], addresses[1], draft.attachments, inlineImages);
+        ({ tmpAddresses, inlineImages } = await prepareDraft(context, service, draft, messageCompose));
+        const structure = createDraftStructure(tmpAddresses[0], tmpAddresses[1], draft.attachments, inlineImages);
         await createEmlOnServer(context, draft, service, structure);
-        addresses.slice(0, 2).forEach(address => service.removePart(address));
 
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.IDLE }]);
-    } catch (e) {
+        context.commit(MAX_MESSAGE_SIZE_EXCEEDED, false);
+    } catch (err) {
         // eslint-disable-next-line no-console
-        console.error(e);
+        console.error(err);
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVE_ERROR }]);
+        if (err.data?.errorCode === "ENTITY_TOO_LARGE") {
+            context.commit(MAX_MESSAGE_SIZE_EXCEEDED, true);
+        }
+    } finally {
+        tmpAddresses.slice(0, 2).forEach(address => service.removePart(address));
     }
 }
 
@@ -57,16 +72,16 @@ async function prepareDraft(context, service, draft, messageCompose) {
     const textHtml = sanitizeForCyrus(insertionResult.htmlWithCids);
     const textPlain = sanitizeForCyrus(html2text(insertionResult.htmlWithCids));
     context.commit(SET_MESSAGE_PREVIEW, { key: draft.key, preview: textPlain });
-    const addresses = await uploadParts(service, textPlain, textHtml, insertionResult.newContentByCid);
+    const tmpAddresses = await uploadParts(service, textPlain, textHtml, insertionResult.newContentByCid);
 
     const newInlineImages = insertionResult.newParts.map((part, index) => ({
         ...part,
-        address: addresses[index + 2]
+        address: tmpAddresses[index + 2]
     }));
     const inlineImages = insertionResult.alreadySaved.concat(newInlineImages);
     context.commit(SET_SAVED_INLINE_IMAGES, inlineImages);
 
-    return { addresses, inlineImages };
+    return { tmpAddresses, inlineImages };
 }
 
 async function createEmlOnServer(context, draft, service, structure) {
@@ -93,6 +108,7 @@ async function createEmlOnServer(context, draft, service, structure) {
     context.commit(SET_MESSAGE_IMAP_UID, { key: draft.key, imapUid });
     const mailItem = await inject("MailboxItemsPersistence", draft.folderRef.uid).getCompleteById(internalId);
     const adapted = MessageAdaptor.fromMailboxItem(mailItem, FolderAdaptor.toRef(draft.folderRef.uid));
+    context.commit(SET_MESSAGE_SIZE, { key: draft.key, size: adapted.size });
     context.commit(SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES, {
         key: draft.key,
         inlinePartsByCapabilities: adapted.inlinePartsByCapabilities

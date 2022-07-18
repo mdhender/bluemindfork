@@ -19,10 +19,7 @@ import MailComposerToolbar from "./MailComposerToolbar";
 
 export default {
     name: "MailComposerFooter",
-    components: {
-        MailComposerToolbar,
-        BmRichEditorToolbar
-    },
+    components: { BmRichEditorToolbar, MailComposerToolbar },
     props: {
         message: {
             type: Object,

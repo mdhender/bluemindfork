@@ -9,10 +9,5 @@ export default {
                 messageCompose: this.$store.state.mail.messageCompose
             });
         }
-    },
-    computed: {
-        maxSize() {
-            return this.$store.state.mail.messageCompose.maxMessageSize;
-        }
     }
 };

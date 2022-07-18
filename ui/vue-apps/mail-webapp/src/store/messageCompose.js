@@ -2,6 +2,7 @@ import { inject } from "@bluemind/inject";
 import { signatureUtils } from "@bluemind/mail";
 import { CHECK_CORPORATE_SIGNATURE, LOAD_MAX_MESSAGE_SIZE } from "~/actions";
 import {
+    MAX_MESSAGE_SIZE_EXCEEDED,
     RESET_COMPOSER,
     SET_CORPORATE_SIGNATURE,
     SET_PERSONAL_SIGNATURE,
@@ -20,6 +21,9 @@ const { isCorporateSignature, isDisclaimer } = signatureUtils;
 
 export default {
     mutations: {
+        [MAX_MESSAGE_SIZE_EXCEEDED]: (state, hasExceeded) => {
+            state.maxMessageSizeExceeded = hasExceeded;
+        },
         [RESET_COMPOSER]: state => {
             state.disclaimer = null;
             state.corporateSignature = null;
@@ -28,6 +32,8 @@ export default {
             state.collapsedContent = null;
             state.inlineImagesSaved = [];
             state.isSenderShown = false;
+
+            state.maxMessageSizeExceeded = false;
         },
         [SET_CORPORATE_SIGNATURE]: (state, mailTip) => {
             if (!state.corporateSignature || state.corporateSignature.uid !== mailTip.uid) {
@@ -103,7 +109,8 @@ export default {
         collapsedContent: null,
         inlineImagesSaved: [],
         maxMessageSize: 0, // FIXME: it's a cross-composer data, it must be moved in another store
-        isSenderShown: false
+        isSenderShown: false,
+        maxMessageSizeExceeded: false
     },
     modules: {
         templateChooser

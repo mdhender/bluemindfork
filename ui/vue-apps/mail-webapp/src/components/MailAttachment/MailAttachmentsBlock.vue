@@ -26,12 +26,7 @@
                     :aria-label="$t('common.toggleAttachments')"
                     @click="toggleExpand"
                 >
-                    +
-                    {{
-                        $tc("common.attachments", attachments.length - 2, {
-                            count: attachments.length - 2
-                        })
-                    }}
+                    + {{ $tc("common.attachments", attachments.length - 2, { count: attachments.length - 2 }) }}
                 </bm-button>
             </bm-col>
         </bm-row>

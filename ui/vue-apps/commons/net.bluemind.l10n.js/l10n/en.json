@@ -208,6 +208,7 @@
     "common.close_window": "Close the window",
     "common.redo": "Redo",
     "common.undo": "Undo",
+    "common.threshold.hit": "{hit} {size}.",
     "common": {
         "open_in_window": "Open in new window",
         "open_in_window_with_shift": "Press Shift to open in new window",
@@ -247,6 +248,13 @@
             "number": {
                 "increment": "Increment",
                 "decrement": "Decrement"
+            }
+        },
+        "modal": {
+            "too_large_box": {
+                "threshold": {
+                    "change_selection": "Try selecting a smaller file size. | Try to select smaller files."
+                }
             }
         },
         "table": {

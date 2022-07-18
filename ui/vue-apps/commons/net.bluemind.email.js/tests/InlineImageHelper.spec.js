@@ -118,7 +118,8 @@ describe("InlineImageHelper insertCid", () => {
                 mime: "image/png",
                 dispositionType: "INLINE",
                 encoding: "base64",
-                contentId: "<ACE3920D-2E72-45F5-91EB-E0146EB9F7AE@bluemind.net>"
+                contentId: "<ACE3920D-2E72-45F5-91EB-E0146EB9F7AE@bluemind.net>",
+                size: 1923
             }
         ]);
         expect(result.newContentByCid).toEqual({
