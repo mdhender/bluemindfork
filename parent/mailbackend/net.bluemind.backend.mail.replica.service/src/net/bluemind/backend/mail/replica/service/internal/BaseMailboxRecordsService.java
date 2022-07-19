@@ -26,7 +26,6 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -212,10 +211,8 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 		}
 		if (oioStream == null) {
 			try {
-				Set<String> bodyGuids = recordStore.getImapUidReferences(imapUid, container.owner);
-				if (!bodyGuids.isEmpty()) {
-					logger.info("SDS attempt for {}", bodyGuids);
-					String guid = bodyGuids.iterator().next();
+				String guid = recordStore.getImapUidReferences(imapUid, container.owner);
+				if (guid != null) {
 					MessageBodyObjectStore sds = new MessageBodyObjectStore(context.su());
 					Path sdsDl = sds.open(guid);
 					if (sdsDl != null) {

@@ -99,8 +99,8 @@ public class ReplicatedMailboxesMgmtService implements IReplicatedMailboxesMgmt 
 
 		List<Set<MailboxRecordItemUri>> refs = new ArrayList<>();
 		try {
-			Set<String> bodyGuids = store.getImapUidReferences(uid, mailbox);
-			bodyGuids.forEach(guid -> refs.add(getBodyGuidReferences(guid)));
+			String guid = store.getImapUidReferences(uid, mailbox);
+			refs.add(getBodyGuidReferences(guid));
 		} catch (SQLException e) {
 			logger.warn("Cannot read referenced message body", e);
 		}

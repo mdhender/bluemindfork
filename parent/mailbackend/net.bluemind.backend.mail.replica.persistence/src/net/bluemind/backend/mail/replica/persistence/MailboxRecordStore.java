@@ -23,11 +23,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -280,15 +278,14 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		}, new Object[] { guid });
 	}
 
-	public Set<String> getImapUidReferences(long uid, String owner) throws SQLException {
+	public String getImapUidReferences(long uid, String owner) throws SQLException {
 		String query = "SELECT encode(mbr.message_body_guid, 'hex') " //
 				+ "FROM t_mailbox_record mbr " //
 				+ "JOIN t_container_item ci ON ci.id = mbr.item_id " //
 				+ "JOIN t_container c ON c.id = ci.container_id " //
 				+ "WHERE c.id=? AND mbr.imap_uid = ? AND c.owner = ? ORDER BY ci.created";
 
-		return new HashSet<>(
-				select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id, uid, owner }));
+		return unique(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id, uid, owner });
 	}
 
 	public List<Long> getConversationIds(ItemFlagFilter filter) throws SQLException {
