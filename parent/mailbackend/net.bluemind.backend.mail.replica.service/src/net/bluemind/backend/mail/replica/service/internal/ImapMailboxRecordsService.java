@@ -117,6 +117,8 @@ import net.bluemind.imap.vertx.stream.EmptyStream;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.Mime4JHelper.SizedStream;
+import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
 public class ImapMailboxRecordsService extends BaseMailboxRecordsService implements IInternalMailboxItems {
 
@@ -352,13 +354,19 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			ref.get().get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 		} catch (TimeoutException e) {
 			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
-		} catch (InterruptedException | ExecutionException e1) {
-			throw new ServerFault(e1);
+		} catch (InterruptedException | ExecutionException e) {
+			throw new ServerFault(e);
 		}
 
 		SizedStream updatedEml = createEmlStructure(current.internalId, current.value.body.guid, newValue.body);
 		CompletableFuture<ItemChange> completion = ReplicationEvents.onRecordChanged(mailboxUniqueId,
 				current.value.imapUid);
+
+		int messageMaxSize = LocalSysconfCache.get().integerValue(SysConfKeys.message_size_limit.name());
+		if (updatedEml.size > messageMaxSize) {
+			String errorMsg = "Rewritten Eml exceeds max message size (so it has not been submitted to Cyrus).";
+			throw new ServerFault(errorMsg, ErrorCode.ENTITY_TOO_LARGE);
+		}
 
 		int appended = imapContext.withImapClient(sc -> {
 
