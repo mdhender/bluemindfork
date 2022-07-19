@@ -90,7 +90,7 @@ public class SystemConfiguration implements ISystemConfiguration {
 					throw new ServerFault("Fail to fetch system configuration", e1);
 				}
 
-				logger.error("error retrieving system configuration (3.0) from database", e1);
+				logger.error("error retrieving system configuration (3.0) from database: {}", e1.getMessage());
 			}
 		}
 

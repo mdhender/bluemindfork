@@ -23,7 +23,7 @@ import java.util.UUID;
 
 import org.junit.Test;
 
-import net.bluemind.backend.cyrus.internal.CyrusUniqueIds;
+import net.bluemind.backend.cyrus.partitions.CyrusUniqueIds;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Type;

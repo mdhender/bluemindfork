@@ -6,9 +6,10 @@
 		<artifactId>net.bluemind.imap.plugins</artifactId>
 		<version>4.1.0-SNAPSHOT</version>
 	</parent>
-	<groupId>net.bluemind.imap.endpoint.tests</groupId>
+
 	<artifactId>net.bluemind.imap.endpoint.tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
+
 	<build>
 		<plugins>
 			<plugin>

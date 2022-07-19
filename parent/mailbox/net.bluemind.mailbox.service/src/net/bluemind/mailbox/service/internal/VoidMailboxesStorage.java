@@ -36,7 +36,6 @@ import net.bluemind.mailbox.service.IMailboxesStorage;
 import net.bluemind.mailbox.service.common.DefaultFolder;
 import net.bluemind.mailbox.service.common.DefaultFolder.Status;
 import net.bluemind.server.api.Server;
-import net.bluemind.user.api.User;
 
 public class VoidMailboxesStorage implements IMailboxesStorage {
 	public static final IMailboxesStorage INSTANCE = new VoidMailboxesStorage();
@@ -89,20 +88,8 @@ public class VoidMailboxesStorage implements IMailboxesStorage {
 	}
 
 	@Override
-	public Integer getUnreadMessagesCount(String domainUid, ItemValue<User> user) throws ServerFault {
-		logger.warn("VOID MAILSTORAGE getUnreadMessagesCount {}", user.value.login);
-		return 0;
-	}
-
-	@Override
-	public boolean mailboxExist(BmContext context, String domainUid, Mailbox mailbox) throws ServerFault {
+	public boolean mailboxExist(BmContext context, String domainUid, ItemValue<Mailbox> mailbox) throws ServerFault {
 		return false;
-	}
-
-	@Override
-	public List<MailFolder> listFolders(BmContext context, String domainUid, ItemValue<Mailbox> mailbox)
-			throws ServerFault {
-		return Collections.emptyList();
 	}
 
 	@Override

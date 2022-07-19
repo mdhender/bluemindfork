@@ -18,6 +18,8 @@
  */
 package net.bluemind.imap.driver.mailapi;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,15 +39,13 @@ public class MailApiDriver implements MailboxDriver {
 
 	private static final Logger logger = LoggerFactory.getLogger(MailApiDriver.class);
 
-	// private static final String coreUrl =
-	// "http://meae-core-2.dev.bluemind.net:8090";
 	private IServiceProvider prov;
 	private IAuthentication anonAuthApi;
 
 	private String coreUrl;
 
 	public MailApiDriver() {
-		String host = BmIni.value("external-url");
+		String host = Optional.ofNullable(BmIni.value("external-url")).orElse("127.0.0.1");
 		this.coreUrl = "http://" + host + ":8090";
 		this.prov = ClientSideServiceProvider.getProvider(coreUrl, null);
 		this.anonAuthApi = prov.instance(IAuthentication.class);
@@ -61,7 +61,7 @@ public class MailApiDriver implements MailboxDriver {
 			return null;
 		}
 		if (login.status != Status.Ok) {
-			logger.warn("Got status {}", login.status);
+			logger.warn("Got status {} from {}", login.status, coreUrl);
 			return null;
 		}
 		ClientSideServiceProvider userProv = ClientSideServiceProvider.getProvider(coreUrl, login.authKey);

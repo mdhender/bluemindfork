@@ -232,7 +232,8 @@ public class MailboxValidator {
 		IServer serverService = context.provider().instance(IServer.class, InstallationId.getIdentifier());
 		ItemValue<Server> dataLocation = Optional.ofNullable(serverService.getComplete(mailbox.dataLocation)) //
 				.map(SplittedShardsMapping::remap) //
-				.orElseThrow(() -> new ServerFault("Datalocation " + mailbox.dataLocation + " must exist",
+				.orElseThrow(() -> new ServerFault(
+						"Datalocation " + mailbox.dataLocation + " must exist for mailbox " + mailbox.name,
 						ErrorCode.INVALID_PARAMETER));
 
 		boolean assigned = false;

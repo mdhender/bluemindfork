@@ -52,6 +52,7 @@ import net.bluemind.backend.cyrus.internal.files.CyrusProxyPassword;
 import net.bluemind.backend.cyrus.internal.files.CyrusReplication;
 import net.bluemind.backend.cyrus.partitions.CyrusFileSystemPathHelper;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import net.bluemind.backend.cyrus.partitions.CyrusUniqueIds;
 import net.bluemind.backend.cyrus.partitions.InternalName;
 import net.bluemind.backend.cyrus.replication.client.GetMailboxResponse;
 import net.bluemind.backend.cyrus.replication.client.ReplMailbox;
@@ -76,7 +77,6 @@ import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.ListInfo;
 import net.bluemind.imap.ListResult;
-import net.bluemind.imap.NameSpaceInfo;
 import net.bluemind.imap.QuotaInfo;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.mailbox.api.IMailboxAclUids;
@@ -101,9 +101,7 @@ import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.state.StateContext;
-import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserMailIdentities;
-import net.bluemind.user.api.User;
 
 public class CyrusMailboxesStorage implements IMailboxesStorage {
 
@@ -337,7 +335,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		}
 
 		// Ensure managed mailbox exist in cyrus
-		if (cur.routing.managed() && !mailboxExist(context, domainUid, cur)) {
+		if (cur.routing.managed() && !mailboxExist(context, domainUid, value)) {
 			create(context, domainUid, value);
 			return;
 		}
@@ -392,11 +390,11 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 	}
 
 	@Override
-	public boolean mailboxExist(BmContext context, String domainUid, Mailbox cur) throws ServerFault {
-		ItemValue<Server> srvItem = getServer(context, cur.dataLocation);
+	public boolean mailboxExist(BmContext context, String domainUid, ItemValue<Mailbox> cur) throws ServerFault {
+		ItemValue<Server> srvItem = getServer(context, cur.value.dataLocation);
 		CyrusService cyrus = new CyrusService(srvItem.value.address());
 
-		return cyrus.boxExist(boxname(cur, domainUid));
+		return cyrus.boxExist(boxname(cur.value, domainUid));
 	}
 
 	@Override
@@ -556,14 +554,6 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		return domains;
 	}
 
-	@Override
-	public Integer getUnreadMessagesCount(String domainUid, ItemValue<User> user) throws ServerFault {
-		// FIXME Wooot !
-		ItemValue<Server> server = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IServer.class, InstallationId.getIdentifier()).getComplete(user.value.dataLocation);
-		return new CyrusService(server.value.address()).getUnSeenMessages(domainUid, user);
-	}
-
 	/**
 	 * @param context
 	 * @param boxName
@@ -598,18 +588,6 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 					logger.error("error during dispatch boxCreated : {}", e.getMessage());
 				}
 			}
-		}
-	}
-
-	@Override
-	public List<MailFolder> listFolders(BmContext context, String domainUid, ItemValue<Mailbox> mailbox)
-			throws ServerFault {
-		ItemValue<Server> server = getServer(context, mailbox.value.dataLocation);
-
-		if (mailbox.value.type == Type.user) {
-			return listUserFolders(context, domainUid, mailbox);
-		} else {
-			return listSimpleFolders(domainUid, mailbox, server);
 		}
 	}
 
@@ -1102,81 +1080,6 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		}
 
 		return ret;
-	}
-
-	private List<MailFolder> listSimpleFolders(String domainUid, ItemValue<Mailbox> mailbox, ItemValue<Server> server)
-			throws ServerFault {
-		List<MailFolder> folders = new ArrayList<>();
-
-		try (StoreClient sc = new StoreClient(server.value.ip, 1143, "admin0", Token.admin0())) {
-			if (!sc.login()) {
-				throw new ServerFault(String.format("Fail to login to imap server : %s", server.value.address()));
-			}
-
-			ListResult imapFolers = sc.listSubFoldersMailbox(mailbox.value.name + "@" + domainUid);
-			MailFolder root = new MailFolder();
-
-			root.type = MailFolder.Type.normal;
-			String rootUri = "imap://" + mailbox.uid;
-			root.rootUri = rootUri;
-			root.name = "INBOX"; // implicit
-									// folder
-									// (root)
-			folders.add(root);
-			for (ListInfo imapFolder : imapFolers) {
-
-				String name = imapFolder.getName();
-				name = name.substring(mailbox.value.name.length());
-				name = name.substring(1, name.length() - ("@" + domainUid).length());
-				logger.debug("create folder for imap folder {}", name);
-				MailFolder folder = new MailFolder();
-
-				folder.type = MailFolder.Type.normal;
-				folder.name = name;
-				folder.rootUri = rootUri;
-				folders.add(folder);
-			}
-		}
-
-		return folders;
-
-	}
-
-	private List<MailFolder> listUserFolders(BmContext context, String domainUid, ItemValue<Mailbox> mailbox)
-			throws ServerFault {
-
-		ItemValue<User> user = context.provider().instance(IUser.class, domainUid).getComplete(mailbox.uid);
-		ItemValue<Server> server = context.provider().instance(IServer.class, InstallationId.getIdentifier())
-				.getComplete(user.value.dataLocation);
-
-		List<MailFolder> folders = new ArrayList<>();
-
-		try (Sudo pass = Sudo.forUser(user, domainUid);
-				StoreClient sc = new StoreClient(server.value.address(), 1143, user.value.login + "@" + domainUid,
-						pass.context.getSessionId())) {
-			if (!sc.login()) {
-				throw new ServerFault(String.format("Fail to login: %s@%s", user.value.login, domainUid));
-			}
-			NameSpaceInfo ni = sc.namespace();
-			String shared = ni.getMailShares().get(0);
-			String others = ni.getOtherUsers().get(0);
-			ListResult lr = sc.listAll();
-			for (ListInfo li : lr) {
-				String n = li.getName();
-				if (li.isSelectable() && !n.startsWith(shared) && !n.startsWith(others)) {
-					sc.select(li.getName());
-					MailFolder folder = new MailFolder();
-					folder.type = MailFolder.Type.normal;
-					folder.name = n;
-					folder.rootUri = "imap://" + mailbox.uid;
-					folders.add(folder);
-				}
-			}
-		} catch (IMAPException e) {
-			throw new ServerFault(e);
-		}
-
-		return folders;
 	}
 
 	@Override

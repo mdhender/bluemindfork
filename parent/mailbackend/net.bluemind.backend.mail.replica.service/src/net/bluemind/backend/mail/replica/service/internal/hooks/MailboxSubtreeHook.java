@@ -22,12 +22,6 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.backend.cyrus.partitions.CyrusPartition;
-import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
-import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmt;
-import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
-import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.MailboxReplicaRootUpdate;
-import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.backend.mail.replica.persistence.DeletedMailboxesStore;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -54,18 +48,7 @@ public class MailboxSubtreeHook implements IMailboxHook {
 	public void preMailboxCreated(BmContext context, String domainUid, ItemValue<Mailbox> boxItem) throws ServerFault {
 		forgetDeletion(context, domainUid, boxItem);
 
-		if (boxItem.value.dataLocation == null) {
-			// users & admins group (default groups) seems to be in this case
-			logger.warn("***** WTF mbox without datalocation {}", boxItem.value);
-			return;
-		}
-		CyrusPartition partition = CyrusPartition.forServerAndDomain(boxItem.value.dataLocation, domainUid);
-		IReplicatedMailboxesRootMgmt rootMgmtApi = context.provider().instance(IReplicatedMailboxesRootMgmt.class,
-				partition.name);
-
-		MailboxReplicaRootDescriptor root = asRootDescriptor(boxItem);
-		logger.info("Creating subtree {} on {}", root, partition);
-		rootMgmtApi.create(root);
+		// subtree create moved to MailApiBoxStorage
 	}
 
 	@Override
@@ -95,49 +78,15 @@ public class MailboxSubtreeHook implements IMailboxHook {
 		}
 	}
 
-	private MailboxReplicaRootDescriptor asRootDescriptor(ItemValue<Mailbox> boxItem) {
-		MailboxReplicaRootDescriptor root = MailboxReplicaRootDescriptor
-				.create(boxItem.value.type.sharedNs ? Namespace.shared : Namespace.users, boxItem.value.name);
-		root.dataLocation = boxItem.value.dataLocation;
-		return root;
-	}
-
 	@Override
 	public void onMailboxUpdated(BmContext context, String domainUid, ItemValue<Mailbox> previousBoxItem,
 			ItemValue<Mailbox> currentBoxItem) throws ServerFault {
-		if (currentBoxItem.value.dataLocation == null) {
-			// users & admins group (default groups) seems to be in this case
-			logger.warn("***** WTF mbox without datalocation {}", currentBoxItem.value);
-			return;
-		}
-		if (!currentBoxItem.value.dataLocation.equals(previousBoxItem.value.dataLocation)) {
-			logger.warn("**** Mailbox has migrated to a new server ({} => {}), let the replication deal with that",
-					previousBoxItem.value.dataLocation, currentBoxItem.value.dataLocation);
-			return;
-		}
-		if (currentBoxItem.value.name.equals(previousBoxItem.value.name)) {
-			// nothing to do, we are not dealing with a rename
-			return;
-		}
-		CyrusPartition partition = CyrusPartition.forServerAndDomain(currentBoxItem.value.dataLocation, domainUid);
-		IReplicatedMailboxesRootMgmt rootMgmtApi = context.provider().instance(IReplicatedMailboxesRootMgmt.class,
-				partition.name);
-		MailboxReplicaRootUpdate upd = new MailboxReplicaRootUpdate();
-		upd.subtreeUid = IMailReplicaUids.subtreeUid(domainUid, currentBoxItem);
-		upd.from = asRootDescriptor(previousBoxItem);
-		upd.to = asRootDescriptor(currentBoxItem);
-		rootMgmtApi.update(upd);
+
 	}
 
 	@Override
 	public void onMailboxDeleted(BmContext context, String domainUid, ItemValue<Mailbox> boxItem) throws ServerFault {
-		CyrusPartition partition = CyrusPartition.forServerAndDomain(boxItem.value.dataLocation, domainUid);
-		IReplicatedMailboxesRootMgmt rootMgmtApi = context.provider().instance(IReplicatedMailboxesRootMgmt.class,
-				partition.name);
 
-		MailboxReplicaRootDescriptor root = asRootDescriptor(boxItem);
-		logger.info("Deleting subtree {} on {}", root, partition);
-		rootMgmtApi.delete(root.ns.name(), root.name);
 	}
 
 	@Override

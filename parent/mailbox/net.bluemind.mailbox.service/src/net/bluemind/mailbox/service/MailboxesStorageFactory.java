@@ -27,8 +27,8 @@ public class MailboxesStorageFactory {
 
 	public static IMailboxesStorage getMailStorage() {
 		RunnableExtensionLoader<IMailboxesStorage> loader = new RunnableExtensionLoader<IMailboxesStorage>();
-		List<IMailboxesStorage> storages = loader.loadExtensions("net.bluemind.mailbox", "storage", "mailbox-storage",
-				"class");
+		List<IMailboxesStorage> storages = loader.loadExtensionsWithPriority("net.bluemind.mailbox", "storage",
+				"mailbox-storage", "class");
 		if (storages.size() >= 1) {
 			return storages.get(0);
 		} else {

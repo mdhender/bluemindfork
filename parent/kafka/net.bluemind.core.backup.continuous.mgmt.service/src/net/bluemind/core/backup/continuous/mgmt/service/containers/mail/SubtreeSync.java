@@ -20,7 +20,7 @@ package net.bluemind.core.backup.continuous.mgmt.service.containers.mail;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.bluemind.backend.cyrus.internal.CyrusUniqueIds;
+import net.bluemind.backend.cyrus.partitions.CyrusUniqueIds;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;

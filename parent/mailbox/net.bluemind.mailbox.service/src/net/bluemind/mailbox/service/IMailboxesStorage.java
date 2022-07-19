@@ -30,7 +30,6 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.MailboxQuota;
 import net.bluemind.mailbox.service.common.DefaultFolder.Status;
 import net.bluemind.server.api.Server;
-import net.bluemind.user.api.User;
 
 public interface IMailboxesStorage {
 
@@ -66,12 +65,7 @@ public interface IMailboxesStorage {
 
 	public void initialize(BmContext context, ItemValue<Server> server) throws ServerFault;
 
-	public Integer getUnreadMessagesCount(String domainUid, ItemValue<User> user) throws ServerFault;
-
-	public boolean mailboxExist(BmContext context, String domainUid, Mailbox mailbox) throws ServerFault;
-
-	public List<MailFolder> listFolders(BmContext context, String domainUid, ItemValue<Mailbox> mailbox)
-			throws ServerFault;
+	public boolean mailboxExist(BmContext context, String domainUid, ItemValue<Mailbox> mailbox) throws ServerFault;
 
 	// One method per repair feels horribly wrong here as most repair are only
 	// relevant for cyrus

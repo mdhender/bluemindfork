@@ -96,7 +96,8 @@ public class ImapContext {
 	 */
 	public Future<Void> write(Buffer b) {
 		if (logger.isInfoEnabled()) {
-			logger.info("[{}] S:\n{}", ns.writeHandlerID(), b.toString(StandardCharsets.US_ASCII));
+			logger.info("[{}] S: {}", ns.writeHandlerID(),
+					b.toString(StandardCharsets.US_ASCII).replaceAll("\r\n$", ""));
 		}
 		return sender.write(b);
 	}
@@ -107,7 +108,7 @@ public class ImapContext {
 
 	public CompletableFuture<Void> writePromise(String resp) {
 		if (logger.isInfoEnabled()) {
-			logger.info("[{}] S:\n{}", ns.writeHandlerID(), resp);
+			logger.info("[{}] S: {}", ns.writeHandlerID(), resp.replaceAll("\r\n$", ""));
 		}
 		return sender.write(Buffer.buffer(resp)).toCompletionStage().toCompletableFuture();
 	}

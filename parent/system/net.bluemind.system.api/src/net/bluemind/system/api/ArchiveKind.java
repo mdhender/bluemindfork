@@ -20,14 +20,14 @@ package net.bluemind.system.api;
 public enum ArchiveKind {
 	// amazon s3
 	S3("s3", true),
+
 	// scality
-
 	ScalityRing("scalityring", true),
+
 	// cyrus archive
+	Cyrus("cyrus", true),
 
-	Cyrus("cyrus"),
 	// store on local filesystem
-
 	Dummy("dummy"),
 
 	// no store at all

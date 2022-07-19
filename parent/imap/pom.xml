@@ -8,10 +8,14 @@
 	</parent>
 	<artifactId>net.bluemind.imap.plugins</artifactId>
 	<packaging>pom</packaging>
+
 	<modules>
 		<module>net.bluemind.imap.endpoint</module>
 		<module>net.bluemind.imap.endpoint.tests</module>
 		<module>net.bluemind.imap.driver.mailapi</module>
+		<module>net.bluemind.sds.store.cyrusspool</module>
+		<module>net.bluemind.backend.mailapi.storage</module>
+		<module>net.bluemind.imap.fullstack.tests</module>
 	</modules>
 
 </project>

@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -94,7 +95,8 @@ public class MailApiConnection implements MailboxConnection {
 		this.prov = userProv;
 		this.me = me;
 		this.foldersApi = prov.instance(IDbReplicatedMailboxes.class, me.domainUid, "user." + me.value.login);
-		this.sizeLimit = Integer.parseInt(config.get(SysConfKeys.message_size_limit.name()));
+		this.sizeLimit = Integer
+				.parseInt(Optional.ofNullable(config.get(SysConfKeys.message_size_limit.name())).orElse("10000000"));
 	}
 
 	@Override

@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.backend.cyrus.internal;
+package net.bluemind.backend.cyrus.partitions;
 
 import java.util.UUID;
 

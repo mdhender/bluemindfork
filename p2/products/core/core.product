@@ -93,18 +93,12 @@
       <plugin id="net.bluemind.authentication.sqlschema"/>
       <plugin id="net.bluemind.aws.s3"/>
       <plugin id="net.bluemind.aws.s3.utils"/>
-      <plugin id="net.bluemind.backend.cyrus"/>
-      <plugin id="net.bluemind.backend.cyrus.annotationdb"/>
       <plugin id="net.bluemind.backend.cyrus.index"/>
-      <plugin id="net.bluemind.backend.cyrus.integrity.check"/>
       <plugin id="net.bluemind.backend.cyrus.mailboxesdb"/>
       <plugin id="net.bluemind.backend.cyrus.partitions"/>
       <plugin id="net.bluemind.backend.cyrus.replication.client"/>
-      <plugin id="net.bluemind.backend.cyrus.replication.link"/>
       <plugin id="net.bluemind.backend.cyrus.replication.observers"/>
       <plugin id="net.bluemind.backend.cyrus.replication.protocol"/>
-      <plugin id="net.bluemind.backend.cyrus.replication.server"/>
-      <plugin id="net.bluemind.backend.cyrus.replication.storage.core"/>
       <plugin id="net.bluemind.backend.mail.api"/>
       <plugin id="net.bluemind.backend.mail.parsing"/>
       <plugin id="net.bluemind.backend.mail.replica.api"/>
@@ -113,6 +107,7 @@
       <plugin id="net.bluemind.backend.mail.replica.service"/>
       <plugin id="net.bluemind.backend.mail.replica.sqlschema"/>
       <plugin id="net.bluemind.backend.mail.replica.utils"/>
+      <plugin id="net.bluemind.backend.mailapi.storage"/>
       <plugin id="net.bluemind.backend.postfix"/>
       <plugin id="net.bluemind.backend.systemconf"/>
       <plugin id="net.bluemind.calendar.api"/>
@@ -195,7 +190,6 @@
       <plugin id="net.bluemind.dataprotect.directory"/>
       <plugin id="net.bluemind.dataprotect.elastic"/>
       <plugin id="net.bluemind.dataprotect.job"/>
-      <plugin id="net.bluemind.dataprotect.mailbox"/>
       <plugin id="net.bluemind.dataprotect.notes"/>
       <plugin id="net.bluemind.dataprotect.ou"/>
       <plugin id="net.bluemind.dataprotect.persistence"/>
@@ -287,7 +281,8 @@
       <plugin id="net.bluemind.im.service"/>
       <plugin id="net.bluemind.im.sqlschema"/>
       <plugin id="net.bluemind.imap"/>
-      <plugin id="net.bluemind.imap.translate"/>
+      <plugin id="net.bluemind.imap.driver.mailapi"/>
+      <plugin id="net.bluemind.imap.endpoint"/>
       <plugin id="net.bluemind.imap.vertx"/>
       <plugin id="net.bluemind.jdbc.driver.pgsql" fragment="true"/>
       <plugin id="net.bluemind.jdbc.pgsql.provider"/>
@@ -310,7 +305,6 @@
       <plugin id="net.bluemind.mailbox.identity.persistence"/>
       <plugin id="net.bluemind.mailbox.identity.service"/>
       <plugin id="net.bluemind.mailbox.identity.sqlschema"/>
-      <plugin id="net.bluemind.mailbox.job"/>
       <plugin id="net.bluemind.mailbox.persistence"/>
       <plugin id="net.bluemind.mailbox.service"/>
       <plugin id="net.bluemind.mailbox.sqlschema"/>
@@ -383,6 +377,7 @@
       <plugin id="net.bluemind.scheduledjob.sqlschema"/>
       <plugin id="net.bluemind.sds.proxy.mgmt"/>
       <plugin id="net.bluemind.sds.store"/>
+      <plugin id="net.bluemind.sds.store.cyrusspool"/>
       <plugin id="net.bluemind.sds.store.loader"/>
       <plugin id="net.bluemind.sds.store.s3"/>
       <plugin id="net.bluemind.sds.store.scalityring"/>

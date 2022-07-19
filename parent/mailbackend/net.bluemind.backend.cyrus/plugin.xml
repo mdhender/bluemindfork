@@ -11,7 +11,8 @@
    <extension
          point="net.bluemind.mailbox.storage">
       <mailbox-storage
-            class="net.bluemind.backend.cyrus.internal.CyrusMailboxesStorage">
+            class="net.bluemind.backend.cyrus.internal.CyrusMailboxesStorage"
+            priority="50">
       </mailbox-storage>
    </extension>
    <extension
