@@ -49,6 +49,8 @@ import javax.sql.DataSource;
 import org.apache.james.mime4j.codec.Base64InputStream;
 import org.apache.james.mime4j.codec.QuotedPrintableInputStream;
 import org.apache.james.mime4j.dom.Message;
+import org.apache.james.mime4j.dom.Multipart;
+import org.apache.james.mime4j.dom.SingleBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,6 +121,7 @@ import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.Mime4JHelper.SizedStream;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.sysconf.helper.LocalSysconfCache;
+import net.bluemind.mime4j.common.OffloadedBodyFactory;
 
 public class ImapMailboxRecordsService extends BaseMailboxRecordsService implements IInternalMailboxItems {
 
@@ -631,16 +634,16 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		rbac.check(Verb.Read.name());
 
 		if (!isImapAddress(address)) {
-			return tmpPartFetch(imapUid, address);
+			return tmpPartFetch(address);
 		}
 		ReadStream<Buffer> partContent = imapFetch(imapUid, address, encoding);
 		return VertxStream.stream(partContent, mime, charset, filename);
 	}
 
-	private Stream tmpPartFetch(long imapUid, String address) {
+	private Stream tmpPartFetch(String address) {
 		File tmpPart = partFile(address);
 		if (!tmpPart.exists()) {
-			throw new ServerFault("Trying to fetch a tmp part which doesnt exist");
+			throw new ServerFault("Trying to fetch tmp part " + address + " which doesnt exist");
 		}
 		// temporary parts are already decoded because getForUpdate already did it
 		return VertxStream.stream(
@@ -648,19 +651,34 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	private ReadStream<Buffer> imapFetch(long imapUid, String address, String encoding) {
-		return imapContext.withImapClient(sc -> {
-			if (sc.select(imapFolder)) {
+		InputStream stream = fetchCompleteOIO(imapUid);
+		try (Message parsed = Mime4JHelper.parse(stream, new OffloadedBodyFactory())) {
+			SingleBody body = null;
+			if (parsed.isMultipart()) {
+				Multipart mp = (Multipart) parsed.getBody();
+				body = Mime4JHelper.expandTree(mp.getBodyParts()).stream()
+						.filter(ae -> "address".equals(ae.getMimeAddress())).findAny().map(ae -> {
+							return (SingleBody) ae.getBody();
+						}).orElseGet(() -> {
+							logger.warn("Part {} not found for imapUid {}", address, imapUid);
+							return null;
+						});
+			} else if (address.equals("1") || address.equals("TEXT")) {
+				body = (SingleBody) parsed.getBody();
+			}
+			if (body == null) {
+				return new EmptyStream();
+			} else {
 				ByteBuf buf = Unpooled.buffer();
-				try (IMAPByteSource fetched = sc.uidFetchPart((int) imapUid, address);
-						InputStream raw = fetched.source().openBufferedStream();
-						ByteBufOutputStream out = new ByteBufOutputStream(buf)) {
-					ByteStreams.copy(decoded(raw, encoding), out);
+				try (InputStream part = body.getInputStream(); ByteBufOutputStream out = new ByteBufOutputStream(buf)) {
+					ByteStreams.copy(decoded(part, encoding), out);
 				}
 				return new BufferReadStream(Buffer.buffer(buf));
-			} else {
-				return new EmptyStream();
 			}
-		});
+
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
 	}
 
 	private InputStream decoded(InputStream in, String encoding) {
