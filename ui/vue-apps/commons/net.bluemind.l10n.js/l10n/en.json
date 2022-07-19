@@ -33,6 +33,7 @@
     "common.all": "All",
     "common.sort_by": "sort by",
     "common.date": "Date",
+    "common.done": "Done",
     "common.search": "Search",
     "common.search.no_result": "No results match the search.",
     "common.searchAdvanced": "Advanced search",

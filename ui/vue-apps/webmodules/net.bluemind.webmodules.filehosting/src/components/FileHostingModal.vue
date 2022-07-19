@@ -63,7 +63,7 @@
                 {{ $t("mail.filehosting.share.stop") }}
             </bm-button>
             <bm-button variant="outline-secondary" @click="hideModal">
-                {{ $t("common.hide") }}
+                {{ isFinished ? $t("common.done") : $t("common.hide") }}
             </bm-button>
         </template>
     </bm-modal>
