@@ -7,7 +7,7 @@ import { VCardQueryOrderBy } from "@bluemind/addressbook.api";
 
 function searchVCardsHelper(pattern, size = 5, noGroup = false) {
     const escaped = escape(pattern);
-    const groupPart = noGroup ? "" : "value.kind:group OR ";
+    const groupPart = noGroup ? "" : "(value.kind:group AND _exists_:value.organizational.member) OR ";
     const esQuery =
         "(value.identification.formatedName.value:" +
         escaped +
