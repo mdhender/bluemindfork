@@ -160,7 +160,7 @@ public class NoopDbReplicatedMailboxesService implements IDbReplicatedMailboxes,
 	}
 
 	@Override
-	public AppendTx prepareAppend(long mboxReplicaId) {
+	public AppendTx prepareAppend(long mboxReplicaId, Integer count) {
 		throw new UnsupportedOperationException("prepareAppend is not possible.");
 	}
 

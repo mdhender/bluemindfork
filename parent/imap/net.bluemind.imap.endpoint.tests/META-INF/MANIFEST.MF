@@ -14,7 +14,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.hamcrest;bundle-version="2.1.0",
  net.bluemind.imap.driver.mailapi;bundle-version="4.1.0",
  net.bluemind.backend.mail.replica.api,
- slf4j.api
+ slf4j.api,
+ com.google.guava
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.imap.endpoint.tests
 Bundle-ActivationPolicy: lazy

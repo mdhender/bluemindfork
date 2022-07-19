@@ -18,6 +18,7 @@
 package net.bluemind.imap.endpoint.tests;
 
 import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -31,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -127,6 +129,18 @@ public class ClientBasedTests {
 			sc.uidStore(Arrays.asList(1, 2, 3), seen, true);
 
 			sc.uidStore(Arrays.asList(1, 2, 3), seen, false);
+		}
+	}
+
+	@Test
+	public void testUidCopy() throws IMAPException {
+		try (StoreClient sc = new StoreClient("127.0.0.1", port, "tom@devenv.blue", "tom")) {
+			assertTrue(sc.login());
+
+			sc.select("INBOX");
+
+			Map<Integer, Integer> copied = sc.uidCopy("12", "Trash");
+			assertEquals(42, ((Integer) copied.get(12)).intValue());
 		}
 	}
 

@@ -25,6 +25,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 
 import net.bluemind.backend.mail.api.IBaseMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxFolders;
@@ -63,6 +64,6 @@ public interface IDbReplicatedMailboxes
 
 	@PUT
 	@Path("{replicaId}/_prepareAppend")
-	AppendTx prepareAppend(@PathParam("replicaId") long mboxReplicaId);
+	AppendTx prepareAppend(@PathParam("replicaId") long mboxReplicaId, @QueryParam("count") Integer count);
 
 }

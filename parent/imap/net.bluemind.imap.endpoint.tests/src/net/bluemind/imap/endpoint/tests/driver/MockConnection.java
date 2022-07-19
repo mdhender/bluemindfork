@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.streams.WriteStream;
+import net.bluemind.imap.endpoint.driver.CopyResult;
 import net.bluemind.imap.endpoint.driver.FetchedItem;
 import net.bluemind.imap.endpoint.driver.IdleToken;
 import net.bluemind.imap.endpoint.driver.ListNode;
@@ -115,6 +116,11 @@ public class MockConnection implements MailboxConnection {
 	@Override
 	public int maxLiteralSize() {
 		return 1024 * 1024;
+	}
+
+	@Override
+	public CopyResult copyTo(SelectedFolder source, String folder, String idset) {
+		return new CopyResult(idset, 42L, 42L, 123456);
 	}
 
 }

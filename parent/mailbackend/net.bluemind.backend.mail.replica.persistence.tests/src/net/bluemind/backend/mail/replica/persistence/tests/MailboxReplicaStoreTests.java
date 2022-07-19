@@ -94,7 +94,7 @@ public class MailboxReplicaStoreTests {
 		MailboxReplica reloaded2 = boxReplicaStore.get(it);
 		assertEquals("updated", reloaded2.name);
 
-		AppendTx append = boxReplicaStore.prepareAppend(it.id);
+		AppendTx append = boxReplicaStore.prepareAppend(1, it.id);
 		assertNotNull(append);
 		System.err.println("append: " + append);
 

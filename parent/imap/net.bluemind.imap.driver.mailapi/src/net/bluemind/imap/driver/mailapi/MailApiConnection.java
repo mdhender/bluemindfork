@@ -18,6 +18,7 @@
  */
 package net.bluemind.imap.driver.mailapi;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -65,6 +66,8 @@ import net.bluemind.hornetq.client.Consumer;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Topic;
+import net.bluemind.imap.endpoint.EndpointRuntimeException;
+import net.bluemind.imap.endpoint.driver.CopyResult;
 import net.bluemind.imap.endpoint.driver.FetchedItem;
 import net.bluemind.imap.endpoint.driver.IdleToken;
 import net.bluemind.imap.endpoint.driver.ListNode;
@@ -252,7 +255,7 @@ public class MailApiConnection implements MailboxConnection {
 		if (selected == null) {
 			return 0L;
 		}
-		AppendTx appendTx = foldersApi.prepareAppend(selected.folder.internalId);
+		AppendTx appendTx = foldersApi.prepareAppend(selected.folder.internalId, 1);
 
 		@SuppressWarnings("deprecation")
 		HashFunction hash = Hashing.sha1();
@@ -326,6 +329,34 @@ public class MailApiConnection implements MailboxConnection {
 	public int maxLiteralSize() {
 		return sizeLimit;
 
+	}
+
+	@Override
+	public CopyResult copyTo(SelectedFolder source, String folder, String idset) {
+		ItemValue<MailboxReplica> target = foldersApi.byReplicaName(folder);
+		if (target == null) {
+			throw new EndpointRuntimeException("Folder '" + folder + "' is missing.");
+		}
+		IDbMailboxRecords srcRecApi = prov.instance(IDbMailboxRecords.class, source.folder.uid);
+		List<Long> matchingRecords = srcRecApi.imapIdSet(idset, "");
+
+		IDbMailboxRecords tgtRecApi = prov.instance(IDbMailboxRecords.class, target.uid);
+		AppendTx tx = foldersApi.prepareAppend(target.internalId, matchingRecords.size());
+		long start = tx.imapUid - (matchingRecords.size() - 1);
+		long end = tx.imapUid;
+		long cnt = start;
+		List<MailboxRecord> toCreate = new ArrayList<>(matchingRecords.size());
+		List<Long> sourceImapUid = new ArrayList<>(matchingRecords.size());
+		for (Long recId : matchingRecords) {
+			ItemValue<MailboxRecord> toCopy = srcRecApi.getCompleteById(recId);
+			sourceImapUid.add(toCopy.value.imapUid);
+			MailboxRecord copy = toCopy.value;
+			copy.imapUid = cnt++;
+			toCreate.add(copy);
+		}
+		tgtRecApi.updates(toCreate);
+		String sourceSet = sourceImapUid.stream().map(l -> Long.toString(l)).collect(Collectors.joining(","));
+		return new CopyResult(sourceSet, start, end, target.value.uidValidity);
 	}
 
 }

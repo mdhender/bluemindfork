@@ -90,6 +90,8 @@ public class RawCommandAnalyzer {
 				return new UidFetchCommand(raw);
 			} else if (cmd.startsWith("uid store ")) {
 				return new UidStoreCommand(raw);
+			} else if (cmd.startsWith("uid copy ")) {
+				return new UidCopyCommand(raw);
 			}
 			return null;
 		case 'x':

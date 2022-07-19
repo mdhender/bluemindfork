@@ -230,13 +230,14 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 	}
 
 	@Override
-	public AppendTx prepareAppend(long mboxReplicaId) {
+	public AppendTx prepareAppend(long mboxReplicaId, Integer count) {
+		int bump = count == null ? 1 : count.intValue();
 		ItemValue<MailboxReplica> item = storeService.get(mboxReplicaId, null);
 		if (item == null) {
 			throw ServerFault.notFound("Missing replicated mailbox with id " + mboxReplicaId);
 		}
 		try {
-			AppendTx ret = replicaStore.prepareAppend(mboxReplicaId);
+			AppendTx ret = replicaStore.prepareAppend(bump, mboxReplicaId);
 			storeService.touch(item.uid);
 			MboxReplicasCache.invalidate(item.uid);
 			return ret;

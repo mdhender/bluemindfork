@@ -47,4 +47,6 @@ public interface MailboxConnection {
 
 	int maxLiteralSize();
 
+	CopyResult copyTo(SelectedFolder source, String folder, String idset);
+
 }
