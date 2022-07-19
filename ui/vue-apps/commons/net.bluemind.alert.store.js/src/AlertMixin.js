@@ -20,7 +20,14 @@ export default {
             return this.alert.result;
         },
         error() {
-            return this.alert.error;
+            return lastErrorReason(this.alert.error);
         }
     }
 };
+
+function lastErrorReason(error) {
+    if (error) {
+        const lastSemiColonIndex = error.lastIndexOf(":");
+        return error.substring(lastSemiColonIndex >= 0 ? lastSemiColonIndex + 1 : 0);
+    }
+}

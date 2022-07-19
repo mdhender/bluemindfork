@@ -1,6 +1,6 @@
 <template>
     <default-alert v-if="alert.type === AlertTypes.LOADING" :alert="alert" :options="{ subject }" />
-    <default-alert v-else-if="alert.type === AlertTypes.ERROR" :alert="alert" :options="{ subject }" />
+    <default-alert v-else-if="alert.type === AlertTypes.ERROR" :alert="alert" :options="{ subject, reason: error }" />
     <i18n v-else-if="alert.type === AlertTypes.SUCCESS" :path="path" tag="span">
         <template #subject>
             <router-link :to="link">{{ subject }}</router-link>
@@ -25,12 +25,19 @@ export default {
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
         ...mapState("mail", ["folders", "mailboxes"]),
         link() {
-            const folder = this.folders[this.result.folderRef.key];
-            const conversation = createConversationStub(this.result.remoteRef.internalId, this.result.folderRef);
-            return {
-                name: "v:mail:conversation",
-                params: { conversation, folder: folder?.path, mailbox: this.mailboxes[folder?.mailboxRef.key]?.name }
-            };
+            if (this.alert.type === this.AlertTypes.SUCCESS) {
+                const folder = this.folders[this.result.folderRef.key];
+                const conversation = createConversationStub(this.result.remoteRef.internalId, this.result.folderRef);
+                return {
+                    name: "v:mail:conversation",
+                    params: {
+                        conversation,
+                        folder: folder?.path,
+                        mailbox: this.mailboxes[folder?.mailboxRef.key]?.name
+                    }
+                };
+            }
+            return null;
         }
     },
     created() {
