@@ -25,10 +25,12 @@ function cancelDebounce() {
 }
 
 function saveOrDebounce(context, draft, messageCompose) {
-    if (!isReadyToBeSaved(draft)) {
-        return debouncedSave(context, { draft, messageCompose });
+    if (context.state[draft.key]) {
+        if (!isReadyToBeSaved(draft)) {
+            return debouncedSave(context, { draft, messageCompose });
+        }
+        return save(context, draft, messageCompose);
     }
-    return save(context, draft, messageCompose);
 }
 
 async function waitUntilReady(draft) {
