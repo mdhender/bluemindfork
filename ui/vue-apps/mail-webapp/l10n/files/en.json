@@ -222,11 +222,10 @@
     "mail.application.region.messagelist": "Message list",
     "mail.application.region.conversation": "Message thread",
     "mail.attachment.untitled": "Untitled - ({mimeType})",
-    "mail.compose.forward.body": "---- Original Message ----",
+    "mail.compose.forward.prev.message.info.title": "---- Original Message ----",
     "mail.compose.forward.prev.message.info.date": "Date",
     "mail.compose.forward.prev.message.info.from": "From",
     "mail.compose.forward.prev.message.info.subject": "Subject",
-    "mail.compose.forward.prev.message.info.to": "To",
     "mail.compose.reply.body": "On {date}, {name} wrote:",
     "mail.content.alert.images.blocked": "Remote images have been blocked to protect your privacy.",
     "mail.content.alert.images.show": "Show images.",
@@ -461,7 +460,6 @@
                 "stop": "Stop the sending",
                 "pending": "Sending a shared link | Sending shared links",
                 "failure": "Your file could not be uploaded | Some files could not be uploaded"
-
             },
             "threshold": {
                 "hit": "{hit} {size}.",
@@ -470,7 +468,7 @@
                 "almost_hit": "Your file is quite large. | Your files are quite large."
             },
             "add": {
-                "large":"Add a large file | Add large files",
+                "large": "Add a large file | Add large files",
                 "too_large": "File too large | Files too large"
             },
             "import": {

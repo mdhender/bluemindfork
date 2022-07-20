@@ -1,3 +1,4 @@
+import escape from "lodash.escape";
 import { EmailExtractor, Flag, MimeType } from "@bluemind/email";
 import { createDocumentFragment } from "@bluemind/html-utils";
 
@@ -302,7 +303,7 @@ export function handleSeparator(content) {
 export const COMPOSER_CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
 
 /**
- * Build the text representing this message as a previous message.
+ * Build the text or html representing this message as a previous message.
  *
  * @example TEXT
  * `On Tuesday 2019 01 01, John Doe wrote:
@@ -320,42 +321,36 @@ export const COMPOSER_CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
  * ...
  * </blockquote>`
  */
-export function addSeparator(content, previousMessage, creationMode, userPrefTextOnly, vueI18n) {
-    let newContent = content;
+export function quotePreviousMessage(previousMessageContent, previousMessage, creationMode, userPrefTextOnly, vueI18n) {
+    let quotedContent = previousMessageContent;
     if (creationMode === MessageCreationModes.REPLY || creationMode === MessageCreationModes.REPLY_ALL) {
-        newContent = adaptPreviousMessageForReply(userPrefTextOnly, content);
+        quotedContent = quoteContent(userPrefTextOnly, previousMessageContent);
     }
-    const lineBreakSeparator = userPrefTextOnly ? "\n" : "<br>";
-    const separator =
+    const header =
         creationMode === MessageCreationModes.FORWARD
-            ? buildSeparatorForForward(previousMessage, lineBreakSeparator, vueI18n)
-            : buildSeparatorForReply(previousMessage, lineBreakSeparator, vueI18n);
+            ? headerForForward(previousMessage, userPrefTextOnly, vueI18n)
+            : headerForReply(previousMessage, userPrefTextOnly, vueI18n);
 
-    newContent = separator + newContent;
+    let quote = header + quotedContent;
 
     if (!userPrefTextOnly) {
         const id = MessageCreationModes.FORWARD ? MessageForwardAttributeSeparator : MessageReplyAttributeSeparator;
-        newContent = '<div id="' + id + '">' + removeSignatureAttr(newContent) + "</div>";
+        quote = `<div id="${id}">${removeSignatureAttr(quote)}</div>`;
     }
-    return lineBreakSeparator + newContent;
+    return (userPrefTextOnly ? "\n" : "<br>") + quote;
 }
 
 /**
  *  A separator before the previous message (reply).
  */
-function buildSeparatorForReply(message, lineBreakSeparator, vueI18n) {
-    return (
-        "<p>" +
-        vueI18n.t("mail.compose.reply.body", {
-            date: vueI18n.d(message.date, "full_date_time"),
-            name: nameAndAddress(message.from)
-        }) +
-        lineBreakSeparator +
-        "</p>"
-    );
+function headerForReply(message, userPrefTextOnly, vueI18n) {
+    const date = vueI18n.d(message.date, "full_date_time");
+    const name = nameAndAddress(message.from, userPrefTextOnly);
+    const replyInfo = vueI18n.t("mail.compose.reply.body", { date, name });
+    return userPrefTextOnly ? `${replyInfo}\n` : `<p>${replyInfo}</p>`;
 }
 
-function adaptPreviousMessageForReply(userPrefTextOnly, content) {
+function quoteContent(userPrefTextOnly, content) {
     if (userPrefTextOnly) {
         return (
             "\n\n" +
@@ -376,22 +371,45 @@ function adaptPreviousMessageForReply(userPrefTextOnly, content) {
 /**
  *  A separator before the previous message (forward).
  */
-function buildSeparatorForForward(message, lineBreakSeparator, vueI18n) {
-    let separator = vueI18n.t("mail.compose.forward.body") + lineBreakSeparator;
-    separator += vueI18n.t("mail.compose.forward.prev.message.info.subject");
-    separator += ": " + message.subject + lineBreakSeparator;
-    separator += vueI18n.t("mail.compose.forward.prev.message.info.to");
-    separator += ": " + message.to.map(to => nameAndAddress(to)) + lineBreakSeparator;
-    separator += vueI18n.t("mail.compose.forward.prev.message.info.date");
-    separator += ": " + vueI18n.d(message.date, "full_date_time") + lineBreakSeparator;
-    separator += vueI18n.t("mail.compose.forward.prev.message.info.from");
-    separator += ": " + nameAndAddress(message.from) + lineBreakSeparator + lineBreakSeparator;
-    return '<p style="color: purple;">' + separator + "</p>";
+function headerForForward(message, userPrefTextOnly, vueI18n) {
+    const title = vueI18n.t("mail.compose.forward.prev.message.info.title");
+    const fromLabel = vueI18n.t("mail.compose.forward.prev.message.info.from");
+    const from = nameAndAddress(message.from, userPrefTextOnly);
+    const subjectLabel = vueI18n.t("mail.compose.forward.prev.message.info.subject");
+    const subject = message.subject.trim();
+    const noSubject = vueI18n.t("mail.viewer.no.subject");
+    const toLabel = vueI18n.t("common.to");
+    const to = message.to.map(to => nameAndAddress(to, userPrefTextOnly)).join(", ");
+    const ccLabel = vueI18n.t("common.cc");
+    const cc = message.cc?.map(cc => nameAndAddress(cc, userPrefTextOnly)).join(", ");
+    const dateLabel = vueI18n.t("mail.compose.forward.prev.message.info.date");
+    const date = vueI18n.d(message.date, "full_date_time");
+
+    if (userPrefTextOnly) {
+        let text = `${title}\n`;
+        text += `${fromLabel}: ${from}\n`;
+        text += `${subjectLabel}: ${subject ? subject : noSubject}\n`;
+        text += to ? `${toLabel}: ${to}\n` : "";
+        text += cc ? `${ccLabel}: ${cc}\n` : "";
+        text += `${dateLabel}: ${date}`;
+        return text;
+    } else {
+        const html = `<p style="color: purple;">
+            ${title}<br>
+            ${fromLabel}: ${from}<br>
+            ${subjectLabel}: ${subject ? subject : "<i>" + noSubject + "</i>"}<br>
+            ${to ? toLabel + ": " + to + "<br>" : ""}
+            ${cc ? ccLabel + ": " + cc + "<br>" : ""}
+            ${dateLabel}: ${date}
+        </p>`;
+        return html;
+    }
 }
 
 /** @return like "John Doe <jdoe@bluemind.net>" */
-function nameAndAddress(recipient) {
-    return recipient.dn ? recipient.dn + " <" + recipient.address + ">" : recipient.address;
+function nameAndAddress(recipient, userPrefTextOnly) {
+    const result = recipient.dn ? recipient.dn + " <" + recipient.address + ">" : recipient.address;
+    return userPrefTextOnly ? result : escape(result);
 }
 
 export function draftInfoHeader(message) {
@@ -408,7 +426,7 @@ export function isEditorContentEmpty(content, userPrefTextOnly, signature) {
 }
 
 export default {
-    addSeparator,
+    quotePreviousMessage,
     COMPOSER_CAPABILITIES,
     computeCcRecipients, // INTERNAL METHOD (exported only for testing purpose)
     computeIdentityForReplyOrForward,

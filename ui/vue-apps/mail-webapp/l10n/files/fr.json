@@ -222,11 +222,10 @@
     "mail.application.region.messagelist": "Liste des messages",
     "mail.application.region.conversation": "Conversation",
     "mail.attachment.untitled": "Sans titre - ({mimeType})",
-    "mail.compose.forward.body": "---- Message Original ----",
+    "mail.compose.forward.prev.message.info.title": "---- Message Original ----",
     "mail.compose.forward.prev.message.info.date": "Date",
     "mail.compose.forward.prev.message.info.from": "De",
     "mail.compose.forward.prev.message.info.subject": "Objet",
-    "mail.compose.forward.prev.message.info.to": "\u00C0",
     "mail.compose.reply.body": "Le {date}, {name} a écrit :",
     "mail.content.alert.images.blocked": "Les images distantes sont bloquées pour protéger votre vie privée.",
     "mail.content.alert.images.show": "Afficher les images.",
@@ -469,7 +468,7 @@
                 "almost_hit": "Votre fichier est relativement volumineux. | Vos fichiers sont relativement volumineux."
             },
             "add": {
-                "large":"Ajout d'un fichier volumineux | Ajout de fichiers volumineux",
+                "large": "Ajout d'un fichier volumineux | Ajout de fichiers volumineux",
                 "too_large": "Fichier trop volumineux | Fichiers trop volumineux"
             },
             "import": {

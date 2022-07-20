@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Compute reply / forward quoted previous message for Forward with userPrefTextOnly false 1`] = `
+"<br><div id=\\"data-bm-forward-separator\\"><p style=\\"color: purple;\\">
+            ---- Original Message ----<br>
+            From: Some One &lt;someone@vm40.net&gt;<br>
+            Subject: <i>undefined</i><br>
+            To: John Doe &lt;jdoe@vm40.net&gt;, Toto Matic &lt;tmatic@vm40.net&gt;, Georges Abitbol &lt;gabitbol@vm40.net&gt;<br>
+            Cc: Another John Doe &lt;anotherjdoe@vm40.net&gt;, Another Toto Matic &lt;anothertmatic@vm40.net&gt;, Another Georges Abitbol &lt;anothergabitbol@vm40.net&gt;<br>
+            Date: Wed Dec 12 2012 00:00:00 GMT+0000 (heure moyenne de Greenwich)
+        </p>My message content.</div>"
+`;
+
+exports[`Compute reply / forward quoted previous message for Forward with userPrefTextOnly true 1`] = `
+"
+---- Original Message ----
+From: Some One <someone@vm40.net>
+Subject: undefined
+To: John Doe <jdoe@vm40.net>, Toto Matic <tmatic@vm40.net>, Georges Abitbol <gabitbol@vm40.net>
+Cc: Another John Doe <anotherjdoe@vm40.net>, Another Toto Matic <anothertmatic@vm40.net>, Another Georges Abitbol <anothergabitbol@vm40.net>
+Date: Wed Dec 12 2012 00:00:00 GMT+0000 (heure moyenne de Greenwich)My message content."
+`;
+
+exports[`Compute reply / forward quoted previous message for Reply and ReplyAll with userPrefTextOnly false 1`] = `"<br><div id=\\"data-bm-forward-separator\\"><p>On Wed Dec 12 2012 00:00:00 GMT+0000 (heure moyenne de Greenwich), Some One &lt;someone@vm40.net&gt; wrote:</p><blockquote style=\\"margin-left: 1rem; padding-left: 1rem; border-left: 2px solid black;\\">My message content.</blockquote></div>"`;
+
+exports[`Compute reply / forward quoted previous message for Reply and ReplyAll with userPrefTextOnly false 2`] = `"<br><div id=\\"data-bm-forward-separator\\"><p>On Wed Dec 12 2012 00:00:00 GMT+0000 (heure moyenne de Greenwich), Some One &lt;someone@vm40.net&gt; wrote:</p><blockquote style=\\"margin-left: 1rem; padding-left: 1rem; border-left: 2px solid black;\\">My message content.</blockquote></div>"`;
+
+exports[`Compute reply / forward quoted previous message for Reply and ReplyAll with userPrefTextOnly true 1`] = `
+"
+On Wed Dec 12 2012 00:00:00 GMT+0000 (heure moyenne de Greenwich), Some One <someone@vm40.net> wrote:
+
+
+> My message content."
+`;
+
+exports[`Compute reply / forward quoted previous message for Reply and ReplyAll with userPrefTextOnly true 2`] = `
+"
+On Wed Dec 12 2012 00:00:00 GMT+0000 (heure moyenne de Greenwich), Some One <someone@vm40.net> wrote:
+
+
+> My message content."
+`;

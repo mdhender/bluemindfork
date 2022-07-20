@@ -27,7 +27,7 @@ import { ComposerFromMixin } from "~/mixins";
 
 const { LoadingStatus } = loadingStatusUtils;
 const {
-    addSeparator,
+    quotePreviousMessage,
     COMPOSER_CAPABILITIES,
     createEmpty,
     createReplyOrForward,
@@ -196,7 +196,7 @@ export default {
                 contentFromPreviousMessage = insertionResult.contentsWithImageInserted[0];
                 contentFromPreviousMessage = sanitizeHtml(contentFromPreviousMessage);
             }
-            const collapsed = addSeparator(
+            const collapsed = quotePreviousMessage(
                 contentFromPreviousMessage,
                 previousMessage,
                 creationMode,

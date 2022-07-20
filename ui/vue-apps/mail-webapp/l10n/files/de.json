@@ -222,11 +222,10 @@
     "mail.application.region.messagelist": "E-Mail Liste",
     "mail.application.region.conversation": "E-Mail Konversation",
     "mail.attachment.untitled": "Unbenannt - ({mimeType})",
-    "mail.compose.forward.body": "---- Ursprüngliche Nachricht ----",
+    "mail.compose.forward.prev.message.info.title": "---- Ursprüngliche Nachricht ----",
     "mail.compose.forward.prev.message.info.date": "Datum",
     "mail.compose.forward.prev.message.info.from": "Von",
     "mail.compose.forward.prev.message.info.subject": "Betreff",
-    "mail.compose.forward.prev.message.info.to": "An",
     "mail.compose.reply.body": "{name}, am {date}:",
     "mail.content.alert.images.blocked": "Externe Bilder wurden deaktiviert, um Ihre Sicherheit zu gewährleisten.",
     "mail.content.alert.images.show": "Bilder anzeigen.",
@@ -469,7 +468,7 @@
                 "almost_hit": "Ihre Datei ist ziemlich groß. | Ihre Dateien sind ziemlich groß."
             },
             "add": {
-                "large":"Hinzufügen einer großen Datei | Hinzufügen von großen Dateien",
+                "large": "Hinzufügen einer großen Datei | Hinzufügen von großen Dateien",
                 "too_large": "Datei zu groß | Zu große Dateien"
             },
             "import": {
@@ -480,7 +479,6 @@
             "link": "Ich habe eine Datei zu dieser Nachricht verlinkt | Ich habe Dateien mit dieser Nachricht verlinkt",
             "expiration_date": "Läuft am {date} ab",
             "very_large_file": "sehr große Datei"
-
         },
         "rename_folder": {
             "modal": {

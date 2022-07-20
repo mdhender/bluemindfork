@@ -7,7 +7,7 @@ import {
     computeToRecipients,
     computeSubject,
     findIdentityFromMailbox,
-    addSeparator,
+    quotePreviousMessage,
     computeIdentityForReplyOrForward
 } from "../draft";
 
@@ -29,7 +29,7 @@ const previousMessageCc = [
 const previousMessage = {
     ...create(),
     ...{
-        date: new Date(),
+        date: new Date("2012-12-12"),
         from: previousMessageFrom,
         to: previousMessageTo,
         cc: previousMessageCc,
@@ -64,8 +64,8 @@ function checkBuildSubject(message, creationMode, prefix) {
     expect(subject2).toEqual(expectedSubject);
 }
 
-describe("Compute reply / forward separators", () => {
-    const messageContent = "messageContent";
+describe("Compute reply / forward quoted previous message", () => {
+    const messageContent = "My message content.";
 
     let itemsService = {};
     itemsService.uploadPart = jest.fn().mockReturnValue("2");
@@ -73,12 +73,14 @@ describe("Compute reply / forward separators", () => {
     vueI18n.t = jest.fn().mockImplementation((key, params) => {
         if (key === "mail.compose.reply.body") {
             return "On " + params.date + ", " + params.name + " wrote:";
-        } else if (key === "mail.compose.forward.body") {
+        } else if (key === "mail.compose.forward.prev.message.info.title") {
             return "---- Original Message ----";
         } else if (key === "mail.compose.forward.prev.message.info.from") {
             return "From";
-        } else if (key === "mail.compose.forward.prev.message.info.to") {
+        } else if (key === "common.to") {
             return "To";
+        } else if (key === "common.cc") {
+            return "Cc";
         } else if (key === "mail.compose.forward.prev.message.info.date") {
             return "Date";
         } else if (key === "mail.compose.forward.prev.message.info.subject") {
@@ -86,62 +88,42 @@ describe("Compute reply / forward separators", () => {
         }
     });
 
-    test("for Reply and ReplyAll with userPrefTextOnly", () => {
-        const expectedContent =
-            "\n<p>On " + previousMessage.date + ", Some One <someone@vm40.net> wrote:\n</p>\n\n> " + messageContent;
-
-        let contentWithSeparator = addSeparator(
+    test.each`
+        userPrefTextOnly
+        ${true}
+        ${false}
+    `("for Reply and ReplyAll with userPrefTextOnly $userPrefTextOnly", ({ userPrefTextOnly }) => {
+        let contentWithSeparator = quotePreviousMessage(
             messageContent,
             previousMessage,
             MessageCreationModes.REPLY,
-            true,
+            userPrefTextOnly,
             vueI18n
         );
-        expect(contentWithSeparator).toEqual(expectedContent);
-        contentWithSeparator = addSeparator(
+        expect(contentWithSeparator).toMatchSnapshot();
+        contentWithSeparator = quotePreviousMessage(
             messageContent,
             previousMessage,
             MessageCreationModes.REPLY_ALL,
-            true,
+            userPrefTextOnly,
             vueI18n
         );
-        expect(contentWithSeparator).toEqual(expectedContent);
+        expect(contentWithSeparator).toMatchSnapshot();
     });
 
-    test("for Forward with userPrefTextOnly", async () => {
-        const expectedContent =
-            '\n<p style="color: purple;">---- Original Message ----\nSubject: ' +
-            previousMessage.subject +
-            "\nTo: John Doe <jdoe@vm40.net>,Toto Matic <tmatic@vm40.net>,Georges Abitbol <gabitbol@vm40.net>\nDate: " +
-            previousMessage.date +
-            "\nFrom: Some One <someone@vm40.net>\n\n</p>messageContent";
-
-        const contentWithSeparator = addSeparator(
+    test.each`
+        userPrefTextOnly
+        ${true}
+        ${false}
+    `("for Forward with userPrefTextOnly $userPrefTextOnly", ({ userPrefTextOnly }) => {
+        const contentWithSeparator = quotePreviousMessage(
             messageContent,
             previousMessage,
             MessageCreationModes.FORWARD,
-            true,
+            userPrefTextOnly,
             vueI18n
         );
-        expect(contentWithSeparator).toEqual(expectedContent);
-    });
-
-    test("for Reply without userPrefTextOnly", async () => {
-        const expectedContent =
-            '<br><div id="data-bm-forward-separator"><p>On ' +
-            previousMessage.date +
-            `, Some One <someone@vm40.net> wrote:<br></p><blockquote style="margin-left: 1rem; padding-left: 1rem; border-left: 2px solid black;">` +
-            messageContent +
-            "</blockquote></div>";
-
-        const contentWithSeparator = addSeparator(
-            messageContent,
-            previousMessage,
-            MessageCreationModes.REPLY,
-            false,
-            vueI18n
-        );
-        expect(contentWithSeparator).toEqual(expectedContent);
+        expect(contentWithSeparator).toMatchSnapshot();
     });
 });
 
