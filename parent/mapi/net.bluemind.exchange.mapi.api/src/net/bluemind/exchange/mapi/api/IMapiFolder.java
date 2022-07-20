@@ -87,7 +87,7 @@ public interface IMapiFolder extends ICrudByIdSupport<MapiRawMessage>, IChangelo
 	public ContainerChangeset<ItemVersion> filteredChangesetById(@QueryParam("since") Long since, ItemFlagFilter filter)
 			throws ServerFault;
 
-	@GET
+	@POST
 	@Path("_count")
 	public Count count(ItemFlagFilter filter) throws ServerFault;
 
