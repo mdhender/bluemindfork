@@ -38,8 +38,7 @@ public interface INodeClient {
 	/**
 	 * Checks we can connect to a node.
 	 * 
-	 * @throws ServerFault
-	 *             if the connection does not work
+	 * @throws ServerFault if the connection does not work
 	 */
 	void ping() throws ServerFault;
 
@@ -54,12 +53,14 @@ public interface INodeClient {
 	 */
 	byte[] read(String path) throws ServerFault;
 
+	boolean exist(String path);
+
 	/**
-	 * Opens a stream to a (maybe) remote file. Use this one when you can't
-	 * predict the size of the file you want to read.
+	 * Opens a stream to a (maybe) remote file. Use this one when you can't predict
+	 * the size of the file you want to read.
 	 * 
-	 * WARNING: If you forget to close this stream, your BM Core will die from
-	 * out of memory, too many open files, etc sooner or later.
+	 * WARNING: If you forget to close this stream, your BM Core will die from out
+	 * of memory, too many open files, etc sooner or later.
 	 * 
 	 * @param path
 	 * @return
@@ -104,8 +105,8 @@ public interface INodeClient {
 
 	/**
 	 * Returns a list of running process matching the given query object.
-	 * {@link ActiveExecQuery#group} and {@link ActiveExecQuery#name} might be
-	 * null for wider matches.
+	 * {@link ActiveExecQuery#group} and {@link ActiveExecQuery#name} might be null
+	 * for wider matches.
 	 * 
 	 * @return
 	 */

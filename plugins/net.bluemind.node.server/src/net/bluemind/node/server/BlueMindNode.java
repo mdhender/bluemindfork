@@ -34,6 +34,7 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.net.JksOptions;
 import io.vertx.core.net.OpenSSLEngineOptions;
 import net.bluemind.lib.vertx.RouteMatcher;
+import net.bluemind.node.server.handlers.CheckFile;
 import net.bluemind.node.server.handlers.DeleteFile;
 import net.bluemind.node.server.handlers.Executions;
 import net.bluemind.node.server.handlers.GetStatus;
@@ -109,6 +110,7 @@ public class BlueMindNode extends AbstractVerticle {
 		rm.get("/cmd", new Executions());
 		rm.delete("/cmd/:reqId", new Interrupt());
 		rm.regex(HttpMethod.GET, FS_OPS_RE, new SendFile());
+		rm.regex(HttpMethod.HEAD, FS_OPS_RE, new CheckFile());
 		rm.regex(HttpMethod.PUT, FS_OPS_RE, new WriteFile());
 		rm.regex(HttpMethod.DELETE, FS_OPS_RE, new DeleteFile());
 		rm.regex(HttpMethod.GET, "/list(/.*)", new ListFiles());

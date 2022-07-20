@@ -130,6 +130,12 @@ public class NodeTests {
 	}
 
 	@Test
+	public void testExist() throws ServerFault, IOException {
+		assertTrue(nc.exist("/etc/resolv.conf"));
+		assertFalse(nc.exist("/etc/commando.dans.ton.q.sj.conf"));
+	}
+
+	@Test
 	public void testListEtcWithConfExtension() {
 		List<FileDescription> found = nc.listFiles("/etc", "conf");
 		assertNotNull(found);
