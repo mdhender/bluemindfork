@@ -49,4 +49,6 @@ public interface MailboxConnection {
 
 	CopyResult copyTo(SelectedFolder source, String folder, String idset);
 
+	List<Long> uids(SelectedFolder sel, String query);
+
 }

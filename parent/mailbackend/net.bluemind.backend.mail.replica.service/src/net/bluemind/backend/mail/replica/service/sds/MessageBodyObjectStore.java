@@ -134,7 +134,7 @@ public class MessageBodyObjectStore {
 	}
 
 	public void store(String uid, File tmpFile) {
-		logger.info("Store {}", uid);
+		logger.info("Store {} with {}", uid, objectStore);
 		PutRequest pr = new PutRequest();
 		pr.filename = tmpFile.getAbsolutePath();
 		pr.guid = uid;

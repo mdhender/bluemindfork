@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -126,6 +127,9 @@ public class MailApiConnection implements MailboxConnection {
 
 		if (mailboxPattern.equals("%")) {
 			allFolders = allFolders.stream().filter(f -> f.value.parentUid == null).collect(Collectors.toList());
+		} else if (!(mailboxPattern.contains("%") || mailboxPattern.contains("*"))) {
+			allFolders = allFolders.stream().filter(f -> f.value.fullName.contains(mailboxPattern))
+					.collect(Collectors.toList());
 		}
 
 		Collections.sort(allFolders, (f1, f2) -> {
@@ -357,8 +361,26 @@ public class MailApiConnection implements MailboxConnection {
 			toCreate.add(copy);
 		}
 		tgtRecApi.updates(toCreate);
-		String sourceSet = sourceImapUid.stream().map(l -> Long.toString(l)).collect(Collectors.joining(","));
+		String sourceSet = sourceImapUid.stream().mapToLong(Long::longValue).mapToObj(Long::toString)
+				.collect(Collectors.joining(","));
 		return new CopyResult(sourceSet, start, end, target.value.uidValidity);
+	}
+
+	@Override
+	public List<Long> uids(SelectedFolder sel, String query) {
+		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, sel.folder.uid);
+		Set<String> filters = new HashSet<>();
+		String lq = query.toLowerCase();
+		if (lq.contains("undeleted") || lq.contains("not deleted")) {
+			filters.add("-deleted");
+		}
+		if (lq.contains("unseen")) {
+			filters.add("-seen");
+		}
+		String filter = filters.stream().collect(Collectors.joining(","));
+		logger.info("set: 1:*, filter: {}", filter);
+		List<Long> notDel = recApi.imapIdSet("1:*", filter);
+		return recApi.imapBindings(notDel).stream().map(ib -> ib.imapUid).sorted().collect(Collectors.toList());
 	}
 
 }

@@ -44,11 +44,11 @@ public class SdsStoreLoader {
 				}
 			}).build();
 
-	private final List<ISdsBackingStoreFactory> stores;
+	private static final List<ISdsBackingStoreFactory> stores = loadStores();
 
-	public SdsStoreLoader() {
+	private static List<ISdsBackingStoreFactory> loadStores() {
 		RunnableExtensionLoader<ISdsBackingStoreFactory> rel = new RunnableExtensionLoader<>();
-		this.stores = rel.loadExtensions("net.bluemind.sds", "store", "store", "factory");
+		return rel.loadExtensions("net.bluemind.sds", "store", "store", "factory");
 	}
 
 	protected ISdsSyncStore createSync(ISdsBackingStoreFactory factory, Vertx vertx, SystemConf sysconf) {
@@ -64,7 +64,9 @@ public class SdsStoreLoader {
 	}
 
 	public Optional<ISdsSyncStore> forSysconf(SystemConf sysconf) {
-		ArchiveKind storeType = ArchiveKind.fromName(sysconf.stringValue(SysConfKeys.archive_kind.name()));
+		ArchiveKind storeType = ArchiveKind
+				.fromName(Optional.ofNullable(sysconf.stringValue(SysConfKeys.archive_kind.name())).orElse("cyrus"));
+		System.err.println("storeType: " + storeType);
 		if (storeType == null || !storeType.isSdsArchive()) {
 			return Optional.empty();
 		}

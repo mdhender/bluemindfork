@@ -128,6 +128,15 @@ public class MessageBody {
 			return ret;
 		}
 
+		public List<Part> parts() {
+			List<Part> ret = new ArrayList<>();
+			ret.add(this);
+			for (Part p : children) {
+				ret.addAll(p.parts());
+			}
+			return ret;
+		}
+
 		public List<Part> nonInlineAttachments() {
 			return nonInlineAttachments(this, null, new LinkedList<>());
 		}

@@ -19,11 +19,15 @@ package net.bluemind.imap.endpoint;
 
 import java.io.File;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 public class EndpointConfig {
 
+	private static final Logger logger = LoggerFactory.getLogger(EndpointConfig.class);
 	private static final Config INSTANCE = loadConfig();
 
 	private EndpointConfig() {

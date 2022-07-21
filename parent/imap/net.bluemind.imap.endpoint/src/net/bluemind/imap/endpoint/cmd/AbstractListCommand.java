@@ -18,16 +18,18 @@
  */
 package net.bluemind.imap.endpoint.cmd;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.imap.endpoint.EndpointRuntimeException;
 
 public abstract class AbstractListCommand extends AnalyzedCommand {
 
-	private static final Pattern quotedString = Pattern.compile("\"([^\"]*)\"");
+	private static final Logger logger = LoggerFactory.getLogger(AbstractListCommand.class);
+	private static final Pattern quotedString = Pattern.compile(" (.*)$");
 	private String reference;
 	private String mailboxPattern;
 
@@ -39,14 +41,27 @@ public abstract class AbstractListCommand extends AnalyzedCommand {
 	protected AbstractListCommand(RawImapCommand raw) {
 		super(raw);
 		FlatCommand flat = flattenAtoms(true);
-		List<String> refAndBoxNamePattern = new ArrayList<>();
 		Matcher match = quotedString.matcher(flat.fullCmd);
-		while (match.find()) {
-			refAndBoxNamePattern.add(match.group(1));
-		}
-		if (refAndBoxNamePattern.size() >= 2) {
-			this.reference = refAndBoxNamePattern.get(0);
-			this.mailboxPattern = refAndBoxNamePattern.get(1);
+		if (match.find()) {
+			String refAndBox = match.group(1);
+			String mboxStart = "";
+			if (refAndBox.charAt(0) == '"') {
+				int next = refAndBox.indexOf("\" ");
+				this.reference = refAndBox.substring(1, next);
+				mboxStart = refAndBox.substring(next + 2);
+			} else {
+				int next = refAndBox.indexOf(' ');
+				this.reference = refAndBox.substring(0, next);
+				mboxStart = refAndBox.substring(next + 1);
+			}
+
+			if (mboxStart.charAt(0) == '"') {
+				this.mailboxPattern = mboxStart.substring(1, mboxStart.length() - 1);
+			} else {
+				this.mailboxPattern = mboxStart;
+			}
+
+			logger.info("r: '{}', mp: '{}'", reference, mailboxPattern);
 		} else {
 			throw new EndpointRuntimeException("reference & mailbox pattern missing from '" + flat.fullCmd + "'");
 		}

@@ -99,6 +99,7 @@ public class SpoolBackingStore implements ISdsBackingStore {
 		}
 		try (InputStream input = Files.newInputStream(zstFile)) {
 			nc.writeFile(target, input);
+			System.err.println("Wrote " + target);
 			return CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
 		} catch (IOException e) {
 			return exception(e);
@@ -126,6 +127,7 @@ public class SpoolBackingStore implements ISdsBackingStore {
 		// check new live path
 		String path = livePath(guid);
 		if (locatePath(targetPath, path)) {
+
 			return CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
 		}
 
@@ -185,6 +187,7 @@ public class SpoolBackingStore implements ISdsBackingStore {
 			return nc.exist(emlPath);
 		} else {
 			byte[] eml = nc.read(emlPath);
+			logger.info("Found {} byte(s) of mail data in {}, tgt is {}", eml.length, emlPath, targetPath);
 			if (eml.length > 0) {
 				if (emlPath.endsWith(".zst")) {
 					return compressedEml(targetPath, eml);
@@ -199,6 +202,7 @@ public class SpoolBackingStore implements ISdsBackingStore {
 	private boolean plainEml(String targetPath, byte[] eml) {
 		try {
 			Files.write(Paths.get(targetPath), eml);
+			logger.info("Wrote plain {} byte(s) to {}", eml.length, targetPath);
 			return true;
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
@@ -210,7 +214,8 @@ public class SpoolBackingStore implements ISdsBackingStore {
 		ByteBufInputStream oio = new ByteBufInputStream(Unpooled.wrappedBuffer(eml));
 		try (ZstdInputStream in = new ZstdInputStream(oio, RecyclingBufferPool.INSTANCE);
 				OutputStream out = Files.newOutputStream(Paths.get(targetPath))) {
-			ByteStreams.copy(in, out);
+			long copied = ByteStreams.copy(in, out);
+			logger.info("Wrote compressed {} byte(s) to {}", copied, targetPath);
 			return true;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -219,13 +224,11 @@ public class SpoolBackingStore implements ISdsBackingStore {
 	}
 
 	private String livePath(String guid) {
-		return "/var/spool/cyrus/data/by_hash/" + guid.charAt(0) + "/" + guid.charAt(1) + "/" + guid.charAt(2) + "/"
-				+ guid + ".zst";
+		return "/var/spool/cyrus/data/by_hash/" + guid.charAt(0) + "/" + guid.charAt(1) + "/" + guid + ".zst";
 	}
 
 	private String archivePath(String guid) {
-		return "/var/spool/bm-hsm/data/by_hash/" + guid.charAt(0) + "/" + guid.charAt(1) + "/" + guid.charAt(2) + "/"
-				+ guid + ".zst";
+		return "/var/spool/bm-hsm/data/by_hash/" + guid.charAt(0) + "/" + guid.charAt(1) + "/" + guid + ".zst";
 	}
 
 	@Override

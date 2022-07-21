@@ -124,6 +124,11 @@ public interface ISdsBackingStoreFactory {
 			public void close() {
 				asyncStore.close();
 			}
+
+			@Override
+			public String toString() {
+				return "ISdsSyncStore{store=" + asyncStore + "}";
+			}
 		};
 	}
 

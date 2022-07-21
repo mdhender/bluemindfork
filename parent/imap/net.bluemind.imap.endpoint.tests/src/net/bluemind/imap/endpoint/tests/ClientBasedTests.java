@@ -49,6 +49,7 @@ import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.IMAPHeaders;
 import net.bluemind.imap.ListResult;
 import net.bluemind.imap.StoreClient;
+import net.bluemind.imap.TaggedResult;
 import net.bluemind.imap.endpoint.EndpointConfig;
 import net.bluemind.imap.endpoint.tests.driver.MockModel;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -182,6 +183,13 @@ public class ClientBasedTests {
 			assertTrue(result.size() > 5);
 			result = sc.listSubscribed();
 			assertTrue(result.size() > 5);
+
+			TaggedResult rcStyle = sc.tagged("list \"\" Drafts");
+			assertTrue(rcStyle.isOk());
+
+			TaggedResult anotherStyle = sc.tagged("lsub \"\" \"%\"");
+			assertTrue(anotherStyle.isOk());
+
 		}
 	}
 

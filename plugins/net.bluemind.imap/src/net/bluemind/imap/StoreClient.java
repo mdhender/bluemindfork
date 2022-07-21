@@ -313,7 +313,7 @@ public class StoreClient implements AutoCloseable {
 		return cs.uidFetchBodyStructure(uids);
 	}
 
-	public Collection<IMAPHeaders> uidFetchHeaders(Collection<Integer> uids, String[] headers) {
+	public Collection<IMAPHeaders> uidFetchHeaders(Collection<Integer> uids, String... headers) {
 		return cs.uidFetchHeaders(uids, headers);
 	}
 

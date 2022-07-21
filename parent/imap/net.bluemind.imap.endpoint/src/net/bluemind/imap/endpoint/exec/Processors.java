@@ -43,8 +43,10 @@ public class Processors {
 		register(new ListProcessor());
 		register(new LsubProcessor());
 		register(new UidFetchProcessor());
+		register(new FetchProcessor());
 		register(new IdleProcessor());
 		register(new DoneProcessor());
+		register(new UidSearchProcessor());
 		register(new AppendProcessor());
 		register(new UidStoreProcessor());
 		register(new UidCopyProcessor());

@@ -123,4 +123,9 @@ public class MockConnection implements MailboxConnection {
 		return new CopyResult(idset, 42L, 42L, 123456);
 	}
 
+	@Override
+	public List<Long> uids(SelectedFolder sel, String query) {
+		return Collections.emptyList();
+	}
+
 }

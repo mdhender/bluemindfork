@@ -90,28 +90,17 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 			}
 		}
 
-		if (pristine instanceof LocalPathStream) {
-			parseAndIndex(uid, pristine);
-			return;
-		}
-
 		File tmpFile = new File(TMP, uid + "." + System.nanoTime());
 		ReadStream<Buffer> classic = VertxStream.read(pristine);
-		AsyncFile tmpStream = VertxPlatform.getVertx().fileSystem().openBlocking(tmpFile.getAbsolutePath(), TMP_OPTS);
-
-		CompletableFuture<Void> pipe = new CompletableFuture<Void>();
-		classic.pipeTo(tmpStream, done -> {
-			if (done.succeeded()) {
-				pipe.complete(null);
-			} else {
-				pipe.completeExceptionally(done.cause());
-			}
-		});
-
-		try {
-			pipe.get(10, TimeUnit.SECONDS);
-		} catch (Exception e) {
-			throw new ServerFault(e.getCause());
+		if (classic instanceof LocalPathStream) {
+			LocalPathStream lps = (LocalPathStream) classic;
+			tmpFile = lps.path().toFile();
+		} else {
+			AsyncFile tmpStream = VertxPlatform.getVertx().fileSystem().openBlocking(tmpFile.getAbsolutePath(),
+					TMP_OPTS);
+			CompletableFuture<Void> prom = classic.pipeTo(tmpStream).toCompletionStage().toCompletableFuture();
+			classic.resume();
+			prom.join();
 		}
 
 		logger.info("File copy of {} stream created.", uid);

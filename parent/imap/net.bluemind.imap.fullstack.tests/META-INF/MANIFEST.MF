@@ -17,7 +17,12 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.imap.driver.mailapi;bundle-version="4.1.0",
  net.bluemind.system.state,
  net.bluemind.system.api,
- net.bluemind.backend.mail.replica.service;bundle-version="4.1.0"
+ net.bluemind.backend.mail.replica.service;bundle-version="4.1.0",
+ net.bluemind.core.rest.http.vertx;bundle-version="4.1.0",
+ net.bluemind.authentication.service;bundle-version="4.1.0",
+ net.bluemind.core.rest,
+ net.bluemind.core.sessions,
+ com.google.guava
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.imap.fullstack.tests
 Bundle-ActivationPolicy: lazy

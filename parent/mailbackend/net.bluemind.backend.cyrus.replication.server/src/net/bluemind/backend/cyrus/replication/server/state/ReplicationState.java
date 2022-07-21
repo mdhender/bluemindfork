@@ -88,8 +88,13 @@ public class ReplicationState {
 		LiteralTokens.export(msg.content(), dest);
 		long len = dest.length();
 		return storage.bodies(msg.partition()).thenCompose(messageBodiesApi -> {
-			Stream uploadStream = storage.stream(dest.toPath());
-			return messageBodiesApi.create(msg.guid(), uploadStream);
+			try {
+				Stream uploadStream = storage.stream(dest.toPath());
+				return messageBodiesApi.create(msg.guid(), uploadStream);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
 		}).whenComplete((v, ex) -> {
 			if (!dest.delete()) {
 				logger.debug("{} was not deleted", dest);

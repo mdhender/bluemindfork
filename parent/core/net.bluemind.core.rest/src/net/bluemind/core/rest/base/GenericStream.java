@@ -183,7 +183,7 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 		return writer;
 	}
 
-	public static <T> CompletableFuture<Buffer> asyncStreamToBuffer(Stream stream) {
+	public static CompletableFuture<Buffer> asyncStreamToBuffer(Stream stream) {
 		final ReadStream<Buffer> reader = VertxStream.read(stream);
 		final AccumulatorStream writer = new AccumulatorStream();
 		return asyncStream(reader, writer).thenApply(v -> writer.buffer());
@@ -195,15 +195,24 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 		return asyncStream(reader, slow);
 	}
 
-	public static <T> void streamToFile(Stream stream, File file) {
+	public static void streamToFile(Stream stream, File file) {
 		streamToFile(stream, file, StandardOpenOption.CREATE_NEW);
 	}
 
-	public static <T> void streamToFile(Stream stream, File file, StandardOpenOption... opts) {
+	public static void streamToFile(Stream stream, File file, StandardOpenOption... opts) {
 		final ReadStream<Buffer> reader = VertxStream.read(stream);
 		try (FileWriterStream writer = new FileWriterStream(file, opts)) {
 			stream(reader, writer);
 		}
+	}
+
+	public static CompletableFuture<Void> asyncStreamToFile(Stream stream, File file, StandardOpenOption... opts) {
+		return asyncStreamToFile(VertxStream.read(stream), file, opts);
+	}
+
+	public static CompletableFuture<Void> asyncStreamToFile(ReadStream<Buffer> reader, File file,
+			StandardOpenOption... opts) {
+		return asyncStream(reader, new FileWriterStream(file, opts));
 	}
 
 	private static <T> void stream(final ReadStream<T> reader, final WriteStream<T> writer) {
@@ -313,7 +322,20 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 			try {
 				out.close();
 			} catch (IOException e) {
+				// ok
 			}
+		}
+
+		@Override
+		public Future<Void> end() {
+			close();
+			return super.end();
+		}
+
+		@Override
+		public void end(Handler<AsyncResult<Void>> handler) {
+			close();
+			super.end(handler);
 		}
 	}
 
@@ -327,7 +349,7 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 		}
 
 		public static <T> StreamState<T> create(State state, T value) {
-			return new StreamState<T>(state, value);
+			return new StreamState<>(state, value);
 		}
 
 		public static <T> StreamState<T> data(T value) {

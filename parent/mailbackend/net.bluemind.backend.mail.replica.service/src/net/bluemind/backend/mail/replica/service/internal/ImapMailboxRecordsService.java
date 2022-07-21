@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,8 +47,6 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.apache.james.mime4j.codec.Base64InputStream;
-import org.apache.james.mime4j.codec.QuotedPrintableInputStream;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.Multipart;
 import org.apache.james.mime4j.dom.SingleBody;
@@ -57,7 +56,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
-import com.sun.mail.util.UUDecoderStream;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
@@ -104,6 +102,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.rest.utils.ReadInputStream;
 import net.bluemind.core.rest.vertx.BufferReadStream;
 import net.bluemind.core.rest.vertx.VertxStream;
@@ -111,7 +110,6 @@ import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.ThreadContextHelper;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
-import net.bluemind.imap.IMAPByteSource;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.SearchQuery;
 import net.bluemind.imap.TaggedResult;
@@ -119,9 +117,9 @@ import net.bluemind.imap.vertx.stream.EmptyStream;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.Mime4JHelper.SizedStream;
+import net.bluemind.mime4j.common.OffloadedBodyFactory;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.sysconf.helper.LocalSysconfCache;
-import net.bluemind.mime4j.common.OffloadedBodyFactory;
 
 public class ImapMailboxRecordsService extends BaseMailboxRecordsService implements IInternalMailboxItems {
 
@@ -345,8 +343,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				File output = partFile(replacedPartUid);
 				ref.set(ref.get().thenCompose(v -> {
 					logger.debug("Fetching {} part {}...", current.value.imapUid, p.address);
-					CompletableFuture<Void> sinkProm = sink(current.value.imapUid, p.address, p.encoding,
-							output.toPath());
+					CompletableFuture<Void> sinkProm = sink(current.value.imapUid, p.address, output.toPath());
 					p.address = replacedPartUid;
 					return ThreadContextHelper.inWorkerThread(sinkProm);
 				}));
@@ -636,7 +633,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		if (!isImapAddress(address)) {
 			return tmpPartFetch(address);
 		}
-		ReadStream<Buffer> partContent = imapFetch(imapUid, address, encoding);
+		ReadStream<Buffer> partContent = imapFetch(imapUid, address);
 		return VertxStream.stream(partContent, mime, charset, filename);
 	}
 
@@ -650,16 +647,17 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				VertxPlatform.getVertx().fileSystem().openBlocking(tmpPart.getAbsolutePath(), new OpenOptions()));
 	}
 
-	private ReadStream<Buffer> imapFetch(long imapUid, String address, String encoding) {
+	private ReadStream<Buffer> imapFetch(long imapUid, String address) {
 		InputStream stream = fetchCompleteOIO(imapUid);
+		logger.info("Got stream {} for {}", stream, imapUid);
 		try (Message parsed = Mime4JHelper.parse(stream, new OffloadedBodyFactory())) {
+			logger.info("Parsed {} as {}", stream, parsed);
 			SingleBody body = null;
 			if (parsed.isMultipart()) {
 				Multipart mp = (Multipart) parsed.getBody();
 				body = Mime4JHelper.expandTree(mp.getBodyParts()).stream()
-						.filter(ae -> "address".equals(ae.getMimeAddress())).findAny().map(ae -> {
-							return (SingleBody) ae.getBody();
-						}).orElseGet(() -> {
+						.filter(ae -> address.equals(ae.getMimeAddress())).findAny()
+						.map(ae -> (SingleBody) ae.getBody()).orElseGet(() -> {
 							logger.warn("Part {} not found for imapUid {}", address, imapUid);
 							return null;
 						});
@@ -667,12 +665,16 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				body = (SingleBody) parsed.getBody();
 			}
 			if (body == null) {
+				logger.warn("body not found for uid {} part {}", imapUid, address);
 				return new EmptyStream();
 			} else {
 				ByteBuf buf = Unpooled.buffer();
+				logger.info("Found body {}", body);
 				try (InputStream part = body.getInputStream(); ByteBufOutputStream out = new ByteBufOutputStream(buf)) {
-					ByteStreams.copy(decoded(part, encoding), out);
+					long copied = ByteStreams.copy(part, out);
+					logger.info("Copied {} byte(s) for uid {} part {}", copied, imapUid, address);
 				}
+				logger.info("Returning {}", buf);
 				return new BufferReadStream(Buffer.buffer(buf));
 			}
 
@@ -681,33 +683,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		}
 	}
 
-	private InputStream decoded(InputStream in, String encoding) {
-		if (encoding == null) {
-			return in;
-		}
-		switch (encoding.toLowerCase()) {
-		case "base64":
-			return new Base64InputStream(in, false);
-		case "quoted-printable":
-			return new QuotedPrintableInputStream(in, false);
-		case "uuencode":
-			return new UUDecoderStream(in, true, true);
-		default:
-			return in;
-		}
-	}
-
-	private CompletableFuture<Void> sink(long imapUid, String address, String encoding, Path out) {
-		return imapContext.withImapClient(sc -> {
-			if (sc.select(imapFolder)) {
-				IMAPByteSource fetched = sc.uidFetchPart((int) imapUid, address);
-				try (InputStream raw = fetched.source().openBufferedStream();
-						OutputStream outStream = Files.newOutputStream(out)) {
-					ByteStreams.copy(decoded(raw, encoding), outStream);
-				}
-			}
-			return CompletableFuture.completedFuture(null);
-		});
+	private CompletableFuture<Void> sink(long imapUid, String address, Path out) {
+		ReadStream<Buffer> stream = imapFetch(imapUid, address);
+		return GenericStream.asyncStreamToFile(stream, out.toFile(), StandardOpenOption.CREATE_NEW);
 	}
 
 	@Override
@@ -889,7 +867,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				File output = partFile(replacedPartUid);
 				ref.set(ref.get().thenCompose(v -> {
 					logger.info("Fetching {} part {}...", imapUid, p.address);
-					CompletableFuture<Void> sinkProm = sink(imapUid, p.address, p.encoding, output.toPath());
+					CompletableFuture<Void> sinkProm = sink(imapUid, p.address, output.toPath());
 					p.address = replacedPartUid;
 					return ThreadContextHelper.inWorkerThread(sinkProm);
 				}));
