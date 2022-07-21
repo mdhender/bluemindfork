@@ -53,7 +53,13 @@ public class MailApiDriver implements MailboxDriver {
 
 	@Override
 	public MailboxConnection open(String ak, String sk) {
-		LoginResponse login = anonAuthApi.login(ak, sk, "imap-endpoint");
+		LoginResponse login;
+		try {
+			login = anonAuthApi.login(ak, sk, "imap-endpoint");
+		} catch (Exception sf) {
+			logger.error("Connection failed: {}", sf.getMessage());
+			return null;
+		}
 		if (login.status != Status.Ok) {
 			logger.warn("Got status {}", login.status);
 			return null;
