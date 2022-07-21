@@ -10,7 +10,8 @@ import {
     SET_DRAFT_EDITOR_CONTENT,
     SET_MAX_MESSAGE_SIZE,
     SET_SAVED_INLINE_IMAGES,
-    SHOW_SENDER
+    SHOW_SENDER,
+    UNSET_CORPORATE_SIGNATURE
 } from "~/mutations";
 import { IS_SENDER_SHOWN } from "~/getters";
 import templateChooser from "./templateChooser";
@@ -55,6 +56,9 @@ export default {
         },
         [SHOW_SENDER]: (state, value) => {
             state.isSenderShown = value;
+        },
+        [UNSET_CORPORATE_SIGNATURE]: state => {
+            state.corporateSignature = null;
         }
     },
 
@@ -75,10 +79,14 @@ export default {
                 commit(SET_DISCLAIMER, disclaimer ? JSON.parse(disclaimer.value) : null);
 
                 const corporateSignature = matchingTips.find(isCorporateSignature);
-                commit(SET_CORPORATE_SIGNATURE, corporateSignature ? JSON.parse(corporateSignature.value) : null);
+                if (corporateSignature) {
+                    commit(SET_CORPORATE_SIGNATURE, JSON.parse(corporateSignature.value));
+                } else {
+                    commit(UNSET_CORPORATE_SIGNATURE);
+                }
             } else {
                 commit(SET_DISCLAIMER, null);
-                commit(SET_CORPORATE_SIGNATURE, null);
+                commit(UNSET_CORPORATE_SIGNATURE);
             }
         }
     },
