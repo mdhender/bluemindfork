@@ -19,6 +19,8 @@ package net.bluemind.filehosting.sds.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLConnection;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -52,6 +54,7 @@ import net.bluemind.filehosting.api.FileHostingInfo.Type;
 import net.bluemind.filehosting.api.FileHostingItem;
 import net.bluemind.filehosting.api.FileHostingPublicLink;
 import net.bluemind.filehosting.api.FileType;
+import net.bluemind.filehosting.api.Metadata;
 import net.bluemind.filehosting.filesystem.service.internal.FileSystemFileHostingService;
 import net.bluemind.filehosting.service.export.IFileHostingService;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -225,8 +228,40 @@ public class SdsFileHostingService implements IFileHostingService {
 		fh.path = uidToPath(uid);
 		fh.name = new File(fh.path).getName();
 		fh.type = FileType.FILE;
-		fh.metadata = Collections.emptyList();
+		fh.metadata = Arrays.asList(new Metadata("mime-type", detectMimetype(fh.name)));
 		return fh;
+	}
+
+	public String extension(String name) {
+		int idx = name.lastIndexOf('.');
+		if (idx > 0) {
+			return name.substring(idx);
+		} else {
+			return "application/octet-stream";
+		}
+	}
+
+	public String detectMimetype(String name) {
+		switch (extension(name).toLowerCase()) {
+		case ".xlsx":
+			return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+		case ".docx":
+			return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+		case ".pdf":
+			return "application/pdf";
+		case ".jpg":
+			return "image/jpg";
+		case ".png":
+			return "image/png";
+		case ".ics":
+			return "text/calendar";
+		case ".p7s":
+			return "multipart/signed";
+		case ".p7m":
+			return "application/pkcs7-mime";
+		default:
+			return Optional.ofNullable(URLConnection.guessContentTypeFromName(name)).orElse("application/octet-stream");
+		}
 	}
 
 	@Override
