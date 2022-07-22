@@ -328,16 +328,7 @@ async function fetchConversations({ commit, state }, { conversations, folder, co
             });
         });
     } else {
-        conversations.forEach(conversation => {
-            const conversationRef = { key: conversation.key, uid: conversation.uid };
-            messages.push(
-                createOnlyMetadata({
-                    internalId: conversation.remoteRef.uid,
-                    folder: conversation.folderRef,
-                    conversationRef
-                })
-            );
-        });
+        conversations.forEach(conversation => messages.push(fakeConversationToMessage(conversation)));
     }
     commit(ADD_MESSAGES, { messages, preserve: true });
     // Should be set before multipleGet, but is set after to prevent batch reload of the reactive system.
@@ -368,7 +359,7 @@ async function moveConversations({ getters, commit }, { conversations, mailbox, 
     try {
         conversationsActivated
             ? await apiConversations.move(conversations, folder, mailbox)
-            : await apiMessages.move(messages, folder);
+            : await apiMessages.move(conversations.map(fakeConversationToMessage), folder);
     } catch (e) {
         commit(ADD_CONVERSATIONS, { conversations });
         commit(ADD_MESSAGES, { messages, preserve: true });
@@ -383,7 +374,7 @@ async function removeConversations({ getters, commit }, { conversations, convers
     try {
         conversationsActivated
             ? await apiConversations.addFlag(conversations, Flag.DELETED, mailbox)
-            : await apiMessages.addFlag(messages, Flag.DELETED);
+            : await apiMessages.addFlag(conversations.map(fakeConversationToMessage), Flag.DELETED);
     } catch (e) {
         commit(ADD_CONVERSATIONS, { conversations });
         commit(ADD_MESSAGES, { messages, preserve: true });
@@ -479,7 +470,7 @@ async function addFlag({ commit, getters }, conversations, conversationsActivate
     try {
         conversationsActivated
             ? await apiConversations.addFlag(conversations, flag, mailbox)
-            : await apiMessages.addFlag(messages, flag);
+            : await apiMessages.addFlag(conversations.map(fakeConversationToMessage), flag);
     } catch (e) {
         commit(DELETE_FLAG, { messages, flag });
         throw e;
@@ -497,9 +488,17 @@ async function deleteFlag({ commit, getters }, conversations, conversationsActiv
     try {
         conversationsActivated
             ? await apiConversations.deleteFlag(conversations, flag, mailbox)
-            : await apiMessages.deleteFlag(messages, flag);
+            : await apiMessages.deleteFlag(conversations.map(fakeConversationToMessage), flag);
     } catch (e) {
         commit(ADD_FLAG, { messages, flag });
         throw e;
     }
+}
+
+function fakeConversationToMessage(conversation) {
+    return createOnlyMetadata({
+        internalId: conversation.remoteRef.uid,
+        folder: conversation.folderRef,
+        conversationRef: { key: conversation.key, uid: conversation.uid }
+    });
 }
