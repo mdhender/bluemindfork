@@ -23,7 +23,7 @@ export default {
         [RESET_COMPOSER]: state => {
             state.disclaimer = null;
             state.corporateSignature = null;
-            state.personalSignature = { html: "", id: null };
+            state.personalSignature = null;
             state.editorContent = "";
             state.collapsedContent = null;
             state.inlineImagesSaved = [];
