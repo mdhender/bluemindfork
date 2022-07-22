@@ -211,7 +211,7 @@ public class ItemsTransferService implements IItemsTransfer {
 
 	@Override
 	public List<ItemIdentifier> move(List<Long> itemIds) {
-		return transferImpl(itemIds, toDelete -> fromImap.multipleDeleteById(itemIds));
+		return transferImpl(itemIds, fromImap::multipleDeleteById);
 	}
 
 }

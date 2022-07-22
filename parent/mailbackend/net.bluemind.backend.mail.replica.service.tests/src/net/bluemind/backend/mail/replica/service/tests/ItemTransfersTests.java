@@ -55,6 +55,7 @@ public class ItemTransfersTests extends AbstractRollingReplicationTests {
 	private String mboxRoot;
 	private String apiKey;
 	private IMailboxItems mailApi;
+	private IMailboxItems mailApiPolo;
 	private ItemValue<MailboxFolder> marco;
 	private ItemValue<MailboxFolder> polo;
 	private IItemsTransfer txApi;
@@ -94,6 +95,8 @@ public class ItemTransfersTests extends AbstractRollingReplicationTests {
 			this.polo = foldersApi.byName("polo");
 		}
 		this.mailApi = mailItemsApi(marco);
+		this.mailApiPolo = mailItemsApi(polo);
+
 		this.txApi = provider().instance(IItemsTransfer.class, marco.uid, polo.uid);
 		this.txApiPolo = provider().instance(IItemsTransfer.class, polo.uid, marco.uid);
 
@@ -154,4 +157,25 @@ public class ItemTransfersTests extends AbstractRollingReplicationTests {
 		}
 	}
 
+	@Test
+	public void BM18771_deleteCopiedMessageOnly() {
+		List<Long> inMarco = mailApi.filteredChangesetById(0L,
+				ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).created.stream().map(iv -> iv.id)
+						.collect(Collectors.toList());
+		assertTrue("Must move more than 100 messages", inMarco.size() > 100);
+
+		IItemsTransfer curApi = txApi;
+		List<ItemIdentifier> moved = curApi.move(inMarco);
+		assertTrue("The returned message list size do not match the moved message list size",
+				moved.size() == inMarco.size());
+		List<Long> inPolo = mailApiPolo.filteredChangesetById(0L,
+				ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).created.stream().map(iv -> iv.id)
+						.collect(Collectors.toList());
+		assertTrue("All messages are not present in destination mailbox", inPolo.size() == inMarco.size());
+
+		inMarco = mailApi.filteredChangesetById(0L, ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).created.stream()
+				.map(iv -> iv.id).collect(Collectors.toList());
+		assertTrue("Some messages still present in source mailbox", inMarco.isEmpty());
+
+	}
 }
