@@ -110,7 +110,9 @@ export default {
         inlineImagesSaved: [],
         maxMessageSize: 0, // FIXME: it's a cross-composer data, it must be moved in another store
         isSenderShown: false,
-        maxMessageSizeExceeded: false
+        maxMessageSizeExceeded: false,
+        showFormattingToolbar: false,
+        synced: ["showFormattingToolbar"]
     },
     modules: {
         templateChooser

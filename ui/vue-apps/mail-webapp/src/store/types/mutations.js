@@ -130,3 +130,6 @@ export const SET_MAIL_THREAD_SETTING = "SET_MAIL_THREAD_SETTING";
 // preview
 export const SET_PREVIEW_FILE_KEY = "SET_PREVIEW_FILE_KEY";
 export const SET_PREVIEW_MESSAGE_KEY = "SET_PREVIEW_MESSAGE_KEY";
+
+// appData (automatically added by vuex plugin)
+export const SET_SHOW_FORMATTING_TOOLBAR = "SET_SHOW_FORMATTING_TOOLBAR";

@@ -88,13 +88,12 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import { BmExtension } from "@bluemind/extensions.vue";
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
 import { BmFormCheckbox, BmButton, BmCol, BmIcon, BmRow } from "@bluemind/styleguide";
-import { AppDataKeys } from "@bluemind/webappdata";
 
 import FaviconHelper from "../FaviconHelper";
 import UnreadCountScheduler from "./MailApp/UnreadCountScheduler";
@@ -149,9 +148,9 @@ export default {
             SELECTION_IS_EMPTY
         }),
         ...mapState("mail", { currentConversation: ({ conversations }) => conversations.currentConversation }),
-        ...mapState("root-app", {
-            messageListWidth: ({ appData }) => appData[AppDataKeys.MAIL_MESSAGE_LIST_WIDTH]?.value
-        }),
+        // ...mapState("root-app", {
+        //     messageListWidth: ({ appData }) => appData[AppDataKeys.MAIL_MESSAGE_LIST_WIDTH]?.value
+        // }),
         mailConversationListWidth() {
             return this.messageListWidth ? "width: " + this.messageListWidth : "";
         },
@@ -180,9 +179,10 @@ export default {
         FaviconHelper.handleUnreadNotifInFavicon(this.userSession, documentTitle);
     },
     methods: {
-        ...mapActions("root-app", ["SET_APP_DATA"]),
+        // ...mapActions("root-app", ["SET_APP_DATA"]),
         onPanelResize(pane, container, size) {
-            this.SET_APP_DATA({ key: AppDataKeys.MAIL_MESSAGE_LIST_WIDTH, value: size });
+            console.log(pane, container, size);
+            // this.SET_APP_DATA({ key: AppDataKeys.MAIL_MESSAGE_LIST_WIDTH, value: size });
         },
         async switchWebmail() {
             await inject("UserSettingsPersistence").setOne(this.userSession.userId, "mail-application", '"webmail"');

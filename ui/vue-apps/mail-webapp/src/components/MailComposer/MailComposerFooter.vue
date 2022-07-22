@@ -13,7 +13,6 @@
 
 <script>
 import { BmRichEditorToolbar } from "@bluemind/styleguide";
-import { AppDataKeys } from "@bluemind/webappdata";
 
 import MailComposerToolbar from "./MailComposerToolbar";
 
@@ -32,8 +31,7 @@ export default {
     },
     computed: {
         showTextFormattingToolbar() {
-            const appData = this.$store.state["root-app"].appData[AppDataKeys.MAIL_COMPOSITION_SHOW_FORMATTING_TOOLBAR];
-            return appData ? appData.value : false;
+            return this.$store.state.mail.messageCompose.showFormattingToolbar;
         }
     }
 };

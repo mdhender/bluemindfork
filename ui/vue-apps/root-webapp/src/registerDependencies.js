@@ -34,7 +34,6 @@ import {
 import { ExternalSystemClient } from "@bluemind/system.api";
 import VueBus from "@bluemind/vue-bus";
 import { MailboxesClientProxy, MailboxFoldersClientProxy, UserSettingsClientProxy } from "./apiProxies";
-import { WebAppDataClient } from "@bluemind/webappdata.api";
 
 export default function (userSession) {
     injector.register({
@@ -201,10 +200,5 @@ export default function (userSession) {
     injector.register({
         provide: "VTodoPersistence",
         factory: containerUid => new VTodoClient(userSession.sid, containerUid)
-    });
-
-    injector.register({
-        provide: "WebAppDataPersistence",
-        factory: () => new WebAppDataClient(userSession.sid, "webappdata:" + userSession.userId)
     });
 }

@@ -95,12 +95,16 @@ import {
     BmDropdownItemButton,
     BmDropdownItemToggle
 } from "@bluemind/styleguide";
-import { AppDataKeys } from "@bluemind/webappdata";
 import { draftUtils, messageUtils } from "@bluemind/mail";
 
 import { ComposerActionsMixin, FormattedDateMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
-import { SET_TEMPLATE_CHOOSER_TARGET, SET_TEMPLATE_CHOOSER_VISIBLE, SHOW_SENDER } from "~/mutations";
+import {
+    SET_SHOW_FORMATTING_TOOLBAR,
+    SET_TEMPLATE_CHOOSER_TARGET,
+    SET_TEMPLATE_CHOOSER_VISIBLE,
+    SHOW_SENDER
+} from "~/mutations";
 import { IS_SENDER_SHOWN } from "~/getters";
 import { mapGetters, mapMutations } from "vuex";
 
@@ -168,8 +172,11 @@ export default {
                 ? this.$t(`mail.compose.save.${kind}.date_time`, formatted)
                 : this.$t(`mail.compose.save.${kind}.date`, formatted);
         },
+        showFormattingToolbar() {
+            return this.$store.state.mail.messageCompose.showFormattingToolbar;
+        },
         textFormatterLabel() {
-            return this.showTextFormattingToolbar
+            return this.showFormattingToolbar
                 ? this.$tc("mail.actions.textformat.hide.aria")
                 : this.$tc("mail.actions.textformat.show.aria");
         },
@@ -194,7 +201,12 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("mail", { SET_TEMPLATE_CHOOSER_TARGET, SET_TEMPLATE_CHOOSER_VISIBLE, SHOW_SENDER }),
+        ...mapMutations("mail", {
+            SET_SHOW_FORMATTING_TOOLBAR,
+            SET_TEMPLATE_CHOOSER_TARGET,
+            SET_TEMPLATE_CHOOSER_VISIBLE,
+            SHOW_SENDER
+        }),
         closeFilePicker() {
             this.$refs.attachInputRef.value = "";
         },
@@ -210,10 +222,7 @@ export default {
             this.$refs["3dots-dropdown"].hide(false);
         },
         toggleTextFormattingToolbar() {
-            const key = AppDataKeys.MAIL_COMPOSITION_SHOW_FORMATTING_TOOLBAR;
-            const appData = this.$store.state["root-app"].appData[key];
-            const value = appData ? !appData.value : true;
-            this.$store.dispatch("root-app/SET_APP_DATA", { key, value });
+            this.SET_SHOW_FORMATTING_TOOLBAR(!this.showFormattingToolbar);
         }
     }
 };

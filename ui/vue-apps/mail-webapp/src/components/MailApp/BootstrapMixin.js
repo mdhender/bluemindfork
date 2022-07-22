@@ -1,5 +1,4 @@
 import { inject } from "@bluemind/inject";
-import { AppDataKeys } from "@bluemind/webappdata";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { loadingStatusUtils, mailboxUtils } from "@bluemind/mail";
 import { MAILBOXES_ARE_LOADED, MAILBOX_BY_NAME, MY_MAILBOX, MY_MAILBOX_FOLDERS, MY_INBOX, MAILBOXES } from "~/getters";
@@ -21,8 +20,9 @@ export default {
         }),
         ...mapState("mail", ["folders", "conversationList"]),
         expandedFolders() {
-            const appData = this.$store.state["root-app"].appData[AppDataKeys.MAIL_FOLDERS_EXPANDED];
-            return appData ? appData.value : [];
+            return [];
+            // const appData = this.$store.state["root-app"].appData[AppDataKeys.MAIL_FOLDERS_EXPANDED];
+            // return appData ? appData.value : [];
         }
     },
     methods: {
