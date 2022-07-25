@@ -35,7 +35,18 @@ async function waitForLoad() {
 	});
 }
 
+async function getTbirdVersion() {
+  let info = await messenger.runtime.getBrowserInfo();
+  return parseInt(info.version.split(".")[0]);
+}
+
+let searchBooks = [];
+let searchBooksListeners = [];
+let tbirdVersion;
+
 async function main() {
+
+  tbirdVersion = await getTbirdVersion();
 
   // setup ConversionHelper
   await messenger.WindowListener.registerChromeUrl([["content", "bm", "content/"]]);
@@ -65,8 +76,11 @@ async function main() {
   // register a script which is called upon add-on unload
   await messenger.WindowListener.registerShutdownScript("chrome://bm/content/unload.js");
 
+  // load list of remote search books
+  let stored = await messenger.storage.local.get("searchBooks");
+  searchBooks = stored.searchBooks ?? [];
+  
   await messenger.WindowListener.startListening();
-
 }
 
 main();
@@ -87,9 +101,15 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
       return true;
     case "startAbListening":
       isAbListening = true;
+      if (tbirdVersion >= 91) {
+        enableSearchBooks();
+      }
       break; 
     case "stopAbListening":
       isAbListening = false;
+      if (tbirdVersion >= 91) {
+        disableSearchBooks();
+      }
       break;
     case "injectCalTabScript":
       let calTab = await messenger.tabs.query({url: info.matchUrl});
@@ -109,6 +129,11 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
         allowScriptsToClose: true,
         url: info.url
       });
+      break;
+    case "setupSearchBooks":
+      if (tbirdVersion >= 91) {
+        setupSearchBooks(info.books);
+      }
       break;
   }
 });
@@ -218,3 +243,43 @@ messenger.notifications.onClicked.addListener(async (id) => {
     }
   }
 });
+
+function setupSearchBooks(books) {
+  searchBooks = books;
+  messenger.storage.local.set({ searchBooks: books });
+}
+
+async function searchBookListener(searchString, id) {
+  console.log("search [" + searchString + "] in:" + id);
+  let matches = await messenger.NotifyTools.notifyExperiment({
+    command: "onSearchBook",
+    search: {
+      id: id,
+      searchString: searchString
+    }
+  });
+  return {
+    isCompleteResult: true,
+    results: matches
+  }
+}
+
+function enableSearchBooks() {
+  searchBooksListeners = [];
+  for (let book of searchBooks) {
+    let listener = async function(node, searchString, query) {
+      return searchBookListener(searchString, book.id);
+    };
+    searchBooksListeners.push({id: book.id, listener: listener});
+    messenger.addressBooks.provider.onSearchRequest.addListener(listener, {
+      addressBookName: book.name,
+      isSecure: true
+    });
+  }
+}
+
+function disableSearchBooks() {
+  for (let listen of searchBooksListeners) {
+    messenger.addressBooks.provider.onSearchRequest.removeListener(listen.listener);
+  }
+}

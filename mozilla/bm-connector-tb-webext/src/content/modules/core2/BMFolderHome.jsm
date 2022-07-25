@@ -20,6 +20,8 @@
 
 this.EXPORTED_SYMBOLS = ["BMFolderHome", "BMFolder"];
 
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 var { Http } = ChromeUtils.import("resource://gre/modules/Http.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
@@ -37,7 +39,10 @@ let BMFolderHome = {
     _contactHome: new BMContactHome(),
     _dlistHome: new BMDlistHome(),
     _user: null, /*BMApi AuthUser*/
-    init: function() {},
+    _notify: {},
+    init: function() {
+        Services.scriptloader.loadSubScript("chrome://bm/content/notifyTools.js", this._notify, "UTF-8");
+    },
     getFolders: function() {
         return Promise.resolve(this._getDirectories().map(this._directoryToFolder));
     },
@@ -49,6 +54,8 @@ let BMFolderHome = {
             let id = bmUtils.getCharPref(directory.URI + ".bm-id", null);
             directoriesById.put(id, directory);
         }
+        let searchBooks = [];
+        let isBmDomainAbRemote = false;
         for (let folder of aFolders) {
             this._logger.debug("on folder: " + folder.name);
             if (!folder.isReadable) continue;
@@ -66,7 +73,11 @@ let BMFolderHome = {
                 if (!isCollected) dir.dirName = dirName;
                 uri = dir.URI;
                 if (!folder.isSync) {
-                    this._logger.debug(" sync disabled: remove");
+                    this._logger.debug(" sync disabled: remove local, use remote search ab");
+                    searchBooks.push({id: folder.id, name: dirName});
+                    if (isBmDomainAb) {
+                        isBmDomainAbRemote = true;
+                    }
                 } else {
                     directoriesById.remove(folder.id);
                 }
@@ -78,7 +89,11 @@ let BMFolderHome = {
                     if (folder.isSync) {
                         uri = this._createLocalDir(dirName);
                     } else {
-                        this._logger.debug(" sync disabled: do not create");
+                        this._logger.debug(" sync disabled: use remote search ab");
+                        searchBooks.push({id: folder.id, name: dirName});
+                        if (isBmDomainAb) {
+                            isBmDomainAbRemote = true;
+                        }
                     }
                 }
             }
@@ -97,6 +112,8 @@ let BMFolderHome = {
             MailServices.ab.deleteAddressBook(uri);
             bmUtils.deletePrefBranch(uri);
         }
+        bmUtils.setBoolPref("bm-domain-ab-remote", isBmDomainAbRemote);
+        this._notify.notifyTools.notifyBackground({command: "setupSearchBooks", books: searchBooks});
         return Promise.resolve();
     },
     getLocalChangeSet: function(aFolder) {
@@ -494,3 +511,5 @@ BMFolder.prototype = {
         return (this.mName = value);
     }
 }
+
+BMFolderHome.init();

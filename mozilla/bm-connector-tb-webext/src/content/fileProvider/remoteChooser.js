@@ -30,14 +30,14 @@ var { percentEncode } = ChromeUtils.import("resource://gre/modules/Http.jsm");
 
 var { bmUtils } = ChromeUtils.import("chrome://bm/content/modules/bmUtils.jsm");
 
-Services.scriptloader.loadSubScript("chrome://bm/content/notifyTools.js", null, "UTF-8");
-
 var gBMRemoteChooser = {
   _logger: Components.classes["@blue-mind.net/logger;1"].getService().wrappedJSObject.getLogger("gBMRemoteChooser: "),
   _callback: null,
   _baseUri: null,
+  _notify: {},
   loadWindow: function () {
     console.trace("loadWindow");
+    Services.scriptloader.loadSubScript("chrome://bm/content/notifyTools.js", this._notify, "UTF-8");
     let user = {};
     let pwd = {};
     let srv = {};
@@ -132,6 +132,6 @@ var gBMRemoteChooser = {
     }
   },
   _openWebPage: function () {
-    notifyTools.notifyBackground({command: "openPopup", url: this._baseUri + "/chooser/#"});
+    this._notify.notifyTools.notifyBackground({command: "openPopup", url: this._baseUri + "/chooser/#"});
   },
 }

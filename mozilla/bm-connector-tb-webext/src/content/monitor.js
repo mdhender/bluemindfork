@@ -22,7 +22,7 @@
 
 var { bmUtils, HashMap, BMXPComObject, BmPrefListener, BMError } = ChromeUtils.import("chrome://bm/content/modules/bmUtils.jsm");
 
-Services.scriptloader.loadSubScript("chrome://bm/content/notifyTools.js", null, "UTF-8");
+Services.scriptloader.loadSubScript("chrome://bm/content/bmSearchsBooks.js", null, "UTF-8");
 
 var gBMMonitor = {
     _logger: Components.classes["@blue-mind.net/logger;1"].getService().wrappedJSObject.getLogger("gBMMonitor: "),
@@ -33,9 +33,12 @@ var gBMMonitor = {
                         .getService().QueryInterface(Components.interfaces.nsIAbManager),
     _observerService: Components.classes["@mozilla.org/observer-service;1"]
                         .getService(Components.interfaces.nsIObserverService),
+    _notify: {},
     setupListeners: function() {
+        Services.scriptloader.loadSubScript("chrome://bm/content/notifyTools.js", this._notify, "UTF-8");
+        gBMSearchsBooks.init();
         let self = this;
-        notifyTools.registerListener((data) => {
+        this._notify.notifyTools.addListener((data) => {
             switch (data.command) {
                 case "onContactCreated":
                     let dirAdd = self.getAbDirectoryFromUid(data.contact.parentId);
@@ -79,9 +82,18 @@ var gBMMonitor = {
                         self.notifyListRemoved(lDirDel, data.list.id);
                     }
                     break;
+                case "onSearchBook":
+                    let matches = gBMSearchsBooks.searchBook(data.search.id, data.search.searchString);
+                    console.log("matches:", matches);
+                    return matches;
+                case "onRemotechooserSuccess":
+                    let msg = new BMXPComObject();
+                    msg.type = "files";
+                    msg.data = data.files;
+                    self._observerService.notifyObservers(msg, "bm-remotechooser-observe", "choosed");
+                    break;
             }
         });
-        notifyTools.enable();
     },
     startListening: function() {
         this._logger.info("Start Listening");
@@ -98,7 +110,7 @@ var gBMMonitor = {
             }
         }
         this._isListening = true;
-        notifyTools.notifyBackground({command: "startAbListening"});
+        this._notify.notifyTools.notifyBackground({command: "startAbListening"});
     },
     listenDirectory: function(uid, bmId) {
         this._logger.info("Listening: [" + uid + "][" + bmId + "]");
@@ -109,7 +121,7 @@ var gBMMonitor = {
         try {
             this._isListening = false;
             this._logger.info("Stopped Listening");
-            notifyTools.notifyBackground({command: "stopAbListening"});
+            this._notify.notifyTools.notifyBackground({command: "stopAbListening"});
         } catch(e) {
             //ok
         }

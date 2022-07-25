@@ -29,17 +29,17 @@ var { bmService, BMSyncObserver } = ChromeUtils.import("chrome://bm/content/modu
 
 var { ConversionHelper } = ChromeUtils.import("chrome://bm/content/api/ConversionHelper/ConversionHelper.jsm");
 
-Services.scriptloader.loadSubScript("chrome://bm/content/notifyTools.js", null, "UTF-8");
-
 var gBMOverlay = {
 	_initDone: false,
 	_syncObserver : new BMSyncObserver(),
 	_logger: Components.classes["@blue-mind.net/logger;1"].getService().wrappedJSObject.getLogger("gBMOverlay: "),
 	_consoleListener: null,
+	_notify: {},
 	init: async function() {
 		if (!this._initDone) {
         	console.trace("INIT");
 			this._initDone = true;
+			Services.scriptloader.loadSubScript("chrome://bm/content/notifyTools.js", this._notify, "UTF-8");
 			let consoleService = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
         	this._consoleListener = {
 				logger: Components.classes["@blue-mind.net/logger;1"].getService().wrappedJSObject
@@ -356,11 +356,12 @@ var gBMOverlay = {
 					linkHandler: "single-page"
 				});
 			} else {
-				await notifyTools.notifyBackground({command: "activeTab", tabId: tabBm.id});
+				await this._notify.notifyTools.notifyBackground({command: "activeTab", tabId: tabBm.id});
 			}
 			if (aAskedUri == "/cal") {
+				let self = this;
 				window.setTimeout(() => {
-					notifyTools.notifyBackground({command: "injectCalTabScript", matchUrl: "https://*" + aAskedUri + "/*"});
+					self._notify.notifyTools.notifyBackground({command: "injectCalTabScript", matchUrl: "https://*" + aAskedUri + "/*"});
 				}, 10000);
 			}
 		} else {

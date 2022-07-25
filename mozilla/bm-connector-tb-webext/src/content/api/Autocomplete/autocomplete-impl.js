@@ -96,6 +96,7 @@ var AutocompleteApi = class extends ExtensionCommon.ExtensionAPI {
                         _result: null,
                         _fullString: null,
                         _directories: new HashMap(),
+                        _tbirdVersion : parseInt(Services.appinfo.version.split(".")[0]),
 
                         startSearch: function (searchString, searchParam, previousResult, listener) {
                             this._logger.debug("search: " + searchString);
@@ -120,11 +121,16 @@ var AutocompleteApi = class extends ExtensionCommon.ExtensionAPI {
                                     domainAbFound = bmUtils.getBoolPref(uri + ".bm-domain-ab", false);
                                 }
                             }
-
-                            if (!domainAbFound) {
+                            // remote search ab api only supported in tb 91+
+                            let domainAbRemote = this._tbirdVersion >= 91 ? bmUtils.getBoolPref("bm-domain-ab-remote", false) : false;
+                            if (!domainAbFound && !domainAbRemote) {
+                                // not found as local sync or remote search ab
                                 this._directories.put("FakeRemoteContactsDir", new FakeRemoteContactsDir(this._fullString));
+                                this._directories.put("FakeRemoteGroupsDir", new FakeRemoteGroupsDir(this._fullString));
+                            } else if (domainAbFound) {
+                                // found as local: add group autocomplete
+                                this._directories.put("FakeRemoteGroupsDir", new FakeRemoteGroupsDir(this._fullString));
                             }
-                            this._directories.put("FakeRemoteGroupsDir", new FakeRemoteGroupsDir(this._fullString));
 
                             for (let dir of this._directories.values()) {
                                 dir.wrappedJSObject.autoCompleteSearch(this);
@@ -235,7 +241,11 @@ var AutocompleteApi = class extends ExtensionCommon.ExtensionAPI {
                                 result.then(function (logged) {
                                     self._searching = true;
                                     let client = new AddressBookClient(srv.value, logged.authKey, "addressbook_" + logged.authUser.domainUid);
-                                    let q = "value.kind: 'group' AND value.identification.formatedName.value:" + self._fullString + "*";
+                                    let term = self._fullString + "*";
+                                    let q = "value.kind: 'group'"
+                                        + " AND (value.identification.formatedName.value:" + term
+                                        + " OR value.communications.emails.value:" + term + ")"
+                                        + " AND _exists_:value.communications.emails.value";
                                     return client.search({ query: q, size: 10, from: 0 });
                                 }).then(function (results) {
                                     self._logger.debug("results:" + results.total);

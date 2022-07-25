@@ -31,8 +31,6 @@ try {
     //TB 78
 }
 
-Services.scriptloader.loadSubScript("chrome://bm/content/notifyTools.js", null, "UTF-8");
-
 function canAttachFilesFromHosting() {
     let accs = cloudFileAccounts.getAccountsForType("BlueMind");
     if (accs.length > 0) {
@@ -413,6 +411,10 @@ var gBMCompose = {
         bro.setAttribute("collapsed", visible ? "false" : "true");
         toggle.setAttribute("value", bmUtils.getLocalizedString("signature.show"));
         bmUtils.session.sigPreviewClosed = !visible;
+    },
+    observe: function(subject, topic, data) {
+        let msg = subject.wrappedJSObject;
+        onRemoteFileChoosed(msg.data);
     }
 };
 
@@ -453,12 +455,7 @@ function BmInitCompose() {
         gBMCompose.checkSignature();
     });
 
-    notifyTools.registerListener((data) => {
-        switch (data.command) {
-            case "onRemotechooserSuccess":
-                onRemoteFileChoosed(data.files);
-                break;
-        }
-    });
-    notifyTools.enable();
+    let obs = Components.classes["@mozilla.org/observer-service;1"]
+                            .getService(Components.interfaces.nsIObserverService);
+    obs.addObserver(gBMCompose, "bm-remotechooser-observe", false);
 }

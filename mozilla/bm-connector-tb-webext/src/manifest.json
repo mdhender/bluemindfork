@@ -48,7 +48,8 @@
       "parent": {
         "scopes": ["addon_parent"],
         "paths": [["NotifyTools"]],
-        "script": "content/api/NotifyTools/implementation.js"
+        "script": "content/api/NotifyTools/implementation.js",
+        "events": ["startup"]
       }
     },
     "WindowListener": {
