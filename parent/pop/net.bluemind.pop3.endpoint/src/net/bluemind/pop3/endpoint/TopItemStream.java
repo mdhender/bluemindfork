@@ -22,32 +22,27 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.lib.vertx.Result;
-import net.bluemind.pop3.endpoint.MailboxConnection.ListItem;
 
-public class ListItemStream implements WriteStream<ListItem> {
+public class TopItemStream implements WriteStream<String> {
 
-	private Pop3Context ctx;
+	Pop3Context ctx;
 
-	public ListItemStream(Pop3Context ctx) {
-		this.ctx = ctx;
+	public TopItemStream(Pop3Context context) {
+		this.ctx = context;
 	}
 
 	@Override
-	public WriteStream<ListItem> exceptionHandler(Handler<Throwable> handler) {
+	public WriteStream<String> exceptionHandler(Handler<Throwable> handler) {
 		return this;
 	}
 
 	@Override
-	public Future<Void> write(ListItem data) {
-		return ctx.writeFuture(wireFormat(data));
-	}
-
-	private String wireFormat(ListItem data) {
-		return data.mailNumber + " " + data.size + "\r\n";
+	public Future<Void> write(String data) {
+		return ctx.writeFuture(data + "\r\n");
 	}
 
 	@Override
-	public void write(ListItem data, Handler<AsyncResult<Void>> handler) {
+	public void write(String data, Handler<AsyncResult<Void>> handler) {
 		write(data).compose(v -> {
 			handler.handle(Result.success());
 			return null;
@@ -55,15 +50,17 @@ public class ListItemStream implements WriteStream<ListItem> {
 			handler.handle(Result.fail(ex));
 			return null;
 		});
+
 	}
 
 	@Override
 	public void end(Handler<AsyncResult<Void>> handler) {
 		handler.handle(Result.success());
+
 	}
 
 	@Override
-	public WriteStream<ListItem> setWriteQueueMaxSize(int maxSize) {
+	public WriteStream<String> setWriteQueueMaxSize(int maxSize) {
 		return this;
 	}
 
@@ -73,9 +70,13 @@ public class ListItemStream implements WriteStream<ListItem> {
 	}
 
 	@Override
-	public WriteStream<ListItem> drainHandler(Handler<Void> handler) {
+	public WriteStream<String> drainHandler(Handler<Void> handler) {
 		ctx.socket().drainHandler(handler::handle);
 		return this;
+	}
+
+	public void pause() {
+		ctx.socket().pause();
 	}
 
 }

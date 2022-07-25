@@ -18,15 +18,26 @@
 package net.bluemind.pop3.endpoint;
 
 public class Stat {
-	private int msgCount;
+	private long msgCount;
 	private long sizeInBytes;
 
-	public Stat(int count, long size) {
+	public Stat(long count, long size) {
 		this.msgCount = count;
 		this.sizeInBytes = size;
 	}
 
-	public int count() {
+	public Stat() {
+	}
+
+	public void setMsgCount(long msgCount) {
+		this.msgCount = msgCount;
+	}
+
+	public void setSizeInBytes(long sizeInBytes) {
+		this.sizeInBytes = sizeInBytes;
+	}
+
+	public long count() {
 		return msgCount;
 	}
 

@@ -9,7 +9,13 @@ Require-Bundle: org.eclipse.core.runtime,
  io.vertx.core,
  slf4j.api,
  net.bluemind.lib.vertx,
- net.bluemind.eclipse.common
+ net.bluemind.eclipse.common,
+ net.bluemind.network.topology;bundle-version="4.1.0",
+ net.bluemind.network.topology.consumer;bundle-version="4.1.0",
+ net.bluemind.hornetq.client;bundle-version="4.1.0",
+ com.netflix.spectator.api,
+ net.bluemind.metrics.registry,
+ com.typesafe.config
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.pop3.endpoint
 Bundle-ActivationPolicy: lazy

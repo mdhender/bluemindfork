@@ -17,37 +17,67 @@
  */
 package net.bluemind.pop3.driver;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.authentication.api.IAuthentication;
-import net.bluemind.authentication.api.LoginResponse;
-import net.bluemind.authentication.api.LoginResponse.Status;
-import net.bluemind.config.BmIni;
+import net.bluemind.authentication.api.IAuthenticationPromise;
+import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.IServiceProvider;
-import net.bluemind.core.rest.http.ClientSideServiceProvider;
+import net.bluemind.core.rest.http.HttpClientProvider;
+import net.bluemind.core.rest.http.ILocator;
+import net.bluemind.core.rest.http.VertxPromiseServiceProvider;
+import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.network.topology.IServiceTopology;
+import net.bluemind.network.topology.Topology;
+import net.bluemind.network.topology.TopologyException;
 import net.bluemind.pop3.endpoint.MailboxConnection;
-import net.bluemind.pop3.endpoint.PopDriver;
+import net.bluemind.pop3.endpoint.Pop3Driver;
 
-public class MailApiPop3Driver implements PopDriver {
+public class MailApiPop3Driver implements Pop3Driver {
 
 	private static final Logger logger = LoggerFactory.getLogger(MailApiPop3Driver.class);
+	private HttpClientProvider clientProvider;
 
 	@Override
-	public MailboxConnection connect(String login, String password) {
-		String url = BmIni.value("external-url");
+	public CompletableFuture<MailboxConnection> connect(String login, String password) {
+		this.clientProvider = new HttpClientProvider(VertxPlatform.getVertx());
 
-		IServiceProvider prov = ClientSideServiceProvider.getProvider("http://" + url + ":8090", null);
+		ILocator cachingLocator = (String service, AsyncHandler<String[]> asyncHandler) -> {
+			IServiceTopology topology = Topology.get();
+			try {
+				String cores = topology.core().value.address();
+				String[] resp = new String[] { cores };
+				asyncHandler.success(resp);
+			} catch (TopologyException e) {
+				asyncHandler.failure(e);
+				logger.error(e.getMessage());
+			}
+		};
 
-		IAuthentication authapi = prov.instance(IAuthentication.class);
-		LoginResponse auth = authapi.login(login, password, "pop3-endpoint");
-		if (auth.status == Status.Ok) {
-			prov = ClientSideServiceProvider.getProvider("http://" + url + ":8090", auth.authKey);
-			logger.info("Connection established for {}", auth.authUser.value.defaultEmailAddress());
-			return new CoreConnection(prov, auth.authUser);
-		} else {
-			logger.warn("Failed to authenticate {}", login);
-			return null;
+		IServiceProvider loginProvider = new VertxPromiseServiceProvider(clientProvider, cachingLocator, null);
+		IAuthenticationPromise authapi = loginProvider.instance(IAuthenticationPromise.class);
+		CompletableFuture<MailboxConnection> coreConnection = new CompletableFuture<>();
+		try {
+			authapi.login(login, password, "pop3-endpoint").thenAccept(loginResponse -> {
+				if (loginResponse.authKey == null) {
+					coreConnection.completeExceptionally(new Exception("authkey is empty for login " + login));
+				} else {
+					IServiceProvider prov = new VertxPromiseServiceProvider(clientProvider, cachingLocator,
+							loginResponse.authKey);
+					coreConnection.complete(new CoreConnection(prov, loginResponse.authUser));
+				}
+			}).exceptionally(ex -> {
+				logger.error(ex.getMessage());
+				coreConnection.completeExceptionally(ex);
+				return null;
+			});
+			return coreConnection;
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			coreConnection.completeExceptionally(e);
+			return coreConnection;
 		}
 	}
 

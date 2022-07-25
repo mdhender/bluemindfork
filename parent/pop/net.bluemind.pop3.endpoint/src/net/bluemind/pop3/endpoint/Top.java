@@ -17,8 +17,30 @@
  */
 package net.bluemind.pop3.endpoint;
 
-public interface PopDriver {
+public class Top {
 
-	MailboxConnection connect(String login, String password);
+	private String headers;
 
+	private String bodyLines;
+
+	public Top(String hd, String bd) {
+		this.bodyLines = bd;
+		this.headers = hd;
+	}
+
+	public String getHeaders() {
+		return headers;
+	}
+
+	public void setHeaders(String headers) {
+		this.headers = headers;
+	}
+
+	public String getBodyLines() {
+		return bodyLines;
+	}
+
+	public void setBodyLines(String bodyLines) {
+		this.bodyLines = bodyLines;
+	}
 }

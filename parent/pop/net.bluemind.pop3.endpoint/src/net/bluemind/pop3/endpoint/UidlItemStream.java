@@ -22,32 +22,31 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.lib.vertx.Result;
-import net.bluemind.pop3.endpoint.MailboxConnection.ListItem;
+import net.bluemind.pop3.endpoint.MailboxConnection.UidlItem;
 
-public class ListItemStream implements WriteStream<ListItem> {
-
+public class UidlItemStream implements WriteStream<UidlItem> {
 	private Pop3Context ctx;
 
-	public ListItemStream(Pop3Context ctx) {
+	public UidlItemStream(Pop3Context ctx) {
 		this.ctx = ctx;
 	}
 
 	@Override
-	public WriteStream<ListItem> exceptionHandler(Handler<Throwable> handler) {
+	public WriteStream<UidlItem> exceptionHandler(Handler<Throwable> handler) {
 		return this;
 	}
 
 	@Override
-	public Future<Void> write(ListItem data) {
+	public Future<Void> write(UidlItem data) {
 		return ctx.writeFuture(wireFormat(data));
 	}
 
-	private String wireFormat(ListItem data) {
-		return data.mailNumber + " " + data.size + "\r\n";
+	private String wireFormat(UidlItem data) {
+		return data.mailNumber + " " + data.msgBodyUid + "\r\n";
 	}
 
 	@Override
-	public void write(ListItem data, Handler<AsyncResult<Void>> handler) {
+	public void write(UidlItem data, Handler<AsyncResult<Void>> handler) {
 		write(data).compose(v -> {
 			handler.handle(Result.success());
 			return null;
@@ -63,7 +62,7 @@ public class ListItemStream implements WriteStream<ListItem> {
 	}
 
 	@Override
-	public WriteStream<ListItem> setWriteQueueMaxSize(int maxSize) {
+	public WriteStream<UidlItem> setWriteQueueMaxSize(int maxSize) {
 		return this;
 	}
 
@@ -73,9 +72,8 @@ public class ListItemStream implements WriteStream<ListItem> {
 	}
 
 	@Override
-	public WriteStream<ListItem> drainHandler(Handler<Void> handler) {
+	public WriteStream<UidlItem> drainHandler(Handler<Void> handler) {
 		ctx.socket().drainHandler(handler::handle);
 		return this;
 	}
-
 }

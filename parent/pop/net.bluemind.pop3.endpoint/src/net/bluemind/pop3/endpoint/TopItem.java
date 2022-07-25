@@ -17,23 +17,30 @@
  */
 package net.bluemind.pop3.endpoint;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+public class TopItem {
 
-public class Activator implements BundleActivator {
+	private String header;
 
-	private static BundleContext context;
+	private String body;
 
-	static BundleContext getContext() {
-		return context;
+	public TopItem(String header, String body) {
+		this.header = header;
+		this.body = body;
 	}
 
-	public void start(BundleContext bundleContext) throws Exception {
-		Activator.context = bundleContext;
+	public String getHeader() {
+		return header;
 	}
 
-	public void stop(BundleContext bundleContext) throws Exception {
-		Activator.context = null;
+	public void setHeader(String header) {
+		this.header = header;
 	}
 
+	public String getBody() {
+		return body;
+	}
+
+	public void setBody(String body) {
+		this.body = body;
+	}
 }

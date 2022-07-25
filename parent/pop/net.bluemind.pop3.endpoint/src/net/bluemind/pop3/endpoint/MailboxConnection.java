@@ -17,7 +17,9 @@
  */
 package net.bluemind.pop3.endpoint;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentMap;
 
 import io.vertx.core.streams.WriteStream;
 
@@ -25,7 +27,7 @@ public interface MailboxConnection {
 
 	void close();
 
-	Stat stat();
+	CompletableFuture<Stat> stat();
 
 	public static class ListItem {
 		int mailNumber;
@@ -38,6 +40,30 @@ public interface MailboxConnection {
 
 	}
 
-	CompletableFuture<Void> list(WriteStream<ListItem> output);
+	public static class UidlItem {
+		String msgBodyUid;
+		int mailNumber;
+
+		public UidlItem(String str, int mn) {
+			this.msgBodyUid = str;
+			this.mailNumber = mn;
+		}
+	}
+
+	CompletableFuture<Void> list(Pop3Context ctx, WriteStream<ListItem> output);
+
+	CompletableFuture<Void> uidl(Pop3Context ctx, WriteStream<UidlItem> ouput);
+
+	public CompletableFuture<Void> uidlUnique(Pop3Context ctx, Integer id);
+
+	CompletableFuture<Retr> retr(Pop3Context ctx, String params);
+
+	CompletableFuture<Void> top(TopItemStream stream, String msgId, String numberOfBodyLines, Pop3Context ctx);
+
+	CompletableFuture<ConcurrentMap<Integer, MailItemData>> mapPopIdtoMailId();
+
+	public CompletableFuture<Void> listUnique(Pop3Context ctx, Integer id);
+
+	CompletableFuture<Boolean> delete(Pop3Context ctx, List<Long> mailsToDelete);
 
 }

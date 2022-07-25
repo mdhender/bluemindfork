@@ -17,23 +17,34 @@
  */
 package net.bluemind.pop3.endpoint;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import java.util.concurrent.CompletableFuture;
 
-public class Activator implements BundleActivator {
+import io.netty.buffer.ByteBuf;
 
-	private static BundleContext context;
+public class Retr {
+	private int mailSize;
+	private String mail;
+	public CompletableFuture<ByteBuf> completableFuture;
 
-	static BundleContext getContext() {
-		return context;
+	public Retr(int size, CompletableFuture<ByteBuf> msgBody) {
+		this.mailSize = size;
+		this.completableFuture = msgBody;
 	}
 
-	public void start(BundleContext bundleContext) throws Exception {
-		Activator.context = bundleContext;
+	public int getMailSize() {
+		return mailSize;
 	}
 
-	public void stop(BundleContext bundleContext) throws Exception {
-		Activator.context = null;
+	public void setMailSize(int mailSize) {
+		this.mailSize = mailSize;
+	}
+
+	public String getMail() {
+		return mail;
+	}
+
+	public void setMail(String mail) {
+		this.mail = mail;
 	}
 
 }

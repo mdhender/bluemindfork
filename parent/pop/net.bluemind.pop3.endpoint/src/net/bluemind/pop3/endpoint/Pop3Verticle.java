@@ -20,6 +20,8 @@ package net.bluemind.pop3.endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.typesafe.config.Config;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Verticle;
@@ -45,13 +47,18 @@ public class Pop3Verticle extends AbstractVerticle {
 
 	@Override
 	public void start(Promise<Void> startPromise) throws Exception {
+
+		Config conf = Pop3Config.get();
+
+		int port = conf.getInt("pop3.port");
+
 		logger.info("pop3 started");
 		vertx.createNetServer().connectHandler(socket -> {
 			Pop3Session session = new Pop3Session(vertx, socket);
 			session.start();
-		}).listen(1110, ar -> {
+		}).listen(port, ar -> {
 			if (ar.failed()) {
-				logger.error("fuck", ar.cause());
+				logger.error("Problem", ar.cause());
 				startPromise.fail(ar.cause());
 			} else {
 				logger.info("{} listening", ar.result());

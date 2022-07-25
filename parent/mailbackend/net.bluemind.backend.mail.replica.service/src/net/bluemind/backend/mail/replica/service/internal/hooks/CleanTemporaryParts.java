@@ -19,10 +19,11 @@ public class CleanTemporaryParts implements ISessionDeletionListener {
 		File sidFolder = Bodies.getFolder(sid);
 
 		File[] parts = sidFolder.listFiles();
-		for (File part : parts) {
-			part.delete();
+		if (parts != null) {
+			for (File part : parts) {
+				part.delete();
+			}
 		}
-
 		sidFolder.delete();
 
 		logger.debug("Folder {} deleted.", sidFolder.getAbsolutePath());

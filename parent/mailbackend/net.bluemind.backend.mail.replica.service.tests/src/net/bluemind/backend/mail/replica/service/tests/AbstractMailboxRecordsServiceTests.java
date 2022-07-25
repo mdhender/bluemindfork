@@ -28,13 +28,11 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
@@ -84,14 +82,7 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		vertx = VertxPlatform.getVertx();
 
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		dom = "vagrant" + System.currentTimeMillis() + ".vmw";
 
 		partition = "dataloc__" + dom.replace('.', '_');

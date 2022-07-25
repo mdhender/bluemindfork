@@ -35,6 +35,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.awaitility.Awaitility;
@@ -63,12 +64,8 @@ import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Part;
-import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
-import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.api.IdRange;
-import net.bluemind.core.container.model.ItemFlag;
-import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -90,7 +87,7 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.vertx.testhelper.Deploy;
 
-public class Pop3Tests {
+public class Pop3BigDeletionTests {
 	private String domainUid;
 	private String user1Login;
 	private String cyrusIp;
@@ -102,7 +99,7 @@ public class Pop3Tests {
 	protected IdRange allocations;
 	List<ItemValue<MailboxItem>> createdMails;
 
-	private static final Logger logger = LoggerFactory.getLogger(Pop3Tests.class);
+	private static final Logger logger = LoggerFactory.getLogger(Pop3BigDeletionTests.class);
 
 	@Before
 	public void before() throws Exception {
@@ -177,10 +174,6 @@ public class Pop3Tests {
 				.byName("INBOX");
 		assertNotNull("Unable to retrieve INBOX", inbox);
 
-		this.createdMails = Stream.of(createEmail(user1Login, "INBOX", testEml01()),
-				createEmail(user1Login, "INBOX", testEml01()), createEmail(user1Login, "INBOX", testEml01()),
-				createEmail(user1Login, "INBOX", testEml01()), createEmail(user1Login, "INBOX", testEml02()))
-				.collect(Collectors.toList());
 	}
 
 	@After
@@ -209,7 +202,7 @@ public class Pop3Tests {
 
 	private static InputStream withRandomMessageId(String tplName) {
 		Configuration fmCfg = new Configuration(Configuration.VERSION_2_3_30);
-		fmCfg.setClassForTemplateLoading(Pop3Tests.class, "/data");
+		fmCfg.setClassForTemplateLoading(Pop3BigDeletionTests.class, "/data");
 		fmCfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.US_ASCII);
@@ -225,10 +218,20 @@ public class Pop3Tests {
 	}
 
 	@Test
-	public void testDeleCommand() throws Exception {
+	public void testDeletionOfSeveralMails() throws Exception {
 		ItemValue<MailboxFolder> inbox = provider().instance(IMailboxFolders.class, partition.name, mboxRoot)
 				.byName("INBOX");
 		Assert.assertNotNull(inbox);
+
+		List<ItemValue<MailboxItem>> createdEmails = IntStream.range(0, 1_000).boxed().map(i -> {
+			try {
+				return createEmail(user1Login, "INBOX", testEml01());
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}).collect(Collectors.toList());
+		Thread.sleep(4000);
 
 		try (Socket sock = new Socket()) {
 			ConcurrentLinkedDeque<String> queue = rawSocket(sock);
@@ -243,166 +246,35 @@ public class Pop3Tests {
 
 			Awaitility.await().atMost(4, TimeUnit.SECONDS).until(() -> (testConditionForQueue(queue, 2, "^\\+OK$")));
 
-			out.write(("DELE 1\r\n").getBytes());
-			out.flush();
+			IntStream.range(1, createdEmails.size() + 1).boxed().forEach(i -> {
+				try {
+					out.write(("DELE " + i + "\r\n").getBytes());
+					out.flush();
+					Thread.sleep(20);
+				} catch (IOException | InterruptedException e) {
+					e.printStackTrace();
+				}
+			});
 
-			Awaitility.await().atMost(4, TimeUnit.SECONDS)
-					.until(() -> (testConditionForQueue(queue, 1, "^\\+OK message 1 deleted$")));
-
-			IDbMailboxRecords recApi = provider().instance(IDbMailboxRecords.class, inbox.uid);
-			Count countBeforeDeletion = recApi.count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
-
-			Assert.assertEquals(countBeforeDeletion.total, createdMails.size());
 			out.write(("QUIT\r\n").getBytes());
 			out.flush();
-
-			Thread.sleep(1000);
-			Count countAfterDeletion = recApi.count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
-			Assert.assertEquals(countAfterDeletion.total, createdMails.size() - 1);
-			queue.clear();
-
 		}
-	}
-
-	@Test
-	public void testDeleCommandWithNoArguments() throws Exception {
-		ItemValue<MailboxFolder> inbox = provider().instance(IMailboxFolders.class, partition.name, mboxRoot)
-				.byName("INBOX");
-		Assert.assertNotNull(inbox);
 
 		try (Socket sock = new Socket()) {
 			ConcurrentLinkedDeque<String> queue = rawSocket(sock);
 
 			OutputStream out = sock.getOutputStream();
+			Thread.sleep(500);
+
 			out.write(("USER " + user1Login + "@" + domainUid + "\r\n").getBytes());
 			out.write(("PASS " + user1Login + "\r\n").getBytes());
 			out.flush();
+			Thread.sleep(1_000);
 
-			Awaitility.await().atMost(4, TimeUnit.SECONDS)
-					.until(() -> (testConditionForQueue(queue, 1, "^\\+OK POP3 ready$")));
-
-			Awaitility.await().atMost(4, TimeUnit.SECONDS).until(() -> (testConditionForQueue(queue, 2, "^\\+OK$")));
-
-			out.write(("DELE\r\n").getBytes());
+			out.write(("STAT\r\n").getBytes());
 			out.flush();
-
 			Awaitility.await().atMost(4, TimeUnit.SECONDS)
-					.until(() -> (testConditionForQueue(queue, 1, "-ERR no such message")));
-			queue.clear();
-
-		}
-	}
-
-	@Test
-	public void testDeleCommandWithIdOutOfRange() throws Exception {
-		ItemValue<MailboxFolder> inbox = provider().instance(IMailboxFolders.class, partition.name, mboxRoot)
-				.byName("INBOX");
-		Assert.assertNotNull(inbox);
-
-		try (Socket sock = new Socket()) {
-			ConcurrentLinkedDeque<String> queue = rawSocket(sock);
-
-			OutputStream out = sock.getOutputStream();
-			out.write(("USER " + user1Login + "@" + domainUid + "\r\n").getBytes());
-			out.write(("PASS " + user1Login + "\r\n").getBytes());
-			out.flush();
-
-			Awaitility.await().atMost(4, TimeUnit.SECONDS)
-					.until(() -> (testConditionForQueue(queue, 1, "^\\+OK POP3 ready$")));
-
-			Awaitility.await().atMost(4, TimeUnit.SECONDS).until(() -> (testConditionForQueue(queue, 2, "^\\+OK$")));
-
-			out.write(("DELE 100\r\n").getBytes());
-			out.flush();
-
-			Awaitility.await().atMost(4, TimeUnit.SECONDS)
-					.until(() -> (testConditionForQueue(queue, 1, "^-ERR no such message$")));
-			queue.clear();
-
-		}
-	}
-
-	@Test
-	public void testDeleCommandWithINotAnInteger() throws Exception {
-		ItemValue<MailboxFolder> inbox = provider().instance(IMailboxFolders.class, partition.name, mboxRoot)
-				.byName("INBOX");
-		Assert.assertNotNull(inbox);
-
-		try (Socket sock = new Socket()) {
-			ConcurrentLinkedDeque<String> queue = rawSocket(sock);
-
-			OutputStream out = sock.getOutputStream();
-			out.write(("USER " + user1Login + "@" + domainUid + "\r\n").getBytes());
-			out.write(("PASS " + user1Login + "\r\n").getBytes());
-			out.flush();
-
-			Awaitility.await().atMost(4, TimeUnit.SECONDS)
-					.until(() -> (testConditionForQueue(queue, 1, "^\\+OK POP3 ready$")));
-
-			Awaitility.await().atMost(4, TimeUnit.SECONDS).until(() -> (testConditionForQueue(queue, 2, "^\\+OK$")));
-
-			out.write(("DELE test\r\n").getBytes());
-			out.flush();
-
-			Awaitility.await().atMost(4, TimeUnit.SECONDS)
-					.until(() -> (testConditionForQueue(queue, 1, "^-ERR no such message$")));
-			queue.clear();
-
-		}
-	}
-
-	@Test
-	public void testRsetCommand() throws Exception {
-		ItemValue<MailboxFolder> inbox = provider().instance(IMailboxFolders.class, partition.name, mboxRoot)
-				.byName("INBOX");
-		Assert.assertNotNull(inbox);
-
-		try (Socket sock = new Socket()) {
-			ConcurrentLinkedDeque<String> queue = rawSocket(sock);
-
-			OutputStream out = sock.getOutputStream();
-			out.write(("USER " + user1Login + "@" + domainUid + "\r\n").getBytes());
-			out.write(("PASS " + user1Login + "\r\n").getBytes());
-			out.flush();
-
-			Awaitility.await().atMost(4, TimeUnit.SECONDS)
-					.until(() -> (testConditionForQueue(queue, 1, "^\\+OK POP3 ready$")));
-
-			Awaitility.await().atMost(4, TimeUnit.SECONDS).until(() -> (testConditionForQueue(queue, 2, "^\\+OK$")));
-
-			out.write(("RSET 1\r\n").getBytes());
-			out.flush();
-
-			Awaitility.await().atMost(4, TimeUnit.SECONDS).until(() -> (testConditionForQueue(queue, 3, "^\\+OK$")));
-			queue.clear();
-		}
-	}
-
-	@Test
-	public void testRsetCommandWithoutArgument() throws Exception {
-		ItemValue<MailboxFolder> inbox = provider().instance(IMailboxFolders.class, partition.name, mboxRoot)
-				.byName("INBOX");
-		Assert.assertNotNull(inbox);
-
-		try (Socket sock = new Socket()) {
-			ConcurrentLinkedDeque<String> queue = rawSocket(sock);
-
-			OutputStream out = sock.getOutputStream();
-			out.write(("USER " + user1Login + "@" + domainUid + "\r\n").getBytes());
-			out.write(("PASS " + user1Login + "\r\n").getBytes());
-			out.flush();
-
-			Awaitility.await().atMost(4, TimeUnit.SECONDS)
-					.until(() -> (testConditionForQueue(queue, 1, "^\\+OK POP3 ready$")));
-
-			Awaitility.await().atMost(4, TimeUnit.SECONDS).until(() -> (testConditionForQueue(queue, 2, "^\\+OK$")));
-
-			out.write(("RSET\r\n").getBytes());
-			out.flush();
-
-			Awaitility.await().atMost(4, TimeUnit.SECONDS)
-					.until(() -> (testConditionForQueue(queue, 1, "^-ERR invalid command$")));
-			queue.clear();
+					.until(() -> (testConditionForQueue(queue, 1, "^\\+OK 0 0$")));
 		}
 	}
 
@@ -434,11 +306,16 @@ public class Pop3Tests {
 		return mi;
 	}
 
+	private Boolean testConditionForQueue(ConcurrentLinkedDeque<String> q, Integer condition, String regex) {
+		Stream<String> list = Arrays.asList(q.stream().reduce((e, s) -> e + s).get().split("\r\n")).stream()
+				.filter(s -> s.matches(regex));
+		return list.count() == condition;
+	}
+
 	private ConcurrentLinkedDeque<String> rawSocket(Socket sock) throws IOException {
 
 		Config conf = Pop3Config.get();
 		int port = conf.getInt("pop3.port");
-
 		sock.connect(new InetSocketAddress("127.0.0.1", port));
 		ConcurrentLinkedDeque<String> queue = new ConcurrentLinkedDeque<>();
 		Thread t = new Thread(() -> {
@@ -460,11 +337,4 @@ public class Pop3Tests {
 		t.start();
 		return queue;
 	}
-
-	private Boolean testConditionForQueue(ConcurrentLinkedDeque<String> q, Integer condition, String regex) {
-		Stream<String> list = Arrays.asList(q.stream().reduce((e, s) -> e + s).get().split("\r\n")).stream()
-				.filter(s -> s.matches(regex));
-		return list.count() == condition;
-	}
-
 }

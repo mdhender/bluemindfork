@@ -358,6 +358,8 @@
       <plugin id="net.bluemind.osgi.log"/>
       <plugin id="net.bluemind.outlook.clientcheck"/>
       <plugin id="net.bluemind.pool"/>
+      <plugin id="net.bluemind.pop3.driver"/>
+      <plugin id="net.bluemind.pop3.endpoint"/>
       <plugin id="net.bluemind.proxy.support"/>
       <plugin id="net.bluemind.resource.api"/>
       <plugin id="net.bluemind.resource.helper"/>
@@ -542,8 +544,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
       <property name="osgi.noShutdown" value="true" />
+      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
    </configurations>
 
    <preferencesInfo>

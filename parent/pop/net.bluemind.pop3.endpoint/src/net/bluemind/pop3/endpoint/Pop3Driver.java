@@ -15,22 +15,12 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.pop3.endpoint.tests;
+package net.bluemind.pop3.endpoint;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.CompletableFuture;
 
-import net.bluemind.pop3.endpoint.MailboxConnection;
-import net.bluemind.pop3.endpoint.PopDriver;
+public interface Pop3Driver {
 
-public class MockDriver implements PopDriver {
-
-	private static final Logger logger = LoggerFactory.getLogger(MockDriver.class);
-
-	@Override
-	public MailboxConnection connect(String login, String password) {
-		logger.info("Connect {} / {}", login, password);
-		return new MockConnection(login);
-	}
+	CompletableFuture<MailboxConnection> connect(String login, String password);
 
 }

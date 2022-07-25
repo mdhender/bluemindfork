@@ -17,23 +17,38 @@
  */
 package net.bluemind.pop3.endpoint;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+public class MailItemData {
+	private long itemId;
+	private String bodyMsgId;
+	private int msgSize;
 
-public class Activator implements BundleActivator {
-
-	private static BundleContext context;
-
-	static BundleContext getContext() {
-		return context;
+	public MailItemData(long id, String msgId, int size) {
+		this.itemId = id;
+		this.bodyMsgId = msgId;
+		this.msgSize = size;
 	}
 
-	public void start(BundleContext bundleContext) throws Exception {
-		Activator.context = bundleContext;
+	public long getItemId() {
+		return itemId;
 	}
 
-	public void stop(BundleContext bundleContext) throws Exception {
-		Activator.context = null;
+	public void setItemId(long itemId) {
+		this.itemId = itemId;
 	}
 
+	public String getBodyMsgId() {
+		return bodyMsgId;
+	}
+
+	public void setBodyMsgId(String bodyMsgId) {
+		this.bodyMsgId = bodyMsgId;
+	}
+
+	public int getMsgSize() {
+		return msgSize;
+	}
+
+	public void setMsgSize(int msgSize) {
+		this.msgSize = msgSize;
+	}
 }
