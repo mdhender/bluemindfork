@@ -9,7 +9,7 @@
         class="containers-management-table"
     >
         <template #cell(defaultContainer)="row">
-            <div v-if="isDefault(row.item.uid)" :title="defaultColumnTitle" class="text-center">
+            <div v-if="row.value" :title="defaultColumnTitle" class="text-center">
                 <bm-icon icon="star-fill" size="lg" />
             </div>
         </template>
@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import { ContainerType, isDefault, isManaged } from "./container";
+import { ContainerType, isManaged } from "./container";
 import ManageMyContainerMenu from "./ManageMyContainerMenu";
 import { ERROR, LOADING, SUCCESS } from "@bluemind/alert.store";
 import { inject } from "@bluemind/inject";
@@ -97,7 +97,7 @@ export default {
         }
     },
     data() {
-        return { ContainerType, isDefault, isManaged, syncInProgress: {} };
+        return { ContainerType, isManaged, syncInProgress: {} };
     },
     computed: {
         ...mapState("preferences", ["subscriptions"]),

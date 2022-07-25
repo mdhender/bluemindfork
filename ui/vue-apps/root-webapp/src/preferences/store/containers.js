@@ -1,8 +1,10 @@
 import {
+    adapt,
     ContainerType,
     containerToSubscription,
     isManaged
 } from "../../components/preferences/fields/customs/ContainersManagement/container";
+import { Verb } from "@bluemind/core.container.api";
 import { inject } from "@bluemind/inject";
 
 const state = {
@@ -179,21 +181,37 @@ export default {
     state
 };
 
-async function getContainers(expectedContainerType, subscriptions) {
+async function getContainers(type, subscriptions) {
     const userId = inject("UserSession").userId;
-    const readableContainers = await inject("ContainersPersistence").all({ type: expectedContainerType });
-    const myContainers = readableContainers
-        .filter(container => container.owner === userId)
-        .sort(container => (container.defaultContainer ? 0 : 1));
-    const otherOwnerContainers = readableContainers.filter(container => container.owner !== userId);
-    const otherManagedContainers = otherOwnerContainers.filter(isManaged);
-    const subscribedContainers = otherOwnerContainers.filter(
-        container =>
-            subscriptions.findIndex(sub => sub.value.containerUid === container.uid) !== -1 &&
-            otherManagedContainers.findIndex(managed => managed.uid === container.uid) === -1
-    );
+
+    const subscribedContainerUids = subscriptions
+        .filter(sub => sub.value.containerType === type && sub.value.owner !== userId)
+        .map(sub => sub.value.containerUid);
+
+    const [myContainers, managedContainers, otherSubscribed] = await Promise.all([
+        inject("ContainersPersistence").all({ type, owner: userId }),
+        inject("ContainersPersistence").all({ type, verb: [Verb.Manage, Verb.All] }),
+        inject("ContainersPersistence").getContainers(subscribedContainerUids)
+    ]);
+
+    const otherManagedContainers = managedContainers.filter(container => container.owner !== userId);
+    const subscribedNotManaged = otherSubscribed.filter(container => !isManaged(container));
+
     return {
-        myContainers,
-        otherContainers: otherManagedContainers.concat(subscribedContainers)
+        myContainers: myContainers.map(adapt).sort(sortMine),
+        otherContainers: otherManagedContainers
+            .concat(subscribedNotManaged)
+            .map(adapt)
+            .sort((a, b) => a.name.localeCompare(b.name))
     };
+}
+
+function sortMine(container1, container2) {
+    if (container1.defaultContainer && !container2.defaultContainer) {
+        return -1;
+    }
+    if (!container1.defaultContainer && container2.defaultContainer) {
+        return 1;
+    }
+    return container1.name.localeCompare(container2.name);
 }

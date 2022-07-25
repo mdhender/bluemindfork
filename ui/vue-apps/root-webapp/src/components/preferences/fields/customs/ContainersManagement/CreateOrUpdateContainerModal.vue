@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { ContainerHelper, ContainerType, isDefault } from "./container";
+import { ContainerHelper, ContainerType } from "./container";
 import CreateOrUpdateCalendar from "./Calendars/MyCalendars/CreateOrUpdateCalendar";
 import ImportFile from "./ImportFile";
 import { WARNING, SUCCESS } from "@bluemind/alert.store";
@@ -90,7 +90,7 @@ export default {
             return (this.isCalendarType && !this.isCalValid) || !this.isLabelValid;
         },
         isDefault() {
-            return Boolean(this.container.uid) && isDefault(this.container.uid);
+            return Boolean(this.container.uid) && this.container.defaultContainer;
         },
         anyChange() {
             return JSON.stringify(this.container) !== JSON.stringify(this.originalContainer);

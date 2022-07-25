@@ -34,7 +34,6 @@ import { SUCCESS } from "@bluemind/alert.store";
 import { BmFormAutocompleteInput, BmSpinner } from "@bluemind/styleguide";
 import BmCalendarBadge from "../Calendars/BmCalendarBadge";
 import BmCalendarItem from "../Calendars/BmCalendarItem";
-import { isDefault } from "../container";
 import { SAVE_ALERT_MODAL } from "../../../../Alerts/defaultAlerts";
 
 export default {
@@ -96,7 +95,7 @@ export default {
         },
 
         isDefaultCalendar(uid) {
-            return isDefault(uid);
+            return this.getCalendar(uid).defaultContainer;
         },
         getCalendar(uid) {
             return this.myCalendars.find(myCal => myCal.uid === uid);

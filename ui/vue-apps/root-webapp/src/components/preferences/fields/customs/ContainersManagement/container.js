@@ -79,6 +79,10 @@ export function isManaged(container) {
     return container.verbs.some(verb => verb === Verb.All || verb === Verb.Manage);
 }
 
+export function adapt(container) {
+    return { ...container, defaultContainer: isDefault(container.uid), name: container.name.trim() };
+}
+
 export function create(type) {
     const userSession = inject("UserSession");
     const container = {

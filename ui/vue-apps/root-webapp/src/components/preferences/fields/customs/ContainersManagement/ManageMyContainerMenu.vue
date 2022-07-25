@@ -1,6 +1,10 @@
 <template>
     <bm-contextual-menu>
-        <bm-dropdown-item-button icon="pencil" :disabled="isDefault && !isCalendarType" @click="$emit('update')">
+        <bm-dropdown-item-button
+            icon="pencil"
+            :disabled="container.defaultContainer && !isCalendarType"
+            @click="$emit('update')"
+        >
             {{ $t("common.edit") }}
         </bm-dropdown-item-button>
         <bm-dropdown-item-button icon="share" @click="$emit('manage-shares')">
@@ -12,7 +16,7 @@
         <bm-dropdown-item-button icon="broom" @click="$emit('reset-data')">
             {{ $t("common.action.empty") }}
         </bm-dropdown-item-button>
-        <bm-dropdown-item-button icon="trash" :disabled="isDefault" @click="$emit('remove')">
+        <bm-dropdown-item-button icon="trash" :disabled="container.defaultContainer" @click="$emit('remove')">
             {{ $t("common.delete") }}
         </bm-dropdown-item-button>
         <bm-dropdown-item-button
@@ -27,7 +31,7 @@
 </template>
 
 <script>
-import { ContainerType, isDefault } from "./container";
+import { ContainerType } from "./container";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
 
 export default {
@@ -44,9 +48,6 @@ export default {
         }
     },
     computed: {
-        isDefault() {
-            return isDefault(this.container.uid);
-        },
         isCalendarType() {
             return this.container.type === ContainerType.CALENDAR;
         },
