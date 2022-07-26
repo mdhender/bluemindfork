@@ -18,8 +18,19 @@
  */
 package net.bluemind.system.schemaupgrader;
 
-public enum UpdateAction {
+import java.util.List;
 
-	FOLDERS_CHECK_AND_REPAIR, ES_REINDEXATION
+public class UpdateAction {
 
+	public enum UpdateActionType {
+		ES_REINDEXATION
+	}
+
+	public final UpdateActionType actionType;
+	public final List<String> parameters;
+
+	public UpdateAction(UpdateActionType actionType, List<String> parameters) {
+		this.actionType = actionType;
+		this.parameters = parameters;
+	}
 }

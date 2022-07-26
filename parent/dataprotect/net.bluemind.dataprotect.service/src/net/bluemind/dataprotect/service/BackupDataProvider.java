@@ -22,7 +22,7 @@ package net.bluemind.dataprotect.service;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -169,7 +169,7 @@ public class BackupDataProvider implements AutoCloseable {
 
 		UpgradeReport report = new UpgradeReport();
 		List<DatedUpdater> upgraders = SchemaUpgrade.getUpgradePath();
-		Set<UpdateAction> handledActions = EnumSet.noneOf(UpdateAction.class);
+		Set<UpdateAction> handledActions = new HashSet<>();
 
 		executeUpgrades(upgraders, handledActions, store, database, datalocation, ds, report);
 

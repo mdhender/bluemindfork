@@ -20,7 +20,7 @@ package net.bluemind.system.service.internal;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -77,7 +77,7 @@ public class InstallationUpgradeTask implements IServerTask {
 		UpgraderStore store = new UpgraderStore(pool);
 		checkDatabaseStatus(store);
 
-		Set<UpdateAction> handledActions = EnumSet.noneOf(UpdateAction.class);
+		Set<UpdateAction> handledActions = new HashSet<>();
 		List<DatedUpdater> upgraders = adaptUpgraders(SchemaUpgrade.getUpgradePath());
 
 		executeUpgrades(upgraders, handledActions, store, monitor);
