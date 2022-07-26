@@ -137,7 +137,7 @@ export default {
 .draggable-conversation {
     cursor: pointer;
 
-    &.muted > .conversation-list-item {
+    &.muted .conversation-list-item {
         opacity: 0.55;
     }
 

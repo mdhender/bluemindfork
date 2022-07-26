@@ -18,37 +18,42 @@
         @keyup.ctrl.exact.65="selectAll()"
         @keydown.ctrl.exact.65.prevent
     >
-        <div
-            v-for="conversation in conversations"
-            :key="conversation.key"
-            :set="(conversationIsSelected = isSelected(conversation.key))"
-            class="bg-surface"
-        >
-            <template v-if="CONVERSATION_IS_LOADED(conversation)">
-                <conversation-list-separator
-                    v-if="dateRangeByKey[conversation.key]"
-                    :text="dateRangeText(dateRangeByKey[conversation.key])"
-                />
-                <draggable-conversation
-                    :ref="'conversation-' + conversation.key"
-                    :conversation="conversation"
-                    :draggable="draggable"
-                    :is-muted="!!draggedConversation && isSelected(draggedConversation) && conversationIsSelected"
-                    :is-selected="conversationIsSelected"
-                    :multiple="multiple"
-                    :selection-mode="selectionMode"
-                    @click.native="selectKey(conversation.key, $event)"
-                    @check="selectKey(conversation.key)"
-                    @dragstart="draggedConversation = conversation.key"
-                    @dragend="draggedConversation = null"
-                >
-                    <template v-slot:actions>
-                        <slot name="actions" :conversation="conversation"></slot>
-                    </template>
-                </draggable-conversation>
-            </template>
-            <conversation-list-item-loading v-else :is-selected="isSelected(conversation.key)" />
-        </div>
+        <template v-for="conversationKey in conversationKeys">
+            <conversation-metadata
+                v-slot:default="{ conversation }"
+                :key="conversationKey"
+                :conversation-key="conversationKey"
+            >
+                <div v-if="CONVERSATION_IS_LOADED(conversation)" class="bg-surface">
+                    <conversation-list-separator
+                        v-if="dateRangeByKey[conversation.key]"
+                        :text="dateRangeText(dateRangeByKey[conversation.key])"
+                    />
+                    <draggable-conversation
+                        :ref="'conversation-' + conversation.key"
+                        :conversation="conversation"
+                        :draggable="draggable"
+                        :is-muted="
+                            !!draggedConversation &&
+                            isSelected(conversationKey) &&
+                            draggedConversation !== conversationKey
+                        "
+                        :is-selected="isSelected(conversationKey)"
+                        :multiple="multiple"
+                        :selection-mode="selectionMode"
+                        @click.native="selectKey(conversation.key, $event)"
+                        @check="selectKey(conversation.key)"
+                        @dragstart="draggedConversation = conversation.key"
+                        @dragend="draggedConversation = null"
+                    >
+                        <template v-slot:actions>
+                            <slot name="actions" :conversation="conversation"></slot>
+                        </template>
+                    </draggable-conversation>
+                </div>
+                <conversation-list-item-loading v-else :is-selected="isSelected(conversation.key)" />
+            </conversation-metadata>
+        </template>
     </bm-list-group>
 </template>
 
@@ -62,6 +67,7 @@ import ConversationListItemLoading from "./ConversationListItemLoading";
 import ConversationListSeparator from "./ConversationListSeparator";
 import DateRanges from "./DateRanges";
 import DraggableConversation from "./DraggableConversation";
+import ConversationMetadata from "./ConversationMetadata";
 
 const { LoadingStatus } = loadingStatusUtils;
 
@@ -77,6 +83,7 @@ export default {
         BmListGroup,
         ConversationListItemLoading,
         ConversationListSeparator,
+        ConversationMetadata,
         DraggableConversation
     },
     props: {
@@ -98,11 +105,6 @@ export default {
             required: false,
             default: null
         },
-        showSeparator: {
-            type: Boolean,
-            required: false,
-            default: true
-        },
         draggable: {
             type: Boolean,
             required: false,
@@ -116,7 +118,8 @@ export default {
             focused: null,
             anchored: null,
             draggedConversation: null,
-            LoadingStatus
+            LoadingStatus,
+            dateRangeByKey: {}
         };
     },
     computed: {
@@ -125,25 +128,6 @@ export default {
         ...mapState("mail", {
             messages: ({ conversations }) => conversations.messages
         }),
-        conversations() {
-            return this.conversationKeys
-                .map(key => this.CONVERSATION_METADATA(key))
-                .filter(conversation => conversation.loading !== LoadingStatus.ERROR);
-        },
-        dateRangeByKey() {
-            const dateRangeByKey = {};
-            const allDateRanges = new DateRanges();
-            const currentDateRanges = [];
-            this.conversations.forEach(conversation => {
-                if (conversation.date) {
-                    const dateRange = getDateRange(conversation, allDateRanges, currentDateRanges);
-                    if (dateRange) {
-                        dateRangeByKey[conversation.key] = dateRange;
-                    }
-                }
-            });
-            return dateRangeByKey;
-        },
         selectionMode() {
             return Array.isArray(this.selected) && this.selected.length > 0
                 ? SELECTION_MODE.MULTI
@@ -159,9 +143,12 @@ export default {
         },
         conversationKeys: {
             async handler() {
-                const conversationsToLoad = this.conversations.filter(
-                    ({ loading }) => loading === LoadingStatus.NOT_LOADED
-                );
+                const conversationsToLoad = this.conversationKeys.reduce((conversations, key) => {
+                    const conversation = this.$store.state.mail.conversations.conversationByKey[key];
+                    return conversation.loading === LoadingStatus.NOT_LOADED
+                        ? [...conversations, conversation]
+                        : conversations;
+                }, []);
                 if (conversationsToLoad.length > 0) {
                     await this.FETCH_CONVERSATIONS({
                         conversations: conversationsToLoad,
@@ -169,14 +156,15 @@ export default {
                         conversationsActivated: this.CONVERSATIONS_ACTIVATED
                     });
                 }
-                const messagesToLoad = this.conversations.flatMap(conversation => {
-                    if (conversation.loading === LoadingStatus.LOADING) {
-                        return conversation.messages.filter(key => this.messages[key].loading !== LoadingStatus.LOADED);
-                    }
-                    return [];
+                const messagesToLoad = this.conversationKeys.flatMap(key => {
+                    const conversation = this.$store.state.mail.conversations.conversationByKey[key];
+                    return conversation.loading === LoadingStatus.LOADING
+                        ? conversation.messages.filter(key => this.messages[key].loading !== LoadingStatus.LOADED)
+                        : [];
                 });
                 if (messagesToLoad.length > 0) {
-                    this.FETCH_MESSAGE_METADATA({ messages: messagesToLoad });
+                    await this.FETCH_MESSAGE_METADATA({ messages: messagesToLoad });
+                    this.dateRangeByKey = this.buildDateRangeByKey();
                 }
             },
             immediate: true
@@ -252,6 +240,23 @@ export default {
             return this.$t(dateRange.i18n, {
                 date: this.$d(dateRange.date, dateRange.dateFormat)
             });
+        },
+        buildDateRangeByKey() {
+            const dateRangeByKey = {};
+            const allDateRanges = new DateRanges();
+            const currentDateRanges = [];
+            const conversations = this.conversationKeys
+                .map(key => this.CONVERSATION_METADATA(key))
+                .filter(conversation => conversation.loading !== LoadingStatus.ERROR);
+            conversations.forEach(conversation => {
+                if (conversation.date) {
+                    const dateRange = getDateRange(conversation, allDateRanges, currentDateRanges);
+                    if (dateRange) {
+                        dateRangeByKey[conversation.key] = dateRange;
+                    }
+                }
+            });
+            return dateRangeByKey;
         }
     }
 };
@@ -287,8 +292,6 @@ function getDateRange(conversation, allDateRanges, currentDateRanges) {
 </script>
 
 <style lang="scss">
-@import "@bluemind/styleguide/css/_variables.scss";
-
 .conversation-list {
     overflow-x: hidden;
     overflow-y: auto;

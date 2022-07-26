@@ -333,7 +333,7 @@ async function fetchConversations({ commit, state }, { conversations, folder, co
     commit(ADD_MESSAGES, { messages, preserve: true });
     // Should be set before multipleGet, but is set after to prevent batch reload of the reactive system.
     // Will be fixed when CONVERSATION_METADATA will stored in state instead of a dynamic getter.
-    commit(SET_CONVERSATIONS_LOADING_STATUS, { conversations, status: LoadingStatus.LOADING });
+    commit(SET_CONVERSATIONS_LOADING_STATUS, { conversations, loading: LoadingStatus.LOADING });
 }
 
 function markConversationsAsRead(store, { conversations, conversationsActivated, mailbox }) {
