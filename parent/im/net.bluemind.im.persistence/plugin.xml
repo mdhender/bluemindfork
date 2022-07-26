@@ -6,7 +6,8 @@
       <schema
             count="1"
             index="im"
-            schema="im.json">
+            schema="im.json"
+            rewritable="true">
       </schema>
    </extension>
 

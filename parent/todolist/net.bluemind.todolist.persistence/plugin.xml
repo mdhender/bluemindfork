@@ -6,7 +6,8 @@
       <schema
             count="1"
             index="todo"
-            schema="todo.json">
+            schema="todo.json"
+            rewritable="true">
       </schema>
    </extension>
 

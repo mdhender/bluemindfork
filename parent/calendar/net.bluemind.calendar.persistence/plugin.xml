@@ -6,7 +6,8 @@
       <schema
             count="1"
             index="event"
-            schema="event.json">
+            schema="event.json"
+            rewritable="true">
       </schema>
    </extension>
 

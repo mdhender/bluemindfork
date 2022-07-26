@@ -6,7 +6,8 @@
       <schema
             count="1"
             index="contact"
-            schema="contact.json">
+            schema="contact.json"
+            rewritable="true">
       </schema>
    </extension>
 

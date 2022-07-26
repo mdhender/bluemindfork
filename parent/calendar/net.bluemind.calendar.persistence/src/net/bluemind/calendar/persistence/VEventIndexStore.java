@@ -64,7 +64,8 @@ public class VEventIndexStore {
 
 	private static final Logger logger = LoggerFactory.getLogger(VEventIndexStore.class);
 
-	public static final String VEVENT_INDEX = "event";
+	public static final String VEVENT_WRITE_ALIAS = "event_write_alias";
+	public static final String VEVENT_READ_ALIAS = "event_read_alias";
 	public static final String VEVENT_TYPE = "vevent";
 
 	private static final Pattern alreadyEscapedRegex = Pattern.compile(".*?\\\\[\\[\\]+!-&|!(){}^\"~*?].*");
@@ -95,12 +96,12 @@ public class VEventIndexStore {
 	}
 
 	public void delete(long id) {
-		esearchClient.prepareDelete().setIndex(VEVENT_INDEX).setType(VEVENT_TYPE).setId(getId(id)).execute()
+		esearchClient.prepareDelete().setIndex(VEVENT_WRITE_ALIAS).setType(VEVENT_TYPE).setId(getId(id)).execute()
 				.actionGet();
 	}
 
 	public void deleteAll() {
-		ESearchActivator.deleteByQuery(VEVENT_INDEX, QueryBuilders.termQuery("containerUid", container.uid));
+		ESearchActivator.deleteByQuery(VEVENT_WRITE_ALIAS, QueryBuilders.termQuery("containerUid", container.uid));
 	}
 
 	public ListResult<String> search(VEventQuery query) {
@@ -175,7 +176,7 @@ public class VEventIndexStore {
 			boolQ.mustNot(f);
 		}
 
-		SearchRequestBuilder searchRequestBuilder = esearchClient.prepareSearch(VEVENT_INDEX) // index
+		SearchRequestBuilder searchRequestBuilder = esearchClient.prepareSearch(VEVENT_READ_ALIAS) // index
 				.setQuery(boolQ) // query
 				.setFrom(query.from) // from
 				.setSize(query.size) // size
@@ -235,7 +236,7 @@ public class VEventIndexStore {
 	private void store(Item item, VEventSeries event) {
 		Optional<byte[]> jsonValue = eventToJson(item.uid, event);
 		jsonValue.ifPresent(json -> {
-			esearchClient.prepareIndex(VEVENT_INDEX, VEVENT_TYPE).setSource(json, XContentType.JSON)
+			esearchClient.prepareIndex(VEVENT_WRITE_ALIAS, VEVENT_TYPE).setSource(json, XContentType.JSON)
 					.setId(getId(item.id)).execute().actionGet();
 		});
 
@@ -250,7 +251,7 @@ public class VEventIndexStore {
 		events.forEach(ev -> {
 			Optional<byte[]> jsonValue = eventToJson(ev.uid, ev.value);
 			jsonValue.ifPresent(json -> {
-				IndexRequestBuilder op = esearchClient.prepareIndex(VEVENT_INDEX, VEVENT_TYPE)
+				IndexRequestBuilder op = esearchClient.prepareIndex(VEVENT_WRITE_ALIAS, VEVENT_TYPE)
 						.setSource(json, XContentType.JSON).setId(getId(ev.internalId));
 				bulk.add(op);
 			});
@@ -270,7 +271,7 @@ public class VEventIndexStore {
 	}
 
 	public void refresh() {
-		esearchClient.admin().indices().prepareRefresh(VEventIndexStore.VEVENT_INDEX).execute().actionGet();
+		esearchClient.admin().indices().prepareRefresh(VEventIndexStore.VEVENT_WRITE_ALIAS).execute().actionGet();
 	}
 
 	private byte[] asJson(String uid, VEventSeries event) throws JsonProcessingException {
@@ -288,7 +289,6 @@ public class VEventIndexStore {
 		}
 		holder.value = builder.addAll(event.occurrences).build();
 		byte[] ret = JsonUtils.asBytes(holder);
-		// System.err.println(new JsonObject(new String(ret)).encodePrettily());
 		return ret;
 	}
 

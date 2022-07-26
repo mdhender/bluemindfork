@@ -18,6 +18,7 @@
  */
 package net.bluemind.todolist.persistence;
 
+import static net.bluemind.todolist.persistence.VTodoIndexStore.VTODO_READ_ALIAS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -99,7 +100,7 @@ public class VTodoIndexStoreTests {
 		indexStore.create(created, todo);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
+		SearchResponse resp = client.prepareSearch(VTODO_READ_ALIAS).setTypes(VTodoIndexStore.VTODO_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 		assertEquals(1, resp.getHits().getTotalHits().value);
 		SearchHit hit = resp.getHits().getAt(0);
@@ -125,7 +126,7 @@ public class VTodoIndexStoreTests {
 		indexStore.create(created, todo);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
+		SearchResponse resp = client.prepareSearch(VTODO_READ_ALIAS).setTypes(VTodoIndexStore.VTODO_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 		assertEquals(1, resp.getHits().getTotalHits().value);
 		SearchHit hit = resp.getHits().getAt(0);
@@ -138,7 +139,7 @@ public class VTodoIndexStoreTests {
 		indexStore.update(created, todo);
 		indexStore.refresh();
 
-		resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
+		resp = client.prepareSearch(VTODO_READ_ALIAS).setTypes(VTodoIndexStore.VTODO_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 		assertEquals(1, resp.getHits().getTotalHits().value);
 		hit = resp.getHits().getAt(0);
@@ -162,7 +163,7 @@ public class VTodoIndexStoreTests {
 		indexStore.create(created, todo);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
+		SearchResponse resp = client.prepareSearch(VTODO_READ_ALIAS).setTypes(VTodoIndexStore.VTODO_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 		assertEquals(1, resp.getHits().getTotalHits().value);
 
@@ -171,7 +172,7 @@ public class VTodoIndexStoreTests {
 
 		indexStore.delete(created.id);
 		indexStore.refresh();
-		resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
+		resp = client.prepareSearch(VTODO_READ_ALIAS).setTypes(VTodoIndexStore.VTODO_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 
 		assertEquals(0, resp.getHits().getTotalHits().value);
@@ -195,14 +196,14 @@ public class VTodoIndexStoreTests {
 		indexStore.create(created2, todo2);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
+		SearchResponse resp = client.prepareSearch(VTODO_READ_ALIAS).setTypes(VTodoIndexStore.VTODO_TYPE)
 				.setQuery(QueryBuilders.termQuery("containerUid", container.uid)).execute().actionGet();
 		assertEquals(2, resp.getHits().getTotalHits().value);
 
 		indexStore.deleteAll();
 		indexStore.refresh();
 
-		resp = client.prepareSearch(VTodoIndexStore.VTODO_INDEX).setTypes(VTodoIndexStore.VTODO_TYPE)
+		resp = client.prepareSearch(VTODO_READ_ALIAS).setTypes(VTodoIndexStore.VTODO_TYPE)
 				.setQuery(QueryBuilders.termQuery("containerUid", container.uid)).execute().actionGet();
 		assertEquals(0, resp.getHits().getTotalHits().value);
 	}

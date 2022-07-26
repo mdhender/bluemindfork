@@ -54,7 +54,8 @@ public class VCardIndexStore {
 
 	private static final Logger logger = LoggerFactory.getLogger(VCardIndexStore.class);
 
-	public static final String VCARD_INDEX = "contact";
+	public static final String VCARD_WRITE_ALIAS = "contact_write_alias";
+	public static final String VCARD_READ_ALIAS = "contact_read_alias";
 	public static final String VCARD_TYPE = "vcard";
 
 	private static final Pattern alreadyEscapedRegex = Pattern.compile(".*?\\\\[\\[\\]+!-&|!(){}^\"~*?].*");
@@ -87,8 +88,8 @@ public class VCardIndexStore {
 			logger.error("error during vcard serialization to json before indexation", e);
 			return;
 		}
-		esearchClient.prepareIndex(VCARD_INDEX, VCARD_TYPE).setSource(json, XContentType.JSON).setId(getId(item.id))
-				.execute().actionGet();
+		esearchClient.prepareIndex(VCARD_WRITE_ALIAS, VCARD_TYPE).setSource(json, XContentType.JSON)
+				.setId(getId(item.id)).execute().actionGet();
 
 	}
 
@@ -110,8 +111,8 @@ public class VCardIndexStore {
 			logger.error("error during vcard serialization to json before indexation", e);
 			return;
 		}
-		esearchClient.prepareIndex(VCARD_INDEX, VCARD_TYPE).setSource(json, XContentType.JSON).setId(getId(item.id))
-				.execute().actionGet();
+		esearchClient.prepareIndex(VCARD_WRITE_ALIAS, VCARD_TYPE).setSource(json, XContentType.JSON)
+				.setId(getId(item.id)).execute().actionGet();
 	}
 
 	public void updates(List<ItemValue<VCard>> cards) {
@@ -128,7 +129,7 @@ public class VCardIndexStore {
 				logger.error("error during vcard serialization to json before indexation", e);
 				return;
 			}
-			IndexRequestBuilder op = esearchClient.prepareIndex(VCARD_INDEX, VCARD_TYPE)
+			IndexRequestBuilder op = esearchClient.prepareIndex(VCARD_WRITE_ALIAS, VCARD_TYPE)
 					.setSource(json, XContentType.JSON).setId(getId(card.internalId));
 			bulk.add(op);
 		});
@@ -136,13 +137,13 @@ public class VCardIndexStore {
 	}
 
 	public void delete(String uid) {
-		ESearchActivator.deleteByQuery(VCARD_INDEX,
+		ESearchActivator.deleteByQuery(VCARD_WRITE_ALIAS,
 				QueryBuilders.boolQuery().must(QueryBuilders.termQuery("containerUid", container.uid))
 						.must(QueryBuilders.termQuery("uid", uid)));
 	}
 
 	public void deleteAll() {
-		ESearchActivator.deleteByQuery(VCARD_INDEX,
+		ESearchActivator.deleteByQuery(VCARD_WRITE_ALIAS,
 				QueryBuilders.boolQuery().must(QueryBuilders.termQuery("containerUid", container.uid)));
 	}
 
@@ -166,7 +167,7 @@ public class VCardIndexStore {
 		} else {
 			sort = SortBuilders.scoreSort();
 		}
-		SearchRequestBuilder preparedSearch = esearchClient.prepareSearch(VCARD_INDEX).setTypes(VCARD_TYPE)
+		SearchRequestBuilder preparedSearch = esearchClient.prepareSearch(VCARD_READ_ALIAS).setTypes(VCARD_TYPE)
 				.setQuery(qb);
 		if (query.size > 0) {
 			preparedSearch = preparedSearch.setFrom(query.from).setSize(query.size);
@@ -202,7 +203,7 @@ public class VCardIndexStore {
 	}
 
 	public void refresh() {
-		esearchClient.admin().indices().prepareRefresh(VCARD_INDEX).execute().actionGet();
+		esearchClient.admin().indices().prepareRefresh(VCARD_READ_ALIAS).execute().actionGet();
 	}
 
 	private String getId(long itemId) {

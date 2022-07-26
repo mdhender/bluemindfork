@@ -49,7 +49,7 @@ public interface IAddressBooksMgmt extends IRestoreSupport<AddressBookDescriptor
 	 * @return
 	 * @throws ServerFault
 	 */
-	public TaskRef reindexAll() throws ServerFault;
+	TaskRef reindexAll() throws ServerFault;
 
 	@POST
 	@Path("_reindexDomain")
@@ -60,7 +60,7 @@ public interface IAddressBooksMgmt extends IRestoreSupport<AddressBookDescriptor
 	 * @return
 	 * @throws ServerFault
 	 */
-	public TaskRef reindexDomain(@QueryParam("domain") String domainUid) throws ServerFault;
+	TaskRef reindexDomain(@QueryParam("domain") String domainUid) throws ServerFault;
 
 	/**
 	 * reindex an addressbook
@@ -71,7 +71,7 @@ public interface IAddressBooksMgmt extends IRestoreSupport<AddressBookDescriptor
 	 */
 	@POST
 	@Path("{containerUid}/_reindex")
-	public TaskRef reindex(@PathParam("containerUid") String bookUid) throws ServerFault;
+	TaskRef reindex(@PathParam("containerUid") String bookUid) throws ServerFault;
 
 	public static class ChangesetItem {
 		public String type;
@@ -80,27 +80,27 @@ public interface IAddressBooksMgmt extends IRestoreSupport<AddressBookDescriptor
 
 	@GET
 	@Path("{containerUid}/_backupstream")
-	public Stream backup(@PathParam("containerUid") String abUid, @QueryParam("since") Long since) throws ServerFault;
+	Stream backup(@PathParam("containerUid") String abUid, @QueryParam("since") Long since) throws ServerFault;
 
 	@POST
 	@Path("{containerUid}/_restorestream")
-	public void restore(@PathParam("containerUid") String abUid, Stream restoreStream,
+	void restore(@PathParam("containerUid") String abUid, Stream restoreStream,
 			@QueryParam("reset") boolean resetBeforeRestore) throws ServerFault;
 
 	@DELETE
 	@Path("{containerUid}")
-	public void delete(@PathParam("containerUid") String abUid) throws ServerFault;
+	void delete(@PathParam("containerUid") String abUid) throws ServerFault;
 
 	@Path("{containerUid}")
 	@GET
-	public AddressBookDescriptor getComplete(@PathParam("containerUid") String uid) throws ServerFault;
+	AddressBookDescriptor getComplete(@PathParam("containerUid") String uid) throws ServerFault;
 
 	@Path("{containerUid}")
 	@PUT
-	public void create(@PathParam("containerUid") String uid, AddressBookDescriptor descriptor,
+	void create(@PathParam("containerUid") String uid, AddressBookDescriptor descriptor,
 			@QueryParam("isDefault") boolean isDefault) throws ServerFault;
 
 	@Path("{containerUid}")
 	@POST
-	public void update(@PathParam("containerUid") String uid, AddressBookDescriptor descriptor) throws ServerFault;
+	void update(@PathParam("containerUid") String uid, AddressBookDescriptor descriptor) throws ServerFault;
 }

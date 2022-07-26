@@ -35,6 +35,8 @@ import picocli.CommandLine.Option;
 
 @Command(name = "indexed", description = "Shows the number of indexed messages")
 public class IndexedMailCountCommand implements ICmdLet, Runnable {
+	private static final String INDEX_PENDING_READ_ALIAS = "mailspool_pending_read_alias";
+
 	private CliContext ctx;
 	DateTimeFormatter df = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
@@ -48,7 +50,7 @@ public class IndexedMailCountCommand implements ICmdLet, Runnable {
 		ctx.info("infos: " + infos.softwareVersion + " " + infos.releaseName);
 		try (Client esclient = ESearchActivator.getClient()) {
 			do {
-				docs = esclient.admin().indices().prepareStats("mailspool_pending_alias").get().getTotal().docs
+				docs = esclient.admin().indices().prepareStats(INDEX_PENDING_READ_ALIAS).get().getTotal().docs
 						.getCount();
 				ctx.info("Found " + docs + " indexed mails");
 				if (progress != null) {

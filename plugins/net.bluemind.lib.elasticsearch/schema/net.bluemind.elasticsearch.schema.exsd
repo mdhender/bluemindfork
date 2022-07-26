@@ -83,6 +83,13 @@
                </documentation>
             </annotation>
          </attribute>
+         <attribute name="rewritable" type="boolean" use="default" value="false">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 

@@ -53,7 +53,8 @@ public class VNoteIndexStore {
 
 	private static final Logger logger = LoggerFactory.getLogger(VNoteIndexStore.class);
 
-	public static final String VNOTE_INDEX = "note";
+	public static final String VNOTE_WRITE_ALIAS = "note_write_alias";
+	public static final String VNOTE_READ_ALIAS = "note_read_alias";
 	public static final String VNOTE_TYPE = "vnote";
 
 	private Client esearchClient;
@@ -81,11 +82,12 @@ public class VNoteIndexStore {
 	}
 
 	public void delete(long id) {
-		esearchClient.prepareDelete().setIndex(VNOTE_INDEX).setType(VNOTE_TYPE).setId(getId(id)).execute().actionGet();
+		esearchClient.prepareDelete().setIndex(VNOTE_WRITE_ALIAS).setType(VNOTE_TYPE).setId(getId(id)).execute()
+				.actionGet();
 	}
 
 	public void deleteAll() {
-		ESearchActivator.deleteByQuery(VNOTE_INDEX, QueryBuilders.termQuery("containerUid", container.uid));
+		ESearchActivator.deleteByQuery(VNOTE_WRITE_ALIAS, QueryBuilders.termQuery("containerUid", container.uid));
 	}
 
 	public ListResult<String> search(VNoteQuery query) {
@@ -103,7 +105,7 @@ public class VNoteIndexStore {
 			boolQuery.must(f);
 		}
 
-		SearchRequestBuilder searchRequestBuilder = esearchClient.prepareSearch(VNOTE_INDEX) // index
+		SearchRequestBuilder searchRequestBuilder = esearchClient.prepareSearch(VNOTE_READ_ALIAS) // index
 				.setQuery(boolQuery);
 		if (query.size > 0) {
 			searchRequestBuilder.setFrom(query.from).setSize(query.size);
@@ -137,8 +139,8 @@ public class VNoteIndexStore {
 			return;
 		}
 
-		esearchClient.prepareIndex(VNOTE_INDEX, VNOTE_TYPE).setSource(json, XContentType.JSON).setId(getId(item.id))
-				.execute().actionGet();
+		esearchClient.prepareIndex(VNOTE_WRITE_ALIAS, VNOTE_TYPE).setSource(json, XContentType.JSON)
+				.setId(getId(item.id)).execute().actionGet();
 	}
 
 	public void updates(List<ItemValue<VNote>> notes) {
@@ -155,7 +157,7 @@ public class VNoteIndexStore {
 				logger.error("error during vnote serialization", e);
 				return;
 			}
-			IndexRequestBuilder op = esearchClient.prepareIndex(VNOTE_INDEX, VNOTE_TYPE)
+			IndexRequestBuilder op = esearchClient.prepareIndex(VNOTE_WRITE_ALIAS, VNOTE_TYPE)
 					.setSource(json, XContentType.JSON).setId(getId(noteItem.internalId));
 			bulk.add(op);
 		});
@@ -163,7 +165,7 @@ public class VNoteIndexStore {
 	}
 
 	public void refresh() {
-		esearchClient.admin().indices().prepareRefresh(VNoteIndexStore.VNOTE_INDEX).execute().actionGet();
+		esearchClient.admin().indices().prepareRefresh(VNOTE_WRITE_ALIAS).execute().actionGet();
 	}
 
 	private byte[] asJson(String uid, VNote note) throws JsonProcessingException {

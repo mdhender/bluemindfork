@@ -27,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,7 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -62,9 +60,7 @@ import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.cluster.metadata.AliasMetadata;
 import org.elasticsearch.common.bytes.BytesReference;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.index.query.Operator;
@@ -84,6 +80,7 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 
@@ -93,7 +90,7 @@ import net.bluemind.network.utils.NetworkHelper;
 
 public final class ESearchActivator implements BundleActivator {
 
-	private static BundleContext context;
+	private static final String ES_TAG = "bm/es";
 	private static final Map<String, Client> clients = new ConcurrentHashMap<>();
 	private static final Map<String, Lock> refreshLocks = new ConcurrentHashMap<>();
 	private static final Map<String, IndexDefinition> indexes = new HashMap<>();
@@ -109,19 +106,14 @@ public final class ESearchActivator implements BundleActivator {
 		System.setProperty("es.set.netty.runtime.available.processors", "false");
 	}
 
-	static BundleContext getContext() {
-		return context;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
 	 * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext )
 	 */
+	@Override
 	public void start(BundleContext bundleContext) throws Exception {
-
-		ESearchActivator.context = bundleContext;
 		IExtensionPoint ep = Platform.getExtensionRegistry().getExtensionPoint("net.bluemind.elasticsearch.schema");
 
 		for (IExtension ext : ep.getExtensions()) {
@@ -130,16 +122,15 @@ public final class ESearchActivator implements BundleActivator {
 				String schema = ce.getAttribute("schema");
 				// to override the count for faster testing
 				int count = Integer.parseInt(System.getProperty("es." + index + ".count", ce.getAttribute("count")));
-
-				ISchemaMatcher matcher = null;
-				if (ce.getAttribute("schemamatcher") != null) {
-					matcher = (ISchemaMatcher) ce.createExecutableExtension("schemamatcher");
-				}
+				ISchemaMatcher matcher = (ce.getAttribute("schemamatcher") != null)
+						? (ISchemaMatcher) ce.createExecutableExtension("schemamatcher")
+						: null;
+				boolean rewritable = Boolean.parseBoolean(ce.getAttribute("rewritable"));
 				Bundle bundle = Platform.getBundle(ext.getContributor().getName());
 				URL url = bundle.getResource(schema);
 				try (InputStream in = url.openStream()) {
-					indexes.put(index, new IndexDefinition(index, ByteStreams.toByteArray(in),
-							Optional.ofNullable(matcher), count));
+					indexes.put(index,
+							new IndexDefinition(index, ByteStreams.toByteArray(in), matcher, count, rewritable));
 					refreshLocks.put(index, new ReentrantLock());
 				}
 
@@ -158,18 +149,20 @@ public final class ESearchActivator implements BundleActivator {
 	 * @see
 	 * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
+	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
-		ESearchActivator.context = null;
+		// Nothing to do
 	}
 
+	@VisibleForTesting
 	public static final void initClient(Client client) {
-		clients.put("bm/es", client);
+		clients.put(ES_TAG, client);
 	}
 
 	public static final void initClasspath() {
-		Client client = initClient("bm/es");
+		Client client = initClient(ES_TAG);
 		if (client != null) {
-			clients.put("bm/es", client);
+			clients.put(ES_TAG, client);
 		} else {
 			logger.warn("elasticsearch node not found");
 		}
@@ -215,7 +208,6 @@ public final class ESearchActivator implements BundleActivator {
 	public static final SearchHits search(String index, String query, int from, int size, String field) {
 		Client cli = getClient();
 		QueryStringQueryBuilder q = QueryBuilders.queryStringQuery(query);
-		logger.debug("sByQuery: " + q);
 
 		SearchResponse sr = cli.prepareSearch(index).setSearchType(SearchType.QUERY_THEN_FETCH) // type
 				.setQuery(q) // query
@@ -268,7 +260,7 @@ public final class ESearchActivator implements BundleActivator {
 	}
 
 	public static Client getClient() {
-		return getClient("bm/es");
+		return getClient(ES_TAG);
 	}
 
 	public static void putMeta(String index, String k, String v) {
@@ -309,7 +301,7 @@ public final class ESearchActivator implements BundleActivator {
 				cli.addTransportAddress(new TransportAddress(InetAddress.getByName(host), 9300));
 				hlist.append(' ').append(host);
 			}
-			logger.info("Created client with {} nodes:{}", hosts.size(), hlist.toString());
+			logger.info("Created client with {} nodes:{}", hosts.size(), hlist);
 			return cli;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -339,6 +331,7 @@ public final class ESearchActivator implements BundleActivator {
 					refreshLocks.get(index).unlock();
 				}
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 			}
 		}
 	}
@@ -379,7 +372,6 @@ public final class ESearchActivator implements BundleActivator {
 
 	public static void flush(String index) {
 		Client cli = getClient();
-
 		long time = System.currentTimeMillis();
 		cli.admin().indices().prepareFlush(index).execute().actionGet();
 		long ms = (System.currentTimeMillis() - time);
@@ -412,36 +404,45 @@ public final class ESearchActivator implements BundleActivator {
 	}
 
 	private static void resetIndex(Client client, String index) {
-		logger.info("reset index {}", index);
-		try {
-			client.admin().indices().prepareDelete(index).execute().actionGet();
-			if (isPrimary(index)) {
-				int count = indexes.values().stream().filter(item -> item.supportsIndex(index)).findFirst().get()
+		logger.info("Resetting index {}", index);
+		deleteIndex(client, index);
+		initIndex(client, index);
+	}
+
+	private static void deleteIndex(Client client, String index) {
+		deleteIfExists(client, index);
+		IndexDefinition indexDefinition = indexes.get(index);
+		if (indexDefinition != null) {
+			int count = indexDefinition.count();
+			boolean isRewritable = indexDefinition.isRewritable();
+			if (count > 1 || isRewritable) {
+				long realCount = new GetAliasesRequestBuilder(client, GetAliasesAction.INSTANCE).get().getAliases()
+						.keySet().stream()//
+						.filter(indexDefinition::supportsIndex) //
+						.map(indexName -> deleteIfExists(client, indexName)) //
 						.count();
-				if (count > 1) {
-					int realCount = 0;
-					ImmutableOpenMap<String, List<AliasMetadata>> getAliasesResponse = new GetAliasesRequestBuilder(
-							client, GetAliasesAction.INSTANCE, new String[0]).get().getAliases();
-					for (Iterator<String> keysIt = getAliasesResponse.keysIt(); keysIt.hasNext();) {
-						String indexName = keysIt.next();
-						if (indexName.startsWith(index + "_")) {
-							logger.info("reset index {}", indexName);
-							client.admin().indices().prepareDelete(indexName).execute().actionGet();
-							realCount++;
-						}
-					}
-					if (count != realCount) {
-						logger.warn("Found {} {} indexes which differs from the expected count of {}", realCount, index,
-								count);
-					}
+				if (count != realCount) {
+					logger.warn("Found {} {} indexes which differs from the expected count of {}", realCount, index,
+							count);
 				}
 			}
-			logger.info("index {} reset.", index);
-		} catch (Exception e) {
-
 		}
+		logger.info("All matching indices deleted for {}", index);
+	}
 
-		initIndex(client, index, isPrimary(index));
+	private static boolean deleteIfExists(Client client, String index) {
+		try {
+			client.admin().indices().prepareDelete(index).execute().actionGet();
+			logger.info("index '{}' deleted.", index);
+			return true;
+		} catch (Exception e) {
+			logger.warn("index '{}' can't be delete: {}", index, e.getMessage());
+			return false;
+		}
+	}
+
+	private static Optional<IndexDefinition> indexDefinitionOf(String index) {
+		return indexes.values().stream().filter(item -> item.supportsIndex(index)).findFirst();
 	}
 
 	public static void addAliasTo(String aliasName, String indexName, boolean isWriteIndex) {
@@ -454,7 +455,7 @@ public final class ESearchActivator implements BundleActivator {
 	}
 
 	private static void waitForElasticsearchHosts() {
-		Collection<String> hosts = hosts("bm/es");
+		Collection<String> hosts = hosts(ES_TAG);
 		if (hosts != null) {
 			for (String host : hosts) {
 				new NetworkHelper(host).waitForListeningPort(9300, 30, TimeUnit.SECONDS);
@@ -462,14 +463,8 @@ public final class ESearchActivator implements BundleActivator {
 		}
 	}
 
-	private static boolean isPrimary(String index) {
-		return !Pattern.compile(".*_\\d+").matcher(index).matches();
-	}
-
-	public static void initIndex(Client client, String index, boolean primary) {
-		Optional<IndexDefinition> indexDefinition = indexes.values().stream().filter(item -> item.supportsIndex(index))
-				.findFirst();
-
+	public static void initIndex(Client client, String index) {
+		Optional<IndexDefinition> indexDefinition = indexDefinitionOf(index);
 		if (!indexDefinition.isPresent()) {
 			logger.warn("no SCHEMA for {}", index);
 			try {
@@ -480,42 +475,47 @@ public final class ESearchActivator implements BundleActivator {
 			}
 		} else {
 			IndexDefinition definition = indexDefinition.get();
-			int count = primary ? definition.count() : 1;
+			int count = definition.index.equals(index) ? definition.count() : 1;
 			byte[] schema = definition.schema;
 			try {
-				if (count > 1) {
-					for (int i = 1; i <= count; i++) {
-						String indexName = index + "_" + i;
-						logger.info("init index {} with settings & schema", indexName);
-						client.admin().indices().prepareCreate(indexName).setSource(schema, XContentType.JSON).execute()
-								.actionGet();
-						logger.info("Index {} created, waiting for green...", indexName);
-						ClusterHealthResponse resp = client.admin().cluster().prepareHealth(indexName)
-								.setWaitForGreenStatus().execute().actionGet();
-						logger.debug("index health {}", resp);
-					}
-				} else {
-					logger.info("init index {} with settings & schema", index);
-					client.admin().indices().prepareCreate(index).setSource(schema, XContentType.JSON).execute()
-							.actionGet();
-					logger.info("Index {} created, waiting for green...", index);
-					ClusterHealthResponse resp = client.admin().cluster().prepareHealth(index).setWaitForGreenStatus()
-							.execute().actionGet();
+				for (int i = 1; i <= count; i++) {
+					String indexName = (count == 1) ? index : index + "_" + i;
+					logger.info("init index '{}' with settings & schema", indexName);
+					client.admin().indices().prepareCreate(indexName).setSource(schema, XContentType.JSON).get();
+					logger.info("index '{}' created, waiting for green...", indexName);
+					ClusterHealthResponse resp = client.admin().cluster().prepareHealth(indexName)
+							.setWaitForGreenStatus().get();
+					definition.rewritableIndex().ifPresent(
+							rewritableIndex -> addRewritableIndexAliases(client, indexName, rewritableIndex));
+					logger.info("add index '{}' aliases", indexName);
 					logger.debug("index health {}", resp);
 				}
 			} catch (Exception e) {
-				logger.warn("failed to create indice {} : {}", index, e.getMessage(), e);
+				logger.warn("failed to create indice '{}' : {}", index, e.getMessage(), e);
 				throw e;
 			}
 		}
+	}
+
+	private static void addRewritableIndexAliases(Client client, String name, RewritableIndex index) {
+		AliasActions readAlias = AliasActions.add().index(name).alias(index.readAlias()).writeIndex(false);
+		AliasActions writeAlias = AliasActions.add().index(name).alias(index.writeAlias()).writeIndex(true);
+		IndicesAliasesRequest addAliasRequest = Requests.indexAliasesRequest() //
+				.addAliasAction(readAlias) //
+				.addAliasAction(writeAlias);
+		client.admin().indices().aliases(addAliasRequest).actionGet();
 	}
 
 	public static byte[] getIndexSchema(String indexName) {
 		return indexes.get(indexName).schema;
 	}
 
+	public static RewritableIndex getRewritableIndex(String indexName) {
+		return indexes.get(indexName).rewritableIndex;
+	}
+
 	public static void resetIndexes() {
-		indexes.keySet().forEach(index -> resetIndex(index));
+		indexes.keySet().forEach(ESearchActivator::resetIndex);
 	}
 
 	public static void clearClientCache() {
@@ -525,26 +525,39 @@ public final class ESearchActivator implements BundleActivator {
 	private static class IndexDefinition {
 		private final String index;
 		private final byte[] schema;
-		private final Optional<ISchemaMatcher> matcher;
+		private final ISchemaMatcher matcher;
 		private final int cnt;
+		private final RewritableIndex rewritableIndex;
 
-		IndexDefinition(String index, byte[] schema, Optional<ISchemaMatcher> matcher, int count) {
+		IndexDefinition(String index, byte[] schema, ISchemaMatcher matcher, int count, boolean rewritable) {
 			this.index = index;
 			this.schema = schema;
 			this.matcher = matcher;
 			this.cnt = count;
+			this.rewritableIndex = rewritable ? RewritableIndex.fromPrefix(index) : null;
 		}
 
 		public int count() {
 			return Integer.parseInt(System.getProperty("es." + index + ".count", "" + cnt));
 		}
 
+		public boolean isRewritable() {
+			return rewritableIndex != null;
+		}
+
+		public Optional<RewritableIndex> rewritableIndex() {
+			return Optional.ofNullable(rewritableIndex);
+		}
+
 		boolean supportsIndex(String name) {
 			if (name.equals(index)) {
 				return true;
 			}
-			if (matcher.isPresent()) {
-				return matcher.get().supportsIndexName(name);
+			if (matcher != null) {
+				return matcher.supportsIndexName(name);
+			}
+			if (isRewritable()) {
+				return name.startsWith(index + "_");
 			}
 			return false;
 		}

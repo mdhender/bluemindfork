@@ -57,7 +57,8 @@ public class VTodoIndexStore {
 
 	private static final Logger logger = LoggerFactory.getLogger(VTodoIndexStore.class);
 
-	public static final String VTODO_INDEX = "todo";
+	public static final String VTODO_WRITE_ALIAS = "todo_write_alias";
+	public static final String VTODO_READ_ALIAS = "todo_read_alias";
 	public static final String VTODO_TYPE = "vtodo";
 
 	private static final Pattern alreadyEscapedRegex = Pattern.compile(".*?\\\\[\\[\\]+!-&|!(){}^\"~*?].*");
@@ -88,11 +89,12 @@ public class VTodoIndexStore {
 	}
 
 	public void delete(long id) {
-		esearchClient.prepareDelete().setIndex(VTODO_INDEX).setType(VTODO_TYPE).setId(getId(id)).execute().actionGet();
+		esearchClient.prepareDelete().setIndex(VTODO_WRITE_ALIAS).setType(VTODO_TYPE).setId(getId(id)).execute()
+				.actionGet();
 	}
 
 	public void deleteAll() {
-		ESearchActivator.deleteByQuery(VTODO_INDEX, QueryBuilders.termQuery("containerUid", container.uid));
+		ESearchActivator.deleteByQuery(VTODO_WRITE_ALIAS, QueryBuilders.termQuery("containerUid", container.uid));
 	}
 
 	public ListResult<String> search(VTodoQuery query) {
@@ -136,7 +138,7 @@ public class VTodoIndexStore {
 			boolQuery.must(f);
 		}
 
-		SearchRequestBuilder searchRequestBuilder = esearchClient.prepareSearch(VTODO_INDEX) // index
+		SearchRequestBuilder searchRequestBuilder = esearchClient.prepareSearch(VTODO_READ_ALIAS) // index
 				.setQuery(boolQuery);
 		if (query.size > 0) {
 			searchRequestBuilder.setFrom(query.from).setSize(query.size);
@@ -192,8 +194,8 @@ public class VTodoIndexStore {
 			return;
 		}
 
-		esearchClient.prepareIndex(VTODO_INDEX, VTODO_TYPE).setSource(json, XContentType.JSON).setId(getId(item.id))
-				.execute().actionGet();
+		esearchClient.prepareIndex(VTODO_WRITE_ALIAS, VTODO_TYPE).setSource(json, XContentType.JSON)
+				.setId(getId(item.id)).execute().actionGet();
 
 	}
 
@@ -211,7 +213,7 @@ public class VTodoIndexStore {
 				logger.error("error during vtodo serialization", e);
 				return;
 			}
-			IndexRequestBuilder op = esearchClient.prepareIndex(VTODO_INDEX, VTODO_TYPE)
+			IndexRequestBuilder op = esearchClient.prepareIndex(VTODO_WRITE_ALIAS, VTODO_TYPE)
 					.setSource(json, XContentType.JSON).setId(getId(task.internalId));
 			bulk.add(op);
 		});
@@ -219,7 +221,7 @@ public class VTodoIndexStore {
 	}
 
 	public void refresh() {
-		esearchClient.admin().indices().prepareRefresh(VTodoIndexStore.VTODO_INDEX).execute().actionGet();
+		esearchClient.admin().indices().prepareRefresh(VTODO_WRITE_ALIAS).execute().actionGet();
 	}
 
 	private byte[] asJson(String uid, VTodo todo) throws JsonProcessingException {

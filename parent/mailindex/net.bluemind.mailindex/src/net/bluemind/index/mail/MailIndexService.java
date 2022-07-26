@@ -117,8 +117,9 @@ public class MailIndexService implements IMailIndexService {
 	public static final String JOIN_FIELD = "body_msg_link";
 	public static final String PARENT_TYPE = "body";
 	public static final String CHILD_TYPE = "record";
-	public static final String INDEX_PENDING = "mailspool_pending";
-	public static final String INDEX_PENDING_ALIAS = "mailspool_pending_alias";
+	private static final String INDEX_PENDING = "mailspool_pending";
+	private static final String INDEX_PENDING_READ_ALIAS = "mailspool_pending_read_alias";
+	private static final String INDEX_PENDING_WRITE_ALIAS = "mailspool_pending_write_alias";
 
 	private Registry metricRegistry;
 	private IdFactory idFactory;
@@ -128,7 +129,6 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	public MailIndexService() {
-
 		metricRegistry = MetricsRegistry.get();
 		idFactory = new IdFactory("mailindex-service", metricRegistry, MailIndexService.class);
 
@@ -148,7 +148,7 @@ public class MailIndexService implements IMailIndexService {
 		content.put("subject_kw", body.subject.toString());
 		content.put("headers", body.headers());
 		content.putAll(body.data);
-		client.prepareIndex(INDEX_PENDING_ALIAS, PENDING_TYPE).setId(body.uid).setSource(content).execute().actionGet();
+		client.prepareIndex(INDEX_PENDING_WRITE_ALIAS, PENDING_TYPE).setId(body.uid).setSource(content).get();
 		return content;
 	}
 
@@ -167,7 +167,7 @@ public class MailIndexService implements IMailIndexService {
 	@Override
 	public void deleteBodyEntries(List<String> bodyIds) {
 		Client client = getIndexClient();
-		deleteBodiesFromIndex(bodyIds, INDEX_PENDING_ALIAS, PENDING_TYPE);
+		deleteBodiesFromIndex(bodyIds, INDEX_PENDING_WRITE_ALIAS, PENDING_TYPE);
 		GetIndexResponse resp = client.admin().indices().prepareGetIndex().addIndices("mailspool*").get();
 		List<String> shards = filterMailspoolIndexNames(resp);
 		for (String index : shards) {
@@ -228,7 +228,7 @@ public class MailIndexService implements IMailIndexService {
 		Set<String> is = MessageFlagsHelper.asFlags(mail.flags);
 
 		Map<String, Object> parentDoc = null;
-		GetResponse response = client.prepareGet(INDEX_PENDING_ALIAS, PENDING_TYPE, parentUid).get();
+		GetResponse response = client.prepareGet(INDEX_PENDING_READ_ALIAS, PENDING_TYPE, parentUid).get();
 		if (response.isSourceEmpty()) {
 			try {
 				logger.warn("Pending index misses parent {} for imapUid {} in mailbox {}", parentUid,

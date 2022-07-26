@@ -32,10 +32,6 @@
             priority="200">
       </registration>
        <registration
-            impl="net.bluemind.cli.index.ReindexMailspoolPending$Reg"
-            priority="200">
-      </registration>
-       <registration
             impl="net.bluemind.cli.index.ReconstructCommand$Reg"
             priority="200">
       </registration>

@@ -226,7 +226,7 @@ public abstract class AbstractServiceTests {
 	}
 
 	protected void refreshIndex() {
-		esearchClient.admin().indices().prepareRefresh(VNoteIndexStore.VNOTE_INDEX).execute().actionGet();
+		esearchClient.admin().indices().prepareRefresh(VNoteIndexStore.VNOTE_WRITE_ALIAS).get();
 	}
 
 	protected void setGlobalExternalUrl() {

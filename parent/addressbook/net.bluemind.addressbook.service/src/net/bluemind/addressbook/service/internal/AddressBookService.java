@@ -111,7 +111,8 @@ public class AddressBookService implements IInCoreAddressBook {
 		this.vcardStore = new VCardStore(dataSource, container);
 		this.eventProducer = new AddressBookEventProducer(container, securityContext, VertxPlatform.eventBus());
 
-		indexStore = new VCardIndexStore(esearchClient, container, DataSourceRouter.location(context, container.uid));
+		this.indexStore = new VCardIndexStore(esearchClient, container,
+				DataSourceRouter.location(context, container.uid));
 		this.storeService = new VCardContainerStoreService(context, dataSource, securityContext, container, vcardStore,
 				indexStore);
 
@@ -271,7 +272,6 @@ public class AddressBookService implements IInCoreAddressBook {
 	 * @throws ServerFault
 	 */
 	@SuppressWarnings("serial")
-//	private Updated doUpdate(String givenUid, Long itemId, VCard card, byte[] photo) {
 	private Updated doUpdate(Item item, VCard card, byte[] photo) {
 		ItemValue<VCard> previousItemValue = item.uid != null ? storeService.get(item.uid, null)
 				: storeService.get(item.id, null);

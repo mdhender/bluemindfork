@@ -15,7 +15,8 @@
       <schema
             count="1"
             index="mailspool_pending"
-            schema="mailspool_pending.json">
+            schema="mailspool_pending.json"
+            rewritable="true">
       </schema>
    </extension>
 </plugin>

@@ -38,6 +38,8 @@ import net.bluemind.im.api.IMMessage;
 public class IMIndexStore {
 
 	private static final Logger logger = LoggerFactory.getLogger(IMIndexStore.class);
+	public static final String IM_WRITE_ALIAS = "im_write_alias";
+	public static final String IM_READ_ALIAS = "im_read_alias";
 
 	private Client client;
 
@@ -76,7 +78,7 @@ public class IMIndexStore {
 
 	private List<IMMessage> doElasticSearchQuery(StringBuilder query, int size) {
 
-		SearchRequestBuilder searchBuilder = client.prepareSearch("im");
+		SearchRequestBuilder searchBuilder = client.prepareSearch(IM_READ_ALIAS);
 		searchBuilder.setQuery(QueryBuilders.queryStringQuery(query.toString()));
 		searchBuilder.storedFields("message", "from", "to", "timecreate");
 		searchBuilder.addSort("timecreate", SortOrder.DESC);

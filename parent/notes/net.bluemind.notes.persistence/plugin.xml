@@ -6,7 +6,8 @@
       <schema
             count="1"
             index="note"
-            schema="note.json">
+            schema="note.json"
+            rewritable="true">
       </schema>
    </extension>
 </plugin>

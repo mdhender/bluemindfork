@@ -18,6 +18,7 @@
  */
 package net.bluemind.todolist.service;
 
+import static net.bluemind.todolist.persistence.VTodoIndexStore.VTODO_WRITE_ALIAS;
 import static org.junit.Assert.assertNotNull;
 
 import java.sql.SQLException;
@@ -71,7 +72,6 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.todolist.api.VTodo;
-import net.bluemind.todolist.persistence.VTodoIndexStore;
 import net.bluemind.todolist.persistence.VTodoStore;
 import net.bluemind.todolist.service.internal.VTodoContainerStoreService;
 
@@ -248,7 +248,7 @@ public abstract class AbstractServiceTests {
 	}
 
 	protected void refreshIndex() {
-		esearchClient.admin().indices().prepareRefresh(VTodoIndexStore.VTODO_INDEX).execute().actionGet();
+		esearchClient.admin().indices().prepareRefresh(VTODO_WRITE_ALIAS).get();
 	}
 
 	protected Map<String, String> setGlobalExternalUrl() {

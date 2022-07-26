@@ -127,7 +127,7 @@ public class ReindexMailIndexesCommand implements ICmdLet, Runnable {
 			Optional<Script> code) {
 		String targetIndex = "mailspool_" + targetIndexNumber;
 		ctx.info("Reindexing records from {} to {}", index, targetIndex);
-		ESearchActivator.initIndex(client, targetIndex, false);
+		ESearchActivator.initIndex(client, targetIndex);
 		TermQueryBuilder bodiesQuery = QueryBuilders.termQuery("body_msg_link", "body");
 		moveAndReindex(client, Optional.empty(), index, targetIndex, bodiesQuery, "bodies");
 

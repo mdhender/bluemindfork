@@ -18,6 +18,7 @@
  */
 package net.bluemind.notes.persistence;
 
+import static net.bluemind.notes.persistence.VNoteIndexStore.VNOTE_READ_ALIAS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -86,7 +87,7 @@ public class VNoteIndexStoreTests extends AbstractStoreTests {
 		indexStore.create(created, note);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VNoteIndexStore.VNOTE_INDEX).setTypes(VNoteIndexStore.VNOTE_TYPE)
+		SearchResponse resp = client.prepareSearch(VNOTE_READ_ALIAS).setTypes(VNoteIndexStore.VNOTE_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 		assertEquals(1, resp.getHits().getTotalHits().value);
 		SearchHit hit = resp.getHits().getAt(0);
@@ -109,7 +110,7 @@ public class VNoteIndexStoreTests extends AbstractStoreTests {
 		indexStore.create(created, note);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VNoteIndexStore.VNOTE_INDEX).setTypes(VNoteIndexStore.VNOTE_TYPE)
+		SearchResponse resp = client.prepareSearch(VNOTE_READ_ALIAS).setTypes(VNoteIndexStore.VNOTE_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 		assertEquals(1, resp.getHits().getTotalHits().value);
 		SearchHit hit = resp.getHits().getAt(0);
@@ -122,7 +123,7 @@ public class VNoteIndexStoreTests extends AbstractStoreTests {
 		indexStore.update(created, note);
 		indexStore.refresh();
 
-		resp = client.prepareSearch(VNoteIndexStore.VNOTE_INDEX).setTypes(VNoteIndexStore.VNOTE_TYPE)
+		resp = client.prepareSearch(VNOTE_READ_ALIAS).setTypes(VNoteIndexStore.VNOTE_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 		assertEquals(1, resp.getHits().getTotalHits().value);
 		hit = resp.getHits().getAt(0);
@@ -146,7 +147,7 @@ public class VNoteIndexStoreTests extends AbstractStoreTests {
 		indexStore.create(created, note);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VNoteIndexStore.VNOTE_INDEX).setTypes(VNoteIndexStore.VNOTE_TYPE)
+		SearchResponse resp = client.prepareSearch(VNOTE_READ_ALIAS).setTypes(VNoteIndexStore.VNOTE_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 		assertEquals(1, resp.getHits().getTotalHits().value);
 
@@ -155,7 +156,7 @@ public class VNoteIndexStoreTests extends AbstractStoreTests {
 
 		indexStore.delete(created.id);
 		indexStore.refresh();
-		resp = client.prepareSearch(VNoteIndexStore.VNOTE_INDEX).setTypes(VNoteIndexStore.VNOTE_TYPE)
+		resp = client.prepareSearch(VNOTE_READ_ALIAS).setTypes(VNoteIndexStore.VNOTE_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 
 		assertEquals(0, resp.getHits().getTotalHits().value);
@@ -179,14 +180,14 @@ public class VNoteIndexStoreTests extends AbstractStoreTests {
 		indexStore.create(created2, note2);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VNoteIndexStore.VNOTE_INDEX).setTypes(VNoteIndexStore.VNOTE_TYPE)
+		SearchResponse resp = client.prepareSearch(VNOTE_READ_ALIAS).setTypes(VNoteIndexStore.VNOTE_TYPE)
 				.setQuery(QueryBuilders.termQuery("containerUid", container.uid)).execute().actionGet();
 		assertEquals(2, resp.getHits().getTotalHits().value);
 
 		indexStore.deleteAll();
 		indexStore.refresh();
 
-		resp = client.prepareSearch(VNoteIndexStore.VNOTE_INDEX).setTypes(VNoteIndexStore.VNOTE_TYPE)
+		resp = client.prepareSearch(VNOTE_READ_ALIAS).setTypes(VNoteIndexStore.VNOTE_TYPE)
 				.setQuery(QueryBuilders.termQuery("containerUid", container.uid)).execute().actionGet();
 		assertEquals(0, resp.getHits().getTotalHits().value);
 	}

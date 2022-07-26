@@ -141,11 +141,9 @@ public class ElasticsearchTestHelper implements BundleActivator {
 	public void beforeTest(int count) {
 		try {
 			System.setProperty("es.mailspool.count", count + "");
-
 			ESearchActivator.initClient(getClient());
 			ESearchActivator.resetAll();
 			ESearchActivator.resetIndex("mailspool_pending");
-			ESearchActivator.addAliasTo("mailspool_pending_alias", "mailspool_pending", true);
 			ESearchActivator.resetIndex("mailspool");
 			ESearchActivator.resetIndex("contact");
 			ESearchActivator.resetIndex("event");

@@ -18,6 +18,8 @@
  */
 package net.bluemind.addressbook.persistence;
 
+import static net.bluemind.addressbook.persistence.VCardIndexStore.VCARD_READ_ALIAS;
+import static net.bluemind.addressbook.persistence.VCardIndexStore.VCARD_WRITE_ALIAS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -76,11 +78,6 @@ public class VCardIndexStoreTests {
 		itemStore = new ItemStore(JdbcTestHelper.getInstance().getDataSource(), container, securityContext);
 
 		client = ElasticsearchTestHelper.getInstance().getClient();
-		try {
-			client.admin().indices().prepareCreate("contact").execute().actionGet();
-		} catch (Exception e) {
-		}
-
 		indexStore = new VCardIndexStore(client, container, null);
 
 	}
@@ -104,8 +101,8 @@ public class VCardIndexStoreTests {
 
 		indexStore.create(item, card);
 
-		client.admin().indices().prepareRefresh("contact").execute().actionGet();
-		SearchResponse resp = client.prepareSearch("contact").setTypes(VCardIndexStore.VCARD_TYPE)
+		client.admin().indices().prepareRefresh(VCARD_WRITE_ALIAS).execute().actionGet();
+		SearchResponse resp = client.prepareSearch(VCARD_READ_ALIAS).setTypes(VCardIndexStore.VCARD_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 
 		assertEquals(1, resp.getHits().getTotalHits().value);
@@ -128,7 +125,7 @@ public class VCardIndexStoreTests {
 		indexStore.delete(item.uid);
 
 		indexStore.refresh();
-		SearchResponse resp = client.prepareSearch("contact").setTypes(VCardIndexStore.VCARD_TYPE)
+		SearchResponse resp = client.prepareSearch(VCARD_READ_ALIAS).setTypes(VCardIndexStore.VCARD_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 
 		assertEquals(0, resp.getHits().getTotalHits().value);
@@ -151,7 +148,7 @@ public class VCardIndexStoreTests {
 		indexStore.deleteAll();
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch("contact").setTypes(VCardIndexStore.VCARD_TYPE)
+		SearchResponse resp = client.prepareSearch(VCARD_READ_ALIAS).setTypes(VCardIndexStore.VCARD_TYPE)
 				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 
 		assertEquals(0, resp.getHits().getTotalHits().value);
@@ -399,7 +396,6 @@ public class VCardIndexStoreTests {
 	}
 
 	private void refreshIndexes() {
-		ElasticsearchTestHelper.getInstance().getClient().admin().indices().prepareRefresh("contact").execute()
-				.actionGet();
+		ElasticsearchTestHelper.getInstance().getClient().admin().indices().prepareRefresh(VCARD_WRITE_ALIAS).get();
 	}
 }

@@ -59,7 +59,8 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 	private CliContext ctx;
 	public static final String tar = "/var/spool/bm-replication/bodies.replicated.tgz";
 	private static final String PENDING_TYPE = "eml";
-	public static final String INDEX_PENDING_ALIAS = "mailspool_pending_alias";
+	private static final String INDEX_PENDING_READ_ALIAS = "mailspool_pending_read_alias";
+	private static final String INDEX_PENDING_WRITE_ALIAS = "mailspool_pending_write_alias";
 
 	@Option(required = false, names = "--progress", description = "Value indicating the total mails waiting to be indexed")
 	public Long progress;
@@ -133,7 +134,7 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 	private Set<String> getIndexedUids() {
 		Set<String> uids = new HashSet<>();
 		Client client = ESearchActivator.getClient();
-		SearchResponse r = client.prepareSearch(INDEX_PENDING_ALIAS).setQuery(new MatchAllQueryBuilder())
+		SearchResponse r = client.prepareSearch(INDEX_PENDING_READ_ALIAS).setQuery(new MatchAllQueryBuilder())
 				.setFetchSource(false).setScroll(TimeValue.timeValueSeconds(180)).setTypes(PENDING_TYPE).setSize(10000)
 				.execute().actionGet();
 
@@ -158,7 +159,7 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 		Client client = ESearchActivator.getClient();
 		EsBulk bulkOp = startBulk();
 		for (IndexedMessageBody body : bodies) {
-			IndexRequestBuilder request = client.prepareIndex(INDEX_PENDING_ALIAS, PENDING_TYPE).setId(body.uid)
+			IndexRequestBuilder request = client.prepareIndex(INDEX_PENDING_WRITE_ALIAS, PENDING_TYPE).setId(body.uid)
 					.setSource(body.toMap());
 			bulkOp.bulk.add(request);
 		}

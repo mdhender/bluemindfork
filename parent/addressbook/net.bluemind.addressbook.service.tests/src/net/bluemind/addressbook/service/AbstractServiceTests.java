@@ -18,6 +18,7 @@
  */
 package net.bluemind.addressbook.service;
 
+import static net.bluemind.addressbook.persistence.VCardIndexStore.VCARD_WRITE_ALIAS;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -277,8 +278,7 @@ public abstract class AbstractServiceTests {
 	}
 
 	protected void refreshIndexes() {
-		ElasticsearchTestHelper.getInstance().getClient().admin().indices().prepareRefresh("contact").execute()
-				.actionGet();
+		ElasticsearchTestHelper.getInstance().getClient().admin().indices().prepareRefresh(VCARD_WRITE_ALIAS).get();
 	}
 
 }

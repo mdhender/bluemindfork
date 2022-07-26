@@ -18,6 +18,7 @@
  */
 package net.bluemind.calendar.service.tests;
 
+import static net.bluemind.calendar.persistence.VEventIndexStore.VEVENT_WRITE_ALIAS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -87,8 +88,7 @@ public class CalendarsMgntTests extends AbstractCalendarTests {
 	}
 
 	protected void refreshIndexes() {
-		ElasticsearchTestHelper.getInstance().getClient().admin().indices()
-				.prepareRefresh(VEventIndexStore.VEVENT_INDEX).execute().actionGet();
+		ElasticsearchTestHelper.getInstance().getClient().admin().indices().prepareRefresh(VEVENT_WRITE_ALIAS).get();
 	}
 
 }

@@ -32,6 +32,7 @@ import tigase.xmpp.BareJID;
 public final class MessageIndexer {
 
 	private static final Logger logger = LoggerFactory.getLogger(MessageIndexer.class);
+	public static final String IM_WRITE_ALIAS = "im_write_alias";
 
 	private final BareJID from;
 	private final BareJID to;
@@ -55,8 +56,8 @@ public final class MessageIndexer {
 		if (msg != null) {
 			map.put("message", msg);
 			logger.debug("Index message from {} to {}: '{}'", from.toString(), to.toString(), msg);
-			ESearchActivator.index("im", "im", UUID.randomUUID().toString(), map);
-			ESearchActivator.refreshIndex("im");
+			ESearchActivator.index(IM_WRITE_ALIAS, "im", UUID.randomUUID().toString(), map);
+			ESearchActivator.refreshIndex(IM_WRITE_ALIAS);
 		}
 	}
 }
