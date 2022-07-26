@@ -52,11 +52,11 @@ export default {
             if (!this.MAILBOXES_ARE_LOADED) {
                 await this.FETCH_MAILBOXES();
             }
-            await Promise.all(
-                this.MAILBOXES.filter(({ loading }) => loading === LoadingStatus.NOT_LOADED).map(mailbox =>
-                    this.FETCH_FOLDERS({ mailbox, expandedFolders: this.expandedFolders })
-                )
-            );
+            for (let mailbox of this.MAILBOXES) {
+                if (mailbox.loading === LoadingStatus.NOT_LOADED) {
+                    await this.FETCH_FOLDERS({ mailbox, expandedFolders: this.expandedFolders });
+                }
+            }
         }
     },
 
@@ -67,11 +67,11 @@ export default {
                 await this.$_BootstrapMixin_loadMailbox();
             }
             await this.FETCH_FOLDERS({ mailbox: this.MY_MAILBOX, expandedFolders: this.expandedFolders });
-            await this.$_BootstrapMixin_loadAllMailboxes();
+            await this.LOAD_MAX_MESSAGE_SIZE(inject("UserSession").userId);
             if (this.MY_INBOX?.unread === undefined) {
                 await this.UNREAD_FOLDER_COUNT(this.MY_INBOX);
             }
-            this.LOAD_MAX_MESSAGE_SIZE(inject("UserSession").userId);
+            await this.$_BootstrapMixin_loadAllMailboxes();
         } catch (error) {
             // eslint-disable-next-line no-console
             console.error("Error while bootstraping application... ", error);
