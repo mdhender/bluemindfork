@@ -17,6 +17,7 @@ export default async function (context, { draftKey, myMailboxKey, outbox, myDraf
     await context.dispatch(SAVE_MESSAGE, { draft, messageCompose });
 
     context.commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENDING }]);
+
     validateDraft(draft, inject("i18n"));
     const messageInOutboxId = await moveToOutbox(
         draft.remoteRef.internalId,
@@ -24,13 +25,12 @@ export default async function (context, { draftKey, myMailboxKey, outbox, myDraf
         outbox.remoteRef.internalId,
         myDraftsFolder.remoteRef.internalId
     );
+    context.commit(REMOVE_MESSAGES, { messages: [draft] });
     const taskResult = await flush(); // flush means send mail + move to sentbox
-    context.commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENT }]);
 
     manageFlagOnPreviousMessage(context, draft);
     removeAttachmentAndInlineTmpParts(draft, messageCompose);
 
-    context.commit(REMOVE_MESSAGES, { messages: [draft] });
     return await getSentMessage(taskResult, messageInOutboxId, outbox);
 }
 

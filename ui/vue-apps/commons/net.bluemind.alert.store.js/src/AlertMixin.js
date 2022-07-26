@@ -27,7 +27,7 @@ export default {
 
 function lastErrorReason(error) {
     if (error) {
-        const lastSemiColonIndex = error.lastIndexOf(":");
+        const lastSemiColonIndex = error.toString().lastIndexOf(":");
         return error.substring(lastSemiColonIndex >= 0 ? lastSemiColonIndex + 1 : 0);
     }
 }
