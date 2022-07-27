@@ -144,12 +144,7 @@ function matchingIcon(mimeType) {
         mimeType.startsWith(MESSAGE)
     ) {
         return "file-type-data";
-    } else if (
-        equals(mimeType, MS_EXCEL) ||
-        equals(mimeType, MS_EXCEL_XML) ||
-        equals(mimeType, OPEN_DOCUMENT_CALC) ||
-        equals(mimeType, TEXT_CALENDAR)
-    ) {
+    } else if (equals(mimeType, MS_EXCEL) || equals(mimeType, MS_EXCEL_XML) || equals(mimeType, OPEN_DOCUMENT_CALC)) {
         return "file-type-excel";
     } else if (
         equals(mimeType, MS_POWERPOINT) ||
@@ -172,7 +167,7 @@ function matchingIcon(mimeType) {
         equals(mimeType, TEXT_HTML)
     ) {
         return "file-type-code";
-    } else if (equals(mimeType, ICS)) {
+    } else if (equals(mimeType, ICS) || equals(mimeType, TEXT_CALENDAR)) {
         return "file-type-ics";
     } else if (equals(mimeType, VCARD)) {
         return "file-type-vcard";
