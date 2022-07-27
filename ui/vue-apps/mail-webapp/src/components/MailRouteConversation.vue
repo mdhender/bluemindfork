@@ -37,8 +37,13 @@ export default {
                     this.RESET_PARTS_DATA();
                     this.RESET_ACTIVE_MESSAGE();
                     this.UNSET_CURRENT_CONVERSATION();
+
                     let assert = mailbox => mailbox && mailbox.loading === LoadingStatus.LOADED;
                     await this.$waitFor(MY_MAILBOX, assert);
+                    await this.$waitFor(
+                        () => this.$store.state["root-app"].identities,
+                        ({ length }) => length
+                    );
 
                     let { folderKey, internalId } = ConversationPathParam.parse(conversationPath, this.activeFolder);
 
