@@ -1,5 +1,6 @@
 <template>
-    <bm-avatar class="flex-shrink-0" :alt="tooltip" :icon="icon" />
+    <bm-avatar v-if="isUserMailbox" class="flex-shrink-0" :alt="mailbox.name" />
+    <bm-avatar v-else class="flex-shrink-0" icon="folder-shared" :alt="$t('common.mailshares')" />
 </template>
 
 <script>
@@ -9,35 +10,23 @@ const { MailboxType } = mailboxUtils;
 
 export default {
     name: "MailMailboxIcon",
-    components: { BmAvatar },
+    components: {
+        BmAvatar
+    },
     props: {
         mailbox: {
             type: Object,
             required: true
+        },
+        noText: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
     computed: {
-        tooltip() {
-            switch (this.mailbox.type) {
-                case MailboxType.USER:
-                    return this.mailbox.name;
-                case MailboxType.MAILSHARE:
-                    return this.$t("common.mailshares");
-                case MailboxType.GROUP:
-                    return this.$t("mail.folders.groups");
-                default:
-                    return "";
-            }
-        },
-        icon() {
-            switch (this.mailbox.type) {
-                case MailboxType.MAILSHARE:
-                    return "folder-shared";
-                case MailboxType.GROUP:
-                    return "group";
-                default:
-                    return undefined;
-            }
+        isUserMailbox() {
+            return this.mailbox.type === MailboxType.USER;
         }
     }
 };

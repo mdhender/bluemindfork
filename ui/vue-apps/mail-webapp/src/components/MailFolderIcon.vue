@@ -1,11 +1,17 @@
 <template>
-    <bm-icon v-if="noText" class="mail-folder-icon" fixed-width :icon="icon" :aria-label="ariaLabel" />
+    <bm-icon
+        v-if="noText"
+        class="mail-folder-icon"
+        fixed-width
+        :icon="icon"
+        :aria-label="shared && $t('common.mailshares')"
+    />
     <bm-label-icon
         v-else
         class="mail-folder-icon"
         :icon="icon"
-        :aria-label="ariaLabel"
-        :tooltip="tooltip"
+        :aria-label="shared && $t('common.mailshares')"
+        :tooltip="folder.path"
         v-bind="$attrs"
         >{{ folder.name }}</bm-label-icon
     >
@@ -14,9 +20,6 @@
 <script>
 import { BmLabelIcon, BmIcon } from "@bluemind/styleguide";
 import { DEFAULT_FOLDER_NAMES } from "~/store/folders/helpers/DefaultFolders";
-import { mailboxUtils } from "@bluemind/mail";
-
-const { MailboxType } = mailboxUtils;
 
 export default {
     name: "MailFolderIcon",
@@ -63,28 +66,6 @@ export default {
                 default:
                     return "folder" + modifier;
             }
-        },
-        mailbox() {
-            return this.$store.state.mail.mailboxes[this.folder.mailboxRef.key];
-        },
-        ariaLabel() {
-            switch (this.mailbox.type) {
-                case MailboxType.MAILSHARE:
-                    return this.$t("common.mailshares");
-                case MailboxType.GROUP:
-                    return this.$t("mail.folders.groups");
-                default:
-                    return this.folder.name;
-            }
-        },
-        tooltip() {
-            if (!this.folder.parent) {
-                if ([MailboxType.MAILSHARE, MailboxType.GROUP].includes(this.mailbox.type) && this.mailbox.address) {
-                    return this.mailbox.address;
-                }
-                return this.folder.name;
-            }
-            return this.folder.path;
         }
     }
 };

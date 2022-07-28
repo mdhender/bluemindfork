@@ -72,14 +72,10 @@ function path(mailbox, name, parent) {
     }
 }
 export function isDefault(isRoot, name, mailbox) {
-    switch (mailbox.type) {
-        case MailboxType.USER:
-            return isRoot && !!DEFAULT_FOLDERS[name.toUpperCase()];
-        case MailboxType.MAILSHARE:
-        case MailboxType.GROUP:
-            return !!DEFAULT_FOLDERS[name.toUpperCase()];
-        default:
-            return undefined;
+    if (mailbox.type === MailboxType.USER) {
+        return isRoot && !!DEFAULT_FOLDERS[name.toUpperCase()];
+    } else if (mailbox.type === MailboxType.MAILSHARE) {
+        return isRoot || !!DEFAULT_FOLDERS[name.toUpperCase()];
     }
 }
 

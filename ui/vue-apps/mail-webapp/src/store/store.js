@@ -23,8 +23,6 @@ import {
     FOLDER_LIST_LIMIT_FOR_MAILSHARE,
     FOLDER_LIST_LIMIT_FOR_USER,
     FOLDERS,
-    GROUP_MAILBOXES_KEYS,
-    GROUP_MAILBOXES_ROOT_FOLDERS,
     IS_ACTIVE_MESSAGE,
     IS_CURRENT_CONVERSATION,
     MAILBOX_FOLDERS,
@@ -126,8 +124,6 @@ export const getters = {
         }
         return true;
     },
-    [GROUP_MAILBOXES_ROOT_FOLDERS]: (state, getters) =>
-        getters[GROUP_MAILBOXES_KEYS].flatMap(key => getters[MAILBOX_ROOT_FOLDERS]({ key })),
     [MAILBOX_FOLDERS]: (state, getters) => {
         const foldersByMailbox = getters[FOLDERS].reduce(
             (cache, folder) => cache.get(folder.mailboxRef.key).push(folder) && cache,

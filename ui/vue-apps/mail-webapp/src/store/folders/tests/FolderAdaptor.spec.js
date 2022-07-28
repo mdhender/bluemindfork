@@ -117,19 +117,16 @@ describe("Folder adaptors", () => {
             expect(isDefault(true, "Outbox", { type: MailboxType.USER })).toBeTruthy();
         });
         test("Any other root folder in user mailbox is not a folder", () => {
-            expect(isDefault(true, "Any", { type: MailboxType.USER })).toBeFalsy();
-            expect(isDefault(true, "inboxe", { type: MailboxType.USER })).toBeFalsy();
+            expect(isDefault(true, "Any", { type: MailboxType.USER })).not.toBeTruthy();
+            expect(isDefault(true, "inboxe", { type: MailboxType.USER })).not.toBeTruthy();
         });
-        test("Detect default folders in mailshares", () => {
+        test("All root folder are default folder in mailshare mailbox", () => {
+            expect(isDefault(true, "Any", { type: MailboxType.MAILSHARE })).toBeTruthy();
             expect(isDefault(true, "INBOX", { type: MailboxType.MAILSHARE })).toBeTruthy();
-            expect(isDefault(false, "Sent", { type: MailboxType.MAILSHARE })).toBeTruthy();
-        });
-        test("Detect default folders in groups", () => {
-            expect(isDefault(true, "INBOX", { type: MailboxType.GROUP })).toBeTruthy();
-            expect(isDefault(false, "Sent", { type: MailboxType.GROUP })).toBeTruthy();
         });
         test("A sub folder cannot be a default folder ", () => {
-            expect(isDefault(false, "INBOX", { type: MailboxType.USER })).toBeFalsy();
+            expect(isDefault(false, "INBOX", { type: MailboxType.USER })).not.toBeTruthy();
+            expect(isDefault(false, "Root", { type: MailboxType.MAILSHARE })).not.toBeTruthy();
         });
     });
 });

@@ -1,7 +1,6 @@
 import { LoadingStatus } from "./loading-status";
 
 export const MailboxType = {
-    GROUP: "groups",
     MAILSHARE: "mailshares",
     USER: "users"
 };
@@ -9,17 +8,16 @@ export const MailboxType = {
 export function create({ owner, dn, address, type }) {
     switch (type) {
         case MailboxType.USER:
-            return createUserMailbox({ owner, dn, address, type });
-        case MailboxType.GROUP:
+            return createUserMailbox({ owner, dn, address });
         case MailboxType.MAILSHARE:
-            return createSharedMailbox({ owner, dn, address, type });
+            return createSharedMailbox({ owner, dn, address });
     }
 }
 
-function createUserMailbox({ owner, dn, address, type }) {
+function createUserMailbox({ owner, dn, address }) {
     return {
         ...createBaseMailbox({ owner, name: address, dn, address }),
-        type,
+        type: MailboxType.USER,
         remoteRef: {
             uid: "user." + owner
         },
@@ -28,10 +26,10 @@ function createUserMailbox({ owner, dn, address, type }) {
     };
 }
 
-function createSharedMailbox({ owner, dn, address, type }) {
+function createSharedMailbox({ owner, dn, address }) {
     return {
         ...createBaseMailbox({ owner, name: dn, dn, address }),
-        type,
+        type: MailboxType.MAILSHARE,
         remoteRef: {
             uid: owner
         },

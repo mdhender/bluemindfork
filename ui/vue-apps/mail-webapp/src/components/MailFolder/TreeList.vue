@@ -2,19 +2,17 @@
     <div>
         <user-folders v-for="mailbox in USER_MAILBOXES" :key="mailbox.key" :mailbox="mailbox" />
         <mailshare-folders />
-        <group-folders />
     </div>
 </template>
 <script>
 import { mapGetters } from "vuex";
 import { USER_MAILBOXES } from "~/getters";
-import GroupFolders from "./GroupFolders";
-import MailshareFolders from "./MailshareFolders";
-import UserFolders from "./UserFolders";
+import MailshareFolders from "./MailshareFolders.vue";
+import UserFolders from "./UserFolders.vue";
 
 export default {
-    name: "TreeList",
-    components: { GroupFolders, MailshareFolders, UserFolders },
+    name: "FilteredList",
+    components: { MailshareFolders, UserFolders },
     computed: {
         ...mapGetters("mail", { USER_MAILBOXES })
     }

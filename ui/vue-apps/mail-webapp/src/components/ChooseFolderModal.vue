@@ -43,7 +43,7 @@
                                     :folder="item"
                                 />
                                 <span class="pl-2 flex-fill"> {{ translatePath(item) }}</span>
-                                <mail-mailbox-icon :mailbox="allMailboxes[item.mailboxRef.key]" />
+                                <mail-mailbox-icon no-text :mailbox="allMailboxes[item.mailboxRef.key]" />
                             </div>
                         </template>
                         <template v-if="!folderNameExists && !selectedExcluded" #extra="{close, focus, goUp, goDown}">
@@ -52,7 +52,7 @@
                                 <span class="pl-2 flex-fill">
                                     {{ $t("mail.folder.new.from_pattern", [pattern]) }}
                                 </span>
-                                <mail-mailbox-icon :mailbox="mailboxes[0]" />
+                                <mail-mailbox-icon no-text :mailbox="mailboxes[0]" />
                             </div>
                             <div v-else class="d-flex align-items-center">
                                 <mail-folder-input
@@ -77,7 +77,7 @@
                                         goDown();
                                     "
                                 />
-                                <mail-mailbox-icon :mailbox="mailboxes[0]" />
+                                <mail-mailbox-icon no-text :mailbox="mailboxes[0]" />
                             </div>
                         </template>
                     </bm-form-autocomplete-input>
