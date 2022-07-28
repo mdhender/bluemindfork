@@ -70,3 +70,13 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/mixins";
+
+.mail-folder-icon {
+    &.bm-label-icon > div {
+        @include text-overflow;
+    }
+}
+</style>

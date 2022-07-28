@@ -2,41 +2,44 @@
     <mail-conversation-viewer-item class="mail-conversation-viewer-message" v-bind="$props" v-on="$listeners">
         <bm-extension id="webapp.mail" path="viewer.header" :message="message" />
         <template slot="head">
-            <div class="col pl-3 align-self-center">
-                <bm-contact :contact="message.from" no-avatar transparent show-address bold-dn />
-                <mail-folder-icon
-                    v-if="folder.key !== conversation.folderRef.key"
-                    :shared="shared"
-                    :folder="folder"
-                    class="text-neutral font-italic pl-2"
-                />
-            </div>
-            <div class="d-lg-none d-flex align-items-center">
-                <mail-conversation-viewer-flags
-                    class="z-index-250"
+            <div class="d-flex flex-fill justify-content-between align-items-start">
+                <div class="pl-3 align-self-center overflow-hidden">
+                    <bm-contact class="w-100" :contact="message.from" no-avatar transparent show-address bold-dn />
+                    <mail-folder-icon
+                        v-if="folder.key !== conversation.folderRef.key"
+                        :shared="shared"
+                        :folder="folder"
+                        class="text-neutral font-italic pl-2 w-100"
+                    />
+                </div>
+                <div class="d-lg-none d-flex align-items-center">
+                    <mail-conversation-viewer-flags
+                        class="z-index-250"
+                        :class="{ 'pr-3': !isMessageExpanded }"
+                        :message="message"
+                    />
+                    {{ $d(message.date, "full_date_time_short") }}
+                    <mail-viewer-toolbar-for-mobile
+                        v-if="isMessageExpanded"
+                        :message="message"
+                        :conversation="conversation"
+                        @shown="$emit('darken', true)"
+                        @hidden="$emit('darken', false)"
+                    />
+                </div>
+                <div
+                    class="d-none d-lg-flex justify-content-end align-items-center text-neutral text-nowrap h-100"
                     :class="{ 'pr-3': !isMessageExpanded }"
-                    :message="message"
-                />
-                {{ $d(message.date, "full_date_time_short") }}
-                <mail-viewer-toolbar-for-mobile
-                    v-if="isMessageExpanded"
-                    :message="message"
-                    :conversation="conversation"
-                    @shown="$emit('darken', true)"
-                    @hidden="$emit('darken', false)"
-                />
-            </div>
-            <div
-                class="col d-none d-lg-flex justify-content-end align-items-center text-neutral"
-                :class="{ 'pr-3': !isMessageExpanded }"
-            >
-                <mail-conversation-viewer-flags class="pr-2" :message="message" />
-                {{ $d(message.date, "full_date_time_short") }}
-                <mail-viewer-toolbar
-                    v-if="isMessageExpanded && conversation"
-                    :message="message"
-                    :conversation="conversation"
-                />
+                >
+                    <mail-conversation-viewer-flags class="pr-2" :message="message" />
+                    <div class="align-items-end">{{ $d(message.date, "full_date_time_short") }}</div>
+                    <mail-viewer-toolbar
+                        v-if="isMessageExpanded && conversation"
+                        class="flex-nowrap align-items-start"
+                        :message="message"
+                        :conversation="conversation"
+                    />
+                </div>
             </div>
         </template>
         <template slot="content">
