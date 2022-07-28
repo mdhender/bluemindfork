@@ -35,7 +35,7 @@
                 </template>
                 <div class="d-flex align-items-center">
                     <span class="flex-fill"> {{ translatePath(item.path) }}</span>
-                    <mail-mailbox-icon no-text :mailbox="mailboxes[item.mailboxRef.key]" />
+                    <mail-mailbox-icon :mailbox="mailboxes[item.mailboxRef.key]" />
                 </div>
             </bm-dropdown-item-button>
         </bm-dropdown-autocomplete>
@@ -63,7 +63,7 @@
                     @keydown.right.native.stop
                     @keydown.esc.native.stop
                 />
-                <mail-mailbox-icon no-text :mailbox="MY_MAILBOX" />
+                <mail-mailbox-icon :mailbox="MY_MAILBOX" />
             </div>
         </bm-dropdown-form>
         <bm-dropdown-item-button
@@ -75,7 +75,7 @@
         >
             <div class="d-flex align-items-center">
                 <span class="flex-fill"> {{ $t("mail.folder.new.from_pattern", [pattern]) }}</span>
-                <mail-mailbox-icon no-text :mailbox="MY_MAILBOX" />
+                <mail-mailbox-icon :mailbox="MY_MAILBOX" />
             </div>
         </bm-dropdown-item-button>
     </bm-dropdown>

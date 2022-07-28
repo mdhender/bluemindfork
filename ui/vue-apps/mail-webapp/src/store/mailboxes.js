@@ -4,6 +4,8 @@ import { inject } from "@bluemind/inject";
 import { mailboxUtils, loadingStatusUtils } from "@bluemind/mail";
 import { MailboxAdaptor } from "./helpers/MailboxAdaptor";
 import {
+    GROUP_MAILBOXES,
+    GROUP_MAILBOXES_KEYS,
     MAILBOX_BY_NAME,
     MAILBOXES_ARE_LOADED,
     MAILSHARES,
@@ -25,6 +27,11 @@ export default {
         keys: []
     },
     getters: {
+        [GROUP_MAILBOXES]: (state, getters) =>
+            getters[MAILBOXES].filter(({ type }) => type === MailboxType.GROUP).sort((a, b) =>
+                a.dn.localeCompare(b.dn)
+            ),
+        [GROUP_MAILBOXES_KEYS]: (state, getters) => getters[GROUP_MAILBOXES].map(({ key }) => key),
         [MY_MAILBOX_KEY]: (state, getters) => getters[MY_MAILBOX].key,
         [MY_MAILBOX]: (state, getters) =>
             getters[MAILBOXES].find(mailbox => mailbox.owner === inject("UserSession").userId),
