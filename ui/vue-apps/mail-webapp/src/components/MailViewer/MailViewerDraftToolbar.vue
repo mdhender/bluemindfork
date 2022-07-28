@@ -16,7 +16,7 @@
         <bm-button
             variant="simple-secondary"
             :title="$t('mail.actions.remove')"
-            @click="REMOVE_DRAFT(conversation, message)"
+            @click.stop="REMOVE_DRAFT(conversation, message)"
         >
             <bm-icon icon="trash" size="lg" />
             <span class="d-lg-none">{{ $t("mail.actions.remove") }}</span>
