@@ -18,8 +18,10 @@
 package net.bluemind.backend.cyrus.replication.server.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -56,6 +58,7 @@ public class ReplicatedBoxesTests {
 	public void testDeletedMbox() {
 		String box = "bm.lan!DELETED.user.david.yeahyeah.5C614D43";
 		ReplicatedBox rBox = ReplicatedBoxes.forCyrusMailbox(box);
+		assertFalse(rBox.mailboxRoot);
 		assertEquals("david", rBox.local);
 		assertEquals("bm_lan", rBox.partition);
 		assertEquals("yeahyeah/5C614D43", rBox.folderName);
@@ -65,8 +68,9 @@ public class ReplicatedBoxesTests {
 	public void testDeletedRootMbox() {
 		String box = "d7acb642.internal!DELETED.user.rozenberga";
 		ReplicatedBox rBox = ReplicatedBoxes.forCyrusMailbox(box);
+		assertTrue(rBox.mailboxRoot);
 		assertEquals("rozenberga", rBox.local);
-		assertEquals("d7acb642.internal", rBox.partition);
+		assertEquals("d7acb642_internal", rBox.partition);
 		assertEquals("INBOX", rBox.folderName);
 	}
 
@@ -74,9 +78,30 @@ public class ReplicatedBoxesTests {
 	public void testSharedDeletedMbox() {
 		String box = "bm.lan!DELETED.mailshare.yeahyeah.5C614D43";
 		ReplicatedBox rBox = ReplicatedBoxes.forCyrusMailbox(box);
+		assertFalse(rBox.mailboxRoot);
 		assertEquals("mailshare", rBox.local);
 		assertEquals("bm_lan", rBox.partition);
 		assertEquals("yeahyeah/5C614D43", rBox.folderName);
+	}
+
+	@Test
+	public void testRootMbox() {
+		String box = "d7acb642.internal!user.david^phan";
+		ReplicatedBox rBox = ReplicatedBoxes.forCyrusMailbox(box);
+		assertTrue(rBox.mailboxRoot);
+		assertEquals("david^phan", rBox.local);
+		assertEquals("d7acb642_internal", rBox.partition);
+		assertEquals("INBOX", rBox.folderName);
+	}
+
+	@Test
+	public void testSharedRootMbox() {
+		String box = "d7acb642.internal!shared^box";
+		ReplicatedBox rBox = ReplicatedBoxes.forCyrusMailbox(box);
+		assertTrue(rBox.mailboxRoot);
+		assertEquals("shared^box", rBox.local);
+		assertEquals("d7acb642_internal", rBox.partition);
+		assertEquals("shared.box", rBox.folderName);
 	}
 
 }

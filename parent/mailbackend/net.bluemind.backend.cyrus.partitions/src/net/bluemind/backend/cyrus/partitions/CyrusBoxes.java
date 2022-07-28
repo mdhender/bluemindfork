@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Strings;
 
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
@@ -35,7 +36,7 @@ public class CyrusBoxes {
 
 	private static final Pattern userMboxRootRe = Pattern.compile("(.*)!user\\.([^\\.]*)$");
 	private static final Pattern userMboxRe = Pattern.compile("(.*)!user\\.([^\\.]*)\\.(.*)$");
-	private static final Pattern deletedMbox = Pattern.compile("(.*)!DELETED.user\\.([^\\.]*)\\.(.*)$");
+	private static final Pattern deletedMbox = Pattern.compile("(.*)!DELETED.user\\.([^\\.]*)(.*)$");
 	private static final Pattern deletedSharedMbox = Pattern.compile("(.*)!DELETED\\.([^\\.]*)\\.(.*)$");
 	private static final Pattern sharedMbox = Pattern.compile("(.*)!(.*)$");
 
@@ -120,7 +121,14 @@ public class CyrusBoxes {
 			ReplicatedBox rb = new ReplicatedBox();
 			rb.local = login;
 			rb.partition = domain.replace('.', '_');
-			rb.folderName = deletedMailboxMatch.group(3).replace('.', '/').replace('^', '.');
+
+			String afterPart = deletedMailboxMatch.group(3);
+			if (!Strings.isNullOrEmpty(afterPart)) {
+				rb.folderName = afterPart.substring(1).replace('.', '/').replace('^', '.');
+			} else {
+				rb.folderName = "INBOX";
+				rb.mailboxRoot = true;
+			}
 			rb.ns = Namespace.deleted;
 			return rb;
 		} else if (deletedSharedMailboxMatch.find()) {
