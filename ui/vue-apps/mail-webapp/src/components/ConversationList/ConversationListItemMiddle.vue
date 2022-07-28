@@ -10,11 +10,7 @@
                 {{ fromOrTo }}
             </div>
             <div v-if="CONVERSATION_LIST_IS_SEARCH_MODE" class="d-flex slide">
-                <mail-folder-icon
-                    class="text-neutral text-truncate"
-                    :shared="isFolderOfMailshare(folder)"
-                    :folder="folder"
-                >
+                <mail-folder-icon :mailbox="mailboxes[folder.mailboxRef.key]" :folder="folder">
                     <i class="font-weight-bold">{{ folder.name }}</i>
                 </mail-folder-icon>
             </div>
@@ -54,7 +50,7 @@ import { BmExtension } from "@bluemind/extensions.vue";
 import { BmIcon } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
 import { Flag } from "@bluemind/email";
-import { mailboxUtils, folderUtils } from "@bluemind/mail";
+import { folderUtils } from "@bluemind/mail";
 import MailFolderIcon from "../MailFolderIcon";
 import {
     CONVERSATIONS_ACTIVATED,
@@ -65,7 +61,6 @@ import {
 } from "~/getters";
 
 const { isDraftFolder } = folderUtils;
-const { MailboxType } = mailboxUtils;
 
 const FLAG_COMPONENT = {
     [Flag.FLAGGED]: {
@@ -185,11 +180,6 @@ export default {
                 isDraftFolder(this.folders[firstMessage.folderRef.key].path) ||
                 (this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`] && this.isConversationWithDraft)
             );
-        }
-    },
-    methods: {
-        isFolderOfMailshare(folder) {
-            return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         }
     }
 };

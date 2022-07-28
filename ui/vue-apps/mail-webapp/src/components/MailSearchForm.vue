@@ -101,7 +101,7 @@ import debounce from "lodash.debounce";
 import GlobalEvents from "vue-global-events";
 import { SearchHelper } from "./SearchHelper";
 import { MY_SENT, MY_MAILBOX, MY_INBOX, MY_TRASH, FOLDERS } from "~/getters";
-const { isMailshareRoot, translatePath } = folderUtils;
+const { isSharedRoot, translatePath } = folderUtils;
 import { ConversationListStatus } from "~/store/conversationList";
 import { SET_CONVERSATION_LIST_STATUS } from "~/mutations";
 import { MailRoutesMixin } from "~/mixins";
@@ -185,7 +185,7 @@ export default {
         },
         searchQuery() {
             let searchQuery = '"' + this.pattern + '"';
-            if (this.selectedFolder.key && !this.isMailshareRootFolder(this.selectedFolder)) {
+            if (this.selectedFolder.key && !this.isSharedRootFolder(this.selectedFolder)) {
                 searchQuery += " AND in:" + this.selectedFolder.key;
             }
             return searchQuery;
@@ -265,8 +265,8 @@ export default {
                 this.setSelectedFolder(this.initialFolder);
             }
         },
-        isMailshareRootFolder(folder) {
-            return isMailshareRoot(folder, this.mailboxes[folder.mailboxRef.key]);
+        isSharedRootFolder(folder) {
+            return isSharedRoot(folder, this.mailboxes[folder.mailboxRef.key]);
         },
         translatePath(path) {
             return translatePath(path);

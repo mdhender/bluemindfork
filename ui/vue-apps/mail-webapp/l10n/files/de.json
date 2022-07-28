@@ -273,6 +273,7 @@
     "mail.folder.search.tooltip": "Aktiver Filter. Entfernen Sie ihn, um alle Ordner anzuzeigen",
     "mail.folder.unread": "Ungelesen Nachrichten: {count}",
     "mail.folder": "Ordner",
+    "mail.folders.groups": "Gruppenordner",
     "mail.ics.accepted.tentatively": "Einladung unter Vorbehalt annenhmen",
     "mail.ics.accepted": "Einladung angenommen",
     "mail.ics.declined": "Einladung ablehnen",

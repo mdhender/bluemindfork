@@ -2,6 +2,7 @@ import Vue from "vue";
 import {
     FOLDER_LIST_IS_FILTERED,
     FOLDER_LIST_IS_LOADING,
+    FOLDER_LIST_LIMIT_FOR_GROUP_MAILBOX,
     FOLDER_LIST_LIMIT_FOR_MAILSHARE,
     FOLDER_LIST_LIMIT_FOR_USER
 } from "~/getters";
@@ -14,9 +15,10 @@ import {
     SET_FOLDER_FILTER_LOADING,
     TOGGLE_EDIT_FOLDER
 } from "~/mutations";
-import { RESET_FILTER, SHOW_MORE_FOR_MAILSHARES, SHOW_MORE_FOR_USERS } from "~/actions";
+import { RESET_FILTER, SHOW_MORE_FOR_GROUP_MAILBOXES, SHOW_MORE_FOR_MAILSHARES, SHOW_MORE_FOR_USERS } from "~/actions";
 
 const MAILSHARES = "mailshares";
+const GROUP_MAILBOXES = "groups";
 export const DEFAULT_LIMIT = 10;
 
 const FolderListStatus = {
@@ -66,6 +68,7 @@ export default {
         [FOLDER_LIST_IS_LOADING]: state => {
             return state.status === FolderListStatus.LOADING;
         },
+        [FOLDER_LIST_LIMIT_FOR_GROUP_MAILBOX]: state => state.limits[GROUP_MAILBOXES] || DEFAULT_LIMIT,
         [FOLDER_LIST_LIMIT_FOR_MAILSHARE]: state => state.limits[MAILSHARES] || DEFAULT_LIMIT,
         [FOLDER_LIST_LIMIT_FOR_USER]: state => ({ key }) => state.limits[key] || DEFAULT_LIMIT
     },
@@ -73,6 +76,10 @@ export default {
         [SHOW_MORE_FOR_USERS]: ({ state, commit }, mailbox) => {
             const currentLimit = state.limits[mailbox.key] || DEFAULT_LIMIT;
             commit(SET_FOLDER_FILTER_LIMIT, { mailbox, limit: currentLimit + DEFAULT_LIMIT });
+        },
+        [SHOW_MORE_FOR_GROUP_MAILBOXES]: ({ state, commit }) => {
+            const currentLimit = state.limits[GROUP_MAILBOXES] || DEFAULT_LIMIT;
+            commit(SET_FOLDER_FILTER_LIMIT, { mailbox: { key: GROUP_MAILBOXES }, limit: currentLimit + DEFAULT_LIMIT });
         },
         [SHOW_MORE_FOR_MAILSHARES]: ({ state, commit }) => {
             const currentLimit = state.limits[MAILSHARES] || DEFAULT_LIMIT;

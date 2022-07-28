@@ -1,7 +1,7 @@
 import cloneDeep from "lodash.clonedeep";
 import Vue from "vue";
 import Vuex from "vuex";
-import { RESET_FILTER, SHOW_MORE_FOR_MAILSHARES, SHOW_MORE_FOR_USERS } from "~/actions";
+import { RESET_FILTER, SHOW_MORE_FOR_GROUP_MAILBOXES, SHOW_MORE_FOR_MAILSHARES, SHOW_MORE_FOR_USERS } from "~/actions";
 import {
     RESET_FOLDER_FILTER_LIMITS,
     SET_FOLDER_FILTER_PATTERN,
@@ -14,6 +14,7 @@ import {
 import {
     FOLDER_LIST_IS_FILTERED,
     FOLDER_LIST_IS_LOADING,
+    FOLDER_LIST_LIMIT_FOR_GROUP_MAILBOX,
     FOLDER_LIST_LIMIT_FOR_MAILSHARE,
     FOLDER_LIST_LIMIT_FOR_USER
 } from "~/getters";
@@ -122,6 +123,11 @@ describe("folderList store", () => {
             expect(activeStore.getters[FOLDER_LIST_LIMIT_FOR_MAILSHARE]).toEqual(DEFAULT_LIMIT);
             activeStore.dispatch(SHOW_MORE_FOR_MAILSHARES);
             expect(activeStore.getters[FOLDER_LIST_LIMIT_FOR_MAILSHARE]).toEqual(DEFAULT_LIMIT + DEFAULT_LIMIT);
+        });
+        test("SHOW_MORE_FOR_GROUP_MAILBOXES", () => {
+            expect(activeStore.getters[FOLDER_LIST_LIMIT_FOR_GROUP_MAILBOX]).toEqual(DEFAULT_LIMIT);
+            activeStore.dispatch(SHOW_MORE_FOR_GROUP_MAILBOXES);
+            expect(activeStore.getters[FOLDER_LIST_LIMIT_FOR_GROUP_MAILBOX]).toEqual(DEFAULT_LIMIT + DEFAULT_LIMIT);
         });
     });
 });

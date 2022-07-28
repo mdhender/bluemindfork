@@ -4,7 +4,9 @@
         <template #subject>{{ payload.conversations[0].subject.trim() || $t("mail.viewer.no.subject") }}</template>
         <template #folder>
             <router-link :to="folderRoute(payload.folder)">
-                <strong><mail-folder-icon :folder="payload.folder" :shared="shared" /></strong>
+                <strong
+                    ><mail-folder-icon :folder="payload.folder" :mailbox="mailboxes[payload.folder.mailboxRef.key]"
+                /></strong>
             </router-link>
         </template>
     </i18n>
@@ -12,11 +14,8 @@
 <script>
 import { mapState } from "vuex";
 import { AlertMixin } from "@bluemind/alert.store";
-import { mailboxUtils } from "@bluemind/mail";
 import { MailRoutesMixin } from "~/mixins";
 import MailFolderIcon from "../MailFolderIcon";
-
-const { MailboxType } = mailboxUtils;
 
 export default {
     name: "MoveConversations",
@@ -24,9 +23,6 @@ export default {
     mixins: [AlertMixin, MailRoutesMixin],
     computed: {
         ...mapState("mail", ["mailboxes"]),
-        shared() {
-            return this.mailboxes[this.payload.folder.mailboxRef.key].type === MailboxType.MAILSHARE;
-        },
         path() {
             const plurality = this.payload.conversations.length > 1 ? "plural" : "single";
             return `alert.${this.alert.name.toLowerCase()}.${this.alert.type}.${plurality}`;

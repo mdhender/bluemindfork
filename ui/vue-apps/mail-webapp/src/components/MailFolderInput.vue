@@ -46,10 +46,6 @@ export default {
             type: Object,
             default: null
         },
-        shared: {
-            type: Boolean,
-            default: false
-        },
         submitOnFocusout: {
             type: Boolean,
             default: true

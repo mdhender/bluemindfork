@@ -65,33 +65,34 @@ const DEFAULT_FOLDER_AS_ARRAY = Object.values(DEFAULT_FOLDERS);
 function path(mailbox, name, parent) {
     if (parent) {
         return [parent.path, name].filter(Boolean).join("/");
-    } else if (mailbox.type === MailboxType.MAILSHARE) {
+    } else if (MailboxType.isShared(mailbox.type)) {
         return mailbox.root;
     } else {
         return name;
     }
 }
 export function isDefault(isRoot, name, mailbox) {
-    if (mailbox.type === MailboxType.USER) {
-        return isRoot && !!DEFAULT_FOLDERS[name.toUpperCase()];
-    } else if (mailbox.type === MailboxType.MAILSHARE) {
-        return isRoot || !!DEFAULT_FOLDERS[name.toUpperCase()];
+    switch (mailbox.type) {
+        case MailboxType.USER:
+            return isRoot && !!DEFAULT_FOLDERS[name.toUpperCase()];
+        case MailboxType.MAILSHARE:
+        case MailboxType.GROUP:
+            return !isRoot && !!DEFAULT_FOLDERS[name.toUpperCase()];
     }
 }
 
-export function isMailshareRoot(folder, mailbox) {
-    return mailbox.type === MailboxType.MAILSHARE && !folder.parent;
+export function isSharedRoot(folder, mailbox) {
+    return MailboxType.isShared(mailbox.type) && !folder.parent;
 }
 
 export function allowSubfolder(writable, isRoot, name, mailbox) {
     let allowed = !isDefault(isRoot, name, mailbox);
     allowed |= DEFAULT_FOLDERS.INBOX.toUpperCase() === name.toUpperCase();
-    allowed |= mailbox.type === MailboxType.MAILSHARE && isRoot;
     return Boolean(writable && allowed);
 }
 
 export function allowConversations(path, mailbox) {
-    if (mailbox.type === MailboxType.MAILSHARE) {
+    if (MailboxType.isShared(mailbox.type)) {
         return false;
     }
 
@@ -288,7 +289,7 @@ export default {
     isDefault,
     isDescendantPath,
     isDraftFolder,
-    isMailshareRoot,
+    isSharedRoot,
     isNameValid,
     isRoot,
     match,

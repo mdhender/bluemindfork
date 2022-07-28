@@ -1,11 +1,7 @@
 <template>
     <mail-conversation-list-empty v-if="currentFolder" :image="emptyFolderIllustration" class="content-empty-folder">
         {{ $t("mail.folder") }}
-        <mail-folder-icon
-            :shared="CURRENT_MAILBOX.type == 'mailshares'"
-            :folder="currentFolder"
-            class="font-weight-bold px-1"
-        />
+        <mail-folder-icon :mailbox="CURRENT_MAILBOX" :folder="currentFolder" class="font-weight-bold px-1" />
         {{ $t("mail.empty") }}
     </mail-conversation-list-empty>
 </template>

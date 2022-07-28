@@ -31,11 +31,11 @@
                 @click="moveToFolder(item)"
             >
                 <template #icon>
-                    <mail-folder-icon no-text :shared="isSharedMailbox(item)" :folder="item" />
+                    <mail-folder-icon no-text :mailbox="mailboxes[item.mailboxRef.key]" :folder="item" />
                 </template>
                 <div class="d-flex align-items-center">
                     <span class="flex-fill"> {{ translatePath(item.path) }}</span>
-                    <mail-mailbox-icon no-text :mailbox="mailboxes[item.mailboxRef.key]" />
+                    <mail-mailbox-icon :mailbox="mailboxes[item.mailboxRef.key]" />
                 </div>
             </bm-dropdown-item-button>
         </bm-dropdown-autocomplete>
@@ -63,7 +63,7 @@
                     @keydown.right.native.stop
                     @keydown.esc.native.stop
                 />
-                <mail-mailbox-icon no-text :mailbox="MY_MAILBOX" />
+                <mail-mailbox-icon :mailbox="MY_MAILBOX" />
             </div>
         </bm-dropdown-form>
         <bm-dropdown-item-button
@@ -75,7 +75,7 @@
         >
             <div class="d-flex align-items-center">
                 <span class="flex-fill"> {{ $t("mail.folder.new.from_pattern", [pattern]) }}</span>
-                <mail-mailbox-icon no-text :mailbox="MY_MAILBOX" />
+                <mail-mailbox-icon :mailbox="MY_MAILBOX" />
             </div>
         </bm-dropdown-item-button>
     </bm-dropdown>
@@ -93,7 +93,7 @@ import {
 } from "@bluemind/styleguide";
 import { mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
-import { folderUtils, mailboxUtils } from "@bluemind/mail";
+import { folderUtils } from "@bluemind/mail";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailMailboxIcon from "../../MailMailboxIcon";
 import MailFolderInput from "../../MailFolderInput";
@@ -101,7 +101,6 @@ import { MY_MAILBOX, FOLDERS_BY_PATH, MY_TRASH, MY_INBOX } from "~/getters";
 import { ActionTextMixin, FilterFolderMixin, MoveMixin, SelectionMixin } from "~/mixins";
 
 const { getInvalidCharacter, isNameValid, translatePath } = folderUtils;
-const { MailboxType } = mailboxUtils;
 const LOOP_PERF_LIMIT = 100;
 
 export default {
@@ -148,9 +147,6 @@ export default {
         },
         resetPattern() {
             this.pattern = "";
-        },
-        isSharedMailbox(folder) {
-            return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         },
         translatePath,
         isExcluded(folder) {

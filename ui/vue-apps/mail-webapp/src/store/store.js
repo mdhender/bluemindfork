@@ -15,14 +15,19 @@ import {
     CONVERSATION_LIST_ALL_KEYS,
     CONVERSATIONS_ACTIVATED,
     CURRENT_MAILBOX,
+    FILTERED_GROUP_MAILBOX_RESULTS,
     FILTERED_MAILSHARE_RESULTS,
     FILTERED_USER_RESULTS,
     FOLDER_LIST_IS_EMPTY,
     FOLDER_LIST_IS_FILTERED,
     FOLDER_LIST_IS_LOADING,
+    FOLDER_LIST_LIMIT_FOR_GROUP_MAILBOX,
     FOLDER_LIST_LIMIT_FOR_MAILSHARE,
     FOLDER_LIST_LIMIT_FOR_USER,
     FOLDERS,
+    GROUP_MAILBOX_KEYS,
+    GROUP_MAILBOX_FOLDERS,
+    GROUP_MAILBOX_ROOT_FOLDERS,
     IS_ACTIVE_MESSAGE,
     IS_CURRENT_CONVERSATION,
     MAILBOX_FOLDERS,
@@ -111,9 +116,19 @@ export const getters = {
         }
         return [];
     },
+    [FILTERED_GROUP_MAILBOX_RESULTS]: ({ folderList }, getters) => {
+        if (getters[FOLDER_LIST_IS_FILTERED] && !getters[FOLDER_LIST_IS_LOADING]) {
+            return filterFolders(
+                getters[GROUP_MAILBOX_FOLDERS],
+                folderList.pattern,
+                getters[FOLDER_LIST_LIMIT_FOR_GROUP_MAILBOX]
+            );
+        }
+        return [];
+    },
     [FOLDER_LIST_IS_EMPTY]: (state, getters) => {
         if (getters[FOLDER_LIST_IS_FILTERED] && !getters[FOLDER_LIST_IS_LOADING]) {
-            if (getters[FILTERED_MAILSHARE_RESULTS].length > 0) {
+            if (getters[FILTERED_MAILSHARE_RESULTS].length > 0 || getters[FILTERED_GROUP_MAILBOX_RESULTS].length > 0) {
                 return false;
             }
             for (let key in getters[FILTERED_USER_RESULTS]) {
@@ -124,6 +139,10 @@ export const getters = {
         }
         return true;
     },
+    [GROUP_MAILBOX_FOLDERS]: (state, getters) =>
+        getters[GROUP_MAILBOX_KEYS].flatMap(key => getters[MAILBOX_FOLDERS]({ key })),
+    [GROUP_MAILBOX_ROOT_FOLDERS]: (state, getters) =>
+        getters[GROUP_MAILBOX_KEYS].flatMap(key => getters[MAILBOX_ROOT_FOLDERS]({ key })),
     [MAILBOX_FOLDERS]: (state, getters) => {
         const foldersByMailbox = getters[FOLDERS].reduce(
             (cache, folder) => cache.get(folder.mailboxRef.key).push(folder) && cache,

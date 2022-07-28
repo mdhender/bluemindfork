@@ -75,7 +75,7 @@
                 <h3 v-if="!CONVERSATION_LIST_IS_SEARCH_MODE" class="d-inline px-3 align-middle">
                     {{ $t("mail.message.select.all.folder") }}
                     <mail-folder-icon
-                        :shared="isFolderOfMailshare(currentFolder)"
+                        :mailbox="mailboxes[currentFolder.mailboxRef.key]"
                         :folder="currentFolder"
                         class="font-weight-bold ml-1"
                     >
@@ -128,10 +128,8 @@ import {
 } from "~/getters";
 
 import { SET_SELECTION, UNSELECT_ALL_CONVERSATIONS } from "~/mutations";
-import { mailboxUtils } from "@bluemind/mail";
 import ChooseFolderModal from "./ChooseFolderModal";
 
-const { MailboxType } = mailboxUtils;
 const { DEFAULT_FOLDERS } = folderUtils;
 
 export default {
@@ -211,9 +209,6 @@ export default {
         },
         isExcluded(folder) {
             return folder && folder.path === this.currentFolder.path;
-        },
-        isFolderOfMailshare(folder) {
-            return this.mailboxes[folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         },
         openMoveFolderModal() {
             const junk = this.$store.getters[`mail/${MAILBOX_JUNK}`](this.mailbox);

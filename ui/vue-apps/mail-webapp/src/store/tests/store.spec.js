@@ -13,9 +13,12 @@ import {
     ALL_SELECTED_CONVERSATIONS_ARE_UNREAD,
     CONVERSATION_METADATA,
     CONVERSATIONS_ACTIVATED,
+    FILTERED_GROUP_MAILBOX_RESULTS,
     FILTERED_MAILSHARE_RESULTS,
     FILTERED_USER_RESULTS,
     FOLDER_LIST_IS_EMPTY,
+    GROUP_MAILBOX_FOLDERS,
+    GROUP_MAILBOX_ROOT_FOLDERS,
     MAILBOX_FOLDERS,
     MAILBOX_ROOT_FOLDERS,
     MAILBOX_SENT,
@@ -151,6 +154,27 @@ describe("Mail store", () => {
             store.state.folderList.pattern = "C";
             expect(store.getters[FILTERED_MAILSHARE_RESULTS]).toEqual([]);
         });
+        test("FILTERED_GROUP_MAILBOX_RESULTS", () => {
+            store.state.folders = {
+                "1": { key: "1", name: "", imapName: "a", path: "a", mailboxRef: { key: "A" } },
+                "2": { key: "2", name: "", imapName: "bab", path: "a/bab", mailboxRef: { key: "A" } },
+                "3": { key: "3", name: "", imapName: "a", path: "a", mailboxRef: { key: "B" }, parent: null },
+                "4": { key: "4", name: "", imapName: "c", path: "c", mailboxRef: { key: "B" }, parent: "3" }
+            };
+            store.state.mailboxes = {
+                A: { key: "A", type: MailboxType.GROUP, owner: "B" },
+                B: { key: "B", type: MailboxType.USER, owner: "B" }
+            };
+
+            store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
+            store.state.folderList.pattern = " ";
+            store.commit(SET_FOLDER_FILTER_LOADED);
+            expect(store.getters[FILTERED_GROUP_MAILBOX_RESULTS]).toEqual([]);
+            store.state.folderList.pattern = "B";
+            expect(store.getters[FILTERED_GROUP_MAILBOX_RESULTS]).toEqual([store.state.folders["2"]]);
+            store.state.folderList.pattern = "C";
+            expect(store.getters[FILTERED_GROUP_MAILBOX_RESULTS]).toEqual([]);
+        });
         test("FILTERED_USER_RESULTS", () => {
             store.state.folders = {
                 "1": { key: "1", name: "", imapName: "a", path: "a", mailboxRef: { key: "A" } },
@@ -230,7 +254,21 @@ describe("Mail store", () => {
 
             expect(store.getters[MAILSHARE_FOLDERS]).toEqual([store.state.folders["4"], store.state.folders["1"]]);
         });
+        test("GROUP_MAILBOX_FOLDERS (sorted by group dn)", () => {
+            store.state.folders = {
+                "1": { key: "1", mailboxRef: { key: "A" } },
+                "2": { key: "2", mailboxRef: { key: "unknown" } },
+                "3": { key: "3", mailboxRef: { key: "B" } },
+                "4": { key: "4", mailboxRef: { key: "C" } }
+            };
+            store.state.mailboxes = {
+                A: { key: "A", type: MailboxType.GROUP, dn: "zzz" },
+                C: { key: "C", type: MailboxType.GROUP, dn: "aaa" }
+            };
+            store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
 
+            expect(store.getters[GROUP_MAILBOX_FOLDERS]).toEqual([store.state.folders["4"], store.state.folders["1"]]);
+        });
         test("MY_MAILBOX_FOLDERS", () => {
             store.state.folders = {
                 "1": { key: "1", mailboxRef: { key: "A" } },
@@ -467,6 +505,24 @@ describe("Mail store", () => {
             };
             store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
             expect(store.getters[MAILSHARE_ROOT_FOLDERS]).toEqual([store.state.folders["5"], store.state.folders["1"]]);
+        });
+        test("GROUP_MAILBOX_ROOT_FOLDERS (sorted by group dn)", () => {
+            store.state.folders = {
+                "1": { key: "1", mailboxRef: { key: "A" }, parent: null },
+                "2": { key: "2", mailboxRef: { key: "unknown" }, parent: null },
+                "3": { key: "3", mailboxRef: { key: "B" }, parent: "1" },
+                "4": { key: "4", mailboxRef: { key: "C" }, parent: "4" },
+                "5": { key: "5", mailboxRef: { key: "D" }, parent: null }
+            };
+            store.state.mailboxes = {
+                A: { key: "A", type: MailboxType.GROUP, dn: "zzz" },
+                D: { key: "D", type: MailboxType.GROUP, dn: "aaa" }
+            };
+            store.state.mailboxes.keys = Object.keys(store.state.mailboxes);
+            expect(store.getters[GROUP_MAILBOX_ROOT_FOLDERS]).toEqual([
+                store.state.folders["5"],
+                store.state.folders["1"]
+            ]);
         });
         describe("NEXT_CONVERSATION", () => {
             beforeEach(() => {

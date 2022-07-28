@@ -9,7 +9,16 @@ import initialStore from "../mailboxes";
 import aliceContainers from "./data/users/alice/containers";
 import { ADD_MAILBOXES, ADD_FOLDER } from "~/mutations";
 import { FETCH_MAILBOXES } from "~/actions";
-import { MAILBOXES, MAILSHARES, MAILSHARE_KEYS, MY_MAILBOX, MY_MAILBOX_KEY, USER_MAILBOXES } from "~/getters";
+import {
+    GROUP_MAILBOX_KEYS,
+    GROUP_MAILBOXES,
+    MAILBOXES,
+    MAILSHARES,
+    MAILSHARE_KEYS,
+    MY_MAILBOX,
+    MY_MAILBOX_KEY,
+    USER_MAILBOXES
+} from "~/getters";
 
 const { MailboxType } = mailboxUtils;
 const { LoadingStatus } = loadingStatusUtils;
@@ -216,7 +225,6 @@ describe("mailboxes store", () => {
             store.state.keys = ["1", "MY_REAL_MAILBOX_KEY"];
             expect(store.getters[MY_MAILBOX_KEY]).toEqual("MY_REAL_MAILBOX_KEY");
         });
-
         test("MAILSHARES (sorted by dn)", () => {
             store.state["1"] = {
                 key: "1",
@@ -238,6 +246,29 @@ describe("mailboxes store", () => {
             expect(store.getters[MAILSHARES]).toEqual([
                 { key: "3", type: "mailshares", dn: "bbb" },
                 { key: "1", type: "mailshares", dn: "ccc" }
+            ]);
+        });
+        test("GROUP_MAILBOXES (sorted by dn)", () => {
+            store.state["1"] = {
+                key: "1",
+                type: MailboxType.GROUP,
+                dn: "ccc"
+            };
+            store.state["2"] = {
+                key: "2",
+                type: MailboxType.USER,
+                dn: "aaa"
+            };
+            store.state["3"] = {
+                key: "3",
+                type: MailboxType.GROUP,
+                dn: "bbb"
+            };
+            store.state.keys = ["1", "2", "3"];
+            expect(store.getters[GROUP_MAILBOX_KEYS]).toEqual(["3", "1"]);
+            expect(store.getters[GROUP_MAILBOXES]).toEqual([
+                { key: "3", type: "groups", dn: "bbb" },
+                { key: "1", type: "groups", dn: "ccc" }
             ]);
         });
         test("USER_MAILBOXES", () => {

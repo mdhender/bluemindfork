@@ -273,6 +273,7 @@
     "mail.folder.search.tooltip": "Active filter. Remove it to show all folders",
     "mail.folder.unread": "Unread messages counter: {count}",
     "mail.folder": "Folder",
+    "mail.folders.groups": "Group folders",
     "mail.ics.accepted.tentatively": "Invitation tentatively accepted",
     "mail.ics.accepted": "Invitation accepted",
     "mail.ics.declined": "Invitation declined",

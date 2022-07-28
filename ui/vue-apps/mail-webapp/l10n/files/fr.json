@@ -273,6 +273,7 @@
     "mail.folder.search.tooltip": "Un filtre est actif. Pour afficher tous les dossiers, effacer le filtre",
     "mail.folder.unread": "Nombre de messages non-lus : {count}",
     "mail.folder": "Le dossier",
+    "mail.folders.groups": "Dossiers de groupes",
     "mail.ics.accepted.tentatively": "Invitation acceptée provisoirement",
     "mail.ics.accepted": "Invitation acceptée",
     "mail.ics.declined": "Invitation refusée",

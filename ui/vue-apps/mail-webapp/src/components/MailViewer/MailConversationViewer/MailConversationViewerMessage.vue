@@ -7,7 +7,7 @@
                     <bm-contact class="w-100" :contact="message.from" no-avatar transparent show-address bold-dn />
                     <mail-folder-icon
                         v-if="folder.key !== conversation.folderRef.key"
-                        :shared="shared"
+                        :mailbox="mailboxes[folder.mailboxRef.key]"
                         :folder="folder"
                         class="text-neutral font-italic pl-2 w-100"
                     />
@@ -71,10 +71,7 @@ import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import BodyViewer from "../BodyViewer";
 import { MESSAGE_IS_LOADED } from "~/getters";
 import MailFolderIcon from "../../MailFolderIcon";
-import { mailboxUtils } from "@bluemind/mail";
 import MailAttachmentIcon from "../../MailAttachmentIcon";
-
-const { MailboxType } = mailboxUtils;
 
 export default {
     name: "MailConversationViewerMessage",
@@ -96,9 +93,6 @@ export default {
         ...mapState("mail", ["folders", "mailboxes"]),
         folder() {
             return this.folders[this.message.folderRef.key];
-        },
-        shared() {
-            return this.mailboxes[this.folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         }
     }
 };

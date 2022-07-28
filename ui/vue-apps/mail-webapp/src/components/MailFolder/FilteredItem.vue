@@ -4,7 +4,7 @@
         <folder-item :folder="folder" class="w-100" @edit="rename" @create="create">
             <div class="d-flex flex-column flex-fill">
                 <mail-folder-icon
-                    :shared="shared"
+                    :mailbox="mailbox"
                     :folder="folder"
                     class="pl-3"
                     :class="{ 'font-weight-bold': isUnread }"
@@ -20,13 +20,12 @@
 
 <script>
 import UUIDGenerator from "@bluemind/uuid";
-import { folderUtils, mailboxUtils } from "@bluemind/mail";
+import { folderUtils } from "@bluemind/mail";
 import MailFolderIcon from "../MailFolderIcon";
 import { MailRoutesMixin } from "~/mixins";
 import FolderItem from "./FolderItem";
 import EditFolderModal from "./modals/EditFolderModal";
 
-const { MailboxType } = mailboxUtils;
 const { create } = folderUtils;
 
 export default {
@@ -57,9 +56,6 @@ export default {
         },
         mailbox() {
             return this.$store.state.mail.mailboxes[this.folder.mailboxRef.key];
-        },
-        shared() {
-            return this.mailbox.type === MailboxType.MAILSHARE;
         }
     },
     methods: {

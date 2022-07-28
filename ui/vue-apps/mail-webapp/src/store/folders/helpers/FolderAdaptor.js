@@ -1,5 +1,6 @@
-import { folderUtils } from "@bluemind/mail";
+import { folderUtils, mailboxUtils } from "@bluemind/mail";
 const { allowConversations, allowSubfolder, isDefault, translatePath } = folderUtils;
+const { MailboxType } = mailboxUtils;
 
 function fromMailboxFolder(remotefolder, mailbox) {
     const parent = remotefolder.value.parentUid;
@@ -17,6 +18,8 @@ function fromMailboxFolder(remotefolder, mailbox) {
         parent,
         name: isDefault(!parent, remotefolder.value.name, mailbox)
             ? translatePath(remotefolder.value.name)
+            : !parent && MailboxType.isShared(mailbox.type)
+            ? mailbox.name
             : remotefolder.value.name,
         imapName: remotefolder.value.name,
         path,

@@ -1,9 +1,9 @@
 <template>
     <i18n :path="path" tag="span">
-        <template #folder> <mail-folder-icon :folder="folder" :shared="shared" /> </template>
+        <template #folder> <mail-folder-icon :folder="folder" :mailbox="payload.mailbox" /> </template>
         <template #destination>
             <router-link v-if="destination" :to="folderRoute(destination)">
-                <strong><mail-folder-icon :folder="destination" :shared="shared" /></strong>
+                <strong><mail-folder-icon :folder="destination" :mailbox="payload.mailbox" /></strong>
             </router-link>
             <span v-else> {{ $t("alert.mail.move_folder.to_mailbox_root", { mailbox }) }}</span>
         </template>
@@ -11,20 +11,14 @@
 </template>
 <script>
 import { AlertMixin } from "@bluemind/alert.store";
-import { mailboxUtils } from "@bluemind/mail";
 import { MailRoutesMixin } from "~/mixins";
 import MailFolderIcon from "../MailFolderIcon";
-
-const { MailboxType } = mailboxUtils;
 
 export default {
     name: "MoveFolder",
     components: { MailFolderIcon },
     mixins: [AlertMixin, MailRoutesMixin],
     computed: {
-        shared() {
-            return this.payload.mailbox.type === MailboxType.MAILSHARE;
-        },
         folder() {
             return this.payload.folder;
         },

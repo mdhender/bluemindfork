@@ -9,7 +9,7 @@
         @holdover="onFolderHoldOver"
     >
         <mail-folder-icon
-            :shared="shared"
+            :mailbox="mailboxes[folder.mailboxRef.key]"
             :folder="folder"
             class="flex-fill"
             :class="folder.unread > 0 ? 'font-weight-bold' : ''"
@@ -44,7 +44,6 @@
         ref="folder-input"
         :mailboxes="[mailboxes[folder.mailboxRef.key]]"
         :folder="folder"
-        :shared="shared"
         @close="closeInput"
         @submit="submit"
         @keydown.left.native.stop
@@ -58,7 +57,7 @@
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { BmCounterBadge, BmDropzone, BmIcon } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
-import { folderUtils, mailboxUtils } from "@bluemind/mail";
+import { folderUtils } from "@bluemind/mail";
 import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
 import MailFolderItemMenu from "./MailFolderItemMenu";
@@ -67,7 +66,6 @@ import { FOLDER_HAS_CHILDREN } from "~/getters";
 import { ADD_FOLDER, REMOVE_FOLDER, SET_FOLDER_EXPANDED, TOGGLE_EDIT_FOLDER } from "~/mutations";
 import { FolderMixin } from "~/mixins";
 
-const { MailboxType } = mailboxUtils;
 const { create } = folderUtils;
 
 export default {
@@ -95,9 +93,6 @@ export default {
         ...mapState("mail", ["folderList", "folders", "activeFolder", "mailboxes"]),
         folder() {
             return this.folders[this.folderKey];
-        },
-        shared() {
-            return this.mailboxes[this.folder.mailboxRef.key].type === MailboxType.MAILSHARE;
         },
         editingFolder() {
             return this.folderList.editing === this.folder.key;
