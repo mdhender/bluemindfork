@@ -98,7 +98,7 @@ public class SecurityCertificateHelper {
 
 	public Optional<String> getOtherUrls(String domainUid) {
 		if (isGlobalVirtDomain(domainUid)) {
-			return Optional.of(getSuProvider().instance(ISystemConfiguration.class).getValues().values
+			return Optional.ofNullable(getSuProvider().instance(ISystemConfiguration.class).getValues().values
 					.get(SysConfKeys.other_urls.name()));
 		} else {
 			return Optional
