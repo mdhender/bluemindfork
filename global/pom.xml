@@ -55,7 +55,7 @@
 			</activation>
 			<properties>
 				<gwt.draft>true</gwt.draft>
-				<gwt.style>PRETTY</gwt.style>
+				<gwt.style>DETAILED</gwt.style>
 				<gwt.optimize>0</gwt.optimize>
 			</properties>
 		</profile>
