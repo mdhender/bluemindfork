@@ -54,7 +54,7 @@
             <bm-dropdown-divider />
             <bm-dropdown-item-button
                 icon="trash"
-                @click.exact.prevent.stop="MOVE_MESSAGES_TO_TRASH(conversation, message)"
+                @click.exact.prevent.stop="MOVE_MESSAGES_TO_TRASH(message, conversation)"
             >
                 {{ $t("mail.actions.remove") }}
             </bm-dropdown-item-button>

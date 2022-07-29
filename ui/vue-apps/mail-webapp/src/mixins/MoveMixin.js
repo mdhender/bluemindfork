@@ -79,16 +79,21 @@ function navigateConversations(action) {
 
 function navigateConversationMessage(action) {
     return function ({ conversation, message, folder }) {
-        const next = this.$store.getters["mail/" + NEXT_CONVERSATION]([conversation]);
-        const isCurrentConversation = this.$store.getters["mail/" + IS_CURRENT_CONVERSATION](conversation);
-        const messages = this.$store.state.mail.conversations.messages;
-        const messageKeysInFolder = conversation.messages.filter(messageKey => {
-            const message = messages[messageKey];
-            return message.loading !== LoadingStatus.ERROR && message.folderRef.key === conversation.folderRef.key;
-        });
-        action.call(this, { conversation, messages: [message], folder });
-        if (messageKeysInFolder.length === 1 && messageKeysInFolder[0] === message.key && isCurrentConversation) {
-            this.navigateTo(next, conversation.folderRef);
+        if (conversation) {
+            const next = this.$store.getters["mail/" + NEXT_CONVERSATION]([conversation]);
+            const isCurrentConversation = this.$store.getters["mail/" + IS_CURRENT_CONVERSATION](conversation);
+            const messages = this.$store.state.mail.conversations.messages;
+            const messageKeysInFolder = conversation.messages.filter(messageKey => {
+                const message = messages[messageKey];
+                return message.loading !== LoadingStatus.ERROR && message.folderRef.key === conversation.folderRef.key;
+            });
+            action.call(this, { conversation, messages: [message], folder });
+            if (messageKeysInFolder.length === 1 && messageKeysInFolder[0] === message.key && isCurrentConversation) {
+                this.navigateTo(next, conversation.folderRef);
+            }
+        } else {
+            action.call(this, { messages: [message], folder });
+            this.$router.push({ name: "mail:home" });
         }
     };
 }

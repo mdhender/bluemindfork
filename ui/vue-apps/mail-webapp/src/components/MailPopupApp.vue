@@ -30,18 +30,18 @@ export default {
     created() {
         const documentTitle = this.$t("mail.application.title") + this.$t("common.product");
         document.title = documentTitle;
-        this.$router.beforeEach((to, from, next) => {
+        this.$router.beforeEach(({ name, params, query, hash }, from, next) => {
             let route;
-            switch (to.name) {
+            switch (name) {
                 case "mail:home":
                 case "mail:root":
-                    route = { name: "mail:popup:home", params: to.params };
+                    route = { name: "mail:popup:home", params, query, hash };
                     break;
                 case "mail:message":
-                    route = { name: "mail:popup:message", params: to.params };
+                    route = { name: "mail:popup:message", params, query, hash };
                     break;
                 case "mail:conversation":
-                    route = { name: "mail:popup:conversation", params: to.params };
+                    route = { name: "mail:popup:conversation", params, query, hash };
                     break;
                 default:
                     route = true;

@@ -14,7 +14,7 @@
             <span class="pl-1">{{ $t("mail.actions.edit") }}</span>
         </bm-dropdown-item-button>
         <bm-dropdown-divider />
-        <bm-dropdown-item-button @click.exact.prevent.stop="REMOVE_DRAFT(conversation, message)">
+        <bm-dropdown-item-button @click.exact.prevent.stop="REMOVE_DRAFT(message, conversation)">
             <bm-icon icon="trash" />
             <span class="pl-1">{{ $t("mail.actions.remove") }}</span>
         </bm-dropdown-item-button>

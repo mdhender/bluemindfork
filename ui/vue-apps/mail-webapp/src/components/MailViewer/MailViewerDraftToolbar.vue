@@ -17,7 +17,7 @@
             size="sm"
             :title="$t('mail.actions.remove')"
             icon="trash"
-            @click.stop="REMOVE_DRAFT(conversation, message)"
+            @click.stop="REMOVE_DRAFT(message, conversation)"
         />
     </bm-button-toolbar>
 </template>

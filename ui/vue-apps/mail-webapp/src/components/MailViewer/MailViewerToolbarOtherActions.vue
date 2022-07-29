@@ -30,12 +30,12 @@
                 {{ $t("mail.actions.move") }}
             </bm-dropdown-item>
             <bm-dropdown-item
-                @click.exact="MOVE_MESSAGES_TO_TRASH(conversation, message)"
-                @click.shift.exact="REMOVE_MESSAGES(conversation, message)"
+                @click.exact="MOVE_MESSAGES_TO_TRASH(message, conversation)"
+                @click.shift.exact="REMOVE_MESSAGES(message, conversation)"
             >
                 {{ $t("mail.actions.remove") }}
             </bm-dropdown-item>
-            <bm-dropdown-item @click.stop.exact="REMOVE_MESSAGES(conversation, message)">
+            <bm-dropdown-item @click.stop.exact="REMOVE_MESSAGES(message, conversation)">
                 {{ $t("mail.actions.purge") }}
             </bm-dropdown-item>
             <mail-open-in-popup-with-shift v-slot="action" :href="editAsNew">
@@ -109,7 +109,7 @@ export default {
         },
         conversation: {
             type: Object,
-            required: true
+            default: undefined
         },
         size: {
             type: String,

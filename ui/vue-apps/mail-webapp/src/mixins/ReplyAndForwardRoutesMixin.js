@@ -15,11 +15,11 @@ export default {
         })
     },
     methods: {
-        reply(conversation, message) {
-            this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.REPLY, conversation, message);
+        reply(message, conversation) {
+            this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.REPLY, message, conversation);
         },
-        replyAll(conversation, message) {
-            this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.REPLY_ALL, conversation, message);
+        replyAll(message, conversation) {
+            this.$_ReplyAndForwardRoutesMixin_goTo(MessageCreationModes.REPLY_ALL, message, conversation);
         },
         forward(message) {
             this.$router.push(this.$_ReplyAndForwardRoutesMixin_route(MessageCreationModes.FORWARD, message));
@@ -33,8 +33,8 @@ export default {
         forwardRoute(message) {
             return this.$_ReplyAndForwardRoutesMixin_route(MessageCreationModes.FORWARD, message);
         },
-        async $_ReplyAndForwardRoutesMixin_goTo(action, conversation, related) {
-            if (this.$_ReplyAndForwardRoutesMixin_CONVERSATIONS_ACTIVATED) {
+        async $_ReplyAndForwardRoutesMixin_goTo(action, related, conversation) {
+            if (conversation && this.$_ReplyAndForwardRoutesMixin_CONVERSATIONS_ACTIVATED) {
                 await this.saveAndCloseOpenDrafts(conversation);
                 this.initRelatedMessage(action, {
                     internalId: related.remoteRef.internalId,

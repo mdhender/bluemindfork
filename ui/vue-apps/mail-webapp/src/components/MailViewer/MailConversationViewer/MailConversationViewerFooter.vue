@@ -5,7 +5,7 @@
                 variant="fill-accent"
                 :title="action.label($t('mail.content.reply.aria'))"
                 :icon="action.icon('reply')"
-                @click="action.execute(() => reply(conversation, lastNonDraft))"
+                @click="action.execute(() => reply(lastNonDraft, conversation))"
             >
                 {{ $t("mail.content.reply.aria") }}
             </bm-button>
@@ -15,7 +15,7 @@
                 variant="fill-accent"
                 :title="action.label($t('mail.content.reply_all.aria'))"
                 :icon="action.icon('reply-all')"
-                @click="action.execute(() => replyAll(conversation, lastNonDraft))"
+                @click="action.execute(() => replyAll(lastNonDraft, conversation))"
             >
                 {{ $t("mail.content.reply_all.aria") }}
             </bm-button>

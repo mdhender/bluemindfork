@@ -52,14 +52,16 @@ describe("RemoveMixin", () => {
 
     test("REMOVE_MESSAGES to call popup", async () => {
         const messages = [];
-        await RemoveMixin.REMOVE_MESSAGES({}, messages);
+        await RemoveMixin.REMOVE_MESSAGES(messages, {});
         expect(RemoveMixin.$bvModal.msgBoxConfirm).toHaveBeenCalled();
     });
     test("REMOVE_MESSAGES to call remove action if popup is confirmed", async () => {
         const conversation = { key: "conversation", folderRef: {}, messages: [] };
         const messages = [];
         RemoveMixin.$bvModal.msgBoxConfirm.mockResolvedValueOnce(true);
-        await RemoveMixin.REMOVE_MESSAGES(conversation, messages);
+
+        await RemoveMixin.REMOVE_MESSAGES(messages, conversation);
+
         expect(RemoveMixin.$store.dispatch).toHaveBeenCalledWith(`mail/${REMOVE_CONVERSATION_MESSAGES}`, {
             conversation,
             messages
@@ -69,7 +71,7 @@ describe("RemoveMixin", () => {
     test("REMOVE_MESSAGES not to call remove action if popup is not confirm", async () => {
         const messages = [];
         RemoveMixin.$bvModal.msgBoxConfirm.mockResolvedValue(false);
-        await RemoveMixin.REMOVE_MESSAGES({}, messages);
+        await RemoveMixin.REMOVE_MESSAGES(messages, {});
         expect(RemoveMixin.$store.dispatch).not.toHaveBeenCalledWith();
     });
 

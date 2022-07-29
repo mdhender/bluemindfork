@@ -11,7 +11,9 @@ import {
     MOVE_CONVERSATIONS,
     MOVE_CONVERSATION_MESSAGES,
     REMOVE_CONVERSATIONS,
-    REMOVE_CONVERSATION_MESSAGES
+    REMOVE_CONVERSATION_MESSAGES,
+    REMOVE_MESSAGES,
+    MOVE_MESSAGES
 } from "~/actions";
 import FormattedDateMixin from "./FormattedDateMixin";
 import SelectionMixin from "./SelectionMixin";
@@ -71,17 +73,25 @@ export default {
             }
             return confirm;
         }),
-        MOVE_MESSAGES_TO_TRASH: navigate(function (conversation, messages) {
+        MOVE_MESSAGES_TO_TRASH: navigate(function (messages, conversation) {
             const trash = getConversationsTrash(this.$store, messages);
 
             if (messages.some(message => message.folderRef.key !== trash.key)) {
-                this.$store.dispatch(`mail/${MOVE_CONVERSATION_MESSAGES}`, { conversation, messages, folder: trash });
+                if (conversation) {
+                    this.$store.dispatch(`mail/${MOVE_CONVERSATION_MESSAGES}`, {
+                        conversation,
+                        messages,
+                        folder: trash
+                    });
+                } else {
+                    this.$store.dispatch(`mail/${MOVE_MESSAGES}`, { messages, folder: trash });
+                }
                 return true;
             } else {
-                return this.REMOVE_MESSAGES(conversation, messages);
+                return this.REMOVE_MESSAGES(messages, conversation);
             }
         }),
-        REMOVE_MESSAGES: navigate(async function (conversation, messages) {
+        REMOVE_MESSAGES: navigate(async function (messages, conversation) {
             const confirm = await this.$bvModal.msgBoxConfirm(
                 this.$tc("mail.actions.purge.modal.content", messages.length, messages[0]),
                 {
@@ -96,11 +106,15 @@ export default {
                 }
             );
             if (confirm) {
-                return this.$store.dispatch(`mail/${REMOVE_CONVERSATION_MESSAGES}`, { conversation, messages });
+                if (conversation) {
+                    this.$store.dispatch(`mail/${REMOVE_CONVERSATION_MESSAGES}`, { conversation, messages });
+                } else {
+                    this.$store.dispatch(`mail/${REMOVE_MESSAGES}`, { messages });
+                }
             }
             return confirm;
         }),
-        async REMOVE_DRAFT(conversation, draft) {
+        async REMOVE_DRAFT(draft, conversation) {
             const formattedDate = this.formatMessageDate(draft);
             const textKey = formattedDate.date
                 ? "mail.actions.purge.draft.modal.content"
@@ -116,7 +130,11 @@ export default {
                 autoFocusButton: "ok"
             });
             if (confirm) {
-                this.$store.dispatch(`mail/${REMOVE_CONVERSATION_MESSAGES}`, { conversation, messages: [draft] });
+                if (conversation) {
+                    this.$store.dispatch(`mail/${REMOVE_CONVERSATION_MESSAGES}`, { conversation, messages: [draft] });
+                } else {
+                    return this.$store.dispatch(`mail/${REMOVE_MESSAGES}`, { messages: [draft] });
+                }
             }
             return confirm;
         },
@@ -152,17 +170,21 @@ function navigateConversations(action) {
 }
 
 function navigate(action) {
-    return async function (conversation, messages) {
-        const next = this.$store.getters["mail/" + NEXT_CONVERSATION]([conversation]);
-        const isCurrentConversation = this.$store.getters["mail/" + IS_CURRENT_CONVERSATION](conversation);
+    return async function (messages, conversation) {
         messages = Array.isArray(messages) ? [...messages] : [messages];
-        const confirm = await action.call(this, conversation, messages);
-        if (
-            confirm &&
-            isCurrentConversation &&
-            conversationMustBeRemoved(this.$store.state.mail.conversations, conversation, messages)
-        ) {
-            this.navigateTo(next, conversation.folderRef);
+        if (conversation) {
+            const next = this.$store.getters["mail/" + NEXT_CONVERSATION]([conversation]);
+            const isCurrentConversation = this.$store.getters["mail/" + IS_CURRENT_CONVERSATION](conversation);
+            const confirm = await action.call(this, messages, conversation);
+            if (
+                confirm &&
+                isCurrentConversation &&
+                conversationMustBeRemoved(this.$store.state.mail.conversations, conversation, messages)
+            ) {
+                this.navigateTo(next, conversation.folderRef);
+            }
+        } else if (await action.call(this, messages)) {
+            this.$router.push({ name: "mail:home" });
         }
     };
 }
