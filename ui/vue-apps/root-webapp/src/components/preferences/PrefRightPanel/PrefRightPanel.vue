@@ -1,10 +1,10 @@
 <template>
-    <bm-col lg="10" cols="12" class="pref-right-panel d-lg-flex flex-column h-100">
+    <bm-col lg="10" cols="12" class="pref-right-panel d-lg-flex flex-column h-100" tabindex="-1">
         <pref-right-panel-header :selected-section="section" @close="$emit('close')" />
         <pref-right-panel-nav v-if="!HAS_SEARCH" :sections="sections" />
         <pref-sections v-show="!HAS_SEARCH" ref="sections" :sections="sections" />
         <pref-search-results v-if="HAS_SEARCH" :results="searchResults" :is-loading="isSearchLoading" />
-        <transition name="slide-fade"><pref-right-panel-footer /></transition>
+        <transition name="slide-fade"><pref-right-panel-footer @saved="$el.focus()" /></transition>
     </bm-col>
 </template>
 

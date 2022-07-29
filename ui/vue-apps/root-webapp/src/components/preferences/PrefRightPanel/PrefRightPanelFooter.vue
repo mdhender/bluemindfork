@@ -4,7 +4,7 @@
             type="submit"
             variant="secondary"
             :disabled="!HAS_CHANGED || HAS_ERROR || HAS_NOT_VALID"
-            @click.prevent="SAVE"
+            @click.prevent="save"
         >
             {{ $t("common.save") }}
         </bm-button>
@@ -25,7 +25,10 @@ export default {
         ...mapGetters("preferences/fields", ["HAS_CHANGED", "HAS_ERROR", "HAS_NOT_VALID"])
     },
     methods: {
-        ...mapActions("preferences", ["CANCEL", "SAVE"])
+        ...mapActions("preferences", ["CANCEL", "SAVE"]),
+        save() {
+            this.SAVE().then(() => this.$emit("saved"));
+        }
     }
 };
 </script>
