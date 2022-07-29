@@ -20,7 +20,6 @@ package net.bluemind.ui.adminconsole.base.ui;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.SpanElement;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -67,22 +66,8 @@ public abstract class BaseEditScreen extends Composite implements IGwtCompositeS
 		dlp.setHeight("100%");
 		initWidget(dlp);
 
-		actionBar.setSaveAction(new ScheduledCommand() {
-
-			@Override
-			public void execute() {
-				saveClicked();
-			}
-		});
-
-		actionBar.setCancelAction(new ScheduledCommand() {
-
-			@Override
-			public void execute() {
-				doCancel();
-			}
-		});
-
+		actionBar.setSaveAction(this::saveClicked);
+		actionBar.setCancelAction(this::doCancel);
 	}
 
 	protected abstract void doCancel();
@@ -142,6 +127,7 @@ public abstract class BaseEditScreen extends Composite implements IGwtCompositeS
 
 			@Override
 			public void failure(Throwable e) {
+				GWT.log("load failure", e);
 				Notification.get().reportError(e);
 			}
 		});

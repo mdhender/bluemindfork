@@ -73,6 +73,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtScreenRoot;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtScreenRoot;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
+import net.bluemind.gwtconsoleapp.base.notification.Notification;
 import net.bluemind.server.api.IServerPromise;
 import net.bluemind.server.api.gwt.endpoint.ServerGwtEndpoint;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
@@ -179,6 +180,8 @@ public class DirectoryCenter extends Composite implements IGwtScreenRoot, IDomai
 
 			@Override
 			public void failure(Throwable e) {
+				GWT.log("delete failed", e);
+				Notification.get().reportError(e);
 			}
 
 			@Override
