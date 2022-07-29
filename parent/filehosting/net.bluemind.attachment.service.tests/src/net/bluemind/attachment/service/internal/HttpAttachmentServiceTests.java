@@ -21,13 +21,13 @@ package net.bluemind.attachment.service.internal;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
@@ -70,14 +70,14 @@ public class HttpAttachmentServiceTests extends AttachmentServiceTests {
 			Response resp = ahc.preparePut("http://127.0.0.1:8090/api/attachment/" + domainName + "/test.txt/share")
 					.addHeader("X-BM-ApiKey", "toto")//
 					.addHeader("Content-Length", Long.toString(Integer.MAX_VALUE - 1L)).setBody(buffer)//
-					.execute().get();
+					.execute().get(30, TimeUnit.SECONDS);
 			assertNotNull(resp);
 			System.err.println("ahc " + resp.getStatusCode());
 			System.err.println(new JsonObject(resp.getResponseBody()).encodePrettily());
 		}
 	}
 
-	private MappedByteBuffer twoGigs() throws IOException, FileNotFoundException {
+	private MappedByteBuffer twoGigs() throws IOException {
 		File tmpFile = File.createTempFile("big", ".file-for-junit");
 		try (RandomAccessFile raf = new RandomAccessFile(tmpFile, "rw")) {
 			long len = Integer.MAX_VALUE - 1L;

@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
@@ -15,10 +16,6 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.junit.Before;
 
-import com.google.common.util.concurrent.SettableFuture;
-
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.config.InstallationId;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
@@ -64,16 +61,7 @@ public abstract class LdapExportTests {
 		domain = PopulateHelper.createTestDomain(domainUid);
 		PopulateHelper.domainAdmin(domainUid, domainAdmin.getSubject());
 
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		ldapRoleServer = initAndAssignLdapExportServer(domain);
 	}

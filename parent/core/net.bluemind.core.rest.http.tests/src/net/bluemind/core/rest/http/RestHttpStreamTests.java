@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
@@ -53,14 +54,16 @@ public class RestHttpStreamTests extends RestStreamServiceTests {
 	}
 
 	@Test
-	public void testInContentType() throws InterruptedException, ExecutionException {
+	public void testInContentType() throws InterruptedException, ExecutionException, TimeoutException {
 		Response response = httpClient
-				.prepareGet("http://localhost:8090/api/teststream/inContentType?mime=toto&cs=titi").execute().get();
+				.prepareGet("http://localhost:8090/api/teststream/inContentType?mime=toto&cs=titi").execute()
+				.get(30, TimeUnit.SECONDS);
 		assertEquals("toto; charset=titi", response.getContentType());
-		response = httpClient.prepareGet("http://localhost:8090/api/teststream/inContentType?cs=titi").execute().get();
+		response = httpClient.prepareGet("http://localhost:8090/api/teststream/inContentType?cs=titi").execute().get(30,
+				TimeUnit.SECONDS);
 		assertEquals("application/octet-stream; charset=titi", response.getContentType());
 		response = httpClient.prepareGet("http://localhost:8090/api/teststream/inContentType?fn=toto.pdf").execute()
-				.get();
+				.get(30, TimeUnit.SECONDS);
 		String disposition = response.getHeader("Content-Disposition");
 		System.err.println(disposition);
 		assertEquals("attachment; filename=\"toto.pdf\";", disposition);

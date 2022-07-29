@@ -19,10 +19,8 @@ package net.bluemind.core.rest.http;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -46,9 +44,7 @@ public class PromiseServiceProviderTests {
 
 	@Before
 	public void before() throws Exception {
-		CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(result -> cdl.countDown());
-		assertTrue(cdl.await(5, TimeUnit.SECONDS));
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		this.locator = new ILocator() {
 
 			@Override
@@ -100,7 +96,7 @@ public class PromiseServiceProviderTests {
 		IRestPathTestServicePromise anotherProxy = sp.instance(IRestPathTestServicePromise.class, "foo", "bar");
 		assertNotNull(anotherProxy);
 		String bonjourMadame = anotherProxy.goodMorning("Vietnam")
-				.thenCompose(result -> anotherProxy.goodMorning("Madame")).get();
+				.thenCompose(result -> anotherProxy.goodMorning("Madame")).get(30, TimeUnit.SECONDS);
 		assertNotNull(bonjourMadame);
 		assertEquals("[foo][bar]good morning Madame", bonjourMadame);
 		// if caching has worked, call will not be made

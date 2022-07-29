@@ -31,7 +31,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -42,8 +41,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.backend.cyrus.ServerHook;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
@@ -127,14 +124,7 @@ public class MboxRestoreHSMTests {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 
-		final CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				cdl.countDown();
-			}
-		});
-		cdl.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		Server core = new Server();
 		core.ip = new BmConfIni().get("node-host");

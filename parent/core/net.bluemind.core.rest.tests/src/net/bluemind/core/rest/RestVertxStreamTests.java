@@ -18,13 +18,11 @@
  */
 package net.bluemind.core.rest;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.After;
 import org.junit.Before;
 
-import com.google.common.util.concurrent.SettableFuture;
-
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.tests.services.IRestStreamTestService;
 import net.bluemind.core.rest.tests.services.IRestStreamTestServiceAsync;
@@ -37,17 +35,7 @@ public class RestVertxStreamTests extends RestStreamServiceTests {
 	@Before
 	public void setup() throws Exception {
 		super.before();
-
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 	}
 
 	@After

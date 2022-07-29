@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -35,7 +36,7 @@ public class SyncServerHelper {
 				new JsonObject().put("operation", SystemState.CORE_STATE_RUNNING.operation()));
 		CountDownLatch latch = new CountDownLatch(1);
 		check(latch);
-		latch.await();
+		latch.await(60, TimeUnit.SECONDS);
 	}
 
 	private static void check(CountDownLatch latch) throws InterruptedException {

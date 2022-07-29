@@ -25,15 +25,13 @@ import static org.junit.Assert.assertNull;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
@@ -80,14 +78,7 @@ public class UserTodoListHookTests {
 
 		PopulateHelper.addUser("admin", domainUid);
 
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		ElasticsearchTestHelper.getInstance().beforeTest();
 
 		bmContext = BmTestContext.contextWithSession("sid", "admin", domainUid);

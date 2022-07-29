@@ -27,7 +27,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -35,8 +35,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationAnnotations;
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifacts;
 import net.bluemind.backend.mail.replica.api.MailboxAnnotation;
@@ -84,14 +82,7 @@ public class CyrusArtifactsServiceTests {
 		PopulateHelper.addUser("user", "test.lab", Routing.internal);
 		PopulateHelper.addUser("german.pr0n", "test.lab", Routing.internal);
 
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		this.apiKey = "test-session";
 		Sessions.get().put(apiKey, SecurityContext.SYSTEM);
 		this.userContext = BmTestContext.contextWithSession("user-session", "user", "test.lab");

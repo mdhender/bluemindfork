@@ -32,7 +32,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -42,8 +41,6 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -127,24 +124,13 @@ public class DPServiceTests {
 		withAdminRoleTestLan = BmTestContext.contextWithSession("testLanAdmin", "testLanAdmin", "test.lan",
 				SecurityContext.ROLE_ADMIN);
 
-		final CountDownLatch cdl = new CountDownLatch(1);
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				cdl.countDown();
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		ISystemConfiguration confService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(ISystemConfiguration.class);
 		Map<String, String> values = new HashMap<>();
 		// we don't test the schema upgrade here
 		values.put("db_version", "9.9.9");
 		confService.updateMutableValues(values);
-
-		assertTrue(cdl.await(5, TimeUnit.SECONDS));
 
 		System.err.println("Waiting for hollow repl...");
 		Thread.sleep(2000);

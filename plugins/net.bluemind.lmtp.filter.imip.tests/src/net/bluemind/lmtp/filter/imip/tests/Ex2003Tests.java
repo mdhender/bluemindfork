@@ -25,7 +25,6 @@ import static org.junit.Assert.fail;
 import java.io.InputStream;
 import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.james.mime4j.dom.Message;
@@ -39,8 +38,6 @@ import org.junit.rules.TestName;
 
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.backend.cyrus.CyrusAdmins;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.ICalendar;
@@ -94,14 +91,7 @@ public class Ex2003Tests {
 
 		ElasticsearchTestHelper.getInstance().beforeTest();
 
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();

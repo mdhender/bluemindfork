@@ -22,7 +22,6 @@
  */
 package net.bluemind.exchange.mapi.service.tests;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -39,9 +38,7 @@ public class HttpMapiMailboxServiceTests extends MapiMailboxServiceTests {
 	@Before
 	public void before() throws Exception {
 		super.before();
-		CountDownLatch latch = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(v -> latch.countDown());
-		latch.await(10, TimeUnit.SECONDS);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		Sessions.get().put(userSecurityContext.getSessionId(), userSecurityContext);
 	}
 

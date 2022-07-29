@@ -21,6 +21,7 @@ package net.bluemind.eas.backend.bm.search;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,7 +147,7 @@ public class BmSearchMailbox implements ISearchSource {
 			cdl.countDown();
 		});
 		try {
-			cdl.await();
+			cdl.await(300, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		}

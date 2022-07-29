@@ -23,16 +23,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.elasticsearch.client.transport.TransportClient;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.SettableFuture;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.AddressBookDescriptor;
 import net.bluemind.addressbook.api.IAddressBooksMgmt;
 import net.bluemind.addressbook.persistence.VCardStore;
@@ -101,16 +99,7 @@ public class DomainBookRepairSupportTests {
 		PopulateHelper.initGlobalVirt(esServer);
 		PopulateHelper.addDomain(domainUid);
 
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		context = new BmTestContext(defaultSecurityContext);
 
 		testContext = new BmTestContext(SecurityContext.SYSTEM);

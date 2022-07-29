@@ -28,7 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -50,9 +50,7 @@ public class DeferredActionServiceTests {
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(evt -> launched.countDown());
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		PopulateHelper.initGlobalVirt();
 		String domainUid = "dom" + System.currentTimeMillis() + ".test";
 		PopulateHelper.addDomain(domainUid);

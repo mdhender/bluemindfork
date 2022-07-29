@@ -21,7 +21,7 @@ package net.bluemind.webappdata.service.tests;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -47,10 +47,7 @@ public class WebAppDataUserHookTests {
 	@Before
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(event -> launched.countDown());
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		PopulateHelper.initGlobalVirt();
 

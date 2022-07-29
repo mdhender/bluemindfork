@@ -249,7 +249,7 @@ public class RestStreamServiceTests {
 		final ReadStream<Buffer> readStream = VertxStream.read(in);
 
 		readStream.pipeTo(accu, h -> latch.countDown());
-		latch.await();
+		latch.await(60, TimeUnit.SECONDS);
 
 		assertEquals("123456789", accu.buffer().toString());
 	}

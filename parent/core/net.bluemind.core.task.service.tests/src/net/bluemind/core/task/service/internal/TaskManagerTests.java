@@ -34,13 +34,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
@@ -98,15 +98,10 @@ public class TaskManagerTests {
 
 	@Test
 	public void testLogStreamOnFinishedTask() throws Exception {
-
 		final CountDownLatch cdl = new CountDownLatch(1);
-		IServerTask serverTask = new IServerTask() {
-
-			@Override
-			public void run(IServerTaskMonitor monitor) {
-				monitor.begin(5, "begin");
-				throw new NullPointerException("null me dude");
-			}
+		IServerTask serverTask = monitor -> {
+			monitor.begin(5, "begin");
+			throw new NullPointerException("null me dude");
 		};
 		TaskRef taskRef = taskManager.run(serverTask);
 
@@ -122,16 +117,10 @@ public class TaskManagerTests {
 			result.add(new JsonObject(event.toString()));
 		});
 
-		reader.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				cdl.countDown();
-			}
-		});
+		reader.endHandler(event -> cdl.countDown());
 
 		try {
-			cdl.await();
+			cdl.await(30, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 
 		}
@@ -197,7 +186,7 @@ public class TaskManagerTests {
 		}
 		endTask.complete(null);
 		try {
-			cdl.await();
+			cdl.await(30, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 
 		}
@@ -207,13 +196,9 @@ public class TaskManagerTests {
 	public void testFailingTaskLog() throws Exception {
 
 		final CountDownLatch cdl = new CountDownLatch(1);
-		IServerTask serverTask = new IServerTask() {
-
-			@Override
-			public void run(IServerTaskMonitor monitor) {
-				monitor.begin(5, "begin");
-				throw new NullPointerException("null me dude");
-			}
+		IServerTask serverTask = monitor -> {
+			monitor.begin(5, "begin 5 testFailingTaskLog");
+			throw new NullPointerException("testFailingTaskLog NPE");
 		};
 		TaskRef taskRef = taskManager.run(serverTask);
 
@@ -223,27 +208,18 @@ public class TaskManagerTests {
 		ReadStream<Buffer> reader = task.log();
 		final List<JsonObject> result = new ArrayList<>();
 
-		reader.handler((Buffer event) -> {
-			result.add(new JsonObject(event.toString()));
-		});
-
-		reader.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				cdl.countDown();
-			}
-		});
+		reader.handler(event -> result.add(new JsonObject(event.toString())));
+		reader.endHandler(event -> cdl.countDown());
+		reader.exceptionHandler(event -> cdl.countDown());
 
 		try {
-			cdl.await();
+			cdl.await(30, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-
 		}
 
 		assertEquals(2, result.size());
 
-		assertEquals("begin", result.get(0).getString("message"));
+		assertEquals("begin 5 testFailingTaskLog", result.get(0).getString("message"));
 
 		assertTrue(result.get(1).getBoolean("end"));
 
@@ -256,22 +232,18 @@ public class TaskManagerTests {
 	public void testRegisterAndReadLog() throws Exception {
 
 		final CountDownLatch cdl = new CountDownLatch(1);
-		IServerTask serverTask = new IServerTask() {
-
-			@Override
-			public void run(IServerTaskMonitor monitor) {
-				monitor.begin(5, "begin");
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-				}
-				monitor.progress(1, "processing");
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-				}
-				monitor.progress(2, "processing...");
+		IServerTask serverTask = monitor -> {
+			monitor.begin(5, "begin");
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
 			}
+			monitor.progress(1, "processing");
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
+			monitor.progress(2, "processing...");
 		};
 		TaskRef taskRef = taskManager.run(serverTask);
 
@@ -286,16 +258,10 @@ public class TaskManagerTests {
 			result.add(new JsonObject(event.toString()));
 		});
 
-		reader.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				cdl.countDown();
-			}
-		});
+		reader.endHandler(event -> cdl.countDown());
 
 		try {
-			cdl.await();
+			cdl.await(30, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 
 		}
@@ -314,19 +280,14 @@ public class TaskManagerTests {
 	@Test
 	public void testFailingTask() throws Exception {
 
-		IServerTask serverTask = new IServerTask() {
-
-			@Override
-			public void run(IServerTaskMonitor monitor) throws Exception {
-				monitor.begin(5, "begin");
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-				}
-				monitor.progress(1, "gogo fail");
-
-				throw new Exception("failed");
+		IServerTask serverTask = monitor -> {
+			monitor.begin(5, "begin");
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
 			}
+			monitor.progress(1, "gogo fail");
+			throw new Exception("failed");
 		};
 
 		TaskRef tref = taskManager.run(serverTask);
@@ -344,26 +305,21 @@ public class TaskManagerTests {
 
 	@Test
 	public void testSubMonitorInception() throws Exception {
-		IServerTask serverTask = new IServerTask() {
+		IServerTask serverTask = monitor -> {
+			monitor.begin(1, "begin");
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+			}
 
-			@Override
-			public void run(IServerTaskMonitor monitor) throws Exception {
-				monitor.begin(1, "begin");
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
+			IServerTaskMonitor subMonitor = monitor.subWork("test", 1);
+			subMonitor.begin(10, null);
+			for (int i = 0; i < 10; i++) {
+				IServerTaskMonitor subsubMonitor = subMonitor.subWork("inception", 1);
+				subsubMonitor.begin(10, null);
+				for (int j = 0; j < 10; j++) {
+					subsubMonitor.progress(1, "sub [" + i + "][" + j + "]");
 				}
-
-				IServerTaskMonitor subMonitor = monitor.subWork("test", 1);
-				subMonitor.begin(10, null);
-				for (int i = 0; i < 10; i++) {
-					IServerTaskMonitor subsubMonitor = subMonitor.subWork("inception", 1);
-					subsubMonitor.begin(10, null);
-					for (int j = 0; j < 10; j++) {
-						subsubMonitor.progress(1, "sub [" + i + "][" + j + "]");
-					}
-				}
-
 			}
 		};
 
@@ -380,15 +336,10 @@ public class TaskManagerTests {
 
 		ReadStream<Buffer> log = task.log();
 		final List<JsonObject> logs = new LinkedList<>();
-		log.handler(new Handler<Buffer>() {
-
-			@Override
-			public void handle(Buffer arg0) {
-				JsonObject o = new JsonObject(arg0.toString());
-				logs.add(o);
-				System.out.println(arg0.toString());
-			}
-
+		log.handler(arg0 -> {
+			JsonObject o = new JsonObject(arg0.toString());
+			logs.add(o);
+			System.out.println(arg0.toString());
 		});
 
 		assertEquals((10 * 10) + 2, logs.size());
@@ -397,23 +348,18 @@ public class TaskManagerTests {
 	@Test
 	public void testSubMonitor() throws Exception {
 
-		IServerTask serverTask = new IServerTask() {
+		IServerTask serverTask = monitor -> {
+			monitor.begin(1, "begin");
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+			}
 
-			@Override
-			public void run(IServerTaskMonitor monitor) throws Exception {
-				monitor.begin(1, "begin");
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-				}
-
-				IServerTaskMonitor subMonitor = monitor.subWork("test", 1);
-				subMonitor.begin(10, null);
-				for (int i = 0; i < 10; i++) {
-					Thread.sleep(10);
-					subMonitor.progress(1, "step " + i);
-				}
-
+			IServerTaskMonitor subMonitor = monitor.subWork("test", 1);
+			subMonitor.begin(10, null);
+			for (int i = 0; i < 10; i++) {
+				Thread.sleep(10);
+				subMonitor.progress(1, "step " + i);
 			}
 		};
 
@@ -430,15 +376,10 @@ public class TaskManagerTests {
 
 		ReadStream<Buffer> log = task.log();
 		final List<JsonObject> logs = new LinkedList<>();
-		log.handler(new Handler<Buffer>() {
-
-			@Override
-			public void handle(Buffer arg0) {
-				JsonObject o = new JsonObject(arg0.toString());
-				logs.add(o);
-				System.out.println(arg0.toString());
-			}
-
+		log.handler(arg0 -> {
+			JsonObject o = new JsonObject(arg0.toString());
+			logs.add(o);
+			System.out.println(arg0.toString());
 		});
 
 		assertEquals(10 + 2, logs.size());

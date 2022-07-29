@@ -24,6 +24,7 @@ import static org.junit.Assert.fail;
 
 import java.util.Collections;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
@@ -42,10 +43,6 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.util.concurrent.SettableFuture;
-
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.config.Token;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
@@ -90,16 +87,7 @@ public class LdapServerHookTests {
 				.contextWithSession("testUser", "test", domainUid, SecurityContext.ROLE_ADMIN).getSecurityContext();
 		PopulateHelper.domainAdmin(domainUid, domainAdmin.getSubject());
 
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		getLdapRoleServer();
 

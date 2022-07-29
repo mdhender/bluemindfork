@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -98,12 +97,7 @@ public class CheckCyrusContainerFilesystemTests {
 		// ensure the partition is created correctly before restarting cyrus
 		PopulateHelper.addDomain(domainUid, Routing.none);
 
-		CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(ar -> {
-			cdl.countDown();
-		});
-		boolean beforeTimeout = cdl.await(30, TimeUnit.SECONDS);
-		assertTrue(beforeTimeout);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		MQ.init().get(30, TimeUnit.SECONDS);
 		Topology.get();

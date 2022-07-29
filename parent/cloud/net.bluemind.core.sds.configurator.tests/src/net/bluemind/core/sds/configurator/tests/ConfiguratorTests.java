@@ -36,15 +36,7 @@ public class ConfiguratorTests {
 
 	@Before
 	public void before() throws InterruptedException, ExecutionException, TimeoutException {
-		CompletableFuture<Void> cf = new CompletableFuture<>();
-		VertxPlatform.spawnVerticles(res -> {
-			if (res.succeeded()) {
-				cf.complete(null);
-			} else {
-				cf.completeExceptionally(res.cause());
-			}
-		});
-		cf.get(10, TimeUnit.SECONDS);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 	}
 
 	@Test

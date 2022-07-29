@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -34,10 +35,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-import com.google.common.util.concurrent.SettableFuture;
-
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.authentication.provider.IAuthProvider.AuthResult;
 import net.bluemind.authentication.provider.IAuthProvider.IAuthContext;
 import net.bluemind.core.container.model.Item;
@@ -129,16 +126,7 @@ public class ImportLdapAuthenticationServiceTests {
 				.contextWithSession("testUser", "test", domainUid, SecurityContext.ROLE_ADMIN).getSecurityContext();
 		PopulateHelper.domainAdmin(domainUid, domainAdmin.getSubject());
 
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		LdapDockerTestHelper.initLdapTree(this.getClass(), testName);
 	}

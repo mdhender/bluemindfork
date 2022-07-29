@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
@@ -40,9 +41,7 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.SettableFuture;
 
-import io.vertx.core.AsyncResult;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
@@ -184,11 +183,7 @@ public abstract class AbstractCalendarTests {
 		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 		JdbcTestHelper.getInstance().beforeTest();
 
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		VertxPlatform.spawnVerticles((AsyncResult<Void> event) -> {
-			future.set(null);
-		});
-		future.get();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		ElasticsearchTestHelper.getInstance().beforeTest();
 
 		Server esServer = new Server();

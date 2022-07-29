@@ -36,7 +36,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import javax.mail.internet.MimeMessage;
 
@@ -58,8 +58,6 @@ import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 
 import freemarker.template.TemplateException;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.backend.cyrus.internal.ScriptCheckMailAdapter;
 import net.bluemind.backend.cyrus.internal.SieveWriter;
 import net.bluemind.backend.cyrus.internal.SieveWriter.Type;
@@ -107,14 +105,7 @@ public class SieveWriterTests {
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		String imapServerAddress = new BmConfIni().get("imap-role");
 		assertNotNull(imapServerAddress);
@@ -256,7 +247,7 @@ public class SieveWriterTests {
 		rule2.stop = false;
 		rule2.criteria = "SUBJECT:IS: SubjectTest";
 		rule2.forward.emails.add("toto@gmail.com");
-      
+
 		// This rule will match and use a fileinto action
 		MailFilter.Rule rule3 = new MailFilter.Rule();
 		rule3.active = true;
@@ -268,6 +259,7 @@ public class SieveWriterTests {
 		assertAction(Arrays.<Class<?>>asList(ActionRedirect.class, ActionFileInto.class), r);
 
 	}
+
 	@Test
 	public void testFrom() throws Exception {
 		MailFilter.Rule rule = new MailFilter.Rule();

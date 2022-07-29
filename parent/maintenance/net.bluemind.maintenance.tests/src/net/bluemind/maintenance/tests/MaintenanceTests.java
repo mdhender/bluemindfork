@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.junit.After;
@@ -60,9 +60,7 @@ public class MaintenanceTests {
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 
 		// Wait for the core to be ready
-		final CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(ar -> cdl.countDown());
-		cdl.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
 		Server cyrus = new Server();

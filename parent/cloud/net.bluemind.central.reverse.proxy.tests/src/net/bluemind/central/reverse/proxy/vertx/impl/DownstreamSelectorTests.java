@@ -5,6 +5,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -47,7 +48,7 @@ public class DownstreamSelectorTests {
 			cdl.countDown();
 		});
 
-		cdl.await();
+		cdl.await(30, TimeUnit.SECONDS);
 	}
 
 	@Test
@@ -70,7 +71,7 @@ public class DownstreamSelectorTests {
 			assertEquals(session.address().host(), "2.2.2.2");
 			cdl.countDown();
 		});
-		cdl.await();
+		cdl.await(30, TimeUnit.SECONDS);
 	}
 
 	private SessionManager noopSessions() {

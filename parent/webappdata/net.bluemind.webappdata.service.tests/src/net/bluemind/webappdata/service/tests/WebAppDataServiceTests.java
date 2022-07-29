@@ -25,12 +25,11 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.util.concurrent.SettableFuture;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -59,9 +58,7 @@ public class WebAppDataServiceTests {
 
 		PopulateHelper.initGlobalVirt();
 
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		VertxPlatform.spawnVerticles(event -> future.set(null));
-		future.get();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		PopulateHelper.createTestDomain(domain);
 		PopulateHelper.addUser(userUid, domain);

@@ -45,9 +45,7 @@ public class AlertsServiceTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
-		CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(ar -> cdl.countDown());
-		cdl.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		this.apiKey = "yeah-yeah";
 		Sessions.get().put(apiKey, SecurityContext.SYSTEM);
 	}

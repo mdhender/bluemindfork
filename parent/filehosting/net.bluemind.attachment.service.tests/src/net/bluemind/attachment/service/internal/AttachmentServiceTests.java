@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -35,7 +35,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
@@ -72,16 +71,7 @@ public class AttachmentServiceTests {
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		final CountDownLatch latch = new CountDownLatch(1);
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				latch.countDown();
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		latch.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();

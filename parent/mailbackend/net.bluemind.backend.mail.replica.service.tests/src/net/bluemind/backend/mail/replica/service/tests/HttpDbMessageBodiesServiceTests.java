@@ -22,9 +22,6 @@
  */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
@@ -40,10 +37,7 @@ public class HttpDbMessageBodiesServiceTests extends DbMessageBodiesServiceTests
 	@Before
 	public void before() throws Exception {
 		super.before();
-		CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(ar -> cdl.countDown());
-		boolean gotIt = cdl.await(20, TimeUnit.SECONDS);
-		assertTrue(gotIt);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		Sessions.get().put("yeah", SecurityContext.SYSTEM);
 	}
 

@@ -23,7 +23,6 @@ import static org.junit.Assert.assertNotNull;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -79,17 +78,7 @@ public class UserHierarchyTests {
 		domainUid = "pipo" + System.currentTimeMillis() + ".io";
 		PopulateHelper.addDomain(domainUid, Routing.none);
 
-		final CompletableFuture<Void> spawn = new CompletableFuture<Void>();
-		VertxPlatform.spawnVerticles(ar -> {
-			if (ar.succeeded()) {
-				spawn.complete(ar.result());
-			} else {
-				spawn.completeExceptionally(ar.cause());
-			}
-		});
-		spawn.thenAccept(v -> {
-			System.err.println("All deployed, before is complete.");
-		}).get(40, TimeUnit.SECONDS);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 	}
 
 	@After

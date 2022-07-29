@@ -25,7 +25,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -34,8 +34,6 @@ import org.junit.Test;
 
 import com.google.common.io.ByteStreams;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -90,14 +88,7 @@ public class ResourcesTypeServiceTests {
 		Container container = containerHome.get(containerId);
 
 		store = new ResourceTypeStore(JdbcActivator.getInstance().getDataSource(), container);
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 	}
 
 	@After

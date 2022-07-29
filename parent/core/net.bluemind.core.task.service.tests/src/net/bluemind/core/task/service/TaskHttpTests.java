@@ -18,12 +18,10 @@
  */
 package net.bluemind.core.task.service;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Before;
 
-import com.google.common.util.concurrent.SettableFuture;
-
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.task.api.ITask;
@@ -33,16 +31,7 @@ public class TaskHttpTests extends TaskTests {
 
 	@Before
 	public void before() throws Exception {
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		VertxPlatform.spawnBlocking(60, TimeUnit.SECONDS);
 	}
 
 	protected ITask getTask(String taskId) throws ServerFault {

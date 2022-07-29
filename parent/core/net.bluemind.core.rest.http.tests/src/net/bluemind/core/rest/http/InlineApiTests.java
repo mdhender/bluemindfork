@@ -44,7 +44,7 @@ public class InlineApiTests {
 	public void testInlineCall() throws Exception {
 		AsyncHttpClient asyncHttpClient = httpClient;
 		Future<Response> f = asyncHttpClient.prepareGet("http://localhost:8090/api/testinline").execute();
-		Response r = f.get();
+		Response r = f.get(30, TimeUnit.SECONDS);
 		Assert.assertEquals("\"hello\"", new String(r.getResponseBodyAsBytes()));
 
 	}

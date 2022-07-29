@@ -64,12 +64,12 @@ public class RestSimpleHttpTests {
 
 		AsyncHttpClient asyncHttpClient = httpClient;
 		Future<Response> f = asyncHttpClient.prepareGet("http://localhost:8090/api/test/mime").execute();
-		Response r = f.get();
+		Response r = f.get(30, TimeUnit.SECONDS);
 		Assert.assertEquals("hello", new String(r.getResponseBodyAsBytes()));
 		Assert.assertEquals("application/binary", r.getContentType());
 
 		f = asyncHttpClient.prepareGet("http://localhost:8090/api/test/bytearray").execute();
-		r = f.get();
+		r = f.get(30, TimeUnit.SECONDS);
 		Assert.assertEquals("hello", new String(r.getResponseBodyAsBytes()));
 		Assert.assertEquals("application/binary", r.getContentType());
 
@@ -94,7 +94,7 @@ public class RestSimpleHttpTests {
 		AsyncHttpClient asyncHttpClient = httpClient;
 		Future<Response> f = asyncHttpClient.prepareGet("http://localhost:8090/api/test/toto/hello")
 				.setHeader("X-BM-ApiKey", "myFakeKey").execute();
-		Response r = f.get();
+		Response r = f.get(30, TimeUnit.SECONDS);
 		Assert.assertEquals("hello toto admin0@global.virt", JsonUtils.read(r.getResponseBody(), String.class));
 		Assert.assertEquals("application/json", r.getContentType());
 		asyncHttpClient.close();

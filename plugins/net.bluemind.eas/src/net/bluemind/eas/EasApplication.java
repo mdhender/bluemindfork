@@ -19,15 +19,14 @@
 package net.bluemind.eas;
 
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -47,16 +46,11 @@ public class EasApplication implements IApplication {
 	public Object start(IApplicationContext context) throws Exception {
 		logger.info("EAS Server starting...");
 		ListeningExecutorService executor = MoreExecutors.newDirectExecutorService();
-		Callable<Void> starter = new Callable<Void>() {
+		return executor.submit(() -> {
+			start();
+			return null;
+		});
 
-			@Override
-			public Void call() throws Exception {
-				start();
-				return null;
-			}
-		};
-		ListenableFuture<Void> future = executor.submit(starter);
-		return future;
 	}
 
 	private void start() throws InterruptedException {
@@ -71,7 +65,7 @@ public class EasApplication implements IApplication {
 			}
 		};
 		VertxPlatform.spawnVerticles(doneHandler);
-		cdl.await();
+		cdl.await(60, TimeUnit.SECONDS);
 		initWiped();
 	}
 

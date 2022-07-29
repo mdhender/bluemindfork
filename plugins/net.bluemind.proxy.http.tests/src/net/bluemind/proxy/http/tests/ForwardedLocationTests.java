@@ -18,6 +18,8 @@
  */
 package net.bluemind.proxy.http.tests;
 
+import java.util.concurrent.TimeUnit;
+
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
 import org.asynchttpclient.ListenableFuture;
@@ -48,7 +50,7 @@ public class ForwardedLocationTests extends ProxyTestCase {
 		BoundRequestBuilder getQuery = ahc.prepareGet("http://localhost:" + hps.getPort() + "/adminconsole/");
 		try {
 			ListenableFuture<Response> future = getQuery.execute();
-			Response response = future.get();
+			Response response = future.get(30, TimeUnit.SECONDS);
 			assertEquals(200, response.getStatusCode());
 			String rContent = response.getResponseBody();
 			assertTrue(rContent.contains("action=\"bluemind_sso_security\""));

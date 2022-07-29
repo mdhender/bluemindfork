@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -106,12 +105,7 @@ public class LocatorVerticleTests {
 		JdbcActivator.getInstance().addMailboxDataSource(cyrusServer.uid,
 				JdbcTestHelper.getInstance().getMailboxDataDataSource());
 
-		CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(ar -> {
-			cdl.countDown();
-		});
-		boolean beforeTimeout = cdl.await(30, TimeUnit.SECONDS);
-		assertTrue(beforeTimeout);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		MQ.init().get(30, TimeUnit.SECONDS);
 		Topology.get();

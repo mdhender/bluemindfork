@@ -18,13 +18,11 @@
  */
 package net.bluemind.central.reverse.proxy;
 
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class ReverseProxyServer {
@@ -32,22 +30,7 @@ public class ReverseProxyServer {
 	private static final Logger logger = LoggerFactory.getLogger(ReverseProxyServer.class);
 
 	public void run() {
-		final CountDownLatch cdl = new CountDownLatch(1);
-		Handler<AsyncResult<Void>> doneHandler = event -> {
-			if (event.succeeded()) {
-				logger.info("Central reverse proxy deployement done.");
-			} else {
-				logger.error("Central reverse proxy deployement failed.", event.cause());
-			}
-			cdl.countDown();
-		};
-		try {
-			VertxPlatform.spawnVerticles(doneHandler);
-			cdl.await();
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			logger.error(e.getMessage(), e);
-		}
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 	}
 
 }

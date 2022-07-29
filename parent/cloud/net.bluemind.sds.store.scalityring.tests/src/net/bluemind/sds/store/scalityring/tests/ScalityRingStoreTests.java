@@ -33,7 +33,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -64,10 +63,7 @@ public class ScalityRingStoreTests {
 	@Before
 	public void launchServer() throws Exception {
 		vertids = Deploy.verticles(false, ScalityTestServer::new).get(5, TimeUnit.SECONDS);
-		CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(ar -> cdl.countDown());
-		boolean beforeTimeout = cdl.await(30, TimeUnit.SECONDS);
-		assertTrue(beforeTimeout);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 	}
 
 	@After

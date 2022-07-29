@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.junit.After;
@@ -72,7 +73,7 @@ public class DirectorySearchTest {
 
 		CountDownLatch wait = new CountDownLatch(1);
 		serialize(Arrays.asList(rec1, rec2, rec3, rec4), wait);
-		wait.await();
+		wait.await(60, TimeUnit.SECONDS);
 
 		DirectoryDeserializer deserializer = new DirectoryDeserializer(file);
 		this.defaultSearch = new DefaultDirectorySearch(deserializer);

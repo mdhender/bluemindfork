@@ -21,6 +21,7 @@ package net.bluemind.core.container.service.internal;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
@@ -28,10 +29,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.util.concurrent.SettableFuture;
-
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
@@ -87,16 +84,7 @@ public class ContainersHierarchyServiceTests {
 		userHierContainer = containerStore
 				.get(IFlatHierarchyUids.getIdentifier(user.getSubject(), user.getContainerUid()));
 
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 	}
 
 	@After

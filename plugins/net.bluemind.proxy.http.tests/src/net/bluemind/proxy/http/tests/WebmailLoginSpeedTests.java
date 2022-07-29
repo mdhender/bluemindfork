@@ -18,6 +18,8 @@
  */
 package net.bluemind.proxy.http.tests;
 
+import java.util.concurrent.TimeUnit;
+
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
 import org.asynchttpclient.ListenableFuture;
@@ -43,7 +45,7 @@ public class WebmailLoginSpeedTests extends ProxyTestCase {
 		BoundRequestBuilder getQuery = ahc.prepareGet("http://localhost:" + hps.getPort() + "/webmail/");
 		try {
 			ListenableFuture<Response> future = getQuery.execute();
-			Response response = future.get();
+			Response response = future.get(30, TimeUnit.SECONDS);
 			assertEquals(200, response.getStatusCode());
 			String storedRequestId = response.getHeader("BMStoredRequestId");
 			System.err.println("storedRequestId: " + storedRequestId);
@@ -58,7 +60,7 @@ public class WebmailLoginSpeedTests extends ProxyTestCase {
 			post.addFormParam("priv", "priv");
 			post.addFormParam("storedRequestId", storedRequestId);
 			future = post.execute();
-			response = future.get();
+			response = future.get(30, TimeUnit.SECONDS);
 			String ssoCookie = response.getHeader("BMSsoCookie");
 			System.err.println("sso cookie: " + ssoCookie);
 			assertNotNull(ssoCookie);
@@ -72,7 +74,7 @@ public class WebmailLoginSpeedTests extends ProxyTestCase {
 			getQuery = ahc.prepareGet("http://localhost:" + hps.getPort() + "/webmail/");
 			getQuery.addQueryParam("BMHPS", ssoCookie.trim());
 			future = getQuery.execute();
-			response = future.get();
+			response = future.get(30, TimeUnit.SECONDS);
 			System.err.println("statusCode: " + response.getStatusCode());
 			assertEquals(302, response.getStatusCode());
 			time = System.currentTimeMillis() - time;

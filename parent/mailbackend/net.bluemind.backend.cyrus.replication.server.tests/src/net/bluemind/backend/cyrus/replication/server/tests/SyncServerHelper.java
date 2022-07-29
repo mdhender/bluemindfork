@@ -36,7 +36,7 @@ public class SyncServerHelper {
 
 		CountDownLatch latch = new CountDownLatch(1);
 		check(latch);
-		latch.await();
+		latch.await(60, TimeUnit.SECONDS);
 	}
 
 	private static void check(CountDownLatch latch) throws InterruptedException {

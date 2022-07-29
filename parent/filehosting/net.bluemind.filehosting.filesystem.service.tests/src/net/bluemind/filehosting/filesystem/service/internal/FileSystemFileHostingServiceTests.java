@@ -742,7 +742,7 @@ public class FileSystemFileHostingServiceTests {
 		reader.pipeTo(writer, h -> latch.countDown());
 		reader.resume();
 		try {
-			latch.await();
+			latch.await(30, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

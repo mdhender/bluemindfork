@@ -36,15 +36,7 @@ public class SyncClientToReplicationEndpointTests {
 	@Before
 	public void before() throws InterruptedException, ExecutionException, TimeoutException {
 		System.err.println("before...");
-		CompletableFuture<Void> deployed = new CompletableFuture<>();
-		VertxPlatform.spawnVerticles(ar -> {
-			if (ar.succeeded()) {
-				deployed.complete(null);
-			} else {
-				deployed.completeExceptionally(ar.cause());
-			}
-		});
-		deployed.get(10, TimeUnit.SECONDS);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		SyncServerHelper.waitFor();
 		System.err.println("Deployement is complete, test starts...");
 	}

@@ -67,15 +67,7 @@ public class TopologyProducerTests {
 
 		PopulateHelper.initGlobalVirt(imapServer);
 
-		CompletableFuture<Void> cdl = new CompletableFuture<>();
-		VertxPlatform.spawnVerticles(v -> {
-			if (v.succeeded()) {
-				cdl.complete(null);
-			} else {
-				cdl.completeExceptionally(v.cause());
-			}
-		});
-		cdl.get(30, TimeUnit.SECONDS);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		IServiceTopology currentTopology = Topology.get();
 		assertNotNull(currentTopology);

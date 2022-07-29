@@ -28,7 +28,6 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -39,8 +38,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.calendar.api.CalendarDescriptor;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
@@ -94,14 +91,7 @@ public class RestoreCalendarsTaskTests {
 		JdbcTestHelper.getInstance().beforeTest();
 		ElasticsearchTestHelper.getInstance().beforeTest();
 
-		final CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				cdl.countDown();
-			}
-		});
-		cdl.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		Server core = new Server();
 		core.ip = new BmConfIni().get("node-host");

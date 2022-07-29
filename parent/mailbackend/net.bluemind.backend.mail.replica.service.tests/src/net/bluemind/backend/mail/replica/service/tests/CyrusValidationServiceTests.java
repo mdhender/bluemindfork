@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -45,15 +44,7 @@ public class CyrusValidationServiceTests {
 
 		PopulateHelper.initGlobalVirt(cyrus);
 
-		CompletableFuture<Void> startResult = new CompletableFuture<>();
-		VertxPlatform.spawnVerticles(spawnResult -> {
-			if (spawnResult.succeeded()) {
-				startResult.complete(null);
-			} else {
-				startResult.completeExceptionally(spawnResult.cause());
-			}
-		});
-		startResult.get(20, TimeUnit.SECONDS);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		PopulateHelper.addDomain("devenv.blue", Routing.internal);
 

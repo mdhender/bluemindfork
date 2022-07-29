@@ -21,7 +21,6 @@ package net.bluemind.forest.join.tests;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -48,15 +47,7 @@ public class InstanceJoinsForestTests {
 	public void before() throws InterruptedException, ExecutionException, TimeoutException {
 		SingleKafkaContainer.get();
 		System.err.println("After kafka");
-		CompletableFuture<Void> start = new CompletableFuture<>();
-		VertxPlatform.spawnVerticles(res -> {
-			if (res.succeeded()) {
-				start.complete(null);
-			} else {
-				start.completeExceptionally(res.cause());
-			}
-		});
-		start.get(30, TimeUnit.SECONDS);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		cloudJoinApiClient = ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", null)
 				.instance(IForestJoin.class, "mail.gouv.fr");

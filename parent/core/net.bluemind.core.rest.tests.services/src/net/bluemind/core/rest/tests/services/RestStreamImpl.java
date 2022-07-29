@@ -19,6 +19,7 @@
 package net.bluemind.core.rest.tests.services;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -48,7 +49,7 @@ public class RestStreamImpl implements IRestStreamTestService {
 		reader.pipeTo(writer, ar -> latch.countDown());
 		reader.resume();
 		try {
-			latch.await();
+			latch.await(60, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -128,7 +129,7 @@ public class RestStreamImpl implements IRestStreamTestService {
 		reader.pipeTo(writer, ar -> latch.countDown());
 		reader.resume();
 		try {
-			latch.await();
+			latch.await(60, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

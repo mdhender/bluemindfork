@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -125,9 +124,7 @@ public class MapiFolderServiceTests {
 		folders.store(mf);
 		this.mapiFolder = folders.get(mf.containerUid);
 
-		CountDownLatch latch = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(v -> latch.countDown());
-		latch.await(10, TimeUnit.SECONDS);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		Sessions.get().put(userSecurityContext.getSessionId(), userSecurityContext);
 

@@ -20,6 +20,7 @@ package net.bluemind.proxy.http.tests;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
@@ -46,7 +47,7 @@ public class WebmailAutocompleteTests extends ProxyTestCase {
 		try {
 			// get a request id in the /cal url
 			ListenableFuture<Response> future = getQuery.execute();
-			Response response = future.get();
+			Response response = future.get(30, TimeUnit.SECONDS);
 			assertEquals(200, response.getStatusCode());
 			String storedRequestId = response.getHeader("BMStoredRequestId");
 			System.err.println("storedRequestId: " + storedRequestId);
@@ -60,7 +61,7 @@ public class WebmailAutocompleteTests extends ProxyTestCase {
 			post.addFormParam("priv", "priv");
 			post.addFormParam("storedRequestId", storedRequestId);
 			future = post.execute();
-			response = future.get();
+			response = future.get(30, TimeUnit.SECONDS);
 			this.cookies = response.getCookies();
 			this.cm = new LinkedHashMap<String, Cookie>();
 			System.err.println("Cookies count is " + cookies.size());
@@ -80,7 +81,7 @@ public class WebmailAutocompleteTests extends ProxyTestCase {
 				}
 				System.err.println("Redirect " + nurl);
 				future = post.execute();
-				response = future.get();
+				response = future.get(30, TimeUnit.SECONDS);
 				List<Cookie> rc = response.getCookies();
 				for (Cookie c : rc) {
 					// System.err.println("rc: " + c.getName() + " "
@@ -123,7 +124,7 @@ public class WebmailAutocompleteTests extends ProxyTestCase {
 
 			System.err.println("=========== GET ========");
 			ListenableFuture<Response> future = getQuery.execute();
-			Response response = future.get();
+			Response response = future.get(30, TimeUnit.SECONDS);
 			String rContent = response.getResponseBody();
 			System.err.println("statusCode: " + response.getStatusCode());
 			assertEquals(200, response.getStatusCode());
@@ -156,7 +157,7 @@ public class WebmailAutocompleteTests extends ProxyTestCase {
 
 			System.err.println("=========== POST ========");
 			ListenableFuture<Response> future = pc.execute();
-			Response response = future.get();
+			Response response = future.get(30, TimeUnit.SECONDS);
 			String rContent = response.getResponseBody();
 			System.err.println("statusCode: " + response.getStatusCode());
 			System.err.println("ContentType: " + response.getContentType());

@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -59,9 +58,7 @@ public class MapiRulesServiceTests {
 
 		PopulateHelper.initGlobalVirt();
 		Sessions.get().put("toto", SecurityContext.SYSTEM);
-		CompletableFuture<Void> wait = new CompletableFuture<>();
-		VertxPlatform.spawnVerticles(res -> wait.complete(null));
-		wait.get(5, TimeUnit.SECONDS);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 	}
 
 	@After

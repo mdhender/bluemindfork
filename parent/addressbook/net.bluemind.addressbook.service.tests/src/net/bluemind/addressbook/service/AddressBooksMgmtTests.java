@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
@@ -38,10 +39,7 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.SettableFuture;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.AddressBookDescriptor;
 import net.bluemind.addressbook.api.IAddressBooksMgmt;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -96,16 +94,7 @@ public class AddressBooksMgmtTests {
 
 		PopulateHelper.createTestDomain(domainUid, esServer);
 		PopulateHelper.domainAdmin(domainUid, domainAdmin.getSubject());
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		dummy = BmTestContext.contextWithSession("dummy", PopulateHelper.addUser("dummy", domainUid), domainUid)
 				.getSecurityContext();

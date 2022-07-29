@@ -477,7 +477,7 @@ public class NodeClientTests extends TestCase {
 		}
 		Future<?> down = exec.shutdownGracefully();
 		System.out.println("Waiting for threads termination... " + total.get() + "/" + CNT);
-		down.await();
+		down.await(5, TimeUnit.MINUTES);
 		assertEquals(0, failed.get());
 	}
 

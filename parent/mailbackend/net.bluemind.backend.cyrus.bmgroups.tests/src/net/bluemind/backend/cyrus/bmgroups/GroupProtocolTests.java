@@ -163,7 +163,7 @@ public class GroupProtocolTests {
 		LinkedList<Exception> errors = new LinkedList<>();
 		for (Future<?> f : futures) {
 			try {
-				f.get();
+				f.get(60, TimeUnit.SECONDS);
 			} catch (Exception e) {
 				errors.add(e);
 			}

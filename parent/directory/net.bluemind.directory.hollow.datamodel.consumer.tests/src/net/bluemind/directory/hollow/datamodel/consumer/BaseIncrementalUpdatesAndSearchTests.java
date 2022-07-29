@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Stream;
@@ -101,7 +102,7 @@ public abstract class BaseIncrementalUpdatesAndSearchTests {
 		this.strat = strategy(file, wait);
 
 		serialize(rec1, rec2, rec3, rec4);
-		wait.await();
+		wait.await(60, TimeUnit.SECONDS);
 
 		this.defaultSearch = DirectorySearchFactory.browser("bm.loc");
 	}

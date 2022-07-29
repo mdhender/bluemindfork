@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -94,9 +93,7 @@ public class RestoreUserTests {
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 		ElasticsearchTestHelper.getInstance().beforeTest();
 
-		final CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(v -> cdl.countDown());
-		cdl.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		Server core = new Server();
 		core.ip = new BmConfIni().get("node-host");

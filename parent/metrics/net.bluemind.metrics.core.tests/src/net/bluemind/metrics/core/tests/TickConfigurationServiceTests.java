@@ -21,7 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -53,9 +53,7 @@ public class TickConfigurationServiceTests {
 		imap.tags = Arrays.asList("mail/imap");
 		PopulateHelper.initGlobalVirt(imap);
 
-		CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(ar -> cdl.countDown());
-		cdl.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		this.apiKey = "yeah-yeah";
 		Sessions.get().put(apiKey, SecurityContext.SYSTEM);
 	}

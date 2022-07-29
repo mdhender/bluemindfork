@@ -31,13 +31,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.backend.postfix.Activator;
 import net.bluemind.backend.postfix.internal.maps.DomainInfo;
 import net.bluemind.backend.postfix.internal.maps.MapRow;
@@ -72,14 +70,7 @@ public class ServerMapsTests {
 
 		PopulateHelper.initGlobalVirt();
 
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		Activator.DISABLE_EVENT = true;
 	}

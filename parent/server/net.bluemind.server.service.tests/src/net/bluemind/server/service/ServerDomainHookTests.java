@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -33,8 +34,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -99,14 +98,7 @@ public class ServerDomainHookTests {
 		AclStore aclStore = new AclStore(JdbcTestHelper.getInstance().getDataSource());
 		aclStore.store(installation,
 				Arrays.asList(AccessControlEntry.create(defaultSecurityContext.getSubject(), Verb.All)));
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 	}
 
 	@After
@@ -130,7 +122,7 @@ public class ServerDomainHookTests {
 		CountDownLatch latch = new CountDownLatch(1);
 		TaskRef deleteDomainItems = domainService.deleteDomainItems(domainUid);
 		trackDeletion(deleteDomainItems, latch);
-		latch.await();
+		latch.await(1, TimeUnit.MINUTES);
 		domainService.delete(domainUid);
 		assertEquals(0, getService().getAssignments(domainUid).size());
 	}

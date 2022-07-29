@@ -23,7 +23,6 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -53,15 +52,7 @@ public class TopologyConsumerTests {
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 
 		this.producer = MQ.init().thenApply(v -> MQ.registerProducer("topology.updates")).get(30, TimeUnit.SECONDS);
-		CompletableFuture<Void> spawn = new CompletableFuture<>();
-		VertxPlatform.spawnVerticles(av -> {
-			if (av.succeeded()) {
-				spawn.complete(null);
-			} else {
-				spawn.completeExceptionally(av.cause());
-			}
-		});
-		spawn.get(30, TimeUnit.SECONDS);
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		System.err.println("-------- init completed ------");
 	}
 

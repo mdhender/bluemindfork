@@ -22,6 +22,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
@@ -30,10 +32,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.util.concurrent.SettableFuture;
-
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class HttpRouteTests {
@@ -42,20 +40,8 @@ public class HttpRouteTests {
 
 	@Before
 	public void setup() throws Exception {
-
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
-
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		httpClient = new DefaultAsyncHttpClient();
-
 	}
 
 	@After
@@ -64,8 +50,9 @@ public class HttpRouteTests {
 	}
 
 	@Test
-	public void testHttpRouteWellBinded() throws InterruptedException, ExecutionException, IOException {
-		Response resp = httpClient.prepareGet("http://localhost:8090/route-test/binded").execute().get();
+	public void testHttpRouteWellBinded() throws InterruptedException, ExecutionException, TimeoutException {
+		Response resp = httpClient.prepareGet("http://localhost:8090/route-test/binded").execute().get(30,
+				TimeUnit.SECONDS);
 		assertEquals(200, resp.getStatusCode());
 		assertEquals("OK-TEST", resp.getResponseBody());
 	}

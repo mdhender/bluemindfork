@@ -21,6 +21,7 @@ package net.bluemind.proxy.http.tests;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
@@ -59,7 +60,7 @@ public class AppLoginHelper {
 
 		// get a request id in the /settings url
 		ListenableFuture<Response> future = getQuery.execute();
-		Response response = future.get();
+		Response response = future.get(30, TimeUnit.SECONDS);
 		if (200 != response.getStatusCode()) {
 			throw new Exception("Status code != 200");
 		}
@@ -77,7 +78,7 @@ public class AppLoginHelper {
 		post.addFormParam("priv", "priv");
 		post.addFormParam("storedRequestId", storedRequestId);
 		future = post.execute();
-		response = future.get();
+		response = future.get(30, TimeUnit.SECONDS);
 		List<Cookie> cookies = response.getCookies();
 		this.cm = new LinkedHashMap<>();
 		System.err.println("Cookies count is " + cookies.size());
@@ -95,7 +96,7 @@ public class AppLoginHelper {
 			}
 			System.err.println("Redirect " + nurl);
 			future = post.execute();
-			response = future.get();
+			response = future.get(30, TimeUnit.SECONDS);
 			List<Cookie> rc = response.getCookies();
 			for (Cookie c : rc) {
 				cm.put(c.name(), c);
@@ -114,7 +115,7 @@ public class AppLoginHelper {
 
 		System.err.println("=========== GET ========");
 		ListenableFuture<Response> future = getQuery.execute();
-		Response response = future.get();
+		Response response = future.get(30, TimeUnit.SECONDS);
 		String rContent = response.getResponseBody();
 		System.err.println("statusCode: " + response.getStatusCode() + " for " + inAppUrl);
 		System.err.println("ContentType: " + response.getContentType() + " for " + inAppUrl);
@@ -132,7 +133,7 @@ public class AppLoginHelper {
 
 		System.err.println("=========== GET ========");
 		ListenableFuture<Long> future = getQuery.execute(new SizeHandler());
-		return future.get();
+		return future.get(30, TimeUnit.SECONDS);
 
 	}
 

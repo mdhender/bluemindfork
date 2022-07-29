@@ -24,6 +24,7 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -32,10 +33,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-import com.google.common.util.concurrent.SettableFuture;
-
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.addressbook.ldap.api.ConnectionStatus;
 import net.bluemind.addressbook.ldap.api.ILdapAddressBook;
 import net.bluemind.addressbook.ldap.api.LdapParameters;
@@ -84,16 +81,7 @@ public class LdapAddressBookServiceTests {
 				Collections.<String>emptyList(), "bm.lan");
 		Sessions.get().put(domainUser.getSessionId(), domainUser);
 
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		LdapDockerTestHelper.initLdapTree(this.getClass(), testName);
 	}
