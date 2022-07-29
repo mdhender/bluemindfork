@@ -47,7 +47,7 @@ public class DomainMailFilterStoreTests {
 		
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 		String containerId = "test_" + System.nanoTime() + ".fr";
 		Container mailboxes = Container.create(containerId, "mailshare", containerId, "me", true);

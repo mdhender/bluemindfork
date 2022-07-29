@@ -89,7 +89,7 @@ public class ServerDomainHookTests {
 		domainUid = "test.lan";
 		PopulateHelper.createTestDomain("test.lan");
 
-		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				defaultSecurityContext);
 
 		installation = containerHome.get(InstallationId.getIdentifier());

@@ -141,11 +141,11 @@ public class MailboxIdentityTests {
 		Sessions.get().put(adminSecurityContext.getSessionId(), adminSecurityContext);
 
 		DataSource pool = JdbcTestHelper.getInstance().getDataSource();
-		ContainerStore containerHome = new ContainerStore(pool, defaultSecurityContext);
+		ContainerStore containerHome = new ContainerStore(null, pool, defaultSecurityContext);
 		Container container = containerHome.get(domainUid);
 		assertNotNull(container);
 
-		AclStore aclStore = new AclStore(pool);
+		AclStore aclStore = new AclStore(null, pool);
 		aclStore.store(container,
 				Arrays.asList(AccessControlEntry.create(defaultSecurityContext.getSubject(), Verb.All)));
 

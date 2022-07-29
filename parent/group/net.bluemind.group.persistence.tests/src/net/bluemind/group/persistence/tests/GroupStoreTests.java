@@ -72,7 +72,7 @@ public class GroupStoreTests {
 		
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), securityContext);
+		containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), securityContext);
 		String containerId = "users_" + System.nanoTime() + ".fr";
 		userContainer = Container.create(containerId, "domain", containerId, "me", true);
 		userContainer = containerStore.create(userContainer);

@@ -133,7 +133,8 @@ public class VEventSeriesSanitizerTests {
 		this.dataLocation = this.provider.instance(IServer.class, InstallationId.getIdentifier())
 				.getComplete(imapServer.ip);
 
-		this.containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
+		this.containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
+				SecurityContext.SYSTEM);
 		this.initDomain(dataLocation, imapServer);
 
 		this.createCyrusPartition(imapServer, this.domainUid);
@@ -392,7 +393,7 @@ public class VEventSeriesSanitizerTests {
 	@SuppressWarnings("deprecation")
 	private void createTestContainer(SecurityContext context, String type, String login, String name, String owner)
 			throws SQLException {
-		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), context);
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), context);
 		Container container = Container.create(name, type, name, owner, this.domainUid, true);
 		container = containerHome.create(container);
 		Container dom = containerHome.get(domainUid);
@@ -433,7 +434,7 @@ public class VEventSeriesSanitizerTests {
 		veventMessage.securityContext = SecurityContext.SYSTEM;
 		veventMessage.sendNotifications = true;
 		try {
-			veventMessage.container = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+			veventMessage.container = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 					SecurityContext.SYSTEM).get(ICalendarUids.defaultUserCalendar(user.login));
 			Assert.assertNotNull(veventMessage.container);
 			veventMessage.container.domainUid = this.domainUid;

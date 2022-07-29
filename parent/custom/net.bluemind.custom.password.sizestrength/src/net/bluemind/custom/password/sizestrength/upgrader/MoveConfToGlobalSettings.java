@@ -102,7 +102,7 @@ public class MoveConfToGlobalSettings implements Updater {
 		Integer length = getProperty(p, "length", 6);
 
 		globalSettings.put(PasswordSizeStrenghtSettingsKeys.password_sizestrength_minimumlength.name(),
-				length < digit + capital + lower + special ? new Integer(digit + capital + lower + special).toString()
+				length < digit + capital + lower + special ? Integer.valueOf(digit + capital + lower + special).toString()
 						: length.toString());
 
 		logger.info("Password sizestrenght policy readed from {}: {}", CONF_FILE,
@@ -115,7 +115,7 @@ public class MoveConfToGlobalSettings implements Updater {
 	private Integer getProperty(Properties p, String name, int defaultValue) {
 		Integer value = defaultValue;
 		try {
-			value = new Integer(p.getProperty(name));
+			value = Integer.valueOf(p.getProperty(name));
 		} catch (NumberFormatException nfe) {
 		}
 

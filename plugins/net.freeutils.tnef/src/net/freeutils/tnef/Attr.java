@@ -56,8 +56,9 @@ public class Attr {
 	/**
 	 * Attribute ID constant.
 	 */
-	public static final int attNull = /* ATT( 0, */ 0x0000/* ) */,
-			attFrom = /* ATT( atpTriples, */ 0x8000/* ) */, /* PR_ORIGINATOR_RETURN_ADDRESS */
+	public static final int attNull = /* ATT( 0, */ 0x0000/* ) */, attFrom = /* ATT( atpTriples, */ 0x8000/* ) */, /*
+																													 * PR_ORIGINATOR_RETURN_ADDRESS
+																													 */
 			attSubject = /* ATT( atpString, */ 0x8004/* ) */, /* PR_SUBJECT */
 			attDateSent = /* ATT( atpDate, */ 0x8005/* ) */, /* PR_CLIENT_SUBMIT_TIME */
 			attDateRecd = /* ATT( atpDate, */ 0x8006/* ) */, /* PR_MESSAGE_DELIVERY_TIME */
@@ -75,17 +76,13 @@ public class Attr {
 			attAttachModifyDate = /* ATT( atpDate, */ 0x8013/* ) */, /* PR_LAST_MODIFICATION_TIME */
 			attDateModified = /* ATT( atpDate, */ 0x8020/* ) */, /* PR_LAST_MODIFICATION_TIME */
 			attAttachTransportFilename = /* ATT( atpByte, */ 0x9001/* ) */, /* PR_ATTACH_TRANSPORT_NAME */
-			attAttachRenddata = /* ATT( atpByte, */ 0x9002/* ) */,
-			attMAPIProps = /* ATT( atpByte, */ 0x9003/* ) */,
+			attAttachRenddata = /* ATT( atpByte, */ 0x9002/* ) */, attMAPIProps = /* ATT( atpByte, */ 0x9003/* ) */,
 			attRecipTable = /* ATT( atpByte, */ 0x9004/* ) */, /* PR_MESSAGE_RECIPIENTS */
-			attAttachment = /* ATT( atpByte, */ 0x9005/* ) */,
-			attTnefVersion = /* ATT( atpDword, */ 0x9006/* ) */,
+			attAttachment = /* ATT( atpByte, */ 0x9005/* ) */, attTnefVersion = /* ATT( atpDword, */ 0x9006/* ) */,
 			attOemCodepage = /* ATT( atpByte, */ 0x9007/* ) */,
 			attOriginalMessageClass = /* ATT( atpWord, */ 0x0006/* ) */, /* PR_ORIG_MESSAGE_CLASS */
 			attOwner = /* ATT( atpByte, */ 0x0000/* ) */, /*
-															 * PR_RCVD_REPRESENTING_xxx
-															 * or
-															 * PR_SENT_REPRESENTING_xxx
+															 * PR_RCVD_REPRESENTING_xxx or PR_SENT_REPRESENTING_xxx
 															 */
 			attSentFor = /* ATT( atpByte, */ 0x0001/* ) */, /* PR_SENT_REPRESENTING_xxx */
 			attDelegate = /* ATT( atpByte, */ 0x0002/* ) */, /* PR_RCVD_REPRESENTING_xxx */
@@ -104,14 +101,10 @@ public class Attr {
 	/**
 	 * Constructs an Attr containing the specified values.
 	 *
-	 * @param level
-	 *            the attribute level (from LVL_* constants)
-	 * @param type
-	 *            the attribute type (from atp* constants)
-	 * @param ID
-	 *            the attribute ID (from att* constants)
-	 * @param data
-	 *            the attribute data
+	 * @param level the attribute level (from LVL_* constants)
+	 * @param type  the attribute type (from atp* constants)
+	 * @param ID    the attribute ID (from att* constants)
+	 * @param data  the attribute data
 	 */
 	public Attr(byte level, int type, int ID, Object data) {
 		this.level = level;
@@ -124,14 +117,10 @@ public class Attr {
 	/**
 	 * Constructs an Attr containing the specified values.
 	 *
-	 * @param level
-	 *            the attribute level (from LVL_* constants)
-	 * @param type
-	 *            the attribute type (from atp* constants)
-	 * @param ID
-	 *            the attribute ID (from att* constants)
-	 * @param rawData
-	 *            the attribute's raw data
+	 * @param level   the attribute level (from LVL_* constants)
+	 * @param type    the attribute type (from atp* constants)
+	 * @param ID      the attribute ID (from att* constants)
+	 * @param rawData the attribute's raw data
 	 */
 	public Attr(byte level, int type, int ID, RawInputStream rawData) {
 		this.level = level;
@@ -219,15 +208,14 @@ public class Attr {
 	}
 
 	/**
-	 * Returns the value of the Attr's data. Different attributes have a
-	 * different meaning for the underlying raw data, thus the getValue() method
-	 * returns different types of objects. The object returned is determined by
-	 * the attribute type, except for several special cases. The returned Object
-	 * should be cast into the appropriate class.
+	 * Returns the value of the Attr's data. Different attributes have a different
+	 * meaning for the underlying raw data, thus the getValue() method returns
+	 * different types of objects. The object returned is determined by the
+	 * attribute type, except for several special cases. The returned Object should
+	 * be cast into the appropriate class.
 	 *
 	 * @return the value of the Attr's data
-	 * @throws IOException
-	 *             if an I/O error occurs
+	 * @throws IOException if an I/O error occurs
 	 */
 	public Object getValue() throws IOException {
 		if (rawData != null)
@@ -238,10 +226,8 @@ public class Attr {
 	/**
 	 * Reads this attribute's data from the given RawInputStream.
 	 * 
-	 * @param in
-	 *            the RawInputStream containing attribute data
-	 * @throws IOException
-	 *             if an I/O error occurs
+	 * @param in the RawInputStream containing attribute data
+	 * @throws IOException if an I/O error occurs
 	 */
 	protected void read(RawInputStream in) throws IOException {
 		RawInputStream ris = new RawInputStream(in); // a new copy each time!
@@ -284,10 +270,10 @@ public class Attr {
 				o = new Short((short) ris.readU16());
 				break;
 			case atpDword:
-				o = new Long(ris.readU32());
+				o = Long.valueOf(ris.readU32());
 				break;
 			case atpLong:
-				o = new Long(ris.readU32());
+				o = Long.valueOf(ris.readU32());
 				break;
 			case atpString:
 			case atpText:
@@ -321,12 +307,10 @@ public class Attr {
 	/**
 	 * Finds an attribute with the specified ID within given attribute list.
 	 *
-	 * @param attributes
-	 *            the attribute list to search
-	 * @param ID
-	 *            the ID of the attribute to search for
-	 * @return an attribute with given ID found in the attribute list, or null
-	 *         if no such attribute exists
+	 * @param attributes the attribute list to search
+	 * @param ID         the ID of the attribute to search for
+	 * @return an attribute with given ID found in the attribute list, or null if no
+	 *         such attribute exists
 	 */
 	public static Attr findAttr(List<Attr> attributes, int ID) {
 		Attr attr = null;

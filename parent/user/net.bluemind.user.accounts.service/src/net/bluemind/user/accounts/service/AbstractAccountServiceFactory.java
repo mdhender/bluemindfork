@@ -40,7 +40,7 @@ public abstract class AbstractAccountServiceFactory<T>
 		String domainUid = params[0];
 		String uid = params[1];
 
-		ContainerStore containerStore = new ContainerStore(context.getDataSource(), context.getSecurityContext());
+		ContainerStore containerStore = new ContainerStore(null, context.getDataSource(), context.getSecurityContext());
 		Container container = null;
 
 		try {

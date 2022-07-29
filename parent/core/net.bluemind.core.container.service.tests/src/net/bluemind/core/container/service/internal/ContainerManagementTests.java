@@ -74,7 +74,7 @@ public class ContainerManagementTests {
 
 		Sessions.get().put(testSecurityContext.getSessionId(), testSecurityContext);
 
-		containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), testSecurityContext);
+		containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), testSecurityContext);
 
 		containerId = "test_" + System.nanoTime();
 		container = Container.create(containerId, "test", "test", "notMe", domainUid, true);

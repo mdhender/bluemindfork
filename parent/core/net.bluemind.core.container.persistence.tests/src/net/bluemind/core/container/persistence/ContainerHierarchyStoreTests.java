@@ -53,11 +53,10 @@ public class ContainerHierarchyStoreTests {
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 		faiContainerId = IFlatHierarchyUids.getIdentifier("fake_owner", "fake_domain");
-		Container fais = Container.create(faiContainerId, IFlatHierarchyUids.TYPE, faiContainerId, "me",
-				true);
+		Container fais = Container.create(faiContainerId, IFlatHierarchyUids.TYPE, faiContainerId, "me", true);
 		fais = containerStore.create(fais);
 
 		hierStore = new ContainersHierarchyNodeStore(JdbcTestHelper.getInstance().getDataSource(), fais);

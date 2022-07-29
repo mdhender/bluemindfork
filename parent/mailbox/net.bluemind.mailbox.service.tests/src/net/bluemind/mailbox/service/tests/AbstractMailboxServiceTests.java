@@ -143,7 +143,7 @@ public abstract class AbstractMailboxServiceTests {
 
 		DataSource pool = JdbcTestHelper.getInstance().getDataSource();
 
-		ContainerStore containerStore = new ContainerStore(pool, SecurityContext.SYSTEM);
+		ContainerStore containerStore = new ContainerStore(null, pool, SecurityContext.SYSTEM);
 		container = containerStore.get(domainUid);
 
 		itemStore = new ItemStore(pool, container, defaultSecurityContext);

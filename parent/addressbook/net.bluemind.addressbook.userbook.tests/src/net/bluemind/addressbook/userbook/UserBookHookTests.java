@@ -97,8 +97,8 @@ public class UserBookHookTests {
 		ItemValue<User> user = testUser();
 		containerStore = new ContainerStore(bmContext,
 				JdbcActivator.getInstance().getMailboxDataSource(user.value.dataLocation), SecurityContext.SYSTEM);
-		systemContainerStore = new ContainerStore(
-				JdbcActivator.getInstance().getDataSource(), SecurityContext.SYSTEM);
+		systemContainerStore = new ContainerStore(null, JdbcActivator.getInstance().getDataSource(),
+				SecurityContext.SYSTEM);
 	}
 
 	@Test

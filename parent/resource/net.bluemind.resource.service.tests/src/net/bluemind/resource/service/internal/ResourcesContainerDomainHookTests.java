@@ -71,7 +71,7 @@ public class ResourcesContainerDomainHookTests {
 
 		PopulateHelper.initGlobalVirt(esServer);
 
-		containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
+		containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
 
 		testContext = new BmTestContext(SecurityContext.SYSTEM);
 

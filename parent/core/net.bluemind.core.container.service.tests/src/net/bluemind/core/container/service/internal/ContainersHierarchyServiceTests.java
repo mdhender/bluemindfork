@@ -79,7 +79,7 @@ public class ContainersHierarchyServiceTests {
 		Sessions.get().put(user.getSessionId(), user);
 		Sessions.get().put(domainAdminSecurityContext.getSessionId(), domainAdminSecurityContext);
 
-		containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), admin0SecurityContext);
+		containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), admin0SecurityContext);
 
 		IInternalContainersFlatHierarchyMgmt internalHierarchy = new InternalContainersHierarchyMgmtService(
 				new BmTestContext(admin0SecurityContext), user.getSubject(), user.getContainerUid());

@@ -176,7 +176,7 @@ public class IcsHookTests {
 		ItemValue<Server> dataLocation = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IServer.class, InstallationId.getIdentifier()).getComplete(imapServer.ip);
 
-		containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
+		containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
 		initDomain(dataLocation, imapServer);
 	}
 
@@ -214,7 +214,7 @@ public class IcsHookTests {
 
 	private Container createTestContainer(SecurityContext context, String type, String login, String name, String owner)
 			throws SQLException {
-		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), context);
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), context);
 		Container container = Container.create(name, type, name, owner, "test.lan", true);
 		container = containerHome.create(container);
 

@@ -52,7 +52,7 @@ public class ResourceStoreTests {
 		
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 
 		Container resources = Container.create("testContainer", "resources", "test resources container", "system",

@@ -27,7 +27,7 @@ public class SrsTimestamp {
 	private static class InvalidChar extends RuntimeException {
 	}
 
-	private static final int timePrecision = new Long(TimeUnit.DAYS.toSeconds(1)).intValue();
+	private static final int timePrecision = Long.valueOf(TimeUnit.DAYS.toSeconds(1)).intValue();
 
 	private static final String timeBaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 	private static final char[] timeBaseCharsArray = timeBaseChars.toCharArray();
@@ -41,10 +41,10 @@ public class SrsTimestamp {
 
 	public static String from(long timestamp) {
 		long ts = timestamp / timePrecision;
-		int second = new Long(ts & ((1 << timeBaseBits) - 1)).intValue();
+		int second = Long.valueOf(ts & ((1 << timeBaseBits) - 1)).intValue();
 
 		ts = ts >> timeBaseBits;
-		int first = new Long(ts & ((1 << timeBaseBits) - 1)).intValue();
+		int first = Long.valueOf(ts & ((1 << timeBaseBits) - 1)).intValue();
 
 		return new StringBuilder().append(timeBaseCharsArray[first]).append(timeBaseCharsArray[second]).toString();
 	}

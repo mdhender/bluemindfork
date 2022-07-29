@@ -208,7 +208,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 					bs.getDevId(), bs.getLastMonitored().size());
 
 			bs.setLastWaitSeconds(sr.waitIntervalSeconds);
-			bs.setHeartbeart(new Long(sr.heartbeatInterval));
+			bs.setHeartbeart(Long.valueOf(sr.heartbeatInterval));
 			Requests.tagAsync(bs.getRequest());
 			Requests.tag(bs.getRequest(), "timeout", sr.waitIntervalSeconds + "s");
 

@@ -81,7 +81,7 @@ public class DirectoryCache extends AbstractVerticle {
 
 			String domainUid = ((JsonObject) message.body()).getString("domain");
 
-			Long lastVersion = changesetVersion.getOrDefault(domainUid, new Long(0));
+			Long lastVersion = changesetVersion.getOrDefault(domainUid, Long.valueOf(0));
 
 			ContainerChangeset<String> changeset = provider.get().instance(IDirectory.class, domainUid)
 					.changeset(lastVersion);

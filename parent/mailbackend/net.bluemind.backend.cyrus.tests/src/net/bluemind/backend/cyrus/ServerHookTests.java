@@ -122,7 +122,7 @@ public class ServerHookTests {
 
 	@Test
 	public void testOnServerAssigned() throws Exception {
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				context.getSecurityContext());
 		ServerStore serverStore = new ServerStore(JdbcTestHelper.getInstance().getDataSource(),
 				containerStore.get(InstallationId.getIdentifier()));

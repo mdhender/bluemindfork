@@ -60,7 +60,7 @@ public class UserSettingsStoreTests {
 
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 		String containerId = "test_" + System.nanoTime() + ".fr";
 		Container domain = Container.create(containerId, "domain", containerId, "me", true);

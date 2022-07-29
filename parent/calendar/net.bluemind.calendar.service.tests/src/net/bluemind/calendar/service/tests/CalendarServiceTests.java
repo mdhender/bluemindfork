@@ -1836,13 +1836,13 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		String uid = UIDGenerator.uid();
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
-		assertEquals(new Integer(0), item.value.main.sequence);
+		assertEquals(Integer.valueOf(0), item.value.main.sequence);
 		event.main.summary = "Breaking Changes!";
 		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2020, 12, 28, 1, 0, 0, 0, tz));
 		event.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2020, 12, 28, 1, 0, 0, 0, tz));
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
 		item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
-		assertEquals(new Integer(0), item.value.main.sequence);
+		assertEquals(Integer.valueOf(0), item.value.main.sequence);
 	}
 
 	@Test
@@ -1852,15 +1852,15 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		event.main.sequence = 1;
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
-		assertEquals(new Integer(1), item.value.main.sequence);
+		assertEquals(Integer.valueOf(1), item.value.main.sequence);
 		event.main.sequence = 10;
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
 		item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
-		assertEquals(new Integer(10), item.value.main.sequence);
+		assertEquals(Integer.valueOf(10), item.value.main.sequence);
 		event.main.sequence = 3;
 		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
 		item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
-		assertEquals(new Integer(3), item.value.main.sequence);
+		assertEquals(Integer.valueOf(3), item.value.main.sequence);
 	}
 
 	/**

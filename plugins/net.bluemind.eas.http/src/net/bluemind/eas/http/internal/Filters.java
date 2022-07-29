@@ -40,7 +40,7 @@ public class Filters {
 
 			@Override
 			public int compare(IEasRequestFilter o1, IEasRequestFilter o2) {
-				return new Integer(o1.priority()).compareTo(new Integer(o2.priority()));
+				return Integer.valueOf(o1.priority()).compareTo(Integer.valueOf(o2.priority()));
 			}
 		});
 	}

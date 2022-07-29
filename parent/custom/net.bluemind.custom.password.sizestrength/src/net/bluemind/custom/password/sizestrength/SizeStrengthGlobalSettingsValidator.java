@@ -79,7 +79,7 @@ public class SizeStrengthGlobalSettingsValidator implements IValidator<GlobalSet
 
 	private static Integer checkGlobalSettingsValue(Map<String, String> globalSettings, String key) {
 		try {
-			return new Integer(globalSettings.get(key));
+			return Integer.valueOf(globalSettings.get(key));
 		} catch (NumberFormatException nfe) {
 			throw new ServerFault(String.format("Invalid %s, must be an integer", key), ErrorCode.INVALID_PARAMETER);
 		}

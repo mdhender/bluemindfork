@@ -58,7 +58,7 @@ public class StrengthPolicy {
 
 	private static Optional<Integer> getGlobalSettingsValue(Map<String, String> globalSettings, String key) {
 		try {
-			return Optional.ofNullable(new Integer(globalSettings.get(key)));
+			return Optional.ofNullable(Integer.valueOf(globalSettings.get(key)));
 		} catch (NumberFormatException nfe) {
 			return Optional.empty();
 		}

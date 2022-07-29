@@ -55,14 +55,14 @@ public class AclStoreTests {
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), securityContext);
+		containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), securityContext);
 
 		containerId = "test_" + System.nanoTime();
 		container = Container.create(containerId, "test", "test", "me", true);
 		container = containerHome.create(container);
 		assertNotNull(container);
 
-		aclStore = new AclStore(JdbcTestHelper.getInstance().getDataSource());
+		aclStore = new AclStore(null, JdbcTestHelper.getInstance().getDataSource());
 
 	}
 

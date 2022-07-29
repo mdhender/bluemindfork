@@ -161,7 +161,7 @@ public class RestTestServiceTests {
 
 	@Test
 	public void testParam() throws Exception {
-		ComplexResponse resp = getRestTestService(SecurityContext.ANONYMOUS).param("test1", new Long(666),
+		ComplexResponse resp = getRestTestService(SecurityContext.ANONYMOUS).param("test1", Long.valueOf(666),
 				ParamEnum.Test2);
 		assertEquals("test1", resp.getSubject());
 		assertEquals("666", resp.getValue1Plus2());

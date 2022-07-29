@@ -69,7 +69,7 @@ public class MailboxStoreTests {
 
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 		containerId = "test_" + System.nanoTime() + ".fr";
 		Container mailshare = Container.create(containerId, "mailshare", containerId, "me", true);
@@ -126,7 +126,7 @@ public class MailboxStoreTests {
 		Mailbox found = mailboxStore.get(item);
 		assertNotNull("Nothing found", found);
 		assertEquals(created.name, found.name);
-		assertEquals(new Integer(10), created.quota);
+		assertEquals(Integer.valueOf(10), created.quota);
 		assertEquals(new HashSet<>(u.emails), new HashSet<>(found.emails));
 
 		created.quota = null;

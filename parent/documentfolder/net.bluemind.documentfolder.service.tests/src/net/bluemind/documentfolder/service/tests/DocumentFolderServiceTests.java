@@ -86,7 +86,7 @@ public class DocumentFolderServiceTests {
 		PopulateHelper.createTestDomain(domainUid);
 		PopulateHelper.addDomainAdmin("admin", domainUid);
 
-		containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), context);
+		containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), context);
 
 		String containerId = "test" + System.nanoTime();
 		container = Container.create(containerId, "test", "test", "me", domainUid, true);

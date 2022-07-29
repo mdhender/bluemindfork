@@ -79,8 +79,9 @@ public class NotesServiceTests extends AbstractServiceTests {
 
 		ElasticsearchTestHelper.getInstance().beforeTest();
 
-		containerStore = new ContainerStore(JdbcTestHelper.getInstance().getMailboxDataDataSource(), securityContext);
-		ContainerStore dirContainerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getMailboxDataDataSource(),
+				securityContext);
+		ContainerStore dirContainerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 
 		aclStore = new AclStore(JdbcTestHelper.getInstance().getMailboxDataDataSource());

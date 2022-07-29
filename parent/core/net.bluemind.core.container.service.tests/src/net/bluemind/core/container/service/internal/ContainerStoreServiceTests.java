@@ -65,7 +65,7 @@ public class ContainerStoreServiceTests {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 		securityContext = SecurityContext.ANONYMOUS;
-		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 
 		String containerId = "test_" + System.nanoTime();
@@ -123,7 +123,7 @@ public class ContainerStoreServiceTests {
 
 		DataSource targetDs = JdbcActivator.getInstance().getMailboxDataSource(dbHost);
 
-		ContainerStore containerHome = new ContainerStore(targetDs, securityContext);
+		ContainerStore containerHome = new ContainerStore(null, targetDs, securityContext);
 
 		String containerId = "test_" + System.nanoTime();
 		Container targetContainer = Container.create(containerId, "test", "test", "me", true);
@@ -131,7 +131,7 @@ public class ContainerStoreServiceTests {
 
 		IItemValueStore<Dummy> dstore = new DummyStore(targetContainer, targetDs);
 
-		ContainerStoreService<Dummy> targetContainerStoreService = new ContainerStoreService<Dummy>(targetDs,
+		ContainerStoreService<Dummy> targetContainerStoreService = new ContainerStoreService<>(targetDs,
 				SecurityContext.ANONYMOUS, targetContainer, dstore);
 
 		assertTrue(targetContainerStoreService.getItemStore().all().isEmpty());

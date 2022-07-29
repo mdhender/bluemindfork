@@ -41,7 +41,7 @@ public class ContainerSyncStoreTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		ContainerStore cs = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
+		ContainerStore cs = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
 		String uid = UUID.randomUUID().toString();
 		cs.create(Container.create(uid, "calendar", "osef", ""));
 		c = cs.get(uid);

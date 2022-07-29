@@ -103,19 +103,19 @@ public class EasServiceTests {
 		assertNull(heartbeat);
 		heartbeat = new Heartbeat();
 		heartbeat.deviceUid = deviceUid;
-		heartbeat.value = new Long(1);
+		heartbeat.value = Long.valueOf(1);
 
 		getService(adminSC).setHeartbeat(heartbeat);
 		heartbeat = getService(adminSC).getHeartbeat(deviceUid);
 		assertNotNull(heartbeat);
 		assertEquals(deviceUid, heartbeat.deviceUid);
-		assertEquals(new Long(1), heartbeat.value);
+		assertEquals(Long.valueOf(1), heartbeat.value);
 
-		heartbeat.value = new Long(42);
+		heartbeat.value = Long.valueOf(42);
 		getService(adminSC).setHeartbeat(heartbeat);
 		heartbeat = getService(adminSC).getHeartbeat(deviceUid);
 		assertEquals(deviceUid, heartbeat.deviceUid);
-		assertEquals(new Long(42), heartbeat.value);
+		assertEquals(Long.valueOf(42), heartbeat.value);
 
 		try {
 			getService(userSC).setHeartbeat(heartbeat);

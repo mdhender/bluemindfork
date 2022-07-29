@@ -93,19 +93,6 @@ public class ContainerStore extends JdbcAbstractStore {
 
 	};
 
-	/**
-	 * please prefer the
-	 * {@link ContainerStore#ContainerStore(BmContext, DataSource, SecurityContext)}
-	 * variant that enables caching.
-	 * 
-	 * @param dataSource
-	 * @param securityContext
-	 */
-	@Deprecated
-	public ContainerStore(DataSource dataSource, SecurityContext securityContext) {
-		this(null, dataSource, securityContext);
-	}
-
 	public ContainerStore(BmContext ctx, DataSource dataSource, SecurityContext securityContext) {
 		super(dataSource);
 		this.securityContext = securityContext;

@@ -80,7 +80,7 @@ public class CalendarSettingsTests {
 		String domainUid = "bm.lan";
 		PopulateHelper.createTestDomain(domainUid);
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				SecurityContext.SYSTEM);
 
 		// calendar container
@@ -99,7 +99,7 @@ public class CalendarSettingsTests {
 		Sessions.get().put(admSecurityContext.getSessionId(), admSecurityContext);
 
 		// Acls
-		AclStore aclStore = new AclStore(JdbcTestHelper.getInstance().getDataSource());
+		AclStore aclStore = new AclStore(null, JdbcTestHelper.getInstance().getDataSource());
 		aclStore.store(calendar, Arrays.asList(
 				//
 				AccessControlEntry.create(admSecurityContext.getSubject(), Verb.All), //

@@ -63,11 +63,11 @@ public class EasStoreTests {
 
 		heartbeat = new Heartbeat();
 		heartbeat.deviceUid = deviceUid;
-		heartbeat.value = new Long(1);
+		heartbeat.value = Long.valueOf(1);
 
 		Heartbeat heartbeat2 = new Heartbeat();
 		heartbeat2.deviceUid = "device2";
-		heartbeat2.value = new Long(2);
+		heartbeat2.value = Long.valueOf(2);
 		store.setHeartbeat(heartbeat);
 		// insert
 		store.setHeartbeat(heartbeat2);
@@ -77,13 +77,13 @@ public class EasStoreTests {
 		// device is not impacted by update of device2
 		heartbeat = store.getHeartbeat(deviceUid);
 		assertEquals(deviceUid, heartbeat.deviceUid);
-		assertEquals(new Long(1), heartbeat.value);
+		assertEquals(Long.valueOf(1), heartbeat.value);
 
-		heartbeat.value = new Long(42);
+		heartbeat.value = Long.valueOf(42);
 		store.setHeartbeat(heartbeat);
 		heartbeat = store.getHeartbeat(deviceUid);
 		assertEquals(deviceUid, heartbeat.deviceUid);
-		assertEquals(new Long(42), heartbeat.value);
+		assertEquals(Long.valueOf(42), heartbeat.value);
 	}
 
 	@Test

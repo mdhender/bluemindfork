@@ -85,7 +85,7 @@ public class UserCalendarViewTests {
 		Sessions.get().put(defaultSecurityContext.getSessionId(),
 				defaultSecurityContext);
 
-		ContainerStore containerHome = new ContainerStore(JdbcTestHelper
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper
 				.getInstance().getDataSource(), defaultSecurityContext);
 
 		domainUid = "testDomainUid";

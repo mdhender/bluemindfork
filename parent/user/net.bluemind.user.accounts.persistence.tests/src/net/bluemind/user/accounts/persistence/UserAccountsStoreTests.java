@@ -51,7 +51,7 @@ public class UserAccountsStoreTests {
 		
 		PopulateHelper.initGlobalVirt();
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				SecurityContext.SYSTEM);
 
 		Container container = new Container();

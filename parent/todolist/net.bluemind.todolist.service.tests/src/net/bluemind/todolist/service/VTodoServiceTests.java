@@ -182,7 +182,7 @@ public class VTodoServiceTests extends AbstractServiceTests {
 		Calendar todolist = export(todo);
 		assertEquals(1, todolist.getComponents().size());
 		VToDo vtodo = (VToDo) todolist.getComponent(Component.VTODO);
-		assertEquals(new Integer(vtodo.getPriority().getValue()), todo.priority);
+		assertEquals(Integer.valueOf(vtodo.getPriority().getValue()), todo.priority);
 	}
 
 	@Test
@@ -403,7 +403,7 @@ public class VTodoServiceTests extends AbstractServiceTests {
 		Calendar todolist = export(todo);
 		assertEquals(1, todolist.getComponents().size());
 		VToDo vtodo = (VToDo) todolist.getComponent(Component.VTODO);
-		assertEquals(new Integer(vtodo.getPercentComplete().getValue()), todo.percent);
+		assertEquals(Integer.valueOf(vtodo.getPercentComplete().getValue()), todo.percent);
 	}
 
 	@Test

@@ -98,7 +98,7 @@ public class ScheduledJobStore extends JdbcAbstractStore {
 	 * @throws ServerFault
 	 */
 	public void delete(List<Integer> ids) throws ServerFault {
-		Object[] params = new Object[] { ids.stream().map(i -> new Long(i)).toArray(Long[]::new) };
+		Object[] params = new Object[] { ids.stream().map(Long::valueOf).toArray(Long[]::new) };
 
 		try {
 			delete("delete from t_job_execution where id = ANY(?)", params);

@@ -122,7 +122,7 @@ public class ResourceFilterTests {
 
 		PopulateHelper.initGlobalVirt();
 
-		containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
+		containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
 		ItemValue<Domain> domain = initDomain();
 
 		resourceUid = createResource(domain);

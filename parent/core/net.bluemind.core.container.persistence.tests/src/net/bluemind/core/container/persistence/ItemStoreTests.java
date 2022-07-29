@@ -59,7 +59,7 @@ public class ItemStoreTests {
 				Arrays.<String>asList(), null);
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
-		containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), securityContext);
+		containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), securityContext);
 
 		containerId = "test_" + System.nanoTime();
 		container = Container.create(containerId, "test", "test", "test", true);

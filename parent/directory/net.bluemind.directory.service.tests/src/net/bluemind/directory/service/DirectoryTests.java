@@ -89,7 +89,7 @@ public class DirectoryTests {
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 		ElasticsearchTestHelper.getInstance().beforeTest();
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				SecurityContext.SYSTEM);
 
 		Server esServer = new Server();
@@ -150,7 +150,7 @@ public class DirectoryTests {
 		List<DirEntry> entries = dir.getEntries(domainUid);
 		int dirEntrySize = entries.size();
 
-		ContainerStore cs = new ContainerStore(JdbcActivator.getInstance().getDataSource(), SecurityContext.SYSTEM);
+		ContainerStore cs = new ContainerStore(null, JdbcActivator.getInstance().getDataSource(), SecurityContext.SYSTEM);
 
 		assertNotNull(cs.get("addressbook_" + domainUid));
 

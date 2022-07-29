@@ -76,7 +76,7 @@ public class UserMailIdentityStoreTests {
 
 		userUid = PopulateHelper.addUser("test", domainUid);
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 
 		userItem = new ItemStore(JdbcTestHelper.getInstance().getDataSource(), containerStore.get(domainUid),
@@ -182,7 +182,7 @@ public class UserMailIdentityStoreTests {
 
 		String userUid2 = PopulateHelper.addUser("test2", domainUid);
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				SecurityContext.SYSTEM);
 
 		Item userItem2 = new ItemStore(JdbcTestHelper.getInstance().getDataSource(), containerStore.get(domainUid),

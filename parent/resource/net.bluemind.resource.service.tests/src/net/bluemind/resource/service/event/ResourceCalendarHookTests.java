@@ -120,7 +120,7 @@ public class ResourceCalendarHookTests {
 
 		Container resourceCal = storeEvent("evt1", event);
 
-		ContainerStore containerService = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerService = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				SecurityContext.SYSTEM);
 		Container container = containerService.get(ICalendarUids.defaultUserCalendar(user1.uid));
 		callResourceCalendarHook("evt1", event, container);
@@ -144,7 +144,7 @@ public class ResourceCalendarHookTests {
 
 		Container resourceCal = storeEvent("evt1", event);
 
-		ContainerStore containerService = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerService = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				SecurityContext.SYSTEM);
 		Container container = containerService.get(ICalendarUids.defaultUserCalendar("u2"));
 		callResourceCalendarHook("evt1", event, container);
@@ -559,7 +559,7 @@ public class ResourceCalendarHookTests {
 
 		PopulateHelper.initGlobalVirt(esServer);
 
-		containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
+		containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
 
 		ItemValue<Domain> domain = PopulateHelper.createTestDomain(domainUid, esServer);
 
@@ -604,7 +604,7 @@ public class ResourceCalendarHookTests {
 
 	private void createTestContainer(SecurityContext context, String type, String login, String name, String owner)
 			throws SQLException {
-		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), context);
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), context);
 		Container container = Container.create(name, type, name, owner, "test.lan", true);
 		container = containerHome.create(container);
 
@@ -676,7 +676,7 @@ public class ResourceCalendarHookTests {
 		BmContext context = new BmTestContext(SecurityContext.SYSTEM);
 		DataSource ds = DataSourceRouter.get(context, ICalendarUids.resourceCalendar("r1"));
 
-		ContainerStore containerService = new ContainerStore(ds, SecurityContext.SYSTEM);
+		ContainerStore containerService = new ContainerStore(null, ds, SecurityContext.SYSTEM);
 		Container container = containerService.get(ICalendarUids.resourceCalendar("r1"));
 		IItemValueStore<VEventSeries> veventStore = new VEventSeriesStore(ds, container);
 		VEventContainerStoreService storeService = new VEventContainerStoreService(context, ds, SecurityContext.SYSTEM,

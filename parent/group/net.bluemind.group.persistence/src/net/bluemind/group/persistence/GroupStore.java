@@ -65,7 +65,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 	private static final Creator<Long> PARENT_CREATOR = new Creator<Long>() {
 		@Override
 		public Long create(ResultSet con) throws SQLException {
-			return new Long(con.getLong(1));
+			return Long.valueOf(con.getLong(1));
 		}
 	};
 
@@ -305,7 +305,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 
 	private Set<Long> updateUserGroup(Long groupItemId) throws SQLException {
 		List<Long> childs = getChildren(groupItemId);
-		childs.add(new Long(groupItemId));
+		childs.add(Long.valueOf(groupItemId));
 
 		Set<Long> members = new HashSet<>(
 				select("SELECT user_id FROM t_group_usermember WHERE group_id = ANY (?)", rs -> rs.getLong(1),

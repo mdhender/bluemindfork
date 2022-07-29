@@ -61,7 +61,7 @@ public class MailboxIdentityStoreTests {
 
 		String containerId = "test_" + System.nanoTime() + ".fr";
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 
 		Container mailboxes = Container.create(containerId, "mailbox", containerId, "me", true);

@@ -81,13 +81,13 @@ public class MimePart implements Serializable {
 		List<Integer> result = new Vector<Integer>();
 
 		if (parent == null)
-			result.add(new Integer(0));
+			result.add(Integer.valueOf(0));
 		else {
 			MimePart nextParent = parent;
 			MimePart nextChild = this;
 
 			while (nextParent != null) {
-				result.add(0, new Integer(nextParent.getNumber(nextChild)));
+				result.add(0, Integer.valueOf(nextParent.getNumber(nextChild)));
 
 				nextChild = nextParent;
 				nextParent = nextParent.getParent();

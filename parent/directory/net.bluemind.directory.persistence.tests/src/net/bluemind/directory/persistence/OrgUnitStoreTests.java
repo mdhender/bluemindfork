@@ -60,7 +60,7 @@ public class OrgUnitStoreTests {
 
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 		String containerId = "test_" + System.nanoTime();
 		Container container = Container.create(containerId, DirectoryContainerType.TYPE, "test", "me", true);

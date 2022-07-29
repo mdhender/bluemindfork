@@ -169,7 +169,7 @@ public class ITIPPartParser {
 
 					// PERCENT
 					if (icalVTodo.getPercentComplete() != null) {
-						calElement.percent = new Integer(icalVTodo.getPercentComplete().getValue());
+						calElement.percent = Integer.valueOf(icalVTodo.getPercentComplete().getValue());
 					}
 
 					// COMPLETE

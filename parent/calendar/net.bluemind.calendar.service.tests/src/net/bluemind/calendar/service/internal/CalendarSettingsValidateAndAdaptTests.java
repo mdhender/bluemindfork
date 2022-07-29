@@ -99,11 +99,11 @@ public class CalendarSettingsValidateAndAdaptTests {
 		assertEquals(LocalTime.of(8, 0).get(ChronoField.MILLI_OF_DAY), s.dayStart.intValue());
 		assertEquals(LocalTime.of(18, 0).get(ChronoField.MILLI_OF_DAY), s.dayEnd.intValue());
 		assertEquals(ZoneId.of("UTC").getId(), s.timezoneId);
-		assertEquals(new Integer(5), s.minDuration);
+		assertEquals(Integer.valueOf(5), s.minDuration);
 		assertEquals(Arrays.asList(Day.MO, Day.FR), s.workingDays);
 
 		try {
-			CalendarSettings.adapt(new HashMap<String, String>());
+			CalendarSettings.adapt(new HashMap<>());
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}

@@ -146,10 +146,10 @@ public class CalendarHookServiceTests {
 
 		Sessions.get().put(defaultSecurityContext.getSessionId(), defaultSecurityContext);
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				defaultSecurityContext);
 
-		AclStore aclStore = new AclStore(JdbcTestHelper.getInstance().getDataSource());
+		AclStore aclStore = new AclStore(null, JdbcTestHelper.getInstance().getDataSource());
 
 		container = Container.create(UUID.randomUUID().toString(), ICalendarUids.TYPE, "cal container",
 				defaultSecurityContext.getSubject(), DOMAIN, true);

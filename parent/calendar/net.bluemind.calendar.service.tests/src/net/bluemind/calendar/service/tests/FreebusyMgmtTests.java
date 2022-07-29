@@ -94,7 +94,7 @@ public class FreebusyMgmtTests {
 
 		Sessions.get().put(defaultSecurityContext.getSessionId(), defaultSecurityContext);
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				defaultSecurityContext);
 
 		AclStore aclStore = new AclStore(JdbcTestHelper.getInstance().getDataSource());

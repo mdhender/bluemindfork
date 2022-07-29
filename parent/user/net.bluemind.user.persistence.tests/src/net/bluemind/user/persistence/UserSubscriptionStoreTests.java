@@ -58,7 +58,7 @@ public class UserSubscriptionStoreTests {
 		securityContext = new SecurityContext(null, "test", Arrays.<String>asList("groupOfUsers"),
 				Arrays.<String>asList(), "fakeDomain");
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 
 		PopulateHelper.initGlobalVirt();

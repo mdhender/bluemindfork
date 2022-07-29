@@ -107,7 +107,7 @@ public class UserMailIdentitySanitizerTests {
 				.contextWithSession("sid3" + System.currentTimeMillis(), "user@" + domainUid, domainUid)
 				.getSecurityContext();
 
-		containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), domainAdminSecurityContext);
+		containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), domainAdminSecurityContext);
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();

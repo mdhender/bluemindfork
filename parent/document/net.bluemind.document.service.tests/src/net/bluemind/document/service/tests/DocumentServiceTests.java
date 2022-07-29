@@ -93,7 +93,7 @@ public class DocumentServiceTests {
 		PopulateHelper.createTestDomain("bm.lan");
 		PopulateHelper.addDomainAdmin("admin", "bm.lan");
 
-		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), context);
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), context);
 
 		String containerId = "test" + System.nanoTime();
 		container = Container.create(containerId, "test", "test", "me", "bm.lan", true);

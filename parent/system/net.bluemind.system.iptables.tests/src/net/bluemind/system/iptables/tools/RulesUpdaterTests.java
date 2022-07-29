@@ -84,7 +84,7 @@ public class RulesUpdaterTests {
 		future.get();
 
 		DataSource dataSource = JdbcActivator.getInstance().getDataSource();
-		ContainerStore cs = new ContainerStore(dataSource, SecurityContext.SYSTEM);
+		ContainerStore cs = new ContainerStore(null, dataSource, SecurityContext.SYSTEM);
 		cs.create(Container.create(InstallationId.getIdentifier(), "installation", "installation",
 				SecurityContext.SYSTEM.getSubject(), true));
 

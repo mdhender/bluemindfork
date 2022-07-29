@@ -47,14 +47,12 @@ public class ContainerManagementFactoryTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
-
-		securityContext = new SecurityContext("testSessionId", "test", Arrays.<String> asList(),
-				Arrays.<String> asList(), "fakeDomainUid");
+		securityContext = new SecurityContext("testSessionId", "test", Arrays.<String>asList(), Arrays.<String>asList(),
+				"fakeDomainUid");
 
 		Sessions.get().put(securityContext.getSessionId(), securityContext);
 
-		containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), securityContext);
+		containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), securityContext);
 
 		containerId = "test_" + System.nanoTime();
 		container = Container.create(containerId, "test", "test", "me", true);

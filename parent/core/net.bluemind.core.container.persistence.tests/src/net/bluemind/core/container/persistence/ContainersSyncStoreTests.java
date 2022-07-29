@@ -53,7 +53,7 @@ public class ContainersSyncStoreTests {
 		SecurityContext securityContext = new SecurityContext(null, "test", Arrays.<String>asList("groupOfUsers"),
 				Arrays.<String>asList(), "fakeDomain");
 
-		cs = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), securityContext);
+		cs = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), securityContext);
 
 	}
 

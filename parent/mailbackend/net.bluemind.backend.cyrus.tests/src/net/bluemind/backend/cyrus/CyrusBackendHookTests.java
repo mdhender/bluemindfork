@@ -113,7 +113,7 @@ public class CyrusBackendHookTests {
 
 		PopulateHelper.createTestDomain(domainUid, imapServer);
 
-		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				SecurityContext.SYSTEM);
 
 		Container mboxContainer = containerHome.get(domainUid);

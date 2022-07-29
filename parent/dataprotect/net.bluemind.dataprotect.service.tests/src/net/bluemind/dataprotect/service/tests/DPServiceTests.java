@@ -152,7 +152,7 @@ public class DPServiceTests {
 
 	private List<String> getTagsExcept(String... except) {
 		// tag & assign host for everything
-		List<String> tags = new LinkedList<String>();
+		List<String> tags = new LinkedList<>();
 
 		IDomainTemplate dt = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomainTemplate.class);

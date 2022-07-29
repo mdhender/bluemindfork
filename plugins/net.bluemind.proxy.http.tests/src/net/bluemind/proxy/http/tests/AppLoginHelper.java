@@ -79,7 +79,7 @@ public class AppLoginHelper {
 		future = post.execute();
 		response = future.get();
 		List<Cookie> cookies = response.getCookies();
-		this.cm = new LinkedHashMap<String, Cookie>();
+		this.cm = new LinkedHashMap<>();
 		System.err.println("Cookies count is " + cookies.size());
 		for (Cookie c : cookies) {
 			System.err.println("S: cookie " + c.name() + " = " + c.value());
