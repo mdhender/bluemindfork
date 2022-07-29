@@ -90,5 +90,5 @@
    <bundle id="com.google.jsinterop.annotations"/>
    <bundle id="net.bluemind.ui.extensions.gwt"/>
    <bundle id="com.google.gwt.user"/>
-   <bundle id="com.github.gwt-completablefuture"/>
+   <bundle id="net.bluemind.gwt-completablefuture"/>
 </site>

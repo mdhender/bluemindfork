@@ -2,7 +2,7 @@
 <module>
 	<inherits name="com.google.gwt.json.JSON"/>
 	
-  <inherits name="com.google.gwt.emul.EmulationCompletableFuture" />
+  <inherits name="net.bluemind.gwt.CompletableFuture" />
 	<!-- Specify the paths for translatable code -->
 	<source path='api' />
 	<source path='commons' />
