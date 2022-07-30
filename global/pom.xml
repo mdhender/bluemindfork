@@ -55,7 +55,7 @@
 			</activation>
 			<properties>
 				<gwt.draft>true</gwt.draft>
-				<gwt.style>DETAILED</gwt.style>
+				<gwt.style>PRETTY</gwt.style>
 				<gwt.optimize>0</gwt.optimize>
 			</properties>
 		</profile>
@@ -515,6 +515,22 @@
 						</execution>
 					</executions>
 					<dependencies>
+						<dependency>
+							<groupId>com.google.gwt</groupId>
+							<artifactId>gwt-user</artifactId>
+							<version>${gwt.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>com.google.gwt</groupId>
+							<artifactId>gwt-dev</artifactId>
+							<version>${gwt.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>com.google.gwt</groupId>
+							<artifactId>gwt-codeserver</artifactId>
+							<version>${gwt.version}</version>
+						</dependency>
+
 						<dependency>
 							<groupId>org.json</groupId>
 							<artifactId>json</artifactId>

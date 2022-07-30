@@ -96,14 +96,17 @@ public class EditMailflowRulesEditor extends CompositeGwtWidgetElement {
 		CompletableFuture<List<MailActionDescriptor>> listActions = ruleService.listActions();
 		CompletableFuture<List<MailRuleActionAssignment>> listAssignments = ruleService.listAssignments();
 
-		listRules.thenAcceptBoth(listActions,
-				(ruleIdentifiers, actionIdentifiers) -> listAssignments.thenAccept(assignments -> {
+		listRules.thenAccept(ruleIdentifiers -> {
+			listActions.thenAccept(actionIdentifiers -> {
+				listAssignments.thenAccept(assignments -> {
 					assignments.stream().sorted((a, b) -> Integer.compare(a.position, b.position))
 							.forEach(assignment -> ruleTable.add(new RuleAssignmentWidget(ruleIdentifiers,
 									actionIdentifiers, assignment, domainUid)));
 					addRuleAssignment.addClickHandler(c -> ruleTable
 							.add(new RuleAssignmentWidget(ruleIdentifiers, actionIdentifiers, domainUid)));
-				}));
+				});
+			});
+		});
 	}
 
 	@Override

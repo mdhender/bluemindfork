@@ -48,6 +48,7 @@
 				<inherited>true</inherited>
 				<configuration>
 					<module>${adminconsole.module}</module>
+					<runTarget>${adminconsole.module}</runTarget>
 				</configuration>
 			</plugin>
 		</plugins>

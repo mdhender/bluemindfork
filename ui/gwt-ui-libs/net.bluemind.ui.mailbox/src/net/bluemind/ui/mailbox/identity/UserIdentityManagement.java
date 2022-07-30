@@ -116,11 +116,12 @@ public class UserIdentityManagement extends IdentityManagement {
 
 			mailtipContext.messageContext.recipients.get(0).email = "out@somewhere.fr";
 			CompletableFuture<List<MailTips>> mailTipsExternal = tipService.getMailTips(mailtipContext);
-			mailTipsInternal.thenAcceptBoth(mailTipsExternal, (internal, external) -> {
-
-				if (!internal.isEmpty() || !external.isEmpty()) {
-					showSignatureInfo();
-				}
+			mailTipsInternal.thenAccept(internal -> {
+				mailTipsExternal.thenAccept(external -> {
+					if (!internal.isEmpty() || !external.isEmpty()) {
+						showSignatureInfo();
+					}
+				});
 			});
 		}
 	}
