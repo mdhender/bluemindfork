@@ -89,6 +89,11 @@
 		<!-- Minimum viable maven version -->
 		<maven-minimum-version>3.2.5</maven-minimum-version>
 
+		<!-- webui frontend -->
+		<frontend-maven-plugin.version>1.11.2</frontend-maven-plugin.version>
+		<frontend-nodejs.version>v16.14.1</frontend-nodejs.version>
+		<frontend-yarn.version>v1.22.17</frontend-yarn.version>
+
 		<gwt.version>2.10.0</gwt.version>
 		<gwt.memory>768</gwt.memory>
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
@@ -543,6 +548,49 @@
 						</dependency>
 					</dependencies>
 				</plugin>
+				<plugin>
+					<groupId>com.github.eirslett</groupId>
+					<artifactId>frontend-maven-plugin</artifactId>
+					<version>${frontend-maven-plugin.version}</version>
+
+					<configuration>
+						<nodeDownloadRoot>https://forge.bluemind.net/nexus/repository/releases/bluemind-dependencies/node/</nodeDownloadRoot>
+						<yarnDownloadRoot>https://forge.bluemind.net/nexus/repository/releases/bluemind-dependencies/yarn/</yarnDownloadRoot>
+					</configuration>
+
+					<executions>
+						<execution>
+							<id>Install JS build tools</id>
+							<goals>
+								<goal>install-node-and-yarn</goal>
+							</goals>
+							<configuration>
+								<nodeVersion>${frontend-nodejs.version}</nodeVersion>
+								<yarnVersion>${frontend-yarn.version}</yarnVersion>
+							</configuration>
+						</execution>
+						<execution>
+							<id>Install JS dependencies</id>
+							<goals>
+								<goal>yarn</goal>
+							</goals>
+							<configuration>
+								<arguments>--mutex file:/tmp/.yarn-mutex</arguments>
+							</configuration>
+						</execution>
+						<execution>
+							<id>Build JS resources</id>
+							<goals>
+								<goal>yarn</goal>
+							</goals>
+							<phase>generate-resources</phase>
+							<configuration>
+								<arguments>run build</arguments>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
 			</plugins>
 		</pluginManagement>
 	</build>
