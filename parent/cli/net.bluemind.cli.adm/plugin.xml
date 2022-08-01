@@ -42,5 +42,9 @@
             impl="net.bluemind.cli.adm.XferBackend$Reg"
             priority="602">
       </registration>
+      <registration
+            impl="net.bluemind.cli.adm.SchemaCheck$Reg"
+            priority="603">
+      </registration>
    </extension>
 </plugin>

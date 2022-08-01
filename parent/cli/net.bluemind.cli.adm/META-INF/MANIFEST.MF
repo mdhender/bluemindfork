@@ -28,6 +28,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-databind,
  net.bluemind.core.task.spi,
  net.bluemind.domain.api,
+ net.bluemind.node.api,
  net.bluemind.system.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.adm

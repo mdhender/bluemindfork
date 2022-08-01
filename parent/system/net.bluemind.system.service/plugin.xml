@@ -30,6 +30,9 @@
       <endpoint
             api="net.bluemind.system.api.ICacheMgmt">
       </endpoint>
+      <endpoint
+            api="net.bluemind.system.api.ISchemaMgmt">
+      </endpoint>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">
@@ -57,6 +60,9 @@
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.system.service.CacheMgmtFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.system.service.internal.SchemaMgmtService$Factory">
       </serviceFactory>
    </extension>
    <extension
