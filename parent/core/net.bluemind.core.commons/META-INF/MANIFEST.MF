@@ -20,7 +20,7 @@ Require-Bundle: io.netty;bundle-version="4.0.33";visibility:=reexport,
  com.fasterxml.jackson.module.jackson-module-afterburner;bundle-version="2.10.3",
  net.bluemind.lib.vertx
 Bundle-ClassPath: .
-X-BM-Version: 4.8.0
+X-BM-Version: 4.9.0
 Bundle-Activator: net.bluemind.core.api.CommonsActivator
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.core.commons
