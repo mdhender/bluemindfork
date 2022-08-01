@@ -70,7 +70,6 @@
 
 		<!-- Not to be modified usually -->
 		<tycho-version>2.5.0</tycho-version>
-		<tycho-extras-version>2.5.0</tycho-extras-version>
 		<maven-source-plugin-version>3.2.1</maven-source-plugin-version>
 		<maven-clean-plugin-version>3.2.0</maven-clean-plugin-version>
 		<jacoco-maven-plugin-version>0.8.8</jacoco-maven-plugin-version>
@@ -590,7 +589,6 @@
 						</execution>
 					</executions>
 				</plugin>
-
 			</plugins>
 		</pluginManagement>
 	</build>
