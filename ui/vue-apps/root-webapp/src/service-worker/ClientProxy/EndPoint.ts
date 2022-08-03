@@ -3,7 +3,6 @@ import { RouteHandlerCallbackOptions } from "workbox-core";
 
 import { ApiHandler } from "./ApiHandler";
 import { APIClient, EndPointMetadatas, ExecutionParameters, MethodMetadatas, ParameterType } from "./types";
-import { UnhandledRequestError } from "./UnhandedRequestError";
 
 export class EndPoint {
     static key(method: MethodMetadatas, endpoint: EndPointMetadatas): string {
@@ -44,9 +43,7 @@ export class EndPoint {
             try {
                 return this.reply(await this.handler.execute(await this.parse(request, pathParams)));
             } catch (e) {
-                if (!(e instanceof UnhandledRequestError)) {
-                    return this.replyError(e);
-                }
+                return this.replyError(e);
             }
         }
         return fetch(request);
@@ -77,14 +74,18 @@ export class EndPoint {
     }
 
     reply(result: any): Response {
-        const produce =
-            this.metadatas.produce ||
-            (isStream(this.metadatas.outParam) ? "application/octet-stream" : "application/json");
-        const value = isStream(this.metadatas.outParam) ? result : JSON.stringify(result);
-        return new Response(value, {
-            status: 200,
-            headers: { "Content-Type": produce, "X-Bm-ServiceWorker": "true" }
-        });
+        if (result instanceof Response) {
+            return result;
+        } else {
+            const produce =
+                this.metadatas.produce ||
+                (isStream(this.metadatas.outParam) ? "application/octet-stream" : "application/json");
+            const value = isStream(this.metadatas.outParam) ? result : JSON.stringify(result);
+            return new Response(value, {
+                status: 200,
+                headers: { "Content-Type": produce, "X-Bm-ServiceWorker": "true" }
+            });
+        }
     }
 
     replyError(reason: any): Response {

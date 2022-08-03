@@ -1,6 +1,5 @@
 import session from "../session";
 import { APIClient, ExecutionParameters, MethodMetadatas } from "./types";
-import { UnhandledRequestError } from "./UnhandedRequestError";
 
 export class ApiHandler {
     client: typeof APIClient;
@@ -22,14 +21,26 @@ export class ApiHandler {
         return this;
     }
     async execute(parameters: ExecutionParameters, ...overwrite: Array<any>): Promise<any> {
-        parameters = overwrite && overwrite.length > 0 ? { ...parameters, method: overwrite } : parameters;
+        parameters = overwrite.length > 0 ? { ...parameters, method: overwrite } : parameters;
         const client: any = new this.client(...parameters.client, await session.sid);
-
         if (this.next) {
             client.next = this.next.execute.bind(this.next, parameters);
         } else {
-            client.next = () => Promise.reject(new UnhandledRequestError());
+            client.next = async (...overwrite: Array<any>) => {
+                const client: any = RootApiClientFactory.create(this.client, ...parameters.client, await session.sid);
+                const args = overwrite.length > 0 ? overwrite : parameters.method;
+                return await client[this.metadatas.name](...args);
+            };
         }
         return await client[this.metadatas.name](...parameters.method);
     }
 }
+
+const RootApiClientFactory = {
+    create(client: typeof APIClient, ...parameters: Array<any>): APIClient {
+        while (Object.getPrototypeOf(client).prototype?.getMetadatas) {
+            client = Object.getPrototypeOf(client);
+        }
+        return new client(...parameters);
+    }
+};

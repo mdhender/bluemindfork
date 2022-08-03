@@ -1,10 +1,8 @@
 import { Response } from "node-fetch";
-import cloneDeep from "lodash.clonedeep";
 
 import { EndPoint } from "../EndPoint";
 import { RegExpRoute } from "workbox-routing";
 import { ApiHandler } from "../ApiHandler";
-import { UnhandledRequestError } from "../UnhandedRequestError";
 
 global.Response = Response;
 global.fetch = jest.fn();
@@ -148,15 +146,6 @@ describe("EndPoint", () => {
             await endpoint.handle({ request, params: [] });
             expect(fetch).toBeCalledWith(request);
         });
-        test("to call fetch if handler throw UnhandedRequestError ", async () => {
-            const endpoint = new EndPoint(metadatas.methods[0], metadatas);
-            const request = { url: `https://domain.tld/${endpoint.url}` };
-            endpoint.chain(MockApiClient, 0);
-            endpoint.handler.execute.mockRejectedValue(new UnhandledRequestError());
-            await endpoint.handle({ request }, []);
-            expect(fetch).toBeCalledWith(request);
-        });
-
         test("to call replyError if an error occurs ", async () => {
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);
             const request = { url: `https://domain.tld/${endpoint.url}` };
@@ -216,7 +205,7 @@ describe("EndPoint", () => {
             const result = await endpoint.parse(request, []);
             expect(result.method).toEqual([bodyParam]);
         });
-        test("[NOT IMPLEMENTED] to serve method strea parameters as a Stream implementation", async () => {
+        test("[NOT IMPLEMENTED] to serve method stream parameters as a Stream implementation", async () => {
             //FIXME : Not yet implmented...
             metadatas.methods[0].inParams = [{ name: "0", type: { name: "Stream" }, paramType: "BodyParam" }];
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);

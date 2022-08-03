@@ -2,13 +2,13 @@ import { RegExpRoute, Route } from "workbox-routing";
 import { EndPoint } from "./EndPoint";
 import { APIClient, MethodMetadatas } from "./types";
 
-type ApiRouteRegistry = {
+type ApiRouteRegistryType = {
     endpoints: Map<String, EndPoint>;
     register(ProxyClass: typeof APIClient, priority: number): void;
     routes(): Array<Route>;
 };
 
-export const ApiRouteRegistry: ApiRouteRegistry = {
+export const ApiRouteRegistry: ApiRouteRegistryType = {
     endpoints: new Map(),
     register(ProxyClass, priority) {
         const proxy = new ProxyClass();
