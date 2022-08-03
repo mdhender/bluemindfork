@@ -154,7 +154,6 @@
       <plugin id="net.bluemind.utils"/>
       <plugin id="net.bluemind.vertx.common"/>
       <plugin id="net.bluemind.videoconferencing.saas.api"/>
-      <plugin id="net.bluemind.videoconferencing.teams"/>
       <plugin id="net.bluemind.webapp.root.js"/>
       <plugin id="net.bluemind.webmodule"/>
       <plugin id="net.bluemind.webmodule.epfilter"/>
@@ -250,10 +249,10 @@
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
-      <property name="eclipse.registry.MultiLanguage" value="true" />
-      <property name="osgi.instance.area" value="/var/lib/bm-webserver/" />
       <property name="org.eclipse.equinox.p2.reconciler.dropins.directory" value="/usr/share/bm-webserver/extensions" />
+      <property name="osgi.instance.area" value="/var/lib/bm-webserver/" />
       <property name="osgi.noShutdown" value="true" />
+      <property name="eclipse.registry.MultiLanguage" value="true" />
    </configurations>
 
 </product>
