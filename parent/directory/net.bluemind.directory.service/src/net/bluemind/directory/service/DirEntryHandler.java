@@ -64,7 +64,7 @@ public abstract class DirEntryHandler {
 	}
 
 	public void delete(BmContext context, String domainUid, String uid) throws ServerFault {
-		directory(context, domainUid).delete(uid);
+		directory(context, domainUid).delete(uid, kind().name());
 	}
 
 	public void updateAccountType(BmContext context, String domainUid, String uid, AccountType accountType)

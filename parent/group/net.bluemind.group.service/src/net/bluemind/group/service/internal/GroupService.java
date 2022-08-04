@@ -50,6 +50,7 @@ import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.ValidationResult;
 import net.bluemind.core.validator.Validator;
+import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.service.DirDomainValue;
 import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.directory.service.DirEventProducer;
@@ -108,7 +109,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 		validator = new Validator(context);
 
 		rbacManager = new RBACManager(context).forContainer(container);
-		dirEventProducer = new DirEventProducer(domainUid, VertxPlatform.eventBus());
+		dirEventProducer = new DirEventProducer(domainUid, BaseDirEntry.Kind.GROUP.name(), VertxPlatform.eventBus());
 
 	}
 

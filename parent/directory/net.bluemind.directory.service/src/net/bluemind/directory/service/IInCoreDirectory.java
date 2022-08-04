@@ -52,7 +52,7 @@ public interface IInCoreDirectory {
 	 * @param path
 	 * @throws ServerFault
 	 */
-	public void delete(String uid) throws ServerFault;
+	public void delete(String uid, String kind) throws ServerFault;
 
 	public void updateAccountType(String uid, AccountType accountType) throws ServerFault;
 

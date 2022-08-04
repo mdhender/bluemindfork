@@ -23,6 +23,7 @@ import java.util.Map;
 
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.service.DirEventProducer;
 import net.bluemind.user.api.User;
 import net.bluemind.user.api.UsersHookAddress;
@@ -30,7 +31,7 @@ import net.bluemind.user.api.UsersHookAddress;
 public class UserEventProducer extends DirEventProducer {
 
 	public UserEventProducer(String domainUid, EventBus ev) {
-		super(domainUid, ev);
+		super(domainUid, DirEntry.Kind.USER.name(), ev);
 
 	}
 

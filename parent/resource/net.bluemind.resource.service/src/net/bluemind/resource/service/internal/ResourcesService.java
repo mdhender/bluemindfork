@@ -50,6 +50,7 @@ import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.utils.ImageUtils;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.validator.Validator;
+import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.service.DirDomainValue;
 import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.directory.service.DirEventProducer;
@@ -101,7 +102,7 @@ public class ResourcesService implements IResources {
 		extValidator = new Validator(context);
 
 		rbacManager = new RBACManager(context).forContainer(resourcesContainer);
-		dirEventProducer = new DirEventProducer(domainUid, VertxPlatform.eventBus());
+		dirEventProducer = new DirEventProducer(domainUid, BaseDirEntry.Kind.RESOURCE.name(), VertxPlatform.eventBus());
 
 		mailboxes = context.su().provider().instance(IInCoreMailboxes.class, domainUid);
 

@@ -85,26 +85,29 @@ public class InCoreDirectory implements IInCoreDirectory {
 	public void create(String path, DirEntry entry) throws ServerFault {
 		itemStore.create(path, entry.displayName, entry);
 		logger.debug("direntry {}:{} created", domainUid, path);
-		new DirEventProducer(domainUid, VertxPlatform.eventBus()).changed(entry.entryUid, itemStore.getVersion());
+		new DirEventProducer(domainUid, entry.kind.name(), VertxPlatform.eventBus()).changed(entry.entryUid,
+				itemStore.getVersion());
 	}
 
 	@Override
 	public void update(String path, DirEntry entry) throws ServerFault {
 		itemStore.update(path, entry.displayName, entry);
 		logger.debug("direntry {}:{} updated", domainUid, path);
-		new DirEventProducer(domainUid, VertxPlatform.eventBus()).changed(entry.entryUid, itemStore.getVersion());
+		new DirEventProducer(domainUid, entry.kind.name(), VertxPlatform.eventBus()).changed(entry.entryUid,
+				itemStore.getVersion());
 	}
 
 	@Override
-	public void delete(String path) throws ServerFault {
+	public void delete(String path, String kind) throws ServerFault {
 		itemStore.delete(path);
 		logger.debug("direntry {}:{} deleted", domainUid, path);
-		new DirEventProducer(domainUid, VertxPlatform.eventBus()).deleted(path, itemStore.getVersion());
+		new DirEventProducer(domainUid, kind, VertxPlatform.eventBus()).deleted(path, itemStore.getVersion());
 	}
 
 	@Override
 	public void updateAccountType(String uid, AccountType accountType) throws ServerFault {
 		itemStore.updateAccountType(uid, accountType);
-		new DirEventProducer(domainUid, VertxPlatform.eventBus()).changed(uid, itemStore.getVersion());
+		new DirEventProducer(domainUid, DirEntry.Kind.USER.name(), VertxPlatform.eventBus()).changed(uid,
+				itemStore.getVersion());
 	}
 }

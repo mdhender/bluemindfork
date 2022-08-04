@@ -37,6 +37,7 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.utils.ValidationResult;
+import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.service.DirDomainValue;
 import net.bluemind.directory.service.DirEventProducer;
 import net.bluemind.domain.api.Domain;
@@ -74,7 +75,8 @@ public class ExternalUserService implements IInCoreExternalUser {
 		groupStore = new GroupStore(context.getDataSource(), externalUserContainer);
 		this.externalUserContainer = externalUserContainer;
 		this.groupService = bmContext.provider().instance(IGroup.class, domainUid);
-		this.eventProducer = new DirEventProducer(domainUid, VertxPlatform.eventBus());
+		this.eventProducer = new DirEventProducer(domainUid, BaseDirEntry.Kind.EXTERNALUSER.name(),
+				VertxPlatform.eventBus());
 	}
 
 	@Override

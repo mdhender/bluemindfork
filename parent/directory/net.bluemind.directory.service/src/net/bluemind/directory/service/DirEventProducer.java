@@ -29,22 +29,24 @@ public class DirEventProducer {
 
 	protected EventBus eventBus;
 	protected String domainUid;
+	protected String kind;
 	public static final String address = "dir.changed";
 	public static final String addressDeleted = "dir.entry.deleted";
 
-	public DirEventProducer(String domainUid, EventBus ev) {
+	public DirEventProducer(String domainUid, String kind, EventBus ev) {
 		this.domainUid = domainUid;
+		this.kind = kind;
 		this.eventBus = ev;
 
 	}
 
 	public void changed(String uid, Map<String, String> additionalValues) {
-		JsonObject data = new JsonObject().put("domain", domainUid).put("uid", uid);
+		JsonObject data = new JsonObject().put("domain", domainUid).put("uid", uid).put("kind", kind);
 		additionalValues.forEach(data::put);
 		eventBus.publish(address, data);
 	}
 
-	public void changed(String uid, long version, Map<String, String> additionalValues) {
+	private void changed(String uid, long version, Map<String, String> additionalValues) {
 		Map<String, String> data = new HashMap<>();
 		data.put("version", Long.toString(version));
 		data.putAll(additionalValues);

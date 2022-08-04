@@ -35,6 +35,7 @@ import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.utils.ImageUtils;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.validator.Validator;
+import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.service.DirDomainValue;
 import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.directory.service.DirEventProducer;
@@ -73,7 +74,8 @@ public class MailshareService implements IMailshare {
 		rbacManager = new RBACManager(context).forDomain(domainUid);
 		this.mailboxAdapter = new MailshareMailboxAdapter();
 		this.storeService = new ContainerMailshareStoreService(context, container, domain);
-		dirEventProducer = new DirEventProducer(domainUid, VertxPlatform.eventBus());
+		dirEventProducer = new DirEventProducer(domainUid, BaseDirEntry.Kind.MAILSHARE.name(),
+				VertxPlatform.eventBus());
 	}
 
 	@Override

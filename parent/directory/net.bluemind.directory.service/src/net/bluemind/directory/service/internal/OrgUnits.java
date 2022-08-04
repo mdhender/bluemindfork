@@ -38,6 +38,7 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.validator.Validator;
+import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.OrgUnit;
@@ -66,7 +67,8 @@ public class OrgUnits implements IOrgUnits {
 		rbacManager = new RBACManager(context).forContainer(container);
 		sanitizer = new Sanitizer(context);
 		validator = new Validator(context);
-		dirEventProducer = new DirEventProducer(domain.uid, VertxPlatform.eventBus());
+		dirEventProducer = new DirEventProducer(domain.uid, BaseDirEntry.Kind.ORG_UNIT.name(),
+				VertxPlatform.eventBus());
 	}
 
 	@Override
