@@ -18,6 +18,6 @@ Export-Package: net.bluemind.imap,
  net.bluemind.imap.mime,
  net.bluemind.imap.mime.impl,
  net.bluemind.imap.sieve
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Eclipse-RegisterBuddy: net.bluemind.lib.parboiled
 Automatic-Module-Name: net.bluemind.imap

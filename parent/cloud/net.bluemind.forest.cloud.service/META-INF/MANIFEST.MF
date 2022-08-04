@@ -16,6 +16,6 @@ Require-Bundle: slf4j.api;bundle-version="1.7.25",
  net.bluemind.core.rest.http,
  net.bluemind.forest.instance.api,
  net.bluemind.forest.cloud.hazelcast
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.forest.cloud.service
 Bundle-ActivationPolicy: lazy

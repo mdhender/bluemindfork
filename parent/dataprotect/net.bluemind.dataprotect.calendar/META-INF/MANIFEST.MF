@@ -22,7 +22,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.addressbook.api,
  net.bluemind.mime4j.common,
  net.bluemind.core.caches.registry
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.dataprotect.calendar.impl
 Automatic-Module-Name: net.bluemind.dataprotect.calendar

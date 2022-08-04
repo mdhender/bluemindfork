@@ -4,6 +4,6 @@ Bundle-Name: net.bluemind.mailbox.sqlschema
 Bundle-SymbolicName: net.bluemind.mailbox.sqlschema;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Require-Bundle: net.bluemind.core.container.sqlschema
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: blue-mind.net
 Automatic-Module-Name: net.bluemind.mailbox.sqlschema

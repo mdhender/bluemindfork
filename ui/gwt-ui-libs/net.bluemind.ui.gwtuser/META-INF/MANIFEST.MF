@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: GWT Sharing api
 Bundle-SymbolicName: net.bluemind.ui.gwtuser;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.ui.gwtcommon.icons;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.tag.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.core.container.api.gwt;bundle-version="4.1.0";visibility:=reexport,

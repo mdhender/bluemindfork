@@ -30,6 +30,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.mail.replica.service;bundle-version="4.1.0",
  net.bluemind.resource.service;bundle-version="4.1.0",
  net.bluemind.exchange.mapi.service;bundle-version="4.1.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.backup.continuous.mgmt.service.tests
 Bundle-ActivationPolicy: lazy

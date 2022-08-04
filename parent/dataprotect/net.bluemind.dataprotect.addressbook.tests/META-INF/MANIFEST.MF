@@ -28,6 +28,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.tests.defaultdata,
  net.bluemind.user.api,
  org.junit
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.dataprotect.addressbook.tests

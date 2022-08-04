@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.resource.hook
 Bundle-SymbolicName: net.bluemind.resource.hook;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Automatic-Module-Name: net.bluemind.resource.hook
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.rest,
  net.bluemind.core.container.persistence,
  net.bluemind.resource.api

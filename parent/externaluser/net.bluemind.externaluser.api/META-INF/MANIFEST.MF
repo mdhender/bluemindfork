@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.externaluser.api
 Bundle-SymbolicName: net.bluemind.externaluser.api
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons,
  net.bluemind.directory.api,
  net.bluemind.addressbook.api,

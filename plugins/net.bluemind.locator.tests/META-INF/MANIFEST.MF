@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.locator.tests
 Bundle-SymbolicName: net.bluemind.locator.tests
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.jdbc.testshelper,
  net.bluemind.server.api,
  net.bluemind.tests.defaultdata,

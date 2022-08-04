@@ -22,7 +22,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.github.ben-manes.caffeine,
  net.bluemind.system.stateobserver,
  net.bluemind.system.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Export-Package: net.bluemind.vertx.common,

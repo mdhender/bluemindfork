@@ -4,7 +4,7 @@ Bundle-Name: Config
 Bundle-SymbolicName: net.bluemind.config
 Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.config.Activator
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Require-Bundle: slf4j.api,
  com.google.guava;bundle-version="19.0.0",

@@ -10,6 +10,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.api,
  net.bluemind.domain.api,
  net.bluemind.cli.utils
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.cli.certificate
 Bundle-ActivationPolicy: lazy

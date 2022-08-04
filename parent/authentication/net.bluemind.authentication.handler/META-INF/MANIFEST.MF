@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.authentication.handler
 Bundle-SymbolicName: net.bluemind.authentication.handler;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.lib.vertx;bundle-version="1.0.0",
  slf4j.api,
  net.bluemind.authentication.api,

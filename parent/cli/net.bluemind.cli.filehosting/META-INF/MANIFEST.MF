@@ -20,6 +20,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.attachment.api;bundle-version="4.1.0",
  net.bluemind.group.api,
  net.bluemind.authentication.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.cli.filehosting
 Bundle-ActivationPolicy: lazy

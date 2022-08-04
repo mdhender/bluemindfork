@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Jdbc
 Bundle-SymbolicName: net.bluemind.core.jdbc;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.pool;bundle-version="1.0.0";visibility:=reexport,
  slf4j.api,
  net.bluemind.core.sqlschema;bundle-version="1.0.0";visibility:=reexport,

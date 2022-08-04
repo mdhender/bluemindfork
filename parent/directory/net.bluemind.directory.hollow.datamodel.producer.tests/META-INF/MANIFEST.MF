@@ -29,5 +29,5 @@ Require-Bundle: org.junit,
  net.bluemind.vertx.testhelper,
  net.bluemind.locator,
  net.bluemind.serialization.client
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.directory.hollow.datamodel.producer.tests

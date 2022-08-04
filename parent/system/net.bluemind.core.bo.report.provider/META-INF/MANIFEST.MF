@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.core.bo.report.provider
 Bundle-SymbolicName: net.bluemind.core.bo.report.provider;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Automatic-Module-Name: net.bluemind.core.bo.report.provider
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.eclipse.common,
  net.bluemind.core.rest
 Export-Package: net.bluemind.core.bo.report.provider

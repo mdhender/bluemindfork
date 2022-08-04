@@ -14,6 +14,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.container.api;bundle-version="4.1.0",
  net.bluemind.lib.vertx,
  net.bluemind.core.jdbc.testshelper;bundle-version="4.1.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.network.topology.consumer.tests
 Bundle-ActivationPolicy: lazy

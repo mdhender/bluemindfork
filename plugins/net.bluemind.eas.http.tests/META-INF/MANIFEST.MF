@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.eas.http.tests
 Bundle-SymbolicName: net.bluemind.eas.http.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit;bundle-version="3.8.2",
  net.bluemind.eas.busmods;bundle-version="1.0.0",
  net.bluemind.eas.testhelper;bundle-version="1.0.0",

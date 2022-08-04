@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.backend.cyrus.bmgroups.tests
 Bundle-SymbolicName: net.bluemind.backend.cyrus.bmgroups.tests
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.backend.cyrus.bmgroups,
  org.junit,
  net.bluemind.lib.vertx;bundle-version="4.1.0",

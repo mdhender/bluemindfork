@@ -12,7 +12,7 @@ Require-Bundle: slf4j.api,
  net.bluemind.core.rest,
  net.bluemind.directory.api,
  net.bluemind.core.container.persistence
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.dataprotect.ou.Activator
 Export-Package: net.bluemind.dataprotect.ou

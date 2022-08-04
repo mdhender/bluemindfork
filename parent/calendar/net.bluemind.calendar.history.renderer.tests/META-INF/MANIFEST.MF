@@ -7,6 +7,6 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.calendar.history.renderer;bundle-version="4.1.0",
  org.junit
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.calendar.history.renderer.tests
 Bundle-ActivationPolicy: lazy

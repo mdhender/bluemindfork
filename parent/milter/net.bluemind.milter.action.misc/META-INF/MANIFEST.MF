@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.milter.action.misc;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.milter.action.misc
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.milter,
  slf4j.api,
  net.bluemind.mailflow.rbe,

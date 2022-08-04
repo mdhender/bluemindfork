@@ -39,7 +39,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.elastic.client,
  com.sun.mail.jakarta.mail,
  net.bluemind.utils
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.index,
  net.bluemind.index.mail

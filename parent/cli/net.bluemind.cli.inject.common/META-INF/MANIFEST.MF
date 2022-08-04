@@ -16,7 +16,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.cli.utils,
  org.apache.james.apache-mime4j-dom,
  net.bluemind.mime4j.common
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.cli.inject.common
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.cli.inject.common

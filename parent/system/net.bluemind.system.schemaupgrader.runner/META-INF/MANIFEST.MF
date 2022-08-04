@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest,
  net.bluemind.system.schemaupgrader;visibility:=reexport,
  net.bluemind.core.task.spi
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.system.schemaupgrader.runner
 Automatic-Module-Name: net.bluemind.system.schemaupgrader.runner
 

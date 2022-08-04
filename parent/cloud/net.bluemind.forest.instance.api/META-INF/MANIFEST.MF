@@ -8,6 +8,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.commons,
  net.bluemind.core.rest,
  com.google.guava
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.forest.instance.api
 Export-Package: net.bluemind.forest.instance.api

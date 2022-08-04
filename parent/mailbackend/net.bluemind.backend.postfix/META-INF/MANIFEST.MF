@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.backend.postfix
 Bundle-SymbolicName: net.bluemind.backend.postfix;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: slf4j.api,
  net.bluemind.eclipse.common;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",

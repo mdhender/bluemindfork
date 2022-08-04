@@ -4,7 +4,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.role.hook
 Bundle-SymbolicName: net.bluemind.role.hook;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.role.hook
 Require-Bundle: slf4j.api,
  org.eclipse.core.runtime,

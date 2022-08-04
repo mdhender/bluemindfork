@@ -9,7 +9,7 @@ Require-Bundle: org.apache.mina.core;bundle-version="2.0.7",
  slf4j.api,
  org.eclipse.core.runtime,
  net.bluemind.ldap.directory.client;bundle-version="1.0.3";visibility:=reexport
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Export-Package: net.bluemind.lib.ldap

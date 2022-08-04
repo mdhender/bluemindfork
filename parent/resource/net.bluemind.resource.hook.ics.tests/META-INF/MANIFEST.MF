@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.resource.hook.ics.tests
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
 Fragment-Host: net.bluemind.resource.hook.ics
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper,
  net.bluemind.lib.vertx,

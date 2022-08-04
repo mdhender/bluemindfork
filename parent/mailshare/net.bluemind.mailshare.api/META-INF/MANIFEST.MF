@@ -9,6 +9,6 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.mailbox.api,
  net.bluemind.directory.api;visibility:=reexport,
  net.bluemind.addressbook.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.mailshare.api
 Automatic-Module-Name: net.bluemind.mailshare.api

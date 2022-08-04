@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.milter.action.signature
 Bundle-SymbolicName: net.bluemind.milter.action.signature;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.milter,
  org.apache.james.apache-mime4j-dom,
  net.bluemind.mime4j.common;bundle-version="4.1.0",

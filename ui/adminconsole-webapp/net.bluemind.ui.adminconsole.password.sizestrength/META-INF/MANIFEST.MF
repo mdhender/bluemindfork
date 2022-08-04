@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Web-Resources: web-resources
 Automatic-Module-Name: net.bluemind.ui.adminconsole.password.sizestrength
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Require-Bundle: net.bluemind.ui.adminconsole.base;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.gwtconsoleapp.base;visibility:=reexport,

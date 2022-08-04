@@ -27,6 +27,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.user.api,
  net.bluemind.backend.mail.api,
  net.bluemind.backend.mail.replica.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.cli.sds
 Bundle-ActivationPolicy: lazy

@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.documentfolder.api.php
 Bundle-SymbolicName: net.bluemind.documentfolder.api.php
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons.php;bundle-version="1.0.0",
  net.bluemind.core.container.api.php;bundle-version="1.0.0",
  net.bluemind.documentfolder.api;bundle-version="1.0.0"

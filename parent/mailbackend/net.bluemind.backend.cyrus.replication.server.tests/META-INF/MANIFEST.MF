@@ -21,6 +21,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.api,
  net.bluemind.slf4j;bundle-version="4.1.0",
  slf4j.api;bundle-version="1.7.30"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.backend.cyrus.replication.server.tests

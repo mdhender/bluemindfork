@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.mailapp.role
 Bundle-SymbolicName: net.bluemind.mailapp.role;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.role.api;bundle-version="4.1.0",
  net.bluemind.role.provider;bundle-version="4.1.0",
  com.google.guava

@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.system.config.tests
 Bundle-SymbolicName: net.bluemind.system.config.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.tests.defaultdata,
  net.bluemind.core.jdbc.testshelper,

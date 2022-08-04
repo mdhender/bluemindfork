@@ -13,7 +13,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eclipse.common,
  com.github.ben-manes.caffeine;visibility:=reexport,
  net.bluemind.common.cache.persistence;visibility:=reexport
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.sessions
 Automatic-Module-Name: net.bluemind.core.sessions

@@ -11,6 +11,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.container.api;bundle-version="4.1.0",
  net.bluemind.domain.api,
  net.bluemind.metrics.registry
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.milter.metrics
 Bundle-ActivationPolicy: lazy

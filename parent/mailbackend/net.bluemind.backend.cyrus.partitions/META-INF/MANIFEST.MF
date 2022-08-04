@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.mailbox.api,
  net.bluemind.backend.mail.replica.api;bundle-version="4.1.0",
  slf4j.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.backend.cyrus.partitions
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.cyrus.partitions

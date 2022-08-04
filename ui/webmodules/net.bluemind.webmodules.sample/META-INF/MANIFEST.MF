@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Web Sample
 Bundle-SymbolicName: net.bluemind.webmodules.sample;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.webmodule;bundle-version="1.0.0",
  org.freemarker.freemarker;bundle-version="2.3.20",
  net.bluemind.lib.vertx;bundle-version="1.0.0",

@@ -25,5 +25,5 @@ Require-Bundle: org.junit,
  net.bluemind.system.service;bundle-version="4.1.0",
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.common.io;bundle-version="4.1.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.imap.tests

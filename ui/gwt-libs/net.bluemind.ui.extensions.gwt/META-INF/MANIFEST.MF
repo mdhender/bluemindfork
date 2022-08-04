@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: net.bluemind.ui.extensions.gwt;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.google.gwt.user;resolution:=optional
 Export-Package: net.bluemind.ui.extensions.gwt
 Automatic-Module-Name: net.bluemind.ui.extensions.gwt

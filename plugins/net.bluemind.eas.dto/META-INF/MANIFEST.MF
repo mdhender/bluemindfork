@@ -9,7 +9,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava;bundle-version="19.0.0",
  slf4j.api,
  net.bluemind.common.io;bundle-version="4.1.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.eas.dto,
  net.bluemind.eas.dto.base,

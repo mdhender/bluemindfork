@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: contact
 Bundle-SymbolicName: contact;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Closure-Bundle-Type: Application
 Closure-Inputs: bluemind/run.js
 Require-Bundle: net.bluemind.webmodule;bundle-version="1.0.0",

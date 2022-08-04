@@ -15,5 +15,5 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  net.bluemind.system.api;bundle-version="4.1.0",
  net.bluemind.network.topology
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.pop3.driver

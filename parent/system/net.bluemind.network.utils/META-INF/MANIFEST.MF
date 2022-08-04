@@ -7,7 +7,7 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.core.commons
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.network.utils
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.network.utils

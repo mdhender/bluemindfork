@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.tag.closure
 Bundle-SymbolicName: net.bluemind.tag.closure;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Closure-Bundle-Type: Library
 Require-Bundle: relief;bundle-version="1.0.0",
  net.bluemind.commons.closure;bundle-version="1.0.0",

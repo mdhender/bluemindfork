@@ -19,6 +19,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.exchange.mapi.api,
  com.github.ben-manes.caffeine,
  net.bluemind.core.caches.registry
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.core.container.sharding.repair
 Automatic-Module-Name: net.bluemind.core.container.sharding.repair

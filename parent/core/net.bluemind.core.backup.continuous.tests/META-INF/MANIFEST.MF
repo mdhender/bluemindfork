@@ -53,6 +53,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.imap,
  org.hamcrest,
  net.bluemind.node.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.backup.continuous.tests
 Bundle-ActivationPolicy: lazy

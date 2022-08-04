@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.calendar.application.closure
 Bundle-SymbolicName: net.bluemind.calendar.application.closure;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: www.blue-mind.net
 Closure-Inputs: net/bluemind/ui/banner/widget/UnseenEvents.js
 Require-Bundle: net.bluemind.authentication.closure;bundle-version="1.0.0",

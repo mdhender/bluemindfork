@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.videoconferencing.saas.js
 Bundle-SymbolicName: net.bluemind.videoconferencing.saas.js;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.webmodules.webapp,
  net.bluemind.webmodule,
  net.bluemind.ui.banner

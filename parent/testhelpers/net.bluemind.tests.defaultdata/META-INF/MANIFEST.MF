@@ -35,7 +35,7 @@ Require-Bundle: net.bluemind.core.container.persistence,
  net.bluemind.externaluser.service;bundle-version="4.1.0",
  net.bluemind.network.topology,
  org.apache.commons.lang3
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.tests.defaultdata
 Automatic-Module-Name: net.bluemind.tests.defaultdata

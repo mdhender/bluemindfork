@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.system.hook
 Bundle-SymbolicName: net.bluemind.system.hook;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.system.hook
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.system.api;bundle-version="1.0.0",
  net.bluemind.core.rest

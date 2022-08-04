@@ -6,6 +6,6 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.jdbc.pgsql.provider.Activator
 Require-Bundle: net.bluemind.pool;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: blue-mind.net
 Automatic-Module-Name: net.bluemind.jdbc.pgsql.provider

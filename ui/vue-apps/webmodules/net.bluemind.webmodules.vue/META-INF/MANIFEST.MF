@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.webmodules.vue
 Bundle-SymbolicName: net.bluemind.webmodules.vue;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Web-Resources: web-resources
 Require-Bundle: io.vertx.core,
  slf4j.api,

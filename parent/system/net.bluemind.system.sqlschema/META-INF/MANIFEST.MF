@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.system.sqlschema
 Bundle-SymbolicName: net.bluemind.system.sqlschema;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.sqlschema;bundle-version="1.0.0"
 Automatic-Module-Name: net.bluemind.system.sqlschema
 

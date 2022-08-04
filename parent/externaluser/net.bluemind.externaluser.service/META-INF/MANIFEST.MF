@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.externaluser.service
 Bundle-SymbolicName: net.bluemind.externaluser.service;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.externaluser.api;visibility:=reexport,
  net.bluemind.core.commons,
  net.bluemind.directory.api,

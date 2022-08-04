@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.osgi.log.Activator
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Service-Component: slf4j-bridge-component.xml
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.osgi.log

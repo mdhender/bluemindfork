@@ -19,7 +19,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.i18n.labels,
  net.bluemind.group.api,
  net.bluemind.domain.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.container.hooks
 Automatic-Module-Name: net.bluemind.core.container.hooks

@@ -13,7 +13,7 @@ Require-Bundle: net.bluemind.core.jdbc,
  net.bluemind.server.api,
  net.bluemind.mailbox.identity.sqlschema,
  net.bluemind.user.sqlschema
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: blue-mind.net
 Export-Package: net.bluemind.mailbox.identity.persistence
 Automatic-Module-Name: net.bluemind.mailbox.identity.persistence

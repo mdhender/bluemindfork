@@ -4,6 +4,6 @@ Bundle-Name: net.bluemind.device.sqlschema
 Bundle-SymbolicName: net.bluemind.device.sqlschema;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.sqlschema;bundle-version="1.0.0"
 Automatic-Module-Name: net.bluemind.device.sqlschema

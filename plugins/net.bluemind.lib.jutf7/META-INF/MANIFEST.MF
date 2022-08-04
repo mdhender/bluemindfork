@@ -7,7 +7,7 @@ Bundle-Activator: net.bluemind.lib.jutf7.Activator
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  com.beetstra.jutf7;visibility:=reexport
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Export-Package: net.bluemind.lib.jutf7

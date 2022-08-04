@@ -17,6 +17,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.github.freva.ascii-table,
  net.bluemind.domain.api,
  net.bluemind.scheduledjob.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.cli.job
 Bundle-ActivationPolicy: lazy

@@ -4,6 +4,6 @@ Bundle-Name: Api
 Bundle-SymbolicName: net.bluemind.group.member
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.group.member
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons
 Automatic-Module-Name: net.bluemind.group.member

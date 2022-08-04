@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.addressbook.ui.contacteditor
 Bundle-SymbolicName: net.bluemind.addressbook.ui.contacteditor;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Closure-Bundle-Type: Application
 Closure-Inputs: run.js
 Require-Bundle: net.bluemind.contact.application.closure;bundle-version="1.0.0"

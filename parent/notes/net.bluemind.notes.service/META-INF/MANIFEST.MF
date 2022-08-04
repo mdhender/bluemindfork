@@ -25,6 +25,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.container.hierarchy.hook,
  net.bluemind.user.api,
  net.bluemind.core.task.service
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.notes.service
 Automatic-Module-Name: net.bluemind.notes.service

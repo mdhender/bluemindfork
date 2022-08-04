@@ -11,6 +11,6 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.utils
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: blue-mind.net
 Automatic-Module-Name: net.bluemind.eas.search.ldap

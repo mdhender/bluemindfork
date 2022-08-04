@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.scheduledjob.service.tests
 Bundle-SymbolicName: net.bluemind.scheduledjob.service.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper,
  slf4j.api,

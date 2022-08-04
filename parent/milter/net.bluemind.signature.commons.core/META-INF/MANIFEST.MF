@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.signature.commons.core
 Bundle-SymbolicName: net.bluemind.signature.commons.core;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.apache.james.apache-mime4j-dom,
  net.bluemind.mime4j.common,
  org.jsoup,

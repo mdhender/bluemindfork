@@ -13,7 +13,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.ristretto,
  com.google.guava;bundle-version="19.0.0",
  io.netty
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.eas.serdes,
  net.bluemind.eas.serdes.base,

@@ -37,7 +37,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.github.ben-manes.caffeine,
  net.bluemind.attachment.api
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: blue-mind.net
 Automatic-Module-Name: net.bluemind.lmtp.filter.imip
 Export-Package: net.bluemind.lmtp.filter.imip,

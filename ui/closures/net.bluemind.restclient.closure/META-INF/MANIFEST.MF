@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
 Closure-Bundle-Type: Application
 Closure-Inputs: sockjs-0.3.4.min.js,run-vertx.js
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Web-Resources: web-resources
 Bundle-ClassPath: .,
  js.jar

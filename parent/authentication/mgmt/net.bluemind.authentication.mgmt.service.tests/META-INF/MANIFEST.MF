@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.authentication.mgmt.service.tests
 Bundle-SymbolicName: net.bluemind.authentication.mgmt.service.tests
 Bundle-Version: 4.1.0.qualifier
 Automatic-Module-Name: net.bluemind.authentication.mgmt.service.tests
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  com.google.guava,
  net.bluemind.tests.defaultdata,

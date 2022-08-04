@@ -38,6 +38,7 @@ public abstract class CertifEngineFactory {
 
 		try {
 			CertificateDomainEngine sslCertifEngine = CertificateDomainEngine
+
 					.valueOf(new SecurityCertificateHelper().getSslCertifEngine(domainUid));
 			switch (sslCertifEngine) {
 			case LETS_ENCRYPT:

@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.system.config
 Bundle-SymbolicName: net.bluemind.system.config;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.system.api,

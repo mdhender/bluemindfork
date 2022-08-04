@@ -4,6 +4,6 @@ Bundle-Name: net.bluemind.webmodule
 Bundle-SymbolicName: net.bluemind.webmodule;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Require-Bundle: org.eclipse.core.runtime
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.webmodule

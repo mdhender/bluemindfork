@@ -15,7 +15,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.node.api,
  net.bluemind.system.api,
  net.bluemind.system.state
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.system.pg
 Automatic-Module-Name: net.bluemind.system.pg

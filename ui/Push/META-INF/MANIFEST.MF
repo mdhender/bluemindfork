@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.ui.push
 Bundle-SymbolicName: net.bluemind.ui.push;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.webmodule,
  net.bluemind.commons.ui.closure,
  com.google.gwt.user,

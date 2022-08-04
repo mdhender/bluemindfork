@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Rest
 Bundle-SymbolicName: net.bluemind.core.rest.http;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: slf4j.api,
  org.eclipse.core.runtime;bundle-version="3.7.0",
  net.bluemind.core.rest;bundle-version="1.0.0";visibility:=reexport,

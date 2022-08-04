@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.restbus.api.gwt
 Bundle-SymbolicName: net.bluemind.restbus.api.gwt;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.google.gwt.user;resolution:=optional,
  net.bluemind.core.rest,
  net.bluemind.core.commons,

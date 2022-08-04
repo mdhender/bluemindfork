@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.system.ldap.tests.helpers
 Bundle-SymbolicName: net.bluemind.system.ldap.tests.helpers
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.system.ldap.tests.helpers
 Require-Bundle: org.junit,
  net.bluemind.pool,

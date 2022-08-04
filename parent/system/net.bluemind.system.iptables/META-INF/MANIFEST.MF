@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.system.iptables
 Bundle-SymbolicName: net.bluemind.system.iptables;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  org.freemarker.freemarker;bundle-version="2.3.20",

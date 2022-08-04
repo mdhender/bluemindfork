@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Login App
 Bundle-SymbolicName: net.bluemind.webmodules.loginapp;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Web-Resources: web-resources
 Require-Bundle: net.bluemind.webmodule.server;bundle-version="1.0.0",
  io.netty;bundle-version="4.0.33",

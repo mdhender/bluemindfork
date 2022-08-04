@@ -13,6 +13,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest,
  net.bluemind.directory.api,
  net.bluemind.core.backup.continuous.dto
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.backup.continuous.state
 Bundle-ActivationPolicy: lazy

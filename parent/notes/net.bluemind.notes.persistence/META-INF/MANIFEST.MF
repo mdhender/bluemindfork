@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Persistance
 Bundle-SymbolicName: net.bluemind.notes.persistence;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.notes.api;bundle-version="1.0.0",
  net.bluemind.core.container.persistence;bundle-version="1.0.0",
  net.bluemind.core.jdbc;bundle-version="1.0.0",

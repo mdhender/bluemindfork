@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.webmodules.webmail
 Bundle-SymbolicName: net.bluemind.webmodules.webmail;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.ui.webmail.application;bundle-version="1.0.0",
  net.bluemind.webmodule;bundle-version="1.0.0",
  net.bluemind.ui.banner.standalone.closure;bundle-version="1.0.0",

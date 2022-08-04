@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.eas.service.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Fragment-Host: net.bluemind.eas.service
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.eas.api,
  net.bluemind.core.context,

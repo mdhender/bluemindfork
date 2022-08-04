@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.eas.config
 Bundle-SymbolicName: net.bluemind.eas.config;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.node.api,
  net.bluemind.core.commons,
  org.freemarker.freemarker,

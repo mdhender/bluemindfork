@@ -63,13 +63,13 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<bm-plugins-version>1.0.500</bm-plugins-version>
-		<bm.metrics.agent>1.30.1</bm.metrics.agent>
+		<bm-plugins-version>1.0.512</bm-plugins-version>
+		<bm.metrics.agent>1.30.2</bm.metrics.agent>
 		<docker.devenv.tag>4.1.63005</docker.devenv.tag>
-		<target-platform-version>jdk11-47</target-platform-version>
+		<target-platform-version>jdk11-49</target-platform-version>
 
 		<!-- Not to be modified usually -->
-		<tycho-version>2.5.0</tycho-version>
+		<tycho-version>2.6.0</tycho-version>
 		<maven-source-plugin-version>3.2.1</maven-source-plugin-version>
 		<maven-clean-plugin-version>3.2.0</maven-clean-plugin-version>
 		<jacoco-maven-plugin-version>0.8.8</jacoco-maven-plugin-version>
@@ -101,7 +101,7 @@
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 		<sonar.jacoco.excludes>**/*Test*,**/generated/**/*,**/*.tests/**/*</sonar.jacoco.excludes>
 		<l10n.list>"en", "fr"</l10n.list>
-		<bm.test.argline>-Dio.netty.noPreferDirect=true -XX:-OmitStackTraceInFastThrow --add-modules java.se --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.management/sun.management=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-opens=jdk.compiler/com.sun.tools.javac=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --illegal-access=permit</bm.test.argline>
+		<bm.test.argline>-Dio.netty.noPreferDirect=true -XX:-OmitStackTraceInFastThrow --add-modules java.se --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.management/sun.management=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-opens=jdk.compiler/com.sun.tools.javac=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang.invoke=ALL-UNNAMED</bm.test.argline>
 	</properties>
 	<repositories>
 		<repository>
@@ -200,8 +200,8 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>${maven-compiler-plugin-version}</version>
 					<configuration>
-						<source>11</source>
-						<target>11</target>
+						<source>17</source>
+						<target>17</target>
 					</configuration>
 					<executions>
 						<execution>
@@ -245,8 +245,8 @@
 					<extensions>true</extensions>
 					<configuration>
 						<encoding>UTF-8</encoding>
-						<source>11</source>
-						<target>11</target>
+						<source>17</source>
+						<target>17</target>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -282,8 +282,8 @@
 							<annotationProcessor>net.bluemind.codegen.processor.MetaModelProcessor</annotationProcessor>
 						</annotationProcessors>
 						<generatedSourcesDirectory>${basedir}/generated</generatedSourcesDirectory>
-						<source>11</source>
-						<target>11</target>
+						<source>17</source>
+						<target>17</target>
 						<useProjectSettings>false</useProjectSettings>
 					</configuration>
 					<dependencies>
@@ -374,6 +374,7 @@
 					<artifactId>target-platform-configuration</artifactId>
 					<version>${tycho-version}</version>
 					<configuration>
+						<executionEnvironment>JavaSE-17</executionEnvironment>
 						<environments>
 							<environment>
 								<os>linux</os>

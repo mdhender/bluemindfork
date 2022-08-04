@@ -30,7 +30,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.systemd.notify,
  net.bluemind.network.topology,
  com.github.ben-manes.caffeine
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Export-Package: net.bluemind.xmpp.server

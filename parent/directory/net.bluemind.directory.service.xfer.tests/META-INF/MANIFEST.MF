@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.directory.service.xfer.tests
 Fragment-Host: net.bluemind.directory.service
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit;bundle-version="4.12.0",
  net.bluemind.addressbook.api,
  net.bluemind.addressbook.service,

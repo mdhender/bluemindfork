@@ -20,7 +20,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.config,
  net.bluemind.system.stateobserver,
  net.bluemind.role.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Export-Package: net.bluemind.eas.http,

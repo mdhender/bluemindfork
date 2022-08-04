@@ -14,6 +14,6 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.server.api;bundle-version="1.0.0",
  net.bluemind.globalsettings.sqlschema;bundle-version="1.0.0";visibility:=reexport
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.globalsettings.persistence
 Automatic-Module-Name: net.bluemind.globalsettings.persistence

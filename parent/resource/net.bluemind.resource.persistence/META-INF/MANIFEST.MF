@@ -14,6 +14,6 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.resource.api,
  net.bluemind.mailbox.persistence,
  net.bluemind.mailbox.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.resource.persistence
 Automatic-Module-Name: net.bluemind.resource.persistence

@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.mailbox.service
 Bundle-SymbolicName: net.bluemind.mailbox.service;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.rest,
  net.bluemind.authentication.api,
  net.bluemind.authentication.provider,

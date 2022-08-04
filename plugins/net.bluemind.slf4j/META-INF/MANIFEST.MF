@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.slf4j
 Bundle-SymbolicName: net.bluemind.slf4j
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: .
 Require-Bundle: slf4j.api;bundle-version="1.7.25",
  ch.qos.logback.classic;bundle-version="1.2.3",

@@ -9,7 +9,7 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0";visibility:=ree
  net.bluemind.core.task.api,
  net.bluemind.directory.api;visibility:=reexport,
  javax.validation.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.mailbox.api,
  net.bluemind.mailbox.api.utils
 Eclipse-RegisterBuddy: net.bluemind.core.rest

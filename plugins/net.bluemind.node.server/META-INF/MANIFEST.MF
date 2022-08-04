@@ -12,7 +12,7 @@ Require-Bundle: slf4j.api,
  net.bluemind.node.shared,
  slf4j.api,
  net.bluemind.systemd.notify
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.node.server,
  net.bluemind.node.server.busmod

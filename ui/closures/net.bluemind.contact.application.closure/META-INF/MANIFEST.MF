@@ -17,5 +17,5 @@ Require-Bundle: net.bluemind.mvp.closure;bundle-version="1.0.0",
  net.bluemind.history.ui.closure;bundle-version="4.1.0"
 Bundle-ClassPath: js.jar
 Closure-Bundle-Type: Librar
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.contact.application.closure

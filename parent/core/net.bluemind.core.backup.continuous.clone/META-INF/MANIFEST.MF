@@ -56,7 +56,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.github.chrisvest.stormpot,
  net.bluemind.scheduledjob.api,
  net.bluemind.webappdata.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.backup.continuous.clone
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.backup.continuous.restore,

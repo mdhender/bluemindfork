@@ -14,7 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.xerces;bundle-version="2.9.0",
  org.jsoup,
  io.netty
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.mime4j.common
 Automatic-Module-Name: net.bluemind.mime4j.common

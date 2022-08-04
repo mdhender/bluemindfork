@@ -11,7 +11,7 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.eclipse.common,
  net.bluemind.node.shared;visibility:=reexport
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.node.api
 Automatic-Module-Name: net.bluemind.node.api

@@ -13,6 +13,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  net.bluemind.system.state,
  net.bluemind.system.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.core.container.hierarchy.hook
 Automatic-Module-Name: net.bluemind.core.container.hierarchy.hook

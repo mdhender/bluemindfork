@@ -9,7 +9,7 @@ Require-Bundle: org.eclipse.core.runtime,
  log4j.over.slf4j;bundle-version="1.7.5",
  io.netty
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: .
 Export-Package: com.sendmail.jilter
 Automatic-Module-Name: net.bluemind.jilter

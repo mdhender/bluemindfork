@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.document.api
 Bundle-SymbolicName: net.bluemind.document.api
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0"
 Export-Package: net.bluemind.document.api
 Automatic-Module-Name: net.bluemind.document.api

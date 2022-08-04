@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.videoconferencing.saas.persistence.tests
 Bundle-SymbolicName: net.bluemind.videoconferencing.saas.persistence.tests
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.container.persistence,
  net.bluemind.core.context,
  net.bluemind.core.jdbc.testshelper,

@@ -11,6 +11,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.vertx.testhelper,
  com.google.guava,
  org.asynchttpclient.async-http-client
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.node.metrics.aggregator.tests
 Bundle-ActivationPolicy: lazy

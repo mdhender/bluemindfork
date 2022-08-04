@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.ui.instantmessaging
 Bundle-SymbolicName: net.bluemind.ui.instantmessaging;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.webmodule;bundle-version="4.1.0",
  net.bluemind.im.api.gwt;bundle-version="4.1.0",
  net.bluemind.core.commons,

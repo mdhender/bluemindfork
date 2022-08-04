@@ -13,5 +13,5 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.task.api
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.node.client.tests

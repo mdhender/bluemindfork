@@ -8,7 +8,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.directory.api,
  net.bluemind.eclipse.common,
  slf4j.api;bundle-version="1.7.30"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.directory.external
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.directory.external

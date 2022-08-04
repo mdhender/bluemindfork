@@ -7,7 +7,7 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  com.google.guava
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.linkify
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: lib/libphonenumber-8.12.4.jar,

@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.authentication.api.php
 Bundle-SymbolicName: net.bluemind.authentication.api.php
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons.php;bundle-version="1.0.0",
  net.bluemind.user.api.php;bundle-version="1.0.0",
  net.bluemind.authentication.api;bundle-version="1.0.0"

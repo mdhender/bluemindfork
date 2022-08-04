@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.hsm.service.tests
 Bundle-Version: 4.1.0.qualifier
 Fragment-Host: net.bluemind.hsm.service
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
  net.bluemind.tests.defaultdata;bundle-version="1.0.0",

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.core.validator.tests
 Bundle-SymbolicName: net.bluemind.core.validator.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.validator;bundle-version="1.0.0",

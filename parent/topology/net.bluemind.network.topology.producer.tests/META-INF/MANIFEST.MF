@@ -16,6 +16,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest,
  net.bluemind.core.context,
  net.bluemind.server.hook
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.network.topology.producer.tests
 Bundle-ActivationPolicy: lazy

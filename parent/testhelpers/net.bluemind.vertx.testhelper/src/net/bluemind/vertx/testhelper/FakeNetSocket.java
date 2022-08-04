@@ -250,4 +250,16 @@ public class FakeNetSocket implements NetSocket {
 		return null;
 	}
 
+	@Override
+	public SocketAddress remoteAddress(boolean real) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SocketAddress localAddress(boolean real) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

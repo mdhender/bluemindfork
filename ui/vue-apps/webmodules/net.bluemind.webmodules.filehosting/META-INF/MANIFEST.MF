@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.webmodules.filehosting
 Bundle-SymbolicName: net.bluemind.webmodules.filehosting;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Automatic-Module-Name: net.bluemind.webmodules.filehosting
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.webmodule.server
 Web-Resources: web-resources
 Web-Dependencies: net.bluemind.webmodules.vue,

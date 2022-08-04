@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: GWT common api
 Bundle-SymbolicName: net.bluemind.ui.domain;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.container.api;bundle-version="4.1.0",
  net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.domain.api,

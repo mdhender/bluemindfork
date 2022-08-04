@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.ui.banner;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
 Closure-Bundle-Type: Library
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.commons.closure;bundle-version="1.0.0",
  net.bluemind.extensions.closure;bundle-version="1.0.0",
  net.bluemind.core.task.api.closure;bundle-version="1.0.0",

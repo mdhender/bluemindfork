@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: I18n labels
 Bundle-SymbolicName: net.bluemind.i18n.labels
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.i18n.labels
 Require-Bundle: slf4j.api

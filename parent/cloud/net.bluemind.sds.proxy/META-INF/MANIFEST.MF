@@ -27,7 +27,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.github.ben-manes.caffeine,
  net.bluemind.sds.store,
  net.bluemind.system.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.sds.proxy
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.sds.proxy.dto,

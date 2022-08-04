@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Services
 Bundle-SymbolicName: net.bluemind.tag.service;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.tag.api;bundle-version="1.0.0",
  net.bluemind.core.container.persistence;bundle-version="1.0.0",
  net.bluemind.core.container.service;bundle-version="1.0.0",

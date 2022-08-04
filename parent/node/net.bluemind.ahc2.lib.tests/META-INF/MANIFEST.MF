@@ -9,6 +9,6 @@ Require-Bundle: org.eclipse.core.runtime,
  io.netty,
  org.asynchttpclient.async-http-client,
  org.junit
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.ahc2.lib.tests
 Bundle-ActivationPolicy: lazy

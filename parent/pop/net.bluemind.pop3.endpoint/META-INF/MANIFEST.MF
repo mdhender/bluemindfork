@@ -16,7 +16,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.netflix.spectator.api,
  net.bluemind.metrics.registry,
  com.typesafe.config
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.pop3.endpoint
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.pop3.endpoint

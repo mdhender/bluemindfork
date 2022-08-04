@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.core.container.service;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.core.container.service,
  net.bluemind.core.container.service.internal
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.container.persistence;bundle-version="1.0.0",
  net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.lib.vertx;bundle-version="1.0.0",

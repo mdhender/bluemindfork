@@ -8,6 +8,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.junit,
  net.bluemind.aws.s3;bundle-version="1.11.621",
  net.bluemind.dockerclient
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.aws.s3.tests
 Bundle-ActivationPolicy: lazy

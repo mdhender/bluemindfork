@@ -18,7 +18,6 @@
  */
 package net.bluemind.core.sanitizer;
 
-import java.security.acl.Group;
 import java.util.Map;
 
 import net.bluemind.addressbook.api.VCard;

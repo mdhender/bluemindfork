@@ -30,6 +30,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.junit,
  slf4j.api,
  net.bluemind.vertx.testhelper
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.sds.store.scalityring.tests
 Bundle-ActivationPolicy: lazy

@@ -8,7 +8,7 @@ Export-Package: net.bluemind.core.api,
  net.bluemind.core.api.fault,
  net.bluemind.core.email,
  net.bluemind.core.utils
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: io.netty;visibility:=reexport,
  org.eclipse.osgi,
  net.bluemind.common.io,

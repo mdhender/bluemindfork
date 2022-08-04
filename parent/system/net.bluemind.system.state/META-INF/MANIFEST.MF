@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.system.state
 Bundle-SymbolicName: net.bluemind.system.state;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.system.state
 Require-Bundle: net.bluemind.lib.vertx,
  net.bluemind.hornetq.client,

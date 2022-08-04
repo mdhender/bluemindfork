@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.calendar.sync.tests
 Bundle-SymbolicName: net.bluemind.calendar.sync.tests
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit;bundle-version="4.12.0",
  net.bluemind.core.jdbc.testshelper,
  net.bluemind.lib.vertx,

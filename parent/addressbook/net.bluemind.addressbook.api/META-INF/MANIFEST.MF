@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.addressbook.api
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.addressbook.api,
  net.bluemind.addressbook.api.utils
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.core.container.api;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.tag.api;bundle-version="1.0.0";visibility:=reexport,

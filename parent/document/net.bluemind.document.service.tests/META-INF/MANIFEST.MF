@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.document.service.tests
 Bundle-Version: 4.1.0.qualifier
 Fragment-Host: net.bluemind.document.service
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.core.context,
  net.bluemind.core.tests.testshelper;bundle-version="1.0.0",

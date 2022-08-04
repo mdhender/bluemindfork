@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.deferredaction.service
 Bundle-SymbolicName: net.bluemind.deferredaction.service;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.deferredaction.service
 Require-Bundle: net.bluemind.core.commons,
  net.bluemind.core.container.api,

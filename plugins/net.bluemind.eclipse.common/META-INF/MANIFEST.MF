@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.eclipse.common
 Bundle-SymbolicName: net.bluemind.eclipse.common
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: slf4j.api,
  org.eclipse.core.runtime
 Export-Package: net.bluemind.eclipse.common

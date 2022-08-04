@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Item Services
 Bundle-SymbolicName: net.bluemind.core.task.api;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0"
 Export-Package: net.bluemind.core.task.api
 Automatic-Module-Name: net.bluemind.core.task.api

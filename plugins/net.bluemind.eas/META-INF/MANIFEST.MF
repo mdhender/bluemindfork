@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.eas
 Bundle-SymbolicName: net.bluemind.eas;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Activator: net.bluemind.eas.EasActivator
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.5.0";visibility:=reexport,
  net.bluemind.core.caches.registry,

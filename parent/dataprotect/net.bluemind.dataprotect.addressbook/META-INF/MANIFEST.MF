@@ -22,7 +22,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.mime4j.common;bundle-version="4.1.0",
  net.bluemind.addressbook.userbook,
  net.bluemind.core.caches.registry
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.dataprotect.addressbook.impl
 Automatic-Module-Name: net.bluemind.dataprotect.addressbook

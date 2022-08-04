@@ -7,7 +7,7 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: net.bluemind.core.container.api;visibility:=reexport,
  com.google.guava,
  com.fasterxml.jackson.core.jackson-annotations
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.mail.api,
  net.bluemind.backend.mail.api.events,

@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.calendar.helper
 Bundle-SymbolicName: net.bluemind.calendar.helper
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: BlueMind
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.freemarker.freemarker;bundle-version="2.3.20",
  slf4j.api,
  net.bluemind.calendar.api,

@@ -32,6 +32,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.network.topology,
  com.github.javafaker,
  net.bluemind.domain.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.cli.user
 Bundle-ActivationPolicy: lazy

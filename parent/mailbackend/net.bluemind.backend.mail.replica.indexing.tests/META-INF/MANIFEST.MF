@@ -7,5 +7,5 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  org.junit,
  net.bluemind.backend.mail.replica.indexing
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.backend.mail.replica.indexing.tests

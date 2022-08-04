@@ -17,7 +17,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.central.reverse.proxy.model.client,
  net.bluemind.central.reverse.proxy.model.common,
  slf4j.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.central.reverse.proxy.model
 Bundle-ClassPath: .

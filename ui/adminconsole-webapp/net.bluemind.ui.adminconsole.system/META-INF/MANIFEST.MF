@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Settings ui
 Bundle-SymbolicName: net.bluemind.ui.adminconsole.system;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Web-Resources: web-resources
 Require-Bundle: net.bluemind.commons.ui.closure;bundle-version="4.1.0",
  net.bluemind.webmodule;bundle-version="4.1.0",

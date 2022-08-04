@@ -20,7 +20,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.mime4j.common;bundle-version="4.1.0",
  com.sun.mail.jakarta.mail,
  net.bluemind.eclipse.common
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.mail.parsing
 Automatic-Module-Name: net.bluemind.backend.mail.parsing

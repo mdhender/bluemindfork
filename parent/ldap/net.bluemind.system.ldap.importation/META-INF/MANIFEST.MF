@@ -30,7 +30,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eclipse.common,
  net.bluemind.metrics.registry
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: blue-mind.net
 Export-Package: net.bluemind.system.ldap.importation;
   uses:="org.osgi.framework,

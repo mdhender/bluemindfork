@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.lmtp.filter.imip.tests
 Bundle-SymbolicName: net.bluemind.lmtp.filter.imip.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
  net.bluemind.server.api,

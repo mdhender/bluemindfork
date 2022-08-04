@@ -4,7 +4,7 @@ Bundle-Name: Api
 Bundle-SymbolicName: net.bluemind.videoconferencing.api;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Automatic-Module-Name: net.bluemind.videoconferencing.api
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons,
  net.bluemind.resource.api,
  net.bluemind.core.container.api,

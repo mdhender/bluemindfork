@@ -16,6 +16,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.server.api,
  net.bluemind.config,
  com.fasterxml.jackson.core.jackson-databind
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.cli.index
 Bundle-ActivationPolicy: lazy

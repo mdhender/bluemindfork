@@ -8,7 +8,7 @@ Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest;visibility:=reexport,
  net.bluemind.core.commons
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.ssl.hook
 Automatic-Module-Name: net.bluemind.ssl.hook

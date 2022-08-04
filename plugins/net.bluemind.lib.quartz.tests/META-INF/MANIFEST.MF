@@ -8,6 +8,6 @@ Bundle-Vendor: http://www.blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  org.junit;bundle-version="3.8.2",
  org.quartz-scheduler.quartz;bundle-version="2.1.5"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.lib.quartz.tests

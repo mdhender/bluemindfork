@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.backend.systemconf
 Bundle-SymbolicName: net.bluemind.backend.systemconf;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: slf4j.api,
  net.bluemind.eclipse.common;bundle-version="1.0.0",
  net.bluemind.core.commons;bundle-version="1.0.0",

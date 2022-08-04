@@ -10,6 +10,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.vertx,
  net.bluemind.core.sds.configurator;bundle-version="4.1.0",
  net.bluemind.sds.proxy;bundle-version="4.1.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.sds.configurator.tests
 Bundle-ActivationPolicy: lazy

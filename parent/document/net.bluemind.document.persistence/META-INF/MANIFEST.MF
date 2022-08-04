@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.document.persistence
 Bundle-SymbolicName: net.bluemind.document.persistence
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.document.api;bundle-version="1.0.0",
  net.bluemind.core.container.persistence,

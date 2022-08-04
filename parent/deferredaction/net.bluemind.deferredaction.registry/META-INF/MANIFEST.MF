@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.deferredaction.registry
 Bundle-SymbolicName: net.bluemind.deferredaction.registry;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.deferredaction.registry
 Require-Bundle: net.bluemind.core.commons,
  net.bluemind.deferredaction.api,

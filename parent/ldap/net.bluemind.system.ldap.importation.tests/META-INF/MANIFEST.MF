@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.system.ldap.importation.tests
 Bundle-SymbolicName: net.bluemind.system.ldap.importation.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Fragment-Host: net.bluemind.system.ldap.importation
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper,

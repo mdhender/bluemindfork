@@ -13,6 +13,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eclipse.common;bundle-version="4.1.0",
  net.bluemind.metrics.registry,
  net.bluemind.network.topology
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.system.stateobserver
 Automatic-Module-Name: net.bluemind.system.stateobserver

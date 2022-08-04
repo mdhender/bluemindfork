@@ -14,7 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
  javax.validation;visibility:=reexport,
  javax.validation.api;visibility:=reexport,
  com.fasterxml.classmate
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.annotationvalidator
 Automatic-Module-Name: net.bluemind.core.annotationvalidator

@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.core.container.sync.tests
 Bundle-SymbolicName: net.bluemind.core.container.sync.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.container.sync,
  net.bluemind.core.container.persistence;bundle-version="4.1.0",
  net.bluemind.core.commons,

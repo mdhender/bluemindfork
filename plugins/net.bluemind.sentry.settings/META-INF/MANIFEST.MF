@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  sentry;visibility:=reexport,
  slf4j.api,
  net.bluemind.lib.vertx
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.sentry.settings
 Export-Package: net.bluemind.sentry.settings
 Bundle-ActivationPolicy: lazy

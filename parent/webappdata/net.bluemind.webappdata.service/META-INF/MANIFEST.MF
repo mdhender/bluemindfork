@@ -4,7 +4,7 @@ Bundle-Name: Service
 Bundle-SymbolicName: net.bluemind.webappdata.service;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.webappdata.service
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Eclipse-RegisterBuddy: net.bluemind.core.rest
 Automatic-Module-Name: net.bluemind.webappdata.service
 Require-Bundle: net.bluemind.webappdata.api,
