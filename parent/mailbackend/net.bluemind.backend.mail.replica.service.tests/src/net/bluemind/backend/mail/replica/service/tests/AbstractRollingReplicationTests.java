@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
+import org.eclipse.core.runtime.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -179,15 +180,16 @@ public abstract class AbstractRollingReplicationTests {
 		this.mboxRoot = "user." + userUid.replace('.', '^');
 
 		// Wait for INBOX
+		ItemValue<MailboxFolder> inbox = null;
 		for (int i = 0; i < 30; i++) {
-			ItemValue<MailboxFolder> inbox = provider().instance(IDbReplicatedMailboxes.class, partition, mboxRoot)
-					.byName("INBOX");
+			inbox = provider().instance(IDbReplicatedMailboxes.class, partition, mboxRoot).byName("INBOX");
 			if (inbox != null) {
 				break;
 			} else {
 				Thread.sleep(100);
 			}
 		}
+		Assert.isNotNull(inbox);
 	}
 
 	@FunctionalInterface

@@ -17,6 +17,7 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
@@ -24,19 +25,21 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import net.bluemind.backend.mail.api.IItemsTransfer;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxFolder;
+import net.bluemind.backend.mail.api.MailboxItem;
+import net.bluemind.backend.mail.replica.api.MailboxRecord;
+import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
-import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.context.SecurityContext;
@@ -46,20 +49,15 @@ import net.bluemind.core.sessions.Sessions;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.mime.MimeTree;
 
-public class ItemTransfersTests extends AbstractRollingReplicationTests {
+public class MailboxItemsTests extends AbstractRollingReplicationTests {
 
+	private static final String POLO = "polo";
+	private static final String MARCO = "marco";
+	private static Logger logger = LoggerFactory.getLogger(MailboxItemsTests.class);
 	public static final int MAIL_COUNT = 250;
 	public static final int MARCO_POLO_CYCLES = 50;
 
-	private String partition;
-	private String mboxRoot;
-	private String apiKey;
 	private IMailboxItems mailApi;
-	private IMailboxItems mailApiPolo;
-	private ItemValue<MailboxFolder> marco;
-	private ItemValue<MailboxFolder> polo;
-	private IItemsTransfer txApi;
-	private IItemsTransfer txApiPolo;
 
 	@Before
 	@Override
@@ -74,36 +72,34 @@ public class ItemTransfersTests extends AbstractRollingReplicationTests {
 				new SecurityContext("sid", userUid, Collections.emptyList(), Collections.emptyList(), domainUid));
 
 		imapAsUser(sc -> {
-			assertTrue(sc.create("marco"));
-			assertTrue(sc.create("polo"));
-			int added = sc.append("marco", testEml(), new FlagsList());
+			assertTrue(sc.create(MARCO));
+			assertTrue(sc.create(POLO));
+			int added = sc.append(MARCO, testEml(), new FlagsList());
 			assertTrue(added > 0);
-			sc.select("marco");
+			sc.select(MARCO);
 			Collection<MimeTree> bs = sc.uidFetchBodyStructure(Arrays.asList(added));
 			MimeTree tree = bs.iterator().next();
-			System.out.println("Mail " + added + " added:\n" + tree);
+			logger.info(String.format("Mail %d added:%n %s", added, tree));
 			return null;
 		});
 
 		IMailboxFolders foldersApi = foldersApi();
-		this.marco = foldersApi.byName("marco");
-		this.polo = foldersApi.byName("polo");
+		ItemValue<MailboxFolder> marco;
+		ItemValue<MailboxFolder> polo;
+		marco = foldersApi.byName(MARCO);
+		polo = foldersApi.byName(POLO);
 		int retry = 100;
 		while ((marco == null || polo == null) && retry-- > 0) {
 			Thread.sleep(200);
-			this.marco = foldersApi.byName("marco");
-			this.polo = foldersApi.byName("polo");
+			marco = foldersApi.byName(MARCO);
+			polo = foldersApi.byName(POLO);
 		}
 		this.mailApi = mailItemsApi(marco);
-		this.mailApiPolo = mailItemsApi(polo);
-
-		this.txApi = provider().instance(IItemsTransfer.class, marco.uid, polo.uid);
-		this.txApiPolo = provider().instance(IItemsTransfer.class, polo.uid, marco.uid);
 
 		imapAsUser(sc -> {
 			// start at index 1 since we have already created one mail before
 			for (int i = 1; i < MAIL_COUNT; i++) {
-				sc.append("marco", testEml(), new FlagsList());
+				sc.append(MARCO, testEml(), new FlagsList());
 			}
 			return null;
 		});
@@ -114,10 +110,14 @@ public class ItemTransfersTests extends AbstractRollingReplicationTests {
 		while (notDeleted.created.size() < MAIL_COUNT && retry-- > 0) {
 			Thread.sleep(500);
 			notDeleted = mailApi.filteredChangesetById(0L, ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
-			System.err.println("Not deleted mail count in 'marco' is " + notDeleted.created.size());
+			String msg = String.format("Not deleted mail count in 'marco' is %d", notDeleted.created.size());
+			logger.error(msg);
 		}
 		assertTrue(retry > 0);
-		System.err.println("Got " + notDeleted.created.size() + " items after " + (100 - retry) + " attempts.");
+
+		String msg = String.format("Got %d items after %d attempts.",
+				notDeleted.created != null ? notDeleted.created.size() : -1, (100 - retry));
+		logger.error(msg);
 	}
 
 	@Override
@@ -142,44 +142,38 @@ public class ItemTransfersTests extends AbstractRollingReplicationTests {
 	}
 
 	@Test
-	public void marcoPoloMoves() {
-		List<Long> all = mailApi.filteredChangesetById(0L, ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).created
-				.stream().map(iv -> iv.id).collect(Collectors.toList());
-		IItemsTransfer curApi = txApi;
-		for (int i = 0; i < MARCO_POLO_CYCLES; i++) {
-			long time = System.currentTimeMillis();
-			System.err.println("Moving items... round " + (i + 1));
-			List<ItemIdentifier> moved = curApi.move(all);
-			assertTrue(moved.size() >= MAIL_COUNT);
-			all = moved.stream().map(ii -> ii.id).collect(Collectors.toList());
-			curApi = curApi == txApi ? txApiPolo : txApi;
-			time = System.currentTimeMillis() - time;
-			System.err.println("Cycle " + (i + 1) + " in " + time + "ms for " + all.size() + " messages.");
-		}
+	public void deleteById() throws InterruptedException {
+		List<Long> inMarco = mailApi.filteredChangesetById(0L,
+				ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).created.stream().map(iv -> iv.id).toList();
+		long deletedId = inMarco.get(0);
+		mailApi.deleteById(deletedId);
+		List<Long> inMarcoAfterDelete = mailApi.filteredChangesetById(0L,
+				ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).created.stream().map(iv -> iv.id).toList();
+		assertEquals(inMarco.size() - 1L, inMarcoAfterDelete.size());
+
+		// wait for expunge to be done
+		Thread.sleep(250);
+
+		ItemValue<MailboxItem> item = mailApi.getCompleteById(deletedId);
+		assertTrue("Should contain 'expunged' internal flag",
+				((MailboxRecord) item.value).internalFlags.contains(InternalFlag.expunged));
 	}
 
 	@Test
-	public void BM18771_deleteCopiedMessageOnly() throws InterruptedException {
+	public void multipleDeleteById() throws InterruptedException {
 		List<Long> inMarco = mailApi.filteredChangesetById(0L,
-				ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).created.stream().map(iv -> iv.id)
-						.collect(Collectors.toList());
-		assertTrue("Must move more than 100 messages", inMarco.size() > 100);
+				ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).created.stream().map(iv -> iv.id).toList();
+		List<Long> deletedIds = Arrays.asList(inMarco.get(0), inMarco.get(1));
+		mailApi.multipleDeleteById(deletedIds);
+		List<Long> inMarcoAfterDelete = mailApi.filteredChangesetById(0L,
+				ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).created.stream().map(iv -> iv.id).toList();
+		assertEquals((long) inMarco.size() - deletedIds.size(), inMarcoAfterDelete.size());
 
-		IItemsTransfer curApi = txApi;
-		List<ItemIdentifier> moved = curApi.move(inMarco);
-		assertTrue("The returned message list size do not match the moved message list size",
-				moved.size() == inMarco.size());
-		List<Long> inPolo = mailApiPolo.filteredChangesetById(0L,
-				ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).created.stream().map(iv -> iv.id)
-						.collect(Collectors.toList());
-		assertTrue("All messages are not present in destination mailbox", inPolo.size() == inMarco.size());
+		// wait for expunge to be done
+		Thread.sleep(500);
 
-		// wait for flags to be applied
-		Thread.sleep(100);
-
-		inMarco = mailApi.filteredChangesetById(0L, ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).created.stream()
-				.map(iv -> iv.id).collect(Collectors.toList());
-		assertTrue("Some messages still present in source mailbox " + inMarco.size(), inMarco.isEmpty());
-
+		List<ItemValue<MailboxItem>> records = mailApi.multipleGetById(deletedIds);
+		assertEquals("Should contain 'expunged' internal flag", deletedIds.size(), records.stream()
+				.filter(r -> ((MailboxRecord) r.value).internalFlags.contains(InternalFlag.expunged)).count());
 	}
 }

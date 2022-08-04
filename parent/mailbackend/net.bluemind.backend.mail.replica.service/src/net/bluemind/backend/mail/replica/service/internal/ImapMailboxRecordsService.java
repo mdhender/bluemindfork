@@ -209,18 +209,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public void deleteById(long id) {
-		rbac.check(Verb.Write.name());
-		logger.debug("Delete {}", id);
-		ItemValue<MailboxItem> toDelete = getCompleteById(id);
-		if (toDelete != null) {
-			Collection<MailboxItemFlag> curFlags = toDelete.value.flags;
-			if (!curFlags.contains(MailboxItemFlag.System.Deleted.value())) {
-				addFlagsImapCommand(Arrays.asList(Long.toString(toDelete.value.imapUid)),
-						MailboxItemFlag.System.Deleted.value().flag, MailboxItemFlag.System.Seen.value().flag);
-			}
-		} else {
-			logger.warn("Nothing to delete for id {} in {}.", id, imapFolder);
-		}
+		this.multipleDeleteById(Arrays.asList(id));
 	}
 
 	@Override
@@ -792,7 +781,18 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			return;
 		}
 
-		addFlag(FlagUpdate.of(ids, MailboxItemFlag.System.Deleted.value()));
+		rbac.check(Verb.Write.name());
+
+		FlagUpdate flagUpdate = FlagUpdate.of(ids, MailboxItemFlag.System.Deleted.value());
+		addFlag(flagUpdate);
+
+		List<Integer> deletedUids = multipleByIdWithoutBody(flagUpdate.itemsId).stream()
+				.filter(item -> item.value.flags.contains(MailboxItemFlag.System.Deleted.value()))
+				.map(item -> Math.toIntExact(item.value.imapUid)).toList();
+		imapContext.withImapClient(sc -> {
+			sc.uidExpunge(deletedUids);
+			return true;
+		});
 	}
 
 	@Override
