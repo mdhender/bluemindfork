@@ -8,7 +8,7 @@
             </div>
         </div>
         <div v-else class="default-preview w-100 text-center mb-1 p-1">
-            <bm-icon :icon="matchingIcon" size="6x" class="m-auto preview-file-type" />
+            <bm-icon :icon="matchingIcon" size="3xl" class="m-auto preview-file-type" />
         </div>
         <div class="thumbnail-overlay position-absolute">
             <slot name="overlay" :hasPreview="hasPreview" />

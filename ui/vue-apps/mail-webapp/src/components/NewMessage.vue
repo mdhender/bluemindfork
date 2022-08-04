@@ -12,7 +12,7 @@
             :title="action.label()"
             @click="action.execute(openComposer)"
         >
-            <bm-icon v-if="mobile" icon="plus" size="2x" />
+            <bm-icon v-if="mobile" icon="plus" size="lg" />
             <bm-label-icon v-else :icon="action.icon('plus')">
                 {{ $t("mail.main.new") }}
             </bm-label-icon>

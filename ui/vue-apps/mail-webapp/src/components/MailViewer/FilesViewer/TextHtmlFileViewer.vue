@@ -12,7 +12,7 @@
             class="align-self-start ml-3 mb-2"
             @click="collapse_ = false"
         >
-            <bm-icon icon="3dots" size="sm" />
+            <bm-icon icon="3dots" />
         </bm-button>
     </div>
 </template>

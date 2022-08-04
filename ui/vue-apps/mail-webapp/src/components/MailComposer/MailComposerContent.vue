@@ -9,12 +9,12 @@
     >
         <template #dropZone>
             <h2 class="text-center p-2">{{ $tc("mail.new.attachments.drop.zone", draggedFilesCount) }}</h2>
-            <bm-icon icon="arrow-up" size="2x" />
+            <bm-icon icon="arrow-up" />
         </template>
 
         <bm-file-drop-zone class="z-index-110 flex-grow-1" inline :should-activate-fn="shouldActivateForImages">
             <template #dropZone>
-                <bm-icon class="text-neutral" icon="file-type-image" size="2x" />
+                <bm-icon class="text-neutral" icon="file-type-image" />
                 <h2 class="text-center p-2">{{ $tc("mail.new.images.drop.zone", draggedFilesCount) }}</h2>
             </template>
             <bm-rich-editor
@@ -32,7 +32,7 @@
                     class="align-self-start mb-1"
                     @click="expandContent"
                 >
-                    <bm-icon icon="3dots" size="sm" />
+                    <bm-icon icon="3dots" />
                 </bm-button>
                 <!-- eslint-disable vue/no-v-html -->
                 <div

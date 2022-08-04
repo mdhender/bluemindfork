@@ -20,10 +20,10 @@
                 <template #cell(actions)="cell">
                     <div class="d-flex justify-content-end">
                         <bm-button variant="inline-neutral" @click="editExternalAccount(cell.item)">
-                            <bm-icon icon="pencil" size="lg" />
+                            <bm-icon icon="pencil" />
                         </bm-button>
                         <bm-button variant="inline-neutral" @click="confirmRemove(cell.item)">
-                            <bm-icon icon="trash" size="lg" />
+                            <bm-icon icon="trash" />
                         </bm-button>
                     </div>
                 </template>

@@ -6,12 +6,7 @@
                 {{ displayname }}
             </div>
         </div>
-        <bm-contextual-menu
-            boundary="viewport"
-            variant="inline-on-fill-primary"
-            size="lg"
-            class="bm-dropdown-fill-primary-hi1"
-        >
+        <bm-contextual-menu boundary="viewport" variant="inline-on-fill-primary" class="bm-dropdown-fill-primary-hi1">
             <bm-dropdown-item-button icon="preferences" @click="TOGGLE_PREFERENCES()">
                 {{ $t("common.preference") }}
             </bm-dropdown-item-button>

@@ -1,24 +1,24 @@
 <template>
     <div v-if="file">
         <div v-if="uploadStatus === 'IDLE'" class="d-flex align-items-center">
-            <bm-icon :icon="fileTypeIcon" size="lg" />
+            <bm-icon :icon="fileTypeIcon" />
             <h2 class="ml-2">{{ file.name }}</h2>
             <bm-button-close class="ml-2" @click="resetFile" />
         </div>
         <template v-else>
             <bm-progress :value="uploaded" :max="100" class="mt-4 mb-2" />
             <div class="d-flex align-items-center">
-                <bm-icon :icon="fileTypeIcon" size="lg" />
+                <bm-icon :icon="fileTypeIcon" />
                 <h2 class="ml-2">{{ file.name }}</h2>
             </div>
             <div class="float-right">
                 <bm-button-close v-if="uploadStatus === 'IN_PROGRESS' && autoUpload" @click="cancelUpload" />
                 <div v-else-if="uploadStatus === 'SUCCESS'">
-                    <bm-icon icon="check-circle" size="lg" class="text-success" />
+                    <bm-icon icon="check-circle" class="text-success" />
                     {{ $t("common.import_successful") }}
                 </div>
                 <div v-else-if="uploadStatus === 'ERROR'">
-                    <bm-icon icon="exclamation-circle" size="lg" class="text-danger" />
+                    <bm-icon icon="exclamation-circle" class="text-danger" />
                     {{ $t("common.import_error") }}
                 </div>
             </div>

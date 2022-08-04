@@ -21,7 +21,7 @@
             <template #cell(name)="cell">
                 <div class="d-flex align-items-center" @click="cell.toggleDetails">
                     <bm-button class="pl-0" variant="inline-neutral">
-                        <bm-icon :icon="cell.detailsShowing ? 'chevron' : 'chevron-right'" size="lg" />
+                        <bm-icon :icon="cell.detailsShowing ? 'chevron' : 'chevron-right'" size="xs" />
                     </bm-button>
                     <h2>
                         <span class="filter-name mr-2 text-nowrap" :class="{ 'filter-inactive': !cell.item.active }">
@@ -39,16 +39,16 @@
             <template #cell(editable)="cell">
                 <div v-if="cell.value" class="d-flex justify-content-end">
                     <bm-button variant="inline-neutral" @click="$emit('up', cell.item)">
-                        <bm-icon icon="arrow-up" size="lg" />
+                        <bm-icon icon="arrow-up" />
                     </bm-button>
                     <bm-button variant="inline-neutral" @click="$emit('down', cell.item)">
-                        <bm-icon icon="arrow-down" size="lg" />
+                        <bm-icon icon="arrow-down" />
                     </bm-button>
                     <bm-button variant="inline-neutral" @click="$emit('edit', cell.item)">
-                        <bm-icon icon="pencil" size="lg" />
+                        <bm-icon icon="pencil" />
                     </bm-button>
                     <bm-button variant="inline-neutral" @click="remove(cell.item)">
-                        <bm-icon icon="trash" size="lg" />
+                        <bm-icon icon="trash" />
                     </bm-button>
                 </div>
             </template>

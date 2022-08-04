@@ -1,6 +1,6 @@
 <template>
     <div class="internal-share-management">
-        <bm-label-icon icon="organization" icon-size="lg" class="font-weight-bold mb-1" :inline="false">
+        <bm-label-icon icon="organization" class="font-weight-bold mb-1" :inline="false">
             {{ $t("preferences.manage_shares.inside_my_organization") }}
         </bm-label-icon>
         <template v-if="domainAcl === -1 && dirEntriesAcl.length === 0">

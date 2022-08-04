@@ -2,7 +2,7 @@
     <div class="reply-to-counter-proposal">
         <div v-if="currentEvent.loading === LoadingStatus.LOADED" class="header px-3 pt-2 pb-3">
             <div class="font-weight-bold mb-2 d-block top">
-                <bm-icon :stacked="agendaStackedIcons" class="mr-2" size="lg" />
+                <bm-icon :stacked="agendaStackedIcons" class="mr-2" />
                 {{ counterEventInfo }}
             </div>
             <template v-if="currentEvent.counter">
@@ -12,23 +12,23 @@
                 <h2 v-else class="ml-4">{{ $t("mail.ics.counter.schedule.proposal") }}</h2>
                 <hr class="mt-0 mb-2 ml-4" />
                 <div class="mb-2 d-block">
-                    <bm-icon icon="clock" class="mr-2 text-secondary" size="lg" />
+                    <bm-icon icon="clock" class="mr-2 text-secondary" />
                     <del>{{ currentEvent.counter.initialDate }}</del>
                     &nbsp;
                     <strong>{{ currentEvent.counter.proposedDate }}</strong>
                 </div>
                 <div v-if="currentEvent.counter.occurrence" class="mb-2 d-block">
-                    <bm-icon icon="loop" class="mr-2 text-secondary" size="lg" />
+                    <bm-icon icon="loop" class="mr-2 text-secondary" />
                     {{ currentEvent.date }}
                 </div>
                 <div class="mt-3 ml-4">
                     <bm-button variant="outline-secondary" class="mr-2 px-1" @click="ACCEPT_COUNTER_EVENT">
-                        <bm-label-icon icon="check" icon-size="lg">{{
+                        <bm-label-icon icon="check" icon-size="sm">{{
                             $t("mail.ics.counter.schedule.proposal.accept")
                         }}</bm-label-icon>
                     </bm-button>
                     <bm-button variant="outline-secondary" class="mr-2 px-1" @click="DECLINE_COUNTER_EVENT">
-                        <bm-label-icon icon="cross" icon-size="lg">{{
+                        <bm-label-icon icon="cross" icon-size="sm">{{
                             $t("mail.ics.counter.schedule.proposal.decline")
                         }}</bm-label-icon>
                     </bm-button>

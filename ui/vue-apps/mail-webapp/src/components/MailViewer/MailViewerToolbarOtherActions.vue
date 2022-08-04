@@ -9,7 +9,7 @@
             class="other-viewer-actions"
         >
             <template slot="button-content">
-                <bm-icon icon="3dots" size="2x" />
+                <bm-icon icon="3dots" size="lg" />
                 <span class="d-lg-none">{{ $t("mail.toolbar.more") }}</span>
             </template>
             <bm-dropdown-item v-if="!message.flags.includes(Flag.SEEN)" @click.stop="MARK_MESSAGE_AS_READ(message)">

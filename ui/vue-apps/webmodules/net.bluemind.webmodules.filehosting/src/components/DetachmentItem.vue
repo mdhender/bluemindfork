@@ -1,7 +1,7 @@
 <template>
     <div class="fh-file-item">
         <div class="d-flex text-neutral">
-            <div><bm-icon icon="file" size="2x" class="mt-2" /></div>
+            <div><bm-icon icon="file" class="mt-2" /></div>
             <div class="d-flex ml-2 mt-2 justify-content-between flex-fill">
                 <div class="label">
                     <h2 class="text-truncate">{{ file.name }}</h2>

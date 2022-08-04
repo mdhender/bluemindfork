@@ -9,7 +9,7 @@
                 @click.shift.exact.prevent.stop="REMOVE_CONVERSATIONS([conversation])"
                 @click.exact.prevent.stop="MOVE_CONVERSATIONS_TO_TRASH([conversation])"
             >
-                <bm-icon icon="trash" size="lg" />
+                <bm-icon icon="trash" />
             </bm-button>
             <bm-button
                 v-if="isTemplate"
@@ -19,7 +19,7 @@
                 variant="inline-neutral"
                 @click.prevent.stop="editFromTemplate(conversation)"
             >
-                <bm-icon icon="plus-enveloppe" size="lg" />
+                <bm-icon icon="plus-enveloppe" />
             </bm-button>
             <bm-button
                 v-else-if="showMarkAsRead"
@@ -29,7 +29,7 @@
                 variant="inline-neutral"
                 @click.prevent.stop="markAsRead(conversation)"
             >
-                <bm-icon icon="read" size="lg" />
+                <bm-icon icon="read" />
             </bm-button>
             <bm-button
                 v-else
@@ -39,7 +39,7 @@
                 variant="inline-neutral"
                 @click.prevent.stop="markAsUnread(conversation)"
             >
-                <bm-icon icon="unread" size="lg" />
+                <bm-icon icon="unread" />
             </bm-button>
             <bm-button
                 v-if="showMarkAsFlagged"
@@ -49,7 +49,7 @@
                 variant="inline-neutral"
                 @click.prevent.stop="markAsFlagged(conversation)"
             >
-                <bm-icon icon="flag-outline" size="lg" />
+                <bm-icon icon="flag-outline" />
             </bm-button>
             <bm-button
                 v-else
@@ -59,7 +59,7 @@
                 variant="inline-neutral"
                 @click.prevent.stop="markAsUnflagged(conversation)"
             >
-                <bm-icon class="text-warning" icon="flag-fill" size="lg" />
+                <bm-icon class="text-warning" icon="flag-fill" />
             </bm-button>
         </template>
     </bm-button-group>

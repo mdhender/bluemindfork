@@ -27,7 +27,7 @@
 
         <bm-table :items="keys" :fields="fields" :per-page="perPage" :current-page="currentPage" sort-by="displayName">
             <template #cell(displayName)="row">
-                <bm-icon class="text-secondary mr-2" icon="key" size="lg" /> {{ row.value }}
+                <bm-icon class="text-secondary mr-2" icon="key" size="xl" /> {{ row.value }}
             </template>
             <template #cell(sid)="row">
                 <div class="d-flex justify-content-between align-items-center">
@@ -46,7 +46,7 @@
             </template>
             <template #cell(action)="row">
                 <bm-button variant="inline-neutral" @click="remove(row.item)">
-                    <bm-icon icon="trash" size="lg" />
+                    <bm-icon icon="trash" />
                 </bm-button>
             </template>
         </bm-table>

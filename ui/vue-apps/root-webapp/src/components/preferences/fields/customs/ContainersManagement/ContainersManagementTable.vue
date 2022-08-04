@@ -19,7 +19,7 @@
         </template>
         <template #cell(share)="row">
             <bm-button v-if="isManaged(row.item)" variant="inline" @click="openShareModal(row.item)">
-                <bm-icon icon="share" size="lg" />
+                <bm-icon icon="share" />
             </bm-button>
         </template>
         <template #cell(offlineSync)="row">
@@ -39,10 +39,10 @@
             />
             <template v-else-if="containerType === ContainerType.CALENDAR">
                 <bm-button v-if="isManaged(row.item)" variant="inline" @click="openShareModal(row.item)">
-                    <bm-icon icon="share" size="lg" />
+                    <bm-icon icon="share" />
                 </bm-button>
                 <bm-button v-else variant="inline" @click="toggleSubscription(row.item)">
-                    <bm-icon icon="trash" size="lg" />
+                    <bm-icon icon="trash" />
                 </bm-button>
             </template>
             <bm-button v-else variant="outline-neutral" @click="toggleSubscription(row.item)">

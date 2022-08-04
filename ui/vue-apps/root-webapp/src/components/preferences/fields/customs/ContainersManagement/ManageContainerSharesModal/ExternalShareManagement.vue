@@ -1,7 +1,7 @@
 <template>
     <div class="external-share-management">
         <hr />
-        <bm-label-icon icon="world" icon-size="lg" class="font-weight-bold mb-2" :inline="false">
+        <bm-label-icon icon="world" class="font-weight-bold mb-2" :inline="false">
             {{ $t("preferences.manage_shares.outside_my_organization") }}
         </bm-label-icon>
         <div v-if="externalShares.length === 0" class="ml-4 mt-3 font-italic">{{ noExternalShareSet }}</div>
@@ -36,10 +36,10 @@
                         @input="editPublishMode(external)"
                     />
                     <bm-button v-if="canRemoveLink(external)" variant="inline-neutral" @click="removeLink(external)">
-                        <bm-icon icon="trash" size="lg" />
+                        <bm-icon icon="trash" />
                     </bm-button>
                     <bm-button v-else variant="inline-neutral" @click="regenerateLink">
-                        <bm-icon icon="loop" size="lg" />
+                        <bm-icon icon="loop" />
                     </bm-button>
                 </div>
             </bm-row>

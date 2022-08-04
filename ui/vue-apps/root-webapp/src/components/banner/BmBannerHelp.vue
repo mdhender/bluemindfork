@@ -6,7 +6,7 @@
         class="align-self-center"
         variant="inline-on-fill-primary"
     >
-        <bm-icon icon="interrogation" size="lg" />
+        <bm-icon icon="interrogation" />
     </bm-button>
 </template>
 

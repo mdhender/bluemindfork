@@ -11,7 +11,7 @@
                 $emit('expand');
             "
         >
-            <bm-icon icon="expand" />
+            <bm-icon icon="expand" size="lg" />
         </bm-button>
         <bm-button
             v-else
@@ -20,7 +20,7 @@
             :title="$t('common.collapse')"
             @click="$emit('collapse')"
         >
-            <bm-icon icon="collapse" />
+            <bm-icon icon="collapse" size="lg" />
         </bm-button>
     </div>
 </template>

@@ -16,7 +16,7 @@
         <template #default>
             <div class="d-flex">
                 <div class="mr-4">
-                    <bm-icon icon="folder" size="5x" class="mr-2 text-neutral" />
+                    <bm-icon icon="folder" size="2xl" class="mr-2 text-neutral" />
                 </div>
                 <div class="modal-form-autocomplete flex-fill position-relative">
                     <p>{{ $t("mail.actions.choose_folder.modal.combo.label") }}</p>

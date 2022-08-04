@@ -11,7 +11,7 @@
             :title="$t('banner.reach.all_apps')"
             :aria-label="$t('banner.reach.all_apps')"
         >
-            <bm-icon icon="9dots" size="2x" />
+            <bm-icon icon="9dots" size="xl" />
         </bm-button>
         <bm-banner-applications :applications="applications" target="all-apps-popover" />
         <bm-navbar-brand href="#" :to="logoLink" :title="$t('banner.main.brand')">

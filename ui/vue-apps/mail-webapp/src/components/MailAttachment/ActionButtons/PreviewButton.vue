@@ -1,22 +1,21 @@
 <template>
-    <bm-button
-        variant="inline-neutral"
-        class="preview-button p-0"
-        size="md"
+    <bm-icon-button
+        variant="compact"
+        class="preview-button"
+        size="sm"
+        icon="eye"
         :title="$t('mail.preview.open')"
         :disabled="disabled"
         @click.stop="preview"
-    >
-        <bm-icon icon="eye" size="2x" class="p-1" />
-    </bm-button>
+    />
 </template>
 
 <script>
-import { BmIcon, BmButton } from "@bluemind/styleguide";
+import { BmIconButton } from "@bluemind/styleguide";
 
 export default {
     name: "PreviewButton",
-    components: { BmIcon, BmButton },
+    components: { BmIconButton },
     props: {
         disabled: {
             type: Boolean,
@@ -32,5 +31,3 @@ export default {
     }
 };
 </script>
-
-<style></style>

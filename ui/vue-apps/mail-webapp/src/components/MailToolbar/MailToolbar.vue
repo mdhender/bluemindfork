@@ -1,7 +1,7 @@
 <template>
     <bm-button-toolbar key-nav class="mail-toolbar flex-nowrap h-100">
         <bm-button variant="inline-on-fill-primary" class="d-lg-none mr-auto" @click="back()">
-            <bm-icon icon="arrow-back" size="2x" />
+            <bm-icon icon="arrow-back" size="lg" />
         </bm-button>
         <mail-toolbar-compose-message
             v-if="MESSAGE_IS_LOADED(ACTIVE_MESSAGE) && ACTIVE_MESSAGE.composing"
@@ -90,9 +90,5 @@ export default {
     @media (min-width: map-get($grid-breakpoints, "xl")) {
         min-width: 5.5rem;
     }
-}
-
-.mail-toolbar .btn svg.fa-2x {
-    font-size: 1.5em;
 }
 </style>

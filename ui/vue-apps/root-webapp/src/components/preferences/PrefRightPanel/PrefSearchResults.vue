@@ -39,7 +39,7 @@
                 />
                 <pref-group ref="group" :group="group" :collapsed="isCollapsed" class="flex-fill" />
                 <bm-button variant="inline-neutral" class="align-self-start mt-4 mr-3" @click="toggleGroup(group.id)">
-                    <bm-icon :icon="isCollapsed ? 'chevron' : 'chevron-up'" size="2x" />
+                    <bm-icon :icon="isCollapsed ? 'chevron' : 'chevron-up'" size="xs" />
                 </bm-button>
             </div>
             <div v-if="index !== results.length - 1" :key="index" class="border-bottom border-neutral" />

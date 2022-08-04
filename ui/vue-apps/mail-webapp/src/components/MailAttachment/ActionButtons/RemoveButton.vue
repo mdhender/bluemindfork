@@ -1,8 +1,7 @@
 <template>
     <bm-button-close
-        variant="inline-neutral"
-        class="remove-button p-0"
-        size="md"
+        class="remove-button"
+        size="sm"
         :title="$tc('common.removeAttachment')"
         @click.stop="$emit('remove')"
     />
@@ -16,5 +15,3 @@ export default {
     components: { BmButtonClose }
 };
 </script>
-
-<style></style>

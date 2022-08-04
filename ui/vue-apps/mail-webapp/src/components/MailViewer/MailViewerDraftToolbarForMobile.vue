@@ -8,15 +8,15 @@
         v-on="$listeners"
     >
         <template slot="button-content">
-            <bm-icon class="text-secondary" icon="3dots" size="2x" />
+            <bm-icon class="text-secondary" icon="3dots" size="lg" />
         </template>
         <bm-dropdown-item-button @click="$emit('edit')">
-            <bm-icon icon="pencil" size="1x" />
+            <bm-icon icon="pencil" />
             <span class="pl-1">{{ $t("mail.actions.edit") }}</span>
         </bm-dropdown-item-button>
         <bm-dropdown-divider />
         <bm-dropdown-item-button @click.exact.prevent.stop="REMOVE_DRAFT(conversation, message)">
-            <bm-icon icon="trash" size="1x" />
+            <bm-icon icon="trash" />
             <span class="pl-1">{{ $t("mail.actions.remove") }}</span>
         </bm-dropdown-item-button>
     </bm-dropdown>

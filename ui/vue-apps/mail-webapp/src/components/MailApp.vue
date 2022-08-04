@@ -18,7 +18,7 @@
                     class="d-inline-block d-lg-none w-100"
                     @click.stop="showFolders = !showFolders"
                 >
-                    <bm-icon icon="burger-menu" size="2x" />
+                    <bm-icon icon="burger-menu" size="lg" />
                 </bm-button>
                 <new-message />
             </bm-col>

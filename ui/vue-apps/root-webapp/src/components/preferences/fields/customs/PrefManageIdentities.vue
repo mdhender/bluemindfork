@@ -10,7 +10,7 @@
         >
             <template #cell(isDefault)="row">
                 <div :title="$t('preferences.mail.identities.default')">
-                    <bm-icon v-if="row.value" icon="star-fill" size="lg" />
+                    <bm-icon v-if="row.value" icon="star-fill" />
                 </div>
             </template>
             <template #cell(displayname)="row">

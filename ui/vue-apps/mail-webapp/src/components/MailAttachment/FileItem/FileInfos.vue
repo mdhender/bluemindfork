@@ -4,7 +4,7 @@
             class="col-auto icon"
             :title="$t('mail.content.file-type', { fileType: $t('mail.content.' + matchingIcon) })"
         >
-            <bm-icon :icon="matchingIcon" size="2x" class="align-bottom" />
+            <bm-icon :icon="matchingIcon" class="align-bottom" />
         </bm-col>
         <bm-col class="text-nowrap text-truncate flex-grow-1 px-2 file-text">
             <span :title="file.name" class="font-weight-bold">{{ file.name }} </span>

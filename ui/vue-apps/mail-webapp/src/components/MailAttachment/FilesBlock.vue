@@ -7,7 +7,7 @@
                 :title="$t('common.toggleAttachments')"
                 @click.prevent="toggleExpand"
             >
-                <bm-icon :icon="isExpanded ? 'caret-down' : 'caret-right'" />
+                <bm-icon :icon="isExpanded ? 'caret-down' : 'caret-right'" size="xs" />
             </bm-button>
             <files-header :files="files" :max-size="maxSize" />
         </div>

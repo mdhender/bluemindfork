@@ -2,7 +2,7 @@
     <span class="bm-app-icon">
         <!-- eslint-disable-next-line vue/no-v-html -->
         <span v-if="!!iconApp.svg" v-html="iconApp.svg" />
-        <bm-icon v-else-if="!!iconApp.name" :icon="iconApp.name" size="lg" />
+        <bm-icon v-else-if="!!iconApp.name" :icon="iconApp.name" />
         <img v-else-if="!!iconApp.url" :href="iconApp.url" aria-hidden="true" :alt="iconApp.name" />
     </span>
 </template>

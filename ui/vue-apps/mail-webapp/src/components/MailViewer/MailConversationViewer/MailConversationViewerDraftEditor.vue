@@ -42,7 +42,7 @@
                         :disabled="anyAttachmentInError"
                         @click="saveAsap().then(() => action.execute(() => $router.navigate(route), $event))"
                     >
-                        <bm-icon :icon="action.icon('extend')" size="lg" />
+                        <bm-icon :icon="action.icon('extend')" />
                         <span class="d-lg-none">{{ $t("mail.actions.extend") }}</span>
                     </bm-button>
                 </mail-open-in-popup-with-shift>

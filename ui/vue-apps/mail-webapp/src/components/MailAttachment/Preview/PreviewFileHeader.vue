@@ -1,6 +1,6 @@
 <template>
     <div class="preview-file-header px-3 align-items-center">
-        <bm-icon :icon="getMatchingIcon(file.mime)" size="2x" class="align-bottom" />
+        <bm-icon :icon="getMatchingIcon(file.mime)" class="align-bottom" />
         <span :title="file.name" class="font-weight-bold ml-2">{{ file.name }} </span>
     </div>
 </template>

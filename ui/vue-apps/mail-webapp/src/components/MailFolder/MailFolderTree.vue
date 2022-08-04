@@ -7,7 +7,7 @@
             :aria-expanded="!collapsed"
             @click.stop="$emit('toggle-tree')"
         >
-            <bm-icon :icon="collapsed ? 'caret-right' : 'caret-down'" size="sm" class="bm-icon mr-2" />
+            <bm-icon :icon="collapsed ? 'caret-right' : 'caret-down'" size="xs" class="mr-2" />
             <slot name="title" />
         </bm-button>
         <bm-collapse :id="id" :visible="!collapsed">

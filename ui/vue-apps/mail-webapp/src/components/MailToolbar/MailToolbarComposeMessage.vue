@@ -9,7 +9,7 @@
             :disabled="errorOccuredOnSave || isSending || !hasRecipient || anyAttachmentInError"
             @click="send()"
         >
-            <bm-icon icon="send" size="2x" />
+            <bm-icon icon="send" size="lg" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.send") }}</span>
         </bm-button>
         <bm-button
@@ -20,7 +20,7 @@
             :aria-label="$t('mail.actions.end_template_edition.aria')"
             @click="endEdition"
         >
-            <bm-icon icon="arrow-back" size="2x" />
+            <bm-icon icon="arrow-back" size="lg" />
             <span>{{ $tc("mail.actions.end_template_edition.label") }}</span>
         </bm-button>
         <bm-button
@@ -31,7 +31,7 @@
             :disabled="isSending"
             @click="openFilePicker()"
         >
-            <bm-icon icon="paper-clip" size="2x" />
+            <bm-icon icon="paper-clip" size="lg" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.attach") }}</span>
         </bm-button>
         <input
@@ -53,7 +53,7 @@
         >
             <template #button-content>
                 <div :title="saveActionTitle">
-                    <bm-icon :icon="isDraft ? 'save' : 'plus-document'" size="2x" />
+                    <bm-icon :icon="isDraft ? 'save' : 'plus-document'" size="lg" />
                     <span class="d-none d-lg-block">{{ $t("common.save") }}</span>
                 </div>
             </template>
@@ -70,7 +70,7 @@
             :disabled="isSaving || isSending"
             @click="deleteDraft"
         >
-            <bm-icon icon="trash" size="2x" />
+            <bm-icon icon="trash" size="lg" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.remove") }}</span>
         </bm-button>
         <bm-dropdown
@@ -82,7 +82,7 @@
             class="other-viewer-actions"
         >
             <template slot="button-content">
-                <bm-icon icon="3dots" size="2x" />
+                <bm-icon icon="3dots" size="lg" />
                 <span class="d-none d-lg-block">{{ $t("mail.toolbar.more") }}</span>
             </template>
             <bm-dropdown-item :disabled="isSenderShown" @click="showSender">

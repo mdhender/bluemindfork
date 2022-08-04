@@ -9,7 +9,7 @@
         right
     >
         <template slot="button-content">
-            <bm-icon icon="3dots" size="2x" />
+            <bm-icon icon="3dots" size="lg" />
             <span class="d-none d-lg-block">{{ $tc("mail.toolbar.more") }}</span>
         </template>
         <mail-open-in-popup-with-shift v-if="!isTemplate && isSingleMessage" v-slot="action" :href="editAsNew">

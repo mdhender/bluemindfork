@@ -1,6 +1,6 @@
 <template>
     <div class="mail-conversation-viewer-flags">
-        <bm-icon v-if="message.flags.includes(Flag.FLAGGED)" class="text-warning" icon="flag-fill" size="lg" />
+        <bm-icon v-if="message.flags.includes(Flag.FLAGGED)" class="text-warning" icon="flag-fill" />
     </div>
 </template>
 

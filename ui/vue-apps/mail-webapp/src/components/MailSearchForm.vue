@@ -22,7 +22,7 @@
                 variant="outline-neutral"
                 @click="showForm = !showForm"
             >
-                {{ compressFolderFullName(selectedFolder) }}<bm-icon class="ml-2" icon="caret-down" size="sm" />
+                {{ compressFolderFullName(selectedFolder) }}<bm-icon class="ml-2" icon="caret-down" size="xs" />
             </bm-button>
         </div>
         <bm-collapse
@@ -39,7 +39,7 @@
             >
                 <div class="d-lg-none">
                     <bm-button variant="inline-neutral" size="lg" @click="close">
-                        <bm-icon icon="arrow-back" size="lg" />
+                        <bm-icon icon="arrow-back" />
                     </bm-button>
                 </div>
                 <bm-form-group

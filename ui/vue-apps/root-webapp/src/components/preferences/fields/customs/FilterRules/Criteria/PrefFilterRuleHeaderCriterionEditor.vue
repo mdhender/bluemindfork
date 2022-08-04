@@ -3,7 +3,7 @@
         <div class="d-flex col-6">
             <bm-button variant="outline-neutral" class="px-2 border font-weight-normal" @click="$emit('reset')">
                 {{ $t("preferences.mail.filters.target.HEADER", { name: "" }) }}
-                <bm-icon class="ml-1 text-neutral" icon="caret-down" size="sm" />
+                <bm-icon class="ml-1 text-neutral" icon="caret-down" size="xs" />
             </bm-button>
             <bm-form-input
                 v-model="criterion.target.name"

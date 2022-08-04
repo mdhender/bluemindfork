@@ -1,5 +1,5 @@
 <template>
-    <div><bm-icon icon="addressbook" size="lg" class="mr-1" />{{ addressbook.name }}</div>
+    <div><bm-icon icon="addressbook" class="mr-1" />{{ addressbook.name }}</div>
 </template>
 
 <script>

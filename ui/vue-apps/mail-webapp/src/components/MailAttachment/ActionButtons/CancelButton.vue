@@ -1,11 +1,5 @@
 <template>
-    <bm-button-close
-        variant="light"
-        class="cancel-button p-0"
-        size="md"
-        :title="$tc('common.cancel')"
-        @click.stop="$emit('cancel')"
-    />
+    <bm-button-close class="cancel-button" size="sm" :title="$tc('common.cancel')" @click.stop="$emit('cancel')" />
 </template>
 
 <script>

@@ -8,17 +8,17 @@
     >
         <div class="mr-4 ml-2">
             <div v-if="hasSomeErrorStatus" class="d-flex align-items-center mb-3">
-                <bm-icon icon="file" size="2x" class="mr-2 text-danger" />
+                <bm-icon icon="file" size="xl" class="mr-2 text-danger" />
                 <span class="mr-1 font-size-h1 text-neutral-fg-lo2">&#8226;</span>
                 <span class="mr-1 font-size-h1 text-neutral-fg-lo2">&#8226;</span>
-                <bm-icon icon="exclamation" size="2x" class="text-danger" />
+                <bm-icon icon="exclamation" size="xl" class="text-danger" />
                 <span class="mr-1 font-size-h1 text-neutral-fg-lo2">&#8226;</span>
                 <span class="mr-1 font-size-h1 text-neutral-fg-lo2">&#8226;</span>
                 <bm-icon icon="chevron-right" class="text-neutral-fg-lo2" size="lg" />
-                <bm-icon icon="cloud" class="ml-2 text-danger" size="2x" />
+                <bm-icon icon="cloud" class="ml-2 text-danger" size="xl" />
             </div>
             <div v-else class="d-flex align-items-center mb-3">
-                <bm-icon icon="file" size="2x" class="mr-2 text-secondary" />
+                <bm-icon icon="file" size="xl" class="mr-2 text-secondary" />
                 <span :class="dotsClass">
                     <span class="font-size-h1">&#8226; &#8226; &#8226; &#8226; &#8226; &#8226;</span>
                 </span>
@@ -27,7 +27,7 @@
                     size="lg"
                     :class="!isUploading ? 'text-secondary' : 'text-neutral-fg-lo2'"
                 />
-                <bm-icon icon="cloud" class="ml-2 text-secondary" size="2x" />
+                <bm-icon icon="cloud" class="ml-2 text-secondary" size="xl" />
             </div>
             <div v-if="hasSomeErrorStatus" class="mb-4 text-danger">
                 {{ $tc("mail.filehosting.share.failure", fhFiles.length) }}

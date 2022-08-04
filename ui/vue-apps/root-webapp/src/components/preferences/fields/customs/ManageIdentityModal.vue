@@ -11,7 +11,7 @@
             <bm-col cols="2" class="d-flex flex-column align-items-center pr-2">
                 <bm-avatar :alt="identity.name || '?'" />
                 <div v-if="originalIdentity.isDefault" class="my-2 text-center word-break">
-                    <div><bm-icon icon="star-fill" size="2x" /></div>
+                    <div><bm-icon icon="star-fill" size="lg" /></div>
                     <span>{{ $t("preferences.mail.identities.default") }}</span>
                 </div>
             </bm-col>

@@ -2,7 +2,7 @@
     <div>
         <bm-table :items="tags" :fields="fields" :per-page="perPage" :current-page="currentPage" sort-by="label">
             <template #cell(color)="cell">
-                <bm-icon icon="tag" size="2x" :style="'color: ' + cell.value + ';'" />
+                <bm-icon icon="tag" size="xl" :style="'color: ' + cell.value + ';'" />
             </template>
             <template #cell(label)="cell">
                 {{ cell.value }}
@@ -10,10 +10,10 @@
             <template #cell(editable)="cell">
                 <div v-if="cell.value" class="d-flex justify-content-end">
                     <bm-button variant="inline-neutral" @click="$emit('edit', cell.item)">
-                        <bm-icon icon="pencil" size="lg" />
+                        <bm-icon icon="pencil" />
                     </bm-button>
                     <bm-button variant="inline-neutral" @click="remove(cell.item)">
-                        <bm-icon icon="trash" size="lg" />
+                        <bm-icon icon="trash" />
                     </bm-button>
                 </div>
             </template>

@@ -7,7 +7,7 @@
             :aria-expanded="isExpanded"
             @click.stop="isExpanded = !isExpanded"
         >
-            <bm-icon :icon="isExpanded ? 'caret-down' : 'caret-right'" size="sm" class="bm-icon mr-2" />
+            <bm-icon :icon="isExpanded ? 'caret-down' : 'caret-right'" size="xs" class="mr-2" />
             <slot name="avatar" />
             <span class="font-weight-bold text-left">{{ name }}</span>
         </bm-button>

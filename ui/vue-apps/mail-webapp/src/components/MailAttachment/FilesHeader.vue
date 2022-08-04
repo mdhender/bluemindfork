@@ -1,6 +1,6 @@
 <template>
     <div v-if="maxSize" class="files-header">
-        <bm-icon icon="paper-clip" class="mr-1 ml-2" :class="paperClipColor" size="lg" />
+        <bm-icon icon="paper-clip" class="mr-1 ml-2" :class="paperClipColor" />
         <span :class="isTooHeavy ? 'text-danger font-weight-bold' : ''">
             {{
                 $tc("common.attachments", files.length, {
@@ -19,7 +19,7 @@
         />
     </div>
     <div v-else>
-        <bm-icon icon="paper-clip" class="mr-1 ml-2" size="lg" />
+        <bm-icon icon="paper-clip" class="mr-1 ml-2" />
         <span class="font-weight-bold pr-2">
             {{ $tc("common.attachments", files.length, { count: files.length }) }}
         </span>

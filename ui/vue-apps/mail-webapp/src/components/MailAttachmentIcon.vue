@@ -3,7 +3,6 @@
         v-if="message.hasAttachment || message.hasICS"
         class="mail-attachment-icon"
         :icon="message.hasICS ? 'calendar' : 'paper-clip'"
-        :size="size"
     />
 </template>
 
@@ -19,10 +18,6 @@ export default {
         message: {
             type: Object,
             required: true
-        },
-        size: {
-            type: String,
-            default: undefined
         }
     }
 };

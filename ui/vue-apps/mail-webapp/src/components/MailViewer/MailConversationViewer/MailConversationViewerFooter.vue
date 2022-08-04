@@ -7,7 +7,7 @@
                 @click="action.execute(() => reply(conversation, lastNonDraft))"
             >
                 <div class="d-flex align-items-center">
-                    <bm-icon class="pr-1" :icon="action.icon('reply')" size="2x" />
+                    <bm-icon class="pr-1" :icon="action.icon('reply')" size="sm" />
                     {{ $t("mail.content.reply.aria") }}
                 </div>
             </bm-button>
@@ -20,7 +20,7 @@
                 @click="action.execute(() => replyAll(conversation, lastNonDraft))"
             >
                 <div class="d-flex align-items-center">
-                    <bm-icon class="pr-1" :icon="action.icon('reply-all')" size="2x" />
+                    <bm-icon class="pr-1" :icon="action.icon('reply-all')" size="sm" />
                     {{ $t("mail.content.reply_all.aria") }}
                 </div>
             </bm-button>

@@ -8,7 +8,7 @@
                 :title="$t('mail.actions.edit_from_template.aria', { subject })"
                 @click="editFromTemplate"
             >
-                <bm-icon icon="plus-enveloppe" size="2x" />
+                <bm-icon icon="plus-enveloppe" size="lg" />
                 <span class="d-none d-lg-block"> {{ $t("mail.actions.edit_from_template") }}</span>
             </bm-button>
             <bm-button
@@ -18,7 +18,7 @@
                 :title="markAsReadAriaText()"
                 @click="markAsRead()"
             >
-                <bm-icon icon="read" size="2x" />
+                <bm-icon icon="read" size="lg" />
                 <span class="d-none d-lg-block">{{ markAsReadText }}</span>
             </bm-button>
             <bm-button
@@ -28,7 +28,7 @@
                 :title="markAsUnreadAriaText()"
                 @click="markAsUnread()"
             >
-                <bm-icon icon="unread" size="2x" />
+                <bm-icon icon="unread" size="lg" />
                 <span class="d-none d-lg-block">{{ markAsUnreadText }}</span>
             </bm-button>
             <mail-toolbar-selected-conversations-move-action />
@@ -39,7 +39,7 @@
                 @click.exact="moveToTrash()"
                 @click.shift.exact="remove()"
             >
-                <bm-icon icon="trash" size="2x" />
+                <bm-icon icon="trash" size="lg" />
                 <span class="d-none d-lg-block">{{ removeText }}</span>
             </bm-button>
             <bm-button
@@ -49,7 +49,7 @@
                 :title="markAsFlaggedAriaText()"
                 @click="markAsFlagged()"
             >
-                <bm-icon icon="flag-outline" size="2x" />
+                <bm-icon icon="flag-outline" size="lg" />
                 <span class="d-none d-lg-block"> {{ markAsFlaggedText }}</span>
             </bm-button>
             <bm-button
@@ -59,7 +59,7 @@
                 :title="markAsUnflaggedAriaText()"
                 @click="markAsUnflagged()"
             >
-                <bm-icon icon="flag-fill" size="2x" class="text-warning" />
+                <bm-icon icon="flag-fill" size="lg" class="text-warning" />
                 <span class="d-none d-lg-block"> {{ markAsUnflaggedText }}</span>
             </bm-button>
             <mail-toolbar-selected-conversations-other-actions />

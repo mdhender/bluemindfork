@@ -10,7 +10,7 @@
             @click="scrollTo(category)"
         >
             <h2 class="d-inline-block py-2 pr-2">
-                <bm-label-icon :icon="category.icon" icon-size="lg"> {{ category.name }} </bm-label-icon>
+                <bm-label-icon :icon="category.icon" icon-size="xl"> {{ category.name }} </bm-label-icon>
             </h2>
         </bm-list-group-item>
     </div>

@@ -6,7 +6,7 @@
             </h2>
             <div class="d-lg-none">
                 <bm-button variant="inline-on-fill-primary" class="mr-auto" @click="$emit('close')">
-                    <bm-icon icon="arrow-back" size="2x" />
+                    <bm-icon icon="arrow-back" size="lg" />
                 </bm-button>
                 <h2 class="d-inline align-middle">{{ $t("common.preference") }}</h2>
             </div>

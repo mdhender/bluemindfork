@@ -2,12 +2,12 @@
     <div class="pref-right-panel-header">
         <div class="d-flex d-lg-none py-2 px-3 align-items-center small-panel-header">
             <bm-button variant="inline-on-fill-primary" @click="SET_SELECTED_SECTION(null)">
-                <bm-icon icon="arrow-back" size="2x" />
+                <bm-icon icon="arrow-back" size="lg" />
             </bm-button>
             <template v-if="!openedInMobile">
                 <h2>{{ selectedSection.name }}</h2>
                 <bm-button class="ml-auto" variant="inline-on-fill-primary" @click="openedInMobile = true">
-                    <bm-icon icon="search" size="2x" />
+                    <bm-icon icon="search" size="lg" />
                 </bm-button>
             </template>
             <pref-search-input v-else class="flex-fill mx-3" />

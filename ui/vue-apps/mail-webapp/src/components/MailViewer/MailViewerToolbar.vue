@@ -6,7 +6,7 @@
                 :title="action.label($t('mail.content.reply.aria'))"
                 @click="action.execute(() => reply(conversation, message))"
             >
-                <bm-icon icon="reply" size="2x" />
+                <bm-icon icon="reply" size="lg" />
                 <span class="d-lg-none">{{ $t("mail.content.reply.aria") }}</span>
             </bm-button>
         </mail-open-in-popup-with-shift>
@@ -16,7 +16,7 @@
                 :title="action.label($t('mail.content.reply_all.aria'))"
                 @click="action.execute(() => replyAll(conversation, message))"
             >
-                <bm-icon icon="reply-all" size="2x" />
+                <bm-icon icon="reply-all" size="lg" />
                 <span class="d-lg-none">{{ $t("mail.content.reply_all.aria") }}</span>
             </bm-button>
         </mail-open-in-popup-with-shift>
@@ -26,7 +26,7 @@
                 :title="action.label($t('common.forward'))"
                 @click="action.execute(() => forward(message))"
             >
-                <bm-icon icon="forward" size="2x" />
+                <bm-icon icon="forward" size="lg" />
                 <span class="d-lg-none">{{ $t("common.forward") }}</span>
             </bm-button>
         </mail-open-in-popup-with-shift>

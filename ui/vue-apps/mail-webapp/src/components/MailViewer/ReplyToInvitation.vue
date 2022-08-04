@@ -3,14 +3,14 @@
         <div v-if="currentEvent.loading === LoadingStatus.LOADED" class="header px-3 pt-2 pb-3">
             <div class="font-weight-bold mb-1 d-block top">
                 <template v-if="!currentEvent.status || currentEvent.status === 'NeedsAction'">
-                    <bm-icon icon="calendar" class="mr-2" size="lg" />
+                    <bm-icon icon="calendar" class="mr-2" />
                     <template v-if="message.eventInfo.isResourceBooking">
                         {{ $t("mail.ics.resourcebooking") }}
                     </template>
                     <template v-else>{{ $t("mail.ics") }}</template>
                 </template>
                 <template v-else>
-                    <bm-icon :stacked="['calendar', computeEventIcon]" class="mr-2" size="lg" />
+                    <bm-icon :stacked="['calendar', computeEventIcon]" class="mr-2" />
                     <template v-if="currentEvent.status === 'Accepted'">
                         <template v-if="message.eventInfo.isResourceBooking">
                             {{ $t("mail.ics.resourcebooking.accepted") }}
@@ -44,7 +44,7 @@
                     :class="currentEvent.status === 'Accepted' ? 'active' : ''"
                     @click="answer('Accepted')"
                 >
-                    <bm-label-icon icon="check" icon-size="lg">{{ $t("common.accept") }}</bm-label-icon>
+                    <bm-label-icon icon="check" icon-size="sm">{{ $t("common.accept") }}</bm-label-icon>
                 </bm-button>
                 <bm-button
                     variant="outline-secondary"
@@ -52,7 +52,7 @@
                     :class="currentEvent.status === 'Tentative' ? 'active' : ''"
                     @click="answer('Tentative')"
                 >
-                    <bm-label-icon icon="interrogation" icon-size="lg">
+                    <bm-label-icon icon="interrogation" icon-size="sm">
                         {{ $t("common.accept.tentatively") }}
                     </bm-label-icon>
                 </bm-button>
@@ -62,7 +62,7 @@
                     :class="currentEvent.status === 'Declined' ? 'active' : ''"
                     @click="answer('Declined')"
                 >
-                    <bm-label-icon icon="cross" icon-size="lg">{{ $t("common.refuse") }}</bm-label-icon>
+                    <bm-label-icon icon="cross" icon-size="sm">{{ $t("common.refuse") }}</bm-label-icon>
                 </bm-button>
             </div>
         </div>

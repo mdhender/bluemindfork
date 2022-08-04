@@ -5,7 +5,7 @@
         class="messages-options-for-mobile d-flex justify-content-end"
         v-on="$listeners"
     >
-        <template v-slot:button-content><bm-icon icon="3dots" size="2x" /></template>
+        <template v-slot:button-content><bm-icon icon="3dots" size="lg" /></template>
         <bm-dropdown-item-button
             v-if="!CONVERSATION_LIST_UNREAD_FILTER_ENABLED"
             variant="neutral"

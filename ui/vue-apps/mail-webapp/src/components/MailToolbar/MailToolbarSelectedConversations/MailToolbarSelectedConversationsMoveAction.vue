@@ -12,7 +12,7 @@
     >
         <global-events @keydown.tab.capture="forceCloseMoveAutocomplete" />
         <template slot="button-content">
-            <bm-icon icon="folder" size="2x" />
+            <bm-icon icon="folder" size="lg" />
             <span class="d-none d-lg-block"> {{ moveText }}</span>
         </template>
         <bm-dropdown-autocomplete

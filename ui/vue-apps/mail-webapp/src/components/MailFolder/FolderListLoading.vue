@@ -3,7 +3,7 @@
         <p class="sr-only"><slot /></p>
         <div aria-hidden="true">
             <div v-if="hasName" class="pl-2 pt-3 pb-2 title">
-                <bm-icon icon="caret-down" size="sm" class="bm-icon mr-2" />
+                <bm-icon icon="caret-down" size="xs" class="mr-2" />
                 <span class="font-weight-bold">{{ name }}</span>
             </div>
             <div v-else class="pl-2 pt-3 pb-1 title">

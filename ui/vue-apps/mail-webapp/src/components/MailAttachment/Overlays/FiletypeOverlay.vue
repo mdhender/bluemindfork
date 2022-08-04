@@ -1,6 +1,6 @@
 <template>
     <div class="action-overlay d-flex align-center-items" :class="matchingIcon">
-        <bm-icon :icon="getHoverIcon(file)" size="6x" class="m-auto p-1" />
+        <bm-icon :icon="getHoverIcon(file)" size="3xl" class="m-auto p-1" />
     </div>
 </template>
 
