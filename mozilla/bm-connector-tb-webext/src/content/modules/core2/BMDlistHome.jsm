@@ -107,11 +107,12 @@ BMDlist.prototype = {
     setLabel: function(value) {
         this._list.dirName = value;
     },
+    //tbird list only support one line desc vs html in BM
     getDescription: function() {
-        return this._list.description;
+        return bmUtils.getCharPref(this._list.UID + ".bm-description", null);
     },
     setDescription: function(value) {
-        this._list.description = value ? value: "";
+        bmUtils.setCharPref(this._list.UID + ".bm-description", value ? value: "");
     },
     getMembers: function(directory) {
         let members = [];
