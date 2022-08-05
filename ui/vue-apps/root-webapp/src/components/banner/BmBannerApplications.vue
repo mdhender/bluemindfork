@@ -8,18 +8,18 @@
         variant="primary"
         @shown="setFocus"
     >
-        <div class="banner-apps-title mb-2 mx-3">{{ $t("banner.main.apps") }}</div>
+        <div class="banner-apps-title mb-4 mx-5">{{ $t("banner.main.apps") }}</div>
         <bm-row class="bm-apps">
             <bm-col v-for="app in applications" :key="app.$id" cols="6">
                 <a v-if="app.external" :href="app.path">
-                    <div class="pl-3 my-2 bm-app">
+                    <div class="pl-5 my-4 bm-app">
                         <bm-app-icon :icon-app="app.icon" />
-                        <span class="pl-2 text-uppercase align-middle">{{ app.name }}</span>
+                        <span class="pl-4 text-uppercase align-middle">{{ app.name }}</span>
                     </div>
                 </a>
-                <router-link v-else :to="app.path" tag="div" class="pl-3 my-2 bm-app" @click.native="closePopover">
+                <router-link v-else :to="app.path" tag="div" class="pl-5 my-4 bm-app" @click.native="closePopover">
                     <bm-app-icon :icon-app="app.icon" />
-                    <span class="pl-2 text-uppercase align-middle">{{ app.name }}</span>
+                    <span class="pl-4 text-uppercase align-middle">{{ app.name }}</span>
                 </router-link>
             </bm-col>
         </bm-row>

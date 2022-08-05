@@ -18,7 +18,7 @@
         </div>
         <bm-extension id="webapp.banner" path="widget" class="d-flex align-items-center" />
         <bm-banner-help v-if="selectedApp && selectedApp.help" :url="selectedApp.help" />
-        <bm-banner-menu :user="user" class="ml-4" />
+        <bm-banner-menu :user="user" />
     </bm-navbar>
 </template>
 
@@ -72,31 +72,43 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .bm-banner {
-    min-height: fit-content;
-}
+    &.navbar {
+        flex: 0 0 42px;
 
-.bm-banner .app-title {
-    color: $secondary-fg;
-}
+        padding: 0;
+        padding-left: $sp-4;
+    }
 
-.bm-banner .fa-9dots {
-    cursor: pointer;
-}
+    #all-apps-popover:focus,
+    #all-apps-popover:hover {
+        &::before {
+            opacity: 0;
+        }
+    }
 
-.bm-banner .navbar-brand {
-    margin-right: 0;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    text-align: center;
-    width: 150px;
-    height: 43px;
-}
+    .fa-9dots {
+        cursor: pointer;
+        margin-right: $sp-3;
+    }
 
-.bm-banner #all-apps-popover:focus,
-.bm-banner #all-apps-popover:hover {
-    &::before {
-        opacity: 0;
+    .navbar-brand {
+        margin-right: $sp-5;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        text-align: center;
+
+        img {
+            width: 130px;
+        }
+    }
+
+    .bm-banner-user {
+        margin-left: $sp-6;
+    }
+
+    .app-title {
+        color: $secondary-fg;
     }
 }
 </style>

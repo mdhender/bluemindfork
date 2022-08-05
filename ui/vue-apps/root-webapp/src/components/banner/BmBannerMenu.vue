@@ -12,7 +12,7 @@
         <bm-nav-item-dropdown right offset="5" class="flex-fill">
             <template v-if="logged" slot="button-content">
                 <bm-avatar :alt="user.displayname" :urn="user.urn" class="flex-shrink-0" width="2em" :status="status" />
-                <span class="pr-4 username text-truncate m-auto">
+                <span class="username text-truncate m-auto">
                     {{ user.displayname }}
                 </span>
             </template>
@@ -113,6 +113,10 @@ export default {
             text-decoration: none;
             background-color: $fill-primary-bg-hi1 !important;
         }
+
+        .dropdown-toggle {
+            padding-right: 2 * $sp-5 + map-get($icon-sizes, "xs") !important;
+        }
     }
 
     &.offline .dropdown,
@@ -145,12 +149,13 @@ export default {
 
     .nav-link {
         height: 100% !important;
+        padding: unset;
         display: flex;
         align-items: center;
         padding-left: 0 !important;
         &:after {
             position: absolute;
-            right: $sp-3;
+            right: $sp-5;
             vertical-align: middle;
         }
     }
