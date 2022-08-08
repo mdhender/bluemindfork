@@ -3,7 +3,7 @@
     <mail-folder-tree
         v-else-if="MAILSHARES.length > 0"
         :tree="MAILSHARE_ROOT_FOLDERS"
-        :expanded="expanded"
+        :collapsed="collapsed"
         @toggle-tree="toggleTree"
     >
         <template v-slot:title>

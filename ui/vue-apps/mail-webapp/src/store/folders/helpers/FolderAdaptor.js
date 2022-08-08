@@ -29,7 +29,6 @@ function fromMailboxFolder(remotefolder, mailbox) {
         allowConversations: allowConversations(path, mailbox),
         allowSubfolder: allowSubfolder(mailbox.writable, !parent, remotefolder.value.name, mailbox),
         default: isDefaultFolder,
-        expanded: false,
         unread: undefined
     };
 }

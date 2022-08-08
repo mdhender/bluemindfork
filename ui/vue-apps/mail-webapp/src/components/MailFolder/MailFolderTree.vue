@@ -4,16 +4,17 @@
             variant="inline-neutral"
             class="collapse-tree-btn d-flex align-items-center pb-2 pt-3 border-0 pl-2 w-100"
             :aria-controls="id"
-            :aria-expanded="expanded"
+            :aria-expanded="!collapsed"
             @click.stop="$emit('toggle-tree')"
         >
-            <bm-icon :icon="expanded ? 'caret-down' : 'caret-right'" size="sm" class="bm-icon mr-2" />
+            <bm-icon :icon="collapsed ? 'caret-right' : 'caret-down'" size="sm" class="bm-icon mr-2" />
             <slot name="title" />
         </bm-button>
-        <bm-collapse :id="id" :visible="expanded">
+        <bm-collapse :id="id" :visible="!collapsed">
             <bm-tree
                 :tree="tree"
                 :selected="activeFolder"
+                :is-expanded-property="folder => $store.state.mail.folderList.expandedFolders.indexOf(folder.key) > -1"
                 class="text-nowrap"
                 :children-property="FOLDER_GET_CHILDREN"
                 breakpoint="xl"
@@ -51,7 +52,7 @@ export default {
             type: Array,
             required: true
         },
-        expanded: {
+        collapsed: {
             type: Boolean,
             required: true
         },

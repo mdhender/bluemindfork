@@ -1,9 +1,14 @@
 <template>
-    <section :aria-label="$t('mail.application.region.messagelist')" class="mail-conversation-list d-flex flex-column">
-        <mail-conversation-list-header id="mail-conversation-list-header" />
-        <search-result v-if="CONVERSATION_LIST_IS_SEARCH_MODE" class="flex-fill" />
-        <folder-result v-else class="flex-fill" />
-    </section>
+    <div class="pl-lg-2 px-0 d-lg-block mail-conversation-list-wrapper" :style="mailConversationListWidth">
+        <section
+            :aria-label="$t('mail.application.region.messagelist')"
+            class="mail-conversation-list d-flex flex-column h-100"
+        >
+            <mail-conversation-list-header id="mail-conversation-list-header" />
+            <search-result v-if="CONVERSATION_LIST_IS_SEARCH_MODE" class="flex-fill" />
+            <folder-result v-else class="flex-fill" />
+        </section>
+    </div>
 </template>
 
 <script>
@@ -37,6 +42,10 @@ export default {
         ...mapState("mail", { conversationByKey: state => state.conversations.conversationByKey }),
         folder() {
             return this.folders[this.activeFolder];
+        },
+        mailConversationListWidth() {
+            const width = this.$store.state.mail.conversationList.width;
+            return width ? "width: " + width : "";
         }
     },
     methods: {

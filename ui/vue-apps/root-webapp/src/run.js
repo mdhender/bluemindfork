@@ -33,7 +33,6 @@ async function initWebApp() {
     setVuePlugins(userSession);
     if (userSession.userId) {
         await store.dispatch("settings/FETCH_ALL_SETTINGS"); // needed to initialize i18n
-        await store.dispatch("root-app/FETCH_ALL_APP_DATA");
     }
     const i18n = initI18N(userSession);
     Vue.component("DefaultAlert", DefaultAlert);

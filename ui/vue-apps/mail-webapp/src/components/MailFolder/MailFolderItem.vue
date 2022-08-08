@@ -144,7 +144,7 @@ export default {
             await this.$nextTick();
             // FIXME: FEATWEBML-1386
             this.TOGGLE_EDIT_FOLDER(key);
-            this.SET_FOLDER_EXPANDED({ ...this.folder, expanded: true });
+            this.SET_FOLDER_EXPANDED({ key, expanded: true });
         },
         onFolderHoldOver() {
             if (this.folder.writable && this.FOLDER_HAS_CHILDREN(this.folder)) {

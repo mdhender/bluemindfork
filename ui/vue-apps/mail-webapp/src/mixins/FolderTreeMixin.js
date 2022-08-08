@@ -1,35 +1,33 @@
-// import { AppDataKeys } from "@bluemind/webappdata";
-// import { MY_MAILBOX_KEY } from "~/getters";
+import { MY_MAILBOX_KEY } from "~/getters";
+import { SET_COLLAPSED_TREE } from "~/mutations";
 
 export default {
     data() {
-        return { expanded: false };
+        return { collapsed: true };
     },
-    mounted() {
-        // const appData = this.$store.state["root-app"].appData[AppDataKeys.MAIL_FOLDER_TREES_COLLAPSED];
-        // const value = appData ? appData.value : [];
-        // const index = value.findIndex(({ treeKey }) => treeKey === this.treeKey);
-        // if (index === -1) {
-        //     const areExpandedByDefault = [this.$store.getters["mail/" + MY_MAILBOX_KEY]];
-        //     this.expanded = areExpandedByDefault.includes(this.treeKey);
-        // } else {
-        //     this.expanded = !value[index].isCollapsed;
-        // }
+    computed: {
+        collapsedTrees() {
+            return this.$store.state.mail.folderList.collapsedTrees;
+        }
+    },
+    watch: {
+        collapsedTrees: {
+            handler() {
+                const index = this.collapsedTrees.findIndex(({ key }) => key === this.treeKey);
+                if (index === -1) {
+                    const areExpandedByDefault = [this.$store.getters["mail/" + MY_MAILBOX_KEY]];
+                    this.collapsed = !areExpandedByDefault.includes(this.treeKey);
+                } else {
+                    this.collapsed = this.collapsedTrees[index].collapsed;
+                }
+            },
+            immediate: true
+        }
     },
     methods: {
         toggleTree() {
-            // this.expanded = !this.expanded;
-            // const appDataKey = AppDataKeys.MAIL_FOLDER_TREES_COLLAPSED;
-            // const appData = this.$store.state["root-app"].appData[appDataKey];
-            // const value = appData ? appData.value : [];
-            // const index = value.findIndex(({ treeKey }) => treeKey === this.treeKey);
-            // const isCollapsed = !this.expanded;
-            // if (index === -1) {
-            //     value.push({ treeKey: this.treeKey, isCollapsed });
-            // } else {
-            //     value[index].isCollapsed = isCollapsed;
-            // }
-            // this.$store.dispatch("root-app/SET_APP_DATA", { key: appDataKey, value });
+            this.collapsed = !this.collapsed;
+            this.$store.commit("mail/" + SET_COLLAPSED_TREE, { key: this.treeKey, collapsed: this.collapsed });
         }
     }
 };

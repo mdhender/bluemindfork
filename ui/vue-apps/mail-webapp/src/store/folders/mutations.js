@@ -5,8 +5,6 @@ import {
     ADD_FOLDER,
     DELETE_FLAG,
     REMOVE_FOLDER,
-    SET_ACTIVE_FOLDER,
-    SET_FOLDER_EXPANDED,
     SET_UNREAD_COUNT,
     UPDATE_FOLDER,
     UPDATE_PATHS
@@ -35,9 +33,6 @@ export default {
     [SET_UNREAD_COUNT]: (state, { key, unread }) => {
         state[key].unread = unread;
     },
-    [SET_FOLDER_EXPANDED]: (state, { key, expanded }) => {
-        state[key].expanded = expanded;
-    },
     // Hooks
     [ADD_FLAG]: (state, { messages, flag }) => {
         if (flag === Flag.SEEN) {
@@ -47,13 +42,6 @@ export default {
     [DELETE_FLAG]: (state, { messages, flag }) => {
         if (flag === Flag.SEEN) {
             messages.forEach(({ folderRef: { key } }) => state[key] && state[key].unread++);
-        }
-    },
-    [SET_ACTIVE_FOLDER]: (state, folder) => {
-        let parent = folder.parent && state[folder.parent];
-        while (parent) {
-            parent.expanded = true;
-            parent = parent.parent && state[parent.parent];
         }
     }
 };

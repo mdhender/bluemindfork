@@ -70,13 +70,7 @@
                 <mail-folder-sidebar />
             </section>
             <multipane class="w-100" layout="vertical" @paneResizeStop="onPanelResize">
-                <div
-                    class="pl-lg-2 px-0 d-lg-block mail-conversation-list-wrapper"
-                    :class="{ 'd-none': hideListInResponsiveMode }"
-                    :style="mailConversationListWidth"
-                >
-                    <mail-conversation-list class="h-100" />
-                </div>
+                <mail-conversation-list :class="{ 'd-none': hideListInResponsiveMode }" />
                 <multipane-resizer />
                 <div class="flex-grow-1 overflow-auto flex-basis-0">
                     <router-view />
@@ -109,6 +103,7 @@ import {
     SEVERAL_CONVERSATIONS_SELECTED,
     SELECTION_IS_EMPTY
 } from "~/getters";
+import { SET_WIDTH } from "~/mutations";
 import { Multipane, MultipaneResizer } from "@bluemind/vue-multipane";
 import MailAppMixin from "./MailApp/MailAppMixin";
 
@@ -148,12 +143,6 @@ export default {
             SELECTION_IS_EMPTY
         }),
         ...mapState("mail", { currentConversation: ({ conversations }) => conversations.currentConversation }),
-        // ...mapState("root-app", {
-        //     messageListWidth: ({ appData }) => appData[AppDataKeys.MAIL_MESSAGE_LIST_WIDTH]?.value
-        // }),
-        mailConversationListWidth() {
-            return this.messageListWidth ? "width: " + this.messageListWidth : "";
-        },
         hideListInResponsiveMode() {
             const item = this.ACTIVE_MESSAGE || this.CURRENT_CONVERSATION_METADATA;
             return item && (item.composing || this.SELECTION_IS_EMPTY);
@@ -179,10 +168,8 @@ export default {
         FaviconHelper.handleUnreadNotifInFavicon(this.userSession, documentTitle);
     },
     methods: {
-        // ...mapActions("root-app", ["SET_APP_DATA"]),
         onPanelResize(pane, container, size) {
-            console.log(pane, container, size);
-            // this.SET_APP_DATA({ key: AppDataKeys.MAIL_MESSAGE_LIST_WIDTH, value: size });
+            this.$store.commit("mail/" + SET_WIDTH, size);
         },
         async switchWebmail() {
             await inject("UserSettingsPersistence").setOne(this.userSession.userId, "mail-application", '"webmail"');

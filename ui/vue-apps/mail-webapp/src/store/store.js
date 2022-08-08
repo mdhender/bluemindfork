@@ -69,8 +69,17 @@ export const mutations = {
     [IS_POPUP]: state => {
         state.isPopup = true;
     },
-    [SET_ACTIVE_FOLDER]: (state, { key }) => {
-        state.activeFolder = key;
+    [SET_ACTIVE_FOLDER]: (state, folder) => {
+        state.activeFolder = folder.key;
+
+        let parent = folder.parent && state.folders[folder.parent];
+        while (parent) {
+            const index = state.folderList.expandedFolders.indexOf(parent.key);
+            if (index === -1) {
+                state.folderList.expandedFolders.push(parent.key);
+            }
+            parent = parent.parent && state.folders[parent.parent];
+        }
     },
     [SET_MAIL_THREAD_SETTING]: (state, booleanValue) => {
         state.mailThreadSetting = booleanValue;

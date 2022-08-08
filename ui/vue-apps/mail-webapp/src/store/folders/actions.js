@@ -27,12 +27,11 @@ import {
 
 const { create, rename, move } = folderUtils;
 
-const fetchFolders = async function ({ commit }, { mailbox, expandedFolders }) {
+const fetchFolders = async function ({ commit }, { mailbox }) {
     const items = await api.getAllFolders(mailbox);
     items.forEach(item => {
         if (!item.flags.includes(ItemFlag.Deleted)) {
             const folder = FolderAdaptor.fromMailboxFolder(item, mailbox);
-            folder.expanded = expandedFolders.indexOf(folder.key) > -1;
             commit(ADD_FOLDER, folder);
         }
     });

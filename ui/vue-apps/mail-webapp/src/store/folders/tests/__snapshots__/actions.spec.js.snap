@@ -32,7 +32,6 @@ Object {
     "allowConversations": true,
     "allowSubfolder": false,
     "default": false,
-    "expanded": false,
     "imapName": "2017",
     "key": "050ca560-37ae-458a-bd52-c40fedf4068d",
     "mailboxRef": Object {
@@ -53,7 +52,6 @@ Object {
     "allowConversations": true,
     "allowSubfolder": false,
     "default": false,
-    "expanded": false,
     "imapName": "Archives",
     "key": "135adc10-db84-440e-aebc-e10d185fa227",
     "mailboxRef": Object {
@@ -74,7 +72,6 @@ Object {
     "allowConversations": true,
     "allowSubfolder": false,
     "default": false,
-    "expanded": false,
     "imapName": "Clients",
     "key": "65b51768-8544-4bb3-9950-c6f4fc32a52e",
     "mailboxRef": Object {
@@ -95,7 +92,6 @@ Object {
     "allowConversations": false,
     "allowSubfolder": false,
     "default": true,
-    "expanded": false,
     "imapName": "Drafts",
     "key": "67201a3a-91cb-4198-a153-85a8174be9e6",
     "mailboxRef": Object {
@@ -116,7 +112,6 @@ Object {
     "allowConversations": false,
     "allowSubfolder": false,
     "default": true,
-    "expanded": false,
     "imapName": "Sent",
     "key": "7998fa63-3854-4ecb-8558-9596065c0128",
     "mailboxRef": Object {
@@ -137,7 +132,6 @@ Object {
     "allowConversations": false,
     "allowSubfolder": false,
     "default": true,
-    "expanded": false,
     "imapName": "Trash",
     "key": "98a9383e-5156-44eb-936a-e6b0825b0809",
     "mailboxRef": Object {
@@ -158,7 +152,6 @@ Object {
     "allowConversations": false,
     "allowSubfolder": false,
     "default": true,
-    "expanded": false,
     "imapName": "Outbox",
     "key": "eb4cc101-60bf-48ac-91ce-7698bd29ba73",
     "mailboxRef": Object {
@@ -179,7 +172,6 @@ Object {
     "allowConversations": true,
     "allowSubfolder": false,
     "default": true,
-    "expanded": false,
     "imapName": "INBOX",
     "key": "f1c3f42f-551b-446d-9682-cfe0574b3205",
     "mailboxRef": Object {
@@ -200,7 +192,6 @@ Object {
     "allowConversations": false,
     "allowSubfolder": false,
     "default": true,
-    "expanded": false,
     "imapName": "Junk",
     "key": "fd965e68-c276-4db0-a298-01a92d3c9822",
     "mailboxRef": Object {

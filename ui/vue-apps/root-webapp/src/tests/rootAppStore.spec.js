@@ -30,9 +30,4 @@ describe("Store rootApp", () => {
         rootAppStore.mutations.SET_QUOTA(context.state, quota);
         expect(context.state.quota).toEqual(quota);
     });
-
-    test("SET_APP_STATE mutation", async () => {
-        rootAppStore.mutations.SET_APP_STATE(context.state, "anything");
-        expect(context.state.appState).toEqual("anything");
-    });
 });

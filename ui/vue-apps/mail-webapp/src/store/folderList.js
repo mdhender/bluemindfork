@@ -8,12 +8,14 @@ import {
 } from "~/getters";
 import {
     RESET_FOLDER_FILTER_LIMITS,
+    SET_COLLAPSED_TREE,
     SET_FOLDER_FILTER_PATTERN,
     SET_FOLDER_FILTER_RESULTS,
     SET_FOLDER_FILTER_LIMIT,
     SET_FOLDER_FILTER_LOADED,
     SET_FOLDER_FILTER_LOADING,
-    TOGGLE_EDIT_FOLDER
+    TOGGLE_EDIT_FOLDER,
+    SET_FOLDER_EXPANDED
 } from "~/mutations";
 import { RESET_FILTER, SHOW_MORE_FOR_GROUP_MAILBOXES, SHOW_MORE_FOR_MAILSHARES, SHOW_MORE_FOR_USERS } from "~/actions";
 
@@ -28,11 +30,17 @@ const FolderListStatus = {
 
 export default {
     state: {
-        editing: undefined,
+        // search folder feature
         pattern: "",
         results: {},
         limits: {},
-        status: FolderListStatus.IDLE
+        status: FolderListStatus.IDLE,
+
+        // folder sidebar
+        editing: undefined,
+        expandedFolders: [],
+        collapsedTrees: [],
+        synced: { collapsedTrees: SET_COLLAPSED_TREE, expandedFolders: SET_FOLDER_EXPANDED }
     },
     mutations: {
         [RESET_FOLDER_FILTER_LIMITS]: state => {
@@ -58,6 +66,22 @@ export default {
                 state.editing = undefined;
             } else {
                 state.editing = key;
+            }
+        },
+        [SET_COLLAPSED_TREE]: (state, { key, collapsed }) => {
+            const index = state.collapsedTrees.findIndex(value => value.key === key);
+            if (index === -1) {
+                state.collapsedTrees.push({ key, collapsed });
+            } else {
+                Vue.set(state.collapsedTrees[index], "collapsed", collapsed);
+            }
+        },
+        [SET_FOLDER_EXPANDED]: (state, { key, expanded }) => {
+            const index = state.expandedFolders.indexOf(key);
+            if (expanded && index === -1) {
+                state.expandedFolders.push(key);
+            } else if (!expanded && index > -1) {
+                state.expandedFolders.splice(index, 1);
             }
         }
     },

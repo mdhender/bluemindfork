@@ -45,10 +45,14 @@ export const ConversationListFilter = {
 
 const state = {
     _keys: [],
+    _removed: [],
+
     currentPage: 0,
     status: ConversationListStatus.LOADING,
     filter: ConversationListFilter.ALL,
-    _removed: []
+
+    width: null,
+    synced: ["width"]
 };
 
 const mutations = {

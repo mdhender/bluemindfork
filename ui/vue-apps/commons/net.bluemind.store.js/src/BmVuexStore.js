@@ -1,10 +1,6 @@
 import Vuex from "vuex";
 
 export default class BmVuexStore extends Vuex.Store {
-    constructor() {
-        super(...arguments);
-    }
-
     // inspired from Vuex subscribe & subscribeAction: https://github.com/vuejs/vuex/blob/main/src/store.js#L199
     subscribeModule(sub, options) {
         if (!this._moduleSubscribers) {

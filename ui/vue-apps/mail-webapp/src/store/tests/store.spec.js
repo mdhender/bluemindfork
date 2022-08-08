@@ -51,6 +51,7 @@ describe("Mail store", () => {
     beforeEach(() => {
         store = new Vuex.Store(cloneDeep(storeData));
     });
+
     describe("store.mutations", () => {
         test("SET_ACTIVE_FOLDER: define the active folder", () => {
             store.commit(SET_ACTIVE_FOLDER, { key: "1" });

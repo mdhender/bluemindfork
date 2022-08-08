@@ -2,7 +2,7 @@
     <mail-folder-tree
         v-if="isLoaded"
         :tree="MAILBOX_ROOT_FOLDERS(mailbox)"
-        :expanded="expanded"
+        :collapsed="collapsed"
         @toggle-tree="toggleTree"
     >
         <template v-slot:title>

@@ -4,7 +4,6 @@ import {
     ADD_FOLDER,
     DELETE_FLAG,
     REMOVE_FOLDER,
-    SET_FOLDER_EXPANDED,
     SET_UNREAD_COUNT,
     UPDATE_FOLDER,
     UPDATE_PATHS
@@ -114,21 +113,6 @@ describe("folder mutations", () => {
         });
     });
 
-    describe("SET_FOLDER_EXPANDED", () => {
-        const setFolderExpanded = mutations[SET_FOLDER_EXPANDED];
-        test("set 'expanded' value", () => {
-            const state = {
-                "123": {
-                    expanded: true
-                }
-            };
-            expect(state["123"].expanded).toEqual(true);
-            setFolderExpanded(state, { key: "123", expanded: false });
-            expect(state["123"].expanded).toEqual(false);
-            setFolderExpanded(state, { key: "123", expanded: true });
-            expect(state["123"].expanded).toEqual(true);
-        });
-    });
     describe("ADD_FLAG", () => {
         const message = { date: 1, folderRef: { key: "123" } };
         test("Decrease unread count when adding seen flag", () => {

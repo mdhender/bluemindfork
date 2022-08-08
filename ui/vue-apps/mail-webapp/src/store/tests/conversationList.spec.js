@@ -30,6 +30,13 @@ jest.mock("../api/apiMessages");
 Vue.use(Vuex);
 
 describe("conversationList", () => {
+    describe("state", () => {
+        test("list width is synced with app data and default is null", async () => {
+            expect(storeOptions.state.width).toEqual(null);
+            expect(storeOptions.state.synced.includes("width")).toEqual(true);
+        });
+    });
+
     describe("actions", () => {
         let store;
         beforeEach(() => {

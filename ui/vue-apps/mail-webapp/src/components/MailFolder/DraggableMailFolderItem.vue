@@ -19,11 +19,10 @@
     <mail-folder-item v-else :folder-key="folder.key" />
 </template>
 <script>
-import { mapActions, mapState, mapGetters, mapMutations } from "vuex";
+import { mapActions, mapState, mapGetters } from "vuex";
 import { BmDraggable } from "@bluemind/styleguide";
 import { folderUtils } from "@bluemind/mail";
 import { MOVE_FOLDER } from "~/actions";
-import { SET_FOLDER_EXPANDED } from "~/mutations";
 import { IS_DESCENDANT, FOLDER_HAS_CHILDREN } from "~/getters";
 import MailFolderItem from "./MailFolderItem";
 import MailFolderItemShadow from "./MailFolderItemShadow";
@@ -60,7 +59,6 @@ export default {
     },
     methods: {
         ...mapActions("mail", { MOVE_FOLDER }),
-        ...mapMutations("mail", { SET_FOLDER_EXPANDED }),
 
         moveFolder(destination) {
             if (this.isValidFolder(destination)) {

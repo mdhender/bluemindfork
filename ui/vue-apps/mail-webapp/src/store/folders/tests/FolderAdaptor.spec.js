@@ -22,7 +22,6 @@ describe("Folder adaptors", () => {
               "allowConversations": true,
               "allowSubfolder": true,
               "default": false,
-              "expanded": false,
               "imapName": "Archives",
               "key": "135adc10-db84-440e-aebc-e10d185fa227",
               "mailboxRef": Object {

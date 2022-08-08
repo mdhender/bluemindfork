@@ -9,7 +9,9 @@ import {
     SET_FOLDER_FILTER_LIMIT,
     SET_FOLDER_FILTER_LOADED,
     SET_FOLDER_FILTER_LOADING,
-    TOGGLE_EDIT_FOLDER
+    TOGGLE_EDIT_FOLDER,
+    SET_FOLDER_EXPANDED,
+    SET_COLLAPSED_TREE
 } from "~/mutations";
 import {
     FOLDER_LIST_IS_FILTERED,
@@ -29,6 +31,14 @@ describe("folderList store", () => {
         store = cloneDeep(initialStore);
         activeStore = new Vuex.Store(store);
     });
+
+    describe("state", () => {
+        test("collapsed folderTrees and expandedFolders are synced with app data", async () => {
+            const syncedKeys = Object.keys(store.state.synced);
+            expect(["expandedFolders", "collapsedTrees"].every(appData => syncedKeys.includes(appData))).toEqual(true);
+        });
+    });
+
     describe("mutations", () => {
         test("RESET_FOLDER_FILTER_LIMITS", () => {
             store.state.limits = "truc";
@@ -79,6 +89,22 @@ describe("folderList store", () => {
             store.mutations[TOGGLE_EDIT_FOLDER](store.state, "1");
             store.mutations[TOGGLE_EDIT_FOLDER](store.state, "2");
             expect(store.state.editing).toEqual("2");
+        });
+
+        test("SET_FOLDER_EXPANDED", () => {
+            expect(store.state.expandedFolders).toEqual([]);
+            store.mutations[SET_FOLDER_EXPANDED](store.state, { key: "123", expanded: true });
+            expect(store.state.expandedFolders).toEqual(["123"]);
+            store.mutations[SET_FOLDER_EXPANDED](store.state, { key: "123", expanded: false });
+            expect(store.state.expandedFolders).toEqual([]);
+        });
+
+        test("SET_COLLAPSED_TREE", () => {
+            expect(store.state.collapsedTrees).toEqual([]);
+            store.mutations[SET_COLLAPSED_TREE](store.state, { key: "123", collapsed: true });
+            expect(store.state.collapsedTrees).toEqual([{ key: "123", collapsed: true }]);
+            store.mutations[SET_COLLAPSED_TREE](store.state, { key: "123", collapsed: false });
+            expect(store.state.collapsedTrees).toEqual([{ key: "123", collapsed: false }]);
         });
     });
     describe("getters", () => {

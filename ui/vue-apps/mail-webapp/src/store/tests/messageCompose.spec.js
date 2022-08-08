@@ -23,6 +23,13 @@ describe("messageCompose", () => {
         store = new Vuex.Store(cloneDeep(storeOptions));
     });
 
+    describe("state", () => {
+        test("showFormattingToolbar is synced with app data and its default is false", async () => {
+            expect(storeOptions.state.showFormattingToolbar).toEqual(false);
+            expect(storeOptions.state.synced.includes("showFormattingToolbar")).toEqual(true);
+        });
+    });
+
     describe("mutations", () => {
         test("SET_CORPORATE_SIGNATURE", () => {
             const corpSign = { uid: "my-uid", html: "html sign" };
