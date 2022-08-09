@@ -41,7 +41,7 @@ export default {
     },
     async created() {
         const save = async ({ state: { current, saved } }) => {
-            await this.saveUserTags(current.value, saved?.value);
+            await this.saveUserTags(current.value, saved.value);
         };
         this.registerSaveAction(save);
 
@@ -51,7 +51,7 @@ export default {
     methods: {
         async fetchDomainTags() {
             const containerId = "tags_" + inject("UserSession").domain;
-            const domainTags = await inject("TagsPersistence", containerId)?.all();
+            const domainTags = await inject("TagsPersistence", containerId).all();
             return domainTags.map(t => ({
                 label: t.value.label,
                 color: normalizeColor(t.value.color),
@@ -60,7 +60,7 @@ export default {
         },
         async fetchUserTags() {
             const containerId = "tags_" + inject("UserSession").userId;
-            const userTags = await inject("TagsPersistence", containerId)?.all();
+            const userTags = await inject("TagsPersistence", containerId).all();
             return userTags.map(t => ({
                 label: t.value.label,
                 color: normalizeColor(t.value.color),
@@ -84,14 +84,15 @@ export default {
             };
 
             const containerId = "tags_" + inject("UserSession").userId;
-            await inject("TagsPersistence", containerId)?.updates(operations);
+            await inject("TagsPersistence", containerId).updates(operations);
         },
         async addUserTag(tag) {
-            const label = tag.label.trim();
-            const color = toStoredColor(tag.color);
-            const uid = UUIDGenerator.generate();
-
-            this.value.push({ label, color, id: uid, editable: true });
+            this.value.push({
+                label: tag.label.trim(),
+                color: tag.color,
+                id: UUIDGenerator.generate(),
+                editable: true
+            });
         },
         async updateUserTag(tag) {
             if (!tag.id) {

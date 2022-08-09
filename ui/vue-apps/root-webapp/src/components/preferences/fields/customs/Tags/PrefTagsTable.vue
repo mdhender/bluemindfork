@@ -42,7 +42,7 @@ export default {
             currentPage: 1,
             fields: [
                 { key: "color", label: "" },
-                { key: "label", label: "" },
+                { key: "label", label: "", class: "align-middle" },
                 { key: "editable", label: "" }
             ]
         };
