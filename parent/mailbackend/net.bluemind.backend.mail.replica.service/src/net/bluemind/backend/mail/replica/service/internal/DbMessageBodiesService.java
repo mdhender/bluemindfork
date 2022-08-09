@@ -56,6 +56,7 @@ import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.vertx.VertxStream;
+import net.bluemind.core.rest.vertx.VertxStream.LocalPathStream;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.state.StateContext;
@@ -89,10 +90,30 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 			}
 		}
 
+		if (pristine instanceof LocalPathStream) {
+			parseAndIndex(uid, pristine);
+			return;
+		}
+
 		File tmpFile = new File(TMP, uid + "." + System.nanoTime());
 		ReadStream<Buffer> classic = VertxStream.read(pristine);
 		AsyncFile tmpStream = VertxPlatform.getVertx().fileSystem().openBlocking(tmpFile.getAbsolutePath(), TMP_OPTS);
-		classic.pipeTo(tmpStream).toCompletionStage().toCompletableFuture().join();
+
+		CompletableFuture<Void> pipe = new CompletableFuture<Void>();
+		classic.pipeTo(tmpStream, done -> {
+			if (done.succeeded()) {
+				pipe.complete(null);
+			} else {
+				pipe.completeExceptionally(done.cause());
+			}
+		});
+
+		try {
+			pipe.get(10, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			throw new ServerFault(e.getCause());
+		}
+
 		logger.info("File copy of {} stream created.", uid);
 
 		Stream eml = VertxStream.localPath(tmpFile.toPath());
