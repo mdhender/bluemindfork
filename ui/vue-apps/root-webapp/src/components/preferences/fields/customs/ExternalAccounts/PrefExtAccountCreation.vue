@@ -10,11 +10,10 @@
             <p>{{ $t("preferences.account.external_accounts.creation.desc") }}</p>
             <p>{{ $t("preferences.account.external_accounts.creation.add") }}</p>
             <div class="d-flex">
-                <bm-button
+                <button
                     v-for="(externalSystem, index) in externalSystems"
                     :key="index"
                     :disabled="externalAccounts.some(ea => ea.identifier === externalSystem.identifier)"
-                    variant="outline"
                     class="pref-ext-account-creation-button px-3 p-3 m-1 d-flex flex-column justify-content-between"
                     @click="createExternalAccount(externalSystem)"
                 >
@@ -28,7 +27,7 @@
                     <h2 class="mt-3">
                         {{ externalSystem.identifier }}
                     </h2>
-                </bm-button>
+                </button>
             </div>
         </template>
         <em v-else>
@@ -39,14 +38,13 @@
 
 <script>
 import { inject } from "@bluemind/inject";
-import { BmButton } from "@bluemind/styleguide";
 import BaseField from "../../../mixins/BaseField";
 import PrefExtAccountModal from "./PrefExtAccountModal";
 import { mapMutations } from "vuex";
 
 export default {
     name: "PrefExtAccountCreation",
-    components: { BmButton, PrefExtAccountModal },
+    components: { PrefExtAccountModal },
     mixins: [BaseField],
     data() {
         return {
@@ -131,10 +129,16 @@ async function fetchAndConsolidateExternalAccounts(externalSystems) {
         &:focus {
             outline: 1px $neutral-fg dashed;
         }
-    }
+        &:disabled {
+            background-color: $neutral-bg-lo1;
+        }
 
-    h2 {
-        color: $neutral-fg-hi1;
+        h2 {
+            color: $neutral-fg-hi1;
+        }
+        &:disabled h2 {
+            color: $neutral-fg-disabled;
+        }
     }
 }
 </style>

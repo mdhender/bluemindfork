@@ -5,9 +5,13 @@
                 <bm-label-icon icon="preferences">{{ $t("common.preference") }}</bm-label-icon>
             </h2>
             <div class="d-lg-none">
-                <bm-button variant="inline-on-fill-primary" class="mr-auto" @click="$emit('close')">
-                    <bm-icon icon="arrow-back" size="lg" />
-                </bm-button>
+                <bm-icon-button
+                    variant="compact-on-fill-primary"
+                    size="lg"
+                    class="mr-auto"
+                    icon="arrow-back"
+                    @click="$emit('close')"
+                />
                 <h2 class="d-inline align-middle">{{ $t("common.preference") }}</h2>
             </div>
         </div>
@@ -16,12 +20,12 @@
 </template>
 
 <script>
-import { BmButton, BmCol, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
+import { BmIconButton, BmCol, BmLabelIcon } from "@bluemind/styleguide";
 import PrefLeftPanelNav from "./PrefLeftPanelNav";
 
 export default {
     name: "PrefLeftPanel",
-    components: { BmButton, BmIcon, BmLabelIcon, BmCol, PrefLeftPanelNav },
+    components: { BmIconButton, BmLabelIcon, BmCol, PrefLeftPanelNav },
     props: {
         sections: {
             required: true,

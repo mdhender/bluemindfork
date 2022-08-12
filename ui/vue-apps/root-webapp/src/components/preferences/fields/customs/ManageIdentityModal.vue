@@ -92,19 +92,14 @@
         </div>
         <template #modal-footer>
             <template v-if="modalStatus === 'LOADED'">
-                <bm-button v-if="isNewIdentity" variant="secondary" :disabled="!isFormValid" @click="add">
+                <bm-button v-if="isNewIdentity" variant="contained-accent" :disabled="!isFormValid" @click="add">
                     {{ $t("common.add") }}
                 </bm-button>
-                <bm-button v-else variant="secondary" :disabled="!hasAnyChange || !isFormValid" @click="save">
+                <bm-button v-else variant="contained-accent" :disabled="!hasAnyChange || !isFormValid" @click="save">
                     {{ $t("common.save") }}
                 </bm-button>
-                <bm-button variant="outline-neutral" @click="cancel">{{ $t("common.cancel") }}</bm-button>
-                <bm-button
-                    v-if="!isNewIdentity"
-                    variant="simple-neutral"
-                    :disabled="identity.isDefault"
-                    @click="remove"
-                >
+                <bm-button variant="outline" @click="cancel">{{ $t("common.cancel") }}</bm-button>
+                <bm-button v-if="!isNewIdentity" variant="text" :disabled="identity.isDefault" @click="remove">
                     {{ $t("preferences.mail.identities.delete") }}
                 </bm-button>
             </template>

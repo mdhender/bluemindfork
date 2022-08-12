@@ -1,8 +1,12 @@
 <template>
     <div class="detach-button">
-        <bm-button variant="simple-neutral" :title="$tc('mail.filehosting.share.start')" @click="openFilePicker()">
-            <bm-icon icon="cloud-up" size="lg" />
-        </bm-button>
+        <bm-icon-button
+            variant="compact"
+            size="lg"
+            icon="cloud-up"
+            :title="$tc('mail.filehosting.share.start')"
+            @click="openFilePicker()"
+        />
         <input
             ref="detachInputRef"
             tabindex="-1"
@@ -17,11 +21,11 @@
 </template>
 
 <script>
-import { BmButton, BmIcon } from "@bluemind/styleguide";
+import { BmIconButton } from "@bluemind/styleguide";
 
 export default {
     name: "DetachButton",
-    components: { BmButton, BmIcon },
+    components: { BmIconButton },
     props: {
         message: {
             type: Object,

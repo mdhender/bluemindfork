@@ -36,9 +36,13 @@
             <bm-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage" class="d-inline-flex" />
         </template>
         <div v-else>{{ $t("preferences.display_containers." + containerType + ".empty_list") }}</div>
-        <bm-button variant="outline-neutral" class="float-right" @click="openBottomActionModal">
-            <template v-if="manageMine"><bm-icon icon="plus" /> {{ createContainerLabel }} </template>
-            <template v-else>{{ subscribeToContainerLabel }}</template>
+        <bm-button
+            variant="outline"
+            class="float-right"
+            :icon="manageMine ? 'plus' : null"
+            @click="openBottomActionModal"
+        >
+            {{ manageMine ? createContainerLabel : subscribeToContainerLabel }}
         </bm-button>
         <create-or-update-container-modal
             ref="create-or-update-container"
@@ -72,14 +76,13 @@ import CreateOrUpdateContainerModal from "./CreateOrUpdateContainerModal";
 import ImportModal from "./ImportModal";
 import ManageContainerSharesModal from "./ManageContainerSharesModal/ManageContainerSharesModal";
 import SubscribeOtherContainersModal from "./SubscribeOtherContainersModal";
-import { BmButton, BmFormInput, BmIcon, BmPagination } from "@bluemind/styleguide";
+import { BmButton, BmFormInput, BmPagination } from "@bluemind/styleguide";
 
 export default {
     name: "ContainersManagement",
     components: {
         BmButton,
         BmFormInput,
-        BmIcon,
         BmPagination,
         ContainersManagementTable,
         CreateOrUpdateContainerModal,
@@ -177,9 +180,6 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .containers-management {
-    .bm-contextual-menu .dropdown-toggle {
-        text-align: right;
-    }
     .b-table .fa-star-fill {
         color: $secondary-fg;
     }

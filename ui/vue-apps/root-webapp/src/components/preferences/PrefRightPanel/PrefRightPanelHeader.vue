@@ -1,14 +1,21 @@
 <template>
     <div class="pref-right-panel-header">
         <div class="d-flex d-lg-none py-2 px-3 align-items-center small-panel-header">
-            <bm-button variant="inline-on-fill-primary" @click="SET_SELECTED_SECTION(null)">
-                <bm-icon icon="arrow-back" size="lg" />
-            </bm-button>
+            <bm-icon-button
+                variant="compact-on-fill-primary"
+                size="lg"
+                icon="arrow-back"
+                @click="SET_SELECTED_SECTION(null)"
+            />
             <template v-if="!openedInMobile">
                 <h2>{{ selectedSection.name }}</h2>
-                <bm-button class="ml-auto" variant="inline-on-fill-primary" @click="openedInMobile = true">
-                    <bm-icon icon="search" size="lg" />
-                </bm-button>
+                <bm-icon-button
+                    class="ml-auto"
+                    variant="compact-on-fill-primary"
+                    size="lg"
+                    icon="search"
+                    @click="openedInMobile = true"
+                />
             </template>
             <pref-search-input v-else class="flex-fill mx-3" />
         </div>
@@ -21,12 +28,12 @@
 
 <script>
 import PrefSearchInput from "./PrefSearchInput";
-import { BmButton, BmButtonClose, BmIcon } from "@bluemind/styleguide";
+import { BmIconButton, BmButtonClose } from "@bluemind/styleguide";
 import { mapMutations, mapState } from "vuex";
 
 export default {
     name: "PrefRightPanelHeader",
-    components: { BmButton, BmButtonClose, BmIcon, PrefSearchInput },
+    components: { BmIconButton, BmButtonClose, PrefSearchInput },
     props: {
         selectedSection: {
             type: Object,

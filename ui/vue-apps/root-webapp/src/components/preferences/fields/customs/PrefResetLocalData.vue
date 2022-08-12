@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="mb-2">{{ label }}</div>
-        <bm-button v-if="status === 'IDLE'" variant="outline-danger" @click="resetLocalData">
+        <bm-button v-if="status === 'IDLE'" variant="outline-danger" size="lg" icon="broom" @click="resetLocalData">
             {{ text }}
         </bm-button>
         <template v-else-if="status === 'LOADING'">

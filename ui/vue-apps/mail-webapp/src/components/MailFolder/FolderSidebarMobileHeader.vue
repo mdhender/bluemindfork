@@ -6,7 +6,7 @@
                 {{ displayname }}
             </div>
         </div>
-        <bm-contextual-menu boundary="viewport" variant="inline-on-fill-primary" class="bm-dropdown-fill-primary-hi1">
+        <bm-icon-dropdown boundary="viewport" variant="compact-on-fill-primary" size="lg" no-caret icon="3dots-v" lazy>
             <bm-dropdown-item-button icon="preferences" @click="TOGGLE_PREFERENCES()">
                 {{ $t("common.preference") }}
             </bm-dropdown-item-button>
@@ -16,18 +16,18 @@
             <bm-dropdown-item icon="sign-out" href="/bluemind_sso_logout">
                 {{ $t("banner.menu.logout") }}
             </bm-dropdown-item>
-        </bm-contextual-menu>
+        </bm-icon-dropdown>
     </div>
 </template>
 
 <script>
 import { mapMutations } from "vuex";
 import injector from "@bluemind/inject";
-import { BmAvatar, BmContextualMenu, BmDropdownItemButton, BmDropdownItem } from "@bluemind/styleguide";
+import { BmAvatar, BmIconDropdown, BmDropdownItemButton, BmDropdownItem } from "@bluemind/styleguide";
 
 export default {
     name: "FolderSidebarMobileHeader",
-    components: { BmAvatar, BmContextualMenu, BmDropdownItemButton, BmDropdownItem },
+    components: { BmAvatar, BmIconDropdown, BmDropdownItemButton, BmDropdownItem },
     data() {
         const userSession = injector.getProvider("UserSession").get();
         const displayname = userSession["formatedName"];

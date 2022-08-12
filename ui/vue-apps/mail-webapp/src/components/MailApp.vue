@@ -13,13 +13,13 @@
                 class="d-lg-flex justify-content-start pl-lg-4"
                 :class="hideListInResponsiveMode || composerOrMessageIsDisplayed || !SELECTION_IS_EMPTY ? 'd-none' : ''"
             >
-                <bm-button
-                    variant="inline-on-fill-primary"
+                <bm-icon-button
+                    variant="compact-on-fill-primary"
+                    size="lg"
                     class="d-inline-block d-lg-none w-100"
+                    icon="burger-menu"
                     @click.stop="showFolders = !showFolders"
-                >
-                    <bm-icon icon="burger-menu" size="lg" />
-                </bm-button>
+                />
                 <new-message />
             </bm-col>
             <bm-col
@@ -87,7 +87,7 @@ import GlobalEvents from "vue-global-events";
 import { BmExtension } from "@bluemind/extensions.vue";
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
-import { BmFormCheckbox, BmButton, BmCol, BmIcon, BmRow } from "@bluemind/styleguide";
+import { BmFormCheckbox, BmIconButton, BmCol, BmRow } from "@bluemind/styleguide";
 
 import FaviconHelper from "../FaviconHelper";
 import UnreadCountScheduler from "./MailApp/UnreadCountScheduler";
@@ -111,10 +111,9 @@ export default {
     name: "MailApp",
     components: {
         BmFormCheckbox,
-        BmButton,
+        BmIconButton,
         BmCol,
         BmExtension,
-        BmIcon,
         BmRow,
         GlobalEvents,
         MailFolderSidebar,

@@ -1,21 +1,21 @@
 <template>
-    <bm-button
+    <bm-icon-button
         :href="url"
         target="_blank"
         :title="$t('banner.help')"
         class="align-self-center"
-        variant="inline-on-fill-primary"
-    >
-        <bm-icon icon="interrogation" />
-    </bm-button>
+        variant="regular-on-fill-primary"
+        size="sm"
+        icon="interrogation"
+    />
 </template>
 
 <script>
-import { BmButton, BmIcon } from "@bluemind/styleguide";
+import { BmIconButton } from "@bluemind/styleguide";
 
 export default {
     name: "BmBannerHelp",
-    components: { BmIcon, BmButton },
+    components: { BmIconButton },
     props: {
         url: {
             required: true,

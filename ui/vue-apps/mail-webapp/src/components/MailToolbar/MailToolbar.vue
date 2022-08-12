@@ -1,8 +1,12 @@
 <template>
     <bm-button-toolbar key-nav class="mail-toolbar flex-nowrap h-100">
-        <bm-button variant="inline-on-fill-primary" class="d-lg-none mr-auto" @click="back()">
-            <bm-icon icon="arrow-back" size="lg" />
-        </bm-button>
+        <bm-icon-button
+            variant="compact-on-fill-primary"
+            size="lg"
+            class="d-lg-none mr-auto"
+            icon="arrow-back"
+            @click="back()"
+        />
         <mail-toolbar-compose-message
             v-if="MESSAGE_IS_LOADED(ACTIVE_MESSAGE) && ACTIVE_MESSAGE.composing"
             :message="ACTIVE_MESSAGE"
@@ -16,7 +20,7 @@
 <script>
 import { mapGetters, mapMutations, mapState } from "vuex";
 
-import { BmButton, BmIcon, BmButtonToolbar } from "@bluemind/styleguide";
+import { BmIconButton, BmButtonToolbar } from "@bluemind/styleguide";
 
 import MailToolbarComposeMessage from "./MailToolbarComposeMessage";
 import MailToolbarSelectedConversations from "./MailToolbarSelectedConversations";
@@ -33,9 +37,8 @@ import { UNSELECT_ALL_CONVERSATIONS, UNSET_CURRENT_CONVERSATION } from "~/mutati
 export default {
     name: "MailToolbar",
     components: {
-        BmButton,
+        BmIconButton,
         BmButtonToolbar,
-        BmIcon,
         MailToolbarComposeMessage,
         MailToolbarSelectedConversations
     },
@@ -79,16 +82,13 @@ export default {
     }
 }
 
-.mail-toolbar .btn {
-    padding: 0 $sp-1;
-    height: 100%;
-    font-weight: $font-weight-normal;
-}
-
-.mail-toolbar .bm-dropdown,
-.mail-toolbar .btn {
-    @media (min-width: map-get($grid-breakpoints, "xl")) {
-        min-width: 5.5rem;
+.mail-toolbar {
+    .bm-dropdown,
+    .bm-icon-dropdown,
+    .btn {
+        @media (min-width: map-get($grid-breakpoints, "xl")) {
+            min-width: 5.5rem;
+        }
     }
 }
 </style>

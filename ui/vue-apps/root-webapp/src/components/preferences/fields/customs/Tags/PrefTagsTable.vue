@@ -9,12 +9,8 @@
             </template>
             <template #cell(editable)="cell">
                 <div v-if="cell.value" class="d-flex justify-content-end">
-                    <bm-button variant="inline-neutral" @click="$emit('edit', cell.item)">
-                        <bm-icon icon="pencil" />
-                    </bm-button>
-                    <bm-button variant="inline-neutral" @click="remove(cell.item)">
-                        <bm-icon icon="trash" />
-                    </bm-button>
+                    <bm-icon-button size="sm" icon="pencil" @click="$emit('edit', cell.item)" />
+                    <bm-icon-button size="sm" icon="trash" @click="remove(cell.item)" />
                 </div>
             </template>
         </bm-table>
@@ -23,10 +19,10 @@
 </template>
 
 <script>
-import { BmButton, BmIcon, BmPagination, BmTable } from "@bluemind/styleguide";
+import { BmIconButton, BmIcon, BmPagination, BmTable } from "@bluemind/styleguide";
 export default {
     name: "PrefTagsTable",
-    components: { BmButton, BmIcon, BmPagination, BmTable },
+    components: { BmIconButton, BmIcon, BmPagination, BmTable },
     props: {
         tags: {
             type: Array,

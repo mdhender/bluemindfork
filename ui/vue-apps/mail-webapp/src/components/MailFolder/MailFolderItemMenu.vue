@@ -1,6 +1,15 @@
 <template>
     <div class="mail-folder-item-menu d-flex justify-content-center h-100" @click.stop>
-        <bm-contextual-menu boundary="viewport" class="flex-fill" v-on="$listeners">
+        <bm-icon-dropdown
+            boundary="viewport"
+            variant="compact"
+            size="sm"
+            icon="3dots-v"
+            no-caret
+            lazy
+            class="flex-fill"
+            v-on="$listeners"
+        >
             <bm-dropdown-item-button :disabled="!folder.allowSubfolder" icon="plus" @click="$emit('create')">
                 {{ $t("mail.folder.create_subfolder") }}
             </bm-dropdown-item-button>
@@ -26,7 +35,7 @@
             <bm-dropdown-item-button v-else icon="broom" @click="emptyFolder">
                 {{ $t("mail.actions.empty_folder.label") }}
             </bm-dropdown-item-button>
-        </bm-contextual-menu>
+        </bm-icon-dropdown>
         <choose-folder-modal
             ref="move-modal"
             :ok-title="$t('mail.folder.move')"
@@ -42,7 +51,7 @@
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
+import { BmIconDropdown, BmDropdownItemButton } from "@bluemind/styleguide";
 import { folderUtils } from "@bluemind/mail";
 import { IS_DESCENDANT, FOLDER_BY_PATH, FOLDER_HAS_CHILDREN, MAILBOX_TRASH } from "~/getters";
 import { CREATE_FOLDER, EMPTY_FOLDER, MARK_FOLDER_AS_READ, MOVE_FOLDER, REMOVE_FOLDER } from "~/actions";
@@ -62,7 +71,7 @@ const {
 export default {
     name: "MailFolderItemMenu",
     components: {
-        BmContextualMenu,
+        BmIconDropdown,
         BmDropdownItemButton,
         ChooseFolderModal
     },

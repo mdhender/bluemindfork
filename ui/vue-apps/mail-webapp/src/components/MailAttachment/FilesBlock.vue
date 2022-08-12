@@ -1,14 +1,12 @@
 <template>
     <div v-if="files.length > 0" class="files-block p-2">
         <div class="d-flex align-items-center">
-            <bm-button
-                variant="inline-neutral"
+            <bm-button-expand
                 :aria-label="$t('common.toggleAttachments')"
                 :title="$t('common.toggleAttachments')"
+                :expanded="isExpanded"
                 @click.prevent="toggleExpand"
-            >
-                <bm-icon :icon="isExpanded ? 'caret-down' : 'caret-right'" size="xs" />
-            </bm-button>
+            />
             <files-header :files="files" :max-size="maxSize" />
         </div>
         <bm-row v-if="seeMoreFiles" class="ml-3 mr-1">
@@ -26,8 +24,8 @@
             </bm-col>
             <bm-col lg="4" cols="12" class="pt-2 border-transparent">
                 <bm-button
-                    variant="outline-neutral"
-                    class="w-100 h-100 py-2"
+                    variant="outline"
+                    class="w-100 h-100"
                     :title="$t('common.toggleAttachments')"
                     :aria-label="$t('common.toggleAttachments')"
                     @click="toggleExpand"
@@ -55,7 +53,7 @@
         </bm-row>
         <!-- Save all button with i18n, please dont delete it 
             <bm-button
-            variant="outline-neutral"
+            variant="outline"
             class="mr-2 align-self-center"
             size="sm"
             @click="$emit('saveAllAttachments')"
@@ -66,7 +64,7 @@
 </template>
 
 <script>
-import { BmButton, BmCol, BmIcon, BmRow } from "@bluemind/styleguide";
+import { BmButton, BmButtonExpand, BmCol, BmRow } from "@bluemind/styleguide";
 
 import FileItem from "./FileItem";
 import FilesHeader from "./FilesHeader";
@@ -75,8 +73,8 @@ export default {
     name: "FilesBlock",
     components: {
         BmButton,
+        BmButtonExpand,
         BmCol,
-        BmIcon,
         BmRow,
         FileItem,
         FilesHeader

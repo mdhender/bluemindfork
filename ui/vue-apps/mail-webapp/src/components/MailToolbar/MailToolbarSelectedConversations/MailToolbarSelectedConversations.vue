@@ -1,67 +1,54 @@
 <template>
     <div class="mail-toolbar-selected-conversations">
         <template v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE">
-            <bm-button
+            <mail-toolbar-responsive-button
                 v-show="isTemplate"
-                variant="inline-on-fill-primary"
-                class="unread btn-lg-simple-neutral"
+                class="unread"
                 :title="$t('mail.actions.edit_from_template.aria', { subject })"
+                icon="plus-enveloppe"
+                :label="$t('mail.actions.edit_from_template')"
                 @click="editFromTemplate"
-            >
-                <bm-icon icon="plus-enveloppe" size="lg" />
-                <span class="d-none d-lg-block"> {{ $t("mail.actions.edit_from_template") }}</span>
-            </bm-button>
-            <bm-button
+            />
+            <mail-toolbar-responsive-button
                 v-show="showMarkAsRead && !isTemplate"
-                variant="inline-on-fill-primary"
-                class="unread btn-lg-simple-neutral"
+                class="unread"
                 :title="markAsReadAriaText()"
+                icon="read"
+                :label="markAsReadText"
                 @click="markAsRead()"
-            >
-                <bm-icon icon="read" size="lg" />
-                <span class="d-none d-lg-block">{{ markAsReadText }}</span>
-            </bm-button>
-            <bm-button
+            />
+            <mail-toolbar-responsive-button
                 v-show="showMarkAsUnread && !isTemplate"
-                variant="inline-on-fill-primary"
-                class="read btn-lg-simple-neutral"
+                class="read"
                 :title="markAsUnreadAriaText()"
+                icon="unread"
+                :label="markAsUnreadText"
                 @click="markAsUnread()"
-            >
-                <bm-icon icon="unread" size="lg" />
-                <span class="d-none d-lg-block">{{ markAsUnreadText }}</span>
-            </bm-button>
+            />
             <mail-toolbar-selected-conversations-move-action />
-            <bm-button
-                variant="inline-on-fill-primary"
-                class="btn-lg-simple-neutral"
+            <mail-toolbar-responsive-button
                 :title="removeAriaText()"
+                icon="trash"
+                :label="removeText"
                 @click.exact="moveToTrash()"
                 @click.shift.exact="remove()"
-            >
-                <bm-icon icon="trash" size="lg" />
-                <span class="d-none d-lg-block">{{ removeText }}</span>
-            </bm-button>
-            <bm-button
+            />
+            <mail-toolbar-responsive-button
                 v-show="showMarkAsFlagged"
-                variant="inline-on-fill-primary"
-                class="flagged btn-lg-simple-neutral"
+                class="flagged"
                 :title="markAsFlaggedAriaText()"
+                icon="flag-outline"
+                :label="markAsFlaggedText"
                 @click="markAsFlagged()"
-            >
-                <bm-icon icon="flag-outline" size="lg" />
-                <span class="d-none d-lg-block"> {{ markAsFlaggedText }}</span>
-            </bm-button>
-            <bm-button
+            />
+            <mail-toolbar-responsive-button
                 v-show="showMarkAsUnflagged"
-                variant="inline-on-fill-primary"
-                class="unflagged btn-lg-simple-neutral"
+                class="unflagged"
                 :title="markAsUnflaggedAriaText()"
+                icon="flag-fill"
+                :label="markAsUnflaggedText"
                 @click="markAsUnflagged()"
-            >
-                <bm-icon icon="flag-fill" size="lg" class="text-warning" />
-                <span class="d-none d-lg-block"> {{ markAsUnflaggedText }}</span>
-            </bm-button>
+            />
             <mail-toolbar-selected-conversations-other-actions />
         </template>
     </div>
@@ -69,8 +56,8 @@
 
 <script>
 import { mapGetters, mapState } from "vuex";
-import { BmButton, BmIcon } from "@bluemind/styleguide";
 import { messageUtils } from "@bluemind/mail";
+import MailToolbarResponsiveButton from "../MailToolbarResponsiveButton";
 import MailToolbarSelectedConversationsMoveAction from "./MailToolbarSelectedConversationsMoveAction";
 import MailToolbarSelectedConversationsOtherActions from "./MailToolbarSelectedConversationsOtherActions";
 import { ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin, MailRoutesMixin } from "~/mixins";
@@ -87,8 +74,7 @@ const { MessageCreationModes } = messageUtils;
 export default {
     name: "MailToolbarSelectedConversations",
     components: {
-        BmButton,
-        BmIcon,
+        MailToolbarResponsiveButton,
         MailToolbarSelectedConversationsMoveAction,
         MailToolbarSelectedConversationsOtherActions
     },
@@ -126,3 +112,16 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.mail-toolbar-selected-conversations {
+    display: flex;
+    flex-direction: row;
+
+    .unflagged .bm-captioned-icon-button .bm-icon {
+        color: $warning-fg;
+    }
+}
+</style>

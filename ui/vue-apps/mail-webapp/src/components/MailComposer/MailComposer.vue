@@ -7,14 +7,14 @@
                 :href="{ name: 'mail:popup:message', params: { messagepath } }"
                 :next="$router.relative('mail:home')"
             >
-                <bm-button
+                <bm-icon-button
                     :title="action.label"
-                    variant="inline-on-fill-primary"
+                    variant="compact-on-fill-primary"
+                    size="lg"
                     class="ml-auto"
+                    :icon="action.icon"
                     @click="saveAsap().then(action.execute)"
-                >
-                    <bm-icon :icon="action.icon" />
-                </bm-button>
+                />
             </mail-open-in-popup>
         </h3>
         <mail-composer-sender
@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import { BmButton, BmIcon, BmFormInput, BmForm } from "@bluemind/styleguide";
+import { BmIconButton, BmFormInput, BmForm } from "@bluemind/styleguide";
 import { ComposerActionsMixin, ComposerMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
 import MessagePathParam from "~/router/MessagePathParam";
@@ -73,8 +73,7 @@ import MailOpenInPopup from "../MailOpenInPopup";
 export default {
     name: "MailComposer",
     components: {
-        BmButton,
-        BmIcon,
+        BmIconButton,
         BmFormInput,
         BmForm,
         MailComposerAttachments,

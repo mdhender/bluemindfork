@@ -1,15 +1,14 @@
 <template>
-    <bm-dropdown
-        :no-caret="true"
-        variant="simple-neutral"
+    <bm-icon-dropdown
+        variant="compact"
+        size="lg"
+        icon="3dots-v"
+        no-caret
         class="mail-viewer-draft-toolbar-for-mobile d-flex justify-content-end"
         :aria-label="$tc('mail.toolbar.more.aria')"
         :title="$tc('mail.toolbar.more.aria')"
         v-on="$listeners"
     >
-        <template slot="button-content">
-            <bm-icon class="text-secondary" icon="3dots" size="lg" />
-        </template>
         <bm-dropdown-item-button @click="$emit('edit')">
             <bm-icon icon="pencil" />
             <span class="pl-1">{{ $t("mail.actions.edit") }}</span>
@@ -19,17 +18,17 @@
             <bm-icon icon="trash" />
             <span class="pl-1">{{ $t("mail.actions.remove") }}</span>
         </bm-dropdown-item-button>
-    </bm-dropdown>
+    </bm-icon-dropdown>
 </template>
 
 <script>
-import { BmDropdown, BmDropdownDivider, BmDropdownItemButton, BmIcon } from "@bluemind/styleguide";
+import { BmIconDropdown, BmDropdownDivider, BmDropdownItemButton, BmIcon } from "@bluemind/styleguide";
 import { RemoveMixin, ComposerInitMixin } from "~/mixins";
 
 export default {
     name: "MailViewerDraftToolbarForMobile",
     components: {
-        BmDropdown,
+        BmIconDropdown,
         BmDropdownDivider,
         BmDropdownItemButton,
         BmIcon

@@ -1,8 +1,7 @@
 <template>
     <div class="pref-api-key">
         <div class="mb-2">{{ $t("preferences.security.api_key.desc") }}</div>
-        <bm-button variant="outline-neutral" @click="openModal">
-            <bm-icon icon="plus" />
+        <bm-button variant="outline" size="lg" icon="plus" @click="openModal">
             {{ $t("preferences.security.api_key.generate") }}
         </bm-button>
 
@@ -32,22 +31,11 @@
             <template #cell(sid)="row">
                 <div class="d-flex justify-content-between align-items-center">
                     {{ row.value }}
-                    <bm-button
-                        :variant="lastCopiedSid === row.value ? 'success' : 'outline-neutral'"
-                        class="ml-4"
-                        @click="copySid(row.value)"
-                    >
-                        <bm-icon :icon="lastCopiedSid === row.value ? 'check' : 'copy'" />
-                        <span class="pl-1">
-                            {{ lastCopiedSid === row.value ? $t("common.copied") : $t("common.copy") }}
-                        </span>
-                    </bm-button>
+                    <bm-button-copy variant="text" size="lg" class="ml-4" :content-provider="() => row.value" />
                 </div>
             </template>
             <template #cell(action)="row">
-                <bm-button variant="inline-neutral" @click="remove(row.item)">
-                    <bm-icon icon="trash" />
-                </bm-button>
+                <bm-icon-button size="sm" icon="trash" @click="remove(row.item)" />
             </template>
         </bm-table>
         <bm-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage" />
@@ -58,6 +46,8 @@
 import { mapActions } from "vuex";
 import {
     BmButton,
+    BmButtonCopy,
+    BmIconButton,
     BmForm,
     BmFormGroup,
     BmFormInput,
@@ -72,13 +62,23 @@ import { SAVE_ALERT } from "../../Alerts/defaultAlerts";
 
 export default {
     name: "PrefAPIKey",
-    components: { BmButton, BmForm, BmFormGroup, BmFormInput, BmIcon, BmModal, BmPagination, BmTable },
+    components: {
+        BmButton,
+        BmButtonCopy,
+        BmIconButton,
+        BmForm,
+        BmFormGroup,
+        BmFormInput,
+        BmIcon,
+        BmModal,
+        BmPagination,
+        BmTable
+    },
     data() {
         return {
             showModal: false,
             projectLabel: "",
             keys: [],
-            lastCopiedSid: -1,
 
             currentPage: 1,
             perPage: 5,
@@ -146,10 +146,6 @@ export default {
                 this.keys.splice(index, 1);
                 this.SUCCESS(SAVE_ALERT);
             }
-        },
-        copySid(sid) {
-            navigator.clipboard.writeText(sid);
-            this.lastCopiedSid = sid;
         },
         openModal() {
             this.projectLabel = "";

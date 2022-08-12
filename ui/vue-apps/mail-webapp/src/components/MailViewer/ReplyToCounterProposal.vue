@@ -22,15 +22,11 @@
                     {{ currentEvent.date }}
                 </div>
                 <div class="mt-3 ml-4">
-                    <bm-button variant="outline-secondary" class="mr-2 px-1" @click="ACCEPT_COUNTER_EVENT">
-                        <bm-label-icon icon="check" icon-size="sm">{{
-                            $t("mail.ics.counter.schedule.proposal.accept")
-                        }}</bm-label-icon>
+                    <bm-button variant="outline-accent" class="mr-2 px-1" icon="check" @click="ACCEPT_COUNTER_EVENT">
+                        {{ $t("mail.ics.counter.schedule.proposal.accept") }}
                     </bm-button>
-                    <bm-button variant="outline-secondary" class="mr-2 px-1" @click="DECLINE_COUNTER_EVENT">
-                        <bm-label-icon icon="cross" icon-size="sm">{{
-                            $t("mail.ics.counter.schedule.proposal.decline")
-                        }}</bm-label-icon>
+                    <bm-button variant="outline-accent" class="mr-2 px-1" icon="cross" @click="DECLINE_COUNTER_EVENT">
+                        {{ $t("mail.ics.counter.schedule.proposal.decline") }}
                     </bm-button>
                 </div>
             </template>
@@ -52,7 +48,7 @@
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-import { BmButton, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
+import { BmButton, BmIcon } from "@bluemind/styleguide";
 import { loadingStatusUtils } from "@bluemind/mail";
 import { ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~/actions";
 import { ACTIVE_MESSAGE } from "~/getters";
@@ -63,8 +59,7 @@ export default {
     name: "ReplyToCounterProposal",
     components: {
         BmButton,
-        BmIcon,
-        BmLabelIcon
+        BmIcon
     },
     data() {
         return { LoadingStatus };

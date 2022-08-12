@@ -1,15 +1,14 @@
 <template>
-    <bm-button class="preview-message-header px-3 d-none d-lg-flex align-items-center" variant="simple-neutral">
-        <bm-icon :icon="icon" />
-        <span class="font-weight-bold ml-2"> Message </span>
+    <bm-button class="preview-message-header px-5 d-none d-lg-flex" variant="text" :icon="icon">
+        Message
     </bm-button>
 </template>
 <script>
-import { BmIcon, BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/styleguide";
 
 export default {
     name: "PreviewMessageHeader",
-    components: { BmIcon, BmButton },
+    components: { BmButton },
     props: {
         expanded: { type: Boolean, required: true }
     },
@@ -22,9 +21,15 @@ export default {
 </script>
 
 <style lang="scss">
+@use "sass:map";
 @import "~@bluemind/styleguide/css/variables";
 
 .preview-message-header {
+    .bm-icon {
+        $size: map-get($icon-sizes, "xs");
+        width: $size;
+        height: $size;
+    }
     &:hover {
         background-color: $neutral-bg-lo1;
     }

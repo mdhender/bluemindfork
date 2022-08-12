@@ -1,29 +1,25 @@
 <template>
     <div class="mail-composer-footer-loading d-flex p-2 border-top justify-content-between align-items-center">
         <div>
-            <bm-button type="submit" variant="secondary" disabled>
+            <bm-button type="submit" variant="contained-accent" icon="send" disabled>
                 {{ $t("common.send") }}
             </bm-button>
-            <bm-button variant="simple-neutral" class="ml-2" disabled>
+            <bm-button variant="text" class="ml-6" icon="trash" disabled>
                 {{ $t("common.delete") }}
             </bm-button>
         </div>
         <div class="align-items-center toolbar">
-            <bm-button variant="simple-neutral" disabled>
-                <bm-icon icon="text-format" size="lg" />
-            </bm-button>
-            <bm-button variant="simple-neutral" disabled>
-                <bm-icon icon="paper-clip" size="lg" />
-            </bm-button>
+            <bm-icon-button variant="compact" size="lg" icon="text-format" disabled />
+            <bm-icon-button variant="compact" size="lg" icon="paper-clip" disabled />
         </div>
     </div>
 </template>
 
 <script>
-import { BmButton, BmIcon } from "@bluemind/styleguide";
+import { BmButton, BmIconButton } from "@bluemind/styleguide";
 
 export default {
     name: "MailComposerFooterLoading",
-    components: { BmButton, BmIcon }
+    components: { BmButton, BmIconButton }
 };
 </script>

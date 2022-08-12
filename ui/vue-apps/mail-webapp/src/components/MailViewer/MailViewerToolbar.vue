@@ -1,41 +1,35 @@
 <template>
     <bm-button-toolbar key-nav class="mail-viewer-toolbar bg-surface">
         <mail-open-in-popup-with-shift v-slot="action" :href="replyRoute(message)">
-            <bm-button
-                variant="simple-secondary"
+            <bm-icon-button
+                variant="regular-accent"
                 :title="action.label($t('mail.content.reply.aria'))"
+                icon="reply"
                 @click="action.execute(() => reply(conversation, message))"
-            >
-                <bm-icon icon="reply" size="lg" />
-                <span class="d-lg-none">{{ $t("mail.content.reply.aria") }}</span>
-            </bm-button>
+            />
         </mail-open-in-popup-with-shift>
         <mail-open-in-popup-with-shift v-slot="action" :href="replyAllRoute(message)">
-            <bm-button
-                variant="simple-secondary"
+            <bm-icon-button
+                variant="regular-accent"
                 :title="action.label($t('mail.content.reply_all.aria'))"
+                icon="reply-all"
                 @click="action.execute(() => replyAll(conversation, message))"
-            >
-                <bm-icon icon="reply-all" size="lg" />
-                <span class="d-lg-none">{{ $t("mail.content.reply_all.aria") }}</span>
-            </bm-button>
+            />
         </mail-open-in-popup-with-shift>
         <mail-open-in-popup-with-shift v-slot="action" :href="forwardRoute(message)">
-            <bm-button
-                variant="simple-secondary"
+            <bm-icon-button
+                variant="regular-accent"
                 :title="action.label($t('common.forward'))"
+                icon="forward"
                 @click="action.execute(() => forward(message))"
-            >
-                <bm-icon icon="forward" size="lg" />
-                <span class="d-lg-none">{{ $t("common.forward") }}</span>
-            </bm-button>
+            />
         </mail-open-in-popup-with-shift>
         <mail-viewer-toolbar-other-actions v-if="!isFolderReadOnly" :message="message" :conversation="conversation" />
     </bm-button-toolbar>
 </template>
 
 <script>
-import { BmButton, BmButtonToolbar, BmIcon } from "@bluemind/styleguide";
+import { BmButtonToolbar, BmIconButton } from "@bluemind/styleguide";
 import { mapState } from "vuex";
 import { ReplyAndForwardRoutesMixin } from "~/mixins";
 import MailViewerToolbarOtherActions from "./MailViewerToolbarOtherActions";
@@ -44,9 +38,8 @@ import MailOpenInPopupWithShift from "../MailOpenInPopupWithShift";
 export default {
     name: "MailViewerToolbar",
     components: {
-        BmButton,
         BmButtonToolbar,
-        BmIcon,
+        BmIconButton,
         MailViewerToolbarOtherActions,
         MailOpenInPopupWithShift
     },

@@ -1,15 +1,15 @@
 <template>
     <div class="folder-list-collapse">
         <bm-button
-            variant="inline-neutral"
-            class="collapse-tree-btn d-flex align-items-center pb-2 pt-3 border-0 pl-2 w-100"
+            variant="text"
+            class="collapse-tree-btn pl-2 w-100"
+            size="sm"
             :aria-controls="`collapse-${name}`"
             :aria-expanded="isExpanded"
+            :icon="isExpanded ? 'chevron' : 'chevron-right'"
             @click.stop="isExpanded = !isExpanded"
         >
-            <bm-icon :icon="isExpanded ? 'caret-down' : 'caret-right'" size="xs" class="mr-2" />
-            <slot name="avatar" />
-            <span class="font-weight-bold text-left">{{ name }}</span>
+            <slot name="avatar" />{{ name }}
         </bm-button>
         <bm-collapse :id="`collapse-${name}`" v-model="isExpanded">
             <slot />
@@ -17,14 +17,13 @@
     </div>
 </template>
 <script>
-import { BmButton, BmCollapse, BmIcon } from "@bluemind/styleguide";
+import { BmButton, BmCollapse } from "@bluemind/styleguide";
 
 export default {
     name: "FilteredMailbox",
     components: {
         BmButton,
-        BmCollapse,
-        BmIcon
+        BmCollapse
     },
     props: {
         name: {

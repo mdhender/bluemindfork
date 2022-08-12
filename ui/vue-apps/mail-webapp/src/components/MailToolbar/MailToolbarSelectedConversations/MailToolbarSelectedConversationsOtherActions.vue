@@ -1,17 +1,14 @@
 <template>
-    <bm-dropdown
-        :no-caret="true"
-        variant="inline-on-fill-primary"
+    <mail-toolbar-responsive-dropdown
         :aria-label="$tc('mail.toolbar.more.aria')"
         :title="$tc('mail.toolbar.more.aria')"
         toggle-class="btn-lg-simple-neutral"
-        class="mail-toolbar-consult-message-other-actions h-100"
+        class="mail-toolbar-consult-message-other-actions"
+        icon="3dots"
+        :label="$tc('mail.toolbar.more')"
+        no-caret
         right
     >
-        <template slot="button-content">
-            <bm-icon icon="3dots" size="lg" />
-            <span class="d-none d-lg-block">{{ $tc("mail.toolbar.more") }}</span>
-        </template>
         <mail-open-in-popup-with-shift v-if="!isTemplate && isSingleMessage" v-slot="action" :href="editAsNew">
             <bm-dropdown-item :icon="action.icon('pencil')" @click="action.execute(() => $router.push(editAsNew))">
                 {{ $t("mail.actions.edit_as_new") }}
@@ -42,17 +39,18 @@
         <bm-dropdown-item :shortcut="$t('mail.shortcuts.purge')" :title="removeAriaText()" @click="remove()">
             {{ $t("mail.actions.purge") }}
         </bm-dropdown-item>
-    </bm-dropdown>
+    </mail-toolbar-responsive-dropdown>
 </template>
 
 <script>
 import { mapGetters, mapMutations, mapState } from "vuex";
-import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
+import { BmDropdownItem, BmIcon } from "@bluemind/styleguide";
 import { messageUtils } from "@bluemind/mail";
 import { ActionTextMixin, RemoveMixin, SelectionMixin, FlagMixin, PrintMixin, MailRoutesMixin } from "~/mixins";
 import { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES } from "~/getters";
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
 import MessagePathParam from "~/router/MessagePathParam";
+import MailToolbarResponsiveDropdown from "~/components/MailToolbar/MailToolbarResponsiveDropdown";
 import MailMessagePrint from "~/components/MailViewer/MailMessagePrint";
 import MailOpenInPopupWithShift from "~/components/MailOpenInPopupWithShift";
 
@@ -61,7 +59,7 @@ const { MessageCreationModes } = messageUtils;
 export default {
     name: "MailToolbarSelectedConversationsOtherActions",
     // eslint-disable-next-line vue/no-unused-components
-    components: { BmDropdown, BmDropdownItem, BmIcon, MailMessagePrint, MailOpenInPopupWithShift },
+    components: { BmDropdownItem, BmIcon, MailToolbarResponsiveDropdown, MailMessagePrint, MailOpenInPopupWithShift },
     mixins: [ActionTextMixin, RemoveMixin, FlagMixin, PrintMixin, SelectionMixin, MailRoutesMixin],
     computed: {
         ...mapGetters("mail", { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES }),
@@ -110,13 +108,3 @@ export default {
     }
 };
 </script>
-
-<style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
-
-.mail-toolbar-consult-message-other-actions .dropdown-menu {
-    border: none !important;
-    margin-top: $sp-1 !important;
-    padding: 0 !important;
-}
-</style>

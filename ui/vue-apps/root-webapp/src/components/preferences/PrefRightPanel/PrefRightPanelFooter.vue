@@ -2,13 +2,13 @@
     <div v-if="HAS_CHANGED" class="d-flex mt-auto pl-5 py-3 border-top border-neutral">
         <bm-button
             type="submit"
-            variant="secondary"
+            variant="contained-accent"
             :disabled="!HAS_CHANGED || HAS_ERROR || HAS_NOT_VALID"
             @click.prevent="save"
         >
             {{ $t("common.save") }}
         </bm-button>
-        <bm-button type="reset" variant="simple-neutral" class="ml-3" :disabled="!HAS_CHANGED" @click.prevent="CANCEL">
+        <bm-button type="reset" variant="text" class="ml-3" :disabled="!HAS_CHANGED" @click.prevent="CANCEL">
             {{ $t("common.cancel") }}
         </bm-button>
     </div>

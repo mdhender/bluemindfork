@@ -62,7 +62,7 @@
             >
                 <bm-button
                     id="authentication-test"
-                    variant="outline-neutral"
+                    variant="outline"
                     :disabled="testStatus === TestStatus.IN_PROGRESS || !externalAccount_.login || !hasCredentials"
                     @click="testAccount(externalAccount_)"
                 >

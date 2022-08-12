@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="mb-2">{{ $t("preferences.advanced.notifications.explanations") }}</div>
-        <bm-button v-if="notifPermission === 'default'" variant="outline-neutral" @click="onClick">
+        <bm-button v-if="notifPermission === 'default'" variant="text" @click="onClick">
             {{ $t("preferences.advanced.notifications.enable_checkbox") }}
         </bm-button>
         <div v-else-if="notifPermission === 'granted'">

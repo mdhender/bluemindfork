@@ -1,18 +1,23 @@
 <template>
-    <bm-button v-if="show" variant="inline-on-fill-primary" :href="url" target="_blank" @mouseup="createRoom">
-        <bm-icon icon="video" />
-    </bm-button>
+    <bm-icon-button
+        v-if="show"
+        variant="regular-on-fill-primary"
+        size="sm"
+        :href="url"
+        target="_blank"
+        icon="video"
+        @mouseup="createRoom"
+    />
 </template>
 <script>
-import { BmButton, BmIcon } from "@bluemind/styleguide";
+import { BmIconButton } from "@bluemind/styleguide";
 import RoomGenerator from "@bluemind/uuid";
 
 const roles = ["hasFullVideoconferencing", "hasSimpleVideoconferencing"];
 export default {
     name: "BmVideoWidget",
     components: {
-        BmButton,
-        BmIcon
+        BmIconButton
     },
     data: function () {
         return {

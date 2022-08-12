@@ -18,9 +18,7 @@
             <span class="font-italic text-neutral">{{ $t("common.shared_by", { name: row.value }) }}</span>
         </template>
         <template #cell(share)="row">
-            <bm-button v-if="isManaged(row.item)" variant="inline" @click="openShareModal(row.item)">
-                <bm-icon icon="share" />
-            </bm-button>
+            <bm-icon-button v-if="isManaged(row.item)" size="sm" icon="share" @click="openShareModal(row.item)" />
         </template>
         <template #cell(offlineSync)="row">
             <bm-form-checkbox :checked="row.value" switch @change="toggleOfflineSync(row.item)" />
@@ -38,14 +36,10 @@
                 @synchronize="sync(row.item)"
             />
             <template v-else-if="containerType === ContainerType.CALENDAR">
-                <bm-button v-if="isManaged(row.item)" variant="inline" @click="openShareModal(row.item)">
-                    <bm-icon icon="share" />
-                </bm-button>
-                <bm-button v-else variant="inline" @click="toggleSubscription(row.item)">
-                    <bm-icon icon="trash" />
-                </bm-button>
+                <bm-icon-button v-if="isManaged(row.item)" size="sm" icon="share" @click="openShareModal(row.item)" />
+                <bm-icon-button v-else size="sm" icon="trash" @click="toggleSubscription(row.item)" />
             </template>
-            <bm-button v-else variant="outline-neutral" @click="toggleSubscription(row.item)">
+            <bm-button v-else variant="text" size="sm" @click="toggleSubscription(row.item)">
                 <template v-if="isSubscribed(row.item)">{{ $t("common.unsubscribe") }}</template>
                 <template v-else>{{ $t("common.subscribe") }}</template>
             </bm-button>
@@ -58,14 +52,14 @@ import { ContainerType, isManaged } from "./container";
 import ManageMyContainerMenu from "./ManageMyContainerMenu";
 import { ERROR, LOADING, SUCCESS } from "@bluemind/alert.store";
 import { inject } from "@bluemind/inject";
-import { BmButton, BmFormCheckbox, BmIcon, BmTable } from "@bluemind/styleguide";
+import { BmButton, BmIconButton, BmFormCheckbox, BmIcon, BmTable } from "@bluemind/styleguide";
 import { retrieveTaskResult } from "@bluemind/task";
 import { mapActions, mapState } from "vuex";
 import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
 
 export default {
     name: "ContainersManagementTable",
-    components: { BmButton, BmFormCheckbox, BmIcon, BmTable, ManageMyContainerMenu },
+    components: { BmButton, BmIconButton, BmFormCheckbox, BmIcon, BmTable, ManageMyContainerMenu },
     props: {
         containerType: {
             type: String,

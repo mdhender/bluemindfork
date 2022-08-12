@@ -9,15 +9,20 @@
                 <h1 id="mail-message-starter-or">{{ $t("common.or") }}</h1>
             </div>
             <div class="flex-grow-1 flex-shrink-0 overflow-hidden d-flex flex-column align-items-center">
-                <div class="bg-surface py-3 d-table">
-                    <div class="d-table-cell px-4">
-                        <div class="pb-2">{{ $t("mail.message.starter.write") }}</div>
-                        <new-message />
+                <div class="bg-surface py-6 d-table">
+                    <div class="d-table-cell px-6">
+                        <div class="pb-5">{{ $t("mail.message.starter.write") }}</div>
+                        <new-message size="lg" />
                     </div>
-                    <div class="d-table-cell px-4">
-                        <div class="pb-2">{{ $t("mail.message.starter.display") }}</div>
-                        <bm-button :to="{ name: 'v:mail:home', params: { folder: MY_DRAFTS.path } }" variant="neutral">
-                            <bm-label-icon icon="pencil">{{ $t("mail.message.starter.display.drafts") }}</bm-label-icon>
+                    <div class="d-table-cell px-6">
+                        <div class="pb-5">{{ $t("mail.message.starter.display") }}</div>
+                        <bm-button
+                            :to="{ name: 'v:mail:home', params: { folder: MY_DRAFTS.path } }"
+                            variant="contained"
+                            size="lg"
+                            icon="pencil"
+                        >
+                            {{ $t("mail.message.starter.display.drafts") }}
                         </bm-button>
                     </div>
                 </div>
@@ -31,7 +36,7 @@
 </template>
 
 <script>
-import { BmButton, BmLabelIcon } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/styleguide";
 import emptyMessageIllustration from "../../assets/home-page.png";
 import NewMessage from "./NewMessage";
 import { mapGetters, mapMutations } from "vuex";
@@ -42,7 +47,6 @@ export default {
     name: "MailMessageStarter",
     components: {
         BmButton,
-        BmLabelIcon,
         NewMessage
     },
     data() {
@@ -63,10 +67,6 @@ export default {
 
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
-
-.mail-message-starter {
-    font-size: $font-size-lg;
-}
 
 .mail-message-starter h1 {
     color: $primary-fg-hi1;

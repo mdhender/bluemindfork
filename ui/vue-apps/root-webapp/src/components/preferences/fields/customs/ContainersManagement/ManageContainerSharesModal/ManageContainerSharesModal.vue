@@ -2,7 +2,7 @@
     <bm-modal v-model="show" centered modal-class="manage-shares-modal">
         <template #modal-title>
             <h1 v-if="showAvailabilitiesManagement" class="modal-title">
-                <bm-button variant="inline" @click="back()"><bm-icon icon="arrow-back" size="lg" /></bm-button>
+                <bm-icon-button icon="arrow-back" size="lg" @click="back()" />
                 {{ $t("preferences.calendar.my_calendars.availabilities_advanced_management") }}
             </h1>
             <h1 v-else class="modal-title">{{ initialModalTitle }}</h1>
@@ -18,7 +18,7 @@
         <template #modal-footer>
             <bm-button
                 v-if="!showAvailabilitiesManagement && displayAvailabilitiesManagement"
-                variant="simple-neutral"
+                variant="text"
                 @click="showAvailabilitiesManagement = true"
             >
                 {{ $t("preferences.calendar.my_calendars.availabilities_advanced_management") }}

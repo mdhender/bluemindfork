@@ -1,17 +1,15 @@
 <template>
     <div>
-        <bm-dropdown
-            :no-caret="true"
+        <bm-icon-dropdown
+            no-caret
             boundary="viewport"
-            variant="simple-secondary"
+            icon="3dots"
+            variant="regular-accent"
+            :label="$t('mail.toolbar.more')"
             :aria-label="$tc('mail.toolbar.more.aria')"
             :title="$tc('mail.toolbar.more.aria')"
             class="other-viewer-actions"
         >
-            <template slot="button-content">
-                <bm-icon icon="3dots" size="lg" />
-                <span class="d-lg-none">{{ $t("mail.toolbar.more") }}</span>
-            </template>
             <bm-dropdown-item v-if="!message.flags.includes(Flag.SEEN)" @click.stop="MARK_MESSAGE_AS_READ(message)">
                 {{ $tc("mail.actions.mark_as_read", 1) }}
             </bm-dropdown-item>
@@ -55,7 +53,7 @@
                     {{ action.label }}
                 </bm-dropdown-item>
             </mail-open-in-popup>
-        </bm-dropdown>
+        </bm-icon-dropdown>
         <choose-folder-modal
             ref="move-modal"
             :cancel-title="$t('common.cancel')"
@@ -72,7 +70,7 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 import { Flag } from "@bluemind/email";
-import { BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
+import { BmIconDropdown, BmDropdownItem } from "@bluemind/styleguide";
 import { messageUtils, folderUtils } from "@bluemind/mail";
 import { RemoveMixin, MoveMixin, PrintMixin, MailRoutesMixin } from "~/mixins";
 import {
@@ -94,9 +92,8 @@ const { isRoot, getInvalidCharacter } = folderUtils;
 export default {
     name: "MailViewerToolbarOtherActions",
     components: {
-        BmDropdown,
+        BmIconDropdown,
         BmDropdownItem,
-        BmIcon,
         ChooseFolderModal,
         MailOpenInPopup,
         MailOpenInPopupWithShift,
@@ -170,13 +167,3 @@ export default {
     }
 };
 </script>
-
-<style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
-
-.other-viewer-actions .dropdown-menu {
-    border: none !important;
-    margin-top: $sp-1 !important;
-    padding: 0 !important;
-}
-</style>

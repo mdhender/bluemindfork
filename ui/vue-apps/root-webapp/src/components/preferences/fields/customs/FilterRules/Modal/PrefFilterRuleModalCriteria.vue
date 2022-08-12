@@ -36,10 +36,10 @@
                         @reset="resetCriterion(index)"
                     />
                 </div>
-                <bm-button-close class="col-1" @click="removeCriterion(index)" />
+                <bm-icon-button variant="compact" icon="cross" @click="removeCriterion(index)" />
             </div>
         </template>
-        <bm-button v-if="!criteria.some(c => c.isNew)" class="pl-0" variant="inline-secondary" @click="addNewCriterion">
+        <bm-button v-if="!criteria.some(c => c.isNew)" variant="text-accent" @click="addNewCriterion">
             {{
                 negative
                     ? $t("preferences.mail.filters.modal.exceptions.add")
@@ -51,11 +51,11 @@
 
 <script>
 import { all as allCriteria, resolve as resolveCriterion } from "../Criteria/criterionResolver.js";
-import { BmButton, BmButtonClose, BmFormGroup, BmFormSelect } from "@bluemind/styleguide";
+import { BmButton, BmIconButton, BmFormGroup, BmFormSelect } from "@bluemind/styleguide";
 
 export default {
     name: "PrefFilterRuleModalCriteria",
-    components: { BmButton, BmButtonClose, BmFormGroup, BmFormSelect },
+    components: { BmButton, BmIconButton, BmFormGroup, BmFormSelect },
     props: {
         filter: {
             type: Object,

@@ -4,28 +4,23 @@
         class="mail-viewer-draft-toolbar float-right mail-viewer-mobile-actions bg-surface position-sticky"
     >
         <mail-open-in-popup-with-shift v-slot="action" :href="route">
-            <bm-button
-                variant="simple-secondary"
+            <bm-icon-button
+                variant="regular-accent"
                 :title="action.label($t('mail.actions.edit'))"
+                :icon="action.icon('pencil')"
                 @click="action.execute(openEditor)"
-            >
-                <bm-icon :icon="action.icon('pencil')" size="lg" />
-                <span class="d-lg-none">{{ $t("mail.actions.edit") }}</span>
-            </bm-button>
+            />
         </mail-open-in-popup-with-shift>
-        <bm-button
-            variant="simple-secondary"
+        <bm-icon-button
             :title="$t('mail.actions.remove')"
+            icon="trash"
             @click.stop="REMOVE_DRAFT(conversation, message)"
-        >
-            <bm-icon icon="trash" size="lg" />
-            <span class="d-lg-none">{{ $t("mail.actions.remove") }}</span>
-        </bm-button>
+        />
     </bm-button-toolbar>
 </template>
 
 <script>
-import { BmButton, BmButtonToolbar, BmIcon } from "@bluemind/styleguide";
+import { BmButtonToolbar, BmIconButton } from "@bluemind/styleguide";
 import { DraftMixin, ComposerInitMixin, RemoveMixin } from "~/mixins";
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
 import MessagePathParam from "~/router/MessagePathParam";
@@ -33,7 +28,7 @@ import MailOpenInPopupWithShift from "../MailOpenInPopupWithShift";
 
 export default {
     name: "MailViewerDraftToolbar",
-    components: { BmButton, BmButtonToolbar, BmIcon, MailOpenInPopupWithShift },
+    components: { BmButtonToolbar, BmIconButton, MailOpenInPopupWithShift },
     mixins: [DraftMixin, ComposerInitMixin, RemoveMixin],
     props: {
         conversation: {

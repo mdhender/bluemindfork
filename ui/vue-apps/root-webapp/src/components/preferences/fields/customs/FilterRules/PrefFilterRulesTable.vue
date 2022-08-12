@@ -20,9 +20,7 @@
             </template>
             <template #cell(name)="cell">
                 <div class="d-flex align-items-center" @click="cell.toggleDetails">
-                    <bm-button class="pl-0" variant="inline-neutral">
-                        <bm-icon :icon="cell.detailsShowing ? 'chevron' : 'chevron-right'" size="xs" />
-                    </bm-button>
+                    <bm-button-expand :expanded="cell.detailsShowing" />
                     <h2>
                         <span class="filter-name mr-2 text-nowrap" :class="{ 'filter-inactive': !cell.item.active }">
                             {{ cell.value || $t("preferences.mail.filters.unnamed") }}
@@ -38,18 +36,10 @@
             </template>
             <template #cell(editable)="cell">
                 <div v-if="cell.value" class="d-flex justify-content-end">
-                    <bm-button variant="inline-neutral" @click="$emit('up', cell.item)">
-                        <bm-icon icon="arrow-up" />
-                    </bm-button>
-                    <bm-button variant="inline-neutral" @click="$emit('down', cell.item)">
-                        <bm-icon icon="arrow-down" />
-                    </bm-button>
-                    <bm-button variant="inline-neutral" @click="$emit('edit', cell.item)">
-                        <bm-icon icon="pencil" />
-                    </bm-button>
-                    <bm-button variant="inline-neutral" @click="remove(cell.item)">
-                        <bm-icon icon="trash" />
-                    </bm-button>
+                    <bm-icon-button size="sm" icon="arrow-up" @click="$emit('up', cell.item)" />
+                    <bm-icon-button size="sm" icon="arrow-down" @click="$emit('down', cell.item)" />
+                    <bm-icon-button size="sm" icon="pencil" @click="$emit('edit', cell.item)" />
+                    <bm-icon-button size="sm" icon="trash" @click="remove(cell.item)" />
                 </div>
             </template>
             <template #row-details="row">
@@ -61,13 +51,13 @@
 </template>
 
 <script>
-import { BmBadge, BmButton, BmIcon, BmFormCheckbox, BmPagination, BmTable } from "@bluemind/styleguide";
+import { BmBadge, BmButtonExpand, BmIconButton, BmFormCheckbox, BmPagination, BmTable } from "@bluemind/styleguide";
 import PrefFilterRuleDetails from "./PrefFilterRuleDetails";
 import { toString as filterToString } from "./filterRules";
 
 export default {
     name: "PrefFilterRulesTable",
-    components: { BmBadge, BmButton, BmIcon, BmFormCheckbox, BmPagination, BmTable, PrefFilterRuleDetails },
+    components: { BmBadge, BmButtonExpand, BmIconButton, BmFormCheckbox, BmPagination, BmTable, PrefFilterRuleDetails },
     props: {
         editable: {
             type: Boolean,

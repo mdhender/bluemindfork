@@ -2,27 +2,23 @@
     <bm-button-toolbar key-nav class="mail-conversation-viewer-footer py-3">
         <mail-open-in-popup-with-shift v-slot="action" :href="replyRoute(lastNonDraft)">
             <bm-button
-                variant="secondary"
+                variant="contained-accent"
                 :title="action.label($t('mail.content.reply.aria'))"
+                :icon="action.icon('reply')"
                 @click="action.execute(() => reply(conversation, lastNonDraft))"
             >
-                <div class="d-flex align-items-center">
-                    <bm-icon class="pr-1" :icon="action.icon('reply')" size="sm" />
-                    {{ $t("mail.content.reply.aria") }}
-                </div>
+                {{ $t("mail.content.reply.aria") }}
             </bm-button>
         </mail-open-in-popup-with-shift>
         <span class="pl-3" />
         <mail-open-in-popup-with-shift v-slot="action" :href="replyAllRoute(lastNonDraft)">
             <bm-button
-                variant="secondary"
+                variant="contained-accent"
                 :title="action.label($t('mail.content.reply_all.aria'))"
+                :icon="action.icon('reply-all')"
                 @click="action.execute(() => replyAll(conversation, lastNonDraft))"
             >
-                <div class="d-flex align-items-center">
-                    <bm-icon class="pr-1" :icon="action.icon('reply-all')" size="sm" />
-                    {{ $t("mail.content.reply_all.aria") }}
-                </div>
+                {{ $t("mail.content.reply_all.aria") }}
             </bm-button>
         </mail-open-in-popup-with-shift>
     </bm-button-toolbar>
@@ -30,13 +26,13 @@
 
 <script>
 import { mapState } from "vuex";
-import { BmButtonToolbar, BmButton, BmIcon } from "@bluemind/styleguide";
+import { BmButtonToolbar, BmButton } from "@bluemind/styleguide";
 import { ReplyAndForwardRoutesMixin } from "~/mixins";
 import MailOpenInPopupWithShift from "../../MailOpenInPopupWithShift";
 
 export default {
     name: "MailConversationViewerFooter",
-    components: { BmButtonToolbar, BmButton, BmIcon, MailOpenInPopupWithShift },
+    components: { BmButtonToolbar, BmButton, MailOpenInPopupWithShift },
     mixins: [ReplyAndForwardRoutesMixin],
     props: {
         lastNonDraft: {

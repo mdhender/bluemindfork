@@ -1,13 +1,14 @@
 <template>
     <div class="mail-folder-tree">
         <bm-button
-            variant="inline-neutral"
-            class="collapse-tree-btn d-flex align-items-center pb-2 pt-3 border-0 pl-2 w-100"
+            variant="text"
+            class="collapse-tree-btn pl-2 w-100"
+            size="sm"
             :aria-controls="id"
             :aria-expanded="!collapsed"
+            :icon="collapsed ? 'caret-right' : 'caret-down'"
             @click.stop="$emit('toggle-tree')"
         >
-            <bm-icon :icon="collapsed ? 'caret-right' : 'caret-down'" size="xs" class="mr-2" />
             <slot name="title" />
         </bm-button>
         <bm-collapse :id="id" :visible="!collapsed">
@@ -32,7 +33,7 @@
 
 <script>
 import { mapGetters, mapState } from "vuex";
-import { BmButton, BmCollapse, BmIcon, BmTree } from "@bluemind/styleguide";
+import { BmButton, BmCollapse, BmTree } from "@bluemind/styleguide";
 import { FOLDER_GET_CHILDREN } from "~/getters";
 import { FolderMixin, MailRoutesMixin } from "~/mixins";
 import DraggableMailFolderItem from "./DraggableMailFolderItem";
@@ -42,7 +43,6 @@ export default {
     components: {
         BmButton,
         BmCollapse,
-        BmIcon,
         BmTree,
         DraggableMailFolderItem
     },

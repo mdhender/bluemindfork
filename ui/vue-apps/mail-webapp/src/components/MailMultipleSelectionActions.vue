@@ -17,55 +17,55 @@
                 <div class="arrow-up" />
                 <bm-button
                     v-if="showMarkAsRead"
-                    variant="outline-neutral"
+                    variant="outline"
                     :title="markAsReadAriaText()"
                     :aria-label="markAsReadAriaText()"
+                    icon="read"
                     @click="markAsRead()"
-                >
-                    <bm-label-icon icon="read"> {{ markAsReadText }} </bm-label-icon>
+                    >{{ markAsReadText }}
                 </bm-button>
                 <bm-button
                     v-if="showMarkAsUnread"
-                    variant="outline-neutral"
+                    variant="outline"
                     :title="markAsUnreadAriaText()"
                     :aria-label="markAsUnreadAriaText()"
+                    icon="unread"
                     @click="markAsUnread()"
-                >
-                    <bm-label-icon icon="unread"> {{ markAsUnreadText }} </bm-label-icon>
+                    >{{ markAsUnreadText }}
                 </bm-button>
                 <bm-button
                     v-if="showMarkAsFlagged"
-                    variant="outline-neutral"
+                    variant="outline"
                     :title="markAsFlaggedAriaText()"
                     :aria-label="markAsFlaggedAriaText()"
+                    icon="flag-outline"
                     @click="markAsFlagged()"
-                >
-                    <bm-label-icon icon="flag-outline"> {{ markAsFlaggedText }} </bm-label-icon>
+                    >{{ markAsFlaggedText }}
                 </bm-button>
                 <bm-button
                     v-if="showMarkAsUnflagged"
-                    variant="outline-neutral"
+                    variant="outline"
                     :title="markAsUnflaggedAriaText()"
                     :aria-label="markAsUnflaggedAriaText()"
+                    icon="flag-fill"
                     @click="markAsUnflagged()"
-                >
-                    <bm-label-icon icon="flag-fill"> {{ markAsUnflaggedText }} </bm-label-icon>
+                    >{{ markAsUnflaggedText }}
                 </bm-button>
                 <bm-button
-                    variant="outline-neutral"
+                    variant="outline"
                     :title="removeAriaText()"
                     :aria-label="removeAriaText()"
+                    icon="trash"
                     @click.exact="moveToTrash"
                     @click.shift.exact="remove"
-                >
-                    <bm-label-icon icon="trash"> {{ removeText }} </bm-label-icon>
+                    >{{ removeText }}
                 </bm-button>
-                <bm-button variant="outline-neutral" :title="moveAriaText()" @click.exact="openMoveFolderModal">
-                    <bm-label-icon icon="folder"> {{ moveText }} </bm-label-icon>
+                <bm-button variant="outline" :title="moveAriaText()" icon="folder" @click.exact="openMoveFolderModal"
+                    >{{ moveText }}
                 </bm-button>
             </div>
 
-            <bm-button variant="inline-neutral" class="my-4" @click="removeSelection">
+            <bm-button variant="text" class="my-4" @click="removeSelection">
                 {{ $t("common.cancel.selection") }}
             </bm-button>
 

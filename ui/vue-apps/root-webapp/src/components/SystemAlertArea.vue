@@ -4,7 +4,7 @@
             <bm-button
                 v-if="context.alert.link"
                 class="w-100 text-left font-weight-normal"
-                variant="inline-neutral"
+                variant="text"
                 @click="openLink(context.alert.link)"
             >
                 {{ context.alert.message }}

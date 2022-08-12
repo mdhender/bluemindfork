@@ -26,14 +26,13 @@
                 name="composer"
                 @input="updateEditorContent"
             >
-                <bm-button
+                <bm-icon-button
                     v-if="messageCompose.collapsedContent"
-                    variant="outline-neutral"
+                    size="sm"
                     class="align-self-start mb-1"
+                    icon="3dots"
                     @click="expandContent"
-                >
-                    <bm-icon icon="3dots" />
-                </bm-button>
+                />
                 <!-- eslint-disable vue/no-v-html -->
                 <div
                     v-if="corporateSignature && !corporateSignature.usePlaceholder"
@@ -51,7 +50,7 @@
 import { mapMutations, mapState } from "vuex";
 
 import { createCid, CID_DATA_ATTRIBUTE } from "@bluemind/email";
-import { BmButton, BmFileDropZone, BmIcon, BmRichEditor } from "@bluemind/styleguide";
+import { BmFileDropZone, BmIcon, BmRichEditor } from "@bluemind/styleguide";
 import { draftUtils, signatureUtils } from "@bluemind/mail";
 
 import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
@@ -64,7 +63,7 @@ const { PERSONAL_SIGNATURE_SELECTOR } = signatureUtils;
 
 export default {
     name: "MailComposerContent",
-    components: { BmButton, BmFileDropZone, BmIcon, BmRichEditor, MailViewerContentLoading },
+    components: { BmFileDropZone, BmIcon, BmRichEditor, MailViewerContentLoading },
     mixins: [AddAttachmentsCommand, ComposerActionsMixin, ComposerInitMixin, SignatureMixin, WaitForMixin],
     props: {
         message: {

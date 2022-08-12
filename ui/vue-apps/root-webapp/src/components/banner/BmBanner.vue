@@ -1,18 +1,13 @@
 <template>
-    <bm-navbar
-        :aria-label="$t('banner.label')"
-        variant="primary"
-        class="bm-banner p-0 align-items-center d-none d-lg-flex"
-    >
-        <bm-button
+    <bm-navbar :aria-label="$t('banner.label')" variant="primary" class="bm-banner align-items-center d-none d-lg-flex">
+        <bm-icon-button
             id="all-apps-popover"
-            variant="inline-on-fill-primary"
-            class="px-3"
+            variant="regular-on-fill-primary"
+            size="lg"
+            icon="9dots"
             :title="$t('banner.reach.all_apps')"
             :aria-label="$t('banner.reach.all_apps')"
-        >
-            <bm-icon icon="9dots" size="xl" />
-        </bm-button>
+        />
         <bm-banner-applications :applications="applications" target="all-apps-popover" />
         <bm-navbar-brand href="#" :to="logoLink" :title="$t('banner.main.brand')">
             <img src="images/logo-bluemind.png" alt="" />
@@ -28,7 +23,7 @@
 </template>
 
 <script>
-import { BmButton, BmIcon, BmNavbar, BmNavbarBrand } from "@bluemind/styleguide";
+import { BmIconButton, BmNavbar, BmNavbarBrand } from "@bluemind/styleguide";
 import { BmExtension } from "@bluemind/extensions.vue";
 import BannerL10N from "../../../l10n/banner/";
 import BmBannerApplications from "./BmBannerApplications";
@@ -43,9 +38,8 @@ export default {
         BmBannerHelp,
         BmBannerMenu,
         BmBannerShortcuts,
-        BmButton,
         BmExtension,
-        BmIcon,
+        BmIconButton,
         BmNavbar,
         BmNavbarBrand
     },
@@ -76,7 +70,6 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
-@import "~@bluemind/styleguide/css/mixins/_buttons";
 
 .bm-banner {
     min-height: fit-content;

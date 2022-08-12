@@ -1,34 +1,27 @@
 <template>
-    <bm-dropdown
+    <bm-icon-dropdown
         no-caret
-        variant="inline-on-fill-primary"
-        class="messages-options-for-mobile d-flex justify-content-end"
+        variant="compact-on-fill-primary"
+        size="lg"
+        class="messages-options-for-mobile justify-content-end"
+        icon="3dots-v"
         v-on="$listeners"
     >
-        <template v-slot:button-content><bm-icon icon="3dots" size="lg" /></template>
-        <bm-dropdown-item-button
-            v-if="!CONVERSATION_LIST_UNREAD_FILTER_ENABLED"
-            variant="neutral"
-            @click="filterUnread"
-        >
+        <bm-dropdown-item-button v-if="!CONVERSATION_LIST_UNREAD_FILTER_ENABLED" @click="filterUnread">
             {{ this.$t("mail.list.menu.filter") + " " + this.$t("mail.list.menu.filter.unread") }}
         </bm-dropdown-item-button>
         <bm-dropdown-divider v-if="!CONVERSATION_LIST_UNREAD_FILTER_ENABLED" />
-        <bm-dropdown-item-button
-            v-if="!CONVERSATION_LIST_FLAGGED_FILTER_ENABLED"
-            variant="neutral"
-            @click="filterFlagged"
-        >
+        <bm-dropdown-item-button v-if="!CONVERSATION_LIST_FLAGGED_FILTER_ENABLED" @click="filterFlagged">
             {{ this.$t("mail.list.menu.filter") + " " + this.$t("mail.list.menu.filter.flagged") }}
         </bm-dropdown-item-button>
         <bm-dropdown-divider v-if="!CONVERSATION_LIST_UNREAD_FILTER_ENABLED" />
-        <bm-dropdown-item-button v-if="CONVERSATION_LIST_FILTERED" variant="neutral" @click="filterAll">
+        <bm-dropdown-item-button v-if="CONVERSATION_LIST_FILTERED" @click="filterAll">
             {{ this.$t("mail.list.filter.remove") + " '" + this.$t("mail.list.menu.filter." + filter) + "'" }}
         </bm-dropdown-item-button>
-    </bm-dropdown>
+    </bm-icon-dropdown>
 </template>
 <script>
-import { BmDropdown, BmDropdownItemButton, BmDropdownDivider, BmIcon } from "@bluemind/styleguide";
+import { BmIconDropdown, BmDropdownItemButton, BmDropdownDivider } from "@bluemind/styleguide";
 import { mapGetters, mapState } from "vuex";
 import {
     CONVERSATION_LIST_UNREAD_FILTER_ENABLED,
@@ -39,10 +32,9 @@ import {
 export default {
     name: "MessagesOptionsForMobile",
     components: {
-        BmDropdown,
+        BmIconDropdown,
         BmDropdownDivider,
-        BmDropdownItemButton,
-        BmIcon
+        BmDropdownItemButton
     },
     computed: {
         ...mapGetters("mail", {

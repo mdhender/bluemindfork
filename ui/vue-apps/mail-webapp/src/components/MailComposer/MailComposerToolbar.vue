@@ -1,21 +1,29 @@
 <template>
     <div class="mail-composer-footer-toolbar p-2 justify-content-between align-items-center">
         <div>
-            <bm-button v-if="isDraft" type="submit" variant="secondary" :disabled="disableSend" @click.prevent="send">
+            <bm-button
+                v-if="isDraft"
+                type="submit"
+                variant="contained-accent"
+                icon="send"
+                :disabled="disableSend"
+                @click.prevent="send"
+            >
                 {{ $t("common.send") }}
             </bm-button>
             <bm-button
                 v-else
                 type="submit"
-                variant="secondary"
+                variant="contained-accent"
                 :title="$t('mail.actions.end_template_edition.aria')"
                 @click.prevent="endEdition"
             >
                 {{ $t("mail.actions.end_template_edition.label") }}
             </bm-button>
             <bm-button
-                variant="simple-neutral"
-                class="ml-2"
+                variant="text"
+                class="ml-6"
+                icon="trash"
                 :disabled="isSaving || isSending"
                 @click.prevent="deleteDraft"
             >
@@ -33,16 +41,16 @@
             </span>
             <span v-else class="text-muted pr-2">{{ saveMessage }}</span>
             <bm-extension id="webapp.mail" path="composer.footer.toolbar" :message="message" />
-            <bm-button
+            <bm-icon-button
                 v-if="!userPrefTextOnly"
-                variant="simple-neutral"
+                variant="compact"
+                size="lg"
+                icon="text-format"
                 :aria-label="textFormatterLabel"
                 :title="textFormatterLabel"
                 :disabled="isSending"
                 @click="toggleTextFormattingToolbar"
-            >
-                <bm-icon icon="text-format" size="lg" />
-            </bm-button>
+            />
             <input
                 ref="attachInputRef"
                 tabindex="-1"
@@ -53,19 +61,16 @@
                 @change="$execute('add-attachments', { files: $event.target.files, message, maxSize })"
                 @click.stop="closeFilePicker()"
             />
-            <bm-button
-                variant="simple-neutral"
+            <bm-icon-button
+                variant="compact"
+                size="lg"
+                icon="paper-clip"
                 :aria-label="$tc('mail.actions.attach.aria')"
                 :title="$tc('mail.actions.attach.aria')"
                 :disabled="isSending"
                 @click="openFilePicker()"
-            >
-                <bm-icon icon="paper-clip" size="lg" />
-            </bm-button>
-            <bm-dropdown ref="3dots-dropdown" dropup right no-caret variant="simple-neutral">
-                <template #button-content>
-                    <bm-icon icon="3dots-v" size="lg" />
-                </template>
+            />
+            <bm-icon-dropdown ref="3dots-dropdown" dropup right no-caret variant="compact" size="lg" icon="3dots-v">
                 <bm-dropdown-item-toggle
                     :disabled="hasCorporateSignature"
                     :checked="isSignatureInserted"
@@ -79,7 +84,7 @@
                 <bm-dropdown-item :disabled="isSenderShown" @click="showSender">
                     {{ $t("mail.actions.show_sender") }}
                 </bm-dropdown-item>
-            </bm-dropdown>
+            </bm-icon-dropdown>
         </div>
     </div>
 </template>
@@ -90,7 +95,8 @@ import { BmExtension } from "@bluemind/extensions.vue";
 import {
     BmButton,
     BmIcon,
-    BmDropdown,
+    BmIconButton,
+    BmIconDropdown,
     BmDropdownItem,
     BmDropdownItemButton,
     BmDropdownItemToggle
@@ -115,7 +121,8 @@ export default {
     name: "MailComposerToolbar",
     components: {
         BmButton,
-        BmDropdown,
+        BmIconButton,
+        BmIconDropdown,
         BmDropdownItem,
         BmDropdownItemButton,
         BmDropdownItemToggle,

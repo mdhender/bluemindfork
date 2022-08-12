@@ -5,7 +5,7 @@
             {{ $t("preferences.manage_shares.outside_my_organization") }}
         </bm-label-icon>
         <div v-if="externalShares.length === 0" class="ml-4 mt-3 font-italic">{{ noExternalShareSet }}</div>
-        <div v-for="(external, index) in externalShares" v-else :key="external.token" class="share-entry">
+        <div v-for="external in externalShares" v-else :key="external.token" class="share-entry">
             <div class="share-entry-title">
                 <bm-contact
                     v-if="external.vcard"
@@ -19,14 +19,7 @@
             <bm-row class="share-entry-body">
                 <div class="share-entry-col url-and-copy-button">
                     <div class="share-url text-truncate">{{ external.url }}</div>
-                    <template>
-                        <bm-button v-if="activeCopyBtn === index" variant="success">
-                            <bm-label-icon icon="check">{{ $t("common.copied") }}</bm-label-icon>
-                        </bm-button>
-                        <bm-button v-else variant="outline-neutral" @click="copyLinkInClipboard(external.url, index)">
-                            <bm-label-icon icon="copy">{{ $t("common.copy") }}</bm-label-icon>
-                        </bm-button>
-                    </template>
+                    <bm-button-copy variant="text" size="lg" :content-provider="() => external.url" />
                 </div>
                 <div class="share-entry-col select-and-button">
                     <bm-form-select
@@ -35,12 +28,13 @@
                         :auto-min-width="false"
                         @input="editPublishMode(external)"
                     />
-                    <bm-button v-if="canRemoveLink(external)" variant="inline-neutral" @click="removeLink(external)">
-                        <bm-icon icon="trash" />
-                    </bm-button>
-                    <bm-button v-else variant="inline-neutral" @click="regenerateLink">
-                        <bm-icon icon="loop" />
-                    </bm-button>
+                    <bm-icon-button
+                        v-if="canRemoveLink(external)"
+                        size="sm"
+                        icon="trash"
+                        @click="removeLink(external)"
+                    />
+                    <bm-icon-button v-else size="sm" icon="loop" @click="regenerateLink" />
                 </div>
             </bm-row>
         </div>
@@ -52,11 +46,11 @@ import { publishModeOptions } from "./ExternalShareHelper";
 import { PublishMode } from "@bluemind/calendar.api";
 import { VCardInfoAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
-import { BmButton, BmContact, BmFormSelect, BmIcon, BmLabelIcon, BmRow } from "@bluemind/styleguide";
+import { BmButtonCopy, BmIconButton, BmContact, BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/styleguide";
 
 export default {
     name: "ExternalShareManagement",
-    components: { BmButton, BmContact, BmFormSelect, BmIcon, BmLabelIcon, BmRow },
+    components: { BmButtonCopy, BmIconButton, BmContact, BmFormSelect, BmLabelIcon, BmRow },
     props: {
         container: {
             type: Object,
@@ -68,7 +62,7 @@ export default {
         }
     },
     data() {
-        return { activeCopyBtn: -1, publishModeOptions: publishModeOptions(inject("i18n")), VCardInfoAdaptor };
+        return { publishModeOptions: publishModeOptions(inject("i18n")), VCardInfoAdaptor };
     },
     computed: {
         noExternalShareSet() {
@@ -79,15 +73,10 @@ export default {
         }
     },
     methods: {
-        copyLinkInClipboard(url, index) {
-            navigator.clipboard.writeText(url);
-            this.activeCopyBtn = index;
-        },
         displayedLabel({ publishMode }) {
             return publishMode === PublishMode.PUBLIC ? this.$t("common.public") : this.$t("common.private");
         },
         editPublishMode(external) {
-            this.activeCopyBtn = -1;
             this.$emit("publish-mode-change", external);
         },
         regenerateLink() {

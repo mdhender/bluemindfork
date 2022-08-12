@@ -6,14 +6,13 @@
             <!-- eslint-disable-next-line vue/no-v-html -->
             <div v-html="html"></div>
         </slot>
-        <bm-button
+        <bm-icon-button
             v-if="isCollapseActive"
-            variant="outline-neutral"
+            size="sm"
             class="align-self-start ml-3 mb-2"
+            icon="3dots"
             @click="collapse_ = false"
-        >
-            <bm-icon icon="3dots" />
-        </bm-button>
+        />
     </div>
 </template>
 
@@ -22,7 +21,7 @@ import { mapActions } from "vuex";
 import linkifyHtml from "linkifyjs/html";
 import { MimeType, InlineImageHelper } from "@bluemind/email";
 import { sanitizeHtml, blockRemoteImages } from "@bluemind/html-utils";
-import { BmButton, BmIcon } from "@bluemind/styleguide";
+import { BmIconButton } from "@bluemind/styleguide";
 import { messageUtils, partUtils } from "@bluemind/mail";
 
 import brokenImageIcon from "~/../assets/brokenImageIcon.png";
@@ -39,7 +38,7 @@ const { getPartsFromCapabilities, VIEWER_CAPABILITIES } = partUtils;
 
 export default {
     name: "TextHtmlFileViewer",
-    components: { BmButton, BmIcon, MailViewerContentLoading, InlineStyle },
+    components: { BmIconButton, MailViewerContentLoading, InlineStyle },
     mixins: [FileViewerMixin],
     props: { collapse: { type: Boolean, default: true } },
     data() {

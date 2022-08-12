@@ -1,20 +1,16 @@
 <template>
-    <bm-dropdown
+    <mail-toolbar-responsive-dropdown
         ref="move-dropdown"
         no-caret
-        class="mail-toolbar-selected-conversations-move-action h-100"
-        variant="inline-on-fill-primary"
-        toggle-class="btn-lg-simple-neutral"
+        class="mail-toolbar-selected-conversations-move-action"
+        icon="folder"
+        :label="moveText"
         :title="moveAriaText()"
         :aria-label="moveAriaText()"
         @shown="openMoveAutocomplete"
         @hide="resetPattern"
     >
         <global-events @keydown.tab.capture="forceCloseMoveAutocomplete" />
-        <template slot="button-content">
-            <bm-icon icon="folder" size="lg" />
-            <span class="d-none d-lg-block"> {{ moveText }}</span>
-        </template>
         <bm-dropdown-autocomplete
             ref="moveAutocomplete"
             v-slot="{ item }"
@@ -78,22 +74,21 @@
                 <mail-mailbox-icon :mailbox="MY_MAILBOX" />
             </div>
         </bm-dropdown-item-button>
-    </bm-dropdown>
+    </mail-toolbar-responsive-dropdown>
 </template>
 
 <script>
 import {
-    BmDropdown,
     BmDropdownAutocomplete,
     BmDropdownDivider,
     BmDropdownForm,
     BmDropdownItemButton,
-    BmIcon,
     BmNotice
 } from "@bluemind/styleguide";
 import { mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import { folderUtils } from "@bluemind/mail";
+import MailToolbarResponsiveDropdown from "../MailToolbarResponsiveDropdown";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailMailboxIcon from "../../MailMailboxIcon";
 import MailFolderInput from "../../MailFolderInput";
@@ -106,14 +101,13 @@ const LOOP_PERF_LIMIT = 100;
 export default {
     name: "MailToolbarSelectedConversationsMoveAction",
     components: {
-        BmDropdown,
         BmDropdownAutocomplete,
         BmDropdownDivider,
         BmDropdownForm,
         BmDropdownItemButton,
         BmNotice,
-        BmIcon,
         GlobalEvents,
+        MailToolbarResponsiveDropdown,
         MailFolderIcon,
         MailFolderInput,
         MailMailboxIcon

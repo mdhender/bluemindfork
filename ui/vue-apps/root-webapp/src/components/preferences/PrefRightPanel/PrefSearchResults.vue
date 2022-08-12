@@ -15,8 +15,8 @@
         </p>
     </div>
     <div v-else class="pref-search-results overflow-auto">
-        <div class="d-flex justify-content-end">
-            <bm-button variant="simple-neutral" @click="toggleAll">
+        <div class="d-flex justify-content-end pl-5">
+            <bm-button variant="text" @click="toggleAll">
                 {{ areAllExpanded ? $t("common.collapse_all") : $t("common.expand_all") }}
             </bm-button>
         </div>
@@ -38,9 +38,12 @@
                     :set="(isCollapsed = isGroupCollapsed(group.id))"
                 />
                 <pref-group ref="group" :group="group" :collapsed="isCollapsed" class="flex-fill" />
-                <bm-button variant="inline-neutral" class="align-self-start mt-4 mr-3" @click="toggleGroup(group.id)">
-                    <bm-icon :icon="isCollapsed ? 'chevron' : 'chevron-up'" size="xs" />
-                </bm-button>
+                <bm-button-expand
+                    size="lg"
+                    class="align-self-start mt-4 mr-3"
+                    :expanded="!isCollapsed"
+                    @click="toggleGroup(group.id)"
+                />
             </div>
             <div v-if="index !== results.length - 1" :key="index" class="border-bottom border-neutral" />
         </template>
@@ -52,12 +55,12 @@ import emptyResultsIllustration from "../../../../assets/setting-empty-search-re
 import PrefGroup from "../PrefGroup";
 import PrefSectionIcon from "../PrefSectionIcon";
 import RightPanelAlerts from "../mixins/RightPanelAlerts";
-import { BmButton, BmIcon, BmSpinner } from "@bluemind/styleguide";
+import { BmButton, BmButtonExpand, BmSpinner } from "@bluemind/styleguide";
 import { mapGetters } from "vuex";
 
 export default {
     name: "PrefSearchResults",
-    components: { BmButton, BmIcon, BmSpinner, PrefGroup, PrefSectionIcon },
+    components: { BmButton, BmButtonExpand, BmSpinner, PrefGroup, PrefSectionIcon },
     mixins: [RightPanelAlerts],
     props: {
         isLoading: {

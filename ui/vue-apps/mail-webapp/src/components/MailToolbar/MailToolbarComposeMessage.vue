@@ -1,39 +1,30 @@
 <template>
     <bm-button-group>
-        <bm-button
+        <mail-toolbar-responsive-button
             v-if="isDraft"
-            variant="inline-on-fill-primary"
-            class="btn-lg-simple-neutral"
             :aria-label="$t('mail.actions.send.aria')"
             :title="$t('mail.actions.send.aria')"
             :disabled="errorOccuredOnSave || isSending || !hasRecipient || anyAttachmentInError"
+            icon="send"
+            :label="$tc('mail.actions.send')"
             @click="send()"
-        >
-            <bm-icon icon="send" size="lg" />
-            <span class="d-none d-lg-block">{{ $tc("mail.actions.send") }}</span>
-        </bm-button>
-        <bm-button
+        />
+        <mail-toolbar-responsive-button
             v-else
-            variant="inline-on-fill-primary"
-            class="d-none d-lg-block btn-lg-simple-neutral"
-            :title="$t('mail.actions.end_template_edition.aria')"
             :aria-label="$t('mail.actions.end_template_edition.aria')"
+            :title="$t('mail.actions.end_template_edition.aria')"
+            icon="arrow-back"
+            :label="$tc('mail.actions.end_template_edition.label')"
             @click="endEdition"
-        >
-            <bm-icon icon="arrow-back" size="lg" />
-            <span>{{ $tc("mail.actions.end_template_edition.label") }}</span>
-        </bm-button>
-        <bm-button
-            variant="inline-on-fill-primary"
-            class="btn-lg-simple-neutral"
+        />
+        <mail-toolbar-responsive-button
             :aria-label="$t('mail.actions.attach.aria')"
             :title="$t('mail.actions.attach.aria')"
             :disabled="isSending"
+            icon="paper-clip"
+            :label="$tc('mail.actions.attach')"
             @click="openFilePicker()"
-        >
-            <bm-icon icon="paper-clip" size="lg" />
-            <span class="d-none d-lg-block">{{ $tc("mail.actions.attach") }}</span>
-        </bm-button>
+        />
         <input
             ref="attachInputRef"
             type="file"
@@ -42,61 +33,52 @@
             @change="$execute('add-attachments', { files: $event.target.files, message, maxSize })"
             @click="closeFilePicker()"
         />
-        <bm-dropdown
-            split
-            variant="simple-neutral"
-            split-class="btn-lg-simple-neutral"
-            toggle-class="btn-lg-simple-neutral"
+        <mail-toolbar-responsive-dropdown
+            :aria-label="saveActionTitle"
+            :title="saveActionTitle"
             :disabled="isSaving || isSending || anyAttachmentInError"
+            :icon="isDraft ? 'save' : 'plus-document'"
+            :label="$t('common.save')"
+            split
             right
             @click="saveAsap"
         >
-            <template #button-content>
-                <div :title="saveActionTitle">
-                    <bm-icon :icon="isDraft ? 'save' : 'plus-document'" size="lg" />
-                    <span class="d-none d-lg-block">{{ $t("common.save") }}</span>
-                </div>
-            </template>
             <bm-dropdown-item icon="save" @click="saveAsDraft">{{ $t("mail.actions.save_draft") }}</bm-dropdown-item>
             <bm-dropdown-item icon="plus-document" @click="saveAsTemplate">{{
                 $t("mail.actions.save_template")
             }}</bm-dropdown-item>
-        </bm-dropdown>
-        <bm-button
-            variant="inline-on-fill-primary"
-            class="btn-lg-simple-neutral"
+        </mail-toolbar-responsive-dropdown>
+        <mail-toolbar-responsive-button
             :aria-label="$tc('mail.actions.remove.compose.aria')"
             :title="$tc('mail.actions.remove.compose.aria')"
             :disabled="isSaving || isSending"
+            icon="trash"
+            :label="$tc('mail.actions.remove')"
             @click="deleteDraft"
-        >
-            <bm-icon icon="trash" size="lg" />
-            <span class="d-none d-lg-block">{{ $tc("mail.actions.remove") }}</span>
-        </bm-button>
-        <bm-dropdown
+        />
+        <mail-toolbar-responsive-dropdown
             ref="other-dropdown"
-            :no-caret="true"
-            variant="simple-neutral"
             :aria-label="$tc('mail.toolbar.more.aria')"
             :title="$tc('mail.toolbar.more.aria')"
+            icon="3dots-v"
+            :label="$t('mail.toolbar.more')"
+            no-caret
             class="other-viewer-actions"
         >
-            <template slot="button-content">
-                <bm-icon icon="3dots" size="lg" />
-                <span class="d-none d-lg-block">{{ $t("mail.toolbar.more") }}</span>
-            </template>
             <bm-dropdown-item :disabled="isSenderShown" @click="showSender">
                 {{ $tc("mail.actions.show_sender", 1) }}
             </bm-dropdown-item>
-        </bm-dropdown>
+        </mail-toolbar-responsive-dropdown>
     </bm-button-group>
 </template>
 
 <script>
 import { mapGetters, mapMutations } from "vuex";
 
-import { BmButton, BmButtonGroup, BmDropdown, BmDropdownItem, BmIcon } from "@bluemind/styleguide";
+import { BmButtonGroup, BmDropdownItem } from "@bluemind/styleguide";
 import { messageUtils } from "@bluemind/mail";
+import MailToolbarResponsiveButton from "./MailToolbarResponsiveButton";
+import MailToolbarResponsiveDropdown from "./MailToolbarResponsiveDropdown";
 import { ComposerActionsMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
 import { IS_SENDER_SHOWN, MY_DRAFTS } from "~/getters";
@@ -107,11 +89,10 @@ const { MessageStatus } = messageUtils;
 export default {
     name: "MailToolbarComposeMessage",
     components: {
-        BmButton,
+        MailToolbarResponsiveButton,
+        MailToolbarResponsiveDropdown,
         BmButtonGroup,
-        BmDropdown,
-        BmDropdownItem,
-        BmIcon
+        BmDropdownItem
     },
     mixins: [AddAttachmentsCommand, ComposerActionsMixin],
     props: {

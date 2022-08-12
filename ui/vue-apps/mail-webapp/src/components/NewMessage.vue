@@ -1,26 +1,27 @@
 <template>
     <mail-open-in-popup-with-shift v-slot="action" :href="{ name: 'mail:popup:message', params: { messagepath } }">
-        <bm-button
-            v-bm-clipping="mobile ? 'hexagon' : undefined"
-            variant="secondary"
-            class="new-message"
-            :class="
-                mobile
-                    ? 'd-lg-none position-absolute new-message-responsive-btn z-index-110'
-                    : 'text-nowrap d-lg-inline-block d-none'
-            "
+        <bm-floating-action-button
+            v-if="mobile"
+            class="new-message d-lg-none"
+            icon="plus"
             :title="action.label()"
             @click="action.execute(openComposer)"
+        />
+        <bm-button
+            v-else
+            variant="contained-accent"
+            class="new-message text-nowrap d-none d-lg-inline-flex"
+            :size="size"
+            :title="action.label()"
+            :icon="action.icon('plus')"
+            @click="action.execute(openComposer)"
         >
-            <bm-icon v-if="mobile" icon="plus" size="lg" />
-            <bm-label-icon v-else :icon="action.icon('plus')">
-                {{ $t("mail.main.new") }}
-            </bm-label-icon>
+            {{ $t("mail.main.new") }}
         </bm-button>
     </mail-open-in-popup-with-shift>
 </template>
 <script>
-import { BmButton, BmClipping, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
+import { BmButton, BmFloatingActionButton } from "@bluemind/styleguide";
 import { mapGetters } from "vuex";
 import { MY_DRAFTS } from "~/getters";
 import { MailRoutesMixin } from "~/mixins";
@@ -30,17 +31,22 @@ export default {
     name: "NewMessage",
     components: {
         BmButton,
-        BmIcon,
-        BmLabelIcon,
+        BmFloatingActionButton,
         MailOpenInPopupWithShift
     },
-    directives: { BmClipping },
     mixins: [MailRoutesMixin],
     props: {
         mobile: {
             type: Boolean,
             required: false,
             default: false
+        },
+        size: {
+            type: String,
+            default: "md",
+            validator: function (value) {
+                return ["md", "lg"].includes(value);
+            }
         }
     },
     computed: {
@@ -59,12 +65,10 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
-.new-message {
-    &.new-message-responsive-btn {
-        bottom: $sp-2;
-        right: $sp-2;
-        height: 4em;
-        width: 4em;
-    }
+.bm-floating-action-button.new-message {
+    position: absolute;
+    bottom: $sp-6;
+    right: $sp-6;
+    z-index: $zindex-fixed;
 }
 </style>

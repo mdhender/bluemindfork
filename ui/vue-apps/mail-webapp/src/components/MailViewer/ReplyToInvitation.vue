@@ -39,30 +39,31 @@
             </div>
             <div v-if="message.eventInfo.needsReply && currentEvent.status" class="mt-3">
                 <bm-button
-                    variant="outline-secondary"
+                    variant="outline-accent"
                     class="mr-2 px-1"
                     :class="currentEvent.status === 'Accepted' ? 'active' : ''"
+                    icon="check"
                     @click="answer('Accepted')"
                 >
-                    <bm-label-icon icon="check" icon-size="sm">{{ $t("common.accept") }}</bm-label-icon>
+                    {{ $t("common.accept") }}
                 </bm-button>
                 <bm-button
-                    variant="outline-secondary"
+                    variant="outline-accent"
                     class="mr-2 px-1"
                     :class="currentEvent.status === 'Tentative' ? 'active' : ''"
+                    icon="interrogation"
                     @click="answer('Tentative')"
                 >
-                    <bm-label-icon icon="interrogation" icon-size="sm">
-                        {{ $t("common.accept.tentatively") }}
-                    </bm-label-icon>
+                    {{ $t("common.accept.tentatively") }}
                 </bm-button>
                 <bm-button
-                    variant="outline-secondary"
+                    variant="outline-accent"
                     class="px-1"
                     :class="currentEvent.status === 'Declined' ? 'active' : ''"
+                    icon="cross"
                     @click="answer('Declined')"
                 >
-                    <bm-label-icon icon="cross" icon-size="sm">{{ $t("common.refuse") }}</bm-label-icon>
+                    {{ $t("common.refuse") }}
                 </bm-button>
             </div>
         </div>
@@ -82,7 +83,7 @@
 <script>
 import { mapActions, mapState } from "vuex";
 
-import { BmButton, BmIcon, BmLabelIcon, BmSkeleton, BmSkeletonButton } from "@bluemind/styleguide";
+import { BmButton, BmIcon, BmSkeleton, BmSkeletonButton } from "@bluemind/styleguide";
 import { loadingStatusUtils } from "@bluemind/mail";
 
 import { SET_EVENT_STATUS } from "~/actions";
@@ -94,7 +95,6 @@ export default {
     components: {
         BmButton,
         BmIcon,
-        BmLabelIcon,
         BmSkeleton,
         BmSkeletonButton
     },

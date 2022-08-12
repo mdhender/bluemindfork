@@ -19,12 +19,8 @@
                 </template>
                 <template #cell(actions)="cell">
                     <div class="d-flex justify-content-end">
-                        <bm-button variant="inline-neutral" @click="editExternalAccount(cell.item)">
-                            <bm-icon icon="pencil" />
-                        </bm-button>
-                        <bm-button variant="inline-neutral" @click="confirmRemove(cell.item)">
-                            <bm-icon icon="trash" />
-                        </bm-button>
+                        <bm-icon-button size="sm" icon="pencil" @click="editExternalAccount(cell.item)" />
+                        <bm-icon-button size="sm" icon="trash" @click="confirmRemove(cell.item)" />
                     </div>
                 </template>
             </bm-table>
@@ -37,14 +33,14 @@
 <script>
 import isEqual from "lodash.isequal";
 import { inject } from "@bluemind/inject";
-import { BmButton, BmIcon, BmPagination, BmTable } from "@bluemind/styleguide";
+import { BmIconButton, BmPagination, BmTable } from "@bluemind/styleguide";
 import CentralizedSaving from "../../../mixins/CentralizedSaving";
 import PrefExtAccountModal from "./PrefExtAccountModal";
 import { mapState } from "vuex";
 
 export default {
     name: "PrefExtAccountList",
-    components: { BmButton, BmIcon, BmPagination, BmTable, PrefExtAccountModal },
+    components: { BmIconButton, BmPagination, BmTable, PrefExtAccountModal },
     mixins: [CentralizedSaving],
     data() {
         return {

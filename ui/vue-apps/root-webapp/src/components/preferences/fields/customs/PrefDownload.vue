@@ -5,7 +5,7 @@
             <div class="d-flex flex-column justify-content-between">
                 {{ download.description }}
                 <div class="d-inline-flex pt-1">
-                    <bm-button variant="outline-secondary" :href="download.url" :aria-label="download.description">{{
+                    <bm-button variant="outline-accent" :href="download.url" :aria-label="download.description">{{
                         $t("common.download")
                     }}</bm-button>
                 </div>

@@ -28,23 +28,21 @@
             </div>
             <div class="align-self-center">
                 <template v-if="!(displayedRecipientFields & recipientModes.CC)">
-                    <bm-button variant="simple-neutral" @click="displayedRecipientFields |= recipientModes.CC">
+                    <bm-button variant="text" @click="displayedRecipientFields |= recipientModes.CC">
                         {{ $t("common.cc") }}
                     </bm-button>
-                    <bm-button variant="simple-neutral" @click="displayedRecipientFields |= recipientModes.BCC">
+                    <bm-button variant="text" @click="displayedRecipientFields |= recipientModes.BCC">
                         {{ $t("common.bcc") }}
                     </bm-button>
                 </template>
                 <mail-open-in-popup-with-shift v-slot="action" :href="route" :next="consult">
-                    <bm-button
-                        variant="simple-neutral"
+                    <bm-icon-button
+                        variant="compact"
                         :title="action.label($t('mail.actions.extend'))"
                         :disabled="anyAttachmentInError"
+                        :icon="action.icon('extend')"
                         @click="saveAsap().then(() => action.execute(() => $router.navigate(route), $event))"
-                    >
-                        <bm-icon :icon="action.icon('extend')" />
-                        <span class="d-lg-none">{{ $t("mail.actions.extend") }}</span>
-                    </bm-button>
+                    />
                 </mail-open-in-popup-with-shift>
             </div>
         </template>
@@ -66,7 +64,7 @@
                     </bm-contact-input>
                     <bm-button
                         v-if="!(displayedRecipientFields & recipientModes.BCC)"
-                        variant="simple-neutral"
+                        variant="text"
                         @click="displayedRecipientFields |= recipientModes.BCC"
                     >
                         {{ $t("common.bcc") }}
@@ -132,7 +130,7 @@
 
 <script>
 import { mapMutations, mapState } from "vuex";
-import { BmButton, BmContactInput, BmIcon } from "@bluemind/styleguide";
+import { BmButton, BmContactInput, BmIconButton } from "@bluemind/styleguide";
 import { messageUtils } from "@bluemind/mail";
 import { ComposerActionsMixin, ComposerInitMixin, ComposerMixin, EditRecipientsMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
@@ -155,7 +153,7 @@ export default {
     components: {
         BmButton,
         BmContactInput,
-        BmIcon,
+        BmIconButton,
         MailComposerAttachments,
         MailComposerContent,
         MailComposerFooter,

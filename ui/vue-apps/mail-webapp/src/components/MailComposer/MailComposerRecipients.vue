@@ -15,12 +15,11 @@
                 </bm-contact-input>
             </bm-col>
             <bm-col v-if="displayedRecipientFields == recipientModes.TO" cols="1" class="text-center">
-                <bm-button
-                    variant="simple-neutral"
+                <bm-icon-button
+                    variant="compact"
+                    icon="chevron"
                     @click="displayedRecipientFields = recipientModes.TO | recipientModes.CC | recipientModes.BCC"
-                >
-                    <bm-icon icon="chevron" />
-                </bm-button>
+                />
             </bm-col>
         </bm-row>
         <hr class="m-0" />
@@ -44,11 +43,10 @@
                 class="text-center"
             >
                 <bm-button
-                    variant="simple-neutral"
-                    class="my-2 mr-1"
+                    variant="text"
+                    class="my-2 mr-1 px-4 text-nowrap"
                     @click="displayedRecipientFields = recipientModes.TO | recipientModes.CC | recipientModes.BCC"
-                >
-                    <span class="text-nowrap">{{ $t("common.bcc") }}</span>
+                    >{{ $t("common.bcc") }}
                 </bm-button>
             </bm-col>
         </bm-row>
@@ -78,16 +76,16 @@
 </template>
 
 <script>
-import { BmButton, BmCol, BmContactInput, BmIcon, BmRow } from "@bluemind/styleguide";
+import { BmButton, BmIconButton, BmCol, BmContactInput, BmRow } from "@bluemind/styleguide";
 import { ComposerActionsMixin, EditRecipientsMixin } from "~/mixins";
 
 export default {
     name: "MailComposerRecipients",
     components: {
         BmButton,
+        BmIconButton,
         BmCol,
         BmContactInput,
-        BmIcon,
         BmRow
     },
     mixins: [ComposerActionsMixin, EditRecipientsMixin]

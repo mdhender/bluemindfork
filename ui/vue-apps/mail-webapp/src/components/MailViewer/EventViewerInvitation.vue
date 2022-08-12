@@ -27,9 +27,7 @@
             <div class="font-weight-bold">
                 <bm-label-icon icon="video">{{ $t("common.videoconference") }}</bm-label-icon>
                 <a ref="conference" :href="currentEvent.conference" target="_blank">{{ currentEvent.conference }}</a>
-                <bm-button variant="inline" @click="copy">
-                    <bm-icon icon="copy" />
-                </bm-button>
+                <bm-icon-button variant="compact" size="sm" icon="copy" @click="copy" />
             </div>
             <hr />
         </template>
@@ -62,7 +60,7 @@
 </template>
 <script>
 import { mapState } from "vuex";
-import { BmButton, BmLabelIcon, BmIcon } from "@bluemind/styleguide";
+import { BmIconButton, BmLabelIcon } from "@bluemind/styleguide";
 import { loadingStatusUtils } from "@bluemind/mail";
 import MailViewerContentLoading from "./MailViewerContentLoading";
 
@@ -71,9 +69,8 @@ const { LoadingStatus } = loadingStatusUtils;
 export default {
     name: "EventViewerInvitation",
     components: {
-        BmButton,
+        BmIconButton,
         BmLabelIcon,
-        BmIcon,
         MailViewerContentLoading
     },
     props: {

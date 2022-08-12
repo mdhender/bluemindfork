@@ -1,65 +1,69 @@
 <template>
     <bm-button-toolbar key-nav class="mail-viewer-toolbar bg-surface">
-        <bm-dropdown
-            :no-caret="true"
-            variant="simple-neutral"
+        <bm-icon-dropdown
+            variant="compact"
+            size="lg"
+            icon="3dots-v"
+            no-caret
             class="mail-viewer-toolbar-for-mobile d-flex justify-content-end"
             :aria-label="$tc('mail.toolbar.more.aria')"
             :title="$tc('mail.toolbar.more.aria')"
             v-on="$listeners"
         >
-            <template slot="button-content">
-                <bm-icon class="text-secondary" icon="3dots" size="lg" />
-            </template>
-            <bm-dropdown-item-button @click="initReplyOrForward(MessageCreationModes.REPLY, message)">
-                <bm-icon icon="reply" size="lg" />
-                <span class="pl-1">{{ $t("mail.content.reply.aria") }}</span>
+            <bm-dropdown-item-button icon="reply" @click="initReplyOrForward(MessageCreationModes.REPLY, message)">
+                {{ $t("mail.content.reply.aria") }}
             </bm-dropdown-item-button>
             <bm-dropdown-divider />
-            <bm-dropdown-item-button @click="initReplyOrForward(MessageCreationModes.REPLY_ALL, message)">
-                <bm-icon icon="reply-all" size="lg" />
-                <span class="pl-1">{{ $t("mail.content.reply_all.aria") }}</span>
+            <bm-dropdown-item-button
+                icon="reply-all"
+                @click="initReplyOrForward(MessageCreationModes.REPLY_ALL, message)"
+            >
+                {{ $t("mail.content.reply_all.aria") }}
             </bm-dropdown-item-button>
             <bm-dropdown-divider />
-            <bm-dropdown-item-button @click="initReplyOrForward(MessageCreationModes.FORWARD, message)">
-                <bm-icon icon="forward" size="lg" />
-                <span class="pl-1">{{ $t("common.forward") }}</span>
+            <bm-dropdown-item-button icon="forward" @click="initReplyOrForward(MessageCreationModes.FORWARD, message)">
+                {{ $t("common.forward") }}
             </bm-dropdown-item-button>
             <bm-dropdown-divider />
             <bm-dropdown-item-button
                 v-if="message.flags && !message.flags.includes(Flag.SEEN)"
+                icon="read"
                 @click="MARK_MESSAGE_AS_READ(message)"
             >
-                <bm-icon icon="read" size="lg" />
-                <span class="pl-1">{{ $tc("mail.actions.mark_as_read", 1) }}</span>
+                {{ $tc("mail.actions.mark_as_read", 1) }}
             </bm-dropdown-item-button>
-            <bm-dropdown-item-button v-else @click="MARK_MESSAGE_AS_UNREAD(message)">
-                <bm-icon icon="unread" size="lg" />
-                <span class="pl-1">{{ $tc("mail.actions.mark_as_unread", 1) }}</span>
+            <bm-dropdown-item-button v-else icon="unread" @click="MARK_MESSAGE_AS_UNREAD(message)">
+                {{ $tc("mail.actions.mark_as_unread", 1) }}
             </bm-dropdown-item-button>
             <bm-dropdown-divider />
             <bm-dropdown-item-button
                 v-if="message.flags && !message.flags.includes(Flag.FLAGGED)"
+                icon="flag-outline"
                 @click.prevent.stop="MARK_MESSAGE_AS_FLAGGED(message)"
             >
-                <bm-icon icon="flag-outline" size="lg" />
-                <span class="pl-1">{{ $t("mail.actions.mark_flagged") }}</span>
+                {{ $t("mail.actions.mark_flagged") }}
             </bm-dropdown-item-button>
-            <bm-dropdown-item-button v-else @click.prevent.stop="MARK_MESSAGE_AS_UNFLAGGED(message)">
-                <bm-icon icon="flag-fill" size="lg" class="text-warning" />
-                <span class="pl-1">{{ $t("mail.actions.mark_unflagged") }}</span>
+            <bm-dropdown-item-button
+                v-else
+                icon="flag-fill"
+                class="flag-fill"
+                @click.prevent.stop="MARK_MESSAGE_AS_UNFLAGGED(message)"
+            >
+                {{ $t("mail.actions.mark_unflagged") }}
             </bm-dropdown-item-button>
             <bm-dropdown-divider />
-            <bm-dropdown-item-button @click.exact.prevent.stop="MOVE_MESSAGES_TO_TRASH(conversation, message)">
-                <bm-icon icon="trash" size="lg" />
-                <span class="pl-1">{{ $t("mail.actions.remove") }}</span>
+            <bm-dropdown-item-button
+                icon="trash"
+                @click.exact.prevent.stop="MOVE_MESSAGES_TO_TRASH(conversation, message)"
+            >
+                {{ $t("mail.actions.remove") }}
             </bm-dropdown-item-button>
-        </bm-dropdown>
+        </bm-icon-dropdown>
     </bm-button-toolbar>
 </template>
 
 <script>
-import { BmButtonToolbar, BmDropdown, BmDropdownDivider, BmDropdownItemButton, BmIcon } from "@bluemind/styleguide";
+import { BmButtonToolbar, BmIconDropdown, BmDropdownDivider, BmDropdownItemButton } from "@bluemind/styleguide";
 import { mapActions } from "vuex";
 import { Flag } from "@bluemind/email";
 import {
@@ -77,10 +81,9 @@ export default {
     name: "MailViewerToolbarForMobile",
     components: {
         BmButtonToolbar,
-        BmDropdown,
+        BmIconDropdown,
         BmDropdownDivider,
-        BmDropdownItemButton,
-        BmIcon
+        BmDropdownItemButton
     },
     mixins: [RemoveMixin, ComposerInitMixin],
     props: {
@@ -126,6 +129,9 @@ export default {
         transform: none !important;
         right: 0px !important;
         line-height: 2;
+    }
+    .b-dropdown-item-button.flag-fill .bm-icon {
+        color: $warning-fg;
     }
 }
 </style>

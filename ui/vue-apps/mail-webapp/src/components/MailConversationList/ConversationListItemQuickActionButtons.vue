@@ -1,72 +1,61 @@
 <template>
     <bm-button-group>
         <template v-if="folder.writable">
-            <bm-button
+            <bm-icon-button
                 :aria-label="removeAriaText(1, subject)"
                 :title="removeAriaText(1, subject)"
-                class="p-1 mr-2 btn-no-hover-bg"
-                variant="inline-neutral"
+                variant="compact"
+                icon="trash"
                 @click.shift.exact.prevent.stop="REMOVE_CONVERSATIONS([conversation])"
                 @click.exact.prevent.stop="MOVE_CONVERSATIONS_TO_TRASH([conversation])"
-            >
-                <bm-icon icon="trash" />
-            </bm-button>
-            <bm-button
+            />
+            <bm-icon-button
                 v-if="isTemplate"
-                class="p-1 btn-no-hover-bg"
                 :aria-label="$tc('mail.actions.edit_from_template.aria')"
                 :title="$tc('mail.actions.edit_from_template.aria')"
-                variant="inline-neutral"
+                variant="compact"
+                icon="plus-enveloppe"
                 @click.prevent.stop="editFromTemplate(conversation)"
-            >
-                <bm-icon icon="plus-enveloppe" />
-            </bm-button>
-            <bm-button
+            />
+            <bm-icon-button
                 v-else-if="showMarkAsRead"
-                class="p-1 btn-no-hover-bg"
                 :aria-label="markAsReadAriaText(1, subject)"
                 :title="markAsReadAriaText(1, subject)"
-                variant="inline-neutral"
+                variant="compact"
+                icon="read"
                 @click.prevent.stop="markAsRead(conversation)"
-            >
-                <bm-icon icon="read" />
-            </bm-button>
-            <bm-button
+            />
+            <bm-icon-button
                 v-else
-                class="p-1 btn-no-hover-bg"
                 :aria-label="markAsUnreadAriaText(1, subject)"
                 :title="markAsUnreadAriaText(1, subject)"
-                variant="inline-neutral"
+                variant="compact"
+                icon="unread"
                 @click.prevent.stop="markAsUnread(conversation)"
-            >
-                <bm-icon icon="unread" />
-            </bm-button>
-            <bm-button
+            />
+            <bm-icon-button
                 v-if="showMarkAsFlagged"
-                class="p-1 ml-2 btn-no-hover-bg"
                 :aria-label="markAsFlaggedAriaText(1, subject)"
                 :title="markAsFlaggedAriaText(1, subject)"
-                variant="inline-neutral"
+                variant="compact"
+                icon="flag-outline"
                 @click.prevent.stop="markAsFlagged(conversation)"
-            >
-                <bm-icon icon="flag-outline" />
-            </bm-button>
-            <bm-button
+            />
+            <bm-icon-button
                 v-else
-                class="p-1 ml-2 btn-no-hover-bg"
                 :aria-label="markAsUnflaggedAriaText(1, subject)"
                 :title="markAsUnflaggedAriaText(1, subject)"
-                variant="inline-neutral"
+                variant="compact"
+                icon="flag-fill"
+                class="text-warning"
                 @click.prevent.stop="markAsUnflagged(conversation)"
-            >
-                <bm-icon class="text-warning" icon="flag-fill" />
-            </bm-button>
+            />
         </template>
     </bm-button-group>
 </template>
 
 <script>
-import { BmButtonGroup, BmButton, BmIcon } from "@bluemind/styleguide";
+import { BmButtonGroup, BmIconButton } from "@bluemind/styleguide";
 import { mapState, mapGetters } from "vuex";
 import { messageUtils } from "@bluemind/mail";
 import { ActionTextMixin, FlagMixin, RemoveMixin, MailRoutesMixin } from "~/mixins";
@@ -79,8 +68,7 @@ export default {
     name: "ConversationListItemQuickActionButtons",
     components: {
         BmButtonGroup,
-        BmButton,
-        BmIcon
+        BmIconButton
     },
     mixins: [ActionTextMixin, FlagMixin, RemoveMixin, MailRoutesMixin],
     props: {

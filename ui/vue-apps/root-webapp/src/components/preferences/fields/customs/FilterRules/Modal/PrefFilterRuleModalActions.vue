@@ -28,13 +28,12 @@
                         :action="action"
                     />
                 </div>
-                <bm-button-close class="col-1" @click="removeAction(index)" />
+                <bm-icon-button variant="compact" icon="cross" @click="removeAction(index)" />
             </div>
         </template>
         <bm-button
             v-if="!filter.actions || !filter.actions.some(c => c.isNew)"
-            class="pl-0"
-            variant="inline-secondary"
+            variant="text-accent"
             @click="addNewAction"
         >
             {{ $t("preferences.mail.filters.modal.actions.add") }}
@@ -44,11 +43,11 @@
 
 <script>
 import { all as allActions, resolve as resolveAction } from "../Actions/actionResolver.js";
-import { BmButton, BmButtonClose, BmFormGroup, BmFormSelect } from "@bluemind/styleguide";
+import { BmButton, BmIconButton, BmFormGroup, BmFormSelect } from "@bluemind/styleguide";
 
 export default {
     name: "PrefFilterRuleModalActions",
-    components: { BmButton, BmButtonClose, BmFormGroup, BmFormSelect },
+    components: { BmButton, BmIconButton, BmFormGroup, BmFormSelect },
     props: {
         filter: {
             type: Object,

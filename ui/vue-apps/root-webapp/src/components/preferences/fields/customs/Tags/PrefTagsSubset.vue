@@ -1,13 +1,11 @@
 <template>
     <div class="pref-tags-subset">
         <span :class="{ disabled: tags.length === 0 }">{{ title }}</span>
-        <bm-button variant="inline-neutral" size="lg" :disabled="tags.length === 0" @click="showTable_ = !showTable_">
-            <bm-icon :icon="showTable ? 'chevron' : 'chevron-right'" />
-        </bm-button>
+
+        <bm-button-expand :disabled="tags.length === 0" :expanded="showTable" @click="showTable_ = !showTable_" />
         <pref-tags-table v-if="showTable" class="pref-item-width" :tags="tags" v-on="$listeners" />
         <div v-if="editable" class="d-flex justify-content-end pref-item-width">
-            <bm-button variant="outline-neutral" @click="$emit('edit', {})">
-                <bm-icon icon="plus" class="mr-1" />
+            <bm-button variant="outline" size="lg" icon="plus" @click="$emit('edit', {})">
                 {{ $t("preferences.general.tags.create") }}
             </bm-button>
         </div>
@@ -15,12 +13,12 @@
 </template>
 
 <script>
-import { BmButton, BmIcon } from "@bluemind/styleguide";
+import { BmButton, BmButtonExpand } from "@bluemind/styleguide";
 import PrefTagsTable from "./PrefTagsTable";
 
 export default {
     name: "PrefTagsSubset",
-    components: { BmButton, BmIcon, PrefTagsTable },
+    components: { BmButton, BmButtonExpand, PrefTagsTable },
     props: {
         title: {
             type: String,

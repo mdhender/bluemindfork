@@ -1,5 +1,5 @@
 <template>
-    <bm-contextual-menu>
+    <bm-icon-dropdown size="sm" icon="3dots-v" no-caret lazy>
         <bm-dropdown-item-button
             icon="pencil"
             :disabled="container.defaultContainer && !isCalendarType"
@@ -27,16 +27,16 @@
         >
             {{ $t("common.start_synchronization") }}
         </bm-dropdown-item-button>
-    </bm-contextual-menu>
+    </bm-icon-dropdown>
 </template>
 
 <script>
 import { ContainerType } from "./container";
-import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
+import { BmIconDropdown, BmDropdownItemButton } from "@bluemind/styleguide";
 
 export default {
     name: "ManageMyContainerMenu",
-    components: { BmContextualMenu, BmDropdownItemButton },
+    components: { BmIconDropdown, BmDropdownItemButton },
     props: {
         container: {
             type: Object,

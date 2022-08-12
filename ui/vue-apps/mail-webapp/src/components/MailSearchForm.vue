@@ -18,11 +18,11 @@
             <bm-button
                 ref="toggleButton"
                 :title="$t('common.searchAdvanced')"
-                class="toggle-button no-border-left no-box-shadow text-truncate"
-                variant="outline-neutral"
+                class="toggle-button text-truncate"
+                variant="text"
                 @click="showForm = !showForm"
             >
-                {{ compressFolderFullName(selectedFolder) }}<bm-icon class="ml-2" icon="caret-down" size="xs" />
+                {{ compressFolderFullName(selectedFolder) }}<bm-icon class="ml-3" icon="caret-down" size="xs" />
             </bm-button>
         </div>
         <bm-collapse
@@ -37,11 +37,7 @@
                 @reset.prevent="setSelectedFolder(initialFolder)"
                 @drag.stop
             >
-                <div class="d-lg-none">
-                    <bm-button variant="inline-neutral" size="lg" @click="close">
-                        <bm-icon icon="arrow-back" />
-                    </bm-button>
-                </div>
+                <bm-icon-button class="d-lg-none" variant="compact" size="lg" icon="arrow-back" @click="close" />
                 <bm-form-group
                     class="pr-0 mr-0"
                     label-cols-lg="3"
@@ -71,10 +67,10 @@
                     </bm-combo-box>
                 </bm-form-group>
                 <div class="d-flex flex-grow-1 align-items-end justify-content-end">
-                    <bm-button type="submit" variant="secondary" :disabled="!pattern">{{
+                    <bm-button type="submit" variant="contained-accent" :disabled="!pattern">{{
                         $t("common.action.search")
                     }}</bm-button>
-                    <bm-button type="reset" variant="inline-neutral" class="ml-2">
+                    <bm-button type="reset" variant="text" class="ml-4">
                         {{ $t("common.action.reset") }}
                     </bm-button>
                 </div>
@@ -283,14 +279,6 @@ export default {
     }
 
     .toggle-button {
-        &.no-border-left {
-            border-left: none;
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
-        }
-        &.no-box-shadow {
-            box-shadow: none;
-        }
         max-width: 50%;
     }
 

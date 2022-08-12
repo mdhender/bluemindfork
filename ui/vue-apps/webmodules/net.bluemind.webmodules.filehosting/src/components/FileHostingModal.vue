@@ -46,7 +46,12 @@
                         >
                             {{ $t("mail.filehosting.import.failed") }}
                         </bm-label-icon>
-                        <bm-button-close v-else-if="hasNotLoadedStatus(file)" class="ml-2" @click="cancel(file.key)" />
+                        <bm-button-close
+                            v-else-if="hasNotLoadedStatus(file)"
+                            size="sm"
+                            class="ml-2"
+                            @click="cancel(file.key)"
+                        />
                         <span v-else class="text-neutral ml-2 text-nowrap">
                             {{ $t("mail.filehosting.import.successful") }}
                         </span>
@@ -55,10 +60,10 @@
             </div>
         </div>
         <template #modal-footer>
-            <bm-button variant="simple-inline" :disabled="!isUploading" @click="cancelAll">
+            <bm-button variant="text" :disabled="!isUploading" @click="cancelAll">
                 {{ $t("mail.filehosting.share.stop") }}
             </bm-button>
-            <bm-button variant="outline-secondary" @click="hideModal">
+            <bm-button variant="outline-accent" @click="hideModal">
                 {{ isUploading ? $t("common.hide") : $t("common.done") }}
             </bm-button>
         </template>
@@ -67,7 +72,7 @@
 <script>
 import { mapGetters } from "vuex";
 import global from "@bluemind/global";
-import { BmModal, BmButtonClose, BmButton, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
+import { BmModal, BmButton, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
 import { fileUtils } from "@bluemind/mail";
 import DetachmentItem from "./DetachmentItem";
@@ -76,7 +81,7 @@ const { FileStatus, isUploading } = fileUtils;
 
 export default {
     name: "FileHostingModal",
-    components: { BmModal, BmButtonClose, BmButton, BmIcon, DetachmentItem, BmLabelIcon },
+    components: { BmModal, BmButtonClose, BmButton, BmIcon, FhAttachmentItem, BmLabelIcon },
     props: {
         sizeLimit: {
             type: Number,
