@@ -21,12 +21,12 @@ import java.io.File;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.authentication.api.ISecurityToken;
 import net.bluemind.backend.mail.replica.indexing.IDSet;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.report.DiagnosticReport;
@@ -61,16 +61,12 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 	public static final class WalkResult implements AutoCloseable {
 		private final StoreClient sc;
 		private final List<ListInfo> folders;
-		private final ISecurityToken securityToken;
-		private boolean upgradedToken = false;
-		public final Sudo sudo;
+		public final Supplier<Sudo> sudo;
 
-		public WalkResult(StoreClient sc, Sudo sudo) {
+		public WalkResult(StoreClient sc, Supplier<Sudo> sudo) {
 			this.sc = sc;
 			this.sudo = sudo;
 			this.folders = new LinkedList<>();
-			this.securityToken = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(ISecurityToken.class, sudo.context.getSessionId());
 		}
 
 		public boolean add(ListInfo folder) {
@@ -83,16 +79,8 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 			return true;
 		}
 
-		public void upgradeToken() {
-			securityToken.upgrade();
-			upgradedToken = true;
-		}
-
 		public void close() {
 			sc.close();
-			if (upgradedToken) {
-				securityToken.destroy();
-			}
 		}
 	}
 
@@ -109,15 +97,18 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 
 		public WalkResult folders() {
 			String login = mailbox.value.name + "@" + domainUid;
-			Sudo sudo = new Sudo(mailbox.value.name, domainUid);
-			StoreClient sc = new StoreClient(srv.address(), 1143, login, sudo.context.getSessionId());
-			WalkResult wr = new WalkResult(sc, sudo);
-			if (!sc.login()) {
-				logger.error("Unable to login as {} on {}", login, mailbox.value.name);
-			} else {
-				sc.listAll().stream().forEach(wr::add);
+			try (Sudo sudo = new Sudo(mailbox.value.name, domainUid);
+					StoreClient sc = new StoreClient(srv.address(), 1143, login, sudo.context.getSessionId())) {
+				WalkResult wr = new WalkResult(sc, () -> new Sudo(mailbox.value.name, domainUid));
+
+				if (!sc.login()) {
+					logger.error("Unable to login as {} on {}", login, mailbox.value.name);
+				} else {
+					sc.listAll().stream().forEach(wr::add);
+				}
+
+				return wr;
 			}
-			return wr;
 		}
 	}
 
@@ -178,7 +169,6 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 				IServerTaskMonitor foldersMonitor = monitor.subWork("folders", wr.folders.size());
 				foldersMonitor.begin(wr.folders.size(),
 						"Mailbox " + mailbox.displayName + ": found " + wr.folders.size() + " folders");
-				wr.upgradeToken();
 				for (ListInfo f : wr.folders) {
 					foldersMonitor.progress(1, "Promote folder " + f.getName());
 					logger.info("Promote folder {}", f.getName());
@@ -229,8 +219,10 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 			Collection<Summary> imapSummaries) {
 		List<Promote> toPromote = imapSummaries.stream().map(s -> summaryToPromote(s, folder, mailbox.uid))
 				.collect(Collectors.toList());
-		final SecurityContext hsmcontext = wr.sudo.context;
-		ServerSideServiceProvider.getProvider(hsmcontext).instance(IHSM.class, domainUid).promoteMultiple(toPromote);
+		try (Sudo sudo = wr.sudo.get()) {
+			ServerSideServiceProvider.getProvider(sudo.context).instance(IHSM.class, domainUid)
+					.promoteMultiple(toPromote);
+		}
 	}
 
 	private Promote summaryToPromote(Summary sum, ListInfo folder, String mailboxUid) {
@@ -243,5 +235,4 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 		promote.flags = sum.getFlags().asTags();
 		return promote;
 	}
-
 }

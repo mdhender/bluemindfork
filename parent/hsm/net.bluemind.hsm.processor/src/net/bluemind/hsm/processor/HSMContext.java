@@ -38,6 +38,10 @@ import net.bluemind.node.api.NodeActivator;
 import net.bluemind.user.api.IUserSettings;
 
 public class HSMContext {
+	@SuppressWarnings("serial")
+	public class IMAPLoginException extends ServerFault {
+	}
+
 	private SecurityContext context;
 	private HSMLoginContext loginContext;
 	private IHSMStorage storage;
@@ -91,7 +95,7 @@ public class HSMContext {
 				loginContext.login + "@" + context.getContainerUid(), context.getSessionId());
 
 		if (!ret.login()) {
-			throw new IMAPException("Fail to login");
+			throw new IMAPLoginException();
 		}
 
 		if (!ret.select(folder)) {

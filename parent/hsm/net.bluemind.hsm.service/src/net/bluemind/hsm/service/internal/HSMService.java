@@ -50,6 +50,7 @@ import net.bluemind.hsm.api.Promote;
 import net.bluemind.hsm.api.TierChangeResult;
 import net.bluemind.hsm.processor.HSMContext;
 import net.bluemind.hsm.processor.HSMContext.HSMLoginContext;
+import net.bluemind.hsm.processor.HSMContext.IMAPLoginException;
 import net.bluemind.hsm.processor.HSMRunStats;
 import net.bluemind.hsm.processor.commands.PromoteCommand;
 import net.bluemind.hsm.storage.IHSMStorage;
@@ -145,9 +146,12 @@ public class HSMService implements IHSM {
 
 		toPromote.asMap().forEach((folder, items) -> {
 			ArrayDeque<Promote> asQueue = new ArrayDeque<>(items);
+
 			while (!asQueue.isEmpty()) {
 				try {
 					ret.addAll(promote(context, folder, asQueue));
+				} catch (IMAPLoginException ile) {
+					throw ile;
 				} catch (ServerFault e) {
 					logger.error(e.getMessage(), e);
 				}
