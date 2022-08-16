@@ -119,9 +119,18 @@ public class ClientProxyGenerator<S, T> {
 					List<PathComponent> pathComponents = parsePathCompenents(method.path);
 					PatternBinding binding = new PatternBinding(pathComponents);
 
+					ResponseCodec<?> retCodec = DefaultResponseCodecs
+							.codec(method.interfaceMethod.getGenericReturnType(), method.produces[0]);
+
+					if (method.interfaceMethod.getGenericReturnType().getTypeName()
+							.equals("net.bluemind.core.container.model.ItemValue<T>")) {
+						if (method.genericType != null) {
+							retCodec = DefaultResponseCodecs.codec(method.genericType, method.produces[0]);
+						}
+					}
+
 					MethodCallBuilder callBuilder = new MethodCallBuilder(method.httpMethodName, params, binding,
-							method.produces, DefaultResponseCodecs.codec(method.interfaceMethod.getGenericReturnType(),
-									method.produces[0]));
+							method.produces, retCodec);
 
 					this.methodsMap.put(method.getApiInterfaceName(), new EventMethodInvoker(callBuilder));
 					break;
@@ -403,7 +412,8 @@ public class ClientProxyGenerator<S, T> {
 		}
 
 		public Object parseResponse(RestResponse resp) throws Exception {
-			return responseCodec.decode(resp);
+			Object decode = responseCodec.decode(resp);
+			return decode;
 		}
 	}
 

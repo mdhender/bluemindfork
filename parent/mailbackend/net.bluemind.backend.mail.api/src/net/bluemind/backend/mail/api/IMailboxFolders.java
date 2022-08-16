@@ -18,7 +18,6 @@
 package net.bluemind.backend.mail.api;
 
 import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -31,7 +30,6 @@ import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.api.IReadByIdSupport;
 import net.bluemind.core.container.model.ItemIdentifier;
-import net.bluemind.core.container.model.ItemValue;
 
 /**
  * API to access the hierarchy of a user or shared mailbox.
@@ -56,13 +54,9 @@ import net.bluemind.core.container.model.ItemValue;
  * This API is tied to a container of {@link MailboxFolder} with a changelog.
  *
  */
-@BMApi(version = "3")
+@BMApi(version = "3", genericType = MailboxFolder.class)
 @Path("/mail_folders/{partition}/{mailboxRoot}")
 public interface IMailboxFolders extends IBaseMailboxFolders, IReadByIdSupport<MailboxFolder> {
-
-	@GET
-	@Path("{id}/completeById")
-	ItemValue<MailboxFolder> getCompleteById(@PathParam("id") long id);
 
 	@POST
 	@Path("id/{id}")

@@ -30,7 +30,6 @@ import javax.ws.rs.PathParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
 import net.bluemind.core.container.api.ICrudByIdSupport;
@@ -39,7 +38,6 @@ import net.bluemind.core.container.api.IRestoreCrudSupport;
 import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.model.SortDescriptor;
 
 /**
  * 
@@ -48,7 +46,7 @@ import net.bluemind.core.container.model.SortDescriptor;
  * lookup all containers of specific type.
  * 
  */
-@BMApi(version = "3")
+@BMApi(version = "3", genericType = VNote.class)
 @Path("/notes/{containerUid}")
 public interface INote extends IChangelogSupport, ICountingSupport, ICrudByIdSupport<VNote>, ISortingSupport,
 		IDataShardSupport, IRestoreCrudSupport<VNote> {
@@ -109,18 +107,6 @@ public interface INote extends IChangelogSupport, ICountingSupport, ICrudByIdSup
 	public List<ItemValue<VNote>> multipleGet(List<String> uids) throws ServerFault;
 
 	/**
-	 * Fetch multiple {@link VNote}s by their unique IDs
-	 * 
-	 * @param ids list of unique IDs
-	 * @return list of {@link net.bluemind.core.container.model.ItemValue}s
-	 *         containing {@link VNote}s
-	 * @throws ServerFault common error object
-	 */
-	@POST
-	@Path("_mgetById")
-	public List<ItemValue<VNote>> multipleGetById(List<Long> ids) throws ServerFault;
-
-	/**
 	 * Delete a {@link VNote}
 	 * 
 	 * @param uid unique UID
@@ -151,53 +137,6 @@ public interface INote extends IChangelogSupport, ICountingSupport, ICrudByIdSup
 	public ContainerUpdatesResult updates(VNoteChanges changes) throws ServerFault;
 
 	/**
-	 * Get {@link net.bluemind.core.container.model.ItemValue} containing a
-	 * {@link VNote} by its internal id
-	 * 
-	 * @param id internal id
-	 * @return Matching {@link net.bluemind.core.container.model.ItemValue}
-	 *         containing a {@link VNote}
-	 */
-	@GET
-	@Path("{id}/completeById")
-	ItemValue<VNote> getCompleteById(@PathParam("id") long id);
-
-	/**
-	 * Update a {@link VNote}
-	 * 
-	 * @param id    internal id
-	 * @param value {@link VNote}
-	 * 
-	 * @return {@link net.bluemind.core.container.api.Ack} containing the new
-	 *         version number
-	 */
-	@POST
-	@Path("id/{id}")
-	Ack updateById(@PathParam("id") long id, VNote value);
-
-	/**
-	 * Create a {@link VNote}
-	 * 
-	 * @param id    internal id
-	 * @param value {@link VNote}
-	 * 
-	 * @return {@link net.bluemind.core.container.api.Ack} containing the new
-	 *         version number
-	 */
-	@PUT
-	@Path("id/{id}")
-	Ack createById(@PathParam("id") long id, VNote value);
-
-	/**
-	 * Delete a {@link VNote}
-	 * 
-	 * @param id internal id
-	 */
-	@DELETE
-	@Path("id/{id}")
-	void deleteById(@PathParam("id") long id);
-
-	/**
 	 * Retrieve all {@link VNote} UIDs of this user
 	 * 
 	 * @return List of UIDs
@@ -206,17 +145,6 @@ public interface INote extends IChangelogSupport, ICountingSupport, ICrudByIdSup
 	@GET
 	@Path("_all")
 	List<String> allUids() throws ServerFault;
-
-	/**
-	 * Get a sorted list (IDs according to the sorted list of items) of internal IDs
-	 * 
-	 * @param {@link net.bluemind.core.container.model.SortDescriptor}
-	 * @return List of internal IDs
-	 * @throws ServerFault common error object
-	 */
-	@POST
-	@Path("_sorted")
-	public List<Long> sortedIds(SortDescriptor sorted) throws ServerFault;
 
 	/**
 	 * Search {@link VNote}'s by {@link VNoteQuery}

@@ -19,6 +19,7 @@
 package net.bluemind.core.rest.model;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 public final class RestServiceApiDescriptor {
 
@@ -38,13 +39,16 @@ public final class RestServiceApiDescriptor {
 		public final Method interfaceMethod;
 		public final String[] roles;
 		public final String[] produces;
+		public final Type genericType;
 
-		public MethodDescriptor(String httpMethodName, String path, Method method, String[] roles, String[] produces) {
+		public MethodDescriptor(String httpMethodName, String path, Method method, String[] roles, String[] produces,
+				Type genericType) {
 			this.httpMethodName = httpMethodName;
 			this.path = path;
 			this.interfaceMethod = method;
 			this.roles = roles;
 			this.produces = produces;
+			this.genericType = genericType;
 		}
 
 		public String getApiInterfaceName() {

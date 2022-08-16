@@ -31,7 +31,6 @@ import javax.ws.rs.QueryParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
 import net.bluemind.core.container.api.ICrudByIdSupport;
@@ -41,7 +40,6 @@ import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.model.SortDescriptor;
 
 /**
  * 
@@ -51,7 +49,7 @@ import net.bluemind.core.container.model.SortDescriptor;
  * containers of specific type.
  * 
  */
-@BMApi(version = "3")
+@BMApi(version = "3", genericType = VTodo.class)
 @Path("/todolist/{containerUid}")
 public interface ITodoList extends IChangelogSupport, ICountingSupport, ICrudByIdSupport<VTodo>, ISortingSupport,
 		IDataShardSupport, IRestoreCrudSupport<VTodo> {
@@ -110,18 +108,6 @@ public interface ITodoList extends IChangelogSupport, ICountingSupport, ICrudByI
 	@POST
 	@Path("_mget")
 	public List<ItemValue<VTodo>> multipleGet(List<String> uids) throws ServerFault;
-
-	/**
-	 * Fetch multiple {@link VTodo}s by their unique IDs
-	 * 
-	 * @param ids list of unique IDs
-	 * @return list of {@link net.bluemind.core.container.model.ItemValue}s
-	 *         containing {@link VTodo}s
-	 * @throws ServerFault common error object
-	 */
-	@POST
-	@Path("_mgetById")
-	public List<ItemValue<VTodo>> multipleGetById(List<Long> ids) throws ServerFault;
 
 	/**
 	 * Delete a {@link VTodo}
@@ -203,53 +189,6 @@ public interface ITodoList extends IChangelogSupport, ICountingSupport, ICrudByI
 	void reset() throws ServerFault;
 
 	/**
-	 * Get {@link net.bluemind.core.container.model.ItemValue} containing a
-	 * {@link VTodo} by its internal id
-	 * 
-	 * @param id internal id
-	 * @return Matching {@link net.bluemind.core.container.model.ItemValue}
-	 *         containing a {@link VTodo}
-	 */
-	@GET
-	@Path("{id}/completeById")
-	ItemValue<VTodo> getCompleteById(@PathParam("id") long id);
-
-	/**
-	 * Update a {@link VTodo}
-	 * 
-	 * @param id    internal id
-	 * @param value {@link VTodo}
-	 * 
-	 * @return {@link net.bluemind.core.container.api.Ack} containing the new
-	 *         version number
-	 */
-	@POST
-	@Path("id/{id}")
-	Ack updateById(@PathParam("id") long id, VTodo value);
-
-	/**
-	 * Create a {@link VTodo}
-	 * 
-	 * @param id    internal id
-	 * @param value {@link VTodo}
-	 * 
-	 * @return {@link net.bluemind.core.container.api.Ack} containing the new
-	 *         version number
-	 */
-	@PUT
-	@Path("id/{id}")
-	Ack createById(@PathParam("id") long id, VTodo value);
-
-	/**
-	 * Delete a {@link VTodo}
-	 * 
-	 * @param id internal id
-	 */
-	@DELETE
-	@Path("id/{id}")
-	void deleteById(@PathParam("id") long id);
-
-	/**
 	 * Retrieve all {@link VTodo} UIDs of this Todolist
 	 * 
 	 * @return List of UIDs
@@ -258,16 +197,5 @@ public interface ITodoList extends IChangelogSupport, ICountingSupport, ICrudByI
 	@GET
 	@Path("_all")
 	List<String> allUids() throws ServerFault;
-
-	/**
-	 * Get a sorted list (IDs according to the sorted list of items) of internal IDs
-	 * 
-	 * @param {@link net.bluemind.core.container.model.SortDescriptor}
-	 * @return List of internal IDs
-	 * @throws ServerFault common error object
-	 */
-	@POST
-	@Path("_sorted")
-	public List<Long> sortedIds(SortDescriptor sorted) throws ServerFault;
 
 }

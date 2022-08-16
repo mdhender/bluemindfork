@@ -30,5 +30,6 @@ public @interface BMApi {
 	public String version();
 
 	public boolean internal() default false;
-	// public Class<?> async() default Void.class;
+
+	public Class<?> genericType() default Object.class;
 }

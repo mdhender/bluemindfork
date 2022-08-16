@@ -20,6 +20,8 @@ package net.bluemind.core.rest.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -29,6 +31,9 @@ import java.util.Set;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.common.reflect.ClassVisitor;
 import net.bluemind.core.api.BMApi;
@@ -41,6 +46,8 @@ public class RestServiceApiDescriptionParser implements ClassVisitor {
 	private List<MethodDescriptor> methods = new ArrayList<>();
 	private List<String> requiredRoles = new ArrayList<>();
 	private String rootPath;
+	private Type genericType;
+	private static final Logger logger = LoggerFactory.getLogger(RestServiceApiDescriptionParser.class);
 
 	@Override
 	public void visit(Class<?> clazz) {
@@ -51,6 +58,7 @@ public class RestServiceApiDescriptionParser implements ClassVisitor {
 
 		parseRootPath(clazz);
 		parseRoles(clazz);
+		parseGenericType(clazz.getAnnotation(BMApi.class));
 	}
 
 	@Override
@@ -84,6 +92,47 @@ public class RestServiceApiDescriptionParser implements ClassVisitor {
 		}
 	}
 
+	private void parseGenericType(BMApi annotation) {
+		Class<?> genericTypeClazz = annotation.genericType();
+		if (!genericTypeClazz.isAssignableFrom(Object.class)) {
+			try {
+				this.genericType = toType(genericTypeClazz);
+			} catch (ClassNotFoundException e) {
+				logger.warn("Cannot find class {}", genericTypeClazz.getName(), e);
+			}
+		}
+
+	}
+
+	protected Type toType(Class<?> itemValueType) throws ClassNotFoundException {
+		Class<?> cl = Class.forName("net.bluemind.core.container.model.ItemValue");
+		return new ParameterizedType() {
+
+			@Override
+			public String getTypeName() {
+				return "net.bluemind.core.container.model.ItemValue<" + itemValueType.getName() + ">";
+			}
+
+			@Override
+			public Type[] getActualTypeArguments() {
+				return new Type[] { itemValueType };
+
+			}
+
+			@Override
+			public Type getRawType() {
+				return cl;
+			}
+
+			@Override
+			public Type getOwnerType() {
+				return null;
+			}
+
+		};
+
+	}
+
 	private MethodDescriptor createMethodDescriptor(Class<?> clazz, Method method) {
 		HttpMethod httpMethod = getMethod(method);
 		if (httpMethod == null) {
@@ -92,7 +141,8 @@ public class RestServiceApiDescriptionParser implements ClassVisitor {
 		String path = buildPath(clazz, method);
 		String[] roles = parseMethodRoles(method);
 		String[] produces = parseMethodProduces(method);
-		MethodDescriptor methodDescriptor = new MethodDescriptor(httpMethod.value(), path, method, roles, produces);
+		MethodDescriptor methodDescriptor = new MethodDescriptor(httpMethod.value(), path, method, roles, produces,
+				genericType);
 
 		return methodDescriptor;
 	}

@@ -40,7 +40,6 @@ import net.bluemind.core.container.api.ICrudByIdSupport;
 import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.model.SortDescriptor;
 
 /**
  * Container of {@link MailboxItem}.
@@ -48,7 +47,7 @@ import net.bluemind.core.container.model.SortDescriptor;
  * The container is created by the {@link IMailboxFolders} service when a new
  * replicated folder is created.
  */
-@BMApi(version = "3")
+@BMApi(version = "3", genericType = MailboxItem.class)
 @Path("/mail_items/{replicatedMailboxUid}")
 public interface IMailboxItems
 		extends IChangelogSupport, ICrudByIdSupport<MailboxItem>, ICountingSupport, ISortingSupport {
@@ -101,10 +100,6 @@ public interface IMailboxItems
 	@DELETE
 	@Path("{partId}/_part")
 	void removePart(@PathParam("partId") String partId);
-
-	@GET
-	@Path("{id}/completeById")
-	ItemValue<MailboxItem> getCompleteById(@PathParam("id") long id);
 
 	@POST
 	@Path("id/{id}")
@@ -202,10 +197,6 @@ public interface IMailboxItems
 	@POST
 	@Path("_deleteFlag")
 	Ack deleteFlag(FlagUpdate flagUpdate);
-
-	@POST
-	@Path("_sorted")
-	public List<Long> sortedIds(SortDescriptor sorted);
 
 	/**
 	 * Decompose EML in temporary parts, useful to update drafts

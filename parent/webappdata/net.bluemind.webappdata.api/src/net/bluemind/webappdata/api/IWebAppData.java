@@ -45,7 +45,7 @@ import net.bluemind.core.container.model.ItemValue;
  * containers of specific type.
  * 
  */
-@BMApi(version = "3")
+@BMApi(version = "3", genericType = WebAppData.class)
 @Path("/webappdata/{containerUid}")
 public interface IWebAppData extends IChangelogSupport, IDataShardSupport, ICrudSupport<WebAppData>,
 		IRestoreCrudSupport<WebAppData>, IReadByIdSupport<WebAppData> {
@@ -82,11 +82,4 @@ public interface IWebAppData extends IChangelogSupport, IDataShardSupport, ICrud
 	@Path("uid/_mget")
 	List<ItemValue<WebAppData>> multipleGet(List<String> uids);
 
-	@GET
-	@Path("{id}/completeById")
-	ItemValue<WebAppData> getCompleteById(@PathParam("id") long id);
-
-	@POST
-	@Path("_mgetById")
-	List<ItemValue<WebAppData>> multipleGetById(List<Long> ids);
 }

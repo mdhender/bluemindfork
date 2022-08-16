@@ -31,7 +31,6 @@ import javax.ws.rs.QueryParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
 import net.bluemind.core.container.api.ICrudByIdSupport;
@@ -41,11 +40,10 @@ import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.task.api.TaskRef;
 
 /** Calendar operations. */
-@BMApi(version = "3")
+@BMApi(version = "3", genericType = VEventSeries.class)
 @Path("/calendars/{containerUid}")
 public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSeries>, ICountingSupport, ISortingSupport,
 		IDataShardSupport, IRestoreCrudSupport<VEventSeries> {
@@ -62,37 +60,6 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	@Path("{uid}")
 	public void create(@PathParam(value = "uid") String uid, VEventSeries event,
 			@QueryParam(value = "sendNotifications") Boolean sendNotifications) throws ServerFault;
-
-	/**
-	 * Update the event identified by the given <i>item identifier</i>.
-	 * 
-	 * @param id    the <i>item identifier</i> of the {@link VEventSeries}
-	 * @param value the new value to set
-	 * @return the acknowledgement object with the new version of the updated item
-	 */
-	@POST
-	@Path("id/{id}")
-	Ack updateById(@PathParam("id") long id, VEventSeries value);
-
-	/**
-	 * Delete the event identified by the given <i>item identifier</i>.
-	 * 
-	 * @param the <i>item identifier</i> of the {@link VEventSeries}
-	 */
-	@DELETE
-	@Path("id/{id}")
-	void deleteById(@PathParam("id") long id);
-
-	/**
-	 * Creates a {@link VEventSeries}.
-	 * 
-	 * @param id    the <i>item identifier</i> of the {@link VEventSeries}
-	 * @param event the {@link VEventSeries} to store
-	 * @return the acknowledgement object with the new version of the updated item
-	 */
-	@PUT
-	@Path("id/{id}")
-	public Ack createById(@PathParam(value = "id") long id, VEventSeries event) throws ServerFault;
 
 	/**
 	 * Updates a {@link VEventSeries}.
@@ -128,16 +95,6 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	public List<ItemValue<VEventSeries>> getByIcsUid(@PathParam(value = "uid") String uid) throws ServerFault;
 
 	/**
-	 * Retrieve the {@link VEventSeries} identified by the given identifier.
-	 * 
-	 * @param id the identifier of the event
-	 * @return a {@link VEventSeries} if successfulSortDescriptor
-	 */
-	@GET
-	@Path("{id}/completeById")
-	ItemValue<VEventSeries> getCompleteById(@PathParam("id") long id);
-
-	/**
 	 * Fetch multiple {@link VEventSeries} identified by the given unique
 	 * identifiers.
 	 * 
@@ -147,16 +104,6 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	@POST
 	@Path("_mget")
 	public List<ItemValue<VEventSeries>> multipleGet(List<String> uids) throws ServerFault;
-
-	/**
-	 * Fetch multiple {@link VEventSeries} from theirs uniques ids
-	 * 
-	 * @param ids the list of unique id
-	 * @return all matching {@link VEventSeries}
-	 */
-	@POST
-	@Path("_mgetById")
-	public List<ItemValue<VEventSeries>> multipleGetById(List<Long> ids) throws ServerFault;
 
 	/**
 	 * Deletes the {@link VEventSeries} identified by the given unique identifier.
@@ -238,17 +185,6 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	@GET
 	@Path("_all")
 	List<String> all() throws ServerFault;
-
-	/**
-	 * Sort the events item identifiers in function of the given
-	 * {@link SortDescriptor}.
-	 * 
-	 * @param the sort directive
-	 * @return the sorted event items identifiers
-	 */
-	@POST
-	@Path("_sorted")
-	public List<Long> sortedIds(SortDescriptor sorted) throws ServerFault;
 
 	/**
 	 * Check the automatic synchronization is activated for this calendar.

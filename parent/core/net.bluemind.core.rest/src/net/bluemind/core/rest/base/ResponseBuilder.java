@@ -102,6 +102,12 @@ public abstract class ResponseBuilder {
 		String[] producesType = methodDescriptor.produces;
 		Type returnType = methodDescriptor.interfaceMethod.getGenericReturnType();
 
+		if (returnType.getTypeName().equals("net.bluemind.core.container.model.ItemValue<T>")) {
+			if (methodDescriptor.genericType != null) {
+				returnType = methodDescriptor.genericType;
+			}
+		}
+
 		ResponseCodec<?> codec = DefaultResponseCodecs.codec(returnType, producesType[0]);
 		return new CodecResponseBuilder<>(codec, methodDescriptor.produces[0]);
 

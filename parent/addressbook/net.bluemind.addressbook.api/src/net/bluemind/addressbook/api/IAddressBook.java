@@ -32,7 +32,6 @@ import javax.ws.rs.QueryParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
 import net.bluemind.core.container.api.ICrudByIdSupport;
@@ -42,7 +41,6 @@ import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.model.SortDescriptor;
 
 /**
  * 
@@ -50,7 +48,7 @@ import net.bluemind.core.container.model.SortDescriptor;
  * of this interface.
  * 
  */
-@BMApi(version = "3")
+@BMApi(version = "3", genericType = VCard.class)
 @Path("/addressbooks/{containerUid}")
 public interface IAddressBook extends IChangelogSupport, ICrudByIdSupport<VCard>, ICountingSupport, ISortingSupport,
 		IDataShardSupport, IRestoreCrudSupport<VCard> {
@@ -75,22 +73,6 @@ public interface IAddressBook extends IChangelogSupport, ICrudByIdSupport<VCard>
 	@PUT
 	@Path("{uid}")
 	public void create(@PathParam(value = "uid") String uid, VCard card);
-
-	@PUT
-	@Path("id/{id}")
-	Ack createById(@PathParam("id") long id, VCard value);
-
-	@GET
-	@Path("id/{id}")
-	ItemValue<VCard> getCompleteById(@PathParam("id") long id);
-
-	@POST
-	@Path("id/{id}")
-	Ack updateById(@PathParam("id") long id, VCard value);
-
-	@DELETE
-	@Path("id/{id}")
-	void deleteById(@PathParam("id") long id);
 
 	/**
 	 * Modifies an existing {@link VCard} entry.
@@ -124,17 +106,6 @@ public interface IAddressBook extends IChangelogSupport, ICrudByIdSupport<VCard>
 	@POST
 	@Path("_mget")
 	public List<ItemValue<VCard>> multipleGet(List<String> uids);
-
-	/**
-	 * Fetch multiple {@link VCard}s from theirs uniques ids
-	 * 
-	 * @param ids
-	 * @return {@link List<ItemValue<VCard>>}
-	 * @throws ServerFault
-	 */
-	@POST
-	@Path("_mgetById")
-	public List<ItemValue<VCard>> multipleGetById(List<Long> ids);
 
 	/**
 	 * Fetch a {@link VCardInfo} from its unique uid
@@ -244,10 +215,6 @@ public interface IAddressBook extends IChangelogSupport, ICrudByIdSupport<VCard>
 	@POST
 	@Path("_reset")
 	public void reset();
-
-	@POST
-	@Path("_sorted")
-	public List<Long> sortedIds(SortDescriptor sorted);
 
 	/**
 	 * Touch a {@link VCard}.

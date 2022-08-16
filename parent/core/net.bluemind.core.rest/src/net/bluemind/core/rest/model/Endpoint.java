@@ -26,4 +26,5 @@ public interface Endpoint {
 	public Class<?> getInterface();
 
 	public Object getInstance(SecurityContext sc, String[] pathParams) throws ServerFault;
+
 }

@@ -43,7 +43,7 @@ import net.bluemind.core.container.model.ItemValue;
  * Database only version of {@link IMailboxItems} for sync server usage.
  * 
  */
-@BMApi(version = "3", internal = true)
+@BMApi(version = "3", internal = true, genericType = MailboxRecord.class)
 @Path("/db_mailbox_records/{replicatedMailboxUid}")
 public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport, ICountingSupport, ISortingSupport,
 		IReadByIdSupport<MailboxRecord> {
@@ -51,10 +51,6 @@ public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport,
 	@GET
 	@Path("{uid}/complete")
 	ItemValue<MailboxRecord> getComplete(@PathParam("uid") String uid);
-
-	@GET
-	@Path("{id}/completeById")
-	ItemValue<MailboxRecord> getCompleteById(@PathParam("id") long id);
 
 	@GET
 	@Path("{imapUid}/completeByImapUid")
