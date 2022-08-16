@@ -18,6 +18,8 @@
  */
 package net.bluemind.directory.service.internal;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.DirEntry;
@@ -31,6 +33,7 @@ public class I18nDirectory implements DirectoryDecorator {
 	}
 
 	private void translate(BmContext context, ItemValue<DirEntry> entry) {
+		entry.displayName = Strings.isNullOrEmpty(entry.displayName) ? entry.value.displayName : entry.displayName;
 		entry.value.displayName = I18nLabels.getInstance().translate(context.getSecurityContext().getLang(),
 				entry.displayName);
 	}
