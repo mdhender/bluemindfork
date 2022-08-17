@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -193,11 +194,11 @@ public class ContainerStore extends JdbcAbstractStore {
 		parameters.add(s);
 
 		if (query.verb != null && !query.verb.isEmpty()) {
-			List<String> verbs = new ArrayList<>();
+			Set<Verb> verbs = EnumSet.noneOf(Verb.class);
 			for (Verb v : query.verb) {
-				verbs.add(v.name());
+				verbs.addAll(v.parentHierarchy());
 			}
-			parameters.add(verbs.toArray(new String[verbs.size()]));
+			parameters.add(verbs.stream().map(Enum::name).toArray(String[]::new));
 		}
 
 		if (query.type != null) {

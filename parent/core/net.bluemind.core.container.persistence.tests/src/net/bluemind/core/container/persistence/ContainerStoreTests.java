@@ -250,6 +250,9 @@ public class ContainerStoreTests {
 		String uid7 = uid6 + "1";
 		Container container7 = Container.create(uid7, "test", "owme", "me", "fakeDomain", true);
 
+		String uid8 = uid7 + "1";
+		Container container8 = Container.create(uid8, "test", "owme", "me", "fakeDomain", true);
+
 		container1 = home.create(container1);
 		container2 = home.create(container2);
 		container3 = home.create(container3);
@@ -257,6 +260,7 @@ public class ContainerStoreTests {
 		container5 = home.create(container5);
 		container6 = home.create(container6);
 		container7 = home.create(container7);
+		container8 = home.create(container8);
 
 		aclStore.store(container1, Arrays.asList(AccessControlEntry.create("test", Verb.Read)));
 
@@ -270,11 +274,13 @@ public class ContainerStoreTests {
 		aclStore.store(container5, Arrays.asList(AccessControlEntry.create("test", Verb.Write)));
 		aclStore.store(container7, Arrays.asList(AccessControlEntry.create("fakeDomain", Verb.Read)));
 
+		aclStore.store(container8, Arrays.asList(AccessControlEntry.create("test", Verb.All)));
+
 		ContainerQuery query = new ContainerQuery();
 		query.type = "test";
 
 		List<Container> resp = home.findAccessiblesByType(query);
-		assertEquals(5, resp.size());
+		assertEquals(6, resp.size());
 		Set<String> uids = new HashSet<>();
 		uids.add(resp.get(0).uid);
 		uids.add(resp.get(1).uid);
@@ -334,7 +340,8 @@ public class ContainerStoreTests {
 		query.verb = new ArrayList<Verb>();
 		query.verb.add(Verb.Read);
 		resp = home.findAccessiblesByType(query);
-		assertEquals(0, resp.size());
+		assertEquals(1, resp.size());
+		assertEquals(uid5, resp.get(0).uid);
 
 		query = new ContainerQuery();
 		query.type = "calendar";
@@ -357,12 +364,21 @@ public class ContainerStoreTests {
 		query.verb = new ArrayList<Verb>();
 		query.verb.add(Verb.Write);
 		resp = home.findAccessiblesByType(query);
-		assertEquals(2, resp.size());
+		assertEquals(3, resp.size());
 		uids = new HashSet<>();
 		uids.add(resp.get(0).uid);
 		uids.add(resp.get(1).uid);
+		uids.add(resp.get(2).uid);
 		assertTrue(uids.contains(uid5));
 		assertTrue(uids.contains(uid6));
+		assertTrue(uids.contains(uid8));
+
+		query = new ContainerQuery();
+		query.verb = new ArrayList<Verb>();
+		query.verb.add(Verb.Manage);
+		resp = home.findAccessiblesByType(query);
+		assertEquals(2, resp.size());
+		assertTrue(resp.stream().anyMatch(r -> r.uid.equals(uid8)));
 	}
 
 	@Test

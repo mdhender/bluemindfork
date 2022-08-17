@@ -18,6 +18,9 @@
  */
 package net.bluemind.core.container.model.acl;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
@@ -49,4 +52,22 @@ public enum Verb {
 
 		return ret;
 	}
+
+	public Set<Verb> parentHierarchy() {
+		Set<Verb> expanded = EnumSet.noneOf(Verb.class);
+		parentHierarchy(expanded);
+		return expanded;
+	}
+
+	private void parentHierarchy(Set<Verb> expanded) {
+		expanded.add(this);
+		for (Verb verb : Verb.values()) {
+			for (Verb v : verb.verbs) {
+				if (v == this) {
+					verb.parentHierarchy(expanded);
+				}
+			}
+		}
+	}
+
 }
