@@ -207,6 +207,19 @@ worker() {
     echo $ID "done"
 }
 
+unsetDomainMaxQuota() {
+    local domain=$1
+
+    local domainSettings_json=$(curl -s -k -H "X-BM-ApiKey: ${API_KEY}" -XGET ${API_URL}/domains/${domain}/_settings)
+    local maxUserQuota=$(echo ${domainSettings_json} | jq -r -c '.mailbox_max_user_quota')
+
+    [ ${maxUserQuota} -ne 0 ] && {
+        echo "[${domain}] Unset domain user quota max - previous: ${maxUserQuota}"
+        curl -s -k -H "Content-Type:application/json" -H "X-BM-ApiKey: ${API_KEY}" \
+            -XPUT -d "$(echo ${domainSettings_json} | jq -c '.mailbox_max_user_quota=0')" \
+            ${API_URL}/domains/${domain}/_settings
+    }
+}
 
 (
 
@@ -230,6 +243,8 @@ declare -a migration_list
 
 for domain in ${domains}; do
     echo "Migrating domain ${domain}"
+
+    unsetDomainMaxQuota ${domain}
 
     declare -a vip_uids
     if [ "${#GRPS[@]}" -gt "0" ]; then
