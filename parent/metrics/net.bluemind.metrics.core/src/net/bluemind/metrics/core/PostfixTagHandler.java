@@ -1,6 +1,7 @@
 package net.bluemind.metrics.core;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,17 +18,19 @@ import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 
 public class PostfixTagHandler extends TickInputConfigurator {
+
 	private static final Logger logger = LoggerFactory.getLogger(PostfixTagHandler.class);
-	private static final String UNIX_ACL[] = {
-			"usermod -a -G postdrop telegraf",
-			"chgrp -R postdrop /var/spool/postfix/active",
-			"chgrp -R postdrop /var/spool/postfix/hold",
-			"chgrp -R postdrop /var/spool/postfix/incoming",
-			"chgrp -R postdrop /var/spool/postfix/deferred",
-			"chmod -R g+rXs /var/spool/postfix/active",
-			"chmod -R g+rXs /var/spool/postfix/hold",
-			"chmod -R g+rXs /var/spool/postfix/incoming",
-			"chmod -R g+rXs /var/spool/postfix/deferred",
+
+	private static final String[] UNIX_ACL = { //
+			"usermod -a -G postdrop telegraf", //
+			"chgrp -R postdrop /var/spool/postfix/active", //
+			"chgrp -R postdrop /var/spool/postfix/hold", //
+			"chgrp -R postdrop /var/spool/postfix/incoming", //
+			"chgrp -R postdrop /var/spool/postfix/deferred", //
+			"chmod -R g+rXs /var/spool/postfix/active", //
+			"chmod -R g+rXs /var/spool/postfix/hold", //
+			"chmod -R g+rXs /var/spool/postfix/incoming", //
+			"chmod -R g+rXs /var/spool/postfix/deferred", //
 			"chmod g+r /var/spool/postfix/maildrop" };
 
 	@Override
@@ -38,9 +41,11 @@ public class PostfixTagHandler extends TickInputConfigurator {
 
 		INodeClient nodeClient = NodeActivator.get(itemValue.value.address());
 		for (String str : UNIX_ACL) {
-			NCUtils.execNoOut(nodeClient, str);
+			NCUtils.execNoOut(nodeClient, str, 30, TimeUnit.SECONDS);
 		}
-		logger.info("Added postfix monitoring necessary rights at {}", itemValue.value.address());
+		if (logger.isInfoEnabled()) {
+			logger.info("Added postfix monitoring necessary rights at {}", itemValue.value.address());
+		}
 
 		try {
 			TagHelper.jarToFS(getClass(), "/configs/bm-postfix.conf", "/etc/telegraf/telegraf.d/bm-postfix.conf",
