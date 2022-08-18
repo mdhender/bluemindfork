@@ -214,7 +214,13 @@ public class UnexpungeCommand implements ICmdLet, Runnable {
 
 		@Override
 		public void accept(ItemValue<MailboxItem> t) {
-			ItemIdentifier unexp = itemsApi.unexpunge(t.internalId);
+			ItemIdentifier unexp;
+			try {
+				unexp = itemsApi.unexpunge(t.internalId);
+			} catch (Exception e) {
+				ctx.warn("Cannot unexpunge item {}: {}", t.internalId, e.getMessage());
+				return;
+			}
 			ctx.info("ack received: " + unexp.version);
 		}
 
