@@ -95,8 +95,8 @@ public class MailboxHsmMigrationMaintenanceOperation extends MailboxMaintenanceO
 
 		public WalkResult folders() {
 			String login = mailbox.value.name + "@" + domainUid;
-			try (Sudo sudo = new Sudo(mailbox.value.name, domainUid);
-					StoreClient sc = new StoreClient(srv.address(), 1143, login, sudo.context.getSessionId())) {
+			try (Sudo sudo = new Sudo(mailbox.value.name, domainUid)) {
+				StoreClient sc = new StoreClient(srv.address(), 1143, login, sudo.context.getSessionId());
 				WalkResult wr = new WalkResult(sc, () -> new Sudo(mailbox.value.name, domainUid));
 
 				if (!sc.login()) {
