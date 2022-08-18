@@ -4,14 +4,14 @@
         :class="{ offline: !isOnline }"
     >
         <bm-nav-item v-if="!logged" :href="loginUrl" class="flex-fill">
-            <bm-avatar :alt="user.displayname" class="flex-shrink-0" width="2em" :status="status" />
+            <bm-avatar :alt="user.displayname" size="sm" :status="status" />
             <span class="username text-truncate w-100 text-center">
                 {{ $t("banner.login") }}
             </span>
         </bm-nav-item>
         <bm-nav-item-dropdown right offset="5" class="flex-fill">
             <template v-if="logged" slot="button-content">
-                <bm-avatar :alt="user.displayname" :urn="user.urn" class="flex-shrink-0" width="2em" :status="status" />
+                <bm-avatar :alt="user.displayname" :urn="user.urn" size="sm" :status="status" />
                 <span class="username text-truncate m-auto">
                     {{ user.displayname }}
                 </span>

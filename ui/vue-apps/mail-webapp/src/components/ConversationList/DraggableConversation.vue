@@ -144,8 +144,7 @@ export default {
         .bm-check {
             display: block !important;
         }
-        .bm-avatar,
-        .conversation-avatar {
+        .bm-avatar {
             display: none !important;
         }
     }

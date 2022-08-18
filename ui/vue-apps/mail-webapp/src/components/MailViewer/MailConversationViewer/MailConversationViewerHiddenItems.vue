@@ -6,7 +6,7 @@
         </div>
         <div class="pl-5 row">
             <div class="col-1 text-center">
-                <conversation-avatar :text="count" />
+                <bm-avatar :count="count" size="sm" />
             </div>
             <div class="col pl-3 align-self-center">
                 <bm-button
@@ -25,12 +25,11 @@
     </div>
 </template>
 <script>
-import { BmButton } from "@bluemind/styleguide";
-import ConversationAvatar from "~/components/ConversationList/ConversationAvatar";
+import { BmButton, BmAvatar } from "@bluemind/styleguide";
 
 export default {
     name: "MailConversationViewerHiddenItems",
-    components: { BmButton, ConversationAvatar },
+    components: { BmButton, BmAvatar },
     props: {
         count: {
             type: Number,
