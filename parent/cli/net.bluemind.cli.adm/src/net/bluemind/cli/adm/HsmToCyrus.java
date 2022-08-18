@@ -35,8 +35,8 @@ import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.imap.FlagsList;
+import net.bluemind.imap.IMAPRuntimeException;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -73,13 +73,15 @@ public class HsmToCyrus implements ICmdLet, Runnable {
 	public boolean deletesuccess = false;
 
 	private CliContext ctx;
+	private String fullLogin;
+	private StoreClient sc;
+	private int orphanCount = 0;
 
 	@Override
 	public void run() {
 		List<String> topDir = Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e",
 				"f");
-		IServiceProvider provider = ctx.adminApi();
-		IUser userApi = provider.instance(IUser.class, domainUid);
+		IUser userApi = ctx.adminApi().instance(IUser.class, domainUid);
 		ItemValue<User> user;
 		String uid;
 		try {
@@ -98,18 +100,18 @@ public class HsmToCyrus implements ICmdLet, Runnable {
 			return;
 		}
 
-		String fullLogin = user.value.login + "@" + domainUid;
-		LoginResponse lr = provider.instance(IAuthentication.class).su(fullLogin);
-		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, fullLogin, lr.authKey)) {
+		fullLogin = user.value.login + "@" + domainUid;
+		setOrRenewStoreClient();
+		try {
 			if (sc.login()) {
 				sc.create(foldername);
 				sc.subscribe(foldername);
 			} else {
 				ctx.error("Unable to login as " + fullLogin);
+				return;
 			}
 
 			// Move snappy to mailbox
-			int orphanCount = 0;
 			for (String rootLvl : topDir) {
 				for (String subLvl : topDir) {
 					String sourceDir = String.format("/var/spool/bm-hsm/snappy/user/%s/%s/%s/%s", domainUid, uid,
@@ -117,8 +119,10 @@ public class HsmToCyrus implements ICmdLet, Runnable {
 					File srcDir = new File(sourceDir);
 					if (srcDir.exists() && srcDir.isDirectory()) {
 						try (Stream<Path> dirStream = Files.list(srcDir.toPath())) {
-							dirStream.forEach(p -> inject(sc, p));
-							orphanCount++;
+							dirStream.forEach(p -> {
+								inject(p);
+								orphanCount++;
+							});
 						} catch (IOException e) {
 							ctx.error("Error streaming dir " + srcDir.getAbsolutePath());
 						}
@@ -129,11 +133,19 @@ public class HsmToCyrus implements ICmdLet, Runnable {
 			ctx.info("{} orphan mail injected", orphanCount);
 		} catch (Exception e) {
 			ctx.error("Unable to connect to IMAP server 127.0.0.1: " + e);
+		} finally {
+			Optional.ofNullable(sc).ifPresent(StoreClient::close);
 		}
-
 	}
 
-	private void inject(StoreClient sc, Path snapPath) {
+	private void setOrRenewStoreClient() {
+		Optional.ofNullable(sc).ifPresent(StoreClient::close);
+
+		LoginResponse lr = ctx.adminApi().instance(IAuthentication.class).su(fullLogin);
+		sc = new StoreClient("127.0.0.1", 1143, fullLogin, lr.authKey);
+	}
+
+	private void inject(Path snapPath) {
 		try (SnappyInputStream snap = new SnappyInputStream(Files.newInputStream(snapPath))) {
 			int added = sc.append(foldername, snap, FlagsList.fromString("Seen"));
 			if (added > 0 && deletesuccess) {
@@ -141,6 +153,17 @@ public class HsmToCyrus implements ICmdLet, Runnable {
 					Files.delete(snapPath);
 				} catch (IOException e) {
 					ctx.error("Unable to remove " + snapPath.toAbsolutePath());
+				}
+			} else {
+				ctx.error("Fail to append: " + snapPath.toAbsolutePath());
+			}
+		} catch (IMAPRuntimeException e) {
+			if (e.getMessage().equalsIgnoreCase("not connected to server.")) {
+				ctx.error("Fail to append: " + snapPath.toAbsolutePath() + ". Maybe too big ?");
+				setOrRenewStoreClient();
+				if (!sc.login()) {
+					ctx.error("Unable to re-login to imap server");
+					throw e;
 				}
 			}
 		} catch (IOException e) {
