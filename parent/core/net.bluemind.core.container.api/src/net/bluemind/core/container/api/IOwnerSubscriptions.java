@@ -31,9 +31,10 @@ import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 
-@BMApi(version = "3")
+@BMApi(version = "3", genericType = ContainerSubscriptionModel.class)
 @Path("/containers/_subscriptions/{domainUid}/{ownerUid}")
-public interface IOwnerSubscriptions extends IChangelogSupport, IDataShardSupport {
+public interface IOwnerSubscriptions
+		extends IChangelogSupport, IDataShardSupport, IReadByIdSupport<ContainerSubscriptionModel> {
 
 	@GET
 	@Path("_list")
@@ -42,14 +43,6 @@ public interface IOwnerSubscriptions extends IChangelogSupport, IDataShardSuppor
 	@GET
 	@Path("{uid}/complete")
 	ItemValue<ContainerSubscriptionModel> getComplete(@PathParam("uid") String uid);
-
-	@GET
-	@Path("{id}/completeById")
-	ItemValue<ContainerSubscriptionModel> getCompleteById(@PathParam("id") long id);
-
-	@POST
-	@Path("_mgetById")
-	List<ItemValue<ContainerSubscriptionModel>> getMultipleById(List<Long> id);
 
 	@POST
 	@Path("_mget")

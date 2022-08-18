@@ -21,7 +21,9 @@ package net.bluemind.core.rest.base;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -122,10 +124,13 @@ public class ClientProxyGenerator<S, T> {
 					ResponseCodec<?> retCodec = DefaultResponseCodecs
 							.codec(method.interfaceMethod.getGenericReturnType(), method.produces[0]);
 
-					if (method.interfaceMethod.getGenericReturnType().getTypeName()
-							.equals("net.bluemind.core.container.model.ItemValue<T>")) {
-						if (method.genericType != null) {
+					if (method.genericType != null) {
+						if (method.interfaceMethod.getGenericReturnType().getTypeName()
+								.equals("net.bluemind.core.container.model.ItemValue<T>")) {
 							retCodec = DefaultResponseCodecs.codec(method.genericType, method.produces[0]);
+						} else if (method.interfaceMethod.getGenericReturnType().getTypeName()
+								.equals("java.util.List<net.bluemind.core.container.model.ItemValue<T>>")) {
+							retCodec = DefaultResponseCodecs.codec(toListType(method.genericType), method.produces[0]);
 						}
 					}
 
@@ -137,6 +142,34 @@ public class ClientProxyGenerator<S, T> {
 				}
 			}
 		}
+	}
+
+	private static Type toListType(Type type) {
+		return new ParameterizedType() {
+
+			@Override
+			public String getTypeName() {
+				return "java.util.List<" + type.getTypeName() + ">";
+			}
+
+			@Override
+			public Type[] getActualTypeArguments() {
+				return new Type[] { type };
+
+			}
+
+			@Override
+			public Type getRawType() {
+				return List.class;
+			}
+
+			@Override
+			public Type getOwnerType() {
+				return null;
+			}
+
+		};
+
 	}
 
 	static final class PatternBinding {

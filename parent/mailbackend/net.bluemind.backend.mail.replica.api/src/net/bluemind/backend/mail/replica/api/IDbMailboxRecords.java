@@ -110,9 +110,4 @@ public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport,
 	@Path("body/version/lowerthan/{version}")
 	List<ImapBinding> havingBodyVersionLowerThan(@PathParam("version") int version);
 
-	@POST
-	@Path("_mgetById")
-	@Override
-	List<ItemValue<MailboxRecord>> multipleGetById(List<Long> ids);
-
 }

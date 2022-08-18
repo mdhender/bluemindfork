@@ -359,7 +359,7 @@ public class OutboxService implements IOutbox {
 		sortDescriptor.fields = Arrays.asList(mailDate);
 
 		List<Long> mailsIds = mailboxItemsService.sortedIds(sortDescriptor);
-		return mailboxItemsService.multipleById(mailsIds).stream()
+		return mailboxItemsService.multipleGetById(mailsIds).stream()
 				.filter(item -> item.value.body.headers.stream()
 						.anyMatch(header -> header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)))
 				.collect(Collectors.toList());

@@ -18,7 +18,9 @@
  */
 package net.bluemind.core.rest.base;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,9 +104,13 @@ public abstract class ResponseBuilder {
 		String[] producesType = methodDescriptor.produces;
 		Type returnType = methodDescriptor.interfaceMethod.getGenericReturnType();
 
-		if (returnType.getTypeName().equals("net.bluemind.core.container.model.ItemValue<T>")) {
-			if (methodDescriptor.genericType != null) {
+		if (methodDescriptor.genericType != null) {
+
+			if (returnType.getTypeName().equals("net.bluemind.core.container.model.ItemValue<T>")) {
 				returnType = methodDescriptor.genericType;
+			} else if (returnType.getTypeName()
+					.equals("java.util.List<net.bluemind.core.container.model.ItemValue<T>>")) {
+				returnType = toListType(methodDescriptor.genericType);
 			}
 		}
 
@@ -113,4 +119,31 @@ public abstract class ResponseBuilder {
 
 	}
 
+	private static Type toListType(Type type) {
+		return new ParameterizedType() {
+
+			@Override
+			public String getTypeName() {
+				return "java.util.List<" + type.getTypeName() + ">";
+			}
+
+			@Override
+			public Type[] getActualTypeArguments() {
+				return new Type[] { type };
+
+			}
+
+			@Override
+			public Type getRawType() {
+				return List.class;
+			}
+
+			@Override
+			public Type getOwnerType() {
+				return null;
+			}
+
+		};
+
+	}
 }

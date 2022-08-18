@@ -215,7 +215,7 @@ public class FolderBackend extends CoreConnect {
 
 		if (!changes.created.isEmpty()) {
 			List<ItemValue<ContainerHierarchyNode>> created = flatH
-					.getMultipleById(changes.created.stream().map(f -> f.id).collect(Collectors.toList()));
+					.multipleGetById(changes.created.stream().map(f -> f.id).collect(Collectors.toList()));
 			created.forEach(h -> {
 				if (ACCEPTED_CONTAINERS.contains(h.value.containerType)) {
 					FolderChangeReference f = getHierarchyItemChange(bs, h, ChangeType.ADD, offlineContainers);
@@ -229,7 +229,7 @@ public class FolderBackend extends CoreConnect {
 
 		if (!changes.updated.isEmpty()) {
 			List<ItemValue<ContainerHierarchyNode>> updated = flatH
-					.getMultipleById(changes.updated.stream().map(f -> f.id).collect(Collectors.toList()));
+					.multipleGetById(changes.updated.stream().map(f -> f.id).collect(Collectors.toList()));
 			updated.forEach(h -> {
 				if (ACCEPTED_CONTAINERS.contains(h.value.containerType)) {
 					FolderChangeReference f = getHierarchyItemChange(bs, h, ChangeType.CHANGE, offlineContainers);
@@ -285,7 +285,7 @@ public class FolderBackend extends CoreConnect {
 				.subscriptionUid(IMailboxAclUids.uidForMailbox(bs.getUser().getUid()), bs.getUser().getUid());
 
 		List<ItemValue<ContainerSubscriptionModel>> newUserSubscriptions = subscriptionsService
-				.getMultipleById(userSubscriptions.created.stream().map(itemIdentifier -> itemIdentifier.id)
+				.multipleGetById(userSubscriptions.created.stream().map(itemIdentifier -> itemIdentifier.id)
 						.collect(Collectors.toList()));
 
 		// new mailbox subscription
@@ -327,7 +327,7 @@ public class FolderBackend extends CoreConnect {
 		IContainers containers = getService(bs, IContainers.class);
 
 		List<ItemValue<ContainerSubscriptionModel>> updatedUserSubscriptions = subscriptionsService
-				.getMultipleById(userSubscriptions.updated.stream().map(itemIdentifier -> itemIdentifier.id)
+				.multipleGetById(userSubscriptions.updated.stream().map(itemIdentifier -> itemIdentifier.id)
 						.collect(Collectors.toList()));
 
 		updatedUserSubscriptions.stream()
@@ -510,11 +510,11 @@ public class FolderBackend extends CoreConnect {
 		// FIXME toString
 		subscribedMailboxVersions.put(Long.toString(container.internalId), Long.toString(changes.version));
 
-		List<ItemValue<ContainerHierarchyNode>> created = hierarchyService.getMultipleById(changes.created);
+		List<ItemValue<ContainerHierarchyNode>> created = hierarchyService.multipleGetById(changes.created);
 		ret.items.addAll(sharedMailboxHierarchyChange(bs, container, hierarchyService, foldersService, created,
 				ChangeType.ADD, dirEntry, version, root));
 
-		List<ItemValue<ContainerHierarchyNode>> updated = hierarchyService.getMultipleById(changes.updated);
+		List<ItemValue<ContainerHierarchyNode>> updated = hierarchyService.multipleGetById(changes.updated);
 		ret.items.addAll(sharedMailboxHierarchyChange(bs, container, hierarchyService, foldersService, updated,
 				ChangeType.CHANGE, dirEntry, version, root));
 

@@ -1980,12 +1980,12 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		assertNotNull(unread);
 		System.err.println("Found " + unread.size() + " unread item(s).");
 		assertFalse(unread.isEmpty());
-		List<ItemValue<MailboxItem>> refetch = itemsApi.multipleById(unread);
+		List<ItemValue<MailboxItem>> refetch = itemsApi.multipleGetById(unread);
 		List<Long> itemsId = refetch.stream().map(iv -> iv.internalId).collect(Collectors.toList());
 		itemsApi.addFlag(FlagUpdate.of(itemsId, MailboxItemFlag.System.Seen.value()));
 		Ack ack = itemsApi.addFlag(FlagUpdate.of(itemsId, new MailboxItemFlag("$MDNSent")));
 		System.err.println("Got ack " + ack);
-		refetch = itemsApi.multipleById(unread);
+		refetch = itemsApi.multipleGetById(unread);
 		unread = itemsApi.unreadItems();
 		assertTrue(unread.isEmpty());
 		for (ItemValue<MailboxItem> iv : refetch) {
@@ -3364,7 +3364,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		System.err.println("perUserUnread is " + perUser.total);
 
 		List<Long> messageIds = messages.stream().map(m -> m.internalId).collect(Collectors.toList());
-		mailboxItemsService.multipleById(messageIds).forEach(message -> checkMessageIsSeen(message, sharedSent.uid));
+		mailboxItemsService.multipleGetById(messageIds).forEach(message -> checkMessageIsSeen(message, sharedSent.uid));
 	}
 
 	@Test

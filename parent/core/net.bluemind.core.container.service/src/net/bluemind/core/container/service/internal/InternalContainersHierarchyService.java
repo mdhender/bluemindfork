@@ -161,7 +161,7 @@ public class InternalContainersHierarchyService implements IInternalContainersFl
 	}
 
 	@Override
-	public List<ItemValue<ContainerHierarchyNode>> getMultipleById(List<Long> id) {
+	public List<ItemValue<ContainerHierarchyNode>> multipleGetById(List<Long> id) {
 		rbacManager.check(Verb.Read.name());
 		return storeService.getMultipleById(id);
 	}

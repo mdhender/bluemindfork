@@ -157,7 +157,7 @@ public class MailBackend extends CoreConnect {
 					break;
 				}
 				List<ItemValue<MailboxItem>> items = service
-						.multipleById(slice.stream().map(v -> v.id).collect(Collectors.toList()));
+						.multipleGetById(slice.stream().map(v -> v.id).collect(Collectors.toList()));
 				for (ItemValue<MailboxItem> item : items) {
 					if (item != null && item.value != null) {
 						if (deliveredAfter.isBefore(ZonedDateTime.ofInstant(
@@ -186,7 +186,7 @@ public class MailBackend extends CoreConnect {
 		List<List<ItemVersion>> updatedParts = Lists.partition(changeset.updated, 250);
 		for (List<ItemVersion> slice : updatedParts) {
 			List<ItemValue<MailboxItem>> items = service
-					.multipleById(slice.stream().map(v -> v.id).collect(Collectors.toList()));
+					.multipleGetById(slice.stream().map(v -> v.id).collect(Collectors.toList()));
 			items.forEach(item -> {
 				if (item != null) {
 					ItemChangeReference ic = new ItemChangeReference(ItemDataType.EMAIL);

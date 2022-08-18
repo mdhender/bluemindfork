@@ -117,22 +117,6 @@ public interface IMailboxItems
 	void deleteById(@PathParam("id") long id);
 
 	/**
-	 * 
-	 * @Deprecated prefer {@link IMailboxItems#multipleGetById(List)} as it is
-	 *             defined in {@link ICrudByIdSupport}
-	 * 
-	 * @param ids
-	 * @return
-	 */
-	@POST
-	@Path("_multipleById")
-	List<ItemValue<MailboxItem>> multipleById(List<Long> ids);
-
-	@POST
-	@Path("_mgetById")
-	List<ItemValue<MailboxItem>> multipleGetById(List<Long> ids);
-
-	/**
 	 * Fetch a single part from an email mime tree. The address, encoding & charset
 	 * are specified in the {@link Part} objects from {@link MessageBody#structure}.
 	 * 

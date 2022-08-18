@@ -33,9 +33,10 @@ import net.bluemind.core.container.model.ItemValue;
  * a given ownerUid
  *
  */
-@BMApi(version = "3")
+@BMApi(version = "3", genericType = ContainerHierarchyNode.class)
 @Path("/containers/_hierarchy/{domainUid}/{ownerUid}")
-public interface IContainersFlatHierarchy extends IChangelogSupport, IDataShardSupport {
+public interface IContainersFlatHierarchy
+		extends IChangelogSupport, IDataShardSupport, IReadByIdSupport<ContainerHierarchyNode> {
 
 	@GET
 	@Path("_list")
@@ -44,13 +45,5 @@ public interface IContainersFlatHierarchy extends IChangelogSupport, IDataShardS
 	@GET
 	@Path("{uid}/complete")
 	ItemValue<ContainerHierarchyNode> getComplete(@PathParam("uid") String uid);
-
-	@GET
-	@Path("{id}/completeById")
-	ItemValue<ContainerHierarchyNode> getCompleteById(@PathParam("id") long id);
-
-	@GET
-	@Path("_mgetById")
-	List<ItemValue<ContainerHierarchyNode>> getMultipleById(List<Long> id);
 
 }

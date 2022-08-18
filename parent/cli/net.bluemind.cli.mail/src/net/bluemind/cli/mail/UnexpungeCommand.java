@@ -173,7 +173,7 @@ public class UnexpungeCommand implements ICmdLet, Runnable {
 
 	private List<ItemValue<MailboxItem>> showChunk(IMailboxItems itemsApi, ListResult<Long> chunk,
 			Predicate<ItemValue<MailboxItem>> filter) {
-		List<ItemValue<MailboxItem>> mget = itemsApi.multipleById(chunk.values);
+		List<ItemValue<MailboxItem>> mget = itemsApi.multipleGetById(chunk.values);
 		String[] headers = { "id", "subject", "preview", "last-modification" };
 		int chunkSize = mget.size();
 		List<String[]> data = new ArrayList<>(chunkSize);

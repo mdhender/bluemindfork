@@ -143,7 +143,7 @@ public class InternalOwnerSubscriptionsService implements IInternalOwnerSubscrip
 	}
 
 	@Override
-	public List<ItemValue<ContainerSubscriptionModel>> getMultipleById(List<Long> id) {
+	public List<ItemValue<ContainerSubscriptionModel>> multipleGetById(List<Long> id) {
 		return storeService.getMultipleById(id);
 	}
 
