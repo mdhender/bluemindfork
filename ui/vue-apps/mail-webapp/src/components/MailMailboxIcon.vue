@@ -1,5 +1,5 @@
 <template>
-    <bm-avatar class="flex-shrink-0" :alt="tooltip" :icon="icon" />
+    <bm-avatar size="sm" :alt="tooltip" :icon="icon" />
 </template>
 
 <script>

@@ -22,11 +22,17 @@ export default {
         display: none;
         background-color: $surface;
         position: absolute;
-        height: calc(100% - #{$sp-2});
-        top: $sp-1;
-        right: $sp-2;
+        top: 1px;
+        bottom: 1px;
+        right: 1px;
+        align-items: center;
         &:empty {
             display: none !important;
+        }
+
+        .btn-group,
+        .btn {
+            height: 100%;
         }
     }
 

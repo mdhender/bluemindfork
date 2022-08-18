@@ -1,14 +1,17 @@
 <template>
     <mail-conversation-list-empty :image="image">
-        <h3 class="d-inline text-center">
+        <div class="d-inline text-center">
             <p v-if="CONVERSATION_LIST_UNREAD_FILTER_ENABLED">{{ $t("mail.list.unread.none") }}</p>
             <p v-if="CONVERSATION_LIST_FLAGGED_FILTER_ENABLED">{{ $t("mail.list.flagged.none") }}</p>
             <p>
-                <router-link :to="$router.relative({ name: 'v:mail:home', params: { filter: null } }, $route)">
+                <router-link
+                    class="regular"
+                    :to="$router.relative({ name: 'v:mail:home', params: { filter: null } }, $route)"
+                >
                     {{ $t("mail.list.filter.remove") }}
                 </router-link>
             </p>
-        </h3>
+        </div>
     </mail-conversation-list-empty>
 </template>
 

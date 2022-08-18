@@ -1,6 +1,6 @@
 <template>
-    <bm-list-group-separator class="px-2 py-0">
-        <div class="text-right font-weight-bold">
+    <bm-list-group-separator class="conversation-list-separator">
+        <div class="text-right bold">
             {{ text }}
         </div>
     </bm-list-group-separator>
@@ -24,9 +24,10 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/variables";
-.list-group-separator {
+.list-group-separator.conversation-list-separator {
     background-color: $neutral-bg;
     color: $neutral-fg;
-    padding: $sp-1;
+    border-color: $neutral-fg-lo2;
+    padding: base-px-to-rem(2) $sp-4;
 }
 </style>

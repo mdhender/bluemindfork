@@ -1,6 +1,6 @@
 <template>
-    <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center h3">
-        <div class="py-5 w-100 px-3 d-flex justify-content-center">
+    <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center italic">
+        <div class="py-8 w-100 px-5 d-flex justify-content-center">
             <slot />
         </div>
         <div

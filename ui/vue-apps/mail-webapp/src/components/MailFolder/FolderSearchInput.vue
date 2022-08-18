@@ -4,6 +4,7 @@
         class="folder-search-input"
         icon="filter"
         variant="underline"
+        size="sm"
         resettable
         left-icon
         :placeholder="$t('mail.folder.search.placeholder')"

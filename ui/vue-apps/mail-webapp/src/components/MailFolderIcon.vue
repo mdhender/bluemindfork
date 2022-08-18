@@ -2,8 +2,10 @@
     <bm-icon v-if="noText" class="mail-folder-icon" fixed-width :icon="icon" :aria-label="ariaLabel" />
     <bm-label-icon
         v-else
-        class="mail-folder-icon"
+        class="mail-folder-icon text-truncate"
+        :class="{ 'caption-italic': variant === 'caption' }"
         :icon="icon"
+        :icon-size="variant === 'caption' ? 'xs' : 'md'"
         :aria-label="ariaLabel"
         :tooltip="tooltip"
         v-bind="$attrs"
@@ -36,6 +38,13 @@ export default {
         noText: {
             type: Boolean,
             default: false
+        },
+        variant: {
+            type: String,
+            default: "regular",
+            validator: function (value) {
+                return ["regular", "caption"].includes(value);
+            }
         }
     },
     computed: {
@@ -88,8 +97,9 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/mixins";
 
-.mail-folder-icon {
-    &.bm-label-icon > div {
+.mail-folder-icon.bm-label-icon {
+    color: $neutral-fg-lo1;
+    & > div {
         @include text-overflow;
     }
 }

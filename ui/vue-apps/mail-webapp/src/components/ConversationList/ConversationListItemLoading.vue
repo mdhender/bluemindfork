@@ -10,7 +10,7 @@
         <div class="conversation-list-item-left">
             <bm-skeleton-avatar />
         </div>
-        <div class="conversation-list-item-middle d-flex flex-column flex-fill px-2">
+        <div class="conversation-list-item-middle d-flex flex-column flex-fill px-4">
             <bm-skeleton width="50%" />
             <div class="d-flex justify-content-between">
                 <bm-skeleton width="65%" />
@@ -44,3 +44,19 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/variables";
+
+.list-group-item.conversation-list-item-loading {
+    &.conversation-list-item-compact {
+        height: base-px-to-rem(44);
+    }
+    &.conversation-list-item-normal {
+        height: base-px-to-rem(54);
+    }
+    &.conversation-list-item-full {
+        height: base-px-to-rem(60);
+    }
+}
+</style>

@@ -1,6 +1,6 @@
 <template>
     <div class="text-center pr-0 d-flex flex-column">
-        <div class="py-4 font-size-lg">
+        <div class="py-5">
             <p>
                 <!-- need to be refactored with i18n component interpolation -->
                 {{ $t("mail.list.search.no_result") }}<br />
@@ -47,10 +47,6 @@ export default {
 
 <style lang="scss" scoped>
 @import "~@bluemind/styleguide/css/variables";
-
-.font-size-lg {
-    font-size: $font-size-lg;
-}
 
 .search-pattern {
     color: $primary-fg;

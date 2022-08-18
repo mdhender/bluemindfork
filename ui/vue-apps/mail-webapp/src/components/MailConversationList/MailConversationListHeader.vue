@@ -1,28 +1,22 @@
 <template>
-    <div class="mail-conversation-list-header bg-surface pb-0 pt-1 d-none d-lg-block">
-        <bm-row align-v="center" class="no-gutters">
-            <bm-col cols="1">
-                <bm-check
-                    :checked="ALL_CONVERSATIONS_ARE_SELECTED"
-                    :indeterminate="!ALL_CONVERSATIONS_ARE_SELECTED && !SELECTION_IS_EMPTY"
-                    @change="toggleSelection"
-                />
-            </bm-col>
-            <bm-col class="d-none d-lg-block">
-                <bm-choice-group
-                    ref="filterChoiceGroup"
-                    :options="filters"
-                    :selected="filters[filterIndex]"
-                    :aria-label="$t('mail.list.filter.aria')"
-                    :title="$t('mail.list.filter.tooltip')"
-                />
-            </bm-col>
-        </bm-row>
+    <div class="mail-conversation-list-header d-none d-lg-flex">
+        <bm-check
+            :checked="ALL_CONVERSATIONS_ARE_SELECTED"
+            :indeterminate="!ALL_CONVERSATIONS_ARE_SELECTED && !SELECTION_IS_EMPTY"
+            @change="toggleSelection"
+        />
+        <bm-choice-group
+            ref="filterChoiceGroup"
+            :options="filters"
+            :selected="filters[filterIndex]"
+            :aria-label="$t('mail.list.filter.aria')"
+            :title="$t('mail.list.filter.tooltip')"
+        />
     </div>
 </template>
 
 <script>
-import { BmCheck, BmCol, BmRow, BmChoiceGroup } from "@bluemind/styleguide";
+import { BmCheck, BmChoiceGroup } from "@bluemind/styleguide";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import { UNSELECT_ALL_CONVERSATIONS, SET_SELECTION } from "~/mutations";
 import { ALL_CONVERSATIONS_ARE_SELECTED, SELECTION_IS_EMPTY, CONVERSATION_LIST_ALL_KEYS } from "~/getters";
@@ -30,7 +24,7 @@ const FILTER_INDEXES = { all: 0, unread: 1, flagged: 2 };
 
 export default {
     name: "MailConversationListHeader",
-    components: { BmCheck, BmCol, BmRow, BmChoiceGroup },
+    components: { BmCheck, BmChoiceGroup },
     computed: {
         ...mapState("mail", { filter: ({ conversationList }) => conversationList.filter }),
         ...mapGetters("mail", { ALL_CONVERSATIONS_ARE_SELECTED, SELECTION_IS_EMPTY, CONVERSATION_LIST_ALL_KEYS }),
@@ -76,14 +70,21 @@ export default {
 };
 </script>
 <style lang="scss">
+@use "sass:math";
 @import "~@bluemind/styleguide/css/variables";
+@import "../ConversationList/_variables.scss";
+
 .mail-conversation-list-header {
+    background-color: $surface;
     border-bottom: 1px solid $neutral-fg-lo2;
-    padding: 0.5rem;
+    height: $input-height-sm;
 }
 
 .mail-conversation-list-header .bm-check {
-    margin-left: 0.85em;
+    $check-offset: math.div($avatar-width-sm - $custom-checkbox-size, 2);
+    margin-left: calc(#{$not-seen-border-width} + #{$conversation-list-item-padding-left + $check-offset});
+    margin-right: $sp-3;
+    top: base-px-to-rem(7);
 }
 
 .fake-select {

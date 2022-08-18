@@ -1,7 +1,7 @@
 <template>
-    <div class="conversation-list-item-middle d-flex flex-column text-truncate">
-        <div class="d-flex flex-row">
-            <div :title="fromOrTo" class="mail-conversation-list-item-sender h3 text-truncate flex-fill">
+    <div class="conversation-list-item-middle regular text-truncate">
+        <div class="from-or-to-row">
+            <div :title="fromOrTo" class="from-or-to text-truncate">
                 <bm-extension id="webapp.mail" path="list.conversation.prefix" :conversation="conversation" />
                 <span v-if="isDraft" class="text-danger font-weight-normal">
                     [<span class="font-italic">{{ $t("common.folder.draft") }}</span
@@ -10,29 +10,37 @@
                 {{ fromOrTo }}
             </div>
             <div v-if="CONVERSATION_LIST_IS_SEARCH_MODE" class="d-flex slide">
-                <mail-folder-icon :mailbox="mailboxes[folder.mailboxRef.key]" :folder="folder">
-                    <i class="font-weight-bold">{{ folder.name }}</i>
+                <mail-folder-icon variant="caption" :mailbox="mailboxes[folder.mailboxRef.key]" :folder="folder">
+                    {{ folder.name }}
                 </mail-folder-icon>
             </div>
-            <div v-else class="d-flex justify-content-end">
-                <component :is="widget" v-for="widget in widgets" :key="widget.template" class="ml-2" />
+            <div v-else class="widgets">
+                <component :is="widget" v-for="widget in widgets" :key="widget.template" />
             </div>
         </div>
-        <div class="d-flex flex-row">
-            <div class="d-flex flex-column flex-fill overflow-hidden">
-                <div class="d-flex mail-conversation-list-item-subject">
-                    <div :title="displayedSubject" class="text-neutral text-truncate">
-                        {{ displayedSubject }}
-                    </div>
-                    <span v-if="conversation && conversationSize > 1 && conversation.unreadCount > 0" class="px-1">
-                        ({{ conversation.unreadCount }})
-                    </span>
+        <div class="subject-row">
+            <div class="subject-and-count">
+                <div :title="displayedSubject" class="text-truncate">
+                    {{ displayedSubject }}
                 </div>
-                <div :title="displayedPreview" class="mail-conversation-list-item-preview text-condensed text-truncate">
-                    {{ displayedPreview }}
-                </div>
+                <span v-if="conversation && conversationSize > 1 && conversation.unreadCount > 0">
+                    ({{ conversation.unreadCount }})
+                </span>
             </div>
-            <div class="mail-conversation-list-item-date text-neutral align-self-end">
+            <div v-if="!isMessageListStyleFull" class="displayed-date">
+                <span class="d-none d-lg-block">
+                    {{ displayedDate }}
+                </span>
+                <span class="d-block d-lg-none">
+                    {{ smallerDisplayedDate }}
+                </span>
+            </div>
+        </div>
+        <div v-if="isMessageListStyleFull" class="preview-row">
+            <div class="displayed-preview text-truncate" :title="displayedPreview">
+                {{ displayedPreview }}
+            </div>
+            <div class="displayed-date">
                 <span class="d-none d-lg-block">
                     {{ displayedDate }}
                 </span>
@@ -66,17 +74,18 @@ const FLAG_COMPONENT = {
     [Flag.FLAGGED]: {
         components: { BmIcon },
         template:
-            '<bm-icon :aria-label="$t(\'mail.list.flagged.aria\')" aria-hidden="false" class="text-warning" icon="flag-fill"/>',
+            '<bm-icon :aria-label="$t(\'mail.list.flagged.aria\')" aria-hidden="false" size="xs" class="text-warning" icon="flag-fill"/>',
         order: 3
     },
     [Flag.FORWARDED]: {
         components: { BmIcon },
-        template: '<bm-icon :aria-label="$t(\'mail.list.forwarded.aria\')" aria-hidden="false" icon="forward"/>',
+        template:
+            '<bm-icon :aria-label="$t(\'mail.list.forwarded.aria\')" aria-hidden="false" size="xs" icon="forward"/>',
         order: 1
     },
     [Flag.ANSWERED]: {
         components: { BmIcon },
-        template: '<bm-icon :aria-label="$t(\'mail.list.replied.aria\')" aria-hidden="false" icon="reply"/>',
+        template: '<bm-icon :aria-label="$t(\'mail.list.replied.aria\')" aria-hidden="false" size="xs" icon="reply"/>',
         order: 2
     }
 };
@@ -107,6 +116,9 @@ export default {
         }),
         ...mapState("mail", ["activeFolder", "folders", "mailboxes"]),
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
+        isMessageListStyleFull() {
+            return this.$store.state.settings.mail_message_list_style === "full";
+        },
         displayedDate: function () {
             const date = this.conversation.date;
             const today = new Date();
@@ -189,14 +201,68 @@ export default {
 @import "~@bluemind/styleguide/css/variables";
 
 .conversation-list-item-middle {
-    .mail-conversation-list-item-sender,
-    .mail-conversation-list-item-preview {
+    gap: 0;
+    .from-or-to-row {
+        height: base-px-to-rem(20);
+    }
+}
+
+.conversation-list-item-normal .conversation-list-item-middle {
+    gap: base-px-to-rem(1);
+    .from-or-to-row {
+        height: base-px-to-rem(24);
+    }
+}
+
+.conversation-list-item-middle {
+    display: flex;
+    flex-direction: column;
+
+    .from-or-to-row {
+        display: flex;
+        align-items: center;
+        gap: $sp-3;
         color: $neutral-fg-hi1;
+
+        .from-or-to {
+            flex: 1;
+        }
+
+        .widgets {
+            display: flex;
+            align-items: center;
+            gap: $sp-3;
+            height: base-px-to-rem(20);
+        }
     }
 
-    .custom-control-label::after,
-    .custom-control-label::before {
-        top: 0.2rem !important;
+    .subject-row {
+        display: flex;
+        align-items: center;
+        gap: $sp-2;
+
+        .subject-and-count {
+            flex: 1;
+            min-width: 0;
+            color: $neutral-fg;
+            display: flex;
+        }
+    }
+
+    .preview-row {
+        display: flex;
+        align-items: center;
+        gap: $sp-3;
+
+        .displayed-preview {
+            flex: 1;
+            color: $neutral-fg-hi1;
+        }
+    }
+
+    .displayed-date {
+        flex: 0;
+        color: $neutral-fg;
     }
 
     .fade-out-leave-active {
@@ -211,6 +277,13 @@ export default {
     }
     .bm-extension-list-conversation-prefix {
         display: inline;
+    }
+}
+
+.conversation-list-item.not-seen {
+    .from-or-to,
+    .subject-and-count {
+        font-weight: $font-weight-bold;
     }
 }
 </style>

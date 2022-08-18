@@ -1,7 +1,7 @@
 <template>
     <bm-list-group-item
         v-touch:touchhold="() => $emit('check')"
-        class="d-flex conversation-list-item"
+        class="conversation-list-item"
         :class="{
             ['conversation-list-item-' + messageListStyle]: true,
             'not-seen': isUnread,
@@ -20,7 +20,7 @@
             @check="$emit('check')"
         />
         <conversation-list-item-middle
-            class="flex-fill px-2"
+            class="flex-fill"
             :conversation="conversation"
             :conversation-size="conversationSize"
             :is-important="isFlagged"
@@ -94,47 +94,29 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/variables";
+@import "./_variables.scss";
 
-.conversation-list-item {
+.list-group-item.conversation-list-item {
     cursor: pointer;
-    border-left: transparent solid 4px !important;
 
+    border-left: $not-seen-border-width solid transparent;
     &.not-seen {
-        border-left: $secondary-fg 4px solid !important;
+        border-left-color: $secondary-fg;
     }
 
-    &.not-seen .mail-conversation-list-item-sender,
-    &.not-seen .mail-conversation-list-item-subject {
-        font-weight: $font-weight-bold;
-    }
+    height: initial;
+    align-items: flex-start;
+    gap: $sp-5;
 
-    &.conversation-list-item-full {
-        padding-top: $sp-1 !important;
-        padding-bottom: $sp-1 !important;
-        .mail-conversation-list-item-subject,
-        .mail-conversation-list-item-date {
-            line-height: $line-height-sm;
-        }
-        .mail-conversation-list-item-preview {
-            display: block;
-        }
-    }
+    padding-left: $sp-5;
+    padding-right: $sp-4;
+    padding-top: base-px-to-rem(5);
+    padding-bottom: base-px-to-rem(7);
 
+    &.conversation-list-item-full,
     &.conversation-list-item-compact {
-        padding-top: $sp-1 !important;
-        padding-bottom: $sp-1 !important;
-        .mail-conversation-list-item-subject,
-        .mail-conversation-list-item-date {
-            line-height: $line-height-sm;
-        }
-        .mail-conversation-list-item-preview {
-            display: none;
-        }
-    }
-
-    &.conversation-list-item-normal .mail-conversation-list-item-preview,
-    &.conversation-list-item-null .mail-conversation-list-item-preview {
-        display: none;
+        padding-top: base-px-to-rem(4);
+        padding-bottom: base-px-to-rem(3);
     }
 
     &.warning-custom:not(.active) {

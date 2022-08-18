@@ -69,6 +69,6 @@ export default {
     position: absolute;
     bottom: $sp-6;
     right: $sp-6;
-    z-index: $zindex-fixed;
+    z-index: 110;
 }
 </style>
