@@ -62,17 +62,6 @@ while getopts "g:w:u:f" o; do
 done
 shift $((OPTIND-1))
 
-cleanOnExit() {
-    [ -e /etc/bm/local/bm-cli.ini ] && rm -f /etc/bm/local/bm-cli.ini
-}
-
-trap cleanOnExit EXIT
-
-# Setup bm-cli memory
-cat > /etc/bm/local/bm-cli.ini <<EOF
-MEM=1500
-EOF
-
 # Not used anymore
 replication_progress() {
     echo "Estimating the progress of replication"

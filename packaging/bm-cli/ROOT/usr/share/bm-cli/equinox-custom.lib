@@ -33,12 +33,11 @@ PIDFILE=$2
 
 MEM=${DEFAULT_MEM:-4096}
 JVM_EXT_OPTS=""
-if [ -d /etc/bm/default -a -f "/etc/bm/default/${product}.ini" ]; then
-   source /etc/bm/default/${product}.ini
-fi
 if [ -d /etc/bm/local -a -f "/etc/bm/local/${product}.ini" ]; then
    source /etc/bm/local/${product}.ini
 fi
+# At least 4096 for bm-cli
+[ ${MEM} -lt 4096 ] && MEM=4096
 
 if [ -d /etc/bm/local -a -f "/etc/bm/local/${product}.log.xml" ]; then
    JVM_OPTS="${JVM_OPTS} -Dlogback.configurationFile=/etc/bm/local/${product}.log.xml"
