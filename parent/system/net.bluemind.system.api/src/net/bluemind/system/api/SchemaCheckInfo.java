@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2022
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -18,25 +18,13 @@
  */
 package net.bluemind.system.api;
 
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-
 import net.bluemind.core.api.BMApi;
-import net.bluemind.core.task.api.TaskRef;
 
-/**
- * In-Core schema management api
- *
- */
-@BMApi(version = "3", internal = true)
-@Path("/mgmt/schema")
-public interface ISchemaMgmt {
+@BMApi(version = "3")
+public class SchemaCheckInfo {
 
-	/**
-	 * Verify Bluemind DB schemas on all servers
-	 */
-	@PUT
-	@Path("_verify")
-	public TaskRef verify();
+	public String server;
+	public String db;
+	public String statements;
 
 }

@@ -11,3 +11,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0";visibility:=ree
  javax.validation.api,
  net.bluemind.user.api
 Automatic-Module-Name: net.bluemind.system.api
+Import-Package: net.bluemind.server.api

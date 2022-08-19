@@ -18,31 +18,47 @@
  */
 package net.bluemind.system.service.internal;
 
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
+import net.bluemind.core.utils.JsonUtils;
+import net.bluemind.node.api.ExitList;
+import net.bluemind.node.api.INodeClient;
+import net.bluemind.node.api.NCUtils;
+import net.bluemind.node.api.NodeActivator;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.server.api.IServer;
+import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.ISchemaMgmt;
+import net.bluemind.system.api.SchemaCheckInfo;
 import net.bluemind.system.pg.PostgreSQLService;
 
 public class SchemaMgmtService implements ISchemaMgmt {
 
 	private BmContext context;
 	private RBACManager rbacManager;
-	private String host;
-	private String dbName;
 
-	public SchemaMgmtService(BmContext context, String host, String dbName) {
+	private static final String PG_PATH = "/var/lib/postgresql";
+	private static final String COMPARE_SCHEMA_SCRIPT = "scripts/compareSchemas.sh";
+
+	public SchemaMgmtService(BmContext context) {
 		this.context = context;
 		this.rbacManager = new RBACManager(context);
-		this.host = host;
-		this.dbName = dbName;
 	}
 
 	public static class Factory implements ServerSideServiceProvider.IServerSideServiceFactory<ISchemaMgmt> {
@@ -54,70 +70,130 @@ public class SchemaMgmtService implements ISchemaMgmt {
 
 		@Override
 		public ISchemaMgmt instance(BmContext context, String... params) throws ServerFault {
-			if (params == null || params.length != 2) {
+			if (params.length != 0) {
 				throw new ServerFault("wrong number of instance parameters");
 			}
-			return new SchemaMgmtService(context, params[0], params[1]);
+			return new SchemaMgmtService(context);
 		}
 
 	}
 
 	@Override
-	public TaskRef installReferenceDb() throws ServerFault {
-		rbacManager.check(BasicRoles.ROLE_ADMIN);
-		IServerTask installTask = new IServerTask() {
-
-			@Override
-			public void run(IServerTaskMonitor monitor) throws Exception {
-				installReferenceDb(monitor, host, dbName);
-			}
-		};
-
-		return context.provider().instance(ITasksManager.class).run(installTask);
+	public TaskRef verify() {
+		return context.provider().instance(ITasksManager.class).run(mon -> verifyServers(mon));
 	}
 
-	private void installReferenceDb(IServerTaskMonitor monitor, String host, String dbName) {
-		monitor.begin(100, "Initializing temporary reference database ...");
+	public void verifyServers(IServerTaskMonitor mon) {
+		rbacManager.check(BasicRoles.ROLE_ADMIN);
+		List<SchemaCheckInfo> resultList = new ArrayList<>();
 
+		IServer serversApi = context.provider().instance(IServer.class, InstallationId.getIdentifier());
+		List<ItemValue<Server>> servers = serversApi.allComplete();
+
+		servers.stream().filter(s -> s.value.tags.contains(TagDescriptor.bm_pgsql.getTag())
+				|| s.value.tags.contains(TagDescriptor.bm_pgsql_data.getTag())).forEach(s -> {
+					INodeClient nc = NodeActivator.get(s.value.address());
+
+					checkMigra(s, nc);
+					String tmpDbName = "refdb".concat(String.valueOf(System.currentTimeMillis()));
+					ExitList dbExisting = NCUtils.exec(nc,
+							"sudo -u postgres bash -c \"psql -lqt | cut -d \\| -f 1 | grep -w " + tmpDbName + "\"", 30,
+							TimeUnit.SECONDS);
+					if (dbExisting.getExitCode() != 0) {
+						installReferenceDb(s.value.address(), tmpDbName);
+					}
+					File compareScript = copyScript(nc, tmpDbName);
+					try {
+						List<String> dbNames = new ArrayList<>();
+						if (s.value.tags.contains(TagDescriptor.bm_pgsql.getTag())) {
+							dbNames.add("bj");
+						}
+						if (s.value.tags.contains(TagDescriptor.bm_pgsql_data.getTag())) {
+							dbNames.add("bj-data");
+						}
+
+						dbNames.forEach(dbName -> {
+							verifyDb(resultList, s, nc, tmpDbName, compareScript, dbName);
+
+						});
+					} finally {
+						dropReferenceDb(s.value.address(), tmpDbName);
+						clearServer(nc, compareScript);
+					}
+				});
+
+		mon.end(true, "", JsonUtils.asString(resultList));
+
+	}
+
+	private void verifyDb(List<SchemaCheckInfo> resultMap, ItemValue<Server> s, INodeClient nc, String tmpDbName,
+			File compareScript, String dbName) {
+		File compareResult = new File(PG_PATH + "/output_" + s.uid + "_" + dbName + "_" + tmpDbName + ".sql");
 		try {
-			new PostgreSQLService().installReferenceDb(host, dbName);
-			monitor.log("Temporary {} database schema initialized", dbName);
-		} catch (Exception e) {
-			monitor.end(false, e.getMessage(), "Fail to initialize reference database schema");
-			return;
-		}
+			NCUtils.exec(nc, compareScript.getPath() + " " + dbName + " " + tmpDbName + " " + compareResult.getPath(),
+					30, TimeUnit.SECONDS);
 
-		monitor.end(true, "Initialized temporary reference database", null);
+			String statements = new String(nc.read(compareResult.getAbsolutePath()));
+			statements = Arrays.asList(statements.split("\n")).stream().filter(line -> !line.trim().isEmpty())
+					.reduce("", (a, b) -> a + "\n" + b);
+
+			SchemaCheckInfo check = new SchemaCheckInfo();
+			check.server = s.displayName;
+			check.db = dbName;
+			check.statements = statements;
+			resultMap.add(check);
+		} catch (Exception e) {
+			throw new ServerFault(e.getMessage());
+		} finally {
+			clearResult(nc, compareResult);
+		}
 	}
 
-	@Override
-	public TaskRef dropReferenceDb() {
-		rbacManager.check(BasicRoles.ROLE_ADMIN);
+	private void installReferenceDb(String host, String dbName) throws ServerFault {
+		new PostgreSQLService().installReferenceDb(host, dbName);
+	}
+
+	private void dropReferenceDb(String host, String dbName) {
 		if (dbName.equals("bj") || dbName.equals("bj-data")) {
 			throw new ServerFault(dbName + " database cannot be deleted.", ErrorCode.FORBIDDEN);
 		}
-		IServerTask dropTask = new IServerTask() {
-
-			@Override
-			public void run(IServerTaskMonitor monitor) throws Exception {
-				dropReferenceDb(monitor, host, dbName);
-			}
-		};
-
-		return context.provider().instance(ITasksManager.class).run(dropTask);
+		new PostgreSQLService().deleteReferenceDb(host, dbName);
 	}
 
-	private void dropReferenceDb(IServerTaskMonitor monitor, String host, String dbName) {
-		monitor.begin(100, "Delete temporary reference database ...");
+	private void clearResult(INodeClient nc, File compareResult) {
+		nc.deleteFile(compareResult.getPath());
+	}
 
+	private void clearServer(INodeClient nc, File compareScript) {
+		nc.deleteFile(compareScript.getPath());
+	}
+
+	private File copyScript(INodeClient nc, String tmpDbName) {
+		File compareScript = new File("/usr/share/bm-cli/compareSchemas_" + tmpDbName + ".sh");
+		InputStream inputStream = SchemaMgmtService.class.getClassLoader().getResourceAsStream(COMPARE_SCHEMA_SCRIPT);
+		nc.writeFile(compareScript.getPath(), inputStream);
+
+		NCUtils.execOrFail(nc, "chmod +x " + compareScript.getPath());
+		return compareScript;
+	}
+
+	private void checkMigra(ItemValue<Server> server, INodeClient nc) {
 		try {
-			new PostgreSQLService().deleteReferenceDb(host, dbName);
-			monitor.log("Temporary {} reference database deleted", dbName);
-		} catch (Exception e) {
-			monitor.end(false, e.getMessage(), "Fail to delete temporary reference database");
-			return;
+			ExitList checkMigra = NCUtils.exec(nc, "pip list");
+			if (checkMigra.getExitCode() != 0 || checkMigra.getFirst() == null
+					|| !checkMigra.getFirst().contains("migra")) {
+				String errorMsg = "Migra is not installed : please run \n" //
+						+ "- sudo pip install migra\n" //
+						+ "- sudo pip install migra[pg]";
+				throw new ServerFault(errorMsg);
+			}
+		} catch (ServerFault e) {
+			String errorMsg = "Please install pyhton pip before: 'sudo apt install python3-pip' \n"
+					+ "Then install Migra : \n" //
+					+ "- sudo pip install migra\n" //
+					+ "- sudo pip install migra[pg]";
+			throw new ServerFault(errorMsg);
 		}
-
-		monitor.end(true, "Deleted temporary reference database", null);
 	}
+
 }
