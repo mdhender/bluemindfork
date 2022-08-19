@@ -29,7 +29,9 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.repair.ContainerRepairOp;
+import net.bluemind.core.container.repair.ContainerRepairUtil;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
@@ -41,12 +43,15 @@ import net.bluemind.user.api.User;
 public class UserAddressbookRepair implements ContainerRepairOp {
 
 	@Override
-	public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+	public void check(BmContext context, String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 		ItemValue<User> user = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUser.class, domainUid).getComplete(entry.entryUid);
 
 		verifyDefaultContainer(domainUid, user, monitor, () -> {
 
+		});
+
+		ContainerRepairUtil.verifyContainerIsMarkedAsDefault(getDefaultContainerUid(user.uid), monitor, () -> {
 		});
 
 		verifyCollectedContactsContainer(domainUid, user, monitor, () -> {
@@ -56,7 +61,7 @@ public class UserAddressbookRepair implements ContainerRepairOp {
 	}
 
 	@Override
-	public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+	public void repair(BmContext context, String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 		ItemValue<User> user = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUser.class, domainUid).getComplete(entry.entryUid);
 
@@ -64,6 +69,11 @@ public class UserAddressbookRepair implements ContainerRepairOp {
 
 			createAddressbook(domainUid, entry, user, "$$mycontacts$$", getDefaultContainerUid(entry.entryUid));
 
+		});
+
+		String defaultContainerUid = getDefaultContainerUid(user.uid);
+		ContainerRepairUtil.verifyContainerIsMarkedAsDefault(defaultContainerUid, monitor, () -> {
+			ContainerRepairUtil.setAsDefault(defaultContainerUid, context, monitor);
 		});
 
 		verifyCollectedContactsContainer(domainUid, user, monitor, () -> {

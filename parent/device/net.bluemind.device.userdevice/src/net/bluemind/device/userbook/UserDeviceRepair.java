@@ -8,26 +8,32 @@ import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.repair.ContainerRepairOp;
+import net.bluemind.core.container.repair.ContainerRepairUtil;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
-import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.service.RepairTaskMonitor;
 
 public class UserDeviceRepair implements ContainerRepairOp {
 
 	private static final String TYPE = "device";
 
 	@Override
-	public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+	public void check(BmContext context, String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 
 		verifyDeviceContainer(domainUid, entry.entryUid, monitor, () -> {
+		});
+
+		String containerUid = TYPE + ":" + entry.entryUid;
+		ContainerRepairUtil.verifyContainerIsMarkedAsDefault(containerUid, monitor, () -> {
 		});
 
 	}
 
 	@Override
-	public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+	public void repair(BmContext context, String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 
 		verifyDeviceContainer(domainUid, entry.entryUid, monitor, () -> {
 
@@ -41,6 +47,11 @@ public class UserDeviceRepair implements ContainerRepairOp {
 					.instance(IContainerManagement.class, descriptor.uid);
 			cm.setAccessControlList(Arrays.asList(AccessControlEntry.create(entry.entryUid, Verb.All)));
 
+		});
+
+		String containerUid = TYPE + ":" + entry.entryUid;
+		ContainerRepairUtil.verifyContainerIsMarkedAsDefault(containerUid, monitor, () -> {
+			ContainerRepairUtil.setAsDefault(containerUid, context, monitor);
 		});
 
 	}

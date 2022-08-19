@@ -81,7 +81,7 @@ public class InternalContainersHierarchyMgmtService implements IInternalContaine
 			if (existing == null) {
 				store.create(hierCont);
 			} else {
-				store.updateName(hierCont.uid, hierCont.name);
+				store.update(hierCont.uid, hierCont.name, hierCont.defaultContainer);
 			}
 			return null;
 		});

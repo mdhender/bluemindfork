@@ -180,7 +180,7 @@ public class ContainerManagement implements IInternalContainerManagement {
 
 		validator.update(prev, descriptor);
 		try {
-			containerStore.updateName(container.uid, descriptor.name);
+			containerStore.update(container.uid, descriptor.name, prev.defaultContainer);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}

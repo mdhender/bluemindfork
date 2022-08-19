@@ -52,19 +52,22 @@ public class ContainerRepair implements IDirEntryRepairSupport {
 
 	private static class ContainerMaintenance extends InternalMaintenanceOperation {
 
+		private final BmContext context;
+
 		public ContainerMaintenance(BmContext context) {
 			super(containerOp.identifier, null, null, 1);
+			this.context = context;
 		}
 
 		@Override
 		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
-			verify(domainUid, entry, monitor, op -> op.check(domainUid, entry, monitor));
+			verify(domainUid, entry, monitor, op -> op.check(context, domainUid, entry, monitor));
 			monitor.end();
 		}
 
 		@Override
 		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
-			verify(domainUid, entry, monitor, op -> op.repair(domainUid, entry, monitor));
+			verify(domainUid, entry, monitor, op -> op.repair(context, domainUid, entry, monitor));
 			monitor.end();
 		}
 

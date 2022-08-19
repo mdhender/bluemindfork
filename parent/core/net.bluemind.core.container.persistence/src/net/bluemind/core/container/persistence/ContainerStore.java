@@ -263,10 +263,11 @@ public class ContainerStore extends JdbcAbstractStore {
 		return c;
 	}
 
-	public void updateName(final String uid, final String name) throws SQLException {
-		String updateQuery = "UPDATE t_container SET (name, updatedby, updated) = (?, ?, now()) WHERE uid = ?";
+	public void update(final String uid, final String name, boolean defaultContainer) throws SQLException {
+		String updateQuery = "UPDATE t_container SET (name, defaultcontainer, updatedby, updated) = (?, ?, ?, now()) WHERE uid = ?";
 		update(updateQuery, null, (con, statement, index, currentRow, value) -> {
 			statement.setString(index++, name);
+			statement.setBoolean(index++, defaultContainer);
 			statement.setString(index++, securityContext.getSubject());
 			statement.setString(index++, uid);
 			return index;

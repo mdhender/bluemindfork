@@ -262,16 +262,16 @@ public class Containers implements IContainers {
 
 			RBACManager.forContext(context).forContainer(c).check(Verb.Manage.name());
 
-			containerStore.updateName(uid, descriptor.name);
+			containerStore.update(uid, descriptor.name, c.defaultContainer);
 
 			return c;
 		});
 
 		ContainerDescriptor prev = ContainerDescriptor.create(container.uid, container.name, container.owner,
-				container.type, container.domainUid, false);
+				container.type, container.domainUid, container.defaultContainer);
 
 		ContainerDescriptor cur = ContainerDescriptor.create(container.uid, descriptor.name, container.owner,
-				container.type, container.domainUid, false);
+				container.type, container.domainUid, descriptor.defaultContainer);
 		cur.deleted = descriptor.deleted;
 
 		for (IContainersHook ch : cHooks) {

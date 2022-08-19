@@ -388,7 +388,7 @@ public class ContainerStoreTests {
 		home.create(container);
 
 		try {
-			home.updateName(uid, "name2");
+			home.update(uid, "name2", true);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			fail();

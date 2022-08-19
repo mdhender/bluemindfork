@@ -21,15 +21,16 @@ package net.bluemind.core.container.repair;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.service.RepairTaskMonitor;
 
 public interface ContainerRepairOp {
 
-	public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor);
+	public void check(BmContext context, String domainUid, DirEntry entry, RepairTaskMonitor monitor);
 
-	public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor);
+	public void repair(BmContext context, String domainUid, DirEntry entry, RepairTaskMonitor monitor);
 
 	public DirEntry.Kind supportedKind();
 

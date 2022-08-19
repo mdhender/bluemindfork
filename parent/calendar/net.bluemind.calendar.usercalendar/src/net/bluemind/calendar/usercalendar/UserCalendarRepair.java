@@ -31,22 +31,28 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.repair.ContainerRepairOp;
+import net.bluemind.core.container.repair.ContainerRepairUtil;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
-import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
 public class UserCalendarRepair implements ContainerRepairOp {
 
 	@Override
-	public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+	public void check(BmContext context, String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 		ItemValue<User> user = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUser.class, domainUid).getComplete(entry.entryUid);
 
 		verifyDefaultContainer(domainUid, user, monitor, () -> {
+		});
+
+		String containerUid = ICalendarUids.defaultUserCalendar(user.uid);
+		ContainerRepairUtil.verifyContainerIsMarkedAsDefault(containerUid, monitor, () -> {
 		});
 
 		verifyCalendarViewContainer(domainUid, user, monitor, () -> {
@@ -58,13 +64,18 @@ public class UserCalendarRepair implements ContainerRepairOp {
 	}
 
 	@Override
-	public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
+	public void repair(BmContext context, String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
 		ItemValue<User> user = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUser.class, domainUid).getComplete(entry.entryUid);
 
 		verifyDefaultContainer(domainUid, user, monitor, () -> {
 			UserCalendarServiceFactory calendarServiceFactory = new UserCalendarServiceFactory();
 			calendarServiceFactory.getService(SecurityContext.SYSTEM).createDefault(domainUid, user);
+		});
+
+		String defaultCalendarUid = ICalendarUids.defaultUserCalendar(user.uid);
+		ContainerRepairUtil.verifyContainerIsMarkedAsDefault(defaultCalendarUid, monitor, () -> {
+			ContainerRepairUtil.setAsDefault(defaultCalendarUid, context, monitor);
 		});
 
 		verifyCalendarViewContainer(domainUid, user, monitor, () -> {
