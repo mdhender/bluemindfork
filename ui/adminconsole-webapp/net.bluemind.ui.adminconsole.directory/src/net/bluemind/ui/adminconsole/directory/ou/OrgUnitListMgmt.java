@@ -42,6 +42,8 @@ public class OrgUnitListMgmt {
 	public static final EventBus ROLE_DETAIL_BUS = GWT.create(SimpleEventBus.class);
 
 	private static OrgUnitListMgmt instance;
+
+	OrgUnitItem focusedItem = null;
 	Tree tree;
 
 	enum TreeAction {

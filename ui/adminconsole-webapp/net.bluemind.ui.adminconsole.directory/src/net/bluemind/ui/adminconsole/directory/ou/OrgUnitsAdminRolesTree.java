@@ -118,28 +118,24 @@ public class OrgUnitsAdminRolesTree extends Composite {
 		loadRolesModel();
 
 		IOrgUnitsPromise orgUnits = new OrgUnitsGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid).promiseApi();
-		orgUnits.listByAdministrator(entryUid, Collections.emptyList()).thenAccept(res ->
+		List<CompletableFuture<OrgUnitAdministratorModel>> adminRolesCF = getAdminRolesCF(orgUnits, entryUid,
+				orgUnitItem.path);
 
-		res.stream().filter(o -> o.uid.equals(orgUnitItem.getUid())).findFirst().ifPresent(unit -> {
-			List<CompletableFuture<OrgUnitAdministratorModel>> adminRolesCF = getAdminRolesCF(orgUnits, entryUid, unit);
-
-			CompletableFuture.allOf(adminRolesCF.toArray(new CompletableFuture[0])) //
-					.thenApply(v -> adminRolesCF.stream().map(CompletableFuture::join).collect(Collectors.toList())) //
-					.thenAccept(l -> {
-						IUserPromise userService = new UserGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid)
-								.promiseApi();
-						userService.getRoles(entryUid) //
-								.thenAccept(userRoles -> {
-									OrgUnitAdministratorModel rootModel = GWT.create(OrgUnitAdministratorModel.class);
-									JsOrgUnitPath rootOrgUnit = JavaScriptObject.createObject().cast();
-									rootOrgUnit.setUid(FAKE_ROOT_UID);
-									rootModel.orgUnit = rootOrgUnit;
-									rootModel.roles = userRoles.toArray(new String[0]);
-									addOrgUnit(rootModel);
-								}) //
-								.thenRun(() -> loadModelForOrgUnit(orgUnitItem.getUid()));
-					});
-		}));
+		CompletableFuture.allOf(adminRolesCF.toArray(new CompletableFuture[0])) //
+				.thenApply(v -> adminRolesCF.stream().map(CompletableFuture::join).collect(Collectors.toList())) //
+				.thenAccept(l -> {
+					IUserPromise userService = new UserGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid).promiseApi();
+					userService.getRoles(entryUid) //
+							.thenAccept(userRoles -> {
+								OrgUnitAdministratorModel rootModel = GWT.create(OrgUnitAdministratorModel.class);
+								JsOrgUnitPath rootOrgUnit = JavaScriptObject.createObject().cast();
+								rootOrgUnit.setUid(FAKE_ROOT_UID);
+								rootModel.orgUnit = rootOrgUnit;
+								rootModel.roles = userRoles.toArray(new String[0]);
+								addOrgUnit(rootModel);
+							}) //
+							.thenRun(() -> loadModelForOrgUnit(orgUnitItem.getUid()));
+				});
 	}
 
 	private List<CompletableFuture<OrgUnitAdministratorModel>> getAdminRolesCF(IOrgUnitsPromise orgUnits,

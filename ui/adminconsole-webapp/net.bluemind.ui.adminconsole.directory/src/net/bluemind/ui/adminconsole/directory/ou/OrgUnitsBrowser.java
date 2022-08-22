@@ -396,8 +396,7 @@ public class OrgUnitsBrowser extends Composite
 
 	@Override
 	public void onRoleSelected(OURoleDetailEvent roleClickEvent) {
-		ouRolesTree.loadOuRoleTreeContext(roleClickEvent.itemValue.uid, domainUid,
-				unitListMngt.getSelectedEnabledItems().get(0));
+		ouRolesTree.loadOuRoleTreeContext(roleClickEvent.itemValue.uid, domainUid, unitListMngt.focusedItem);
 	}
 
 	private OrgUnitConstants getTexts() {

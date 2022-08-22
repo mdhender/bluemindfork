@@ -161,6 +161,7 @@ public class OrgUnitTreeGrid extends Grid implements IGwtWidgetElement {
 						item.createCheckBox();
 						OrgUnitCheckBox cb = (OrgUnitCheckBox) item.getWidget();
 						cb.addValueChangeHandler(event -> {
+							unitListMngt.focusedItem = event.getValue().booleanValue() ? cb.getItem() : null;
 							cb.getItem().toogleHierarchy(event.getValue());
 							allOrgUnits
 									.setValue(unitListMngt.getSelectedItems().size() == unitListMngt.getItems().size());
@@ -275,14 +276,12 @@ public class OrgUnitTreeGrid extends Grid implements IGwtWidgetElement {
 	}
 
 	private static Map<String, List<OrgUnitPath>> orderResultList(List<OrgUnitPath> result) {
-		List<OrgUnitPath> pathsList = new ArrayList<>(result);
-		pathsList.addAll(getMissingParentNodes(result));
-		pathsList = pathsList.stream().distinct().collect(Collectors.toList());
+		List<OrgUnitPath> completeList = loadMissingParentNodes(result);
 
 		Map<String, List<OrgUnitPath>> pathMap = new HashMap<>();
-		pathsList.stream().filter(r -> r.path().size() == 1).forEach(e -> pathMap.put(e.uid, new ArrayList<>()));
+		completeList.stream().filter(r -> r.path().size() == 1).forEach(e -> pathMap.put(e.uid, new ArrayList<>()));
 
-		for (OrgUnitPath orgUnitPath : result) {
+		for (OrgUnitPath orgUnitPath : completeList) {
 			String key = orgUnitPath.path().get(orgUnitPath.path().size() - 1);
 			if (pathMap.get(key) != null) {
 				pathMap.get(key).add(orgUnitPath);
@@ -299,8 +298,7 @@ public class OrgUnitTreeGrid extends Grid implements IGwtWidgetElement {
 		return pathMap;
 	}
 
-	private static Set<OrgUnitPath> getMissingParentNodes(List<OrgUnitPath> result) {
-
+	private static List<OrgUnitPath> loadMissingParentNodes(List<OrgUnitPath> result) {
 		List<OrgUnitPath> rootNodes = result.stream().filter(r -> r.path().size() == 1).collect(Collectors.toList());
 
 		Set<OrgUnitPath> newResult = new HashSet<>();
@@ -313,7 +311,8 @@ public class OrgUnitTreeGrid extends Grid implements IGwtWidgetElement {
 			}
 		});
 
-		return newResult;
+		result.addAll(newResult);
+		return result.stream().distinct().collect(Collectors.toList());
 	}
 
 	@Override

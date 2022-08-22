@@ -42,6 +42,7 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.DirEntryQuery.Dir;
 import net.bluemind.directory.api.DirEntryQuery.OrderBy;
+import net.bluemind.directory.api.DirEntryQuery.StateFilter;
 import net.bluemind.directory.api.IDirectoryPromise;
 import net.bluemind.directory.api.gwt.endpoint.DirectoryGwtEndpoint;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
@@ -191,6 +192,8 @@ public class CommonOrgResourceGrid extends DataGrid<ItemValue<DirEntry>> impleme
 		dq.hiddenFilter = false;
 		dq.onlyManagable = true;
 
+		dq.stateFilter = StateFilter.Active;
+		dq.size = OrgResourceGrid.PAGE_SIZE;
 		dq.order = DirEntryQuery.order(OrderBy.displayname, Dir.asc);
 
 		final ColumnSortList sortList = getColumnSortList();

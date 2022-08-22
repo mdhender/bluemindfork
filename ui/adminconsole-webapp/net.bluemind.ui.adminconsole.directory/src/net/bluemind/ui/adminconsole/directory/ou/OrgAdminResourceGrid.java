@@ -70,12 +70,12 @@ public class OrgAdminResourceGrid extends CommonOrgResourceGrid {
 
 			@Override
 			protected void onRangeChanged(HasData<ItemValue<DirEntry>> display) {
-				OrgUnitItem orgUnitItem = unitListMngt.getSelectedItems().get(0);
-				CompletableFuture<Set<String>> administratorsCf = dir.getAdministrators(orgUnitItem.getUid());
+				OrgUnitItem focusedItem = unitListMngt.focusedItem;
+				CompletableFuture<Set<String>> administratorsCf = dir.getAdministrators(focusedItem.getUid());
 
 				administratorsCf.thenAccept(admin -> {
 					if (admin.isEmpty()) {
-						returnEmptyTable(constants.emptyRoleAdminTable(orgUnitItem.getName()));
+						returnEmptyTable(constants.emptyRoleAdminTable(focusedItem.getName()));
 						return;
 					}
 
@@ -106,7 +106,7 @@ public class OrgAdminResourceGrid extends CommonOrgResourceGrid {
 
 	private DirEntryQuery createDirEntryQuery(List<String> adminUids) {
 		DirEntryQuery dq = initQuery();
-		dq.entryUidFilter = adminUids;
+		dq.entries = adminUids;
 		dq.kindsFilter = java.util.Arrays.asList(Kind.USER, Kind.GROUP);
 		return dq;
 	}

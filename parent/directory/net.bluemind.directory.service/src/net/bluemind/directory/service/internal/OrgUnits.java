@@ -226,12 +226,17 @@ public class OrgUnits implements IOrgUnits {
 
 	@Override
 	public Set<String> getAdministrators(String uid) {
-		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_OU);
+		if (!rbacManager.forOrgUnit(uid).roles().contains(BasicRoles.ROLE_MANAGE_OU)) {
+			throw new ServerFault(String.format("%s@%s Doesnt have role %s", //
+					context.getSecurityContext().getSubject(), context.getSecurityContext().getContainerUid(), //
+					BasicRoles.ROLE_MANAGE_OU), ErrorCode.PERMISSION_DENIED);
+		}
 
 		ItemValue<OrgUnit> ou = storeService.get(uid);
 		if (ou == null) {
 			throw new ServerFault("ou " + uid + " not found", ErrorCode.NOT_FOUND);
 		}
+
 		return storeService.getAdministrators(uid);
 	}
 
