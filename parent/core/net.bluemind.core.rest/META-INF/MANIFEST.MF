@@ -13,10 +13,10 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0";visibility:=ree
  io.netty;bundle-version="4.0.33",
  net.bluemind.lib.jackson;bundle-version="1.0.0",
  net.bluemind.common.reflect;visibility:=reexport,
- net.bluemind.core.sessions,
  net.bluemind.eclipse.common,
  net.bluemind.core.rest.common,
- net.bluemind.metrics.registry
+ net.bluemind.metrics.registry,
+ net.bluemind.core.sessions;bundle-version="4.1.0"
 Export-Package: net.bluemind.core.rest,
  net.bluemind.core.rest.base,
  net.bluemind.core.rest.filter,
@@ -24,8 +24,5 @@ Export-Package: net.bluemind.core.rest,
  net.bluemind.core.rest.model,
  net.bluemind.core.rest.utils,
  net.bluemind.core.rest.vertx
-Bundle-Activator: net.bluemind.core.rest.RestActivator
-Eclipse-RegisterBuddy: net.bluemind.lib.vertx
-Eclipse-BuddyPolicy: registered
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.core.rest

@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Item Services
+Bundle-Name: net.bluemind.core.container.api
 Bundle-SymbolicName: net.bluemind.core.container.api;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.core.container.api,
@@ -9,7 +9,8 @@ Export-Package: net.bluemind.core.container.api,
  net.bluemind.core.container.model.acl
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.commons;visibility:=reexport,
+ javax.validation.api,
  net.bluemind.core.task.api;visibility:=reexport,
- javax.validation.api
-Eclipse-RegisterBuddy: net.bluemind.core.rest
+ net.bluemind.core.rest;bundle-version="4.1.0"
 Automatic-Module-Name: net.bluemind.core.container.api
+Bundle-Vendor: bluemind.net

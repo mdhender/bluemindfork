@@ -15,7 +15,6 @@ import net.bluemind.common.cache.persistence.CacheBackingStore;
 import net.bluemind.config.Token;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.system.api.SystemState;
 
 public class Sessions implements BundleActivator {
 	private static final CacheBackingStore<SecurityContext> STORE = SessionsBackingStore.build();
@@ -33,10 +32,9 @@ public class Sessions implements BundleActivator {
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		Vertx vx = VertxPlatform.getVertx();
-		vx.eventBus().consumer(SystemState.BROADCAST, (Message<JsonObject> event) -> {
+		vx.eventBus().consumer("core.status.broadcast", (Message<JsonObject> event) -> {
 			String op = event.body().getString("operation");
-			SystemState state = SystemState.fromOperation(op);
-			if (state == SystemState.CORE_STATE_MAINTENANCE) {
+			if (op.equals("core.state.maintenance")) {
 				STORE.getCache().invalidateAll();
 			}
 		});

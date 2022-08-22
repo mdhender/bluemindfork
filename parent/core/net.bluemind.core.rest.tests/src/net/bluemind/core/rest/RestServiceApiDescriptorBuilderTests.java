@@ -35,7 +35,7 @@ import net.bluemind.core.rest.model.RestServiceApiDescriptor.MethodDescriptor;
 import net.bluemind.core.rest.tests.services.IRestSecuredTestService;
 import net.bluemind.core.rest.tests.services.IRestTestService;
 
-public class RestServiceApiDescriptorBuilderTest {
+public class RestServiceApiDescriptorBuilderTests {
 	private RestServiceApiDescriptorBuilder builder = new RestServiceApiDescriptorBuilder();
 
 	@Test

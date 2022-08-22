@@ -10,7 +10,6 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.config;bundle-version="1.0.0",
  net.bluemind.lib.vertx,
- net.bluemind.system.api;bundle-version="4.1.0",
  net.bluemind.eclipse.common,
  com.github.ben-manes.caffeine;visibility:=reexport,
  net.bluemind.common.cache.persistence;visibility:=reexport

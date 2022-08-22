@@ -5,6 +5,7 @@
    <extension-point id="net.bluemind.core.rest.serviceFactory" name="serviceFactory" schema="schema/net.bluemind.core.rest.serviceFactory.exsd"/>
    <extension-point id="net.bluemind.core.rest.eventBusAccessRule" name="eventBusAccessRule" schema="schema/net.bluemind.core.rest.eventBusAccessRule.exsd"/>
    <extension-point id="net.bluemind.core.rest.filter" name="filter" schema="schema/net.bluemind.core.rest.filter.exsd"/>
+   <extension-point id="net.bluemind.core.rest.genericHolder" name="genericHolder" schema="schema/net.bluemind.core.rest.genericHolder.exsd"/>
    <extension
          point="net.bluemind.lib.vertx.verticles">
       <verticle

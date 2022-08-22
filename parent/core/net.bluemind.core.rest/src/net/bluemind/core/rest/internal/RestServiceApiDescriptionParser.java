@@ -38,8 +38,11 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.common.reflect.ClassVisitor;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.RequiredRoles;
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.rest.IGenericHolder;
 import net.bluemind.core.rest.model.RestServiceApiDescriptor;
 import net.bluemind.core.rest.model.RestServiceApiDescriptor.MethodDescriptor;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
 public class RestServiceApiDescriptionParser implements ClassVisitor {
 	private Class<?> clazz;
@@ -48,6 +51,18 @@ public class RestServiceApiDescriptionParser implements ClassVisitor {
 	private String rootPath;
 	private Type genericType;
 	private static final Logger logger = LoggerFactory.getLogger(RestServiceApiDescriptionParser.class);
+
+	private static IGenericHolder holder = loadHolder();
+
+	private static IGenericHolder loadHolder() {
+		RunnableExtensionLoader<IGenericHolder> rel = new RunnableExtensionLoader<>();
+		List<IGenericHolder> exts = rel.loadExtensions("net.bluemind.core.rest", "genericHolder", "generic_holder",
+				"holder");
+		if (exts.isEmpty()) {
+			throw new ServerFault("no generic holder found.");
+		}
+		return exts.get(0);
+	}
 
 	@Override
 	public void visit(Class<?> clazz) {
@@ -105,7 +120,7 @@ public class RestServiceApiDescriptionParser implements ClassVisitor {
 	}
 
 	protected Type toType(Class<?> itemValueType) throws ClassNotFoundException {
-		Class<?> cl = Class.forName("net.bluemind.core.container.model.ItemValue");
+		Class<?> cl = holder.genericParameter();
 		return new ParameterizedType() {
 
 			@Override
