@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Communications;
@@ -267,7 +268,6 @@ public final class VCardAdapter {
 		List<TagRef> cats = new ArrayList<>(categoriesProps.size());
 		for (Property p : categoriesProps) {
 			Categories cat = (Categories) p;
-			@SuppressWarnings("unchecked")
 			Iterator<String> it = cat.getCategories().iterator();
 			while (it.hasNext()) {
 				String v = it.next();
@@ -381,7 +381,7 @@ public final class VCardAdapter {
 							+ valueOrEmpty(vcard.identification.name.suffixes)));
 		}
 
-		if (vcard.identification.nickname != null && vcard.identification.nickname.value != null) {
+		if (vcard.identification.nickname != null && !Strings.isNullOrEmpty(vcard.identification.nickname.value)) {
 			properties.add(new Nickname(toVCard(vcard.identification.nickname.parameters),
 					vcard.identification.nickname.value));
 		}
@@ -390,12 +390,12 @@ public final class VCardAdapter {
 			properties.add(new BDay(new Date(vcard.identification.birthday.getTime())));
 		}
 
-		if (vcard.identification.gender != null) {
+		if (vcard.identification.gender != null && !Strings.isNullOrEmpty(vcard.identification.gender.value)) {
 			properties.add(new Gender(vcard.identification.gender.value));
 		}
 
 		for (DeliveryAddressing da : vcard.deliveryAddressing) {
-			if (da.address != null) {
+			if (da.address != null && !isEmpty(da)) {
 				properties
 						.add(new Address(da.address.postOfficeBox, da.address.extentedAddress, da.address.streetAddress,
 								da.address.locality, da.address.region, da.address.postalCode, da.address.countryName));
@@ -424,15 +424,15 @@ public final class VCardAdapter {
 			}
 		}
 
-		if (vcard.organizational.role != null) {
+		if (!Strings.isNullOrEmpty(vcard.organizational.role)) {
 			properties.add(new Role(vcard.organizational.role));
 		}
 
-		if (vcard.organizational.title != null) {
+		if (!Strings.isNullOrEmpty(vcard.organizational.title)) {
 			properties.add(new Title(vcard.organizational.title));
 		}
 
-		if (vcard.organizational.org != null) {
+		if (vcard.organizational.org != null && !isEmpty(vcard.organizational.org)) {
 			String[] values = { //
 					vcard.organizational.org.company != null ? vcard.organizational.org.company : "", //
 					vcard.organizational.org.division != null ? vcard.organizational.org.division : "", //
@@ -447,7 +447,7 @@ public final class VCardAdapter {
 				LOGGER.warn(e.getMessage());
 			}
 		}
-		if (vcard.explanatory.note != null) {
+		if (!Strings.isNullOrEmpty(vcard.explanatory.note)) {
 			String noteAsPlainText = Jsoup.parse(vcard.explanatory.note).text();
 			if (!vcard.explanatory.note.equals(noteAsPlainText)) {
 				properties.add(new NoteAsHtml(vcard.explanatory.note));
@@ -493,6 +493,33 @@ public final class VCardAdapter {
 			}
 		}
 		return ret;
+	}
+
+	private static boolean isEmpty(net.bluemind.addressbook.api.VCard.Organizational.Org org) {
+		if (!Strings.isNullOrEmpty(org.company) //
+				|| !Strings.isNullOrEmpty(org.department) //
+				|| !Strings.isNullOrEmpty(org.division)) {
+			return false;
+		}
+		return true;
+	}
+
+	private static boolean isEmpty(DeliveryAddressing da) {
+		if (da.address != null) {
+			net.bluemind.addressbook.api.VCard.DeliveryAddressing.Address address = da.address;
+			if (!Strings.isNullOrEmpty(address.value) //
+					|| !Strings.isNullOrEmpty(address.postOfficeBox) //
+					|| !Strings.isNullOrEmpty(address.extentedAddress) //
+					|| !Strings.isNullOrEmpty(address.streetAddress) //
+					|| !Strings.isNullOrEmpty(address.locality) //
+					|| !Strings.isNullOrEmpty(address.region) //
+					|| !Strings.isNullOrEmpty(address.postalCode) //
+					|| !Strings.isNullOrEmpty(address.countryName) //
+					|| (address.parameters != null && !address.parameters.isEmpty())) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@SuppressWarnings("serial")

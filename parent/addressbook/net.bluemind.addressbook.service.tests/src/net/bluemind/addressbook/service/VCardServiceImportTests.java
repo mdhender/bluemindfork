@@ -48,6 +48,7 @@ import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.DeliveryAddressing;
 import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Organizational.Member;
+import net.bluemind.addressbook.api.VCard.Organizational.Org;
 import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.addressbook.service.internal.AddressBookService;
 import net.bluemind.addressbook.service.internal.VCardContainerStoreService;
@@ -339,6 +340,20 @@ public class VCardServiceImportTests extends AbstractServiceTests {
 
 		assertEquals("po;ext;123 Main Street;Any Town;CA;zip;U.S.A;", props.get(0).getValue());
 		assertEquals("po2;ext;123 Main Street;Any Town;CA;zip2;U.S.A;", props.get(1).getValue());
+
+		card = defaultVCard();
+		card.deliveryAddressing = Arrays.asList(
+				VCard.DeliveryAddressing.create(VCard.DeliveryAddressing.Address.create("coucou", "po", "ext",
+						"123 Main Street", "Any Town", "CA", "zip", "U.S.A", Arrays.<Parameter>asList())),
+				VCard.DeliveryAddressing.create(new VCard.DeliveryAddressing.Address()), new DeliveryAddressing(),
+				VCard.DeliveryAddressing.create(
+						VCard.DeliveryAddressing.Address.create(null, "po", null, null, null, null, null, null, null)));
+
+		export = export(card);
+		props = export.getProperties(Id.ADR);
+		assertEquals(2, props.size());
+		assertEquals("po;ext;123 Main Street;Any Town;CA;zip;U.S.A;", props.get(0).getValue());
+		assertEquals("po;;;;;;;", props.get(1).getValue());
 	}
 
 	@Test
@@ -452,6 +467,30 @@ public class VCardServiceImportTests extends AbstractServiceTests {
 		assertEquals("test@2.com", props.get(1).getValue());
 		assertEquals("HOME", props.get(1).getParameter(net.fortuna.ical4j.vcard.Parameter.Id.TYPE).getValue());
 
+	}
+
+	@Test
+	public void testExportOrg() throws ServerFault {
+		VCard card = defaultVCard();
+		card.organizational.org = Org.create("owner", "division", "department");
+
+		net.fortuna.ical4j.vcard.VCard export = export(card);
+		List<Property> props = export.getProperties(Id.ORG);
+		assertEquals(1, props.size());
+		assertEquals("owner;division;department", props.get(0).getValue());
+
+		card.organizational.org = Org.create(null, null, "department");
+
+		export = export(card);
+		props = export.getProperties(Id.ORG);
+		assertEquals(1, props.size());
+		assertEquals(";;department", props.get(0).getValue());
+
+		card.organizational.org = Org.create("", null, "");
+
+		export = export(card);
+		props = export.getProperties(Id.ORG);
+		assertEquals(0, props.size());
 	}
 
 	@Test
