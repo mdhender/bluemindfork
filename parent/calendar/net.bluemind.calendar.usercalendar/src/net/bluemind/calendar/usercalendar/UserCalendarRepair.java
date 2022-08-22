@@ -61,6 +61,9 @@ public class UserCalendarRepair implements ContainerRepairOp {
 		verifyFreebusyViewContainer(domainUid, user, monitor, () -> {
 		});
 
+		ContainerRepairUtil.verifyContainerSubscription(entry.entryUid, domainUid, monitor, (container) -> {
+		}, containerUid);
+
 	}
 
 	@Override
@@ -106,6 +109,10 @@ public class UserCalendarRepair implements ContainerRepairOp {
 					.setAccessControlList(Arrays.asList(AccessControlEntry.create(user.uid, Verb.All),
 							AccessControlEntry.create(domainUid, Verb.Read)));
 		});
+
+		ContainerRepairUtil.verifyContainerSubscription(entry.entryUid, domainUid, monitor, (container) -> {
+			ContainerRepairUtil.subscribe(entry.entryUid, domainUid, container);
+		}, defaultCalendarUid);
 
 	}
 

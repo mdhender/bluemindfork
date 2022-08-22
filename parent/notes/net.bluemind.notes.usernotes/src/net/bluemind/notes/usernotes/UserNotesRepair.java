@@ -42,6 +42,9 @@ public class UserNotesRepair implements ContainerRepairOp {
 		verifyContainer(domainUid, monitor, maintenance, containerUid);
 
 		ContainerRepairUtil.verifyContainerIsMarkedAsDefault(containerUid, monitor, maintenance);
+
+		ContainerRepairUtil.verifyContainerSubscription(entry.entryUid, domainUid, monitor, (container) -> {
+		}, containerUid);
 	}
 
 	@Override
@@ -61,6 +64,11 @@ public class UserNotesRepair implements ContainerRepairOp {
 		ContainerRepairUtil.verifyContainerIsMarkedAsDefault(containerUid, monitor, () -> {
 			ContainerRepairUtil.setAsDefault(containerUid, context, monitor);
 		});
+
+		ContainerRepairUtil.verifyContainerSubscription(entry.entryUid, domainUid, monitor, (container) -> {
+			ContainerRepairUtil.subscribe(entry.entryUid, domainUid, container);
+		}, containerUid);
+
 	}
 
 	@Override

@@ -19,9 +19,12 @@
 package net.bluemind.core.container.repair;
 
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.function.Consumer;
 
 import javax.sql.DataSource;
 
+import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -30,16 +33,16 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.service.RepairTaskMonitor;
+import net.bluemind.user.api.IUserSubscription;
 
 public class ContainerRepairUtil {
 
-	public static void verifyContainerIsMarkedAsDefault(String containerUid, RepairTaskMonitor monitor,
-			Runnable runnable) {
+	public static void verifyContainerIsMarkedAsDefault(String containerUid, RepairTaskMonitor monitor, Runnable op) {
 		ContainerDescriptor container = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IContainers.class).getIfPresent(containerUid);
 		if (container != null && !container.defaultContainer) {
 			monitor.notify("Default container {} is not marked as default", containerUid);
-			runnable.run();
+			op.run();
 		}
 	}
 
@@ -56,6 +59,32 @@ public class ContainerRepairUtil {
 			monitor.notify("Cannot mark container {} as default: {}", container, e.getMessage());
 		}
 
+	}
+
+	public static void verifyContainerSubscription(String userUid, String domainUid, RepairTaskMonitor monitor,
+			Consumer<String> op, String... containers) {
+		IUserSubscription userSubService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IUserSubscription.class, domainUid);
+
+		for (String container : containers) {
+			ContainerDescriptor desc = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IContainers.class).getIfPresent(container);
+			if (desc != null) {
+				if (!userSubService.subscribers(container).contains(userUid)) {
+					monitor.notify("User {} is not subscribed to container {}", userUid, container);
+					op.accept(container);
+				}
+
+			}
+		}
+
+	}
+
+	public static void subscribe(String userUid, String domainUid, String container) {
+		IUserSubscription userSubService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IUserSubscription.class, domainUid);
+
+		userSubService.subscribe(userUid, Arrays.asList(ContainerSubscription.create(container, true)));
 	}
 
 }

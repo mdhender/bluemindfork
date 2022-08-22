@@ -31,6 +31,9 @@ public class UserTodoRepair implements ContainerRepairOp {
 		ContainerRepairUtil.verifyContainerIsMarkedAsDefault(containerUid, monitor, () -> {
 		});
 
+		ContainerRepairUtil.verifyContainerSubscription(entry.entryUid, domainUid, monitor, (container) -> {
+		}, containerUid);
+
 	}
 
 	@Override
@@ -61,6 +64,10 @@ public class UserTodoRepair implements ContainerRepairOp {
 		ContainerRepairUtil.verifyContainerIsMarkedAsDefault(containerUid, monitor, () -> {
 			ContainerRepairUtil.setAsDefault(containerUid, context, monitor);
 		});
+
+		ContainerRepairUtil.verifyContainerSubscription(entry.entryUid, domainUid, monitor, (container) -> {
+			ContainerRepairUtil.subscribe(entry.entryUid, domainUid, container);
+		}, containerUid);
 
 	}
 

@@ -50,8 +50,10 @@ public class ShardedSubscriptionsHook extends ContainersHookAdapter {
 					newOwner);
 			ContainerSubscriptionModel sub = ContainerSubscriptionModel.create(cd, cd.offlineSync);
 			String subUid = IOwnerSubscriptionUids.subscriptionUid(cd.uid, newOwner);
-			subApi.create(subUid, sub);
-			logger.info("Stored new sub {}, offline: {}", subUid, cd.offlineSync);
+			if (subApi.get(subUid) == null) {
+				subApi.create(subUid, sub);
+				logger.info("Stored new sub {}, offline: {}", subUid, cd.offlineSync);
+			}
 		}
 		for (String oldOwner : unsubs) {
 			IInternalOwnerSubscriptions subApi = ctx.provider().instance(IInternalOwnerSubscriptions.class, domain,

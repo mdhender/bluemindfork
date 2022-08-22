@@ -58,6 +58,9 @@ public class UserAddressbookRepair implements ContainerRepairOp {
 
 		});
 
+		ContainerRepairUtil.verifyContainerSubscription(entry.entryUid, domainUid, monitor, (container) -> {
+		}, getDefaultContainerUid(entry.entryUid), getCollectedContactsContainerUid(entry.entryUid));
+
 	}
 
 	@Override
@@ -82,6 +85,10 @@ public class UserAddressbookRepair implements ContainerRepairOp {
 					getCollectedContactsContainerUid(entry.entryUid));
 
 		});
+
+		ContainerRepairUtil.verifyContainerSubscription(entry.entryUid, domainUid, monitor, (container) -> {
+			ContainerRepairUtil.subscribe(entry.entryUid, domainUid, container);
+		}, defaultContainerUid, getCollectedContactsContainerUid(entry.entryUid));
 
 	}
 
