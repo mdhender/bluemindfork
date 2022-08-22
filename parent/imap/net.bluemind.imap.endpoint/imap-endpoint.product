@@ -78,6 +78,7 @@
       <plugin id="net.bluemind.metrics.agent-api"/>
       <plugin id="net.bluemind.metrics.registry"/>
       <plugin id="net.bluemind.mime4j.bodies"/>
+      <plugin id="net.bluemind.mime4j.common"/>
       <plugin id="net.bluemind.sentry" fragment="true"/>
       <plugin id="net.bluemind.server.api"/>
       <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
@@ -88,6 +89,9 @@
       <plugin id="org.apache.james.apache-mime4j-core"/>
       <plugin id="org.apache.james.apache-mime4j-dom"/>
       <plugin id="org.apache.james.apache-mime4j-storage"/>
+      <plugin id="org.apache.xerces"/>
+      <plugin id="org.apache.xml.resolver"/>
+      <plugin id="org.apache.xml.serializer"/>
       <plugin id="org.asynchttpclient.async-http-client"/>
       <plugin id="org.asynchttpclient.async-http-client-netty-utils"/>
       <plugin id="org.eclipse.core.contenttype"/>

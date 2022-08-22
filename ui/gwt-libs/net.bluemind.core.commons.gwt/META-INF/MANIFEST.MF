@@ -16,8 +16,6 @@ Export-Package: net.bluemind.core,
  net.bluemind.core.api.fault.gwt.serder,
  net.bluemind.core.api.gwt.js,
  net.bluemind.core.api.gwt.serder,
- net.bluemind.core.api.report.gwt.js,
- net.bluemind.core.api.report.gwt.serder,
  net.bluemind.core.commons.gwt
 Automatic-Module-Name: net.bluemind.core.commons.gwt
 
