@@ -85,4 +85,10 @@
             implementation="net.bluemind.domain.service.internal.DomainSanitizer$Factory">
       </sanitizerfactory>
    </extension>
+   <extension
+         point="net.bluemind.directory.repairSupport">
+      <repairSupport
+            factory="net.bluemind.domain.service.internal.SystemUserRepair$Factory">
+      </repairSupport>
+   </extension>
 </plugin>

@@ -21,6 +21,7 @@ package net.bluemind.domain.api;
 public interface IDomainUids {
 
 	public static final String GLOBAL_VIRT = "global.virt";
+	public static final String SYSTEM_USER_REPAIR_OP_ID = "system_users";
 
 	default String globalVirt() {
 		return GLOBAL_VIRT;
