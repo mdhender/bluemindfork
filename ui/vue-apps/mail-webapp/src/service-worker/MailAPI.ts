@@ -66,7 +66,7 @@ class MailItemAPI extends ChangelogAPI<Uid, MailItem> {
     }
 
     methods() {
-        return { ...super.methods(), mget: "_multipleById" };
+        return { ...super.methods(), mget: "_mgetById" };
     }
 
     async filteredChangeset(uid: Uid, version: number) {

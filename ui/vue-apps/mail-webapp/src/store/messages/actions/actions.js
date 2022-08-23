@@ -81,7 +81,7 @@ export async function fetchMessageMetadata({ state, commit }, { messages: messag
             return loadings;
         }, [])
     );
-    const results = (await apiMessages.multipleById(messages)).reduce((results, message) => {
+    const results = (await apiMessages.multipleGetById(messages)).reduce((results, message) => {
         if (!state[message.key].version || state[message.key].version < message.version) {
             results.push({ ...message, conversationRef: state[message.key].conversationRef });
         }

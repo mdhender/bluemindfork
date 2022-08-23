@@ -227,7 +227,7 @@ describe("sync", () => {
             },
             { overwriteRoutes: true }
         );
-        fetchMock.mock("api/mail_items/1/_multipleById", [
+        fetchMock.mock("api/mail_items/1/_mgetById", [
             {
                 internalId: "foobar1",
                 folderUid: 1,
@@ -248,7 +248,7 @@ describe("sync", () => {
             }
         ]);
 
-        fetchMock.mock("api/mail_items/2/_multipleById", [
+        fetchMock.mock("api/mail_items/2/_mgetById", [
             {
                 internalId: "foobar3",
                 folderUid: 2,
@@ -295,7 +295,7 @@ describe("sync", () => {
     test("consecutive syncMailFolder calls should reuse and update sync_options", async () => {
         fetchMock.reset();
         fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
-        fetchMock.mock("api/mail_items/1/_multipleById", []);
+        fetchMock.mock("api/mail_items/1/_mgetById", []);
         const db = await (await Session.db()).dbPromise;
         fetchMock.mock("/api/mail_items/1/_filteredChangesetById?since=0", {
             created: [],
@@ -342,7 +342,7 @@ describe("sync", () => {
     test("syncMailFolder call with a version <= to the one sync should do nothing", async () => {
         fetchMock.reset();
         fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
-        fetchMock.mock("api/mail_items/1/_multipleById", []);
+        fetchMock.mock("api/mail_items/1/_mgetById", []);
         fetchMock.mock("/api/mail_items/1/_filteredChangesetById?since=0", {
             created: [],
             updated: [],
@@ -399,7 +399,7 @@ describe("sync", () => {
     test("consecutive syncMailFolder calls without a newer version should return false", async () => {
         fetchMock.reset();
         fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
-        fetchMock.mock("api/mail_items/1/_multipleById", []);
+        fetchMock.mock("api/mail_items/1/_mgetById", []);
         const db = await (await Session.db()).dbPromise;
         fetchMock.mock("/api/mail_items/1/_filteredChangesetById?since=0", {
             created: [],

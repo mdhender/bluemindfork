@@ -20,12 +20,12 @@ export default {
         const requests = map(byFolder, ({ itemsId }, folder) => api(folder).addFlag({ itemsId, mailboxItemFlag }));
         return Promise.all(requests);
     },
-    async multipleById(messages) {
+    async multipleGetById(messages) {
         const byFolder = groupByFolder(messages);
         const requests = map(byFolder, async ({ itemsId, folderRef }, folderUid) => {
             const items = flatmap(
                 await Promise.all(
-                    chunk(itemsId, MAX_CHUNK_SIZE).map(chunkedIds => api(folderUid).multipleById(chunkedIds))
+                    chunk(itemsId, MAX_CHUNK_SIZE).map(chunkedIds => api(folderUid).multipleGetById(chunkedIds))
                 )
             );
             return items

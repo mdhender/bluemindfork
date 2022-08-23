@@ -46,7 +46,7 @@ describe("mailAPI", () => {
         beforeAll(() => {
             Session.clear();
             fetchMock.mock("/session-infos", { sid });
-            fetchMock.mock(/\/api\/mail_items\/(.*)\/_multipleById/, {});
+            fetchMock.mock(/\/api\/mail_items\/(.*)\/_mgetById/, {});
             fetchMock.mock(/\/api\/mail_items\/(.*)\/_filteredChangesetById/, {});
             fetchMock.mock(/\/api\/mail_folders\/(.*)\/_mgetById/, {});
             fetchMock.mock(/\/api\/mail_folders\/(.*)\/_changesetById/, {});
@@ -69,7 +69,7 @@ describe("mailAPI", () => {
             expect(actual).toEqual({});
             expect(fetchMock.lastCall()).toMatchInlineSnapshot(`
                 Array [
-                  "/api/mail_items/foo/_multipleById",
+                  "/api/mail_items/foo/_mgetById",
                   Object {
                     "body": "[1,2,3]",
                     "credentials": "include",

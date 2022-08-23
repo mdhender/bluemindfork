@@ -9,7 +9,7 @@ import registerApiRoute, {
     sortMessageByDate,
     filterByFlags,
     allMailFolders,
-    multipleById,
+    multipleGetById,
     filteredChangesetById
 } from "../workbox/registerApiRoute";
 import Session from "../session";
@@ -59,7 +59,7 @@ describe("workbox", () => {
             const handlers = [
                 [allMailFolders, ["domain", "userId"], "getAllMailFolders", new Request("/fakeapi")],
                 [
-                    multipleById,
+                    multipleGetById,
                     ["folderUid"],
                     "getMailItems",
                     new Request("/fakeapi", { method: "POST", body: JSON.stringify([1, 2, 3]) })

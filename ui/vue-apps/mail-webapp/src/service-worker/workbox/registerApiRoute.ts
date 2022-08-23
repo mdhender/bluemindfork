@@ -13,8 +13,8 @@ export const apiRoutes = [
         handler: listSubscriptions
     },
     {
-        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_multipleById/,
-        handler: multipleById
+        capture: /\/api\/mail_items\/([a-f0-9-]+)\/_mgetById/,
+        handler: multipleGetById
     },
     {
         capture: /\/api\/mail_items\/([a-f0-9-]+)\/_filteredChangesetById\?since=0/,
@@ -61,7 +61,7 @@ export async function allMailFolders({ request, params }: RouteHandlerCallbackOp
     }
 }
 
-export async function multipleById({ request, params }: RouteHandlerCallbackOptions) {
+export async function multipleGetById({ request, params }: RouteHandlerCallbackOptions) {
     if (params instanceof Array) {
         const [folderUid] = params;
         try {

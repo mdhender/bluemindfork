@@ -239,22 +239,22 @@ describe("Messages actions", () => {
             const adapted = [1, 2, 3].map(id => createOnlyMetadata({ internalId: id, folder }));
             store.commit(ADD_MESSAGES, { messages: adapted });
             store.dispatch(FETCH_MESSAGE_METADATA, { messages: adapted.map(m => m.key) });
-            expect(inject("MailboxItemsPersistence").multipleById).toHaveBeenCalledWith([1, 2, 3]);
+            expect(inject("MailboxItemsPersistence").multipleGetById).toHaveBeenCalledWith([1, 2, 3]);
         });
         test("Call fetch message API is chunked", () => {
-            const maxMultipleById = 500;
-            const adapted = Array.from(Array(maxMultipleById * 4 + 2).keys()).map(id =>
+            const maxMultipleGetById = 500;
+            const adapted = Array.from(Array(maxMultipleGetById * 4 + 2).keys()).map(id =>
                 createWithMetadata({ internalId: id, folder })
             );
             store.commit(ADD_MESSAGES, { messages: adapted });
             store.dispatch(FETCH_MESSAGE_METADATA, { messages: adapted.map(m => m.key) });
-            expect(inject("MailboxItemsPersistence").multipleById).toHaveBeenCalledTimes(5);
+            expect(inject("MailboxItemsPersistence").multipleGetById).toHaveBeenCalledTimes(5);
         });
         test("Add LOADING status while fetching to messages", async () => {
             const message = messages.pop();
             const adapted = createOnlyMetadata({ internalId: message.internalId, folder });
             store.commit(ADD_MESSAGES, { messages: [adapted] });
-            inject("MailboxItemsPersistence").multipleById.mockResolvedValueOnce([message]);
+            inject("MailboxItemsPersistence").multipleGetById.mockResolvedValueOnce([message]);
             store.dispatch(FETCH_MESSAGE_METADATA, { messages: adapted.key });
             expect(store.state[adapted.key].loading).toEqual(LoadingStatus.LOADING);
         });
@@ -262,7 +262,7 @@ describe("Messages actions", () => {
             const message = messages.pop();
             const adapted = createOnlyMetadata({ internalId: message.internalId, folder });
             store.commit(ADD_MESSAGES, { messages: [adapted] });
-            inject("MailboxItemsPersistence").multipleById.mockResolvedValueOnce([message]);
+            inject("MailboxItemsPersistence").multipleGetById.mockResolvedValueOnce([message]);
             await store.dispatch(FETCH_MESSAGE_METADATA, { messages: adapted.key });
             expect(store.state[adapted.key].loading).toEqual(LoadingStatus.LOADED);
         });
@@ -270,7 +270,7 @@ describe("Messages actions", () => {
             const message = messages.pop();
             const adapted = createOnlyMetadata({ internalId: message.internalId, folder });
             store.commit(ADD_MESSAGES, { messages: [adapted] });
-            inject("MailboxItemsPersistence").multipleById.mockResolvedValueOnce([]);
+            inject("MailboxItemsPersistence").multipleGetById.mockResolvedValueOnce([]);
             await store.dispatch(FETCH_MESSAGE_METADATA, { messages: adapted.key });
             expect(store.state[adapted.key].loading).toEqual(LoadingStatus.ERROR);
         });
@@ -296,12 +296,12 @@ describe("Messages actions", () => {
         });
         test("Fetch message from remote if not already loaded", async () => {
             const message = messages.pop();
-            inject("MailboxItemsPersistence").multipleById.mockResolvedValueOnce([message]);
+            inject("MailboxItemsPersistence").multipleGetById.mockResolvedValueOnce([message]);
             const adapted = await store.dispatch(FETCH_MESSAGE_IF_NOT_LOADED, {
                 internalId: message.internalId,
                 folder
             });
-            expect(inject("MailboxItemsPersistence").multipleById).toBeCalledWith([message.internalId]);
+            expect(inject("MailboxItemsPersistence").multipleGetById).toBeCalledWith([message.internalId]);
             expect(store.state[adapted.key].loading).toEqual(LoadingStatus.LOADED);
             expect(store.state[adapted.key].subject).toEqual("testing");
         });
@@ -314,7 +314,7 @@ describe("Messages actions", () => {
                 internalId: message.internalId,
                 folder
             });
-            expect(inject("MailboxItemsPersistence").multipleById).not.toBeCalled();
+            expect(inject("MailboxItemsPersistence").multipleGetById).not.toBeCalled();
         });
     });
     describe("REMOVE_MESSAGES", () => {
