@@ -38,7 +38,7 @@
                         <template #default="{ item }">
                             <div class="d-flex align-items-center">
                                 <mail-folder-icon no-text :mailbox="allMailboxes[item.mailboxRef.key]" :folder="item" />
-                                <span class="pl-2 flex-fill"> {{ translatePath(item) }}</span>
+                                <span class="pl-2 flex-fill"> {{ translatePath(item.path) }}</span>
                                 <mail-mailbox-icon :mailbox="allMailboxes[item.mailboxRef.key]" />
                             </div>
                         </template>
@@ -142,7 +142,7 @@ export default {
     methods: {
         onSelected(folder) {
             this.selectedFolder = folder;
-            this.pattern = this.translatePath(folder);
+            this.pattern = this.translatePath(folder.path);
         },
         itemsOrDefaults() {
             return this.pattern ? this.matchingFolders(this.isExcluded, this.mailboxes) : this.defaultFolders;
@@ -164,9 +164,7 @@ export default {
             return this.FOLDER_BY_PATH(path, this.mailboxes[0]);
         },
         createFolder,
-        translatePath(folder) {
-            return folder.path === "" ? folder.name : translatePath(folder.path);
-        }
+        translatePath
     }
 };
 </script>

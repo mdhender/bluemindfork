@@ -5,6 +5,7 @@ const { MailboxType } = mailboxUtils;
 function fromMailboxFolder(remotefolder, mailbox) {
     const parent = remotefolder.value.parentUid;
     const path = remotefolder.value.fullName;
+    const isDefaultFolder = isDefault(!parent, remotefolder.value.name, mailbox);
     return {
         key: remotefolder.uid,
         remoteRef: {
@@ -16,17 +17,18 @@ function fromMailboxFolder(remotefolder, mailbox) {
             key: mailbox.key
         },
         parent,
-        name: isDefault(!parent, remotefolder.value.name, mailbox)
-            ? translatePath(remotefolder.value.name)
-            : !parent && MailboxType.isShared(mailbox.type)
-            ? mailbox.name
-            : remotefolder.value.name,
+        name:
+            !parent && MailboxType.isShared(mailbox.type)
+                ? mailbox.name
+                : isDefaultFolder
+                ? translatePath(remotefolder.value.name)
+                : remotefolder.value.name,
         imapName: remotefolder.value.name,
         path,
         writable: mailbox.writable,
         allowConversations: allowConversations(path, mailbox),
         allowSubfolder: allowSubfolder(mailbox.writable, !parent, remotefolder.value.name, mailbox),
-        default: isDefault(!parent, remotefolder.value.name, mailbox),
+        default: isDefaultFolder,
         expanded: false,
         unread: undefined
     };

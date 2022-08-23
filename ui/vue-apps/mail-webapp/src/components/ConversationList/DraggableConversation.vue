@@ -41,10 +41,13 @@
 </template>
 
 <script>
+import { folderUtils } from "@bluemind/mail";
 import { BmDraggable } from "@bluemind/styleguide";
 import ConversationListItemShadow from "./ConversationListItemShadow";
 import ConversationListItem from "./ConversationListItem";
 import { MoveMixin, SelectionMixin } from "~/mixins";
+
+const { translatePath } = folderUtils;
 
 export default {
     name: "DraggableConversation",
@@ -104,20 +107,15 @@ export default {
         },
         setTooltip(folder) {
             if (folder) {
+                const path = translatePath(folder.path);
                 if (this.conversation.folderRef.key === folder.key) {
-                    this.tooltip.text = this.$t("mail.actions.move.item.warning.self", {
-                        path: folder.path
-                    });
+                    this.tooltip.text = this.$t("mail.actions.move.item.warning.self", { path });
                     this.tooltip.cursor = "forbidden";
                 } else if (!folder.writable) {
-                    this.tooltip.text = this.$t("mail.actions.move.item.warning.readonly", {
-                        path: folder.path
-                    });
+                    this.tooltip.text = this.$t("mail.actions.move.item.warning.readonly", { path });
                     this.tooltip.cursor = "forbidden";
                 } else {
-                    this.tooltip.text = this.$tc("mail.actions.move.item", this.shadowCount, {
-                        path: folder.path
-                    });
+                    this.tooltip.text = this.$tc("mail.actions.move.item", this.shadowCount, { path });
                     this.tooltip.cursor = "cursor";
                 }
             }

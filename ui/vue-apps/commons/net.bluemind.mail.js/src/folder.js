@@ -109,12 +109,13 @@ export function allowConversations(path, mailbox) {
 
 export function translatePath(path) {
     const splitPath = path.split("/");
-    const rootFolder = splitPath[0];
-    const defaultFolder = DEFAULT_FOLDERS[rootFolder.toUpperCase()];
-
-    if (defaultFolder) {
-        splitPath.splice(0, 1, translateDefaultName(defaultFolder));
-    }
+    const toTranslate = splitPath.length > 1 ? [splitPath[0], splitPath[1]] : [splitPath[0]];
+    toTranslate.forEach((name, index) => {
+        const defaultFolder = DEFAULT_FOLDERS[name.toUpperCase()];
+        if (defaultFolder) {
+            splitPath.splice(index, 1, translateDefaultName(defaultFolder));
+        }
+    });
     return splitPath.join("/");
 }
 

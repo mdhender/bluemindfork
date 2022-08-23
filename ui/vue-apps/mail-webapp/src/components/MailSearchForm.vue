@@ -268,9 +268,7 @@ export default {
         isSharedRootFolder(folder) {
             return isSharedRoot(folder, this.mailboxes[folder.mailboxRef.key]);
         },
-        translatePath(path) {
-            return translatePath(path);
-        }
+        translatePath
     }
 };
 </script>

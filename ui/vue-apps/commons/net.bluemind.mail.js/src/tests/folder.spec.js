@@ -1,8 +1,7 @@
-const { create, rename, compare, match } = require("../folder");
+const { create, rename, compare, match, translatePath, DEFAULT_FOLDERS } = require("../folder");
 const { MailboxType } = require("../mailbox");
 import injector from "@bluemind/inject";
 
-injector.register({ provide: "i18n", use: { t: n => n } });
 describe("Folder model functions", () => {
     describe("create", () => {
         test("root folder inside a user mailbox", () => {
@@ -70,7 +69,7 @@ describe("Folder model functions", () => {
                 Object {
                   "allowConversations": false,
                   "allowSubfolder": true,
-                  "default": true,
+                  "default": false,
                   "expanded": false,
                   "imapName": "name",
                   "key": "123",
@@ -127,6 +126,9 @@ describe("Folder model functions", () => {
     describe("isDefault", () => {
         const user = { type: MailboxType.USER, remoteRef: {} };
         const mailshare = { type: MailboxType.MAILSHARE, remoteRef: {}, root: "mailshareRoot" };
+        beforeAll(() => {
+            injector.register({ provide: "i18n", use: { t: n => n } });
+        });
         test("INBOX in user mailbox is a default folder", () => {
             expect(create(undefined, "INBOX", undefined, user).default).toBeTruthy();
         });
@@ -148,15 +150,16 @@ describe("Folder model functions", () => {
         test("Outbox in user mailbox is a default folder", () => {
             expect(create(undefined, "Outbox", undefined, user).default).toBeTruthy();
         });
-        test("Any other root folder in user mailbox is not a folder", () => {
+        test("Any other root folder in user or mailshare mailbox is not a folder", () => {
             expect(create(undefined, "Any", undefined, user).default).not.toBeTruthy();
             expect(create(undefined, "inboxe", undefined, user).default).not.toBeTruthy();
+
+            expect(create(undefined, "Any", undefined, mailshare).default).not.toBeTruthy();
         });
-        test("All root folder are default folder in mailshare mailbox", () => {
-            expect(create(undefined, "Any", undefined, mailshare).default).toBeTruthy();
-            expect(create(undefined, "INBOX", undefined, mailshare).default).toBeTruthy();
+        test("Inbox is not a default folder in mailshare", () => {
+            expect(create(undefined, "INBOX", undefined, mailshare).default).not.toBeTruthy();
         });
-        test("A sub folder cannot be a default folder ", () => {
+        test("A user sub folder cannot be a default folder ", () => {
             expect(create(undefined, "INBOX", {}, user).default).not.toBeTruthy();
             expect(create(undefined, "Root", {}, mailshare).default).not.toBeTruthy();
         });
@@ -165,24 +168,28 @@ describe("Folder model functions", () => {
         test("Rename a root folder", () => {
             expect(rename({ name: "name", path: "name" }, "newName")).toStrictEqual({
                 name: "newName",
+                imapName: "newName",
                 path: "newName"
             });
         });
         test("Rename a sub folder", () => {
             expect(rename({ name: "name", path: "parent/name" }, "newName")).toStrictEqual({
                 name: "newName",
+                imapName: "newName",
                 path: "parent/newName"
             });
         });
         test("Rename folder having special characters", () => {
             expect(rename({ name: "name\\ ^ $ * + ? . ( ) | { } [ ]", path: "parent/name" }, "newName")).toStrictEqual({
                 name: "newName",
+                imapName: "newName",
                 path: "parent/newName"
             });
         });
         test("Rename folder to a name containing special characters", () => {
             expect(rename({ name: "name", path: "parent/name" }, "newName\\ ^ $ * + ? . ( ) | { } [ ]")).toStrictEqual({
                 name: "newName\\ ^ $ * + ? . ( ) | { } [ ]",
+                imapName: "newName\\ ^ $ * + ? . ( ) | { } [ ]",
                 path: "parent/newName\\ ^ $ * + ? . ( ) | { } [ ]"
             });
         });
@@ -217,8 +224,8 @@ describe("Folder model functions", () => {
             expect(result).toEqual(sortedFolders);
         });
     });
-    describe.only("match", () => {
-        test.skip("match test folder name with wildcard", () => {
+    describe("match", () => {
+        test("match test folder name with wildcard", () => {
             let folder = { name: "MyTest", imapName: "Yean", path: "/path/" };
             expect(match(folder, "my")).toBeTruthy();
             expect(match(folder, "tesT")).toBeTruthy();
@@ -226,7 +233,7 @@ describe("Folder model functions", () => {
             expect(match(folder, "mytest")).toBeTruthy();
             expect(match(folder, "Pouic")).toBeFalsy();
         });
-        test.skip("match test folder imapName with wildcard", () => {
+        test("match test folder imapName with wildcard", () => {
             let folder = { name: "Yeah", imapName: "MyTest", path: "/path/" };
             expect(match(folder, "my")).toBeTruthy();
             expect(match(folder, "TeSt")).toBeTruthy();
@@ -253,6 +260,27 @@ describe("Folder model functions", () => {
             expect(match(folder, "tart/path/MyT")).toBeTruthy();
             expect(match(folder, "path/Test")).toBeFalsy();
             expect(match(folder, "path/MyTest/Other")).toBeFalsy();
+        });
+    });
+
+    describe("translatePath", () => {
+        beforeAll(() => {
+            injector.register({ provide: "i18n", use: { t: () => "translated" } });
+        });
+        test("Translate default user folders", () => {
+            Object.values(DEFAULT_FOLDERS).forEach(defaultFolderName => {
+                expect(translatePath(defaultFolderName)).toBe("translated");
+            });
+            expect(translatePath("Any")).toBe("Any");
+        });
+        test("Translate default mailshare folders", () => {
+            Object.values(DEFAULT_FOLDERS).forEach(defaultFolder => {
+                expect(translatePath("my_mailshare/" + defaultFolder)).toBe("my_mailshare/translated");
+            });
+            expect(translatePath("my_mailshare/Any")).toBe("my_mailshare/Any");
+        });
+        test("Translate only the 2 first names because only those can be default", () => {
+            expect(translatePath("INBOX/Outbox/Trash")).toBe("translated/translated/Trash");
         });
     });
 });
