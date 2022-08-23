@@ -25,4 +25,5 @@ Export-Package: net.bluemind.core.rest,
  net.bluemind.core.rest.utils,
  net.bluemind.core.rest.vertx
 Bundle-ActivationPolicy: lazy
+Eclipse-BuddyPolicy: registered
 Automatic-Module-Name: net.bluemind.core.rest

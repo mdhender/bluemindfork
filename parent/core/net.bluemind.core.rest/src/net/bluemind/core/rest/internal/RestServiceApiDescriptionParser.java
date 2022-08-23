@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.ws.rs.HttpMethod;
@@ -55,13 +56,32 @@ public class RestServiceApiDescriptionParser implements ClassVisitor {
 	private static IGenericHolder holder = loadHolder();
 
 	private static IGenericHolder loadHolder() {
-		RunnableExtensionLoader<IGenericHolder> rel = new RunnableExtensionLoader<>();
-		List<IGenericHolder> exts = rel.loadExtensions("net.bluemind.core.rest", "genericHolder", "generic_holder",
-				"holder");
-		if (exts.isEmpty()) {
-			throw new ServerFault("no generic holder found.");
+		return loadDefaultHolder().orElseGet(() -> {
+			RunnableExtensionLoader<IGenericHolder> rel = new RunnableExtensionLoader<>();
+			List<IGenericHolder> exts = rel.loadExtensions("net.bluemind.core.rest", "genericHolder", "generic_holder",
+					"holder");
+			if (exts.isEmpty()) {
+				throw new ServerFault("no generic holder found.");
+			}
+			return exts.get(0);
+		});
+	}
+
+	private static Optional<IGenericHolder> loadDefaultHolder() {
+		Class<?> cl;
+		try {
+			cl = Class.forName("net.bluemind.core.container.model.ItemValue");
+		} catch (Exception e) {
+			logger.info("Cannot lookup ItemValue class: {}", e.getMessage());
+			return Optional.empty();
 		}
-		return exts.get(0);
+		return Optional.of(new IGenericHolder() {
+
+			@Override
+			public Class<?> genericParameter() {
+				return cl;
+			}
+		});
 	}
 
 	@Override

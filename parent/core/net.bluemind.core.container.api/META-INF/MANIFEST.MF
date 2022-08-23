@@ -12,5 +12,6 @@ Require-Bundle: net.bluemind.core.commons;visibility:=reexport,
  javax.validation.api,
  net.bluemind.core.task.api;visibility:=reexport,
  net.bluemind.core.rest;bundle-version="4.1.0"
+Eclipse-RegisterBuddy: net.bluemind.core.rest
 Automatic-Module-Name: net.bluemind.core.container.api
 Bundle-Vendor: bluemind.net
