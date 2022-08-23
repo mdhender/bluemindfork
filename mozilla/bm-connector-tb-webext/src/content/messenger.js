@@ -114,7 +114,6 @@ var gBMOverlay = {
                 input = channel.open();
             } catch (e) {
                 //file not found
-                Components.utils.reportError(e);
                 return;
             }
             let certDB = Components.classes["@mozilla.org/security/x509certdb;1"].getService(Components.interfaces.nsIX509CertDB);
@@ -321,21 +320,6 @@ var gBMOverlay = {
 		}
 		return null;
 	},
-    // _getBmTab: async function(aAskedUri) {
-	// 	let matchUrl =  "https://*" + aAskedUri + "/*";
-	// 	let tabs = await notifyTools.notifyBackground({command: "getBmTab", matchUrl: matchUrl});
-	// 	if (tabs && tabs.length > 0) {
-	// 		return tabs[0];
-	// 	}
-	// 	//not logged
-	// 	matchUrl = "https://*/login/index.html?askedUri=%2F" + aAskedUri.substring(1) + "*";
-	// 	console.log("search", matchUrl);
-	// 	tabs = await notifyTools.notifyBackground({command: "getBmTab", matchUrl: matchUrl});
-	// 	console.log("res:", tabs);
-	// 	if (tabs && tabs.length > 0) {
-	// 		return tabs[0];
-	// 	}
-	// },
 	_openWebPages: async function(aServer, aApps) {
 		for (let app of aApps) {
 			await this._openWebPage(aServer, app.bmApp, app.openInBackGround);
@@ -347,7 +331,6 @@ var gBMOverlay = {
 			let tabBm = await this._getBmTab(aAskedUri);
 			if (!tabBm) {
 				this._logger.debug("OPEN TAB:" + url + " background:" + aBackground);
-				//notifyTools.notifyBackground({command: "openTab", openInBackGround: aBackground, url: url});
 				document.getElementById("tabmail").openTab("bmTab", {
 					url: url,
 					contentPage: url, //TB 78
@@ -407,38 +390,6 @@ var gBMOverlay = {
 			}, this);
 		}
 	},
-    /* using new api
-	_reloadBmTabs: async function() {
-		if (bmUtils.getBoolPref("extensions.bm.openInTab", false)) {
-			let apps = ["/cal", "/task", "/settings"];
-			let toReOpen = [];
-			for (let app of apps) {
-				let tab = await this._getBmTab(app);
-				if (tab) {
-					let openInBackGround = true;
-					await notifyTools.notifyBackground({ command: "closeTab", tabId: tab.id });
-					toReOpen.push({
-						bmApp: app,
-						openInBackGround: openInBackGround
-					});
-				}
-			}
-			if (toReOpen.length > 0) {
-				this.openBmApps(toReOpen);
-			}
-		}
-    },
-    _closeBmTabs: async function() {
-		if (bmUtils.getBoolPref("extensions.bm.openInTab", false)) {
-			let apps = ["/cal", "/task", "/settings"];
-			apps.forEach(async function(app) {
-				let tab = await this._getBmTab(app);
-				if (tab) {
-					await notifyTools.notifyBackground({command: "closeTab", tabId: tab.id});
-				}
-			}, this);
-		}
-	},*/
 	observe: function(aSubject, aTopic, aData) {
 		if (aTopic == "reload-bm-tabs") {
 			this._reloadBmTabs();
@@ -491,9 +442,6 @@ var gBMOverlay = {
 		}
 	},
 	_fixPrefs: function() {
-		/* Prevent Collected contacts ab to become hidden */
-		// still needed for TB 78 ??
-		// bmUtils.setIntPref("ldap_2.servers.history.position", 2);
 		/* Accept all cookies */
 		bmUtils.setIntPref("network.cookie.cookieBehavior", 0);
 		/* The cookie's lifetime is supplied by the server */

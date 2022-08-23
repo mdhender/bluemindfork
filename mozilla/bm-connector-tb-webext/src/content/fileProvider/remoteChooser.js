@@ -20,11 +20,6 @@
 
 /* Remote file chooser */
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cu = Components.utils;
-const Cr = Components.results;
-
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { percentEncode } = ChromeUtils.import("resource://gre/modules/Http.jsm");
 

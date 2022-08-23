@@ -162,11 +162,11 @@ var gBMIcsBandal = {
         MsgHdrToMimeMessage(dispMessage, null, function(aMsgHdr, aMimeMsg) {
             if (aMimeMsg) {
                 let uids = aMimeMsg.headers["x-bm-event"];
-                let cancel = aMimeMsg.headers["x-bm-canceled"];
+                let cancel = aMimeMsg.headers["x-bm-event-canceled"];
                 let resourceId = aMimeMsg.headers["x-bm-resourcebooking"];
                 let counter = aMimeMsg.headers["x-bm-event-countered"];
                 gBMIcsBandal._logger.debug("x-bm-event:" + uids);
-                gBMIcsBandal._logger.debug("x-bm-canceled:" + cancel);
+                gBMIcsBandal._logger.debug("x-bm-event-canceled:" + cancel);
                 gBMIcsBandal._logger.debug("x-bm-resourcebooking:" + resourceId);
                 gBMIcsBandal._logger.debug("x-bm-event-countered:" + counter);
                 if (uids || cancel || resourceId || counter) {

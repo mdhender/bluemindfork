@@ -372,13 +372,13 @@ let bmUtils = {
         return this.isBmReadOnlyAddressbook(parentDir);
     },
     isBmSharedAddressbok: function(aUserId, aOwnerId, aName, isDefault) {
-	if (isDefault && (aName == "users" || aName == "public_contacts")) {
+        if (isDefault && (aName == "users" || aName == "public_contacts")) {
+            return false;
+        }
+        if (aUserId != aOwnerId) {
+            return true;
+        }
         return false;
-	}
-	if (aUserId != aOwnerId) {
-        return true;
-	}
-	return false;
     },
     randomUUID: function() {
         let uuid = this._uuidGenerator.generateUUID();
@@ -448,13 +448,6 @@ let bmUtils = {
     },
     overrideBM: function(object, methodName, callback) {
         object[methodName] = callback(object[methodName]);
-    },
-    _esChars: [ '\\', '+', '-', '&&', '||', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':' ],
-    esEscape: function(term) {
-        for (let i = 0; i < this._esChars.length; i++) {
-            term = term.split(this._esChars[i]).join('\\' + this._esChars[i]);
-        }
-        return term;
     }
 }
 

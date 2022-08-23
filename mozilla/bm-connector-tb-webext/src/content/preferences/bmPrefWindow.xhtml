@@ -9,7 +9,9 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         id="bmprefs"
         title="__BM_bm.preferences.tab.label__"
-        onload="gBMPreferences.init();">
+        onload="gBMPreferences.init();"
+        width="600"
+        height="250">
 
     <script type="application/x-javascript" src="chrome://messenger/content/sanitize.js"/>
     <script type="application/x-javascript" src="chrome://bm/content/preferences/bmPreferences.js"/>
@@ -26,6 +28,7 @@
                 <button label="__BM_bm.preferences.server.button.label__" oncommand="gBMPreferences.promptUsernameAndPassword();"/>
             </hbox>
         </groupbox>
+        <vbox flex="1"></vbox>
         <groupbox>
             <hbox class="groupbox-title">
                 <label class="header" value="__BM_bm.preferences.settings.label__"/>
@@ -36,17 +39,7 @@
                 <button label="__BM_bm.preferences.settings.button.label__" oncommand="gBMPreferences.openSettingsTab();"/>
             </hbox>
         </groupbox>
-        <groupbox>
-            <hbox class="groupbox-title">
-                <label class="header" value="__BM_bm.preferences.im.label__"/>
-            </hbox>
-            <hbox align="center">
-                <label value="__BM_bm.preferences.im.add.label__"/>
-                <spacer flex="1"/>
-                <button label="__BM_bm.preferences.im.button.add.label__" oncommand="gBMPreferences.addXMPPAccount();"
-                    disabled="true"/>
-            </hbox>
-        </groupbox>
+        <vbox flex="1"></vbox>
         <groupbox>
             <hbox class="groupbox-title">
                 <label class="header" value="__BM_bm.preferences.log.label__"/>
@@ -62,6 +55,7 @@
                         oncommand="gBMPreferences.showLog();" align="right"/>
             </hbox>
         </groupbox>
+        <vbox flex="1"></vbox>
 	    <hbox align="left">
 	      <button id="bm-button-reset"
 		      label="__BM_bm.preferences.reset.button.label__"
