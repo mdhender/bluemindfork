@@ -3515,10 +3515,10 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		assertNotNull(moved);
 		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid, ItemFlagFilter.all());
 		user1SentConversations.removeIf(excludedConversations::contains);
-		assertEquals(1, user1SentConversations.size());
+		assertEquals(2, user1SentConversations.size());
 		conversation = user1ConversationService.getComplete(user1SentConversations.get(0));
 		numberOfMessagesInConversation = conversation.value.messageRefs.size();
-		assertEquals(1, numberOfMessagesInConversation);
+		assertEquals(3, numberOfMessagesInConversation);
 
 		//
 		// move reply message to trash

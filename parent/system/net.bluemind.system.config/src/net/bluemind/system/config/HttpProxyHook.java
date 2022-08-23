@@ -193,7 +193,7 @@ public class HttpProxyHook
 			return;
 		}
 
-		if (!Boolean.valueOf(conf.booleanValue(SysConfKeys.http_proxy_enabled.name()))) {
+		if (!conf.booleanValue(SysConfKeys.http_proxy_enabled.name(), false).booleanValue()) {
 			context.getServiceProvider().instance(IServer.class, InstallationId.getIdentifier()).allComplete().stream()
 					.forEach(server -> {
 						try {

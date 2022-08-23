@@ -79,8 +79,10 @@ public class Endpoints {
 		RestServiceApiDescriptor descriptor = new RestServiceApiDescriptorBuilder().build(ep.getInterface());
 
 		RestService restService = new RestService(descriptor, ep);
-		logger.info("available endpoint {}@{}", restService.descriptor.getApiInterfaceName(),
-				restService.descriptor.rootPath);
+		if (logger.isDebugEnabled()) {
+			logger.debug("available endpoint {}@{}", restService.descriptor.getApiInterfaceName(),
+					restService.descriptor.rootPath);
+		}
 
 		return restService;
 

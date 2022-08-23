@@ -133,12 +133,23 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 			String n = boxItem.value.name;
 			for (String f : Arrays.asList(n, n + "/Sent", n + "/Trash", n + "/Templates")) {
 				MailboxReplica repl = folder(boxItem, f);
-				foldersApi.create(CyrusUniqueIds.forMailbox(domainUid, boxItem, repl.fullName).toString(), repl);
+				String uid = CyrusUniqueIds.forMailbox(domainUid, boxItem, repl.fullName).toString();
+				if (foldersApi.getComplete(uid) != null) {
+					foldersApi.update(uid, repl);
+				} else {
+					foldersApi.create(uid, repl);
+				}
+
 			}
 		} else {
 			for (String f : Arrays.asList("INBOX", "Sent", "Drafts", "Trash", "Outbox", "Junk", "Templates")) {
-				MailboxReplica inbox = folder(boxItem, f);
-				foldersApi.create(CyrusUniqueIds.forMailbox(domainUid, boxItem, inbox.fullName).toString(), inbox);
+				MailboxReplica repl = folder(boxItem, f);
+				String uid = CyrusUniqueIds.forMailbox(domainUid, boxItem, repl.fullName).toString();
+				if (foldersApi.getComplete(uid) != null) {
+					foldersApi.update(uid, repl);
+				} else {
+					foldersApi.create(uid, repl);
+				}
 			}
 
 		}

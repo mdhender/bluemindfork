@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,13 +72,13 @@ public class SpoolBackingStore implements ISdsBackingStore {
 
 	private static final Logger logger = LoggerFactory.getLogger(SpoolBackingStore.class);
 	private final IServiceProvider prov;
-	private final List<ItemValue<Server>> backends;
+	private final ConcurrentLinkedDeque<ItemValue<Server>> backends;
 	private final Iterator<ItemValue<Server>> roundRobin;
 
 	public SpoolBackingStore(@SuppressWarnings("unused") Vertx vertx, IServiceProvider prov,
 			List<ItemValue<Server>> backends) {
 		this.prov = prov;
-		this.backends = backends;
+		this.backends = new ConcurrentLinkedDeque<>(backends);
 		this.roundRobin = Iterators.cycle(backends);
 	}
 
@@ -93,13 +94,13 @@ public class SpoolBackingStore implements ISdsBackingStore {
 		}
 		try (InputStream input = Files.newInputStream(Paths.get(req.filename));
 				OutputStream zst = new ZstdOutputStream(Files.newOutputStream(zstFile), RecyclingBufferPool.INSTANCE)) {
-			ByteStreams.copy(input, zst);
+			long copied = ByteStreams.copy(input, zst);
+			logger.info("Compressed {}byte(s) for {}", copied, req.guid);
 		} catch (IOException e) {
 			return exception(e);
 		}
 		try (InputStream input = Files.newInputStream(zstFile)) {
 			nc.writeFile(target, input);
-			System.err.println("Wrote " + target);
 			return CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
 		} catch (IOException e) {
 			return exception(e);

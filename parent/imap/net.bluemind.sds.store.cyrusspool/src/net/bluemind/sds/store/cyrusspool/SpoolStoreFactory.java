@@ -31,13 +31,13 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.node.api.ProcessHandler;
 import net.bluemind.node.shared.ExecRequest;
 import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.sds.store.ISdsBackingStoreFactory;
+import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.ArchiveKind;
 
@@ -49,8 +49,8 @@ public class SpoolStoreFactory implements ISdsBackingStoreFactory {
 
 	public SpoolStoreFactory() {
 		this.prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		this.backends = Topology.get().nodes().stream().filter(s -> s.value.tags.contains("mail/imap"))
-				.collect(Collectors.toList());
+		this.backends = prov.instance(IServer.class, "default").allComplete().stream()
+				.filter(ivs -> ivs.value.tags.contains("mail/imap")).collect(Collectors.toList());
 
 		for (ItemValue<Server> b : backends) {
 			setupFolders(b);

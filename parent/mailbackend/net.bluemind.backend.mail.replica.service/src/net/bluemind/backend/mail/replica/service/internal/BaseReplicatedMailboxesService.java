@@ -163,7 +163,7 @@ public class BaseReplicatedMailboxesService implements IBaseMailboxFolders {
 	protected ItemValue<MailboxReplica> getCompleteReplica(String uid) {
 		return Optional.ofNullable(MboxReplicasCache.byUid(uid)).orElseGet(() -> {
 			ItemValue<MailboxReplica> fetched = storeService.get(uid, null);
-			if (fetched != null) {
+			if (fetched != null && fetched.value != null) {
 				fetched.value.dataLocation = dataLocation;
 				MboxReplicasCache.cache(fetched);
 			}

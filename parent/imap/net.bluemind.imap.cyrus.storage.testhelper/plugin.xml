@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.mailbox.storage">
+      <mailbox-storage
+            class="net.bluemind.imap.cyrus.storage.testhelper.CompositeBoxStorage"
+            priority="1000">
+      </mailbox-storage>
+   </extension>
+
+</plugin>

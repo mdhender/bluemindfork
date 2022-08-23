@@ -103,7 +103,7 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 			prom.join();
 		}
 
-		logger.info("File copy of {} stream created.", uid);
+		logger.info("File copy of {} stream created ({} byte(s))", uid, tmpFile.length());
 
 		Stream eml = VertxStream.localPath(tmpFile.toPath());
 		MessageBodyObjectStore objectStore = bodyObjectStore.get();

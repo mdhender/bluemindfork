@@ -15,7 +15,9 @@
 		<module>net.bluemind.imap.driver.mailapi</module>
 		<module>net.bluemind.sds.store.cyrusspool</module>
 		<module>net.bluemind.backend.mailapi.storage</module>
+		<module>net.bluemind.imap.cyrus.storage.testhelper</module>
 		<module>net.bluemind.imap.fullstack.tests</module>
+		<module>net.bluemind.imap.cyrus.swap.tests</module>
 	</modules>
 
 </project>

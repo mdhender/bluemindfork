@@ -198,6 +198,7 @@ public class MailConversationActionServiceTests extends AbstractRollingReplicati
 		List<ItemIdentifier> moved = getActionService(user1Inbox.uid).move(user1Sent.uid,
 				user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all()));
 
+
 		assertEquals(2, moved.size());
 
 		List<ItemValue<MailboxRecord>> allInInbox = records.all();
