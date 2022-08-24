@@ -51,6 +51,7 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.sessions.Sessions;
+import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPByteSource;
 import net.bluemind.imap.IMAPException;
@@ -205,6 +206,11 @@ public class UserMailboxTests {
 					assertEquals(sourceHash, after);
 				}
 			}
+			FlagsList del = new FlagsList();
+			del.add(Flag.DELETED);
+			boolean done = sc.uidStore(Collections.singleton(added), del, true);
+			assertTrue(done);
+			sc.uidExpunge(Collections.singleton(added));
 		}
 
 	}

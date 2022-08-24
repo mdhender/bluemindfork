@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
-import net.bluemind.imap.endpoint.cmd.MyRightsCommand;
+import net.bluemind.imap.endpoint.cmd.GetAclCommand;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
 import net.bluemind.lib.vertx.Result;
@@ -35,21 +35,19 @@ import net.bluemind.lib.vertx.Result;
  * https://www.rfc-editor.org/rfc/rfc4314.html
  * 
  * <code>
- * . myrights toto
- * . NO Mailbox does not exist
- * . myrights Sent
- * * MYRIGHTS Sent lrswipkxtecda
+ * . getacl inbox
+ * * ACL inbox admin0 lrswipkxtea cli-created-1d27aa9f-717c-3f6d-8316-6849ee36894f@f8de2c4a.internal lrswipkxtea
  * . OK Completed
  * </code>
  * 
  *
  */
-public class MyRightsProcessor extends AuthenticatedCommandProcessor<MyRightsCommand> {
+public class GetAclProcessor extends AuthenticatedCommandProcessor<GetAclCommand> {
 
-	private static final Logger logger = LoggerFactory.getLogger(MyRightsProcessor.class);
+	private static final Logger logger = LoggerFactory.getLogger(GetAclProcessor.class);
 
 	@Override
-	public void checkedOperation(MyRightsCommand sc, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
+	public void checkedOperation(GetAclCommand sc, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		MailboxConnection con = ctx.mailbox();
 		SelectedFolder selected = con.select(sc.folder());
 
@@ -59,7 +57,7 @@ public class MyRightsProcessor extends AuthenticatedCommandProcessor<MyRightsCom
 		}
 
 		StringBuilder resp = new StringBuilder();
-		resp.append("* MYRIGHTS \"" + sc.folder() + "\" lrswipkxtecda\r\n");
+		resp.append("* ACL \"" + sc.folder() + "\" me lrswipkxtea\r\n");
 		resp.append(sc.raw().tag() + " OK Completed\r\n");
 		if (logger.isWarnEnabled()) {
 			logger.warn("Full rights hardcoded for {}", sc.folder());
@@ -69,14 +67,14 @@ public class MyRightsProcessor extends AuthenticatedCommandProcessor<MyRightsCom
 		completed.handle(Result.success());
 	}
 
-	private void missingFolder(MyRightsCommand sc, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
+	private void missingFolder(GetAclCommand sc, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		ctx.write(sc.raw().tag() + " NO Mailbox does not exist\r\n");
 		completed.handle(Result.success());
 	}
 
 	@Override
-	public Class<MyRightsCommand> handledType() {
-		return MyRightsCommand.class;
+	public Class<GetAclCommand> handledType() {
+		return GetAclCommand.class;
 	}
 
 }

@@ -30,12 +30,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -55,6 +57,7 @@ import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
+import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.model.ContainerChangeset;
@@ -128,8 +131,8 @@ public class MailApiConnection implements MailboxConnection {
 		if (mailboxPattern.equals("%")) {
 			allFolders = allFolders.stream().filter(f -> f.value.parentUid == null).collect(Collectors.toList());
 		} else if (!(mailboxPattern.contains("%") || mailboxPattern.contains("*"))) {
-			allFolders = allFolders.stream().filter(f -> f.value.fullName.contains(mailboxPattern))
-					.collect(Collectors.toList());
+			Predicate<ItemValue<MailboxReplica>> filter = matcher(mailboxPattern);
+			allFolders = allFolders.stream().filter(filter).collect(Collectors.toList());
 		}
 
 		Collections.sort(allFolders, (f1, f2) -> {
@@ -143,6 +146,15 @@ public class MailApiConnection implements MailboxConnection {
 		});
 
 		return allFolders.stream().map(f -> asListNode(parents, f)).collect(Collectors.toList());
+	}
+
+	private Predicate<ItemValue<MailboxReplica>> matcher(String mailboxPattern) {
+		String sanitized = CharMatcher.is('"').removeFrom(mailboxPattern);
+		if (sanitized.equalsIgnoreCase("inbox")) {
+			sanitized = "INBOX";
+		}
+		final String san = sanitized;
+		return f -> f.value.fullName.contains(san);
 	}
 
 	private ListNode asListNode(Set<String> parents, ItemValue<MailboxReplica> f) {
@@ -168,20 +180,18 @@ public class MailApiConnection implements MailboxConnection {
 		return ln;
 	}
 
-	private static final ItemFlagFilter NOT_DELETED = ItemFlagFilter.create().mustNot(ItemFlag.Deleted);
-
 	@Override
 	public CompletableFuture<Void> fetch(SelectedFolder selected, String idset, List<MailPart> fields,
 			WriteStream<FetchedItem> output) {
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 
-		ContainerChangeset<ItemVersion> cs = recApi.filteredChangesetById(0L, NOT_DELETED);
+		ContainerChangeset<ItemVersion> cs = recApi.filteredChangesetById(0L, ItemFlagFilter.all());
 		List<ItemVersion> ids = Lists.newArrayList(Iterables.concat(cs.created, cs.updated));
 		Collections.sort(ids, (iv1, iv2) -> Long.compare(iv1.id, iv2.id));
 		Map<Long, Integer> itemIdToSeq = new HashMap<>();
 		IntStream.rangeClosed(1, ids.size()).forEach(idx -> itemIdToSeq.put(ids.get(idx - 1).id, idx));
 
-		Iterator<List<Long>> slice = Lists.partition(recApi.imapIdSet(idset, "-deleted"), 500).iterator();
+		Iterator<List<Long>> slice = Lists.partition(recApi.imapIdSet(idset, ""), 500).iterator();
 		CompletableFuture<Void> ret = new CompletableFuture<>();
 
 		pushNext(recApi, selected, fields, slice, Collections.emptyIterator(), itemIdToSeq, ret, output);
@@ -194,6 +204,11 @@ public class MailApiConnection implements MailboxConnection {
 		FetchedItemRenderer renderer = new FetchedItemRenderer(prov, recApi, selected, fields);
 		while (recsIterator.hasNext()) {
 			ItemValue<MailboxRecord> rec = recsIterator.next();
+			System.err.println(" * " + rec);
+			if (rec.value.internalFlags.contains(InternalFlag.expunged)) {
+				continue;
+			}
+
 			long imapUid = rec.value.imapUid;
 			// always increment for valid sequences
 			FetchedItem fi = new FetchedItem();
@@ -298,9 +313,20 @@ public class MailApiConnection implements MailboxConnection {
 				return MailboxItemFlag.System.Flagged.value();
 			case "\\Answered":
 				return MailboxItemFlag.System.Answered.value();
+			case "\\Expunged":
+				return null;
 			default:
 				return MailboxItemFlag.of(f, 0);
 			}
+		}).filter(Objects::nonNull).collect(Collectors.toList());
+	}
+
+	private List<InternalFlag> internalFlags(List<String> flags) {
+		return flags.stream().map(f -> {
+			if (f.equalsIgnoreCase("\\Expunged")) {
+				return InternalFlag.expunged;
+			}
+			return null;
 		}).filter(Objects::nonNull).collect(Collectors.toList());
 	}
 
@@ -312,7 +338,12 @@ public class MailApiConnection implements MailboxConnection {
 			List<MailboxRecord> recs = recApi.multipleGetById(slice).stream().map(iv -> iv.value)
 					.collect(Collectors.toList());
 			for (MailboxRecord item : recs) {
-				updateRecFlags(item, mode, flags(flags));
+				List<MailboxItemFlag> commandFlags = flags(flags);
+				List<InternalFlag> internalFlags = internalFlags(flags);
+				if (internalFlags.contains(InternalFlag.expunged)) {
+					commandFlags.add(MailboxItemFlag.System.Deleted.value());
+				}
+				updateRecFlags(item, mode, commandFlags, internalFlags);
 			}
 			logger.info("[{} / {}] Update slice of {} record(s)", this, selected, recs.size());
 			recApi.updates(recs);
@@ -320,13 +351,17 @@ public class MailApiConnection implements MailboxConnection {
 
 	}
 
-	private void updateRecFlags(MailboxRecord rec, UpdateMode mode, List<MailboxItemFlag> list) {
+	private void updateRecFlags(MailboxRecord rec, UpdateMode mode, List<MailboxItemFlag> list,
+			List<InternalFlag> internalList) {
 		if (mode == UpdateMode.Replace) {
 			rec.flags = list;
+			rec.internalFlags = internalList;
 		} else if (mode == UpdateMode.Add) {
 			rec.flags.addAll(list);
+			rec.internalFlags.addAll(internalList);
 		} else if (mode == UpdateMode.Remove) {
 			rec.flags.removeAll(list);
+			rec.internalFlags.removeAll(internalList);
 		}
 
 	}

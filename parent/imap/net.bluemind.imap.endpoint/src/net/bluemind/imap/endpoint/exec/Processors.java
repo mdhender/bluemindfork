@@ -38,6 +38,7 @@ public class Processors {
 		register(new ExamineProcessor());
 		register(new StatusProcessor());
 		register(new MyRightsProcessor());
+		register(new GetAclProcessor());
 		register(new GetQuotaRootProcessor());
 		register(new XListProcessor());
 		register(new ListProcessor());
@@ -50,6 +51,7 @@ public class Processors {
 		register(new AppendProcessor());
 		register(new UidStoreProcessor());
 		register(new UidCopyProcessor());
+		register(new UidExpungeProcessor());
 		register(new LogoutProcessor());
 	}
 

@@ -48,7 +48,7 @@ public class ImapCommandHandler implements Handler<RawImapCommand> {
 
 	@Override
 	public void handle(RawImapCommand event) {
-		logger.info("C: {}", event);
+		ctx.clientCommand(event);
 		try {
 			analyze(event);
 		} catch (EndpointRuntimeException ere) {

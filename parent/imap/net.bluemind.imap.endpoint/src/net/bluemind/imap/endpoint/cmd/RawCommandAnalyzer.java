@@ -53,6 +53,8 @@ public class RawCommandAnalyzer {
 		case 'g':
 			if (cmd.startsWith("getquotaroot ")) {
 				return new GetQuotaRootCommand(raw);
+			} else if (cmd.startsWith("getacl ")) {
+				return new GetAclCommand(raw);
 			}
 			return null;
 		case 'i':
@@ -99,6 +101,8 @@ public class RawCommandAnalyzer {
 				return new UidCopyCommand(raw);
 			} else if (cmd.startsWith("uid search ")) {
 				return new UidSearchCommand(raw);
+			} else if (cmd.startsWith("uid expunge ")) {
+				return new UidExpungeCommand(raw);
 			}
 			return null;
 		case 'x':

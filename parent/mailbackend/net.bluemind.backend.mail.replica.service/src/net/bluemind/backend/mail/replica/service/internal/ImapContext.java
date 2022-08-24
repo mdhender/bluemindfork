@@ -87,8 +87,7 @@ public class ImapContext {
 
 	private static int cyrusMaxChild() {
 		try {
-			return Optional.ofNullable(LocalSysconfCache.get().integerValue(SysConfKeys.imap_max_child.name()))
-					.orElse(200);
+			return LocalSysconfCache.get().integerValue(SysConfKeys.imap_max_child.name(), 200);
 		} catch (Exception e) {
 			logger.warn("error loading cached sysconf {}", e.getMessage());
 			return 200;

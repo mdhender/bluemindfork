@@ -100,4 +100,13 @@ public class SystemConf {
 			return null;
 		}
 	}
+
+	public int integerValue(String prop, int defaultValue) {
+		String valueAsString = values.get(prop);
+		if (valueAsString != null && !"".equals(valueAsString.trim())) {
+			return Integer.parseInt(valueAsString);
+		} else {
+			return defaultValue;
+		}
+	}
 }

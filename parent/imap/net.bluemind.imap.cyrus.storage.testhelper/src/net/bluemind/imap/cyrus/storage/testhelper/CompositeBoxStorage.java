@@ -46,8 +46,8 @@ public class CompositeBoxStorage implements IMailboxesStorage {
 	}
 
 	public void create(BmContext context, String domainUid, ItemValue<Mailbox> mbox) throws ServerFault {
-		cyrus.create(context, domainUid, mbox);
 		mailApi.create(context, domainUid, mbox);
+		cyrus.create(context, domainUid, mbox);
 		System.err.println("composite create of " + mbox);
 	}
 

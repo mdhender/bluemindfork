@@ -33,8 +33,6 @@ public class CallLogger {
 		long elapsed = (time - startTime) / (1000000);
 		if (elapsed > 500) {
 			logger.warn("{} call {} took {}ms", component, request, elapsed);
-		} else {
-			logger.trace("{} call {} took {}ms", component, request, elapsed);
 		}
 	}
 

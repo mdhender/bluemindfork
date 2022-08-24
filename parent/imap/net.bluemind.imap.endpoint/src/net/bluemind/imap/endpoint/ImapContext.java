@@ -34,6 +34,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageProducer;
 import io.vertx.core.net.NetSocket;
+import net.bluemind.imap.endpoint.cmd.RawImapCommand;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
 import net.bluemind.imap.endpoint.events.EventNexus;
@@ -45,6 +46,7 @@ public class ImapContext {
 	private final NetSocket ns;
 	private final Vertx vertx;
 	private final EventNexus nexus;
+	private final String logConnectionId;
 
 	private SessionState state;
 	private MailboxConnection mailbox;
@@ -63,6 +65,7 @@ public class ImapContext {
 		this.state = SessionState.NOT_AUTHENTICATED;
 		this.clientId = Collections.emptyMap();
 		this.sender = vertx.eventBus().sender(ns.writeHandlerID());
+		this.logConnectionId = ns.writeHandlerID().replace("__vertx.net.", "").replace("-", "");
 	}
 
 	public Vertx vertx() {
@@ -89,6 +92,12 @@ public class ImapContext {
 		write(Buffer.buffer(resp));
 	}
 
+	public void clientCommand(RawImapCommand event) {
+		if (logger.isInfoEnabled()) {
+			logger.info("[{}] C: {} {}", logConnectionId, event.tag(), event.cmd());
+		}
+	}
+
 	/**
 	 * @see {@link #writePromise(String)}
 	 * @param resp the imap response to write
@@ -96,8 +105,7 @@ public class ImapContext {
 	 */
 	public Future<Void> write(Buffer b) {
 		if (logger.isInfoEnabled()) {
-			logger.info("[{}] S: {}", ns.writeHandlerID(),
-					b.toString(StandardCharsets.US_ASCII).replaceAll("\r\n$", ""));
+			logger.info("[{}] S: {}", logConnectionId, b.toString(StandardCharsets.US_ASCII).replaceAll("\r\n$", ""));
 		}
 		return sender.write(b);
 	}
@@ -108,7 +116,7 @@ public class ImapContext {
 
 	public CompletableFuture<Void> writePromise(String resp) {
 		if (logger.isInfoEnabled()) {
-			logger.info("[{}] S: {}", ns.writeHandlerID(), resp.replaceAll("\r\n$", ""));
+			logger.info("[{}] S: {}", logConnectionId, resp.replaceAll("\r\n$", ""));
 		}
 		return sender.write(Buffer.buffer(resp)).toCompletionStage().toCompletableFuture();
 	}

@@ -15,33 +15,16 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.imap.endpoint.exec;
+package net.bluemind.imap.endpoint.cmd;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
-public class Capabilities {
+public class GetAclCommand extends AbstractFolderNameCommand {
 
-	private String all;
+	private static final Pattern quotedString = Pattern.compile("getacl \"??([^\"\\s]+)", Pattern.CASE_INSENSITIVE);
 
-	public Capabilities() {
-		this.all = Arrays.asList(//
-				"IMAP4rev1", //
-				"LITERAL+", //
-				"ID", //
-				"ACL", //
-				"RIGHTS=kxten", //
-				"QUOTA", //
-				"UIDPLUS", //
-				"XLIST", //
-				"SPECIAL-USE", //
-				"IDLE", //
-				"BM-ROCKS" //
-		).stream().collect(Collectors.joining(" "));
-	}
-
-	public String all() {
-		return all;
+	protected GetAclCommand(RawImapCommand raw) {
+		super(raw, quotedString);
 	}
 
 }

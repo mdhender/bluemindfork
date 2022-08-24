@@ -17,8 +17,13 @@
  */
 package net.bluemind.imap.driver.mailapi;
 
+import java.text.Normalizer;
 import java.util.Optional;
 
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Strings;
+
+import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 
 public class BodyStructureRenderer {
@@ -62,9 +67,24 @@ public class BodyStructureRenderer {
 			sb.append(" \"").append("8BIT").append("\"");
 
 			// size
-			sb.append(" ").append(root.size).append(" NIL NIL NIL NIL NIL");
+			sb.append(" ").append(root.size);
+
+			if (root.dispositionType == DispositionType.ATTACHMENT && !Strings.isNullOrEmpty(root.fileName)) {
+				sb.append(" NIL (\"ATTACHMENT\" (\"FILENAME\" \"" + cleanFileName(root) + "\")) NIL NIL");
+			} else if (root.dispositionType == DispositionType.INLINE && root.contentId != null) {
+				sb.append(" NIL (\"INLINE\" NIL) NIL NIL");
+			} else {
+				sb.append(" NIL NIL NIL NIL NIL");
+			}
+
 			sb.append(")");
 		}
+	}
+
+	private String cleanFileName(Part p) {
+		String s = Normalizer.normalize(p.fileName, Normalizer.Form.NFD);
+		s = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+		return CharMatcher.ascii().retainFrom(s);
 	}
 
 }

@@ -362,7 +362,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		CompletableFuture<ItemChange> completion = ReplicationEvents.onRecordChanged(mailboxUniqueId,
 				current.value.imapUid);
 
-		int messageMaxSize = LocalSysconfCache.get().integerValue(SysConfKeys.message_size_limit.name());
+		int messageMaxSize = LocalSysconfCache.get().integerValue(SysConfKeys.message_size_limit.name(),
+				10 * 1024 * 1024);
 		if (updatedEml.size > messageMaxSize) {
 			String errorMsg = "Rewritten Eml exceeds max message size (so it has not been submitted to Cyrus).";
 			throw new ServerFault(errorMsg, ErrorCode.ENTITY_TOO_LARGE);

@@ -86,4 +86,9 @@ public class MailboxRecord extends MailboxItem {
 		return String.valueOf(conversationId);
 	}
 
+	@Override
+	public String toString() {
+		return super.toString() + "[intFl: " + internalFlags + ", thrid: " + conversationId + "]";
+	}
+
 }

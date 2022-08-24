@@ -29,8 +29,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
@@ -109,8 +107,6 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 
 	private final DataSource savedDs;
 
-	private static final Map<String, BlockingQueue<List<MailboxRecord>>> updateQueue = new ConcurrentHashMap<>();
-
 	public DbMailboxRecordsService(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
 			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService,
 			IMailIndexService index) {
@@ -120,11 +116,10 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		}
 		this.indexService = index;
 		this.savedDs = ds;
-		this.conversationService = createConversationService(context, mailboxUniqueId, ds);
+		this.conversationService = createConversationService(context);
 	}
 
-	private IInternalMailConversation createConversationService(BmContext context, String mailboxUniqueId,
-			DataSource ds) {
+	private IInternalMailConversation createConversationService(BmContext context) {
 		String uid = IMailReplicaUids.conversationSubtreeUid(container.domainUid, container.owner);
 		return context.provider().instance(IInternalMailConversation.class, uid);
 	}
@@ -357,34 +352,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 			return;
 		}
 
-		BlockingQueue<List<MailboxRecord>> queue = updateQueue.computeIfAbsent(mailboxUniqueId,
-				k -> new ArrayBlockingQueue<List<MailboxRecord>>(50));
-
-		try {
-			int retry = 0;
-			boolean queued = false;
-			// Our sync server queues slices of up to 200 records in here
-			while (!queued && retry++ < 20) {
-				queued = queue.offer(recs, 20, TimeUnit.SECONDS);
-				if (retry > 0 && !queued) {
-					logger.warn("[{}] record update queue full, attempt {}/20", mailboxUniqueId, retry);
-				}
-			}
-			if (!queued) {
-				throw new ServerFault("busy");
-			}
-			VertxPlatform.getVertx().executeBlocking(prom -> {
-				List<List<MailboxRecord>> toProcess = new ArrayList<>();
-				queue.drainTo(toProcess);
-				for (List<MailboxRecord> slice : toProcess) {
-					updatesImpl(slice);
-				}
-			}, ar -> {
-			});
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new ServerFault(e);
-		}
+		updatesImpl(recs);
 	}
 
 	private boolean processClonedRefs(List<MailboxRecord> recs) {

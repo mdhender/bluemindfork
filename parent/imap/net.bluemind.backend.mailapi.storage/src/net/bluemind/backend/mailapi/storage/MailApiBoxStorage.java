@@ -111,8 +111,6 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 
 	@Override
 	public void create(BmContext context, String domainUid, ItemValue<Mailbox> boxItem) throws ServerFault {
-		// TODO Auto-generated method stub
-
 		if (boxItem.value.dataLocation == null) {
 			// users & admins group (default groups) seems to be in this case
 			logger.warn("***** WTF mbox without datalocation {}", boxItem.value);
@@ -133,7 +131,8 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 			String n = boxItem.value.name;
 			for (String f : Arrays.asList(n, n + "/Sent", n + "/Trash", n + "/Templates")) {
 				MailboxReplica repl = folder(boxItem, f);
-				String uid = CyrusUniqueIds.forMailbox(domainUid, boxItem, repl.fullName).toString();
+				String fn = f.equals(boxItem.value.name) ? "" : repl.name;
+				String uid = CyrusUniqueIds.forMailbox(domainUid, boxItem, fn).toString();
 				if (foldersApi.getComplete(uid) != null) {
 					foldersApi.update(uid, repl);
 				} else {
