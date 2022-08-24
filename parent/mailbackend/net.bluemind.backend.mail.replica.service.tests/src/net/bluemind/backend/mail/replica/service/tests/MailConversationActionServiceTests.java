@@ -56,7 +56,7 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
-public class MailConversationActionServiceTests extends ReplicationStackTests {
+public class MailConversationActionServiceTests extends AbstractRollingReplicationTests {
 
 	@Before
 	public void before() throws Exception {
@@ -78,13 +78,6 @@ public class MailConversationActionServiceTests extends ReplicationStackTests {
 		BmTestContext testCtx = BmTestContext.contextWithSession("test-sid", userUid, domainUid);
 		return ServerSideServiceProvider.getProvider(testCtx).instance(IMailConversationActions.class,
 				IMailReplicaUids.conversationSubtreeUid(domainUid, userUid), replicatedMailBoxUid);
-	}
-
-	public static void main(String[] agrs) {
-		long d = 54543534534l;
-		String s = Long.toHexString(d);
-		long rev = Long.parseUnsignedLong(s, 16);
-		System.err.println(rev);
 	}
 
 	@Test
@@ -199,21 +192,20 @@ public class MailConversationActionServiceTests extends ReplicationStackTests {
 		IDbMailboxRecords recordsSent = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDbMailboxRecords.class, user1Sent.uid);
 
-		assertEquals(3, records.all().size());
+		assertEquals(2, records.all().size());
 		assertEquals(0, recordsSent.all().size());
 
 		List<ItemIdentifier> moved = getActionService(user1Inbox.uid).move(user1Sent.uid,
 				user1ConversationService.byFolder(user1Inbox.uid, ItemFlagFilter.all()));
 
-		// 3 cause we send 1 mail during setup
-		assertEquals(3, moved.size());
+		assertEquals(2, moved.size());
 
 		List<ItemValue<MailboxRecord>> allInInbox = records.all();
-		assertEquals(3, allInInbox.size());
+		assertEquals(2, allInInbox.size());
 		for (ItemValue<MailboxRecord> rec : allInInbox) {
 			assertTrue(rec.value.flags.contains(MailboxItemFlag.System.Deleted.value()));
 		}
-		assertEquals(3, recordsSent.all().size());
+		assertEquals(2, recordsSent.all().size());
 	}
 
 }

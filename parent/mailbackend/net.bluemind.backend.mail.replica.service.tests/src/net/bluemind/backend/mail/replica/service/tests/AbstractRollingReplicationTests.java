@@ -54,6 +54,7 @@ import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
 import net.bluemind.backend.cyrus.replication.testhelper.SyncServerHelper;
+import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
@@ -381,6 +382,30 @@ public abstract class AbstractRollingReplicationTests {
 
 	protected void addMailToFolder(String folderUid, String file) throws IOException {
 		addMailToFolder(testEml(file), folderUid);
+	}
+
+	/** Create a message in a synchronous way. */
+	protected long createEml(String emlPath, String userUid, String mboxRoot, String folderName) throws IOException {
+		try (InputStream in = getClass().getClassLoader().getResourceAsStream(emlPath)) {
+			IServiceProvider provider = ServerSideServiceProvider.getProvider(new SecurityContext(userUid, userUid,
+					Collections.<String>emptyList(), Collections.<String>emptyList(), domainUid));
+			Stream stream = VertxStream.stream(Buffer.buffer(ByteStreams.toByteArray(in)));
+			IMailboxFolders mailboxFolderService = provider.instance(IMailboxFolders.class, partition, mboxRoot);
+			ItemValue<MailboxFolder> folder = mailboxFolderService.byName(folderName);
+			IMailboxItems mailboxItemService = provider.instance(IMailboxItems.class, folder.uid);
+			String partId = mailboxItemService.uploadPart(stream);
+			Part fullEml = Part.create(null, "message/rfc822", partId);
+			MessageBody messageBody = new MessageBody();
+			messageBody.subject = "Subject_" + System.currentTimeMillis();
+			messageBody.structure = fullEml;
+			MailboxItem item = new MailboxItem();
+			item.body = messageBody;
+			IOfflineMgmt offlineMgmt = provider.instance(IOfflineMgmt.class, domainUid, userUid);
+			IdRange oneId = offlineMgmt.allocateOfflineIds(1);
+			long expectedId = oneId.globalCounter;
+			mailboxItemService.createById(expectedId, item);
+			return expectedId;
+		}
 	}
 
 }

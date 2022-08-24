@@ -53,7 +53,6 @@ import org.junit.Test;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.ByteStreams;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -148,7 +147,7 @@ import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
-public class ReplicationStackTests extends AbstractRollingReplicationTests {
+public final class ReplicationStackTests extends AbstractRollingReplicationTests {
 
 	private static final ItemFlagFilter UNREAD_NOT_DELETED = ItemFlagFilter.create().mustNot(ItemFlag.Deleted,
 			ItemFlag.Seen);
@@ -3554,30 +3553,6 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		uids.addAll(user1ConversationService.byFolder(inbox, ItemFlagFilter.all()));
 		uids.addAll(user1ConversationService.byFolder(sent, ItemFlagFilter.all()));
 		return uids;
-	}
-
-	/** Create a message in a synchronous way. */
-	protected long createEml(String emlPath, String userUid, String mboxRoot, String folderName) throws IOException {
-		try (InputStream in = getClass().getClassLoader().getResourceAsStream(emlPath)) {
-			IServiceProvider provider = ServerSideServiceProvider.getProvider(new SecurityContext(userUid, userUid,
-					Collections.<String>emptyList(), Collections.<String>emptyList(), domainUid));
-			Stream stream = VertxStream.stream(Buffer.buffer(ByteStreams.toByteArray(in)));
-			IMailboxFolders mailboxFolderService = provider.instance(IMailboxFolders.class, partition, mboxRoot);
-			ItemValue<MailboxFolder> folder = mailboxFolderService.byName(folderName);
-			IMailboxItems mailboxItemService = provider.instance(IMailboxItems.class, folder.uid);
-			String partId = mailboxItemService.uploadPart(stream);
-			Part fullEml = Part.create(null, "message/rfc822", partId);
-			MessageBody messageBody = new MessageBody();
-			messageBody.subject = "Subject_" + System.currentTimeMillis();
-			messageBody.structure = fullEml;
-			MailboxItem item = new MailboxItem();
-			item.body = messageBody;
-			IOfflineMgmt offlineMgmt = provider.instance(IOfflineMgmt.class, domainUid, userUid);
-			IdRange oneId = offlineMgmt.allocateOfflineIds(1);
-			long expectedId = oneId.globalCounter;
-			mailboxItemService.createById(expectedId, item);
-			return expectedId;
-		}
 	}
 
 }
