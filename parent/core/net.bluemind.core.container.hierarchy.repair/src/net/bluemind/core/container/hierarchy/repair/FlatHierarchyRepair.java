@@ -18,6 +18,7 @@
  */
 package net.bluemind.core.container.hierarchy.repair;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -89,6 +90,9 @@ public class FlatHierarchyRepair implements IDirEntryRepairSupport {
 				monitor.end();
 				return;
 			}
+			if (entry.dataLocation == null) {
+				return;
+			}
 			monitor.log("Repairing flat hier for {} as {}", entry, context);
 			IInternalContainersFlatHierarchyMgmt mgmtApi = context.provider()
 					.instance(IInternalContainersFlatHierarchyMgmt.class, domainUid, entry.entryUid);
@@ -147,11 +151,17 @@ public class FlatHierarchyRepair implements IDirEntryRepairSupport {
 
 	@Override
 	public Set<MaintenanceOperation> availableOperations(Kind kind) {
+		if (kind == Kind.ORG_UNIT || kind == Kind.DOMAIN) {
+			return Collections.emptySet();
+		}
 		return ImmutableSet.of(flatHierOp);
 	}
 
 	@Override
 	public Set<InternalMaintenanceOperation> ops(Kind kind) {
+		if (kind == Kind.ORG_UNIT || kind == Kind.DOMAIN) {
+			return Collections.emptySet();
+		}
 		return ImmutableSet.of(new FlagHierMaintenance(context));
 	}
 
