@@ -17,14 +17,17 @@
  */
 package net.bluemind.imap.fullstack.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -32,6 +35,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.google.common.hash.HashCode;
+import com.google.common.hash.Hashing;
+import com.google.common.hash.HashingInputStream;
+import com.google.common.io.ByteStreams;
 
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
@@ -125,6 +133,22 @@ public class UserMailboxTests {
 		return new ByteArrayInputStream(sb.toString().getBytes());
 	}
 
+	private InputStream bigEml() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("From: john.grubber@die-hard.net\r\n");
+		sb.append("To: simon-petter.gruber@die-hard.net\r\n");
+		sb.append("Subject: McLane has a machine gun\r\n");
+		sb.append("Content-Transfer-Encoding: base64\r\n");
+		sb.append("Content-Type: application/octet-stream\r\n\r\n");
+		byte[] rand = new byte[5 * 1024 * 1024];
+		ThreadLocalRandom.current().nextBytes(rand);
+		sb.append(Base64.getMimeEncoder().encodeToString(rand));
+		sb.append("THE END\r\n");
+		sb.append("\r\n");
+		byte[] emlData = sb.toString().getBytes();
+		return new ByteArrayInputStream(emlData);
+	}
+
 	private InputStream eml(String resPath) {
 		return UserMailboxTests.class.getClassLoader().getResourceAsStream(resPath);
 	}
@@ -152,6 +176,37 @@ public class UserMailboxTests {
 		String data = GenericStream.streamToString(part);
 		System.err.println("data: " + data);
 		assertTrue(data.contains("Oh oh"));
+	}
+
+	@Test
+	public void appendBig() throws Exception {
+		AtomicInteger addUid = new AtomicInteger();
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1144, "john@devenv.blue", "john")) {
+			assertTrue(sc.login());
+			HashingInputStream hash = new HashingInputStream(Hashing.murmur3_32(), bigEml());
+			int added = sc.append("INBOX", hash, new FlagsList());
+			assertTrue(added > 0);
+			addUid.set(added);
+			assertTrue(sc.select("INBOX"));
+			HashCode sourceHash = hash.hash();
+
+			try (IMAPByteSource fetch12 = sc.uidFetchMessage(added)) {
+				assertNotNull(fetch12);
+				System.err.println("Got " + fetch12.size() + " byte(s)");
+				try (HashingInputStream hashAfter = new HashingInputStream(Hashing.murmur3_32(),
+						fetch12.source().openBufferedStream())) {
+					byte[] data = ByteStreams.toByteArray(hashAfter);
+					HashCode after = hashAfter.hash();
+					String full = new String(data);
+					System.err.println(full.substring(0, 256));
+					System.err.println(full.substring(full.length() - 256, full.length()));
+
+					System.err.println("data: " + data.length + " before: " + sourceHash + " after: " + after);
+					assertEquals(sourceHash, after);
+				}
+			}
+		}
+
 	}
 
 	@Test

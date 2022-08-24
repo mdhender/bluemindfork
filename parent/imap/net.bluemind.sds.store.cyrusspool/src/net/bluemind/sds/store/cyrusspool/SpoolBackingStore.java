@@ -93,7 +93,8 @@ public class SpoolBackingStore implements ISdsBackingStore {
 			return exception(e);
 		}
 		try (InputStream input = Files.newInputStream(Paths.get(req.filename));
-				OutputStream zst = new ZstdOutputStream(Files.newOutputStream(zstFile), RecyclingBufferPool.INSTANCE)) {
+				OutputStream zst = new ZstdOutputStream(Files.newOutputStream(zstFile), RecyclingBufferPool.INSTANCE,
+						-3)) {
 			long copied = ByteStreams.copy(input, zst);
 			logger.info("Compressed {}byte(s) for {}", copied, req.guid);
 		} catch (IOException e) {
@@ -128,7 +129,6 @@ public class SpoolBackingStore implements ISdsBackingStore {
 		// check new live path
 		String path = livePath(guid);
 		if (locatePath(targetPath, path)) {
-
 			return CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
 		}
 

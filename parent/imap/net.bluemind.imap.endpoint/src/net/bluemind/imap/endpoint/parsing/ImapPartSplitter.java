@@ -93,6 +93,7 @@ public class ImapPartSplitter implements Handler<Buffer> {
 			}
 			parser.parse(Part.followedByLiteral(buf));
 			literalBytes = lit.total();
+			System.err.println("literalBytes: " + literalBytes);
 			split.fixedSizeMode(Math.min(IMAP_LITERAL_CHUNK_SIZE, literalBytes));
 			state = State.LITERAL;
 		} else {
@@ -109,6 +110,7 @@ public class ImapPartSplitter implements Handler<Buffer> {
 			int rem = literalBytes - buf.readableBytes();
 			parser.parse(Part.literalChunk(buf, rem));
 			literalBytes = rem;
+			System.err.println("proc - literalBytes: " + literalBytes);
 			split.fixedSizeMode(Math.min(IMAP_LITERAL_CHUNK_SIZE, literalBytes));
 		}
 	}

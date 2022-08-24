@@ -68,15 +68,17 @@ public class ImapRequestParser {
 					chunk = mmap(fullSize);
 				} else {
 					chunk = Unpooled.buffer(fullSize, fullSize);
-					chunk.writeBytes(current.buffer());
 				}
+				chunk.writeBytes(current.buffer());
 				current = Part.literalChunk(chunk, p.expected());
 				parts.add(current);
+				prev = current;
 			} else {
 				prev.buffer().writeBytes(current.buffer());
 			}
 		} else {
 			parts.add(current);
+			prev = current;
 			if (!current.continued()) {
 				// parts represent a full command
 				ArrayList<Part> copy = new ArrayList<>(parts);
@@ -86,7 +88,6 @@ public class ImapRequestParser {
 			}
 		}
 
-		prev = current;
 	}
 
 	public void close() {

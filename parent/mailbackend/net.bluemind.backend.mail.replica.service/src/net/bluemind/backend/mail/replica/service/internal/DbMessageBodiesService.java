@@ -95,12 +95,14 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 		if (classic instanceof LocalPathStream) {
 			LocalPathStream lps = (LocalPathStream) classic;
 			tmpFile = lps.path().toFile();
+			logger.info("Using local-stream from {} ({} byte(s))", tmpFile, tmpFile.length());
 		} else {
 			AsyncFile tmpStream = VertxPlatform.getVertx().fileSystem().openBlocking(tmpFile.getAbsolutePath(),
 					TMP_OPTS);
 			CompletableFuture<Void> prom = classic.pipeTo(tmpStream).toCompletionStage().toCompletableFuture();
 			classic.resume();
 			prom.join();
+			logger.info("Using netbased-stream {}", classic);
 		}
 
 		logger.info("File copy of {} stream created ({} byte(s))", uid, tmpFile.length());
