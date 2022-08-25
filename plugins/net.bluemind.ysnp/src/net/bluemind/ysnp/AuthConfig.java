@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -18,22 +18,25 @@
  */
 package net.bluemind.ysnp;
 
-public interface ICredentialValidator {
+public class AuthConfig {
+	public final boolean expiredOk;
+	public final boolean archivedOk;
 
-	public static enum Kind {
-		Password, Token, No;
+	public AuthConfig(boolean expiredOk, boolean archivedOk) {
+		this.expiredOk = expiredOk;
+		this.archivedOk = archivedOk;
 	}
 
-	/**
-	 * Returns true if the given credential is valid for the given username, realm &
-	 * service.
-	 * 
-	 * @param username
-	 * @param credential
-	 * @param realm
-	 * @param service
-	 * @param expireOk
-	 * @return
-	 */
-	Kind validate(String username, String credential, String realm, String service, AuthConfig authConfig);
+	public static AuthConfig defaultConfig() {
+		return new AuthConfig(false, false);
+	}
+
+	public static AuthConfig expiredOk() {
+		return new AuthConfig(true, false);
+	}
+
+	public static AuthConfig archivedOk() {
+		return new AuthConfig(false, true);
+	}
+
 }

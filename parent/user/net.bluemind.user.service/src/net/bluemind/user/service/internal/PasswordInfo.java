@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2022
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,24 +16,18 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.ysnp;
+package net.bluemind.user.service.internal;
 
-public interface ICredentialValidator {
+public class PasswordInfo {
 
-	public static enum Kind {
-		Password, Token, No;
+	public final boolean passwordOk;
+	public final boolean passwordUpdateNeeded;
+	public final String userUid;
+
+	public PasswordInfo(boolean passwordOk, boolean passwordUpdateNeeded, String userUid) {
+		this.passwordOk = passwordOk;
+		this.passwordUpdateNeeded = passwordUpdateNeeded;
+		this.userUid = userUid;
 	}
 
-	/**
-	 * Returns true if the given credential is valid for the given username, realm &
-	 * service.
-	 * 
-	 * @param username
-	 * @param credential
-	 * @param realm
-	 * @param service
-	 * @param expireOk
-	 * @return
-	 */
-	Kind validate(String username, String credential, String realm, String service, AuthConfig authConfig);
 }

@@ -46,6 +46,7 @@ public class YSNPDaemon implements IApplication {
 		logger.info("YSNP daemon starting {}", conf);
 		Files.deleteIfExists(Paths.get(conf.getSocketPath()));
 		Files.deleteIfExists(Paths.get(conf.getExpireOkSocketPath()));
+		Files.deleteIfExists(Paths.get(conf.getArchivedOkSocketPath()));
 		logger.info("UNIX socket will be created on {}", conf.getSocketPath());
 
 		if (!Token.exists()) {
@@ -59,6 +60,9 @@ public class YSNPDaemon implements IApplication {
 		p.waitFor();
 
 		p = Runtime.getRuntime().exec("chmod 777 " + YSNPConfiguration.INSTANCE.getExpireOkSocketPath());
+		p.waitFor();
+
+		p = Runtime.getRuntime().exec("chmod 777 " + YSNPConfiguration.INSTANCE.getArchivedOkSocketPath());
 		p.waitFor();
 
 		p = Runtime.getRuntime().exec("chown cyrus:mail " + YSNPConfiguration.INSTANCE.getPtSocketPath());

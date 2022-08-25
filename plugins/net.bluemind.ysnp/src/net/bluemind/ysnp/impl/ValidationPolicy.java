@@ -36,6 +36,7 @@ import com.google.common.hash.Hashing;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
+import net.bluemind.ysnp.AuthConfig;
 import net.bluemind.ysnp.ICredentialValidator;
 import net.bluemind.ysnp.ICredentialValidator.Kind;
 import net.bluemind.ysnp.ICredentialValidatorFactory;
@@ -95,7 +96,7 @@ public class ValidationPolicy {
 		t.schedule(stats, 30000, 30000);
 	}
 
-	public boolean validate(String login, String password, String service, String realm, boolean expireOk) {
+	public boolean validate(String login, String password, String service, String realm, AuthConfig authConfig) {
 		String latd = login + "@" + realm;
 
 		String cachedLatd = tokenCache.getIfPresent(password);
@@ -113,7 +114,7 @@ public class ValidationPolicy {
 		long time = System.currentTimeMillis();
 		for (ICredentialValidatorFactory cvf : validatorsFactories) {
 			ICredentialValidator validator = cvf.getValidator();
-			Kind vk = validator.validate(login, password, realm, service, expireOk);
+			Kind vk = validator.validate(login, password, realm, service, authConfig);
 			if (vk != null && vk != Kind.No) {
 				logger.info("Access to service {} granted to {} with '{}' validator in {}ms.", service, login,
 						cvf.getName(), (System.currentTimeMillis() - time));

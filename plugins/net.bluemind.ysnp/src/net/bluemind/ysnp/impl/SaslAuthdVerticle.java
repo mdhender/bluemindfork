@@ -40,6 +40,7 @@ import net.bluemind.lib.vertx.utils.PasswordDecoder;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.ysnp.AuthConfig;
 import net.bluemind.ysnp.YSNPConfiguration;
 
 public class SaslAuthdVerticle extends AbstractVerticle {
@@ -52,12 +53,16 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 	private Supplier<Optional<String>> defaultDomain;
 
 	private final String socketPath;
-	private final boolean expireOk;
+	private final AuthConfig authConfig;
 
 	private static final ValidationPolicy POLICY = new ValidationPolicy(YSNPConfiguration.INSTANCE);
 
-	public SaslAuthdVerticle(String socketPath, boolean expireOk) {
-		this.expireOk = expireOk;
+	public SaslAuthdVerticle(String socketPath) {
+		this(socketPath, AuthConfig.defaultConfig());
+	}
+
+	public SaslAuthdVerticle(String socketPath, AuthConfig authConfig) {
+		this.authConfig = authConfig;
 		this.socketPath = socketPath;
 	}
 
@@ -91,7 +96,7 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 			long time = registry.clock().monotonicTime();
 			vertx.executeBlocking((Promise<Boolean> p) -> {
 				try {
-					boolean valid = vp.validate(creds.login, creds.password, creds.service, creds.realm, expireOk);
+					boolean valid = vp.validate(creds.login, creds.password, creds.service, creds.realm, authConfig);
 					p.complete(valid);
 				} catch (Exception e) {
 					p.fail(e);
@@ -148,4 +153,5 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 		}
 		return new Creds(login, password, service, realm);
 	}
+
 }

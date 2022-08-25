@@ -32,6 +32,10 @@ public class YSNPConfiguration {
 
 	public static final String CFG = "/etc/ysnp/ysnp.conf";
 	private Properties conf;
+	private static final String daemonSocketPath = "daemon.socket.path";
+	private static final String bmptDaemonSocketPath = "bmpt-daemon.socket.path";
+	private static final String expiredOkDaemonSocketPath = "expireok-daemon.socket.path";
+	private static final String archivedOkDaemonSocketPath = "archivedok-daemon.socket.path";
 	private static final Logger logger = LoggerFactory.getLogger(YSNPConfiguration.class);
 
 	public static final YSNPConfiguration INSTANCE = new YSNPConfiguration();
@@ -44,9 +48,10 @@ public class YSNPConfiguration {
 			throw new YSNPError(e);
 		}
 		conf = new Properties();
-		conf.put("daemon.socket.path", System.getProperty("ysnp.sock", "/var/run/saslauthd/mux"));
-		conf.put("expireok-daemon.socket.path", "/var/run/saslauthd/expireok");
-		conf.put("bmpt-daemon.socket.path", "/var/run/cyrus/socket/bm-ptsock");
+		conf.put(daemonSocketPath, System.getProperty("ysnp.sock", "/var/run/saslauthd/mux"));
+		conf.put(expiredOkDaemonSocketPath, "/var/run/saslauthd/expireok");
+		conf.put(archivedOkDaemonSocketPath, "/var/run/saslauthd/archivedok");
+		conf.put(bmptDaemonSocketPath, "/var/run/cyrus/socket/bm-ptsock");
 		try (InputStream in = Files.newInputStream(Paths.get(CFG))) {
 			conf.load(in);
 		} catch (Exception e) {
@@ -143,15 +148,19 @@ public class YSNPConfiguration {
 	}
 
 	public String getPtSocketPath() {
-		return getString("bmpt-daemon.socket.path");
+		return getString(bmptDaemonSocketPath);
 	}
 
 	public String getSocketPath() {
-		return getString("daemon.socket.path");
+		return getString(daemonSocketPath);
 	}
 
 	public String getExpireOkSocketPath() {
-		return getString("expireok-daemon.socket.path");
+		return getString(expiredOkDaemonSocketPath);
+	}
+
+	public String getArchivedOkSocketPath() {
+		return getString(archivedOkDaemonSocketPath);
 	}
 
 	public String getString(String confKey) {
@@ -161,4 +170,5 @@ public class YSNPConfiguration {
 	public String toString() {
 		return conf.toString();
 	}
+
 }

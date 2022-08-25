@@ -30,6 +30,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.http.HttpClientFactory;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
+import net.bluemind.ysnp.AuthConfig;
 import net.bluemind.ysnp.ICredentialValidator;
 
 public class CoreCredentialValidator implements ICredentialValidator {
@@ -41,7 +42,7 @@ public class CoreCredentialValidator implements ICredentialValidator {
 	private static final String DEFAULT_REALM = "global.virt";
 
 	@Override
-	public Kind validate(String username, String credential, String realm, String service, boolean expireOk) {
+	public Kind validate(String username, String credential, String realm, String service, AuthConfig authConfig) {
 
 		String host = "127.0.0.1";
 		try {
@@ -74,13 +75,16 @@ public class CoreCredentialValidator implements ICredentialValidator {
 		}
 
 		Kind vk = Kind.No;
+		ValidationKind lr = null;
 		try {
-			ValidationKind lr = authClient.validate(latd, credential, "ysnp");
+			lr = authClient.validate(latd, credential, "ysnp");
 			if (lr == ValidationKind.TOKEN) {
 				vk = Kind.Token;
 			} else if (lr == ValidationKind.PASSWORD) {
 				vk = Kind.Password;
-			} else if (expireOk && lr == ValidationKind.PASSWORDEXPIRED) {
+			} else if (authConfig.expiredOk && lr == ValidationKind.PASSWORDEXPIRED) {
+				vk = Kind.Password;
+			} else if (authConfig.archivedOk && lr == ValidationKind.ARCHIVED) {
 				vk = Kind.Password;
 			} else {
 				logger.debug("could not validate {}/{}", latd, credential);
@@ -90,7 +94,8 @@ public class CoreCredentialValidator implements ICredentialValidator {
 			logger.error("error validating login {} : {}", latd, e.getMessage(), e);
 		}
 
-		logger.info("validate response for (username :{}, realm :{}, service:{},) : {}", username, realm, service, vk);
+		logger.info("validate response for (username :{}, realm :{}, service:{},) : {} - core response: {}", username,
+				realm, service, vk, lr);
 		return vk;
 
 	}

@@ -18,7 +18,6 @@
 package net.bluemind.cli.adm;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,36 +29,25 @@ import net.bluemind.cli.directory.common.NoopException;
 import net.bluemind.cli.utils.Tasks;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirEntryMaintenance;
 import net.bluemind.directory.api.RepairConfig;
-import net.bluemind.user.api.IUser;
-import net.bluemind.user.api.User;
 
 public class CliRepair {
 	protected final CliContext ctx;
-	protected final boolean unarchive;
 	protected final boolean dry;
 	private final boolean verbose;
 	protected Collection<String> askedRepairOps;
 
-	protected Optional<ItemValue<User>> archiveUserOnClose = Optional.empty();
 	protected String domainUid;
 	protected ItemValue<DirEntry> dirEntry;
 
-	private IUser userService;
-
-	public CliRepair(CliContext ctx, String domainUid, ItemValue<DirEntry> dirEntry, boolean unarchive, boolean dry,
-			boolean verbose) {
+	public CliRepair(CliContext ctx, String domainUid, ItemValue<DirEntry> dirEntry, boolean dry, boolean verbose) {
 		this.ctx = ctx;
-		this.unarchive = unarchive;
 		this.dirEntry = dirEntry;
 		this.domainUid = domainUid;
 		this.dry = dry;
 		this.verbose = verbose;
-
-		userService = ctx.adminApi().instance(IUser.class, domainUid);
 	}
 
 	public void repair() {
@@ -67,11 +55,6 @@ public class CliRepair {
 	}
 
 	public void repair(String ops) {
-		if (unarchive && dirEntry.value.kind == Kind.USER && dirEntry.value.archived) {
-			ctx.info("User " + dirEntry.value.entryUid + " will be unarchived for repair op");
-			archiveUserOnClose = Optional.ofNullable(userService.getComplete(dirEntry.value.entryUid));
-			unarchive(userService, archiveUserOnClose);
-		}
 		doRepair(domainUid, dirEntry, ops);
 	}
 
@@ -102,31 +85,5 @@ public class CliRepair {
 		config.opIdentifiers = filteredOps;
 		TaskRef ref = demService.repair(config);
 		Tasks.follow(ctx, ref, logId, String.format("Failed to repair entry %s", de));
-	}
-
-	private void unarchive(IUser userService, Optional<ItemValue<User>> ouserItem) {
-		ouserItem.ifPresent(userItem -> {
-			userItem.value.archived = false;
-			updateUser(userService, userItem);
-		});
-	}
-
-	private void archive(IUser userService, ItemValue<User> userItem) {
-		// We absolutely need to retrieve the dirEntry again, because repair will modify
-		// the direntry. We don't want to overwrite the old value!
-		ItemValue<User> refreshedUser = userService.getComplete(userItem.uid);
-		refreshedUser.value.archived = true;
-		updateUser(userService, refreshedUser);
-	}
-
-	private void updateUser(IUser userService, ItemValue<User> userItem) {
-		userService.update(userItem.uid, userItem.value);
-	}
-
-	public void close() {
-		archiveUserOnClose.ifPresent(useriv -> {
-			ctx.info("User {} will be archived", useriv.uid);
-			archive(userService, useriv);
-		});
 	}
 }

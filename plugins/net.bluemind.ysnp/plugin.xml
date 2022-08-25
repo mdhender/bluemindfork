@@ -35,6 +35,9 @@
       <verticle
             impl="net.bluemind.ysnp.impl.ExpireOkSaslAuthdVerticleFactory">
       </verticle>
+      <verticle
+            impl="net.bluemind.ysnp.impl.ArchivedOkSaslAuthdVerticleFactory">
+      </verticle>
    </extension>
    <extension
          point="net.bluemind.core.caches.registry.registration">

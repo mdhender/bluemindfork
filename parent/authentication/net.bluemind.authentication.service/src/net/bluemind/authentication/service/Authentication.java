@@ -488,7 +488,8 @@ public class Authentication implements IInCoreAuthentication {
 			LoginResponse resp = new LoginResponse();
 			resp.status = Status.Bad;
 			return resp;
-		} else if (user.value.archived && !securityContext.getOrigin().equals("mapi-admin-link")) {
+		} else if (user.value.archived && !(securityContext.getOrigin().equals("mapi-admin-link")
+				|| securityContext.getOrigin().equals("internal-system"))) {
 			logger.error("user with login {} in {} is archived, su refused", localPart, domainPart);
 			LoginResponse resp = new LoginResponse();
 			resp.status = Status.Bad;
@@ -594,7 +595,7 @@ public class Authentication implements IInCoreAuthentication {
 		}
 
 		AuthContext authContext = buildAuthContext(login, password).orElse(null);
-		if (authContext == null || authContext.user == null || authContext.user.value.archived) {
+		if (authContext == null || authContext.user == null) {
 			logger.error("validate failed for login: {} origin: {} remoteIps: {}", login, origin,
 					securityContext.getRemoteAddresses());
 			return ValidationKind.NONE;
@@ -612,6 +613,8 @@ public class Authentication implements IInCoreAuthentication {
 			return ValidationKind.PASSWORD;
 		} else if (authResult == AuthResult.EXPIRED) {
 			return ValidationKind.PASSWORDEXPIRED;
+		} else if (authResult == AuthResult.ARCHIVED) {
+			return ValidationKind.ARCHIVED;
 		}
 
 		logger.error("validate password or token failed for login: {} result: {} origin: {} remoteIps: {}", login,

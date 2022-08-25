@@ -54,20 +54,13 @@ public class RepairCommand extends SingleOrDomainOperation {
 	@Option(names = "--ops", description = "Just include the (comma separated) ops, (eg. mailboxPostfixMaps,)", completionCandidates = MaintenanceOpsCompletions.class)
 	public String ops;
 
-	@Option(names = "--unarchive", description = "\"true\" to temporarely unarchive/archive users and apply the repair op")
-	public boolean unarchive = false;
-
 	@Option(names = "--domain-only", description = "Only repair the domain entity")
 	public boolean domainOnly = false;
 
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
-		CliRepair clirepair = new CliRepair(ctx, domainUid, de, unarchive, dry, verbose);
-		try {
-			clirepair.repair(ops);
-		} finally {
-			clirepair.close();
-		}
+		CliRepair clirepair = new CliRepair(ctx, domainUid, de, dry, verbose);
+		clirepair.repair(ops);
 	}
 
 	@Override

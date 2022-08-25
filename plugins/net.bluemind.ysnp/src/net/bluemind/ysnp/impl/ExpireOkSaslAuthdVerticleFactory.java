@@ -19,6 +19,7 @@ package net.bluemind.ysnp.impl;
 
 import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IVerticleFactory;
+import net.bluemind.ysnp.AuthConfig;
 import net.bluemind.ysnp.YSNPConfiguration;
 
 public class ExpireOkSaslAuthdVerticleFactory implements IVerticleFactory {
@@ -29,6 +30,6 @@ public class ExpireOkSaslAuthdVerticleFactory implements IVerticleFactory {
 
 	@Override
 	public Verticle newInstance() {
-		return new SaslAuthdVerticle(YSNPConfiguration.INSTANCE.getExpireOkSocketPath(), true);
+		return new SaslAuthdVerticle(YSNPConfiguration.INSTANCE.getExpireOkSocketPath(), AuthConfig.expiredOk());
 	}
 }

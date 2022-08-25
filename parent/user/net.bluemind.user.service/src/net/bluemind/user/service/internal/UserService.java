@@ -472,11 +472,20 @@ public class UserService implements IInCoreUser, IUser {
 		}
 	}
 
+	public PasswordInfo getPasswordInfo(String login, String password) {
+		ItemValue<User> userItem = getUserFromLogin(login);
+		boolean passwordOk = checkPassword(userItem, password);
+		boolean passwordUpdateNeeded = passwordOk ? passwordUpdateNeeded(userItem) : false;
+		return new PasswordInfo(passwordOk, passwordUpdateNeeded, userItem.uid);
+	}
+
 	public boolean passwordUpdateNeeded(String login) {
 		ParametersValidator.notNullAndNotEmpty(login);
-
 		ItemValue<User> userItem = getUserFromLogin(login);
+		return passwordUpdateNeeded(userItem);
+	}
 
+	private boolean passwordUpdateNeeded(ItemValue<User> userItem) {
 		if (userItem.value.passwordMustChange) {
 			return true;
 		}
@@ -502,10 +511,12 @@ public class UserService implements IInCoreUser, IUser {
 	public boolean checkPassword(String login, String password) {
 		ParametersValidator.notNullAndNotEmpty(login);
 		ParametersValidator.notNullAndNotEmpty(password);
+		ItemValue<User> userItem = getUserFromLogin(login);
+		return checkPassword(userItem, password);
+	}
 
+	private boolean checkPassword(ItemValue<User> userItem, String password) {
 		try {
-			ItemValue<User> userItem = getUserFromLogin(login);
-
 			// BM-9728
 			if (userItem.value.password == null) {
 				return false;

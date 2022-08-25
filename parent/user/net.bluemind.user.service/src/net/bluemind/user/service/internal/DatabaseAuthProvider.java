@@ -8,6 +8,8 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.user.api.IUser;
 
@@ -29,12 +31,22 @@ public class DatabaseAuthProvider implements IAuthProvider {
 
 		UserService userService = (UserService) ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUser.class, domain.uid);
-		if (!userService.checkPassword(login, authContext.getUserPassword())) {
+
+		PasswordInfo passwordInfo = userService.getPasswordInfo(login, authContext.getUserPassword());
+
+		if (!passwordInfo.passwordOk) {
 			return AuthResult.NO;
 		}
 
-		if (userService.passwordUpdateNeeded(login)) {
+		if (passwordInfo.passwordUpdateNeeded) {
 			return AuthResult.EXPIRED;
+		}
+
+		DirEntry userAsEntry = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDirectory.class, domain.uid).findByEntryUid(passwordInfo.userUid);
+
+		if (userAsEntry.archived) {
+			return AuthResult.ARCHIVED;
 		}
 
 		return AuthResult.YES;
