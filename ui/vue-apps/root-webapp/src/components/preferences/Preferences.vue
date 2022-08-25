@@ -33,6 +33,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
+import { REMOVE } from "@bluemind/alert.store";
 import { generateDateTimeFormats } from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
 import Roles from "@bluemind/roles";
@@ -95,6 +96,7 @@ export default {
         this.scrollOnLoad();
     },
     methods: {
+        ...mapActions("alert", { REMOVE }),
         ...mapActions("preferences", [
             "FETCH_CONTAINERS",
             "FETCH_SUBSCRIPTIONS",
@@ -116,6 +118,7 @@ export default {
                 this.TOGGLE_PREFERENCES();
                 this.SET_OFFSET(0);
                 this.SET_SEARCH("");
+                this.cleanAlertsOnClose();
             }
         },
         async checkUnsavedChanges() {
@@ -132,6 +135,13 @@ export default {
                 });
             }
             return true;
+        },
+        cleanAlertsOnClose() {
+            this.$store.state.alert.forEach(alert => {
+                if (alert.area.startsWith("pref-") && !alert.keepAfterClose) {
+                    this.REMOVE(alert);
+                }
+            });
         },
         unlockOrClose() {
             if (!this.lockClose) {

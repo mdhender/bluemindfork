@@ -132,7 +132,7 @@ export default {
 
 const alert = {
     alert: { uid: "IS_RELOAD_OR_LOGOUT_NEEDED" },
-    options: { area: "pref-right-panel", dismissible: false }
+    options: { area: "pref-right-panel", dismissible: false, keepAfterClose: true }
 };
 
 function getGroupsFromTextNodes(ref, pattern) {

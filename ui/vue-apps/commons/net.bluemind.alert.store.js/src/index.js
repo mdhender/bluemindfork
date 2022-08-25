@@ -86,8 +86,11 @@ function remove(state, uid) {
     }
 }
 
-function create({ name, error = {}, payload = {}, result = {}, uid, type }, { area, dismissible, icon, renderer }) {
-    return { name, error, payload, result, uid, type, renderer, icon, dismissible, area };
+function create(
+    { name, error = {}, payload = {}, result = {}, uid, type },
+    { area, dismissible, icon, renderer, keepAfterClose }
+) {
+    return { name, error, payload, result, uid, type, renderer, icon, dismissible, area, keepAfterClose };
 }
 
 function clearDelay({ uid }) {
