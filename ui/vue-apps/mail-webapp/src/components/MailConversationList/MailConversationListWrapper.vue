@@ -1,7 +1,9 @@
 <template>
     <conversation-list
+        :folder="activeFolder"
         :all-conversation-keys="CONVERSATION_LIST_ALL_KEYS"
         :conversation-keys="CONVERSATION_LIST_KEYS"
+        :conversations-activated="CONVERSATIONS_ACTIVATED"
         :draggable="true"
         :selected="SELECTION_IS_EMPTY ? currentConversationKey : SELECTION_KEYS"
         @keyup.native.delete.exact.prevent="moveToTrash()"
@@ -18,7 +20,13 @@
 </template>
 <script>
 import { RemoveMixin } from "~/mixins";
-import { CONVERSATION_LIST_KEYS, CONVERSATION_LIST_ALL_KEYS, SELECTION_IS_EMPTY, SELECTION_KEYS } from "~/getters";
+import {
+    CONVERSATIONS_ACTIVATED,
+    CONVERSATION_LIST_KEYS,
+    CONVERSATION_LIST_ALL_KEYS,
+    SELECTION_IS_EMPTY,
+    SELECTION_KEYS
+} from "~/getters";
 import { RESET_CONVERSATION_LIST_PAGE, SET_SELECTION, UNSELECT_CONVERSATION, SELECT_CONVERSATION } from "~/mutations";
 import { CONVERSATION_LIST_NEXT_PAGE } from "~/actions";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
@@ -31,12 +39,16 @@ export default {
     mixins: [RemoveMixin],
     computed: {
         ...mapGetters("mail", {
+            CONVERSATIONS_ACTIVATED,
             CONVERSATION_LIST_ALL_KEYS,
             CONVERSATION_LIST_KEYS,
             SELECTION_KEYS,
             SELECTION_IS_EMPTY
         }),
         ...mapState("mail", { conversationByKey: ({ conversations }) => conversations.conversationByKey }),
+        activeFolder() {
+            return this.$store.state.mail.folders[this.$store.state.mail.activeFolder];
+        },
         currentConversationKey() {
             return this.$store.state.mail.conversations.currentConversation;
         }

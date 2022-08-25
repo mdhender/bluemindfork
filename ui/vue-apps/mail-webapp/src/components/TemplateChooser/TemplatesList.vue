@@ -7,13 +7,14 @@
         :draggable="false"
         :multiple="false"
         :selected="value"
+        :folder="MY_TEMPLATES"
+        :conversations-activated="false"
         @set-selection="key => $emit('input', key)"
     />
     <empty-search-result v-else-if="pattern" :pattern="pattern" />
     <empty-templates-folder v-else :folder="MY_TEMPLATES" />
 </template>
 <script>
-import debounce from "lodash.debounce";
 import { mapGetters, mapState } from "vuex";
 import { MY_TEMPLATES } from "~/getters";
 import ConversationList from "~/components/ConversationList/ConversationList";
@@ -29,11 +30,6 @@ export default {
             type: Number,
             required: true
         }
-    },
-    data() {
-        return {
-            search: debounce(() => this.loadTemplates(), 1000)
-        };
     },
     computed: {
         ...mapGetters("mail", { MY_TEMPLATES }),

@@ -61,7 +61,7 @@
 import { BmListGroup } from "@bluemind/styleguide";
 import { mapState, mapGetters, mapActions } from "vuex";
 import { loadingStatusUtils } from "@bluemind/mail";
-import { CONVERSATIONS_ACTIVATED, CONVERSATION_IS_LOADED, CONVERSATION_METADATA } from "~/getters";
+import { CONVERSATION_IS_LOADED, CONVERSATION_METADATA } from "~/getters";
 import { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA } from "~/actions";
 import ConversationListItemLoading from "./ConversationListItemLoading";
 import ConversationListSeparator from "./ConversationListSeparator";
@@ -87,12 +87,20 @@ export default {
         DraggableConversation
     },
     props: {
+        folder: {
+            type: Object,
+            required: true
+        },
         conversationKeys: {
             type: Array,
             required: true
         },
         allConversationKeys: {
             type: Array,
+            required: true
+        },
+        conversationsActivated: {
+            type: Boolean,
             required: true
         },
         multiple: {
@@ -123,8 +131,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail", { CONVERSATIONS_ACTIVATED, CONVERSATION_IS_LOADED, CONVERSATION_METADATA }),
-        ...mapState("mail", ["folders", "activeFolder"]),
+        ...mapGetters("mail", { CONVERSATION_IS_LOADED, CONVERSATION_METADATA }),
         ...mapState("mail", {
             messages: ({ conversations }) => conversations.messages
         }),
@@ -152,8 +159,8 @@ export default {
                 if (conversationsToLoad.length > 0) {
                     await this.FETCH_CONVERSATIONS({
                         conversations: conversationsToLoad,
-                        folder: this.folders[this.activeFolder],
-                        conversationsActivated: this.CONVERSATIONS_ACTIVATED
+                        folder: this.folder,
+                        conversationsActivated: this.conversationsActivated
                     });
                 }
                 const messagesToLoad = this.conversationKeys.flatMap(key => {
