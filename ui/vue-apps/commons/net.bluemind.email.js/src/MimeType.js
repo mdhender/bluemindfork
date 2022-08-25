@@ -69,7 +69,8 @@ export default {
     isImage,
     isMultipart,
     matchingIcon,
-    previewAvailable
+    previewAvailable,
+    getFromFilename
 };
 
 /** Compare MIME type and subtype. */
@@ -173,6 +174,12 @@ function matchingIcon(mimeType) {
         return "file-type-vcard";
     } else {
         return "file-type-unknown";
+    }
+}
+
+function getFromFilename(name) {
+    if (name.toLowerCase().endsWith(".pdf")) {
+        return PDF;
     }
 }
 

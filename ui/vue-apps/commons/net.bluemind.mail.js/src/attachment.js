@@ -1,9 +1,13 @@
-import injector from "@bluemind/inject";
+import { MimeType } from "@bluemind/email";
+import { inject } from "@bluemind/inject";
 
 export function create(part, status) {
     const progress = status === AttachmentStatus.NOT_LOADED ? { loaded: 0, total: 100 } : { loaded: 100, total: 100 };
     if (!part.fileName) {
-        part.fileName = injector.getProvider("i18n").get().t("mail.attachment.untitled", { mimeType: part.mime });
+        part.fileName = inject("i18n").t("mail.attachment.untitled", { mimeType: part.mime });
+    }
+    if (part.mime === "application/octet-stream" && part.fileName && getTypeFromExtension(part.fileName)) {
+        part.mime = getTypeFromExtension(part.fileName);
     }
     const headers = part.headers ? [...getAttachmentHeaders(part), ...part.headers] : getAttachmentHeaders(part);
 
@@ -17,6 +21,10 @@ export function create(part, status) {
         headers
     };
     return attachment;
+}
+
+function getTypeFromExtension(filename) {
+    return MimeType.getFromFilename(filename);
 }
 
 export const AttachmentStatus = {
