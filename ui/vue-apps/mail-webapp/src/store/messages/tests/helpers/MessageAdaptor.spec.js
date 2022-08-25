@@ -1,7 +1,49 @@
+import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mail.api";
 import { messageUtils } from "@bluemind/mail";
 import MessageAdaptor, { getEventInfo } from "../../helpers/MessageAdaptor";
 
 describe("MessageAdaptor", () => {
+    test("message model and message adaptor share same properties", () => {
+        const emptyRemote = { value: { body: { headers: [], recipients: [], structure: { mime: "" } } } };
+
+        const message = messageUtils.create();
+        const adapted = MessageAdaptor.fromMailboxItem(emptyRemote, {});
+
+        const messageProperties = Object.keys(message).sort();
+        const adaptedProperties = Object.keys(adapted).sort();
+
+        expect(messageProperties.length).toBe(adaptedProperties.length);
+        messageProperties.forEach((prop, index) => {
+            expect(prop).toBe(adaptedProperties[index]);
+        });
+    });
+
+    describe("check adaptor results", () => {
+        let minimalEmptyMessage, folderRef;
+        beforeAll(() => {
+            minimalEmptyMessage = { value: { body: { headers: [], recipients: [], structure: { mime: "" } } } };
+            folderRef = { key: "", uid: "" };
+        });
+        test("remove backslash characters used for escape purpose in recipients", () => {
+            const recipients = [];
+            Object.values(RecipientKind).forEach(kind => {
+                recipients.push({
+                    dn: "\\John\\ %Un\\\\tel\\% \\(plop\\) \\",
+                    address: "random@mail.com",
+                    kind
+                });
+            });
+            minimalEmptyMessage.value.body.recipients = recipients;
+            const adapted = MessageAdaptor.fromMailboxItem(minimalEmptyMessage, folderRef);
+
+            const expected = "John %Un\\tel% (plop) \\";
+            expect(adapted.from.dn).toBe(expected);
+            expect(adapted.to[0].dn).toBe(expected);
+            expect(adapted.cc[0].dn).toBe(expected);
+            expect(adapted.bcc[0].dn).toBe(expected);
+        });
+    });
+
     describe("getEventInfo", () => {
         const eventId = "eventId";
         test("simple value", () => {
@@ -114,20 +156,6 @@ describe("MessageAdaptor", () => {
             expect(eventInfo.isResourceBooking).toBeTruthy();
             expect(eventInfo.resourceUid).toBeTruthy();
             expect(eventInfo.resourceUid).toEqual("resourceId");
-        });
-        test("message model and message adaptor share same properties", () => {
-            const emptyRemote = { value: { body: { headers: [], recipients: [], structure: { mime: "" } } } };
-
-            const message = messageUtils.create();
-            const adapted = MessageAdaptor.fromMailboxItem(emptyRemote, {});
-
-            const messageProperties = Object.keys(message).sort();
-            const adaptedProperties = Object.keys(adapted).sort();
-
-            expect(messageProperties.length).toBe(adaptedProperties.length);
-            messageProperties.forEach((prop, index) => {
-                expect(prop).toBe(adaptedProperties[index]);
-            });
         });
     });
 });

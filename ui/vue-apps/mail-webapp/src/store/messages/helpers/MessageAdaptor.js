@@ -19,7 +19,7 @@ export default {
             remoteRef: { imapUid: remote.value.imapUid },
             flags: remote.value.flags,
             date: new Date(remote.value.body.date),
-            ...computeRecipients(remote),
+            ...computeRecipients(remote.value.body.recipients),
             messageId: remote.value.body.messageId,
             version: remote.version,
             conversationId: remote.value.conversationId,
@@ -66,23 +66,36 @@ export default {
     }
 };
 
-function computeRecipients(remote) {
-    const from = remote.value.body.recipients.find(rcpt => rcpt.kind === RecipientKind.Originator) || {
+function computeRecipients(remoteRecipients) {
+    const from = remoteRecipients.find(rcpt => rcpt.kind === RecipientKind.Originator) || {
         dn: "Anonymous",
         address: "no-reply@no-reply.com"
     };
     return {
-        from: { dn: from.dn, address: from.address },
-        to: remote.value.body.recipients
+        from: { dn: normalizeDn(from.dn), address: from.address },
+        to: remoteRecipients
             .filter(rcpt => rcpt.kind === RecipientKind.Primary)
-            .map(rcpt => ({ dn: rcpt.dn, address: rcpt.address })),
-        cc: remote.value.body.recipients
+            .map(rcpt => ({ dn: normalizeDn(rcpt.dn), address: rcpt.address })),
+        cc: remoteRecipients
             .filter(rcpt => rcpt.kind === RecipientKind.CarbonCopy)
-            .map(rcpt => ({ dn: rcpt.dn, address: rcpt.address })),
-        bcc: remote.value.body.recipients
+            .map(rcpt => ({ dn: normalizeDn(rcpt.dn), address: rcpt.address })),
+        bcc: remoteRecipients
             .filter(rcpt => rcpt.kind === RecipientKind.BlindCarbonCopy)
-            .map(rcpt => ({ dn: rcpt.dn, address: rcpt.address }))
+            .map(rcpt => ({ dn: normalizeDn(rcpt.dn), address: rcpt.address }))
     };
+}
+
+// inspired from RFC https://www.rfc-editor.org/rfc/rfc5322#section-3.2.1
+function normalizeDn(dn) {
+    let normalized = "";
+    [...(dn || "")].forEach((char, index) => {
+        const next = dn[index + 1];
+        if (char === "\\" && next && next !== "\\") {
+            return;
+        }
+        normalized += char;
+    });
+    return normalized;
 }
 
 function buildRecipients(local) {
