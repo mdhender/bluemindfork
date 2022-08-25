@@ -80,14 +80,17 @@ export default {
     @media (max-width: map-get($grid-breakpoints, "lg")) {
         justify-content: end;
     }
-}
+    & > .bm-icon-button,
+    .mail-toolbar-item {
+        margin-top: auto;
+        margin-bottom: auto;
+    }
 
-.mail-toolbar {
-    .bm-dropdown,
-    .bm-icon-dropdown,
-    .btn {
-        @media (min-width: map-get($grid-breakpoints, "xl")) {
-            min-width: 5.5rem;
+    .mail-toolbar-compose-message,
+    .mail-toolbar-selected-conversations {
+        gap: $sp-6;
+        @media (min-width: map-get($grid-breakpoints, "lg")) {
+            gap: 0;
         }
     }
 }

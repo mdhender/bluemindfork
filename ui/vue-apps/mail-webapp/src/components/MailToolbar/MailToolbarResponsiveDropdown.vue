@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-toolbar-responsive-dropdown">
+    <div class="mail-toolbar-responsive-dropdown mail-toolbar-item">
         <bm-icon-dropdown
             class="d-inline-flex d-lg-none"
             variant="compact-on-fill-primary"

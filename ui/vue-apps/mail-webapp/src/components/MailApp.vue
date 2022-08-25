@@ -4,7 +4,7 @@
         <global-events @click="showFolders = false" />
         <section
             :aria-label="$t('mail.application.region.mailtools')"
-            class="row align-items-center shadow-sm bg-surface topbar z-index-250"
+            class="row align-items-center shadow bg-surface topbar z-index-250"
             :class="{ darkened }"
         >
             <bm-col
@@ -48,12 +48,12 @@
             >
                 <mail-toolbar class="mx-3 mx-lg-0" />
             </bm-col>
-            <bm-col v-if="canSwitchWebmail" order="last" class="d-none d-lg-block pr-2">
+            <bm-col v-if="canSwitchWebmail" order="last" class="d-none d-lg-block pr-5">
                 <bm-form-checkbox
                     switch
                     left-label
                     checked="true"
-                    class="switch-webmail text-condensed text-right text-secondary"
+                    class="switch-webmail caption-bold text-right text-secondary"
                     @change="switchWebmail()"
                 >
                     {{ $t("mail.main.switch.webmail") }}
@@ -184,7 +184,8 @@ export default {
 
 .mail-app {
     .topbar {
-        flex: 0 0 4em;
+        flex: none;
+        height: base-px-to-rem(46);
         @media (max-width: map-get($grid-breakpoints, "lg")) {
             background-color: $fill-primary-bg;
 

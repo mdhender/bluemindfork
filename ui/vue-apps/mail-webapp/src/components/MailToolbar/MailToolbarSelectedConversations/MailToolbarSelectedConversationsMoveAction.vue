@@ -18,7 +18,6 @@
             :items="pattern ? matchingFolders(isExcluded) : [MY_TRASH, MY_INBOX]"
             icon="search"
             :max-results="maxFolders"
-            has-divider-under-input
             @keydown.esc.native="resetPattern"
         >
             <bm-dropdown-item-button
@@ -30,7 +29,7 @@
                     <mail-folder-icon no-text :mailbox="mailboxes[item.mailboxRef.key]" :folder="item" />
                 </template>
                 <div class="d-flex align-items-center">
-                    <span class="flex-fill"> {{ translatePath(item.path) }}</span>
+                    <span class="flex-fill text-truncate"> {{ translatePath(item.path) }}</span>
                     <mail-mailbox-icon :mailbox="mailboxes[item.mailboxRef.key]" />
                 </div>
             </bm-dropdown-item-button>
@@ -174,39 +173,13 @@ export default {
 @import "~@bluemind/styleguide/css/mixins";
 
 .mail-toolbar-selected-conversations-move-action {
-    input {
-        border: none !important;
-    }
-
     .dropdown-menu {
         min-width: 20vw;
         max-width: 40vw;
-    }
 
-    .bm-dropdown-autocomplete form {
-        input {
-            padding-left: $sp-3;
-        }
-        padding: 0 !important;
-    }
-
-    .dropdown-divider {
-        margin: 0 !important;
-    }
-
-    .dropdown-item-content {
-        @include text-overflow;
-    }
-
-    .dropdown-item,
-    .b-dropdown-form {
-        &:hover {
-            background-color: $neutral-bg-lo1 !important;
-        }
-
-        &:focus,
-        &:focus:hover {
-            background-color: $surface-active-bg !important;
+        .bm-avatar {
+            flex: none;
+            margin-left: $sp-4;
         }
     }
 
@@ -217,6 +190,10 @@ export default {
     .new-folder .b-dropdown-form {
         padding-left: 0;
         padding-bottom: 0;
+
+        .mail-folder-input input {
+            border: none !important;
+        }
     }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <bm-button-group>
+    <bm-button-group class="mail-toolbar-compose-message">
         <mail-toolbar-responsive-button
             v-if="isDraft"
             :aria-label="$t('mail.actions.send.aria')"
@@ -60,7 +60,7 @@
             ref="other-dropdown"
             :aria-label="$tc('mail.toolbar.more.aria')"
             :title="$tc('mail.toolbar.more.aria')"
-            icon="3dots-v"
+            icon="3dots"
             :label="$t('mail.toolbar.more')"
             no-caret
             class="other-viewer-actions"

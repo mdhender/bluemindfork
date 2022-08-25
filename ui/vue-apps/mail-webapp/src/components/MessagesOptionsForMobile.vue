@@ -3,7 +3,7 @@
         no-caret
         variant="compact-on-fill-primary"
         size="lg"
-        class="messages-options-for-mobile justify-content-end"
+        class="messages-options-for-mobile w-100"
         icon="3dots-v"
         v-on="$listeners"
     >

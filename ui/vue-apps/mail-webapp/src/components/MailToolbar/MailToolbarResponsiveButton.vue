@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-toolbar-responsive-button">
+    <div class="mail-toolbar-responsive-button mail-toolbar-item">
         <bm-icon-button
             class="d-inline-flex d-lg-none"
             variant="compact-on-fill-primary"

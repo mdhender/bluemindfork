@@ -5,6 +5,7 @@
             <bm-form-input
                 v-model="pattern"
                 class="flex-fill no-border-right"
+                size="sm"
                 :placeholder="$t('common.search')"
                 icon="search"
                 resettable
@@ -18,18 +19,20 @@
             <bm-button
                 ref="toggleButton"
                 :title="$t('common.searchAdvanced')"
-                class="toggle-button text-truncate"
-                variant="text"
+                class="toggle-button no-border-left no-box-shadow"
+                variant="outline"
+                size="sm"
                 @click="showForm = !showForm"
             >
-                {{ compressFolderFullName(selectedFolder) }}<bm-icon class="ml-3" icon="caret-down" size="xs" />
+                <div class="text-truncate">{{ compressFolderFullName(selectedFolder) }}</div>
+                <bm-icon icon="caret-down" size="xs" />
             </bm-button>
         </div>
         <bm-collapse
             id="search-form"
             ref="searchForm"
             v-model="showForm"
-            class="search-form position-absolute bg-surface shadow-sm p-3 z-index-110"
+            class="search-form position-absolute bg-surface shadow p-5"
         >
             <bm-form
                 class="d-flex flex-column h-100"
@@ -39,7 +42,6 @@
             >
                 <bm-icon-button class="d-lg-none" variant="compact" size="lg" icon="arrow-back" @click="close" />
                 <bm-form-group
-                    class="pr-0 mr-0"
                     label-cols-lg="3"
                     label-cols="6"
                     label-for="folderCombo"
@@ -56,23 +58,17 @@
                         @close="folderPattern = translatePath(selectedFolder.path)"
                         @icon-click="folderPattern = ''"
                     >
-                        <div class="d-flex align-items-center">
-                            <span class="flex-fill"> {{ translatePath(item.path) }}</span>
-                            <mail-mailbox-icon
-                                v-if="item.key !== null"
-                                no-text
-                                :mailbox="mailboxes[item.mailboxRef.key]"
-                            />
-                        </div>
+                        <span class="flex-fill"> {{ translatePath(item.path) }}</span>
+                        <mail-mailbox-icon v-if="item.key !== null" no-text :mailbox="mailboxes[item.mailboxRef.key]" />
                     </bm-combo-box>
                 </bm-form-group>
-                <div class="d-flex flex-grow-1 align-items-end justify-content-end">
+                <div class="d-flex modal-footer">
+                    <bm-button type="reset" variant="text">
+                        {{ $t("common.action.reset") }}
+                    </bm-button>
                     <bm-button type="submit" variant="contained-accent" :disabled="!pattern">{{
                         $t("common.action.search")
                     }}</bm-button>
-                    <bm-button type="reset" variant="text" class="ml-4">
-                        {{ $t("common.action.reset") }}
-                    </bm-button>
                 </div>
             </bm-form>
         </bm-collapse>
@@ -83,6 +79,7 @@
 import { mapGetters, mapMutations, mapState } from "vuex";
 import {
     BmButton,
+    BmIconButton,
     BmCollapse,
     BmComboBox,
     BmForm,
@@ -111,6 +108,7 @@ export default {
     name: "MailSearchForm",
     components: {
         BmButton,
+        BmIconButton,
         BmCollapse,
         BmComboBox,
         BmForm,
@@ -272,29 +270,38 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-search-form {
-    .no-border-right input {
-        border-right: none;
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
+    .no-border-right {
+        &,
+        & input {
+            border-right: none !important;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+    }
+    .no-border-left {
+        border-left: none !important;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    .no-box-shadow {
+        box-shadow: none !important;
     }
 
-    .toggle-button {
+    $toggle-button-padding-right: $sp-4;
+
+    .btn-outline.toggle-button {
         max-width: 50%;
+        padding-right: $toggle-button-padding-right;
+        .slot-wrapper {
+            display: flex;
+            align-items: center;
+            gap: $sp-3;
+        }
     }
 
-    .bm-form-input:focus-within + .btn {
-        border-color: $secondary-fg;
-    }
-
-    .dropdown-menu {
-        position: absolute !important;
-        top: 0 !important;
-        left: 0px !important;
-        line-height: 2;
-    }
-
-    button.close {
-        line-height: 0.9;
+    .bm-form-input:focus-within + .btn-outline.toggle-button {
+        border: 2 * $input-border-width solid $secondary-fg;
+        padding-right: calc(#{$toggle-button-padding-right} - #{$input-border-width});
     }
 
     input {
@@ -303,14 +310,14 @@ export default {
 
     .search-form {
         width: 200%;
-        .custom-select {
-            background: none;
-            option {
-                line-height: 2 !important;
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-right: 0;
+
+            & > div {
+                padding-right: 0px;
             }
-        }
-        .form-group > div {
-            padding-right: 0px;
         }
     }
 
@@ -324,7 +331,7 @@ export default {
             .toggle-button:active,
             .toggle-button::before,
             .close,
-            .icon-wrapper {
+            .bm-icon {
                 color: $fill-primary-fg !important;
                 background: transparent !important;
                 border-color: transparent !important;
@@ -340,13 +347,6 @@ export default {
             right: 0;
             left: 0;
             width: auto;
-        }
-
-        .form-group {
-            padding: $sp-2 $sp-3;
-            & label {
-                margin-top: $sp-1;
-            }
         }
     }
 }
