@@ -80,13 +80,17 @@ function encodeHtmlEntities(str) {
 }
 
 function convertData(b64Data) {
-    const sanitized = b64Data.replace(/[^aA-zZ+0-9/=]/, "");
+    const sanitized = sanitizeB64(b64Data);
     const byteCharacters = atob(sanitized);
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {
         byteNumbers[i] = byteCharacters.charCodeAt(i);
     }
     return new Uint8Array(byteNumbers);
+}
+
+function sanitizeB64(base64) {
+    return base64.replaceAll("%0A", "").replace(/[^aA-zZ+0-9/=]/g, "");
 }
 
 /**
