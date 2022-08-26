@@ -1,7 +1,7 @@
 <template>
-    <div class="preview-file-header px-3 align-items-center">
-        <bm-icon :icon="getMatchingIcon(file.mime)" class="align-bottom" />
-        <span :title="file.name" class="font-weight-bold ml-2">{{ file.name }} </span>
+    <div class="preview-file-header text-truncate">
+        <bm-icon :icon="getMatchingIcon(file.mime)" class="mx-5" />
+        <div :title="file.name" class="bold text-truncate">{{ file.name }}</div>
     </div>
 </template>
 <script>
@@ -29,6 +29,7 @@ export default {
 
 .preview-file-header {
     display: flex;
+    align-items: center;
     background-color: $neutral-bg;
 }
 </style>

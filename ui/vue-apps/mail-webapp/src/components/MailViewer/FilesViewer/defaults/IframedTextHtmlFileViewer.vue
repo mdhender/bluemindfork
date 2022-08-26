@@ -36,7 +36,7 @@ const IFRAME_STYLE = `
         
         body {
             font-family: "Montserrat", sans-serif;
-            font-size: 0.75rem;
+            font-size: 0.875rem;
             font-weight: 400;
             color: #1f1f1f;
             margin: 0;

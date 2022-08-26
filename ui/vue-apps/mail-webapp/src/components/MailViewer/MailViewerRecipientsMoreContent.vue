@@ -7,13 +7,13 @@
         </div>
         <div class="overflow-auto pb-2">
             <div class="d-flex">
-                <div class="custom-col-left text-right pr-2">{{ $t("common.from") }}</div>
+                <div class="custom-col-left text-right pr-4">{{ $t("common.from") }}</div>
                 <div class="custom-col-right">
                     <bm-contact :contact="message.from" no-avatar transparent bold show-address />
                 </div>
             </div>
             <div class="d-flex">
-                <div class="custom-col-left text-right pr-2">{{ $t("common.to") }}</div>
+                <div class="custom-col-left text-right pr-4">{{ $t("common.to") }}</div>
                 <div class="custom-col-right d-flex flex-column">
                     <bm-contact
                         v-for="(contact, index) in message.to"
@@ -28,7 +28,7 @@
                 </div>
             </div>
             <div v-if="message.cc && message.cc.length" class="d-flex">
-                <div class="custom-col-left text-right pr-2">{{ $t("common.cc") }}</div>
+                <div class="custom-col-left text-right pr-4">{{ $t("common.cc") }}</div>
                 <div class="custom-col-right d-flex flex-column">
                     <bm-contact
                         v-for="(contact, index) in message.cc"
@@ -43,7 +43,7 @@
                 </div>
             </div>
             <div v-if="message.bcc && message.bcc.length" class="d-flex">
-                <div class="custom-col-left text-right pr-2">{{ $t("common.bcc") }}</div>
+                <div class="custom-col-left text-right pr-4">{{ $t("common.bcc") }}</div>
                 <div class="custom-col-right d-flex flex-column">
                     <bm-contact
                         v-for="(contact, index) in message.bcc"
@@ -62,11 +62,11 @@
                 <div class="custom-col-right"><hr class="mb-1 mt-3" /></div>
             </div>
             <div class="d-flex">
-                <div class="custom-col-left text-right pr-2">{{ $t("common.date") }}</div>
+                <div class="custom-col-left text-right pr-4">{{ $t("common.date") }}</div>
                 <div class="fcustom-col-right font-weight-bold">{{ new Date(message.date).toLocaleString() }}</div>
             </div>
             <div class="d-flex">
-                <div class="custom-col-left text-right pr-2">{{ $t("common.subject") }}</div>
+                <div class="custom-col-left text-right pr-4">{{ $t("common.subject") }}</div>
                 <div class="custom-col-right font-weight-bold">{{ message.subject }}</div>
             </div>
         </div>

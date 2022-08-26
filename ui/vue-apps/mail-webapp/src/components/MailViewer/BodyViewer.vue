@@ -160,9 +160,6 @@ class CidSet extends Set {
 .body-viewer {
     display: flex;
     flex-direction: column;
-
-    .files-block {
-        margin-bottom: $sp-2;
-    }
+    gap: $sp-5;
 }
 </style>

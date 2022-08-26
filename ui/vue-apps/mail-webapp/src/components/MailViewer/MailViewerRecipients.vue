@@ -119,6 +119,12 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
+.mail-viewer-recipients {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+}
+
 #mail-viewer-recipients-modal-to___BV_modal_outer_,
 #mail-viewer-recipients-modal-cc___BV_modal_outer_,
 #mail-viewer-recipients-modal-bcc___BV_modal_outer_ {
@@ -141,9 +147,6 @@ export default {
     min-width: 28.25rem;
     max-height: 65vh;
     overflow: auto;
-    .popover-body {
-        padding-top: 0;
-    }
 }
 .popover .arrow {
     display: none;

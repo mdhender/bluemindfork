@@ -120,8 +120,13 @@ export default {
     display: flex;
     flex-direction: row;
 
-    .unflagged .bm-captioned-icon-button .bm-icon {
-        color: $warning-fg;
+    .unflagged {
+        .bm-captioned-icon-button,
+        .bm-icon-button {
+            .bm-icon {
+                color: $warning-fg;
+            }
+        }
     }
 }
 </style>

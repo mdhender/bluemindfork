@@ -7,44 +7,44 @@
             @click.prevent="expand"
             @keypress.enter="toggle"
         >
-            <div class="row pl-5">
+            <div v-if="index !== 0" class="d-flex conversation-viewer-row flex-nowrap">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" />
-                <div class="col spacer" />
+                <div class="flex-fill spacer" />
             </div>
-            <div class="row min-height pl-5 click-to-collapse-zone flex-nowrap" @click="collapse">
-                <div
-                    class="col-1 d-flex align-items-center vertical-line"
-                    :class="{ first: index === 0, last: index === maxIndex }"
-                >
-                    <bm-contact :contact="message.from" no-text />
+            <div class="d-flex min-height conversation-viewer-row click-to-collapse-zone flex-nowrap" @click="collapse">
+                <div class="avatar-wrapper vertical-line" :class="{ first: index === 0, last: index === maxIndex }">
+                    <bm-contact :contact="message.from" no-text avatar-size="md" />
                 </div>
                 <slot name="head" />
             </div>
             <slot name="subhead" />
             <div
                 v-if="isMessageExpanded && !message.composing"
-                class="row pr-3 pl-5 click-to-collapse-zone"
+                class="d-flex pr-5 conversation-viewer-row flex-nowrap click-to-collapse-zone"
                 @click="collapse"
             >
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
-                <mail-viewer-recipients :message="message" class="col-11 px-3" @click.native.stop />
+                <mail-viewer-recipients :message="message" class="flex-fill mt-2 mb-4" @click.native.stop />
             </div>
-            <div class="row pl-5">
+            <div class="d-flex conversation-viewer-row flex-nowrap">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                 <slot name="content" />
             </div>
-            <div class="row pl-5" :class="{ 'sticky-bottom': stickyBottom }">
+            <div class="d-flex conversation-viewer-row flex-nowrap" :class="{ 'sticky-bottom': stickyBottom }">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                 <slot name="bottom" />
             </div>
         </div>
 
-        <div v-if="nextIsDraft || (isDraft && index !== maxIndex)" class="row contrast">
+        <div v-if="nextIsDraft || (isDraft && index !== maxIndex)" class="d-flex contrast">
             <div class="col spacer" />
         </div>
-        <div v-else-if="(!nextIsHidden || index === maxIndex || maxIndex <= 2)" class="row pl-5">
+        <div
+            v-else-if="(!nextIsHidden || index === maxIndex || maxIndex <= 2)"
+            class="d-flex flex-nowrap conversation-viewer-row"
+        >
             <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
-            <div class="col pl-3 py-0"><hr class="dashed" /></div>
+            <div class="flex-fill conversation-items-separator"><hr class="dashed flex-fill" /></div>
         </div>
     </div>
 </template>
@@ -91,9 +91,14 @@ export default {
 };
 </script>
 <style lang="scss">
+@use "sass:math";
 @import "@bluemind/styleguide/css/_variables.scss";
 
 .mail-conversation-viewer-item {
+    .avatar-wrapper {
+        height: $input-height;
+        padding-top: math.div($input-height - $avatar-height, 2);
+    }
     hr {
         margin-top: 0;
         margin-bottom: 0;
@@ -113,6 +118,10 @@ export default {
     }
     .mail-conversation-viewer-item-body:focus {
         outline-offset: -0.375em;
+    }
+    .conversation-items-separator {
+        padding-top: $sp-5 + $sp-3;
+        padding-bottom: $sp-5;
     }
     .sticky-bottom {
         position: sticky;

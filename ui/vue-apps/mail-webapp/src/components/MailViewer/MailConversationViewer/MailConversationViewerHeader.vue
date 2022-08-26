@@ -1,6 +1,6 @@
 <template>
-    <div class="mail-conversation-viewer-header pl-5 pb-2 d-flex justify-content-between align-items-center">
-        <h1>{{ displayedSubject }}</h1>
+    <div class="mail-conversation-viewer-header conversation-viewer-row pr-3 pb-6 d-flex justify-content-between">
+        <div class="title">{{ displayedSubject }}</div>
         <bm-icon-button
             v-if="!expanded"
             :title="$t('common.expand')"

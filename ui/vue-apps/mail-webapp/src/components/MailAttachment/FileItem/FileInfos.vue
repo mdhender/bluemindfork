@@ -1,22 +1,21 @@
 <template>
-    <bm-row class="no-gutters align-items-center file-infos">
+    <bm-row class="no-gutters align-items-start file-infos">
         <bm-col
-            class="col-auto icon"
+            class="icon-col"
             :title="$t('mail.content.file-type', { fileType: $t('mail.content.' + matchingIcon) })"
         >
-            <bm-icon :icon="matchingIcon" class="align-bottom" />
+            <bm-icon :icon="matchingIcon" />
         </bm-col>
-        <bm-col class="text-nowrap text-truncate flex-grow-1 px-2 file-text">
-            <span :title="file.name" class="font-weight-bold">{{ file.name }} </span>
-            <br />
-            <div class="d-inline-flex">
+        <bm-col class="text-nowrap text-truncate file-text">
+            <div :title="file.name" class="text-truncate bold">{{ file.name }}</div>
+            <div class="d-flex">
                 <file-tags :file="file" />
-                {{ fileSize }}
+                <div class="caption">{{ fileSize }}</div>
             </div>
         </bm-col>
-        <bm-col class="col-auto actions">
+        <div class="actions-wrapper">
             <slot name="actions" />
-        </bm-col>
+        </div>
     </bm-row>
 </template>
 <script>
@@ -51,14 +50,46 @@ export default {
 </script>
 
 <style lang="scss">
-@use "sass:math";
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/styleguide/css/_variables";
 
 .file-infos {
-    .icon,
+    position: relative;
+    background-color: inherit;
+
+    padding-top: $sp-2;
+    padding-bottom: $sp-2;
+
+    .icon-col {
+        display: flex;
+        flex: 0;
+        margin-top: base-px-to-rem(2);
+    }
     .file-text {
-        padding-top: math.div($sp-1, 2);
-        padding-bottom: math.div($sp-1, 2);
+        margin-left: $sp-5;
+    }
+    .actions-wrapper {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        background-color: inherit;
+        gap: $sp-4;
+        @media (min-width: map-get($grid-breakpoints, "lg")) {
+            gap: 0;
+        }
+    }
+}
+
+@media (min-width: map-get($grid-breakpoints, "lg")) {
+    .file-item {
+        &.disabled,
+        &:not(:hover):not(:focus):not(:focus-within) {
+            .file-infos .actions-wrapper {
+                display: none;
+            }
+        }
     }
 }
 </style>

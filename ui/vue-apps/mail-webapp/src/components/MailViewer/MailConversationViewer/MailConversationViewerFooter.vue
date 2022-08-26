@@ -1,5 +1,5 @@
 <template>
-    <bm-button-toolbar key-nav class="mail-conversation-viewer-footer py-3">
+    <bm-button-toolbar key-nav class="mail-conversation-viewer-footer">
         <mail-open-in-popup-with-shift v-slot="action" :href="replyRoute(lastNonDraft)">
             <bm-button
                 variant="contained-accent"
@@ -10,7 +10,6 @@
                 {{ $t("mail.content.reply.aria") }}
             </bm-button>
         </mail-open-in-popup-with-shift>
-        <span class="pl-3" />
         <mail-open-in-popup-with-shift v-slot="action" :href="replyAllRoute(lastNonDraft)">
             <bm-button
                 variant="contained-accent"
@@ -54,7 +53,16 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/_variables.scss";
+@import "../_variables.scss";
+
 .mail-conversation-viewer-footer {
-    padding-left: 5.5rem;
+    padding-top: $sp-4;
+    padding-left: $conversation-main-padding-left;
+    @media (min-width: map-get($grid-breakpoints, "lg")) {
+        padding-left: $conversation-main-padding-left-lg + $sp-7;
+    }
+    padding-bottom: $sp-7;
+    gap: $sp-6;
 }
 </style>

@@ -6,14 +6,17 @@
             </template>
         </bm-alert-area>
         <div
-            class="h-100 mt-5 d-flex flex-column text-center align-items-center"
+            class="h-100 mt-7 d-flex flex-column text-center align-items-center"
             :style="'background: url(' + multipleSelectionIllustration + ') no-repeat center top'"
         >
-            <div class="font-weight-bold mt-5 mb-2">
+            <div class="font-weight-bold mt-7 mb-4">
                 <h1>{{ mainText }}</h1>
             </div>
 
-            <div v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE" class="bg-surface py-2 px-3 actions-button w-75 mt-4">
+            <div
+                v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE"
+                class="bg-surface pt-2 py-5 px-6 actions-button w-75 mt-7"
+            >
                 <div class="arrow-up" />
                 <bm-button
                     v-if="showMarkAsRead"
@@ -65,29 +68,28 @@
                 </bm-button>
             </div>
 
-            <bm-button variant="text" class="my-4" @click="removeSelection">
+            <bm-button variant="text" class="my-6" @click="removeSelection">
                 {{ $t("common.cancel.selection") }}
             </bm-button>
 
             <hr v-if="!ALL_CONVERSATIONS_ARE_SELECTED" class="w-75 border-neutral" />
 
             <div v-if="!ALL_CONVERSATIONS_ARE_SELECTED" class="mt-3">
-                <h3 v-if="!CONVERSATION_LIST_IS_SEARCH_MODE" class="d-inline px-3 align-middle">
-                    {{ $t("mail.message.select.all.folder") }}
+                <div v-if="!CONVERSATION_LIST_IS_SEARCH_MODE" class="d-inline-flex px-3 align-items-center">
+                    <div>{{ $t("mail.message.select.all.folder") }}</div>
                     <mail-folder-icon
                         :mailbox="mailboxes[currentFolder.mailboxRef.key]"
                         :folder="currentFolder"
-                        class="font-weight-bold ml-1"
+                        class="font-weight-bold ml-3"
                     >
                         {{ currentFolder.path }}
                     </mail-folder-icon>
-                </h3>
-                <h3 v-else class="d-inline px-3 align-middle">
-                    {{ $t("mail.message.select.all.search") }}
-                    <bm-icon icon="search" /><span class="font-weight-bold"
-                        >"{{ conversationList.search.pattern }}"</span
-                    >
-                </h3>
+                </div>
+                <div v-else class="d-inline-flex px-3 align-items-center">
+                    <div>{{ $t("mail.message.select.all.search") }}</div>
+                    <bm-icon icon="search" class="mx-3" />
+                    <span class="font-weight-bold">"{{ conversationList.search.pattern }}"</span>
+                </div>
                 <bm-button @click="SET_SELECTION(CONVERSATION_LIST_ALL_KEYS)">
                     {{ $t("common.select.all") }}
                 </bm-button>
@@ -227,10 +229,11 @@ export default {
 </script>
 
 <style lang="scss">
+@use "sass:math";
 @import "@bluemind/styleguide/css/_variables.scss";
 
 $arrow-width: 3rem;
-$arrow-height: calc($arrow-width / 2);
+$arrow-height: math.div($arrow-width, 2);
 
 .mail-multiple-selection-actions {
     h1 {
@@ -242,7 +245,7 @@ $arrow-height: calc($arrow-width / 2);
     }
     .actions-button {
         .btn {
-            margin: $sp-2 $sp-1;
+            margin: $sp-4 $sp-3;
         }
         .arrow-up {
             position: relative;

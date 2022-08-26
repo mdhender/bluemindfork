@@ -75,7 +75,7 @@ export default {
     pre {
         white-space: pre-line;
         font-family: "Montserrat", sans-serif;
-        font-size: 0.75rem;
+        font-size: 0.875rem;
         font-weight: 400;
         color: $neutral-fg-hi1;
     }

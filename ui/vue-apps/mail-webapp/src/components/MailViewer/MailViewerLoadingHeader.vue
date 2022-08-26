@@ -1,16 +1,16 @@
 <template>
     <div class="d-flex flex-column bg-surface">
-        <bm-row class="px-lg-5 px-4 pt-2">
+        <bm-row class="px-lg-6 px-4 pt-2">
             <bm-col cols="12">
                 <bm-skeleton width="15%" />
             </bm-col>
         </bm-row>
-        <bm-row class="px-lg-5 px-4 mb-2">
+        <bm-row class="px-lg-6 px-4 mb-2">
             <bm-col cols="12">
                 <h1><bm-skeleton width="30%" /></h1>
             </bm-col>
         </bm-row>
-        <bm-row class="d-flex px-lg-5 px-4 justify-content-between">
+        <bm-row class="d-flex px-lg-6 px-4 justify-content-between">
             <bm-col cols="6" class="d-flex align-items-center">
                 <bm-skeleton-avatar />
                 <bm-skeleton class="ml-2 flex-fill" />
@@ -19,12 +19,12 @@
                 <bm-skeleton />
             </bm-col>
         </bm-row>
-        <bm-row class="px-lg-5">
+        <bm-row class="px-lg-6">
             <bm-col cols="12">
                 <hr class="my-2" />
             </bm-col>
         </bm-row>
-        <bm-row class="px-lg-5 px-4">
+        <bm-row class="px-lg-6 px-4">
             <bm-col cols="12">
                 <bm-skeleton width="20%" />
                 <bm-skeleton width="15%" />

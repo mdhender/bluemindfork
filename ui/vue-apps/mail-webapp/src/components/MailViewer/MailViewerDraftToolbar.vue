@@ -6,12 +6,15 @@
         <mail-open-in-popup-with-shift v-slot="action" :href="route">
             <bm-icon-button
                 variant="regular-accent"
+                size="sm"
                 :title="action.label($t('mail.actions.edit'))"
                 :icon="action.icon('pencil')"
                 @click="action.execute(openEditor)"
             />
         </mail-open-in-popup-with-shift>
         <bm-icon-button
+            variant="regular-accent"
+            size="sm"
             :title="$t('mail.actions.remove')"
             icon="trash"
             @click.stop="REMOVE_DRAFT(conversation, message)"

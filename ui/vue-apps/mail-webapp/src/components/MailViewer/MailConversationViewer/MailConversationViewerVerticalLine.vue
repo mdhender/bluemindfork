@@ -1,6 +1,6 @@
 <template>
     <div
-        class="col-1 vertical-line"
+        class="vertical-line"
         :class="{
             'vertical-line-after-avatar': afterAvatar,
             'vertical-line-transparent': afterAvatar ? index === maxIndex : index === 0

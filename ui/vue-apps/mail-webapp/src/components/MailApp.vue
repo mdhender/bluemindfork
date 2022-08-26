@@ -60,12 +60,12 @@
                 </bm-form-checkbox>
             </bm-col>
         </section>
-        <bm-row class="flex-fill flex-nowrap">
+        <bm-row class="flex-fill flex-nowrap mx-0">
             <!-- v-show is overridden by d-lg-block in large devices -->
             <section
                 v-show="showFolders"
                 :aria-label="$t('mail.application.region.folderlist')"
-                class="folders-section row position-lg-static position-absolute d-lg-block px-0 col-12 col-lg-2 overlay top-0 bottom-0"
+                class="folders-section position-lg-static position-absolute d-lg-block px-0 col-12 col-lg-2 overlay top-0 bottom-0"
             >
                 <mail-folder-sidebar />
             </section>

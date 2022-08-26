@@ -1,13 +1,14 @@
 <template>
     <div class="mail-composer-sender d-flex flex-column justify-content-between">
         <div class="d-flex align-items-center flex-fill">
-            <span :class="labelClass">{{ $t("common.from") }}</span>
+            <div class="label" :class="labelClass">{{ $t("common.from") }}</div>
             <bm-form-select
                 ref="identity-chooser"
                 :value="{ email: message.from.address, displayname: message.from.dn }"
                 :options="options"
-                class="ml-2 flex-fill"
-                variant="inline-neutral"
+                :auto-min-width="false"
+                class="flex-fill"
+                variant="inline"
                 @input="changeIdentity"
             />
         </div>
@@ -55,3 +56,11 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+.mail-composer-sender {
+    .label {
+        flex: none;
+    }
+}
+</style>

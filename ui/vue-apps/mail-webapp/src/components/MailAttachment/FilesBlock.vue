@@ -1,15 +1,16 @@
 <template>
-    <div v-if="files.length > 0" class="files-block p-2">
-        <div class="d-flex align-items-center">
+    <div v-if="files.length > 0" class="files-block">
+        <div class="expand-and-header">
             <bm-button-expand
                 :aria-label="$t('common.toggleAttachments')"
                 :title="$t('common.toggleAttachments')"
                 :expanded="isExpanded"
+                size="sm"
                 @click.prevent="toggleExpand"
             />
             <files-header :files="files" :max-size="maxSize" />
         </div>
-        <bm-row v-if="seeMoreFiles" class="ml-3 mr-1">
+        <bm-row v-if="seeMoreFiles" class="files-row">
             <bm-col v-for="file in files.slice(0, 2)" :key="file.key" lg="4" cols="12">
                 <file-item
                     :file="file"
@@ -22,7 +23,7 @@
                     </template>
                 </file-item>
             </bm-col>
-            <bm-col lg="4" cols="12" class="pt-2 border-transparent">
+            <bm-col lg="4" cols="12" class="border-transparent">
                 <bm-button
                     variant="outline"
                     class="w-100 h-100"
@@ -34,7 +35,7 @@
                 </bm-button>
             </bm-col>
         </bm-row>
-        <bm-row v-else class="ml-3 mr-1">
+        <bm-row v-else class="files-row">
             <bm-col v-for="(file, index) in files" :key="index" lg="4" cols="12" :compact="!isExpanded">
                 <file-item
                     :file="file"
@@ -121,15 +122,30 @@ export default {
 </script>
 
 <style lang="scss">
+@use "sass:math";
 @import "@bluemind/styleguide/css/_variables.scss";
+@import "../MailViewer/_variables.scss";
 
 .files-block {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+    padding-top: $sp-4;
+    padding-bottom: $sp-5;
+    padding-left: $sp-2;
+    padding-right: $inserts-padding-right;
     background-color: $neutral-bg-lo1;
-}
-.files-block .col-4,
-.files-block .col-lg-4 {
-    padding-right: $sp-1 !important;
-    padding-left: $sp-1 !important;
+
+    .expand-and-header {
+        display: flex;
+        gap: $sp-2;
+    }
+
+    .files-row {
+        margin-left: calc(#{$icon-btn-width-compact-sm + $sp-2} - #{math.div($grid-gutter-width, 2)});
+        margin-right: math.div(-$grid-gutter-width, 2);
+        row-gap: $grid-gutter-width;
+    }
 }
 
 .border-transparent {

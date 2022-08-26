@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-viewer-recipient d-flex mb-1 position-relative align-items-center">
+    <div class="mail-viewer-recipient medium d-flex position-relative align-items-center">
         <span class="text-neutral"><slot />&nbsp;</span>
         <div v-overflown-elements class="d-flex overflow-hidden text-nowrap flex-fill" @overflown="hideContacts">
             <div

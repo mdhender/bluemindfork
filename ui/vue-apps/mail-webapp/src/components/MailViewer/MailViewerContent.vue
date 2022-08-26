@@ -1,20 +1,17 @@
 <template>
     <div class="mail-viewer-content">
-        <h1 class="subject">{{ subject }}</h1>
+        <div class="title">{{ subject }}</div>
 
-        <bm-row class="sender">
-            <bm-col class="from" cols="8">
+        <div class="sender-and-recipients">
+            <div class="sender">
                 <mail-viewer-from :contact="message.from" />
-            </bm-col>
-            <bm-col cols="4" class="date">
-                {{ $d(message.date, "full_date_time_short") }}
-            </bm-col>
-        </bm-row>
-        <div v-if="hasRecipients" class="mail-sender-splitter"><hr /></div>
-
-        <mail-viewer-recipients v-if="hasRecipients" :message="message" />
-        <div class="mail-viewer-splitter pt-2"><hr /></div>
-        <body-viewer :message="message" @remote-content="from => $emit('remote-content', from)">
+                <div class="date">
+                    {{ $d(message.date, "full_date_time_short") }}
+                </div>
+            </div>
+            <mail-viewer-recipients v-if="hasRecipients" :message="message" />
+        </div>
+        <body-viewer class="flex-fill" :message="message" @remote-content="from => $emit('remote-content', from)">
             <template v-slot:attachments-block="scope">
                 <slot name="attachments-block" v-bind="scope" />
             </template>
@@ -26,7 +23,6 @@
     </div>
 </template>
 <script>
-import { BmCol, BmRow } from "@bluemind/styleguide";
 import BodyViewer from "./BodyViewer";
 import MailViewerFrom from "./MailViewerFrom";
 import MailViewerRecipients from "./MailViewerRecipients";
@@ -34,8 +30,6 @@ import MailViewerRecipients from "./MailViewerRecipients";
 export default {
     name: "MailViewerContent",
     components: {
-        BmCol,
-        BmRow,
         BodyViewer,
         MailViewerFrom,
         MailViewerRecipients
@@ -63,73 +57,37 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
+@import "./_variables";
+
 .mail-viewer-content {
-    .body-viewer {
-        .mail-inlines-block {
-            padding: 0 $sp-4;
-        }
-        @include media-breakpoint-up(lg) {
-            .mail-inlines-block {
-                padding: 0;
-            }
-            padding: 0 $sp-5;
-        }
-    }
-
-    .row {
-        min-height: fit-content;
-    }
-    & > hr {
-        &:last-of-type {
-            border-top-color: $neutral-fg-lo2;
-        }
-        @include media-breakpoint-up(lg) {
-            margin-left: $sp-5;
-            margin-right: $sp-5;
-        }
-        margin-top: 0;
-        margin-bottom: 0;
-    }
-
-    .subject {
+    .title {
+        margin-bottom: $sp-5;
         word-break: break-word;
     }
+
+    .sender {
+        display: flex;
+        align-items: center;
+
+        .bm-contact {
+            flex: 1;
+            .contact-main-part {
+                margin-left: $single-mail-avatar-main-gap !important;
+            }
+        }
+        .date {
+            flex: none;
+            color: $neutral-fg;
+        }
+    }
+
     .mail-viewer-recipients {
         margin-top: $sp-2;
+        padding-left: $avatar-width + $single-mail-avatar-main-gap;
     }
 
-    .mail-viewer-recipients,
-    .subject {
-        padding: 0 $sp-4;
-        @include media-breakpoint-up(lg) {
-            padding: 0 $sp-5;
-        }
-    }
-
-    .sender,
-    .mail-sender-splitter,
-    .mail-viewer-splitter {
-        padding: 0 $sp-4;
-        @include media-breakpoint-up(lg) {
-            padding: 0 $sp-5;
-        }
-    }
-    .mail-sender-splitter > hr {
-        margin: $sp-2 0;
-    }
-    .mail-viewer-splitter > hr {
-        border-color: $neutral-fg;
-        margin: $sp-1 0 0 0;
-    }
-
-    .mail-viewer-splitter {
-        padding-top: $sp-1;
-    }
-
-    .date {
-        align-self: center;
-        text-align: right;
-        color: $neutral-fg;
+    .sender-and-recipients {
+        margin-bottom: $sp-5;
     }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-inlines-block py-2">
+    <div class="mail-inlines-block">
         <div v-for="(part, index) in parts" :key="part.address">
             <hr v-if="index !== 0" class="part-separator" />
             <file-viewer-facade :message="message" :file="part">
@@ -34,11 +34,16 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
 .mail-inlines-block {
+    padding-top: $sp-6;
+    padding-bottom: $sp-6;
+
     .part-separator {
         margin: 1rem 0;
         border: 0;
-        border-top: 1px solid rgba(0, 0, 0, 0.3);
+        border-top: 1px solid $neutral-fg-lo2;
         height: 0;
     }
 }

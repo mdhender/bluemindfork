@@ -99,9 +99,9 @@ export default {
 .list-group-item.conversation-list-item {
     cursor: pointer;
 
-    border-left: $not-seen-border-width solid transparent;
+    border-left: $not-seen-border-width solid transparent !important;
     &.not-seen {
-        border-left-color: $secondary-fg;
+        border-left-color: $secondary-fg !important;
     }
 
     height: initial;

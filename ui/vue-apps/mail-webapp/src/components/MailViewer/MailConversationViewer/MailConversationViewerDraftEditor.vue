@@ -7,9 +7,10 @@
         v-on="$listeners"
     >
         <template slot="head">
-            <div class="col pl-3 align-self-center flex-fill">
+            <div class="col align-self-center flex-fill">
                 <mail-composer-sender
                     v-if="isSenderShown"
+                    class="mb-3"
                     label-class="font-weight-bold text-neutral"
                     :message="message"
                     @update="identity => setFrom(identity, message)"
@@ -26,12 +27,12 @@
                     <span class="font-weight-bold text-neutral">{{ $t("common.to") }}</span>
                 </bm-contact-input>
             </div>
-            <div class="align-self-center">
+            <div class="contact-input-extensions">
                 <template v-if="!(displayedRecipientFields & recipientModes.CC)">
-                    <bm-button variant="text" @click="displayedRecipientFields |= recipientModes.CC">
+                    <bm-button variant="text" size="lg" @click="displayedRecipientFields |= recipientModes.CC">
                         {{ $t("common.cc") }}
                     </bm-button>
-                    <bm-button variant="text" @click="displayedRecipientFields |= recipientModes.BCC">
+                    <bm-button variant="text" size="lg" @click="displayedRecipientFields |= recipientModes.BCC">
                         {{ $t("common.bcc") }}
                     </bm-button>
                 </template>
@@ -50,10 +51,10 @@
         <template slot="subhead">
             <mail-conversation-viewer-field-sep :index="index" :max-index="maxIndex" />
             <template v-if="displayedRecipientFields & recipientModes.CC">
-                <div class="row pl-5 flex-nowrap">
+                <div class="d-flex conversation-viewer-row flex-nowrap">
                     <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                     <bm-contact-input
-                        class="col-11 pl-3 flex-fill"
+                        class="flex-fill"
                         :contacts="message.cc"
                         :autocomplete-results="autocompleteResultsCc"
                         :validate-address-fn="validateAddress"
@@ -62,21 +63,24 @@
                     >
                         <span class="font-weight-bold text-neutral">{{ $t("common.cc") }}</span>
                     </bm-contact-input>
-                    <bm-button
-                        v-if="!(displayedRecipientFields & recipientModes.BCC)"
-                        variant="text"
-                        @click="displayedRecipientFields |= recipientModes.BCC"
-                    >
-                        {{ $t("common.bcc") }}
-                    </bm-button>
+                    <div class="contact-input-extensions">
+                        <bm-button
+                            v-if="!(displayedRecipientFields & recipientModes.BCC)"
+                            variant="text"
+                            size="lg"
+                            @click="displayedRecipientFields |= recipientModes.BCC"
+                        >
+                            {{ $t("common.bcc") }}
+                        </bm-button>
+                    </div>
                 </div>
                 <mail-conversation-viewer-field-sep :index="index" :max-index="maxIndex" />
             </template>
             <template v-if="displayedRecipientFields & recipientModes.BCC">
-                <div class="row pl-5">
+                <div class="d-flex conversation-viewer-row flex-nowrap">
                     <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                     <bm-contact-input
-                        class="col-11 pl-3 flex-fill"
+                        class="flex-fill"
                         :contacts="message.bcc"
                         :autocomplete-results="autocompleteResultsBcc"
                         :validate-address-fn="validateAddress"
@@ -88,9 +92,9 @@
                 </div>
                 <mail-conversation-viewer-field-sep :index="index" :max-index="maxIndex" />
             </template>
-            <div class="row pl-5">
+            <div class="row flex-nowrap">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
-                <div class="col-11">
+                <div class="flex-fill">
                     <mail-composer-attachments
                         :dragged-files-count="draggedFilesCount"
                         :message="message"
@@ -102,7 +106,7 @@
         </template>
 
         <template slot="content">
-            <div class="col-11 flex-grow-1">
+            <div class="flex-fill">
                 <mail-composer-content
                     ref="content"
                     :message="message"
@@ -111,10 +115,7 @@
             </div>
         </template>
         <template slot="bottom">
-            <div class="col-11">
-                <div class="row">
-                    <div class="col py-0"><hr /></div>
-                </div>
+            <div class="flex-fill">
                 <div class="row">
                     <mail-composer-footer
                         class="col"
@@ -199,11 +200,27 @@ export default {
 </script>
 
 <style lang="scss">
+@use "sass:math";
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-conversation-viewer-draft-editor {
     .bm-contact-input-label {
         padding-left: unset !important;
+    }
+    .bm-contact-input {
+        flex: 1;
+    }
+    .contact-input-extensions {
+        > * {
+            flex: none;
+        }
+        > .bm-icon-button.btn-md {
+            margin-top: math.div($input-height - $icon-btn-height, 2);
+        }
+        > .btn-text {
+            padding-left: $sp-3;
+            padding-right: $sp-3;
+        }
     }
     .mail-composer-footer {
         border-top: unset !important;

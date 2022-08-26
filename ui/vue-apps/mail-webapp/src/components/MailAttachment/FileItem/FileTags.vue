@@ -15,3 +15,13 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.file-tags {
+    display: flex;
+    flex: 0;
+    margin-right: $sp-3;
+}
+</style>

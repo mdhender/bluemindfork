@@ -1,11 +1,13 @@
 <template>
     <div class="file-item-content">
         <bm-container
-            class="text-condensed py-2 px-2 mt-2"
             :class="{ 'cursor-pointer': !isUploading(file) }"
+            role="button"
+            tabindex="0"
             @mouseover="hover = true"
             @mouseleave="hover = false"
             @click="$emit('click-item', file)"
+            @keypress.enter="$emit('click-item', file)"
         >
             <file-thumbnail
                 v-if="!compact"
@@ -84,42 +86,53 @@ export default {
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
 
-.file-item {
-    .container {
-        position: relative;
-        background-color: $surface;
-        border: 1px solid $neutral-fg-lo3;
+.file-item .container {
+    position: relative;
 
-        &:hover {
-            background-color: $neutral-bg;
-            border-color: $neutral-fg-lo3;
-        }
+    background-color: $surface;
+    outline: $input-border-width solid $neutral-fg-lo3;
+    outline-offset: -$input-border-width;
 
-        &.cursor-pointer {
-            cursor: pointer;
-        }
+    display: flex;
+    flex-direction: column;
+    padding: $sp-3 $sp-4;
+    gap: $sp-3;
 
-        .progress {
-            position: absolute;
-            top: 0;
-            margin-left: -0.5rem;
-            margin-right: -0.5rem;
-            height: 0.125rem;
-            width: 100%;
-            background-color: transparent;
-        }
-
-        .muted {
-            opacity: 0.5;
-        }
-
-        .file-text {
-            line-height: 1.085em;
-        }
-        .cancel-button,
-        .remove-button {
-            margin-left: $sp-2;
-        }
+    &:hover {
+        background-color: $neutral-bg;
+        outline-color: $neutral-fg-lo3;
     }
+
+    &:focus {
+        outline: $input-border-width dashed $neutral-fg;
+    }
+
+    &.cursor-pointer {
+        cursor: pointer;
+    }
+
+    .progress {
+        position: absolute;
+        top: 0;
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+        height: 0.125rem;
+        width: 100%;
+        background-color: transparent;
+    }
+
+    .muted {
+        opacity: 0.5;
+    }
+
+    .cancel-button,
+    .remove-button {
+        margin-left: $sp-2;
+    }
+}
+
+.bm-extension.active .file-item .container {
+    outline: 2 * $input-border-width solid $secondary-fg;
+    outline-offset: -2 * $input-border-width;
 }
 </style>

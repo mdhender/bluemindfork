@@ -1,28 +1,20 @@
 <template>
     <div v-if="maxSize" class="files-header">
-        <bm-icon icon="paper-clip" class="mr-1 ml-2" :class="paperClipColor" />
-        <span :class="isTooHeavy ? 'text-danger font-weight-bold' : ''">
-            {{
-                $tc("common.attachments", files.length, {
-                    count: files.length
-                })
-            }}
-            <span class="attachements-weigth"> ({{ displaySize(filesWeight) }} / {{ displaySize(maxSize) }})</span>
+        <bm-icon icon="paper-clip" :class="paperClipColor" />
+        <div class="size-info bold" :class="isTooHeavy ? 'text-danger' : ''">
+            <div>
+                {{ $tc("common.attachments", files.length, { count: files.length }) }}
+            </div>
+            <div>({{ displaySize(filesWeight) }} / {{ displaySize(maxSize) }})</div>
             <bm-icon v-if="isTooHeavy" icon="exclamation-circle" />
-        </span>
-        <bm-progress
-            :value="filesWeight"
-            :max="maxSize"
-            height="2px"
-            class="pl-1 align-self-center"
-            :variant="filesWeightColor"
-        />
+        </div>
+        <bm-progress :value="filesWeight" :max="maxSize" class="align-self-center" :variant="filesWeightColor" />
     </div>
     <div v-else>
-        <bm-icon icon="paper-clip" class="mr-1 ml-2" />
-        <span class="font-weight-bold pr-2">
+        <bm-icon icon="paper-clip" />
+        <div class="size-info bold">
             {{ $tc("common.attachments", files.length, { count: files.length }) }}
-        </span>
+        </div>
     </div>
 </template>
 
@@ -82,3 +74,25 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.files-header {
+    display: flex;
+    align-items: center;
+    height: $icon-btn-height-sm;
+
+    & > .bm-icon {
+        margin-right: $sp-2 + $sp-3;
+    }
+    .size-info {
+        display: flex;
+        gap: $sp-3;
+        margin-right: $sp-3;
+    }
+    > .progress {
+        height: base-px-to-rem(3);
+    }
+}
+</style>

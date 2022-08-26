@@ -5,6 +5,7 @@
             boundary="viewport"
             icon="3dots"
             variant="regular-accent"
+            :size="size"
             :label="$t('mail.toolbar.more')"
             :aria-label="$tc('mail.toolbar.more.aria')"
             :title="$tc('mail.toolbar.more.aria')"
@@ -108,6 +109,10 @@ export default {
         },
         conversation: {
             type: Object,
+            required: true
+        },
+        size: {
+            type: String,
             required: true
         }
     },

@@ -1,6 +1,6 @@
 <template>
     <div class="reply-to-invitation">
-        <div v-if="currentEvent.loading === LoadingStatus.LOADED" class="header px-3 pt-2 pb-3">
+        <div v-if="currentEvent.loading === LoadingStatus.LOADED" class="header">
             <div class="font-weight-bold mb-1 d-block top">
                 <template v-if="!currentEvent.status || currentEvent.status === 'NeedsAction'">
                     <bm-icon icon="calendar" class="mr-2" />
@@ -37,41 +37,32 @@
                     </template>
                 </template>
             </div>
-            <div v-if="message.eventInfo.needsReply && currentEvent.status" class="mt-3">
-                <bm-button
-                    variant="outline-accent"
-                    class="mr-2 px-1"
-                    :class="currentEvent.status === 'Accepted' ? 'active' : ''"
+            <div v-if="message.eventInfo.needsReply && currentEvent.status" class="reply-buttons">
+                <reply-to-invitation-button
                     icon="check"
+                    :label="$t('common.accept')"
+                    :checked="currentEvent.status === 'Accepted'"
                     @click="answer('Accepted')"
-                >
-                    {{ $t("common.accept") }}
-                </bm-button>
-                <bm-button
-                    variant="outline-accent"
-                    class="mr-2 px-1"
-                    :class="currentEvent.status === 'Tentative' ? 'active' : ''"
+                />
+                <reply-to-invitation-button
                     icon="interrogation"
+                    :label="$t('common.accept.tentatively')"
+                    :checked="currentEvent.status === 'Tentative'"
                     @click="answer('Tentative')"
-                >
-                    {{ $t("common.accept.tentatively") }}
-                </bm-button>
-                <bm-button
-                    variant="outline-accent"
-                    class="px-1"
-                    :class="currentEvent.status === 'Declined' ? 'active' : ''"
+                />
+                <reply-to-invitation-button
                     icon="cross"
+                    :label="$t('common.refuse')"
+                    :checked="currentEvent.status === 'Declined'"
                     @click="answer('Declined')"
-                >
-                    {{ $t("common.refuse") }}
-                </bm-button>
+                />
             </div>
         </div>
-        <div v-else-if="currentEvent.loading === LoadingStatus.LOADING" class="header px-3 pt-2 pb-3">
+        <div v-else-if="currentEvent.loading === LoadingStatus.LOADING" class="header">
             <div class="font-weight-bold mb-1 d-block top">
                 <bm-skeleton width="30%" />
             </div>
-            <div v-if="message.eventInfo.needsReply" class="mt-3 d-flex">
+            <div v-if="message.eventInfo.needsReply" class="reply-buttons">
                 <bm-skeleton-button class="mr-2 d-inline-block" width="6rem" />
                 <bm-skeleton-button class="mr-2 d-inline-block" width="12rem" />
                 <bm-skeleton-button class="mr-2 d-inline-block" width="6rem" />
@@ -83,8 +74,10 @@
 <script>
 import { mapActions, mapState } from "vuex";
 
-import { BmButton, BmIcon, BmSkeleton, BmSkeletonButton } from "@bluemind/styleguide";
+import { BmIcon, BmSkeleton, BmSkeletonButton } from "@bluemind/styleguide";
 import { loadingStatusUtils } from "@bluemind/mail";
+
+import ReplyToInvitationButton from "./ReplyToInvitationButton";
 
 import { SET_EVENT_STATUS } from "~/actions";
 
@@ -93,7 +86,7 @@ const { LoadingStatus } = loadingStatusUtils;
 export default {
     name: "ReplyToInvitation",
     components: {
-        BmButton,
+        ReplyToInvitationButton,
         BmIcon,
         BmSkeleton,
         BmSkeletonButton
@@ -138,9 +131,23 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
+@import "./_variables.scss";
 
 .reply-to-invitation {
+    padding-top: $sp-4;
+    padding-bottom: $sp-5;
+    padding-left: $sp-5;
+    padding-right: $inserts-padding-right;
     background-color: $neutral-bg-lo1;
+
+    .header .reply-buttons {
+        display: flex;
+        gap: $sp-6;
+
+        .b-skeleton-button {
+            height: base-px-to-rem(30);
+        }
+    }
 
     .header .top {
         .fa-check {

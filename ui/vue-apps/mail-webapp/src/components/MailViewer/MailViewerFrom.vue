@@ -1,5 +1,5 @@
 <template>
-    <bm-contact :contact="contact" show-address transparent bold-dn />
+    <bm-contact :contact="contact" avatar-size="md" show-address transparent bold-dn />
 </template>
 
 <script>

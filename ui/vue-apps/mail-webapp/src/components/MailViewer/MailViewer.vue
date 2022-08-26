@@ -1,9 +1,9 @@
 <template>
-    <section class="mail-viewer d-flex flex-column flex-grow-1 bg-surface pt-2">
+    <section class="mail-viewer d-flex flex-column flex-grow-1 bg-surface">
         <bm-extension id="webapp.mail" path="viewer.header" :message="message" />
         <mail-viewer-toolbar
             v-if="conversation"
-            class="d-none d-lg-flex px-lg-5 justify-content-end"
+            class="d-none d-lg-flex justify-content-end"
             :message="message"
             :conversation="conversation"
         />
@@ -107,5 +107,8 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 .mail-viewer {
     z-index: 20;
+    padding-top: $sp-6;
+    padding-left: $sp-6 + $sp-5;
+    padding-right: $sp-6;
 }
 </style>

@@ -24,7 +24,10 @@ export default {
 @use "sass:map";
 @import "~@bluemind/styleguide/css/variables";
 
-.preview-message-header {
+.preview-message-header.btn {
+    justify-content: start;
+    height: 100%;
+    outline-offset: -1px;
     .bm-icon {
         $size: map-get($icon-sizes, "xs");
         width: $size;

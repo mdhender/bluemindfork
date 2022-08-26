@@ -1,7 +1,7 @@
 <template>
     <bm-icon-dropdown
-        variant="compact"
-        size="lg"
+        variant="regular-accent"
+        size="sm"
         icon="3dots-v"
         no-caret
         class="mail-viewer-draft-toolbar-for-mobile d-flex justify-content-end"

@@ -6,14 +6,14 @@
         v-on="$listeners"
     >
         <template slot="head">
-            <div class="pl-3 align-self-center z-index-110">
+            <div class="conversation-viewer-draft-head z-index-110">
                 <span class="text-danger">
                     [<span class="font-italic">{{ $t("common.folder.draft") }}</span
                     >]
                 </span>
                 <span class="draft-save-date d-none d-lg-inline-block">{{ formattedDraftSaveDate }}</span>
             </div>
-            <div class="col d-flex justify-content-end align-items-center text-neutral">
+            <div class="d-flex flex-fill d-flex justify-content-end align-items-center text-neutral">
                 <mail-viewer-draft-toolbar-for-mobile
                     class="d-lg-none"
                     :conversation="conversation"
@@ -26,12 +26,12 @@
             </div>
         </template>
         <template slot="subhead">
-            <div class="row pl-5 d-lg-none">
+            <div class="d-flex d-lg-none conversation-viewer-row">
                 <div
-                    class="col-1 vertical-line vertical-line-after-avatar"
+                    class="vertical-line vertical-line-after-avatar"
                     :class="{ 'vertical-line-transparent': index === conversation.messages.length - 1 }"
                 />
-                <span class="draft-save-date pl-3">{{ formattedDraftSaveDate }}</span>
+                <div class="draft-save-date pb-4">{{ formattedDraftSaveDate }}</div>
             </div>
         </template>
         <template slot="to">
@@ -39,13 +39,19 @@
             {{ message.to.map(to => to.dn || to.address).join(", ") }}
         </template>
         <template slot="content">
-            <div v-if="!isMessageExpanded" class="col pl-3 pb-2 pr-3 text-truncate">{{ message.preview }}...</div>
-            <div v-else class="col pl-3 pb-2 pr-3">
-                <body-viewer :message="message" @remote-content="from => $emit('remote-content', from)" />
+            <div v-if="!isMessageExpanded" class="d-flex flex-fill align-items-center pb-2 pr-3">
+                <div class="text-truncate">{{ message.preview }}</div>
+            </div>
+            <div v-else class="d-flex flex-fill pb-2 pr-3">
+                <body-viewer
+                    class="flex-fill"
+                    :message="message"
+                    @remote-content="from => $emit('remote-content', from)"
+                />
             </div>
         </template>
         <template slot="bottom">
-            <span class="col pl-3 pb-2 text-danger font-italic">{{ $t("mail.draft.not.sent") }}</span>
+            <span class="d-flex flex-fill pb-5 text-danger font-italic">{{ $t("mail.draft.not.sent") }}</span>
         </template>
     </mail-conversation-viewer-item>
 </template>
@@ -76,10 +82,19 @@ export default {
 </script>
 
 <style lang="scss">
+@import "@bluemind/styleguide/css/_type.scss";
 @import "@bluemind/styleguide/css/_variables.scss";
 
 .mail-conversation-viewer-draft {
+    .conversation-viewer-draft-head {
+        height: $input-height;
+        display: flex;
+        gap: $sp-3;
+        align-items: center;
+    }
+
     .draft-save-date {
+        @extend %regular;
         color: $neutral-fg-lo1;
     }
 

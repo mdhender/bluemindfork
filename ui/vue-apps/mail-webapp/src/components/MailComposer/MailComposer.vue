@@ -1,46 +1,46 @@
 <template>
-    <bm-form class="mail-composer m-lg-3 flex-grow-1 d-flex flex-column bg-surface" @keypress.ctrl.enter="send">
-        <h3 class="d-none d-lg-flex card-header px-2 py-1 align-items-center">
-            <span class="text-nowrap text-truncate">{{ panelTitle }}</span>
-            <mail-open-in-popup
-                v-slot="action"
-                :href="{ name: 'mail:popup:message', params: { messagepath } }"
-                :next="$router.relative('mail:home')"
-            >
+    <bm-form class="mail-composer m-lg-5 flex-grow-1 d-flex flex-column bg-surface" @keypress.ctrl.enter="send">
+        <mail-open-in-popup
+            v-slot="action"
+            :href="{ name: 'mail:popup:message', params: { messagepath } }"
+            :next="$router.relative('mail:home')"
+        >
+            <div class="d-none d-lg-flex card-header regular px-4 py-0 align-items-center">
+                <span class="text-nowrap text-truncate">{{ panelTitle }}</span>
                 <bm-icon-button
                     :title="action.label"
                     variant="compact-on-fill-primary"
-                    size="lg"
+                    size="sm"
                     class="ml-auto"
                     :icon="action.icon"
                     @click="saveAsap().then(action.execute)"
                 />
-            </mail-open-in-popup>
-        </h3>
+            </div>
+        </mail-open-in-popup>
         <mail-composer-sender
             v-if="isSenderShown"
-            class="ml-3"
-            label-class="ml-2"
+            class="mx-4"
+            label-class="ml-3 bold"
             :message="message"
             @update="identity => setFrom(identity, message)"
             @check-and-repair="checkAndRepairFrom"
         />
         <mail-composer-recipients
             ref="recipients"
-            class="pl-3"
+            class="px-4"
             :message="message"
             :is-reply-or-forward="!!messageCompose.collapsedContent"
         />
         <bm-form-input
             :value="message.subject.trim()"
-            class="mail-composer-subject pl-3 d-flex align-items-center"
+            variant="underline"
+            class="mx-4"
             :placeholder="$t('mail.new.subject.placeholder')"
             :aria-label="$t('mail.new.subject.aria')"
             type="text"
             @input="updateSubject"
             @keypress.enter.prevent
         />
-        <hr class="mail-composer-splitter m-0" />
         <mail-composer-attachments
             :dragged-files-count="draggedFilesCount"
             :message="message"
@@ -102,11 +102,6 @@ export default {
 .mail-composer {
     word-break: break-word !important;
 
-    .mail-composer-splitter {
-        border-top-color: $neutral-fg-lo2;
-    }
-
-    .mail-composer-subject input,
     .bm-contact-input input,
     textarea {
         border: none;
@@ -115,11 +110,6 @@ export default {
     input:focus,
     textarea:focus {
         box-shadow: none;
-    }
-
-    .mail-composer-subject,
-    .mail-composer-sender {
-        min-height: 2.5rem;
     }
 
     .bm-file-drop-zone.attachments .bm-dropzone-active-content {

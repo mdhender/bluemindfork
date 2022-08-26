@@ -1,8 +1,8 @@
 <template>
     <bm-button-toolbar key-nav class="mail-viewer-toolbar bg-surface">
         <bm-icon-dropdown
-            variant="compact"
-            size="lg"
+            variant="regular-accent"
+            size="sm"
             icon="3dots-v"
             no-caret
             class="mail-viewer-toolbar-for-mobile d-flex justify-content-end"

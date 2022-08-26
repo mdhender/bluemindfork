@@ -23,8 +23,8 @@
             </bm-col>
         </bm-row>
         <hr class="m-0" />
-        <bm-row v-if="displayedRecipientFields > recipientModes.TO" class="align-items-center">
-            <bm-col :cols="displayedRecipientFields == (recipientModes.TO | recipientModes.CC) ? 11 : 12">
+        <div v-if="displayedRecipientFields > recipientModes.TO" class="d-flex align-items-center">
+            <div class="cc-contact-input">
                 <bm-contact-input
                     :contacts.sync="cc"
                     :autocomplete-results="autocompleteResultsCc"
@@ -36,11 +36,10 @@
                 >
                     <span class="text-nowrap">{{ $t("common.cc") }}</span>
                 </bm-contact-input>
-            </bm-col>
-            <bm-col
+            </div>
+            <div
                 v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC)"
-                cols="1"
-                class="text-center"
+                class="bcc-button text-center"
             >
                 <bm-button
                     variant="text"
@@ -48,8 +47,8 @@
                     @click="displayedRecipientFields = recipientModes.TO | recipientModes.CC | recipientModes.BCC"
                     >{{ $t("common.bcc") }}
                 </bm-button>
-            </bm-col>
-        </bm-row>
+            </div>
+        </div>
         <hr v-if="displayedRecipientFields > recipientModes.TO" class="m-0" />
         <bm-row
             v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC | recipientModes.BCC)"
@@ -96,6 +95,14 @@ export default {
 .mail-composer-recipients {
     .bm-contact-input-label {
         min-width: 2rem;
+    }
+
+    .cc-contact-input {
+        flex: 1;
+        min-width: 0;
+    }
+    .bcc-button {
+        flex: none;
     }
 }
 </style>

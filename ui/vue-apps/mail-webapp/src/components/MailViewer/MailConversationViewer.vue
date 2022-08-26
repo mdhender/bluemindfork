@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-conversation-viewer bg-surface pt-5" :class="{ darkened }">
+    <div class="mail-conversation-viewer bg-surface pt-6" :class="{ darkened }">
         <mail-conversation-viewer-header
             :subject="conversationMessages[0].subject"
             :expanded="expanded"
@@ -282,10 +282,20 @@ export default {
 </script>
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
+@import "./_variables.scss";
 
 .mail-conversation-viewer {
+    .conversation-viewer-row {
+        padding-left: $conversation-padding-left;
+        @media (min-width: map-get($grid-breakpoints, "lg")) {
+            padding-left: $conversation-padding-left-lg;
+        }
+    }
+
     .vertical-line {
-        width: 2em !important;
+        flex: none;
+        width: $avatar-width !important;
+        margin-right: $conversation-aside-main-gap;
         background-image: linear-gradient($neutral-fg, $neutral-fg);
         background-size: 1px 100%;
         background-repeat: no-repeat;
@@ -311,7 +321,7 @@ export default {
         width: unset;
     }
     .spacer {
-        height: 0.5rem;
+        height: $sp-3;
     }
     .mail-conversation-viewer-item:not(.expanded):not(.draft) .mail-conversation-viewer-item-body:hover {
         cursor: pointer;
@@ -324,7 +334,7 @@ export default {
             bottom: 0;
             right: 0;
             background-color: $neutral-bg-lo1;
-            margin: 0.375em 0.5625em 0.375em 0.5625em;
+            margin: 0;
         }
     }
 }

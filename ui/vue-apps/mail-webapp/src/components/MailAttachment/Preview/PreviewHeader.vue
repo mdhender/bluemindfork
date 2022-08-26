@@ -2,13 +2,26 @@
     <bm-extension
         id="webapp.mail"
         v-slot="context"
-        class="preview-header flex-column flex-lg-row"
+        class="preview-header flex-row"
         path="message.file"
         type="renderless"
         :file="file"
     >
         <preview-file-header :file="context.file" class="d-none d-lg-flex" />
-        <bm-button-toolbar class="order-0 order-lg-2 justify-content-around justify-content-lg-start">
+        <bm-button-toolbar>
+            <bm-icon-button
+                :disabled="filesCount <= 1"
+                tab-index="0"
+                :title="$t('mail.preview.previous')"
+                icon="chevron-left"
+                @click="$emit('previous')"
+            />
+            <bm-icon-button
+                :disabled="filesCount <= 1"
+                :title="$t('mail.preview.next')"
+                icon="chevron-right"
+                @click="$emit('next')"
+            />
             <bm-icon-button
                 :disabled="!isPreviewable(context.file)"
                 :title="
@@ -37,20 +50,7 @@
                 icon="popup"
                 @click="open(context.file)"
             />
-            <bm-icon-button
-                :disabled="filesCount <= 1"
-                tab-index="0"
-                :title="$t('mail.preview.previous')"
-                icon="chevron-left"
-                @click="$emit('previous')"
-            />
-            <bm-icon-button
-                :disabled="filesCount <= 1"
-                :title="$t('mail.preview.next')"
-                icon="chevron-right"
-                @click="$emit('next')"
-            />
-            <bm-button-close size="lg" :title="$t('common.close_window')" @click="$emit('close')" />
+            <bm-button-close size="lg" class="ml-5" :title="$t('common.close_window')" @click="$emit('close')" />
         </bm-button-toolbar>
         <preview-message-header
             class="bg-surface"
@@ -118,7 +118,11 @@ export default {
 @import "@bluemind/styleguide/css/_variables.scss";
 
 .preview-header {
+    height: base-px-to-rem(40);
+    flex: none;
     display: flex;
+    align-items: center;
+    padding-right: $sp-4;
     background-color: $neutral-bg;
     & > .preview-file-header {
         order: 1;
@@ -126,6 +130,18 @@ export default {
     .preview-file-header {
         flex: 1 1 auto;
         min-height: 0;
+    }
+    & > .btn-toolbar {
+        order: 0;
+        justify-content: space-around;
+        width: 100%;
+
+        @media (min-width: map-get($grid-breakpoints, "lg")) {
+            order: 2;
+            justify-content: flex-start;
+            flex: none;
+            width: auto;
+        }
     }
 }
 </style>

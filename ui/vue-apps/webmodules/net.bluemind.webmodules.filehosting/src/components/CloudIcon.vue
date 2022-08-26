@@ -1,5 +1,5 @@
 <template>
-    <bm-icon v-if="isFhFile" class="cloud-icon mr-1" icon="cloud" />
+    <bm-icon v-if="isFhFile" class="cloud-icon" icon="cloud" size="xs" />
 </template>
 
 <script>

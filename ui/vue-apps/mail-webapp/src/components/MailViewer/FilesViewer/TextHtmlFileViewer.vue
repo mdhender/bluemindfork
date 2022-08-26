@@ -9,7 +9,7 @@
         <bm-icon-button
             v-if="isCollapseActive"
             size="sm"
-            class="align-self-start ml-3 mb-2"
+            class="align-self-start mt-6 ml-3 mb-2"
             icon="3dots"
             @click="collapse_ = false"
         />

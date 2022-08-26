@@ -33,7 +33,7 @@ const STYLES = `
 /* Iframe CSS */
 body {
     font-family: "Montserrat", sans-serif;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 400;
     color: #1f1f1f;
     margin: 0;
@@ -125,9 +125,6 @@ blockquote {
 /* MailViewer CSS  */
 .mail-message-print {
     color: #2f2f2f;
-}
-.mail-viewer-splitter {
-    display: none;
 }
 .body-viewer {
     display: flex;

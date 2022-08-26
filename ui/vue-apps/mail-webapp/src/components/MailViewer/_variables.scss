@@ -1,0 +1,14 @@
+@import "~@bluemind/styleguide/css/_variables";
+
+$conversation-padding-left: $sp-4;
+$conversation-padding-left-lg: $sp-7;
+$conversation-aside-width: $avatar-width;
+$conversation-aside-main-gap: $sp-5 + $sp-2;
+$conversation-main-padding-left: $conversation-padding-left + $conversation-aside-width + $conversation-aside-main-gap;
+$conversation-main-padding-left-lg: $conversation-padding-left-lg + $conversation-aside-width +
+    $conversation-aside-main-gap;
+
+$single-mail-padding-left: $sp-6 + $sp-5;
+$single-mail-avatar-main-gap: $sp-5 + $sp-2;
+
+$inserts-padding-right: $sp-5 + $sp-2;

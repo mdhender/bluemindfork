@@ -95,27 +95,19 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .preview-message.mail-viewer-content {
-    padding-top: $sp-4;
     display: flex;
     flex-direction: column;
-    .from {
+
+    .sender .bm-contact {
         display: none;
     }
     * .date {
         text-align: left;
         white-space: nowrap;
-        font-weight: $font-weight-bold;
-    }
-    .mail-viewer-splitter {
-        order: 1;
-        padding: 0;
-        margin-top: $sp-3;
-    }
-    .mail-viewer-splitter > hr {
-        margin: 0;
+        color: $neutral-fg-lo1;
     }
     .mail-inlines-block {
-        padding: 0 $sp-4;
+        padding-left: $sp-6;
     }
     .mail-sender-splitter {
         display: none;
@@ -134,9 +126,16 @@ export default {
     }
     .sender,
     .mail-viewer-recipients,
-    .subject {
-        padding-left: $sp-4;
-        padding-right: $sp-4;
+    .title {
+        padding-left: $sp-6;
+        padding-right: $sp-5;
+    }
+    .title {
+        padding-top: $sp-5;
+        color: $neutral-fg-hi1;
+    }
+    .sender {
+        margin-bottom: $sp-5;
     }
     & > hr {
         margin: $sp-3 0 0 0;
@@ -146,15 +145,12 @@ export default {
         white-space: nowrap;
     }
     .mail-files {
-        padding: $sp-2 $sp-4;
+        padding: $sp-4 $sp-5 $sp-5 $sp-6;
         background-color: $neutral-bg-lo1;
-        .file-item {
-            border-width: 2px !important;
-        }
 
-        .active.file-item .container {
-            border-color: $secondary-fg !important;
-        }
+        display: flex;
+        flex-direction: column;
+        gap: $sp-4;
     }
 }
 </style>

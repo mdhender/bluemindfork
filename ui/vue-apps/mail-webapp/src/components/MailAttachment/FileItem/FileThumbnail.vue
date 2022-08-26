@@ -7,7 +7,7 @@
                 <img ref="thumbnail-image" :src="file.url" :alt="$tc('common.attachmentPreview')" />
             </div>
         </div>
-        <div v-else class="default-preview w-100 text-center mb-1 p-1">
+        <div v-else class="default-preview">
             <bm-icon :icon="matchingIcon" size="3xl" class="m-auto preview-file-type" />
         </div>
         <div class="thumbnail-overlay position-absolute">
@@ -58,11 +58,24 @@ export default {
 @import "@bluemind/styleguide/css/_variables.scss";
 
 .file-thumbnail {
-    height: 7em;
+    height: 35vw;
+    @media (min-width: map-get($grid-breakpoints, "lg")) {
+        height: 7vw;
+    }
+    margin-top: $sp-3;
+
     background-color: $neutral-bg;
 
     .thumbnail > img {
         max-width: 100%;
+    }
+
+    .default-preview {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .preview-file-type {

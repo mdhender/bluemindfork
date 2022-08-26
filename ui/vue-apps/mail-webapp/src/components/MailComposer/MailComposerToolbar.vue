@@ -1,6 +1,6 @@
 <template>
-    <div class="mail-composer-footer-toolbar p-2 justify-content-between align-items-center">
-        <div>
+    <div class="mail-composer-footer-toolbar justify-content-between align-items-center">
+        <div class="main-buttons">
             <bm-button
                 v-if="isDraft"
                 type="submit"
@@ -31,15 +31,14 @@
             </bm-button>
         </div>
         <div class="d-flex align-items-center toolbar">
-            <span
+            <div
                 v-if="errorOccuredOnSave"
-                class="pr-2 text-danger font-weight-bold"
+                class="save-message save-message-error"
                 :title="$t('mail.compose.save.error_reason')"
             >
-                <bm-icon icon="exclamation-circle" size="lg" class="mr-1" />
-                {{ saveMessage }}
-            </span>
-            <span v-else class="text-muted pr-2">{{ saveMessage }}</span>
+                <bm-icon icon="exclamation-circle" />{{ saveMessage }}
+            </div>
+            <div v-else class="save-message">{{ saveMessage }}</div>
             <bm-extension id="webapp.mail" path="composer.footer.toolbar" :message="message" />
             <bm-icon-button
                 v-if="!userPrefTextOnly"
@@ -236,19 +235,38 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/_type";
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-composer-footer-toolbar {
-    border-top: 1px solid $neutral-fg-lo3;
-
-    .toolbar .btn {
-        padding: $sp-2;
-    }
-
     display: none;
-
     @include media-breakpoint-up(lg) {
         display: flex;
+    }
+    flex-wrap: wrap;
+    gap: $sp-5;
+    padding: $sp-5 + $sp-2 $sp-4;
+
+    border-top: 1px solid $neutral-fg-lo3;
+
+    .main-buttons {
+        flex: none;
+    }
+    .toolbar {
+        flex: 1;
+        justify-content: flex-end;
+    }
+
+    .save-message {
+        @extend %caption;
+        margin-right: $sp-5;
+        color: $neutral-fg-lo1;
+        &.save-message-error {
+            color: $danger-fg;
+            display: flex;
+            gap: $sp-3;
+            align-items: center;
+        }
     }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
-    <div class="mail-conversation-viewer-field-sep row pl-5">
+    <div class="mail-conversation-viewer-field-sep conversation-viewer-row d-flex flex-nowrap">
         <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
-        <div class="col pl-3 py-0"><hr /></div>
+        <div class="flex-fill"><hr /></div>
     </div>
 </template>
 
@@ -25,9 +25,12 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
 .mail-conversation-viewer-field-sep {
     hr {
-        margin-top: 0.25rem;
+        margin-top: -1px;
+        margin-bottom: $sp-3;
     }
 }
 </style>

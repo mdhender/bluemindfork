@@ -3,6 +3,7 @@
         <mail-open-in-popup-with-shift v-slot="action" :href="replyRoute(message)">
             <bm-icon-button
                 variant="regular-accent"
+                :size="size"
                 :title="action.label($t('mail.content.reply.aria'))"
                 icon="reply"
                 @click="action.execute(() => reply(conversation, message))"
@@ -11,6 +12,7 @@
         <mail-open-in-popup-with-shift v-slot="action" :href="replyAllRoute(message)">
             <bm-icon-button
                 variant="regular-accent"
+                :size="size"
                 :title="action.label($t('mail.content.reply_all.aria'))"
                 icon="reply-all"
                 @click="action.execute(() => replyAll(conversation, message))"
@@ -19,12 +21,18 @@
         <mail-open-in-popup-with-shift v-slot="action" :href="forwardRoute(message)">
             <bm-icon-button
                 variant="regular-accent"
+                :size="size"
                 :title="action.label($t('common.forward'))"
                 icon="forward"
                 @click="action.execute(() => forward(message))"
             />
         </mail-open-in-popup-with-shift>
-        <mail-viewer-toolbar-other-actions v-if="!isFolderReadOnly" :message="message" :conversation="conversation" />
+        <mail-viewer-toolbar-other-actions
+            v-if="!isFolderReadOnly"
+            :size="size"
+            :message="message"
+            :conversation="conversation"
+        />
     </bm-button-toolbar>
 </template>
 
@@ -52,6 +60,13 @@ export default {
         conversation: {
             type: Object,
             required: true
+        },
+        size: {
+            type: String,
+            default: "md",
+            validator: function (value) {
+                return ["sm", "md"].includes(value);
+            }
         }
     },
     computed: {
@@ -68,7 +83,8 @@ export default {
 @media (max-width: map-get($grid-breakpoints, "lg")) {
     .mail-viewer-toolbar {
         bottom: 0;
-        box-shadow: 0 -0.125rem 0.125rem rgba($highest, 0.25);
+        $nb-buttons: 4;
+        max-width: $nb-buttons * ($icon-btn-width-regular + $sp-6);
     }
 }
 </style>
