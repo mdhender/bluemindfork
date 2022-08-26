@@ -27,6 +27,10 @@
         "webpack-dev-server-visio": {
             "ip": "dev.bluemind.test",
             "port": 9182
+        },
+        "webpack-dev-server-filehosting": {
+            "ip": "dev.bluemind.test",
+            "port": 9183
         }
     },
     "filters": [
@@ -47,6 +51,12 @@
             "search": "/(.*)/js/net.bluemind.webapp.root.js",
             "replace": "/js/net.bluemind.webapp.root.js",
             "active": true
+        },
+        {
+            "serverId": "webpack-dev-server-filehosting",
+            "search": "/webapp/js/net.bluemind.filehosting.js",
+            "replace": "/js/net.bluemind.filehosting.js",
+            "active": false
         },
         {
             "serverId": "webpack-dev-server-visio",
@@ -139,6 +149,11 @@
         {
             "serverId": "webpack-dev-server-visio",
             "src": 9182,
+            "active": true
+        },
+        {
+            "serverId": "webpack-dev-server-filehosting",
+            "src": 9183,
             "active": true
         },
         {
