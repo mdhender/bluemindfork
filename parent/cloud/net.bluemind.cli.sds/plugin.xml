@@ -9,6 +9,9 @@
       <registration
             impl="net.bluemind.cli.sds.MigrateCommand$Reg"
             priority="400"></registration>
+      <registration
+            impl="net.bluemind.cli.sds.RestoreSdsMappingCommand$Reg"
+            priority="300"></registration>
    </extension>
 
 </plugin>

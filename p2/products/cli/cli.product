@@ -7,7 +7,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-consoleLog node status
+      <programArgs>-consoleLog sds restore --dry /Users/tom/thomas.fricker@blue-mind.net.json
       </programArgs>
       <vmArgs>-Duser.timezone=GMT -Djava.awt.headless=true -Dnet.bluemind.property.product=bm-cli
       </vmArgs>
@@ -165,6 +165,7 @@
       <plugin id="net.bluemind.role.api"/>
       <plugin id="net.bluemind.scheduledjob.api"/>
       <plugin id="net.bluemind.sds.store"/>
+      <plugin id="net.bluemind.sds.store.loader"/>
       <plugin id="net.bluemind.sds.store.s3"/>
       <plugin id="net.bluemind.sds.store.scalityring"/>
       <plugin id="net.bluemind.serialization.client"/>
