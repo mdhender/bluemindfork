@@ -11,7 +11,7 @@ export function retrieveTaskResult(taskService, inProgressFn, iteration = 1) {
         if (taskStatus.state === "Success") {
             return JSON.parse(taskStatus.result);
         } else if (taskStatus.state === "InError") {
-            return Promise.reject(taskStatus);
+            return Promise.reject(JSON.parse(taskStatus.result).result);
         } else if (iteration < maxTries) {
             return retrieveTaskResult(taskService, inProgressFn, ++iteration);
         } else {
