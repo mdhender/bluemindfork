@@ -1,33 +1,29 @@
 <template>
-    <div class="mail-folder-item-menu d-flex justify-content-center h-100">
+    <div class="mail-folder-item-menu d-flex justify-content-center h-100" @click.stop>
         <bm-contextual-menu boundary="viewport" class="flex-fill" v-on="$listeners">
-            <bm-dropdown-item-button
-                :disabled="!folder.allowSubfolder"
-                icon="plus"
-                @click.stop.prevent="$emit('create')"
-            >
+            <bm-dropdown-item-button :disabled="!folder.allowSubfolder" icon="plus" @click="$emit('create')">
                 {{ $t("mail.folder.create_subfolder") }}
             </bm-dropdown-item-button>
-            <bm-dropdown-item-button :disabled="isDefault" icon="rename" @click.stop="$emit('edit')">
+            <bm-dropdown-item-button :disabled="isDefault" icon="rename" @click="$emit('edit')">
                 {{ $t("mail.folder.rename") }}
             </bm-dropdown-item-button>
-            <bm-dropdown-item-button :disabled="isDefault" icon="folder" @click.stop="openMoveFolderModal">
+            <bm-dropdown-item-button :disabled="isDefault" icon="folder" @click="openMoveFolderModal">
                 {{ $t("mail.folder.move") }}
             </bm-dropdown-item-button>
-            <bm-dropdown-item-button :disabled="isDefault" icon="trash" @click.stop="deleteFolder">
+            <bm-dropdown-item-button :disabled="isDefault" icon="trash" @click="deleteFolder">
                 {{ $t("common.delete") }}
             </bm-dropdown-item-button>
             <bm-dropdown-item-button
                 :disabled="folder.unread === 0"
                 icon="read"
-                @click.stop="MARK_FOLDER_AS_READ({ folder, mailbox })"
+                @click="MARK_FOLDER_AS_READ({ folder, mailbox })"
             >
                 {{ $t("mail.folder.mark_as_read") }}
             </bm-dropdown-item-button>
-            <bm-dropdown-item-button v-if="isTrash" icon="broom" @click.stop="emptyTrash">
+            <bm-dropdown-item-button v-if="isTrash" icon="broom" @click="emptyTrash">
                 {{ $t("mail.actions.empty_trash.label") }}
             </bm-dropdown-item-button>
-            <bm-dropdown-item-button v-else icon="broom" @click.stop="emptyFolder">
+            <bm-dropdown-item-button v-else icon="broom" @click="emptyFolder">
                 {{ $t("mail.actions.empty_folder.label") }}
             </bm-dropdown-item-button>
         </bm-contextual-menu>
