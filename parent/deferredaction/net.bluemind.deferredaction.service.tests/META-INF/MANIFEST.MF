@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.deferredaction.service.tests
 Bundle-SymbolicName: net.bluemind.deferredaction.service.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.deferredaction.service.tests
 Require-Bundle: net.bluemind.core.commons,
  net.bluemind.core.container.api,

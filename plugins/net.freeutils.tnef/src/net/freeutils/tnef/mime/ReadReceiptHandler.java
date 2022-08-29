@@ -45,13 +45,10 @@ public class ReadReceiptHandler {
 	 * Converts a TNEF message containing a read receipt into an RFC 2298
 	 * notification message.
 	 *
-	 * @param message
-	 *            the tnef Message containing read receipt to convert
+	 * @param message the tnef Message containing read receipt to convert
 	 * @return a Part containing the read receipt text
-	 * @throws IOException
-	 *             if an I/O error occurs
-	 * @throws MessagingException
-	 *             if an error occurs while accessing a mime part
+	 * @throws IOException        if an I/O error occurs
+	 * @throws MessagingException if an error occurs while accessing a mime part
 	 */
 	public static Multipart convert(net.freeutils.tnef.Message message) throws IOException, MessagingException {
 

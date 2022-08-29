@@ -25,6 +25,6 @@ curdir=`dirname $0`
 pidfile=$1
 
 export DEFAULT_MEM=128
-source ${curdir}/equinox-systemd.lib ${product}
+source ${curdir}/equinox-systemd.sh ${product}
 
-bm_equinox_run_server_appid ${curdir} ${appid}
+bm_equinox_run_server_appid ${curdir} ${appid} $@

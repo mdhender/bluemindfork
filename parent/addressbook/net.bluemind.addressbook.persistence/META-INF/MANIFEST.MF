@@ -15,7 +15,7 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0";visibility:=reexpo
  net.bluemind.lib.jackson;bundle-version="1.0.0",
  net.bluemind.tag.api;bundle-version="1.0.0",
  net.bluemind.addressbook.sqlschema;bundle-version="1.0.0";visibility:=reexport,
- org.apache.commons.lang,
+ org.apache.commons.lang3,
  net.bluemind.network.topology
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.addressbook.persistence

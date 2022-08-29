@@ -18,8 +18,8 @@
  */
 package net.bluemind.core.rest.tests.services;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
 
 public interface IVirtualApi<T> {
 

@@ -25,13 +25,11 @@ import java.util.concurrent.TimeUnit;
 import net.bluemind.backend.cyrus.replication.client.SyncClientOIO;
 import net.bluemind.config.Token;
 import stormpot.Allocator;
-import stormpot.Config;
+import stormpot.Expiration;
 import stormpot.Pool;
 import stormpot.Poolable;
-import stormpot.QueuePool;
 import stormpot.Slot;
 import stormpot.SlotInfo;
-import stormpot.TimeSpreadExpiration;
 import stormpot.Timeout;
 
 public class SyncClientPools {
@@ -60,17 +58,19 @@ public class SyncClientPools {
 
 	}
 
+	public static class TimedOrClosedExpiration implements Expiration<PooledSyncClient> {
+		private Expiration<PooledSyncClient> delegate = Expiration.after(2, 4, TimeUnit.MINUTES);
+
+		@Override
+		public boolean hasExpired(SlotInfo<? extends PooledSyncClient> info) throws Exception {
+			return delegate.hasExpired(info) || info.getPoolable().isExpired();
+		}
+
+	}
+
 	private static Pool<PooledSyncClient> createPool(String serverIp, int port) {
 		SyncClientAllocator alloc = new SyncClientAllocator(serverIp, port);
-		Config<PooledSyncClient> conf = new Config<>().setSize(4).setAllocator(alloc)
-				.setExpiration(new TimeSpreadExpiration<PooledSyncClient>(2, 4, TimeUnit.MINUTES) {
-					@Override
-					public boolean hasExpired(SlotInfo<? extends PooledSyncClient> info) {
-						return super.hasExpired(info) || info.getPoolable().isExpired();
-					}
-				});
-
-		return new QueuePool<>(conf);
+		return Pool.fromInline(alloc).setSize(4).setExpiration(new TimedOrClosedExpiration()).build();
 	}
 
 	private static class PooledSyncClient extends SyncClientOIO implements Poolable, AutoCloseable {
@@ -110,7 +110,7 @@ public class SyncClientPools {
 
 		@Override
 		public PooledSyncClient allocate(Slot slot) throws Exception {
-			PooledSyncClient client = new PooledSyncClient(slot, serverIp, port);
+			PooledSyncClient client = new PooledSyncClient(slot, serverIp, port); // NOSONAR
 			client.authenticate("admin0", Token.admin0());
 			return client;
 		}

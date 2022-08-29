@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.eas.backend.bm
 Bundle-SymbolicName: net.bluemind.eas.backend.bm;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.apache.commons.codec;bundle-version="1.3.0",
  net.bluemind.eas;bundle-version="1.0.0",
  net.bluemind.hornetq.client;bundle-version="1.0.0",
@@ -34,7 +34,7 @@ Require-Bundle: org.apache.commons.codec;bundle-version="1.3.0",
  net.bluemind.imap.translate,
  net.bluemind.domain.api,
  net.bluemind.document.storage,
- org.apache.commons.lang,
+ org.apache.commons.lang3,
  org.apache.james.apache-mime4j-storage;bundle-version="0.7.2",
  net.bluemind.i18n.labels,
  com.google.guava,

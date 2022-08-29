@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.server.service
 Bundle-SymbolicName: net.bluemind.server.service;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.server.service
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.container.api;bundle-version="1.0.0",
  net.bluemind.server.api;bundle-version="1.0.0",
@@ -21,7 +21,7 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.node.api,
  net.bluemind.core.task.api,
  net.bluemind.config,
- org.apache.commons.lang,
+ org.apache.commons.lang3,
  net.bluemind.domain.api,
  net.bluemind.domain.hook,
  net.bluemind.role.api,

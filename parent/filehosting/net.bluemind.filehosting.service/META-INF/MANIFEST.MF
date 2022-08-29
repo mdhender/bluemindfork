@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.filehosting.service
 Bundle-SymbolicName: net.bluemind.filehosting.service;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.filehosting.api,
  slf4j.api,
@@ -12,8 +12,7 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  org.eclipse.equinox.registry,
  net.bluemind.core.context;bundle-version="1.0.0",
  net.bluemind.eclipse.common,
- org.apache.commons.lang,
- org.apache.commons.lang,
+ org.apache.commons.lang3,
  net.bluemind.system.api,
  net.bluemind.system.service,
  net.bluemind.role.provider,

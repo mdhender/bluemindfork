@@ -52,8 +52,8 @@ public class AddSignatureToHtmlPartTest {
 
 	private Map<String, String> configuration;
 
-	String sign = "<div>   my-html-signature  </div>";
-	String expectedSign = " <div class=\"x-disclaimer0\">  " + sign + " </div>";
+	String sign = "<div>  my-html-signature </div>";
+	String expectedSign = " <div class=\"x-disclaimer0\"> " + sign + "</div>";
 	AddDisclaimer addDisclaimer;
 
 	@Before

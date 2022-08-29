@@ -7,7 +7,7 @@ Bundle-Vendor: www.blue-mind.net
 Closure-Bundle-Type: Application
 Closure-Inputs: net/bluemind/ui/banner/widget/UnseenMails.js
 Web-Resources: web-resources
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Localization: OSGI-INF/l10n/bundle
 Require-Bundle: net.bluemind.commons.ui.closure;bundle-version="1.0.0",
  net.bluemind.webmodule;bundle-version="1.0.0",

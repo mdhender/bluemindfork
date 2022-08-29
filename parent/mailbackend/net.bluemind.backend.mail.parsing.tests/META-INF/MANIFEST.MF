@@ -7,9 +7,9 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  org.junit,
  org.apache.commons.io,
- org.apache.commons.lang,
+ org.apache.commons.lang3,
  net.bluemind.backend.mail.parsing,
  net.bluemind.mime4j.common,
  com.google.guava
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.backend.parsing.tests

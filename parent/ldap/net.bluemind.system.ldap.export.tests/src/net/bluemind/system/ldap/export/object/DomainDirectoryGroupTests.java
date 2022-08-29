@@ -131,7 +131,7 @@ public class DomainDirectoryGroupTests {
 			return attrsValues;
 		}
 
-		Iterator<Value<?>> adIterator = mailAttr.iterator();
+		Iterator<Value> adIterator = mailAttr.iterator();
 		while (adIterator.hasNext()) {
 			String value = adIterator.next().getString().trim();
 			if (value.isEmpty()) {

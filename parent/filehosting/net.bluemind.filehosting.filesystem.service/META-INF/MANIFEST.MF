@@ -4,14 +4,14 @@ Bundle-Name: net.bluemind.filehosting.filesystem.service
 Bundle-SymbolicName: net.bluemind.filehosting.filesystem.service;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.filehosting.api,
  net.bluemind.filehosting.service,
  slf4j.api,
  net.bluemind.core.rest,
  net.bluemind.core.context,
- org.apache.commons.lang;bundle-version="2.4.0",
+ org.apache.commons.lang3,
  net.bluemind.filehosting.filesystem.sqlschema;bundle-version="1.0.0",
  net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.dataprotect.service,

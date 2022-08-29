@@ -188,7 +188,7 @@ public abstract class GroupManager extends EntityManager {
 	protected Set<String> getGroupMembers(Attribute member) {
 		Set<String> groupMembers = new HashSet<>();
 
-		Iterator<Value<?>> iterator = member.iterator();
+		Iterator<Value> iterator = member.iterator();
 		while (iterator.hasNext()) {
 			String memberValue = iterator.next().getString();
 			if (memberValue != null && !memberValue.trim().isEmpty()) {

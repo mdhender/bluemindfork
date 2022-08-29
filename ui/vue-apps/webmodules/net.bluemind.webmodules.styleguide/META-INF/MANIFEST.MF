@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.webmodules.styleguide
 Bundle-SymbolicName: net.bluemind.webmodules.styleguide;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Web-Resources: web-resources
 Require-Bundle: io.vertx.core,
  slf4j.api,

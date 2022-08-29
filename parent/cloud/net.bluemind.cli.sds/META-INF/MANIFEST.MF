@@ -19,7 +19,7 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.eclipse.common,
  net.bluemind.filehosting.api,
- net.bluemind.sds.store.loader;bundle-version="4.1.0",
+ net.bluemind.sds.store.loader,
  net.bluemind.authentication.api,
  net.bluemind.mailbox.api,
  net.bluemind.server.api,
@@ -27,6 +27,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.user.api,
  net.bluemind.backend.mail.api,
  net.bluemind.backend.mail.replica.api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.cli.sds
 Bundle-ActivationPolicy: lazy

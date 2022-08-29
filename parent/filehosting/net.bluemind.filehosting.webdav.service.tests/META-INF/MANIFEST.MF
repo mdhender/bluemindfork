@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.filehosting.webdav.service.tests
 Bundle-SymbolicName: net.bluemind.filehosting.webdav.service.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  org.junit,
  net.bluemind.core.rest.tests.services;bundle-version="1.0.0",
@@ -27,9 +27,8 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.system.api,
  net.bluemind.authentication.api,
  net.bluemind.authentication.service;bundle-version="4.1.0",
- com.github.lookfirst.sardine,
  net.bluemind.pool,
  net.bluemind.filehosting.api,
- org.apache.commons.lang;bundle-version="2.6.0"
+ org.apache.commons.lang3
 Bundle-ClassPath: .
 Automatic-Module-Name: net.bluemind.filehosting.webdav.service.tests

@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.dataprotect.directory;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.dataprotect.directory
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.dataprotect.service,
  net.bluemind.dataprotect.api,
  net.bluemind.core.commons,

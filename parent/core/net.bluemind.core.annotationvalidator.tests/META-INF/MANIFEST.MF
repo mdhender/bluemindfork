@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.core.annotationvalidator.tests
 Bundle-SymbolicName: net.bluemind.core.annotationvalidator.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit,
  net.bluemind.core.annotationvalidator;bundle-version="1.0.0",
  net.bluemind.core.validator,

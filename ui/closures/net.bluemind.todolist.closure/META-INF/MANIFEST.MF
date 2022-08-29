@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.todolist.closure
 Bundle-SymbolicName: net.bluemind.todolist.closure;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Closure-Bundle-Type: Library
 Require-Bundle: net.bluemind.mvp.closure;bundle-version="1.0.0",
  net.bluemind.commons.closure;bundle-version="1.0.0",

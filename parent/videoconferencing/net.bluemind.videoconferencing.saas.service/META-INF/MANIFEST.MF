@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.videoconferencing.saas.service
 Bundle-SymbolicName: net.bluemind.videoconferencing.saas.service;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Automatic-Module-Name: net.bluemind.videoconferencing.saas.service
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.rest,
  net.bluemind.core.commons,
  net.bluemind.core.rest,

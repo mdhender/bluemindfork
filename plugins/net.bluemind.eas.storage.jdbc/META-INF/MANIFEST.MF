@@ -27,6 +27,6 @@ Require-Bundle: net.bluemind.eas;bundle-version="1.0.0",
  net.bluemind.core.task.service;bundle-version="4.1.0",
  net.bluemind.network.topology
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: blue-mind.net
 Automatic-Module-Name: net.bluemind.eas.storage.jdbc

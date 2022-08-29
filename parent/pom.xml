@@ -1,15 +1,13 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>net.bluemind.corev2</artifactId>
 	<packaging>pom</packaging>
-
 	<parent>
 		<groupId>net.bluemind</groupId>
 		<artifactId>net.bluemind.parent</artifactId>
 		<version>4.1.0-SNAPSHOT</version>
 	</parent>
-
 	<modules>
 		<module>../plugins/pom.xml</module>
 		<module>addressbook.ldap</module>
@@ -79,10 +77,8 @@
 		<module>webappdata</module>
 		<module>imap</module>
 	</modules>
-
 	<build>
 		<plugins>
-
 			<plugin>
 				<groupId>net.bluemind</groupId>
 				<artifactId>bm-docker-maven-plugin</artifactId>
@@ -110,7 +106,6 @@
 								<include>**/*</include>
 							</includes>
 						</fileSet>
-
 						<fileSet>
 							<directory>${basedir}/src/</directory>
 							<includes>
@@ -120,22 +115,19 @@
 					</additionalFileSets>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 			</plugin>
-
 			<plugin>
-      				<groupId>org.apache.maven.plugins</groupId>
-      				<artifactId>maven-javadoc-plugin</artifactId>
-      				<configuration>
-        				<doclint>none</doclint>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<doclint>none</doclint>
 					<useStandardDocletOptions>false</useStandardDocletOptions>
 					<additionalparam>-Xdoclint:none</additionalparam>
-      				</configuration>
-    			</plugin>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
-
 </project>

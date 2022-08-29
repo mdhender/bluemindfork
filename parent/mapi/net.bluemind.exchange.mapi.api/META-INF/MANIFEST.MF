@@ -9,7 +9,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.container.api;bundle-version="4.1.0",
  net.bluemind.user.api,
  com.google.guava
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.exchange.mapi.api
 Automatic-Module-Name: net.bluemind.exchange.mapi.api

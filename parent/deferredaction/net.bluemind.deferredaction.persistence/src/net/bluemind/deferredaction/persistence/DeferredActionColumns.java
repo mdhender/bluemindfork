@@ -47,7 +47,7 @@ public class DeferredActionColumns {
 					DeferredAction action) throws SQLException {
 				statement.setString(index++, action.actionId);
 				statement.setString(index++, action.reference);
-				statement.setTimestamp(index++, new Timestamp(action.executionDate.getTime()));
+				statement.setTimestamp(index++, Timestamp.from(action.executionDate.toInstant()));
 				statement.setObject(index++, action.configuration);
 				return index;
 			}

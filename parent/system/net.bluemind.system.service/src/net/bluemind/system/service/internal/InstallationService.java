@@ -372,7 +372,7 @@ public class InstallationService implements IInstallation {
 	}
 
 	private void registerInstallationDate(ServerSideServiceProvider provider) throws Exception {
-		File ref = new File("/usr/share/bm-core/main").listFiles(f -> f.isFile() && f.getName().endsWith(".jar"))[0];
+		File ref = new File("/usr/share/bm-core/pkg_plugins").listFiles(f -> f.isFile() && f.getName().endsWith(".jar"))[0];
 		BasicFileAttributes attr = Files.readAttributes(ref.toPath(), BasicFileAttributes.class);
 		FileTime mTime = attr.lastModifiedTime();
 		FileTime cTime = attr.creationTime();

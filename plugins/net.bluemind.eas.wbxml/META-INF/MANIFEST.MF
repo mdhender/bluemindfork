@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.eas.wbxml
 Bundle-SymbolicName: net.bluemind.eas.wbxml
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: net.bluemind.eas.wbxml;uses:="org.xml.sax",
  net.bluemind.eas.wbxml.writers
 Require-Bundle: net.bluemind.eas.utils;bundle-version="1.0.0",

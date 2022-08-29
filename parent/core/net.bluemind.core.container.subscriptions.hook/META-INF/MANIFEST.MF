@@ -10,6 +10,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.container.api,
  slf4j.api,
  net.bluemind.user.api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.core.container.subscriptions.hook
 Bundle-ActivationPolicy: lazy

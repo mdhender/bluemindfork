@@ -1,6 +1,0 @@
-Lucid build support for obnam.
-
-You need /etc/apt/sources.list.d/chris-bigballofwax-obnam-ppa-lucid.list :
-
-deb-src http://ppa.launchpad.net/chris-bigballofwax/obnam-ppa/ubuntu oneiric main
-deb-src http://ppa.launchpad.net/chris-bigballofwax/obnam-ppa/ubuntu precise main

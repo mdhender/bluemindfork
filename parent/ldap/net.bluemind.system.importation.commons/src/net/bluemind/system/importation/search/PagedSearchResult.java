@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.directory.api.i18n.I18n;
-import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
+import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsFactory;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -76,7 +76,7 @@ public class PagedSearchResult implements Iterable<Response>, AutoCloseable {
 				available = cursor.next();
 				return response;
 			} catch (Exception e) {
-				throw new RuntimeException(I18n.err(I18n.ERR_02002_FAILURE_ON_UNDERLYING_CURSOR), e);
+				throw new RuntimeException(I18n.err(I18n.ERR_13100_FAILURE_ON_UNDERLYING_CURSOR), e);
 			}
 		}
 
@@ -92,14 +92,14 @@ public class PagedSearchResult implements Iterable<Response>, AutoCloseable {
 		this.ldapCon = ldapCon;
 		this.searchRequest = searchRequest;
 		this.pageSize = pageSize;
-		pagedSearchControl = new PagedResultsDecorator(ldapCon.getCodecService());
+		pagedSearchControl = new PagedResultsFactory(ldapCon.getCodecService()).newControl();
 	}
 
 	public PagedSearchResult(LdapConnection ldapCon, SearchRequest searchRequest) {
 		this.ldapCon = ldapCon;
 		this.searchRequest = searchRequest;
 		this.pageSize = 100;
-		pagedSearchControl = new PagedResultsDecorator(ldapCon.getCodecService());
+		pagedSearchControl = new PagedResultsFactory(ldapCon.getCodecService()).newControl();
 	}
 
 	@Override
@@ -163,7 +163,8 @@ public class PagedSearchResult implements Iterable<Response>, AutoCloseable {
 
 		pagedSearchControl = (PagedResults) result.getControl(PagedResults.OID);
 
-		return pagedSearchControl != null && pagedSearchControl.getCookie() != null;
+		return pagedSearchControl != null && pagedSearchControl.getCookie() != null
+				&& pagedSearchControl.getCookie().length > 0;
 	}
 
 	public Response get() throws CursorException {

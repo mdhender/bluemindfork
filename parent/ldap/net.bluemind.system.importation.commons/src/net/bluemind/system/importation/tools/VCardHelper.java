@@ -51,7 +51,7 @@ public class VCardHelper {
 		for (String phoneAttr : phoneAttrs) {
 			Attribute adPhones = entry.get(phoneAttr);
 			if (adPhones != null) {
-				Iterator<Value<?>> phoneIterator = adPhones.iterator();
+				Iterator<Value> phoneIterator = adPhones.iterator();
 				while (phoneIterator.hasNext()) {
 					String phone = phoneIterator.next().getString().trim();
 					if (phone.isEmpty()) {

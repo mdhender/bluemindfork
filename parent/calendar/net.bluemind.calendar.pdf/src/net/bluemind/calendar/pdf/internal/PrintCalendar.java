@@ -42,12 +42,13 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.batik.dom.svg.SVGDOMImplementation;
+import org.apache.batik.anim.dom.SVGDOMImplementation;
 import org.apache.batik.transcoder.SVGAbstractTranscoder;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.JPEGTranscoder;
 import org.apache.batik.transcoder.image.PNGTranscoder;
+
 import org.apache.fop.svg.PDFTranscoder;
 import org.apache.pdfbox.util.PDFMergerUtility;
 import org.slf4j.Logger;
@@ -420,7 +421,6 @@ public abstract class PrintCalendar {
 	}
 
 	protected Document newPage() {
-
 		DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
 		String svgNS = SVGDOMImplementation.SVG_NAMESPACE_URI;
 		Document document = impl.createDocument(svgNS, "svg", null);

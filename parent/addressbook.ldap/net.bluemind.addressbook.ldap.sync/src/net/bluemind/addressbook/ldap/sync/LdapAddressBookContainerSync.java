@@ -27,7 +27,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
+import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsFactory;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -203,7 +203,7 @@ public class LdapAddressBookContainerSync implements ISyncableContainer {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss'.0Z'");
 			long modifyTimestamp = sdf.parse(modifyTimestampString).getTime();
 
-			PagedResults pagedSearchControl = new PagedResultsDecorator(con.getCodecService());
+			PagedResults pagedSearchControl = new PagedResultsFactory(con.getCodecService()).newControl();
 			SearchRequest searchRequest;
 			SearchCursor cursor;
 			int pages = 0;
@@ -270,7 +270,8 @@ public class LdapAddressBookContainerSync implements ISyncableContainer {
 						+ ", total updated: " + ret.updated);
 
 				sd.contacts.clear();
-			} while (pagedSearchControl != null && pagedSearchControl.getCookie() != null);
+			} while (pagedSearchControl != null && pagedSearchControl.getCookie() != null
+					&& pagedSearchControl.getCookie().length > 0);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -280,7 +281,7 @@ public class LdapAddressBookContainerSync implements ISyncableContainer {
 
 	private void getLdapUuids(IServerTaskMonitor monitor, LdapConProxy con, LdapParameters lp, SyncData sd)
 			throws LdapInvalidDnException, LdapException, CursorException, LdapInvalidAttributeValueException {
-		PagedResults pagedSearchControl = new PagedResultsDecorator(con.getCodecService());
+		PagedResults pagedSearchControl = new PagedResultsFactory(con.getCodecService()).newControl();
 		SearchRequest searchRequest;
 		SearchCursor cursor;
 		do {
@@ -317,7 +318,8 @@ public class LdapAddressBookContainerSync implements ISyncableContainer {
 			}
 
 			pagedSearchControl = (PagedResults) result.getControl(PagedResults.OID);
-		} while (pagedSearchControl != null && pagedSearchControl.getCookie() != null);
+		} while (pagedSearchControl != null && pagedSearchControl.getCookie() != null
+				&& pagedSearchControl.getCookie().length > 0);
 
 		monitor.log("Found " + sd.ldapUids.size() + " ldap entries for entryUid " + lp.entryUUID);
 		logger.info("Found {} ldap entries for entryUid {}", sd.ldapUids.size(), lp.entryUUID);

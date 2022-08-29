@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.core.container.api.php
 Bundle-SymbolicName: net.bluemind.core.container.api.php
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.container.api;bundle-version="1.0.0",
  net.bluemind.core.commons.php;bundle-version="1.0.0"
 Automatic-Module-Name: net.bluemind.core.container.api.php

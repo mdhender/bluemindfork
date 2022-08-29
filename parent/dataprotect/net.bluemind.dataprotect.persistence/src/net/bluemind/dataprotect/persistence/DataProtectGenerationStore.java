@@ -21,6 +21,7 @@ package net.bluemind.dataprotect.persistence;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -52,9 +53,9 @@ public class DataProtectGenerationStore extends JdbcAbstractStore {
 
 		value.id = rs.getInt(index++);
 		value.generationId = rs.getInt(index++);
-		value.begin = new Date(rs.getTimestamp(index++).getTime());
+		value.begin = Date.from(rs.getTimestamp(index++).toInstant());
 		Timestamp ts = rs.getTimestamp(index++);
-		value.end = ts != null ? new Date(ts.getTime()) : null;
+		value.end = ts != null ? Date.from(ts.toInstant()) : null;
 		value.size = rs.getLong(index++);
 		value.valid = GenerationStatus.valueOf(rs.getString(index++));
 		value.tag = rs.getString(index++);
@@ -101,7 +102,7 @@ public class DataProtectGenerationStore extends JdbcAbstractStore {
 
 			statement.setLong(index++, nextId);
 			statement.setLong(index++, genId);
-			statement.setTimestamp(index++, new Timestamp(System.currentTimeMillis()));
+			statement.setTimestamp(index++, Timestamp.from(Instant.now()));
 			statement.setNull(index++, Types.TIMESTAMP);
 			statement.setNull(index++, Types.INTEGER);
 			statement.setString(index++, GenerationStatus.UNKNOWN.name());
@@ -125,7 +126,7 @@ public class DataProtectGenerationStore extends JdbcAbstractStore {
 		update("UPDATE t_dp_partgeneration set endtime=?, size_mb=?, valid=?::t_generation_status where id=?", null,
 				(con, statement, index, currentRow, value) -> {
 					part.validate();
-					statement.setTimestamp(index++, new Timestamp(part.end.getTime()));
+					statement.setTimestamp(index++, Timestamp.from(part.end.toInstant()));
 					statement.setLong(index++, part.size);
 					statement.setString(index++, part.valid.name());
 					statement.setInt(index++, part.id);
@@ -170,13 +171,13 @@ public class DataProtectGenerationStore extends JdbcAbstractStore {
 				statement.setInt(index++, partGen.id);
 				statement.setInt(index++, partGen.generationId);
 				if (partGen.begin != null) {
-					statement.setTimestamp(index++, new Timestamp(partGen.begin.getTime()));
+					statement.setTimestamp(index++, Timestamp.from(partGen.begin.toInstant()));
 				} else {
 					statement.setNull(index++, Types.TIMESTAMP);
 				}
 
 				if (partGen.end != null) {
-					statement.setTimestamp(index++, new Timestamp(partGen.end.getTime()));
+					statement.setTimestamp(index++, Timestamp.from(partGen.end.toInstant()));
 				} else {
 					statement.setNull(index++, Types.TIMESTAMP);
 				}
@@ -237,7 +238,7 @@ public class DataProtectGenerationStore extends JdbcAbstractStore {
 			return ret;
 		}, (rs, index, value) -> {
 			value.id = rs.getInt(index++);
-			value.protectionTime = new Date(rs.getTimestamp(index++).getTime());
+			value.protectionTime = Date.from(rs.getTimestamp(index++).toInstant());
 			value.blueMind = VersionInfo.create(rs.getString(index++));
 			return index;
 		}, new Object[0]);

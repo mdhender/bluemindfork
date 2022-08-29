@@ -28,10 +28,10 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.persistence,
  net.bluemind.system.schemaupgrader,
  net.bluemind.system.schemaupgrader.runner,
- org.apache.commons.lang,
+ org.apache.commons.lang3,
  org.freemarker.freemarker,
  slf4j.api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: net.bluemind.dataprotect.service,
  net.bluemind.dataprotect.service.internal,
  net.bluemind.dataprotect.worker

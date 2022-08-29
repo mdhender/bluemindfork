@@ -14,6 +14,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.scheduledjob.scheduler,
  net.bluemind.scheduledjob.api,
  slf4j.api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.maintenance.job

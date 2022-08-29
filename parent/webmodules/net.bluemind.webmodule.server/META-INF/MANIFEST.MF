@@ -5,19 +5,20 @@ Bundle-SymbolicName: net.bluemind.webmodule.server;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
- net.bluemind.lib.vertx;bundle-version="1.0.0",
- com.google.guava;bundle-version="19.0.0",
- net.bluemind.webmodule;bundle-version="1.0.0";visibility:=reexport,
+ net.bluemind.lib.vertx,
+ com.google.guava,
+ net.bluemind.webmodule;visibility:=reexport,
  net.bluemind.utils,
  net.bluemind.eclipse.common,
  net.bluemind.core.commons,
  net.bluemind.common.freemarker,
  net.bluemind.metrics.registry,
- net.bluemind.sentry.settings
+ net.bluemind.sentry.settings,
+ jakarta.activation-api
 Closure-Bundle-Type: Embedded
 Web-Resources: web-resources
 Closure-Inputs: BundlesManager.js
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Export-Package: net.bluemind.webmodule.server,

@@ -227,7 +227,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 			value.imapUid = rs.getInt(index++);
 			value.bodyGuid = rs.getString(index++);
 			return index;
-		}, new Object[] { container.id, new Timestamp(d.getTime()) });
+		}, new Object[] { container.id, Timestamp.from(d.toInstant()) });
 	}
 
 	public List<ImapBinding> unreadItems() throws SQLException {

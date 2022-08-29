@@ -13,5 +13,5 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.config,
  net.bluemind.core.container.persistence,
  net.bluemind.node.api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.dataprotect.persistence

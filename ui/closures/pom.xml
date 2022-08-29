@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>closures</artifactId>
 	<packaging>pom</packaging>
-
 	<parent>
 		<groupId>net.bluemind</groupId>
 		<artifactId>ui</artifactId>
@@ -34,8 +31,8 @@
 		<module>net.bluemind.cti.api.closure</module>
 		<module>net.bluemind.directory.api.closure</module>
 		<module>net.bluemind.extensions.closure</module>
-                <module>net.bluemind.filehosting.ui.closure</module>
-                <module>net.bluemind.filehosting.api.closure</module>
+		<module>net.bluemind.filehosting.ui.closure</module>
+		<module>net.bluemind.filehosting.api.closure</module>
 		<module>net.bluemind.folder.closure</module>
 		<module>net.bluemind.mailbox.api.closure</module>
 		<module>net.bluemind.mvp.closure</module>
@@ -50,7 +47,7 @@
 		<module>net.bluemind.todolist.ui.closure</module>
 		<module>net.bluemind.ui.banner.cti</module>
 		<module>net.bluemind.ui.banner.logout</module>
-		<module>net.bluemind.ui.banner</module>                
+		<module>net.bluemind.ui.banner</module>
 		<module>net.bluemind.ui.banner.standalone.closure</module>
 		<module>net.bluemind.ui.editor.standalone.closure</module>
 		<module>net.bluemind.restclient.closure</module>

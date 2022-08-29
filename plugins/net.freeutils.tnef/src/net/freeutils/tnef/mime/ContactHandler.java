@@ -139,16 +139,13 @@ public class ContactHandler {
 	};
 
 	/**
-	 * Converts a TNEF message containing a contact into a vCard 3.0 attachment,
-	 * as per RFC 2426.
+	 * Converts a TNEF message containing a contact into a vCard 3.0 attachment, as
+	 * per RFC 2426.
 	 *
-	 * @param message
-	 *            the tnef Message containing contact to convert
+	 * @param message the tnef Message containing contact to convert
 	 * @return a BodyPart containing a standard vCard attachment
-	 * @throws IOException
-	 *             if an I/O error occurs
-	 * @throws MessagingException
-	 *             if an error occurs while accessing a mime part
+	 * @throws IOException        if an I/O error occurs
+	 * @throws MessagingException if an error occurs while accessing a mime part
 	 */
 	public static Multipart convert(net.freeutils.tnef.Message message) throws IOException, MessagingException {
 
@@ -173,10 +170,10 @@ public class ContactHandler {
 	}
 
 	/**
-	 * The internal <code>ContactField</code> class represents a mapping of a
-	 * single field from its TNEF source to its vCard destination, and all
-	 * methods required to perform the field's conversion: parameters, types,
-	 * formatting, escaping, encoding, folding, etc, according to the vCard RFC.
+	 * The internal <code>ContactField</code> class represents a mapping of a single
+	 * field from its TNEF source to its vCard destination, and all methods required
+	 * to perform the field's conversion: parameters, types, formatting, escaping,
+	 * encoding, folding, etc, according to the vCard RFC.
 	 */
 	static class ContactField {
 
@@ -193,14 +190,10 @@ public class ContactHandler {
 		/**
 		 * Constructs a Contact field with all necessary details.
 		 * 
-		 * @param type
-		 *            the field type (excluding the encoding parameter)
-		 * @param src
-		 *            the TNEF source object
-		 * @param flags
-		 *            the conversion flags
-		 * @param format
-		 *            the format string (null if not applicable)
+		 * @param type   the field type (excluding the encoding parameter)
+		 * @param src    the TNEF source object
+		 * @param flags  the conversion flags
+		 * @param format the format string (null if not applicable)
 		 */
 		public ContactField(String type, Object src, int flags, String format) {
 			this.type = type;
@@ -212,29 +205,24 @@ public class ContactHandler {
 		}
 
 		/**
-		 * Constructs a Contact field with given type and source, and with the
-		 * NONE flag and a null format string.
+		 * Constructs a Contact field with given type and source, and with the NONE flag
+		 * and a null format string.
 		 * 
-		 * @param type
-		 *            the field type (excluding the encoding parameter)
-		 * @param src
-		 *            the TNEF source object
+		 * @param type the field type (excluding the encoding parameter)
+		 * @param src  the TNEF source object
 		 */
 		public ContactField(String type, Object src) {
 			this(type, src, NONE, null);
 		}
 
 		/**
-		 * Returns the vCard field string corresponding to this contact field,
-		 * the data itself taken from the given TNEF message. The returned
-		 * string is properly encoded, escaped, formatted, folded etc. according
-		 * to the vCard RFC.
+		 * Returns the vCard field string corresponding to this contact field, the data
+		 * itself taken from the given TNEF message. The returned string is properly
+		 * encoded, escaped, formatted, folded etc. according to the vCard RFC.
 		 * 
-		 * @param message
-		 *            the TNEF message from which the field data is taken
+		 * @param message the TNEF message from which the field data is taken
 		 * @return the vCard field string with the required contact data
-		 * @throws IOException
-		 *             if an error occurs while reading from message
+		 * @throws IOException if an error occurs while reading from message
 		 */
 		public String getValue(net.freeutils.tnef.Message message) throws IOException {
 			String v = null;
@@ -313,10 +301,8 @@ public class ContactHandler {
 		/**
 		 * Returns whether this ContactField contains given flag.
 		 * 
-		 * @param flag
-		 *            the flag to check
-		 * @return true if this ContactField contains the given flag, false
-		 *         otherwise
+		 * @param flag the flag to check
+		 * @return true if this ContactField contains the given flag, false otherwise
 		 */
 		boolean isFlag(int flag) {
 			return (flags & flag) != 0;
@@ -325,11 +311,9 @@ public class ContactHandler {
 		/**
 		 * Returns a string representation of the given value.
 		 * 
-		 * @param val
-		 *            the value to represent as a string
+		 * @param val the value to represent as a string
 		 * @return a string representation of the given value
-		 * @throws IOException
-		 *             if an error occurs while processing value
+		 * @throws IOException if an error occurs while processing value
 		 */
 		String toString(Object val) throws IOException {
 			String v = null;
@@ -377,8 +361,7 @@ public class ContactHandler {
 		/**
 		 * Folds the given string according to the vCard RFC.
 		 * 
-		 * @param v
-		 *            the value to fold
+		 * @param v the value to fold
 		 * @return the folded string
 		 */
 		String fold(String v) {
@@ -414,18 +397,17 @@ public class ContactHandler {
 		/**
 		 * Formats a series of values according to this field's format string.
 		 * 
-		 * An escape sequence within the format string consists of a '%'
-		 * character followed by a format identifier char: '%s' outputs the
-		 * corresponding output value. '%%' outputs a literal '%' character. All
-		 * other characters are copied to the output as-is.
+		 * An escape sequence within the format string consists of a '%' character
+		 * followed by a format identifier char: '%s' outputs the corresponding output
+		 * value. '%%' outputs a literal '%' character. All other characters are copied
+		 * to the output as-is.
 		 * 
-		 * @param vals
-		 *            the values to be used in formatting the output string
+		 * @param vals the values to be used in formatting the output string
 		 * @return the formatted string
-		 * @throws IllegalArgumentException
-		 *             if the format string is invalid, or the given value array
-		 *             contains less elements than the number of '%s' sequences
-		 *             in the format string
+		 * @throws IllegalArgumentException if the format string is invalid, or the
+		 *                                  given value array contains less elements
+		 *                                  than the number of '%s' sequences in the
+		 *                                  format string
 		 */
 		String format(String[] vals) {
 			StringBuffer sb = new StringBuffer();
@@ -461,8 +443,7 @@ public class ContactHandler {
 		/**
 		 * Escapes the given string according to the vCard RFC.
 		 * 
-		 * @param v
-		 *            the string to escape
+		 * @param v the string to escape
 		 * @return the escaped string
 		 */
 		String escape(String v) {
@@ -476,16 +457,13 @@ public class ContactHandler {
 		}
 
 		/**
-		 * Retrieves the value of the property with given tag from within a
-		 * stream, which is treated as a tag-length-value list of properties.
+		 * Retrieves the value of the property with given tag from within a stream,
+		 * which is treated as a tag-length-value list of properties.
 		 * 
-		 * @param in
-		 *            the RawInputStream containing the tag-length-value data
-		 * @param tag
-		 *            the tag whose value is requested
+		 * @param in  the RawInputStream containing the tag-length-value data
+		 * @param tag the tag whose value is requested
 		 * @return the requested tag's value, or null if not found
-		 * @throws IOException
-		 *             if an I/O error occurs
+		 * @throws IOException if an I/O error occurs
 		 */
 		RawInputStream getTLVProp(RawInputStream in, int tag) throws IOException {
 			in = new RawInputStream(in); // make a copy, don't modify original

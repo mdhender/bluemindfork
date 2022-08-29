@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.mailbox.hook.acl
 Bundle-SymbolicName: net.bluemind.mailbox.hook.acl;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.container.hooks,
  net.bluemind.core.rest,
  net.bluemind.core.container.persistence,

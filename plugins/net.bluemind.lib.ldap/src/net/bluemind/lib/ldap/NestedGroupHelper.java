@@ -79,8 +79,7 @@ public class NestedGroupHelper {
 	}
 
 	private Optional<String> getUserMemberUuid(Entry entry) {
-		if (entry.containsAttribute(memberAttr.name()) || !entry.containsAttribute(uuidAttribute)
-				|| isAGroup(entry)) {
+		if (entry.containsAttribute(memberAttr.name()) || !entry.containsAttribute(uuidAttribute) || isAGroup(entry)) {
 			return Optional.empty();
 		}
 
@@ -108,7 +107,7 @@ public class NestedGroupHelper {
 				.filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
 	}
 
-	private Optional<Entry> getMemberEntry(Value<?> attribute) {
+	private Optional<Entry> getMemberEntry(Value attribute) {
 		String value = attribute.getString();
 
 		if (memberAttr == GroupMemberAttribute.memberUid) {

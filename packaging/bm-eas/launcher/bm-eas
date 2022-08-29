@@ -23,6 +23,6 @@ product=`basename $0`
 curdir=`dirname $0`
 pidfile=$1
 
-source ${curdir}/equinox-systemd.lib ${product}
+source ${curdir}/equinox-systemd.sh ${product}
 
-bm_equinox_run_server_appid ${curdir} ${appid}
+bm_equinox_run_server_appid ${curdir} ${appid} $@

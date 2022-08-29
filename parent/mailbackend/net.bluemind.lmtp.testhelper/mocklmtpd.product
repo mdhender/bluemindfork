@@ -11,7 +11,7 @@
       </vmArgsMac>
    </launcherArgs>
 
-   <launcher name="mocklmtp">
+   <launcher>
       <win useIco="false">
          <bmp/>
       </win>
@@ -28,12 +28,11 @@
       <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.ning.async-http-client"/>
-      <plugin id="com.sun.mail.javax.mail"/>
+      <plugin id="com.sun.mail.jakarta.mail"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.platform"/>
-      <plugin id="javax.mail-api"/>
-      <plugin id="javax.ws.rs"/>
+      <plugin id="jakarta.ws.rs-api"/>
       <plugin id="javax.xml"/>
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>
@@ -71,7 +70,7 @@
       <plugin id="net.bluemind.utils"/>
       <plugin id="net.bluemind.vertx.common"/>
       <plugin id="org.apache.commons.codec"/>
-      <plugin id="org.apache.commons.lang"/>
+      <plugin id="org.apache.commons.lang3"/>
       <plugin id="org.apache.james.apache-mime4j-core"/>
       <plugin id="org.apache.james.apache-mime4j-dom"/>
       <plugin id="org.apache.mina.core"/>

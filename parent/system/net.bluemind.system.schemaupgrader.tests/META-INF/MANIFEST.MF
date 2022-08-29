@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.system.schemaupgrader.tests
 Bundle-SymbolicName: net.bluemind.system.schemaupgrader.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",

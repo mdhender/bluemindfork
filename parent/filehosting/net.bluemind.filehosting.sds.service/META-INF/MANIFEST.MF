@@ -22,6 +22,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.filehosting.filesystem.service,
  net.bluemind.config,
  net.bluemind.domain.service
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.filehosting.sds.service
 Bundle-ActivationPolicy: lazy

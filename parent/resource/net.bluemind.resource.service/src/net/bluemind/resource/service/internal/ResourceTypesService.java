@@ -22,7 +22,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-import javax.ws.rs.PathParam;
+import jakarta.ws.rs.PathParam;
 
 import net.bluemind.core.api.ParametersValidator;
 import net.bluemind.core.api.fault.ErrorCode;

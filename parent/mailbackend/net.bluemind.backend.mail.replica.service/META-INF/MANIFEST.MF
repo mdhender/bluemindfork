@@ -49,12 +49,11 @@ Require-Bundle: org.eclipse.core.runtime,
  com.github.ben-manes.caffeine;bundle-version="2.8.6",
  net.bluemind.core.sessions,
  net.bluemind.sds.store,
- com.sun.mail.javax.mail,
  net.bluemind.system.helper,
  net.bluemind.system.state,
  net.bluemind.sds.store.loader,
  net.bluemind.system.config
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.mail.replica.service,
  net.bluemind.backend.mail.replica.service.internal,

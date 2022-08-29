@@ -17,7 +17,7 @@
   */
 package net.bluemind.icalendar.parser;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.videoconferencing.utils.TeamsHeaders;

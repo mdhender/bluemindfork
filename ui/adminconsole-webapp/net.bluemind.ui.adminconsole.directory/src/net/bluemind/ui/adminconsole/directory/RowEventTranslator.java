@@ -21,7 +21,6 @@ package net.bluemind.ui.adminconsole.directory;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.DefaultSelectionEventManager.EventTranslator;
@@ -82,10 +81,8 @@ public class RowEventTranslator<T> implements EventTranslator<T> {
 		}
 		ssr.put("entry", de);
 
-		String screen = null;
 		switch (de.value.kind) {
 		case MAILSHARE: {
-			screen = null;
 			Map<String, String> params = new HashMap<>();
 			params.put("entryUid", de.value.entryUid);
 			params.put("domainUid", DomainsHolder.get().getSelectedDomain().uid);
@@ -93,16 +90,13 @@ public class RowEventTranslator<T> implements EventTranslator<T> {
 		}
 			break;
 		case EXTERNALUSER: {
-			screen = null;
 			Map<String, String> params = new HashMap<>();
 			params.put("entryUid", de.value.entryUid);
-			params.put("domainUid",
-					DomainsHolder.get().getSelectedDomain().uid);
+			params.put("domainUid", DomainsHolder.get().getSelectedDomain().uid);
 			Actions.get().showWithParams2("editExternalUser", params);
 		}
 			break;
 		case GROUP: {
-			screen = null;
 			Map<String, String> params = new HashMap<>();
 			params.put("entryUid", de.value.entryUid);
 			params.put("domainUid", DomainsHolder.get().getSelectedDomain().uid);
@@ -110,7 +104,6 @@ public class RowEventTranslator<T> implements EventTranslator<T> {
 		}
 			break;
 		case RESOURCE: {
-			screen = null;
 			Map<String, String> params = new HashMap<>();
 			params.put("entryUid", de.value.entryUid);
 			params.put("domainUid", DomainsHolder.get().getSelectedDomain().uid);
@@ -118,7 +111,6 @@ public class RowEventTranslator<T> implements EventTranslator<T> {
 		}
 			break;
 		case USER: {
-			screen = null;
 			Map<String, String> params = new HashMap<>();
 			params.put("entryUid", de.value.entryUid);
 			params.put("domainUid", DomainsHolder.get().getSelectedDomain().uid);
@@ -127,7 +119,6 @@ public class RowEventTranslator<T> implements EventTranslator<T> {
 			break;
 		}
 		case ADDRESSBOOK: {
-			screen = null;
 			Map<String, String> params = new HashMap<>();
 			params.put("entryUid", de.value.entryUid);
 			params.put("domainUid", DomainsHolder.get().getSelectedDomain().uid);
@@ -136,7 +127,6 @@ public class RowEventTranslator<T> implements EventTranslator<T> {
 		}
 
 		case CALENDAR: {
-			screen = null;
 			Map<String, String> params = new HashMap<>();
 			params.put("entryUid", de.value.entryUid);
 			params.put("domainUid", DomainsHolder.get().getSelectedDomain().uid);
@@ -144,14 +134,7 @@ public class RowEventTranslator<T> implements EventTranslator<T> {
 			break;
 		}
 		case DOMAIN:
-			screen = null;
 			break;
-		}
-		if (screen != null) {
-			Actions.get().show(screen, ssr);
-		} else {
-			// Window.alert("Edit Directory Entry: " + de.displayName + ", "
-			// + de.value.kind.toString());
 		}
 	}
 

@@ -1,35 +1,64 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<artifactId>net.bluemind.p2.products.core</artifactId>
 	<packaging>eclipse-repository</packaging>
-
+	<properties>
+		<product.name>core</product.name>
+	</properties>
 	<parent>
 		<groupId>net.bluemind</groupId>
 		<artifactId>net.bluemind.products</artifactId>
 		<version>4.1.0-SNAPSHOT</version>
 	</parent>
-
 	<build>
 		<plugins>
+			<!-- Avoid building unrequired p2 repository archive -->
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-p2-repository-plugin</artifactId>
-				<version>${tycho-version}</version>
+				<configuration>
+					<skipArchive>true</skipArchive>
+				</configuration>
+			</plugin>
+			<!-- build product bundles.info, configurations, ... -->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-director-plugin</artifactId>
+			</plugin>
+			<!-- Limit platform generation to used ones -->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<configuration>
+					<environments>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+			<!-- Custom assembly to access it from packages/xxx/pom.xml as dependencyy -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>verify</id>
-						<phase>package</phase>
+						<id>product</id>
 						<goals>
-							<goal>verify-repository</goal>
+							<goal>single</goal>
 						</goals>
+						<phase>package</phase>
+						<configuration>
+							<recompressZippedFiles>false</recompressZippedFiles>
+							<descriptors>
+								<descriptor>assembly.xml</descriptor>
+							</descriptors>
+						</configuration>
 					</execution>
-					
 				</executions>
-				<configuration>
-					<includeAllDependencies>true</includeAllDependencies>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

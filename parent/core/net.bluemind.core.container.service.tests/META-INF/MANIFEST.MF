@@ -20,5 +20,5 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.role.persistence,
  net.bluemind.system.pg,
  net.bluemind.calendar.service;bundle-version="4.1.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.core.container.service.tests

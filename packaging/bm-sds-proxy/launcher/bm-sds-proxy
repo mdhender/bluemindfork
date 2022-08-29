@@ -28,7 +28,7 @@ export DEFAULT_MEM=128
 export BM_JVM_CUSTOM_OPTS="-Dio.netty.allocator.maxOrder=8"
 
 
-source ${curdir}/equinox-systemd.lib ${product}
+source ${curdir}/equinox-systemd.sh ${product}
 
 case "$1" in
     "pre-start")
@@ -38,6 +38,6 @@ case "$1" in
         bm_post_start bluemind
         ;;
     *)
-        bm_equinox_run_server_appid ${curdir} ${appid}
+        bm_equinox_run_server_appid ${curdir} ${appid} $@
         ;;
 esac

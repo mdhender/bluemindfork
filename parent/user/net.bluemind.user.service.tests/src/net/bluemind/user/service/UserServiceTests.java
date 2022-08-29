@@ -800,7 +800,7 @@ public class UserServiceTests {
 				try (ResultSet rs = st.executeQuery(
 						"SELECT password_lastchange FROM t_domain_user WHERE login='" + user.login + "'")) {
 					if (rs.next()) {
-						passwordUpdate = rs.getTimestamp(1) == null ? null : new Date(rs.getTimestamp(1).getTime());
+						passwordUpdate = rs.getTimestamp(1) == null ? null : Date.from(rs.getTimestamp(1).toInstant());
 					}
 				}
 			}

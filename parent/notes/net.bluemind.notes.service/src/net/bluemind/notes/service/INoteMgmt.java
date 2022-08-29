@@ -18,7 +18,7 @@
  */
 package net.bluemind.notes.service;
 
-import javax.ws.rs.Path;
+import jakarta.ws.rs.Path;
 
 @Path("{containerUid}")
 public interface INoteMgmt {

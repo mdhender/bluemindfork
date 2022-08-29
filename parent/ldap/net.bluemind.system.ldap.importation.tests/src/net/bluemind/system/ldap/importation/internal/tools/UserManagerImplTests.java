@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -44,6 +43,7 @@ import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueEx
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.api.ldap.model.message.Response;
+import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.junit.Before;
@@ -508,8 +508,8 @@ public class UserManagerImplTests {
 
 			PagedSearchResult entries = new DirectorySearch<>(
 					LdapParameters.build(domain.value, Collections.<String, String>emptyMap()),
-					new LdapGroupSearchFilter(), new LdapUserSearchFilter()).findByFilterAndBaseDnAndScopeAndAttributes(
-							ldapCon,
+					new LdapGroupSearchFilter(), new LdapUserSearchFilter())
+					.findByFilterAndBaseDnAndScopeAndAttributes(ldapCon,
 							new LdapUserSearchFilter().getSearchFilter(
 									LdapParameters.build(domain.value, Collections.<String, String>emptyMap()),
 									Optional.empty(), null, null),
@@ -523,7 +523,7 @@ public class UserManagerImplTests {
 					continue;
 				}
 
-				entry = ((SearchResultEntryDecorator) response).getEntry();
+				entry = ((SearchResultEntry) response).getEntry();
 			}
 		}
 

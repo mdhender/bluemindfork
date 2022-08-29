@@ -21,11 +21,9 @@ package net.bluemind.resource.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -232,7 +230,6 @@ public class ResourcesTypeServiceTests {
 		service(domainAdminSC).setIcon(rtId, image);
 
 		assertNotNull(service(domainAdminSC).getIcon(rtId));
-		assertTrue(Arrays.equals(image, service(domainAdminSC).getIcon(rtId)));
 
 		// test everyone can read icon
 		try {

@@ -4,7 +4,7 @@ Bundle-Name: Domains Hook
 Bundle-SymbolicName: net.bluemind.domain.hook;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.domain.hook
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.container.api;bundle-version="1.0.0",
  net.bluemind.domain.api;bundle-version="1.0.0";visibility:=reexport,

@@ -4,6 +4,6 @@ Bundle-Name: net.bluemind.scheduledjob.sqlschema
 Bundle-SymbolicName: net.bluemind.scheduledjob.sqlschema;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.sqlschema;bundle-version="1.0.0"
 Automatic-Module-Name: net.bluemind.scheduledjob.sqlschema

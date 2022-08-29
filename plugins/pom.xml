@@ -6,7 +6,6 @@
 	<properties>
 		<maven.test.skip>true</maven.test.skip>
 	</properties>
-
 	<parent>
 		<groupId>net.bluemind</groupId>
 		<artifactId>net.bluemind.corev2</artifactId>
@@ -14,36 +13,36 @@
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 	<modules>
-	  <module>net.bluemind.hornetq.client</module>
+		<module>net.bluemind.hornetq.client</module>
 		<module>net.bluemind.custom.password.bruteforce</module>
-		<module>net.bluemind.dav.server.tests</module>
+		<!--<module>net.bluemind.dav.server.tests</module>-->
 		<module>net.bluemind.dav.server</module>
 		<module>net.bluemind.eclipse.common</module>
-	        <module>net.bluemind.eas.backend.bm</module>
-	        <module>net.bluemind.eas.busmods</module>
-	        <module>net.bluemind.eas.client.tests</module>
-	        <module>net.bluemind.eas.client</module>
-	        <module>net.bluemind.eas.config.global</module>
-	        <module>net.bluemind.eas.dto</module>
-	        <module>net.bluemind.eas.endpoint.tests</module>
-	        <module>net.bluemind.eas.http.tests</module>
-	        <module>net.bluemind.eas.http.wbxml</module>
-	        <module>net.bluemind.eas.http</module>
-	        <module>net.bluemind.eas.partnership</module>
-	        <module>net.bluemind.eas.protocol.tests</module>
-	        <module>net.bluemind.eas.search.ldap</module>
-	        <module>net.bluemind.eas.serdes</module>
-	        <module>net.bluemind.eas.sift</module>
-	        <module>net.bluemind.eas.storage.jdbc</module>
+		<module>net.bluemind.eas.backend.bm</module>
+		<module>net.bluemind.eas.busmods</module>
+		<module>net.bluemind.eas.client.tests</module>
+		<module>net.bluemind.eas.client</module>
+		<module>net.bluemind.eas.config.global</module>
+		<module>net.bluemind.eas.dto</module>
+		<module>net.bluemind.eas.endpoint.tests</module>
+		<module>net.bluemind.eas.http.tests</module>
+		<module>net.bluemind.eas.http.wbxml</module>
+		<module>net.bluemind.eas.http</module>
+		<module>net.bluemind.eas.partnership</module>
+		<module>net.bluemind.eas.protocol.tests</module>
+		<module>net.bluemind.eas.search.ldap</module>
+		<module>net.bluemind.eas.serdes</module>
+		<module>net.bluemind.eas.sift</module>
+		<module>net.bluemind.eas.storage.jdbc</module>
 		<module>net.bluemind.eas.timezone</module>
 		<module>net.bluemind.eas.timezone.tests</module>
-	        <module>net.bluemind.eas.utils</module>
-	        <module>net.bluemind.eas.validation</module>
-	        <module>net.bluemind.eas.wbxml.builder.tests</module>
-	        <module>net.bluemind.eas.wbxml.builder</module>
-	        <module>net.bluemind.eas.wbxml</module>
-	        <module>net.bluemind.eas</module>
-                <module>net.bluemind.eas.testhelper</module>
+		<module>net.bluemind.eas.utils</module>
+		<module>net.bluemind.eas.validation</module>
+		<module>net.bluemind.eas.wbxml.builder.tests</module>
+		<module>net.bluemind.eas.wbxml.builder</module>
+		<module>net.bluemind.eas.wbxml</module>
+		<module>net.bluemind.eas</module>
+		<module>net.bluemind.eas.testhelper</module>
 		<module>net.bluemind.elasticsearch.initializer.tests</module>
 		<module>net.bluemind.elasticsearch.initializer</module>
 		<module>net.bluemind.imap.tagproducers</module>
@@ -55,7 +54,6 @@
 		<module>net.bluemind.jdbc.driver.pgsql</module>
 		<module>net.bluemind.jdbc.pgsql.provider</module>
 		<module>net.bluemind.jilter</module>
-		<!--module>net.bluemind.lib.elasticsearch.tests</module-->
 		<module>net.bluemind.lib.elasticsearch</module>
 		<module>net.bluemind.lib.globalid.tests</module>
 		<module>net.bluemind.lib.globalid</module>
@@ -111,13 +109,10 @@
 		<module>net.bluemind.ysnp.bmcore</module>
 		<module>net.bluemind.ysnp.tests</module>
 		<module>net.bluemind.ysnp</module>
-        <module>net.freeutils.tnef</module>
+		<module>net.freeutils.tnef</module>
 	</modules>
-
-
 	<build>
 		<plugins>
-
 			<plugin>
 				<groupId>net.bluemind</groupId>
 				<artifactId>bm-docker-maven-plugin</artifactId>
@@ -134,12 +129,10 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 			</plugin>
-
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

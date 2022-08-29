@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.addressbook.hook;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.addressbook.hook,
  net.bluemind.addressbook.hook.internal
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.eclipse.common;bundle-version="1.0.0",
  net.bluemind.addressbook.api;bundle-version="1.0.0",

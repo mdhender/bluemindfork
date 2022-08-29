@@ -8,16 +8,16 @@ Export-Package: net.bluemind.core.api,
  net.bluemind.core.api.fault,
  net.bluemind.core.email,
  net.bluemind.core.utils
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: io.netty;bundle-version="4.0.33";visibility:=reexport,
- javax.ws.rs;bundle-version="2.0.1";visibility:=reexport,
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: io.netty;visibility:=reexport,
  org.eclipse.osgi,
- slf4j.api;bundle-version="1.7.5",
- net.bluemind.common.io;bundle-version="4.1.0",
- com.fasterxml.jackson.core.jackson-core;bundle-version="2.10.1";visibility:=reexport,
- com.fasterxml.jackson.core.jackson-databind;bundle-version="2.10.1",
- com.fasterxml.jackson.module.jackson-module-afterburner;bundle-version="2.10.3",
- net.bluemind.lib.vertx
+ net.bluemind.common.io,
+ com.fasterxml.jackson.core.jackson-core;visibility:=reexport,
+ com.fasterxml.jackson.core.jackson-databind,
+ com.fasterxml.jackson.module.jackson-module-afterburner,
+ net.bluemind.lib.vertx,
+ slf4j.api,
+ jakarta.ws.rs-api;visibility:=reexport
 Bundle-ClassPath: .
 X-BM-Version: 4.9.0
 Bundle-Activator: net.bluemind.core.api.CommonsActivator

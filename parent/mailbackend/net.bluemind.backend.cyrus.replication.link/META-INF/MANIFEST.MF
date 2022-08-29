@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.backend.cyrus.replication.link;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.backend.cyrus.replication.link
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.lib.vertx;bundle-version="4.1.0",
  net.bluemind.server.api,
  net.bluemind.core.rest,

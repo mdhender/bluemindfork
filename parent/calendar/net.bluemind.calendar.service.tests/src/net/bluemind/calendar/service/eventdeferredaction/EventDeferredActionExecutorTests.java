@@ -163,7 +163,7 @@ public class EventDeferredActionExecutorTests {
 		ICalendar calendar = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
-		final ZonedDateTime eventDate = ZonedDateTime.now().plusNanos(2000000000);
+		final ZonedDateTime eventDate = ZonedDateTime.now().plusNanos(2000000000).truncatedTo(ChronoUnit.MILLIS);
 
 		int trigger = -1;
 		EventCreator.defaultVEvent(eventDate).withRecurrence(VEvent.RRule.Frequency.DAILY).withAlarm(trigger)

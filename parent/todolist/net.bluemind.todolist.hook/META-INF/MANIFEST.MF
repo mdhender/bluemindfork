@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.todolist.hook
 Bundle-SymbolicName: net.bluemind.todolist.hook;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.lib.vertx,
  net.bluemind.eclipse.common,
  net.bluemind.todolist.api,

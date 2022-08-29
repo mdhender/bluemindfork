@@ -12,6 +12,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.config,
  net.bluemind.metrics.alerts.api,
  net.bluemind.node.api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.cli.node
 Bundle-ActivationPolicy: lazy

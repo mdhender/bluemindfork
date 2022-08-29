@@ -3,14 +3,13 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Gwtserver
 Bundle-SymbolicName: net.bluemind.webmodule.gwtserver;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.lib.vertx,
  slf4j.api,
  org.eclipse.osgi,
  net.bluemind.webmodule.server,
  com.google.gwt.user;resolution:=optional,
- com.google.gwt.servlet,
- javax.servlet;bundle-version="2.5.0"
+ com.google.gwt.servlet
 Export-Package: net.bluemind.webmodule.gwtserver
 Bundle-ClassPath: .
 Automatic-Module-Name: net.bluemind.webmodule.gwtserver

@@ -100,8 +100,8 @@ public class MailFlowServiceTests {
 
 		assertEquals(6, actions.size());
 
-		List<String> identifiers = Arrays.asList(new String[] { "JournalingAction", "AddSignatureAction", "action1",
-				"action2", "action3", "action4" });
+		List<String> identifiers = Arrays.asList(
+				new String[] { "JournalingAction", "AddSignatureAction", "action1", "action2", "action3", "action4" });
 		List<String> descriptions = Arrays.asList(new String[] { "Add journaling action", "AddSignatureAction",
 				"action 1", "action 2", "action 3", "action 4" });
 
@@ -211,8 +211,8 @@ public class MailFlowServiceTests {
 	}
 
 	private String sampleHtmlCleaned() {
-		return "<style> p { font-size: 2em; }</style><a href=\"http://test.fr\"></a>" + "<a>link</a>\n" + "<img src=\""
-				+ sampleBase64Img() + "\"><span>some content</span>\n" + "<img style=\"height: 40px;\">";
+		return "<style> p { font-size: 2em; }</style><a href=\"http://test.fr\"></a>" + "<a>link</a>" + "<img src=\""
+				+ sampleBase64Img() + "\"><span>some content</span>" + "<img style=\"height: 40px;\">";
 	}
 
 	private String sampleHtml() {

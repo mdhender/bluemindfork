@@ -4,7 +4,7 @@ Bundle-Name: Api
 Bundle-SymbolicName: net.bluemind.todolist.api
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.todolist.api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.core.container.api;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.core.rest;bundle-version="1.0.0",

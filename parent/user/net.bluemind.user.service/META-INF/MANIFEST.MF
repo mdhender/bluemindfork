@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Services
 Bundle-SymbolicName: net.bluemind.user.service;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.user.api;bundle-version="1.0.0",
  net.bluemind.core.container.persistence;bundle-version="1.0.0",
  net.bluemind.core.container.service;bundle-version="1.0.0",
@@ -41,7 +41,7 @@ Require-Bundle: net.bluemind.user.api;bundle-version="1.0.0",
  net.bluemind.mailbox.persistence,
  net.bluemind.core.validator,
  net.bluemind.role.persistence;bundle-version="1.0.0",
- org.apache.commons.lang,
+ org.apache.commons.lang3,
  net.bluemind.role.api,
  net.bluemind.core.container.hooks,
  net.bluemind.core.commons,

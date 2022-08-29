@@ -1,7 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<artifactId>bm-conf</artifactId>
 	<packaging>bm-package</packaging>
 	<parent>
@@ -17,7 +16,6 @@
 			<type>zip</type>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -26,15 +24,15 @@
 					<execution>
 						<phase>prepare-package</phase>
 						<configuration>
-							<tasks>
+							<target>
 								<echo>deploy imap i18n into /usr/share/bm-conf/i18n</echo>
 								<mkdir dir="${basedir}/target/packaging/ROOT/usr/share/bm-conf/i18n/"/>
 								<unzip dest="${basedir}/target/packaging/ROOT/usr/share/bm-conf/i18n/">
 									<fileset dir="${basedir}/target/dependency">
-										<include name="net.bluemind.i18n.imap*.zip" />
+										<include name="net.bluemind.i18n.imap*.zip"/>
 									</fileset>
 								</unzip>
-							</tasks>
+							</target>
 						</configuration>
 						<goals>
 							<goal>run</goal>
@@ -44,6 +42,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
-

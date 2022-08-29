@@ -21,7 +21,7 @@ package net.bluemind.addressbook.domainbook.tests;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;

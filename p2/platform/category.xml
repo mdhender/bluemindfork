@@ -619,7 +619,6 @@
     <bundle id="net.bluemind.todolist.sqlschema" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.todolist.ui.closure" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.todolist.usertodolist" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.tracing" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.ui.adminconsole.base" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.ui.adminconsole.cti" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.ui.adminconsole.dataprotect" version="4.1.0.qualifier" />
@@ -690,7 +689,6 @@
     <bundle id="net.bluemind.user.sqlschema" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.utils" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.vertx.common" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.vertx.core.patch" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.vertx.testhelper" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.videoconferencing.api" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.videoconferencing.api.closure" version="4.1.0.qualifier" />
@@ -728,6 +726,7 @@
     <bundle id="net.bluemind.webmodules.chooser" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webmodules.contact" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webmodule.server" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.webmodules.filehosting" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webmodules.fonts" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webmodules.launcher" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.webmodules.loginapp" version="4.1.0.qualifier" />

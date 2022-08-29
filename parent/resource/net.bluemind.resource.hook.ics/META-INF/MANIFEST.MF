@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.resource.hook.ics
 Bundle-SymbolicName: net.bluemind.resource.hook.ics;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.calendar.hook,
  net.bluemind.core.sendmail,
  net.bluemind.calendar.api,

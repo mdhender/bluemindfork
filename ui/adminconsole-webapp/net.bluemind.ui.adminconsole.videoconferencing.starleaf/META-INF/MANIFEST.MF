@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.ui.adminconsole.videoconferencing.starleaf;sin
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.ui.adminconsole.videoconferencing.starleaf
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: com.google.gwt.user;resolution:=optional,
  net.bluemind.core.commons.gwt;visibility:=reexport,
  net.bluemind.gwtconsoleapp.base,

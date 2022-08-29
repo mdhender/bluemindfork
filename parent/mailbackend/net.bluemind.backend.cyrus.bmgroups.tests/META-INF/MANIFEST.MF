@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.backend.cyrus.bmgroups.tests
 Bundle-SymbolicName: net.bluemind.backend.cyrus.bmgroups.tests
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.backend.cyrus.bmgroups,
  org.junit,
  net.bluemind.lib.vertx;bundle-version="4.1.0",
@@ -15,8 +15,8 @@ Require-Bundle: net.bluemind.backend.cyrus.bmgroups,
  net.bluemind.pool,
  net.bluemind.tests.defaultdata,
  net.bluemind.backend.cyrus,
- jnr.unixsocket;bundle-version="0.5.0",
- jnr.enxio;bundle-version="0.6.0",
+ com.github.jnr.unixsocket,
+ com.github.jnr.enxio,
  net.bluemind.core.rest.http.vertx;bundle-version="4.1.0",
  net.bluemind.network.topology.producer;bundle-version="4.1.0",
  net.bluemind.network.topology

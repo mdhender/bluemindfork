@@ -3,12 +3,13 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.ui.push
 Bundle-SymbolicName: net.bluemind.ui.push;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: net.bluemind.webmodule;bundle-version="4.1.0",
- net.bluemind.commons.ui.closure;bundle-version="4.1.0",
- com.google.gwt.user;resolution:=optional,
- net.bluemind.ui.banner;bundle-version="4.1.0",
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: net.bluemind.webmodule,
+ net.bluemind.commons.ui.closure,
+ com.google.gwt.user,
+ net.bluemind.ui.banner,
  net.bluemind.restbus.api.gwt,
+ net.bluemind.core.commons.gwt,
  net.bluemind.core.commons
 Web-Resources: web-resources
 Web-Dependencies: net.bluemind.webmodules.vue

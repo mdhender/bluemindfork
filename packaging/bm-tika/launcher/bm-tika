@@ -27,10 +27,10 @@ pidfile=$1
 export DEFAULT_MEM=128
 export OOM="-XX:OnOutOfMemoryError=/usr/share/bm-tika/bin/oom_kill.sh"
 
-source ${curdir}/equinox-systemd.lib ${product}
+source ${curdir}/equinox-systemd.sh ${product}
 
 # they are created on start by tika java code
 rm -fr /var/spool/bm-tika/work/
 rm -fr /var/spool/bm-tika/cache/
 
-bm_equinox_run_server_appid ${curdir} ${appid}
+bm_equinox_run_server_appid ${curdir} ${appid} $@

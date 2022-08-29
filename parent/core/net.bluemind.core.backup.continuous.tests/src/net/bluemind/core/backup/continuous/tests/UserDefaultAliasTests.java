@@ -124,6 +124,7 @@ public class UserDefaultAliasTests {
 		JdbcTestHelper.getInstance().beforeTest();
 
 		this.cyrusIp = new BmConfIni().get("imap-role");
+		assertNotNull("cyrus ip address cannot be null", cyrusIp);
 
 		Server imapServer = Server.tagged(cyrusIp, "mail/imap");
 		NodeActivator.get(cyrusIp).executeCommand("rm -f /etc/cyrus-replication");

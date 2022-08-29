@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.webapp.root.js
 Bundle-SymbolicName: net.bluemind.webapp.root.js;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.webmodule
 Web-Resources: web-resources
 Web-Dependencies: net.bluemind.webmodules.vue,

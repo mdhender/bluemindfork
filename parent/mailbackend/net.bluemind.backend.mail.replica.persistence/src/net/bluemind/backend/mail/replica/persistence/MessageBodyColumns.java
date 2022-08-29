@@ -19,6 +19,7 @@ package net.bluemind.backend.mail.replica.persistence;
 
 import java.sql.Array;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -107,7 +108,8 @@ public class MessageBodyColumns {
 				statement.setString(index++, value.messageId);
 				statement.setArray(index++,
 						con.createArrayOf("text", value.references == null ? null : value.references.toArray()));
-				statement.setTimestamp(index++, new Timestamp(value.date == null ? 0 : value.date.getTime()));
+				statement.setTimestamp(index++, value.date == null ? new Timestamp(new Date(0).getTime())
+						: Timestamp.from(value.date.toInstant()));
 				statement.setInt(index++, value.size);
 				statement.setString(index++, value.preview);
 				statement.setInt(index++, value.bodyVersion);

@@ -14,6 +14,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.stateobserver,
  net.bluemind.system.api,
  net.bluemind.network.topology
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.ysnp.bmcore

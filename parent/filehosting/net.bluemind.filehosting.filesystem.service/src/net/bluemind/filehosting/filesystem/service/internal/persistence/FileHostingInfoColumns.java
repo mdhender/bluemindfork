@@ -36,7 +36,7 @@ public class FileHostingInfoColumns {
 	public static FileHostingStore.StatementValues<FileHostingEntityInfo> statementValues() {
 		return (con, statement, index, currentRow, u) -> {
 			statement.setString(index++, u.path);
-			statement.setTimestamp(index++, new Timestamp(u.created.getTime()));
+			statement.setTimestamp(index++, Timestamp.from(u.created.toInstant()));
 			statement.setString(index++, u.owner);
 			return index;
 		};
@@ -45,7 +45,7 @@ public class FileHostingInfoColumns {
 	public static FileHostingStore.EntityPopulator<FileHostingEntityInfo> populator() {
 		return (rs, index, value) -> {
 			value.path = rs.getString(index++);
-			value.created = new Date(rs.getTimestamp(index++).getTime());
+			value.created = Date.from(rs.getTimestamp(index++).toInstant());
 			value.owner = rs.getString(index++);
 			return index;
 		};

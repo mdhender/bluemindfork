@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.icalendar.parser
 Bundle-SymbolicName: net.bluemind.icalendar.parser
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.calendar.api,
  org.mnode.ical4j,
  net.bluemind.tag.api,
@@ -12,7 +12,7 @@ Require-Bundle: net.bluemind.calendar.api,
  slf4j.api,
  net.bluemind.lib.ical4j,
  net.bluemind.core.container.api;bundle-version="4.1.0",
- org.apache.commons.lang,
+ org.apache.commons.lang3,
  net.bluemind.attachment.api,
  net.bluemind.core.context,
  net.bluemind.core.rest,

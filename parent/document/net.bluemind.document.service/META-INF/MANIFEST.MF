@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.document.service
 Bundle-SymbolicName: net.bluemind.document.service;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.rest,
  net.bluemind.document.api,
  net.bluemind.core.commons;bundle-version="1.0.0",

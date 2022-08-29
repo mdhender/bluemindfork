@@ -33,7 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.message.BasicBodyFactory;
 import org.junit.After;

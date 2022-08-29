@@ -19,7 +19,7 @@
 package net.bluemind.signature.commons.action;
 
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.sanitizer.ISanitizer;
@@ -41,10 +41,8 @@ public class SignatureActionSanitizer implements ISanitizer<MailRuleActionAssign
 	}
 
 	private String sanitize(String html) {
-		return Jsoup.clean(html, Whitelist.relaxed().addTags("style").addAttributes(":all", "style")
-				.addProtocols("img", "src", "data")
-				.addProtocols("a", "href", "#")
-				.addProtocols("a", "href", "callto"));
+		return Jsoup.clean(html, Safelist.relaxed().addTags("style").addAttributes(":all", "style")
+				.addProtocols("img", "src", "data").addProtocols("a", "href", "#").addProtocols("a", "href", "callto"));
 	}
 
 }

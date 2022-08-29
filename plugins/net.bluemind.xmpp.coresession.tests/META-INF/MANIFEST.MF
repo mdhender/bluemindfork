@@ -4,7 +4,7 @@ Bundle-Name: Tests
 Bundle-SymbolicName: net.bluemind.xmpp.coresession.tests
 Bundle-Version: 4.1.0.qualifier
 Fragment-Host: net.bluemind.xmpp.coresession;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper,
  net.bluemind.user.service,

@@ -14,7 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.systemd.notify,
  com.github.ben-manes.caffeine,
  net.bluemind.tika;bundle-version="2.2.1"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Automatic-Module-Name: net.bluemind.tika.server

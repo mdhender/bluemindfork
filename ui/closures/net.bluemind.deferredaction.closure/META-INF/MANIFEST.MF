@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.deferredaction.closure
 Bundle-SymbolicName: net.bluemind.deferredaction.closure;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ClassPath: js.jar
 Closure-Bundle-Type: Library
 Require-Bundle: net.bluemind.container.closure;bundle-version="1.0.0",

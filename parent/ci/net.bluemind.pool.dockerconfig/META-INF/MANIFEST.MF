@@ -4,7 +4,7 @@ Bundle-Name: Dockerconfig
 Bundle-SymbolicName: net.bluemind.pool.dockerconfig;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Fragment-Host: net.bluemind.pool
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Eclipse-PatchFragment: true
 Bundle-ClassPath: patch.jar
 Require-Bundle: net.bluemind.dockerclient;bundle-version="1.0.0",

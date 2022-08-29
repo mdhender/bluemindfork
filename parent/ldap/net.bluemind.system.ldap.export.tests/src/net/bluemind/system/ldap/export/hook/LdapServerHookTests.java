@@ -25,7 +25,6 @@ import static org.junit.Assert.fail;
 import java.util.Collections;
 import java.util.UUID;
 
-import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -36,6 +35,7 @@ import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.api.ldap.model.message.Response;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
+import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -147,7 +147,7 @@ public class LdapServerHookTests {
 
 			assertEquals(MessageTypeEnum.SEARCH_RESULT_ENTRY, response.getType());
 
-			Entry entry = ((SearchResultEntryDecorator) response).getEntry();
+			Entry entry = ((SearchResultEntry) response).getEntry();
 			assertTrue(entry.containsAttribute("dc"));
 			assertEquals("local", entry.get("dc").getString());
 
@@ -209,7 +209,7 @@ public class LdapServerHookTests {
 
 			assertEquals(MessageTypeEnum.SEARCH_RESULT_ENTRY, response.getType());
 
-			Entry entry = ((SearchResultEntryDecorator) response).getEntry();
+			Entry entry = ((SearchResultEntry) response).getEntry();
 			assertTrue(entry.containsAttribute("objectclass"));
 			assertTrue(entry.get("objectClass").contains("organizationalUnit"));
 
@@ -238,7 +238,7 @@ public class LdapServerHookTests {
 
 			assertEquals(MessageTypeEnum.SEARCH_RESULT_ENTRY, response.getType());
 
-			Entry entry = ((SearchResultEntryDecorator) response).getEntry();
+			Entry entry = ((SearchResultEntry) response).getEntry();
 			assertTrue(entry.containsAttribute("objectclass"));
 			assertTrue(entry.get("objectClass").contains("organizationalUnit"));
 
@@ -268,7 +268,7 @@ public class LdapServerHookTests {
 
 			assertEquals(MessageTypeEnum.SEARCH_RESULT_ENTRY, response.getType());
 
-			Entry entry = ((SearchResultEntryDecorator) response).getEntry();
+			Entry entry = ((SearchResultEntry) response).getEntry();
 			assertTrue(entry.containsAttribute("objectclass"));
 			assertTrue(entry.get("objectClass").contains("bmDomain", "dcObject"));
 

@@ -21,7 +21,7 @@ Require-Bundle: net.bluemind.lib.vertx;bundle-version="1.0.0",
  net.bluemind.core.rest,
  net.bluemind.authentication.api,
  org.junit
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.eas.testhelper.device,
  net.bluemind.eas.testhelper.mock,

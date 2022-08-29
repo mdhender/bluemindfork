@@ -1,7 +1,0 @@
-software=bm
-release=3.1
-releaseName=master
-junitVm="ju-${releaseName}.blue-mind.loc"
-junitHostVm="ju-host-${releaseName}.blue-mind.loc"
-DEBFULLNAME="BM BackOffice"
-DEBEMAIL="no-reply@blue-mind.net"

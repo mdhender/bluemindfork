@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.google.common.base.Strings;
 
@@ -160,7 +160,7 @@ public class ResourceTemplateHelper implements IResourceTemplateHelper {
 
 		// some variables like ${étage} may be broken due to HTML escaping:
 		// ${&eacute;tage}
-		return StringEscapeUtils.unescapeHtml(result);
+		return StringEscapeUtils.unescapeHtml4(result);
 	}
 
 	/**

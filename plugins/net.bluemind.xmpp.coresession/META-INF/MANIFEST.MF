@@ -25,7 +25,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.domain.api,
  net.bluemind.network.topology,
  com.github.ben-manes.caffeine
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Service-Component: org.jivesoftware.smackx/smack-extensions-components.xml
 Automatic-Module-Name: net.bluemind.xmpp.coresession

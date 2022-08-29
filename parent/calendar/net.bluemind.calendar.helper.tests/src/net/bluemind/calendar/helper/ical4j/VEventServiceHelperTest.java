@@ -28,6 +28,8 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -66,6 +68,7 @@ import net.fortuna.ical4j.model.property.Method;
 import net.fortuna.ical4j.util.Configurator;
 
 public class VEventServiceHelperTest {
+
 	@Test
 	public void icsToVEventWithMultipleVCalendarsBM8890() throws IOException, ServerFault {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader()
@@ -80,7 +83,7 @@ public class VEventServiceHelperTest {
 	@Test
 	public void icsToVEventWithEtcGMT() throws IOException, ServerFault {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("invite.ics");
-		String ics = IOUtils.toString(in);
+		String ics = IOUtils.toString(in, Charset.defaultCharset());
 		in.close();
 		List<ItemValue<VEventSeries>> events = toEvents(ics);
 
@@ -97,7 +100,7 @@ public class VEventServiceHelperTest {
 	@Test
 	public void icsWithSlashesTest() throws IOException, ServerFault {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("uid_containing_slash.ics");
-		String ics = IOUtils.toString(in);
+		String ics = IOUtils.toString(in, Charset.defaultCharset());
 		in.close();
 		List<ItemValue<VEventSeries>> events = toEvents(ics);
 
@@ -111,7 +114,7 @@ public class VEventServiceHelperTest {
 	@Test
 	public void icsToVEventWithUnkownTz() throws IOException, ServerFault {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("unknowntz.ics");
-		String ics = IOUtils.toString(in);
+		String ics = IOUtils.toString(in, Charset.defaultCharset());
 		in.close();
 		List<ItemValue<VEventSeries>> events = toEvents(ics);
 
@@ -139,7 +142,7 @@ public class VEventServiceHelperTest {
 	@Test
 	public void icsToVEventWithGlobalX_WR_TimeZone() throws IOException, ServerFault {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("event2.ics");
-		String ics = IOUtils.toString(in);
+		String ics = IOUtils.toString(in, Charset.defaultCharset());
 		in.close();
 		List<ItemValue<VEventSeries>> events = toEvents(ics);
 
@@ -165,7 +168,7 @@ public class VEventServiceHelperTest {
 	@Test
 	public void icsToVEvent() throws IOException, ServerFault {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("event.ics");
-		String ics = IOUtils.toString(in);
+		String ics = IOUtils.toString(in, Charset.defaultCharset());
 		in.close();
 
 		List<ItemValue<VEventSeries>> events = toEvents(ics);
@@ -187,20 +190,20 @@ public class VEventServiceHelperTest {
 		assertEquals("Lorem ipsum", event.value.main.description);
 		assertEquals("Toulouse", event.value.main.location);
 		assertEquals(42, event.value.main.priority.intValue());
-		assertEquals(VEvent.Classification.Private, event.value.main.classification);
+		assertEquals(ICalendarElement.Classification.Private, event.value.main.classification);
 		assertEquals(VEvent.Transparency.Opaque, event.value.main.transparency);
 		assertEquals(2, event.value.main.attendees.size());
 		assertEquals(1, event.value.main.alarm.size());
 
 		boolean johnFound = false;
 		boolean janeFound = false;
-		for (VEvent.Attendee attendee : event.value.main.attendees) {
+		for (ICalendarElement.Attendee attendee : event.value.main.attendees) {
 			if ("john.bang@bm.lan".equals(attendee.mailto)) {
 				johnFound = true;
-				assertEquals(VEvent.CUType.Individual, attendee.cutype);
+				assertEquals(ICalendarElement.CUType.Individual, attendee.cutype);
 				assertNull(attendee.member);
-				assertEquals(VEvent.Role.Chair, attendee.role);
-				assertEquals(VEvent.ParticipationStatus.Accepted, attendee.partStatus);
+				assertEquals(ICalendarElement.Role.Chair, attendee.role);
+				assertEquals(ICalendarElement.ParticipationStatus.Accepted, attendee.partStatus);
 				assertTrue(attendee.rsvp);
 				assertNull(attendee.delTo);
 				assertNull(attendee.delFrom);
@@ -210,10 +213,10 @@ public class VEventServiceHelperTest {
 				assertNull(attendee.lang);
 			} else if ("jane.bang@bm.lan".equals(attendee.mailto)) {
 				janeFound = true;
-				assertEquals(VEvent.CUType.Individual, attendee.cutype);
+				assertEquals(ICalendarElement.CUType.Individual, attendee.cutype);
 				assertNull(attendee.member);
-				assertEquals(VEvent.Role.RequiredParticipant, attendee.role);
-				assertEquals(VEvent.ParticipationStatus.NeedsAction, attendee.partStatus);
+				assertEquals(ICalendarElement.Role.RequiredParticipant, attendee.role);
+				assertEquals(ICalendarElement.ParticipationStatus.NeedsAction, attendee.partStatus);
 				assertFalse(attendee.rsvp);
 				assertNull(attendee.delTo);
 				assertNull(attendee.delFrom);
@@ -252,8 +255,8 @@ public class VEventServiceHelperTest {
 
 		assertNotNull(event.value.main.rrule);
 		ZonedDateTime until = ZonedDateTime.of(2022, 12, 25, 13, 30, 0, 0, ZoneId.of("UTC"));
-		VEvent.RRule rrule = event.value.main.rrule;
-		assertEquals(VEvent.RRule.Frequency.WEEKLY, rrule.frequency);
+		ICalendarElement.RRule rrule = event.value.main.rrule;
+		assertEquals(ICalendarElement.RRule.Frequency.WEEKLY, rrule.frequency);
 		assertNull(rrule.count);
 		assertEquals(2, rrule.interval.intValue());
 		assertEquals(until.toOffsetDateTime(), new BmDateTimeWrapper(rrule.until).toDateTime().toOffsetDateTime());
@@ -276,10 +279,10 @@ public class VEventServiceHelperTest {
 
 		assertNotNull(rrule.byDay);
 		assertEquals(4, rrule.byDay.size());
-		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.MO));
-		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.TU));
-		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.TH));
-		assertTrue(rrule.byDay.contains(VEvent.RRule.WeekDay.FR));
+		assertTrue(rrule.byDay.contains(ICalendarElement.RRule.WeekDay.MO));
+		assertTrue(rrule.byDay.contains(ICalendarElement.RRule.WeekDay.TU));
+		assertTrue(rrule.byDay.contains(ICalendarElement.RRule.WeekDay.TH));
+		assertTrue(rrule.byDay.contains(ICalendarElement.RRule.WeekDay.FR));
 
 		assertNotNull(rrule.byMonthDay);
 		assertEquals(2, rrule.byMonthDay.size());
@@ -355,7 +358,7 @@ public class VEventServiceHelperTest {
 		event.priority = 1;
 		event.organizer = new VEvent.Organizer(null, "david@bm.lan");
 		event.status = ICalendarElement.Status.NeedsAction;
-		Attendee attendee = VEvent.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
+		Attendee attendee = ICalendarElement.Attendee.create(CUType.Individual, "", Role.RequiredParticipant,
 				ParticipationStatus.NeedsAction, false, "u2", "", "", "", "", "", "u2", "u2@test.lan");
 		attendee.responseComment = "this a a note";
 		event.attendees = new ArrayList<Attendee>(1);
@@ -375,7 +378,7 @@ public class VEventServiceHelperTest {
 	@Test
 	public void notAbsoluteURI() throws IOException, ServerFault {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("not_absolute_uri.ics");
-		String ics = IOUtils.toString(in);
+		String ics = IOUtils.toString(in, Charset.defaultCharset());
 		in.close();
 		List<ItemValue<VEventSeries>> events = toEvents(ics);
 
@@ -428,8 +431,8 @@ public class VEventServiceHelperTest {
 		series.main.dtstart = new BmDateTime("1983-02-13T21:00:00+01:00", null, Precision.DateTime);
 		series.main.dtend = new BmDateTime("1983-02-13T22:00:00+01:00", null, Precision.DateTime);
 
-		VEvent.RRule rrule = new VEvent.RRule();
-		rrule.frequency = VEvent.RRule.Frequency.WEEKLY;
+		ICalendarElement.RRule rrule = new VEvent.RRule();
+		rrule.frequency = ICalendarElement.RRule.Frequency.WEEKLY;
 		rrule.interval = 1;
 		series.main.rrule = rrule;
 
@@ -461,7 +464,7 @@ public class VEventServiceHelperTest {
 	public void doNotFailOnInvalidGEO() throws IOException {
 		try (InputStream in = VEventServiceHelperTest.class.getClassLoader()
 				.getResourceAsStream("event_invalid_geo.ics")) {
-			String ics = IOUtils.toString(in);
+			String ics = IOUtils.toString(in, Charset.defaultCharset());
 			toEvents(ics);
 		} catch (Exception e) {
 			fail("should not fail " + e.getMessage());
@@ -478,7 +481,7 @@ public class VEventServiceHelperTest {
 		System.err.println(rawOffset);
 
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("event_1601.ics");
-		String ics = IOUtils.toString(in);
+		String ics = IOUtils.toString(in, Charset.defaultCharset());
 		in.close();
 
 		toEvents(ics);
@@ -489,7 +492,7 @@ public class VEventServiceHelperTest {
 	@Test
 	public void counter_iOS() throws Exception {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("counter_ios.ics");
-		String ics = IOUtils.toString(in);
+		String ics = IOUtils.toString(in, Charset.defaultCharset());
 		in.close();
 
 		List<ItemValue<VEventSeries>> events = toEvents(ics);
@@ -508,7 +511,7 @@ public class VEventServiceHelperTest {
 	@Test
 	public void allDayAlarmTrigger() throws Exception {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("alldayalarm_trigger.ics");
-		String ics = IOUtils.toString(in);
+		String ics = IOUtils.toString(in, StandardCharsets.UTF_8);
 		in.close();
 
 		List<ItemValue<VEventSeries>> events = toEvents(ics);
@@ -516,7 +519,8 @@ public class VEventServiceHelperTest {
 		assertEquals(1, events.size());
 		ItemValue<VEventSeries> evt = events.get(0);
 
-		assertEquals(new Integer(86400), evt.value.main.alarm.get(0).trigger);
+		// alarm triggered a day before
+		assertEquals(Integer.valueOf(86400), evt.value.main.alarm.get(0).trigger);
 	}
 
 	@Test
@@ -570,7 +574,7 @@ public class VEventServiceHelperTest {
 
 	private List<ItemValue<VEventSeries>> toEvents(String ics) {
 		List<ItemValue<VEventSeries>> ret = new LinkedList<>();
-		Consumer<ItemValue<VEventSeries>> consumer = series -> ret.add(series);
+		Consumer<ItemValue<VEventSeries>> consumer = ret::add;
 		VEventServiceHelper.parseCalendar(new ByteArrayInputStream(ics.getBytes()), Optional.empty(),
 				Collections.emptyList(), consumer);
 		return ret;

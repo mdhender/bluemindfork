@@ -4,6 +4,6 @@ Bundle-Name: Context
 Bundle-SymbolicName: net.bluemind.core.context;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.core.context
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: com.google.guava;bundle-version="19.0.0"
 Automatic-Module-Name: net.bluemind.core.context

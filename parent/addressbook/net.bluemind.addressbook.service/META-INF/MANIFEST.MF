@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Services
 Bundle-SymbolicName: net.bluemind.addressbook.service;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.addressbook.api;bundle-version="1.0.0",
  net.bluemind.core.container.persistence;bundle-version="1.0.0",
  net.bluemind.core.container.service;bundle-version="1.0.0",
@@ -33,9 +33,8 @@ Require-Bundle: net.bluemind.addressbook.api;bundle-version="1.0.0",
  net.bluemind.document.persistence,
  net.bluemind.core.validator,
  net.bluemind.document.storage,
- org.apache.commons.lang,
+ org.apache.commons.lang3,
  net.bluemind.role.api,
- net.bluemind.user.api,
  net.bluemind.user.api,
  net.bluemind.core.container.hierarchy.hook,
  net.bluemind.user.persistence,

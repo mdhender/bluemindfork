@@ -11,6 +11,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.task.service,
  slf4j.api,
  net.bluemind.user.persistence
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.core.container.subscriptions.repair
 Bundle-ActivationPolicy: lazy

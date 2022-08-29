@@ -5,9 +5,10 @@ Bundle-SymbolicName: net.freeutils.tnef
 Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.freeutils.tnef.Activator
 Require-Bundle: org.eclipse.core.runtime,
- com.sun.mail.javax.mail;bundle-version="1.5.2"
+ com.sun.mail.jakarta.mail,
+ javax.activation;bundle-version="1.2.2"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ClassPath: .
 Export-Package: net.freeutils.tnef
 Automatic-Module-Name: net.freeutils.tnef

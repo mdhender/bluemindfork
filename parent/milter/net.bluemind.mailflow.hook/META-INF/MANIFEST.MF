@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.mailflow.hook
 Bundle-SymbolicName: net.bluemind.mailflow.hook;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Automatic-Module-Name: net.bluemind.mailflow.hook
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.rest,
  net.bluemind.core.container.persistence,
  net.bluemind.mailflow.api

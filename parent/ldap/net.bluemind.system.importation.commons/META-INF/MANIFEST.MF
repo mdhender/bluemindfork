@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.system.importation.commons
 Bundle-SymbolicName: net.bluemind.system.importation.commons;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons,
  net.bluemind.core.container.api,
  net.bluemind.user.api,
@@ -21,7 +21,7 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.addressbook.api,
  net.bluemind.authentication.provider,
  net.bluemind.domain.api,
- org.apache.commons.lang,
+ org.apache.commons.lang3,
  slf4j.api,
  com.github.ben-manes.caffeine
 Export-Package: net.bluemind.system.importation.commons,

@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 
 import com.google.common.collect.ImmutableList;
 

@@ -18,6 +18,7 @@
 package net.bluemind.backend.mail.replica.persistence;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -96,12 +97,12 @@ public class MailboxReplicaColumns {
 				statement.setLong(index++, value.lastUid);
 				statement.setLong(index++, value.highestModSeq);
 				statement.setLong(index++, value.recentUid);
-				statement.setTimestamp(index++,
-						new Timestamp(value.recentTime == null ? 0 : value.recentTime.getTime()));
-				statement.setTimestamp(index++,
-						new Timestamp(value.lastAppendDate == null ? 0 : value.lastAppendDate.getTime()));
-				statement.setTimestamp(index++,
-						new Timestamp(value.pop3LastLogin == null ? 0 : value.pop3LastLogin.getTime()));
+				statement.setTimestamp(index++, value.recentTime == null ? new Timestamp(new Date(0).getTime())
+						: Timestamp.from(value.recentTime.toInstant()));
+				statement.setTimestamp(index++, value.lastAppendDate == null ? new Timestamp(new Date(0).getTime())
+						: Timestamp.from(value.lastAppendDate.toInstant()));
+				statement.setTimestamp(index++, value.pop3LastLogin == null ? new Timestamp(new Date(0).getTime())
+						: Timestamp.from(value.pop3LastLogin.toInstant()));
 				statement.setLong(index++, value.uidValidity);
 				statement.setString(index++, acls(value).encode());
 				statement.setString(index++, value.options);

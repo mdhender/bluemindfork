@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.cti.api.php
 Bundle-SymbolicName: net.bluemind.cti.api.php
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons.php;bundle-version="1.0.0",
  net.bluemind.cti.api;bundle-version="1.0.0"
 Automatic-Module-Name: net.bluemind.cti.api.php

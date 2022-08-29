@@ -42,13 +42,13 @@ public final class MailFilterVacationColumns {
 				statement.setBoolean(index++, value.enabled);
 
 				if (value.start != null) {
-					statement.setTimestamp(index++, new Timestamp(value.start.getTime()));
+					statement.setTimestamp(index++, Timestamp.from(value.start.toInstant()));
 				} else {
 					statement.setNull(index++, Types.TIMESTAMP);
 				}
 
 				if (value.end != null) {
-					statement.setTimestamp(index++, new Timestamp(value.end.getTime()));
+					statement.setTimestamp(index++, Timestamp.from(value.end.toInstant()));
 				} else {
 					statement.setNull(index++, Types.TIMESTAMP);
 				}
@@ -70,12 +70,12 @@ public final class MailFilterVacationColumns {
 				value.enabled = rs.getBoolean(index++);
 				Timestamp start = rs.getTimestamp(index++);
 				if (start != null) {
-					value.start = new Date(start.getTime());
+					value.start = Date.from(start.toInstant());
 				}
 
 				Timestamp end = rs.getTimestamp(index++);
 				if (end != null) {
-					value.end = new Date(end.getTime());
+					value.end = Date.from(end.toInstant());
 				}
 
 				value.subject = rs.getString(index++);

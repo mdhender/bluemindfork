@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.xivo.system
 Bundle-SymbolicName: net.bluemind.xivo.system;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.xivo.system
 Require-Bundle: net.bluemind.system.service,

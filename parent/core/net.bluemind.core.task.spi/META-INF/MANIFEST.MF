@@ -8,7 +8,7 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  com.google.guava
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.core.task.spi
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.task.service

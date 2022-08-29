@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.server.persistence
 Bundle-SymbolicName: net.bluemind.server.persistence;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.server.persistence
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.core.container.persistence;bundle-version="1.0.0",
  net.bluemind.server.api;bundle-version="1.0.0",

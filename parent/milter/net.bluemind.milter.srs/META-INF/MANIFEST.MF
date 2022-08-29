@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.milter.srs;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.milter.srs
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: com.google.guava,
  slf4j.api,
  net.bluemind.config,

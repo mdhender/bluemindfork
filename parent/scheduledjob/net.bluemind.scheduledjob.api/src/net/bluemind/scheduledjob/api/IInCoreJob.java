@@ -20,7 +20,7 @@ package net.bluemind.scheduledjob.api;
 
 import java.util.Set;
 
-import javax.ws.rs.QueryParam;
+import jakarta.ws.rs.QueryParam;
 
 import net.bluemind.core.api.fault.ServerFault;
 

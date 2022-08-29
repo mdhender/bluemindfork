@@ -4,10 +4,10 @@ Bundle-Name: Api
 Bundle-SymbolicName: net.bluemind.directory.api
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.directory.api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.container.api;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.addressbook.api,
- javax.validation.api;bundle-version="1.0.0",
+ javax.validation.api,
  net.bluemind.server.api;bundle-version="4.1.0"
 Automatic-Module-Name: net.bluemind.directory.api

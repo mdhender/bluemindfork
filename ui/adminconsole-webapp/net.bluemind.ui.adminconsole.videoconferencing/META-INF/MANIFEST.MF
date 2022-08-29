@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.ui.adminconsole.videoconferencing;singleton:=t
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
 Automatic-Module-Name: net.bluemind.ui.adminconsole.videoconferencing
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: com.google.gwt.user;resolution:=optional,
  net.bluemind.core.commons.gwt;visibility:=reexport,
  net.bluemind.ui.gwtcommon.forms;visibility:=reexport,

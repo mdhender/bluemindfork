@@ -46,8 +46,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.xml.bind.DatatypeConverter;
-
+import jakarta.xml.bind.DatatypeConverter;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEvent.Transparency;
 import net.bluemind.calendar.api.VEventCounter;
@@ -154,7 +153,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 				}
 				// BM-10430
 				if (method != Method.REPLY) {
-					PropertyList listAttendees = icalEvent.getProperties(Property.ATTENDEE);
+					PropertyList<Property> listAttendees = icalEvent.getProperties(Property.ATTENDEE);
 					if (listAttendees != null && !listAttendees.isEmpty()) {
 						for (@SuppressWarnings("unchecked")
 						Iterator<Property> it = listAttendees.iterator(); it.hasNext();) {
@@ -480,7 +479,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		net.fortuna.ical4j.model.component.VEvent ret = new net.fortuna.ical4j.model.component.VEvent();
 		parseICalendarElement(uid, ret, vevent);
 
-		PropertyList properties = ret.getProperties();
+		PropertyList<Property> properties = ret.getProperties();
 		properties.add(Version.VERSION_2_0);
 
 		// DTEND
@@ -500,12 +499,12 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		return ret;
 	}
 
-	private static void appendXMozProperties(PropertyList properties) {
+	private static void appendXMozProperties(PropertyList<Property> properties) {
 		XProperty p = new XProperty("X-MOZ-LASTACK", new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'").format(new Date()));
 		properties.add(p);
 	}
 
-	private static void appendXMsProperties(PropertyList properties, VEvent vevent) {
+	private static void appendXMsProperties(PropertyList<Property> properties, VEvent vevent) {
 
 		if (vevent.transparency != null) {
 			XProperty busyStatus = new XProperty("X-MICROSOFT-CDO-BUSYSTATUS",

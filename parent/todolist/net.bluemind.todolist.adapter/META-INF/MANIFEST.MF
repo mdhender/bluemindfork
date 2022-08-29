@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.todolist.adapter
 Bundle-SymbolicName: net.bluemind.todolist.adapter
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: slf4j.api,
  net.bluemind.lib.ical4j;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.todolist.api;bundle-version="1.0.0",

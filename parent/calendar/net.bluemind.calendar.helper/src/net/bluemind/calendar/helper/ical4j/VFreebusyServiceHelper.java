@@ -31,6 +31,7 @@ import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.CUType;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Period;
+import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.component.VFreeBusy;
 import net.fortuna.ical4j.model.parameter.FbType;
@@ -47,7 +48,7 @@ public class VFreebusyServiceHelper {
 	public static String asIcs(VFreebusy fb) {
 		VFreeBusy vfreebusy = new VFreeBusy();
 
-		PropertyList properties = vfreebusy.getProperties();
+		PropertyList<Property> properties = vfreebusy.getProperties();
 
 		net.fortuna.ical4j.model.DateTime ical4jDtStart = convertToUtcIcsDate(fb.dtstart);
 		properties.add(new DtStart(ical4jDtStart));
@@ -75,7 +76,7 @@ public class VFreebusyServiceHelper {
 
 		VFreeBusy vfreebusy = new VFreeBusy();
 
-		PropertyList properties = vfreebusy.getProperties();
+		PropertyList<Property> properties = vfreebusy.getProperties();
 
 		net.fortuna.ical4j.model.DateTime ical4jDtStart = convertToUtcIcsDate(fb.dtstart);
 		properties.add(new DtStart(ical4jDtStart));
@@ -120,7 +121,7 @@ public class VFreebusyServiceHelper {
 	}
 
 	private static Type getFreebusyType(VEvent event, String freebusyOwner) {
-		if (event.transparency == VEvent.Transparency.Opaque ) {
+		if (event.transparency == VEvent.Transparency.Opaque) {
 			return getTypeForOpaque(event, freebusyOwner);
 		} else {
 			return getTypeForTransparent(event, freebusyOwner);
@@ -135,7 +136,7 @@ public class VFreebusyServiceHelper {
 				}
 				break;
 			}
-		}		
+		}
 		return Type.FREE;
 	}
 

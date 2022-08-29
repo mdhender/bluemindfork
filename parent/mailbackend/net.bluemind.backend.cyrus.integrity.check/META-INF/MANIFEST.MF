@@ -15,6 +15,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.mailbox.api;visibility:=reexport,
  net.bluemind.system.validation,
  net.bluemind.network.topology
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.backend.cyrus.integrity.check
 Export-Package: net.bluemind.backend.cyrus.integrity.check

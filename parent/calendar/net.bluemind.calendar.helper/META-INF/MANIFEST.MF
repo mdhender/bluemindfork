@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.calendar.helper
 Bundle-SymbolicName: net.bluemind.calendar.helper
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: BlueMind
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.freemarker.freemarker;bundle-version="2.3.20",
  slf4j.api,
  net.bluemind.calendar.api,
@@ -15,7 +15,7 @@ Require-Bundle: org.freemarker.freemarker;bundle-version="2.3.20",
  net.bluemind.core.context,
  net.bluemind.mime4j.common,
  net.bluemind.common.freemarker;bundle-version="4.1.0",
- org.apache.commons.lang,
+ org.apache.commons.lang3,
  net.bluemind.icalendar.parser,
  net.bluemind.attachment.api,
  net.bluemind.system.api,
@@ -23,8 +23,9 @@ Require-Bundle: org.freemarker.freemarker;bundle-version="2.3.20",
  net.bluemind.utils,
  net.bluemind.core.sendmail,
  net.bluemind.mailbox.api,
- com.sun.mail.javax.mail,
+ com.sun.mail.jakarta.mail,
  org.asynchttpclient.async-http-client,
+ jakarta.xml.bind-api,
  net.bluemind.videoconferencing.utils
 Export-Package: net.bluemind.calendar,
  net.bluemind.calendar.helper.ical4j,

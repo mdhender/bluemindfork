@@ -8,7 +8,7 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.ui.banner,
  net.bluemind.webmodules.webapp
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.ui.metrics.application
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: OSGI/l10n/bundle

@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>net.bluemind</groupId>
@@ -10,9 +10,9 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>net.bluemind.resource.api</module>
-		<module>net.bluemind.resource.sqlschema</module>		
+		<module>net.bluemind.resource.sqlschema</module>
 		<module>net.bluemind.resource.persistence</module>
-		<module>net.bluemind.resource.persistence.tests</module>	
+		<module>net.bluemind.resource.persistence.tests</module>
 		<module>net.bluemind.resource.service</module>
 		<module>net.bluemind.resource.service.tests</module>
 		<module>net.bluemind.resource.hook.ics</module>
@@ -22,5 +22,4 @@
 		<module>net.bluemind.resource.helper</module>
 		<module>net.bluemind.resource.hook</module>
 	</modules>
-
 </project>

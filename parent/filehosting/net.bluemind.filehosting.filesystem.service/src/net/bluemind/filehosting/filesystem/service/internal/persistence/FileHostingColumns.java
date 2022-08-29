@@ -49,13 +49,13 @@ public class FileHostingColumns {
 			if (null == u.expirationDate) {
 				statement.setTimestamp(index++, null);
 			} else {
-				statement.setTimestamp(index++, new Timestamp(u.expirationDate.getTime()));
+				statement.setTimestamp(index++, Timestamp.from(u.expirationDate.toInstant()));
 			}
 			statement.setInt(index++, u.accessCount);
 			if (null == u.lastAccess) {
 				u.lastAccess = new Date();
 			}
-			statement.setTimestamp(index++, new Timestamp(u.lastAccess.getTime()));
+			statement.setTimestamp(index++, Timestamp.from(u.lastAccess.toInstant()));
 			return index;
 		};
 	}
@@ -70,10 +70,10 @@ public class FileHostingColumns {
 			value.downloadLimit = rs.getInt(index++);
 			Timestamp timestamp = rs.getTimestamp(index++);
 			if (null != timestamp) {
-				value.expirationDate = new Date(timestamp.getTime());
+				value.expirationDate = Date.from(timestamp.toInstant());
 			}
 			value.accessCount = rs.getInt(index++);
-			value.lastAccess = new Date(rs.getTimestamp(index++).getTime());
+			value.lastAccess = Date.from(rs.getTimestamp(index++).toInstant());
 			return index;
 		};
 	}

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.backend.cyrus.bmgroups
 Bundle-SymbolicName: net.bluemind.backend.cyrus.bmgroups;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.container.api;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",

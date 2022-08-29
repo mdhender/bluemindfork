@@ -37,16 +37,12 @@ public class MAPIValue {
 	/**
 	 * Constructs a MAPIValue containing a given value.
 	 *
-	 * @param type
-	 *            the value type
-	 * @param data
-	 *            the TNEF stream containing the value
-	 * @param length
-	 *            the length of the value data (in bytes)
-	 * @throws IllegalArgumentException
-	 *             if type is invalid
-	 * @throws IOException
-	 *             if the stream end is reached, or if an I/O error occurs
+	 * @param type   the value type
+	 * @param data   the TNEF stream containing the value
+	 * @param length the length of the value data (in bytes)
+	 * @throws IllegalArgumentException if type is invalid
+	 * @throws IOException              if the stream end is reached, or if an I/O
+	 *                                  error occurs
 	 */
 	public MAPIValue(int type, RawInputStream data, int length) throws IOException {
 		if ((type & MAPIProp.MV_FLAG) != 0)
@@ -92,8 +88,7 @@ public class MAPIValue {
 	 * Gets the MAPIValue raw data.
 	 *
 	 * @return the MAPIValue raw data
-	 * @throws IOException
-	 *             if the stream end is reached, or if an I/O error occurs
+	 * @throws IOException if the stream end is reached, or if an I/O error occurs
 	 */
 	public RawInputStream getRawData() throws IOException {
 		return new RawInputStream(this.rawData);
@@ -119,13 +114,11 @@ public class MAPIValue {
 	}
 
 	/**
-	 * Returns the value encapsulated by this MAPIValue. The returned Object
-	 * should be cast into an appropriate class, according to the MAPIValue's
-	 * type.
+	 * Returns the value encapsulated by this MAPIValue. The returned Object should
+	 * be cast into an appropriate class, according to the MAPIValue's type.
 	 *
 	 * @return the value encapsulated by this MAPIValue
-	 * @throws IOException
-	 *             if the stream end is reached, or if an I/O error occurs
+	 * @throws IOException if the stream end is reached, or if an I/O error occurs
 	 */
 	public Object getValue() throws IOException {
 		Object o = null;
@@ -136,27 +129,27 @@ public class MAPIValue {
 
 		case MAPIProp.PT_SHORT:
 			// 2 bytes
-			o = new Short((short) ris.readU16());
+			o = Short.valueOf((short) ris.readU16());
 			break;
 
 		case MAPIProp.PT_INT:
 			// 4 bytes
-			o = new Integer((int) ris.readU32());
+			o = Integer.valueOf((int) ris.readU32());
 			break;
 
 		case MAPIProp.PT_BOOLEAN:
 			// 4 bytes
-			o = new Boolean(ris.readU32() != 0);
+			o = Boolean.valueOf(ris.readU32() != 0);
 			break;
 
 		case MAPIProp.PT_FLOAT:
 			// 4 bytes
-			o = new Float(Float.intBitsToFloat((int) ris.readU32()));
+			o = Float.valueOf(Float.intBitsToFloat((int) ris.readU32()));
 			break;
 
 		case MAPIProp.PT_ERROR:
 			// 4 bytes
-			o = new Integer((int) ris.readU32());
+			o = Integer.valueOf((int) ris.readU32());
 			break;
 
 		case MAPIProp.PT_APPTIME:
@@ -174,7 +167,7 @@ public class MAPIValue {
 
 		case MAPIProp.PT_DOUBLE:
 			// 8 bytes
-			o = new Double(Double.longBitsToDouble(ris.readU64()));
+			o = Double.valueOf(Double.longBitsToDouble(ris.readU64()));
 			break;
 
 		case MAPIProp.PT_CURRENCY:

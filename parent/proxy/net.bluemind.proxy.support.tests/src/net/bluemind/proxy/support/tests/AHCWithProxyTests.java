@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.security.cert.CertificateException;
+import java.security.cert.CertPathBuilderException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -206,7 +206,7 @@ public class AHCWithProxyTests {
 			while (last.getCause() != null) {
 				last = last.getCause();
 			}
-			assertTrue(last instanceof CertificateException);
+			assertTrue(last instanceof CertPathBuilderException);
 		}
 	}
 }

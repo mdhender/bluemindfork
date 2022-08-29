@@ -8,7 +8,7 @@ Require-Bundle: net.bluemind.core.container.api;bundle-version="4.1.0";visibilit
  com.google.guava;bundle-version="30.0.0",
  net.bluemind.eclipse.common,
  slf4j.api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.core.backup.continuous.api
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.backup.continuous.api

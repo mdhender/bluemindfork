@@ -23,19 +23,17 @@ public class CertificateUtils {
 	private static final String PK_SIGNATURE_BEGIN = "-----BEGIN PRIVATE KEY-----";
 	private static final String PK_SIGNATURE_END = "-----END PRIVATE KEY-----";
 
+	private CertificateUtils() {
+	}
+
 	public static String getCertCN(byte[] certFile) throws ServerFault {
 		CertificateFactory cf;
 		try {
-
 			cf = CertificateFactory.getInstance("X.509");
-
 			X509Certificate ca = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certFile));
 			LdapName ldapDN = new LdapName(ca.getSubjectDN().getName());
-			String cn = ldapDN.getRdn(ldapDN.size() - 1).getValue().toString();
-			return cn;
-		} catch (CertificateException e) {
-			throw new ServerFault(e);
-		} catch (InvalidNameException e) {
+			return ldapDN.getRdn(ldapDN.size() - 1).getValue().toString();
+		} catch (CertificateException | InvalidNameException e) {
 			throw new ServerFault(e);
 		}
 	}

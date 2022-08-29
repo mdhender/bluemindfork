@@ -34,8 +34,8 @@ import java.util.Optional;
 
 import javax.mail.internet.MimeUtility;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.james.mime4j.MimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -325,7 +325,7 @@ public class SieveWriter {
 			return not + " header " + type + " \"Subject\" \"" + value + "\"";
 		} else if (crit.equals("BODY")) {
 			return "anyof (" + not + " body :content \"text\" " + type + " \"" + value + "\", " + not
-					+ " body :content \"text\" " + type + " \"" + StringEscapeUtils.escapeHtml(value) + "\")";
+					+ " body :content \"text\" " + type + " \"" + StringEscapeUtils.escapeHtml4(value) + "\")";
 		} else if (!not.isEmpty()) {
 			return "exists \"" + crit + "\",\n\t" + not + " header " + type + " \"" + crit + "\" \"" + value + "\"";
 		} else {

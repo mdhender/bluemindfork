@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>net.bluemind</groupId>
@@ -10,76 +9,75 @@
 	<artifactId>net.bluemind.packaging</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-	  <module>bm-metrics-agent</module>
-	  <module>bm-core</module>
-	  <module>bm-eas</module>
-	  <module>bm-hps</module>
-	  <module>bm-lmtpd</module>
-	  <module>bm-milter</module>
-	  <module>bm-node</module>
-	  <module>bm-pimp</module>
-	  <module>bm-cli</module>
-	  <module>bm-tika</module>
-	  <module>bm-xivobridge</module>
-	  <module>bm-xmpp</module>
-	  <module>bm-ysnp</module>
-	  <module>bm-webserver</module>
-	  <module>bm-contact</module>
-	  <module>bm-todolist</module>
-	  <module>bm-push</module>
-	  <module>bm-default-app</module>
-      <module>bm-calendar</module>
-      <module>bm-chooser</module>
-	  <module>bm-settings</module>
-	  <module>bm-webmail</module>
-	  <module>bm-client-access</module>
-	  <module>bm-conf</module>
-	  <module>bm-cyrus</module>
-	  <module>bm-sds-proxy</module>
-	  <module>bm-forest-node</module>
-	  <module>bm-full</module>
-	  <module>bm-checks</module>
-	  <module>bm-ldap-role</module>
-	  <module>bm-mailbox-role</module>
-	  <module>bm-forest-node-role</module>
-	  <module>bm-edge-role</module>
-	  <module>bm-tick-full</module>
-	  <module>bm-tick-node</module>
-	  <module>bm-postfix</module>
-	  <module>bm-admin-console</module>
-	  <module>bm-im</module>
-	  <module>bm-plugin-core-ldap-import</module>
-	  <module>bm-plugin-core-ldap-export</module>
-	  <module>bm-plugin-admin-console-ldap-export</module>
-	  <module>bm-plugin-admin-console-ldap-import</module>
-	  <module>bm-plugin-admin-console-filehosting-settings</module>
-	  <module>bm-plugin-admin-console-password-sizestrength</module>
-	  <module>bm-plugin-webserver-filehosting</module>
-	  <module>bm-plugin-webserver-dav</module>
-	  <module>bm-plugin-webserver-cti</module>
-      <module>bm-plugin-core-cti</module>
-      <module>bm-plugin-core-cti-xivo</module>
-      <module>bm-plugin-core-cti-wazo</module>
-      <module>bm-plugin-core-filehosting-filesystem</module>
-      <module>bm-plugin-core-forest</module>
-      <module>bm-plugin-core-mailapp</module>
-      <module>bm-plugin-hps-kerberos</module>
-      <module>bm-plugin-hps-cas</module>
-      <module>python-bm-client</module>
-      <module>bm-plugin-core-password-bruteforce</module>
-      <module>bm-plugin-core-password-sizestrength</module>
-	  <module>bm-connector-thunderbird</module>
-	  <module>bm-maintenance-tools</module>
-	  <module>bm-plugin-admin-console-videoconferencing-jitsi</module>
-	  <module>bm-plugin-admin-console-videoconferencing-starleaf</module>
-	  <module>bm-plugin-admin-console-videoconferencing-bluemind</module>
-	  <module>bm-plugin-admin-console-videoconferencing-teams</module>
-	  <module>bm-plugin-core-videoconferencing-jitsi</module>
-	  <module>bm-plugin-core-videoconferencing-starleaf</module>
-	  <module>bm-plugin-core-videoconferencing-bluemind</module>
-	  <module>bm-plugin-core-videoconferencing-teams</module>
+		<module>bm-metrics-agent</module>
+		<module>bm-core</module>
+		<module>bm-eas</module>
+		<module>bm-hps</module>
+		<module>bm-lmtpd</module>
+		<module>bm-milter</module>
+		<module>bm-node</module>
+		<module>bm-pimp</module>
+		<module>bm-cli</module>
+		<module>bm-tika</module>
+		<module>bm-xivobridge</module>
+		<module>bm-xmpp</module>
+		<module>bm-ysnp</module>
+		<module>bm-webserver</module>
+		<module>bm-contact</module>
+		<module>bm-todolist</module>
+		<module>bm-push</module>
+		<module>bm-default-app</module>
+		<module>bm-calendar</module>
+		<module>bm-chooser</module>
+		<module>bm-settings</module>
+		<module>bm-webmail</module>
+		<module>bm-client-access</module>
+		<module>bm-conf</module>
+		<module>bm-cyrus</module>
+		<module>bm-sds-proxy</module>
+		<module>bm-forest-node</module>
+		<module>bm-full</module>
+		<module>bm-checks</module>
+		<module>bm-ldap-role</module>
+		<module>bm-mailbox-role</module>
+		<module>bm-forest-node-role</module>
+		<module>bm-edge-role</module>
+		<module>bm-tick-full</module>
+		<module>bm-tick-node</module>
+		<module>bm-postfix</module>
+		<module>bm-admin-console</module>
+		<module>bm-im</module>
+		<module>bm-plugin-core-ldap-import</module>
+		<module>bm-plugin-core-ldap-export</module>
+		<module>bm-plugin-admin-console-ldap-export</module>
+		<module>bm-plugin-admin-console-ldap-import</module>
+		<module>bm-plugin-admin-console-filehosting-settings</module>
+		<module>bm-plugin-admin-console-password-sizestrength</module>
+		<module>bm-plugin-webserver-filehosting</module>
+		<module>bm-plugin-webserver-dav</module>
+		<module>bm-plugin-webserver-cti</module>
+		<module>bm-plugin-core-cti</module>
+		<module>bm-plugin-core-cti-xivo</module>
+		<module>bm-plugin-core-cti-wazo</module>
+		<module>bm-plugin-core-filehosting-filesystem</module>
+		<module>bm-plugin-core-forest</module>
+		<module>bm-plugin-core-mailapp</module>
+		<module>bm-plugin-hps-kerberos</module>
+		<module>bm-plugin-hps-cas</module>
+		<module>python-bm-client</module>
+		<module>bm-plugin-core-password-bruteforce</module>
+		<module>bm-plugin-core-password-sizestrength</module>
+		<module>bm-connector-thunderbird</module>
+		<module>bm-maintenance-tools</module>
+		<module>bm-plugin-admin-console-videoconferencing-jitsi</module>
+		<module>bm-plugin-admin-console-videoconferencing-starleaf</module>
+		<module>bm-plugin-admin-console-videoconferencing-bluemind</module>
+		<module>bm-plugin-admin-console-videoconferencing-teams</module>
+		<module>bm-plugin-core-videoconferencing-jitsi</module>
+		<module>bm-plugin-core-videoconferencing-starleaf</module>
+		<module>bm-plugin-core-videoconferencing-bluemind</module>
+		<module>bm-plugin-core-videoconferencing-teams</module>
 	</modules>
-
 	<profiles>
 		<profile>
 			<id>doc</id>
@@ -94,7 +92,6 @@
 			</modules>
 		</profile>
 	</profiles>
-
 	<build>
 		<plugins>
 			<plugin>

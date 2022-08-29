@@ -18,11 +18,10 @@
  */
 package net.bluemind.webmodule.server;
 
+import jakarta.activation.MimetypesFileTypeMap;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
-
-import javax.activation.MimetypesFileTypeMap;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

@@ -18,7 +18,7 @@
  */
 package net.bluemind.deferredaction.service;
 
-import javax.ws.rs.Path;
+import jakarta.ws.rs.Path;
 
 @Path("{containerUid}")
 public interface IDeferredActionMgmt {

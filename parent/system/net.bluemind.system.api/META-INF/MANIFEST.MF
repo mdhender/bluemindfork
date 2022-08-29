@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.system.api
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.system.api,
  net.bluemind.system.api.hot.upgrade
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.core.task.api;visibility:=reexport,
  javax.validation.api,

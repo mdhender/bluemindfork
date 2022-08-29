@@ -11,7 +11,7 @@ Require-Bundle: slf4j.api,
  net.bluemind.metrics.registry;bundle-version="4.1.0",
  net.bluemind.systemd.notify,
  net.bluemind.network.topology
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Export-Package: net.bluemind.locator,

@@ -36,7 +36,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,6 +135,11 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	private static final TimeZoneRegistry tzRegistry = TimeZoneRegistryFactory.getInstance().createRegistry();
 	public static final String CONFERENCE = "X-CONFERENCE";
 	public static final String CONFERENCE_ID = "X-CONFERENCE-ID";
+	public static final String MAIL_TO = "mailto:";
+	public static final String CID = "X-CID";
+	public static final String FILE_NAME = "X-FILE-NAME";
+	public static final String EMAIL = "EMAIL";
+	public static final String ALT_DESC = "X-ALT-DESC";
 
 	static ZoneId utcTz = ZoneId.of("UTC");
 
@@ -174,8 +179,8 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 		boolean htmlProvided = false;
 		// look for X-ALT-DESC too
-		if (cc.getProperty("X-ALT-DESC") != null) {
-			Property prop = cc.getProperty("X-ALT-DESC");
+		if (cc.getProperty(ALT_DESC) != null) {
+			Property prop = cc.getProperty(ALT_DESC);
 			Parameter fmtType = prop.getParameter(Parameter.FMTTYPE);
 			if (fmtType != null && fmtType.getValue().equals("text/html")) {
 				iCalendarElement.description = net.fortuna.ical4j.util.Strings.unescape(prop.getValue());
@@ -194,12 +199,12 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 		// PRIORITY
 		if (cc.getProperty(Property.PRIORITY) != null) {
-			iCalendarElement.priority = new Integer(cc.getProperty(Property.PRIORITY).getValue());
+			iCalendarElement.priority = Integer.valueOf(cc.getProperty(Property.PRIORITY).getValue());
 		}
 
 		// VALARM
 		ComponentList alarms = parseIcsVAlarm(cc);
-		if (alarms != null && alarms.size() > 0) {
+		if (alarms != null && !alarms.isEmpty()) {
 			iCalendarElement.alarm = new ArrayList<ICalendarElement.VAlarm>(alarms.size());
 
 			for (int i = 0; i < alarms.size(); i++) {
@@ -216,17 +221,19 @@ public class ICal4jHelper<T extends ICalendarElement> {
 					action = ICalendarElement.VAlarm.Action.Audio;
 				} else if ("DISPLAY".equalsIgnoreCase(alarm.getAction().getValue())) {
 					action = ICalendarElement.VAlarm.Action.Display;
-				} else if ("EMAIL".equalsIgnoreCase(alarm.getAction().getValue())) {
-					action = ICalendarElement.VAlarm.Action.Email;
-				} else if ("NONE".equalsIgnoreCase(alarm.getAction().getValue())) {
-					// NONE action, skip
-					// https://tools.ietf.org/html/draft-daboo-valarm-extensions-04#section-11.3
-					// The "NONE" action is used solely to indicate a
-					// default
-					// alarm that does not alert the calendar user.
-					continue;
 				} else {
-					action = ICalendarElement.VAlarm.Action.Email;
+					if (EMAIL.equalsIgnoreCase(alarm.getAction().getValue())) {
+						action = ICalendarElement.VAlarm.Action.Email;
+					} else if ("NONE".equalsIgnoreCase(alarm.getAction().getValue())) {
+						// NONE action, skip
+						// https://tools.ietf.org/html/draft-daboo-valarm-extensions-04#section-11.3
+						// The "NONE" action is used solely to indicate a
+						// default
+						// alarm that does not alert the calendar user.
+						continue;
+					} else {
+						action = ICalendarElement.VAlarm.Action.Email;
+					}
 				}
 
 				Integer trigger = null;
@@ -246,7 +253,6 @@ public class ICal4jHelper<T extends ICalendarElement> {
 					// DateTime trigger
 					// related to dtstart, do the math
 					DateProperty dstart = (DateProperty) cc.getProperty(Property.DTSTART);
-					Date date = dstart.getDate();
 					trigger = (int) ((alarmTrig.getDateTime().getTime() - dstart.getDate().getTime()) / 1000);
 				}
 
@@ -360,7 +366,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			Attach prop = (Attach) attachments.get(i);
 			byte[] binary = prop.getBinary();
 			if (binary == null && prop.getUri() != null) {
-				addUriAttachment(prop).ifPresent(uriAttachment -> atts.add(uriAttachment));
+				addUriAttachment(prop).ifPresent(atts::add);
 			} else if (binary != null && owner.isPresent()) {
 				AttachedFile addBinaryAttachment = addBinaryAttachment(prop, binary, i, owner);
 				if (addBinaryAttachment != null) {
@@ -380,15 +386,16 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			extension = Mime.getExtension(fmtType.getValue());
 		}
 		String filename = "attachment_" + index + "." + extension;
-		CalendarOwner calOwner = owner.get();
-		try (Sudo asUser = new Sudo(calOwner.userUid, calOwner.domainUid)) {
-			try {
-				IAttachment service = ServerSideServiceProvider.getProvider(asUser.context).instance(IAttachment.class,
-						calOwner.domainUid);
-				AttachedFile att = service.share(filename, GenericStream.simpleValue(binary, bin -> bin));
-				return att;
-			} catch (ServerFault e) {
-				logger.info("Cannot attach binary file as attachment: {}", e.getMessage());
+		if (owner.isPresent()) {
+			CalendarOwner calOwner = owner.get();
+			try (Sudo asUser = new Sudo(calOwner.userUid, calOwner.domainUid)) {
+				try {
+					IAttachment service = ServerSideServiceProvider.getProvider(asUser.context)
+							.instance(IAttachment.class, calOwner.domainUid);
+					return service.share(filename, GenericStream.simpleValue(binary, bin -> bin));
+				} catch (ServerFault e) {
+					logger.info("Cannot attach binary file as attachment: {}", e.getMessage());
+				}
 			}
 		}
 		return null;
@@ -397,8 +404,8 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	private Optional<AttachedFile> addUriAttachment(Attach prop) {
 		String url = prop.getUri().toString();
 		String filename = null;
-		if (prop.getParameter("X-FILE-NAME") != null) {
-			filename = prop.getParameter("X-FILE-NAME").getValue();
+		if (prop.getParameter(FILE_NAME) != null) {
+			filename = prop.getParameter(FILE_NAME).getValue();
 		} else {
 			filename = prop.getUri().getPath();
 		}
@@ -406,8 +413,8 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		att.expirationDate = 0l;
 		att.name = filename;
 		att.publicUrl = url;
-		if (prop.getParameter("X-CID") != null) {
-			att.cid = prop.getParameter("X-CID").getValue();
+		if (prop.getParameter(CID) != null) {
+			att.cid = prop.getParameter(CID).getValue();
 		} else {
 			if (url != null && url.toUpperCase().startsWith("CID:")) {
 				att.cid = url;
@@ -446,12 +453,12 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			}
 		});
 
-		List<TagRef> categories = new ArrayList<TagRef>(categoriesPropList.size());
+		List<TagRef> categories = new ArrayList<>(categoriesPropList.size());
 
 		for (@SuppressWarnings("unchecked")
 		Iterator<Property> it = categoriesPropList.iterator(); it.hasNext();) {
 			Property category = it.next();
-			String labelValue = category.getValue().toString();
+			String labelValue = category.getValue();
 			if (Strings.isNullOrEmpty(labelValue)) {
 				continue;
 			}
@@ -476,15 +483,13 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		return categories;
 	}
 
-	private static ComponentList parseIcsVAlarm(CalendarComponent cc) {
-
-		ComponentList alarms = null;
+	private static ComponentList<VAlarm> parseIcsVAlarm(CalendarComponent cc) {
+		ComponentList<VAlarm> alarms = null;
 		if (cc instanceof VEvent) {
 			alarms = ((VEvent) cc).getAlarms();
 		} else if (cc instanceof VToDo) {
 			alarms = ((VToDo) cc).getAlarms();
 		}
-
 		return alarms;
 	}
 
@@ -493,7 +498,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	 * @return
 	 */
 	private static List<ICalendarElement.Attendee> parseIcsAttendee(PropertyList attendeePropList) {
-		if (attendeePropList != null && attendeePropList.size() > 0) {
+		if (attendeePropList != null && !attendeePropList.isEmpty()) {
 			List<ICalendarElement.Attendee> attendees = new ArrayList<>(attendeePropList.size());
 			for (@SuppressWarnings("unchecked")
 			Iterator<Property> it = attendeePropList.iterator(); it.hasNext();) {
@@ -524,7 +529,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 					} else if ("non-participant".equals(value)) {
 						role = ICalendarElement.Role.NonParticipant;
 					} else {
-						logger.error("Unsupported Role " + value);
+						logger.error("Unsupported Role {}", value);
 					}
 				}
 
@@ -571,10 +576,10 @@ public class ICal4jHelper<T extends ICalendarElement> {
 					sentBy = sentByparam.getValue();
 				}
 
-				Parameter CNParam = prop.getParameter(Parameter.CN);
+				Parameter cNParam = prop.getParameter(Parameter.CN);
 				String commonName = null;
-				if (isParamNotNull(CNParam)) {
-					commonName = CNParam.getValue();
+				if (isParamNotNull(cNParam)) {
+					commonName = cNParam.getValue();
 				}
 
 				Parameter dirParam = prop.getParameter(Parameter.DIR);
@@ -590,12 +595,12 @@ public class ICal4jHelper<T extends ICalendarElement> {
 				}
 				String mailto = null;
 				try {
-					mailto = prop.getCalAddress().toURL().getPath().toLowerCase().replace("mailto:", "");
+					mailto = prop.getCalAddress().toURL().getPath().toLowerCase().replace(MAIL_TO, "");
 				} catch (Exception e) {
 					logger.error("Fail to parse Attendee URI {}: {}", prop.getCalAddress(), e.getMessage());
 
 					// iCal specific
-					Parameter email = prop.getParameter("EMAIL");
+					Parameter email = prop.getParameter(EMAIL);
 					if (email != null) {
 						mailto = email.getValue();
 					}
@@ -650,7 +655,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	private static Set<BmDateTime> parseIcsDate(PropertyList<DateListProperty> datePropList, Optional<String> globalTZ,
 			Map<String, String> tzMapping) {
 
-		if (datePropList != null && datePropList.size() > 0) {
+		if (datePropList != null && !datePropList.isEmpty()) {
 			Set<BmDateTime> ret = new HashSet<>();
 			for (DateListProperty date : datePropList) {
 				DateList dateList = date.getDates();
@@ -695,7 +700,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	 * @return
 	 */
 	private static ICalendarElement.RRule parseIcsRRule(ICalendarElement elem, PropertyList rrulePropList) {
-		if (rrulePropList != null && rrulePropList.size() > 0) {
+		if (rrulePropList != null && !rrulePropList.isEmpty()) {
 			ICalendarElement.RRule reccurringRule = new ICalendarElement.RRule();
 
 			RRule rrule = (RRule) rrulePropList.get(0);
@@ -724,32 +729,28 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 			if (recur.getSecondList() != null) {
 				reccurringRule.bySecond = new ArrayList<>(recur.getSecondList().size());
-				for (@SuppressWarnings("unchecked")
-				Iterator<Integer> it = recur.getSecondList().iterator(); it.hasNext();) {
+				for (Iterator<Integer> it = recur.getSecondList().iterator(); it.hasNext();) {
 					reccurringRule.bySecond.add(it.next());
 				}
 			}
 
 			if (recur.getMinuteList() != null) {
 				reccurringRule.byMinute = new ArrayList<>(recur.getMinuteList().size());
-				for (@SuppressWarnings("unchecked")
-				Iterator<Integer> it = recur.getMinuteList().iterator(); it.hasNext();) {
+				for (Iterator<Integer> it = recur.getMinuteList().iterator(); it.hasNext();) {
 					reccurringRule.byMinute.add(it.next());
 				}
 			}
 
 			if (recur.getHourList() != null) {
 				reccurringRule.byHour = new ArrayList<>(recur.getHourList().size());
-				for (@SuppressWarnings("unchecked")
-				Iterator<Integer> it = recur.getHourList().iterator(); it.hasNext();) {
+				for (Iterator<Integer> it = recur.getHourList().iterator(); it.hasNext();) {
 					reccurringRule.byHour.add(it.next());
 				}
 			}
 
 			if (recur.getDayList() != null) {
 				reccurringRule.byDay = new ArrayList<ICalendarElement.RRule.WeekDay>();
-				for (@SuppressWarnings("unchecked")
-				Iterator<WeekDay> it = recur.getDayList().iterator(); it.hasNext();) {
+				for (Iterator<WeekDay> it = recur.getDayList().iterator(); it.hasNext();) {
 					String value = it.next().toString().toLowerCase();
 					reccurringRule.byDay.add(new ICalendarElement.RRule.WeekDay(value));
 				}
@@ -757,31 +758,27 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 			if (recur.getMonthDayList() != null) {
 				reccurringRule.byMonthDay = new ArrayList<>(recur.getMonthDayList().size());
-				for (@SuppressWarnings("unchecked")
-				Iterator<Integer> it = recur.getMonthDayList().iterator(); it.hasNext();) {
+				for (Iterator<Integer> it = recur.getMonthDayList().iterator(); it.hasNext();) {
 					reccurringRule.byMonthDay.add(it.next());
 				}
 			}
 
 			if (recur.getYearDayList() != null) {
 				reccurringRule.byYearDay = new ArrayList<>(recur.getYearDayList().size());
-				for (@SuppressWarnings("unchecked")
-				Iterator<Integer> it = recur.getYearDayList().iterator(); it.hasNext();) {
+				for (Iterator<Integer> it = recur.getYearDayList().iterator(); it.hasNext();) {
 					reccurringRule.byYearDay.add(it.next());
 				}
 			}
 
 			if (recur.getWeekNoList() != null) {
 				reccurringRule.byWeekNo = new ArrayList<>(recur.getWeekNoList().size());
-				for (@SuppressWarnings("unchecked")
-				Iterator<Integer> it = recur.getWeekNoList().iterator(); it.hasNext();) {
+				for (Iterator<Integer> it = recur.getWeekNoList().iterator(); it.hasNext();) {
 					reccurringRule.byWeekNo.add(it.next());
 				}
 			}
 			if (recur.getMonthList() != null) {
 				reccurringRule.byMonth = new ArrayList<>(recur.getMonthList().size());
-				for (@SuppressWarnings("unchecked")
-				Iterator<Integer> it = recur.getMonthList().iterator(); it.hasNext();) {
+				for (Iterator<Integer> it = recur.getMonthList().iterator(); it.hasNext();) {
 					reccurringRule.byMonth.add(it.next());
 				}
 			}
@@ -830,7 +827,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			} else if ("confidential".equals(value)) {
 				return ICalendarElement.Classification.Confidential;
 			} else {
-				logger.error("Unsupported Clazz " + classification);
+				logger.error("Unsupported Clazz {}", classification);
 			}
 
 		}
@@ -877,6 +874,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			try {
 				result = Integer.parseInt(value);
 			} catch (NumberFormatException e) {
+				logger.warn("Sequence is not valid", e);
 			}
 		}
 		return result;
@@ -890,12 +888,12 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		if (organizer != null) {
 			ICalendarElement.Organizer ret = new ICalendarElement.Organizer();
 			try {
-				ret.mailto = organizer.getCalAddress().toURL().getPath().toLowerCase().replace("mailto:", "");
+				ret.mailto = organizer.getCalAddress().toURL().getPath().toLowerCase().replace(MAIL_TO, "");
 			} catch (Exception e) {
 				logger.error("Fail to parse Organizer URI {}: {}", organizer.getCalAddress(), e.getMessage());
 
 				// iCal specific
-				Parameter email = organizer.getParameter("EMAIL");
+				Parameter email = organizer.getParameter(EMAIL);
 				if (email != null) {
 					ret.mailto = email.getValue();
 				}
@@ -950,7 +948,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		parseICalendarElementPriority(properties, iCalendarElement);
 
 		// VALARM
-		if (iCalendarElement.alarm != null && iCalendarElement.alarm.size() > 0) {
+		if (iCalendarElement.alarm != null && !iCalendarElement.alarm.isEmpty()) {
 			for (ICalendarElement.VAlarm alarm : iCalendarElement.alarm) {
 				if (alarm == null) {
 					continue;
@@ -1005,7 +1003,6 @@ public class ICal4jHelper<T extends ICalendarElement> {
 				}
 
 				if (calendarComponent instanceof VEvent) {
-					calendarComponent = (VEvent) calendarComponent;
 					((VEvent) calendarComponent).getAlarms().add(valarm);
 				} else { // VToDo
 					((VToDo) calendarComponent).getAlarms().add(valarm);
@@ -1062,13 +1059,14 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		return properties;
 	}
 
-	private static void parseICalendarElementAttachments(PropertyList properties, ICalendarElement iCalendarElement) {
+	private static void parseICalendarElementAttachments(PropertyList<Property> properties,
+			ICalendarElement iCalendarElement) {
 		if (iCalendarElement.attachments != null && !iCalendarElement.attachments.isEmpty()) {
 			for (AttachedFile attachment : iCalendarElement.attachments) {
 				ParameterList params = new ParameterList();
-				params.add(new XParameter("X-FILE-NAME", attachment.name));
+				params.add(new XParameter(FILE_NAME, attachment.name));
 				if (attachment.cid != null) {
-					params.add(new XParameter("X-CID", attachment.cid));
+					params.add(new XParameter(CID, attachment.cid));
 				}
 				try {
 					Attach attach = new Attach(params, attachment.publicUrl);
@@ -1087,13 +1085,15 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		}
 	}
 
-	private static void parseICalendarElementSequence(PropertyList properties, ICalendarElement iCalendarElement) {
+	private static void parseICalendarElementSequence(PropertyList<Property> properties,
+			ICalendarElement iCalendarElement) {
 		if (iCalendarElement.sequence != null && iCalendarElement.sequence > 0) {
 			properties.add(new Sequence(iCalendarElement.sequence));
 		}
 	}
 
-	private static void parseICalendarElementRRule(PropertyList properties, ICalendarElement iCalendarElement) {
+	private static void parseICalendarElementRRule(PropertyList<Property> properties,
+			ICalendarElement iCalendarElement) {
 		if (iCalendarElement.rrule != null) {
 
 			Builder recur = new Recur.Builder();
@@ -1186,7 +1186,8 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		}
 	}
 
-	private static void parseICalendarElementExDate(PropertyList properties, ICalendarElement iCalendarElement) {
+	private static void parseICalendarElementExDate(PropertyList<Property> properties,
+			ICalendarElement iCalendarElement) {
 		if (iCalendarElement.exdate != null && !iCalendarElement.exdate.isEmpty()) {
 			DateList dateList = new DateList();
 			ArrayList<BmDateTime> sorted = new ArrayList<>(iCalendarElement.exdate);
@@ -1205,7 +1206,8 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		}
 	}
 
-	private static void parseICalendarElementRDate(PropertyList properties, ICalendarElement iCalendarElement) {
+	private static void parseICalendarElementRDate(PropertyList<Property> properties,
+			ICalendarElement iCalendarElement) {
 		if (iCalendarElement.rdate != null && !iCalendarElement.rdate.isEmpty()) {
 			DateList dateList = new DateList();
 			ArrayList<BmDateTime> sorted = new ArrayList<>(iCalendarElement.rdate);
@@ -1230,7 +1232,8 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		}
 	}
 
-	private static void parseICalendarElementCategories(PropertyList properties, ICalendarElement iCalendarElement) {
+	private static void parseICalendarElementCategories(PropertyList<Property> properties,
+			ICalendarElement iCalendarElement) {
 		if (iCalendarElement.categories != null && !iCalendarElement.categories.isEmpty()) {
 			StringBuilder categories = new StringBuilder();
 			String sep = "";
@@ -1243,13 +1246,15 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		}
 	}
 
-	private static void parseICalendarElementOrganizer(PropertyList properties, ICalendarElement iCalendarElement) {
+	private static void parseICalendarElementOrganizer(PropertyList<Property> properties,
+			ICalendarElement iCalendarElement) {
 		if (iCalendarElement.organizer != null) {
 			properties.add(parseICalendarElementOrganizer(iCalendarElement.organizer));
 		}
 	}
 
-	private static void parseICalendarElementAttendees(PropertyList properties, ICalendarElement iCalendarElement) {
+	private static void parseICalendarElementAttendees(PropertyList<Property> properties,
+			ICalendarElement iCalendarElement) {
 		if (iCalendarElement.attendees != null && !iCalendarElement.attendees.isEmpty()) {
 			for (ICalendarElement.Attendee attendee : iCalendarElement.attendees) {
 				properties.add(parseICalendarElementAttendee(attendee));
@@ -1257,19 +1262,22 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		}
 	}
 
-	private static void parseICalendarElementStatus(PropertyList properties, ICalendarElement iCalendarElement) {
+	private static void parseICalendarElementStatus(PropertyList<Property> properties,
+			ICalendarElement iCalendarElement) {
 		if (iCalendarElement.status != null) {
 			properties.add(new Status(iCalendarElement.status.name().toUpperCase()));
 		}
 	}
 
-	private static void parseICalendarElementPriority(PropertyList properties, ICalendarElement iCalendarElement) {
+	private static void parseICalendarElementPriority(PropertyList<Property> properties,
+			ICalendarElement iCalendarElement) {
 		if (iCalendarElement.priority != null) {
 			properties.add(new Priority(iCalendarElement.priority.intValue()));
 		}
 	}
 
-	private static void parseICalendarElementDescription(PropertyList properties, ICalendarElement iCalendarElement) {
+	private static void parseICalendarElementDescription(PropertyList<Property> properties,
+			ICalendarElement iCalendarElement) {
 		if (isStringNotNull(iCalendarElement.description)) {
 			HtmlToPlainText formater = new HtmlToPlainText();
 			properties.add(new Description(formater.convert(iCalendarElement.description).trim()));
@@ -1279,13 +1287,13 @@ public class ICal4jHelper<T extends ICalendarElement> {
 				desc = "<html><body>" + desc + "</body></html>";
 			}
 
-			XProperty xAltDesc = new XProperty("X-ALT-DESC", desc);
+			XProperty xAltDesc = new XProperty(ALT_DESC, desc);
 			xAltDesc.getParameters().add(new FmtType("text/html"));
 			properties.add(xAltDesc);
 		}
 	}
 
-	private static void parseICalendarElementUrl(PropertyList properties, ICalendarElement iCalendarElement) {
+	private static void parseICalendarElementUrl(PropertyList<Property> properties, ICalendarElement iCalendarElement) {
 		if (isStringNotNull(iCalendarElement.url)) {
 			URI uri;
 			try {
@@ -1297,33 +1305,36 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		}
 	}
 
-	private static void parseICalendarElementLocation(PropertyList properties, ICalendarElement iCalendarElement) {
+	private static void parseICalendarElementLocation(PropertyList<Property> properties,
+			ICalendarElement iCalendarElement) {
 		if (isStringNotNull(iCalendarElement.location)) {
 			properties.add(new Location(iCalendarElement.location));
 		}
 	}
 
-	private static void parseICalendarElementClassification(PropertyList properties,
+	private static void parseICalendarElementClassification(PropertyList<Property> properties,
 			ICalendarElement iCalendarElement) {
 		if (iCalendarElement.classification != null) {
 			properties.add(new Clazz(iCalendarElement.classification.name().toUpperCase()));
 		}
 	}
 
-	private static void parseICalendarElementSummary(PropertyList properties, ICalendarElement iCalendarElement) {
+	private static void parseICalendarElementSummary(PropertyList<Property> properties,
+			ICalendarElement iCalendarElement) {
 		if (isStringNotNull(iCalendarElement.summary)) {
 			properties.add(new Summary(iCalendarElement.summary));
 		}
 	}
 
-	private static void parseICalendarElementDate(PropertyList properties, ICalendarElement iCalendarElement) {
+	private static void parseICalendarElementDate(PropertyList<Property> properties,
+			ICalendarElement iCalendarElement) {
 		if (iCalendarElement.dtstart != null) {
 			DtStart dtstart = new DtStart(convertToIcsDate(iCalendarElement.dtstart));
 			properties.add(dtstart);
 		}
 	}
 
-	private static void parseICalendarElementUid(PropertyList properties, String uid) {
+	private static void parseICalendarElementUid(PropertyList<Property> properties, String uid) {
 		if (isStringNotNull(uid)) {
 			properties.add(new Uid(uid));
 		}
@@ -1443,7 +1454,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 		if (organizer.mailto != null) {
 			try {
-				orga.setValue("mailto:" + organizer.mailto);
+				orga.setValue(MAIL_TO + organizer.mailto);
 			} catch (URISyntaxException e) {
 				logger.error("Fail to parse Organizer URI", e);
 			}

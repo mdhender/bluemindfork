@@ -13,7 +13,7 @@
       </vmArgsMac>
    </launcherArgs>
 
-   <launcher name="sync_server">
+   <launcher>
       <win useIco="false">
          <bmp/>
       </win>
@@ -33,7 +33,7 @@
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.platform"/>
-      <plugin id="javax.ws.rs"/>
+      <plugin id="jakarta.ws.rs-api"/>
       <plugin id="javax.xml"/>
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>
@@ -72,7 +72,7 @@
       <plugin id="net.bluemind.user.api"/>
       <plugin id="net.bluemind.utils"/>
       <plugin id="org.apache.commons.codec"/>
-      <plugin id="org.apache.commons.lang"/>
+      <plugin id="org.apache.commons.lang3"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.runtime"/>

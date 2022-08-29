@@ -13,6 +13,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eas.wbxml;bundle-version="1.0.0",
  net.bluemind.eas.utils;bundle-version="1.0.0",
  net.bluemind.eas.client;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.eas.client.tests

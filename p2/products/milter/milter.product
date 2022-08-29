@@ -13,7 +13,7 @@
       </vmArgsMac>
    </launcherArgs>
 
-   <launcher name="bm-milter">
+   <launcher>
       <win useIco="false">
          <bmp/>
       </win>
@@ -36,14 +36,16 @@
       <plugin id="com.hazelcast"/>
       <plugin id="com.hazelcast.client" fragment="true"/>
       <plugin id="com.netflix.spectator.api"/>
-      <plugin id="com.sun.mail.javax.mail"/>
+      <plugin id="com.sun.mail.jakarta.mail"/>
       <plugin id="com.typesafe.netty.reactive-streams"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.web"/>
-      <plugin id="javax.mail-api"/>
+      <plugin id="jakarta.activation-api"/>
+      <plugin id="jakarta.ws.rs-api"/>
+      <plugin id="jakarta.xml.bind-api"/>
+      <plugin id="javax.activation"/>
       <plugin id="javax.validation.api"/>
-      <plugin id="javax.ws.rs"/>
       <plugin id="javax.xml"/>
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>
@@ -89,9 +91,9 @@
       <plugin id="net.bluemind.metrics.agent-api"/>
       <plugin id="net.bluemind.metrics.registry"/>
       <plugin id="net.bluemind.milter"/>
+      <plugin id="net.bluemind.milter.action.journaling"/>
       <plugin id="net.bluemind.milter.action.misc"/>
       <plugin id="net.bluemind.milter.action.signature"/>
-      <plugin id="net.bluemind.milter.action.journaling"/>
       <plugin id="net.bluemind.milter.metrics"/>
       <plugin id="net.bluemind.milter.srs"/>
       <plugin id="net.bluemind.mime4j.common"/>
@@ -117,6 +119,10 @@
       <plugin id="net.bluemind.user.api"/>
       <plugin id="net.bluemind.utils"/>
       <plugin id="net.java.dev.jna"/>
+      <plugin id="org.apache.felix.gogo.command"/>
+      <plugin id="org.apache.felix.gogo.runtime"/>
+      <plugin id="org.apache.felix.gogo.shell"/>
+      <plugin id="org.apache.felix.scr"/>
       <plugin id="org.apache.james.apache-mime4j-core"/>
       <plugin id="org.apache.james.apache-mime4j-dom"/>
       <plugin id="org.apache.xerces"/>
@@ -124,27 +130,68 @@
       <plugin id="org.apache.xml.serializer"/>
       <plugin id="org.asynchttpclient.async-http-client"/>
       <plugin id="org.asynchttpclient.async-http-client-netty-utils"/>
+      <plugin id="org.bouncycastle.bcpg"/>
+      <plugin id="org.bouncycastle.bcpkix"/>
+      <plugin id="org.bouncycastle.bcprov"/>
+      <plugin id="org.bouncycastle.bcutil"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.runtime"/>
       <plugin id="org.eclipse.equinox.app"/>
       <plugin id="org.eclipse.equinox.common"/>
-      <plugin id="org.eclipse.equinox.launcher"/>
+      <plugin id="org.eclipse.equinox.console"/>
+      <plugin id="org.eclipse.equinox.event"/>
+      <plugin id="org.eclipse.equinox.frameworkadmin"/>
+      <plugin id="org.eclipse.equinox.frameworkadmin.equinox"/>
+      <plugin id="org.eclipse.equinox.p2.artifact.repository"/>
+      <plugin id="org.eclipse.equinox.p2.core"/>
+      <plugin id="org.eclipse.equinox.p2.director"/>
+      <plugin id="org.eclipse.equinox.p2.director.app"/>
+      <plugin id="org.eclipse.equinox.p2.directorywatcher"/>
+      <plugin id="org.eclipse.equinox.p2.engine"/>
+      <plugin id="org.eclipse.equinox.p2.extensionlocation"/>
+      <plugin id="org.eclipse.equinox.p2.garbagecollector"/>
+      <plugin id="org.eclipse.equinox.p2.jarprocessor"/>
+      <plugin id="org.eclipse.equinox.p2.metadata"/>
+      <plugin id="org.eclipse.equinox.p2.metadata.repository"/>
+      <plugin id="org.eclipse.equinox.p2.operations"/>
+      <plugin id="org.eclipse.equinox.p2.publisher"/>
+      <plugin id="org.eclipse.equinox.p2.publisher.eclipse"/>
+      <plugin id="org.eclipse.equinox.p2.reconciler.dropins"/>
+      <plugin id="org.eclipse.equinox.p2.repository"/>
+      <plugin id="org.eclipse.equinox.p2.repository.tools"/>
+      <plugin id="org.eclipse.equinox.p2.touchpoint.eclipse"/>
+      <plugin id="org.eclipse.equinox.p2.touchpoint.natives"/>
       <plugin id="org.eclipse.equinox.preferences"/>
       <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.equinox.security"/>
+      <plugin id="org.eclipse.equinox.simpleconfigurator"/>
+      <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
       <plugin id="org.eclipse.osgi"/>
       <plugin id="org.eclipse.osgi.compatibility.state" fragment="true"/>
-      <plugin id="org.eclipse.update.configurator"/>
+      <plugin id="org.eclipse.osgi.services"/>
+      <plugin id="org.eclipse.osgi.util"/>
       <plugin id="org.jsoup"/>
       <plugin id="org.reactivestreams.reactive-streams"/>
+      <plugin id="org.sat4j.core"/>
+      <plugin id="org.sat4j.pb"/>
+      <plugin id="org.tukaani.xz"/>
       <plugin id="sentry"/>
       <plugin id="slf4j.api"/>
    </plugins>
 
    <configurations>
-      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <plugin id="net.bluemind.sentry.settings" autoStart="true" startLevel="4" />
+      <plugin id="org.apache.felix.scr" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
       <property name="osgi.noShutdown" value="true" />
-      <property name="osgi.configuration.area" value="/var/lib/bm-milter/" />
+      <property name="org.eclipse.equinox.p2.reconciler.dropins.directory" value="/usr/share/bm-milter/extensions" />
+      <property name="osgi.instance.area" value="/var/lib/bm-milter/" />
+      <property name="eclipse.registry.MultiLanguage" value="true" />
    </configurations>
 
 </product>

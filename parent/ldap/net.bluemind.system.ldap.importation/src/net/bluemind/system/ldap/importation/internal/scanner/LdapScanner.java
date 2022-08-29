@@ -24,12 +24,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.api.ldap.model.message.Response;
+import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,7 +103,7 @@ public abstract class LdapScanner extends Scanner {
 					continue;
 				}
 
-				groupEntry = ((SearchResultEntryDecorator) response).getEntry();
+				groupEntry = ((SearchResultEntry) response).getEntry();
 			}
 		} catch (LdapException | CursorException | LdapSearchException e) {
 			throw new ServerFault(e);

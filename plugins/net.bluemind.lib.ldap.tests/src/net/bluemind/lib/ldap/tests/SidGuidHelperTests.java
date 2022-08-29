@@ -20,7 +20,6 @@ package net.bluemind.lib.ldap.tests;
 
 import org.apache.directory.api.ldap.codec.api.ConfigurableBinaryAttributeDetector;
 import org.apache.directory.api.ldap.codec.api.DefaultConfigurableBinaryAttributeDetector;
-import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -33,6 +32,7 @@ import org.apache.directory.api.ldap.model.message.Response;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
+import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -171,7 +171,7 @@ public class SidGuidHelperTests extends TestCase {
 				Response response = cursor.get();
 
 				if (response.getType() == MessageTypeEnum.SEARCH_RESULT_ENTRY) {
-					Entry entry = ((SearchResultEntryDecorator) response).getEntry();
+					Entry entry = ((SearchResultEntry) response).getEntry();
 					System.out.println(entry.getDn());
 				}
 			}

@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.common.io
 Bundle-SymbolicName: net.bluemind.common.io
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: com.google.guava;bundle-version="24.1.0";visibility:=reexport,
  slf4j.api;bundle-version="1.7.25"
 Export-Package: net.bluemind.common.io

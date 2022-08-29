@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.webmodules.chooser
 Bundle-SymbolicName: net.bluemind.webmodules.chooser;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.webmodules.chooser.ChooserAppActivator
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Require-Bundle: net.bluemind.webmodule.server;bundle-version="4.1.0",
  net.bluemind.lib.vertx;bundle-version="1.0.0",

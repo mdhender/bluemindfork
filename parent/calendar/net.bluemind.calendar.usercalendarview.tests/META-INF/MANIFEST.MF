@@ -4,7 +4,7 @@ Bundle-Name: Tests
 Bundle-SymbolicName: net.bluemind.calendar.usercalendarview.tests;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Fragment-Host: net.bluemind.calendar.usercalendar
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit4;bundle-version="4.8.1",
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",

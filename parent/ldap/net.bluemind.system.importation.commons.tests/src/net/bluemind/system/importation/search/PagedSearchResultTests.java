@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
@@ -17,6 +16,7 @@ import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.api.ldap.model.message.Response;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
+import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.junit.BeforeClass;
@@ -50,7 +50,7 @@ public class PagedSearchResultTests {
 				continue;
 			}
 
-			String entryDn = ((SearchResultEntryDecorator) response).getEntry().getDn().getName();
+			String entryDn = ((SearchResultEntry) response).getEntry().getDn().getName();
 
 			assertEquals(entryDn, pagedSearchResult.getEntry().getDn().getName());
 
@@ -80,7 +80,7 @@ public class PagedSearchResultTests {
 				continue;
 			}
 
-			String entryDn = ((SearchResultEntryDecorator) response).getEntry().getDn().getName();
+			String entryDn = ((SearchResultEntry) response).getEntry().getDn().getName();
 
 			System.out.println(String.format("Found %s", entryDn));
 
@@ -103,7 +103,7 @@ public class PagedSearchResultTests {
 
 		Set<String> found = StreamSupport.stream(pagedSearchResult.spliterator(), false)
 				.filter(response -> response.getType() == MessageTypeEnum.SEARCH_RESULT_ENTRY)
-				.map(response -> ((SearchResultEntryDecorator) response).getEntry().getDn().getName())
+				.map(response -> ((SearchResultEntry) response).getEntry().getDn().getName())
 				.collect(Collectors.toSet());
 
 		assertEquals(5, found.size());

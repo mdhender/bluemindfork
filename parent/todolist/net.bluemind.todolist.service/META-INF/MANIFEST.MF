@@ -21,7 +21,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.todolist.adapter;bundle-version="1.0.0",
  net.bluemind.core.sanitizer,
  net.bluemind.core.validator,
- org.apache.commons.lang,
+ org.apache.commons.lang3,
  net.bluemind.todolist.hook,
  net.bluemind.core.task.api,
  net.bluemind.core.task.service,
@@ -32,6 +32,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.user.persistence,
  net.bluemind.core.container.sharding,
  net.bluemind.attachment.api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: net.bluemind.todolist.service
 Automatic-Module-Name: net.bluemind.todolist.service

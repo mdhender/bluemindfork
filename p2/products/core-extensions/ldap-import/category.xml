@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <bundle id="org.apache.commons.lang"/>
+   <bundle id="org.apache.commons.lang3"/>
    <bundle id="net.bluemind.lib.ldap" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.importation.commons" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.ldap.importation.api" version="4.1.0.qualifier"/>

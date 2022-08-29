@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.role.service.tests
 Bundle-SymbolicName: net.bluemind.role.service.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Fragment-Host: net.bluemind.role.service
 Require-Bundle: org.junit,
  net.bluemind.core.context,

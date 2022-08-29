@@ -48,7 +48,7 @@ public class VCardHelper {
 		List<Parameter> parameters = getParameters(types);
 
 		if (phoneAttribute != null) {
-			Iterator<Value<?>> phoneIterator = phoneAttribute.iterator();
+			Iterator<Value> phoneIterator = phoneAttribute.iterator();
 			while (phoneIterator.hasNext()) {
 				String phone = phoneIterator.next().getString().trim();
 				if (phone.isEmpty()) {
@@ -68,7 +68,7 @@ public class VCardHelper {
 		parameters.add(Parameter.create("TYPE", type));
 
 		if (emailAttribute != null) {
-			Iterator<Value<?>> it = emailAttribute.iterator();
+			Iterator<Value> it = emailAttribute.iterator();
 			while (it.hasNext()) {
 				String emailAddress = it.next().getString().trim();
 				if (emailAddress.isEmpty()) {
@@ -88,7 +88,7 @@ public class VCardHelper {
 		List<DeliveryAddressing> addresses = new ArrayList<>();
 
 		if (addressAttribute != null) {
-			Iterator<Value<?>> it = addressAttribute.iterator();
+			Iterator<Value> it = addressAttribute.iterator();
 			while (it.hasNext()) {
 				String address = it.next().getString().trim();
 				if (address.isEmpty()) {

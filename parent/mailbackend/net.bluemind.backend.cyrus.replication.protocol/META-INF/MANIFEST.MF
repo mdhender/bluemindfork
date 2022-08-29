@@ -9,7 +9,7 @@ Require-Bundle: org.eclipse.core.runtime,
  io.vertx.core,
  slf4j.api,
  com.google.guava
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.backend.cyrus.replication.protocol
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.cyrus.replication.protocol.dto,

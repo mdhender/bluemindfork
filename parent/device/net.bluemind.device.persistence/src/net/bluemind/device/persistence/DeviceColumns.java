@@ -72,7 +72,7 @@ public class DeviceColumns {
 		if (null == dt) {
 			return null;
 		}
-		return new Timestamp(dt.getTime());
+		return Timestamp.from(dt.toInstant());
 	}
 
 	public static DeviceStore.EntityPopulator<Device> populator() {
@@ -103,7 +103,7 @@ public class DeviceColumns {
 		if (null == ts) {
 			return null;
 		}
-		return new Date(ts.getTime());
+		return Date.from(ts.toInstant());
 	}
 
 }

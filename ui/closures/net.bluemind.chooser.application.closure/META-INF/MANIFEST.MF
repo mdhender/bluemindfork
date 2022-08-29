@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
 Closure-Bundle-Type: Application
 Closure-Inputs: run.js
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.mvp.closure;bundle-version="4.1.0",
  net.bluemind.commons.closure;bundle-version="4.1.0",
  net.bluemind.authentication.closure;bundle-version="4.1.0",

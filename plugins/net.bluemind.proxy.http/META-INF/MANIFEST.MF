@@ -25,7 +25,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.network.topology,
  net.bluemind.common.cache.persistence,
  com.github.ben-manes.caffeine
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.proxy.http,
  net.bluemind.proxy.http.auth.api,

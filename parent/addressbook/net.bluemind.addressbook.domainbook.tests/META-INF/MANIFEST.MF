@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: net.bluemind.addressbook.domainbook.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit,
  net.bluemind.tests.defaultdata,
  net.bluemind.core.tests.testshelper,
@@ -11,7 +11,7 @@ Require-Bundle: org.junit,
  com.google.guava,
  net.bluemind.core.elasticsearch.testshelper,
  net.bluemind.core.rest,
- org.apache.commons.lang,
+ org.apache.commons.lang3,
  net.bluemind.user.service,
  net.bluemind.core.container.persistence,
  net.bluemind.directory.service;bundle-version="4.1.0",

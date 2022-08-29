@@ -17,7 +17,7 @@
   */
 package net.bluemind.backend.mail.replica.api;
 
-import javax.ws.rs.Path;
+import jakarta.ws.rs.Path;
 
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.core.api.BMApi;

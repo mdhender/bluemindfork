@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.system.auth
 Bundle-SymbolicName: net.bluemind.system.auth;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.system.hook,
  net.bluemind.core.rest,
  net.bluemind.system.api,
@@ -17,7 +17,7 @@ Require-Bundle: net.bluemind.system.hook,
  net.bluemind.node.api,
  net.bluemind.core.task.api;bundle-version="1.0.0",
  net.bluemind.config,
- org.apache.commons.lang,
+ org.apache.commons.lang3,
  net.bluemind.hornetq.client,
  net.bluemind.network.topology
 Export-Package: net.bluemind.system.auth

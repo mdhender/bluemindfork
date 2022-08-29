@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.calendar.sync
 Bundle-SymbolicName: net.bluemind.calendar.sync;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.container.sync,
  net.bluemind.core.container.persistence,
  net.bluemind.core.commons,
@@ -16,7 +16,7 @@ Require-Bundle: net.bluemind.core.container.sync,
  net.bluemind.calendar.helper,
  slf4j.api,
  net.bluemind.core.task.service,
- bcprov,
+ org.bouncycastle.bcprov,
  net.bluemind.icalendar.parser,
  net.bluemind.domain.api,
  net.bluemind.lib.ical4j,

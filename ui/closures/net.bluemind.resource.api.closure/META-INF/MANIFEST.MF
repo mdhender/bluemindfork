@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.resource.api.closure
 Bundle-SymbolicName: net.bluemind.resource.api.closure;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Closure-Bundle-Type: Library
 Require-Bundle: relief;bundle-version="1.0.0",
  net.bluemind.container.closure;bundle-version="1.0.0",

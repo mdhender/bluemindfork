@@ -11,7 +11,7 @@ Require-Bundle: org.eclipse.core.runtime,
  io.netty,
  io.vertx.core,
  com.google.guava,
- com.sun.mail.javax.mail;bundle-version="1.5.2"
+ com.sun.mail.jakarta.mail
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.lmtp.tests

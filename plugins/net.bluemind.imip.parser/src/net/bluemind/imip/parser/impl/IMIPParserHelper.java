@@ -43,21 +43,17 @@ public class IMIPParserHelper {
 		CalendarBuilder builder = new CalendarBuilder();
 		UnfoldingReader ur = new UnfoldingReader(reader, true);
 		Calendar calendar = builder.build(ur);
-		ComponentList clist = calendar.getComponents();
+		ComponentList<CalendarComponent> clist = calendar.getComponents();
 
 		Property methodProperty = calendar.getProperty("METHOD");
 
 		@SuppressWarnings("unchecked")
 		Iterator<CalendarComponent> it = clist.iterator();
-		List<CalendarComponent> calendarComponents = new LinkedList<CalendarComponent>();
+		List<CalendarComponent> calendarComponents = new LinkedList<>();
 		while (it.hasNext()) {
 			CalendarComponent component = it.next();
-			if (component instanceof VEvent) {
-				calendarComponents.add((VEvent) component);
-			} else if (component instanceof VToDo) {
-				calendarComponents.add((VToDo) component);
-			} else if (component instanceof VTimeZone) {
-				calendarComponents.add((VTimeZone) component);
+			if (component instanceof VEvent || component instanceof VToDo || component instanceof VTimeZone) {
+				calendarComponents.add(component);
 			}
 		}
 

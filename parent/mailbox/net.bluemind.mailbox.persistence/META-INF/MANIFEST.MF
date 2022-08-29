@@ -11,7 +11,7 @@ Require-Bundle: net.bluemind.core.jdbc,
  slf4j.api,
  net.bluemind.server.api,
  net.bluemind.mailbox.sqlschema
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: blue-mind.net
 Export-Package: net.bluemind.mailbox.persistence
 Automatic-Module-Name: net.bluemind.mailbox.persistence

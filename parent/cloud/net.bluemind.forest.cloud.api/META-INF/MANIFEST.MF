@@ -7,6 +7,6 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: net.bluemind.core.commons,
  net.bluemind.core.rest,
  com.google.guava
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.forest.cloud.api
 Export-Package: net.bluemind.forest.cloud.api

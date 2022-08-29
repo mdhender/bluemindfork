@@ -10,6 +10,6 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.system.schemaupgrader;visibility:=reexport,
  net.bluemind.core.container.persistence,
  net.bluemind.system.api;bundle-version="4.1.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: net.bluemind.system.persistence
 Automatic-Module-Name: net.bluemind.system.persistence

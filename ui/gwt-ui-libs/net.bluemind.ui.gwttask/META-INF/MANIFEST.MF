@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: GWT task api
 Bundle-SymbolicName: net.bluemind.ui.gwttask;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0",
  com.google.gwt.user;resolution:=optional,
  net.bluemind.ui.gwtcommon.forms;bundle-version="4.1.0",

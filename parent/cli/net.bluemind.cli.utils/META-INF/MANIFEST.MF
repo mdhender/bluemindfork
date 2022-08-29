@@ -17,7 +17,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.task.spi;visibility:=reexport,
  com.github.freva.ascii-table,
  net.bluemind.user.api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.cli.utils
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.cli.utils

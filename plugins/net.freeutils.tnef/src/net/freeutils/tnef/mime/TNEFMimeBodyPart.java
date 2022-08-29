@@ -56,8 +56,7 @@ public class TNEFMimeBodyPart extends MimeBodyPart {
 	/**
 	 * Sets the TNEFMimeMessage TNEF attributes.
 	 *
-	 * @param attributes
-	 *            the TNEFMimeMessage TNEF attributes
+	 * @param attributes the TNEFMimeMessage TNEF attributes
 	 */
 	public void setTNEFAttributes(List<Attr> attributes) {
 		this.attributes = attributes;

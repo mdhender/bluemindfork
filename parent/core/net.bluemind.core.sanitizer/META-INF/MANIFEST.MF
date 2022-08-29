@@ -19,7 +19,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest,
  slf4j.api,
  net.bluemind.core.container.persistence
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.sanitizer
 Automatic-Module-Name: net.bluemind.core.sanitizer

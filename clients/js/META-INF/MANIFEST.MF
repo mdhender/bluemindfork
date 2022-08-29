@@ -4,7 +4,7 @@ Bundle-Name: bm-js-client
 Bundle-SymbolicName: bm-js-client
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.addressbook.api,
  net.bluemind.announcement.api,
  net.bluemind.attachment.api,

@@ -3,16 +3,14 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.eas.utils
 Bundle-SymbolicName: net.bluemind.eas.utils;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: net.bluemind.eas.utils
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0",
  net.freeutils.tnef;bundle-version="1.0.0",
  net.bluemind.eas.config.global,
  com.google.guava;bundle-version="19.0.0",
  slf4j.api,
- net.bluemind.common.io;bundle-version="4.1.0"
+ net.bluemind.common.io;bundle-version="4.1.0",
+ org.apache.xerces;bundle-version="2.12.2"
 Bundle-Vendor: blue-mind.net
-Bundle-ClassPath: .,
- lib/xercesImpl-2.11.0.jar,
- lib/xml-apis-2.11.0.jar
 Automatic-Module-Name: net.bluemind.eas.utils

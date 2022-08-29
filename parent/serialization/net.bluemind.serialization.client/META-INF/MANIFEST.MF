@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.serialization.client
 Bundle-SymbolicName: net.bluemind.serialization.client;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ClassPath: .
 X-BM-Version: 4.0-alpha1
 Bundle-ActivationPolicy: lazy

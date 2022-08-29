@@ -7,6 +7,6 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  org.junit,
  net.bluemind.sentry.settings
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.sentry.settings.tests
 Bundle-ActivationPolicy: lazy

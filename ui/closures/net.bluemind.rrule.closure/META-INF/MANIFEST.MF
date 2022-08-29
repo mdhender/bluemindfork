@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.rrule.closure
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
 Closure-Bundle-Type: Library
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ClassPath: js.jar,
  .
 Automatic-Module-Name: net.bluemind.rrule.closure

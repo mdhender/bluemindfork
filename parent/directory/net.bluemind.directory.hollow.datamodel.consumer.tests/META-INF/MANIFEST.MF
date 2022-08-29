@@ -12,5 +12,5 @@ Require-Bundle: org.junit,
  jul.to.slf4j,
  net.bluemind.common.hollow,
  net.bluemind.directory.hollow.datamodel.producer
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.directory.hollow.datamodel.consumer.tests

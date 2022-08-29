@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.apache.directory.api.ldap.codec.api.ConfigurableBinaryAttributeDetector;
 import org.apache.directory.api.ldap.codec.api.DefaultConfigurableBinaryAttributeDetector;
-import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -145,7 +144,7 @@ public class LdapHelper {
 					continue;
 				}
 
-				entry = ((SearchResultEntryDecorator) response).getEntry();
+				entry = ((SearchResultEntry) response).getEntry();
 				deleteTree(ldapCon, entry.getDn().getName());
 			}
 

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: GWT Image upload api
 Bundle-SymbolicName: net.bluemind.ui.imageupload;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: com.google.gwt.user;resolution:=optional,
  com.googlecode.gwt-cropper.gwt-crop;bundle-version="0.5.5";visibility:=reexport,
  net.bluemind.ui.gwtcommon.forms;bundle-version="4.1.0";visibility:=reexport,

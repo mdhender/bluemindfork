@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eclipse.common;bundle-version="1.0.0",
  net.bluemind.core.rest,
  slf4j.api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.validator
 Automatic-Module-Name: net.bluemind.core.validator

@@ -23,5 +23,5 @@ Require-Bundle: org.junit,
  net.bluemind.role.api,
  net.bluemind.role.service,
  net.bluemind.core.sessions
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.authentication.service.tests

@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>net.bluemind</groupId>
@@ -9,8 +9,8 @@
 	<artifactId>net.bluemind.mailbackend.plugins</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-	  <module>net.bluemind.backend.cyrus.partitions</module>
-	  <module>net.bluemind.backend.cyrus.partitions.tests</module>
+		<module>net.bluemind.backend.cyrus.partitions</module>
+		<module>net.bluemind.backend.cyrus.partitions.tests</module>
 		<module>net.bluemind.backend.cyrus</module>
 		<module>net.bluemind.backend.cyrus.bmgroups</module>
 		<module>net.bluemind.backend.cyrus.bmgroups.tests</module>
@@ -28,10 +28,8 @@
 		<module>net.bluemind.backend.postfix.tests</module>
 		<module>net.bluemind.backend.systemconf</module>
 		<module>net.bluemind.backend.systemconf.tests</module>
-
 		<module>net.bluemind.imap.vertx</module>
 		<module>net.bluemind.imap.vertx.tests</module>
-
 		<module>net.bluemind.backend.mail.api</module>
 		<module>net.bluemind.backend.mail.replica.api</module>
 		<module>net.bluemind.backend.mail.replica.utils</module>
@@ -54,10 +52,7 @@
 		<module>net.bluemind.backend.cyrus.syncclient.mgmt</module>
 		<module>net.bluemind.backend.cyrus.replication.server.tests</module>
 		<module>net.bluemind.backend.cyrus.replication.link</module>
-
 		<module>net.bluemind.backend.cyrus.integrity.check</module>
 		<module>net.bluemind.backend.cyrus.integrity.check.tests</module>
-
 	</modules>
-
 </project>

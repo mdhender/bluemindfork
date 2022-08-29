@@ -23,14 +23,14 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.sanitizer,
  net.bluemind.core.validator,
  net.bluemind.system.importation.commons;bundle-version="1.0.0",
- org.apache.commons.lang;bundle-version="2.4.0",
+ org.apache.commons.lang3,
  net.bluemind.system.ldap.importation.api,
  net.bluemind.system.schemaupgrader,
  net.bluemind.core.task.service,
  net.bluemind.eclipse.common,
  net.bluemind.metrics.registry
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: blue-mind.net
 Export-Package: net.bluemind.system.ldap.importation;
   uses:="org.osgi.framework,

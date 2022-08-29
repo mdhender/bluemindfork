@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.mailbox.identity.persistence.tests
 Bundle-SymbolicName: net.bluemind.mailbox.identity.persistence.tests
 Bundle-Version: 4.1.0.qualifier
 Fragment-Host: net.bluemind.mailbox.identity.persistence
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.jdbc.testshelper,
  org.junit,
  net.bluemind.core.context,

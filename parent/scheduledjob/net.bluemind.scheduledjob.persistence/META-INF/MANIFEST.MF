@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.scheduledjob.persistence
 Bundle-SymbolicName: net.bluemind.scheduledjob.persistence
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.scheduledjob.sqlschema;bundle-version="1.0.0",
  net.bluemind.core.jdbc;bundle-version="1.0.0",
  slf4j.api,

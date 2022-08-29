@@ -7,7 +7,7 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.exchange.mapi.api;visibility:=reexport,
  net.bluemind.eclipse.common
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.exchange.mapi.hook
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.exchange.mapi.hook

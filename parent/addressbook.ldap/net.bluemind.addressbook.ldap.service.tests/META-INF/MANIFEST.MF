@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.addressbook.ldap.service.tests
 Bundle-SymbolicName: net.bluemind.addressbook.ldap.service.tests
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper,
  net.bluemind.scheduledjob.scheduler,

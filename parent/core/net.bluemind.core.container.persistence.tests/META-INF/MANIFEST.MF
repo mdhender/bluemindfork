@@ -16,5 +16,5 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.tests.defaultdata,
  net.bluemind.core.tests.testshelper,
  net.bluemind.backend.mail.replica.api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.core.container.persistence.tests

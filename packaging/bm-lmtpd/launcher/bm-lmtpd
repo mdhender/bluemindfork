@@ -25,6 +25,6 @@ pidfile=$1
 
 export THREAD_STACK=1m
 
-source ${curdir}/equinox-systemd.lib ${product}
+source ${curdir}/equinox-systemd.sh ${product}
 
-bm_equinox_run_server_appid ${curdir} ${appid}
+bm_equinox_run_server_appid ${curdir} ${appid} $@

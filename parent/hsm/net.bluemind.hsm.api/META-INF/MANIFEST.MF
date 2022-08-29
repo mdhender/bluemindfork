@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.hsm.api
 Bundle-SymbolicName: net.bluemind.hsm.api
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0"
 Export-Package: net.bluemind.hsm.api
 Automatic-Module-Name: net.bluemind.hsm.api

@@ -16,5 +16,5 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.commons.io;bundle-version="2.3.0",
  net.bluemind.common.io;bundle-version="4.1.0",
  net.bluemind.lib.vertx
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.eas.wbxml.builder.tests

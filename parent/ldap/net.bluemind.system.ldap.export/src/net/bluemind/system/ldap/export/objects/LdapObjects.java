@@ -59,9 +59,9 @@ public abstract class LdapObjects {
 			return modifyRequest.replace(attribute);
 		}
 
-		Iterator<Value<?>> it = attribute.iterator();
+		Iterator<Value> it = attribute.iterator();
 		while (it.hasNext()) {
-			Value<?> val = it.next();
+			Value val = it.next();
 			if (!currentAttribute.contains(val)) {
 				return modifyRequest.replace(attribute);
 			}

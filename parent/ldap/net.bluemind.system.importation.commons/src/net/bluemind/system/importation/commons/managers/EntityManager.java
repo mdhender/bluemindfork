@@ -55,7 +55,7 @@ public abstract class EntityManager {
 				continue;
 			}
 
-			Iterator<Value<?>> adIterator = mailAttr.iterator();
+			Iterator<Value> adIterator = mailAttr.iterator();
 			while (adIterator.hasNext()) {
 				String userEmail = adIterator.next().getString().trim().toLowerCase();
 				if (userEmail.isEmpty()) {
@@ -83,7 +83,7 @@ public abstract class EntityManager {
 		}
 
 		String attributeValue = null;
-		Iterator<Value<?>> iterator = attribute.iterator();
+		Iterator<Value> iterator = attribute.iterator();
 		if (iterator.hasNext()) {
 			attributeValue = iterator.next().getString().trim();
 			if (attributeValue.isEmpty()) {

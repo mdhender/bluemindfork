@@ -102,8 +102,8 @@ public class MailboxRecordColumns {
 				statement.setString(index++, value.messageBody);
 				statement.setLong(index++, value.imapUid);
 				statement.setLong(index++, value.modSeq);
-				statement.setTimestamp(index++, new Timestamp(value.lastUpdated.getTime()));
-				statement.setTimestamp(index++, new Timestamp(value.internalDate.getTime()));
+				statement.setTimestamp(index++, Timestamp.from(value.lastUpdated.toInstant()));
+				statement.setTimestamp(index++, Timestamp.from(value.internalDate.toInstant()));
 				int compoundFlags = 0;
 				List<String> otherFlags = new LinkedList<>();
 				for (MailboxItemFlag mif : value.flags) {

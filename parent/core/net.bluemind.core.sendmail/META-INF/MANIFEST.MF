@@ -13,9 +13,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest,
  net.bluemind.config,
  net.bluemind.network.topology,
- com.sun.mail.javax.mail;bundle-version="1.5.2",
+ com.sun.mail.jakarta.mail,
  net.bluemind.lib.ristretto
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.sendmail
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx

@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.milter.srs.tests
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.milter.srs.tests
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.milter.srs,
  org.junit,
  net.bluemind.milter,

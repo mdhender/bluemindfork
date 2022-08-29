@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.mailindex.integration.tests
 Bundle-SymbolicName: net.bluemind.mailindex.integration.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.lib.elasticsearch;bundle-version="1.0.0",
@@ -15,7 +15,7 @@ Require-Bundle: org.junit,
  net.bluemind.core.elasticsearch.testshelper,
  net.bluemind.core.tests.testshelper,
  org.mnode.ical4j,
- javax.mail-api;bundle-version="1.5.2",
+ com.sun.mail.jakarta.mail,
  net.bluemind.backend.cyrus.replication.testhelper,
  net.bluemind.vertx.testhelper,
  net.bluemind.backend.cyrus,

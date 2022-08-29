@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: GWT Image upload js
 Bundle-SymbolicName: net.bluemind.ui.imageupload.standalone;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Web-Resources: web-resources
 Require-Bundle: com.google.gwt.user;resolution:=optional,
  net.bluemind.ui.imageupload;bundle-version="4.1.0"

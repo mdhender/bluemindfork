@@ -44,11 +44,11 @@ import net.bluemind.filehosting.api.IFileHosting;
 
 public class HttpAttachmentServiceTests extends AttachmentServiceTests {
 	protected IFileHosting getFileHostingService(SecurityContext context) throws ServerFault {
-		SecurityContext sec = new SecurityContext("toto", context.getSubject(), Collections.emptyList(),
+		SecurityContext sec = new SecurityContext("totox", context.getSubject(), Collections.emptyList(),
 				Arrays.asList("canRemoteAttach", "canUseFilehosting"), Collections.emptyMap(), domainName, "fr",
-				"origine", false, "toto");
-		Sessions.get().put("toto", sec);
-		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", "toto").instance(IFileHosting.class,
+				"origine", false, "totox");
+		Sessions.get().put("totox", sec);
+		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", "totox").instance(IFileHosting.class,
 				AttachmentServiceTests.domainName);
 
 	}

@@ -83,9 +83,8 @@ public class ContainerStore extends JdbcAbstractStore {
 			value.owner = rs.getString(index++);
 			value.createdBy = rs.getString(index++);
 			value.updatedBy = rs.getString(index++);
-
-			value.created = new Date(rs.getTimestamp(index++).getTime());
-			value.updated = new Date(rs.getTimestamp(index++).getTime());
+			value.created = Date.from(rs.getTimestamp(index++).toInstant());
+			value.updated = Date.from(rs.getTimestamp(index++).toInstant());
 			value.defaultContainer = rs.getBoolean(index++);
 			value.domainUid = interner.intern(rs.getString(index++));
 			value.readOnly = rs.getBoolean(index++);

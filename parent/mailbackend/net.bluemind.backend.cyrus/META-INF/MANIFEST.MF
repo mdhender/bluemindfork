@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.backend.cyrus;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.backend.cyrus,
  net.bluemind.backend.cyrus.internal
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.container.api;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",
@@ -23,7 +23,7 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  org.freemarker.freemarker;bundle-version="2.3.20",
  net.bluemind.core.rest,
  net.bluemind.core.container.hooks;visibility:=reexport,
- org.apache.commons.lang;bundle-version="2.4.0",
+ org.apache.commons.lang3,
  net.bluemind.config;bundle-version="1.0.0",
  net.bluemind.core.sessions,
  net.bluemind.mailbox.api,
@@ -46,7 +46,6 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.lib.jutf7,
  net.bluemind.network.topology,
  net.bluemind.system.state,
- com.sun.mail.javax.mail;bundle-version="1.5.2",
  org.apache.james.apache-mime4j-dom;bundle-version="0.7.3",
  org.apache.james.apache-mime4j-core;bundle-version="0.7.3",
  org.apache.james.apache-mime4j-storage;bundle-version="0.7.3",
@@ -56,7 +55,8 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.mailshare.api,
  net.bluemind.system.sysconf.helper,
  net.bluemind.backend.cyrus.replication.client,
- net.bluemind.system.helper
+ net.bluemind.system.helper,
+ com.sun.mail.jakarta.mail
 Automatic-Module-Name: net.bluemind.backend.cyrus
 
 

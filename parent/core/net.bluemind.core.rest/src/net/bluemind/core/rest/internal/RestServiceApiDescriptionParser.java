@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

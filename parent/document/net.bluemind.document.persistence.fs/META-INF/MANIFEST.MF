@@ -16,7 +16,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.api,
  net.bluemind.lib.vertx,
  net.bluemind.sds.store.loader
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: net.bluemind.document.persistence.fs
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.document.persistence.fs

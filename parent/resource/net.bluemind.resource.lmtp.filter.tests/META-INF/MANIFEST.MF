@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.resource.lmtp.filter.tests
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
 Fragment-Host: net.bluemind.resource.lmtp.filter
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit,
  net.bluemind.user.api,
  net.bluemind.resource.api,

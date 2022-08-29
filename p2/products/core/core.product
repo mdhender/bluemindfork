@@ -17,7 +17,7 @@
 
    <windowImages/>
 
-   <launcher name="core">
+   <launcher>
       <win useIco="false">
          <bmp/>
       </win>
@@ -28,8 +28,6 @@
 
    <plugins>
       <plugin id="backport-util-concurrent"/>
-      <plugin id="bcpkix"/>
-      <plugin id="bcprov"/>
       <plugin id="ch.qos.logback.classic"/>
       <plugin id="ch.qos.logback.core"/>
       <plugin id="com.beetstra.jutf7"/>
@@ -48,16 +46,19 @@
       <plugin id="com.lowagie.itext"/>
       <plugin id="com.netflix.hollow"/>
       <plugin id="com.netflix.spectator.api"/>
-      <plugin id="com.sun.mail.javax.mail"/>
+      <plugin id="com.sun.mail.jakarta.mail"/>
       <plugin id="com.typesafe.config"/>
       <plugin id="com.typesafe.netty.reactive-streams"/>
       <plugin id="com.zaxxer.HikariCP"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.web"/>
-      <plugin id="javax.mail-api"/>
+      <plugin id="jakarta.activation-api"/>
+      <plugin id="jakarta.ws.rs-api"/>
+      <plugin id="jakarta.xml.bind-api"/>
+      <plugin id="javax.activation"/>
+      <plugin id="javax.validation"/>
       <plugin id="javax.validation.api"/>
-      <plugin id="javax.ws.rs"/>
       <plugin id="javax.xml"/>
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>
@@ -401,6 +402,7 @@
       <plugin id="net.bluemind.signature.commons.core"/>
       <plugin id="net.bluemind.slf4j"/>
       <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
+      <plugin id="net.bluemind.soap"/>
       <plugin id="net.bluemind.ssl.hook"/>
       <plugin id="net.bluemind.system.api"/>
       <plugin id="net.bluemind.system.auth"/>
@@ -450,7 +452,6 @@
       <plugin id="net.bluemind.user.service"/>
       <plugin id="net.bluemind.user.sqlschema"/>
       <plugin id="net.bluemind.utils"/>
-      <plugin id="net.bluemind.vertx.core.patch" fragment="true"/>
       <plugin id="net.bluemind.videoconferencing.api"/>
       <plugin id="net.bluemind.videoconferencing.hosting"/>
       <plugin id="net.bluemind.videoconferencing.saas.api"/>
@@ -469,24 +470,29 @@
       <plugin id="net.bluemind.xmpp.coresession"/>
       <plugin id="net.java.dev.jna"/>
       <plugin id="net.sf.jtidy"/>
+      <plugin id="org.apache.batik.anim"/>
       <plugin id="org.apache.batik.bridge"/>
+      <plugin id="org.apache.batik.codec"/>
+      <plugin id="org.apache.batik.constants"/>
       <plugin id="org.apache.batik.css"/>
       <plugin id="org.apache.batik.dom"/>
       <plugin id="org.apache.batik.dom.svg"/>
       <plugin id="org.apache.batik.ext.awt"/>
-      <plugin id="org.apache.batik.extension"/>
+      <plugin id="org.apache.batik.i18n"/>
       <plugin id="org.apache.batik.parser"/>
       <plugin id="org.apache.batik.pdf"/>
       <plugin id="org.apache.batik.svggen"/>
       <plugin id="org.apache.batik.transcoder"/>
       <plugin id="org.apache.batik.util"/>
-      <plugin id="org.apache.batik.util.gui"/>
       <plugin id="org.apache.batik.xml"/>
       <plugin id="org.apache.commons.codec"/>
       <plugin id="org.apache.commons.collections"/>
       <plugin id="org.apache.commons.io"/>
-      <plugin id="org.apache.commons.lang"/>
       <plugin id="org.apache.commons.lang3"/>
+      <plugin id="org.apache.felix.gogo.command"/>
+      <plugin id="org.apache.felix.gogo.runtime"/>
+      <plugin id="org.apache.felix.gogo.shell"/>
+      <plugin id="org.apache.felix.scr"/>
       <plugin id="org.apache.httpcomponents.httpclient"/>
       <plugin id="org.apache.httpcomponents.httpcore"/>
       <plugin id="org.apache.james.apache-mime4j-core"/>
@@ -499,20 +505,53 @@
       <plugin id="org.apache.xerces"/>
       <plugin id="org.apache.xml.resolver"/>
       <plugin id="org.apache.xml.serializer"/>
+      <plugin id="org.apache.xmlgraphics"/>
       <plugin id="org.asynchttpclient.async-http-client"/>
       <plugin id="org.asynchttpclient.async-http-client-netty-utils"/>
       <plugin id="org.bitbucket.b_c.jose4j"/>
+      <plugin id="org.bouncycastle.bcpg"/>
+      <plugin id="org.bouncycastle.bcpkix"/>
+      <plugin id="org.bouncycastle.bcprov"/>
+      <plugin id="org.bouncycastle.bcutil"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.runtime"/>
       <plugin id="org.eclipse.equinox.app"/>
       <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.concurrent"/>
+      <plugin id="org.eclipse.equinox.console"/>
+      <plugin id="org.eclipse.equinox.event"/>
+      <plugin id="org.eclipse.equinox.frameworkadmin"/>
+      <plugin id="org.eclipse.equinox.frameworkadmin.equinox"/>
+      <plugin id="org.eclipse.equinox.p2.artifact.repository"/>
+      <plugin id="org.eclipse.equinox.p2.console"/>
+      <plugin id="org.eclipse.equinox.p2.core"/>
+      <plugin id="org.eclipse.equinox.p2.director"/>
+      <plugin id="org.eclipse.equinox.p2.director.app"/>
+      <plugin id="org.eclipse.equinox.p2.directorywatcher"/>
+      <plugin id="org.eclipse.equinox.p2.engine"/>
+      <plugin id="org.eclipse.equinox.p2.extensionlocation"/>
+      <plugin id="org.eclipse.equinox.p2.garbagecollector"/>
+      <plugin id="org.eclipse.equinox.p2.jarprocessor"/>
+      <plugin id="org.eclipse.equinox.p2.metadata"/>
+      <plugin id="org.eclipse.equinox.p2.metadata.repository"/>
+      <plugin id="org.eclipse.equinox.p2.operations"/>
+      <plugin id="org.eclipse.equinox.p2.publisher"/>
+      <plugin id="org.eclipse.equinox.p2.publisher.eclipse"/>
+      <plugin id="org.eclipse.equinox.p2.reconciler.dropins"/>
+      <plugin id="org.eclipse.equinox.p2.repository"/>
+      <plugin id="org.eclipse.equinox.p2.repository.tools"/>
+      <plugin id="org.eclipse.equinox.p2.touchpoint.eclipse"/>
+      <plugin id="org.eclipse.equinox.p2.touchpoint.natives"/>
       <plugin id="org.eclipse.equinox.preferences"/>
       <plugin id="org.eclipse.equinox.registry"/>
-      <plugin id="org.eclipse.equinox.util"/>
+      <plugin id="org.eclipse.equinox.security"/>
+      <plugin id="org.eclipse.equinox.simpleconfigurator"/>
+      <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
       <plugin id="org.eclipse.osgi"/>
+      <plugin id="org.eclipse.osgi.compatibility.state" fragment="true"/>
       <plugin id="org.eclipse.osgi.services"/>
-      <plugin id="org.eclipse.update.configurator"/>
+      <plugin id="org.eclipse.osgi.util"/>
       <plugin id="org.freemarker.freemarker"/>
       <plugin id="org.hibernate.validator"/>
       <plugin id="org.igniterealtime.smack.core"/>
@@ -529,8 +568,11 @@
       <plugin id="org.postgresql.jdbc42"/>
       <plugin id="org.quartz-scheduler.quartz"/>
       <plugin id="org.reactivestreams.reactive-streams"/>
+      <plugin id="org.sat4j.core"/>
+      <plugin id="org.sat4j.pb"/>
       <plugin id="org.shredzone.acme4j.client"/>
       <plugin id="org.shredzone.acme4j.utils"/>
+      <plugin id="org.tukaani.xz"/>
       <plugin id="org.w3c.css.sac"/>
       <plugin id="org.w3c.dom.events"/>
       <plugin id="org.w3c.dom.smil"/>
@@ -543,9 +585,17 @@
    </plugins>
 
    <configurations>
-      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <plugin id="net.bluemind.sentry.settings" autoStart="true" startLevel="4" />
+      <plugin id="org.apache.felix.scr" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
       <property name="osgi.noShutdown" value="true" />
-      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
+      <property name="org.eclipse.equinox.p2.reconciler.dropins.directory" value="/usr/share/bm-core/extensions" />
+      <property name="osgi.instance.area" value="/var/lib/bm-core/" />
+      <property name="eclipse.registry.MultiLanguage" value="true" />
    </configurations>
 
    <preferencesInfo>

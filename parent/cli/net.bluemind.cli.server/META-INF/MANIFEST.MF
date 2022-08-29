@@ -10,6 +10,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  net.bluemind.server.api,
  net.bluemind.core.task.spi
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.cli.server
 Export-Package: net.bluemind.cli.server

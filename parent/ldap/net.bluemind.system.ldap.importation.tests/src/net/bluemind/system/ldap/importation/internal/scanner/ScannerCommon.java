@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 
-import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -47,6 +46,7 @@ import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.api.ldap.model.message.ModifyResponse;
 import org.apache.directory.api.ldap.model.message.Response;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.junit.Test;
@@ -226,7 +226,7 @@ public abstract class ScannerCommon {
 					continue;
 				}
 
-				entry = ((SearchResultEntryDecorator) response).getEntry();
+				entry = ((SearchResultEntry) response).getEntry();
 			}
 		}
 
@@ -307,7 +307,7 @@ public abstract class ScannerCommon {
 					continue;
 				}
 
-				entry = ((SearchResultEntryDecorator) response).getEntry();
+				entry = ((SearchResultEntry) response).getEntry();
 			}
 		}
 

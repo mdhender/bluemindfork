@@ -14,7 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.vertx;bundle-version="4.1.0",
  com.hazelcast,
  net.bluemind.metrics.registry
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: net.bluemind.hornetq.client,
  net.bluemind.hornetq.client.vertx
 Automatic-Module-Name: net.bluemind.hornetq.client

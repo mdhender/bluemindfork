@@ -45,10 +45,8 @@ public class RawDataSource implements DataSource {
 	/**
 	 * Creates a RawDataSource from a RawInputStream.
 	 *
-	 * @param in
-	 *            the RawInputStream providing the data
-	 * @param mimeType
-	 *            the mime type of the data
+	 * @param in       the RawInputStream providing the data
+	 * @param mimeType the mime type of the data
 	 */
 	public RawDataSource(RawInputStream in, String mimeType) {
 		this(in, mimeType, null);
@@ -57,12 +55,9 @@ public class RawDataSource implements DataSource {
 	/**
 	 * Creates a RawDataSource from a RawInputStream.
 	 *
-	 * @param in
-	 *            the RawInputStream providing the data
-	 * @param mimeType
-	 *            the mime type of the data
-	 * @param name
-	 *            the name associated with the data (such as a filename)
+	 * @param in       the RawInputStream providing the data
+	 * @param mimeType the mime type of the data
+	 * @param name     the name associated with the data (such as a filename)
 	 */
 	public RawDataSource(RawInputStream in, String mimeType, String name) {
 		this.mimeType = mimeType;
@@ -72,8 +67,7 @@ public class RawDataSource implements DataSource {
 
 	/**
 	 * Returns an InputStream providing the raw data bytes. Note: a new stream
-	 * instance is returned each time, in accordance with the DataSource
-	 * interface.
+	 * instance is returned each time, in accordance with the DataSource interface.
 	 *
 	 * @return an InputStream providing the raw data bytes
 	 */
@@ -82,9 +76,8 @@ public class RawDataSource implements DataSource {
 	}
 
 	/**
-	 * Returns an OutputStream for setting the raw data bytes. Note: a new
-	 * stream instance is returned each time, in accordance with the DataSource
-	 * interface.
+	 * Returns an OutputStream for setting the raw data bytes. Note: a new stream
+	 * instance is returned each time, in accordance with the DataSource interface.
 	 *
 	 * @return an OutputStream for setting the raw data bytes
 	 */

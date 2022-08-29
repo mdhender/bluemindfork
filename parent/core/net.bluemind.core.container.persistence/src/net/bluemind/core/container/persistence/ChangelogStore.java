@@ -85,7 +85,7 @@ public class ChangelogStore extends JdbcAbstractStore {
 			value.itemExtId = rs.getString(index++);
 			value.type = ChangeLogEntry.Type.values()[rs.getByte(index++)];
 			value.author = rs.getString(index++);
-			value.date = new Date(rs.getTimestamp(index++).getTime());
+			value.date = Date.from(rs.getTimestamp(index++).toInstant());
 			value.origin = rs.getString(index++);
 			value.internalId = rs.getLong(index++);
 			value.weightSeed = rs.getLong(index++);

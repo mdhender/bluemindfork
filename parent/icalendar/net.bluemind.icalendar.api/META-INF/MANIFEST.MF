@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.icalendar.api
 Bundle-SymbolicName: net.bluemind.icalendar.api
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: net.bluemind.icalendar.api
 Require-Bundle: net.bluemind.core.commons,
  slf4j.api,

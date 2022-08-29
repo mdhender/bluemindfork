@@ -13,7 +13,7 @@
       </vmArgsMac>
    </launcherArgs>
 
-   <launcher name="defaultapp">
+   <launcher>
       <solaris/>
       <win useIco="false">
          <bmp/>

@@ -17,5 +17,5 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.forest.instance.api;bundle-version="4.1.0",
  net.bluemind.forest.instance.service;bundle-version="4.1.0",
  net.bluemind.config
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.forest.join.tests

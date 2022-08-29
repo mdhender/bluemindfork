@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.common.freemarker
 Bundle-SymbolicName: net.bluemind.common.freemarker
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  org.freemarker.freemarker;bundle-version="2.3.30";visibility:=reexport,
  slf4j.api;bundle-version="1.7.5"

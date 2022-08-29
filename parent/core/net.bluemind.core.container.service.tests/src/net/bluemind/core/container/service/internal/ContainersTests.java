@@ -30,15 +30,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.util.concurrent.SettableFuture;
-
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -93,19 +90,8 @@ public class ContainersTests {
 		containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), admin0SecurityContext);
 
 		aclStore = new AclStore(null, JdbcTestHelper.getInstance().getDataSource());
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		ServerSideServiceProvider.mailboxDataSource.put("dir", JdbcTestHelper.getInstance().getDataSource());
-
-		future.get();
 	}
 
 	@After

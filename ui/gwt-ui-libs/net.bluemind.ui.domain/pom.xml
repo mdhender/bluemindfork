@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<artifactId>net.bluemind.ui.domain</artifactId>
 	<packaging>eclipse-plugin</packaging>
 	<parent>
@@ -10,17 +8,6 @@
 		<groupId>net.bluemind</groupId>
 		<artifactId>gwt-ui-libs</artifactId>
 	</parent>
-
-	<dependencies>
-		<dependency>
-			<groupId>com.google.gwt</groupId>
-			<artifactId>gwt-user</artifactId>
-			<version>2.5.0</version>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
-
-
 	<build>
 		<plugins>
 			<plugin>
@@ -34,7 +21,6 @@
 								<include>**/*</include>
 							</includes>
 						</fileSet>
-
 						<fileSet>
 							<directory>${basedir}/src/</directory>
 							<includes>

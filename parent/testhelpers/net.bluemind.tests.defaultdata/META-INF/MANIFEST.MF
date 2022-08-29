@@ -29,13 +29,13 @@ Require-Bundle: net.bluemind.core.container.persistence,
  net.bluemind.mailbox.service;bundle-version="1.0.0",
  net.bluemind.node.client;bundle-version="1.0.0",
  net.bluemind.node.api;bundle-version="1.0.0",
- org.apache.commons.lang,
  net.bluemind.group.service;bundle-version="1.0.0",
  net.bluemind.core.caches.testhelper,
  net.bluemind.externaluser.api,
  net.bluemind.externaluser.service;bundle-version="4.1.0",
- net.bluemind.network.topology
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+ net.bluemind.network.topology,
+ org.apache.commons.lang3
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.tests.defaultdata
 Automatic-Module-Name: net.bluemind.tests.defaultdata

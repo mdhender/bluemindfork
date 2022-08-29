@@ -17,5 +17,5 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.icalendar.persistence;bundle-version="1.0.0",
  net.bluemind.attachment.api,
  net.bluemind.network.topology
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.calendar.persistence

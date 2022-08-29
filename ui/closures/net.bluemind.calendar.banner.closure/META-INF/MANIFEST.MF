@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.calendar.banner.closure
 Bundle-SymbolicName: net.bluemind.calendar.banner.closure;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Closure-Bundle-Type: Application
 Closure-Inputs: net/bluemind/calendar/banner/CalendarBanner.js
 Require-Bundle: net.bluemind.container.closure;bundle-version="1.0.0",

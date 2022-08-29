@@ -10,6 +10,6 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.directory.api,
  net.bluemind.core.task.service
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.core.container.hierarchy.repair
 Bundle-ActivationPolicy: lazy

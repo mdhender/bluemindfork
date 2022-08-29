@@ -20,10 +20,10 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.addressbook.domainbook;bundle-version="1.0.0",
  net.bluemind.core.rest.http.vertx;bundle-version="1.0.0",
  net.bluemind.pool,
- jnr.unixsocket,
- jnr.enxio;bundle-version="0.6.0",
+ com.github.jnr.unixsocket,
+ com.github.jnr.enxio,
  net.bluemind.network.topology.producer;bundle-version="4.1.0",
  net.bluemind.network.topology
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.ysnp.tests

@@ -4,7 +4,7 @@ Bundle-Name: Tests
 Bundle-SymbolicName: net.bluemind.tag.hooks.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Fragment-Host: net.bluemind.tag.hooks
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",

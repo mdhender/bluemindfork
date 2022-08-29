@@ -194,7 +194,7 @@ public class LdapSearchTests {
 				groupName.add(findGroupsByGroupName.getEntry().get("cn").getString());
 
 				Attribute members = findGroupsByGroupName.getEntry().get(GroupMemberAttribute.member.name());
-				Iterator<Value<?>> iterator = members.iterator();
+				Iterator<Value> iterator = members.iterator();
 				while (iterator.hasNext()) {
 					String memberValue = iterator.next().getString();
 					if (memberValue != null && !memberValue.trim().isEmpty()) {

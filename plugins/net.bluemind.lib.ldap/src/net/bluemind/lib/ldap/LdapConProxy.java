@@ -55,6 +55,7 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.SaslRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,11 +95,7 @@ public class LdapConProxy implements LdapConnection, AutoCloseable {
 	protected void finalize() throws Throwable {
 		if (wrapped.isConnected()) {
 			logger.error("LDAP leak, alloc follows.", alloc);
-			try {
-				wrapped.close();
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-			}
+			wrapped.close();
 		}
 		super.finalize();
 	}
@@ -284,7 +281,7 @@ public class LdapConProxy implements LdapConnection, AutoCloseable {
 		return getConnection().compare(dn, attributeName, value);
 	}
 
-	public boolean compare(String dn, String attributeName, Value<?> value) throws LdapException {
+	public boolean compare(String dn, String attributeName, Value value) throws LdapException {
 		return getConnection().compare(dn, attributeName, value);
 	}
 
@@ -296,7 +293,7 @@ public class LdapConProxy implements LdapConnection, AutoCloseable {
 		return getConnection().compare(dn, attributeName, value);
 	}
 
-	public boolean compare(Dn dn, String attributeName, Value<?> value) throws LdapException {
+	public boolean compare(Dn dn, String attributeName, Value value) throws LdapException {
 		return getConnection().compare(dn, attributeName, value);
 	}
 
@@ -413,11 +410,7 @@ public class LdapConProxy implements LdapConnection, AutoCloseable {
 	}
 
 	private void tryBind() throws LdapException {
-		try {
-			wrapped.close();
-		} catch (IOException e) {
-		}
-
+		wrapped.close();
 		wrapped = getNewWrapped();
 
 		if (bindMethod == BindMethod.ANONYMOUS) {
@@ -455,5 +448,16 @@ public class LdapConProxy implements LdapConnection, AutoCloseable {
 	@Override
 	public boolean isRequestCompleted(int messageId) {
 		return wrapped.isRequestCompleted(messageId);
+	}
+
+	@Override
+	public BindResponse bind(SaslRequest arg0) throws LdapException {
+		return wrapped.bind(arg0);
+	}
+
+	@Override
+	public Throwable exceptionCaught() {
+		wrapped.exceptionCaught();
+		return null;
 	}
 }

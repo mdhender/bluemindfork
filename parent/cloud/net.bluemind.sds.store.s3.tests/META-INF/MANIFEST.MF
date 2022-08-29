@@ -29,6 +29,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.tests.defaultdata,
  net.bluemind.vertx.testhelper,
  org.junit
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.sds.store.s3.tests
 Bundle-ActivationPolicy: lazy

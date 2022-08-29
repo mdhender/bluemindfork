@@ -105,9 +105,10 @@ public class LdapPoolWrapper {
 
 		LdapConnectionPool tmpPool = null;
 		LdapConnection conn = null;
+
 		try {
 			tmpPool = new LdapConnectionPool(bpcf);
-			tmpPool.setMaxWait(10000L);
+			tmpPool.setMaxWaitMillis(10000L);
 
 			conn = tmpPool.getConnection();
 			tmpPool.releaseConnection(conn);

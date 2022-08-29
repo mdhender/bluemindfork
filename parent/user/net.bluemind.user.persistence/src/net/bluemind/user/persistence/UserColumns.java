@@ -60,7 +60,7 @@ public class UserColumns {
 				statement.setString(index++, u.login);
 				statement.setString(index++, u.password);
 				statement.setTimestamp(index++,
-						u.passwordLastChange == null ? null : new Timestamp(u.passwordLastChange.getTime()));
+						u.passwordLastChange == null ? null : Timestamp.from(u.passwordLastChange.toInstant()));
 				statement.setBoolean(index++, u.passwordMustChange);
 				statement.setBoolean(index++, u.passwordNeverExpires);
 				statement.setString(index++, u.routing.name());
@@ -89,7 +89,8 @@ public class UserColumns {
 				value.password = rs.getString(index++);
 
 				Timestamp passwordLastChange = rs.getTimestamp(index++);
-				value.passwordLastChange = passwordLastChange == null ? null : new Date(passwordLastChange.getTime());
+				value.passwordLastChange = passwordLastChange == null ? null
+						: Date.from(passwordLastChange.toInstant());
 
 				value.passwordMustChange = rs.getBoolean(index++);
 				value.passwordNeverExpires = rs.getBoolean(index++);

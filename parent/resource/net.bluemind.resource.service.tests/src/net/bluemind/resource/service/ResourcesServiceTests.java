@@ -24,6 +24,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -33,12 +35,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
+import javax.imageio.ImageIO;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.google.common.io.ByteStreams;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -93,8 +95,11 @@ public class ResourcesServiceTests {
 
 	@BeforeClass
 	public static void init() throws IOException {
-		image = ByteStreams
-				.toByteArray(ResourcesServiceTests.class.getClassLoader().getResourceAsStream("download.png"));
+		BufferedImage buff = ImageIO
+				.read(ResourcesServiceTests.class.getClassLoader().getResourceAsStream("download.png"));
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ImageIO.write(buff, "png", baos);
+		image = baos.toByteArray();
 	}
 
 	@Before

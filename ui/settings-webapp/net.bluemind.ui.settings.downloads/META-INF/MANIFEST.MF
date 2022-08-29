@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: net.bluemind.ui.settings.downloads;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Closure-Bundle-Type: Application
 Closure-Inputs: bluemind/settings-downloads.js
 Web-Resources: web-resources

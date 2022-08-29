@@ -31,7 +31,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -227,7 +226,7 @@ public abstract class Scanner {
 					continue;
 				}
 
-				Entry entry = ((SearchResultEntryDecorator) response).getEntry();
+				Entry entry = ((SearchResultEntry) response).getEntry();
 				getUuidMapperFromEntry(entry).ifPresent(extUid -> directoryEntryInfosByUuid.put(extUid,
 						new EntryInfos(entry.getDn(), isSuspended(entry))));
 			}
@@ -346,7 +345,7 @@ public abstract class Scanner {
 					continue;
 				}
 
-				Entry entry = ((SearchResultEntryDecorator) response).getEntry();
+				Entry entry = ((SearchResultEntry) response).getEntry();
 				getUuidMapperFromEntry(entry)
 						.ifPresent(groupExtUid -> directoryDnByExtuid.put(groupExtUid, entry.getDn()));
 			}

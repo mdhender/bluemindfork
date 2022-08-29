@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.documentfolder.api
 Bundle-SymbolicName: net.bluemind.documentfolder.api
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0"
 Export-Package: net.bluemind.documentfolder.api
 Eclipse-RegisterBuddy: net.bluemind.core.rest

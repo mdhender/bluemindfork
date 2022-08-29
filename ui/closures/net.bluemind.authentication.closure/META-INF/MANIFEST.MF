@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: net.bluemind.authentication.closure;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Closure-Bundle-Type: Library
 Require-Bundle: ydn-base;bundle-version="1.0.0",
  ydn-db;bundle-version="1.0.0",

@@ -52,12 +52,12 @@ public class ObservanceMapper {
 			Map<String, Integer> accumulation = new HashMap<>();
 			String id = tz.getTimeZoneId().getValue();
 
-			ComponentList observances = tz.getObservances();
+			ComponentList<Observance> observances = tz.getObservances();
 			for (int i = 0; i < observances.size(); i++) {
 				Observance comp = (Observance) observances.get(i);
 				long offset = comp.getOffsetFrom().getOffset().getTotalSeconds() * 1000;
-				String[] timezones = TimeZone.getAvailableIDs((int) offset);
-				addAccumulations(accumulation, timezones);
+				String[] xtimezones = TimeZone.getAvailableIDs((int) offset);
+				addAccumulations(accumulation, xtimezones);
 			}
 			if (!accumulation.isEmpty()) {
 				mapping.put(id, getBestHit(accumulation, id));

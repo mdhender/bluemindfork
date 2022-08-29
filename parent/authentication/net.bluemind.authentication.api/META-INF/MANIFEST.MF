@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.authentication.api
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.authentication.api,
  net.bluemind.authentication.api.incore
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.user.api;bundle-version="1.0.0",
  net.bluemind.core.container.api;bundle-version="1.0.0",

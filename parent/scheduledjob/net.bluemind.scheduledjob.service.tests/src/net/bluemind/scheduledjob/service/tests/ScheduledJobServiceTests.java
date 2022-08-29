@@ -30,16 +30,14 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.io.Files;
-import com.google.common.util.concurrent.SettableFuture;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -92,10 +90,7 @@ public class ScheduledJobServiceTests {
 		PopulateHelper.createTestDomain("bm.lan");
 		PopulateHelper.domainAdmin("bm.lan", admin.getSubject());
 
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = ar -> future.set(null);
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		// ?????
 		new JobRegistry();

@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.calendar.auditlog
 Bundle-SymbolicName: net.bluemind.calendar.auditlog
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: BlueMind
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.calendar.api;bundle-version="1.0.0",
  net.bluemind.core.auditlog;bundle-version="4.1.0",
  net.bluemind.core.container.api;bundle-version="4.1.0",

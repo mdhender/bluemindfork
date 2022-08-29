@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.webmodules.webapp.wrapper
 Bundle-SymbolicName: net.bluemind.webmodules.webapp.wrapper;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.webmodules.webapp,
  net.bluemind.webmodule,
  net.bluemind.webmodule.server,

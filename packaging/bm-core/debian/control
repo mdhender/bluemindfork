@@ -6,7 +6,7 @@ Standards-Version: 3.9.1
 
 Package: bm-core
 Architecture: amd64
-Depends: bm-jdk (= 8u342-bluemind52), bm-conf (= ${binary:Version}), openssl, bm-tika (= ${binary:Version}), bm-plugin-core-subscription (= ${binary:Version}), bm-upgraders-list (= ${binary:Version})
+Depends: bm-jdk (= 11.0.15+10-bluemind5), bm-conf (= ${binary:Version}), openssl, bm-tika (= ${binary:Version}), bm-plugin-core-subscription (= ${binary:Version}), bm-upgraders-list (= ${binary:Version})
 Recommends: bm-plugin-core-outlook (= ${binary:Version})
 Replaces: bm-ca, bm-cert, bm-plugin-core-backup, bm-plugin-core-hsm
 Conflicts: bm-ca, bm-cert

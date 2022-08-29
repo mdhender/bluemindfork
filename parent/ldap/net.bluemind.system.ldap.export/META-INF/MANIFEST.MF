@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.system.ldap.export
 Bundle-SymbolicName: net.bluemind.system.ldap.export;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.system.domaintemplate;bundle-version="4.1.0",
  net.bluemind.server.api;bundle-version="4.1.0",
  slf4j.api,

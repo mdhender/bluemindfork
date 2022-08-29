@@ -9,14 +9,13 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.core.commons,
  net.bluemind.common.io;bundle-version="4.1.0",
- javax.mail-api;bundle-version="1.5.2",
- org.jsoup
+ org.jsoup,
+ com.sun.mail.jakarta.mail
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.utils;
   uses:="org.eclipse.core.runtime,
    javax.xml.transform,
-   org.osgi.framework,
-   org.w3c.dom"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+   org.osgi.framework"
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: blue-mind.net
 Automatic-Module-Name: net.bluemind.utils

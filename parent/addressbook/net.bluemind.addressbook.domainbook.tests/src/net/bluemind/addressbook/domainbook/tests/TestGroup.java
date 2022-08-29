@@ -20,7 +20,7 @@ package net.bluemind.addressbook.domainbook.tests;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import net.bluemind.core.api.Email;
 import net.bluemind.group.api.Group;

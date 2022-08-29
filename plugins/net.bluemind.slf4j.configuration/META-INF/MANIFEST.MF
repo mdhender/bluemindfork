@@ -4,6 +4,6 @@ Bundle-Name: Configuration
 Bundle-SymbolicName: net.bluemind.slf4j.configuration
 Bundle-Version: 4.1.0.qualifier
 Fragment-Host: ch.qos.logback.classic;bundle-version="1.2.3"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ClassPath: .
 Automatic-Module-Name: net.bluemind.slf4j.configuration

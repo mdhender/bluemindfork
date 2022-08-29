@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: GWT common api
 Bundle-SymbolicName: net.bluemind.ui.gwtcommon.editor;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: com.google.gwt.user;resolution:=optional,
  net.bluemind.ui.gwtcommon.icons;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.ui.editor.standalone.closure;bundle-version="1.0.0"

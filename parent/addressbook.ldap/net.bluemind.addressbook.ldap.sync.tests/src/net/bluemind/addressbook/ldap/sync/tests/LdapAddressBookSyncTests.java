@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -34,10 +35,7 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.SettableFuture;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.AddressBookDescriptor;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.IAddressBooksMgmt;
@@ -58,6 +56,7 @@ import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.api.TaskStatus.State;
+import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.pool.impl.BmConfIni;
@@ -92,16 +91,7 @@ public class LdapAddressBookSyncTests {
 		PopulateHelper.createTestDomain(domainUid);
 		PopulateHelper.addDomainAdmin("admin", domainUid);
 
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		LdapDockerTestHelper.initLdapTree(this.getClass(), testName);
 	}
@@ -117,7 +107,7 @@ public class LdapAddressBookSyncTests {
 		IAddressBooksMgmt abMgmtService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IAddressBooksMgmt.class, domainUid);
 
-		Map<String, String> settings = new HashMap<String, String>();
+		Map<String, String> settings = new HashMap<>();
 		settings.put("type", "ldap");
 		settings.put("hostname", new BmConfIni().get(DockerContainer.LDAP.getName()));
 		settings.put("protocol", "plain");
@@ -208,15 +198,7 @@ public class LdapAddressBookSyncTests {
 
 	private ContainerSyncResult waitTaskRef(TaskRef taskRef) throws ServerFault {
 		ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class, taskRef.id);
-		while (!task.status().state.ended) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				throw new ServerFault(e);
-			}
-		}
-
-		TaskStatus status = task.status();
+		TaskStatus status = TaskUtils.wait(task, System.err::println);
 		if (status.state == State.InError) {
 			throw new ServerFault("import error");
 		}

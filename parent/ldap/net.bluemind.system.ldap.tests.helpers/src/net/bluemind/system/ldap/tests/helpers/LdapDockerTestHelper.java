@@ -20,7 +20,6 @@ package net.bluemind.system.ldap.tests.helpers;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -36,6 +35,7 @@ import org.apache.directory.api.ldap.model.message.Response;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
+import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -152,7 +152,7 @@ public class LdapDockerTestHelper {
 					continue;
 				}
 
-				entry = ((SearchResultEntryDecorator) response).getEntry();
+				entry = ((SearchResultEntry) response).getEntry();
 				deleteTree(ldapCon, entry.getDn().getName());
 			}
 

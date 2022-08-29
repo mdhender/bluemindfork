@@ -41,8 +41,7 @@ public class TNEFMimeMessage extends MimeMessage {
 	/**
 	 * Constructs an empty TNEFMimeMessage with default content.
 	 * 
-	 * @param session
-	 *            the session used to handle the MimeMessage
+	 * @param session the session used to handle the MimeMessage
 	 */
 	public TNEFMimeMessage(Session session) {
 		super(session);
@@ -60,8 +59,7 @@ public class TNEFMimeMessage extends MimeMessage {
 	/**
 	 * Sets the TNEFMimeMessage TNEF attributes.
 	 * 
-	 * @param attributes
-	 *            the TNEFMimeMessage TNEF attributes
+	 * @param attributes the TNEFMimeMessage TNEF attributes
 	 */
 	public void setTNEFAttributes(List<Attr> attributes) {
 		this.attributes = attributes;

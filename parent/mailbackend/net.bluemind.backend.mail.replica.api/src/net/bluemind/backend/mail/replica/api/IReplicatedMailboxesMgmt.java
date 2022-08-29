@@ -20,10 +20,10 @@ package net.bluemind.backend.mail.replica.api;
 import java.util.List;
 import java.util.Set;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 
 import net.bluemind.core.api.BMApi;
 

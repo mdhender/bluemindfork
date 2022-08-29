@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import javax.ws.rs.HttpMethod;
+import jakarta.ws.rs.HttpMethod;
 
 import org.junit.Test;
 

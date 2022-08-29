@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.videoconferencing.starleaf;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.videoconferencing.starleaf
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.videoconferencing.api,
  com.google.guava,
  com.fasterxml.jackson.core.jackson-databind,

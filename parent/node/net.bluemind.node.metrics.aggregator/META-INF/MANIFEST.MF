@@ -8,7 +8,7 @@ Require-Bundle: org.eclipse.core.runtime,
  io.vertx.core,
  net.bluemind.lib.vertx,
  slf4j.api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.node.metrics.aggregator
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.node.metrics.aggregator

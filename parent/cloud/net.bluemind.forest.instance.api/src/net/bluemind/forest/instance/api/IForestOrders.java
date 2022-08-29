@@ -17,8 +17,8 @@
  */
 package net.bluemind.forest.instance.api;
 
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
 
 import net.bluemind.core.api.BMApi;
 

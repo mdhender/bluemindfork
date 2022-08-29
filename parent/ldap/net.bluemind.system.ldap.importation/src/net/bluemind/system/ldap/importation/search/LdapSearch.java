@@ -21,10 +21,10 @@ package net.bluemind.system.ldap.importation.search;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
-import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
+import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -76,7 +76,7 @@ public class LdapSearch extends DirectorySearch<LdapParameters> {
 				ldapParameters.ldapDirectory.extIdAttribute)) {
 			return StreamSupport.stream(cursor.spliterator(), false)
 					.filter(r -> r.getType() == MessageTypeEnum.SEARCH_RESULT_ENTRY)
-					.map(r -> ((SearchResultEntryDecorator) r).getEntry()).findFirst();
+					.map(r -> ((SearchResultEntry) r).getEntry()).findFirst();
 		}
 	}
 
@@ -95,7 +95,7 @@ public class LdapSearch extends DirectorySearch<LdapParameters> {
 				ldapParameters.ldapDirectory.extIdAttribute)) {
 			return StreamSupport.stream(cursor.spliterator(), false)
 					.filter(r -> r.getType() == MessageTypeEnum.SEARCH_RESULT_ENTRY)
-					.map(r -> ((SearchResultEntryDecorator) r).getEntry()).findFirst();
+					.map(r -> ((SearchResultEntry) r).getEntry()).findFirst();
 		}
 	}
 

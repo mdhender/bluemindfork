@@ -20,6 +20,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest.http.vertx;bundle-version="4.1.0",
  io.vertx.core,
  org.mockito.mockito-all;bundle-version="2.0.2"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.metrics.core.tests
 Bundle-ActivationPolicy: lazy

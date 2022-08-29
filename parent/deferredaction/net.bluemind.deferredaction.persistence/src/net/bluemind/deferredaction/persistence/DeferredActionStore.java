@@ -89,13 +89,13 @@ public class DeferredActionStore extends AbstractItemValueStore<DeferredAction> 
 		query.append(" WHERE ").append("action_id = ?");
 		query.append(" AND ").append("container_id = ?");
 		query.append(" AND ").append("execution_date <= ?");
-		Timestamp executionDate = new Timestamp(to.getTime());
+		Timestamp executionDate = Timestamp.from(to.toInstant());
 		return select(query.toString(), LongCreator.FIRST, Collections.emptyList(),
 				new Object[] { actionId, container.id, executionDate });
 	}
 
 	public boolean exists(DeferredAction value) throws SQLException {
-		Timestamp executionDate = new Timestamp(value.executionDate.getTime());
+		Timestamp executionDate = Timestamp.from(value.executionDate.toInstant());
 		StringBuilder query = new StringBuilder("SELECT 1 FROM ").append(TABLE_NAME);
 		query.append(" WHERE ").append("action_id = ? AND reference = ? and execution_date = ?");
 		return unique(query.toString(), BooleanCreator.FIRST, Collections.emptyList(),

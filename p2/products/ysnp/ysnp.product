@@ -13,7 +13,7 @@
       </vmArgsMac>
    </launcherArgs>
 
-   <launcher name="ysnp">
+   <launcher>
       <win useIco="false">
          <bmp/>
       </win>
@@ -35,20 +35,23 @@
       <plugin id="com.hazelcast"/>
       <plugin id="com.hazelcast.client" fragment="true"/>
       <plugin id="com.netflix.spectator.api"/>
-      <plugin id="com.sun.mail.javax.mail"/>
+      <plugin id="com.sun.mail.jakarta.mail"/>
       <plugin id="com.typesafe.netty.reactive-streams"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.web"/>
-      <plugin id="javax.mail-api"/>
+      <plugin id="jakarta.activation-api"/>
+      <plugin id="jakarta.xml.bind-api"/>
+      <plugin id="javax.activation"/>
       <plugin id="javax.validation.api"/>
-      <plugin id="javax.ws.rs"/>
+      <plugin id="jakarta.ws.rs-api"/>
       <plugin id="javax.xml"/>
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>
       <plugin id="net.bluemind.addressbook.api"/>
       <plugin id="net.bluemind.authentication.api"/>
       <plugin id="net.bluemind.backend.cyrus.bmgroups"/>
+      <plugin id="net.bluemind.common.cache.persistence"/>
       <plugin id="net.bluemind.common.io"/>
       <plugin id="net.bluemind.common.reflect"/>
       <plugin id="net.bluemind.config"/>
@@ -86,7 +89,6 @@
       <plugin id="net.bluemind.tag.api"/>
       <plugin id="net.bluemind.user.api"/>
       <plugin id="net.bluemind.utils"/>
-      <plugin id="net.bluemind.vertx.core.patch" fragment="true"/>
       <plugin id="net.bluemind.ysnp"/>
       <plugin id="net.bluemind.ysnp.bmcore"/>
       <plugin id="net.java.dev.jna"/>
@@ -97,17 +99,37 @@
       <plugin id="org.eclipse.core.runtime"/>
       <plugin id="org.eclipse.equinox.app"/>
       <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.event"/>
+      <plugin id="org.eclipse.equinox.p2.core"/>
+      <plugin id="org.eclipse.equinox.p2.engine"/>
+      <plugin id="org.eclipse.equinox.p2.metadata.repository"/>
+      <plugin id="org.eclipse.equinox.p2.operations"/>
+      <plugin id="org.eclipse.equinox.p2.reconciler.dropins"/>
+      <plugin id="org.eclipse.equinox.p2.repository"/>
       <plugin id="org.eclipse.equinox.preferences"/>
       <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.equinox.simpleconfigurator"/>
       <plugin id="org.eclipse.osgi"/>
-      <plugin id="org.eclipse.update.configurator"/>
+      <plugin id="org.eclipse.osgi.compatibility.state" fragment="true"/>
+      <plugin id="org.eclipse.osgi.services"/>
+      <plugin id="org.eclipse.osgi.util"/>
+      <plugin id="org.jsoup"/>
       <plugin id="org.reactivestreams.reactive-streams"/>
+      <plugin id="sentry"/>
       <plugin id="slf4j.api"/>
    </plugins>
 
    <configurations>
-      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.configuration.area" value="/var/lib/ysnp/" />
+      <plugin id="net.bluemind.sentry.settings" autoStart="true" startLevel="4" />
+      <plugin id="org.apache.felix.scr" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <property name="eclipse.registry.MultiLanguage" value="true" />
+      <property name="osgi.instance.area" value="/var/lib/bm-ysnp/" />
+      <property name="org.eclipse.equinox.p2.reconciler.dropins.directory" value="/usr/share/bm-ysnp/extensions" />
       <property name="osgi.noShutdown" value="true" />
    </configurations>
 

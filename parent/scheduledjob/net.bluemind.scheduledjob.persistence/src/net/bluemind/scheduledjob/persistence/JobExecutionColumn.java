@@ -67,9 +67,9 @@ public class JobExecutionColumn {
 				statement.setString(index++, value.execGroup);
 				statement.setString(index++, value.domainUid);
 				statement.setString(index++, value.jobId);
-				statement.setTimestamp(index++, new Timestamp(value.startDate.getTime()));
+				statement.setTimestamp(index++, Timestamp.from(value.startDate.toInstant()));
 				if (value.endDate != null) {
-					statement.setTimestamp(index++, new Timestamp(value.endDate.getTime()));
+					statement.setTimestamp(index++, Timestamp.from(value.endDate.toInstant()));
 				} else {
 					statement.setNull(index++, Types.TIMESTAMP);
 				}
@@ -104,10 +104,10 @@ public class JobExecutionColumn {
 				value.execGroup = rs.getString(index++);
 				value.domainUid = rs.getString(index++);
 				value.jobId = rs.getString(index++);
-				value.startDate = new Date(rs.getTimestamp(index++).getTime());
+				value.startDate = Date.from(rs.getTimestamp(index++).toInstant());
 				Timestamp endDate = rs.getTimestamp(index++);
 				if (endDate != null) {
-					value.endDate = new Date(endDate.getTime());
+					value.endDate = Date.from(endDate.toInstant());
 				}
 				value.status = JobExitStatus.valueOf(rs.getString(index++));
 

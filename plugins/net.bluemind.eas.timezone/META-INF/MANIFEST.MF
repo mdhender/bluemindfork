@@ -9,7 +9,7 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.lib.vertx,
  io.netty;bundle-version="4.0.33"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.eas.timezone
 Automatic-Module-Name: net.bluemind.eas.timezone

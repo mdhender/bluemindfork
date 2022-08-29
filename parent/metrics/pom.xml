@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>net.bluemind</groupId>
@@ -9,17 +9,14 @@
 	<artifactId>net.bluemind.metrics.plugins</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-	  <module>net.bluemind.metrics.alerts.api</module>
-	  <module>net.bluemind.metrics.transport</module>
-	  <module>net.bluemind.metrics.core</module>
-	  <module>net.bluemind.metrics.core.tests</module>
-	  <module>net.bluemind.metrics.registry</module>
-	  <module>net.bluemind.metrics.annotations</module>
-	  <module>net.bluemind.metrics.testhelper</module>
-	  <module>net.bluemind.metrics.registry.tests</module>
-	  <module>net.bluemind.tracing</module>
-	  <module>net.bluemind.tracing.tests</module>
-	  <module>net.bluemind.metrics.ui.role</module>
+		<module>net.bluemind.metrics.alerts.api</module>
+		<module>net.bluemind.metrics.transport</module>
+		<module>net.bluemind.metrics.core</module>
+		<module>net.bluemind.metrics.core.tests</module>
+		<module>net.bluemind.metrics.registry</module>
+		<module>net.bluemind.metrics.annotations</module>
+		<module>net.bluemind.metrics.testhelper</module>
+		<module>net.bluemind.metrics.registry.tests</module>
+		<module>net.bluemind.metrics.ui.role</module>
 	</modules>
-
 </project>

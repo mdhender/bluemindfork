@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.proxy.support.tests
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.proxy.support.tests
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: net.bluemind.system.api,
  net.bluemind.proxy.support,
  org.junit,

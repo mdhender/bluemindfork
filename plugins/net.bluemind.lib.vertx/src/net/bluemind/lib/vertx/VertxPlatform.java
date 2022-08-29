@@ -75,6 +75,7 @@ public final class VertxPlatform implements BundleActivator {
 		// LC: Don't disable setPreferNativeTransport as it will disable unix sockets
 		// too!
 		vertx = Vertx.vertx(new VertxOptions().setPreferNativeTransport(true));
+		vertx.exceptionHandler(t -> logger.error("Uncaught exception: {}", t.getMessage(), t));
 		VertxPlatform.context = bundleContext;
 	}
 

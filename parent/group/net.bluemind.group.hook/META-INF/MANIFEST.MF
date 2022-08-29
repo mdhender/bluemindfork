@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.group.hook
 Bundle-SymbolicName: net.bluemind.group.hook;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: net.bluemind.group.hook
 Require-Bundle: net.bluemind.lib.vertx;bundle-version="1.0.0",
  slf4j.api,

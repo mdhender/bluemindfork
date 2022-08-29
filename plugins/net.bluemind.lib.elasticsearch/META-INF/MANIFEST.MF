@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.network.utils,
  net.bluemind.network.topology,
  io.vertx.core
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ClassPath: .
 Export-Package: net.bluemind.lib.elasticsearch
 Bundle-ActivationPolicy: lazy

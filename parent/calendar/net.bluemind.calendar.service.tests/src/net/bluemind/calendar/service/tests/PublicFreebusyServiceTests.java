@@ -80,7 +80,7 @@ public class PublicFreebusyServiceTests extends AbstractCalendarTests {
 
 		CalendarBuilder builder = new CalendarBuilder();
 
-		PropertyList slots = new PropertyList();
+		PropertyList<Property> slots = new PropertyList<>();
 		@SuppressWarnings("unchecked")
 		BiConsumer<Calendar, Component> consumer = (calendar, component) -> {
 			if (component.getName().equals(Component.VFREEBUSY)) {
@@ -177,7 +177,7 @@ public class PublicFreebusyServiceTests extends AbstractCalendarTests {
 
 		System.err.println("\n" + ics);
 
-		PropertyList slots = new PropertyList();
+		PropertyList<Property> slots = new PropertyList<>();
 		@SuppressWarnings("unchecked")
 		BiConsumer<Calendar, Component> consumer = (calendar, component) -> {
 			if (component.getName().equals(Component.VFREEBUSY)) {

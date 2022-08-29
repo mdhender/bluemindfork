@@ -8,9 +8,9 @@ Bundle-Vendor: www.blue-mind.net
 Require-Bundle: com.typesafe.config,
  org.eclipse.core.runtime,
  slf4j.api,
- net.bluemind.central.reverse.proxy;bundle-version="1.0.0",
+ net.bluemind.central.reverse.proxy,
  net.bluemind.systemd.notify,
  net.bluemind.central.reverse.proxy.common
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.central.reverse.proxy.launcher

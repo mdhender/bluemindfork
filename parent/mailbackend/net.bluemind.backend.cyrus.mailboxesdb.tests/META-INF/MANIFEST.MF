@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.backend.cyrus.mailboxesdb.tests
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.backend.cyrus.mailboxesdb.tests
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit,
  net.bluemind.backend.cyrus.mailboxesdb,
  net.bluemind.node.api,

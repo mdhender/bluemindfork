@@ -18,15 +18,14 @@
   */
 package net.bluemind.lib.ldap.tests;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapTlsHandshakeException;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
-import org.apache.directory.ldap.client.api.exception.InvalidConnectionException;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -91,8 +90,8 @@ public class LdapConProxyTests {
 			assertTrue(ldapCon.isConnected());
 
 			ldapCon.anonymousBind();
-		} catch (InvalidConnectionException ice) {
-			assertEquals("SSL handshake failed.", ice.getMessage());
+		} catch (LdapTlsHandshakeException handshakeExc) {
+			assertTrue(handshakeExc.getMessage().contains("handshake failed"));
 		}
 
 		config = new LdapConnectionConfig();
@@ -105,8 +104,8 @@ public class LdapConProxyTests {
 			assertTrue(ldapCon.isConnected());
 
 			ldapCon.anonymousBind();
-		} catch (InvalidConnectionException ice) {
-			assertEquals("SSL handshake failed.", ice.getMessage());
+		} catch (LdapTlsHandshakeException handshakeExc) {
+			assertTrue(handshakeExc.getMessage().contains("handshake failed"));
 		}
 	}
 
@@ -140,8 +139,8 @@ public class LdapConProxyTests {
 			assertTrue(ldapCon.isConnected());
 
 			ldapCon.anonymousBind();
-		} catch (InvalidConnectionException ice) {
-			assertEquals("SSL handshake failed.", ice.getMessage());
+		} catch (LdapTlsHandshakeException handshakeExc) {
+			assertTrue(handshakeExc.getMessage().contains("handshake failed"));
 		}
 
 		config = new LdapConnectionConfig();
@@ -154,8 +153,8 @@ public class LdapConProxyTests {
 			assertTrue(ldapCon.isConnected());
 
 			ldapCon.anonymousBind();
-		} catch (InvalidConnectionException ice) {
-			assertEquals("SSL handshake failed.", ice.getMessage());
+		} catch (LdapTlsHandshakeException handshakeExc) {
+			assertTrue(handshakeExc.getMessage().contains("handshake failed"));
 		}
 	}
 }

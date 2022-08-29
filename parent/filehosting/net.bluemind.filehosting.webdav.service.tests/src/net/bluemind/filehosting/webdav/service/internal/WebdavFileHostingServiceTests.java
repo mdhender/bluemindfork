@@ -33,8 +33,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.Stream;
@@ -63,16 +61,7 @@ public class WebdavFileHostingServiceTests {
 
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 
-		final CountDownLatch latch = new CountDownLatch(1);
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				latch.countDown();
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		latch.await();
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		PopulateHelper.initGlobalVirt();
 

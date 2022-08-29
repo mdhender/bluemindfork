@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>net.bluemind</groupId>
@@ -13,12 +13,10 @@
 		<module>net.bluemind.common.io</module>
 		<module>net.bluemind.common.freemarker</module>
 		<module>net.bluemind.common.hollow</module>
-		<module>net.bluemind.vertx.core.patch</module>
 		<module>net.bluemind.systemd.notify</module>
 		<module>net.bluemind.systemd.notify.tests</module>
 		<module>net.bluemind.vertx.common.tests</module>
 		<module>net.bluemind.common.cache.persistence</module>
 		<module>net.bluemind.common.cache.persistence.tests</module>
 	</modules>
-
 </project>

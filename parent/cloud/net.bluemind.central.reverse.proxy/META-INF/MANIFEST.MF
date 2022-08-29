@@ -11,7 +11,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava;bundle-version="19.0.0",
  com.typesafe.config,
  io.netty;bundle-version="4.0.33",
- net.bluemind.lib.vertx;bundle-version="1.0.0",
+ net.bluemind.lib.vertx,
  net.bluemind.central.reverse.proxy.common,
  net.bluemind.central.reverse.proxy.model.client,
  net.bluemind.central.reverse.proxy.model.common,
@@ -23,7 +23,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.api,
  slf4j.api,
  io.vertx.core
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.central.reverse.proxy,
  net.bluemind.central.reverse.proxy.vertx

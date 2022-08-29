@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>net.bluemind</groupId>
@@ -9,47 +9,45 @@
 	<artifactId>net.bluemind.cloud.plugins</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-	  <module>net.bluemind.aws.s3.tests</module>
-	  <module>net.bluemind.aws.s3.utils</module>
-	  <module>net.bluemind.aws.s3.patch</module>
-	  <module>net.bluemind.sds.proxy</module>
-	  <module>net.bluemind.sds.proxy.tests</module>
-	  <module>net.bluemind.sds.proxy.launcher</module>
-	  <module>net.bluemind.sds.proxy.mgmt</module>
-	  <module>net.bluemind.sds.store</module>
-	  <module>net.bluemind.sds.store.loader</module>
-	  <module>net.bluemind.sds.store.s3</module>
-	  <module>net.bluemind.sds.store.s3.tests</module>
-	  <module>net.bluemind.sds.store.scalityring.tests</module>
-	  <module>net.bluemind.sds.store.scalityring</module>
-	  <module>net.bluemind.sds.proxy.testhelper</module>
-	  <module>net.bluemind.core.sds.configurator</module>
-	  <module>net.bluemind.core.sds.configurator.tests</module>
-	  <module>net.bluemind.cli.sds</module>
-	  
-	  <module>net.bluemind.kafka.container</module>
-	  <module>net.bluemind.kafka.client.tests</module>
-	  <module>net.bluemind.kafka.configuration</module>
-	  <module>net.bluemind.kafka.configuration.fs</module>
-	  <module>net.bluemind.forest.cloud.api</module>
-	  <module>net.bluemind.forest.cloud.hazelcast</module>
-	  <module>net.bluemind.forest.cloud.hazelcast.tests</module>
-	  <module>net.bluemind.forest.instance.api</module>
-	  <module>net.bluemind.forest.instance.cli</module>
-	  <module>net.bluemind.forest.cloud.service</module>
-	  <module>net.bluemind.forest.instance.service</module>
-	  <module>net.bluemind.forest.join.tests</module>
-      <module>net.bluemind.forest.cloud.launcher</module>
-      <module>net.bluemind.central.reverse.proxy</module>
-      <module>net.bluemind.central.reverse.proxy.common</module>
-      <module>net.bluemind.central.reverse.proxy.tests</module>
-      <module>net.bluemind.central.reverse.proxy.launcher</module>
-      <module>net.bluemind.central.reverse.proxy.model</module>
-      <module>net.bluemind.central.reverse.proxy.model.client</module>
-      <module>net.bluemind.central.reverse.proxy.model.common</module>
-      <module>net.bluemind.central.reverse.proxy.model.tests</module>
-      <module>net.bluemind.central.reverse.proxy.stream</module>
+		<module>net.bluemind.aws.s3.tests</module>
+		<module>net.bluemind.aws.s3.utils</module>
+		<module>net.bluemind.aws.s3.patch</module>
+		<module>net.bluemind.sds.proxy</module>
+		<module>net.bluemind.sds.proxy.tests</module>
+		<module>net.bluemind.sds.proxy.launcher</module>
+		<module>net.bluemind.sds.proxy.mgmt</module>
+		<module>net.bluemind.sds.store</module>
+		<module>net.bluemind.sds.store.loader</module>
+		<module>net.bluemind.sds.store.s3</module>
+		<module>net.bluemind.sds.store.s3.tests</module>
+		<module>net.bluemind.sds.store.scalityring.tests</module>
+		<module>net.bluemind.sds.store.scalityring</module>
+		<module>net.bluemind.sds.proxy.testhelper</module>
+		<module>net.bluemind.core.sds.configurator</module>
+		<module>net.bluemind.core.sds.configurator.tests</module>
+		<module>net.bluemind.cli.sds</module>
+		<module>net.bluemind.kafka.container</module>
+		<module>net.bluemind.kafka.client.tests</module>
+		<module>net.bluemind.kafka.configuration</module>
+		<module>net.bluemind.kafka.configuration.fs</module>
+		<module>net.bluemind.forest.cloud.api</module>
+		<module>net.bluemind.forest.cloud.hazelcast</module>
+		<module>net.bluemind.forest.cloud.hazelcast.tests</module>
+		<module>net.bluemind.forest.instance.api</module>
+		<module>net.bluemind.forest.instance.cli</module>
+		<module>net.bluemind.forest.cloud.service</module>
+		<module>net.bluemind.forest.instance.service</module>
+		<module>net.bluemind.forest.join.tests</module>
+		<module>net.bluemind.forest.cloud.launcher</module>
+		<module>net.bluemind.central.reverse.proxy</module>
+		<module>net.bluemind.central.reverse.proxy.common</module>
+		<module>net.bluemind.central.reverse.proxy.tests</module>
+		<module>net.bluemind.central.reverse.proxy.launcher</module>
+		<module>net.bluemind.central.reverse.proxy.model</module>
+		<module>net.bluemind.central.reverse.proxy.model.client</module>
+		<module>net.bluemind.central.reverse.proxy.model.common</module>
+		<module>net.bluemind.central.reverse.proxy.model.tests</module>
+		<module>net.bluemind.central.reverse.proxy.stream</module>
 
 	</modules>
-
 </project>

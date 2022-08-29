@@ -22,6 +22,7 @@ import net.fortuna.ical4j.data.UnfoldingReader;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.component.VToDo;
 import net.fortuna.ical4j.model.property.CalScale;
@@ -60,7 +61,7 @@ public class VTodoAdapter extends ICal4jHelper<VTodo> {
 
 		parseICalendarElement(uid, ret, vtodo);
 
-		PropertyList properties = ret.getProperties();
+		PropertyList<Property> properties = ret.getProperties();
 		properties.add(Version.VERSION_2_0);
 
 		if (uid != null) {
@@ -149,7 +150,7 @@ public class VTodoAdapter extends ICal4jHelper<VTodo> {
 
 				// PERCENT
 				if (ical4j.getPercentComplete() != null) {
-					vtodo.percent = new Integer(ical4j.getPercentComplete().getValue());
+					vtodo.percent = Integer.valueOf(ical4j.getPercentComplete().getValue());
 				}
 
 				// COMPLETE

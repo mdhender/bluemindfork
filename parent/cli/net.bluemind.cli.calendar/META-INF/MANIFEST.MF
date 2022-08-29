@@ -22,7 +22,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.utils,
  net.bluemind.core.commons,
  com.github.freva.ascii-table
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: net.bluemind.cli.calendar
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.cli.calendar

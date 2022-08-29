@@ -25,6 +25,7 @@ appid=net.bluemind.cli.launcher.cli
 product=bm-cli
 curdir=/usr/share/bm-cli
 
-source ${curdir}/equinox-custom.lib ${product}
+AGENT_ENABLED=0
+source ${curdir}/equinox-systemd.sh ${product}
 
-bm_equinox_run_appid ${curdir} ${appid} "$@"
+bm_equinox_run_server_appid ${curdir} ${appid} $@

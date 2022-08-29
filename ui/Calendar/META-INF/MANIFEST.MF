@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: calendar
 Bundle-SymbolicName: calendar;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Closure-Bundle-Type: Application
 Closure-Inputs: bluemind/bluemind.js
 Require-Bundle: ydn-base;bundle-version="1.0.0",

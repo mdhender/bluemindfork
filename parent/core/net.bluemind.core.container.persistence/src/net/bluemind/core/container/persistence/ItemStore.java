@@ -143,7 +143,7 @@ public class ItemStore extends JdbcAbstractStore {
 	}
 
 	private Timestamp toTimestamp(Date date) {
-		return date == null ? now() : new Timestamp(date.getTime());
+		return date == null ? now() : Timestamp.from(date.toInstant());
 	}
 
 	private Timestamp now() {

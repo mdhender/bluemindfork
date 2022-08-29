@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.ws.rs.PathParam;
+import jakarta.ws.rs.PathParam;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
