@@ -121,7 +121,13 @@ public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 				headers.add(HEADER_PRAGMA, HEADER_PRAGMA_VALUE);
 				if (value.responseStream != null) {
 					request.response().setChunked(true);
-					value.responseStream.pipeTo(request.response());
+					value.responseStream.pipeTo(request.response(), ar -> {
+						if (ar.succeeded()) {
+							logger.debug("response pipe finished success");
+						} else {
+							logger.error("response pipe finished error: {}", ar.cause().getMessage(), ar.cause());
+						}
+					});
 					value.responseStream.resume();
 				} else {
 					logger.debug("send response {}", value);

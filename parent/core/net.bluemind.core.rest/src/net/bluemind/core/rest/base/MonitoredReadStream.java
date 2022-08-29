@@ -42,6 +42,9 @@ public class MonitoredReadStream implements ReadStream<Buffer> {
 
 	@Override
 	public MonitoredReadStream handler(Handler<Buffer> handler) {
+		if (handler == null) {
+			throw new ServerFault("MonitoredReadStream called with a null handler");
+		}
 		monitored.handler(buff -> {
 			if (!monitor.alive()) {
 				logger.warn("monitor {} is not alive", monitor);
