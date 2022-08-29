@@ -86,6 +86,7 @@ public class TaskUtils {
 				status.complete(JsonUtils.read(data.getString("status"), TaskStatus.class));
 			}
 		}));
+		read.exceptionHandler(t -> status.completeExceptionally(t));
 
 		try {
 			return status.get();
