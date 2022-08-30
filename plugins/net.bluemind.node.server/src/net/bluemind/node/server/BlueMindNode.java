@@ -19,6 +19,7 @@
 package net.bluemind.node.server;
 
 import java.io.File;
+import java.nio.channels.ClosedChannelException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -74,7 +75,13 @@ public class BlueMindNode extends AbstractVerticle {
 		});
 		srv.webSocketHandler(new WebSocketProcessHandler(vertx));
 		logger.info("NODE is SSL: {}", options.isSsl());
-		srv.exceptionHandler(t -> logger.error("exceptionHandler {}", t.getMessage(), t));
+		srv.exceptionHandler(t -> {
+			if (t instanceof ClosedChannelException) {
+				logger.debug("exceptionHandler {}", t.getMessage(), t);
+			} else {
+				logger.error("exceptionHandler {}", t.getMessage(), t);
+			}
+		});
 		srv.listen(options.isSsl() ? Activator.NODE_PORT : 8021, ar -> {
 			if (ar.failed()) {
 				logger.error("Node failed to listen", ar.cause());
