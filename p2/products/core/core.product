@@ -204,6 +204,7 @@
       <plugin id="net.bluemind.deferredaction.registry"/>
       <plugin id="net.bluemind.deferredaction.service"/>
       <plugin id="net.bluemind.deferredaction.sqlschema"/>
+      <plugin id="net.bluemind.delivery.lmtp"/>
       <plugin id="net.bluemind.device.api"/>
       <plugin id="net.bluemind.device.persistence"/>
       <plugin id="net.bluemind.device.service"/>
@@ -568,6 +569,7 @@
       <plugin id="org.shredzone.acme4j.client"/>
       <plugin id="org.shredzone.acme4j.utils"/>
       <plugin id="org.tukaani.xz"/>
+      <plugin id="org.subethamail.subethasmtp"/>
       <plugin id="org.w3c.css.sac"/>
       <plugin id="org.w3c.dom.events"/>
       <plugin id="org.w3c.dom.smil"/>

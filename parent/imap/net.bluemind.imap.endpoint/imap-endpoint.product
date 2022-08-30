@@ -64,7 +64,9 @@
       <plugin id="net.bluemind.core.rest.http"/>
       <plugin id="net.bluemind.core.sessions"/>
       <plugin id="net.bluemind.core.task.api"/>
+      <plugin id="net.bluemind.delivery.lmtp"/>
       <plugin id="net.bluemind.directory.api"/>
+      <plugin id="net.bluemind.domain.api"/>
       <plugin id="net.bluemind.eclipse.common"/>
       <plugin id="net.bluemind.group.api"/>
       <plugin id="net.bluemind.hornetq.client"/>
@@ -79,6 +81,8 @@
       <plugin id="net.bluemind.metrics.registry"/>
       <plugin id="net.bluemind.mime4j.bodies"/>
       <plugin id="net.bluemind.mime4j.common"/>
+      <plugin id="net.bluemind.network.topology"/>
+      <plugin id="net.bluemind.network.topology.consumer"/>
       <plugin id="net.bluemind.sentry" fragment="true"/>
       <plugin id="net.bluemind.server.api"/>
       <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
@@ -133,6 +137,7 @@
       <plugin id="org.eclipse.osgi.util"/>
       <plugin id="org.jsoup"/>
       <plugin id="org.reactivestreams.reactive-streams"/>
+      <plugin id="org.subethamail.subethasmtp"/>
       <plugin id="sentry"/>
       <plugin id="slf4j.api"/>
    </plugins>

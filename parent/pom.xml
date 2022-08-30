@@ -27,6 +27,7 @@
 		<module>customproperties</module>
 		<module>dataprotect</module>
 		<module>deferredaction</module>
+		<module>delivery</module>
 		<module>device</module>
 		<module>directory</module>
 		<module>document</module>
