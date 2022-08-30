@@ -107,10 +107,10 @@
     "preferences.add_containers.addressbook.nothing_to_add": "You don't have read permissions on other address books. Contact your administrator for more informations.",
     "preferences.add_containers.todolist.nothing_to_add": "You don't have read permissions on other to-do list. Contact your administrator for more informations.",
 
-    "preferences.display_containers.calendar.empty_list": "You have not subscribe yet, and you don't manage any other calendar.",
-    "preferences.display_containers.mailboxacl.empty_list": "You have not subscribe yet, and you don't manage any other mailbox.",
-    "preferences.display_containers.addressbook.empty_list": "You have not subscribe yet, and you don't manage any other addressbook.",
-    "preferences.display_containers.todolist.empty_list": "You have not subscribe yet, and you don't manage any other to-do list.",
+    "preferences.display_containers.calendar.empty_list": "You have not subscribed yet, and you don't manage any other calendar.",
+    "preferences.display_containers.mailboxacl.empty_list": "You have not subscribed yet, and you don't manage any other mailbox.",
+    "preferences.display_containers.addressbook.empty_list": "You have not subscribed yet, and you don't manage any other address books.",
+    "preferences.display_containers.todolist.empty_list": "You have not subscribed yet, and you don't manage any other to-do lists.",
     "preferences.display_containers.default": "Default {type}",
     "preferences.display_containers.other_calendars.read_more": "Read more about other calendars subscriptions.",
 
