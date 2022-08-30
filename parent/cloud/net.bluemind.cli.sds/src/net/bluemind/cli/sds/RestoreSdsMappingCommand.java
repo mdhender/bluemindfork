@@ -24,23 +24,34 @@ import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
+
+import com.google.common.collect.Lists;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
+import net.bluemind.backend.mail.api.IMailboxFolders;
+import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
+import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
+import net.bluemind.core.container.model.ContainerChangeset;
+import net.bluemind.core.container.model.ItemFlag;
+import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
@@ -81,28 +92,158 @@ public class RestoreSdsMappingCommand implements ICmdLet, Runnable {
 	@Option(names = "--dry", description = "do not write the messages")
 	boolean dry;
 
+	@Option(names = "--rebuild-db", description = "rebuild the import db")
+	boolean rebuildDb;
+
 	@Parameters(paramLabel = "FILE", description = "json file to restore")
 	File jsonFile;
 
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 	@Override
 	public void run() {
-		JsonObject js;
+		JsonObject sdsMapping;
 		ctx.info("Parsing {}", jsonFile);
 		try {
 			byte[] content = Files.readAllBytes(jsonFile.toPath());
-			js = new JsonObject(Buffer.buffer(content));
+			sdsMapping = new JsonObject(Buffer.buffer(content));
 		} catch (IOException e) {
 			throw new CliException(e);
 		}
 
-		IMailboxes mboxApi = ctx.adminApi().instance(IMailboxes.class, js.getString("domainUid"));
-		ItemValue<Mailbox> mbox = mboxApi.getComplete(js.getString("mailboxUid"));
-		ctx.info("Working on {}", mbox);
-		if (mbox == null) {
-			ctx.error("Mailbox " + js.getString("mailboxUid") + " not found.");
-			System.exit(1);
+		String domainUid = sdsMapping.getString("domainUid");
+		ItemValue<Mailbox> mbox = getMailbox(sdsMapping);
+		LoginResponse sudo = authenticate(mbox);
+
+		String userLogin = sdsMapping.getString("login");
+		Set<String> objects = initMapDb(sdsMapping, sudo, userLogin, domainUid);
+
+		String login = mbox.value.name + "@" + domainUid;
+		ItemValue<Server> back = ctx.adminApi().instance(IServer.class, "default").getComplete(mbox.value.dataLocation);
+		try (StoreClient sc = new StoreClient(back.value.address(), 1143, login, sudo.authKey)) {
+			if (!sc.login()) {
+				ctx.error("Failed to login to backend {} as ", back.value.address(), login);
+				System.exit(1);
+			}
+			long restored = restoreFolders(sdsMapping, objects, sc);
+			ctx.info("Restore is finished. We restored {} from object store.", restored);
+		} catch (IMAPException | ParseException e) {
+			throw new CliException(e);
 		}
 
+	}
+
+	private long restoreFolders(JsonObject sdsMapping, Set<String> objects, StoreClient sc)
+			throws IMAPException, ParseException {
+		SystemConf sysconf = ctx.adminApi().instance(ISystemConfiguration.class).getValues();
+		ISdsSyncStore sds = new SdsStoreLoader().forSysconf(sysconf)
+				.orElseThrow(() -> new CliException("Failed to load sds store."));
+
+		JsonArray folders = sdsMapping.getJsonArray("folders");
+
+		int len = folders.size();
+		FlagsList seen = new FlagsList();
+		seen.add(Flag.SEEN);
+		long restored = 0;
+		for (int i = 0; i < len; i++) {
+			JsonObject folder = folders.getJsonObject(i);
+			String fn = folder.getString("fullName");
+			if (!sc.select(fn)) {
+				ctx.error("Failed to select {}", fn);
+				continue;
+			}
+			JsonArray msgs = folder.getJsonArray("messages");
+			int msgCount = msgs.size();
+			for (int j = 0; j < msgCount; j++) {
+				if (j % 1000 == 0) {
+					int percent = j * 100 / msgCount;
+					ctx.info("[{}]: {} / {} - {} %", fn, j, msgCount, percent);
+				}
+				JsonObject guidAndDate = msgs.getJsonObject(j);
+				String sdsKey = guidAndDate.getString("g");
+				if (objects.contains(sdsKey)) {
+					ctx.info("Skip known object {}", sdsKey);
+					continue;
+				}
+
+				Date appendDateTime = sdf.parse(guidAndDate.getString("d"));
+				try {
+					sdsGetImapAppend(sds, sc, seen, fn, sdsKey, appendDateTime);
+					if (!dry) {
+						objects.add(sdsKey);
+					}
+					restored++;
+				} catch (Exception e) {
+					ctx.warn("Failed to process {}", sdsKey);
+				}
+			}
+		}
+		return restored;
+	}
+
+	private Set<String> initMapDb(JsonObject sdsMapping, LoginResponse sudo, String login, String domain) {
+		File dbFile = new File("restore-" + sdsMapping.getString("mailboxUid") + ".db");
+		if (rebuildDb) {
+			dbFile.delete();
+		}
+		DB db = DBMaker.fileDB(dbFile.getAbsolutePath()).transactionEnable().fileMmapEnable().make();
+		Set<String> objects = db.hashSet("restored-objects", Serializer.STRING).createOrOpen();
+		if (rebuildDb) {
+			ctx.info("Rebuilding restoration sds keys from database.");
+			loadObjectsFromDb(login, domain, sudo, sdsMapping, objects);
+		}
+
+		if (!objects.isEmpty()) {
+			ctx.info("Resuming restoration with {} known sds keys.", objects.size());
+		}
+
+		return objects;
+	}
+
+	private void loadObjectsFromDb(String login, String domain, LoginResponse sudo, JsonObject sdsMapping,
+			Set<String> objects) {
+		String mboxRoot = "user." + login.replace('.', '^');
+		String partition = domain.replace('.', '_');
+
+		IMailboxFolders folderService = ctx.api(sudo.authKey).instance(IMailboxFolders.class, partition, mboxRoot);
+		folderService.all().forEach(folderItem -> {
+			if (backupContainsFolder(sdsMapping, folderItem.value.fullName)) {
+				ctx.info("Rebuilding restoration sds keys from folder {}.", folderItem.value.fullName);
+				IDbMailboxRecords recordService = ctx.api(sudo.authKey).instance(IDbMailboxRecords.class,
+						folderItem.uid);
+				ContainerChangeset<ItemVersion> allIds = recordService.filteredChangesetById(0l,
+						ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
+				if (allIds != null && !allIds.created.isEmpty()) {
+					ctx.info("Found {} messages in folder {}", allIds.created.size(), folderItem.value.fullName);
+					List<List<ItemVersion>> partitioned = Lists.partition(allIds.created, 500);
+					for (List<ItemVersion> records : partitioned) {
+						List<ItemValue<MailboxRecord>> asRecords = recordService
+								.multipleGetById(records.stream().map(i -> i.id).collect(Collectors.toList()));
+						objects.addAll(asRecords.stream().map(r -> r.value.messageBody).collect(Collectors.toList()));
+					}
+				}
+			}
+		});
+
+	}
+
+	private boolean backupContainsFolder(JsonObject sdsMapping, String fullName) {
+		JsonArray folders = sdsMapping.getJsonArray("folders");
+		int len = folders.size();
+
+		for (int i = 0; i < len; i++) {
+			JsonObject folder = folders.getJsonObject(i);
+			String fn = folder.getString("fullName");
+			if (fn.equals(fullName)) {
+				return true;
+			}
+
+		}
+		return false;
+
+	}
+
+	private LoginResponse authenticate(ItemValue<Mailbox> mbox) {
 		IAuthentication authApi = ctx.adminApi().instance(IAuthentication.class);
 		ctx.info("Sudo as " + mbox.value.defaultEmail().address);
 		LoginResponse sudo = authApi.su(mbox.value.defaultEmail().address);
@@ -110,69 +251,18 @@ public class RestoreSdsMappingCommand implements ICmdLet, Runnable {
 			ctx.error("sudo failed.");
 			System.exit(1);
 		}
-		ItemValue<Server> back = ctx.adminApi().instance(IServer.class, "default").getComplete(mbox.value.dataLocation);
-		SystemConf sysconf = ctx.adminApi().instance(ISystemConfiguration.class).getValues();
+		return sudo;
+	}
 
-		File dbFile = new File("restore-" + js.getString("mailboxUid") + ".db");
-		DB db = DBMaker.fileDB(dbFile.getAbsolutePath()).transactionEnable().fileMmapEnable().make();
-		Set<String> objects = db.hashSet("restored-objects", Serializer.STRING).createOrOpen();
-
-		if (!objects.isEmpty()) {
-			ctx.info("Resuming resto with {} known sds keys.", objects.size());
+	private ItemValue<Mailbox> getMailbox(JsonObject js) {
+		IMailboxes mboxApi = ctx.adminApi().instance(IMailboxes.class, js.getString("domainUid"));
+		ItemValue<Mailbox> mbox = mboxApi.getComplete(js.getString("mailboxUid"));
+		ctx.info("Working on {}", mbox);
+		if (mbox == null) {
+			ctx.error("Mailbox " + js.getString("mailboxUid") + " not found.");
+			System.exit(1);
 		}
-
-		ISdsSyncStore sds = new SdsStoreLoader().forSysconf(sysconf)
-				.orElseThrow(() -> new CliException("Failed to load sds store."));
-
-		String login = mbox.value.name + "@" + js.getString("domainUid");
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		long restored = 0;
-
-		try (StoreClient sc = new StoreClient(back.value.address(), 1143, login, sudo.authKey)) {
-			if (!sc.login()) {
-				ctx.error("Failed to login to backend {} as ", back.value.address(), login);
-				System.exit(1);
-			}
-			JsonArray folders = js.getJsonArray("folders");
-			int len = folders.size();
-			FlagsList seen = new FlagsList();
-			seen.add(Flag.SEEN);
-			for (int i = 0; i < len; i++) {
-				JsonObject folder = folders.getJsonObject(i);
-				String fn = folder.getString("fullName");
-				if (!sc.select(fn)) {
-					ctx.error("Failed to select {}", fn);
-					continue;
-				}
-				JsonArray msgs = folder.getJsonArray("messages");
-				int msgCount = msgs.size();
-				for (int j = 0; j < msgCount; j++) {
-					if (j % 1000 == 0) {
-						int percent = j * 100 / msgCount;
-						ctx.info("[{}]: {} / {} - {} %", fn, j, msgCount, percent);
-					}
-					JsonObject guidAndDate = msgs.getJsonObject(j);
-					String sdsKey = guidAndDate.getString("g");
-					if (objects.contains(sdsKey)) {
-						ctx.info("Skip known object {}", sdsKey);
-						continue;
-					}
-
-					Date forAppend = sdf.parse(guidAndDate.getString("d"));
-					try {
-						sdsGetImapAppend(sds, sc, seen, fn, sdsKey, forAppend);
-						objects.add(sdsKey);
-						restored++;
-					} catch (Exception e) {
-						ctx.warn("Failed to process {}", sdsKey);
-					}
-				}
-			}
-		} catch (IMAPException | ParseException e) {
-			throw new CliException(e);
-		}
-		ctx.info("Restore is finished. We restored {} from object store.", restored);
-
+		return mbox;
 	}
 
 	private void sdsGetImapAppend(ISdsSyncStore sds, StoreClient sc, FlagsList seen, String fn, String sdsKey,

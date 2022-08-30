@@ -23,7 +23,10 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.authentication.api,
  net.bluemind.mailbox.api,
  net.bluemind.server.api,
- net.bluemind.imap
+ net.bluemind.imap,
+ net.bluemind.user.api,
+ net.bluemind.backend.mail.api,
+ net.bluemind.backend.mail.replica.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.sds
 Bundle-ActivationPolicy: lazy
