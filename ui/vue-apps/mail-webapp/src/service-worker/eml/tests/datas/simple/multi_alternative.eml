@@ -1,0 +1,25 @@
+MIME-Version: 1.0
+Date: Fri, 2 Sep 2022 10:28:45 +0000
+Subject: Multi Alternative
+Message-Id: <92F23A02-9EDE-474B-952E-840A95A25802@test.bluemind.net>
+From: Mehdi Rande <mehdi@bm.lan>
+To: Mehdi Rande <mehdi@blue-mind.loc>
+Content-Type: multipart/alternative;
+ boundary="-=Part.654.c52d0ff1e1f9aab6.182fdbef064.f23fed870aca592e=-"
+
+---=Part.654.c52d0ff1e1f9aab6.182fdbef064.f23fed870aca592e=-
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Multi Alternative Content
+--X-BM-SIGNATURE--
+---=Part.654.c52d0ff1e1f9aab6.182fdbef064.f23fed870aca592e=-
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+<html><body>
+<p>Multi Alternative Content</p>
+</body></html>
+
+---=Part.654.c52d0ff1e1f9aab6.182fdbef064.f23fed870aca592e=---

@@ -41,7 +41,10 @@ export class EndPoint {
         if (this.handler) {
             const pathParams: string[] = Array.isArray(params) ? params : [];
             try {
-                return this.reply(await this.handler.execute(await this.parse(request, pathParams)));
+                const params = await this.parse(request.clone(), pathParams);
+                // FIXME FEATWEBML-2079: Handler need request for the fallback fetch
+                const result = await this.handler.execute(params, request);
+                return this.reply(result);
             } catch (e) {
                 return this.replyError(e);
             }
@@ -58,7 +61,7 @@ export class EndPoint {
                 case "PathParam":
                     result.method.push(params.shift());
                     break;
-                case "BodyParam":
+                case "Body":
                     if (isStream(input.type)) {
                         result.method.push(await request.text());
                     } else {

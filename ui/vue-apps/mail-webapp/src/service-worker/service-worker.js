@@ -1,3 +1,5 @@
+import { extensions } from "@bluemind/extensions";
+
 import registerApiRoute, { apiRoutes } from "./workbox/registerApiRoute";
 import registerSessionInfoRoute from "./workbox/registerSessionInfoRoute";
 import registerPartRoute from "./workbox/registerPartRoute";
@@ -6,10 +8,11 @@ import { syncMailbox, syncMailFolders, syncMailFolder } from "./sync";
 import Session from "./session";
 import { logger } from "./logger";
 import BrowserData from "./BrowserData";
-import { extensions } from "@bluemind/extensions";
 import { MailItemDB } from "./workbox/MailItemDB";
+import { SMimeHandler } from "./smime/SMimeHandler";
 
-extensions.register("serviceworker.handlers", "mail-webapp", { "api-handler": { class: MailItemDB, priority: 1 } });
+extensions.register("serviceworker.handlers", "mail-webapp", { "api-handler": { class: MailItemDB, priority: 128 } });
+extensions.register("serviceworker.handlers", "mail-webapp", { "api-handler": { class: SMimeHandler, priority: 256 } });
 
 registerSessionInfoRoute();
 registerPartRoute();

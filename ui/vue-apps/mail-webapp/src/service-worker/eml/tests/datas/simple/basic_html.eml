@@ -1,0 +1,13 @@
+Message-Id: <92F23A02-9EDE-474B-952E-840A95A25802@test.bluemind.net>
+From: Mehdi Rande <mehdi@bm.lan>
+To: Mehdi Rande <mehdi@blue-mind.loc>
+Content-Type: text/html; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Subject: Basic Html
+Date: Fri, 2 Sep 2022 15:04:59 +0100
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+<html><body>
+<p>Basic Html Content</p>
+</body></html>

@@ -32,7 +32,7 @@ export type MethodMetadatas = {
 export type ParameterMetadatas = {
     name: string;
     type: ParameterType;
-    paramType: "PathParam" | "BodyParam" | "QueryParam";
+    paramType: "PathParam" | "Body" | "QueryParam";
 };
 
 export type ExecutionParameters = {
