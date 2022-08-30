@@ -68,7 +68,8 @@ public class FileHostingMigrator {
 	protected ISdsSyncStore getStore() {
 		ArchiveKind storeType = ArchiveKind.fromName(conf.get(SysConfKeys.sds_filehosting_storetype.name()));
 		if (storeType == null || !storeType.isSdsArchive()) {
-			ctx.error("Unable to migrate filehosting to SDS: sds_filehosting_storetype must be one of: [s3, scality]");
+			ctx.error(
+					"Unable to migrate filehosting to SDS: sds_filehosting_storetype must be one of: [s3, scalityring]");
 			throw new ServerFault("Incompatible sds_filehosting_storetype setting");
 		}
 		RunnableExtensionLoader<ISdsBackingStoreFactory> rel = new RunnableExtensionLoader<>();
