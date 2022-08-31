@@ -169,8 +169,16 @@ public class MigrateCommand implements ICmdLet, Runnable {
 			ctx.info("Migrating FileHosting...");
 			FileHostingMigrator fileHostingMigrator = new FileHostingMigrator(ctx, workers, conf);
 			try {
-				fileHostingMigrator.migrateFileHosting(filehostingRoot);
-				fileHostingMigrator.migrateDocuments(documentRoot);
+				if (filehostingRoot.toFile().exists()) {
+					fileHostingMigrator.migrateFileHosting(filehostingRoot);
+				} else {
+					ctx.info("file hosting root {} does not exists, launched on a backend?", filehostingRoot);
+				}
+				if (documentRoot.toFile().exists()) {
+					fileHostingMigrator.migrateDocuments(documentRoot);
+				} else {
+					ctx.info("document root {} does not exists, launched on a backend?", documentRoot);
+				}
 			} catch (IOException e) {
 				ctx.error(e.getMessage());
 				e.printStackTrace();
