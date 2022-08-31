@@ -179,4 +179,10 @@
             impl="net.bluemind.calendar.service.eventdeferredaction.EventDeferredActionHook">
       </hook>
    </extension>
+   <extension
+         point="net.bluemind.core.container.repair">
+      <repair
+            impl="net.bluemind.calendar.service.internal.DomainCalendarRepair">
+      </repair>
+   </extension>
 </plugin>

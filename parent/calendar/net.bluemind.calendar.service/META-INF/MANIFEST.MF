@@ -64,7 +64,8 @@ Require-Bundle: net.bluemind.calendar.api;bundle-version="1.0.0",
  net.bluemind.system.api,
  com.github.ben-manes.caffeine,
  net.bluemind.videoconferencing.api,
- net.bluemind.domain.service
+ net.bluemind.domain.service,
+ net.bluemind.core.container.repair
 Export-Package: net.bluemind.calendar.service,
  net.bluemind.calendar.service.eventdeferredaction,
  net.bluemind.calendar.service.internal
