@@ -50,11 +50,11 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.delivery.lmtp.common.LmtpEnvelope;
+import net.bluemind.delivery.lmtp.filter.testhelper.EnvelopeBuilder;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.lmtp.backend.LmtpAddress;
-import net.bluemind.lmtp.backend.LmtpEnvelope;
 import net.bluemind.lmtp.filter.imip.ImipFilter;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
@@ -142,8 +142,8 @@ public class Ex2003Tests {
 		System.err.println("ex2003 request filtering starts...");
 		try (InputStream in = Ex2003Tests.class.getClassLoader().getResourceAsStream("ics/invit_2003.eml");
 				Message parsed = Mime4JHelper.parse(in)) {
-			LmtpEnvelope envel = new LmtpEnvelope();
-			envel.addRecipient(new LmtpAddress("<" + user1.value.defaultEmailAddress() + ">", null, null));
+			LmtpEnvelope envel = EnvelopeBuilder.forEmails(user1.value.defaultEmailAddress());
+
 			try (Message updated = filter.filter(envel, parsed, 123456L)) {
 				assertNotNull(updated);
 				Field eventField = updated.getHeader().getField("X-Bm-Event");

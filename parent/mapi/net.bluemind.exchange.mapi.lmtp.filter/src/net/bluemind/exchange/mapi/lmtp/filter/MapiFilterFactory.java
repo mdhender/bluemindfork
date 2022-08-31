@@ -18,8 +18,8 @@
  */
 package net.bluemind.exchange.mapi.lmtp.filter;
 
-import net.bluemind.lmtp.backend.ILmtpFilterFactory;
-import net.bluemind.lmtp.backend.IMessageFilter;
+import net.bluemind.delivery.lmtp.filters.ILmtpFilterFactory;
+import net.bluemind.delivery.lmtp.filters.IMessageFilter;
 
 public class MapiFilterFactory implements ILmtpFilterFactory {
 

@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.delivery.lmtp.filter.testhelper
+Bundle-SymbolicName: net.bluemind.delivery.lmtp.filter.testhelper
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.delivery.lmtp.common;visibility:=reexport,
+ net.bluemind.core.rest,
+ org.apache.james.apache-mime4j-dom,
+ net.bluemind.resource.lmtp.filter;bundle-version="4.1.0";visibility:=reexport
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: net.bluemind.delivery.lmtp.filter.testhelper
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.delivery.lmtp.filter.testhelper

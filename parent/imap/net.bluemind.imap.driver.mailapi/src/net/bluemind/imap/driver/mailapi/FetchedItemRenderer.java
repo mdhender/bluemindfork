@@ -31,6 +31,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.apache.james.mime4j.codec.DecodeMonitor;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.Multipart;
 import org.apache.james.mime4j.dom.SingleBody;
@@ -38,8 +39,11 @@ import org.apache.james.mime4j.dom.address.Address;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.field.AddressListField;
 import org.apache.james.mime4j.dom.field.DateTimeField;
+import org.apache.james.mime4j.dom.field.UnstructuredField;
 import org.apache.james.mime4j.field.Fields;
+import org.apache.james.mime4j.field.UnstructuredFieldImpl;
 import org.apache.james.mime4j.stream.Field;
+import org.apache.james.mime4j.stream.RawField;
 import org.apache.james.mime4j.util.MimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,7 +165,7 @@ public class FetchedItemRenderer {
 		if (f.section.equalsIgnoreCase("header.fields")) {
 			return headers(body, f.options, rec);
 		} else if (f.section.equalsIgnoreCase("header")) {
-			return headers(body, Sets.newHashSet("From", "To", "Cc", "Subject", "Message-ID"), rec);
+			return headers(body, Sets.newHashSet("From", "To", "Cc", "Subject", "Message-ID", "X-Bm-Event"), rec);
 		} else if (f.section.endsWith(".MIME") && partAddr(f.section.replace(".MIME", ""))) {
 			String part = f.section.replace(".MIME", "");
 			logger.info("Fetch mime headers of {}", part);
@@ -289,7 +293,11 @@ public class FetchedItemRenderer {
 				sb.append(writeField(dateField));
 				break;
 			default:
-				logger.warn("{} is not managed", h);
+				body.get().headers.stream().filter(head -> head.name.equalsIgnoreCase(h)).findAny().ifPresent(head -> {
+					RawField rf = new RawField(head.name, head.firstValue());
+					UnstructuredField field = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
+					sb.append(writeField(field));
+				});
 				break;
 			}
 		}

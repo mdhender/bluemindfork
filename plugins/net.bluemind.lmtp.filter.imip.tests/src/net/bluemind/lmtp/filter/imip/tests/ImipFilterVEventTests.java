@@ -82,6 +82,9 @@ import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.sendmail.testhelper.FakeSendmail;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.core.tests.vertx.VertxEventChecker;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
+import net.bluemind.delivery.lmtp.filter.testhelper.EnvelopeBuilder;
+import net.bluemind.delivery.lmtp.filters.PermissionDeniedException.MailboxInvitationDeniedException;
 import net.bluemind.dockerclient.DockerEnv;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
@@ -96,8 +99,6 @@ import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.imip.parser.IMIPParserFactory;
 import net.bluemind.imip.parser.ITIPMethod;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.lmtp.backend.LmtpAddress;
-import net.bluemind.lmtp.backend.PermissionDeniedException.MailboxInvitationDeniedException;
 import net.bluemind.lmtp.filter.imip.EventCancelHandler;
 import net.bluemind.lmtp.filter.imip.EventCounterHandler;
 import net.bluemind.lmtp.filter.imip.EventDeclineCounterHandler;
@@ -211,7 +212,7 @@ public class ImipFilterVEventTests {
 
 		imip.iCalendarElements = Arrays.asList(event.value);
 		imip.uid = event.uid;
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 
 		ItemValue<VEventSeries> res = user1Calendar.getComplete(event.uid);
 		assertNull(res);
@@ -246,7 +247,7 @@ public class ImipFilterVEventTests {
 			imip = IMIPParserFactory.create().parse(parsed);
 		}
 
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
 		List<ItemValue<VEventSeries>> byIcsUid = user1Calendar.getByIcsUid(
@@ -279,7 +280,7 @@ public class ImipFilterVEventTests {
 			imip = IMIPParserFactory.create().parse(parsed);
 		}
 
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
 		List<ItemValue<VEventSeries>> byIcsUid = user1Calendar.getByIcsUid(
@@ -311,7 +312,7 @@ public class ImipFilterVEventTests {
 			imip = IMIPParserFactory.create().parse(parsed);
 		}
 
-		LmtpAddress recipient = new LmtpAddress("<usernodrive@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("usernodrive@domain.lan>");
 		handler.handle(imip, recipient, domain, userNoDriveMailbox);
 
 		List<ItemValue<VEventSeries>> byIcsUid = userNoDriveCalendar.getByIcsUid(
@@ -347,7 +348,7 @@ public class ImipFilterVEventTests {
 			imip = IMIPParserFactory.create().parse(parsed);
 		}
 
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
 		List<ItemValue<VEventSeries>> byIcsUid = user1Calendar.getByIcsUid(
@@ -383,7 +384,7 @@ public class ImipFilterVEventTests {
 
 		imip.iCalendarElements = Arrays.asList(event.value);
 		imip.uid = event.uid;
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
@@ -409,7 +410,7 @@ public class ImipFilterVEventTests {
 		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
 
 		imip.iCalendarElements = Arrays.asList(event.value);
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 
 		IMIPResponse response = handler.handle(imip, recipient, domain, user1Mailbox);
 
@@ -426,7 +427,7 @@ public class ImipFilterVEventTests {
 
 	@Test
 	public void testRequestHandlerMeetingWithoutAttendeesShoudAddRecipientAsAttendee() throws Exception {
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
 
 		ItemValue<VEvent> master = defaultVEvent();
@@ -444,7 +445,7 @@ public class ImipFilterVEventTests {
 
 	@Test
 	public void testRequestHandlerRecEventHeader() throws Exception {
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
 
 		ItemValue<VEvent> master = defaultVEvent();
@@ -487,7 +488,7 @@ public class ImipFilterVEventTests {
 		event.value.rrule = daily;
 
 		imip.iCalendarElements = Arrays.asList(event.value);
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
@@ -526,7 +527,7 @@ public class ImipFilterVEventTests {
 		event.value.rrule = daily;
 
 		imip.iCalendarElements = Arrays.asList(event.value);
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
@@ -601,7 +602,7 @@ public class ImipFilterVEventTests {
 		event.value.rrule = daily;
 
 		imip.iCalendarElements = Arrays.asList(event.value);
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
@@ -658,7 +659,7 @@ public class ImipFilterVEventTests {
 		event.value.rrule = daily;
 
 		imip.iCalendarElements = Arrays.asList(event.value);
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
@@ -735,7 +736,7 @@ public class ImipFilterVEventTests {
 		master.value.rrule = daily;
 
 		imip.iCalendarElements = Arrays.asList(master.value);
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 
 		handler.handle(imip, recipient, domain, user1Mailbox);
 
@@ -845,8 +846,7 @@ public class ImipFilterVEventTests {
 		event.value.attendees = attendees;
 
 		imip.iCalendarElements = Arrays.asList(event.value);
-		LmtpAddress recipient = new LmtpAddress("<" + resource.value.emails.iterator().next().address + ">", null,
-				null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail(resource.value.emails.iterator().next().address);
 
 		System.err.println("handle req 1...");
 		handler.handle(imip, recipient, domain, resourceMailbox);
@@ -903,7 +903,7 @@ public class ImipFilterVEventTests {
 
 		imip.iCalendarElements = Arrays.asList(event.value);
 
-		LmtpAddress recipient = new LmtpAddress("<" + user1.value.defaultEmailAddress(domainUid) + ">", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail(user1Mailbox.value.defaultEmail().address);
 
 		try {
 			handler.handle(imip, recipient, domain, resourceMailbox);
@@ -916,7 +916,7 @@ public class ImipFilterVEventTests {
 		ItemValue<VEventSeries> evt = user1Calendar.getComplete(event.uid);
 		assertNull("Event should not have been created in user1 calendar", evt);
 
-		recipient = new LmtpAddress("<" + resource.value.emails.iterator().next().address + ">", null, null);
+		recipient = EnvelopeBuilder.lookupEmail(resource.value.emails.iterator().next().address);
 
 		try {
 			handler.handle(imip, recipient, domain, resourceMailbox);
@@ -950,7 +950,7 @@ public class ImipFilterVEventTests {
 		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
 
 		imip.iCalendarElements = Arrays.asList(event.value);
-		LmtpAddress recipient = new LmtpAddress("<" + user1.value.defaultEmailAddress(domainUid) + ">", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail(user1Mailbox.value.defaultEmail().address);
 
 		ItemValue<VEventSeries> evt = user1Calendar.getComplete(event.uid);
 		assertNull(evt);
@@ -991,8 +991,7 @@ public class ImipFilterVEventTests {
 
 		imip.iCalendarElements = Arrays.asList(event.value);
 
-		LmtpAddress recipient = new LmtpAddress("<" + resource.value.emails.iterator().next().address + ">", null,
-				null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail(resource.value.emails.iterator().next().address);
 
 		ItemValue<VEventSeries> evt = resourceCalendar.getComplete(event.uid);
 		assertNull(evt);
@@ -1019,7 +1018,7 @@ public class ImipFilterVEventTests {
 		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
 
 		imip.iCalendarElements = Arrays.asList(event.value);
-		LmtpAddress recipient = new LmtpAddress("<" + user1.value.defaultEmailAddress(domainUid) + ">", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail(user1Mailbox.value.defaultEmail().address);
 
 		ItemValue<VEventSeries> evt = user1Calendar.getComplete(event.uid);
 		assertNull(evt);
@@ -1073,7 +1072,7 @@ public class ImipFilterVEventTests {
 		event.value.rrule = daily;
 
 		imip.iCalendarElements = Arrays.asList(event.value);
-		LmtpAddress recipient = new LmtpAddress("<" + user1.value.defaultEmailAddress(domainUid) + ">", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail(user1Mailbox.value.defaultEmail().address);
 
 		ItemValue<VEventSeries> evt = user1Calendar.getComplete(event.uid);
 		assertNull(evt);
@@ -1136,7 +1135,7 @@ public class ImipFilterVEventTests {
 		event.value.rrule = daily;
 
 		imip.iCalendarElements = Arrays.asList(event.value);
-		LmtpAddress recipient = new LmtpAddress("<" + user1.value.defaultEmailAddress(domainUid) + ">", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail(user1Mailbox.value.defaultEmail().address);
 
 		ItemValue<VEventSeries> evt = user1Calendar.getComplete(event.uid);
 		assertNull(evt);
@@ -1201,8 +1200,7 @@ public class ImipFilterVEventTests {
 				resource.value.emails.iterator().next().address));
 
 		imip.iCalendarElements = Arrays.asList(event.value);
-		LmtpAddress recipient = new LmtpAddress("<" + resource.value.emails.iterator().next().address + ">", null,
-				null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail(resource.value.emails.iterator().next().address);
 
 		ItemValue<VEventSeries> evt = testContext.provider()
 				.instance(ICalendar.class, ICalendarUids.TYPE + ":" + resource.uid).getComplete(event.uid);
@@ -1324,7 +1322,7 @@ public class ImipFilterVEventTests {
 
 	@Test
 	public void testTeamsRequestProducesCleanHtml() throws Exception {
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 
 		List<ItemValue<VEventSeries>> events = getVEventsFromIcs("teams.request.ics");
 		ItemValue<VEventSeries> event = events.get(0);
@@ -1350,7 +1348,7 @@ public class ImipFilterVEventTests {
 
 	@Test
 	public void testCancelException() throws Exception {
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 
 		// new request
 		List<ItemValue<VEventSeries>> events = getVEventsFromIcs("bluemind.request.ics");
@@ -1386,7 +1384,7 @@ public class ImipFilterVEventTests {
 
 	@Test
 	public void testCancelException_AttendeeOnlyAttendsToException() throws Exception {
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 
 		// new request
 		List<ItemValue<VEventSeries>> events = getVEventsFromIcs("bluemind.request.ics");
@@ -1432,7 +1430,7 @@ public class ImipFilterVEventTests {
 
 	@Test
 	public void testCancelException_ExceptionNotInAttendeeCalendar() throws Exception {
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 		// If the exception is created from an other attendee reply the
 		// exception is not
 		// in the current attendee calendar but is in organizer calendar.
@@ -1483,7 +1481,7 @@ public class ImipFilterVEventTests {
 		daily.frequency = Frequency.DAILY;
 		master.value.rrule = daily;
 
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 
 		VEventOccurrence orphan = VEventOccurrence.fromEvent(master.value.copy(),
 				BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis()));
@@ -1527,7 +1525,7 @@ public class ImipFilterVEventTests {
 		daily.frequency = Frequency.DAILY;
 		master.value.rrule = daily;
 
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 
 		VEventOccurrence orphan = VEventOccurrence.fromEvent(master.value.copy(),
 				BmDateTimeWrapper.fromTimestamp(System.currentTimeMillis()));
@@ -1605,7 +1603,7 @@ public class ImipFilterVEventTests {
 		exception.attendees.add(ext);
 
 		imip.iCalendarElements = Arrays.asList(exception);
-		LmtpAddress recipient = new LmtpAddress("<external@ext-domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail(user1Mailbox.value.defaultEmail().address);
 
 		IIMIPHandler replyHandler = new EventReplyHandler(recipient, null);
 		replyHandler.handle(imip, recipient, domain, user1Mailbox);
@@ -1670,7 +1668,7 @@ public class ImipFilterVEventTests {
 		exception.attendees.add(ext);
 
 		imip.iCalendarElements = Arrays.asList(exception);
-		LmtpAddress recipient = new LmtpAddress("<external@ext-domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail(user1Mailbox.value.defaultEmail().address);
 
 		IIMIPHandler replyHandler = new EventReplyHandler(recipient, null);
 		replyHandler.handle(imip, recipient, domain, user1Mailbox);
@@ -1735,7 +1733,7 @@ public class ImipFilterVEventTests {
 		exception.attendees.add(ext);
 
 		imip.iCalendarElements = Arrays.asList(exception);
-		LmtpAddress recipient = new LmtpAddress("<external@ext-domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail(user1Mailbox.value.defaultEmail().address);
 
 		IIMIPHandler replyHandler = new EventReplyHandler(recipient, null);
 		replyHandler.handle(imip, recipient, domain, user1Mailbox);
@@ -1755,7 +1753,7 @@ public class ImipFilterVEventTests {
 
 	@Test
 	public void testCounter_DeclineEvent() throws Exception {
-		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
 
 		// REQUEST
 		List<ItemValue<VEventSeries>> events = getVEventsFromIcs("bluemind.request.ics");

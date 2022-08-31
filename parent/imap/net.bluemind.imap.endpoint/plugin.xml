@@ -26,10 +26,10 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="net.bluemind.imap.endpoint.standalone"
-            name="imap_endpoint">
+            name="imap-endpoint">
          <property
                name="appName"
-               value="imap_endpoint">
+               value="imap-endpoint">
          </property>
       </product>
    </extension>

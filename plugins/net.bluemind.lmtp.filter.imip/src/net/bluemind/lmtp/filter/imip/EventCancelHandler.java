@@ -31,10 +31,11 @@ import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.delivery.lmtp.common.LmtpAddress;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
+import net.bluemind.delivery.lmtp.filters.PermissionDeniedException.MailboxInvitationDeniedException;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.imip.parser.IMIPInfos;
-import net.bluemind.lmtp.backend.LmtpAddress;
-import net.bluemind.lmtp.backend.PermissionDeniedException.MailboxInvitationDeniedException;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -46,14 +47,14 @@ import net.bluemind.user.api.User;
  */
 public class EventCancelHandler extends CancelHandler implements IIMIPHandler {
 
-	public EventCancelHandler(LmtpAddress recipient, LmtpAddress sender) {
+	public EventCancelHandler(ResolvedBox recipient, LmtpAddress sender) {
 		super(recipient, sender);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(EventCancelHandler.class);
 
 	@Override
-	public IMIPResponse handle(IMIPInfos imip, LmtpAddress recipient, ItemValue<Domain> domain,
+	public IMIPResponse handle(IMIPInfos imip, ResolvedBox recipient, ItemValue<Domain> domain,
 			ItemValue<Mailbox> recipientMailbox) throws ServerFault {
 
 		if (!super.validate(imip)) {

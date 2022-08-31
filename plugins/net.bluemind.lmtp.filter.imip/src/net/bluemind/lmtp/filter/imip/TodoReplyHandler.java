@@ -23,9 +23,10 @@ import java.util.List;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.delivery.lmtp.common.LmtpAddress;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.imip.parser.IMIPInfos;
-import net.bluemind.lmtp.backend.LmtpAddress;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.VTodo;
@@ -39,12 +40,12 @@ import net.bluemind.todolist.api.VTodo;
  */
 public class TodoReplyHandler extends ReplyHandler implements IIMIPHandler {
 
-	public TodoReplyHandler(LmtpAddress recipient, LmtpAddress sender) {
+	public TodoReplyHandler(ResolvedBox recipient, LmtpAddress sender) {
 		super(recipient, sender);
 	}
 
 	@Override
-	public IMIPResponse handle(IMIPInfos imip, LmtpAddress recipient, ItemValue<Domain> domain,
+	public IMIPResponse handle(IMIPInfos imip, ResolvedBox recipient, ItemValue<Domain> domain,
 			ItemValue<Mailbox> recipientMailbox) throws ServerFault {
 
 		List<VEvent.Attendee> atts = imip.iCalendarElements.get(0).attendees;

@@ -42,9 +42,10 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
+import net.bluemind.delivery.lmtp.common.LmtpAddress;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.imip.parser.IMIPInfos;
-import net.bluemind.lmtp.backend.LmtpAddress;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.network.topology.Topology;
@@ -59,9 +60,9 @@ public abstract class AbstractLmtpHandler {
 
 	private final String origin;
 
-	public AbstractLmtpHandler(LmtpAddress recipient, LmtpAddress sender) {
+	public AbstractLmtpHandler(ResolvedBox recipient, LmtpAddress sender) {
 		String from = sender != null ? "_from_" + sender.getEmailAddress() : "";
-		String to = recipient != null ? "_to_" + recipient.getEmailAddress() : "";
+		String to = recipient != null ? "_to_" + recipient.entry.email : "";
 		this.origin = "bm-lmtpd" + from + to;
 	}
 
@@ -76,10 +77,10 @@ public abstract class AbstractLmtpHandler {
 	 * @return
 	 * @throws ServerFault
 	 */
-	protected boolean checkInvitationRight(LmtpAddress recipient, String calUid, ItemValue<User> sender)
+	protected boolean checkInvitationRight(ResolvedBox recipient, String calUid, ItemValue<User> sender)
 			throws ServerFault {
 		IContainers cm = provider().instance(IContainers.class);
-		ContainerDescriptor container = cm.getForUser(recipient.getDomainPart(), sender.uid, calUid);
+		ContainerDescriptor container = cm.getForUser(recipient.dom.uid, sender.uid, calUid);
 		return container.verbs.stream().anyMatch(v -> v.can(Verb.Invitation));
 	}
 
@@ -105,8 +106,8 @@ public abstract class AbstractLmtpHandler {
 	 * @return
 	 * @throws ServerFault
 	 */
-	protected IMailboxes getMailboxService(LmtpAddress recipient) throws ServerFault {
-		return provider().instance(IMailboxes.class, recipient.getDomainPart());
+	protected IMailboxes getMailboxService(ResolvedBox recipient) throws ServerFault {
+		return provider().instance(IMailboxes.class, recipient.dom.uid);
 	}
 
 	/**

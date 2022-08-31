@@ -2,29 +2,14 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="net.bluemind.lmtp.lmtpfilterfactory">
-      <lmtp_filter_factory
-            implementation="net.bluemind.lmtp.filter.imip.FilterFactory"></lmtp_filter_factory>
-   </extension>
-   <extension
-         point="net.bluemind.hornetq.forwardToVertx">
-      <vertx-forwarder
-            class="net.bluemind.lmtp.filter.imip.cache.MailboxMessageForwarder">
-      </vertx-forwarder>
-   </extension>
-   <extension
-         point="net.bluemind.lib.vertx.verticles">
-      <verticle
-            impl="net.bluemind.lmtp.filter.imip.cache.MailboxCacheFactory">
-      </verticle>
+         point="net.bluemind.delivery.lmtp.filters.factory">
+      <factory
+            impl="net.bluemind.lmtp.filter.imip.FilterFactory"></factory>
    </extension>
    <extension
          point="net.bluemind.core.caches.registry.registration">
       <reg
             impl="net.bluemind.lmtp.filter.imip.EventRequestHandler$CacheRegistration">
-      </reg>
-      <reg
-            impl="net.bluemind.lmtp.filter.imip.cache.MailboxCache$CacheRegistration">
       </reg>
    </extension>
 </plugin>

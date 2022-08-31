@@ -42,6 +42,10 @@ import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.Sendmail;
 import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.core.sendmail.SendmailHelper;
+import net.bluemind.delivery.lmtp.common.LmtpEnvelope;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
+import net.bluemind.delivery.lmtp.filters.FilterException;
+import net.bluemind.delivery.lmtp.filters.IMessageFilter;
 import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
@@ -51,12 +55,6 @@ import net.bluemind.imip.parser.IIMIPParser;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.imip.parser.IMIPParserFactory;
 import net.bluemind.imip.parser.PureICSRewriter;
-import net.bluemind.lmtp.backend.FilterException;
-import net.bluemind.lmtp.backend.IMessageFilter;
-import net.bluemind.lmtp.backend.LmtpAddress;
-import net.bluemind.lmtp.backend.LmtpEnvelope;
-import net.bluemind.lmtp.backend.LmtpReply;
-import net.bluemind.lmtp.filter.imip.cache.MailboxCache;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.network.topology.Topology;
 
@@ -85,20 +83,20 @@ public class ResourceFilter implements IMessageFilter {
 		}
 
 		IServiceProvider provider = ClientSideServiceProvider.getProvider(getCoreUrl(), Token.admin0());
-		List<LmtpAddress> recipients = env.getRecipients();
+		List<ResolvedBox> recipients = env.getRecipients();
 		if (recipients != null && !recipients.isEmpty()) {
-			for (LmtpAddress recipient : recipients) {
+			for (ResolvedBox recipient : recipients) {
+				System.err.println("on " + recipient);
 				try {
 					String mailbox = getResourceMailbox(provider, recipient);
 					if (mailbox != null) {
-						redirectMessageToResourceAdmins(provider, recipient.getDomainPart(), mailbox, message);
+						redirectMessageToResourceAdmins(provider, recipient.dom.uid, mailbox, message);
 					}
 				} catch (ServerFault e) {
 					logger.error("[{}] Error while handling resource filter message",
 							message.getHeader().getField("Message-ID"), e);
-					throw new FilterException(LmtpReply.TEMPORARY_FAILURE,
-							"[" + message.getHeader().getField("Message-ID")
-									+ "] Error while handling resource filter message: " + e.getMessage());
+					throw new FilterException("[" + message.getHeader().getField("Message-ID")
+							+ "] Error while handling resource filter message: " + e.getMessage());
 				}
 			}
 		}
@@ -113,22 +111,13 @@ public class ResourceFilter implements IMessageFilter {
 		return coreUrl;
 	}
 
-	private String getResourceMailbox(IServiceProvider provider, LmtpAddress recipient) {
-		String mbox = lmtpRecipientToMailboxName(recipient.getEmailAddress());
-		Optional<ItemValue<Mailbox>> mailbox = MailboxCache.get(provider, recipient.getDomainPart(), mbox);
+	private String getResourceMailbox(IServiceProvider provider, ResolvedBox recipient) {
+		Optional<ItemValue<Mailbox>> mailbox = Optional.of(recipient.mbox);
 
-		if (!mailbox.isPresent() || mailbox.get().value.type != Mailbox.Type.resource) {
+		if (mailbox.get().value.type != Mailbox.Type.resource) {
 			return null;
 		}
 		return mailbox.get().uid;
-	}
-
-	private String lmtpRecipientToMailboxName(String lmtpRecipient) {
-		if (lmtpRecipient.startsWith("+")) {
-			lmtpRecipient = lmtpRecipient.substring(1);
-		}
-
-		return lmtpRecipient.split("@")[0];
 	}
 
 	private void redirectMessageToResourceAdmins(IServiceProvider provider, String domainUid, String mailbox,

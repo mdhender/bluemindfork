@@ -63,6 +63,8 @@ import net.bluemind.core.sendmail.SendmailHelper;
 import net.bluemind.core.sendmail.testhelper.FakeSendmail;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.delivery.lmtp.common.LmtpEnvelope;
+import net.bluemind.delivery.lmtp.filter.testhelper.EnvelopeBuilder;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.IDirectory;
@@ -72,8 +74,6 @@ import net.bluemind.group.api.Member;
 import net.bluemind.group.persistence.GroupStore;
 import net.bluemind.group.service.internal.ContainerGroupStoreService;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.lmtp.backend.LmtpAddress;
-import net.bluemind.lmtp.backend.LmtpEnvelope;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.resource.service.internal.ResourceContainerStoreService;
@@ -216,31 +216,31 @@ public class ResourceFilterTests {
 				resourceContainer);
 
 		String rdUid = "resource-" + System.nanoTime();
-		rd = defaultDescriptor();
+		rd = defaultDescriptor(rdUid);
 		resourceStore.create(rdUid, rd);
 
 		IDirectory dir = new BmTestContext(SecurityContext.SYSTEM).provider().instance(IDirectory.class, domainUid);
 		ListResult<ItemValue<DirEntry>> res = dir
 				.search(DirEntryQuery.filterEmail(rd.emails.iterator().next().address));
 		assertEquals(1, res.total);
+		System.err.println("email " + rd.emails.iterator().next().address + " found in directory");
 		ContainerDescriptor calContainerDescriptor = ContainerDescriptor.create(ICalendarUids.TYPE + ":" + rdUid,
 				"Calendar of " + rd.label, rdUid, ICalendarUids.TYPE, domainUid, true);
 
-		IContainers containers = ServerSideServiceProvider.getProvider(adminSecurityContext)
-				.instance(IContainers.class);
+		IContainers containers = new BmTestContext(SecurityContext.SYSTEM).provider().instance(IContainers.class);
 
 		containers.create(calContainerDescriptor.uid, calContainerDescriptor);
 
 		return rdUid;
 	}
 
-	private ResourceDescriptor defaultDescriptor() {
+	private ResourceDescriptor defaultDescriptor(String uid) {
 		ResourceDescriptor rd = new ResourceDescriptor();
 		rd.label = "test 1";
 		rd.description = "hi !";
 		rd.typeIdentifier = "testType";
 		rd.dataLocation = PopulateHelper.FAKE_CYRUS_IP;
-		rd.emails = Arrays.asList(Email.create("test1@" + domainUid, true));
+		rd.emails = Arrays.asList(Email.create("test1@" + domainUid, true), Email.create(uid + "@" + domainUid, false));
 		rd.properties = Arrays.asList(ResourceDescriptor.PropertyValue.create("test1", "value1"));
 		return rd;
 	}
@@ -289,10 +289,7 @@ public class ResourceFilterTests {
 
 		FakeSendmail mailer = new FakeSendmail();
 
-		LmtpEnvelope envelope = new LmtpEnvelope();
-
-		envelope.addRecipient(
-				new LmtpAddress("<" + ((Mailbox) m.getTo().iterator().next()).getAddress() + ">", null, null));
+		LmtpEnvelope envelope = EnvelopeBuilder.forEmails(((Mailbox) m.getTo().iterator().next()).getAddress());
 
 		Message m2 = new ResourceFilter(mailer).filter(envelope, m, 0);
 		assertNull(m2);
@@ -309,9 +306,7 @@ public class ResourceFilterTests {
 
 		FakeSendmail mailer = new FakeSendmail();
 
-		LmtpEnvelope envelope = new LmtpEnvelope();
-
-		envelope.addRecipient(new LmtpAddress("<" + resourceUid + "@" + domainUid + ">", null, null));
+		LmtpEnvelope envelope = EnvelopeBuilder.forEmails(resourceUid + "@" + domainUid);
 
 		Message m2 = new ResourceFilter(mailer).filter(envelope, m, 0);
 		assertNull(m2);
@@ -338,11 +333,8 @@ public class ResourceFilterTests {
 
 		FakeSendmail mailer = new FakeSendmail();
 
-		LmtpEnvelope envelope = new LmtpEnvelope();
-
-		envelope.addRecipient(
-				new LmtpAddress("<" + ((Mailbox) m.getTo().iterator().next()).getAddress() + ">", null, null));
-		envelope.addRecipient(new LmtpAddress("<" + resourceUid + "@" + domainUid + ">", null, null));
+		LmtpEnvelope envelope = EnvelopeBuilder.forEmails(((Mailbox) m.getTo().iterator().next()).getAddress(),
+				resourceUid + "@" + domainUid);
 
 		Message m2 = new ResourceFilter(mailer).filter(envelope, m, 0);
 		assertNull(m2);
@@ -368,11 +360,8 @@ public class ResourceFilterTests {
 
 		FakeSendmail mailer = new FakeSendmail();
 
-		LmtpEnvelope envelope = new LmtpEnvelope();
-
-		envelope.addRecipient(
-				new LmtpAddress("<" + ((Mailbox) m.getTo().iterator().next()).getAddress() + ">", null, null));
-		envelope.addRecipient(new LmtpAddress("<" + resourceUid + "@" + domainUid + ">", null, null));
+		LmtpEnvelope envelope = EnvelopeBuilder.forEmails(((Mailbox) m.getTo().iterator().next()).getAddress(),
+				resourceUid + "@" + domainUid);
 
 		Message m2 = new ResourceFilter(mailer).filter(envelope, m, 0);
 		assertNull(m2);
@@ -400,9 +389,7 @@ public class ResourceFilterTests {
 
 		FakeSendmail mailer = new FakeSendmail();
 
-		LmtpEnvelope envelope = new LmtpEnvelope();
-
-		envelope.addRecipient(new LmtpAddress("<" + resourceUid + "@" + domainUid + ">", null, null));
+		LmtpEnvelope envelope = EnvelopeBuilder.forEmails(resourceUid + "@" + domainUid);
 
 		Message m2 = new ResourceFilter(mailer).filter(envelope, m, 0);
 		assertNull(m2);

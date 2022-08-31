@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2018
+ * Copyright © Blue Mind SAS, 2012-2016
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,22 +16,16 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.lmtp.filter.imip.cache;
+package net.bluemind.delivery.lmtp.filters;
 
-import io.vertx.core.Verticle;
-import net.bluemind.lib.vertx.IUniqueVerticleFactory;
-import net.bluemind.lib.vertx.IVerticleFactory;
+@SuppressWarnings("serial")
+public class FilterException extends Exception {
 
-public class MailboxCacheFactory implements IVerticleFactory, IUniqueVerticleFactory {
-
-	@Override
-	public boolean isWorker() {
-		return true;
+	public FilterException() {
 	}
 
-	@Override
-	public Verticle newInstance() {
-		return new MailboxCache();
+	public FilterException(String message) {
+		super(message);
 	}
 
 }

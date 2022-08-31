@@ -8,10 +8,10 @@
       </verticle>
    </extension>
    <extension
-         point="net.bluemind.lmtp.lmtpfilterfactory">
-      <lmtp_filter_factory
-            implementation="net.bluemind.lmtp.filter.tnef.TnefFilterFactory">
-      </lmtp_filter_factory>
+         point="net.bluemind.delivery.lmtp.filters.factory">
+      <factory
+            impl="net.bluemind.lmtp.filter.tnef.TnefFilterFactory">
+      </factory>
    </extension>
 
 </plugin>

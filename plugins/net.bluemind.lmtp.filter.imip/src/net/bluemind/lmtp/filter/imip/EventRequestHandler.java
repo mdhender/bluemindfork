@@ -19,7 +19,7 @@
 package net.bluemind.lmtp.filter.imip;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -63,6 +63,9 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.Sendmail;
 import net.bluemind.core.sendmail.SendmailHelper;
+import net.bluemind.delivery.lmtp.common.LmtpAddress;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
+import net.bluemind.delivery.lmtp.filters.PermissionDeniedException.MailboxInvitationDeniedException;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.CUType;
@@ -70,8 +73,6 @@ import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.imip.parser.IMIPInfos;
-import net.bluemind.lmtp.backend.LmtpAddress;
-import net.bluemind.lmtp.backend.PermissionDeniedException.MailboxInvitationDeniedException;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
@@ -96,89 +97,80 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 		}
 	}
 
-	public EventRequestHandler(LmtpAddress recipient, LmtpAddress sender) {
+	public EventRequestHandler(ResolvedBox recipient, LmtpAddress sender) {
 		this(new Sendmail(), recipient, sender);
 
 	}
 
-	public EventRequestHandler(ISendmail mailer, LmtpAddress recipient, LmtpAddress sender) {
+	public EventRequestHandler(ISendmail mailer, ResolvedBox recipient, LmtpAddress sender) {
 		super(recipient, sender);
 		this.mailer = mailer;
 		this.attachmentHandler = new EventAttachmentHandler(provider(), getCoreUrl());
 	}
 
 	@Override
-	public IMIPResponse handle(IMIPInfos imip, LmtpAddress recipient, ItemValue<Domain> domain,
+	public IMIPResponse handle(IMIPInfos imip, ResolvedBox recipient, ItemValue<Domain> domain,
 			ItemValue<Mailbox> recipientMailbox) throws ServerFault {
 
-		try {
-			String calUid = getCalendarUid(recipientMailbox);
+		String calUid = getCalendarUid(recipientMailbox);
 
-			IUser userService = provider().instance(IUser.class, recipient.getDomainPart());
-			ItemValue<User> resolvedRecipient = userService.byEmail(recipient.getEmailAddress());
-			Optional<String> userLogin = Optional.ofNullable(resolvedRecipient).map(r -> r.value.login);
+		IUser userService = provider().instance(IUser.class, recipient.dom.uid);
+		ItemValue<User> resolvedRecipient = userService.byEmail(recipient.entry.email);
+		Optional<String> userLogin = Optional.ofNullable(resolvedRecipient).map(r -> r.value.login);
 
-			// BM-2892 invitation right
-			ItemValue<User> sender = senderCache.getIfPresent(recipient.getDomainPart() + "#" + imip.organizerEmail);
-			if (sender == null) {
-				userService = provider().instance(IUser.class, recipient.getDomainPart());
-				sender = userService.byEmail(imip.organizerEmail);
-				if (sender != null) {
-					senderCache.put(recipient.getDomainPart() + "#" + imip.organizerEmail, sender);
-					if (!userLogin.isPresent()) {
-						userLogin = Optional.of(sender.value.login);
-					}
+		// BM-2892 invitation right
+		ItemValue<User> sender = senderCache.getIfPresent(recipient.dom.uid + "#" + imip.organizerEmail);
+		if (sender == null) {
+			userService = provider().instance(IUser.class, recipient.dom.uid);
+			sender = userService.byEmail(imip.organizerEmail);
+			if (sender != null) {
+				senderCache.put(recipient.dom.uid + "#" + imip.organizerEmail, sender);
+				if (!userLogin.isPresent()) {
+					userLogin = Optional.of(sender.value.login);
 				}
 			}
-
-			VEventSeries series = fromList(imip.properties, imip.iCalendarElements, imip.uid);
-
-			if (sender != null) {
-				boolean canInvite = checkInvitationRight(recipient, calUid, sender);
-				if (!canInvite) {
-					// BM-4186 notify sender
-					notifyForbiddenToSender(imip, recipient, recipientMailbox, sender, series);
-					ServerFault fault = new ServerFault(new MailboxInvitationDeniedException(recipientMailbox.uid));
-					fault.setCode(ErrorCode.PERMISSION_DENIED);
-					throw fault;
-				}
-
-			} // else external, don't care for now
-
-			ICalendar cal = provider().instance(ICalendar.class, calUid);
-
-			ensureUserAttendance(domain, recipientMailbox, series.main);
-			series.occurrences.forEach(occurrence -> {
-				ensureUserAttendance(domain, recipientMailbox, occurrence);
-			});
-
-			List<ItemValue<VEventSeries>> vseries = cal.getByIcsUid(imip.uid);
-
-			attachmentHandler.detachCidAttachments(series, vseries, imip.cid, userLogin, recipient.getDomainPart());
-
-			setDefaultAlarm(domain, recipientMailbox.uid, series);
-
-			VEventChanges changes = EventChangesMerge.getStrategy(vseries, series).merge(vseries, series);
-
-			cal.updates(changes);
-			logger.info("[{}] {} new series, {} updated series, {} deleted series in BM (calendar {})", imip.messageId,
-					changes.add == null ? 0 : changes.add.size(), changes.modify == null ? 0 : changes.modify.size(),
-					changes.delete == null ? 0 : changes.delete.size(), calUid);
-
-			VEvent event = series.main == null ? series.occurrences.get(0) : series.main;
-			return IMIPResponse.createNeedResponse(imip.uid, event, needResponse(domain, recipientMailbox, event));
-
-		} catch (Exception e) {
-			throw e;
 		}
+
+		VEventSeries series = fromList(imip.properties, imip.iCalendarElements, imip.uid);
+
+		if (sender != null) {
+			boolean canInvite = checkInvitationRight(recipient, calUid, sender);
+			if (!canInvite) {
+				// BM-4186 notify sender
+				notifyForbiddenToSender(imip, recipient, recipientMailbox, sender, series);
+				ServerFault fault = new ServerFault(new MailboxInvitationDeniedException(recipientMailbox.uid));
+				fault.setCode(ErrorCode.PERMISSION_DENIED);
+				throw fault;
+			}
+
+		} // else external, don't care for now
+
+		ICalendar cal = provider().instance(ICalendar.class, calUid);
+
+		ensureUserAttendance(domain, recipientMailbox, series.main);
+		series.occurrences.forEach(occurrence -> ensureUserAttendance(domain, recipientMailbox, occurrence));
+
+		List<ItemValue<VEventSeries>> vseries = cal.getByIcsUid(imip.uid);
+
+		attachmentHandler.detachCidAttachments(series, vseries, imip.cid, userLogin, recipient.dom.uid);
+
+		setDefaultAlarm(domain, recipientMailbox.uid, series);
+
+		VEventChanges changes = EventChangesMerge.getStrategy(vseries, series).merge(vseries, series);
+
+		cal.updates(changes);
+		logger.info("[{}] {} new series, {} updated series, {} deleted series in BM (calendar {})", imip.messageId,
+				changes.add == null ? 0 : changes.add.size(), changes.modify == null ? 0 : changes.modify.size(),
+				changes.delete == null ? 0 : changes.delete.size(), calUid);
+
+		VEvent event = series.main == null ? series.occurrences.get(0) : series.main;
+		return IMIPResponse.createNeedResponse(imip.uid, event, needResponse(domain, recipientMailbox, event));
 	}
 
 	private void setDefaultAlarm(ItemValue<Domain> domain, String uid, VEventSeries series) {
 		Map<String, String> settings = provider().instance(IUserSettings.class, domain.uid).get(uid);
 		setAlarm(series.main, settings);
-		series.occurrences.forEach(occurrence -> {
-			setAlarm(occurrence, settings);
-		});
+		series.occurrences.forEach(occurrence -> setAlarm(occurrence, settings));
 	}
 
 	private void setAlarm(VEvent evt, Map<String, String> settings) {
@@ -205,10 +197,8 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 
 	private boolean needResponse(ItemValue<Domain> domain, ItemValue<Mailbox> recipientMailbox, VEvent event) {
 		for (Attendee att : event.attendees) {
-			if (att.mailto != null) {
-				if (matchMailbox(domain, recipientMailbox, att.mailto)) {
-					return !Boolean.FALSE.equals(att.rsvp);
-				}
+			if (att.mailto != null && matchMailbox(domain, recipientMailbox, att.mailto)) {
+				return !Boolean.FALSE.equals(att.rsvp);
 			}
 		}
 
@@ -230,10 +220,8 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 		}
 
 		for (Attendee att : vevent.attendees) {
-			if (att.mailto != null) {
-				if (matchMailbox(domain, recipientMailbox, att.mailto)) {
-					return;
-				}
+			if (att.mailto != null && matchMailbox(domain, recipientMailbox, att.mailto)) {
+				return;
 			}
 		}
 
@@ -262,7 +250,7 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 	 * @param calElement
 	 * @throws ServerFault
 	 */
-	private void notifyForbiddenToSender(IMIPInfos imip, LmtpAddress recipient, ItemValue<Mailbox> mailbox,
+	private void notifyForbiddenToSender(IMIPInfos imip, ResolvedBox recipient, ItemValue<Mailbox> mailbox,
 			ItemValue<User> sender, VEventSeries series) throws ServerFault {
 
 		VEvent event = series.main != null ? series.main : series.occurrences.get(0);
@@ -278,7 +266,7 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 		org.apache.james.mime4j.dom.address.Mailbox to = SendmailHelper.formatAddress(sender.displayName,
 				sender.value.defaultEmail().address);
 
-		Map<String, Object> data = new HashMap<String, Object>();
+		Map<String, Object> data = new HashMap<>();
 
 		data.put("attendee", mailbox.displayName);
 		String ics = VEventServiceHelper.convertToIcs(Method.REPLY, ItemValue.create(imip.uid, series));
@@ -287,20 +275,15 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 		}
 		CalendarMailHelper cmh = new CalendarMailHelper();
 
-		TextBody body;
-		try {
-			BasicBodyFactory bodyFactory = new BasicBodyFactory();
-			body = bodyFactory.textBody(ics, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("unsupported encoding");
-		}
+		BasicBodyFactory bodyFactory = new BasicBodyFactory();
+		TextBody body = bodyFactory.textBody(ics, StandardCharsets.UTF_8);
 
 		BodyPart icsPart = new BodyPart();
 		icsPart.setText(body);
 
 		Map<String, String> t = senderSettingsCache.getIfPresent(imip.organizerEmail);
 		if (t == null) {
-			IUserSettings userSettingsService = provider().instance(IUserSettings.class, recipient.getDomainPart());
+			IUserSettings userSettingsService = provider().instance(IUserSettings.class, recipient.dom.uid);
 			t = userSettingsService.get(sender.uid);
 			senderSettingsCache.put(imip.organizerEmail, t);
 		}
@@ -350,9 +333,7 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 					.subject(subject).build();
 			return m.getMessage();
 
-		} catch (TemplateException e) {
-			throw new ServerFault(e);
-		} catch (IOException e) {
+		} catch (TemplateException | IOException e) {
 			throw new ServerFault(e);
 		}
 	}

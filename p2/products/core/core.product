@@ -246,6 +246,7 @@
       <plugin id="net.bluemind.elasticsearch.initializer"/>
       <plugin id="net.bluemind.exchange.mapi.api"/>
       <plugin id="net.bluemind.exchange.mapi.hook"/>
+      <plugin id="net.bluemind.exchange.mapi.lmtp.filter"/>
       <plugin id="net.bluemind.exchange.mapi.notifications"/>
       <plugin id="net.bluemind.exchange.mapi.persistence"/>
       <plugin id="net.bluemind.exchange.mapi.service"/>
@@ -297,6 +298,7 @@
       <plugin id="net.bluemind.lib.ristretto"/>
       <plugin id="net.bluemind.lib.vertx"/>
       <plugin id="net.bluemind.linkify"/>
+      <plugin id="net.bluemind.lmtp.filter.tnef"/>
       <plugin id="net.bluemind.locator"/>
       <plugin id="net.bluemind.mailbox.api"/>
       <plugin id="net.bluemind.mailbox.hook"/>
@@ -335,6 +337,7 @@
       <plugin id="net.bluemind.metrics.annotations"/>
       <plugin id="net.bluemind.metrics.core"/>
       <plugin id="net.bluemind.metrics.registry"/>
+      <plugin id="net.bluemind.metrics.transport"/>
       <plugin id="net.bluemind.metrics.ui.role"/>
       <plugin id="net.bluemind.mime4j.bodies"/>
       <plugin id="net.bluemind.mime4j.common"/>
@@ -361,6 +364,7 @@
       <plugin id="net.bluemind.resource.helper"/>
       <plugin id="net.bluemind.resource.hook"/>
       <plugin id="net.bluemind.resource.hook.ics"/>
+      <plugin id="net.bluemind.resource.lmtp.filter"/>
       <plugin id="net.bluemind.resource.persistence"/>
       <plugin id="net.bluemind.resource.service"/>
       <plugin id="net.bluemind.resource.sqlschema"/>

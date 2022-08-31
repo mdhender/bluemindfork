@@ -5,11 +5,11 @@ Bundle-SymbolicName: net.bluemind.metrics.transport;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.lmtp,
  org.apache.james.apache-mime4j-dom,
  org.apache.james.apache-mime4j-core,
  net.bluemind.metrics.registry,
- net.bluemind.hornetq.client
+ net.bluemind.hornetq.client,
+ net.bluemind.delivery.lmtp.filters;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.metrics.transport
 Bundle-ActivationPolicy: lazy

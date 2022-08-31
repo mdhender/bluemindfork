@@ -35,11 +35,12 @@ import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.delivery.lmtp.common.LmtpAddress;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.imip.parser.IMIPInfos;
-import net.bluemind.lmtp.backend.LmtpAddress;
 import net.bluemind.mailbox.api.Mailbox;
 
 /**
@@ -51,14 +52,14 @@ import net.bluemind.mailbox.api.Mailbox;
  */
 public class EventReplyHandler extends ReplyHandler implements IIMIPHandler {
 
-	public EventReplyHandler(LmtpAddress recipient, LmtpAddress sender) {
+	public EventReplyHandler(ResolvedBox recipient, LmtpAddress sender) {
 		super(recipient, sender);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(EventReplyHandler.class);
 
 	@Override
-	public IMIPResponse handle(IMIPInfos imip, LmtpAddress recipient, ItemValue<Domain> domain,
+	public IMIPResponse handle(IMIPInfos imip, ResolvedBox recipient, ItemValue<Domain> domain,
 			ItemValue<Mailbox> recipientMailbox) throws ServerFault {
 		String calUid = getCalendarUid(recipientMailbox);
 		ICalendar cal = provider().instance(ICalendar.class, calUid);

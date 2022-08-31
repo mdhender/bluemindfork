@@ -23,9 +23,10 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.delivery.lmtp.common.LmtpAddress;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.imip.parser.IMIPInfos;
-import net.bluemind.lmtp.backend.LmtpAddress;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.VTodo;
@@ -38,14 +39,14 @@ import net.bluemind.todolist.api.VTodo;
  */
 public class TodoCancelHandler extends CancelHandler implements IIMIPHandler {
 
-	public TodoCancelHandler(LmtpAddress recipient, LmtpAddress sender) {
+	public TodoCancelHandler(ResolvedBox recipient, LmtpAddress sender) {
 		super(recipient, sender);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TodoCancelHandler.class);
 
 	@Override
-	public IMIPResponse handle(IMIPInfos imip, LmtpAddress recipient, ItemValue<Domain> domain,
+	public IMIPResponse handle(IMIPInfos imip, ResolvedBox recipient, ItemValue<Domain> domain,
 			ItemValue<Mailbox> recipientMailbox) throws ServerFault {
 
 		if (!super.validate(imip)) {

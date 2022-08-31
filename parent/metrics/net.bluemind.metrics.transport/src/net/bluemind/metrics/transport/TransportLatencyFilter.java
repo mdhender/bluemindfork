@@ -25,11 +25,11 @@ import org.apache.james.mime4j.stream.Field;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.Timer;
 
+import net.bluemind.delivery.lmtp.common.LmtpEnvelope;
+import net.bluemind.delivery.lmtp.filters.FilterException;
+import net.bluemind.delivery.lmtp.filters.ILmtpFilterFactory;
+import net.bluemind.delivery.lmtp.filters.IMessageFilter;
 import net.bluemind.hornetq.client.MQ;
-import net.bluemind.lmtp.backend.FilterException;
-import net.bluemind.lmtp.backend.ILmtpFilterFactory;
-import net.bluemind.lmtp.backend.IMessageFilter;
-import net.bluemind.lmtp.backend.LmtpEnvelope;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 

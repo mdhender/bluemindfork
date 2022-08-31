@@ -20,9 +20,9 @@ package net.bluemind.lmtp.filter.imip;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.imip.parser.IMIPInfos;
-import net.bluemind.lmtp.backend.LmtpAddress;
 import net.bluemind.mailbox.api.Mailbox;
 
 public interface IIMIPHandler {
@@ -40,7 +40,7 @@ public interface IIMIPHandler {
 	 * @param recipientDefaultCalendar
 	 * @throws ServerFault
 	 */
-	IMIPResponse handle(IMIPInfos imip, LmtpAddress recipient, ItemValue<Domain> domain,
+	IMIPResponse handle(IMIPInfos imip, ResolvedBox recipient, ItemValue<Domain> domain,
 			ItemValue<Mailbox> recipientMailbox);
 
 }

@@ -34,7 +34,6 @@ Require-Bundle: org.junit,
  net.bluemind.core.sendmail,
  net.bluemind.imip.parser,
  net.bluemind.calendar.api,
- net.bluemind.lmtp,
  org.apache.james.apache-mime4j-core,
  net.bluemind.calendar.helper,
  net.bluemind.icalendar.parser;bundle-version="4.1.0",
@@ -45,5 +44,8 @@ Require-Bundle: org.junit,
  net.bluemind.filehosting.filesystem.service;bundle-version="4.1.0",
  net.bluemind.filehosting.service;bundle-version="4.1.0",
  net.bluemind.attachment.service;bundle-version="4.1.0",
- net.bluemind.system.api
+ net.bluemind.system.api,
+ net.bluemind.delivery.lmtp.common;bundle-version="4.1.0",
+ net.bluemind.delivery.lmtp.filter.testhelper;bundle-version="4.1.0",
+ net.bluemind.delivery.lmtp.filters
 Automatic-Module-Name: net.bluemind.lmtp.filter.imip.tests

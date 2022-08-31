@@ -22,4 +22,6 @@ public interface ILmtpFilterFactory {
 	int getPriority();
 
 	IMessageFilter getEngine();
+
+	void missingMethod();
 }

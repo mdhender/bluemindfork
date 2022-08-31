@@ -18,8 +18,8 @@
  */
 package net.bluemind.lmtp.filter.tnef;
 
-import net.bluemind.lmtp.backend.ILmtpFilterFactory;
-import net.bluemind.lmtp.backend.IMessageFilter;
+import net.bluemind.delivery.lmtp.filters.ILmtpFilterFactory;
+import net.bluemind.delivery.lmtp.filters.IMessageFilter;
 
 public class TnefFilterFactory implements ILmtpFilterFactory {
 

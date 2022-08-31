@@ -23,10 +23,11 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.delivery.lmtp.common.LmtpAddress;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.imip.parser.IMIPInfos;
-import net.bluemind.lmtp.backend.LmtpAddress;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.VTodo;
@@ -34,24 +35,24 @@ import net.bluemind.user.api.User;
 
 public class TodoRequestHandler extends AbstractLmtpHandler implements IIMIPHandler {
 
-	public TodoRequestHandler(LmtpAddress recipient, LmtpAddress sender) {
+	public TodoRequestHandler(ResolvedBox recipient, LmtpAddress sender) {
 		super(recipient, sender);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TodoRequestHandler.class);
 
 	@Override
-	public IMIPResponse handle(IMIPInfos imip, LmtpAddress recipient, ItemValue<Domain> domain,
+	public IMIPResponse handle(IMIPInfos imip, ResolvedBox recipient, ItemValue<Domain> domain,
 			ItemValue<Mailbox> recipientMailbox) throws ServerFault {
 
 		try {
 
 			if (recipientMailbox.value.type == Mailbox.Type.resource) {
-				throw new ServerFault("Unsuported VTodo for recipient: " + recipient.getEmailAddress() + ", kind: "
+				throw new ServerFault("Unsuported VTodo for recipient: " + recipient.entry.email + ", kind: "
 						+ recipientMailbox.value.type.toString());
 			}
 
-			ItemValue<User> user = getUserFromUid(recipient.getDomainPart(), recipientMailbox.uid);
+			ItemValue<User> user = getUserFromUid(recipient.dom.uid, recipientMailbox.uid);
 
 			ITodoList service = getTodoListService(user);
 

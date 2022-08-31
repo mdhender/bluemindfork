@@ -32,5 +32,6 @@ Require-Bundle: org.junit,
  net.bluemind.core.tests.testshelper,
  net.bluemind.user.service,
  net.bluemind.group.service,
- net.bluemind.core.sendmail.testhelper
+ net.bluemind.core.sendmail.testhelper,
+ net.bluemind.delivery.lmtp.filter.testhelper
 Automatic-Module-Name: net.bluemind.resource.lmtp.filter.tests

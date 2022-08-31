@@ -2,9 +2,10 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="net.bluemind.lmtp.lmtpfilterfactory">
-      <lmtp_filter_factory
-            implementation="net.bluemind.resource.lmtp.filter.FilterFactory"></lmtp_filter_factory>
+         point="net.bluemind.delivery.lmtp.filters.factory">
+      <factory
+            impl="net.bluemind.resource.lmtp.filter.FilterFactory">
+      </factory>
    </extension>
 
 </plugin>

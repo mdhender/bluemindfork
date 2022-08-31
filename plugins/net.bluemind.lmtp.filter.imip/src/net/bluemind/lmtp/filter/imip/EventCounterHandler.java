@@ -31,21 +31,22 @@ import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.delivery.lmtp.common.LmtpAddress;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
+import net.bluemind.delivery.lmtp.filters.PermissionDeniedException.CounterNotAllowedException;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.imip.parser.IMIPInfos;
-import net.bluemind.lmtp.backend.LmtpAddress;
-import net.bluemind.lmtp.backend.PermissionDeniedException.CounterNotAllowedException;
 import net.bluemind.mailbox.api.Mailbox;
 
 public class EventCounterHandler extends AbstractLmtpHandler implements IIMIPHandler {
 
-	public EventCounterHandler(LmtpAddress recipient, LmtpAddress sender) {
+	public EventCounterHandler(ResolvedBox recipient, LmtpAddress sender) {
 		super(recipient, sender);
 	}
 
 	@Override
-	public IMIPResponse handle(IMIPInfos imip, LmtpAddress recipient, ItemValue<Domain> domain,
+	public IMIPResponse handle(IMIPInfos imip, ResolvedBox recipient, ItemValue<Domain> domain,
 			ItemValue<Mailbox> recipientMailbox) throws ServerFault {
 
 		String calUid = getCalendarUid(recipientMailbox);

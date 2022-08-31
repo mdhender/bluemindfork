@@ -21,16 +21,17 @@ package net.bluemind.lmtp.filter.imip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.delivery.lmtp.common.LmtpAddress;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.imip.parser.IMIPInfos.IMIPType;
 import net.bluemind.imip.parser.ITIPMethod;
-import net.bluemind.lmtp.backend.LmtpAddress;
 
 public abstract class IMIPHandlerFactory {
 
 	private static final Logger logger = LoggerFactory.getLogger(IMIPHandlerFactory.class);
 
-	public static IIMIPHandler get(IMIPInfos imip, LmtpAddress recip, LmtpAddress sender) {
+	public static IIMIPHandler get(IMIPInfos imip, ResolvedBox recip, LmtpAddress sender) {
 		IMIPType type = imip.type();
 		if (null != type) {
 			switch (type) {
@@ -46,7 +47,7 @@ public abstract class IMIPHandlerFactory {
 
 	private static abstract class EventIMIPHandlerFactory {
 
-		public static IIMIPHandler get(ITIPMethod method, LmtpAddress recip, LmtpAddress sender) {
+		public static IIMIPHandler get(ITIPMethod method, ResolvedBox recip, LmtpAddress sender) {
 			switch (method) {
 			case REQUEST:
 				return new EventRequestHandler(recip, sender);
@@ -70,7 +71,7 @@ public abstract class IMIPHandlerFactory {
 
 	private static abstract class TodoIMIPHandlerFactory {
 
-		public static IIMIPHandler get(ITIPMethod method, LmtpAddress recip, LmtpAddress sender) {
+		public static IIMIPHandler get(ITIPMethod method, ResolvedBox recip, LmtpAddress sender) {
 			switch (method) {
 			case REQUEST:
 				return new TodoRequestHandler(recip, sender);

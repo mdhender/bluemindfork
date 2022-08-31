@@ -21,12 +21,13 @@ package net.bluemind.lmtp.filter.imip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.delivery.lmtp.common.LmtpAddress;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.imip.parser.IMIPInfos;
-import net.bluemind.lmtp.backend.LmtpAddress;
 
 public abstract class CancelHandler extends AbstractLmtpHandler {
 
-	public CancelHandler(LmtpAddress recipient, LmtpAddress sender) {
+	public CancelHandler(ResolvedBox recipient, LmtpAddress sender) {
 		super(recipient, sender);
 	}
 

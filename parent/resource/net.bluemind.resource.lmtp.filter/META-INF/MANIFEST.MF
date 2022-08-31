@@ -7,7 +7,6 @@ Bundle-Vendor: blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
- net.bluemind.lmtp;bundle-version="1.0.0",
  net.bluemind.mime4j.common;bundle-version="1.0.0",
  net.bluemind.imip.parser,
  net.bluemind.mailbox.api,
@@ -23,5 +22,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.directory.api,
  com.google.guava,
  net.bluemind.lmtp.filter.imip,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ net.bluemind.delivery.lmtp.filters;bundle-version="4.1.0"
 Automatic-Module-Name: net.bluemind.resource.lmtp.filter

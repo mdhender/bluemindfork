@@ -11,6 +11,9 @@
 
 	<modules>
 		<module>net.bluemind.delivery.lmtp</module>
+		<module>net.bluemind.delivery.lmtp.common</module>
+		<module>net.bluemind.delivery.lmtp.filters</module>
+		<module>net.bluemind.delivery.lmtp.filter.testhelper</module>
 	</modules>
 
 </project>

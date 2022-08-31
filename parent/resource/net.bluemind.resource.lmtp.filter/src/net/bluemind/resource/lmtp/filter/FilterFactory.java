@@ -18,8 +18,8 @@
  */
 package net.bluemind.resource.lmtp.filter;
 
-import net.bluemind.lmtp.backend.ILmtpFilterFactory;
-import net.bluemind.lmtp.backend.IMessageFilter;
+import net.bluemind.delivery.lmtp.filters.ILmtpFilterFactory;
+import net.bluemind.delivery.lmtp.filters.IMessageFilter;
 
 public class FilterFactory implements ILmtpFilterFactory {
 

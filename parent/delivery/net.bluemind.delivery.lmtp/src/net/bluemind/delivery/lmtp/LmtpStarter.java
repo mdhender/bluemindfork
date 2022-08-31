@@ -29,8 +29,6 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Verticle;
-import net.bluemind.config.Token;
-import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
@@ -49,14 +47,6 @@ public class LmtpStarter extends AbstractVerticle {
 			return null;
 		});
 		logger.debug("smtp is {}", dontCare);
-	}
-
-	public static interface ApiProv {
-		IServiceProvider withApiKey(String k);
-
-		default IServiceProvider system() {
-			return withApiKey(Token.admin0());
-		}
 	}
 
 	private SMTPServer startImpl(IServiceTopology t, Promise<Void> startPromise) {

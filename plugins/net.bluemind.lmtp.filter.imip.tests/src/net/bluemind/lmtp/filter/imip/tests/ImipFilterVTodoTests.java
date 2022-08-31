@@ -53,12 +53,13 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
+import net.bluemind.delivery.lmtp.filter.testhelper.EnvelopeBuilder;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Status;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.imip.parser.ITIPMethod;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.lmtp.backend.LmtpAddress;
 import net.bluemind.lmtp.filter.imip.IIMIPHandler;
 import net.bluemind.lmtp.filter.imip.TodoCancelHandler;
 import net.bluemind.lmtp.filter.imip.TodoReplyHandler;
@@ -144,7 +145,7 @@ public class ImipFilterVTodoTests {
 		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
 
 		imip.iCalendarElements = Arrays.asList(event.value);
-		LmtpAddress recipient = new LmtpAddress("<admin@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("admin@domain.lan");
 
 		ElasticsearchTestHelper.getInstance().refresh("todo");
 		ItemValue<VTodo> todos = adminTodolist.getComplete(event.uid);
@@ -190,8 +191,7 @@ public class ImipFilterVTodoTests {
 		event.value.attendees = attendees;
 
 		imip.iCalendarElements = Arrays.asList(event.value);
-		LmtpAddress recipient = new LmtpAddress("<" + resource.value.emails.iterator().next().address + ">", null,
-				null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail(resource.value.emails.iterator().next().address);
 
 		try {
 			handler.handle(imip, recipient, null, resourceMailbox);
@@ -224,7 +224,7 @@ public class ImipFilterVTodoTests {
 		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
 
 		imip.iCalendarElements = Arrays.asList(event.value);
-		LmtpAddress recipient = new LmtpAddress("<admin@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("admin@domain.lan");
 
 		ElasticsearchTestHelper.getInstance().refresh("todo");
 		ItemValue<VTodo> todo = adminTodolist.getComplete(event.uid);
@@ -251,7 +251,7 @@ public class ImipFilterVTodoTests {
 		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
 
 		imip.iCalendarElements = Arrays.asList(event.value);
-		LmtpAddress recipient = new LmtpAddress("<admin@domain.lan>", null, null);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("admin@domain.lan");
 
 		ElasticsearchTestHelper.getInstance().refresh("todo");
 		ItemValue<VTodo> todo = adminTodolist.getComplete(event.uid);

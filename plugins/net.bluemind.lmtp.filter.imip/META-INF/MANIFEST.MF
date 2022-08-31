@@ -19,7 +19,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.container.api;bundle-version="1.0.0",
  net.bluemind.config;bundle-version="1.0.0",
  net.bluemind.todolist.api,
- net.bluemind.lmtp;bundle-version="1.0.0",
  net.bluemind.mailbox.api,
  net.bluemind.resource.api,
  org.mnode.ical4j,
@@ -35,10 +34,10 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.hornetq.client,
  net.bluemind.network.topology,
  com.github.ben-manes.caffeine,
- net.bluemind.attachment.api
+ net.bluemind.attachment.api,
+ net.bluemind.delivery.lmtp.filters;bundle-version="4.1.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: blue-mind.net
 Automatic-Module-Name: net.bluemind.lmtp.filter.imip
-Export-Package: net.bluemind.lmtp.filter.imip,
- net.bluemind.lmtp.filter.imip.cache
+Export-Package: net.bluemind.lmtp.filter.imip

@@ -49,9 +49,9 @@ import net.bluemind.authentication.api.LoginResponse.Status;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
-import net.bluemind.lmtp.backend.FilterException;
-import net.bluemind.lmtp.backend.IMessageFilter;
-import net.bluemind.lmtp.backend.LmtpEnvelope;
+import net.bluemind.delivery.lmtp.common.LmtpEnvelope;
+import net.bluemind.delivery.lmtp.filters.FilterException;
+import net.bluemind.delivery.lmtp.filters.IMessageFilter;
 import net.bluemind.mime4j.common.AddressableEntity;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.network.topology.Topology;
@@ -89,7 +89,7 @@ public class TnefFilter implements IMessageFilter {
 							|| "winmail.dat".equalsIgnoreCase(ae.getFilename()))
 					.findAny();
 			return winmailDat.map(tnef -> {
-				Message fromTnef = rewriteWinmail(endpoint, env.getRecipients().get(0).getEmailAddress(),
+				Message fromTnef = rewriteWinmail(endpoint, env.getRecipients().get(0).entry.email,
 						(SingleBody) tnef.getBody());
 				if (fromTnef != null) {
 					// ensure the message-id from the original message is maintained

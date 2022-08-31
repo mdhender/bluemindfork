@@ -26,10 +26,12 @@ import java.nio.channels.FileChannel.MapMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
-import org.apache.james.mime4j.dom.address.Mailbox;
-import org.apache.james.mime4j.field.address.LenientAddressBuilder;
+import org.apache.james.mime4j.dom.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.subethamail.smtp.helper.SimpleMessageListener;
@@ -38,8 +40,12 @@ import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.hash.HashingInputStream;
 import com.google.common.io.ByteStreams;
+import com.netflix.spectator.api.Counter;
+import com.netflix.spectator.api.Registry;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
@@ -54,26 +60,36 @@ import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.vertx.VertxStream;
-import net.bluemind.delivery.lmtp.LmtpStarter.ApiProv;
-import net.bluemind.directory.api.DirEntry;
-import net.bluemind.directory.api.IDirectory;
-import net.bluemind.domain.api.Domain;
-import net.bluemind.domain.api.IDomains;
-import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.delivery.lmtp.common.LmtpEnvelope;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
+import net.bluemind.delivery.lmtp.filters.IMessageFilter;
+import net.bluemind.delivery.lmtp.filters.LmtpFilters;
+import net.bluemind.delivery.lmtp.filters.PermissionDeniedException;
+import net.bluemind.metrics.registry.IdFactory;
+import net.bluemind.metrics.registry.MetricsRegistry;
+import net.bluemind.mime4j.common.Mime4JHelper;
 
 public class LmtpMessageHandler implements SimpleMessageListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(LmtpMessageHandler.class);
 	private final ApiProv prov;
+	private final MailboxLookup lookup;
+	private Counter internalCount;
+	private Counter externalCount;
 
 	public LmtpMessageHandler(ApiProv prov) {
 		this.prov = prov;
+		this.lookup = new MailboxLookup(prov);
+		Registry reg = MetricsRegistry.get();
+		IdFactory idf = new IdFactory("bm-lmtpd", reg, LmtpMessageHandler.class);
+		internalCount = reg.counter(idf.name("deliveries", "source", "internal"));
+		externalCount = reg.counter(idf.name("deliveries", "source", "external"));
 	}
 
 	@Override
 	public boolean accept(String from, String recipient) {
 		try {
-			ResolvedBox found = lookupEmail(recipient);
+			ResolvedBox found = lookup.lookupEmail(recipient);
 			boolean ret = found != null;
 			if (ret) {
 				logger.info("Accept from {} to {}", from, found.mbox.value);
@@ -87,18 +103,6 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 		}
 	}
 
-	public static class ResolvedBox {
-		public ResolvedBox(DirEntry entry, ItemValue<net.bluemind.mailbox.api.Mailbox> mbox, ItemValue<Domain> dom) {
-			this.entry = entry;
-			this.mbox = mbox;
-			this.dom = dom;
-		}
-
-		DirEntry entry;
-		ItemValue<net.bluemind.mailbox.api.Mailbox> mbox;
-		ItemValue<Domain> dom;
-	}
-
 	@Override
 	public void deliver(String from, String recipient, InputStream data) throws IOException {
 		Path tmp = Files.createTempFile("lmtp-inc-", ".eml");
@@ -106,35 +110,21 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 		HashingInputStream hash = new HashingInputStream(Hashing.sha1(), data);
 				OutputStream output = Files.newOutputStream(tmp)) {
 			long copied = ByteStreams.copy(hash, output);
-			ResolvedBox tgtBox = lookupEmail(recipient);
-			deliverImpl(tgtBox, tmp, copied, hash.hash());
+			ResolvedBox tgtBox = lookup.lookupEmail(recipient);
+			Optional<ResolvedBox> fromBox = Optional.ofNullable(lookup.lookupEmail(from));
+
+			deliverImpl(from, tgtBox, tmp, copied, hash.hash());
+			if (fromBox.isPresent()) {
+				internalCount.increment();
+			} else {
+				externalCount.increment();
+			}
 		} finally {
 			Files.delete(tmp);
 		}
 	}
 
-	private ResolvedBox lookupEmail(String recipient) {
-		Mailbox m4jBox = LenientAddressBuilder.DEFAULT.parseMailbox(recipient);
-		IDomains domApi = prov.system().instance(IDomains.class);
-		ItemValue<Domain> dom = domApi.findByNameOrAliases(m4jBox.getDomain());
-		if (dom == null) {
-			return null;
-		}
-		IDirectory dirApi = prov.system().instance(IDirectory.class, m4jBox.getDomain());
-		DirEntry entry = dirApi.getByEmail(recipient);
-		if (entry == null) {
-			return null;
-		}
-		IMailboxes mboxApi = prov.system().instance(IMailboxes.class, dom.uid);
-		logger.info("Lookup {}@{} ({})", entry.entryUid, dom.uid, entry.email);
-		ItemValue<net.bluemind.mailbox.api.Mailbox> mailbox = mboxApi.getComplete(entry.entryUid);
-		if (mailbox == null) {
-			return null;
-		}
-		return new ResolvedBox(entry, mailbox, dom);
-	}
-
-	private void deliverImpl(ResolvedBox tgtBox, Path tmp, long size, HashCode hash) throws IOException {
+	private void deliverImpl(String from, ResolvedBox tgtBox, Path tmp, long size, HashCode hash) throws IOException {
 		String subtree = IMailReplicaUids.subtreeUid(tgtBox.dom.uid, tgtBox.mbox);
 		IDbReplicatedMailboxes treeApi = prov.system().instance(IDbByContainerReplicatedMailboxes.class, subtree);
 		ItemValue<MailboxReplica> rootFolder = treeApi
@@ -143,8 +133,14 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 		String partition = CyrusPartition.forServerAndDomain(tgtBox.entry.dataLocation, tgtBox.dom.uid).name;
 		logger.info("Deliver {} ({}bytes) into {} - {} (partition {})", hash, size, subtree, rootFolder.value,
 				partition);
+
+		ByteBuf mmap = applyFilters(from, tgtBox, tmp, size);
+		if (mmap == null) {
+			return;
+		}
+
 		IDbMessageBodies bodiesUpload = prov.system().instance(IDbMessageBodies.class, partition);
-		Stream stream = mmapStream(tmp, size);
+		Stream stream = VertxStream.stream(Buffer.buffer(mmap));
 		bodiesUpload.create(hash.toString(), stream);
 		logger.info("Body {} uploaded.", hash);
 
@@ -163,12 +159,53 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 
 	}
 
-	private Stream mmapStream(Path tmp, long size) throws IOException {
+	private ByteBuf applyFilters(String from, ResolvedBox tgtBox, Path tmp, long size) throws IOException {
+		List<IMessageFilter> filters = LmtpFilters.get();
+		ByteBuf mmap = mmapBuffer(tmp, size);
+		logger.info("Start filtering of {} with {} filter(s)", mmap, filters.size());
+		try (Message msg = Mime4JHelper.parse(new ByteBufInputStream(mmap.duplicate()))) {
+			Message cur = msg;
+			boolean modified = false;
+			LmtpEnvelope le = new LmtpEnvelope(from, Collections.singletonList(tgtBox));
+			for (IMessageFilter f : filters) {
+				logger.info("Running {}....", f);
+				Message fresh = f.filter(le, cur, size);
+				logger.info("Filtering with {}, cur: {}, fresh: {}", f, cur, fresh);
+				if (fresh != null) {
+					modified = true;
+					logger.info("Marking message {} as modified", msg);
+					if (fresh != cur) {
+						logger.info("Dispose {}, swap to {}", cur, fresh);
+						cur.dispose();
+						cur = fresh;
+					}
+				}
+			}
+			if (modified) {
+				ByteBuf freshBuf = Unpooled.buffer();
+				try (ByteBufOutputStream out = new ByteBufOutputStream(freshBuf)) {
+					Mime4JHelper.serialize(cur, out);
+				}
+				logger.info("Swapping old {} with {} after filtering", mmap, freshBuf);
+				mmap = freshBuf;
+			}
+		} catch (PermissionDeniedException pde) {
+			// this used to set a X-Bm-Discard here & drop from sieve
+			// we can just return
+			logger.info("Discard because of PDE: {}", pde.getMessage());
+			return null;
+		} catch (Exception e) {
+			// we have the original buffer to deliver
+			logger.error("Filtering error, keeping the original one", e);
+		}
+		logger.info("Return {} for delivery", mmap);
+		return mmap;
+	}
+
+	private ByteBuf mmapBuffer(Path tmp, long size) throws IOException {
 		try (RandomAccessFile raf = new RandomAccessFile(tmp.toFile(), "r")) {
 			MappedByteBuffer mmap = raf.getChannel().map(MapMode.READ_ONLY, 0, size);
-			ByteBuf nettyMapping = Unpooled.wrappedBuffer(mmap);
-			Buffer vxMapping = Buffer.buffer(nettyMapping);
-			return VertxStream.stream(vxMapping);
+			return Unpooled.wrappedBuffer(mmap);
 		}
 	}
 

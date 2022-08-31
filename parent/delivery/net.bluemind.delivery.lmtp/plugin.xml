@@ -7,5 +7,11 @@
             impl="net.bluemind.delivery.lmtp.LmtpStarter$Reg">
       </verticle>
    </extension>
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.delivery.lmtp.MailboxLookup$Reg">
+      </reg>
+   </extension>
 
 </plugin>

@@ -23,13 +23,14 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.delivery.lmtp.common.LmtpAddress;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.imip.parser.IMIPInfos;
-import net.bluemind.lmtp.backend.LmtpAddress;
 
 public abstract class ReplyHandler extends AbstractLmtpHandler {
 
-	public ReplyHandler(LmtpAddress recipient, LmtpAddress sender) {
+	public ReplyHandler(ResolvedBox recipient, LmtpAddress sender) {
 		super(recipient, sender);
 	}
 

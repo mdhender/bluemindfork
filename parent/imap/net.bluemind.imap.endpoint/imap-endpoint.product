@@ -45,6 +45,7 @@
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.web"/>
       <plugin id="jakarta.ws.rs-api"/>
+      <plugin id="javax.activation"/>
       <plugin id="javax.validation.api"/>
       <plugin id="javax.xml"/>
       <plugin id="net.bluemind.addressbook.api"/>
@@ -56,6 +57,7 @@
       <plugin id="net.bluemind.common.io"/>
       <plugin id="net.bluemind.common.reflect"/>
       <plugin id="net.bluemind.config"/>
+      <plugin id="net.bluemind.core.caches.registry"/>
       <plugin id="net.bluemind.core.commons"/>
       <plugin id="net.bluemind.core.container.api"/>
       <plugin id="net.bluemind.core.context"/>
@@ -65,6 +67,8 @@
       <plugin id="net.bluemind.core.sessions"/>
       <plugin id="net.bluemind.core.task.api"/>
       <plugin id="net.bluemind.delivery.lmtp"/>
+      <plugin id="net.bluemind.delivery.lmtp.common"/>
+      <plugin id="net.bluemind.delivery.lmtp.filters"/>
       <plugin id="net.bluemind.directory.api"/>
       <plugin id="net.bluemind.domain.api"/>
       <plugin id="net.bluemind.eclipse.common"/>
@@ -90,6 +94,9 @@
       <plugin id="net.bluemind.tag.api"/>
       <plugin id="net.bluemind.user.api"/>
       <plugin id="net.bluemind.utils"/>
+      <plugin id="org.apache.felix.gogo.command"/>
+      <plugin id="org.apache.felix.gogo.runtime"/>
+      <plugin id="org.apache.felix.gogo.shell"/>
       <plugin id="org.apache.james.apache-mime4j-core"/>
       <plugin id="org.apache.james.apache-mime4j-dom"/>
       <plugin id="org.apache.james.apache-mime4j-storage"/>
@@ -98,6 +105,9 @@
       <plugin id="org.apache.xml.serializer"/>
       <plugin id="org.asynchttpclient.async-http-client"/>
       <plugin id="org.asynchttpclient.async-http-client-netty-utils"/>
+      <plugin id="org.bouncycastle.bcpg"/>
+      <plugin id="org.bouncycastle.bcprov"/>
+      <plugin id="org.bouncycastle.bcutil"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.expressions"/>
       <plugin id="org.eclipse.core.jobs"/>
@@ -105,7 +115,6 @@
       <plugin id="org.eclipse.equinox.app"/>
       <plugin id="org.eclipse.equinox.common"/>
       <plugin id="org.eclipse.equinox.console"/>
-      <plugin id="org.eclipse.equinox.event"/>
       <plugin id="org.eclipse.equinox.frameworkadmin"/>
       <plugin id="org.eclipse.equinox.frameworkadmin.equinox"/>
       <plugin id="org.eclipse.equinox.p2.artifact.repository"/>
@@ -137,7 +146,10 @@
       <plugin id="org.eclipse.osgi.util"/>
       <plugin id="org.jsoup"/>
       <plugin id="org.reactivestreams.reactive-streams"/>
+      <plugin id="org.sat4j.core"/>
+      <plugin id="org.sat4j.pb"/>
       <plugin id="org.subethamail.subethasmtp"/>
+      <plugin id="org.tukaani.xz"/>
       <plugin id="sentry"/>
       <plugin id="slf4j.api"/>
    </plugins>
@@ -151,7 +163,6 @@
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="2" />
       <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <property name="osgi.noShutdown" value="true" />
-      <property name="osgi.instance.area" value="/var/lib/bm-imapd/" />
       <property name="eclipse.registry.MultiLanguage" value="true" />
    </configurations>
 

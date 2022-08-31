@@ -11,7 +11,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.hornetq.client,
  com.github.ben-manes.caffeine,
  slf4j.api,
- net.bluemind.lmtp,
  net.bluemind.mime4j.common;bundle-version="4.1.0",
  org.asynchttpclient.async-http-client,
  net.bluemind.core.rest.http,
@@ -20,7 +19,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.config,
  net.bluemind.authentication.api,
  com.typesafe.netty.reactive-streams;bundle-version="2.0.4",
- org.reactivestreams.reactive-streams;bundle-version="1.0.3"
+ org.reactivestreams.reactive-streams;bundle-version="1.0.3",
+ net.bluemind.delivery.lmtp.filters;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.lmtp.filter.tnef
 Bundle-ActivationPolicy: lazy

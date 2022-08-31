@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='us-ascii'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <site>
     <feature url="features/net.bluemind.tests.feature_4.1.0.qualifier.jar" id="net.bluemind.tests.feature" version="4.1.0.qualifier" />
     <bundle id="bm-js-client" version="4.1.0.qualifier" />

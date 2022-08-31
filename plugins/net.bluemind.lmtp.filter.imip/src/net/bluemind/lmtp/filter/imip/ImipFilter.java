@@ -21,7 +21,6 @@ package net.bluemind.lmtp.filter.imip;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,20 +38,20 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.delivery.lmtp.common.LmtpAddress;
+import net.bluemind.delivery.lmtp.common.LmtpEnvelope;
+import net.bluemind.delivery.lmtp.common.ResolvedBox;
+import net.bluemind.delivery.lmtp.filters.FilterException;
+import net.bluemind.delivery.lmtp.filters.IMessageFilter;
+import net.bluemind.delivery.lmtp.filters.PermissionDeniedException;
+import net.bluemind.delivery.lmtp.filters.PermissionDeniedException.CounterNotAllowedException;
+import net.bluemind.delivery.lmtp.filters.PermissionDeniedException.MailboxInvitationDeniedException;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.imip.parser.IIMIPParser;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.imip.parser.IMIPParserFactory;
 import net.bluemind.imip.parser.PureICSRewriter;
-import net.bluemind.lmtp.backend.FilterException;
-import net.bluemind.lmtp.backend.IMessageFilter;
-import net.bluemind.lmtp.backend.LmtpAddress;
-import net.bluemind.lmtp.backend.LmtpEnvelope;
-import net.bluemind.lmtp.backend.PermissionDeniedException;
-import net.bluemind.lmtp.backend.PermissionDeniedException.CounterNotAllowedException;
-import net.bluemind.lmtp.backend.PermissionDeniedException.MailboxInvitationDeniedException;
-import net.bluemind.lmtp.filter.imip.cache.MailboxCache;
 import net.bluemind.mailbox.api.Mailbox;
 
 public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
@@ -92,9 +91,8 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 
 	}
 
-	private Message filter(LmtpEnvelope env, Message message, IMIPInfos infos)
-			throws FilterException, PermissionDeniedException {
-		LmtpAddress sender = null;
+	private Message filter(LmtpEnvelope env, Message message, IMIPInfos infos) throws FilterException {
+		String sender = null;
 		MailboxList fromHeader = message.getFrom();
 		org.apache.james.mime4j.dom.address.Mailbox senderHeader = message.getSender();
 
@@ -103,16 +101,16 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 		// lmtp sender
 		if (fromHeader != null && !fromHeader.isEmpty()) {
 			String fromMail = fromHeader.iterator().next().getAddress();
-			sender = new LmtpAddress("<" + fromMail.toLowerCase() + ">", null, null);
+			sender = fromMail.toLowerCase();
 		} else if (senderHeader != null) {
-			sender = new LmtpAddress("<" + senderHeader.getAddress().toLowerCase() + ">", null, null);
-		} else if (env.hasSender()) {
-			sender = env.getSender();
+			sender = senderHeader.getAddress().toLowerCase();
+		} else if (env.getSenderEmail() != null) {
+			sender = env.getSenderEmail();
 			logger.info("sender is: {}", sender);
 		} else if (infos.organizerEmail != null) {
-			String em = "<" + infos.organizerEmail.toLowerCase() + ">";
-			logger.warn("Missing sender in envelope, using organizer email");
-			sender = new LmtpAddress(em, null, null);
+			String em = infos.organizerEmail.toLowerCase();
+			logger.warn("Missing sender in envelope, using organizer email ({})", em);
+			sender = em;
 		} else {
 			logger.error("No sender or organizer email, don't know how to process");
 			return message;
@@ -120,17 +118,19 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 
 		// BM-7151 fix null organizer email
 		if (infos.organizerEmail == null) {
-			infos.organizerEmail = sender.getEmailAddress();
+			infos.organizerEmail = sender;
 		}
 
-		List<LmtpAddress> recipients = env.getRecipients();
+		List<ResolvedBox> recipients = env.getRecipients();
 		HeaderList headers = new HeaderList();
 		if (sender != null && recipients != null) {
 			List<String> deniedRecipients = new ArrayList<>(recipients.size());
-			for (LmtpAddress recipient : recipients) {
+			LmtpAddress sendAdd = new LmtpAddress(sender);
+			for (ResolvedBox recipient : recipients) {
 				try {
-					IMIPResponse resp = handleIMIPMessage(sender, recipient, infos.copy());
+					IMIPResponse resp = handleIMIPMessage(sendAdd, recipient, infos.copy());
 					headers.addAll(resp.headerFields);
+					logger.info("Add {} header field(s)", resp.headerFields.size());
 				} catch (MailboxInvitationDeniedException e) {
 					deniedRecipients.add(e.mboxUid);
 				} catch (CounterNotAllowedException e) {
@@ -150,9 +150,9 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 				headers.add(discard);
 			}
 		}
-
 		headers.stream().forEach(field -> {
 			message.getHeader().addField(field);
+			logger.info(" IMIP add header {}", field);
 		});
 
 		return message;
@@ -165,7 +165,7 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 	 * @return
 	 * @throws ServerFault
 	 */
-	private IMIPResponse handleIMIPMessage(LmtpAddress sender, final LmtpAddress recipient, final IMIPInfos imip)
+	private IMIPResponse handleIMIPMessage(LmtpAddress sender, final ResolvedBox recipient, final IMIPInfos imip)
 			throws ServerFault, MailboxInvitationDeniedException, CounterNotAllowedException {
 		logger.info("[{}] IMIP message from: {} to {}. Method: {}. Organizer: {}", imip.messageId, sender, recipient,
 				imip.method, imip.organizerEmail);
@@ -174,7 +174,7 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 		if (domain == null) {
 			throw new ServerFault("domain not found " + recipient.getDomainPart(), ErrorCode.NOT_FOUND);
 		}
-		final ItemValue<Mailbox> recipientMailbox = getRecipientMailbox(recipient, domain);
+		final ItemValue<Mailbox> recipientMailbox = typeCheck(recipient);
 
 		try {
 			final IIMIPHandler handler = IMIPHandlerFactory.get(imip, recipient, sender);
@@ -188,33 +188,18 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 			}
 			throw sf;
 		} catch (Exception e) {
-			logger.error("error during handling msg", e);
-			throw new ServerFault(e.getMessage(), ErrorCode.UNKNOWN);
+			throw new ServerFault(e);
 		}
 	}
 
-	private ItemValue<Mailbox> getRecipientMailbox(LmtpAddress recipient, ItemValue<Domain> domain)
-			throws ServerFault, MailboxInvitationDeniedException {
-		String box = null;
-		if (recipient.getEmailAddress().startsWith("+")) {
-			box = recipient.getNormalizedLocalPart().substring(1, recipient.getNormalizedLocalPart().length());
-		} else {
-			box = recipient.getNormalizedLocalPart();
+	private ItemValue<Mailbox> typeCheck(ResolvedBox recipient) throws ServerFault, MailboxInvitationDeniedException {
+
+		if (recipient.mbox.value.type != Mailbox.Type.user && recipient.mbox.value.type != Mailbox.Type.resource) {
+			logger.warn("Unsuported entry kind: {} for email {}", recipient.mbox.value.type, recipient.entry.email);
+			throw new MailboxInvitationDeniedException(recipient.mbox.uid);
 		}
 
-		Optional<ItemValue<Mailbox>> mailbox = MailboxCache.get(provider(), domain.uid, box);
-
-		if (!mailbox.isPresent()) {
-			throw new ServerFault("Unable to find mailbox entry for name: " + recipient.getNormalizedLocalPart());
-		}
-
-		if (mailbox.get().value.type != Mailbox.Type.user && mailbox.get().value.type != Mailbox.Type.resource) {
-			logger.warn("Unsuported entry kind: {} for email {}", mailbox.get().value.type,
-					recipient.getEmailAddress());
-			throw new MailboxInvitationDeniedException(mailbox.get().uid);
-		}
-
-		return mailbox.get();
+		return recipient.mbox;
 	}
 
 	private static class HeaderList {

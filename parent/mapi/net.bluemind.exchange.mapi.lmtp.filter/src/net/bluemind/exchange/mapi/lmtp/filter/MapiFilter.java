@@ -20,9 +20,9 @@ package net.bluemind.exchange.mapi.lmtp.filter;
 
 import org.apache.james.mime4j.dom.Message;
 
-import net.bluemind.lmtp.backend.FilterException;
-import net.bluemind.lmtp.backend.IMessageFilter;
-import net.bluemind.lmtp.backend.LmtpEnvelope;
+import net.bluemind.delivery.lmtp.common.LmtpEnvelope;
+import net.bluemind.delivery.lmtp.filters.FilterException;
+import net.bluemind.delivery.lmtp.filters.IMessageFilter;
 
 public class MapiFilter implements IMessageFilter {
 
