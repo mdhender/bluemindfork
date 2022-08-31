@@ -87,6 +87,7 @@ public class FileHostingHandler implements IWebFilter, NeedVertx {
 			return resp.setChunked(true);
 		});
 
+		resp.putHeader("Access-Control-Allow-Origin", "*");
 		resp.putHeader("Content-Disposition", String.format("inline; filename=\"%s\";", item.name));
 		getMetaData(item.metadata, "mime-type").ifPresent(ct -> resp.putHeader("Content-Type", ct));
 		getService(request).getSharedFile(uid, new AsyncHandler<Stream>() {
