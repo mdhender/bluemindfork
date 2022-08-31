@@ -52,7 +52,7 @@ public class UserValidator implements IValidator<User> {
 		}
 	}
 
-	void validateLogin(User user) {
+	public void validateLogin(User user) {
 		if (!Regex.LOGIN.validate(user.login)) {
 			throw new ServerFault("Login is invalid", ErrorCode.INVALID_PARAMETER);
 		}
