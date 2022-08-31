@@ -193,7 +193,6 @@ public class CommonOrgResourceGrid extends DataGrid<ItemValue<DirEntry>> impleme
 		dq.onlyManagable = true;
 
 		dq.stateFilter = StateFilter.Active;
-		dq.size = OrgResourceGrid.PAGE_SIZE;
 		dq.order = DirEntryQuery.order(OrderBy.displayname, Dir.asc);
 
 		final ColumnSortList sortList = getColumnSortList();
