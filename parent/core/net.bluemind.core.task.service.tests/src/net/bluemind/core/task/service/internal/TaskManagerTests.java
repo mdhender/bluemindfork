@@ -81,7 +81,7 @@ public class TaskManagerTests {
 		System.err.println("After test.");
 	}
 
-	@Test
+	@Test(timeout = 30000)
 	public void repeatFailures() throws Exception {
 		for (int i = 0; i < 1024; i++) {
 			System.err.println("start task " + i);
@@ -192,7 +192,7 @@ public class TaskManagerTests {
 		}
 	}
 
-	@Test
+	@Test(timeout = 10000)
 	public void testFailingTaskLog() throws Exception {
 
 		final CountDownLatch cdl = new CountDownLatch(1);
