@@ -1,14 +1,14 @@
 import { mapGetters, mapState } from "vuex";
 import throttle from "lodash.throttle";
 
-import { MY_MAILBOX_KEY, MAILBOXES_ARE_LOADED } from "~/getters";
+import { MAILBOXES, MY_MAILBOX_KEY, MAILBOXES_ARE_LOADED } from "~/getters";
 import { WaitForMixin } from "~/mixins";
 
 export default {
     mixins: [WaitForMixin],
     computed: {
-        ...mapState("mail", ["activeFolder", "folders", "mailboxes"]),
-        ...mapGetters("mail", { MY_MAILBOX_KEY, MAILBOXES_ARE_LOADED }),
+        ...mapState("mail", ["activeFolder", "folders"]),
+        ...mapGetters("mail", { MAILBOXES, MY_MAILBOX_KEY, MAILBOXES_ARE_LOADED }),
         $_ServerPush_serviceWorkerController() {
             return navigator.serviceWorker && navigator.serviceWorker.controller;
         }
@@ -25,7 +25,7 @@ export default {
     watch: {
         MAILBOXES_ARE_LOADED() {
             if (this.MAILBOXES_ARE_LOADED) {
-                Object.values(this.mailboxes).forEach(mailbox => {
+                this.MAILBOXES.forEach(mailbox => {
                     this.$socket.register(`mailreplica.${mailbox.owner}.updated`, this.$_ServerPush_handle(mailbox));
                 });
             }
