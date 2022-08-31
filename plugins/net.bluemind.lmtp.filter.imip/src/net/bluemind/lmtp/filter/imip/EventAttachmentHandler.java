@@ -39,15 +39,19 @@ import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.imip.parser.IMIPInfos.Cid;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.User;
 
 public class EventAttachmentHandler {
 
 	private final IServiceProvider provider;
 	private final String coreUrl;
+	private Optional<Boolean> canAttach;
 
 	public EventAttachmentHandler(IServiceProvider provider, String coreUrl) {
 		this.provider = provider;
 		this.coreUrl = coreUrl;
+		this.canAttach = Optional.empty();
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(EventAttachmentHandler.class);
@@ -66,7 +70,13 @@ public class EventAttachmentHandler {
 					if (att.cid != null && (att.publicUrl == null || att.publicUrl.equals(att.cid))) {
 						Optional<AttachedFile> attachedFile = findByCid(att.cid, existingSeries);
 						if (!attachedFile.isPresent()) {
-							attachedFile = detach(att.cid, cids, userLogin.get(), domain);
+							if (canAttach(userLogin.get(), domain)) {
+								attachedFile = detach(att.cid, cids, userLogin.get(), domain);
+							} else {
+								logger.info(
+										"Cannot detach event attachments. User {}@{} is missing required role canRemoteAttach",
+										userLogin, domain);
+							}
 						}
 						attachedFile.ifPresent(file -> {
 							att.publicUrl = file.publicUrl;
@@ -80,6 +90,15 @@ public class EventAttachmentHandler {
 			logger.warn("Cannot detach event attachments: {}", e.getMessage(), e);
 		}
 
+	}
+
+	private boolean canAttach(String userLogin, String domain) {
+		if (!canAttach.isPresent()) {
+			IUser service = provider.instance(IUser.class, domain);
+			ItemValue<User> user = service.byLogin(userLogin);
+			canAttach = Optional.of(service.getResolvedRoles(user.uid).contains("canRemoteAttach"));
+		}
+		return canAttach.get();
 	}
 
 	private Optional<AttachedFile> detach(String cid, Map<String, Cid> cids, String userLogin, String domain) {

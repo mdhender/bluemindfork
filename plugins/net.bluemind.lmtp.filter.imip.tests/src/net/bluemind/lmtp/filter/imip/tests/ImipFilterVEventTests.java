@@ -126,8 +126,11 @@ public class ImipFilterVEventTests {
 	private BmContext testContext;
 	private String user1Uid;
 	private ItemValue<User> user1;
+	private String userNoDriveUid;
 	private ItemValue<Mailbox> user1Mailbox;
+	private ItemValue<Mailbox> userNoDriveMailbox;
 	private ICalendar user1Calendar;
+	private ICalendar userNoDriveCalendar;
 	private ItemValue<Domain> domain;
 	private ZoneId defaultTz = ZoneId.systemDefault();
 	private ZoneId utcTz = ZoneId.of("UTC");
@@ -181,9 +184,13 @@ public class ImipFilterVEventTests {
 		testContext = new BmTestContext(SecurityContext.SYSTEM);
 
 		user1Uid = PopulateHelper.addUser("user1", domainUid, Routing.none, "canRemoteAttach");
+		userNoDriveUid = PopulateHelper.addUser("usernodrive", domainUid, Routing.none);
 		user1 = testContext.provider().instance(IUser.class, domainUid).getComplete(user1Uid);
 		user1Mailbox = testContext.provider().instance(IMailboxes.class, domainUid).getComplete(user1Uid);
+		userNoDriveMailbox = testContext.provider().instance(IMailboxes.class, domainUid).getComplete(userNoDriveUid);
 		user1Calendar = testContext.provider().instance(ICalendar.class, ICalendarUids.defaultUserCalendar(user1Uid));
+		userNoDriveCalendar = testContext.provider().instance(ICalendar.class,
+				ICalendarUids.defaultUserCalendar(userNoDriveUid));
 
 		domain = testContext.provider().instance(IDomains.class).get(domainUid);
 		System.out.println("test setup is complete for " + name.getMethodName());
@@ -289,6 +296,34 @@ public class ImipFilterVEventTests {
 		byte[] image = download(attachedFile.publicUrl);
 		assertEquals(7522, image.length);
 		assertEquals("Screenshot 2021-12-16 at 10.30.00.png", attachedFile.name);
+	}
+
+	@Test
+	public void requestHandler_Event_CID_Attachments_RecipientWithoutRoleShouldNotBlock() throws Exception {
+		setGlobalExternalUrl();
+		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
+
+		IMIPInfos imip = null;
+
+		try (InputStream in = Ex2003Tests.class.getClassLoader()
+				.getResourceAsStream("ics/office365_invitation_inline_image.eml");
+				Message parsed = Mime4JHelper.parse(in)) {
+			imip = IMIPParserFactory.create().parse(parsed);
+		}
+
+		LmtpAddress recipient = new LmtpAddress("<usernodrive@domain.lan>", null, null);
+		handler.handle(imip, recipient, domain, userNoDriveMailbox);
+
+		List<ItemValue<VEventSeries>> byIcsUid = userNoDriveCalendar.getByIcsUid(
+				"040000008200E00074C5B7101A82E00800000000DEE9BEDA6DF2D7010000000000000000100000007F3854933A325346B9433160D5F41CEA");
+		assertEquals(1, byIcsUid.size());
+
+		VEvent main = byIcsUid.get(0).value.main;
+		assertEquals(1, main.attachments.size());
+
+		AttachedFile attachedFile = main.attachments.get(0);
+		assertEquals("CID:a2008ab2-a526-4687-9bfb-259fd6c5bbdc", attachedFile.cid);
+		assertEquals(attachedFile.cid, attachedFile.publicUrl);
 	}
 
 	private Map<String, String> setGlobalExternalUrl() {
