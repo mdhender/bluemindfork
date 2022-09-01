@@ -3,8 +3,6 @@ package net.bluemind.pimp.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.processing.Generated;
-
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -12,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({ "product", "defaultHeap", "defaultDirect", "sparePercent" })
 public class Rule {
 
@@ -37,7 +34,7 @@ public class Rule {
 	@JsonProperty("optional")
 	private boolean optional = false;
 
-	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	private Map<String, Object> additionalProperties = new HashMap<>();
 
 	@JsonProperty("product")
 	public String getProduct() {
