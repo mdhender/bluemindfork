@@ -36,6 +36,7 @@ import com.google.common.collect.Lists;
 
 import net.bluemind.backend.cyrus.CyrusAdmins;
 import net.bluemind.backend.cyrus.CyrusService;
+import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.IFreebusyMgmt;
 import net.bluemind.calendar.api.IFreebusyUids;
 import net.bluemind.core.api.fault.ServerFault;
@@ -91,6 +92,17 @@ public class FreebusyMgmtTests {
 		container = Container.create(UUID.randomUUID().toString(), IFreebusyUids.TYPE, "fb container",
 				defaultSecurityContext.getSubject(), DOMAIN, true);
 		container = containerStore.create(container);
+
+		Container containerCal1 = Container.create("this-is-calendar", ICalendarUids.TYPE, "this-is-calendar",
+				defaultSecurityContext.getSubject(), DOMAIN, false);
+		containerStore.create(containerCal1);
+		Container containerCal2 = Container.create("this-is-calendar2", ICalendarUids.TYPE, "this-is-calendar2",
+				defaultSecurityContext.getSubject(), DOMAIN, false);
+		containerStore.create(containerCal2);
+		Container containerCal3 = Container.create("this-is-calendar3", ICalendarUids.TYPE, "this-is-calendar3",
+				defaultSecurityContext.getSubject(), DOMAIN, false);
+		containerStore.create(containerCal3);
+
 		assertNotNull(container);
 
 		aclStore.store(container,
@@ -159,12 +171,10 @@ public class FreebusyMgmtTests {
 		calendars.add("this");
 		calendars.add("is");
 		calendars.add("calendar");
+		// check non-existing calendars
 		service.set(calendars);
 		calendars = service.get();
-		assertEquals(3, calendars.size());
-		assertTrue(calendars.contains("this"));
-		assertTrue(calendars.contains("is"));
-		assertTrue(calendars.contains("calendar"));
+		assertEquals(0, calendars.size());
 
 		service = getService(anotherSecurityContext);
 		try {

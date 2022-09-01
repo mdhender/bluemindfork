@@ -22,7 +22,9 @@ import java.sql.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -51,16 +53,16 @@ public class FreebusyStore extends JdbcAbstractStore {
 	}
 
 	public void add(String calendar) throws SQLException {
-		List<String> calendars = get();
+		Set<String> calendars = new HashSet<>(get());
 		if (calendars.isEmpty()) {
-			calendars = new ArrayList<String>(1);
+			calendars = new HashSet<String>(1);
 			calendars.add(calendar);
 			String query = "INSERT INTO t_freebusy (container_id, calendars) VALUES(?, ?)";
 			insert(query, new Object[] { container.id, calendars.toArray(new String[0]) });
 		} else {
 			calendars.add(calendar);
 			String query = "UPDATE t_freebusy set calendars = ? where container_id = ?";
-			update(query, calendars, statementValues, new Object[] { container.id });
+			update(query, new ArrayList<>(calendars), statementValues, new Object[] { container.id });
 		}
 	}
 

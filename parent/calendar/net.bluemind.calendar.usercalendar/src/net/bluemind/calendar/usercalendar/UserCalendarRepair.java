@@ -19,9 +19,13 @@
 package net.bluemind.calendar.usercalendar;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.ICalendarViewUids;
+import net.bluemind.calendar.api.IFreebusyMgmt;
 import net.bluemind.calendar.api.IFreebusyUids;
 import net.bluemind.calendar.service.UserCalendarServiceFactory;
 import net.bluemind.core.container.api.IContainerManagement;
@@ -58,7 +62,10 @@ public class UserCalendarRepair implements ContainerRepairOp {
 		verifyCalendarViewContainer(domainUid, user, monitor, () -> {
 		});
 
-		verifyFreebusyViewContainer(domainUid, user, monitor, () -> {
+		verifyFreebusyContainer(domainUid, user, monitor, () -> {
+		});
+
+		verifyFreebusyCalendars(domainUid, user, monitor, (cals) -> {
 		});
 
 		ContainerRepairUtil.verifyContainerSubscription(entry.entryUid, domainUid, monitor, (container) -> {
@@ -96,7 +103,7 @@ public class UserCalendarRepair implements ContainerRepairOp {
 					.setAccessControlList(Arrays.asList(AccessControlEntry.create(user.uid, Verb.All)));
 		});
 
-		verifyFreebusyViewContainer(domainUid, user, monitor, () -> {
+		verifyFreebusyContainer(domainUid, user, monitor, () -> {
 			IContainers service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(IContainers.class);
 			String containerUid = IFreebusyUids.getFreebusyContainerUid(user.uid);
@@ -108,6 +115,13 @@ public class UserCalendarRepair implements ContainerRepairOp {
 					.instance(IContainerManagement.class, containerUid)
 					.setAccessControlList(Arrays.asList(AccessControlEntry.create(user.uid, Verb.All),
 							AccessControlEntry.create(domainUid, Verb.Read)));
+		});
+
+		verifyFreebusyCalendars(domainUid, user, monitor, (cals) -> {
+			String containerUid = IFreebusyUids.getFreebusyContainerUid(user.uid);
+			ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+			IFreebusyMgmt mgmt = provider.instance(IFreebusyMgmt.class, containerUid);
+			mgmt.set(cals);
 		});
 
 		ContainerRepairUtil.verifyContainerSubscription(entry.entryUid, domainUid, monitor, (container) -> {
@@ -131,11 +145,35 @@ public class UserCalendarRepair implements ContainerRepairOp {
 		verifyContainer(domainUid, monitor, maintenance, containerUid);
 	}
 
-	private void verifyFreebusyViewContainer(String domainUid, ItemValue<User> user, RepairTaskMonitor monitor,
+	private void verifyFreebusyContainer(String domainUid, ItemValue<User> user, RepairTaskMonitor monitor,
 			Runnable maintenance) {
 
 		String containerUid = IFreebusyUids.getFreebusyContainerUid(user.uid);
 		verifyContainer(domainUid, monitor, maintenance, containerUid);
+	}
+
+	private void verifyFreebusyCalendars(String domainUid, ItemValue<User> user, RepairTaskMonitor monitor,
+			Consumer<List<String>> maintenance) {
+
+		String containerUid = IFreebusyUids.getFreebusyContainerUid(user.uid);
+		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		IContainers containerService = provider.instance(IContainers.class);
+		ContainerDescriptor container = containerService.getIfPresent(containerUid);
+		if (container != null) {
+			IFreebusyMgmt mgmt = provider.instance(IFreebusyMgmt.class, containerUid);
+			List<String> cals = mgmt.get();
+			List<String> valid = cals.stream().filter(cal -> verifyCalendar(containerService, user.uid, cal))
+					.collect(Collectors.toList());
+			if (cals.size() != valid.size()) {
+				monitor.notify("Freebusy contains foreign calendars");
+				maintenance.accept(valid);
+			}
+		}
+	}
+
+	private boolean verifyCalendar(IContainers containerService, String owner, String calendar) {
+		ContainerDescriptor calContainer = containerService.getIfPresent(calendar);
+		return calContainer != null && calContainer.owner.equals(owner);
 	}
 
 	private String getViewContainerUid(String uid) {
