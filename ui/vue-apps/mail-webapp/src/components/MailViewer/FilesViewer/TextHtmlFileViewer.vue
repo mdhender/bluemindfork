@@ -156,7 +156,7 @@ const BM_STYLE = `
             font-family: Montserrat;
             font-style: normal;
             font-weight: normal;
-            font-size: 12px;
+            font-size: 14px;
         }
 
         a img.blocked-image:before {
