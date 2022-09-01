@@ -22,7 +22,7 @@ INFLUXDB="1.8.3.bm1~247d383a3"
 # PostgreSQL
 # Use EXTDEPS-getlastpg.sh if you need to modify (requires python3 + requests for RHEL)
 # Example: ./EXTDEPS-getlastpg.sh 14 | sort # for PostgreSQL 14
-BMPOSTGRESQL="14.5-bluemind198"
+BMPOSTGRESQL="14.5-bluemind199"
 
 # Override from EXTDEPS-getlastpg
 PG_BIONIC="14.5-1.pgdg18.04+1"
@@ -83,7 +83,7 @@ PGKEYRING="2018.2"
 PG_RHEL7="14.5-1PGDG.rhel7"
 PG_REPACK_RHEL7="1.4.7-1.rhel7"
 PG_QUALSTATS_RHEL7="2.0.4-1.rhel7"
-PG_STAT_KCACHE_RHEL7="2.2.0-2.rhel7"
+PG_STAT_KCACHE_RHEL7="2.2.1-2.rhel7"
 PG_TRACK_SETTINGS_RHEL7="2.0.1-3.rhel7"
 PG_WAIT_SAMPLING_RHEL7="1.1.3-1.rhel7"
 PG_HYPOPG_RHEL7="1.3.1-1.rhel7"
@@ -92,7 +92,7 @@ PG_POWA_RHEL7="4.1.4-1.rhel7"
 PG_RHEL8="14.5-1PGDG.rhel8"
 PG_REPACK_RHEL8="1.4.7-1.rhel8"
 PG_QUALSTATS_RHEL8="2.0.4-1.rhel8"
-PG_STAT_KCACHE_RHEL8="2.2.0-2.rhel8"
+PG_STAT_KCACHE_RHEL8="2.2.1-2.rhel8"
 PG_TRACK_SETTINGS_RHEL8="2.0.1-3.rhel8"
 PG_WAIT_SAMPLING_RHEL8="1.1.3-1.rhel8"
 PG_HYPOPG_RHEL8="1.3.1-1.rhel8"
