@@ -4,7 +4,7 @@
         <global-events @click="showFolders = false" />
         <section
             :aria-label="$t('mail.application.region.mailtools')"
-            class="row align-items-center shadow bg-surface topbar z-index-250"
+            class="row align-items-center shadow topbar z-index-250"
             :class="{ darkened }"
         >
             <bm-col
@@ -180,6 +180,7 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_type";
 @import "~@bluemind/styleguide/css/_variables";
 @import "~@bluemind/styleguide/css/_zIndex.scss";
@@ -188,13 +189,9 @@ export default {
     .topbar {
         flex: none;
         height: base-px-to-rem(46);
-        @media (max-width: map-get($grid-breakpoints, "lg")) {
-            background-color: $fill-primary-bg;
-
-            .btn-simple-neutral {
-                background-color: none;
-                color: $fill-primary-fg;
-            }
+        background-color: $fill-primary-bg;
+        @include from-lg {
+            background-color: $surface;
         }
     }
     .switch-webmail label {
@@ -212,13 +209,13 @@ export default {
     }
 
     .folders-section {
-        z-index: 200;
-        @media (max-width: map-get($grid-breakpoints, "lg")) {
-            z-index: 300;
+        z-index: 300;
+        @include from-lg {
+            z-index: 200;
         }
     }
     .mail-folder-sidebar-wrapper {
-        @media (max-width: map-get($grid-breakpoints, "lg")) {
+        @include until-lg {
             box-shadow: $box-shadow-lg;
         }
     }
@@ -254,24 +251,26 @@ export default {
         visibility: hidden;
     }
 
-    @media only screen and (min-width: map-get($grid-breakpoints, "lg")) {
-        .mail-conversation-list-wrapper {
-            min-width: 20%;
-            max-width: 70%;
-            width: 30%;
-        }
-        .layout-v > .multipane-resizer {
-            visibility: visible;
-            margin-left: -$sp-1 * 0.5;
-            left: 0;
-            width: $sp-1;
-            min-width: $sp-1;
+    @media only screen {
+        @include from-lg {
+            .mail-conversation-list-wrapper {
+                min-width: 20%;
+                max-width: 70%;
+                width: 30%;
+            }
+            .layout-v > .multipane-resizer {
+                visibility: visible;
+                margin-left: -$sp-1 * 0.5;
+                left: 0;
+                width: $sp-1;
+                min-width: $sp-1;
 
-            &:active {
-                margin-left: -$sp-1;
-                border-right: ($sp-1 * 0.25) $neutral-fg solid;
-                width: $sp-1 * 1.25;
-                min-width: $sp-1 * 1.25;
+                &:active {
+                    margin-left: -$sp-1;
+                    border-right: ($sp-1 * 0.25) $neutral-fg solid;
+                    width: $sp-1 * 1.25;
+                    min-width: $sp-1 * 1.25;
+                }
             }
         }
     }

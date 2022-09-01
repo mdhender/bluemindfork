@@ -28,12 +28,7 @@
                 <bm-icon icon="caret-down" size="xs" />
             </bm-button>
         </div>
-        <bm-collapse
-            id="search-form"
-            ref="searchForm"
-            v-model="showForm"
-            class="search-form position-absolute bg-surface shadow p-5"
-        >
+        <bm-collapse id="search-form" ref="searchForm" v-model="showForm" class="search-form bg-surface shadow p-5">
             <bm-form
                 class="d-flex flex-column h-100"
                 @submit.prevent="search"
@@ -266,7 +261,9 @@ export default {
     }
 };
 </script>
+
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-search-form {
@@ -309,7 +306,22 @@ export default {
     }
 
     .search-form {
-        width: 200%;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        width: auto;
+
+        @include from-lg {
+            position: absolute;
+            top: initial;
+            bottom: initial;
+            right: initial;
+            left: initial;
+            width: 200%;
+        }
+
         .form-group {
             display: flex;
             align-items: center;
@@ -321,7 +333,7 @@ export default {
         }
     }
 
-    @media (max-width: map-get($grid-breakpoints, "lg")) {
+    @include until-lg {
         .mail-search-form-quicksearch {
             .form-control,
             .form-control::placeholder,
@@ -336,17 +348,7 @@ export default {
                 background: transparent !important;
                 border-color: transparent !important;
                 border-bottom-color: $fill-primary-fg !important;
-                opacity: 1;
             }
-        }
-
-        .search-form {
-            position: fixed !important;
-            top: 0;
-            bottom: 0;
-            right: 0;
-            left: 0;
-            width: auto;
         }
     }
 }

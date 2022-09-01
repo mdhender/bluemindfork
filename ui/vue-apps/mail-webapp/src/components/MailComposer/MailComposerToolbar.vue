@@ -235,12 +235,13 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_type";
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-composer-footer-toolbar {
     display: none;
-    @include media-breakpoint-up(lg) {
+    @include from-lg {
         display: flex;
     }
     flex-wrap: wrap;

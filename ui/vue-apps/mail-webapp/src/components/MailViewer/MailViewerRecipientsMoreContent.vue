@@ -5,7 +5,7 @@
                 <bm-button-close class="align-self-end" @click="$emit('close')" />
             </div>
         </div>
-        <div class="overflow-auto pb-2">
+        <div class="overflow-auto pb-5">
             <div class="d-flex">
                 <div class="custom-col-left text-right pr-4">{{ $t("common.from") }}</div>
                 <div class="custom-col-right">

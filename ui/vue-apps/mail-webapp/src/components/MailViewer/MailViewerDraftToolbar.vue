@@ -59,13 +59,12 @@ export default {
     }
 };
 </script>
+
 <style lang="scss" scoped>
 @import "~@bluemind/styleguide/css/_variables";
-@media (max-width: map-get($grid-breakpoints, "lg")) {
-    .mail-viewer-mobile-actions {
-        bottom: 0;
-        box-shadow: 0 -0.125rem 0.125rem rgba($highest, 0.25);
-        justify-content: space-evenly;
-    }
+.mail-viewer-mobile-actions {
+    bottom: 0;
+    box-shadow: 0 -0.125rem 0.125rem rgba($highest, 0.25);
+    justify-content: space-evenly;
 }
 </style>

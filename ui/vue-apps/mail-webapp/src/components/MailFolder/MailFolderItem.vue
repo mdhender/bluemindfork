@@ -157,6 +157,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-folder-item {
@@ -187,7 +188,7 @@ export default {
     }
 }
 
-@include media-breakpoint-up(lg) {
+@include from-lg {
     .mail-folder-item:hover {
         .mail-folder-item-menu {
             display: flex !important;

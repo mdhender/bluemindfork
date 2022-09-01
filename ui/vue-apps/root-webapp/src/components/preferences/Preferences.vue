@@ -174,13 +174,16 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_variables";
 
-@media only screen and (min-width: map-get($grid-breakpoints, "lg")) {
-    .preferences .visible-container {
-        max-width: 80%;
-        margin-top: $sp-5;
-        margin-bottom: $sp-5;
+@media only screen {
+    @include from-lg {
+        .preferences .visible-container {
+            max-width: 80%;
+            margin-top: $sp-5;
+            margin-bottom: $sp-5;
+        }
     }
 }
 </style>

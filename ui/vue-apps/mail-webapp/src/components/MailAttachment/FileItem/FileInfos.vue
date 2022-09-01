@@ -50,6 +50,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_variables";
 
 .file-infos {
@@ -75,14 +76,13 @@ export default {
         display: flex;
         align-items: center;
         background-color: inherit;
-        gap: $sp-4;
-        @media (min-width: map-get($grid-breakpoints, "lg")) {
-            gap: 0;
+        @include until-lg {
+            gap: $sp-4;
         }
     }
 }
 
-@media (min-width: map-get($grid-breakpoints, "lg")) {
+@include from-lg {
     .file-item {
         &.disabled,
         &:not(:hover):not(:focus):not(:focus-within) {

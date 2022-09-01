@@ -79,11 +79,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_variables";
-@media (max-width: map-get($grid-breakpoints, "lg")) {
-    .mail-viewer-toolbar {
-        bottom: 0;
-        $nb-buttons: 4;
+.mail-viewer-toolbar {
+    bottom: 0;
+    $nb-buttons: 4;
+    @include until-lg {
         max-width: $nb-buttons * ($icon-btn-width-regular + $sp-6);
     }
 }

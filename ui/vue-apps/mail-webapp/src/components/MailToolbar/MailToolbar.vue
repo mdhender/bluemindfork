@@ -74,10 +74,11 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/responsiveness";
 @import "~@bluemind/styleguide/css/variables";
 
 .mail-toolbar {
-    @media (max-width: map-get($grid-breakpoints, "lg")) {
+    @include until-lg {
         justify-content: end;
     }
     & > .bm-icon-button,
@@ -88,9 +89,8 @@ export default {
 
     .mail-toolbar-compose-message,
     .mail-toolbar-selected-conversations {
-        gap: $sp-6;
-        @media (min-width: map-get($grid-breakpoints, "lg")) {
-            gap: 0;
+        @include until-lg {
+            gap: $sp-6;
         }
     }
 }

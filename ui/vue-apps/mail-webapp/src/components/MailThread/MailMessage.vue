@@ -98,17 +98,19 @@ export default {
 };
 </script>
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-message {
     .mail-composer ~ .mail-viewer {
-        @media (max-width: map-get($grid-breakpoints, "lg")) {
-            display: none !important;
+        display: none !important;
+        @include from-lg {
+            display: flex !important;
         }
     }
 
     .mail-composer {
-        @media (min-width: map-get($grid-breakpoints, "lg")) {
+        @include from-lg {
             height: auto !important;
         }
     }

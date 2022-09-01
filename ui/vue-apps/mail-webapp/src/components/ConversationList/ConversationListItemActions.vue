@@ -15,6 +15,7 @@ export default {
 };
 </script>
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/responsiveness";
 @import "~@bluemind/styleguide/css/variables";
 
 .conversation-list-item {
@@ -46,10 +47,12 @@ export default {
         background-color: $secondary-bg;
     }
 
-    @media only screen and (min-width: map-get($grid-breakpoints, "lg")) {
-        &:hover {
-            .conversation-list-item-actions {
-                display: flex;
+    @media only screen {
+        @include from-lg {
+            &:hover {
+                .conversation-list-item-actions {
+                    display: flex;
+                }
             }
         }
     }

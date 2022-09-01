@@ -53,13 +53,14 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness.scss";
 @import "~@bluemind/styleguide/css/_variables.scss";
 @import "../_variables.scss";
 
 .mail-conversation-viewer-footer {
     padding-top: $sp-4;
     padding-left: $conversation-main-padding-left;
-    @media (min-width: map-get($grid-breakpoints, "lg")) {
+    @include from-lg {
         padding-left: $conversation-main-padding-left-lg + $sp-7;
     }
     padding-bottom: $sp-7;

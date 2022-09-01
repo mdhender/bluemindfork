@@ -55,11 +55,12 @@ export default {
 };
 </script>
 <style lang="scss">
+@import "@bluemind/styleguide/css/mixins/_responsiveness.scss";
 @import "@bluemind/styleguide/css/_variables.scss";
 
 .file-thumbnail {
     height: 35vw;
-    @media (min-width: map-get($grid-breakpoints, "lg")) {
+    @include from-lg {
         height: 7vw;
     }
     margin-top: $sp-3;

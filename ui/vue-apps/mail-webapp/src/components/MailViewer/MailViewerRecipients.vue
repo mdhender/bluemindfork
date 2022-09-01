@@ -117,6 +117,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-viewer-recipients {
@@ -128,27 +129,32 @@ export default {
 #mail-viewer-recipients-modal-to___BV_modal_outer_,
 #mail-viewer-recipients-modal-cc___BV_modal_outer_,
 #mail-viewer-recipients-modal-bcc___BV_modal_outer_ {
-    @media (min-width: map-get($grid-breakpoints, "lg")) {
-        display: none !important;
+    @include from-lg {
+        display: none;
     }
     .modal-dialog {
         max-width: none;
         width: 75%;
         .modal-content {
             max-height: 75%;
+            padding: 0;
+            .modal-body {
+                margin-bottom: 0;
+            }
         }
     }
 }
 .popover {
-    @media (max-width: map-get($grid-breakpoints, "lg")) {
+    @include until-lg {
         display: none !important;
     }
     max-width: 50vw !important;
     min-width: 28.25rem;
     max-height: 65vh;
     overflow: auto;
-}
-.popover .arrow {
-    display: none;
+
+    .arrow {
+        display: none;
+    }
 }
 </style>

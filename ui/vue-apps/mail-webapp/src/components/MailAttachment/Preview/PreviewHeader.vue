@@ -115,6 +115,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "@bluemind/styleguide/css/mixins/_responsiveness.scss";
 @import "@bluemind/styleguide/css/_variables.scss";
 
 .preview-header {
@@ -136,7 +137,7 @@ export default {
         justify-content: space-around;
         width: 100%;
 
-        @media (min-width: map-get($grid-breakpoints, "lg")) {
+        @include from-lg {
             order: 2;
             justify-content: flex-start;
             flex: none;

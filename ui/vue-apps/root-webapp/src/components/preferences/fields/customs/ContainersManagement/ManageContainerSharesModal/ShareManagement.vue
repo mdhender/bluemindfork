@@ -309,6 +309,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_variables";
 
 .share-management {
@@ -321,7 +322,7 @@ export default {
             flex: none;
             width: 100%;
             min-width: 0;
-            @media (min-width: map-get($grid-breakpoints, "lg")) {
+            @include from-lg {
                 flex: 1;
             }
         }
