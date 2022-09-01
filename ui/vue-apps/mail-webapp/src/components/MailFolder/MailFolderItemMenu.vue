@@ -180,8 +180,8 @@ export default {
                 title,
                 okTitle: this.$t("common.delete"),
                 cancelTitle: this.$t("common.cancel"),
-                okVariant: "secondary",
-                cancelVariant: "simple-neutral",
+                okVariant: "contained-accent",
+                cancelVariant: "text",
                 centered: true,
                 hideHeaderClose: false,
                 autoFocusButton: "ok"

@@ -26,8 +26,8 @@ export function renderMustDetachConfirmBox(vm, files, sizeLimit, message) {
         okTitle: vm.$tc("mail.filehosting.share.start", files.length),
         cancelTitle: vm.$t("common.cancel"),
         bodyClass: "pb-4",
-        okVariant: "secondary",
-        cancelVariant: "simple-neutral",
+        okVariant: "contained-accent",
+        cancelVariant: "text",
         centered: true,
         hideHeaderClose: false
     };
@@ -59,8 +59,8 @@ export function renderShouldDetachConfirmBox(vm, files) {
         okTitle: vm.$tc("mail.filehosting.share.start", files.length),
         cancelTitle: vm.$t("mail.actions.attach"), //TODO: use a better wording
         bodyClass: "pb-4",
-        okVariant: "secondary",
-        cancelVariant: "simple-neutral",
+        okVariant: "contained-accent",
+        cancelVariant: "text",
         centered: true,
         hideHeaderClose: false
     };

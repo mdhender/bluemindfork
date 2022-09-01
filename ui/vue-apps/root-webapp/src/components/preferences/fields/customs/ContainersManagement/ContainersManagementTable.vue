@@ -146,8 +146,8 @@ export default {
                 title: this.$t("common.delete"),
                 okTitle: this.$t("common.delete"),
                 cancelTitle: this.$t("common.cancel"),
-                okVariant: "secondary",
-                cancelVariant: "simple-neutral",
+                okVariant: "contained-accent",
+                cancelVariant: "text",
                 centered: true,
                 hideHeaderClose: false,
                 autoFocusButton: "ok"
@@ -165,8 +165,8 @@ export default {
                     title: this.$t("common.action.empty"),
                     okTitle: this.$t("common.action.empty"),
                     cancelTitle: this.$t("common.cancel"),
-                    okVariant: "secondary",
-                    cancelVariant: "simple-neutral",
+                    okVariant: "contained-accent",
+                    cancelVariant: "text",
                     centered: true,
                     hideHeaderClose: false,
                     autoFocusButton: "ok"

@@ -54,8 +54,8 @@ export default {
                     title: this.$tc(titleKey, conversations.length),
                     okTitle: this.$t("common.delete"),
                     cancelTitle: this.$t("common.cancel"),
-                    okVariant: "secondary",
-                    cancelVariant: "simple-neutral",
+                    okVariant: "contained-accent",
+                    cancelVariant: "text",
                     centered: true,
                     hideHeaderClose: false,
                     autoFocusButton: "ok"
@@ -88,8 +88,8 @@ export default {
                     title: this.$tc("mail.actions.purge.modal.title", messages.length),
                     okTitle: this.$t("common.delete"),
                     cancelTitle: this.$t("common.cancel"),
-                    okVariant: "secondary",
-                    cancelVariant: "simple-neutral",
+                    okVariant: "contained-accent",
+                    cancelVariant: "text",
                     centered: true,
                     hideHeaderClose: false,
                     autoFocusButton: "ok"
@@ -109,8 +109,8 @@ export default {
                 title: this.$t("mail.actions.purge.draft.modal.title"),
                 okTitle: this.$t("common.delete"),
                 cancelTitle: this.$t("common.cancel"),
-                okVariant: "secondary",
-                cancelVariant: "simple-neutral",
+                okVariant: "contained-accent",
+                cancelVariant: "text",
                 centered: true,
                 hideHeaderClose: false,
                 autoFocusButton: "ok"
