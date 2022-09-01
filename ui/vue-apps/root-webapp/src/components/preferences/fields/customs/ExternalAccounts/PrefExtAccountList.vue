@@ -18,9 +18,9 @@
                     <strong>{{ cell.value }}</strong>
                 </template>
                 <template #cell(actions)="cell">
-                    <div class="d-flex justify-content-end">
-                        <bm-icon-button size="sm" icon="pencil" @click="editExternalAccount(cell.item)" />
-                        <bm-icon-button size="sm" icon="trash" @click="confirmRemove(cell.item)" />
+                    <div class="actions-cell">
+                        <bm-icon-button variant="compact" icon="pencil" @click="editExternalAccount(cell.item)" />
+                        <bm-icon-button variant="compact" icon="trash" @click="confirmRemove(cell.item)" />
                     </div>
                 </template>
             </bm-table>
@@ -155,9 +155,17 @@ function removeExternalAccount(externalAccount) {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
 .pref-ext-account-list {
     img {
         height: 2.25em;
+    }
+
+    .actions-cell {
+        display: flex;
+        justify-content: end;
+        gap: $sp-5;
     }
 }
 </style>

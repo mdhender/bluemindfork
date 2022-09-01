@@ -7,6 +7,7 @@
         :sort-by="sortBy"
         :sort-desc="sortDesc"
         class="containers-management-table"
+        :class="{ 'manage-mine': manageMine }"
     >
         <template #cell(defaultContainer)="row">
             <div v-if="row.value" :title="defaultColumnTitle" class="text-center">
@@ -15,15 +16,23 @@
         </template>
         <template #cell(name)="row"><slot name="item" :container="row.item" /></template>
         <template #cell(ownerDisplayname)="row">
-            <span class="font-italic text-neutral">{{ $t("common.shared_by", { name: row.value }) }}</span>
+            <span class="font-italic text-neutral text-truncate">{{
+                $t("common.shared_by", { name: row.value })
+            }}</span>
         </template>
         <template #cell(share)="row">
-            <bm-icon-button v-if="isManaged(row.item)" size="sm" icon="share" @click="openShareModal(row.item)" />
+            <bm-icon-button
+                v-if="isManaged(row.item)"
+                :title="$t('common.share')"
+                variant="compact"
+                icon="share"
+                @click="openShareModal(row.item)"
+            />
         </template>
         <template #cell(offlineSync)="row">
             <bm-form-checkbox :checked="row.value" switch @change="toggleOfflineSync(row.item)" />
         </template>
-        <template #cell(action)="row">
+        <template v-if="hasGenericAction" #cell(genericAction)="row">
             <manage-my-container-menu
                 v-if="manageMine"
                 :container="row.item"
@@ -36,10 +45,18 @@
                 @synchronize="sync(row.item)"
             />
             <template v-else-if="containerType === ContainerType.CALENDAR">
-                <bm-icon-button v-if="isManaged(row.item)" size="sm" icon="share" @click="openShareModal(row.item)" />
-                <bm-icon-button v-else size="sm" icon="trash" @click="toggleSubscription(row.item)" />
+                <bm-icon-button
+                    v-if="isManaged(row.item)"
+                    :title="$t('common.share')"
+                    variant="compact"
+                    icon="share"
+                    @click="openShareModal(row.item)"
+                />
+                <bm-icon-button v-else variant="compact" icon="trash" @click="toggleSubscription(row.item)" />
             </template>
-            <bm-button v-else variant="text" size="sm" @click="toggleSubscription(row.item)">
+        </template>
+        <template v-if="hasSubscriptionAction" #cell(subscriptionAction)="row">
+            <bm-button variant="text" size="lg" @click="toggleSubscription(row.item)">
                 <template v-if="isSubscribed(row.item)">{{ $t("common.unsubscribe") }}</template>
                 <template v-else>{{ $t("common.subscribe") }}</template>
             </bm-button>
@@ -106,24 +123,50 @@ export default {
                 type: this.$tc("common.container_type." + this.containerType, 1)
             });
         },
+        hasGenericAction() {
+            return this.manageMine || this.containerType === ContainerType.CALENDAR;
+        },
+        hasSubscriptionAction() {
+            return !this.hasGenericAction;
+        },
         fields() {
             const fields = [
-                { key: "name", sortable: true, label: this.$t("common.label"), class: "name" },
-                { key: "offlineSync", label: this.$t("common.synchronization"), sortable: true },
-                { key: "action", headerTitle: this.$t("common.action"), label: "", class: "text-right" }
+                { key: "name", sortable: true, label: this.$t("common.label"), class: "name-cell text-truncate" },
+                { key: "offlineSync", label: this.$t("common.synchronization"), sortable: true, class: "sync-cell" }
             ];
+            if (this.hasGenericAction) {
+                fields.splice(fields.length, 0, {
+                    key: "genericAction",
+                    headerTitle: this.$t("common.action"),
+                    label: "",
+                    class: "generic-action-cell"
+                });
+            }
+            if (this.hasSubscriptionAction) {
+                fields.splice(fields.length, 0, {
+                    key: "subscriptionAction",
+                    headerTitle: this.$t("common.action"),
+                    label: "",
+                    class: "subscription-action-cell"
+                });
+            }
             if (!this.manageMine) {
-                fields.splice(1, 0, { key: "ownerDisplayname", headerTitle: this.$t("common.shared_by"), label: "" });
+                fields.splice(1, 0, {
+                    key: "ownerDisplayname",
+                    headerTitle: this.$t("common.shared_by"),
+                    label: "",
+                    class: "shared-by-cell text-truncate"
+                });
             }
             if (this.shareColumn) {
-                fields.splice(2, 0, { key: "share", label: this.$t("common.sharing") });
+                fields.splice(2, 0, { key: "share", label: "", class: "share-cell" });
             }
             if (this.manageMine) {
                 fields.splice(0, 0, {
                     key: "defaultContainer",
                     headerTitle: this.defaultColumnTitle,
                     label: "",
-                    class: "default"
+                    class: "is-default-cell"
                 });
             }
             return fields;
@@ -230,8 +273,52 @@ export default {
 };
 </script>
 
-<style>
-.containers-management-table tbody td {
-    vertical-align: middle;
+<style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
+@import "~@bluemind/styleguide/css/_variables";
+
+.containers-management-table {
+    &.b-table {
+        max-width: base-px-to-rem(860);
+        &.manage-mine {
+            max-width: base-px-to-rem(560);
+        }
+        table-layout: fixed;
+    }
+    .name-cell {
+        width: 100%;
+
+        .bm-contact {
+            margin-top: base-px-to-rem(8);
+        }
+    }
+    .sync-cell {
+        width: base-px-to-rem(110);
+        text-align: center;
+    }
+    .generic-action-cell {
+        width: base-px-to-rem(40);
+        text-align: center;
+    }
+    .subscription-action-cell {
+        width: base-px-to-rem(120);
+        text-align: center;
+    }
+    .shared-by-cell {
+        display: none;
+        @include from-lg {
+            display: table-cell;
+            width: 100%;
+        }
+    }
+    .share-cell {
+        width: base-px-to-rem(36);
+        @include from-lg {
+            width: base-px-to-rem(48);
+        }
+    }
+    .is-default-cell {
+        width: base-px-to-rem(40);
+    }
 }
 </style>

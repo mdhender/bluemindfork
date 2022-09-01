@@ -70,8 +70,8 @@ export default {
     .choices {
         display: flex;
         flex-wrap: wrap;
-        gap: $sp-2 $sp-4;
-        margin: $sp-2 0;
+        gap: $sp-4 $sp-6;
+        margin: $sp-4 0;
 
         .move-first {
             order: -1;

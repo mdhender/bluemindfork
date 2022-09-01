@@ -180,9 +180,9 @@ export default {
 @media only screen {
     @include from-lg {
         .preferences .visible-container {
-            max-width: 80%;
-            margin-top: $sp-5;
-            margin-bottom: $sp-5;
+            max-width: 90%;
+            height: 90%;
+            margin: auto;
         }
     }
 }

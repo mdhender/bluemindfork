@@ -1,8 +1,7 @@
 <template>
     <div class="bm-calendar-item d-flex align-items-center">
-        <bm-color-badge v-if="calendar.settings.bm_color" :value="calendar.settings.bm_color" class="mr-1" />
-        <div v-else class="empty d-inline-block" />
-        {{ calendar.name }}
+        <bm-color-badge size="lg" :value="calendar.settings.bm_color || 'transparent'" no-cross-line />
+        <span class="text-truncate">{{ calendar.name }}</span>
     </div>
 </template>
 
@@ -21,9 +20,14 @@ export default {
 };
 </script>
 
-<style>
-.bm-calendar-item div.empty {
-    width: 20px;
-    height: 20px;
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.bm-calendar-item {
+    .bm-color-badge {
+        flex: none;
+        margin-right: $sp-4;
+        margin-bottom: base-px-to-rem(2);
+    }
 }
 </style>

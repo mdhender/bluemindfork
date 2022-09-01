@@ -4,23 +4,27 @@
         <bm-form-radio-group v-model="hasDate" class="radio-options">
             <bm-form-radio :value="false" class="null-date" :disabled="disabled">{{ labels.nullDate }}</bm-form-radio>
             <div class="non-null-date">
-                <bm-form-radio :value="true" :disabled="disabled">
-                    <span class="sr-only">{{ labels.day }}</span>
-                </bm-form-radio>
-                <bm-form-date-picker
-                    :id="'date-picker' + _uid"
-                    v-model="dayObj"
-                    :disabled="disabled"
-                    :locale="userLang"
-                    value-as-date
-                    show-range
-                    :min="minDayObj"
-                    :initial-date="minDayObj"
-                />
-                <span>{{ $t("common.at_time") }}</span>
-                <bm-form-time-picker id="time-picker" v-model="timeHM" :disabled="disabled || !dayObj">
-                    <span class="sr-only">{{ labels.time }}</span>
-                </bm-form-time-picker>
+                <div class="radio-and-date">
+                    <bm-form-radio :value="true" :disabled="disabled">
+                        <span class="sr-only">{{ labels.day }}</span>
+                    </bm-form-radio>
+                    <bm-form-date-picker
+                        :id="'date-picker' + _uid"
+                        v-model="dayObj"
+                        :disabled="disabled"
+                        :locale="userLang"
+                        value-as-date
+                        show-range
+                        :min="minDayObj"
+                        :initial-date="minDayObj"
+                    />
+                </div>
+                <div class="label-and-time">
+                    <span>{{ $t("common.at_time") }}</span>
+                    <bm-form-time-picker id="time-picker" v-model="timeHM" :disabled="disabled || !dayObj">
+                        <span class="sr-only">{{ labels.time }}</span>
+                    </bm-form-time-picker>
+                </div>
             </div>
         </bm-form-radio-group>
     </div>
@@ -178,35 +182,43 @@ export default {
 
         .null-date {
             flex: none;
-            width: 8rem;
-            margin-right: $sp-4;
+            width: base-px-to-rem(130);
+            margin-right: $sp-6;
         }
 
         .non-null-date {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
+            gap: $sp-5;
 
-            .bm-form-radio .custom-control-inline {
-                margin-right: 0;
+            .radio-and-date {
+                display: flex;
+                align-items: center;
+
+                .bm-form-radio .custom-control-inline {
+                    margin-right: 0;
+                    height: $custom-radio-size;
+                }
+
+                .b-form-datepicker {
+                    width: base-px-to-rem(260);
+                    min-width: 0;
+                    flex: none;
+                }
             }
 
-            .b-form-datepicker {
-                height: 1.75rem;
-                width: 14rem;
-                min-width: unset;
+            .label-and-time {
                 flex: none;
-                margin-right: $sp-2;
-            }
+                display: flex;
+                align-items: center;
+                gap: $sp-5;
 
-            span {
-                margin-right: $sp-2;
-            }
-
-            .bm-form-time-picker {
-                height: 1.75rem;
-                width: 4rem !important;
-                min-width: unset;
-                flex: none;
+                .bm-form-time-picker {
+                    width: base-px-to-rem(65) !important;
+                    min-width: 0;
+                    flex: none;
+                }
             }
         }
 

@@ -1,8 +1,8 @@
 <template>
     <bm-spinner v-if="isLoading" :size="2" class="m-auto" />
-    <div v-else-if="results.length === 0" class="pref-search-results ml-5">
+    <div v-else-if="results.length === 0" class="pref-search-results pref-empty-search-results">
         <div
-            class="ml-4"
+            class="ml-6"
             :style="'background: url(' + emptyResultsIllustration + ') no-repeat left top; height: 177px;'"
         />
         <p>
@@ -15,7 +15,7 @@
         </p>
     </div>
     <div v-else class="pref-search-results overflow-auto">
-        <div class="d-flex justify-content-end pl-5">
+        <div class="d-flex justify-content-end pr-6">
             <bm-button variant="text" @click="toggleAll">
                 {{ areAllExpanded ? $t("common.collapse_all") : $t("common.expand_all") }}
             </bm-button>
@@ -31,19 +31,10 @@
         </bm-alert-area>
         <div class="border-bottom border-neutral" />
         <template v-for="(group, index) in results">
-            <div :key="group.id" class="d-flex">
-                <pref-section-icon
-                    :section="GET_SECTION(group.id)"
-                    class="mt-4"
-                    :set="(isCollapsed = isGroupCollapsed(group.id))"
-                />
+            <div :key="group.id" class="group-header">
+                <pref-section-icon :section="GET_SECTION(group.id)" :set="(isCollapsed = isGroupCollapsed(group.id))" />
+                <bm-button-expand size="lg" :expanded="!isCollapsed" @click="toggleGroup(group.id)" />
                 <pref-group ref="group" :group="group" :collapsed="isCollapsed" class="flex-fill" />
-                <bm-button-expand
-                    size="lg"
-                    class="align-self-start mt-4 mr-3"
-                    :expanded="!isCollapsed"
-                    @click="toggleGroup(group.id)"
-                />
             </div>
             <div v-if="index !== results.length - 1" :key="index" class="border-bottom border-neutral" />
         </template>
@@ -145,9 +136,31 @@ function parseNodeAndHighlight(node, search) {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/variables";
+@use "sass:math";
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
+@import "~@bluemind/styleguide/css/_variables";
+@import "../_variables";
 
 .pref-search-results {
+    &.pref-empty-search-results {
+        padding-left: $prefs-padding-left;
+        @include from-lg {
+            padding-left: $prefs-padding-left-lg;
+        }
+    }
+
+    .group-header {
+        display: flex;
+        padding-left: $sp-6;
+    }
+
+    .pref-section-icon {
+        margin-top: $pref-entry-name-padding-top + math.div($h3-line-height - $section-icon-size, 2);
+    }
+    .bm-button-expand {
+        margin-top: $pref-entry-name-padding-top + math.div($h3-line-height - $icon-btn-height-lg, 2);
+    }
+
     .search-pattern {
         color: $primary-fg-hi1;
         font-weight: $font-weight-bold;

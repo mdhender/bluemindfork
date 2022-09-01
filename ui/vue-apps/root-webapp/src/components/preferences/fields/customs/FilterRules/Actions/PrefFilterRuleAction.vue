@@ -1,6 +1,6 @@
 <template>
     <div class="pref-filter-rule-action d-flex align-items-center text-nowrap">
-        <span class="mr-1">{{ action.name }}</span>
+        <span class="regular mr-3">{{ action.name }}</span>
         <slot />
     </div>
 </template>

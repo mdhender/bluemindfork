@@ -327,5 +327,9 @@ export default {
             }
         }
     }
+    hr {
+        margin-top: $sp-6;
+        margin-bottom: $sp-6;
+    }
 }
 </style>

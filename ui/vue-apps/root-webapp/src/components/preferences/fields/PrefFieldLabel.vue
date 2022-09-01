@@ -26,3 +26,11 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+legend.col-form-label {
+    padding-bottom: $sp-2;
+}
+</style>

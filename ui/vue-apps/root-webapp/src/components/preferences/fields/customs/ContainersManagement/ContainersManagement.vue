@@ -1,6 +1,6 @@
 <template>
     <div class="containers-management">
-        <a v-if="readMore" target="_blank" :href="readMore.href">{{ readMore.text }}</a>
+        <a v-if="readMore" target="_blank" :href="readMore.href" class="mb-3">{{ readMore.text }}</a>
         <template v-if="containers.length > 0">
             <bm-form-input
                 v-if="!manageMine && !collapsed"
@@ -36,14 +36,11 @@
             <bm-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage" class="d-inline-flex" />
         </template>
         <div v-else>{{ $t("preferences.display_containers." + containerType + ".empty_list") }}</div>
-        <bm-button
-            variant="outline"
-            class="float-right"
-            :icon="manageMine ? 'plus' : null"
-            @click="openBottomActionModal"
-        >
-            {{ manageMine ? createContainerLabel : subscribeToContainerLabel }}
-        </bm-button>
+        <div>
+            <bm-button variant="outline" size="lg" icon="plus" @click="openBottomActionModal">
+                {{ manageMine ? createContainerLabel : subscribeToContainerLabel }}
+            </bm-button>
+        </div>
         <create-or-update-container-modal
             ref="create-or-update-container"
             :containers="containers"

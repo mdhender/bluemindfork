@@ -1,6 +1,6 @@
 <template>
     <bm-contact-input
-        class="pref-filter-rule-contact-criterion-editor border"
+        class="pref-filter-rule-contact-criterion-editor"
         tabindex="0"
         :contacts="contacts"
         :max-contacts="1"

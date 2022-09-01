@@ -1,7 +1,6 @@
 <template>
     <div class="pref-filter-rule-forward-action-editor">
         <bm-contact-input
-            class="border"
             :contacts="contacts"
             :max-contacts="1"
             :autocomplete-results="autocompleteResults"
@@ -9,7 +8,7 @@
             @search="onSearch"
             @update:contacts="updateEmails"
         />
-        <bm-form-checkbox v-model="action.value.localCopy" :value="true" :unchecked-value="false">
+        <bm-form-checkbox v-model="action.value.localCopy" :value="true" :unchecked-value="false" class="mt-3 mb-2">
             {{ $t("preferences.mail.filters.action.forward.keep_copy") }}
         </bm-form-checkbox>
     </div>

@@ -3,87 +3,90 @@
         v-model="show"
         centered
         :title="isNewIdentity ? $t('preferences.mail.identities.create') : $t('preferences.mail.identities.update')"
-        body-class="row manage-identity-modal-body"
+        body-class="row mx-0 manage-identity-modal-body"
         modal-class="manage-identity-modal"
         @hidden="modalStatus = 'NOT-LOADED'"
     >
         <template v-if="modalStatus === 'LOADED'">
-            <bm-col cols="2" class="d-flex flex-column align-items-center pr-2">
-                <bm-avatar :alt="identity.name || '?'" />
-                <div v-if="originalIdentity.isDefault" class="my-2 text-center word-break">
-                    <div><bm-icon icon="star-fill" size="lg" /></div>
-                    <span>{{ $t("preferences.mail.identities.default") }}</span>
+            <div class="head-part">
+                <div class="avatar-part">
+                    <bm-avatar size="md" class="d-block d-lg-none" :alt="identity.name || '?'" />
+                    <bm-avatar size="xl" class="d-none d-lg-block" :alt="identity.name || '?'" />
+                    <template v-if="originalIdentity.isDefault">
+                        <div><bm-icon icon="star-fill" size="xl" /></div>
+                        <div class="caption">{{ $t("preferences.mail.identities.default") }}</div>
+                    </template>
                 </div>
-            </bm-col>
-            <bm-col cols="10">
-                <bm-form-group
-                    :label="$t('common.display_name')"
-                    label-for="displayname"
-                    :description="$t('preferences.mail.identities.form.display_name.info')"
-                >
-                    <bm-form-input id="displayname" v-model="identity.displayname" type="email" required />
-                </bm-form-group>
-                <bm-form-group
-                    :label="$t('common.label')"
-                    label-for="label"
-                    :description="$t('preferences.mail.identities.form.label.info')"
-                >
-                    <bm-form-input
-                        id="label"
-                        v-model="identity.name"
-                        type="email"
-                        required
-                        :placeholder="$t('preferences.mail.identities.form.label.placeholder')"
-                    />
-                </bm-form-group>
-                <div class="mb-3">
-                    <div class="mb-1">{{ $t("common.email_address") }}</div>
-                    <bm-combo-box
-                        v-if="possibleIdentitiesStatus === 'LOADED'"
-                        v-model="emailInput"
-                        :items="emailFilteredChoices"
-                        :max-results="10"
-                        @input="newInput => (emailInput = newInput)"
-                        @selected="selected => checkComboSelection(selected)"
-                        @close="checkComboSelection(emailInput)"
-                        @submit="checkComboSelection(emailInput)"
-                    />
-                    <bm-form-input v-else v-model="identity.email" disabled />
-                    <div v-if="possibleIdentitiesStatus === 'ERROR'" class="text-warning mt-1 word-break">
-                        {{ $t("preferences.mail.identities.possible_identities_error") }} <br />
-                        {{ $t("common.application.bootstrap.error.solution") }}
+                <div class="form-part">
+                    <bm-form-group
+                        :label="$t('common.display_name')"
+                        label-for="displayname"
+                        :description="$t('preferences.mail.identities.form.display_name.info')"
+                    >
+                        <bm-form-input id="displayname" v-model="identity.displayname" type="email" required />
+                    </bm-form-group>
+                    <bm-form-group
+                        :label="$t('common.label')"
+                        label-for="label"
+                        :description="$t('preferences.mail.identities.form.label.info')"
+                    >
+                        <bm-form-input
+                            id="label"
+                            v-model="identity.name"
+                            type="email"
+                            required
+                            :placeholder="$t('preferences.mail.identities.form.label.placeholder')"
+                        />
+                    </bm-form-group>
+                    <div
+                        v-if="!originalIdentity.isDefault"
+                        class="mb-3 change-default"
+                        @click="identity.isDefault = !identity.isDefault"
+                    >
+                        <bm-icon :icon="identity.isDefault ? 'star-fill' : 'star'" class="mr-1" size="lg" />
+                        {{ $t("preferences.mail.identities.make_default") }}
                     </div>
                 </div>
-                <div
-                    v-if="!originalIdentity.isDefault"
-                    class="mb-3 change-default"
-                    @click="identity.isDefault = !identity.isDefault"
-                >
-                    <bm-icon :icon="identity.isDefault ? 'star-fill' : 'star'" class="mr-1" size="lg" />
-                    {{ $t("preferences.mail.identities.make_default") }}
+            </div>
+            <div class="mt-6 mb-5 w-100">
+                <div class="mb-1">{{ $t("common.email_address") }}</div>
+                <bm-combo-box
+                    v-if="possibleIdentitiesStatus === 'LOADED'"
+                    v-model="emailInput"
+                    :items="emailFilteredChoices"
+                    :max-results="10"
+                    @input="newInput => (emailInput = newInput)"
+                    @selected="selected => checkComboSelection(selected)"
+                    @close="checkComboSelection(emailInput)"
+                    @submit="checkComboSelection(emailInput)"
+                />
+                <bm-form-input v-else v-model="identity.email" disabled />
+                <div v-if="possibleIdentitiesStatus === 'ERROR'" class="text-warning mt-1 word-break">
+                    {{ $t("preferences.mail.identities.possible_identities_error") }} <br />
+                    {{ $t("common.application.bootstrap.error.solution") }}
                 </div>
-                <div v-if="!isMyMailbox && identity.mailboxUid" class="mb-3">
-                    <bm-form-checkbox v-model="identity.sentFolder" value="" unchecked-value="Sent">
-                        {{
-                            $tc("preferences.mail.identities.use_sentbox", 0, {
-                                address: identity.email + " (" + identity.displayname + ")"
-                            })
-                        }}
-                    </bm-form-checkbox>
-                </div>
-                <div>
-                    {{ $t("common.signature") }}
-                    <bm-rich-editor
-                        ref="rich-editor"
-                        :init-value="identity.signature"
-                        show-toolbar
-                        has-border
-                        class="mt-1"
-                        name="personal-signature"
-                        @input="onInput"
-                    />
-                </div>
-            </bm-col>
+            </div>
+            <div v-if="!isMyMailbox && identity.mailboxUid" class="mb-5 w-100">
+                <bm-form-checkbox v-model="identity.sentFolder" value="" unchecked-value="Sent">
+                    {{
+                        $tc("preferences.mail.identities.use_sentbox", 0, {
+                            address: identity.email + " (" + identity.displayname + ")"
+                        })
+                    }}
+                </bm-form-checkbox>
+            </div>
+            <div class="w-100">
+                {{ $t("common.signature") }}
+                <bm-rich-editor
+                    ref="rich-editor"
+                    :init-value="identity.signature"
+                    show-toolbar
+                    has-border
+                    class="mt-1"
+                    name="personal-signature"
+                    @input="onInput"
+                />
+            </div>
         </template>
         <bm-spinner v-else-if="modalStatus === 'NOT-LOADED'" class="m-auto py-4" />
         <div v-else class="word-break text-warning">
@@ -92,15 +95,22 @@
         </div>
         <template #modal-footer>
             <template v-if="modalStatus === 'LOADED'">
+                <bm-button
+                    v-if="!isNewIdentity"
+                    variant="outline"
+                    icon="trash"
+                    class="mr-auto"
+                    :disabled="identity.isDefault"
+                    @click="remove"
+                >
+                    {{ $t("preferences.mail.identities.delete") }}
+                </bm-button>
+                <bm-button variant="text" @click="cancel">{{ $t("common.cancel") }}</bm-button>
                 <bm-button v-if="isNewIdentity" variant="contained-accent" :disabled="!isFormValid" @click="add">
                     {{ $t("common.add") }}
                 </bm-button>
                 <bm-button v-else variant="contained-accent" :disabled="!hasAnyChange || !isFormValid" @click="save">
                     {{ $t("common.save") }}
-                </bm-button>
-                <bm-button variant="outline" @click="cancel">{{ $t("common.cancel") }}</bm-button>
-                <bm-button v-if="!isNewIdentity" variant="text" :disabled="identity.isDefault" @click="remove">
-                    {{ $t("preferences.mail.identities.delete") }}
                 </bm-button>
             </template>
             <template v-else><div /></template>
@@ -118,7 +128,6 @@ import BmRoles from "@bluemind/roles";
 import {
     BmAvatar,
     BmButton,
-    BmCol,
     BmComboBox,
     BmFormCheckbox,
     BmFormGroup,
@@ -137,7 +146,6 @@ export default {
     components: {
         BmAvatar,
         BmButton,
-        BmCol,
         BmComboBox,
         BmFormCheckbox,
         BmFormGroup,
@@ -348,26 +356,58 @@ function toIdentityDescription(id, identity) {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_variables";
 
 .manage-identity-modal-body {
     .fa-star-fill {
         color: $secondary-fg;
     }
+
+    .head-part {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        @include from-lg {
+            flex-direction: row;
+        }
+        gap: $sp-6;
+
+        .avatar-part {
+            flex: none;
+
+            display: flex;
+            flex-direction: row;
+            @include from-lg {
+                flex-direction: column;
+            }
+            align-items: center;
+            gap: $sp-3 $sp-5;
+        }
+
+        .form-part {
+            flex: 1;
+            @include from-lg {
+                padding-top: base-px-to-rem(8);
+            }
+        }
+    }
+
     .word-break {
         word-break: break-word;
     }
 
-    .bm-avatar {
-        font-size: 1.5rem;
-    }
-
     .change-default {
         cursor: default;
+        .bm-icon {
+            cursor: pointer;
+        }
     }
 }
 
 .manage-identity-modal .modal-dialog {
-    max-width: 55%;
+    @include from-lg {
+        max-width: 60%;
+    }
 }
 </style>

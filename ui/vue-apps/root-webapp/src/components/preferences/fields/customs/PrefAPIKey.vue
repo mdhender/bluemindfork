@@ -25,17 +25,24 @@
         </bm-modal>
 
         <bm-table :items="keys" :fields="fields" :per-page="perPage" :current-page="currentPage" sort-by="displayName">
+            <template #cell(icon)>
+                <bm-icon icon="key" size="xl" />
+            </template>
             <template #cell(displayName)="row">
-                <bm-icon class="text-secondary mr-2" icon="key" size="xl" /> {{ row.value }}
+                <div class="text-truncate" :title="row.value">
+                    {{ row.value }}
+                </div>
             </template>
             <template #cell(sid)="row">
                 <div class="d-flex justify-content-between align-items-center">
-                    {{ row.value }}
-                    <bm-button-copy variant="text" size="lg" class="ml-4" :content-provider="() => row.value" />
+                    <div class="sid-value text-truncate">
+                        {{ row.value }}
+                    </div>
+                    <bm-button-copy variant="text" size="lg" :content-provider="() => row.value" />
                 </div>
             </template>
             <template #cell(action)="row">
-                <bm-icon-button size="sm" icon="trash" @click="remove(row.item)" />
+                <bm-icon-button variant="compact" icon="trash" @click="remove(row.item)" />
             </template>
         </bm-table>
         <bm-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage" />
@@ -84,22 +91,27 @@ export default {
             perPage: 5,
             fields: [
                 {
+                    key: "icon",
+                    label: "",
+                    class: "icon-cell"
+                },
+                {
                     key: "displayName",
                     headerTitle: this.$t("common.label"),
                     label: "",
-                    class: "w-50 align-middle"
+                    class: "label-cell"
                 },
                 {
                     key: "sid",
                     headerTitle: this.$t("preferences.security.api_key"),
                     label: "",
-                    class: "text-nowrap"
+                    class: "sid-cell"
                 },
                 {
                     key: "action",
                     headerTitle: this.$t("common.action"),
                     label: "",
-                    class: "text-right w-50"
+                    class: "action-cell"
                 }
             ]
         };
@@ -154,3 +166,50 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
+@import "~@bluemind/styleguide/css/_variables";
+
+.pref-api-key {
+    .b-table {
+        margin-top: $sp-5;
+
+        max-width: base-px-to-rem(800);
+        table-layout: fixed;
+
+        thead {
+            display: none;
+        }
+    }
+    .icon-cell {
+        width: base-px-to-rem(10);
+        .bm-icon {
+            display: none;
+        }
+        @include from-lg {
+            width: base-px-to-rem(54);
+            padding-top: base-px-to-rem(2) !important;
+            .bm-icon {
+                display: inline-block;
+                color: $neutral-fg-lo2;
+            }
+        }
+    }
+    .label-cell {
+        width: 70%;
+    }
+    .sid-cell {
+        width: 100%;
+        .sid-value {
+            flex: 0 1 base-px-to-rem(330);
+        }
+        .bm-button-copy {
+            flex: none;
+        }
+    }
+    .action-cell {
+        width: base-px-to-rem(50);
+    }
+}
+</style>

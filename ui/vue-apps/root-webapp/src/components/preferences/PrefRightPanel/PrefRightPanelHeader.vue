@@ -1,6 +1,6 @@
 <template>
     <div class="pref-right-panel-header">
-        <div class="d-flex d-lg-none py-2 px-3 align-items-center small-panel-header">
+        <div class="d-flex d-lg-none py-4 px-3 align-items-center small-panel-header">
             <bm-icon-button
                 variant="compact-on-fill-primary"
                 size="lg"
@@ -8,7 +8,7 @@
                 @click="SET_SELECTED_SECTION(null)"
             />
             <template v-if="!openedInMobile">
-                <h2>{{ selectedSection.name }}</h2>
+                <div class="bold">{{ selectedSection.name }}</div>
                 <bm-icon-button
                     class="ml-auto"
                     variant="compact-on-fill-primary"
@@ -20,7 +20,7 @@
             <pref-search-input v-else class="flex-fill mx-3" />
         </div>
         <div class="d-none d-lg-flex align-items-center large-panel-header">
-            <pref-search-input class="my-3 w-25" style="margin-left: 4rem;" />
+            <pref-search-input class="my-4 w-50" />
             <bm-button-close size="lg" class="ml-auto mr-3" @click="$emit('close')" />
         </div>
     </div>
@@ -58,14 +58,19 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_variables";
+@import "../_variables";
 
 .pref-right-panel-header {
     .small-panel-header {
         background-color: $fill-primary-bg;
-
-        h2 {
-            color: $fill-primary-fg;
+        color: $fill-primary-fg;
+    }
+    .large-panel-header {
+        padding-left: $prefs-padding-left;
+        @include from-lg {
+            padding-left: $prefs-padding-left-lg;
         }
     }
 }

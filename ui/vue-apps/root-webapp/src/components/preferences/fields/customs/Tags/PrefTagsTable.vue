@@ -1,16 +1,18 @@
 <template>
-    <div>
+    <div class="pref-tags-table">
         <bm-table :items="tags" :fields="fields" :per-page="perPage" :current-page="currentPage" sort-by="label">
             <template #cell(color)="cell">
                 <bm-icon icon="tag" size="xl" :style="'color: ' + cell.value + ';'" />
             </template>
             <template #cell(label)="cell">
-                {{ cell.value }}
+                <div class="text-truncate" :title="cell.value">
+                    {{ cell.value }}
+                </div>
             </template>
             <template #cell(editable)="cell">
-                <div v-if="cell.value" class="d-flex justify-content-end">
-                    <bm-icon-button size="sm" icon="pencil" @click="$emit('edit', cell.item)" />
-                    <bm-icon-button size="sm" icon="trash" @click="remove(cell.item)" />
+                <div v-if="cell.value" class="actions">
+                    <bm-icon-button variant="compact" icon="pencil" @click="$emit('edit', cell.item)" />
+                    <bm-icon-button variant="compact" icon="trash" @click="remove(cell.item)" />
                 </div>
             </template>
         </bm-table>
@@ -37,9 +39,9 @@ export default {
         return {
             currentPage: 1,
             fields: [
-                { key: "color", label: "" },
-                { key: "label", label: "", class: "align-middle" },
-                { key: "editable", label: "" }
+                { key: "color", label: "", class: "color-cell" },
+                { key: "label", label: "", class: "label-cell" },
+                { key: "editable", label: "", class: "actions-cell" }
             ]
         };
     },
@@ -66,3 +68,32 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.pref-tags-table {
+    .b-table {
+        max-width: base-px-to-rem(480);
+        table-layout: fixed;
+
+        thead {
+            display: none;
+        }
+    }
+    .color-cell {
+        width: base-px-to-rem(90);
+    }
+    .label-cell {
+        width: 100%;
+    }
+    .actions-cell {
+        width: base-px-to-rem(90);
+    }
+    .actions-cell .actions {
+        display: flex;
+        justify-content: end;
+        gap: $sp-5;
+    }
+}
+</style>

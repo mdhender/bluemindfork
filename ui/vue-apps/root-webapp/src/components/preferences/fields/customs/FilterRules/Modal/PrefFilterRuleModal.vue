@@ -102,11 +102,11 @@ function areEqual(filterA, filterB) {
 </script>
 
 <style lang="scss">
+@import "@bluemind/styleguide/css/_type.scss";
 @import "@bluemind/styleguide/css/_variables.scss";
 
-$field-height: 2.25rem;
-$circled-number-size: $field-height;
-$circled-number-right-margin: 0.5rem;
+$circled-number-size: base-px-to-rem(36);
+$circled-number-right-margin: $sp-4;
 $field-left-margin: calc(#{$circled-number-size} + #{$circled-number-right-margin});
 
 .pref-filter-rule-modal-dialog {
@@ -125,11 +125,9 @@ $field-left-margin: calc(#{$circled-number-size} + #{$circled-number-right-margi
                 border-radius: 50%;
                 border: solid 1px $secondary-fg;
 
-                font-size: $h1-font-size;
-                font-weight: $font-weight-light;
+                @extend %h1;
                 color: $secondary-fg;
                 margin-bottom: 0;
-                line-height: 1.375;
             }
             &.one::before {
                 content: "1";
@@ -156,21 +154,8 @@ $field-left-margin: calc(#{$circled-number-size} + #{$circled-number-right-margi
         }
     }
 
-    .bm-form-input {
-        width: auto !important;
-        input {
-            height: $field-height;
-        }
-    }
-
     footer {
         border-top: 1px solid $neutral-fg-lo3;
-    }
-
-    .border,
-    .bm-form-select .btn,
-    .bm-form-input input {
-        border-color: $neutral-fg-lo2 !important;
     }
 }
 </style>

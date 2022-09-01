@@ -13,8 +13,10 @@
     >
         <bm-spinner v-if="loadingStatus === 'LOADING'" :size="2" class="d-flex justify-content-center" />
         <template v-else>
-            <div v-for="container in selected" :key="container.uid" class="d-inline-block">
-                <slot name="selected" :container="container" :closeFn="removeFromSelected" />
+            <div class="selected-containers">
+                <div v-for="container in selected" :key="container.uid" class="d-inline-block">
+                    <slot name="selected" :container="container" :closeFn="removeFromSelected" />
+                </div>
             </div>
             <template v-if="allReadableContainers.length > 0">
                 <bm-form-input
@@ -189,8 +191,18 @@ export default {
 };
 </script>
 
-<style>
-.add-containers-modal .b-table tr {
-    cursor: pointer;
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.add-containers-modal {
+    .selected-containers {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $sp-2 $sp-4;
+    }
+
+    .b-table tr {
+        cursor: pointer;
+    }
 }
 </style>

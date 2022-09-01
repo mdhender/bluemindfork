@@ -1,12 +1,12 @@
 <template>
-    <div class="pref-all-day-default-event-reminder">
-        <bm-form-checkbox class="mb-1" :checked="isReminderSet" @change="isReminderSet ? remove() : setDefault()">
+    <div class="pref-all-day-default-event-reminder pb-3">
+        <bm-form-checkbox class="mb-3" :checked="isReminderSet" @change="isReminderSet ? remove() : setDefault()">
             {{ $t("preferences.calendar.main.default_allday_reminder") }}
         </bm-form-checkbox>
         <bm-form-time-picker
             :value="decomposedSetting.timeSelected"
             :disabled="!isReminderSet"
-            class="align-middle mr-3"
+            class="align-middle mr-5"
             @input="newTime => onSettingChanged({ newTime })"
         />
         <bm-form-select
@@ -85,6 +85,8 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
 .pref-all-day-default-event-reminder {
     div.bm-form-select,
     div.bm-form-input {
@@ -92,8 +94,7 @@ export default {
     }
     div.bm-form-time-picker {
         display: inline-block !important;
-        width: 10em !important;
-        height: 2.25rem;
+        width: base-px-to-rem(160) !important;
         &.bm-form-autocomplete-input {
             min-width: unset;
         }

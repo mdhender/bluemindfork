@@ -1,11 +1,11 @@
 <template>
     <bm-modal v-model="show" centered modal-class="manage-shares-modal">
         <template #modal-title>
-            <h1 v-if="showAvailabilitiesManagement" class="modal-title">
+            <div v-if="showAvailabilitiesManagement" class="modal-title">
                 <bm-icon-button icon="arrow-back" size="lg" @click="back()" />
                 {{ $t("preferences.calendar.my_calendars.availabilities_advanced_management") }}
-            </h1>
-            <h1 v-else class="modal-title">{{ initialModalTitle }}</h1>
+            </div>
+            <div v-else class="modal-title">{{ initialModalTitle }}</div>
         </template>
 
         <availabilities-management v-if="showAvailabilitiesManagement" />
@@ -36,7 +36,7 @@
 import { mapActions, mapState } from "vuex";
 import { inject } from "@bluemind/inject";
 import { REMOVE } from "@bluemind/alert.store";
-import { BmAlertArea, BmButton, BmButtonClose, BmIcon, BmModal, BmRow } from "@bluemind/styleguide";
+import { BmAlertArea, BmButton, BmButtonClose, BmIconButton, BmModal, BmRow } from "@bluemind/styleguide";
 import { ContainerType, isDefault } from "../container";
 import AvailabilitiesManagement from "./AvailabilitiesManagement";
 import ShareManagement from "./ShareManagement";
@@ -48,7 +48,7 @@ export default {
         BmAlertArea,
         BmButton,
         BmButtonClose,
-        BmIcon,
+        BmIconButton,
         BmModal,
         BmRow,
         ShareManagement
@@ -106,13 +106,20 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_variables";
+
 .manage-shares-modal {
     .modal-body {
         padding-bottom: 0;
     }
+    .modal-footer .bm-alert-area {
+        margin: 0;
+    }
     .modal-dialog {
-        max-width: 50%;
+        @include from-lg {
+            max-width: 50%;
+        }
     }
     .bm-alert-area {
         min-width: 100%;

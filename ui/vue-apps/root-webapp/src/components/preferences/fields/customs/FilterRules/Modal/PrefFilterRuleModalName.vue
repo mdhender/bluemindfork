@@ -11,7 +11,7 @@
             ref="name-input"
             v-model="filter.name"
             :placeholder="$t('preferences.mail.filters.modal.name.placeholder')"
-            class="col-5"
+            class="col-5 pl-0"
             required
             @keypress.enter.prevent="$emit('submit')"
         />

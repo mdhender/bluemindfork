@@ -1,10 +1,10 @@
 <template>
     <div class="pref-downloads">
-        <h1 v-if="downloads.length === 0">
+        <h3 v-if="downloads.length === 0">
             <em class="text-neutral">{{ $t("preferences.downloads.none") }}</em>
-        </h1>
+        </h3>
         <div v-else class="row">
-            <pref-download v-for="(download, index) in downloads" :key="index" class="col-5 m-3" :download="download" />
+            <pref-download v-for="(download, index) in downloads" :key="index" class="col-5 m-5" :download="download" />
         </div>
     </div>
 </template>

@@ -10,7 +10,7 @@
         >
             <template #cell(isDefault)="row">
                 <div :title="$t('preferences.mail.identities.default')">
-                    <bm-icon v-if="row.value" icon="star-fill" />
+                    <bm-icon v-if="row.value" icon="star-fill" size="lg" />
                 </div>
             </template>
             <template #cell(displayname)="row">
@@ -18,13 +18,13 @@
             </template>
             <template #cell(name)="row">{{ row.value }}</template>
             <template #cell(action)="row">
-                <bm-button variant="text" size="sm" @click="openModal(row.item)">
+                <bm-button variant="text" size="lg" @click="openModal(row.item)">
                     {{ $t("common.manage") }}
                 </bm-button>
             </template>
         </bm-table>
         <bm-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage" class="d-inline-flex" />
-        <bm-button variant="text" size="sm" class="float-right" @click="openModal()">
+        <bm-button variant="outline" size="lg" icon="plus" @click="openModal()">
             {{ $t("preferences.mail.identities.create") }}
         </bm-button>
         <manage-identity-modal
@@ -66,21 +66,23 @@ export default {
                     key: "isDefault",
                     headerTitle: this.$t("preferences.mail.identities.default"),
                     label: "",
-                    class: "text-center align-middle"
+                    class: "is-default-cell"
                 },
                 {
                     key: "displayname",
-                    label: this.$t("common.identity")
+                    label: this.$t("common.identity"),
+                    class: "identity-cell text-truncate"
                 },
                 {
                     key: "name",
-                    label: this.$t("common.label")
+                    label: this.$t("common.label"),
+                    class: "label-cell text-nowrap text-truncate"
                 },
                 {
                     key: "action",
                     headerTitle: this.$t("common.action"),
                     label: "",
-                    class: "text-right"
+                    class: "action-cell"
                 }
             ]
         };
@@ -115,8 +117,30 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .pref-manage-identities {
-    .fa-star-fill {
-        color: $secondary-fg;
+    .b-table {
+        max-width: base-px-to-rem(900);
+        table-layout: fixed;
+    }
+    .is-default-cell {
+        width: base-px-to-rem(40);
+        .fa-star-fill {
+            color: $secondary-fg;
+        }
+    }
+    .identity-cell {
+        width: 100%;
+        .bm-contact {
+            max-width: 100%;
+        }
+    }
+    td.identity-cell {
+        padding-top: base-px-to-rem(8) !important;
+    }
+    .label-cell {
+        width: 50%;
+    }
+    .action-cell {
+        width: base-px-to-rem(75);
     }
 }
 </style>

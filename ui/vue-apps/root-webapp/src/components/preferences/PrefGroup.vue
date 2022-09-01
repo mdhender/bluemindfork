@@ -1,6 +1,6 @@
 <template>
     <div :id="group.id" class="pref-group">
-        <pref-entry-name :id="anchor(group)" class="pt-4 pb-2" :entry="group" />
+        <pref-entry-name :id="anchor(group)" :entry="group" />
         <div v-if="group.description">{{ group.description }}</div>
         <bm-form-group :aria-describedby="anchor(group)" :disabled="group.disabled">
             <template v-for="field in group.fields">
@@ -117,13 +117,16 @@ export default {
 </script>
 
 <style lang="scss">
+@import "./_variables";
 @import "~@bluemind/styleguide/css/_variables";
 
 .pref-group {
-    padding-right: 4rem;
-
     .pref-field {
-        margin-bottom: 1rem;
+        margin-bottom: $sp-5;
+    }
+    .pref-entry-name {
+        padding-top: $pref-entry-name-padding-top;
+        padding-bottom: $pref-entry-name-padding-bottom;
     }
 
     .pref-field-combobox,
@@ -134,6 +137,7 @@ export default {
     .pref-filter,
     .pref-item-width {
         width: 24rem !important;
+        max-width: 100%;
     }
 }
 </style>

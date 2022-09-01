@@ -1,25 +1,21 @@
 <template>
-    <div>
-        <bm-form-checkbox v-model="value.enabled" class="mb-3">
+    <div class="pref-emails-forwarding">
+        <bm-form-checkbox v-model="value.enabled">
             {{ $t("preferences.mail.emails_forwarding.to") }}
         </bm-form-checkbox>
-        <div class="d-flex">
-            <bm-contact-input
-                class="mr-2 border border-neutral pref-field-input"
-                :disabled="!value.enabled"
-                :contacts="contacts"
-                :autocomplete-results="autocompleteResults"
-                :validate-address-fn="validateAddress"
-                @search="onSearch"
-                @update:contacts="updateEmails"
-            />
-            <bm-form-select
-                v-model="value.localCopy"
-                :options="options"
-                :disabled="!value.enabled"
-                class="align-self-start"
-            />
-        </div>
+        <bm-contact-input
+            class="mr-5 pref-field-input"
+            :auto-collapsible="false"
+            :disabled="!value.enabled"
+            :contacts="contacts"
+            :autocomplete-results="autocompleteResults"
+            :validate-address-fn="validateAddress"
+            @search="onSearch"
+            @update:contacts="updateEmails"
+        />
+        <bm-form-checkbox v-model="value.localCopy" :disabled="!value.enabled" @click.prevent.stop>{{
+            $t("preferences.mail.emails_forwarding.local_copy")
+        }}</bm-form-checkbox>
     </div>
 </template>
 
@@ -27,20 +23,16 @@
 import { searchVCardsHelper, VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
-import { BmContactInput, BmFormCheckbox, BmFormSelect } from "@bluemind/styleguide";
+import { BmContactInput, BmFormCheckbox } from "@bluemind/styleguide";
 import CentralizedSaving from "../../mixins/CentralizedSaving";
 
 export default {
     name: "PrefEmailsForwarding",
-    components: { BmContactInput, BmFormCheckbox, BmFormSelect },
+    components: { BmContactInput, BmFormCheckbox },
     mixins: [CentralizedSaving],
     data() {
         return {
-            autocompleteResults: [],
-            options: [
-                { text: this.$t("preferences.mail.emails_forwarding.no_local_copy"), value: false },
-                { text: this.$t("preferences.mail.emails_forwarding.local_copy"), value: true }
-            ]
+            autocompleteResults: []
         };
     },
     computed: {
@@ -78,3 +70,17 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.pref-emails-forwarding {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-5;
+
+    .bm-contact-input {
+        max-width: 100%;
+    }
+}
+</style>

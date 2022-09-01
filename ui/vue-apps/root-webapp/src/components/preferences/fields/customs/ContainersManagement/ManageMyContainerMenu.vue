@@ -1,5 +1,5 @@
 <template>
-    <bm-icon-dropdown size="sm" icon="3dots-v" no-caret lazy>
+    <bm-icon-dropdown variant="compact" icon="3dots-v" no-caret lazy>
         <bm-dropdown-item-button
             icon="pencil"
             :disabled="container.defaultContainer && !isCalendarType"

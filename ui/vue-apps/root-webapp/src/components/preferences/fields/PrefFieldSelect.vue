@@ -1,7 +1,7 @@
 <template>
     <bm-form-group :disabled="disabled">
         <template #label><pref-field-label :label="label" /></template>
-        <bm-form-select v-model="value" class="pref-field-select" :options="choices" />
+        <bm-form-select v-model="value" class="pref-field-select" :options="choices" :auto-min-width="false" />
     </bm-form-group>
 </template>
 

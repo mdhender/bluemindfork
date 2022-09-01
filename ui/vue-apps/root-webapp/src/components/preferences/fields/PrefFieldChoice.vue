@@ -1,12 +1,6 @@
 <template>
-    <bm-form-radio-group v-model="value" class="pref-field-choice d-flex flex-wrap">
-        <bm-form-radio
-            v-for="choice in choices"
-            :key="choice.value"
-            class="ml-5"
-            :value="choice.value"
-            :aria-label="choice.name"
-        >
+    <bm-form-radio-group v-model="value" class="pref-field-choice d-flex flex-wrap py-5">
+        <bm-form-radio v-for="choice in choices" :key="choice.value" :value="choice.value" :aria-label="choice.name">
             <template #img>
                 <template v-if="!collapsed">
                     <img v-if="choice.img" :src="choice.img" alt="null" />
@@ -35,3 +29,15 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
+@import "~@bluemind/styleguide/css/_variables";
+
+.pref-field-choice {
+    gap: $sp-5;
+    @include from-lg {
+        gap: $sp-8;
+    }
+}
+</style>

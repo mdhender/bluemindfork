@@ -11,8 +11,7 @@
         body-class="row mt-3"
         @ok.prevent="save"
     >
-        <div class="col-2"><bm-icon :icon="containerIcon" size="xl" class="mt-3" /></div>
-        <bm-form class="col-10" @submit.prevent="save">
+        <bm-form class="w-100" @submit.prevent="save">
             <bm-form-group
                 :label="$t('common.label')"
                 label-for="label"
@@ -25,6 +24,8 @@
                     v-model.trim="container.name"
                     type="text"
                     required
+                    :icon="containerIcon"
+                    left-icon
                     :disabled="isDefault"
                     :state="container.name ? isLabelValid : null"
                     autofocus
@@ -47,7 +48,7 @@ import { ContainerHelper, ContainerType } from "./container";
 import CreateOrUpdateCalendar from "./Calendars/MyCalendars/CreateOrUpdateCalendar";
 import ImportFile from "./ImportFile";
 import { WARNING, SUCCESS } from "@bluemind/alert.store";
-import { BmForm, BmFormGroup, BmFormInput, BmIcon, BmModal } from "@bluemind/styleguide";
+import { BmForm, BmFormGroup, BmFormInput, BmModal } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
 import cloneDeep from "lodash.clonedeep";
 import { mapActions } from "vuex";
@@ -55,7 +56,7 @@ import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
 
 export default {
     name: "CreateOrUpdateContainerModal",
-    components: { BmForm, BmFormGroup, BmFormInput, BmIcon, BmModal, CreateOrUpdateCalendar, ImportFile },
+    components: { BmForm, BmFormGroup, BmFormInput, BmModal, CreateOrUpdateCalendar, ImportFile },
     props: {
         containers: {
             type: Array,

@@ -1,9 +1,9 @@
 <template>
     <bm-col class="pref-left-panel d-lg-flex flex-column" cols="12" lg="2">
-        <div class="p-3">
-            <h2 class="d-none d-lg-block">
+        <div class="p-6">
+            <div class="d-none d-lg-block bold">
                 <bm-label-icon icon="preferences">{{ $t("common.preference") }}</bm-label-icon>
-            </h2>
+            </div>
             <div class="d-lg-none">
                 <bm-icon-button
                     variant="compact-on-fill-primary"
@@ -12,7 +12,7 @@
                     icon="arrow-back"
                     @click="$emit('close')"
                 />
-                <h2 class="d-inline align-middle">{{ $t("common.preference") }}</h2>
+                <div class="d-inline align-middle bold">{{ $t("common.preference") }}</div>
             </div>
         </div>
         <pref-left-panel-nav :sections="sections" class="flex-grow-1" />
@@ -41,5 +41,6 @@ export default {
 .pref-left-panel {
     background-color: $fill-primary-bg;
     color: $fill-primary-fg;
+    padding: 0 !important;
 }
 </style>

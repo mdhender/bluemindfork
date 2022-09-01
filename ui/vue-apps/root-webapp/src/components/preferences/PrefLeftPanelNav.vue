@@ -6,24 +6,22 @@
                 ref="section"
                 :key="section.id"
                 :active="isActive(section.id)"
-                class="app-item container px-4 py-3"
+                class="app-item container"
+                :class="{ 'my-account-list-group-item': section.id === 'my_account' }"
                 role="button"
                 tabindex="0"
                 :to="anchor(section, true)"
                 @click="goToSection(section)"
             >
-                <div class="row align-items-center">
-                    <div class="col-2 text-center mr-1"><pref-section-icon :section="section" /></div>
-                    <div class="col">
-                        <div v-if="section.id === 'my_account'" class="display-name">
-                            {{ userDisplayName }}
-                        </div>
-                        <div v-else class="section-name font-size-lg">{{ section.name }}</div>
+                <div class="d-flex flex-nowrap text-truncate w-100">
+                    <div class="text-center mr-4"><pref-section-icon :section="section" /></div>
+                    <div v-if="section.id === 'my_account'" class="display-name">
+                        {{ userDisplayName }}
                     </div>
+                    <div v-else class="section-name text-truncate">{{ section.name }}</div>
                 </div>
-                <div v-if="section.id === 'my_account'" class="section-name row">
-                    <div class="col-2" />
-                    <div class="col">{{ $t("preferences.general.manage_account") }}</div>
+                <div v-if="section.id === 'my_account'" class="section-name my-account-section-name">
+                    {{ $t("preferences.general.manage_account") }}
                 </div>
                 <div class="arrow position-absolute" />
             </bm-list-group-item>
@@ -75,6 +73,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "sass:math";
+@import "~@bluemind/styleguide/css/_type";
 @import "~@bluemind/styleguide/css/_variables";
 
 .pref-left-panel-nav .app-item {
@@ -91,20 +91,20 @@ export default {
     &.active .arrow {
         width: 0;
         height: 0;
-        border-top: $sp-2 solid transparent;
-        border-bottom: $sp-2 solid transparent;
-        border-right: $sp-2 solid $surface;
-        top: calc(50% - #{$sp-2});
+        $arrow-half-height: base-px-to-rem(10);
+        border-top: $arrow-half-height solid transparent;
+        border-bottom: $arrow-half-height solid transparent;
+        border-right: $arrow-half-height solid $surface;
+        top: calc(50% - #{$arrow-half-height});
         right: 0;
     }
 
-    .font-size-lg {
-        font-size: $font-size-lg;
-    }
-
     .display-name {
-        font-size: 18px;
+        font-size: $font-size-lg;
+        line-height: $line-height-base;
         color: $fill-primary-fg;
+        white-space: initial;
+        padding-top: math.div($avatar-height - $font-size-lg * $line-height-base, 2);
     }
 
     .section-name {
@@ -112,6 +112,25 @@ export default {
     }
     &.active .section-name {
         color: $fill-primary-fg-hi1;
+    }
+
+    &.list-group-item {
+        padding: $sp-6 !important;
+        height: initial;
+
+        &.my-account-list-group-item {
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        &:not(.my-account-list-group-item) > div {
+            align-items: center;
+        }
+    }
+
+    .my-account-section-name {
+        width: 100%;
+        padding-left: $avatar-width + $sp-4;
+        margin-top: $sp-2;
     }
 }
 </style>

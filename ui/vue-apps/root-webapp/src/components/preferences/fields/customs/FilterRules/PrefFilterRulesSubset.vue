@@ -3,8 +3,8 @@
         <span :class="{ disabled: filters.length === 0 }">{{ title }}</span>
         <bm-button-expand :expanded="showTable" :disabled="filters.length === 0" @click="showTable_ = !showTable_" />
         <pref-filter-rules-table v-if="showTable" :filters="filters" :editable="editable" v-on="$listeners" />
-        <div v-if="editable" class="d-flex justify-content-end">
-            <bm-button variant="outline" size="lg" icon="plus" @click="onEdit">
+        <div>
+            <bm-button v-if="editable" variant="outline" size="lg" icon="plus" @click="onEdit">
                 {{ $t("preferences.mail.filters.create") }}
             </bm-button>
         </div>

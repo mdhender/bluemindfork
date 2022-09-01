@@ -1,9 +1,7 @@
 <template>
-    <h1 class="d-inline">
-        <bm-badge pill :closeable="closeable" class="mr-2 align-items-center" @close="$emit('close')">
-            <bm-calendar-item :calendar="calendar" />
-        </bm-badge>
-    </h1>
+    <bm-badge pill :closeable="closeable" class="bm-calendar-badge" @close="$emit('close')">
+        <bm-calendar-item :calendar="calendar" />
+    </bm-badge>
 </template>
 
 <script>
@@ -25,3 +23,20 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_type";
+@import "~@bluemind/styleguide/css/_variables";
+
+.badge.bm-calendar-badge {
+    padding: 0;
+    padding-right: $sp-4;
+    gap: $sp-4;
+    @extend %caption-bold;
+
+    .bm-color-badge {
+        margin: base-px-to-rem(-3);
+        margin-right: $sp-4;
+    }
+}
+</style>

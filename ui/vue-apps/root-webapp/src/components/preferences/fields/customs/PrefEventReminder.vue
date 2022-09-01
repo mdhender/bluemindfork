@@ -1,13 +1,13 @@
 <template>
-    <div class="pref-event-reminder">
-        <bm-form-checkbox class="mb-1" :checked="isReminderSet" @change="isReminderSet ? remove() : setDefault()">
+    <div class="pref-event-reminder pb-3">
+        <bm-form-checkbox class="mb-3" :checked="isReminderSet" @change="isReminderSet ? remove() : setDefault()">
             {{ $t("preferences.calendar.main.default_reminder") }}
         </bm-form-checkbox>
         <bm-form-input-number
             :disabled="!isReminderSet"
             min="1"
             :value="settingWithUnit.value.toString()"
-            class="align-middle mr-3"
+            class="align-middle mr-5"
             @input="newValue => onSettingChanged({ newValue })"
         />
         <bm-form-select
@@ -81,14 +81,15 @@ function findBestTimeUnit(seconds) {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
 .pref-event-reminder {
     div.bm-form-select {
         width: unset !important;
     }
     .bm-form-input-number {
         display: inline-flex !important;
-        width: 10em;
-        height: 2.25rem;
+        width: base-px-to-rem(160) !important;
     }
 }
 </style>

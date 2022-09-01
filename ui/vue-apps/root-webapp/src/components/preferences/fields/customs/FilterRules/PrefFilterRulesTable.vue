@@ -21,25 +21,26 @@
             <template #cell(name)="cell">
                 <div class="d-flex align-items-center" @click="cell.toggleDetails">
                     <bm-button-expand :expanded="cell.detailsShowing" />
-                    <h2>
-                        <span class="filter-name mr-2 text-nowrap" :class="{ 'filter-inactive': !cell.item.active }">
+                    <div class="d-flex align-items-baseline text-truncate flex-fill">
+                        <div
+                            class="bold filter-name mr-5 text-nowrap"
+                            :class="{ 'filter-inactive': !cell.item.active }"
+                        >
                             {{ cell.value || $t("preferences.mail.filters.unnamed") }}
-                        </span>
-                    </h2>
-                    <span class="text-truncate flex-fill">{{ buildDesc(cell.item) }}</span>
-                    <h2 v-if="cell.item.terminal">
-                        <bm-badge class="ml-3" variant="neutral" pill>
+                        </div>
+                        <div class="caption text-truncate flex-fill">{{ buildDesc(cell.item) }}</div>
+                        <bm-badge v-if="cell.item.terminal" class="mx-3 caption-bold" pill>
                             {{ $t("preferences.mail.filters.terminal") }}
                         </bm-badge>
-                    </h2>
+                    </div>
                 </div>
             </template>
             <template #cell(editable)="cell">
-                <div v-if="cell.value" class="d-flex justify-content-end">
-                    <bm-icon-button size="sm" icon="arrow-up" @click="$emit('up', cell.item)" />
-                    <bm-icon-button size="sm" icon="arrow-down" @click="$emit('down', cell.item)" />
-                    <bm-icon-button size="sm" icon="pencil" @click="$emit('edit', cell.item)" />
-                    <bm-icon-button size="sm" icon="trash" @click="remove(cell.item)" />
+                <div v-if="cell.value" class="actions">
+                    <bm-icon-button variant="compact" icon="arrow-up" @click="$emit('up', cell.item)" />
+                    <bm-icon-button variant="compact" icon="arrow-down" @click="$emit('down', cell.item)" />
+                    <bm-icon-button variant="compact" icon="pencil" @click="$emit('edit', cell.item)" />
+                    <bm-icon-button variant="compact" icon="trash" @click="remove(cell.item)" />
                 </div>
             </template>
             <template #row-details="row">
@@ -76,9 +77,9 @@ export default {
         return {
             currentPage: 1,
             fields: [
-                { key: "active", label: "", tdClass: "align-middle" },
-                { key: "name", label: "", tdClass: "filter-info px-0" },
-                { key: "editable", label: "" }
+                { key: "active", label: "", tdClass: "align-middle", class: "active-cell" },
+                { key: "name", label: "", tdClass: "filter-info px-0", class: "name-cell" },
+                { key: "editable", label: "", class: "actions-cell" }
             ]
         };
     },
@@ -113,13 +114,35 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .pref-filter-rules-table {
-    .filter-info {
-        width: 100%;
-        max-width: 0; // needed by sub elements with text-truncate class
-        cursor: pointer;
+    .b-table {
+        max-width: base-px-to-rem(900);
+        table-layout: fixed;
+
+        thead {
+            display: none;
+        }
     }
-    .filter-name.filter-inactive {
-        color: $neutral-fg-disabled;
+    .active-cell {
+        width: base-px-to-rem(65);
+    }
+    .name-cell {
+        width: 100%;
+        .filter-info {
+            width: 100%;
+            max-width: 0; // needed by sub elements with text-truncate class
+            cursor: pointer;
+        }
+        .filter-name.filter-inactive {
+            color: $neutral-fg-disabled;
+        }
+    }
+    .actions-cell {
+        width: base-px-to-rem(170);
+        .actions {
+            display: flex;
+            justify-content: end;
+            gap: $sp-5;
+        }
     }
 }
 </style>

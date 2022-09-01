@@ -10,7 +10,7 @@
         <template v-slot:selected="slotProps">
             <div v-if="slotProps.selected" class="folder-path font-weight-normal" :title="slotProps.selected.value">
                 <bm-icon
-                    class="mr-1"
+                    class="mr-4"
                     :icon="icon(slotProps.selected.value)"
                     :tooltip="slotProps.selected.value"
                     :aria-label="slotProps.selected.value"
@@ -26,7 +26,7 @@
         <template v-slot:item="slotProps">
             <div class="folder-path" :title="slotProps.item.value">
                 <bm-icon
-                    class="mr-1"
+                    class="mr-4"
                     :icon="icon(slotProps.item.value)"
                     :tooltip="slotProps.item.value"
                     :aria-label="slotProps.item.value"

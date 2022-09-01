@@ -12,21 +12,20 @@
                 class="d-flex align-items-start justify-content-between row mb-1"
             >
                 <div class="d-flex col-11 align-items-start">
-                    <bm-form-select
-                        ref="actionCombo"
-                        :value="actionComboValue(action)"
-                        :options="actionChoices"
-                        :placeholder="$t('preferences.mail.filters.modal.actions.add.placeholder')"
-                        :auto-min-width="false"
-                        class="col-6 pr-4"
-                        @input="modifyActionType(index, $event)"
-                    />
-                    <component
-                        :is="resolvedActions[index].editor"
-                        v-if="resolvedActions[index].editor"
-                        class="col-6"
-                        :action="action"
-                    />
+                    <div class="col-6">
+                        <bm-form-select
+                            ref="actionCombo"
+                            class="w-100"
+                            :value="actionComboValue(action)"
+                            :options="actionChoices"
+                            :placeholder="$t('preferences.mail.filters.modal.actions.add.placeholder')"
+                            :auto-min-width="false"
+                            @input="modifyActionType(index, $event)"
+                        />
+                    </div>
+                    <div v-if="resolvedActions[index].editor" class="col-6">
+                        <component :is="resolvedActions[index].editor" :action="action" class="w-100" />
+                    </div>
                 </div>
                 <bm-icon-button variant="compact" icon="cross" @click="removeAction(index)" />
             </div>
@@ -95,3 +94,11 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+.pref-filter-rule-modal-actions {
+    .col-11 {
+        padding-left: 0 !important;
+    }
+}
+</style>

@@ -1,17 +1,20 @@
 <template>
     <div class="pref-section-navbar d-flex">
-        <bm-list-group-item class="d-flex align-items-center" :to="anchor(section, true)" @click="scrollTo(section)">
+        <bm-list-group-item
+            class="d-flex align-items-center px-6"
+            :to="anchor(section, true)"
+            @click="scrollTo(section)"
+        >
             <pref-section-icon :section="section" />
         </bm-list-group-item>
         <bm-list-group-item
             v-for="category in section.categories.filter(c => c.visible)"
             :key="category.id"
             :to="anchor(category, true)"
+            class="text-nowrap overflow-hidden"
             @click="scrollTo(category)"
         >
-            <h2 class="d-inline-block py-2 pr-2">
-                <bm-label-icon :icon="category.icon" icon-size="xl"> {{ category.name }} </bm-label-icon>
-            </h2>
+            <bm-label-icon :icon="category.icon"> {{ category.name }} </bm-label-icon>
         </bm-list-group-item>
     </div>
 </template>
@@ -34,31 +37,32 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/_type";
 @import "~@bluemind/styleguide/css/_variables";
 
 .pref-section-navbar {
     width: 100%;
-    background-color: #fff;
+    background-color: $surface;
 
     .list-group-item {
         border-bottom: none !important;
         width: auto;
-        padding: 0 0.5em 0 0;
 
         .bm-label-icon div {
             padding-left: 0.05em;
         }
 
-        & > h2 {
-            border-bottom: 3px solid !important;
-            border-color: transparent !important;
-        }
+        display: inline-block;
+        @extend %bold;
+        padding-top: $sp-4;
+        padding-bottom: $sp-4;
+        border-bottom: 3px solid !important;
+        border-color: transparent !important;
+
         &.router-link-active {
             background-color: unset;
-            & > h2 {
-                border-color: $secondary-fg !important;
-                color: $secondary-fg;
-            }
+            border-color: $secondary-fg !important;
+            color: $secondary-fg;
         }
 
         &:first-child {

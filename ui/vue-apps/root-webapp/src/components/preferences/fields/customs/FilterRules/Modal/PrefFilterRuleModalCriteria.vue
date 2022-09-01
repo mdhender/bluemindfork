@@ -14,27 +14,30 @@
                 class="d-flex align-items-center justify-content-between row mb-1"
             >
                 <div class="d-flex col-11">
-                    <bm-form-select
-                        v-show="!resolvedCriteria[index] || !resolvedCriteria[index].fullEditor"
-                        ref="criterionCombo"
-                        class="col-6 pr-4"
-                        :value="criterionComboValue(criterion)"
-                        :options="criterionChoices"
-                        :placeholder="
-                            negative
-                                ? $t('preferences.mail.filters.modal.exceptions.add.placeholder')
-                                : $t('preferences.mail.filters.modal.criteria.add.placeholder')
-                        "
-                        :auto-min-width="false"
-                        @input="modifyCriterionType(index, $event)"
-                    />
-                    <component
-                        :is="resolvedCriteria[index].editor"
-                        :class="{ 'col-6': !resolvedCriteria[index].fullEditor }"
-                        :criterion="criterion"
-                        :negative="negative"
-                        @reset="resetCriterion(index)"
-                    />
+                    <div v-show="!resolvedCriteria[index] || !resolvedCriteria[index].fullEditor" class="col-6">
+                        <bm-form-select
+                            ref="criterionCombo"
+                            class="w-100"
+                            :value="criterionComboValue(criterion)"
+                            :options="criterionChoices"
+                            :placeholder="
+                                negative
+                                    ? $t('preferences.mail.filters.modal.exceptions.add.placeholder')
+                                    : $t('preferences.mail.filters.modal.criteria.add.placeholder')
+                            "
+                            :auto-min-width="false"
+                            @input="modifyCriterionType(index, $event)"
+                        />
+                    </div>
+                    <div :class="resolvedCriteria[index].fullEditor ? 'w-100' : 'col-6'">
+                        <component
+                            :is="resolvedCriteria[index].editor"
+                            :criterion="criterion"
+                            :negative="negative"
+                            class="w-100"
+                            @reset="resetCriterion(index)"
+                        />
+                    </div>
                 </div>
                 <bm-icon-button variant="compact" icon="cross" @click="removeCriterion(index)" />
             </div>
@@ -127,3 +130,11 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+.pref-filter-rule-modal-criteria {
+    .col-11 {
+        padding-left: 0 !important;
+    }
+}
+</style>

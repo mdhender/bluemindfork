@@ -1,6 +1,6 @@
 <template>
-    <div v-if="!collapsed" class="ml-4 text-neutral">
-        <bm-icon icon="info-circle" class="mr-1 mt-1" />
+    <div v-if="!collapsed" class="pref-remote-image">
+        <bm-icon icon="info-circle" />
         <pref-read-more-label :href="readMore" :text="$t('preferences.mail.remote.images.explanations')" />
     </div>
 </template>
@@ -23,3 +23,13 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.pref-remote-image {
+    display: flex;
+    gap: $sp-5;
+    color: $neutral-fg-lo1;
+}
+</style>

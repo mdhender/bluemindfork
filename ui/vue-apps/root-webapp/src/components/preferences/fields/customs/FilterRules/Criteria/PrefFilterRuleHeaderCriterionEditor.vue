@@ -3,11 +3,11 @@
         <div class="d-flex col-6">
             <bm-button variant="outline" class="font-weight-normal" @click="$emit('reset')">
                 {{ $t("preferences.mail.filters.target.HEADER", { name: "" }) }}
-                <bm-icon class="ml-1 text-neutral" icon="caret-down" size="xs" />
+                <bm-icon class="ml-3 text-neutral" icon="caret-down" size="xs" />
             </bm-button>
             <bm-form-input
                 v-model="criterion.target.name"
-                class="ml-1 pr-4 flex-fill"
+                class="ml-3 flex-fill"
                 :placeholder="$t('preferences.mail.filters.modal.criteria.header.name.placeholder')"
                 required
             />
@@ -17,7 +17,7 @@
             <bm-form-input
                 v-if="![CRITERIA_MATCHERS.EXISTS, CRITERIA_MATCHERS.DOESNOTEXIST].includes(criterion.matcher)"
                 v-model="criterion.value"
-                class="ml-1 flex-fill"
+                class="ml-3 flex-fill"
                 required
             />
         </div>

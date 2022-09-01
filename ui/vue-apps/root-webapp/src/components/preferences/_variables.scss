@@ -1,0 +1,10 @@
+@import "~@bluemind/styleguide/css/_variables";
+
+$prefs-padding-left: $sp-5;
+$prefs-padding-left-lg: $sp-7 + $sp-6;
+$prefs-padding-right: $sp-5;
+
+$pref-entry-name-padding-top: $sp-5 + $sp-3 + $sp-1;
+$pref-entry-name-padding-bottom: $sp-5 + $sp-3 - $sp-1;
+
+$section-icon-size: base-px-to-rem(32);

@@ -1,7 +1,7 @@
 <template>
     <div class="external-share-management">
         <hr />
-        <bm-label-icon icon="world" class="font-weight-bold mb-2" :inline="false">
+        <bm-label-icon icon="world" class="h3 mb-5" :inline="false">
             {{ $t("preferences.manage_shares.outside_my_organization") }}
         </bm-label-icon>
         <div v-if="externalShares.length === 0" class="ml-4 mt-3 font-italic">{{ noExternalShareSet }}</div>

@@ -1,6 +1,8 @@
 <template>
-    <bm-avatar v-if="section.id === 'my_account'" :alt="userDisplayName" :urn="urn" class="pref-section-icon" />
-    <bm-app-icon v-else :icon-app="section.icon" class="pref-section-icon text-secondary" />
+    <div class="pref-section-icon">
+        <bm-avatar v-if="section.id === 'my_account'" :alt="userDisplayName" :urn="urn" />
+        <bm-app-icon v-else :icon-app="section.icon" class="text-secondary" />
+    </div>
 </template>
 
 <script>
@@ -27,8 +29,20 @@ export default {
 };
 </script>
 
-<style>
-.pref-section-icon.bm-avatar {
-    font-size: 1rem;
+<style lang="scss">
+@import "./_variables";
+@import "~@bluemind/styleguide/css/_variables";
+
+.pref-section-icon {
+    width: $section-icon-size;
+    height: $section-icon-size;
+
+    .bm-app-icon svg {
+        width: $section-icon-size;
+        height: $section-icon-size;
+    }
+    .bm-avatar {
+        margin: auto;
+    }
 }
 </style>

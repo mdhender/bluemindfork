@@ -63,9 +63,3 @@ export default {
     }
 };
 </script>
-
-<style>
-.pref-field-combobox {
-    width: 4rem;
-}
-</style>

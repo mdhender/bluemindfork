@@ -1,10 +1,10 @@
 <template>
     <div class="pref-download">
-        <h2 class="mb-2">{{ download.title }}</h2>
-        <div class="d-flex justify-content-between p-2">
-            <div class="d-flex flex-column justify-content-between">
+        <h3 class="mb-4">{{ download.title }}</h3>
+        <div class="d-flex justify-content-between p-6">
+            <div class="d-flex flex-column justify-content-between medium pr-4">
                 {{ download.description }}
-                <div class="d-inline-flex pt-1">
+                <div class="d-inline-flex pt-6">
                     <bm-button variant="outline-accent" :href="download.url" :aria-label="download.description">{{
                         $t("common.download")
                     }}</bm-button>

@@ -270,7 +270,6 @@
     "preferences.mail.emails_forwarding": "Transfert d'emails",
     "preferences.mail.emails_forwarding.to": "Transférer les messages reçus à",
     "preferences.mail.emails_forwarding.local_copy": "conserver une copie dans la boîte de réception",
-    "preferences.mail.emails_forwarding.no_local_copy": "ne pas conserver de copie",
 
     "preferences.role.missing.warning": "Vous n'avez pas les droits pour modifier cette préférence",
     "preferences.search.no_result": "Aucune préférence avec le terme \"{pattern}\" n'a été trouvée.",

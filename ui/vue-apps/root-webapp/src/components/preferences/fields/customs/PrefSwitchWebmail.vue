@@ -1,7 +1,7 @@
 <template>
     <div v-if="!collapsed" class="d-flex pref-switch-webmail align-items-center text-neutral">
-        <img class="mr-5" :src="image" alt="" />
-        <div>
+        <img :src="image" alt="" />
+        <div class="text-wrapper">
             <strong class="font-italic">{{ warning }}</strong>
             <ul class="font-italic">
                 <li v-for="(feature, index) in features" :key="index">
@@ -39,3 +39,27 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
+@import "~@bluemind/styleguide/css/_variables";
+
+.pref-switch-webmail {
+    flex-direction: column;
+    gap: $sp-4;
+    @include from-lg {
+        flex-direction: row;
+        gap: $sp-8;
+    }
+
+    img {
+        width: 246px;
+        max-width: 50%;
+    }
+    .text-wrapper {
+        @include from-lg {
+            padding-right: $sp-8;
+        }
+    }
+}
+</style>

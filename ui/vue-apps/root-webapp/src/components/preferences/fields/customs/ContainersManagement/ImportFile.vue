@@ -2,17 +2,17 @@
     <div v-if="file">
         <div v-if="uploadStatus === 'IDLE'" class="d-flex align-items-center">
             <bm-icon :icon="fileTypeIcon" />
-            <h2 class="ml-2">{{ file.name }}</h2>
-            <bm-button-close class="ml-2" @click="resetFile" />
+            <div class="regular ml-4">{{ file.name }}</div>
+            <bm-button-close class="ml-2" size="sm" @click="resetFile" />
         </div>
         <template v-else>
             <bm-progress :value="uploaded" :max="100" class="mt-4 mb-2" />
             <div class="d-flex align-items-center">
                 <bm-icon :icon="fileTypeIcon" />
-                <h2 class="ml-2">{{ file.name }}</h2>
+                <div class="regular ml-4">{{ file.name }}</div>
             </div>
             <div class="float-right">
-                <bm-button-close v-if="uploadStatus === 'IN_PROGRESS' && autoUpload" @click="cancelUpload" />
+                <bm-button-close v-if="uploadStatus === 'IN_PROGRESS' && autoUpload" size="sm" @click="cancelUpload" />
                 <div v-else-if="uploadStatus === 'SUCCESS'">
                     <bm-icon icon="check-circle" class="text-success" />
                     {{ $t("common.import_successful") }}
@@ -29,8 +29,10 @@
             <template #dropZone>
                 <div class="text-center my-4">
                     <bm-icon :icon="fileTypeIcon" size="lg" />
-                    <h2 class="mt-2 mb-4">{{ $t("preferences.display_containers.import_file." + container.type) }}</h2>
-                    <div class="mb-2">{{ $t("common.or") }}</div>
+                    <div class="bold my-5">
+                        {{ $t("preferences.display_containers.import_file." + container.type) }}
+                    </div>
+                    <div class="mb-5">{{ $t("common.or") }}</div>
                     <bm-button variant="contained-accent" @click="openFilePicker">{{ $t("common.browse") }}</bm-button>
                 </div>
             </template>

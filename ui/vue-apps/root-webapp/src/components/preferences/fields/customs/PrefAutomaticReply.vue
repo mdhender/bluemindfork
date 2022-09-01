@@ -134,6 +134,8 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .pref-automatic-reply {
+    max-width: base-px-to-rem(700);
+
     .disabled {
         label,
         .date-range-label {

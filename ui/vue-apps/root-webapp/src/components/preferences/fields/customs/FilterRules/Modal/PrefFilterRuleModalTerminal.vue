@@ -33,7 +33,7 @@ export default {
 
 .pref-filter-rule-modal-terminal {
     .pref-read-more-label {
-        color: $neutral-fg;
+        margin-top: $sp-4;
     }
 }
 </style>

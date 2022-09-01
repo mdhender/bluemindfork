@@ -3,9 +3,9 @@
         <span :class="{ disabled: tags.length === 0 }">{{ title }}</span>
 
         <bm-button-expand :disabled="tags.length === 0" :expanded="showTable" @click="showTable_ = !showTable_" />
-        <pref-tags-table v-if="showTable" class="pref-item-width" :tags="tags" v-on="$listeners" />
-        <div v-if="editable" class="d-flex justify-content-end pref-item-width">
-            <bm-button variant="outline" size="lg" icon="plus" @click="$emit('edit', {})">
+        <pref-tags-table v-if="showTable" :tags="tags" v-on="$listeners" />
+        <div>
+            <bm-button v-if="editable" variant="outline" size="lg" icon="plus" @click="$emit('edit', {})">
                 {{ $t("preferences.general.tags.create") }}
             </bm-button>
         </div>

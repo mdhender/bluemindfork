@@ -270,7 +270,6 @@
     "preferences.mail.emails_forwarding": "Email forwardings",
     "preferences.mail.emails_forwarding.to": "Forward received messages to",
     "preferences.mail.emails_forwarding.local_copy": "keep a local copy in your inbox",
-    "preferences.mail.emails_forwarding.no_local_copy": "do not keep a local copy",
 
     "preferences.role.missing.warning": "You do not have the rights to modify this preference",
     "preferences.search.no_result": "No preference containing \"{pattern}\" has been found.",

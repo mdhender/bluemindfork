@@ -1,7 +1,7 @@
 <template>
     <div class="pref-soon-available d-flex align-items-center">
-        <span class="h2 pr-2" :class="{ 'entry-disabled': entry.disabled }">{{ entry.name }}</span>
-        <span v-if="entry.disabled" class="available-soon h2">{{ $t("common.available_soon") }}</span>
+        <span class="h3 pr-5" :class="{ 'entry-disabled': entry.disabled }">{{ entry.name }}</span>
+        <span v-if="entry.disabled" class="available-soon bold">{{ $t("common.available_soon") }}</span>
     </div>
 </template>
 <script>

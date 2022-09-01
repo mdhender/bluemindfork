@@ -175,18 +175,7 @@ function doesNodeMatch(node, pattern) {
 @import "~@bluemind/styleguide/css/_variables";
 
 .pref-right-panel {
-    .pref-section-icon {
-        // a total width of 4rem, should be used as for the content's left margin
-        &.bm-app-icon svg {
-            width: 2rem;
-            height: 2rem;
-            margin: 0 1rem 0 1rem;
-        }
-        &.bm-avatar {
-            margin-right: $sp-3;
-            margin-left: $sp-3;
-        }
-    }
+    padding: 0 !important;
 
     .bm-alert-area {
         position: sticky;

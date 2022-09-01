@@ -15,15 +15,17 @@
         >
             <template v-slot="{ item }"><bm-calendar-item :calendar="item" /></template>
         </bm-form-autocomplete-input>
-        <h2 class="mt-4 mb-2">{{ $t("common.my_availabilities") }}</h2>
+        <h3 class="mt-4 mb-2">{{ $t("common.my_availabilities") }}</h3>
         <div class="mb-2">{{ $t("preferences.calendar.my_calendars.choose_calendar_for_my_availabilities") }}</div>
-        <bm-calendar-badge
-            v-for="calendarUid in calendarsForMyAvailabilities"
-            :key="calendarUid"
-            :calendar="getCalendar(calendarUid)"
-            :closeable="!isDefaultCalendar(calendarUid)"
-            @close="removeCalFromMyAvailabilities(calendarUid)"
-        />
+        <div class="calendar-badges">
+            <bm-calendar-badge
+                v-for="calendarUid in calendarsForMyAvailabilities"
+                :key="calendarUid"
+                :calendar="getCalendar(calendarUid)"
+                :closeable="!isDefaultCalendar(calendarUid)"
+                @close="removeCalFromMyAvailabilities(calendarUid)"
+            />
+        </div>
     </div>
 </template>
 
@@ -103,3 +105,15 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.availabilities-advanced-management {
+    .calendar-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $sp-2 $sp-4;
+    }
+}
+</style>

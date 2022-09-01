@@ -269,8 +269,7 @@
     "preferences.mail.automatic_reply.end_time": "Wählen Sie eine Endzeit",
     "preferences.mail.emails_forwarding": "Weiterleitungen",
     "preferences.mail.emails_forwarding.to": "Eingehende E-Mails weiterleiten an",
-    "preferences.mail.emails_forwarding.local_copy": "Lokale Kopie speichern",
-    "preferences.mail.emails_forwarding.no_local_copy": "Keine Kopie lokal speichern",
+    "preferences.mail.emails_forwarding.local_copy": "Lokale Kopie im Posteingang speichern",
 
     "preferences.role.missing.warning": "Sie haben keine Berechtigung diese Einstellung zu verändern",
     "preferences.search.no_result": "No preference with the term \"{pattern}\" has been found.",

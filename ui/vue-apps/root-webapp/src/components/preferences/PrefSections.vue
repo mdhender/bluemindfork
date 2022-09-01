@@ -3,7 +3,7 @@
         <bm-alert-area :alerts="alerts" stackable @remove="REMOVE">
             <template v-slot="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
         </bm-alert-area>
-        <div v-for="(section, index) in sections" :id="section.id" :key="section.id" class="mb-5 pref-section">
+        <div v-for="(section, index) in sections" :id="section.id" :key="section.id" class="mb-8 pref-section">
             <bm-list-group v-if="index !== 0" :id="'section-' + section.id" horizontal>
                 <pref-section-navbar :section="section" />
             </bm-list-group>
@@ -41,7 +41,9 @@ export default {
 };
 </script>
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_variables";
+@import "./_variables";
 
 .pref-sections {
     position: relative;
@@ -52,7 +54,11 @@ export default {
         border-bottom: 1px solid $neutral-fg;
     }
     .pref-group {
-        padding-left: 4rem;
+        padding-left: $prefs-padding-left;
+        @include from-lg {
+            padding-left: $prefs-padding-left-lg;
+        }
+        padding-right: $prefs-padding-right;
     }
 }
 </style>
