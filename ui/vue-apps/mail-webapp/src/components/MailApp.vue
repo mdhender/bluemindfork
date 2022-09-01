@@ -53,7 +53,7 @@
                     switch
                     left-label
                     checked="true"
-                    class="switch-webmail caption-bold text-right text-secondary"
+                    class="switch-webmail text-right text-secondary"
                     @change="switchWebmail()"
                 >
                     {{ $t("mail.main.switch.webmail") }}
@@ -179,6 +179,8 @@ export default {
 </script>
 
 <style lang="scss">
+@use "sass:math";
+@import "~@bluemind/styleguide/css/_type";
 @import "~@bluemind/styleguide/css/_variables";
 @import "~@bluemind/styleguide/css/_zIndex.scss";
 
@@ -196,14 +198,16 @@ export default {
         }
     }
     .switch-webmail label {
-        font-weight: $font-weight-bold;
+        @extend %caption-bold;
         max-width: $custom-switch-width * 3;
         color: $secondary-fg;
+        $switch-offset: math.div(2 * $line-height-small - $custom-switch-height, 2);
+        $switch-indicator-offset: $switch-offset + math.div($custom-switch-height - $custom-switch-indicator-size, 2);
         &::before {
-            top: calc($custom-control-indicator-size / 2) !important;
+            top: $switch-offset !important;
         }
         &::after {
-            top: calc(($custom-switch-indicator-size + $custom-control-indicator-size) / 2) !important;
+            top: $switch-indicator-offset !important;
         }
     }
 
