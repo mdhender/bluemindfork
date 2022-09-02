@@ -30,6 +30,7 @@ import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.metrics.alerts.api.AlertInfo;
 import net.bluemind.metrics.alerts.api.AlertLevel;
 import net.bluemind.metrics.alerts.api.IMonitoring;
@@ -102,18 +103,28 @@ public class StatusCommand extends AbstractNodeOperation {
 			} else {
 				reportFailure(srv);
 			}
-			extendedChecks(srv);
+			List<IStatusProvider> providers = loadProviders();
+			extendedChecks(srv, providers);
 		} catch (ServerFault sf) {
 			reportFailure(srv);
 		}
 	}
 
-	private void extendedChecks(ItemValue<Server> srv) {
+	private List<IStatusProvider> loadProviders() {
+		RunnableExtensionLoader<IStatusProvider> rel = new RunnableExtensionLoader<>();
+		return rel.loadExtensions("net.bluemind.cli.node", "status", "status", "provider");
+	}
+
+	private void extendedChecks(ItemValue<Server> srv, List<IStatusProvider> providers) {
 		INodeClient nc = NodeActivator.get(srv.value.address());
 		checkHprofs(nc);
 		checkIfBackupIsRunning(nc);
 		if (srv.value.tags.contains("mail/imap")) {
 			checkStickyReplicationLogs(nc);
+		}
+
+		for (IStatusProvider sp : providers) {
+			sp.report(ctx, srv, nc);
 		}
 	}
 
