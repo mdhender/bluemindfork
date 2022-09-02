@@ -7,7 +7,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-consoleLog sds restore --dry /Users/tom/thomas.fricker@blue-mind.net.json
+      <programArgs>-consoleLog node status
       </programArgs>
       <vmArgs>-Duser.timezone=GMT -Djava.awt.headless=true -Dnet.bluemind.property.product=bm-cli
       </vmArgs>
@@ -259,10 +259,10 @@
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
-      <property name="osgi.instance.area" value="/var/lib/bm-cli/" />
-      <property name="eclipse.registry.MultiLanguage" value="true" />
-      <property name="org.eclipse.equinox.p2.reconciler.dropins.directory" value="/usr/share/bm-cli/extensions" />
       <property name="osgi.noShutdown" value="false" />
+      <property name="osgi.instance.area" value="/var/lib/bm-cli/" />
+      <property name="org.eclipse.equinox.p2.reconciler.dropins.directory" value="/usr/share/bm-cli/extensions" />
+      <property name="eclipse.registry.MultiLanguage" value="true" />
    </configurations>
 
 </product>

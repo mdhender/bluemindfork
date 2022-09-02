@@ -9,5 +9,11 @@
             priority="500">
       </registration>
    </extension>
+   <extension
+         point="net.bluemind.cli.node.status">
+      <status
+            provider="net.bluemind.cli.node.DmesgStatusProvider">
+      </status>
+   </extension>
 
 </plugin>
