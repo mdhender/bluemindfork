@@ -353,8 +353,9 @@
     "mail.preview.next": "Nächsten Anhang anzeigen",
     "mail.preview.open": "Vorschau zu öffnen",
     "mail.preview.previous": "Vorherigen Anhang anzeigen",
-    "mail.preview.nopreview.large": "Datei zu groß für die Vorschau",
-    "mail.preview.nopreview.type": "Dateityp nicht vorschaubar",
+    "mail.preview.nopreview.large": "Diese Datei ist zu groß für eine Vorschau",
+    "mail.preview.nopreview.type": "Dieser Dateityp ist nicht vorschaubar",
+    "mail.preview.nopreview.invalid": "Der geteilte Link ist ungültig",
     "mail.preview.nopreview": "Datei kann nicht in der Vorschau angezeigt werden",
     "mail.search.options.folder.current": "Aktueller Ordner",
     "mail.search.options.folder.label": "Suche in",
@@ -466,6 +467,7 @@
             }
         },
         "filehosting": {
+            "from_drive": "Aus Drive anhängen",
             "share": {
                 "start": "Einen freigegebenen Link senden | Gemeinsame Links senden",
                 "stop": "Anhalten der Sendung",
@@ -488,6 +490,7 @@
             },
             "link": "Ich habe eine Datei zu dieser Nachricht verlinkt | Ich habe Dateien mit dieser Nachricht verlinkt",
             "expiration_date": "Läuft am {date} ab",
+            "expired": "abgelaufen",
             "very_large_file": "sehr große Datei"
         },
         "rename_folder": {

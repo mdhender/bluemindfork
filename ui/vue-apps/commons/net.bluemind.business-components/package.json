@@ -1,0 +1,17 @@
+{
+    "name": "@bluemind/business-components",
+    "version": "4.1.0",
+    "description": "BlueMind Business components library",
+    "license": "AGPL-3.0-only",
+    "author": "Blue Mind SAS",
+    "main": "src/index.js",
+    "dependencies": {
+        "@bluemind/i18n": "^4.1.0",
+        "@bluemind/inject": "^4.1.0" ,
+        "@bluemind/filehosting.api": "^4.1.0",
+        "@bluemind/attachment.api": "^4.1.0"
+    },
+    "peerDependencies": {
+        "@bluemind/styleguide": "^0.1.0"
+    }
+}

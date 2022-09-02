@@ -16,17 +16,14 @@ export default {
     render: function (h) {
         if (this.extension) {
             return h(this.extension.name, { attrs: this.$attrs }, [
-                h(
-                    "bm-extension-decorator",
-                    {
-                        props: { extensions: this.extensions.slice(1) },
-                        attrs: this.$attrs
-                    },
-                    this.$slots.default
-                )
+                h("bm-extension-decorator", {
+                    props: { extensions: this.extensions.slice(1) },
+                    attrs: this.$attrs,
+                    scopedSlots: { default: this.$scopedSlots.default }
+                })
             ]);
         } else {
-            return this.$slots.default;
+            return this.$scopedSlots.default();
         }
     }
 };

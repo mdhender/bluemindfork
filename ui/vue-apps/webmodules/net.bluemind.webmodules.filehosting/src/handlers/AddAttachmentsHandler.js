@@ -4,8 +4,8 @@ import {
     renderShouldDetachConfirmBox,
     renderFileHostingModal,
     renderTooLargeFilesModal
-} from "./renderers";
-import getContentWithLinks from "./getContentWithLinks";
+} from "../helpers/renderers";
+import getContentWithLinks from "../helpers/getContentWithLinks";
 import { StopExecutionError } from "./errors";
 
 let autoDetachmentLimit, maxFilesize;

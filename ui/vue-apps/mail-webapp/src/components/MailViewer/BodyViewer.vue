@@ -52,6 +52,7 @@ import PreviewButton from "../MailAttachment/ActionButtons/PreviewButton";
 import DownloadButton from "../MailAttachment/ActionButtons/DownloadButton";
 import PreviewOverlay from "../MailAttachment/Overlays/PreviewOverlay";
 import FiletypeOverlay from "../MailAttachment/Overlays/FiletypeOverlay";
+import "@bluemind/styleguide/css/bluemind.scss";
 
 const { create: createAttachment } = attachmentUtils;
 const { FileStatus, isUploading, isAllowedToPreview } = fileUtils;
@@ -92,14 +93,14 @@ export default {
         parts() {
             return getPartsFromCapabilities(this.message, VIEWER_CAPABILITIES);
         },
-        attachments() {
+        files() {
             const fallback = this.parts
                 .filter(part => !isViewable(part))
                 .map(part => createAttachment(part, FileStatus.ONLY_LOCAL));
-            return [...this.message.attachments, ...fallback];
-        },
-        files() {
-            return this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey]);
+            return [
+                ...this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey]),
+                ...fallback
+            ];
         }
     },
     async created() {

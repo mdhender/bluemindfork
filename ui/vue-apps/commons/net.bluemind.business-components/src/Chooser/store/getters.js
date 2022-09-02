@@ -1,0 +1,1 @@
+export const HAS_VALID_PATTERN = "HAS_VALID_PATTERN";

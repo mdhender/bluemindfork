@@ -43,6 +43,55 @@ const OPEN_DOCUMENT_TEXT = "application/vnd.oasis.opendocument.text";
 const OPEN_DOCUMENT_CALC = "application/vnd.oasis.opendocument.spreadsheet";
 const OPEN_DOCUMENT_PRESENTATION = "application/vnd.oasis.opendocument.presentation";
 const SVG = "image/svg+xml";
+const GIF = "image/gif";
+const JPEG = "image/jpeg";
+const PNG = "image/png";
+const WAV = "audio/wav";
+const MP3 = "audio/mp3";
+const MOV = "video/mov";
+const MP4 = "video/mp4";
+const AVI = "image/avi";
+
+const MP4_SUFFIXES = ["mp4"];
+const MOV_SUFFIXES = ["mov"];
+const AVI_SUFFIXES = ["avi"];
+const GIF_SUFFIXES = ["gif"];
+const JPEG_SUFFIXES = ["jpg", "jpeg"];
+const PNG_SUFFIXES = ["png"];
+const SVG_SUFFIXES = ["svg"];
+const MP3_SUFFIXES = ["mp3"];
+const WAV_SUFFIXES = ["wav"];
+const PDF_SUFFIXES = ["pdf"];
+const ZIP_SUFFIXES = ["zip"];
+const ICS_SUFFIXES = ["ics"];
+const VCARD_SUFFIXES = ["vcf"];
+const FONT_SUFFIXES = ["otf", "ttf", "fnt"];
+const MS_WORD_SUFFIXES = ["doc", "dot"];
+const MS_WORD_XML_SUFFIXES = ["docx", "dotx"];
+const MS_EXCEL_SUFFIXES = ["xls", "xlt", "xla"];
+const MS_EXCEL_XML_SUFFIXES = ["xlsx", "xltx"];
+const MS_POWERPOINT_SUFFIXES = ["ppt", "pot", "pps", "ppa"];
+const MS_POWERPOINT_XML_SUFFIXES = ["pptx", "potx", "ppsx"];
+const XML_SUFFIXES = ["xml"];
+const RAR_SUFFIXES = ["rar"];
+const ZIP_7_SUFFIXES = ["7z"];
+const BZIP_SUFFIXES = ["bzip", "bzip2"];
+const TAR_SUFFIXES = ["tar"];
+const TGZ_SUFFIXES = ["gzip"];
+const SHELL_SUFFIXES = ["sh"];
+const CSHELL_SUFFIXES = ["csh"];
+const BINARY_SUFFIXES = ["bin", "dat", "exe"];
+const CSV_SUFFIXES = ["csv"];
+const TEXT_PLAIN_SUFFIXES = ["txt"];
+const TEXT_HTML_SUFFIXES = ["html"];
+const JAVA_JAR_SUFFIXES = ["jar"];
+const TYPESCRIPT_SUFFIXES = ["js"];
+const JAVASCRIPT_SUFFIXES = ["js"];
+const JSON_SUFFIXES = ["json"];
+const XHTML_SUFFIXES = ["xhtml"];
+const OPEN_DOCUMENT_TEXT_SUFFIXES = ["odt"];
+const OPEN_DOCUMENT_CALC_SUFFIXES = ["odc"];
+const OPEN_DOCUMENT_PRESENTATION_SUFFIXES = ["odp"];
 
 export default {
     AUDIO,
@@ -186,11 +235,91 @@ function matchingIcon(mimeType) {
 }
 
 function getFromFilename(name) {
-    if (name.toLowerCase().endsWith(".pdf")) {
+    const suffix = name.split(".").pop().toLowerCase();
+    if (MP4_SUFFIXES.includes(suffix)) {
+        return MP4;
+    } else if (MOV_SUFFIXES.includes(suffix)) {
+        return MOV;
+    } else if (AVI_SUFFIXES.includes(suffix)) {
+        return AVI;
+    } else if (GIF_SUFFIXES.includes(suffix)) {
+        return GIF;
+    } else if (JPEG_SUFFIXES.includes(suffix)) {
+        return JPEG;
+    } else if (PNG_SUFFIXES.includes(suffix)) {
+        return PNG;
+    } else if (SVG_SUFFIXES.includes(suffix)) {
+        return SVG;
+    } else if (MP3_SUFFIXES.includes(suffix)) {
+        return MP3;
+    } else if (WAV_SUFFIXES.includes(suffix)) {
+        return WAV;
+    } else if (PDF_SUFFIXES.includes(suffix)) {
         return PDF;
+    } else if (ZIP_SUFFIXES.includes(suffix)) {
+        return ZIP;
+    } else if (ICS_SUFFIXES.includes(suffix)) {
+        return ICS;
+    } else if (VCARD_SUFFIXES.includes(suffix)) {
+        return VCARD;
+    } else if (FONT_SUFFIXES.includes(suffix)) {
+        return FONT;
+    } else if (MS_WORD_SUFFIXES.includes(suffix)) {
+        return MS_WORD;
+    } else if (MS_WORD_XML_SUFFIXES.includes(suffix)) {
+        return MS_WORD_XML;
+    } else if (MS_EXCEL_SUFFIXES.includes(suffix)) {
+        return MS_EXCEL;
+    } else if (MS_EXCEL_XML_SUFFIXES.includes(suffix)) {
+        return MS_EXCEL_XML;
+    } else if (MS_POWERPOINT_SUFFIXES.includes(suffix)) {
+        return MS_POWERPOINT;
+    } else if (MS_POWERPOINT_XML_SUFFIXES.includes(suffix)) {
+        return MS_POWERPOINT_XML;
+    } else if (XML_SUFFIXES.includes(suffix)) {
+        return XML;
+    } else if (RAR_SUFFIXES.includes(suffix)) {
+        return RAR;
+    } else if (ZIP_7_SUFFIXES.includes(suffix)) {
+        return ZIP_7;
+    } else if (BZIP_SUFFIXES.includes(suffix)) {
+        return BZIP;
+    } else if (TAR_SUFFIXES.includes(suffix)) {
+        return TAR;
+    } else if (TGZ_SUFFIXES.includes(suffix)) {
+        return TGZ;
+    } else if (SHELL_SUFFIXES.includes(suffix)) {
+        return SHELL;
+    } else if (CSHELL_SUFFIXES.includes(suffix)) {
+        return CSHELL;
+    } else if (BINARY_SUFFIXES.includes(suffix)) {
+        return BINARY;
+    } else if (CSV_SUFFIXES.includes(suffix)) {
+        return CSV;
+    } else if (TEXT_PLAIN_SUFFIXES.includes(suffix)) {
+        return TEXT_PLAIN;
+    } else if (TEXT_HTML_SUFFIXES.includes(suffix)) {
+        return TEXT_HTML;
+    } else if (JAVA_JAR_SUFFIXES.includes(suffix)) {
+        return JAVA_JAR;
+    } else if (JAVASCRIPT_SUFFIXES.includes(suffix)) {
+        return JAVASCRIPT;
+    } else if (TYPESCRIPT_SUFFIXES.includes(suffix)) {
+        return TYPESCRIPT;
+    } else if (JSON_SUFFIXES.includes(suffix)) {
+        return JSON;
+    } else if (XHTML_SUFFIXES.includes(suffix)) {
+        return XHTML;
+    } else if (OPEN_DOCUMENT_TEXT_SUFFIXES.includes(suffix)) {
+        return OPEN_DOCUMENT_TEXT;
+    } else if (OPEN_DOCUMENT_CALC_SUFFIXES.includes(suffix)) {
+        return OPEN_DOCUMENT_CALC;
+    } else if (OPEN_DOCUMENT_PRESENTATION_SUFFIXES.includes(suffix)) {
+        return OPEN_DOCUMENT_PRESENTATION;
+    } else {
+        return "";
     }
 }
-
 /* 
     At the moment, preview is available only for images.
     Svg preview has been removed since we use webserver URL instead of blob to make preview, it seems browsers dont accept to display SVG in this case

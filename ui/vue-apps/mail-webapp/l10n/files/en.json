@@ -353,8 +353,9 @@
     "mail.preview.previous": "Show previous attachment",
     "mail.preview.open": "Open the preview",
     "mail.preview.next": "Show next attachment",
-    "mail.preview.nopreview.large": "File too large to preview",
-    "mail.preview.nopreview.type": "Non-previewable file type",
+    "mail.preview.nopreview.large": "This file is too large to preview",
+    "mail.preview.nopreview.type": "This type of file is not previewable",
+    "mail.preview.nopreview.invalid": "This shared link is invalid",
     "mail.preview.nopreview": "Non-previewable file",
     "mail.search.options.folder.current": "This folder",
     "mail.search.options.folder.label": "Search in",
@@ -466,6 +467,7 @@
             }
         },
         "filehosting": {
+            "from_drive": "Attach from Drive",
             "share": {
                 "start": "Send a shared link | Send shared links",
                 "stop": "Stop the sending",
@@ -488,6 +490,7 @@
             },
             "link": "I have linked a file to this message | I have linked files to this message",
             "expiration_date": "Expires on {date}",
+            "expired": "expired",
             "very_large_file": "very large file"
         },
         "rename_folder": {

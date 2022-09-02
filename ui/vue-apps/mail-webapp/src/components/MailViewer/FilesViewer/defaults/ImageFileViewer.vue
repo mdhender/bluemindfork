@@ -4,8 +4,8 @@
 </template>
 <script>
 import { BmSkeletonImg } from "@bluemind/styleguide";
-
 import FileViewerMixin from "../FileViewerMixin";
+
 export default {
     name: "ImageFileViewer",
     components: { BmSkeletonImg },

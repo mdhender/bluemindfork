@@ -10,22 +10,9 @@
             :message="message"
             :file="{ ...file, url: src }"
         />
-        <div v-else-if="!isViewable(file)" class="no-preview center">
-            <div class="file-type"><bm-icon :icon="matchingIcon" size="3xl" /></div>
-            <span class="text">{{ $t("mail.preview.nopreview.type") }}</span>
-        </div>
-        <div v-else-if="isLarge" class="no-preview center">
-            <div class="mb-3"><bm-icon icon="weight" size="3xl" /></div>
-            <span class="text">{{ $t("mail.preview.nopreview.large") }}</span>
-        </div>
-        <div v-else-if="hasBlockedRemoteContent" class="blocked-preview center">
-            <bm-icon icon="exclamation-circle" size="3xl" />
-        </div>
-
-        <div v-else class="no-preview center">
-            <div class="mb-3"><bm-icon icon="spam" size="3xl" /></div>
-            <span class="text">{{ $t("mail.preview.nopreview") }}</span>
-        </div>
+        <bm-extension v-else id="webapp.mail" type="decorator" path="preview.file.fallback" :file="file">
+            <preview-file-content-fallback :file="file" />
+        </bm-extension>
     </div>
 </template>
 
@@ -33,18 +20,20 @@
 import { mapActions, mapState } from "vuex";
 import { BmExtension } from "@bluemind/extensions.vue";
 import { BmAlertArea, BmIcon } from "@bluemind/styleguide";
-import { partUtils } from "@bluemind/mail";
+import { partUtils, fileUtils } from "@bluemind/mail";
 import { REMOVE } from "@bluemind/alert.store";
 import { MimeType } from "@bluemind/email";
 
 import { PreviewMixin } from "~/mixins";
 import FileViewerFacade from "../../MailViewer/FilesViewer/FileViewerFacade";
+import PreviewFileContentFallback from "./PreviewFileContentFallback/PreviewFileContentFallback";
 
 const { isViewable } = partUtils;
+const { FileStatus } = fileUtils;
 
 export default {
     name: "PreviewFileContent",
-    components: { BmAlertArea, BmExtension, BmIcon, FileViewerFacade },
+    components: { BmAlertArea, BmExtension, BmIcon, FileViewerFacade, PreviewFileContentFallback },
     mixins: [PreviewMixin],
     props: {
         message: {
@@ -104,7 +93,9 @@ export default {
             if (!url || this.hasBlockedRemoteContent || !this.isAllowedToPreview) {
                 return null;
             } else {
-                return this.hasRemoteContent && !MimeType.isImage(file) ? this.getBlobUrl(url) : url;
+                return this.hasRemoteContent && !(MimeType.isImage(file) && file.status !== FileStatus.INVALID)
+                    ? this.getBlobUrl(url)
+                    : url;
             }
         },
         isViewable
@@ -138,32 +129,12 @@ export default {
             padding: $sp-4;
         }
     }
+    .bm-extension {
+        height: 100%;
+    }
     .bm-alert-area {
         position: absolute;
         width: 100%;
-    }
-
-    .blocked-preview {
-        color: $lowest;
-        background-color: $neutral-bg;
-        height: 100%;
-    }
-    .center {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-    .no-preview {
-        color: $fill-neutral-fg-lo1;
-        height: 100%;
-        .text {
-            color: $fill-neutral-fg;
-        }
-        .file-type > svg {
-            color: $highest;
-            background-color: $neutral-bg;
-        }
     }
 }
 </style>

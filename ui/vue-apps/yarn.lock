@@ -1145,6 +1145,13 @@
   dependencies:
     axios "^0.18.0"
 
+"@bluemind/filehosting.api@^4.1.0":
+  version "4.1.64127"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/filehosting.api/-/filehosting.api-4.1.64127.tgz#651daab4ed4d18ffb117af683a2dd2f387f3a9d2"
+  integrity sha512-b+JnzMj0so4wXn4p0UcZCy56bwzDCa0RogKn74GaQrY0X1uHKgSWyxuzvB0M0QduuxFJ3D7dmBV9Hl4AhuJ36g==
+  dependencies:
+    axios "^0.18.0"
+
 "@bluemind/mailbox.api@^4.1.0":
   version "4.1.54799"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/mailbox.api/-/mailbox.api-4.1.54799.tgz#9e86e75102cf68af55cc295044518827f6792edb"

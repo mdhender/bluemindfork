@@ -8,12 +8,16 @@ const { FileStatus } = file;
 
 export function create(part, status) {
     const progress = status === FileStatus.NOT_LOADED ? { loaded: 0, total: 100 } : { loaded: 100, total: 100 };
-    if (!part.fileName) {
-        part.fileName = inject("i18n").t("mail.attachment.untitled", { mimeType: part.mime });
+    const filename = part.fileName
+        ? part.fileName
+        : inject("i18n").t("mail.attachment.untitled", { mimeType: part.mime });
+
+    let mime = part.mime;
+    const mimeFromExtension = mime === "application/octet-stream" && getTypeFromExtension(filename);
+    if (mimeFromExtension) {
+        mime = mimeFromExtension;
     }
-    if (part.mime === "application/octet-stream" && part.fileName && getTypeFromExtension(part.fileName)) {
-        part.mime = getTypeFromExtension(part.fileName);
-    }
+
     const headers = part.headers ? [...getAttachmentHeaders(part), ...part.headers] : getAttachmentHeaders(part);
 
     let attachment = {
@@ -21,6 +25,8 @@ export function create(part, status) {
         progress,
         status,
         ...part,
+        filename,
+        mime,
         headers
     };
     return attachment;

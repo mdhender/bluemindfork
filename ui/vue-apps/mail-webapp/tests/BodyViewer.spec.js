@@ -1,7 +1,12 @@
 import flushPromises from "flush-promises";
 import inject from "@bluemind/inject";
+import { MockI18NProvider } from "@bluemind/test-utils";
 
 inject.register({ provide: "UserSession", factory: () => ({ roles: "" }) });
+const vueI18n = inject.register({ provide: "i18n", factory: () => MockI18NProvider });
+vueI18n.t = jest.fn().mockImplementation(() => {
+    return "Untitled";
+});
 
 import { createStore, createWrapper } from "./testUtils";
 import BodyViewer from "../src/components/MailViewer/BodyViewer";
@@ -43,8 +48,7 @@ describe("BodyViewer.spec", () => {
         ];
         const wrapper = mountComponent(inlinePartsByCapabilities);
         await flushPromises();
-
-        expect(wrapper.vm.attachments.length).toBe(1);
+        expect(wrapper.vm.files.length).toBe(1);
         expect(wrapper.props().message.attachments.length).toBe(0);
 
         // if message key, localAttachments are cleaned
@@ -56,7 +60,7 @@ describe("BodyViewer.spec", () => {
         wrapper.setProps({ message: clonedMessage });
         await flushPromises();
 
-        expect(wrapper.vm.attachments.length).toBe(0);
+        expect(wrapper.vm.files.length).toBe(0);
         expect(wrapper.props().message.attachments.length).toBe(0);
     });
 });

@@ -96,6 +96,7 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/mixins";
+@import "~@bluemind/styleguide/css/_variables";
 
 .mail-folder-icon.bm-label-icon {
     & > div {

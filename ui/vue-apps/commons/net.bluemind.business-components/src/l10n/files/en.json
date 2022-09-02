@@ -1,0 +1,19 @@
+{
+	"chooser": {
+            "attach": {
+                "as_attachments": "Attach as an attachment | Attach as attachments",
+                "as_links":  "Attach as a shared link | Attach as shared links"
+            },
+            "choose": "Select files to insert as Drive links",
+            "insert_as": "insert as",
+            "link": "Drive link",
+            "search": {
+                "no_results": "No file name containing \"{pattern}\" was found"
+            },
+            "too_heavy": {
+                "attachment": "The selection is too large to be inserted as an attachment",
+                "link": "The selection is too large to be inserted as a shared link"
+            },
+            "many_files": "Many files are selected"
+    }
+}

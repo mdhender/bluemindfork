@@ -43,17 +43,20 @@ describe("BmExtension switch to right extension type", () => {
 
         mapExtensions.mockReturnValue({ extensions: [{ name: "extension-one", path: "dummy-path" }] });
         Cache.clear();
-    }),
-        test("to create a BmExtensionDecorator", () => {
-            const wrapper = mount(BmExtension, {
-                propsData: {
-                    id: "test.dummy.id",
-                    path: "dummy-element",
-                    type: "decorator"
-                }
-            });
-            expect(wrapper.findAllComponents(BmExtensionDecorator).length).toBe(1);
+    });
+    test("to create a BmExtensionDecorator", () => {
+        const wrapper = mount(BmExtension, {
+            propsData: {
+                id: "test.dummy.id",
+                path: "dummy-element",
+                type: "decorator"
+            },
+            scopedSlots: {
+                default: `inner slot`
+            }
         });
+        expect(wrapper.findAllComponents(BmExtensionDecorator).length).toBe(1);
+    });
     test("to create a BmExtensionList", () => {
         const wrapper = mount(BmExtension, {
             propsData: {

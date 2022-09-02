@@ -353,9 +353,9 @@
     "mail.preview.previous": "Afficher la pièce jointe précédente",
     "mail.preview.open": "Ouvrir l'aperçu",
     "mail.preview.next": "Afficher la pièce jointe suivante",
-    "mail.preview.nopreview.large": "Fichier trop volumineux pour être prévisualisé",
-    "mail.preview.nopreview.type": "Type de fichier non prévisualisable",
-    "mail.preview.nopreview": "Fichier non prévisualisable",
+    "mail.preview.nopreview.large": "Ce fichier est trop volumineux pour être prévisualisé",
+    "mail.preview.nopreview.type": "Ce type de fichier n'est pas prévisualisable",
+    "mail.preview.nopreview.invalid": "Le lien partagé est invalide",
     "mail.search.options.folder.current": "Ce dossier",
     "mail.search.options.folder.label": "Rechercher dans",
     "mail.selection.alert.readonly": "Certains message sélectionnés sont en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles",
@@ -466,6 +466,7 @@
             }
         },
         "filehosting": {
+            "from_drive": "Joindre depuis le Drive",
             "share": {
                 "start": "Envoyer un lien partagé | Envoyer des liens partagés",
                 "stop": "Arrêter l'envoi",
@@ -487,6 +488,7 @@
                 "failed": "échec de l'import"
             },
             "expiration_date": "Expire le {date}",
+            "expired": "expiré",
             "link": "J'ai lié un fichier à ce message | J'ai lié des fichiers à ce message",
             "very_large_file": "fichier très volumineux"
         },

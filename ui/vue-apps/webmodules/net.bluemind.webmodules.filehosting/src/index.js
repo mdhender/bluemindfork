@@ -7,12 +7,16 @@ import FileHostingStore from "./store/";
 import AddAttachmentsHandler from "~/handlers/AddAttachmentsHandler";
 import RemoveAttachmentHandler from "~/handlers/RemoveAttachmentHandler";
 import RenderlessFileItem from "~/components/RenderlessFileItem";
+import PreviewInvalid from "~/components/PreviewInvalid";
 import CloudIcon from "~/components/CloudIcon";
 import DetachButton from "~/components/DetachButton";
+import ChooserButton from "~/components/ChooserButton";
 
 Vue.component("fh-renderless-file-item", RenderlessFileItem);
 Vue.component("cloud-icon", CloudIcon);
 Vue.component("detach-button", DetachButton);
+Vue.component("chooser-button", ChooserButton);
+Vue.component("preview-invalid", PreviewInvalid);
 
 extensions.register("webapp", "net.bluemind.webmodules.filehosting", {
     command: {
@@ -51,6 +55,19 @@ extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
         name: "detach-button",
         path: "composer.footer.toolbar",
         role: "canRemoteAttach"
+    }
+});
+extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting.drive", {
+    component: {
+        name: "chooser-button",
+        path: "composer.footer.toolbar",
+        role: "canUseFilehosting"
+    }
+});
+extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
+    component: {
+        name: "preview-invalid",
+        path: "preview.file.fallback"
     }
 });
 

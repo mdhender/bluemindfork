@@ -1,0 +1,19 @@
+{
+	"chooser": {
+            "attach": {
+                "as_attachments": "Joindre en tant que pièce jointe | Joindre en tant que pièces jointes",
+                "as_links":  "Joindre en tant que lien partagé | Joindre en tant que liens partagés"
+            },
+            "choose": "Sélectionnez des fichers à insérer en tant que lien drive",
+            "insert_as": "insérer en tant que",
+            "link": "Lien Drive",
+            "search": {
+                "no_results": "Aucun nom de fichier contenant \"{pattern}\" n'a été trouvé"
+            },
+            "too_heavy": {
+                "attachment": "La sélection est trop volumineuse pour être insérée en tant que pièce jointe",
+                "link": "La sélection est trop volumineuse pour être insérée en tant que lien partagé"
+            },
+            "many_files": "De nombreux fichiers sont sélectionnés"
+    }
+}

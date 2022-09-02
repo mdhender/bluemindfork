@@ -1,0 +1,19 @@
+{
+	"chooser": {
+		"attach": {
+			"as_attachments": "Als Anhang anhängen | Als Anhänge anfügen",
+			"as_links":  "Als gemeinsamen Link anhängen | Als gemeinsame Links anhängen"
+		},
+		"choose": "Wählen Sie Dateien aus, die als Drive-Links eingefügt werden sollen",
+		"insert_as": "einfügen als",
+		"link": "Drive-Link",
+		"search": {
+			"no_results": "Es wurden keine Dateinamen mit \"{pattern}\" gefunden"
+		},
+		"too_heavy": {
+			"attachment": "Die Auswahl ist zu groß, um als Anhang eingefügt zu werden",
+			"link": "Die Auswahl ist zu groß, um als gemeinsamer Link eingefügt zu werden"
+		},
+		"many_files": "Viele Dateien werden ausgewählt"
+	}
+}
