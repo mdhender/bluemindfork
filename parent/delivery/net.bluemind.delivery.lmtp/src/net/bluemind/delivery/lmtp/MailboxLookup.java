@@ -62,6 +62,10 @@ public class MailboxLookup {
 	public ResolvedBox lookupEmail(String recipient) {
 
 		Mailbox m4jBox = LenientAddressBuilder.DEFAULT.parseMailbox(recipient);
+		if (m4jBox == null) {
+			logger.warn("Cannot parse '{}'", m4jBox);
+			return null;
+		}
 		IDomains domApi = sp.instance(IDomains.class);
 		ItemValue<Domain> dom = domApi.findByNameOrAliases(m4jBox.getDomain());
 		if (dom == null) {
@@ -73,7 +77,7 @@ public class MailboxLookup {
 			return null;
 		}
 		IMailboxes mboxApi = sp.instance(IMailboxes.class, dom.uid);
-		logger.info("Lookup {}@{} ({})", entry.entryUid, dom.uid, entry.email);
+		logger.debug("Lookup {}@{} ({})", entry.entryUid, dom.uid, entry.email);
 		ItemValue<net.bluemind.mailbox.api.Mailbox> mailbox = mboxApi.getComplete(entry.entryUid);
 		if (mailbox == null) {
 			return null;

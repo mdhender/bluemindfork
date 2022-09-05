@@ -142,7 +142,7 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 		IDbMessageBodies bodiesUpload = prov.system().instance(IDbMessageBodies.class, partition);
 		Stream stream = VertxStream.stream(Buffer.buffer(mmap));
 		bodiesUpload.create(hash.toString(), stream);
-		logger.info("Body {} uploaded.", hash);
+		logger.debug("Body {} uploaded.", hash);
 
 		AppendTx appendTx = treeApi.prepareAppend(rootFolder.internalId, 1);
 		MailboxRecord rec = new MailboxRecord();
@@ -162,20 +162,20 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 	private ByteBuf applyFilters(String from, ResolvedBox tgtBox, Path tmp, long size) throws IOException {
 		List<IMessageFilter> filters = LmtpFilters.get();
 		ByteBuf mmap = mmapBuffer(tmp, size);
-		logger.info("Start filtering of {} with {} filter(s)", mmap, filters.size());
+		if (logger.isDebugEnabled()) {
+			logger.debug("Start filtering of {} with {} filter(s)", mmap, filters.size());
+		}
 		try (Message msg = Mime4JHelper.parse(new ByteBufInputStream(mmap.duplicate()))) {
 			Message cur = msg;
 			boolean modified = false;
 			LmtpEnvelope le = new LmtpEnvelope(from, Collections.singletonList(tgtBox));
 			for (IMessageFilter f : filters) {
-				logger.info("Running {}....", f);
 				Message fresh = f.filter(le, cur, size);
-				logger.info("Filtering with {}, cur: {}, fresh: {}", f, cur, fresh);
 				if (fresh != null) {
 					modified = true;
-					logger.info("Marking message {} as modified", msg);
+					logger.info("Marking message {} as modified by {}", msg, f);
 					if (fresh != cur) {
-						logger.info("Dispose {}, swap to {}", cur, fresh);
+						logger.debug("Dispose {}, swap to {}", cur, fresh);
 						cur.dispose();
 						cur = fresh;
 					}
@@ -186,7 +186,6 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 				try (ByteBufOutputStream out = new ByteBufOutputStream(freshBuf)) {
 					Mime4JHelper.serialize(cur, out);
 				}
-				logger.info("Swapping old {} with {} after filtering", mmap, freshBuf);
 				mmap = freshBuf;
 			}
 		} catch (PermissionDeniedException pde) {
@@ -198,7 +197,7 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 			// we have the original buffer to deliver
 			logger.error("Filtering error, keeping the original one", e);
 		}
-		logger.info("Return {} for delivery", mmap);
+		logger.debug("Return {} for delivery", mmap);
 		return mmap;
 	}
 

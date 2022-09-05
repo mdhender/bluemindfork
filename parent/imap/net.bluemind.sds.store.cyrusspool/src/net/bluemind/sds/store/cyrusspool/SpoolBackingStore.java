@@ -17,11 +17,11 @@
  */
 package net.bluemind.sds.store.cyrusspool;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
@@ -38,7 +38,9 @@ import com.github.luben.zstd.ZstdOutputStream;
 import com.google.common.collect.Iterators;
 import com.google.common.io.ByteStreams;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.Vertx;
 import net.bluemind.backend.cyrus.partitions.CyrusFileSystemPathHelper;
@@ -86,21 +88,17 @@ public class SpoolBackingStore implements ISdsBackingStore {
 	public CompletableFuture<SdsResponse> upload(PutRequest req) {
 		String target = livePath(req.guid);
 		INodeClient nc = NodeActivator.get(roundRobin.next().value.address());
-		Path zstFile;
-		try {
-			zstFile = Files.createTempFile("eml", ".zst");
-		} catch (IOException e) {
-			return exception(e);
-		}
+
+		ByteBuf bb = Unpooled.directBuffer(2 * (int) new File(req.filename).length());
 		try (InputStream input = Files.newInputStream(Paths.get(req.filename));
-				OutputStream zst = new ZstdOutputStream(Files.newOutputStream(zstFile), RecyclingBufferPool.INSTANCE,
-						-3)) {
+				ByteBufOutputStream bbo = new ByteBufOutputStream(bb);
+				OutputStream zst = new ZstdOutputStream(bbo, RecyclingBufferPool.INSTANCE, -3)) {
 			long copied = ByteStreams.copy(input, zst);
 			logger.info("Compressed {}byte(s) for {}", copied, req.guid);
 		} catch (IOException e) {
 			return exception(e);
 		}
-		try (InputStream input = Files.newInputStream(zstFile)) {
+		try (InputStream input = new ByteBufInputStream(bb, true)) {
 			nc.writeFile(target, input);
 			return CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
 		} catch (IOException e) {
