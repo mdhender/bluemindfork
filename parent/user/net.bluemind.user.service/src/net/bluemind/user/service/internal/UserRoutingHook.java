@@ -37,16 +37,23 @@ import net.bluemind.user.hook.IUserHook;
 public class UserRoutingHook extends DefaultUserHook implements IUserHook {
 
 	@Override
+	public void beforeCreate(BmContext context, String domainUid, String uid, User user) throws ServerFault {
+		validateRouting(domainUid, user);
+	}
+
+	@Override
 	public void beforeUpdate(BmContext context, String domainUid, String uid, User update, User previous)
 			throws ServerFault {
+		validateRouting(domainUid, update);
+	}
 
+	private void validateRouting(String domainUid, User update) {
 		if (update.routing == Mailbox.Routing.external) {
 			String splitRelayHost = DomainSettingsHelper.getSlaveRelayHost(getSettingsService(domainUid));
 			if (splitRelayHost == null || splitRelayHost.trim().isEmpty()) {
 				throw new ServerFault("Routing is external but no split relay is defined", ErrorCode.INVALID_HOST_NAME);
 			}
 		}
-
 	}
 
 	private IDomainSettings getSettingsService(String domainUid) throws ServerFault {

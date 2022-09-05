@@ -633,6 +633,18 @@ public class UserServiceTests {
 	}
 
 	@Test
+	public void testCreating_UsingExternalRoutingWithInvalidSplitRelay_ShouldFail() throws Exception {
+		User user = defaultUser("test." + System.nanoTime());
+		user.routing = Routing.external;
+		try {
+			getService(domainAdminSecurityContext).create(UUID.randomUUID().toString(), user);
+			fail();
+		} catch (Exception e) {
+
+		}
+	}
+
+	@Test
 	public void testUpdateMaintainsPassword() throws ServerFault, SQLException {
 		String login = "test." + System.nanoTime();
 		User user = defaultUser(login);
