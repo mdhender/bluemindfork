@@ -19,6 +19,7 @@
 package net.bluemind.core.jdbc;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -27,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JdbcHelper {
+	private JdbcHelper() {
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(JdbcHelper.class);
 
@@ -52,4 +55,26 @@ public class JdbcHelper {
 
 	}
 
+	public static void enableAutoExplain(Connection con, int minimumDurationMillis) throws SQLException {
+		try (Statement st = con.createStatement()) {
+			st.execute("LOAD 'auto_explain'");
+			st.execute("set auto_explain.log_min_duration TO " + minimumDurationMillis);
+			st.execute("set auto_explain.log_level TO notice");
+			st.execute("set auto_explain.log_analyze to on");
+			st.execute("set auto_explain.log_verbose to on");
+			st.execute("set auto_explain.log_triggers to on");
+			st.execute("set auto_explain.log_nested_statement to on");
+			st.execute("set auto_explain.log_timing to on");
+		}
+	}
+
+	public static boolean tableExists(Connection con, String tableName) throws SQLException {
+		try (PreparedStatement st = con
+				.prepareStatement("SELECT 1 FROM information_schema.tables WHERE table_name = ?")) {
+			st.setString(1, tableName);
+			try (ResultSet rs = st.executeQuery()) {
+				return rs.next();
+			}
+		}
+	}
 }

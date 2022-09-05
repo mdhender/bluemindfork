@@ -32,6 +32,8 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import javax.sql.DataSource;
+
 import org.junit.After;
 import org.junit.Before;
 
@@ -67,6 +69,7 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 	protected String partition;
 	protected MailboxReplicaRootDescriptor mboxDescriptor;
 	protected String dom;
+	protected DataSource datasource;
 
 	protected Vertx vertx;
 
@@ -88,15 +91,14 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 		dom = "vagrant" + System.currentTimeMillis() + ".vmw";
 
 		partition = "dataloc__" + dom.replace('.', '_');
-		JdbcActivator.getInstance().addMailboxDataSource("dataloc",
-				JdbcTestHelper.getInstance().getMailboxDataDataSource());
+		datasource = JdbcTestHelper.getInstance().getMailboxDataDataSource();
+		JdbcActivator.getInstance().addMailboxDataSource("dataloc", datasource);
 		mboxUniqueId = MailboxUniqueId.random();
 		mboxUniqueId2 = MailboxUniqueId.random();
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 		BmTestContext testContext = new BmTestContext(securityContext);
 
-		ContainerStore containerHome = new ContainerStore(testContext,
-				JdbcTestHelper.getInstance().getMailboxDataDataSource(), securityContext);
+		ContainerStore containerHome = new ContainerStore(testContext, datasource, securityContext);
 
 		Subtree subtreeId = SubtreeContainer.mailSubtreeUid(dom, Namespace.users, "me");
 		ContainerStore dirHome = new ContainerStore(testContext, JdbcTestHelper.getInstance().getDataSource(),
@@ -117,10 +119,8 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 		acl = containerHome.create(acl);
 		dirHome.createOrUpdateContainerLocation(container, "dataloc");
 
-		MailboxReplicaStore mboxStore = new MailboxReplicaStore(JdbcTestHelper.getInstance().getMailboxDataDataSource(),
-				container, dom);
-		ItemStore items = new ItemStore(JdbcTestHelper.getInstance().getMailboxDataDataSource(), container,
-				securityContext);
+		MailboxReplicaStore mboxStore = new MailboxReplicaStore(datasource, container, dom);
+		ItemStore items = new ItemStore(datasource, container, securityContext);
 		Item mboxRef = items.create(Item.create(mboxUniqueId, null));
 		assertNotNull("failed to create replicated mbox item", mboxRef);
 		MailboxReplica replica = new MailboxReplica();

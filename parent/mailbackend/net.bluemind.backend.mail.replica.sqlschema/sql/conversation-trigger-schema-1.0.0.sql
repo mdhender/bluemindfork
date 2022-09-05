@@ -1,229 +1,404 @@
+CREATE OR REPLACE VIEW view_conversation_get_message_body_data AS
+    SELECT
+        guid,
+        regexp_replace(unaccent(subject), '^([\W]*|re\s*:)+', '', 'i') AS subject,
+        jsonb_path_query(recipients, '$[*] ? (@.kind == "Originator")') ->> 'address' AS sender,
+        size
+    FROM t_message_body;
 
-CREATE OR REPLACE VIEW view_conversation_get_message_body_data AS 
-    SELECT 
-        REGEXP_REPLACE(subject, '^([\W_]*|re\s*:)+', '', 'i') as subject, address as sender, size, guid
-    FROM 
-        t_message_body 
-    CROSS JOIN LATERAL 
-        jsonb_to_recordset(recipients) AS rcpt(kind TEXT, address TEXT)
-    WHERE 
-        kind = 'Originator';
+CREATE OR REPLACE VIEW view_conversation_by_mailbox_record AS
+    SELECT
+        container_id,
+        conversation_id,
+        bit_OR(system_flags) & 2 = 2 AS flagged,
+        bit_OR(-(system_flags + 1)) & 16 = 16 AS unseen,
+        max(internal_date) AS "date",
+        min(internal_date) AS first
+    FROM t_mailbox_record
+    WHERE system_flags::bit(32) & 4::bit(32) = 0::bit(32)
+    GROUP BY container_id, conversation_id;
 
-CREATE OR REPLACE FUNCTION fct_conversation_get_first_mailrecord(p_containerid integer, p_conversationid bigint) RETURNS RECORD
-  LANGUAGE plpgsql
+CREATE OR REPLACE VIEW view_conversation_get_conversation AS
+    SELECT folder_id, conversation_id, "date", first, size, unseen, flagged
+    FROM v_conversation_by_folder;
+
+
+CREATE OR REPLACE FUNCTION fct_conversation_get_first_mailrecord(p_containerid integer, p_conversationid bigint)
+    RETURNS RECORD
+    LANGUAGE plpgsql
 AS $$
 DECLARE
     FIRST record;
     BODY record;
     DATA record;
 BEGIN
-        SELECT 
-            message_body_guid, internal_date 
-        FROM 
-            t_mailbox_record 
-        INTO 
-            FIRST
-        WHERE 
-            container_id = p_containerid
-        AND 
-            conversation_id = p_conversationid
-        AND
-            system_flags::bit(32) & 4::bit(32) = 0::bit(32)
-        ORDER BY 
-            internal_date
-        LIMIT 1;
-
-        SELECT 
-            subject, sender, size 
-        FROM
-            view_conversation_get_message_body_data
-        WHERE 
-            guid = FIRST.message_body_guid
-        INTO BODY;
-
-        SELECT 
-            BODY.subject as subject, BODY.sender as sender, BODY.size as size, FIRST.internal_date as date
-        INTO DATA;
-
-        RETURN DATA ;
-END;
-$$;
-
-CREATE OR REPLACE VIEW view_conversation_get_mailrecord_data AS 
-    SELECT 
-      container_id, 
-      conversation_id, 
-      bit_OR(system_flags) & 2 = 2 as flagged,
-      bit_OR(-(system_flags + 1)) & 16 = 16 as unseen,
-      max(internal_date) as date,
-      min(internal_date) as first
-    FROM
-      t_mailbox_record 
-    WHERE
-      system_flags::bit(32) & 4::bit(32) = 0::bit(32)
-    GROUP BY container_id, conversation_id;
-
-CREATE OR REPLACE VIEW view_conversation_get_conversation AS 
-     SELECT 
-        folder_id, conversation_id, date, first, size, unseen, flagged 
-    FROM 
-        v_conversation_by_folder;
-
-CREATE OR REPLACE VIEW view_conversation_get_biggest_body_size AS 
-    SELECT 
-        container_id, conversation_id, size 
-    FROM 
-        t_mailbox_record 
-    JOIN 
-        t_message_body on guid = message_body_guid
-    WHERE
-        system_flags::bit(32) & 4::bit(32) = 0::bit(32)
-    ORDER BY 
-        size DESC
+    SELECT message_body_guid, internal_date
+    FROM t_mailbox_record
+    INTO FIRST
+    WHERE container_id = p_containerid
+    AND conversation_id = p_conversationid
+    AND system_flags::bit(32) & 4::bit(32) = 0::bit(32)
+    ORDER BY internal_date ASC, item_id ASC
     LIMIT 1;
 
-
-CREATE OR REPLACE FUNCTION v_conversation_by_folder_add() RETURNS TRIGGER
-  LANGUAGE plpgsql
-AS $$
-DECLARE
-  body record;
-BEGIN
-    SELECT 
-        subject, sender, size
-    FROM 
-        view_conversation_get_message_body_data
-    WHERE
-        guid = NEW.message_body_guid
-    INTO body;
-    
-    INSERT INTO
-      v_conversation_by_folder (folder_id, conversation_id, date, first, size, subject, sender, unseen, flagged)
-    VALUES
-      (NEW.container_id, NEW.conversation_id, NEW.internal_date, NEW.internal_date, body.size, body.subject, body.sender, NEW.system_flags & 16 != 16,  NEW.system_flags & 2 = 2)
-    ON CONFLICT (folder_id, conversation_id) DO UPDATE
-      SET
-        date = (select greatest(v_conversation_by_folder.date, EXCLUDED.date)),
-        first = (select LEAST(v_conversation_by_folder.first, EXCLUDED.first)),
-        size = (select greatest(v_conversation_by_folder.size, EXCLUDED.size)),
-        subject = (CASE WHEN EXCLUDED.first < v_conversation_by_folder.first THEN body.subject ELSE v_conversation_by_folder.subject END), 
-        sender = (CASE WHEN EXCLUDED.first < v_conversation_by_folder.first THEN body.sender ELSE v_conversation_by_folder.sender END),
-        unseen = (EXCLUDED.unseen OR v_conversation_by_folder.unseen),
-        flagged = (EXCLUDED.flagged OR v_conversation_by_folder.flagged);
-
-    return NEW;
+    SELECT subject, sender, size
+    FROM view_conversation_get_message_body_data
+    WHERE guid = FIRST.message_body_guid
+    INTO BODY;
+    SELECT
+        BODY.subject AS subject,
+        BODY.sender AS sender,
+        BODY.size AS size,
+        FIRST.internal_date AS "date"
+    INTO DATA;
+    RETURN DATA;
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION v_conversation_by_folder_update() RETURNS TRIGGER
-  LANGUAGE plpgsql
+
+CREATE OR REPLACE FUNCTION fct_conversation_get_last_mailrecord(p_containerid integer, p_conversationid bigint)
+    RETURNS RECORD
+    LANGUAGE plpgsql
 AS $$
 DECLARE
-    EXISTING record;
-    CURRENT record;
+    LAST record;
     BODY record;
-    OLD_BODY_SIZE integer;
+    DATA record;
+BEGIN
+    SELECT message_body_guid, internal_date
+    FROM t_mailbox_record
+    INTO LAST
+    WHERE container_id = p_containerid
+    AND conversation_id = p_conversationid
+    AND system_flags::bit(32) & 4::bit(32) = 0::bit(32)
+    ORDER BY internal_date DESC, item_id DESC
+    LIMIT 1;
+
+    SELECT subject, sender, size
+    FROM view_conversation_get_message_body_data
+    WHERE guid = LAST.message_body_guid
+    INTO BODY;
+    SELECT
+        BODY.subject AS subject,
+        BODY.sender AS sender,
+        BODY.size AS size,
+        LAST.internal_date AS "date"
+    INTO DATA;
+    RETURN DATA;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION v_conversation_by_folder_add(new_record t_mailbox_record)
+    RETURNS t_mailbox_record LANGUAGE plpgsql AS $$
+DECLARE
+    body record;
+BEGIN
+    SELECT subject, sender, size
+    FROM view_conversation_get_message_body_data
+    WHERE guid = new_record.message_body_guid
+    INTO body;
+
+    -- The logic explained, we want:
+    -- - first timestamp of a message in a conversation
+    -- - the last sender
+    -- - the FIRST subject, without "Re:" prefix
+    -- - the biggest message size
+    -- - know if a message is unseen, or flagged
+    --
+    -- EXCLUDED is the row we just tried to insert (so it matches the message we try to add)
+    -- We also check if the sender / subject is non empty, avoiding to overwrite
+    -- a perfectly good subject/sender by a bad one
+
+    INSERT INTO v_conversation_by_folder
+        (
+            folder_id,
+            conversation_id,
+            "date",
+            first,
+            size,
+            subject,
+            sender,
+            unseen,
+            flagged
+        )
+    VALUES
+        (
+            new_record.container_id,
+            new_record.conversation_id,
+            new_record.internal_date,
+            new_record.internal_date,
+            body.size,
+            body.subject,
+            body.sender,
+            new_record.system_flags & 16 != 16,
+            new_record.system_flags & 2 = 2
+        )
+    ON CONFLICT (folder_id, conversation_id) DO UPDATE SET
+        "date" = (select greatest(v_conversation_by_folder.date, EXCLUDED.date)),
+        first = (select LEAST(v_conversation_by_folder.first, EXCLUDED.date)),
+        size = (select greatest(v_conversation_by_folder.size, EXCLUDED.size)),
+        subject = (
+            CASE WHEN (
+                EXCLUDED.date < v_conversation_by_folder.date
+                AND COALESCE(TRIM(body.subject), '') <> ''
+            ) THEN body.subject
+            ELSE v_conversation_by_folder.subject
+            END
+        ),
+        sender = (
+            CASE WHEN (
+                EXCLUDED.date >= v_conversation_by_folder.date
+                AND COALESCE(TRIM(body.sender), '') <> ''
+            ) THEN body.sender
+            ELSE v_conversation_by_folder.sender
+            END
+        ),
+        unseen = (EXCLUDED.unseen OR v_conversation_by_folder.unseen),
+        flagged = (EXCLUDED.flagged OR v_conversation_by_folder.flagged);
+    return new_record;
+END;
+$$;
+
+
+CREATE OR REPLACE FUNCTION v_conversation_by_folder_add_trigger() RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS $$
+DECLARE
+    ret t_mailbox_record;
+BEGIN
+    SELECT v_conversation_by_folder_add(NEW) INTO ret;
+    RETURN ret;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION v_conversation_by_folder_remove(old_record t_mailbox_record, new_record t_mailbox_record)
+    RETURNS t_mailbox_record LANGUAGE plpgsql AS $$
+DECLARE
+    NEW_CONVERSATION record;
+    CURRENT_CONVERSATION record;
+    removed_body_size integer := NULL;
 
     new_sender TEXT := NULL;
     new_subject TEXT := NULL;
     new_size INTEGER := NULL;
- 
+
     new_first timestamp without time zone := NULL;
     new_date timestamp without time zone := NULL;
-    
+
     new_unseen BOOLEAN := NULL;
     new_flagged BOOLEAN := NULL;
 BEGIN
-    SELECT 
-        date, first, size, unseen, flagged 
-    FROM 
-        view_conversation_get_conversation
-    WHERE 
-        folder_id = OLD.container_id
-    AND 
-        conversation_id = OLD.conversation_id
-    INTO CURRENT;
+    -- The trigger is plugged on AFTER DELETE and AFTER UPDATE, so if we query
+    -- t_mailbox_record we get the updated row
+    SELECT "date", first, size, unseen, flagged
+    FROM v_conversation_by_folder
+    WHERE folder_id = old_record.container_id
+    AND conversation_id = old_record.conversation_id
+    INTO CURRENT_CONVERSATION;
 
-    -- BODY has changed (SIZE migth have become bigger) OR MESSAGE date might be the new first MESSAGE
-    IF (OLD.message_body_guid != NEW.message_body_guid OR (OLD.internal_date != CURRENT.first AND NEW.internal_date < CURRENT.first)) THEN
-        SELECT 
-            subject, sender, size
-        FROM 
-            view_conversation_get_message_body_data
-        WHERE
-            guid = NEW.message_body_guid
-        INTO BODY;
+    SELECT size
+    INTO removed_body_size
+    FROM t_message_body
+    WHERE guid = new_record.message_body_guid;
 
-        IF NEW.internal_date <= CURRENT.first THEN
-            new_sender = BODY.sender;
-            new_subject = BODY.subject;
+    -- deleted record was unseen OR flagged OR is the last one
+    IF (
+        old_record.system_flags & 16 != 16
+        OR old_record.system_flags & 2 = 2
+        OR old_record.internal_date = CURRENT_CONVERSATION.date
+    ) THEN
+        -- The logic here is the following:
+        -- If we rebuild the conversation, we don't have any rows not deleted
+        -- then the conversation does not exists anymore.
+        -- Otherwise, just update the unseen / flagged and date fields at this stage
+        SELECT flagged, unseen, "date", first
+        FROM view_conversation_by_mailbox_record
+        WHERE container_id = old_record.container_id
+        AND conversation_id = old_record.conversation_id
+        INTO NEW_CONVERSATION;
+
+        IF (NEW_CONVERSATION IS NULL) THEN
+            DELETE FROM v_conversation_by_folder
+            WHERE folder_id = old_record.container_id
+            AND conversation_id = old_record.conversation_id;
+            -- We removed the conversation, no need to continue further
+            RETURN NULL;
+        ELSE
+            new_unseen = NEW_CONVERSATION.unseen;
+            new_flagged = NEW_CONVERSATION.flagged;
+            new_date = NEW_CONVERSATION.date;
         END IF;
-      
-        IF BODY.size > CURRENT.size THEN
-            new_size = BODY.size;
-        
-        ELSIF OLD.message_body_guid != NEW.message_body_guid AND BODY.size < CURRENT.size THEN
-            SELECT 
-                size
-            FROM 
-                view_conversation_get_message_body_data
-            WHERE
-                guid = OLD.message_body_guid
-            INTO OLD_BODY_SIZE;
-
-            IF OLD_BODY_SIZE IS NULL OR OLD_BODY_SIZE = CURRENT.size THEN
-                SELECT size 
-                FROM view_conversation_get_biggest_body_size 
-                WHERE container_id = OLD.container_id
-                AND conversation_id = OLD.conversation_id
-                INTO new_size;
-            END IF;
-        
-        END IF;
-
-    -- Message might not be the first one anymore => must find new first message
-    ELSIF (OLD.internal_date = CURRENT.first AND NEW.internal_date > OLD.internal_date) THEN
-
-        SELECT 
-            subject, sender, size, date 
-        FROM 
-            fct_conversation_get_first_mailrecord(OLD.container_id, OLD.conversation_id)
-            as (subject text, sender text, size integer, date timestamp)
-        INTO BODY;
-
-        new_sender = BODY.sender;
-        new_subject = BODY.subject;
-        new_first = BODY.date;
-
-        IF BODY.size > CURRENT.size THEN
-            new_size = BODY.size;
-        END IF;
-
     END IF;
 
-    -- Message might not be the last one anymore => must find the last message of conversation
-    -- OR 
-    -- Message is not unseen or flagged anymore => must if there is an unseed or a flagged message in conversation.
-    IF (OLD.system_flags & 16 = 0 AND NEW.system_flags & 16 = 16) 
-    OR (OLD.system_flags & 2 = 2 AND NEW.system_flags & 2 = 0)
-    OR (OLD.internal_date = CURRENT.date AND NEW.internal_date < OLD.internal_date) THEN
-        
-        SELECT  
-            flagged, unseen, date, first 
-        FROM 
-            view_conversation_get_mailrecord_data
-        WHERE
-            container_id = OLD.container_id
-        AND
-            conversation_id = OLD.conversation_id 
-        INTO EXISTING;
+    -- deleted record was the first, we need to find the new first record
+    IF old_record.internal_date = CURRENT_CONVERSATION.first THEN
+        SELECT subject, date
+        INTO new_subject, new_first
+        FROM fct_conversation_get_first_mailrecord(old_record.container_id, old_record.conversation_id)
+                AS (subject text, sender text, size integer, date timestamp);
+    END IF;
 
-        new_unseen = EXISTING.unseen;
-        new_flagged = EXISTING.flagged;
-        new_date = EXISTING.date;
-    
-    -- Message was not the last message of the conversation but is now
-    -- OR
+    -- deleted record was the latest one, so we want to update the sender then
+    IF old_record.internal_date = CURRENT_CONVERSATION.date THEN
+        SELECT sender
+        INTO new_sender
+        FROM fct_conversation_get_last_mailrecord(old_record.container_id, old_record.conversation_id)
+                AS (subject text, sender text, size integer, date timestamp);
+    END IF;
+
+    -- deleted record had the biggest size of the conversation
+    IF (removed_body_size IS NOT NULL AND removed_body_size > CURRENT_CONVERSATION.size) THEN
+        SELECT max(size) AS size
+        INTO new_size
+        FROM t_mailbox_record
+        JOIN t_message_body ON (guid = message_body_guid)
+        WHERE system_flags::bit(32) & 4::bit(32) = 0::bit(32)
+        AND container_id = old_record.container_id
+        AND conversation_id = old_record.conversation_id
+        GROUP BY container_id, conversation_id;
+    END IF;
+
+    IF (
+        new_sender IS NOT NULL
+        OR new_subject IS NOT NULL
+        OR new_size IS NOT NULL
+        OR new_first IS NOT NULL
+        OR new_date IS NOT NULL
+        OR new_unseen IS NOT NULL
+        OR new_flagged IS NOT NULL
+    ) THEN
+        UPDATE v_conversation_by_folder
+        SET
+            date = COALESCE(new_date, v_conversation_by_folder.date),
+            unseen = COALESCE(new_unseen, v_conversation_by_folder.unseen) ,
+            flagged = COALESCE(new_flagged, v_conversation_by_folder.flagged),
+            first = COALESCE(new_first, v_conversation_by_folder.first),
+            size = COALESCE(new_size, v_conversation_by_folder.size),
+            subject = COALESCE(new_subject, v_conversation_by_folder.subject),
+            sender = COALESCE(new_sender, v_conversation_by_folder.sender)
+        WHERE folder_id = old_record.container_id
+        AND conversation_id  = old_record.conversation_id;
+    END IF;
+    RETURN NULL;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION v_conversation_by_folder_remove_trigger() RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS $$
+BEGIN
+    PERFORM v_conversation_by_folder_remove(OLD, NEW);
+    RETURN NULL;
+END;
+$$;
+
+
+CREATE OR REPLACE FUNCTION v_conversation_by_folder_update() RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS $$
+DECLARE
+    EXISTING record;
+    CURRENT_CONVERSATION record;
+    NEW_RECORD_BODY record;
+
+    new_sender TEXT := NULL;
+    new_subject TEXT := NULL;
+    new_size INTEGER := NULL;
+
+    new_first timestamp without time zone := NULL;
+    new_date timestamp without time zone := NULL;
+
+    new_unseen BOOLEAN := NULL;
+    new_flagged BOOLEAN := NULL;
+BEGIN
+    SELECT "date", first, size, unseen, flagged
+    FROM v_conversation_by_folder
+    WHERE folder_id = OLD.container_id
+    AND conversation_id = OLD.conversation_id
+    INTO CURRENT_CONVERSATION;
+
+    -- body has changed, we may update the subject / size / sender depending on the case
+    IF OLD.message_body_guid != NEW.message_body_guid THEN
+        SELECT subject, sender, size
+        FROM view_conversation_get_message_body_data
+        WHERE guid = NEW.message_body_guid
+        INTO NEW_RECORD_BODY;
+        -- We are only interrested if the new body size is bigger than the conversation
+        IF NEW_RECORD_BODY.size > CURRENT_CONVERSATION.size THEN
+            new_size = NEW_RECORD_BODY.size;
+        END IF;
+        -- but, because the body changed, we also might have changed subject
+        -- and sender
+        IF OLD.internal_date = CURRENT_CONVERSATION.date THEN
+            -- We may be the last message in the conversation, so we must update
+            -- the sender
+            new_sender = NEW_RECORD_BODY.sender;
+        END IF;
+        IF OLD.internal_date = CURRENT_CONVERSATION.first THEN
+            -- We may be the first message in the conversation, so we must update
+            -- the subject
+            new_subject = NEW_RECORD_BODY.subject;
+        END IF;
+    END IF;
+
+    -- the date changed, we may re-organize the conversation then
+    IF OLD.internal_date != NEW.internal_date THEN
+        -- We update the date to something "newer"
+        IF NEW.internal_date > OLD.internal_date THEN
+            -- we are the last message now
+            IF NEW.internal_date > CURRENT_CONVERSATION.date THEN
+                -- We need to update the last sender and date of the conversation
+                SELECT NEW.internal_date, subject
+                INTO new_date, new_subject
+                FROM view_conversation_get_message_body_data
+                WHERE guid = NEW.message_body_guid;
+            END IF;
+
+            -- We may not be the first message of the conversation anymore
+            IF OLD.internal_date = CURRENT_CONVERSATION.first THEN
+                SELECT subject, "date"
+                INTO new_subject, new_first
+                FROM
+                    fct_conversation_get_first_mailrecord(OLD.container_id, OLD.conversation_id)
+                    AS (subject text, sender text, size integer, "date" timestamp);
+            END IF;
+
+        -- we update the date to something "older"
+        ELSIF NEW.internal_date < OLD.internal_date THEN
+            -- We now are the first message in the conversation, update first date and subject
+            IF NEW.internal_date < CURRENT_CONVERSATION.first THEN
+                SELECT NEW.internal_date, subject
+                INTO new_first, new_subject
+                FROM view_conversation_get_message_body_data
+                WHERE guid = NEW.message_body_guid;
+            END IF;
+
+            -- we were the last message in the conversation, update the sender and date
+            IF OLD.internal_date = CONRRENT_CONVERSATION.date THEN
+                SELECT sender, "date"
+                INTO new_sender, new_date
+                FROM
+                    fct_conversation_get_last_mailrecord(OLD.container_id, OLD.conversation_id)
+                    AS (subject text, sender text, size integer, "date" timestamp);
+            END IF;
+        END IF;            
+    END IF;
+
+    -- system_flags & 16 = 16 => message is seen
+    -- system_flags & 2 = 2 => message is flagged
+    -- If the old messages was not seen, but now is
+    -- Or the messages was flagged, but is not anymore
+    IF (
+        (OLD.system_flags & 16 = 0 AND NEW.system_flags & 16 = 16)
+        OR (OLD.system_flags & 2 = 2 AND NEW.system_flags & 2 = 0)
+    ) THEN
+        -- rebuild the bit_or flags on the whole conversation
+        SELECT flagged, unseen, date, first
+        INTO new_flagged, new_unseen, new_date
+        FROM view_conversation_by_mailbox_record
+        WHERE container_id = OLD.container_id
+        AND conversation_id = OLD.conversation_id;
+
     -- Message is unseen or flagged and conversation is not
     ELSE
         -- seen -> unseen and current is seen ==> UNSEEN
@@ -234,197 +409,123 @@ BEGIN
         IF (NEW.system_flags & 2 = 2) AND NOT CURRENT.flagged THEN
             new_flagged = true;
         END IF;
-        IF (NEW.internal_date > CURRENT.date) THEN
-            new_date = NEW.internal_date;
-        END IF;
     END IF;
 
-    IF  new_sender IS NOT NULL 
+    IF (
+        new_sender IS NOT NULL
         OR new_subject IS NOT NULL
         OR new_size IS NOT NULL
         OR new_first IS NOT NULL
         OR new_date IS NOT NULL
         OR new_unseen IS NOT NULL
-        OR new_flagged IS NOT NULL THEN
-
+        OR new_flagged IS NOT NULL
+    ) THEN
         UPDATE v_conversation_by_folder
-        SET 
-            date = COALESCE(new_date, v_conversation_by_folder.date),
+        SET
+            "date" = COALESCE(new_date, v_conversation_by_folder.date),
             unseen = COALESCE(new_unseen, v_conversation_by_folder.unseen) ,
-            flagged = COALESCE(new_flagged, v_conversation_by_folder.flagged), 
+            flagged = COALESCE(new_flagged, v_conversation_by_folder.flagged),
             first = COALESCE(new_first, v_conversation_by_folder.first),
             size = COALESCE(new_size, v_conversation_by_folder.size),
-            subject = COALESCE(new_subject, v_conversation_by_folder.subject), 
+            subject = COALESCE(new_subject, v_conversation_by_folder.subject),
             sender = COALESCE(new_sender, v_conversation_by_folder.sender)
         WHERE folder_id = NEW.container_id
-        AND conversation_id  = NEW.conversation_id; 
-
+        AND conversation_id  = NEW.conversation_id;
     END IF;
-
     RETURN NEW;
 END;
 $$;
 
 
-
-CREATE OR REPLACE FUNCTION v_conversation_by_folder_remove() RETURNS TRIGGER
-  LANGUAGE plpgsql
+CREATE OR REPLACE FUNCTION v_conversation_by_folder_conversation_id_changed() RETURNS TRIGGER
+    LANGUAGE plpgsql
 AS $$
 DECLARE
-  EXISTING record;
-  CURRENT record;
-  BODY record;
-  OLD_BODY_SIZE integer;
-
-  new_sender TEXT := NULL;
-  new_subject TEXT := NULL;
-  new_size INTEGER := NULL;
-  
-  new_first timestamp without time zone := NULL;
-  new_date timestamp without time zone := NULL;
-  
-  new_unseen BOOLEAN := NULL;
-  new_flagged BOOLEAN := NULL;
+    ret t_mailbox_record;
 BEGIN
-    SELECT 
-        date, first, size, unseen, flagged 
-    FROM 
-        view_conversation_get_conversation
-    WHERE 
-        folder_id = OLD.container_id
-    AND 
-        conversation_id = OLD.conversation_id
-    INTO CURRENT;
-
-    -- deleted record was unseen OR flagged
-    IF (OLD.system_flags & 16 != 16) OR (OLD.system_flags & 2 = 2) OR OLD.internal_date = CURRENT.date THEN
-        SELECT  
-            flagged, unseen, date, first 
-        FROM 
-            view_conversation_get_mailrecord_data
-        WHERE
-            container_id = OLD.container_id
-        AND
-            conversation_id = OLD.conversation_id 
-        INTO EXISTING;
-
-        IF (EXISTING IS NULL) THEN
-            DELETE FROM v_conversation_by_folder WHERE folder_id = OLD.container_id AND conversation_id = OLD.conversation_id;
-            RETURN NULL;
-        ELSE
-            new_unseen = EXISTING.unseen;
-            new_flagged = EXISTING.flagged;
-            new_date = EXISTING.date;
-        END IF;
-    END IF;
-
-    -- deleted record was the first
-    IF OLD.internal_date = CURRENT.first THEN
-        SELECT 
-            subject, sender, size, date 
-        FROM 
-            fct_conversation_get_first_mailrecord(OLD.container_id, OLD.conversation_id)
-            as (subject text, sender text, size integer, date timestamp)
-        INTO BODY;
-
-        new_sender = BODY.sender;
-        new_subject = BODY.subject;
-        new_first = BODY.date;
-
-        IF BODY.size > CURRENT.size THEN
-            new_size = BODY.size;
-        END IF;
-    
-    END IF;
-
-    -- deleted record has the bigger body size
-    SELECT 
-        size
-    FROM 
-        view_conversation_get_message_body_data
-    WHERE
-        guid = OLD.message_body_guid
-    INTO OLD_BODY_SIZE;
-
-    IF OLD_BODY_SIZE IS NULL OR OLD_BODY_SIZE = CURRENT.size THEN
-        SELECT size 
-        FROM view_conversation_get_biggest_body_size 
-        WHERE container_id = OLD.container_id
-        AND conversation_id = OLD.conversation_id
-        INTO new_size;
-    END IF;
-    
-
-    IF  new_sender IS NOT NULL 
-        OR new_subject IS NOT NULL
-        OR new_size IS NOT NULL
-        OR new_first IS NOT NULL
-        OR new_date IS NOT NULL
-        OR new_unseen IS NOT NULL
-        OR new_flagged IS NOT NULL THEN
-
-        UPDATE v_conversation_by_folder
-        SET 
-            date = COALESCE(new_date, v_conversation_by_folder.date),
-            unseen = COALESCE(new_unseen, v_conversation_by_folder.unseen) ,
-            flagged = COALESCE(new_flagged, v_conversation_by_folder.flagged), 
-            first = COALESCE(new_first, v_conversation_by_folder.first),
-            size = COALESCE(new_size, v_conversation_by_folder.size),
-            subject = COALESCE(new_subject, v_conversation_by_folder.subject), 
-            sender = COALESCE(new_sender, v_conversation_by_folder.sender)
-        WHERE folder_id = OLD.container_id
-        AND conversation_id  = OLD.conversation_id; 
-
-    END IF;
-
-    RETURN NULL;
+    PERFORM v_conversation_by_folder_remove(OLD, NEW);
+    SELECT v_conversation_by_folder_add(NEW) INTO ret;
+    RETURN ret;
 END;
 $$;
 
 -------------------------------------------------
+-- system_flags 4 => DELETED (MailboxItemFlag.java:System)
 CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_insert
-  AFTER INSERT
-  ON t_mailbox_record
-  FOR EACH ROW
-  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (NEW.conversation_id IS NOT NULL AND NEW.system_flags & 4 = 0)
-  EXECUTE PROCEDURE v_conversation_by_folder_add();
-
+    AFTER INSERT ON t_mailbox_record FOR EACH ROW
+    WHEN (
+        -- conversation is set
+        NEW.conversation_id IS NOT NULL
+        -- message is not deleted
+        AND NEW.system_flags & 4 = 0
+    )
+    EXECUTE PROCEDURE v_conversation_by_folder_add_trigger();
 
 CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_undelete
-  AFTER UPDATE
-  ON t_mailbox_record
-  FOR EACH ROW
-  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (NEW.conversation_id IS NOT NULL  AND OLD.system_flags & 4 = 4 AND NEW.system_flags & 4 = 0)
-  EXECUTE PROCEDURE v_conversation_by_folder_add();
+    AFTER UPDATE ON t_mailbox_record FOR EACH ROW
+    WHEN (
+        -- conversation is set
+        NEW.conversation_id IS NOT NULL
+        -- previous version was deleted
+        AND OLD.system_flags & 4 = 4
+        -- new version is not deleted anymore
+        AND NEW.system_flags & 4 = 0
+    )
+    EXECUTE PROCEDURE v_conversation_by_folder_add_trigger();
 
-
+CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_update_create_conversation
+    AFTER UPDATE ON t_mailbox_record FOR EACH ROW
+    WHEN (
+        OLD.conversation_id IS NOT NULL
+        AND NEW.conversation_id IS NOT NULL
+        AND NEW.system_flags & 4 = 0
+    )
+    EXECUTE PROCEDURE v_conversation_by_folder_add_trigger();
 
 CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_update
-  AFTER UPDATE
-  ON t_mailbox_record
-  FOR EACH ROW
-  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (
-    OLD.conversation_id IS NOT NULL AND OLD.system_flags & 4 = 0 AND NEW.system_flags & 4 = 0 
-    AND (NEW.internal_date != OLD.internal_date OR NEW.system_flags != OLD.system_flags OR OLD.message_body_guid != NEW.message_body_guid)
-  )
-  EXECUTE PROCEDURE v_conversation_by_folder_update();
-
+    AFTER UPDATE ON t_mailbox_record FOR EACH ROW
+    WHEN (
+        -- we are interrested because we did something before
+        OLD.conversation_id IS NOT NULL
+        -- not a delete / undelete
+        AND OLD.system_flags & 4 = 0
+        AND NEW.system_flags & 4 = 0
+        AND (
+            -- Something interresting changed
+            NEW.internal_date != OLD.internal_date
+            OR NEW.system_flags != OLD.system_flags
+            OR OLD.message_body_guid != NEW.message_body_guid
+        )
+    )
+    EXECUTE PROCEDURE v_conversation_by_folder_update();
 
 CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_remove
-  AFTER UPDATE
-  ON t_mailbox_record
-  FOR EACH ROW
-  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (OLD.conversation_id IS NOT NULL AND OLD.system_flags & 4 = 0 AND NEW.system_flags & 4 = 4)
-  EXECUTE PROCEDURE v_conversation_by_folder_remove();
+    AFTER UPDATE ON t_mailbox_record FOR EACH ROW
+    WHEN (
+        -- we are interrested because we did something before
+        OLD.conversation_id IS NOT NULL
+        -- message is now deleted
+        AND OLD.system_flags & 4 = 0
+        AND NEW.system_flags & 4 = 4
+    )
+    EXECUTE PROCEDURE v_conversation_by_folder_remove_trigger();
 
 CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_expunge
-  AFTER DELETE
-  ON t_mailbox_record
-  FOR EACH ROW
-  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (OLD.conversation_id IS NOT NULL AND OLD.system_flags & 4 = 0)
-  EXECUTE PROCEDURE v_conversation_by_folder_remove();
+    AFTER DELETE ON t_mailbox_record FOR EACH ROW
+    WHEN (
+        -- we are interrested because we did something before
+        OLD.conversation_id IS NOT NULL
+        -- and the message was not removed yet (direct remove from t_mailbox_record)
+        AND OLD.system_flags & 4 = 0
+    )
+    EXECUTE PROCEDURE v_conversation_by_folder_remove_trigger();
+
+CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_conversation_id_changed
+    AFTER UPDATE ON t_mailbox_record FOR EACH ROW
+    WHEN (
+        -- we are interrested because we did something before
+        OLD.conversation_id IS NOT NULL
+        -- but the conversation id was changed
+        AND OLD.conversation_id != NEW.conversation_id
+    )
+    EXECUTE PROCEDURE v_conversation_by_folder_conversation_id_changed();

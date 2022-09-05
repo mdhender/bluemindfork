@@ -28,6 +28,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -43,16 +47,12 @@ import net.bluemind.backend.mail.api.Conversation;
 import net.bluemind.backend.mail.api.Conversation.MessageRef;
 import net.bluemind.backend.mail.api.IMailConversation;
 import net.bluemind.backend.mail.api.IMailConversationActions;
-import net.bluemind.backend.mail.api.flags.ConversationFlagUpdate;
-import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.core.api.Stream;
-import net.bluemind.core.container.api.Ack;
-import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.SortDescriptor;
@@ -339,6 +339,133 @@ public class MailConversationServiceTests extends AbstractMailboxRecordsServiceT
 		assertEquals(conversationId2, conversations.get(0));
 		assertEquals(conversationId1, conversations.get(1));
 
+	}
+
+	@Test
+	public void byFolderSubject() throws SQLException {
+		long conversation1 = 1212121212L;
+		long conversation2 = 8989898989L;
+		long conversation3 = 2323232323L;
+		String conversationId1 = Long.toHexString(conversation1);
+		String conversationId2 = Long.toHexString(conversation2);
+		String conversationId3 = Long.toHexString(conversation3);
+
+		IDbMessageBodies mboxes = getBodies(SecurityContext.SYSTEM);
+		assertNotNull(mboxes);
+
+		// test bodies
+		ReadStream<Buffer> emlReadStream = openResource("data/test_subject1.eml");
+		Stream bmStream = VertxStream.stream(emlReadStream);
+		String bodySortUid1 = CyrusGUID.randomGuid();
+		mboxes.create(bodySortUid1, bmStream);
+
+		emlReadStream = openResource("data/test_subject2.eml");
+		bmStream = VertxStream.stream(emlReadStream);
+		String bodySortUid2 = CyrusGUID.randomGuid();
+		mboxes.create(bodySortUid2, bmStream);
+
+		emlReadStream = openResource("data/test_subject3.eml");
+		bmStream = VertxStream.stream(emlReadStream);
+		String bodySortUid3 = CyrusGUID.randomGuid();
+		mboxes.create(bodySortUid3, bmStream);
+
+		IDbMailboxRecords recordService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDbMailboxRecords.class, mboxUniqueId);
+
+		// conversation 1
+		MailboxRecord rec1 = new MailboxRecord();
+		rec1.conversationId = conversation1;
+		rec1.imapUid = 1;
+		rec1.internalDate = adaptDate(2);
+		rec1.lastUpdated = rec1.internalDate;
+		rec1.messageBody = bodySortUid1;
+		String rec1Uid = UUID.randomUUID().toString();
+		recordService.create(rec1Uid, rec1);
+		ItemValue<MailboxRecord> rec1ItemVal = recordService.getComplete(rec1Uid);
+		long rec1Id = rec1ItemVal.internalId;
+
+		MessageRef messageRef1 = new MessageRef();
+		messageRef1.folderUid = mboxUniqueId;
+		messageRef1.itemId = rec1Id;
+		messageRef1.date = new Date(1);
+
+		Conversation conversation1Obj = new Conversation();
+		conversation1Obj.messageRefs = Arrays.asList(messageRef1);
+		getService(SecurityContext.SYSTEM).create(conversationId1, conversation1Obj);
+
+		// conversation 2
+		MailboxRecord rec2 = new MailboxRecord();
+		rec2.conversationId = conversation2;
+		rec2.imapUid = 2;
+		rec2.internalDate = adaptDate(4);
+		rec2.lastUpdated = rec2.internalDate;
+		rec2.messageBody = bodySortUid2;
+		String rec2Uid = UUID.randomUUID().toString();
+		recordService.create(rec2Uid, rec2);
+		ItemValue<MailboxRecord> rec2ItemVal = recordService.getComplete(rec2Uid);
+		long rec2Id = rec2ItemVal.internalId;
+
+		MessageRef messageRef2 = new MessageRef();
+		messageRef2.folderUid = mboxUniqueId;
+		messageRef2.itemId = rec2Id;
+		messageRef2.date = new Date(2);
+
+		Conversation conversation2Obj = new Conversation();
+		conversation2Obj.messageRefs = Arrays.asList(messageRef2);
+		getService(SecurityContext.SYSTEM).create(conversationId2, conversation2Obj);
+
+		// conversation 3
+		MailboxRecord rec3 = new MailboxRecord();
+		rec3.conversationId = conversation3;
+		rec3.imapUid = 3;
+		rec3.internalDate = adaptDate(6);
+		rec3.lastUpdated = rec3.internalDate;
+		rec3.messageBody = bodySortUid3;
+		String rec3Uid = UUID.randomUUID().toString();
+		recordService.create(rec3Uid, rec3);
+		ItemValue<MailboxRecord> rec3ItemVal = recordService.getComplete(rec3Uid);
+		long rec3Id = rec3ItemVal.internalId;
+
+		MessageRef messageRef3 = new MessageRef();
+		messageRef3.folderUid = mboxUniqueId;
+		messageRef3.itemId = rec3Id;
+		messageRef3.date = new Date(3);
+
+		Conversation conversation3Obj = new Conversation();
+		conversation3Obj.messageRefs = Arrays.asList(messageRef3);
+		getService(SecurityContext.SYSTEM).create(conversationId3, conversation3Obj);
+
+		// asserts
+		List<String> conversations = getService(SecurityContext.SYSTEM).byFolder(mboxUniqueId,
+				createSortDescriptor(ItemFlagFilter.all()));
+		assertEquals(3, conversations.size());
+
+		String request = "select folder_id, conversation_id, subject from v_conversation_by_folder where conversation_id = ?";
+		try (Connection con = datasource.getConnection()) {
+			try (PreparedStatement query = con.prepareStatement(request)) {
+				query.setLong(1, conversation1);
+				ResultSet resultSet = query.executeQuery();
+				resultSet.next();
+				String subject = resultSet.getString(3);
+				assertEquals("Esubjecte", subject);
+			}
+
+			try (PreparedStatement query = con.prepareStatement(request)) {
+				query.setLong(1, conversation2);
+				ResultSet resultSet = query.executeQuery();
+				resultSet.next();
+				String subject = resultSet.getString(3);
+				assertEquals("asubject", subject);
+			}
+
+			try (PreparedStatement query = con.prepareStatement(request)) {
+				query.setLong(1, conversation3);
+				ResultSet resultSet = query.executeQuery();
+				resultSet.next();
+				String subject = resultSet.getString(3);
+				assertEquals("subject", subject);
+			}
+		}
 	}
 
 	@Test

@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Splitter;
 
 import net.bluemind.backend.mail.api.MessageBody;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
@@ -324,6 +325,19 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		return sortDesc.filter != null && sortDesc.filter.must.size() == 1 && sortDesc.filter.mustNot.size() == 1
 				&& sortDesc.filter.must.stream().anyMatch(f -> f == ItemFlag.Important)
 				&& sortDesc.filter.mustNot.stream().anyMatch(f -> f == ItemFlag.Deleted);
+	}
+
+	private int adaptFlag(ItemFlag flag) {
+		switch (flag) {
+		case Seen:
+			return MailboxItemFlag.System.Seen.value().value;
+		case Deleted:
+			return MailboxItemFlag.System.Deleted.value().value;
+		case Important:
+			return MailboxItemFlag.System.Flagged.value().value;
+		default:
+			throw new IllegalArgumentException();
+		}
 	}
 
 	public List<Long> getItemsByConversations(List<String> conversationUids) throws SQLException {

@@ -200,40 +200,41 @@ CREATE TABLE IF NOT EXISTS v_conversation_by_folder (
     UNIQUE(folder_id, conversation_id)
 ) PARTITION BY HASH (folder_id);
 
-CREATE INDEX IF NOT EXISTS v_conversation_by_folder_subject 
-ON v_conversation_by_folder (folder_id, subject DESC) INCLUDE (conversation_id);
-CREATE INDEX IF NOT EXISTS v_conversation_by_folder_date 
-ON v_conversation_by_folder (folder_id, date DESC) INCLUDE (conversation_id);
-CREATE INDEX IF NOT EXISTS v_conversation_by_folder_size 
-ON v_conversation_by_folder (folder_id, size DESC) INCLUDE (conversation_id);
-CREATE INDEX IF NOT EXISTS v_conversation_by_folder_sender 
-ON v_conversation_by_folder (folder_id, sender DESC) INCLUDE (conversation_id);
 
-CREATE INDEX IF NOT EXISTS v_conversation_by_folder_subject_unseen 
-ON v_conversation_by_folder (folder_id, subject DESC) INCLUDE (conversation_id) 
-WHERE (unseen is true);
-CREATE INDEX IF NOT EXISTS v_conversation_by_folder_date_unseen 
-ON v_conversation_by_folder (folder_id, date DESC) INCLUDE (conversation_id)
-WHERE (unseen is true);
-CREATE INDEX IF NOT EXISTS v_conversation_by_folder_size_unseen 
-ON v_conversation_by_folder (folder_id, size DESC) INCLUDE (conversation_id) 
-WHERE (unseen is true);
-CREATE INDEX IF NOT EXISTS v_conversation_by_folder_sender_unseen 
-ON v_conversation_by_folder (folder_id, sender DESC) INCLUDE (conversation_id)
-WHERE (unseen is true);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_subject
+    ON v_conversation_by_folder (folder_id, subject DESC) INCLUDE (conversation_id);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_date
+    ON v_conversation_by_folder (folder_id, date DESC) INCLUDE (conversation_id);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_size
+    ON v_conversation_by_folder (folder_id, size DESC) INCLUDE (conversation_id);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_sender
+    ON v_conversation_by_folder (folder_id, sender DESC) INCLUDE (conversation_id);
 
-CREATE INDEX IF NOT EXISTS v_conversation_by_folder_subject_flagged 
-ON v_conversation_by_folder (folder_id, subject DESC) INCLUDE (conversation_id) 
-WHERE (flagged is true);
-CREATE INDEX IF NOT EXISTS v_conversation_by_folder_date_flagged 
-ON v_conversation_by_folder (folder_id, date DESC) INCLUDE (conversation_id)
-WHERE (flagged is true);
-CREATE INDEX IF NOT EXISTS v_conversation_by_folder_size_flagged 
-ON v_conversation_by_folder (folder_id, size DESC) INCLUDE (conversation_id) 
-WHERE (flagged is true);
-CREATE INDEX IF NOT EXISTS v_conversation_by_folder_sender_flagged 
-ON v_conversation_by_folder (folder_id, sender DESC) INCLUDE (conversation_id)
-WHERE (flagged is true);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_subject_unseen
+    ON v_conversation_by_folder (folder_id, subject DESC) INCLUDE (conversation_id)
+    WHERE (unseen is true);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_date_unseen
+    ON v_conversation_by_folder (folder_id, date DESC) INCLUDE (conversation_id)
+    WHERE (unseen is true);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_size_unseen
+    ON v_conversation_by_folder (folder_id, size DESC) INCLUDE (conversation_id)
+    WHERE (unseen is true);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_sender_unseen
+    ON v_conversation_by_folder (folder_id, sender DESC) INCLUDE (conversation_id)
+    WHERE (unseen is true);
+
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_subject_flagged
+    ON v_conversation_by_folder (folder_id, subject DESC) INCLUDE (conversation_id)
+    WHERE (flagged is true);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_date_flagged
+    ON v_conversation_by_folder (folder_id, date DESC) INCLUDE (conversation_id)
+    WHERE (flagged is true);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_size_flagged
+    ON v_conversation_by_folder (folder_id, size DESC) INCLUDE (conversation_id)
+    WHERE (flagged is true);
+CREATE INDEX IF NOT EXISTS v_conversation_by_folder_sender_flagged
+    ON v_conversation_by_folder (folder_id, sender DESC) INCLUDE (conversation_id)
+    WHERE (flagged is true);
 
 DO LANGUAGE plpgsql
 $$
@@ -252,286 +253,134 @@ BEGIN
 END;
 $$;
 
-
-CREATE OR REPLACE FUNCTION v_conversation_by_folder_add(new_record t_mailbox_record)
-  RETURNS VOID LANGUAGE plpgsql AS $$
-BEGIN
-  -- Update flags and not set flags (mask) respectively in every folder
-    INSERT INTO
-      v_conversation_by_folder (folder_id, conversation_id, flags, mask, date)
-    VALUES
-      (new_record.container_id, new_record.conversation_id, new_record.system_flags, -(new_record.system_flags + 1), new_record.internal_date)
-    ON CONFLICT (folder_id, conversation_id) DO UPDATE
-      SET
-        flags = EXCLUDED.flags | v_conversation_by_folder.flags,
-        mask = EXCLUDED.mask | (-(v_conversation_by_folder.flags + 1)),
-        date = (select greatest(new_record.internal_date, EXCLUDED.date));
-END;
-$$;
-
-CREATE OR REPLACE FUNCTION v_trig_conversation_by_folder_add() RETURNS TRIGGER
-  LANGUAGE plpgsql
-AS $$
-BEGIN
-    PERFORM v_conversation_by_folder_add(NEW);
-    RETURN NEW;
-END;
-$$;
-
-CREATE OR REPLACE FUNCTION v_conversation_by_folder_update() RETURNS TRIGGER
-  LANGUAGE plpgsql
-AS $$
-DECLARE
-BEGIN
-  PERFORM v_conversation_by_folder_update_row(NEW.conversation_id, NEW.container_id);
-  RETURN NEW;
-END;
-$$;
-
-
-CREATE OR REPLACE FUNCTION v_conversation_by_folder_remove() RETURNS TRIGGER
-  LANGUAGE plpgsql
-AS $$
-DECLARE
-BEGIN
-    PERFORM v_conversation_by_folder_update_row(OLD.conversation_id, OLD.container_id);
-    RETURN NULL;
-END;
-$$;
-
-
-CREATE OR REPLACE FUNCTION v_conversation_by_folder_update_row(bigint, integer) RETURNS VOID
-  LANGUAGE plpgsql
-AS $$
-DECLARE
-  existing record;
-BEGIN
-    SELECT
-      bit_or(system_flags) as flags,
-      bit_or(-(system_flags + 1)) as mask,
-      max(internal_date) as date
-    FROM
-      t_mailbox_record INTO existing
-    WHERE
-      container_id = $2
-    AND
-      system_flags::bit(32) & 4::bit(32) = 0::bit(32)
-    AND conversation_id = $1
-    GROUP BY container_id, conversation_id;
-
-    IF (existing IS NULL) THEN
-        DELETE FROM v_conversation_by_folder WHERE folder_id = $2 AND conversation_id = $1;
-    ELSE
-        -- Update flags and not set flags (mask) respectively in every folder
-        UPDATE v_conversation_by_folder
-        SET flags = existing.flags, mask = existing.mask, date = existing.date
-        WHERE folder_id = $2
-        AND conversation_id = $1;
-    END IF;
-END;
-$$;
-
--- Handle the v_converstaion_by_folder data (we are changing all conversation_ids)
-CREATE OR REPLACE FUNCTION v_conversation_by_folder_update_conversation_row()
-  RETURNS TRIGGER LANGUAGE plpgsql
-AS $$
-DECLARE
-  existing record;
-BEGIN
-    -- Remove the old conversation, what ever the deleted flag is
-    PERFORM v_conversation_by_folder_update_row(OLD.conversation_id, OLD.container_id);
-    -- Update the new conversation
-    -- Filtering OUT deleted mailbox_records
-    IF NEW.system_flags & 4 = 0 THEN
-      PERFORM v_conversation_by_folder_add(NEW);
-    END IF;
-    RETURN NEW;
-END;
-$$;
-
--------------------------------------------------
--- Message inserted or marked not deleted
-CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_insert
-  AFTER INSERT
-  ON t_mailbox_record
-  FOR EACH ROW
-  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (NEW.conversation_id IS NOT NULL AND NEW.system_flags & 4 = 0)
-  EXECUTE PROCEDURE v_trig_conversation_by_folder_add();
-
--- Message marked as deleted, or removed
-CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_undelete
-  AFTER UPDATE
-  ON t_mailbox_record
-  FOR EACH ROW
-  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (NEW.conversation_id IS NOT NULL AND OLD.system_flags & 4 = 4 AND NEW.system_flags & 4 = 0)
-  EXECUTE PROCEDURE v_trig_conversation_by_folder_add();
-
--- Conversation is replaced
-CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_update_conversation
-  AFTER UPDATE
-  ON t_mailbox_record
-  FOR EACH ROW
-  WHEN (
-    OLD.conversation_id IS DISTINCT FROM NEW.conversation_id
-  )
-  EXECUTE PROCEDURE v_conversation_by_folder_update_conversation_row();
-
-CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_update
-  AFTER UPDATE
-  ON t_mailbox_record
-  FOR EACH ROW
-  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (
-    OLD.conversation_id IS NOT NULL AND OLD.system_flags & 4 = 0 AND NEW.system_flags & 4 = 0 
-    AND (NEW.internal_date != OLD.internal_date OR NEW.system_flags != OLD.system_flags)
-  )
-  EXECUTE PROCEDURE v_conversation_by_folder_update();
-
-
-CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_remove
-  AFTER UPDATE
-  ON t_mailbox_record
-  FOR EACH ROW
-  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (OLD.conversation_id IS NOT NULL AND OLD.system_flags & 4 = 0 AND NEW.system_flags & 4 = 4)
-  EXECUTE PROCEDURE v_conversation_by_folder_remove();
-
-CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_expunge
-  AFTER DELETE
-  ON t_mailbox_record
-  FOR EACH ROW
-  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (OLD.conversation_id IS NOT NULL AND OLD.system_flags & 4 = 0)
-  EXECUTE PROCEDURE v_conversation_by_folder_remove();
-
-
 ---------------------------------------
 
 CREATE TABLE IF NOT EXISTS s_mailbox_record (
-	   item_id bigint NOT NULL,  
-     container_id integer NOT NULL,
-     unseen boolean NOT NULL default false, 
-     flagged boolean NOT NULL default false, 
-     date timestamp without time zone NOT NULL,
-     subject text NULL, 
-     size integer NULL, 
-     sender text NULL, 
-     PRIMARY KEY(item_id, container_id)
+    item_id bigint NOT NULL,
+    container_id integer NOT NULL,
+    unseen boolean NOT NULL default false,
+    flagged boolean NOT NULL default false,
+    date timestamp without time zone NOT NULL,
+    subject text NULL,
+    size integer NULL,
+    sender text NULL,
+    PRIMARY KEY(item_id, container_id)
 ) PARTITION BY HASH (container_id);
 
-CREATE INDEX IF NOT EXISTS s_mailbox_record_subject 
-ON s_mailbox_record (container_id, subject DESC) INCLUDE (item_id);
-CREATE INDEX IF NOT EXISTS s_mailbox_record_date 
-ON s_mailbox_record (container_id, date DESC) INCLUDE (item_id);
-CREATE INDEX IF NOT EXISTS s_mailbox_record_size 
-ON s_mailbox_record (container_id, size DESC) INCLUDE (item_id);
-CREATE INDEX IF NOT EXISTS s_mailbox_record_sender 
-ON s_mailbox_record (container_id, sender DESC) INCLUDE (item_id);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_subject
+    ON s_mailbox_record (container_id, subject DESC) INCLUDE (item_id);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_date
+    ON s_mailbox_record (container_id, date DESC) INCLUDE (item_id);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_size
+    ON s_mailbox_record (container_id, size DESC) INCLUDE (item_id);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_sender
+    ON s_mailbox_record (container_id, sender DESC) INCLUDE (item_id);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_subject_unseen
+    ON s_mailbox_record (container_id, subject DESC) INCLUDE (item_id)
+    WHERE (unseen is true);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_date_unseen
+    ON s_mailbox_record (container_id, date DESC) INCLUDE (item_id)
+    WHERE (unseen is true);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_size_unseen
+    ON s_mailbox_record (container_id, size DESC) INCLUDE (item_id)
+    WHERE (unseen is true);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_sender_unseen
+    ON s_mailbox_record (container_id, sender DESC) INCLUDE (item_id)
+    WHERE (unseen is true);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_subject_flagged
+    ON s_mailbox_record (container_id, subject DESC) INCLUDE (item_id)
+    WHERE (flagged is true);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_date_flagged
+    ON s_mailbox_record (container_id, date DESC) INCLUDE (item_id)
+    WHERE (flagged is true);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_size_flagged
+    ON s_mailbox_record (container_id, size DESC) INCLUDE (item_id)
+    WHERE (flagged is true);
+CREATE INDEX IF NOT EXISTS s_mailbox_record_sender_flagged
+    ON s_mailbox_record (container_id, sender DESC) INCLUDE (item_id)
+    WHERE (flagged is true);
 
-CREATE INDEX IF NOT EXISTS s_mailbox_record_subject_unseen 
-ON s_mailbox_record (container_id, subject DESC) INCLUDE (item_id) 
-WHERE (unseen is true);
-CREATE INDEX IF NOT EXISTS s_mailbox_record_date_unseen 
-ON s_mailbox_record (container_id, date DESC) INCLUDE (item_id)
-WHERE (unseen is true);
-CREATE INDEX IF NOT EXISTS s_mailbox_record_size_unseen 
-ON s_mailbox_record (container_id, size DESC) INCLUDE (item_id) 
-WHERE (unseen is true);
-CREATE INDEX IF NOT EXISTS s_mailbox_record_sender_unseen 
-ON s_mailbox_record (container_id, sender DESC) INCLUDE (item_id)
-WHERE (unseen is true);
-
-CREATE INDEX IF NOT EXISTS s_mailbox_record_subject_flagged 
-ON s_mailbox_record (container_id, subject DESC) INCLUDE (item_id) 
-WHERE (flagged is true);
-CREATE INDEX IF NOT EXISTS s_mailbox_record_date_flagged 
-ON s_mailbox_record (container_id, date DESC) INCLUDE (item_id)
-WHERE (flagged is true);
-CREATE INDEX IF NOT EXISTS s_mailbox_record_size_flagged 
-ON s_mailbox_record (container_id, size DESC) INCLUDE (item_id) 
-WHERE (flagged is true);
-CREATE INDEX IF NOT EXISTS s_mailbox_record_sender_flagged 
-ON s_mailbox_record (container_id, sender DESC) INCLUDE (item_id)
-WHERE (flagged is true);
-
-DO LANGUAGE plpgsql                                                                                          
+DO LANGUAGE plpgsql
 $$
 DECLARE
-  partition TEXT;
-  partition_count INTEGER;                                                                                                                     
-  BEGIN                                  
-  SELECT INTO partition_count COALESCE(current_setting('bm.s_mailbox_record_partitions', true)::integer, 256);
-    
-  FOR partition_key IN 0..(partition_count-1)
-  LOOP
-    partition := 's_mailbox_record_' || partition_key;
-    EXECUTE 'CREATE TABLE ' || partition || ' PARTITION OF s_mailbox_record  FOR VALUES WITH (MODULUS '|| partition_count || ', REMAINDER ' || partition_key || ');';
-  END LOOP;
-  END;
+    partition TEXT;
+    partition_count INTEGER;
+BEGIN
+    SELECT INTO partition_count COALESCE(current_setting('bm.s_mailbox_record_partitions', true)::integer, 256);
+    FOR partition_key IN 0..(partition_count-1)
+    LOOP
+        partition := 's_mailbox_record_' || partition_key;
+        EXECUTE 'CREATE TABLE ' || partition || ' PARTITION OF s_mailbox_record FOR VALUES WITH (MODULUS '|| partition_count || ', REMAINDER ' || partition_key || ');';
+    END LOOP;
+    END;
 $$;
 
 CREATE OR REPLACE FUNCTION s_mailbox_record_add() RETURNS TRIGGER
-  LANGUAGE plpgsql
+    LANGUAGE plpgsql
 AS $$
 DECLARE
-  body record;
+    body record;
 BEGIN
-    SELECT REGEXP_REPLACE(subject, '^([\W_]*|re\s*:)+', '', 'i') as subject, size, address  
-    FROM t_message_body, jsonb_to_recordset(recipients) AS rec(kind TEXT, address TEXT) INTO body
-    WHERE guid = NEW.message_body_guid
-    AND kind = 'Originator';
+    SELECT
+        regexp_replace(unaccent(subject), '^([\W]*|re\s*:)+', '', 'i') AS subject,
+        jsonb_path_query(recipients, '$[*] ? (@.kind == "Originator")') ->> 'address' AS sender,
+        size
+    FROM t_message_body
+    INTO body
+    WHERE guid = NEW.message_body_guid;
 
-    INSERT INTO s_mailbox_record (item_id, container_id, date, subject, size, sender, unseen, flagged) 
-    VALUES (NEW.item_id, NEW.container_id, NEW.internal_date, body.subject, body.size, body.address, NEW.system_flags & 16 != 16,  NEW.system_flags & 2 = 2);
-        
-    return NEW;
-  end;
+    INSERT INTO s_mailbox_record
+        (item_id, container_id, date, subject, size, sender, unseen, flagged)
+    VALUES
+        (NEW.item_id::bigint, NEW.container_id, NEW.internal_date, body.subject, body.size, body.address, NEW.system_flags & 16 != 16,  NEW.system_flags & 2 = 2);
+    RETURN NEW;
+  END;
 $$;
 
 CREATE OR REPLACE FUNCTION s_mailbox_record_update() RETURNS TRIGGER
-  LANGUAGE plpgsql
+    LANGUAGE plpgsql
 AS $$
 DECLARE
-  body record;
+    body record;
 BEGIN
-    if (OLD.message_body_guid != NEW.message_body_guid and OLD.internal_date != NEW.internal_date) then
-      SELECT REGEXP_REPLACE(subject, '^([\W_]*|re\s*:)+', '', 'i') as subject, size, address FROM t_message_body, jsonb_to_recordset(recipients) AS rec(kind TEXT, address TEXT) INTO body WHERE guid = NEW.message_body_guid AND kind = 'Originator';
+    IF (OLD.message_body_guid != NEW.message_body_guid) THEN
+        SELECT
+            regexp_replace(unaccent(subject), '^([\W]*|re\s*:)+', '', 'i') AS subject,
+            jsonb_path_query(recipients, '$[*] ? (@.kind == "Originator")') ->> 'address' AS sender,
+            size
+        FROM t_message_body
+        INTO body
+        WHERE guid = NEW.message_body_guid;
 
-      UPDATE s_mailbox_record 
-      SET unseen = NEW.system_flags & 16 != 16, 
-          flagged = NEW.system_flags & 2 = 2,  
-          date = NEW.internal_date,  
-          subject = body.subject, 
-          size = body.size, 
-          sender = body.address
-      WHERE container_id = NEW.container_id 
-      AND item_id = NEW.item_id;
-     
-    elsif OLD.internal_date != NEW.internal_date then  
-      UPDATE s_mailbox_record 
-      SET unseen = NEW.system_flags & 16 != 16, 
-          flagged = NEW.system_flags & 2 = 2,  
-          date = NEW.internal_date  
-      WHERE container_id = NEW.container_id 
-      AND item_id = NEW.item_id;
-    
-    else 
-      UPDATE s_mailbox_record 
-      SET unseen = NEW.system_flags & 16 != 16, 
-          flagged = NEW.system_flags & 2 = 2  
-      WHERE container_id = NEW.container_id 
-      AND item_id = NEW.item_id;
-
-    end if;
-
-  RETURN NEW;
+        UPDATE s_mailbox_record
+        SET unseen = NEW.system_flags & 16 != 16,
+            flagged = NEW.system_flags & 2 = 2,
+            date = NEW.internal_date,
+            subject = body.subject,
+            size = body.size,
+            sender = body.sender
+        WHERE container_id = NEW.container_id
+        AND item_id = NEW.item_id::bigint;
+    ELSIF OLD.internal_date != NEW.internal_date THEN
+        UPDATE s_mailbox_record
+        SET unseen = NEW.system_flags & 16 != 16,
+            flagged = NEW.system_flags & 2 = 2,
+            date = NEW.internal_date
+        WHERE container_id = NEW.container_id
+        AND item_id = NEW.item_id::bigint;
+    ELSE
+        UPDATE s_mailbox_record
+        SET unseen = NEW.system_flags & 16 != 16,
+            flagged = NEW.system_flags & 2 = 2
+        WHERE container_id = NEW.container_id
+        AND item_id = NEW.item_id::bigint;
+    END IF;
+    RETURN NEW;
 END;
 $$;
 
 CREATE OR REPLACE FUNCTION s_mailbox_record_remove() RETURNS TRIGGER
-  LANGUAGE plpgsql
+    LANGUAGE plpgsql
 AS $$
 DECLARE
 BEGIN
@@ -541,7 +390,7 @@ END;
 $$;
 
 CREATE OR REPLACE FUNCTION s_mailbox_record_truncate() RETURNS TRIGGER
-  LANGUAGE plpgsql
+    LANGUAGE plpgsql
 AS $$
 DECLARE
 BEGIN
@@ -551,49 +400,35 @@ END;
 $$;
 
 CREATE OR REPLACE TRIGGER virtual_message_record_insert
-  AFTER INSERT
-  ON t_mailbox_record
-  FOR EACH ROW
-  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (NEW.system_flags & 4 = 0)
-  EXECUTE PROCEDURE s_mailbox_record_add();
+    AFTER INSERT ON t_mailbox_record FOR EACH ROW
+    -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
+    WHEN (NEW.system_flags & 4 = 0)
+    EXECUTE PROCEDURE s_mailbox_record_add();
 
 CREATE OR REPLACE TRIGGER virtual_message_record_undelete
-  AFTER UPDATE
-  ON t_mailbox_record
-  FOR EACH ROW
-  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (OLD.system_flags & 4 = 4 AND NEW.system_flags & 4 = 0)
-  EXECUTE PROCEDURE s_mailbox_record_add();
+    AFTER UPDATE ON t_mailbox_record FOR EACH ROW
+    -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
+    WHEN (OLD.system_flags & 4 = 4 AND NEW.system_flags & 4 = 0)
+    EXECUTE PROCEDURE s_mailbox_record_add();
 
 CREATE OR REPLACE TRIGGER virtual_message_record_update
-  AFTER UPDATE
-  ON t_mailbox_record
-  FOR EACH ROW
-  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (OLD.system_flags & 4 = 0 AND NEW.system_flags & 4 = 0)
-  EXECUTE PROCEDURE s_mailbox_record_update();
+    AFTER UPDATE ON t_mailbox_record FOR EACH ROW
+    -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
+    WHEN (OLD.system_flags & 4 = 0 AND NEW.system_flags & 4 = 0)
+    EXECUTE PROCEDURE s_mailbox_record_update();
 
 CREATE OR REPLACE TRIGGER virtual_message_record_remove
-  AFTER UPDATE
-  ON t_mailbox_record
-  FOR EACH ROW
-  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (OLD.system_flags & 4 = 0 AND NEW.system_flags & 4 = 4)
-  EXECUTE PROCEDURE s_mailbox_record_remove();
+    AFTER UPDATE ON t_mailbox_record FOR EACH ROW
+    -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
+    WHEN (OLD.system_flags & 4 = 0 AND NEW.system_flags & 4 = 4)
+    EXECUTE PROCEDURE s_mailbox_record_remove();
 
 CREATE OR REPLACE TRIGGER virtual_message_record_expunge
-  AFTER DELETE
-  ON t_mailbox_record
-  FOR EACH ROW
-  -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (OLD.system_flags & 4 = 0)
-  EXECUTE PROCEDURE s_mailbox_record_remove();
+    AFTER DELETE ON t_mailbox_record FOR EACH ROW
+    -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
+    WHEN (OLD.system_flags & 4 = 0)
+    EXECUTE PROCEDURE s_mailbox_record_remove();
 
 CREATE OR REPLACE TRIGGER virtual_message_record_truncate
-  AFTER TRUNCATE
-  ON t_mailbox_record
-  FOR EACH STATEMENT
-  EXECUTE PROCEDURE s_mailbox_record_truncate();
-
----------------------------------------
+    AFTER TRUNCATE ON t_mailbox_record FOR EACH STATEMENT
+    EXECUTE PROCEDURE s_mailbox_record_truncate();
