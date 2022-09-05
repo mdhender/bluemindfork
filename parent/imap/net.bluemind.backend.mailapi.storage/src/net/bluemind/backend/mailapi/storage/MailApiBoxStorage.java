@@ -17,12 +17,14 @@
  */
 package net.bluemind.backend.mailapi.storage;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Iterables;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.partitions.CyrusUniqueIds;
@@ -128,31 +130,38 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 				boxItem.value.type.nsPrefix + boxItem.value.name);
 
 		if (boxItem.value.type.sharedNs) {
-			String n = boxItem.value.name;
-			for (String f : Arrays.asList(n, n + "/Sent", n + "/Trash", n + "/Templates")) {
-				MailboxReplica repl = folder(boxItem, f);
-				String fn = f.equals(boxItem.value.name) ? "" : repl.name;
-				String uid = CyrusUniqueIds.forMailbox(domainUid, boxItem, fn).toString();
-				if (foldersApi.getComplete(uid) != null) {
-					foldersApi.update(uid, repl);
-				} else {
-					foldersApi.create(uid, repl);
-				}
-
-			}
+			mailshareFolders(domainUid, boxItem, foldersApi);
 		} else {
-			for (String f : Arrays.asList("INBOX", "Sent", "Drafts", "Trash", "Outbox", "Junk", "Templates")) {
-				MailboxReplica repl = folder(boxItem, f);
-				String uid = CyrusUniqueIds.forMailbox(domainUid, boxItem, repl.fullName).toString();
-				if (foldersApi.getComplete(uid) != null) {
-					foldersApi.update(uid, repl);
-				} else {
-					foldersApi.create(uid, repl);
-				}
-			}
-
+			userFolders(domainUid, boxItem, foldersApi);
 		}
 
+	}
+
+	private void userFolders(String domainUid, ItemValue<Mailbox> boxItem, IDbReplicatedMailboxes foldersApi) {
+		for (String f : Iterables.concat(Collections.singleton("INBOX"), DefaultFolder.USER_FOLDERS_NAME)) {
+			MailboxReplica repl = folder(boxItem, f);
+			String uid = CyrusUniqueIds.forMailbox(domainUid, boxItem, repl.fullName).toString();
+			if (foldersApi.getComplete(uid) != null) {
+				foldersApi.update(uid, repl);
+			} else {
+				foldersApi.create(uid, repl);
+			}
+		}
+	}
+
+	private void mailshareFolders(String domainUid, ItemValue<Mailbox> boxItem, IDbReplicatedMailboxes foldersApi) {
+		String n = boxItem.value.name;
+		for (String f : Iterables.concat(Collections.singleton(n),
+				DefaultFolder.MAILSHARE_FOLDERS_NAME.stream().map(f -> n + "/" + f).collect(Collectors.toList()))) {
+			MailboxReplica repl = folder(boxItem, f);
+			String fn = f.equals(boxItem.value.name) ? "" : repl.name;
+			String uid = CyrusUniqueIds.forMailbox(domainUid, boxItem, fn).toString();
+			if (foldersApi.getComplete(uid) != null) {
+				foldersApi.update(uid, repl);
+			} else {
+				foldersApi.create(uid, repl);
+			}
+		}
 	}
 
 	private MailboxReplica folder(ItemValue<Mailbox> boxItem, String fullName) {
