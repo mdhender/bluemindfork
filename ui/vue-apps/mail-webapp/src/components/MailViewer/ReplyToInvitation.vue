@@ -38,24 +38,27 @@
                 </template>
             </div>
             <div v-if="message.eventInfo.needsReply && currentEvent.status" class="reply-buttons">
-                <reply-to-invitation-button
+                <bm-toggleable-button
                     icon="check"
-                    :label="$t('common.accept')"
-                    :checked="currentEvent.status === 'Accepted'"
+                    :pressed="currentEvent.status === 'Accepted'"
                     @click="answer('Accepted')"
-                />
-                <reply-to-invitation-button
+                >
+                    {{ $t("common.accept") }}
+                </bm-toggleable-button>
+                <bm-toggleable-button
                     icon="interrogation"
-                    :label="$t('common.accept.tentatively')"
-                    :checked="currentEvent.status === 'Tentative'"
+                    :pressed="currentEvent.status === 'Tentative'"
                     @click="answer('Tentative')"
-                />
-                <reply-to-invitation-button
+                >
+                    {{ $t("common.accept.tentatively") }}
+                </bm-toggleable-button>
+                <bm-toggleable-button
                     icon="cross"
-                    :label="$t('common.refuse')"
-                    :checked="currentEvent.status === 'Declined'"
+                    :pressed="currentEvent.status === 'Declined'"
                     @click="answer('Declined')"
-                />
+                >
+                    {{ $t("common.refuse") }}
+                </bm-toggleable-button>
             </div>
         </div>
         <div v-else-if="currentEvent.loading === LoadingStatus.LOADING" class="header">
@@ -74,10 +77,8 @@
 <script>
 import { mapActions, mapState } from "vuex";
 
-import { BmIcon, BmSkeleton, BmSkeletonButton } from "@bluemind/styleguide";
+import { BmIcon, BmToggleableButton, BmSkeleton, BmSkeletonButton } from "@bluemind/styleguide";
 import { loadingStatusUtils } from "@bluemind/mail";
-
-import ReplyToInvitationButton from "./ReplyToInvitationButton";
 
 import { SET_EVENT_STATUS } from "~/actions";
 
@@ -86,8 +87,8 @@ const { LoadingStatus } = loadingStatusUtils;
 export default {
     name: "ReplyToInvitation",
     components: {
-        ReplyToInvitationButton,
         BmIcon,
+        BmToggleableButton,
         BmSkeleton,
         BmSkeletonButton
     },
