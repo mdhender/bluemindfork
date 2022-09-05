@@ -22,14 +22,10 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.util.function.Supplier;
+import java.net.URL;
 
-import org.asynchttpclient.AsyncHttpClient;
-import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Suppliers;
 
 import net.bluemind.network.topology.Topology;
 
@@ -48,8 +44,6 @@ public class BmHollowClient implements AutoCloseable {
 	private InputStream inputStream;
 	private HttpURLConnection con;
 
-	private static final Supplier<AsyncHttpClient> ahc = Suppliers.memoize(DefaultAsyncHttpClient::new);
-
 	public BmHollowClient(Type type, String dataset, String subset, long version) {
 		this.type = type;
 		this.dataset = dataset;
@@ -62,7 +56,10 @@ public class BmHollowClient implements AutoCloseable {
 				requestedVersion, type.name());
 		try {
 			logger.info("Reading hollow from {}...", path);
-			this.inputStream = ahc.get().prepareGet(path).execute().get().getResponseBodyAsStream();
+			URL url = new URL(path);
+			this.con = (HttpURLConnection) url.openConnection();
+			con.setRequestMethod("GET");
+			this.inputStream = con.getInputStream();
 		} catch (Exception e) {
 			throw new HollowRetrievalException(e);
 		}
