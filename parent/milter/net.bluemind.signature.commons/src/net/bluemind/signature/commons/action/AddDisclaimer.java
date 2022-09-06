@@ -225,7 +225,7 @@ public class AddDisclaimer {
 
 	public void addToMultiPart(Entity e, Map<String, String> configuration) {
 		Multipart mp = (Multipart) e.getBody();
-		List<AddressableEntity> parts = Mime4JHelper.expandParts(mp.getBodyParts());
+		List<AddressableEntity> parts = Mime4JHelper.expandTree(mp.getBodyParts());
 
 		// Apple Mail sends more than one non-attachment text/html parts
 		// ex: html email + inline pdf

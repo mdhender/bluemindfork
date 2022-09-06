@@ -1,0 +1,119 @@
+Return-Path: <noreply@bm4.devenv.blue>
+Received: from dev-bm4.test (localhost [127.0.0.1])
+	 by dev-bm4 with LMTPA;
+	 Mon, 13 Sep 2021 15:02:40 +0200
+X-Cyrus-Session-Id: cyrus-19399-1631538160-2-4238238259317310385
+X-Sieve: CMU Sieve 3.0
+Received: from 192.168.17.2 (LHLO dev-bm4.test) by unknown with LMTP;
+ 9/13/21 1:02 PM
+Received: from [127.0.0.1] (unknown [192.168.17.1])
+	(Authenticated sender: admin0@global.virt)
+	by dev-bm4.test (Postfix) with ESMTPSA id D8C0262459
+	for <mm@bm4.devenv.blue>; Mon, 13 Sep 2021 15:02:39 +0200 (CEST)
+MIME-Version: 1.0
+From: noreply@bm4.devenv.blue
+To: mm@bm4.devenv.blue
+Subject: Echec lors de l'envoi du message wewe
+Message-ID: <Mime4j.18.ae8bd3964981afa5.17bdf409fc1@bm24169870273817>
+Content-Type: multipart/report;
+ boundary="-=Part.19.eec63157a9f0c939.17bdf409fc1.f8eeb2a0445affe0=-";
+ report-type=delivery-status
+X-Bm-Milter-Handled: 5d7aaddb-e65e-4aa1-8674-e90aeaa69c34
+X-Bm-Transport-Timestamp: 1631538159942
+Date: Mon, 13 Sep 2021 15:02:40 +0200
+
+---=Part.19.eec63157a9f0c939.17bdf409fc1.f8eeb2a0445affe0=-
+Content-Type: text/plain; charset=UTF-8
+
+Echec lors de l'envoi du message au destinataire suivant: weer@bm4.devenv.blue: 5.1.1 <weer@bm4.devenv.blue>: Recipient address rejected: mailbox does not exist
+
+Le message référencé a comme sujet : "wewe"
+---=Part.19.eec63157a9f0c939.17bdf409fc1.f8eeb2a0445affe0=-
+Content-Type: message/rfc822
+
+MIME-Version: 1.0
+Subject: wewe
+Date: Mon, 13 Sep 2021 13:02:37 +0000
+X-BM-Mapi-Version: 4.1.0.qualifier
+Message-ID: <Mime4j.17.ad0689fbb4955386.17bdf409fbe@mapi.bluemind.net>
+From: mm mm <mm@bm4.devenv.blue>
+To: rata@bm4.devenv.blue
+Bcc: weer@bm4.devenv.blue
+X-Priority: 3
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas=2Emicrosoft=2Ecom/office/2004/12/omml" xmlns=3D"h=
+ttp://www=2Ew3=2Eorg/TR/REC-html40"><head><meta http-equiv=3DContent-Type c=
+ontent=3D"text/html; charset=3Dutf-8"><meta name=3DGenerator content=3D"Mic=
+rosoft Word 15 (filtered medium)"><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p=2EMsoNormal, li=2EMsoNormal, div=2EMsoNormal
+	{margin:0in;
+	margin-bottom:=2E0001pt;
+	font-size:11=2E0pt;
+	font-family:"Calibri",sans-serif;}
+a:link, span=2EMsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span=2EMsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+p=2Emsonormal0, li=2Emsonormal0, div=2Emsonormal0
+	{mso-style-name:msonormal;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	font-size:11=2E0pt;
+	font-family:"Calibri",sans-serif;}
+span=2EEmailStyle18
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+=2EMsoChpDefault
+	{mso-style-type:export-only;
+	font-size:10=2E0pt;}
+@page WordSection1
+	{size:8=2E5in 11=2E0in;
+	margin:1=2E0in 1=2E0in 1=2E0in 1=2E0in;}
+div=2EWordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]--></head><body lang=3DEN-US link=3D"#0563C=
+1" vlink=3D"#954F72"><div class=3DWordSection1><p class=3DMsoNormal>weewwe<=
+o:p></o:p></p></div></body></html>
+---=Part.19.eec63157a9f0c939.17bdf409fc1.f8eeb2a0445affe0=-
+Content-Type: message/delivery-status
+
+MessageId: <Mime4j.17.ad0689fbb4955386.17bdf409fbe@mapi.bluemind.net>
+Subject: wewe
+Date: 2021-09-13T13:02:39
+Reporting-MTA: dns; dev-bm4.test
+
+Final-recipient: RFC822; weer@bm4.devenv.blue
+Action: failed
+Status: 5.1.1
+X-Supplementary-Info: 5.1.1 <weer@bm4.devenv.blue>: Recipient address rejected: mailbox does not exist
+Final-recipient: RFC822; rata@bm4.devenv.blue
+Action: delivered
+Status: 2.0.0
+X-Supplementary-Info: 
+
+---=Part.19.eec63157a9f0c939.17bdf409fc1.f8eeb2a0445affe0=---
+

@@ -28,7 +28,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.flags.FlagUpdate;
 import net.bluemind.core.api.BMApi;

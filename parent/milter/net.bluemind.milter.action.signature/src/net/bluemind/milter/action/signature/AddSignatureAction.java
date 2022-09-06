@@ -126,7 +126,7 @@ public class AddSignatureAction implements MilterAction {
 		Body body = message.getBody();
 		if (body instanceof Multipart) {
 			Multipart mp = (Multipart) body;
-			List<AddressableEntity> parts = Mime4JHelper.expandParts(mp.getBodyParts());
+			List<AddressableEntity> parts = Mime4JHelper.expandTree(mp.getBodyParts());
 			for (AddressableEntity ae : parts) {
 				mime = ae.getMimeType();
 				if (mime.contains(Mime4JHelper.M_SIGNED) || mime.contains(Mime4JHelper.M_ENCRYPTED)) {

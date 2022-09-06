@@ -63,7 +63,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
-import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.io.CountingInputStream;
 
@@ -98,15 +97,15 @@ public class BodyStreamProcessor {
 	public static CompletableFuture<MessageBodyData> processBody(Stream eml) {
 		return EZInputStreamAdapter.consume(eml, emlInput -> {
 			logger.debug("Consuming wrapped stream {}", emlInput);
-			return parseBody(emlInput, false);
+			return parseBody(emlInput);
 		});
 	}
 
 	public static MessageBodyData parseBodyGetFullContent(CountingInputStream emlInput) {
-		return parseBody(emlInput, true);
+		return parseBody(emlInput);
 	}
 
-	private static MessageBodyData parseBody(CountingInputStream emlInput, boolean fetchContent) {
+	private static MessageBodyData parseBody(CountingInputStream emlInput) {
 		long time = System.currentTimeMillis();
 
 		MessageBody mb = new MessageBody();
@@ -146,17 +145,9 @@ public class BodyStreamProcessor {
 				mb.structure = p;
 				p.charset = p.mime.startsWith("text/") ? parsed.getCharset() : null;
 				p.encoding = parsed.getContentTransferEncoding();
-				if (fetchContent) {
-					SingleBody body = (SingleBody) parsed.getBody();
-					try (InputStream partStream = body.getInputStream()) {
-						p.content = ByteStreams.toByteArray(partStream);
-					} catch (IOException e) {
-						logger.warn("Failed to fetch content", e.getMessage());
-					}
-				}
 			} else {
 				Multipart mpBody = (Multipart) parsed.getBody();
-				processMultipart(mb, mpBody, filenames, bodyTxt, fetchContent);
+				processMultipart(mb, mpBody, filenames, bodyTxt);
 			}
 
 			BodyAndDom bodyWithDom = extractBody(parsed);
@@ -237,7 +228,7 @@ public class BodyStreamProcessor {
 
 		if (body instanceof Multipart) {
 			Multipart mp = (Multipart) body;
-			List<AddressableEntity> parts = Mime4JHelper.expandParts(mp.getBodyParts());
+			List<AddressableEntity> parts = Mime4JHelper.expandTree(mp.getBodyParts());
 
 			for (AddressableEntity ae : parts) {
 				String mime = ae.getMimeType();
@@ -344,7 +335,7 @@ public class BodyStreamProcessor {
 
 		if (body instanceof Multipart) {
 			Multipart mp = (Multipart) body;
-			List<AddressableEntity> parts = Mime4JHelper.expandParts(mp.getBodyParts());
+			List<AddressableEntity> parts = Mime4JHelper.expandTree(mp.getBodyParts());
 
 			Optional<AddressableEntity> htmlPart = parts.stream().filter(
 					part -> Mime4JHelper.TEXT_HTML.equals(part.getMimeType()) && !Mime4JHelper.isAttachment(part))
@@ -457,21 +448,20 @@ public class BodyStreamProcessor {
 	}
 
 	private static void processMultipart(MessageBody mb, Multipart mpBody, List<String> filenames,
-			StringBuilder bodyTxt, boolean fetchContent) {
+			StringBuilder bodyTxt) {
 		Part root = new Part();
 		root.mime = "multipart/" + mpBody.getSubType();
 		root.address = "TEXT";
 		List<Entity> subParts = mpBody.getBodyParts();
 		int idx = 1;
 		for (Entity sub : subParts) {
-			Part child = subPart(root, idx++, sub, filenames, bodyTxt, fetchContent);
+			Part child = subPart(root, idx++, sub, filenames, bodyTxt);
 			root.children.add(child);
 		}
 		mb.structure = root;
 	}
 
-	private static Part subPart(Part parent, int i, Entity sub, List<String> filenames, StringBuilder bodyTxt,
-			boolean fetchContent) {
+	private static Part subPart(Part parent, int i, Entity sub, List<String> filenames, StringBuilder bodyTxt) {
 		String curAddr = "TEXT".equals(parent.address) ? "" + i : parent.address + "." + i;
 		Part p = new Part();
 		p.address = curAddr;
@@ -491,7 +481,7 @@ public class BodyStreamProcessor {
 			List<Entity> subParts = mult.getBodyParts();
 			int idx = 1;
 			for (Entity subsub : subParts) {
-				Part child = subPart(p, idx++, subsub, filenames, bodyTxt, fetchContent);
+				Part child = subPart(p, idx++, subsub, filenames, bodyTxt);
 				p.children.add(child);
 			}
 		} else if (sub.getBody() instanceof SingleBody) {
@@ -531,16 +521,6 @@ public class BodyStreamProcessor {
 			if ("multipart/report".equals(parent.mime) && p.dispositionType == null && p.fileName == null) {
 				handleReportPart(sub, filenames, bodyTxt, p);
 			}
-
-			if (fetchContent) {
-				SingleBody body = (SingleBody) sub.getBody();
-				try (InputStream partStream = body.getInputStream()) {
-					p.content = ByteStreams.toByteArray(partStream);
-				} catch (IOException e) {
-					logger.warn("Failed to fetch content", e.getMessage());
-				}
-			}
-
 		} else {
 			logger.warn("Don't know how to process {}", p.mime);
 		}

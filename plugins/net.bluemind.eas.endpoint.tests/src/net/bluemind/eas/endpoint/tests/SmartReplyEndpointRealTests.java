@@ -125,7 +125,7 @@ public class SmartReplyEndpointRealTests extends AbstractEndpointTest {
 			Body body = msg.getBody();
 			assertTrue(body instanceof Multipart);
 			Multipart mparts = (Multipart) body;
-			List<AddressableEntity> parts = Mime4JHelper.expandParts(mparts.getBodyParts());
+			List<AddressableEntity> parts = Mime4JHelper.expandTree(mparts.getBodyParts());
 			assertEquals(1, parts.size());
 			AddressableEntity e = parts.get(0);
 			assertEquals("text/html", e.getMimeType());
@@ -202,7 +202,7 @@ public class SmartReplyEndpointRealTests extends AbstractEndpointTest {
 			Body body = msg.getBody();
 			assertTrue(body instanceof Multipart);
 			Multipart mparts = (Multipart) body;
-			List<AddressableEntity> parts = Mime4JHelper.expandParts(mparts.getBodyParts());
+			List<AddressableEntity> parts = Mime4JHelper.expandTree(mparts.getBodyParts());
 			assertEquals(1, parts.size());
 			AddressableEntity e = parts.get(0);
 			assertEquals("text/html", e.getMimeType());

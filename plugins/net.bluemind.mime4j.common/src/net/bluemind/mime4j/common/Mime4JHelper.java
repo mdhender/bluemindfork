@@ -29,7 +29,6 @@ import java.nio.channels.FileChannel.MapMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,11 +37,9 @@ import org.apache.james.mime4j.dom.BinaryBody;
 import org.apache.james.mime4j.dom.Body;
 import org.apache.james.mime4j.dom.Entity;
 import org.apache.james.mime4j.dom.Message;
-import org.apache.james.mime4j.dom.MessageBuilder;
 import org.apache.james.mime4j.dom.MessageServiceFactory;
 import org.apache.james.mime4j.dom.MessageWriter;
 import org.apache.james.mime4j.dom.Multipart;
-import org.apache.james.mime4j.dom.SingleBody;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.field.LenientFieldParser;
 import org.apache.james.mime4j.message.BasicBodyFactory;
@@ -59,11 +56,8 @@ import org.apache.james.mime4j.stream.RecursionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.ByteSource;
-
 import io.netty.util.internal.PlatformDependent;
 import net.bluemind.common.io.FileBackedOutputStream;
-import net.bluemind.mime4j.common.OffloadedBodyFactory.SizedBody;
 import net.bluemind.mime4j.common.rewriters.impl.DontTouchHandler;
 import net.bluemind.mime4j.common.rewriters.impl.XmlSafeEntityBuilder;
 import net.bluemind.utils.FBOSInput;
@@ -85,42 +79,6 @@ public class Mime4JHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger(Mime4JHelper.class);
 
-	/**
-	 * This one will choose only one between multipart/alternative parts. See
-	 * {@link #expandTree(List)} for the other behaviour.
-	 * 
-	 * @param parts
-	 * @return
-	 */
-	public static List<AddressableEntity> expandParts(List<Entity> parts) {
-		if (parts.isEmpty()) {
-			return new LinkedList<>();
-		}
-
-		if (parts.get(0).getParent() != null && M_ALTERNATIVE.equals(parts.get(0).getParent().getMimeType())) {
-			Entity mpartRelated = null;
-			int idx = 0;
-			for (Entity part : parts) {
-				if (M_MIXED.equals(part.getMimeType()) || M_RELATED.equals(part.getMimeType())
-						|| M_RELATIVE.equals(part.getMimeType())) {
-					mpartRelated = part;
-				} else {
-					idx++;
-				}
-			}
-			if (mpartRelated != null) {
-				return expandParts(Arrays.asList(mpartRelated), "", idx);
-			}
-			List<AddressableEntity> altParts = expandAlternative(parts, "");
-			return altParts;
-		} else if (parts.get(0).getParent() != null && M_SIGNED.equals(parts.get(0).getParent().getMimeType())) {
-			return expandAlternative(parts, "");
-		}
-
-		return expandParts(parts, "", 0);
-
-	}
-
 	private static List<AddressableEntity> expandParts(List<Entity> parts, String curAddr, int depth) {
 		List<AddressableEntity> ret = new LinkedList<AddressableEntity>();
 		int idx = 1;
@@ -130,20 +88,22 @@ public class Mime4JHelper {
 			boolean alternative = M_ALTERNATIVE.equals(mime);
 			boolean related = M_RELATED.equals(mime);
 			boolean relative = M_RELATIVE.equals(mime);
+			String currentAddress = curAddr + idx;
 
+			// Add current part
+			AddressableEntity ae = new AddressableEntity(e, currentAddress);
+			ret.add(ae);
+
+			// Add its children
 			if (alternative) {
 				BodyPart bp = (BodyPart) e;
 				Multipart mpart = (Multipart) bp.getBody();
 				List<Entity> altParts = mpart.getBodyParts();
-				List<AddressableEntity> chosen = expandAlternative(altParts, curAddr + (depth + 1) + ".");
-				ret.addAll(chosen);
+				ret.addAll(expandAlternative(altParts, currentAddress + "."));
 			} else if (mp || related || relative) {
 				BodyPart bp = (BodyPart) e;
 				Multipart mpart = (Multipart) bp.getBody();
-				ret.addAll(expandParts(mpart.getBodyParts(), curAddr + (depth + 1) + ".", depth + 1));
-			} else {
-				AddressableEntity ae = new AddressableEntity(e, curAddr + idx);
-				ret.add(ae);
+				ret.addAll(expandParts(mpart.getBodyParts(), currentAddress + ".", depth + 1));
 			}
 			idx++;
 		}
@@ -174,73 +134,6 @@ public class Mime4JHelper {
 			depth++;
 		}
 		return ret;
-	}
-
-	public static long getPartLength(AddressableEntity ae) throws IOException {
-		if (!(ae.getBody() instanceof SingleBody)) {
-			logger.warn("getPartLength called on " + ae.getBody().getClass().getCanonicalName());
-			return 0;
-		}
-
-		if (ae.getBody() instanceof OffloadedBodyFactory.SizedBody) {
-			return ((SizedBody) ae.getBody()).size();
-		}
-
-		final SingleBody body = (SingleBody) ae.getBody();
-
-		ByteSource is = new ByteSource() {
-
-			@Override
-			public InputStream openStream() throws IOException {
-				return body.getInputStream();
-			}
-		};
-		return is.size();
-	}
-
-	/**
-	 * Returns a copy of the message without its binary parts
-	 * 
-	 * @param mm
-	 * @return
-	 */
-	public static Message stripAttachments(Message mm) {
-		logger.info("Stripping attachments...");
-		Message copy = mm;
-		try {
-			MessageBuilder builder = MessageServiceFactory.newInstance().newMessageBuilder();
-			copy = builder.newMessage(mm);
-			Body cb = copy.getBody();
-			if (copy.isMultipart()) {
-				Multipart mp = (Multipart) cb;
-				List<Entity> parts = mp.getBodyParts();
-				int idx = 0;
-				List<Integer> toRemove = new ArrayList<Integer>(parts.size());
-				for (Entity e : parts) {
-					Body pb = e.getBody();
-					if (pb instanceof BinaryBody) {
-						toRemove.add(idx);
-					} else {
-						logger.warn(" ***** not binary " + e.getClass().getCanonicalName());
-					}
-					idx++;
-				}
-				for (int rm : toRemove) {
-					mp.removeBodyPart(rm);
-				}
-			} else if (cb instanceof BinaryBody) {
-				copy.setBody(emptyTextBody());
-			} else {
-				logger.info("Not multipart & not SingleBody, keeping everything");
-			}
-		} catch (Exception e1) {
-			logger.error("Error while removing attachments", e1);
-		}
-		return copy;
-	}
-
-	private static Body emptyTextBody() {
-		return new BasicBodyFactory().textBody("");
 	}
 
 	public static IMailRewriter untouched(Mailbox from) {
@@ -391,7 +284,7 @@ public class Mime4JHelper {
 	/**
 	 * This one will keep every parts, including all inside
 	 * <code>multipart/alternative
-	 * containers</code>. See {@link #expandParts(List)} for the other behavior.
+	 * containers</code>.
 	 * 
 	 * @param parts
 	 * @return
@@ -411,14 +304,17 @@ public class Mime4JHelper {
 			boolean mp = e.isMultipart();
 			boolean related = M_RELATED.equals(mime);
 			boolean relative = M_RELATIVE.equals(mime);
+			String currentAddress = curAddr + idx;
 
+			// Add current part
+			AddressableEntity ae = new AddressableEntity(e, currentAddress);
+			ret.add(ae);
+
+			// Add its children
 			if (mp || related || relative) {
 				BodyPart bp = (BodyPart) e;
 				Multipart mpart = (Multipart) bp.getBody();
-				ret.addAll(expandParts(mpart.getBodyParts(), curAddr + (depth + 1) + ".", depth + 1));
-			} else {
-				AddressableEntity ae = new AddressableEntity(e, curAddr + idx);
-				ret.add(ae);
+				ret.addAll(expandParts(mpart.getBodyParts(), currentAddress + ".", depth + 1));
 			}
 			idx++;
 		}

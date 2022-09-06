@@ -113,7 +113,7 @@ public class ReplyHandler extends DontTouchHandler {
 		}
 
 		List<Entity> parts = mp.getBodyParts();
-		List<AddressableEntity> expParts = Mime4JHelper.expandParts(parts);
+		List<AddressableEntity> expParts = Mime4JHelper.expandTree(parts);
 		MultipartImpl mixedParent = new MultipartImpl("mixed");
 		MultipartImpl relatedParent = new MultipartImpl("related");
 		BodyPart bp = new BodyPart();
@@ -255,7 +255,7 @@ public class ReplyHandler extends DontTouchHandler {
 		if (replied.isMultipart()) {
 			Multipart repMulti = (Multipart) replied.getBody();
 			List<Entity> parts = repMulti.getBodyParts();
-			List<AddressableEntity> expParts = Mime4JHelper.expandParts(parts);
+			List<AddressableEntity> expParts = Mime4JHelper.expandTree(parts);
 			Entity htmlPart = null;
 			Entity textPart = null;
 			for (Entity e : expParts) {
@@ -383,7 +383,7 @@ public class ReplyHandler extends DontTouchHandler {
 		if (replied.isMultipart()) {
 			Multipart repMulti = (Multipart) replied.getBody();
 			List<Entity> parts = repMulti.getBodyParts();
-			List<AddressableEntity> expParts = Mime4JHelper.expandParts(parts);
+			List<AddressableEntity> expParts = Mime4JHelper.expandTree(parts);
 			List<Entity> attachments = new ArrayList<Entity>();
 			for (Entity e : expParts) {
 				if (e.getMimeType() != null && e.getMimeType().startsWith("text/") && !Mime4JHelper.isAttachment(e)) {

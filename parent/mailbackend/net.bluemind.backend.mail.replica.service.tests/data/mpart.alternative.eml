@@ -1,0 +1,43 @@
+Return-Path: <admin@willow.vmw>
+Received: from willow.vmw (bjday.willow.vmw [172.16.45.135])
+	 by bjday (Cyrus v2.4.16-Debian-2.4.16-1hudson92) with LMTPA;
+	 Fri, 10 Aug 2012 18:36:02 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from bjday.willow.vmw (LHLO bjday.willow.vmw) (172.16.45.135) by
+ unknown with LMTP; 8/10/12 4:36 PM
+Received: from 172.16.45.135 (localhost [127.0.0.1])
+	by bjday.willow.vmw (Postfix) with ESMTP id 3E9E3503
+	for <admin@willow.vmw>; Fri, 10 Aug 2012 18:36:02 +0200 (CEST)
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="=_07cd5e623b3db309905d3ed9e6738ff7"
+Date: Fri, 10 Aug 2012 18:36:02 +0200
+From: admin SetupWizard <admin@willow.vmw>
+To: admin SetupWizard <admin@willow.vmw>
+Subject: mpart alternative
+Message-ID: <9c40f2d11cc0afb900da4c09a3bc9391@willow.vmw>
+X-Sender: admin@willow.vmw
+User-Agent: Roundcube Webmail/0.7.2
+
+--=_07cd5e623b3db309905d3ed9e6738ff7
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+
+ 
+
+Hello, 
+
+pim, PAM, poum ! 
+--=_07cd5e623b3db309905d3ed9e6738ff7
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset=UTF-8
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1=2E0 Transitional//EN">
+<html><body>
+<p>Hello,</p>
+<p>pim, <strong>pam</strong>, poum !</p>
+</body></html>
+
+--=_07cd5e623b3db309905d3ed9e6738ff7--
+
+
