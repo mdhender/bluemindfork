@@ -29,6 +29,7 @@ import javax.sql.DataSource;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.persistence.VCardStore;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
@@ -332,7 +333,15 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 	}
 
 	public boolean hasPhoto(String uid) throws ServerFault {
-		return documentStore.exists(getPhotoUid(uid));
+		try {
+			return documentStore.exists(getPhotoUid(uid));
+		} catch (ServerFault e) {
+			if (e.getCode() == ErrorCode.TIMEOUT) {
+				logger.warn("Check for photo of {} failed", uid, e);
+				return false;
+			}
+			throw e;
+		}
 	}
 
 	public byte[] getIcon(String uid) throws ServerFault {
