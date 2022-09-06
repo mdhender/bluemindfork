@@ -135,12 +135,7 @@ public class SdsFileHostingService implements IFileHostingService {
 				logger.debug("Stream has ending, closing then clearing tmp file {}", tmp);
 				vx.setTimer(50, tid -> {
 					logger.debug("Closing in timer {}", tid);
-					vxStream.close(ar -> {
-						if (ar.failed()) {
-							logger.warn("failed to close asyncFile", ar.cause());
-						}
-						tmp.delete(); // NOSONAR
-					});
+					tmp.delete(); // NOSONAR
 				});
 			});
 		} catch (IOException e) {
