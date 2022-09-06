@@ -245,7 +245,7 @@ public class VideoConferencingService implements IVideoConferencing {
 		resource.properties.add(PropertyValue.create(IVideoConferenceUids.PROVIDER_TYPE, descriptor.provider));
 		String email = UUID.randomUUID().toString().toLowerCase() + "@" + domainUid;
 		resource.emails = Arrays.asList(Email.create(email, true, true));
-		resource.reservationMode = ResourceReservationMode.AUTO_ACCEPT;
+		resource.reservationMode = ResourceReservationMode.OWNER_MANAGED;
 
 		logger.info("Create videoconferencing resource for domain {}, label {}, provider {}", domainUid,
 				descriptor.label, descriptor.provider);
