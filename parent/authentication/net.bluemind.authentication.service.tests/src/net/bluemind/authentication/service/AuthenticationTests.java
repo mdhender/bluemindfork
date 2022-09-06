@@ -94,6 +94,12 @@ public class AuthenticationTests {
 
 		PopulateHelper.initGlobalVirt(esServer);
 
+		IDomainSettings settings0 = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, "global.virt");
+		Map<String, String> domainSettings0 = settings0.get();
+		domainSettings0.put(DomainSettingsKeys.mail_routing_relay.name(), "external@test.fr");
+		settings0.set(domainSettings0);
+
 		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.external);
 
 		PopulateHelper.createTestDomain("bm.lan", esServer);
@@ -572,7 +578,7 @@ public class AuthenticationTests {
 		archived.value.archived = true;
 		userService.update(archived.uid, archived.value);
 
-		assertEquals(ValidationKind.NONE,
+		assertEquals(ValidationKind.ARCHIVED,
 				getService(null).validate("archived@bm.lan", "archived", "testLoginArchived"));
 	}
 
