@@ -10,6 +10,7 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRespon
 import org.elasticsearch.action.admin.indices.get.GetIndexAction;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
+import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.ReindexAction;
@@ -28,9 +29,16 @@ public class IndexRewriter {
 	}
 
 	public void rewrite(RewritableIndex index) {
-		GetAliasesResponse response = ESearchActivator.getClient().admin().indices()
-				.prepareGetAliases(index.readAlias()).get();
+		rewrite(index, "*");
+	}
+
+	public void rewrite(RewritableIndex index, String fromVersion) {
+		GetAliasesResponse response = client.admin().indices().prepareGetAliases(index.readAlias()).get();
 		String fromIndex = response.getAliases().keysIt().next();
+		if (!fromVersion.equals("*") && !indexVersion(fromIndex).startsWith(fromVersion)) {
+			return;
+		}
+
 		String toIndex = index.newName();
 		byte[] schema = ESearchActivator.getIndexSchema(index.prefix());
 
@@ -39,6 +47,15 @@ public class IndexRewriter {
 		reindex(fromIndex, toIndex);
 		moveAlias(fromIndex, toIndex, index.readAlias(), false);
 		deleteIndex(fromIndex);
+	}
+
+	private String indexVersion(String indexName) {
+		// Exemple de versions renvoyées par : /_settings
+		// 7: {"index": { "version": { "created": "7170599"} } }
+		// 6: {"index": { "version": { "created": "6081299", "upgraded": "6082299"} } }
+		GetSettingsResponse settings = client.admin().indices().prepareGetSettings(indexName).get();
+		String upgradedVersion = settings.getSetting(indexName, "index.version.upgraded");
+		return (upgradedVersion != null) ? upgradedVersion : settings.getSetting(indexName, "index.version.created");
 	}
 
 	private void createIndex(String toIndex, byte[] schema) {
