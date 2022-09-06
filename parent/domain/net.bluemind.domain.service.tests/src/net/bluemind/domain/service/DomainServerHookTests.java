@@ -19,6 +19,7 @@ package net.bluemind.domain.service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +43,8 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.service.internal.DomainServerHook;
 import net.bluemind.group.api.Group;
@@ -67,6 +70,11 @@ public class DomainServerHookTests {
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 		PopulateHelper.initGlobalVirt();
+		IDomainSettings settings0 = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, "global.virt");
+		Map<String, String> domainSettings0 = settings0.get();
+		domainSettings0.put(DomainSettingsKeys.mail_routing_relay.name(), "external@test.fr");
+		settings0.set(domainSettings0);
 		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.external);
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 	}

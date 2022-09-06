@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
@@ -36,6 +37,8 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -54,6 +57,11 @@ public class RoleValidationTests {
 
 		JdbcTestHelper.getInstance().beforeTest();
 		PopulateHelper.initGlobalVirt();
+		IDomainSettings settings0 = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, "global.virt");
+		Map<String, String> domainSettings0 = settings0.get();
+		domainSettings0.put(DomainSettingsKeys.mail_routing_relay.name(), "external@test.fr");
+		settings0.set(domainSettings0);
 		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.external);
 
 		domainUid1 = "1-" + System.currentTimeMillis() + ".loc";
