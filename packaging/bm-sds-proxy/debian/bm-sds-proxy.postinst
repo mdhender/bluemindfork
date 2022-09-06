@@ -19,4 +19,7 @@
 
 #DEBHELPER#
 
+rm -rf /usr/share/bm-sds-proxy/extensions/eclipse/plugins
+mkdir -p /usr/share/bm-sds-proxy/extensions/eclipse/plugins
+
 exit 0

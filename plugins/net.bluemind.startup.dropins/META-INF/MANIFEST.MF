@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.startup.dropins
+Bundle-SymbolicName: net.bluemind.startup.dropins;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.startup.dropins.DropinsActivator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.osgi
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: net.bluemind.startup.dropins
+Export-Package: net.bluemind.startup.dropins
+Bundle-ActivationPolicy: lazy

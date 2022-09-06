@@ -27,6 +27,9 @@ esac
 # Force startup link install
 update-rc.d -f bm-webserver remove > /dev/null 2>&1
 
+rm -rf /usr/share/bm-webserver/extensions/eclipse/plugins
+mkdir -p /usr/share/bm-webserver/extensions/eclipse/plugins
+
 #DEBHELPER#
 
 exit 0

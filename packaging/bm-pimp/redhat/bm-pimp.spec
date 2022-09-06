@@ -33,6 +33,8 @@ if [ $1 -gt 1 ]; then
 fi
 
 %post -p /bin/bash
+rm -rf /usr/share/bm-pimp/extensions/eclipse/plugins
+mkdir -p /usr/share/bm-pimp/extensions/eclipse/plugins
 systemctl enable bm-pimp
 if [ -d /run/systemd/system ]; then
     systemctl daemon-reload

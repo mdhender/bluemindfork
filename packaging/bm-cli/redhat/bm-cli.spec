@@ -18,12 +18,13 @@ cp -a %{_rootdir}/* %{buildroot}
 /*
 
 %post
+rm -rf /usr/share/bm-cli/extensions/eclipse/plugins
+mkdir -p /usr/share/bm-cli/extensions/eclipse/plugins
 if [ $1 -eq 1 ]; then
     # Installation
     rm -f /usr/bin/bm-cli
     ln -s /usr/share/bm-cli/bm-cli /usr/bin/bm-cli
     chmod +x /usr/share/bm-cli/bm-cli
-    
 fi
 
 %posttrans

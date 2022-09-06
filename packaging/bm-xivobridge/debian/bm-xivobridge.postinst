@@ -20,6 +20,9 @@
 # Force startup link install
 update-rc.d -f bm-xivobridge remove > /dev/null 2>&1
 
+rm -rf /usr/share/bm-xivobridge/extensions/eclipse/plugins
+mkdir -p /usr/share/bm-xivobridge/extensions/eclipse/plugins
+
 # Needed for wheezy support
 if [ ! -x "/usr/bin/deb-systemd-helper" ]; then
 deb-systemd-helper() {

@@ -39,6 +39,8 @@ if [ $1 -gt 1 ]; then
 fi
 
 %post -p /bin/bash
+rm -rf /usr/share/bm-core/extensions/eclipse/plugins
+mkdir -p /usr/share/bm-core/extensions/eclipse/plugins
 systemctl enable bm-core
 if [ -d /run/systemd/system ]; then
     systemctl daemon-reload
