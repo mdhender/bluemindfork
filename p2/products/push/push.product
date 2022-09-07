@@ -67,11 +67,11 @@
       <plugin id="net.bluemind.common.hollow"/>
       <plugin id="net.bluemind.common.io"/>
       <plugin id="net.bluemind.common.reflect"/>
+      <plugin id="net.bluemind.common.task"/>
       <plugin id="net.bluemind.config"/>
       <plugin id="net.bluemind.core.caches.registry"/>
       <plugin id="net.bluemind.core.commons"/>
       <plugin id="net.bluemind.core.container.api"/>
-      <plugin id="net.bluemind.core.container.hooks"/>
       <plugin id="net.bluemind.core.context"/>
       <plugin id="net.bluemind.core.rest"/>
       <plugin id="net.bluemind.core.rest.common"/>
@@ -80,7 +80,6 @@
       <plugin id="net.bluemind.core.sessions"/>
       <plugin id="net.bluemind.core.sqlschema"/>
       <plugin id="net.bluemind.core.task.api"/>
-      <plugin id="net.bluemind.core.task.service"/>
       <plugin id="net.bluemind.core.task.spi"/>
       <plugin id="net.bluemind.device.api"/>
       <plugin id="net.bluemind.directory.api"/>
@@ -123,7 +122,6 @@
       <plugin id="net.bluemind.lib.ristretto"/>
       <plugin id="net.bluemind.lib.vertx"/>
       <plugin id="net.bluemind.linkify"/>
-      <plugin id="net.bluemind.lmtp"/>
       <plugin id="net.bluemind.mailbox.api"/>
       <plugin id="net.bluemind.mailbox.identity.api"/>
       <plugin id="net.bluemind.metrics.agent-api"/>
@@ -148,7 +146,7 @@
       <plugin id="net.bluemind.user.api"/>
       <plugin id="net.bluemind.utils"/>
       <plugin id="net.bluemind.vertx.common"/>
-      <plugin id="net.bluemind.videoconferencing.teams"/>
+      <plugin id="net.bluemind.videoconferencing.utils"/>
       <plugin id="net.freeutils.tnef"/>
       <plugin id="net.java.dev.jna"/>
       <plugin id="org.aopalliance"/>
@@ -232,9 +230,9 @@
       <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
       <property name="eclipse.registry.MultiLanguage" value="true" />
+      <property name="org.eclipse.equinox.p2.reconciler.dropins.directory" value="/usr/share/bm-eas/extensions" />
       <property name="osgi.instance.area" value="/var/lib/bm-eas/" />
       <property name="osgi.noShutdown" value="true" />
-      <property name="org.eclipse.equinox.p2.reconciler.dropins.directory" value="/usr/share/bm-eas/extensions" />
    </configurations>
 
    <preferencesInfo>

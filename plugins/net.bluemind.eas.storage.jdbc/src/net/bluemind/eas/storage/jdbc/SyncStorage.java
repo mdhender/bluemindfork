@@ -33,6 +33,7 @@ import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.calendar.api.ICalendar;
+import net.bluemind.common.task.Tasks;
 import net.bluemind.config.Token;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.ContainerSubscription;
@@ -49,7 +50,6 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.device.api.IDevice;
 import net.bluemind.device.api.IDevices;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
@@ -301,7 +301,7 @@ public class SyncStorage implements ISyncStorage {
 
 				ICalendar service = cssp.instance(ICalendar.class, node.containerUid);
 				TaskRef tr = service.reset();
-				TaskUtils.wait(cssp, tr);
+				Tasks.followStream(cssp, logger, null, tr);
 			}
 
 			containers.delete(node.containerUid);
