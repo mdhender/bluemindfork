@@ -27,7 +27,6 @@ import org.subethamail.smtp.server.SMTPServer;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Promise;
 import io.vertx.core.Verticle;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
@@ -40,16 +39,16 @@ public class LmtpStarter extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(LmtpStarter.class);
 
 	@Override
-	public void start(Promise<Void> startPromise) {
-		SMTPServer dontCare = Topology.getIfAvailable().map(tp -> startImpl(tp, startPromise)).orElseGet(() -> {
+	public void start() {
+		SMTPServer dontCare = Topology.getIfAvailable().map(this::startImpl).orElseGet(() -> {
 			logger.info("Topology is not yet available, delay {} startup a bit.", this);
-			vertx.setTimer(2000, tid -> start(startPromise));
+			vertx.setTimer(2000, tid -> start());
 			return null;
 		});
 		logger.debug("smtp is {}", dontCare);
 	}
 
-	private SMTPServer startImpl(IServiceTopology t, Promise<Void> startPromise) {
+	private SMTPServer startImpl(IServiceTopology t) {
 
 		String url = "http://" + t.any("bm/core").value.address() + ":8090";
 		ApiProv prov = k -> ClientSideServiceProvider.getProvider(url, k);
@@ -61,7 +60,6 @@ public class LmtpStarter extends AbstractVerticle {
 		srv.setSoftwareName("bm-lmtpd");
 		srv.setPort(2400);
 		srv.start();
-		startPromise.complete();
 		return srv;
 	}
 

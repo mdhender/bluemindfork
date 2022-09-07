@@ -27,7 +27,6 @@ import com.google.common.base.Stopwatch;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
-import net.bluemind.imap.endpoint.EndpointRuntimeException;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.AnalyzedCommand;
 import net.bluemind.imap.endpoint.cmd.RawCommandAnalyzer;
@@ -51,7 +50,7 @@ public class ImapCommandHandler implements Handler<RawImapCommand> {
 		ctx.clientCommand(event);
 		try {
 			analyze(event);
-		} catch (EndpointRuntimeException ere) {
+		} catch (Exception ere) {
 			ctx.write(event.tag() + " BAD " + ere.getMessage() + "\r\n");
 		}
 	}

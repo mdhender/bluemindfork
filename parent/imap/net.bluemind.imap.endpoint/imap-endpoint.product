@@ -163,7 +163,7 @@
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="2" />
       <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <property name="osgi.noShutdown" value="true" />
-      <property name="eclipse.registry.MultiLanguage" value="true" />
+      <property name="osgi.instance.area" value="/var/lib/bm-imapd/" />
    </configurations>
 
    <preferencesInfo>

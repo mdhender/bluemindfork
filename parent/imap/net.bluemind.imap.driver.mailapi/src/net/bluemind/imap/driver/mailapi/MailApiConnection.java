@@ -21,25 +21,21 @@ package net.bluemind.imap.driver.mailapi;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
@@ -60,11 +56,9 @@ import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.container.api.Count;
-import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.hornetq.client.Consumer;
@@ -129,23 +123,13 @@ public class MailApiConnection implements MailboxConnection {
 				.collect(Collectors.toSet());
 
 		if (mailboxPattern.equals("%")) {
-			allFolders = allFolders.stream().filter(f -> f.value.parentUid == null).collect(Collectors.toList());
+			allFolders = allFolders.stream().filter(f -> f.value.parentUid == null).sorted(Replicas::compare).toList();
 		} else if (!(mailboxPattern.contains("%") || mailboxPattern.contains("*"))) {
 			Predicate<ItemValue<MailboxReplica>> filter = matcher(mailboxPattern);
-			allFolders = allFolders.stream().filter(filter).collect(Collectors.toList());
+			allFolders = allFolders.stream().filter(filter).sorted(Replicas::compare).toList();
 		}
 
-		Collections.sort(allFolders, (f1, f2) -> {
-			if (f1.value.fullName.equals("INBOX")) {
-				return -1;
-			}
-			if (f2.value.fullName.equals("INBOX")) {
-				return 1;
-			}
-			return f1.value.fullName.compareTo(f2.value.fullName);
-		});
-
-		return allFolders.stream().map(f -> asListNode(parents, f)).collect(Collectors.toList());
+		return allFolders.stream().map(f -> asListNode(parents, f)).toList();
 	}
 
 	private Predicate<ItemValue<MailboxReplica>> matcher(String mailboxPattern) {
@@ -185,26 +169,19 @@ public class MailApiConnection implements MailboxConnection {
 			WriteStream<FetchedItem> output) {
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 
-		ContainerChangeset<ItemVersion> cs = recApi.filteredChangesetById(0L, ItemFlagFilter.all());
-		List<ItemVersion> ids = Lists.newArrayList(Iterables.concat(cs.created, cs.updated));
-		Collections.sort(ids, (iv1, iv2) -> Long.compare(iv1.id, iv2.id));
-		Map<Long, Integer> itemIdToSeq = new HashMap<>();
-		IntStream.rangeClosed(1, ids.size()).forEach(idx -> itemIdToSeq.put(ids.get(idx - 1).id, idx));
-
 		Iterator<List<Long>> slice = Lists.partition(recApi.imapIdSet(idset, ""), 500).iterator();
 		CompletableFuture<Void> ret = new CompletableFuture<>();
 
-		pushNext(recApi, selected, fields, slice, Collections.emptyIterator(), itemIdToSeq, ret, output);
+		pushNext(recApi, selected, fields, slice, Collections.emptyIterator(), ret, output);
 		return ret;
 	}
 
 	private void pushNext(IDbMailboxRecords recApi, SelectedFolder selected, List<MailPart> fields,
 			Iterator<List<Long>> idSliceIterator, Iterator<ItemValue<MailboxRecord>> recsIterator,
-			Map<Long, Integer> itemIdToSeq, CompletableFuture<Void> ret, WriteStream<FetchedItem> output) {
+			CompletableFuture<Void> ret, WriteStream<FetchedItem> output) {
 		FetchedItemRenderer renderer = new FetchedItemRenderer(prov, recApi, selected, fields);
 		while (recsIterator.hasNext()) {
 			ItemValue<MailboxRecord> rec = recsIterator.next();
-			System.err.println(" * " + rec);
 			if (rec.value.internalFlags.contains(InternalFlag.expunged)) {
 				continue;
 			}
@@ -212,13 +189,13 @@ public class MailApiConnection implements MailboxConnection {
 			long imapUid = rec.value.imapUid;
 			// always increment for valid sequences
 			FetchedItem fi = new FetchedItem();
-			fi.seq = itemIdToSeq.get(rec.internalId);
 			fi.uid = (int) imapUid;
+			fi.seq = fi.uid;
 			fi.properties = renderer.renderFields(rec);
 			output.write(fi);
 			if (output.writeQueueFull()) {
-				output.drainHandler(v -> pushNext(recApi, selected, fields, idSliceIterator, recsIterator, itemIdToSeq,
-						ret, output));
+				output.drainHandler(
+						v -> pushNext(recApi, selected, fields, idSliceIterator, recsIterator, ret, output));
 				return;
 			}
 		}
@@ -226,7 +203,7 @@ public class MailApiConnection implements MailboxConnection {
 		if (idSliceIterator.hasNext()) {
 			List<Long> slice = idSliceIterator.next();
 			List<ItemValue<MailboxRecord>> records = recApi.multipleGetById(slice);
-			pushNext(recApi, selected, fields, idSliceIterator, records.iterator(), itemIdToSeq, ret, output);
+			pushNext(recApi, selected, fields, idSliceIterator, records.iterator(), ret, output);
 		} else {
 			output.end(ar -> ret.complete(null));
 		}
@@ -282,7 +259,6 @@ public class MailApiConnection implements MailboxConnection {
 		HashFunction hash = Hashing.sha1();
 		String bodyGuid = hash.hashBytes(buffer.duplicate().nioBuffer()).toString();
 		String partition = CyrusPartition.forServerAndDomain(me.value.dataLocation, me.domainUid).name;
-		System.err.println("Deliver " + bodyGuid + " to " + partition);
 		IDbMessageBodies bodiesApi = prov.instance(IDbMessageBodies.class, partition);
 		bodiesApi.create(bodyGuid, VertxStream.stream(Buffer.buffer(buffer)));
 
@@ -318,7 +294,7 @@ public class MailApiConnection implements MailboxConnection {
 			default:
 				return MailboxItemFlag.of(f, 0);
 			}
-		}).filter(Objects::nonNull).collect(Collectors.toList());
+		}).filter(Objects::nonNull).toList();
 	}
 
 	private List<InternalFlag> internalFlags(List<String> flags) {
@@ -327,7 +303,7 @@ public class MailApiConnection implements MailboxConnection {
 				return InternalFlag.expunged;
 			}
 			return null;
-		}).filter(Objects::nonNull).collect(Collectors.toList());
+		}).filter(Objects::nonNull).toList();
 	}
 
 	@Override
@@ -335,8 +311,7 @@ public class MailApiConnection implements MailboxConnection {
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 		List<Long> toUpdate = recApi.imapIdSet(idset, "");
 		for (List<Long> slice : Lists.partition(toUpdate, 500)) {
-			List<MailboxRecord> recs = recApi.multipleGetById(slice).stream().map(iv -> iv.value)
-					.collect(Collectors.toList());
+			List<MailboxRecord> recs = recApi.multipleGetById(slice).stream().map(iv -> iv.value).toList();
 			for (MailboxRecord item : recs) {
 				List<MailboxItemFlag> commandFlags = flags(flags);
 				List<InternalFlag> internalFlags = internalFlags(flags);
@@ -415,7 +390,7 @@ public class MailApiConnection implements MailboxConnection {
 		String filter = filters.stream().collect(Collectors.joining(","));
 		logger.info("set: 1:*, filter: {}", filter);
 		List<Long> notDel = recApi.imapIdSet("1:*", filter);
-		return recApi.imapBindings(notDel).stream().map(ib -> ib.imapUid).sorted().collect(Collectors.toList());
+		return recApi.imapBindings(notDel).stream().map(ib -> ib.imapUid).sorted().toList();
 	}
 
 }
