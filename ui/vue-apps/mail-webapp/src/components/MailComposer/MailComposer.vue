@@ -42,6 +42,7 @@
             @keypress.enter.prevent
         />
         <mail-composer-attachments
+            class="m-4"
             :dragged-files-count="draggedFilesCount"
             :message="message"
             @files-count="draggedFilesCount = $event"

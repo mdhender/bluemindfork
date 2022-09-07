@@ -9,7 +9,7 @@
                 bccShowMore = false;
                 toShowMore = !toShowMore;
             "
-            >{{ $t("mail.content.to") }}</mail-viewer-recipient
+            >{{ $t("common.to") }}</mail-viewer-recipient
         >
         <mail-viewer-recipient
             v-if="message.cc.length"
@@ -20,7 +20,7 @@
                 ccShowMore = false;
                 ccShowMore = !ccShowMore;
             "
-            >{{ $t("mail.content.copy") }}</mail-viewer-recipient
+            >{{ $t("common.cc") }}</mail-viewer-recipient
         >
         <mail-viewer-recipient
             v-if="message.bcc.length"
@@ -31,7 +31,7 @@
                 ccShowMore = false;
                 bccShowMore = !bccShowMore;
             "
-            >{{ $t("mail.content.blindcopy") }}</mail-viewer-recipient
+            >{{ $t("common.bcc") }}</mail-viewer-recipient
         >
         <bm-popover
             v-if="message.to.length"

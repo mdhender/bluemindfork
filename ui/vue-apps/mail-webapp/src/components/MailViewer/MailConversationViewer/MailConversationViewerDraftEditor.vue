@@ -7,7 +7,7 @@
         v-on="$listeners"
     >
         <template slot="head">
-            <div class="col align-self-center flex-fill">
+            <div class="d-flex flex-column flex-fill">
                 <mail-composer-sender
                     v-if="isSenderShown"
                     class="mb-3"
@@ -16,70 +16,63 @@
                     @update="identity => setFrom(identity, message)"
                     @check-and-repair="checkAndRepairFrom"
                 />
-                <bm-contact-input
-                    ref="to"
-                    :contacts="message.to"
-                    :autocomplete-results="autocompleteResultsTo"
-                    :validate-address-fn="validateAddress"
-                    @search="searchedPattern => onSearch('to', searchedPattern)"
-                    @update:contacts="updateTo"
-                >
-                    <span class="font-weight-bold text-neutral">{{ $t("common.to") }}</span>
-                </bm-contact-input>
-            </div>
-            <div class="contact-input-extensions">
-                <template v-if="!(displayedRecipientFields & recipientModes.CC)">
-                    <bm-button variant="text" size="lg" @click="displayedRecipientFields |= recipientModes.CC">
-                        {{ $t("common.cc") }}
-                    </bm-button>
-                    <bm-button variant="text" size="lg" @click="displayedRecipientFields |= recipientModes.BCC">
-                        {{ $t("common.bcc") }}
-                    </bm-button>
-                </template>
-                <mail-open-in-popup-with-shift v-slot="action" :href="route" :next="consult">
-                    <bm-icon-button
-                        variant="compact"
-                        :title="action.label($t('mail.actions.extend'))"
-                        :disabled="anyAttachmentInError"
-                        :icon="action.icon('extend')"
-                        @click="saveAsap().then(() => action.execute(() => $router.navigate(route), $event))"
-                    />
-                </mail-open-in-popup-with-shift>
+                <div class="to-contact-input">
+                    <bm-contact-input
+                        ref="to"
+                        variant="underline"
+                        :contacts="message.to"
+                        :autocomplete-results="autocompleteResultsTo"
+                        :validate-address-fn="validateAddress"
+                        @search="searchedPattern => onSearch('to', searchedPattern)"
+                        @update:contacts="updateTo"
+                    >
+                        {{ $t("common.to") }}
+                    </bm-contact-input>
+                    <mail-open-in-popup-with-shift v-slot="action" :href="route" :next="consult">
+                        <bm-icon-button
+                            variant="compact"
+                            class="expand-button"
+                            :title="action.label($t('mail.actions.extend'))"
+                            :disabled="anyAttachmentInError"
+                            :icon="action.icon('extend')"
+                            @click="saveAsap().then(() => action.execute(() => $router.navigate(route), $event))"
+                        />
+                    </mail-open-in-popup-with-shift>
+                </div>
             </div>
         </template>
 
         <template slot="subhead">
-            <mail-conversation-viewer-field-sep :index="index" :max-index="maxIndex" />
-            <template v-if="displayedRecipientFields & recipientModes.CC">
+            <template v-if="displayedRecipientFields > recipientModes.TO">
                 <div class="d-flex conversation-viewer-row flex-nowrap">
                     <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
-                    <bm-contact-input
-                        class="flex-fill"
-                        :contacts="message.cc"
-                        :autocomplete-results="autocompleteResultsCc"
-                        :validate-address-fn="validateAddress"
-                        @search="searchedPattern => onSearch('cc', searchedPattern)"
-                        @update:contacts="updateCc"
-                    >
-                        <span class="font-weight-bold text-neutral">{{ $t("common.cc") }}</span>
-                    </bm-contact-input>
-                    <div class="contact-input-extensions">
+                    <div class="cc-contact-input">
+                        <bm-contact-input
+                            variant="underline"
+                            :contacts="message.cc"
+                            :autocomplete-results="autocompleteResultsCc"
+                            :validate-address-fn="validateAddress"
+                            @search="searchedPattern => onSearch('cc', searchedPattern)"
+                            @update:contacts="updateCc"
+                        >
+                            {{ $t("common.cc") }}
+                        </bm-contact-input>
                         <bm-button
                             v-if="!(displayedRecipientFields & recipientModes.BCC)"
                             variant="text"
-                            size="lg"
+                            class="bcc-button text-nowrap"
                             @click="displayedRecipientFields |= recipientModes.BCC"
                         >
                             {{ $t("common.bcc") }}
                         </bm-button>
                     </div>
                 </div>
-                <mail-conversation-viewer-field-sep :index="index" :max-index="maxIndex" />
             </template>
             <template v-if="displayedRecipientFields & recipientModes.BCC">
                 <div class="d-flex conversation-viewer-row flex-nowrap">
                     <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                     <bm-contact-input
+                        variant="underline"
                         class="flex-fill"
                         :contacts="message.bcc"
                         :autocomplete-results="autocompleteResultsBcc"
@@ -87,15 +80,15 @@
                         @search="searchedPattern => onSearch('bcc', searchedPattern)"
                         @update:contacts="updateBcc"
                     >
-                        <span class="font-weight-bold text-neutral">{{ $t("common.bcc") }}</span>
+                        {{ $t("common.bcc") }}
                     </bm-contact-input>
                 </div>
-                <mail-conversation-viewer-field-sep :index="index" :max-index="maxIndex" />
             </template>
-            <div class="row flex-nowrap">
+            <div class="d-flex conversation-viewer-row flex-nowrap">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                 <div class="flex-fill">
                     <mail-composer-attachments
+                        class="my-4"
                         :dragged-files-count="draggedFilesCount"
                         :message="message"
                         @files-count="draggedFilesCount = $event"
@@ -141,7 +134,6 @@ import MailComposerFooter from "../../MailComposer/MailComposerFooter";
 import MailComposerSender from "../../MailComposer/MailComposerSender";
 import MailConversationViewerItem from "./MailConversationViewerItem";
 import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
-import MailConversationViewerFieldSep from "./MailConversationViewerFieldSep";
 import MailConversationViewerVerticalLine from "./MailConversationViewerVerticalLine";
 import { REMOVE_MESSAGES, SET_MESSAGE_COMPOSING } from "~/mutations";
 import MessagePathParam from "~/router/MessagePathParam";
@@ -160,7 +152,6 @@ export default {
         MailComposerFooter,
         MailComposerSender,
         MailConversationViewerItem,
-        MailConversationViewerFieldSep,
         MailConversationViewerVerticalLine,
         MailOpenInPopupWithShift
     },
@@ -200,28 +191,55 @@ export default {
 </script>
 
 <style lang="scss">
-@use "sass:math";
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-conversation-viewer-draft-editor {
     .bm-contact-input-label {
-        padding-left: unset !important;
+        flex: none;
     }
-    .bm-contact-input {
+
+    .to-contact-input {
+        $expand-button-width: $icon-btn-width-compact;
+
         flex: 1;
+        min-width: 0;
+        position: relative;
+
+        .bm-contact-input {
+            padding-right: $expand-button-width;
+        }
+
+        .expand-button {
+            position: absolute;
+            right: 0;
+            top: base-px-to-rem(2);
+        }
     }
-    .contact-input-extensions {
-        > * {
-            flex: none;
+
+    .cc-contact-input {
+        $bcc-button-width: base-px-to-rem(24);
+
+        flex: 1;
+        min-width: 0;
+        position: relative;
+
+        .bm-contact-input {
+            padding-right: $bcc-button-width + $sp-3;
         }
-        > .bm-icon-button.btn-md {
-            margin-top: math.div($input-height - $icon-btn-height, 2);
-        }
-        > .btn-text {
-            padding-left: $sp-3;
-            padding-right: $sp-3;
+
+        .bcc-button {
+            position: absolute;
+            width: $bcc-button-width;
+            right: $sp-3;
+            bottom: base-px-to-rem(3);
         }
     }
+
+    .mail-composer-content .bm-rich-editor {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
     .mail-composer-footer {
         border-top: unset !important;
     }

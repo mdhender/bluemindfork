@@ -50,7 +50,7 @@
 import { mapMutations, mapState } from "vuex";
 
 import { createCid, CID_DATA_ATTRIBUTE } from "@bluemind/email";
-import { BmFileDropZone, BmIcon, BmRichEditor } from "@bluemind/styleguide";
+import { BmFileDropZone, BmIcon, BmIconButton, BmRichEditor } from "@bluemind/styleguide";
 import { draftUtils, signatureUtils } from "@bluemind/mail";
 
 import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
@@ -63,7 +63,7 @@ const { PERSONAL_SIGNATURE_SELECTOR } = signatureUtils;
 
 export default {
     name: "MailComposerContent",
-    components: { BmFileDropZone, BmIcon, BmRichEditor, MailViewerContentLoading },
+    components: { BmFileDropZone, BmIcon, BmIconButton, BmRichEditor, MailViewerContentLoading },
     mixins: [AddAttachmentsCommand, ComposerActionsMixin, ComposerInitMixin, SignatureMixin, WaitForMixin],
     props: {
         message: {
@@ -168,8 +168,11 @@ function getFilesFromEvent(event) {
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-composer-content {
-    .bm-rich-editor .roosterjs-container {
-        min-height: 12rem;
+    .bm-rich-editor {
+        padding: $sp-4;
+        .roosterjs-container {
+            min-height: 12rem;
+        }
     }
 }
 </style>

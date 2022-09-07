@@ -4,6 +4,7 @@
             <bm-col :cols="displayedRecipientFields == recipientModes.TO ? 11 : 12">
                 <bm-contact-input
                     ref="to"
+                    variant="underline"
                     :contacts.sync="to"
                     :autocomplete-results="autocompleteResultsTo"
                     :validate-address-fn="validateDnAndAddress"
@@ -11,7 +12,7 @@
                     @update:contacts="updateTo"
                     @expand="expandContact(to, $event, updateTo)"
                 >
-                    <span class="text-nowrap">{{ $t("common.to") }}</span>
+                    {{ $t("common.to") }}
                 </bm-contact-input>
             </bm-col>
             <bm-col v-if="displayedRecipientFields == recipientModes.TO" cols="1" class="text-center">
@@ -22,10 +23,10 @@
                 />
             </bm-col>
         </bm-row>
-        <hr class="m-0" />
         <div v-if="displayedRecipientFields > recipientModes.TO" class="d-flex align-items-center">
             <div class="cc-contact-input">
                 <bm-contact-input
+                    variant="underline"
                     :contacts.sync="cc"
                     :autocomplete-results="autocompleteResultsCc"
                     :validate-address-fn="validateDnAndAddress"
@@ -34,28 +35,25 @@
                     @update:contacts="updateCc"
                     @expand="expandContact(cc, $event, updateCc)"
                 >
-                    <span class="text-nowrap">{{ $t("common.cc") }}</span>
+                    {{ $t("common.cc") }}
                 </bm-contact-input>
-            </div>
-            <div
-                v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC)"
-                class="bcc-button text-center"
-            >
                 <bm-button
+                    v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC)"
                     variant="text"
-                    class="my-2 mr-1 px-4 text-nowrap"
+                    class="bcc-button text-nowrap"
                     @click="displayedRecipientFields = recipientModes.TO | recipientModes.CC | recipientModes.BCC"
-                    >{{ $t("common.bcc") }}
+                >
+                    {{ $t("common.bcc") }}
                 </bm-button>
             </div>
         </div>
-        <hr v-if="displayedRecipientFields > recipientModes.TO" class="m-0" />
         <bm-row
             v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC | recipientModes.BCC)"
             class="align-items-center"
         >
             <bm-col>
                 <bm-contact-input
+                    variant="underline"
                     :contacts.sync="bcc"
                     :autocomplete-results="autocompleteResultsBcc"
                     :validate-address-fn="validateDnAndAddress"
@@ -63,14 +61,10 @@
                     @update:contacts="updateBcc"
                     @expand="expandContact(bcc, $event, updateBcc)"
                 >
-                    <span class="text-nowrap">{{ $t("common.bcc") }}</span>
+                    {{ $t("common.bcc") }}
                 </bm-contact-input>
             </bm-col>
         </bm-row>
-        <hr
-            v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC | recipientModes.BCC)"
-            class="m-0"
-        />
     </div>
 </template>
 
@@ -92,17 +86,30 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
 .mail-composer-recipients {
     .bm-contact-input-label {
-        min-width: 2rem;
+        flex: none;
     }
 
     .cc-contact-input {
+        $bcc-button-width: base-px-to-rem(24);
+
         flex: 1;
         min-width: 0;
-    }
-    .bcc-button {
-        flex: none;
+        position: relative;
+
+        .bm-contact-input {
+            padding-right: $bcc-button-width;
+        }
+
+        .bcc-button {
+            position: absolute;
+            width: $bcc-button-width;
+            right: 0;
+            bottom: base-px-to-rem(3);
+        }
     }
 }
 </style>
