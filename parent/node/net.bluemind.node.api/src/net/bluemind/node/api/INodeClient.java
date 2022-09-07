@@ -53,7 +53,13 @@ public interface INodeClient {
 	 */
 	byte[] read(String path) throws ServerFault;
 
-	boolean exist(String path);
+	/**
+	 * Check if path exists
+	 * 
+	 * @param path
+	 * @return
+	 */
+	boolean exists(String path);
 
 	/**
 	 * Opens a stream to a (maybe) remote file. Use this one when you can't predict

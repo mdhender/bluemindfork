@@ -130,7 +130,7 @@ public final class AHCHttpNodeClient implements INodeClient {
 	}
 
 	@Override
-	public boolean exist(String path) {
+	public boolean exists(String path) {
 		HeadHandler rh = new HeadHandler();
 		Request built = new RequestBuilder("HEAD", true, false).setUri(withPath("/fs" + esc(path))).build();
 		BoundRequestBuilder req = cli.getClient().prepareRequest(built);

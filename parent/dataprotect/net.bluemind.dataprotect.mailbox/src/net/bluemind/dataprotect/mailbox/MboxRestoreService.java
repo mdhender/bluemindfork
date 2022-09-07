@@ -209,7 +209,9 @@ public class MboxRestoreService {
 
 			restoreFsFolders(session, boxFsFolders.restoreDataRoot, boxFsFolders.dataPath, nc, mailPartId);
 			restoreFsFolders(session, boxFsFolders.restoreMetaRoot, boxFsFolders.metaPath, nc, mailPartId);
-			restoreFsFolders(session, boxFsFolders.restoreArchiveRoot, boxFsFolders.archivePath, nc, mailPartId);
+			if (nc.exists("/var/spool/bm-hsm/cyrus-archives")) {
+				restoreFsFolders(session, boxFsFolders.restoreArchiveRoot, boxFsFolders.archivePath, nc, mailPartId);
+			}
 
 			break;
 		default:
