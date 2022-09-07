@@ -79,7 +79,8 @@ public class VEventVideoConferencingSanitizer implements ISanitizer<VEventSeries
 				boolean hadVideoConfResource = hasVideoConferencingResource(oldEvent.attendees);
 				boolean hasVideoConfResource = hasVideoConferencingResource(evt.attendees);
 
-				if ((hadVideoConfResource != hasVideoConfResource) || !evt.description.equals(oldEvent.description)) {
+				String newDescription = evt.description != null ? evt.description : "";
+				if ((hadVideoConfResource != hasVideoConfResource) || !newDescription.equals(oldEvent.description)) {
 					logger.info("Update videoconferencing infos for occurrence '{}' dtstart: {}", evt.summary,
 							evt.dtstart);
 					videoConferencingService.update(oldEvent, evt);

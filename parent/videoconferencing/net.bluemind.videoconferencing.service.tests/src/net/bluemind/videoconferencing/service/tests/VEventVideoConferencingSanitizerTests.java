@@ -194,6 +194,22 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 	}
 
 	@Test
+	public void testUpdateVideoConfEventDescription_NULL() {
+		VEventSeries event = defaultVEvent();
+		VEvent.Attendee videoconf = VEvent.Attendee.create(VEvent.CUType.Resource, "", VEvent.Role.OptionalParticipant,
+				VEvent.ParticipationStatus.Accepted, true, "", "", "", "osef",
+				"bm://" + domainUid + "/resources/" + videoconfProviderId, null, null,
+				"videoconferencing@" + domainUid);
+		event.main.attendees.add(videoconf);
+
+		sanitizer.create(event);
+
+		VEventSeries updated = event.copy();
+		updated.main.description = null;
+		sanitizer.update(event, updated); // just don't fail
+	}
+
+	@Test
 	public void testUpdateVideoConfRemoveResource() {
 		VEventSeries event = defaultVEvent();
 		VEvent.Attendee videoconf = VEvent.Attendee.create(VEvent.CUType.Resource, "", VEvent.Role.OptionalParticipant,
