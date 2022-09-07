@@ -6,6 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
+ com.typesafe.config,
  net.bluemind.core.rest.http,
  net.bluemind.metrics.registry,
  net.bluemind.sds.store;visibility:=reexport,

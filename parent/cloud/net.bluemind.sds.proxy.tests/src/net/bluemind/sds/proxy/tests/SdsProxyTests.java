@@ -89,7 +89,7 @@ public class SdsProxyTests {
 
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
 		HttpClient client = client();
-		JsonObject payload = new JsonObject().put("storeType", "dummy");
+		JsonObject payload = new JsonObject().put("storeType", "dummy").put("unique", System.nanoTime());
 
 		client.request(uri("/configuration").setMethod(HttpMethod.POST), ar -> {
 			if (ar.succeeded()) {
@@ -299,7 +299,7 @@ public class SdsProxyTests {
 			if (ar.succeeded()) {
 				HttpClientRequest req = ar.result();
 				req.setChunked(true);
-				JsonObject payload = new JsonObject().put("storeType", "test");
+				JsonObject payload = new JsonObject().put("storeType", "test").put("unique", System.nanoTime());
 				req.send(Buffer.buffer(payload.encode()), ar2 -> {
 					if (ar2.succeeded()) {
 						HttpClientResponse resp = ar2.result();

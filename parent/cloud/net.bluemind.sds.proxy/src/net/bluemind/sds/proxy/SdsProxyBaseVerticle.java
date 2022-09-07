@@ -328,6 +328,10 @@ public abstract class SdsProxyBaseVerticle extends AbstractVerticle {
 	}
 
 	private CompletableFuture<ConfigureResponse> reConfigure(JsonObject req) {
+		if (storeConfig != null && req.encode().equals(storeConfig.encode())) {
+			logger.info("Sysconf changed, but nothing changed, ignoring");
+			return CompletableFuture.completedFuture(new ConfigureResponse());
+		}
 		logger.info("Apply configuration {}", req);
 		storeConfig = req;
 		ISdsBackingStore oldStore = sdsStore.getAndSet(loadStore());
@@ -344,7 +348,6 @@ public abstract class SdsProxyBaseVerticle extends AbstractVerticle {
 
 		// for unit tests
 		vertx.eventBus().publish("sds.events.configuration.updated", true);
-
 		return CompletableFuture.completedFuture(new ConfigureResponse());
 	}
 

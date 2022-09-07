@@ -59,10 +59,15 @@ import net.bluemind.sds.store.scalityring.zstd.ZstdStreams;
 
 public class ScalityRingStore implements ISdsBackingStore {
 	private static final Logger logger = LoggerFactory.getLogger(ScalityRingStore.class);
-	// This setting must be very high in order to allow getting many many objects in
-	// parallel in case of an imap fetch rush from multiple clients
-	public static final int PARALLELISM = 32768;
 
+	@SuppressWarnings("serial")
+	public static final class ClientAlreadyClosedException extends RuntimeException {
+		public ClientAlreadyClosedException(String message) {
+			super(message);
+		}
+	}
+
+	private final int parallelism;
 	private final AsyncHttpClient client;
 	private final String endpoint;
 
@@ -86,8 +91,9 @@ public class ScalityRingStore implements ISdsBackingStore {
 	private final Counter putSizeCounter;
 	private DistributionSummary compressionRatio;
 
-	public ScalityRingStore(ScalityConfiguration configuration, AsyncHttpClient client, Registry registry,
-			IdFactory idfactory) {
+	public ScalityRingStore(ScalityConfiguration configuration, AsyncHttpClient client, int parallelism,
+			Registry registry, IdFactory idfactory) {
+		this.parallelism = parallelism;
 		this.idFactory = idfactory;
 		this.client = client;
 		endpoint = configuration.endpoint;
@@ -124,6 +130,9 @@ public class ScalityRingStore implements ISdsBackingStore {
 	@Override
 	public CompletableFuture<ExistResponse> exists(ExistRequest req) {
 		final long start = clock.monotonicTime();
+		if (client.isClosed()) {
+			return CompletableFuture.failedFuture(new ClientAlreadyClosedException("NO: client is closed"));
+		}
 		return client.prepareHead(endpoint + "/" + req.guid) //
 				// Makes no attempt to return object metadata,
 				// and the “X-Scal-Usermd” header is not included in the response.
@@ -146,8 +155,11 @@ public class ScalityRingStore implements ISdsBackingStore {
 
 	@Override
 	public CompletableFuture<SdsResponse> upload(PutRequest req) {
-		final long start = clock.monotonicTime();
+		if (client.isClosed()) {
+			return CompletableFuture.failedFuture(new ClientAlreadyClosedException("NO: client is closed"));
+		}
 
+		final long start = clock.monotonicTime();
 		File uploadFile = new File(req.filename);
 		long uploadLength = uploadFile.length();
 
@@ -189,6 +201,10 @@ public class ScalityRingStore implements ISdsBackingStore {
 
 	@Override
 	public CompletableFuture<SdsResponse> download(GetRequest req) {
+		if (client.isClosed()) {
+			return CompletableFuture.failedFuture(new ClientAlreadyClosedException("NO: client is closed"));
+		}
+
 		final long start = clock.monotonicTime();
 		CompletableFuture<SdsResponse> response = new CompletableFuture<>();
 		AtomicLong downloaded = new AtomicLong(0);
@@ -244,6 +260,10 @@ public class ScalityRingStore implements ISdsBackingStore {
 
 	@Override
 	public CompletableFuture<SdsResponse> delete(DeleteRequest req) {
+		if (client.isClosed()) {
+			return CompletableFuture.failedFuture(new ClientAlreadyClosedException("NO: client is closed"));
+		}
+
 		final long start = clock.monotonicTime();
 		return client.prepareDelete(endpoint + "/" + req.guid) //
 				// Makes no attempt to return object metadata,
@@ -269,11 +289,15 @@ public class ScalityRingStore implements ISdsBackingStore {
 
 	@Override
 	public CompletableFuture<SdsResponse> downloads(MgetRequest req) {
+		if (client.isClosed()) {
+			return CompletableFuture.failedFuture(new ClientAlreadyClosedException("NO: client is closed"));
+		}
+
 		final long start = clock.monotonicTime();
 
 		int len = req.transfers.size();
 		final LongAdder totalSize = new LongAdder();
-		int parallelStreams = Math.min(PARALLELISM / 8, 32);
+		int parallelStreams = Math.min(parallelism / 8, 32);
 		CompletableFuture<?>[] roots = new CompletableFuture[parallelStreams];
 		for (int i = 0; i < parallelStreams; i++) {
 			roots[i] = CompletableFuture.completedFuture(null);

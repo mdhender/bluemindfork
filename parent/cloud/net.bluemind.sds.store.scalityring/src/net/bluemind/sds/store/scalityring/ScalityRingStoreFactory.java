@@ -17,7 +17,8 @@
  */
 package net.bluemind.sds.store.scalityring;
 
-import java.util.function.Supplier;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.AsyncHttpClientConfig;
@@ -26,8 +27,8 @@ import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Suppliers;
 import com.netflix.spectator.api.Registry;
+import com.typesafe.config.Config;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -42,7 +43,6 @@ public class ScalityRingStoreFactory implements ISdsBackingStoreFactory {
 	private static final Registry registry = MetricsRegistry.get();
 	private static final IdFactory idFactory = new IdFactory("scalityring", MetricsRegistry.get(),
 			ScalityRingStoreFactory.class);
-	private static Supplier<AsyncHttpClient> httpClient = Suppliers.memoize(ScalityRingStoreFactory::getHttpClient);
 
 	public ScalityRingStoreFactory() {
 		// ok
@@ -57,7 +57,8 @@ public class ScalityRingStoreFactory implements ISdsBackingStoreFactory {
 		}
 		logger.debug("Configuring with {}", configuration.encode());
 		ScalityConfiguration scalityConfig = ScalityConfiguration.from(configuration);
-		return new ScalityRingStore(scalityConfig, httpClient.get(), registry, idFactory);
+		return new ScalityRingStore(scalityConfig, getHttpClient(),
+				ScalityHttpClientConfig.get().getInt("scality.parallism"), registry, idFactory);
 	}
 
 	@Override
@@ -67,14 +68,22 @@ public class ScalityRingStoreFactory implements ISdsBackingStoreFactory {
 
 	protected static AsyncHttpClient getHttpClient() {
 		boolean trustAll = true;
-		AsyncHttpClientConfig httpClientConfig = new DefaultAsyncHttpClientConfig.Builder().setFollowRedirect(false)
-				.setMaxConnectionsPerHost(ScalityRingStore.PARALLELISM)
-				.setMaxConnections(ScalityRingStore.PARALLELISM * 2) //
-				.setTcpNoDelay(true).setMaxRedirects(0).setMaxRequestRetry(0) //
-				.setRequestTimeout(60_000).setConnectTimeout(15_000) //
+		Config httpconf = ScalityHttpClientConfig.get();
+		logger.info("ScalityRing http client using the following settings: {}", httpconf.entrySet().stream()
+				.map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining(",")));
+		AsyncHttpClientConfig httpClientConfig = new DefaultAsyncHttpClientConfig.Builder() //
+				.setFollowRedirect(httpconf.getBoolean("scality.follow-redirect"))
+				.setMaxConnectionsPerHost(httpconf.getInt("scality.max-connections-per-host"))
+				.setMaxConnections(httpconf.getInt("scality.max-connections")) //
+				.setTcpNoDelay(httpconf.getBoolean("scality.tcp-nodelay")) //
+				.setMaxRedirects(httpconf.getInt("scality.max-redirects")) //
+				.setMaxRequestRetry(httpconf.getInt("scality.max-retry")) //
+				.setRequestTimeout((int) httpconf.getDuration("scality.request-timeout", TimeUnit.MILLISECONDS)) //
+				.setConnectTimeout((int) httpconf.getDuration("scality.connect-timeout", TimeUnit.MILLISECONDS)) //
+				.setPooledConnectionIdleTimeout(
+						(int) httpconf.getDuration("scality.idle-timeout", TimeUnit.MILLISECONDS)) //
+				.setUserAgent(httpconf.getString("scality.user-agent")) //
 				.setUseInsecureTrustManager(trustAll) //
-				.setPooledConnectionIdleTimeout(10_000) //
-				.setUserAgent("BlueMind/ScalityRing") //
 				.build();
 		return new DefaultAsyncHttpClient(httpClientConfig);
 	}
