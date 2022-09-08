@@ -64,8 +64,8 @@ public class AddSignatureConfig extends Composite implements MailflowActionConfi
 		Map<String, String> values = new HashMap<>();
 		boolean isDisclaimer = !((CheckBox) tbl.getWidget(0, 1)).getValue();
 		values.put("isDisclaimer", (Boolean.toString(isDisclaimer)));
-		values.put("usePlaceholder", ((CheckBox) tbl.getWidget(1, 1)).getValue().toString());
-		values.put("removePrevious", ((CheckBox) tbl.getWidget(2, 1)).getValue().toString());
+		values.put("removePrevious", ((CheckBox) tbl.getWidget(1, 1)).getValue().toString());
+		values.put("usePlaceholder", ((CheckBox) tbl.getWidget(2, 1)).getValue().toString());
 		values.put("plain", ((TextArea) tbl.getWidget(3, 1)).getText());
 		values.put("html", ((TextArea) tbl.getWidget(4, 1)).getText());
 		return values;
@@ -79,8 +79,8 @@ public class AddSignatureConfig extends Composite implements MailflowActionConfi
 	@Override
 	public void set(Map<String, String> config) {
 		((CheckBox) tbl.getWidget(0, 1)).setValue(!Boolean.valueOf(config.get("isDisclaimer")));
-		((CheckBox) tbl.getWidget(1, 1)).setValue(Boolean.valueOf(config.get("usePlaceholder")));
-		((CheckBox) tbl.getWidget(2, 1)).setValue(Boolean.valueOf(config.get("removePrevious")));
+		((CheckBox) tbl.getWidget(1, 1)).setValue(Boolean.valueOf(config.get("removePrevious")));
+		((CheckBox) tbl.getWidget(2, 1)).setValue(Boolean.valueOf(config.get("usePlaceholder")));
 		((TextArea) tbl.getWidget(3, 1)).setText(config.get("plain"));
 		((TextArea) tbl.getWidget(4, 1)).setText(config.get("html"));
 	}
