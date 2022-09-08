@@ -15,16 +15,19 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.imap.endpoint.cmd;
+package net.bluemind.imap.endpoint.driver;
 
-import java.util.regex.Pattern;
+import java.util.Set;
 
-public class UidFetchCommand extends AbstractFetchCommand {
+public class MailPartBuilder {
 
-	private static final Pattern fetchTemplate = Pattern.compile("uid fetch ([^\\s]+) (.*)$", Pattern.CASE_INSENSITIVE);
+	public String name;
+	public String section;
+	public Set<String> options;
+	public String partial;
 
-	public UidFetchCommand(RawImapCommand raw) {
-		super(raw, fetchTemplate);
+	public MailPart build() {
+		return new MailPart(name, section, options, partial);
 	}
 
 }

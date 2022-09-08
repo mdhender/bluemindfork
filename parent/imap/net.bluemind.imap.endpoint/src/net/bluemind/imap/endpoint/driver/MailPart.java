@@ -22,13 +22,23 @@ import java.util.stream.Collectors;
 
 public class MailPart {
 
-	public String name;
-	public String section;
-	public Set<String> options;
-	public String partial;
+	public final String name;
+	public final String section;
+	public final Set<String> options;
+	public final String partial;
+	private final String toString;
+	private String outName;
 
-	@Override
-	public String toString() {
+	public MailPart(String name, String section, Set<String> options, String partial) {
+		this.name = name;
+		this.section = section;
+		this.options = options;
+		this.partial = partial;
+		this.toString = toStringImpl();
+		this.outName = toString.replace(".peek", "").replace(".PEEK", "");
+	}
+
+	private String toStringImpl() {
 		return name + (section != null ? "[" + section + optStr(options) + "]" : "")
 				+ (partial != null ? "<" + partial + ">" : "");
 	}
@@ -40,8 +50,13 @@ public class MailPart {
 		return options.stream().collect(Collectors.joining(" ", " (", ")"));
 	}
 
+	@Override
+	public String toString() {
+		return toString;
+	}
+
 	public String outName() {
-		return toString().replace(".peek", "").replace(".PEEK", "");
+		return outName;
 	}
 
 }

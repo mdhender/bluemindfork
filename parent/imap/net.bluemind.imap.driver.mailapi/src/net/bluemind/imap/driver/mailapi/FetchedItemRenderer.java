@@ -128,15 +128,10 @@ public class FetchedItemRenderer {
 				String size = Integer.toString(body.get().size);
 				ret.put(f.toString(), Unpooled.wrappedBuffer(size.getBytes()));
 				break;
-			case "BODY":
-			case "BODY.PEEK":
+			case "BODY", "BODY.PEEK":
 				ByteBuf bodyPeek = bodyPeek(recApi, body, f, rec);
 				if (bodyPeek != null) {
-					int len = bodyPeek.readableBytes();
-					ByteBuf lenBuf = Unpooled.wrappedBuffer(("{" + len + "}\r\n").getBytes());
-					bodyPeek = Unpooled.wrappedBuffer(lenBuf, bodyPeek);
-					logger.info("Send {} byte(s) for body.peek[{}]", len, f.section);
-					ret.put(f.toString(), bodyPeek);
+					ret.put(f.toString(), literalize(bodyPeek));
 				} else {
 					logger.warn("body.peek of {} returned null", f);
 				}
@@ -148,6 +143,12 @@ public class FetchedItemRenderer {
 		}
 
 		return ret;
+	}
+
+	private ByteBuf literalize(ByteBuf bodyPeek) {
+		int len = bodyPeek.readableBytes();
+		ByteBuf lenBuf = Unpooled.wrappedBuffer(("{" + len + "}\r\n").getBytes());
+		return Unpooled.wrappedBuffer(lenBuf, bodyPeek);
 	}
 
 	private MessageBody getBody(SelectedFolder selected, ItemValue<MailboxRecord> rec) {
