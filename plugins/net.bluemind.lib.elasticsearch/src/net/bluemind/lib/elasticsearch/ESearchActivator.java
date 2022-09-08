@@ -463,6 +463,18 @@ public final class ESearchActivator implements BundleActivator {
 		}
 	}
 
+	public static Optional<String> initIndexIfNotExists(Client client, String index) {
+		return indexDefinitionOf(index).map(indexDefinition -> {
+			return new GetAliasesRequestBuilder(client, GetAliasesAction.INSTANCE).get().getAliases().keySet().stream() //
+					.filter(indexDefinition::supportsIndex) //
+					.findFirst() //
+					.orElseGet(() -> {
+						initIndex(client, indexDefinition.index);
+						return indexDefinition.index;
+					});
+		});
+	}
+
 	public static void initIndex(Client client, String index) {
 		Optional<IndexDefinition> indexDefinition = indexDefinitionOf(index);
 		if (!indexDefinition.isPresent()) {
