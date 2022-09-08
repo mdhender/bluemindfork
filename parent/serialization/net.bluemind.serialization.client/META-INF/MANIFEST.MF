@@ -13,7 +13,9 @@ Require-Bundle: slf4j.api,
  org.eclipse.osgi,
  net.bluemind.lib.vertx,
  net.bluemind.network.topology,
- net.bluemind.common.hollow
+ net.bluemind.common.hollow,
+ org.asynchttpclient.async-http-client,
+ com.google.guava
 Bundle-Activator: net.bluemind.serialization.client.Activator
 Export-Package: net.bluemind.serialization.client
 Automatic-Module-Name: net.bluemind.serialization.client

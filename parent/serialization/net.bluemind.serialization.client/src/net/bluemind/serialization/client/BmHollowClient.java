@@ -21,11 +21,15 @@ package net.bluemind.serialization.client;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.function.Supplier;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Suppliers;
 
 import net.bluemind.network.topology.Topology;
 
@@ -42,7 +46,9 @@ public class BmHollowClient implements AutoCloseable {
 	private final String subset;
 	private final long requestedVersion;
 	private InputStream inputStream;
-	private HttpURLConnection con;
+	private String versionHeader;
+
+	private static final Supplier<AsyncHttpClient> ahc = Suppliers.memoize(DefaultAsyncHttpClient::new);
 
 	public BmHollowClient(Type type, String dataset, String subset, long version) {
 		this.type = type;
@@ -56,10 +62,11 @@ public class BmHollowClient implements AutoCloseable {
 				requestedVersion, type.name());
 		try {
 			logger.info("Reading hollow from {}...", path);
-			URL url = new URL(path);
-			this.con = (HttpURLConnection) url.openConnection();
-			con.setRequestMethod("GET");
-			this.inputStream = con.getInputStream();
+			Response resp = ahc.get().prepareGet(path).execute().get();
+			this.versionHeader = resp.getHeader("X-BM-DATASET_VERSION");
+			this.inputStream = resp.getResponseBodyAsStream();
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
 		} catch (Exception e) {
 			throw new HollowRetrievalException(e);
 		}
@@ -79,15 +86,7 @@ public class BmHollowClient implements AutoCloseable {
 			try {
 				inputStream.close();
 			} catch (Exception e) {
-
-			}
-		}
-
-		if (con != null) {
-			try {
-				con.disconnect();
-			} catch (Exception e) {
-
+				// OK
 			}
 		}
 	}
@@ -96,13 +95,12 @@ public class BmHollowClient implements AutoCloseable {
 		try {
 			return Long.valueOf(new BufferedReader(new InputStreamReader(openStream())).readLine().trim());
 		} catch (Exception e) {
-			logger.warn("Cannot read version from hollow connection", e);
-			throw new RuntimeException(e);
+			throw new HollowRetrievalException(e);
 		}
 	}
 
 	public long getVersionHeader() {
-		return Long.valueOf(con.getHeaderField("X-BM-DATASET_VERSION"));
+		return Long.valueOf(versionHeader);
 	}
 
 }
