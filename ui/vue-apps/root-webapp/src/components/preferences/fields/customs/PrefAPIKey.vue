@@ -204,9 +204,6 @@ export default {
         .sid-value {
             flex: 0 1 base-px-to-rem(330);
         }
-        .bm-button-copy {
-            flex: none;
-        }
     }
     .action-cell {
         width: base-px-to-rem(50);

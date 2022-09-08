@@ -25,7 +25,6 @@ export default {
 
 .bm-calendar-item {
     .bm-color-badge {
-        flex: none;
         margin-right: $sp-4;
         margin-bottom: base-px-to-rem(2);
     }

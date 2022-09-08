@@ -178,7 +178,6 @@ export default {
         max-width: 40vw;
 
         .bm-avatar {
-            flex: none;
             margin-left: $sp-4;
         }
     }
