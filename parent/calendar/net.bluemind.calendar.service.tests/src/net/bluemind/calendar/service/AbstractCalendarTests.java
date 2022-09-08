@@ -177,6 +177,7 @@ public abstract class AbstractCalendarTests {
 
 	@Rule
 	public final TestName junitName = new TestName();
+	protected ContainerUserStoreService userStore;
 
 	@Before
 	public void beforeBefore() throws Exception {
@@ -220,7 +221,7 @@ public abstract class AbstractCalendarTests {
 		assertNotNull(domainContainer);
 		ItemStore userItemStore = new ItemStore(JdbcTestHelper.getInstance().getDataSource(), domainContainer,
 				SecurityContext.SYSTEM);
-		ContainerUserStoreService userStore = new ContainerUserStoreService(testContext, domainContainer, domain);
+		userStore = new ContainerUserStoreService(testContext, domainContainer, domain);
 
 		GroupStore groupStore = new GroupStore(JdbcTestHelper.getInstance().getDataSource(), domainContainer);
 		ItemStore groupsItemStore = new ItemStore(JdbcTestHelper.getInstance().getDataSource(), domainContainer,
@@ -501,7 +502,7 @@ public abstract class AbstractCalendarTests {
 		return event;
 	}
 
-	private ItemValue<User> defaultUser(String login, String lastname, String firstname) {
+	protected ItemValue<User> defaultUser(String login, String lastname, String firstname) {
 		net.bluemind.user.api.User user = new User();
 		login = login.toLowerCase();
 		user.login = login;
@@ -573,7 +574,10 @@ public abstract class AbstractCalendarTests {
 				.instance(ISystemConfiguration.class);
 		Map<String, String> sysValues = systemConfiguration.getValues().values;
 		sysValues.put(SysConfKeys.external_url.name(), GLOBAL_EXTERNAL_URL);
-		systemConfiguration.updateMutableValues(sysValues);
+		try {
+			systemConfiguration.updateMutableValues(sysValues);
+		} catch (Exception e) {
+		}
 		return sysValues;
 	}
 

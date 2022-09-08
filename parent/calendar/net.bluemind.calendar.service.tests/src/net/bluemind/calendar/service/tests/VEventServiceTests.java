@@ -55,11 +55,15 @@ import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
+import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
@@ -71,6 +75,7 @@ import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
 import net.bluemind.tag.api.TagRef;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
+import net.bluemind.user.api.User;
 import net.bluemind.utils.FileUtils;
 
 public class VEventServiceTests extends AbstractCalendarTests {
@@ -597,6 +602,56 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		Stream ics = getIcsFromFile("category_list.ics");
 
 		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer).importIcs(ics);
+		ImportStats stats = waitImportEnd(taskRef);
+
+		assertEquals(1, stats.importedCount());
+		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
+				.getComplete(stats.uids.get(0));
+		boolean persoFound = false;
+		boolean medicalFound = false;
+		boolean doctorFound = false;
+
+		assertEquals(3, item.value.main.categories.size());
+
+		for (TagRef tr : item.value.main.categories) {
+			switch (tr.label) {
+			case "perso":
+				persoFound = true;
+				break;
+			case "medical":
+				medicalFound = true;
+				break;
+			case "docteur":
+				doctorFound = true;
+				break;
+			}
+		}
+
+		assertTrue(persoFound);
+		assertTrue(medicalFound);
+		assertTrue(doctorFound);
+	}
+
+	@Test
+	public void testCategoryList_SharedCalendar() throws ServerFault, IOException {
+		String uid = System.currentTimeMillis() + "caluser";
+		ItemValue<User> calUser = defaultUser(uid + System.nanoTime(), "caluser", "caluser");
+		userStore.create(uid, calUser.value);
+
+		IContainerManagement containerService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IContainerManagement.class, userCalendarContainer.uid);
+		List<AccessControlEntry> accessControlList = new ArrayList<>(containerService.getAccessControlList());
+		AccessControlEntry acl = AccessControlEntry.create(uid, Verb.Write);
+		accessControlList.add(acl);
+		containerService.setAccessControlList(accessControlList);
+
+		SecurityContext calUserCtx = new SecurityContext("caluser", uid, Arrays.<String>asList(),
+				Arrays.<String>asList("hasSimpleVideoconferencing"), domainUid);
+		Sessions.get().put(calUserCtx.getSessionId(), calUserCtx);
+
+		Stream ics = getIcsFromFile("category_list.ics");
+
+		TaskRef taskRef = getVEventService(calUserCtx, userCalendarContainer).importIcs(ics);
 		ImportStats stats = waitImportEnd(taskRef);
 
 		assertEquals(1, stats.importedCount());

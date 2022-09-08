@@ -51,6 +51,7 @@ import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.icalendar.parser.CalendarOwner;
+import net.bluemind.icalendar.parser.Sudo;
 import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.TagRef;
@@ -99,10 +100,9 @@ public class VEventService implements IVEvent {
 
 		if (calOwnerType != Kind.CALENDAR && calOwnerType != Kind.RESOURCE) {
 			// owner tags
-			ITags service = context.provider().instance(ITags.class, ITagUids.defaultUserTags(container.owner));
-			allTags.addAll(
-					service.all().stream().map(tag -> TagRef.create(ITagUids.defaultUserTags(container.owner), tag))
-							.collect(Collectors.toList()));
+			allTags.addAll(getTagsService().all().stream()
+					.map(tag -> TagRef.create(ITagUids.defaultUserTags(container.owner), tag))
+					.collect(Collectors.toList()));
 		}
 
 		// domain tags
@@ -116,6 +116,17 @@ public class VEventService implements IVEvent {
 				ICSImportTask.Mode.IMPORT);
 
 		return context.provider().instance(ITasksManager.class).run(multipleCalendarICSImport);
+	}
+
+	private ITags getTagsService() {
+		if (container.owner.equals(context.getSecurityContext().getSubject())) {
+			return context.getServiceProvider().instance(ITags.class, ITagUids.defaultUserTags(container.owner));
+		} else {
+			try (Sudo asUser = new Sudo(container.owner, container.domainUid)) {
+				return ServerSideServiceProvider.getProvider(asUser.context).instance(ITags.class,
+						ITagUids.defaultUserTags(container.owner));
+			}
+		}
 	}
 
 	@Override
