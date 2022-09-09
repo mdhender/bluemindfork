@@ -55,6 +55,8 @@ create index IF NOT EXISTS i_mailbox_record_cid_imap_uid ON t_mailbox_record (co
 create index IF NOT EXISTS t_mailbox_record_body_guid ON t_mailbox_record (message_body_guid);
 create index IF NOT EXISTS i_mailbox_record on t_mailbox_record (item_id);
 
+create index if not exists i_mailbox_record_imap_idset on t_mailbox_record (container_id, system_flags, imap_uid) include (item_id);
+
 -- Expunged flag specialized index
 -- used in MailboxRecordStore.getExpiredItems()
 CREATE INDEX ON t_mailbox_record (last_updated)

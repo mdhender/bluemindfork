@@ -48,7 +48,6 @@ import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.persistence.AbstractItemValueStore;
-import net.bluemind.core.container.persistence.FlagsSqlFilter;
 import net.bluemind.core.container.persistence.LongCreator;
 import net.bluemind.core.container.persistence.StringCreator;
 
@@ -345,14 +344,29 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 				new Object[] { conversationIds, container.id });
 	}
 
+	private String filterSql(String recAlias, ItemFlagFilter filter) {
+		String fsql = "";
+		if (!filter.must.isEmpty()) {
+			int v = filter.must.stream().map(this::adaptFlag).reduce(0, (f, flag) -> f | flag);
+			fsql += " AND (" + recAlias + ".system_flags::bit(32) & " + v + "::bit(32))=" + v + "::bit(32)";
+		}
+		if (!filter.mustNot.isEmpty()) {
+			int v = filter.mustNot.stream().map(this::adaptFlag).reduce(0, (f, flag) -> f | flag);
+			fsql += " AND (" + recAlias + ".system_flags::bit(32) & " + v + "::bit(32))=0::bit(32)";
+		}
+		return fsql;
+	}
+
 	public List<Long> imapIdset(String set, ItemFlagFilter itemFilter) throws SQLException {
-		String q = "select rec.item_id from t_mailbox_record rec "
-				+ "INNER JOIN t_container_item ci on rec.item_id = ci.id WHERE rec.container_id=? AND " + asSql(set)
-				+ FlagsSqlFilter.filterSql("ci", itemFilter);
+		String q = "select rec.item_id from t_mailbox_record rec " + " WHERE rec.container_id=? AND " + asSql(set)
+				+ filterSql("rec", itemFilter);
 		return select(q, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
 	}
 
 	public static String asSql(String idset) {
+		if (idset.equals("1:*")) {
+			return "TRUE";
+		}
 		List<String> parts = new ArrayList<>();
 		Splitter.on(',').splitToStream(idset).forEach(r -> {
 			int idx = r.indexOf(':');

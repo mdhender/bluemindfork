@@ -19,7 +19,10 @@
 package net.bluemind.imap.endpoint.exec;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import com.google.common.base.Stopwatch;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -36,9 +39,11 @@ public class UidSearchProcessor extends SelectedStateCommandProcessor<UidSearchC
 
 	@Override
 	protected void checkedOperation(UidSearchCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
+		Stopwatch chrono = Stopwatch.createStarted();
 		List<Long> imapUids = ctx.mailbox().uids(ctx.selected(), command.query());
 		if (imapUids.isEmpty()) {
-			ctx.write("* SEARCH\r\n" + command.raw().tag() + " OK Completed\r\n");
+			long ms = chrono.elapsed(TimeUnit.MILLISECONDS);
+			ctx.write("* SEARCH\r\n" + command.raw().tag() + " OK Completed (took " + ms + "ms)\r\n");
 		} else {
 			String uidsResp = imapUids.stream().mapToLong(Long::longValue).mapToObj(Long::toString)
 					.collect(Collectors.joining(" ", "* SEARCH ", "\r\n" + command.raw().tag() + " OK Completed\r\n"));
