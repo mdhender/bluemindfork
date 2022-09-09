@@ -3,12 +3,7 @@
         <edit-folder-modal ref="edit-modal" />
         <folder-item :folder="folder" class="w-100" @edit="rename" @create="create">
             <div class="d-flex flex-column flex-fill">
-                <mail-folder-icon
-                    :mailbox="mailbox"
-                    :folder="folder"
-                    class="pl-3"
-                    :class="{ 'font-weight-bold': isUnread }"
-                />
+                <mail-folder-icon :mailbox="mailbox" :folder="folder" :class="{ 'font-weight-bold': isUnread }" />
                 <div class="folder-path">
                     <span class="d-inline-block text-truncate">{{ path.start }}</span>
                     <span class="text-nowrap">{{ path.end }}</span>
@@ -74,15 +69,18 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/_type";
 @import "~@bluemind/styleguide/css/_variables";
 @import "~@bluemind/styleguide/css/mixins";
 
 .filtered-item {
+    padding-left: $sp-4;
+    padding-right: $sp-3;
+
     .folder-path {
         display: flex;
-        font-size: $font-size-sm;
-        font-weight: $font-weight-bold;
-        color: $neutral-fg;
+        @extend %caption-bold;
+        color: $neutral-fg-lo1;
         *:first-child {
             @include text-overflow;
         }

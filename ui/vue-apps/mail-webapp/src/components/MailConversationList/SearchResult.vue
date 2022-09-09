@@ -29,11 +29,3 @@ export default {
     }
 };
 </script>
-
-<style lang="scss">
-@import "@bluemind/styleguide/css/_variables.scss";
-
-.search-result {
-    background-color: $neutral-bg-lo1;
-}
-</style>

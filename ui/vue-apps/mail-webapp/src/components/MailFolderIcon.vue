@@ -98,9 +98,11 @@ export default {
 @import "~@bluemind/styleguide/css/mixins";
 
 .mail-folder-icon.bm-label-icon {
-    color: $neutral-fg-lo1;
     & > div {
         @include text-overflow;
+    }
+    &.caption-italic {
+        color: $neutral-fg-lo1;
     }
 }
 </style>

@@ -7,7 +7,7 @@
             <filtered-item v-for="folder in folders" :key="folder.key" :folder="folder" class="flex-fill" />
         </div>
         <div v-if="showMoreResultsButton" class="text-center">
-            <bm-button variant="text-accent" @click="SHOW_MORE_FOR_USERS(mailbox)">
+            <bm-button variant="text-accent" class="w-100" @click="SHOW_MORE_FOR_USERS(mailbox)">
                 {{ $t("mail.folder.filter.show_more") }}
             </bm-button>
         </div>

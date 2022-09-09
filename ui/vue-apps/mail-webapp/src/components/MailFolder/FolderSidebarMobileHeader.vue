@@ -2,11 +2,19 @@
     <div class="folder-sidebar-mobile-header d-lg-none d-flex pb-2 px-2 pt-5">
         <div class="flex-fill d-flex align-items-center">
             <bm-avatar :alt="displayname" />
-            <div class="text-wrap px-3">
+            <div class="text-truncate pl-5 pr-2">
                 {{ displayname }}
             </div>
         </div>
-        <bm-icon-dropdown boundary="viewport" variant="compact-on-fill-primary" size="lg" no-caret icon="3dots-v" lazy>
+        <bm-icon-dropdown
+            boundary="viewport"
+            variant="compact-on-fill-primary"
+            class="dropdown-on-fill-primary"
+            size="lg"
+            no-caret
+            icon="3dots-v"
+            lazy
+        >
             <bm-dropdown-item-button icon="preferences" @click="TOGGLE_PREFERENCES()">
                 {{ $t("common.preference") }}
             </bm-dropdown-item-button>
@@ -48,10 +56,5 @@ export default {
 .folder-sidebar-mobile-header {
     background-color: $fill-primary-bg-hi1 !important;
     color: $fill-primary-fg;
-
-    .bm-avatar {
-        width: 3.5em !important;
-        height: 3.5em !important;
-    }
 }
 </style>

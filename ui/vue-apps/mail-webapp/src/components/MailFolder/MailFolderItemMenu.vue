@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-folder-item-menu d-flex justify-content-center h-100" @click.stop>
+    <div class="mail-folder-item-menu d-flex justify-content-center" @click.stop>
         <bm-icon-dropdown
             boundary="viewport"
             variant="compact"
@@ -7,7 +7,6 @@
             icon="3dots-v"
             no-caret
             lazy
-            class="flex-fill"
             v-on="$listeners"
         >
             <bm-dropdown-item-button :disabled="!folder.allowSubfolder" icon="plus" @click="$emit('create')">

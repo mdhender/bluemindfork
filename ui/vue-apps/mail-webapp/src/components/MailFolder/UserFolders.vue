@@ -6,13 +6,18 @@
         @toggle-tree="toggleTree"
     >
         <template v-slot:title>
-            <bm-dropzone :accept="['folder']" :states="{ active: false }" :value="root">
-                <mail-mailbox-icon :mailbox="mailbox" class="mr-1" />
-                <span class="font-weight-bold text-left">{{ mailbox.name }}</span>
+            <bm-dropzone :accept="['folder']" :states="{ active: false }" :value="root" class="folder-tree-header">
+                <mail-mailbox-icon :mailbox="mailbox" class="folder-tree-avatar" />
+                <div class="folder-tree-name">{{ mailbox.name }}</div>
             </bm-dropzone>
         </template>
         <template v-slot:footer>
-            <mail-folder-input v-if="mailbox.writable" :mailboxes="[mailbox]" @submit="name => add(name, mailbox)" />
+            <mail-folder-input
+                v-if="mailbox.writable"
+                size="sm"
+                :mailboxes="[mailbox]"
+                @submit="name => add(name, mailbox)"
+            />
         </template>
     </mail-folder-tree>
     <folder-list-loading v-else :name="mailbox.name" />

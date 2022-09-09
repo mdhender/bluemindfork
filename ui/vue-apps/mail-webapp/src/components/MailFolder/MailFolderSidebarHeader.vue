@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-folder-sidebar-header">
+    <div class="mail-folder-sidebar-header bg-surface">
         <folder-sidebar-mobile-header />
         <folder-search-input />
     </div>

@@ -43,6 +43,8 @@ export default {
 @import "@bluemind/styleguide/css/_variables.scss";
 
 .folder-list-collapse {
+    padding-bottom: $sp-6;
+
     .collapse-tree-btn {
         color: $primary-fg;
         &:hover {

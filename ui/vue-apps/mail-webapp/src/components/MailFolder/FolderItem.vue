@@ -3,12 +3,19 @@
         :states="{ active: false }"
         :accept="['conversation']"
         :value="folder"
-        :class="{ active: isActive }"
-        class="folder-item align-items-center d-inline-flex pl-2"
+        class="folder-item"
+        :class="{ active: isActive, 'read-only': !folder.writable, 'show-menu-btn': showMenuBtn }"
     >
         <slot />
-        <div v-if="!folder.writable" :title="$t('mail.folder.access.limited')" :class="isUnread ? 'pr-1' : 'pr-2'">
+        <div v-if="!folder.writable" :title="$t('mail.folder.access.limited')" class="instead-of-menu">
             <bm-icon icon="info-circle" />
+        </div>
+        <div v-if="isUnread && !showMenuBtn" class="instead-of-menu">
+            <bm-counter-badge
+                :count="folder.unread"
+                :active="isActive"
+                :aria-label="$t('mail.folder.unread', { count: folder.unread })"
+            />
         </div>
         <mail-folder-item-menu
             v-if="folder.writable"
@@ -16,16 +23,8 @@
             class="mx-1"
             @edit="$emit('edit')"
             @create="$emit('create')"
-            @shown="menuIsShown = true"
-            @hidden="menuIsShown = false"
-        />
-        <bm-counter-badge
-            v-if="isUnread && !menuIsShown"
-            :value="folder.unread"
-            :variant="isActive ? 'neutral' : 'secondary'"
-            class="mx-1 d-block"
-            :class="{ 'read-only': !folder.writable }"
-            :aria-label="$t('mail.folder.unread', { count: folder.unread })"
+            @shown="showMenuBtn = true"
+            @hidden="showMenuBtn = false"
         />
     </bm-dropzone>
 </template>
@@ -50,7 +49,7 @@ export default {
         }
     },
     data() {
-        return { menuIsShown: false };
+        return { showMenuBtn: false };
     },
     computed: {
         ...mapState("mail", ["activeFolder"]),
@@ -69,6 +68,12 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .folder-item {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    height: 100%;
+    padding-bottom: $sp-3;
+
     border-bottom: 1px solid $neutral-fg-lo3;
     cursor: pointer;
     &:hover {
@@ -82,13 +87,20 @@ export default {
             background-color: $secondary-bg;
         }
     }
-    .mail-folder-item-menu,
-    .bm-counter-badge {
-        min-width: 1.4rem;
+
+    .instead-of-menu,
+    .mail-folder-item-menu {
+        width: base-px-to-rem(28);
+    }
+
+    .instead-of-menu {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .mail-folder-item-menu {
-        visibility: hidden;
+        display: none !important;
 
         .dropdown-toggle {
             padding: 0;
@@ -97,12 +109,14 @@ export default {
 }
 
 @include from-lg {
-    .folder-item:hover {
+    .bm-tree-node-content:focus .folder-item:not(.read-only),
+    .bm-tree-node-content:focus-within .folder-item:not(.read-only),
+    .folder-item:not(.read-only):hover,
+    .folder-item:not(.read-only).show-menu-btn {
         .mail-folder-item-menu {
             display: flex !important;
-            visibility: visible;
         }
-        .bm-counter-badge:not(.read-only) {
+        .instead-of-menu {
             display: none !important;
         }
     }

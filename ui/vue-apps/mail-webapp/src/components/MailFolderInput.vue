@@ -9,6 +9,7 @@
             icon="plus"
             left-icon
             resettable
+            :size="size"
             :placeholder="folder ? '' : $t('mail.folder.new.from_scratch')"
             :state="isFolderValid"
             aria-describedby="mail-folder-input-invalid"
@@ -53,6 +54,13 @@ export default {
         mailboxes: {
             type: Array,
             required: true
+        },
+        size: {
+            type: String,
+            default: "md",
+            validator: function (value) {
+                return ["sm", "md"].includes(value);
+            }
         }
     },
     data() {

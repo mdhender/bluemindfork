@@ -2,11 +2,11 @@
     <div class="mail-folder-tree">
         <bm-button
             variant="text"
-            class="collapse-tree-btn pl-2 w-100"
+            class="collapse-tree-btn text-truncate"
             size="sm"
             :aria-controls="id"
             :aria-expanded="!collapsed"
-            :icon="collapsed ? 'caret-right' : 'caret-down'"
+            :icon="collapsed ? 'chevron-right' : 'chevron'"
             @click.stop="$emit('toggle-tree')"
         >
             <slot name="title" />
@@ -78,13 +78,45 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/_type";
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-folder-tree {
+    background-color: $surface;
+    padding-bottom: $sp-6;
+
     .collapse-tree-btn {
-        color: $primary-fg;
-        &hover {
-            color: $primary-fg-hi1;
+        padding-left: $sp-3 !important;
+        padding-right: $sp-2 !important;
+        gap: $sp-3 !important;
+        justify-content: flex-start;
+        width: 100%;
+        &::before {
+            display: none;
+        }
+        .folder-tree-header {
+            display: flex;
+            align-items: center;
+            gap: $sp-3;
+
+            .folder-tree-avatar {
+                flex: none;
+            }
+            .folder-tree-name {
+                flex: 1;
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+
+                @extend %bold;
+                letter-spacing: -0.04em;
+            }
+        }
+
+        color: $primary-fg-hi1;
+        &:hover {
+            color: $highest;
         }
     }
     .mail-folder-input svg {

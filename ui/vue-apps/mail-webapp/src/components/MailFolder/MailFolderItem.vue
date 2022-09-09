@@ -5,43 +5,38 @@
         :states="{ active: false }"
         :accept="['conversation', 'folder']"
         :value="folder"
-        class="mail-folder-item flex-fill d-flex align-items-center"
+        class="mail-folder-item"
+        :class="{ 'read-only': !folder.writable, 'show-menu-btn': showMenuBtn }"
         @holdover="onFolderHoldOver"
     >
         <mail-folder-icon
             :mailbox="mailboxes[folder.mailboxRef.key]"
             :folder="folder"
-            class="flex-fill"
             :class="folder.unread > 0 ? 'font-weight-bold' : ''"
         />
-        <div
-            v-if="!folder.writable"
-            :title="$t('mail.folder.access.limited')"
-            :class="folder.unread > 0 ? 'pr-1' : 'pr-2'"
-        >
+        <div v-if="!folder.writable" :title="$t('mail.folder.access.limited')" class="instead-of-menu">
             <bm-icon icon="info-circle" />
+        </div>
+        <div v-if="folder.unread > 0 && !showMenuBtn" class="instead-of-menu">
+            <bm-counter-badge
+                :count="folder.unread"
+                :active="folder.key == activeFolder"
+                :aria-label="$t('mail.folder.unread', { count: folder.unread })"
+            />
         </div>
         <mail-folder-item-menu
             v-if="folder.writable"
             :folder="folder"
-            class="mx-1"
             @edit="toggleEditFolder(folder.key)"
             @create="createSubFolder()"
-            @shown="menuIsShown = true"
-            @hidden="menuIsShown = false"
-        />
-        <bm-counter-badge
-            v-if="folder.unread > 0 && !menuIsShown"
-            :count="folder.unread"
-            :variant="folder.key != activeFolder ? 'neutral' : 'secondary'"
-            class="mx-1 d-block"
-            :class="{ 'read-only': !folder.writable }"
-            :aria-label="$t('mail.folder.unread', { count: folder.unread })"
+            @shown="showMenuBtn = true"
+            @hidden="showMenuBtn = false"
         />
     </bm-dropzone>
     <mail-folder-input
         v-else
         ref="folder-input"
+        size="sm"
         :mailboxes="[mailboxes[folder.mailboxRef.key]]"
         :folder="folder"
         @close="closeInput"
@@ -86,13 +81,15 @@ export default {
         }
     },
     data() {
-        return { menuIsShown: false };
+        return { showMenuBtn: false };
     },
     computed: {
         ...mapGetters("mail", { FOLDER_HAS_CHILDREN }),
         ...mapState("mail", ["folderList", "folders", "activeFolder", "mailboxes"]),
         folder() {
-            return this.folders[this.folderKey];
+            const res = this.folders[this.folderKey];
+            res.writable = this.folderKey[0] < "c"; // FIXME restore
+            return res;
         },
         editingFolder() {
             return this.folderList.editing === this.folder.key;
@@ -161,26 +158,29 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-folder-item {
-    min-height: 26px !important;
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    height: 100%;
 
-    .mail-folder-item-menu,
-    .bm-counter-badge {
-        min-width: 1.4rem;
+    .mail-folder-icon {
+        min-width: 0;
+        flex: 1;
     }
 
-    .mail-folder-icon > div {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: break-spaces;
-        line-height: 1.2;
-        word-break: break-word;
+    .instead-of-menu,
+    .mail-folder-item-menu {
+        width: base-px-to-rem(28);
+    }
+
+    .instead-of-menu {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .mail-folder-item-menu {
-        visibility: hidden;
+        display: none !important;
 
         .dropdown-toggle {
             padding: 0;
@@ -189,12 +189,14 @@ export default {
 }
 
 @include from-lg {
-    .mail-folder-item:hover {
+    .bm-tree-node-content:focus .mail-folder-item:not(.read-only),
+    .bm-tree-node-content:focus-within .mail-folder-item:not(.read-only),
+    .mail-folder-item:not(.read-only):hover,
+    .mail-folder-item:not(.read-only).show-menu-btn {
         .mail-folder-item-menu {
             display: flex !important;
-            visibility: visible;
         }
-        .bm-counter-badge:not(.read-only) {
+        .instead-of-menu {
             display: none !important;
         }
     }
