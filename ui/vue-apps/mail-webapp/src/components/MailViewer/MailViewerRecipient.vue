@@ -14,7 +14,7 @@
         <bm-more-items-badge
             ref="more-items-badge"
             class="pl-1"
-            :value="hiddenContactCount"
+            :count="hiddenContactCount"
             @click="$emit('show-more')"
         />
     </div>
