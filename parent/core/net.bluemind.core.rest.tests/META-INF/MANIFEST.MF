@@ -12,6 +12,8 @@ Require-Bundle: org.junit,
  org.objenesis;bundle-version="1.0.0",
  org.mockito.mockito-core,
  net.bluemind.core.container.api,
- org.eclipse.osgi
+ org.eclipse.osgi,
+ net.bluemind.core.container.service,
+ net.bluemind.core.tests.testshelper
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.rest.tests

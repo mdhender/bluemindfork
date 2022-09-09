@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.bluemind.core.api.fault.ErrorCode;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.base.RestRequest;
 
 public class ErrorLogBuilder {
@@ -43,6 +45,12 @@ public class ErrorLogBuilder {
 	private static String toLog(Throwable cause) {
 		StringBuilder sb = new StringBuilder(
 				"  " + cause.getClass().toString() + ": " + cause.getMessage() + System.getProperty("line.separator"));
+		if (cause instanceof ServerFault ex) {
+			if (ex.getCode() == ErrorCode.PERMISSION_DENIED
+					&& cause.getStackTrace()[0].toString().contains("RBACManager")) {
+				return sb.toString();
+			}
+		}
 		StackTraceElement[] stackTrace = cause.getStackTrace();
 		List<String> buffer = new ArrayList<>();
 		int handled = 0;
