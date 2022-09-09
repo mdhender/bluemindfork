@@ -34,7 +34,7 @@ public class EndpointConfig {
 		Config conf = ConfigFactory.load(EndpointConfig.class.getClassLoader(), "resources/application.conf");
 		File local = new File("/etc/bm/imap.conf"); // NOSONAR
 		if (local.exists()) {
-			Config parsed = ConfigFactory.parseFile(null);
+			Config parsed = ConfigFactory.parseFile(local);
 			conf = parsed.withFallback(conf);
 		}
 		return conf;
