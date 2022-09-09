@@ -26,16 +26,26 @@ public final class DateUtil {
 	private static final String[] MONTH_NAME = new String[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
 			"Sep", "Oct", "Nov", "Dec" };
 
+	private static final ThreadLocal<Calendar> LOCAL_CAL = new ThreadLocal<>();
+
 	private DateUtil() {
 
 	}
 
-	public static String toImapDateTime(Date date) {
-		return toImapDateTime(date, TimeZone.getDefault());
+	private static Calendar currentCal() {
+		Calendar local = LOCAL_CAL.get();
+		if (local == null) {
+			local = new GregorianCalendar(TimeZone.getDefault());
+			LOCAL_CAL.set(local);
+		}
+		return local;
 	}
 
-	public static String toImapDateTime(Date date, TimeZone tz) {
-		Calendar cal = new GregorianCalendar(tz);
+	public static String toImapDateTime(Date date) {
+		return toImapDateTime(currentCal(), date);
+	}
+
+	private static String toImapDateTime(Calendar cal, Date date) {
 		cal.setTime(date);
 
 		StringBuilder sb = new StringBuilder(40);

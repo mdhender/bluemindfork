@@ -9,7 +9,7 @@
    <launcherArgs>
       <programArgs>-consoleLog -debug
       </programArgs>
-      <vmArgs>-Dosgi.noShutdown=true -Djava.awt.headless=true -Dnet.bluemind.property.product=imap -Xmx256m
+      <vmArgs>-Dosgi.noShutdown=true -Djava.awt.headless=true -Dnet.bluemind.property.product=imap -Xmx256m -XX:+HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>

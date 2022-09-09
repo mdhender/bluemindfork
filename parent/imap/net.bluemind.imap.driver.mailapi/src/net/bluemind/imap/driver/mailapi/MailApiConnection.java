@@ -56,6 +56,8 @@ import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.container.api.Count;
+import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
@@ -113,7 +115,10 @@ public class MailApiConnection implements MailboxConnection {
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, existing.uid);
 		long exist = recApi.count(ItemFlagFilter.all()).total;
 		long unseen = recApi.count(ItemFlagFilter.create().mustNot(ItemFlag.Seen, ItemFlag.Deleted)).total;
-		return new SelectedFolder(existing, exist, unseen);
+		IContainers conApi = prov.instance(IContainers.class);
+		ContainerDescriptor recContainer = conApi.get(IMailReplicaUids.mboxRecords(existing.uid));
+		CyrusPartition part = CyrusPartition.forServerAndDomain(recContainer.datalocation, recContainer.domainUid);
+		return new SelectedFolder(existing, part.name, exist, unseen);
 	}
 
 	@Override
@@ -168,18 +173,18 @@ public class MailApiConnection implements MailboxConnection {
 	public CompletableFuture<Void> fetch(SelectedFolder selected, String idset, List<MailPart> fields,
 			WriteStream<FetchedItem> output) {
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
-
+		IDbMessageBodies bodyApi = prov.instance(IDbMessageBodies.class, selected.partition);
 		Iterator<List<Long>> slice = Lists.partition(recApi.imapIdSet(idset, ""), 500).iterator();
 		CompletableFuture<Void> ret = new CompletableFuture<>();
 
-		pushNext(recApi, selected, fields, slice, Collections.emptyIterator(), ret, output);
+		pushNext(recApi, bodyApi, fields, slice, Collections.emptyIterator(), ret, output);
 		return ret;
 	}
 
-	private void pushNext(IDbMailboxRecords recApi, SelectedFolder selected, List<MailPart> fields,
+	private void pushNext(IDbMailboxRecords recApi, IDbMessageBodies bodyApi, List<MailPart> fields,
 			Iterator<List<Long>> idSliceIterator, Iterator<ItemValue<MailboxRecord>> recsIterator,
 			CompletableFuture<Void> ret, WriteStream<FetchedItem> output) {
-		FetchedItemRenderer renderer = new FetchedItemRenderer(prov, recApi, selected, fields);
+		FetchedItemRenderer renderer = new FetchedItemRenderer(bodyApi, recApi, fields);
 		while (recsIterator.hasNext()) {
 			ItemValue<MailboxRecord> rec = recsIterator.next();
 			if (rec.value.internalFlags.contains(InternalFlag.expunged)) {
@@ -194,8 +199,7 @@ public class MailApiConnection implements MailboxConnection {
 			fi.properties = renderer.renderFields(rec);
 			output.write(fi);
 			if (output.writeQueueFull()) {
-				output.drainHandler(
-						v -> pushNext(recApi, selected, fields, idSliceIterator, recsIterator, ret, output));
+				output.drainHandler(v -> pushNext(recApi, bodyApi, fields, idSliceIterator, recsIterator, ret, output));
 				return;
 			}
 		}
@@ -203,7 +207,7 @@ public class MailApiConnection implements MailboxConnection {
 		if (idSliceIterator.hasNext()) {
 			List<Long> slice = idSliceIterator.next();
 			List<ItemValue<MailboxRecord>> records = recApi.multipleGetById(slice);
-			pushNext(recApi, selected, fields, idSliceIterator, records.iterator(), ret, output);
+			pushNext(recApi, bodyApi, fields, idSliceIterator, records.iterator(), ret, output);
 		} else {
 			output.end(ar -> ret.complete(null));
 		}

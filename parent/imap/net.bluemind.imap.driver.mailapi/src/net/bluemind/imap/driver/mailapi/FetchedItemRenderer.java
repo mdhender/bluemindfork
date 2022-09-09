@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -59,23 +58,17 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
-import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Recipient;
 import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
-import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.api.IContainers;
-import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.imap.endpoint.driver.MailPart;
-import net.bluemind.imap.endpoint.driver.SelectedFolder;
 import net.bluemind.lib.vertx.utils.MmapWriteStream;
 import net.bluemind.mime4j.common.Mime4JHelper;
 
@@ -83,23 +76,20 @@ public class FetchedItemRenderer {
 
 	private static final Logger logger = LoggerFactory.getLogger(FetchedItemRenderer.class);
 
-	private IDbMailboxRecords recApi;
-	private SelectedFolder selected;
-	private List<MailPart> fields;
-	private IServiceProvider prov;
+	private final IDbMailboxRecords recApi;
+	private final List<MailPart> fields;
+	private final IDbMessageBodies bodyApi;
 
-	public FetchedItemRenderer(IServiceProvider prov, IDbMailboxRecords recApi, SelectedFolder selected,
-			List<MailPart> fields) {
-		this.prov = prov;
+	public FetchedItemRenderer(IDbMessageBodies bodyApi, IDbMailboxRecords recApi, List<MailPart> fields) {
 		this.recApi = recApi;
-		this.selected = selected;
 		this.fields = fields;
+		this.bodyApi = bodyApi;
 	}
 
 	public Map<String, ByteBuf> renderFields(ItemValue<MailboxRecord> rec) {
 		Map<String, ByteBuf> ret = new HashMap<>();
 
-		Supplier<MessageBody> body = Suppliers.memoize(() -> getBody(selected, rec));
+		Supplier<MessageBody> body = Suppliers.memoize(() -> getBody(rec));
 
 		for (MailPart f : fields) {
 			String upField = f.name.toUpperCase();
@@ -113,10 +103,8 @@ public class FetchedItemRenderer {
 				// uid is auto-added by UidFetchProcessor
 				break;
 			case "INTERNALDATE":
-				ret.put(f.toString(),
-						Unpooled.wrappedBuffer(
-								("\"" + DateUtil.toImapDateTime(rec.value.internalDate, TimeZone.getDefault()) + "\"")
-										.getBytes()));
+				ret.put(f.toString(), Unpooled
+						.wrappedBuffer(("\"" + DateUtil.toImapDateTime(rec.value.internalDate) + "\"").getBytes()));
 				break;
 			case "BODYSTRUCTURE":
 				BodyStructureRenderer bsr = new BodyStructureRenderer();
@@ -151,14 +139,8 @@ public class FetchedItemRenderer {
 		return Unpooled.wrappedBuffer(lenBuf, bodyPeek);
 	}
 
-	private MessageBody getBody(SelectedFolder selected, ItemValue<MailboxRecord> rec) {
-		return Optional.ofNullable(rec.value.body).orElseGet(() -> {
-			IContainers conApi = prov.instance(IContainers.class);
-			ContainerDescriptor recContainer = conApi.get(IMailReplicaUids.mboxRecords(selected.folder.uid));
-			CyrusPartition part = CyrusPartition.forServerAndDomain(recContainer.datalocation, recContainer.domainUid);
-			IDbMessageBodies bodyApi = prov.instance(IDbMessageBodies.class, part.name);
-			return bodyApi.getComplete(rec.value.messageBody);
-		});
+	private MessageBody getBody(ItemValue<MailboxRecord> rec) {
+		return Optional.ofNullable(rec.value.body).orElseGet(() -> bodyApi.getComplete(rec.value.messageBody));
 	}
 
 	private ByteBuf bodyPeek(IDbMailboxRecords recApi, Supplier<MessageBody> body, MailPart f,
@@ -307,8 +289,12 @@ public class FetchedItemRenderer {
 	}
 
 	private Mailbox fromRecipient(Recipient r) {
-		String[] split = r.address.split("@");
-		return new Mailbox(r.dn, split[0], split[1]);
+		int idx = r.address.indexOf('@');
+		if (idx > 0) {
+			return new Mailbox(r.dn, r.address.substring(0, idx), r.address.substring(idx + 1));
+		} else {
+			return new Mailbox(r.dn, r.address, "invalid.email.domain");
+		}
 	}
 
 	public String writeField(Field field) {

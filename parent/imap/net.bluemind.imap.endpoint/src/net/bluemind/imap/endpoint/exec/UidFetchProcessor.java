@@ -17,8 +17,12 @@
  */
 package net.bluemind.imap.endpoint.exec;
 
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Stopwatch;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -42,9 +46,10 @@ public class UidFetchProcessor extends SelectedStateCommandProcessor<UidFetchCom
 
 		FetchedItemStream output = new FetchedItemStream(ctx, command.fetchSpec());
 		logger.debug("Fetching to {}", output);
-
+		Stopwatch chrono = Stopwatch.createStarted();
 		con.fetch(ctx.selected(), command.idset(), command.fetchSpec(), output).thenAccept(v -> {
-			ctx.write(command.raw().tag() + " OK Completed\r\n");
+			long ms = chrono.elapsed(TimeUnit.MILLISECONDS);
+			ctx.write(command.raw().tag() + " OK Completed (took " + ms + "ms)\r\n");
 			completed.handle(Result.success());
 		}).exceptionally(t -> {
 			completed.handle(Result.fail(t));

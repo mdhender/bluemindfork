@@ -28,9 +28,11 @@ public class SelectedFolder {
 	public final ItemValue<MailboxReplica> folder;
 	public final long exist;
 	public final long unseen;
+	public final String partition;
 
-	public SelectedFolder(ItemValue<MailboxReplica> f, long exist, long unseen) {
+	public SelectedFolder(ItemValue<MailboxReplica> f, String partition, long exist, long unseen) {
 		this.folder = f;
+		this.partition = partition;
 		this.exist = exist;
 		this.unseen = unseen;
 	}
