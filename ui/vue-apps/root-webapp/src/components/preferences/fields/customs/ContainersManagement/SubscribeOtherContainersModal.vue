@@ -47,7 +47,7 @@
                         <slot name="item" :container="row.item" />
                     </template>
                     <template #cell(ownerDisplayname)="row">
-                        <span class="font-italic text-neutral">
+                        <span class="font-italic text-neutral text-truncate">
                             {{ $t("common.shared_by", { name: row.value }) }}
                         </span>
                     </template>
@@ -95,9 +95,26 @@ export default {
             currentPage: 1,
             perPage: 10,
             fields: [
-                { key: "selected", sortable: true, headerTitle: this.$t("common.selection"), label: "" },
-                { key: "name", sortable: true, headerTitle: this.$t("common.label"), label: "" },
-                { key: "ownerDisplayname", headerTitle: this.$t("common.shared_by"), label: "" }
+                {
+                    key: "selected",
+                    sortable: true,
+                    headerTitle: this.$t("common.selection"),
+                    label: "",
+                    class: "selected-cell"
+                },
+                {
+                    key: "name",
+                    sortable: true,
+                    headerTitle: this.$t("common.label"),
+                    label: "",
+                    class: "name-cell text-truncate"
+                },
+                {
+                    key: "ownerDisplayname",
+                    headerTitle: this.$t("common.shared_by"),
+                    label: "",
+                    class: "shared-by-cell text-truncate"
+                }
             ]
         };
     },
@@ -192,13 +209,36 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_variables";
 
 .add-containers-modal {
     .selected-containers {
         display: flex;
         flex-wrap: wrap;
-        gap: $sp-2 $sp-4;
+        gap: $sp-3 $sp-4;
+        padding-bottom: $sp-4;
+    }
+
+    .b-table {
+        max-width: base-px-to-rem(500);
+        table-layout: fixed;
+    }
+    .selected-cell {
+        width: base-px-to-rem(40);
+    }
+    .name-cell {
+        width: 100%;
+        .bm-contact {
+            margin-top: base-px-to-rem(4);
+        }
+    }
+    .shared-by-cell {
+        display: none;
+        @include from-lg {
+            display: table-cell;
+            width: 100%;
+        }
     }
 
     .b-table tr {

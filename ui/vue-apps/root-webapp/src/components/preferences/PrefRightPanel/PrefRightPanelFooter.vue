@@ -1,5 +1,5 @@
 <template>
-    <div v-if="HAS_CHANGED" class="d-flex mt-auto pl-5 py-3 border-top border-neutral">
+    <div v-if="HAS_CHANGED" class="pref-right-panel-footer modal-footer">
         <bm-button
             type="submit"
             variant="contained-accent"
@@ -32,3 +32,18 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
+@import "~@bluemind/styleguide/css/_variables";
+@import "../_variables";
+
+.pref-right-panel-footer.modal-footer {
+    justify-content: flex-start;
+    border-top: 1px solid $neutral-fg !important;
+    padding-left: $prefs-padding-left;
+    @include from-lg {
+        padding-left: $prefs-padding-left-lg;
+    }
+}
+</style>

@@ -8,23 +8,25 @@
             <bm-form-radio :value="answeringMachineValue" :aria-label="$t('preferences.telephony.answering_machine')">
                 {{ $t("preferences.telephony.answering_machine") }}
             </bm-form-radio>
-            <bm-form-radio :value="phone" :aria-label="$t('preferences.telephony.forward_calls')">
-                {{ $t("preferences.telephony.forward_calls") }}
-            </bm-form-radio>
-            <bm-form-group
-                label-for="forward-calls"
-                :state="forwardCallsInputState"
-                :invalid-feedback="$t('preferences.telephony.invalid_phone_number')"
-            >
-                <bm-form-input
-                    id="forward-calls"
-                    v-model="phone"
-                    aria-describedby="phone-number-input-feedback"
-                    type="tel"
-                    :disabled="isInputDisabled"
+            <div class="forward-calls-to">
+                <bm-form-radio :value="phone" :aria-label="$t('preferences.telephony.forward_calls')">
+                    {{ $t("preferences.telephony.forward_calls") }}
+                </bm-form-radio>
+                <bm-form-group
+                    label-for="forward-calls"
                     :state="forwardCallsInputState"
-                />
-            </bm-form-group>
+                    :invalid-feedback="$t('preferences.telephony.invalid_phone_number')"
+                >
+                    <bm-form-input
+                        id="forward-calls"
+                        v-model="phone"
+                        aria-describedby="phone-number-input-feedback"
+                        type="tel"
+                        :disabled="isInputDisabled"
+                        :state="forwardCallsInputState"
+                    />
+                </bm-form-group>
+            </div>
         </template>
     </bm-form-radio-group>
 </template>
@@ -76,7 +78,29 @@ export default {
 
 .pref-im-set-phone-presence {
     .bm-form-radio {
-        margin-bottom: $sp-2;
+        display: flex;
+        align-items: center;
+        height: $input-height;
+    }
+
+    .forward-calls-to {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 $sp-5;
+
+        .bm-form-radio {
+            white-space: nowrap;
+
+            .custom-control-inline {
+                margin-right: 0;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 0;
+            width: 100%;
+            max-width: base-px-to-rem(300);
+        }
     }
 }
 </style>

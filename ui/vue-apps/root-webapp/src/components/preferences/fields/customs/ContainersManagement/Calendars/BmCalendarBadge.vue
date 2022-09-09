@@ -29,6 +29,7 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .badge.bm-calendar-badge {
+    display: flex !important;
     padding: 0;
     padding-right: $sp-4;
     gap: $sp-4;
