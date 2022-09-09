@@ -1,9 +1,10 @@
 {
 	"Sent" : "Verschickt",
-	"Trash" : "Müll",
+	"Trash" : "Papierkorb",
 	"Drafts" : "Entwürfe",
-	"Junk" : "Unerwünscht",
+	"Junk" : "Spam",
 	"Outbox" : "Postausgang",
 	"Dossiers partagés" : "Freigegebene Ordner",
-	"Autres utilisateurs" : "Alle Benutzer"
+	"Autres utilisateurs" : "Alle Benutzer",
+        "Templates" : "Vorlagen"
 }

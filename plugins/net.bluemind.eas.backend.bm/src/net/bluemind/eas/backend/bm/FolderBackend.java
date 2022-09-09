@@ -622,6 +622,10 @@ public class FolderBackend extends CoreConnect {
 				folderChangeRef.itemType = FolderType.DEFAULT_OUTBOX_FOLDER;
 				dn = getTranslatedDisplayName(bs, h.displayName);
 				break;
+			case "Templates":
+				folderChangeRef.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
+				dn = getTranslatedDisplayName(bs, h.displayName);
+				break;
 			default:
 				if (Translate.isTranslated(bs.getLang(), dn)) {
 					logger.warn("Folder '{}' conflicts with system folder, rename it", dn);

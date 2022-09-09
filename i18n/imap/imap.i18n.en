@@ -6,5 +6,6 @@
 	"Outbox" : "Outbox",
 	"OTHER_MAILBOXES" : "Public folders",
 	"Dossiers partagés" : "Shared folders",
-	"Autres utilisateurs" : "Other users"
+	"Autres utilisateurs" : "Other users",
+	"Templates" : "Templates"
 }
