@@ -19,7 +19,8 @@
 
 #DEBHELPER#
 
-rm -rf /usr/share/bm-sds-proxy/extensions/eclipse/plugins
-mkdir -p /usr/share/bm-sds-proxy/extensions/eclipse/plugins
+rm -f /usr/share/bm-sds-proxy/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
+rm -rf /usr/share/bm-sds-proxy/dropins
+mkdir -p /usr/share/bm-sds-proxy/dropins
 
 exit 0

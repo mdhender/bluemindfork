@@ -35,8 +35,9 @@ if [ $1 -gt 1 ]; then
 fi
 
 %post -p /bin/bash
-rm -rf /usr/share/bm-hps/extensions/eclipse/plugins
-mkdir -p /usr/share/bm-hsp/extensions/eclipse/plugins
+rm -f /usr/share/bm-hps/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
+rm -rf /usr/share/bm-hps/dropins
+mkdir -p /usr/share/bm-hsp/dropins
 systemctl enable bm-hps
 if [ -d /run/systemd/system ]; then
     systemctl daemon-reload

@@ -36,8 +36,9 @@ if [ $1 -gt 1 ]; then
 fi
 
 %post -p /bin/bash
-rm -rf /usr/share/bm-sds-proxy/extensions/eclipse/plugins
-mkdir -p /usr/share/bm-sds-proxy/extensions/eclipse/plugins
+rm -f /usr/share/bm-sds-proxy/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
+rm -rf /usr/share/bm-sds-proxy/dropins
+mkdir -p /usr/share/bm-sds-proxy/dropins
 systemctl enable bm-sds-proxy
 if [ -d /run/systemd/system ]; then
     systemctl daemon-reload

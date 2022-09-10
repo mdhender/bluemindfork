@@ -35,8 +35,9 @@ if [ $1 -gt 1 ]; then
 fi
 
 %post -p /bin/bash
-rm -rf /usr/share/bm-milter/extensions/eclipse/plugins
-mkdir -p /usr/share/bm-milter/extensions/eclipse/plugins
+rm -f /usr/share/bm-milter/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
+rm -rf /usr/share/bm-milter/dropins
+mkdir -p /usr/share/bm-milter/dropins
 systemctl enable bm-milter
 if [ -d /run/systemd/system ]; then
     systemctl daemon-reload

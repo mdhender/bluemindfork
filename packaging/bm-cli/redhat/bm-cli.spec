@@ -18,8 +18,9 @@ cp -a %{_rootdir}/* %{buildroot}
 /*
 
 %post
-rm -rf /usr/share/bm-cli/extensions/eclipse/plugins
-mkdir -p /usr/share/bm-cli/extensions/eclipse/plugins
+rm -f /usr/share/bm-cli/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
+rm -rf /usr/share/bm-cli/dropins
+mkdir -p /usr/share/bm-cli/dropins
 if [ $1 -eq 1 ]; then
     # Installation
     rm -f /usr/bin/bm-cli

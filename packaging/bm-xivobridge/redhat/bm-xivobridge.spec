@@ -35,8 +35,9 @@ if [ $1 -gt 1 ]; then
 fi
 
 %post -p /bin/bash
-rm -rf /usr/share/bm-xivodridge/extensions/eclipse/plugins
-mkdir -p /usr/share/bm-xivobridge/extensions/eclipse/plugins
+rm -f /usr/share/bm-xivodridge/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
+rm -rf /usr/share/bm-xivodridge/dropins
+mkdir -p /usr/share/bm-xivobridge/dropins
 systemctl enable bm-xivobridge
 
 if [ -d /run/systemd/system ]; then

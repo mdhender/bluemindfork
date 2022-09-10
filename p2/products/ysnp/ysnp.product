@@ -105,7 +105,6 @@
       <plugin id="org.eclipse.equinox.p2.engine"/>
       <plugin id="org.eclipse.equinox.p2.metadata.repository"/>
       <plugin id="org.eclipse.equinox.p2.operations"/>
-      <plugin id="org.eclipse.equinox.p2.reconciler.dropins"/>
       <plugin id="org.eclipse.equinox.p2.repository"/>
       <plugin id="org.eclipse.equinox.preferences"/>
       <plugin id="org.eclipse.equinox.registry"/>
@@ -126,12 +125,10 @@
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="3" />
-      <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="2" />
       <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <property name="eclipse.registry.MultiLanguage" value="true" />
       <property name="osgi.instance.area" value="/var/lib/bm-ysnp/" />
-      <property name="org.eclipse.equinox.p2.reconciler.dropins.directory" value="/usr/share/bm-ysnp/extensions" />
       <property name="osgi.noShutdown" value="true" />
    </configurations>
 

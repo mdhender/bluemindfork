@@ -30,8 +30,9 @@ ln -s /usr/share/bm-cli/bm-cli /usr/bin/bm-cli
 # the custom equinox launcher does not clear this
 rm -fr /var/lib/bm-cli/*
 
-rm -rf /usr/share/bm-cli/extensions/eclipse/plugins
-mkdir -p /usr/share/bm-cli/extensions/eclipse/plugins
+rm -f /usr/share/bm-cli/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
+rm -rf /usr/share/bm-cli/dropins
+mkdir -p /usr/share/bm-cli/dropins
 
 /usr/lib/jvm/bm-jdk/bin/java -Xshare:dump
 

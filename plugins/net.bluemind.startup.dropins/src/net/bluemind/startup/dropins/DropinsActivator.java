@@ -19,7 +19,6 @@
 package net.bluemind.startup.dropins;
 
 import java.nio.file.Path;
-import java.util.Set;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -27,18 +26,17 @@ import org.osgi.framework.BundleContext;
 public class DropinsActivator implements BundleActivator {
 	public static final String BUNDLE_INFOS_LOCATION = "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info";
 
-	public static record DropedJar(Path path, String bundleName) {
-
-	}
-
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		String productVersion = bundleContext.getBundle().getVersion().toString();
 		String productName = System.getProperty("net.bluemind.property.product");
 		Path productPath = Path.of("/usr/share", productName);
 
-		Set<DropedJar> dropedJars = ManifestVersionUpdater.updateDropinJars(productVersion, productPath);
-		BundlesInfoRewriter.rewriteBundlesInfo(productPath.resolve(BUNDLE_INFOS_LOCATION), dropedJars);
+		Repository extensions = Repository.create(productPath, "extensions", null);
+		Repository dropins = Repository.create(productPath, "dropins", productVersion);
+
+		Path bundlesInfoPath = productPath.resolve(BUNDLE_INFOS_LOCATION);
+		BundlesInfoRewriter.rewriteBundlesInfo(bundlesInfoPath, extensions, dropins);
 	}
 
 	@Override
