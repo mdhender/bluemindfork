@@ -60,7 +60,17 @@ public class MailboxLookup {
 	}
 
 	public ResolvedBox lookupEmail(String recipient) {
+		ResolvedBox recip = cache.getIfPresent(recipient);
+		if (recip == null) {
+			recip = lookupEmail0(recipient);
+			if (recip != null) {
+				cache.put(recipient, recip);
+			}
+		}
+		return recip;
+	}
 
+	private ResolvedBox lookupEmail0(String recipient) {
 		Mailbox m4jBox = LenientAddressBuilder.DEFAULT.parseMailbox(recipient);
 		if (m4jBox == null) {
 			logger.warn("Cannot parse '{}'", m4jBox);
