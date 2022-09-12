@@ -67,7 +67,7 @@ public class LocalNodeClient implements INodeClient {
 	}
 
 	@Override
-	public boolean exist(String path) {
+	public boolean exists(String path) {
 		Path asPath = Paths.get(path);
 		return Files.exists(asPath);
 	}

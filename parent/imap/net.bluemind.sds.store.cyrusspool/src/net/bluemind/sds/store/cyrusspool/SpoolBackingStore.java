@@ -183,7 +183,7 @@ public class SpoolBackingStore implements ISdsBackingStore {
 	private boolean onNode(String targetPath, String emlPath, ItemValue<Server> b) {
 		INodeClient nc = NodeActivator.get(b.value.address());
 		if (targetPath == null) {
-			return nc.exist(emlPath);
+			return nc.exists(emlPath);
 		} else {
 			byte[] eml = nc.read(emlPath);
 			logger.info("Found {} byte(s) of mail data in {}, tgt is {}", eml.length, emlPath, targetPath);
