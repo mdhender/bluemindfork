@@ -65,6 +65,11 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
+.bm-button.btn-md.new-message {
+    width: 90%;
+    max-width: base-px-to-rem(240);
+}
+
 .bm-floating-action-button.new-message {
     position: absolute;
     bottom: $sp-6;

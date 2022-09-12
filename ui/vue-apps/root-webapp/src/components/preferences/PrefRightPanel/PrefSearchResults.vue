@@ -14,7 +14,7 @@
             <br />{{ $t("common.search.try_otherwise") }}
         </p>
     </div>
-    <div v-else class="pref-search-results overflow-auto">
+    <div v-else class="pref-search-results scroller-y scroller-visible-on-hover">
         <div class="d-flex justify-content-end pr-6">
             <bm-button variant="text" @click="toggleAll">
                 {{ areAllExpanded ? $t("common.collapse_all") : $t("common.expand_all") }}

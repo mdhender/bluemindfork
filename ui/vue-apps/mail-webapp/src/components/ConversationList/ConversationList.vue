@@ -297,10 +297,3 @@ function getDateRange(conversation, allDateRanges, currentDateRanges) {
     }
 }
 </script>
-
-<style lang="scss">
-.conversation-list {
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-</style>

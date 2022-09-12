@@ -1,6 +1,6 @@
 <template>
     <div class="empty-search-result text-center pr-0 d-flex flex-column">
-        <div class="py-4 font-size-lg">
+        <div class="py-4">
             <p>
                 {{ $t("mail.list.search.no_result") }}<br />
                 <span class="search-pattern">"{{ pattern }}"</span><br />
@@ -39,10 +39,6 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/variables";
 .empty-search-result {
-    .font-size-lg {
-        font-size: $font-size-lg;
-    }
-
     .search-pattern {
         color: $primary-fg-hi1;
         font-weight: $font-weight-bold;

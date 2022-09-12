@@ -1,5 +1,6 @@
 <template>
     <conversation-list
+        class="scroller-y scroller-visible-on-hover"
         :folder="activeFolder"
         :all-conversation-keys="CONVERSATION_LIST_ALL_KEYS"
         :conversation-keys="CONVERSATION_LIST_KEYS"

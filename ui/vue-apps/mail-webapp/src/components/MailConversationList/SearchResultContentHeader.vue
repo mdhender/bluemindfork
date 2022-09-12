@@ -1,6 +1,6 @@
 <template>
     <bm-list-group>
-        <bm-list-group-item class="font-size-lg pl-4">
+        <bm-list-group-item class="pl-4">
             {{ $t("common.search") }} :
             {{ $tc("common.messages", CONVERSATION_LIST_COUNT, { CONVERSATION_LIST_COUNT }) }}
         </bm-list-group-item>
@@ -23,10 +23,3 @@ export default {
     }
 };
 </script>
-
-<style lang="scss">
-@import "~@bluemind/styleguide/css/variables";
-.font-size-lg {
-    font-size: $font-size-lg;
-}
-</style>

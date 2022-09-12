@@ -286,6 +286,11 @@ export default {
 @import "./_variables.scss";
 
 .mail-conversation-viewer {
+    & > .container {
+        max-width: unset;
+        padding: 0;
+    }
+
     .conversation-viewer-row {
         padding-left: $conversation-padding-left;
         @include from-lg {

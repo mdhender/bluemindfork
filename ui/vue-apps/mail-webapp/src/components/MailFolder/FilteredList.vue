@@ -1,7 +1,9 @@
 <template>
-    <filtered-list-content v-if="!FOLDER_LIST_IS_LOADING && !FOLDER_LIST_IS_EMPTY" />
-    <filtered-list-empty v-else-if="!FOLDER_LIST_IS_LOADING && FOLDER_LIST_IS_EMPTY" @clearFilter="RESET_FILTER" />
-    <filtered-list-loading v-else-if="FOLDER_LIST_IS_LOADING" @clearFilter="RESET_FILTER" />
+    <div class="h-100 bg-surface">
+        <filtered-list-content v-if="!FOLDER_LIST_IS_LOADING && !FOLDER_LIST_IS_EMPTY" />
+        <filtered-list-empty v-else-if="!FOLDER_LIST_IS_LOADING && FOLDER_LIST_IS_EMPTY" @clearFilter="RESET_FILTER" />
+        <filtered-list-loading v-else-if="FOLDER_LIST_IS_LOADING" @clearFilter="RESET_FILTER" />
+    </div>
 </template>
 <script>
 import { mapActions, mapGetters } from "vuex";

@@ -6,9 +6,11 @@
         :collapsed="collapsed"
         @toggle-tree="toggleTree"
     >
-        <template v-slot:title class="folder-tree-header">
-            <mail-mailbox-icon :mailbox="MAILSHARES[0]" class="folder-tree-avatar" />
-            <div class="folder-tree-name">{{ $t("common.mailshares") }}</div>
+        <template v-slot:title>
+            <div class="folder-tree-header">
+                <mail-mailbox-icon :mailbox="MAILSHARES[0]" class="folder-tree-avatar" />
+                <div class="folder-tree-name">{{ $t("common.mailshares") }}</div>
+            </div>
         </template>
     </mail-folder-tree>
 </template>

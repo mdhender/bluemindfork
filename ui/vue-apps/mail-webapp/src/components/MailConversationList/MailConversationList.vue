@@ -71,6 +71,6 @@ export default {
 @import "~@bluemind/styleguide/css/variables";
 .mail-conversation-list {
     outline: none;
-    border-right: 1px solid $neutral-fg-lo2;
+    border-right: 1px solid $neutral-fg-lo1;
 }
 </style>

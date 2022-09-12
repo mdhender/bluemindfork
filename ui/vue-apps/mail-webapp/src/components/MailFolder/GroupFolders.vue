@@ -7,8 +7,10 @@
         @toggle-tree="toggleTree"
     >
         <template v-slot:title>
-            <mail-mailbox-icon :mailbox="GROUP_MAILBOXES[0]" class="mr-1" />
-            <span class="font-weight-bold text-left">{{ $t("mail.folders.groups") }}</span>
+            <div class="folder-tree-header">
+                <mail-mailbox-icon :mailbox="GROUP_MAILBOXES[0]" class="folder-tree-avatar" />
+                <div class="folder-tree-name">{{ $t("mail.folders.groups") }}</div>
+            </div>
         </template>
     </mail-folder-tree>
 </template>

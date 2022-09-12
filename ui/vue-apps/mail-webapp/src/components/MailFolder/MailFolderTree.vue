@@ -83,7 +83,11 @@ export default {
 
 .mail-folder-tree {
     background-color: $surface;
-    padding-bottom: $sp-6;
+
+    padding-top: $sp-3;
+    & > .collapse {
+        padding-bottom: $sp-6;
+    }
 
     .collapse-tree-btn {
         padding-left: $sp-3 !important;
@@ -119,6 +123,7 @@ export default {
             color: $highest;
         }
     }
+
     .mail-folder-input svg {
         margin-left: $sp-1;
     }

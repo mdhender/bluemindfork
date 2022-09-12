@@ -1,5 +1,5 @@
 <template>
-    <main class="flex-fill mail-popup-app overflow-auto"><router-view class="flex-fill" /></main>
+    <main class="flex-fill mail-popup-app scroller-y scroller-visible-on-hover"><router-view class="flex-fill" /></main>
 </template>
 <script>
 import { mapGetters } from "vuex";

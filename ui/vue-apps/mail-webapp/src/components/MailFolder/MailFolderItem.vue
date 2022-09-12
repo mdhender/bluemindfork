@@ -87,9 +87,7 @@ export default {
         ...mapGetters("mail", { FOLDER_HAS_CHILDREN }),
         ...mapState("mail", ["folderList", "folders", "activeFolder", "mailboxes"]),
         folder() {
-            const res = this.folders[this.folderKey];
-            res.writable = this.folderKey[0] < "c"; // FIXME restore
-            return res;
+            return this.folders[this.folderKey];
         },
         editingFolder() {
             return this.folderList.editing === this.folder.key;

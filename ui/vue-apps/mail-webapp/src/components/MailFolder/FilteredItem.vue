@@ -73,7 +73,7 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 @import "~@bluemind/styleguide/css/mixins";
 
-.filtered-item {
+.filtered-item .folder-item {
     padding-left: $sp-4;
     padding-right: $sp-3;
 

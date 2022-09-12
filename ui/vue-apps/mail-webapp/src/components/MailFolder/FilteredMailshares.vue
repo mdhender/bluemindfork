@@ -1,7 +1,7 @@
 <template>
     <list-collapse v-if="hasResult" :name="$t('common.mailshares')">
         <template v-slot:avatar>
-            <mail-mailbox-icon :mailbox="MAILSHARES[0]" class="mr-1" />
+            <mail-mailbox-icon :mailbox="MAILSHARES[0]" class="folder-tree-avatar" />
         </template>
         <div class="d-flex flex-column">
             <filtered-item v-for="folder in folders" :key="folder.key" :folder="folder" class="flex-fill" />

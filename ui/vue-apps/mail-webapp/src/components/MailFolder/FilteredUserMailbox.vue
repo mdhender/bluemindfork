@@ -1,7 +1,7 @@
 <template>
     <list-collapse v-if="!isEmpty" :name="mailbox.name">
         <template v-slot:avatar>
-            <mail-mailbox-icon :mailbox="mailbox" class="mr-1" />
+            <mail-mailbox-icon :mailbox="mailbox" class="folder-tree-avatar" />
         </template>
         <div class="d-flex flex-column">
             <filtered-item v-for="folder in folders" :key="folder.key" :folder="folder" class="flex-fill" />

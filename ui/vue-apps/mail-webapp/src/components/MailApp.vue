@@ -10,7 +10,7 @@
             <bm-col
                 cols="2"
                 order="0"
-                class="d-lg-flex justify-content-start pl-lg-4"
+                class="d-lg-flex justify-content-center"
                 :class="hideListInResponsiveMode || composerOrMessageIsDisplayed || !SELECTION_IS_EMPTY ? 'd-none' : ''"
             >
                 <bm-icon-button
@@ -72,7 +72,7 @@
             <multipane class="w-100" layout="vertical" @paneResizeStop="onPanelResize">
                 <mail-conversation-list :class="{ 'd-none': hideListInResponsiveMode }" />
                 <multipane-resizer />
-                <div class="flex-grow-1 overflow-auto flex-basis-0">
+                <div class="flex-grow-1 flex-basis-0 scroller-y scroller-visible-on-hover">
                     <router-view />
                 </div>
             </multipane>
@@ -209,6 +209,8 @@ export default {
     }
 
     .folders-section {
+        background-color: $backdrop;
+        border-right: 1px solid $neutral-fg-lo1;
         z-index: 300;
         @include from-lg {
             z-index: 200;

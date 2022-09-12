@@ -1,5 +1,9 @@
 <template>
-    <div id="scroll-area" class="pref-sections" @scroll="({ target }) => SET_OFFSET(target.scrollTop)">
+    <div
+        id="scroll-area"
+        class="pref-sections scroller-y scroller-visible-on-hover"
+        @scroll="({ target }) => SET_OFFSET(target.scrollTop)"
+    >
         <bm-alert-area :alerts="alerts" stackable @remove="REMOVE">
             <template v-slot="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
         </bm-alert-area>
