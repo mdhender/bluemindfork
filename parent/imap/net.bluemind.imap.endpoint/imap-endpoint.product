@@ -76,6 +76,8 @@
       <plugin id="net.bluemind.hornetq.client"/>
       <plugin id="net.bluemind.imap.driver.mailapi"/>
       <plugin id="net.bluemind.imap.endpoint"/>
+      <plugin id="net.bluemind.imap.serviceprovider"/>
+      <plugin id="net.bluemind.imap.serviceprovider.rest"/>
       <plugin id="net.bluemind.lib.jackson"/>
       <plugin id="net.bluemind.lib.jutf7"/>
       <plugin id="net.bluemind.lib.vertx"/>

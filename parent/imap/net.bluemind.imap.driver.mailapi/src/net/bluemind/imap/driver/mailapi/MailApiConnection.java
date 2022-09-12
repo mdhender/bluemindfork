@@ -61,7 +61,7 @@ import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.rest.http.ClientSideServiceProvider;
+import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.hornetq.client.Consumer;
 import net.bluemind.hornetq.client.MQ;
@@ -84,14 +84,14 @@ public class MailApiConnection implements MailboxConnection {
 
 	private static final Logger logger = LoggerFactory.getLogger(MailApiConnection.class);
 
-	private final ClientSideServiceProvider prov;
+	private final IServiceProvider prov;
 	private final AuthUser me;
 	private final IDbReplicatedMailboxes foldersApi;
 	private final int sizeLimit;
 
 	private Consumer activeCons;
 
-	public MailApiConnection(ClientSideServiceProvider userProv, AuthUser me, SharedMap<String, String> config) {
+	public MailApiConnection(IServiceProvider userProv, AuthUser me, SharedMap<String, String> config) {
 		this.prov = userProv;
 		this.me = me;
 		this.foldersApi = prov.instance(IDbReplicatedMailboxes.class, me.domainUid, "user." + me.value.login);

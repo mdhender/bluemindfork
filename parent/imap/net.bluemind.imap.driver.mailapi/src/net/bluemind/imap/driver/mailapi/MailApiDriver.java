@@ -29,17 +29,16 @@ import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
 import net.bluemind.config.BmIni;
 import net.bluemind.core.rest.IServiceProvider;
-import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.MailboxDriver;
+import net.bluemind.imap.serviceprovider.SPResolver;
 
 public class MailApiDriver implements MailboxDriver {
 
 	private static final Logger logger = LoggerFactory.getLogger(MailApiDriver.class);
 
-	private IServiceProvider prov;
 	private IAuthentication anonAuthApi;
 
 	private String coreUrl;
@@ -47,7 +46,7 @@ public class MailApiDriver implements MailboxDriver {
 	public MailApiDriver() {
 		String host = Optional.ofNullable(BmIni.value("external-url")).orElse("127.0.0.1");
 		this.coreUrl = "http://" + host + ":8090";
-		this.prov = ClientSideServiceProvider.getProvider(coreUrl, null);
+		IServiceProvider prov = SPResolver.get().resolve(null);
 		this.anonAuthApi = prov.instance(IAuthentication.class);
 	}
 
@@ -64,7 +63,7 @@ public class MailApiDriver implements MailboxDriver {
 			logger.warn("Got status {} from {}", login.status, coreUrl);
 			return null;
 		}
-		ClientSideServiceProvider userProv = ClientSideServiceProvider.getProvider(coreUrl, login.authKey);
+		IServiceProvider userProv = SPResolver.get().resolve(login.authKey);
 		AuthUser current = userProv.instance(IAuthentication.class).getCurrentUser();
 		logger.info("[{}] logged-in.", current.value.defaultEmail());
 		return new MailApiConnection(userProv, current, MQ.sharedMap(Shared.MAP_SYSCONF));

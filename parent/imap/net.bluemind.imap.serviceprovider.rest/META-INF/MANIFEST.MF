@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.imap.serviceprovider.rest
+Bundle-SymbolicName: net.bluemind.imap.serviceprovider.rest;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.imap.serviceprovider,
+ net.bluemind.config,
+ net.bluemind.core.rest.http
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: net.bluemind.imap.serviceprovider.rest
+Bundle-ActivationPolicy: lazy
