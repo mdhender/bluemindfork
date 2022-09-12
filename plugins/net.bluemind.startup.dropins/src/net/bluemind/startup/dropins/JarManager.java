@@ -37,7 +37,7 @@ public class JarManager {
 		try (FileSystem jarFS = FileSystems.newFileSystem(URI.create("jar:" + jarPath.toUri()), Map.of())) {
 			Path manifestPath = jarFS.getPath("META-INF", "MANIFEST.MF");
 			Manifest manifest = readManifest(manifestPath);
-			String bundleName = manifest.getMainAttributes().getValue("Bundle-Name");
+			String bundleName = manifest.getMainAttributes().getValue("Bundle-SymbolicName").split(";")[0];
 			String bundleVersion;
 			if (forcedVersion != null) {
 				manifest.getMainAttributes().putValue("Bundle-Version", forcedVersion);
