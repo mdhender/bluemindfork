@@ -17,6 +17,7 @@
   */
 package net.bluemind.backend.mail.replica.persistence;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -103,11 +104,12 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	public List<MailboxRecord> getMultiple(List<Item> items) throws SQLException {
 		String query = "select item_id, encode(message_body_guid, 'hex'), " + MailboxRecordColumns.COLUMNS.names()
 				+ " FROM t_mailbox_record WHERE item_id = ANY(?::int4[])";
-		List<ItemV<MailboxRecord>> values = select(query, con -> new ItemV<MailboxRecord>(), (rs, index, itemv) -> {
-			itemv.itemId = rs.getLong(index++);
-			itemv.value = new MailboxRecord();
-			return MailboxRecordColumns.populator().populate(rs, index, itemv.value);
-		}, new Object[] { items.stream().map(i -> i.id).toArray(Long[]::new) });
+		List<ItemV<MailboxRecord>> values = select(query, items.size(), con -> new ItemV<MailboxRecord>(),
+				(ResultSet rs, int index, ItemV<MailboxRecord> itemv) -> {
+					itemv.itemId = rs.getLong(index++);
+					itemv.value = new MailboxRecord();
+					return MailboxRecordColumns.populator().populate(rs, index, itemv.value);
+				}, new Object[] { items.stream().map(i -> i.id).toArray(Long[]::new) });
 
 		return join(items, values);
 	}

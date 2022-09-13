@@ -54,21 +54,35 @@ public class JdbcAbstractStore {
 
 	protected <T> List<T> select(String query, Creator<T> creator, EntityPopulator<T> populator, Object[] parameters)
 			throws SQLException {
+		return select(query, null, creator, populator, parameters);
+
+	}
+
+	protected <T> List<T> select(String query, Integer fetchSize, Creator<T> creator, EntityPopulator<T> populator,
+			Object[] parameters) throws SQLException {
 		if (populator != null) {
-			return select(query, creator, Arrays.asList(populator), parameters);
+			return select(query, fetchSize, creator, Collections.singletonList(populator), parameters);
 		} else {
-			return select(query, creator, Collections.emptyList(), parameters);
+			return select(query, fetchSize, creator, Collections.emptyList(), parameters);
 		}
 	}
 
 	protected <T> List<T> select(String query, Creator<T> creator, List<EntityPopulator<T>> populators,
 			Object[] parameters) throws SQLException {
+		return select(query, null, creator, populators, parameters);
+	}
+
+	protected <T> List<T> select(String query, Integer fetchSize, Creator<T> creator,
+			List<EntityPopulator<T>> populators, Object[] parameters) throws SQLException {
 		Connection conn = getConnection();
 		List<T> ret = new ArrayList<>();
 		ResultSet rs = null;
 		PreparedStatement st = null;
 		try {
 			st = conn.prepareStatement(query);
+			if (fetchSize != null) {
+				st.setFetchSize(fetchSize);
+			}
 			setStatementParameters(parameters, conn, st);
 			logger.debug("[{}] S: {}", datasource, st);
 			long time = System.currentTimeMillis();

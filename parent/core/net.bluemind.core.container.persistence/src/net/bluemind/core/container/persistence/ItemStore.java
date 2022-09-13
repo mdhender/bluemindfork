@@ -322,9 +322,8 @@ public class ItemStore extends JdbcAbstractStore {
 			selectQuery.append(")");
 		}
 
-		return sort(
-				select(selectQuery.toString(), ItemCreator.INSTANCE, ITEM_POPULATORS, new Object[] { container.id }),
-				uids, item -> item.id);
+		return sort(select(selectQuery.toString(), uids.size(), ItemCreator.INSTANCE, ITEM_POPULATORS,
+				new Object[] { container.id }), uids, item -> item.id);
 	}
 
 	public List<Item> all() throws SQLException {
