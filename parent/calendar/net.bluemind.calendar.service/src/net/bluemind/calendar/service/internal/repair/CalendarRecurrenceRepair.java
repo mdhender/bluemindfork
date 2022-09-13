@@ -130,6 +130,9 @@ public class CalendarRecurrenceRepair implements IDirEntryRepairSupport {
 		}
 
 		private Optional<ItemValue<VEventSeries>> repairBrokenItem(ItemValue<VEventSeries> item) {
+			if (item == null || item.value == null) {
+				return Optional.empty();
+			}
 			Map<BmDateTime, List<VEventOccurrence>> occurencesByRecurid = item.value.occurrences.stream()
 					.collect(Collectors.groupingBy(occ -> occ.recurid));
 
