@@ -36,9 +36,9 @@ if [ $1 -gt 1 ]; then
 fi
 
 %post -p /bin/bash
-rm -f /usr/share/bm-sds-proxy/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
-rm -rf /usr/share/bm-sds-proxy/dropins
-mkdir -p /usr/share/bm-sds-proxy/dropins
+rm -f /usr/share/bm-eas/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
+rm -rf /usr/share/bm-eas/dropins
+mkdir -p /usr/share/bm-eas/dropins
 systemctl enable bm-eas
 if [ -d /run/systemd/system ]; then
     systemctl daemon-reload

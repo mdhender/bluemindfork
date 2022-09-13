@@ -20,9 +20,9 @@
 # Force startup link install
 update-rc.d -f bm-eas remove > /dev/null 2>&1
 
-rm -f /usr/share/bm-sds-proxy/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
-rm -rf /usr/share/bm-sds-proxy/dropins
-mkdir -p /usr/share/bm-sds-proxy/dropins
+rm -f /usr/share/bm-eas/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
+rm -rf /usr/share/bm-eas/dropins
+mkdir -p /usr/share/bm-eas/dropins
 
 # Needed for wheezy support
 if [ ! -x "/usr/bin/deb-systemd-helper" ]; then
