@@ -64,23 +64,19 @@ public class MailboxRecordColumns {
 	}
 
 	public static EntityPopulator<MailboxRecord> populator() {
-		return new EntityPopulator<MailboxRecord>() {
-
-			@Override
-			public int populate(ResultSet rs, int index, MailboxRecord value) throws SQLException {
-				value.messageBody = rs.getString(index++);
-				value.imapUid = rs.getLong(index++);
-				value.modSeq = rs.getLong(index++);
-				value.lastUpdated = rs.getTimestamp(index++);
-				value.internalDate = rs.getTimestamp(index++);
-				int encodedFlags = rs.getInt(index++);
-				value.flags = extractSystemFlags(encodedFlags);
-				value.internalFlags = InternalFlag.of(encodedFlags);
-				value.flags.addAll(
-						toList(rs.getArray(index++)).stream().map(MailboxItemFlag::new).collect(Collectors.toList()));
-				value.conversationId = (Long) rs.getObject(index++);
-				return index;
-			}
+		return (ResultSet rs, int index, MailboxRecord value) -> {
+			value.messageBody = rs.getString(index++);
+			value.imapUid = rs.getLong(index++);
+			value.modSeq = rs.getLong(index++);
+			value.lastUpdated = rs.getTimestamp(index++);
+			value.internalDate = rs.getTimestamp(index++);
+			int encodedFlags = rs.getInt(index++);
+			value.flags = extractSystemFlags(encodedFlags);
+			value.internalFlags = InternalFlag.of(encodedFlags);
+			value.flags.addAll(
+					toList(rs.getArray(index++)).stream().map(MailboxItemFlag::new).collect(Collectors.toList()));
+			value.conversationId = (Long) rs.getObject(index++);
+			return index;
 		};
 	}
 
@@ -94,34 +90,29 @@ public class MailboxRecordColumns {
 	}
 
 	public static StatementValues<MailboxRecord> values(long containerId, final Item item) {
-		return new StatementValues<MailboxRecord>() {
-
-			@Override
-			public int setValues(Connection con, PreparedStatement statement, int index, int currentRow,
-					MailboxRecord value) throws SQLException {
-				statement.setString(index++, value.messageBody);
-				statement.setLong(index++, value.imapUid);
-				statement.setLong(index++, value.modSeq);
-				statement.setTimestamp(index++, Timestamp.from(value.lastUpdated.toInstant()));
-				statement.setTimestamp(index++, Timestamp.from(value.internalDate.toInstant()));
-				int compoundFlags = 0;
-				List<String> otherFlags = new LinkedList<>();
-				for (MailboxItemFlag mif : value.flags) {
-					MailboxItemFlag flag = MailboxItemFlag.of(mif.flag, 0);
-					if (flag.value == 0) {
-						otherFlags.add(flag.flag);
-					} else {
-						compoundFlags |= flag.value;
-					}
+		return (Connection con, PreparedStatement statement, int index, int currentRow, MailboxRecord value) -> {
+			statement.setString(index++, value.messageBody);
+			statement.setLong(index++, value.imapUid);
+			statement.setLong(index++, value.modSeq);
+			statement.setTimestamp(index++, Timestamp.from(value.lastUpdated.toInstant()));
+			statement.setTimestamp(index++, Timestamp.from(value.internalDate.toInstant()));
+			int compoundFlags = 0;
+			List<String> otherFlags = new LinkedList<>();
+			for (MailboxItemFlag mif : value.flags) {
+				MailboxItemFlag flag = MailboxItemFlag.of(mif.flag, 0);
+				if (flag.value == 0) {
+					otherFlags.add(flag.flag);
+				} else {
+					compoundFlags |= flag.value;
 				}
-				compoundFlags |= InternalFlag.valueOf(value.internalFlags);
-				statement.setInt(index++, compoundFlags);
-				statement.setArray(index++, con.createArrayOf("text", otherFlags.toArray()));
-				statement.setObject(index++, value.conversationId);
-				statement.setLong(index++, containerId);
-				statement.setLong(index++, item.id);
-				return 0;
 			}
+			compoundFlags |= InternalFlag.valueOf(value.internalFlags);
+			statement.setInt(index++, compoundFlags);
+			statement.setArray(index++, con.createArrayOf("text", otherFlags.toArray()));
+			statement.setObject(index++, value.conversationId);
+			statement.setLong(index++, containerId);
+			statement.setLong(index++, item.id);
+			return 0;
 		};
 	}
 
