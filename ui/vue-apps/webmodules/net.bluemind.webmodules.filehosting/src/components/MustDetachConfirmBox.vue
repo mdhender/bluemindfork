@@ -50,8 +50,5 @@ export default {
     .progress {
         background: $secondary;
     }
-    .font-size-h1 {
-        font-size: $h1-font-size;
-    }
 }
 </style>

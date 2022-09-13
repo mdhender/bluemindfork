@@ -20,7 +20,7 @@
                 </template>
             </file-thumbnail>
             <file-infos :file="file" :class="{ muted: isUploading(file) }">
-                <template v-if="hover" #actions>
+                <template #actions>
                     <slot name="actions" :file="file" />
                 </template>
             </file-infos>
@@ -100,7 +100,7 @@ export default {
 
     &:hover {
         background-color: $neutral-bg;
-        outline-color: $neutral-fg-lo3;
+        outline-color: $neutral-fg-lo2;
     }
 
     &:focus {
@@ -131,7 +131,7 @@ export default {
     }
 }
 
-.bm-extension.active .file-item .container {
+.bm-extension.active.file-item .container {
     outline: 2 * $input-border-width solid $secondary-fg;
     outline-offset: -2 * $input-border-width;
 }

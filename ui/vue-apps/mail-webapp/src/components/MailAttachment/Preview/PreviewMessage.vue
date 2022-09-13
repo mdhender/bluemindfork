@@ -14,6 +14,7 @@
                     <template v-slot:actions="{ file: slotFile }">
                         <preview-button
                             v-if="!isLarge(slotFile) && isViewable(slotFile)"
+                            :file="file"
                             @preview="openPreview(slotFile)"
                         />
                         <download-button :ref="`download-button-${slotFile.key}`" :file="slotFile" />

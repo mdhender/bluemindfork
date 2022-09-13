@@ -1,10 +1,10 @@
 <template>
     <div class="fh-file-item">
         <div class="d-flex text-neutral">
-            <div><bm-icon icon="file" class="mt-2" /></div>
-            <div class="d-flex ml-2 mt-2 justify-content-between flex-fill">
+            <div><bm-icon icon="file" class="mt-3" /></div>
+            <div class="d-flex ml-3 mt-3 justify-content-between flex-fill">
                 <div class="label">
-                    <h2 class="text-truncate">{{ file.name }}</h2>
+                    <div class="text-truncate bold">{{ file.name }}</div>
                     <span class="text-neutral text-right">
                         <span v-if="!hasErrorStatus">
                             {{ displaySize(file.progress.loaded) }} / {{ displaySize(file.progress.total) }}

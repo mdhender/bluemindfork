@@ -32,7 +32,7 @@
         />
         <bm-counter-badge
             v-if="folder.unread > 0 && !menuIsShown"
-            :value="folder.unread"
+            :count="folder.unread"
             :variant="folder.key != activeFolder ? 'neutral' : 'secondary'"
             class="mx-1 d-block"
             :class="{ 'read-only': !folder.writable }"

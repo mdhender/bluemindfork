@@ -10,6 +10,7 @@
                 <template v-slot:actions="{ file }">
                     <preview-button
                         v-if="isViewable(file)"
+                        :file="file"
                         :disabled="!isAllowedToPreview"
                         @preview="openPreview(file)"
                     />

@@ -10,7 +10,7 @@
         </div>
         <bm-progress :value="filesWeight" :max="maxSize" class="align-self-center" :variant="filesWeightColor" />
     </div>
-    <div v-else>
+    <div v-else class="files-header">
         <bm-icon icon="paper-clip" />
         <div class="size-info bold">
             {{ $tc("common.attachments", files.length, { count: files.length }) }}

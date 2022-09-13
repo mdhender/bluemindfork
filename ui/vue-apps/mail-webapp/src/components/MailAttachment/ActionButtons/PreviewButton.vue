@@ -3,7 +3,7 @@
         variant="compact"
         class="preview-button"
         size="sm"
-        icon="eye"
+        :icon="matchingPreviewIcon(file)"
         :title="$t('mail.preview.open')"
         :disabled="disabled"
         @click.stop="preview"
@@ -12,6 +12,7 @@
 
 <script>
 import { BmIconButton } from "@bluemind/styleguide";
+import { MimeType } from "@bluemind/email";
 
 export default {
     name: "PreviewButton",
@@ -20,6 +21,10 @@ export default {
         disabled: {
             type: Boolean,
             default: false
+        },
+        file: {
+            type: Object,
+            required: true
         }
     },
     methods: {
@@ -27,6 +32,9 @@ export default {
             if (!this.disabled) {
                 this.$emit("preview");
             }
+        },
+        matchingPreviewIcon(file) {
+            return MimeType.isAudio(file) || MimeType.isVideo(file) ? "play" : "eye";
         }
     }
 };

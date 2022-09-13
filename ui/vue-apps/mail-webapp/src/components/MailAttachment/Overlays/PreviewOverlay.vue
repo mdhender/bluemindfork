@@ -1,6 +1,6 @@
 <template>
     <div class="preview-overlay d-flex align-center-items">
-        <bm-icon :icon="icon" size="3xl" class="m-auto p-1" />
+        <bm-icon :icon="icon" size="2xl" class="m-auto p-1" />
     </div>
 </template>
 

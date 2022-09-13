@@ -9,18 +9,18 @@
         <div class="mr-4 ml-2">
             <div v-if="hasSomeErrorStatus" class="d-flex align-items-center mb-3">
                 <bm-icon icon="file" size="xl" class="mr-2 text-danger" />
-                <span class="mr-1 font-size-h1 text-neutral-fg-lo2">&#8226;</span>
-                <span class="mr-1 font-size-h1 text-neutral-fg-lo2">&#8226;</span>
+                <span class="mr-3 dot-font-size text-neutral-fg-lo2">&#8226;</span>
+                <span class="mr-3 dot-font-size text-neutral-fg-lo2">&#8226;</span>
                 <bm-icon icon="exclamation" size="xl" class="text-danger" />
-                <span class="mr-1 font-size-h1 text-neutral-fg-lo2">&#8226;</span>
-                <span class="mr-1 font-size-h1 text-neutral-fg-lo2">&#8226;</span>
+                <span class="mr-3 dot-font-size text-neutral-fg-lo2">&#8226;</span>
+                <span class="mr-3 dot-font-size text-neutral-fg-lo2">&#8226;</span>
                 <bm-icon icon="chevron-right" class="text-neutral-fg-lo2" size="lg" />
                 <bm-icon icon="cloud" class="ml-2 text-danger" size="xl" />
             </div>
             <div v-else class="d-flex align-items-center mb-3">
                 <bm-icon icon="file" size="xl" class="mr-2 text-secondary" />
                 <span :class="dotsClass">
-                    <span class="font-size-h1">&#8226; &#8226; &#8226; &#8226; &#8226; &#8226;</span>
+                    <span class="dot-font-size">&#8226; &#8226; &#8226; &#8226; &#8226; &#8226;</span>
                 </span>
                 <bm-icon
                     icon="chevron-right"
@@ -36,7 +36,7 @@
                 {{ $tc("mail.filehosting.share.pending", fhFiles.length) }}
             </div>
 
-            <div v-for="(file, idx) in fhFiles" :key="idx" class="position-relative mb-3">
+            <div v-for="(file, idx) in fhFiles" :key="idx" class="position-relative mb-5">
                 <detachment-item :file="file">
                     <template #item-actions>
                         <bm-label-icon
@@ -52,9 +52,9 @@
                             class="ml-2"
                             @click="cancel(file.key)"
                         />
-                        <span v-else class="text-neutral ml-2 text-nowrap">
+                        <div v-else class="text-neutral regular ml-2 text-nowrap">
                             {{ $t("mail.filehosting.import.successful") }}
-                        </span>
+                        </div>
                     </template>
                 </detachment-item>
             </div>
@@ -72,7 +72,7 @@
 <script>
 import { mapGetters } from "vuex";
 import global from "@bluemind/global";
-import { BmModal, BmButton, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
+import { BmModal, BmButtonClose, BmButton, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
 import { fileUtils } from "@bluemind/mail";
 import DetachmentItem from "./DetachmentItem";
@@ -81,7 +81,7 @@ const { FileStatus, isUploading } = fileUtils;
 
 export default {
     name: "FileHostingModal",
-    components: { BmModal, BmButtonClose, BmButton, BmIcon, FhAttachmentItem, BmLabelIcon },
+    components: { BmModal, BmButtonClose, BmButton, BmIcon, DetachmentItem, BmLabelIcon },
     props: {
         sizeLimit: {
             type: Number,
@@ -167,8 +167,8 @@ export default {
     .text-neutral-fg-lo2 {
         color: $neutral-fg-lo2;
     }
-    .font-size-h1 {
-        font-size: $h1-font-size;
+    .dot-font-size {
+        font-size: $h2-font-size;
     }
     .dots {
         background-image: linear-gradient(90deg, $fill-secondary-bg 0%, $fill-secondary-bg 100%);

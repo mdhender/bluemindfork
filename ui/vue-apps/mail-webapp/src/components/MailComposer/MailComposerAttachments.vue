@@ -21,6 +21,7 @@
             <template #actions="{ file }">
                 <preview-button
                     v-if="isViewable(file)"
+                    :file="file"
                     :disabled="!isAllowedToPreview(file)"
                     @preview="openPreview(file)"
                 />
