@@ -73,7 +73,7 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 				return createNoopService();
 			}
 			MailboxRecordStore recordStore = new MailboxRecordStore(ds, recordsContainer);
-			ContainerStoreService<MailboxRecord> storeService = new ContainerStoreService<>(ds,
+			ContainerStoreService<MailboxRecord> storeService = new NotDecoratedStoreService<>(ds,
 					context.getSecurityContext(), recordsContainer, recordStore, flagsProvider, recordSeedProvider,
 					toWeight);
 			storeService = disableChangelogIfSystem(context, recordsContainer, storeService);

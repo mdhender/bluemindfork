@@ -653,8 +653,9 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	protected void decorate(Item item, ItemValue<T> value) {
-		logger.debug("decorate {} {}", item, value);
+		// OK
 	}
 
 	public List<ItemValue<T>> getMultiple(List<String> uids) {
