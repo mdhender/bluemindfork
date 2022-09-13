@@ -174,7 +174,8 @@ public class MailApiConnection implements MailboxConnection {
 			WriteStream<FetchedItem> output) {
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 		IDbMessageBodies bodyApi = prov.instance(IDbMessageBodies.class, selected.partition);
-		Iterator<List<Long>> slice = Lists.partition(recApi.imapIdSet(idset, ""), 500).iterator();
+		Iterator<List<Long>> slice = Lists
+				.partition(recApi.imapIdSet(idset, ""), DriverConfig.get().getInt("driver.records-mget")).iterator();
 		CompletableFuture<Void> ret = new CompletableFuture<>();
 
 		pushNext(recApi, bodyApi, fields, slice, Collections.emptyIterator(), ret, output);
@@ -314,7 +315,7 @@ public class MailApiConnection implements MailboxConnection {
 	public void updateFlags(SelectedFolder selected, String idset, UpdateMode mode, List<String> flags) {
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 		List<Long> toUpdate = recApi.imapIdSet(idset, "");
-		for (List<Long> slice : Lists.partition(toUpdate, 500)) {
+		for (List<Long> slice : Lists.partition(toUpdate, DriverConfig.get().getInt("driver.records-mget"))) {
 			List<MailboxRecord> recs = recApi.multipleGetById(slice).stream().map(iv -> iv.value).toList();
 			for (MailboxRecord item : recs) {
 				List<MailboxItemFlag> commandFlags = flags(flags);
