@@ -559,12 +559,12 @@
     <bundle id="net.bluemind.slf4j" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.slf4j.configuration" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.ssl.hook" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.startup.dropins" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.api" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.api.gwt" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.api.php" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.auth" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.config" version="4.1.0.qualifier" />
-    <bundle id="net.bluemind.systemd.notify" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.domaintemplate" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.helper" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.hook" version="4.1.0.qualifier" />
@@ -581,6 +581,7 @@
     <bundle id="net.bluemind.system.persistence" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.pg" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.schemaupgrader" version="4.1.0.qualifier" />
+    <bundle id="net.bluemind.systemd.notify" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.schemaupgrader.runner" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.security.certificate" version="4.1.0.qualifier" />
     <bundle id="net.bluemind.system.service" version="4.1.0.qualifier" />
