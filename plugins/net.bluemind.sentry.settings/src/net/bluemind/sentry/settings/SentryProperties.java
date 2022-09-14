@@ -63,7 +63,7 @@ public class SentryProperties {
 		props.setProperty("environment", "BM_COMMUNITY");
 		props.setProperty("release", "UNKNOWN_RELEASE");
 		props.setProperty("servername", "UNKNOWN_SERVER");
-		props.setProperty("stacktrace.app.packages", "net.bluemind");
+		props.setProperty("in-app-includes", "net.bluemind");
 		try {
 			load();
 		} catch (IOException ioe) {

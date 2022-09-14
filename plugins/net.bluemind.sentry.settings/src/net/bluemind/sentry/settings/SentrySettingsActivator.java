@@ -40,7 +40,7 @@ public class SentrySettingsActivator implements BundleActivator {
 
 		System.setProperty("sentry.properties.file",
 				SentryProperties.getConfigurationPath().toAbsolutePath().toString());
-		System.setProperty("stacktrace.app.packages", "net.bluemind");
+		System.setProperty("in-app-includes", "net.bluemind");
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {

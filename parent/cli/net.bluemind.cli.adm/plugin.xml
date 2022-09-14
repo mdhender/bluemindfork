@@ -46,5 +46,9 @@
             impl="net.bluemind.cli.adm.SchemaCheck$Reg"
             priority="603">
       </registration>
+      <registration
+            impl="net.bluemind.cli.adm.SentryCommand$Reg"
+            priority="603">
+      </registration>
    </extension>
 </plugin>

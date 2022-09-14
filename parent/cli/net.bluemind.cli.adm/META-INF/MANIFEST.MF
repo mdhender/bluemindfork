@@ -29,7 +29,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.task.spi,
  net.bluemind.domain.api,
  net.bluemind.node.api,
- net.bluemind.system.api
+ net.bluemind.system.api,
+ sentry
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.cli.adm
 Bundle-ActivationPolicy: lazy

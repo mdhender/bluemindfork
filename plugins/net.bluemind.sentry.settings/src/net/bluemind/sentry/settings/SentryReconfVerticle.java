@@ -72,7 +72,9 @@ public class SentryReconfVerticle extends AbstractVerticle {
 				Sentry.close();
 				if (sentryProps.enabled()) {
 					logger.info("Sentry enable");
-					ClientAccess.setClient(Sentry.init());
+					Sentry.init(options -> {
+						options.setEnableExternalConfiguration(true);
+					});
 				}
 			});
 			logger.info("Waiting for sentry re-configuration orders on topic {}", Topic.SENTRY_CONFIG);

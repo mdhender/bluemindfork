@@ -33,12 +33,12 @@ public class CoreStateListener implements IStateListener {
 			if (sentryProps.enabled()) {
 				Sentry.close();
 				ClientAccess.setSettings(sentryProps);
-				ClientAccess.setClient(Sentry.init());
+				Sentry.init(options -> {
+					options.setEnableExternalConfiguration(true);
+				});
 			} else {
 				Sentry.close();
 			}
-		} else if (Sentry.isInitialized()) {
-			Sentry.close();
 		}
 	}
 }
