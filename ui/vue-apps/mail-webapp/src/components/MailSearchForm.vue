@@ -61,7 +61,7 @@
                     <bm-button type="reset" variant="text">
                         {{ $t("common.action.reset") }}
                     </bm-button>
-                    <bm-button type="submit" variant="contained-accent" :disabled="!pattern">{{
+                    <bm-button type="submit" variant="fill-accent" :disabled="!pattern">{{
                         $t("common.action.search")
                     }}</bm-button>
                 </div>

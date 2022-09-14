@@ -2,7 +2,7 @@
     <div v-if="HAS_CHANGED" class="pref-right-panel-footer modal-footer">
         <bm-button
             type="submit"
-            variant="contained-accent"
+            variant="fill-accent"
             :disabled="!HAS_CHANGED || HAS_ERROR || HAS_NOT_VALID"
             @click.prevent="save"
         >

@@ -61,7 +61,7 @@ export default {
                 title: this.$t("preferences.advanced.reinit_local_data"),
                 okTitle: this.text,
                 cancelTitle: this.$t("common.cancel"),
-                okVariant: "contained-accent",
+                okVariant: "fill-accent",
                 cancelVariant: "text",
                 centered: true,
                 hideHeaderClose: false,

@@ -33,7 +33,7 @@
                         {{ $t("preferences.display_containers.import_file." + container.type) }}
                     </div>
                     <div class="mb-5">{{ $t("common.or") }}</div>
-                    <bm-button variant="contained-accent" @click="openFilePicker">{{ $t("common.browse") }}</bm-button>
+                    <bm-button variant="fill-accent" @click="openFilePicker">{{ $t("common.browse") }}</bm-button>
                 </div>
             </template>
         </bm-file-drop-zone>

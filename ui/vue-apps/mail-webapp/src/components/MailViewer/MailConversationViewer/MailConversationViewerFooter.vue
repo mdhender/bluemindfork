@@ -2,7 +2,7 @@
     <bm-button-toolbar key-nav class="mail-conversation-viewer-footer">
         <mail-open-in-popup-with-shift v-slot="action" :href="replyRoute(lastNonDraft)">
             <bm-button
-                variant="contained-accent"
+                variant="fill-accent"
                 :title="action.label($t('mail.content.reply.aria'))"
                 :icon="action.icon('reply')"
                 @click="action.execute(() => reply(conversation, lastNonDraft))"
@@ -12,7 +12,7 @@
         </mail-open-in-popup-with-shift>
         <mail-open-in-popup-with-shift v-slot="action" :href="replyAllRoute(lastNonDraft)">
             <bm-button
-                variant="contained-accent"
+                variant="fill-accent"
                 :title="action.label($t('mail.content.reply_all.aria'))"
                 :icon="action.icon('reply-all')"
                 @click="action.execute(() => replyAll(conversation, lastNonDraft))"

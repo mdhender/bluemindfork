@@ -106,10 +106,10 @@
                     {{ $t("preferences.mail.identities.delete") }}
                 </bm-button>
                 <bm-button variant="text" @click="cancel">{{ $t("common.cancel") }}</bm-button>
-                <bm-button v-if="isNewIdentity" variant="contained-accent" :disabled="!isFormValid" @click="add">
+                <bm-button v-if="isNewIdentity" variant="fill-accent" :disabled="!isFormValid" @click="add">
                     {{ $t("common.add") }}
                 </bm-button>
-                <bm-button v-else variant="contained-accent" :disabled="!hasAnyChange || !isFormValid" @click="save">
+                <bm-button v-else variant="fill-accent" :disabled="!hasAnyChange || !isFormValid" @click="save">
                     {{ $t("common.save") }}
                 </bm-button>
             </template>

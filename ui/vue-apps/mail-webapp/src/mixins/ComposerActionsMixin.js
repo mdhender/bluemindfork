@@ -163,7 +163,7 @@ export default {
                         title: this.$t(`mail.compose.confirm_delete.${kind}.title`),
                         okTitle: this.$t("common.delete"),
                         cancelTitle: this.$t("common.cancel"),
-                        okVariant: "contained-accent",
+                        okVariant: "fill-accent",
                         cancelVariant: "text",
                         centered: true,
                         hideHeaderClose: false,

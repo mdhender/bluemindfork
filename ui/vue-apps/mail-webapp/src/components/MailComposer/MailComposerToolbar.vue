@@ -4,7 +4,7 @@
             <bm-button
                 v-if="isDraft"
                 type="submit"
-                variant="contained-accent"
+                variant="fill-accent"
                 icon="send"
                 :disabled="disableSend"
                 @click.prevent="send"
@@ -14,7 +14,7 @@
             <bm-button
                 v-else
                 type="submit"
-                variant="contained-accent"
+                variant="fill-accent"
                 :title="$t('mail.actions.end_template_edition.aria')"
                 @click.prevent="endEdition"
             >

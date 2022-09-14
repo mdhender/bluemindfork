@@ -109,7 +109,7 @@ export default {
                     title: this.$tc("mail.compose.template_chooser.confirm_overwrite.title"),
                     okTitle: this.$t("mail.compose.template_chooser.confirm_overwrite.action"),
                     cancelTitle: this.$t("common.cancel"),
-                    okVariant: "contained-accent",
+                    okVariant: "fill-accent",
                     cancelVariant: "text",
                     centered: true,
                     hideHeaderClose: false,

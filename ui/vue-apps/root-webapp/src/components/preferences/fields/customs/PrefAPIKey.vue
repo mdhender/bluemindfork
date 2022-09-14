@@ -145,7 +145,7 @@ export default {
             const confirm = await this.$bvModal.msgBoxConfirm(modalContent, {
                 title: this.$t("common.delete"),
                 okTitle: this.$t("common.delete"),
-                okVariant: "contained-accent",
+                okVariant: "fill-accent",
                 cancelVariant: "text",
                 cancelTitle: this.$t("common.cancel"),
                 centered: true,

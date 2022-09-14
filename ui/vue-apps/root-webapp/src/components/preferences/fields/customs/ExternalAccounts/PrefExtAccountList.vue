@@ -111,7 +111,7 @@ export default {
                     title: this.$t("preferences.account.external_accounts.list.remove.modal.title"),
                     okTitle: this.$t("common.delete"),
                     cancelTitle: this.$t("common.cancel"),
-                    okVariant: "contained-accent",
+                    okVariant: "fill-accent",
                     cancelVariant: "text",
                     centered: true,
                     hideHeaderClose: false,

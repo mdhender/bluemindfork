@@ -127,7 +127,7 @@ export default {
                     title: this.$t("preferences.leave_app.confirm.title"),
                     cancelTitle: this.$t("common.cancel"),
                     okTitle: this.$t("preferences.leave_app.confirm.button"),
-                    okVariant: "contained-accent",
+                    okVariant: "fill-accent",
                     cancelVariant: "text",
                     centered: true,
                     hideHeaderClose: false,

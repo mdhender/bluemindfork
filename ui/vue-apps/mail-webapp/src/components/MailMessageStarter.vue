@@ -18,7 +18,7 @@
                         <div class="pb-5">{{ $t("mail.message.starter.display") }}</div>
                         <bm-button
                             :to="{ name: 'v:mail:home', params: { folder: MY_DRAFTS.path } }"
-                            variant="contained"
+                            variant="fill"
                             size="lg"
                             icon="pencil"
                         >

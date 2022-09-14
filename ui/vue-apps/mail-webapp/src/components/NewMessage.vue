@@ -9,7 +9,7 @@
         />
         <bm-button
             v-else
-            variant="contained-accent"
+            variant="fill-accent"
             class="new-message text-nowrap d-none d-lg-inline-flex"
             :size="size"
             :title="action.label()"
