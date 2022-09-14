@@ -663,6 +663,10 @@
                 {/if}
                 <div class="{css detailLabel}">{msg meaning="general.calendar" desc="calendar"}Calendar{/msg}</div>
                 <div class="{css detailValue}">{$calendar.name}</div>
+                {if $event.conference }
+                    <div class="{css detailLabel}">{msg meaning="calendar.event.videoconferencing" desc="conference"}Conference{/msg}</div>
+                    <div class="{css detailValue}"><a href="{$event.conference}" target="_blank">{$event.conference}</a></div>
+                {/if}
 
                 {if length($event.tags) > 0}
                   <div class="{css detailLabel}">{msg meaning="general.tags" desc="event tag label"}Tags{/msg}</div>

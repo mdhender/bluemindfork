@@ -272,6 +272,31 @@
             </tr>
           {/if}
 
+          {if $event.conference}
+            <tr>
+              <th>{msg meaning="calendar.event.videoconferencing" desc="event video conferencing label"}Videoconference{/msg}</th>
+              <td colspan="2">
+                <a target='_blank' href="{$event.conference}">
+                  <span class="{css fa} {css fa-video-camera}"></span>
+                  &nbsp;
+                  {msg meaning="calendar.event.videoconferencing.join" desc="join video conferencing label"}Join video conference{/msg}
+                </a>
+                &nbsp;&nbsp;
+                <div class="{css goog-inline-block} {css goog-link-button}">
+                  <span id="bm-ui-popup-videoconferencing-url-copy" class="{css fa} {css fa-copy}"></span>
+                </div>
+                <input type="text" value="{$event.conference}" id="bm-ui-popup-videoconferencing-url-copy-value"/>
+
+                  <div id="bm-ui-form-videoconferencing-desc">
+                    {if $event.conferenceDescription}
+                      {$event.conferenceDescription}
+                    {/if}
+                  </div>
+
+              </td>
+            </tr>
+          {/if}
+
           {if $event.states.meeting}
             <tr>
               <th class="{css attendees-label}">{msg meaning="calendar.event.attendees" desc="attendees"}Attendees{/msg}</th>
