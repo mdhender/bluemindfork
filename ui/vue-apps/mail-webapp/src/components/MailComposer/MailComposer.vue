@@ -1,5 +1,5 @@
 <template>
-    <bm-form class="mail-composer m-lg-5 flex-grow-1 d-flex flex-column bg-surface" @keypress.ctrl.enter="send">
+    <bm-form class="mail-composer flex-grow-1 d-flex flex-column bg-surface" @keypress.ctrl.enter="send">
         <mail-open-in-popup
             v-slot="action"
             :href="{ name: 'mail:popup:message', params: { messagepath } }"
@@ -98,9 +98,15 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-composer {
+    @include from-lg {
+        margin: $sp-5;
+        margin-right: 0;
+    }
+
     word-break: break-word !important;
 
     .bm-contact-input input,

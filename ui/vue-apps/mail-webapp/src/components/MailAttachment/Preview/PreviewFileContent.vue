@@ -11,19 +11,19 @@
             :file="{ ...file, url: src }"
         />
         <div v-else-if="!isViewable(file)" class="no-preview center">
-            <div class="file-type"><bm-icon :icon="matchingIcon" size="10x" /></div>
+            <div class="file-type"><bm-icon :icon="matchingIcon" size="3xl" /></div>
             <span class="text">{{ $t("mail.preview.nopreview.type") }}</span>
         </div>
         <div v-else-if="isLarge" class="no-preview center">
-            <div class="mb-3"><bm-icon icon="weight" size="10x" /></div>
+            <div class="mb-3"><bm-icon icon="weight" size="3xl" /></div>
             <span class="text">{{ $t("mail.preview.nopreview.large") }}</span>
         </div>
         <div v-else-if="hasBlockedRemoteContent" class="blocked-preview center">
-            <bm-icon icon="exclamation-circle" size="10x" />
+            <bm-icon icon="exclamation-circle" size="3xl" />
         </div>
 
         <div v-else class="no-preview center">
-            <div class="mb-3"><bm-icon icon="spam" size="10x" /></div>
+            <div class="mb-3"><bm-icon icon="spam" size="3xl" /></div>
             <span class="text">{{ $t("mail.preview.nopreview") }}</span>
         </div>
     </div>
