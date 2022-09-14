@@ -26,8 +26,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -43,8 +48,10 @@ import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmt;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
+import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.service.ReplicationEvents;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -209,4 +216,32 @@ public class MailConversationActionServiceTests extends AbstractRollingReplicati
 		assertEquals(2, recordsSent.all().size());
 	}
 
+	@Test
+	public void multipleDelete() throws IOException, InterruptedException, TimeoutException, ExecutionException {
+		IMailConversation user1ConversationService = provider().instance(IMailConversation.class,
+				IMailReplicaUids.conversationSubtreeUid(domainUid, userUid));
+		IMailboxFolders user1MboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+
+		createEml("data/user1_send_another_to_user2.eml", userUid, mboxRoot, "Sent");
+		createEml("data/user1_send_another_to_user2_2.eml", userUid, mboxRoot, "Sent");
+
+		ItemValue<MailboxFolder> user1Sent = user1MboxesApi.byName("Sent");
+		List<String> user1SentConversations = user1ConversationService.byFolder(user1Sent.uid, ItemFlagFilter.all());
+		IDbMailboxRecords records = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDbMailboxRecords.class, user1Sent.uid);
+
+		CompletableFuture<?> onMailboxChanged = ReplicationEvents.onMailboxChanged(user1Sent.uid);
+		getActionService(user1Sent.uid).multipleDeleteById(user1SentConversations);
+		onMailboxChanged.get(3L, TimeUnit.SECONDS);
+
+		List<ItemValue<MailboxRecord>> all = records.all();
+		assertEquals(2, all.size());
+
+		for (ItemValue<MailboxRecord> rec : all) {
+			if (rec.value.internalFlags.contains(InternalFlag.expunged)) {
+				assertTrue(rec.value.flags.contains(MailboxItemFlag.System.Deleted.value()));
+				assertTrue(rec.value.internalFlags.contains(InternalFlag.expunged));
+			}
+		}
+	}
 }

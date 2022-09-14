@@ -88,6 +88,15 @@ public class MailConversationActionsService implements IMailConversationActions 
 		return transferAction(targetMailboxUid, conversationUids, (service, itemds) -> service.move(itemds));
 	}
 
+	@Override
+	public void multipleDeleteById(List<String> conversationUids) {
+		rbacManager.check(Verb.Write.name());
+		IMailboxItems mailboxItemsService = context.getServiceProvider().instance(IMailboxItems.class,
+				replicatedMailboxUid);
+		List<Long> itemIds = getItemidsByConversationUids(conversationUids);
+		mailboxItemsService.multipleDeleteById(itemIds);
+	}
+
 	private List<ItemIdentifier> transferAction(String targetMailboxUid, List<String> conversationUids,
 			BiFunction<IItemsTransfer, List<Long>, List<ItemIdentifier>> op) {
 		List<Long> itemsByConversations = getItemidsByConversationUids(conversationUids);

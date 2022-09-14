@@ -23,7 +23,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-
 import net.bluemind.backend.mail.api.flags.ConversationFlagUpdate;
 import net.bluemind.backend.mail.api.flags.ImportMailboxConversationSet;
 import net.bluemind.core.api.BMApi;
@@ -94,5 +93,14 @@ public interface IMailConversationActions {
 	@POST
 	@Path("move/{targetMailboxUid}")
 	List<ItemIdentifier> move(@PathParam("targetMailboxUid") String targetMailboxUid, List<String> conversationUids);
+
+	/**
+	 * Delete conversations.
+	 * 
+	 * @param conversationUids
+	 */
+	@POST
+	@Path("_multipleDelete")
+	void multipleDeleteById(List<String> conversationUids);
 
 }
