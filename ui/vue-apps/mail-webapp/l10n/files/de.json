@@ -359,6 +359,8 @@
     "mail.search.options.folder.current": "Aktueller Ordner",
     "mail.search.options.folder.label": "Suche in",
     "mail.selection.alert.readonly": "Einige E-Mails sind schreibgeschützt.",
+    "mail.state.unread": "Ungelesen",
+    "mail.state.flagged": "Nachverfolgt",
     "mail.toolbar.more.aria": "Weitere Aktionen für die ausgewählten E-Mails",
     "mail.toolbar.more": "Andere",
     "mail.toolbar.move.tooltip": "E-Mail verschieben",

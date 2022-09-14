@@ -3,28 +3,12 @@
         <template v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE">
             <mail-toolbar-responsive-button
                 v-show="isTemplate"
-                class="unread"
                 :title="$t('mail.actions.edit_from_template.aria', { subject })"
                 icon="plus-enveloppe"
                 :label="$t('mail.actions.edit_from_template')"
                 @click="editFromTemplate"
             />
-            <mail-toolbar-responsive-button
-                v-show="showMarkAsRead && !isTemplate"
-                class="unread"
-                :title="markAsReadAriaText()"
-                icon="read"
-                :label="markAsReadText"
-                @click="markAsRead()"
-            />
-            <mail-toolbar-responsive-button
-                v-show="showMarkAsUnread && !isTemplate"
-                class="read"
-                :title="markAsUnreadAriaText()"
-                icon="unread"
-                :label="markAsUnreadText"
-                @click="markAsUnread()"
-            />
+            <mail-toolbar-responsive-mark-as-unread-button v-show="!isTemplate" />
             <mail-toolbar-selected-conversations-move-action />
             <mail-toolbar-responsive-button
                 :title="removeAriaText()"
@@ -33,22 +17,7 @@
                 @click.exact="moveToTrash()"
                 @click.shift.exact="remove()"
             />
-            <mail-toolbar-responsive-button
-                v-show="showMarkAsFlagged"
-                class="flagged"
-                :title="markAsFlaggedAriaText()"
-                icon="flag-outline"
-                :label="markAsFlaggedText"
-                @click="markAsFlagged()"
-            />
-            <mail-toolbar-responsive-button
-                v-show="showMarkAsUnflagged"
-                class="unflagged"
-                :title="markAsUnflaggedAriaText()"
-                icon="flag-fill"
-                :label="markAsUnflaggedText"
-                @click="markAsUnflagged()"
-            />
+            <mail-toolbar-responsive-mark-as-flagged-button />
             <mail-toolbar-selected-conversations-other-actions />
         </template>
     </div>
@@ -58,6 +27,8 @@
 import { mapGetters, mapState } from "vuex";
 import { messageUtils } from "@bluemind/mail";
 import MailToolbarResponsiveButton from "../MailToolbarResponsiveButton";
+import MailToolbarResponsiveMarkAsFlaggedButton from "../MailToolbarResponsiveMarkAsFlaggedButton";
+import MailToolbarResponsiveMarkAsUnreadButton from "../MailToolbarResponsiveMarkAsUnreadButton";
 import MailToolbarSelectedConversationsMoveAction from "./MailToolbarSelectedConversationsMoveAction";
 import MailToolbarSelectedConversationsOtherActions from "./MailToolbarSelectedConversationsOtherActions";
 import { ActionTextMixin, FlagMixin, RemoveMixin, SelectionMixin, MailRoutesMixin } from "~/mixins";
@@ -75,6 +46,8 @@ export default {
     name: "MailToolbarSelectedConversations",
     components: {
         MailToolbarResponsiveButton,
+        MailToolbarResponsiveMarkAsFlaggedButton,
+        MailToolbarResponsiveMarkAsUnreadButton,
         MailToolbarSelectedConversationsMoveAction,
         MailToolbarSelectedConversationsOtherActions
     },

@@ -49,40 +49,32 @@ export default {
             $_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED: SEVERAL_CONVERSATIONS_SELECTED
         }),
         showMarkAsRead() {
+            return this.isMarkAsUnreadPressed;
+        },
+        showMarkAsUnread() {
+            return !this.isMarkAsUnreadPressed;
+        },
+        isMarkAsUnreadPressed() {
             if (this.conversation) {
                 return !this.conversation.flags.includes(Flag.SEEN);
             } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
-                return !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_READ;
+                return this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNREAD;
             } else if (this.$_FlagMixin_CURRENT_CONVERSATION_METADATA) {
                 return !this.$_FlagMixin_CURRENT_CONVERSATION_METADATA.flags.includes(Flag.SEEN);
             }
             return false;
         },
-        showMarkAsUnread() {
-            if (this.conversation) {
-                return this.conversation.flags.includes(Flag.SEEN);
-            } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
-                return !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNREAD;
-            } else if (this.$_FlagMixin_CURRENT_CONVERSATION_METADATA) {
-                return this.$_FlagMixin_CURRENT_CONVERSATION_METADATA.flags.includes(Flag.SEEN);
-            }
-            return false;
-        },
         showMarkAsFlagged() {
-            if (this.conversation) {
-                return !this.conversation.flags.includes(Flag.FLAGGED);
-            } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
-                return !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED;
-            } else if (this.$_FlagMixin_CURRENT_CONVERSATION_METADATA) {
-                return !this.$_FlagMixin_CURRENT_CONVERSATION_METADATA.flags.includes(Flag.FLAGGED);
-            }
-            return false;
+            return !this.isMarkAsFlaggedPressed;
         },
         showMarkAsUnflagged() {
+            return this.isMarkAsFlaggedPressed;
+        },
+        isMarkAsFlaggedPressed() {
             if (this.conversation) {
                 return this.conversation.flags.includes(Flag.FLAGGED);
             } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
-                return !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED;
+                return this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED;
             } else if (this.$_FlagMixin_CURRENT_CONVERSATION_METADATA) {
                 return this.$_FlagMixin_CURRENT_CONVERSATION_METADATA.flags.includes(Flag.FLAGGED);
             }

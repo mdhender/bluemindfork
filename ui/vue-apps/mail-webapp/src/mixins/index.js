@@ -11,6 +11,8 @@ export { default as FolderMixin } from "./FolderMixin";
 export { default as FolderTreeMixin } from "./FolderTreeMixin";
 export { default as FormattedDateMixin } from "./FormattedDateMixin";
 export { default as MailRoutesMixin } from "./MailRoutesMixin";
+export { default as MarkAsFlaggedMixin } from "./MarkAsFlaggedMixin";
+export { default as MarkAsUnreadMixin } from "./MarkAsUnreadMixin";
 export { default as MoveMixin } from "./MoveMixin";
 export { default as PreviewMixin } from "./PreviewMixin";
 export { default as PrintMixin } from "./PrintMixin";

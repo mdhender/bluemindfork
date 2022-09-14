@@ -359,6 +359,8 @@
     "mail.search.options.folder.current": "This folder",
     "mail.search.options.folder.label": "Search in",
     "mail.selection.alert.readonly": "Some selected messages are read-only. Some actions (like Move or Remove) may not be available.",
+    "mail.state.unread": "Unread",
+    "mail.state.flagged": "Flagged",
     "mail.toolbar.more.aria": "Other actions for selected messages",
     "mail.toolbar.more": "Others",
     "mail.toolbar.move.tooltip": "Move message",

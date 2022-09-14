@@ -32,16 +32,20 @@
                     variant="outline"
                     :title="markAsUnreadAriaText()"
                     :aria-label="markAsUnreadAriaText()"
-                    icon="unread"
                     @click="markAsUnread()"
-                    >{{ markAsUnreadText }}
+                >
+                    <template v-slot:icon>
+                        <bm-unread-fill-icon />
+                    </template>
+                    {{ markAsUnreadText }}
                 </bm-button>
                 <bm-button
                     v-if="showMarkAsFlagged"
+                    class="mark-as-flagged-button"
                     variant="outline"
                     :title="markAsFlaggedAriaText()"
                     :aria-label="markAsFlaggedAriaText()"
-                    icon="flag-outline"
+                    icon="flag-fill"
                     @click="markAsFlagged()"
                     >{{ markAsFlaggedText }}
                 </bm-button>
@@ -50,7 +54,7 @@
                     variant="outline"
                     :title="markAsUnflaggedAriaText()"
                     :aria-label="markAsUnflaggedAriaText()"
-                    icon="flag-fill"
+                    icon="flag-outline"
                     @click="markAsUnflagged()"
                     >{{ markAsUnflaggedText }}
                 </bm-button>
@@ -110,7 +114,7 @@
 
 <script>
 import { CLEAR, INFO, REMOVE } from "@bluemind/alert.store";
-import { BmAlertArea, BmButton, BmLabelIcon, BmIcon } from "@bluemind/styleguide";
+import { BmAlertArea, BmButton, BmLabelIcon, BmIcon, BmUnreadFillIcon } from "@bluemind/styleguide";
 import { mapActions, mapState, mapGetters, mapMutations } from "vuex";
 import { folderUtils } from "@bluemind/mail";
 import MailFolderIcon from "./MailFolderIcon";
@@ -140,6 +144,7 @@ export default {
         BmAlertArea,
         BmButton,
         BmIcon,
+        BmUnreadFillIcon,
         BmLabelIcon,
         MailFolderIcon,
         ChooseFolderModal
@@ -230,12 +235,17 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
+@import "@bluemind/styleguide/css/mixins/_responsiveness.scss";
 @import "@bluemind/styleguide/css/_variables.scss";
 
 $arrow-width: 3rem;
 $arrow-height: math.div($arrow-width, 2);
 
 .mail-multiple-selection-actions {
+    @include until-lg {
+        display: none;
+    }
+
     h1 {
         color: $primary-fg-hi1;
         font-size: 2rem;
@@ -246,6 +256,9 @@ $arrow-height: math.div($arrow-width, 2);
     .actions-button {
         .btn {
             margin: $sp-4 $sp-3;
+        }
+        .mark-as-flagged-button .fa-flag-fill {
+            color: $warning-fg;
         }
         .arrow-up {
             position: relative;
