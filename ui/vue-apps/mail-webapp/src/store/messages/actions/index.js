@@ -42,7 +42,8 @@ const markAsUnread = ({ dispatch }, messages) => dispatch(DELETE_FLAG, { message
 const markAsRead = ({ dispatch }, messages) => dispatch(ADD_FLAG, { messages, flag: Flag.SEEN });
 const markAsFlagged = ({ dispatch }, messages) => dispatch(ADD_FLAG, { messages, flag: Flag.FLAGGED });
 const markAsUnflagged = ({ dispatch }, messages) => dispatch(DELETE_FLAG, { messages, flag: Flag.FLAGGED });
-const saveAs = (context, { message, messageCompose }) => saveAsap(context, { draft: message, messageCompose });
+const saveAs = (context, { message, messageCompose, files }) =>
+    saveAsap(context, { draft: message, messageCompose, files });
 export default {
     [ADD_ATTACHMENT]: addAttachment,
     [ADD_FLAG]: addFlag,
