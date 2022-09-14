@@ -589,7 +589,6 @@
 
    <configurations>
       <plugin id="net.bluemind.sentry.settings" autoStart="true" startLevel="4" />
-      <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <plugin id="org.apache.felix.scr" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="3" />
@@ -598,6 +597,7 @@
       <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <property name="osgi.noShutdown" value="true" />
       <property name="osgi.instance.area" value="/var/lib/bm-core/" />
+      <property name="eclipse.registry.MultiLanguage" value="true" />
    </configurations>
 
    <preferencesInfo>
