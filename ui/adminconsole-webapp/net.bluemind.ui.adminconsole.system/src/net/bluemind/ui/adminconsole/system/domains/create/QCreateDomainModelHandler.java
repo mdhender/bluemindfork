@@ -178,18 +178,20 @@ public class QCreateDomainModelHandler implements IGwtModelHandler {
 			}
 			return toApply;
 		});
-		return toSetProm.thenCombine(allServersProm, (Set<String> tagsToApply, List<ItemValue<Server>> allServers) -> {
-			CompletableFuture<Void> root = CompletableFuture.completedFuture(null);
-			for (ItemValue<Server> srv : allServers) {
-				for (String srvTag : srv.value.tags) {
-					if (tagsToApply.contains(srvTag)) {
-						root = root.thenCompose(v -> tagServer(srv.uid, domainUid, srvTag));
+
+		return toSetProm.thenCompose(tagsToApply -> {
+			return allServersProm.thenCompose(allServers -> {
+				CompletableFuture<Void> root = CompletableFuture.completedFuture(null);
+				for (ItemValue<Server> srv : allServers) {
+					for (String srvTag : srv.value.tags) {
+						if (tagsToApply.contains(srvTag)) {
+							root = root.thenCompose(v -> tagServer(srv.uid, domainUid, srvTag));
+						}
 					}
 				}
-			}
-
-			return root;
-		}).thenApply(v -> (Void) null);
+				return root;
+			});
+		});
 
 	}
 

@@ -60,7 +60,6 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
-import net.bluemind.gwtconsoleapp.base.notification.Notification;
 import net.bluemind.mailbox.api.gwt.js.JsMailboxRouting;
 import net.bluemind.role.api.IRolesPromise;
 import net.bluemind.role.api.gwt.endpoint.RolesGwtEndpoint;
@@ -233,7 +232,7 @@ public class NewUser extends CompositeGwtWidgetElement {
 		IGroupPromise groups = new GroupGwtEndpoint(Ajax.TOKEN.getSessionId(), d.uid).promiseApi();
 		GroupSearchQuery q = GroupSearchQuery.matchProperty("is_profile", "true");
 
-		groups.search(q).thenCompose(value -> {
+		CompletableFuture<List<GroupAndRoles>> groupsAndRoles = groups.search(q).thenCompose(value -> {
 
 			List<CompletableFuture<GroupAndRoles>> gr = value.stream()
 					.map(g -> (CompletableFuture<GroupAndRoles>) groups.getRoles(g.uid).thenApply(aroles -> {
@@ -244,27 +243,30 @@ public class NewUser extends CompositeGwtWidgetElement {
 				return gr.stream().map(f -> f.join()).collect(Collectors.toList());
 			});
 
-		}).thenCombine(roles.getRoles(), (groupsAndRoles, descriptors) -> {
+		});
 
-			Set<String> adminRoles = descriptors.stream().filter(desc -> "administration".equals(desc.categoryId))
-					.map(desc -> desc.id).collect(Collectors.toSet());
+		roles.getRoles().thenAccept(resolvedRoles -> {
+			groupsAndRoles.thenAccept(resolvedGroupsAndRoles -> {
 
-			Collections.sort(groupsAndRoles, (a, b) -> {
-				boolean aAdmin = a.isAdmin(adminRoles);
-				boolean bAdmin = b.isAdmin(adminRoles);
-				int comp = Boolean.compare(aAdmin, bAdmin);
-				return comp == 0 ? a.group.displayName.compareTo(b.group.displayName) : comp;
+				Set<String> adminRoles = resolvedRoles.stream().filter(desc -> "administration".equals(desc.categoryId))
+						.map(desc -> desc.id).collect(Collectors.toSet());
+
+				Collections.sort(resolvedGroupsAndRoles, (a, b) -> {
+					boolean aAdmin = a.isAdmin(adminRoles);
+					boolean bAdmin = b.isAdmin(adminRoles);
+					int comp = Boolean.compare(aAdmin, bAdmin);
+					return comp == 0 ? a.group.displayName.compareTo(b.group.displayName) : comp;
+				});
+
+				perms.clear();
+				for (GroupAndRoles group : resolvedGroupsAndRoles) {
+					perms.addItem(group.group.value.name, group.group.uid);
+				}
+
 			});
 
-			perms.clear();
-			for (GroupAndRoles group : groupsAndRoles) {
-				perms.addItem(group.group.value.name, group.group.uid);
-			}
-			return null;
-		}).exceptionally(e -> {
-			Notification.get().reportError(e);
-			return null;
 		});
+
 	}
 
 	@Override
