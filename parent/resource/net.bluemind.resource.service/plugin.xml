@@ -53,6 +53,12 @@
              impl="net.bluemind.resource.service.ResourceTemplateHelper">
        </templatehelper>
     </extension>
+    <extension
+          point="net.bluemind.core.container.repair">
+       <repair
+             impl="net.bluemind.resource.service.internal.ResourceCalendarRepair">
+       </repair>
+    </extension>
    
 
 </plugin>

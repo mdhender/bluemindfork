@@ -39,7 +39,8 @@ Require-Bundle: net.bluemind.resource.api;bundle-version="1.0.0",
  net.bluemind.core.task.service;bundle-version="4.1.0",
  net.bluemind.eclipse.common;bundle-version="4.1.0",
  net.bluemind.resource.helper,
- net.bluemind.resource.hook;bundle-version="4.1.0"
+ net.bluemind.resource.hook;bundle-version="4.1.0",
+ net.bluemind.core.container.repair
 Export-Package: net.bluemind.resource.service,
  net.bluemind.resource.service.internal
 Automatic-Module-Name: net.bluemind.resource.service
