@@ -242,7 +242,7 @@ public class SysCommand extends AbstractVerticle {
 		} else {
 			logger.error("[FAILED] cmd: {}", cmd);
 			if (wsEP != null) {
-				wsEP.write("completion", new JsonObject().put("exit", Optional.of(1)));
+				wsEP.write("completion", new JsonObject().put("exit", 1));
 			}
 		}
 		return ret;
