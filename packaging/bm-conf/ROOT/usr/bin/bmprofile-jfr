@@ -1,0 +1,50 @@
+#!/bin/bash
+#BEGIN LICENSE
+#
+# Copyright © Blue Mind SAS, 2020
+#
+# This file is part of BlueMind. BlueMind is a messaging and collaborative
+# solution.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of either the GNU Affero General Public License as
+# published by the Free Software Foundation (version 3 of the License).
+#
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+#
+#END LICENSE
+
+set -e
+
+
+PROFILER=/usr/lib/jvm/bm-jdk/async-profiler/profiler.sh
+
+test $# -eq 1 || {
+	echo "Usage $0 <bluemind-service>, eg. $0 bm-core"
+	exit 1
+}
+
+product=$1
+
+service_pid=$(systemctl show -p MainPID ${product}.service | cut -b9-)
+
+test ${service_pid} -gt 0 || {
+	echo "PID for ${product} not found"
+	exit 1
+}
+
+date_for_file=$(date +"%Y%m%dT%H%M")
+# we use a world-writable directory, bmprofile bm-sds-proxy works out of the box with that
+output=/tmp/profile-${product}.${service_pid}.${date_for_file}.jfr
+
+echo "Will profile service ${product} with PID ${service_pid}, output will be in ${output}..."
+
+# https://github.com/jvm-profiling-tools/async-profiler#basic-usage
+test -f /proc/sys/kernel/perf_event_paranoid && echo 1 > /proc/sys/kernel/perf_event_paranoid
+test -f /proc/sys/kernel/kptr_restrict && echo 0 > /proc/sys/kernel/kptr_restrict
+
+exec $PROFILER -d 60 -f ${output} --jfrsync profile ${service_pid}
