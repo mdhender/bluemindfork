@@ -50,7 +50,7 @@ import net.bluemind.server.api.TagDescriptor;
 public class MonitoringService implements IMonitoring {
 
 	private static final Logger logger = LoggerFactory.getLogger(MonitoringService.class);
-	
+
 	public MonitoringService(BmContext context) {
 	}
 
@@ -72,59 +72,62 @@ public class MonitoringService implements IMonitoring {
 		List<AlertInfo> alerts = new ArrayList<>();
 		String result = query(url, limit);
 		JsonObject asJson = new JsonObject(result);
-		JsonObject series = asJson.getJsonArray("results").getJsonObject(0).getJsonArray("series").getJsonObject(0);
-		JsonArray values = series.getJsonArray("values");
-
-		Map<String, Boolean> alertStatus = new HashMap<>();
-		for (int i = 0; i < values.size(); i++) {
-			JsonArray row = values.getJsonArray(i);
-			String product = "";
-			String id = row.getString(1);
-			AlertInfo alert = new AlertInfo();
-			try {
-				alert.level = AlertLevel.valueOf(row.getString(5));
-			} catch (IllegalArgumentException e) {
-				logger.error("alert level {} is not known", row.getString(5));
-				alert.level = AlertLevel.WARNING;
-			}
-
-			if (filterResolved) {
-				Boolean knownStatus = alertStatus.get(id);
-				if (knownStatus != null && knownStatus) {
-					continue;
+		JsonObject results = asJson.getJsonArray("results").getJsonObject(0);
+		if (results.containsKey("series")) {
+			JsonObject series = results.getJsonArray("series").getJsonObject(0);
+			JsonArray values = series.getJsonArray("values");
+			Map<String, Boolean> alertStatus = new HashMap<>();
+			for (int i = 0; i < values.size(); i++) {
+				JsonArray row = values.getJsonArray(i);
+				String product = "";
+				String id = row.getString(1);
+				AlertInfo alert = new AlertInfo();
+				try {
+					alert.level = AlertLevel.valueOf(row.getString(5));
+				} catch (IllegalArgumentException e) {
+					logger.error("alert level {} is not known", row.getString(5));
+					alert.level = AlertLevel.WARNING;
 				}
 
-				if (alert.level == AlertLevel.OK) {
-					if (knownStatus == null) {
-						alertStatus.put(id, Boolean.TRUE);
-					}
-					continue;
-				} else {
-					if (knownStatus != null) {
+				if (filterResolved) {
+					Boolean knownStatus = alertStatus.get(id);
+					if (knownStatus != null && knownStatus) {
 						continue;
 					}
-					alertStatus.put(id, Boolean.FALSE);
-				}
-			}
 
-			if (level.contains(alert.level)) {
-				Optional<AlertId> idFromString = TickTemplateHelper.idFromString(id);
-				if (idFromString.isPresent()) {
-					AlertId alertId = idFromString.get();
-					product = alertId.product.name();
-					id = alertId.alertSubId;
+					if (alert.level == AlertLevel.OK) {
+						if (knownStatus == null) {
+							alertStatus.put(id, Boolean.TRUE);
+						}
+						continue;
+					} else {
+						if (knownStatus != null) {
+							continue;
+						}
+						alertStatus.put(id, Boolean.FALSE);
+					}
 				}
 
-				alert.time = BmDateTimeWrapper.create(row.getString(0));
-				alert.product = product;
-				alert.id = id;
-				alert.name = row.getString(2);
-				alert.datalocation = row.getString(3);
-				alert.host = row.getString(4);
-				alert.message = row.getString(6);
-				alerts.add(alert);
+				if (level.contains(alert.level)) {
+					Optional<AlertId> idFromString = TickTemplateHelper.idFromString(id);
+					if (idFromString.isPresent()) {
+						AlertId alertId = idFromString.get();
+						product = alertId.product.name();
+						id = alertId.alertSubId;
+					}
+
+					alert.time = BmDateTimeWrapper.create(row.getString(0));
+					alert.product = product;
+					alert.id = id;
+					alert.name = row.getString(2);
+					alert.datalocation = row.getString(3);
+					alert.host = row.getString(4);
+					alert.message = row.getString(6);
+					alerts.add(alert);
+				}
 			}
 		}
+
 		return alerts;
 
 	}
