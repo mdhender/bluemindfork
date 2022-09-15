@@ -63,7 +63,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<bm-plugins-version>1.0.528</bm-plugins-version>
+		<bm-plugins-version>1.0.530</bm-plugins-version>
 		<bm.metrics.agent>1.30.8</bm.metrics.agent>
 		<docker.devenv.tag>4.1.63005</docker.devenv.tag>
 		<target-platform-version>jdk17-58</target-platform-version>
