@@ -206,8 +206,8 @@ public class SieveWriter {
 			logger.info("Enabling sieve vacation");
 
 			// scheduled
+			long now = new Date().getTime();
 			if (vac.start != null) {
-				long now = new Date().getTime();
 				// and in range
 				if (vac.start.getTime() <= now && (vac.end == null || vac.end.getTime() > now)) {
 					// we are scheduled & in range, so we are enabled
@@ -216,6 +216,9 @@ public class SieveWriter {
 					vac = new MailFilter.Vacation();
 					vac.enabled = false;
 				}
+			} else if (vac.end != null && vac.end.getTime() <= now) {
+				vac = new MailFilter.Vacation();
+				vac.enabled = false;
 			}
 		}
 
