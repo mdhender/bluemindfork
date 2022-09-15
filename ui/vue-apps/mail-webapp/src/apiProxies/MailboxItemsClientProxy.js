@@ -15,6 +15,11 @@ export default class extends MailboxItemsClient {
         return lock;
     }
 
+    deleteById() {
+        lock = lock.catch(() => {}).then(() => super.deleteById(...arguments));
+        return lock;
+    }
+
     fetch() {
         lock = lock.catch(() => {}).then(() => super.fetch(...arguments));
         return lock;
@@ -22,6 +27,11 @@ export default class extends MailboxItemsClient {
 
     getForUpdate() {
         lock = lock.catch(() => {}).then(() => super.getForUpdate(...arguments));
+        return lock;
+    }
+
+    multipleDeleteById() {
+        lock = lock.catch(() => {}).then(() => super.multipleDeleteById(...arguments));
         return lock;
     }
 

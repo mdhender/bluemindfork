@@ -12,7 +12,6 @@ import {
 } from "~/mutations";
 import { FolderAdaptor } from "../../folders/helpers/FolderAdaptor";
 import { FETCH_MESSAGE_METADATA } from "~/actions";
-import { Flag } from "@bluemind/email";
 const { AttachmentAdaptor } = attachmentUtils;
 
 const { draftKey } = draftUtils;
@@ -112,7 +111,7 @@ export async function removeMessages({ commit }, { messages }) {
     messages = Array.isArray(messages) ? messages : [messages];
     commit(REMOVE_MESSAGES, { messages });
     try {
-        await apiMessages.addFlag(messages, Flag.DELETED);
+        await apiMessages.multipleDeleteById(messages);
     } catch (e) {
         commit(ADD_MESSAGES, { messages });
         throw e;

@@ -24,6 +24,11 @@ export default class extends MailConversationActionsClient {
         return lock;
     }
 
+    multipleDeleteById() {
+        lock = lock.catch(() => {}).then(() => super.multipleDeleteById(...arguments));
+        return lock;
+    }
+
     copy() {
         lock = lock.catch(() => {}).then(() => super.copy(...arguments));
         return lock;

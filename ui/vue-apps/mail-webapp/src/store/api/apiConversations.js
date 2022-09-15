@@ -10,6 +10,13 @@ export default {
     deleteFlag(conversations, flag, mailbox) {
         return manageFlag(conversations, flag, mailbox, "deleteFlag");
     },
+    multipleDeleteById(conversations, mailbox) {
+        return groupByFolderAndExecute(conversations, mailbox, ({ mailbox, folderUid, conversations }) =>
+            conversationActionsApi(mailbox.remoteRef.uid, folderUid).multipleDeleteById(
+                conversations.map(({ remoteRef: { uid } }) => uid)
+            )
+        );
+    },
     move(conversations, folder, mailbox) {
         return groupByFolderAndExecute(conversations, mailbox, ({ mailbox, folderUid, conversations }) =>
             conversationActionsApi(mailbox.remoteRef.uid, folderUid).move(

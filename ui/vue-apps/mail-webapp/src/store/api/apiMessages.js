@@ -10,6 +10,11 @@ import { FolderAdaptor } from "../folders/helpers/FolderAdaptor";
 const MAX_CHUNK_SIZE = 500;
 
 export default {
+    multipleDeleteById(messages) {
+        const byFolder = groupByFolder(messages);
+        const requests = map(byFolder, ({ itemsId }, folder) => api(folder).multipleDeleteById(itemsId));
+        return Promise.all(requests);
+    },
     deleteFlag(messages, mailboxItemFlag) {
         const byFolder = groupByFolder(messages);
         const requests = map(byFolder, ({ itemsId }, folder) => api(folder).deleteFlag({ itemsId, mailboxItemFlag }));

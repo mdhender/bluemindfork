@@ -373,8 +373,8 @@ async function removeConversations({ getters, commit }, { conversations, convers
     commit(REMOVE_CONVERSATIONS, conversations);
     try {
         conversationsActivated
-            ? await apiConversations.addFlag(conversations, Flag.DELETED, mailbox)
-            : await apiMessages.addFlag(conversations.map(fakeConversationToMessage), Flag.DELETED);
+            ? await apiConversations.multipleDeleteById(conversations, mailbox)
+            : await apiMessages.multipleDeleteById(conversations.map(fakeConversationToMessage));
     } catch (e) {
         commit(ADD_CONVERSATIONS, { conversations });
         commit(ADD_MESSAGES, { messages, preserve: true });
