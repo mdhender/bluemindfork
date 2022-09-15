@@ -299,7 +299,7 @@ public class MailApiConnection implements MailboxConnection {
 			default:
 				return MailboxItemFlag.of(f, 0);
 			}
-		}).filter(Objects::nonNull).collect(Collectors.toList());
+		}).filter(Objects::nonNull).collect(Collectors.toList()); // NOSONAR mutated
 	}
 
 	private List<InternalFlag> internalFlags(List<String> flags) {
@@ -308,7 +308,7 @@ public class MailApiConnection implements MailboxConnection {
 				return InternalFlag.expunged;
 			}
 			return null;
-		}).filter(Objects::nonNull).toList();
+		}).filter(Objects::nonNull).collect(Collectors.toList()); // NOSONAR mutated
 	}
 
 	@Override
@@ -316,7 +316,8 @@ public class MailApiConnection implements MailboxConnection {
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 		List<Long> toUpdate = recApi.imapIdSet(idset, "");
 		for (List<Long> slice : Lists.partition(toUpdate, DriverConfig.get().getInt("driver.records-mget"))) {
-			List<MailboxRecord> recs = recApi.multipleGetById(slice).stream().map(iv -> iv.value).toList();
+			List<MailboxRecord> recs = recApi.multipleGetById(slice).stream().map(iv -> iv.value)
+					.collect(Collectors.toList()); // NOSONAR we mutate it
 			for (MailboxRecord item : recs) {
 				List<MailboxItemFlag> commandFlags = flags(flags);
 				List<InternalFlag> internalFlags = internalFlags(flags);
