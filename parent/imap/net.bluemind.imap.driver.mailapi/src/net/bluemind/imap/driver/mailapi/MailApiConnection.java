@@ -299,7 +299,7 @@ public class MailApiConnection implements MailboxConnection {
 			default:
 				return MailboxItemFlag.of(f, 0);
 			}
-		}).filter(Objects::nonNull).toList();
+		}).filter(Objects::nonNull).collect(Collectors.toList());
 	}
 
 	private List<InternalFlag> internalFlags(List<String> flags) {
