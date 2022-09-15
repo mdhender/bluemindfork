@@ -10,7 +10,6 @@
             <div class="d-flex flex-column flex-fill">
                 <mail-composer-sender
                     v-if="isSenderShown"
-                    class="mb-3"
                     label-class="font-weight-bold text-neutral"
                     :message="message"
                     @update="identity => setFrom(identity, message)"
