@@ -37,7 +37,6 @@ import org.apache.james.mime4j.dom.SingleBody;
 import org.apache.james.mime4j.dom.address.Address;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.field.AddressListField;
-import org.apache.james.mime4j.dom.field.DateTimeField;
 import org.apache.james.mime4j.dom.field.UnstructuredField;
 import org.apache.james.mime4j.field.Fields;
 import org.apache.james.mime4j.field.UnstructuredFieldImpl;
@@ -272,8 +271,8 @@ public class FetchedItemRenderer {
 				}
 				break;
 			case "date":
-				DateTimeField dateField = Fields.date("Date", rec.value.internalDate);
-				sb.append(writeField(dateField));
+				sb.append("Date: ").append(DateUtil.RFC822_DATE_FORMAT.format(rec.value.internalDate.toInstant()))
+						.append("\r\n");
 				break;
 			default:
 				body.get().headers.stream().filter(head -> head.name.equalsIgnoreCase(h)).findAny().ifPresent(head -> {

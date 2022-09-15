@@ -16,9 +16,23 @@
  */
 package net.bluemind.imap.driver.mailapi;
 
+import static java.time.temporal.ChronoField.DAY_OF_MONTH;
+import static java.time.temporal.ChronoField.DAY_OF_WEEK;
+import static java.time.temporal.ChronoField.HOUR_OF_DAY;
+import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
+import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
+import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
+import static java.time.temporal.ChronoField.YEAR;
+
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.SignStyle;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 public final class DateUtil {
@@ -75,6 +89,57 @@ public final class DateUtil {
 
 	private static StringBuilder append2DigitNumber(StringBuilder sb, int number) {
 		return sb.append((char) ('0' + number / 10)).append((char) ('0' + number % 10));
+	}
+
+	private static final int INITIAL_YEAR = 1970;
+	public static final DateTimeFormatter RFC822_DATE_FORMAT = new DateTimeFormatterBuilder().parseCaseInsensitive()//
+			.parseLenient()//
+			.appendText(DAY_OF_WEEK, dayOfWeek())//
+			.appendLiteral(", ")//
+			.appendValue(DAY_OF_MONTH, 1, 2, SignStyle.NOT_NEGATIVE)//
+			.appendLiteral(' ')//
+			.appendText(MONTH_OF_YEAR, monthOfYear())//
+			.appendLiteral(' ')//
+			.appendValueReduced(YEAR, 4, 4, INITIAL_YEAR)//
+			.appendLiteral(' ')//
+			.appendValue(HOUR_OF_DAY, 2)//
+			.appendLiteral(':')//
+			.appendValue(MINUTE_OF_HOUR, 2)//
+			.appendLiteral(':')//
+			.appendValue(SECOND_OF_MINUTE, 2)//
+			.appendLiteral(' ')//
+			.appendOffset("+HHMM", "+0000")//
+			.toFormatter()//
+			.withZone(TimeZone.getDefault().toZoneId())//
+			.withLocale(Locale.US);
+
+	private static Map<Long, String> monthOfYear() {
+		HashMap<Long, String> result = new HashMap<>();
+		result.put(1L, "Jan");
+		result.put(2L, "Feb");
+		result.put(3L, "Mar");
+		result.put(4L, "Apr");
+		result.put(5L, "May");
+		result.put(6L, "Jun");
+		result.put(7L, "Jul");
+		result.put(8L, "Aug");
+		result.put(9L, "Sep");
+		result.put(10L, "Oct");
+		result.put(11L, "Nov");
+		result.put(12L, "Dec");
+		return result;
+	}
+
+	private static Map<Long, String> dayOfWeek() {
+		HashMap<Long, String> result = new HashMap<>();
+		result.put(1L, "Mon");
+		result.put(2L, "Tue");
+		result.put(3L, "Wed");
+		result.put(4L, "Thu");
+		result.put(5L, "Fri");
+		result.put(6L, "Sat");
+		result.put(7L, "Sun");
+		return result;
 	}
 
 }
