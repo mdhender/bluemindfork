@@ -29,7 +29,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.hsm.storage,
  net.bluemind.hsm.storage.snappy,
  net.bluemind.imap,
- net.bluemind.locator,
  net.bluemind.mailindex.schema,
  net.bluemind.network.topology,
  net.bluemind.network.topology.producer,
@@ -48,7 +47,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.user.api,
  org.freemarker.freemarker,
  org.junit,
- net.bluemind.locator,
  net.bluemind.vertx.testhelper,
  net.bluemind.backend.cyrus.replication.testhelper,
  net.bluemind.dockerclient,
@@ -61,7 +59,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.task.spi,
  net.bluemind.config,
  net.bluemind.dataprotect.mailbox,
- slf4j.api
+ slf4j.api,
+ net.bluemind.imap.cyrus.storage.testhelper;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.dataprotect.mailbox.tests

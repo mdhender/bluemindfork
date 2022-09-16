@@ -49,13 +49,11 @@ import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.api.TaskStatus.State;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.service.SplittedShardsMapping;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
-import net.bluemind.vertx.testhelper.Deploy;
 
 public class AbstractMultibackendTests {
 	protected CyrusReplicationHelper cyrusReplication1;
@@ -78,7 +76,6 @@ public class AbstractMultibackendTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
-		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();

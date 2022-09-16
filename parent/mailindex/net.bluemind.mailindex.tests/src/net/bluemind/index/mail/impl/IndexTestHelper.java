@@ -33,12 +33,10 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
-import net.bluemind.vertx.testhelper.Deploy;
 
 public class IndexTestHelper {
 
@@ -124,8 +122,6 @@ public class IndexTestHelper {
 	public void beforeTest() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
-
-		Deploy.verticles(false, LocatorVerticle::new).get(20, TimeUnit.SECONDS);
 
 		ItemValue<Server> cyrusServer = ItemValue.create("localhost", imapServer);
 		CyrusService cyrusService = new CyrusService(cyrusServer);

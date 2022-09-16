@@ -51,7 +51,6 @@ import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.imap.ListResult;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.service.common.DefaultFolder;
 import net.bluemind.pool.impl.BmConfIni;
@@ -60,7 +59,6 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
-import net.bluemind.vertx.testhelper.Deploy;
 
 public class CyrusBackendTests {
 
@@ -116,8 +114,6 @@ public class CyrusBackendTests {
 
 	@Test
 	public void testHooksAreCalled() throws Exception {
-
-		Deploy.verticles(false, LocatorVerticle::new).get();
 
 		IUser userService = getService();
 		String uid = "u" + System.currentTimeMillis();

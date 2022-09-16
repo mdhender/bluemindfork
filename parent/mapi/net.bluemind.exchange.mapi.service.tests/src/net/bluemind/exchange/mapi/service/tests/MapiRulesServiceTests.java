@@ -43,9 +43,7 @@ import net.bluemind.exchange.mapi.api.IMapiRules;
 import net.bluemind.exchange.mapi.api.MapiRule;
 import net.bluemind.exchange.mapi.api.MapiRuleChanges;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.tests.defaultdata.PopulateHelper;
-import net.bluemind.vertx.testhelper.Deploy;
 
 public class MapiRulesServiceTests {
 
@@ -53,8 +51,6 @@ public class MapiRulesServiceTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
-
-		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
 
 		PopulateHelper.initGlobalVirt();
 		Sessions.get().put("toto", SecurityContext.SYSTEM);
@@ -68,9 +64,8 @@ public class MapiRulesServiceTests {
 
 	protected IMapiRules mapiRulesApi() {
 		// we just need a valid container
-		IMapiRules service = ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", "toto")
-				.instance(IMapiRules.class, InstallationId.getIdentifier());
-		return service;
+		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", "toto").instance(IMapiRules.class,
+				InstallationId.getIdentifier());
 	}
 
 	@Test

@@ -58,13 +58,11 @@ import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.api.RepairConfig;
 import net.bluemind.directory.service.IInternalDirEntryMaintenance;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
-import net.bluemind.vertx.testhelper.Deploy;
 
 public class UserShardedSubscriptionsTests {
 
@@ -75,8 +73,6 @@ public class UserShardedSubscriptionsTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
-
-		Deploy.verticles(false, LocatorVerticle::new).get(20, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
 

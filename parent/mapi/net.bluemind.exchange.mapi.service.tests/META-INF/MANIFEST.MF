@@ -22,8 +22,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.sessions,
  net.bluemind.core.container.hierarchy.hook;bundle-version="4.1.0",
  net.bluemind.core.rest.http.tests;bundle-version="4.1.0",
- net.bluemind.calendar.usercalendar;bundle-version="4.1.0",
- net.bluemind.locator
+ net.bluemind.calendar.usercalendar;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.exchange.mapi.service.tests

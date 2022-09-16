@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.junit.After;
@@ -58,7 +57,6 @@ import net.bluemind.externaluser.api.ExternalUser;
 import net.bluemind.externaluser.api.IExternalUser;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
-import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailshare.api.IMailshare;
@@ -70,7 +68,6 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
-import net.bluemind.vertx.testhelper.Deploy;
 
 public class ProducerTests {
 
@@ -81,7 +78,6 @@ public class ProducerTests {
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		Serializers.clear();
-		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
 		ElasticsearchTestHelper.getInstance().beforeTest();
 
 		domainUid = "dom" + System.currentTimeMillis() + ".test";

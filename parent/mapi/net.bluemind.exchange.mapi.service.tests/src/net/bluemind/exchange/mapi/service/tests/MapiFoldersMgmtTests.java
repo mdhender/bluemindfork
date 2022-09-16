@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -57,14 +56,12 @@ import net.bluemind.exchange.mapi.api.MapiFolder;
 import net.bluemind.exchange.mapi.api.MapiFolderContainer;
 import net.bluemind.exchange.mapi.api.MapiRawMessage;
 import net.bluemind.exchange.mapi.api.MapiReplica;
-import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
-import net.bluemind.vertx.testhelper.Deploy;
 
 public class MapiFoldersMgmtTests {
 
@@ -78,8 +75,6 @@ public class MapiFoldersMgmtTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
-
-		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
 

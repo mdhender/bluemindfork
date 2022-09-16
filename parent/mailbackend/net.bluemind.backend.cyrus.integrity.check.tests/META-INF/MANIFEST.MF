@@ -20,7 +20,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.network.topology,
  net.bluemind.network.topology.producer;bundle-version="4.1.0",
  net.bluemind.core.rest,
- net.bluemind.node.api,
- net.bluemind.locator
+ net.bluemind.node.api
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.backend.cyrus.integrity.check.tests

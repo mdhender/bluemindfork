@@ -79,7 +79,6 @@ import net.bluemind.core.sessions.Sessions;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.OffloadedBodyFactory;
@@ -87,7 +86,6 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
-import net.bluemind.vertx.testhelper.Deploy;
 
 public abstract class AbstractRollingReplicationTests {
 
@@ -119,7 +117,6 @@ public abstract class AbstractRollingReplicationTests {
 	public void before() throws Exception {
 
 		JdbcTestHelper.getInstance().beforeTest();
-		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
 

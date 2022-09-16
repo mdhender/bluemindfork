@@ -72,8 +72,6 @@
 		<module>net.bluemind.lmtp.filter.imip</module>
 		<module>net.bluemind.lmtp.tests</module>
 		<module>net.bluemind.lmtp</module>
-		<module>net.bluemind.locator.tests</module>
-		<module>net.bluemind.locator</module>
 		<module>net.bluemind.milter</module>
 		<module>net.bluemind.mime4j.common</module>
 		<module>net.bluemind.mime4j.bodies</module>

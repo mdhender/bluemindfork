@@ -55,7 +55,6 @@ Require-Bundle: org.junit,
  net.bluemind.hsm.service;bundle-version="4.1.0",
  net.bluemind.system.api,
  net.bluemind.lib.vertx,
- net.bluemind.locator,
  net.bluemind.core.sendmail.testhelper,
  net.bluemind.addressbook.userbook;bundle-version="4.1.0",
  net.bluemind.imap.cyrus.storage.testhelper;bundle-version="4.1.0"

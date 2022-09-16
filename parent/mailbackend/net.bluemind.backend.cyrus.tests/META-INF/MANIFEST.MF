@@ -38,7 +38,6 @@ Require-Bundle: org.junit,
  net.bluemind.mailshare.api,
  net.bluemind.mailshare.service;bundle-version="4.1.0",
  net.bluemind.core.task.service;bundle-version="4.1.0",
- net.bluemind.locator,
  net.bluemind.vertx.testhelper,
  net.bluemind.system.state,
  slf4j.api

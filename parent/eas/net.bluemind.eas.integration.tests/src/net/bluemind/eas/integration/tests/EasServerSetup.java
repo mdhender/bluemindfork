@@ -35,7 +35,6 @@ import net.bluemind.device.api.Device;
 import net.bluemind.device.api.IDevice;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.pool.impl.BmConfIni;
@@ -79,7 +78,6 @@ public class EasServerSetup {
 	public void beforeTest() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
-		this.locatorVerticles = Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
 

@@ -77,7 +77,6 @@ import net.bluemind.imap.Acl;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
@@ -94,7 +93,6 @@ import net.bluemind.server.api.Server;
 import net.bluemind.system.api.DomainTemplate;
 import net.bluemind.system.api.IDomainTemplate;
 import net.bluemind.tests.defaultdata.PopulateHelper;
-import net.bluemind.vertx.testhelper.Deploy;
 
 public class AbstractRestoreTests {
 	protected static final boolean RUN_AS_ROOT = System.getProperty("user.name").equals("root");
@@ -151,7 +149,6 @@ public class AbstractRestoreTests {
 		latd = login + "@" + domain;
 
 		prepareLocalFilesystem();
-		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
 
 		JdbcTestHelper.getInstance().beforeTest();
 		ElasticsearchTestHelper.getInstance().beforeTest();

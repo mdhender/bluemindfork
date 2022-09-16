@@ -32,8 +32,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.context,
  net.bluemind.core.rest,
  net.bluemind.mailindex.schema,
- net.bluemind.user.api,
- net.bluemind.locator
+ net.bluemind.user.api
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.cli.integration.tests
 Bundle-ActivationPolicy: lazy

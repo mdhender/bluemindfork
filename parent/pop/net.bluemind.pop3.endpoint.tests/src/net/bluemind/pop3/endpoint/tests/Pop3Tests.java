@@ -81,14 +81,12 @@ import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.pop3.endpoint.Pop3Config;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
-import net.bluemind.vertx.testhelper.Deploy;
 
 public class Pop3Tests {
 	private String domainUid;
@@ -107,7 +105,6 @@ public class Pop3Tests {
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
 

@@ -42,7 +42,6 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.lmtp.testhelper.client.VertxLmtpClient;
 import net.bluemind.lmtp.testhelper.model.FakeMailbox;
 import net.bluemind.lmtp.testhelper.model.MailboxesModel;
-import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -54,7 +53,6 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
-import net.bluemind.vertx.testhelper.Deploy;
 
 public class CyrusLmtpTests extends AbstractChainTest {
 
@@ -71,8 +69,6 @@ public class CyrusLmtpTests extends AbstractChainTest {
 
 	public void setupMailServices(MailboxesModel mdl) throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-
-		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
 
