@@ -136,7 +136,7 @@ public class CompositeBoxStorage implements IMailboxesStorage {
 	@Override
 	public List<MailFolder> checkAndRepairAcl(BmContext context, String domainUid, ItemValue<Mailbox> mailbox,
 			List<AccessControlEntry> acls, boolean repair) throws ServerFault {
-		throw new UnsupportedOperationException("checkAndRepairAcl");
+		return mailApi.checkAndRepairAcl(context, domainUid, mailbox, acls, repair);
 	}
 
 	@Override
