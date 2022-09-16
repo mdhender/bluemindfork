@@ -196,16 +196,12 @@ public class SieveRuleEditorDialog extends Composite {
 	CheckBox cbDiscard;
 
 	private enum Type {
-		MailShare, User, Domain
+		MAILSHARE, USER, DOMAIN
 	};
 
 	private final Type type;
 
 	private String mbox;
-
-	private int entityId;
-
-	private String entity;
 
 	private DialogHandler handler;
 
@@ -214,8 +210,6 @@ public class SieveRuleEditorDialog extends Composite {
 	private Button okButton;
 
 	private String domainUid;
-
-	private String datalocation;
 
 	public static void openRuleEditor(String domainUid, MailFilter.Rule value, final DialogHandler handler,
 			String entity, int entityId, String mbox, String datalocation) {
@@ -256,17 +250,14 @@ public class SieveRuleEditorDialog extends Composite {
 	private SieveRuleEditorDialog(String domainUid, String entity, int entityId, String mbox, String datalocation) {
 		this.domainUid = domainUid;
 		this.handler = EMPTY_HANDLER;
-		this.entity = entity;
-		this.entityId = entityId;
 		this.mbox = mbox;
-		this.datalocation = datalocation;
 
 		if (entity.equals("mailshare")) {
-			type = Type.MailShare;
+			type = Type.MAILSHARE;
 		} else if (entity.equals("user")) {
-			type = Type.User;
+			type = Type.USER;
 		} else if (entity.equals("domain")) {
-			type = Type.Domain;
+			type = Type.DOMAIN;
 		} else {
 			throw new RuntimeException("Unsupported entity " + entity);
 		}
@@ -396,7 +387,7 @@ public class SieveRuleEditorDialog extends Composite {
 		moveTo.addItem(constants.inbox(), "INBOX");
 		moveTo.addItem(constants.sent(), "Sent");
 
-		if (type == Type.Domain) {
+		if (type == Type.DOMAIN) {
 			// 3.0 style
 			moveTo.addItem(constants.trash(), "Trash");
 			moveTo.addItem(constants.spam(), "Junk");
@@ -415,7 +406,7 @@ public class SieveRuleEditorDialog extends Composite {
 
 	private void addOtherFolders(List<CompletableFuture<Void>> futures) {
 		IDirectoryPromise dir = new DirectoryGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid).promiseApi();
-		if (type == Type.User) {
+		if (type == Type.USER) {
 			IUserSubscriptionPromise service = new UserSubscriptionGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid)
 					.promiseApi();
 			CompletableFuture<Void> otherMboxes = service.listSubscriptions(mbox, "mailboxacl").thenApply(res -> {
@@ -427,7 +418,7 @@ public class SieveRuleEditorDialog extends Composite {
 				return dir
 						.search(DirEntryQuery.entries(writableMailboxes.keySet().stream().collect(Collectors.toList())))
 						.thenApply(ret -> {
-							List<MoveToMailbox> mboxes = new ArrayList<MoveToMailbox>();
+							List<MoveToMailbox> mboxes = new ArrayList<>();
 							ret.values.forEach(v -> {
 								mboxes.add(MoveToMailbox.create(v.uid, writableMailboxes.get(v.uid),
 										v.value.displayName, v.value.kind));
@@ -463,7 +454,7 @@ public class SieveRuleEditorDialog extends Composite {
 															prefix + "/" + entry.mailboxName + "/" + constants.inbox(),
 															prefix + "/" + entry.mailboxName);
 												} else {
-													moveTo.addItem(prefix + "/" + entry.mailboxName + "/" + foldername);
+													moveTo.addItem(prefix + "/" + foldername);
 												}
 											}
 										}
@@ -474,9 +465,7 @@ public class SieveRuleEditorDialog extends Composite {
 
 					return entry;
 				}).toArray(CompletableFuture[]::new);
-			}).thenCompose(f -> {
-				return CompletableFuture.allOf(f);
-			}).exceptionally(e -> {
+			}).thenCompose(CompletableFuture::allOf).exceptionally(e -> {
 				return null;
 			});
 			futures.add(otherMboxes);
@@ -484,7 +473,7 @@ public class SieveRuleEditorDialog extends Composite {
 	}
 
 	private CompletableFuture<Void> addMyFolders(List<CompletableFuture<Void>> futures) {
-		String subtree = "subtree_" + domainUid.replace('.', '_') + "!" + (type == Type.User ? "user." : "") + mbox;
+		String subtree = "subtree_" + domainUid.replace('.', '_') + "!" + (type == Type.USER ? "user." : "") + mbox;
 		ReadOnlyMailboxFoldersEndpointPromise mf = new ReadOnlyMailboxFoldersEndpointPromise(
 				new ReadOnlyMailboxFoldersSockJsEndpoint(Ajax.TOKEN.getSessionId(), subtree));
 		CompletableFuture<Void> mfFuture = mf.all().thenAccept(folders -> {
