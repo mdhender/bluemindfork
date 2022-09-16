@@ -3,7 +3,7 @@
     <mail-folder-tree
         v-else-if="GROUP_MAILBOXES.length > 0"
         :tree="GROUP_MAILBOX_ROOT_FOLDERS"
-        :expanded="expanded"
+        :collapsed="collapsed"
         @toggle-tree="toggleTree"
     >
         <template v-slot:title>
