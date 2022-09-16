@@ -131,7 +131,7 @@ BEGIN
     INSERT INTO t_container_changeset (version, container_id, item_uid, item_external_id, type, author, date, origin, item_id, weight_seed)
     (SELECT version, container_id, item_uid, item_external_id, type, author, date, origin, item_id, weight_seed FROM t_container_changelog where item_id = NEW.item_id AND container_id = NEW.container_id ORDER BY version DESC limit 1) 
     UNION 
-    (SELECT version, container_id, item_uid, item_external_id, type, author, date, origin, item_id, weight_seed FROM t_container_changelog where item_id = NEW.item_id AND container_id = NEW.container_id ORDER BY version  limit 1);
+    (SELECT version, container_id, item_uid, item_external_id, type, author, date, origin, item_id, weight_seed FROM t_container_changelog where item_id = NEW.item_id AND container_id = NEW.container_id ORDER BY version  limit 1) ON CONFLICT DO NOTHING;
     return NEW;
   end;
 $$;
