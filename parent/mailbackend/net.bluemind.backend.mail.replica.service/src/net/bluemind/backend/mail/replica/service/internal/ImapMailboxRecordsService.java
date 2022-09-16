@@ -671,8 +671,10 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			} else {
 				ByteBuf buf = Unpooled.buffer();
 				logger.info("Found body {}", body);
-				try (InputStream part = body.getInputStream(); ByteBufOutputStream out = new ByteBufOutputStream(buf)) {
-					long copied = ByteStreams.copy(part, out);
+				try (InputStream part = body.getInputStream();
+						InputStream decIfNeeded = dec(body, part);
+						ByteBufOutputStream out = new ByteBufOutputStream(buf)) {
+					long copied = ByteStreams.copy(decIfNeeded, out);
 					logger.info("Copied {} byte(s) for uid {} part {}", copied, imapUid, address);
 				}
 				logger.info("Returning {}", buf);
@@ -681,6 +683,14 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 		} catch (Exception e) {
 			throw new ServerFault(e);
+		}
+	}
+
+	private InputStream dec(SingleBody body, InputStream part) {
+		if ("uuencode".equalsIgnoreCase(body.getParent().getContentTransferEncoding())) {
+			return new com.sun.mail.util.UUDecoderStream(part, true, true); // NOSONAR
+		} else {
+			return part;
 		}
 	}
 
