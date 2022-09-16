@@ -35,7 +35,7 @@ const actions = {
         commit("SET_SETTING", { setting, value });
         try {
             const userId = inject("UserSession").userId;
-            await inject("UserSettingsPersistence").setOne(userId, setting, JSON.stringify(value));
+            await inject("UserSettingsPersistence").setOne(userId, setting, value);
         } catch (e) {
             commit("SET_SETTING", { setting, value: old });
             throw e;

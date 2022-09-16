@@ -267,10 +267,7 @@ export default {
         removeExternal(externalToken) {
             const index = this.externalShares.findIndex(share => share.token === externalToken);
             if (index !== -1) {
-                // FIXME: problem with axios, need header Content-Type: text/plain for this method
-                inject("PublishCalendarPersistence", this.container.uid).disableUrl(
-                    '"' + this.externalShares[index].url + '"'
-                );
+                inject("PublishCalendarPersistence", this.container.uid).disableUrl(this.externalShares[index].url);
                 this.externalShares.splice(index, 1);
                 this.SUCCESS(SAVE_ALERT_MODAL);
             }
@@ -285,8 +282,7 @@ export default {
                 const newUrl = await sendExternalToServer(publishMode, externalShare.token, this.container.uid);
                 const oldUrl = externalShare.url;
                 updatedShare.url = newUrl;
-                // FIXME: problem with axios, need header Content-Type: text/plain for this method
-                inject("PublishCalendarPersistence", this.container.uid).disableUrl('"' + oldUrl + '"');
+                inject("PublishCalendarPersistence", this.container.uid).disableUrl(oldUrl);
                 this.SUCCESS(SAVE_ALERT_MODAL);
             }
         },
