@@ -23,8 +23,8 @@ package net.bluemind.imap.endpoint.cmd;
  * 
  *
  */
-public class UidStoreCommand extends AbstractStoreCommand {
-	public UidStoreCommand(RawImapCommand raw) {
+public class StoreCommand extends AbstractStoreCommand {
+	public StoreCommand(RawImapCommand raw) {
 		super(raw);
 	}
 }

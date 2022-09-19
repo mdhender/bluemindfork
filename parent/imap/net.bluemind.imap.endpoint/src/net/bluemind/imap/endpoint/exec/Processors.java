@@ -53,6 +53,8 @@ public class Processors {
 		register(new UidCopyProcessor());
 		register(new UidExpungeProcessor());
 		register(new LogoutProcessor());
+		register(new ExpungeProcessor());
+		register(new StoreProcessor());
 	}
 
 	private static final void register(CommandProcessor<?> proc) {

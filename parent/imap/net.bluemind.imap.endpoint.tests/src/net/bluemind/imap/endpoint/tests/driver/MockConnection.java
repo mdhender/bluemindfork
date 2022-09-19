@@ -114,6 +114,11 @@ public class MockConnection implements MailboxConnection {
 	}
 
 	@Override
+	public void updateFlags(SelectedFolder sf, List<Long> uids, UpdateMode mode, List<String> flags) {
+		logger.info("[{}] Should update flags of {}", sf.folder.displayName, uids);
+	}
+
+	@Override
 	public int maxLiteralSize() {
 		return 1024 * 1024;
 	}

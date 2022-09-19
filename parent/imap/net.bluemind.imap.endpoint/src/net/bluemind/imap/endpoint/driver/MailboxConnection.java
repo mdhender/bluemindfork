@@ -45,6 +45,8 @@ public interface MailboxConnection {
 
 	void updateFlags(SelectedFolder sf, String idset, UpdateMode mode, List<String> flags);
 
+	void updateFlags(SelectedFolder selected, List<Long> toUpdate, UpdateMode mode, List<String> flags);
+
 	int maxLiteralSize();
 
 	CopyResult copyTo(SelectedFolder source, String folder, String idset);

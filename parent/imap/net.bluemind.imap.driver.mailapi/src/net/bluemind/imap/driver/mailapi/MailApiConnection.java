@@ -315,6 +315,12 @@ public class MailApiConnection implements MailboxConnection {
 	public void updateFlags(SelectedFolder selected, String idset, UpdateMode mode, List<String> flags) {
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 		List<Long> toUpdate = recApi.imapIdSet(idset, "");
+		updateFlags(selected, toUpdate, mode, flags);
+	}
+
+	@Override
+	public void updateFlags(SelectedFolder selected, List<Long> toUpdate, UpdateMode mode, List<String> flags) {
+		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 		for (List<Long> slice : Lists.partition(toUpdate, DriverConfig.get().getInt("driver.records-mget"))) {
 			List<MailboxRecord> recs = recApi.multipleGetById(slice).stream().map(iv -> iv.value)
 					.collect(Collectors.toList()); // NOSONAR we mutate it
@@ -329,7 +335,6 @@ public class MailApiConnection implements MailboxConnection {
 			logger.info("[{} / {}] Update slice of {} record(s)", this, selected, recs.size());
 			recApi.updates(recs);
 		}
-
 	}
 
 	private void updateRecFlags(MailboxRecord rec, UpdateMode mode, List<MailboxItemFlag> list,
@@ -392,6 +397,10 @@ public class MailApiConnection implements MailboxConnection {
 		}
 		if (lq.contains("unseen")) {
 			filters.add("-seen");
+		}
+		if (lq.contains("deleted")) {
+			filters.add("+deleted");
+			filters.add("-expunged");
 		}
 		String filter = filters.stream().collect(Collectors.joining(","));
 		logger.info("set: 1:*, filter: {}", filter);

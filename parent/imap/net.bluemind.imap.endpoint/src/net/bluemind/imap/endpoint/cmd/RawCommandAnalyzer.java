@@ -43,6 +43,8 @@ public class RawCommandAnalyzer {
 		case 'e':
 			if (cmd.startsWith("examine ")) {
 				return new ExamineCommand(raw);
+			} else if (cmd.startsWith("expunge")) {
+				return new ExpungeCommand(raw);
 			}
 			return null;
 		case 'f':
@@ -90,6 +92,8 @@ public class RawCommandAnalyzer {
 				return new SelectCommand(raw);
 			} else if (cmd.startsWith("status ")) {
 				return new StatusCommand(raw);
+			} else if (cmd.startsWith("store ")) {
+				return new StoreCommand(raw);
 			}
 			return null;
 		case 'u':
