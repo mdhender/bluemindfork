@@ -92,7 +92,7 @@ public class MapiFAIStore extends AbstractItemValueStore<MapiFAI> {
 	public List<MapiFAI> getMultiple(List<Item> items) throws SQLException {
 		String joinedIds = items.stream().map(it -> Long.toString(it.id)).collect(Collectors.joining(","));
 		String query = "SELECT " + MapiFAIColumns.cols.names() + ", item_id FROM t_mapi_fai "//
-				+ "JOIN unnest('{" + joinedIds + "}'::int[]) WITH ORDINALITY t(item_id, ord) USING (item_id) "//
+				+ "JOIN unnest('{" + joinedIds + "}'::int8[]) WITH ORDINALITY t(item_id, ord) USING (item_id) "//
 				+ "ORDER BY t.ord";
 		return select(query, rs -> new MapiFAI(), (ResultSet rs, int index, MapiFAI value) -> {
 			value.folderId = rs.getString(index++);

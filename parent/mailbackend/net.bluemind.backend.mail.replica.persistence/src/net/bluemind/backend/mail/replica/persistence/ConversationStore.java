@@ -114,7 +114,7 @@ public class ConversationStore extends AbstractItemValueStore<InternalConversati
 	@Override
 	public List<InternalConversation> getMultiple(List<Item> items) throws SQLException {
 		String query = "select item_id, " + ConversationColumns.COLUMNS.names() + " FROM " + ConversationColumns.TABLE
-				+ " WHERE item_id = ANY(?::int4[]) and container_id = ?";
+				+ " WHERE item_id = ANY(?::int8[]) and container_id = ?";
 		List<ItemV<InternalConversation>> values = select(query, con -> new ItemV<InternalConversation>(),
 				(rs, index, itemv) -> {
 					itemv.itemId = rs.getLong(index++);

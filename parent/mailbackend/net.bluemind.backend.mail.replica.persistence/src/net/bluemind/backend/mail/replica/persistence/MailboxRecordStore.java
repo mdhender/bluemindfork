@@ -107,7 +107,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	@Override
 	public List<MailboxRecord> getMultiple(List<Item> items) throws SQLException {
 		String query = "select item_id, encode(message_body_guid, 'hex'), " + MailboxRecordColumns.COLUMNS.names()
-				+ " FROM t_mailbox_record WHERE item_id = ANY(?::int4[])";
+				+ " FROM t_mailbox_record WHERE item_id = ANY(?::int8[])";
 		List<ItemV<MailboxRecord>> values = select(query, items.size(), con -> new ItemV<MailboxRecord>(),
 				(ResultSet rs, int index, ItemV<MailboxRecord> itemv) -> {
 					itemv.itemId = rs.getLong(index++);

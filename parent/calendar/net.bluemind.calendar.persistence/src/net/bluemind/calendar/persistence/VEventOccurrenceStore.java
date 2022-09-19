@@ -80,7 +80,7 @@ public class VEventOccurrenceStore extends AbstractItemValueStore<List<VEventOcc
 		List<ItemV<List<VEventOccurrence>>> values = new ArrayList<>();
 		for (Item item : items) {
 			String query = "SELECT item_id, " + VEventOccurrenceColumns.ALL.names()
-					+ " FROM t_calendar_vevent WHERE item_id = ANY(?::int4[]) AND NOT recurid_timestamp IS NULL ORDER BY item_id ASC";
+					+ " FROM t_calendar_vevent WHERE item_id = ANY(?::int8[]) AND NOT recurid_timestamp IS NULL ORDER BY item_id ASC";
 			List<ItemV<VEventOccurrence>> value = select(query, (ResultSet con) -> {
 				return new ItemV<>();
 			}, (ResultSet rs, int index, ItemV<VEventOccurrence> event) -> {

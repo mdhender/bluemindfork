@@ -106,7 +106,7 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 
 		String query = "SELECT series.item_id, series.ics_uid, properties, accept_counters, recurid_timestamp IS NULL, "
 				+ VEventOccurrenceColumns.ALL.names() + " FROM t_calendar_series series, t_calendar_vevent v" //
-				+ " WHERE series.item_id = ANY(?::int4[]) AND series.item_id = v.item_id ORDER BY series.item_id";
+				+ " WHERE series.item_id = ANY(?::int8[]) AND series.item_id = v.item_id ORDER BY series.item_id";
 
 		Long[] itemsId = items.stream().map(i -> i.id).toArray(i -> new Long[i]);
 		List<VEventDB> values = select(query, (ResultSet con) -> {
@@ -145,7 +145,7 @@ public class VEventSeriesStore extends AbstractItemValueStore<VEventSeries> {
 	private Map<Long, List<VEventCounter>> loadCounters(Long[] items) throws SQLException {
 		String query = "SELECT series.item_id, " + VEventCounterColumns.SELECT_ALL.names()
 				+ " FROM t_calendar_series series, t_calendar_vevent_counter v" //
-				+ " WHERE series.item_id = ANY(?::int4[]) AND series.item_id = (v.vevent).item_id ORDER BY series.item_id";
+				+ " WHERE series.item_id = ANY(?::int8[]) AND series.item_id = (v.vevent).item_id ORDER BY series.item_id";
 
 		List<VEventCounterDB> values = select(query, (ResultSet con) -> {
 			return new VEventCounterDB();

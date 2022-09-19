@@ -87,7 +87,7 @@ public class VCardStore extends AbstractItemValueStore<VCard> {
 	@Override
 	public List<VCard> getMultiple(List<Item> items) throws SQLException {
 		String query = "SELECT item_id, " + VCardColumns.COLUMNS_MAIN.names()
-				+ " FROM t_addressbook_vcard WHERE item_id = ANY(?::int4[])";
+				+ " FROM t_addressbook_vcard WHERE item_id = ANY(?::int8[])";
 		List<ItemV<VCard>> values = select(query, (ResultSet con) -> new ItemV<>(),
 				(ResultSet rs, int index, ItemV<VCard> card) -> {
 					card.itemId = rs.getLong(index++);

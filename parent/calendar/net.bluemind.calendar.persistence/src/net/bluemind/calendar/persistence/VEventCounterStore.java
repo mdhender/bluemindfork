@@ -83,7 +83,7 @@ public class VEventCounterStore extends AbstractItemValueStore<List<VEventCounte
 		List<ItemV<List<VEventCounter>>> values = new ArrayList<>();
 		for (Item item : items) {
 			String query = "SELECT (vevent).item_id, " + VEventCounterColumns.SELECT_ALL.names()
-					+ " FROM t_calendar_vevent_counter WHERE item_id = ANY(?::int4[]) ORDER BY item_id ASC";
+					+ " FROM t_calendar_vevent_counter WHERE item_id = ANY(?::int8[]) ORDER BY item_id ASC";
 			List<ItemV<VEventCounter>> value = select(query, //
 					con -> new ItemV<VEventCounter>(), //
 					(ResultSet rs, int index, ItemV<VEventCounter> event) -> {

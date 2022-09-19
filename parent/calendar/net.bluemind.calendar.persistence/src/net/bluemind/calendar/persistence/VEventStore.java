@@ -95,7 +95,7 @@ public class VEventStore extends AbstractItemValueStore<VEvent> {
 	@Override
 	public List<VEvent> getMultiple(List<Item> items) throws SQLException {
 		String query = "SELECT item_id, " + VEventColumns.ALL.names()
-				+ " FROM t_calendar_vevent WHERE item_id = ANY(?::int4[]) AND recurid_timestamp IS NULL ORDER BY item_id ASC";
+				+ " FROM t_calendar_vevent WHERE item_id = ANY(?::int8[]) AND recurid_timestamp IS NULL ORDER BY item_id ASC";
 		List<ItemV<VEvent>> values = select(query, (ResultSet con) -> {
 			return new ItemV<>();
 		}, (ResultSet rs, int index, ItemV<VEvent> card) -> {
