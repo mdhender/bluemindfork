@@ -55,6 +55,7 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
+import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
@@ -183,11 +184,11 @@ public class MailApiConnection implements MailboxConnection {
 	}
 
 	private void pushNext(IDbMailboxRecords recApi, IDbMessageBodies bodyApi, List<MailPart> fields,
-			Iterator<List<Long>> idSliceIterator, Iterator<ItemValue<MailboxRecord>> recsIterator,
+			Iterator<List<Long>> idSliceIterator, Iterator<WithId<MailboxRecord>> recsIterator,
 			CompletableFuture<Void> ret, WriteStream<FetchedItem> output) {
 		FetchedItemRenderer renderer = new FetchedItemRenderer(bodyApi, recApi, fields);
 		while (recsIterator.hasNext()) {
-			ItemValue<MailboxRecord> rec = recsIterator.next();
+			WithId<MailboxRecord> rec = recsIterator.next();
 			if (rec.value.internalFlags.contains(InternalFlag.expunged)) {
 				continue;
 			}
@@ -207,7 +208,7 @@ public class MailApiConnection implements MailboxConnection {
 
 		if (idSliceIterator.hasNext()) {
 			List<Long> slice = idSliceIterator.next();
-			List<ItemValue<MailboxRecord>> records = recApi.multipleGetById(slice);
+			List<WithId<MailboxRecord>> records = recApi.slice(slice);
 			pushNext(recApi, bodyApi, fields, idSliceIterator, records.iterator(), ret, output);
 		} else {
 			output.end(ar -> ret.complete(null));

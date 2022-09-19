@@ -38,7 +38,7 @@ import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Recipient;
 import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
-import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.backend.mail.replica.api.WithId;
 
 /*
  * Enveloppe structure: The fields of the envelope structure are in the
@@ -51,7 +51,7 @@ public class EnvelopeRenderer {
 	private EnvelopeRenderer() {
 	}
 
-	public static ByteBuf render(Supplier<MessageBody> body, ItemValue<MailboxRecord> rec) {
+	public static ByteBuf render(Supplier<MessageBody> body, WithId<MailboxRecord> rec) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
 		// LC: TODO MimeUtils.fold() ?

@@ -65,6 +65,7 @@ import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.backend.mail.replica.api.Weight;
+import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.backend.mail.replica.indexing.IDSet;
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService.BulkOperation;
@@ -717,6 +718,15 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 
 	public List<ItemValue<MailboxRecord>> multipleGetById(List<Long> ids) {
 		return storeService.getMultipleById(ids);
+	}
+
+	@Override
+	public List<WithId<MailboxRecord>> slice(List<Long> itemIds) {
+		try {
+			return recordStore.slice(itemIds);
+		} catch (SQLException e) {
+			throw new ServerFault(e);
+		}
 	}
 
 	@Override

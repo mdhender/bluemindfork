@@ -63,9 +63,9 @@ import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
+import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.imap.endpoint.driver.MailPart;
 import net.bluemind.lib.vertx.utils.MmapWriteStream;
@@ -85,7 +85,7 @@ public class FetchedItemRenderer {
 		this.bodyApi = bodyApi;
 	}
 
-	public Map<String, ByteBuf> renderFields(ItemValue<MailboxRecord> rec) {
+	public Map<String, ByteBuf> renderFields(WithId<MailboxRecord> rec) {
 		Map<String, ByteBuf> ret = new HashMap<>();
 
 		Supplier<MessageBody> body = Suppliers.memoize(() -> getBody(rec));
@@ -141,12 +141,12 @@ public class FetchedItemRenderer {
 		return Unpooled.wrappedBuffer(lenBuf, bodyPeek);
 	}
 
-	private MessageBody getBody(ItemValue<MailboxRecord> rec) {
+	private MessageBody getBody(WithId<MailboxRecord> rec) {
 		return Optional.ofNullable(rec.value.body).orElseGet(() -> bodyApi.getComplete(rec.value.messageBody));
 	}
 
 	private ByteBuf bodyPeek(IDbMailboxRecords recApi, Supplier<MessageBody> body, MailPart f,
-			ItemValue<MailboxRecord> rec) {
+			WithId<MailboxRecord> rec) {
 		String section = f.section == null ? "" : f.section;
 
 		if (section.equalsIgnoreCase("header.fields")) {
@@ -231,7 +231,7 @@ public class FetchedItemRenderer {
 		}
 	}
 
-	private ByteBuf headers(Supplier<MessageBody> body, Set<String> options, ItemValue<MailboxRecord> rec) {
+	private ByteBuf headers(Supplier<MessageBody> body, Set<String> options, WithId<MailboxRecord> rec) {
 		StringBuilder sb = new StringBuilder();
 		for (String h : options) {
 			switch (h.toLowerCase()) {

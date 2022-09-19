@@ -46,6 +46,7 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
+import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore.MailboxRecordItemV;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
@@ -155,6 +156,11 @@ public class MailboxRecordStoreTests {
 		assertEquals(1, set.size());
 		set = boxRecordStore.imapIdset("42", ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
 		assertEquals(1, set.size());
+
+		List<WithId<MailboxRecord>> withIds = boxRecordStore.slice(set);
+		assertEquals(1, withIds.size());
+		assertEquals(42, withIds.get(0).value.imapUid);
+		assertEquals(set.iterator().next().longValue(), withIds.get(0).itemId);
 
 		boxRecordStore.delete(it);
 		reloaded = boxRecordStore.get(it);

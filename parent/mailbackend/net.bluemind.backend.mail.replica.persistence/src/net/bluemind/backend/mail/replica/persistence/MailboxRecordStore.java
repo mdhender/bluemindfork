@@ -24,10 +24,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -43,6 +46,7 @@ import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecordItemUri;
+import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlag;
@@ -385,5 +389,26 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 			}
 		});
 		return parts.stream().collect(Collectors.joining(" OR ", "(", ")"));
+	}
+
+	private static final String SLICE_QUERY = "SELECT item_id, encode(message_body_guid, 'hex'), "
+			+ MailboxRecordColumns.COLUMNS.names()
+			+ " FROM t_mailbox_record WHERE container_id=? AND item_id = ANY (?::int8[])";
+
+	public List<WithId<MailboxRecord>> slice(List<Long> itemIds) throws SQLException {
+		EntityPopulator<MailboxRecord> popul = MailboxRecordColumns.populator();
+		List<WithId<MailboxRecord>> results = select(SLICE_QUERY, itemIds.size(),
+				x -> new WithId<MailboxRecord>(0, new MailboxRecord()),
+				(ResultSet rs, int idx, WithId<MailboxRecord> toUpd) -> {
+					toUpd.itemId = rs.getInt(idx++);
+					return popul.populate(rs, idx, toUpd.value);
+				}, new Object[] { container.id, itemIds.stream().toArray(Long[]::new) });
+		return sort(results, itemIds, r -> r.itemId);
+	}
+
+	private static final <T, W> List<W> sort(List<W> items, List<T> selectors, Function<W, T> getSelector) {
+		Map<T, W> index = items.stream().collect(
+				Collectors.toMap(getSelector, a -> a, (v1, v2) -> v1, () -> new HashMap<>(2 * selectors.size())));
+		return selectors.stream().map(index::get).filter(Objects::nonNull).toList();
 	}
 }

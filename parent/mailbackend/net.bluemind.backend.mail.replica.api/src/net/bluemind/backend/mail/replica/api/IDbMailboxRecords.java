@@ -27,7 +27,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.core.api.BMApi;
@@ -71,6 +70,17 @@ public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport,
 	@GET
 	@Path("_imapUidSet")
 	List<Long> imapIdSet(@QueryParam("set") String set, @QueryParam("filter") String filter);
+
+	/**
+	 * Quick alternative to {@link IDbMailboxRecords#multipleGetById(List)}, this
+	 * one with not load ItemValue stuff.
+	 * 
+	 * @param ids
+	 * @return
+	 */
+	@POST
+	@Path("_slice")
+	List<WithId<MailboxRecord>> slice(List<Long> ids);
 
 	@PUT
 	@Path("{uid}")

@@ -28,6 +28,7 @@ import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.Weight;
+import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Count;
@@ -191,6 +192,11 @@ public class NoopMailboxRecordService implements IDbMailboxRecords {
 
 	public Weight weight() {
 		return new Weight();
+	}
+
+	@Override
+	public List<WithId<MailboxRecord>> slice(List<Long> ids) {
+		return Collections.emptyList();
 	}
 
 }
