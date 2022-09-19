@@ -17,17 +17,7 @@
  */
 package net.bluemind.imap.endpoint.exec;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
-import net.bluemind.imap.endpoint.ImapContext;
-import net.bluemind.imap.endpoint.SessionState;
 import net.bluemind.imap.endpoint.cmd.SelectCommand;
-import net.bluemind.imap.endpoint.driver.MailboxConnection;
-import net.bluemind.imap.endpoint.driver.SelectedFolder;
-import net.bluemind.lib.vertx.Result;
 
 /**
  * 
@@ -47,55 +37,14 @@ import net.bluemind.lib.vertx.Result;
  * 
  *
  */
-public class SelectProcessor extends AuthenticatedCommandProcessor<SelectCommand> {
-
-	private static final Logger logger = LoggerFactory.getLogger(SelectProcessor.class);
-
-	@Override
-	public void checkedOperation(SelectCommand sc, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
-		MailboxConnection con = ctx.mailbox();
-		long time = System.currentTimeMillis();
-		SelectedFolder selected = con.select(sc.folder());
-
-		if (selected == null) {
-			missingFolder(sc, ctx, completed);
-			return;
-		}
-
-		StringBuilder resp = new StringBuilder();
-		resp.append("* " + selected.exist + " EXISTS\r\n");
-		resp.append("* 0 RECENT\r\n");
-		resp.append("* FLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen)\r\n");
-		resp.append("* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen \\*)] Ok\r\n");
-		resp.append("* OK [UNSEEN " + selected.unseen + "] Ok\r\n");
-		resp.append("* OK [UIDVALIDITY " + selected.folder.value.uidValidity + "] Ok\r\n");
-		resp.append("* OK [UIDNEXT " + (selected.folder.value.lastUid + 1) + "] Ok\r\n");
-		resp.append("* OK [HIGHESTMODSEQ " + selected.folder.value.highestModSeq + "] Ok\r\n");
-		resp.append(sc.raw().tag() + " OK [READ-WRITE] Completed\r\n");
-
-		ctx.state(SessionState.SELECTED);
-		ctx.selected(selected);
-		ctx.write(resp.toString());
-		time = System.currentTimeMillis() - time;
-		if (logger.isInfoEnabled()) {
-			logger.info("Selected in {}ms {} => {} ", time, sc.folder(), selected.folder);
-		}
-
-		completed.handle(Result.success());
-	}
-
-	private void missingFolder(SelectCommand sc, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
-		if (ctx.state() == SessionState.SELECTED) {
-			ctx.state(SessionState.AUTHENTICATED);
-			ctx.selected(null);
-		}
-		ctx.write("* OK [CLOSED] Ok\r\n" + sc.raw().tag() + " NO Mailbox does not exist\r\n");
-		completed.handle(Result.success());
-	}
-
+public class SelectProcessor extends AbstractSelectorProcessor<SelectCommand> {
 	@Override
 	public Class<SelectCommand> handledType() {
 		return SelectCommand.class;
 	}
 
+	@Override
+	protected boolean isReadOnly() {
+		return false;
+	}
 }

@@ -33,7 +33,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.cyrus.replication.storage.core;bundle-version="4.1.0",
  net.bluemind.authentication.service;bundle-version="4.1.0",
  net.bluemind.core.rest.http.vertx;bundle-version="4.1.0",
- net.bluemind.imap.cyrus.storage.testhelper;bundle-version="4.1.0"
+ net.bluemind.imap.cyrus.storage.testhelper;bundle-version="4.1.0",
+ net.bluemind.imap.serviceprovider.incore;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.imap.cyrus.swap.tests
 Bundle-ActivationPolicy: lazy

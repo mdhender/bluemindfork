@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -117,7 +116,7 @@ public class FetchedItemRenderer {
 				ret.put(f.toString(), Unpooled.wrappedBuffer(size.getBytes()));
 				break;
 			case "ENVELOPE":
-				ret.put(f.toString(), envelope(body, rec));
+				ret.put(f.toString(), EnvelopeRenderer.render(body, rec));
 				break;
 			case "BODY", "BODY.PEEK":
 				ByteBuf bodyPeek = bodyPeek(recApi, body, f, rec);
@@ -232,126 +231,6 @@ public class FetchedItemRenderer {
 		}
 	}
 
-	private static String quoted(String s) {
-		return '"' + s + '"';
-	}
-
-	/*
-	 * Enveloppe structure: The fields of the envelope structure are in the
-	 * following order: date, subject, from, sender, reply-to, to, cc, bcc,
-	 * in-reply-to, and message-id. The date, subject, in-reply-to, and message-id
-	 * fields are strings. The from, sender, reply-to, to, cc, and bcc fields are
-	 * parenthesized lists of address structures.
-	 */
-	private ByteBuf envelope(Supplier<MessageBody> body, ItemValue<MailboxRecord> rec) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("(");
-		// LC: TODO MimeUtils.fold() ?
-
-		// Date
-		if (rec.value.internalDate != null) {
-			DateTimeField dateField = Fields.date("Date", rec.value.internalDate);
-			sb.append(quoted(dateField.getBody()));
-		} else {
-			sb.append("NIL");
-		}
-		sb.append(" ");
-
-		// Subject
-		var subject = Fields.subject(body.get().subject).getBody();
-		if (!Strings.isNullOrEmpty(subject)) {
-			sb.append("{" + subject.length() + "}\r\n").append(subject);
-		} else {
-			sb.append("NIL");
-		}
-		sb.append(" ");
-
-		Consumer<List<Recipient>> toMail = rcpts -> {
-			sb.append("(");
-			int idx = 0;
-			for (Recipient rcpt : rcpts) {
-				if (idx++ > 0) {
-					sb.append(" ");
-				}
-				var loginatdom = rcpt.address.split("@");
-				sb.append("(");
-				sb.append(rcpt.dn != null ? (quoted(rcpt.dn)) : "NIL");
-				sb.append(" ");
-
-				sb.append("NIL "); // Don't understand what it should be
-				sb.append(quoted(loginatdom[0]));
-				sb.append(" ");
-
-				sb.append(quoted(loginatdom[1]));
-				sb.append(")");
-			}
-			sb.append(")");
-		};
-		Consumer<Mailbox> mailboxToMail = mbox -> {
-			sb.append("((");
-			sb.append(mbox.getName() != null ? (quoted(mbox.getName())) : "NIL");
-			sb.append(" ");
-
-			sb.append("NIL "); // Don't understand what it should be
-			sb.append(quoted(mbox.getLocalPart()));
-			sb.append(" ");
-
-			sb.append(quoted(mbox.getDomain()));
-			sb.append("))");
-		};
-
-		// From
-		body.get().recipients.stream().filter(r -> r.kind == RecipientKind.Originator).findFirst()
-				.ifPresentOrElse(r -> {
-					mailboxToMail.accept(fromRecipient(r));
-					sb.append(" ");
-				}, () -> sb.append("NIL"));
-		sb.append(" ");
-
-		// Sender
-		body.get().recipients.stream().filter(r -> r.kind == RecipientKind.Sender).findFirst()
-				.ifPresentOrElse(r -> mailboxToMail.accept(fromRecipient(r)), () -> sb.append("NIL"));
-		sb.append(" ");
-
-		// Reply-To
-		sb.append("NIL ");
-
-		// To
-		var to = body.get().recipients.stream().filter(r -> r.kind == RecipientKind.Primary).toList();
-		if (to.isEmpty()) {
-			sb.append("NIL");
-		} else {
-			toMail.accept(to);
-		}
-		sb.append(" ");
-
-		// Cc
-		var cc = body.get().recipients.stream().filter(r -> r.kind == RecipientKind.CarbonCopy).toList();
-		if (cc.isEmpty()) {
-			sb.append("NIL");
-		} else {
-			toMail.accept(cc);
-		}
-		sb.append(" ");
-
-		// Bcc
-		var bcc = body.get().recipients.stream().filter(r -> r.kind == RecipientKind.BlindCarbonCopy).toList();
-		if (bcc.isEmpty()) {
-			sb.append("NIL");
-		} else {
-			toMail.accept(bcc);
-		}
-		sb.append(" ");
-
-		// In-Reply-To
-		sb.append("NIL ");
-
-		// Message-Id
-		sb.append("\"").append(body.get().messageId).append("\"");
-		sb.append(") ");
-		return Unpooled.wrappedBuffer(sb.toString().getBytes());
-	}
-
 	private ByteBuf headers(Supplier<MessageBody> body, Set<String> options, ItemValue<MailboxRecord> rec) {
 		StringBuilder sb = new StringBuilder();
 		for (String h : options) {
@@ -408,7 +287,7 @@ public class FetchedItemRenderer {
 				break;
 			}
 		}
-		sb.append(")\r\n");
+		sb.append("\r\n");
 		return Unpooled.wrappedBuffer(sb.toString().getBytes());
 	}
 

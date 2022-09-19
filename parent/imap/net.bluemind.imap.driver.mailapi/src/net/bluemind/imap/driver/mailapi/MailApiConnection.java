@@ -394,13 +394,13 @@ public class MailApiConnection implements MailboxConnection {
 		String lq = query.toLowerCase();
 		if (lq.contains("undeleted") || lq.contains("not deleted")) {
 			filters.add("-deleted");
+		} else {
+			if (lq.contains("deleted")) {
+				filters.add("+deleted");
+			}
 		}
 		if (lq.contains("unseen")) {
 			filters.add("-seen");
-		}
-		if (lq.contains("deleted")) {
-			filters.add("+deleted");
-			filters.add("-expunged");
 		}
 		String filter = filters.stream().collect(Collectors.joining(","));
 		logger.info("set: 1:*, filter: {}", filter);
