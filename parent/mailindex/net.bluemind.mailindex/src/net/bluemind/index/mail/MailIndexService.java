@@ -719,13 +719,6 @@ public class MailIndexService implements IMailIndexService {
 
 			StringTerms agg = aggResp.getAggregations().get("countByOwner");
 
-			is.topMailbox = agg.getBuckets().stream().map(b -> {
-				MailboxStats as = new ShardStats.MailboxStats();
-				as.mailboxUid = b.getKeyAsString();
-				as.docCount = b.getDocCount();
-				return as;
-			}).collect(Collectors.toList());
-
 			GetAliasesResponse aliasesRsp = client.admin().indices().prepareGetAliases().addIndices(indexName).get();
 
 			List<AliasMetadata> indexAliases = aliasesRsp.getAliases().get(indexName);
@@ -737,6 +730,13 @@ public class MailIndexService implements IMailIndexService {
 						.map(am -> am.getAlias().substring("mailspool_alias_".length()))//
 						.collect(Collectors.toSet());
 			}
+
+			is.topMailbox = agg.getBuckets().stream().map(b -> {
+				MailboxStats as = new ShardStats.MailboxStats();
+				as.mailboxUid = b.getKeyAsString();
+				as.docCount = b.getDocCount();
+				return as;
+			}).filter(as -> is.mailboxes.contains(as.mailboxUid)).collect(Collectors.toList());
 
 			is.docCount = stat.getTotal().docs.getCount();
 			is.indexName = indexName;
