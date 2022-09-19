@@ -365,7 +365,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 
 	public List<Long> imapIdset(String set, ItemFlagFilter itemFilter) throws SQLException {
 		String q = "select rec.item_id from t_mailbox_record rec " + " WHERE rec.container_id=? AND " + asSql(set)
-				+ filterSql("rec", itemFilter);
+				+ filterSql("rec", itemFilter) + " ORDER BY rec.imap_uid";
 		return select(q, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
 	}
 
