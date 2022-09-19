@@ -103,7 +103,11 @@ public class RebalanceCommand implements ICmdLet, Runnable {
 					Tasks.follow(ctx, ref, "",
 							String.format("Failed to move index from %s to %s", topSrc.mailboxUid, tgt));
 				} catch (Exception e) {
-					ctx.warn("WARN " + e.getMessage());
+					if (e.getMessage() != null) {
+						ctx.warn("WARN " + e.getMessage());
+					} else {
+						ctx.warn("WARN exception occured", e);
+					}
 				}
 			}
 		}
