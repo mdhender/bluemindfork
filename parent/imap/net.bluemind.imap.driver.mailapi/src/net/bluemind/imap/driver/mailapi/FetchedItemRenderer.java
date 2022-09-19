@@ -271,8 +271,7 @@ public class FetchedItemRenderer {
 				}
 				break;
 			case "date":
-				sb.append("Date: ").append(DateUtil.RFC822_DATE_FORMAT.format(rec.value.internalDate.toInstant()))
-						.append("\r\n");
+				sb.append(DateUtil.toDateHeader(rec.value.internalDate));
 				break;
 			default:
 				body.get().headers.stream().filter(head -> head.name.equalsIgnoreCase(h)).findAny().ifPresent(head -> {
