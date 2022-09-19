@@ -213,25 +213,31 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION v_conversation_by_folder_add() RETURNS TRIGGER
-  LANGUAGE plpgsql
-AS $$
+
+CREATE OR REPLACE FUNCTION v_conversation_by_folder_add(new_record t_mailbox_record)
+  RETURNS VOID LANGUAGE plpgsql AS $$
 BEGIN
-    -- Update flags and not set flags (mask) respectively in every folder
+  -- Update flags and not set flags (mask) respectively in every folder
     INSERT INTO
       v_conversation_by_folder (folder_id, conversation_id, flags, mask, date)
     VALUES
-      (NEW.container_id, NEW.conversation_id, NEW.system_flags, -(NEW.system_flags + 1), NEW.internal_date)
+      (new_record.container_id, new_record.conversation_id, new_record.system_flags, -(new_record.system_flags + 1), new_record.internal_date)
     ON CONFLICT (folder_id, conversation_id) DO UPDATE
       SET
         flags = EXCLUDED.flags | v_conversation_by_folder.flags,
         mask = EXCLUDED.mask | (-(v_conversation_by_folder.flags + 1)),
-        date = (select greatest(NEW.internal_date, EXCLUDED.date));
-
-    return NEW;
+        date = (select greatest(new_record.internal_date, EXCLUDED.date));
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION v_trig_conversation_by_folder_add() RETURNS TRIGGER
+  LANGUAGE plpgsql
+AS $$
+BEGIN
+    PERFORM v_conversation_by_folder_add(NEW);
+    RETURN NEW;
+END;
+$$;
 
 CREATE OR REPLACE FUNCTION v_conversation_by_folder_update() RETURNS TRIGGER
   LANGUAGE plpgsql
@@ -286,25 +292,52 @@ BEGIN
 END;
 $$;
 
+-- Handle the v_converstaion_by_folder data (we are changing all conversation_ids)
+CREATE OR REPLACE FUNCTION v_conversation_by_folder_update_conversation_row()
+  RETURNS TRIGGER LANGUAGE plpgsql
+AS $$
+DECLARE
+  existing record;
+BEGIN
+    -- Remove the old conversation, what ever the deleted flag is
+    PERFORM v_conversation_by_folder_update_row(OLD.conversation_id, OLD.container_id);
+    -- Update the new conversation
+    -- Filtering OUT deleted mailbox_records
+    IF NEW.system_flags & 4 = 0 THEN
+      PERFORM v_conversation_by_folder_add(NEW);
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
 -------------------------------------------------
+-- Message inserted or marked not deleted
 CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_insert
   AFTER INSERT
   ON t_mailbox_record
   FOR EACH ROW
   -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
   WHEN (NEW.conversation_id IS NOT NULL AND NEW.system_flags & 4 = 0)
-  EXECUTE PROCEDURE v_conversation_by_folder_add();
+  EXECUTE PROCEDURE v_trig_conversation_by_folder_add();
 
-
+-- Message marked as deleted, or removed
 CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_undelete
   AFTER UPDATE
   ON t_mailbox_record
   FOR EACH ROW
   -- system_flags 4 => DELETED (MailboxItemFlag.java:System)
-  WHEN (NEW.conversation_id IS NOT NULL  AND OLD.system_flags & 4 = 4 AND NEW.system_flags & 4 = 0)
-  EXECUTE PROCEDURE v_conversation_by_folder_add();
+  WHEN (NEW.conversation_id IS NOT NULL AND OLD.system_flags & 4 = 4 AND NEW.system_flags & 4 = 0)
+  EXECUTE PROCEDURE v_trig_conversation_by_folder_add();
 
-
+-- Conversation is replaced
+CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_update_conversation
+  AFTER UPDATE
+  ON t_mailbox_record
+  FOR EACH ROW
+  WHEN (
+    OLD.conversation_id IS DISTINCT FROM NEW.conversation_id
+  )
+  EXECUTE PROCEDURE v_conversation_by_folder_update_conversation_row();
 
 CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_update
   AFTER UPDATE

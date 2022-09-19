@@ -7,7 +7,9 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.mailbox.api;visibility:=reexport,
  net.bluemind.domain.api;visibility:=reexport,
- com.google.guava
+ com.google.guava,
+ net.bluemind.backend.mail.replica.api,
+ net.bluemind.core.rest
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.delivery.lmtp.common
 Bundle-ActivationPolicy: lazy

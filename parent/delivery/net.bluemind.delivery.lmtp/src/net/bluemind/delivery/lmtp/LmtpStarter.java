@@ -28,7 +28,7 @@ import org.subethamail.smtp.server.SMTPServer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
-import net.bluemind.core.rest.http.ClientSideServiceProvider;
+import net.bluemind.imap.serviceprovider.SPResolver;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.network.topology.IServiceTopology;
@@ -50,8 +50,7 @@ public class LmtpStarter extends AbstractVerticle {
 
 	private SMTPServer startImpl(IServiceTopology t) {
 
-		String url = "http://" + t.any("bm/core").value.address() + ":8090";
-		ApiProv prov = k -> ClientSideServiceProvider.getProvider(url, k);
+		ApiProv prov = k -> SPResolver.get().resolve(k);
 
 		LmtpMessageHandler msgHandler = new LmtpMessageHandler(prov);
 		ExecutorService threadPool = Executors.newCachedThreadPool(new DefaultThreadFactory("lmtp"));

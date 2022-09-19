@@ -49,6 +49,7 @@ import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.replica.api.AppendTx;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
@@ -59,12 +60,16 @@ import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
+import net.bluemind.delivery.lmtp.common.IDeliveryContext;
+import net.bluemind.delivery.lmtp.common.IDeliveryHook;
 import net.bluemind.delivery.lmtp.common.LmtpEnvelope;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.delivery.lmtp.filters.IMessageFilter;
 import net.bluemind.delivery.lmtp.filters.LmtpFilters;
 import net.bluemind.delivery.lmtp.filters.PermissionDeniedException;
+import net.bluemind.delivery.lmtp.hooks.LmtpHooks;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.mime4j.common.Mime4JHelper;
@@ -127,6 +132,7 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 	private void deliverImpl(String from, ResolvedBox tgtBox, Path tmp, long size, HashCode hash) throws IOException {
 		String subtree = IMailReplicaUids.subtreeUid(tgtBox.dom.uid, tgtBox.mbox);
 		IDbReplicatedMailboxes treeApi = prov.system().instance(IDbByContainerReplicatedMailboxes.class, subtree);
+
 		ItemValue<MailboxReplica> rootFolder = treeApi
 				.byReplicaName(tgtBox.mbox.value.type.sharedNs ? tgtBox.mbox.value.name : "INBOX");
 
@@ -144,19 +150,46 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 		bodiesUpload.create(hash.toString(), stream);
 		logger.debug("Body {} uploaded.", hash);
 
+		MessageBody uploadedBody = bodiesUpload.getComplete(hash.toString());
+
 		AppendTx appendTx = treeApi.prepareAppend(rootFolder.internalId, 1);
 		MailboxRecord rec = new MailboxRecord();
+		rec.conversationId = System.currentTimeMillis();
+
 		rec.messageBody = hash.toString();
 		rec.imapUid = appendTx.imapUid;
 		rec.modSeq = appendTx.modSeq;
 		rec.flags = new ArrayList<>();
 		rec.internalDate = new Date();
 		rec.lastUpdated = rec.internalDate;
-		rec.conversationId = rec.internalDate.getTime();
 		IDbMailboxRecords recs = prov.system().instance(IDbMailboxRecords.class, rootFolder.uid);
+		applyHooks(tgtBox, rec, uploadedBody);
 		recs.create(rec.imapUid + ".", rec);
 		logger.info("Record with imapUid {} created.", rec.imapUid);
 
+	}
+
+	private MailboxRecord applyHooks(ResolvedBox tgtBox, MailboxRecord rec, MessageBody messageBody) {
+		List<IDeliveryHook> hooks = LmtpHooks.get();
+
+		IDeliveryContext delCtx = new IDeliveryContext() {
+
+			@Override
+			public IServiceProvider provider() {
+				return prov.system();
+			}
+
+		};
+
+		for (IDeliveryHook hook : hooks) {
+			try {
+				hook.preDelivery(delCtx, tgtBox, rec, messageBody);
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
+		}
+
+		return rec;
 	}
 
 	private ByteBuf applyFilters(String from, ResolvedBox tgtBox, Path tmp, long size) throws IOException {

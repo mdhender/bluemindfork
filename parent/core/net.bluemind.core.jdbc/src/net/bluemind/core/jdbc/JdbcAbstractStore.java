@@ -286,12 +286,10 @@ public class JdbcAbstractStore {
 		PreparedStatement st = null;
 		try {
 			st = conn.prepareStatement(query);
-
 			int row = 0;
 			for (T v : values) {
 				int index = 1;
 				for (StatementValues<T> stValue : statementValues) {
-
 					index = stValue.setValues(conn, st, index, row, v);
 				}
 				st.addBatch();
@@ -299,11 +297,45 @@ public class JdbcAbstractStore {
 			}
 			logger.debug("[{}] batch I: {}", datasource, st);
 			st.executeBatch();
+
 		} catch (BatchUpdateException bue) {
 			throw bue.getNextException();
 		} finally {
 			JdbcHelper.cleanup(conn, null, st);
+		}
+	}
 
+	protected <T, P> List<P> batchInsertAndReturn(String query, Collection<T> values,
+			Collection<StatementValues<T>> statementValues, Creator<P> creator, EntityPopulator<P> populator)
+			throws SQLException {
+		Connection conn = getConnection();
+		PreparedStatement st = null;
+		List<P> returnvalues = new ArrayList<>();
+		try {
+			st = conn.prepareStatement(query);
+			int row = 0;
+			for (T v : values) {
+				row++;
+				int index = 1;
+				for (StatementValues<T> stValue : statementValues) {
+					index = stValue.setValues(conn, st, index, row, v);
+				}
+				logger.debug("[{}] batch I: {}", datasource, st);
+				try (ResultSet rs = st.executeQuery()) {
+					while (rs.next()) {
+						P returningv = creator.create(rs);
+						if (populator != null) {
+							populator.populate(rs, 1, returningv);
+						}
+						returnvalues.add(returningv);
+					}
+				}
+			}
+			return returnvalues;
+		} catch (BatchUpdateException bue) {
+			throw bue.getNextException();
+		} finally {
+			JdbcHelper.cleanup(conn, null, st);
 		}
 	}
 

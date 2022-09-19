@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.delivery.conversationreference.api
+Bundle-SymbolicName: net.bluemind.delivery.conversationreference.api
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Automatic-Module-Name: net.bluemind.delivery.conversationreference.api
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: slf4j.api,
+ net.bluemind.core.commons;bundle-version="1.0.0"
+Export-Package: net.bluemind.delivery.conversationreference.api

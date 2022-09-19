@@ -204,6 +204,10 @@
       <plugin id="net.bluemind.deferredaction.registry"/>
       <plugin id="net.bluemind.deferredaction.service"/>
       <plugin id="net.bluemind.deferredaction.sqlschema"/>
+      <plugin id="net.bluemind.delivery.conversationreference.api"/>
+      <plugin id="net.bluemind.delivery.conversationreference.persistence"/>
+      <plugin id="net.bluemind.delivery.conversationreference.service"/>
+      <plugin id="net.bluemind.delivery.conversationreference.sqlschema"/>
       <plugin id="net.bluemind.delivery.lmtp"/>
       <plugin id="net.bluemind.device.api"/>
       <plugin id="net.bluemind.device.persistence"/>

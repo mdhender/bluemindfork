@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Sqlschema
+Bundle-SymbolicName: net.bluemind.delivery.conversationreference.sqlschema;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Automatic-Module-Name: net.bluemind.delivery.conversationservice.sqlschema
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-Vendor: net.bluemind
+Require-Bundle: net.bluemind.core.sqlschema

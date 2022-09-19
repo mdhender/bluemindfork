@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='us-ascii'?>
 <site>
    <feature url="features/net.bluemind.tests.feature_4.1.0.qualifier.jar" id="net.bluemind.tests.feature" version="4.1.0.qualifier"/>
    <bundle id="bm-js-client" version="4.1.0.qualifier"/>
@@ -67,6 +67,7 @@
    <bundle id="net.bluemind.backend.mail.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.mail.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.mail.api.php" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.backend.mailapi.storage" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.mail.parsing" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.mail.replica.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.mail.replica.indexing" version="4.1.0.qualifier"/>
@@ -140,6 +141,7 @@
    <bundle id="net.bluemind.common.reflect" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.commons.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.commons.ui.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.common.task" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.config" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.config.testfragment" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.contact.application.closure" version="4.1.0.qualifier"/>
@@ -186,6 +188,7 @@
    <bundle id="net.bluemind.core.elasticsearch.testshelper" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.jdbc" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.jdbc.testshelper" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.core.nginx.config" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.node.testshelper" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.rest" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.rest.common" version="4.1.0.qualifier"/>
@@ -249,6 +252,15 @@
    <bundle id="net.bluemind.deferredaction.registry" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.deferredaction.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.deferredaction.sqlschema" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.delivery.conversationreference.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.delivery.conversationreference.persistence" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.delivery.conversationreference.service" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.delivery.conversationreference.sqlschema" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.delivery.lmtp" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.delivery.lmtp.common" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.delivery.lmtp.filters" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.delivery.lmtp.filter.testhelper" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.delivery.lmtp.hooks" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.device.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.device.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.device.api.php" version="4.1.0.qualifier"/>
@@ -381,8 +393,14 @@
    <bundle id="net.bluemind.icalendar.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.icalendar.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.imap" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.imap.cyrus.storage.testhelper" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.imap.driver.mailapi" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.imap.endpoint" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.im.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.im.api.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.imap.serviceprovider" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.imap.serviceprovider.incore" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.imap.serviceprovider.rest" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.imap.tagproducers" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.imap.translate" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.imap.vertx" version="4.1.0.qualifier"/>
@@ -496,6 +514,8 @@
    <bundle id="net.bluemind.pimp" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.pool" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.pool.dockerconfig" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.pop3.driver" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.pop3.endpoint" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.proxy.http" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.proxy.http.launcher" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.proxy.support" version="4.1.0.qualifier"/>
@@ -536,6 +556,7 @@
    <bundle id="net.bluemind.sds.proxy.mgmt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.sds.proxy.testhelper" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.sds.store" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.sds.store.cyrusspool" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.sds.store.loader" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.sds.store.s3" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.sds.store.scalityring" version="4.1.0.qualifier"/>
@@ -564,6 +585,7 @@
    <bundle id="net.bluemind.system.api.php" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.auth" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.config" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.systemd.notify" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.domaintemplate" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.helper" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.hook" version="4.1.0.qualifier"/>
@@ -580,7 +602,6 @@
    <bundle id="net.bluemind.system.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.pg" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.schemaupgrader" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.systemd.notify" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.schemaupgrader.runner" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.security.certificate" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.service" version="4.1.0.qualifier"/>

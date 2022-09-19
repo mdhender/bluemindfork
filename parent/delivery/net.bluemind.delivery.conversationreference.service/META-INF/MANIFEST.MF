@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.delivery.conversationreference.service
+Bundle-SymbolicName: net.bluemind.delivery.conversationreference.service;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Automatic-Module-Name: net.bluemind.delivery.conversationservice
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Export-Package: net.bluemind.delivery.conversationreference.service
+Require-Bundle: slf4j.api,
+ net.bluemind.core.container.persistence,
+ net.bluemind.backend.mail.replica.api,
+ net.bluemind.delivery.conversationreference.api,
+ net.bluemind.delivery.conversationreference.persistence,
+ net.bluemind.delivery.lmtp.hooks,
+ net.bluemind.delivery.lmtp.common
