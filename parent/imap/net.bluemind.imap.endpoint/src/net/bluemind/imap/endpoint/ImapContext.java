@@ -105,9 +105,17 @@ public class ImapContext {
 	 */
 	public Future<Void> write(Buffer b) {
 		if (logger.isInfoEnabled()) {
-			logger.info("[{}] S: {}", logConnectionId, b.toString(StandardCharsets.US_ASCII).replaceAll("\r\n$", ""));
+			logger.info("[{}] S: {}", logConnectionId,
+					truncate(b.toString(StandardCharsets.US_ASCII)).replaceAll("\r\n$", ""));
 		}
 		return sender.write(b);
+	}
+
+	private String truncate(String string) {
+		if (string.length() > 256) {
+			return string.substring(0, 256) + "...(truncated)";
+		}
+		return string;
 	}
 
 	public void write(Buffer b, Handler<AsyncResult<Void>> v) {
@@ -116,7 +124,7 @@ public class ImapContext {
 
 	public CompletableFuture<Void> writePromise(String resp) {
 		if (logger.isInfoEnabled()) {
-			logger.info("[{}] S: {}", logConnectionId, resp.replaceAll("\r\n$", ""));
+			logger.info("[{}] S: {}", logConnectionId, truncate(resp).replaceAll("\r\n$", ""));
 		}
 		return sender.write(Buffer.buffer(resp)).toCompletionStage().toCompletableFuture();
 	}
