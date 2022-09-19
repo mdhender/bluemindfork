@@ -64,11 +64,7 @@ class bm_sso extends rcube_plugin {
   private $rcmail;
 
   private function getHost($service) {
-    $ini_array = parse_ini_file("/etc/bm/bm.ini");
-    $locator = new LocatorService($ini_array['locator'] ? $ini_array['locator'] : $ini_array['host']);
-    $host = $locator->get($service, $this->ssoLogin);
-    return $host;
-
+    return '127.0.0.1';
   }
 
   public function init() {
