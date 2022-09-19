@@ -23,8 +23,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Before;
@@ -82,12 +87,14 @@ public class DPServiceTests {
 	private BmTestContext withManageRestoreBmLan;
 	private BmTestContext withAdminRoleTestLan;
 	private BmTestContext adminZero;
+	private DataSource dataSource;
 
 	@Before
 	public void before() throws Exception {
 		prepareLocalFilesystem();
 
 		JdbcTestHelper.getInstance().beforeTest();
+		dataSource = JdbcTestHelper.getInstance().getDataSource();
 
 		Server core = new Server();
 		core.ip = new BmConfIni().get("node-host");
@@ -246,6 +253,51 @@ public class DPServiceTests {
 		INodeClient nc = NodeActivator.get(srv.value.address());
 		for (String path : paths) {
 			assertTrue("forget should have removed " + path, nc.listFiles(path).isEmpty());
+		}
+
+	}
+
+	@Test
+	public void testForgetMissingServer() throws Exception {
+		IDataProtect dp = getService(IDataProtect.class);
+		TaskRef ref = dp.saveAll();
+		assertNotNull(ref);
+		TaskStatus result = track(ref);
+		assertTrue(result.state.succeed);
+		List<DataProtectGeneration> gens = dp.getAvailableGenerations();
+		DataProtectGeneration gen = gens.get(0);
+
+		try (Connection con = dataSource.getConnection()) {
+			String request = "update t_dp_partgeneration set server_adr = ? where backup_id = ?";
+			try (PreparedStatement stm = con.prepareStatement(request)) {
+				stm.setString(1, "bm-toto");
+				stm.setInt(2, gen.id);
+				stm.executeUpdate();
+			}
+		}
+
+		gens = dp.getAvailableGenerations();
+		gen = gens.get(0);
+		Set<String> paths = new HashSet<>();
+		String server = null;
+		for (PartGeneration pg : gen.parts) {
+			paths.add("/var/backups/bluemind/dp_spool/rsync/" + pg.server + "/" + pg.tag + "/" + pg.id);
+			server = pg.server;
+		}
+
+		try {
+			TaskRef forget = dp.forget(gen.id);
+			track(forget);
+		} catch (Exception e) {
+			fail("No error expected");
+		}
+
+		IServer srvApi = getService(IServer.class, InstallationId.getIdentifier());
+		ItemValue<Server> srv = srvApi.getComplete(server);
+		try {
+			NodeActivator.get(srv.value.address());
+		} catch (Exception e) {
+			assertEquals("Cannot read field \"value\" because \"srv\" is null", e.getMessage());
 		}
 
 	}

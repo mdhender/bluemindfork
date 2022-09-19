@@ -78,15 +78,20 @@ public class ForgetTask implements IServerTask {
 		for (PartGeneration pg : toForget.parts) {
 			monitor.progress(1, "on part " + pg.server + " / " + pg.tag);
 			ItemValue<Server> srv = srvApi.getComplete(pg.server);
-			INodeClient nc = NodeActivator.get(srv.value.address());
-			String path = BackupPath.get(srv, pg.tag) + "/" + pg.id;
-			monitor.log("Removing " + path);
-			String empty = "/tmp/empty" + UUID.randomUUID().toString();
-			NCUtils.execNoOut(nc, "mkdir -p " + empty);
-			// run this one over websocket to avoid bm-node polling
-			NCUtils.execNoOut(nc, "/usr/bin/rsync -a --delete " + empty + "/ " + path + "/", 8, TimeUnit.HOURS);
-			NCUtils.execNoOut(nc, "rm -fr " + path);
-			NCUtils.execNoOut(nc, "rmdir " + empty);
+			if (srv != null && srv.value != null) {
+				INodeClient nc = NodeActivator.get(srv.value.address());
+				String path = BackupPath.get(srv, pg.tag) + "/" + pg.id;
+				monitor.log("Removing " + path);
+				String empty = "/tmp/empty" + UUID.randomUUID().toString();
+				NCUtils.execNoOut(nc, "mkdir -p " + empty);
+				// run this one over websocket to avoid bm-node polling
+				NCUtils.execNoOut(nc, "/usr/bin/rsync -a --delete " + empty + "/ " + path + "/", 8, TimeUnit.HOURS);
+				NCUtils.execNoOut(nc, "rm -fr " + path);
+				NCUtils.execNoOut(nc, "rmdir " + empty);
+			} else {
+				monitor.log("Skip removing " + pg.server + " because does not exist anymore");
+				logger.info("Skip removing {} because does not exist anymore", pg.server);
+			}
 		}
 
 		List<DataProtectGeneration> updated = new LinkedList<>(allGens);
