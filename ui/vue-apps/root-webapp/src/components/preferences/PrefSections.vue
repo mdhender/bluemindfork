@@ -1,22 +1,20 @@
 <template>
-    <div
-        id="scroll-area"
-        class="pref-sections scroller-y scroller-visible-on-hover"
-        @scroll="({ target }) => SET_OFFSET(target.scrollTop)"
-    >
-        <bm-alert-area :alerts="alerts" stackable @remove="REMOVE">
-            <template v-slot="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
-        </bm-alert-area>
-        <div v-for="(section, index) in sections" :id="section.id" :key="section.id" class="mb-8 pref-section">
-            <bm-list-group v-if="index !== 0" :id="'section-' + section.id" horizontal>
-                <pref-section-navbar :section="section" />
-            </bm-list-group>
-            <div :id="anchor(section)" :v-show="false"></div>
-            <pref-category
-                v-for="category in section.categories.filter(c => c.visible)"
-                :key="category.id"
-                :category="category"
-            />
+    <div id="scroll-area" class="pref-sections scroller-y" @scroll="({ target }) => SET_OFFSET(target.scrollTop)">
+        <div class="main-part">
+            <bm-alert-area :alerts="alerts" stackable @remove="REMOVE">
+                <template v-slot="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
+            </bm-alert-area>
+            <div v-for="(section, index) in sections" :id="section.id" :key="section.id" class="mb-8 pref-section">
+                <bm-list-group v-if="index !== 0" :id="'section-' + section.id" horizontal>
+                    <pref-section-navbar :section="section" />
+                </bm-list-group>
+                <div :id="anchor(section)" :v-show="false"></div>
+                <pref-category
+                    v-for="category in section.categories.filter(c => c.visible)"
+                    :key="category.id"
+                    :category="category"
+                />
+            </div>
         </div>
     </div>
 </template>
@@ -50,19 +48,21 @@ export default {
 @import "./_variables";
 
 .pref-sections {
-    position: relative;
-    overflow: auto;
-    background-color: $surface-bg;
-    z-index: 1;
-    .pref-section-navbar {
-        border-bottom: 1px solid $neutral-fg;
-    }
-    .pref-group {
-        padding-left: $prefs-padding-left;
-        @include from-lg {
-            padding-left: $prefs-padding-left-lg;
+    .main-part {
+        position: relative;
+        overflow: auto;
+        background-color: $surface-bg;
+        z-index: 1;
+        .pref-section-navbar {
+            border-bottom: 1px solid $neutral-fg;
         }
-        padding-right: $prefs-padding-right;
+        .pref-group {
+            padding-left: $prefs-padding-left;
+            @include from-lg {
+                padding-left: $prefs-padding-left-lg;
+            }
+            padding-right: $prefs-padding-right;
+        }
     }
 }
 </style>

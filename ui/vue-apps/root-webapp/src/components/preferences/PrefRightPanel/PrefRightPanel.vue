@@ -193,5 +193,15 @@ function doesNodeMatch(node, pattern) {
     .slide-fade-leave-to {
         transform: translateY(20px);
     }
+
+    .pref-sections,
+    .pref-search-results {
+        &.scroller-y {
+            background: linear-gradient(#{$backdrop}, #{$backdrop});
+            background-size: $scroll-width auto;
+            background-repeat: no-repeat;
+            background-position: right;
+        }
+    }
 }
 </style>
