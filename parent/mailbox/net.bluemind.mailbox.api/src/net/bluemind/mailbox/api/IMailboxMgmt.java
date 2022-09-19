@@ -25,7 +25,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -46,6 +45,17 @@ public interface IMailboxMgmt {
 	@POST
 	@Path("{mailboxUid}/_consolidate")
 	public TaskRef consolidateMailbox(@PathParam("mailboxUid") String mailboxUid) throws ServerFault;
+
+	/**
+	 * reset a single mailbox index
+	 * 
+	 * @param mailboxUid
+	 * @return
+	 * @throws ServerFault
+	 */
+	@POST
+	@Path("{mailboxUid}/_reset")
+	public TaskRef resetMailbox(@PathParam("mailboxUid") String mailboxUid) throws ServerFault;
 
 	/**
 	 * reindex all domain mailboxes

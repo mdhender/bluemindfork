@@ -58,8 +58,11 @@ public class AbstractSearchTests {
 	protected String bodyUid = UUID.randomUUID().toString();
 	protected String mboxUid = UUID.randomUUID().toString();
 	protected String userUid = UUID.randomUUID().toString();
+	protected String userUid2 = UUID.randomUUID().toString();
+	protected String mboxUid2 = UUID.randomUUID().toString();
 	protected String folderUid = mboxUid;
 	public String ALIAS = "mailspool_alias_" + userUid;
+	public String ALIAS2 = "mailspool_alias_" + userUid2;
 	protected String INDEX_NAME = "mailspool_1";
 
 	@Before
@@ -83,6 +86,8 @@ public class AbstractSearchTests {
 		Client c = ESearchActivator.getClient();
 
 		c.admin().indices().prepareAliases().addAlias(INDEX_NAME, ALIAS, QueryBuilders.termQuery("owner", userUid))
+				.execute().actionGet();
+		c.admin().indices().prepareAliases().addAlias(INDEX_NAME, ALIAS2, QueryBuilders.termQuery("owner", userUid2))
 				.execute().actionGet();
 		ESearchActivator.deleteByQuery(INDEX_NAME, QueryBuilders.queryStringQuery(("in:" + folderUid)));
 		System.out.println("Bootstrap finished....");

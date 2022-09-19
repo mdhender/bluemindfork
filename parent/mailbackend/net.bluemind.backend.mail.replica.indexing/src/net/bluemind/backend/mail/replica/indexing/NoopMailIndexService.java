@@ -154,4 +154,9 @@ public class NoopMailIndexService implements IMailIndexService {
 		return new SearchResult();
 	}
 
+	@Override
+	public long resetMailboxIndex(String mailboxUid) {
+		return 0l;
+	}
+
 }

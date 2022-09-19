@@ -97,4 +97,6 @@ public interface IMailIndexService {
 
 	public SearchResult searchItems(String dirEntryUid, MailboxFolderSearchQuery query);
 
+	public long resetMailboxIndex(String mailboxUid);
+
 }

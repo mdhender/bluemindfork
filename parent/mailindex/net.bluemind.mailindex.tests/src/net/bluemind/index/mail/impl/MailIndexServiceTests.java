@@ -507,6 +507,48 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		assertOnlyResultIsTestEml(results);
 	}
 
+	@Test
+	public void testReset() throws Exception {
+		long imapUid = 1;
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.query = "SubjectTest";
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+
+		SearchResult results1 = MailIndexActivator.getService().searchItems(userUid, q);
+		SearchResult results2 = MailIndexActivator.getService().searchItems(userUid2, q);
+
+		assertEquals(0, results1.totalResults);
+		assertEquals(0, results2.totalResults);
+
+		storeBody(bodyUid, eml);
+		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList());
+		storeMessage(mboxUid2, userUid2, bodyUid, imapUid, Collections.emptyList());
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		results1 = MailIndexActivator.getService().searchItems(userUid, q);
+		results2 = MailIndexActivator.getService().searchItems(userUid2, q);
+
+		assertEquals(1, results1.totalResults);
+		assertEquals(1, results2.totalResults);
+
+		MailIndexActivator.getService().resetMailboxIndex(userUid2);
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		results1 = MailIndexActivator.getService().searchItems(userUid, q);
+		results2 = MailIndexActivator.getService().searchItems(userUid2, q);
+
+		assertEquals(1, results1.totalResults);
+		assertEquals(0, results2.totalResults);
+
+	}
+
 	private void assertOnlyResultIsTestEml(SearchResult results) {
 		assertEquals(1, results.totalResults);
 		MessageSearchResult messageSearchResult = results.results.get(0);

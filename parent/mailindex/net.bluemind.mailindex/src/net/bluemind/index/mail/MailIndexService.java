@@ -175,6 +175,13 @@ public class MailIndexService implements IMailIndexService {
 		}
 	}
 
+	@Override
+	public long resetMailboxIndex(String mailboxUid) {
+		String index = getIndexAliasName(mailboxUid);
+
+		return bulkDelete(index, QueryBuilders.termQuery("owner", mailboxUid));
+	}
+
 	private void deleteBodiesFromIndex(List<String> deletedOrphanBodies, String index, String type) {
 
 		QueryBuilder termQuery = QueryBuilders.idsQuery().addIds(deletedOrphanBodies.toArray(new String[0]));
@@ -570,9 +577,7 @@ public class MailIndexService implements IMailIndexService {
 	public void deleteMailbox(String entityId) {
 		final Client client = getIndexClient();
 
-		QueryBuilder q = QueryBuilders.termQuery("owner", entityId);
-
-		long deletedCount = bulkDelete(getIndexAliasName(entityId), q);
+		long deletedCount = resetMailboxIndex(entityId);
 		logger.debug("deleteBox {} : {} deleted", entityId, deletedCount);
 
 		try {

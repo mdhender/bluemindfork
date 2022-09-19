@@ -82,6 +82,21 @@ public class MailboxMgmt implements IMailboxMgmt {
 		});
 	}
 
+	@Override
+	public TaskRef resetMailbox(final String mailboxUid) throws ServerFault {
+		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX);
+
+		return context.provider().instance(ITasksManager.class).run(new IServerTask() {
+
+			@Override
+			public void run(IServerTaskMonitor monitor) throws Exception {
+				long deletedRecords = RecordIndexActivator.getIndexer()
+						.map(indexer -> indexer.resetMailboxIndex(mailboxUid)).orElse(-1l);
+				monitor.end(true, "", "" + deletedRecords);
+			}
+		});
+	}
+
 	private ItemValue<Mailbox> getMailboxItem(String mailboxUid) throws ServerFault {
 		return context.provider().instance(IMailboxes.class, domainUid).getComplete(mailboxUid);
 	}
@@ -129,7 +144,9 @@ public class MailboxMgmt implements IMailboxMgmt {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
-				RecordIndexActivator.getIndexer().get().moveMailbox(mailboxUid, indexName, deleteSource);
+				RecordIndexActivator.getIndexer().ifPresentOrElse(
+						indexer -> indexer.moveMailbox(mailboxUid, indexName, deleteSource),
+						() -> new ServerFault("RecordIndexActivator is missing, consider restarting core"));
 			}
 		});
 	}

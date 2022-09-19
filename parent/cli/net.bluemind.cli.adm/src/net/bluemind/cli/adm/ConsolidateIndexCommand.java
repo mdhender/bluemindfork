@@ -29,9 +29,13 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.mailbox.api.IMailboxMgmt;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "consolidateIndex", description = "Consolidate a mailbox index")
 public class ConsolidateIndexCommand extends SingleOrDomainOperation {
+
+	@Option(names = "--reset", description = "Reset the index (only the data belonging to the target)")
+	public boolean reset = false;
 
 	public static class Reg implements ICmdLetRegistration {
 
@@ -49,10 +53,16 @@ public class ConsolidateIndexCommand extends SingleOrDomainOperation {
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
 		IMailboxMgmt imboxesMgmt = ctx.adminApi().instance(IMailboxMgmt.class, domainUid);
+		String displayName = (de.value.email != null && !de.value.email.isEmpty())
+				? (de.value.email + " (" + de.uid + ")")
+				: de.uid;
+		if (reset) {
+			ctx.info("Resetting mailbox index of {}", displayName);
+			TaskRef resetTask = imboxesMgmt.resetMailbox(de.uid);
+			Tasks.follow(ctx, resetTask, displayName, String.format("Failed to reset mailbox index of entry %s", de));
+		}
 		TaskRef ref = imboxesMgmt.consolidateMailbox(de.uid);
-		Tasks.follow(ctx, ref,
-				(de.value.email != null && !de.value.email.isEmpty()) ? (de.value.email + " (" + de.uid + ")") : de.uid,
-				String.format("Fail to consolidate mailbox index for entry %s", de));
+		Tasks.follow(ctx, ref, displayName, String.format("Failed to consolidate mailbox index of entry %s", de));
 	}
 
 	@Override
