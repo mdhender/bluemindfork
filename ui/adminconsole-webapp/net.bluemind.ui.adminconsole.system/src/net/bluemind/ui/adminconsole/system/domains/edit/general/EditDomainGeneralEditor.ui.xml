@@ -50,6 +50,26 @@
 			<tr>
 				<td style='width:200px'>
 					<div style="display:flex" title="{c.applyToAll}">
+						<g:Label text="{c.dateFormat}:" />
+					</div>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox visibleItemCount="1" width="400px" ui:field="dateFormat" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<div style="display:flex" title="{c.applyToAll}">
+						<g:Label text="{c.timeFormat}:" />
+					</div>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox visibleItemCount="1" width="400px" ui:field="timeFormat" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<div style="display:flex" title="{c.applyToAll}">
 						<g:Label text="{c.timezone}:" />
 						<sup><i class="fa fa-exclamation-circle" /></sup>
 					</div>

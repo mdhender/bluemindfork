@@ -69,6 +69,10 @@ public interface DomainConstants extends Messages {
 
 	String language();
 
+	String dateFormat();
+
+	String timeFormat();
+
 	String description();
 
 	String isActive();

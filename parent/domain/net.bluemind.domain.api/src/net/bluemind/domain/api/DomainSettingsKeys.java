@@ -20,6 +20,8 @@ package net.bluemind.domain.api;
 
 public enum DomainSettingsKeys {
 	lang, //
+	date, //
+	timeformat, //
 	timezone, //
 	im_public_auth, //
 	mailbox_max_user_quota, //

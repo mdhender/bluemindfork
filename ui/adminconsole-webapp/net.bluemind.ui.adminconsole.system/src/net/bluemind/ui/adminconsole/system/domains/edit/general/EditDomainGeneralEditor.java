@@ -21,6 +21,7 @@ package net.bluemind.ui.adminconsole.system.domains.edit.general;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
@@ -53,7 +54,9 @@ import net.bluemind.ui.admin.client.forms.MultiStringEditContainer;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
 import net.bluemind.ui.adminconsole.system.SettingsModel;
 import net.bluemind.ui.adminconsole.system.domains.DomainKeys;
+import net.bluemind.ui.adminconsole.system.domains.edit.general.l10n.DateFormatTranslation;
 import net.bluemind.ui.adminconsole.system.domains.edit.general.l10n.LocaleIdTranslation;
+import net.bluemind.ui.adminconsole.system.domains.edit.general.l10n.TimeFormatTranslation;
 import net.bluemind.ui.adminconsole.system.systemconf.auth.SysConfAuthenticationEditor;
 import net.bluemind.ui.common.client.forms.Ajax;
 import net.bluemind.ui.common.client.forms.GwtTimeZone;
@@ -79,6 +82,12 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 	ListBox language;
 
 	@UiField
+	ListBox dateFormat;
+
+	@UiField
+	ListBox timeFormat;
+
+	@UiField
 	ListBox tz;
 
 	@UiField
@@ -91,6 +100,10 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 	ListBox domainList;
 
 	private HashMap<String, Integer> languageMapping;
+
+	private HashMap<String, Integer> dateFormatMapping;
+
+	private HashMap<String, Integer> timeFormatMapping;
 
 	private HashMap<String, Integer> tzMapping;
 
@@ -105,9 +118,29 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		HTMLPanel panel = uiBinder.createAndBindUi(this);
 		initWidget(panel);
 		setLanguages();
+		setDateFormat();
+		setTimeFormat();
 		setTimezone();
 		aliases.addChangeHandler(evt -> setAvailableDefaultAliases());
 		aliases.setMinimumLength(48);
+	}
+
+	private void setDateFormat() {
+		dateFormatMapping = new HashMap<>();
+		int index = 0;
+		for (Entry<String, String> f : DateFormatTranslation.formats.entrySet()) {
+			dateFormat.addItem(f.getValue());
+			dateFormatMapping.put(f.getKey(), index++);
+		}
+	}
+
+	private void setTimeFormat() {
+		timeFormatMapping = new HashMap<>();
+		int index = 0;
+		for (Entry<String, String> f : TimeFormatTranslation.formats.entrySet()) {
+			timeFormat.addItem(f.getValue());
+			timeFormatMapping.put(f.getKey(), index++);
+		}
 	}
 
 	private void setTimezone() {
@@ -184,6 +217,14 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		domainLanguage = null != domainLanguage ? domainLanguage : LocaleIdTranslation.DEFAULT_ID;
 		language.setSelectedIndex(languageMapping.get(domainLanguage));
 
+		String domainDateFormat = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.date.name());
+		domainDateFormat = domainDateFormat != null ? domainDateFormat : DateFormatTranslation.DEFAULT_DATE_FORMAT;
+		dateFormat.setSelectedIndex(dateFormatMapping.get(domainDateFormat));
+
+		String domainTimeFormat = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.timeformat.name());
+		domainTimeFormat = domainTimeFormat != null ? domainTimeFormat : TimeFormatTranslation.DEFAULT_TIME_FORMAT;
+		timeFormat.setSelectedIndex(timeFormatMapping.get(domainTimeFormat));
+
 		String domainTz = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.timezone.name());
 		domainTz = null != domainTz ? domainTz : DEFAULT_TZ;
 		tz.setSelectedIndex(tzMapping.get(domainTz));
@@ -227,6 +268,11 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.lang.name(),
 				LocaleIdTranslation.getIdByLanguage(language.getSelectedItemText()));
+		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.date.name(),
+				DateFormatTranslation.getKeyByFormat(dateFormat.getSelectedItemText()));
+		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.timeformat.name(),
+				TimeFormatTranslation.getKeyByFormat(timeFormat.getSelectedItemText()));
+
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.timezone.name(), tz.getSelectedItemText());
 
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.other_urls.name(), otherUrls.getText());
