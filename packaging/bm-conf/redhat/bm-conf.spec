@@ -37,6 +37,7 @@ install -m 644 /sources/stretch/bm-conf.bluemind.target %{buildroot}/lib/systemd
 %attr(0755, root, root) /etc/bm
 %attr(0755, root, root) /usr/bin/bmctl
 %attr(0755, root, root) /usr/bin/bmprofile
+%attr(0755, root, root) /usr/bin/bmprofile-jfr
 %attr(0644, root, root) /lib/systemd/system/bluemind.target
 %attr(0644, root, root) /lib/systemd/system/bm-iptables.service
 %attr(0644, root, root) /lib/systemd/system-preset/10-bluemind.preset
