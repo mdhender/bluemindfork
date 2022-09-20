@@ -145,9 +145,9 @@ body {
 }
 @include media-breakpoint-up(lg) {
     .main-app > .main-alert-area {
-        bottom: $sp-4;
-        padding-left: $sp-4;
-        padding-right: $sp-4;
+        bottom: $sp-6 + $sp-5;
+        padding-left: $sp-6;
+        padding-right: $sp-6;
         left: initial;
         right: initial;
     }
