@@ -1,8 +1,8 @@
 <template>
     <div class="fh-file-item">
         <div class="d-flex text-neutral">
-            <div><bm-icon icon="file" class="mt-3" /></div>
-            <div class="d-flex ml-3 mt-3 justify-content-between flex-fill">
+            <div><bm-icon icon="file" class="mt-4" /></div>
+            <div class="d-flex ml-3 mt-4 justify-content-between flex-fill">
                 <div class="label">
                     <div class="text-truncate bold">{{ file.name }}</div>
                     <span class="text-neutral text-right">

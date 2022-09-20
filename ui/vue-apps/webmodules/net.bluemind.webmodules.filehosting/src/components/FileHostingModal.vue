@@ -7,7 +7,7 @@
         no-fade
     >
         <div class="mr-4 ml-2">
-            <div v-if="hasSomeErrorStatus" class="d-flex align-items-center mb-3">
+            <div v-if="hasSomeErrorStatus" class="d-flex align-items-center mb-5">
                 <bm-icon icon="file" size="xl" class="mr-2 text-danger" />
                 <span class="mr-3 dot-font-size text-neutral-fg-lo2">&#8226;</span>
                 <span class="mr-3 dot-font-size text-neutral-fg-lo2">&#8226;</span>
@@ -17,7 +17,7 @@
                 <bm-icon icon="chevron-right" class="text-neutral-fg-lo2" size="lg" />
                 <bm-icon icon="cloud" class="ml-2 text-danger" size="xl" />
             </div>
-            <div v-else class="d-flex align-items-center mb-3">
+            <div v-else class="d-flex align-items-center mb-5">
                 <bm-icon icon="file" size="xl" class="mr-2 text-secondary" />
                 <span :class="dotsClass">
                     <span class="dot-font-size">&#8226; &#8226; &#8226; &#8226; &#8226; &#8226;</span>
@@ -29,14 +29,14 @@
                 />
                 <bm-icon icon="cloud" class="ml-2 text-secondary" size="xl" />
             </div>
-            <div v-if="hasSomeErrorStatus" class="mb-4 text-danger">
+            <div v-if="hasSomeErrorStatus" class="mb-6 text-danger">
                 {{ $tc("mail.filehosting.share.failure", fhFiles.length) }}
             </div>
-            <div v-else class="mb-4">
+            <div v-else class="mb-6">
                 {{ $tc("mail.filehosting.share.pending", fhFiles.length) }}
             </div>
 
-            <div v-for="(file, idx) in fhFiles" :key="idx" class="position-relative mb-5">
+            <div v-for="(file, idx) in fhFiles" :key="idx" class="position-relative mb-6">
                 <detachment-item :file="file">
                     <template #item-actions>
                         <bm-label-icon
