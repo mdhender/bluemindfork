@@ -11,7 +11,7 @@
             <div
                 v-if="resolvedCriteria[index] && negative !== resolvedCriteria[index].positive"
                 :key="index"
-                class="d-flex align-items-center justify-content-between row mb-1"
+                class="d-flex align-items-center justify-content-between row mb-4"
             >
                 <div class="d-flex col-11">
                     <div v-show="!resolvedCriteria[index] || !resolvedCriteria[index].fullEditor" class="col-6">

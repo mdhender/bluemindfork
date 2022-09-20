@@ -9,7 +9,7 @@
             <div
                 v-if="resolvedActions[index]"
                 :key="index"
-                class="d-flex align-items-start justify-content-between row mb-1"
+                class="d-flex align-items-start justify-content-between row mb-4"
             >
                 <div class="d-flex col-11 align-items-start">
                     <div class="col-6">
