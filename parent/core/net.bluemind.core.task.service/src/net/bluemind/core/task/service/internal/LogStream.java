@@ -18,6 +18,9 @@
  */
 package net.bluemind.core.task.service.internal;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +39,7 @@ public class LogStream implements ReadStream<Buffer>, Stream {
 
 	private boolean ended;
 	private Handler<Void> endHandler;
-	private Handler<Throwable> exceptionHandler;
+	private List<Handler<Throwable>> exceptionHandler = new ArrayList<>();
 
 	private final ISubscriber sub;
 
@@ -67,9 +70,8 @@ public class LogStream implements ReadStream<Buffer>, Stream {
 				ended();
 			}
 		} catch (Throwable e) {// NOSONAR
-			if (exceptionHandler != null) {
-				exceptionHandler.handle(e);
-			} else {
+			exception(e);
+			if (exceptionHandler.isEmpty()) {
 				logger.error(e.getMessage(), e);
 			}
 		}
@@ -90,9 +92,8 @@ public class LogStream implements ReadStream<Buffer>, Stream {
 				checkStreamEnd(data);
 			}
 		} catch (Throwable e) {// NOSONAR
-			if (exceptionHandler != null) {
-				exceptionHandler.handle(e);
-			} else {
+			exception(e);
+			if (exceptionHandler.isEmpty()) {
 				logger.error(e.getMessage(), e);
 			}
 		}
@@ -126,7 +127,7 @@ public class LogStream implements ReadStream<Buffer>, Stream {
 
 	@Override
 	public LogStream exceptionHandler(Handler<Throwable> excHandler) {
-		exceptionHandler = excHandler;
+		this.exceptionHandler.add(excHandler);
 		return this;
 	}
 
@@ -151,5 +152,13 @@ public class LogStream implements ReadStream<Buffer>, Stream {
 	@Override
 	public ReadStream<Buffer> fetch(long amount) {
 		return this;
+	}
+
+	private void exception(Throwable t) {
+		exceptionHandler.forEach(ex -> {
+			if (ex != null) {
+				ex.handle(t);
+			}
+		});
 	}
 }

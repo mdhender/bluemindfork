@@ -51,8 +51,10 @@ public class CQTaskManager extends TaskManager implements Handler<Message<JsonOb
 
 	public ReadStream<Buffer> log() {
 		LogStream reader = new LogStream(jsQueue.subscriber(0));
-
 		registerReader(reader);
+		reader.exceptionHandler(ex -> {
+			this.readers.remove(reader);
+		});
 		return reader;
 	}
 
