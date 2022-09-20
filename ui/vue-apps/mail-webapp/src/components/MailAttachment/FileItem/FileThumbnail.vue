@@ -55,14 +55,13 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "@bluemind/styleguide/css/mixins/_responsiveness.scss";
+@use "sass:map";
 @import "@bluemind/styleguide/css/_variables.scss";
 
 .file-thumbnail {
-    height: 35vw;
-    @include from-lg {
-        height: 7vw;
-    }
+    aspect-ratio: 14 / 5;
+    min-height: map-get($icon-sizes, "3xl");
+
     margin-top: $sp-3;
 
     background-color: $neutral-bg;
