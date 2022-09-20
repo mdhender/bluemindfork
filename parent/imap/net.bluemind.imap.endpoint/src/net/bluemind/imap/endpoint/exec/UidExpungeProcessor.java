@@ -45,6 +45,9 @@ public class UidExpungeProcessor extends SelectedStateCommandProcessor<UidExpung
 				Collections.singletonList("\\Expunged"));
 		ctx.write(command.raw().tag() + " OK Completed\r\n");
 		completed.handle(Result.success());
+		if (logger.isDebugEnabled()) {
+			logger.debug("Expunged {} in {}", command.idset(), ctx.selected());
+		}
 
 	}
 

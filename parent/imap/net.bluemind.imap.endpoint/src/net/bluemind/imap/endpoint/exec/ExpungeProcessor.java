@@ -51,6 +51,7 @@ public class ExpungeProcessor extends SelectedStateCommandProcessor<ExpungeComma
 		uids.stream().sorted(Collections.reverseOrder()).forEach(uid -> ctx.write("* " + uid + " EXPUNGE\r\n"));
 		ctx.write(command.raw().tag() + " OK Completed\r\n");
 		completed.handle(Result.success());
+		logger.debug("{} expunged.", folder);
 	}
 
 }
