@@ -17,10 +17,17 @@
  */
 package net.bluemind.imap.endpoint.exec;
 
+import java.util.Collections;
+
+import io.netty.buffer.Unpooled;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
+import net.bluemind.imap.endpoint.cmd.RawImapCommand;
+import net.bluemind.imap.endpoint.cmd.UidFetchCommand;
 import net.bluemind.imap.endpoint.cmd.UidStoreCommand;
+import net.bluemind.imap.endpoint.parsing.Part;
+import net.bluemind.lib.vertx.Result;
 
 public class UidStoreProcessor extends SelectedStateCommandProcessor<UidStoreCommand> {
 
@@ -32,7 +39,17 @@ public class UidStoreProcessor extends SelectedStateCommandProcessor<UidStoreCom
 	@Override
 	protected void checkedOperation(UidStoreCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		ctx.mailbox().updateFlags(ctx.selected(), command.idset(), command.mode(), command.flags());
-		ctx.write(command.raw().tag() + " OK Completed\r\n");
+		if (command.silent()) {
+			ctx.write(command.raw().tag() + " OK Completed\r\n");
+			completed.handle(Result.success());
+		} else {
+			String asFetch = command.raw().tag() + " UID FETCH " + command.idset() + " (FLAGS)";
+			RawImapCommand raw = new RawImapCommand(
+					Collections.singletonList(Part.endOfCommand(Unpooled.wrappedBuffer(asFetch.getBytes()))));
+			UidFetchCommand fetch = new UidFetchCommand(raw);
+			UidFetchProcessor proc = new UidFetchProcessor();
+			proc.checkedOperation(fetch, ctx, completed);
+		}
 	}
 
 }
