@@ -3,17 +3,17 @@
         <bm-form-checkbox v-model="filter.terminal" :value="true" :unchecked-value="false">
             {{ $t("preferences.mail.filters.modal.terminal") }}
         </bm-form-checkbox>
-        <pref-read-more-label :href="readMore" :text="$t('preferences.mail.filters.modal.terminal.desc')" />
+        <pref-read-more :href="readMore" :text="$t('preferences.mail.filters.modal.terminal.desc')" />
     </bm-form-group>
 </template>
 
 <script>
 import { BmFormCheckbox, BmFormGroup } from "@bluemind/styleguide";
-import PrefReadMoreLabel from "../../../PrefReadMoreLabel";
+import PrefReadMore from "../../../PrefReadMore";
 
 export default {
     name: "PrefFilterRuleModalTerminal",
-    components: { BmFormCheckbox, BmFormGroup, PrefReadMoreLabel },
+    components: { BmFormCheckbox, BmFormGroup, PrefReadMore },
     props: {
         filter: {
             type: Object,
@@ -32,7 +32,7 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .pref-filter-rule-modal-terminal {
-    .pref-read-more-label {
+    .pref-read-more {
         margin-top: $sp-4;
     }
 }

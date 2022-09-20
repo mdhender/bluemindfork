@@ -1,25 +1,24 @@
 <template>
     <div class="pref-read-more-label">
         <div class="regular">
-            {{ text }}
+            {{ label }}
         </div>
-        <bm-button variant="link" :href="href" target="_blank">
-            {{ $t("common.read_more") }}
-        </bm-button>
+        <pref-read-more :href="href" />
     </div>
 </template>
+
 <script>
-import { BmButton } from "@bluemind/styleguide";
+import PrefReadMore from "./PrefReadMore";
 
 export default {
     name: "PrefReadMoreLabel",
-    components: { BmButton },
+    components: { PrefReadMore },
     props: {
-        href: {
+        label: {
             type: String,
             required: true
         },
-        text: {
+        href: {
             type: String,
             required: true
         }
@@ -31,13 +30,8 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .pref-read-more-label {
-    color: $neutral-fg-lo1;
     display: flex;
     flex-wrap: wrap;
-    gap: $sp-1 $sp-3;
-
-    .btn-link {
-        margin-bottom: $sp-3;
-    }
+    gap: $sp-2 $sp-4;
 }
 </style>
