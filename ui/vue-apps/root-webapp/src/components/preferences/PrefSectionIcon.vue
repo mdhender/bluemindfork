@@ -36,13 +36,13 @@ export default {
 .pref-section-icon {
     width: $section-icon-size;
     height: $section-icon-size;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     .bm-app-icon svg {
         width: $section-icon-size;
         height: $section-icon-size;
-    }
-    .bm-avatar {
-        margin: auto;
     }
 }
 </style>

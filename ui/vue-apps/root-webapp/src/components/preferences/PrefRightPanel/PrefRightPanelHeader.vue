@@ -21,7 +21,7 @@
         </div>
         <div class="d-none d-lg-flex align-items-center large-panel-header">
             <pref-search-input class="my-4 w-50" />
-            <bm-button-close size="lg" class="ml-auto mr-3" @click="$emit('close')" />
+            <bm-button-close size="lg" class="ml-auto mr-5" @click="$emit('close')" />
         </div>
     </div>
 </template>

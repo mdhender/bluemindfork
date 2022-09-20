@@ -11,7 +11,6 @@
             ref="name-input"
             v-model="filter.name"
             :placeholder="$t('preferences.mail.filters.modal.name.placeholder')"
-            class="col-5 pl-0"
             required
             @keypress.enter.prevent="$emit('submit')"
         />
@@ -31,3 +30,14 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@use "sass:math";
+@import "~@bluemind/styleguide/css/_variables";
+
+.pref-filter-rule-modal-name {
+    #pref-filter-rule-modal-name-input {
+        width: calc(#{math.percentage(math.div(11, 2 * 12))} - #{$sp-3 + $sp-2});
+    }
+}
+</style>

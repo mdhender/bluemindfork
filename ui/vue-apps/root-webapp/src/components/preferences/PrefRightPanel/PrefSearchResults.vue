@@ -15,34 +15,29 @@
         </p>
     </div>
     <div v-else class="pref-search-results scroller-y">
-        <div class="main-part">
-            <div class="d-flex justify-content-end pr-6">
-                <bm-button variant="text" @click="toggleAll">
-                    {{ areAllExpanded ? $t("common.collapse_all") : $t("common.expand_all") }}
-                </bm-button>
-            </div>
-            <bm-alert-area
-                v-if="alerts.length > 0"
-                class="border-top border-neutral"
-                :alerts="alerts"
-                stackable
-                @remove="REMOVE"
-            >
-                <template v-slot="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
-            </bm-alert-area>
-            <div class="border-bottom border-neutral" />
-            <template v-for="(group, index) in results">
-                <div :key="group.id" class="group-header">
-                    <pref-section-icon
-                        :section="GET_SECTION(group.id)"
-                        :set="(isCollapsed = isGroupCollapsed(group.id))"
-                    />
-                    <bm-button-expand size="lg" :expanded="!isCollapsed" @click="toggleGroup(group.id)" />
-                    <pref-group ref="group" :group="group" :collapsed="isCollapsed" class="flex-fill" />
-                </div>
-                <div v-if="index !== results.length - 1" :key="index" class="border-bottom border-neutral" />
-            </template>
+        <div class="d-flex justify-content-end pr-6">
+            <bm-button variant="text" @click="toggleAll">
+                {{ areAllExpanded ? $t("common.collapse_all") : $t("common.expand_all") }}
+            </bm-button>
         </div>
+        <bm-alert-area
+            v-if="alerts.length > 0"
+            class="border-top border-neutral"
+            :alerts="alerts"
+            stackable
+            @remove="REMOVE"
+        >
+            <template v-slot="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
+        </bm-alert-area>
+        <div class="border-bottom border-neutral" />
+        <template v-for="(group, index) in results">
+            <div :key="group.id" class="group-header">
+                <pref-section-icon :section="GET_SECTION(group.id)" :set="(isCollapsed = isGroupCollapsed(group.id))" />
+                <bm-button-expand :expanded="!isCollapsed" @click="toggleGroup(group.id)" />
+                <pref-group ref="group" :group="group" :collapsed="isCollapsed" class="flex-fill" />
+            </div>
+            <div v-if="index !== results.length - 1" :key="index" class="border-bottom border-neutral" />
+        </template>
     </div>
 </template>
 

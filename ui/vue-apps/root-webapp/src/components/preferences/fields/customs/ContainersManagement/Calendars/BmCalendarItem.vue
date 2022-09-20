@@ -1,6 +1,10 @@
 <template>
     <div class="bm-calendar-item d-flex align-items-center">
-        <bm-color-badge size="lg" :value="calendar.settings.bm_color || 'transparent'" no-cross-line />
+        <bm-color-badge
+            size="lg"
+            :value="calendar.settings.bm_color || 'transparent'"
+            transparent-variant="dashed-border"
+        />
         <span class="text-truncate">{{ calendar.name }}</span>
     </div>
 </template>

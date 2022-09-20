@@ -35,7 +35,8 @@ export default {
     },
     computed: {
         sundayFirst() {
-            return this.$store.state.preferences.fields["calendar.main.view.day_weekstart"].current?.value === "sunday";
+            const field = this.$store.state.preferences.fields["calendar.main.view.day_weekstart"];
+            return field?.current?.value === "sunday";
         }
     },
     created() {
