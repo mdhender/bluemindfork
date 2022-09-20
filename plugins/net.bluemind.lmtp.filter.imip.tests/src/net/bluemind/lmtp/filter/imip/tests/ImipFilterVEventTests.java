@@ -312,7 +312,7 @@ public class ImipFilterVEventTests {
 			imip = IMIPParserFactory.create().parse(parsed);
 		}
 
-		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("usernodrive@domain.lan>");
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("usernodrive@domain.lan");
 		handler.handle(imip, recipient, domain, userNoDriveMailbox);
 
 		List<ItemValue<VEventSeries>> byIcsUid = userNoDriveCalendar.getByIcsUid(
