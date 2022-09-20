@@ -56,7 +56,7 @@
             </template>
         </template>
         <template v-if="hasSubscriptionAction" #cell(subscriptionAction)="row">
-            <bm-button variant="text" size="lg" @click="toggleSubscription(row.item)">
+            <bm-button variant="text" size="lg" class="w-100" @click="toggleSubscription(row.item)">
                 <template v-if="isSubscribed(row.item)">{{ $t("common.unsubscribe") }}</template>
                 <template v-else>{{ $t("common.subscribe") }}</template>
             </bm-button>
@@ -301,7 +301,7 @@ export default {
         text-align: center;
     }
     .subscription-action-cell {
-        width: base-px-to-rem(120);
+        width: base-px-to-rem(140);
         text-align: center;
     }
     .shared-by-cell {
