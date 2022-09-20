@@ -44,6 +44,8 @@ public class FetchedItemStream implements WriteStream<FetchedItem> {
 	private List<MailPart> spec;
 	private int writeCnt = 0;
 
+	private volatile boolean ended;
+
 	public FetchedItemStream(ImapContext ctx, List<MailPart> fetchSpec) {
 		this.socket = ctx.socket();
 		this.sender = ctx.sender();
@@ -70,8 +72,11 @@ public class FetchedItemStream implements WriteStream<FetchedItem> {
 
 	@Override
 	public void end(Handler<AsyncResult<Void>> handler) {
-		logger.info("ending fetch after {} write(s)", writeCnt);
-		handler.handle(Result.success());
+		if (!ended) {
+			ended = true;
+			logger.info("ending fetch after {} write(s)", writeCnt);
+			handler.handle(Result.success());
+		}
 	}
 
 	@Override
