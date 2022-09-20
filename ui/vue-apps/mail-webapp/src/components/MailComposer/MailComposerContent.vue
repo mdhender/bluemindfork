@@ -8,14 +8,17 @@
         @drop-files="$execute('add-attachments', { files: $event, message, maxSize })"
     >
         <template #dropZone>
-            <h2 class="text-center p-2">{{ $tc("mail.new.attachments.drop.zone", draggedFilesCount) }}</h2>
-            <bm-icon icon="arrow-up" />
+            <div class="text-center text-neutral p-4">
+                {{ $tc("mail.new.attachments.drop.zone", draggedFilesCount) }}
+            </div>
         </template>
 
         <bm-file-drop-zone class="z-index-110 flex-grow-1" inline :should-activate-fn="shouldActivateForImages">
             <template #dropZone>
-                <bm-icon class="text-neutral" icon="file-type-image" />
-                <h2 class="text-center p-2">{{ $tc("mail.new.images.drop.zone", draggedFilesCount) }}</h2>
+                <bm-icon class="text-neutral" icon="file-type-image" size="xl" />
+                <div class="text-center text-neutral p-4">
+                    {{ $tc("mail.new.images.drop.zone", draggedFilesCount) }}
+                </div>
             </template>
             <bm-rich-editor
                 ref="message-content"
@@ -168,11 +171,8 @@ function getFilesFromEvent(event) {
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-composer-content {
-    .bm-rich-editor {
-        padding: $sp-4;
-        .roosterjs-container {
-            min-height: 12rem;
-        }
+    .bm-rich-editor .roosterjs-container {
+        min-height: 12rem;
     }
 }
 </style>

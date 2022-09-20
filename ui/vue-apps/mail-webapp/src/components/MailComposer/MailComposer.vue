@@ -48,7 +48,12 @@
             @files-count="draggedFilesCount = $event"
             @drop-files="$execute('add-attachments', { files: $event, message, maxSize })"
         />
-        <mail-composer-content ref="content" :message="message" :is-signature-inserted.sync="isSignatureInserted" />
+        <mail-composer-content
+            ref="content"
+            class="m-4"
+            :message="message"
+            :is-signature-inserted.sync="isSignatureInserted"
+        />
         <mail-composer-footer
             :message="message"
             :is-signature-inserted="isSignatureInserted"
@@ -119,15 +124,6 @@ export default {
         box-shadow: none;
     }
 
-    .bm-file-drop-zone.attachments .bm-dropzone-active-content {
-        min-height: 7em;
-    }
-
-    .bm-file-drop-zone.as-attachments.bm-dropzone-active,
-    .bm-file-drop-zone.as-attachments.bm-dropzone-hover {
-        background: url("~@bluemind/styleguide/assets/attachment.png") no-repeat center center;
-    }
-
     .files-header {
         display: flex;
         flex: 1 1 auto;
@@ -141,6 +137,19 @@ export default {
         position: sticky;
         bottom: 0;
         z-index: $zindex-sticky;
+    }
+}
+
+.mail-composer .bm-file-drop-zone,
+.mail-composer-content.bm-file-drop-zone {
+    &.attachments .bm-dropzone-active-content {
+        min-height: 7em;
+    }
+    &.as-attachments {
+        &.bm-dropzone-active,
+        &.bm-dropzone-hover {
+            background: url("~@bluemind/styleguide/assets/attachment.png") no-repeat center center;
+        }
     }
 }
 </style>
