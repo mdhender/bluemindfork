@@ -33,6 +33,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
@@ -43,7 +44,7 @@ import net.bluemind.notes.api.INoteUids;
 import net.bluemind.notes.api.VNote;
 import net.bluemind.notes.api.VNoteChanges;
 
-public class RestoreNotesTask implements IServerTask {
+public class RestoreNotesTask extends BlockingServerTask implements IServerTask {
 	private static final Logger logger = LoggerFactory.getLogger(RestoreNotesTask.class);
 
 	private final DataProtectGeneration backup;

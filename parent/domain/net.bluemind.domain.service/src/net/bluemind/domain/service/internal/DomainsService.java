@@ -27,14 +27,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import jakarta.ws.rs.PathParam;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
+import jakarta.ws.rs.PathParam;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.core.api.ParametersValidator;
@@ -50,7 +49,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.service.IServerTask;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.task.service.TaskUtils;
@@ -291,7 +290,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 		}
 
 		ITasksManager tasksMananger = context.provider().instance(ITasksManager.class);
-		return tasksMananger.run(new IServerTask() {
+		return tasksMananger.run(new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
@@ -410,7 +409,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 		validator.validate(store, domainItem.value);
 		ITasksManager tasksMananger = context.provider().instance(ITasksManager.class);
 
-		return tasksMananger.run(new IServerTask() {
+		return tasksMananger.run(new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {

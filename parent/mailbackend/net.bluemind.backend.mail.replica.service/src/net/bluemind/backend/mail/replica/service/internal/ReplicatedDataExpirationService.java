@@ -45,6 +45,7 @@ import net.bluemind.core.container.persistence.ContainersHierarchyNodeStore;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.ITasksManager;
 
 public class ReplicatedDataExpirationService implements IReplicatedDataExpiration {
@@ -68,7 +69,7 @@ public class ReplicatedDataExpirationService implements IReplicatedDataExpiratio
 	@Override
 	public TaskRef deleteExpired(int days) {
 
-		return context.provider().instance(ITasksManager.class).run(monitor -> {
+		return context.provider().instance(ITasksManager.class).run(m -> BlockingServerTask.run(m, monitor -> {
 			monitor.begin(1, "Expiring expunged messages (" + days + " days) on server " + serverUid);
 			logger.info("Expiring expunged messages ({} days) on server {}", days, serverUid);
 
@@ -96,7 +97,7 @@ public class ReplicatedDataExpirationService implements IReplicatedDataExpiratio
 
 			monitor.end(true, "", "");
 
-		});
+		}));
 
 	}
 
@@ -117,7 +118,7 @@ public class ReplicatedDataExpirationService implements IReplicatedDataExpiratio
 
 	@Override
 	public TaskRef deleteMessageBodiesFromObjectStore(int days) {
-		return context.provider().instance(ITasksManager.class).run(monitor -> {
+		return context.provider().instance(ITasksManager.class).run(m -> BlockingServerTask.run(m, monitor -> {
 			monitor.begin(1, "Expiring expunged messages (" + days + " days) on server " + serverUid);
 			List<String> guids = JdbcAbstractStore.doOrFail(() -> {
 				return bodyStore.deletePurgedBodies(Instant.now().minusSeconds(TimeUnit.DAYS.toSeconds(days)));
@@ -137,7 +138,7 @@ public class ReplicatedDataExpirationService implements IReplicatedDataExpiratio
 				}
 			}
 			monitor.end(true, "", "");
-		});
+		}));
 	}
 
 }

@@ -40,6 +40,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.TaskUtils;
@@ -47,7 +48,7 @@ import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.service.BackupDataProvider;
 
-public class RestoreCalendarsTask implements IServerTask {
+public class RestoreCalendarsTask extends BlockingServerTask implements IServerTask {
 	private static final Logger logger = LoggerFactory.getLogger(RestoreCalendarsTask.class);
 
 	private final DataProtectGeneration backup;

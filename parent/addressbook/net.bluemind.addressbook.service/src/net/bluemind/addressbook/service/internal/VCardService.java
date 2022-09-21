@@ -47,7 +47,7 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.service.IServerTask;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.task.service.NullTaskMonitor;
@@ -136,7 +136,7 @@ public class VCardService implements IVCardService {
 	public TaskRef importCards(final String vcard) throws ServerFault {
 		rbacManager.check(Verb.Write.name());
 
-		return context.provider().instance(ITasksManager.class).run(new IServerTask() {
+		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {

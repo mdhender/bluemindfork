@@ -42,6 +42,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.TaskUtils;
@@ -68,7 +69,7 @@ import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.InstallationVersion;
 import net.bluemind.system.api.SysConfKeys;
 
-public class SaveAllTask implements IServerTask {
+public class SaveAllTask extends BlockingServerTask implements IServerTask {
 	private static final Logger logger = LoggerFactory.getLogger(SaveAllTask.class);
 	private final BmContext ctx;
 	private final DPService dps;

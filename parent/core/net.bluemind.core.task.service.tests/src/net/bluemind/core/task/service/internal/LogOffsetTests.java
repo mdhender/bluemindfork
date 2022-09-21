@@ -28,6 +28,7 @@ import org.junit.Test;
 
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -46,7 +47,7 @@ public class LogOffsetTests {
 
 		int loops = 1024;
 
-		IServerTask serverTask = new IServerTask() {
+		IServerTask serverTask = new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) {

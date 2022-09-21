@@ -35,7 +35,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.service.IServerTask;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.index.mail.BoxIndexing;
@@ -70,7 +70,7 @@ public class MailboxMgmt implements IMailboxMgmt {
 	public TaskRef consolidateMailbox(final String mailboxUid) throws ServerFault {
 		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX);
 
-		return context.provider().instance(ITasksManager.class).run(new IServerTask() {
+		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
@@ -86,7 +86,7 @@ public class MailboxMgmt implements IMailboxMgmt {
 	public TaskRef resetMailbox(final String mailboxUid) throws ServerFault {
 		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX);
 
-		return context.provider().instance(ITasksManager.class).run(new IServerTask() {
+		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
@@ -105,7 +105,7 @@ public class MailboxMgmt implements IMailboxMgmt {
 	public TaskRef consolidateDomain() throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_MAILBOX);
 
-		return context.provider().instance(ITasksManager.class).run(new IServerTask() {
+		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
@@ -140,15 +140,16 @@ public class MailboxMgmt implements IMailboxMgmt {
 			throw new ServerFault("mailbox " + mailboxUid + " not found", ErrorCode.NOT_FOUND);
 		}
 
-		return context.provider().instance(ITasksManager.class).run("move-index-" + mailboxUid, new IServerTask() {
+		return context.provider().instance(ITasksManager.class).run("move-index-" + mailboxUid,
+				new BlockingServerTask() {
 
-			@Override
-			public void run(IServerTaskMonitor monitor) throws Exception {
-				RecordIndexActivator.getIndexer().ifPresentOrElse(
-						indexer -> indexer.moveMailbox(mailboxUid, indexName, deleteSource),
-						() -> new ServerFault("RecordIndexActivator is missing, consider restarting core"));
-			}
-		});
+					@Override
+					public void run(IServerTaskMonitor monitor) throws Exception {
+						RecordIndexActivator.getIndexer().ifPresentOrElse(
+								indexer -> indexer.moveMailbox(mailboxUid, indexName, deleteSource),
+								() -> new ServerFault("RecordIndexActivator is missing, consider restarting core"));
+					}
+				});
 	}
 
 	@Override

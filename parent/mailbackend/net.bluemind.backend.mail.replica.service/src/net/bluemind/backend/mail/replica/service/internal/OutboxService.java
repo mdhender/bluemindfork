@@ -66,6 +66,7 @@ import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.core.sendmail.SendmailHelper;
 import net.bluemind.core.sendmail.SendmailResponse;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.utils.JsonUtils;
@@ -101,7 +102,7 @@ public class OutboxService implements IOutbox {
 	@Override
 	public TaskRef flush() {
 		rbac.check(Verb.Write.name());
-		return serviceProvider.instance(ITasksManager.class).run(monitor -> {
+		return serviceProvider.instance(ITasksManager.class).run(m -> BlockingServerTask.run(m, monitor -> {
 			IMailboxFolders mailboxFoldersService = serviceProvider.instance(IMailboxFoldersByContainer.class,
 					IMailReplicaUids.subtreeUid(domainUid, mailboxItem));
 
@@ -124,7 +125,7 @@ public class OutboxService implements IOutbox {
 					mailboxItemsService, user);
 
 			flushAll(monitor, mails, mailCount, user, ctx);
-		});
+		}));
 	}
 
 	private void flushAll(IServerTaskMonitor monitor, List<ItemValue<MailboxItem>> mails, int mailCount, AuthUser user,

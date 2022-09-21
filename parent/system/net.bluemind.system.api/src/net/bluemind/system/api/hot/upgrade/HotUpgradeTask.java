@@ -1,5 +1,6 @@
 package net.bluemind.system.api.hot.upgrade;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -21,9 +22,11 @@ public class HotUpgradeTask {
 	public int retryCount = 3;
 	public int retryDelaySeconds = 0; // TimeUnit.SECONDS
 	public boolean reportFailure = false;
+	public List<HotUpgradeStepEvent> events;
 
 	public HotUpgradeTask() {
 		executionMode = HotUpgradeTaskExecutionMode.DIRECT;
+		events = new ArrayList<>();
 	}
 
 	private Map<String, Object> deserializedParameters;

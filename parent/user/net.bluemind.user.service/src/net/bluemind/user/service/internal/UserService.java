@@ -57,6 +57,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.utils.ImageUtils;
@@ -386,7 +387,8 @@ public class UserService implements IInCoreUser, IUser {
 	public TaskRef delete(String uid) throws ServerFault {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER);
 
-		return bmContext.provider().instance(ITasksManager.class).run(monitor -> performDelete(uid, monitor));
+		return bmContext.provider().instance(ITasksManager.class)
+				.run(m -> BlockingServerTask.run(m, monitor -> performDelete(uid, monitor)));
 
 	}
 

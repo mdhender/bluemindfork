@@ -40,6 +40,7 @@ import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
@@ -71,11 +72,11 @@ public class NoteIndexMgmtService implements INoteIndexMgmt {
 	}
 
 	public void reindex(String containerUid, IServerTaskMonitor monitor) throws Exception {
-		reindexTask(containerUid).run(monitor);
+		reindexTask(containerUid).execute(monitor);
 	}
 
 	private IServerTask reindexAllTask() {
-		return new IServerTask() {
+		return new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
@@ -104,7 +105,7 @@ public class NoteIndexMgmtService implements INoteIndexMgmt {
 	}
 
 	private IServerTask reindexTask(final String notesUid) {
-		return new IServerTask() {
+		return new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {

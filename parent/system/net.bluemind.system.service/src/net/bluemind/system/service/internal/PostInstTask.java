@@ -24,12 +24,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.system.schemaupgrader.PostInst;
 import net.bluemind.system.schemaupgrader.UpdateResult;
 
-public class PostInstTask implements IServerTask {
+public class PostInstTask extends BlockingServerTask implements IServerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(PostInstTask.class);
 

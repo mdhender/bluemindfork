@@ -35,7 +35,7 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.container.sync.SyncableContainer;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.service.IServerTask;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.utils.JsonUtils;
@@ -59,7 +59,7 @@ public class ContainerSyncService implements IContainerSync {
 		RBACManager.forContext(context).forContainer(container).check(Verb.Manage.name());
 
 		return context.provider().instance(ITasksManager.class).run("container-sync" + container.uid,
-				new IServerTask() {
+				new BlockingServerTask() {
 
 					@Override
 					public void run(IServerTaskMonitor monitor) throws Exception {

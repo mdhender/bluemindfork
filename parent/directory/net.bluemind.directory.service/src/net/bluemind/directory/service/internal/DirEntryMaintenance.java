@@ -33,6 +33,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider.IServerSideServiceFactory;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.directory.api.DirEntry;
@@ -127,20 +128,21 @@ public class DirEntryMaintenance implements IDirEntryMaintenance, IInternalDirEn
 
 	@Override
 	public TaskRef repair(RepairConfig config) {
-		return context.provider().instance(ITasksManager.class).run("repair-" + entry.entryUid + "@" + domainUid, m -> {
-			RepairTaskMonitor monitor = new RepairTaskMonitor(m, config);
-			try {
-				repair(config, monitor);
-			} catch (Exception e) {
-				monitor.log("Unknown error: " + e.getMessage());
-				monitor.end(false, "", "");
+		return context.provider().instance(ITasksManager.class).run("repair-" + entry.entryUid + "@" + domainUid,
+				mon -> BlockingServerTask.run(mon, m -> {
+					RepairTaskMonitor monitor = new RepairTaskMonitor(m, config);
+					try {
+						repair(config, monitor);
+					} catch (Exception e) {
+						monitor.log("Unknown error: " + e.getMessage());
+						monitor.end(false, "", "");
 
-				logger.error("Unknown error: " + e.getMessage(), e);
-				return;
-			}
+						logger.error("Unknown error: " + e.getMessage(), e);
+						return;
+					}
 
-			monitor.end(true, "", "");
-		});
+					monitor.end(true, "", "");
+				}));
 	}
 
 	@Override

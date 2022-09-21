@@ -26,13 +26,14 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.PartGeneration;
 
-public class InstallTask implements IServerTask {
+public class InstallTask extends BlockingServerTask implements IServerTask {
 
 	private final DataProtectGeneration gen;
 	private final BmContext ctx;

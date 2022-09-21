@@ -32,6 +32,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -53,9 +54,9 @@ public class TickConfigurationService implements IInCoreTickConfiguration {
 
 	@Override
 	public TaskRef reconfigure() {
-		return context.provider().instance(ITasksManager.class).run((monitor) -> {
+		return context.provider().instance(ITasksManager.class).run(m -> BlockingServerTask.run(m, monitor -> {
 			reconfigure(monitor, context);
-		});
+		}));
 	}
 
 	@Override

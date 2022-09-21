@@ -35,7 +35,7 @@ public class TaskTests {
 	@Test
 	public void testGetStatus() throws ServerFault, InterruptedException {
 
-		IServerTask serverTask = new IServerTask() {
+		IServerTask serverTask = new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) {

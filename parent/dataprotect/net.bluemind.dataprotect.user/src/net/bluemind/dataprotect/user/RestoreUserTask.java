@@ -43,6 +43,7 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.TaskUtils;
@@ -65,7 +66,7 @@ import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
 import net.bluemind.user.persistence.UserStore;
 
-public class RestoreUserTask implements IServerTask {
+public class RestoreUserTask extends BlockingServerTask implements IServerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(RestoreUserTask.class);
 	private DataProtectGeneration backup;

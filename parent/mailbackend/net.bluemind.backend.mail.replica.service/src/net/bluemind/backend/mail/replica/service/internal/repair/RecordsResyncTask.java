@@ -29,6 +29,7 @@ import net.bluemind.core.container.api.IFlatHierarchyUids;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.imap.IMAPException;
@@ -39,7 +40,7 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
 
-public class RecordsResyncTask implements IServerTask {
+public class RecordsResyncTask extends BlockingServerTask implements IServerTask {
 
 	private BmContext context;
 	private CyrusPartition partition;

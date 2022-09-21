@@ -46,6 +46,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.ValidationResult;
@@ -262,7 +263,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 	public TaskRef delete(String uid) throws ServerFault {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_GROUP);
 
-		return context.provider().instance(ITasksManager.class).run(monitor -> {
+		return context.provider().instance(ITasksManager.class).run(m -> BlockingServerTask.run(m, monitor -> {
 			monitor.begin(2, "Deleting group " + uid + "@" + domainUid);
 
 			ParametersValidator.notNullAndNotEmpty(uid);
@@ -292,7 +293,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 			}
 
 			monitor.end(true, "Group deleted", JsonUtils.asString(""));
-		});
+		}));
 
 	}
 

@@ -26,6 +26,7 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.service.DirEntryHandler;
@@ -41,7 +42,7 @@ public class DomainABDirEntryHandler extends DirEntryHandler {
 	@Override
 	public TaskRef entryDeleted(BmContext context, String domainUid, String entryUid) throws ServerFault {
 
-		return context.provider().instance(ITasksManager.class).run(monitor -> {
+		return context.provider().instance(ITasksManager.class).run(m -> BlockingServerTask.run(m, monitor -> {
 			try {
 				context.provider().instance(IAddressBooksMgmt.class, domainUid).delete(entryUid);
 			} catch (ServerFault e) {
@@ -54,7 +55,7 @@ public class DomainABDirEntryHandler extends DirEntryHandler {
 			}
 
 			monitor.end(true, String.format("domainbook %s@%s deleted ", entryUid, domainUid), "[]");
-		});
+		}));
 	}
 
 }

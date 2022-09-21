@@ -33,6 +33,7 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
@@ -48,7 +49,7 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.role.api.BasicRoles;
 
-public class PRA implements IServerTask {
+public class PRA extends BlockingServerTask implements IServerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(LoadGenerationTask.class);
 

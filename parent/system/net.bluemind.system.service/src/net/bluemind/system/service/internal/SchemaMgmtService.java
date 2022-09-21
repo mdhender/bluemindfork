@@ -33,6 +33,7 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.utils.JsonUtils;
@@ -80,7 +81,8 @@ public class SchemaMgmtService implements ISchemaMgmt {
 
 	@Override
 	public TaskRef verify() {
-		return context.provider().instance(ITasksManager.class).run(mon -> verifyServers(mon));
+		return context.provider().instance(ITasksManager.class)
+				.run(mon -> BlockingServerTask.run(mon, monitor -> verifyServers(monitor)));
 	}
 
 	public void verifyServers(IServerTaskMonitor mon) {

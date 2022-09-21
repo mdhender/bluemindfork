@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
@@ -41,7 +42,7 @@ import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 
-public class ForgetTask implements IServerTask {
+public class ForgetTask extends BlockingServerTask implements IServerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(ForgetTask.class);
 	private final DataProtectGeneration gen;

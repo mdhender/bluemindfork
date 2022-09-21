@@ -48,6 +48,7 @@ import net.bluemind.core.container.service.internal.Permission;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
@@ -282,16 +283,20 @@ public class Directory {
 
 		logger.info("[{}] xfer to {}", entryUid, serverUid);
 
-		return context.provider().instance(ITasksManager.class).run("xfer-" + entryUid + "@" + domainUid, monitor -> {
-			try {
-				try (DirectoryXfer directoryXfer = new DirectoryXfer(context, domain, itemStore, entryUid, serverUid)) {
-					directoryXfer.doXfer(entryUid, monitor, (ItemValue<DirEntry> ivDirEntry) -> context.provider()
-							.instance(IInCoreDirectory.class, domainUid).update(ivDirEntry.uid, ivDirEntry.value));
-				}
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		});
+		return context.provider().instance(ITasksManager.class).run("xfer-" + entryUid + "@" + domainUid,
+				m -> BlockingServerTask.run(m, monitor -> {
+					try {
+						try (DirectoryXfer directoryXfer = new DirectoryXfer(context, domain, itemStore, entryUid,
+								serverUid)) {
+							directoryXfer.doXfer(entryUid, monitor,
+									(ItemValue<DirEntry> ivDirEntry) -> context.provider()
+											.instance(IInCoreDirectory.class, domainUid)
+											.update(ivDirEntry.uid, ivDirEntry.value));
+						}
+					} catch (Exception e) {
+						logger.error(e.getMessage(), e);
+					}
+				}));
 
 	}
 

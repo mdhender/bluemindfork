@@ -18,11 +18,12 @@
  */
 package net.bluemind.system.iptables;
 
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.system.iptables.tools.RulesUpdater;
 
-public class UpdateFirewallRulesTask implements IServerTask {
+public class UpdateFirewallRulesTask extends BlockingServerTask implements IServerTask {
 	@Override
 	public void run(IServerTaskMonitor monitor) throws Exception {
 		RulesUpdater.updateIptablesScript(monitor);

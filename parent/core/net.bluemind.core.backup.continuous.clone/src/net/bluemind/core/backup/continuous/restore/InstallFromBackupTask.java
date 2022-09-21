@@ -55,6 +55,7 @@ import net.bluemind.core.backup.continuous.restore.orphans.RestoreTopology.Promo
 import net.bluemind.core.backup.continuous.store.ITopicStore.IResumeToken;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.domain.api.Domain;
@@ -62,7 +63,7 @@ import net.bluemind.sds.store.ISdsSyncStore;
 import net.bluemind.system.api.CloneConfiguration;
 import net.bluemind.system.api.SystemConf;
 
-public class InstallFromBackupTask implements IServerTask {
+public class InstallFromBackupTask extends BlockingServerTask implements IServerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(InstallFromBackupTask.class);
 

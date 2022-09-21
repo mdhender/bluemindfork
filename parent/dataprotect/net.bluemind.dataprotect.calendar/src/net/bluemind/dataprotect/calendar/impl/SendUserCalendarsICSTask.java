@@ -52,6 +52,7 @@ import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.sendmail.Sendmail;
 import net.bluemind.core.sendmail.SendmailHelper;
 import net.bluemind.core.sessions.Sessions;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
@@ -60,7 +61,7 @@ import net.bluemind.dataprotect.service.BackupDataProvider;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
-public class SendUserCalendarsICSTask implements IServerTask {
+public class SendUserCalendarsICSTask extends BlockingServerTask implements IServerTask {
 	private static final Logger logger = LoggerFactory.getLogger(SendUserCalendarsICSTask.class);
 
 	private final DataProtectGeneration backup;

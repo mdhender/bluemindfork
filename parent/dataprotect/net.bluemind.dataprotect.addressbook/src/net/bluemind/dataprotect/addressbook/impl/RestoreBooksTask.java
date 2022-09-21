@@ -38,13 +38,14 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.service.BackupDataProvider;
 
-public class RestoreBooksTask implements IServerTask {
+public class RestoreBooksTask extends BlockingServerTask implements IServerTask {
 	private static final Logger logger = LoggerFactory.getLogger(RestoreBooksTask.class);
 
 	private final DataProtectGeneration backup;

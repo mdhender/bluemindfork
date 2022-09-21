@@ -38,6 +38,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
@@ -56,7 +57,7 @@ import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 
-public class LoadGenerationTask implements IServerTask {
+public class LoadGenerationTask extends BlockingServerTask implements IServerTask {
 	private static final Logger logger = LoggerFactory.getLogger(LoadGenerationTask.class);
 
 	private final PartGeneration directory;
@@ -145,10 +146,10 @@ public class LoadGenerationTask implements IServerTask {
 				allowedUids.addAll(
 						ctx.getServiceProvider().instance(IDirectory.class, ctx.getSecurityContext().getContainerUid())
 								.search(DirEntryQuery.all()).values
-										.stream().filter(e -> e.value.orgUnitPath != null)
-										.filter(e -> e.value.orgUnitPath.path().stream()
-												.anyMatch(oup -> allowedOu.contains(oup)))
-										.map(e -> e.uid).collect(Collectors.toSet()));
+								.stream().filter(e -> e.value.orgUnitPath != null)
+								.filter(e -> e.value.orgUnitPath.path().stream()
+										.anyMatch(oup -> allowedOu.contains(oup)))
+								.map(e -> e.uid).collect(Collectors.toSet()));
 			} catch (ServerFault sf) {
 				logger.error("Unable to get allowed entries UIDs for {}@{}: {}", ctx.getSecurityContext().getSubject(),
 						ctx.getSecurityContext().getContainerUid(), sf.getMessage(), sf);

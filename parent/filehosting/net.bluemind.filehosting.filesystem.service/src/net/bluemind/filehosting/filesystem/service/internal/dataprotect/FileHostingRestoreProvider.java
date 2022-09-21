@@ -33,6 +33,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
@@ -64,7 +65,7 @@ public class FileHostingRestoreProvider implements IRestoreActionProvider {
 			throws ServerFault {
 
 		ITasksManager tsk = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITasksManager.class);
-		IServerTask toRun = new IServerTask() {
+		IServerTask toRun = new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {

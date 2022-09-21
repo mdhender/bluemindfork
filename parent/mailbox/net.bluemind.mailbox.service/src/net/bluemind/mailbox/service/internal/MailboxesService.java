@@ -55,7 +55,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.service.IServerTask;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.task.service.TaskUtils;
@@ -400,7 +400,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_MAILBOX);
 
 		String tuid = String.format("mbox_checkAndRepairAll-%s", domain.uid);
-		return context.provider().instance(ITasksManager.class).run(tuid, new IServerTask() {
+		return context.provider().instance(ITasksManager.class).run(tuid, new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
@@ -416,7 +416,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_MAILBOX);
 
 		String tuid = String.format("mbox_checkAll-%s", domain.uid);
-		return context.provider().instance(ITasksManager.class).run(tuid, new IServerTask() {
+		return context.provider().instance(ITasksManager.class).run(tuid, new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
@@ -437,7 +437,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_MAILBOX);
 
 		String tuid = String.format("mbox_checkAndRepair-%s-%s", domain.uid, uid);
-		return context.provider().instance(ITasksManager.class).run(tuid, new IServerTask() {
+		return context.provider().instance(ITasksManager.class).run(tuid, new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
@@ -458,7 +458,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	public TaskRef check(String uid) throws ServerFault {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_MAILBOX);
 		String tuid = String.format("mbox_check-%s-%s", domain.uid, uid);
-		return context.provider().instance(ITasksManager.class).run(tuid, new IServerTask() {
+		return context.provider().instance(ITasksManager.class).run(tuid, new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {

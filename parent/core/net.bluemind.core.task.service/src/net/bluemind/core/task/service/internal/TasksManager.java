@@ -19,6 +19,7 @@
 package net.bluemind.core.task.service.internal;
 
 import java.util.UUID;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
@@ -146,13 +147,20 @@ public class TasksManager implements ITasksManager {
 			@Override
 			public void run() {
 				try {
-					serverTask.run(loggingMonitor);
-					loggingMonitor.end(true, "", null);
-				} catch (Throwable e) {
+					serverTask.execute(loggingMonitor).thenAccept(r -> {
+						loggingMonitor.end(true, "", null);
+						vertx.setTimer(TimeUnit.MINUTES.toMillis(10), event -> cleanupTask(task));
+					}).exceptionally(e -> {
+						String msg = e instanceof CompletionException && e.getCause() != null
+								? e.getCause().getMessage()
+								: e.getMessage();
+						logger.error("error in task {}", taskId, e);
+						loggingMonitor.end(false, msg, null);
+						return null;
+					});
+				} catch (Exception e) {
 					logger.error("error in task {}", taskId, e);
 					loggingMonitor.end(false, e.getMessage(), null);
-				} finally {
-					vertx.setTimer(TimeUnit.MINUTES.toMillis(10), event -> cleanupTask(task));
 				}
 			}
 

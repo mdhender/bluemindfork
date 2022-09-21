@@ -77,7 +77,7 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.service.IServerTask;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.validator.Validator;
@@ -649,7 +649,7 @@ public class CalendarService implements IInternalCalendar {
 	public TaskRef reset() throws ServerFault {
 		rbacManager.check(Verb.Manage.name());
 
-		return context.provider().instance(ITasksManager.class).run(new IServerTask() {
+		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {

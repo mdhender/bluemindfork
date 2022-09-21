@@ -32,6 +32,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
@@ -117,7 +118,7 @@ public class ProductChecksService implements IProductChecks {
 		results.remove(checkName);
 
 		logger.info("Trigger execution of {}", checkName);
-		return tm.run(monitor -> {
+		return tm.run(m -> BlockingServerTask.run(m, monitor -> {
 			monitor.begin(1, "Starting " + checkName + " check...");
 			MQ.init().whenComplete((v, ex) -> {
 				monitor.progress(1, "...");
@@ -129,7 +130,7 @@ public class ProductChecksService implements IProductChecks {
 				}
 
 			});
-		});
+		}));
 	}
 
 	public static class Facto implements ServerSideServiceProvider.IServerSideServiceFactory<IProductChecks> {

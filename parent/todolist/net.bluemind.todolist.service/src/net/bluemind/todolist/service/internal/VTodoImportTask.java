@@ -30,6 +30,7 @@ import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
@@ -41,7 +42,7 @@ import net.bluemind.todolist.api.VTodoChanges.ItemAdd;
 import net.bluemind.todolist.api.VTodoChanges.ItemModify;
 import net.bluemind.todolist.api.VTodoQuery;
 
-public class VTodoImportTask implements IServerTask {
+public class VTodoImportTask extends BlockingServerTask implements IServerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(VTodoImportTask.class);
 	private ITodoList todolist;

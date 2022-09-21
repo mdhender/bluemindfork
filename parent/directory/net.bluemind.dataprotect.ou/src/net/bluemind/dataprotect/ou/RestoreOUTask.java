@@ -25,6 +25,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
@@ -33,7 +34,7 @@ import net.bluemind.dataprotect.service.BackupDataProvider;
 import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.OrgUnit;
 
-public class RestoreOUTask implements IServerTask {
+public class RestoreOUTask extends BlockingServerTask implements IServerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(RestoreOUTask.class);
 

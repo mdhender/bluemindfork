@@ -44,6 +44,7 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.task.service.TaskUtils;
@@ -234,7 +235,8 @@ public class ResourcesService implements IResources {
 	@Override
 	public TaskRef delete(String uid) throws ServerFault {
 		checkManageResource(uid);
-		return context.provider().instance(ITasksManager.class).run(monitor -> performDelete(uid, monitor));
+		return context.provider().instance(ITasksManager.class)
+				.run(m -> BlockingServerTask.run(m, monitor -> performDelete(uid, monitor)));
 	}
 
 	private void performDelete(String uid, IServerTaskMonitor monitor) {

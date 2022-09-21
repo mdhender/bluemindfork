@@ -28,6 +28,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.server.api.Server;
@@ -79,12 +80,12 @@ public class LdapServerHook extends DefaultServerHook {
 
 	public TaskRef initDomainLdapTree(BmContext context, ItemValue<Server> server, ItemValue<Domain> domain,
 			String tag) {
-		return context.provider().instance(ITasksManager.class).run((monitor) -> {
+		return context.provider().instance(ITasksManager.class).run(m -> BlockingServerTask.run(m, monitor -> {
 			monitor.begin(1, "Init LDAP domain tree");
 
 			logger.info("Processing {} tags for {}", tag, server.value.address());
 			LdapExportService.build(context, server, domain).sync();
-		});
+		}));
 	}
 
 	@Override

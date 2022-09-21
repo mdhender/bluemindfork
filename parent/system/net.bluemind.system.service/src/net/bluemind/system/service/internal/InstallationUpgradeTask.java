@@ -37,6 +37,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
@@ -56,7 +57,7 @@ import net.bluemind.system.schemaupgrader.runner.SchemaUpgrade;
 import net.bluemind.system.service.UpgraderMigration;
 import net.bluemind.system.state.StateContext;
 
-public class InstallationUpgradeTask implements IServerTask {
+public class InstallationUpgradeTask extends BlockingServerTask implements IServerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(InstallationUpgradeTask.class);
 	private final DataSource pool;

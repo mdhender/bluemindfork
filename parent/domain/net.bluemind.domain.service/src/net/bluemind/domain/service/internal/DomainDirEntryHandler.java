@@ -21,6 +21,7 @@ package net.bluemind.domain.service.internal;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
@@ -36,10 +37,10 @@ public class DomainDirEntryHandler extends DirEntryHandler {
 
 	@Override
 	public TaskRef entryDeleted(BmContext context, String domainUid, String entryUid) throws ServerFault {
-		return context.provider().instance(ITasksManager.class).run(monitor -> {
+		return context.provider().instance(ITasksManager.class).run(m -> BlockingServerTask.run(m, monitor -> {
 			IDomains domains = context.provider().instance(IDomains.class);
 			domains.delete(domainUid);
-		});
+		}));
 	}
 
 }

@@ -41,6 +41,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
@@ -106,7 +107,7 @@ public final class ServerService implements IServer {
 		logger.info("create server {} : {} tags {}", uid, srv, srv.tags);
 		storeService.create(uid, getSummary(srv), srv);
 
-		return bmContext.provider().instance(ITasksManager.class).run((monitor) -> {
+		return bmContext.provider().instance(ITasksManager.class).run((m) -> BlockingServerTask.run(m, monitor -> {
 			monitor.begin(serverHooks.size() + srv.tags.size(), "create server");
 
 			ItemValue<Server> iv = ItemValue.create(Item.create(uid, null), srv);
@@ -121,7 +122,7 @@ public final class ServerService implements IServer {
 				onTag(uid, iv, tag);
 				monitor.progress(1, "tag " + tag);
 			}
-		});
+		}));
 	}
 
 	private String getSummary(Server srv) {
@@ -171,7 +172,7 @@ public final class ServerService implements IServer {
 		logger.debug("Should call hook: {}", previous);
 		// FIXME tag on update ?
 
-		return bmContext.provider().instance(ITasksManager.class).run((monitor) -> {
+		return bmContext.provider().instance(ITasksManager.class).run(m -> BlockingServerTask.run(m, monitor -> {
 			monitor.begin(serverHooks.size() + tagged.size() + untagged.size(), "update server");
 
 			for (String tag : tagged) {
@@ -184,7 +185,7 @@ public final class ServerService implements IServer {
 				hook.onServerUpdated(bmContext, previous, srv);
 			}
 
-		});
+		}));
 	}
 
 	@Override
@@ -453,7 +454,7 @@ public final class ServerService implements IServer {
 		}
 		storeService.update(uid, getSummary(updated), updated);
 
-		return bmContext.provider().instance(ITasksManager.class).run((monitor) -> {
+		return bmContext.provider().instance(ITasksManager.class).run(m -> BlockingServerTask.run(m, monitor -> {
 			monitor.begin(tagged.size() + untagged.size(), "begin updating tags");
 
 			for (String tag : tagged) {
@@ -465,7 +466,7 @@ public final class ServerService implements IServer {
 			for (IServerHook hook : serverHooks) {
 				hook.onServerUpdated(bmContext, previous, updated);
 			}
-		});
+		}));
 	}
 
 	@Override

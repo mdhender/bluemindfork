@@ -34,12 +34,13 @@ import net.bluemind.calendar.api.internal.IInternalCalendar;
 import net.bluemind.core.api.ImportStats;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.icalendar.parser.CalendarOwner;
 
-public abstract class ICSImportTask implements IServerTask {
+public abstract class ICSImportTask extends BlockingServerTask implements IServerTask {
 
 	protected final IInternalCalendar service;
 	protected final Optional<CalendarOwner> owner;

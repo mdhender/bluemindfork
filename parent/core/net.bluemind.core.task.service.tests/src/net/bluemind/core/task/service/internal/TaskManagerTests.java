@@ -47,6 +47,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -145,7 +146,7 @@ public class TaskManagerTests {
 
 		for (int i = 0; i < cnt; i++) {
 			String taskId = "tsk_" + i;
-			IServerTask serverTask = new IServerTask() {
+			IServerTask serverTask = new BlockingServerTask() {
 
 				private void logLoop(Vertx vx, IServerTaskMonitor monitor) {
 					vx.setTimer(10, tid -> {
@@ -244,6 +245,7 @@ public class TaskManagerTests {
 			} catch (InterruptedException e) {
 			}
 			monitor.progress(2, "processing...");
+			return CompletableFuture.completedFuture(null);
 		};
 		TaskRef taskRef = taskManager.run(serverTask);
 
@@ -287,7 +289,7 @@ public class TaskManagerTests {
 			} catch (InterruptedException e) {
 			}
 			monitor.progress(1, "gogo fail");
-			throw new Exception("failed");
+			return CompletableFuture.failedFuture(new Exception("failed"));
 		};
 
 		TaskRef tref = taskManager.run(serverTask);
@@ -321,6 +323,7 @@ public class TaskManagerTests {
 					subsubMonitor.progress(1, "sub [" + i + "][" + j + "]");
 				}
 			}
+			return CompletableFuture.completedFuture(null);
 		};
 
 		TaskRef tref = taskManager.run(serverTask);
@@ -358,9 +361,15 @@ public class TaskManagerTests {
 			IServerTaskMonitor subMonitor = monitor.subWork("test", 1);
 			subMonitor.begin(10, null);
 			for (int i = 0; i < 10; i++) {
-				Thread.sleep(10);
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				subMonitor.progress(1, "step " + i);
 			}
+			return CompletableFuture.completedFuture(null);
 		};
 
 		TaskRef tref = taskManager.run(serverTask);

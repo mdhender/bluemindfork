@@ -59,6 +59,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.validator.Validator;
@@ -86,7 +87,8 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 
 	@Override
 	public TaskRef reindexAll() throws ServerFault {
-		return context.provider().instance(ITasksManager.class).run(this::reindexAll);
+		return context.provider().instance(ITasksManager.class)
+				.run(m -> BlockingServerTask.run(m, monitor -> reindexAll()));
 	}
 
 	@Override
@@ -140,7 +142,13 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 
 	@Override
 	public TaskRef reindex(final String calUid) throws ServerFault {
-		return context.provider().instance(ITasksManager.class).run(monitor -> reindex(calUid, monitor));
+		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
+
+			@Override
+			protected void run(IServerTaskMonitor monitor) throws Exception {
+				reindex(calUid, monitor);
+			}
+		});
 	}
 
 	@Override

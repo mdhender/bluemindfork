@@ -40,6 +40,7 @@ import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
@@ -66,7 +67,7 @@ public class TodoListsMgmt implements ITodoListsMgmt, IInCoreTodoListsMgmt {
 
 	@Override
 	public void reindexAll(IServerTaskMonitor monitor) throws Exception {
-		reindexAllTask().run(monitor);
+		reindexAllTask().execute(monitor);
 	}
 
 	@Override
@@ -77,11 +78,11 @@ public class TodoListsMgmt implements ITodoListsMgmt, IInCoreTodoListsMgmt {
 
 	@Override
 	public void reindex(String calUid, IServerTaskMonitor monitor) throws Exception {
-		reindexTask(calUid).run(monitor);
+		reindexTask(calUid).execute(monitor);
 	}
 
 	private IServerTask reindexAllTask() {
-		return new IServerTask() {
+		return new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
@@ -110,7 +111,7 @@ public class TodoListsMgmt implements ITodoListsMgmt, IInCoreTodoListsMgmt {
 	}
 
 	private IServerTask reindexTask(final String todolistUid) {
-		return new IServerTask() {
+		return new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {

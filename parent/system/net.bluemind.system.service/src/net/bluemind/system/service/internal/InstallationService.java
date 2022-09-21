@@ -70,6 +70,7 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
@@ -207,11 +208,11 @@ public class InstallationService implements IInstallation {
 
 		logger.info("[{}] Clone impl is {}", InstallationId.getIdentifier(), impl);
 		IServerTask tsk = impl.create(conf, context.provider(), conf.sysconfOverride);
-		IServerTask wrapped = new IServerTask() {
+		IServerTask wrapped = new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
-				tsk.run(monitor);
+				tsk.execute(monitor);
 				StateContext.setState("core.cloning.end");
 				repairHollow(context.provider());
 			}
@@ -250,7 +251,13 @@ public class InstallationService implements IInstallation {
 
 	@Override
 	public TaskRef initialize() throws ServerFault {
-		return context.provider().instance(ITasksManager.class).run(this::initializeSystem);
+		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
+
+			@Override
+			protected void run(IServerTaskMonitor monitor) throws Exception {
+				initializeSystem(monitor);
+			}
+		});
 	}
 
 	private void initializeSystem(IServerTaskMonitor monitor) {
@@ -372,7 +379,8 @@ public class InstallationService implements IInstallation {
 	}
 
 	private void registerInstallationDate(ServerSideServiceProvider provider) throws Exception {
-		File ref = new File("/usr/share/bm-core/pkg_plugins").listFiles(f -> f.isFile() && f.getName().endsWith(".jar"))[0];
+		File ref = new File("/usr/share/bm-core/pkg_plugins")
+				.listFiles(f -> f.isFile() && f.getName().endsWith(".jar"))[0];
 		BasicFileAttributes attr = Files.readAttributes(ref.toPath(), BasicFileAttributes.class);
 		FileTime mTime = attr.lastModifiedTime();
 		FileTime cTime = attr.creationTime();

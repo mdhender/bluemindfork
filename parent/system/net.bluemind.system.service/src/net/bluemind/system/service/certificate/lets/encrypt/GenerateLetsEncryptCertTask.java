@@ -25,13 +25,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.hook.ISystemHook;
 import net.bluemind.utils.FileUtils;
 
-public class GenerateLetsEncryptCertTask implements IServerTask {
+public class GenerateLetsEncryptCertTask extends BlockingServerTask implements IServerTask {
 	private static final Logger logger = LoggerFactory.getLogger(GenerateLetsEncryptCertTask.class);
 
 	private final LetsEncryptCertificate letsEncryptCertificate;

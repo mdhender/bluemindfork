@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
@@ -33,7 +34,7 @@ import net.bluemind.dataprotect.service.BackupDataProvider;
 import net.bluemind.webappdata.api.IWebAppData;
 import net.bluemind.webappdata.api.IWebAppDataUids;
 
-public class RestoreWebAppDataTask implements IServerTask {
+public class RestoreWebAppDataTask extends BlockingServerTask implements IServerTask {
 	private static final Logger logger = LoggerFactory.getLogger(RestoreWebAppDataTask.class);
 
 	private final DataProtectGeneration backup;

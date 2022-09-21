@@ -23,7 +23,7 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.service.IServerTask;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -42,7 +42,7 @@ public class PostfixMgmt implements IMailDeliveryMgmt {
 			throw new ServerFault("only admin0 can regenerate postfix maps", ErrorCode.PERMISSION_DENIED);
 		}
 
-		return context.provider().instance(ITasksManager.class).run(new IServerTask() {
+		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
 
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {

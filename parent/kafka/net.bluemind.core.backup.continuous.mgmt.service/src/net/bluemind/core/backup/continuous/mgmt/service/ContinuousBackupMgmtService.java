@@ -39,6 +39,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.domain.api.Domain;
@@ -59,7 +60,14 @@ public class ContinuousBackupMgmtService implements IContinuousBackupMgmt {
 	public TaskRef syncWithStore(BackupSyncOptions opts) {
 		rbacManager.check(BasicRoles.ROLE_SYSTEM_MANAGER);
 
-		return context.provider().instance(ITasksManager.class).run(mon -> sync(mon, opts));
+		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
+
+			@Override
+			protected void run(IServerTaskMonitor monitor) throws Exception {
+				sync(monitor, opts);
+
+			}
+		});
 	}
 
 	private void sync(IServerTaskMonitor mon, BackupSyncOptions opts) {

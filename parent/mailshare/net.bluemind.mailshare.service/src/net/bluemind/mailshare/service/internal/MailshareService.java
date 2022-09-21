@@ -31,6 +31,7 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.utils.ImageUtils;
 import net.bluemind.core.utils.JsonUtils;
@@ -167,7 +168,7 @@ public class MailshareService implements IMailshare {
 	public TaskRef delete(String uid) throws ServerFault {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_MAILSHARE);
 
-		return context.provider().instance(ITasksManager.class).run(monitor -> {
+		return context.provider().instance(ITasksManager.class).run(m -> BlockingServerTask.run(m, monitor -> {
 
 			monitor.begin(2, "Deleting mailshare " + uid + "@" + domainUid);
 
@@ -190,7 +191,7 @@ public class MailshareService implements IMailshare {
 
 			monitor.end(true, "Mailshare deleted", JsonUtils.asString(""));
 
-		});
+		}));
 
 	}
 

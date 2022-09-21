@@ -18,9 +18,11 @@
  */
 package net.bluemind.core.task.service;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface IServerTask {
 
-	public void run(IServerTaskMonitor monitor) throws Exception;
+	public CompletableFuture<Void> execute(IServerTaskMonitor monitor);
 
 	default void cancel() {
 	}
