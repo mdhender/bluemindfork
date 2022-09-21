@@ -152,7 +152,10 @@ public class FetchedItemRenderer {
 		if (section.equalsIgnoreCase("header.fields")) {
 			return headers(body, f.options, rec);
 		} else if (section.equalsIgnoreCase("header")) {
-			return headers(body, Sets.newHashSet("From", "To", "Cc", "Subject", "Message-ID", "X-Bm-Event"), rec);
+			return headers(body,
+					Sets.newHashSet("From", "To", "Cc", "Subject", "Message-ID", "X-Bm-Event", "X-BM-ResourceBooking",
+							"X-BM-Event-Countered", "X-BM-Event-Canceled", "X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID"),
+					rec);
 		} else if (section.endsWith(".MIME") && partAddr(section.replace(".MIME", ""))) {
 			String part = f.section.replace(".MIME", "");
 			logger.info("Fetch mime headers of {}", part);
