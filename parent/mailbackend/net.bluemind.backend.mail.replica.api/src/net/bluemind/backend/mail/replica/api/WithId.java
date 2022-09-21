@@ -25,6 +25,10 @@ public class WithId<T> {
 	public long itemId;
 	public T value;
 
+	public WithId() {
+		// needed for Jackson
+	}
+
 	public WithId(long itemId, T value) {
 		this.itemId = itemId;
 		this.value = value;
