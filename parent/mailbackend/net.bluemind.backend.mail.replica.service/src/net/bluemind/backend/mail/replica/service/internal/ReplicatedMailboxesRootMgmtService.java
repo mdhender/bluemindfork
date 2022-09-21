@@ -51,6 +51,7 @@ import net.bluemind.backend.mail.replica.persistence.InternalConversation;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
 import net.bluemind.backend.mail.replica.service.internal.hooks.DeletedDataMementos;
+import net.bluemind.backend.mail.replica.service.internal.repair.RecordsResyncTask;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
@@ -65,6 +66,10 @@ import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.ITasksManager;
+import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
 import net.bluemind.resource.api.IResources;
@@ -223,6 +228,18 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		} else {
 			logger.warn("Owner ns: {}, mbox: {} not found.", namespace, mailboxName);
 		}
+	}
+
+	@Override
+	public TaskRef resync(String mailboxUid) {
+
+		IMailboxes mboxApi = context.provider().instance(IMailboxes.class, partition.domainUid);
+		ItemValue<Mailbox> lookup = mboxApi.getComplete(mailboxUid);
+		if (lookup == null) {
+			throw ServerFault.notFound("'" + mailboxUid + "' missing in domain " + partition.domainUid);
+		}
+		RecordsResyncTask resync = new RecordsResyncTask(context, partition, lookup);
+		return context.provider().instance(ITasksManager.class).run(resync);
 	}
 
 	private void reset(Function<Lookup, List<Container>> lookup, DataSource ds) {

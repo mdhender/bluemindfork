@@ -20,7 +20,6 @@ package net.bluemind.backend.mail.replica.api;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.core.api.BMApi;
