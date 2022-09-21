@@ -1,6 +1,7 @@
 <template>
     <div class="mail-toolbar-responsive-dropdown mail-toolbar-item">
         <bm-icon-dropdown
+            ref="icon-dropdown"
             class="d-inline-flex d-lg-none"
             variant="compact-on-fill-primary"
             size="lg"
@@ -11,6 +12,7 @@
             <slot />
         </bm-icon-dropdown>
         <bm-captioned-icon-dropdown
+            ref="captioned-icon-dropdown"
             class="d-none d-lg-inline-flex"
             v-bind="[$attrs, $props]"
             :caption="label"
@@ -39,6 +41,19 @@ export default {
         title: {
             type: String,
             default: null
+        }
+    },
+    methods: {
+        displayedDropdown() {
+            return window.getComputedStyle(this.$refs["icon-dropdown"].$el).display === "none"
+                ? this.$refs["captioned-icon-dropdown"]
+                : this.$refs["icon-dropdown"];
+        },
+        show(bvEvent) {
+            this.displayedDropdown().show(bvEvent);
+        },
+        hide(bvEvent) {
+            this.displayedDropdown().hide(bvEvent);
         }
     }
 };
