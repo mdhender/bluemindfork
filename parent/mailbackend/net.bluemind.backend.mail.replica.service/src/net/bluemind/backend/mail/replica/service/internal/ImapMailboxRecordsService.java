@@ -359,8 +359,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		}
 
 		SizedStream updatedEml = createEmlStructure(current.internalId, current.value.body.guid, newValue.body);
-		CompletableFuture<ItemChange> completion = ReplicationEvents.onRecordChanged(mailboxUniqueId,
-				current.value.imapUid);
 
 		int messageMaxSize = LocalSysconfCache.get().integerValue(SysConfKeys.message_size_limit.name(),
 				10 * 1024 * 1024);
@@ -391,15 +389,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			}
 
 		});
-		logger.info("Waiting for old imap uid {} to be updated, the new one is {}...", current.value.imapUid, appended);
-		try {
-			ItemChange change = completion.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-			return ImapAck.create(change.version, appended);
-		} catch (TimeoutException e) {
-			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
-		} catch (InterruptedException | ExecutionException e) {
-			throw new ServerFault(e);
-		}
+		ItemValue<MailboxItem> fresh = getCompleteById(current.internalId);
+		return ImapAck.create(fresh.version, appended);
 	}
 
 	private boolean isImapAddress(String address) {

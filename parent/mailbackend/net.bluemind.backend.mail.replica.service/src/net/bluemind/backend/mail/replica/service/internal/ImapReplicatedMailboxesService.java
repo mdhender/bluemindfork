@@ -237,19 +237,13 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			throw ServerFault.notFound("Folder with id " + id + " not found");
 		}
 		logger.info("Start deepDelete of {}...", toDelete);
-		CompletableFuture<?> rootPromise = imapContext.withImapClient(sc -> {
+		imapContext.withImapClient(sc -> {
 			selectInbox(sc);
-			return deleteChildFolders(toDelete, sc);
-		}).thenApply(v -> {
-			deleteById(id);
+			deleteChildFolders(toDelete, sc);
 			return null;
 		});
-		try {
-			rootPromise.get(15, TimeUnit.SECONDS);
-		} catch (Exception e) {
-			logger.warn("Failed to deep delete folder {} of container {}", id, container);
-			throw new ServerFault(e);
-		}
+
+		deleteById(id);
 	}
 
 	public void emptyFolder(long id) {
@@ -272,16 +266,14 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		logger.info("Start emptying {} (deleteChildFolders={})...", folder, deleteChildFolders);
 		imapContext.withImapClient(storeClient -> {
 			selectInbox(storeClient);
-			CompletableFuture<?> promise = deleteChildFolders ? deleteChildFolders(folder, storeClient)
-					: CompletableFuture.completedFuture(null);
-			return promise.thenCompose(v -> {
-				logger.info("On purge of '{}'", folder.value.fullName);
-				if (count.total > 0) {
-					return this.flag(storeClient, folder, Flag.DELETED, storeClient::expunge);
-				} else {
-					return CompletableFuture.completedFuture(null);
-				}
-			}).get(15, TimeUnit.SECONDS);
+			if (deleteChildFolders) {
+				deleteChildFolders(folder, storeClient);
+			}
+			logger.info("On purge of '{}'", folder.value.fullName);
+			if (count.total > 0) {
+				flag(storeClient, folder, Flag.DELETED, storeClient::expunge);
+			}
+			return null;
 		});
 	}
 
@@ -297,16 +289,15 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			logger.info("Start marking as read {}...", folder);
 			imapContext.withImapClient(storeClient -> {
 				selectInbox(storeClient);
-				return this.flag(storeClient, folder, Flag.SEEN, null).get(15, TimeUnit.SECONDS);
+				flag(storeClient, folder, Flag.SEEN, null);
+				return null;
 			});
 		} else {
 			logger.info("No item to mark as seen in folder {}", folder);
 		}
 	}
 
-	private CompletableFuture<ItemIdentifier> flag(StoreClient storeClient, ItemValue<MailboxFolder> folder, Flag flag,
-			Runnable onSuccess) {
-		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(container.uid);
+	private void flag(StoreClient storeClient, ItemValue<MailboxFolder> folder, Flag flag, Runnable onSuccess) {
 		try {
 			FlagsList flags = new FlagsList();
 			flags.add(flag);
@@ -324,12 +315,11 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 				logger.warn("Could not select folder '{}', flag {} not applied", folderName, flag);
 			}
 		} catch (IMAPException e) {
-			future.completeExceptionally(e);
+			throw new ServerFault(e);
 		}
-		return future;
 	}
 
-	private CompletableFuture<?> deleteChildFolders(ItemValue<MailboxFolder> toClean, StoreClient sc) {
+	private void deleteChildFolders(ItemValue<MailboxFolder> toClean, StoreClient sc) {
 		String childPrefix = imapPath(toClean.value) + "/";
 		ListResult allFolders = sc.listAll();
 		List<String> toRemove = allFolders.stream()//
@@ -339,20 +329,15 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 				}).map(ListInfo::getName).sorted(Comparator.reverseOrder())//
 				.collect(Collectors.toList());
 
-		CompletableFuture<?> rootPromise = CompletableFuture.completedFuture(null);
 		for (String childFolder : toRemove) {
-			rootPromise = rootPromise.thenCompose(v -> {
-				logger.info("On deletion of child folder '{}'", childFolder);
-				CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(container.uid);
-				try {
-					sc.deleteMailbox(childFolder);
-				} catch (IMAPException e) {
-					future.completeExceptionally(e);
-				}
-				return future;
-			});
+			logger.info("On deletion of child folder '{}'", childFolder);
+			try {
+				sc.deleteMailbox(childFolder);
+			} catch (IMAPException e) {
+				throw new ServerFault(e);
+			}
+
 		}
-		return rootPromise;
 	}
 
 	@Override
