@@ -581,7 +581,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
 
   handler.listen(this.getChild('toolbar').getChild('send'), goog.ui.Component.EventType.ACTION, function(e) {
     var model = this.getModel();
-    if (!model.states.draft && this.adaptor.isPublicChanges(model.old, model) && !this.adaptor.contentHasBeenModified(model.old, model)) {
+    if (!model.states.draft && this.adaptor.attendeesHasBeenModified(model.old, model)) {
       this.getChild('attendee-dialog').setVisible(true);
     } else {
       var type = net.bluemind.calendar.vevent.EventType.SEND;
