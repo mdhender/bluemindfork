@@ -74,10 +74,14 @@ export default {
 @import "~@bluemind/styleguide/css/mixins";
 
 .filtered-item .folder-item {
-    padding-left: $sp-4;
     padding-right: $sp-3;
 
+    .mail-folder-icon {
+        margin-left: $sp-6;
+    }
+
     .folder-path {
+        margin-left: $sp-4;
         display: flex;
         @extend %caption-bold;
         color: $neutral-fg-lo1;
