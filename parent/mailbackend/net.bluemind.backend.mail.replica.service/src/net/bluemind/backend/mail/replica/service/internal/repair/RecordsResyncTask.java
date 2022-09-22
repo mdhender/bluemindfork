@@ -25,10 +25,6 @@ import org.slf4j.event.Level;
 import com.google.common.hash.Hashing;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
-import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
-import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
-import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
-import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.container.api.IFlatHierarchyUids;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.DataSourceRouter;
@@ -48,11 +44,13 @@ public class RecordsResyncTask implements IServerTask {
 	private BmContext context;
 	private CyrusPartition partition;
 	private ItemValue<Mailbox> lookup;
+	private boolean setFlag;
 
-	public RecordsResyncTask(BmContext context, CyrusPartition partition, ItemValue<Mailbox> lookup) {
+	public RecordsResyncTask(BmContext context, CyrusPartition partition, ItemValue<Mailbox> lookup, boolean setFlag) {
 		this.context = context;
 		this.partition = partition;
 		this.lookup = lookup;
+		this.setFlag = setFlag;
 	}
 
 	@Override
@@ -64,31 +62,12 @@ public class RecordsResyncTask implements IServerTask {
 		final String logName = lookup.value.defaultEmail().address;
 		monitor.log("[{}] Syncing folders...", Level.INFO, logName);
 		MailboxWalk walk = MailboxWalk.create(context, lookup, partition.domainUid, server.value);
-		String subtreeUid = IMailReplicaUids.subtreeUid(partition.domainUid, lookup);
-		IDbByContainerReplicatedMailboxes foldersApi = context.provider()
-				.instance(IDbByContainerReplicatedMailboxes.class, subtreeUid);
 		walk.folders((StoreClient sc, List<ListInfo> hier) -> {
-			monitor.begin(2.0 * hier.size(), "[" + logName + "] Working on " + hier.size() + " folders.");
-
-			ListInfo lastFolder = hier.stream().filter(ListInfo::isSelectable).reduce(null, (v1, v2) -> v2);
-			ItemValue<MailboxReplica> lastProc = foldersApi.byReplicaName(lastFolder.getName());
-			IDbMailboxRecords recs = context.provider().instance(IDbMailboxRecords.class, lastProc.uid);
-			long preUpdate = recs.getVersion();
+			monitor.begin(hier.size(), "[" + logName + "] Working on " + hier.size() + " folders.");
 
 			String mboxFlag = Hashing.sipHash24().hashString(lookup.uid, StandardCharsets.UTF_8).toString();
 
-			setFlag(monitor, logName, sc, hier, mboxFlag, true);
-
-			// wait until the last folder version changes..
-			try {
-				waitFolderVersionChange(recs, preUpdate);
-			} catch (InterruptedException e1) {
-				Thread.currentThread().interrupt();
-				monitor.log("Interrupted.");
-				return;
-			}
-
-			setFlag(monitor, logName, sc, hier, mboxFlag, false);
+			setFlag(monitor, logName, sc, hier, mboxFlag, setFlag);
 
 		}, monitor);
 
@@ -97,7 +76,7 @@ public class RecordsResyncTask implements IServerTask {
 	private void setFlag(IServerTaskMonitor monitor, final String logName, StoreClient sc, List<ListInfo> hier,
 			String mboxFlag, boolean add) {
 		for (ListInfo f : hier) {
-			if (f.isSelectable()) {
+			if (f.isSelectable() && !f.getName().startsWith("Dossiers partagés/")) {
 				try {
 					resync(logName, sc, f, add, mboxFlag, monitor.subWork(1));
 				} catch (IMAPException e) {
@@ -107,12 +86,6 @@ public class RecordsResyncTask implements IServerTask {
 				monitor.progress(1, null);
 			}
 		}
-	}
-
-	private void waitFolderVersionChange(IDbMailboxRecords recs, long preUpdate) throws InterruptedException {
-		do {
-			Thread.sleep(2000);
-		} while (preUpdate == recs.getVersion());
 	}
 
 	private void resync(String logName, StoreClient sc, ListInfo f, boolean set, String mboxFlag,

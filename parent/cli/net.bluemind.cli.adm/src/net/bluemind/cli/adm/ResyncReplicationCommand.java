@@ -30,9 +30,13 @@ import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "full-replication-resync", description = "Force a resync of all IMAP folders")
 public class ResyncReplicationCommand extends SingleOrDomainOperation {
+
+	@Option(names = "--clear-flag", description = "Remove the force-replication flag")
+	public boolean clearFlag = false;
 
 	public static class Reg implements ICmdLetRegistration {
 
@@ -52,7 +56,7 @@ public class ResyncReplicationCommand extends SingleOrDomainOperation {
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
 		IReplicatedMailboxesRootMgmt replMgmt = ctx.adminApi().instance(IReplicatedMailboxesRootMgmt.class, domainUid);
 		if (!de.value.archived && !de.value.system) {
-			TaskRef task = replMgmt.resync(de.value.entryUid);
+			TaskRef task = replMgmt.resync(de.value.entryUid, !clearFlag);
 			Tasks.followStream(ctx, "", task, true).join();
 		}
 	}

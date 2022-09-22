@@ -231,14 +231,14 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 	}
 
 	@Override
-	public TaskRef resync(String mailboxUid) {
+	public TaskRef resync(String mailboxUid, Boolean setFlag) {
 
 		IMailboxes mboxApi = context.provider().instance(IMailboxes.class, partition.domainUid);
 		ItemValue<Mailbox> lookup = mboxApi.getComplete(mailboxUid);
 		if (lookup == null) {
 			throw ServerFault.notFound("'" + mailboxUid + "' missing in domain " + partition.domainUid);
 		}
-		RecordsResyncTask resync = new RecordsResyncTask(context, partition, lookup);
+		RecordsResyncTask resync = new RecordsResyncTask(context, partition, lookup, Boolean.TRUE.equals(setFlag));
 		return context.provider().instance(ITasksManager.class).run(resync);
 	}
 
