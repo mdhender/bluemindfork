@@ -23,6 +23,10 @@
             impl="net.bluemind.cli.calendar.AuditLogCommand$Reg"
             priority="400">
       </registration>
+      <registration
+            impl="net.bluemind.cli.calendar.DeleteEventsByOrganizerCommand$Reg"
+            priority="400">
+      </registration>
       
 
    </extension>
