@@ -23,6 +23,7 @@
 package net.bluemind.lib.vertx.utils;
 
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.MessageProducer;
 
 /**
  * Publish events on the Vert.x event bus in a <i>debounce-like</i> way.
@@ -31,46 +32,28 @@ import io.vertx.core.eventbus.EventBus;
  */
 public class DebouncedEventPublisher {
 
-	private final Debouncer<String, PayLoad> debouncer;
+	private final Debouncer<Object> debouncer;
 
 	/**
 	 * 
 	 * {@link DebouncedEventPublisher} with <code>noDebounceFirstMode=true</code>
 	 * 
+	 * @param address
 	 * @param eventBus
 	 * @param debounceTimeMillis
 	 */
-	public DebouncedEventPublisher(EventBus eventBus, int debounceTimeMillis) {
-		this(eventBus, debounceTimeMillis, true);
+	public DebouncedEventPublisher(String address, EventBus eventBus, int debounceTimeMillis) {
+		this(address, eventBus, debounceTimeMillis, true);
 	}
 
-	public DebouncedEventPublisher(EventBus eventBus, int debounceTimeMillis, boolean noDebounceFirstMode) {
-		this.debouncer = new Debouncer<>(//
-				(String key, PayLoad payload) -> eventBus.publish(payload.getAddress(), payload.getMessage()), //
-				debounceTimeMillis, noDebounceFirstMode);
+	public DebouncedEventPublisher(String address, EventBus eventBus, int debounceTimeMillis,
+			boolean noDebounceFirstMode) {
+		MessageProducer<Object> publisher = eventBus.publisher(address);
+		this.debouncer = new Debouncer<>(publisher::write, debounceTimeMillis, noDebounceFirstMode);
 	}
 
-	public void publish(String address, Object message, String debounceKey) {
-		final PayLoad payLoad = new PayLoad(address, message);
-		this.debouncer.call(address, payLoad);
-	}
-
-	private class PayLoad {
-		private final String address;
-		private final Object message;
-
-		public PayLoad(String address, Object message) {
-			this.address = address;
-			this.message = message;
-		}
-
-		public String getAddress() {
-			return address;
-		}
-
-		public Object getMessage() {
-			return message;
-		}
+	public void publish(Object message) {
+		this.debouncer.call(message);
 	}
 
 }

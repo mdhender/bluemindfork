@@ -89,13 +89,13 @@ public class DebouncedEventPublisherTests {
 			}
 		});
 
-		final DebouncedEventPublisher debouncedEventPublisher = new DebouncedEventPublisher(VertxPlatform.eventBus(),
-				debounceGracePeriod);
+		final DebouncedEventPublisher debouncedEventPublisher = new DebouncedEventPublisher(address,
+				VertxPlatform.eventBus(), debounceGracePeriod);
 
 		for (int i = 0; i < maxSuccesiveCalls; i++) {
 			final JsonObject message = new JsonObject();
 			message.put(myPropKey, myPropValuePrefix + i);
-			debouncedEventPublisher.publish(address, message, containerUid);
+			debouncedEventPublisher.publish(message);
 			try {
 				Thread.sleep(delayBetweenEvents);
 			} catch (InterruptedException e) {

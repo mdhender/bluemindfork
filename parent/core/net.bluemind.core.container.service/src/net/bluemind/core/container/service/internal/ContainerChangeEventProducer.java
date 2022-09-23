@@ -36,20 +36,19 @@ public class ContainerChangeEventProducer {
 
 	private static final int DEBOUNCE_TIME_MILLIS = 500;
 	private DebouncedEventPublisher debouncedEventPublisher;
-	private JsonObject message;
-	private String address;
+	private final JsonObject message;
 
 	public ContainerChangeEventProducer(final SecurityContext securityContext, final EventBus eventBus,
 			final Container container) {
 		final String loginAtDomain = securityContext.getSubject();
-		this.address = String.format("bm.%s.hook.%s.changed", container.type, container.uid);
+		String address = String.format("bm.%s.hook.%s.changed", container.type, container.uid);
 		this.message = new JsonObject();
 		message.put("loginAtDomain", loginAtDomain);
-		debouncedEventPublisher = new DebouncedEventPublisher(eventBus, DEBOUNCE_TIME_MILLIS);
+		debouncedEventPublisher = new DebouncedEventPublisher(address, eventBus, DEBOUNCE_TIME_MILLIS);
 	}
 
 	public void produceEvent() {
-		this.debouncedEventPublisher.publish(this.address, this.message, this.address);
+		this.debouncedEventPublisher.publish(this.message);
 	}
 
 }

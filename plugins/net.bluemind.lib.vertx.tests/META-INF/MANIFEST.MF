@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.vertx.common;bundle-version="1.0.0",
  io.netty;bundle-version="4.0.33",
  slf4j.api,
- net.bluemind.vertx.testhelper
+ net.bluemind.vertx.testhelper,
+ com.google.guava
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Export-Package: net.bluemind.lib.vertx.tests

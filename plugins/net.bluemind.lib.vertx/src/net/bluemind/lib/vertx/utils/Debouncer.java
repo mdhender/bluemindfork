@@ -22,10 +22,11 @@
  */
 package net.bluemind.lib.vertx.utils;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
-import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 /**
@@ -37,11 +38,13 @@ import net.bluemind.lib.vertx.VertxPlatform;
  * @see https://stackoverflow.com/questions/4742210/implementing-debounce-in-java
  * @see http://reactivex.io/documentation/operators/debounce.html
  */
-public class Debouncer<KEY, PAYLOAD> {
-	private final ConcurrentHashMap<KEY, DebouncerTask> tasks = new ConcurrentHashMap<KEY, DebouncerTask>();
-	private final BiConsumer<KEY, PAYLOAD> consumer;
+public class Debouncer<P> {
+
+	private final Consumer<P> consumer;
 	private final int interval;
 	private final boolean noDebounceFirst;
+	private final AtomicReference<Long> lastTimer;
+	private final Vertx vertx;
 
 	/**
 	 * @param consumer        the code to execute in a <i>debounce</i> way
@@ -50,10 +53,12 @@ public class Debouncer<KEY, PAYLOAD> {
 	 *                        grace period. It violates the <i>real debounce</i>
 	 *                        pattern but may be useful in some cases.
 	 */
-	public Debouncer(final BiConsumer<KEY, PAYLOAD> consumer, final int interval, final boolean noDebounceFirst) {
+	public Debouncer(Consumer<P> consumer, final int interval, final boolean noDebounceFirst) {
 		this.consumer = consumer;
 		this.interval = interval;
 		this.noDebounceFirst = noDebounceFirst;
+		this.lastTimer = new AtomicReference<>();
+		this.vertx = VertxPlatform.getVertx();
 	}
 
 	/**
@@ -62,77 +67,27 @@ public class Debouncer<KEY, PAYLOAD> {
 	 * with that key has been done within {@link #interval} milliseconds then
 	 * execute the last call.
 	 */
-	public void call(final KEY key, final PAYLOAD payload) {
-		final DebouncerTask debounceTask = new DebouncerTask(this.consumer, key, payload);
-		final DebouncerTask previousDebounceTask = this.tasks.remove(key);
-		final int actualInterval;
-		if (previousDebounceTask != null) {
-			this.cancelTask(previousDebounceTask);
+	public void call(P payload) {
+		int actualInterval;
+		Long lastVal = lastTimer.get();
+		if (lastVal != null) {
+			vertx.cancelTimer(lastVal);
 			actualInterval = interval;
 		} else {
-			actualInterval = this.noDebounceFirst ? 0 : interval;
+			actualInterval = noDebounceFirst ? 0 : interval;
 		}
-		this.tasks.put(key, debounceTask);
-		this.launchTask(actualInterval, debounceTask);
+		launchTask(actualInterval, payload);
 	}
 
-	private void launchTask(final int delay, final DebouncerTask debouncerTask) {
-		this.launchTask(delay, debouncerTask, debouncerTask);
-	}
-
-	private void launchTask(final int delay, final Handler<Long> handler, final DebouncerTask debouncerTask) {
+	private void launchTask(final int delay, P payload) {
 		if (delay > 0) {
-			// note: vertx.setTimer does not handle a 0ms delay
-			debouncerTask.setTimerId(VertxPlatform.getVertx().setTimer(delay, handler));
+			lastTimer.set(vertx.setTimer(delay, tid -> {
+				consumer.accept(payload);
+				lastTimer.set(null);
+			}));
 		} else {
-			final long id = -1L;
-			debouncerTask.setTimerId(id);
-			handler.handle(id);
-		}
-	}
+			lastTimer.set(vertx.setTimer(1, tid -> consumer.accept(payload)));
 
-	private void cancelTask(final DebouncerTask debouncerTask) {
-		final long timerId = debouncerTask.getTimerId();
-		if (timerId > -1) {
-			VertxPlatform.getVertx().cancelTimer(timerId);
-		}
-	}
-
-	/**
-	 * Special task for {@link Debouncer}. A {@link Handler} that calls a
-	 * {@link BiConsumer} if not aborted.
-	 */
-	private class DebouncerTask implements Handler<Long> {
-		private final BiConsumer<KEY, PAYLOAD> consumer;
-		private final KEY key;
-		private final PAYLOAD payload;
-		private long timerId;
-
-		public DebouncerTask(final BiConsumer<KEY, PAYLOAD> consumer, final KEY key, final PAYLOAD payload) {
-			this.consumer = consumer;
-			this.key = key;
-			this.payload = payload;
-		}
-
-		public void setTimerId(long timerId) {
-			this.timerId = timerId;
-		}
-
-		public long getTimerId() {
-			return timerId;
-		}
-
-		@Override
-		public void handle(Long event) {
-			this.consumer.accept(this.key, this.payload);
-			final int actualInterval = noDebounceFirst ? interval : 0;
-			launchTask(actualInterval, new Handler<Long>() {
-
-				@Override
-				public void handle(Long event) {
-					tasks.remove(key);
-				}
-			}, this);
 		}
 	}
 
