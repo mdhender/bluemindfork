@@ -1046,7 +1046,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
    
   <div
     aria-label=""
-    class="mail-toolbar-responsive-dropdown mail-toolbar-item mail-toolbar-consult-message-other-actions"
+    class="mail-toolbar-responsive-dropdown mail-toolbar-item mail-toolbar-consult-message-other-actions h-100"
     no-caret=""
     right=""
     toggle-class="btn-lg-simple-neutral"
@@ -1193,6 +1193,84 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
               
         
     
+            </div>
+             
+            <!---->
+          </a>
+        </li>
+         
+        <li
+          role="presentation"
+        >
+          <a
+            class="dropdown-item"
+            href="#"
+            icon="code"
+            role="menuitem"
+            target="_self"
+          >
+            <svg
+              aria-hidden="true"
+              class="bm-icon svg-inline--fa fa-code fa-w-16 fa-fw fa-md"
+              data-icon="code"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              viewBox="0 0 12 12"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                class=""
+                d="M 6.9960937,0.70018204 C 6.787298,0.70541164 6.5917566,0.82284024 6.5390625,1.0966664 L 4.4570312,10.465807 C 4.1631455,11.141451 5.32041,11.516331 5.4609375,10.786119 L 7.5429687,1.418932 C 7.726651,0.99665264 7.3440865,0.69146604 6.9960937,0.70018204 Z M 8.6289062,2.7822133 C 8.2197355,2.7867784 7.8916999,3.3343977 8.2558593,3.684557 L 10.513672,5.9423695 C 9.7416326,6.7244051 8.9482897,7.4862859 8.1894531,8.2802602 7.790488,8.851825 8.7326287,9.4312738 9.0898437,8.8525258 L 12,5.9423695 C 10.970189,4.9224777 9.9597052,3.8807139 8.9179687,2.8740102 8.8222768,2.807945 8.7233302,2.7811598 8.6289062,2.7822133 Z M 3.3574218,2.793932 C 3.1902436,2.7843805 3.0217926,2.8513507 2.9101562,3.0322133 L 0,5.9423695 C 1.0297952,6.9622466 2.040309,8.0020888 3.0820312,9.0087758 3.5923586,9.361117 4.1923464,8.6291881 3.7441406,8.1982289 L 1.4863281,5.9423695 C 2.2583778,5.1603325 3.0517045,4.3965055 3.8105468,3.6025258 4.0848415,3.2095665 3.725214,2.8149454 3.3574218,2.793932 Z"
+                fill="currentColor"
+              />
+            </svg>
+             
+            <div
+              class="dropdown-item-content"
+            >
+              
+            
+        
+            </div>
+             
+            <!---->
+          </a>
+        </li>
+         
+        <li
+          role="presentation"
+        >
+          <a
+            class="dropdown-item"
+            href="#"
+            icon="download"
+            role="menuitem"
+            target="_self"
+          >
+            <svg
+              aria-hidden="true"
+              class="bm-icon svg-inline--fa fa-download fa-w-16 fa-fw fa-md"
+              data-icon="download"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              viewBox="0 0 12 12"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                class=""
+                d="M6.5 6.29289L8.14645 4.64645C8.34171 4.45118 8.65829 4.45118 8.85355 4.64645C9.04882 4.84171 9.04882 5.15829 8.85355 5.35355L6 8.20711L3.14645 5.35355C2.95118 5.15829 2.95118 4.84171 3.14645 4.64645C3.34171 4.45118 3.65829 4.45118 3.85355 4.64645L5.5 6.29289V1.5C5.5 1.22386 5.72386 1 6 1C6.27614 1 6.5 1.22386 6.5 1.5V6.29289Z M2.5 7C2.77614 7 3 7.22386 3 7.5V9H9V7.5C9 7.22386 9.22386 7 9.5 7C9.77614 7 10 7.22386 10 7.5V9.5C10 9.77614 9.77614 10 9.5 10H2.5C2.22386 10 2 9.77614 2 9.5V7.5C2 7.22386 2.22386 7 2.5 7Z"
+                fill="currentColor"
+              />
+            </svg>
+             
+            <div
+              class="dropdown-item-content"
+            >
+              
+            
+        
             </div>
              
             <!---->
@@ -1350,6 +1428,84 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
               
         
     
+            </div>
+             
+            <!---->
+          </a>
+        </li>
+         
+        <li
+          role="presentation"
+        >
+          <a
+            class="dropdown-item"
+            href="#"
+            icon="code"
+            role="menuitem"
+            target="_self"
+          >
+            <svg
+              aria-hidden="true"
+              class="bm-icon svg-inline--fa fa-code fa-w-16 fa-fw fa-md"
+              data-icon="code"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              viewBox="0 0 12 12"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                class=""
+                d="M 6.9960937,0.70018204 C 6.787298,0.70541164 6.5917566,0.82284024 6.5390625,1.0966664 L 4.4570312,10.465807 C 4.1631455,11.141451 5.32041,11.516331 5.4609375,10.786119 L 7.5429687,1.418932 C 7.726651,0.99665264 7.3440865,0.69146604 6.9960937,0.70018204 Z M 8.6289062,2.7822133 C 8.2197355,2.7867784 7.8916999,3.3343977 8.2558593,3.684557 L 10.513672,5.9423695 C 9.7416326,6.7244051 8.9482897,7.4862859 8.1894531,8.2802602 7.790488,8.851825 8.7326287,9.4312738 9.0898437,8.8525258 L 12,5.9423695 C 10.970189,4.9224777 9.9597052,3.8807139 8.9179687,2.8740102 8.8222768,2.807945 8.7233302,2.7811598 8.6289062,2.7822133 Z M 3.3574218,2.793932 C 3.1902436,2.7843805 3.0217926,2.8513507 2.9101562,3.0322133 L 0,5.9423695 C 1.0297952,6.9622466 2.040309,8.0020888 3.0820312,9.0087758 3.5923586,9.361117 4.1923464,8.6291881 3.7441406,8.1982289 L 1.4863281,5.9423695 C 2.2583778,5.1603325 3.0517045,4.3965055 3.8105468,3.6025258 4.0848415,3.2095665 3.725214,2.8149454 3.3574218,2.793932 Z"
+                fill="currentColor"
+              />
+            </svg>
+             
+            <div
+              class="dropdown-item-content"
+            >
+              
+            
+        
+            </div>
+             
+            <!---->
+          </a>
+        </li>
+         
+        <li
+          role="presentation"
+        >
+          <a
+            class="dropdown-item"
+            href="#"
+            icon="download"
+            role="menuitem"
+            target="_self"
+          >
+            <svg
+              aria-hidden="true"
+              class="bm-icon svg-inline--fa fa-download fa-w-16 fa-fw fa-md"
+              data-icon="download"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              viewBox="0 0 12 12"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                class=""
+                d="M6.5 6.29289L8.14645 4.64645C8.34171 4.45118 8.65829 4.45118 8.85355 4.64645C9.04882 4.84171 9.04882 5.15829 8.85355 5.35355L6 8.20711L3.14645 5.35355C2.95118 5.15829 2.95118 4.84171 3.14645 4.64645C3.34171 4.45118 3.65829 4.45118 3.85355 4.64645L5.5 6.29289V1.5C5.5 1.22386 5.72386 1 6 1C6.27614 1 6.5 1.22386 6.5 1.5V6.29289Z M2.5 7C2.77614 7 3 7.22386 3 7.5V9H9V7.5C9 7.22386 9.22386 7 9.5 7C9.77614 7 10 7.22386 10 7.5V9.5C10 9.77614 9.77614 10 9.5 10H2.5C2.22386 10 2 9.77614 2 9.5V7.5C2 7.22386 2.22386 7 2.5 7Z"
+                fill="currentColor"
+              />
+            </svg>
+             
+            <div
+              class="dropdown-item-content"
+            >
+              
+            
+        
             </div>
              
             <!---->

@@ -3,7 +3,7 @@
         :aria-label="$tc('mail.toolbar.more.aria')"
         :title="$tc('mail.toolbar.more.aria')"
         toggle-class="btn-lg-simple-neutral"
-        class="mail-toolbar-consult-message-other-actions"
+        class="mail-toolbar-consult-message-other-actions h-100"
         icon="3dots"
         :label="$tc('mail.toolbar.more')"
         no-caret
@@ -45,6 +45,14 @@
         <bm-dropdown-item :shortcut="$t('mail.shortcuts.purge')" :title="removeAriaText()" @click="remove()">
             {{ $t("mail.actions.purge") }}
         </bm-dropdown-item>
+        <template v-if="selectionLength === 1">
+            <bm-dropdown-item icon="code" @click.stop="showSource(lastMessage)">
+                {{ $t("mail.actions.show_source") }}
+            </bm-dropdown-item>
+            <bm-dropdown-item icon="download" @click.stop="downloadEml(lastMessage)">
+                {{ $t("mail.actions.download_eml") }}
+            </bm-dropdown-item>
+        </template>
     </mail-toolbar-responsive-dropdown>
 </template>
 
@@ -52,7 +60,15 @@
 import { mapGetters, mapMutations, mapState } from "vuex";
 import { BmDropdownItem, BmIcon } from "@bluemind/styleguide";
 import { messageUtils } from "@bluemind/mail";
-import { ActionTextMixin, RemoveMixin, SelectionMixin, FlagMixin, PrintMixin, MailRoutesMixin } from "~/mixins";
+import {
+    ActionTextMixin,
+    EmlMixin,
+    FlagMixin,
+    MailRoutesMixin,
+    PrintMixin,
+    RemoveMixin,
+    SelectionMixin
+} from "~/mixins";
 import { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES } from "~/getters";
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
 import MessagePathParam from "~/router/MessagePathParam";
@@ -66,7 +82,7 @@ export default {
     name: "MailToolbarSelectedConversationsOtherActions",
     // eslint-disable-next-line vue/no-unused-components
     components: { BmDropdownItem, BmIcon, MailToolbarResponsiveDropdown, MailMessagePrint, MailOpenInPopupWithShift },
-    mixins: [ActionTextMixin, RemoveMixin, FlagMixin, PrintMixin, SelectionMixin, MailRoutesMixin],
+    mixins: [ActionTextMixin, EmlMixin, FlagMixin, MailRoutesMixin, PrintMixin, RemoveMixin, SelectionMixin],
     computed: {
         ...mapGetters("mail", { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES }),
         ...mapState("mail", { messages: state => state.conversations.messages }),
@@ -98,6 +114,13 @@ export default {
                 return this.CURRENT_CONVERSATION_METADATA.subject;
             }
             return "";
+        },
+        lastMessage() {
+            if (this.selectionLength === 1) {
+                const messageKeys = this.CURRENT_CONVERSATION_METADATA.messages;
+                return this.messages[messageKeys[messageKeys.length - 1]];
+            }
+            return null;
         },
         modifyTemplateRoute() {
             if (this.isTemplate) {

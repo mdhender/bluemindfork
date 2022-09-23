@@ -67,6 +67,12 @@
                     {{ action.label }}
                 </bm-dropdown-item>
             </mail-open-in-popup>
+            <bm-dropdown-item icon="code" @click.stop="showSource(message)">
+                {{ $t("mail.actions.show_source") }}
+            </bm-dropdown-item>
+            <bm-dropdown-item icon="download" @click.stop="downloadEml(message)">
+                {{ $t("mail.actions.download_eml") }}
+            </bm-dropdown-item>
         </bm-icon-dropdown>
         <choose-folder-modal
             ref="move-modal"
@@ -86,7 +92,7 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 import { Flag } from "@bluemind/email";
 import { BmIconDropdown, BmDropdownItem } from "@bluemind/styleguide";
 import { messageUtils, folderUtils } from "@bluemind/mail";
-import { RemoveMixin, MoveMixin, PrintMixin, MailRoutesMixin } from "~/mixins";
+import { EmlMixin, RemoveMixin, MoveMixin, PrintMixin, MailRoutesMixin } from "~/mixins";
 import {
     MARK_MESSAGE_AS_FLAGGED,
     MARK_MESSAGE_AS_READ,
@@ -115,7 +121,7 @@ export default {
         // eslint-disable-next-line vue/no-unused-components
         MailMessagePrint
     },
-    mixins: [RemoveMixin, MoveMixin, PrintMixin, MailRoutesMixin],
+    mixins: [EmlMixin, RemoveMixin, MoveMixin, PrintMixin, MailRoutesMixin],
     props: {
         message: {
             type: Object,

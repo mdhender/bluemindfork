@@ -72,6 +72,9 @@ export default {
             }
         });
         return filteredResults;
+    },
+    fetchComplete(message) {
+        return api(message.folderRef.uid).fetchComplete(message.remoteRef.imapUid);
     }
 };
 

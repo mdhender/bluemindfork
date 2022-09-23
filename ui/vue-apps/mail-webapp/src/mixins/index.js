@@ -5,6 +5,7 @@ export { default as ComposerMixin } from "./ComposerMixin";
 export { default as ComposerInitMixin } from "./ComposerInitMixin";
 export { default as DraftMixin } from "./DraftMixin";
 export { default as EditRecipientsMixin } from "./EditRecipientsMixin";
+export { default as EmlMixin } from "./EmlMixin";
 export { default as FilterFolderMixin } from "./FilterFolderMixin";
 export { default as FlagMixin } from "./FlagMixin";
 export { default as FolderMixin } from "./FolderMixin";
