@@ -11,7 +11,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.    
  *
  * See LICENSE.txt
  * END LICENSE
@@ -24,8 +24,11 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Sets;
 
 import net.bluemind.directory.hollow.datamodel.AddressBookRecord;
 import net.bluemind.directory.hollow.datamodel.AnrToken;
@@ -39,13 +42,18 @@ public class AnrTokens extends EdgeNgram<AnrToken> {
 
 	private static final Splitter EMAIL_CHUNKS = Splitter.on(CharMatcher.anyOf(".-")).omitEmptyStrings();
 	private static final Splitter DN_CHUNKS = Splitter.on(CharMatcher.whitespace()).omitEmptyStrings();
+	private static final Joiner DN_JOINER = Joiner.on(" ");
 
 	public List<AnrToken> compute(AddressBookRecord rec) {
 		Set<AnrToken> tokens = new HashSet<>();
 		if (!Strings.isNullOrEmpty(rec.name)) {
-			for (String chunk : DN_CHUNKS.split(rec.name)) {
+			Set<String> set = Sets.newHashSet(DN_CHUNKS.split(rec.name));
+			set.forEach(chunk -> {
 				tokens.addAll(new AnrTokens().compute(chunk));
-			}
+			});
+			Collections2.permutations(set).forEach(permutation -> {
+				tokens.add(map(DN_JOINER.join(permutation)));
+			});
 		}
 		if (!Strings.isNullOrEmpty(rec.email)) {
 			tokens.add(map(rec.email.toLowerCase()));

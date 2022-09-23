@@ -254,6 +254,13 @@ public class ProducerTests {
 		assertEquals(1, ret.size());
 		assertEquals("external user1", ret.iterator().next().getName());
 
+		ret = search.byNameOrEmailPrefix("external user1");
+		assertEquals(1, ret.size());
+		assertEquals("external user1", ret.iterator().next().getName());
+
+		ret = search.byNameOrEmailPrefix("user1 external");
+		assertEquals(1, ret.size());
+		assertEquals("external user1", ret.iterator().next().getName());
 	}
 
 	@Test
