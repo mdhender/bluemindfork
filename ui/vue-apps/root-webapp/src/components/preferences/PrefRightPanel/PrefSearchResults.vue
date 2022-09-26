@@ -158,7 +158,7 @@ function parseNodeAndHighlight(node, search) {
         margin-top: $pref-entry-name-padding-top + math.div($h3-line-height - $section-icon-size, 2);
     }
     .bm-button-expand {
-        margin-top: $pref-entry-name-padding-top + math.div($h3-line-height - $icon-btn-height-lg, 2);
+        margin-top: $pref-entry-name-padding-top + math.div($h3-line-height - $icon-btn-height, 2);
     }
 
     .search-pattern {
