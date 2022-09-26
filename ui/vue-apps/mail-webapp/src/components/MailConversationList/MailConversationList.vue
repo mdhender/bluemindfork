@@ -1,5 +1,5 @@
 <template>
-    <div class="pl-lg-2 px-0 d-lg-block mail-conversation-list-wrapper" :style="mailConversationListWidth">
+    <div class="px-0 d-lg-block mail-conversation-list-wrapper" :style="mailConversationListWidth">
         <section
             :aria-label="$t('mail.application.region.messagelist')"
             class="mail-conversation-list d-flex flex-column h-100"
