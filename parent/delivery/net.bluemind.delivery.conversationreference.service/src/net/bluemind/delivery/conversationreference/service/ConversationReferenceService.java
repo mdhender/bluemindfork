@@ -81,7 +81,7 @@ public class ConversationReferenceService implements IConversationReference {
 		long messageIdHash = hf.hashBytes(messageId.getBytes()).asLong();
 		long returnedConversationId;
 
-		List<Long> referencesHash = references.stream().map(s -> hf.hashBytes(s.getBytes()).asLong())
+		List<Long> referencesHash = references.stream().map(s -> hf.hashBytes(s.getBytes()).asLong()).limit(32)
 				.collect(Collectors.toList());
 		referencesHash.add(messageIdHash);
 		ConversationReference returnedConversationReference;

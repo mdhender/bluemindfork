@@ -3,13 +3,17 @@ CREATE TABLE t_conversationreference (
   message_id_hash bigint NOT NULL,
   mailbox_id integer NOT NULL,
   conversation_id bigint NOT NULL,
+  created timestamp without time zone default now(),
   UNIQUE(mailbox_id, message_id_hash)
 ) PARTITION BY HASH (mailbox_id);
 
 CREATE INDEX
-  idx_t_conversationserviceview_mailbox_id_message_id_hash
+  idx_t_conversationreference_mailbox_id_message_id_hash
   ON t_conversationreference(mailbox_id, message_id_hash)
   INCLUDE(conversation_id);
+CREATE INDEX
+  idx_t_conversationreference_date
+  ON t_conversationreference(created);
 
 DO LANGUAGE plpgsql
 $$
