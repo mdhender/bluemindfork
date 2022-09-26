@@ -21,6 +21,8 @@ set -e
 BASEDIR=$(dirname $0)
 BM_ROOT=$BASEDIR/..
 
+. ${BASEDIR}/java.sh
+
 BM_VERSION=""
 PUBLISH_NPM="false"
 TRIGGER_SONAR="false"
