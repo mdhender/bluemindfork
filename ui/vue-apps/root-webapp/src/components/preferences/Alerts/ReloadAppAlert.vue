@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="reload-app-alert">
         {{ $t("alert.preferences.reload_app.warning") }}
         <bm-button variant="link" @click="reloadApp()">{{ $t("common.reload_now") }}</bm-button>
     </div>
@@ -18,3 +18,12 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.reload-app-alert {
+    display: flex;
+    gap: $sp-4;
+}
+</style>
