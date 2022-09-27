@@ -31,7 +31,7 @@
             </web-filter>
       </extension>
       <extension point="webapp.banner">
-            <application description="%banner-entry.description" href="/cal/" name="%banner-entry.name" priority="64" shortcut="true" role="hasCalendar" help="https://doc.bluemind.net/master/category/lagenda">
+            <application description="%banner-entry.description" href="/cal/" name="%banner-entry.name" priority="64" shortcut="true" role="hasCalendar" help="https://doc.bluemind.net/release/5.0/category/lagenda">
                   <icon>
                         <svg>
                         <![CDATA[

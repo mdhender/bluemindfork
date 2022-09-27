@@ -18,7 +18,7 @@ export default {
     data() {
         return {
             readMore:
-                "https://doc.bluemind.net/master/Guide_de_l_utilisateur/La_messagerie/Consulter_les_messages#g%C3%A9rer-les-images-distantes"
+                "https://doc.bluemind.net/release/5.0/Guide_de_l_utilisateur/La_messagerie/Consulter_les_messages#g%C3%A9rer-les-images-distantes"
         };
     }
 };

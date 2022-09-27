@@ -36,7 +36,7 @@ export default {
         return {
             containerType: ContainerType.CALENDAR,
             readMore: {
-                href: "https://doc.bluemind.net/master/Guide_de_l_utilisateur/L_agenda/Utiliser_un_calendrier_partage",
+                href: "https://doc.bluemind.net/release/5.0/Guide_de_l_utilisateur/L_agenda/Utiliser_un_calendrier_partage",
                 text: this.$t("preferences.display_containers.other_calendars.read_more")
             }
         };
