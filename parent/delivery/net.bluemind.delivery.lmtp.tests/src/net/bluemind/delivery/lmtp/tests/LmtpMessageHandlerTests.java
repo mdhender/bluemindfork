@@ -143,10 +143,10 @@ public class LmtpMessageHandlerTests {
 	}
 
 	@Test
-	public void testSavedMailwithoutReference() throws Exception {
+	public void testSavedMailEmptyReferences() throws Exception {
 		ApiProv prov = k -> context.getServiceProvider();
 		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov);
-		messageHandler.deliver(emailUser1, emailUser2, eml("emls/test_mail_bad_references.eml"));
+		messageHandler.deliver(emailUser1, emailUser2, eml("emls/test_mail_empty_references.eml"));
 
 		ResolvedBox tgtBox = lookup.lookupEmail(emailUser2);
 		Assert.assertNotNull(tgtBox);
@@ -160,7 +160,38 @@ public class LmtpMessageHandlerTests {
 		IDbMailboxRecords recs = systemServiceProvider().instance(IDbMailboxRecords.class, rootFolder.uid);
 		ItemValue<MailboxRecord> mail = recs.getCompleteByImapUid(1L);
 		Assert.assertNotNull(mail);
-		Assert.assertNotEquals(conversation2Id, (long) mail.value.conversationId);
+
+		HashFunction hf = Hashing.sipHash24();
+		long hashMessageId = hf.hashBytes("<Mime4j.ef.c5b5639c1d64b749.1839c9130e9@mapi.bluemind.net>".getBytes())
+				.asLong();
+
+		Assert.assertEquals(hashMessageId, (long) mail.value.conversationId);
+	}
+
+	@Test
+	public void testSavedMailNoReferences() throws Exception {
+		ApiProv prov = k -> context.getServiceProvider();
+		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov);
+		messageHandler.deliver(emailUser1, emailUser2, eml("emls/test_mail_no_references.eml"));
+
+		ResolvedBox tgtBox = lookup.lookupEmail(emailUser2);
+		Assert.assertNotNull(tgtBox);
+		String subtree = IMailReplicaUids.subtreeUid(tgtBox.dom.uid, tgtBox.mbox);
+		IDbReplicatedMailboxes treeApi = systemServiceProvider().instance(IDbByContainerReplicatedMailboxes.class,
+				subtree);
+		Assert.assertNotNull(treeApi);
+		ItemValue<MailboxReplica> rootFolder = treeApi
+				.byReplicaName(tgtBox.mbox.value.type.sharedNs ? tgtBox.mbox.value.name : "INBOX");
+		Assert.assertNotNull(rootFolder);
+		IDbMailboxRecords recs = systemServiceProvider().instance(IDbMailboxRecords.class, rootFolder.uid);
+		ItemValue<MailboxRecord> mail = recs.getCompleteByImapUid(1L);
+		Assert.assertNotNull(mail);
+
+		HashFunction hf = Hashing.sipHash24();
+		long hashMessageId = hf.hashBytes("<Mime4j.ef.c5b5639c1d64b749.1839c9130e9@mapi.bluemind.net>".getBytes())
+				.asLong();
+
+		Assert.assertEquals(hashMessageId, (long) mail.value.conversationId);
 	}
 
 	protected IServiceProvider systemServiceProvider() {

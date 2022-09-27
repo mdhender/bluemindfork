@@ -332,7 +332,7 @@ BEGIN
     INSERT INTO s_mailbox_record
         (item_id, container_id, date, subject, size, sender, unseen, flagged)
     VALUES
-        (NEW.item_id::bigint, NEW.container_id, NEW.internal_date, body.subject, body.size, body.address, NEW.system_flags & 16 != 16,  NEW.system_flags & 2 = 2);
+        (NEW.item_id::bigint, NEW.container_id, NEW.internal_date, body.subject, body.size, body.sender, NEW.system_flags & 16 != 16,  NEW.system_flags & 2 = 2);
     RETURN NEW;
   END;
 $$;

@@ -6,12 +6,21 @@
          <serviceFactory
                class="net.bluemind.delivery.conversationreference.service.ConversationReferenceServiceFactory">
          </serviceFactory>
+         <serviceFactory
+               class="net.bluemind.delivery.conversationreference.service.InCoreConversationReferenceServiceFactory">
+         </serviceFactory>
       </extension>
       <extension
             point="net.bluemind.core.rest.apiEndpoint">
          <endpoint
                api="net.bluemind.delivery.conversationreference.api.IConversationReference">
          </endpoint>
+      </extension>
+      <extension
+            point="net.bluemind.scheduledjob.scheduler.job">
+         <scheduledjob_provider
+               implementation="net.bluemind.delivery.conversationreference.service.DeleteOldConversationReferencesJob">
+         </scheduledjob_provider>
       </extension>
       <extension
             point="net.bluemind.delivery.lmtp.hooks.factory">

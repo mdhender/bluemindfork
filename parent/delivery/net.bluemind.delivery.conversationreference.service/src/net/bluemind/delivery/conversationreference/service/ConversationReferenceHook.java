@@ -17,6 +17,7 @@
   */
 package net.bluemind.delivery.conversationreference.service;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -38,7 +39,9 @@ public class ConversationReferenceHook implements IDeliveryHook {
 			MessageBody messageBody) {
 		IConversationReference api = ctx.provider().instance(IConversationReference.class, mailbox.dom.uid,
 				mailbox.entry.entryUid);
-		Long conversationId = api.lookup(messageBody.messageId, Set.copyOf(messageBody.references));
+		Set<String> referencesSet = (messageBody.references != null) ? Set.copyOf(messageBody.references)
+				: new HashSet<>(); // because null is not allowed
+		Long conversationId = api.lookup(messageBody.messageId, referencesSet);
 		record.conversationId = conversationId;
 		if (logger.isDebugEnabled()) {
 			logger.debug("Message {} ({}@{}) updated with conversationId {}", messageBody.guid, messageBody.messageId,

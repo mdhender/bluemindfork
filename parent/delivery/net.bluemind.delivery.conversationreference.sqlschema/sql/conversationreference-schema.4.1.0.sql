@@ -1,9 +1,9 @@
 CREATE TABLE t_conversationreference (
   id bigint GENERATED ALWAYS AS IDENTITY,
   message_id_hash bigint NOT NULL,
-  mailbox_id integer NOT NULL,
+  mailbox_id bigint NOT NULL,
   conversation_id bigint NOT NULL,
-  created timestamp without time zone default now(),
+  expires timestamp without time zone default now() + '1 year'::interval,
   UNIQUE(mailbox_id, message_id_hash)
 ) PARTITION BY HASH (mailbox_id);
 
@@ -12,8 +12,8 @@ CREATE INDEX
   ON t_conversationreference(mailbox_id, message_id_hash)
   INCLUDE(conversation_id);
 CREATE INDEX
-  idx_t_conversationreference_date
-  ON t_conversationreference(created);
+  idx_t_conversationreference_expires
+  ON t_conversationreference(expires);
 
 DO LANGUAGE plpgsql
 $$

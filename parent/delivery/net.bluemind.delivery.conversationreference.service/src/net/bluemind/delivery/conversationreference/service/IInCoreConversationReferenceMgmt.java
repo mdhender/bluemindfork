@@ -15,30 +15,19 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.delivery.conversationreference.api;
+package net.bluemind.delivery.conversationreference.service;
 
-import java.util.Set;
+import java.sql.SQLException;
 
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.QueryParam;
-import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 
-@BMApi(version = "3", internal = true)
-@Path("/conversationreferences/{domainUid}/{ownerUid}")
-public interface IConversationReference {
+public interface IInCoreConversationReferenceMgmt {
 
 	/**
-	 * Lookups conversation ids using mail message-ID header and references header
-	 *
-	 * @param the message-ID
-	 * @param the references
-	 * @return the found conversation ID
-	 * @throws ServerFault
+	 * Remove entries older than one year from t_conversationreference table
+	 * 
+	 * @return
+	 * @throws SQLException
 	 */
-	@POST
-	@Path("lookup")
-	Long lookup(@QueryParam("messageid") String messageId, Set<String> messageIdAndReferences) throws ServerFault;
-
+	public long deleteEntriesOlderThanOneYear() throws ServerFault;
 }

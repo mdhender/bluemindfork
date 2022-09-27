@@ -25,6 +25,9 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Strings;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
@@ -38,6 +41,9 @@ import net.bluemind.delivery.conversationreference.persistence.ConversationRefer
 import net.bluemind.mailbox.api.Mailbox;
 
 public class ConversationReferenceService implements IConversationReference {
+
+	private static final Logger logger = LoggerFactory.getLogger(ConversationReferenceService.class);
+
 	private final ConversationReferenceStore store;
 	private final long mailboxId;
 
@@ -52,7 +58,7 @@ public class ConversationReferenceService implements IConversationReference {
 	}
 
 	/*
-	 * Scenerios:
+	 * Scenarios:
 	 * 
 	 * unknown conversation, no references: create a new conversation with the
 	 * message-id known conversation, new references: add a reference to message-id,
@@ -81,6 +87,7 @@ public class ConversationReferenceService implements IConversationReference {
 		long messageIdHash = hf.hashBytes(messageId.getBytes()).asLong();
 		long returnedConversationId;
 
+		// Limit to 32 elements to avoid DoS
 		List<Long> referencesHash = references.stream().map(s -> hf.hashBytes(s.getBytes()).asLong()).limit(32)
 				.collect(Collectors.toList());
 		referencesHash.add(messageIdHash);
@@ -107,4 +114,5 @@ public class ConversationReferenceService implements IConversationReference {
 		}
 		return returnedConversationId;
 	}
+
 }

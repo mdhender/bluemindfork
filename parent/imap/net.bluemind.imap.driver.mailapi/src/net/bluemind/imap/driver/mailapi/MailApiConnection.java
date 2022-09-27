@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
@@ -46,6 +47,7 @@ import io.vertx.core.streams.WriteStream;
 import net.bluemind.authentication.api.AuthUser;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.AppendTx;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
@@ -64,6 +66,7 @@ import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
+import net.bluemind.delivery.conversationreference.api.IConversationReference;
 import net.bluemind.hornetq.client.Consumer;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
@@ -256,6 +259,7 @@ public class MailApiConnection implements MailboxConnection {
 	@Override
 	public long append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer) {
 		SelectedFolder selected = select(folder);
+
 		if (selected == null) {
 			return 0L;
 		}
@@ -266,14 +270,22 @@ public class MailApiConnection implements MailboxConnection {
 		String bodyGuid = hash.hashBytes(buffer.duplicate().nioBuffer()).toString();
 		String partition = CyrusPartition.forServerAndDomain(me.value.dataLocation, me.domainUid).name;
 		IDbMessageBodies bodiesApi = prov.instance(IDbMessageBodies.class, partition);
+
+		IConversationReference conversationReferenceApi = prov.instance(IConversationReference.class, me.domainUid,
+				me.uid);
 		bodiesApi.create(bodyGuid, VertxStream.stream(Buffer.buffer(buffer)));
+		MessageBody messageBody = bodiesApi.getComplete(bodyGuid);
+		Set<String> references = (messageBody.references != null) ? Sets.newHashSet(messageBody.references)
+				: Sets.newHashSet();
+		long conversationId = conversationReferenceApi.lookup(messageBody.messageId, references);
+		logger.debug("{}: found conversationId: {}", me.value.login, conversationId);
 
 		MailboxRecord rec = new MailboxRecord();
 		rec.imapUid = appendTx.imapUid;
 		rec.internalDate = new Date(appendTx.internalStamp);
 		rec.messageBody = bodyGuid;
 		rec.modSeq = appendTx.modSeq;
-		rec.conversationId = System.nanoTime();
+		rec.conversationId = conversationId;
 		rec.flags = flags(flags);
 		rec.lastUpdated = rec.internalDate;
 

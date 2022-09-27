@@ -17,6 +17,8 @@
   */
 package net.bluemind.delivery.conversationreference.persistence;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,6 +46,8 @@ public class ConversationReferenceStore extends JdbcAbstractStore {
 
 	private static final String GET_QUERY = "SELECT conversation_id FROM " + TABLE
 			+ " WHERE mailbox_id = ? AND message_id_hash = ANY(?) LIMIT 1;";
+
+	private static final String DELETE_ENTRIES_OLDER_THAN_ONE_YEAR = "DELETE FROM " + TABLE + " WHERE expires < NOW()";
 
 	public ConversationReferenceStore(DataSource dataSource) {
 		super(dataSource);
@@ -77,6 +81,16 @@ public class ConversationReferenceStore extends JdbcAbstractStore {
 					statement.setLong(index++, value.conversationId);
 					return index;
 				}), new ConversationReference.ConversationReferencePopulator(), null);
+	}
+
+	public long deleteEntriesOlderThanOneYear() throws SQLException {
+
+		long deletedEntries = 0L;
+		try (Connection conn = getConnection();
+				PreparedStatement st = conn.prepareStatement(DELETE_ENTRIES_OLDER_THAN_ONE_YEAR)) {
+			deletedEntries = st.executeUpdate();
+		}
+		return deletedEntries;
 	}
 
 }

@@ -33,7 +33,7 @@ public class ConversationReferenceServiceFactory implements IServerSideServiceFa
 	}
 
 	private IConversationReference getService(BmContext context, String domainUid, String ownerUid) throws ServerFault {
-		IMailboxes mailboxes = context.provider().instance(IMailboxes.class, domainUid);
+		IMailboxes mailboxes = context.su().provider().instance(IMailboxes.class, domainUid);
 		ItemValue<Mailbox> mailbox = mailboxes.getComplete(ownerUid);
 		if (mailbox == null) {
 			throw ServerFault.notFound("mailbox for owner uid=" + ownerUid + " not found");

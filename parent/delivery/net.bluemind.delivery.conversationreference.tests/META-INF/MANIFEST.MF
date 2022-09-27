@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.delivery.conversationservice.tests
-Bundle-SymbolicName: net.bluemind.delivery.conversationreference.tests
+Bundle-SymbolicName: net.bluemind.delivery.conversationreference.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.delivery.conversationservice.tests
@@ -18,4 +18,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.pool,
  net.bluemind.delivery.conversationreference.sqlschema,
  net.bluemind.config,
- net.bluemind.delivery.conversationreference.api
+ net.bluemind.delivery.conversationreference.api,
+ net.bluemind.scheduledjob.api,
+ net.bluemind.system.state,
+ net.bluemind.scheduledjob.job,
+ net.bluemind.scheduledjob.service,
+ net.bluemind.scheduledjob.scheduler

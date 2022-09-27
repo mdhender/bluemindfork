@@ -34,7 +34,6 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.delivery.conversationreference.api.IConversationReference;
 import net.bluemind.delivery.conversationreference.persistence.ConversationReference;
-import net.bluemind.delivery.conversationreference.persistence.ConversationReferenceStore;
 
 public class ConversationReferenceStoreTests {
 
@@ -42,10 +41,10 @@ public class ConversationReferenceStoreTests {
 
 	private SecurityContext secCtxUser1;
 
-	private ConversationReferenceStore store;
+	private ConversationReferenceStoreWithExpiresDates dataStore;
 
-	Long mailboxId1 = 10L;
-	Long mailboxId2 = 20L;
+	private Long mailboxId1 = 10L;
+	private Long mailboxId2 = 20L;
 
 	private Long hashMessage1Id;
 
@@ -61,6 +60,7 @@ public class ConversationReferenceStoreTests {
 	public void before() throws Exception {
 		message1Id = "<6a2b976c0f1f14876917aea6ebfb457f@f8de2c4a.internal>";
 		message2Id = "<09f8c8e65442062c0d1d23022a5be532@f8de2c4a.internal>";
+		String message3Id = "<09f8c8e65552062c0d1d23033a5be533@f8de2c4a.internal>";
 
 		conversation1Id = -1060821470570927639L;
 		Long conversation2Id = 8745557296093279025L;
@@ -68,17 +68,31 @@ public class ConversationReferenceStoreTests {
 		JdbcTestHelper.getInstance().beforeTest();
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
-
 		HashFunction hf = Hashing.sipHash24();
 		hashMessage1Id = hf.hashBytes(message1Id.getBytes()).asLong();
 		hashMessage2Id = hf.hashBytes(message2Id.getBytes()).asLong();
+		long hashMessage3Id = hf.hashBytes(message3Id.getBytes()).asLong();
 
-		store = new ConversationReferenceStore(JdbcTestHelper.getInstance().getDataSource());
+		dataStore = new ConversationReferenceStoreWithExpiresDates(
+				JdbcTestHelper.getInstance().getMailboxDataDataSource()); // bj-data
 
-		store.create(ConversationReference.of(hashMessage1Id, conversation1Id, mailboxId1));
-		store.create(ConversationReference.of(hashMessage2Id, conversation1Id, mailboxId1));
-		store.create(ConversationReference.of(hashMessage1Id, conversation2Id, mailboxId2));
-		store.create(ConversationReference.of(hashMessage2Id, conversation2Id, mailboxId2));
+		dataStore.create(ConversationReference.of(hashMessage1Id, conversation1Id, mailboxId1));
+		dataStore.create(ConversationReference.of(hashMessage2Id, conversation1Id, mailboxId1));
+		dataStore.create(ConversationReference.of(hashMessage1Id, conversation2Id, mailboxId2));
+		dataStore.create(ConversationReference.of(hashMessage2Id, conversation2Id, mailboxId2));
+		dataStore.insertWithExpires(mailboxId2, hashMessage3Id, conversation2Id);
+	}
+
+	@Test
+	public void testForBadDatasource() throws Exception {
+		var store = new ConversationReferenceStoreWithExpiresDates(JdbcActivator.getInstance().getDataSource()); // bj
+
+		List<Long> list = new ArrayList<>();
+		list.add(hashMessage1Id);
+		list.add(hashMessage2Id);
+		long conversationIdResult = store.get(mailboxId1, list);
+		Assert.assertEquals(0L, conversationIdResult);
+
 	}
 
 	@Test
@@ -86,9 +100,8 @@ public class ConversationReferenceStoreTests {
 		List<Long> list = new ArrayList<>();
 		list.add(hashMessage1Id);
 		list.add(hashMessage2Id);
-		long conversationIdResult = store.get(mailboxId1, list);
+		long conversationIdResult = dataStore.get(mailboxId1, list);
 		Assert.assertEquals(conversation1Id, conversationIdResult);
-
 	}
 
 	@Test
@@ -96,9 +109,15 @@ public class ConversationReferenceStoreTests {
 		List<Long> list = new ArrayList<>();
 		list.add(hashMessage1Id);
 		list.add(hashMessage2Id);
-		long conversationIdResult = store.get(30L, list);
+		long conversationIdResult = dataStore.get(30L, list);
 		Assert.assertEquals(0L, conversationIdResult);
 
+	}
+
+	@Test
+	public void testDeleteEntriesOlderThanOneYear() throws Exception {
+		long deletedEntries = dataStore.deleteEntriesOlderThanOneYear();
+		Assert.assertEquals(1L, deletedEntries);
 	}
 
 	protected IServiceProvider provider() {
