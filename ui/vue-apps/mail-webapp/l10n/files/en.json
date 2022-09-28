@@ -146,6 +146,7 @@
             }
         }
     },
+    "alert.mail.forward_eml.fetch.error": "Failed to retrieve message in EML format. Unable to forward it.",
     "alert.mail.message.draft.attach.error": "Attachment error. Try again.",
     "mail.actions.attach.aria": "Attach a file",
     "mail.actions.attach": "Attach",

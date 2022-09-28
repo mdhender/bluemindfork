@@ -1,5 +1,6 @@
 import { mapActions, mapMutations, mapState } from "vuex";
 
+import { ERROR } from "@bluemind/alert.store";
 import { InlineImageHelper, MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { sanitizeHtml } from "@bluemind/html-utils";
@@ -57,6 +58,7 @@ export default {
         }
     },
     methods: {
+        ...mapActions("alert", { ERROR }),
         ...mapActions("mail", { $_ComposerInitMixin_FETCH_PART_DATA: FETCH_PART_DATA }),
         ...mapMutations("mail", {
             $_ComposerInitMixin_ADD_FILES: ADD_FILES,
@@ -238,7 +240,19 @@ export default {
             await this.setFrom(identity, message);
             const subject = computeSubject(MessageCreationModes.FORWARD, related);
             this.$store.commit(`mail/${SET_MESSAGE_SUBJECT}`, { messageKey: message.key, subject });
-            const content = await apiMessages.fetchComplete(related);
+            let content;
+            try {
+                content = await apiMessages.fetchComplete(related);
+            } catch {
+                this.ERROR({
+                    alert: { name: "mail.forward_eml.fetch", uid: "FWD_EML_UID" }
+                });
+                const conversation = this.$store.state.mail.conversations.conversationByKey[
+                    related.conversationRef.key
+                ];
+                this.$router.navigate({ name: "v:mail:conversation", params: { conversation } });
+                return;
+            }
             const name = messageUtils.createEmlName(related, this.$t("mail.viewer.no.subject"));
             const file = new File([content], name, { type: "message/rfc822" });
             await this.$execute("add-attachments", { files: [file], message });

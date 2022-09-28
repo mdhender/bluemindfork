@@ -74,7 +74,9 @@ export default {
                             this.SET_MESSAGE_COMPOSING({ messageKey: message.key, composing: true });
                         }
                     }
-                    this.SET_ACTIVE_MESSAGE(message);
+                    if (message) {
+                        this.SET_ACTIVE_MESSAGE(message);
+                    }
                 } catch (e) {
                     this.$router.push({ name: "mail:home" });
                     throw e;
