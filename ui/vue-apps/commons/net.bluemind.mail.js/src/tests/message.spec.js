@@ -1,5 +1,5 @@
 import shuffle from "lodash.shuffle";
-import { createOnlyMetadata, isForward, MessageHeader } from "../message/index";
+import { createEmlName, createOnlyMetadata, isForward, MessageHeader } from "../message";
 
 describe("Message model", () => {
     test("update key when it's already set", () => {
@@ -60,6 +60,13 @@ describe("Message model", () => {
                 const message = { subject: notForwardSubject };
                 expect(isForward(message)).toBeFalsy();
             });
+        });
+        test("EML name", () => {
+            expect(createEmlName({ subject: "" }, "fallback")).toBe("fallback.eml");
+            expect(createEmlName({ subject: "  MES  #<>$+%!`&*'|{}?\"=/\\:@  SAGE  " }, "plop")).toBe("MES-SAGE.eml");
+            expect(createEmlName({ subject: "ThisIsANotSoLongButAlreadyTooLongMessageSubject" }, "ah")).toBe(
+                "ThisIsANotSoLongButAlreadyT.eml"
+            );
         });
     });
 });

@@ -9,7 +9,7 @@ const { FileStatus } = fileUtils;
 
 export default {
     commands: {
-        async addAttachments({ files, message, maxSize }) {
+        async addAttachments({ files, message, maxSize = this.maxSize }) {
             files = [...files];
 
             const totalSize = files.reduce((total, attachment) => total + attachment.size, message.size);

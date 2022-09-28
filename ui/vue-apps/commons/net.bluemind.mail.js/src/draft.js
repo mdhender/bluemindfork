@@ -254,7 +254,6 @@ function extractRecipientsFromHeader(header, isReplyAll) {
 /**
  * Compute the subject in function of creationMode (like "Re: My Subject" when replying).
  */
-// INTERNAL METHOD (exported only for testing purpose)
 export function computeSubject(creationMode, previousMessage) {
     const subjectPrefix = creationMode === MessageCreationModes.FORWARD ? "Fw: " : "Re: ";
     if (!previousMessage.subject) {

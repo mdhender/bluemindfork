@@ -22,5 +22,13 @@ describe("attachment model", () => {
         part = { mime: "application/octet-stream", fileName: "file.unknowntype" };
         attachment = create(part, status);
         expect(attachment.mime).toBe("application/octet-stream");
+
+        part = { mime: "application/octet-stream", fileName: "test.eml" };
+        attachment = create(part, status);
+        expect(attachment.mime).toBe("message/");
+
+        part = { mime: "message/rfc822", fileName: "" };
+        attachment = create(part, status);
+        expect(attachment.mime).toBe("message/rfc822");
     });
 });

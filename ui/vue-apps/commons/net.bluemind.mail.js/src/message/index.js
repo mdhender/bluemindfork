@@ -1,5 +1,7 @@
-import merge from "lodash.merge";
+
 import cloneDeep from "lodash.clonedeep";
+import escapeRegExp from "lodash.escaperegexp";
+import merge from "lodash.merge";
 import pick from "lodash.pick";
 
 import { LoadingStatus } from "../loading-status";
@@ -94,7 +96,8 @@ export const MessageCreationModes = {
     REPLY_ALL: "REPLY-ALL",
     FORWARD: "FORWARD",
     EDIT_AS_NEW: "EDIT_AS_NEW",
-    EDIT: "EDIT"
+    EDIT: "EDIT",
+    FORWARD_AS_EML: "FORWARD_AS_EML"
 };
 
 export const MessageHeader = {
@@ -190,8 +193,31 @@ export function isForward(message) {
     return shouldBeForward;
 }
 
+/**
+ * Create a portable name for the EML file of the given message.
+ * @see  https://www.mtu.edu/umc/services/websites/writing/characters-avoid/
+ * @param {Object} message the message used to generate an EML file name
+ * @param {String} fallBackName a fall-back name if the use of message has failed (ex: empty subject)
+ * @returns a portable EML file name
+ */
+export function createEmlName(message, fallBackName) {
+    const maxChars = 31;
+    const extension = ".eml";
+    const illegalChars = "#<>$+%!`&*'|{}?\"=/\\:@";
+    const illegalCharsRegex = new RegExp(`[${escapeRegExp(illegalChars)}\\s]+`, "g");
+    let subject = message.subject || fallBackName;
+    subject = subject.trim();
+    const replacementChar = "-";
+    subject = subject.replaceAll(illegalCharsRegex, replacementChar);
+    if (subject.length > maxChars - extension.length) {
+        subject = subject.substring(0, maxChars - extension.length);
+    }
+    return `${subject}${extension}`;
+}
+
 export default {
     create,
+    createEmlName,
     createOnlyMetadata,
     createWithMetadata,
     extractHeaderValues,

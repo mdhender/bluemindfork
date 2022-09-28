@@ -198,8 +198,7 @@ function matchingIcon(mimeType) {
         equals(mimeType, XML) ||
         equals(mimeType, JSON) ||
         equals(mimeType, CSV) ||
-        equals(mimeType, TEXT_PLAIN) ||
-        mimeType.startsWith(MESSAGE)
+        equals(mimeType, TEXT_PLAIN)
     ) {
         return "file-type-data";
     } else if (equals(mimeType, MS_EXCEL) || equals(mimeType, MS_EXCEL_XML) || equals(mimeType, OPEN_DOCUMENT_CALC)) {
@@ -222,7 +221,8 @@ function matchingIcon(mimeType) {
         equals(mimeType, SHELL) ||
         equals(mimeType, CSHELL) ||
         equals(mimeType, XHTML) ||
-        equals(mimeType, TEXT_HTML)
+        equals(mimeType, TEXT_HTML) ||
+        mimeType.startsWith(MESSAGE)
     ) {
         return "file-type-code";
     } else if (equals(mimeType, ICS) || equals(mimeType, TEXT_CALENDAR)) {
@@ -318,6 +318,9 @@ function getFromFilename(name) {
         return OPEN_DOCUMENT_PRESENTATION;
     } else {
         return "";
+    }
+    if (name.toLowerCase().endsWith(".eml")) {
+        return MESSAGE;
     }
 }
 /* 

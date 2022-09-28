@@ -4,7 +4,7 @@ import { InlineImageHelper, MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { sanitizeHtml } from "@bluemind/html-utils";
 import { BmRichEditor } from "@bluemind/styleguide";
-import { draftUtils, messageUtils, loadingStatusUtils, partUtils, attachmentUtils } from "@bluemind/mail";
+import { attachmentUtils, draftUtils, loadingStatusUtils, messageUtils, partUtils } from "@bluemind/mail";
 
 import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import {
@@ -24,15 +24,17 @@ import {
 } from "~/mutations";
 import apiMessages from "~/store/api/apiMessages";
 import { ComposerFromMixin } from "~/mixins";
+import { AddAttachmentsCommand } from "~/commands";
 
 const { LoadingStatus } = loadingStatusUtils;
 const {
-    quotePreviousMessage,
     COMPOSER_CAPABILITIES,
+    computeSubject,
     createEmpty,
     createReplyOrForward,
     getEditorContent,
-    handleSeparator
+    handleSeparator,
+    quotePreviousMessage
 } = draftUtils;
 const { getPartsFromCapabilities } = partUtils;
 const { AttachmentAdaptor } = attachmentUtils;
@@ -47,7 +49,7 @@ export default {
             userPrefTextOnly: false // FIXME: https://forge.bluemind.net/jira/browse/FEATWEBML-88
         };
     },
-    mixins: [ComposerFromMixin],
+    mixins: [AddAttachmentsCommand, ComposerFromMixin],
     computed: {
         ...mapState("mail", { $_ComposerInitMixin_partsByMessageKey: ({ partsData }) => partsData.partsByMessageKey }),
         $_ComposerInitMixin_lang() {
@@ -110,31 +112,32 @@ export default {
         },
 
         async initRelatedMessage(folder, action, related) {
-            switch (action) {
-                case MessageCreationModes.REPLY:
-                case MessageCreationModes.REPLY_ALL:
-                case MessageCreationModes.FORWARD:
-                    try {
-                        const previous = await this.$store.dispatch("mail/" + FETCH_MESSAGE_IF_NOT_LOADED, {
-                            internalId: related.internalId,
-                            folder: this.$store.state.mail.folders[related.folderKey]
-                        });
+            try {
+                const fetchRelatedFn = () =>
+                    this.$store.dispatch("mail/" + FETCH_MESSAGE_IF_NOT_LOADED, {
+                        internalId: related.internalId,
+                        folder: this.$store.state.mail.folders[related.folderKey]
+                    });
+                switch (action) {
+                    case MessageCreationModes.REPLY:
+                    case MessageCreationModes.REPLY_ALL:
+                    case MessageCreationModes.FORWARD: {
+                        const previous = await fetchRelatedFn();
                         return this.initReplyOrForward(folder, action, previous);
-                    } catch {
-                        return this.initNewMessage(folder);
                     }
-                case MessageCreationModes.EDIT_AS_NEW:
-                    try {
-                        const previous = await this.$store.dispatch("mail/" + FETCH_MESSAGE_IF_NOT_LOADED, {
-                            internalId: related.internalId,
-                            folder: this.$store.state.mail.folders[related.folderKey]
-                        });
+                    case MessageCreationModes.EDIT_AS_NEW: {
+                        const previous = await fetchRelatedFn();
                         return this.initEditAsNew(folder, previous);
-                    } catch {
-                        return this.initNewMessage(folder);
                     }
-                default:
-                    return this.initNewMessage(folder);
+                    case MessageCreationModes.FORWARD_AS_EML: {
+                        const previous = await fetchRelatedFn();
+                        return this.initForwardEml(folder, previous);
+                    }
+                    default:
+                        return this.initNewMessage(folder);
+                }
+            } catch {
+                return this.initNewMessage(folder);
             }
         },
 
@@ -225,6 +228,20 @@ export default {
             await this.mergeBody(message, related);
             await this.mergeAttachments(message, related);
             this.$router.navigate({ name: "v:mail:message", params: { message: message } });
+            return message;
+        },
+
+        async initForwardEml(related) {
+            const message = createEmpty(this.$_ComposerInitMixin_MY_DRAFTS);
+            this.$_ComposerInitMixin_ADD_MESSAGES({ messages: [message] });
+            const identity = this.getIdentityForNewMessage();
+            await this.setFrom(identity, message);
+            const subject = computeSubject(MessageCreationModes.FORWARD, related);
+            this.$store.commit(`mail/${SET_MESSAGE_SUBJECT}`, { messageKey: message.key, subject });
+            const content = await apiMessages.fetchComplete(related);
+            const name = messageUtils.createEmlName(related, this.$t("mail.viewer.no.subject"));
+            const file = new File([content], name, { type: "message/rfc822" });
+            await this.$execute("add-attachments", { files: [file], message });
             return message;
         },
 

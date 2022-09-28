@@ -164,6 +164,7 @@
     "mail.actions.folder.invalid.too_long": "Folder name is too long",
     "mail.actions.folder.subfolder.forbidden": "Forbidden subfolders",
     "mail.actions.followup": "Follow-up",
+    "mail.actions.forward_eml": "Forward as attachment",
     "mail.actions.mark_as_read": "Mark as read",
     "mail.actions.mark_as_unflagged": "Remove flag",
     "mail.actions.mark_as_unread": "Mark as unread",

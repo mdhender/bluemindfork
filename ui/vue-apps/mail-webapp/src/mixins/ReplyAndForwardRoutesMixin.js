@@ -33,6 +33,9 @@ export default {
         forwardRoute(message) {
             return this.$_ReplyAndForwardRoutesMixin_route(MessageCreationModes.FORWARD, message);
         },
+        async forwardEml(conversation, message) {
+            this.$router.push(this.$_ReplyAndForwardRoutesMixin_route(MessageCreationModes.FORWARD_AS_EML, message));
+        },
         async $_ReplyAndForwardRoutesMixin_goTo(action, related, conversation) {
             if (conversation && this.$_ReplyAndForwardRoutesMixin_CONVERSATIONS_ACTIVATED) {
                 await this.saveAndCloseOpenDrafts(conversation);

@@ -46,7 +46,8 @@ export function sortConversationMessages(messages, folders) {
     const allowedCreationModes = [
         MessageCreationModes.REPLY_ALL,
         MessageCreationModes.REPLY,
-        MessageCreationModes.FORWARD
+        MessageCreationModes.FORWARD,
+        MessageCreationModes.FORWARD_AS_EML
     ];
     drafts.forEach(c => {
         const draftInfo = draftInfoHeader(c);

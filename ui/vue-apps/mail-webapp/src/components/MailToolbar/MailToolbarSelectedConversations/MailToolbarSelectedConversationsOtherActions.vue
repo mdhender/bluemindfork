@@ -3,7 +3,7 @@
         :aria-label="$tc('mail.toolbar.more.aria')"
         :title="$tc('mail.toolbar.more.aria')"
         toggle-class="btn-lg-simple-neutral"
-        class="mail-toolbar-consult-message-other-actions h-100"
+        class="mail-toolbar-consult-message-other-actions"
         icon="3dots"
         :label="$tc('mail.toolbar.more')"
         no-caret
@@ -52,6 +52,12 @@
             <bm-dropdown-item icon="download" @click.stop="downloadEml(lastMessage)">
                 {{ $t("mail.actions.download_eml") }}
             </bm-dropdown-item>
+            <bm-dropdown-item
+                icon="with-attachment"
+                @click.stop="forwardEml(CURRENT_CONVERSATION_METADATA, lastMessage)"
+            >
+                {{ $t("mail.actions.forward_eml") }}
+            </bm-dropdown-item>
         </template>
     </mail-toolbar-responsive-dropdown>
 </template>
@@ -67,6 +73,7 @@ import {
     MailRoutesMixin,
     PrintMixin,
     RemoveMixin,
+    ReplyAndForwardRoutesMixin,
     SelectionMixin
 } from "~/mixins";
 import { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES } from "~/getters";
@@ -82,7 +89,16 @@ export default {
     name: "MailToolbarSelectedConversationsOtherActions",
     // eslint-disable-next-line vue/no-unused-components
     components: { BmDropdownItem, BmIcon, MailToolbarResponsiveDropdown, MailMessagePrint, MailOpenInPopupWithShift },
-    mixins: [ActionTextMixin, EmlMixin, FlagMixin, MailRoutesMixin, PrintMixin, RemoveMixin, SelectionMixin],
+    mixins: [
+        ActionTextMixin,
+        EmlMixin,
+        FlagMixin,
+        MailRoutesMixin,
+        PrintMixin,
+        RemoveMixin,
+        ReplyAndForwardRoutesMixin,
+        SelectionMixin
+    ],
     computed: {
         ...mapGetters("mail", { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES }),
         ...mapState("mail", { messages: state => state.conversations.messages }),

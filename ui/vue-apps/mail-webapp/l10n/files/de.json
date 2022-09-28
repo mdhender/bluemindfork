@@ -164,6 +164,7 @@
     "mail.actions.folder.invalid.too_long": "Ordnername überschreitet die maximale Länge",
     "mail.actions.folder.subfolder.forbidden": "Verbotene Unterordner",
     "mail.actions.followup": "Nachverfolgung",
+    "mail.actions.forward_eml": "Als Anlage weiterleiten",
     "mail.actions.mark_as_read": "als Gelesen markieren",
     "mail.actions.mark_as_unflagged": "Markierung löschen",
     "mail.actions.mark_as_unread": "Als Ungelesen markieren",

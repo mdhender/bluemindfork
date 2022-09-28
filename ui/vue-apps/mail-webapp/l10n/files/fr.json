@@ -164,6 +164,7 @@
     "mail.actions.folder.invalid.too_long": "Nom de dossier trop long",
     "mail.actions.folder.subfolder.forbidden": "Sous-dossiers interdits",
     "mail.actions.followup": "Assurer un suivi",
+    "mail.actions.forward_eml": "Transférer en tant que pièce jointe",
     "mail.actions.mark_as_read": "Marquer comme lu | Marquer comme lus",
     "mail.actions.mark_as_unflagged": "Ne plus suivre",
     "mail.actions.mark_as_unread": "Marquer comme non lu | Marquer comme non lus",
