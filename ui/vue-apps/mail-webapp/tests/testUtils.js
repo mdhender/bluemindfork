@@ -140,11 +140,11 @@ export function createWrapper(component, overrides, propsData = {}) {
         router: new VueRouter(),
         propsData: propsData,
         mocks: {
-            $t: () => {},
-            $tc: () => {},
+            $t: () => "",
+            $tc: () => "",
             $i18n: {
-                t: () => {},
-                tc: () => {}
+                t: () => "",
+                tc: () => ""
             }
         }
     };

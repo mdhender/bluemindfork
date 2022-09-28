@@ -11,6 +11,8 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     <button
       class="btn bm-icon-button d-inline-flex d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
       icon="plus-enveloppe"
+      label=""
+      title=""
       type="button"
     >
       <svg
@@ -32,8 +34,11 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     </button>
      
     <button
+      caption=""
       class="btn bm-captioned-icon-button d-none d-lg-inline-flex btn-captioned-icon"
       icon="plus-enveloppe"
+      label=""
+      title=""
       type="button"
     >
       <svg
@@ -65,8 +70,10 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     class="mail-toolbar-responsive-button mail-toolbar-item mail-toolbar-responsive-mark-as-unread-button"
   >
     <button
+      aria-label=""
       class="btn bm-icon-button mark-as-unread-icon-button d-inline-flex d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
       size="lg"
+      title=""
       type="button"
       variant="compact-on-fill-primary"
     >
@@ -89,9 +96,12 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     </button>
      
     <button
+      aria-label=""
       aria-pressed="false"
       autocomplete="off"
+      caption=""
       class="btn bm-toggleable-captioned-icon-button mark-as-unread-captioned-icon-button d-none d-lg-inline-flex btn-captioned-icon"
+      title=""
       type="button"
     >
       <svg
@@ -131,13 +141,17 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
   </div>
    
   <div
+    aria-label=""
     class="mail-toolbar-responsive-dropdown mail-toolbar-item mail-toolbar-selected-conversations-move-action"
     no-caret=""
   >
     <div
+      aria-label=""
       class="dropdown b-dropdown bm-icon-dropdown d-inline-flex d-lg-none btn-group compact"
       icon="folder"
+      label=""
       no-caret=""
+      title=""
     >
       <!---->
       <button
@@ -413,8 +427,10 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           role="presentation"
         >
           <form
+            aria-label=""
             class="b-dropdown-form"
             tabindex="-1"
+            title=""
           >
             <div
               class="d-flex align-items-center"
@@ -430,6 +446,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                     class="form-control form-control-md with-icon with-reset icon-left"
                     icon="plus"
                     lefticon="true"
+                    placeholder=""
                     resettable="true"
                     type="text"
                     variant="underline"
@@ -506,9 +523,13 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     </div>
      
     <div
+      aria-label=""
+      caption=""
       class="dropdown b-dropdown bm-captioned-icon-dropdown d-none d-lg-inline-flex btn-group"
       icon="folder"
+      label=""
       no-caret=""
+      title=""
     >
       <!---->
       <button
@@ -790,8 +811,10 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           role="presentation"
         >
           <form
+            aria-label=""
             class="b-dropdown-form"
             tabindex="-1"
+            title=""
           >
             <div
               class="d-flex align-items-center"
@@ -807,6 +830,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                     class="form-control form-control-md with-icon with-reset icon-left"
                     icon="plus"
                     lefticon="true"
+                    placeholder=""
                     resettable="true"
                     type="text"
                     variant="underline"
@@ -889,6 +913,8 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     <button
       class="btn bm-icon-button d-inline-flex d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
       icon="trash"
+      label=""
+      title=""
       type="button"
     >
       <svg
@@ -910,8 +936,11 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     </button>
      
     <button
+      caption=""
       class="btn bm-captioned-icon-button d-none d-lg-inline-flex btn-captioned-icon"
       icon="trash"
+      label=""
+      title=""
       type="button"
     >
       <svg
@@ -943,9 +972,11 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     class="mail-toolbar-responsive-button mail-toolbar-item mail-toolbar-responsive-mark-as-flagged-button"
   >
     <button
+      aria-label=""
       class="btn bm-icon-button mark-as-flagged-icon-button d-inline-flex d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
       icon="flag-outline"
       size="lg"
+      title=""
       type="button"
       variant="compact-on-fill-primary"
     >
@@ -968,10 +999,13 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     </button>
      
     <button
+      aria-label=""
       aria-pressed="false"
       autocomplete="off"
+      caption=""
       class="btn bm-toggleable-captioned-icon-button mark-as-flagged-captioned-icon-button d-none d-lg-inline-flex btn-captioned-icon"
       icon="flag-outline"
+      title=""
       type="button"
     >
       <svg
@@ -1011,16 +1045,20 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
   </div>
    
   <div
+    aria-label=""
     class="mail-toolbar-responsive-dropdown mail-toolbar-item mail-toolbar-consult-message-other-actions"
     no-caret=""
     right=""
     toggle-class="btn-lg-simple-neutral"
   >
     <div
+      aria-label=""
       class="dropdown b-dropdown bm-icon-dropdown d-inline-flex d-lg-none btn-group compact"
       icon="3dots"
+      label=""
       no-caret=""
       right=""
+      title=""
       toggle-class="btn-lg-simple-neutral"
     >
       <!---->
@@ -1105,6 +1143,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
             icon="printer"
             role="menuitem"
             target="_self"
+            title=""
           >
             <svg
               aria-hidden="true"
@@ -1139,10 +1178,13 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           role="presentation"
         >
           <a
+            aria-keyshortcuts=""
             class="dropdown-item"
             href="#"
             role="menuitem"
+            shortcut=""
             target="_self"
+            title=""
           >
              
             <div
@@ -1160,10 +1202,14 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     </div>
      
     <div
+      aria-label=""
+      caption=""
       class="dropdown b-dropdown bm-captioned-icon-dropdown d-none d-lg-inline-flex btn-group"
       icon="3dots"
+      label=""
       no-caret=""
       right=""
+      title=""
       toggle-class="btn-lg-simple-neutral"
     >
       <!---->
@@ -1254,6 +1300,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
             icon="printer"
             role="menuitem"
             target="_self"
+            title=""
           >
             <svg
               aria-hidden="true"
@@ -1288,10 +1335,13 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           role="presentation"
         >
           <a
+            aria-keyshortcuts=""
             class="dropdown-item"
             href="#"
             role="menuitem"
+            shortcut=""
             target="_self"
+            title=""
           >
              
             <div
