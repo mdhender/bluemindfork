@@ -209,7 +209,6 @@ export default {
     }
 
     .folders-section {
-        background-color: $backdrop;
         border-right: 1px solid $neutral-fg-lo1;
         z-index: 300;
         @include from-lg {
@@ -217,6 +216,7 @@ export default {
         }
     }
     .mail-folder-sidebar-wrapper {
+        background-color: $backdrop;
         @include until-lg {
             box-shadow: $box-shadow-lg;
         }
