@@ -1,6 +1,6 @@
 <template>
     <div
-        class="mail-composer-footer-toolbar justify-content-between align-items-center d-lg-flex"
+        class="mail-composer-footer-toolbar justify-content-between align-items-center flex-fill"
         :class="{ 'd-none': !isPopup, 'd-flex': isPopup }"
     >
         <div class="main-buttons">
