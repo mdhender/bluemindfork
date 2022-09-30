@@ -17,6 +17,7 @@
  */
 package net.bluemind.imap.serviceprovider.incore;
 
+import net.bluemind.config.Token;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -34,7 +35,9 @@ public class InCoreResolver implements IServiceProviderResolver {
 	@Override
 	public IServiceProvider resolve(String authKey) {
 		if (authKey != null) {
-			SecurityContext sec = Sessions.get().getIfPresent(authKey);
+			SecurityContext sec = (authKey.equals(Token.admin0())) //
+					? SecurityContext.SYSTEM //
+					: Sessions.get().getIfPresent(authKey);
 			return ServerSideServiceProvider.getProvider(sec);
 		}
 		return ssp;
