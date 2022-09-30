@@ -2,7 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
     <extension-point id="webapp.banner" name="banner" schema="schema/webapp.banner.exsd"/>
-    <extension-point id="webapp" name="webapp" schema="schema/webapp.exsd"/>
+    <extension-point id="webapp.main" name="webapp.main" schema="schema/webapp.main.exsd"/>
     <extension-point id="webapp.preferences" name="webapp.preferences" schema="schema/webapp.preferences.exsd"/>
     
    <extension
@@ -33,7 +33,7 @@
     <extension
          point="net.bluemind.extensions">
       <export-extension-point
-            id="webapp">
+            id="webapp.main">
       </export-extension-point>
       <export-extension-point
             id="webapp.banner">
