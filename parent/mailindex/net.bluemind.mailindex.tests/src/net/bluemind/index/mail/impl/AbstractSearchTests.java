@@ -56,6 +56,7 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 public class AbstractSearchTests {
 
 	protected String bodyUid = UUID.randomUUID().toString();
+	protected String bodyUid1 = UUID.randomUUID().toString();
 	protected String mboxUid = UUID.randomUUID().toString();
 	protected String userUid = UUID.randomUUID().toString();
 	protected String userUid2 = UUID.randomUUID().toString();

@@ -32,6 +32,7 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.ShardStats;
 import net.bluemind.mailbox.api.SimpleShardStats;
+import net.bluemind.utils.ByteSizeUnit;
 
 public interface IMailIndexService {
 
@@ -98,5 +99,7 @@ public interface IMailIndexService {
 	public SearchResult searchItems(String dirEntryUid, MailboxFolderSearchQuery query);
 
 	public long resetMailboxIndex(String mailboxUid);
+
+	long getMailboxConsumedStorage(String userEntityId, ByteSizeUnit bsu);
 
 }

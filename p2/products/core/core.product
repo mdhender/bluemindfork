@@ -314,6 +314,7 @@
       <plugin id="net.bluemind.mailbox.identity.persistence"/>
       <plugin id="net.bluemind.mailbox.identity.service"/>
       <plugin id="net.bluemind.mailbox.identity.sqlschema"/>
+      <plugin id="net.bluemind.mailbox.job"/>
       <plugin id="net.bluemind.mailbox.persistence"/>
       <plugin id="net.bluemind.mailbox.service"/>
       <plugin id="net.bluemind.mailbox.sqlschema"/>

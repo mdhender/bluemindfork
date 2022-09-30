@@ -102,6 +102,7 @@ import net.bluemind.mailbox.api.ShardStats.MailboxStats;
 import net.bluemind.mailbox.api.SimpleShardStats;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
+import net.bluemind.utils.ByteSizeUnit;
 import net.bluemind.utils.EmailAddress;
 
 public class MailIndexService implements IMailIndexService {
@@ -223,7 +224,6 @@ public class MailIndexService implements IMailIndexService {
 	@Override
 	public void storeMessage(String mailboxUniqueId, ItemValue<MailboxRecord> item, String user,
 			Optional<BulkOperation> bulk) {
-
 		MailboxRecord mail = item.value;
 		String parentUid = mail.messageBody;
 		logger.debug("Indexing message in mailbox {} using parent uid {}", mailboxUniqueId, parentUid);
@@ -551,6 +551,21 @@ public class MailIndexService implements IMailIndexService {
 
 		InternalSum sum = (InternalSum) r.getAggregations().get("archivemailsizesum");
 		return sum.getValue();
+	}
+
+	@Override
+	public long getMailboxConsumedStorage(String userEntityId, ByteSizeUnit bsu) {
+		final Client client = getIndexClient();
+		QueryBuilder q = QueryBuilders.boolQuery().mustNot(QueryBuilders.termQuery("is", "deleted"))
+				.must(QueryBuilders.termQuery("owner", userEntityId));
+
+		SumAggregationBuilder a = AggregationBuilders.sum("quota").field("size");
+		SearchResponse r = client.prepareSearch(getIndexAliasName(userEntityId)).setQuery(q).addAggregation(a)
+				.setFetchSource(false).execute().actionGet();
+
+		InternalSum sum = (InternalSum) r.getAggregations().get("quota");
+		long sumLong = Double.valueOf(sum.getValue()).longValue();
+		return bsu.fromBytes(sumLong);
 	}
 
 	@Override

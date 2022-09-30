@@ -21,6 +21,7 @@
 		<module>net.bluemind.imap.serviceprovider.rest</module>
 		<module>net.bluemind.imap.fullstack.tests</module>
 		<module>net.bluemind.imap.cyrus.swap.tests</module>
+		<module>net.bluemind.backend.mailapi.storage.tests</module>
 	</modules>
 
 </project>

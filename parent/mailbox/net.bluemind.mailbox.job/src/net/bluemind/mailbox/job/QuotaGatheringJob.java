@@ -18,7 +18,6 @@
  */
 package net.bluemind.mailbox.job;
 
-import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -31,17 +30,16 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.backend.cyrus.CyrusService;
-import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.imap.QuotaInfo;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
-import net.bluemind.mailbox.api.Mailbox.Type;
+import net.bluemind.mailbox.api.MailboxQuota;
+import net.bluemind.mailbox.service.IMailboxesStorage;
+import net.bluemind.mailbox.service.MailboxesStorageFactory;
 import net.bluemind.scheduledjob.api.JobExitStatus;
 import net.bluemind.scheduledjob.api.JobKind;
 import net.bluemind.scheduledjob.scheduler.IScheduledJob;
@@ -122,57 +120,37 @@ public class QuotaGatheringJob implements IScheduledJob {
 	private boolean process(IScheduler sched, IScheduledJobRunId rid, String domainName, ItemValue<Server> srv,
 			ItemValue<Mailbox> mailbox) {
 		boolean warn = false;
+
 		try {
-			CyrusService cyrus = new CyrusService(srv.value.address());
+			IMailboxesStorage mailboxesStorageApi = MailboxesStorageFactory.getMailStorage();
 
-			// Cyrus quota
-			String mboxName = mailbox.value.name + "@" + domainName;
-			if (mailbox.value.type == Type.user) {
-				mboxName = "user/" + mboxName;
-			}
-			QuotaInfo qi = cyrus.getQuota(mboxName);
-			int usage = qi.getUsage();
-			int limit = qi.getLimit();
+			MailboxQuota mailboxQuota = mailboxesStorageApi.getQuota(null, domainName, mailbox);
 
-			// Archive size
-			double archiveSize = 0;
-			if (mailbox.value.type == Type.user) {
-				// size used on archive in Mo
-				archiveSize = RecordIndexActivator.getIndexer().get().getArchivedMailSum(mailbox.uid) / (1000 * 1000);
-			}
+			int usage = mailboxQuota.used;
+			int limit = mailboxQuota.quota;
 
-			logger.info("Quota for {} : usage {}, limit {}, archive {}", mailbox.value.name, usage, limit, archiveSize);
-
-			String frArchiveSize = "";
-			String enArchiveSize = "";
-			if (archiveSize > Double.MIN_NORMAL) {
-				DecimalFormat df = new DecimalFormat("#.##");
-				frArchiveSize = "( espace archive utilisé : " + df.format(archiveSize) + " Mo )";
-				enArchiveSize = "( Archive space used : " + df.format(archiveSize) + " Mo )";
-			}
+			logger.info("Quota for {} : usage {}, limit {}", mailbox.value.name, usage, limit);
 
 			if (usage > 0) {
 				long pct = (100L * usage) / limit;
 				if (pct >= WARNING_PERCENT) {
 					warn = true;
-					sched.warn(rid, "en",
-							"usage for " + mailbox.value.name + " is above warning threshold (" + WARNING_PERCENT
-									+ "%): " + pct + "% in use (used: " + usage + " / " + limit + ") " + enArchiveSize);
+					sched.warn(rid, "en", "usage for " + mailbox.value.name + " is above warning threshold ("
+							+ WARNING_PERCENT + "%): " + pct + "% in use (used: " + usage + " / " + limit + ")");
 					sched.warn(rid, "fr",
 							"L'utilisation pour " + mailbox.value.name + " dépasse le niveau d'alerte ("
 									+ WARNING_PERCENT + "%) : " + pct + "% utilisés (consommé : " + usage + " / "
-									+ limit + ") " + frArchiveSize);
+									+ limit + ")");
 				} else {
 					sched.info(rid, "en", "usage for " + mailbox.value.name + " is: " + pct + "% in use (used: " + usage
-							+ " / " + limit + ") " + enArchiveSize);
+							+ " / " + limit + ")");
 					sched.info(rid, "fr", "L'utilisation pour " + mailbox.value.name + " est : " + pct
-							+ "% utilisés (consommé : " + usage + " / " + limit + ") " + frArchiveSize);
+							+ "% utilisés (consommé : " + usage + " / " + limit + ")");
 				}
 			} else {
-				sched.info(rid, "en",
-						"usage for " + mailbox.value.name + " is: 0% in use (usable: " + limit + ") " + enArchiveSize);
-				sched.info(rid, "fr", "L'utilisation pour " + mailbox.value.name + " est : 0% utilisé (consommable : "
-						+ limit + ") " + frArchiveSize);
+				sched.info(rid, "en", "usage for " + mailbox.value.name + " is: 0% in use (usable: " + limit + ")");
+				sched.info(rid, "fr",
+						"L'utilisation pour " + mailbox.value.name + " est : 0% utilisé (consommable : " + limit + ")");
 			}
 		} catch (Exception e) {
 			warn = true;

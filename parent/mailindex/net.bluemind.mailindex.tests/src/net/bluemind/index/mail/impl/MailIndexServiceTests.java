@@ -65,6 +65,7 @@ import net.bluemind.index.mail.MailIndexService;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.ShardStats;
+import net.bluemind.utils.ByteSizeUnit;
 
 public class MailIndexServiceTests extends AbstractSearchTests {
 
@@ -484,6 +485,90 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 
 		stats = MailIndexActivator.getService().getStats();
 		assertNotNull(stats);
+	}
+
+	@Test
+	public void testGetQuotaInKiB() throws IOException {
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		storeBody(bodyUid1, eml);
+		storeMessage(mboxUid, userUid, bodyUid, 1, Collections.emptyList(), 1l);
+		storeMessage(mboxUid, userUid, bodyUid1, 2, Collections.emptyList(), 2l);
+		storeMessage(mboxUid, userUid, bodyUid, 3, Collections.emptyList(), 3l);
+		storeMessage(mboxUid, userUid, bodyUid, 4, Collections.emptyList(), 4l);
+		storeMessage(mboxUid, userUid, bodyUid, 5, Collections.emptyList(), 5l);
+		storeMessage(mboxUid2, userUid2, bodyUid, 6, Collections.emptyList(), 1l);
+		storeMessage(mboxUid2, userUid2, bodyUid, 7, Collections.emptyList(), 2l);
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		long quotaUser1 = MailIndexActivator.getService().getMailboxConsumedStorage(userUid, ByteSizeUnit.KB);
+		long quotaUser2 = MailIndexActivator.getService().getMailboxConsumedStorage(userUid2, ByteSizeUnit.KB);
+		assertEquals(5L, quotaUser1);
+		assertEquals(2L, quotaUser2);
+	}
+
+	@Test
+	public void testGetQuotaInMiB() throws IOException {
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		storeBody(bodyUid1, eml);
+		storeMessage(mboxUid, userUid, bodyUid, 1, Collections.emptyList(), 1l);
+		storeMessage(mboxUid, userUid, bodyUid1, 2, Collections.emptyList(), 2l);
+		storeMessage(mboxUid, userUid, bodyUid, 3, Collections.emptyList(), 3l);
+		storeMessage(mboxUid, userUid, bodyUid, 4, Collections.emptyList(), 4l);
+		storeMessage(mboxUid, userUid, bodyUid, 5, Collections.emptyList(), 5l);
+		storeMessage(mboxUid2, userUid2, bodyUid, 6, Collections.emptyList(), 1l);
+		storeMessage(mboxUid2, userUid2, bodyUid, 7, Collections.emptyList(), 2l);
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		long quotaUser1 = MailIndexActivator.getService().getMailboxConsumedStorage(userUid, ByteSizeUnit.MB);
+		long quotaUser2 = MailIndexActivator.getService().getMailboxConsumedStorage(userUid2, ByteSizeUnit.MB);
+		assertEquals(0L, quotaUser1);
+		assertEquals(0L, quotaUser2);
+	}
+
+	@Test
+	public void testGetQuotaInBytes() throws IOException {
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		storeBody(bodyUid1, eml);
+		storeMessage(mboxUid, userUid, bodyUid, 1, Collections.emptyList(), 1l);
+		storeMessage(mboxUid, userUid, bodyUid1, 2, Collections.emptyList(), 2l);
+		storeMessage(mboxUid, userUid, bodyUid, 3, Collections.emptyList(), 3l);
+		storeMessage(mboxUid, userUid, bodyUid, 4, Collections.emptyList(), 4l);
+		storeMessage(mboxUid, userUid, bodyUid, 5, Collections.emptyList(), 5l);
+		storeMessage(mboxUid2, userUid2, bodyUid, 6, Collections.emptyList(), 1l);
+		storeMessage(mboxUid2, userUid2, bodyUid, 7, Collections.emptyList(), 2l);
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		long quotaUser1 = MailIndexActivator.getService().getMailboxConsumedStorage(userUid, ByteSizeUnit.BYTES);
+		long quotaUser2 = MailIndexActivator.getService().getMailboxConsumedStorage(userUid2, ByteSizeUnit.BYTES);
+		assertEquals(5835L, quotaUser1);
+		assertEquals(2334L, quotaUser2);
+	}
+
+	@Test
+	public void testGetArchivedMailSum() throws IOException {
+		MailboxItemFlag flag = new MailboxItemFlag();
+		flag.flag = "bmarchived";
+		flag.value = 1;
+		List<MailboxItemFlag> flags = List.of(flag);
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		storeBody(bodyUid1, eml);
+		storeMessage(mboxUid, userUid, bodyUid, 1, flags, 1l);
+		storeMessage(mboxUid, userUid, bodyUid1, 2, flags, 2l);
+		storeMessage(mboxUid, userUid, bodyUid, 3, Collections.emptyList(), 3l);
+		storeMessage(mboxUid, userUid, bodyUid, 4, Collections.emptyList(), 4l);
+		storeMessage(mboxUid, userUid, bodyUid, 5, Collections.emptyList(), 5l);
+		storeMessage(mboxUid2, userUid2, bodyUid, 6, flags, 1l);
+		storeMessage(mboxUid2, userUid2, bodyUid, 7, Collections.emptyList(), 2l);
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		double quotaUser1 = MailIndexActivator.getService().getArchivedMailSum(userUid);
+		double quotaUser2 = MailIndexActivator.getService().getArchivedMailSum(userUid2);
+		assertEquals(2334.0, quotaUser1, 0);
+		assertEquals(1167.0, quotaUser2, 0);
 	}
 
 	@Test

@@ -95,7 +95,8 @@ public class CompositeBoxStorage implements IMailboxesStorage {
 	}
 
 	public MailboxQuota getQuota(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault {
-		return cyrus.getQuota(context, domainUid, value);
+		cyrus.getQuota(context, domainUid, value);
+		return mailApi.getQuota(context, domainUid, value);
 	}
 
 	public void move(String domainUid, ItemValue<Mailbox> mailbox, ItemValue<Server> sourceServer,

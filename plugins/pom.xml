@@ -94,6 +94,7 @@
 		<module>net.bluemind.system.nginx</module>
 		<module>net.bluemind.tika.server</module>
 		<module>net.bluemind.utils</module>
+		<module>net.bluemind.utils.tests</module>
 		<module>net.bluemind.vertx.common</module>
 		<module>net.bluemind.xivo.bridge</module>
 		<module>net.bluemind.xivo.client</module>

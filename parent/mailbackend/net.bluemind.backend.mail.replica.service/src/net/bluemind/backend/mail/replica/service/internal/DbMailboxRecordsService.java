@@ -21,6 +21,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -177,6 +178,11 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		} else {
 			version = storeService.create(uid, uid, mail);
 		}
+
+		ItemValue<MailboxRecord> itemValue = ItemValue.create(uid, mail);
+		itemValue.internalId = version.id;
+		itemValue.version = version.version;
+		updateIndex(Collections.singletonList(itemValue));
 		if (!isUpdate) {
 			logger.info("Sending event for created item {}v{}", version.id, version);
 			EmitReplicationEvents.recordCreated(mailboxUniqueId, version.version, version.id, mail.imapUid);

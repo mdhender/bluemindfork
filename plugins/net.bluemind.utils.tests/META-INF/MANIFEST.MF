@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.utils.tests
+Bundle-SymbolicName: net.bluemind.utils.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: net.bluemind
+Automatic-Module-Name: net.bluemind.utils.tests
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.junit,
+ net.bluemind.utils

@@ -34,6 +34,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.ShardStats;
+import net.bluemind.utils.ByteSizeUnit;
 
 public class NoopMailIndexService implements IMailIndexService {
 
@@ -157,6 +158,11 @@ public class NoopMailIndexService implements IMailIndexService {
 	@Override
 	public long resetMailboxIndex(String mailboxUid) {
 		return 0l;
+	}
+
+	@Override
+	public long getMailboxConsumedStorage(String userEntityId, ByteSizeUnit bsu) {
+		return 0L;
 	}
 
 }

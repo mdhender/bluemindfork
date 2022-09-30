@@ -35,12 +35,14 @@ import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.MailboxReplicaRootUpdate;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.index.MailIndexActivator;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.MailboxQuota;
@@ -48,6 +50,7 @@ import net.bluemind.mailbox.service.IMailboxesStorage;
 import net.bluemind.mailbox.service.common.DefaultFolder;
 import net.bluemind.mailbox.service.common.DefaultFolder.Status;
 import net.bluemind.server.api.Server;
+import net.bluemind.utils.ByteSizeUnit;
 
 public class MailApiBoxStorage implements IMailboxesStorage {
 
@@ -181,8 +184,18 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 
 	@Override
 	public MailboxQuota getQuota(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault {
-		// TODO Auto-generated method stub
-		return new MailboxQuota();
+		var mailboxQuota = new MailboxQuota();
+		Integer maxQuota = value.value.quota;
+		IMailIndexService mailIndexService = MailIndexActivator.getService();
+		try {
+			int usedQuota = Math.toIntExact(mailIndexService.getMailboxConsumedStorage(value.uid, ByteSizeUnit.KB));
+			mailboxQuota.used = usedQuota;
+			mailboxQuota.quota = maxQuota;
+		} catch (ArithmeticException e) {
+			logger.warn(e.getMessage());
+			throw new ServerFault(e);
+		}
+		return mailboxQuota;
 	}
 
 	@Override
