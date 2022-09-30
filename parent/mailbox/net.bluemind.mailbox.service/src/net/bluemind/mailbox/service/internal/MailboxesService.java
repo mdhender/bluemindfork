@@ -105,7 +105,6 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	private Sanitizer objectSanitizer;
 	private RBACManager rbacManager;
 	private ItemValue<Domain> domain;
-	private MailFilterForwardRoleValidator specificMailFilterValidator;
 	private Container container;
 	private static final IMailboxesStorage mailboxStorage = getMailStorage();
 	private static final List<IMailboxHook> hooks = getHooks();
@@ -133,7 +132,6 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		this.domainMailFilterStore = new DomainMailFilterStore(context.getDataSource(), container);
 
 		rbacManager = new RBACManager(context).forDomain(domainUid);
-		this.specificMailFilterValidator = new MailFilterForwardRoleValidator(context, domain);
 	}
 
 	@Override
@@ -317,6 +315,8 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		MailFilter previous = storeService.getFilter(mailboxUid);
 		objectSanitizer.update(previous, filter);
 		objectValidator.update(previous, filter);
+		MailFilterForwardRoleValidator specificMailFilterValidator = new MailFilterForwardRoleValidator(context, domain,
+				mailboxUid);
 		specificMailFilterValidator.update(previous, filter);
 		storeService.setFilter(mailboxUid, filter);
 

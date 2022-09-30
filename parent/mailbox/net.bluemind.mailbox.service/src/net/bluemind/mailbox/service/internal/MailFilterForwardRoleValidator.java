@@ -21,6 +21,9 @@ package net.bluemind.mailbox.service.internal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.google.common.base.Strings;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -28,19 +31,23 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.validator.IValidator;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.MailFilter.Forwarding;
 import net.bluemind.mailbox.api.MailFilter.Rule;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.role.api.BasicRoles;
 
 public class MailFilterForwardRoleValidator implements IValidator<MailFilter> {
 
 	private ItemValue<Domain> domain;
 	private BmContext context;
+	private String mailboxUid;
 
-	public MailFilterForwardRoleValidator(BmContext context, ItemValue<Domain> domain) {
+	public MailFilterForwardRoleValidator(BmContext context, ItemValue<Domain> domain, String mailboxUid) {
 		this.domain = domain;
 		this.context = context;
+		this.mailboxUid = mailboxUid;
 	}
 
 	@Override
@@ -57,9 +64,7 @@ public class MailFilterForwardRoleValidator implements IValidator<MailFilter> {
 	}
 
 	private void validateForwarding(Forwarding old, Forwarding forwarding) {
-
 		if (forwarding.enabled) {
-
 			Set<String> diff = new HashSet<>(forwarding.emails);
 
 			if (old != null && old.emails != null) {
@@ -71,6 +76,24 @@ public class MailFilterForwardRoleValidator implements IValidator<MailFilter> {
 			if (external) {
 				checkCanSetExternalForward();
 			}
+
+			if (!forwarding.emails.isEmpty() && !Strings.isNullOrEmpty(mailboxUid)) {
+				checkUserEmailsNotUsed(forwarding.emails);
+			}
+		}
+
+	}
+
+	private void checkUserEmailsNotUsed(Set<String> emails) {
+		ItemValue<Mailbox> mailbox = context.su().provider().instance(IMailboxes.class, domain.uid)
+				.getComplete(mailboxUid);
+
+		List<String> invalidEmails = emails.stream().flatMap(email -> {
+			return mailbox.value.emails.stream().filter(em -> em.address.equals(email));
+		}).map(Object::toString).toList();
+		if (!invalidEmails.isEmpty()) {
+			throw new ServerFault("Forwarding to own user emails is not authorized: "
+					+ invalidEmails.stream().collect(Collectors.joining(",")), ErrorCode.FORBIDDEN);
 		}
 	}
 
@@ -96,7 +119,9 @@ public class MailFilterForwardRoleValidator implements IValidator<MailFilter> {
 			if (hasExternal(rule.forward.emails)) {
 				checkCanSetExternalForward();
 			}
-
+			if (!Strings.isNullOrEmpty(mailboxUid)) {
+				checkUserEmailsNotUsed(rule.forward.emails);
+			}
 		}
 	}
 
