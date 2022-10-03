@@ -40,6 +40,11 @@ public class DirectorySerializationVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
+		vertx.setTimer(1000, this::startImpl);
+	}
+
+	private void startImpl(long timerId) {
+		logger.info("Delayed start from timer {}", timerId);
 		// Only one must be instantiated
 		activateSerializers();
 		// Concurrency is handled inside eventbus handlers

@@ -73,6 +73,7 @@ import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.hollow.datamodel.AddressBookRecord;
 import net.bluemind.directory.hollow.datamodel.DataLocation;
 import net.bluemind.directory.hollow.datamodel.OfflineAddressBook;
+import net.bluemind.directory.hollow.datamodel.consumer.DirectoryVersionReader;
 import net.bluemind.directory.hollow.datamodel.producer.EdgeNgram.EmailEdgeNGram;
 import net.bluemind.directory.hollow.datamodel.producer.impl.DomainVersions;
 import net.bluemind.domain.api.Domain;
@@ -189,6 +190,12 @@ public class DirectorySerializer implements DataSerializer {
 		long version = Optional.ofNullable(DomainVersions.get().getIfPresent(domainUid)).orElse(0L);
 		if (StateContext.getState() == SystemState.CORE_STATE_CLONING) {
 			return 0l;
+		}
+
+		if (version == 0l) {
+			DirectoryVersionReader reader = new DirectoryVersionReader(domainUid);
+			version = reader.version();
+			logger.info("[{}] Version fetched from hollow root is {}", domainUid, version);
 		}
 
 		ContainerChangeset<String> changeset = dirApi.changeset(version);
@@ -419,6 +426,7 @@ public class DirectorySerializer implements DataSerializer {
 		return "/o=Mapi";
 	}
 
+	@SuppressWarnings("serial")
 	private class HollowCorruptedException extends RuntimeException {
 
 		public HollowCorruptedException(String message, Throwable cause) {
