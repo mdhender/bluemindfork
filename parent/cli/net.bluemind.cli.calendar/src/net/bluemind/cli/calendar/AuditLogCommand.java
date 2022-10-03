@@ -18,6 +18,7 @@
  */
 package net.bluemind.cli.calendar;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,12 +31,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 
 import org.slf4j.LoggerFactory;
 
 import com.github.freva.asciitable.AsciiTable;
 import com.github.freva.asciitable.Column;
 import com.github.freva.asciitable.HorizontalAlign;
+import com.google.common.io.ByteStreams;
 
 import io.netty.util.internal.StringUtil;
 import io.vertx.core.json.JsonObject;
@@ -83,20 +86,37 @@ public class AuditLogCommand implements ICmdLet, Runnable {
 
 	@Override
 	public void run() {
-		List<String> content;
+		List<String> content = null;
 		try {
 			filteredActionSet = new HashSet<>();
 			if (!StringUtil.isNullOrEmpty(filteredActions)) {
 				filteredActionSet = new HashSet<>(Arrays.asList(filteredActions.split(",")).stream().map(s -> s.trim())
 						.collect(Collectors.toList()));
 			}
-			content = Files.readAllLines(file);
+
+			if (file.getFileName().toString().endsWith(".gz")) {
+				content = readFromGzipFile(file);
+			} else {
+				content = Files.readAllLines(file);
+			}
 		} catch (IOException e) {
 			throw new CliException("Cannot read file " + file + ":" + e.getMessage());
 		}
 
 		Result output = process(content);
 		ctx.info(output.content);
+	}
+
+	private List<String> readFromGzipFile(Path gzipFile) throws IOException {
+		List<String> content = null;
+		try (FileInputStream fis = new FileInputStream(gzipFile.toFile());
+				GZIPInputStream gis = new GZIPInputStream(fis)) {
+			String readLines = new String(ByteStreams.toByteArray(gis));
+			String[] split = readLines.split("\\R");
+			content = Arrays.asList(split);
+		}
+
+		return content;
 	}
 
 	private Result process(List<String> content) {
