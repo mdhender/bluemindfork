@@ -1,5 +1,8 @@
 <template>
-    <div class="mail-composer-footer-toolbar justify-content-between align-items-center">
+    <div
+        class="mail-composer-footer-toolbar justify-content-between align-items-center d-lg-flex"
+        :class="{ 'd-none': !isPopup, 'd-flex': isPopup }"
+    >
         <div class="main-buttons">
             <bm-button
                 v-if="isDraft"
@@ -111,7 +114,7 @@ import {
     SHOW_SENDER
 } from "~/mutations";
 import { IS_SENDER_SHOWN } from "~/getters";
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 
 const { MessageStatus } = messageUtils;
 const { isNewMessage } = draftUtils;
@@ -141,6 +144,7 @@ export default {
     },
     computed: {
         ...mapGetters("mail", { IS_SENDER_SHOWN }),
+        ...mapState("mail", ["isPopup"]),
         userSettings() {
             return this.$store.state.settings;
         },
@@ -235,15 +239,10 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 @import "~@bluemind/styleguide/css/_type";
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-composer-footer-toolbar {
-    display: none;
-    @include from-lg {
-        display: flex;
-    }
     flex-wrap: wrap;
     gap: $sp-5;
     padding: $sp-5 + $sp-2 $sp-4;
