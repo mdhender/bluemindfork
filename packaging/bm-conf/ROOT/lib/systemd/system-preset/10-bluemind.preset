@@ -1,12 +1,9 @@
 enable bm-core.service
-enable bm-cyrus-imapd.service
-enable bm-cyrus-syncclient.service
 enable bm-eas.service
 enable bm-mapi.service
 enable bm-forest-node.service
 enable bm-elasticsearch.service
 enable bm-hps.service
-enable bm-lmtpd.service
 enable bm-milter.service
 enable bm-nginx.service
 enable bm-node.service
@@ -21,7 +18,6 @@ enable bm-iptables.service
 enable bm-postgresql.service
 enable bm-postgresql-postupgrade.service
 enable postgresql.service
-enable bm-sds-proxy.service
 enable influxdb.service
 enable telegraf.service
 enable kapacitor.service

@@ -17,3 +17,27 @@ Priority: extra
 Section: oldlibs
 Description: transitional package
  This is a transitional package. It can safely be removed.
+
+Package: bm-cyrus
+Depends: bm-conf
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.
+
+Package: bm-lmtpd
+Depends: bm-cyrus, ${misc:Depends}
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.
+
+Package: bm-sds-proxy
+Depends: bm-cyrus, ${misc:Depends}
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.

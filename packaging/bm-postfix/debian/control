@@ -6,7 +6,7 @@ Standards-Version: 3.9.1
 
 Package: bm-postfix
 Architecture: amd64
-Depends: postfix, bm-milter
+Depends: postfix, bm-milter (= ${binary:Version}), bm-ysnp (= ${binary:Version})
 Conflicts: ssmtp
 Replaces: ssmtp
 Description: BlueMind Postfix

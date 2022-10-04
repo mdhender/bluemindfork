@@ -6,7 +6,7 @@ License:            GNU Affero General Public License v3
 Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
-Requires:           postfix, bm-milter, cyrus-sasl, cyrus-sasl-plain
+Requires:           postfix, bm-milter = %{version}-%{release}, bm-ysnp = %{version}-%{release}, cyrus-sasl, cyrus-sasl-plain
 
 %global _initrddir /etc/rc.d/init.d
 

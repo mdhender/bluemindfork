@@ -1,5 +1,5 @@
-BMCYRUS="3.0.13-bluemind351"
-BMSDS="1.0.0-351"
+BMCYRUS="5.0.0-bluemind353"
+BMSDS="5.0.0-353"
 
 BMES="7.17.7-bluemind104"
 

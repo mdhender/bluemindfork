@@ -9,8 +9,8 @@ Group:              Applications/messaging
 URL:                http://www.blue-mind.net/
 ExcludeArch:        s390 s390x
 Summary:            BlueMind configuration
-Conflicts:          bm-ips
-Obsoletes:          bm-ips
+Conflicts:          bm-ips, bm-cyrus, bm-imap-i18n, bm-cyrus-imapd, bm-lmtpd, bm-sds-proxy
+Obsoletes:          bm-ips, bm-cyrus, bm-imap-i18n, bm-cyrus-imapd, bm-lmtpd, bm-sds-proxy
 
 %define bluemindgid 841
 %define _bluemindgroup bluemind

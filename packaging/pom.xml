@@ -13,7 +13,6 @@
 		<module>bm-core</module>
 		<module>bm-eas</module>
 		<module>bm-hps</module>
-		<module>bm-lmtpd</module>
 		<module>bm-milter</module>
 		<module>bm-node</module>
 		<module>bm-pimp</module>
@@ -33,8 +32,6 @@
 		<module>bm-webmail</module>
 		<module>bm-client-access</module>
 		<module>bm-conf</module>
-		<module>bm-cyrus</module>
-		<module>bm-sds-proxy</module>
 		<module>bm-forest-node</module>
 		<module>bm-full</module>
 		<module>bm-checks</module>
