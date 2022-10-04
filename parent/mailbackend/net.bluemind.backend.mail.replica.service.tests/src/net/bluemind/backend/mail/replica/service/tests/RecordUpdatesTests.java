@@ -24,7 +24,9 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -172,17 +174,11 @@ public class RecordUpdatesTests extends AbstractRollingReplicationTests {
 			return sc.uidStore("1:*", fl, setSeen);
 		});
 		assertTrue(result);
-		long unseen = itemsApi().count(expectedMatch).total;
-		System.err.println("match: " + unseen);
-		long time = System.currentTimeMillis();
-		int attempt = 0;
-		while (unseen < MESSAGES) {
-			Thread.sleep(20L * ++attempt);
-			unseen = itemsApi().count(expectedMatch).total;
-			System.err.println("match: " + unseen);
-		}
-		time = System.currentTimeMillis() - time;
-		System.out.println(MESSAGES + " Marks replicated in " + time + "ms.");
+
+		Awaitility.await().atMost(MESSAGES / 10, TimeUnit.SECONDS)
+				.until(() -> itemsApi().count(expectedMatch).total >= MESSAGES);
+
+		System.out.println(MESSAGES + " Marks replicated");
 	}
 
 }
