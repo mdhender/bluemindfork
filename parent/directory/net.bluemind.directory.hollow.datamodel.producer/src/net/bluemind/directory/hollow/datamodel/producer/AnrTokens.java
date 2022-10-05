@@ -43,6 +43,7 @@ public class AnrTokens extends EdgeNgram<AnrToken> {
 	public List<AnrToken> compute(AddressBookRecord rec) {
 		Set<AnrToken> tokens = new HashSet<>();
 		if (!Strings.isNullOrEmpty(rec.name)) {
+			tokens.add(map(rec.name.toLowerCase()));
 			for (String chunk : DN_CHUNKS.split(rec.name)) {
 				tokens.addAll(new AnrTokens().compute(chunk));
 			}
