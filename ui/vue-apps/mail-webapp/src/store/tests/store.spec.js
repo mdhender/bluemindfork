@@ -46,6 +46,8 @@ const { LoadingStatus } = loadingStatusUtils;
 Vue.use(Vuex);
 injector.register({ provide: "UserSession", use: { userId: "B" } });
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 describe("Mail store", () => {
     let store;
     beforeEach(() => {

@@ -2,12 +2,25 @@ import { getPartPreviewUrl, WEBSERVER_HANDLER_BASE_URL } from "./index";
 
 export const CID_DATA_ATTRIBUTE = "data-bm-cid";
 
+let objectURLs = [];
+
 export default {
     insertAsUrl(contentsWithCids, imageParts, folderUid, imapUid) {
         const getNewSrcFn = part => getPartPreviewUrl(folderUid, imapUid, part);
         return insertInHtml(contentsWithCids, imageParts, getNewSrcFn);
     },
-
+    insertAsLocalUrl(contentsWithCids, imageParts, imagePartsData) {
+        const getNewSrcFn = part => {
+            const objectURL = URL.createObjectURL(new Blob([imagePartsData[part.address]]));
+            objectURLs.push(objectURL);
+            return objectURL;
+        };
+        return insertInHtml(contentsWithCids, imageParts, getNewSrcFn);
+    },
+    cleanLocalImages() {
+        objectURLs.forEach(objectURL => URL.revokeObjectURL(objectURL));
+        objectURLs = [];
+    },
     insertAsBase64(contentsWithCids, imageParts, contentByAddress) {
         const getNewSrcFn = part => contentByAddress[part.address];
         return insertInHtml(contentsWithCids, imageParts, getNewSrcFn);

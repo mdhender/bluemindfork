@@ -17,6 +17,7 @@
 </template>
 
 <script>
+import partition from "lodash.partition";
 import { mapActions } from "vuex";
 import linkifyHtml from "linkifyjs/html";
 import { MimeType, InlineImageHelper } from "@bluemind/email";
@@ -62,13 +63,21 @@ export default {
             const images = getPartsFromCapabilities(this.message, VIEWER_CAPABILITIES).filter(
                 part => MimeType.isImage(part) && part.contentId
             );
-            const insertionResult = InlineImageHelper.insertAsUrl(
+
+            const partsData = this.$store.state.mail.partsData.partsByMessageKey[this.message.key];
+            const [localImages, remoteImages] = partition(images, i => partsData[i.address]);
+
+            let insertionResult = InlineImageHelper.insertAsUrl(
                 [this.contentAsNode.body.innerHTML],
-                images,
+                remoteImages,
                 this.message.folderRef.uid,
                 this.message.remoteRef.imapUid
             );
             let html = insertionResult.contentsWithImageInserted[0];
+
+            insertionResult = InlineImageHelper.insertAsLocalUrl([html], localImages, partsData);
+            html = insertionResult.contentsWithImageInserted[0];
+
             return html;
         },
         html() {
@@ -92,6 +101,9 @@ export default {
             imapUid: this.message.remoteRef.imapUid,
             parts: [this.file]
         });
+    },
+    destroyed() {
+        InlineImageHelper.cleanLocalImages();
     },
     methods: {
         ...mapActions("mail", { FETCH_PART_DATA })

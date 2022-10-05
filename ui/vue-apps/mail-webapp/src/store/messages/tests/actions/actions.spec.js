@@ -28,6 +28,8 @@ import {
 import { FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 const { LoadingStatus } = loadingStatusUtils;
 const { MessageAdaptor, MessageStatus, createOnlyMetadata, createWithMetadata } = messageUtils;
 Vue.use(Vuex);

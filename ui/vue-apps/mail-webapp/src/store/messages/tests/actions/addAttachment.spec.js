@@ -1,7 +1,7 @@
 import ServiceLocator from "@bluemind/inject";
 import { MockMailboxItemsClient } from "@bluemind/test-utils";
 import { fileUtils } from "@bluemind/mail";
-import addAttachment from "../../actions/addAttachment";
+import { default as addAttachment, addLocalAttachment } from "../../actions/addAttachment";
 import {
     ADD_ATTACHMENT,
     ADD_FILE,
@@ -71,6 +71,23 @@ describe("addAttachment action", () => {
             hasAttachment: true
         });
         expect(context.commit).toHaveBeenNthCalledWith(5, SET_ATTACHMENT_ADDRESS, expect.anything());
+    });
+
+    test("Attach local text file", async () => {
+        await addLocalAttachment(context, actionParams);
+        expect(mockedClient.uploadPart).not.toHaveBeenCalled();
+        expect(context.commit).toHaveBeenNthCalledWith(1, ADD_FILE, expect.anything());
+        expect(context.commit).toHaveBeenNthCalledWith(2, REMOVE_ATTACHMENT, expect.anything());
+        expect(context.commit).toHaveBeenNthCalledWith(3, ADD_ATTACHMENT, expect.anything());
+        expect(context.commit).toHaveBeenNthCalledWith(
+            4,
+            SET_FILE_STATUS,
+            expect.objectContaining({ status: FileStatus.ONLY_LOCAL })
+        );
+        expect(context.commit).toHaveBeenNthCalledWith(5, SET_MESSAGE_HAS_ATTACHMENT, {
+            key: message.key,
+            hasAttachment: true
+        });
     });
 
     test("With error", async () => {

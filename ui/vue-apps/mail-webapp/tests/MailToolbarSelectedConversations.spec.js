@@ -3,6 +3,8 @@ jest.mock("@bluemind/styleguide/css/_variables.scss", () => ({ iconsColors: "" }
 import { createWrapper, createStore, conversationKey } from "./testUtils";
 jest.mock("@bluemind/styleguide/css/exports/avatar.scss", () => ({ 1: "#007bff" }));
 jest.mock("~/store/api/apiConversations");
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 describe("MailToolbarSelectedConversations", () => {
     test("is a Vue instance", () => {
         const wrapper = createWrapper(MailToolbarSelectedConversations);

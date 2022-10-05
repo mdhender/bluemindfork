@@ -23,6 +23,7 @@ import { MockMailboxFoldersClient, MockMailboxItemsClient } from "@bluemind/test
 const { LoadingStatus } = loadingStatusUtils;
 
 jest.mock("../api/apiMessages");
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
 
 Vue.use(Vuex);
 

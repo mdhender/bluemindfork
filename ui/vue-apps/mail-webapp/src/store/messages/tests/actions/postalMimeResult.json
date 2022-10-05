@@ -1,0 +1,123 @@
+{
+    "headers": [
+        {
+            "key": "mime-version",
+            "value": "1.0"
+        },
+        {
+            "key": "date",
+            "value": "Mon, 25 Jul 2022 13:07:18 +0000"
+        },
+        {
+            "key": "subject",
+            "value": "Re: aaaahhddddffsaaazzaaa"
+        },
+        {
+            "key": "in-reply-to",
+            "value": "<l527hc7h.4amb6wsfk2dc@vm40.net>"
+        },
+        {
+            "key": "x-bm-draft-refresh-date",
+            "value": "1658754438340"
+        },
+        {
+            "key": "references",
+            "value": "<l527hc7h.4amb6wsfk2dc@vm40.net>"
+        },
+        {
+            "key": "x-bm-draft-info",
+            "value": "{\"type\":\"REPLY-ALL\",\"messageInternalId\":1766,\"folderUid\":\"98d824fa-9262-5730-e465-6b85f7358943\"}"
+        },
+        {
+            "key": "message-id",
+            "value": "<l60rkc04.27nj14q4ilszk@vm40.net>"
+        },
+        {
+            "key": "x-bm-internal-id",
+            "value": "40CA6ADC-D62A-4091-B073-5D3EF288D6D9#bluemind-496b0097-f0c8-4f47-b7cd-9e370db6cc92:1787"
+        },
+        {
+            "key": "x-bm-previous-body",
+            "value": "cda9db1038cdd669eb99add8bb08cbb38a3ff290"
+        },
+        {
+            "key": "from",
+            "value": "Georges Abitbol <gabitbol@vm40.net>"
+        },
+        {
+            "key": "to",
+            "value": "Daddy Cool <dcool@vm40.net>"
+        },
+        {
+            "key": "cc",
+            "value": "Georges Abitbol <gabitbol@vm40.net>, Ken Lesurvivant <klesurvivant@vm40.net>"
+        },
+        {
+            "key": "content-type",
+            "value": "multipart/mixed; boundary=\"-=Part.df.de43473c8d5aff92.18235781613.b6583cb90594dc=-\""
+        }
+    ],
+    "from": {
+        "address": "gabitbol@vm40.net",
+        "name": "Georges Abitbol"
+    },
+    "to": [
+        {
+            "address": "dcool@vm40.net",
+            "name": "Daddy Cool"
+        }
+    ],
+    "cc": [
+        {
+            "address": "gabitbol@vm40.net",
+            "name": "Georges Abitbol"
+        },
+        {
+            "address": "klesurvivant@vm40.net",
+            "name": "Ken Lesurvivant"
+        }
+    ],
+    "subject": "Re: aaaahhddddffsaaazzaaa",
+    "messageId": "<l60rkc04.27nj14q4ilszk@vm40.net>",
+    "inReplyTo": "<l527hc7h.4amb6wsfk2dc@vm40.net>",
+    "references": "<l527hc7h.4amb6wsfk2dc@vm40.net>",
+    "date": "2022-07-25T13:07:18.000Z",
+    "html": "<div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div id=\"bm-composer-content-wrapper\"><div style=\"font-family: &quot;Montserrat&quot;, sans-serif; font-size: 9pt; color: rgb(31, 31, 31);\">aaaaabbbbccccddddffgggg<br></div><div class=\"composer-links filehosting-links\" style=\"padding: 15px; background-color: rgb(217, 237, 255);\"><div style=\"margin-bottom: 15px;\">\n        J'ai lié un fichier à ce message\n    </div> <div style=\"background-color: rgb(255, 255, 255); padding: 15px;\"><div style=\"border: 1px solid rgb(205, 205, 205); border-radius: 5px; margin-top: 10px; margin-bottom: 10px; padding: 15px;\"><img src=\"cid:7083F4AE-3DB8-459F-BC5F-E06CBFC7BBDB@bluemind.net\" data-bm-cid=\"<7083F4AE-3DB8-459F-BC5F-E06CBFC7BBDB@bluemind.net>\" alt=\"Attachment\" style=\"margin-right: 5px; float: left; width: 24px; height: 24px;\"> <span style=\"float: right;\"><img src=\"cid:77E2ABCD-9AE4-44DC-97CF-D76197A1AC80@bluemind.net\" data-bm-cid=\"<77E2ABCD-9AE4-44DC-97CF-D76197A1AC80@bluemind.net>\" alt=\"BlueMind\" style=\"margin-right: 5px; vertical-align: middle;\"> <a href=\"http://www.bluemind.net/\" style=\"color: rgb(15, 126, 219) !important;\">BlueMind</a></span> <a href=\"https://vm40.bluemind.net/fh/bm-fh/bm-c6bd8723-0e56-4949-8bd7-cbc5bea54f15\" style=\"color: rgb(15, 126, 219) !important;\">\n                rastadavid.xcf\n            </a> <span style=\"margin-left: 5px; font-size: small; color: grey;\">\n                (14.9 Mo)\n            </span> <span style=\"display: block; font-size: small; color: grey;\">\n                Expire le 08/07/2023\n            </span></div></div></div><br></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div><div id=\"data-bm-forward-separator\"><p>Le jeudi 07/07/2022 18:30, Georges Abitbol  a écrit :<br></p><blockquote style=\"margin-left: 1rem; padding-left: 1rem; border-left: 2px solid black;\"><div id=\"bm-composer-content-wrapper\">\n  <div id=\"bm-composer-content-wrapper\">\n   <div style=\"font-family: &quot;Montserrat&quot;, sans-serif; font-size: 9pt; color: rgb(31, 31, 31);\">\n    <br>\n   </div>\n   <div>\n    <pre style=\"font-family: &quot;Montserrat&quot;, sans-serif; font-size: 9pt; color: rgb(31, 31, 31);\">aaa</pre>\n   </div>\n   \n  </div>\n  <div class=\"x-disclaimer1853743990\">\n   <p>--</p>\n   <p><span style=\"background-color: #ffffff; color: #f29d12;\">***</span><span style=\"color: #e74c3c;\"><strong>Dis</strong></span><span style=\"background-color: #ffffff;\"><strong><span style=\"color: #3598db;\"><em>Claimer</em></span></strong><span style=\"color: #f29d12;\">*</span></span><span style=\"color: #f29d12;\">**</span></p>\n  </div>\n \n</div></blockquote></div><style></style></div>\n",
+    "text": "aaaaabbbbccccddddffgggg\nJ'ai lié un fichier à ce message\nBlueMind [http://www.bluemind.net/] rastadavid.xcf [https://vm40.bluemind.net/fh/bm-fh/bm-c6bd8723-0e56-4949-8bd7-cbc5bea54f15] (14.9 Mo)\nExpire le 08/07/2023\nLe jeudi 07/07/2022 18:30, Georges Abitbol a écrit :\n\naaa\n--\n\n***DisClaimer***\n\n",
+    "attachments": [
+        {
+            "filename": "",
+            "mimeType": "image/gif",
+            "disposition": "inline",
+            "related": true,
+            "contentId": "<7083F4AE-3DB8-459F-BC5F-E06CBFC7BBDB@bluemind.net>",
+            "content": {}
+        },
+        {
+            "filename": "",
+            "mimeType": "image/gif",
+            "disposition": "inline",
+            "related": true,
+            "contentId": "<77E2ABCD-9AE4-44DC-97CF-D76197A1AC80@bluemind.net>",
+            "content": {}
+        },
+        {
+            "filename": "rastadavid.xcf",
+            "mimeType": "application/octet-stream",
+            "disposition": "attachment",
+            "content": {}
+        },
+        {
+            "filename": "saintmehdi2.png",
+            "mimeType": "image/png",
+            "disposition": "attachment",
+            "content": {}
+        },
+        {
+            "filename": "rastadavid.png",
+            "mimeType": "image/png",
+            "disposition": "attachment",
+            "content": {}
+        }
+    ]
+}

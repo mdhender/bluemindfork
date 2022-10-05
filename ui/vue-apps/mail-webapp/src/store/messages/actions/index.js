@@ -8,17 +8,20 @@ import {
     moveMessages,
     removeMessages
 } from "./actions";
-import addAttachment from "./addAttachment";
+import { default as addAttachment, addLocalAttachment } from "./addAttachment";
+import importEml from "./importEml";
 import removeAttachment from "./removeAttachment";
 import { debouncedSave, saveAsap } from "./save";
 import send from "./send";
 import {
     ADD_ATTACHMENT,
     ADD_FLAG,
+    ADD_LOCAL_ATTACHMENT,
     DEBOUNCED_SAVE_MESSAGE,
     DELETE_FLAG,
     FETCH_MESSAGE_IF_NOT_LOADED,
     FETCH_MESSAGE_METADATA,
+    IMPORT_EML,
     MARK_MESSAGE_AS_FLAGGED,
     MARK_MESSAGE_AS_READ,
     MARK_MESSAGE_AS_UNFLAGGED,
@@ -47,10 +50,12 @@ const saveAs = (context, { message, messageCompose, files }) =>
 export default {
     [ADD_ATTACHMENT]: addAttachment,
     [ADD_FLAG]: addFlag,
+    [ADD_LOCAL_ATTACHMENT]: addLocalAttachment,
     [DEBOUNCED_SAVE_MESSAGE]: debouncedSave,
     [DELETE_FLAG]: deleteFlag,
     [FETCH_MESSAGE_IF_NOT_LOADED]: fetchMessageIfNotLoaded,
     [FETCH_MESSAGE_METADATA]: fetchMessageMetadata,
+    [IMPORT_EML]: importEml,
     [MARK_MESSAGE_AS_FLAGGED]: markAsFlagged,
     [MARK_MESSAGE_AS_READ]: markAsRead,
     [MARK_MESSAGE_AS_UNFLAGGED]: markAsUnflagged,

@@ -11,6 +11,8 @@ vueI18n.t = jest.fn().mockImplementation(() => {
 import { createStore, createWrapper } from "./testUtils";
 import BodyViewer from "../src/components/MailViewer/BodyViewer";
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 describe("BodyViewer.spec", () => {
     test("image/* file type is a viewer capacity", async () => {
         const inlinePartsByCapabilities = [

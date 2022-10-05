@@ -253,6 +253,7 @@
     "mail.content.file-type-data": "Binary",
     "mail.content.file-type-excel": "Spreadsheet",
     "mail.content.file-type-image": "Image",
+    "mail.content.file-type-message": "Message",
     "mail.content.file-type-pdf": "PDF",
     "mail.content.file-type-presentation": "Presentation",
     "mail.content.file-type-system": "System",

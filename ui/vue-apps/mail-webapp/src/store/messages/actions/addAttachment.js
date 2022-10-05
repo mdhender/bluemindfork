@@ -29,11 +29,7 @@ export default async function ({ commit }, { message, attachment, content }) {
     global.cancellers = global.cancellers || {};
     global.cancellers[file.key] = { cancel: undefined };
 
-    commit(SET_FILE_STATUS, {
-        key: attachmentInfos.fileKey,
-        status: FileStatus.NOT_LOADED
-    });
-
+    commit(SET_FILE_STATUS, { key: attachmentInfos.fileKey, status: FileStatus.NOT_LOADED });
     commit(SET_MESSAGE_HAS_ATTACHMENT, { key: message.key, hasAttachment: true });
 
     try {
@@ -68,6 +64,27 @@ export default async function ({ commit }, { message, attachment, content }) {
         const error = event.target && event.target.error ? event.target.error : event;
         handleError(commit, message, error, attachmentInfos);
     }
+}
+
+export function addLocalAttachment({ commit }, { message, attachment, content }) {
+    const { attachments, files } = AttachmentAdaptor.extractFiles([attachment], message);
+    const file = files.pop();
+    const attachmentInfos = attachments.pop();
+
+    if (content instanceof ArrayBuffer ? !content.byteLength : !content.length) {
+        file.url = null;
+        file.size = 0;
+    } else {
+        const fileBlob = new File([content], file.fileName, { type: file.mime });
+        file.url = URL.createObjectURL(fileBlob);
+        file.size = fileBlob.size;
+    }
+
+    commit(ADD_FILE, { file });
+    commit(REMOVE_ATTACHMENT, { messageKey: message.key, address: attachment.address });
+    commit(ADD_ATTACHMENT, { messageKey: message.key, attachment: attachmentInfos });
+    commit(SET_FILE_STATUS, { key: attachmentInfos.fileKey, status: FileStatus.ONLY_LOCAL });
+    commit(SET_MESSAGE_HAS_ATTACHMENT, { key: message.key, hasAttachment: true });
 }
 
 function createOnUploadProgress(commit, attachment) {

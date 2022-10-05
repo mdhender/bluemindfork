@@ -45,7 +45,9 @@ export default {
     computed: {
         hasPreview() {
             return (
-                this.preview && MimeType.previewAvailable(this.file.mime) && this.file.status === FileStatus.UPLOADED
+                this.preview &&
+                MimeType.previewAvailable(this.file.mime) &&
+                [FileStatus.ONLY_LOCAL, FileStatus.UPLOADED].includes(this.file.status)
             );
         },
         matchingIcon() {

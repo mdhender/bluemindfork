@@ -53,12 +53,13 @@ export function isViewable({ mime }) {
 }
 
 export const VIEWER_CAPABILITIES = [
+    MimeType.AUDIO,
+    MimeType.IMAGE,
+    MimeType.MESSAGE,
+    MimeType.PDF,
     MimeType.TEXT_HTML,
     MimeType.TEXT_PLAIN,
-    MimeType.IMAGE,
-    MimeType.AUDIO,
-    MimeType.VIDEO,
-    MimeType.PDF
+    MimeType.VIDEO
 ];
 
 export function sanitizeTextPartForCyrus(text) {

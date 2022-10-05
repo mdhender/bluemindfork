@@ -95,16 +95,17 @@ const OPEN_DOCUMENT_PRESENTATION_SUFFIXES = ["odp"];
 
 export default {
     AUDIO,
-    TEXT,
-    TEXT_PLAIN,
-    TEXT_HTML,
-    TEXT_CALENDAR,
-    MULTIPART_RELATED,
+    ICS,
+    IMAGE,
+    MESSAGE,
     MULTIPART_ALTERNATIVE,
     MULTIPART_MIXED,
-    IMAGE,
-    ICS,
+    MULTIPART_RELATED,
     PDF,
+    TEXT_CALENDAR,
+    TEXT_HTML,
+    TEXT_PLAIN,
+    TEXT,
     VCARD,
     VIDEO,
     equals,
@@ -221,14 +222,15 @@ function matchingIcon(mimeType) {
         equals(mimeType, SHELL) ||
         equals(mimeType, CSHELL) ||
         equals(mimeType, XHTML) ||
-        equals(mimeType, TEXT_HTML) ||
-        mimeType.startsWith(MESSAGE)
+        equals(mimeType, TEXT_HTML)
     ) {
         return "file-type-code";
     } else if (equals(mimeType, ICS) || equals(mimeType, TEXT_CALENDAR)) {
         return "file-type-ics";
     } else if (equals(mimeType, VCARD)) {
         return "file-type-vcard";
+    } else if (mimeType.startsWith(MESSAGE)) {
+        return "file-type-message";
     } else {
         return "file-type-unknown";
     }

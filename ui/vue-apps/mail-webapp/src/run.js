@@ -12,6 +12,7 @@ import mailRoutes from "./router";
 import MailStore from "./store/";
 import registerAPIClients from "./registerApiClients";
 import DecoratedFileItem from "./components/MailAttachment/DecoratedFileItem.vue";
+import MailViewerContent from "./components/MailViewer/MailViewerContent";
 
 Vue.component("decorated-file-item", DecoratedFileItem);
 extensions.register("webapp.mail", "file-item", {
@@ -24,6 +25,9 @@ extensions.register("webapp.mail", "file-item", {
 registerAPIClients();
 store.registerModule("mail", MailStore);
 router.addRoutes(mailRoutes);
+
+// FIXME allow to use MailViewerContent in MessageFileViewer (avoid to import it due to circular dependency issue)
+Vue.component("MailViewerContent", MailViewerContent);
 
 Vue.component("mail-webapp", MailApp);
 Vue.component("MailAlertRenderer", MailAlertRenderer);
