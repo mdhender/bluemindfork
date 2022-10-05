@@ -204,7 +204,7 @@ public class MailboxRepairSupport implements IDirEntryRepairSupport {
 
 			mailbox = storeService.get(entry.entryUid, null);
 			boolean mailboxExists = mailbox != null && mailbox.value != null;
-			if (mailboxExists) {
+			if (!mailboxExists) {
 				monitor.log(String.format("Mailbox %s not found in database", entry.entryUid), Level.WARN);
 				monitor.notify("Mailbox {} not found in database", entry.entryUid);
 			}
