@@ -13,7 +13,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.tests.defaultdata,
  net.bluemind.lib.vertx,
  net.bluemind.core.serialization;bundle-version="4.1.0",
- net.bluemind.directory.hollow.datamodel.producer;bundle-version="4.1.0"
+ net.bluemind.directory.hollow.datamodel.producer;bundle-version="4.1.0",
+ org.awaitility,
+ org.hamcrest;bundle-version="2.2.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.serialization.client.tests
 Bundle-ActivationPolicy: lazy

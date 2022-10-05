@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +37,7 @@ import org.junit.Test;
 import com.google.common.io.ByteStreams;
 
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.directory.hollow.datamodel.consumer.DirectoryDeserializer;
 import net.bluemind.directory.hollow.datamodel.consumer.DirectorySearchFactory;
 import net.bluemind.directory.hollow.datamodel.consumer.SerializedDirectorySearch;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -59,16 +61,13 @@ public class BmHollowClientTests {
 		PopulateHelper.addDomain("bm.lan", Routing.none);
 		PopulateHelper.addUser("john", "bm.lan");
 
+		Awaitility.await().atMost(5, TimeUnit.SECONDS)
+				.until(() -> new File(DirectoryDeserializer.baseDataDir() + "/bm.lan/announced.version").exists());
+
 		SerializedDirectorySearch hollow = DirectorySearchFactory.get("bm.lan");
 
-		while (hollow.all().isEmpty()) {
-			System.err.println("Waiting for hollow data");
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				// ok
-			}
-		}
+		Awaitility.await().atMost(5, TimeUnit.SECONDS).until(() -> !hollow.all().isEmpty());
+
 	}
 
 	@After
