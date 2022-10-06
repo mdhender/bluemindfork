@@ -58,6 +58,10 @@ public class DirEntryTargetFilter {
 		}
 
 		public String sortKey() {
+			// ensure domain root is processed first
+			if (dirEntry.value != null && dirEntry.value.kind == Kind.DOMAIN) {
+				return this.domainUid;
+			}
 			return this.domainUid + "-" + (dirEntry.value != null ? dirEntry.value.email : "null") + "-" + dirEntry.uid;
 		}
 	}
