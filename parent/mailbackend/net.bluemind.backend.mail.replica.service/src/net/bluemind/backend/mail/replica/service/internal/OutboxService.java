@@ -171,6 +171,7 @@ public class OutboxService implements IOutbox {
 				ctx.monitor.progress(1,
 						"FLUSHING OUTBOX - mail " + msg.getMessageId() + " sent and moved in Sent folder.");
 			} catch (Exception e) {
+				logger.warn("ItemId {}: ", item.internalId, e);
 				throw new ServerFault(e);
 			}
 			return ret;
@@ -331,7 +332,7 @@ public class OutboxService implements IOutbox {
 		return serviceProvider.instance(IDomains.class).get(domainUid).value.defaultAlias;
 	}
 
-	private MailboxList allRecipients(Message m) {
+	private MailboxList allRecipients(Message m) throws Exception {
 		LinkedList<org.apache.james.mime4j.dom.address.Mailbox> rcpt = new LinkedList<>();
 		AddressList tos = m.getTo();
 		if (tos != null) {
@@ -346,7 +347,7 @@ public class OutboxService implements IOutbox {
 			rcpt.addAll(bccs.flatten());
 		}
 		if (rcpt.isEmpty()) {
-			throw new ServerFault("Empty recipients list.");
+			throw new Exception("Empty recipients list.");
 		}
 		return new MailboxList(rcpt, true);
 	}
