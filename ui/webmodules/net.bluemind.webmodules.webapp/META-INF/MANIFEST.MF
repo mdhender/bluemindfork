@@ -17,6 +17,7 @@ Require-Bundle: net.bluemind.webmodule,
  net.bluemind.config,
  net.bluemind.network.topology,
  net.bluemind.backend.mail.api,
- com.google.guava
+ com.google.guava,
+ com.github.ben-manes.caffeine
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.webmodules.webapp

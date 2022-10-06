@@ -19,12 +19,14 @@
 package net.bluemind.webmodules.webapp.handlers;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -43,8 +45,10 @@ import net.bluemind.webmodule.server.NeedVertx;
 
 public class PartContentUrlHandler implements Handler<HttpServerRequest>, NeedVertx {
 
-	private static Cache<String, Semaphore> lockBySession = CacheBuilder.newBuilder()
-			.expireAfterAccess(1, TimeUnit.MINUTES).build();
+	private static Cache<String, Semaphore> lockBySession = Caffeine.newBuilder()
+			.expireAfterAccess(20, TimeUnit.MINUTES).build();
+
+	private static final Logger logger = LoggerFactory.getLogger(PartContentUrlHandler.class);
 
 	private HttpClientProvider prov;
 	private Vertx vertx;
@@ -61,52 +65,52 @@ public class PartContentUrlHandler implements Handler<HttpServerRequest>, NeedVe
 		asyncHandler.success(resp);
 	};
 
+	@FunctionalInterface
+	public interface SerializedOperation {
+
+		CompletableFuture<Void> runWithLock(HttpServerRequest req, String coreSid);
+
+	}
+
 	@Override
 	public void handle(final HttpServerRequest request) {
 		String sessionId = request.headers().get("BMSessionId");
 
-		Semaphore sem;
-		try {
-			sem = lockBySession.get(sessionId, () -> {
-				return new Semaphore(1);
-			});
-		} catch (ExecutionException e1) {
-			request.response().setStatusCode(500);
-			request.response().setStatusMessage("Failed to get semaphore for session " + sessionId);
-			request.response().end();
-			return;
-		}
+		request.pause();
 
-		vertx.executeBlocking(v -> {
-			try {
-				sem.acquire();
-				v.complete();
-			} catch (InterruptedException e) {
-				v.fail("sem.acquire failed, cant response to request.. " + e);
-			}
-		}, res -> {
-			if (res.failed()) {
-				request.response().setStatusCode(500);
-				request.response().setStatusMessage(res.cause().toString());
-				request.response().end();
-				sem.release();
+		withSessionLock(sessionId, request, this::fetchFromCore);
+	}
+
+	private void withSessionLock(String sessionId, HttpServerRequest request, SerializedOperation operation) {
+		Semaphore sem = lockBySession.get(sessionId, sid -> new Semaphore(1, true));
+
+		try {
+			boolean locked = sem.tryAcquire(25, TimeUnit.MILLISECONDS);
+			if (!locked) {
+				vertx.setTimer(5, tid -> withSessionLock(sessionId, request, operation));
 			} else {
-				fetchFromCore(request, sessionId).thenAccept(v -> {
+				request.resume();
+				operation.runWithLock(request, sessionId).whenComplete((v, e) -> {
 					sem.release();
-				}).exceptionally(e -> {
-					request.response().setStatusCode(500);
-					request.response().setStatusMessage(e.getMessage());
-					request.response().end();
-					sem.release();
-					return null;
+					if (e != null) {
+						logger.error("[{}] {}", sessionId, e.getMessage(), e);
+						HttpServerResponse resp = request.response();
+						if (!resp.headWritten()) {
+							request.response().setStatusCode(500).setStatusMessage(e.getMessage());
+						}
+						if (!resp.ended()) {
+							resp.end();
+						}
+					}
 				});
 			}
-		});
-
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	private CompletableFuture<Void> fetchFromCore(final HttpServerRequest request, String sessionId) {
-		final VertxPromiseServiceProvider clientProvider = new VertxPromiseServiceProvider(prov, locator, sessionId);
+		VertxPromiseServiceProvider clientProvider = new VertxPromiseServiceProvider(prov, locator, sessionId);
 
 		String folderUid = request.params().get("folderUid");
 		IMailboxItemsPromise service = clientProvider.instance(IMailboxItemsPromise.class, folderUid);
@@ -119,7 +123,7 @@ public class PartContentUrlHandler implements Handler<HttpServerRequest>, NeedVe
 		String filename = request.params().get("filename");
 
 		return service.fetch(Long.parseLong(imapUid), address, encoding, mime, charset, filename)
-				.thenAccept(partContent -> {
+				.thenCompose(partContent -> {
 					HttpServerResponse resp = request.response();
 					resp.setChunked(true);
 
@@ -128,7 +132,7 @@ public class PartContentUrlHandler implements Handler<HttpServerRequest>, NeedVe
 					resp.headers().set("Cache-Control", "max-age=15768000, private"); // 6 months
 
 					ReadStream<Buffer> read = VertxStream.read(partContent);
-					read.pipeTo(resp);
+					return read.pipeTo(resp).toCompletionStage();
 				});
 	}
 
