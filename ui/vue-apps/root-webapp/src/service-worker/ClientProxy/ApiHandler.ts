@@ -38,7 +38,7 @@ export class ApiHandler {
 
 // const RootApiClientFactory = {
 //     create(client: typeof APIClient, ...parameters: Array<any>): APIClient {
-//         while (Object.getPrototypeOf(client).prototype?.getMetadatas) {
+//         while (Object.getPrototypeOf(client).prototype?.getMetadata) {
 //             client = Object.getPrototypeOf(client);
 //         }
 //         // FIXME: To Remove

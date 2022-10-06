@@ -9,9 +9,7 @@
         "@bluemind/event": "^4.1.0",
         "@bluemind/global": "^4.1.0",
         "@bluemind/inject": "^4.1.0",
-        "@bluemind/uuid": "^4.1.0"
-    },
-    "peerDependencies": {
-        "sockjs-client": "^1.3.0"
+        "@bluemind/uuid": "^4.1.0",
+        "sockjs-client": "^1.6.1"
     }
 }

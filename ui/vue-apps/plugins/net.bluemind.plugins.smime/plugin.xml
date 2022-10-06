@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/webapp">
+         <web-resource
+               bundle="net.bluemind.plugins.smime"
+               preload="false">
+         </web-resource>
+         <js
+               async-loading="false"
+               path="js/net.bluemind.smime.js"
+               translation="false">
+         </js>
+      </web-module-provider>
+   </extension>
+
+    <extension
+          point="serviceworker.scripts">
+       <script
+             path="smime.service-worker.js">
+       </script>
+    </extension>
+
+</plugin>

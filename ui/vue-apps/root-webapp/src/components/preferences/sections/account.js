@@ -23,7 +23,7 @@ function main(i18n) {
         { text: i18n.t("common.application.calendar"), value: "/cal/" }
     ];
     return {
-        id: "my_account.main",
+        id: "main",
         name: i18n.t("common.general"),
         icon: "wrench",
         groups: [
@@ -151,7 +151,7 @@ function main(i18n) {
 
 function advanced(i18n) {
     return {
-        id: "my_account.advanced",
+        id: "advanced",
         name: i18n.t("common.advanced"),
         icon: "plus",
         priority: -1,
@@ -189,7 +189,7 @@ function advanced(i18n) {
 
 function security(i18n) {
     return {
-        id: "my_account.security",
+        id: "security",
         name: i18n.t("common.security"),
         icon: "key",
         groups: [
@@ -224,7 +224,7 @@ function security(i18n) {
 
 function cti(i18n) {
     return {
-        id: "my_account.cti",
+        id: "cti",
         name: i18n.t("common.telephony"),
         icon: "phone",
         visible: { name: "RoleCondition.every", args: [Roles.HAS_CTI, Roles.HAS_IM] },
@@ -250,7 +250,7 @@ function cti(i18n) {
 
 function externalAccounts(i18n) {
     return {
-        id: "my_account.external_accounts",
+        id: "external_accounts",
         name: i18n.t("preferences.account.external_accounts"),
         icon: "user",
         visible: { name: "RoleCondition", args: [Roles.SELF_MANAGE_EXTERNAL_ACCOUNT] },

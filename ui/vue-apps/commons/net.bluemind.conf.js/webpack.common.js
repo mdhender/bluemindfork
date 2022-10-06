@@ -1,4 +1,3 @@
-var path = require("path");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
 
 module.exports = {
@@ -33,7 +32,7 @@ module.exports = {
             {
                 test: /\.ts$/,
                 use: ["babel-loader", "ts-loader"],
-                exclude: /node_modules/
+                exclude: [/node_modules/, /target/]
             },
 
             {
@@ -50,7 +49,7 @@ module.exports = {
         vuex: "Vuex"
     },
     resolve: {
-        extensions: ["*", ".js", ".ts", ".vue", ".json", ".css", ".scss"]
+        extensions: ["*", ".js", ".vue", ".json", ".css", ".scss", ".ts"]
     },
     devtool: "source-map"
 };

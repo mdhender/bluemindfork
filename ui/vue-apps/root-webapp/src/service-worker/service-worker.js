@@ -10,9 +10,7 @@ self.skipWaiting();
 self.importScripts("/webapp/service-worker-extensions");
 
 const scripts = extensions.get("serviceworker.scripts", "script");
-if (scripts.length > 0) {
-    self.importScripts(scripts.map(({ path }) => path));
-}
+self.importScripts(scripts.map(({ path }) => path).join(","));
 
 //Api Client proxyfication
 const handlers = extensions.get("serviceworker.handlers", "api-handler");

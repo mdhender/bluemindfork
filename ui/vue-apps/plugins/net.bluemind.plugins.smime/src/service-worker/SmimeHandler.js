@@ -1,10 +1,9 @@
 import { MailboxItemsClient } from "@bluemind/backend.mail.api";
-import { getMetadatas } from "../getMetadatas";
-import Session from "../session";
-import { logger } from "../logger";
-import EmlParser from "../eml/EmlParser";
+import Session from "./session";
+import { logger } from "./logger";
+import EmlParser from "./eml/EmlParser";
 
-export class SMimeHandler extends MailboxItemsClient {
+export default class SmimeHandler extends MailboxItemsClient {
     async multipleGetById() {
         const items = await this.next();
         for (let i = 0; i < items.length; i++) {
@@ -17,10 +16,6 @@ export class SMimeHandler extends MailboxItemsClient {
             }
         }
         return items;
-    }
-
-    getMetadatas() {
-        return getMetadatas();
     }
 }
 

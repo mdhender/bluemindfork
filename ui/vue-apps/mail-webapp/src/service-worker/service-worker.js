@@ -9,10 +9,8 @@ import Session from "./session";
 import { logger } from "./logger";
 import BrowserData from "./BrowserData";
 import { MailItemDB } from "./workbox/MailItemDB";
-import { SMimeHandler } from "./smime/SMimeHandler";
 
 extensions.register("serviceworker.handlers", "mail-webapp", { "api-handler": { class: MailItemDB, priority: 128 } });
-extensions.register("serviceworker.handlers", "mail-webapp", { "api-handler": { class: SMimeHandler, priority: 256 } });
 
 registerSessionInfoRoute();
 registerPartRoute();

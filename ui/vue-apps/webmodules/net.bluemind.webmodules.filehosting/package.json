@@ -1,5 +1,5 @@
 {
-    "name": "@bluemind/filehosting",
+    "name": "@bluemind/plugin.filehosting",
     "version": "4.1.0",
     "description": "BlueMind filehosting plugin",
     "author": "Blue Mind SAS",

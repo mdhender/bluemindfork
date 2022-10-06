@@ -14,9 +14,9 @@ export const ApiRouteRegistry: ApiRouteRegistryType = {
         const proxy = new ProxyClass();
         const methods = getProxifiedMethods(proxy);
         methods.forEach(method => {
-            const key: string = EndPoint.key(method, proxy.getMetadatas());
+            const key: string = EndPoint.key(method, proxy.getMetadata());
             if (!this.endpoints.has(key)) {
-                this.endpoints.set(key, new EndPoint(method, proxy.getMetadatas()));
+                this.endpoints.set(key, new EndPoint(method, proxy.getMetadata()));
             }
             this.endpoints.get(key)!.chain(ProxyClass, priority);
         });
@@ -34,7 +34,7 @@ export const ApiRouteRegistry: ApiRouteRegistryType = {
 };
 
 function getProxifiedMethods(proxy: APIClient): Array<MethodMetadatas> {
-    const clientMetadatas: Array<MethodMetadatas> = proxy.getMetadatas().methods;
+    const clientMetadatas: Array<MethodMetadatas> = proxy.getMetadata().methods;
     const methods: Set<MethodMetadatas> = new Set();
     do {
         Object.getOwnPropertyNames(proxy).forEach(name => {
@@ -43,6 +43,6 @@ function getProxifiedMethods(proxy: APIClient): Array<MethodMetadatas> {
                 methods.add(methodMetadatas);
             }
         });
-    } while ((proxy = Object.getPrototypeOf(proxy)) && proxy.getMetadatas);
+    } while ((proxy = Object.getPrototypeOf(proxy)) && proxy.getMetadata);
     return [...methods];
 }

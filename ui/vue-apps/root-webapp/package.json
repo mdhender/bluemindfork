@@ -43,9 +43,9 @@
         "vue-global-events": "^1.1.2",
         "vue-i18n": "^8.21.0",
         "vue2-touch-events": "^2.2.1",
-        "workbox-core": "^6.5.2",
-        "workbox-routing": "^6.5.2",
-        "workbox-strategies": "^6.5.2"
+        "workbox-core": "^6.5.4",
+        "workbox-routing": "^6.5.4",
+        "workbox-strategies": "^6.5.4"
     },
     "devDependencies": {
         "@bluemind/conf": "^4.1.0",

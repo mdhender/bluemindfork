@@ -5,7 +5,7 @@ jest.mock("../../session");
 const implementations = [];
 const constructor = jest.fn();
 const method = jest.fn();
-const getMetadatas = jest.fn();
+const getMetadata = jest.fn();
 
 class MockApiClient {
     constructor() {
@@ -15,8 +15,8 @@ class MockApiClient {
     method() {
         method(...arguments);
     }
-    getMetadatas() {
-        getMetadatas(...arguments);
+    getMetadata() {
+        getMetadata(...arguments);
     }
 }
 Session.sid = Promise.resolve("SID");
@@ -26,7 +26,7 @@ describe("ApiHandler", () => {
         implementations.splice(0, implementations.length);
         constructor.mockClear();
         method.mockClear();
-        getMetadatas.mockClear();
+        getMetadata.mockClear();
     });
     describe("chain", () => {
         test("to return this if handler priority is higher than parameter priority", () => {

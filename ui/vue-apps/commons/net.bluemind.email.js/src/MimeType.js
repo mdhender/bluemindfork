@@ -7,7 +7,6 @@ const MULTIPART_REPORT = "multipart/report";
 const MULTIPART_ALTERNATIVE = "multipart/alternative";
 const MULTIPART_MIXED = "multipart/mixed";
 const MULTIPART = "multipart/";
-
 const ICS = "application/ics";
 const VCARD = "text/vcard";
 const IMAGE = "image/";
@@ -56,6 +55,10 @@ const MP3 = "audio/mp3";
 const MOV = "video/mov";
 const MP4 = "video/mp4";
 const AVI = "image/avi";
+const PKCS_8 = "application/pkcs8";
+const PKCS_12 = "application/x-pkcs12";
+const CRYPTO_CERT = "application/pkix-cert";
+const X509_CERT = "application/x-x509-ca-cert";
 
 const MP4_SUFFIXES = ["mp4"];
 const MOV_SUFFIXES = ["mov"];
@@ -101,6 +104,7 @@ const MESSAGE_RFC822_SUFFIXES = ["eml"];
 
 export default {
     AUDIO,
+    CRYPTO_CERT,
     ICS,
     IMAGE,
     MESSAGE,
@@ -112,13 +116,16 @@ export default {
     MULTIPART_RELATED,
     MULTIPART_REPORT,
     PDF,
-    TEXT_CALENDAR,
-    TEXT_HTML,
-    TEXT_PLAIN,
-    TEXT_RFC822_HEADERS,
+    PKCS_8,
+    PKCS_12,
     TEXT,
+    TEXT_PLAIN,
+    TEXT_HTML,
+    TEXT_CALENDAR,
+    TEXT_RFC822_HEADERS,
     VCARD,
     VIDEO,
+    X509_CERT,
     equals,
     typeEquals,
     isRelated,

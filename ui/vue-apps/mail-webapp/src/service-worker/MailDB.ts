@@ -135,7 +135,7 @@ export class MailDB {
     async putMailFolders(
         mailboxRoot: string,
         items: MailFolder[],
-        optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[]>
+        optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[], IDBTransactionMode>
     ) {
         await this.putItems(
             items.map(item => ({ ...item, mailboxRoot })),
@@ -144,13 +144,16 @@ export class MailDB {
         );
     }
 
-    async putMailItems(items: MailItem[], optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[]>) {
+    async putMailItems(
+        items: MailItem[],
+        optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[], IDBTransactionMode>
+    ) {
         await this.putItems(items, "mail_items", optionalTransaction);
     }
 
     async putOwnerSubscriptions(
         items: OwnerSubscription[],
-        optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[]>
+        optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[], IDBTransactionMode>
     ) {
         await this.putItems(items, "owner_subscriptions", optionalTransaction);
     }
@@ -158,10 +161,10 @@ export class MailDB {
     async putItems<T extends StoreValue<MailSchema, StoreName>, StoreName extends StoreNames<MailSchema>>(
         items: T[],
         storeName: StoreName,
-        optionalTransaction?: IDBPTransaction<MailSchema, StoreName[]>
+        optionalTransaction?: IDBPTransaction<MailSchema, StoreName[], IDBTransactionMode>
     ) {
         const tx = optionalTransaction || (await this.dbPromise).transaction(storeName, "readwrite");
-        await Promise.all(items.map(item => tx.objectStore(storeName).put(item)));
+        await Promise.all(items.map(item => tx.objectStore(storeName).put?.(item)));
         await tx.done;
     }
 

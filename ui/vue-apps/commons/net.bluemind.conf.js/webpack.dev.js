@@ -4,9 +4,10 @@ const common = require("./webpack.common.js");
 module.exports = merge(common, {
     mode: "development",
     devServer: {
+        allowedHosts: "all",
+        client: false,
+        hot: false,
         historyApiFallback: true,
-        overlay: true,
-        host: "0.0.0.0",
-        disableHostCheck: true
+        host: "0.0.0.0"
     }
 });

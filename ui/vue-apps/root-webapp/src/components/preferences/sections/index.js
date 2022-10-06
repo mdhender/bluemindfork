@@ -26,10 +26,7 @@ function defaultSections(vm) {
 function extendedPreferences() {
     const sections = mapExtensions("webapp.preferences", ["section"]).section;
     return (sections || []).reduce((preferences, section) => {
-        try {
-            return merge(preferences, JSON.parse(section.raw));
-        } catch {
-            return preferences;
-        }
+        const extendedSection = section.raw ? JSON.parse(section.raw) : section;
+        return merge(preferences, extendedSection);
     }, []);
 }

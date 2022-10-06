@@ -5,12 +5,12 @@ const dev = require("./node_modules/@bluemind/conf/webpack.dev.js");
 
 const conf = {
     entry: {
-        saas: "./src/run.js",
-        widget: "./src/widget.js"
+        "js/net.bluemind.smime": "./src/index.js",
+        "smime.service-worker": "./src/service-worker/service-worker.js"
     },
     output: {
         path: path.resolve(__dirname, "./web-resources"),
-        filename: "js/net.bluemind.videoconferencing.[name].js"
+        filename: "[name].js"
     }
 };
 

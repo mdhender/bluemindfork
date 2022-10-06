@@ -11,11 +11,7 @@ const conf = {
         path: path.resolve(__dirname, "./web-resources"),
         filename: "[name].js"
     },
-    module: {
-        rules: [{ test: /\.ts?$/, use: ["babel-loader", "ts-loader"], exclude: /node_modules/ }]
-    },
     resolve: {
-        extensions: [".ts"],
         alias: {
             "~": path.resolve(__dirname, "src/")
         }

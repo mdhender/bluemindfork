@@ -7,7 +7,8 @@
             "root-webapp",
             "videoconferencing-saas-webapp",
             "webmodules/net.bluemind.webmodules.filehosting",
-            "webmodules/net.bluemind.webmodules.styleguide"
+            "webmodules/net.bluemind.webmodules.styleguide",
+            "plugins/net.bluemind.plugins.smime"
         ],
         "nohoist": [
             "**/bootstrap-vue",
@@ -30,7 +31,6 @@
         "babel-jest": "^26.1.0",
         "babel-loader": "^8.1.0",
         "babel-plugin-require-context-hook": "^1.0.0",
-        "clean-webpack-plugin": "^3.0.0",
         "core-js": "3",
         "css-loader": "^3.6.0",
         "eslint-loader": "^4.0.2",
@@ -49,7 +49,7 @@
         "sass-loader": "^10.2.0",
         "svg-inline-loader": "^0.8.2",
         "ts-loader": "^8.0.2",
-        "typescript": "^3.9.6",
+        "typescript": "^4.8.4",
         "url-loader": "^4.1.0",
         "vue-jest": "^4.0.0-rc.0",
         "vue-loader": "^15.9.6",
@@ -57,10 +57,10 @@
         "vue-template-compiler": "^2.6.14",
         "vue": "^2.6.14",
         "vuex": "3.6.2",
-        "webpack-cli": "^4.8.0",
-        "webpack-dev-server": "^3.11.0",
-        "webpack": "^5.49.0",
-        "webpack-merge": "^5.7.3"
+        "webpack-cli": "^4.10.0",
+        "webpack-dev-server": "^4.11.1",
+        "webpack": "^5.74.0",
+        "webpack-merge": "^5.8.0"
     },
     "peerDependencies": {
         "vue": "^2.6.14"
@@ -71,6 +71,7 @@
         "mail": "cd mail-webapp && yarn dev",
         "videoconferencing-saas": "cd videoconferencing-saas-webapp && yarn dev",
         "filehosting-plugin": "cd webmodules/net.bluemind.webmodules.filehosting && yarn dev",
+        "smime-plugin": "cd plugins/net.bluemind.plugins.smime && yarn dev",
         "test-ci": "NODE_ICU_DATA=node_modules/full-icu jest --ci --json --config node_modules/@bluemind/conf/jest.config.js --testResultsProcessor jest-jenkins-reporter --coverage --coverageReporters cobertura > jest.json"
     },
     "prettier": "@bluemind/prettier-config",

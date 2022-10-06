@@ -1,7 +1,6 @@
 import { MailboxItemsClient } from "@bluemind/backend.mail.api";
 import Session from "../session";
 import { syncMailFolder } from "../sync";
-import { getMetadatas } from "../getMetadatas";
 
 export class MailItemDB extends MailboxItemsClient {
     async count(filter) {
@@ -58,10 +57,6 @@ export class MailItemDB extends MailboxItemsClient {
             console.debug(error);
         }
         return this.next();
-    }
-
-    getMetadatas() {
-        return getMetadatas();
     }
 }
 

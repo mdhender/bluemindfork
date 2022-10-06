@@ -1,0 +1,24 @@
+{
+    "name": "@bluemind/plugin.smime",
+    "version": "4.1.0",
+    "description": "BlueMind plugin providing smime features",
+    "author": "Blue Mind SAS",
+    "main": "src/index.js",
+    "license": "AGPL-3.0-only",
+    "scripts": {
+        "build": "webpack --env production --progress --profile --color",
+	    "dev": "webpack serve --env development --progress --color --port 9184"
+    },
+    "dependencies": {
+        "@bluemind/backend.mail.api": "^4.1.0",
+        "@bluemind/extensions": "^4.1.0",
+        "idb": "^7.1.0",
+        "workbox-routing": "^6.5.4"
+    },
+    "devDependencies": {
+        "@bluemind/conf": "^4.1.0"
+    },
+    "peerDependencies": {
+        "@bluemind/styleguide": "^0.1.0"
+    }
+}

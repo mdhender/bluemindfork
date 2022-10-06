@@ -4,7 +4,7 @@ import { EndPoint } from "../EndPoint";
 jest.mock("../EndPoint");
 
 class MockApiClient {}
-MockApiClient.prototype.getMetadatas = jest.fn(() => ({
+MockApiClient.prototype.getMetadata = jest.fn(() => ({
     className: "IMock",
     packageName: "net.bluemind.mock.api",
     path: { value: "/service/", parameters: ["param"] },
@@ -36,7 +36,7 @@ MockApiClient.prototype.getMetadatas = jest.fn(() => ({
 describe("ApiRouteRegistry", () => {
     beforeEach(() => {
         ApiRouteRegistry.endpoints = new Map();
-        MockApiClient.prototype.getMetadatas.mockClear();
+        MockApiClient.prototype.getMetadata.mockClear();
     });
     describe("register", () => {
         test("register add one endpoint per proxified method ", () => {
