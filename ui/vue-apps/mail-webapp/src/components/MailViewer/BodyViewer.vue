@@ -8,13 +8,7 @@
                 @remote-content="triggerRemoteContent"
             >
                 <template v-slot:actions="{ file }">
-                    <preview-button
-                        v-if="isViewable(file)"
-                        :file="file"
-                        :disabled="!isAllowedToPreview"
-                        @preview="openPreview(file)"
-                    />
-                    <download-button :ref="`download-button-${file.key}`" :file="file" />
+                    <file-toolbar ref="toolbar" :buttons="actionButtons" :file="file" :message="message" />
                 </template>
                 <template #overlay="slotProps">
                     <preview-overlay v-if="slotProps.hasPreview" />
@@ -48,14 +42,12 @@ import { SET_PREVIEW_FILE_KEY, SET_PREVIEW_MESSAGE_KEY } from "~/mutations";
 import MailInlinesBlock from "./MailInlinesBlock";
 import EventViewer from "./EventViewer";
 import FilesBlock from "../MailAttachment/FilesBlock";
-import PreviewButton from "../MailAttachment/ActionButtons/PreviewButton";
-import DownloadButton from "../MailAttachment/ActionButtons/DownloadButton";
 import PreviewOverlay from "../MailAttachment/Overlays/PreviewOverlay";
 import FiletypeOverlay from "../MailAttachment/Overlays/FiletypeOverlay";
-import "@bluemind/styleguide/css/bluemind.scss";
+import FileToolbar from "../MailAttachment/FileToolbar";
 
 const { create: createAttachment } = attachmentUtils;
-const { FileStatus, isUploading, isAllowedToPreview } = fileUtils;
+const { FileStatus, isUploading, isAllowedToPreview, ActionButtons } = fileUtils;
 const { VIEWER_CAPABILITIES, getPartsFromCapabilities, isViewable } = partUtils;
 
 export default {
@@ -64,16 +56,20 @@ export default {
         EventViewer,
         FilesBlock,
         MailInlinesBlock,
-        PreviewButton,
-        DownloadButton,
         PreviewOverlay,
-        FiletypeOverlay
+        FiletypeOverlay,
+        FileToolbar
     },
     props: {
         message: {
             type: Object,
             required: true
         }
+    },
+    data() {
+        return {
+            actionButtons: [ActionButtons.PREVIEW, ActionButtons.DOWNLOAD, ActionButtons.OTHER]
+        };
     },
     computed: {
         ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
@@ -123,13 +119,11 @@ export default {
     methods: {
         ...mapActions("mail", { FETCH_PART_DATA, COMPUTE_QUOTE_NODES }),
         ...mapMutations("mail", { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY }),
-        openPreview(file) {
-            this.SET_PREVIEW_MESSAGE_KEY(this.message.key);
-            this.SET_PREVIEW_FILE_KEY(file.key);
-            this.$bvModal.show("preview-modal");
-        },
         download(file) {
-            this.$refs[`download-button-${file.key}`].clickButton();
+            this.$ref.toolbar.download(file);
+        },
+        openPreview(file, message) {
+            this.$ref.toolbar.openPreview(file, message);
         },
         triggerRemoteContent() {
             this.$emit("remote-content", this.message);

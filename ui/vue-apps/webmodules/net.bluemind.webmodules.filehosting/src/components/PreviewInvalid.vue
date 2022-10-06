@@ -9,10 +9,13 @@
 <script>
 import { mapGetters } from "vuex";
 import { BmIcon } from "@bluemind/styleguide";
+import FilehostingL10N from "../l10n";
+import { GET_FH_FILE } from "../store/types/getters";
 
 export default {
     name: "PreviewInvalid",
     components: { BmIcon },
+    componentI18N: { messages: FilehostingL10N },
     props: {
         file: {
             type: Object,
@@ -20,7 +23,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", ["GET_FH_FILE"]),
+        ...mapGetters("mail", [GET_FH_FILE]),
         isFhExpiredFile() {
             const file = this.GET_FH_FILE(this.file);
             return file && file.expirationDate < Date.now();

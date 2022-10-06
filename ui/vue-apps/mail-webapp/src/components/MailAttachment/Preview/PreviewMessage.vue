@@ -12,12 +12,7 @@
                     @click-item="previewOrDownload"
                 >
                     <template v-slot:actions="{ file: slotFile }">
-                        <preview-button
-                            v-if="!isLarge(slotFile) && isViewable(slotFile)"
-                            :file="file"
-                            @preview="openPreview(slotFile)"
-                        />
-                        <download-button :ref="`download-button-${slotFile.key}`" :file="slotFile" />
+                        <file-toolbar ref="toolbar" :buttons="actionButtons" :file="slotFile" :message="message" />
                     </template>
                     <template #overlay="{ file: slotFile, hasPreview }">
                         <preview-overlay v-if="hasPreview" />
@@ -36,12 +31,11 @@ import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY } from "~/mutations";
 import MailViewerContent from "../../MailViewer/MailViewerContent";
 import FileItem from "../FileItem";
 import FilesHeader from "../FilesHeader";
-import PreviewButton from "../ActionButtons/PreviewButton";
-import DownloadButton from "../ActionButtons/DownloadButton";
 import PreviewOverlay from "../Overlays/PreviewOverlay";
 import FiletypeOverlay from "../Overlays/FiletypeOverlay";
+import FileToolbar from "../FileToolbar";
 const { isViewable } = partUtils;
-const { isUploading, isAllowedToPreview, isLarge } = fileUtils;
+const { ActionButtons, isUploading, isAllowedToPreview, isLarge } = fileUtils;
 
 export default {
     name: "PreviewMessage",
@@ -49,10 +43,9 @@ export default {
         MailViewerContent,
         FileItem,
         FilesHeader,
-        PreviewButton,
-        DownloadButton,
         PreviewOverlay,
-        FiletypeOverlay
+        FiletypeOverlay,
+        FileToolbar
     },
     props: {
         message: {
@@ -64,18 +57,21 @@ export default {
             required: true
         }
     },
+    data() {
+        return {
+            actionButtons: [ActionButtons.PREVIEW, ActionButtons.DOWNLOAD, ActionButtons.OTHER]
+        };
+    },
     methods: {
         ...mapMutations("mail", {
             SET_PREVIEW_MESSAGE_KEY,
             SET_PREVIEW_FILE_KEY
         }),
-        openPreview(file) {
-            this.SET_PREVIEW_MESSAGE_KEY(this.message.key);
-            this.SET_PREVIEW_FILE_KEY(file.key);
-            this.$bvModal.show("preview-modal");
+        openPreview(file, message) {
+            this.$refs.toolbar.openPreview(file, message);
         },
         download(file) {
-            this.$refs[`download-button-${file.key}`][0].clickButton();
+            this.$refs.toolbar.download(file);
         },
         previewOrDownload(file) {
             if (!isUploading(file)) {

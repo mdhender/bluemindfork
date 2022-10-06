@@ -11,12 +11,14 @@ import PreviewInvalid from "~/components/PreviewInvalid";
 import CloudIcon from "~/components/CloudIcon";
 import DetachButton from "~/components/DetachButton";
 import ChooserButton from "~/components/ChooserButton";
+import CopyToDriveItem from "~/components/CopyToDriveItem";
 
 Vue.component("fh-renderless-file-item", RenderlessFileItem);
 Vue.component("cloud-icon", CloudIcon);
 Vue.component("detach-button", DetachButton);
 Vue.component("chooser-button", ChooserButton);
 Vue.component("preview-invalid", PreviewInvalid);
+Vue.component("copy-to-drive-item", CopyToDriveItem);
 
 extensions.register("webapp", "net.bluemind.webmodules.filehosting", {
     command: {
@@ -67,7 +69,13 @@ extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting.drive", 
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
     component: {
         name: "preview-invalid",
-        path: "preview.file.fallback"
+        path: "file.preview.fallback"
+    }
+});
+extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
+    component: {
+        name: "copy-to-drive-item",
+        path: "file.actions"
     }
 });
 

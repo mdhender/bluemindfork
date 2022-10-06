@@ -5,7 +5,7 @@
             variant="compact"
             size="lg"
             icon="cloud"
-            :title="$tc('mail.filehosting.from_drive')"
+            :title="$tc('filehosting.drive.from')"
             @click="openChooser"
         />
         <chooser-modal :max-attachments-size="maxAttachmentsSize" @insert="insertFiles" />
@@ -17,11 +17,14 @@ import { inject } from "@bluemind/inject";
 import { BmIconButton } from "@bluemind/styleguide";
 import { MimeType } from "@bluemind/email";
 import { ChooserModal } from "@bluemind/business-components";
+import FilehostingL10N from "../l10n";
+import { LINK_FH_ATTACHMENT } from "../store/types/actions";
 import getContentWithLinks from "../helpers/getContentWithLinks";
 
 export default {
     name: "ChooserButton",
     components: { BmIconButton, ChooserModal },
+    componentI18N: { messages: FilehostingL10N },
     props: {
         message: {
             type: Object,
@@ -56,7 +59,7 @@ export default {
         async linkAttachments(files) {
             await Promise.all(
                 files.map(file => {
-                    return this.$store.dispatch(`mail/LINK_FH_ATTACHMENT`, {
+                    return this.$store.dispatch(`mail/${LINK_FH_ATTACHMENT}`, {
                         file: addMimeType(file),
                         message: this.message
                     });

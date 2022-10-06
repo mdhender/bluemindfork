@@ -1,5 +1,5 @@
 import shuffle from "lodash.shuffle";
-import { createOnlyMetadata, isForward, MessageHeader } from "../message";
+import { createOnlyMetadata, isForward, MessageHeader } from "../message/index";
 
 describe("Message model", () => {
     test("update key when it's already set", () => {

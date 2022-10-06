@@ -4,7 +4,7 @@
             variant="compact"
             size="lg"
             icon="cloud-up"
-            :title="$tc('mail.filehosting.share.start')"
+            :title="$tc('filehosting.share.start')"
             @click="openFilePicker()"
         />
         <input
@@ -22,10 +22,12 @@
 
 <script>
 import { BmIconButton } from "@bluemind/styleguide";
+import FilehostingL10N from "../l10n";
 
 export default {
     name: "DetachButton",
     components: { BmIconButton },
+    componentI18N: { messages: FilehostingL10N },
     props: {
         message: {
             type: Object,

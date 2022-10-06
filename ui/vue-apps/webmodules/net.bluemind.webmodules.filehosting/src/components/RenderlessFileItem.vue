@@ -1,5 +1,7 @@
 <script>
 import { mapGetters } from "vuex";
+import { GET_FH_FILE } from "../store/types/getters";
+
 export default {
     name: "RenderlessFileItem",
     props: {
@@ -9,7 +11,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", ["GET_FH_FILE"]),
+        ...mapGetters("mail", [GET_FH_FILE]),
         decorated() {
             if (isDetached(this.file)) {
                 return {

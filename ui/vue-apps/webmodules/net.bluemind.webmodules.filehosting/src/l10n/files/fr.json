@@ -1,0 +1,38 @@
+{
+    "alert": {
+        "filehosting": {
+            "share_attachment": {
+                "success": "Le fichier a bien été ajouté à votre drive",
+                "error": "Le fichier n'a pas pu être ajouté à votre drive"
+            }
+        }
+    },
+    "filehosting": {
+        "drive": {
+            "add": "Ajouter au drive",
+            "from": "Joindre depuis le drive"
+        },
+        "share": {
+            "start": "Envoyer un lien partagé | Envoyer des liens partagés",
+            "stop": "Arrêter l'envoi",
+            "pending": "Envoi d'un lien partagé | Envoi des liens partagés",
+            "failure": "Votre fichier n'a pas pu être téléchargé | Certains fichiers n'ont pas pu être téléchargés"
+        },
+        "threshold": {
+            "some_hit": "Certains fichiers dépassent {size}",
+            "size": "Votre fichier dépasse {size} | Vos fichiers dépassent {size}",
+            "almost_hit": "Votre fichier est relativement volumineux. | Vos fichiers sont relativement volumineux."
+        },
+        "add": {
+            "large": "Ajout d'un fichier volumineux | Ajout de fichiers volumineux"
+        },
+        "import": {
+            "successful": "import réussi",
+            "failed": "échec de l'import"
+        },
+        "expiration_date": "Expire le {date}",
+        "expired": "expiré",
+        "link": "J'ai lié un fichier à ce message | J'ai lié des fichiers à ce message",
+        "very_large_file": "fichier très volumineux"
+    }
+}

@@ -7,9 +7,8 @@ import { saveAsap } from "../../actions/save";
 import htmlWithBase64Images from "../data/htmlWithBase64Images";
 import { MY_DRAFTS } from "~/getters";
 import { SET_MESSAGES_STATUS } from "~/mutations";
-import MessageAdaptor from "~/store/messages/helpers/MessageAdaptor";
 
-const { MessageStatus, createWithMetadata } = messageUtils;
+const { MessageAdaptor, MessageStatus, createWithMetadata } = messageUtils;
 const { FileStatus } = fileUtils;
 
 jest.mock("../../../api/apiMessages");

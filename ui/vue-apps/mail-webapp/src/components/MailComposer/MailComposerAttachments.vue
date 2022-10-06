@@ -19,15 +19,7 @@
             @click-item="previewOrDownload"
         >
             <template #actions="{ file }">
-                <preview-button
-                    v-if="isViewable(file)"
-                    :file="file"
-                    :disabled="!isAllowedToPreview(file)"
-                    @preview="openPreview(file)"
-                />
-                <download-button :ref="`download-button-${file.key}`" :file="file" class="d-none" />
-                <cancel-button v-if="isUploading(file)" @cancel="cancel(file)" />
-                <remove-button v-else @remove="removeAttachment(file)" />
+                <file-toolbar ref="toolbar" :file="file" :message="message" :buttons="actionButtons" />
             </template>
             <template #overlay="slotProps">
                 <preview-overlay v-if="slotProps.hasPreview" />
@@ -39,21 +31,16 @@
 
 <script>
 import { mapMutations, mapState } from "vuex";
-
-import global from "@bluemind/global";
 import { BmIcon, BmFileDropZone } from "@bluemind/styleguide";
 import { partUtils, fileUtils } from "@bluemind/mail";
 import FilesBlock from "../MailAttachment/FilesBlock";
-import PreviewButton from "../MailAttachment/ActionButtons/PreviewButton";
-import CancelButton from "../MailAttachment/ActionButtons/CancelButton";
-import RemoveButton from "../MailAttachment/ActionButtons/RemoveButton";
-import DownloadButton from "../MailAttachment/ActionButtons/DownloadButton";
 import { RemoveAttachmentCommand } from "~/commands";
 import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY } from "~/mutations";
 import PreviewOverlay from "../MailAttachment/Overlays/PreviewOverlay";
 import FiletypeOverlay from "../MailAttachment/Overlays/FiletypeOverlay";
+import FileToolbar from "../MailAttachment/FileToolbar";
 const { isViewable } = partUtils;
-const { isUploading, isAllowedToPreview } = fileUtils;
+const { ActionButtons, isUploading, isAllowedToPreview } = fileUtils;
 
 export default {
     name: "MailComposerAttachments",
@@ -61,12 +48,9 @@ export default {
         BmFileDropZone,
         BmIcon,
         FilesBlock,
-        PreviewButton,
-        CancelButton,
-        RemoveButton,
-        DownloadButton,
         PreviewOverlay,
-        FiletypeOverlay
+        FiletypeOverlay,
+        FileToolbar
     },
     mixins: [RemoveAttachmentCommand],
     props: {
@@ -78,6 +62,11 @@ export default {
             type: Object,
             required: true
         }
+    },
+    data() {
+        return {
+            actionButtons: [ActionButtons.PREVIEW, ActionButtons.DOWNLOAD, ActionButtons.REMOVE]
+        };
     },
     computed: {
         ...mapState("mail", { attachmentsMaxWeight: ({ messageCompose }) => messageCompose.maxMessageSize }),
@@ -98,20 +87,11 @@ export default {
             const matchFunction = f => f.type.match(new RegExp(regex, "i"));
             return files.length > 0 && files.every(matchFunction);
         },
-        openPreview(file) {
-            this.SET_PREVIEW_MESSAGE_KEY(this.message.key);
-            this.SET_PREVIEW_FILE_KEY(file.key);
-            this.$bvModal.show("preview-modal");
-        },
-        cancel(file) {
-            global.cancellers[file.key].cancel();
-        },
-        removeAttachment({ key }) {
-            const attachment = this.message.attachments.find(attachment => attachment.fileKey === key);
-            this.$execute("remove-attachment", { attachment, message: this.message });
+        openPreview(file, message) {
+            this.$refs.toolbar.openPreview(file, message);
         },
         download(file) {
-            this.$refs[`download-button-${file.key}`].clickButton();
+            this.$refs.toolbar.download(file);
         },
         previewOrDownload(file) {
             if (!isUploading(file)) {

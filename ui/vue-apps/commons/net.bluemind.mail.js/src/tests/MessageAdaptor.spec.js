@@ -1,13 +1,13 @@
 import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mail.api";
 import { messageUtils } from "@bluemind/mail";
-import MessageAdaptor, { getEventInfo } from "../../helpers/MessageAdaptor";
+import MessageAdaptor, { getEventInfo } from "../message/MessageAdaptor";
 
 describe("MessageAdaptor", () => {
     test("message model and message adaptor share same properties", () => {
         const emptyRemote = { value: { body: { headers: [], recipients: [], structure: { mime: "" } } } };
 
         const message = messageUtils.create();
-        const adapted = MessageAdaptor.fromMailboxItem(emptyRemote, {});
+        const adapted = messageUtils.MessageAdaptor.fromMailboxItem(emptyRemote, {});
 
         const messageProperties = Object.keys(message).sort();
         const adaptedProperties = Object.keys(adapted).sort();

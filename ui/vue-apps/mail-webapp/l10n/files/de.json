@@ -149,6 +149,8 @@
     "alert.mail.message.draft.attach.error": "Fehler beim Anhängen. Bitte erneut versuchen.",
     "mail.actions.attach.aria": "Anhang beifügen",
     "mail.actions.attach": "Anhängen",
+    "mail.actions.attach.max_size": "E-Mail Größe ist beschränkt auf {size}",
+    "mail.actions.attach.too_large": "Datei zu groß | Zu große Dateien",
     "mail.actions.choose_folder.modal.combo.label": "Zielordner",
     "mail.actions.create.folder": "Ordner erstellen",
     "mail.actions.edit": "Bearbeiten",
@@ -198,6 +200,7 @@
     "mail.actions.move.item.warning.self": "Die E-Mail befindet sich bereits in {path}",
     "mail.actions.move.item": "Verschiebe E-Mail nach {path} | Verschiebe ausgewählte E-Mails nach {path}",
     "mail.actions.move": "Verschieben",
+    "mail.actions.other": "Andere Aktionen",
     "mail.actions.purge.modal.content": "E-Mail \"{subject}\" permanent löschen? | Ausgewählte E-Mails permanent löschen?",
     "mail.actions.purge.draft.modal.content": "Entwurf \"{subject}\" am {date} gespeichert löschen?",
     "mail.actions.purge.draft.modal.content.time": "Entwurf \"{subject}\" um {time} gespeichert löschen?",
@@ -465,33 +468,6 @@
             "modal": {
                 "title": "Einen Unterordner von \"{name}\" erstellen"
             }
-        },
-        "filehosting": {
-            "from_drive": "Aus Drive anhängen",
-            "share": {
-                "start": "Einen freigegebenen Link senden | Gemeinsame Links senden",
-                "stop": "Anhalten der Sendung",
-                "pending": "Einen geteilten Link senden | Senden von geteilten Links",
-                "failure": "Ihre Datei konnte nicht hochgeladen werden | Einige Dateien konnten nicht heruntergeladen werden"
-            },
-            "threshold": {
-                "some_hit": "Einige Dateien übersteigen {size}",
-                "size": "Ihre Datei überschreitet {size} | Ihre Dateien überschreiten {size}",
-                "max_message_size": "E-Mail Größe ist beschränkt auf {size}",
-                "almost_hit": "Ihre Datei ist ziemlich groß. | Ihre Dateien sind ziemlich groß."
-            },
-            "add": {
-                "large": "Hinzufügen einer großen Datei | Hinzufügen von großen Dateien",
-                "too_large": "Datei zu groß | Zu große Dateien"
-            },
-            "import": {
-                "successful": "erfolgreiche Einfuhr",
-                "failed": "fehlgeschlagener Import"
-            },
-            "link": "Ich habe eine Datei zu dieser Nachricht verlinkt | Ich habe Dateien mit dieser Nachricht verlinkt",
-            "expiration_date": "Läuft am {date} ab",
-            "expired": "abgelaufen",
-            "very_large_file": "sehr große Datei"
         },
         "rename_folder": {
             "modal": {

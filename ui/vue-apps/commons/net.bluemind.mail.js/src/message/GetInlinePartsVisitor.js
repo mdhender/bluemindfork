@@ -1,9 +1,8 @@
 import findLast from "lodash.findlast";
 
 import { MimeType } from "@bluemind/email";
-import { attachmentUtils } from "@bluemind/mail";
+import { isAttachment } from "../attachment";
 
-const { isAttachment } = attachmentUtils;
 /**
  * Pass this and a body.structure to TreeWalker to build an array of maps of inline parts keyed by capabilities.
  * For each possible display possibilities due to multipart/alternative parts, there is an entry in the result.

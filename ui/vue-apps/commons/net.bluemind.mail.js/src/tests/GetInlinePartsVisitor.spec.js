@@ -1,5 +1,5 @@
-import GetInlinePartsVisitor from "../../helpers/GetInlinePartsVisitor";
-import TreeWalker from "../../helpers/TreeWalker";
+import GetInlinePartsVisitor from "../message/GetInlinePartsVisitor";
+import TreeWalker from "../message/TreeWalker";
 
 describe("GetInlinePartsVisitor", () => {
     /**

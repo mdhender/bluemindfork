@@ -22,8 +22,8 @@ export function renderMustDetachConfirmBox(vm, files, sizeLimit, message) {
         }
     });
     const props = {
-        title: vm.$tc("mail.filehosting.add.large", files.length),
-        okTitle: vm.$tc("mail.filehosting.share.start", files.length),
+        title: vm.$tc("filehosting.add.large", files.length),
+        okTitle: vm.$tc("filehosting.share.start", files.length),
         cancelTitle: vm.$t("common.cancel"),
         bodyClass: "pb-4",
         okVariant: "fill-accent",
@@ -47,16 +47,16 @@ export function renderShouldDetachConfirmBox(vm, files) {
         scopedSlots: {
             text: () =>
                 vm.$createElement("span", [
-                    vm.$tc("mail.filehosting.threshold.almost_hit", files.length),
+                    vm.$tc("filehosting.threshold.almost_hit", files.length),
                     vm.$createElement("br"),
-                    vm.$tc("mail.filehosting.share.start", files.length),
+                    vm.$tc("filehosting.share.start", files.length),
                     " ?"
                 ])
         }
     });
     const props = {
-        title: vm.$tc("mail.filehosting.add.large", files.length),
-        okTitle: vm.$tc("mail.filehosting.share.start", files.length),
+        title: vm.$tc("filehosting.add.large", files.length),
+        okTitle: vm.$tc("filehosting.share.start", files.length),
         cancelTitle: vm.$t("mail.actions.attach"), //TODO: use a better wording
         bodyClass: "pb-4",
         okVariant: "fill-accent",
@@ -93,11 +93,11 @@ export function renderLinksComponent(vm, files) {
 export async function renderTooLargeFilesModal(vm, files, sizeLimit) {
     const content = vm.$createElement(BmTooLargeBox, {
         props: { sizeLimit, attachmentsCount: files.length },
-        scopedSlots: { default: () => vm.$tc("mail.filehosting.threshold.some_hit") }
+        scopedSlots: { default: () => vm.$tc("filehosting.threshold.some_hit") }
     });
 
     const props = {
-        title: vm.$tc("mail.filehosting.add.too_large", files.length),
+        title: vm.$tc("mail.actions.attach.too_large", files.length),
         okTitle: vm.$tc("common.got_it"),
         bodyClass: "pb-4",
         okVariant: "outline",

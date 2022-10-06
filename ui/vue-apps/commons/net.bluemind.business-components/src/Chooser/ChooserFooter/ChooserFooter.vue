@@ -31,7 +31,6 @@
 
 <script>
 import { mapState } from "vuex";
-import { inject } from "@bluemind/inject";
 import { BmIcon } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
 import { INSERT_AS_ATTACHMENT, INSERT_AS_LINK } from "../store/mutations";
@@ -87,8 +86,7 @@ export default {
         }
     },
     async beforeCreate() {
-        const attService = inject("AttachmentPersistence");
-        const { autoDetachmentLimit, maxFilesize } = await attService.getConfiguration();
+        const { autoDetachmentLimit, maxFilesize } = await this.$store.dispatch(`mail/GET_CONFIGURATION`);
         this.autoDetachmentLimit = autoDetachmentLimit;
         this.detachmentSizeLimit = maxFilesize;
     },

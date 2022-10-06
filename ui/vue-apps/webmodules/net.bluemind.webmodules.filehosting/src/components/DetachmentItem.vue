@@ -11,7 +11,7 @@
                         </span>
                     </span>
                     <bm-label-icon v-if="isLarge" icon="exclamation-circle-fill" class="text-warning">
-                        {{ $t("mail.filehosting.very_large_file") }}
+                        {{ $t("filehosting.very_large_file") }}
                     </bm-label-icon>
                 </div>
                 <div><slot name="item-actions" /></div>
@@ -26,16 +26,17 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 import { BmLabelIcon, BmProgress, BmIcon } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
 import { fileUtils } from "@bluemind/mail";
+import FilehostingL10N from "../l10n";
 
 const { FileStatus, VERY_LARGE_FILE_SIZE } = fileUtils;
 
 export default {
     name: "DetachmentItem",
     components: { BmLabelIcon, BmProgress, BmIcon },
+    componentI18N: { messages: FilehostingL10N },
     props: {
         file: {
             type: Object,
@@ -43,7 +44,6 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", ["GET_FH_FILE"]),
         isLarge() {
             return this.file.progress.total > VERY_LARGE_FILE_SIZE;
         },

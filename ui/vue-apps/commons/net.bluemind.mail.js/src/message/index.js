@@ -2,7 +2,8 @@ import merge from "lodash.merge";
 import cloneDeep from "lodash.clonedeep";
 import pick from "lodash.pick";
 
-import { LoadingStatus } from "./loading-status";
+import { LoadingStatus } from "../loading-status";
+import MessageAdaptor from "./MessageAdaptor";
 import { Flag } from "@bluemind/email";
 
 export function createOnlyMetadata({ internalId, folder: { key, uid }, conversationRef, date }) {
@@ -113,7 +114,8 @@ export const MessageHeader = {
     X_BM_EVENT: "X-BM-Event",
     X_BM_EVENT_COUNTERED: "X-BM-Event-Countered",
     X_BM_RESOURCEBOOKING: "X-BM-ResourceBooking",
-    X_BM_SENT_FOLDER: "X-BM-Sent-Folder"
+    X_BM_SENT_FOLDER: "X-BM-Sent-Folder",
+    X_BM_REWRITE: "X-BM-Rewrite"
 };
 
 export const MessageReplyAttributeSeparator = "data-bm-reply-separator";
@@ -196,6 +198,7 @@ export default {
     isFlagged,
     isForward,
     isUnread,
+    MessageAdaptor,
     MessageCreationModes,
     MessageForwardAttributeSeparator,
     MessageHeader,

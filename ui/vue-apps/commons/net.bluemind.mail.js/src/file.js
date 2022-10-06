@@ -8,6 +8,13 @@ export const FileStatus = {
     INVALID: "INVALID"
 };
 
+const ActionButtons = {
+    PREVIEW: "preview",
+    DOWNLOAD: "download",
+    REMOVE: "remove",
+    OTHER: "other"
+};
+
 const LARGE_FILE_SIZE = 100 * 1024 * 1024;
 const VERY_LARGE_FILE_SIZE = 500 * 1024 * 1024;
 
@@ -20,7 +27,7 @@ function isLarge({ size }) {
 }
 
 function isAllowedToPreview(file) {
-    return isViewable(file) && file.size && !isUploading(file) && !isLarge(file);
+    return isViewable(file) && !!file.size && !isUploading(file) && !isLarge(file);
 }
 
 function hasRemoteContent({ url }) {
@@ -28,6 +35,7 @@ function hasRemoteContent({ url }) {
 }
 
 export default {
+    ActionButtons,
     FileStatus,
     hasRemoteContent,
     isAllowedToPreview,

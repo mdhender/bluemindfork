@@ -1,0 +1,38 @@
+{
+    "alert": {
+        "filehosting": {
+            "share_attachment": {
+                "success": "Die Datei konnte nicht zu Ihrem Laufwerk hinzugefügt werden",
+                "error": "Die Datei konnte nicht zu Ihrem Drive hinzugefügt werden."
+            }
+        }
+    },
+    "filehosting": {
+        "drive": {
+            "add": "Zu Drive hinzufügen",
+            "from": "Aus Drive anhängen"
+        },
+        "share": {
+            "start": "Einen freigegebenen Link senden | Gemeinsame Links senden",
+            "stop": "Anhalten der Sendung",
+            "pending": "Einen geteilten Link senden | Senden von geteilten Links",
+            "failure": "Ihre Datei konnte nicht hochgeladen werden | Einige Dateien konnten nicht heruntergeladen werden"
+        },
+        "threshold": {
+            "some_hit": "Einige Dateien übersteigen {size}",
+            "size": "Ihre Datei überschreitet {size} | Ihre Dateien überschreiten {size}",
+            "almost_hit": "Ihre Datei ist ziemlich groß. | Ihre Dateien sind ziemlich groß."
+        },
+        "add": {
+            "large": "Hinzufügen einer großen Datei | Hinzufügen von großen Dateien"
+        },
+        "import": {
+            "successful": "erfolgreiche Einfuhr",
+            "failed": "fehlgeschlagener Import"
+        },
+        "link": "Ich habe eine Datei zu dieser Nachricht verlinkt | Ich habe Dateien mit dieser Nachricht verlinkt",
+        "expiration_date": "Läuft am {date} ab",
+        "expired": "abgelaufen",
+        "very_large_file": "sehr große Datei"
+    }
+}

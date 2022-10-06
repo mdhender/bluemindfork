@@ -3,25 +3,27 @@
         <template #text>
             <i18n path="common.threshold.hit">
                 <template v-slot:hit>
-                    {{ $tc("mail.filehosting.threshold.size", allFilesCount) }}
+                    {{ $tc("filehosting.threshold.size", allFilesCount) }}
                 </template>
                 <template v-slot:size>
                     <strong class="font-weight-bold">{{ displaySize(sizeLimit) }}</strong>
                 </template>
             </i18n>
             <br />
-            {{ $tc("mail.filehosting.share.start", files.length) }} ?
+            {{ $tc("filehosting.share.start", files.length) }} ?
         </template>
     </fh-confirm-box>
 </template>
 
 <script>
 import { computeUnit } from "@bluemind/file-utils";
+import FilehostingL10N from "../l10n";
 import FhConfirmBox from "./ConfirmBox";
 
 export default {
     name: "FhMustDetachConfirmBox",
     components: { FhConfirmBox },
+    componentI18N: { messages: FilehostingL10N },
     props: {
         files: {
             type: Array,

@@ -149,6 +149,8 @@
     "alert.mail.message.draft.attach.error": "Attachment error. Try again.",
     "mail.actions.attach.aria": "Attach a file",
     "mail.actions.attach": "Attach",
+    "mail.actions.attach.max_size": "Message size is limited to {size}",
+    "mail.actions.attach.too_large": "File too large | Files too large",
     "mail.actions.choose_folder.modal.combo.label": "Destination folder",
     "mail.actions.create.folder": "Create a new folder",
     "mail.actions.edit": "Edit",
@@ -198,6 +200,7 @@
     "mail.actions.move.item.warning.self": "This message is already in {path}",
     "mail.actions.move.item": "Move message to {path} | Move selected messages to {path}",
     "mail.actions.move": "Move",
+    "mail.actions.other": "Other actions",
     "mail.actions.purge.modal.content": "Remove message \"{subject}\" permanently? | Remove selected messages permanently?",
     "mail.actions.purge.draft.modal.content": "Remove draft \"{subject}\" saved on {date} ?",
     "mail.actions.purge.draft.modal.content.time": "Remove draft \"{subject}\" saved at {time} ?",
@@ -356,7 +359,7 @@
     "mail.preview.nopreview.large": "This file is too large to preview",
     "mail.preview.nopreview.type": "This type of file is not previewable",
     "mail.preview.nopreview.invalid": "This shared link is invalid",
-    "mail.preview.nopreview": "Non-previewable file",
+    "mail.preview.nopreview": "This file is not previewable",
     "mail.search.options.folder.current": "This folder",
     "mail.search.options.folder.label": "Search in",
     "mail.selection.alert.readonly": "Some selected messages are read-only. Some actions (like Move or Remove) may not be available.",
@@ -465,33 +468,6 @@
             "modal": {
                 "title": "Create a subfolder of \"{name}\""
             }
-        },
-        "filehosting": {
-            "from_drive": "Attach from Drive",
-            "share": {
-                "start": "Send a shared link | Send shared links",
-                "stop": "Stop the sending",
-                "pending": "Sending a shared link | Sending shared links",
-                "failure": "Your file could not be uploaded | Some files could not be uploaded"
-            },
-            "threshold": {
-                "some_hit": "Some files exceed {size}",
-                "size": "Your file exceeds {size} | Your files exceed {size}",
-                "max_message_size": "Message size is limited to {size}",
-                "almost_hit": "Your file is quite large. | Your files are quite large."
-            },
-            "add": {
-                "large": "Add a large file | Add large files",
-                "too_large": "File too large | Files too large"
-            },
-            "import": {
-                "successful": "successful import",
-                "failed": "import failure"
-            },
-            "link": "I have linked a file to this message | I have linked files to this message",
-            "expiration_date": "Expires on {date}",
-            "expired": "expired",
-            "very_large_file": "very large file"
         },
         "rename_folder": {
             "modal": {

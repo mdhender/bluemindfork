@@ -1,9 +1,14 @@
 import Vue from "vue";
 import actions from "./actions";
 import { fileUtils } from "@bluemind/mail";
+import { GET_FH_FILE } from "./types/getters";
+import { SET_CONFIGURATION } from "./types/mutations";
 const { FileStatus } = fileUtils;
 
 const mutations = {
+    [SET_CONFIGURATION](state, { autoDetachmentLimit, maxFilesize }) {
+        Vue.set(state, "configuration", { autoDetachmentLimit, maxFilesize });
+    },
     // Listeners
     REMOVE_file(state, { key }) {
         if (state.values[key]) {
@@ -24,14 +29,14 @@ const mutations = {
     }
 };
 const getters = {
-    GET_FH_FILE(state) {
+    [GET_FH_FILE](state) {
         return ({ key }) => state.values[key];
     }
 };
 
 export default {
     namespaced: false,
-    state: { values: {} },
+    state: { values: {}, configuration: null },
     mutations,
     actions,
     getters

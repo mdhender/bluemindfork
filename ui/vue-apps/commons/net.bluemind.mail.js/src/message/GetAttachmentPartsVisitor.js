@@ -1,7 +1,5 @@
-import { attachmentUtils, fileUtils } from "@bluemind/mail";
-
-const { create, isAttachment } = attachmentUtils;
-const { FileStatus } = fileUtils;
+import { FileStatus } from "../file";
+import { create, isAttachment } from "../attachment";
 
 export default class GetAttachmentPartsVisitor {
     constructor() {

@@ -1,5 +1,6 @@
 import { LINKS_CLASSNAME, renderLinksComponent } from "./renderers";
 import { fileUtils, messageUtils, signatureUtils } from "@bluemind/mail";
+import { GET_FH_FILE } from "../store/types/getters";
 
 const { CORPORATE_SIGNATURE_SELECTOR, PERSONAL_SIGNATURE_SELECTOR } = signatureUtils;
 const { FileStatus } = fileUtils;
@@ -36,7 +37,7 @@ function getSignatureNode(fragment, messageCompose) {
 
 function getUploadedFiles(vm, message) {
     return message.attachments.flatMap(attachment => {
-        const fhFile = vm.$store.getters["mail/GET_FH_FILE"]({ key: attachment.fileKey });
+        const fhFile = vm.$store.getters[`mail/${GET_FH_FILE}`]({ key: attachment.fileKey });
         const file = vm.$store.state.mail.files[attachment.fileKey];
 
         return fhFile && file.status === FileStatus.UPLOADED ? { ...file, ...fhFile } : [];

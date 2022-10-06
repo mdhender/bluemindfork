@@ -1,4 +1,3 @@
-import { inject } from "@bluemind/inject";
 import {
     renderMustDetachConfirmBox,
     renderShouldDetachConfirmBox,
@@ -7,14 +6,14 @@ import {
 } from "../helpers/renderers";
 import getContentWithLinks from "../helpers/getContentWithLinks";
 import { StopExecutionError } from "./errors";
+import { ADD_FH_ATTACHMENT, GET_CONFIGURATION } from "../store/types/actions";
 
 let autoDetachmentLimit, maxFilesize;
 
 export default async function ({ files, message, maxSize }, { forceFilehosting }) {
     files = [...files];
-    const service = inject("AttachmentPersistence");
     if (!autoDetachmentLimit || !maxFilesize) {
-        ({ autoDetachmentLimit, maxFilesize } = await service.getConfiguration());
+        ({ autoDetachmentLimit, maxFilesize } = await this.$store.dispatch(`mail/${GET_CONFIGURATION}`));
     }
 
     const newAttachmentsSize = getFilesSize(files);
@@ -51,7 +50,7 @@ async function doDetach(files, message) {
     try {
         const { content, props } = renderFileHostingModal(this, message);
         this.$bvModal.open(content, props);
-        await Promise.all(files.map(file => this.$store.dispatch(`mail/ADD_FH_ATTACHMENT`, { file, message })));
+        await Promise.all(files.map(file => this.$store.dispatch(`mail/${ADD_FH_ATTACHMENT}`, { file, message })));
         const newContent = getContentWithLinks(this, message);
         this.$store.commit("mail/SET_DRAFT_EDITOR_CONTENT", newContent);
     } catch (e) {

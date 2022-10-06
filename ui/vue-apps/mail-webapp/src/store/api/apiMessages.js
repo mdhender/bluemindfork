@@ -2,10 +2,11 @@ import { inject } from "@bluemind/inject";
 import map from "lodash.map";
 import flatmap from "lodash.flatmap";
 import chunk from "lodash.chunk";
+import { messageUtils } from "@bluemind/mail";
 
-import MessageAdaptor from "../messages/helpers/MessageAdaptor";
 import { ItemFlag } from "@bluemind/core.container.api";
 import { FolderAdaptor } from "../folders/helpers/FolderAdaptor";
+const { MessageAdaptor } = messageUtils;
 
 const MAX_CHUNK_SIZE = 500;
 

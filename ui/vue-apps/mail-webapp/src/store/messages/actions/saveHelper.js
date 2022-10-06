@@ -16,12 +16,11 @@ import {
     SET_MESSAGE_PREVIEW,
     SET_MESSAGE_SIZE
 } from "~/mutations";
-import MessageAdaptor from "../helpers/MessageAdaptor";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 
 const { isNewMessage } = draftUtils;
 const { FileStatus } = fileUtils;
-const { MessageHeader, MessageStatus } = messageUtils;
+const { MessageAdaptor, MessageHeader, MessageStatus } = messageUtils;
 const { CORPORATE_SIGNATURE_PLACEHOLDER, CORPORATE_SIGNATURE_SELECTOR } = signatureUtils;
 
 export function isReadyToBeSaved(draft, files) {

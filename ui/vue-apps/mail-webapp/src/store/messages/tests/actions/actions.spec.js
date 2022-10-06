@@ -13,7 +13,6 @@ import {
 import { messageUtils, loadingStatusUtils } from "@bluemind/mail";
 
 import messageStore from "../../index";
-import MessageAdaptor from "../../helpers/MessageAdaptor";
 import { ADD_MESSAGES } from "~/mutations";
 import {
     ADD_FLAG,
@@ -30,7 +29,7 @@ import { FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 
 const { LoadingStatus } = loadingStatusUtils;
-const { MessageStatus, createOnlyMetadata, createWithMetadata } = messageUtils;
+const { MessageAdaptor, MessageStatus, createOnlyMetadata, createWithMetadata } = messageUtils;
 Vue.use(Vuex);
 ServiceLocator.register({ provide: "i18n", factory: () => MockI18NProvider });
 

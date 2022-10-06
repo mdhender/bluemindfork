@@ -10,7 +10,7 @@
             :message="message"
             :file="{ ...file, url: src }"
         />
-        <bm-extension v-else id="webapp.mail" type="decorator" path="preview.file.fallback" :file="file">
+        <bm-extension v-else id="webapp.mail" type="decorator" path="file.preview.fallback" :file="file">
             <preview-file-content-fallback :file="file" />
         </bm-extension>
     </div>

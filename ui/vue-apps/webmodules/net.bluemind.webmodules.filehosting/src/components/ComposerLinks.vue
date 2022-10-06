@@ -6,7 +6,7 @@
         contenteditable="false"
     >
         <div style="margin-bottom: 15px;">
-            {{ $tc("mail.filehosting.link", files.length) }}
+            {{ $tc("filehosting.link", files.length) }}
         </div>
         <div style="background-color: #ffffff; padding: 15px;">
             <div
@@ -40,7 +40,7 @@
                     ({{ displaySize(file.size) }})
                 </span>
                 <span v-if="file.expirationDate" style="display: block; font-size: small; color: grey;">
-                    {{ $t("mail.filehosting.expiration_date", { date: dateToString(file.expirationDate) }) }}
+                    {{ $t("filehosting.expiration_date", { date: dateToString(file.expirationDate) }) }}
                 </span>
             </div>
         </div>
@@ -49,8 +49,11 @@
 
 <script>
 import { computeUnit } from "@bluemind/file-utils";
+import FilehostingL10N from "../l10n";
+
 export default {
     name: "ComposerLinks",
+    componentI18N: { messages: FilehostingL10N },
     props: {
         className: {
             type: String,

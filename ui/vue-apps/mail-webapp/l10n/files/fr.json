@@ -149,6 +149,8 @@
     "alert.mail.message.draft.attach.error": "Pièce-jointe en erreur. Réessayez.",
     "mail.actions.attach.aria": "Joindre un fichier",
     "mail.actions.attach": "Joindre",
+    "mail.actions.attach.max_size": "La taille d'un message est limitée à {size}",
+    "mail.actions.attach.too_large": "Fichier trop volumineux | Fichiers trop volumineux",
     "mail.actions.choose_folder.modal.combo.label": "Dossier de destination",
     "mail.actions.create.folder": "Créer un nouveau dossier",
     "mail.actions.edit": "Editer",
@@ -198,6 +200,7 @@
     "mail.actions.move.item.warning.self": "Ce message est déjà dans {path}",
     "mail.actions.move.item": "Déplacer le message vers {path} | Déplacer les messages sélectionnés vers {path}",
     "mail.actions.move": "Déplacer",
+    "mail.actions.other": "Autres actions",
     "mail.actions.purge.modal.content": "Supprimer définitivement le message \"{subject}\" ? | Supprimer définitivement les messages sélectionnés ?",
     "mail.actions.purge.draft.modal.content": "Supprimer le brouillon \"{subject}\" enregistré le {date} ?",
     "mail.actions.purge.draft.modal.content.time": "Supprimer le brouillon \"{subject}\" enregistré à {time} ?",
@@ -356,9 +359,10 @@
     "mail.preview.nopreview.large": "Ce fichier est trop volumineux pour être prévisualisé",
     "mail.preview.nopreview.type": "Ce type de fichier n'est pas prévisualisable",
     "mail.preview.nopreview.invalid": "Le lien partagé est invalide",
+    "mail.preview.nopreview": "Ce fichier n'est pas prévisualisable",
     "mail.search.options.folder.current": "Ce dossier",
     "mail.search.options.folder.label": "Rechercher dans",
-    "mail.selection.alert.readonly": "Certains message sélectionnés sont en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles",
+    "mail.selection.alert.readonly": "Certains messages sélectionnés sont en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles",
     "mail.state.unread": "Non lu",
     "mail.state.flagged": "Suivi",
     "mail.toolbar.more.aria": "Autres actions possibles sur la sélection",
@@ -464,33 +468,6 @@
             "modal": {
                 "title": "Créer un sous-dossier de \"{name}\""
             }
-        },
-        "filehosting": {
-            "from_drive": "Joindre depuis le Drive",
-            "share": {
-                "start": "Envoyer un lien partagé | Envoyer des liens partagés",
-                "stop": "Arrêter l'envoi",
-                "pending": "Envoi d'un lien partagé | Envoi des liens partagés",
-                "failure": "Votre fichier n'a pas pu être téléchargé | Certains fichiers n'ont pas pu être téléchargés"
-            },
-            "threshold": {
-                "some_hit": "Certains fichiers dépassent {size}",
-                "size": "Votre fichier dépasse {size} | Vos fichiers dépassent {size}",
-                "max_message_size": "La taille d'un message est limitée à {size}",
-                "almost_hit": "Votre fichier est relativement volumineux. | Vos fichiers sont relativement volumineux."
-            },
-            "add": {
-                "large": "Ajout d'un fichier volumineux | Ajout de fichiers volumineux",
-                "too_large": "Fichier trop volumineux | Fichiers trop volumineux"
-            },
-            "import": {
-                "successful": "import réussi",
-                "failed": "échec de l'import"
-            },
-            "expiration_date": "Expire le {date}",
-            "expired": "expiré",
-            "link": "J'ai lié un fichier à ce message | J'ai lié des fichiers à ce message",
-            "very_large_file": "fichier très volumineux"
         },
         "rename_folder": {
             "modal": {

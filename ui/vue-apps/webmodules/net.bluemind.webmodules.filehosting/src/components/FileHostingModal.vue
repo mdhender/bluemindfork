@@ -1,7 +1,7 @@
 <template>
     <bm-modal
         id="file-hosting-modal"
-        :title="$tc('mail.filehosting.add.large', fhFiles.length)"
+        :title="$tc('filehosting.add.large', fhFiles.length)"
         title-class="ml-2"
         dialog-class="modal-dialog-centered"
         no-fade
@@ -30,10 +30,10 @@
                 <bm-icon icon="cloud" class="ml-2 text-secondary" size="xl" />
             </div>
             <div v-if="hasSomeErrorStatus" class="mb-6 text-danger">
-                {{ $tc("mail.filehosting.share.failure", fhFiles.length) }}
+                {{ $tc("filehosting.share.failure", fhFiles.length) }}
             </div>
             <div v-else class="mb-6">
-                {{ $tc("mail.filehosting.share.pending", fhFiles.length) }}
+                {{ $tc("filehosting.share.pending", fhFiles.length) }}
             </div>
 
             <div v-for="(file, idx) in fhFiles" :key="idx" class="position-relative mb-6">
@@ -44,7 +44,7 @@
                             class="text-danger ml-2 text-nowrap"
                             icon="exclamation-circle-fill"
                         >
-                            {{ $t("mail.filehosting.import.failed") }}
+                            {{ $t("filehosting.import.failed") }}
                         </bm-label-icon>
                         <bm-button-close
                             v-else-if="hasNotLoadedStatus(file)"
@@ -53,7 +53,7 @@
                             @click="cancel(file.key)"
                         />
                         <div v-else class="text-neutral regular ml-2 text-nowrap">
-                            {{ $t("mail.filehosting.import.successful") }}
+                            {{ $t("filehosting.import.successful") }}
                         </div>
                     </template>
                 </detachment-item>
@@ -61,7 +61,7 @@
         </div>
         <template #modal-footer>
             <bm-button variant="text" :disabled="!isUploading" @click="cancelAll">
-                {{ $t("mail.filehosting.share.stop") }}
+                {{ $t("filehosting.share.stop") }}
             </bm-button>
             <bm-button variant="outline-accent" @click="hideModal">
                 {{ isUploading ? $t("common.hide") : $t("common.done") }}
@@ -75,13 +75,16 @@ import global from "@bluemind/global";
 import { BmModal, BmButtonClose, BmButton, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
 import { fileUtils } from "@bluemind/mail";
+import FilehostingL10N from "../l10n";
 import DetachmentItem from "./DetachmentItem";
+import { GET_FH_FILE } from "../store/types/getters";
 
 const { FileStatus, isUploading } = fileUtils;
 
 export default {
     name: "FileHostingModal",
     components: { BmModal, BmButtonClose, BmButton, BmIcon, DetachmentItem, BmLabelIcon },
+    componentI18N: { messages: FilehostingL10N },
     props: {
         sizeLimit: {
             type: Number,
@@ -96,7 +99,7 @@ export default {
         return { fhFileKeys: [] };
     },
     computed: {
-        ...mapGetters("mail", ["GET_FH_FILE"]),
+        ...mapGetters("mail", [GET_FH_FILE]),
         isUploading() {
             return this.fhFiles.filter(({ status }) => isUploading({ status })).length === this.fhFiles.length;
         },
