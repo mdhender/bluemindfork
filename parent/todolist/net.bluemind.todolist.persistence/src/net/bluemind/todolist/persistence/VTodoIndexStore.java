@@ -166,10 +166,10 @@ public class VTodoIndexStore {
 	private QueryBuilder fieldGreaterThan(String field, String fieldTz, BmDateTime dt) {
 		QueryBuilder inRangeNoTz = Queries.and(//
 				Queries.missing(fieldTz), //
-				QueryBuilders.rangeQuery(field).gt(new BmDateTimeWrapper(dt).format("yyyy-MM-dd'T'HH:mm:ss.S")));
+				QueryBuilders.rangeQuery(field).gte(new BmDateTimeWrapper(dt).format("yyyy-MM-dd'T'HH:mm:ss.S")));
 		QueryBuilder inRangeWithTz = Queries.and(//
 				QueryBuilders.existsQuery(fieldTz), //
-				QueryBuilders.rangeQuery(field).gt(dt.iso8601));
+				QueryBuilders.rangeQuery(field).gte(dt.iso8601));
 
 		return Queries.and(QueryBuilders.existsQuery(field), Queries.or(inRangeNoTz, inRangeWithTz));
 	}
