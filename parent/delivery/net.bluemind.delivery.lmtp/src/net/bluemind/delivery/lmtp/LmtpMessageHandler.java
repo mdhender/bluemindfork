@@ -185,7 +185,7 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 			try {
 				hook.preDelivery(delCtx, tgtBox, rec, messageBody);
 			} catch (Exception e) {
-				logger.error(e.getMessage());
+				logger.error("Hook {} failed on msg {}: {}", hook, messageBody.messageId, e.getMessage());
 			}
 		}
 
