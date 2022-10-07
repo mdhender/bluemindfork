@@ -61,11 +61,16 @@ export const VIEWER_CAPABILITIES = [
     MimeType.PDF
 ];
 
+export function sanitizeTextPartForCyrus(text) {
+    return text.replace(/\r?\n/g, "\r\n");
+}
+
 export default {
     createFromFile,
     getPartsFromCapabilities,
     isViewable,
     mergePartsForRichEditor,
     mergePartsForTextarea,
+    sanitizeTextPartForCyrus,
     VIEWER_CAPABILITIES
 };

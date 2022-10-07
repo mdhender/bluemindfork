@@ -1,4 +1,4 @@
 import registerDependencies from "./registerDependencies";
-export { ChooserModal } from "./Chooser/index.js";
+export { Chooser } from "./Chooser/index.js";
 
 registerDependencies();

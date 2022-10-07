@@ -3,7 +3,9 @@ import { BmTooLargeBox } from "@bluemind/styleguide";
 import FhConfirmBox from "~/components/ConfirmBox";
 import FhMustDetachConfirmBox from "~/components/MustDetachConfirmBox";
 import FileHostingModal from "~/components/FileHostingModal";
-import ComposerLinks from "~/components/ComposerLinks";
+import ComposerLinksWithFrame from "~/components/ComposerLinks/ComposerLinksWithFrame";
+import ComposerLinks from "~/components/ComposerLinks/ComposerLinks";
+const ComposerLinksWithFrameClass = Vue.extend(ComposerLinksWithFrame);
 const ComposerLinksClass = Vue.extend(ComposerLinks);
 
 export const LINKS_CLASSNAME = "filehosting-links";
@@ -78,14 +80,25 @@ export function renderFileHostingModal(vm, message) {
         }
     };
 }
+export function renderLinksWithFrameComponent(vm, files) {
+    // This Class is a subclass of the Vue component. The parent property establishes a parent-child
+    // relationship to current vm. This way this component can use its parent plugins like i18n.
+    return new ComposerLinksWithFrameClass({
+        parent: vm,
+        propsData: {
+            files,
+            className: LINKS_CLASSNAME
+        }
+    });
+}
+
 export function renderLinksComponent(vm, files) {
     // This Class is a subclass of the Vue component. The parent property establishes a parent-child
     // relationship to current vm. This way this component can use its parent plugins like i18n.
     return new ComposerLinksClass({
         parent: vm,
         propsData: {
-            files,
-            className: LINKS_CLASSNAME
+            files
         }
     });
 }

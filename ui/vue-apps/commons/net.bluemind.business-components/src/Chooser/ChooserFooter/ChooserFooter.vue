@@ -107,6 +107,8 @@ export default {
 
 .chooser-footer {
     min-width: 100%;
+    padding: $sp-3 $sp-6 $sp-6 $sp-6;
+    border-top: 1px solid $border-color;
 
     .toolbars {
         display: flex;

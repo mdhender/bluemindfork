@@ -32,7 +32,10 @@ export default {
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    color: $fill-neutral-fg-lo1;
+    .bm-icon {
+        background-color: $neutral-bg;
+        color: $highest;
+    }
 
     .text {
         color: $fill-neutral-fg;

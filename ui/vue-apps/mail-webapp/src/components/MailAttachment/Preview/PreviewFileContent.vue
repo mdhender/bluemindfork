@@ -70,6 +70,9 @@ export default {
             },
             immediate: true
         },
+        src(newSrc, oldSrc) {
+            this.revokeObjectURL(oldSrc);
+        },
         blockedRemoteContent: {
             async handler() {
                 this.src = await this.getSrc(this.file);
@@ -77,13 +80,19 @@ export default {
             immediate: true
         }
     },
-
+    beforeDestroy() {
+        this.revokeObjectURL(this.src);
+    },
     methods: {
         ...mapActions("alert", { REMOVE }),
         async getBlobUrl(url) {
             try {
                 const res = await fetch(url);
-                return URL.createObjectURL(await res.blob());
+                if (!res.ok) {
+                    return null;
+                }
+                const blob = await res.blob();
+                return URL.createObjectURL(blob);
             } catch (err) {
                 return null;
             }
@@ -96,6 +105,11 @@ export default {
                 return this.hasRemoteContent && !(MimeType.isImage(file) && file.status !== FileStatus.INVALID)
                     ? this.getBlobUrl(url)
                     : url;
+            }
+        },
+        revokeObjectURL(url) {
+            if (url && url.startsWith("blob")) {
+                URL.revokeObjectURL(url);
             }
         },
         isViewable

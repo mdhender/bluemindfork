@@ -36,11 +36,12 @@ export default {
             border-left: none !important;
         }
     }
-    display: flex;
 
     @include until-lg {
-        display: block;
         margin-bottom: $sp-6;
+        &.btn-group {
+            display: block;
+        }
     }
 }
 </style>

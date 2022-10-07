@@ -44,10 +44,10 @@ function createTextPart(address) {
     };
 }
 
-function createAlternativePart(textPart, htmlPart) {
+function createAlternativePart(...parts) {
     return {
         mime: MimeType.MULTIPART_ALTERNATIVE,
-        children: [textPart, htmlPart]
+        children: parts
     };
 }
 

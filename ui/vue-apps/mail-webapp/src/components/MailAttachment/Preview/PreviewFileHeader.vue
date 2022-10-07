@@ -1,25 +1,19 @@
 <template>
     <div class="preview-file-header text-truncate">
-        <bm-icon :icon="getMatchingIcon(file.mime)" class="mx-5" />
+        <bm-file-icon :file="file" class="mx-5" />
         <div :title="file.name" class="bold text-truncate">{{ file.name }}</div>
     </div>
 </template>
 <script>
-import { BmIcon } from "@bluemind/styleguide";
-import { MimeType } from "@bluemind/email";
+import { BmFileIcon } from "@bluemind/styleguide";
 
 export default {
     name: "PreviewFileHeader",
-    components: { BmIcon },
+    components: { BmFileIcon },
     props: {
         file: {
             type: Object,
             required: true
-        }
-    },
-    methods: {
-        getMatchingIcon(mime) {
-            return MimeType.matchingIcon(mime);
         }
     }
 };

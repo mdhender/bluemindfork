@@ -2,8 +2,14 @@
     "alert": {
         "filehosting": {
             "share_attachment": {
-                "success": "Die Datei konnte nicht zu Ihrem Laufwerk hinzugefügt werden",
+                "success": "Die Datei konnte nicht zu Ihrem Laufwerk hinzugefügt werden.",
+                "loading": "Die Datei wird zu Ihrem Drive hinzugefügt...",
                 "error": "Die Datei konnte nicht zu Ihrem Drive hinzugefügt werden."
+            },
+            "detach_attachment": {
+                "success": "Die Anlage wurde erfolgreich abgetrennt.",
+                "loading": "Die Anlage wird abgetrennt...",
+                "error": "Die Anlage konnte nicht abgetrennt werden."
             }
         }
     },
@@ -12,6 +18,7 @@
             "add": "Zu Drive hinzufügen",
             "from": "Aus Drive anhängen"
         },
+        "detach": "Aufsatz abnehmen",
         "share": {
             "start": "Einen freigegebenen Link senden | Gemeinsame Links senden",
             "stop": "Anhalten der Sendung",

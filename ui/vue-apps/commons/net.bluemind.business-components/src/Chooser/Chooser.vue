@@ -1,18 +1,13 @@
 <template>
-    <bm-modal id="chooser-modal" centered size="fluid" :scrollable="false" footer-class="shadow" @hide="resetChooser">
-        <template #modal-title>
-            <chooser-header />
-        </template>
+    <div class="chooser">
+        <chooser-header />
         <chooser-main />
-        <template #modal-footer>
-            <chooser-footer :max-attachments-size="maxAttachmentsSize" @insert="insert" @cancel="resetChooser" />
-        </template>
-    </bm-modal>
+        <chooser-footer :max-attachments-size="maxAttachmentsSize" @insert="insert" @cancel="resetChooser" />
+    </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
-import { BmModal } from "@bluemind/styleguide";
 import ChooserL10N from "../l10n";
 import ChooserFooter from "./ChooserFooter/ChooserFooter";
 import ChooserHeader from "./ChooserHeader/ChooserHeader";
@@ -20,8 +15,8 @@ import ChooserMain from "./ChooserMain/ChooserMain";
 import { RESET_CHOOSER } from "./store/actions";
 
 export default {
-    name: "ChooserModal",
-    components: { BmModal, ChooserFooter, ChooserHeader, ChooserMain },
+    name: "Chooser",
+    components: { ChooserFooter, ChooserHeader, ChooserMain },
     props: {
         maxAttachmentsSize: {
             type: Number,
@@ -31,6 +26,9 @@ export default {
     componentI18N: { messages: ChooserL10N },
     computed: {
         ...mapState("chooser", ["insertAsLink", "selectedFiles"])
+    },
+    beforeMount() {
+        this.resetChooser();
     },
     methods: {
         insert() {
@@ -47,28 +45,22 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
 
-#chooser-modal {
-    .modal-content {
-        height: 80vh;
+.chooser {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    .chooser-header {
+        padding: $sp-4 $sp-7 $sp-1 $sp-7;
     }
-    header {
-        background-color: $neutral-bg-lo1;
-
-        .modal-title {
-            font-size: $font-size-base;
-            width: 100%;
-        }
+    .chooser-main {
+        overflow: auto;
+        height: 80%;
     }
-
-    .modal-body {
-        padding: 0;
-        overflow-y: auto;
-    }
-    .modal-footer {
-        padding-top: 0 !important;
-        border-top: 1px solid $border-color;
+    .chooser-footer {
+        box-shadow: $sp-5 $sp-2 $sp-4 $shadow-color;
     }
 }
 </style>

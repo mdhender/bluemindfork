@@ -8,22 +8,31 @@
             :title="$tc('filehosting.drive.from')"
             @click="openChooser"
         />
-        <chooser-modal :max-attachments-size="maxAttachmentsSize" @insert="insertFiles" />
+        <bm-modal
+            id="chooser-modal"
+            hide-footer
+            centered
+            size="fluid"
+            :scrollable="false"
+            :title="$t('chooser.choose')"
+        >
+            <chooser :max-attachments-size="maxAttachmentsSize" @insert="insertFiles" />
+        </bm-modal>
     </div>
 </template>
 
 <script>
 import { inject } from "@bluemind/inject";
-import { BmIconButton } from "@bluemind/styleguide";
+import { BmIconButton, BmModal } from "@bluemind/styleguide";
 import { MimeType } from "@bluemind/email";
-import { ChooserModal } from "@bluemind/business-components";
+import { Chooser } from "@bluemind/business-components";
 import FilehostingL10N from "../l10n";
 import { LINK_FH_ATTACHMENT } from "../store/types/actions";
 import getContentWithLinks from "../helpers/getContentWithLinks";
 
 export default {
     name: "ChooserButton",
-    components: { BmIconButton, ChooserModal },
+    components: { BmIconButton, BmModal, Chooser },
     componentI18N: { messages: FilehostingL10N },
     props: {
         message: {
@@ -75,3 +84,24 @@ function addMimeType(file) {
     return { ...file, type: MimeType.getFromFilename(file.name) };
 }
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+#chooser-modal {
+    header.modal-header {
+        background-color: $neutral-bg-lo1;
+        padding-left: $sp-7;
+
+        & > .modal-title {
+            font-size: $font-size-lg;
+        }
+    }
+    .modal-content {
+        height: 80vh;
+    }
+    .modal-body {
+        padding: 0;
+    }
+}
+</style>

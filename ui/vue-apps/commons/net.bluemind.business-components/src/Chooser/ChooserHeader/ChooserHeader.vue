@@ -1,6 +1,5 @@
 <template>
-    <div class="chooser-header px-3 pb-1">
-        <div class="title mb-6">{{ $t("chooser.choose") }}</div>
+    <div class="chooser-header">
         <div class="header-top d-flex flex-fill mb-6">
             <chooser-breadcrumb :class="{ active: !HAS_VALID_PATTERN }" :path="path" class="mr-4" />
             <chooser-search :class="{ active: HAS_VALID_PATTERN }" />
@@ -36,14 +35,14 @@ export default {
 
 .chooser-header {
     width: 100%;
+    background-color: $neutral-bg-lo1;
+    padding-top: $sp-3;
+
     .header-top {
         max-width: 95%;
         @include until-lg {
             max-width: 100%;
         }
-    }
-    .title {
-        font-size: $font-size-lg;
     }
 
     .chooser-breadcrumb {
@@ -53,6 +52,11 @@ export default {
                 display: flex;
                 min-width: 75%;
             }
+        }
+    }
+    .chooser-search {
+        @include until-lg {
+            display: none;
         }
     }
 }

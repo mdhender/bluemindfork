@@ -10,7 +10,6 @@ import {
     REMOVE_MESSAGES,
     RESET_CONVERSATIONS,
     SET_ATTACHMENT_ADDRESS,
-    SET_ATTACHMENT_ENCODING,
     SET_ATTACHMENTS,
     SET_MESSAGE_BCC,
     SET_MESSAGE_CC,
@@ -121,11 +120,6 @@ export default {
         if (attachment) {
             attachment.address = address;
         }
-    },
-    [SET_ATTACHMENT_ENCODING]: (state, { messageKey, address, charset, encoding }) => {
-        const attachment = state[messageKey].attachments.find(a => a.address === address);
-        attachment.charset = charset;
-        attachment.encoding = encoding;
     },
 
     // Hooks

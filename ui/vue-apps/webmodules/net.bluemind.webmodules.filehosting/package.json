@@ -18,6 +18,7 @@
         "@bluemind/file-utils": "^4.1.0",
         "@bluemind/extensions": "^4.1.0",
         "@bluemind/mail": "^4.1.0",
+        "@bluemind/email": "^4.1.0",
         "@bluemind/business-components": "^4.1.0",
         "@bluemind/alert.store": "^4.1.0"
     },

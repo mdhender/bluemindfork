@@ -7,7 +7,7 @@
         icon="3dots-v"
         :title="$t('mail.actions.other')"
     >
-        <bm-extension id="webapp.mail" type="list" :file="file" path="file.actions" />
+        <bm-extension id="webapp.mail" type="list" :file="file" path="file.actions" :message="message" />
     </bm-icon-dropdown>
 </template>
 
@@ -20,6 +20,10 @@ export default {
     components: { BmIconDropdown, BmExtension },
     props: {
         file: {
+            type: Object,
+            required: true
+        },
+        message: {
             type: Object,
             required: true
         }

@@ -2,6 +2,9 @@ import { html2text, sanitizeHtml } from "@bluemind/html-utils";
 import { InlineImageHelper, PartsBuilder } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import random from "lodash.random";
+import { partUtils } from "@bluemind/mail";
+
+const { sanitizeTextPartForCyrus } = partUtils;
 
 import { draftUtils, fileUtils, messageUtils, signatureUtils } from "@bluemind/mail";
 import {
@@ -67,8 +70,8 @@ async function prepareDraft(context, service, draft, messageCompose) {
 
     const insertionResult = InlineImageHelper.insertCid(wholeContent, messageCompose.inlineImagesSaved);
 
-    const textHtml = sanitizeForCyrus(insertionResult.htmlWithCids);
-    const textPlain = sanitizeForCyrus(html2text(insertionResult.htmlWithCids));
+    const textHtml = sanitizeTextPartForCyrus(insertionResult.htmlWithCids);
+    const textPlain = sanitizeTextPartForCyrus(html2text(insertionResult.htmlWithCids));
     context.commit(SET_MESSAGE_PREVIEW, { key: draft.key, preview: textPlain });
     const tmpAddresses = await uploadParts(service, textPlain, textHtml, insertionResult.newContentByCid);
 
@@ -154,10 +157,6 @@ function createDraftStructure(textPlainAddress, textHtmlAddress, attachments, in
     structure = PartsBuilder.createAttachmentParts(attachments, structure);
 
     return structure;
-}
-
-function sanitizeForCyrus(text) {
-    return text.replace(/\r?\n/g, "\r\n");
 }
 
 /**

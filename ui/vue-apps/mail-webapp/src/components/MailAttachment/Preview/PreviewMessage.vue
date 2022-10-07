@@ -68,10 +68,10 @@ export default {
             SET_PREVIEW_FILE_KEY
         }),
         openPreview(file, message) {
-            this.$refs.toolbar.openPreview(file, message);
+            this.$refs.toolbar[0].openPreview(file, message);
         },
         download(file) {
-            this.$refs.toolbar.download(file);
+            this.$refs.toolbar[0].download(file);
         },
         previewOrDownload(file) {
             if (!isUploading(file)) {

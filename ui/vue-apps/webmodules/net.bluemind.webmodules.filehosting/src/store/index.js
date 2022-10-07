@@ -10,7 +10,7 @@ const mutations = {
         Vue.set(state, "configuration", { autoDetachmentLimit, maxFilesize });
     },
     // Listeners
-    REMOVE_file(state, { key }) {
+    REMOVE_FILE(state, { key }) {
         if (state.values[key]) {
             delete state.values[key];
         }

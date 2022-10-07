@@ -2,8 +2,14 @@
     "alert": {
         "filehosting": {
             "share_attachment": {
-                "success": "The file was successfully added to your Drive",
-                "error": "The file could not be added to your Drive"
+                "success": "The file was successfully added to your Drive.",
+                "loading": "The file is being added to your Drive...",
+                "error": "The file could not be added to your Drive."
+            },
+            "detach_attachment": {
+                "success": "The attachment has been successfully detached.",
+                "loading": "The attachment is being detached...",
+                "error": "The attachment could not be detached."
             }
         }
     },
@@ -12,6 +18,7 @@
             "add": "Add to Drive",
             "from": "Attach from Drive"
         },
+        "detach": "Detach the attachment",
         "share": {
             "start": "Send a shared link | Send shared links",
             "stop": "Stop the sending",

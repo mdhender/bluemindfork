@@ -1,7 +1,16 @@
 import { inject } from "@bluemind/inject";
 import { withAlert } from "./helpers";
 import addFhAttachment from "./addFhAttachment";
-import { ADD_FH_ATTACHMENT, LINK_FH_ATTACHMENT, SHARE_ATTACHMENT, GET_CONFIGURATION } from "./types/actions";
+import addFhFile from "./addFhFile";
+import detachAttachment from "./detachAttachment";
+import {
+    ADD_FH_ATTACHMENT,
+    ADD_FH_FILE,
+    DETACH_ATTACHMENT,
+    GET_CONFIGURATION,
+    LINK_FH_ATTACHMENT,
+    SHARE_ATTACHMENT
+} from "./types/actions";
 import { SET_CONFIGURATION } from "./types/mutations";
 
 async function uploadFh({ fileName, key }, content, commit) {
@@ -39,13 +48,17 @@ async function share({ commit }, file) {
 }
 
 export default {
-    async [ADD_FH_ATTACHMENT]({ commit }, { file, message }) {
-        return await addFhAttachment({ commit }, { file, message, shareFn: uploadFh });
+    async [ADD_FH_ATTACHMENT]({ commit, dispatch }, { file, message }) {
+        return await addFhAttachment({ commit, dispatch }, { file, message, shareFn: uploadFh });
     },
-    async [LINK_FH_ATTACHMENT]({ commit }, { file, message }) {
-        return await addFhAttachment({ commit }, { file, message, shareFn: getPublicurl });
+    async [LINK_FH_ATTACHMENT]({ commit, dispatch }, { file, message }) {
+        return await addFhAttachment({ commit, dispatch }, { file, message, shareFn: getPublicurl });
+    },
+    async [ADD_FH_FILE]({ commit }, { file, message, content, shareFn = uploadFh }) {
+        return await addFhFile({ commit }, { file, message, content, shareFn });
     },
     [SHARE_ATTACHMENT]: withAlert(share, SHARE_ATTACHMENT),
+    [DETACH_ATTACHMENT]: withAlert(detachAttachment, DETACH_ATTACHMENT),
     async [GET_CONFIGURATION]({ state, commit }) {
         if (!state.configuration) {
             const config = await inject("AttachmentPersistence").getConfiguration();

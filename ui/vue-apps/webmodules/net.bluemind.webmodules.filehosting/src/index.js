@@ -11,7 +11,8 @@ import PreviewInvalid from "~/components/PreviewInvalid";
 import CloudIcon from "~/components/CloudIcon";
 import DetachButton from "~/components/DetachButton";
 import ChooserButton from "~/components/ChooserButton";
-import CopyToDriveItem from "~/components/CopyToDriveItem";
+import CopyToDriveItem from "~/components/OtherActionsItems/CopyToDriveItem";
+import DetachItem from "~/components/OtherActionsItems/DetachItem";
 
 Vue.component("fh-renderless-file-item", RenderlessFileItem);
 Vue.component("cloud-icon", CloudIcon);
@@ -19,6 +20,7 @@ Vue.component("detach-button", DetachButton);
 Vue.component("chooser-button", ChooserButton);
 Vue.component("preview-invalid", PreviewInvalid);
 Vue.component("copy-to-drive-item", CopyToDriveItem);
+Vue.component("detach-item", DetachItem);
 
 extensions.register("webapp", "net.bluemind.webmodules.filehosting", {
     command: {
@@ -72,10 +74,18 @@ extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
         path: "file.preview.fallback"
     }
 });
-extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
+extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting.drive", {
     component: {
         name: "copy-to-drive-item",
-        path: "file.actions"
+        path: "file.actions",
+        role: "canUseFilehosting"
+    }
+});
+extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
+    component: {
+        name: "detach-item",
+        path: "file.actions",
+        role: "canRemoteAttach"
     }
 });
 

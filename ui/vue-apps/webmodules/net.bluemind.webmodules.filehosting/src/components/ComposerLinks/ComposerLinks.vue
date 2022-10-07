@@ -1,64 +1,42 @@
 <template>
-    <div
-        v-if="files.length > 0"
-        :class="`composer-links ${className}`"
-        style="padding: 15px; background-color: #d9edff;"
-        contenteditable="false"
-    >
-        <div style="margin-bottom: 15px;">
-            {{ $tc("filehosting.link", files.length) }}
-        </div>
-        <div style="background-color: #ffffff; padding: 15px;">
-            <div
-                v-for="file in files"
-                :key="file.address"
-                style="
-                    border: 1px solid #cdcdcd;
-                    border-radius: 5px;
-                    margin-top: 10px;
-                    margin-bottom: 10px;
-                    padding: 15px;
-                "
-            >
+    <div style="background-color: #ffffff;">
+        <div
+            v-for="file in files"
+            :key="file.address"
+            style="border: 1px solid #cdcdcd; border-radius: 5px; margin-top: 10px; margin-bottom: 10px; padding: 15px;"
+        >
+            <img
+                style="margin-right: 5px; float: left; width: 24px; height: 24px;"
+                :src="`data:image/gif;${images.file}`"
+                alt="file"
+            />
+            <span style="float: right;">
                 <img
-                    style="margin-right: 5px; float: left; width: 24px; height: 24px;"
-                    :src="`data:image/gif;${images.file}`"
-                    alt="file"
+                    style="margin-right: 5px; vertical-align: middle;"
+                    :src="`data:image/gif;${images.bm}`"
+                    alt="BlueMind"
                 />
-                <span style="float: right;">
-                    <img
-                        style="margin-right: 5px; vertical-align: middle;"
-                        :src="`data:image/gif;${images.bm}`"
-                        alt="BlueMind"
-                    />
-                    <a style="color: #0f7edb !important;" :href="bmUrl">BlueMind</a>
-                </span>
-                <a style="color: #0f7edb !important;" :href="file.url" :download="file.name">
-                    {{ file.name }}
-                </a>
-                <span v-if="file.size" style="margin-left: 5px; font-size: small; color: grey;">
-                    ({{ displaySize(file.size) }})
-                </span>
-                <span v-if="file.expirationDate" style="display: block; font-size: small; color: grey;">
-                    {{ $t("filehosting.expiration_date", { date: dateToString(file.expirationDate) }) }}
-                </span>
-            </div>
+                <a style="color: #0f7edb !important;" :href="bmUrl">BlueMind</a>
+            </span>
+            <a style="color: #0f7edb !important;" :href="file.url" :download="file.name">
+                {{ file.name }}
+            </a>
+            <span v-if="file.size" style="margin-left: 5px; font-size: small; color: grey;">
+                ({{ displaySize(file.size) }})
+            </span>
+            <span v-if="file.expirationDate" style="display: block; font-size: small; color: grey;">
+                {{ $t("filehosting.expiration_date", { date: dateToString(file.expirationDate) }) }}
+            </span>
         </div>
     </div>
 </template>
 
 <script>
 import { computeUnit } from "@bluemind/file-utils";
-import FilehostingL10N from "../l10n";
 
 export default {
     name: "ComposerLinks",
-    componentI18N: { messages: FilehostingL10N },
     props: {
-        className: {
-            type: String,
-            required: true
-        },
         files: {
             type: Array,
             required: true

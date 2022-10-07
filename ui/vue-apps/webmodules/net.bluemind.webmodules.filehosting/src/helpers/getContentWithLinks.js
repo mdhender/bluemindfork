@@ -1,4 +1,4 @@
-import { LINKS_CLASSNAME, renderLinksComponent } from "./renderers";
+import { LINKS_CLASSNAME, renderLinksWithFrameComponent } from "./renderers";
 import { fileUtils, messageUtils, signatureUtils } from "@bluemind/mail";
 import { GET_FH_FILE } from "../store/types/getters";
 
@@ -16,7 +16,7 @@ export default function (vm, message) {
         previousLinks.remove();
     }
     const files = getUploadedFiles(vm, message);
-    const composerLinks = renderLinksComponent(vm, files);
+    const composerLinks = renderLinksWithFrameComponent(vm, files);
     composerLinks.$mount();
     const signatureNode = getSignatureNode.call(this, fragment, messageCompose);
     if (signatureNode) {

@@ -44,7 +44,7 @@
                 </template>
                 <template v-else>
                     <div class="icon-or-check-wrapper">
-                        <bm-icon :icon="getMatchingIcon(item.name)" />
+                        <bm-file-icon :file="item" />
                     </div>
                 </template>
             </template>
@@ -59,8 +59,7 @@
 
 <script>
 import { mapState } from "vuex";
-import { BmCheck, BmIcon, BmPagination, BmTable, BmSpinner } from "@bluemind/styleguide";
-import { MimeType } from "@bluemind/email";
+import { BmCheck, BmIcon, BmFileIcon, BmPagination, BmTable, BmSpinner } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
 import {
     ADD_SELECTED_FILE,
@@ -77,7 +76,7 @@ const ITEM_TYPES = {
 
 export default {
     name: "ChooserFilesTable",
-    components: { BmCheck, BmIcon, BmPagination, BmTable, BmSpinner },
+    components: { BmCheck, BmIcon, BmFileIcon, BmPagination, BmTable, BmSpinner },
     props: {
         items: {
             type: Array,
@@ -147,10 +146,6 @@ export default {
     methods: {
         displaySize(size) {
             return computeUnit(size, this.$i18n);
-        },
-        getMatchingIcon(name) {
-            const mime = MimeType.getFromFilename(name);
-            return MimeType.matchingIcon(mime);
         },
         isDirectory(item) {
             return item.type === ITEM_TYPES.DIRECTORY;

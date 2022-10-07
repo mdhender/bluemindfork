@@ -7,7 +7,7 @@
             @preview="openPreview(file)"
         />
         <download-button v-if="hasButton(ActionButtons.DOWNLOAD)" :ref="`download-button-${file.key}`" :file="file" />
-        <other-button v-if="hasButton(ActionButtons.OTHER)" :file="file" />
+        <other-button v-if="hasButton(ActionButtons.OTHER)" :file="file" :message="message" />
         <template v-if="hasButton(ActionButtons.REMOVE)">
             <cancel-button v-if="isUploading(file)" @cancel="cancel(file)" />
             <remove-button v-else @remove="removeAttachment(file)" />

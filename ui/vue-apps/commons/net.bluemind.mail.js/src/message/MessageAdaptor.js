@@ -56,7 +56,6 @@ export default {
 
         const walker = new TreeWalker(structure, [inlineVisitor, attachmentVisitor]);
         walker.walk();
-
         return {
             attachments: attachmentVisitor.result(),
             inlinePartsByCapabilities: inlineVisitor.result()

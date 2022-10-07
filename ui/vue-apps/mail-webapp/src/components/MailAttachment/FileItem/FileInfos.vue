@@ -4,7 +4,7 @@
             class="icon-col"
             :title="$t('mail.content.file-type', { fileType: $t('mail.content.' + matchingIcon) })"
         >
-            <bm-icon :icon="matchingIcon" />
+            <bm-file-icon :file="file" />
         </bm-col>
         <bm-col class="text-nowrap text-truncate file-text">
             <div :title="file.name" class="text-truncate bold">{{ file.name }}</div>
@@ -19,16 +19,15 @@
     </bm-row>
 </template>
 <script>
-import { BmCol, BmIcon, BmRow } from "@bluemind/styleguide";
+import { BmCol, BmFileIcon, BmRow } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
 import { MimeType } from "@bluemind/email";
 import FileTags from "./FileTags";
-
 export default {
     name: "FileInfos",
     components: {
         BmCol,
-        BmIcon,
+        BmFileIcon,
         BmRow,
         FileTags
     },

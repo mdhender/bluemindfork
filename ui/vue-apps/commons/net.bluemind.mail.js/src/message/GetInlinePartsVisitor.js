@@ -61,8 +61,9 @@ export default class GetInlinePartsVisitor {
     /** Split the results in function of the given Alternative part. */
     forkResults(part, ancestors) {
         const root = this.getBranchRoot(part, ancestors);
-        this.getChildrenResults(root, ancestors).forEach(sibling => {
-            let results = part.children.map(function (part) {
+
+        this.getChildrenResults(root).forEach(sibling => {
+            let results = part.children.sort(this.isPreferedPart).map(part => {
                 return {
                     lastForkAddress: part.address || "",
                     capabilities: sibling.capabilities.slice(0),
@@ -71,6 +72,17 @@ export default class GetInlinePartsVisitor {
             });
             this.results.splice(this.results.indexOf(sibling), 1, ...results);
         });
+    }
+
+    isPreferedPart(part1, part2) {
+        const preferedHeader = "X-BM-Prefered-Part";
+        if (part1.headers?.some(({ name }) => name === preferedHeader)) {
+            return 1;
+        }
+        if (part2.headers?.some(({ name }) => name === preferedHeader)) {
+            return -1;
+        }
+        return 0;
     }
 
     /** @return the closest ancestor which is an Alternative child */

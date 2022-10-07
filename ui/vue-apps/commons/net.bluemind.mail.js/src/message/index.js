@@ -111,11 +111,11 @@ export const MessageHeader = {
 
     X_BM_DRAFT_INFO: "X-Bm-Draft-Info",
     X_BM_DRAFT_REFRESH_DATE: "X-Bm-Draft-Refresh-Date",
-    X_BM_EVENT: "X-BM-Event",
     X_BM_EVENT_COUNTERED: "X-BM-Event-Countered",
+    X_BM_EVENT: "X-BM-Event",
     X_BM_RESOURCEBOOKING: "X-BM-ResourceBooking",
-    X_BM_SENT_FOLDER: "X-BM-Sent-Folder",
-    X_BM_REWRITE: "X-BM-Rewrite"
+    X_BM_REWRITE: "X-BM-Rewrite",
+    X_BM_SENT_FOLDER: "X-BM-Sent-Folder"
 };
 
 export const MessageReplyAttributeSeparator = "data-bm-reply-separator";

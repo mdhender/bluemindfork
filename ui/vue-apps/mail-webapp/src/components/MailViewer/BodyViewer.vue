@@ -120,10 +120,10 @@ export default {
         ...mapActions("mail", { FETCH_PART_DATA, COMPUTE_QUOTE_NODES }),
         ...mapMutations("mail", { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY }),
         download(file) {
-            this.$ref.toolbar.download(file);
+            this.$refs.toolbar.download(file);
         },
         openPreview(file, message) {
-            this.$ref.toolbar.openPreview(file, message);
+            this.$refs.toolbar.openPreview(file, message);
         },
         triggerRemoteContent() {
             this.$emit("remote-content", this.message);
