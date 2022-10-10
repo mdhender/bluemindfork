@@ -261,17 +261,27 @@ export default {
         },
 
         async mergeAttachments(message, related) {
-            const attachments = (await apiMessages.getForUpdate(related)).attachments;
-            attachments.forEach(attachment => this.$store.commit(`mail/${ADD_ATTACHMENT}`, { message, attachment }));
+            const messageWithTmpAddresses = await apiMessages.getForUpdate(related);
+            const { files, attachments } = AttachmentAdaptor.extractFiles(messageWithTmpAddresses.attachments, message);
+
+            attachments.forEach(attachment =>
+                this.$store.commit(`mail/${ADD_ATTACHMENT}`, { messageKey: message.key, attachment })
+            );
+            this.$store.commit(`mail/${ADD_FILES}`, { files });
         },
 
         async copyAttachments(sourceMessage, destinationMessage) {
-            const attachments = (await apiMessages.getForUpdate(sourceMessage)).attachments;
-            this.$store.commit(`mail/${SET_ATTACHMENTS}`, { destinationMessage, attachments });
+            const messageWithTmpAddresses = await apiMessages.getForUpdate(sourceMessage);
+            const { files, attachments } = AttachmentAdaptor.extractFiles(
+                messageWithTmpAddresses.attachments,
+                sourceMessage
+            );
+            this.$store.commit(`mail/${SET_ATTACHMENTS}`, { messageKey: destinationMessage.key, attachments });
+            this.$store.commit(`mail/${ADD_FILES}`, { files });
         },
 
         async mergeSubject(message, related) {
-            this.$store.commit(`mail/${SET_MESSAGE_SUBJECT}`, { message, subject: related.subject });
+            this.$store.commit(`mail/${SET_MESSAGE_SUBJECT}`, { messageKey: message.key, subject: related.subject });
         },
 
         async mergeRecipients(message, { to, cc, bcc }) {
