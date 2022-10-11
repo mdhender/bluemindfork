@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -101,6 +102,7 @@ public abstract class AbstractPgWorker extends DefaultWorker {
 				}
 			}
 			if (el.getExitCode() != 0) {
+				logger.error(el.stream().collect(Collectors.joining("; ")));
 				throw new ServerFault("pg_dump failed with exit code " + el.getExitCode());
 			}
 		} finally {
