@@ -13,5 +13,6 @@
 		<module>net.bluemind.hps.auth.core2.tests</module>
 		<module>net.bluemind.hps.auth.krb</module>
 		<module>net.bluemind.hps.auth.cas</module>
+		<module>net.bluemind.hps.auth.oauth</module>
 	</modules>
 </project>
