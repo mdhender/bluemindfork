@@ -19,7 +19,7 @@ Require-Bundle: io.netty;visibility:=reexport,
  slf4j.api,
  jakarta.ws.rs-api;visibility:=reexport
 Bundle-ClassPath: .
-X-BM-Version: 4.9.0
+X-BM-Version: 5.0.0
 Bundle-Activator: net.bluemind.core.api.CommonsActivator
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.core.commons
