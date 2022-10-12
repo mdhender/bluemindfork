@@ -31,6 +31,8 @@ public class RawCommandAnalyzer {
 		case 'c':
 			if (cmd.equals("capability")) {
 				return new CapabilityCommand(raw);
+			} else if (cmd.startsWith("create ")) {
+				return new CreateCommand(raw);
 			} else if (cmd.equals("check")) {
 				return new NoopCommand(raw);
 			}
@@ -38,6 +40,8 @@ public class RawCommandAnalyzer {
 		case 'd':
 			if (cmd.equals("done")) {
 				return new DoneCommand(raw);
+			} else if (cmd.startsWith("delete ")) {
+				return new DeleteCommand(raw);
 			}
 			return null;
 		case 'e':
@@ -87,6 +91,11 @@ public class RawCommandAnalyzer {
 				return new NoopCommand(raw);
 			}
 			return null;
+		case 'r':
+			if (cmd.startsWith("rename ")) {
+				return new RenameCommand(raw);
+			}
+			return null;
 		case 's':
 			if (cmd.startsWith("select ")) {
 				return new SelectCommand(raw);
@@ -94,6 +103,8 @@ public class RawCommandAnalyzer {
 				return new StatusCommand(raw);
 			} else if (cmd.startsWith("store ")) {
 				return new StoreCommand(raw);
+			} else if (cmd.startsWith("subscribe ")) {
+				return new SubscribeCommand(raw);
 			}
 			return null;
 		case 'u':
@@ -107,6 +118,8 @@ public class RawCommandAnalyzer {
 				return new UidSearchCommand(raw);
 			} else if (cmd.startsWith("uid expunge ")) {
 				return new UidExpungeCommand(raw);
+			} else if (cmd.startsWith("unsubscribe ")) {
+				return new UnsubscribeCommand(raw);
 			}
 			return null;
 		case 'x':

@@ -76,4 +76,26 @@ public class MailboxReplica extends MailboxFolder {
 				+ ", syncCRC=" + syncCRC + ", quotaRoot=" + quotaRoot + ", dataLocation=" + dataLocation + "}";
 	}
 
+	public static MailboxReplica from(MailboxReplica mbox) {
+		MailboxReplica newmbox = new MailboxReplica();
+		newmbox.name = mbox.name;
+		newmbox.fullName = mbox.fullName;
+		newmbox.parentUid = mbox.parentUid;
+		newmbox.deleted = mbox.deleted;
+		newmbox.lastUid = mbox.lastUid;
+		newmbox.highestModSeq = mbox.highestModSeq;
+		newmbox.xconvModSeq = mbox.xconvModSeq;
+		newmbox.recentUid = mbox.recentUid;
+		newmbox.recentTime = mbox.recentTime;
+		newmbox.lastAppendDate = mbox.lastAppendDate;
+		newmbox.pop3LastLogin = mbox.pop3LastLogin;
+		newmbox.uidValidity = mbox.uidValidity;
+		newmbox.acls = mbox.acls.stream().toList();
+		newmbox.options = mbox.options;
+		newmbox.syncCRC = mbox.syncCRC;
+		newmbox.quotaRoot = mbox.quotaRoot;
+		newmbox.dataLocation = mbox.dataLocation;
+		return newmbox;
+	}
+
 }

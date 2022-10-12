@@ -28,18 +28,30 @@ import net.bluemind.mailbox.api.MailboxQuota;
 
 public interface MailboxConnection {
 
+	/*
+	 * Folders operations
+	 */
 	SelectedFolder select(String fName);
+
+	String create(String fName);
+
+	boolean delete(String fName);
+
+	boolean subscribe(String fName);
+
+	boolean unsubscribe(String fName);
+
+	String rename(String fName, String newName);
 
 	List<ListNode> list(String reference, String mailboxPattern);
 
+	/*
+	 * Email operations
+	 */
 	CompletableFuture<Void> fetch(SelectedFolder selected, String idset, List<MailPart> fetchSpec,
 			WriteStream<FetchedItem> output);
 
 	MailboxQuota quota();
-
-	void idleMonitor(SelectedFolder selected, WriteStream<IdleToken> ctx);
-
-	void notIdle();
 
 	long append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer);
 
@@ -52,5 +64,12 @@ public interface MailboxConnection {
 	CopyResult copyTo(SelectedFolder source, String folder, String idset);
 
 	List<Long> uids(SelectedFolder sel, String query);
+
+	/*
+	 * Imap system stuff
+	 */
+	void idleMonitor(SelectedFolder selected, WriteStream<IdleToken> ctx);
+
+	void notIdle();
 
 }

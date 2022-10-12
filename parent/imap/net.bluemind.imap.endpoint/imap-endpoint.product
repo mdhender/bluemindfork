@@ -66,9 +66,11 @@
       <plugin id="net.bluemind.core.rest.http"/>
       <plugin id="net.bluemind.core.sessions"/>
       <plugin id="net.bluemind.core.task.api"/>
+      <plugin id="net.bluemind.delivery.conversationreference.api"/>
       <plugin id="net.bluemind.delivery.lmtp"/>
       <plugin id="net.bluemind.delivery.lmtp.common"/>
       <plugin id="net.bluemind.delivery.lmtp.filters"/>
+      <plugin id="net.bluemind.delivery.lmtp.hooks"/>
       <plugin id="net.bluemind.directory.api"/>
       <plugin id="net.bluemind.domain.api"/>
       <plugin id="net.bluemind.eclipse.common"/>

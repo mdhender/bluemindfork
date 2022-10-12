@@ -55,6 +55,11 @@ public class Processors {
 		register(new LogoutProcessor());
 		register(new ExpungeProcessor());
 		register(new StoreProcessor());
+		register(new CreateProcessor());
+		register(new DeleteProcessor());
+		register(new SubscribeProcessor());
+		register(new UnsubscribeProcessor());
+		register(new RenameProcessor());
 	}
 
 	private static final void register(CommandProcessor<?> proc) {

@@ -23,10 +23,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -57,6 +59,7 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
+import net.bluemind.backend.mail.replica.api.MailboxReplica.Acl;
 import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.api.IContainers;
@@ -110,10 +113,9 @@ public class MailApiConnection implements MailboxConnection {
 
 	@Override
 	public SelectedFolder select(String fName) {
-
 		ItemValue<MailboxReplica> existing = foldersApi.byReplicaName(fName);
 		if (existing == null) {
-			logger.warn("[{}] folder {} not found.", this, fName);
+			logger.debug("[{}] folder {} not found.", this, fName);
 			return null;
 		}
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, existing.uid);
@@ -123,6 +125,46 @@ public class MailApiConnection implements MailboxConnection {
 		ContainerDescriptor recContainer = conApi.get(IMailReplicaUids.mboxRecords(existing.uid));
 		CyrusPartition part = CyrusPartition.forServerAndDomain(recContainer.datalocation, recContainer.domainUid);
 		return new SelectedFolder(existing, part.name, exist, unseen);
+	}
+
+	@Override
+	public String create(String fName) {
+		ItemValue<MailboxReplica> folder = foldersApi.byReplicaName(fName);
+		if (folder != null && folder.value != null) {
+			logger.warn("[{}] folder {} already exists.", this, fName);
+		} else {
+			MailboxReplica mr = new MailboxReplica();
+			mr.fullName = fName;
+			mr.highestModSeq = 0;
+			mr.xconvModSeq = 0;
+			mr.lastUid = 0;
+			mr.recentUid = 0;
+			mr.options = "";
+			mr.syncCRC = 0;
+			mr.quotaRoot = null;
+			mr.uidValidity = 0;
+			mr.lastAppendDate = new Date();
+			mr.pop3LastLogin = new Date();
+			mr.recentTime = new Date();
+			mr.acls = new LinkedList<>();
+			mr.acls.add(Acl.create(me.uid + "@" + me.domainUid, "lrswipkxtecda"));
+			mr.acls.add(Acl.create("admin0", "lrswipkxtecda"));
+			mr.deleted = false;
+			foldersApi.create(UUID.randomUUID().toString(), mr);
+		}
+		return fName;
+	}
+
+	@Override
+	public boolean delete(String fName) {
+		ItemValue<MailboxReplica> folder = foldersApi.byReplicaName(fName);
+		if (folder == null) {
+			logger.warn("[{}] folder {} does not exists.", this, fName);
+			return false;
+		} else {
+			foldersApi.delete(folder.uid);
+			return true;
+		}
 	}
 
 	@Override
@@ -259,7 +301,6 @@ public class MailApiConnection implements MailboxConnection {
 	@Override
 	public long append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer) {
 		SelectedFolder selected = select(folder);
-
 		if (selected == null) {
 			return 0L;
 		}
@@ -419,6 +460,45 @@ public class MailApiConnection implements MailboxConnection {
 		logger.info("set: 1:*, filter: {}", filter);
 		List<Long> notDel = recApi.imapIdSet("1:*", filter);
 		return recApi.imapBindings(notDel).stream().map(ib -> ib.imapUid).sorted().toList();
+	}
+
+	@Override
+	public boolean subscribe(String fName) {
+		ItemValue<MailboxReplica> folder = foldersApi.byReplicaName(fName);
+		if (folder == null) {
+			logger.warn("[{}] folder {} does not exists.", this, fName);
+			return false;
+		} else {
+			// TODO Auto-generated method stub
+			return true;
+		}
+	}
+
+	@Override
+	public boolean unsubscribe(String fName) {
+		ItemValue<MailboxReplica> folder = foldersApi.byReplicaName(fName);
+		if (folder == null) {
+			logger.warn("[{}] folder {} does not exists.", this, fName);
+			return false;
+		} else {
+			// TODO Auto-generated method stub
+			return true;
+		}
+	}
+
+	@Override
+	public String rename(String fName, String newName) {
+		ItemValue<MailboxReplica> folder = foldersApi.byReplicaName(fName);
+		if (folder == null) {
+			logger.warn("[{}] folder {} does not exists.", this, fName);
+			return null;
+		} else {
+			MailboxReplica renamed = MailboxReplica.from(folder.value);
+			renamed.fullName = newName;
+			renamed.name = renamed.fullName.substring(renamed.fullName.lastIndexOf('/') + 1);
+			foldersApi.update(folder.uid, renamed);
+			return renamed.fullName;
+		}
 	}
 
 }

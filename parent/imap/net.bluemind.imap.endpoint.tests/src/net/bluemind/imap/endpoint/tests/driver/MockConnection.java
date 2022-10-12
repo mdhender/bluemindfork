@@ -133,4 +133,28 @@ public class MockConnection implements MailboxConnection {
 		return Collections.emptyList();
 	}
 
+	@Override
+	public String create(String fName) {
+		return fName;
+	}
+
+	@Override
+	public boolean delete(String fName) {
+		return true;
+	}
+
+	@Override
+	public boolean subscribe(String fName) {
+		return true;
+	}
+
+	@Override
+	public boolean unsubscribe(String fName) {
+		return true;
+	}
+
+	@Override
+	public String rename(String fName, String newName) {
+		return newName;
+	}
 }
