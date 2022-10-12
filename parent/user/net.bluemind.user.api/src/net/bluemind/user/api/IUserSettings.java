@@ -34,10 +34,8 @@ public interface IUserSettings {
 	/**
 	 * Set {@link User} settings
 	 * 
-	 * @param uid
-	 *            uid of the user
-	 * @param settings
-	 *            settings values
+	 * @param uid      uid of the user
+	 * @param settings settings values
 	 * @throws ServerFault
 	 */
 	@POST
@@ -47,42 +45,37 @@ public interface IUserSettings {
 	/**
 	 * Get {@link User} settings
 	 * 
-	 * @param uid
-	 *            uid of the user
+	 * @param uid uid of the user
 	 * @return &lt;Map&lt;String, String>> user settings
 	 * @throws ServerFault
 	 */
 	@GET
 	@Path("{uid}/_settings")
 	public Map<String, String> get(@PathParam(value = "uid") String uid) throws ServerFault;
-	
+
 	/**
 	 * Create or update one {@link User} setting
 	 * 
-	 * @param uid
-	 *            uid of the user
-	 * @param name
-	 *            setting name
-	 * @param value
-	 *            setting value
+	 * @param uid   uid of the user
+	 * @param name  setting name
+	 * @param value setting value
 	 * @throws ServerFault
 	 */
 	@POST
 	@Path("{uid}/_setting/{name}")
-	public void setOne(@PathParam(value = "uid") String uid,
-			@PathParam(value = "name") String name, String value) throws ServerFault;
+	public void setOne(@PathParam(value = "uid") String uid, @PathParam(value = "name") String name, String value)
+			throws ServerFault;
 
 	/**
 	 * Get one {@link User} setting value
 	 * 
-	 * @param uid
-	 *            uid of the user
-	 * @param name
-	 * 				setting name
+	 * @param uid  uid of the user
+	 * @param name setting name
 	 * @return String setting value
 	 * @throws ServerFault
 	 */
 	@GET
 	@Path("{uid}/_setting/{name}")
-	public String getOne(@PathParam(value = "uid") String uid, @PathParam(value = "name") String name) throws ServerFault;
+	public String getOne(@PathParam(value = "uid") String uid, @PathParam(value = "name") String name)
+			throws ServerFault;
 }

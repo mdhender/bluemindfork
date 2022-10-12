@@ -48,7 +48,6 @@ public class ServerHookTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),

@@ -83,8 +83,8 @@ public class RoomStore extends AbstractItemValueStore<BlueMindVideoRoom> {
 		StringBuilder query = new StringBuilder("SELECT ");
 		RoomColumns.cols.appendNames("room", query);
 		query.append(" FROM t_videoconferencing_room room WHERE item_id = ?");
-		return unique(query.toString(), ROOM_CREATOR, Arrays.<EntityPopulator<BlueMindVideoRoom>>asList(RoomColumns.populator()),
-				new Object[] { item.id });
+		return unique(query.toString(), ROOM_CREATOR,
+				Arrays.<EntityPopulator<BlueMindVideoRoom>>asList(RoomColumns.populator()), new Object[] { item.id });
 	}
 
 	@Override

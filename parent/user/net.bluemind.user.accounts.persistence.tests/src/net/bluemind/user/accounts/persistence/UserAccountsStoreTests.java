@@ -48,7 +48,6 @@ public class UserAccountsStoreTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		PopulateHelper.initGlobalVirt();
 
 		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),

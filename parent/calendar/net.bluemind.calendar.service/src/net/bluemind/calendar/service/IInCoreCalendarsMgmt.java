@@ -37,8 +37,7 @@ public interface IInCoreCalendarsMgmt {
 	/**
 	 * reindex a domain
 	 * 
-	 * @param domainUid
-	 *            domain
+	 * @param domainUid domain
 	 * @param monitor
 	 * @throws Exception
 	 */
@@ -47,8 +46,7 @@ public interface IInCoreCalendarsMgmt {
 	/**
 	 * reindex a calendar
 	 * 
-	 * @param calUid
-	 *            calendar uid
+	 * @param calUid  calendar uid
 	 * @param monitor
 	 * @throws Exception
 	 */
