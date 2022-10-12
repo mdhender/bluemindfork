@@ -18,55 +18,82 @@
  */
 package net.bluemind.mailbox.api.utils;
 
-import net.bluemind.mailbox.api.MailFilter;
+import java.util.List;
+
+import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilter;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilterContains;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilterEquals;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilterMatches;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleOperatorName;
 
 public class RuleParser {
 
 	/**
 	 * visit {@link #criteria}
 	 * 
-	 * @param handler
-	 *            visitor
+	 * @param handler visitor
 	 */
-	public static void visit(MailFilter.Rule rule, RuleHandler handler) {
-		if (rule.criteria == null || rule.criteria.isEmpty()) {
+	public static void visit(MailFilterRule rule, RuleHandler handler) {
+		if (rule.conditions == null) {
 			return;
 		}
 
-		String[] crits = rule.criteria.split("\n");
-		for (int i = 0; i < crits.length; i++) {
-			String c = crits[i];
-			parseCriterion(c, handler);
+		rule.conditions.forEach(condition -> parseCondition(condition, handler));
+	}
+
+	private static void parseCondition(MailFilterRuleCondition condition, RuleHandler handler) {
+		MailFilterRuleFilter filter = condition.filter();
+		String field = convert(filter.fields.get(0));
+		if (field == null) {
+			return;
+		}
+		if (filter.operator == MailFilterRuleOperatorName.EXISTS && !condition.negate) {
+			handler.exists(field);
+		} else if (filter.operator == MailFilterRuleOperatorName.EXISTS && condition.negate) {
+			handler.doesnotExist(field);
+		} else if (filter.operator == MailFilterRuleOperatorName.EQUALS && !condition.negate) {
+			String value = firstValue(((MailFilterRuleFilterEquals) filter).values, "");
+			if (!condition.negate) {
+				handler.is(field, value);
+			} else {
+				handler.isNot(field, value);
+			}
+		} else if (filter.operator == MailFilterRuleOperatorName.CONTAINS && !condition.negate) {
+			String value = firstValue(((MailFilterRuleFilterContains) filter).values, "");
+			if (!condition.negate) {
+				handler.contains(field, value);
+			} else {
+				handler.doesnotContain(field, value);
+			}
+		} else if (filter.operator == MailFilterRuleOperatorName.MATCHES && !condition.negate) {
+			String value = firstValue(((MailFilterRuleFilterMatches) filter).values, "");
+			if (!condition.negate) {
+				handler.matches(field, value);
+			} else {
+				handler.doesnotMatch(field, value);
+			}
 		}
 	}
 
-	private static void parseCriterion(String c, RuleHandler handler) {
-		int i = c.indexOf(":");
-		String crit = c.substring(0, i);
-		c = c.substring(i + 1);
-		i = c.indexOf(": ");
-		String matchType = c.substring(0, i);
-		String value = c.substring(i + 2);
+	private static String firstValue(List<String> values, String orDefault) {
+		return (values != null && !values.isEmpty()) ? values.get(0) : orDefault;
+	}
 
-		if (matchType.equals("EXISTS")) {
-			handler.exists(crit);
-			return;
-		} else if (matchType.equals("DOESNOTEXIST")) {
-			handler.doesnotExist(crit);
-			return;
-		} else if (matchType.equals("IS")) {
-			handler.is(crit, value);
-		} else if (matchType.equals("ISNOT")) {
-			handler.isNot(crit, value);
-		} else if (matchType.equals("CONTAINS")) {
-			handler.contains(crit, value);
-		} else if (matchType.equals("DOESNOTCONTAIN")) {
-			handler.doesnotContain(crit, value);
-		} else if (matchType.equals("MATCHES")) {
-			handler.matches(crit, value);
-		} else if (matchType.equals("DOESNOTMATCH")) {
-			handler.doesnotMatch(crit, value);
+	private static String convert(String field) {
+		if (field.startsWith("from")) {
+			return "FROM";
+		} else if (field.startsWith("to")) {
+			return "TO";
+		} else if (field.startsWith("subject")) {
+			return "SUBJECT";
+		} else if (field.startsWith("part.content")) {
+			return "BODY";
+		} else if (field.startsWith("headers.")) {
+			return field.split("\\.")[1];
+		} else {
+			return null;
 		}
-
 	}
 }

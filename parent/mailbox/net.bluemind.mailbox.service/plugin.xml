@@ -32,6 +32,11 @@
             implementation="net.bluemind.mailbox.service.internal.MailFilterValidatorFactory">
       </validatorfactory>
    </extension>
+   <extension point="net.bluemind.core.sanitizerfactory">
+		<sanitizerfactory
+			implementation="net.bluemind.mailbox.service.internal.MailFilterSanitizer$Factory">
+		</sanitizerfactory>
+   </extension>
    <extension
          point="net.bluemind.core.rest.apiEndpoint">
       <endpoint

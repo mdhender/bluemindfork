@@ -18,8 +18,8 @@
  */
 package net.bluemind.mailbox.service.internal;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
@@ -27,12 +27,13 @@ import com.google.common.base.Strings;
 import net.bluemind.core.api.ParametersValidator;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.validator.IValidator;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.MailFilter.Forwarding;
-import net.bluemind.mailbox.api.MailFilter.Rule;
 import net.bluemind.mailbox.api.MailFilter.Vacation;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionCopy;
+import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionMove;
 
 public class MailFilterValidator implements IValidator<MailFilter> {
 
@@ -42,10 +43,7 @@ public class MailFilterValidator implements IValidator<MailFilter> {
 	private static final String EMAIL = "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@([a-z0-9-]+\\.)+[a-z]{2,}$";
 	public static final Pattern emailPattern = Pattern.compile(EMAIL);
 
-	private BmContext context;
-
-	public MailFilterValidator(BmContext context) {
-		this.context = context;
+	public MailFilterValidator() {
 	}
 
 	@Override
@@ -53,57 +51,58 @@ public class MailFilterValidator implements IValidator<MailFilter> {
 		ParametersValidator.notNull(obj);
 		ParametersValidator.notNull(obj.rules);
 		validateForwarding(obj.forwarding);
-
 		validateVacation(obj.vacation);
-
 		validateRules(obj.rules);
 	}
 
-	private void validateRules(List<Rule> rules) throws ServerFault {
-		for (Rule rule : rules) {
-			validateRule(rule);
-		}
+	@Override
+	public void update(MailFilter current, MailFilter obj) throws ServerFault {
+		ParametersValidator.notNull(obj);
+		ParametersValidator.notNull(obj.rules);
+		validateForwarding(obj.forwarding);
+		validateVacation(obj.vacation);
+		validateRules(obj.rules);
 	}
 
-	private void validateRule(Rule rule) throws ServerFault {
+	private void validateRules(List<MailFilterRule> rules) throws ServerFault {
+		rules.forEach(this::validateRule);
+	}
+
+	private void validateRule(MailFilterRule rule) throws ServerFault {
 		ParametersValidator.notNull(rule);
 		if (!rule.active) {
 			return;
 		}
 
-		ParametersValidator.nullOrNotEmpty(rule.criteria);
+		rule.conditions.stream() //
+				.flatMap(condition -> condition.filterStream()) //
+				.flatMap(filter -> filter.fields.stream()) //
+				.filter(field -> field.startsWith("headers")) //
+				.map(field -> field.replace("headers.", "")) //
+				.filter(headerName -> !headerName.chars().allMatch(c -> c > 31 && c != ' ' && c < 127 && c != ':')) //
+				.findFirst() //
+				.ifPresent(headerName -> {
+					throw new ServerFault("header name " + headerName + " contains invalid characters",
+							ErrorCode.INVALID_PARAMETER);
+				});
 
-		if (rule.criteria != null) {
-			String[] lines = rule.criteria.split("\n");
-			for (String line : lines) {
-				String[] splittedCriteria = line.split(":");
-				if (splittedCriteria.length > 1) {
-					// first param is a HEADER
-					String headerName = splittedCriteria[0];
-					// 1*<any CHAR, excluding CTLs, SPACE, and ":">
-					if (!headerName.chars().allMatch(c -> c > 31 && c != ' ' && c < 127 && c != ':')) {
-						throw new ServerFault("header name " + headerName + " contains invalid characters",
-								ErrorCode.INVALID_PARAMETER);
-					}
-				}
-			}
+		rule.redirect().ifPresent(redirect -> validateEmailList(redirect.emails()));
+		rule.transfer().ifPresent(transfer -> validateEmailList(transfer.emails()));
+
+		if (!rule.hasAction()) {
+			throw new ServerFault("No action for the rule", ErrorCode.INVALID_PARAMETER);
 		}
-
-		if (!Strings.isNullOrEmpty(rule.deliver)) {
-			// TODO validate rule.deliver
-		}
-
-		if (!rule.forward.emails.isEmpty()) {
-			validateEmailList(rule.forward.emails);
-		}
-
-		if (!rule.delete && !rule.discard && !rule.read && !rule.star && rule.forward.emails.isEmpty()
-				&& Strings.isNullOrEmpty(rule.deliver)) {
-			throw new ServerFault("no action for the rule", ErrorCode.INVALID_PARAMETER);
+		if (hasEmptyDestinationFolder(rule)) {
+			throw new ServerFault("Move and copy actions require a destination folder", ErrorCode.INVALID_PARAMETER);
 		}
 	}
 
-	private void validateEmailList(Set<String> emails) throws ServerFault {
+	private boolean hasEmptyDestinationFolder(MailFilterRule rule) {
+		return Strings.isNullOrEmpty(rule.move().map(MailFilterRuleActionMove::folder).orElse("Move"))
+				|| Strings.isNullOrEmpty(rule.copy().map(MailFilterRuleActionCopy::folder).orElse("Copy"));
+	}
+
+	private void validateEmailList(Collection<String> emails) throws ServerFault {
 		for (String e : emails) {
 			if (e == null || e.isEmpty()) {
 				throw new ServerFault("Null or empty email address", ErrorCode.INVALID_PARAMETER);
@@ -121,34 +120,21 @@ public class MailFilterValidator implements IValidator<MailFilter> {
 		}
 
 		if (vacation.start != null && vacation.end != null && vacation.start.after(vacation.end)) {
-			throw new ServerFault("end date is before start date of vacation", ErrorCode.INVALID_PARAMETER);
+			throw new ServerFault("Vacation end date is before its start date", ErrorCode.INVALID_PARAMETER);
 		}
 
 		ParametersValidator.notNullAndNotEmpty(vacation.subject);
 	}
 
 	private void validateForwarding(Forwarding forwarding) throws ServerFault {
-		if (forwarding == null) {
+		if (forwarding == null || !forwarding.enabled) {
 			return;
 		}
 
-		if (forwarding.enabled) {
-			if (forwarding.emails.isEmpty()) {
-				throw new ServerFault("Try to activate forward but email lists is empty", ErrorCode.INVALID_PARAMETER);
-			}
-			validateEmailList(forwarding.emails);
+		if (forwarding.emails.isEmpty()) {
+			throw new ServerFault("Try to activate forwarding but email lists is empty", ErrorCode.INVALID_PARAMETER);
 		}
-	}
-
-	@Override
-	public void update(MailFilter current, MailFilter obj) throws ServerFault {
-		ParametersValidator.notNull(obj);
-		ParametersValidator.notNull(obj.rules);
-		validateForwarding(obj.forwarding);
-
-		validateVacation(obj.vacation);
-
-		validateRules(obj.rules);
+		validateEmailList(forwarding.emails);
 	}
 
 }

@@ -28,7 +28,7 @@ import org.junit.Test;
 
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.MailFilter.Forwarding;
-import net.bluemind.mailbox.api.MailFilter.Rule;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
 
 public class MailFilterSanitizerTest {
 	private static final MailFilterSanitizer sanitizer = new MailFilterSanitizer();
@@ -84,26 +84,13 @@ public class MailFilterSanitizerTest {
 
 	@Test
 	public void create_ruleEmptyDeliver() {
-		Rule r = new Rule();
-		r.deliver = "";
+		MailFilterRule r = new MailFilterRule();
+		r.addMove("");
 
 		MailFilter mf = new MailFilter();
 		mf.rules = Arrays.asList(r);
 
 		sanitizer.create(mf);
-		assertNull(mf.rules.get(0).deliver);
-	}
-
-	@Test
-	public void create_ruleNullForward() {
-		Rule r = new Rule();
-		r.forward = null;
-
-		MailFilter mf = new MailFilter();
-		mf.rules = Arrays.asList(r);
-
-		sanitizer.create(mf);
-		assertNotNull(mf.rules.get(0).forward);
-		assertTrue(mf.rules.get(0).forward.emails.isEmpty());
+		assertNull(mf.rules.get(0).move().orElse(null));
 	}
 }

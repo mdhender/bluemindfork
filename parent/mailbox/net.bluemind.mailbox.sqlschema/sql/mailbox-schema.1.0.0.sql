@@ -64,21 +64,3 @@ CREATE TABLE t_mailfilter_rule (
     stop      boolean DEFAULT true
 );
 CREATE INDEX idx_mailfilter_rule_item_id ON t_mailfilter_rule(item_id);
-
-CREATE TABLE t_mailfilter_vacation (
-    item_id		bigint references t_container_item(id) on delete cascade primary key,
-    active  	boolean NOT NULL,
-    start_date  timestamp,
-    end_date    timestamp,
-    subject		text,
-    body_plain	text,
-    body_html	text,
-    vacation_marker	boolean default false
-);
-
-CREATE TABLE t_mailfilter_forwarding (
-    item_id		bigint references t_container_item(id) on delete cascade primary key,
-    active	 	boolean NOT NULL,
-    local_copy  boolean NOT NULL,
-    email		text
-);

@@ -41,6 +41,8 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -73,8 +75,9 @@ public class DomainFilterHookTests {
 				.instance(IMailboxes.class, domainUid);
 
 		MailFilter filter = new MailFilter();
-		MailFilter.Rule rule = new MailFilter.Rule();
-		rule.criteria = "blub";
+		MailFilterRule rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("from", "blub"));
+		rule.addDiscard();
 		rule.active = false;
 		filter.rules = Arrays.asList(rule);
 		domainMailboxesService.setDomainFilter(filter);

@@ -21,6 +21,7 @@ package net.bluemind.mailbox.service.internal;
 import static java.util.stream.Collectors.toSet;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -64,7 +65,6 @@ import net.bluemind.directory.api.IDirEntryMaintenance;
 import net.bluemind.directory.api.RepairConfig;
 import net.bluemind.directory.api.ReservedIds;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.domain.api.IDomains;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxAclUids;
@@ -74,6 +74,9 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.MailboxConfig;
 import net.bluemind.mailbox.api.MailboxQuota;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.MailFilterRuleForwardingMapper;
+import net.bluemind.mailbox.api.rules.MailFilterRuleVacationMapper;
 import net.bluemind.mailbox.hook.IMailboxHook;
 import net.bluemind.mailbox.persistence.DomainMailFilterStore;
 import net.bluemind.mailbox.persistence.MailboxStore;
@@ -108,6 +111,8 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	private Container container;
 	private static final IMailboxesStorage mailboxStorage = getMailStorage();
 	private static final List<IMailboxHook> hooks = getHooks();
+	private final MailFilterRuleVacationMapper vacationMapper = new MailFilterRuleVacationMapper();
+	private final MailFilterRuleForwardingMapper forwardingMapper = new MailFilterRuleForwardingMapper();
 
 	public MailboxesService(BmContext context, Container container, ItemValue<Domain> domain) {
 		this.context = context;
@@ -219,7 +224,6 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 			throw new ServerFault("email is not valid", ErrorCode.INVALID_PARAMETER);
 		}
 		String domainName = split[1];
-		ItemValue<Domain> domain = context.su().provider().instance(IDomains.class).get(domainUid);
 		// email not in domain
 		if (!domainName.equals(domainUid) && !domain.value.aliases.contains(domainName)) {
 			return null;
@@ -299,7 +303,26 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	@Override
 	public MailFilter getMailboxFilter(String mailboxUid) throws ServerFault {
 		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
-		return storeService.getFilter(mailboxUid);
+		MailFilter filter = storeService.getFilter(mailboxUid);
+
+		filter.rules.stream() //
+				.filter(rule -> MailFilterRule.Type.VACATION.equals(rule.type)) //
+				.findFirst() //
+				.ifPresentOrElse(rule -> {
+					filter.rules.remove(rule);
+					filter.vacation = vacationMapper.map(rule);
+				}, () -> filter.vacation = new MailFilter.Vacation());
+
+		filter.rules.stream() //
+				.filter(rule -> MailFilterRule.Type.FORWARD.equals(rule.type)) //
+				.findFirst() //
+				.ifPresentOrElse(rule -> {
+					filter.forwarding = forwardingMapper.map(rule);
+					filter.rules.remove(rule);
+				}, () -> filter.forwarding = new MailFilter.Forwarding());
+
+		return filter;
+
 	}
 
 	@Override
@@ -318,6 +341,16 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		MailFilterForwardRoleValidator specificMailFilterValidator = new MailFilterForwardRoleValidator(context, domain,
 				mailboxUid);
 		specificMailFilterValidator.update(previous, filter);
+
+		vacationMapper.map(filter.vacation).ifPresent(rule -> {
+			filter.rules = new ArrayList<>(filter.rules);
+			filter.rules.add(rule);
+		});
+		forwardingMapper.map(filter.forwarding).ifPresent(rule -> {
+			filter.rules = new ArrayList<>(filter.rules);
+			filter.rules.add(rule);
+		});
+
 		storeService.setFilter(mailboxUid, filter);
 
 		mailboxStorage().changeFilter(context, domain, mailbox, filter);
@@ -331,9 +364,8 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	}
 
 	private static List<IMailboxHook> getHooks() {
-		RunnableExtensionLoader<IMailboxHook> loader = new RunnableExtensionLoader<IMailboxHook>();
-		List<IMailboxHook> hooks = loader.loadExtensions("net.bluemind.mailbox", "hook", "hook", "class");
-		return hooks;
+		RunnableExtensionLoader<IMailboxHook> loader = new RunnableExtensionLoader<>();
+		return loader.loadExtensions("net.bluemind.mailbox", "hook", "hook", "class");
 	}
 
 	@Override
@@ -368,9 +400,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	public List<ItemValue<Mailbox>> list() throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_MAILBOX);
 
-		return storeService.all().stream().filter(m -> {
-			return m.value != null;
-		}).collect(Collectors.toList());
+		return storeService.all().stream().filter(m -> m.value != null).collect(Collectors.toList());
 	}
 
 	@Override
@@ -877,6 +907,11 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	}
 
 	public static class Helper {
+
+		private Helper() {
+
+		}
+
 		public static void createMailboxesAclsContainer(BmContext context, String domainUid, String uid, Mailbox box)
 				throws ServerFault {
 			if (null == box.name) {

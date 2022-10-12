@@ -18,6 +18,7 @@
  */
 package net.bluemind.mailbox.service.internal;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,8 +35,8 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.MailFilter.Forwarding;
-import net.bluemind.mailbox.api.MailFilter.Rule;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.role.api.BasicRoles;
 
 public class MailFilterForwardRoleValidator implements IValidator<MailFilter> {
@@ -64,7 +65,9 @@ public class MailFilterForwardRoleValidator implements IValidator<MailFilter> {
 	}
 
 	private void validateForwarding(Forwarding old, Forwarding forwarding) {
+
 		if (forwarding.enabled) {
+
 			Set<String> diff = new HashSet<>(forwarding.emails);
 
 			if (old != null && old.emails != null) {
@@ -84,45 +87,28 @@ public class MailFilterForwardRoleValidator implements IValidator<MailFilter> {
 
 	}
 
-	private void checkUserEmailsNotUsed(Set<String> emails) {
-		ItemValue<Mailbox> mailbox = context.su().provider().instance(IMailboxes.class, domain.uid)
-				.getComplete(mailboxUid);
-
-		List<String> invalidEmails = emails.stream().flatMap(email -> {
-			return mailbox.value.emails.stream().filter(em -> em.address.equals(email));
-		}).map(Object::toString).toList();
-		if (!invalidEmails.isEmpty()) {
-			throw new ServerFault("Forwarding to own user emails is not authorized: "
-					+ invalidEmails.stream().collect(Collectors.joining(",")), ErrorCode.FORBIDDEN);
-		}
-	}
-
-	private boolean hasExternal(Set<String> emails) {
+	private boolean hasExternal(Collection<String> emails) {
 		return emails.stream().map(email -> {
 			String[] parts = email.split("@");
 			return parts.length == 2 && !domain.uid.equals(parts[1]) && !domain.value.aliases.contains(parts[1]);
 		}).reduce(false, (a, b) -> a || b);
 	}
 
-	private void validateRules(List<Rule> rules) {
-		for (Rule rule : rules) {
-			validateRule(rule);
-		}
+	private void validateRules(List<MailFilterRule> rules) {
+		rules.stream().filter(rule -> rule.active).forEach(this::validateRule);
 	}
 
-	private void validateRule(Rule rule) throws ServerFault {
-		if (!rule.active) {
-			return;
-		}
-
-		if (!rule.forward.emails.isEmpty()) {
-			if (hasExternal(rule.forward.emails)) {
-				checkCanSetExternalForward();
+	private void validateRule(MailFilterRule rule) throws ServerFault {
+		rule.redirect().ifPresent(redirect -> {
+			if (!redirect.emails().isEmpty()) {
+				if (hasExternal(redirect.emails())) {
+					checkCanSetExternalForward();
+				}
+				if (!Strings.isNullOrEmpty(mailboxUid)) {
+					checkUserEmailsNotUsed(redirect.emails());
+				}
 			}
-			if (!Strings.isNullOrEmpty(mailboxUid)) {
-				checkUserEmailsNotUsed(rule.forward.emails);
-			}
-		}
+		});
 	}
 
 	private void checkCanSetExternalForward() {
@@ -130,6 +116,18 @@ public class MailFilterForwardRoleValidator implements IValidator<MailFilter> {
 				&& !context.getSecurityContext().getRoles().contains(BasicRoles.ROLE_MAIL_FORWARDING)) {
 			throw new ServerFault("no right to enable forwarding ", ErrorCode.FORBIDDEN);
 		}
+	}
 
+	private void checkUserEmailsNotUsed(Collection<String> emails) {
+		ItemValue<Mailbox> mailbox = context.su().provider().instance(IMailboxes.class, domain.uid)
+				.getComplete(mailboxUid);
+
+		List<String> invalidEmails = emails.stream()
+				.flatMap(email -> mailbox.value.emails.stream().filter(em -> em.address.equals(email)))
+				.map(Object::toString).toList();
+		if (!invalidEmails.isEmpty()) {
+			throw new ServerFault("Forwarding to own user emails is not authorized: "
+					+ invalidEmails.stream().collect(Collectors.joining(",")), ErrorCode.FORBIDDEN);
+		}
 	}
 }

@@ -49,6 +49,9 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionRedirect;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
 
 public class MailFilterStoreTests {
 	private static Logger logger = LoggerFactory.getLogger(MailFilterStoreTests.class);
@@ -114,9 +117,9 @@ public class MailFilterStoreTests {
 
 		assertEquals(2, created.rules.size());
 		assertTrue(created.rules.get(0).active);
-		assertTrue(created.rules.get(0).forward.emails.isEmpty());
+		assertNotNull(created.rules.get(0).markAsImportant().orElse(null));
 		assertFalse(created.rules.get(1).active);
-		assertTrue(created.rules.get(1).forward.emails.isEmpty());
+		assertNotNull(created.rules.get(1).markAsImportant().orElse(null));
 
 		mailfilterStore.set(item, MailFilter.create());
 
@@ -280,12 +283,12 @@ public class MailFilterStoreTests {
 		return m;
 	}
 
-	private MailFilter.Rule defaultRule() {
-		MailFilter.Rule sf = new MailFilter.Rule();
-		sf.criteria = "from:bm.junit.roberto@gmail.com";
-		sf.star = true;
-		sf.active = false;
-		return sf;
+	private MailFilterRule defaultRule() {
+		MailFilterRule rule = new MailFilterRule();
+		rule.active = false;
+		rule.conditions.add(MailFilterRuleCondition.equal("from", "bm.junit.roberto@gmail.com"));
+		rule.addMarkAsImportant();
+		return rule;
 	}
 
 	@Test
@@ -307,34 +310,33 @@ public class MailFilterStoreTests {
 	}
 
 	@Test
-	public void forwardWithCopy() throws Exception {
+	public void redirectWithCopy() throws Exception {
 		itemStore.create(Item.create(uid, null));
 		Item item = itemStore.get(uid);
 		Mailbox u = getDefaultMailbox();
 		mailshareStore.create(item, u);
 
-		MailFilter.Rule rule = new MailFilter.Rule();
-		rule.criteria = "from:david@bm.com";
+		MailFilterRule rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("from", "david@bm.com"));
 		rule.active = true;
-		rule.forward.emails.add("fwd@bm.lan");
-		rule.forward.localCopy = true;
+		rule.addRedirect(Arrays.asList("fwd@bm.lan"), true);
 
 		MailFilter filter = MailFilter.create(rule);
 		mailfilterStore.set(item, filter);
 		filter = mailfilterStore.get(item);
 		assertEquals(1, filter.rules.size());
+		MailFilterRuleActionRedirect redirect = filter.rules.get(0).redirect().orElse(null);
+		assertNotNull(redirect);
+		assertTrue(redirect.keepCopy());
+
 		rule = filter.rules.get(0);
-		assertNotNull(rule.forward);
-		assertTrue(rule.forward.localCopy);
+		rule.addRedirect(Arrays.asList("fwd@bm.lan"), false);
 
-		rule.forward.localCopy = false;
-
-		filter = MailFilter.create(rule);
 		mailfilterStore.set(item, filter);
 		filter = mailfilterStore.get(item);
 		assertEquals(1, filter.rules.size());
-		rule = filter.rules.get(0);
-		assertNotNull(rule.forward);
-		assertFalse(rule.forward.localCopy);
+		redirect = filter.rules.get(0).redirect().orElse(null);
+		assertNotNull(redirect);
+		assertFalse(redirect.keepCopy());
 	}
 }

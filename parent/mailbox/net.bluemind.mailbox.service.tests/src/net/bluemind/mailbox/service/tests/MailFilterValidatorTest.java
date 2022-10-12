@@ -36,6 +36,8 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.core.validator.IValidator;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.MailFilter.Vacation;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
 import net.bluemind.mailbox.service.internal.MailFilterValidatorFactory;
 
 public class MailFilterValidatorTest {
@@ -70,12 +72,11 @@ public class MailFilterValidatorTest {
 	@Test
 	public void testInvalidateComposedFilter() {
 		MailFilter filter = new MailFilter();
-		MailFilter.Rule rule1 = new MailFilter.Rule();
-		rule1 = new MailFilter.Rule();
-		rule1.criteria = "FROM:IS: toto@yahoo.fr\nbad header:IS: fdss";
-		rule1.active = true;
-		rule1.read = true;
-		filter.rules = Arrays.asList(rule1);
+		MailFilterRule rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("from", "toto@yahoo.fr"));
+		rule.conditions.add(MailFilterRuleCondition.equal("headers.bad header", "fdss"));
+		rule.addMarkAsRead();
+		filter.rules = Arrays.asList(rule);
 
 		checkFail(SecurityContext.SYSTEM, filter, ErrorCode.INVALID_PARAMETER);
 	}
@@ -83,89 +84,68 @@ public class MailFilterValidatorTest {
 	@Test
 	public void testValidateRules() {
 		MailFilter filter = new MailFilter();
-		MailFilter.Rule rule = new MailFilter.Rule();
+		MailFilterRule rule = new MailFilterRule();
 		rule.active = false;
 		filter.rules = Arrays.asList(rule);
 		checkOk(SecurityContext.SYSTEM, filter);
 
-		rule = new MailFilter.Rule();
-		rule.active = true;
+		rule = new MailFilterRule();
 		filter.rules = Arrays.asList(rule);
 		// no actions
 		checkFail(SecurityContext.SYSTEM, filter, ErrorCode.INVALID_PARAMETER);
 
-		rule = new MailFilter.Rule();
-		rule.active = true;
-		filter.rules = Arrays.asList(rule);
-		// no actions
-		checkFail(SecurityContext.SYSTEM, filter, ErrorCode.INVALID_PARAMETER);
-
-		rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.forward.emails.add("test.cm");
+		rule = new MailFilterRule();
+		rule.addRedirect(Arrays.asList("test.cm"), false);
 		filter.rules = Arrays.asList(rule);
 		// invalid forward email
 		checkFail(SecurityContext.SYSTEM, filter, ErrorCode.INVALID_PARAMETER);
 
-		rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.delete = true;
+		rule = new MailFilterRule();
+		rule.addMarkAsDeleted();
 		filter.rules = Arrays.asList(rule);
-		// invalid forward email
 		checkOk(SecurityContext.SYSTEM, filter);
 
-		rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.discard = true;
+		rule = new MailFilterRule();
+		rule.addDiscard();
 		filter.rules = Arrays.asList(rule);
-		// invalid forward email
 		checkOk(SecurityContext.SYSTEM, filter);
 
-		rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.read = true;
+		rule = new MailFilterRule();
+		rule.addMarkAsRead();
 		filter.rules = Arrays.asList(rule);
-		// invalid forward email
 		checkOk(SecurityContext.SYSTEM, filter);
 
-		rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.star = true;
+		rule = new MailFilterRule();
+		rule.addMarkAsImportant();
 		filter.rules = Arrays.asList(rule);
-		// invalid forward email
 		checkOk(SecurityContext.SYSTEM, filter);
 
-		rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.deliver = "";
+		rule = new MailFilterRule();
+		rule.addMove("");
 		filter.rules = Arrays.asList(rule);
-		// invalid deliver
+		// invalid destination folder
 		checkFail(SecurityContext.SYSTEM, filter, ErrorCode.INVALID_PARAMETER);
 
-		rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.deliver = "sent";
+		rule = new MailFilterRule();
+		rule.addMove("sent");
 		filter.rules = Arrays.asList(rule);
 		checkOk(SecurityContext.SYSTEM, filter);
 
-		rule = new MailFilter.Rule();
-		rule.criteria = "FROM:IS: poeut";
-		rule.active = true;
-		rule.deliver = "sent";
+		rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("from", "poeut"));
+		rule.addMove("sent");
 		filter.rules = Arrays.asList(rule);
 		checkOk(SecurityContext.SYSTEM, filter);
 
-		rule = new MailFilter.Rule();
-		rule.criteria = "My-magicHeader$:IS: poeut";
-		rule.active = true;
-		rule.deliver = "sent";
+		rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("headers.My-magicHeader$", "poeut"));
+		rule.addMove("sent");
 		filter.rules = Arrays.asList(rule);
 		checkOk(SecurityContext.SYSTEM, filter);
 
-		rule = new MailFilter.Rule();
-		rule.criteria = "My-magicHeader not good:IS: poeut";
-		rule.active = true;
-		rule.deliver = "sent";
+		rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("headers.My-magicHeader not good$", "poeut"));
+		rule.addMove("sent");
 		filter.rules = Arrays.asList(rule);
 		checkFail(SecurityContext.SYSTEM, filter, ErrorCode.INVALID_PARAMETER);
 

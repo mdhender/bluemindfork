@@ -32,7 +32,7 @@ public class MailFilterValidatorFactory implements IValidatorFactory<MailFilter>
 
 	@Override
 	public IValidator<MailFilter> create(BmContext context) {
-		return new MailFilterValidator(context);
+		return new MailFilterValidator();
 	}
 
 }

@@ -13,12 +13,11 @@ import net.bluemind.core.container.persistence.StringCreator;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.MailFilter.Forwarding;
-import net.bluemind.mailbox.api.MailFilter.Rule;
 import net.bluemind.mailbox.api.MailFilter.Vacation;
 
 public class MailFilterStore extends JdbcAbstractStore {
 
-	private Container container;
+	private final Container container;
 
 	public MailFilterStore(DataSource dataSource, Container container) {
 		super(dataSource);
@@ -27,93 +26,29 @@ public class MailFilterStore extends JdbcAbstractStore {
 
 	public void set(Item item, MailFilter value) throws SQLException {
 		delete(item);
-		insertRules(item, value.rules);
-		insertVacation(item, value.vacation);
-		insertForwarding(item, value.forwarding);
-	}
 
-	private void insertForwarding(Item item, Forwarding forwarding) throws SQLException {
-
-		if (forwarding == null) {
+		if (value.rules.isEmpty()) {
 			return;
 		}
-
-		String query = "INSERT INTO t_mailfilter_forwarding (" + MailFilterForwardingColumns.cols.names() + ", item_id " //
-				+ " )" + " VALUES (" //
-				+ MailFilterForwardingColumns.cols.values() + ", ? )";
-
-		insert(query, forwarding, MailFilterForwardingColumns.statementValues(item.id));
-
-	}
-
-	private void insertVacation(Item item, Vacation vacation) throws SQLException {
-
-		if (vacation == null) {
-			return;
-		}
-		String query = "INSERT INTO t_mailfilter_vacation (" + MailFilterVacationColumns.cols.names() + ", item_id " //
-				+ " )" + " VALUES (" //
-				+ MailFilterVacationColumns.cols.values() + ", ? )";
-
-		insert(query, vacation, MailFilterVacationColumns.statementValues(item.id));
-
-	}
-
-	private void insertRules(Item item, List<Rule> rules) throws SQLException {
-		if (rules.size() == 0) {
-			return;
-		}
-
-		String query = "INSERT INTO t_mailfilter_rule (" + MailFilterRuleColumns.cols.names() + ", item_id " //
-				+ " )" + " VALUES (" //
-				+ MailFilterRuleColumns.cols.values() + ", ? )";
-
-		batchInsert(query, rules, MailFilterRuleColumns.statementValues(item.id));
-
+		String query = String.format("INSERT INTO t_mailfilter_rule (%s, item_id) VALUES (%s, ?)", //
+				MailboxRuleColumns.cols.names(), MailboxRuleColumns.cols.values());
+		batchInsert(query, value.rules, MailboxRuleColumns.statementValues(item.id));
 	}
 
 	public void delete(Item item) throws SQLException {
 		delete("DELETE FROM t_mailfilter_rule WHERE item_id = ?", new Object[] { item.id });
-
-		delete("DELETE FROM t_mailfilter_vacation WHERE item_id = ?", new Object[] { item.id });
-
-		delete("DELETE FROM t_mailfilter_forwarding WHERE item_id = ?", new Object[] { item.id });
 	}
 
 	public MailFilter get(Item item) throws SQLException {
 		MailFilter s = new MailFilter();
-
-		s.rules = selectRules(item);
-		s.vacation = selectVacation(item);
-		s.forwarding = selectForwarding(item);
+		String query = "SELECT " + MailboxRuleColumns.cols.names() //
+				+ " FROM t_mailfilter_rule WHERE item_id = ?" //
+				+ " ORDER BY type, row_idx";
+		s.rules = select(query, MailboxRuleColumns.creator(), //
+				MailboxRuleColumns.populator(), new Object[] { item.id });
+		s.vacation = new Vacation();
+		s.forwarding = new Forwarding();
 		return s;
-	}
-
-	private Forwarding selectForwarding(Item item) throws SQLException {
-		String query = "SELECT " + MailFilterForwardingColumns.cols.names()
-				+ " FROM t_mailfilter_forwarding WHERE item_id = ?";
-		Forwarding forwarding = unique(query, MailFilterForwardingColumns.creator(),
-				MailFilterForwardingColumns.populator(), new Object[] { item.id });
-
-		return (forwarding == null) ? new Forwarding() : forwarding;
-	}
-
-	private Vacation selectVacation(Item item) throws SQLException {
-		String query = "SELECT " + MailFilterVacationColumns.cols.names()
-				+ " FROM t_mailfilter_vacation WHERE item_id = ?";
-		Vacation vacation = unique(query, MailFilterVacationColumns.creator(), MailFilterVacationColumns.populator(),
-				new Object[] { item.id });
-
-		return (vacation == null) ? new Vacation() : vacation;
-	}
-
-	private List<Rule> selectRules(Item item) throws SQLException {
-		String query = "SELECT " + MailFilterRuleColumns.cols.names()
-				+ " FROM t_mailfilter_rule WHERE item_id = ? ORDER BY row_idx";
-
-		return select(query, MailFilterRuleColumns.creator(), MailFilterRuleColumns.populator(),
-				new Object[] { item.id });
-
 	}
 
 	public List<String> findOutOfOffice(Date date) throws SQLException {

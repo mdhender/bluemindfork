@@ -18,19 +18,38 @@
  */
 package net.bluemind.mailbox.service.internal;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
+import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
+import net.bluemind.core.sanitizer.ISanitizerFactory;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.MailFilter.Forwarding;
 import net.bluemind.mailbox.api.MailFilter.Vacation;
 
 public class MailFilterSanitizer implements ISanitizer<MailFilter> {
+	private static final Logger logger = LoggerFactory.getLogger(MailFilterSanitizer.class);
+
+	public static class Factory implements ISanitizerFactory<MailFilter> {
+		@Override
+		public Class<MailFilter> support() {
+			return MailFilter.class;
+		}
+
+		@Override
+		public ISanitizer<MailFilter> create(BmContext context, Container container) {
+			return new MailFilterSanitizer();
+		}
+	}
 
 	@Override
 	public void create(MailFilter obj) throws ServerFault {
@@ -54,6 +73,10 @@ public class MailFilterSanitizer implements ISanitizer<MailFilter> {
 			obj.forwarding.emails = new HashSet<>();
 		}
 		obj.forwarding.emails = obj.forwarding.emails.stream().map(String::toLowerCase).collect(Collectors.toSet());
+		obj.rules.stream().forEach(rule -> {
+			rule.transfer().ifPresent(transfer -> transfer.emails = sanitizeEmailList(transfer.emails));
+			rule.redirect().ifPresent(redirect -> redirect.emails = sanitizeEmailList(redirect.emails));
+		});
 
 		if (obj.vacation == null) {
 			obj.vacation = new Vacation();
@@ -62,18 +85,12 @@ public class MailFilterSanitizer implements ISanitizer<MailFilter> {
 		if (obj.rules == null) {
 			obj.rules = Collections.emptyList();
 		}
-
-		obj.rules.forEach(this::sanitizeRule);
 	}
 
-	private void sanitizeRule(MailFilter.Rule rule) {
-		if (rule.deliver != null && Strings.isNullOrEmpty(rule.deliver)) {
-			rule.deliver = null;
-		}
-
-		if (rule.forward == null) {
-			rule.forward = new Forwarding();
-		}
+	private List<String> sanitizeEmailList(List<String> emails) {
+		return (emails == null) //
+				? new ArrayList<>()
+				: emails.stream().map(String::toLowerCase).toList();
 	}
 
 }

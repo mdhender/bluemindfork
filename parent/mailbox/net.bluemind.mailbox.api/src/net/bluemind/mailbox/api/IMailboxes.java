@@ -24,10 +24,8 @@ public interface IMailboxes {
 	/**
 	 * Creates a new {@link Mailbox} entry.
 	 * 
-	 * @param uid
-	 *                    uid of the entry
-	 * @param mailbox
-	 *                    value of the entry
+	 * @param uid     uid of the entry
+	 * @param mailbox value of the entry
 	 * @throws ServerFault
 	 */
 	@PUT
@@ -37,10 +35,8 @@ public interface IMailboxes {
 	/**
 	 * Modifies an existing {@link Mailbox} entry.
 	 * 
-	 * @param uid
-	 *                    uid of the entry
-	 * @param mailbox
-	 *                    value of the entry
+	 * @param uid     uid of the entry
+	 * @param mailbox value of the entry
 	 * @throws ServerFault
 	 */
 	@POST

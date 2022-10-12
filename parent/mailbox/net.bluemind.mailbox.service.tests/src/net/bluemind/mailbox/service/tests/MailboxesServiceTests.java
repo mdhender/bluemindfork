@@ -72,12 +72,13 @@ import net.bluemind.imap.sieve.SieveScript;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
-import net.bluemind.mailbox.api.MailFilter.Rule;
 import net.bluemind.mailbox.api.MailFilter.Vacation;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.MailboxBusAddresses;
 import net.bluemind.mailbox.api.MailboxConfig;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
 import net.bluemind.mailbox.service.IInCoreMailboxes;
 import net.bluemind.mailbox.service.internal.MailboxStoreService;
 import net.bluemind.mailshare.api.IMailshare;
@@ -633,10 +634,9 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 
 		IMailboxes service = getService(defaultSecurityContext);
 
-		MailFilter.Rule rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.criteria = "SUBJECT:IS: SubjectTest";
-		rule.deliver = "test";
+		MailFilterRule rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("subject", "SubjectTest"));
+		rule.addMove("test");
 
 		MailFilter filter = MailFilter.create(rule);
 
@@ -690,11 +690,9 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 	public void testDomainSieve() throws Exception {
 		IMailboxes service = getService(defaultSecurityContext);
 
-		MailFilter.Rule rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.criteria = "SUBJECT:IS: SubjectTest";
-		rule.deliver = "test";
-
+		MailFilterRule rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("subject", "SubjectTest"));
+		rule.addMove("test");
 		MailFilter filter = MailFilter.create(rule);
 
 		service.setDomainFilter(filter);
@@ -834,13 +832,12 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		String u1Uid = UUID.randomUUID().toString();
 		new BmTestContext(SecurityContext.SYSTEM).provider().instance(IUser.class, domainUid).create(u1Uid, u1);
 
-		Rule r1 = new Rule();
-		r1.active = true;
-		r1.criteria = "SUBJECT:IS: toredirect";
-		r1.delete = true;
+		MailFilterRule rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("subject", "toredirect"));
+		rule.addMarkAsDeleted();
 
 		new MailboxStoreService(JdbcTestHelper.getInstance().getDataSource(), defaultSecurityContext, container)
-				.setFilter(u1Uid, MailFilter.create(r1));
+				.setFilter(u1Uid, MailFilter.create(rule));
 
 		TestScheduler testScheduler = new TestScheduler();
 		JobExitStatus result = new BmTestContext(SecurityContext.SYSTEM).provider()
@@ -873,15 +870,13 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		toTimestamp = new BmDateTimeWrapper(bmDateTime).toUTCTimestamp();
 		vacation.end = new Date(toTimestamp);
 
-		Rule r1 = new Rule();
-		r1.active = true;
-
-		r1.criteria = "space header:IS: fdss";
-		r1.delete = true;
+		MailFilterRule rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("headers.space header", "fdss"));
+		rule.addDiscard();
 
 		MailFilter mailFilter = new MailFilter();
 		mailFilter.vacation = vacation;
-		mailFilter.rules = Arrays.asList(r1);
+		mailFilter.rules = Arrays.asList(rule);
 
 		new MailboxStoreService(JdbcTestHelper.getInstance().getDataSource(), defaultSecurityContext, container)
 				.setFilter(u1Uid, mailFilter);
@@ -921,14 +916,13 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		toTimestamp = new BmDateTimeWrapper(bmDateTime).toUTCTimestamp();
 		vacation.end = new Date(toTimestamp);
 
-		Rule r1 = new Rule();
-		r1.active = true;
-		r1.criteria = "space header:IS: fdss";
-		r1.delete = true;
+		MailFilterRule rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("headers.space header", "fdss"));
+		rule.addDiscard();
 
 		MailFilter mailFilter = new MailFilter();
 		mailFilter.vacation = vacation;
-		mailFilter.rules = Arrays.asList(r1);
+		mailFilter.rules = Arrays.asList(rule);
 
 		new MailboxStoreService(JdbcTestHelper.getInstance().getDataSource(), defaultSecurityContext, container)
 				.setFilter(u1Uid, mailFilter);

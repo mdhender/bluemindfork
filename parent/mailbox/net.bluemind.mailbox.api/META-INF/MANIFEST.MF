@@ -8,9 +8,17 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0";visibility:=ree
  net.bluemind.server.api;bundle-version="1.0.0",
  net.bluemind.core.task.api,
  net.bluemind.directory.api;visibility:=reexport,
- javax.validation.api
+ javax.validation.api,
+ com.fasterxml.jackson.core.jackson-annotations,
+ org.apache.commons.lang,
+ com.google.guava,
+ slf4j.api,
+ org.apache.commons.io
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.mailbox.api,
+ net.bluemind.mailbox.api.rules,
+ net.bluemind.mailbox.api.rules.actions,
+ net.bluemind.mailbox.api.rules.conditions,
  net.bluemind.mailbox.api.utils
 Eclipse-RegisterBuddy: net.bluemind.core.rest
 Automatic-Module-Name: net.bluemind.mailbox.api

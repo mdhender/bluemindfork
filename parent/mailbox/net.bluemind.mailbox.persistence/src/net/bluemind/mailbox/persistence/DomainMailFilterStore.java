@@ -1,8 +1,6 @@
 package net.bluemind.mailbox.persistence;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -12,15 +10,7 @@ import net.bluemind.mailbox.api.MailFilter;
 
 public class DomainMailFilterStore extends JdbcAbstractStore {
 
-	private static final Creator<MailFilter.Rule> FILTER_CREATOR = new Creator<MailFilter.Rule>() {
-
-		@Override
-		public MailFilter.Rule create(ResultSet con) throws SQLException {
-			return new MailFilter.Rule();
-		}
-	};
-
-	private Container mailboxesContainer;
+	private final Container mailboxesContainer;
 
 	public DomainMailFilterStore(DataSource dataSource, Container mailboxesContainer) {
 		super(dataSource);
@@ -29,16 +19,11 @@ public class DomainMailFilterStore extends JdbcAbstractStore {
 
 	public void set(MailFilter value) throws SQLException {
 		delete();
-
-		if (value.rules.size() == 0) {
-			return;
+		if (!value.rules.isEmpty()) {
+			String query = String.format("INSERT INTO t_domainmailfilter_rule (%s, container_id) VALUES (%s, ?)", //
+					MailboxRuleColumns.cols.names(), MailboxRuleColumns.cols.values());
+			batchInsert(query, value.rules, MailboxRuleColumns.statementValues(mailboxesContainer.id));
 		}
-
-		String query = "INSERT INTO t_domainmailfilter_rule (" + MailFilterRuleColumns.cols.names() + ", container_id " //
-				+ " )" + " VALUES (" //
-				+ MailFilterRuleColumns.cols.values() + ", ? )";
-
-		batchInsert(query, value.rules, MailFilterRuleColumns.statementValues(mailboxesContainer.id));
 	}
 
 	public void delete() throws SQLException {
@@ -46,14 +31,13 @@ public class DomainMailFilterStore extends JdbcAbstractStore {
 	}
 
 	public MailFilter get() throws SQLException {
-		String query = "SELECT " + MailFilterRuleColumns.cols.names()
-				+ " FROM t_domainmailfilter_rule WHERE container_id = ?";
-
-		List<MailFilter.Rule> rules = select(query, FILTER_CREATOR, MailFilterRuleColumns.populator(),
-				new Object[] { mailboxesContainer.id });
-
-		MailFilter s = new MailFilter();
-		s.rules = rules;
-		return s;
+		String query = "SELECT " + MailboxRuleColumns.cols.names() //
+				+ " FROM t_domainmailfilter_rule" //
+				+ " WHERE container_id = ?" //
+				+ " ORDER BY type, row_idx";
+		MailFilter mailFilter = new MailFilter();
+		mailFilter.rules = select(query, MailboxRuleColumns.creator(), //
+				MailboxRuleColumns.populator(), new Object[] { mailboxesContainer.id });
+		return mailFilter;
 	}
 }

@@ -33,6 +33,8 @@ import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.mailbox.api.MailFilter;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
 
 public class DomainMailFilterStoreTests {
 	private static Logger logger = LoggerFactory.getLogger(DomainMailFilterStoreTests.class);
@@ -44,7 +46,6 @@ public class DomainMailFilterStoreTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
 		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
@@ -85,11 +86,11 @@ public class DomainMailFilterStoreTests {
 		assertEquals(0, updated.rules.size());
 	}
 
-	private MailFilter.Rule defaultRule() {
-		MailFilter.Rule sf = new MailFilter.Rule();
-		sf.criteria = "from:bm.junit.roberto@gmail.com";
-		sf.star = true;
-		return sf;
+	private MailFilterRule defaultRule() {
+		MailFilterRule rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("from", "bm.junit.roberto@gmail.com"));
+		rule.addMarkAsImportant();
+		return rule;
 	}
 
 }

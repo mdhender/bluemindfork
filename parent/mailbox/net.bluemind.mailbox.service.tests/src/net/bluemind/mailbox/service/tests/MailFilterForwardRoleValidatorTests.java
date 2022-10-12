@@ -37,8 +37,8 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
-import net.bluemind.mailbox.api.MailFilter.Rule;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.mailbox.service.internal.MailFilterForwardRoleValidator;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -102,24 +102,26 @@ public class MailFilterForwardRoleValidatorTests {
 	@Test
 	public void testValidateRules() {
 		MailFilter filter = new MailFilter();
-		Rule rule = new MailFilter.Rule();
-		rule.active = true;
 
-		rule.forward.emails = new HashSet<>(Arrays.asList("test@gmail.com"));
+		MailFilterRule rule = new MailFilterRule();
+		rule.addRedirect(Arrays.asList("test@gmail.com"), false);
 		filter.rules = Arrays.asList(rule);
 		checkOk(SecurityContext.SYSTEM, filter);
 		checkOk(userContextWithForwarding, filter);
 		// not right to enable forwarding
 		checkFail(userContextWithoutForwarding, filter, ErrorCode.FORBIDDEN);
 
-		rule.forward.emails = new HashSet<>(Arrays.asList("test@dom.lan"));
+		rule = new MailFilterRule();
+		rule.addRedirect(Arrays.asList("test@dom.lan"), false);
 		filter.rules = Arrays.asList(rule);
 		checkOk(userContextWithoutForwarding, filter);
 
-		rule.forward.emails = new HashSet<>(Arrays.asList("user@dom.lan"));
+		rule = new MailFilterRule();
+		rule.addTransfer(Arrays.asList("user@dom.lan"), false, false);
 		checkFail(userContextWithForwarding, filter, ErrorCode.FORBIDDEN);
 
-		rule.forward.emails = new HashSet<>(Arrays.asList("toto@dom.lan"));
+		rule = new MailFilterRule();
+		rule.addTransfer(Arrays.asList("toto@dom.lan"), false, false);
 		checkOk(userContextWithForwarding, filter);
 	}
 
