@@ -60,7 +60,7 @@ public abstract class AbstractFetchCommand extends AnalyzedCommand {
 	/**
 	 * Deals with
 	 * <code>(UID RFC822.SIZE FLAGS BODY.PEEK[HEADER.FIELDS (From To Cc Bcc Subject Date Message-ID Priority X-Priority References Newsgroups In-Reply-To Content-Type Reply-To)])</code>
-	 * style of input.
+	 * style of input. (or <code>UID BODY.PEEK[]</code> (without parenthesis))
 	 * 
 	 * @param base
 	 * @return
@@ -68,25 +68,27 @@ public abstract class AbstractFetchCommand extends AnalyzedCommand {
 	private List<MailPart> fetchSpec(String base) {
 		JsonArray lastPop = null;
 		Stack<JsonArray> stack = new Stack<>();// NOSONAR
-		JsonObject curObj = null;
+		JsonObject curObj = new JsonObject();
+
+		// Just do something sensible, please
+		if (!base.startsWith("(") && !base.endsWith(")")) {
+			base = "(" + base + ")";
+		}
+
 		for (int i = 0; i < base.length(); i++) {
 			char cur = base.charAt(i);
 			switch (cur) {
-			case '(':
-			case '[':
-			case '<':
+			case '(', '[', '<':
 				JsonArray child = new JsonArray();
 				stack.add(child);
-				if (curObj != null) {
+				if (!curObj.isEmpty()) {
 					curObj.put("child", child);
 				}
 				curObj = new JsonObject();
 				curObj.put("id", "");
 				stack.peek().add(curObj);
 				break;
-			case ')':
-			case ']':
-			case '>':
+			case ')', ']', '>':
 				lastPop = stack.pop();
 				break;
 			case ' ':
