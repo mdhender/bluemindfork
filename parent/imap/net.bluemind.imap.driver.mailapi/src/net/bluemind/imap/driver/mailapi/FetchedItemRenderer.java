@@ -78,6 +78,9 @@ public class FetchedItemRenderer {
 	private final IDbMailboxRecords recApi;
 	private final List<MailPart> fields;
 	private final IDbMessageBodies bodyApi;
+	private static final Set<String> DEFAULT_HEADERS = Sets.newHashSet("From", "To", "Cc", "Subject", "Message-ID",
+			"X-Bm-Event", "X-BM-ResourceBooking", "X-BM-Event-Countered", "X-BM-Event-Canceled", "X-BM-FOLDERSHARING",
+			"X-ASTERISK-CALLERID");
 
 	public FetchedItemRenderer(IDbMessageBodies bodyApi, IDbMailboxRecords recApi, List<MailPart> fields) {
 		this.recApi = recApi;
@@ -115,6 +118,9 @@ public class FetchedItemRenderer {
 				String size = Integer.toString(body.get().size);
 				ret.put(f.toString(), Unpooled.wrappedBuffer(size.getBytes()));
 				break;
+			case "RFC822.HEADER":
+				ret.put(f.toString(), literalize(headers(body, DEFAULT_HEADERS, rec)));
+				break;
 			case "ENVELOPE":
 				ret.put(f.toString(), EnvelopeRenderer.render(body, rec));
 				break;
@@ -127,7 +133,7 @@ public class FetchedItemRenderer {
 				}
 				break;
 			default:
-				logger.warn("Unsupported fetch field {}", f);
+				logger.warn("Unsupported fetch field `{}'", f);
 				break;
 			}
 		}
@@ -150,12 +156,9 @@ public class FetchedItemRenderer {
 		String section = f.section == null ? "" : f.section;
 
 		if (section.equalsIgnoreCase("header.fields")) {
-			return headers(body, f.options, rec);
+			return headers(body, f.options != null ? f.options : DEFAULT_HEADERS, rec);
 		} else if (section.equalsIgnoreCase("header")) {
-			return headers(body,
-					Sets.newHashSet("From", "To", "Cc", "Subject", "Message-ID", "X-Bm-Event", "X-BM-ResourceBooking",
-							"X-BM-Event-Countered", "X-BM-Event-Canceled", "X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID"),
-					rec);
+			return headers(body, DEFAULT_HEADERS, rec);
 		} else if (section.endsWith(".MIME") && partAddr(section.replace(".MIME", ""))) {
 			String part = f.section.replace(".MIME", "");
 			logger.info("Fetch mime headers of {}", part);

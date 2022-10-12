@@ -91,6 +91,10 @@ public class StatusProcessor extends AuthenticatedCommandProcessor<StatusCommand
 			case "UNSEEN":
 				props.add("UNSEEN " + selected.unseen);
 				break;
+			case "UIDVALIDITY":
+				// TODO
+				props.add("UIDVALIDITY 0");
+				break;
 			default:
 				logger.warn("Unsupported prop {}", p);
 				break;
