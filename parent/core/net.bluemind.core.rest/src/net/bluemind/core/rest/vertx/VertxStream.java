@@ -167,6 +167,7 @@ public class VertxStream {
 			return CompletableFuture.completedFuture(null);
 		} else {
 			ReadStream<?> vxStream = (ReadStream<?>) stream;
+			vxStream.pause();
 			CompletableFuture<Void> ret = new CompletableFuture<>();
 			vxStream.pause();
 			vxStream.handler(b -> {

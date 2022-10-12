@@ -18,13 +18,16 @@
  */
 package net.bluemind.mailbox.service;
 
+import java.util.List;
 import java.util.function.Consumer;
 
+import jakarta.ws.rs.PathParam;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.ReservedIds;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.scheduledjob.api.JobExitStatus;
 import net.bluemind.scheduledjob.scheduler.IScheduledJobRunId;
 import net.bluemind.scheduledjob.scheduler.IScheduler;
@@ -38,6 +41,8 @@ public interface IInCoreMailboxes extends IMailboxes {
 	void checkAndRepairAllTask(IServerTaskMonitor monitor) throws ServerFault;
 
 	void checkAvailabilty(Mailbox mailbox) throws ServerFault;
+
+	List<MailFilterRule> getMailboxRules(@PathParam("mailboxUid") String mailboxUid) throws ServerFault;
 
 	/**
 	 * Enable/disable out of office sieve script

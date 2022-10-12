@@ -9,7 +9,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.domain.api;visibility:=reexport,
  com.google.guava,
  net.bluemind.backend.mail.replica.api,
- net.bluemind.core.rest
+ net.bluemind.core.rest,
+ org.apache.james.apache-mime4j-dom,
+ net.bluemind.mime4j.common
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.delivery.lmtp.common
 Bundle-ActivationPolicy: lazy

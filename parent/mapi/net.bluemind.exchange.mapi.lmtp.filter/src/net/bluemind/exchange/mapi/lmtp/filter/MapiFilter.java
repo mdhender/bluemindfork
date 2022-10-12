@@ -29,7 +29,7 @@ public class MapiFilter implements IMessageFilter {
 	public static final String X_BM_INTERNAL_ID = "X-Bm-Internal-Id";
 
 	@Override
-	public Message filter(LmtpEnvelope env, Message message, long messageSize) throws FilterException {
+	public Message filter(LmtpEnvelope env, Message message) throws FilterException {
 		if (message.getHeader().getField(X_BM_INTERNAL_ID) != null) {
 			message.getHeader().removeFields(X_BM_INTERNAL_ID);
 			return message;

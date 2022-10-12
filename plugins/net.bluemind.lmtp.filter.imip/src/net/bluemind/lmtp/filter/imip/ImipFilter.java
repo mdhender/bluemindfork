@@ -62,7 +62,7 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 	}
 
 	@Override
-	public Message filter(LmtpEnvelope env, Message m, long messageSize) throws FilterException {
+	public Message filter(LmtpEnvelope env, Message m) throws FilterException {
 
 		Header header = m.getHeader();
 		if (header != null) {

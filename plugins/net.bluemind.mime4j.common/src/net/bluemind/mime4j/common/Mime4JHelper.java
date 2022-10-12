@@ -19,6 +19,7 @@
 package net.bluemind.mime4j.common;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,6 +41,7 @@ import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.MessageServiceFactory;
 import org.apache.james.mime4j.dom.MessageWriter;
 import org.apache.james.mime4j.dom.Multipart;
+import org.apache.james.mime4j.dom.TextBody;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.field.LenientFieldParser;
 import org.apache.james.mime4j.message.BasicBodyFactory;
@@ -53,6 +55,10 @@ import org.apache.james.mime4j.stream.BodyDescriptorBuilder;
 import org.apache.james.mime4j.stream.MimeConfig;
 import org.apache.james.mime4j.stream.MimeTokenStream;
 import org.apache.james.mime4j.stream.RecursionMode;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +67,7 @@ import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.mime4j.common.rewriters.impl.DontTouchHandler;
 import net.bluemind.mime4j.common.rewriters.impl.XmlSafeEntityBuilder;
 import net.bluemind.utils.FBOSInput;
+import net.bluemind.utils.FileUtils;
 
 public class Mime4JHelper {
 	private static final String TMP_PREFIX = System.getProperty("net.bluemind.property.product", "unknown-jvm") + "-"
@@ -319,6 +326,83 @@ public class Mime4JHelper {
 			idx++;
 		}
 		return ret;
+	}
+
+	/**
+	 * @param reply
+	 * @param parsedBodyHtml
+	 * @param quote
+	 * @param e
+	 * @param body
+	 */
+	public static String insertQuotePart(boolean parsedBodyHtml, String reply, Entity e) {
+		String quotePart = null;
+		TextBody tb = (TextBody) e.getBody();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try {
+			FileUtils.transfer(tb.getInputStream(), out, true);
+			String charset = e.getCharset();
+			if (charset == null) {
+				charset = "utf-8";
+			}
+			quotePart = new String(out.toByteArray(), charset);
+		} catch (IOException ioe) {
+			logger.error(ioe.getMessage(), ioe);
+		}
+
+		if (parsedBodyHtml) {
+			if ("text/html".equals(e.getBody().getParent().getMimeType())) {
+
+				try {
+					Document doc = Jsoup.parse(reply);
+					Elements blockquotes = doc.getElementsByTag("blockquote");
+					if (!blockquotes.isEmpty()) {
+						Element blockquote = blockquotes.get(0);
+						Element fragementBody = Jsoup.parseBodyFragment(quotePart).body();
+						blockquote.prependChild(fragementBody);
+						return doc.html();
+					}
+
+					Elements bodies = doc.getElementsByTag("body");
+					if (!bodies.isEmpty()) {
+						Element body = bodies.get(0);
+						String blockquote = "<blockquote type=\"cite\" style=\"padding-left:5px; border-left:2px solid #1010ff; margin-left:5px\">"
+								+ quotePart + "</blockquote>";
+						Element fragementBody = Jsoup.parseBodyFragment(blockquote).body();
+						body.appendChild(fragementBody);
+						return doc.html();
+					}
+
+					return reply
+							+ "<blockquote type=\"cite\" style=\"padding-left:5px; border-left:2px solid #1010ff; margin-left:5px\">"
+							+ quotePart + "</blockquote>";
+
+				} catch (Exception ex) {
+					logger.error(ex.getMessage(), ex);
+					return reply
+							+ "<blockquote type=\"cite\" style=\"padding-left:5px; border-left:2px solid #1010ff; margin-left:5px\">"
+							+ quotePart + "</blockquote>";
+				}
+			} else if ("text/plain".equals(e.getBody().getParent().getMimeType())) {
+				StringBuilder sb = new StringBuilder();
+				sb.append(reply);
+				sb.append(quotePart.replaceAll("\\n", "<br/>"));
+				return sb.toString();
+			}
+		} else {
+			StringBuilder sb = new StringBuilder();
+			sb.append(reply);
+
+			String[] quoteLines = quotePart.split("\n");
+			for (String line : quoteLines) {
+				sb.append(">");
+				sb.append(line);
+				sb.append("\n");
+			}
+			return sb.toString();
+		}
+
+		return reply;
 	}
 
 }

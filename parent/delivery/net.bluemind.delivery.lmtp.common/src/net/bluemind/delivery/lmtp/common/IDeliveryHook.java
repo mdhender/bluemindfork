@@ -17,9 +17,6 @@
   */
 package net.bluemind.delivery.lmtp.common;
 
-import net.bluemind.backend.mail.api.MessageBody;
-import net.bluemind.backend.mail.replica.api.MailboxRecord;
-
 public interface IDeliveryHook {
 
 	/**
@@ -34,6 +31,6 @@ public interface IDeliveryHook {
 	 * @return an enhance mailbox record. Might be the same as the given one. Return
 	 *         null if you want to leave the mailbox record untouched.
 	 */
-	MailboxRecord preDelivery(IDeliveryContext ctx, ResolvedBox targetFolder, MailboxRecord toDeliver, MessageBody msg);
+	DeliveryContent preDelivery(IDeliveryContext ctx, DeliveryContent content);
 
 }

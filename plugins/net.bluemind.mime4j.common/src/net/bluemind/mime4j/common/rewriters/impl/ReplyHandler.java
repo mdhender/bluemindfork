@@ -48,10 +48,6 @@ import org.apache.james.mime4j.message.MultipartImpl;
 import org.apache.james.mime4j.stream.Field;
 import org.apache.james.mime4j.stream.RawField;
 import org.apache.james.mime4j.util.CharsetUtil;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -274,14 +270,14 @@ public class ReplyHandler extends DontTouchHandler {
 				}
 			}
 			if (htmlPart != null) {
-				anwser = insertQuotePart(parsedBodyHtml, reply, htmlPart);
+				anwser = Mime4JHelper.insertQuotePart(parsedBodyHtml, reply, htmlPart);
 			} else if (textPart != null) {
-				anwser = insertQuotePart(parsedBodyHtml, reply, textPart);
+				anwser = Mime4JHelper.insertQuotePart(parsedBodyHtml, reply, textPart);
 			} else {
 				anwser = reply;
 			}
 		} else {
-			anwser = insertQuotePart(parsedBodyHtml, reply, replied);
+			anwser = Mime4JHelper.insertQuotePart(parsedBodyHtml, reply, replied);
 		}
 		TextBody body = bodyFactory.textBody(anwser, CharsetUtil.UTF_8);
 		BodyPart bodyPart = new BodyPart();
@@ -300,83 +296,6 @@ public class ReplyHandler extends DontTouchHandler {
 		ret.add(bodyPart);
 		ret.addAll(attachments);
 		return ret;
-	}
-
-	/**
-	 * @param reply
-	 * @param parsedBodyHtml
-	 * @param quote
-	 * @param e
-	 * @param body
-	 */
-	private String insertQuotePart(boolean parsedBodyHtml, String reply, Entity e) {
-		String quotePart = null;
-		TextBody tb = (TextBody) e.getBody();
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		try {
-			FileUtils.transfer(tb.getInputStream(), out, true);
-			String charset = e.getCharset();
-			if (charset == null) {
-				charset = "utf-8";
-			}
-			quotePart = new String(out.toByteArray(), charset);
-		} catch (IOException ioe) {
-			logger.error(ioe.getMessage(), ioe);
-		}
-
-		if (parsedBodyHtml) {
-			if ("text/html".equals(e.getBody().getParent().getMimeType())) {
-
-				try {
-					Document doc = Jsoup.parse(reply);
-					Elements blockquotes = doc.getElementsByTag("blockquote");
-					if (!blockquotes.isEmpty()) {
-						Element blockquote = blockquotes.get(0);
-						Element fragementBody = Jsoup.parseBodyFragment(quotePart).body();
-						blockquote.prependChild(fragementBody);
-						return doc.html();
-					}
-
-					Elements bodies = doc.getElementsByTag("body");
-					if (!bodies.isEmpty()) {
-						Element body = bodies.get(0);
-						String blockquote = "<blockquote type=\"cite\" style=\"padding-left:5px; border-left:2px solid #1010ff; margin-left:5px\">"
-								+ quotePart + "</blockquote>";
-						Element fragementBody = Jsoup.parseBodyFragment(blockquote).body();
-						body.appendChild(fragementBody);
-						return doc.html();
-					}
-
-					return reply
-							+ "<blockquote type=\"cite\" style=\"padding-left:5px; border-left:2px solid #1010ff; margin-left:5px\">"
-							+ quotePart + "</blockquote>";
-
-				} catch (Exception ex) {
-					logger.error(ex.getMessage(), ex);
-					return reply
-							+ "<blockquote type=\"cite\" style=\"padding-left:5px; border-left:2px solid #1010ff; margin-left:5px\">"
-							+ quotePart + "</blockquote>";
-				}
-			} else if ("text/plain".equals(e.getBody().getParent().getMimeType())) {
-				StringBuilder sb = new StringBuilder();
-				sb.append(reply);
-				sb.append(quotePart.replaceAll("\\n", "<br/>"));
-				return sb.toString();
-			}
-		} else {
-			StringBuilder sb = new StringBuilder();
-			sb.append(reply);
-
-			String[] quoteLines = quotePart.split("\n");
-			for (String line : quoteLines) {
-				sb.append(">");
-				sb.append(line);
-				sb.append("\n");
-			}
-			return sb.toString();
-		}
-
-		return reply;
 	}
 
 	private void addOriginalParts(Multipart mi) {

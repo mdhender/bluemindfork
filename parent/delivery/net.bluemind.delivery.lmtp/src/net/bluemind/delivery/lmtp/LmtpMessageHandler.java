@@ -19,12 +19,6 @@ package net.bluemind.delivery.lmtp;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel.MapMode;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -36,20 +30,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.subethamail.smtp.helper.SimpleMessageListener;
 
-import com.google.common.hash.HashCode;
-import com.google.common.hash.Hashing;
-import com.google.common.hash.HashingInputStream;
-import com.google.common.io.ByteStreams;
+import com.google.common.io.CountingInputStream;
 import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Registry;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.ByteBufOutputStream;
-import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
-import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.replica.api.AppendTx;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
@@ -60,9 +47,9 @@ import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
-import net.bluemind.delivery.lmtp.common.IDeliveryContext;
+import net.bluemind.delivery.lmtp.common.DeliveryContent;
+import net.bluemind.delivery.lmtp.common.FreezableDeliveryContent;
 import net.bluemind.delivery.lmtp.common.IDeliveryHook;
 import net.bluemind.delivery.lmtp.common.LmtpEnvelope;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
@@ -103,141 +90,120 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 			}
 			return ret;
 		} catch (Exception e) {
-			logger.warn("Reject from {} to {} ({})", from, recipient, e.getMessage());
+			logger.warn("Reject from {} to {} ({})", from, recipient, e);
 			return false;
 		}
 	}
 
 	@Override
 	public void deliver(String from, String recipient, InputStream data) throws IOException {
-		Path tmp = Files.createTempFile("lmtp-inc-", ".eml");
-		try (@SuppressWarnings("deprecation")
-		HashingInputStream hash = new HashingInputStream(Hashing.sha1(), data);
-				OutputStream output = Files.newOutputStream(tmp)) {
-			long copied = ByteStreams.copy(hash, output);
-			ResolvedBox tgtBox = lookup.lookupEmail(recipient);
-			Optional<ResolvedBox> fromBox = Optional.ofNullable(lookup.lookupEmail(from));
+		ResolvedBox tgtBox = lookup.lookupEmail(recipient);
+		String subtree = IMailReplicaUids.subtreeUid(tgtBox.dom.uid, tgtBox.mbox);
 
-			deliverImpl(from, tgtBox, tmp, copied, hash.hash());
-			if (fromBox.isPresent()) {
-				internalCount.increment();
-			} else {
-				externalCount.increment();
-			}
-		} finally {
-			Files.delete(tmp);
+		FreezableDeliveryContent freezedContent = preDelivery(from, tgtBox, subtree, data);
+		if (freezedContent.isEmpty()) {
+			return;
 		}
+		doDeliver(subtree, freezedContent);
+
+		Optional.ofNullable(lookup.lookupEmail(from)) //
+				.ifPresentOrElse(box -> internalCount.increment(), () -> externalCount.increment());
 	}
 
-	private void deliverImpl(String from, ResolvedBox tgtBox, Path tmp, long size, HashCode hash) throws IOException {
-		String subtree = IMailReplicaUids.subtreeUid(tgtBox.dom.uid, tgtBox.mbox);
+	private FreezableDeliveryContent preDelivery(String from, ResolvedBox tgtBox, String subtree, InputStream data)
+			throws IOException {
 		IDbReplicatedMailboxes treeApi = prov.system().instance(IDbByContainerReplicatedMailboxes.class, subtree);
-
 		ItemValue<MailboxReplica> rootFolder = treeApi
 				.byReplicaName(tgtBox.mbox.value.type.sharedNs ? tgtBox.mbox.value.name : "INBOX");
 
-		String partition = CyrusPartition.forServerAndDomain(tgtBox.entry.dataLocation, tgtBox.dom.uid).name;
-		logger.info("Deliver {} ({}bytes) into {} - {} (partition {})", hash, size, subtree, rootFolder.value,
-				partition);
-
-		ByteBuf mmap = applyFilters(from, tgtBox, tmp, size);
-		if (mmap == null) {
-			return;
-		}
-
-		IDbMessageBodies bodiesUpload = prov.system().instance(IDbMessageBodies.class, partition);
-		Stream stream = VertxStream.stream(Buffer.buffer(mmap));
-		bodiesUpload.create(hash.toString(), stream);
-		logger.debug("Body {} uploaded.", hash);
-
-		MessageBody uploadedBody = bodiesUpload.getComplete(hash.toString());
-
-		AppendTx appendTx = treeApi.prepareAppend(rootFolder.internalId, 1);
 		MailboxRecord rec = new MailboxRecord();
 		rec.conversationId = System.currentTimeMillis();
-
-		rec.messageBody = hash.toString();
-		rec.imapUid = appendTx.imapUid;
-		rec.modSeq = appendTx.modSeq;
 		rec.flags = new ArrayList<>();
 		rec.internalDate = new Date();
 		rec.lastUpdated = rec.internalDate;
-		IDbMailboxRecords recs = prov.system().instance(IDbMailboxRecords.class, rootFolder.uid);
-		applyHooks(tgtBox, rec, uploadedBody);
-		recs.create(rec.imapUid + ".", rec);
-		logger.info("Record with imapUid {} created.", rec.imapUid);
+
+		DeliveryContent content = new DeliveryContent(tgtBox, rootFolder, null, rec);
+		FreezableDeliveryContent freezableContent = applyFilters(from, content, data);
+		return (!freezableContent.isFrozen() || freezableContent.isEmpty()) //
+				? applyHooks(freezableContent.content()) //
+				: freezableContent;
+	}
+
+	private void doDeliver(String subtree, FreezableDeliveryContent freezableContent) {
+		ResolvedBox tgtBox = freezableContent.content().box();
+		ItemValue<MailboxReplica> folder = freezableContent.content().folderItem();
+		MailboxRecord mailboxRecord = freezableContent.content().mailboxRecord();
+		String guid = freezableContent.serializedMessage().guid();
+		long size = freezableContent.serializedMessage().size();
+		ByteBuf buffer = freezableContent.serializedMessage().buffer();
+
+		String partition = CyrusPartition.forServerAndDomain(tgtBox.entry.dataLocation, tgtBox.dom.uid).name;
+		logger.info("Deliver {} ({}bytes) into {} - {} (partition {})", guid, size, subtree, folder.value, partition);
+
+		IDbMessageBodies bodiesUpload = prov.system().instance(IDbMessageBodies.class, partition);
+		Stream stream = VertxStream.stream(Buffer.buffer(buffer));
+		bodiesUpload.create(guid, stream);
+		logger.debug("Body {} uploaded.", guid);
+
+		IDbReplicatedMailboxes treeApi = prov.system().instance(IDbByContainerReplicatedMailboxes.class, subtree);
+		AppendTx appendTx = treeApi.prepareAppend(folder.internalId, 1);
+		mailboxRecord.imapUid = appendTx.imapUid;
+		mailboxRecord.modSeq = appendTx.modSeq;
+
+		IDbMailboxRecords recs = prov.system().instance(IDbMailboxRecords.class, folder.uid);
+		recs.create(mailboxRecord.imapUid + ".", mailboxRecord);
+		logger.info("Record with imapUid {} created.", mailboxRecord.imapUid);
 
 	}
 
-	private MailboxRecord applyHooks(ResolvedBox tgtBox, MailboxRecord rec, MessageBody messageBody) {
-		List<IDeliveryHook> hooks = LmtpHooks.get();
-
-		IDeliveryContext delCtx = new IDeliveryContext() {
-
-			@Override
-			public IServiceProvider provider() {
-				return prov.system();
-			}
-
-		};
-
-		for (IDeliveryHook hook : hooks) {
-			try {
-				hook.preDelivery(delCtx, tgtBox, rec, messageBody);
-			} catch (Exception e) {
-				logger.error("Hook {} failed on msg {}: {}", hook, messageBody.messageId, e.getMessage());
-			}
-		}
-
-		return rec;
-	}
-
-	private ByteBuf applyFilters(String from, ResolvedBox tgtBox, Path tmp, long size) throws IOException {
+	private FreezableDeliveryContent applyFilters(String from, DeliveryContent content, InputStream data)
+			throws IOException {
 		List<IMessageFilter> filters = LmtpFilters.get();
-		ByteBuf mmap = mmapBuffer(tmp, size);
-		if (logger.isDebugEnabled()) {
-			logger.debug("Start filtering of {} with {} filter(s)", mmap, filters.size());
-		}
-		try (Message msg = Mime4JHelper.parse(new ByteBufInputStream(mmap.duplicate()))) {
-			Message cur = msg;
-			boolean modified = false;
-			LmtpEnvelope le = new LmtpEnvelope(from, Collections.singletonList(tgtBox));
+		CountingInputStream countedInput = new CountingInputStream(data);
+		Message messageToFilter = Mime4JHelper.parse(countedInput);
+		try {
+			LmtpEnvelope le = new LmtpEnvelope(from, Collections.singletonList(content.box()));
 			for (IMessageFilter f : filters) {
-				Message fresh = f.filter(le, cur, size);
-				if (fresh != null) {
-					modified = true;
-					logger.info("Marking message {} as modified by {}", msg, f);
-					if (fresh != cur) {
-						logger.debug("Dispose {}, swap to {}", cur, fresh);
-						cur.dispose();
-						cur = fresh;
-					}
+				Message updatedMessage = f.filter(le, messageToFilter);
+				if (updatedMessage != null && updatedMessage != messageToFilter) {
+					messageToFilter.close();
+					messageToFilter = updatedMessage;
 				}
 			}
-			if (modified) {
-				ByteBuf freshBuf = Unpooled.buffer();
-				try (ByteBufOutputStream out = new ByteBufOutputStream(freshBuf)) {
-					Mime4JHelper.serialize(cur, out);
-				}
-				mmap = freshBuf;
-			}
+			return FreezableDeliveryContent.create(content.withMessage(messageToFilter), countedInput.getCount());
 		} catch (PermissionDeniedException pde) {
 			// this used to set a X-Bm-Discard here & drop from sieve
 			// we can just return
 			logger.info("Discard because of PDE: {}", pde.getMessage());
-			return null;
+			close(messageToFilter);
+			return FreezableDeliveryContent.discard(content);
 		} catch (Exception e) {
 			// we have the original buffer to deliver
 			logger.error("Filtering error, keeping the original one", e);
+			return FreezableDeliveryContent.freeze(content.withMessage(messageToFilter));
 		}
-		logger.debug("Return {} for delivery", mmap);
-		return mmap;
 	}
 
-	private ByteBuf mmapBuffer(Path tmp, long size) throws IOException {
-		try (RandomAccessFile raf = new RandomAccessFile(tmp.toFile(), "r")) {
-			MappedByteBuffer mmap = raf.getChannel().map(MapMode.READ_ONLY, 0, size);
-			return Unpooled.wrappedBuffer(mmap);
+	private FreezableDeliveryContent applyHooks(DeliveryContent content) throws IOException {
+		List<IDeliveryHook> hooks = LmtpHooks.get();
+		for (IDeliveryHook hook : hooks) {
+			try {
+				content = hook.preDelivery(prov::system, content);
+			} catch (Exception e) {
+				logger.error("[delivery] failed to apply delivery hook {} on {}", //
+						hook.getClass().getCanonicalName(), content, e);
+			}
+		}
+		return (content.isEmpty()) //
+				? FreezableDeliveryContent.discard(content) //
+				: FreezableDeliveryContent.freeze(content);
+	}
+
+	private void close(Message message) {
+		try {
+			message.close();
+		} catch (Exception e) {
+			// This should not happen
 		}
 	}
 

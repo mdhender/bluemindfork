@@ -76,7 +76,7 @@ public class TnefFilter implements IMessageFilter {
 	}
 
 	@Override
-	public Message filter(LmtpEnvelope env, Message message, long messageSize) throws FilterException {
+	public Message filter(LmtpEnvelope env, Message message) throws FilterException {
 		return MapiEndpoint.any().map(endpoint -> withEndpoint(endpoint, env, message)).orElse(null);
 	}
 

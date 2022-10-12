@@ -67,7 +67,7 @@ public class TransportLatencyFilter implements IMessageFilter {
 	}
 
 	@Override
-	public Message filter(LmtpEnvelope env, Message message, long messageSize) throws FilterException {
+	public Message filter(LmtpEnvelope env, Message message) throws FilterException {
 		Field firstHopTimestamp = message.getHeader().getField("X-Bm-Transport-Timestamp");
 		if (firstHopTimestamp != null) {
 			long firstHopTime = Long.parseLong(firstHopTimestamp.getBody());

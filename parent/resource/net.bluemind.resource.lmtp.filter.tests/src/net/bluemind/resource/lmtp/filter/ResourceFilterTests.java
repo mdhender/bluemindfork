@@ -275,7 +275,7 @@ public class ResourceFilterTests {
 
 		FakeSendmail mailer = new FakeSendmail();
 
-		Message m2 = new ResourceFilter(mailer).filter(null, m, 0);
+		Message m2 = new ResourceFilter(mailer).filter(null, m);
 		assertNull(m2);
 
 		assertFalse(mailer.mailSent);
@@ -291,7 +291,7 @@ public class ResourceFilterTests {
 
 		LmtpEnvelope envelope = EnvelopeBuilder.forEmails(((Mailbox) m.getTo().iterator().next()).getAddress());
 
-		Message m2 = new ResourceFilter(mailer).filter(envelope, m, 0);
+		Message m2 = new ResourceFilter(mailer).filter(envelope, m);
 		assertNull(m2);
 
 		assertFalse(mailer.mailSent);
@@ -308,7 +308,7 @@ public class ResourceFilterTests {
 
 		LmtpEnvelope envelope = EnvelopeBuilder.forEmails(resourceUid + "@" + domainUid);
 
-		Message m2 = new ResourceFilter(mailer).filter(envelope, m, 0);
+		Message m2 = new ResourceFilter(mailer).filter(envelope, m);
 		assertNull(m2);
 
 		assertTrue(mailer.mailSent);
@@ -336,7 +336,7 @@ public class ResourceFilterTests {
 		LmtpEnvelope envelope = EnvelopeBuilder.forEmails(((Mailbox) m.getTo().iterator().next()).getAddress(),
 				resourceUid + "@" + domainUid);
 
-		Message m2 = new ResourceFilter(mailer).filter(envelope, m, 0);
+		Message m2 = new ResourceFilter(mailer).filter(envelope, m);
 		assertNull(m2);
 
 		assertTrue(mailer.mailSent);
@@ -363,7 +363,7 @@ public class ResourceFilterTests {
 		LmtpEnvelope envelope = EnvelopeBuilder.forEmails(((Mailbox) m.getTo().iterator().next()).getAddress(),
 				resourceUid + "@" + domainUid);
 
-		Message m2 = new ResourceFilter(mailer).filter(envelope, m, 0);
+		Message m2 = new ResourceFilter(mailer).filter(envelope, m);
 		assertNull(m2);
 
 		assertTrue(mailer.mailSent);
@@ -391,7 +391,7 @@ public class ResourceFilterTests {
 
 		LmtpEnvelope envelope = EnvelopeBuilder.forEmails(resourceUid + "@" + domainUid);
 
-		Message m2 = new ResourceFilter(mailer).filter(envelope, m, 0);
+		Message m2 = new ResourceFilter(mailer).filter(envelope, m);
 		assertNull(m2);
 
 		assertTrue(mailer.mailSent);

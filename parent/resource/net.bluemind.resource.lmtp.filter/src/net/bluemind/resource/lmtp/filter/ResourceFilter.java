@@ -73,7 +73,7 @@ public class ResourceFilter implements IMessageFilter {
 	}
 
 	@Override
-	public Message filter(LmtpEnvelope env, Message message, long messageSize) throws FilterException {
+	public Message filter(LmtpEnvelope env, Message message) throws FilterException {
 		IIMIPParser parser = IMIPParserFactory.create();
 
 		Message pureIcs = new PureICSRewriter().rewrite(message);

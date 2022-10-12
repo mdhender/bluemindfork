@@ -21,6 +21,7 @@
 		<module>net.bluemind.delivery.conversationreference.persistence</module>
 		<module>net.bluemind.delivery.conversationreference.service</module>
 		<module>net.bluemind.delivery.conversationreference.tests</module>
+		<module>net.bluemind.delivery.rules</module>
 	</modules>
 
 </project>

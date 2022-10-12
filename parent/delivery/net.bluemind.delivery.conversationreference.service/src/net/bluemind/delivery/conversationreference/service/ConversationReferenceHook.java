@@ -17,15 +17,18 @@
   */
 package net.bluemind.delivery.conversationreference.service;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
+import org.apache.james.mime4j.dom.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.backend.mail.api.MessageBody;
+import com.google.common.collect.Sets;
+
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.delivery.conversationreference.api.IConversationReference;
+import net.bluemind.delivery.lmtp.common.DeliveryContent;
 import net.bluemind.delivery.lmtp.common.IDeliveryContext;
 import net.bluemind.delivery.lmtp.common.IDeliveryHook;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
@@ -35,20 +38,27 @@ public class ConversationReferenceHook implements IDeliveryHook {
 	private static final Logger logger = LoggerFactory.getLogger(ConversationReferenceHook.class);
 
 	@Override
-	public MailboxRecord preDelivery(IDeliveryContext ctx, ResolvedBox mailbox, MailboxRecord record,
-			MessageBody messageBody) {
+	public DeliveryContent preDelivery(IDeliveryContext ctx, DeliveryContent content) {
+		ResolvedBox mailbox = content.box();
+		Message message = content.message();
+		MailboxRecord record = content.mailboxRecord();
+
 		IConversationReference api = ctx.provider().instance(IConversationReference.class, mailbox.dom.uid,
 				mailbox.entry.entryUid);
-		Set<String> referencesSet = (messageBody.references != null) ? Set.copyOf(messageBody.references)
-				: new HashSet<>(); // because null is not allowed
-		Long conversationId = api.lookup(messageBody.messageId, referencesSet);
+		Long conversationId = api.lookup(message.getMessageId(), references(message));
 		record.conversationId = conversationId;
 		if (logger.isDebugEnabled()) {
-			logger.debug("Message {} ({}@{}) updated with conversationId {}", messageBody.guid, messageBody.messageId,
+			logger.debug("Message {}@{} updated with conversationId {}", message.getMessageId(),
 					mailbox.mbox.displayName, record.conversationId);
 		}
-		return record;
+		return content;
+	}
 
+	private Set<String> references(Message message) {
+		return message.getHeader().getFields().stream() //
+				.filter(field -> "references".equalsIgnoreCase(field.getName())) //
+				.map(field -> (Set<String>) Sets.newHashSet(field.getBody().split(" "))) //
+				.findFirst().orElse(Collections.emptySet());
 	}
 
 }

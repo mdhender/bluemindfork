@@ -12,5 +12,7 @@ Require-Bundle: slf4j.api,
  net.bluemind.delivery.conversationreference.api,
  net.bluemind.delivery.conversationreference.persistence,
  net.bluemind.delivery.lmtp.common,
+ net.bluemind.delivery.lmtp.hooks,
  net.bluemind.scheduledjob.scheduler,
- net.bluemind.delivery.lmtp.hooks
+ org.apache.james.apache-mime4j-dom,
+ org.apache.james.apache-mime4j-core

@@ -144,7 +144,7 @@ public class Ex2003Tests {
 				Message parsed = Mime4JHelper.parse(in)) {
 			LmtpEnvelope envel = EnvelopeBuilder.forEmails(user1.value.defaultEmailAddress());
 
-			try (Message updated = filter.filter(envel, parsed, 123456L)) {
+			try (Message updated = filter.filter(envel, parsed)) {
 				assertNotNull(updated);
 				Field eventField = updated.getHeader().getField("X-Bm-Event");
 				System.err.println(eventField);

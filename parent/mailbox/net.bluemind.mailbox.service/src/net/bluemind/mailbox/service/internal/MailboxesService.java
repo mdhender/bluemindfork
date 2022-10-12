@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import jakarta.ws.rs.PathParam;
 import net.bluemind.backend.mail.api.IUserInbox;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainerItemIdsCache;
@@ -322,7 +323,6 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 				}, () -> filter.forwarding = new MailFilter.Forwarding());
 
 		return filter;
-
 	}
 
 	@Override
@@ -357,6 +357,12 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		for (IMailboxHook hook : hooks) {
 			hook.onMailFilterChanged(context, domainUid, mailbox, filter);
 		}
+	}
+
+	@Override
+	public List<MailFilterRule> getMailboxRules(@PathParam("mailboxUid") String mailboxUid) throws ServerFault {
+		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+		return storeService.getFilter(mailboxUid).rules;
 	}
 
 	private IMailboxesStorage mailboxStorage() {

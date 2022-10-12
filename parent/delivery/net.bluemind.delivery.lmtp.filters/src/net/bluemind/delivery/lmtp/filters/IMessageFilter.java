@@ -30,20 +30,16 @@ import net.bluemind.delivery.lmtp.common.LmtpEnvelope;
 public interface IMessageFilter {
 
 	/**
-	 * Filter messages. The message can be altered, and delivery decisions can
-	 * me made using the env parameter.
+	 * Filter messages. The message can be altered, and delivery decisions can me
+	 * made using the env parameter.
 	 * 
 	 * 
 	 * 
 	 * @param env
-	 * @param message
-	 *            the message to filter
-	 * @param messageSize
-	 *            so that filters can easily act on size without having to
-	 *            serialize the message
-	 * @return a filtered message. Might be the same as the given one. Return
-	 *         null if you want to leave the message untouched.
+	 * @param message the message to filter
+	 * @return a filtered message. Might be the same as the given one. Return null
+	 *         if you want to leave the message untouched.
 	 * @throws FilterException
 	 */
-	public Message filter(LmtpEnvelope env, Message message, long messageSize) throws FilterException;
+	public Message filter(LmtpEnvelope env, Message message) throws FilterException;
 }

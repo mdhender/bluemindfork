@@ -25,7 +25,8 @@ import net.bluemind.core.api.BMApi;
 		@Type(value = MailFilterRuleActionSetFlags.class, name = "SET_FLAGS"),
 		@Type(value = MailFilterRuleActionTransfer.class, name = "TRANSFER"),
 		@Type(value = MailFilterRuleActionUncategorize.class, name = "UNCATEGORIZE"),
-		@Type(value = MailFilterRuleActionUnfollow.class, name = "UNFOLLOW") })
+		@Type(value = MailFilterRuleActionUnfollow.class, name = "UNFOLLOW"),
+		@Type(value = MailFilterRuleActionCustom.class, name = "CUSTOM") })
 public class MailFilterRuleAction {
 
 	public MailFilterRuleActionName name;
