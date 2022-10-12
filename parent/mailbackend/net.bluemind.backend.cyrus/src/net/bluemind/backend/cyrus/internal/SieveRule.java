@@ -19,24 +19,30 @@
 
 package net.bluemind.backend.cyrus.internal;
 
-import net.bluemind.mailbox.api.MailFilter;
+import net.bluemind.mailbox.api.MailFilter.Forwarding;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
 
-public class SieveRule extends MailFilter.Rule {
+public class SieveRule {
+	public String rule;
+	public boolean star;
+	public boolean read;
+	public boolean delete;
+	public boolean discard;
+	public Forwarding forward = new Forwarding();
+	public String deliver;
+	public boolean active = true;
+	public boolean stop = true;
 
-	public SieveRule(MailFilter.Rule f, String rule) {
+	public SieveRule(MailFilterRule f, String rule) {
 		this.rule = rule;
-		this.name = f.name;
 		this.active = f.active;
 		this.stop = f.stop;
-		this.criteria = f.criteria;
-		this.delete = f.delete;
-		this.deliver = f.deliver;
-		this.star = f.star;
-		this.forward = f.forward;
-		this.discard = f.discard;
-		this.read = f.read;
+		this.delete = f.markAsDeleted().isPresent();
+		this.star = f.markAsImportant().isPresent();
+		this.read = f.markAsRead().isPresent();
+		this.deliver = f.move().map(move -> move.folder).orElse(null);
+		this.forward = f.redirect().map(Forwarding::fromAction).orElse(new Forwarding());
+		this.discard = f.discard().isPresent();
 	}
-
-	public String rule;
 
 }

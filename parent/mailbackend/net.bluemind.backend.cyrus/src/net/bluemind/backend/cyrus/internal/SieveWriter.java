@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.mail.internet.MimeUtility;
 
@@ -63,6 +64,13 @@ import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.MailFilter.Vacation;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilter;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilterContains;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilterEquals;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilterMatches;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleOperatorName;
 import net.bluemind.mailbox.service.SplittedShardsMapping;
 import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.IServer;
@@ -145,19 +153,13 @@ public class SieveWriter {
 
 	private List<SieveRule> getFiltersString(Type type, ItemValue<Mailbox> mbox, MailFilter filter) {
 		List<SieveRule> filtersWrite = new ArrayList<>(filter.rules.size());
-		for (MailFilter.Rule f : filter.rules) {
-			if (f.active) {
-				String criteria = f.criteria;
-				if (Strings.isNullOrEmpty(criteria)) {
-					// COAX-8, l’import des règles de Zimbra vers Bluemind.
-					// Certains
-					// filtres avaient une action de défini mais pas de critères
-					logger.warn("empty criteria in sieve filter rule!");
-					continue;
-				}
-
-				String deliver = f.deliver;
-				if (f.deliver != null && StringUtils.isNotBlank(deliver.trim())) {
+		for (MailFilterRule rule : filter.rules) {
+			if (rule.active) {
+				rule.move().ifPresent(moveAction -> {
+					String deliver = moveAction.folder();
+					if (!StringUtils.isNotBlank(deliver)) {
+						return;
+					}
 					if (type == Type.SHARED) {
 						String name = mbox.value.name;
 						if (deliver.startsWith(name + "/")) {
@@ -165,9 +167,9 @@ public class SieveWriter {
 						}
 						deliver = "Dossiers partagés/" + name + "/" + deliver;
 					}
-					f.deliver = UTF7Converter.encode(deliver);
-				}
-				filtersWrite.add(new SieveRule(f, getRule(f.criteria)));
+					moveAction.folder = UTF7Converter.encode(deliver);
+				});
+				filtersWrite.add(new SieveRule(rule, sieveConditions(rule)));
 			}
 		}
 		return filtersWrite;
@@ -258,81 +260,78 @@ public class SieveWriter {
 		return (text != null) ? text.replace("\"", "\\\"").replace("'", "\\'") : "";
 	}
 
-	private String getRule(String criteria) {
-		StringBuilder sb = new StringBuilder();
-		String[] crits = criteria.split("\n");
-		String crit;
-		for (int i = 0; i < crits.length; i++) {
-			String c = crits[i];
-			if (i == 0) {
-				sb.append("if allof (");
-			} else {
-				sb.append(",\n\t");
-			}
-			crit = appendCriteria(c);
-			if (crit != null) {
-				sb.append(crit);
-			}
-		}
-		sb.append(") {");
-		return sb.toString();
+	private String sieveConditions(MailFilterRule rule) {
+		return rule.conditions.isEmpty() //
+				? "if allof (true) {"
+				: rule.conditions.stream().map(this::sieveCondition)
+						.collect(Collectors.joining(",\n\t", "if allof (", ") {"));
 	}
 
-	private String appendCriteria(String c) {
-		if (c.equals("MATCHALL")) {
+	private String sieveCondition(MailFilterRuleCondition condition) {
+		if (condition.filter == null) {
 			return "true";
 		}
 
-		int i = c.indexOf(':');
-		String crit = c.substring(0, i);
-		c = c.substring(i + 1);
-		i = c.indexOf(": ");
-		String matchType = c.substring(0, i);
-		String value = c.substring(i + 2);
-		// backslash \
-		value = value.replace("\\", "\\\\");
-		// backslash "
-		value = value.replaceAll("\\\"", "\\\\\"");
+		String not = (condition.negate) ? "not " : "";
+		return not + this.sieveFilter(condition.filter);
+	}
 
-		String not = "";
-		String type = "";
-		if (matchType.equals("EXISTS")) {
-			return "exists [\"" + crit + "\"]";
-		} else if (matchType.equals("DOESNOTEXIST")) {
-			return "not exists [\"" + crit + "\"]";
-		} else if (matchType.equals("IS")) {
-			not = "";
-			type = ":is";
-		} else if (matchType.equals("ISNOT")) {
-			not = "not";
-			type = ":is";
-		} else if (matchType.equals("CONTAINS")) {
-			not = "";
-			type = ":contains";
-		} else if (matchType.equals("DOESNOTCONTAIN")) {
-			not = "not";
-			type = ":contains";
-		} else if (matchType.equals("MATCHES")) {
-			not = "";
-			type = ":matches";
-		} else if (matchType.equals("DOESNOTMATCH")) {
-			not = "not";
-			type = ":matches";
+	private String sieveFilter(MailFilterRuleFilter filter) {
+		if (filter.operator == MailFilterRuleOperatorName.EXISTS) {
+			return filter.fields.stream() //
+					.map(field -> "exists [\"" + field.split("\\.")[1] + "\"]") //
+					.collect(Collectors.joining(", ", "anyof (", ")"));
 		}
 
-		if (crit.equals("FROM")) {
-			return not + " address " + type + " \"from\" \"" + value + "\"";
-		} else if (crit.equals("TO")) {
-			return not + " address " + type + " [\"to\", \"cc\"] \"" + value + "\"";
-		} else if (crit.equals("SUBJECT")) {
-			return not + " header " + type + " \"Subject\" \"" + value + "\"";
-		} else if (crit.equals("BODY")) {
-			return "anyof (" + not + " body :content \"text\" " + type + " \"" + value + "\", " + not
-					+ " body :content \"text\" " + type + " \"" + StringEscapeUtils.escapeHtml4(value) + "\")";
-		} else if (!not.isEmpty()) {
-			return "exists \"" + crit + "\",\n\t" + not + " header " + type + " \"" + crit + "\" \"" + value + "\"";
+		String type;
+		String value;
+		if (filter.operator == MailFilterRuleOperatorName.EQUALS) {
+			List<String> values = ((MailFilterRuleFilterEquals) filter).values;
+			value = escapeFilterValue(values);
+			type = ":is";
+		} else if (filter.operator == MailFilterRuleOperatorName.CONTAINS) {
+			List<String> values = ((MailFilterRuleFilterContains) filter).values;
+			value = escapeFilterValue(values);
+			type = ":contains";
+		} else if (filter.operator == MailFilterRuleOperatorName.MATCHES) {
+			List<String> values = ((MailFilterRuleFilterMatches) filter).values;
+			value = escapeFilterValue(values);
+			type = ":matches";
 		} else {
-			return "header " + type + " \"" + crit + "\" \"" + value + "\"";
+			value = null;
+			type = "";
+		}
+
+		if (value == null) {
+			return "false";
+		} else {
+			return filter.fields.stream() //
+					.map(field -> sieveFieldFilter(field, type, value)) //
+					.collect(Collectors.joining(", ", "anyof (", ")"));
+		}
+	}
+
+	private String escapeFilterValue(List<String> values) {
+		return values != null && !values.isEmpty() //
+				? values.get(0).replace("\\", "\\\\").replaceAll("\\\"", "\\\\\"")
+				: null;
+	}
+
+	private String sieveFieldFilter(String field, String type, String value) {
+		if (field.startsWith("from")) {
+			return "address " + type + " \"from\" \"" + value + "\"";
+		} else if (field.startsWith("to")) {
+			return "address " + type + " \"to\" \"" + value + "\"";
+		} else if (field.startsWith("cc")) {
+			return "address " + type + " \"cc\" \"" + value + "\"";
+		} else if (field.equals("subject")) {
+			return "header " + type + " \"Subject\" \"" + value + "\"";
+		} else if (field.equals("part.content")) {
+			return "body :content \"text\" " + type + " \"" + value + "\", " //
+					+ "body :content \"text\" " + type + " \"" + StringEscapeUtils.escapeHtml4(value) + "\"";
+		} else {
+			String header = field.split(".")[1];
+			return "allof (exists \"" + header + "\", header " + type + " \"" + header + "\" \"" + value + "\")";
 		}
 	}
 

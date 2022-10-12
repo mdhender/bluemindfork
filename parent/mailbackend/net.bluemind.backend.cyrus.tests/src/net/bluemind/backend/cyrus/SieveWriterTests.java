@@ -83,6 +83,9 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionName;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
@@ -212,64 +215,54 @@ public class SieveWriterTests {
 
 	@Test
 	public void testBreakOnFirstMatch() throws Exception {
-		MailFilter.Rule rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.criteria = "FROM:IS: sid@pinkfloyd.net";
-		rule.deliver = "test";
+		MailFilterRule rule1 = new MailFilterRule();
+		rule1.conditions.add(MailFilterRuleCondition.equal("from", "sid@pinkfloyd.net"));
+		rule1.addMove("test");
 
-		// This rule will match and use a redirect action
-		MailFilter.Rule rule2 = new MailFilter.Rule();
-		rule2.active = true;
-		rule2.criteria = "SUBJECT:IS: SubjectTest";
-		rule2.forward.emails.add("toto@gmail.com");
+		MailFilterRule rule2 = new MailFilterRule();
+		rule2.conditions.add(MailFilterRuleCondition.equal("subject", "SubjectTest"));
+		rule2.addRedirect(Arrays.asList("toto@gmail.com"), false);
 
-		MailFilter.Rule rule3 = new MailFilter.Rule();
-		rule3.active = true;
-		rule3.criteria = "FROM:IS: roger.water@pinkfloyd.net";
-		rule3.deliver = "toto";
+		MailFilterRule rule3 = new MailFilterRule();
+		rule3.conditions.add(MailFilterRuleCondition.equal("from", "roger.water@pinkfloyd.net"));
+		rule3.addMove("toto");
 
 		Results r = check(writer.generateSieveScript(Type.USER, mbox, null, getTestDomain(),
-				MailFilter.create(rule, rule2, rule3)));
+				MailFilter.create(rule1, rule2, rule3)));
 		assertAction(ActionRedirect.class, r);
 
 	}
 
 	@Test
 	public void testContinueAfterMatch() throws Exception {
-		MailFilter.Rule rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.criteria = "FROM:IS: sid@pinkfloyd.net";
-		rule.discard = true;
+		MailFilterRule rule1 = new MailFilterRule();
+		rule1.conditions.add(MailFilterRuleCondition.equal("from", "sid@pinkfloyd.net"));
+		rule1.addDiscard();
 
-		// This rule will match and use a redirect action
-		MailFilter.Rule rule2 = new MailFilter.Rule();
-		rule2.active = true;
+		MailFilterRule rule2 = new MailFilterRule();
 		rule2.stop = false;
-		rule2.criteria = "SUBJECT:IS: SubjectTest";
-		rule2.forward.emails.add("toto@gmail.com");
+		rule2.conditions.add(MailFilterRuleCondition.equal("subject", "SubjectTest"));
+		rule2.addRedirect(Arrays.asList("toto@gmail.com"), false);
 
-		// This rule will match and use a fileinto action
-		MailFilter.Rule rule3 = new MailFilter.Rule();
-		rule3.active = true;
-		rule3.criteria = "FROM:IS: roger.water@pinkfloyd.net";
-		rule3.deliver = "test";
+		MailFilterRule rule3 = new MailFilterRule();
+		rule3.conditions.add(MailFilterRuleCondition.equal("from", "roger.water@pinkfloyd.net"));
+		rule3.addMove("toto");
 
 		Results r = check(writer.generateSieveScript(Type.USER, mbox, null, getTestDomain(),
-				MailFilter.create(rule, rule2, rule3)));
+				MailFilter.create(rule1, rule2, rule3)));
 		assertAction(Arrays.<Class<?>>asList(ActionRedirect.class, ActionFileInto.class), r);
-
 	}
 
 	@Test
 	public void testFrom() throws Exception {
-		MailFilter.Rule rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.criteria = "FROM:IS: roger.water@pinkfloyd.net";
-		rule.deliver = "test";
+		MailFilterRule rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("from", "roger.water@pinkfloyd.net"));
+		rule.addMove("test");
 		Results r = check(writer.generateSieveScript(Type.USER, mbox, null, getTestDomain(), MailFilter.create(rule)));
 		assertAction(ActionFileInto.class, r);
 
-		rule.criteria = "FROM:IS: sid.barrett@pinkfloyd.net";
+		rule.conditions.clear();
+		rule.conditions.add(MailFilterRuleCondition.equal("from", "sid.barrett@pinkfloyd.net"));
 		r = check(writer.generateSieveScript(Type.USER, mbox, null, getTestDomain(), MailFilter.create(rule)));
 		assertActionKeep(r);
 	}
@@ -277,16 +270,15 @@ public class SieveWriterTests {
 	@Test
 	public void testSubject() throws Exception {
 
-		MailFilter.Rule rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.criteria = "SUBJECT:IS: SubjectTest";
-		rule.deliver = "test";
+		MailFilterRule rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("subject", "SubjectTest"));
+		rule.addMove("test");
 
 		Results r = check(writer.generateSieveScript(Type.USER, mbox, null, getTestDomain(), MailFilter.create(rule)));
-
 		assertAction(ActionFileInto.class, r);
 
-		rule.criteria = "SUBJECT:IS: FalseSub";
+		rule.conditions.clear();
+		rule.conditions.add(MailFilterRuleCondition.equal("subject", "FalseSub"));
 		r = check(writer.generateSieveScript(Type.USER, mbox, null, getTestDomain(), MailFilter.create(rule)));
 		assertActionKeep(r);
 
@@ -294,13 +286,10 @@ public class SieveWriterTests {
 
 	@Test
 	public void testMatchAll() throws IOException, TemplateException, ServerFault, Exception {
-		MailFilter.Rule rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.criteria = "MATCHALL";
-		rule.discard = true;
+		MailFilterRule rule = new MailFilterRule();
+		rule.addDiscard();
 
 		Results r = check(writer.generateSieveScript(Type.USER, mbox, null, getTestDomain(), MailFilter.create(rule)));
-
 		assertAction(DiscardAction.class, r);
 	}
 
@@ -458,10 +447,9 @@ public class SieveWriterTests {
 
 	@Test
 	public void nullOrEmptyForward() throws Exception {
-		MailFilter.Rule rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.criteria = "FROM:IS: sid@pinkfloyd.net";
-		rule.deliver = "test";
+		MailFilterRule rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("from", "sid@pinkfloyd.net"));
+		rule.addMove("test");
 		assertFalse(writer.generateSieveScript(Type.USER, mbox, null, getTestDomain(), MailFilter.create(rule))
 				.contains("redirect"));
 
@@ -474,39 +462,37 @@ public class SieveWriterTests {
 
 	@Test
 	public void testDeliver() throws Exception {
-		MailFilter.Rule rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.criteria = "FROM:IS: david.gilmour@pinkfloyd.net";
-		rule.deliver = "test";
+		MailFilterRule rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("from", "david.gilmour@pinkfloyd.net"));
+		rule.addMove("test");
+
 		assertTrue(writer.generateSieveScript(Type.USER, mbox, null, getTestDomain(), MailFilter.create(rule))
 				.contains("fileinto \"test\""));
 
-		rule.deliver = null;
+		rule.removeAction(MailFilterRuleActionName.MOVE);
 		assertFalse(writer.generateSieveScript(Type.USER, mbox, null, getTestDomain(), MailFilter.create(rule))
 				.contains("fileinto \"\""));
 
-		rule.deliver = "";
+		rule.addMove("");
 		assertFalse(writer.generateSieveScript(Type.USER, mbox, null, getTestDomain(), MailFilter.create(rule))
 				.contains("fileinto \"\""));
 
-		rule.deliver = "   ";
+		rule.addMove("  ");
 		assertFalse(writer.generateSieveScript(Type.USER, mbox, null, getTestDomain(), MailFilter.create(rule))
 				.contains("fileinto \"\""));
 
 	}
 
 	@Test
-	public void testMailForwardLocalCopy() throws Exception {
-		MailFilter.Rule rule = new MailFilter.Rule();
-		rule.active = true;
-		rule.criteria = "SUBJECT:IS: fwd";
-		rule.forward.localCopy = true;
-		rule.forward.emails.add("fwd@bm.com");
+	public void testMailRedirectLocalCopy() throws Exception {
+		MailFilterRule rule = new MailFilterRule();
+		rule.conditions.add(MailFilterRuleCondition.equal("subject", "fwd"));
+		rule.addRedirect(Arrays.asList("fwd@bm.com"), true);
 
 		String s = writer.generateSieveScript(Type.USER, mbox, null, getTestDomain(), MailFilter.create(rule));
 		assertTrue(s.contains("redirect :copy \"fwd@bm.com\";"));
 
-		rule.forward.localCopy = false;
+		rule.addRedirect(Arrays.asList("fwd@bm.com"), false);
 		s = writer.generateSieveScript(Type.USER, mbox, null, getTestDomain(), MailFilter.create(rule));
 		assertTrue(s.contains("redirect  \"fwd@bm.com\";"));
 	}
