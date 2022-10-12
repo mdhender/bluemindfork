@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import io.netty.buffer.ByteBuf;
+import net.bluemind.imap.endpoint.parsing.Part;
 import net.bluemind.imap.endpoint.parsing.Part.Type;
 
 public abstract class AnalyzedCommand {
@@ -59,7 +60,7 @@ public abstract class AnalyzedCommand {
 
 		FlatCommand flat = new FlatCommand();
 		flat.fullCmd = justCmd;
-		flat.literals = raw.parts().stream().filter(p -> p.type() == Type.LITERAL_CHUNK).map(p -> p.buffer())
+		flat.literals = raw.parts().stream().filter(p -> p.type() == Type.LITERAL_CHUNK).map(Part::buffer)
 				.toArray(ByteBuf[]::new);
 
 		if (expandSmallAttoms) {
