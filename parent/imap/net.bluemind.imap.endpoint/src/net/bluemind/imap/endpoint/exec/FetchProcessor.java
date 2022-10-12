@@ -47,6 +47,7 @@ public class FetchProcessor extends SelectedStateCommandProcessor<FetchCommand> 
 			ctx.write(command.raw().tag() + " OK Completed\r\n");
 			completed.handle(Result.success());
 		}).exceptionally(t -> {
+			ctx.write(command.raw().tag() + " NO unknown error: " + t.getMessage() + "\r\n");
 			completed.handle(Result.fail(t));
 			return null;
 		});
