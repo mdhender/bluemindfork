@@ -20,8 +20,6 @@ function matchManageSmimeKeyRoute({ url }) {
 
 async function hasCryptoFilesHandler() {
     const has = await SmimeDB.hasCryptoFiles();
-    console.log(has);
-    console.log();
     return new Response(JSON.stringify(has));
 }
 

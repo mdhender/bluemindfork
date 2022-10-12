@@ -1,13 +1,13 @@
 <template>
-    <div v-if="isSWAvailable" class="pref-smime">
+    <div v-if="IS_SW_AVAILABLE" class="pref-smime">
         <bm-spinner v-if="loading" />
         <div v-else-if="swError">
             {{ $t("preferences.mail.security.smime.service_worker_error") }}
         </div>
         <template v-else>
-            <img :src="isAssociated ? setKeyIllustration : unsetKeyIllustration" class="mr-5" />
+            <img :src="SMIME_AVAILABLE ? setKeyIllustration : unsetKeyIllustration" class="mr-5" />
             <div class="d-inline-block align-middle">
-                <template v-if="isAssociated">
+                <template v-if="SMIME_AVAILABLE">
                     <bm-label-icon icon="check-circle" icon-size="lg">
                         {{ $t("preferences.mail.security.smime.cert_and_key_associated.label") }}
                     </bm-label-icon>
@@ -24,85 +24,40 @@
                 </template>
             </div>
         </template>
-        <import-smime-key-modal ref="import-modal" @key-set="onKeySet" />
+        <import-smime-key-modal ref="import-modal" />
     </div>
     <div v-else>{{ $t("preferences.mail.security.smime.no_service_worker") }}</div>
 </template>
 
 <script>
+import { mapGetters, mapState } from "vuex";
 import { BmButton, BmIcon, BmLabelIcon, BmSpinner } from "@bluemind/styleguide";
+import { CHECK_IF_ASSOCIATED, DISSOCIATE_CRYPTO_FILES } from "../store/actionTypes";
+import { SMIME_AVAILABLE } from "../store/getterTypes";
+import { IS_SW_AVAILABLE } from "../helper";
 import ImportSmimeKeyModal from "./ImportSmimeKeyModal";
 import unsetKeyIllustration from "../../assets/setting-encryption-key-unset.png";
 import setKeyIllustration from "../../assets/setting-encryption-key-set.png";
-
-// FIXME: with service-worker global env
-const SW_INTERNAL_API_PATH = "/service-worker-internal/";
 
 export default {
     name: "PrefSmime",
     components: { BmButton, BmIcon, BmLabelIcon, BmSpinner, ImportSmimeKeyModal },
     data() {
-        return {
-            isSWAvailable: navigator.serviceWorker?.controller,
-            swError: false,
-            loading: true,
-            isPrivateKeyAssociated: false,
-            isPublicCertificateAssociated: false,
-            setKeyIllustration,
-            unsetKeyIllustration
-        };
+        return { IS_SW_AVAILABLE, setKeyIllustration, unsetKeyIllustration };
     },
     computed: {
-        isAssociated() {
-            return this.isPublicCertificateAssociated && this.isPrivateKeyAssociated;
-        }
+        ...mapState("smime", ["hasPrivateKey", "hasPublicCert", "loading", "swError"]),
+        ...mapGetters("smime", [SMIME_AVAILABLE])
     },
     mounted() {
-        if (this.isSWAvailable) {
-            this.hasPkcs12();
-        }
+        this.$store.dispatch("smime/" + CHECK_IF_ASSOCIATED);
     },
     methods: {
-        async hasPkcs12() {
-            this.loading = true;
-            try {
-                const url = new URL(SW_INTERNAL_API_PATH + "smime", self.location.origin);
-                const options = { method: "GET" };
-                const response = await fetch(url, options);
-                const json = await response.json();
-                this.isPrivateKeyAssociated = json.privateKey;
-                this.isPublicCertificateAssociated = json.publicCert;
-                this.swError = false;
-            } catch (e) {
-                this.swError = true;
-            } finally {
-                this.loading = false;
-            }
-        },
-        onKeySet({ isSet, kind }) {
-            if (isSet && kind === "privateKey") {
-                this.isPrivateKeyAssociated = true;
-            } else if (isSet && kind === "publicCert") {
-                this.isPublicCertificateAssociated = true;
-            }
-        },
         openUploadModal() {
-            this.$refs["import-modal"].open(this.isPrivateKeyAssociated, this.isPublicCertificateAssociated);
+            this.$refs["import-modal"].open();
         },
-        async dissociate() {
-            this.loading = true;
-            try {
-                const url = new URL(SW_INTERNAL_API_PATH + "smime", self.location.origin);
-                const options = { method: "DELETE" };
-                await fetch(url, options);
-                this.isPrivateKeyAssociated = false;
-                this.isPublicCertificateAssociated = false;
-                this.swError = false;
-            } catch {
-                this.swError = true;
-            } finally {
-                this.loading = false;
-            }
+        dissociate() {
+            this.$store.dispatch("smime/" + DISSOCIATE_CRYPTO_FILES);
         }
     }
 };

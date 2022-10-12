@@ -1,6 +1,8 @@
 import Vue from "vue";
+import { mapExtensions } from "@bluemind/extensions";
 import { inject } from "@bluemind/inject";
 
+// FIXME: default values should be an optional "default" property in field definition
 const newWebmailDefaultSettings = {
     always_show_from: "false",
     always_show_quota: "false",
@@ -19,7 +21,19 @@ const otherDefaultSettings = {
     default_event_alert_mode: "Display"
 };
 
-const defaultSettings = { ...newWebmailDefaultSettings, ...otherDefaultSettings };
+function extendedDefaultSettings() {
+    const extensions = mapExtensions("webapp.preferences", ["settingDefaultValues"]).settingDefaultValues;
+    if (extensions.length > 0) {
+        const extended = extensions[0];
+        // FIXME
+        delete extended.$id;
+        delete extended.$loaded;
+        return extended;
+    }
+    return {};
+}
+
+const defaultSettings = { ...newWebmailDefaultSettings, ...otherDefaultSettings, ...extendedDefaultSettings() };
 
 const state = {};
 

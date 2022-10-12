@@ -1,0 +1,4 @@
+export const SET_LOADING = "SET_LOADING";
+export const SET_SW_ERROR = "SET_SW_ERROR";
+export const SET_HAS_PRIVATE_KEY = "SET_HAS_PRIVATE_KEY";
+export const SET_HAS_PUBLIC_CERT = "SET_HAS_PUBLIC_CERT";

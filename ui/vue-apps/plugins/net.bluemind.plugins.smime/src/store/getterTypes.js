@@ -1,0 +1,1 @@
+export const SMIME_AVAILABLE = "SMIME_AVAILABLE";

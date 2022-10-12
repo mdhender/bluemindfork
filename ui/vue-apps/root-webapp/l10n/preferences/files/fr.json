@@ -150,7 +150,7 @@
     "preferences.mail.security.smime.certificate_associated.button": "Associer",
     "preferences.mail.security.smime.import_certificate_modal.title": "Importer ma clef privée et mon certificat public",
     "preferences.mail.security.smime.import_certificate_modal.label": "Déposer vos fichiers",
-    "preferences.mail.security.smime.import_certificate_modal.unsupported_file_type": "Ce format de fichier n'est pas supporté : {type}.",
+    "preferences.mail.security.smime.import_certificate_modal.unsupported_file_type": "Ce format de fichier n'est pas supporté.",
     "preferences.mail.security.smime.import_certificate_modal.supported_formats": "Formats supportés : PKCS#8 pour la clef privée et PEM pour le certificat public",
     "preferences.mail.security.smime.import_certificate_modal.private_key_associated": "Votre clef privée est associée.",
     "preferences.mail.security.smime.import_certificate_modal.private_key_disassociated": "Votre clef privée n'est pas associée.",

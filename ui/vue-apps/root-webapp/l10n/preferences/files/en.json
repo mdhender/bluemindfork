@@ -150,7 +150,7 @@
     "preferences.mail.security.smime.certificate_associated.button": "Associate a personal certificate",
     "preferences.mail.security.smime.import_certificate_modal.title": "Import a certificate",
     "preferences.mail.security.smime.import_certificate_modal.label": "Submit your certificate",
-    "preferences.mail.security.smime.import_certificate_modal.unsupported_file_type": "This file format is not supported: {type}.",
+    "preferences.mail.security.smime.import_certificate_modal.unsupported_file_type": "This file format is not supported.",
     "preferences.mail.security.smime.import_certificate_modal.supported_formats": "Supported formats: PKCS#8 and PKCS#12",
     "preferences.mail.security.smime.service_worker_error": "Synchronization error...",
     "preferences.mail.filters_category": "Filters",

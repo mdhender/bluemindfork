@@ -1,18 +1,13 @@
 <template>
-    <bm-modal
-        v-model="show"
-        centered
-        :title="$t('preferences.mail.security.smime.import_certificate_modal.title')"
-        @hidden="$emit('hidden')"
-    >
-        <bm-label-icon v-if="!isPrivateKeyAssociated || !isPublicCertificateAssociated" class="mb-3" icon="info-circle">
+    <bm-modal v-model="show" centered :title="$t('preferences.mail.security.smime.import_certificate_modal.title')">
+        <bm-label-icon v-if="!SMIME_AVAILABLE" class="mb-3" icon="info-circle">
             {{ $t("preferences.mail.security.smime.import_certificate_modal.supported_formats") }}
         </bm-label-icon>
         <bm-label-icon v-if="invalidFile" class="text-danger mb-3" icon="exclamation-circle-fill">
             {{ $t("preferences.mail.security.smime.import_certificate_modal.unsupported_file_type") }}
         </bm-label-icon>
         <bm-file-drop-zone
-            v-if="!isPrivateKeyAssociated || !isPublicCertificateAssociated"
+            v-if="!SMIME_AVAILABLE"
             :should-activate-fn="shouldActivate"
             always-show-dropzone
             class="mt-4"
@@ -34,13 +29,13 @@
             {{ $t("common.import_error") }}
         </div>
         <div class="mt-6">
-            <bm-label-icon v-if="isPrivateKeyAssociated" class="text-success" icon="check-circle">
+            <bm-label-icon v-if="hasPrivateKey" class="text-success" icon="check-circle">
                 {{ $t("preferences.mail.security.smime.import_certificate_modal.private_key_associated") }}
             </bm-label-icon>
             <bm-label-icon v-else class="text-danger" icon="exclamation-circle">
                 {{ $t("preferences.mail.security.smime.import_certificate_modal.private_key_disassociated") }}
             </bm-label-icon>
-            <bm-label-icon v-if="isPublicCertificateAssociated" class="text-success mt-4" icon="check-circle">
+            <bm-label-icon v-if="hasPublicCert" class="text-success mt-4" icon="check-circle">
                 {{ $t("preferences.mail.security.smime.import_certificate_modal.pub_cert_associated") }}
             </bm-label-icon>
             <bm-label-icon v-else class="text-danger mt-4" icon="exclamation-circle">
@@ -60,8 +55,11 @@
 </template>
 
 <script>
+import { mapGetters, mapMutations, mapState } from "vuex";
 import { MimeType } from "@bluemind/email";
 import { BmButton, BmFileDropZone, BmIcon, BmLabelIcon, BmModal, BmSpinner } from "@bluemind/styleguide";
+import { SMIME_AVAILABLE } from "../store/getterTypes";
+import { SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "../store/mutationTypes";
 
 // FIXME: with service-worker global env
 const SW_INTERNAL_API_PATH = "/service-worker-internal/";
@@ -74,15 +72,16 @@ export default {
             show: false,
             allowedFileTypes: [MimeType.PKCS_8, MimeType.CRYPTO_CERT],
             uploadStatus: "IDLE",
-            invalidFile: false,
-            isPrivateKeyAssociated: false,
-            isPublicCertificateAssociated: false
+            invalidFile: false
         };
     },
+    computed: {
+        ...mapState("smime", ["hasPrivateKey", "hasPublicCert"]),
+        ...mapGetters("smime", [SMIME_AVAILABLE])
+    },
     methods: {
-        async open(privateKey, publicCert) {
-            this.isPrivateKeyAssociated = privateKey;
-            this.isPublicCertificateAssociated = publicCert;
+        ...mapMutations("smime", { SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT }),
+        open() {
             this.uploadStatus = "IDLE";
             this.show = true;
         },
@@ -108,16 +107,10 @@ export default {
                     body: file
                 };
                 await fetch(url, options);
-                if (kind === "privateKey") {
-                    this.isPrivateKeyAssociated = true;
-                } else {
-                    this.isPublicCertificateAssociated = true;
-                }
+                kind === "privateKey" ? this.SET_HAS_PRIVATE_KEY(true) : this.SET_HAS_PUBLIC_CERT(true);
                 this.uploadStatus = "IDLE";
             } catch {
                 this.uploadStatus = "ERROR";
-            } finally {
-                this.$emit("key-set", { isSet: this.uploadStatus === "IDLE", kind });
             }
         },
         shouldActivate(event) {
