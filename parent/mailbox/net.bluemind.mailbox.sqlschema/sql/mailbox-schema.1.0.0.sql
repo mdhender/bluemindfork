@@ -8,7 +8,6 @@ create type enum_mailbox_routing as enum
 create table t_mailbox (
 	item_id 	  bigint references t_container_item(id) on delete cascade primary key,
 	name 		  text not null,
-
 	type		  enum_mailbox_type not null,
 	system		  boolean default false,
 	hidden		  boolean default false,
@@ -31,17 +30,26 @@ CREATE INDEX idx_mailbox_email_right_address ON t_mailbox_email(right_address);
 CREATE INDEX idx_mailbox_email_all_aliases ON t_mailbox_email(all_aliases);
 CREATE INDEX idx_mailbox_email_full_address ON t_mailbox_email ((left_address||'@'||right_address));
 
+CREATE TYPE enum_mailbox_rule_trigger AS ENUM (
+    'IN',
+    'OUT'
+);
+
+CREATE TYPE enum_mailbox_rule_type AS ENUM (
+    'GENERIC',
+    'FORWARD',
+    'VACATION'
+);
+
 CREATE TABLE t_domainmailfilter_rule (
     container_id		int4 references t_container(id),
     name text,
-    criteria 	text NOT NULL,
-    star 		boolean NOT NULL,
-    mark_read 	boolean NOT NULL,
-    delete_it 	boolean NOT NULL,
-    forward 	character varying(255),
-    forward_with_copy boolean DEFAULT false,
-    deliver 	character varying(255),
-    discard 	boolean DEFAULT false NOT NULL,
+    client text,
+    type enum_mailbox_rule_type DEFAULT 'GENERIC'::enum_mailbox_rule_type NOT NULL,
+    trigger enum_mailbox_rule_trigger DEFAULT 'IN'::enum_mailbox_rule_trigger NOT NULL,
+    deferred_action BOOLEAN DEFAULT FALSE NOT NULL,
+    conditions JSONB DEFAULT '[]'::jsonb NOT NULL,
+    actions JSONB DEFAULT '[]'::jsonb NOT NULL,
     row_idx 	integer DEFAULT 0 NOT NULL,
     active		boolean DEFAULT true,
     stop      boolean DEFAULT true
@@ -51,14 +59,12 @@ CREATE INDEX idx_domainfilter_rule_item_id ON t_domainmailfilter_rule(container_
 CREATE TABLE t_mailfilter_rule (
     item_id		bigint references t_container_item(id) on delete cascade,
     name text,
-    criteria 	text NOT NULL,
-    star 		boolean NOT NULL,
-    mark_read 	boolean NOT NULL,
-    delete_it 	boolean NOT NULL,
-    forward 	character varying(255),
-    forward_with_copy boolean DEFAULT false,
-    deliver 	character varying(255),
-    discard 	boolean DEFAULT false NOT NULL,
+    client text,
+    type enum_mailbox_rule_type DEFAULT 'GENERIC'::enum_mailbox_rule_type NOT NULL,
+    trigger enum_mailbox_rule_trigger DEFAULT 'IN'::enum_mailbox_rule_trigger NOT NULL,
+    deferred_action BOOLEAN DEFAULT FALSE NOT NULL,
+    conditions JSONB DEFAULT '[]'::jsonb NOT NULL,
+    actions JSONB DEFAULT '[]'::jsonb NOT NULL,
     row_idx 	integer DEFAULT 0 NOT NULL,
     active		boolean DEFAULT true,
     stop      boolean DEFAULT true
