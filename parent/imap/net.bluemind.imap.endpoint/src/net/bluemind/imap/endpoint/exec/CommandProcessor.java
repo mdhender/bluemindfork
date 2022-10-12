@@ -29,7 +29,13 @@ public interface CommandProcessor<T extends AnalyzedCommand> {
 	default void process(AnalyzedCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		Class<T> type = handledType();
 		T casted = type.cast(command);
-		operation(casted, ctx, completed);
+		try {
+			operation(casted, ctx, completed);
+		} catch (Exception e) {
+			// Uncatched exception: always respond
+			ctx.write(command.raw().tag() + " NO unknown error: " + e.getMessage() + "\r\n");
+			throw e;
+		}
 	}
 
 	void operation(T command, ImapContext ctx, Handler<AsyncResult<Void>> completed);
