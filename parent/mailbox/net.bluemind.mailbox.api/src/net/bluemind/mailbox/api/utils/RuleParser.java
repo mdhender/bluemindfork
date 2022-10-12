@@ -53,21 +53,21 @@ public class RuleParser {
 			handler.exists(field);
 		} else if (filter.operator == MailFilterRuleOperatorName.EXISTS && condition.negate) {
 			handler.doesnotExist(field);
-		} else if (filter.operator == MailFilterRuleOperatorName.EQUALS && !condition.negate) {
+		} else if (filter.operator == MailFilterRuleOperatorName.EQUALS) {
 			String value = firstValue(((MailFilterRuleFilterEquals) filter).values, "");
 			if (!condition.negate) {
 				handler.is(field, value);
 			} else {
 				handler.isNot(field, value);
 			}
-		} else if (filter.operator == MailFilterRuleOperatorName.CONTAINS && !condition.negate) {
+		} else if (filter.operator == MailFilterRuleOperatorName.CONTAINS) {
 			String value = firstValue(((MailFilterRuleFilterContains) filter).values, "");
 			if (!condition.negate) {
 				handler.contains(field, value);
 			} else {
 				handler.doesnotContain(field, value);
 			}
-		} else if (filter.operator == MailFilterRuleOperatorName.MATCHES && !condition.negate) {
+		} else if (filter.operator == MailFilterRuleOperatorName.MATCHES) {
 			String value = firstValue(((MailFilterRuleFilterMatches) filter).values, "");
 			if (!condition.negate) {
 				handler.matches(field, value);

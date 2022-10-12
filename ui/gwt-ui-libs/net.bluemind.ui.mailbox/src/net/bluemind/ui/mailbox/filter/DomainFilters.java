@@ -18,6 +18,8 @@
  */
 package net.bluemind.ui.mailbox.filter;
 
+import java.util.stream.Collectors;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -41,6 +43,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.mailbox.api.IMailboxesAsync;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.gwt.endpoint.MailboxesGwtEndpoint;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.ui.mailbox.filter.SieveEdit.Resources;
 import net.bluemind.ui.mailbox.filter.SieveEdit.Style;
 
@@ -114,36 +117,27 @@ public class DomainFilters extends CompositeGwtWidgetElement {
 
 	protected void loadFilter(MailFilter value) {
 		filters.removeAllRows();
-		for (MailFilter.Rule f : value.rules) {
-			addFilter(f);
-		}
+		value.rules.forEach(this::addFilter);
 	}
 
-	private void addFilter(MailFilter.Rule f) {
-
-		MailFilter.Rule copy = MailFilter.Rule.copy(f);
+	private void addFilter(MailFilterRule rule) {
+		MailFilterRule copy = MailFilterRule.copy(rule);
 		int row = filters.getRowCount();
 		createSieveFilterRow(copy, row);
 	}
 
-	private void createSieveFilterRow(final MailFilter.Rule filter, int row) {
-		final MailFilter.Rule sf = filter;
+	private void createSieveFilterRow(final MailFilterRule rule, int row) {
+		final MailFilterRule sf = rule;
 
 		SieveCriteriaLabelBuilder criteriaLabelBuilder = new SieveCriteriaLabelBuilder(s, constants);
-		FlexTable criteria = criteriaLabelBuilder.buildCriteria(filter);
+		FlexTable criteria = criteriaLabelBuilder.buildCriteria(rule);
 
 		FlowPanel actionsFP = new FlowPanel();
-		if (sf.read) {
-			actionsFP.add(new Label(constants.markAsRead()));
-		}
-		if (sf.star) {
-			actionsFP.add(new Label(constants.markAsImportant()));
-		}
-		if (sf.discard) {
-			actionsFP.add(new Label(constants.discard()));
-		}
-		if (sf.deliver != null && !sf.deliver.equals("")) {
-			String target = sf.deliver.toLowerCase();
+		rule.markAsRead().ifPresent(markAsRead -> actionsFP.add(new Label(constants.markAsRead())));
+		rule.markAsImportant().ifPresent(markAsImportant -> actionsFP.add(new Label(constants.markAsImportant())));
+		rule.discard().ifPresent(discard -> actionsFP.add(new Label(constants.discard())));
+		rule.move().ifPresent(move -> {
+			String target = move.folder().toLowerCase();
 			if (target.equalsIgnoreCase("inbox")) {
 				target = constants.inbox();
 			} else if (target.equalsIgnoreCase("sent")) {
@@ -157,35 +151,27 @@ public class DomainFilters extends CompositeGwtWidgetElement {
 			}
 
 			actionsFP.add(new Label(constants.moveTo() + ": " + target));
-		}
-		if (sf.forward != null && !sf.forward.emails.isEmpty()) {
-			String forwardTo = "";
-			for (String e : sf.forward.emails) {
-				if (!forwardTo.isEmpty()) {
-					forwardTo += ", ";
-				}
-
-				forwardTo += e;
-			}
+		});
+		sf.redirect().ifPresent(redirect -> {
+			String forwardTo = redirect.emails().stream().collect(Collectors.joining(", "));
 			String l = constants.forwardTo() + ": " + forwardTo;
-			if (sf.forward.localCopy) {
+			if (redirect.keepCopy()) {
 				l += " (" + constants.forwardToWithLocalCopy() + ")";
 			}
-
 			actionsFP.add(new Label(l));
-		}
+		});
 
 		filters.setWidget(row, 0, criteria);
 		filters.setWidget(row, 1, actionsFP);
 
 		CheckBox activeCb = new CheckBox();
-		activeCb.setValue(filter.active);
+		activeCb.setValue(rule.active);
 		activeCb.setEnabled(false);
 		activeCb.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event) {
-				filter.active = event.getValue();
+				rule.active = event.getValue();
 			}
 		});
 		filters.setWidget(row, 2, activeCb);

@@ -13,5 +13,7 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:
  net.bluemind.restbus.api.gwt;bundle-version="4.1.0";visibility:=reexport
 Export-Package: net.bluemind.mailbox.api.gwt.endpoint,
  net.bluemind.mailbox.api.gwt.serder,
- net.bluemind.mailbox.api.gwt.js
+ net.bluemind.mailbox.api.gwt.js,
+ net.bluemind.mailbox.api.rules.gwt.js,
+ net.bluemind.mailbox.api.rules.gwt.serder
 Automatic-Module-Name: net.bluemind.mailbox.api.gwt

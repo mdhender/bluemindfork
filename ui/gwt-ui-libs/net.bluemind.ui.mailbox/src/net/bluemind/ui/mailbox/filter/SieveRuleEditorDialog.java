@@ -1,6 +1,9 @@
 package net.bluemind.ui.mailbox.filter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -36,8 +39,8 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.IDirectoryPromise;
 import net.bluemind.directory.api.gwt.endpoint.DirectoryGwtEndpoint;
-import net.bluemind.mailbox.api.MailFilter;
-import net.bluemind.mailbox.api.MailFilter.Forwarding;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
 import net.bluemind.mailbox.api.utils.RuleHandler;
 import net.bluemind.mailbox.api.utils.RuleParser;
 import net.bluemind.ui.common.client.forms.Ajax;
@@ -84,7 +87,7 @@ public class SieveRuleEditorDialog extends Composite {
 	}
 
 	interface DialogHandler {
-		public void validate(MailFilter.Rule value);
+		public void validate(MailFilterRule value);
 
 		public void cancel();
 	}
@@ -100,7 +103,7 @@ public class SieveRuleEditorDialog extends Composite {
 	private static final DialogHandler EMPTY_HANDLER = new DialogHandler() {
 
 		@Override
-		public void validate(MailFilter.Rule value) {
+		public void validate(MailFilterRule value) {
 
 		}
 
@@ -205,13 +208,13 @@ public class SieveRuleEditorDialog extends Composite {
 
 	private DialogHandler handler;
 
-	private MailFilter.Rule value;
+	private MailFilterRule value;
 
 	private Button okButton;
 
 	private String domainUid;
 
-	public static void openRuleEditor(String domainUid, MailFilter.Rule value, final DialogHandler handler,
+	public static void openRuleEditor(String domainUid, MailFilterRule value, final DialogHandler handler,
 			String entity, int entityId, String mbox, String datalocation) {
 		final SieveRuleEditorDialog dialog = new SieveRuleEditorDialog(domainUid, entity, entityId, mbox, datalocation);
 
@@ -231,7 +234,7 @@ public class SieveRuleEditorDialog extends Composite {
 		dialog.setHandler(new DialogHandler() {
 
 			@Override
-			public void validate(MailFilter.Rule value) {
+			public void validate(MailFilterRule value) {
 				os.hide();
 				handler.validate(value);
 
@@ -396,12 +399,9 @@ public class SieveRuleEditorDialog extends Composite {
 			CompletableFuture<Void> mfFuture = addMyFolders(futures);
 			addOtherFolders(futures);
 
-			CompletableFuture.allOf(mfFuture).thenAccept(o -> {
-				moveTo.setSelectedIndex(getItemByValue(moveTo, value.deliver));
-			});
-
+			CompletableFuture.allOf(mfFuture).thenAccept(o -> value.move()
+					.ifPresent(move -> moveTo.setSelectedIndex(getItemByValue(moveTo, move.folder()))));
 		}
-
 	}
 
 	private void addOtherFolders(List<CompletableFuture<Void>> futures) {
@@ -533,7 +533,7 @@ public class SieveRuleEditorDialog extends Composite {
 		filterFormTitle.setText(constants.newFilter());
 	}
 
-	public void setValue(MailFilter.Rule value) {
+	public void setValue(MailFilterRule value) {
 		resetForm();
 		this.value = value;
 		filterFormTitle.setText(constants.modifyFilter());
@@ -613,87 +613,110 @@ public class SieveRuleEditorDialog extends Composite {
 
 		});
 
-		cbDiscard.setValue(value.discard);
-		cbMarkAsRead.setValue(value.read);
-		cbMarkAsImportant.setValue(value.star);
+		cbDiscard.setValue(value.discard().isPresent());
+		cbMarkAsRead.setValue(value.markAsRead().isPresent());
+		cbMarkAsImportant.setValue(value.markAsImportant().isPresent());
 
-		if (value.forward != null && !value.forward.emails.isEmpty()) {
+		value.redirect().ifPresent(redirect -> {
 			cbForwardTo.setValue(Boolean.TRUE);
-
-			forwardTo.setRecipients(value.forward.emails);
+			forwardTo.setRecipients(new HashSet<>(redirect.emails()));
 			forwardTo.setEnabled(true);
-
-			lbForwardToLocalCopy.setSelectedIndex(value.forward.localCopy ? 0 : 1);
+			lbForwardToLocalCopy.setSelectedIndex(redirect.keepCopy() ? 0 : 1);
 			lbForwardToLocalCopy.setEnabled(true);
-		}
+		});
 
-		if (value.deliver != null && !value.deliver.isEmpty()) {
+		value.move().ifPresent(move -> {
 			cbMoveTo.setValue(Boolean.TRUE);
 			moveTo.setEnabled(true);
-			moveTo.setSelectedIndex(getItemByValue(moveTo, value.deliver));
-		}
+			moveTo.setSelectedIndex(getItemByValue(moveTo, move.folder()));
+		});
 		checkForm();
 	}
 
-	public MailFilter.Rule getValue() {
+	public MailFilterRule getValue() {
 
-		MailFilter.Rule sf = new MailFilter.Rule();
-
-		StringBuilder criteriaSB = new StringBuilder();
+		MailFilterRule rule = new MailFilterRule();
+		rule.client = "bluemind";
 
 		String fromValue = from.getValue().trim();
 		if (!fromValue.isEmpty()) {
 			String matchType = fromMatchType.getValue(fromMatchType.getSelectedIndex());
-			criteriaSB.append("FROM:" + matchType + ": " + fromValue + "\n");
+			rule.conditions.add(condition(matchType, fromValue, "from.email"));
 		}
 
 		String toValue = to.getValue().trim();
 		if (!toValue.isEmpty()) {
 			String matchType = toMatchType.getValue(toMatchType.getSelectedIndex());
-			criteriaSB.append("TO:" + matchType + ": " + toValue + "\n");
+			rule.conditions.add(condition(matchType, toValue, "to.email", "cc.email"));
 		}
 
 		String subjectValue = subject.getValue().trim();
 		if (!subjectValue.isEmpty()) {
 			String matchType = subjectMatchType.getValue(subjectMatchType.getSelectedIndex());
-			criteriaSB.append("SUBJECT:" + matchType + ": " + subjectValue + "\n");
+			rule.conditions.add(condition(matchType, subjectValue, "subject"));
 		}
 
 		String bodyValue = body.getValue().trim();
 		if (!bodyValue.isEmpty()) {
 			String matchType = bodyMatchType.getValue(bodyMatchType.getSelectedIndex());
-			criteriaSB.append("BODY:" + matchType + ": " + bodyValue + "\n");
+			rule.conditions.add(condition(matchType, bodyValue, "part.content"));
 		}
 
 		String customHeader = header.getValue().trim();
 		String customHeaderValue = headerValue.getValue().trim();
 		if (!customHeader.isEmpty()) {
 			String matchType = headerMatchType.getValue(headerMatchType.getSelectedIndex());
-			criteriaSB.append(customHeader + ":" + matchType + ": " + customHeaderValue + "\n");
+			rule.conditions.add(condition(matchType, customHeaderValue, "headers." + customHeader));
 		}
-
-		sf.criteria = criteriaSB.toString();
 
 		if (cbMarkAsRead.getValue()) {
-			sf.read = true;
+			rule.addMarkAsRead();
 		}
 		if (cbMarkAsImportant.getValue()) {
-			sf.star = true;
+			rule.addMarkAsImportant();
 		}
 		if (cbDiscard.getValue()) {
-			sf.discard = true;
+			rule.addDiscard();
 		}
 		if (cbMoveTo.getValue()) {
-			sf.deliver = moveTo.getValue(moveTo.getSelectedIndex());
+			rule.addMove(moveTo.getValue(moveTo.getSelectedIndex()));
 		}
 
 		if (cbForwardTo.getValue()) {
-			sf.forward = new Forwarding();
-			sf.forward.emails.addAll(forwardTo.getRecipients());
-			sf.forward.localCopy = lbForwardToLocalCopy.getSelectedValue().equals("copy");
+			boolean keepCopy = lbForwardToLocalCopy.getSelectedValue().equals("copy");
+			rule.addRedirect(new ArrayList<>(forwardTo.getRecipients()), keepCopy);
 		}
-		sf.active = value.active;
-		return sf;
+		rule.active = value.active;
+		return rule;
+	}
+
+	private MailFilterRuleCondition condition(String matchType, String value, String... fields) {
+		List<String> parameters = value.isEmpty() ? Collections.emptyList() : Arrays.asList(value);
+		MailFilterRuleCondition condition = condition(matchType, Arrays.asList(fields), parameters);
+		return (isException(matchType)) ? condition.not() : condition;
+	}
+
+	private MailFilterRuleCondition condition(String matchType, List<String> fields, List<String> parameters) {
+		switch (matchType) {
+		case "EXISTS":
+		case "DOESNOTEXISTS":
+			return MailFilterRuleCondition.exists(fields);
+		case "IS":
+		case "ISNOT":
+			return MailFilterRuleCondition.equal(fields, parameters);
+		case "CONTAINS":
+		case "DOESNOTCONTAIN":
+			return MailFilterRuleCondition.contains(fields, parameters);
+		case "MATCHES":
+		case "DOESNOTMATCH":
+			return MailFilterRuleCondition.matches(fields, parameters);
+		default:
+			return null;
+		}
+	}
+
+	private boolean isException(String matchType) {
+		return matchType.startsWith("DOESNOT") || matchType.endsWith("NOT");
 	}
 
 	private int getItemByValue(ListBox listBox, String value) {

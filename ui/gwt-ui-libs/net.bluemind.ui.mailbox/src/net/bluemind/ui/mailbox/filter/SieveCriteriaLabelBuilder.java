@@ -21,7 +21,7 @@ package net.bluemind.ui.mailbox.filter;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
 
-import net.bluemind.mailbox.api.MailFilter;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.mailbox.api.utils.RuleHandler;
 import net.bluemind.mailbox.api.utils.RuleParser;
 import net.bluemind.ui.mailbox.filter.SieveEdit.Style;
@@ -42,11 +42,11 @@ public class SieveCriteriaLabelBuilder {
 		this.constants = constants;
 	}
 
-	public FlexTable buildCriteria(MailFilter.Rule filter) {
+	public FlexTable buildCriteria(MailFilterRule rule) {
 
 		final FlexTable criteria = new FlexTable();
 		criteria.setStyleName(s.filterCriteria());
-		RuleParser.visit(filter, new RuleHandler() {
+		RuleParser.visit(rule, new RuleHandler() {
 
 			@Override
 			public void matches(String field, String value) {

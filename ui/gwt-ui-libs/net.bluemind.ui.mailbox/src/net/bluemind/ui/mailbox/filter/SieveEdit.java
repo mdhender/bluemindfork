@@ -20,6 +20,7 @@ package net.bluemind.ui.mailbox.filter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -27,9 +28,7 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -48,15 +47,11 @@ import net.bluemind.gwtconsoleapp.base.editor.Ajax;
 import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.mailbox.api.MailFilter;
-import net.bluemind.mailbox.api.MailFilter.Rule;
-import net.bluemind.mailbox.api.gwt.js.JsMailFilterRule;
-import net.bluemind.mailbox.api.gwt.serder.MailFilterRuleGwtSerDer;
-import net.bluemind.mailshare.api.gwt.js.JsMailshare;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.gwt.js.JsMailFilterRule;
+import net.bluemind.mailbox.api.rules.gwt.serder.MailFilterRuleGwtSerDer;
 import net.bluemind.ui.common.client.icon.Trash;
-import net.bluemind.user.api.gwt.js.JsUser;
 
 public class SieveEdit extends CompositeGwtWidgetElement {
 	public static interface Resources extends ClientBundle {
@@ -99,8 +94,8 @@ public class SieveEdit extends CompositeGwtWidgetElement {
 	private static final SieveConstants constants = GWT.create(SieveConstants.class);
 	private static final Resources res = GWT.create(Resources.class);
 	private final Style s;
-	private List<MailFilter.Rule> sieveFilters;
-	private List<MailFilter.Rule> loadedFilters;
+	private List<MailFilterRule> sieveFilters;
+	private List<MailFilterRule> loadedFilters;
 
 	@UiField
 	Button addFilter;
@@ -120,7 +115,7 @@ public class SieveEdit extends CompositeGwtWidgetElement {
 	public SieveEdit() {
 		super();
 		sieveFilters = new ArrayList<>();
-		setLoadedFilters(new ArrayList<MailFilter.Rule>());
+		setLoadedFilters(new ArrayList<>());
 		initWidget(uiBinder.createAndBindUi(this));
 
 		filters.setVisible(false);
@@ -159,41 +154,32 @@ public class SieveEdit extends CompositeGwtWidgetElement {
 	}
 
 	private void setFormHandlers() {
-		addFilter.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				SieveRuleEditorDialog.openRuleEditor(domainUid, new MailFilter.Rule(),
-						new SieveRuleEditorDialog.DialogHandler() {
+		addFilter.addClickHandler((ClickEvent event) -> SieveRuleEditorDialog.openRuleEditor(domainUid,
+				new MailFilterRule(), new SieveRuleEditorDialog.DialogHandler() {
 
-							@Override
-							public void validate(final MailFilter.Rule value) {
-								addFilter(value);
-							}
+					@Override
+					public void validate(final MailFilterRule value) {
+						addFilter(value);
+					}
 
-							@Override
-							public void cancel() {
-							}
-						}, getEntity(), entityId, mbox, datalocation);
-
-			}
-		});
+					@Override
+					public void cancel() {
+					}
+				}, getEntity(), entityId, mbox, datalocation));
 
 	}
 
-	private void createSieveFilterRow(final MailFilter.Rule filter, int row) {
-		final MailFilter.Rule sf = filter;
+	private void createSieveFilterRow(final MailFilterRule rule, int row) {
+		final MailFilterRule sf = rule;
 		Trash trash = new Trash();
 		trash.setId("sieve-edit-trash-" + row);
 		trash.getElement().getStyle().setMarginLeft(0, Unit.PX);
-		trash.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				Cell c = filters.getCellForEvent(event);
-				filters.removeRow(c.getRowIndex());
-				sieveFilters.remove(sf);
-				if (filters.getRowCount() < 2) {
-					noFilterFound();
-				}
+		trash.addClickHandler((ClickEvent event) -> {
+			Cell c = filters.getCellForEvent(event);
+			filters.removeRow(c.getRowIndex());
+			sieveFilters.remove(sf);
+			if (filters.getRowCount() < 2) {
+				noFilterFound();
 			}
 		});
 
@@ -201,47 +187,36 @@ public class SieveEdit extends CompositeGwtWidgetElement {
 		editAnchor.setStyleName("fa fa-lg fa-pencil-square-o");
 		editAnchor.getElement().getStyle().setCursor(Cursor.POINTER);
 
-		editAnchor.addClickHandler(new ClickHandler() {
+		editAnchor.addClickHandler((ClickEvent event) -> {
+			Cell c = filters.getCellForEvent(event);
+			final int currentIndex = c.getRowIndex() - 1;
+			MailFilterRule copy = MailFilterRule.copy(sieveFilters.get(currentIndex));
 
-			@Override
-			public void onClick(ClickEvent event) {
-				Cell c = filters.getCellForEvent(event);
-				final int currentIndex = c.getRowIndex() - 1;
-				Rule copy = Rule.copy(sieveFilters.get(currentIndex));
+			SieveRuleEditorDialog.openRuleEditor(domainUid, copy, new SieveRuleEditorDialog.DialogHandler() {
 
-				SieveRuleEditorDialog.openRuleEditor(domainUid, copy, new SieveRuleEditorDialog.DialogHandler() {
+				@Override
+				public void validate(MailFilterRule value) {
+					sieveFilters.set(currentIndex, value);
+					filters.removeRow(currentIndex + 1);
+					filters.insertRow(currentIndex + 1);
+					createSieveFilterRow(value, currentIndex + 1);
+				}
 
-					@Override
-					public void validate(MailFilter.Rule value) {
-						sieveFilters.set(currentIndex, value);
-						filters.removeRow(currentIndex + 1);
-						filters.insertRow(currentIndex + 1);
-						createSieveFilterRow(value, currentIndex + 1);
-					}
-
-					@Override
-					public void cancel() {
-					}
-				}, getEntity(), entityId, mbox, datalocation);
-			}
-
+				@Override
+				public void cancel() {
+				}
+			}, getEntity(), entityId, mbox, datalocation);
 		});
 
 		SieveCriteriaLabelBuilder criteriaLabelBuilder = new SieveCriteriaLabelBuilder(s, constants);
-		FlexTable criteria = criteriaLabelBuilder.buildCriteria(filter);
+		FlexTable criteria = criteriaLabelBuilder.buildCriteria(rule);
 
 		FlowPanel actionsFP = new FlowPanel();
-		if (sf.read) {
-			actionsFP.add(new Label(constants.markAsRead()));
-		}
-		if (sf.star) {
-			actionsFP.add(new Label(constants.markAsImportant()));
-		}
-		if (sf.discard) {
-			actionsFP.add(new Label(constants.discard()));
-		}
-		if (sf.deliver != null && !sf.deliver.equals("")) {
-			String target = sf.deliver.toLowerCase();
+		rule.markAsRead().ifPresent(markAsRead -> actionsFP.add(new Label(constants.markAsRead())));
+		rule.markAsImportant().ifPresent(markAsImportant -> actionsFP.add(new Label(constants.markAsImportant())));
+		rule.discard().ifPresent(discard -> actionsFP.add(new Label(constants.discard())));
+		rule.move().ifPresent(move -> {
+			String target = move.folder().toLowerCase();
 			if (target.equalsIgnoreCase("inbox")) {
 				target = constants.inbox();
 			} else if (target.equalsIgnoreCase("sent")) {
@@ -255,24 +230,15 @@ public class SieveEdit extends CompositeGwtWidgetElement {
 			}
 
 			actionsFP.add(new Label(constants.moveTo() + ": " + target));
-		}
-		if (sf.forward != null && !sf.forward.emails.isEmpty()) {
-			String forwardTo = "";
-			for (String e : sf.forward.emails) {
-				if (!forwardTo.isEmpty()) {
-					forwardTo += ", ";
-				}
-
-				forwardTo += e;
-			}
-
+		});
+		sf.redirect().ifPresent(redirect -> {
+			String forwardTo = redirect.emails().stream().collect(Collectors.joining(", "));
 			String l = constants.forwardTo() + ": " + forwardTo;
-			if (sf.forward.localCopy) {
+			if (redirect.keepCopy()) {
 				l += " (" + constants.forwardToWithLocalCopy() + ")";
 			}
-
 			actionsFP.add(new Label(l));
-		}
+		});
 
 		FlowPanel moveFilterPanel = new FlowPanel();
 		Label moveUp = new Label();
@@ -286,57 +252,43 @@ public class SieveEdit extends CompositeGwtWidgetElement {
 		moveFilterPanel.add(moveDown);
 		moveFilterPanel.add(moveUp);
 
-		moveUp.addClickHandler(new ClickHandler() {
+		moveUp.addClickHandler((ClickEvent event) -> {
 
-			@Override
-			public void onClick(ClickEvent event) {
-
-				Cell c = filters.getCellForEvent(event);
-				final int currentIndex = c.getRowIndex() - 1;
-				if (currentIndex > 0) {
-					MailFilter.Rule e = sieveFilters.remove(currentIndex);
-					sieveFilters.add(currentIndex - 1, e);
-					filters.removeRow(currentIndex + 1);
-					filters.insertRow(currentIndex);
-					createSieveFilterRow(e, currentIndex);
-					// FIXME
-					// dispatchChange();
-				}
-
+			Cell c = filters.getCellForEvent(event);
+			final int currentIndex = c.getRowIndex() - 1;
+			if (currentIndex > 0) {
+				MailFilterRule e = sieveFilters.remove(currentIndex);
+				sieveFilters.add(currentIndex - 1, e);
+				filters.removeRow(currentIndex + 1);
+				filters.insertRow(currentIndex);
+				createSieveFilterRow(e, currentIndex);
+				// FIXME
+				// dispatchChange();
 			}
+
 		});
 
-		moveDown.addClickHandler(new ClickHandler() {
+		moveDown.addClickHandler((ClickEvent event) -> {
 
-			@Override
-			public void onClick(ClickEvent event) {
-
-				Cell c = filters.getCellForEvent(event);
-				final int currentIndex = c.getRowIndex() - 1;
-				if (currentIndex != (sieveFilters.size() - 1)) {
-					MailFilter.Rule e = sieveFilters.remove(currentIndex);
-					sieveFilters.add(currentIndex + 1, e);
-					filters.removeRow(currentIndex + 1);
-					filters.insertRow(currentIndex + 2);
-					createSieveFilterRow(e, currentIndex + 2);
-				}
-
+			Cell c = filters.getCellForEvent(event);
+			final int currentIndex = c.getRowIndex() - 1;
+			if (currentIndex != (sieveFilters.size() - 1)) {
+				MailFilterRule e = sieveFilters.remove(currentIndex);
+				sieveFilters.add(currentIndex + 1, e);
+				filters.removeRow(currentIndex + 1);
+				filters.insertRow(currentIndex + 2);
+				createSieveFilterRow(e, currentIndex + 2);
 			}
+
 		});
 
 		filters.setWidget(row, 0, criteria);
 		filters.setWidget(row, 1, actionsFP);
 
 		CheckBox activeCb = new CheckBox();
-		activeCb.setValue(filter.active);
-		activeCb.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-
-			@Override
-			public void onValueChange(ValueChangeEvent<Boolean> event) {
-				filter.active = event.getValue();
-				// FIXME
-				// dispatchChange();
-			}
+		activeCb.setValue(rule.active);
+		activeCb.addValueChangeHandler((ValueChangeEvent<Boolean> event) -> {
+			rule.active = event.getValue(); // FIXME
 		});
 		filters.setWidget(row, 2, activeCb);
 		filters.setWidget(row, 3, editAnchor);
@@ -346,10 +298,10 @@ public class SieveEdit extends CompositeGwtWidgetElement {
 		filters.getRowFormatter().setStyleName(row, s.filter());
 	}
 
-	private void addFilter(MailFilter.Rule f) {
+	private void addFilter(MailFilterRule rule) {
 		hasFilter(true);
 
-		MailFilter.Rule copy = MailFilter.Rule.copy(f);
+		MailFilterRule copy = MailFilterRule.copy(rule);
 		int row = filters.getRowCount();
 		createSieveFilterRow(copy, row);
 		sieveFilters.add(copy);
@@ -360,16 +312,12 @@ public class SieveEdit extends CompositeGwtWidgetElement {
 		noFilter.setVisible(true);
 	}
 
-	public List<MailFilter.Rule> getLoadedFilters() {
+	public List<MailFilterRule> getLoadedFilters() {
 		return loadedFilters;
 	}
 
-	public void setLoadedFilters(List<MailFilter.Rule> loadedFilters) {
-		List<MailFilter.Rule> n = new ArrayList<MailFilter.Rule>(loadedFilters.size());
-		for (MailFilter.Rule f : loadedFilters) {
-			n.add(MailFilter.Rule.copy(f));
-		}
-		this.loadedFilters = n;
+	public void setLoadedFilters(List<MailFilterRule> loadedRules) {
+		this.loadedFilters = loadedRules.stream().map(rule -> MailFilterRule.copy(rule)).collect(Collectors.toList());
 	}
 
 	public boolean hasChanged() {
@@ -389,7 +337,7 @@ public class SieveEdit extends CompositeGwtWidgetElement {
 		MailSettingsModel model = MailSettingsModel.get(m);
 		if (model.getJsMailFilter() != null) {
 			model.getJsMailFilter()
-					.setRules(new GwtSerDerUtils.ListSerDer<MailFilter.Rule>(new MailFilterRuleGwtSerDer())
+					.setRules(new GwtSerDerUtils.ListSerDer<MailFilterRule>(new MailFilterRuleGwtSerDer())
 							.serialize(sieveFilters).isArray().getJavaScriptObject().<JsArray<JsMailFilterRule>>cast());
 		}
 	}
@@ -418,15 +366,14 @@ public class SieveEdit extends CompositeGwtWidgetElement {
 
 		if (mf == null) {
 			asWidget().setVisible(false);
-			return;
 		} else {
 			asWidget().setVisible(true);
 			setLoadedFilters(mf.rules);
-			hasFilter(mf.rules.size() > 0);
+			hasFilter(!mf.rules.isEmpty());
 			while (filters.getRowCount() > 1) {
 				filters.removeRow(1);
 			}
-			for (MailFilter.Rule f : mf.rules) {
+			for (MailFilterRule f : mf.rules) {
 				addFilter(f);
 			}
 		}
@@ -436,14 +383,7 @@ public class SieveEdit extends CompositeGwtWidgetElement {
 	public static final String TYPE = "bm.mailbox.MailFiltersEditor";
 
 	public static void registerType() {
-		GwtWidgetElement.register(TYPE, new IGwtDelegateFactory<IGwtWidgetElement, WidgetElement>() {
-
-			@Override
-			public IGwtWidgetElement create(WidgetElement e) {
-				return new SieveEdit();
-			}
-		});
-
+		GwtWidgetElement.register(TYPE, (WidgetElement e) -> new SieveEdit());
 	}
 
 }
