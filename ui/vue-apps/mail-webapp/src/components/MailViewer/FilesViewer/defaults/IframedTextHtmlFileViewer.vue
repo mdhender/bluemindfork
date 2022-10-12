@@ -6,8 +6,8 @@
                 <link type="text/css" rel="stylesheet" href="css/montserrat/index.css" />
             </template>
             <template v-slot:style>
-                {{ IFRAME_STYLE }}
                 {{ content.styles }}
+                {{ IFRAME_STYLE }}
             </template>
             <!-- eslint-disable-next-line vue/no-v-html -->
             <main v-html="content.html"></main>
