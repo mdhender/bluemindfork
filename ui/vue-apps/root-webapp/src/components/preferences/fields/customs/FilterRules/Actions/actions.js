@@ -7,25 +7,25 @@ import PrefFilterRuleForwardActionEditor from "./PrefFilterRuleForwardActionEdit
 
 export default [
     {
-        match: action => [ACTIONS.DELETE.type, ACTIONS.READ.type, ACTIONS.STAR.type].includes(action.type),
-        name: (action, i18n) => defaultName(action, i18n),
+        match: action => [ACTIONS.DISCARD.name, ACTIONS.READ.name, ACTIONS.STAR.name].includes(action.name),
+        text,
         value: true,
         viewer: PrefFilterRuleActionNoValue
     },
     {
-        match: action => action.type === ACTIONS.DELIVER.type,
-        name: (action, i18n) => defaultName(action, i18n),
+        match: action => action.name === ACTIONS.DELIVER.name,
+        text,
         viewer: PrefFilterRuleActionDeliver,
         editor: PrefFilterRuleFolderActionEditor
     },
     {
-        match: action => action.type === ACTIONS.FORWARD.type,
-        name: (action, i18n) => defaultName(action, i18n),
+        match: action => action.name === ACTIONS.FORWARD.name,
+        text,
         viewer: PrefFilterRuleActionForward,
         editor: PrefFilterRuleForwardActionEditor
     }
 ];
 
-function defaultName(action, i18n) {
-    return i18n.t(`preferences.mail.filters.action.${action.type}`, { value: "" });
+function text(action, i18n) {
+    return i18n.t(`preferences.mail.filters.action.${action.name}`, { value: "" });
 }

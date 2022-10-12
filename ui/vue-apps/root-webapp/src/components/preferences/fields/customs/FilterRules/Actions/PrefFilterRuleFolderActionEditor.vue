@@ -1,7 +1,7 @@
 <template>
     <bm-form-select
         v-if="userFolders.length > 0"
-        v-model="action.value"
+        v-model="action.folder"
         :options="userFolders"
         :auto-min-width="false"
         class="pref-filter-rule-folder-action-editor"

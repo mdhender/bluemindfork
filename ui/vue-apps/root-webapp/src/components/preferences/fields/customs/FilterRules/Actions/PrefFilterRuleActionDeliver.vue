@@ -1,6 +1,6 @@
 <template>
     <pref-filter-rule-action class="pref-filter-rule-action-deliver" :action="action">
-        <bm-label-icon icon="folder">{{ action.value }}</bm-label-icon>
+        <bm-label-icon icon="folder">{{ action.folder }}</bm-label-icon>
     </pref-filter-rule-action>
 </template>
 

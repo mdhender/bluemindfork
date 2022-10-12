@@ -9,8 +9,8 @@ import PrefFilterRuleTextCriterionEditor from "./PrefFilterRuleTextCriterionEdit
 export default [
     {
         match: criterion =>
-            [CRITERIA_TARGETS.FROM.type, CRITERIA_TARGETS.TO.type].includes(criterion.target.type) &&
-            [CRITERIA_MATCHERS.IS, CRITERIA_MATCHERS.ISNOT].includes(criterion.matcher),
+            [CRITERIA_TARGETS.FROM, CRITERIA_TARGETS.TO].includes(criterion.target.type) &&
+            [CRITERIA_MATCHERS.EQUALS].includes(criterion.matcher),
 
         name: (criterion, i18n) => defaultName(criterion, i18n),
         viewer: PrefFilterRuleContactCriterion,
@@ -19,13 +19,9 @@ export default [
     },
     {
         match: criterion =>
-            [
-                CRITERIA_TARGETS.FROM.type,
-                CRITERIA_TARGETS.TO.type,
-                CRITERIA_TARGETS.BODY.type,
-                CRITERIA_TARGETS.SUBJECT.type
-            ].includes(criterion.target.type) &&
-            [CRITERIA_MATCHERS.CONTAINS, CRITERIA_MATCHERS.DOESNOTCONTAIN].includes(criterion.matcher),
+            [CRITERIA_TARGETS.FROM, CRITERIA_TARGETS.TO, CRITERIA_TARGETS.BODY, CRITERIA_TARGETS.SUBJECT].includes(
+                criterion.target.type
+            ) && [CRITERIA_MATCHERS.CONTAINS].includes(criterion.matcher),
         name: (criterion, i18n) => defaultName(criterion, i18n),
         viewer: PrefFilterRuleTextCriterion,
         editor: PrefFilterRuleTextCriterionEditor,
@@ -33,8 +29,8 @@ export default [
     },
     {
         match: criterion =>
-            [CRITERIA_TARGETS.SUBJECT.type].includes(criterion.target.type) &&
-            [CRITERIA_MATCHERS.IS, CRITERIA_MATCHERS.ISNOT].includes(criterion.matcher),
+            [CRITERIA_TARGETS.SUBJECT].includes(criterion.target.type) &&
+            [CRITERIA_MATCHERS.EQUALS].includes(criterion.matcher),
         name: (criterion, i18n) => defaultName(criterion, i18n),
         viewer: PrefFilterRuleTextCriterion,
         editor: PrefFilterRuleTextCriterionEditor,
@@ -42,13 +38,8 @@ export default [
     },
     {
         match: criterion =>
-            [CRITERIA_TARGETS.HEADER.type].includes(criterion.target.type) &&
-            [
-                CRITERIA_MATCHERS.IS,
-                CRITERIA_MATCHERS.ISNOT,
-                CRITERIA_MATCHERS.CONTAINS,
-                CRITERIA_MATCHERS.DOESNOTCONTAIN
-            ].includes(criterion.matcher),
+            [CRITERIA_TARGETS.HEADER].includes(criterion.target) &&
+            [CRITERIA_MATCHERS.EQUALS, CRITERIA_MATCHERS.CONTAINS].includes(criterion.matcher),
         name: (criterion, i18n) => defaultName(criterion, i18n),
         viewer: PrefFilterRuleTextCriterion,
         editor: PrefFilterRuleHeaderCriterionEditor,
@@ -57,8 +48,8 @@ export default [
     },
     {
         match: criterion =>
-            [CRITERIA_TARGETS.HEADER.type].includes(criterion.target.type) &&
-            [CRITERIA_MATCHERS.EXISTS, CRITERIA_MATCHERS.DOESNOTEXIST].includes(criterion.matcher),
+            [CRITERIA_TARGETS.HEADER].includes(criterion.target.type) &&
+            [CRITERIA_MATCHERS.EXISTS].includes(criterion.matcher),
         name: (criterion, i18n) => defaultName(criterion, i18n),
         viewer: PrefFilterRuleCriterion,
         editor: PrefFilterRuleHeaderCriterionEditor,

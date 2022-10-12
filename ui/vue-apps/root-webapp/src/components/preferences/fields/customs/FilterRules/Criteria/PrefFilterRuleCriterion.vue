@@ -1,6 +1,6 @@
 <template>
     <div class="pref-filter-rule-criterion d-flex align-items-center">
-        <span class="regular mr-3"> {{ criterion.getName(negates) }} </span>
+        <span class="regular mr-3"> {{ criterion.text }} </span>
         <slot />
     </div>
 </template>

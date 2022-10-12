@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { read as readRule, write as writeRule } from "./filterRules.js";
+import { read as readRules, write as writeRule } from "./filterRules.js";
 import PrefFilterRuleModal from "./Modal/PrefFilterRuleModal";
 import PrefFilterRulesSubset from "./PrefFilterRulesSubset";
 import CentralizedSaving from "../../../mixins/CentralizedSaving";
@@ -35,18 +35,24 @@ export default {
         /**
          * BTable adds an annoying _showDetails to each expanded item, our saving mechanism will detect a change...
          * We have to remove/add the expanded info via an intermediate value.
+         * Also, `this.value` contains all rules even those that can't be managed here:
+         *  - we filter them out when we get the `userFilters` from the store
+         *  - we add them back when we set `this.value` from `userFilters`
          */
         userFilters: {
             get() {
-                return this.value.map(v => ({ ...v, _showDetails: this.expanded[v.index] }));
+                return this.value.filter(v => v.manageable).map(v => ({ ...v, _showDetails: this.expanded[v.index] }));
             },
-            set(userFilters) {
-                this.value = userFilters.map(f => {
-                    this.expanded[f.index] = f._showDetails;
-                    const copy = { ...f };
-                    delete copy._showDetails;
-                    return copy;
-                });
+            set: function (userFilters) {
+                this.value = [
+                    ...userFilters.map(f => {
+                        this.expanded[f.index] = f._showDetails;
+                        const copy = { ...f };
+                        delete copy._showDetails;
+                        return copy;
+                    }),
+                    ...this.value.filter(v => !v.manageable)
+                ].sort((a, b) => a.index - b.index);
             }
         }
     },
@@ -64,12 +70,7 @@ export default {
     },
     methods: {
         normalizeUserFilters(rawFilters) {
-            return rawFilters.rules.map((rule, index) => ({
-                ...readRule(rule),
-                index,
-                terminal: rule.stop,
-                editable: true
-            }));
+            return readRules(rawFilters.rules);
         },
         addUserFilter(filter) {
             this.pushUserFilters(filter);

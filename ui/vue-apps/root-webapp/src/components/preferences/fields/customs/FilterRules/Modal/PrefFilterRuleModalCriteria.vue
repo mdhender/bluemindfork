@@ -7,42 +7,45 @@
         "
         :label-class="labelClass"
     >
-        <template v-for="(criterion, index) in filter.criteria">
+        <template v-for="(criterion, index) in criteria">
             <div
-                v-if="resolvedCriteria[index] && negative !== resolvedCriteria[index].positive"
+                v-if="resolvedCriteria[index]"
                 :key="index"
                 class="d-flex align-items-center justify-content-between row mb-4"
             >
                 <div class="d-flex col-11">
                     <div v-show="!resolvedCriteria[index] || !resolvedCriteria[index].fullEditor" class="col-6">
-                        <bm-form-select
-                            ref="criterionCombo"
+	                <bm-form-select
+	                    ref="criterionCombo"
                             class="w-100"
-                            :value="criterionComboValue(criterion)"
-                            :options="criterionChoices"
-                            :placeholder="
-                                negative
-                                    ? $t('preferences.mail.filters.modal.exceptions.add.placeholder')
-                                    : $t('preferences.mail.filters.modal.criteria.add.placeholder')
-                            "
-                            :auto-min-width="false"
-                            @input="modifyCriterionType(index, $event)"
-                        />
+	                    :value="criterionComboValue(criterion)"
+	                    :options="criterionChoices"
+	                    :placeholder="
+	                        negative
+	                            ? $t('preferences.mail.filters.modal.exceptions.add.placeholder')
+	                            : $t('preferences.mail.filters.modal.criteria.add.placeholder')
+	                    "
+	                    :auto-min-width="false"
+	                    @input="modifyCriterionType(index, $event)"
+	                />
                     </div>
                     <div :class="resolvedCriteria[index].fullEditor ? 'w-100' : 'col-6'">
-                        <component
-                            :is="resolvedCriteria[index].editor"
-                            :criterion="criterion"
-                            :negative="negative"
+	                <component
+	                    :is="resolvedCriteria[index].editor"
+	                    :criterion="criterion"
                             class="w-100"
-                            @reset="resetCriterion(index)"
-                        />
+	                    @reset="resetCriterion(index)"
+	                />
                     </div>
                 </div>
                 <bm-icon-button variant="compact" icon="cross" @click="removeCriterion(index)" />
             </div>
         </template>
-        <bm-button v-if="!criteria.some(c => c.isNew)" variant="text-accent" @click="addNewCriterion">
+        <bm-button
+            v-if="!resolvedCriteria.some(c => c.isNew)"
+            variant="text-accent"
+            @click="addNewCriterion"
+        >
             {{
                 negative
                     ? $t("preferences.mail.filters.modal.exceptions.add")
@@ -60,9 +63,9 @@ export default {
     name: "PrefFilterRuleModalCriteria",
     components: { BmButton, BmIconButton, BmFormGroup, BmFormSelect },
     props: {
-        filter: {
-            type: Object,
-            required: true
+        criteria: {
+            type: Array,
+            default: () => []
         },
         negative: {
             type: Boolean,
@@ -72,16 +75,13 @@ export default {
     data() {
         return {
             criterionChoices: allCriteria(this)
-                .map(c => this.negative !== c.positive && { value: c, text: c.getName(this.negative) })
+                .map(c => ({ value: c, text: c.text }))
                 .filter(Boolean)
         };
     },
     computed: {
         resolvedCriteria() {
-            return this.filter.criteria?.map(c => (c.isNew ? c : resolveCriterion(c, this))) || [];
-        },
-        criteria() {
-            return this.resolvedCriteria.filter(c => c && c.positive !== this.negative);
+            return this.criteria?.map(c => (c.isNew ? c : resolveCriterion(c, this))) || [];
         },
         labelClass() {
             const labelClass = "d-flex align-items-center circled-number";
@@ -89,8 +89,8 @@ export default {
         }
     },
     watch: {
-        "filter.criteria"() {
-            if (!this.negative && this.criteria.length === 0) {
+        "criteria"() {
+            if (!this.negative && this.resolvedCriteria.length === 0) {
                 this.addNewCriterion();
             }
         }
@@ -102,21 +102,21 @@ export default {
             )?.value;
         },
         modifyCriterionType(index, { matcher, target }) {
-            this.filter.criteria.splice(index, 1, {
-                ...this.filter.criteria[index],
+            this.criteria.splice(index, 1, {
+                ...this.criteria[index],
                 matcher,
                 target: { ...target },
                 isNew: false
             });
         },
         addNewCriterion(forceOpenCombo) {
-            this.filter.criteria.push({ isNew: true, positive: !this.negative });
-            if (this.negative || this.criteria.length > 1 || forceOpenCombo) {
+            this.criteria.push({ isNew: true, exception: this.negative });
+            if (this.negative || this.resolvedCriteria.length > 1 || forceOpenCombo) {
                 this.$nextTick(this.showCriterionCombo);
             }
         },
         removeCriterion(index) {
-            this.filter.criteria.splice(index, 1);
+            this.criteria.splice(index, 1);
         },
         resetCriterion(index) {
             this.removeCriterion(index);

@@ -46,10 +46,10 @@ export default {
     },
     computed: {
         positiveCriteria() {
-            return this.filter.criteria.map(c => resolveCriterion(c, this)).filter(c => c && c.positive);
+            return this.filter.criteria.map(c => resolveCriterion(c, this));
         },
         negativeCriteria() {
-            return this.filter.criteria.map(c => resolveCriterion(c, this)).filter(c => c && !c.positive);
+            return this.filter.exceptions.map(c => resolveCriterion(c, this));
         },
         actions() {
             return this.filter.actions.map(a => resolveAction(a, this)).filter(Boolean);

@@ -1,132 +1,143 @@
 export const CRITERIA_TARGETS = {
-    BODY: { type: "BODY", pattern: "BODY" },
-    FROM: { type: "FROM", pattern: "FROM" },
-    SUBJECT: { type: "SUBJECT", pattern: "SUBJECT" },
-    TO: { type: "TO", pattern: "TO" },
-    HEADER: { type: "HEADER", pattern: "[\\w-]+" }
+    BODY: "part.content",
+    FROM: "from.email",
+    SUBJECT: "subject",
+    TO: "to.email",
+    HEADER: "headers"
 };
 
 export const CRITERIA_MATCHERS = {
     CONTAINS: "CONTAINS",
-    DOESNOTCONTAIN: "DOESNOTCONTAIN",
-    DOESNOTEXIST: "DOESNOTEXIST",
-    DOESNOTMATCH: "DOESNOTMATCH",
     EXISTS: "EXISTS",
-    IS: "IS",
-    ISNOT: "ISNOT",
+    EQUALS: "EQUALS",
     MATCHES: "MATCHES"
 };
 
-const CRITERIA_REVERSED_MATCHERS = {
-    CONTAINS: "DOESNOTCONTAIN",
-    DOESNOTCONTAIN: "CONTAINS",
-    DOESNOTEXIST: "EXISTS",
-    DOESNOTMATCH: "MATCHES",
-    EXISTS: "DOESNOTEXIST",
-    IS: "ISNOT",
-    ISNOT: "IS",
-    MATCHES: "DOESNOTMATCH"
-};
-
 export const ACTIONS = {
-    DELETE: { type: "delete", isValid: Boolean },
-    DELIVER: { type: "deliver", isValid: Boolean },
-    DISCARD: { type: "discard", isValid: Boolean },
-    FORWARD: { type: "forward", isValid: value => value?.emails?.length > 0 },
-    READ: { type: "read", isValid: Boolean },
-    STAR: { type: "star", isValid: Boolean }
+    DELETE: { name: "MARK_AS_DELETED", isValid: Boolean },
+    DELIVER: { name: "MOVE", isValid: Boolean },
+    COPY: { name: "COPY", isValid: Boolean },
+    DISCARD: { name: "DISCARD", isValid: Boolean },
+    FORWARD: { name: "REDIRECT", isValid: action => action.emails?.length > 0 },
+    TRANSFER: { name: "TRANSFER", isValid: action => action.emails?.length > 0 },
+    READ: { name: "MARK_AS_READ", isValid: Boolean },
+    STAR: { name: "MARK_AS_IMPORTANT", isValid: Boolean }
 };
 
-export const MATCH_ALL = "MATCHALL";
+const ACTIONS_BY_NAME = new Map(Object.values(ACTIONS).map(action => [action.name, action]));
 
-/**
- * Criteria capturing regex.
- * @example
- *     /(?<target>FROM|SUBJECT):(?<matcher>DOESNOTMATCH|CONTAINS):(?<value>.*?)(?=(FROM|SUBJECT):|\n|$)/
- */
-const targetsRegexString = Object.values(CRITERIA_TARGETS)
-        .map(ct => ct.pattern)
-        .join("|"),
-    tRe = targetsRegexString;
-const matchersRegexString = Object.values(CRITERIA_MATCHERS).join("|"),
-    mRe = matchersRegexString;
-const criteriaRegexString = `(?<target>${tRe}):(?<matcher>${mRe}):(?<value>.*?)(?=(${tRe}):|\n|$)`;
-const criteriaRegex = new RegExp(criteriaRegexString, "gm");
-
-function parseCriteria(rawCriteria) {
-    const results = rawCriteria.matchAll(criteriaRegex);
-    const criteriaTargets = Object.values(CRITERIA_TARGETS);
-    return Array.from(results, r => ({
-        target: {
-            type: criteriaTargets.find(ct => r.groups.target.match(ct.pattern))?.type,
-            name: r.groups.target
-        },
-        matcher: r.groups.matcher,
-        value: r.groups.value.trim()
-    }));
+export function read(rules) {
+    return rules.map((rule, index) => {
+        const manageable = isManageable(rule);
+        const internalRule = manageable ? readRule(rule) : rule;
+        return {
+            ...internalRule,
+            index,
+            terminal: rule.stop,
+            editable: true,
+            manageable
+        };
+    });
 }
 
-function stringifyCriteria(criteria) {
-    return criteria.length === 0
-        ? MATCH_ALL
-        : criteria.reduce(
-              (criteriaString, criterion) =>
-                  `${criteriaString}${criterion.target.name || criterion.target.type}:${criterion.matcher}: ${
-                      criterion.value || ""
-                  }\n`,
-              ""
-          );
+function isManageable(rule) {
+    const hasOnlyFieldConditions = rule.conditions.every(condition => condition.filter);
+    const hasOnlyAndConditions = rule.conditions.every(condition => condition.operator === "AND");
+    return (
+        rule.client === "bluemind" &&
+        rule.trigger === "IN" &&
+        !rule.deferred &&
+        hasOnlyFieldConditions &&
+        hasOnlyAndConditions
+    );
 }
 
-function extractActions(rawFilter) {
-    return Object.values(ACTIONS)
-        .map(action => extractAction(rawFilter, action))
-        .filter(Boolean);
-}
-
-function extractAction(rawFilter, action) {
-    const value = rawFilter[action.type];
-    return action.isValid(value) ? { type: action.type, value } : undefined;
-}
-
-export function createEmpty() {
-    return { criteria: [], actions: [], name: "", exceptions: [] };
-}
-
-export function read(rawFilter) {
+export function readRule(rawFilter) {
+    const conditionsAndExceptions = readCriteria(rawFilter.conditions);
     return {
         active: rawFilter.active,
         name: rawFilter.name,
         terminal: rawFilter.stop === undefined ? true : rawFilter.stop,
-        criteria: parseCriteria(rawFilter.criteria),
-        actions: extractActions(rawFilter),
-        exceptions: []
+        criteria: conditionsAndExceptions.filter(condition => !condition.exception),
+        exceptions: conditionsAndExceptions.filter(condition => condition.exception),
+        actions: readActions(rawFilter.actions)
     };
 }
 
-export function write(filter) {
-    const filterForwardValue = filter.actions.find(a => a.type === ACTIONS.FORWARD.type)?.value;
+function readCriteria(rawConditions) {
+    return rawConditions.map(rawCondition => {
+        const filter = rawCondition.filter;
+        return {
+            target: readTarget(filter.fields[0]),
+            matcher: filter.operator,
+            value: filter.values && filter.values.length > 0 ? filter.values[0] : undefined,
+            exception: rawCondition.negate
+        };
+    });
+}
+
+function readTarget(field) {
+    const fieldTokens = field.split(".");
     return {
+        type: field.startsWith("headers") ? fieldTokens[0] : field,
+        name: field.startsWith("headers") ? fieldTokens[1] : undefined
+    };
+}
+
+function readActions(rawActions) {
+    return rawActions
+        .map(rawAction => (ACTIONS_BY_NAME.get(rawAction.name)?.isValid(rawAction) ? { ...rawAction } : undefined))
+        .filter(Boolean);
+}
+
+export function createEmpty() {
+    return { criteria: [], actions: [], name: "", exceptions: [], manageable: true };
+}
+
+export function write(filter) {
+    if (!filter.manageable) {
+        return filter;
+    }
+    const conditions = filter.criteria.map(writeCondition);
+    const exceptions = filter.exceptions.map(writeCondition);
+    return {
+        client: "bluemind",
+        type: "GENERIC",
+        trigger: "IN",
+        deferred: false,
         active: filter.active,
-        criteria: stringifyCriteria(filter.criteria),
-        delete: filter.actions.find(a => a.type === ACTIONS.DELETE.type)?.value || false,
-        deliver: filter.actions.find(a => a.type === ACTIONS.DELIVER.type)?.value || undefined,
-        discard: filter.actions.find(a => a.type === ACTIONS.DISCARD.type)?.value || false,
-        forward: filterForwardValue
-            ? {
-                  enabled: true,
-                  ...filterForwardValue
-              }
-            : undefined,
         name: filter.name || undefined,
-        read: filter.actions.find(a => a.type === ACTIONS.READ.type)?.value || false,
-        star: filter.actions.find(a => a.type === ACTIONS.STAR.type)?.value || false,
+        conditions: conditions.concat(exceptions),
+        actions: writeActions(filter.actions),
         stop: filter.terminal
     };
 }
 
-export function reverseMatcher(matcherName) {
-    return CRITERIA_REVERSED_MATCHERS[matcherName];
+function writeCondition(criterion) {
+    const field =
+        criterion.target.type === "headers"
+            ? criterion.target.type + "." + criterion.target.name
+            : criterion.target.type;
+    const fields = field === "to.email" ? [field, "cc.email"] : [field];
+    const condition = {
+        negate: criterion.exception,
+        operator: "AND",
+        conditions: [],
+        filter: {
+            fields,
+            operator: criterion.matcher
+        }
+    };
+    if (criterion.matcher !== "EXISTS") {
+        condition.filter.values = criterion.value ? [criterion.value] : [];
+    }
+    return condition;
+}
+
+function writeActions(actions) {
+    return actions
+        .map(action => (ACTIONS_BY_NAME.get(action.name)?.isValid(action) ? { ...action } : undefined))
+        .filter(Boolean);
 }
 
 export function toString(filter, i18n) {
@@ -134,9 +145,11 @@ export function toString(filter, i18n) {
 
     const actions = filter.actions
         .map(action =>
-            i18n.t(`preferences.mail.filters.action.${action.type}`, {
+            i18n.t(`preferences.mail.filters.action.${action.name}`, {
                 value:
-                    action.type === ACTIONS.FORWARD.type ? action.value.emails.join(i18n.t("common.and")) : action.value
+                    action.name in [ACTIONS.FORWARD.name || ACTIONS.TRANSFER.name]
+                        ? action.emails.join(i18n.t("common.and"))
+                        : action.value
             })
         )
         .join(and);
@@ -156,7 +169,7 @@ export function toString(filter, i18n) {
             const target = i18n.t(`preferences.mail.filters.target.${exception.target.type}`, {
                 name: exception.target.name
             });
-            const matcher = i18n.t(`preferences.mail.filters.matcher.${reverseMatcher(exception.matcher)}`);
+            const matcher = i18n.t(`preferences.mail.filters.matcher.${exception.matcher}.negate`);
             return `${target} ${matcher} ${exception.value}`;
         })
         .join(and);

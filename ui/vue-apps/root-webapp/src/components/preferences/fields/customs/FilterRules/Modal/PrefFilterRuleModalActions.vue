@@ -55,7 +55,7 @@ export default {
     },
     data() {
         return {
-            actionChoices: allActions(this).map(a => ({ value: a, text: a.name }))
+            actionChoices: allActions(this).map(a => ({ value: a, text: a.text }))
         };
     },
     computed: {
@@ -72,10 +72,10 @@ export default {
     },
     methods: {
         actionComboValue(action) {
-            return this.actionChoices.find(ac => ac.value.type === action.type)?.value;
+            return this.actionChoices.find(ac => ac.value.name === action.name)?.value;
         },
-        modifyActionType(index, { type, value }) {
-            this.filter.actions.splice(index, 1, { type, value });
+        modifyActionType(index, { name, parameters }) {
+            this.filter.actions.splice(index, 1, { name, parameters });
         },
         addNewAction() {
             this.filter.actions.push({ isNew: true });

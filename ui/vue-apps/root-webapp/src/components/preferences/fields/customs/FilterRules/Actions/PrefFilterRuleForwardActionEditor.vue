@@ -8,8 +8,8 @@
             @search="onSearch"
             @update:contacts="updateEmails"
         />
-        <bm-form-checkbox v-model="action.value.localCopy" :value="true" :unchecked-value="false" class="mt-3 mb-2">
-            {{ $t("preferences.mail.filters.action.forward.keep_copy") }}
+        <bm-form-checkbox v-model="action.keepCopy" :value="true" :unchecked-value="false" class="mt-3 mb-2">
+            {{ $t("preferences.mail.filters.action.REDIRECT.keep_copy") }}
         </bm-form-checkbox>
     </div>
 </template>
@@ -35,17 +35,16 @@ export default {
     computed: {
         contacts: {
             get() {
-                return this.action.value?.emails?.map(email => ({ address: email, dn: "" }));
+                return this.action.emails.map(email => ({ address: email, dn: "" }));
             },
             set(value) {
-                this.action.value.emails = value.map(v => v.address);
+                this.action.emails = value.map(v => v.address);
             }
         }
     },
     created() {
-        if (!this.action.value) {
-            this.action.value = { emails: [], localCopy: false };
-        }
+        this.action.emails = this.action.emails ?? [];
+        this.action.keepCopy = this.action.keepCopy ?? false;
     },
     methods: {
         async onSearch(pattern) {
@@ -57,7 +56,7 @@ export default {
             this.autocompleteResults = searchResults.values.map(vcardInfo => VCardInfoAdaptor.toContact(vcardInfo));
         },
         updateEmails(contacts) {
-            this.action.value.emails = contacts
+            this.action.emails = contacts
                 .map(contact => contact.address)
                 .filter(email => EmailValidator.validateAddress(email));
             this.autocompleteResults = [];

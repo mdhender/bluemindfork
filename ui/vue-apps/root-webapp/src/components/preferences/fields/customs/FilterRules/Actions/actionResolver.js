@@ -7,7 +7,7 @@ export function resolve(action, vm) {
         return {
             ...action,
             ...resolved,
-            name: resolved.name(action, vm.$i18n)
+            text: resolved.text(action, vm.$i18n)
         };
     }
 }

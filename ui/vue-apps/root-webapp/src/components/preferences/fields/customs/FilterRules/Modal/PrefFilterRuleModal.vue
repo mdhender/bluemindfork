@@ -14,9 +14,9 @@
     >
         <bm-form class="mt-4">
             <pref-filter-rule-modal-name :filter="filterCopy" @submit="submit" />
-            <pref-filter-rule-modal-criteria :filter="filterCopy" />
+            <pref-filter-rule-modal-criteria :criteria="filterCopy.criteria" />
             <pref-filter-rule-modal-actions :filter="filterCopy" />
-            <pref-filter-rule-modal-criteria :filter="filterCopy" negative />
+            <pref-filter-rule-modal-criteria :criteria="filterCopy.exceptions" negative />
             <pref-filter-rule-modal-terminal :filter="filterCopy" />
         </bm-form>
     </bm-modal>

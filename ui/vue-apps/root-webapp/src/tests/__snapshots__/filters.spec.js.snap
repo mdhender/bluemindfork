@@ -1,147 +1,200 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`filters read - no criteria 1`] = `
-Object {
-  "actions": Array [
-    Object {
-      "type": "deliver",
-      "value": "INBOX",
-    },
-    Object {
-      "type": "forward",
-      "value": Object {
-        "emails": Array [
-          "toto.test@bluemind.net",
-        ],
-        "enabled": false,
-        "localCopy": true,
+Array [
+  Object {
+    "actions": Array [
+      Object {
+        "folder": "INBOX",
+        "name": "MOVE",
       },
-    },
-    Object {
-      "type": "read",
-      "value": true,
-    },
-  ],
-  "active": true,
-  "criteria": Array [],
-  "exceptions": Array [],
-  "name": "N/A",
-  "terminal": true,
-}
+      Object {
+        "emails": "toto.test@bluemind.net",
+        "keepCopy": false,
+        "name": "REDIRECT",
+      },
+      Object {
+        "name": "MARK_AS_READ",
+      },
+    ],
+    "active": true,
+    "criteria": Array [],
+    "editable": true,
+    "exceptions": Array [],
+    "index": 0,
+    "manageable": true,
+    "name": "N/A",
+    "terminal": true,
+  },
+]
 `;
 
 exports[`filters read 1`] = `
-Object {
-  "actions": Array [
-    Object {
-      "type": "deliver",
-      "value": "INBOX",
-    },
-    Object {
-      "type": "forward",
-      "value": Object {
-        "emails": Array [
-          "toto.test@bluemind.net",
-        ],
-        "enabled": true,
-        "localCopy": false,
+Array [
+  Object {
+    "actions": Array [
+      Object {
+        "folder": "INBOX",
+        "name": "MOVE",
       },
-    },
-    Object {
-      "type": "read",
-      "value": true,
-    },
-  ],
-  "active": true,
-  "criteria": Array [
-    Object {
-      "matcher": "IS",
-      "target": Object {
-        "name": "FROM",
-        "type": "FROM",
+      Object {
+        "emails": "toto.test@bluemind.net",
+        "keepCopy": false,
+        "name": "REDIRECT",
       },
-      "value": "Toto",
-    },
-    Object {
-      "matcher": "IS",
-      "target": Object {
-        "name": "TO",
-        "type": "TO",
+      Object {
+        "name": "MARK_AS_READ",
       },
-      "value": "Tata",
-    },
-    Object {
-      "matcher": "CONTAINS",
-      "target": Object {
-        "name": "SUBJECT",
-        "type": "SUBJECT",
+    ],
+    "active": true,
+    "criteria": Array [
+      Object {
+        "exception": false,
+        "matcher": "EQUALS",
+        "target": Object {
+          "name": undefined,
+          "type": "from.email",
+        },
+        "value": "Toto",
       },
-      "value": "Toto&Tata",
-    },
-    Object {
-      "matcher": "DOESNOTCONTAIN",
-      "target": Object {
-        "name": "BODY",
-        "type": "BODY",
+      Object {
+        "exception": false,
+        "matcher": "EQUALS",
+        "target": Object {
+          "name": undefined,
+          "type": "to.email",
+        },
+        "value": "Tata",
       },
-      "value": "un gros mot",
-    },
-    Object {
-      "matcher": "MATCHES",
-      "target": Object {
-        "name": "X-My-Header",
-        "type": "HEADER",
+      Object {
+        "exception": false,
+        "matcher": "CONTAINS",
+        "target": Object {
+          "name": undefined,
+          "type": "subject",
+        },
+        "value": "Toto&Tata",
       },
-      "value": "head-bang",
-    },
-  ],
-  "exceptions": Array [],
-  "name": "N/A",
-  "terminal": true,
-}
+      Object {
+        "exception": false,
+        "matcher": "MATCHES",
+        "target": Object {
+          "name": "X-My-Header",
+          "type": "headers",
+        },
+        "value": "head-bang",
+      },
+    ],
+    "editable": true,
+    "exceptions": Array [
+      Object {
+        "exception": true,
+        "matcher": "CONTAINS",
+        "target": Object {
+          "name": undefined,
+          "type": "part.content",
+        },
+        "value": "un gros mot",
+      },
+    ],
+    "index": 0,
+    "manageable": true,
+    "name": "N/A",
+    "terminal": true,
+  },
+]
 `;
 
 exports[`filters write - no criteria 1`] = `
 Object {
+  "actions": Array [
+    Object {
+      "name": "MARK_AS_DELETED",
+    },
+    Object {
+      "emails": Array [
+        "toto.test@bluemind.net",
+      ],
+      "keepCopy": false,
+      "name": "REDIRECT",
+    },
+  ],
   "active": true,
-  "criteria": "MATCHALL",
-  "delete": true,
-  "deliver": undefined,
-  "discard": false,
-  "forward": Object {
-    "emails": Array [
-      "toto.test@bluemind.net",
-    ],
-    "enabled": true,
-    "localCopy": false,
-  },
+  "client": "bluemind",
+  "conditions": Array [],
+  "deferred": false,
   "name": "MyFilter",
-  "read": false,
-  "star": false,
   "stop": true,
+  "trigger": "IN",
+  "type": "GENERIC",
 }
 `;
 
 exports[`filters write 1`] = `
 Object {
+  "actions": Array [
+    Object {
+      "name": "MARK_AS_DELETED",
+    },
+    Object {
+      "emails": Array [
+        "toto.test@bluemind.net",
+      ],
+      "keepCopy": false,
+      "name": "REDIRECT",
+    },
+  ],
   "active": true,
-  "criteria": "BODY:DOESNOTCONTAIN: un gros mot
-TO:IS: Tata
-X-Machin-Chouette:IS: Bidule
-",
-  "delete": true,
-  "deliver": undefined,
-  "discard": false,
-  "forward": Object {
-    "emails": Array [
-      "toto.test@bluemind.net",
-    ],
-    "enabled": true,
-    "localCopy": false,
-  },
+  "client": "bluemind",
+  "conditions": Array [
+    Object {
+      "conditions": Array [],
+      "filter": Object {
+        "fields": Array [
+          "to.email",
+          "cc.email",
+        ],
+        "operator": "EQUALS",
+        "values": Array [
+          "Tata",
+        ],
+      },
+      "negate": false,
+      "operator": "AND",
+    },
+    Object {
+      "conditions": Array [],
+      "filter": Object {
+        "fields": Array [
+          "headers.X-Machin-Chouette",
+        ],
+        "operator": "EQUALS",
+        "values": Array [
+          "Bidule",
+        ],
+      },
+      "negate": false,
+      "operator": "AND",
+    },
+    Object {
+      "conditions": Array [],
+      "filter": Object {
+        "fields": Array [
+          "part.content",
+        ],
+        "operator": "CONTAINS",
+        "values": Array [
+          "un gros mot",
+        ],
+      },
+      "negate": true,
+      "operator": "AND",
+    },
+  ],
+  "deferred": false,
   "name": "MyFilter",
-  "read": false,
-  "star": false,
   "stop": true,
+  "trigger": "IN",
+  "type": "GENERIC",
 }
 `;
