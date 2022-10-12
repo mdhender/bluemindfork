@@ -236,8 +236,8 @@ public class ResourcesServiceTests {
 		assertNotNull(f);
 		assertEquals(1, f.rules.size());
 		assertEquals(true, f.rules.get(0).active);
-		assertEquals("MATCHALL", f.rules.get(0).criteria);
-		assertEquals(true, f.rules.get(0).discard);
+		assertTrue(f.rules.get(0).conditions.isEmpty());
+		assertNotNull(f.rules.get(0).discard().orElse(null));
 
 		try {
 			service(domainAdminSC).update("fakeId", rd);
@@ -398,8 +398,8 @@ public class ResourcesServiceTests {
 		assertNotNull(f);
 		assertEquals(1, f.rules.size());
 		assertEquals(true, f.rules.get(0).active);
-		assertEquals("MATCHALL", f.rules.get(0).criteria);
-		assertEquals(true, f.rules.get(0).discard);
+		assertTrue(f.rules.get(0).conditions.isEmpty());
+		assertNotNull(f.rules.get(0).discard().orElse(null));
 
 		ResourceDescriptor rd = defaultDescriptor();
 		rd.typeIdentifier = "nonExistant";

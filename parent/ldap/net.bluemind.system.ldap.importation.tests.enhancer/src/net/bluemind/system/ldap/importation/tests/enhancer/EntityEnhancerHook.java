@@ -24,7 +24,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.mailbox.api.MailFilter.Rule;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.system.importation.commons.Parameters;
 import net.bluemind.system.importation.commons.enhancer.GroupData;
 import net.bluemind.system.importation.commons.enhancer.IEntityEnhancer;
@@ -37,8 +37,8 @@ public class EntityEnhancerHook implements IEntityEnhancer {
 			Entry entry, UserData userData) {
 		userData.user.dataLocation = "hook value";
 
-		Rule r = new Rule();
-		r.criteria = "hook criteria";
+		MailFilterRule r = new MailFilterRule();
+		r.addDiscard();
 		userData.mailFilter.rules = Arrays.asList(r);
 		return userData;
 	}

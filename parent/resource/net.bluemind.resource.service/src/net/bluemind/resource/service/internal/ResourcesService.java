@@ -59,8 +59,8 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.MailFilter;
-import net.bluemind.mailbox.api.MailFilter.Rule;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.mailbox.service.IInCoreMailboxes;
 import net.bluemind.resource.api.EventInfo;
 import net.bluemind.resource.api.IResources;
@@ -167,11 +167,8 @@ public class ResourcesService implements IResources {
 	}
 
 	private MailFilter discardRule() {
-		Rule r = new MailFilter.Rule();
-		r.active = true;
-		r.criteria = "MATCHALL";
-		r.discard = true;
-
+		MailFilterRule r = new MailFilterRule();
+		r.addDiscard();
 		return MailFilter.create(r);
 	}
 

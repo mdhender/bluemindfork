@@ -314,7 +314,7 @@ public class UserManagerImplTests {
 
 		assertEquals("hook value", userManager.user.value.dataLocation);
 		assertTrue(userManager.getUpdatedMailFilter().isPresent());
-		assertEquals("hook criteria", userManager.getUpdatedMailFilter().get().rules.get(0).criteria);
+		assertNotNull(userManager.getUpdatedMailFilter().get().rules.get(0).discard().orElse(null));
 	}
 
 	private void checkUserUpdated(UserManager userManager) throws ServerFault, LdapInvalidAttributeValueException {
@@ -683,7 +683,7 @@ public class UserManagerImplTests {
 
 		assertEquals("hook value", userManager.user.value.dataLocation);
 		assertTrue(userManager.getUpdatedMailFilter().isPresent());
-		assertEquals("hook criteria", userManager.getUpdatedMailFilter().get().rules.get(0).criteria);
+		assertNotNull(userManager.getUpdatedMailFilter().get().rules.get(0).discard().orElse(null));
 	}
 
 	@Test

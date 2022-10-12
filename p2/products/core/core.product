@@ -209,6 +209,7 @@
       <plugin id="net.bluemind.delivery.conversationreference.service"/>
       <plugin id="net.bluemind.delivery.conversationreference.sqlschema"/>
       <plugin id="net.bluemind.delivery.lmtp"/>
+      <plugin id="net.bluemind.delivery.rules"/>
       <plugin id="net.bluemind.device.api"/>
       <plugin id="net.bluemind.device.persistence"/>
       <plugin id="net.bluemind.device.service"/>

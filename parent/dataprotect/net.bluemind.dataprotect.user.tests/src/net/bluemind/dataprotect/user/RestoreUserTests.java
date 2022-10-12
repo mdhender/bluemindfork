@@ -19,6 +19,7 @@
 
 package net.bluemind.dataprotect.user;
 
+import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleOperatorName.EQUALS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -59,6 +60,9 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilterEquals;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.DomainTemplate;
@@ -325,10 +329,10 @@ public class RestoreUserTests {
 	public void testRestoreSieve() throws Exception {
 		IMailboxes mboxesService = testContext.provider().instance(IMailboxes.class, domain);
 
-		MailFilter.Rule rule = new MailFilter.Rule();
+		MailFilterRule rule = new MailFilterRule();
 		rule.active = true;
-		rule.criteria = "SUBJECT:IS: bang";
-		rule.deliver = "bang-bang";
+		rule.conditions.add(MailFilterRuleCondition.equal("subject", "bang"));
+		rule.addMove("bang-bang");
 		MailFilter filter = MailFilter.create(rule);
 		mboxesService.setMailboxFilter(changUid, filter);
 
@@ -348,8 +352,11 @@ public class RestoreUserTests {
 		assertEquals(1, filter.rules.size());
 		rule = filter.rules.get(0);
 		assertTrue(rule.active);
-		assertEquals("SUBJECT:IS: bang", rule.criteria);
-		assertEquals("bang-bang", rule.deliver);
+		assertEquals("subject", rule.conditions.get(0).filter.fields.get(0));
+		assertEquals(EQUALS, rule.conditions.get(0).filter.operator);
+		MailFilterRuleFilterEquals equals = (MailFilterRuleFilterEquals) rule.conditions.get(0).filter;
+		assertEquals("bang", equals.values.get(0));
+		assertEquals("bang-bang", rule.move().map(move -> move.folder()).orElse(null));
 
 		assertTrue("restore failed", monitor.success);
 	}
