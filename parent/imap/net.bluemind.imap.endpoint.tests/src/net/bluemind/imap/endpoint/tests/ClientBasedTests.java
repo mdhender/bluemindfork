@@ -19,6 +19,7 @@ package net.bluemind.imap.endpoint.tests;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -37,6 +38,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 import org.junit.After;
 import org.junit.Before;
@@ -55,8 +57,8 @@ import net.bluemind.imap.endpoint.tests.driver.MockModel;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class ClientBasedTests {
-
 	private int port;
+	private MockModel mdl;
 
 	@Before
 	public void before() throws Exception {
@@ -65,7 +67,7 @@ public class ClientBasedTests {
 
 		this.port = EndpointConfig.get().getInt("imap.port");
 
-		MockModel mdl = MockModel.INSTANCE;
+		mdl = MockModel.INSTANCE;
 
 		mdl.registerFolder(UUID.randomUUID(), "INBOX");
 		mdl.registerFolder(UUID.randomUUID(), "Sent");
@@ -195,71 +197,129 @@ public class ClientBasedTests {
 
 	@Test
 	public void testThunderbirdStyleLogin() throws IOException {
-		try (Socket sock = new Socket()) {
-			ConcurrentLinkedDeque<String> queue = rawSocket(sock);
-
-			OutputStream out = sock.getOutputStream();
-			out.write("A0 LOGIN \"tom@f8de2c4a.internal\" \"tom\"\r\n".getBytes());
-			out.flush();
-
-			await().atMost(5, TimeUnit.SECONDS)
-					.until(() -> queue.stream().filter(s -> s.contains("User logged")).findAny().isPresent());
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN \"tom@f8de2c4a.internal\" \"tom\"\r\n");
+			sockc.waitFor("User logged");
 		}
 	}
 
 	@Test
 	public void testNginxStyleLogin() throws IOException {
-		try (Socket sock = new Socket()) {
-			ConcurrentLinkedDeque<String> queue = rawSocket(sock);
-
-			OutputStream out = sock.getOutputStream();
-			out.write("A0 LOGIN {21+}\r\ntom@f8de2c4a.internal {3+}\r\ntom\r\n".getBytes());
-			out.flush();
-
-			await().atMost(5, TimeUnit.SECONDS)
-					.until(() -> queue.stream().filter(s -> s.contains("User logged")).findAny().isPresent());
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN {21+}\r\ntom@f8de2c4a.internal {3+}\r\ntom\r\n");
+			sockc.waitFor("User logged");
 		}
 	}
 
 	@Test
 	public void testLiteralStyleLogin() throws IOException {
-		try (Socket sock = new Socket()) {
-			ConcurrentLinkedDeque<String> queue = rawSocket(sock);
-
-			OutputStream out = sock.getOutputStream();
-			out.write("A0 LOGIN {21}\r\ntom@f8de2c4a.internal {3}\r\ntom\r\n".getBytes());
-			out.flush();
-
-			await().atMost(4, TimeUnit.SECONDS)
-					.until(() -> (queue.stream().filter(s -> s.contains("+ OK")).count() > 0));
-
-			await().atMost(4, TimeUnit.SECONDS)
-					.until(() -> queue.stream().filter(s -> s.contains("User logged")).findAny().isPresent());
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN {21}\r\ntom@f8de2c4a.internal {3}\r\ntom\r\n");
+			sockc.waitFor("+ OK");
+			sockc.waitFor("User logged");
 		}
 	}
 
-	private ConcurrentLinkedDeque<String> rawSocket(Socket sock) throws IOException {
-		sock.connect(new InetSocketAddress("127.0.0.1", port));
-		ConcurrentLinkedDeque<String> queue = new ConcurrentLinkedDeque<>();
-		Thread t = new Thread(() -> {
-			try {
-				InputStream in = sock.getInputStream();
-				byte[] buf = new byte[1024];
-				while (true) {
-					int read = in.read(buf, 0, 1024);
-					if (read == -1) {
-						break;
+	@Test
+	public void testCreateSimple() throws IOException {
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN {21+}\r\ntom@f8de2c4a.internal {3+}\r\ntom\r\n");
+			sockc.waitFor("User logged");
+			sockc.clearQueue();
+			sockc.write("A1 CREATE Bonjour toi\r\n");
+			sockc.waitFor("create completed");
+			assertNotNull("folder not found", mdl.byName("Bonjour toi"));
+		}
+	}
+
+	@Test
+	public void testCreateQuoted() throws IOException {
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN {21+}\r\ntom@f8de2c4a.internal {3+}\r\ntom\r\n");
+			sockc.waitFor("User logged");
+			sockc.clearQueue();
+			sockc.write("A1 CREATE \"Bonjour toi\"\r\n");
+			sockc.waitFor("create completed");
+			assertNotNull("folder not found", mdl.byName("Bonjour toi"));
+		}
+	}
+
+	@Test
+	public void testCreateLitteral() throws IOException {
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN {21+}\r\ntom@f8de2c4a.internal {3+}\r\ntom\r\n");
+			sockc.waitFor("User logged");
+			sockc.clearQueue();
+			sockc.write("A1 CREATE {11}\r\nBonjour toi/et moi\r\n");
+			sockc.waitFor("create completed");
+			assertNotNull("folder not found folders: " + mdl, mdl.byName("Bonjour toi/et moi"));
+		}
+	}
+
+	@SuppressWarnings("unused")
+	private static class SocketClient implements AutoCloseable {
+		private final ConcurrentLinkedDeque<String> readqueue;
+		private final Socket sock;
+		private final OutputStream out;
+
+		public SocketClient() throws IOException {
+			sock = new Socket();
+			sock.connect(new InetSocketAddress("127.0.0.1", EndpointConfig.get().getInt("imap.port")));
+			readqueue = new ConcurrentLinkedDeque<>();
+			Thread t = new Thread(() -> {
+				try {
+					InputStream in = sock.getInputStream();
+					byte[] buf = new byte[1024];
+					while (true) {
+						int read = in.read(buf, 0, 1024);
+						if (read == -1) {
+							break;
+						}
+						String resp = new String(buf, 0, read);
+						System.err.println("S: " + resp);
+						readqueue.offer(resp);
 					}
-					String resp = new String(buf, 0, read);
-					System.err.println("S: " + resp);
-					queue.offer(resp);
+				} catch (Exception e) {
+					// ok
 				}
+			});
+			t.start();
+			out = sock.getOutputStream();
+		}
+
+		public ConcurrentLinkedDeque<String> queue() {
+			return readqueue;
+		}
+
+		@Override
+		public void close() {
+			try {
+				sock.close();
 			} catch (Exception e) {
-				// ok
 			}
-		});
-		t.start();
-		return queue;
+		}
+
+		public void write(String s) throws IOException {
+			out.write(s.getBytes());
+			out.flush();
+		}
+
+		public void write(byte[] b) throws IOException {
+			out.write(b);
+			out.flush();
+		}
+
+		public void waitFor(String s) {
+			waitFor(readstring -> readstring.contains(s));
+		}
+
+		public void waitFor(Predicate<String> filter) {
+			await().atMost(1, TimeUnit.SECONDS).until(() -> (readqueue.stream().filter(filter).count() > 0));
+		}
+
+		public void clearQueue() {
+			readqueue.clear();
+		}
 	}
 
 }

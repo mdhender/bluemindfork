@@ -132,6 +132,7 @@ public class MailApiConnection implements MailboxConnection {
 		ItemValue<MailboxReplica> folder = foldersApi.byReplicaName(fName);
 		if (folder != null && folder.value != null) {
 			logger.warn("[{}] folder {} already exists.", this, fName);
+			return null;
 		} else {
 			MailboxReplica mr = new MailboxReplica();
 			mr.fullName = fName;

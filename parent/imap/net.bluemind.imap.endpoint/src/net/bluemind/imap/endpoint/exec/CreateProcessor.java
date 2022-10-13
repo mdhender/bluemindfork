@@ -27,7 +27,6 @@ import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.CreateCommand;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
-import net.bluemind.imap.endpoint.driver.SelectedFolder;
 import net.bluemind.lib.vertx.Result;
 
 public class CreateProcessor extends AuthenticatedCommandProcessor<CreateCommand> {
@@ -40,14 +39,12 @@ public class CreateProcessor extends AuthenticatedCommandProcessor<CreateCommand
 	protected void checkedOperation(CreateCommand createCommand, ImapContext ctx,
 			Handler<AsyncResult<Void>> completed) {
 		MailboxConnection con = ctx.mailbox();
-		SelectedFolder selected = con.select(createCommand.folder());
-		if (selected != null) {
-			ctx.write(createCommand.raw().tag() + " NO already exists\r\n");
+		String createdFolderName = con.create(createCommand.folder());
+		if (createdFolderName == null) {
+			ctx.write(createCommand.raw().tag() + " NO create failed, already exists\r\n");
 		} else {
-			con.create(createCommand.folder());
-			ctx.write(createCommand.raw().tag() + " OK CREATE completed\r\n");
+			ctx.write(createCommand.raw().tag() + " OK create completed\r\n");
 		}
 		completed.handle(Result.success());
 	}
-
 }

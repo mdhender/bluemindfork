@@ -20,6 +20,7 @@ package net.bluemind.imap.endpoint.tests.driver;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -135,12 +136,19 @@ public class MockConnection implements MailboxConnection {
 
 	@Override
 	public String create(String fName) {
+		model.registerFolder(UUID.randomUUID(), fName);
 		return fName;
 	}
 
 	@Override
 	public boolean delete(String fName) {
-		return true;
+		SelectedFolder selectedFolder = model.byName(fName);
+		if (selectedFolder == null) {
+			return false;
+		} else {
+			model.remove(selectedFolder);
+			return true;
+		}
 	}
 
 	@Override
@@ -155,6 +163,10 @@ public class MockConnection implements MailboxConnection {
 
 	@Override
 	public String rename(String fName, String newName) {
-		return newName;
+		SelectedFolder selectedFolder = model.byName(fName);
+		if (selectedFolder == null) {
+			return null;
+		}
+		return model.rename(selectedFolder, newName);
 	}
 }

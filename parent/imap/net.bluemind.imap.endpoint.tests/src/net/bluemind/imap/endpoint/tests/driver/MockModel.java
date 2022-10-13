@@ -20,6 +20,7 @@ package net.bluemind.imap.endpoint.tests.driver;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.container.model.ItemValue;
@@ -35,6 +36,10 @@ public class MockModel {
 		this.folders = new ConcurrentHashMap<>();
 	}
 
+	public String toString() {
+		return folders.values().stream().map(f -> f.folder.value.fullName).collect(Collectors.joining(","));
+	}
+
 	public void registerFolder(UUID uid, String fullName) {
 		MailboxReplica repl = new MailboxReplica();
 		repl.uidValidity = System.currentTimeMillis() / 1000;
@@ -47,11 +52,20 @@ public class MockModel {
 		item.displayName = repl.name;
 		SelectedFolder sf = new SelectedFolder(item, "part_bidon", 3, 1);
 		folders.put(uid.toString(), sf);
-
 	}
 
 	public SelectedFolder byName(String n) {
-		return folders.values().stream().filter(s -> s.folder.value.name.equals(n)).findAny().orElse(null);
+		return folders.values().stream().filter(s -> s.folder.value.fullName.equals(n)).findAny().orElse(null);
+	}
+
+	public boolean remove(SelectedFolder selectedFolder) {
+		return (this.folders.remove(selectedFolder.folder.uid) != null);
+	}
+
+	public String rename(SelectedFolder selectedFolder, String newName) {
+		selectedFolder.folder.value.fullName = newName;
+		selectedFolder.folder.value.name = newName.substring(newName.lastIndexOf('/') + 1);
+		return newName;
 	}
 
 }
