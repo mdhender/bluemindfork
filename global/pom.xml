@@ -65,7 +65,7 @@
 
 		<bm-plugins-version>1.0.530</bm-plugins-version>
 		<bm.metrics.agent>1.30.10</bm.metrics.agent>
-		<docker.devenv.tag>4.1.63005</docker.devenv.tag>
+		<docker.devenv.tag>4.1.64785</docker.devenv.tag>
 		<target-platform-version>jdk17-60</target-platform-version>
 
 		<!-- Not to be modified usually -->
