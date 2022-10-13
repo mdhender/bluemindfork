@@ -19,6 +19,7 @@ package net.bluemind.ui.adminconsole.directory.ou;
 
 import java.util.stream.Collectors;
 
+import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -52,6 +53,15 @@ public class OrgResourceGrid extends CommonOrgResourceGrid {
 			public String getValue(ItemValue<DirEntry> de) {
 				return de.value.email;
 			}
+
+			@Override
+			public String getCellStyleNames(Context context, ItemValue<DirEntry> object) {
+				if (object.value.archived) {
+					return style.suspended();
+				}
+
+				return super.getCellStyleNames(context, object);
+			}
 		};
 		addColumn(emailColumn, constants.resEmail());
 		setColumnWidth(emailColumn, 60, Unit.PX);
@@ -66,6 +76,15 @@ public class OrgResourceGrid extends CommonOrgResourceGrid {
 				} else {
 					return "";
 				}
+			}
+
+			@Override
+			public String getCellStyleNames(Context context, ItemValue<DirEntry> object) {
+				if (object.value.archived) {
+					return style.suspended();
+				}
+
+				return super.getCellStyleNames(context, object);
 			}
 		};
 		addColumn(orgUnitColumn, constants.resUnit());

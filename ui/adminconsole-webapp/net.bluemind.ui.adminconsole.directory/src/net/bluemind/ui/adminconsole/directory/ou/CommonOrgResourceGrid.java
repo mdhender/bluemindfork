@@ -21,9 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import com.google.gwt.cell.client.Cell.Context;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
@@ -62,6 +66,22 @@ public class CommonOrgResourceGrid extends DataGrid<ItemValue<DirEntry>> impleme
 
 	public static final int PAGE_SIZE = 15;
 
+	public interface DCGBundle extends ClientBundle {
+
+		@Source("OrgResourcesGrid.css")
+		DCGStyle getStyle();
+
+	}
+
+	public interface DCGStyle extends CssResource {
+
+		public String suspended();
+
+	}
+
+	public static DCGBundle bundle;
+	public static DCGStyle style;
+
 	protected SelectionModel<ItemValue<DirEntry>> selectionModel;
 	protected ListDataProvider<ItemValue<DirEntry>> ldp;
 	protected static final OrgUnitConstants constants = OrgUnitConstants.INST;
@@ -69,6 +89,10 @@ public class CommonOrgResourceGrid extends DataGrid<ItemValue<DirEntry>> impleme
 	protected Column<ItemValue<DirEntry>, TippedResource> typeColumn;
 
 	public CommonOrgResourceGrid(String emptyTableLabel, SelectionModel<ItemValue<DirEntry>> selectionModel) {
+		bundle = GWT.create(DCGBundle.class);
+		style = bundle.getStyle();
+		style.ensureInjected();
+
 		this.getElement().getStyle().setCursor(Cursor.POINTER);
 
 		this.selectionModel = new SingleSelectionModel<>(item -> (item == null) ? null : item.uid);
@@ -129,6 +153,15 @@ public class CommonOrgResourceGrid extends DataGrid<ItemValue<DirEntry>> impleme
 			@Override
 			public String getValue(ItemValue<DirEntry> de) {
 				return de.value.displayName;
+			}
+
+			@Override
+			public String getCellStyleNames(Context context, ItemValue<DirEntry> object) {
+				if (object.value.archived) {
+					return style.suspended();
+				}
+
+				return super.getCellStyleNames(context, object);
 			}
 		};
 
@@ -192,7 +225,7 @@ public class CommonOrgResourceGrid extends DataGrid<ItemValue<DirEntry>> impleme
 		dq.hiddenFilter = false;
 		dq.onlyManagable = true;
 
-		dq.stateFilter = StateFilter.Active;
+		dq.stateFilter = StateFilter.All;
 		dq.order = DirEntryQuery.order(OrderBy.displayname, Dir.asc);
 
 		final ColumnSortList sortList = getColumnSortList();
