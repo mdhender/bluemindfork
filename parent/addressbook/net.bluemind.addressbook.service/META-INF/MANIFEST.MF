@@ -41,7 +41,8 @@ Require-Bundle: net.bluemind.addressbook.api;bundle-version="1.0.0",
  net.bluemind.core.container.sharding,
  net.bluemind.config,
  net.bluemind.server.api,
- net.bluemind.addressbook.domainbook
+ net.bluemind.addressbook.domainbook,
+ net.bluemind.core.container.repair
 Export-Package: net.bluemind.addressbook.service,
  net.bluemind.addressbook.service.internal
 Bundle-Activator: net.bluemind.addressbook.service.Activator

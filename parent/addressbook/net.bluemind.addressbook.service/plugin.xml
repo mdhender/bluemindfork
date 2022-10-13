@@ -90,5 +90,11 @@
             factory="net.bluemind.addressbook.service.internal.DomainBookRepairSupport$Factory">
       </repairSupport>
    </extension>
+   <extension
+         point="net.bluemind.core.container.repair">
+      <repair
+            impl="net.bluemind.addressbook.service.internal.DomainAddressBookRepair">
+      </repair>
+   </extension>
 
 </plugin>
