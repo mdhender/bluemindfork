@@ -14,5 +14,10 @@
                 "link": "La sélection est trop volumineuse pour être insérée en tant que lien partagé"
             },
             "many_files": "De nombreux fichiers sont sélectionnés"
-    }
+    },
+    "contact.info.type.cell": "mobile",
+    "contact.info.type.fax": "fax",
+    "contact.info.type.home": "personnel",
+    "contact.info.type.voice": "société",
+    "contact.info.type.work": "société"
 }

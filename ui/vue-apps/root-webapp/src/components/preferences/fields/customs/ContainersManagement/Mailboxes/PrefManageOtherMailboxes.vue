@@ -11,10 +11,10 @@
         @update="UPDATE_OTHER_MAILBOX_CONTAINER"
     >
         <template v-slot:item="{ container }">
-            <bm-contact :contact="{ dn: container.ownerDisplayname }" transparent bold />
+            <contact :contact="{ dn: container.ownerDisplayname }" transparent bold />
         </template>
         <template v-slot:badge-item="{ container, closeFn }">
-            <bm-contact
+            <contact
                 :contact="{ dn: container.ownerDisplayname }"
                 class="mr-2"
                 closeable
@@ -29,14 +29,15 @@ import { ContainerHelper, ContainerType } from "../container";
 import BaseField from "../../../../mixins/BaseField";
 import ContainersManagement from "../ContainersManagement";
 import MailboxHelper from "./helper";
-import { BmContact } from "@bluemind/ui-components";
+import { Contact } from "@bluemind/business-components";
+
 import { mapMutations, mapState } from "vuex";
 
 ContainerHelper.register(ContainerType.MAILBOX, MailboxHelper);
 
 export default {
     name: "PrefManageOtherMailboxes",
-    components: { BmContact, ContainersManagement },
+    components: { Contact, ContainersManagement },
     mixins: [BaseField],
     data() {
         return { containerType: ContainerType.MAILBOX };

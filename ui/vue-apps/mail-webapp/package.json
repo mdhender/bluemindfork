@@ -9,6 +9,7 @@
         "@bluemind/addressbook.api": "^4.1.0",
         "@bluemind/alert.store": "^4.1.0",
         "@bluemind/backend.mail.api": "^4.9.0",
+        "@bluemind/business-components": "^4.1.0",
         "@bluemind/calendar.api": "^4.1.0",
         "@bluemind/contact": "^4.1.0",
         "@bluemind/containerobserver": "^4.1.0",

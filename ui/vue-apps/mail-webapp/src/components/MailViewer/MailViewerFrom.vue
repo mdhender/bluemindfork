@@ -1,13 +1,15 @@
 <template>
-    <bm-contact :contact="contact" avatar-size="md" show-address transparent bold-dn />
+    <div class="mail-viewer-from">
+        <contact :contact="contact" avatar-size="md" show-address transparent bold-dn popover />
+    </div>
 </template>
 
 <script>
-import { BmContact } from "@bluemind/ui-components";
+import { Contact } from "@bluemind/business-components";
 
 export default {
     name: "MailViewerFrom",
-    components: { BmContact },
+    components: { Contact },
     props: {
         contact: {
             type: Object,

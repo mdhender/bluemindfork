@@ -4,7 +4,7 @@
         <template slot="head">
             <div class="conversation-viewer-message-head d-flex flex-fill justify-content-between align-items-start">
                 <div class="d-flex align-self-center overflow-hidden no-wrap">
-                    <bm-contact :contact="message.from" no-avatar transparent show-address bold-dn />
+                    <contact :contact="message.from" no-avatar transparent show-address bold-dn popover />
                     <mail-folder-icon
                         v-if="folder.key !== conversation.folderRef.key"
                         variant="caption"
@@ -63,7 +63,7 @@
 <script>
 import { mapGetters, mapState } from "vuex";
 import { BmExtension } from "@bluemind/extensions.vue";
-import { BmContact } from "@bluemind/ui-components";
+import { Contact } from "@bluemind/business-components";
 import MailConversationViewerItem from "./MailConversationViewerItem";
 import MailViewerContentLoading from "../../MailViewer/MailViewerContentLoading";
 import MailViewerToolbar from "../MailViewerToolbar";
@@ -78,9 +78,9 @@ import MailAttachmentIcon from "../../MailAttachmentIcon";
 export default {
     name: "MailConversationViewerMessage",
     components: {
-        BmContact,
         BmExtension,
         BodyViewer,
+        Contact,
         MailFolderIcon,
         MailConversationViewerFlags,
         MailConversationViewerItem,

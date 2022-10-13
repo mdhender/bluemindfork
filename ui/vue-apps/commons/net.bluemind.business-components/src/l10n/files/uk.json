@@ -1,1 +1,7 @@
-{}
+{
+    "contact.info.type.cell": "mobile",
+    "contact.info.type.fax": "fax",
+    "contact.info.type.home": "personal",
+    "contact.info.type.voice": "company",
+    "contact.info.type.work": "company"
+}

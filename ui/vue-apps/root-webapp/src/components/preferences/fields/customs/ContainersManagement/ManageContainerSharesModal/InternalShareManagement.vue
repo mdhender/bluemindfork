@@ -21,7 +21,7 @@
             </bm-row>
             <template v-for="dirEntry in dirEntriesAcl">
                 <bm-row :key="dirEntry.uid" class="share-entry-body">
-                    <bm-contact
+                    <contact
                         :contact="dirEntryToContact(dirEntry)"
                         class="share-entry-col share-user"
                         transparent
@@ -44,12 +44,13 @@
 <script>
 import { DirEntryAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
-import { BmContact, BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/ui-components";
+import { Contact } from "@bluemind/business-components";
+import { BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/styleguide";
 import { ContainerHelper, ContainerType } from "../container";
 
 export default {
     name: "InternalShareManagement",
-    components: { BmContact, BmFormSelect, BmLabelIcon, BmRow },
+    components: { BmFormSelect, BmLabelIcon, BmRow, Contact },
     props: {
         container: {
             type: Object,

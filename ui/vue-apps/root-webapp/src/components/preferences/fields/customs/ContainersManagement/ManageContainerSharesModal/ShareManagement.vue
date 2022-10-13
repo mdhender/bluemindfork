@@ -13,7 +13,7 @@
             @selected="onSelect"
         >
             <template v-slot="{ item }">
-                <bm-contact :contact="item" transparent show-address bold-dn />
+                <contact :contact="item" transparent show-address bold-dn />
                 <span v-if="!item.urn"> ({{ $t("common.external") }}) </span>
             </template>
         </bm-form-autocomplete-input>
@@ -51,7 +51,8 @@ import { Verb } from "@bluemind/core.container.api";
 import { BaseDirEntryKind } from "@bluemind/directory.api";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
-import { BmContact, BmFormAutocompleteInput, BmSpinner } from "@bluemind/ui-components";
+import { BmFormAutocompleteInput, BmSpinner } from "@bluemind/styleguide";
+import { Contact } from "@bluemind/business-components";
 import UUIDHelper from "@bluemind/uuid";
 import { SUCCESS } from "@bluemind/alert.store";
 import { SAVE_ALERT_MODAL } from "../../../../Alerts/defaultAlerts";
@@ -59,9 +60,9 @@ import { SAVE_ALERT_MODAL } from "../../../../Alerts/defaultAlerts";
 export default {
     name: "ShareManagement",
     components: {
-        BmContact,
         BmFormAutocompleteInput,
         BmSpinner,
+        Contact,
         ExternalShareManagement,
         InternalShareManagement
     },

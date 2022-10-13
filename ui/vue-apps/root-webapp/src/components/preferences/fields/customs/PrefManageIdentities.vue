@@ -14,7 +14,7 @@
                 </div>
             </template>
             <template #cell(displayname)="row">
-                <bm-contact :contact="getContact(row.item)" show-address transparent bold-dn />
+                <contact :contact="getContact(row.item)" show-address transparent bold-dn />
             </template>
             <template #cell(name)="row">{{ row.value }}</template>
             <template #cell(action)="row">
@@ -38,7 +38,8 @@
 <script>
 import { mapState } from "vuex";
 import { inject } from "@bluemind/inject";
-import { BmButton, BmContact, BmIcon, BmPagination, BmTable } from "@bluemind/ui-components";
+import { BmButton, BmIcon, BmPagination, BmTable } from "@bluemind/styleguide";
+import { Contact } from "@bluemind/business-components";
 
 import ManageIdentityModal from "./ManageIdentityModal";
 import BaseField from "../../mixins/BaseField";
@@ -47,10 +48,10 @@ export default {
     name: "PrefManageIdentities",
     components: {
         BmButton,
-        BmContact,
         BmIcon,
         BmPagination,
         BmTable,
+        Contact,
         ManageIdentityModal
     },
     mixins: [BaseField],

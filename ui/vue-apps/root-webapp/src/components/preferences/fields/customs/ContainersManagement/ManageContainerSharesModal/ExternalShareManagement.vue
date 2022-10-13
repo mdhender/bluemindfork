@@ -7,7 +7,7 @@
         <div v-if="externalShares.length === 0" class="ml-4 mt-3 font-italic">{{ noExternalShareSet }}</div>
         <div v-for="external in externalShares" v-else :key="external.token" class="share-entry">
             <div class="share-entry-title">
-                <bm-contact
+                <contact
                     v-if="external.vcard"
                     :contact="VCardInfoAdaptor.toContact(external.vcard)"
                     transparent
@@ -46,11 +46,12 @@ import { publishModeOptions } from "./ExternalShareHelper";
 import { PublishMode } from "@bluemind/calendar.api";
 import { VCardInfoAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
-import { BmButtonCopy, BmIconButton, BmContact, BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/ui-components";
+import { Contact } from "@bluemind/business-components";
+import { BmButtonCopy, BmIconButton, BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/styleguide";
 
 export default {
     name: "ExternalShareManagement",
-    components: { BmButtonCopy, BmIconButton, BmContact, BmFormSelect, BmLabelIcon, BmRow },
+    components: { BmButtonCopy, BmIconButton, BmFormSelect, BmLabelIcon, BmRow, Contact },
     props: {
         container: {
             type: Object,

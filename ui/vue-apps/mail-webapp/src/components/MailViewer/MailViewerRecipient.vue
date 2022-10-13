@@ -7,7 +7,7 @@
                 :key="recipient.address + index"
                 class="d-inline-flex viewer-recipient-item"
             >
-                <bm-contact :contact="recipient" class="overflow-hidden" no-avatar transparent bold />
+                <contact :contact="recipient" class="overflow-hidden" no-avatar transparent bold popover />
                 <template v-if="index != recipients.length - hiddenContactCount - 1">,&nbsp;</template>
             </div>
         </div>
@@ -21,11 +21,12 @@
 </template>
 
 <script>
-import { BmContact, BmMoreItemsBadge, OverflownElements } from "@bluemind/ui-components";
+import { Contact } from "@bluemind/business-components";
+import { BmMoreItemsBadge, OverflownElements } from "@bluemind/styleguide";
 
 export default {
     name: "MailViewerRecipient",
-    components: { BmContact, BmMoreItemsBadge },
+    components: { Contact, BmMoreItemsBadge },
     directives: { OverflownElements },
     props: {
         recipients: {

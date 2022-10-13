@@ -14,5 +14,10 @@
 			"link": "Die Auswahl ist zu groß, um als gemeinsamer Link eingefügt zu werden"
 		},
 		"many_files": "Viele Dateien werden ausgewählt"
-	}
+	},
+    "contact.info.type.cell": "mobil",
+    "contact.info.type.fax": "Fax",
+    "contact.info.type.home": "persönlich",
+    "contact.info.type.voice": "Firma",
+    "contact.info.type.work": "Firma"
 }

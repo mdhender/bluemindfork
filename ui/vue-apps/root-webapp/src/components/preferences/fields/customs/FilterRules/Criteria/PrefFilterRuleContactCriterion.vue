@@ -1,15 +1,15 @@
 <template>
     <pref-filter-rule-criterion class="pref-filter-rule-contact-criterion" :criterion="criterion" :negates="negates">
-        <bm-contact :contact="{ address: criterion.value }" />
+        <contact :contact="{ address: criterion.value }" />
     </pref-filter-rule-criterion>
 </template>
 
 <script>
-import { BmContact } from "@bluemind/ui-components";
+import { Contact } from "@bluemind/business-components";
 import PrefFilterRuleCriterion from "./PrefFilterRuleCriterion";
 export default {
     name: "PrefFilterRuleContactCriterion",
-    components: { BmContact, PrefFilterRuleCriterion },
+    components: { Contact, PrefFilterRuleCriterion },
     props: {
         criterion: {
             type: Object,

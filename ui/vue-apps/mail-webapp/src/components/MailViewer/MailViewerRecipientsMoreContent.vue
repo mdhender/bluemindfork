@@ -9,13 +9,13 @@
             <div class="d-flex">
                 <div class="custom-col-left text-right pr-4">{{ $t("common.from") }}</div>
                 <div class="custom-col-right">
-                    <bm-contact :contact="message.from" no-avatar transparent bold show-address />
+                    <contact :contact="message.from" no-avatar transparent bold show-address popover />
                 </div>
             </div>
             <div class="d-flex">
                 <div class="custom-col-left text-right pr-4">{{ $t("common.to") }}</div>
                 <div class="custom-col-right d-flex flex-column">
-                    <bm-contact
+                    <contact
                         v-for="(contact, index) in message.to"
                         :key="`${contact.address}#${index}`"
                         :contact="contact"
@@ -24,13 +24,14 @@
                         bold
                         show-address
                         :text-truncate="false"
+                        popover
                     />
                 </div>
             </div>
             <div v-if="message.cc && message.cc.length" class="d-flex">
                 <div class="custom-col-left text-right pr-4">{{ $t("common.cc") }}</div>
                 <div class="custom-col-right d-flex flex-column">
-                    <bm-contact
+                    <contact
                         v-for="(contact, index) in message.cc"
                         :key="`${contact.address}#${index}`"
                         :contact="contact"
@@ -39,13 +40,14 @@
                         bold
                         show-address
                         :text-truncate="false"
+                        popover
                     />
                 </div>
             </div>
             <div v-if="message.bcc && message.bcc.length" class="d-flex">
                 <div class="custom-col-left text-right pr-4">{{ $t("common.bcc") }}</div>
                 <div class="custom-col-right d-flex flex-column">
-                    <bm-contact
+                    <contact
                         v-for="(contact, index) in message.bcc"
                         :key="`${contact.address}#${index}`"
                         :contact="contact"
@@ -54,6 +56,7 @@
                         bold
                         show-address
                         :text-truncate="false"
+                        popover
                     />
                 </div>
             </div>
@@ -74,11 +77,12 @@
 </template>
 
 <script>
-import { BmButtonClose, BmContact } from "@bluemind/ui-components";
+import { Contact } from "@bluemind/business-components";
+import { BmButtonClose } from "@bluemind/styleguide";
 
 export default {
     name: "MailViewerRecipientsMoreContent",
-    components: { BmButtonClose, BmContact },
+    components: { BmButtonClose, Contact },
     props: {
         message: {
             type: Object,
