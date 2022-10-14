@@ -20,6 +20,8 @@ package net.bluemind.node.server;
 
 import java.io.File;
 import java.nio.channels.ClosedChannelException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -97,6 +99,7 @@ public class BlueMindNode extends AbstractVerticle {
 		if (ssl) {
 			options.setKeyStoreOptions(new JksOptions().setPath("/etc/bm/bm.jks").setPassword("bluemind"));
 			options.setSsl(true);
+			options.setEnabledSecureTransportProtocols(new HashSet<>(Arrays.asList("TLSv1.2", "TLSv1.3")));
 			options.setTrustStoreOptions(
 					new JksOptions().setPath("/etc/bm/nodeclient_truststore.jks").setPassword("password"));
 			options.setClientAuth(ClientAuth.REQUIRED);
