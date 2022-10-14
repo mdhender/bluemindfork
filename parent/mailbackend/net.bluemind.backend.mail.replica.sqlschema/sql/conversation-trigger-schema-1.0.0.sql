@@ -374,14 +374,14 @@ BEGIN
             END IF;
 
             -- we were the last message in the conversation, update the sender and date
-            IF OLD.internal_date = CONRRENT_CONVERSATION.date THEN
+            IF OLD.internal_date = CURRENT_CONVERSATION.date THEN
                 SELECT sender, "date"
                 INTO new_sender, new_date
                 FROM
                     fct_conversation_get_last_mailrecord(OLD.container_id, OLD.conversation_id)
                     AS (subject text, sender text, size integer, "date" timestamp);
             END IF;
-        END IF;            
+        END IF;
     END IF;
 
     -- system_flags & 16 = 16 => message is seen
@@ -402,11 +402,11 @@ BEGIN
     -- Message is unseen or flagged and conversation is not
     ELSE
         -- seen -> unseen and current is seen ==> UNSEEN
-        IF (NEW.system_flags & 16 != 16) AND NOT CONRRENT_CONVERSATION.unseen THEN
+        IF (NEW.system_flags & 16 != 16) AND NOT CURRENT_CONVERSATION.unseen THEN
             new_unseen = true;
         END IF;
         -- not flagged -> flagged and current is not flagged ==> FLAGGED
-        IF (NEW.system_flags & 2 = 2) AND NOT CONRRENT_CONVERSATION.flagged THEN
+        IF (NEW.system_flags & 2 = 2) AND NOT CURRENT_CONVERSATION.flagged THEN
             new_flagged = true;
         END IF;
     END IF;
