@@ -402,11 +402,11 @@ BEGIN
     -- Message is unseen or flagged and conversation is not
     ELSE
         -- seen -> unseen and current is seen ==> UNSEEN
-        IF (NEW.system_flags & 16 != 16) AND NOT CURRENT.unseen THEN
+        IF (NEW.system_flags & 16 != 16) AND NOT CONRRENT_CONVERSATION.unseen THEN
             new_unseen = true;
         END IF;
         -- not flagged -> flagged and current is not flagged ==> FLAGGED
-        IF (NEW.system_flags & 2 = 2) AND NOT CURRENT.flagged THEN
+        IF (NEW.system_flags & 2 = 2) AND NOT CONRRENT_CONVERSATION.flagged THEN
             new_flagged = true;
         END IF;
     END IF;
