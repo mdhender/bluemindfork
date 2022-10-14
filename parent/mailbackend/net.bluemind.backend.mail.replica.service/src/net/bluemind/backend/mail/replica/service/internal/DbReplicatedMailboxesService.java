@@ -39,6 +39,7 @@ import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namesp
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
+import net.bluemind.backend.mail.replica.service.names.MailboxNameValidator;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainerItemIdsCache;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
@@ -71,6 +72,9 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 	public void create(String uid, MailboxReplica r) {
 		logger.info("CREATE {} n:{} fn:{}", uid, r.name, r.fullName);
 		MailboxReplica replica = nameSanitizer.sanitizeNames(r);
+		if (!MailboxNameValidator.validate(replica)) {
+			throw new ServerFault("MailboxName validator failed '" + r.fullName + "' is not allowed");
+		}
 		String recordsContainerUid = IMailReplicaUids.mboxRecords(uid);
 		String domainUid = replicaStore.partition.replace('_', '.');
 
@@ -126,6 +130,9 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 
 	@Override
 	public void update(String uid, MailboxReplica r) {
+		if (!MailboxNameValidator.validate(r)) {
+			throw new ServerFault("MailboxName validator failed '" + r.fullName + "' is not allowed");
+		}
 		ItemValue<MailboxReplica> previous = getCompleteReplica(uid);
 		if (previous != null) {
 			MailboxReplica replica = nameSanitizer.sanitizeNames(r);
