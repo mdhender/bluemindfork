@@ -644,7 +644,6 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.isSignificantlyModified = f
   return reset;
 }
 
-
 /**
  * Test if the vevent has been modified
  * 
@@ -781,45 +780,13 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.dateHasBeenModified = funct
     });
     return equal;
   };
-
   var adapt = this.ctx_.helper('date').toBMDateTime.bind(this.ctx_.helper('date'));
 
   var reset = !equalFn(adapt(modified.dtstart, modified.timezones.start), remote['dtstart']);
   reset = reset || !equalFn(adapt(modified.dtend, modified.timezones.end), remote['dtend']);
-
-  var modifiedRRule = this.composeRRule_(modified);
-  var endlessRemoteRRule =   Object.assign({}, remote['rrule'], {until: null, count:null});
-  var endlessModifiedRRule =   Object.assign({}, modifiedRRule, {until: null, count:null});
-  reset = reset || !equalFn(endlessRemoteRRule, endlessModifiedRRule);
-  reset = reset || this.differentRule(remote['rrule'], modifiedRRule);
-
+  reset = reset || !equalFn(this.composeRRule_(modified), remote['rrule']);
   return reset;
 }
-
-/**
- * Test if the event rrule has been modified
- * - if 'until' property changed and is after the remote value
- * - if 'count' property changed and is higher than the remote value
- * 
- * @param {Object=} remoteRRule Stored version of the rrule
- * @param {Object} modifiedRRule Modified version of the rrule
- * @return {boolean} 
- * Is Modified version until after Stored version until 
- * or Is Modified version count higher than Stored version count
- */
- net.bluemind.calendar.vevent.VEventAdaptor.prototype.differentRule = function(remoteRRule, modifiedRRule) {
-  var sameUtil = (!goog.isDefAndNotNull(modifiedRRule.until) && !goog.isDefAndNotNull(remoteRRule.until)) ||
-  (goog.isDefAndNotNull(modifiedRRule.until) && goog.isDefAndNotNull(remoteRRule.until) && remoteRRule.until == modifiedRRule.until);
-  if(!sameUtil && goog.isDefAndNotNull(modifiedRRule.until) && goog.isDefAndNotNull(remoteRRule.until)) {
-    return new Date(modifiedRRule.until.iso8601).getTime() > new Date(remoteRRule.until.iso8601).getTime();
-  }
-  var sameCount = (!goog.isDefAndNotNull(modifiedRRule.count) && !goog.isDefAndNotNull(remoteRRule.count)) ||
-  (goog.isDefAndNotNull(modifiedRRule.count) && goog.isDefAndNotNull(remoteRRule.count) && remoteRRule.count == modifiedRRule.count);
-  if(!sameCount && goog.isDefAndNotNull(modifiedRRule.count) && goog.isDefAndNotNull(remoteRRule.count)) {
-    return modifiedRRule.count > remoteRRule.count;
-  }
-  return false;
- }
 
 /**
  * Generate an empty event
