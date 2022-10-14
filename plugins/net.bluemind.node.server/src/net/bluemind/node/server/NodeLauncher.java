@@ -40,13 +40,17 @@ public class NodeLauncher implements IApplication {
 
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
-		logger.info("Starting BlueMind Node on port {}...", Activator.NODE_PORT);
+		logger.info("Starting BlueMind Node...");
 		Vertx pm = VertxPlatform.getVertx();
 
 		int procs = Runtime.getRuntime().availableProcessors();
 		int instances = Math.max(10, procs);
 		DepDoneHandler httpDep = new DepDoneHandler();
-		pm.deployVerticle(BlueMindNode::new, new DeploymentOptions().setInstances(instances), httpDep);
+		if (BlueMindSSLNode.canSSL()) {
+			pm.deployVerticle(BlueMindSSLNode::new, new DeploymentOptions().setInstances(instances), httpDep);
+		} else {
+			pm.deployVerticle(BlueMindUnsecureNode::new, new DeploymentOptions().setInstances(instances), httpDep);
+		}
 
 		DepDoneHandler workerDep = new DepDoneHandler();
 		pm.deployVerticle(SysCommand::new, new DeploymentOptions().setInstances(1), workerDep);
@@ -61,6 +65,12 @@ public class NodeLauncher implements IApplication {
 		if (SystemD.isAvailable()) {
 			SystemD.get().notifyReady();
 		}
+
+		pm.eventBus().consumer("bluemind.node.ssl", (event) -> {
+			logger.info("Switching bm-node from unsecure to SSL mode");
+			pm.undeploy(httpDep.id());
+			pm.deployVerticle(BlueMindSSLNode::new, new DeploymentOptions().setInstances(instances), httpDep);
+		});
 		return IApplication.EXIT_OK;
 	}
 

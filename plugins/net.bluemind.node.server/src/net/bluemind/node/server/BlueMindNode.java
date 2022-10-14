@@ -18,24 +18,15 @@
  */
 package net.bluemind.node.server;
 
-import java.io.File;
 import java.nio.channels.ClosedChannelException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.http.ClientAuth;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.net.JksOptions;
-import io.vertx.core.net.OpenSSLEngineOptions;
 import net.bluemind.lib.vertx.RouteMatcher;
 import net.bluemind.node.server.handlers.CheckFile;
 import net.bluemind.node.server.handlers.DeleteFile;
@@ -49,25 +40,24 @@ import net.bluemind.node.server.handlers.SubmitCommand;
 import net.bluemind.node.server.handlers.WebSocketProcessHandler;
 import net.bluemind.node.server.handlers.WriteFile;
 
-public class BlueMindNode extends AbstractVerticle {
+public abstract class BlueMindNode extends AbstractVerticle {
 
-	private static final Logger logger = LoggerFactory.getLogger(BlueMindNode.class);
-
-	private static final File serverJks = new File("/etc/bm/bm.jks");
-	private static final File trustClientCert = new File("/etc/bm/nodeclient_truststore.jks");
+	protected static final Logger logger = LoggerFactory.getLogger(BlueMindNode.class);
 
 	private HttpServer srv;
 
-	// ugly hack to restart the server's in ssl mode
-	private static List<BlueMindNode> selfRefs = new LinkedList<>();
-
 	@Override
 	public void start() {
-		reconfigure();
-		selfRefs.add(this);
+		configure();
 	}
 
-	private void reconfigure() {
+	protected abstract int getPort();
+
+	protected abstract void options(HttpServerOptions options);
+
+	protected abstract void router(RouteMatcher rm);
+
+	private void configure() {
 		HttpServerOptions options = prepareOptions();
 		this.srv = vertx.createHttpServer(prepareOptions());
 		final RouteMatcher rm = createRouter(options.isSsl());
@@ -76,7 +66,6 @@ public class BlueMindNode extends AbstractVerticle {
 			rm.handle(event);
 		});
 		srv.webSocketHandler(new WebSocketProcessHandler(vertx));
-		logger.info("NODE is SSL: {}", options.isSsl());
 		srv.exceptionHandler(t -> {
 			if (t instanceof ClosedChannelException) {
 				logger.debug("exceptionHandler {}", t.getMessage(), t);
@@ -84,7 +73,7 @@ public class BlueMindNode extends AbstractVerticle {
 				logger.error("exceptionHandler {}", t.getMessage(), t);
 			}
 		});
-		srv.listen(options.isSsl() ? Activator.NODE_PORT : 8021, ar -> {
+		srv.listen(getPort(), ar -> {
 			if (ar.failed()) {
 				logger.error("Node failed to listen", ar.cause());
 			}
@@ -95,19 +84,7 @@ public class BlueMindNode extends AbstractVerticle {
 		HttpServerOptions options = new HttpServerOptions();
 		options.setAcceptBacklog(1024).setReuseAddress(true);
 		options.setTcpNoDelay(true);
-		boolean ssl = serverJks.exists() && trustClientCert.exists();
-		if (ssl) {
-			options.setKeyStoreOptions(new JksOptions().setPath("/etc/bm/bm.jks").setPassword("bluemind"));
-			options.setSsl(true);
-			options.setEnabledSecureTransportProtocols(new HashSet<>(Arrays.asList("TLSv1.2", "TLSv1.3")));
-			options.setTrustStoreOptions(
-					new JksOptions().setPath("/etc/bm/nodeclient_truststore.jks").setPassword("password"));
-			options.setClientAuth(ClientAuth.REQUIRED);
-			options.setOpenSslEngineOptions(new OpenSSLEngineOptions());
-			logger.info("Configured in secure mode");
-		} else {
-			logger.info("Unsecure mode on 8021, node can be claimed");
-		}
+		options(options);
 		return options;
 	}
 
@@ -129,42 +106,12 @@ public class BlueMindNode extends AbstractVerticle {
 			logger.info("{} / => OK", event.method());
 			event.response().end();
 		});
-		if (ssl) {
-			rm.options("/ping", (HttpServerRequest event) -> event.response().end());
-		} else {
-			plainTextPing(rm);
-		}
+		router(rm);
 		rm.noMatch((HttpServerRequest event) -> {
 			logger.error("No match for {} {}", event.method(), event.path());
 			event.response().setStatusCode(404).end();
 		});
 		return rm;
-	}
-
-	private void plainTextPing(RouteMatcher rm) {
-		rm.options("/ping", (HttpServerRequest event) -> {
-			if (serverJks.exists() && trustClientCert.exists()) {
-				logger.info("Certs are here, time to secure and restart...");
-				vertx.setTimer(100, tid -> {
-					logger.info("Restarting all {} servers...", selfRefs.size());
-					restartAllServers();
-				});
-				event.response().setStatusCode(201).end();
-			} else {
-				logger.warn("Ping on unsecure BUT certs are not there yet");
-				event.response().setStatusCode(200).end();
-			}
-		});
-	}
-
-	private static void restartAllServers() {
-		int size = selfRefs.size();
-		logger.info("Will close {} unsecure servers.", size);
-		for (BlueMindNode bmn : selfRefs) {
-			final BlueMindNode theNode = bmn;
-			theNode.srv.close();
-			theNode.reconfigure();
-		}
 	}
 
 	@Override

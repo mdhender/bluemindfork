@@ -31,6 +31,7 @@ public class DepDoneHandler implements Handler<AsyncResult<String>> {
 	private static final Logger logger = LoggerFactory.getLogger(DepDoneHandler.class);
 
 	private final CountDownLatch cdl = new CountDownLatch(1);
+	private String id;
 
 	@Override
 	public void handle(AsyncResult<String> ar) {
@@ -38,12 +39,17 @@ public class DepDoneHandler implements Handler<AsyncResult<String>> {
 			Throwable cause = ar.cause();
 			logger.error(cause.getMessage(), cause);
 		}
-		logger.info("Deployement done with id: " + ar.result());
+		id = ar.result();
+		logger.info("Deployement done with id: " + id);
 		cdl.countDown();
 	}
 
 	public void await() throws InterruptedException {
 		cdl.await();
+	}
+
+	public String id() {
+		return id;
 	}
 
 }
