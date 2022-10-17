@@ -22,6 +22,9 @@
   */
 package net.bluemind.backend.mail.replica.service.names;
 
+import java.text.Normalizer;
+import java.util.regex.Pattern;
+
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 
@@ -35,6 +38,15 @@ public class MailboxNameValidator {
 			.anyOf(" #$'()*+,-.0123456789:=?ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_abcdefghijklmnopqrstuvwxyz~");
 
 	public static boolean validate(MailboxReplica r) {
-		return Splitter.on("/").splitToStream(r.fullName).allMatch(matcher::matchesAllOf);
+		return Splitter.on("/").splitToStream(r.fullName).map(MailboxNameValidator::unaccent)
+				.allMatch(matcher::matchesAllOf);
 	}
+
+	private static final Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+
+	private static String unaccent(String nameChunk) {
+		String temp = Normalizer.normalize(nameChunk, Normalizer.Form.NFD);
+		return pattern.matcher(temp).replaceAll("");
+	}
+
 }
