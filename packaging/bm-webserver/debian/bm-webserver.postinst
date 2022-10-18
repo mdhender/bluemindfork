@@ -27,10 +27,6 @@ esac
 # Force startup link install
 update-rc.d -f bm-webserver remove > /dev/null 2>&1
 
-rm -f /usr/share/bm-webserver/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
-rm -rf /usr/share/bm-webserver/dropins
-mkdir -p /usr/share/bm-webserver/dropins
-
 #DEBHELPER#
 
 exit 0

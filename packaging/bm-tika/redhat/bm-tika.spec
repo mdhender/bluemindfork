@@ -37,9 +37,6 @@ if [ $1 -gt 1 ]; then
 fi
 
 %post -p /bin/bash
-rm -f /usr/share/bm-tika/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
-rm -rf /usr/share/bm-tika/dropins
-mkdir -p /usr/share/bm-tika/dropins
 systemctl enable bm-tika
 if [ -d /run/systemd/system ]; then
     systemctl daemon-reload

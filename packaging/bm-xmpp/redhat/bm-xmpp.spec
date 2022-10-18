@@ -35,9 +35,6 @@ if [ $1 -gt 1 ]; then
 fi
 
 %post -p /bin/bash
-rm -f /usr/share/bm-xmpp/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
-rm -rf /usr/share/bm-xmpp/dropins
-mkdir -p /usr/share/bm-xmpp/dropins
 systemctl enable bm-xmpp
 if [ -d /run/systemd/system ]; then
     systemctl daemon-reload

@@ -38,9 +38,6 @@ if [ $1 -gt 1 ]; then
 fi
 
 %post -p /bin/bash
-rm -f /usr/share/bm-node/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
-rm -rf /usr/share/bm-node/dropins
-mkdir -p /usr/share/bm-node/dropins
 systemctl enable bm-node
 if [ -d /run/systemd/system ]; then
     systemctl daemon-reload

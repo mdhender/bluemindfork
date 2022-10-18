@@ -22,10 +22,6 @@ set -e
 # Force startup link install
 update-rc.d -f bm-hps remove > /dev/null 2>&1
 
-rm -f /usr/share/bm-hps/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
-rm -rf /usr/share/bm-hps/dropins
-mkdir -p /usr/share/bm-hps/dropins
-
 # Needed for wheezy support
 if [ ! -x "/usr/bin/deb-systemd-helper" ]; then
 deb-systemd-helper() {

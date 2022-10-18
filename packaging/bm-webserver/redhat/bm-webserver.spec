@@ -37,9 +37,6 @@ if [ $1 -gt 1 ]; then
 fi
 
 %post -p /bin/bash
-rm -f /usr/share/bm-webserver/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
-rm -rf /usr/share/bm-webserver/dropins
-mkdir -p /usr/share/bm-webserver/dropins
 systemctl enable bm-webserver
 if [ -d /run/systemd/system ]; then
     systemctl daemon-reload

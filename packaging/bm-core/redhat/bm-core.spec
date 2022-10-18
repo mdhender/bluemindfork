@@ -39,9 +39,6 @@ if [ $1 -gt 1 ]; then
 fi
 
 %post -p /bin/bash
-rm -f /usr/share/bm-core/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
-rm -rf /usr/share/bm-core/dropins
-mkdir -p /usr/share/bm-core/dropins
 systemctl enable bm-core
 if [ -d /run/systemd/system ]; then
     systemctl daemon-reload

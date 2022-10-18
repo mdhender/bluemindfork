@@ -17,10 +17,6 @@
 #
 # See LICENSE.txt
 
-rm -f /usr/share/bm-sds-proxy/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
-rm -rf /usr/share/bm-sds-proxy/dropins
-mkdir -p /usr/share/bm-sds-proxy/dropins
-
 #DEBHELPER#
 
 exit 0

@@ -30,10 +30,6 @@ cp -f /usr/share/bm-node/conf/bm /etc/apt/preferences.d/bm
 # Force startup link install
 update-rc.d -f bm-node remove > /dev/null 2>&1
 
-rm -f /usr/share/bm-node/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
-rm -rf /usr/share/bm-node/dropins
-mkdir -p /usr/share/bm-node/dropins
-
 # Needed for wheezy support
 if [ ! -x "/usr/bin/deb-systemd-helper" ]; then
 deb-systemd-helper() {

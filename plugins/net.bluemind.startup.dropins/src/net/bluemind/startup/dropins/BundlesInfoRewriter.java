@@ -55,7 +55,7 @@ public class BundlesInfoRewriter {
 					Stream<String> lines = Files.lines(originalBundlesInfoPath)) {
 				boolean failed = rewritePlugins(fw, lines, extensions, dropins) //
 						|| writeJar(fw, extensions, extension -> !dropins.contains(extension)) //
-						|| writeJar(fw, dropins, dropin -> extensions.contains(dropin));
+						|| writeJar(fw, dropins, dropin -> true);
 
 				if (!failed) {
 					Files.move(tmpBundlesInfoPath, bundlesInfoPath, StandardCopyOption.REPLACE_EXISTING);
@@ -76,6 +76,7 @@ public class BundlesInfoRewriter {
 				.map(bundleInfo -> updateBundleInfoLocation(bundleInfo, dropins)) //
 				.map(bundleInfo -> {
 					extensions.remove(bundleInfo.toJar());
+					dropins.remove(bundleInfo.toJar());
 					return writeBundleInfoLine(bundleInfo, fw);
 				}) //
 				.anyMatch(Boolean.FALSE::equals);

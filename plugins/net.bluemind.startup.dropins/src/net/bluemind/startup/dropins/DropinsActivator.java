@@ -18,6 +18,8 @@
 
 package net.bluemind.startup.dropins;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.osgi.framework.BundleActivator;
@@ -31,12 +33,30 @@ public class DropinsActivator implements BundleActivator {
 		String productVersion = bundleContext.getBundle().getVersion().toString();
 		String productName = System.getProperty("net.bluemind.property.product");
 		Path productPath = Path.of("/usr/share", productName);
+		Path dropinsPath = productPath.resolve("dropins");
 
-		Repository extensions = Repository.create(productPath, "extensions", null);
-		Repository dropins = Repository.create(productPath, "dropins", productVersion);
+		if (Files.exists(productPath)) {
+			manageDropinsFolder(productPath, dropinsPath, productVersion);
 
-		Path bundlesInfoPath = productPath.resolve(BUNDLE_INFOS_LOCATION);
-		BundlesInfoRewriter.rewriteBundlesInfo(bundlesInfoPath, extensions, dropins);
+			Repository extensions = Repository.create(productPath, "extensions", null);
+			Repository dropins = Repository.create(productPath, "dropins", productVersion);
+
+			Path bundlesInfoPath = productPath.resolve(BUNDLE_INFOS_LOCATION);
+			BundlesInfoRewriter.rewriteBundlesInfo(bundlesInfoPath, extensions, dropins);
+		}
+	}
+
+	private void manageDropinsFolder(Path productPath, Path dropinsPath, String productVersion) throws IOException {
+		Path versionFilePath = productPath.resolve("launched_version");
+		if (Files.exists(versionFilePath)) {
+			String oldVersion = Files.readString(versionFilePath);
+			if (!oldVersion.equals(productVersion)) {
+				FileHelper.deleteFolder(dropinsPath);
+				FileHelper.deleteFile(productPath.resolve(BUNDLE_INFOS_LOCATION + ".installed"));
+			}
+		}
+		FileHelper.createFolder(dropinsPath);
+		Files.write(versionFilePath, productVersion.getBytes());
 	}
 
 	@Override

@@ -33,9 +33,6 @@ if [ $1 -gt 1 ]; then
 fi
 
 %post -p /bin/bash
-rm -f /usr/share/bm-pimp/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
-rm -rf /usr/share/bm-pimp/dropins
-mkdir -p /usr/share/bm-pimp/dropins
 systemctl enable bm-pimp
 if [ -d /run/systemd/system ]; then
     systemctl daemon-reload

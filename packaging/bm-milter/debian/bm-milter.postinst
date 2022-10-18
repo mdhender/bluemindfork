@@ -21,10 +21,6 @@
 # Force startup link install
 update-rc.d -f bm-milter remove > /dev/null 2>&1
 
-rm -f /usr/share/bm-milter/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
-rm -rf /usr/share/bm-milter/dropins
-mkdir -p /usr/share/bm-milter/dropins
-
 # Needed for wheezy support
 if [ ! -x "/usr/bin/deb-systemd-helper" ]; then
 deb-systemd-helper() {

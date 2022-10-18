@@ -37,9 +37,6 @@ if [ $1 -gt 1 ]; then
 fi
 
 %post -p /bin/bash
-rm -f /usr/share/bm-ysnp/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info.installed
-rm -rf /usr/share/bm-ysnp/dropins
-mkdir -p /usr/share/bm-ysnp/dropins
 systemctl enable bm-ysnp
 if [ -d /run/systemd/system ]; then
     systemctl daemon-reload
