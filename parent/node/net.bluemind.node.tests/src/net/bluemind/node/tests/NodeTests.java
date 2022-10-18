@@ -61,7 +61,7 @@ import net.bluemind.node.api.ProcessHandler;
 import net.bluemind.node.api.ProcessHandler.BlockingHandler;
 import net.bluemind.node.api.ProcessHandler.NoOutBlockingHandler;
 import net.bluemind.node.client.AHCNodeClientFactory;
-import net.bluemind.node.server.BlueMindNode;
+import net.bluemind.node.server.BlueMindUnsecureNode;
 import net.bluemind.node.server.busmod.SysCommand;
 import net.bluemind.node.shared.ActiveExecQuery;
 import net.bluemind.node.shared.ExecDescriptor;
@@ -76,7 +76,7 @@ public class NodeTests {
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
-		Deploy.verticles(false, BlueMindNode::new).get(5, TimeUnit.SECONDS);
+		Deploy.verticles(false, BlueMindUnsecureNode::new).get(5, TimeUnit.SECONDS);
 		Deploy.verticles(true, SysCommand::new).get(5, TimeUnit.SECONDS);
 		factory = new AHCNodeClientFactory();
 	}

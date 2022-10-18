@@ -60,7 +60,7 @@ import net.bluemind.hornetq.client.MQ;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
-import net.bluemind.node.server.BlueMindNode;
+import net.bluemind.node.server.BlueMindUnsecureNode;
 import net.bluemind.node.server.busmod.SysCommand;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.pool.impl.docker.DockerContainer;
@@ -86,7 +86,7 @@ public class DomainSettingsConfigFileUpdateTests {
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
-		inEventLoop = Deploy.verticles(false, BlueMindNode::new).get(5, TimeUnit.SECONDS);
+		inEventLoop = Deploy.verticles(false, BlueMindUnsecureNode::new).get(5, TimeUnit.SECONDS);
 		asWorkers = Deploy.verticles(true, SysCommand::new).get(5, TimeUnit.SECONDS);
 	}
 
