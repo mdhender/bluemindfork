@@ -1,9 +1,7 @@
 // import * as Sentry from "@sentry/vue";
 // import { Integrations } from "@sentry/tracing";
-import injector from "@bluemind/inject";
 
-export default function initSentry() {
-    const userSession = injector.getProvider("UserSession").get();
+export default function initSentry(userSession) {
     if (userSession.sentryDsn) {
         // rewrite the url, in order to use webserver sentry filter do request
         // for us

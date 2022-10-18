@@ -1,46 +1,14 @@
 import Vue from "vue";
-import { mapExtensions } from "@bluemind/extensions";
 import { inject } from "@bluemind/inject";
-
-// FIXME: default values should be an optional "default" property in field definition
-const newWebmailDefaultSettings = {
-    always_show_from: "false",
-    always_show_quota: "false",
-    auto_select_from: "never",
-    insert_signature: "true",
-    logout_purge: "false",
-    mail_message_list_style: "normal",
-    mail_thread: "false",
-    trust_every_remote_content: "false",
-    always_ask_delivery_receipt: "false",
-    always_ask_read_receipt: "false",
-    answer_read_confirmation: "ask"
-};
-
-const otherDefaultSettings = {
-    default_event_alert_mode: "Display"
-};
-
-function extendedDefaultSettings() {
-    const extensions = mapExtensions("webapp.preferences", ["settingDefaultValues"]).settingDefaultValues;
-    if (extensions.length > 0) {
-        const extended = extensions[0];
-        // FIXME
-        delete extended.$id;
-        delete extended.$loaded;
-        return extended;
-    }
-    return {};
-}
-
-const defaultSettings = { ...newWebmailDefaultSettings, ...otherDefaultSettings, ...extendedDefaultSettings() };
+import getPreferenceSections from "./components/preferences/sections";
 
 const state = {};
 
 const actions = {
-    async FETCH_ALL_SETTINGS({ commit }) {
+    async FETCH_ALL_SETTINGS({ commit }, vm) {
         const userSession = inject("UserSession");
         const settings = await inject("UserSettingsPersistence").get(userSession.userId);
+        const defaultSettings = extractDefaultValues(getPreferenceSections(vm));
         commit("SET_SETTINGS", { ...defaultSettings, ...settings });
     },
 
@@ -88,3 +56,19 @@ export default {
     mutations,
     state
 };
+
+function extractDefaultValues(sections) {
+    const defaults = {};
+    sections.forEach(section => {
+        section.categories.forEach(category => {
+            category.groups.forEach(group => {
+                group.fields.forEach(field => {
+                    if (field.component.options?.setting && field.component.options.default) {
+                        defaults[field.component.options.setting] = field.component.options.default;
+                    }
+                });
+            });
+        });
+    });
+    return defaults;
+}

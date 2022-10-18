@@ -35,7 +35,6 @@ import Roles from "@bluemind/roles";
 import { BmContainer, BmRow, BmSpinner } from "@bluemind/ui-components";
 
 import getPreferenceSections from "./sections";
-import SettingsL10N from "../../../l10n/preferences/";
 import PrefLeftPanel from "./PrefLeftPanel";
 import PrefRightPanel from "./PrefRightPanel/PrefRightPanel";
 import Navigation from "./mixins/Navigation";
@@ -56,7 +55,6 @@ export default {
             type: Array
         }
     },
-    componentI18N: { messages: SettingsL10N },
     data() {
         return { loaded: false, lockClose: false };
     },
@@ -77,15 +75,17 @@ export default {
         const sections = getPreferenceSections(this);
         this.SET_SECTIONS(sections);
 
-        await Promise.all([
+        const promises = [
             this.FETCH_USER_PASSWORD_LAST_CHANGE(),
-            this.FETCH_ALL_SETTINGS().then(() => {
-                if (inject("UserSession").roles.includes(Roles.SELF_CHANGE_MAILBOX_FILTER)) {
-                    return this.FETCH_MAILBOX_FILTER(this.lang); // lang is set once all settings are loaded
-                }
-            }),
             this.FETCH_SUBSCRIPTIONS().then(subscriptions => this.FETCH_CONTAINERS(subscriptions)) // FETCH_CONTAINERS action need subscriptions to be loaded
-        ]);
+        ];
+        const fetchSettingsPromise = this.FETCH_ALL_SETTINGS(this);
+        if (inject("UserSession").roles.includes(Roles.SELF_CHANGE_MAILBOX_FILTER)) {
+            fetchSettingsPromise.then(() => 
+            this.FETCH_MAILBOX_FILTER(this.lang));
+        }
+        promises.push(fetchSettingsPromise);
+        await Promise.all(promises);
 
         this.loaded = true;
         this.scrollOnLoad();

@@ -127,8 +127,9 @@ function mainCategory(i18n) {
                         component: {
                             name: "PrefFieldSelect",
                             options: {
-                                label: i18n.t("preferences.calendar.main.default_reminder_kind"),
                                 setting: "default_event_alert_mode",
+                                default: "Display",
+                                label: i18n.t("preferences.calendar.main.default_reminder_kind"),
                                 needReload: true,
                                 choices: [
                                     { text: i18n.t("common.email"), value: "Email" },

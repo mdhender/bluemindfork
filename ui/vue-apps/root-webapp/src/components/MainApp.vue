@@ -34,6 +34,7 @@ import About from "./About";
 import BaseUri from "../routes/BaseUriRegExp";
 import BmBanner from "./banner/BmBanner";
 import Preferences from "./preferences/Preferences";
+import SettingsL10N from "../../l10n/preferences/";
 import SystemAlertArea from "./SystemAlertArea";
 import favicon from "../../assets/favicon.png";
 
@@ -46,7 +47,7 @@ export default {
         BmAlertArea,
         SystemAlertArea
     },
-    componentI18N: { messages: CommonL10N },
+    componentI18N: { messages: [CommonL10N, SettingsL10N] },
 
     data() {
         const session = inject("UserSession");
@@ -114,25 +115,30 @@ export default {
         document.getElementsByTagName("head")[0].appendChild(link);
 
         this.appHeight();
+
         if (inject("UserSession").userId) {
+            this.FETCH_ALL_SETTINGS(this).then(() => {
+                this.FETCH_IDENTITIES(this.$store.state.settings.lang);
+            });
             this.FETCH_MY_MAILBOX_QUOTA();
             window.setInterval(() => this.FETCH_MY_MAILBOX_QUOTA(), 1000 * 60 * 30);
-            this.FETCH_IDENTITIES(this.$store.state.settings.lang);
 
             this.$router.onReady(() => {
-                if (this.$route.hash && this.$route.hash.startsWith("#preferences-")) {
+                if (this.$route.hash?.startsWith("#preferences-")) {
                     this.TOGGLE_PREFERENCES();
                 }
             });
         }
+
         this.systemAlerts = await inject("UserAnnouncementsPersistence").get();
         if (["Thunderbird", "Icedove"].some(agent => new RegExp(agent).test(window.navigator.userAgent))) {
             this.$store.commit("root-app/HIDE_BANNER");
         }
     },
     methods: {
-        ...mapActions("root-app", ["FETCH_IDENTITIES", "FETCH_MY_MAILBOX_QUOTA"]),
         ...mapActions("alert", ["REMOVE"]),
+        ...mapActions("root-app", ["FETCH_IDENTITIES", "FETCH_MY_MAILBOX_QUOTA"]),
+        ...mapActions("settings", ["FETCH_ALL_SETTINGS"]),
         ...mapMutations("preferences", ["TOGGLE_PREFERENCES"]),
         appHeight() {
             /*

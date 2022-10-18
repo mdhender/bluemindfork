@@ -8,20 +8,18 @@ inject.register({ provide: "UserSettingsPersistence", factory: () => userSetting
 inject.register({ provide: "UserSession", factory: () => ({ userId }) });
 
 describe("Store session", () => {
-    let context;
+    let context, vm;
 
     beforeEach(() => {
-        context = {
-            state: {},
-            commit: jest.fn()
-        };
+        context = { state: {}, commit: jest.fn() };
+        vm = { $i18n: { t: () => {} }, $watch: () => {} };
     });
 
     test("FETCH_ALL_SETTINGS action", async () => {
         const mockedSettings = { mySetting: "MY_SETTING" };
         userSettingsClient.get.mockReturnValue(mockedSettings);
 
-        await settingsStore.actions.FETCH_ALL_SETTINGS(context);
+        await settingsStore.actions.FETCH_ALL_SETTINGS(context, vm);
         expect(userSettingsClient.get).toHaveBeenCalledWith(userId);
         expect(context.commit).toHaveBeenCalledWith("SET_SETTINGS", expect.anything());
     });
@@ -30,7 +28,7 @@ describe("Store session", () => {
         const mockedSettings = { mySetting: "MY_SETTING", mail_message_list_style: "compact" };
         userSettingsClient.get.mockReturnValue(mockedSettings);
 
-        await settingsStore.actions.FETCH_ALL_SETTINGS(context);
+        await settingsStore.actions.FETCH_ALL_SETTINGS(context, vm);
         expect(context.commit).toHaveBeenCalledWith("SET_SETTINGS", {
             always_show_from: "false",
             always_show_quota: "false",

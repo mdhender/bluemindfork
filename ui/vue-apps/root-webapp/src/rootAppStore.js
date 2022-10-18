@@ -14,6 +14,9 @@ const state = {
 };
 
 const mutations = {
+    SET_APP_STATE: (state, appState) => {
+        state.appState = appState;
+    },
     HIDE_BANNER: state => {
         state.showBanner = false;
     },

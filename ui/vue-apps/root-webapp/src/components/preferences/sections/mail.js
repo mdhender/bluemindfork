@@ -42,6 +42,7 @@ function main(i18n) {
                             name: "PrefFieldChoice",
                             options: {
                                 setting: "mail_thread",
+                                default: "false",
                                 needReload: true,
                                 choices: [
                                     {
@@ -70,6 +71,7 @@ function main(i18n) {
                             name: "PrefFieldChoice",
                             options: {
                                 setting: "mail_message_list_style",
+                                default: "normal",
                                 autosave: true,
                                 choices: [
                                     {
@@ -120,6 +122,7 @@ function main(i18n) {
                             name: "PrefFieldSwitch",
                             options: {
                                 setting: "insert_signature",
+                                default: "true",
                                 autosave: true,
                                 label: i18n.t("preferences.mail.signature.insert")
                             }
@@ -137,6 +140,7 @@ function main(i18n) {
                             name: "PrefFieldSwitch",
                             options: {
                                 setting: "logout_purge",
+                                default: "false",
                                 autosave: true,
                                 label: i18n.t("preferences.mail.logout.empty.trash")
                             }
@@ -181,12 +185,14 @@ function main(i18n) {
                                         id: "ask_delivery",
                                         label: i18n.t("preferences.mail.receipts.ask.delivery"),
                                         setting: "always_ask_delivery_receipt",
+                                        default: "false",
                                         autosave: true
                                     },
                                     {
                                         id: "ask_read",
                                         label: i18n.t("preferences.mail.receipts.ask.read"),
                                         setting: "always_ask_read_receipt",
+                                        default: "false",
                                         autosave: true
                                     }
                                 ]
@@ -208,6 +214,7 @@ function main(i18n) {
                             name: "PrefFieldChoice",
                             options: {
                                 setting: "answer_read_confirmation",
+                                default: "ask",
                                 autosave: true,
                                 choices: [
                                     {
@@ -238,6 +245,7 @@ function main(i18n) {
                             name: "PrefFieldSwitch",
                             options: {
                                 setting: "trust_every_remote_content",
+                                default: "false",
                                 autosave: true,
                                 additional_component: "PrefRemoteImage",
                                 label: i18n.t("preferences.mail.remote.images.trust")
@@ -259,8 +267,9 @@ function main(i18n) {
                         component: {
                             name: "PrefFieldSwitch",
                             options: {
-                                autosave: true,
                                 setting: "always_show_quota",
+                                default: "false",
+                                autosave: true,
                                 label: i18n.t("preferences.mail.quota.always.display")
                             }
                         }
@@ -404,6 +413,7 @@ function identities(i18n) {
                             name: "PrefFieldSwitch",
                             options: {
                                 setting: "always_show_from",
+                                default: "false",
                                 autosave: true,
                                 label: i18n.t("preferences.mail.identities.always_show_from")
                             }
@@ -415,6 +425,7 @@ function identities(i18n) {
                             name: "PrefFieldSelect",
                             options: {
                                 setting: "auto_select_from",
+                                default: "never",
                                 autosave: true,
                                 label: {
                                     component: "PrefReadMoreLabel",

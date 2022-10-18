@@ -4,7 +4,7 @@ import VueI18n from "vue-i18n";
 
 import { default as AlertStore, DefaultAlert } from "@bluemind/alert.store";
 import { generateDateTimeFormats, InheritTranslationsMixin } from "@bluemind/i18n";
-import injector from "@bluemind/inject";
+import injector, { inject } from "@bluemind/inject";
 import router from "@bluemind/router";
 import { initSentry } from "@bluemind/sentry";
 import store from "@bluemind/store";
@@ -22,28 +22,18 @@ import MainApp from "./components/MainApp";
 import NotificationManager from "./NotificationManager";
 import Command from "../plugins/Command";
 
-initWebApp();
-initSentry(Vue);
+const userSession = window.bmcSessionInfos;
+registerDependencies(userSession);
+initWebApp(userSession);
+initSentry(userSession);
 
-async function initWebApp() {
-    registerUserSession();
-    const userSession = injector.getProvider("UserSession").get();
-    registerDependencies(userSession);
+async function initWebApp(userSession) {
     initStore();
     setVuePlugins(userSession);
-    if (userSession.userId) {
-        await store.dispatch("settings/FETCH_ALL_SETTINGS"); // needed to initialize i18n
-    }
-    const i18n = initI18N(userSession);
     Vue.component("DefaultAlert", DefaultAlert);
+    const i18n = await initI18N(userSession);
     router.addRoutes(routes);
-    new Vue({
-        el: "#app",
-        i18n,
-        render: h => h(MainApp),
-        router,
-        store
-    });
+    new Vue({ el: "#app", i18n, render: h => h(MainApp), router, store });
     if (userSession.userId) {
         new NotificationManager().setNotificationWhenReceivingMail(userSession);
     }
@@ -60,13 +50,6 @@ function setVuePlugins(userSession) {
     Vue.use(Command);
 }
 
-function registerUserSession() {
-    injector.register({
-        provide: "UserSession",
-        use: window.bmcSessionInfos
-    });
-}
-
 function initStore() {
     extend(router, store);
     store.registerModule("alert", AlertStore);
@@ -75,10 +58,15 @@ function initStore() {
     store.registerModule("preferences", PreferencesStore);
 }
 
-function initI18N() {
-    // lang can be any of AvailableLanguages
-    const lang = store.state.settings.lang;
+async function initI18N(userSession) {
+    let lang, timeformat;
+    if (userSession.userId) {
+        const langPromise = inject("UserSettingsPersistence").getOne(userSession.userId, "lang");
+        const timeformatPromise = inject("UserSettingsPersistence").getOne(userSession.userId, "timeformat");
+        [lang, timeformat] = await Promise.all([langPromise, timeformatPromise]);
+    }
 
+    // lang can be any of AvailableLanguages
     Vue.mixin(InheritTranslationsMixin);
 
     let fallbackLang = "en";
@@ -86,17 +74,10 @@ function initI18N() {
     if (navigatorLang) {
         fallbackLang = navigator.language.split("-")[0];
     }
-    const i18n = new VueI18n({
-        locale: lang,
-        fallbackLocale: fallbackLang,
-        dateTimeFormats: generateDateTimeFormats(store.state.settings.timeformat)
-    });
+    const dateTimeFormats = generateDateTimeFormats(timeformat);
 
-    injector.register({
-        provide: "i18n",
-        use: i18n
-    });
-
+    const i18n = new VueI18n({ locale: lang, fallbackLocale: fallbackLang, dateTimeFormats });
+    injector.register({ provide: "i18n", use: i18n });
     return i18n;
 }
 

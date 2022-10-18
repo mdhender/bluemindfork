@@ -36,6 +36,8 @@ import VueBus from "@bluemind/vue-bus";
 import { MailboxesClientProxy, MailboxFoldersClientProxy, UserSettingsClientProxy } from "./apiProxies";
 
 export default function (userSession) {
+    injector.register({ provide: "UserSession", use: userSession });
+
     injector.register({
         provide: "AddressBooksMgmtPersistence",
         factory: () => new AddressBooksMgmtClient(userSession.sid)

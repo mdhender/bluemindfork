@@ -34,6 +34,7 @@ const prefSmimeGroups = [
                     name: "PrefFieldSwitch",
                     options: {
                         setting: ENCRYPTION_PREF,
+                        default: "true",
                         autosave: true,
                         label: "Par défaut, chiffrer mes messages à l'envoi" // FIXME i18n
                     }
@@ -52,6 +53,7 @@ const prefSmimeGroups = [
                     name: "PrefFieldSwitch",
                     options: {
                         setting: SIGNATURE_PREF,
+                        default: "false",
                         autosave: true,
                         label: "Par défaut, signer mes messages à l'envoi" // FIXME i18n
                     }
@@ -62,7 +64,6 @@ const prefSmimeGroups = [
 ];
 
 extensions.register("webapp.preferences", "net.bluemind.plugins.smime", {
-    settingDefaultValues: { [SIGNATURE_PREF]: "false", [ENCRYPTION_PREF]: "true" },
     section: {
         id: "mail",
         categories: [
