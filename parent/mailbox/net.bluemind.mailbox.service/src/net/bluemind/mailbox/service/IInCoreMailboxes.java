@@ -28,9 +28,6 @@ import net.bluemind.directory.api.ReservedIds;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
-import net.bluemind.scheduledjob.api.JobExitStatus;
-import net.bluemind.scheduledjob.scheduler.IScheduledJobRunId;
-import net.bluemind.scheduledjob.scheduler.IScheduler;
 
 public interface IInCoreMailboxes extends IMailboxes {
 
@@ -43,22 +40,6 @@ public interface IInCoreMailboxes extends IMailboxes {
 	void checkAvailabilty(Mailbox mailbox) throws ServerFault;
 
 	List<MailFilterRule> getMailboxRules(@PathParam("mailboxUid") String mailboxUid) throws ServerFault;
-
-	/**
-	 * Enable/disable out of office sieve script
-	 * 
-	 * @param sched
-	 * @param rid
-	 * @return
-	 *         <li>JobExitStatus.SUCCESS if all out of office was set
-	 *         successfully</li>
-	 *         <li>JobExitStatus.FAILURE if all out of office was set</li> with
-	 *         error
-	 *         <li>JobExitStatus.COMPLETE_WITH_WARNING if out of office was set with
-	 *         some errors</li>
-	 * @throws ServerFault
-	 */
-	JobExitStatus refreshOutOfOffice(IScheduler sched, IScheduledJobRunId rid) throws ServerFault;
 
 	void sanitize(Mailbox mailbox) throws ServerFault;
 

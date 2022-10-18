@@ -48,7 +48,7 @@ public class DirEntryAndValueStore<T> implements IItemValueStore<net.bluemind.di
 		this.valueStore = itemValueStore;
 		this.vcardStore = new VCardStore(ds, container);
 		this.mailboxStore = new MailboxStore(ds, container);
-		this.mailFilterStore = new MailFilterStore(ds, container);
+		this.mailFilterStore = new MailFilterStore(ds);
 	}
 
 	@Override

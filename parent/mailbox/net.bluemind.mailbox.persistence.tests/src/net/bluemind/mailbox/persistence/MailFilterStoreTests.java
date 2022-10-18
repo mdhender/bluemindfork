@@ -23,16 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
 
 import org.junit.After;
 import org.junit.Before;
@@ -80,7 +71,7 @@ public class MailFilterStoreTests {
 
 		mailshareStore = new MailboxStore(JdbcTestHelper.getInstance().getDataSource(), mailboxes);
 
-		mailfilterStore = new MailFilterStore(JdbcTestHelper.getInstance().getDataSource(), mailboxes);
+		mailfilterStore = new MailFilterStore(JdbcTestHelper.getInstance().getDataSource());
 		logger.debug("stores: {} {}", itemStore, mailshareStore);
 
 	}
@@ -99,21 +90,10 @@ public class MailFilterStoreTests {
 
 		MailFilter filter = MailFilter.create(defaultRule(), defaultRule());
 		filter.rules.get(0).active = true;
-		filter.forwarding = new MailFilter.Forwarding();
-		filter.forwarding.enabled = true;
-		filter.vacation = new MailFilter.Vacation();
-		filter.vacation.text = "à la plage";
-		filter.vacation.textHtml = "<html>à la plage</html>";
 		mailfilterStore.set(item, filter);
 
 		MailFilter created = mailfilterStore.get(item);
 		assertNotNull("Nothing found", created);
-		assertNotNull(created.vacation);
-		assertEquals("à la plage", created.vacation.text);
-		assertEquals("<html>à la plage</html>", created.vacation.textHtml);
-		assertNotNull(created.forwarding);
-		assertTrue(created.forwarding.enabled);
-		assertTrue(created.forwarding.emails.isEmpty());
 
 		assertEquals(2, created.rules.size());
 		assertTrue(created.rules.get(0).active);
@@ -126,187 +106,21 @@ public class MailFilterStoreTests {
 		MailFilter updated = mailfilterStore.get(item);
 		assertNotNull("Nothing found", updated);
 		assertEquals(0, updated.rules.size());
-		assertNotNull(updated.vacation);
-		assertNotNull(updated.forwarding);
-		assertFalse(updated.forwarding.enabled);
 
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-		Date start = Date.from(LocalDate.of(1950, 06, 30).atStartOfDay(ZoneId.of("UTC")).toInstant());
-		Date end = Date.from(LocalDate.of(1950, 07, 31).atStartOfDay(ZoneId.of("UTC")).toInstant());
-		updated.vacation.start = start;
-		updated.vacation.end = end;
-		mailfilterStore.set(item, updated);
+		filter.rules.get(0).active = false;
+		mailfilterStore.set(item, filter);
 		updated = mailfilterStore.get(item);
-		calendar.set(Calendar.MILLISECOND, 0);
-		calendar.set(1950, Calendar.JUNE, 30, 00, 00, 0);
-		assertEquals(calendar.getTime().toInstant().toEpochMilli(), updated.vacation.start.getTime());
-		calendar.set(1950, Calendar.JULY, 31, 00, 00, 0);
-		assertEquals(calendar.getTime().toInstant().toEpochMilli(), updated.vacation.end.getTime());
-	}
 
-	private static Date d1 = Date.from(LocalDate.of(2020, 02, 01).atStartOfDay(ZoneId.systemDefault()).toInstant());
-	private static Date d2 = Date.from(LocalDate.of(2020, 02, 02).atStartOfDay(ZoneId.systemDefault()).toInstant());
-	private static Date d3 = Date.from(LocalDate.of(2020, 02, 22).atStartOfDay(ZoneId.systemDefault()).toInstant());
+		assertEquals(2, updated.rules.size());
+		assertFalse(updated.rules.get(0).active);
+		assertNotNull(updated.rules.get(0).markAsImportant().orElse(null));
+		assertFalse(updated.rules.get(1).active);
+		assertNotNull(updated.rules.get(1).markAsImportant().orElse(null));
 
-	@Test
-	public void testOneDayVacation() throws SQLException {
-		itemStore.create(Item.create(uid, null));
-		Item item = itemStore.get(uid);
-		Mailbox u = getDefaultMailbox();
-		mailshareStore.create(item, u);
-		MailFilter filter = MailFilter.create(defaultRule(), defaultRule());
-		filter.rules.get(0).active = true;
-		filter.forwarding = new MailFilter.Forwarding();
-		filter.forwarding.enabled = true;
-		filter.vacation = new MailFilter.Vacation();
-		mailfilterStore.set(item, filter);
-
-		filter.vacation.enabled = true;
-		filter.vacation.start = d1;
-		Date end = Date.from(LocalDate.of(2020, 02, 02).atStartOfDay(ZoneId.systemDefault()).toInstant());
-		filter.vacation.end = end;
-		mailfilterStore.set(item, filter);
-
-		// activate filter
-		mailfilterStore.markOutOfOffice(item, true);
-
-		List<String> res = mailfilterStore.findOutOfOffice(d1);
-		// should return 0 because already activate
-		assertEquals(0, res.size());
-
-		res = mailfilterStore.findInOffice(d1);
-		// should return 0 because nothing to do
-		assertEquals(0, res.size());
-		res = mailfilterStore.findInOffice(d2);
-		// should return 1, need to deactivate
-		assertEquals(1, res.size());
-
-		res = mailfilterStore.findOutOfOffice(d2);
-		// should return 0 because nothing to do
-		assertEquals(0, res.size());
-	}
-
-	@Test
-	public void testSameDayVacation() throws SQLException {
-		itemStore.create(Item.create(uid, null));
-		Item item = itemStore.get(uid);
-		Mailbox u = getDefaultMailbox();
-		mailshareStore.create(item, u);
-		MailFilter filter = MailFilter.create(defaultRule(), defaultRule());
-		filter.rules.get(0).active = true;
-		filter.forwarding = new MailFilter.Forwarding();
-		filter.forwarding.enabled = false;
-		filter.vacation = new MailFilter.Vacation();
-		filter.vacation.enabled = true;
-		filter.vacation.start = Date.from(LocalDateTime.of(2020, 02, 02, 8, 0, 0).toInstant(ZoneOffset.UTC));
-		filter.vacation.end = Date.from(LocalDateTime.of(2020, 02, 02, 18, 0, 0).toInstant(ZoneOffset.UTC));
-		mailfilterStore.set(item, filter);
-
-		Date inVacation = Date.from(LocalDateTime.of(2020, 02, 02, 14, 0, 0).toInstant(ZoneOffset.UTC));
-
-		// start deactivated
-		mailfilterStore.markOutOfOffice(item, false);
-		List<String> res = mailfilterStore.findOutOfOffice(inVacation);
-		assertEquals("in vacation, enable and not activated", 1, res.size());
-
-		// activate since out of office
-		mailfilterStore.markOutOfOffice(item, true);
-		res = mailfilterStore.findInOffice(inVacation);
-		assertEquals("in vacation, enable and activated", 0, res.size());
-	}
-
-	@Test
-	public void testVacationAndMarker() throws Exception {
-		itemStore.create(Item.create(uid, null));
-		Item item = itemStore.get(uid);
-		Mailbox u = getDefaultMailbox();
-		mailshareStore.create(item, u);
-		MailFilter filter = MailFilter.create(defaultRule(), defaultRule());
-		filter.rules.get(0).active = true;
-		filter.forwarding = new MailFilter.Forwarding();
-		filter.forwarding.enabled = true;
-		filter.vacation = new MailFilter.Vacation();
-		mailfilterStore.set(item, filter);
-
-		filter.vacation.enabled = true;
-		Date start = Date.from(LocalDate.of(2020, 02, 01).atStartOfDay(ZoneId.systemDefault()).toInstant());
-		Date end = Date.from(LocalDate.of(2020, 02, 21).atStartOfDay(ZoneId.systemDefault()).toInstant());
-		filter.vacation.start = start;
-		filter.vacation.end = end;
-		mailfilterStore.set(item, filter);
-
-		filter = mailfilterStore.get(item);
-		List<String> res = mailfilterStore.findOutOfOffice(d2);
-		assertEquals(1, res.size());
-		assertEquals(uid, res.get(0));
-
-		res = mailfilterStore.findOutOfOffice(d3);
-		assertEquals(0, res.size());
-
-		mailfilterStore.markOutOfOffice(item, true);
-		res = mailfilterStore.findOutOfOffice(d2);
-		assertEquals(0, res.size());
-
-		res = mailfilterStore.findInOffice(d2);
-		assertEquals(0, res.size());
-
-		res = mailfilterStore.findInOffice(d3);
-		assertEquals(1, res.size());
-
-		mailfilterStore.markOutOfOffice(item, false);
-		res = mailfilterStore.findOutOfOffice(d2);
-		assertEquals(1, res.size());
-		res = mailfilterStore.findInOffice(d3);
-		assertEquals(0, res.size());
-
-		filter.vacation.enabled = false;
-		filter.vacation.start = start;
-		filter.vacation.end = end;
-		mailfilterStore.set(item, filter);
-		res = mailfilterStore.findOutOfOffice(d2);
-		assertEquals(0, res.size());
-	}
-
-	private Mailbox getDefaultMailbox() {
-		Mailbox m = new Mailbox();
-		m.name = "test" + System.nanoTime();
-		m.type = Mailbox.Type.user;
-		m.routing = Mailbox.Routing.internal;
-		m.hidden = false;
-		m.system = false;
-		Email e = new Email();
-		e.address = m.name + "@blue-mind.loc";
-		m.emails = Arrays.asList(e);
-		m.dataLocation = "fakeServerUid";
-		return m;
-	}
-
-	private MailFilterRule defaultRule() {
-		MailFilterRule rule = new MailFilterRule();
-		rule.active = false;
-		rule.conditions.add(MailFilterRuleCondition.equal("from", "bm.junit.roberto@gmail.com"));
-		rule.addMarkAsImportant();
-		return rule;
-	}
-
-	@Test
-	public void nullForwardAndVacation() throws Exception {
-		itemStore.create(Item.create(uid, null));
-		Item item = itemStore.get(uid);
-		Mailbox u = getDefaultMailbox();
-		mailshareStore.create(item, u);
-
-		MailFilter filter = MailFilter.create(defaultRule(), defaultRule());
-		filter.rules.get(0).active = true;
-		filter.forwarding = null;
-		filter.vacation = null;
-		mailfilterStore.set(item, filter);
-
-		MailFilter filterGet = mailfilterStore.get(item);
-		assertNotNull(filterGet.vacation);
-		assertNotNull(filterGet.forwarding);
+		mailfilterStore.delete(item);
+		MailFilter deleted = mailfilterStore.get(item);
+		assertNotNull("Nothing found", deleted);
+		assertEquals(0, deleted.rules.size());
 	}
 
 	@Test
@@ -338,5 +152,27 @@ public class MailFilterStoreTests {
 		redirect = filter.rules.get(0).redirect().orElse(null);
 		assertNotNull(redirect);
 		assertFalse(redirect.keepCopy());
+	}
+
+	private Mailbox getDefaultMailbox() {
+		Mailbox m = new Mailbox();
+		m.name = "test" + System.nanoTime();
+		m.type = Mailbox.Type.user;
+		m.routing = Mailbox.Routing.internal;
+		m.hidden = false;
+		m.system = false;
+		Email e = new Email();
+		e.address = m.name + "@blue-mind.loc";
+		m.emails = Arrays.asList(e);
+		m.dataLocation = "fakeServerUid";
+		return m;
+	}
+
+	private MailFilterRule defaultRule() {
+		MailFilterRule rule = new MailFilterRule();
+		rule.active = false;
+		rule.conditions.add(MailFilterRuleCondition.equal("from", "bm.junit.roberto@gmail.com"));
+		rule.addMarkAsImportant();
+		return rule;
 	}
 }

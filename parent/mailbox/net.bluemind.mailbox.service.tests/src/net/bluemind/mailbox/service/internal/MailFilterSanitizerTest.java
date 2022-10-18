@@ -19,7 +19,6 @@ package net.bluemind.mailbox.service.internal;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -91,6 +90,6 @@ public class MailFilterSanitizerTest {
 		mf.rules = Arrays.asList(r);
 
 		sanitizer.create(mf);
-		assertNull(mf.rules.get(0).move().orElse(null));
+		assertEquals(0, mf.rules.size());
 	}
 }

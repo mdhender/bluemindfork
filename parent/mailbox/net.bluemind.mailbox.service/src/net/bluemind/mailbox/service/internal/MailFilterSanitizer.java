@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
@@ -73,17 +75,20 @@ public class MailFilterSanitizer implements ISanitizer<MailFilter> {
 			obj.forwarding.emails = new HashSet<>();
 		}
 		obj.forwarding.emails = obj.forwarding.emails.stream().map(String::toLowerCase).collect(Collectors.toSet());
-		obj.rules.stream().forEach(rule -> {
-			rule.transfer().ifPresent(transfer -> transfer.emails = sanitizeEmailList(transfer.emails));
-			rule.redirect().ifPresent(redirect -> redirect.emails = sanitizeEmailList(redirect.emails));
-		});
-
-		if (obj.vacation == null) {
-			obj.vacation = new Vacation();
-		}
 
 		if (obj.rules == null) {
 			obj.rules = Collections.emptyList();
+		}
+		obj.rules = obj.rules.stream() //
+				.filter(rule -> rule.move().map(move -> !Strings.isNullOrEmpty(move.folder())).orElse(true)) //
+				.map(rule -> {
+					rule.transfer().ifPresent(transfer -> transfer.emails = sanitizeEmailList(transfer.emails));
+					rule.redirect().ifPresent(redirect -> redirect.emails = sanitizeEmailList(redirect.emails));
+					return rule;
+				}).toList();
+
+		if (obj.vacation == null) {
+			obj.vacation = new Vacation();
 		}
 	}
 

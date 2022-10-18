@@ -99,16 +99,19 @@ public class MailFilterForwardRoleValidator implements IValidator<MailFilter> {
 	}
 
 	private void validateRule(MailFilterRule rule) throws ServerFault {
-		rule.redirect().ifPresent(redirect -> {
-			if (!redirect.emails().isEmpty()) {
-				if (hasExternal(redirect.emails())) {
-					checkCanSetExternalForward();
-				}
-				if (!Strings.isNullOrEmpty(mailboxUid)) {
-					checkUserEmailsNotUsed(redirect.emails());
-				}
+		rule.redirect().ifPresent(redirect -> checkRuleActionEmails(redirect.emails()));
+		rule.transfer().ifPresent(transfer -> checkRuleActionEmails(transfer.emails()));
+	}
+
+	private void checkRuleActionEmails(List<String> emails) {
+		if (!emails.isEmpty()) {
+			if (hasExternal(emails)) {
+				checkCanSetExternalForward();
 			}
-		});
+			if (!Strings.isNullOrEmpty(mailboxUid)) {
+				checkUserEmailsNotUsed(emails);
+			}
+		}
 	}
 
 	private void checkCanSetExternalForward() {

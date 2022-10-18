@@ -118,10 +118,12 @@ public class MailFilterForwardRoleValidatorTests {
 
 		rule = new MailFilterRule();
 		rule.addTransfer(Arrays.asList("user@dom.lan"), false, false);
+		filter.rules = Arrays.asList(rule);
 		checkFail(userContextWithForwarding, filter, ErrorCode.FORBIDDEN);
 
 		rule = new MailFilterRule();
 		rule.addTransfer(Arrays.asList("toto@dom.lan"), false, false);
+		filter.rules = Arrays.asList(rule);
 		checkOk(userContextWithForwarding, filter);
 	}
 

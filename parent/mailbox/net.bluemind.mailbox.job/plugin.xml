@@ -6,9 +6,6 @@
       <scheduledjob_provider
             implementation="net.bluemind.mailbox.job.QuotaGatheringJob">
       </scheduledjob_provider>
-      <scheduledjob_provider
-            implementation="net.bluemind.mailbox.job.OutOfOfficeJob">
-      </scheduledjob_provider>
    </extension>
 
 </plugin>

@@ -26,11 +26,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,9 +40,6 @@ import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.core.api.Email;
-import net.bluemind.core.api.date.BmDateTime;
-import net.bluemind.core.api.date.BmDateTime.Precision;
-import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -72,22 +65,15 @@ import net.bluemind.imap.sieve.SieveScript;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
-import net.bluemind.mailbox.api.MailFilter.Vacation;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.MailboxBusAddresses;
 import net.bluemind.mailbox.api.MailboxConfig;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
-import net.bluemind.mailbox.service.IInCoreMailboxes;
-import net.bluemind.mailbox.service.internal.MailboxStoreService;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
 import net.bluemind.pool.impl.BmConfIni;
-import net.bluemind.scheduledjob.api.JobExitStatus;
-import net.bluemind.scheduledjob.scheduler.IScheduledJob;
-import net.bluemind.scheduledjob.scheduler.IScheduledJobRunId;
-import net.bluemind.scheduledjob.scheduler.IScheduler;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -789,195 +775,4 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 			assertEquals(ErrorCode.FORBIDDEN, e.getCode());
 		}
 	}
-
-	@Test
-	public void refreshOutOfOffice() {
-		User u1 = defaultUser("u" + System.currentTimeMillis());
-		String u1Uid = UUID.randomUUID().toString();
-		new BmTestContext(SecurityContext.SYSTEM).provider().instance(IUser.class, domainUid).create(u1Uid, u1);
-
-		Vacation vacation = new MailFilter.Vacation();
-		vacation.enabled = true;
-		vacation.subject = "subject";
-		vacation.text = "content";
-
-		Calendar c = Calendar.getInstance();
-		c.add(Calendar.DAY_OF_YEAR, -1);
-		BmDateTime bmDateTimeStart = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null,
-				Precision.Date);
-		long toTimestamp = new BmDateTimeWrapper(bmDateTimeStart).toUTCTimestamp();
-		vacation.start = new Date(toTimestamp);
-		c.add(Calendar.DAY_OF_YEAR, 3);
-		bmDateTimeStart = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null, Precision.Date);
-		toTimestamp = new BmDateTimeWrapper(bmDateTimeStart).toUTCTimestamp();
-		vacation.end = new Date(toTimestamp);
-
-		MailFilter mailFilter = new MailFilter();
-		mailFilter.vacation = vacation;
-		new MailboxStoreService(JdbcTestHelper.getInstance().getDataSource(), defaultSecurityContext, container)
-				.setFilter(u1Uid, mailFilter);
-
-		TestScheduler testScheduler = new TestScheduler();
-		JobExitStatus result = new BmTestContext(SecurityContext.SYSTEM).provider()
-				.instance(IInCoreMailboxes.class, domainUid).refreshOutOfOffice(testScheduler, null);
-		assertEquals(JobExitStatus.SUCCESS, result);
-		assertEquals(0, testScheduler.info.size());
-		assertEquals(0, testScheduler.warn.size());
-		assertEquals(0, testScheduler.error.size());
-	}
-
-	@Test
-	public void refreshOutOfOffice_noVacation() {
-		User u1 = defaultUser("u" + System.currentTimeMillis());
-		String u1Uid = UUID.randomUUID().toString();
-		new BmTestContext(SecurityContext.SYSTEM).provider().instance(IUser.class, domainUid).create(u1Uid, u1);
-
-		MailFilterRule rule = new MailFilterRule();
-		rule.conditions.add(MailFilterRuleCondition.equal("subject", "toredirect"));
-		rule.addMarkAsDeleted();
-
-		new MailboxStoreService(JdbcTestHelper.getInstance().getDataSource(), defaultSecurityContext, container)
-				.setFilter(u1Uid, MailFilter.create(rule));
-
-		TestScheduler testScheduler = new TestScheduler();
-		JobExitStatus result = new BmTestContext(SecurityContext.SYSTEM).provider()
-				.instance(IInCoreMailboxes.class, domainUid).refreshOutOfOffice(testScheduler, null);
-		assertEquals(JobExitStatus.SUCCESS, result);
-		assertEquals(0, testScheduler.info.size());
-		assertEquals(0, testScheduler.warn.size());
-		assertEquals(0, testScheduler.error.size());
-	}
-
-	@Test
-	public void refreshOutOfOffice_invalidFilter_allInError() {
-		User u1 = defaultUser("u" + System.currentTimeMillis());
-		String u1Uid = UUID.randomUUID().toString();
-		new BmTestContext(SecurityContext.SYSTEM).provider().instance(IUser.class, domainUid).create(u1Uid, u1);
-
-		Vacation vacation = new MailFilter.Vacation();
-		vacation.enabled = true;
-		vacation.subject = "subject";
-		vacation.text = "content";
-
-		Calendar c = Calendar.getInstance();
-		c.add(Calendar.DAY_OF_YEAR, -1);
-		BmDateTime bmDateTime = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null,
-				Precision.Date);
-		long toTimestamp = new BmDateTimeWrapper(bmDateTime).toUTCTimestamp();
-		vacation.start = new Date(toTimestamp);
-		c.add(Calendar.DAY_OF_YEAR, 3);
-		bmDateTime = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null, Precision.Date);
-		toTimestamp = new BmDateTimeWrapper(bmDateTime).toUTCTimestamp();
-		vacation.end = new Date(toTimestamp);
-
-		MailFilterRule rule = new MailFilterRule();
-		rule.conditions.add(MailFilterRuleCondition.equal("headers.space header", "fdss"));
-		rule.addDiscard();
-
-		MailFilter mailFilter = new MailFilter();
-		mailFilter.vacation = vacation;
-		mailFilter.rules = Arrays.asList(rule);
-
-		new MailboxStoreService(JdbcTestHelper.getInstance().getDataSource(), defaultSecurityContext, container)
-				.setFilter(u1Uid, mailFilter);
-
-		TestScheduler testScheduler = new TestScheduler();
-		JobExitStatus result = new BmTestContext(SecurityContext.SYSTEM).provider()
-				.instance(IInCoreMailboxes.class, domainUid).refreshOutOfOffice(testScheduler, null);
-		assertEquals(JobExitStatus.FAILURE, result);
-		assertEquals(1, testScheduler.info.size());
-		assertEquals(0, testScheduler.warn.size());
-		assertEquals(1, testScheduler.error.size());
-	}
-
-	@Test
-	public void refreshOutOfOffice_invalidFilter_someInError() {
-		User u1 = defaultUser("u" + System.currentTimeMillis());
-		String u1Uid = UUID.randomUUID().toString();
-		new BmTestContext(SecurityContext.SYSTEM).provider().instance(IUser.class, domainUid).create(u1Uid, u1);
-
-		User u2 = defaultUser("u" + System.currentTimeMillis());
-		String u2Uid = UUID.randomUUID().toString();
-		new BmTestContext(SecurityContext.SYSTEM).provider().instance(IUser.class, domainUid).create(u2Uid, u2);
-
-		Vacation vacation = new MailFilter.Vacation();
-		vacation.enabled = true;
-		vacation.subject = "subject";
-		vacation.text = "content";
-
-		Calendar c = Calendar.getInstance();
-		c.add(Calendar.DAY_OF_YEAR, -1);
-		BmDateTime bmDateTime = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null,
-				Precision.Date);
-		long toTimestamp = new BmDateTimeWrapper(bmDateTime).toUTCTimestamp();
-		vacation.start = new Date(toTimestamp);
-		c.add(Calendar.DAY_OF_YEAR, 3);
-		bmDateTime = new BmDateTime(new SimpleDateFormat("yyyy-MM-dd").format(c.getTime()), null, Precision.Date);
-		toTimestamp = new BmDateTimeWrapper(bmDateTime).toUTCTimestamp();
-		vacation.end = new Date(toTimestamp);
-
-		MailFilterRule rule = new MailFilterRule();
-		rule.conditions.add(MailFilterRuleCondition.equal("headers.space header", "fdss"));
-		rule.addDiscard();
-
-		MailFilter mailFilter = new MailFilter();
-		mailFilter.vacation = vacation;
-		mailFilter.rules = Arrays.asList(rule);
-
-		new MailboxStoreService(JdbcTestHelper.getInstance().getDataSource(), defaultSecurityContext, container)
-				.setFilter(u1Uid, mailFilter);
-
-		mailFilter = new MailFilter();
-		mailFilter.vacation = vacation;
-		new MailboxStoreService(JdbcTestHelper.getInstance().getDataSource(), defaultSecurityContext, container)
-				.setFilter(u2Uid, mailFilter);
-
-		TestScheduler testScheduler = new TestScheduler();
-		JobExitStatus result = new BmTestContext(SecurityContext.SYSTEM).provider()
-				.instance(IInCoreMailboxes.class, domainUid).refreshOutOfOffice(testScheduler, null);
-		assertEquals(JobExitStatus.COMPLETED_WITH_WARNINGS, result);
-		assertEquals(1, testScheduler.info.size());
-		assertEquals(0, testScheduler.warn.size());
-		assertEquals(1, testScheduler.error.size());
-	}
-
-	private class TestScheduler implements IScheduler {
-		public final List<String> info = new ArrayList<>();
-		public final List<String> warn = new ArrayList<>();
-		public final List<String> error = new ArrayList<>();
-
-		@Override
-		public void warn(IScheduledJobRunId rid, String locale, String logEntry) {
-			if ("en".equals(locale)) {
-				warn.add(logEntry);
-			}
-		}
-
-		@Override
-		public IScheduledJobRunId requestSlot(String domainName, IScheduledJob bj, Date startDate) throws ServerFault {
-			return null;
-		}
-
-		@Override
-		public void reportProgress(IScheduledJobRunId rid, int percent) {
-		}
-
-		@Override
-		public void info(IScheduledJobRunId rid, String locale, String logEntry) {
-			if ("en".equals(locale)) {
-				info.add(logEntry);
-			}
-		}
-
-		@Override
-		public void finish(IScheduledJobRunId rid, JobExitStatus status) {
-		}
-
-		@Override
-		public void error(IScheduledJobRunId rid, String locale, String logEntry) {
-			if ("en".equals(locale)) {
-				error.add(logEntry);
-			}
-		}
-	};
 }

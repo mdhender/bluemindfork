@@ -19,7 +19,6 @@
 package net.bluemind.mailbox.service.internal;
 
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -46,7 +45,7 @@ public class MailboxStoreService extends ContainerStoreService<Mailbox> {
 
 	public MailboxStoreService(DataSource pool, SecurityContext securityContext, Container container) {
 		super(pool, securityContext, container, new MailboxStore(pool, container));
-		this.mailFilterStore = new MailFilterStore(pool, container);
+		this.mailFilterStore = new MailFilterStore(pool);
 		this.origin = securityContext.getOrigin();
 		this.identityStore = new MailboxIdentityStore(pool);
 		this.mailboxStore = new MailboxStore(pool, container);
@@ -102,25 +101,6 @@ public class MailboxStoreService extends ContainerStoreService<Mailbox> {
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, 0));
 			}
-			return null;
-		});
-	}
-
-	public List<String> outOfOffice() throws ServerFault {
-		return doOrFail(() -> {
-			return mailFilterStore.findOutOfOffice(new Date());
-		});
-	}
-
-	public List<String> inOfOffice() throws ServerFault {
-		return doOrFail(() -> {
-			return mailFilterStore.findInOffice(new Date());
-		});
-	}
-
-	public void markOutOfOfficeFilterUpToDate(String uid, boolean activated) throws ServerFault {
-		doOrFail(() -> {
-			mailFilterStore.markOutOfOffice(getItemStore().getForUpdate(uid), activated);
 			return null;
 		});
 	}
