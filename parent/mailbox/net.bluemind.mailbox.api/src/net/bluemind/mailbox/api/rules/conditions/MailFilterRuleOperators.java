@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.FilenameUtils;
+import net.bluemind.mailbox.api.utils.WildcardMatcher;
 
 public class MailFilterRuleOperators {
 
@@ -157,7 +157,7 @@ public class MailFilterRuleOperators {
 			@Override
 			public boolean match(List<String> values, List<String> parameters) {
 				return values != null && parameters.stream().anyMatch(
-						parameter -> values.stream().anyMatch(value -> FilenameUtils.wildcardMatch(value, parameter)));
+						parameter -> values.stream().anyMatch(value -> WildcardMatcher.match(value, parameter)));
 			}
 		};
 	}

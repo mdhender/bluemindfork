@@ -699,7 +699,7 @@ public class SieveRuleEditorDialog extends Composite {
 	private MailFilterRuleCondition condition(String matchType, List<String> fields, List<String> parameters) {
 		switch (matchType) {
 		case "EXISTS":
-		case "DOESNOTEXISTS":
+		case "DOESNOTEXIST":
 			return MailFilterRuleCondition.exists(fields);
 		case "IS":
 		case "ISNOT":
