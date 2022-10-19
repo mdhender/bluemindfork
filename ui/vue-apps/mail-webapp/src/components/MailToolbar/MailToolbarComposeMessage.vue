@@ -68,6 +68,12 @@
             <bm-dropdown-item :disabled="isSenderShown" @click="showSender">
                 {{ $tc("mail.actions.show_sender", 1) }}
             </bm-dropdown-item>
+            <bm-dropdown-item icon="code" :disabled="!canShowOrDownloadEml" @click.stop="showSource(message)">
+                {{ $t("mail.actions.show_source") }}
+            </bm-dropdown-item>
+            <bm-dropdown-item icon="download" :disabled="!canShowOrDownloadEml" @click.stop="downloadEml(message)">
+                {{ $t("mail.actions.download_eml") }}
+            </bm-dropdown-item>
         </mail-toolbar-responsive-dropdown>
     </bm-button-group>
 </template>
@@ -79,7 +85,7 @@ import { BmButtonGroup, BmDropdownItem } from "@bluemind/styleguide";
 import { messageUtils } from "@bluemind/mail";
 import MailToolbarResponsiveButton from "./MailToolbarResponsiveButton";
 import MailToolbarResponsiveDropdown from "./MailToolbarResponsiveDropdown";
-import { ComposerActionsMixin } from "~/mixins";
+import { ComposerActionsMixin, EmlMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
 import { IS_SENDER_SHOWN, MY_DRAFTS } from "~/getters";
 import { SHOW_SENDER } from "~/mutations";
@@ -94,7 +100,7 @@ export default {
         BmButtonGroup,
         BmDropdownItem
     },
-    mixins: [AddAttachmentsCommand, ComposerActionsMixin],
+    mixins: [AddAttachmentsCommand, ComposerActionsMixin, EmlMixin],
     props: {
         message: {
             type: Object,
@@ -114,6 +120,9 @@ export default {
         },
         isSaving() {
             return this.message.status === MessageStatus.SAVING;
+        },
+        canShowOrDownloadEml() {
+            return this.message.status === MessageStatus.IDLE;
         },
         errorOccuredOnSave() {
             return this.message.status === MessageStatus.SAVE_ERROR;

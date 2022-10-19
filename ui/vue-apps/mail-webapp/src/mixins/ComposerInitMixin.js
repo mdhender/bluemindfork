@@ -1,4 +1,4 @@
-import { mapActions, mapMutations, mapState } from "vuex";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { ERROR } from "@bluemind/alert.store";
 import { InlineImageHelper, MimeType } from "@bluemind/email";
@@ -8,6 +8,7 @@ import { BmRichEditor } from "@bluemind/styleguide";
 import { attachmentUtils, draftUtils, loadingStatusUtils, messageUtils, partUtils } from "@bluemind/mail";
 
 import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
+import { MY_DRAFTS } from "~/getters";
 import {
     ADD_ATTACHMENT,
     ADD_FILES,
@@ -53,6 +54,7 @@ export default {
     mixins: [AddAttachmentsCommand, ComposerFromMixin],
     computed: {
         ...mapState("mail", { $_ComposerInitMixin_partsByMessageKey: ({ partsData }) => partsData.partsByMessageKey }),
+        ...mapGetters("mail", { $_ComposerInitMixin_MY_DRAFTS: MY_DRAFTS }),
         $_ComposerInitMixin_lang() {
             return this.$store.state.settings.lang;
         }
@@ -133,7 +135,7 @@ export default {
                     }
                     case MessageCreationModes.FORWARD_AS_EML: {
                         const previous = await fetchRelatedFn();
-                        return this.initForwardEml(folder, previous);
+                        return this.initForwardEml(previous);
                     }
                     default:
                         return this.initNewMessage(folder);
