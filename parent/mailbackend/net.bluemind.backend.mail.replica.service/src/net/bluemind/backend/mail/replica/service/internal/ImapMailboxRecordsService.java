@@ -326,7 +326,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		AtomicReference<CompletableFuture<Void>> ref = new AtomicReference<>(root);
 		walker.visit((Object c, Part p) -> {
 			logger.debug("Prepare for part @ {}", p.address);
-			if (p.address != null && isImapAddress(p.address)) {
+			if (p.address != null && isImapAddress(p.address) && !p.mime.startsWith("multipart/")) {
 				logger.debug("*** preload part {}", p.address);
 				String replacedPartUid = UUID.randomUUID().toString();
 				File output = partFile(replacedPartUid);
