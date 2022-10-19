@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS t_hot_upgrade_task (
     retry_count INTEGER NOT NULL DEFAULT 3,
     retry_delay INTEGER NOT NULL DEFAULT 0,
     report_failure BOOLEAN NOT NULL DEFAULT false,
-    eventlog jsonb
+    eventlog jsonb,
+    mandatory BOOLEAN NOT NULL DEFAULT false
 );
 
 CREATE INDEX ON t_hot_upgrade_task (status, failure);

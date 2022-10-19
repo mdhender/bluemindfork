@@ -22,6 +22,7 @@ public class HotUpgradeTask {
 	public int retryCount = 3;
 	public int retryDelaySeconds = 0; // TimeUnit.SECONDS
 	public boolean reportFailure = false;
+	public boolean mandatory = false;
 	public List<HotUpgradeStepEvent> events;
 
 	public HotUpgradeTask() {
