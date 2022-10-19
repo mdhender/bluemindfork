@@ -76,7 +76,6 @@
       <plugin id="net.bluemind.icalendar.api"/>
       <plugin id="net.bluemind.jilter"/>
       <plugin id="net.bluemind.lib.jackson"/>
-      <plugin id="net.bluemind.lib.jta"/>
       <plugin id="net.bluemind.lib.jutf7"/>
       <plugin id="net.bluemind.lib.vertx"/>
       <plugin id="net.bluemind.mailbox.api"/>

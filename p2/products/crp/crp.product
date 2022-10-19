@@ -70,7 +70,6 @@
       <plugin id="net.bluemind.kafka.client"/>
       <plugin id="net.bluemind.kafka.configuration"/>
       <plugin id="net.bluemind.lib.jackson"/>
-      <plugin id="net.bluemind.lib.jta"/>
       <plugin id="net.bluemind.lib.vertx"/>
       <plugin id="net.bluemind.mailbox.api"/>
       <plugin id="net.bluemind.mailbox.identity.api"/>

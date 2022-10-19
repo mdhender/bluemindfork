@@ -139,7 +139,6 @@
       <plugin id="net.bluemind.lib.elasticsearch"/>
       <plugin id="net.bluemind.lib.ical4j"/>
       <plugin id="net.bluemind.lib.jackson"/>
-      <plugin id="net.bluemind.lib.jta"/>
       <plugin id="net.bluemind.lib.jutf7"/>
       <plugin id="net.bluemind.lib.ristretto"/>
       <plugin id="net.bluemind.lib.vertx"/>

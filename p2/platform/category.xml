@@ -418,7 +418,6 @@
    <bundle id="net.bluemind.lib.globalid" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.lib.ical4j" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.lib.jackson" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.lib.jta" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.lib.jutf7" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.lib.ldap" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.lib.ristretto" version="4.1.0.qualifier"/>
