@@ -90,7 +90,10 @@ public class AbstractRuleEngineTests {
 	protected RuleEngine engineOn(Message message) {
 		var mailboxRecord = new MailboxRecord();
 		mailboxRecord.messageBody = "42";
-		DeliveryContent content = new DeliveryContent(boxUser1, rootFolderUser1, message, mailboxRecord);
+		String from = (message.getFrom() != null)
+				? message.getFrom().stream().findFirst().map(m -> m.getAddress()).orElse(null)
+				: null;
+		DeliveryContent content = new DeliveryContent(from, boxUser1, rootFolderUser1, message, mailboxRecord);
 		MailboxVacationSendersCache.Factory vacationCacheFactory = MailboxVacationSendersCache.Factory.build("/tmp");
 		return new RuleEngine(provider, mailer, content, vacationCacheFactory);
 	}

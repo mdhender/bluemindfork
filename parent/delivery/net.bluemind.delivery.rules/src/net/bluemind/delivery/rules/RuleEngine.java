@@ -2,7 +2,7 @@ package net.bluemind.delivery.rules;
 
 import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition.contains;
 import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition.equal;
-import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition.exists;
+import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition.not;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -126,10 +126,10 @@ public class RuleEngine {
 				.filter(rule -> MailFilterRule.Type.VACATION.equals(rule.type) && rule.active) //
 				.findFirst() //
 				.ifPresent(vacation -> {
-					vacation.conditions.add(contains("from.email", Arrays.asList("noreply@", "no-reply@")).not());
-					vacation.conditions.add(exists("headers.x-dspam-result").not());
-					vacation.conditions.add(exists("headers.spam").not());
-					vacation.conditions.add(contains("headers.precedence", Arrays.asList("bulk", "list")).not());
+					vacation.conditions.add(not(contains("from.email", Arrays.asList("noreply@", "no-reply@"))));
+					vacation.conditions.add(not(contains("headers.x-dspam-result", Arrays.asList("Spam"))));
+					vacation.conditions.add(not(contains("headers.x-spam-flag", Arrays.asList("YES"))));
+					vacation.conditions.add(not(contains("headers.precedence", Arrays.asList("bulk", "list"))));
 					vacation.conditions.add(equal(Arrays.asList("to.email", "cc.email", "bcc.email"),
 							Arrays.asList("BM_DYNAMIC_ADDRESSES_ME")));
 				});
@@ -267,7 +267,7 @@ public class RuleEngine {
 		List<Mailbox> mailboxes = redirect.emails().stream().map(email -> SendmailHelper.formatAddress(null, email))
 				.toList();
 		MailboxList to = new MailboxList(mailboxes, true);
-		String from = originalMessage().getFrom().iterator().next().getAddress();
+		String from = originalContent.from();
 		logger.info("[rules] redirecting to {} (keep copy:{}) [{}]", stringify(mailboxes), redirect.keepCopy,
 				nextContent);
 		mailer.send(SendmailCredentials.asAdmin0(), from, originalBox().dom.uid, to, originalMessage());

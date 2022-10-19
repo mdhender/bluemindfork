@@ -107,7 +107,7 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		var message = new MessageBuilder("Subject") //
 				.from(emailUser2).to(emailUser1) //
 				.date(date) //
-				.header("X-DSPAM-Result", "innocent") //
+				.header("X-DSPAM-Result", "Spamxx") //
 				.content(null, "Original message content") //
 				.build();
 
@@ -124,7 +124,7 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		var message = new MessageBuilder("Subject") //
 				.from(emailUser2).to(emailUser1) //
 				.date(date) //
-				.header("Spam", "no") //
+				.header("X-Spam-Flag", "YESxx") //
 				.content(null, "Original message content") //
 				.build();
 

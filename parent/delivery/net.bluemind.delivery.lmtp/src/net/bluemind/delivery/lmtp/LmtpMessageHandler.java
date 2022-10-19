@@ -122,7 +122,7 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 		rec.internalDate = new Date();
 		rec.lastUpdated = rec.internalDate;
 
-		DeliveryContent content = new DeliveryContent(tgtBox, rootFolder, null, rec);
+		DeliveryContent content = new DeliveryContent(from, tgtBox, rootFolder, null, rec);
 		FreezableDeliveryContent freezableContent = applyFilters(from, content, data);
 		return (!freezableContent.isFrozen() || freezableContent.isEmpty()) //
 				? applyHooks(freezableContent.content()) //
