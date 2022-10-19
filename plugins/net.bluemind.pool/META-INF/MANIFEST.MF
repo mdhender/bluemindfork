@@ -14,7 +14,7 @@ Require-Bundle: net.bluemind.utils;bundle-version="1.0.0";visibility:=reexport,
  org.postgresql.jdbc42;bundle-version="42.0.0"
 Bundle-Activator: net.bluemind.pool.BMPoolActivator
 Bundle-ActivationPolicy: lazy
-Export-Package: net.bluemind.pool;uses:="org.eclipse.core.runtime,javax.transaction,org.osgi.framework",
+Export-Package: net.bluemind.pool;uses:="org.eclipse.core.runtime,org.osgi.framework",
  net.bluemind.pool.impl
 Bundle-ClassPath: patch.jar, .
 Eclipse-ExtensibleAPI: true

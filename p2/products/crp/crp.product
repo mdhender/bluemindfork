@@ -45,7 +45,6 @@
       <plugin id="javax.activation"/>
       <plugin id="javax.annotation"/>
       <plugin id="javax.inject"/>
-      <plugin id="javax.transaction" fragment="true"/>
       <plugin id="javax.validation.api"/>
       <plugin id="javax.xml"/>
       <plugin id="jcl.over.slf4j"/>
