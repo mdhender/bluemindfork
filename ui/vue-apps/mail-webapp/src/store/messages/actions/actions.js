@@ -1,6 +1,7 @@
-import { draftUtils, loadingStatusUtils, messageUtils, attachmentUtils } from "@bluemind/mail";
+import { attachmentUtils, draftUtils, fileUtils, loadingStatusUtils, messageUtils, partUtils } from "@bluemind/mail";
+import UUIDGenerator from "@bluemind/uuid";
 import { MESSAGE_IS_LOADED } from "~/getters";
-import apiMessages from "../../api/apiMessages";
+
 import {
     ADD_FILES,
     ADD_FLAG,
@@ -10,13 +11,16 @@ import {
     REMOVE_MESSAGES,
     SET_MESSAGES_LOADING_STATUS
 } from "~/mutations";
+import { ADD_ATTACHMENT, FETCH_MESSAGE_METADATA } from "~/actions";
+import apiMessages from "../../api/apiMessages";
 import { FolderAdaptor } from "../../folders/helpers/FolderAdaptor";
-import { FETCH_MESSAGE_METADATA } from "~/actions";
-const { AttachmentAdaptor } = attachmentUtils;
 
+const { AttachmentAdaptor, create } = attachmentUtils;
 const { draftKey } = draftUtils;
 const { LoadingStatus } = loadingStatusUtils;
 const { createOnlyMetadata, messageKey, partialCopy } = messageUtils;
+const { createFromFile: createPartFromFile } = partUtils;
+const { FileStatus } = fileUtils;
 
 export async function addFlag({ commit, getters }, { messages, flag }) {
     messages = Array.isArray(messages) ? messages : [messages];
@@ -136,4 +140,15 @@ export async function moveMessages({ commit }, { conversation, messages, folder 
         commit(MOVE_MESSAGES, { conversation, messages: partial });
         throw e;
     }
+}
+
+export async function attachEml({ dispatch }, { message, messageToAttach, defaultName }) {
+    let content = await apiMessages.fetchComplete(messageToAttach);
+    const part = createPartFromFile(UUIDGenerator.generate(), {
+        name: messageUtils.createEmlName(messageToAttach, defaultName),
+        type: "message/rfc822",
+        size: content.size
+    });
+    const attachment = create(part, FileStatus.ONLY_LOCAL);
+    await dispatch(ADD_ATTACHMENT, { message, attachment, content });
 }

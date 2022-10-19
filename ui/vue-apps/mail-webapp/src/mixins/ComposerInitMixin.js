@@ -7,7 +7,7 @@ import { sanitizeHtml } from "@bluemind/html-utils";
 import { BmRichEditor } from "@bluemind/styleguide";
 import { attachmentUtils, draftUtils, loadingStatusUtils, messageUtils, partUtils } from "@bluemind/mail";
 
-import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
+import { ATTACH_EML, FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import { MY_DRAFTS } from "~/getters";
 import {
     ADD_ATTACHMENT,
@@ -242,9 +242,12 @@ export default {
             await this.setFrom(identity, message);
             const subject = computeSubject(MessageCreationModes.FORWARD, related);
             this.$store.commit(`mail/${SET_MESSAGE_SUBJECT}`, { messageKey: message.key, subject });
-            let content;
             try {
-                content = await apiMessages.fetchComplete(related);
+                await this.$store.dispatch(`mail/${ATTACH_EML}`, {
+                    message,
+                    messageToAttach: related,
+                    defaultName: this.$t("mail.viewer.no.subject")
+                });
             } catch {
                 this.ERROR({
                     alert: { name: "mail.forward_eml.fetch", uid: "FWD_EML_UID" }
@@ -255,9 +258,6 @@ export default {
                 this.$router.navigate({ name: "v:mail:conversation", params: { conversation } });
                 return;
             }
-            const name = messageUtils.createEmlName(related, this.$t("mail.viewer.no.subject"));
-            const file = new File([content], name, { type: "message/rfc822" });
-            await this.$execute("add-attachments", { files: [file], message });
             return message;
         },
 

@@ -146,6 +146,7 @@
             }
         }
     },
+    "alert.mail.attach_eml.fetch.error": "Erreur lors de la récupération du message au format EML. Impossible de l'attacher.",
     "alert.mail.forward_eml.fetch.error": "Erreur lors de la récupération du message au format EML. Impossible de le transférer.",
     "alert.mail.message.draft.attach.error": "Pièce-jointe en erreur. Réessayez.",
     "mail.actions.attach.aria": "Joindre un fichier",

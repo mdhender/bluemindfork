@@ -146,6 +146,7 @@
             }
         }
     },
+    "alert.mail.attach_eml.fetch.error": "Fehler beim Abrufen der Nachricht im EML-Format. Kann nicht angefügt werden.",
     "alert.mail.forward_eml.fetch.error": "Fehler beim Abrufen der Nachricht im EML-Format. Kann nicht weitergeleitet werden.",
     "alert.mail.message.draft.attach.error": "Fehler beim Anhängen. Bitte erneut versuchen.",
     "mail.actions.attach.aria": "Anhang beifügen",

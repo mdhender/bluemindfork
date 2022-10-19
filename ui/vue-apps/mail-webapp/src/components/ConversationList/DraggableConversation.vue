@@ -8,9 +8,9 @@
         :data="conversation"
         disable-touch
         :autoscroll="autoscroll"
-        @dragenter="({ relatedData }) => setTooltip(relatedData)"
+        @dragenter="setTooltip"
         @dragleave="resetTooltip"
-        @drop="({ relatedData: folder }) => moveConversation(folder)"
+        @drop="drop"
         @dragstart="$emit('dragstart', $event)"
         @dragend="$emit('dragend', $event)"
     >
@@ -41,11 +41,13 @@
 </template>
 
 <script>
+import { ERROR } from "@bluemind/alert.store";
 import { folderUtils } from "@bluemind/mail";
 import { BmDraggable } from "@bluemind/styleguide";
+import { ATTACH_EML } from "~/actions";
+import { MoveMixin, SelectionMixin } from "~/mixins";
 import ConversationListItemShadow from "./ConversationListItemShadow";
 import ConversationListItem from "./ConversationListItem";
-import { MoveMixin, SelectionMixin } from "~/mixins";
 
 const { translatePath } = folderUtils;
 
@@ -102,11 +104,28 @@ export default {
         };
     },
     methods: {
+        attachTo(message) {
+            const messageKeys = this.conversation.messages;
+            const allMessages = this.$store.state.mail.conversations.messages;
+            const lastMessage = allMessages[messageKeys[messageKeys.length - 1]];
+            try {
+                this.$store.dispatch(`mail/${ATTACH_EML}`, {
+                    message,
+                    messageToAttach: lastMessage,
+                    defaultName: this.$t("mail.viewer.no.subject")
+                });
+            } catch {
+                this.$store.dispatch(`alert/${ERROR}`, {
+                    alert: { name: "mail.attach_eml.fetch", uid: "ATTACH_EML_UID" }
+                });
+            }
+        },
         moveConversation(folder) {
             this.isValidFolder(folder) && this.MOVE_CONVERSATIONS({ conversations: this.dragged, folder });
         },
-        setTooltip(folder) {
-            if (folder) {
+        setTooltip(event) {
+            if (event.relatedData?.path) {
+                const folder = event.relatedData;
                 const path = translatePath(folder.path);
                 if (this.conversation.folderRef.key === folder.key) {
                     this.tooltip.text = this.$t("mail.actions.move.item.warning.self", { path });
@@ -118,6 +137,9 @@ export default {
                     this.tooltip.text = this.$tc("mail.actions.move.item", this.shadowCount, { path });
                     this.tooltip.cursor = "cursor";
                 }
+            } else if (event.relatedData?.folderRef) {
+                this.tooltip.text = this.$t("mail.actions.attach");
+                this.tooltip.cursor = "cursor";
             }
         },
         resetTooltip() {
@@ -126,6 +148,14 @@ export default {
         },
         isValidFolder(folder) {
             return this.conversation.folderRef.key !== folder.key && folder.writable;
+        },
+        drop(event) {
+            const relatedData = event.relatedData;
+            if (relatedData?.path) {
+                this.moveConversation(event.relatedData);
+            } else if (relatedData?.folderRef) {
+                this.attachTo(event.relatedData);
+            }
         }
     }
 };

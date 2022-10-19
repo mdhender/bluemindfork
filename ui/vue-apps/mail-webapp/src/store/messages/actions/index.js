@@ -2,6 +2,7 @@ import { withAlert } from "../../helpers/withAlert";
 
 import {
     addFlag,
+    attachEml,
     deleteFlag,
     fetchMessageIfNotLoaded,
     fetchMessageMetadata,
@@ -17,6 +18,7 @@ import {
     ADD_ATTACHMENT,
     ADD_FLAG,
     ADD_LOCAL_ATTACHMENT,
+    ATTACH_EML,
     DEBOUNCED_SAVE_MESSAGE,
     DELETE_FLAG,
     FETCH_MESSAGE_IF_NOT_LOADED,
@@ -51,6 +53,7 @@ export default {
     [ADD_ATTACHMENT]: addAttachment,
     [ADD_FLAG]: addFlag,
     [ADD_LOCAL_ATTACHMENT]: addLocalAttachment,
+    [ATTACH_EML]: attachEml,
     [DEBOUNCED_SAVE_MESSAGE]: debouncedSave,
     [DELETE_FLAG]: deleteFlag,
     [FETCH_MESSAGE_IF_NOT_LOADED]: fetchMessageIfNotLoaded,

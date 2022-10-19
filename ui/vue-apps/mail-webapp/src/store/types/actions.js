@@ -22,6 +22,7 @@ export const PUSHED_FOLDER_CHANGES = "$_VueBus_mail-webapp_pushed_folder_changes
 export const ADD_ATTACHMENT = "ADD_ATTACHMENT";
 export const ADD_FLAG = "ADD_FLAG";
 export const ADD_LOCAL_ATTACHMENT = "ADD_LOCAL_ATTACHMENT";
+export const ATTACH_EML = "ATTACH_EML";
 export const DEBOUNCED_SAVE_MESSAGE = "DEBOUNCED_SAVE_MESSAGE";
 export const DELETE_FLAG = "DELETE_FLAG";
 export const FETCH_MESSAGE_IF_NOT_LOADED = "FETCH_MESSAGE_IF_NOT_LOADED";
