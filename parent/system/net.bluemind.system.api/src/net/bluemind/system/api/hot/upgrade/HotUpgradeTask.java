@@ -65,7 +65,7 @@ public class HotUpgradeTask {
 	}
 
 	public String groupName() {
-		return this.updatedAt.toInstant().toEpochMilli() + "-" + this.operation;
+		return this.createdAt.toInstant().toEpochMilli() + "-" + this.operation;
 	}
 
 	@Override
