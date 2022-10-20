@@ -1,4 +1,4 @@
-import { ApiHandler } from "../ApiHandler";
+import { ApiRouteHandler } from "../ApiRouteHandler";
 import Session from "../../session";
 jest.mock("../../session");
 
@@ -21,7 +21,7 @@ class MockApiClient {
 }
 Session.sid = Promise.resolve("SID");
 
-describe("ApiHandler", () => {
+describe("ApiRouteHandler", () => {
     beforeEach(() => {
         implementations.splice(0, implementations.length);
         constructor.mockClear();
@@ -30,15 +30,15 @@ describe("ApiHandler", () => {
     });
     describe("chain", () => {
         test("to return this if handler priority is higher than parameter priority", () => {
-            const handler = new ApiHandler(MockApiClient, {}, 2);
-            const anotherHandler = new ApiHandler(MockApiClient, {}, 1);
+            const handler = new ApiRouteHandler(MockApiClient, {}, 2);
+            const anotherHandler = new ApiRouteHandler(MockApiClient, {}, 1);
             const result = handler.chain(anotherHandler);
             expect(result).toBe(handler);
             expect(handler.next).toBe(anotherHandler);
         });
         test("to return parameter if parameter priority is higher than hander priority", () => {
-            const handler = new ApiHandler(MockApiClient, {}, 2);
-            const anotherHandler = new ApiHandler(MockApiClient, {}, 3);
+            const handler = new ApiRouteHandler(MockApiClient, {}, 2);
+            const anotherHandler = new ApiRouteHandler(MockApiClient, {}, 3);
             const result = handler.chain(anotherHandler);
             expect(result).toBe(anotherHandler);
             expect(handler.next).toBeNull();
@@ -46,7 +46,7 @@ describe("ApiHandler", () => {
         });
 
         test("to accept a null value", () => {
-            const handler = new ApiHandler(MockApiClient, {}, 2);
+            const handler = new ApiRouteHandler(MockApiClient, {}, 2);
             const result = handler.chain(null);
             expect(result).toBe(handler);
             expect(handler.next).toBeNull();
@@ -54,24 +54,24 @@ describe("ApiHandler", () => {
     });
     describe("execute", () => {
         test("to build client with parameters", async () => {
-            const handler = new ApiHandler(MockApiClient, { name: "method" }, 0);
+            const handler = new ApiRouteHandler(MockApiClient, { name: "method" }, 0);
             await handler.execute({ client: ["one", "two"], method: [] });
-            expect(constructor).toBeCalledWith("one", "two", await Session.sid);
+            expect(constructor).toBeCalledWith(await Session.sid, "one", "two");
         });
         test("to constructor client method", async () => {
-            const handler = new ApiHandler(MockApiClient, { name: "method" }, 0);
+            const handler = new ApiRouteHandler(MockApiClient, { name: "method" }, 0);
             const parameters = { client: [], method: ["one", "two"] };
             await handler.execute(parameters);
             expect(method).toBeCalledWith(...parameters.method);
         });
         test("to constructor client with overwritten parameters", async () => {
-            const handler = new ApiHandler(MockApiClient, { name: "method" }, 0);
+            const handler = new ApiRouteHandler(MockApiClient, { name: "method" }, 0);
             const parameters = { client: [], method: ["one", "two"] };
             await handler.execute(parameters, "three", "four");
             expect(method).toBeCalledWith("three", "four");
         });
         test("to add a property 'next' to client", async () => {
-            const handler = new ApiHandler(MockApiClient, { name: "method" }, 0);
+            const handler = new ApiRouteHandler(MockApiClient, { name: "method" }, 0);
             const anotherHandler = { execute: jest.fn() };
             handler.next = anotherHandler;
             const parameters = { client: ["one", "two"], method: [] };
@@ -82,7 +82,7 @@ describe("ApiHandler", () => {
             expect(anotherHandler.execute).toBeCalledWith(parameters);
         });
         test("to use overwritten parameter in next execution", async () => {
-            const handler = new ApiHandler(MockApiClient, { name: "method" }, 0);
+            const handler = new ApiRouteHandler(MockApiClient, { name: "method" }, 0);
             const anotherHandler = { execute: jest.fn() };
             handler.next = anotherHandler;
             const parameters = { client: ["one", "two"], method: [] };
@@ -96,7 +96,7 @@ describe("ApiHandler", () => {
                     return this.next();
                 }
             };
-            const handler = new ApiHandler(ExtendedMockApiClient, { name: "method" }, 0);
+            const handler = new ApiRouteHandler(ExtendedMockApiClient, { name: "method" }, 0);
             const parameters = { client: ["one", "two"], method: [] };
 
             await handler.execute(parameters);

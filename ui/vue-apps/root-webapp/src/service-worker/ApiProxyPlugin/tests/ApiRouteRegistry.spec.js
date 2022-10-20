@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { ApiRouteRegistry } from "../ApiRouteRegistry";
 import { EndPoint } from "../EndPoint";
 
@@ -59,11 +60,11 @@ describe("ApiRouteRegistry", () => {
         });
 
         test("register only register client methods ", () => {
-            const ApiProxy = class extends MockApiClient {
+            const ApiRouteHandler = class extends MockApiClient {
                 first() {}
                 another() {}
             };
-            ApiRouteRegistry.register(ApiProxy, 0);
+            ApiRouteRegistry.register(ApiRouteHandler, 0);
             expect(ApiRouteRegistry.endpoints.size).toBe(1);
         });
 

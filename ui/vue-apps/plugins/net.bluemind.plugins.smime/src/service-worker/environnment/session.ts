@@ -13,7 +13,7 @@ interface SessionInfo {
     bmBrandVersion: string;
 }
 export interface Session {
-    // login: Promise<string>;
+    login: Promise<string>;
     // accountType: Promise<string>;
     // defaultEmail: Promise<string>;
     sid: Promise<string>;
@@ -28,18 +28,18 @@ export interface Session {
     clear(): void;
 }
 let infos: SessionInfo | undefined;
-function instance(): Promise<SessionInfo> {
+async function instance(): Promise<SessionInfo> {
     if (!infos) {
-        return new Promise(async resolve => {
-            infos = await fetchSessionInfos();
-            resolve(infos);
-        });
+        infos = await fetchSessionInfos();
     }
-    return Promise.resolve(infos);
+    return infos;
 }
 const session: Session = {
     get sid() {
         return instance().then(({ sid }) => sid);
+    },
+    get login() {
+        return instance().then(({ login }) => login);
     },
     clear() {
         infos = undefined;

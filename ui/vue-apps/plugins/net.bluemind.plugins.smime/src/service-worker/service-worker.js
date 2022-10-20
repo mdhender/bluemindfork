@@ -1,37 +1,33 @@
 import { registerRoute } from "workbox-routing";
 import { extensions } from "@bluemind/extensions";
-import SmimeDB from "./SmimeDB";
-import SmimeHandler from "./SmimeHandler";
+import db from "./SMimeDB";
+import SMimeApiProxy from "./SMimeApiProxy";
+import { PKIEntry, SMIME_INTERNAL_API_URL } from "../lib/constants";
 
 extensions.register("serviceworker.handlers", "smime-plugin", {
-    "api-handler": { class: SmimeHandler, priority: 256 }
+    "api-handler": { class: SMimeApiProxy, priority: 256 }
 });
 
-registerRoute(matchManageSmimeKeyRoute, hasCryptoFilesHandler, "GET");
-registerRoute(matchManageSmimeKeyRoute, deleteCryptoFilesHandler, "DELETE");
-registerRoute(matchManageSmimeKeyRoute, setCryptoFilesHandler, "PUT");
-
-// FIXME: with service-worker global env
-const SW_INTERNAL_API_PATH = "/service-worker-internal/";
-
-function matchManageSmimeKeyRoute({ url }) {
-    return url.pathname === SW_INTERNAL_API_PATH + "smime";
-}
+registerRoute(SMIME_INTERNAL_API_URL, hasCryptoFilesHandler, "GET");
+registerRoute(SMIME_INTERNAL_API_URL, deleteCryptoFilesHandler, "DELETE");
+registerRoute(`${SMIME_INTERNAL_API_URL}/${PKIEntry.PRIVATE_KEY}`, setPrivateKey, "PUT");
+registerRoute(`${SMIME_INTERNAL_API_URL}/${PKIEntry.CERTIFICATE}`, setCertificate, "PUT");
 
 async function hasCryptoFilesHandler() {
-    const has = await SmimeDB.hasCryptoFiles();
-    return new Response(JSON.stringify(has));
+    return new Response(await db.getPKIStatus());
 }
 
 async function deleteCryptoFilesHandler() {
-    await SmimeDB.deleteCryptoFiles();
+    await db.clearPKI();
     return new Response();
 }
 
-async function setCryptoFilesHandler({ request, url }) {
-    const blob = await request.blob();
-    const kind = url.searchParams.get("kind");
-    const storeFn = kind === "privateKey" ? SmimeDB.setPrivateKey : SmimeDB.setPublicCert;
-    await storeFn(blob);
+async function setPrivateKey({ request }) {
+    db.setPrivateKey(await request.blob());
+    return new Response();
+}
+
+async function setCertificate({ request }) {
+    db.setCertificate(await request.blob());
     return new Response();
 }

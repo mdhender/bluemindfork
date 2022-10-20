@@ -3,7 +3,7 @@ import { EndPoint } from "./EndPoint";
 import { APIClient, MethodMetadatas } from "./types";
 
 type ApiRouteRegistryType = {
-    endpoints: Map<String, EndPoint>;
+    endpoints: Map<string, EndPoint>;
     register(ProxyClass: typeof APIClient, priority: number): void;
     routes(): Array<Route>;
 };
@@ -18,7 +18,7 @@ export const ApiRouteRegistry: ApiRouteRegistryType = {
             if (!this.endpoints.has(key)) {
                 this.endpoints.set(key, new EndPoint(method, proxy.getMetadata()));
             }
-            this.endpoints.get(key)!.chain(ProxyClass, priority);
+            this.endpoints.get(key)?.chain(ProxyClass, priority);
         });
     },
     routes() {
@@ -37,12 +37,16 @@ function getProxifiedMethods(proxy: APIClient): Array<MethodMetadatas> {
     const clientMetadatas: Array<MethodMetadatas> = proxy.getMetadata().methods;
     const methods: Set<MethodMetadatas> = new Set();
     do {
-        Object.getOwnPropertyNames(proxy).forEach(name => {
+        let properties = Object.getOwnPropertyNames(proxy);
+        if (properties.includes("getMetadata")) {
+            break;
+        }
+        properties.forEach(name => {
             const methodMetadatas = clientMetadatas.find(metadatas => metadatas.name === name);
             if (methodMetadatas) {
                 methods.add(methodMetadatas);
             }
         });
-    } while ((proxy = Object.getPrototypeOf(proxy)) && proxy.getMetadata);
+    } while ((proxy = Object.getPrototypeOf(proxy)));
     return [...methods];
 }

@@ -2,12 +2,12 @@ import { Response } from "node-fetch";
 
 import { EndPoint } from "../EndPoint";
 import { RegExpRoute } from "workbox-routing";
-import { ApiHandler } from "../ApiHandler";
+import { ApiRouteHandler } from "../ApiRouteHandler";
 
 global.Response = Response;
 global.fetch = jest.fn();
 
-jest.mock("../ApiHandler");
+jest.mock("../ApiRouteHandler");
 jest.mock("workbox-routing");
 
 let metadatas;
@@ -15,8 +15,8 @@ let metadatas;
 class MockApiClient {}
 describe("EndPoint", () => {
     beforeEach(() => {
-        ApiHandler.mockClear();
-        ApiHandler.prototype.chain.mockReturnThis();
+        ApiRouteHandler.mockClear();
+        ApiRouteHandler.prototype.chain.mockReturnThis();
         metadatas = {
             className: "IMock",
             packageName: "net.bluemind.mock.api",
@@ -102,10 +102,10 @@ describe("EndPoint", () => {
         });
     });
     describe("chain", () => {
-        test("to wrap api client in a ApiHandler", () => {
+        test("to wrap api client in a ApiRouteHandler", () => {
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);
             endpoint.chain(MockApiClient, 0);
-            expect(ApiHandler).toHaveBeenCalledWith(MockApiClient, metadatas.methods[0], 0);
+            expect(ApiRouteHandler).toHaveBeenCalledWith(MockApiClient, metadatas.methods[0], 0);
         });
         test("to chain Handlers ", () => {
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);

@@ -2,7 +2,7 @@ import { clientsClaim } from "workbox-core";
 import { registerRoute } from "workbox-routing";
 import { extensions } from "@bluemind/extensions";
 import DefaultRoutes from "./DefaultRoutes";
-import { ApiRouteRegistry } from "./ClientProxy/ApiRouteRegistry";
+import { ApiRouteRegistry } from "./ApiProxyPlugin/ApiRouteRegistry";
 
 clientsClaim();
 self.skipWaiting();

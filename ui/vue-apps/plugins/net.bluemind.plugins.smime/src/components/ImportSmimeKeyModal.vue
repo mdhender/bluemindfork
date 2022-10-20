@@ -60,9 +60,7 @@ import { MimeType } from "@bluemind/email";
 import { BmButton, BmFileDropZone, BmIcon, BmLabelIcon, BmModal, BmSpinner } from "@bluemind/styleguide";
 import { SMIME_AVAILABLE } from "../store/getterTypes";
 import { SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "../store/mutationTypes";
-
-// FIXME: with service-worker global env
-const SW_INTERNAL_API_PATH = "/service-worker-internal/";
+import { SMIME_INTERNAL_API_URL, PKIEntry } from "../lib/constants";
 
 export default {
     name: "ImportSmimeKeyModal",
@@ -98,16 +96,20 @@ export default {
         },
         async upload(file) {
             this.uploadStatus = "IN_PROGRESS";
-            const kind = file.type === MimeType.PKCS_8 ? "privateKey" : "publicCert";
+            const kind = file.type === MimeType.PKCS_8 ? PKIEntry.PRIVATE_KEY : PKIEntry.CERTIFICATE;
             try {
-                const url = new URL(SW_INTERNAL_API_PATH + "smime?kind=" + kind, self.location.origin);
+                const url = `${SMIME_INTERNAL_API_URL}/${kind}`;
                 const options = {
                     method: "PUT",
                     headers: { "Content-Type": file.type },
                     body: file
                 };
                 await fetch(url, options);
-                kind === "privateKey" ? this.SET_HAS_PRIVATE_KEY(true) : this.SET_HAS_PUBLIC_CERT(true);
+                if (kind === PKIEntry.PRIVATE_KEY) {
+                    this.SET_HAS_PRIVATE_KEY(true);
+                } else {
+                    this.SET_HAS_PUBLIC_CERT(true);
+                }
                 this.uploadStatus = "IDLE";
             } catch {
                 this.uploadStatus = "ERROR";

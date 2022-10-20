@@ -1,6 +1,6 @@
 export class APIClient {
     // eslint-disable-next-line no-unused-vars
-    constructor(sid?: String, base?: String) {}
+    constructor(sid?: string, base?: string) {}
     getMetadata(): ClientMetadatas {
         return { className: "", packageName: "", path: { value: "", parameters: [] }, methods: [] };
     }

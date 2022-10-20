@@ -1,14 +1,14 @@
 import fs from "fs";
 import path from "path";
-import EmlParser from "../EmlParser";
+import rfc2045 from "../eml";
 
 const body = { bodyVersion: 0, date: 0, guid: 0 };
 
-describe("EmlParser", () => {
+describe("eml", () => {
     describe("parseBodyStructure", () => {
         test("basic_text", async () => {
             const eml = readEml("basic_text");
-            const structure = await EmlParser.parseBodyStructure(body, eml);
+            const structure = await rfc2045.parseBodyStructure(body, eml);
             expect(structure).toMatchInlineSnapshot(`
                 Object {
                   "bodyVersion": 0,
@@ -28,7 +28,7 @@ describe("EmlParser", () => {
         });
         test("basic_html", async () => {
             const eml = readEml("basic_html");
-            const structure = await EmlParser.parseBodyStructure(body, eml);
+            const structure = await rfc2045.parseBodyStructure(body, eml);
             expect(structure).toMatchInlineSnapshot(`
                 Object {
                   "bodyVersion": 0,
@@ -48,7 +48,7 @@ describe("EmlParser", () => {
         });
         test("multi_alternative", async () => {
             const eml = readEml("multi_alternative");
-            const structure = await EmlParser.parseBodyStructure(body, eml);
+            const structure = await rfc2045.parseBodyStructure(body, eml);
             expect(structure).toMatchInlineSnapshot(`
                 Object {
                   "bodyVersion": 0,
@@ -82,7 +82,7 @@ describe("EmlParser", () => {
         });
         test("multi_related", async () => {
             const eml = readEml("multi_related");
-            const structure = await EmlParser.parseBodyStructure(body, eml);
+            const structure = await rfc2045.parseBodyStructure(body, eml);
             expect(structure).toMatchInlineSnapshot(`
                 Object {
                   "bodyVersion": 0,
@@ -118,7 +118,7 @@ describe("EmlParser", () => {
         });
         test("multi_mixed", async () => {
             const eml = readEml("multi_mixed");
-            const structure = await EmlParser.parseBodyStructure(body, eml);
+            const structure = await rfc2045.parseBodyStructure(body, eml);
             expect(structure).toMatchInlineSnapshot(`
                 Object {
                   "bodyVersion": 0,
@@ -153,7 +153,7 @@ describe("EmlParser", () => {
         });
         test("multi_full", async () => {
             const eml = readEml("multi_full");
-            const structure = await EmlParser.parseBodyStructure(body, eml);
+            const structure = await rfc2045.parseBodyStructure(body, eml);
             expect(structure).toMatchInlineSnapshot(`
                 Object {
                   "bodyVersion": 0,

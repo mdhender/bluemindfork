@@ -8,7 +8,7 @@ interface EnvironmentSchema extends DBSchema {
     };
 }
 
-const VERSION: number = 1;
+const VERSION = 1;
 
 export class EnvironmentDB {
     db: Promise<IDBPDatabase<EnvironmentSchema>>;
@@ -34,7 +34,7 @@ export class EnvironmentDB {
         });
     }
 
-    async setMailboxCopyGuid(uid: String) {
+    async setMailboxCopyGuid(uid: string) {
         logger.log(`[SW][DB] Initialize environment mailboxCopyGuid to ${uid}.`);
         await (await this.db).put("system", { key: "mailboxCopyGuid", value: uid });
     }
