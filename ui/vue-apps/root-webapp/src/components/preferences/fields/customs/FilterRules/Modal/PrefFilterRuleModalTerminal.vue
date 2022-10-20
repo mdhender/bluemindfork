@@ -23,7 +23,7 @@ export default {
     data() {
         return {
             readMore:
-                "https://doc.bluemind.net/release/5.0/Guide_de_l_utilisateur/La_messagerie/Appliquer_des_regles_de_tri_et_d_actions#ordonner-les-filtres-automatiques"
+                "https://doc.bluemind.net/release/5.0/guide_de_l_utilisateur/la_messagerie/appliquer_des_regles_de_tri_et_d_actions#ordonner-les-filtres-automatiques"
         };
     }
 };

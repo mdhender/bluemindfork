@@ -285,8 +285,7 @@ export default function (i18n) {
                                         label: {
                                             component: "PrefReadMoreLabel",
                                             options: {
-                                                href:
-                                                    "https://doc.bluemind.net/release/5.0/Guide_de_l_utilisateur/La_messagerie/Gerer_les_identites_du_compte#param%C3%A9trer-le-champ-exp%C3%A9diteur",
+                                                href: "https://doc.bluemind.net/release/5.0/guide_de_l_utilisateur/la_messagerie/gerer_les_identites_du_compte#param%C3%A9trer-le-champ-exp%C3%A9diteur",
                                                 label: i18n.t("preferences.mail.identities.auto_select.label")
                                             }
                                         },
