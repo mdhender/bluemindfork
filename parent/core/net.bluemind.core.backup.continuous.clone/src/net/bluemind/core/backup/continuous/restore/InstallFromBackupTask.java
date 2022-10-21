@@ -29,12 +29,14 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import net.bluemind.core.api.Regex;
 import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.IBackupReader;
 import net.bluemind.core.backup.continuous.ILiveBackupStreams;
@@ -119,7 +121,9 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 
 		cloneContainerItemIdSeq(monitor, orphansStream, orphans, cloneState);
 
-		List<ILiveStream> domainStreams = streams.domains();
+		// exclude, at least, "<mcastid>-crd-dir-entries" created by bm-crp kafka stream
+		List<ILiveStream> domainStreams = streams.domains().stream().filter(d -> Regex.DOMAIN.validate(d.domainUid()))
+				.collect(Collectors.toList());
 		ISdsSyncStore sdsStore = sdsAccess.forSysconf(orphans.sysconf);
 		cloneDomains(monitor.subWork(99), domainStreams, cloneState, orphans, sdsStore);
 	}
