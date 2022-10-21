@@ -46,6 +46,7 @@ import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.BlockingServerTask;
+import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 
 public class ReplicatedDataExpirationService implements IReplicatedDataExpiration {
@@ -119,26 +120,34 @@ public class ReplicatedDataExpirationService implements IReplicatedDataExpiratio
 	@Override
 	public TaskRef deleteMessageBodiesFromObjectStore(int days) {
 		return context.provider().instance(ITasksManager.class).run(m -> BlockingServerTask.run(m, monitor -> {
+			long totalRemoved = 0;
+			long removedRows = 0;
 			monitor.begin(1, "Expiring expunged messages (" + days + " days) on server " + serverUid);
-			List<String> guids = JdbcAbstractStore.doOrFail(() -> {
-				return bodyStore.deletePurgedBodies(Instant.now().minusSeconds(TimeUnit.DAYS.toSeconds(days)));
-			});
 			MessageBodyObjectStore sdsStore = bodyObjectStore.get();
-			if (sdsStore != null) {
-				logger.info("Removing {} from object storage", guids.size());
-				for (List<String> partitionedGuids : Lists.partition(guids, 100)) {
-					monitor.log("Removing " + partitionedGuids.size() + " objects from object storage");
-					try {
-						sdsStore.delete(partitionedGuids);
-					} catch (Exception e) {
-						String guidListString = partitionedGuids.stream().collect(Collectors.joining(","));
-						logger.error("sdsStore.delete() failed on guids: [{}]", guidListString, e);
-						monitor.log("sdsStore.delete() failed on guids: " + guidListString);
-					}
+			Instant from = Instant.now().minusSeconds(TimeUnit.DAYS.toSeconds(days));
+			do {
+				List<String> guids = JdbcAbstractStore.doOrFail(() -> bodyStore.deletePurgedBodies(from, 10000));
+				removedRows = guids.size();
+				totalRemoved += removedRows;
+				if (sdsStore != null && !guids.isEmpty()) {
+					removeFromSdsStore(monitor, sdsStore, guids);
 				}
-			}
-			monitor.end(true, "", "");
+			} while (removedRows > 0);
+			monitor.end(true, "removed " + totalRemoved + " bodies", "");
 		}));
 	}
 
+	private void removeFromSdsStore(IServerTaskMonitor monitor, MessageBodyObjectStore sdsStore, List<String> guids) {
+		logger.info("Removing {} from object storage", guids.size());
+		for (List<String> partitionedGuids : Lists.partition(guids, 100)) {
+			monitor.log("Removing " + partitionedGuids.size() + " objects from object storage");
+			try {
+				sdsStore.delete(partitionedGuids);
+			} catch (Exception e) {
+				String guidListString = partitionedGuids.stream().collect(Collectors.joining(","));
+				logger.error("sdsStore.delete() failed on guids: [{}]", guidListString, e);
+				monitor.log("sdsStore.delete() failed on guids: " + guidListString);
+			}
+		}
+	}
 }

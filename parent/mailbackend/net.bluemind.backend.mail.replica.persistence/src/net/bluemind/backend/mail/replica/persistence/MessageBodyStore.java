@@ -125,11 +125,14 @@ public class MessageBodyStore extends JdbcAbstractStore {
 		update(query, null);
 	}
 
-	public List<String> deletePurgedBodies(Instant removedBefore) throws SQLException {
-		String query = "DELETE FROM t_message_body_purge_queue WHERE removed IS NOT NULL AND removed <= ? "
-				+ "RETURNING encode(message_body_guid, 'hex')";
+	public List<String> deletePurgedBodies(Instant removedBefore, long limit) throws SQLException {
+		String query = "WITH bodies AS" //
+				+ " (SELECT message_body_guid FROM t_message_body_purge_queue" //
+				+ " WHERE removed IS NOT NULL AND removed <= ? LIMIT ?)" //
+				+ " DELETE FROM t_message_body_purge_queue WHERE message_body_guid IN (SELECT message_body_guid FROM bodies) RETURNING encode(message_body_guid, 'hex')";
+
 		return delete(query, StringCreator.FIRST, Arrays.asList((rs, index, val) -> index),
-				new Object[] { Timestamp.from(removedBefore) });
+				new Object[] { Timestamp.from(removedBefore), limit });
 	}
 
 	private String[] toByteArray(String... guids) {
