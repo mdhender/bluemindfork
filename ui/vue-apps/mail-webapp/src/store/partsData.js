@@ -43,9 +43,12 @@ export default {
             }
         },
         // Listeners
-        [SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES]: (state, { key }) => {
-            Vue.set(state.partsByMessageKey, key, {});
-            Vue.set(state.quoteNodesByMessageKey, key, {});
+        [SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES]: (state, { key, inlinePartsByCapabilities }) => {
+            inlinePartsByCapabilities.forEach(({ parts }) => {
+                parts.forEach(({ address }) => {
+                    Vue.delete(state.partsByMessageKey[key], address);
+                });
+            });
         }
     },
 
