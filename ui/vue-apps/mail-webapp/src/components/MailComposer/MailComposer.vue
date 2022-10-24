@@ -41,28 +41,45 @@
             @input="updateSubject"
             @keypress.enter.prevent
         />
-        <bm-dropzone class="my-2 flex-column flex-fill" :accept="['conversation']" :value="message">
-            <div
-                class="conversation-dropzone-placeholder bm-dropzone-show-dropzone justify-content-center align-items-center flex-column h-100"
-            >
-                <h3 class="p-2">{{ $tc("mail.new.attachments.eml.drop.zone") }}</h3>
-                <bm-icon icon="arrow-up" size="xl" />
+        <bm-dropzone
+            v-show="showConversationDropzone"
+            class="h-100 my-2"
+            :accept="['conversation']"
+            :value="message"
+            @dropactivate="showConversationDropzone = true"
+            @dropdeactivate="showConversationDropzone = false"
+        >
+            <div class="bm-dropzone-show-dropzone justify-content-center align-items-center d-flex flex-column h-100">
+                <mail-composer-attach-zone :text="$tc('mail.new.attachments.eml.drop.zone')" />
             </div>
-            <mail-composer-attachments
-                class="m-4 conversation-no-dropzone"
-                :dragged-files-count="draggedFilesCount"
-                :message="message"
+        </bm-dropzone>
+        <div v-show="!showConversationDropzone">
+            <bm-file-drop-zone
+                class="h-100 my-2"
+                :should-activate-fn="shouldActivate"
                 @files-count="draggedFilesCount = $event"
                 @drop-files="$execute('add-attachments', { files: $event, message, maxSize })"
-            />
-            <mail-composer-content
-                ref="content"
-                class="m-4 conversation-no-dropzone"
-                :message="message"
-                :is-signature-inserted.sync="isSignatureInserted"
-            />
-            <template-chooser />
-        </bm-dropzone>
+            >
+                <template #dropZone>
+                    <mail-composer-attach-zone :text="$tc('mail.new.attachments.drop.zone', draggedFilesCount)" />
+                </template>
+                <mail-composer-attachments
+                    class="m-4"
+                    :dragged-files-count="draggedFilesCount"
+                    :message="message"
+                    @files-count="draggedFilesCount = $event"
+                    @drop-files="$execute('add-attachments', { files: $event, message, maxSize })"
+                />
+                <mail-composer-content
+                    ref="content"
+                    class="m-4"
+                    :message="message"
+                    :is-signature-inserted.sync="isSignatureInserted"
+                />
+                <template-chooser />
+            </bm-file-drop-zone>
+        </div>
+
         <mail-composer-footer
             :message="message"
             :is-signature-inserted="isSignatureInserted"
@@ -73,9 +90,9 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { BmDropzone, BmIcon, BmIconButton, BmFormInput, BmForm } from "@bluemind/styleguide";
+import { BmDropzone, BmFileDropZone, BmIconButton, BmFormInput, BmForm } from "@bluemind/styleguide";
+import { ComposerActionsMixin, ComposerMixin, FileDropzoneMixin } from "~/mixins";
 import { MY_TEMPLATES } from "~/getters";
-import { ComposerActionsMixin, ComposerMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
 import MessagePathParam from "~/router/MessagePathParam";
 import MailComposerAttachments from "./MailComposerAttachments";
@@ -85,16 +102,18 @@ import MailComposerFooter from "./MailComposerFooter";
 import MailComposerSender from "./MailComposerSender";
 import TemplateChooser from "~/components/TemplateChooser";
 import MailOpenInPopup from "../MailOpenInPopup";
+import MailComposerAttachZone from "./MailComposerAttachZone";
 
 export default {
     name: "MailComposer",
     components: {
         BmDropzone,
-        BmIcon,
         BmIconButton,
+        BmFileDropZone,
         BmFormInput,
         BmForm,
         MailComposerAttachments,
+        MailComposerAttachZone,
         MailComposerFooter,
         MailComposerContent,
         MailComposerSender,
@@ -102,7 +121,10 @@ export default {
         MailOpenInPopup,
         TemplateChooser
     },
-    mixins: [AddAttachmentsCommand, ComposerActionsMixin, ComposerMixin],
+    mixins: [AddAttachmentsCommand, ComposerActionsMixin, ComposerMixin, FileDropzoneMixin],
+    data() {
+        return { showConversationDropzone: false };
+    },
     computed: {
         ...mapGetters("mail", { MY_TEMPLATES }),
         panelTitle() {
@@ -154,37 +176,6 @@ export default {
         position: sticky;
         bottom: 0;
         z-index: $zindex-sticky;
-    }
-
-    .bm-dropzone {
-        .conversation-dropzone-placeholder {
-            display: none;
-        }
-        .conversation-no-dropzone {
-            display: flex;
-        }
-        &.bm-dropzone-active {
-            .conversation-dropzone-placeholder {
-                display: flex;
-                background: url("~@bluemind/styleguide/assets/attachment.png") no-repeat center center;
-            }
-            .conversation-no-dropzone {
-                display: none !important;
-            }
-        }
-    }
-}
-
-.mail-composer .bm-file-drop-zone,
-.mail-composer-content.bm-file-drop-zone {
-    &.attachments .bm-dropzone-active-content {
-        min-height: 7em;
-    }
-    &.as-attachments {
-        &.bm-dropzone-active,
-        &.bm-dropzone-hover {
-            background: url("~@bluemind/styleguide/assets/attachment.png") no-repeat center center;
-        }
     }
 }
 </style>

@@ -2,50 +2,43 @@
     <mail-viewer-content-loading v-if="loading" class="flex-grow-1 mx-2" />
     <bm-file-drop-zone
         v-else
-        class="mail-composer-content z-index-110 as-attachments flex-grow-1"
-        :should-activate-fn="shouldActivate"
-        @files-count="draggedFilesCount = $event"
-        @drop-files="$execute('add-attachments', { files: $event, message, maxSize })"
+        class="mail-composer-content z-index-110 flex-grow-1"
+        inline
+        :should-activate-fn="shouldActivateForImages"
     >
         <template #dropZone>
-            <div class="text-center text-neutral p-4">
-                {{ $tc("mail.new.attachments.drop.zone", draggedFilesCount) }}
+            <div class="d-flex flex-column justify-content-start flex-fill align-items-center mt-6">
+                <bm-icon class="text-neutral" icon="file-type-image" size="xl" />
+                <div class="text-neutral p-4">
+                    <h3 class="p-2">{{ $tc("mail.new.images.drop.zone", draggedFilesCount) }}</h3>
+                </div>
             </div>
         </template>
-
-        <bm-file-drop-zone class="z-index-110 flex-grow-1" inline :should-activate-fn="shouldActivateForImages">
-            <template #dropZone>
-                <bm-icon class="text-neutral" icon="file-type-image" size="xl" />
-                <div class="text-center text-neutral p-4">
-                    {{ $tc("mail.new.images.drop.zone", draggedFilesCount) }}
-                </div>
-            </template>
-            <bm-rich-editor
-                ref="message-content"
-                :init-value="messageCompose.editorContent"
-                :show-toolbar="false"
-                :adapt-output="setCidDataAttr"
-                class="flex-grow-1"
-                name="composer"
-                @input="updateEditorContent"
-            >
-                <bm-icon-button
-                    v-if="messageCompose.collapsedContent"
-                    size="sm"
-                    class="align-self-start mb-1"
-                    icon="3dots"
-                    @click="expandContent"
-                />
-                <!-- eslint-disable vue/no-v-html -->
-                <div
-                    v-if="corporateSignature && !corporateSignature.usePlaceholder"
-                    class="cursor-not-allowed"
-                    :title="contentIsReadOnly"
-                    v-html="corporateSignature.html"
-                />
-                <div v-if="disclaimer" class="cursor-not-allowed" :title="contentIsReadOnly" v-html="disclaimer.html" />
-            </bm-rich-editor>
-        </bm-file-drop-zone>
+        <bm-rich-editor
+            ref="message-content"
+            :init-value="messageCompose.editorContent"
+            :show-toolbar="false"
+            :adapt-output="setCidDataAttr"
+            class="flex-grow-1"
+            name="composer"
+            @input="updateEditorContent"
+        >
+            <bm-icon-button
+                v-if="messageCompose.collapsedContent"
+                size="sm"
+                class="align-self-start mb-1"
+                icon="3dots"
+                @click="expandContent"
+            />
+            <!-- eslint-disable vue/no-v-html -->
+            <div
+                v-if="corporateSignature && !corporateSignature.usePlaceholder"
+                class="cursor-not-allowed"
+                :title="contentIsReadOnly"
+                v-html="corporateSignature.html"
+            />
+            <div v-if="disclaimer" class="cursor-not-allowed" :title="contentIsReadOnly" v-html="disclaimer.html" />
+        </bm-rich-editor>
     </bm-file-drop-zone>
 </template>
 
@@ -57,8 +50,7 @@ import { BmFileDropZone, BmIcon, BmIconButton, BmRichEditor } from "@bluemind/st
 import { draftUtils, signatureUtils } from "@bluemind/mail";
 
 import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
-import { ComposerActionsMixin, ComposerInitMixin, SignatureMixin, WaitForMixin } from "~/mixins";
-import { AddAttachmentsCommand } from "~/commands";
+import { ComposerActionsMixin, ComposerInitMixin, FileDropzoneMixin, SignatureMixin, WaitForMixin } from "~/mixins";
 import MailViewerContentLoading from "../MailViewer/MailViewerContentLoading";
 
 const { isNewMessage } = draftUtils;
@@ -66,8 +58,14 @@ const { PERSONAL_SIGNATURE_SELECTOR } = signatureUtils;
 
 export default {
     name: "MailComposerContent",
-    components: { BmFileDropZone, BmIcon, BmIconButton, BmRichEditor, MailViewerContentLoading },
-    mixins: [AddAttachmentsCommand, ComposerActionsMixin, ComposerInitMixin, SignatureMixin, WaitForMixin],
+    components: {
+        BmFileDropZone,
+        BmIcon,
+        BmIconButton,
+        BmRichEditor,
+        MailViewerContentLoading
+    },
+    mixins: [ComposerActionsMixin, ComposerInitMixin, FileDropzoneMixin, SignatureMixin, WaitForMixin],
     props: {
         message: {
             type: Object,
@@ -140,31 +138,9 @@ export default {
             await this.$waitFor("componentGotMounted");
             await this.$waitFor("loading", loading => loading === false); // component must be loaded to be able to use ref
             return this.$refs["message-content"];
-        },
-        shouldActivate(event) {
-            // Fallback for Safari: its event.dataTransfer.items is an empty FilesList
-            if (event.dataTransfer.items.length === 0) {
-                return true;
-            }
-            const files = getFilesFromEvent(event);
-            const regex = "^(?!.*image/(jpeg|jpg|png|gif)).*$";
-            const matchFunction = f => f.type.match(new RegExp(regex, "i"));
-            return files.some(matchFunction);
-        },
-        shouldActivateForImages(event) {
-            const regex = "image/(jpeg|jpg|png|gif)";
-            const files = getFilesFromEvent(event);
-            const matchFunction = f => f.type.match(new RegExp(regex, "i"));
-            return files.length > 0 && files.every(matchFunction);
         }
     }
 };
-
-function getFilesFromEvent(event) {
-    return event.dataTransfer.items.length
-        ? Object.keys(event.dataTransfer.items).map(key => event.dataTransfer.items[key])
-        : [];
-}
 </script>
 
 <style lang="scss">

@@ -1,6 +1,6 @@
 <template>
     <div
-        class="mail-composer-footer-toolbar justify-content-between align-items-center flex-fill"
+        class="mail-composer-toolbar justify-content-between align-items-center d-lg-flex flex-fill"
         :class="{ 'd-none': !isPopup, 'd-flex': isPopup }"
     >
         <div class="main-buttons">
@@ -242,7 +242,7 @@ export default {
 @import "~@bluemind/styleguide/css/_type";
 @import "~@bluemind/styleguide/css/_variables";
 
-.mail-composer-footer-toolbar {
+.mail-composer-toolbar {
     flex-wrap: wrap;
     gap: $sp-5;
     padding: $sp-5 + $sp-2 $sp-4;

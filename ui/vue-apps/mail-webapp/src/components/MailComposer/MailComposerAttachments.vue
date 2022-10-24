@@ -2,12 +2,13 @@
     <bm-file-drop-zone
         class="mail-composer-attachments z-index-110 attachments mb-2"
         :should-activate-fn="shouldActivateForImages"
+        adapt-to-content
         v-on="$listeners"
     >
         <template #dropZone>
             <bm-icon class="text-neutral" icon="paper-clip" size="xl" />
             <div class="text-center text-neutral p-4">
-                {{ $tc("mail.new.attachments.images.drop.zone", draggedFilesCount) }}
+                <h3 class="p-2">{{ $tc("mail.new.attachments.images.drop.zone", draggedFilesCount) }}</h3>
             </div>
         </template>
         <files-block

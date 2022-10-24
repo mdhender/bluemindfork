@@ -7,7 +7,7 @@ import { sanitizeHtml } from "@bluemind/html-utils";
 import { BmRichEditor } from "@bluemind/styleguide";
 import { attachmentUtils, draftUtils, loadingStatusUtils, messageUtils, partUtils } from "@bluemind/mail";
 
-import { ATTACH_EML, FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
+import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import { MY_DRAFTS } from "~/getters";
 import {
     ADD_ATTACHMENT,
@@ -243,11 +243,13 @@ export default {
             const subject = computeSubject(MessageCreationModes.FORWARD, related);
             this.$store.commit(`mail/${SET_MESSAGE_SUBJECT}`, { messageKey: message.key, subject });
             try {
-                await this.$store.dispatch(`mail/${ATTACH_EML}`, {
-                    message,
-                    messageToAttach: related,
-                    defaultName: this.$t("mail.viewer.no.subject")
-                });
+                const content = await apiMessages.fetchComplete(related);
+                const file = new File(
+                    [content],
+                    messageUtils.createEmlName(related, this.$t("mail.viewer.no.subject")),
+                    { type: "message/rfc822" }
+                );
+                await this.$execute("add-attachments", { files: [file], message, maxSize: this.maxSize });
             } catch {
                 this.ERROR({
                     alert: { name: "mail.forward_eml.fetch", uid: "FWD_EML_UID" }

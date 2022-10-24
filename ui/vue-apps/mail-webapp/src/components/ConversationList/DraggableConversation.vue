@@ -42,10 +42,12 @@
 
 <script>
 import { ERROR } from "@bluemind/alert.store";
-import { folderUtils } from "@bluemind/mail";
+import { folderUtils, messageUtils } from "@bluemind/mail";
 import { BmDraggable } from "@bluemind/styleguide";
-import { ATTACH_EML } from "~/actions";
+import { AddAttachmentsCommand } from "~/commands";
 import { MoveMixin, SelectionMixin } from "~/mixins";
+import apiMessages from "~/store/api/apiMessages";
+import { CONVERSATION_MESSAGE_BY_KEY } from "~/getters";
 import ConversationListItemShadow from "./ConversationListItemShadow";
 import ConversationListItem from "./ConversationListItem";
 
@@ -54,7 +56,7 @@ const { translatePath } = folderUtils;
 export default {
     name: "DraggableConversation",
     components: { ConversationListItemShadow, BmDraggable, ConversationListItem },
-    mixins: [MoveMixin, SelectionMixin],
+    mixins: [AddAttachmentsCommand, MoveMixin, SelectionMixin],
     props: {
         conversation: {
             type: Object,
@@ -104,16 +106,17 @@ export default {
         };
     },
     methods: {
-        attachTo(message) {
-            const messageKeys = this.conversation.messages;
-            const allMessages = this.$store.state.mail.conversations.messages;
-            const lastMessage = allMessages[messageKeys[messageKeys.length - 1]];
+        async attachTo(message) {
+            const messages = this.$store.getters[`mail/${CONVERSATION_MESSAGE_BY_KEY}`](this.conversation.key);
+            const lastMessage = messages[messages.length - 1];
             try {
-                this.$store.dispatch(`mail/${ATTACH_EML}`, {
-                    message,
-                    messageToAttach: lastMessage,
-                    defaultName: this.$t("mail.viewer.no.subject")
-                });
+                const content = await apiMessages.fetchComplete(lastMessage);
+                const file = new File(
+                    [content],
+                    messageUtils.createEmlName(lastMessage, this.$t("mail.viewer.no.subject")),
+                    { type: "message/rfc822" }
+                );
+                this.$execute("add-attachments", { files: [file], message, maxSize: this.maxSize });
             } catch {
                 this.$store.dispatch(`alert/${ERROR}`, {
                     alert: { name: "mail.attach_eml.fetch", uid: "ATTACH_EML_UID" }
