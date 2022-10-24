@@ -58,7 +58,7 @@ public class WriteToCyrusReadWithEndpointTests extends AbstractRollingReplicatio
 			t.printStackTrace();
 			fail(t.getMessage());
 		}
-		new NetworkHelper("127.0.0.1").waitForListeningPort(1144, 10, TimeUnit.SECONDS);
+		new NetworkHelper("127.0.0.1").waitForListeningPort(1143, 10, TimeUnit.SECONDS);
 		this.lorem = Faker.instance().lorem();
 	}
 
@@ -95,7 +95,7 @@ public class WriteToCyrusReadWithEndpointTests extends AbstractRollingReplicatio
 
 		chrono = Stopwatch.createStarted();
 		long fullSize = 0;
-		try (StoreClient sc = new StoreClient("127.0.0.1", 1144, userUid + "@" + domainUid, apiKey)) {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, userUid + "@" + domainUid, apiKey)) {
 			assertTrue(sc.login());
 			System.err.println("Logged to our endpoint !");
 			sc.select("INBOX");

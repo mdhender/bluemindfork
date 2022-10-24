@@ -105,7 +105,7 @@ public class UserMailboxTests {
 
 	@Test
 	public void userCanConnect() throws Exception {
-		try (StoreClient sc = new StoreClient("127.0.0.1", 1144, "john@devenv.blue", "john")) {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
 			assertTrue(sc.login());
 			for (int i = 0; i < 10; i++) {
 				Thread.sleep(250);
@@ -118,7 +118,7 @@ public class UserMailboxTests {
 	@Test
 	public void defaultFoldersExist() throws Exception {
 
-		try (StoreClient sc = new StoreClient("127.0.0.1", 1144, "john@devenv.blue", "john")) {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
 			assertTrue(sc.login());
 			ListResult userFolders = sc.listAll();
 			assertFalse("user folders list must not be empty", userFolders.isEmpty());
@@ -157,7 +157,7 @@ public class UserMailboxTests {
 	@Test
 	public void appendThenfetchInternalDate() throws Exception {
 		AtomicInteger addUid = new AtomicInteger();
-		try (StoreClient sc = new StoreClient("127.0.0.1", 1144, "john@devenv.blue", "john")) {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
 			assertTrue(sc.login());
 			int added = sc.append("INBOX", eml(), new FlagsList());
 			assertTrue(added > 0);
@@ -182,7 +182,7 @@ public class UserMailboxTests {
 	@Test
 	public void appendBig() throws Exception {
 		AtomicInteger addUid = new AtomicInteger();
-		try (StoreClient sc = new StoreClient("127.0.0.1", 1144, "john@devenv.blue", "john")) {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
 			assertTrue(sc.login());
 			HashingInputStream hash = new HashingInputStream(Hashing.murmur3_32(), bigEml());
 			int added = sc.append("INBOX", hash, new FlagsList());
@@ -218,7 +218,7 @@ public class UserMailboxTests {
 	@Test
 	public void appendInline() throws Exception {
 		AtomicInteger addUid = new AtomicInteger();
-		try (StoreClient sc = new StoreClient("127.0.0.1", 1144, "john@devenv.blue", "john")) {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
 			assertTrue(sc.login());
 			int added = sc.append("INBOX", eml("emls/sapin_inline.eml"), new FlagsList());
 			assertTrue(added > 0);
@@ -258,7 +258,7 @@ public class UserMailboxTests {
 
 	@Test
 	public void testUidSearchThenBS() throws IMAPException {
-		try (StoreClient sc = new StoreClient("127.0.0.1", 1144, "john@devenv.blue", "john")) {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
 			assertTrue(sc.login());
 			int added = sc.append("INBOX", eml(), new FlagsList());
 			assertTrue(added > 0);
