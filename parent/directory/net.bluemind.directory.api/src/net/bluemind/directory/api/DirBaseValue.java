@@ -104,12 +104,13 @@ public class DirBaseValue {
 	 * 
 	 * @return the {@link DirEntry}'s default {@link net.bluemind.core.api.Email}
 	 */
-	public String defaultEmailAddress(String domainName) {
+	public String defaultEmailAddress(String domainDefaultAlias) {
 		Email defaultEmail = defaultEmail();
 		if (defaultEmail != null) {
-			return defaultEmail.allAliases ? defaultEmail.localPart() + "@" + domainName : defaultEmail.address;
+			return defaultEmail.allAliases ? defaultEmail.localPart() + "@" + domainDefaultAlias : defaultEmail.address;
 		} else {
 			return null;
 		}
 	}
+
 }
