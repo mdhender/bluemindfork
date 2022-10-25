@@ -163,6 +163,14 @@ public class MailIndexService implements IMailIndexService {
 		return content;
 	}
 
+	public void storeBodyAsByte(String uid, byte[] body) {
+		logger.debug("Saving body to pending index");
+		Client client = getIndexClient();
+		client.prepareIndex(INDEX_PENDING_WRITE_ALIAS, PENDING_TYPE).setId(uid).setSource(body, XContentType.JSON)
+				.get();
+
+	}
+
 	private List<String> filterMailspoolIndexNames(GetIndexResponse indexResponse) {
 		return Arrays.asList(indexResponse.indices()).stream()//
 				.filter(i -> !i.startsWith(INDEX_PENDING))
@@ -239,11 +247,9 @@ public class MailIndexService implements IMailIndexService {
 		logger.debug("Indexing message in mailbox {} using parent uid {}", mailboxUniqueId, parentUid);
 
 		String id = mailboxUniqueId + ":" + item.internalId;
-
 		Client client = getIndexClient();
 		String userAlias = getIndexAliasName(user);
 		Set<String> is = MessageFlagsHelper.asFlags(mail.flags);
-
 		Map<String, Object> parentDoc = Optional.ofNullable(bodyCache.getIfPresent(parentUid))
 				.<Map<String, Object>>map(HashMap::new).orElseGet(() -> {
 					GetResponse response = client.prepareGet(INDEX_PENDING_READ_ALIAS, PENDING_TYPE, parentUid).get();
@@ -265,7 +271,6 @@ public class MailIndexService implements IMailIndexService {
 			logger.info("Skipping indexation of {}:{}", mailboxUniqueId, parentUid);
 			return;
 		}
-
 		Map<String, Object> mutableContent = new HashMap<>(parentDoc);
 
 		@SuppressWarnings("unchecked")
@@ -299,7 +304,6 @@ public class MailIndexService implements IMailIndexService {
 		mutableContent.remove("from");
 		mutableContent.remove("to");
 		mutableContent.remove("cc");
-
 		String route = "partition_xxx";
 		GetResponse hasParent = client.prepareGet(userAlias, MAILSPOOL_TYPE, parentUid).setFetchSource(false).get();
 		if (!hasParent.isExists()) {

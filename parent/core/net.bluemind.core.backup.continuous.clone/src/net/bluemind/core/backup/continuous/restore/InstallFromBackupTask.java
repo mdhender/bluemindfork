@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -76,8 +77,6 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 	private final Map<String, IResumeToken> processedStreams;
 	private final ISdsStoreLoader sdsAccess;
 
-	private List<IClonePhaseObserver> observers;
-
 	private final SysconfOverride confOver;
 
 	private final CloneConfiguration cloneConf;
@@ -97,12 +96,7 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 		this.topologyMapping = map;
 		this.backupStore = store;
 		this.sdsAccess = sdsAccess;
-		this.observers = new ArrayList<>();
 		this.confOver = over;
-	}
-
-	public void registerObserver(IClonePhaseObserver obs) {
-		observers.add(obs);
 	}
 
 	@Override
@@ -147,7 +141,7 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 
 	private ClonedOrphans cloneOrphans(IServerTaskMonitor monitor, ILiveStream orphansStream, CloneState cloneState) {
 		monitor.begin(3, "Cloning orphans (cross-domain data) of installation " + sourceMcastId);
-		Map<String, List<DataElement>> orphansByType = new HashMap<>();
+		Map<String, List<DataElement>> orphansByType = new ConcurrentHashMap<>();
 		IResumeToken prevState = cloneState.forTopic(orphansStream);
 		monitor.log("IGNORE prevState for " + orphansStream + " -> " + prevState);
 		IResumeToken orphansStreamIndex = orphansStream.subscribe(null,
@@ -211,7 +205,7 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 
 				try (RestoreState state = new RestoreState(domain.uid, orphans.topology)) {
 					DomainRestorationHandler restoration = new DomainRestorationHandler(domainMonitor,
-							cloneConf.skippedContainerTypes, domain, target, observers, sdsStore, starvation, state);
+							cloneConf.skippedContainerTypes, domain, target, sdsStore, starvation, state);
 					IResumeToken prevState = cloneState.forTopic(domainStream);
 					monitor.log("prevState for " + domainStream + " => " + prevState);
 					domainStreamIndex = domainStream.subscribe(prevState, restoration::handle, starvation); // , false

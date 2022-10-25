@@ -35,9 +35,9 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.imap.Acl;
+import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
-import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.service.internal.DbAclToCyrusAcl;
 
 public class CyrusBackendHook implements IAclHook {

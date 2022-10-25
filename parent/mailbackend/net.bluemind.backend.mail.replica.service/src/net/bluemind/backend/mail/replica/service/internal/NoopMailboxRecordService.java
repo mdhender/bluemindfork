@@ -199,4 +199,15 @@ public class NoopMailboxRecordService implements IDbMailboxRecords {
 		return Collections.emptyList();
 	}
 
+	@Override
+	public MailboxRecord get(String uid) {
+		logger.info("NOOP operation IDbMailboxRecords#get");
+		return null;
+	}
+
+	@Override
+	public void restore(ItemValue<MailboxRecord> item, boolean isCreate) {
+		logger.info("NOOP operation IDbMailboxRecords#restore");
+	}
+
 }

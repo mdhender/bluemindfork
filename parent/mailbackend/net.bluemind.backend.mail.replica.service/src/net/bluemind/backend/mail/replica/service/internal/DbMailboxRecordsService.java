@@ -708,4 +708,18 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		}
 	}
 
+	@Override
+	public MailboxRecord get(String uid) {
+		return getComplete(uid).value;
+	}
+
+	@Override
+	public void restore(ItemValue<MailboxRecord> item, boolean isCreate) {
+		if (isCreate) {
+			create(item.uid, item.value);
+		} else {
+			update(item.uid, item.value);
+		}
+	}
+
 }

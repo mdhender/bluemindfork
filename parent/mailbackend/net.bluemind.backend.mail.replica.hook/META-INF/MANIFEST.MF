@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.backend.mail.replica.hook
+Bundle-SymbolicName: net.bluemind.backend.mail.replica.hook;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Export-Package: net.bluemind.backend.mail.replica.hook
+Require-Bundle: net.bluemind.backend.mail.replica.api
+Bundle-Vendor: net.bluemind
+Automatic-Module-Name: net.bluemind.backend.mail.replica.hook
+Bundle-RequiredExecutionEnvironment: JavaSE-17

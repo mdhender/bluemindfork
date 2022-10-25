@@ -49,7 +49,7 @@ public class IndexedMessageBody {
 
 	public final String content;
 	public final Map<String, Object> data;
-	private final Map<String, Keyword> headers;
+	public final Map<String, Keyword> headers;
 	public final Keyword subject;
 	public final Keyword messageId;
 	public final List<Keyword> references;

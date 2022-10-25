@@ -57,6 +57,7 @@ import net.bluemind.backend.mail.replica.service.sds.MessageBodyObjectStore;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.rest.vertx.VertxStream.LocalPathStream;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -297,6 +298,18 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 			throw ServerFault.sqlFault(e);
 		}
 
+	}
+
+	@Override
+	public MessageBody get(String uid) {
+		return getComplete(uid);
+	}
+
+	@Override
+	public void restore(ItemValue<MessageBody> item, boolean isCreate) {
+		if (item.value != null) {
+			update(item.value);
+		}
 	}
 
 }

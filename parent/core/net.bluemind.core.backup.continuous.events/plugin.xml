@@ -92,4 +92,12 @@
             impl="net.bluemind.core.backup.continuous.events.JobPlanContinuousHook">
       </job_hook>
    </extension>
+   <extension
+         point="net.bluemind.backend.mail.replica.hook.messagebodyhook">
+      <hook
+            impl="net.bluemind.core.backup.continuous.events.MessageBodyHook"></hook>
+      <hook
+            impl="net.bluemind.core.backup.continuous.events.MessageBodyESSourceHook">
+      </hook>
+   </extension>
 </plugin>

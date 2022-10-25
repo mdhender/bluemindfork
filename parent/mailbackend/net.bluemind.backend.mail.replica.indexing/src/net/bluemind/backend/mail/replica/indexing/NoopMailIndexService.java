@@ -165,4 +165,9 @@ public class NoopMailIndexService implements IMailIndexService {
 		return 0L;
 	}
 
+	@Override
+	public void storeBodyAsByte(String uid, byte[] body) {
+		logger.debug("NOOP");
+	}
+
 }

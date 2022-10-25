@@ -29,6 +29,7 @@ import jakarta.ws.rs.PathParam;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.Stream;
+import net.bluemind.core.container.api.IRestoreCrudSupport;
 
 /**
  * Database only version of {@link IMessageBodies} for sync server usage.
@@ -36,7 +37,7 @@ import net.bluemind.core.api.Stream;
  */
 @BMApi(version = "3", internal = true)
 @Path("/db_message_bodies/{partition}")
-public interface IDbMessageBodies {
+public interface IDbMessageBodies extends IRestoreCrudSupport<MessageBody> {
 
 	@DELETE
 	@Path("{uid}")

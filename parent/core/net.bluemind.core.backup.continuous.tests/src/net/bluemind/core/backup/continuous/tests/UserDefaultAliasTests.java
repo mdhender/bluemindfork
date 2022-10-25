@@ -39,10 +39,8 @@ import io.vertx.core.Vertx;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.addressbook.api.VCard.Kind;
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.replication.observers.IReplicationObserver;
 import net.bluemind.backend.cyrus.replication.observers.IReplicationObserverProvider;
-import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
@@ -64,8 +62,6 @@ import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.network.topology.Topology;
-import net.bluemind.node.api.NodeActivator;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.state.RunningState;
 import net.bluemind.system.state.StateContext;
@@ -75,8 +71,6 @@ import net.bluemind.user.api.User;
 
 public class UserDefaultAliasTests {
 
-	private String cyrusIp;
-	private CyrusReplicationHelper replicationHelper;
 	private String domainUid;
 	private String routingUid;
 	private ItemValue<Server> backend;
@@ -123,21 +117,12 @@ public class UserDefaultAliasTests {
 
 		JdbcTestHelper.getInstance().beforeTest();
 
-		this.cyrusIp = new BmConfIni().get("imap-role");
-		assertNotNull("cyrus ip address cannot be null", cyrusIp);
-
-		Server imapServer = Server.tagged(cyrusIp, "mail/imap");
-		NodeActivator.get(cyrusIp).executeCommand("rm -f /etc/cyrus-replication");
-		NodeActivator.get(cyrusIp).executeCommand("touch /etc/cyrus-replication");
-		new CyrusService(ItemValue.create("yeah", imapServer)).reset();
+		Server imapServer = new Server();
+		imapServer.tags = Collections.singletonList("mail/imap");
+		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		Server esServer = Server.tagged(ElasticsearchTestHelper.getInstance().getHost(), "bm/es");
 		assertNotNull(esServer.ip);
-
-		this.replicationHelper = new CyrusReplicationHelper(cyrusIp);
-		String coreIp = CyrusReplicationHelper.getMyIpAddress();
-		System.setProperty("sync.core.address", coreIp);
-		System.err.println("coreIp for replication set to " + coreIp);
 
 		System.err.println("populate global virt...");
 		StateContext.setInternalState(new RunningState());
@@ -146,18 +131,10 @@ public class UserDefaultAliasTests {
 		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);
 
 		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
-		System.err.println("Waiting for SyncServer...");
-		SyncServerHelper.waitFor();
-		System.err.println("=======================");
 		this.domainUid = "dom" + System.currentTimeMillis() + ".lan";
 		this.alias = domainUid.replace("dom", "alias");
 
-		new CyrusService(cyrusIp).reset();
-
 		PopulateHelper.addDomain(domainUid, Routing.none, alias);
-
-		replicationHelper.installReplication();
-		replicationHelper.startReplication().get(10, TimeUnit.SECONDS);
 
 		await().atMost(20, TimeUnit.SECONDS).until(() -> Topology.getIfAvailable().isPresent());
 		this.backend = Topology.get().any("mail/imap");
@@ -221,9 +198,6 @@ public class UserDefaultAliasTests {
 
 	@After
 	public void after() throws Exception {
-		if (replicationHelper != null) {
-			replicationHelper.stopReplication().get(10, TimeUnit.SECONDS);
-		}
 		JdbcTestHelper.getInstance().afterTest();
 	}
 

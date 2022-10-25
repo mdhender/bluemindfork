@@ -33,8 +33,15 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.user.accounts.hook,
  net.bluemind.mailbox.identity.hook,
  net.bluemind.scheduledjob.api,
- net.bluemind.scheduledjob.service
+ net.bluemind.scheduledjob.service,
+ net.bluemind.backend.mail.replica.hook,
+ net.bluemind.backend.mail.api,
+ net.bluemind.backend.mail.replica.api,
+ net.bluemind.backend.cyrus.partitions,
+ net.bluemind.backend.mail.replica.indexing,
+ net.bluemind.lib.elasticsearch,
+ net.bluemind.backend.mail.parsing,
+ net.bluemind.backend.mail.replica.service
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.backup.continuous.events
-Import-Package: net.bluemind.mailbox.api
 Export-Package: net.bluemind.core.backup.continuous.events

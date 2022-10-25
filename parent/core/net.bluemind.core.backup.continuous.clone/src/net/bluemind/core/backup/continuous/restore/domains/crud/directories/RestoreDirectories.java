@@ -11,7 +11,6 @@ import static net.bluemind.directory.api.BaseDirEntry.Kind.RESOURCE;
 import static net.bluemind.directory.api.BaseDirEntry.Kind.USER;
 
 import java.util.Collections;
-import java.util.List;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -23,7 +22,6 @@ import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.Seppuku;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
-import net.bluemind.core.backup.continuous.restore.IClonePhaseObserver;
 import net.bluemind.core.backup.continuous.restore.ISeppukuAckListener;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreDomainType;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
@@ -74,7 +72,6 @@ public class RestoreDirectories implements RestoreDomainType {
 
 	private final RestoreLogger log;
 	private final IServiceProvider target;
-	private final List<IClonePhaseObserver> observers;
 	private final RestoreState state;
 
 	private final ISeppukuAckListener byeAck;
@@ -91,10 +88,9 @@ public class RestoreDirectories implements RestoreDomainType {
 	private final OrgUnitCrudRestore orgUnitRestore;
 
 	public RestoreDirectories(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
-			List<IClonePhaseObserver> observers, ISeppukuAckListener byeAck, RestoreState state) {
+			ISeppukuAckListener byeAck, RestoreState state) {
 		this.log = log;
 		this.target = target;
-		this.observers = observers;
 		this.byeAck = byeAck;
 		this.state = state;
 		this.domainDirEntryRestore = new DomainDirEntryRestore(log, domain);
@@ -132,8 +128,6 @@ public class RestoreDirectories implements RestoreDomainType {
 			setApi.set(settings.uid, settings.value.values);
 			return;
 		}
-
-		observers.forEach(obs -> obs.beforeMailboxesPopulate(log.monitor()));
 
 		processEntry(log.subWork(1), key, payload);
 

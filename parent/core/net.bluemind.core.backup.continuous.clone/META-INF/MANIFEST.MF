@@ -59,9 +59,12 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.webappdata.api,
  net.bluemind.backend.mail.replica.utils,
  net.bluemind.group.service,
- net.bluemind.group.member
+ net.bluemind.group.member,
+ net.bluemind.backend.mail.replica.indexing,
+ net.bluemind.backend.mail.parsing
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.backup.continuous.clone
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.backup.continuous.restore,
+ net.bluemind.core.backup.continuous.restore.domains,
  net.bluemind.core.backup.continuous.restore.mbox

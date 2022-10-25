@@ -25,21 +25,18 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -53,11 +50,17 @@ import javax.sql.DataSource;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse;
+import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHits;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.github.luben.zstd.ZstdInputStream;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
@@ -67,8 +70,11 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.aws.s3.utils.S3Configuration;
-import net.bluemind.backend.cyrus.CyrusService;
-import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
+import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import net.bluemind.backend.mail.api.MailboxFolder;
+import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
+import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
+import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
@@ -80,7 +86,6 @@ import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.leader.DefaultLeader;
 import net.bluemind.core.backup.continuous.restore.CloneState;
-import net.bluemind.core.backup.continuous.restore.IClonePhaseObserver;
 import net.bluemind.core.backup.continuous.restore.InstallFromBackupTask;
 import net.bluemind.core.backup.continuous.restore.SysconfOverride;
 import net.bluemind.core.backup.continuous.restore.TopologyMapping;
@@ -98,18 +103,20 @@ import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.dockerclient.DockerEnv;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.kafka.container.ZkKafkaContainer;
+import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxAclUids;
+import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.pool.impl.BmConfIni;
-import net.bluemind.sds.dto.PutRequest;
+import net.bluemind.node.server.BlueMindUnsecureNode;
+import net.bluemind.node.server.busmod.SysCommand;
 import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.sds.store.s3.S3StoreFactory;
 import net.bluemind.server.api.Server;
@@ -120,23 +127,29 @@ import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
+import net.bluemind.vertx.testhelper.Deploy;
 
 public class PopulateKafkaTests {
 
-	private String cyrusIp;
 	private ZkKafkaContainer kafka;
 	Path marker = Paths.get(CloneDefaults.MARKER_FILE_PATH);
 	private String s3;
 	private String bucket;
-	private CyrusReplicationHelper replicationHelper;
+	private Client client;
 
 	@Before
 	public void before() throws Exception {
+		Deploy.verticles(false, BlueMindUnsecureNode::new).get(5, TimeUnit.SECONDS);
+		Deploy.verticles(true, SysCommand::new).get(5, TimeUnit.SECONDS);
+
 		this.kafka = new ZkKafkaContainer();
 		kafka.start();
 		String ip = kafka.inspectAddress();
 		System.setProperty("bm.kafka.bootstrap.servers", ip + ":9093");
 		System.setProperty("bm.zk.servers", ip + ":2181");
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("cyrus.deactivated", "true");
 
 		DefaultLeader.reset();
 		DefaultBackupStore.reset();
@@ -150,59 +163,18 @@ public class PopulateKafkaTests {
 
 		await().atMost(20, TimeUnit.SECONDS).until(DefaultLeader.leader()::isLeader);
 
-		System.err.println("sds: " + sds);
-		try (InputStream in = getClass().getClassLoader().getResourceAsStream("data/kafka/emls.tar.bz2");
-				BZip2CompressorInputStream bz2 = new BZip2CompressorInputStream(in);
-				TarArchiveInputStream tar = new TarArchiveInputStream(bz2)) {
-			TarArchiveEntry ce;
-			long s3content = 0;
-			while ((ce = tar.getNextTarEntry()) != null) {
-				if (!ce.isDirectory()) {
-					byte[] eml = ByteStreams.toByteArray(tar);
-					try (ZstdInputStream dec = new ZstdInputStream(new ByteArrayInputStream(eml))) {
-						eml = ByteStreams.toByteArray(dec);
-					}
-					String key = ce.getName().replace("./", "");
-					Path tmp = Files.createTempFile(key, ".eml");
-					Files.write(tmp, eml, StandardOpenOption.CREATE, StandardOpenOption.WRITE,
-							StandardOpenOption.TRUNCATE_EXISTING);
-					PutRequest pr = PutRequest.of(key, tmp.toFile().getAbsolutePath());
-					sds.upload(pr).get(10, TimeUnit.SECONDS);
-					Files.delete(tmp);
-					s3content += eml.length;
-					System.err.println("Uploaded " + key + " to s3 " + eml.length + " bytes");
-				}
-			}
-			System.err.println("Pushed " + s3content + " byte(s) to s3.");
-		}
-
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDataSource().getConnection().createStatement()
 				.execute("select setval('t_container_item_id_seq', 10000)");
 
-		Set<String> domains = populateKafka();
+		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
 
-		this.cyrusIp = new BmConfIni().get("imap-role");
+		populateKafka();
 
-		Server imapServer = Server.tagged(cyrusIp, "mail/imap");
-		imapServer.name = "bm-master";
-		ItemValue<Server> withIp = ItemValue.create("bm-master", imapServer);
-		CyrusService cs = new CyrusService(withIp);
-		cs.reset();
-
-		List<String> parts = new LinkedList<>();
-		for (String dom : domains) {
-			cs.createPartition(dom);
-			parts.add(dom);
-		}
-		cs.refreshPartitions(parts);
-		try {
-			cs.reload();
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail(e.getMessage());
-		}
-		System.err.println("partitions: " + parts);
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
+		pipo.name = "bm-master";
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
@@ -210,35 +182,27 @@ public class PopulateKafkaTests {
 		assertNotNull(esServer.ip);
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		this.replicationHelper = new CyrusReplicationHelper(cyrusIp, "core");
-		String coreIp = CyrusReplicationHelper.getMyIpAddress();
-		System.setProperty("sync.core.address", coreIp);
-		System.err.println("coreIp for replication set to " + coreIp);
-
-		System.err.println("populate global virt...");
-		PopulateHelper.initGlobalVirt(imapServer, esServer);
+		PopulateHelper.initGlobalVirt(pipo, esServer);
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);
 
-		DataSource ds = ServerSideServiceProvider.mailboxDataSource.get(imapServer.ip);
-		assertNotNull(ds);
-		ServerSideServiceProvider.mailboxDataSource.put("bm-master", ds);
+		client = ESearchActivator.getClient();
 
-		System.err.println("set item_id seq on " + ds);
-		ds.getConnection().createStatement().execute("select setval('t_container_item_id_seq', 100000)");
+		DataSource datasource = JdbcTestHelper.getInstance().getMailboxDataDataSource();
+		assertNotNull(datasource);
+		ServerSideServiceProvider.mailboxDataSource.put("bm-master", datasource);
 
-		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
+		datasource.getConnection().createStatement().execute("select setval('t_container_item_id_seq', 100000)");
+
 		StateContext.setState("core.started");
 		StateContext.setState("core.cloning.start");
-		System.err.println("Waiting for SyncServer...");
-		SyncServerHelper.waitFor();
-		System.err.println("=======================");
 	}
 
 	private Set<String> populateKafka() throws IOException, InterruptedException, ExecutionException, TimeoutException {
 		Set<String> domains = new HashSet<>();
 
-		try (InputStream in = getClass().getClassLoader().getResourceAsStream("data/kafka/clone-dump.tar.bz2");
+		try (InputStream in = getClass().getClassLoader()
+				.getResourceAsStream("data/kafka/clone-dump-without-archive-kind-cyrus.tar.bz2");
 				BZip2CompressorInputStream bz2 = new BZip2CompressorInputStream(in);
 				TarArchiveInputStream tar = new TarArchiveInputStream(bz2)) {
 			TarArchiveEntry ce;
@@ -278,7 +242,6 @@ public class PopulateKafkaTests {
 							sysconfMap.put(SysConfKeys.sds_s3_bucket.name(), bucket);
 							sysconfMap.put(SysConfKeys.sds_s3_access_key.name(), "accessKey1");
 							sysconfMap.put(SysConfKeys.sds_s3_secret_key.name(), "verySecretKey1");
-							System.err.println("Updated conf is " + value.encodePrettily());
 						}
 						// System.err.println(descriptor + ":\nkey:" + key.encode() + "\nvalue:" +
 						// value.encode());
@@ -317,29 +280,12 @@ public class PopulateKafkaTests {
 
 		ILiveStream anyStream = store.forInstallation(InstallationId.getIdentifier()).orphans();
 		Path p = Paths.get("/etc/bm", "clone.state.json");
-		new File("/etc/bm").mkdirs();
 		CloneState cs = new CloneState(p, anyStream);
 		cs.clear().save();
 
-		IClonePhaseObserver obs = new IClonePhaseObserver() {
-			boolean started = false;
-
-			@Override
-			public void beforeMailboxesPopulate(IServerTaskMonitor mon) {
-				mon.log("beforeMailboxes.....");
-				if (!started) {
-					try {
-						replicationHelper.startReplication().get(10, TimeUnit.SECONDS);
-						started = true;
-					} catch (InterruptedException | ExecutionException | TimeoutException e) {
-						fail(e.getMessage());
-					}
-				}
-			}
-		};
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
-		doClone(store, obs, prov);
+		doClone(store, prov);
 
 		checkContainersLocations(prov, IMailboxAclUids.TYPE, false, true);
 		checkContainersLocations(prov, IFlatHierarchyUids.TYPE, false, false);
@@ -351,7 +297,7 @@ public class PopulateKafkaTests {
 		ItemValue<Domain> domFound = domApi.findByNameOrAliases("devenv.blue");
 		assertNotNull(domFound);
 		IDirectory dirApi = prov.instance(IDirectory.class, domFound.uid);
-		DirEntry found = dirApi.getByEmail("nico@devenv.blue");
+		DirEntry found = dirApi.getByEmail("sylvain@devenv.blue");
 		assertNotNull(found);
 		System.err.println("Got " + found);
 		IUser user = prov.instance(IUser.class, domFound.uid);
@@ -360,14 +306,81 @@ public class PopulateKafkaTests {
 		LoginResponse sudo = prov.instance(IAuthentication.class).su(asUser.value.defaultEmailAddress());
 		assertNotNull(sudo.authUser.roles);
 		System.err.println("roles: " + sudo.authUser.roles);
-		assertTrue(sudo.authUser.roles.contains("hasMailWebapp"));
+
+//		assertTrue(sudo.authUser.roles.contains("hasMailWebapp"));
+
+		IMailboxes mailboxesApi = prov.instance(IMailboxes.class, domFound.uid);
+		ItemValue<Mailbox> mailboxSylvain = mailboxesApi.byName("sylvain");
+		assertNotNull(mailboxSylvain);
+		ItemValue<Mailbox> mailboxTom = mailboxesApi.byName("tom");
+		assertNotNull(mailboxTom);
+		ItemValue<Mailbox> mailboxDavid = mailboxesApi.byName("david");
+		assertNotNull(mailboxDavid);
+
+		CyrusPartition partition = CyrusPartition.forServerAndDomain(mailboxSylvain.value.dataLocation, domFound.uid);
+
+		IDbReplicatedMailboxes apiReplicatedMailboxesSylvain = prov.instance(IDbReplicatedMailboxes.class,
+				partition(domFound.uid), mboxRoot(mailboxSylvain));
+		long sylvainFolderCount = apiReplicatedMailboxesSylvain.all().stream().count();
+		assertEquals(163L, sylvainFolderCount);
+		ItemValue<MailboxFolder> folderOne = apiReplicatedMailboxesSylvain.byName("003_Guatemala");
+		IDbMailboxRecords apiMailboxRecordsOneSylvain = prov.instance(IDbMailboxRecords.class, folderOne.uid);
+		int mailboxRecordsOneSylvain = apiMailboxRecordsOneSylvain.all().size();
+		assertEquals(1, mailboxRecordsOneSylvain);
+		ItemValue<MailboxFolder> folderTwo = apiReplicatedMailboxesSylvain.byName("003_Guatemala/004_Duvel");
+		IDbMailboxRecords apiMailboxRecordsTwoSylvain = prov.instance(IDbMailboxRecords.class, folderTwo.uid);
+		int mailboxRecordsTwoSylvain = apiMailboxRecordsTwoSylvain.all().size();
+		assertEquals(5, mailboxRecordsTwoSylvain);
+
+		IDbReplicatedMailboxes apiReplicatedMailboxesTom = prov.instance(IDbReplicatedMailboxes.class,
+				partition(domFound.uid), mboxRoot(mailboxTom));
+		long tomFolderCount = apiReplicatedMailboxesTom.all().stream().count();
+		assertEquals(163L, tomFolderCount);
+
+		IDbReplicatedMailboxes apiReplicatedMailboxesDavid = prov.instance(IDbReplicatedMailboxes.class,
+				partition(domFound.uid), mboxRoot(mailboxDavid));
+		long davidFolderCount = apiReplicatedMailboxesDavid.all().stream().count();
+		assertEquals(163L, davidFolderCount);
+
+		IDbMessageBodies apiMessageBodies = prov.instance(IDbMessageBodies.class, partition.name);
+
+		assertTrue(apiMessageBodies.exists("e9c74bbfafe6a04d0bc3e58d5dbe6049d7d3ec35"));
+		assertTrue(apiMessageBodies.exists("020f7775f925298ebd488fbe07ca0dc5e690e90d"));
+		assertTrue(apiMessageBodies.exists("2cb215cb90a7f3e0bd11adc413a621f1f03ea1de"));
+		assertTrue(apiMessageBodies.exists("6b907e9ecbd738b7e316edde5e8da984549ea9bc"));
+		assertTrue(apiMessageBodies.exists("6dd42c28c8ba84aa595e2e1967975ebb6c3550d1"));
+		assertTrue(apiMessageBodies.exists("bb7c9582c29aba68dd5a2dbecbf643c70f6ec60e"));
+		assertTrue(apiMessageBodies.exists("f91381b5399c1e8672b8914c59167cac528af139"));
+		assertTrue(apiMessageBodies.exists("c3e3506432ffb5d3932766b31ddba3275086e48f"));
+
+		GetAliasesResponse responseAliases = client.admin().indices()
+				.prepareGetAliases("mailspool_alias_cli-created-a1f319cb-806c-330b-8c15-48810870cfcf").execute()
+				.actionGet();
+
+		BoolQueryBuilder singleIdQuery = QueryBuilders.boolQuery()//
+				.must(QueryBuilders.termQuery("_id", "e9c74bbfafe6a04d0bc3e58d5dbe6049d7d3ec35"));
+		String index = responseAliases.getAliases().keysIt().next();
+		SearchResponse resp = client.prepareSearch(index).setQuery(singleIdQuery).execute().actionGet();
+		SearchHits hitsResponse = resp.getHits();
+		long totalHits = hitsResponse.getTotalHits().value;
+		assertEquals(1L, totalHits);
+		GetResponse response = client
+				.prepareGet("mailspool_pending_read_alias", "eml", "e9c74bbfafe6a04d0bc3e58d5dbe6049d7d3ec35").get();
+
+		Map<String, Object> map = response.getSource();
+		assertTrue(map.containsKey("subject"));
+		assertEquals("[Lys] News from Wylis Manderly with Caraxes", map.get("subject"));
+
+		SearchResponse respTotal = client.prepareSearch(index).execute().actionGet();
+		SearchHits hitsTotalResponse = respTotal.getHits();
+		assertEquals(1996L, hitsTotalResponse.getTotalHits().value);
 
 		// re-run after clone
 		System.err.println("Run cloning process again.....");
-		doClone(store, obs, prov);
+		doClone(store, prov);
 	}
 
-	private void doClone(IBackupReader store, IClonePhaseObserver obs, ServerSideServiceProvider prov) {
+	private void doClone(IBackupReader store, ServerSideServiceProvider prov) {
 		CloneConfiguration conf = new CloneConfiguration();
 		conf.sourceInstallationId = InstallationId.getIdentifier();
 		conf.mode = Mode.FORK;
@@ -378,12 +391,11 @@ public class PopulateKafkaTests {
 		assertTrue(new HashSet<>(installs).contains(conf.sourceInstallationId));
 
 		TopologyMapping topo = new TopologyMapping();
-		topo.register("bm-master", cyrusIp);
+		topo.register("bm-master", PopulateHelper.FAKE_CYRUS_IP);
 
 		try {
 			InstallFromBackupTask tsk = new InstallFromBackupTask(conf, store,
 					new SysconfOverride(Collections.emptyMap()), topo, sds, prov);
-			tsk.registerObserver(obs);
 			TestTaskMonitor mon = new TestTaskMonitor();
 			tsk.run(mon);
 		} catch (Exception e) {
@@ -415,19 +427,12 @@ public class PopulateKafkaTests {
 			}
 			assertEquals("Expected no containers of type " + type + " on shard DB", 0, shardByType.size());
 		}
-//		for (Container cd : Iterables.concat(dirByType, shardByType)) {
-//			String loc = DataSourceRouter.location(ctx, cd.uid);
-//			System.err.println("* " + cd.name + ", o: " + cd.owner + ", u: " + cd.uid + " loc: " + loc);
-//		}
 	}
 
 	@After
 	public void after() throws Exception {
 		try {
 			StateContext.setState("core.cloning.end");
-			if (replicationHelper != null) {
-				replicationHelper.stopReplication().get(10, TimeUnit.SECONDS);
-			}
 			DefaultLeader.leader().releaseLeadership();
 			System.clearProperty("bm.kafka.bootstrap.servers");
 			System.clearProperty("bm.zk.servers");
@@ -441,6 +446,17 @@ public class PopulateKafkaTests {
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
+	}
+
+	private String mboxRoot(ItemValue<Mailbox> mbox) {
+		if (mbox.value.type.sharedNs) {
+			return mbox.value.name.replace(".", "^");
+		}
+		return "user." + mbox.value.name.replace(".", "^");
+	}
+
+	private String partition(String domainUid) {
+		return domainUid.replace(".", "_");
 	}
 
 }

@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -102,7 +103,8 @@ public class LocalNodeClient implements INodeClient {
 				throw new ServerFault(e);
 			}
 		}
-		try (OutputStream out = Files.newOutputStream(asPath)) {
+		try (OutputStream out = Files.newOutputStream(asPath, StandardOpenOption.CREATE,
+				StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
 			ByteStreams.copy(content, out);
 		} catch (IOException e) {
 			throw new ServerFault(e);

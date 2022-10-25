@@ -102,4 +102,6 @@ public interface IMailIndexService {
 
 	long getMailboxConsumedStorage(String userEntityId, ByteSizeUnit bsu);
 
+	public void storeBodyAsByte(String uid, byte[] body);
+
 }

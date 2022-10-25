@@ -135,8 +135,9 @@ public class ItemStore extends JdbcAbstractStore {
 					statement.setString(index++, item.displayName);
 					statement.setString(index++, principal);
 					statement.setString(index++, principal);
-					statement.setTimestamp(index++, item.created != null ? toTimestamp(item.created) : now());
-					statement.setTimestamp(index++, item.updated != null ? toTimestamp(item.updated) : now());
+					Timestamp now = Timestamp.from(Instant.now());
+					statement.setTimestamp(index++, item.created != null ? toTimestamp(item.created) : now);
+					statement.setTimestamp(index++, item.updated != null ? toTimestamp(item.updated) : now);
 					statement.setInt(index++, ItemFlag.value(item.flags));
 					return index;
 				}), ItemCreator.INSTANCE, ITEM_POPULATOR);

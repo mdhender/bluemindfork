@@ -50,6 +50,11 @@ public class UpdateBmIniHook implements ISystemConfigurationObserver {
 
 	@Override
 	public void onUpdated(BmContext context, SystemConf previous, SystemConf conf) throws ServerFault {
+
+		if (!new File(BMINI).exists()) {
+			return;
+		}
+
 		if (isNotUpdated(SysConfKeys.external_url, previous, conf)
 				&& isNotUpdated(SysConfKeys.other_urls, previous, conf)) {
 			return;
@@ -75,6 +80,7 @@ public class UpdateBmIniHook implements ISystemConfigurationObserver {
 		String otherUrls = conf.stringValue(SysConfKeys.other_urls.name());
 
 		Ini iniFile;
+
 		try (InputStream in = Files.newInputStream(new File(BMINI).toPath())) {
 			iniFile = new Ini(in);
 		} catch (IOException e) {

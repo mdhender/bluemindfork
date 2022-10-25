@@ -1,7 +1,6 @@
 package net.bluemind.core.backup.continuous.restore.domains;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -9,13 +8,14 @@ import java.util.stream.Collectors;
 
 import io.vertx.core.Handler;
 import net.bluemind.core.backup.continuous.DataElement;
-import net.bluemind.core.backup.continuous.restore.IClonePhaseObserver;
 import net.bluemind.core.backup.continuous.restore.ISeppukuAckListener;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreCalendarView;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreDeferredAction;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreDevice;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreMailboxIdentity;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreMailflow;
+import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreMessageBody;
+import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreMessageBodyESSource;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreOwnerSubscriptions;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreResourceType;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreTags;
@@ -42,14 +42,15 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 	private final Set<String> skip;
 
 	public DomainRestorationHandler(IServerTaskMonitor monitor, Set<String> skip, ItemValue<Domain> domain,
-			IServiceProvider target, List<IClonePhaseObserver> observers, ISdsSyncStore sdsStore,
-			ISeppukuAckListener byeAck, RestoreState state) {
+			IServiceProvider target, ISdsSyncStore sdsStore, ISeppukuAckListener byeAck, RestoreState state) {
 		this.log = new RestoreLogger(monitor);
 		this.skip = skip;
 		this.restoresByType = Arrays.asList(//
-				new RestoreMailboxRecords(log, sdsStore, state), //
-				new RestoreDirectories(log, domain, target, observers, byeAck, state), //
-				new RestoreReplicatedMailboxes(log, domain, state), //
+				new RestoreMailboxRecords(log, state, domain, target), //
+				new RestoreMessageBody(log, domain, target, state), //
+				new RestoreMessageBodyESSource(log), //
+				new RestoreDirectories(log, domain, target, byeAck, state), //
+				new RestoreReplicatedMailboxes(log, domain, state, target), //
 				new RestoreMapiArtifacts(log, domain, target), //
 				new RestoreFlatHierarchy(log, domain, target), //
 				new RestoreVCard(log, domain, target), //
