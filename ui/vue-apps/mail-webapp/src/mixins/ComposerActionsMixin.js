@@ -13,7 +13,6 @@ import {
     SEND_MESSAGE
 } from "~/actions";
 import {
-    ACTIVE_MESSAGE,
     CONVERSATIONS_ACTIVATED,
     CURRENT_CONVERSATION_METADATA,
     MY_DRAFTS,
@@ -83,22 +82,18 @@ export default {
         }),
         ...mapMutations("mail", { $_ComposerActionsMixin_ADD_MESSAGES: ADD_MESSAGES }),
         async debouncedSave() {
-            const wasMessageOnlyLocal = isNewMessage(this.message);
             await this.$_ComposerActionsMixin_DEBOUNCED_SAVE({
                 draft: this.message,
                 messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose),
                 files: this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
             });
-            this.updateRoute(wasMessageOnlyLocal);
         },
         async saveAsap() {
-            const wasMessageOnlyLocal = isNewMessage(this.message);
             await this.$_ComposerActionsMixin_SAVE_MESSAGE({
                 draft: this.message,
                 messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose),
                 files: this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
             });
-            this.updateRoute(wasMessageOnlyLocal);
         },
         async saveMessageAs(saveAction, folder) {
             const message = createFromDraft(this.message, folder);
@@ -124,20 +119,6 @@ export default {
                 this.saveMessageAs(SAVE_AS_DRAFT, this.$store.getters[`mail/${MY_DRAFTS}`]);
             } else {
                 return this.saveAsap();
-            }
-        },
-        updateRoute(wasMessageOnlyLocal) {
-            const displayedInConversationMode =
-                this.$_ComposerActionsMixin_CONVERSATIONS_ACTIVATED &&
-                this.$_ComposerActionsMixin_currentConversation &&
-                this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA.messages.length > 1;
-
-            if (
-                wasMessageOnlyLocal &&
-                this.$store.getters["mail/" + ACTIVE_MESSAGE]?.key === this.message.key &&
-                !displayedInConversationMode
-            ) {
-                this.$router.navigate({ name: "v:mail:message", params: { message: this.message } });
             }
         },
         updateSubject(subject) {

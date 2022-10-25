@@ -81,6 +81,12 @@ export default {
                 }
             },
             immediate: true
+        },
+        "ACTIVE_MESSAGE.remoteRef.internalId"(value) {
+            const { internalId } = MessagePathParam.parse(this.$route.params.messagepath, this.activeFolder);
+            if (value !== internalId) {
+                this.$router.navigate({ name: "v:mail:message", params: { message: this.ACTIVE_MESSAGE } });
+            }
         }
     },
     methods: {

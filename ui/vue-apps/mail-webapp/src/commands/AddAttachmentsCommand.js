@@ -1,4 +1,4 @@
-import { partUtils, attachmentUtils, draftUtils, fileUtils } from "@bluemind/mail";
+import { partUtils, attachmentUtils, fileUtils } from "@bluemind/mail";
 import { BmTooLargeBox } from "@bluemind/styleguide";
 import UUIDGenerator from "@bluemind/uuid";
 import { ADD_ATTACHMENT, DEBOUNCED_SAVE_MESSAGE } from "~/actions";
@@ -6,13 +6,11 @@ import { ADD_ATTACHMENT, DEBOUNCED_SAVE_MESSAGE } from "~/actions";
 const { createFromFile: createPartFromFile } = partUtils;
 const { create } = attachmentUtils;
 const { FileStatus } = fileUtils;
-const { isNewMessage } = draftUtils;
 
 export default {
     commands: {
         async addAttachments({ files, message, maxSize }) {
             files = [...files];
-            const isNew = isNewMessage(this.message);
 
             const totalSize = files.reduce((total, attachment) => total + attachment.size, message.size);
             if (totalSize > maxSize) {
@@ -36,7 +34,6 @@ export default {
                 messageCompose: this.$store.state.mail.messageCompose,
                 files: message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
             });
-            this.updateRoute(isNew);
         }
     },
     computed: {
