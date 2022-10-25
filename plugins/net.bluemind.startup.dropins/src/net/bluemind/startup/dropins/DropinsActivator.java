@@ -18,6 +18,8 @@
 
 package net.bluemind.startup.dropins;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,12 +50,15 @@ public class DropinsActivator implements BundleActivator {
 
 	private void manageDropinsFolder(Path productPath, Path dropinsPath, String productVersion) throws IOException {
 		Path versionFilePath = productPath.resolve("launched_version");
+		Path originalBundlesInfoPath = productPath.resolve(BUNDLE_INFOS_LOCATION + ".installed");
 		if (Files.exists(versionFilePath)) {
 			String oldVersion = Files.readString(versionFilePath);
 			if (!oldVersion.equals(productVersion)) {
 				FileHelper.deleteFolder(dropinsPath);
-				FileHelper.deleteFile(productPath.resolve(BUNDLE_INFOS_LOCATION + ".installed"));
+				FileHelper.deleteFile(originalBundlesInfoPath);
 			}
+		} else if (Files.exists(originalBundlesInfoPath)) {
+			Files.move(originalBundlesInfoPath, productPath.resolve(BUNDLE_INFOS_LOCATION), REPLACE_EXISTING);
 		}
 		FileHelper.createFolder(dropinsPath);
 		Files.write(versionFilePath, productVersion.getBytes());
