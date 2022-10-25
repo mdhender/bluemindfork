@@ -14,4 +14,17 @@ public class MailFilterRuleActionMarkAsDeleted extends MailFilterRuleActionSetFl
 		super(Arrays.asList("\\Deleted", "\\Seen"), Arrays.asList("\\Expunged"));
 		this.name = MailFilterRuleActionName.MARK_AS_DELETED;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailFilterRuleActionMarkAsDeleted [flags=");
+		builder.append(flags);
+		builder.append(", internalFlags=");
+		builder.append(internalFlags);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append("]");
+		return builder.toString();
+	}
 }

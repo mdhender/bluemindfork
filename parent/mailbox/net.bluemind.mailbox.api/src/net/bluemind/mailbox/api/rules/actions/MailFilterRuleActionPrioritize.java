@@ -16,4 +16,15 @@ public class MailFilterRuleActionPrioritize extends MailFilterRuleActionAddHeade
 		this.name = MailFilterRuleActionName.PRIORITIZE;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailFilterRuleActionPrioritize [headers=");
+		builder.append(headers);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append("]");
+		return builder.toString();
+	}
+
 }

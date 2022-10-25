@@ -29,7 +29,7 @@ public class MailFilterRuleActionMove extends MailFilterRuleAction {
 	public String subtree() {
 		return subtree;
 	}
-	
+
 	public Long id() {
 		return id;
 	}
@@ -37,14 +37,14 @@ public class MailFilterRuleActionMove extends MailFilterRuleAction {
 	public String folder() {
 		return folder;
 	}
-	
+
 	public String asString() {
-		return (id == null) ? subtree + ":" + folder : subtree +":" + id + ":" + folder;
+		return (id == null) ? subtree + ":" + folder : subtree + ":" + id + ":" + folder;
 	}
-	
+
 	public static MailFilterRuleActionMove fromString(String value) {
 		String[] tokens = value.split(":");
-		return (tokens.length == 2) // 
+		return (tokens.length == 2) //
 				? new MailFilterRuleActionMove(tokens[0], null, tokens[1]) //
 				: new MailFilterRuleActionMove(tokens[0], Long.parseLong(tokens[1]), tokens[2]);
 	}
@@ -66,7 +66,20 @@ public class MailFilterRuleActionMove extends MailFilterRuleAction {
 		return Objects.equals(folder, other.folder) && Objects.equals(id, other.id)
 				&& Objects.equals(subtree, other.subtree);
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailFilterRuleActionMove [subtree=");
+		builder.append(subtree);
+		builder.append(", id=");
+		builder.append(id);
+		builder.append(", folder=");
+		builder.append(folder);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append("]");
+		return builder.toString();
+	}
 
 }

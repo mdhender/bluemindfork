@@ -12,4 +12,15 @@ public class MailFilterRuleActionUncategorize extends MailFilterRuleActionRemove
 		this.name = MailFilterRuleActionName.UNCATEGORIZE;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailFilterRuleActionUncategorize [headerNames=");
+		builder.append(headerNames);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append("]");
+		return builder.toString();
+	}
+
 }

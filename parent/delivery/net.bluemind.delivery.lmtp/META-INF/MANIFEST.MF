@@ -25,7 +25,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.delivery.lmtp.hooks,
  net.bluemind.imap.serviceprovider,
  com.github.ben-manes.caffeine,
- net.bluemind.core.caches.registry
+ net.bluemind.core.caches.registry,
+ net.bluemind.hornetq.client
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.delivery.lmtp
 Bundle-ActivationPolicy: lazy

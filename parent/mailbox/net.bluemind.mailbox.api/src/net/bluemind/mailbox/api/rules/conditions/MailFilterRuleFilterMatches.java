@@ -47,4 +47,17 @@ public class MailFilterRuleFilterMatches extends MailFilterRuleFilter {
 			return ruleOperator.match(fieldValue, parameterValues);
 		}).orElse(false);
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailFilterRuleFilterContains [values=");
+		builder.append(values);
+		builder.append(", fields=");
+		builder.append(fields);
+		builder.append(", operator=");
+		builder.append(operator);
+		builder.append("]");
+		return builder.toString();
+	}
 }

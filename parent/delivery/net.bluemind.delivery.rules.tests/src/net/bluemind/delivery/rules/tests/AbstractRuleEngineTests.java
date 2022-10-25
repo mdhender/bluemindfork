@@ -18,6 +18,7 @@ import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
+import net.bluemind.core.api.Email;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
@@ -41,6 +42,8 @@ import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleKnownField;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.User;
 import net.bluemind.utils.FileUtils;
 
 public class AbstractRuleEngineTests {
@@ -49,17 +52,22 @@ public class AbstractRuleEngineTests {
 	protected MailboxLookup lookup;
 	protected FakeSendmail mailer;
 
+	protected String domainUid;
+
 	protected ItemValue<Mailbox> mboxUser1;
 	protected String emailUser1;
 	protected ResolvedBox boxUser1;
 	protected ItemValue<MailboxReplica> rootFolderUser1;
 
+	protected String user2Uid;
+	protected User user2;
 	protected ItemValue<Mailbox> mboxUser2;
 	protected String emailUser2;
+	protected String emailUser2Alias;
 
 	@Before
 	public void before() throws Exception {
-		var domainUid = "test" + System.currentTimeMillis() + ".lab";
+		domainUid = "test" + System.currentTimeMillis() + ".lab";
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
@@ -84,9 +92,16 @@ public class AbstractRuleEngineTests {
 		var treeApi = provider.instance(IDbByContainerReplicatedMailboxes.class, subtree);
 		this.rootFolderUser1 = treeApi.byReplicaName("INBOX");
 
-		String user2Uid = PopulateHelper.addUser("user2", domainUid, Routing.internal);
+		IUser userApi = provider.instance(IUser.class, domainUid);
+		this.user2Uid = PopulateHelper.addUser("user2", domainUid, Routing.internal);
+		this.user2 = userApi.get(user2Uid);
+		var user2EmailAlias = Email.create("user2alias@" + domainUid, false, true);
+		user2.emails.add(user2EmailAlias);
+		userApi.update(user2Uid, user2);
 		this.mboxUser2 = provider.instance(IMailboxes.class, domainUid).getComplete(user2Uid);
 		this.emailUser2 = mboxUser2.value.defaultEmail().address;
+		this.emailUser2Alias = user2EmailAlias.address;
+
 	}
 
 	protected RuleEngine engineOn(Message message) {
@@ -117,6 +132,17 @@ public class AbstractRuleEngineTests {
 			rule.stop = false;
 			rule.conditions
 					.add(MailFilterRuleCondition.equal(MailFilterRuleKnownField.SUBJECT.text(), message.getSubject()));
+			actionSetter.accept(rule);
+			return rule;
+		}).toList();
+	}
+
+	protected List<MailFilterRule> rulesMatchingContact(Message message, Consumer<MailFilterRule>... actionSetters) {
+		return Arrays.stream(actionSetters).map(actionSetter -> {
+			var rule = new MailFilterRule();
+			rule.stop = false;
+			String user2DirEntry = "BM_DYNAMIC_DIR_ENTRY_" + domainUid + "/USER/" + user2Uid;
+			rule.conditions.add(MailFilterRuleCondition.contains("from.email", user2DirEntry));
 			actionSetter.accept(rule);
 			return rule;
 		}).toList();

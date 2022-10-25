@@ -84,7 +84,7 @@ public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport,
 
 	@PUT
 	@Path("{uid}")
-	void create(@PathParam("uid") String uid, MailboxRecord mail);
+	Long create(@PathParam("uid") String uid, MailboxRecord mail);
 
 	@POST
 	@Path("{uid}")

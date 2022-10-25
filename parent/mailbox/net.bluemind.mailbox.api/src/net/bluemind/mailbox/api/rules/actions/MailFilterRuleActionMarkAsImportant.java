@@ -14,4 +14,17 @@ public class MailFilterRuleActionMarkAsImportant extends MailFilterRuleActionSet
 		super(Arrays.asList("\\Flagged"));
 		this.name = MailFilterRuleActionName.MARK_AS_IMPORTANT;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailFilterRuleActionMarkAsImportant [flags=");
+		builder.append(flags);
+		builder.append(", internalFlags=");
+		builder.append(internalFlags);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append("]");
+		return builder.toString();
+	}
 }

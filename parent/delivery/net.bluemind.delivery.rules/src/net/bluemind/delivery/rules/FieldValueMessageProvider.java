@@ -19,6 +19,7 @@ import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.address.MailboxList;
 import org.apache.james.mime4j.stream.Field;
 
+import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.mailbox.api.rules.FieldValueProvider;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleField;
 import net.bluemind.mime4j.common.AddressableEntity;
@@ -29,10 +30,12 @@ public class FieldValueMessageProvider implements FieldValueProvider {
 
 	private final Message message;
 	private final Long size;
+	private final MailboxRecord record;
 
-	public FieldValueMessageProvider(Message message, long size) {
+	public FieldValueMessageProvider(Message message, long size, MailboxRecord record) {
 		this.message = message;
 		this.size = size;
+		this.record = record;
 	}
 
 	@Override
@@ -41,52 +44,57 @@ public class FieldValueMessageProvider implements FieldValueProvider {
 		T value;
 		switch (field.field()) {
 		case FROM_EMAIL:
-			value = (T) extractEmails(message.getFrom());
-			break;
+			return (T) extractEmails(message.getFrom());
 		case FROM_RAW:
-			value = (T) extractRecipients(message.getFrom());
-			break;
+			return (T) extractRecipients(message.getFrom());
+		case FROM_COUNT:
+			return (T) countEmails(message.getFrom());
 		case TO_EMAIL:
-			value = (T) extractEmails(message.getTo());
-			break;
+			return (T) extractEmails(message.getTo());
 		case TO_RAW:
-			value = (T) extractRecipients(message.getFrom());
-			break;
+			return (T) extractRecipients(message.getTo());
+		case TO_COUNT:
+			return (T) countEmails(message.getTo());
 		case CC_EMAIL:
-			value = (T) extractEmails(message.getCc());
-			break;
+			return (T) extractEmails(message.getCc());
 		case CC_RAW:
-			value = (T) extractRecipients(message.getCc());
-			break;
+			return (T) extractRecipients(message.getCc());
+		case CC_COUNT:
+			return (T) countEmails(message.getCc());
 		case BCC_EMAIL:
-			value = (T) extractEmails(message.getBcc());
-			break;
+			return (T) extractEmails(message.getBcc());
 		case BCC_RAW:
-			value = (T) extractRecipients(message.getBcc());
-			break;
+			return (T) extractRecipients(message.getBcc());
+		case BCC_COUNT:
+			return (T) countEmails(message.getBcc());
 		case SUBJECT:
-			value = (T) Arrays.asList(message.getSubject());
-			break;
+			return (T) Arrays.asList(message.getSubject());
 		case PART_CONTENT:
-			value = (T) Arrays.asList(extractContent());
-			break;
+			return (T) Arrays.asList(extractContent());
 		case SIZE:
-			value = (T) size;
-			break;
+			return (T) size;
 		case DATE:
-			value = (T) message.getDate();
-			break;
+			return (T) message.getDate();
 		case HEADERS:
 			String[] tokens = field.name().split("\\.");
-			value = (tokens.length > 1) ? (T) extractHeaders(tokens[1]) : (T) Collections.emptyList();
-			break;
+			return (tokens.length > 1) ? (T) extractHeader(tokens[1]) : (T) Collections.emptyList();
+		case HEADERS_RAW:
+			return (T) extractHeadersRaw();
+		case FLAGS:
+			return (T) extractFlags();
 		case ATTACHMENTS_COUNT:
-			value = (T) countAttachment();
-			break;
+			return (T) countAttachment();
 		default:
-			value = null;
+			return null;
 		}
-		return value;
+	}
+
+	private Long countEmails(AddressList addresses) {
+		return (addresses != null) ? addresses.flatten().size() : 0L;
+	}
+
+	private Long countEmails(MailboxList mailboxes) {
+		return extractMailboxes(mailboxes).count();
 	}
 
 	private List<String> extractEmails(AddressList addresses) {
@@ -116,11 +124,19 @@ public class FieldValueMessageProvider implements FieldValueProvider {
 		return mailboxes.stream().filter(mailbox -> !">".equals(mailbox.getAddress()));
 	}
 
-	private List<String> extractHeaders(String headerName) {
+	private List<String> extractHeader(String headerName) {
 		return message.getHeader().getFields().stream() //
 				.filter(field -> field.getName().equalsIgnoreCase(headerName)) //
 				.map(Field::getBody) //
 				.toList();
+	}
+
+	private List<String> extractHeadersRaw() {
+		return Arrays.asList(message.getHeader().toString());
+	}
+
+	private List<String> extractFlags() {
+		return record.flags.stream().map(flag -> flag.flag).toList();
 	}
 
 	private String extractContent() {

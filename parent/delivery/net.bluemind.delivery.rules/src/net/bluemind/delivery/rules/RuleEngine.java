@@ -41,6 +41,7 @@ import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.core.sendmail.SendmailHelper;
 import net.bluemind.delivery.lmtp.common.DeliveryContent;
+import net.bluemind.delivery.lmtp.common.DeliveryContent.DeferredActionMessage;
 import net.bluemind.delivery.lmtp.common.FreezableDeliveryContent;
 import net.bluemind.delivery.lmtp.common.FreezableDeliveryContent.SerializedMessage;
 import net.bluemind.delivery.lmtp.common.IDeliveryContext;
@@ -60,7 +61,7 @@ import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionAddHeaders;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionCategorize;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionCopy;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionCustom;
-import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionFollowUp;
+import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionDeferredAction;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionMarkAsDeleted;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionMarkAsImportant;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionMarkAsRead;
@@ -99,7 +100,8 @@ public class RuleEngine {
 		this.mailboxLookup = ctx.mailboxLookup();
 		this.mailer = mailer;
 		this.originalContent = content;
-		this.fieldValueProvider = new FieldValueMessageProvider(originalContent.message(), originalContent.size());
+		this.fieldValueProvider = new FieldValueMessageProvider(originalContent.message(), originalContent.size(),
+				originalContent.mailboxRecord());
 		this.parameterValueProvider = new ParameterValueCoreProvider(content.box(), serviceProvider);
 		this.vacationCacheFactory = vacationCacheFactory;
 	}
@@ -120,17 +122,13 @@ public class RuleEngine {
 		return IMailReplicaUids.subtreeUid(originalBox().dom.uid, originalBox().mbox);
 	}
 
-	private String originalPartition() {
-		return partition(originalBox());
-	}
-
 	private String partition(ResolvedBox box) {
 		return CyrusPartition.forServerAndDomain(box.entry.dataLocation, box.dom.uid).name;
 	}
 
 	public DeliveryContent apply(List<MailFilterRule> rules) {
 		addVacationSpecificConditions(rules);
-		return applyActionsOf(matchingRules(rules));
+		return applyRulesActions(matchingRules(rules));
 	}
 
 	private void addVacationSpecificConditions(List<MailFilterRule> rules) {
@@ -159,14 +157,14 @@ public class RuleEngine {
 				}).toList();
 	}
 
-	private DeliveryContent applyActionsOf(List<MailFilterRule> rules) {
+	private DeliveryContent applyRulesActions(List<MailFilterRule> rules) {
 		logger.info("[rules] applying {} rules on {}", rules.size(), originalContent);
 		return rules.stream() //
 				.sequential() //
-				.reduce(originalContent, this::applyActionOf, (result1, result2) -> result2);
+				.reduce(originalContent, this::applyRuleActions, (result1, result2) -> result2);
 	}
 
-	private DeliveryContent applyActionOf(DeliveryContent previousContent, MailFilterRule rule) {
+	private DeliveryContent applyRuleActions(DeliveryContent previousContent, MailFilterRule rule) {
 		if (previousContent.isEmpty() || previousContent.stop()) {
 			String cause = previousContent.isEmpty() ? "message discarded" : "previous action ask to stop";
 			logger.info("[rules] stop applying rule on {}: {}", originalContent, cause);
@@ -177,18 +175,19 @@ public class RuleEngine {
 		DeliveryContent nextContent = previousContent.withStop(rule.stop);
 		return rule.actions.stream().sequential() //
 				.reduce(nextContent, //
-						(content, action) -> applyAction(content, action, isVacation), //
+						(content, action) -> applyAction(content, rule, action, isVacation), //
 						(result1, result2) -> result2);
 	}
 
-	private DeliveryContent applyAction(DeliveryContent nextContent, MailFilterRuleAction action, boolean isVacation) {
+	private DeliveryContent applyAction(DeliveryContent nextContent, MailFilterRule rule, MailFilterRuleAction action,
+			boolean isVacation) {
 		logger.info("[rules] applying rule action {} on {}", action.name, originalContent);
 		return switch (action.name) {
 		case ADD_HEADER -> addHeaders(nextContent, (MailFilterRuleActionAddHeaders) action);
 		case CATEGORIZE -> addHeaders(nextContent, (MailFilterRuleActionCategorize) action);
 		case COPY -> copy(nextContent, (MailFilterRuleActionCopy) action);
+		case DEFERRED_ACTION -> deferredAction(nextContent, rule, (MailFilterRuleActionDeferredAction) action);
 		case DISCARD -> nextContent.withoutMessage();
-		case FOLLOW_UP -> followUp(nextContent, (MailFilterRuleActionFollowUp) action);
 		case MARK_AS_DELETED -> setFlags(nextContent, (MailFilterRuleActionMarkAsDeleted) action);
 		case MARK_AS_IMPORTANT -> setFlags(nextContent, (MailFilterRuleActionMarkAsImportant) action);
 		case MARK_AS_READ -> setFlags(nextContent, (MailFilterRuleActionMarkAsRead) action);
@@ -262,9 +261,14 @@ public class RuleEngine {
 		return nextContent;
 	}
 
-	private DeliveryContent followUp(DeliveryContent nextContent, MailFilterRuleActionFollowUp followUp) {
-		// TODO
-		return nextContent;
+	private DeliveryContent deferredAction(DeliveryContent nextContent, MailFilterRule rule,
+			MailFilterRuleActionDeferredAction action) {
+		long ruleId = Long.parseLong(rule.clientProperties.get("PidTagRuleId"));
+		String ruleProvider = rule.clientProperties.get("PidTagRuleProvider");
+		String deferredAction = action.clientProperties.get("remainder");
+		logger.info("[rules] DeferredAction owner:{} ruleId:{} provider:{}", nextContent.box().entry.entryUid, ruleId,
+				ruleProvider);
+		return nextContent.withDeferredAction(new DeferredActionMessage(ruleId, ruleProvider, deferredAction));
 	}
 
 	private DeliveryContent setFlags(DeliveryContent nextContent, MailFilterRuleActionSetFlags setFlags) {

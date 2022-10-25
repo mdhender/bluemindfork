@@ -3,6 +3,7 @@ package net.bluemind.mailbox.api.rules;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,9 +17,6 @@ import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionAddHeaders;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionCategorize;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionCopy;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionDiscard;
-import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionFollowUp;
-import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionFollowUp.DueDate;
-import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionFollowUp.FollowUpAction;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionMarkAsDeleted;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionMarkAsImportant;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionMarkAsRead;
@@ -53,6 +51,7 @@ public class MailFilterRule {
 	public boolean deferred = false;
 	public boolean active = true;
 	public String name;
+	public Map<String, String> clientProperties = new HashMap<>();
 	public List<MailFilterRuleCondition> conditions = new ArrayList<>();
 	public List<MailFilterRuleAction> actions = new ArrayList<>();
 	public boolean stop = true;
@@ -139,18 +138,6 @@ public class MailFilterRule {
 	public MailFilterRule addCategorize(List<String> categories) {
 		removeAction(MailFilterRuleActionName.CATEGORIZE);
 		actions.add(new MailFilterRuleActionCategorize(categories));
-		return this;
-	}
-
-	public Optional<MailFilterRuleActionFollowUp> followUp() {
-		return actions.stream() //
-				.filter(action -> action.name.equals(MailFilterRuleActionName.FOLLOW_UP)) //
-				.map(action -> (MailFilterRuleActionFollowUp) action).findFirst();
-	}
-
-	public MailFilterRule addFollowUp(FollowUpAction action, DueDate dueDate) {
-		removeAction(MailFilterRuleActionName.CATEGORIZE);
-		actions.add(new MailFilterRuleActionFollowUp(action, dueDate));
 		return this;
 	}
 

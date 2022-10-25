@@ -22,4 +22,14 @@ public class MailFilterRuleActionCategorize extends MailFilterRuleActionAddHeade
 		this.name = MailFilterRuleActionName.CATEGORIZE;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailFilterRuleActionCategorize [headers=");
+		builder.append(headers);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append("]");
+		return builder.toString();
+	}
 }

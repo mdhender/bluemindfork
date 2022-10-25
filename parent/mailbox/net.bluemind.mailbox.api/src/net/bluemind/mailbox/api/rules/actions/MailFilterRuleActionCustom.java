@@ -20,4 +20,17 @@ public class MailFilterRuleActionCustom extends MailFilterRuleAction {
 		this.parameters = parameters;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailFilterRuleActionCustom [kind=");
+		builder.append(kind);
+		builder.append(", parameters=");
+		builder.append(parameters);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append("]");
+		return builder.toString();
+	}
+
 }

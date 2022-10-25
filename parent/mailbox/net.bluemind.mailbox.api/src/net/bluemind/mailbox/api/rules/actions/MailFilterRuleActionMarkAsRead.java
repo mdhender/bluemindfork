@@ -14,4 +14,17 @@ public class MailFilterRuleActionMarkAsRead extends MailFilterRuleActionSetFlags
 		super(Arrays.asList("\\Seen"));
 		this.name = MailFilterRuleActionName.MARK_AS_READ;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailFilterRuleActionMarkAsRead [flags=");
+		builder.append(flags);
+		builder.append(", internalFlags=");
+		builder.append(internalFlags);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append("]");
+		return builder.toString();
+	}
 }

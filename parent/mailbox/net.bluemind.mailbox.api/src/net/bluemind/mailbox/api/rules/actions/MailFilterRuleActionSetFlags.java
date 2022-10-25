@@ -25,4 +25,17 @@ public class MailFilterRuleActionSetFlags extends MailFilterRuleAction {
 		this(flags, Collections.emptyList());
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailFilterRuleActionSetFlags [flags=");
+		builder.append(flags);
+		builder.append(", internalFlags=");
+		builder.append(internalFlags);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append("]");
+		return builder.toString();
+	}
+
 }

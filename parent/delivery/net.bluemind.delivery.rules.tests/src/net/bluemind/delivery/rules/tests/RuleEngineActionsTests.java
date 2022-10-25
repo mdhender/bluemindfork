@@ -263,6 +263,32 @@ public class RuleEngineActionsTests extends AbstractRuleEngineTests {
 	}
 
 	@Test
+	public void testConditionOnDirEntry() {
+		var message = new MessageBuilder("Subject") //
+				.from(emailUser2).to(emailUser1) //
+				.content(null, "Original message content") //
+				.build();
+		var engine = engineOn(message);
+		var rules = rulesMatchingContact(message, rule -> rule.addSetFlags(Deleted.value().flag));
+
+		DeliveryContent result = engine.apply(rules);
+
+		assertTrue(result.mailboxRecord().flags.contains(Deleted.value()));
+
+		message = new MessageBuilder("Subject") //
+				.from(emailUser2Alias).to(emailUser1) //
+				.content(null, "Original message content") //
+				.build();
+		engine = engineOn(message);
+		rules = rulesMatchingContact(message, rule -> rule.addSetFlags(Deleted.value().flag));
+
+		result = engine.apply(rules);
+
+		assertTrue(result.mailboxRecord().flags.contains(Deleted.value()));
+
+	}
+
+	@Test
 	public void testTransferWithoutKeepCopy() {
 		var message = new MessageBuilder("Subject") //
 				.from(emailUser2).to(emailUser1) //

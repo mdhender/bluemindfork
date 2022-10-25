@@ -145,7 +145,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 	}
 
 	@Override
-	public void create(String uid, MailboxRecord mail) {
+	public Long create(String uid, MailboxRecord mail) {
 		SubtreeLocation recordsLocation = locationOrFault();
 
 		ExpectedId knownInternalId = BodyInternalIdCache.expectedRecordId(container.owner, mail.messageBody);
@@ -180,6 +180,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 			EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, version.version,
 					new long[] { version.id });
 		}
+		return version.id;
 	}
 
 	private SubtreeLocation locationOrFault() {

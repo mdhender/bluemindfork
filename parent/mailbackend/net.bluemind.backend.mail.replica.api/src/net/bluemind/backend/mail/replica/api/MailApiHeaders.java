@@ -48,6 +48,7 @@ public final class MailApiHeaders {
 
 	public static class OutlookProps {
 
+		public static final String FLAG_REQUEST = "X-Bm-Otlk-Flag-Request";
 		/**
 		 * undefined, followupComplete, followupFlagged
 		 */
@@ -88,7 +89,7 @@ public final class MailApiHeaders {
 
 	public static final String[] ALL = new String[] { X_BM_INTERNAL_ID, X_BM_PREVIOUS_BODY, X_BM_DRAFT_INFO,
 			X_BM_DRAFT_REFRESH_DATE, //
-			OutlookProps.FLAG_STATUS, OutlookProps.FLAG_COLOR, //
+			OutlookProps.FLAG_REQUEST, OutlookProps.FLAG_STATUS, OutlookProps.FLAG_COLOR, //
 			OutlookProps.TASK_DUE_DATE, OutlookProps.TASK_ORDINAL_DATE, OutlookProps.COMMON_START, //
 			OutlookProps.REMINDER_DATE, OutlookProps.REMINDER_SET, //
 			OutlookProps.SHARING_CAPABILITIES, OutlookProps.SHARING_FLAVOR, OutlookProps.SHARING_INITIATOR_ENTRYID,

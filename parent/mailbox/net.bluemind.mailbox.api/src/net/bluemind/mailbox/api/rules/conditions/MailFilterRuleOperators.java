@@ -6,6 +6,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
+
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilterContains.Comparator;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilterContains.Modifier;
+import net.bluemind.mailbox.api.utils.StripAccents;
 import net.bluemind.mailbox.api.utils.WildcardMatcher;
 
 public class MailFilterRuleOperators {
@@ -106,7 +110,7 @@ public class MailFilterRuleOperators {
 			return MailFilterRuleOperatorName.CONTAINS;
 		}
 
-		public abstract boolean match(T value, List<String> parameters);
+		public abstract boolean match(T value, List<String> parameters, Comparator comparator, Modifier modifier);
 	}
 
 	public abstract static class MatchesOperator<T> extends MailboxRuleAbstractOperator<T> {
@@ -122,7 +126,7 @@ public class MailFilterRuleOperators {
 			return MailFilterRuleOperatorName.RANGE;
 		}
 
-		public abstract boolean match(T value, String lowerBound, String upperBound);
+		public abstract boolean match(T value, String lowerBound, String upperBound, boolean inclusive);
 	}
 
 	public static final class ListOperator {
@@ -146,9 +150,42 @@ public class MailFilterRuleOperators {
 
 		public static final ContainsOperator<List<String>> CONTAINS_ANY_OPERATOR = new ContainsOperator<List<String>>() {
 			@Override
-			public boolean match(List<String> values, List<String> parameters) {
-				return values != null && parameters.stream()
-						.anyMatch(parameter -> values.stream().anyMatch(value -> value.contains(parameter)));
+			public boolean match(List<String> values, List<String> parameters, Comparator comparator,
+					Modifier modifier) {
+				if (values == null) {
+					return false;
+				}
+
+				List<String> modifiedValues = applyModifier(values, modifier);
+				List<String> modifiedParameters = applyModifier(parameters, modifier);
+
+				switch (comparator) {
+				case FULLSTRING:
+					return modifiedParameters.stream().anyMatch(modifiedValues::contains);
+				case PREFIX:
+					return modifiedParameters.stream().anyMatch(
+							parameter -> modifiedValues.stream().anyMatch(value -> value.startsWith(parameter)));
+				case SUBSTRING:
+				default:
+					return modifiedParameters.stream().anyMatch(
+							parameter -> modifiedValues.stream().anyMatch(value -> value.contains(parameter)));
+				}
+			}
+
+			private List<String> applyModifier(List<String> values, Modifier modifier) {
+				return values.stream().map(value -> {
+					switch (modifier) {
+					case CASE_INSENSITIVE:
+						return value.toLowerCase();
+					case IGNORE_NONSPACING_MARK:
+						return StripAccents.strip(value);
+					case LOOSE:
+						return StripAccents.strip(value).toLowerCase();
+					case NONE:
+					default:
+						return value;
+					}
+				}).toList();
 			}
 		};
 
@@ -166,33 +203,36 @@ public class MailFilterRuleOperators {
 
 		}
 
-		public static final ExistsOperator<Integer> EXISTS_OPERATOR = new ExistsOperator<Integer>() {
+		public static final ExistsOperator<Long> EXISTS_OPERATOR = new ExistsOperator<Long>() {
 			@Override
-			public boolean match(Integer value) {
+			public boolean match(Long value) {
 				return value != null;
 			}
 		};
 
-		public static final EqualsOperator<Integer> EQUALS_OPERATOR = new EqualsOperator<Integer>() {
+		public static final EqualsOperator<Long> EQUALS_OPERATOR = new EqualsOperator<Long>() {
 			@Override
-			public boolean match(Integer value, List<String> parameters) {
+			public boolean match(Long value, List<String> parameters) {
 				return value != null && parse(parameters).anyMatch(value::equals);
 			}
 		};
 
-		public static final RangeOperator<Integer> RANGE_OPERATOR = new RangeOperator<Integer>() {
+		public static final RangeOperator<Long> RANGE_OPERATOR = new RangeOperator<Long>() {
 			@Override
-			public boolean match(Integer value, String lowerBoundParameter, String upperBoundParameter) {
+			public boolean match(Long value, String lowerBoundParameter, String upperBoundParameter,
+					boolean inclusive) {
 				Long lowerBound = (lowerBoundParameter != null) ? parse(lowerBoundParameter) : null;
 				Long upperBound = (upperBoundParameter != null) ? parse(upperBoundParameter) : null;
 				if ((lowerBound == null && upperBound == null) || value == null) {
 					return false;
 				} else if (lowerBound == null) {
-					return value <= upperBound;
+					return (inclusive) ? value <= upperBound : value < upperBound;
 				} else if (upperBound == null) {
-					return value >= lowerBound;
+					return (inclusive) ? value >= lowerBound : value > lowerBound;
 				} else {
-					return value >= lowerBound && value <= upperBound;
+					return (inclusive) //
+							? value >= lowerBound && value <= upperBound //
+							: value > lowerBound && value < upperBound;
 				}
 			}
 		};
@@ -231,18 +271,29 @@ public class MailFilterRuleOperators {
 
 		public static final MailFilterRuleOperator<Date> RANGE_OPERATOR = new RangeOperator<Date>() {
 			@Override
-			public boolean match(Date value, String lowerBoundParameter, String upperBoundParameter) {
+			public boolean match(Date value, String lowerBoundParameter, String upperBoundParameter,
+					boolean inclusive) {
 				Date lowerBound = (lowerBoundParameter != null) ? parse(lowerBoundParameter) : null;
 				Date upperBound = (upperBoundParameter != null) ? parse(upperBoundParameter) : null;
 				if ((lowerBound == null && upperBound == null) || value == null) {
 					return false;
 				} else if (lowerBound == null) {
-					return value.before(upperBound);
+					return (inclusive) ? beforeOrEquals(value, upperBound) : value.before(upperBound);
 				} else if (upperBound == null) {
-					return value.after(lowerBound);
+					return (inclusive) ? afterOrEquals(value, lowerBound) : value.after(lowerBound);
 				} else {
-					return value.after(lowerBound) && value.before(upperBound);
+					return (inclusive) //
+							? afterOrEquals(value, lowerBound) && beforeOrEquals(value, upperBound)
+							: value.after(lowerBound) && value.before(upperBound);
 				}
+			}
+
+			private boolean beforeOrEquals(Date value, Date upperBound) {
+				return value.before(upperBound) || value.equals(upperBound);
+			}
+
+			private boolean afterOrEquals(Date value, Date lowerBound) {
+				return value.after(lowerBound) || value.equals(lowerBound);
 			}
 		};
 

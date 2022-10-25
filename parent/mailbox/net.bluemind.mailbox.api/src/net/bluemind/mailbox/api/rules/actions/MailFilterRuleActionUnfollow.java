@@ -14,4 +14,15 @@ public class MailFilterRuleActionUnfollow extends MailFilterRuleActionRemoveHead
 		this.name = MailFilterRuleActionName.UNFOLLOW;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailFilterRuleActionUnfollow [headerNames=");
+		builder.append(headerNames);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append("]");
+		return builder.toString();
+	}
+
 }

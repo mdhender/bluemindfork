@@ -60,6 +60,7 @@ public class ItemNotificationVerticle extends AbstractVerticle {
 	public void start() {
 		EventBus eb = vertx.eventBus();
 		MQ.init(() -> {
+
 			final Producer producer = MQ.registerProducer(Topic.MAPI_ITEM_NOTIFICATIONS);
 			eb.consumer(Topic.MAPI_ITEM_NOTIFICATIONS, (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
 				JsonObject body = msg.body();
@@ -100,6 +101,10 @@ public class ItemNotificationVerticle extends AbstractVerticle {
 			final Producer pfAclUpdateProducer = MQ.registerProducer(Topic.MAPI_PF_ACL_UPDATE);
 			eb.consumer(Topic.MAPI_PF_ACL_UPDATE, (Message<JsonObject> msg) -> vertx
 					.executeBlocking(prom -> pfAclUpdateProducer.send(msg.body()), false));
+
+			final Producer daProducer = MQ.registerProducer(Topic.MAPI_DEFERRED_ACTION_NOTIFICATIONS);
+			eb.consumer(Topic.MAPI_DEFERRED_ACTION_NOTIFICATIONS,
+					(Message<JsonObject> msg) -> vertx.executeBlocking(prom -> daProducer.send(msg.body()), false));
 		});
 
 	}

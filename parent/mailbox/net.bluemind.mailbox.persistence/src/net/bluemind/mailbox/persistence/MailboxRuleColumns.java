@@ -22,6 +22,7 @@ public final class MailboxRuleColumns {
 			.col("active") //
 			.col("deferred_action") //
 			.col("name") //
+			.col("client_properties", "jsonb") //
 			.col("conditions", "jsonb") //
 			.col("actions", "jsonb") //
 			.col("stop") //
@@ -53,6 +54,7 @@ public final class MailboxRuleColumns {
 				statement.setBoolean(index++, value.active);
 				statement.setBoolean(index++, value.deferred);
 				statement.setString(index++, value.name);
+				statement.setString(index++, JsonUtils.asString(value.clientProperties));
 				statement.setString(index++, JsonUtils.asString(value.conditions));
 				statement.setString(index++, JsonUtils.asString(value.actions));
 				statement.setBoolean(index++, value.stop);
@@ -74,6 +76,7 @@ public final class MailboxRuleColumns {
 				value.active = rs.getBoolean(index++);
 				value.deferred = rs.getBoolean(index++);
 				value.name = rs.getString(index++);
+				value.clientProperties = JsonUtils.readMap(rs.getString(index++), String.class, String.class);
 				value.conditions = JsonUtils.readSome(rs.getString(index++), MailFilterRuleCondition.class);
 				value.actions = JsonUtils.readSome(rs.getString(index++), MailFilterRuleAction.class);
 				value.stop = rs.getBoolean(index++);

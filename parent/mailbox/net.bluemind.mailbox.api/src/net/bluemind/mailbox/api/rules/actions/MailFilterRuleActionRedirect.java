@@ -46,4 +46,17 @@ public class MailFilterRuleActionRedirect extends MailFilterRuleAction {
 		return Objects.equals(emails, other.emails) && keepCopy == other.keepCopy;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailFilterRuleActionRedirect [emails=");
+		builder.append(emails);
+		builder.append(", keepCopy=");
+		builder.append(keepCopy);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append("]");
+		return builder.toString();
+	}
+
 }

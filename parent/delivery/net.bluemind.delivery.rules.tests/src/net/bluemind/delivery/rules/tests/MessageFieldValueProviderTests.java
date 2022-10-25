@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import org.junit.Test;
 import com.google.common.io.CountingInputStream;
 import com.google.common.io.FileBackedOutputStream;
 
+import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.delivery.rules.FieldValueMessageProvider;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleField;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleKnownField;
@@ -47,6 +49,10 @@ public class MessageFieldValueProviderTests {
 		long attachmentCount = provider.provides(MailFilterRuleKnownField.ATTACHMENTS_COUNT.toField());
 		assertEquals(2, attachmentCount);
 
+		List<String> headers = provider.provides(MailFilterRuleKnownField.HEADERS_RAW.toField());
+		assertTrue(headers.get(0).startsWith("Return-Path: <>"));
+		assertTrue(
+				headers.get(0).trim().endsWith("X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM5PR0901MB1409"));
 	}
 
 	@Test
@@ -74,6 +80,9 @@ public class MessageFieldValueProviderTests {
 		assertEquals(2, to.size());
 		assertEquals("nicolas.lascombes@bluemind.net", to.get(0));
 		assertEquals("david.phan@bluemind.net", to.get(1));
+
+		long toCount = provider.provides(MailFilterRuleKnownField.TO_COUNT.toField());
+		assertEquals(2L, toCount);
 	}
 
 	@Test
@@ -82,6 +91,9 @@ public class MessageFieldValueProviderTests {
 
 		List<String> from = provider.provides(MailFilterRuleKnownField.FROM_EMAIL.toField());
 		assertEquals("Christian Bergere", from.get(0));
+
+		long fromCount = provider.provides(MailFilterRuleKnownField.FROM_COUNT.toField());
+		assertEquals(1L, fromCount);
 	}
 
 	@Test
@@ -125,10 +137,21 @@ public class MessageFieldValueProviderTests {
 				FileBackedOutputStream fbos = new FileBackedOutputStream(32000)) {
 			countedInput.transferTo(fbos);
 			Message message = Mime4JHelper.parse(fbos.asByteSource().openBufferedStream());
-			return new FieldValueMessageProvider(message, countedInput.getCount());
+
+			return new FieldValueMessageProvider(message, countedInput.getCount(), defaultRecord());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	private MailboxRecord defaultRecord() {
+		MailboxRecord record = new MailboxRecord();
+		record.conversationId = System.currentTimeMillis();
+		record.flags = new ArrayList<>();
+		record.internalFlags = new ArrayList<>();
+		record.internalDate = new Date();
+		record.lastUpdated = record.internalDate;
+		return record;
 	}
 }

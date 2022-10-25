@@ -1,5 +1,8 @@
 package net.bluemind.mailbox.api.rules.actions;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -12,8 +15,8 @@ import net.bluemind.core.api.BMApi;
 		@Type(value = MailFilterRuleActionAddHeaders.class, name = "ADD_HEADER"),
 		@Type(value = MailFilterRuleActionCategorize.class, name = "CATEGORIZE"),
 		@Type(value = MailFilterRuleActionCopy.class, name = "COPY"),
+		@Type(value = MailFilterRuleActionDeferredAction.class, name = "DEFERRED_ACTION"),
 		@Type(value = MailFilterRuleActionDiscard.class, name = "DISCARD"),
-		@Type(value = MailFilterRuleActionFollowUp.class, name = "FOLLOW_UP"),
 		@Type(value = MailFilterRuleActionMarkAsDeleted.class, name = "MARK_AS_DELETED"),
 		@Type(value = MailFilterRuleActionMarkAsImportant.class, name = "MARK_AS_IMPORTANT"),
 		@Type(value = MailFilterRuleActionMarkAsRead.class, name = "MARK_AS_READ"),
@@ -30,4 +33,7 @@ import net.bluemind.core.api.BMApi;
 public class MailFilterRuleAction {
 
 	public MailFilterRuleActionName name;
+
+	public Map<String, String> clientProperties = new HashMap<>();
+
 }

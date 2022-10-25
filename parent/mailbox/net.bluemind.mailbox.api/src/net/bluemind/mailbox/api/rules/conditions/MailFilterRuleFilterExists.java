@@ -36,4 +36,16 @@ public class MailFilterRuleFilterExists extends MailFilterRuleFilter {
 		}).orElse(false);
 
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailFilterRuleFilterExists [fields=");
+		builder.append(fields);
+		builder.append(", operator=");
+		builder.append(operator);
+		builder.append("]");
+		return builder.toString();
+	}
+
 }

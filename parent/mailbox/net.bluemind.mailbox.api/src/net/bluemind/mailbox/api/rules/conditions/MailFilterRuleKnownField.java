@@ -8,13 +8,19 @@ import java.util.Optional;
 public enum MailFilterRuleKnownField {
 	FROM_EMAIL("from.email", List.class), //
 	FROM_RAW("from.raw", List.class), //
+	FROM_COUNT("from.count", Long.class), //
 	TO_EMAIL("to.email", List.class), //
 	TO_RAW("to.raw", List.class), //
+	TO_COUNT("to.count", Long.class), //
 	CC_EMAIL("cc.email", List.class), //
 	CC_RAW("cc.raw", List.class), //
+	CC_COUNT("cc.count", Long.class), //
 	BCC_EMAIL("bcc.email", List.class), //
 	BCC_RAW("bcc.raw", List.class), //
+	BCC_COUNT("bcc.count", Long.class), //
+	HEADERS_RAW("headers.raw", List.class), //
 	HEADERS("headers", List.class), //
+	FLAGS("flags", List.class), //
 	SUBJECT("subject", List.class), //
 	PART_CONTENT("part.content", List.class), //
 	SIZE("size", Long.class), //

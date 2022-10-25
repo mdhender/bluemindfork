@@ -40,4 +40,15 @@ public class MailFilterRuleActionRemoveHeaders extends MailFilterRuleAction {
 		return Objects.equals(headerNames, other.headerNames);
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailFilterRuleActionRemoveHeaders [headerNames=");
+		builder.append(headerNames);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append("]");
+		return builder.toString();
+	}
+
 }

@@ -36,6 +36,8 @@ import com.netflix.spectator.api.Registry;
 
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.replica.api.AppendTx;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
@@ -57,6 +59,8 @@ import net.bluemind.delivery.lmtp.filters.IMessageFilter;
 import net.bluemind.delivery.lmtp.filters.LmtpFilters;
 import net.bluemind.delivery.lmtp.filters.PermissionDeniedException;
 import net.bluemind.delivery.lmtp.hooks.LmtpHooks;
+import net.bluemind.hornetq.client.Topic;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.mime4j.common.Mime4JHelper;
@@ -119,6 +123,7 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 		MailboxRecord rec = new MailboxRecord();
 		rec.conversationId = System.currentTimeMillis();
 		rec.flags = new ArrayList<>();
+		rec.internalFlags = new ArrayList<>();
 		rec.internalDate = new Date();
 		rec.lastUpdated = rec.internalDate;
 
@@ -152,8 +157,22 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 		mailboxRecord.modSeq = appendTx.modSeq;
 
 		IDbMailboxRecords recs = prov.system().instance(IDbMailboxRecords.class, folder.uid);
-		recs.create(mailboxRecord.imapUid + ".", mailboxRecord);
+		long id = recs.create(mailboxRecord.imapUid + ".", mailboxRecord);
 		logger.info("Record with imapUid {} created.", mailboxRecord.imapUid);
+
+		if (!freezableContent.content().deferredActionMessages().isEmpty()) {
+			JsonObject msg = new JsonObject();
+			msg.put("owner", freezableContent.content().box().mbox.uid);
+			msg.put("containerUid", freezableContent.content().folderItem().uid);
+			msg.put("messageId", id);
+			JsonArray deferredActions = new JsonArray();
+			freezableContent.content().deferredActionMessages()
+					.forEach(deferredAction -> deferredActions.add(deferredAction.toJson()));
+			msg.put("deferredActions", deferredActions);
+			VertxPlatform.eventBus().publish(Topic.MAPI_DEFERRED_ACTION_NOTIFICATIONS, msg);
+			logger.info("[rules] dam published by lmtp for message id:{} in containerUid:{}", id,
+					freezableContent.content().folderItem().uid);
+		}
 
 	}
 

@@ -40,6 +40,21 @@ public class MailFilterRuleActionReply extends MailFilterRuleAction {
 	}
 
 	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailFilterRuleActionReply [subject=");
+		builder.append(subject);
+		builder.append(", plainBody=");
+		builder.append(plainBody);
+		builder.append(", htmlBody=");
+		builder.append(htmlBody);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

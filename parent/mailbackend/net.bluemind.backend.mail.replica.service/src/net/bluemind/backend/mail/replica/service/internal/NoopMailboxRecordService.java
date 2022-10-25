@@ -116,9 +116,9 @@ public class NoopMailboxRecordService implements IDbMailboxRecords {
 	}
 
 	@Override
-	public void create(String uid, MailboxRecord mail) {
+	public Long create(String uid, MailboxRecord mail) {
 		logger.info("NOOP operation IDbMailboxRecords#create");
-
+		return null;
 	}
 
 	@Override

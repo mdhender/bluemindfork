@@ -403,9 +403,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				try (Message msg = EmlBuilder.of(body, sid)) {
 					return Mime4JHelper.asSizedStream(msg);
 				}
-			} catch (
-
-			ServerFault sf) {
+			} catch (ServerFault sf) {
 				throw sf;
 			} catch (Exception e) {
 				throw new ServerFault(e);
