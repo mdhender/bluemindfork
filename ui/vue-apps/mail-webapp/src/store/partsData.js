@@ -46,7 +46,9 @@ export default {
         [SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES]: (state, { key, inlinePartsByCapabilities }) => {
             inlinePartsByCapabilities.forEach(({ parts }) => {
                 parts.forEach(({ address }) => {
-                    Vue.delete(state.partsByMessageKey[key], address);
+                    if (state.partsByMessageKey[key]) {
+                        Vue.delete(state.partsByMessageKey[key], address);
+                    }
                 });
             });
         }
