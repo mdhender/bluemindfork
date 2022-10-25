@@ -42,7 +42,7 @@
                                 <mail-mailbox-icon :mailbox="allMailboxes[item.mailboxRef.key]" />
                             </div>
                         </template>
-                        <template v-if="!folderNameExists && !selectedExcluded" #extra="{close, focus, goUp, goDown}">
+                        <template v-if="!folderNameExists && !selectedExcluded" #extra="{ close, focus, goUp, goDown }">
                             <div v-if="pattern" ref="extra" class="d-flex align-items-center" @click="close">
                                 <bm-icon icon="plus" />
                                 <span class="pl-2 flex-fill">

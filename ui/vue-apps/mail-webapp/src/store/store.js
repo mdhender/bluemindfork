@@ -177,28 +177,35 @@ export const getters = {
     [MAILBOX_JUNK]: mailboxGetterFor(JUNK),
     [MAILBOX_INBOX]: mailboxGetterFor(INBOX),
     [ACTIVE_MESSAGE]: ({ conversations: { messages }, activeMessage }) => messages[activeMessage.key],
-    [IS_ACTIVE_MESSAGE]: ({ activeMessage, conversations: { conversationByKey } }) => ({ key }) =>
-        key === activeMessage.key || conversationByKey[key].messages?.includes(activeMessage.key),
-    [IS_CURRENT_CONVERSATION]: ({ conversations: { currentConversation } }) => ({ key }) => key === currentConversation,
-    [NEXT_CONVERSATION]: (state, { [CONVERSATION_LIST_ALL_KEYS]: keys, CONVERSATION_METADATA }) => conversations => {
-        let nextConversation = null;
-        if (keys.length > 1 && conversations.length) {
-            const conversationKeys = conversations.map(c => c.key);
-            const keyIndexes = keys
-                .map((k, index) => (conversationKeys.includes(k) ? index : -1))
-                .filter(index => index >= 0);
-            if (keyIndexes.length > 0) {
-                const lastKeyIndex = keyIndexes.pop();
-                let nextKeyIndex = lastKeyIndex + 1;
-                if (nextKeyIndex === keys.length) {
-                    const firstKeyIndex = keyIndexes?.shift() || lastKeyIndex;
-                    nextKeyIndex = firstKeyIndex === 0 ? 0 : firstKeyIndex - 1;
+    [IS_ACTIVE_MESSAGE]:
+        ({ activeMessage, conversations: { conversationByKey } }) =>
+        ({ key }) =>
+            key === activeMessage.key || conversationByKey[key].messages?.includes(activeMessage.key),
+    [IS_CURRENT_CONVERSATION]:
+        ({ conversations: { currentConversation } }) =>
+        ({ key }) =>
+            key === currentConversation,
+    [NEXT_CONVERSATION]:
+        (state, { [CONVERSATION_LIST_ALL_KEYS]: keys, CONVERSATION_METADATA }) =>
+        conversations => {
+            let nextConversation = null;
+            if (keys.length > 1 && conversations.length) {
+                const conversationKeys = conversations.map(c => c.key);
+                const keyIndexes = keys
+                    .map((k, index) => (conversationKeys.includes(k) ? index : -1))
+                    .filter(index => index >= 0);
+                if (keyIndexes.length > 0) {
+                    const lastKeyIndex = keyIndexes.pop();
+                    let nextKeyIndex = lastKeyIndex + 1;
+                    if (nextKeyIndex === keys.length) {
+                        const firstKeyIndex = keyIndexes?.shift() || lastKeyIndex;
+                        nextKeyIndex = firstKeyIndex === 0 ? 0 : firstKeyIndex - 1;
+                    }
+                    nextConversation = CONVERSATION_METADATA(keys[nextKeyIndex]);
                 }
-                nextConversation = CONVERSATION_METADATA(keys[nextKeyIndex]);
             }
-        }
-        return nextConversation;
-    },
+            return nextConversation;
+        },
     [MAILBOX_ROOT_FOLDERS]: (state, getters) => {
         const rootFolders = new Map();
         getters[MAILBOXES].forEach(mailbox => {
@@ -224,14 +231,15 @@ export const getters = {
 };
 
 function mailboxGetterFor(name) {
-    return state => ({ key }) => {
-        const mailbox = state.mailboxes[key];
-        if (mailbox.loading === LoadingStatus.LOADED) {
-            return state.folders[state.mailboxes.folders.defaults[key][name]];
-        } else {
-            return create(undefined, name, null, mailbox);
-        }
-    };
+    return state =>
+        ({ key }) => {
+            const mailbox = state.mailboxes[key];
+            if (mailbox.loading === LoadingStatus.LOADED) {
+                return state.folders[state.mailboxes.folders.defaults[key][name]];
+            } else {
+                return create(undefined, name, null, mailbox);
+            }
+        };
 }
 
 function filterFolders(folders, pattern, limit) {

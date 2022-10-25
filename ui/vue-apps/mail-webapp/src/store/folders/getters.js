@@ -33,7 +33,10 @@ export default {
             folder.path.startsWith(parent.path + "/")
         );
     },
-    [FOLDER_HAS_CHILDREN]: (state, { FOLDER_GET_CHILDREN }) => folder => FOLDER_GET_CHILDREN(folder).length > 0,
+    [FOLDER_HAS_CHILDREN]:
+        (state, { FOLDER_GET_CHILDREN }) =>
+        folder =>
+            FOLDER_GET_CHILDREN(folder).length > 0,
     [FOLDER_GET_CHILDREN]: (state, { FOLDERS }) => {
         const folderByParent = FOLDERS.reduce((byParent, folder) => {
             byParent[folder.parent] ? byParent[folder.parent].push(folder) : (byParent[folder.parent] = [folder]);
@@ -41,13 +44,15 @@ export default {
         }, {});
         return ({ key }) => folderByParent[key] || [];
     },
-    [FOLDER_GET_DESCENDANTS]: (state, { FOLDER_GET_CHILDREN }) => folder => {
-        const descendants = FOLDER_GET_CHILDREN(folder);
-        let i = 0;
-        while (i < descendants.length) {
-            descendants.push(...FOLDER_GET_CHILDREN(descendants[i]));
-            i++;
+    [FOLDER_GET_DESCENDANTS]:
+        (state, { FOLDER_GET_CHILDREN }) =>
+        folder => {
+            const descendants = FOLDER_GET_CHILDREN(folder);
+            let i = 0;
+            while (i < descendants.length) {
+                descendants.push(...FOLDER_GET_CHILDREN(descendants[i]));
+                i++;
+            }
+            return descendants;
         }
-        return descendants;
-    }
 };

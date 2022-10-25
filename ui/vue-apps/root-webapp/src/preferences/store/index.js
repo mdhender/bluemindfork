@@ -94,14 +94,18 @@ const mutations = {
 };
 
 const getters = {
-    GET_SECTION: (state, { SECTIONS }) => groupId =>
-        SECTIONS.find(section =>
-            section.categories.flatMap(category => category.groups).find(group => group.id === groupId)
-        ),
-    GET_GROUP: (state, { SECTIONS }) => groupId =>
-        SECTIONS.flatMap(section => section.categories)
-            .flatMap(category => category.groups)
-            .find(group => group.id === groupId),
+    GET_SECTION:
+        (state, { SECTIONS }) =>
+        groupId =>
+            SECTIONS.find(section =>
+                section.categories.flatMap(category => category.groups).find(group => group.id === groupId)
+            ),
+    GET_GROUP:
+        (state, { SECTIONS }) =>
+        groupId =>
+            SECTIONS.flatMap(section => section.categories)
+                .flatMap(category => category.groups)
+                .find(group => group.id === groupId),
     SECTIONS: ({ sectionById }) => Object.values(sectionById).filter(section => section.visible),
     GROUP_BY_FIELD_ID: state => fieldId => {
         const splitId = fieldId.split(".");

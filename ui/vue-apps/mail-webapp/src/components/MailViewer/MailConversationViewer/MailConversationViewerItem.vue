@@ -46,7 +46,7 @@
             <div class="col spacer" />
         </div>
         <div
-            v-else-if="(!nextIsHidden || index === maxIndex || maxIndex <= 2)"
+            v-else-if="!nextIsHidden || index === maxIndex || maxIndex <= 2"
             class="d-flex flex-nowrap conversation-viewer-row"
         >
             <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />

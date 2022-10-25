@@ -138,12 +138,14 @@ function getMailTipContext(message) {
 }
 
 function getRecipients(message) {
-    const adaptor = type => ({ address, dn }) => ({
-        email: address,
-        name: dn,
-        recipientType: type,
-        addressType: "SMTP"
-    });
+    const adaptor =
+        type =>
+        ({ address, dn }) => ({
+            email: address,
+            name: dn,
+            recipientType: type,
+            addressType: "SMTP"
+        });
     return message.to
         .map(adaptor("TO"))
         .concat(message.cc.map(adaptor("CC")))

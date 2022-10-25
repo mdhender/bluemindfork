@@ -60,15 +60,8 @@ import { MailRoutesMixin } from "~/mixins";
 import ChooseFolderModal from "../ChooseFolderModal";
 import EmptyFolderAction from "./EmptyFolderAction";
 
-const {
-    createRoot,
-    DEFAULT_FOLDERS,
-    folderExists,
-    getInvalidCharacter,
-    isDefault,
-    isDescendantPath,
-    isRoot
-} = folderUtils;
+const { createRoot, DEFAULT_FOLDERS, folderExists, getInvalidCharacter, isDefault, isDescendantPath, isRoot } =
+    folderUtils;
 
 export default {
     name: "MailFolderItemMenu",

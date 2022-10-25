@@ -1,11 +1,7 @@
 import { messageUtils } from "@bluemind/mail";
 
-const {
-    MessageForwardAttributeSeparator,
-    MessageReplyAttributeSeparator,
-    MessageQuoteClasses,
-    MessageQuoteOutlookId
-} = messageUtils;
+const { MessageForwardAttributeSeparator, MessageReplyAttributeSeparator, MessageQuoteClasses, MessageQuoteOutlookId } =
+    messageUtils;
 
 const NOT_FOUND = "NOT_FOUND";
 

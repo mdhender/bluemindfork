@@ -44,9 +44,8 @@ export default {
                         imapUid: this.message.remoteRef.imapUid,
                         parts: [this.file]
                     });
-                    this.content = this.$store.state.mail.partsData.partsByMessageKey[this.message.key]?.[
-                        this.file.address
-                    ];
+                    this.content =
+                        this.$store.state.mail.partsData.partsByMessageKey[this.message.key]?.[this.file.address];
                 }
             },
             immediate: true

@@ -94,7 +94,10 @@ export default {
         },
         [FOLDER_LIST_LIMIT_FOR_GROUP_MAILBOX]: state => state.limits[GROUP_MAILBOXES] || DEFAULT_LIMIT,
         [FOLDER_LIST_LIMIT_FOR_MAILSHARE]: state => state.limits[MAILSHARES] || DEFAULT_LIMIT,
-        [FOLDER_LIST_LIMIT_FOR_USER]: state => ({ key }) => state.limits[key] || DEFAULT_LIMIT
+        [FOLDER_LIST_LIMIT_FOR_USER]:
+            state =>
+            ({ key }) =>
+                state.limits[key] || DEFAULT_LIMIT
     },
     actions: {
         [SHOW_MORE_FOR_USERS]: ({ state, commit }, mailbox) => {

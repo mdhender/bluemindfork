@@ -152,29 +152,31 @@ const mutations = {
 
 const getters = {
     [CONVERSATION_IS_LOADED]: () => metadata => metadata?.loading === LoadingStatus.LOADED,
-    [CONVERSATION_MESSAGE_BY_KEY]: (state, { MY_SENT, MY_TRASH }) => key => {
-        let messages = [];
-        const conversation = state.conversationByKey[key];
-        if (conversation) {
-            const conversationIsInTrash = conversation.folderRef.key === MY_TRASH.key;
-            conversation.messages.forEach(key => {
-                const message = state.messages[key];
-                if (message) {
-                    const messageIsInTrash = message.folderRef.key === MY_TRASH.key;
-                    const sentDuplicateIndex = findSentDuplicateIndex(state, conversation, message, MY_SENT);
-                    if (
-                        message &&
-                        message.loading !== LoadingStatus.ERROR &&
-                        sentDuplicateIndex === -1 &&
-                        (!messageIsInTrash || conversationIsInTrash)
-                    ) {
-                        messages.splice(sortedIndexBy(messages, message, "date"), 0, message);
+    [CONVERSATION_MESSAGE_BY_KEY]:
+        (state, { MY_SENT, MY_TRASH }) =>
+        key => {
+            let messages = [];
+            const conversation = state.conversationByKey[key];
+            if (conversation) {
+                const conversationIsInTrash = conversation.folderRef.key === MY_TRASH.key;
+                conversation.messages.forEach(key => {
+                    const message = state.messages[key];
+                    if (message) {
+                        const messageIsInTrash = message.folderRef.key === MY_TRASH.key;
+                        const sentDuplicateIndex = findSentDuplicateIndex(state, conversation, message, MY_SENT);
+                        if (
+                            message &&
+                            message.loading !== LoadingStatus.ERROR &&
+                            sentDuplicateIndex === -1 &&
+                            (!messageIsInTrash || conversationIsInTrash)
+                        ) {
+                            messages.splice(sortedIndexBy(messages, message, "date"), 0, message);
+                        }
                     }
-                }
-            });
-        }
-        return messages;
-    },
+                });
+            }
+            return messages;
+        },
     [CONVERSATION_METADATA]: (state, getters) => key => {
         const conversation = state.conversationByKey[key];
         if (!conversation) {
