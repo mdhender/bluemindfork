@@ -64,6 +64,8 @@ import org.elasticsearch.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.netflix.spectator.api.Registry;
@@ -122,6 +124,13 @@ public class MailIndexService implements IMailIndexService {
 	private static final String INDEX_PENDING_READ_ALIAS = "mailspool_pending_read_alias";
 	private static final String INDEX_PENDING_WRITE_ALIAS = "mailspool_pending_write_alias";
 
+	/**
+	 * We keep the document around as mailspool_pending is not refreshed after a
+	 * body is written, so we're not guaranteed to get it back.
+	 */
+	private static final Cache<String, Map<String, Object>> bodyCache = Caffeine.newBuilder()
+			.expireAfterWrite(5, TimeUnit.SECONDS).maximumSize(128).build();
+
 	private Registry metricRegistry;
 	private IdFactory idFactory;
 
@@ -150,6 +159,7 @@ public class MailIndexService implements IMailIndexService {
 		content.put("headers", body.headers());
 		content.putAll(body.data);
 		client.prepareIndex(INDEX_PENDING_WRITE_ALIAS, PENDING_TYPE).setId(body.uid).setSource(content).get();
+		bodyCache.put(body.uid, content);
 		return content;
 	}
 
@@ -234,19 +244,22 @@ public class MailIndexService implements IMailIndexService {
 		String userAlias = getIndexAliasName(user);
 		Set<String> is = MessageFlagsHelper.asFlags(mail.flags);
 
-		Map<String, Object> parentDoc = null;
-		GetResponse response = client.prepareGet(INDEX_PENDING_READ_ALIAS, PENDING_TYPE, parentUid).get();
-		if (response.isSourceEmpty()) {
-			try {
-				logger.warn("Pending index misses parent {} for imapUid {} in mailbox {}", parentUid,
-						item.value.imapUid, mailboxUniqueId);
-				parentDoc = reloadFromDb(parentUid, mailboxUniqueId, mail);
-			} catch (Exception e) {
-				logger.warn("Cannot resync pending data", e);
-			}
-		} else {
-			parentDoc = response.getSource();
-		}
+		Map<String, Object> parentDoc = Optional.ofNullable(bodyCache.getIfPresent(parentUid))
+				.<Map<String, Object>>map(HashMap::new).orElseGet(() -> {
+					GetResponse response = client.prepareGet(INDEX_PENDING_READ_ALIAS, PENDING_TYPE, parentUid).get();
+					if (response.isSourceEmpty()) {
+						try {
+							logger.warn("Pending index misses parent {} for imapUid {} in mailbox {}", parentUid,
+									item.value.imapUid, mailboxUniqueId);
+							return reloadFromDb(parentUid, mailboxUniqueId, mail);
+						} catch (Exception e) {
+							logger.warn("Cannot resync pending data", e);
+							return null;
+						}
+					} else {
+						return response.getSource();
+					}
+				});
 
 		if (parentDoc == null || parentDoc.isEmpty()) {
 			logger.info("Skipping indexation of {}:{}", mailboxUniqueId, parentUid);
