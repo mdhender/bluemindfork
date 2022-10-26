@@ -63,7 +63,7 @@ function getStructureWithReplacedPart(existingBodyStructure, address, newPart) {
 }
 
 function getPartsContent(vm, file) {
-    const links = renderLinksComponent(vm, [file]);
+    const links = renderLinksComponent(vm, { files: [file], simplified: true });
     links.$mount();
     const htmlContent = sanitizeTextPartForCyrus(links.$el.outerHTML);
     const textContent = sanitizeTextPartForCyrus(html2text(htmlContent));

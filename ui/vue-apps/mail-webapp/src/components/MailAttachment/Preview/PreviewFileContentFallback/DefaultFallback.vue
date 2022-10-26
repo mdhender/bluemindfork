@@ -33,8 +33,8 @@ export default {
     justify-content: center;
     flex-direction: column;
     .bm-icon {
-        background-color: $neutral-bg;
-        color: $highest;
+        color: $neutral-bg;
+        background-color: $highest;
     }
 
     .text {

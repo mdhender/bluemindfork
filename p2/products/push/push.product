@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="push" uid="push" id="net.bluemind.eas.pushid" application="net.bluemind.eas.push" version="1.0.0" useFeatures="false" includeLaunchers="true">
+<product name="push" uid="push" id="net.bluemind.eas.pushid" application="net.bluemind.eas.push" version="1.0.0" useFeatures="false" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>
@@ -137,7 +137,7 @@
       <plugin id="net.bluemind.server.api"/>
       <plugin id="net.bluemind.slf4j"/>
       <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
-      <plugin id="net.bluemind.startup.dropins" />
+      <plugin id="net.bluemind.startup.dropins"/>
       <plugin id="net.bluemind.system.api"/>
       <plugin id="net.bluemind.system.stateobserver"/>
       <plugin id="net.bluemind.systemd.notify"/>
@@ -222,12 +222,12 @@
 
    <configurations>
       <plugin id="net.bluemind.sentry.settings" autoStart="true" startLevel="4" />
+      <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <plugin id="org.apache.felix.scr" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="2" />
-      <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <property name="eclipse.registry.MultiLanguage" value="true" />
       <property name="osgi.instance.area" value="/var/lib/bm-eas/" />
       <property name="osgi.noShutdown" value="true" />

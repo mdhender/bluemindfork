@@ -18,6 +18,7 @@
             "add": "Ajouter au drive",
             "from": "Joindre depuis le drive"
         },
+        "chooser": "Sélectionnez des fichiers à insérer en tant que lien drive",
         "detach": "Détacher la pièce jointe",
         "share": {
             "start": "Envoyer un lien partagé | Envoyer des liens partagés",

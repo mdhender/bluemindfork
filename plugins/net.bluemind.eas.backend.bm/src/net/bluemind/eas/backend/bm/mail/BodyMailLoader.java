@@ -22,16 +22,20 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.dom.field.FieldName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Splitter;
 
 import io.netty.buffer.ByteBufInputStream;
 import io.vertx.core.buffer.Buffer;
@@ -223,8 +227,33 @@ public class BodyMailLoader extends CoreConnect {
 
 		}
 
-		at.fileReference = AttachmentHelper.getAttachmentId(folder.collectionId, id, p.address, p.mime, p.encoding);
-		at.estimateDataSize = p.size;
+		Optional<Header> xBmDispotition = p.headers.stream().filter(h -> "X-BM-Disposition".equalsIgnoreCase(h.name))
+				.findFirst();
+
+		if (xBmDispotition.isPresent()) {
+			// X-BM-Disposition
+			// filehosting;url=https://URL;name=name.jpg;size=113;mime=image/jpg;expirationDate=1698311195441
+			String raw = xBmDispotition.get().firstValue();
+			List<String> tokens = Splitter.on(";").splitToList(raw);
+			Map<String, String> params = tokens.subList(1, tokens.size()).stream().map(token -> token.split("="))
+					.filter(t -> t.length == 2).collect(Collectors.toMap(t -> t[0], t -> t[1]));
+			String type = tokens.get(0);
+			if (type != null && "filehosting".equals(type)) {
+				String url = params.get("url");
+				at.fileReference = AttachmentHelper.getAttachmentId(url, p.mime);
+				at.displayName = params.get("name");
+				String size = params.get("size");
+				at.estimateDataSize = Integer.parseInt(size);
+
+			} else {
+				at.fileReference = AttachmentHelper.getAttachmentId(folder.collectionId, id, p.address, p.mime,
+						p.encoding);
+				at.estimateDataSize = p.size;
+			}
+		} else {
+			at.fileReference = AttachmentHelper.getAttachmentId(folder.collectionId, id, p.address, p.mime, p.encoding);
+			at.estimateDataSize = p.size;
+		}
 
 		return at;
 	}

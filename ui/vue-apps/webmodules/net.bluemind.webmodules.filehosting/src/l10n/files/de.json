@@ -18,6 +18,7 @@
             "add": "Zu Drive hinzufügen",
             "from": "Aus Drive anhängen"
         },
+        "chooser": "Wählen Sie Dateien aus, die als Drive-Links eingefügt werden sollen",
         "detach": "Aufsatz abnehmen",
         "share": {
             "start": "Einen freigegebenen Link senden | Gemeinsame Links senden",

@@ -31,12 +31,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.MessageServiceFactory;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.parser.MimeStreamParser;
+import org.asynchttpclient.AsyncCompletionHandler;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.HttpResponseBodyPart;
+import org.asynchttpclient.Response;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
@@ -57,6 +62,7 @@ import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventCounter.CounterOriginator;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -107,6 +113,7 @@ import net.bluemind.mime4j.common.IMailRewriter;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.RewriteMode;
 import net.bluemind.mime4j.common.RewriterBuilder;
+import net.bluemind.proxy.support.AHCWithProxy;
 
 public class MailBackend extends CoreConnect {
 
@@ -522,6 +529,30 @@ public class MailBackend extends CoreConnect {
 		if (attachmentId != null && !attachmentId.isEmpty()) {
 			Map<String, String> parsedAttId = AttachmentHelper.parseAttachmentId(attachmentId);
 			try {
+
+				String type = parsedAttId.get(AttachmentHelper.TYPE);
+				if (AttachmentHelper.BM_FILEHOSTING.equals(type)) {
+					String url = parsedAttId.get(AttachmentHelper.URL);
+					String contentType = parsedAttId.get(AttachmentHelper.CONTENT_TYPE);
+
+					try (FileBackedOutputStream fbos = new FileBackedOutputStream(32000, "bm-eas-getattachment");
+							AsyncHttpClient ahc = AHCWithProxy.build(storage.getSystemConf())) {
+						return ahc.prepareGet(url).execute(new AsyncCompletionHandler<MSAttachementData>() {
+
+							@Override
+							public State onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {
+								fbos.write(bodyPart.getBodyPartBytes());
+								return State.CONTINUE;
+							}
+
+							@Override
+							public MSAttachementData onCompleted(Response response) throws Exception {
+								return new MSAttachementData(contentType, DisposableByteSource.wrap(fbos));
+							}
+						}).get(20, TimeUnit.SECONDS);
+					}
+				}
+
 				String collectionId = parsedAttId.get(AttachmentHelper.COLLECTION_ID);
 				String messageId = parsedAttId.get(AttachmentHelper.MESSAGE_ID);
 				String mimePartAddress = parsedAttId.get(AttachmentHelper.MIME_PART_ADDRESS);
@@ -543,7 +574,7 @@ public class MailBackend extends CoreConnect {
 				logger.error(e.getMessage(), e);
 			}
 		}
-		throw new ObjectNotFoundException();
+		throw new ObjectNotFoundException(String.format("Failed to fetch attachment %s", attachmentId));
 	}
 
 	public AttachmentResponse getAttachmentMetadata(String attachmentId) throws ObjectNotFoundException {

@@ -5,8 +5,22 @@
             :key="file.address"
             style="border: 1px solid #cdcdcd; border-radius: 5px; margin-top: 10px; margin-bottom: 10px; padding: 15px;"
         >
-            &#128206;
+            <span v-if="simplified">
+                &#128206;
+            </span>
+            <img
+                v-else
+                style="margin-right: 5px; float: left; width: 24px; height: 24px;"
+                :src="`data:image/gif;${images.file}`"
+                alt="file"
+            />
             <span style="float: right;">
+                <img
+                    v-if="!simplified"
+                    style="margin-right: 5px; vertical-align: middle;"
+                    :src="`data:image/gif;${images.bm}`"
+                    alt="BlueMind"
+                />
                 <a style="color: #0f7edb !important;" :href="bmUrl">BlueMind</a>
             </span>
             <a style="color: #0f7edb !important;" :href="file.url" :download="file.name">
@@ -31,6 +45,10 @@ export default {
         files: {
             type: Array,
             required: true
+        },
+        simplified: {
+            type: Boolean,
+            default: false
         }
     },
     data() {

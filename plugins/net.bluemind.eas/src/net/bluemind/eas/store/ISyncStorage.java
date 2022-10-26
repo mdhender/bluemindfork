@@ -52,6 +52,8 @@ public interface ISyncStorage {
 	 */
 	String getSystemConf(String key);
 
+	Map<String, String> getSystemConf();
+
 	/**
 	 * @return
 	 */

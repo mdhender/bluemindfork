@@ -99,6 +99,11 @@ public class SyncStorage implements ISyncStorage {
 		return MQ.<String, String>sharedMap("system.configuration").get(key);
 	}
 
+	@Override
+	public Map<String, String> getSystemConf() {
+		return MQ.<String, String>sharedMap("system.configuration").asMap();
+	}
+
 	// Device/Auth stuff
 	@Override
 	public List<String> getWipedDevices() {

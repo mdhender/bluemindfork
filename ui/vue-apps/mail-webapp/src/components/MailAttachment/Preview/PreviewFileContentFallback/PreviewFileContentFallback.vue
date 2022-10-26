@@ -52,10 +52,9 @@ export default {
             color: $lowest;
             background-color: $neutral-bg;
         }
-
-        .file-type > svg {
-            color: $highest;
+        &.file-type .bm-icon {
             background-color: $neutral-bg;
+            color: $highest;
         }
     }
 }

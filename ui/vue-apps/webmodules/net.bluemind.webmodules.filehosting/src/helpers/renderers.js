@@ -92,14 +92,12 @@ export function renderLinksWithFrameComponent(vm, files) {
     });
 }
 
-export function renderLinksComponent(vm, files) {
+export function renderLinksComponent(vm, props) {
     // This Class is a subclass of the Vue component. The parent property establishes a parent-child
     // relationship to current vm. This way this component can use its parent plugins like i18n.
     return new ComposerLinksClass({
         parent: vm,
-        propsData: {
-            files
-        }
+        propsData: props
     });
 }
 

@@ -14,7 +14,7 @@
             centered
             size="fluid"
             :scrollable="false"
-            :title="$t('chooser.choose')"
+            :title="$t('filehosting.chooser')"
         >
             <chooser :max-attachments-size="maxAttachmentsSize" @insert="insertFiles" />
         </bm-modal>
