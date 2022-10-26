@@ -324,7 +324,7 @@ public class MailApiConnection implements MailboxConnection {
 
 		MailboxRecord rec = new MailboxRecord();
 		rec.imapUid = appendTx.imapUid;
-		rec.internalDate = new Date(appendTx.internalStamp);
+		rec.internalDate = deliveryDate == null ? new Date(appendTx.internalStamp) : deliveryDate;
 		rec.messageBody = bodyGuid;
 		rec.modSeq = appendTx.modSeq;
 		rec.conversationId = conversationId;
