@@ -25,6 +25,8 @@
 # _keystore.jks is for the client
 # _truststore.jks is for the server
 
+keytool=/usr/lib/jvm/bm-jdk/bin/keytool
+
 cn=nodeclient
 odir=/etc/bm
 
@@ -73,13 +75,13 @@ openssl pkcs12 -passin pass:password -password pass:password -export \
 # generate what vertx wants
 rm -f ${keystorefile} ${truststorefile}
 
-keytool -importkeystore -srckeystore ${p12file} -srcstoretype pkcs12 \
+$keytool -importkeystore -srckeystore ${p12file} -srcstoretype pkcs12 \
 -destkeystore ${keystorefile} \
 -deststoretype JKS \
 -srcstorepass password -deststorepass password
 echo "Generated ${cn}_keystore.jks"
 
-keytool -import -trustcacerts -alias ${cn} -file ${certfile} \
+$keytool -import -trustcacerts -alias ${cn} -file ${certfile} \
 -noprompt -keystore ${truststorefile} -storepass password
 echo "Generated ${cn}_truststore.jks"
 
@@ -90,7 +92,7 @@ openssl pkcs12 -password pass:bluemind -export \
 -name "bm certificate" -out /tmp/keystore.p12
 
 rm -f ${bmjksfile}
-keytool -importkeystore -srckeystore /tmp/keystore.p12 -srcstoretype pkcs12 \
+$keytool -importkeystore -srckeystore /tmp/keystore.p12 -srcstoretype pkcs12 \
 -destkeystore ${bmjksfile} \
 -deststoretype JKS \
 -srcstorepass bluemind -deststorepass bluemind
