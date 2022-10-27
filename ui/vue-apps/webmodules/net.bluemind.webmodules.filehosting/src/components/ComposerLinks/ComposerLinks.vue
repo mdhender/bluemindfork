@@ -5,17 +5,8 @@
             :key="file.address"
             style="border: 1px solid #cdcdcd; border-radius: 5px; margin-top: 10px; margin-bottom: 10px; padding: 15px;"
         >
-            <img
-                style="margin-right: 5px; float: left; width: 24px; height: 24px;"
-                :src="`data:image/gif;${images.file}`"
-                alt="file"
-            />
+            &#128206;
             <span style="float: right;">
-                <img
-                    style="margin-right: 5px; vertical-align: middle;"
-                    :src="`data:image/gif;${images.bm}`"
-                    alt="BlueMind"
-                />
                 <a style="color: #0f7edb !important;" :href="bmUrl">BlueMind</a>
             </span>
             <a style="color: #0f7edb !important;" :href="file.url" :download="file.name">
