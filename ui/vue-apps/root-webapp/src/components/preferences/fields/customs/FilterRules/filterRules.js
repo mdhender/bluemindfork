@@ -146,10 +146,9 @@ export function toString(filter, i18n) {
     const actions = filter.actions
         .map(action =>
             i18n.t(`preferences.mail.filters.action.${action.name}`, {
-                value:
-                    action.name in [ACTIONS.FORWARD.name || ACTIONS.TRANSFER.name]
-                        ? action.emails.join(i18n.t("common.and"))
-                        : action.value
+                value: [ACTIONS.FORWARD.name, ACTIONS.TRANSFER.name].includes(action.name)
+                    ? action.emails.join(and)
+                    : action.value
             })
         )
         .join(and);
