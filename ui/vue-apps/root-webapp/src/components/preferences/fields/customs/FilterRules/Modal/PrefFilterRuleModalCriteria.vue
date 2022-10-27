@@ -15,37 +15,33 @@
             >
                 <div class="d-flex col-11">
                     <div v-show="!resolvedCriteria[index] || !resolvedCriteria[index].fullEditor" class="col-6">
-	                <bm-form-select
-	                    ref="criterionCombo"
+                        <bm-form-select
+                            ref="criterionCombo"
                             class="w-100"
-	                    :value="criterionComboValue(criterion)"
-	                    :options="criterionChoices"
-	                    :placeholder="
-	                        negative
-	                            ? $t('preferences.mail.filters.modal.exceptions.add.placeholder')
-	                            : $t('preferences.mail.filters.modal.criteria.add.placeholder')
-	                    "
-	                    :auto-min-width="false"
-	                    @input="modifyCriterionType(index, $event)"
-	                />
+                            :value="criterionComboValue(criterion)"
+                            :options="criterionChoices"
+                            :placeholder="
+                                negative
+                                    ? $t('preferences.mail.filters.modal.exceptions.add.placeholder')
+                                    : $t('preferences.mail.filters.modal.criteria.add.placeholder')
+                            "
+                            :auto-min-width="false"
+                            @input="modifyCriterionType(index, $event)"
+                        />
                     </div>
                     <div :class="resolvedCriteria[index].fullEditor ? 'w-100' : 'col-6'">
-	                <component
-	                    :is="resolvedCriteria[index].editor"
-	                    :criterion="criterion"
+                        <component
+                            :is="resolvedCriteria[index].editor"
+                            :criterion="criterion"
                             class="w-100"
-	                    @reset="resetCriterion(index)"
-	                />
+                            @reset="resetCriterion(index)"
+                        />
                     </div>
                 </div>
                 <bm-icon-button variant="compact" icon="cross" @click="removeCriterion(index)" />
             </div>
         </template>
-        <bm-button
-            v-if="!resolvedCriteria.some(c => c.isNew)"
-            variant="text-accent"
-            @click="addNewCriterion"
-        >
+        <bm-button v-if="!resolvedCriteria.some(c => c.isNew)" variant="text-accent" @click="addNewCriterion">
             {{
                 negative
                     ? $t("preferences.mail.filters.modal.exceptions.add")
@@ -89,7 +85,7 @@ export default {
         }
     },
     watch: {
-        "criteria"() {
+        criteria() {
             if (!this.negative && this.resolvedCriteria.length === 0) {
                 this.addNewCriterion();
             }
