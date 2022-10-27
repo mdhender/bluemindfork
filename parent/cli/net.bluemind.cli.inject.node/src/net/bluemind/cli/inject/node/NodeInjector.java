@@ -92,6 +92,10 @@ public class NodeInjector extends MailExchangeInjector {
 		public void exchange(TargetMailbox from, byte[] emlContent) {
 			NodeTargetMailbox ntm = (NodeTargetMailbox) from;
 			List<FileDescription> exist = nc.listFiles(ntm.fromIndex);
+			if (exist.isEmpty()) {
+				ctx.warn("{} does not exist. skipping exchange.", ntm.fromIndex);
+				return;
+			}
 			FileDescription fromFd = exist.get(0);
 			total.add(fromFd.getSize());
 			byte[] fromBytes = nc.read(ntm.fromIndex);
