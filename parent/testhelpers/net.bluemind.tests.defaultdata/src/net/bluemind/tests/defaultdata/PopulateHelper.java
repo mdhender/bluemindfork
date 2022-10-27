@@ -385,7 +385,7 @@ public class PopulateHelper {
 		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class, domain);
 		String uid = user.login;
 		userService.create(uid, user);
-		Set<String> setRoles = new HashSet<String>(Arrays.asList(roles));
+		Set<String> setRoles = new HashSet<>(Arrays.asList(roles));
 		if (!setRoles.isEmpty()) {
 			userService.setRoles(uid, setRoles);
 		}
