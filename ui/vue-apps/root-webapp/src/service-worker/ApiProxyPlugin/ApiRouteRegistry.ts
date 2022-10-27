@@ -37,7 +37,7 @@ function getProxifiedMethods(proxy: APIClient): Array<MethodMetadatas> {
     const clientMetadatas: Array<MethodMetadatas> = proxy.getMetadata().methods;
     const methods: Set<MethodMetadatas> = new Set();
     do {
-        let properties = Object.getOwnPropertyNames(proxy);
+        const properties = Object.getOwnPropertyNames(proxy);
         if (properties.includes("getMetadata")) {
             break;
         }

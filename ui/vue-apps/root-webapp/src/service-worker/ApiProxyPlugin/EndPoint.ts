@@ -75,14 +75,14 @@ export class EndPoint {
         return result;
     }
 
-    reply(result: any): Response {
+    reply(result: Response | Blob | unknown): Response {
         if (result instanceof Response) {
             return result;
         } else {
             const produce =
                 this.metadatas.produce ||
                 (isStream(this.metadatas.outParam) ? "application/octet-stream" : "application/json");
-            const value = isStream(this.metadatas.outParam) ? result : JSON.stringify(result);
+            const value = isStream(this.metadatas.outParam) ? (result as Blob) : JSON.stringify(result);
             return new Response(value, {
                 status: 200,
                 headers: { "Content-Type": produce, "X-Bm-ServiceWorker": "true" }
@@ -90,7 +90,7 @@ export class EndPoint {
         }
     }
 
-    replyError(reason: any): Response {
+    replyError(reason: string | Error | unknown): Response {
         const error = { errorType: "ServiceWorkerProxyError", message: reason };
         return new Response(JSON.stringify(error), {
             status: 500,

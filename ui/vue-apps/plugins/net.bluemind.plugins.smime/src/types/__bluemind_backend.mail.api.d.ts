@@ -17,14 +17,20 @@ declare module "@bluemind/backend.mail.api" {
     }
 
     export interface MessageBody {
-        preview: string;
+        subject?: string;
+        preview?: string;
         smartAttach: boolean;
         structure: MessageBody.Part;
+        headers: Array<MessageBody.Header>;
+        recipients: Array<MessageBody.Recipient>;
+        messageId?: string;
+        date: number;
     }
 
     export namespace MessageBody {
         export interface Part {
             address: string;
+            charset?: string;
             contentId?: string;
             dispositionType?: DispositionType;
             encoding?: string;
@@ -32,6 +38,16 @@ declare module "@bluemind/backend.mail.api" {
             mime: string;
             size?: number;
             children?: Array<Part>;
+        }
+        export interface Header {
+            name: string;
+            values: Array<string>;
+        }
+
+        export interface Recipient {
+            kind: RecipientKind;
+            dn: string;
+            address: string;
         }
     }
     export type DispositionType = "ATTACHMENT" | "INLINE";

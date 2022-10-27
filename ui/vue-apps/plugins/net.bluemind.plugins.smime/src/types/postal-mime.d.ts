@@ -6,21 +6,21 @@ declare module "postal-mime" {
     export namespace PostalMime {
         export type Message = {
             headers: Array<Header>;
-            from: Recipient;
-            sender: Recipient;
+            from?: Recipient;
+            sender?: Recipient;
             replyTo?: Recipient;
             deliveredTo?: EmailAddress;
             returnPath?: EmailAddress;
-            to: Array<Recipient>;
-            cc: Array<Recipient>;
-            bcc: Array<Recipient>;
+            to?: Array<Recipient>;
+            cc?: Array<Recipient>;
+            bcc?: Array<Recipient>;
             subject: string;
-            messageId: string;
-            inReplyTo: string;
-            references: string;
-            date: string;
-            html: string;
-            text: string;
+            messageId?: string;
+            inReplyTo?: string;
+            references?: string;
+            date?: string;
+            html?: string;
+            text?: string;
             attachments: Array<Attachment>;
         };
         export type Header = {
@@ -35,10 +35,10 @@ declare module "postal-mime" {
         export type Attachment = {
             filename?: string;
             mimeType: string;
-            disposition?: "attachment" | "inline" | null;
+            disposition?: "attachment" | "inline";
             related?: boolean;
             contentId?: string;
-            content: ArrayBuffer | string;
+            content: ArrayBuffer;
         };
     }
 }

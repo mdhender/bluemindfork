@@ -1,5 +1,5 @@
 import { MailboxItemsClient, ItemValue, MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
-import { parseBodyStructure } from "./eml";
+import { MimeParser } from "@bluemind/mime";
 
 import session from "./environnment/session";
 import pkcs7 from "./pkcs7";
@@ -24,10 +24,10 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
     const certificate = await getMyCertificate();
     const content = await pkcs7.decrypt(data, key, certificate);
     if (content) {
-        //FIXME: We use the full encrypted data as main part content.
-        const body = await parseBodyStructure(item.value.body, content);
-        savePart(folderUid, item.value.imapUid, content);
-        item.value.body = body;
+        const parser = await new MimeParser(part.address).parse(content);
+
+        savePart(folderUid, item.value.imapUid, parser.getPartContent("1.1"));
+        item.value.body.structure = parser.structure as MessageBody.Part;
     }
 
     return item;
@@ -44,8 +44,10 @@ export function sign() {
 }
 
 //FIXME: This should be imported from a third party package
-async function savePart(uid: string, imap: string, data: string) {
+async function savePart(uid: string, imap: string, data?: ArrayBuffer) {
     const cache = await caches.open("part-cache");
-    const request = new Request(`/api/mail_items/${uid}/part/${imap}/1?encoding=&mime=text%2Fplain`);
+    const request = new Request(
+        `/api/mail_items/${uid}/part/${imap}/1.1?encoding=quoted-printable&mime=text%2Fplain&charset=utf-8`
+    );
     return cache.put(request.url, new Response(data));
 }
