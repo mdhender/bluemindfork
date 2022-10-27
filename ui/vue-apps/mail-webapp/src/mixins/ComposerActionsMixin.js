@@ -177,7 +177,8 @@ export default {
                 outbox: this.$_ComposerActionsMixin_MY_OUTBOX,
                 myDraftsFolder: this.$_ComposerActionsMixin_MY_DRAFTS,
                 messageCompose: cloneDeep(this.$_ComposerActionsMixin_messageCompose),
-                files: this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
+                files: this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey]),
+                subject: this.message.subject
             });
             if (
                 !this.$_ComposerActionsMixin_CONVERSATIONS_ACTIVATED ||

@@ -41,12 +41,11 @@ export default {
         }
     },
     created() {
-        if (this.messages[this.payload.draftKey]) {
-            this.subject = this.messages[this.alert.payload.draftKey].subject;
-        } else if (this.result?.subject) {
-            this.subject = this.result.subject;
-        }
-        this.subject = this.subject.trim() || this.$t("mail.viewer.no.subject");
+        this.subject = this.payload.subject
+            ? this.payload.subject.trim()
+            : this.result?.subject
+            ? this.result.subject.trim()
+            : this.$t("mail.viewer.no.subject");
     }
 };
 </script>
