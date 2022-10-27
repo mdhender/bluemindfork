@@ -19,6 +19,7 @@ package net.bluemind.node.client.impl.ahc;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringWriter;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -45,28 +46,42 @@ public class JsonHelper {
 		ByteBuf buf = Unpooled.buffer();
 		try (OutputStream out = new ByteBufOutputStream(buf);
 				JsonGenerator generator = jf.createGenerator(out, JsonEncoding.UTF8)) {
-			generator.writeStartObject();
-			generator.writeStringField("command", execReq.command);
-			if (execReq.group != null) {
-				generator.writeStringField("group", execReq.group);
-			}
-			if (execReq.name != null) {
-				generator.writeStringField("name", execReq.name);
-			}
-			generator.writeArrayFieldStart("options");
-			for (ExecRequest.Options opt : execReq.options) {
-				generator.writeString(opt.name());
-			}
-			generator.writeEndArray();
-			if (wsRid != null) {
-				generator.writeNumberField("ws-rid", wsRid.longValue());
-			}
-
-			generator.writeEndObject();
+			produceNodes(execReq, wsRid, generator);
 		} catch (IOException e) {
 			throw new ServerFault(e);
 		}
 		return buf;
+	}
+
+	private static void produceNodes(ExecRequest execReq, Long wsRid, JsonGenerator generator) throws IOException {
+		generator.writeStartObject();
+		generator.writeStringField("command", execReq.command);
+		if (execReq.group != null) {
+			generator.writeStringField("group", execReq.group);
+		}
+		if (execReq.name != null) {
+			generator.writeStringField("name", execReq.name);
+		}
+		generator.writeArrayFieldStart("options");
+		for (ExecRequest.Options opt : execReq.options) {
+			generator.writeString(opt.name());
+		}
+		generator.writeEndArray();
+		if (wsRid != null) {
+			generator.writeNumberField("ws-rid", wsRid.longValue());
+		}
+
+		generator.writeEndObject();
+	}
+
+	public static String toJsonString(ExecRequest execReq, Long wsRid) {
+		StringWriter sw = new StringWriter(128);
+		try (JsonGenerator generator = jf.createGenerator(sw)) {
+			produceNodes(execReq, wsRid, generator);
+		} catch (IOException e) {
+			throw new ServerFault(e);
+		}
+		return sw.toString();
 	}
 
 }

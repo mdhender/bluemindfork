@@ -12,6 +12,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import com.google.common.io.ByteStreams;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.network.utils.NetworkHelper;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
@@ -39,9 +41,6 @@ public class NodeHook extends DefaultServerHook {
 	// BM-10505
 	public static final String bmCerts = "/etc/ssl/certs/bm_cert.pem";
 	public static final String dhParam = "/etc/nginx/bm_dhparam.pem";
-
-	public NodeHook() {
-	}
 
 	@Override
 	public void onServerCreated(BmContext context, ItemValue<Server> server) throws ServerFault {
@@ -64,8 +63,8 @@ public class NodeHook extends DefaultServerHook {
 			remote.writeFile("/etc/bm/server.uid", new ByteArrayInputStream(server.uid.getBytes()));
 			remote.ping();
 		} catch (Exception sf) {
-			logger.info("sf: " + sf.getMessage());
-			sleep();
+			logger.info("waiting for node 8022 switch... ({})", sf.getMessage());
+			new NetworkHelper(adr).waitForListeningPort(8022, 5, TimeUnit.SECONDS);
 		}
 
 		// copy ini, core token, cert
@@ -91,7 +90,7 @@ public class NodeHook extends DefaultServerHook {
 				}
 			}
 		} catch (Exception sf) {
-			logger.info("sf: " + sf.getMessage());
+			logger.info("sf: {}", sf.getMessage());
 		}
 	}
 
@@ -123,18 +122,10 @@ public class NodeHook extends DefaultServerHook {
 		}
 	}
 
-	private void sleep() {
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-		}
-	}
-
 	private void fullInitLocalhost() throws ServerFault {
-		logger.info("Generating on myself...");
-
-		logger.info("Ping node before doing anyhting");
-		INodeClient nc = NodeActivator.get("127.0.0.1");
+		String localhost = "127.0.0.1";
+		logger.info("Ping {} node before doing anything", localhost);
+		INodeClient nc = NodeActivator.get(localhost);
 		nc.ping();
 
 		try {
@@ -163,8 +154,8 @@ public class NodeHook extends DefaultServerHook {
 			nc.ping();
 		} catch (ServerFault sf) {
 			// leave some time to restart as ssl
-			sleep();
-			logger.info("Got server fault, node has restarted in secure mode.", sf);
+			logger.info("Node {} is restarting in secure mode ({})", localhost, sf.getMessage());
+			new NetworkHelper(localhost).waitForListeningPort(8022, 5, TimeUnit.SECONDS);
 			// now my connection should be secure
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

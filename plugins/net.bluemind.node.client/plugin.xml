@@ -4,7 +4,7 @@
    <extension
          point="net.bluemind.node.api.nodeclientfactory">
       <node_client_factory
-            impl="net.bluemind.node.client.AHCNodeClientFactory">
+            impl="net.bluemind.node.client.OkHttpNodeClientFactory">
       </node_client_factory>
    </extension>
 

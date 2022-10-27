@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.schemaupgrader,
  net.bluemind.core.task.service;bundle-version="4.1.0",
  net.bluemind.config,
- net.bluemind.system.api
+ net.bluemind.system.api,
+ net.bluemind.network.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.server.node.hook

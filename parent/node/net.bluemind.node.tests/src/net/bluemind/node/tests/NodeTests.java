@@ -56,11 +56,12 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.node.api.ExitList;
 import net.bluemind.node.api.FileDescription;
 import net.bluemind.node.api.INodeClient;
+import net.bluemind.node.api.INodeClientFactory;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.ProcessHandler;
 import net.bluemind.node.api.ProcessHandler.BlockingHandler;
 import net.bluemind.node.api.ProcessHandler.NoOutBlockingHandler;
-import net.bluemind.node.client.AHCNodeClientFactory;
+import net.bluemind.node.client.OkHttpNodeClientFactory;
 import net.bluemind.node.server.BlueMindUnsecureNode;
 import net.bluemind.node.server.busmod.SysCommand;
 import net.bluemind.node.shared.ActiveExecQuery;
@@ -71,14 +72,14 @@ import net.bluemind.vertx.testhelper.Deploy;
 
 public class NodeTests {
 
-	private static AHCNodeClientFactory factory;
+	private static INodeClientFactory factory;
 	private INodeClient nc;
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		Deploy.verticles(false, BlueMindUnsecureNode::new).get(5, TimeUnit.SECONDS);
 		Deploy.verticles(true, SysCommand::new).get(5, TimeUnit.SECONDS);
-		factory = new AHCNodeClientFactory();
+		factory = new OkHttpNodeClientFactory();
 	}
 
 	@AfterClass
@@ -214,7 +215,8 @@ public class NodeTests {
 
 	@Test
 	public void testBigOutputOverWebsocket() {
-		int lines = 1000000;
+		// seq 1 1000000 on osx returns 2 times 1e+06 in the end...
+		int lines = 100_000;
 		ExecRequest req = ExecRequest.named("junit", "x" + System.currentTimeMillis(), "seq 1 " + lines);
 		CompletableFuture<Integer> comp = new CompletableFuture<>();
 		AtomicInteger count = new AtomicInteger();
