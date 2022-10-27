@@ -40,6 +40,7 @@
       <plugin id="com.github.mifmif.generex"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.google.guava.failureaccess"/>
+      <plugin id="com.google.gwt.user"/>
       <plugin id="com.hazelcast"/>
       <plugin id="com.hazelcast.client" fragment="true"/>
       <plugin id="com.netflix.hollow"/>

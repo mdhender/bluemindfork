@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.google.gwt.core.shared.GwtIncompatible;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleAction;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionAddHeaders;
@@ -277,6 +278,7 @@ public class MailFilterRule {
 		return this;
 	}
 
+	@GwtIncompatible
 	public boolean match(FieldValueProvider fieldProvider, ParameterValueProvider parameterProvider) {
 		return MailFilterRuleCondition.match(conditions, fieldProvider, parameterProvider);
 	}

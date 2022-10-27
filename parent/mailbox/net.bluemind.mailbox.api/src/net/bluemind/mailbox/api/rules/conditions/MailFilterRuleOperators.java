@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
-
 import net.bluemind.mailbox.api.utils.WildcardMatcher;
 
 public class MailFilterRuleOperators {

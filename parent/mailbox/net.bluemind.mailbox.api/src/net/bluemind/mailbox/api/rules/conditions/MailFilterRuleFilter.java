@@ -4,7 +4,9 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.google.gwt.core.shared.GwtIncompatible;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.mailbox.api.rules.FieldValueProvider;
@@ -27,12 +29,14 @@ public abstract class MailFilterRuleFilter {
 
 	}
 
+	@GwtIncompatible
 	public boolean match(FieldValueProvider fieldProvider, ParameterValueProvider parameterProvider) {
 		return fields.stream() //
 				.map(field -> match(field, fieldProvider, parameterProvider)) //
 				.reduce(false, Boolean::logicalOr);
 	}
 
+	@GwtIncompatible
 	protected abstract <F> boolean match(String fieldName, FieldValueProvider fieldProvider,
 			ParameterValueProvider parameterProvider);
 }

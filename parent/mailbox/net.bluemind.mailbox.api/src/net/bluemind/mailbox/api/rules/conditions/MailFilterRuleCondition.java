@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gwt.core.shared.GwtIncompatible;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.mailbox.api.rules.FieldValueProvider;
@@ -69,6 +70,7 @@ public class MailFilterRuleCondition {
 		return filter != null ? Stream.of(filter) : conditions.stream().flatMap(MailFilterRuleCondition::filterStream);
 	}
 
+	@GwtIncompatible
 	public boolean match(FieldValueProvider fieldProvider, ParameterValueProvider parameterProvider) {
 		boolean result = filter != null //
 				? filter.match(fieldProvider, parameterProvider) //
@@ -76,6 +78,7 @@ public class MailFilterRuleCondition {
 		return (negate) ? !result : result;
 	}
 
+	@GwtIncompatible
 	public static boolean match(List<MailFilterRuleCondition> conditions, FieldValueProvider fieldProvider,
 			ParameterValueProvider parameterProvider) {
 		Boolean result = null;

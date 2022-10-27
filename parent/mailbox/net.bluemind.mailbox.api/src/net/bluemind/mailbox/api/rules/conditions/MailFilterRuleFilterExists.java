@@ -3,6 +3,7 @@ package net.bluemind.mailbox.api.rules.conditions;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.gwt.core.shared.GwtIncompatible;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.mailbox.api.rules.FieldValueProvider;
 import net.bluemind.mailbox.api.rules.ParameterValueProvider;
@@ -24,6 +25,7 @@ public class MailFilterRuleFilterExists extends MailFilterRuleFilter {
 		this(Arrays.asList(field));
 	}
 
+	@GwtIncompatible
 	@Override
 	protected <F> boolean match(String fieldName, FieldValueProvider fieldProvider,
 			ParameterValueProvider parameterProvider) {
