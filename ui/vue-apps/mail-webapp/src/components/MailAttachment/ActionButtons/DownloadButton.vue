@@ -1,15 +1,12 @@
 <template>
     <bm-icon-button
-        ref="download-button"
         variant="compact"
         class="download-button"
         size="sm"
         icon="download"
         :title="$t('common.downloadAttachment')"
-        :href="file.url"
-        :download="file.name"
         :disabled="disabled"
-        @click.stop
+        @click.stop="download"
     />
 </template>
 
@@ -29,10 +26,38 @@ export default {
             required: true
         }
     },
+    data() {
+        return {
+            href: ""
+        };
+    },
+    watch: {
+        "file.url"() {
+            URL.revokeObjectURL(this.href);
+            this.href = "";
+        }
+    },
+    destroyed() {
+        URL.revokeObjectURL(this.href);
+    },
     methods: {
-        clickButton() {
-            this.$refs["download-button"].$el.click();
+        // Force download to workaround for Chromium bug which does not pass through service worker when clicking on a HTML <a> link with a download attribute
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=468227,
+        async download() {
+            const res = await fetch(this.file.url);
+            const blob = await res.blob();
+            const href = this.href ? this.href : URL.createObjectURL(blob);
+            const link = createDownloadLink(href, this.file.name);
+            link.click();
         }
     }
 };
+
+function createDownloadLink(href, name) {
+    const link = document.createElement("a");
+    link.setAttribute("download", name);
+    link.setAttribute("href", href);
+    link.setAttribute("target", "_blank");
+    return link;
+}
 </script>

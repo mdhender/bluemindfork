@@ -33,6 +33,7 @@ module.exports = {
         "<rootDir>/commons/net.bluemind.test.utils",
         "<rootDir>/commons/net.bluemind.uuid.js",
         "<rootDir>/commons/net.bluemind.vue-bus.js",
+        "<rootDir>/plugins/net.bluemind.plugins.smime",
         "<rootDir>/commons/net.bluemind.vuex-router.js",
         "<rootDir>/commons/net.bluemind.webappdata.js",
         "<rootDir>/commons/ui-components"

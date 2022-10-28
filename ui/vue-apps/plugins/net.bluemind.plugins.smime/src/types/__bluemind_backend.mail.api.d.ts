@@ -49,6 +49,15 @@ declare module "@bluemind/backend.mail.api" {
             dn: string;
             address: string;
         }
+        export type RecipientKind = "Originator" | "Sender" | "Primary" | "CarbonCopy" | "BlindCarbonCopy";
     }
     export type DispositionType = "ATTACHMENT" | "INLINE";
+
+    export const MessageBodyRecipientKind: {
+        Originator: MessageBody.RecipientKind;
+        Sender: MessageBody.RecipientKind;
+        Primary: MessageBody.RecipientKind;
+        CarbonCopy: MessageBody.RecipientKind;
+        BlindCarbonCopy: MessageBody.RecipientKind;
+    };
 }

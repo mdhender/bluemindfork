@@ -16,12 +16,12 @@ function matchWebserverPartHandler({ url }) {
     return url.pathname.startsWith("/webapp/" + WEBSERVER_HANDLER_BASE_URL);
 }
 
-async function fetchPartUsingCoreAPI({ request, url }) {
+async function fetchPartUsingCoreAPI({ event, request, url }) {
     try {
         const params = Object.fromEntries(url.searchParams.entries());
 
         const coreRequest = await buildCoreRequestFromWebserverHandlerUrl(params);
-        const response = await strategy.handle({ request: coreRequest });
+        const response = await strategy.handle({ event, request: coreRequest });
 
         const headers = new Headers(response.headers);
         headers.set("Content-Type", params.mime + ";charset=" + params.charset);
@@ -35,9 +35,9 @@ async function fetchPartUsingCoreAPI({ request, url }) {
 }
 
 async function buildCoreRequestFromWebserverHandlerUrl(params) {
-    const filenameParam = params.filename ? "&?filename=" + params.filename : "";
-    const apiCoreUrl = `/api/mail_items/${params.folderUid}/part/${params.imapUid}/${params.address}?encoding=${params.encoding}&?mime=${params.mime}&?charset=${params.charset}${filenameParam}`;
-
+    const filenameParam = params.filename ? "&filename=" + params.filename : "";
+    const encodedMime = encodeURIComponent(params.mime);
+    const apiCoreUrl = `/api/mail_items/${params.folderUid}/part/${params.imapUid}/${params.address}?encoding=${params.encoding}&mime=${encodedMime}&charset=${params.charset}${filenameParam}`;
     const { sid } = await Session.infos();
     const fetchParams = {
         headers: {

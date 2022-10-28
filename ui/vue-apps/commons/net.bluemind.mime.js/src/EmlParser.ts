@@ -34,7 +34,10 @@ function preview({ text }: PostalMime.Message): string {
     return text?.replace(/\s+/g, " ").trim().substring(0, 160) || "";
 }
 
-function recipient(kind: RecipientKind, recipient?: PostalMime.Recipient): MessageBody.Recipient | undefined {
+function recipient(
+    kind: MessageBody.RecipientKind,
+    recipient?: PostalMime.Recipient
+): MessageBody.Recipient | undefined {
     if (recipient) {
         return { kind, dn: recipient.name, address: recipient.address };
     }

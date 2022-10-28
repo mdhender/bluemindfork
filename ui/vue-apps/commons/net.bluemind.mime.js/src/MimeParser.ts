@@ -49,6 +49,9 @@ export default class {
             }
         }
     }
+    getParts(): IterableIterator<MessageBody.Part> {
+        return this.partsContent.keys();
+    }
     private html(content?: string): OptionalPart {
         if (content && content.length > 0) {
             const part = inline(content, "text/html", this.address || "1");
