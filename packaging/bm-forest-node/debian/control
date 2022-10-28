@@ -6,6 +6,6 @@ Standards-Version: 3.9.1
 
 Package: bm-forest-node
 Architecture: amd64
-Depends: bm-jdk (= 17.0.4.1+1-bluemind12), bm-kafka (= 3.1.0-bluemind21)
+Depends: bm-jdk (= 17.0.5+8-bluemind14), bm-kafka (= 3.1.0-bluemind21)
 Description: BlueMind forest node
  BlueMind forest node is used to federate multiple bluemind installations

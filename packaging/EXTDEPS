@@ -7,7 +7,7 @@ KAFKA="3.1.0-bluemind21"
 MINIO="2022.02.24-bluemind21"
 WEED="2.90-bluemind21"
 
-BMJDK="17.0.4.1+1-bluemind12"
+BMJDK="17.0.5+8-bluemind14"
 BMSNZIP="1.0.4-bluemind4"
 BMNGINX="1.20.1-bluemind104"
 BMPHP="5.6.40-bluemind107"
