@@ -396,4 +396,8 @@ public class ItemStore extends JdbcAbstractStore {
 				Collections.emptyList(), new Object[] { container.id });
 	}
 
+	public String toString() {
+		return "<ItemStore of " + container + ">";
+	}
+
 }

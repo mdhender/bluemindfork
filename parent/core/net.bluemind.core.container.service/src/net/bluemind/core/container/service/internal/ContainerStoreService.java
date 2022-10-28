@@ -333,6 +333,10 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				throw ServerFault.alreadyExists("entry[" + uid + " - " + internalId + "]@" + container.uid
 						+ " already exists (" + e.getMessage() + ")");
 			}
+			if (created == null) {
+				throw new ServerFault(
+						"itemStore " + itemStore + " has **NOT** created item " + item + " can't continue");
+			}
 			if (hasChangeLog) {
 				changelogStore.itemCreated(LogEntry.create(created.version, created.uid, created.externalId,
 						securityContext.getSubject(), origin, created.id, weightSeedProvider.weightSeed(value)));
