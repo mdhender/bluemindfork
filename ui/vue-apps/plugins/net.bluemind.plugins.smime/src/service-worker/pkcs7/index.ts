@@ -1,5 +1,7 @@
 import { pkcs7, pki, asn1, util } from "node-forge";
-import { RecipientNotFoundError, InvalidCredentialsError } from "./exceptions";
+import { RecipientNotFoundError, InvalidCredentialsError } from "../exceptions";
+import { checkMessageIntegrity, checkSignatureValidity, getSignedDataEnvelope, getSigningTime } from "./verify";
+import { checkCertificateValidity, getCertificate } from "../pki";
 
 export async function decrypt(
     data: Blob,
@@ -26,8 +28,16 @@ export async function crypt() {
     return null;
 }
 
-export async function verify() {
-    return null;
+export async function verify(pkcs7: ArrayBuffer, toDigest: string, senderAddress: string) {
+    const envelope = getSignedDataEnvelope(pkcs7);
+    const signingTime = getSigningTime(envelope);
+    let certificate = await getCertificate(senderAddress);
+    if (!certificate) {
+        certificate = envelope.certificates[0];
+    }
+    checkCertificateValidity(certificate, signingTime);
+    checkSignatureValidity(envelope, certificate);
+    checkMessageIntegrity(envelope, toDigest);
 }
 
 export async function sign() {

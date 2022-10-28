@@ -1,0 +1,77 @@
+Received: from bluemind.devenv.blue (devenv.dev.bluemind.net [192.168.121.235])
+        by bluemind.devenv.blue
+        with SMTP (bm-lmtpd) id LA0ZKM02
+        for test@f8de2c4a.internal;
+        Thu, 03 Nov 2022 11:30:17 +0000 (GMT)
+Received: from [192.168.121.1] (_gateway [192.168.121.1])
+	(Authenticated sender: test@devenv.blue)
+	by bluemind.devenv.blue (Postfix) with ESMTPSA id 862F12813F6
+	for <test@devenv.blue>; Thu,  3 Nov 2022 11:30:17 +0000 (UTC)
+Message-ID: <be7eaefb-454d-2618-59ab-98a31bd05bf2@devenv.blue>
+Date: Thu, 3 Nov 2022 12:30:17 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Content-Language: en-US
+To: test@devenv.blue
+From: Test <test@devenv.blue>
+Subject: ola corrupted signed message ! (not encrypted)
+Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256; boundary="------------ms020109040004000402080205"
+X-Bm-Milter-Handled: 5a4404a7-bebc-4d0d-9244-e72dd6a88616
+X-Bm-Transport-Timestamp: 1667475017557
+
+This is a cryptographically signed message in MIME format.
+
+--------------ms020109040004000402080205
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+bla bla signed !
+corrupted !!!!!!
+
+
+--------------ms020109040004000402080205
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: Signature cryptographique S/MIME
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCA+kw
+ggPlMIICzaADAgECAhRizaEDdhk/kEK3sS3qGAxyoz0YuzANBgkqhkiG9w0BAQsFADB7MQswCQYD
+VQQGEwJGUjESMBAGA1UECAwJT2NjaXRhbmllMQswCQYDVQQKDAJCTTELMAkGA1UECwwCQk0xHTAb
+BgNVBAMMFGJsdWVtaW5kLmRldmVudi5ibHVlMR8wHQYJKoZIhvcNAQkBFhB0ZXN0QGRldmVudi5i
+bHVlMB4XDTIyMTEwMzEwNTIzMVoXDTIzMTEwMzEwNTIzMVowgY4xCzAJBgNVBAYTAkZSMRIwEAYD
+VQQIDAlPY2NpdGFuaWUxETAPBgNVBAcMCFRvdWxvdXNlMQswCQYDVQQKDAJCTTELMAkGA1UECwwC
+Qk0xHTAbBgNVBAMMFGJsdWVtaW5kLmRldmVudi5ibHVlMR8wHQYJKoZIhvcNAQkBFhB0ZXN0QGRl
+dmVudi5ibHVlMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwx99A0glNE5ilMJt12tR
+bKtNzSgxQ6bDlD9Rey9mpfdp2PqnEyMyJPFVojCbUGSmA2TROV1Tf1STgDbiIRcC1hHBAgyW1PVJ
+TUFIKmr5H37lCx4nG/EAccgxg5JQfFeBVxYfHWyzhfgGHPHJ/0gfx2nCqXhmLIR8ScJjM2DjXF/q
+UiiFBCrNQyZOC//R24qIcAkB8nJIfxke2v/zqntIsc/rE0lHxy59fqFornPJknnos1ynGpv55HSr
+LWHaA/tF29GdudKbMbjhbpPK+oxY6MkmCeulgb7+e+HwhKqZPjN7HAb+n/rFk4KKmPr//OTB4Opz
+f/kfwzR2JoYe16oghwIDAQABo00wSzAJBgNVHRMEAjAAMB0GA1UdDgQWBBQhuzOuOTZIbJYNNhv/
+qWWsoHUwRTAfBgNVHSMEGDAWgBTERATpCKqsE9YAWmDf3+PLMfe+XDANBgkqhkiG9w0BAQsFAAOC
+AQEALgrT1Q1eJyVLLM7NeovNORwqydWbZh9FGGpCg9xIYaraCXKM0dnx/9yPJb8qyFHfo4QFId/1
+r+a1TddLiL0V7x9bbIODk+yBz6SISnsQqNZjm5rsUjEE0xJtXsseWB5s/pm7jsMR9wBakwopkEC8
+jaZ4pFHvibkSfJKYOjkEZyxoTMNshrWpkL/km++FQHROj8+NlFhmU57wB3JG6l+rE8euqlc4SRJr
+pGCNmEhn9If43ogoQk9LHkpRkEWQYmT0OBZwC4l6si7wMi49R274+vMFfv5WZrFeOyQtAYrnui3K
+DeUsjsnXF/PiBl7DGmd/ySYfQ+Yx8HbfI/u5qH0QIjGCA+owggPmAgEBMIGTMHsxCzAJBgNVBAYT
+AkZSMRIwEAYDVQQIDAlPY2NpdGFuaWUxCzAJBgNVBAoMAkJNMQswCQYDVQQLDAJCTTEdMBsGA1UE
+AwwUYmx1ZW1pbmQuZGV2ZW52LmJsdWUxHzAdBgkqhkiG9w0BCQEWEHRlc3RAZGV2ZW52LmJsdWUC
+FGLNoQN2GT+QQrexLeoYDHKjPRi7MA0GCWCGSAFlAwQCAQUAoIICJzAYBgkqhkiG9w0BCQMxCwYJ
+KoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0yMjExMDMxMTMwMTdaMC8GCSqGSIb3DQEJBDEiBCCj
+XS2WhxNNUoMl+8GdD4v4sT0eNbT4g4pvcaJmpOzmKDBsBgkqhkiG9w0BCQ8xXzBdMAsGCWCGSAFl
+AwQBKjALBglghkgBZQMEAQIwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqGSIb3DQMC
+AgFAMAcGBSsOAwIHMA0GCCqGSIb3DQMCAgEoMIGkBgkrBgEEAYI3EAQxgZYwgZMwezELMAkGA1UE
+BhMCRlIxEjAQBgNVBAgMCU9jY2l0YW5pZTELMAkGA1UECgwCQk0xCzAJBgNVBAsMAkJNMR0wGwYD
+VQQDDBRibHVlbWluZC5kZXZlbnYuYmx1ZTEfMB0GCSqGSIb3DQEJARYQdGVzdEBkZXZlbnYuYmx1
+ZQIUYs2hA3YZP5BCt7Et6hgMcqM9GLswgaYGCyqGSIb3DQEJEAILMYGWoIGTMHsxCzAJBgNVBAYT
+AkZSMRIwEAYDVQQIDAlPY2NpdGFuaWUxCzAJBgNVBAoMAkJNMQswCQYDVQQLDAJCTTEdMBsGA1UE
+AwwUYmx1ZW1pbmQuZGV2ZW52LmJsdWUxHzAdBgkqhkiG9w0BCQEWEHRlc3RAZGV2ZW52LmJsdWUC
+FGLNoQN2GT+QQrexLeoYDHKjPRi7MA0GCSqGSIb3DQEBAQUABIIBABtzvUM2TjPDDO5CaFA1hp52
+DBU3WAAKHyveOKzPYolXl+r3+xFIsVzaWbwm/1LDulofrziV5eHUsJIx5ztkAfJaUxVEmJ1/XwT9
+mAd9IzUfZHLhSK3fxrkvFhufGIRaVwPoJMMg2gaeF/9XqonQGWQfiYXiMmy66eKuPv6ZimwQupYx
+j5ZafCRNqnxfRbSJqNKjWwiIn2O2CHlBP8a+DtWKR4kfLvA9i/JniiZGNkqF1nQ2hU42vdUMAX1y
+WV1YvnDMb+kYcrTBHB2v7i+GFrBxAdSys+Cjvewsvy9MvDImrp2b97p/LqMPMQZ1xEko0bxOXD2e
+4Um5guAmrPtPoa0AAAAAAAA=
+
+--------------ms020109040004000402080205--

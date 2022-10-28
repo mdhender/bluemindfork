@@ -1,6 +1,6 @@
 import { PKIStatus } from "../../lib/constants";
-import { InvalidCertificateError, InvalidKeyError } from "../exceptions";
-import { getMyCertificate, getMyPrivateKey, isCertificateExpired } from "../pki";
+import { ExpiredCredentialsError, InvalidCertificateError, InvalidKeyError } from "../exceptions";
+import { checkCertificateValidity, getMyCertificate, getMyPrivateKey } from "../pki";
 import db from "../SMimeDB";
 import { readFile } from "./helpers";
 jest.mock("../SMimeDB");
@@ -76,21 +76,25 @@ describe("pki", () => {
         test("raise an error if the private key is revoked", () => {});
         test("raise an error if the private key is not trusted", () => {});
     });
-    describe("isCertificateExpired", () => {
-        test("return true if the certificate is expired", () => {
+    describe("checkCertificateValidity", () => {
+        test("throw ExpiredCredentialsError if certificate is expired", done => {
             const certificate = { validity: { notBefore: new Date(100), notAfter: new Date(1000) } };
-            const res = isCertificateExpired(certificate, new Date(3000));
-            expect(res).toBe(true);
+            try {
+                checkCertificateValidity(certificate, new Date(3000));
+                done.fail();
+            } catch (error) {
+                expect(error).toBeInstanceOf(ExpiredCredentialsError);
+                done();
+            }
         });
-        test("return false if the certificate is not expired", () => {
+        test("dont throw anything if certificate is valid ", done => {
             const certificate = { validity: { notBefore: new Date(100), notAfter: new Date(1000) } };
-            const res = isCertificateExpired(certificate, new Date(500));
-            expect(res).toBe(false);
-        });
-        test("return true if the certificate is not expired compare to now", () => {
-            const certificate = { validity: { notBefore: new Date(100), notAfter: new Date(1000) } };
-            const res = isCertificateExpired(certificate);
-            expect(res).toBe(true);
+            try {
+                checkCertificateValidity(certificate, new Date(500));
+                done();
+            } catch (error) {
+                done.fail();
+            }
         });
     });
 });

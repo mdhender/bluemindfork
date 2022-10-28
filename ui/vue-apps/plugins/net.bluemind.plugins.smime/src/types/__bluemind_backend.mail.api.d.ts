@@ -5,6 +5,7 @@ declare module "@bluemind/backend.mail.api" {
         replicatedMailboxUid: string;
         constructor(sid: string, replicatedMailboxUid: string);
         fetch(imapUid: string, address: string, encoding?: string, charset?: string, filename?: string): Promise<Blob>;
+        fetchComplete(imapUid: string): Promise<Blob>;
     }
 
     export interface ItemValue<T> {
@@ -18,14 +19,15 @@ declare module "@bluemind/backend.mail.api" {
     }
 
     export interface MessageBody {
-        subject?: string;
-        preview?: string;
-        smartAttach: boolean;
-        structure: MessageBody.Part;
         headers: Array<MessageBody.Header>;
         recipients: Array<MessageBody.Recipient>;
         messageId?: string;
         date: number;
+        guid: string;
+        preview: string;
+        smartAttach: boolean;
+        structure: MessageBody.Part;
+        subject: string;
     }
 
     export namespace MessageBody {
@@ -38,7 +40,11 @@ declare module "@bluemind/backend.mail.api" {
             fileName?: string;
             mime: string;
             size?: number;
-            children?: Array<Part>;
+            children: Array<Part>;
+        }
+        export interface Header {
+            name: string;
+            values: Array<string>;
         }
         export interface Header {
             name: string;

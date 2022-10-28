@@ -1,59 +1,88 @@
-import { MailboxItemsClient, ItemValue, MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
+import {
+    MailboxItemsClient,
+    ItemValue,
+    MailboxItem,
+    MessageBody,
+    MessageBodyRecipientKind
+} from "@bluemind/backend.mail.api";
 import { MimeParser } from "@bluemind/mime";
-import { CRYPTO_HEADERS, CRYPTO_HEADER_NAME, PKCS7_MIMES } from "../lib/constants";
-
+import {
+    CRYPTO_HEADERS,
+    ENCRYPTED_HEADER_NAME,
+    MULTIPART_SIGNED_MIME,
+    PKCS7_MIMES,
+    SIGNED_HEADER_NAME
+} from "../lib/constants";
 import session from "./environnment/session";
-
-import pkcs7 from "./pkcs7";
-import { getMyCertificate, getMyPrivateKey, isCertificateExpired } from "./pki";
-
-import { SmimeErrors, ExpiredCredentialsError } from "./exceptions";
+import { RecipientNotFoundError, SmimeErrors } from "./exceptions";
+import extractSignedData from "./signedDataParser";
+import pkcs7 from "./pkcs7/";
+import { checkCertificateValidity, getMyCertificate, getMyPrivateKey } from "./pki";
 
 export function isEncrypted(item: ItemValue<MailboxItem>): boolean {
     return PKCS7_MIMES.includes(item.value.body.structure.mime);
 }
+export function isSigned(item: ItemValue<MailboxItem>): boolean {
+    return item.value.body.structure.mime === MULTIPART_SIGNED_MIME;
+}
 
 export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): Promise<ItemValue<MailboxItem>> {
     //TODO: Add a cache based on body guid
-    const encryptedItem = setHeader(item, CRYPTO_HEADERS.IS_ENCRYPTED);
     try {
         const sid = await session.sid;
         const client = new MailboxItemsClient(sid, folderUid);
-        const part = encryptedItem.value.body.structure;
+        const part = item.value.body.structure;
         const key = await getMyPrivateKey();
         const certificate = await getMyCertificate();
         // FIXME: use correct date instead of internalDate
-        if (isCertificateExpired(certificate, new Date(item.value.internalDate))) {
-            throw new ExpiredCredentialsError();
-        }
-        const data = await client.fetch(encryptedItem.value.imapUid, part.address, part.encoding, part.mime);
+        checkCertificateValidity(certificate, new Date(item.value.internalDate));
+        const data = await client.fetch(item.value.imapUid, part.address, part.encoding, part.mime);
         const content = await pkcs7.decrypt(data, key, certificate);
         if (content) {
             const parser = await new MimeParser(part.address).parse(content);
             const parts = parser.getParts();
             for (const part of parts) {
                 const content = parser.getPartContent(part.address);
-                savePart(folderUid, encryptedItem.value.imapUid, part, content);
+                savePart(folderUid, item.value.imapUid, part, content);
             }
-            encryptedItem.value.body.structure = parser.structure as MessageBody.Part;
+            item.value.body.structure = parser.structure as MessageBody.Part;
         }
-        return setHeader(encryptedItem, CRYPTO_HEADERS.DECRYPTED);
-    } catch (error) {
-        if (error instanceof SmimeErrors) {
-            return setHeader(item, error.name);
-        }
-        throw error;
+        setHeader(item, ENCRYPTED_HEADER_NAME, CRYPTO_HEADERS.DECRYPTED);
+    } catch (error: unknown) {
+        const errorName = error instanceof SmimeErrors ? error.name : CRYPTO_HEADERS.UNKNOWN;
+        setHeader(item, ENCRYPTED_HEADER_NAME, errorName);
     }
+    return item;
 }
 
 export function encrypt() {
     return null;
 }
-export function verify() {
-    return null;
+
+export async function verify(folderUid: string, item: ItemValue<MailboxItem>): Promise<ItemValue<MailboxItem>> {
+    try {
+        const client = new MailboxItemsClient(await session.sid, folderUid);
+        const eml = await client.fetchComplete(item.value.imapUid).then(eml => eml.text());
+        const { toDigest, pkcs7Part } = extractSignedData(eml);
+        await pkcs7.verify(pkcs7Part, toDigest, getSenderAddress(item));
+        setHeader(item, SIGNED_HEADER_NAME, CRYPTO_HEADERS.VERIFIED);
+    } catch (error) {
+        const errorName = error instanceof SmimeErrors ? error.name : CRYPTO_HEADERS.UNKNOWN;
+        setHeader(item, SIGNED_HEADER_NAME, errorName);
+    }
+    return item;
 }
+
 export function sign() {
     return null;
+}
+
+function getSenderAddress(item: ItemValue<MailboxItem>): string {
+    const from = item.value.body.recipients.find(recipient => recipient.kind === MessageBodyRecipientKind.Originator);
+    if (!from) {
+        throw new RecipientNotFoundError();
+    }
+    return from.address;
 }
 
 //FIXME: This should be imported from a third party package
@@ -68,14 +97,13 @@ async function savePart(uid: string, imap: string, part: MessageBody.Part, conte
     cache.put(request.url, new Response(content));
 }
 
-export function setHeader(item: ItemValue<MailboxItem>, header: string) {
-    const index = item.value.body.headers.findIndex(({ name }) => name === CRYPTO_HEADER_NAME);
+function setHeader(item: ItemValue<MailboxItem>, headerName: string, headerValue: string) {
+    const index = item.value.body.headers.findIndex(({ name }) => name === headerName);
     if (index === -1) {
-        item.value.body.headers.push({ name: CRYPTO_HEADER_NAME, values: [header] });
+        item.value.body.headers.push({ name: headerName, values: [headerValue] });
     } else {
-        item.value.body.headers[index].values.push(header);
+        item.value.body.headers[index].values.push(headerValue);
     }
-    return item;
 }
 
 export default {
@@ -83,6 +111,5 @@ export default {
     decrypt,
     encrypt,
     verify,
-    setHeader,
     sign
 };

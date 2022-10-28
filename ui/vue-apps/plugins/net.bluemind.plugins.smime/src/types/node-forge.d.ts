@@ -1,5 +1,10 @@
 declare module "node-forge" {
+    namespace asn1 {
+        function utcTimeToDate(utcTime: string): Date;
+        function prettyPrint(asn1: asn1.Asn1, level?: number, indentation?: number): void;
+    }
     namespace pkcs7 {
+        const asn1: Asn1;
         interface PkcsEnvelopedData {
             // content?: string | util.ByteBuffer | undefined;
             // addRecipient(certificate: pki.Certificate): void;
@@ -25,7 +30,7 @@ declare module "node-forge" {
         type KeyEncryptionAlgorithmIdentifier = AlgorithmIdentifier;
         type Version = number;
         type AlgorithmIdentifer = {
-            algorithm: OID;
+            algorithm: asn1.OID;
             parameters?: unknown;
         };
     }

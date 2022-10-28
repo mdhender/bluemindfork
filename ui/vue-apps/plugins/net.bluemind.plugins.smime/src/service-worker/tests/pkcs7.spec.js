@@ -1,7 +1,12 @@
-import pkcs7 from "../pkcs7";
+import fs from "fs";
 import { pki } from "node-forge";
-import { InvalidCredentialsError } from "../exceptions";
+import path from "path";
+import { CRYPTO_HEADERS } from "../../lib/constants";
+import extractSignedData from "../signedDataParser";
+import { InvalidCredentialsError, InvalidMessageIntegrityError, InvalidSignatureError } from "../exceptions";
 import { base64ToArrayBuffer, readFile } from "./helpers";
+import { checkSignatureValidity, getSignedDataEnvelope, checkMessageIntegrity } from "../pkcs7/pkcs7Verify";
+import pkcs7 from "../pkcs7/";
 
 const blob = {
     arrayBuffer() {
@@ -52,8 +57,58 @@ describe("pkcs7", () => {
             }
         });
     });
+
+    describe("verify", () => {
+        const { envelope: validEnvelope, toDigest } = getEnvelopeFromEml("valid.eml");
+        const invalidSignatureEnvelope = getEnvelopeFromEml("invalid_signature.eml").envelope;
+
+        test("check if signature matches authenticate attributes", done => {
+            try {
+                checkSignatureValidity(validEnvelope, validEnvelope.certificates[0]);
+            } catch {
+                done.fail();
+            }
+
+            try {
+                checkSignatureValidity(invalidSignatureEnvelope, invalidSignatureEnvelope.certificates[0]);
+                done.fail();
+            } catch (error) {
+                expect(error).toBeInstanceOf(InvalidSignatureError);
+                expect(error.name).toBe(CRYPTO_HEADERS.INVALID_SIGNATURE);
+                done();
+            }
+        });
+
+        test("check message integrity", done => {
+            try {
+                checkMessageIntegrity(validEnvelope, toDigest);
+            } catch {
+                done.fail();
+            }
+
+            const { envelope, toDigest: invalidDigest } = getEnvelopeFromEml("corrupted.eml");
+            try {
+                checkMessageIntegrity(envelope, invalidDigest);
+                done.fail();
+            } catch (error) {
+                expect(error).toBeInstanceOf(InvalidMessageIntegrityError);
+                expect(error.name).toBe(CRYPTO_HEADERS.INVALID_MESSAGE_INTEGRITY);
+                done();
+            }
+        });
+    });
 });
 
 function readTxt(file) {
     return readFile(`${file}.txt`);
+}
+
+function getEnvelopeFromEml(filename) {
+    const eml = readSignedOnly(filename);
+    const { pkcs7Part, toDigest } = extractSignedData(eml);
+    return { envelope: getSignedDataEnvelope(pkcs7Part), toDigest };
+}
+
+function readSignedOnly(filename) {
+    return fs.readFileSync(path.join(__dirname, `./data/eml/signed_only/${filename}`), "utf8", (err, data) => data);
 }

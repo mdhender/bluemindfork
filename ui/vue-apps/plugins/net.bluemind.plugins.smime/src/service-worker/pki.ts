@@ -1,6 +1,11 @@
 import { pki } from "node-forge";
 import { PKIStatus } from "../lib/constants";
-import { InvalidKeyError, InvalidCertificateError, InvalidCredentialsError } from "./exceptions";
+import {
+    ExpiredCredentialsError,
+    InvalidKeyError,
+    InvalidCertificateError,
+    InvalidCredentialsError
+} from "./exceptions";
 
 import db from "./SMimeDB";
 
@@ -20,13 +25,18 @@ export async function getMyCertificate(): Promise<pki.Certificate> {
     return CERTIFICATE;
 }
 
-export async function getCertificate(email: string): Promise<void> {
-    // Implement
+export async function getCertificate(email: string): Promise<pki.Certificate | undefined> {
+    // TODO
+    return Promise.resolve(undefined);
 }
 
-export function isCertificateExpired(certificate: pki.Certificate, now?: Date) {
-    const date = now ? now : new Date().getDate();
-    return certificate.validity.notBefore > date || certificate.validity.notAfter < date;
+export function checkCertificateValidity(certificate: pki.Certificate, sendingDate: Date) {
+    // TODO ? check if certificate is not revoked
+    // TODO ? check chain of certificate (see pki.verifyCertificateChain)
+    const isExpired = certificate.validity.notBefore > sendingDate || certificate.validity.notAfter < sendingDate;
+    if (isExpired) {
+        throw new ExpiredCredentialsError();
+    }
 }
 
 async function load(): Promise<void> {

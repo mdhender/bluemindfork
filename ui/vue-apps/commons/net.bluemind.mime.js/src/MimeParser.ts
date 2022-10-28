@@ -105,7 +105,8 @@ function attachment(part: PostalMime.Attachment, address?: string): MessageBody.
         encoding: "base64",
         fileName: part.filename,
         mime: part.mimeType,
-        size: part.content.byteLength
+        size: part.content.byteLength,
+        children: []
     };
 }
 
@@ -116,7 +117,8 @@ function inline(content: string, mime: string, address?: string): MessageBody.Pa
         mime,
         size: content.length,
         encoding: "quoted-printable",
-        charset: "utf-8"
+        charset: "utf-8",
+        children: []
     };
 }
 
