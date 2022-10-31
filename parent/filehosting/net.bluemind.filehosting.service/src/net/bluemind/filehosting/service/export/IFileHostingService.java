@@ -20,9 +20,6 @@ package net.bluemind.filehosting.service.export;
 
 import java.util.List;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -123,34 +120,10 @@ public interface IFileHostingService {
 	public void delete(SecurityContext context, String path) throws ServerFault;
 
 	/**
-	 * Retrieves an entity from the file hosting repository
-	 * 
-	 * @param uid the entity uid
-	 * @return the document data
-	 * @throws ServerFault
-	 */
-	@Deprecated
-	public FileHostingItem getComplete(SecurityContext context, String uid) throws ServerFault;
-
-	/**
-	 * Retrieves a document from the file hosting repository by its public uid
-	 * 
-	 * @param uid the document uid
-	 * @return the document data
-	 * @throws ServerFault
-	 */
-	@GET
-	@Path("{path}/_public")
-	@Deprecated
-	public Stream getSharedFile(SecurityContext context, String uid) throws ServerFault;
-
-	/**
 	 * Retrieves informations about the filehosting implementation
 	 * 
 	 * @throws ServerFault
 	 */
-	@GET
-	@Path("_info")
 	public FileHostingInfo info(SecurityContext context) throws ServerFault;
 
 }

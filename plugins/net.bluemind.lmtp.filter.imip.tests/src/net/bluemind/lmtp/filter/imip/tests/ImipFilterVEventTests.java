@@ -86,7 +86,7 @@ import net.bluemind.delivery.lmtp.filters.PermissionDeniedException.MailboxInvit
 import net.bluemind.dockerclient.DockerEnv;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
-import net.bluemind.filehosting.api.IFileHosting;
+import net.bluemind.filehosting.api.IInternalBMFileSystem;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
@@ -367,7 +367,7 @@ public class ImipFilterVEventTests {
 		int idx = publicUrl.indexOf("fh/bm-fh/");
 		String uid = publicUrl.substring(idx + "fh/bm-fh/".length());
 
-		IFileHosting fh = testContext.provider().instance(IFileHosting.class, domain.uid);
+		IInternalBMFileSystem fh = testContext.provider().instance(IInternalBMFileSystem.class);
 		Stream sharedFile = fh.getSharedFile(uid);
 
 		return GenericStream.streamToBytes(sharedFile);

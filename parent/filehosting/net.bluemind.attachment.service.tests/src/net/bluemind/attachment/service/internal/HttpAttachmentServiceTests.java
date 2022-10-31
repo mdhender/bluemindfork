@@ -40,16 +40,16 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
-import net.bluemind.filehosting.api.IFileHosting;
+import net.bluemind.filehosting.api.IInternalBMFileSystem;
 
 public class HttpAttachmentServiceTests extends AttachmentServiceTests {
-	protected IFileHosting getFileHostingService(SecurityContext context) throws ServerFault {
+	protected IInternalBMFileSystem getFileHostingService(SecurityContext context) throws ServerFault {
 		SecurityContext sec = new SecurityContext("totox", context.getSubject(), Collections.emptyList(),
 				Arrays.asList("canRemoteAttach", "canUseFilehosting"), Collections.emptyMap(), domainName, "fr",
 				"origine", false, "totox");
 		Sessions.get().put("totox", sec);
-		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", "totox").instance(IFileHosting.class,
-				AttachmentServiceTests.domainName);
+		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", "totox")
+				.instance(IInternalBMFileSystem.class);
 
 	}
 

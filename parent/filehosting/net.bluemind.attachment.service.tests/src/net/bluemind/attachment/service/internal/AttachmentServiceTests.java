@@ -50,7 +50,7 @@ import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.dockerclient.DockerEnv;
 import net.bluemind.filehosting.api.FileHostingItem;
 import net.bluemind.filehosting.api.ID;
-import net.bluemind.filehosting.api.IFileHosting;
+import net.bluemind.filehosting.api.IInternalBMFileSystem;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.pool.impl.docker.DockerContainer;
 import net.bluemind.server.api.Server;
@@ -110,8 +110,8 @@ public class AttachmentServiceTests {
 		FileUtils.deleteQuietly(rootFolder);
 	}
 
-	protected IFileHosting getFileHostingService(SecurityContext context) throws ServerFault {
-		return ServerSideServiceProvider.getProvider(securityContext).instance(IFileHosting.class, domainName);
+	protected IInternalBMFileSystem getFileHostingService(SecurityContext context) throws ServerFault {
+		return ServerSideServiceProvider.getProvider(securityContext).instance(IInternalBMFileSystem.class);
 	}
 
 	protected IAttachment getAttachmentService(SecurityContext context) throws ServerFault {

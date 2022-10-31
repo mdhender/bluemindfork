@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2022
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -80,16 +80,6 @@ public class FileHostingService implements IFileHosting {
 	}
 
 	@Override
-	public FileHostingItem getComplete(String uid) throws ServerFault {
-		return delegate(context).getComplete(context, uid);
-	}
-
-	@Override
-	public Stream getSharedFile(String uid) throws ServerFault {
-		return delegate(context).getSharedFile(context, uid);
-	}
-
-	@Override
 	public FileHostingPublicLink share(String path, Integer downloadLimit, String expirationDate) throws ServerFault {
 		validate(path);
 		return delegate(context).share(context, path, downloadLimit, expirationDate);
@@ -161,7 +151,7 @@ public class FileHostingService implements IFileHosting {
 		}
 	}
 
-	private IFileHostingService delegate(SecurityContext ctx) {
+	public IFileHostingService delegate(SecurityContext ctx) {
 		if (ctx == null && !delegates.isEmpty()) {
 			return delegates.get(0);
 		}

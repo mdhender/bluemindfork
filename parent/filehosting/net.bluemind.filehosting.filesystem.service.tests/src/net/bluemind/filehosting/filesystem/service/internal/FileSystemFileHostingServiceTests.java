@@ -80,6 +80,7 @@ import net.bluemind.filehosting.api.FileHostingItem;
 import net.bluemind.filehosting.api.FileHostingPublicLink;
 import net.bluemind.filehosting.api.ID;
 import net.bluemind.filehosting.api.IFileHosting;
+import net.bluemind.filehosting.api.IInternalBMFileSystem;
 import net.bluemind.filehosting.filesystem.service.internal.persistence.FileHostingEntityInfo;
 import net.bluemind.filehosting.filesystem.service.internal.persistence.FileHostingStore;
 import net.bluemind.filehosting.service.export.IFileHostingService;
@@ -98,6 +99,7 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class FileSystemFileHostingServiceTests {
 	private IFileHosting service;
+	private IInternalBMFileSystem internalService;
 	IDomainSettings domainSettings;
 	ISystemConfiguration systemConfiguration;
 
@@ -142,7 +144,12 @@ public class FileSystemFileHostingServiceTests {
 		domainValues.put(DomainSettingsKeys.external_url.name(), DOMAIN_EXTERNAL_URL);
 		domainSettings.set(domainValues);
 
-		service = getService();
+		IAuthentication auth = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IAuthentication.class);
+		LoginResponse login = auth.login("user@" + DOMAIN_NAME, "user", null);
+
+		service = getService(login.authKey);
+		internalService = getInternalService(login.authKey);
 
 		deleteAllFiles(FileSystemFileHostingService.DEFAULT_STORE_PATH);
 
@@ -164,15 +171,14 @@ public class FileSystemFileHostingServiceTests {
 		return NodeActivator.get(ip);
 	}
 
-	protected IFileHosting getService() throws ServerFault {
+	protected IFileHosting getService(String authKey) throws ServerFault {
+		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", authKey).instance(IFileHosting.class,
+				DOMAIN_NAME);
+	}
 
-		IAuthentication auth = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IAuthentication.class);
-
-		LoginResponse login = auth.login("user@" + DOMAIN_NAME, "user", null);
-
-		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", login.authKey)
-				.instance(IFileHosting.class, DOMAIN_NAME);
+	protected IInternalBMFileSystem getInternalService(String authKey) throws ServerFault {
+		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", authKey)
+				.instance(IInternalBMFileSystem.class);
 	}
 
 	@After
@@ -440,8 +446,24 @@ public class FileSystemFileHostingServiceTests {
 		FileHostingPublicLink publicLink = service.share(path, -1, null);
 		String id = ID.extract(publicLink.url);
 
-		FileHostingItem complete = service.getComplete(id);
-		service.getSharedFile(id);
+		FileHostingItem complete = internalService.getComplete(id);
+		String content = streamToString(internalService.getSharedFile(id));
+		Assert.assertEquals(testString, content);
+		Assert.assertEquals("test.txt", complete.name);
+	}
+
+	@Test
+	public void testGetByPath() throws Exception {
+		String testString = "test";
+		String path = "/test.txt";
+		service.store(path, bytesToStream(testString.getBytes()));
+
+		FileHostingPublicLink publicLink = service.share(path, -1, null);
+		String id = ID.extract(publicLink.url);
+
+		FileHostingItem complete = internalService.getComplete(id);
+		String content = streamToString(service.get(complete.path));
+		Assert.assertEquals(testString, content);
 		Assert.assertEquals("test.txt", complete.name);
 	}
 
@@ -458,8 +480,9 @@ public class FileSystemFileHostingServiceTests {
 		assertTrue(publicLink.url.contains("://" + domainExternalUrl));
 		String id = ID.extract(publicLink.url);
 
-		FileHostingItem complete = service.getComplete(id);
-		service.getSharedFile(id);
+		FileHostingItem complete = internalService.getComplete(id);
+		String content = streamToString(internalService.getSharedFile(id));
+		Assert.assertEquals(testString, content);
 		Assert.assertEquals("test.txt", complete.name);
 	}
 
@@ -477,8 +500,9 @@ public class FileSystemFileHostingServiceTests {
 		assertTrue(publicLink.url.contains("://" + GLOBAL_EXTERNAL_URL));
 		String id = ID.extract(publicLink.url);
 
-		FileHostingItem complete = service.getComplete(id);
-		service.getSharedFile(id);
+		FileHostingItem complete = internalService.getComplete(id);
+		String content = streamToString(internalService.getSharedFile(id));
+		Assert.assertEquals(testString, content);
 		Assert.assertEquals("test.txt", complete.name);
 	}
 
@@ -498,8 +522,9 @@ public class FileSystemFileHostingServiceTests {
 		assertTrue(publicLink.url.contains("://" + externalUrl));
 		String id = ID.extract(publicLink.url);
 
-		FileHostingItem complete = service.getComplete(id);
-		service.getSharedFile(id);
+		FileHostingItem complete = internalService.getComplete(id);
+		String content = streamToString(internalService.getSharedFile(id));
+		Assert.assertEquals(testString, content);
 		Assert.assertEquals("test.txt", complete.name);
 	}
 
@@ -535,12 +560,12 @@ public class FileSystemFileHostingServiceTests {
 
 		String id = ID.extract(publicLink.url);
 
-		service.getSharedFile(id);
-		service.getSharedFile(id);
-		service.getSharedFile(id);
+		internalService.getSharedFile(id);
+		internalService.getSharedFile(id);
+		internalService.getSharedFile(id);
 
 		try {
-			service.getSharedFile(id);
+			internalService.getSharedFile(id);
 			Assert.fail();
 		} catch (ServerFault s) {
 
@@ -557,7 +582,7 @@ public class FileSystemFileHostingServiceTests {
 		String id = ID.extract(publicLink.url);
 
 		try {
-			service.getSharedFile(id);
+			internalService.getSharedFile(id);
 			Assert.fail();
 		} catch (ServerFault s) {
 
@@ -580,7 +605,7 @@ public class FileSystemFileHostingServiceTests {
 		ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(publicLink.expirationDate), ZoneId.of("UTC"));
 		assertEquals(expirationDate + "[UTC]", date.toString());
 
-		service.getSharedFile(id);
+		internalService.getSharedFile(id);
 	}
 
 	@Test

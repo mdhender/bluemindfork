@@ -22,6 +22,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -55,12 +56,11 @@ import net.bluemind.filehosting.api.FileHostingItem;
 import net.bluemind.filehosting.api.FileHostingPublicLink;
 import net.bluemind.filehosting.api.ID;
 import net.bluemind.filehosting.api.IFileHosting;
-import net.bluemind.filehosting.api.IInternalBMFileSystem;
 import net.bluemind.filehosting.filesystem.service.internal.persistence.FileHostingEntity;
 import net.bluemind.filehosting.filesystem.service.internal.persistence.FileHostingEntityInfo;
 import net.bluemind.filehosting.filesystem.service.internal.persistence.FileHostingStore;
 import net.bluemind.filehosting.service.export.FileSizeExceededException;
-import net.bluemind.filehosting.service.export.IFileHostingService;
+import net.bluemind.filehosting.service.export.IInternalFileHostingService;
 import net.bluemind.filehosting.service.export.SizeLimitedReadStream;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
@@ -71,7 +71,7 @@ import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
-public class FileSystemFileHostingService implements IFileHostingService, IInternalBMFileSystem {
+public class FileSystemFileHostingService implements IInternalFileHostingService {
 	private static final Logger logger = LoggerFactory.getLogger(FileSystemFileHostingService.class);
 	private final File rootFolder;
 	private final FileHostingStore store;
@@ -174,6 +174,7 @@ public class FileSystemFileHostingService implements IFileHostingService, IInter
 		FileHostingEntity entity = store.getByUid(uid);
 		File file = new File(rootFolder, entity.path);
 		// FIXME needs to get filesize via node client
+		entity.path = Paths.get(getUserPath(context)).relativize(Paths.get(entity.path)).toString();
 		return entity.toFileHostingItem(file);
 	}
 

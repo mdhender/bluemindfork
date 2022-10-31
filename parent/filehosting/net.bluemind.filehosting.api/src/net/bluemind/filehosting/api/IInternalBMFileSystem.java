@@ -22,16 +22,39 @@ import java.util.List;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
-
+import jakarta.ws.rs.PathParam;
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 
 @BMApi(version = "3", internal = true)
 @Path("/bmfilehosting")
-public interface IInternalBMFileSystem {
+public interface IInternalBMFileSystem extends IFileHosting {
 
 	@GET
 	@Path("_shares")
 	public List<String> getShareUidsByPath(String path) throws ServerFault;
+
+	/**
+	 * Retrieves an entity from the file hosting repository
+	 * 
+	 * @param uid the entity uid
+	 * @return the document data
+	 * @throws ServerFault common error object
+	 */
+	@GET
+	@Path("{uid}/_complete")
+	public FileHostingItem getComplete(@PathParam(value = "uid") String uid) throws ServerFault;
+
+	/**
+	 * Retrieves a document from the file hosting repository by its public uid
+	 * 
+	 * @param uid the document uid
+	 * @return the document data
+	 * @throws ServerFault common error object
+	 */
+	@GET
+	@Path("{uid}/_public")
+	public Stream getSharedFile(@PathParam(value = "uid") String uid) throws ServerFault;
 
 }

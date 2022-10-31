@@ -37,7 +37,7 @@ import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.ITaggedServiceProvider;
 import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.filehosting.api.FileHostingItem;
-import net.bluemind.filehosting.api.IFileHostingAsync;
+import net.bluemind.filehosting.api.IInternalBMFileSystemAsync;
 import net.bluemind.filehosting.api.Metadata;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.webmodule.server.IWebFilter;
@@ -151,9 +151,9 @@ public class FileHostingHandler implements IWebFilter, NeedVertx {
 		return Optional.empty();
 	}
 
-	protected IFileHostingAsync getService(HttpServerRequest request) {
+	protected IInternalBMFileSystemAsync getService(HttpServerRequest request) {
 		ITaggedServiceProvider sp = getProvider(null, request);
-		return sp.instance("bm/core", IFileHostingAsync.class, "default");
+		return sp.instance("bm/core", IInternalBMFileSystemAsync.class, "default");
 	}
 
 	private static final ILocator locator = (String service, AsyncHandler<String[]> asyncHandler) -> {

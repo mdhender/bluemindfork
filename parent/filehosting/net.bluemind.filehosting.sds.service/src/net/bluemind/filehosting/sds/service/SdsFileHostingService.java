@@ -56,7 +56,7 @@ import net.bluemind.filehosting.api.FileHostingPublicLink;
 import net.bluemind.filehosting.api.FileType;
 import net.bluemind.filehosting.api.Metadata;
 import net.bluemind.filehosting.filesystem.service.internal.FileSystemFileHostingService;
-import net.bluemind.filehosting.service.export.IFileHostingService;
+import net.bluemind.filehosting.service.export.IInternalFileHostingService;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.sds.dto.ExistRequest;
 import net.bluemind.sds.dto.ExistResponse;
@@ -69,7 +69,7 @@ import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
-public class SdsFileHostingService implements IFileHostingService {
+public class SdsFileHostingService implements IInternalFileHostingService {
 
 	private static final Logger logger = LoggerFactory.getLogger(SdsFileHostingService.class);
 
@@ -277,6 +277,11 @@ public class SdsFileHostingService implements IFileHostingService {
 	@Override
 	public boolean supports(SecurityContext context) {
 		return sds.get() != null;
+	}
+
+	@Override
+	public List<String> getShareUidsByPath(String path) throws ServerFault {
+		throw new UnsupportedOperationException();
 	}
 
 }

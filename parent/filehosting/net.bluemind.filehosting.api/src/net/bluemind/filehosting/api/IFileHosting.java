@@ -26,7 +26,6 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.RequiredRoles;
 import net.bluemind.core.api.Stream;
@@ -153,27 +152,5 @@ public interface IFileHosting {
 	@GET
 	@Path("_info")
 	public FileHostingInfo info() throws ServerFault;
-
-	/**
-	 * Retrieves an entity from the file hosting repository
-	 * 
-	 * @param uid the entity uid
-	 * @return the document data
-	 * @throws ServerFault common error object
-	 */
-	@GET
-	@Path("{uid}/_complete")
-	public FileHostingItem getComplete(@PathParam(value = "uid") String uid) throws ServerFault;
-
-	/**
-	 * Retrieves a document from the file hosting repository by its public uid
-	 * 
-	 * @param uid the document uid
-	 * @return the document data
-	 * @throws ServerFault common error object
-	 */
-	@GET
-	@Path("{uid}/_public")
-	public Stream getSharedFile(@PathParam(value = "uid") String uid) throws ServerFault;
 
 }

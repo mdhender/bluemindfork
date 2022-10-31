@@ -240,16 +240,6 @@ public abstract class WebDavFileHostingService implements IFileHostingService {
 		});
 	}
 
-	@Override
-	public FileHostingItem getComplete(SecurityContext context, String uid) throws ServerFault {
-		throw new UnsupportedOperationException("Unsupported deprecated API call IFileHosting#getComplete");
-	}
-
-	@Override
-	public Stream getSharedFile(SecurityContext context, String uid) throws ServerFault {
-		throw new UnsupportedOperationException("Shared files are only exposed via public links");
-	}
-
 	protected String createUri(String path, ConnectionContext connectionContext) {
 		String pattern = path.startsWith("/") ? "%s%s" : "%s/%s";
 		return String.format(pattern, connectionContext.baseUrl, path);
