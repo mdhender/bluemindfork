@@ -22,7 +22,7 @@ DECLARE
   idx TEXT;
   partition_count INTEGER;
 BEGIN
-  SELECT INTO partition_count COALESCE(current_setting('bm.conversationreference_partitions',true)::integer,256);
+  SELECT INTO partition_count COALESCE(current_setting('bm.conversationreference_partitions',true)::integer, 25);
   FOR partition_key IN 0..(partition_count-1) LOOP
     partition := 't_conversationreference_' || partition_key;
     idx := partition || '_mailbox_id_message_id_hash';
